@@ -59,8 +59,8 @@ describe("postal conversation recovery", () => {
       tool: "get_postal_preflight",
       retry: "read_only",
     });
-    expect(recovery.message).toContain("clé de devis");
-    expect(recovery.message).toContain("Ne retransférez pas");
+    expect(recovery.message).toContain("quote key");
+    expect(recovery.message).toContain("Do not transfer the PDF again");
     expect(recovery.message).not.toContain("get_dispatch_status");
   });
 

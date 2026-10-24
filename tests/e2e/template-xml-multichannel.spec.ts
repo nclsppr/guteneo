@@ -182,7 +182,7 @@ test("XML records determine each PDF channel and recipient without sending", asy
   await checkKeyboardTable(
     page,
     page.getByRole("region", {
-      name: "Aperçu original — Données",
+      name: "Aperçu original — Data",
       exact: true,
     }),
     page.getByLabel("Feuille de l’aperçu", { exact: true }),

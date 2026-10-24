@@ -205,11 +205,11 @@ describe("non-sending reviewer fax quotations", () => {
     });
     expect(d.faxPricing!.estimatedHighNanoeur).toBeGreaterThan(0);
     expect(customerFaxPricing(d.faxPricing!).display.explanation).toContain(
-      "ne peut être ni approuvé ni envoyé",
+      "cannot be approved or sent",
     );
     expect(
       customerFaxPricing(d.faxPricing!).display.ceiling.creditLabel,
-    ).toContain("Aucune réservation");
+    ).toContain("No credit is reserved");
     await noExecution();
   });
   it("keeps preparation-only scope and guidance through the actual MCP transport", async () => {
@@ -256,7 +256,7 @@ describe("non-sending reviewer fax quotations", () => {
         data: { faxPricing: { executionScope: string }; nextActions: string[] };
       };
       expect(body.data.faxPricing.executionScope).toBe("review_prepare_only");
-      expect(body.data.nextActions.join(" ")).toContain("Aucun envoi");
+      expect(body.data.nextActions.join(" ")).toContain("No sending");
       expect(body.data.nextActions.join(" ")).not.toContain(
         "approve_and_send_dispatch",
       );

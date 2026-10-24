@@ -1,4 +1,4 @@
-import { msg } from "./messages";
+import { msg, msgIn } from "./messages";
 import { useDashboardAppearance } from "./dashboard-appearance";
 import { scrollStudioTable } from "./studio-table-keyboard";
 import { useEffect, useRef, useState, type FormEvent } from "react";
@@ -24,13 +24,13 @@ import {
 } from "./components";
 
 const stateLabel: Record<string, string> = {
-  queued: "En attente",
-  running: "Génération en cours",
-  completed: "Terminée",
-  partial: "Résultat partiel",
-  failed: "Échec",
-  cancelled: "Annulée",
-  generated: "PDF généré",
+  queued: "Pending",
+  running: "Generating",
+  completed: "Completed",
+  partial: "Partial result",
+  failed: "Failed",
+  cancelled: "Cancelled",
+  generated: "PDF generated",
 };
 export function GenerationList({ canPrepare }: { canPrepare: boolean }) {
   const { appearance } = useDashboardAppearance();
@@ -38,16 +38,16 @@ export function GenerationList({ canPrepare }: { canPrepare: boolean }) {
   return (
     <>
       <PageHeading
-        title={msg("Générations")}
+        title={msg("Generations")}
         intro={msg(
           appearance === "v2"
-            ? "Retrouvez vos PDF générés. La génération ne déclenche aucun envoi."
-            : "Chaque résultat conserve son identifiant, sa version de modèle et son PDF exact. La génération ne déclenche aucun envoi.",
+            ? "Find your generated PDFs here. Generating a PDF does not send it."
+            : "Each result retains its identifier, template version and exact PDF. Generation does not send anything.",
         )}
         action={
           canPrepare && (
             <a className="button primary" href="#/app/templates">
-              {msg("Créer un document ")}
+              {msg("Create a document ")}
             </a>
           )
         }
@@ -60,7 +60,7 @@ export function GenerationList({ canPrepare }: { canPrepare: boolean }) {
         <div className="studio-list">
           {!resource.data?.items.length && (
             <p className="studio-list-row">
-              {msg("Les PDF générés apparaîtront ici.")}
+              {msg("Generated PDFs will appear here.")}
             </p>
           )}
           {resource.data?.items.map((job) => (
@@ -68,17 +68,17 @@ export function GenerationList({ canPrepare }: { canPrepare: boolean }) {
               <div>
                 <h3>
                   <a href={"#/app/generation/" + job.id}>
-                    {msg(stateLabel[job.state])} · {job.generated} / {job.total}{" "}
-                    {msg("PDF ")}
+                    {msgIn("generation-state", stateLabel[job.state])} ·{" "}
+                    {job.generated} / {job.total} {msg("PDF ")}
                   </a>
                 </h3>
                 <p>
-                  {date(job.createdAt)} {msg("· modèle v")}
-                  {job.templateVersion} · {job.failed} {msg("erreur(s) ")}
+                  {date(job.createdAt)} {msg("· template v")}
+                  {job.templateVersion} · {job.failed} {msg("error(s) ")}
                 </p>
               </div>
               <a className="button small" href={"#/app/generation/" + job.id}>
-                {msg("Suivre ")}
+                {msg("Track ")}
               </a>
             </article>
           ))}
@@ -135,17 +135,17 @@ export function GenerationDetail({
   return (
     <>
       <a className="back-link" href="#/app/generations">
-        {msg("← Générations ")}
+        {msg("← Generations ")}
       </a>
       <PageHeading
-        title={msg(stateLabel[current.state])}
+        title={msgIn("generation-state", stateLabel[current.state])}
         intro={
-          msg("Modèle v") +
+          msg("Template v") +
           current.templateVersion +
           " · " +
           date(current.createdAt) +
           msg(
-            ". Les documents sont associés à leur recordId, indépendamment de leur ordre de fin.",
+            ". Documents are linked to their recordId, regardless of completion order.",
           )
         }
       />
@@ -153,18 +153,18 @@ export function GenerationDetail({
       <DateTimezone />
       <section className="studio-section">
         <h2>
-          {current.generated} / {current.total} {msg("PDF générés ")}
+          {current.generated} / {current.total} {msg("Generated PDFs ")}
         </h2>
         <progress
           className="studio-progress"
           value={current.generated + current.failed + current.cancelled}
           max={current.total}
-          aria-label={msg("Progression de la génération")}
+          aria-label={msg("Generation progress")}
         />
         <p role="status">
-          {current.pending} {msg("en attente · ")}
-          {current.failed} {msg("erreur(s) ·")} {current.cancelled}{" "}
-          {msg("annulé(s). Aucun crédit d’envoi réservé. ")}
+          {current.pending} {msg("pending · ")}
+          {current.failed} {msg("error(s) ·")} {current.cancelled}{" "}
+          {msg("cancelled. No sending credits reserved. ")}
         </p>
         <div className="button-group">
           <button
@@ -174,7 +174,7 @@ export function GenerationDetail({
               results.refresh();
             }}
           >
-            {msg("Actualiser le suivi ")}
+            {msg("Refresh progress ")}
           </button>
           {canPrepare && active && (
             <button
@@ -191,7 +191,7 @@ export function GenerationDetail({
                 })
               }
             >
-              {msg("Annuler les éléments restants ")}
+              {msg("Cancel remaining items ")}
             </button>
           )}
           {canPrepare && !!current.failed && (
@@ -213,7 +213,7 @@ export function GenerationDetail({
                 })
               }
             >
-              {msg("Reprendre les échecs affichés ")}
+              {msg("Retry displayed failures ")}
             </button>
           )}
         </div>
@@ -223,16 +223,16 @@ export function GenerationDetail({
         role="region"
         onKeyDown={scrollStudioTable}
         tabIndex={0}
-        aria-label={msg("Résultats de cette génération")}
+        aria-label={msg("Results of this generation")}
       >
         <table>
-          <caption>{msg("Résultats de cette génération")}</caption>
+          <caption>{msg("Results of this generation")}</caption>
           <thead>
             <tr>
-              <th>{msg("Sélection")}</th>
+              <th>{msg("Selection")}</th>
               <th>{msg("Record")}</th>
-              <th>{msg("État")}</th>
-              <th>{msg("PDF exact")}</th>
+              <th>{msg("Status")}</th>
+              <th>{msg("Exact PDF")}</th>
               <th>{msg("Action")}</th>
             </tr>
           </thead>
@@ -242,7 +242,7 @@ export function GenerationDetail({
                 <td>
                   <input
                     type="checkbox"
-                    aria-label={msg("Sélectionner ") + result.recordId}
+                    aria-label={msg("Select ") + result.recordId}
                     checked={selected.includes(result.recordId)}
                     disabled={
                       !canPrepare ||
@@ -263,11 +263,11 @@ export function GenerationDetail({
                   <code>{result.recordId}</code>
                 </th>
                 <td>
-                  {msg(stateLabel[result.state])}
+                  {msgIn("generation-state", stateLabel[result.state])}
                   {result.documentStatus &&
                     " · " +
                       (result.documentStatus === "ready"
-                        ? msg("vérifié")
+                        ? msg("verified")
                         : result.documentStatus)}
                   {result.errorCode && (
                     <p>
@@ -279,7 +279,7 @@ export function GenerationDetail({
                   {result.documentId ? (
                     <>
                       <a href={"#/app/documents?document=" + result.documentId}>
-                        {msg("Ouvrir le document ")}
+                        {msg("Open the document ")}
                       </a>
                       <p
                         className="studio-meta"
@@ -297,14 +297,14 @@ export function GenerationDetail({
                     className="text-button"
                     onClick={() => setTraceRecord(result.recordId)}
                   >
-                    {msg("Voir la provenance ")}
+                    {msg("View provenance ")}
                   </button>
                   {result.documentId && result.documentStatus === "ready" && (
                     <button
                       className="button small"
                       onClick={() => setPreviewId(result.documentId!)}
                     >
-                      {msg("Voir le PDF ")}
+                      {msg("View PDF ")}
                     </button>
                   )}
                 </td>
@@ -328,12 +328,12 @@ export function GenerationDetail({
       {previewId && (
         <section className="studio-section">
           <div className="section-toolbar">
-            <h2>{msg("PDF final")}</h2>
+            <h2>{msg("Final PDF")}</h2>
             <button
               className="text-button"
               onClick={() => setPreviewId(undefined)}
             >
-              {msg("Fermer l’aperçu ")}
+              {msg("Close preview ")}
             </button>
           </div>
           <PdfPreview id={previewId} />
@@ -345,14 +345,14 @@ export function GenerationDetail({
             className="button"
             onClick={() => setSelected(ready.map((r) => r.recordId))}
           >
-            {msg("Sélectionner les PDF vérifiés affichés ")}
+            {msg("Select displayed verified PDFs ")}
           </button>
           <button
             className="button primary"
             disabled={!selected.length || active}
             onClick={() => setDistributing(true)}
           >
-            {msg("Préparer une distribution (")}
+            {msg("Prepare distribution (")}
             {selected.length})
           </button>
         </div>
@@ -360,7 +360,7 @@ export function GenerationDetail({
       {canPrepare && active && (
         <p className="field-hint">
           {msg(
-            "La distribution sera disponible à la fin du job. Les PDF déjà prêts restent consultables. ",
+            "Distribution will be available when the job finishes. PDFs that are already ready remain available to view. ",
           )}
         </p>
       )}
@@ -397,20 +397,18 @@ type Destination = {
   deliveryProduct: "cheap" | "fast";
 };
 const recipientFields: Record<Channel, [string, string][]> = {
-  fax: [["phone", "Numéro international"]],
-  email: [["email", "Adresse e-mail"]],
+  fax: [["phone", "International number"]],
+  email: [["email", "Email address"]],
   postal: [
-    ["name", "Nom"],
-    ["line1", "Adresse"],
-    ["postalCode", "Code postal"],
-    ["city", "Ville"],
-    ["country", "Pays (FR, LU ou DE)"],
+    ["name", "Name"],
+    ["line1", "Address"],
+    ["postalCode", "Postal code"],
+    ["city", "City"],
+    ["country", "Country (FR, LU or DE)"],
   ],
 };
 function channelLabel(channel: Channel) {
-  return msg(
-    { fax: "Fax", email: "E-mail", postal: "Courrier postal" }[channel],
-  );
+  return msg({ fax: "Fax", email: "Email", postal: "Post" }[channel]);
 }
 function postalOptions(destination: Destination) {
   return {
@@ -501,7 +499,7 @@ function DistributionForm({
       if (associationCount > 500)
         throw new Error(
           msg(
-            "Une distribution est limitée à 500 associations document / destination. Réduisez la sélection ou le nombre de destinations.",
+            "A distribution is limited to 500 document/destination pairs. Reduce the selection or the number of destinations.",
           ),
         );
       if (
@@ -512,7 +510,7 @@ function DistributionForm({
       )
         throw new Error(
           msg(
-            "Choisissez au moins un document pour chaque destination, ou retirez cette destination.",
+            "Choose at least one document for each destination, or remove that destination.",
           ),
         );
       if (
@@ -523,7 +521,7 @@ function DistributionForm({
       )
         throw new Error(
           msg(
-            "Chaque PDF sélectionné doit avoir une destination. Fermez ce formulaire pour modifier la sélection si nécessaire.",
+            "Each selected PDF must have a destination. Close this form to change the selection if needed.",
           ),
         );
       if (
@@ -532,9 +530,7 @@ function DistributionForm({
             destination.channel === "data" && !destination.dataChannels.length,
         )
       )
-        throw new Error(
-          msg("Choisissez les canaux présents dans vos données."),
-        );
+        throw new Error(msg("Choose the channels present in your data."));
       const entries = recordIds.flatMap((recordId, recordIndex) =>
         destinations.flatMap((destination, destinationIndex) =>
           applies(destination, recordId)
@@ -628,16 +624,16 @@ function DistributionForm({
   return (
     <form className="studio-section" onSubmit={(e) => void prepare(e)}>
       <div className="section-toolbar">
-        <h2>{msg("Distribution facultative")}</h2>
+        <h2>{msg("Optional distribution")}</h2>
         <button className="text-button" type="button" onClick={onClose}>
-          {msg("Fermer ")}
+          {msg("Close ")}
         </button>
       </div>
       <p>
-        {recordIds.length} {msg("PDF sélectionnés · ")}
+        {recordIds.length} {msg("PDFs selected · ")}
         {associationCount}{" "}
         {msg(
-          "associations sur 500 maximum. Chaque PDF et destination forme un envoi distinct. Les devis, vérifications et approbations d’envoi auront lieu ensuite. ",
+          "pairs out of a maximum of 500. Each PDF/destination pair forms a separate send. Quotes, checks and sending approvals follow later. ",
         )}
       </p>
       <ErrorNotice error={action.error ?? senders.error} />
@@ -651,7 +647,7 @@ function DistributionForm({
             {msg("Destination ")}
             {index + 1}
           </legend>
-          <Field label={msg("Documents pour la destination ") + (index + 1)}>
+          <Field label={msg("Documents for this destination ") + (index + 1)}>
             <select
               value={destination.records === "all" ? "all" : "selection"}
               onChange={(e) =>
@@ -660,9 +656,9 @@ function DistributionForm({
                 })
               }
             >
-              <option value="all">{msg("Tous les PDF sélectionnés")}</option>
+              <option value="all">{msg("All selected PDFs")}</option>
               <option value="selection">
-                {msg("Choisir les documents concernés")}
+                {msg("Choose the documents to include")}
               </option>
             </select>
           </Field>
@@ -671,12 +667,13 @@ function DistributionForm({
               className="studio-record-selection"
               role="group"
               aria-label={
-                msg("Documents concernés par la destination ") + (index + 1)
+                msgIn("distribution", "Documents for this destination ") +
+                (index + 1)
               }
             >
               <p className="field-hint">
                 {msg(
-                  "Cette destination s’appliquera uniquement aux documents cochés. ",
+                  "This destination applies only to the checked documents. ",
                 )}
               </p>
               {recordIds.map((recordId) => (
@@ -706,7 +703,7 @@ function DistributionForm({
             </div>
           )}
           <div className="studio-mapping-grid">
-            <Field label={msg("Canal ") + (index + 1)}>
+            <Field label={msg("Channel ") + (index + 1)}>
               <select
                 value={destination.channel}
                 onChange={(e) =>
@@ -721,12 +718,12 @@ function DistributionForm({
                 }
               >
                 <option value="fax">{msg("Fax")}</option>
-                <option value="email">{msg("E-mail")}</option>
-                <option value="postal">{msg("Courrier postal")}</option>
-                <option value="data">{msg("Depuis les données")}</option>
+                <option value="email">{msg("Email")}</option>
+                <option value="postal">{msg("Post")}</option>
+                <option value="data">{msg("From the data")}</option>
               </select>
             </Field>
-            <Field label={msg("Destinataire ") + (index + 1)}>
+            <Field label={msg("Recipient ") + (index + 1)}>
               <select
                 value={destination.mode}
                 disabled={destination.channel === "data"}
@@ -738,15 +735,13 @@ function DistributionForm({
                 }
               >
                 <option value="common">
-                  {msg("Même destinataire pour les documents concernés ")}
+                  {msg("Same recipient for these documents ")}
                 </option>
-                <option value="data">
-                  {msg("Destinataire issu des données")}
-                </option>
+                <option value="data">{msg("Recipient from the data")}</option>
               </select>
             </Field>
             {destination.channel !== "data" && (
-              <Field label={msg("Expéditeur ") + (index + 1)}>
+              <Field label={msg("Sender ") + (index + 1)}>
                 <select
                   required={destination.channel === "postal"}
                   value={destination.senderId}
@@ -756,8 +751,8 @@ function DistributionForm({
                 >
                   <option value="">
                     {destination.channel === "postal"
-                      ? msg("Choisir un profil postal vérifié")
-                      : msg("Profil vérifié par défaut")}
+                      ? msg("Choose a verified postal profile")
+                      : msg("Default verified profile")}
                   </option>
                   {senders.data?.items
                     .filter((s) => s.channel === destination.channel)
@@ -773,9 +768,9 @@ function DistributionForm({
           {destination.channel === "data" && (
             <>
               <Field
-                label={msg("Champ du canal")}
+                label={msg("Channel field")}
                 hint={msg(
-                  "Chemin dans les données figées contenant exactement fax, email ou postal, par exemple delivery.channel.",
+                  "Path in the frozen data containing exactly fax, email or postal, for example delivery.channel.",
                 )}
               >
                 <input
@@ -789,7 +784,7 @@ function DistributionForm({
               </Field>
               <p>
                 {msg(
-                  "Choisissez les canaux présents dans vos données. Pour chaque canal, reliez ses champs de destinataire ; ils ne seront lus que pour les lignes qui utilisent ce canal.",
+                  "Choose the channels present in your data. Map each channel’s recipient fields; they are only read for records using that channel.",
                 )}
               </p>
               {(["fax", "email", "postal"] as const).map((channel) => (
@@ -813,15 +808,15 @@ function DistributionForm({
                   {destination.dataChannels.includes(channel) && (
                     <fieldset className="business-object">
                       <legend>
-                        {msg("Destinataires {0}", channelLabel(channel))}
+                        {msg("{0} recipients", channelLabel(channel))}
                       </legend>
                       <div className="studio-mapping-grid">
                         {recipientFields[channel].map(([field, label]) => (
                           <Field
                             key={field}
-                            label={msg("Champ métier → ") + msg(label)}
+                            label={msg("Data field → ") + msg(label)}
                             hint={msg(
-                              "Chemin dans les données figées, par exemple customer.email",
+                              "Path in the frozen data, for example customer.email",
                             )}
                           >
                             <input
@@ -844,9 +839,7 @@ function DistributionForm({
                             />
                           </Field>
                         ))}
-                        <Field
-                          label={msg("Expéditeur {0}", channelLabel(channel))}
-                        >
+                        <Field label={msg("{0} sender", channelLabel(channel))}>
                           <select
                             required={channel === "postal"}
                             value={destination.sendersByChannel[channel]}
@@ -861,8 +854,8 @@ function DistributionForm({
                           >
                             <option value="">
                               {channel === "postal"
-                                ? msg("Choisir un profil postal vérifié")
-                                : msg("Profil vérifié par défaut")}
+                                ? msg("Choose a verified postal profile")
+                                : msg("Default verified profile")}
                             </option>
                             {senders.data?.items
                               .filter((sender) => sender.channel === channel)
@@ -886,14 +879,13 @@ function DistributionForm({
                 <Field
                   key={field}
                   label={
-                    (destination.mode === "data"
-                      ? msg("Champ métier → ")
-                      : "") + msg(label)
+                    (destination.mode === "data" ? msg("Data field → ") : "") +
+                    msg(label)
                   }
                   hint={
                     destination.mode === "data"
                       ? msg(
-                          "Chemin dans les données figées, par exemple customer.email",
+                          "Path in the frozen data, for example customer.email",
                         )
                       : undefined
                   }
@@ -919,7 +911,7 @@ function DistributionForm({
               destination.dataChannels.includes("postal"))) && (
             <>
               <div className="studio-mapping-grid">
-                <Field label={msg("Impression")}>
+                <Field label={msg("Printing")}>
                   <select
                     value={destination.printMode}
                     onChange={(e) =>
@@ -928,11 +920,11 @@ function DistributionForm({
                       })
                     }
                   >
-                    <option value="simplex">{msg("Recto")}</option>
-                    <option value="duplex">{msg("Recto verso")}</option>
+                    <option value="simplex">{msg("Single-sided")}</option>
+                    <option value="duplex">{msg("Double-sided")}</option>
                   </select>
                 </Field>
-                <Field label={msg("Couleur")}>
+                <Field label={msg("Colour")}>
                   <select
                     value={destination.printSpectrum}
                     onChange={(e) =>
@@ -942,11 +934,11 @@ function DistributionForm({
                       })
                     }
                   >
-                    <option value="grayscale">{msg("Niveaux de gris")}</option>
-                    <option value="color">{msg("Couleur")}</option>
+                    <option value="grayscale">{msg("Greyscale")}</option>
+                    <option value="color">{msg("Colour")}</option>
                   </select>
                 </Field>
-                <Field label={msg("Acheminement")}>
+                <Field label={msg("Delivery speed")}>
                   <select
                     value={destination.deliveryProduct}
                     onChange={(e) =>
@@ -956,14 +948,14 @@ function DistributionForm({
                       })
                     }
                   >
-                    <option value="cheap">{msg("Économique")}</option>
-                    <option value="fast">{msg("Rapide")}</option>
+                    <option value="cheap">{msg("Economy")}</option>
+                    <option value="fast">{msg("Priority")}</option>
                   </select>
                 </Field>
               </div>
               <p className="field-hint">
                 {msg(
-                  "Le manifeste conserve ces options. Chaque lettre passera ensuite par le contrôle postal du PDF exact et les consentements existants avant tout transfert. ",
+                  "The manifest retains these options. Each letter then goes through the postal checks for its exact PDF and the existing consent process before any transfer. ",
                 )}
               </p>
             </>
@@ -972,7 +964,7 @@ function DistributionForm({
             (destination.channel === "data" &&
               destination.dataChannels.includes("email"))) && (
             <>
-              <Field label={msg("Objet de l’e-mail")}>
+              <Field label={msgIn("single-email", "Email subject")}>
                 <input
                   required
                   value={destination.subject}
@@ -982,9 +974,9 @@ function DistributionForm({
                 />
               </Field>
               <Field
-                label={msg("Corps de l’e-mail")}
+                label={msg("Email body")}
                 hint={msg(
-                  "Chaque e-mail comporte uniquement le PDF de son record. Aucun CC/BCC.",
+                  "Each email contains only its record’s PDF. No CC/BCC.",
                 )}
               >
                 <textarea
@@ -998,7 +990,7 @@ function DistributionForm({
               </Field>
             </>
           )}
-          <Field label={msg("Plafond par envoi (centimes d’euro)")}>
+          <Field label={msg("Limit per send (euro cents)")}>
             <input
               type="number"
               min={0}
@@ -1019,7 +1011,7 @@ function DistributionForm({
                 setDestinations((d) => d.filter((v) => v.id !== destination.id))
               }
             >
-              {msg("Retirer cette destination ")}
+              {msg("Remove this destination ")}
             </button>
           )}
         </fieldset>
@@ -1030,7 +1022,7 @@ function DistributionForm({
         disabled={destinations.length >= 500 || action.pending}
         onClick={() => setDestinations([...destinations, newDestination()])}
       >
-        {msg("Ajouter une destination ou un canal ")}
+        {msg("Add a destination or channel ")}
       </button>
       {multichannelDocuments > 0 && (
         <label className="check-field">
@@ -1040,24 +1032,22 @@ function DistributionForm({
             checked={multi}
             onChange={(e) => setMulti(e.target.checked)}
           />
-          {msg(
-            "Je demande explicitement l’utilisation de plusieurs canaux pour",
-          )}{" "}
-          {multichannelDocuments} {msg("PDF. ")}
+          {msg("I explicitly request the use of multiple channels for")}{" "}
+          {multichannelDocuments} {msg("PDFs. ")}
         </label>
       )}
       <p className="field-hint">
         {msg(
-          "La préparation rend les PDF sélectionnés consultables par les approbateurs de cet atelier pour examiner ces demandes. Elle ne déclenche aucun envoi.",
+          "Preparing the distribution lets authorized approvers in this workspace view the selected PDFs to review these requests. It does not send anything.",
         )}
       </p>
       <p className="field-hint">
         {msg(
-          "La préparation ne vaut pas approbation. Les canaux ou tarifs non disponibles restent bloqués avec une erreur explicite. ",
+          "Preparation is not approval. Unavailable channels or rates remain blocked with an explicit error. ",
         )}
       </p>
       <button className="button primary" disabled={action.pending}>
-        {msg("Préparer les associations et les devis ")}
+        {msg("Prepare pairs and quotes ")}
       </button>
     </form>
   );
@@ -1080,13 +1070,13 @@ export function DistributionDetail({
     <>
       {appearance === "v2" && (
         <a className="back-link" href="#/app/generations">
-          {msg("← Générations ")}
+          {msg("← Generations ")}
         </a>
       )}
       <PageHeading
-        title={msg("Distribution préparée")}
+        title={msg("Distribution prepared")}
         intro={msg(
-          "Le manifeste fige chaque record, PDF, hash, canal et destinataire. Chaque envoi conserve ses contrôles et son approbation.",
+          "The manifest freezes each record, PDF, hash, channel and recipient. Each send retains its checks and approval.",
         )}
       />
       <ErrorNotice
@@ -1098,7 +1088,7 @@ export function DistributionDetail({
         <>
           <div className="studio-toolbar">
             <button className="button small" onClick={resource.refresh}>
-              {msg("Actualiser la distribution ")}
+              {msg("Refresh distribution ")}
             </button>
             {canPrepare && resource.data.pendingCount > 0 && (
               <button
@@ -1115,8 +1105,8 @@ export function DistributionDetail({
                   )
                 }
               >
-                {msg("Préparer les 3 associations suivantes ( ")}
-                {resource.data.pendingCount} {msg("restantes) ")}
+                {msg("Prepare the next 3 pairs ( ")}
+                {resource.data.pendingCount} {msg("remaining) ")}
               </button>
             )}
             {canPrepare && resource.data.errorCount > 0 && (
@@ -1134,12 +1124,12 @@ export function DistributionDetail({
                   )
                 }
               >
-                {msg("Réessayer les préparations en erreur ")}
+                {msg("Retry failed preparations ")}
               </button>
             )}
           </div>
           <p className="studio-meta">
-            {msg("Empreinte du manifeste : ")}
+            {msg("Manifest hash: ")}
             <code>{resource.data.manifestHash}</code>
           </p>
           <div
@@ -1147,15 +1137,15 @@ export function DistributionDetail({
             role="region"
             onKeyDown={scrollStudioTable}
             tabIndex={0}
-            aria-label={msg("Distribution préparée")}
+            aria-label={msg("Distribution prepared")}
           >
             <table>
               <thead>
                 <tr>
                   <th>{msg("Record")}</th>
                   <th>{msg("Document")}</th>
-                  <th>{msg("Canal / destination")}</th>
-                  <th>{msg("Suite du parcours")}</th>
+                  <th>{msg("Channel / destination")}</th>
+                  <th>{msg("Next steps")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -1164,7 +1154,7 @@ export function DistributionDetail({
                     <th scope="row">{entry.recordId}</th>
                     <td>
                       <a href={"#/app/documents?document=" + entry.documentId}>
-                        {msg("PDF · modèle v")}
+                        {msg("PDF · template v")}
                         {entry.templateVersion}
                       </a>
                       <p className="studio-meta">
@@ -1182,20 +1172,20 @@ export function DistributionDetail({
                           href={"#/app/dispatch/" + entry.dispatchId}
                         >
                           {canApprove
-                            ? msg("Vérifier le devis et approuver ")
-                            : msg("Ouvrir ")}
+                            ? msg("Review quote and approve ")
+                            : msg("Open ")}
                         </a>
                       ) : entry.postalDispatchId ? (
                         <a
                           className="button small"
                           href={"#/app/dispatch/" + entry.postalDispatchId}
                         >
-                          {msg("Vérifier le devis postal final ")}
+                          {msg("Review the final postal quote ")}
                         </a>
                       ) : entry.postalReviewId ? (
                         <>
                           <p>
-                            {msg("Contrôle postal : ")}
+                            {msg("Postal check: ")}
                             {entry.postalReviewStatus}
                           </p>
                           <a
@@ -1203,8 +1193,8 @@ export function DistributionDetail({
                             href={"#/app/postal/" + entry.postalReviewId}
                           >
                             {canPrepare
-                              ? msg("Vérifier la lettre et poursuivre ")
-                              : msg("Ouvrir ")}
+                              ? msg("Review the letter and continue ")
+                              : msg("Open ")}
                           </a>
                         </>
                       ) : (
@@ -1212,18 +1202,18 @@ export function DistributionDetail({
                           <p>
                             {entry.errorCode ? (
                               <>
-                                {msg("Préparation bloquée :")}{" "}
+                                {msg("Preparation blocked:")}{" "}
                                 <code>{entry.errorCode}</code>
                               </>
                             ) : (
-                              "Association en attente de préparation."
+                              msg("Association pending preparation.")
                             )}
                           </p>
                           {canPrepare && entry.channel === "postal" && (
                             <>
                               <p className="field-hint">
                                 {msg(
-                                  "Vérifiez l’adresse, les zones réservées et les pages finales dans le parcours postal. ",
+                                  "Check the address, reserved areas and final pages in the postal workflow. ",
                                 )}
                               </p>
                               <button
@@ -1252,7 +1242,7 @@ export function DistributionDetail({
                                   })
                                 }
                               >
-                                {msg("Contrôler cette lettre ")}
+                                {msg("Check this letter ")}
                               </button>
                             </>
                           )}
@@ -1268,7 +1258,7 @@ export function DistributionDetail({
             className="button"
             href={"#/app/generation/" + resource.data.jobId}
           >
-            {msg("Revenir aux PDF ")}
+            {msg("Back to PDFs ")}
           </a>
         </>
       )}
@@ -1301,11 +1291,11 @@ function GenerationProvenance({
     <section className="studio-section">
       <div className="section-toolbar">
         <h2>
-          {msg("Provenance de ")}
+          {msg("Provenance of ")}
           {recordId}
         </h2>
         <button className="text-button" onClick={onClose}>
-          {msg("Fermer la provenance ")}
+          {msg("Close provenance ")}
         </button>
       </div>
       <ErrorNotice error={trace.error} />
@@ -1313,19 +1303,19 @@ function GenerationProvenance({
       {trace.data && (
         <>
           <p>
-            {msg("Modèle v")}
+            {msg("Template v")}
             {trace.data.templateVersion}
             {trace.data.mappingVersion
-              ? msg(" · Correspondance v{0}", trace.data.mappingVersion)
-              : msg(" · Données saisies directement")}
+              ? msg(" · Mapping v{0}", trace.data.mappingVersion)
+              : msg(" · Data entered directly")}
           </p>
           <p className="studio-meta">
-            {msg("Empreinte des données : ")}
+            {msg("Data hash: ")}
             <code>{trace.data.inputHash}</code>
           </p>
           {trace.data.sourceHash && (
             <p className="studio-meta">
-              {msg("Empreinte du fichier : ")}
+              {msg("File hash: ")}
               <code>{trace.data.sourceHash}</code>
             </p>
           )}
@@ -1334,13 +1324,13 @@ function GenerationProvenance({
             role="region"
             onKeyDown={scrollStudioTable}
             tabIndex={0}
-            aria-label={msg("Provenance de ") + recordId}
+            aria-label={msg("Provenance of ") + recordId}
           >
             <table>
               <thead>
                 <tr>
-                  <th>{msg("Champ métier")}</th>
-                  <th>{msg("Cellules sources")}</th>
+                  <th>{msg("Data field")}</th>
+                  <th>{msg("Source cells")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -1351,7 +1341,7 @@ function GenerationProvenance({
                       {cells.map((c, i) => (
                         <span key={i}>
                           {i ? " ; " : ""}
-                          {c.sheet} · {c.address} {msg("(ligne ")}
+                          {c.sheet} · {c.address} {msg("(row ")}
                           {c.row})
                         </span>
                       ))}
@@ -1362,7 +1352,7 @@ function GenerationProvenance({
             </table>
           </div>
           <p className="studio-meta">
-            {msg("Rendu :")}{" "}
+            {msg("Rendering:")}{" "}
             {Object.entries(trace.data.renderMetadata)
               .filter(
                 ([, value]) =>

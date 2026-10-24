@@ -45,7 +45,7 @@ export function unzipBounded(
     throw new DatasetError("UNSAFE_ARCHIVE", message);
   };
   if (bytes.length < 22 || bytes.length > limits.sourceBytes)
-    fail("Archive absente ou trop volumineuse.");
+    fail("Archive is missing or too large.");
   const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
   let end = -1;
   for (let i = bytes.length - 22; i >= Math.max(0, bytes.length - 65557); i--) {
@@ -57,7 +57,7 @@ export function unzipBounded(
       break;
     }
   }
-  if (end < 0) fail("Répertoire ZIP invalide.");
+  if (end < 0) fail("Invalid ZIP directory.");
   const count = view.getUint16(end + 10, true),
     directorySize = view.getUint32(end + 12, true),
     directory = view.getUint32(end + 16, true);
@@ -69,7 +69,7 @@ export function unzipBounded(
     count > limits.entries ||
     directory + directorySize !== end
   )
-    fail("ZIP multipart, ZIP64 ou limites non acceptés.");
+    fail("Multipart ZIP, ZIP64 or limits are not accepted.");
   const entries: Array<{
     name: string;
     offset: number;
@@ -84,7 +84,7 @@ export function unzipBounded(
   const ranges: Array<[number, number]> = [];
   for (let i = 0; i < count; i++) {
     if (cursor + 46 > end || view.getUint32(cursor, true) !== 0x02014b50)
-      fail("Entrée ZIP invalide.");
+      fail("Invalid ZIP entry.");
     const flags = view.getUint16(cursor + 8, true),
       method = view.getUint16(cursor + 10, true),
       crc = view.getUint32(cursor + 16, true),
@@ -103,7 +103,7 @@ export function unzipBounded(
       view.getUint16(cursor + 34, true) ||
       ((view.getUint32(cursor + 38, true) >>> 16) & 0xf000) === 0xa000
     )
-      fail("Archive chiffrée ou entrée non prise en charge.");
+      fail("Encrypted archive or unsupported entry.");
     const name = new TextDecoder("utf-8", { fatal: true }).decode(
       bytes.subarray(cursor + 46, cursor + 46 + nameLength),
     );
@@ -114,7 +114,7 @@ export function unzipBounded(
       name.split("/").some((part) => part === ".." || part === ".") ||
       names.has(name)
     )
-      fail("Chemin ZIP ambigu ou dupliqué.");
+      fail("Ambiguous or duplicate ZIP path.");
     names.add(name);
     expanded += size;
     if (
@@ -122,13 +122,13 @@ export function unzipBounded(
       expanded > limits.expandedBytes ||
       size / Math.max(1, compressed) > limits.ratio
     )
-      fail("Limite de décompression dépassée.");
+      fail("Decompression limit exceeded.");
     if (
       view.getUint32(local, true) !== 0x04034b50 ||
       view.getUint16(local + 8, true) !== method ||
       view.getUint16(local + 6, true) !== flags
     )
-      fail("En-têtes ZIP incohérents.");
+      fail("Inconsistent ZIP headers.");
     const localNameLength = view.getUint16(local + 26, true),
       offset = local + 30 + localNameLength + view.getUint16(local + 28, true);
     if (
@@ -137,24 +137,24 @@ export function unzipBounded(
         bytes.subarray(local + 30, local + 30 + localNameLength),
       ) !== name
     )
-      fail("Données ZIP incohérentes.");
+      fail("Inconsistent ZIP data.");
     if (
       !(flags & 8) &&
       (view.getUint32(local + 18, true) !== compressed ||
         view.getUint32(local + 22, true) !== size)
     )
-      fail("Tailles ZIP incohérentes.");
+      fail("Inconsistent ZIP sizes.");
     if (
       ranges.some(
         ([start, finish]) => local < finish && offset + compressed > start,
       )
     )
-      fail("Entrées ZIP superposées.");
+      fail("Overlapping ZIP entries.");
     ranges.push([local, offset + compressed]);
     entries.push({ name, offset, size, compressed, method, crc });
     cursor = next;
   }
-  if (cursor !== end) fail("Répertoire ZIP incomplet.");
+  if (cursor !== end) fail("Incomplete ZIP directory.");
   const files: Record<string, Uint8Array> = Object.create(null);
   for (const entry of entries) {
     const compressed = bytes.subarray(
@@ -169,10 +169,10 @@ export function unzipBounded(
           ? compressed.slice()
           : inflateSync(compressed, { out: new Uint8Array(entry.size + 1) });
     } catch {
-      fail("Flux ZIP invalide.");
+      fail("Invalid ZIP stream.");
     }
     if (output!.length !== entry.size || crc32(output!) !== entry.crc)
-      fail("Taille réelle ou intégrité ZIP invalide.");
+      fail("Invalid actual ZIP size or integrity.");
     files[entry.name] = output!;
   }
   return files;
@@ -183,12 +183,12 @@ export function safeXml(bytes: Uint8Array): string {
   try {
     xml = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
   } catch {
-    throw new DatasetError(
-      "INVALID_XML_ENCODING",
-      "Les fichiers XML doivent utiliser UTF-8.",
-    );
+    throw new DatasetError("INVALID_XML_ENCODING", "XML files must use UTF-8.");
   }
   if (/<!DOCTYPE|<!ENTITY/i.test(xml))
-    throw new DatasetError("UNSAFE_XML", "DTD et entités XML interdites.");
+    throw new DatasetError(
+      "UNSAFE_XML",
+      "XML DTDs and entities are forbidden.",
+    );
   return xml;
 }

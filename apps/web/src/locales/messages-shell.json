@@ -453,5 +453,10 @@
     "Try again to return to the page you requested.",
     "Versuchen Sie es erneut, um zur gewünschten Seite zurückzukehren.",
     "Probéiert nach eng Kéier, fir op déi gewënscht Säit zeréckzekommen."
+  ],
+  "L’atelier doit conserver au moins un administrateur. Nommez un autre administrateur avant de modifier ce rôle.": [
+    "The workspace must retain at least one administrator. Appoint another administrator before changing this role.",
+    "Der Arbeitsbereich muss mindestens einen Administrator behalten. Ernennen Sie einen weiteren Administrator, bevor Sie diese Rolle ändern.",
+    "Den Aarbechtsberäich muss op d’mannst een Administrateur behalen. Bestëmmt en aneren Administrateur, ier Dir dës Roll ännert."
   ]
 }

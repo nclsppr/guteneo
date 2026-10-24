@@ -22,88 +22,88 @@ import { PostalCutoffNotice } from "./postal-cutoff-notice";
 
 const getIssueLabels = (): Record<string, string> => ({
   POSTAL_CORNER_CONTENT: msg(
-    "Laissez vide le coin réservé aux marques de traitement postal.",
+    "Leave the corner reserved for postal processing marks empty.",
   ),
   POSTAL_POSTAGE_CONTENT: msg(
-    "Un élément empiète sur la zone réservée à l’affranchissement.",
+    "An element overlaps the area reserved for postage.",
   ),
   POSTAL_EDGE_CONTENT: msg(
-    "Éloignez le contenu des bords : une marge vide de 5 mm est nécessaire.",
+    "Keep content away from the edges: a blank 5 mm margin is required.",
   ),
   POSTAL_ADDRESS_EMPTY: msg(
-    "Aucune adresse n’a été détectée dans la fenêtre de l’enveloppe.",
+    "No address was detected in the envelope window.",
   ),
   POSTAL_ADDRESS_LINE_COUNT: msg(
-    "Réorganisez l’adresse pour respecter le nombre de lignes autorisé.",
+    "Rearrange the address to meet the allowed number of lines.",
   ),
   POSTAL_ADDRESS_LINE_TOO_LONG: msg(
-    "Raccourcissez une ligne d’adresse qui dépasse la longueur admise.",
+    "Shorten an address line that exceeds the allowed length.",
   ),
   POSTAL_COUNTRY_LINE_REQUIRED: msg(
-    "Ajoutez le pays en dernière ligne de l’adresse internationale.",
+    "Add the country on the last line of the international address.",
   ),
   POSTAL_CITY_UPPERCASE_REQUIRED: msg(
-    "Écrivez le nom de la ville en majuscules.",
+    "Write the city name in capitals.",
   ),
   POSTAL_POSTCODE_LINE_INVALID: msg(
-    "Vérifiez la ligne du code postal et de la ville.",
+    "Check the postcode and city line.",
   ),
   POSTAL_ANNOTATIONS_UNSUPPORTED: msg(
-    "Supprimez ou aplatissez les annotations avant l’export.",
+    "Remove or flatten annotations before exporting.",
   ),
   POSTAL_ROTATION_UNSUPPORTED: msg(
-    "Exportez les pages verticales sans rotation.",
+    "Export portrait pages without rotation.",
   ),
-  POSTAL_A4_REQUIRED: msg("Utilisez une page A4 verticale (210 × 297 mm)."),
-  POSTAL_PDF_SIZE: msg("Le PDF doit peser au maximum 8 Mo."),
+  POSTAL_A4_REQUIRED: msg("Use an A4 portrait page (210 × 297 mm)."),
+  POSTAL_PDF_SIZE: msg("The PDF must be no larger than 8 MB."),
   POSTAL_PDF_INVALID: msg(
-    "Le PDF ne peut pas être lu complètement. Exportez une nouvelle version.",
+    "The PDF cannot be read completely. Export a new version.",
   ),
   POSTAL_FONT_NOT_EMBEDDED: msg(
-    "Intégrez toutes les polices dans le PDF lors de l’export.",
+    "Embed all fonts in the PDF when exporting.",
   ),
   POSTAL_FONT_UNSUPPORTED: msg(
-    "Une police ne peut pas être contrôlée. Réexportez le document avec des polices intégrées.",
+    "A font cannot be checked. Export the document again with embedded fonts.",
   ),
   POSTAL_INTERACTIVE_FORM: msg(
-    "Aplatissez les champs de formulaire avant l’export du PDF.",
+    "Flatten form fields before exporting the PDF.",
   ),
   POSTAL_CROP_UNSUPPORTED: msg(
-    "Le cadrage du PDF masque une partie de la page. Exportez la page A4 entière.",
+    "The PDF crop hides part of the page. Export the entire A4 page.",
   ),
   POSTAL_ADDRESS_TEXT_CLIPPED: msg(
-    "Une partie de l’adresse dépasse la fenêtre de l’enveloppe.",
+    "Part of the address extends beyond the envelope window.",
   ),
   POSTAL_ADDRESS_TEXT_OVERLAP: msg(
-    "Des éléments se superposent dans la zone d’adresse.",
+    "Elements overlap in the address area.",
   ),
   POSTAL_ADDRESS_TEXT_GEOMETRY_REVIEW: msg(
-    "La position du texte de l’adresse demande une vérification visuelle.",
+    "The position of the address text requires a visual check.",
   ),
   POSTAL_ADDRESS_MISMATCH: msg(
-    "L’adresse du PDF ne correspond pas au destinataire indiqué.",
+    "The PDF address does not match the specified recipient.",
   ),
   POSTAL_RENDER_TIMEOUT: msg(
-    "Le rendu n’a pas pu être terminé dans le délai prévu.",
+    "Rendering could not be completed within the time limit.",
   ),
   POSTAL_IMAGE_BUDGET: msg(
-    "Une image du PDF est trop grande pour être contrôlée.",
+    "An image in the PDF is too large to check.",
   ),
   POSTAL_OPTIONAL_CONTENT_UNSUPPORTED: msg(
-    "Les calques optionnels doivent être aplatis avant l’export.",
+    "Optional layers must be flattened before exporting.",
   ),
 });
 
 function statusLabel(review: PostalReview) {
-  if (review.transferStatus === "unknown") return msg("Transfert à vérifier");
+  if (review.transferStatus === "unknown") return msg("Transfer needs checking");
   if (review.transferStatus === "prepared")
-    return msg("Calcul du prix de l’envoi…");
+    return msg("Calculating the delivery price…");
   if (review.transferStatus === "preparing")
-    return msg("Préparation du brouillon…");
-  if (review.status === "processing") return msg("Vérification du PDF…");
-  if (review.status === "blocked") return msg("Le PDF doit être corrigé");
-  if (review.status === "failed") return msg("Le contrôle n’a pas abouti");
-  return msg("Vérifiez le document et l’adresse");
+    return msg("Preparing the draft…");
+  if (review.status === "processing") return msg("Checking the PDF…");
+  if (review.status === "blocked") return msg("The PDF needs correction");
+  if (review.status === "failed") return msg("The check did not complete");
+  return msg("Check the document and address");
 }
 
 export function PostalReviewPage({
@@ -230,9 +230,9 @@ export function PostalReviewPage({
         </a>
       )}
       <PageHeading
-        title={msg("Vérifiez votre courrier.")}
+        title={msg("Check your letter.")}
         intro={msg(
-          "Parcourez le PDF et vérifiez l’adresse. Le prix exact sera affiché avant votre accord d’envoi.",
+          "Review the PDF and check the address. The exact price will be shown before you approve sending.",
         )}
       />
       {!canApprove && <RolePermissionNotice />}
@@ -266,34 +266,34 @@ export function PostalReviewPage({
                   onClick={refreshReview}
                 >
                   <ArrowClockwise size={17} aria-hidden="true" />
-                  {msg("Actualiser")}
+                  {msg("Refresh")}
                 </button>
               </div>
               <p role="status">
                 {processing
                   ? msg(
-                      "L’analyse est en cours. Aucun courrier n’a été expédié.",
+                      "Analysis is in progress. No letter has been sent.",
                     )
-                  : msg("Ce contrôle n’autorise aucune expédition.")}
+                  : msg("This check does not authorise sending.")}
               </p>
               {needsReconciliation && (
                 <p className="notice info" role="status">
                   {msg(
-                    "Actualisez le suivi pour vérifier le résultat avant toute autre action. Aucun transfert ne sera relancé automatiquement.",
+                    "Refresh tracking to check the outcome before taking any other action. No transfer will be retried automatically.",
                   )}
                 </p>
               )}
               {review.transferStatus === "unknown" && (
                 <p className="notice warning" role="alert">
                   {msg(
-                    "Le résultat du transfert n’est pas confirmé. Ne recréez pas de brouillon : contactez l’équipe Guteneo pour vérifier celui-ci et éviter un doublon.",
+                    "The transfer outcome is unconfirmed. Do not create another draft: contact the Guteneo team to check this one and avoid a duplicate.",
                   )}
                 </p>
               )}
               {review.status === "failed" && (
                 <p className="notice warning">
                   {msg(
-                    "Le document n’a pas pu être contrôlé entièrement. Aucun transfert n’est possible depuis cette revue.",
+                    "The document could not be fully checked. No transfer is possible from this review.",
                   )}
                 </p>
               )}
@@ -309,7 +309,7 @@ export function PostalReviewPage({
                       ) : null}
                       {getIssueLabels()[issue.code] ??
                         msg(
-                          "Un contrôle du document a échoué. Consultez les règles de préparation et corrigez le PDF.",
+                          "A document check failed. Read the preparation guidelines and correct the PDF.",
                         )}
                       <small className="mono">{issue.code}</small>
                     </li>
@@ -319,7 +319,7 @@ export function PostalReviewPage({
               {canPrepare && ["blocked", "failed"].includes(review.status) && (
                 <p>
                   <a className="button" href="#/app/documents">
-                    {msg("Importer un PDF corrigé")}
+                    {msg("Import a corrected PDF")}
                   </a>
                 </p>
               )}
@@ -330,7 +330,7 @@ export function PostalReviewPage({
                 className="postal-review-document"
                 aria-labelledby="postal-document-title"
               >
-                <h2 id="postal-document-title">{msg("Le PDF à imprimer")}</h2>
+                <h2 id="postal-document-title">{msg("The PDF to print")}</h2>
                 {review.addressPage && (
                   <PostalAddressPageSummary
                     document={review.document}
@@ -342,18 +342,18 @@ export function PostalReviewPage({
                 <p className="field-hint">
                   {review.checks.complete
                     ? msg(
-                        "{0} page(s) contrôlée(s) à {1} dpi. Parcourez toutes les pages pour vérifier leur contenu.",
+                        "{0} page(s) checked at {1} dpi. Review every page to check its content.",
                         review.checks.pages.length,
                         review.checks.dpi,
                       )
                     : msg(
-                        "Le rendu de toutes les pages n’est pas encore confirmé.",
+                        "Rendering of all pages is not yet confirmed.",
                       )}
                 </p>
                 <details className="postal-integrity">
-                  <summary>{msg("Identifier cette version du PDF")}</summary>
+                  <summary>{msg("Identify this PDF version")}</summary>
                   <p>
-                    {msg("Cette empreinte correspond au fichier contrôlé.")}
+                    {msg("This fingerprint identifies the checked file.")}
                   </p>
                   <code>{review.document.sha256}</code>
                 </details>
@@ -363,20 +363,20 @@ export function PostalReviewPage({
                 aria-labelledby="postal-address-title"
               >
                 <h2 id="postal-address-title">
-                  {msg("La fenêtre de l’enveloppe")}
+                  {msg("The envelope window")}
                 </h2>
                 <p>
                   {review.addressPage
                     ? msg(
-                        "La page d’adresse générée place le destinataire côté ",
+                        "The generated address page positions the recipient on the ",
                       )
-                    : msg("L’adresse doit être imprimée dans le PDF, côté ")}
+                    : msg("The address must be printed in the PDF on the ")}
                   {review.options.addressPosition === "left"
-                    ? msg("gauche")
-                    : msg("droit")}
+                    ? msg("left")
+                    : msg("right")}
                   {review.addressPage
-                    ? msg(", à la position fixe de la fenêtre de l’enveloppe.")
-                    : msg(". Guteneo ne la déplace pas.")}
+                    ? msg(", at the fixed position of the envelope window.")
+                    : msg(". Guteneo does not move it.")}
                 </p>
                 {hasCrop ? (
                   <figure className="postal-address-crop">
@@ -384,25 +384,25 @@ export function PostalReviewPage({
                       key={cropAttempt}
                       src={cropPath}
                       alt={msg(
-                        "Extrait de la première page montrant l’adresse et la zone réservée à l’affranchissement",
+                        "First-page crop showing the address and the area reserved for postage",
                       )}
                       onError={() => setCropFailed(true)}
                       onLoad={() => setCropLoaded(true)}
                     />
                     <figcaption>
-                      {msg("Extrait du rendu contrôlé par Guteneo.")}
+                      {msg("Crop of the rendering checked by Guteneo.")}
                     </figcaption>
                   </figure>
                 ) : (
                   <p className="notice info">
                     {msg(
-                      "L’extrait de la zone d’adresse est indisponible. Le transfert reste bloqué tant qu’il ne peut pas être vérifié.",
+                      "The address-area crop is unavailable. Transfer remains blocked until it can be checked.",
                     )}
                   </p>
                 )}
                 <div className="postal-address-comparison">
                   <div>
-                    <h3>{msg("Destinataire attendu")}</h3>
+                    <h3>{msg("Expected recipient")}</h3>
                     <address>
                       {review.address.expectedLines.map((line, index) => (
                         <span key={index}>{line}</span>
@@ -410,7 +410,7 @@ export function PostalReviewPage({
                     </address>
                   </div>
                   <div>
-                    <h3>{msg("Texte détecté dans le PDF")}</h3>
+                    <h3>{msg("Text detected in the PDF")}</h3>
                     {review.address.extractedLines.length ? (
                       <p>
                         {review.address.extractedLines.map((line, index) => (
@@ -418,7 +418,7 @@ export function PostalReviewPage({
                         ))}
                       </p>
                     ) : (
-                      <p>{msg("Aucun texte d’adresse reconnu.")}</p>
+                      <p>{msg("No address text recognised.")}</p>
                     )}
                   </div>
                 </div>
@@ -429,31 +429,31 @@ export function PostalReviewPage({
                 >
                   {review.address.matches
                     ? msg(
-                        "Les textes correspondent. Vérifiez aussi dans l’image que l’adresse est visible, lisible et complète.",
+                        "The text matches. Also check the image to ensure the address is visible, legible and complete.",
                       )
                     : msg(
-                        "Les adresses ne correspondent pas. Corrigez le PDF ou le destinataire avant de continuer.",
+                        "The addresses do not match. Correct the PDF or recipient before continuing.",
                       )}
                 </p>
                 <dl className="postal-print-options">
                   <div>
-                    <dt>{msg("Impression")}</dt>
+                    <dt>{msg("Printing")}</dt>
                     <dd>
                       {review.options.printSpectrum === "color"
-                        ? msg("Couleur")
-                        : msg("Noir et blanc")}{" "}
+                        ? msg("Colour")
+                        : msg("Black and white")}{" "}
                       ·{" "}
                       {review.options.printMode === "duplex"
-                        ? msg("Recto verso")
-                        : msg("Recto")}
+                        ? msg("Double-sided")
+                        : msg("Single-sided")}
                     </dd>
                   </div>
                   <div>
-                    <dt>{msg("Distribution demandée")}</dt>
+                    <dt>{msg("Requested delivery")}</dt>
                     <dd>
                       {review.options.deliveryProduct === "fast"
-                        ? msg("Rapide")
-                        : msg("Économique")}
+                        ? msg("Priority")
+                        : msg("Economy")}
                     </dd>
                   </div>
                 </dl>
@@ -471,16 +471,16 @@ export function PostalReviewPage({
               >
                 <h2 id="postal-draft-title">
                   {quote.pending
-                    ? msg("Nous récupérons votre devis…")
-                    : msg("Votre courrier attend son devis")}
+                    ? msg("Fetching your quote…")
+                    : msg("Your letter is awaiting its quote")}
                 </h2>
                 <p>
                   {quote.paused
                     ? msg(
-                        "L’analyse prend plus de temps que prévu. Vous pouvez reprendre la recherche du prix.",
+                        "Analysis is taking longer than expected. You can resume fetching the price.",
                       )
                     : msg(
-                        "Vous passerez automatiquement à la validation du prix dès que l’analyse sera terminée. Aucun courrier n’est encore expédié.",
+                        "You will automatically proceed to price approval when analysis is complete. No letter has been sent yet.",
                       )}
                 </p>
                 <button
@@ -496,8 +496,8 @@ export function PostalReviewPage({
                   onClick={quote.retry}
                 >
                   {quote.pending
-                    ? msg("Calcul du devis…")
-                    : msg("Reprendre le devis")}
+                    ? msg("Calculating the quote…")
+                    : msg("Resume quote")}
                   <ArrowRight size={18} aria-hidden="true" />
                 </button>
               </section>
@@ -509,10 +509,10 @@ export function PostalReviewPage({
                   onSubmit={(event) => void transfer(event)}
                   aria-busy={action.pending}
                 >
-                  <h2>{msg("Obtenir le prix de l’envoi")}</h2>
+                  <h2>{msg("Get the delivery price")}</h2>
                   <p>
                     {msg(
-                      "En cliquant ci-dessous, vous confirmez avoir vérifié toutes les pages, l’adresse visible dans la fenêtre et l’adresse de retour. Vous autorisez le transfert de ce PDF et de son adresse à notre prestataire d’impression pour établir le devis.",
+                      "By clicking below, you confirm that you have checked every page, the address visible in the window and the return address. You authorise transferring this PDF and its address to our printing provider to prepare the quote.",
                     )}
                   </p>
                   <button
@@ -521,17 +521,17 @@ export function PostalReviewPage({
                     aria-describedby="postal-transfer-help"
                   >
                     {action.pending
-                      ? msg("Préparation du brouillon…")
-                      : msg("Valider le document et obtenir le prix")}
+                      ? msg("Preparing the draft…")
+                      : msg("Confirm the document and get the price")}
                     <ArrowRight size={18} aria-hidden="true" />
                   </button>
                   <p id="postal-transfer-help" className="field-hint">
                     {canTransfer
                       ? msg(
-                          "Cette action ne déclenche aucun envoi. Vous déciderez après lecture du prix exact.",
+                          "This action does not send anything. You will decide after reviewing the exact price.",
                         )
                       : msg(
-                          "Le transfert reste indisponible tant que les contrôles du PDF et l’activation du service ne sont pas terminés.",
+                          "Transfer remains unavailable until the PDF checks and service activation are complete.",
                         )}
                   </p>
                 </form>

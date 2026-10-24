@@ -1,199 +1,193 @@
-# Observations navigateur de production
+# Production browser observations
 
-Le candidat `.github/workflows/production-e2e.yml` exécute une observation toutes
-les six heures, à la minute 17, sur `main`. Un lancement manuel est possible sur
-la même branche. Une planification GitHub peut être retardée ; elle ne remplace
-pas le collecteur Cloudflare existant toutes les quinze minutes.
+The `.github/workflows/production-e2e.yml` candidate runs an observation every
+six hours, at minute 17, on `main`. Manual execution is available on that same
+branch. GitHub scheduling may be delayed; it does not replace the existing
+Cloudflare collector that runs every fifteen minutes.
 
-Ce changement est préparé dans les sources. Sa présence locale ne prouve ni
-une exécution GitHub ni l’installation de la migration ou du Worker en production.
-Il n’installe aucun secret, compte ou infrastructure payante et ne publie rien
-pendant un lancement local.
+Source implementation does not prove a GitHub execution, migration installation,
+or deployed Worker. A local run installs no secrets, accounts, or paid
+infrastructure and publishes nothing.
 
-## Périmètre réellement exécuté
+## Executed scope
 
-Le framework `e2e` 0.21.3 et son moteur `@e2e-dev/web` 0.15.3 ouvrent les sept
-pages publiques fixes dans Chromium, aux largeurs 1440 et 390 pixels. Les tests
-vérifient les repères visibles, la langue et l’absence de débordement horizontal.
-Ces deux fenêtres ne constituent pas une qualification de téléphone physique.
-Quatorze lectures HTTP indépendantes contrôlent aussi les empreintes des pages,
-le manifeste, les contrats publics et les refus anonymes attendus.
+The `e2e` 0.21.3 framework and `@e2e-dev/web` 0.15.3 engine open seven fixed
+public pages in Chromium at widths of 1440 and 390 pixels. Checks cover visible
+landmarks, language, and horizontal overflow. These viewports do not qualify a
+physical phone. Fourteen independent HTTP reads also check page fingerprints,
+the manifest, public contracts, and expected anonymous denials.
 
-Chaque rapport contient exactement **28 contrôles**. Le pilote lit la version
-servie avant et après le parcours. Un changement pendant l’exécution reste
-inconnu. Aucun contrôle ne se transforme en succès faute de résultat.
+Each report contains exactly **28 checks**. The driver reads the served version
+before and after the journey. A version change during execution produces an
+unknown result. Missing results never become successes.
 
-Le pilote Node demande `Accept-Encoding: identity` et `Cache-Control: no-transform`
-sur ces seules destinations fixes. Le collecteur vérifie toujours les octets
-reçus et leur SHA-256 contre le manifeste : ignorer ces en-têtes, transformer
-une page ou servir une variante ne peut pas faire passer un écart. Aucun
-second essai automatique ne remplace une observation échouée. Pour un écart de
-taille ou d’empreinte, le journal CI contient seulement le chemin public fixe,
-les tailles et empreintes attendues/reçues, et un encodage issu d’une liste fermée.
-L’encodage de réponse est distinct des octets décodés observés par Node. Ces
-diagnostics restent hors du corps signé, dont le schéma demeure inchangé.
+For these fixed destinations only, the Node driver requests
+`Accept-Encoding: identity` and `Cache-Control: no-transform`. The collector still
+compares received bytes and SHA-256 with the manifest: ignoring headers,
+transforming a page or serving a variant cannot make a mismatch pass. No automatic
+second attempt replaces a failed observation. On size/hash mismatch, CI logs
+contain only a fixed public path, expected/observed sizes and hashes, and an
+allowlisted encoding label. Response encoding is distinct from the decoded bytes
+observed by Node. Diagnostics remain outside the unchanged signed-report schema.
 
-Cette requête ne peut pas, à elle seule, interdire une transformation Cloudflare.
-La [documentation de compression](https://developers.cloudflare.com/speed/optimization/content/compression/#content-length-header-handling)
-exige `no-transform` dans la **réponse de l’origine**. Le candidat d’application
-l’ajoute donc au `Cache-Control` existant des seuls HTML publics canoniques
-réussis et de leurs réponses conditionnelles 304. Il conserve les autres
-directives, octets, ETag, encodages déjà présents et cadrages de réponse ; les
-API, sessions, requêtes privées, fichiers JS/CSS/images/vidéos et hôtes de repli
-ne gagnent aucune règle de cache. Aucun script n’est retiré avant comparaison.
-La [documentation Web Analytics](https://developers.cloudflare.com/web-analytics/get-started/#sites-proxied-through-cloudflare)
-précise que `public, no-transform` empêche l’injection automatique de sa balise
-et que le mode excluant l’UE n’injecte pas cette balise aux visiteurs européens.
-Ce garde nécessite la publication de l’application ; un changement du seul
-pilote Node ne suffit pas. Il peut aussi empêcher une recompression CDN de ces
-HTML : bande passante et latence servies restent à observer après publication,
-sans en déduire une facture fixe ou une gratuité.
+The request alone cannot prevent a Cloudflare transformation. The
+[compression documentation](https://developers.cloudflare.com/speed/optimization/content/compression/#content-length-header-handling)
+requires `no-transform` in the **origin response**. The application candidate
+therefore appends it to the existing `Cache-Control` of successful canonical
+public HTML and its conditional 304 responses. It preserves other directives,
+bytes, ETag, existing encodings and response framing. APIs, sessions, private
+requests, JS/CSS/images/videos and fallback hosts gain no cache rule. No script
+is stripped before comparison. The
+[Web Analytics documentation](https://developers.cloudflare.com/web-analytics/get-started/#sites-proxied-through-cloudflare)
+states that `public, no-transform` prevents automatic beacon injection and that
+its EU-exclusion mode omits the beacon for European visitors. This guard requires
+application publication; changing only the Node driver is insufficient. It may
+also prevent CDN recompression of these HTML responses. Observe served bandwidth
+and latency after publication rather than inferring a fixed bill or free use.
 
-Le moteur refuse les mutations HTTP, l’authentification, les destinations
-externes et les ressources autres que les pages et fichiers publics fixes.
-Il ne clique aucun bouton métier. Aucun e-mail, fax, courrier, achat, devis,
-import, scan hébergé ou rendu payant n’est lancé. La télémétrie et les modèles
-sont désactivés. Aucune capture, vidéo ou trace n’est demandée. Les preuves
-brutes du framework sont éphémères et supprimées avant publication ; seul le
-rapport strictement nettoyé est conservé dans l’artifact GitHub.
+The engine rejects HTTP mutations, authentication, external destinations, and
+resources outside the fixed public page/asset list. It clicks no business
+button. It triggers no email, fax, postal mail, purchase, quotation, import,
+hosted scan, or paid rendering. Telemetry and models are disabled. No screenshot,
+video, or trace is requested. Raw framework evidence is ephemeral and deleted
+before publication; only the strictly sanitized report enters the GitHub artifact.
 
-Pour une lecture publique ponctuelle sans publication :
+For a one-off public observation without publication:
 
 ```sh
 E2E_TELEMETRY_DISABLED=1 npx --no-install e2e-web install chromium
 E2E_TELEMETRY_DISABLED=1 DO_NOT_TRACK=1 node --import tsx scripts/production-e2e.ts
 ```
 
-Le fichier local `test-results/production-e2e/sanitized-report.json` marque
-explicitement `execution: local_read_only_observation` et n’invente pas
-d’identifiant de run GitHub. Il ne satisfait pas le contrat d’ingestion signé.
+The local `test-results/production-e2e/sanitized-report.json` explicitly records
+`execution: local_read_only_observation` and invents no GitHub run identifier.
+It does not satisfy the signed ingestion contract.
 
-## Autorité du dépôt et intégrité du rapport
+## Repository authority and report integrity
 
-`POST https://status.guteneo.com/api/e2e-reports` accepte uniquement une preuve
-GitHub OIDC signée, jamais un secret partagé de Cloudflare. La politique fixe :
+`POST https://status.guteneo.com/api/e2e-reports` accepts only signed GitHub OIDC
+proof, never a shared Cloudflare secret. Its policy requires:
 
-- issuer `https://token.actions.githubusercontent.com`, signature RS256 et clés
-  publiques GitHub obtenues à une adresse fixe ;
-- dépôt `nclsppr/guteneo`, ID numérique **1373468624**, propriétaire **9432084** ;
-- fichier `.github/workflows/production-e2e.yml` sur `refs/heads/main` ;
-- événement `schedule` ou `workflow_dispatch`, runner hébergé par GitHub ;
-- mêmes SHA de workflow, SHA du runner, run et tentative que dans le rapport ;
-- `job_workflow_ref` et `job_workflow_sha` tous deux absents dans l’ancien
-  format, ou couple exactement égal au workflow canonique ci-dessus sur main
-  et au commit du runner ; aucune autre paire, valeur partielle ou nulle ;
-- JWT récent et observation bornée à dix minutes.
+- Issuer `https://token.actions.githubusercontent.com`, RS256 signatures, and
+  GitHub public keys obtained from a fixed address.
+- Repository `nclsppr/guteneo`, numeric ID **1373468624**, owner **9432084**.
+- Workflow `.github/workflows/production-e2e.yml` on `refs/heads/main`.
+- Event `schedule` or `workflow_dispatch`, running on a GitHub-hosted runner.
+- Workflow SHA, runner SHA, run identifier, and attempt matching the report.
+- `job_workflow_ref` and `job_workflow_sha` jointly absent in the legacy format,
+  or an exact pair matching the canonical main workflow above and runner commit;
+  foreign, partial, empty or null pairs are denied.
+- A recent JWT and an observation bounded to ten minutes.
 
-L’audience contient le SHA-256 du corps exact. Elle lie donc aussi le nonce,
-les résultats, la version servie et le numéro de tentative. Modifier une valeur
-après émission du JWT invalide l’audience. Une seule écriture est permise par
-run/tentative ; nonce et identifiant de JWT sont également uniques. Une nouvelle
-tentative ne peut pas réécrire l’échec précédent. Le schéma refuse les champs
-inconnus, les contrôles manquants et tout texte libre. Aucun JWT, nom de compte,
-destinataire, contenu, capture ou état de session n’est admis dans le rapport.
+The audience includes the exact body's SHA-256, binding its nonce, results,
+served version, and attempt. Changing any value after JWT issuance invalidates
+the audience. Only one write is allowed per run/attempt; nonce and JWT identifier
+are also unique. A new attempt cannot overwrite the previous failure. The schema
+rejects unknown fields, missing checks, and free text. Reports admit no JWT,
+account name, recipient, content, screenshot, or session state.
 
-Référence de la politique : [GitHub, OpenID Connect reference](https://docs.github.com/en/actions/reference/security/oidc).
-Les IDs du dépôt ont été relus par l’API GitHub le 24 octobre 2026.
+Policy reference: [GitHub OpenID Connect reference](https://docs.github.com/en/actions/reference/security/oidc).
+Repository IDs were reread through the GitHub API on 24 October 2026.
 
-Un refus de publication reste un échec. Son diagnostic distingue contexte
-autorisé, obtention OIDC et ingestion, avec un statut HTTP et un code serveur
-explicitement autorisé ; toute autre réponse devient `UNKNOWN`. Les lectures
-de réponse sont bornées en octets et à cinq secondes. Les erreurs libres,
-URL OIDC, JWT, en-têtes et corps amont ne sont jamais imprimés. La présence de
-l’artefact, écrit avant l’ingestion, ne prouve pas que le statut l’a enregistré.
+A publication refusal remains failure. Diagnostics distinguish authorization
+context, OIDC acquisition and ingestion, with an HTTP status and explicitly
+allowlisted server code; every other response becomes `UNKNOWN`. Response reads
+are byte-bounded and have a five-second deadline. Free-form errors, OIDC URLs,
+JWTs, headers and upstream bodies are never printed. An artifact saved before
+ingestion does not prove status stored the report.
 
-Après un vrai `401 REPORT_REJECTED` seulement, le pilote peut produire un
-diagnostic OIDC à clés fixes : comparaisons booléennes explicitement **non
-vérifiées**, puis résultat fermé d’une unique exécution du même vérifieur que
-le serveur. Les clés publiques GitHub conservent leur délai de cinq secondes
-et le diagnostic entier expire en six secondes. Il ne demande pas de nouveau
-JWT, ne répète pas le POST et ne change aucune autorité du Worker. Le refus
-initial reste l’échec final, même si la vérification locale réussit. Aucun
-contenu de claim, JWT/JWK, URL, en-tête, corps ou exception libre n’est publié.
+Only after an actual `401 REPORT_REJECTED` may the driver emit a fixed-key OIDC
+diagnostic: explicitly **unverified** boolean comparisons, followed by a closed
+result from one invocation of the same verifier used by the server. GitHub public
+key reads retain their five-second deadline; the complete diagnostic expires in
+six seconds. It requests no new JWT, repeats no POST and changes no Worker
+authority. The original rejection remains the final failure even when local
+verification accepts. No claim value, JWT/JWK, URL, header, body or free-form
+exception is published.
 
-## Première observation hébergée — 24 octobre 2026
+## First hosted observation — 24 October 2026
 
-Le Worker de statut `b0d2ed61-227c-47d3-8f09-57b0545fb568` a été publié depuis
-`4f033e2f233ee2960a579eef839191531e6f8b8d`, avec les vingt fichiers publics
-et la configuration d’en-têtes vérifiés. Le run GitHub
-[`40128432279`, tentative 1](https://github.com/nclsppr/guteneo/actions/runs/40128432279)
-a échoué : les quatorze contrôles navigateur ont réussi et sept comparaisons
-HTTP de pages ont signalé `CONTENT_LENGTH_MISMATCH`, soit **21/28 réussis**.
-Le rapport expurgé porte le SHA-256
-`ee8159896ada1b413a9e37d3c3d31bb511cba8b8da220ec47c2ca0fa167a9daf`.
-Son ingestion n’est pas qualifiée ; `latest` était nul après cette tentative.
-Le collecteur exact et les variantes d’encodage passaient ensuite depuis le
-Mac : cela ne prouve pas la cause de l’écart depuis le runner GitHub. Le
-correctif de transport/diagnostic doit encore être qualifié par un nouveau run
-autorisé après revue et CI ; aucun succès de production n’en est déduit.
+Status Worker `b0d2ed61-227c-47d3-8f09-57b0545fb568` was published from
+`4f033e2f233ee2960a579eef839191531e6f8b8d`, with twenty public files and header
+configuration verified. GitHub run
+[`40128432279`, attempt 1](https://github.com/nclsppr/guteneo/actions/runs/40128432279)
+failed overall: fourteen browser checks passed and seven HTTP page comparisons
+reported `CONTENT_LENGTH_MISMATCH`, for **21/28 passing checks**. Sanitized report
+SHA-256 was `ee8159896ada1b413a9e37d3c3d31bb511cba8b8da220ec47c2ca0fa167a9daf`.
+Ingestion was not qualified; `latest` was null after that attempt. The exact
+collector and encoding variants later passed on the Mac, which does not prove
+the cause of the GitHub runner mismatch. The transport/diagnostic correction
+requires a new authorized execution after review/CI; no production success is
+inferred.
 
-Qualification locale du correctif : **117 tests ciblés réussis** (36 ingestion/
-publication, 51 collecteur/historique, 30 transport/confidentialité/délais), neuf
-tests du circuit de publication statut, typecheck, lint ciblé et atlas généré.
-Une lecture publique depuis le Mac avec le nouveau transport passe 14/14 HTTP
-sur l’application `4f033e2` ; elle ne constitue ni une nouvelle tentative GitHub
-ni une preuve d’ingestion hébergée. Les tests simulent aussi l’ingestion complète
-d’un rapport `attention` à sept écarts, avec audience liée à son corps exact.
+Local correction qualification: **117 targeted passing cases** (36 ingestion/
+publication, 51 collector/history and 30 transport/privacy/deadlines), nine status
+release-path cases, typecheck, scoped lint and generated atlas. A public Mac read
+using the new transport passes 14/14 HTTP checks against application `4f033e2`;
+it is neither another GitHub attempt nor hosted-ingestion proof. Tests also
+simulate complete ingestion of an `attention` report with seven discrepancies,
+using an audience bound to that exact body.
 
-La seconde observation réelle,
-[`40131421762`, tentative 1](https://github.com/nclsppr/guteneo/actions/runs/40131421762),
-utilisait le runner `1d23931d37407d7fd9fcd5291cbd6dbc8e17f1ef` et l’application
-`4f033e2`. Elle a également échoué à **21/28** : les sept HTML reçus en
-`identity` avaient chacun exactement **367 octets supplémentaires**. Le dépôt
-du rapport a ensuite reçu `401 REPORT_REJECTED`. Ce refus d’ingestion est un
-problème distinct de l’écart HTTP. La transformation HTML automatique est une
-hypothèse cohérente avec la documentation et l’écart UE/runner ; la projection
-ne conserve pas le HTML et n’identifie pas à elle seule la balise ajoutée.
-Le nouveau garde d’origine reste à publier puis qualifier depuis le runner.
-Localement, 94 tests du périmètre assets et deux tests réels workerd/Static Assets
-passent ; ils vérifient notamment les quatre langues, GET/HEAD/304, les octets,
-ETag, directives existantes et l’absence d’élargissement des caches privés/API.
+The second real observation,
+[`40131421762`, attempt 1](https://github.com/nclsppr/guteneo/actions/runs/40131421762),
+used runner `1d23931d37407d7fd9fcd5291cbd6dbc8e17f1ef` and application `4f033e2`.
+It also failed at **21/28**: each of the seven HTML responses received as
+`identity` contained exactly **367 additional bytes**. Report submission then
+returned `401 REPORT_REJECTED`. Ingestion refusal is separate from the HTTP
+mismatch. Automatic HTML transformation is a hypothesis consistent with the
+documentation and EU/runner difference; the projection retains no HTML and cannot
+identify the injected beacon on its own. The new origin guard still requires
+publication and qualification from the runner. Locally, 94 asset-scope cases and
+two real workerd/Static Assets cases pass, covering four languages, GET/HEAD/304,
+bytes, ETag, existing directives and unchanged private/API cache boundaries.
 
-Un diagnostic GitHub isolé sur branche, run
-[`40132056947`](https://github.com/nclsppr/guteneo/actions/runs/40132056947), a
-ensuite vérifié la signature et les prédicats bornés d’un JWT de job direct :
-`job_workflow_ref` est présent et égal à `workflow_ref`, et
-`job_workflow_sha` est égal au SHA du job. Aucune requête de production n’a été
-émise par ce diagnostic et aucun JWT n’a été conservé dans sa projection.
-Le garde précédent refusait cette forme dès qu’il voyait `job_workflow_ref`.
-Le correctif du serveur accepte désormais uniquement l’absence des deux champs
-ou le couple exact du workflow de production sur main et du commit attendu ;
-les autres critères de signature, audience liée au corps, dépôt/IDs, branche,
-événement, fraîcheur et anti-rejeu restent obligatoires. Le fichier ou SHA
-étranger, le couple partiel et les valeurs nulles sont refusés. Cette adaptation
-requiert aussi une publication du Worker de statut ; le diagnostic sur branche
-ne prouve aucune ingestion de production. Application et statut doivent donc
-être publiés et qualifiés séparément, puis le rapport doit prouver 28/28 et son
-stockage exact avant tout succès déclaré.
-La qualification ciblée de cette règle et du diagnostic passe **114/114 tests
-locaux** : 52 d’intégration statut, 32 du diagnostic OIDC et 30 du transport/
-projection. Ces JWT RS256 sont synthétiques et vérifiés hors réseau ; ils ne
-constituent pas des comptes, une nouvelle exécution GitHub ou une ingestion
-de production. La CI de la tête finale et les publications restent distinctes.
+An isolated branch GitHub diagnostic, run
+[`40132056947`](https://github.com/nclsppr/guteneo/actions/runs/40132056947), then
+verified the signature and bounded direct-job JWT predicates: `job_workflow_ref`
+is present/equal to `workflow_ref`, and `job_workflow_sha` equals the job SHA.
+That diagnostic made no production request and retained no JWT in its projection.
+The previous guard rejected this form merely because `job_workflow_ref` existed.
+The server correction accepts only joint absence or the exact production-main
+workflow/expected-commit pair. Signature, body-bound audience, repository/IDs,
+branch, event, freshness and replay checks remain mandatory. Foreign file/SHA,
+partial pairs and null values are denied. This requires status Worker publication
+too; a branch diagnostic proves no production ingestion. Application and status
+must therefore be published and qualified separately; the report must establish
+28/28 results and exact storage before success is claimed.
 
-## Lecture publique et conservation
+Targeted qualification of that rule and diagnostic passes **114/114 local cases**:
+52 status integration, 32 OIDC diagnostic and 30 transport/projection cases.
+These RS256 JWTs are synthetic and verified offline, not accounts, a new GitHub
+execution or production ingestion. Final-head CI and publications remain separate.
 
-`GET /api/e2e-status` ne lance aucun test. Il rend les vingt derniers résumés,
-les détails du dernier rapport et un état propre à ce périmètre. Le rapport
-reste frais pendant huit heures. Son SHA de production doit correspondre à la
-dernière mesure Cron, elle-même récente de moins de trente minutes. Absence,
-retard, changement de version ou exécution interrompue donnent un état neutre
-`unknown`. Un échec observé sur une version courante reste `attention`.
+These observations belong to their recorded source. PR 75's merge into main
+`1d23931d37407d7fd9fcd5291cbd6dbc8e17f1ef` and its later reconciliation with this
+engineering candidate do not retroactively qualify another run or publication.
 
-Les rapports sont stockés dans la base D1 indépendante du statut, migration
-`apps/status/migrations/0002_production_e2e.sql`, avec une rétention de 366 jours
-et une purge bornée. Aucun événement métier ou document client n’y est lié.
-La publication exige le circuit existant de déploiement du statut et la fusion
-autorisée du workflow. Aucun de ces actes n’est effectué par les tests locaux.
+## Public reads and retention
 
-## Parcours authentifiés
+`GET /api/e2e-status` starts no tests. It returns the latest twenty summaries,
+the latest report details, and a status limited to this scope. A report stays
+fresh for eight hours. Its production SHA must match the latest Cron observation,
+which must itself be less than thirty minutes old. Absence, delay, a version
+change, or interrupted execution produces neutral `unknown`. An observed failure
+on the current version remains `attention`.
 
-Le résultat `authenticated.status: blocked` est indépendant des 28 contrôles
-publics et du bilan des quatorze sondes Cron. Les comptes de recette dédiés,
-leur accès CI protégé et les fixtures métier préapprouvées restent à qualifier.
-Le profil live `verified_account` ne requiert pas de passkey ou de MFA ;
-leur absence ne constitue pas le blocage de cette suite.
-Le rapport anonyme ne peut pas déclarer ce cycle réussi. Une future suite
-authentifiée nécessite un job protégé et un schéma de preuve distinct ; elle
-ne doit jamais publier de JWT, capture de document, trace, état de session ou
-détail de compte. Voir `PRODUCTION_TEST_ACCOUNTS.md` pour l’étude correspondante.
+Reports live in the separate status D1 database, through migration
+`apps/status/migrations/0002_production_e2e.sql`, with 366-day retention and bounded
+purging. They contain no related business event or customer document. Publication
+uses the existing status deployment process and an authorized workflow merge.
+Local tests perform neither action.
+
+## Authenticated journeys
+
+The `authenticated.status: blocked` result is independent of the 28 public checks
+and the fourteen Cron probes. Dedicated test accounts, protected CI access, and
+preapproved synthetic business fixtures still require qualification. The live
+`verified_account` profile requires no passkey or additional MFA; their absence
+is not the blocker for this suite.
+
+An anonymous report cannot declare that authenticated cycle successful. A future
+authenticated suite needs a protected job and separate evidence schema. It must
+never publish JWTs, document screenshots, traces, session state, or account
+details. See [production test accounts](PRODUCTION_TEST_ACCOUNTS.md) for the study.

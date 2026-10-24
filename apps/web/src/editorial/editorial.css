@@ -367,12 +367,6 @@
   .journal-note p {
     max-width: none;
   }
-  .editorial-header nav > a:first-child:not(.button) {
-    display: block;
-  }
-  .editorial-header nav {
-    gap: 12px;
-  }
   .article-intro {
     padding-top: 30px;
   }
@@ -429,16 +423,6 @@
   }
 }
 @media (max-width: 420px) {
-  .editorial-header .brand {
-    font-size: 29px;
-  }
-  .editorial-header nav > .button {
-    font-size: 11px;
-    padding: 9px;
-  }
-  .editorial-header nav > a:first-child:not(.button) {
-    display: none;
-  }
   .article-intro h1 {
     font-size: 39px;
   }
@@ -461,13 +445,6 @@
   }
 }
 @media print {
-  .editorial-header,
-  .article-contents,
-  .article-next,
-  .luxembourg-footer,
-  .skip-link {
-    display: none;
-  }
   .landing {
     max-width: none;
     padding: 0;

@@ -1,31 +1,32 @@
 // The public browser report has its own state. It never changes the fourteen
 // availability observations or turns missing authenticated coverage into a fault.
 (() => {
+  const reportText = window.statusI18n.msg;
   const byId = (id) => document.getElementById(id);
   const titles = {
-    home_fr: "Accueil en français",
-    home_en: "Accueil en anglais",
-    home_de: "Accueil en allemand",
-    home_lb: "Accueil en luxembourgeois",
-    roles: "Guide des rôles",
-    developers: "Guide développeur",
-    chatgpt: "Guide ChatGPT",
+    home_fr: reportText("Homepage in French"),
+    home_en: reportText("Homepage in English"),
+    home_de: reportText("Homepage in German"),
+    home_lb: reportText("Homepage in Luxembourgish"),
+    roles: reportText("Role guide"),
+    developers: reportText("Developer guide"),
+    chatgpt: reportText("ChatGPT guide"),
   };
   const paths = {
-    "/": "Accueil en français",
-    "/?lang=en": "Accueil en anglais",
-    "/?lang=de": "Accueil en allemand",
-    "/?lang=lb": "Accueil en luxembourgeois",
-    "/roles/": "Guide des rôles",
-    "/developpeurs/": "Guide développeur",
-    "/assistants/chatgpt/": "Guide ChatGPT",
-    "/release.json": "Version publique",
-    "/api/health": "État annoncé par l’API",
-    "/api/capabilities": "Configuration annoncée",
-    "/api/documents": "Documents refusés sans connexion",
-    "/api/dispatches": "Envois refusés sans connexion",
-    "/api/overview": "Synthèse refusée sans connexion",
-    "/mcp": "Assistant refusé sans authentification",
+    "/": reportText("Homepage in French"),
+    "/?lang=en": reportText("Homepage in English"),
+    "/?lang=de": reportText("Homepage in German"),
+    "/?lang=lb": reportText("Homepage in Luxembourgish"),
+    "/roles/": reportText("Role guide"),
+    "/developers/": reportText("Developer guide"),
+    "/assistants/chatgpt/": reportText("ChatGPT guide"),
+    "/release.json": reportText("Public release"),
+    "/api/health": reportText("State reported by the API"),
+    "/api/capabilities": reportText("Reported configuration"),
+    "/api/documents": reportText("Document access rejected without sign-in"),
+    "/api/dispatches": reportText("Dispatch access rejected without sign-in"),
+    "/api/overview": reportText("Overview access rejected without sign-in"),
+    "/mcp": reportText("Assistant access rejected without authentication"),
   };
   const expectedIds = [
     ...["desktop", "phone"].flatMap((target) =>
@@ -33,6 +34,9 @@
     ),
     ...Object.keys(paths).map((path) => `http:${path}`),
   ];
+  // Display old signed reports without rewriting their recorded check IDs.
+  const canonicalCheckId = (id) =>
+    id === "http:/developpeurs/" ? "http:/developers/" : id;
   const codes = new Set([
     "OK",
     "BROWSER_ASSERTION_FAILED",
@@ -58,12 +62,12 @@
   const timestamp = (value) =>
     typeof value === "string" && Number.isFinite(Date.parse(value));
   const states = new Set(["passed", "attention", "unknown"]);
-  const date = new Intl.DateTimeFormat("fr-FR", {
+  const date = new Intl.DateTimeFormat(window.statusI18n.locale, {
     timeZone: "Europe/Paris",
     dateStyle: "long",
     timeStyle: "medium",
   });
-  const number = new Intl.NumberFormat("fr-FR");
+  const number = new Intl.NumberFormat(window.statusI18n.locale);
   let snapshot = null;
   let busy = false;
   let unavailable = false;
@@ -91,14 +95,15 @@
       run.runUrl !== runUrl(run.runId, run.attempt) ||
       !Array.isArray(run.checks) ||
       run.checks.length !== expectedIds.length ||
-      new Set(run.checks.map((check) => check?.id)).size !== expectedIds.length
+      new Set(run.checks.map((check) => canonicalCheckId(check?.id))).size !==
+        expectedIds.length
     )
       return false;
     if (
       !run.checks.every(
         (check) =>
           check &&
-          expectedIds.includes(check.id) &&
+          expectedIds.includes(canonicalCheckId(check.id)) &&
           ["pass", "fail", "blocked"].includes(check.status) &&
           codes.has(check.code) &&
           Number.isInteger(check.durationMs) &&
@@ -185,10 +190,10 @@
   }
   function reportStatus(status) {
     return status === "passed"
-      ? ["Réussi", "success"]
+      ? [reportText("Passed"), "success"]
       : status === "attention"
-        ? ["À examiner", "failure"]
-        : ["Incomplet", "historical"];
+        ? [reportText("Review needed"), "failure"]
+        : [reportText("Incomplete"), "historical"];
   }
   function updateFreshness() {
     const latest = snapshot?.latest;
@@ -197,46 +202,60 @@
       !!latest && age >= 0 && age < snapshot.staleAfterSeconds * 1000;
     const current =
       fresh && snapshot.releaseState === "current" && !unavailable;
-    let label = "Aucun rapport",
-      title = "Aucun rapport de navigateur reçu",
-      detail =
-        "Les contrôles publics ci-dessus restent la source du bilan de disponibilité.",
+    let label = reportText("No report"),
+      title = reportText("No browser report received"),
+      detail = reportText(
+        "The public checks above remain the source of the availability summary.",
+      ),
       state = "historical";
     if (unavailable) {
-      label = "Lecture indisponible";
-      title = "Rapport de navigateur indisponible";
+      label = reportText("Read unavailable");
+      title = reportText("Browser report unavailable");
       detail = latest
-        ? "Le dernier résultat reste consultable avec sa date ; son actualité ne peut pas être confirmée."
-        : "Aucune conclusion n’est tirée sur les parcours du navigateur. Le bilan de disponibilité reste indépendant.";
+        ? reportText(
+            "The latest result remains available with its date; its freshness cannot be confirmed.",
+          )
+        : reportText(
+            "No conclusion is drawn about browser journeys. The availability summary remains independent.",
+          );
     } else if (latest && !fresh) {
-      label = "Rapport ancien";
-      title = "Rapport ancien — situation actuelle inconnue";
-      detail =
-        "L’exécution affichée décrit une observation passée. Une nouvelle exécution est nécessaire pour conclure.";
+      label = reportText("Old report");
+      title = reportText("Old report — current state unknown");
+      detail = reportText(
+        "The displayed run describes a past observation. A new run is required to reach a conclusion.",
+      );
     } else if (latest && snapshot.releaseState === "changed") {
-      label = "Autre version";
-      title = "Une nouvelle version a été publiée depuis ce rapport";
-      detail =
-        "Le rapport reste une preuve de la version testée. Il ne qualifie pas la version publique actuelle.";
+      label = reportText("Different release");
+      title = reportText("A new release has been published since this report");
+      detail = reportText(
+        "The report remains evidence of the tested release. It does not qualify the current public release.",
+      );
     } else if (latest && snapshot.releaseState === "unverified") {
-      label = "Version à rapprocher";
-      title = "La version du rapport reste à rapprocher";
-      detail =
-        "La version publique actuelle ou celle testée n’est pas établie. Aucun succès actuel n’est déduit du rapport.";
+      label = reportText("Release comparison required");
+      title = reportText("The report release still needs to be compared");
+      detail = reportText(
+        "The current public release or tested release is not established. No current success is inferred from the report.",
+      );
     } else if (current) {
       [label, state] = reportStatus(latest.status);
       title =
         latest.status === "passed"
-          ? "Parcours publics vérifiés dans le navigateur"
+          ? reportText("Public journeys verified in the browser")
           : latest.status === "attention"
-            ? "Des parcours publics sont à examiner"
-            : "L’exécution des parcours publics est incomplète";
+            ? reportText("Public journeys need review")
+            : reportText("The public journey run is incomplete");
       detail =
         latest.status === "passed"
-          ? "Cette exécution récente correspond à la version publique observée. Elle couvre les pages et contrats publics indiqués ci-dessous."
+          ? reportText(
+              "This recent run matches the observed public release. It covers the public pages and contracts listed below.",
+            )
           : latest.status === "attention"
-            ? "Un écart a été observé dans cette exécution. Le rapport détaillé conserve le résultat exact et sa version."
-            : "Certains contrôles n’ont pas pu être exécutés. Aucun succès global des parcours n’est annoncé.";
+            ? reportText(
+                "A discrepancy was observed in this run. The detailed report preserves the exact result and its release.",
+              )
+            : reportText(
+                "Some checks could not run. No overall journey success is claimed.",
+              );
     }
     const status = byId("e2e-state");
     put("e2e-state", label);
@@ -246,16 +265,20 @@
     put(
       "e2e-freshness",
       !latest
-        ? "Aucun rapport reçu"
+        ? reportText("No report received")
         : age < 0
-          ? "Horloge à vérifier"
-          : `${age < 60000 ? "Moins d’une minute" : age < 3600000 ? `${Math.floor(age / 60000)} min` : `${Math.floor(age / 3600000)} h`} · ${fresh ? "récent" : "ancien"}`,
+          ? reportText("Check the clock")
+          : `${age < 60000 ? reportText("Less than a minute") : age < 3600000 ? `${Math.floor(age / 60000)} min` : `${Math.floor(age / 3600000)} h`} · ${fresh ? reportText("recent") : reportText("old")}`,
     );
   }
   function checkLabel(id) {
-    if (id.startsWith("http:")) return `Contrat public · ${paths[id.slice(5)]}`;
+    if (id.startsWith("http:"))
+      return reportText(
+        "Public contract · {0}",
+        paths[canonicalCheckId(id).slice(5)],
+      );
     const [, target, page] = id.split(":");
-    return `${target === "desktop" ? "Navigateur ordinateur" : "Vue mobile"} · ${titles[page]}`;
+    return `${target === "desktop" ? reportText("Desktop browser") : reportText("Mobile view")} · ${titles[page]}`;
   }
   function render(data) {
     const latest = data.latest;
@@ -266,19 +289,19 @@
       "e2e-completed",
       latest
         ? `${date.format(new Date(latest.completedAt))} · Paris`
-        : "Aucune exécution reçue",
+        : reportText("No run received"),
     );
     put(
       "e2e-tested-release",
       latest?.testedReleaseCommit
         ? latest.testedReleaseCommit.slice(0, 12)
-        : "Non établie",
+        : reportText("Not established"),
     );
     put(
       "e2e-current-release",
       data.currentReleaseCommit
         ? data.currentReleaseCommit.slice(0, 12)
-        : "Non établie",
+        : reportText("Not established"),
     );
     byId("e2e-run").hidden = !latest;
     if (latest)
@@ -292,7 +315,12 @@
         latest.checks.filter((check) => check.status === state).length;
       put(
         "e2e-counts",
-        `${count("pass")} contrôles réussis · ${count("fail")} en écart · ${count("blocked")} non exécutés. Vue mobile simulée ; aucun appareil physique ni envoi métier n’est testé.`,
+        reportText(
+          "{0} checks passed · {1} failed · {2} not run. Simulated mobile viewport; no physical device or business dispatch is tested.",
+          count("pass"),
+          count("fail"),
+          count("blocked"),
+        ),
       );
       for (const check of latest.checks) {
         const row = node("li"),
@@ -308,10 +336,10 @@
           text,
           badge(
             check.status === "pass"
-              ? "Réussi"
+              ? reportText("Passed")
               : check.status === "fail"
-                ? "En écart"
-                : "Non exécuté",
+                ? reportText("Failed")
+                : reportText("Not run"),
             check.status === "pass"
               ? "success"
               : check.status === "fail"
@@ -321,7 +349,7 @@
         );
         list.append(row);
       }
-    } else put("e2e-counts", "Aucun résultat de navigateur reçu.");
+    } else put("e2e-counts", reportText("No browser result received."));
     const history = byId("e2e-history");
     history.replaceChildren();
     byId("e2e-history-details").hidden = data.history.length === 0;
@@ -336,7 +364,12 @@
         link,
         node(
           "small",
-          `Version testée : ${run.testedReleaseCommit ? run.testedReleaseCommit.slice(0, 12) : "non établie"}`,
+          reportText(
+            "Tested release: {0}",
+            run.testedReleaseCommit
+              ? run.testedReleaseCommit.slice(0, 12)
+              : reportText("not established"),
+          ),
         ),
       );
       const [label, state] = reportStatus(run.status);

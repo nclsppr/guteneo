@@ -1,5 +1,5 @@
 {
-  "sourceLanguage": "fr",
+  "sourceLanguage": "en",
   "strings": {
     "%@ page": {
       "extractionState": "manual",
@@ -59,7 +59,7 @@
         }
       }
     },
-    "Abandonner le brouillon": {
+    "Discard draft": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -88,7 +88,7 @@
         }
       }
     },
-    "Accès indisponible": {
+    "Access unavailable": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -146,7 +146,7 @@
         }
       }
     },
-    "Actualiser": {
+    "Refresh": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -175,7 +175,7 @@
         }
       }
     },
-    "Actualiser le suivi": {
+    "Refresh tracking": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -204,7 +204,7 @@
         }
       }
     },
-    "Actualiser les disponibilités": {
+    "Refresh availability": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -233,7 +233,7 @@
         }
       }
     },
-    "Administrateur": {
+    "Administrator": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -262,7 +262,7 @@
         }
       }
     },
-    "Adresse e-mail": {
+    "Email address": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -291,7 +291,7 @@
         }
       }
     },
-    "Annuler cet envoi": {
+    "Cancel this dispatch": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -320,7 +320,7 @@
         }
       }
     },
-    "Annuler cet envoi ?": {
+    "Cancel this dispatch?": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -349,7 +349,7 @@
         }
       }
     },
-    "Annuler l’envoi": {
+    "Cancel dispatch": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -378,7 +378,7 @@
         }
       }
     },
-    "Annulé": {
+    "Cancelled": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -407,7 +407,7 @@
         }
       }
     },
-    "Application native pour iPhone et iPad.": {
+    "Native app for iPhone and iPad.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -436,7 +436,7 @@
         }
       }
     },
-    "Assistance": {
+    "Support": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -465,7 +465,7 @@
         }
       }
     },
-    "Atelier": {
+    "Workspace": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -494,7 +494,7 @@
         }
       }
     },
-    "Aucun document trouvé": {
+    "No documents found": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -523,7 +523,7 @@
         }
       }
     },
-    "Aucun envoi pour le moment": {
+    "No dispatches yet": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -552,7 +552,7 @@
         }
       }
     },
-    "Aucun envoi à afficher": {
+    "No dispatches to display": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -581,7 +581,7 @@
         }
       }
     },
-    "Aucun expéditeur n’est configuré pour ce mode d’envoi.": {
+    "No sender is configured for this delivery method.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -610,7 +610,7 @@
         }
       }
     },
-    "Aucun mode d’envoi n’est actuellement disponible pour ce compte. Vous pouvez toujours consulter vos documents et votre suivi.": {
+    "No delivery method is currently available for this account. You can still view your documents and tracking.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -639,7 +639,7 @@
         }
       }
     },
-    "Aucun événement supplémentaire.": {
+    "No further events.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -668,7 +668,7 @@
         }
       }
     },
-    "Autorisé": {
+    "Allowed": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -697,7 +697,7 @@
         }
       }
     },
-    "Besoin d’aide": {
+    "Need help?": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -726,7 +726,7 @@
         }
       }
     },
-    "Canal": {
+    "Channel": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -755,7 +755,7 @@
         }
       }
     },
-    "Ce PDF est trop volumineux. Choisissez un fichier de 10 Mo maximum.": {
+    "This PDF is too large. Choose a file no larger than 10 MB.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -784,7 +784,7 @@
         }
       }
     },
-    "Ce PDF ne peut pas être lu. Réessayez ou contactez l’assistance.": {
+    "This PDF cannot be read. Try again or contact support.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -813,7 +813,7 @@
         }
       }
     },
-    "Ce mode d’envoi n’est pas disponible pour votre compte.": {
+    "This delivery method is not available for your account.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -842,7 +842,7 @@
         }
       }
     },
-    "Ce plafond n’est pas un montant débité. Consultez le devis détaillé et ses conditions dans votre espace sécurisé.": {
+    "This limit is not an amount charged. View the detailed quote and its terms in your secure space.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -871,7 +871,7 @@
         }
       }
     },
-    "Ce plafond n’est pas un montant débité. Le devis détaillé et ses conditions sont présentés lors de votre validation.": {
+    "This limit is not a charged amount. The detailed quote and its terms are shown when you approve.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -900,7 +900,7 @@
         }
       }
     },
-    "Cet élément est indisponible. Actualisez la liste.": {
+    "This item is unavailable. Refresh the list.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -929,7 +929,7 @@
         }
       }
     },
-    "Cette action n’est pas disponible pour votre compte.": {
+    "This action is not available for your account.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -958,7 +958,7 @@
         }
       }
     },
-    "Cette application nécessite un compte Guteneo en service réel.": {
+    "This app requires a Guteneo account in live mode.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -987,7 +987,7 @@
         }
       }
     },
-    "Cette opération est momentanément indisponible. Réessayez plus tard ou contactez l’assistance.": {
+    "This operation is temporarily unavailable. Try again later or contact support.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -1016,7 +1016,7 @@
         }
       }
     },
-    "Cette préparation sert uniquement à consulter le document et le devis. Elle ne peut être ni approuvée ni envoyée et ne réserve aucun montant.": {
+    "This preparation is only for viewing the document and quote. It cannot be approved or sent and does not reserve any amount.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -1045,7 +1045,7 @@
         }
       }
     },
-    "Chaque envoi sous votre contrôle": {
+    "You control every dispatch": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -1074,7 +1074,7 @@
         }
       }
     },
-    "Chaque envoi sous votre contrôle.": {
+    "Every dispatch under your control.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -1103,7 +1103,7 @@
         }
       }
     },
-    "Chaque original,\nà sa place.": {
+    "Every original,\nin its place.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -1132,7 +1132,7 @@
         }
       }
     },
-    "Chargement de l’envoi…": {
+    "Loading dispatch…": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -1161,7 +1161,7 @@
         }
       }
     },
-    "Charger les documents suivants": {
+    "Load more documents": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -1190,7 +1190,7 @@
         }
       }
     },
-    "Charger les envois suivants": {
+    "Load more dispatches": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -1219,7 +1219,7 @@
         }
       }
     },
-    "Choisir un PDF vérifié": {
+    "Choose a verified PDF": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -1248,7 +1248,7 @@
         }
       }
     },
-    "Choisir un expéditeur": {
+    "Choose a sender": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -1277,7 +1277,7 @@
         }
       }
     },
-    "Choisissez un document dans la liste pour consulter sa vérification, lire le PDF original ou préparer un fax.": {
+    "Choose a document from the list to check its verification, read the original PDF or prepare a fax.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -1306,7 +1306,7 @@
         }
       }
     },
-    "Choisissez un envoi pour retrouver son destinataire, le document joint et les derniers événements connus.": {
+    "Choose a dispatch to find its recipient, attached document and latest known events.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -1335,7 +1335,7 @@
         }
       }
     },
-    "Choisissez un fichier PDF valide.": {
+    "Choose a valid PDF file.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -1364,7 +1364,7 @@
         }
       }
     },
-    "Commencez par importer un PDF ou préparer un message.": {
+    "Start by importing a PDF or preparing a message.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -1393,7 +1393,7 @@
         }
       }
     },
-    "Comprendre les rôles": {
+    "Understand roles": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -1422,7 +1422,7 @@
         }
       }
     },
-    "Compte": {
+    "Account": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -1451,7 +1451,7 @@
         }
       }
     },
-    "Compte et documents": {
+    "Account and documents": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -1480,7 +1480,7 @@
         }
       }
     },
-    "Confidentialité": {
+    "Privacy": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -1509,7 +1509,7 @@
         }
       }
     },
-    "Confirmer la demande de suppression": {
+    "Confirm deletion request": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -1538,7 +1538,7 @@
         }
       }
     },
-    "Connexion interrompue. Actualisez le suivi avant de recommencer une opération.": {
+    "Connection interrupted. Refresh tracking before trying an operation again.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -1567,7 +1567,7 @@
         }
       }
     },
-    "Consulter et valider l’envoi": {
+    "Review and approve dispatch": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -1596,7 +1596,7 @@
         }
       }
     },
-    "Consulter la politique complète": {
+    "Read the full policy": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -1625,7 +1625,7 @@
         }
       }
     },
-    "Consulter le devis": {
+    "View quote": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -1654,7 +1654,7 @@
         }
       }
     },
-    "Consulter le devis de référence": {
+    "View reference quote": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -1683,7 +1683,7 @@
         }
       }
     },
-    "Contacter l’assistance": {
+    "Contact support": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -1712,7 +1712,7 @@
         }
       }
     },
-    "Contenu masqué": {
+    "Content hidden": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -1741,7 +1741,7 @@
         }
       }
     },
-    "Courrier": {
+    "Post": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -1770,7 +1770,7 @@
         }
       }
     },
-    "Courrier imprimé": {
+    "Letter printed": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -1799,7 +1799,7 @@
         }
       }
     },
-    "Courrier remis à la poste": {
+    "Letter handed to the post": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -1828,7 +1828,7 @@
         }
       }
     },
-    "Coût maximum en euros hors taxes": {
+    "Maximum cost in euros excluding tax": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -1857,7 +1857,7 @@
         }
       }
     },
-    "Coût maximum · EUR HT": {
+    "Maximum cost · EUR excl. tax": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -1886,7 +1886,7 @@
         }
       }
     },
-    "Date indisponible": {
+    "Date unavailable": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -1915,7 +1915,7 @@
         }
       }
     },
-    "Demande de suppression enregistrée": {
+    "Deletion request recorded": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -1944,7 +1944,7 @@
         }
       }
     },
-    "Demander la suppression du compte": {
+    "Request account deletion": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -1973,7 +1973,7 @@
         }
       }
     },
-    "Demandez la suppression de votre compte et des données associées. Certaines preuves peuvent être conservées lorsqu’une obligation l’impose.": {
+    "Request deletion of your account and associated data. Some records may be retained when legally required.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -2002,7 +2002,7 @@
         }
       }
     },
-    "Demandée le %@": {
+    "Requested on %@": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -2031,7 +2031,7 @@
         }
       }
     },
-    "Derniers envois": {
+    "Recent dispatches": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -2060,7 +2060,7 @@
         }
       }
     },
-    "Destinataire": {
+    "Recipient": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -2089,7 +2089,7 @@
         }
       }
     },
-    "Destinataire ou objet": {
+    "Recipient or subject": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -2118,7 +2118,7 @@
         }
       }
     },
-    "Devis de référence": {
+    "Reference quote": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -2147,7 +2147,7 @@
         }
       }
     },
-    "Devis expiré": {
+    "Quote expired": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -2176,7 +2176,7 @@
         }
       }
     },
-    "Devis valable jusqu’au": {
+    "Quote valid until": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -2205,7 +2205,7 @@
         }
       }
     },
-    "Distribué": {
+    "Delivered": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -2263,7 +2263,7 @@
         }
       }
     },
-    "Document joint": {
+    "Attached document": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -2321,7 +2321,7 @@
         }
       }
     },
-    "Dépôt du PDF…": {
+    "Uploading PDF…": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -2350,7 +2350,7 @@
         }
       }
     },
-    "E-mail": {
+    "Email": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -2379,7 +2379,7 @@
         }
       }
     },
-    "Empreinte SHA 256 : %@": {
+    "SHA 256 fingerprint: %@": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -2408,7 +2408,7 @@
         }
       }
     },
-    "Empreinte du document": {
+    "Document fingerprint": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -2437,7 +2437,7 @@
         }
       }
     },
-    "En attente": {
+    "Queued": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -2466,7 +2466,7 @@
         }
       }
     },
-    "En cours": {
+    "In progress": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -2495,7 +2495,7 @@
         }
       }
     },
-    "Enregistrement de la langue…": {
+    "Saving language…": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -2524,7 +2524,7 @@
         }
       }
     },
-    "Envoi": {
+    "Dispatch": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -2553,7 +2553,7 @@
         }
       }
     },
-    "Envoi annulé": {
+    "Dispatch cancelled": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -2582,7 +2582,7 @@
         }
       }
     },
-    "Envoi distribué": {
+    "Dispatch delivered": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -2611,7 +2611,7 @@
         }
       }
     },
-    "Envoi en attente": {
+    "Dispatch queued": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -2640,7 +2640,7 @@
         }
       }
     },
-    "Envoi non distribué": {
+    "Dispatch not delivered": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -2669,7 +2669,7 @@
         }
       }
     },
-    "Envoi préparé": {
+    "Dispatch prepared": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -2698,7 +2698,7 @@
         }
       }
     },
-    "Envoi validé": {
+    "Dispatch approved": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -2727,7 +2727,7 @@
         }
       }
     },
-    "Envois": {
+    "Dispatches": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -2756,7 +2756,7 @@
         }
       }
     },
-    "Essayez un autre nom ou chargez les documents suivants.": {
+    "Try another name or load more documents.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -2785,7 +2785,7 @@
         }
       }
     },
-    "Expéditeur": {
+    "Sender": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -2843,7 +2843,7 @@
         }
       }
     },
-    "Fermer": {
+    "Close": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -2872,7 +2872,7 @@
         }
       }
     },
-    "Fermer ce brouillon ?": {
+    "Close this draft?": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -2901,7 +2901,7 @@
         }
       }
     },
-    "France, Luxembourg ou Allemagne, selon les routes disponibles.": {
+    "France, Luxembourg or Germany, depending on available routes.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -2959,7 +2959,7 @@
         }
       }
     },
-    "Guteneo utilise votre identité et votre organisation pour vous donner accès à vos documents et à vos envois. Les PDF, destinataires et messages que vous déposez sont traités pour fournir le service.": {
+    "Guteneo uses your identity and organisation to give you access to your documents and dispatches. The PDFs, recipients and messages you provide are processed to deliver the service.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -2988,7 +2988,7 @@
         }
       }
     },
-    "Historique": {
+    "History": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -3017,7 +3017,7 @@
         }
       }
     },
-    "Il n’a pas été envoyé. Retrouvez le document, le destinataire et la validation dans son suivi.": {
+    "It has not been sent. Review the document, recipient and approval in its tracking view.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -3046,7 +3046,7 @@
         }
       }
     },
-    "Il n’a pas été envoyé. Retrouvez le document, le destinataire et les conditions du devis dans son suivi.": {
+    "It has not been sent. Find the document, recipient and quote terms in its tracking view.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -3075,7 +3075,7 @@
         }
       }
     },
-    "Importer un PDF": {
+    "Import PDF": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -3104,7 +3104,7 @@
         }
       }
     },
-    "Importez d’abord un PDF dans Documents, puis attendez la fin de sa vérification.": {
+    "First import a PDF in Documents, then wait for verification to finish.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -3133,7 +3133,7 @@
         }
       }
     },
-    "Importez un PDF depuis Fichiers. Son original sera conservé et vérifié avant utilisation.": {
+    "Import a PDF from Files. Its original will be preserved and verified before use.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -3162,7 +3162,7 @@
         }
       }
     },
-    "Importé le": {
+    "Imported on": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -3191,7 +3191,7 @@
         }
       }
     },
-    "Imprimé": {
+    "Printed": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -3220,7 +3220,7 @@
         }
       }
     },
-    "Indisponible": {
+    "Unavailable": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -3249,7 +3249,7 @@
         }
       }
     },
-    "La connexion n’a pas abouti. Réessayez depuis cet appareil.": {
+    "Sign-in did not complete. Try again from this device.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -3278,7 +3278,7 @@
         }
       }
     },
-    "La connexion sécurisée s’ouvre dans le navigateur système.": {
+    "Secure sign-in opens in the system browser.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -3307,7 +3307,7 @@
         }
       }
     },
-    "La demande concerne votre compte Guteneo, sur le site comme dans l’application. Elle ne rappelle pas les documents déjà envoyés. Le traitement n’est pas instantané.": {
+    "This request applies to your Guteneo account on the website and in the app. It does not recall documents already sent. Processing is not immediate.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -3336,7 +3336,7 @@
         }
       }
     },
-    "La session est stockée dans le trousseau sécurisé. Les PDF consultés restent en mémoire pendant leur lecture. L’application ne demande pas l’accès à vos contacts, à votre position, au microphone ou à la caméra.": {
+    "Your session is stored in the secure Keychain. Viewed PDFs remain in memory while you read them. The app does not request access to your contacts, location, microphone or camera.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -3365,7 +3365,7 @@
         }
       }
     },
-    "La situation de cet envoi a changé. Actualisez son suivi avant de continuer.": {
+    "This dispatch has changed. Refresh its tracking before continuing.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -3394,7 +3394,7 @@
         }
       }
     },
-    "La vérification ne peut pas être terminée. Choisissez un autre PDF ou contactez l’assistance.": {
+    "Verification cannot be completed. Choose another PDF or contact support.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -3423,7 +3423,7 @@
         }
       }
     },
-    "Langue": {
+    "Language": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -3452,7 +3452,7 @@
         }
       }
     },
-    "Langue préférée": {
+    "Preferred language": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -3481,7 +3481,7 @@
         }
       }
     },
-    "Le PDF doit être vérifié avant de préparer cet envoi.": {
+    "The PDF must be verified before preparing this dispatch.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -3510,7 +3510,7 @@
         }
       }
     },
-    "Le PDF original est conservé. Sa vérification précède son utilisation.": {
+    "The original PDF is preserved. It is verified before use.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -3539,7 +3539,7 @@
         }
       }
     },
-    "Le bon document.\nLe bon destinataire.": {
+    "The right document.\nThe right recipient.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -3568,7 +3568,7 @@
         }
       }
     },
-    "Le compte n’est pas encore supprimé. Le traitement doit tenir compte des envois en cours, de votre organisation et des obligations de conservation. Une confirmation vous sera adressée après traitement.": {
+    "Your account has not been deleted yet. Processing must take into account ongoing dispatches, your organisation and retention requirements. You will receive confirmation once processing is complete.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -3597,7 +3597,7 @@
         }
       }
     },
-    "Le contenu, les options et le devis.": {
+    "The content, options and quote.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -3626,7 +3626,7 @@
         }
       }
     },
-    "Le contrôle de sécurité a refusé ce PDF. Vérifiez le fichier d’origine ou choisissez un autre PDF.": {
+    "The security check rejected this PDF. Check the original file or choose another PDF.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -3655,7 +3655,7 @@
         }
       }
     },
-    "Le devis a expiré. Consultez l’envoi dans votre espace Guteneo.": {
+    "The quote has expired. View the dispatch in your Guteneo workspace.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -3684,7 +3684,7 @@
         }
       }
     },
-    "Le devis précis sera calculé par Guteneo. Préparer cet envoi n’autorise pas son expédition.": {
+    "Guteneo will calculate the exact quote. Preparing this dispatch does not authorise sending it.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -3713,7 +3713,7 @@
         }
       }
     },
-    "Le document envoyé correspond au PDF importé. Guteneo ne modifie pas ses pages.": {
+    "The document sent matches the imported PDF. Guteneo does not modify its pages.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -3742,7 +3742,7 @@
         }
       }
     },
-    "Le fichier n’a pas pu être ouvert. Choisissez de nouveau le PDF dans Fichiers.": {
+    "The file could not be opened. Select the PDF again in Files.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -3771,7 +3771,7 @@
         }
       }
     },
-    "Le filtre « À valider uniquement » vous aide à retrouver les préparations qui attendent votre vérification.": {
+    "The “Awaiting approval only” filter helps you find preparations waiting for your review.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -3800,7 +3800,7 @@
         }
       }
     },
-    "Le fournisseur n’a pas confirmé le résultat. Ne créez pas un second envoi : actualisez le suivi ou contactez l’assistance.": {
+    "The provider has not confirmed the outcome. Do not create a second dispatch: refresh tracking or contact support.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -3829,7 +3829,7 @@
         }
       }
     },
-    "Le parcours\nde chaque envoi.": {
+    "The journey\nof every dispatch.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -3858,7 +3858,7 @@
         }
       }
     },
-    "Le retrait de la session du stockage sécurisé n’a pas pu être confirmé. Déverrouillez votre appareil avant de relancer l’application.": {
+    "Removal of the session from secure storage could not be confirmed. Unlock your device before reopening the app.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -3887,7 +3887,7 @@
         }
       }
     },
-    "Le solde disponible ne permet pas cet envoi.": {
+    "The available balance is insufficient for this dispatch.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -3916,7 +3916,7 @@
         }
       }
     },
-    "Lecture seule": {
+    "Read only": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -3945,7 +3945,7 @@
         }
       }
     },
-    "Les PDF restent privés à votre organisation. Leur vérification peut prendre quelques minutes.": {
+    "PDFs remain private to your organisation. Verification may take a few minutes.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -3974,7 +3974,7 @@
         }
       }
     },
-    "Les documents sont téléchargés à la demande. La session est conservée dans le trousseau sécurisé de cet appareil.": {
+    "Documents are downloaded on demand. Your session is kept in this device’s secure Keychain.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -4003,7 +4003,7 @@
         }
       }
     },
-    "Les informations non préparées ne seront pas enregistrées.": {
+    "Unprepared information will not be saved.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -4032,7 +4032,7 @@
         }
       }
     },
-    "Limite de coût": {
+    "Cost limit": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -4061,7 +4061,7 @@
         }
       }
     },
-    "Lire le PDF original": {
+    "Read original PDF": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -4090,7 +4090,7 @@
         }
       }
     },
-    "L’enregistrement de la langue n’a pas pu être confirmé. Votre préférence précédente a été rétablie. Actualisez le profil avant de réessayer.": {
+    "Saving the language could not be confirmed. Your previous preference has been restored. Refresh your profile before trying again.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -4119,7 +4119,7 @@
         }
       }
     },
-    "L’opération a été annulée.": {
+    "The operation was cancelled.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -4148,7 +4148,7 @@
         }
       }
     },
-    "Membre": {
+    "Member": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -4177,7 +4177,7 @@
         }
       }
     },
-    "Mentions légales": {
+    "Legal notice": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -4235,7 +4235,7 @@
         }
       }
     },
-    "Mode d’envoi": {
+    "Delivery method": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -4264,7 +4264,7 @@
         }
       }
     },
-    "Nom": {
+    "Name": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -4293,7 +4293,7 @@
         }
       }
     },
-    "Non autorisé": {
+    "Not allowed": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -4322,7 +4322,7 @@
         }
       }
     },
-    "Numéro international (+33…)": {
+    "International number (+33…)": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -4351,7 +4351,7 @@
         }
       }
     },
-    "Objet": {
+    "Subject": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -4380,7 +4380,7 @@
         }
       }
     },
-    "Observateur": {
+    "Observer": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -4409,7 +4409,7 @@
         }
       }
     },
-    "Opérateur": {
+    "Operator": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -4438,7 +4438,7 @@
         }
       }
     },
-    "Opération indisponible.": {
+    "Operation unavailable.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -4496,7 +4496,7 @@
         }
       }
     },
-    "Original conservé": {
+    "Original preserved": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -4525,7 +4525,7 @@
         }
       }
     },
-    "Ouverture de votre atelier…": {
+    "Opening your workspace…": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -4554,7 +4554,7 @@
         }
       }
     },
-    "Ouverture du PDF…": {
+    "Opening PDF…": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -4583,7 +4583,7 @@
         }
       }
     },
-    "Ouverture du document…": {
+    "Opening document…": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -4612,7 +4612,7 @@
         }
       }
     },
-    "Ouvrir la validation sécurisée": {
+    "Open secure approval": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -4641,7 +4641,7 @@
         }
       }
     },
-    "PDF indisponible": {
+    "PDF unavailable": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -4670,7 +4670,7 @@
         }
       }
     },
-    "PDF original": {
+    "Original PDF": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -4699,7 +4699,7 @@
         }
       }
     },
-    "PDF original. Faites défiler pour lire toutes les pages.": {
+    "Original PDF. Scroll to read every page.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -4728,7 +4728,7 @@
         }
       }
     },
-    "PDF prêt": {
+    "PDF ready": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -4757,7 +4757,7 @@
         }
       }
     },
-    "Patientez quelques instants avant de réessayer.": {
+    "Wait a moment before trying again.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -4786,7 +4786,7 @@
         }
       }
     },
-    "Personnellement, dans votre espace sécurisé.": {
+    "Personally, in your secure workspace.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -4815,7 +4815,7 @@
         }
       }
     },
-    "Plafond": {
+    "Limit": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -4844,7 +4844,7 @@
         }
       }
     },
-    "Plafond en euros": {
+    "Limit in euros": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -4873,7 +4873,7 @@
         }
       }
     },
-    "Politique de confidentialité": {
+    "Privacy policy": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -4902,7 +4902,7 @@
         }
       }
     },
-    "Poser une question sur vos données": {
+    "Ask about your data": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -4931,7 +4931,7 @@
         }
       }
     },
-    "Pour ajouter un document, utilisez « Importer un PDF » dans la liste.": {
+    "To add a document, use “Import a PDF” in the list.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -4960,7 +4960,7 @@
         }
       }
     },
-    "Pris en charge": {
+    "Accepted by provider": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -4989,7 +4989,7 @@
         }
       }
     },
-    "Pris en charge par le fournisseur": {
+    "Accepted by the provider": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -5018,7 +5018,7 @@
         }
       }
     },
-    "Préparation de référence": {
+    "Reference preparation": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -5047,7 +5047,7 @@
         }
       }
     },
-    "Préparation indisponible": {
+    "Preparation unavailable": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -5076,7 +5076,7 @@
         }
       }
     },
-    "Préparer des envois": {
+    "Prepare dispatches": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -5105,7 +5105,7 @@
         }
       }
     },
-    "Préparer le devis": {
+    "Prepare quote": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -5134,7 +5134,7 @@
         }
       }
     },
-    "Préparer un envoi": {
+    "Prepare a dispatch": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -5163,7 +5163,7 @@
         }
       }
     },
-    "Préparer un fax": {
+    "Prepare a fax": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -5192,7 +5192,7 @@
         }
       }
     },
-    "Préparez": {
+    "Prepare": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -5221,7 +5221,7 @@
         }
       }
     },
-    "Préparez ici. Vérifiez puis validez personnellement chaque envoi dans votre espace sécurisé.": {
+    "Prepare here. Personally review and approve each dispatch in your secure workspace.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -5250,7 +5250,7 @@
         }
       }
     },
-    "Préparez vos documents et retrouvez le suivi de votre atelier Guteneo.": {
+    "Prepare documents and follow your Guteneo workspace’s dispatches.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -5279,7 +5279,7 @@
         }
       }
     },
-    "Prêt": {
+    "Ready": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -5308,7 +5308,7 @@
         }
       }
     },
-    "Rechercher un document": {
+    "Search documents": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -5337,7 +5337,7 @@
         }
       }
     },
-    "Relancer la vérification": {
+    "Retry verification": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -5366,7 +5366,7 @@
         }
       }
     },
-    "Relire le document": {
+    "Review document": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -5395,7 +5395,7 @@
         }
       }
     },
-    "Remis à la poste": {
+    "Handed to the post": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -5424,7 +5424,7 @@
         }
       }
     },
-    "Retrouvez vos PDF, préparez vos envois et suivez leur parcours.": {
+    "Find your PDFs, prepare dispatches and track their progress.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -5453,7 +5453,7 @@
         }
       }
     },
-    "Réclamation reçue": {
+    "Complaint received": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -5482,7 +5482,7 @@
         }
       }
     },
-    "Réessayer": {
+    "Try again": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -5511,7 +5511,7 @@
         }
       }
     },
-    "Résultat à confirmer": {
+    "Outcome unconfirmed": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -5540,7 +5540,7 @@
         }
       }
     },
-    "Rôle": {
+    "Role": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -5569,7 +5569,7 @@
         }
       }
     },
-    "Se connecter": {
+    "Sign in": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -5598,7 +5598,7 @@
         }
       }
     },
-    "Se déconnecter": {
+    "Sign out": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -5627,7 +5627,7 @@
         }
       }
     },
-    "Se déconnecter de cet appareil ?": {
+    "Sign out of this device?": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -5656,7 +5656,7 @@
         }
       }
     },
-    "Signalé par le destinataire": {
+    "Reported by recipient": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -5685,7 +5685,7 @@
         }
       }
     },
-    "Simulation · aucun envoi réel.": {
+    "Simulation · no real dispatches.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -5714,7 +5714,7 @@
         }
       }
     },
-    "Suivi de l’envoi": {
+    "Dispatch tracking": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -5743,7 +5743,7 @@
         }
       }
     },
-    "Suivi en cours": {
+    "Tracking in progress": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -5772,7 +5772,7 @@
         }
       }
     },
-    "Suivi mis à jour": {
+    "Tracking updated": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -5801,7 +5801,7 @@
         }
       }
     },
-    "Superviseur": {
+    "Supervisor": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -5830,7 +5830,7 @@
         }
       }
     },
-    "Suppression du compte": {
+    "Account deletion": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -5859,7 +5859,7 @@
         }
       }
     },
-    "Suppression terminée": {
+    "Deletion completed": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -5888,7 +5888,7 @@
         }
       }
     },
-    "Supprimer votre compte ?": {
+    "Delete your account?": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -5917,7 +5917,7 @@
         }
       }
     },
-    "Sur cet appareil": {
+    "On this device": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -5946,7 +5946,7 @@
         }
       }
     },
-    "Terminer": {
+    "Done": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -5975,7 +5975,7 @@
         }
       }
     },
-    "Texte du message": {
+    "Message text": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -6004,7 +6004,7 @@
         }
       }
     },
-    "Tous les documents": {
+    "All documents": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -6033,7 +6033,7 @@
         }
       }
     },
-    "Transmission en cours": {
+    "Transmission in progress": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -6062,7 +6062,7 @@
         }
       }
     },
-    "Trop de demandes ont été effectuées. Patientez quelques instants avant de réessayer.": {
+    "Too many requests. Wait a moment before trying again.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -6091,7 +6091,7 @@
         }
       }
     },
-    "Un PDF et son destinataire.": {
+    "A PDF and its recipient.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -6120,7 +6120,7 @@
         }
       }
     },
-    "Un envoi déjà pris en charge ne peut plus être annulé. Le serveur vérifiera son état.": {
+    "A dispatch already accepted cannot be cancelled. The server will check its status.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -6149,7 +6149,7 @@
         }
       }
     },
-    "Un suivi partagé avec votre atelier": {
+    "Tracking shared with your workspace": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -6178,7 +6178,7 @@
         }
       }
     },
-    "Valider dans le navigateur": {
+    "Approve in the browser": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -6207,7 +6207,7 @@
         }
       }
     },
-    "Validez": {
+    "Approve": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -6236,7 +6236,7 @@
         }
       }
     },
-    "Validé": {
+    "Approved": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -6294,7 +6294,7 @@
         }
       }
     },
-    "Vie privée": {
+    "Privacy settings": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -6323,7 +6323,7 @@
         }
       }
     },
-    "Vos PDF trouveront leur place ici.": {
+    "Your PDFs will find their place here.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -6352,7 +6352,7 @@
         }
       }
     },
-    "Vos PDF, ici": {
+    "Your PDFs, here": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -6381,7 +6381,7 @@
         }
       }
     },
-    "Vos choix": {
+    "Your choices": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -6410,7 +6410,7 @@
         }
       }
     },
-    "Vos documents": {
+    "Your documents": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -6439,7 +6439,7 @@
         }
       }
     },
-    "Vos documents, sans les modifier": {
+    "Your documents, unchanged": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -6468,7 +6468,7 @@
         }
       }
     },
-    "Vos données": {
+    "Your data": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -6497,7 +6497,7 @@
         }
       }
     },
-    "Vos données dans l’application": {
+    "Your data in the app": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -6526,7 +6526,7 @@
         }
       }
     },
-    "Vos droits ont changé. Un administrateur de votre organisation peut reprendre la vérification.": {
+    "Your permissions have changed. An administrator of your organisation can restart verification.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -6555,7 +6555,7 @@
         }
       }
     },
-    "Vos envois apparaîtront ici avec leur dernier état connu.": {
+    "Your dispatches will appear here with their latest known status.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -6584,7 +6584,7 @@
         }
       }
     },
-    "Votre PDF a été vérifié. Vous pouvez préparer votre envoi.": {
+    "Your PDF has been verified. You can prepare your dispatch.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -6613,7 +6613,7 @@
         }
       }
     },
-    "Votre PDF est conservé. Le service de vérification est indisponible ; contactez l’assistance.": {
+    "Your PDF is preserved. The verification service is unavailable; contact support.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -6642,7 +6642,7 @@
         }
       }
     },
-    "Votre PDF est conservé. Relancez sa vérification sans le déposer à nouveau.": {
+    "Your PDF is preserved. Restart verification without uploading it again.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -6671,7 +6671,7 @@
         }
       }
     },
-    "Votre PDF est enregistré. Sa vérification peut prendre quelques minutes. Aucun nouveau dépôt n’est nécessaire.": {
+    "Your PDF is saved. Verification may take a few minutes. You do not need to upload it again.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -6700,7 +6700,7 @@
         }
       }
     },
-    "Votre atelier": {
+    "Your workspace": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -6729,7 +6729,7 @@
         }
       }
     },
-    "Votre atelier,\nà portée de main.": {
+    "Your workspace,\nwithin reach.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -6758,7 +6758,7 @@
         }
       }
     },
-    "Votre compte ne dispose pas des droits nécessaires à cette action.": {
+    "Your account does not have permission for this action.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -6787,7 +6787,7 @@
         }
       }
     },
-    "Votre envoi": {
+    "Your dispatch": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -6816,7 +6816,7 @@
         }
       }
     },
-    "Votre envoi est préparé": {
+    "Your dispatch is prepared": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -6845,7 +6845,7 @@
         }
       }
     },
-    "Votre identité": {
+    "Your identity": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -6874,7 +6874,7 @@
         }
       }
     },
-    "Votre préférence est partagée entre le site et l’application. Le contenu de vos documents et messages reste inchangé.": {
+    "Your preference is shared between the website and the app. Your documents and messages remain unchanged.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -6903,7 +6903,7 @@
         }
       }
     },
-    "Votre session a expiré. Connectez-vous à nouveau pour reprendre.": {
+    "Your session has expired. Sign in again to continue.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -6932,7 +6932,7 @@
         }
       }
     },
-    "Votre session a expiré. Reconnectez-vous pour retrouver votre atelier.": {
+    "Your session has expired. Sign in again to return to your workspace.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -6961,7 +6961,7 @@
         }
       }
     },
-    "Votre session ne peut pas être enregistrée en sécurité sur cet appareil. Réessayez après l’avoir déverrouillé.": {
+    "Your session could not be securely saved on this device. Try again after unlocking it.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -6990,7 +6990,7 @@
         }
       }
     },
-    "Votre validation": {
+    "Your approval": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -7019,7 +7019,7 @@
         }
       }
     },
-    "Vous choisissez les fichiers à importer dans Fichiers. Vous pouvez vous déconnecter ou demander la suppression de votre compte depuis Compte.": {
+    "You choose files to import in Files. You can sign out or request account deletion from Account.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -7048,7 +7048,7 @@
         }
       }
     },
-    "Vous êtes déconnecté sur cet appareil. La révocation distante n’a pas pu être confirmée ; la session expire automatiquement.": {
+    "You are signed out on this device. Remote revocation could not be confirmed; the session expires automatically.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -7077,7 +7077,7 @@
         }
       }
     },
-    "Vérification": {
+    "Verification": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -7106,7 +7106,7 @@
         }
       }
     },
-    "Vérification en cours": {
+    "Verification in progress": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -7135,7 +7135,7 @@
         }
       }
     },
-    "Vérification à reprendre": {
+    "Verification needs retrying": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -7164,7 +7164,7 @@
         }
       }
     },
-    "Vérifiez": {
+    "Review": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -7193,7 +7193,7 @@
         }
       }
     },
-    "Vérifiez le contenu, le destinataire, les options et le devis dans l’espace sécurisé avant de confirmer l’envoi.": {
+    "Review the content, recipient, options and quote in your secure workspace before confirming sending.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -7222,7 +7222,7 @@
         }
       }
     },
-    "Vérifiez les informations saisies avant de continuer.": {
+    "Check the information you entered before continuing.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -7251,7 +7251,7 @@
         }
       }
     },
-    "Vérifiez que le PDF s’ouvre correctement et n’est pas protégé par un mot de passe.": {
+    "Check that the PDF opens correctly and is not password protected.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -7280,7 +7280,7 @@
         }
       }
     },
-    "À consulter": {
+    "Available to view": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -7309,7 +7309,7 @@
         }
       }
     },
-    "À portée de main": {
+    "Close at hand": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -7338,7 +7338,7 @@
         }
       }
     },
-    "À propos": {
+    "About": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -7367,7 +7367,7 @@
         }
       }
     },
-    "À propos de Guteneo": {
+    "About Guteneo": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -7396,7 +7396,7 @@
         }
       }
     },
-    "À retrouver dans l’atelier": {
+    "In your workspace": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -7425,7 +7425,7 @@
         }
       }
     },
-    "À valider": {
+    "Awaiting approval": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -7454,7 +7454,7 @@
         }
       }
     },
-    "À valider uniquement": {
+    "Awaiting approval only": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -7483,7 +7483,7 @@
         }
       }
     },
-    "À vérifier": {
+    "Needs verification": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -7512,7 +7512,7 @@
         }
       }
     },
-    "Échec": {
+    "Failed": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
@@ -7541,7 +7541,7 @@
         }
       }
     },
-    "Échec de l’envoi": {
+    "Dispatch failed": {
       "extractionState": "manual",
       "localizations": {
         "fr": {

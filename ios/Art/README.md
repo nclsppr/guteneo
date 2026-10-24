@@ -1,40 +1,40 @@
-# Illustration de l’atelier Guteneo
+# Guteneo workspace illustration
 
-## Destination et usage
+## Destination and use
 
-- Asset SwiftUI : `Image("PrintWorkshop")`.
-- Fichier : `../Guteneo/Resources/Assets.xcassets/PrintWorkshop.imageset/illustration.png`.
-- Rôle : illustration décorative de l’Atelier, masquée à VoiceOver par la vue qui la présente.
-- Une presse manuelle, une feuille vierge, un rouleau et trois blocs de caractères vus sans inscription évoquent l’imprimerie de Gutenberg. Ce visuel ne représente aucun document ni envoi utilisateur.
-- Conserver les couleurs originales et le canal alpha. Ne pas appliquer le mode template : les surfaces ivoire et les hachures participent à l’illustration.
+- SwiftUI asset: `Image("PrintWorkshop")`.
+- File: `../Guteneo/Resources/Assets.xcassets/PrintWorkshop.imageset/illustration.png`.
+- Role: decorative workspace illustration, hidden from VoiceOver by its presenting view.
+- A manual press, blank sheet, roller and three unlettered type blocks evoke Gutenberg's printing workshop. This visual represents no user document or dispatch.
+- Preserve original colors and alpha. Do not apply template mode: ivory surfaces and hatching belong to the illustration.
 
 ## Provenance
 
-- Date de génération et de contrôle : 22 septembre 2026.
-- Outil : outil intégré `image_gen.imagegen` de Codex.
-- Mode : une génération originale sans référence, puis une unique édition ciblée pour reprendre le bleu électrique du logo Guteneo à la demande de l’utilisateur.
-- Modèle sous-jacent : non indiqué par l’outil ; aucun identifiant de modèle n’est revendiqué.
-- Aucun logo existant retouché, aucune image web importée. Le portrait Guteneo a servi uniquement de référence de couleur lors de l’édition, sans être incorporé à l’illustration.
-- Source de la génération initiale, conservée par l’outil :
+- Generation and inspection date: 22 September 2026.
+- Tool: Codex's built-in `image_gen.imagegen`.
+- Mode: one original generation without references, then one targeted edit to match the Guteneo logo's electric blue at the user's request.
+- Underlying model: not disclosed by the tool; no model identifier is claimed.
+- No existing logo was edited and no web image imported. The Guteneo portrait served only as the editing color reference and was not incorporated into the illustration.
+- Initial generation source retained by the tool:
   `/Users/nclsppr/.codex/generated_images/01a0c63b-ed38-7e32-964e-e58de813043b/exec-c6c9448c-dfd1-466a-a54a-1d96a72af56d.png`.
-- SHA-256 de cette première version : `8e142343cd7ce14b23732a0d93e34d35e8ae49cf36eb7136222de4d5a89c34bf`.
-- Références de l’édition, dans cet ordre : cette première version, puis `BrandPortrait.imageset/image.png` (SHA-256 `df22d2f73f7e281ece61a2c99b5331d30be344e647dc97c738d09f9df122fb9a`, inchangé après l’édition).
-- Source finale conservée par l’outil :
+- Initial version SHA-256: `8e142343cd7ce14b23732a0d93e34d35e8ae49cf36eb7136222de4d5a89c34bf`.
+- Editing references, in order: that initial version, then `BrandPortrait.imageset/image.png` (SHA-256 `df22d2f73f7e281ece61a2c99b5331d30be344e647dc97c738d09f9df122fb9a`, unchanged by the edit).
+- Final source retained by the tool:
   `/Users/nclsppr/.codex/generated_images/01a0c63b-ed38-7e32-964e-e58de813043b/exec-eda73303-f432-4317-9d27-340dff388ac1.png`.
-- Copie binaire identique de cette sortie finale dans le catalogue d’assets ; aucun recadrage, conversion, recoloriage ou détourage logiciel après génération.
-- SHA-256 final : `6310e804ad2494f55e59db3d22007e7e2c4402a94815f487a07108e9a80781f3`.
+- Byte-identical copy of the final output in the asset catalog; no software cropping, conversion, recoloring or background removal after generation.
+- Final SHA-256: `6310e804ad2494f55e59db3d22007e7e2c4402a94815f487a07108e9a80781f3`.
 
-## Caractéristiques et contrôle
+## Properties and inspection
 
-- PNG RGBA, 1 536 × 1 024 pixels, ratio 3:2, 2 220 618 octets.
-- Couleur demandée : bleu électrique `#0033F9`, présent dans le logo existant. Le logo et l’illustration ont des nuances ; le fichier ne revendique pas une couleur unique sur chaque pixel. Le résultat conserve les surfaces ivoire et les variations des hachures.
-- Transparence réelle : 1 000 845 pixels avec alpha 0 ; 572 019 pixels à alpha intermédiaire ; maximum alpha 254.
-- Les quatre coins et des échantillons dans les espaces extérieurs et entre les montants ont un alpha nul. Les valeurs RGB invisibles sous alpha 0 n’ont pas été supprimées.
-- Inspection à taille originale : sujet entier dans le cadre, aucune inscription, aucun logo ni visage.
-- Rendu navigateur de contrôle de la version finale à 280 pixels CSS de large, comparée au logo, sur papier `#F6F5EF` et sombre `#17191E` : bleu électrique cohérent, silhouette reconnaissable, feuille vierge visible, fond transparent sans cartouche ni halo visible. Le canal RGB sous alpha nul conserve des valeurs invisibles, qui ne doivent pas être affichées sans le canal alpha.
-- L’édition corrige le bleu marine de la première version et demande explicitement la suppression du halo extérieur. Le contrôle du placement final dans l’application appartient à l’intégration SwiftUI.
+- RGBA PNG, 1,536 × 1,024 pixels, 3:2 ratio, 2,220,618 bytes.
+- Requested color: electric blue `#0033F9`, present in the existing logo. Both logo and illustration contain shades; the file does not claim a single color in every pixel. It preserves ivory surfaces and hatching variations.
+- Actual transparency: 1,000,845 pixels with alpha 0; 572,019 with intermediate alpha; maximum alpha 254.
+- All four corners and samples outside and between the uprights have zero alpha. Invisible RGB values beneath alpha 0 were not removed.
+- Original-size inspection: whole subject within the frame, no lettering, logo or face.
+- Final browser inspection at 280 CSS pixels wide, compared with the logo on paper `#F6F5EF` and dark `#17191E`: consistent electric blue, recognizable silhouette, visible blank sheet and transparent background without a visible panel or halo. RGB beneath zero alpha retains invisible values and must not be shown without the alpha channel.
+- The edit corrects the initial navy blue and explicitly requests removal of the exterior halo. Final in-app placement verification belongs to the SwiftUI integration.
 
-## Prompt initial exact
+## Exact initial prompt
 
 ```text
 Use case: illustration-story.
@@ -45,7 +45,7 @@ Palette: rich cobalt ink #2450DB, with a little warm ivory #F6F5EF confined ONLY
 CRITICAL OUTPUT: isolated subject on a genuinely transparent alpha background. Every area outside the illustrated objects must have alpha=0, including space through the press. No white or ivory rectangular background, no checkerboard painted into the image, no full floor, no vignette, no backdrop, no enclosing badge or border. Preserve the ivory physical sheet while leaving the surroundings truly transparent. No text, no letters, no numbers, no logos, no watermark, no brands, no faces, no people, no interface. Produce exactly one finished illustration.
 ```
 
-## Prompt d’édition exact
+## Exact editing prompt
 
 ```text
 Use case: illustration-story. EDIT the first reference image only. The second reference is the existing Guteneo portrait logo, supplied ONLY as a blue-color reference; never incorporate, redraw, or edit that logo.

@@ -1,176 +1,343 @@
-# Consultation sécurisée dans Guteneo — plan retenu
+# Secure viewing in Guteneo — historical selected plan
 
-**Évolution du 24 octobre 2026 : le [plan Compte unique et coffre personnel](UNIFIED_ACCOUNT_AND_VAULT_PLAN.md) fait désormais référence. Tous les destinataires doivent avoir un compte Guteneo unique donnant également accès aux services. Le parcours invité sans compte ci-dessous est remplacé ; les principes de rendu, filigrane et audit restent une base technique. Deux catégories sont retenues : partage révocable et copie personnelle remise avec autorisation de l’atelier.**
+**24 October 2026 evolution:** the [single-account and personal-vault plan](UNIFIED_ACCOUNT_AND_VAULT_PLAN.md) supersedes this proposal. Every recipient now needs one Guteneo account that also provides access to services. The account-free guest journey below is historical; rendering, watermarking and audit principles remain technical research. The retained categories are a revocable share and a personal copy delivered with workspace authorization.
 
-Décision produit du 24 octobre 2026 : solution maison intégrée à Guteneo, sans DRM dans le PDF et sans dépendance Adobe/FileOpen. Ce document remplace la recommandation de moteur DRM des études précédentes. **Plan uniquement : aucune fonctionnalité implémentée, aucun envoi ni déploiement.**
+**Later launch policy:** current document authentication uses `verified_account`.
+Historical guest-OTP and strong-authentication proposals in this document are not
+current launch requirements. Read [the implementation record](SECURE_DISTRIBUTION_IMPLEMENTATION.md)
+for implemented behavior and its qualification boundaries.
 
-Lecture du checkout local `8b060bb`, de PRODUCT, ARCHITECTURE, EXECUTION_PLAN et du parcours protégé existant. Cette lecture ne qualifie pas l’état de production.
+Product decision on 24 October 2026: an integrated Guteneo implementation without
+PDF DRM or an Adobe/FileOpen dependency. This replaced earlier studies'
+recommendation of a DRM engine. **At the time of this plan: proposal only; no
+feature implemented, communication sent or deployment performed by the study.**
 
-## 1. Promesse et périmètre
+Research inspected local checkout `8b060bb`, PRODUCT, ARCHITECTURE,
+EXECUTION_PLAN and the existing protected-link workflow. This inspection does
+not qualify production state.
 
-**« Partagez vos documents dans un espace de consultation sécurisé, avec accès individuel, filigrane, expiration, révocation et journal d’activité. »**
+## 1. Promise and scope of the historical proposal
 
-Le destinataire reçoit un lien par email et consulte le document dans Guteneo, sans installer de logiciel ni créer de compte. L’atelier retrouve les accès et événements disponibles dans le suivi de l’envoi.
+**“Share documents in a secure viewing space, with individual access,
+watermarking, expiration, revocation and activity history.”**
 
-Pendant la consultation, le PDF source reste privé. Le navigateur reçoit des pages rendues côté serveur et une alternative accessible lorsqu’elle est qualifiée. Ces pixels et ce texte restent récupérables par un destinataire autorisé. La protection porte sur la remise du contenu et les accès futurs ; elle ne suit pas une copie extraite.
+The proposed guest received an email link and viewed the document in Guteneo
+without installing software or creating an account. The workspace would see
+available access/events in dispatch tracking. Account-free reception has since
+been superseded; it is preserved here as the original design.
 
-Périmètre initial : PDF, destinataires individuels, code email, consultation en ligne, filigrane personnel, expiration, révocation, suivi et export du journal. Précision proposée à la suite de l’échange : **consultation seule par défaut, avec option de téléchargement explicite du PDF original si l’atelier l’autorise avant approbation**. Aucune fonction d’impression dédiée prévue au lancement. Ces choix d’interface ne garantissent pas l’impossibilité de sauvegarder ou d’imprimer ce qui est affiché.
+During viewing, the source PDF stays private. The browser receives server-rendered
+pages and a qualified accessible alternative. An authorized recipient can still
+extract those pixels/text. Protection controls content delivery and future access;
+it cannot follow an extracted copy.
 
-## 2. Parcours proposé
+Initial proposed scope: PDF, individual recipients, email code, online viewing,
+personal watermark, expiration, revocation, tracking and journal export. A later
+clarification proposed **view-only by default, with an explicit option to download
+the original PDF if the workspace authorizes it before approval**. No dedicated
+print function was planned for launch. These UI choices never guarantee that
+displayed content cannot be saved or printed.
 
-1. L’atelier choisit un PDF analysé, les destinataires et une durée. Proposition initiale : 1, 7 ou 30 jours, avec 7 jours par défaut, explicitement revue avant envoi.
-2. Guteneo prépare et vérifie le rendu. Un document incompatible produit un refus compréhensible avant envoi, sans substitution automatique par une pièce jointe.
-3. L’expéditeur revoit le contenu final, le filigrane, chaque destinataire, l’expiration, l’autorisation éventuelle de télécharger le PDF original, le message et le prix/plafond. Le lien est propre au destinataire.
-4. L’acceptation active le droit, réserve les coûts et insère l’envoi dans l’outbox atomiquement. Les contrôles existants d’autorité, de fournisseur et de résultat incertain restent applicables.
-5. Le destinataire ouvre la page et demande un code. Il est envoyé exclusivement à l’adresse déjà approuvée ; aucune autre adresse saisie par le visiteur ne peut remplacer cette destination.
-6. Après validation du code, une session courte donne accès à ce document. Le destinataire voit qui partage, l’expiration et une notice claire sur le journal.
-7. L’atelier suit les événements, peut interrompre l’accès d’une personne ou de toute la publication, et exporter le journal sous ses permissions habituelles.
-8. Si le téléchargement est autorisé, le destinataire peut choisir « Télécharger le PDF original ». Cette action est distincte de l’affichage des pages et fait l’objet de contrôles et d’événements propres.
+## 2. Historical proposed journey
 
-Un simple chargement du lien ne déclenche ni email OTP ni événement de lecture humaine : les scanners des messageries peuvent visiter les liens. Le code prouve la maîtrise ponctuelle de la boîte email, pas l’identité civile. Lien et code reçus dans la même boîte ne constituent pas deux facteurs indépendants.
+1. The workspace chooses a scanned PDF, recipients and term. Initial proposal:
+   1, 7 or 30 days, default 7, explicitly reviewed before sending.
+2. Guteneo prepares/verifies rendering. Incompatible content produces a clear
+   refusal before sending, without silently substituting an attachment.
+3. The sender reviews final content, watermark, each recipient, expiry, optional
+   original-download permission, message and price/ceiling. Each recipient has
+   a distinct link.
+4. Acceptance atomically activates the right, reserves costs and inserts the
+   dispatch into the outbox. Existing authority/provider/unknown-outcome controls
+   continue to apply.
+5. The recipient opens the page and requests a code sent only to the approved
+   address; another address entered by a visitor cannot replace it.
+6. Code validation creates a short document-specific session. The recipient sees
+   who shares it, expiry and a clear notice about logging.
+7. The workspace follows events, may stop one person's or the whole publication's
+   access, and exports the journal under existing permissions.
+8. If authorized, the recipient may explicitly download the original PDF. This
+   is distinct from displaying pages and has separate controls/events.
 
-## 3. Audit : nommer exactement ce qui est connu
+Loading the link alone triggers neither an OTP email nor a human-reading event:
+mail scanners may visit links. A code proves temporary mailbox control, not civil
+identity. A link and code delivered to the same mailbox are not independent
+factors.
 
-| Événement | Ce que le journal peut affirmer | Limite |
-| --- | --- | --- |
-| Email accepté/livré | État confirmé par le fournisseur et sa provenance | Aucune preuve de lecture |
-| Code validé / session créée | Vérification exécutée par Guteneo | Boîte accessible, pas identité civile garantie |
-| Accès à une page autorisé | Le serveur a autorisé la remise de cette page | Ne prouve ni réception complète ni lecture |
-| Page affichée | Signal envoyé par le navigateur | Déclaratif, falsifiable ou manquant ; préchargement distinct |
-| Consultation démarrée | Première page déclarée affichée après vérification de l’accès | Ne signifie ni document entièrement lu ni attention humaine prouvée |
-| Téléchargement demandé | Demande explicite reçue et autorisée par le serveur | Peut être annulée ou échouer avant réception |
-| Remise du PDF démarrée | Début de remise instrumenté côté serveur | Ne prouve pas la réception complète ni la sauvegarde sur disque |
-| Durée de consultation | Estimation à partir de signaux d’activité bornés | Ni attention ni temps exact ; exclure onglets cachés et silences prolongés |
-| Accès refusé / révoqué / expiré | Décision serveur et date | Ne retire pas le contenu déjà reçu |
-| Impression | Éventuel signal d’ouverture/fermeture du parcours navigateur | Aucune confirmation papier ni nombre de copies |
-| Capture, photo, sauvegarde locale | Non observable de manière fiable | Ne jamais inventer d’événement de détection |
+## 3. Audit: state exactly what is known
 
-`afterprint` peut suivre la fermeture de l’aperçu, y compris sans impression physique. Les raccourcis interceptés et le masquage de boutons ne fournissent pas une preuve. [MDN](https://developer.mozilla.org/en-US/docs/Web/API/Window/afterprint_event).
+| Event                              | What the journal may assert                             | Limit                                                                     |
+| ---------------------------------- | ------------------------------------------------------- | ------------------------------------------------------------------------- |
+| Email accepted/delivered           | Provider-confirmed state and provenance                 | No reading proof                                                          |
+| Code validated / session created   | Verification performed by Guteneo                       | Mailbox access, not guaranteed civil identity                             |
+| Page access authorized             | Server authorized delivery of that page                 | Neither complete reception nor reading                                    |
+| Page displayed                     | Browser-supplied signal                                 | Declarative, forgeable or absent; distinguish preloading                  |
+| Viewing started                    | First page reported displayed after access verification | Neither complete reading nor proven human attention                       |
+| Download requested                 | Explicit request received and authorized by the server  | May be cancelled or fail before reception                                 |
+| PDF transfer started               | Instrumented start of server delivery                   | Neither complete reception nor saving to disk                             |
+| Viewing duration                   | Estimate from bounded activity signals                  | Neither attention nor exact time; exclude hidden tabs and long inactivity |
+| Access refused / revoked / expired | Server decision and timestamp                           | Does not withdraw already received content                                |
+| Printing                           | Possible browser print-flow opening/closing signal      | No paper confirmation or copy count                                       |
+| Screenshot, photograph, local save | Not reliably observable                                 | Never invent detection events                                             |
 
-Le journal porte identifiant, atelier, publication, droit individuel, session pseudonyme, événement, origine serveur/navigateur/fournisseur, résultat, versions, heure source et heure de réception. Les horodatages du navigateur ne font pas autorité. Les activités d’export du journal et les changements de droits sont eux-mêmes tracés.
+`afterprint` may follow closing print preview without physical printing. Blocking
+shortcuts or hiding controls provides no proof.
+[MDN](https://developer.mozilla.org/en-US/docs/Web/API/Window/afterprint_event).
 
-Pas de document, adresse destinataire en clair, code, jeton ou URL secrète dans les logs techniques. L’interface résout les références métier uniquement pour les membres autorisés. Pas de suivi publicitaire ou de fingerprinting matériel.
+The proposed journal records identifier, workspace, publication, individual
+right, pseudonymous session, event, server/browser/provider provenance, result,
+versions, source time and receipt time. Browser timestamps are not authoritative.
+Journal exports and permission changes are themselves audited.
 
-### Consultation et téléchargement : deux faits indépendants
+Technical logs contain no document, plaintext recipient address, code, token or
+secret URL. The UI resolves business references only for authorized members.
+There is no advertising tracking or hardware fingerprinting.
 
-Préférer « Consultation démarrée » et « Téléchargement demandé/lancé » à « Document enregistré ». Si l’interface emploie « Document consulté », le détail doit indiquer « affichage signalé par le navigateur », sans prétendre que toutes les pages ont été lues. Un téléchargement peut survenir sans lecture préalable : conserver deux indicateurs horodatés plutôt qu’un entonnoir imposant une consultation fictive.
+### Viewing and downloading are independent facts
 
-Le serveur ne reçoit pas de preuve universelle de l’enregistrement sur le disque. `Content-Disposition: attachment` demande un téléchargement au navigateur ; il ne prouve pas ce que l’utilisateur fait ensuite. Même une fin de flux côté serveur ou un accusé client ne constitue pas une preuve de sauvegarde durable. [MDN, Content-Disposition](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Disposition).
+Prefer Viewing started and Download requested/started to Document saved. If a UI
+uses Document viewed, its detail must state browser-reported display without
+claiming every page was read. Download may precede reading: retain two timestamped
+indicators rather than inventing a viewing funnel.
 
-### Remise du PDF original, si autorisée
+The server receives no universal proof of disk storage. `Content-Disposition: attachment` requests a browser download; it proves nothing about subsequent
+behavior. Even server-side stream completion or a client acknowledgement does
+not prove durable saving.
+[MDN, Content-Disposition](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Disposition).
 
-Le droit `allowOriginalDownload` fait partie de la politique immuable approuvée, par destinataire. L’activer ensuite est un élargissement de droit nécessitant une nouvelle autorité/approbation adaptée. Aucun original n’est préchargé pour afficher le lecteur.
+### Original-PDF delivery, when authorized
 
-Créer une demande par action authentifiée protégée contre CSRF, liée au grant, à la session, au source/SHA et à la politique. Auditer l’autorisation durablement avant remise. Servir l’original exact par une route privée dédiée qui revalide les droits, sans URL R2 contournant ces vérifications. Le jeton éventuel de remise est bref et limité à cette opération ; il n’est jamais journalisé. Le filigrane des images ne modifie pas le PDF original : le dire dans les options de l’atelier.
+`allowOriginalDownload` belongs to the immutable approved policy per recipient.
+Enabling it afterward broadens permission and requires appropriate new
+authority/approval. No original is preloaded to display the reader.
 
-Regrouper les tentatives et reprises sous un identifiant de demande. Ne pas compter `HEAD`, préchargement, réponse partielle ou reprise réseau comme autant de téléchargements humains complets. Distinguer tentative, début, interruption observée et résultat inconnu ; ne pas inférer un succès de la seule réponse HTTP 200. Revalider toute nouvelle requête ou reprise après révocation.
+Create the request through an authenticated CSRF-protected action bound to grant,
+session, source/SHA and policy. Persist the authorization audit before delivery.
+Serve exact original bytes through a dedicated private route that revalidates
+rights, without an R2 URL bypassing Worker checks. Any transfer token is brief,
+operation-specific and never logged. Image watermarking does not modify the
+original PDF; the workspace options must state this.
 
-Une fois les octets remis, le PDF peut être conservé, copié et ouvert hors de Guteneo. **Ces ouvertures ultérieures sont invisibles à Guteneo et la révocation ne retire pas le fichier.** Un compte destinataire ne change pas cette limite. Une future copie PDF filigranée serait un artefact distinct, approuvé et nommé comme tel, sans altérer silencieusement un original signé.
+Group attempts/resumptions under a request identifier. Do not count `HEAD`,
+preloading, partial responses or network resumption as complete human downloads.
+Distinguish attempt, start, observed interruption and unknown outcome; HTTP 200
+alone does not prove success. Revalidate every new request/resumption after
+revocation.
 
-## 4. Architecture Cloudflare
+Once delivered, PDF bytes can be retained, copied and opened outside Guteneo.
+**Those later openings are invisible to Guteneo, and revocation cannot withdraw
+the file.** A recipient account does not change this limit. A future watermarked
+PDF copy would be a separate approved/named artifact, never a silent alteration
+of a signed original.
+
+## 4. Historical Cloudflare architecture proposal
 
 ```mermaid
 flowchart LR
-  Atelier[Atelier Guteneo] --> API[API Workers]
-  API --> DB[D1 : droits, approbations, journal]
-  API --> Jobs[Outbox et Queues]
-  Jobs --> Render[Rendu privé isolé]
-  Render --> R2[R2 privé : source et pages]
-  Jobs --> Email[Fournisseur email qualifié]
-  Invite[Destinataire invité] --> Gate[Worker : code, session, contrôle par page]
+  Workspace[Guteneo workspace] --> API[Workers API]
+  API --> DB[D1: rights, approvals, journal]
+  API --> Jobs[Outbox and Queues]
+  Jobs --> Render[Isolated private rendering]
+  Render --> R2[Private R2: source and pages]
+  Jobs --> Email[Qualified external email provider]
+  Invite[Historical guest recipient] --> Gate[Worker: code, session, per-page authority]
   Gate --> DB
   Gate --> R2
-  Atelier --> Journal[Journal paginé et actualisé]
+  Workspace --> Journal[Paginated refreshed journal]
   Journal --> DB
 ```
 
-- **Application et API** : React/Vite, Hono et TypeScript existants. Auth0 reste l’identité des membres d’atelier ; les invités utilisent des sessions limitées au document, sans devenir membres.
-- **D1** : autorité des droits, expirations, révocations et écritures métier. Pas de KV ni de cache prolongé pour autoriser un accès. Les contrôles doivent lire l’état faisant autorité, pas un réplica susceptible d’ignorer une révocation récente. [Réplication D1](https://developers.cloudflare.com/d1/best-practices/read-replication/).
-- **R2 privé** : source immuable, rendus de base et pages personnalisées. Aucune URL publique ou présignée permettant au destinataire de contourner le contrôle Worker.
-- **Rendu** : partir du Worker documentaire isolé et de PDF.js côté serveur déjà présents. Créer un contrat de consultation dédié, avec résolution et limites adaptées. Ne pas remettre le PDF à PDF.js dans le navigateur destinataire.
-- **Queues** : préparation asynchrone, notifications, agrégats et exports, avec déduplication. Les événements d’autorisation critiques sont écrits avant la réponse, sans dépendre de la livraison d’une Queue. [Livraison au moins une fois](https://developers.cloudflare.com/queues/reference/delivery-guarantees/).
-- **Actualisation atelier** : lecture incrémentale toutes les 3 à 5 secondes pendant que le suivi est visible, avec curseur et reprise. Mesurer la fraîcheur avant toute promesse. Durable Objects/WebSockets restent une évolution si la charge ou le besoin de latence la justifie ; ils ne sont pas l’autorité d’accès.
+- **Application/API:** existing React/Vite, Hono and TypeScript. Auth0 remains
+  workspace-member identity. The superseded guest design used document-limited
+  sessions without membership.
+- **D1:** authority for rights, expiry, revocation and business writes. No KV or
+  long-lived access cache. Read authoritative state rather than a replica that
+  might miss recent revocation.
+  [D1 replication](https://developers.cloudflare.com/d1/best-practices/read-replication/).
+- **Private R2:** immutable source, base renders and personalized pages. No public
+  or presigned URL allowing a recipient to bypass Worker authority.
+- **Rendering:** reuse the isolated document Worker and server-side PDF.js. Create
+  a dedicated viewing contract with qualified resolution/limits. Do not deliver
+  the source PDF to PDF.js in the recipient browser.
+- **Queues:** deduplicated asynchronous preparation, notifications, aggregates
+  and exports. Persist critical authorization events before responding, without
+  depending on queue delivery.
+  [At-least-once delivery](https://developers.cloudflare.com/queues/reference/delivery-guarantees/).
+- **Workspace refresh:** proposed incremental reads every 3–5 seconds while
+  tracking is visible, with cursor/recovery. Measure freshness before promising
+  it. Durable Objects/WebSockets remain possible later optimizations for
+  load/latency, not access authority.
 
-À chaque page : préparer/récupérer le rendu privé, puis effectuer une autorisation conditionnelle et son audit durable dans la même transaction D1 ; retourner les octets seulement si elle réussit. Une panne du contrôle ou de cet audit bloque la nouvelle remise. La révocation interdit toute autorisation ultérieure à sa validation ; une requête déjà autorisée ou des pixels déjà reçus ne sont pas rappelés.
+For each page, prepare/retrieve private rendering, then conditionally authorize
+and persist audit in the same D1 transaction. Return bytes only after success.
+Failure of authority or audit blocks new delivery. Revocation prevents subsequent
+authorization after it commits; it cannot recall an already authorized request
+or received pixels.
 
-Réponses privées sans cache, sans référent, sans scripts tiers, politique de sécurité restrictive et interdiction d’encadrement externe. Exclure ces données des caches du service worker et du stockage persistant du navigateur. Ce sont des protections contre les fuites involontaires, pas une impossibilité de copie volontaire.
+Private responses use no-store, no referrer, no third-party scripts, restrictive
+security policy and refusal of external framing. Exclude these responses from
+service-worker caches and persistent browser storage. These controls limit
+unintentional leakage, not deliberate authorized copying.
 
-Le stockage et les transports restent chiffrés selon les composants retenus ; ce n’est pas un chiffrement de bout en bout : Guteneo doit traiter le contenu. Une juridiction UE de R2/D1 ne prouve pas une résidence UE de toute la chaîne de rendu, email et journalisation. Qualifier chaque composant avant utilisation confidentielle réelle. [Localisation R2](https://developers.cloudflare.com/r2/reference/data-location/).
+Storage/transports use the chosen components' encryption. This is not end-to-end
+encryption because Guteneo must process the content. EU jurisdiction for R2/D1
+does not prove EU residence across rendering, email and logs. Qualify every
+component before actual confidential use.
+[R2 location](https://developers.cloudflare.com/r2/reference/data-location/).
 
-## 5. Identité, sessions et anti-abus
+## 5. Historical guest identity, sessions and abuse prevention
 
-Une invitation correspond à un droit individuel, rattaché à un seul atelier. Tous les liens, contraintes uniques et relations métier sont tenant-scoped. Le tenant d’un invité vient du droit serveur vérifié, jamais d’un champ fourni librement.
+An invitation represents an individual right within one workspace. All links,
+unique constraints and business relationships are tenant scoped. A guest's
+tenant would come from a verified server grant, never a freely supplied field.
 
-Proposition à tester : invitation aléatoire de 256 bits, secret stocké sous empreinte ; OTP de 8 chiffres, usage unique, 10 minutes, au plus 5 essais par défi ; temporisation et quotas de renvoi par invitation, atelier et source de requête. Session HttpOnly/Secure courte, par exemple 15 minutes, sans dépasser l’expiration du droit ; toute prolongation revalide le droit. Ces valeurs sont des paramètres initiaux, pas une preuve de sécurité.
+Initial test proposal: random 256-bit invitation stored as a digest; eight-digit
+single-use OTP valid for ten minutes with at most five attempts per challenge;
+resend delays/quotas per invitation, workspace and request source. A short
+HttpOnly/Secure session, for example 15 minutes, cannot outlive its grant; every
+extension revalidates it. These were initial parameters, not security proof or
+current account-policy values.
 
-Stocker un vérificateur OTP protégé par un secret serveur, pas un simple hash facilement énumérable d’un petit code. Consommer le défi atomiquement ; invalider les défis remplacés ; tester deux validations concurrentes. Éviter les réponses qui révèlent l’adresse ou l’existence d’un document à un visiteur non autorisé.
+Store an OTP verifier protected by a server secret, not an easily enumerable
+simple hash of a short code. Consume challenges atomically, invalidate replaced
+challenges and test concurrent validation. Avoid disclosing an address or document
+existence to unauthorized visitors.
 
-Préférer un secret de lien en fragment, échangé par POST dans une route dédiée puis retiré de l’historique visible. Qualifier ce parcours dans les messageries et leurs réécritures de liens ; désactiver le suivi commercial de ces liens. Ne pas journaliser URL complète, corps du POST ni cookie. La possession du lien seule ne doit jamais ouvrir le document.
+Prefer a link secret in the fragment, exchanged through a dedicated POST and
+removed from visible history. Qualify mail-client rewriting and disable marketing
+link tracking. Log no full URL, POST body or cookie. Link possession alone must
+never open content.
 
-L’approbation initiale prévoit une enveloppe bornée pour les codes de vérification et leur coût. Le clic du destinataire ne donne pas accès au budget général de l’atelier. Un résultat email inconnu n’est pas réessayé aveuglément ; tout renvoi ultérieur est une nouvelle demande bornée et identifiable, avec gestion des codes retardés.
+Initial approval would authorize a bounded verification-code allowance/cost.
+Recipient clicks grant no general workspace budget access. An unknown email
+outcome is never blindly retried; a later resend is a new bounded identified
+request that handles delayed codes.
 
-### Faut-il un compte destinataire ?
+### Was a recipient account required in this original plan?
 
-Pas pour le parcours invité courant : lien individuel et code permettent d’attribuer la session à une adresse dont l’accès a été vérifié. Le journal affiche la méthode et l’heure de cette vérification. Une boîte partagée, un code transféré ou une session prêtée empêchent d’en déduire avec certitude la personne physique. Une adresse IP n’est pas une identité.
+The historical guest proposal did not require one: an individual link/code
+associated a session with an accessible mailbox. The journal would display
+verification method/time. Shared mailboxes, forwarded codes and lent sessions
+prevent reliable inference of the physical person. An IP address is not identity.
+**The later single-account plan replaces this guest choice.**
 
-Un compte apporte surtout continuité, espace documentaire et possibilité d’ajouter une authentification forte. Une inscription email/mot de passe ne vérifie pas à elle seule l’identité civile. Pour des exigences plus élevées, prévoir un profil imposant une identité professionnelle fédérée, correctement liée au destinataire, avec MFA/passkey selon une politique qualifiée et des règles de récupération adaptées ; ne pas rabaisser ce profil silencieusement à un code email. Il s’agit d’une capacité future à qualifier, pas d’une propriété déjà fournie par le mode invité.
+An account provides continuity, a document area and the option of stronger
+authentication. Email/password registration alone does not verify civil identity.
+The study proposed a higher-assurance profile using qualified professional
+federation, correct recipient binding, MFA/passkeys and appropriate recovery.
+That was a future capability to qualify, not an existing guest property; never
+silently downgrade the same assurance promise to email OTP.
 
-L’email OTP reste un compromis d’accès invité, pas une authentification forte certifiée. Le NIST exclut l’email comme canal d’authentification hors bande conforme à son référentiel ; ce référentiel ne constitue pas automatiquement une obligation applicable à Guteneo. Distinguer vérification de boîte, authentification et preuve d’identité. [NIST SP 800-63B-4](https://pages.nist.gov/800-63-4/sp800-63b.html).
+Email OTP is a guest-access compromise, not certified strong authentication.
+NIST excludes email as an out-of-band authentication channel under its framework;
+that framework is not automatically a Guteneo legal obligation. Distinguish
+mailbox verification, authentication and identity proof.
+[NIST SP 800-63B-4](https://pages.nist.gov/800-63-4/sp800-63b.html).
 
-## 6. Rendu, filigrane et accessibilité
+## 6. Rendering, watermarks and accessibility
 
-Le source exact est analysé avant tout traitement. Les sorties portent un manifeste immuable : source/SHA, version du moteur, pages, dimensions, empreintes des objets et version du profil. Les formulaires, annotations, signatures, calques, polices, rotations et documents longs sont des cas de qualification, pas des capacités présumées.
+Scan the exact source before processing. Outputs carry an immutable manifest:
+source/SHA, engine version, pages, dimensions, object hashes and profile version.
+Forms, annotations, signatures, layers, fonts, rotation and long documents need
+qualification rather than assumed support.
 
-Le filigrane est intégré aux pixels côté serveur : mention de confidentialité et identifiant opaque lié au destinataire, résolu par l’atelier. Éviter de répéter son adresse personnelle complète. Un simple calque CSS ne suffit pas. Le filigrane décourage les redistributions ; il reste retouchable et n’établit pas à lui seul l’auteur d’une fuite.
+Integrate watermarks into server-rendered pixels: confidentiality notice and an
+opaque recipient-linked identifier resolved by the workspace. Avoid repeating a
+full personal address. A CSS overlay alone is insufficient. Watermarks discourage
+redistribution but remain editable and alone identify no leak author.
 
-**Choix V1 proposé :** rendre les pages de base une fois, puis préparer les variantes de chaque destinataire avant approbation finale, avec empreintes des résultats. Cela coûte plus de stockage mais permet de revoir le contenu réellement distribué et de conserver le contrat d’approbation immuable. Borner pages, destinataires et préparation ; une préparation devenue inutile est purgée. Un filigrane constant par invitation évite des variantes à chaque seconde ou session.
+**Proposed V1 choice:** render base pages once, then prepare recipient variants
+before final approval with output hashes. Extra storage allows review of the
+actual distributed content and preserves immutable approval. Bound pages,
+recipients and preparation; purge unused preparation. A constant per-invitation
+watermark avoids new variants every second/session.
 
-La génération à la demande est une optimisation future, à condition de définir et tester un contrat de transformation déterministe compatible avec l’approbation ; elle ne doit pas régénérer silencieusement un contenu approuvé avec un moteur différent.
+On-demand generation was a future optimization requiring a tested deterministic
+transformation contract compatible with approval. It must never silently
+regenerate approved content with another engine.
 
-Un lecteur composé seulement d’images n’est pas suffisant : navigation clavier, zoom, ordre de lecture et alternative textuelle structurée sont à qualifier dès le prototype. Cette alternative suit les mêmes autorisations ; son texte est extractible et cela doit être assumé. L’extraction actuelle de revue assistant, bornée et non sémantique, n’est pas une preuve d’accessibilité. Aucun transfert automatique du PDF original comme secours. [W3C, images de texte](https://www.w3.org/WAI/WCAG22/Understanding/images-of-text.html).
+Image-only viewing is insufficient. Qualify keyboard navigation, zoom, reading
+order and structured text alternatives from the prototype. The same authority
+protects extractible alternative text. Existing bounded non-semantic assistant
+review extraction is no accessibility proof. Never automatically deliver the
+original PDF as a fallback.
+[W3C, images of text](https://www.w3.org/WAI/WCAG22/Understanding/images-of-text.html).
 
-Les PDF scannés nécessitant OCR et les documents dont la structure ne permet pas une alternative correcte restent des cas explicitement non qualifiés. Ne pas annoncer leur accessibilité avant une solution vérifiée. Ne pas bloquer les raccourcis d’assistance ni masquer le document à chaque perte de focus.
+Scanned PDFs needing OCR or documents lacking adequate structure remain explicitly
+unqualified cases. Do not claim accessibility before a verified solution. Do not
+block assistive shortcuts or hide content on every focus loss.
 
-## 7. Intégration au produit existant
+## 7. Historical integration plan
 
-Nom proposé : **Consultation sécurisée** ; nouveau mode métier, par exemple `secure_view`. Le mode historique `protected_link`, ses liens déjà envoyés, ses approbations et ses tarifs conservent leur sens.
+Proposed name: **Secure viewing**, with a new business mode such as `secure_view`.
+The existing `protected_link` mode, sent links, approvals and pricing retain their
+meaning; the proposal does not repurpose them.
 
-| Point d’intégration | Travail prévu |
-| --- | --- |
-| `apps/api/src/protected-documents.ts` | Réutiliser les principes de secrets/sessions/révocation ; nouveau parcours individuel et téléchargement optionnel dédié, sans réutiliser le lien partagé historique |
-| `apps/documents/src/expert-review.ts` et `expert-review-browser.ts` | Extraire/réutiliser les primitives de rendu isolé ; contrat privé dédié, corpus et limites propres |
-| `packages/domain/src/index.ts` et contrats | Fingerprint de source, manifeste final, destinataire, politique dont droit de téléchargement, expiration, filigrane, message, enveloppe OTP et coût ; acceptation/quota/outbox atomiques |
-| Nouvelles migrations | Publications, grants, défis/sessions invités, manifestes/pages et événements ; relations composites avec organisation, pas de modification des migrations appliquées |
-| Interface Documents / Envois | Préparation, revue, accès individuels, journal avec provenance, expiration et révocation |
-| Maintenance | Rétention séparée documents/pages/défis/sessions/journal ; purge après dernières dépendances actives et traitement des sauvegardes |
+| Integration point                                                    | Proposed work                                                                                                                                                           |
+| -------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `apps/api/src/protected-documents.ts`                                | Reuse secret/session/revocation principles; separate individual workflow and optional original download without reusing the old shared link                             |
+| `apps/documents/src/expert-review.ts` and `expert-review-browser.ts` | Reuse isolated rendering primitives; dedicated private contract, corpus and limits                                                                                      |
+| `packages/domain/src/index.ts` and contracts                         | Fingerprint source, final manifest, recipient, policy including download permission, expiry, watermark, message, OTP allowance and cost; atomic acceptance/quota/outbox |
+| New migrations                                                       | Publications, grants, guest challenges/sessions, manifests/pages and events; organization-composite relations, no applied-migration edits                               |
+| Documents / Dispatches UI                                            | Preparation, review, individual access, provenance-labelled journal, expiry and revocation                                                                              |
+| Maintenance                                                          | Separate document/page/challenge/session/journal retention; purge after active dependencies and address backups                                                         |
 
-Les invités ne reçoivent pas d’autorité d’administration ou d’approbation. Les règles de rôle de l’atelier continuent à gouverner préparation, approbation et rapports. Toute augmentation d’accès, prolongation ou ajout de destinataire nécessite une nouvelle autorité/approbation adaptée. La révocation est une réduction de droit tracée. Aucun mandat assistant existant n’acquiert silencieusement ce nouveau mode.
+Guests gain no administration/approval authority. Workspace roles continue to
+govern preparation, approval and reports. Broadening access, extending a term or
+adding a recipient needs appropriate new authority/approval. Revocation is an
+audited reduction. Existing assistant mandates never silently acquire a new mode.
 
-Le renderer actuel rejette notamment formulaires, calques et annotations ; sa limite de 1 600 px et de trois pages par requête concerne la revue assistant. Le prototype doit établir fidélité, lisibilité, performance et reprise pour la consultation. L’événement historique `protected_document.downloaded` précède une réponse pouvant être inline : ne pas le recycler comme preuve de sauvegarde.
+The renderer inspected in this study rejected forms, layers and annotations.
+Its 1,600-pixel/three-pages-per-request limit concerned assistant review. The
+prototype needed to establish fidelity, readability, performance and recovery for
+viewing. Historical `protected_document.downloaded` occurs before a potentially
+inline response; never reuse it as proof of saving a file.
 
-## 8. Coût : mesurer notre service, sans redevance DRM
+## 8. Cost: measure the service without a DRM royalty
 
-Les contrats Adobe/FileOpen cessent d’être une dépendance de cette feature. Restent les licences des composants logiciels utilisés et les coûts Cloudflare, email, exploitation et support. Aucun prix par document ou par destinataire n’est décidé ici ; le tarif historique de 1 € ne qualifie pas ce nouveau mode.
+Adobe/FileOpen contracts cease to be feature dependencies in this proposal.
+Software licenses and Cloudflare/email/operations/support costs remain. The
+study decided no per-document/recipient price; the legacy EUR1 fee does not
+qualify this mode's price. Current versioned pricing is documented separately.
 
-Mesurer : pages sources converties, temps de rendu, variantes préparées, octets et durée de stockage, remises de pages, événements/index D1, rafraîchissements du journal, codes email, échecs et assistance. R2 facture stockage et opérations ; sa sortie réseau gratuite ne rend pas toute la consultation gratuite. [Tarifs R2](https://developers.cloudflare.com/r2/pricing/).
+Measure source pages converted, rendering time, prepared variants, stored bytes
+and term, page delivery, D1 events/indexes, journal refreshes, code emails,
+failures and support. R2 bills storage/operations; free egress does not make the
+whole viewing service free.
+[R2 pricing](https://developers.cloudflare.com/r2/pricing/).
 
-Scénario de comparaison conservé : 10 000 PDF/mois × 10 pages × 3 destinataires × 2 consultations = 100 000 pages de base, jusqu’à 300 000 pages personnalisées préparées et 600 000 remises de pages si toutes les pages sont parcourues à chaque fois. Les retours, le zoom et les préchargements peuvent augmenter ces nombres. Deux consultations ne signifient pas automatiquement deux OTP : mesurer sessions et renvois.
+Retained comparison scenario: 10,000 PDFs/month × 10 pages × 3 recipients × 2
+viewing sessions gives 100,000 base pages, up to 300,000 prepared personalized
+pages and 600,000 page deliveries if every page is traversed each time. Return
+visits, zoom and preloading can increase counts. Two sessions do not automatically
+mean two OTPs; measure sessions/resends.
 
-`Coût complet = rendu + stockage et opérations + API/journal + email/OTP + maintenance + support`.
+`Full cost = rendering + storage/operations + API/journal + email/OTP + maintenance + support`.
 
-Tester conservation de 7 et 30 jours, taille moyenne/maximale, pointe de charge, quota par atelier et pire coût d’une préparation abandonnée. Favoriser une préparation incluse dans une allocation bornée ; si une préparation devient payante, obtenir une autorisation distincte avant consommation. Aucun dépassement caché après approbation.
+Test 7/30-day retention, average/maximum size, peaks, per-workspace quotas and
+worst-case abandoned-preparation cost. Prefer preparation within a bounded
+allowance. If preparation becomes paid, obtain separate authorization before
+consumption. No hidden overage after approval.
 
-## 9. Étapes et critères de sortie
+## 9. Historical milestones and exit criteria
 
-| Étape | Résultat attendu |
-| --- | --- |
-| 1 — Prototype de rendu | Corpus synthétique, fidélité/filigrane/accessibilité, coût et temps mesurés ; aucune source PDF remise pendant la consultation |
-| 2 — Accès individuel | Tables et migrations additives, OTP/sessions, autorisations atomiques, révocation et expiration ; scénarios concurrentiels et inter-ateliers vérifiés |
-| 3 — Préparation et distribution | Rendu final revu, approbation exacte incluant droit de téléchargement, remise originale séparée et tracée si autorisée, coûts bornés, outbox et simulations ; pas d’email réel |
-| 4 — Suivi dans l’atelier | Journal serveur/client distinct, curseurs, rattrapage, export, droits et indication des retards ; objectif mesuré de quelques secondes après persistance |
-| 5 — Qualification | Navigateurs et mobiles réels, technologies d’assistance, anti-abus, charge, restauration/purge, résidence et fournisseur OTP |
-| 6 — Pilote | Déploiement et envois séparément autorisés ; volumes bornés, preuve du parcours et coût observé |
+| Stage                        | Expected result                                                                                                                                                         |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1 — Render prototype         | Synthetic corpus; measured fidelity/watermark/accessibility/cost/time; no source PDF delivered for viewing                                                              |
+| 2 — Individual access        | Additive tables/migrations, OTP/sessions, atomic authority, revocation/expiry; concurrent and cross-workspace tests                                                     |
+| 3 — Preparation/distribution | Reviewed final rendering; exact approval includes download permission; original delivery separate/audited when allowed; bounded costs/outbox/simulations; no real email |
+| 4 — Workspace tracking       | Distinct server/client journal, cursors/recovery/export/permissions/lag indicator; measured few-second persistence-to-display target                                    |
+| 5 — Qualification            | Real browsers/mobile, assistive technologies, anti-abuse, load, restore/purge, residence and OTP provider                                                               |
+| 6 — Pilot                    | Deployment and sends separately authorized; bounded volumes, observed journey and cost                                                                                  |
 
-Tests décisifs : aucun accès croisé atelier/destinataire ; aucun octet du PDF source remis sans téléchargement explicitement autorisé ; aucune source préchargée pour le lecteur ; aucun rendu sans filigrane servi ; OTP expiré/rejoué/concurrent ; révocation contre accès simultané ; panne D1/audit refusant la remise ; panne de Queue sans perte de journal ; scanner email sans OTP ; téléchargement annulé/interrompu/repris sans faux statut d’enregistrement ; annulation d’impression sans faux succès ; aucune fausse capture détectée ; conservation des anciens liens ; purge respectant les dépendances.
+Decisive proposed checks: no cross-workspace/recipient access; no source PDF
+without explicit download permission; no reader source preload; no unwatermarked
+render served; expired/replayed/concurrent OTP; revocation racing access; D1/audit
+failure refusing bytes; queue failure losing no journal; mail scanner causing no
+OTP; cancelled/interrupted/resumed downloads producing no false saved status;
+cancelled printing producing no false success; no invented screenshot detection;
+legacy links preserved; purge respecting dependencies.
 
-Après implémentation, exécuter les contrôles adaptés du projet et qualifier séparément simulation, environnement Cloudflare et vrais navigateurs. Aucun engagement de livraison ni lancement n’est fondé sur ce plan seul.
+After implementation, run appropriate project checks and separately qualify
+simulation, Cloudflare runtime and real browsers. This historical plan alone
+establishes neither release readiness nor a delivery commitment.

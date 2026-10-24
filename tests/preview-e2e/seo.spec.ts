@@ -1,8 +1,10 @@
 import { test, expect } from "@playwright/test";
+import { readFile } from "node:fs/promises";
 import publicSite from "../../packages/contracts/src/public-site.json" with { type: "json" };
 import { publicLanguagePicker } from "../public-language";
 import cards from "../../packages/contracts/src/social-cards.json" with { type: "json" };
 import { getPublicSocialCopy } from "../../apps/web/src/editorial/social-copy";
+import { en } from "../../apps/web/src/locales/en";
 
 const publicApplication = process.env.GUTENEO_PUBLIC_APP === "1";
 
@@ -11,6 +13,22 @@ const paths = publicSite.paths;
 test("public routes expose complete initial HTML, metadata and true HTTP statuses", async ({
   request,
 }) => {
+  // The static shell is English before SSR or the browser applies a locale.
+  const shell = await readFile(
+    new URL("../../apps/web/index.html", import.meta.url),
+    "utf8",
+  );
+  expect(shell).toContain('<html lang="en">');
+  expect(shell).toContain(`<title>Guteneo · ${en.tagline}</title>`);
+  expect(shell).toContain(`content="${en.landing.intro}"`);
+  const manifest = await request.get("/site.webmanifest");
+  expect(manifest.status()).toBe(200);
+  expect(await manifest.json()).toMatchObject({
+    id: "/",
+    name: "Guteneo — correspondence workspace",
+    lang: "en",
+    start_url: "/#/app",
+  });
   const titles = new Set<string>();
   for (const path of paths) {
     const response = await request.get(path);
@@ -234,8 +252,8 @@ test("explicit-language pages are translated and shareable without JavaScript", 
     const page = await context.newPage();
     for (const path of [
       "/",
-      "/journal/de-gutenberg-au-numerique/",
-      "/confidentialite/",
+      "/journal/from-gutenberg-to-digital/",
+      "/privacy/",
       "/assistants/chatgpt/",
     ]) {
       let frenchHeading = "";
@@ -274,7 +292,7 @@ test("explicit-language pages are translated and shareable without JavaScript", 
         );
       }
     }
-    await page.goto("/journal/de-gutenberg-au-numerique/?lang=de");
+    await page.goto("/journal/from-gutenberg-to-digital/?lang=de");
     await page.locator('main a[href="/journal/?lang=de"]').first().click();
     await expect(page).toHaveURL(/\/journal\/\?lang=de$/);
     await expect(page.locator("html")).toHaveAttribute("lang", "de");
@@ -351,7 +369,7 @@ test("Automatic restores neutral sharing, generic public links and fallback stru
   baseURL,
 }) => {
   const context = await browser.newContext({ locale: "de-DE", baseURL });
-  const path = "/journal/de-gutenberg-au-numerique/";
+  const path = "/journal/from-gutenberg-to-digital/";
   try {
     const page = await context.newPage();
     await page.goto(`${path}?lang=lb&campaign=sharing`);
@@ -438,7 +456,7 @@ test("localized navigation stays shareable when preference storage is unavailabl
     }
   });
   await page.goto("/?lang=de");
-  const menu = page.locator(".mobile-menu-toggle");
+  const menu = page.locator(".public-menu-toggle");
   if (await menu.isVisible()) await menu.click();
   const assistants = page
     .locator('header a[href^="/assistants/"]:visible')
@@ -472,22 +490,22 @@ test("journal content and ordinary navigation work with JavaScript disabled", as
     await page.goto("/journal/");
     await expect(page.locator("main h1")).toBeVisible();
     await page
-      .locator('a[href="/journal/de-gutenberg-au-numerique/"]')
+      .locator('a[href="/journal/from-gutenberg-to-digital/"]')
       .first()
       .click();
-    await expect(page).toHaveURL(/\/journal\/de-gutenberg-au-numerique\/$/);
+    await expect(page).toHaveURL(/\/journal\/from-gutenberg-to-digital\/$/);
     await expect(page.locator("main h1")).toBeVisible();
     expect((await page.locator("main").innerText()).length).toBeGreaterThan(
       1000,
     );
     await page.locator('main a[href="/journal/"]').first().click();
     await expect(page).toHaveURL(/\/journal\/$/);
-    await page.goto("/journal/histoire-imprimerie-luxembourg/");
+    await page.goto("/journal/printing-history-luxembourg/");
     await expect(page.locator("main h1")).toBeVisible();
     expect((await page.locator("main").innerText()).length).toBeGreaterThan(
       1000,
     );
-    await page.goto("/mentions-legales/");
+    await page.goto("/legal/");
     await expect(page.locator("main h1")).toBeVisible();
   } finally {
     await context.close();

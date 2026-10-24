@@ -57,13 +57,13 @@ function invalid(error: unknown): never {
   if (text.includes("invitation_existing_member"))
     fail(
       "INVITATION_EXISTING_MEMBER",
-      "Une des adresses appartient déjà à un membre de cet atelier.",
+      "One address already belongs to a member of this workspace.",
       409,
     );
   if (text.includes("invitation_daily_limit"))
     fail(
       "INVITATION_DAILY_LIMIT",
-      "La limite de 500 invitations par jour est atteinte.",
+      "The daily limit of 500 invitations has been reached.",
       429,
     );
   if (
@@ -73,18 +73,18 @@ function invalid(error: unknown): never {
   )
     fail(
       "INVITATION_PENDING",
-      "Une invitation est déjà en attente pour une des adresses.",
+      "An invitation is already pending for one address.",
       409,
     );
   if (text.includes("invitation_admin_required"))
-    fail("FORBIDDEN", "Vos droits d’administration ont changé.", 403);
+    fail("FORBIDDEN", "Your administration permissions have changed.", 403);
   if (
     text.includes("invitation_unavailable") ||
     text.includes("workspace_invitation_acceptances.invitation_id")
   )
     fail(
       "INVITATION_UNAVAILABLE",
-      "Cette invitation a expiré, a été révoquée ou a déjà été utilisée.",
+      "This invitation has expired, been revoked or already been used.",
       409,
     );
   throw error;
@@ -96,9 +96,9 @@ async function body(request: Request): Promise<unknown> {
       ?.toLowerCase()
       .startsWith("application/json")
   )
-    fail("INVALID_INPUT", "Une requête JSON est nécessaire.");
+    fail("INVALID_INPUT", "A JSON request is required.");
   const reader = request.body?.getReader();
-  if (!reader) fail("INVALID_INPUT", "La requête JSON est absente.");
+  if (!reader) fail("INVALID_INPUT", "The JSON request is missing.");
   let size = 0;
   const chunks: Uint8Array[] = [];
   try {
@@ -108,7 +108,7 @@ async function body(request: Request): Promise<unknown> {
       size += chunk.value.byteLength;
       if (size > 40_000) {
         await reader.cancel();
-        fail("INVALID_INPUT", "La requête est trop volumineuse.", 413);
+        fail("INVALID_INPUT", "The request is too large.", 413);
       }
       chunks.push(chunk.value);
     }
@@ -124,7 +124,7 @@ async function body(request: Request): Promise<unknown> {
   try {
     return JSON.parse(new TextDecoder().decode(bytes));
   } catch {
-    fail("INVALID_INPUT", "La requête JSON est invalide.");
+    fail("INVALID_INPUT", "The JSON request is invalid.");
   }
 }
 function parse<T extends z.ZodType>(schema: T, value: unknown): z.infer<T> {
@@ -132,7 +132,7 @@ function parse<T extends z.ZodType>(schema: T, value: unknown): z.infer<T> {
   if (!result.success)
     fail(
       "INVALID_INPUT",
-      "Vérifiez les adresses, le rôle et les droits de toutes les invitations.",
+      "Check the addresses, role and permissions for every invitation.",
     );
   return result.data;
 }
@@ -178,13 +178,13 @@ async function inviteForHash(
   tokenHash: string,
 ): Promise<Row> {
   if (!/^[a-f0-9]{64}$/.test(tokenHash))
-    fail("INVITATION_UNAVAILABLE", "Invitation indisponible.", 404);
+    fail("INVITATION_UNAVAILABLE", "Invitation unavailable.", 404);
   const row = await env.DB.prepare(
     "SELECT i.*,o.name organization_name FROM workspace_invitations i JOIN organizations o ON o.id=i.organization_id WHERE i.token_hash=? AND o.mode=?",
   )
     .bind(tokenHash, env.MODE)
     .first<Row>();
-  if (!row) fail("INVITATION_UNAVAILABLE", "Invitation indisponible.", 404);
+  if (!row) fail("INVITATION_UNAVAILABLE", "Invitation unavailable.", 404);
   return row;
 }
 export async function getInvitationPreview(
@@ -192,7 +192,7 @@ export async function getInvitationPreview(
   rawToken: string,
 ) {
   if (!/^[A-Za-z0-9_-]{43}$/.test(rawToken))
-    fail("INVITATION_UNAVAILABLE", "Invitation indisponible.", 404);
+    fail("INVITATION_UNAVAILABLE", "Invitation unavailable.", 404);
   const row = await inviteForHash(env, await hashSecret(rawToken));
   const [local, domain] = row.email.split("@");
   const item = publicRow(row);
@@ -219,20 +219,20 @@ export async function acceptWorkspaceInvitation(
   if (!email.success)
     fail(
       "INVITATION_EMAIL_MISMATCH",
-      "Connectez-vous avec l’adresse vérifiée destinataire de l’invitation.",
+      "Sign in with the invitation recipient's verified email address.",
       403,
     );
   const invitation = await inviteForHash(env, tokenHash);
   if (invitation.email !== email.data)
     fail(
       "INVITATION_EMAIL_MISMATCH",
-      "Connectez-vous avec l’adresse vérifiée destinataire de l’invitation.",
+      "Sign in with the invitation recipient's verified email address.",
       403,
     );
   if (invitation.status !== "pending" || invitation.expires_at <= timestamp())
     fail(
       "INVITATION_UNAVAILABLE",
-      "Cette invitation a expiré, a été révoquée ou a déjà été utilisée.",
+      "This invitation has expired, been revoked or already been used.",
       409,
     );
   try {
@@ -275,33 +275,14 @@ function mail(
   url: string,
   locale: string | null | undefined,
 ) {
-  const texts: Record<string, [string, string, string, string]> = {
-    fr: [
-      "Invitation à rejoindre un atelier",
-      "Vous êtes invité à rejoindre",
-      "Accepter l’invitation",
-      "Ce lien expire dans 7 jours. Connectez-vous avec cette adresse e-mail vérifiée. Si vous n’attendiez pas cette invitation, ignorez ce message.",
-    ],
-    en: [
-      "Invitation to join a workspace",
-      "You are invited to join",
-      "Accept invitation",
-      "This link expires in 7 days. Sign in with this verified email address. If you were not expecting this invitation, ignore this message.",
-    ],
-    de: [
-      "Einladung zu einem Arbeitsbereich",
-      "Sie wurden eingeladen zu",
-      "Einladung annehmen",
-      "Dieser Link läuft in 7 Tagen ab. Melden Sie sich mit dieser bestätigten E-Mail-Adresse an. Wenn Sie diese Einladung nicht erwartet haben, ignorieren Sie diese Nachricht.",
-    ],
-    lb: [
-      "Invitatioun fir en Atelier",
-      "Dir sidd invitéiert bei",
-      "Invitatioun unhuelen",
-      "Dëse Link leeft a 7 Deeg of. Mellt Iech mat dëser verifizéierter E-Mail-Adress un. Wann Dir dës Invitatioun net erwaart hutt, ignoréiert dëse Message.",
-    ],
-  };
-  const [subject, lead, action, note] = texts[locale ?? "fr"] ?? texts.fr;
+  // Authored transactional communication stays English; locale metadata remains
+  // available on the invitation and never changes authority or recipient identity.
+  void locale;
+  const subject = "Invitation to join a workspace";
+  const lead = "You are invited to join";
+  const action = "Accept invitation";
+  const note =
+    "This link expires in 7 days. Sign in with this verified email address. If you were not expecting this invitation, ignore this message.";
   return {
     from: env.INVITATION_EMAIL_FROM!,
     to: [email],
@@ -324,7 +305,7 @@ async function deliver(
     current.context.role !== "admin" ||
     current.tokenHash !== session.tokenHash
   )
-    fail("FORBIDDEN", "Vos droits ont changé.", 403);
+    fail("FORBIDDEN", "Your permissions have changed.", 403);
   const authority = fence(env, current);
   const ids = JSON.stringify(rows.map(({ row }) => row.id));
   const claim = await env.DB.prepare(
@@ -411,7 +392,7 @@ export async function handleInvitationRoute(
         {
           error: {
             code: "METHOD_NOT_ALLOWED",
-            message: "Méthode non autorisée.",
+            message: "Method not allowed.",
           },
         },
         405,
@@ -424,7 +405,7 @@ export async function handleInvitationRoute(
   }
   if (!list && !revoke) return null;
   if (request.headers.has("Authorization"))
-    fail("BROWSER_REQUIRED", "Ouvrez Guteneo dans votre navigateur.", 403);
+    fail("BROWSER_REQUIRED", "Open Guteneo in your browser.", 403);
   const session = await authenticateBrowser(
     request,
     env,
@@ -433,7 +414,7 @@ export async function handleInvitationRoute(
   if (session.context.role !== "admin")
     fail(
       "FORBIDDEN",
-      "Seul un administrateur peut inviter des collaborateurs.",
+      "Only an administrator can invite collaborators.",
       403,
     );
   const org = session.context.organizationId;
@@ -480,7 +461,7 @@ export async function handleInvitationRoute(
     if (!result[0].meta.changes)
       fail(
         "INVITATION_UNAVAILABLE",
-        "Cette invitation n’est plus en attente ou vos droits ont changé.",
+        "This invitation is no longer pending or your permissions have changed.",
         409,
       );
     return json({ revoked: true });
@@ -491,7 +472,7 @@ export async function handleInvitationRoute(
     if (!simulation && !deliveryReady(env))
       fail(
         "INVITATION_DELIVERY_DISABLED",
-        "L’envoi des invitations par e-mail n’est pas encore activé pour cet environnement.",
+        "Invitation email delivery is not yet enabled for this environment.",
         409,
       );
     const now = timestamp(),
@@ -567,7 +548,11 @@ export async function handleInvitationRoute(
         ),
       ]);
       if (!results[0].meta.changes)
-        fail("FORBIDDEN", "Vos droits ont changé. Actualisez la page.", 403);
+        fail(
+          "FORBIDDEN",
+          "Your permissions have changed. Refresh the page.",
+          403,
+        );
     } catch (error) {
       invalid(error);
     }
@@ -591,7 +576,7 @@ export async function handleInvitationRoute(
   }
   return json(
     {
-      error: { code: "METHOD_NOT_ALLOWED", message: "Méthode non autorisée." },
+      error: { code: "METHOD_NOT_ALLOWED", message: "Method not allowed." },
     },
     405,
   );

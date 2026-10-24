@@ -1,0 +1,102 @@
+---
+title: Studio and data pipelines
+description: Versioned templates, explicit mappings, reproducible PDFs and distribution without automatic approval.
+sidebar:
+  order: 2
+---
+
+Studio separates a document's design, business data and delivery decision. A
+published template version and a validated mapping can generate exact PDFs;
+neither operation authorizes sending them.
+
+<MermaidDiagram diagram="documents" />
+
+The [diagram reference](/architecture/diagrams/) connects this logical pipeline
+with the system and dispatch views, including downloadable sources.
+
+## Template authoring and publication
+
+Templates use a typed, engine-independent envelope with a business schema,
+bindings and visual definition. The embedded editor and programmatic authoring
+share the same validation rules. Demonstration templates are synthetic starting
+points; creating a private copy makes an independent editable object.
+
+Saving checks the current revision and edit permission. Publishing creates an
+immutable version for generation. Sharing a template does not share a dataset,
+mapping or generated private PDF. Owner removal hides the template from future
+library/generation use while retaining existing versions, PDFs and history.
+
+DOCX import is a bounded conversion to editable blocks with warnings, not a
+promise of faithful Microsoft Word round trips. Rendered output, rather than the
+editor canvas alone, is the evidence for pagination, tables and fonts.
+
+## Preserve the source; make interpretation explicit
+
+CSV, XLSX, JSON and XML originals remain private. Profiling preserves raw strings,
+cell coordinates, source options and measured issues. The pure data parser has
+no storage, tenant-selection, billing, dispatch or network authority.
+
+A mapping selects sheets, header rows, field paths, types, exclusions, date/number
+conventions and optional grouping/joins. Headers and structural signatures detect
+changed source structure. A mapping update creates a new validated version; it
+does not silently reinterpret an already generated document.
+
+- Postal codes and identifiers preserve leading zeros.
+- Exact decimal values remain strings, or convert to explicitly scaled integer
+  minor units; numeric mapping performs no implicit floating-point rounding.
+- Formula text is never executed. Explicit cached-value use does not recalculate
+  the workbook or attest that its cached result is current.
+- Joins require explicit keys/cardinality; missing, duplicate, orphaned or
+  conflicting data becomes an issue rather than an inferred relationship.
+- Mapping paths do not permit user scripts, arbitrary expressions or network calls.
+
+New generated root sheets use `Data`; repeated XML child sheets use `Data.<path>`.
+Compatibility with historical `Données` names applies only to parser-generated
+names with established provenance. XLSX sheets and explicitly named JSON tables
+require exact matching; matching headers never authorize selecting another table.
+An absent mapping or join sheet produces `MISSING_SHEET` and requires review.
+Older JSON profiles without naming provenance also require exact names: use the
+retained name, or import the source again and revalidate the mapping. Lookup
+does not rewrite original bytes, saved profiles, plans or source-cell provenance.
+
+## Validation, generation and provenance
+
+A complete deterministic validation produces either usable normalized records or
+issues requiring review. It records exclusions and per-field/source-row provenance.
+Logical documents can contain repeated line items without confusing those rows
+with separate recipients.
+
+A generation job binds the selected template version, mapping/data inputs and
+options. The private renderer produces independent PDFs that enter the ordinary
+verification path. Each result retains its own status and provenance, so one
+record failure does not erase the successful PDFs or justify guessing its data.
+
+<GutenbergNote pose="studio" title="One plate, many proofs">
+  A published template is fixed, but every generated PDF has its own bytes and
+  provenance. Reusing the design never reuses someone else's delivery approval.
+</GutenbergNote>
+
+## Distribution freezes a deliberate selection
+
+Preparing distribution creates ordinary dispatch preparations from generated
+results. It preserves exact destinations and channels; repeated values do not
+authorize merging, deduplicating or switching a recipient's channel.
+
+The first distribution plan freezes its generation batch and prevents failed-record
+retries, including records outside the selected subset. Finish desired retries
+before creating that plan. Resuming distribution continues preparations in the
+frozen plan; it does not reopen generation, approve sends or retry unknown provider
+outcomes. A later regeneration requires a new batch.
+
+## Optional suggestions remain proposals
+
+AI-assisted template/schema/mapping suggestions require explicit configuration,
+transfer consent, current authority, revision and budget. Upload/profiling alone
+performs no inference. The server rechecks relevant permissions and consent both
+before the provider call and before returning a result. Revoked access or a
+concurrent edit blocks stale suggestions.
+
+A proposal is never automatically applied, published or sent. Manual authoring and
+external-assistant mappings remain usable without the internal AI adapter. The
+[dispatch lifecycle](/architecture/dispatch-lifecycle/) still governs final
+communications.

@@ -1,35 +1,55 @@
 import { access, readFile, writeFile } from "node:fs/promises";
 
 const root = new URL("./", import.meta.url);
-const data = JSON.parse(
-  await readFile(new URL("feature-map.json", root), "utf8"),
-);
+const read = async (path) =>
+  JSON.parse(await readFile(new URL(path, root), "utf8"));
+const data = await read("feature-map.json");
 const check = process.argv.slice(2).includes("--check");
 if (process.argv.slice(2).some((arg) => arg !== "--check"))
   throw new Error("Use node docs/build-feature-map.mjs [--check]");
+const unique = (items, label) => {
+  if (new Set(items).size !== items.length)
+    throw new Error(`Duplicate ${label}`);
+};
+const reference = async (path) => {
+  if (!path || path.startsWith("/") || path.split("/").includes(".."))
+    throw new Error(`Invalid repository reference: ${path}`);
+  await access(new URL("../" + path, root));
+};
 if (
+  data.schemaVersion !== 2 ||
   data.roles.length !== 5 ||
   data.permissions.some((row) => row.length !== data.roles.length + 1)
 )
-  throw new Error("Invalid permission matrix");
-if (
-  new Set(data.groups.map((g) => g.title)).size !== data.groups.length ||
-  new Set(data.journeys.map((j) => j.id)).size !== data.journeys.length
-)
-  throw new Error("Duplicate domain or journey");
+  throw new Error("Invalid feature schema or permission matrix");
+unique(
+  data.groups.map((g) => g.id),
+  "domain ID",
+);
+unique(
+  data.groups.map((g) => g.title),
+  "domain title",
+);
+unique(
+  data.journeys.map((j) => j.id),
+  "journey ID",
+);
 for (const group of data.groups) {
   if (
+    !/^[a-z][a-z0-9-]*$/.test(group.id) ||
+    !group.category ||
     !group.features.length ||
     !group.tests.length ||
     !group.status ||
-    !group.surfaces
+    !group.availability ||
+    !group.surfaces ||
+    !Array.isArray(group.tools) ||
+    !Array.isArray(group.rest)
   )
-    throw new Error("Incomplete feature domain");
-  for (const path of ["docs/" + group.doc, group.source, ...group.tests]) {
-    if (path.startsWith("/") || path.split("/").includes(".."))
-      throw new Error("Invalid repository reference");
-    await access(new URL("../" + path, root));
-  }
+    throw new Error(`Incomplete domain: ${group.id}`);
+  unique(group.features, `feature in ${group.id}`);
+  for (const path of ["docs/" + group.doc, group.source, ...group.tests])
+    await reference(path);
 }
 for (const journey of data.journeys) {
   for (const key of [
@@ -41,17 +61,124 @@ for (const journey of data.journeys) {
     "doc",
     "failure",
   ])
-    if (!journey[key]) throw new Error("Incomplete customer journey");
-  await access(new URL(journey.doc, root));
+    if (!journey[key])
+      throw new Error(`Incomplete journey: ${journey.id}/${key}`);
+  await reference("docs/" + journey.doc);
 }
-async function emit(url, content) {
-  if (check) {
-    if ((await readFile(url, "utf8")) !== content)
-      throw new Error(
-        "Developer atlas is stale; run node docs/build-feature-map.mjs",
-      );
-  } else await writeFile(url, content);
+const coveredTools = data.groups.flatMap((g) => g.tools);
+const coveredRest = data.groups.flatMap((g) => g.rest);
+unique(coveredTools, "MCP tool ownership");
+unique(coveredRest, "REST operation ownership");
+const tools = (
+  await read("../integrations/chatgpt/tool-annotations.json")
+).tools.map((t) => t.name);
+const openapi = await read("../apps/web/public/openapi.json");
+const methods = new Set([
+  "get",
+  "post",
+  "put",
+  "patch",
+  "delete",
+  "head",
+  "options",
+  "trace",
+]);
+const operations = Object.entries(openapi.paths).flatMap(([path, item]) =>
+  Object.keys(item)
+    .filter((m) => methods.has(m))
+    .map((m) => `${m.toUpperCase()} ${path}`),
+);
+for (const [actual, registered, label] of [
+  [tools, coveredTools, "MCP tool"],
+  [operations, coveredRest, "OpenAPI operation"],
+]) {
+  const missing = actual.filter((id) => !registered.includes(id));
+  const stale = registered.filter((id) => !actual.includes(id));
+  if (missing.length || stale.length)
+    throw new Error(
+      `${label} coverage drift. Missing: ${missing.join(", ") || "none"}; stale: ${stale.join(", ") || "none"}. Update feature-map.json and developer contracts.`,
+    );
 }
+const featureCount = data.groups.reduce((n, g) => n + g.features.length, 0);
+const categories = [...new Set(data.groups.map((g) => g.category))];
+const headers = ["Capability", ...data.roles];
+const tree = categories
+  .map(
+    (category) =>
+      `    ${category}\n${data.groups
+        .filter((g) => g.category === category)
+        .map(
+          (g) =>
+            `      ${g.title.replaceAll("&", "and")} (${g.features.length})`,
+        )
+        .join("\n")}`,
+  )
+  .join("\n");
+const boundary =
+  "This inventory describes repository implementation. Check current account capabilities, authority and dated release/runtime evidence before treating a feature as available. Local tests, deterministic simulation, deployed assets, authenticated clients and real provider delivery are separate evidence.";
+const maintenance =
+  "Every feature addition, change or removal must update feature-map.json, affected permissions/journeys, the developer guide and the detailed technical contract in the same PR. Include entry conditions, authority, result, errors/recovery, surfaces, privacy, activation gates, source and tests. Update OpenAPI/MCP contracts where relevant, regenerate both atlas views, and run npm run docs:check. The generator rejects missing or stale advertised REST/MCP operations. Review remains responsible for semantic coverage and factual status. These raw atlas files stay in the repository. The separate engineering site publishes only curated guides and the explicit generated feature projection; regenerate that projection with npm run docs:build.";
+const markdown = `<!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
+# Guteneo feature tree and developer atlas
+
+**${data.groups.length} domains · ${featureCount} features · ${data.journeys.length} journeys · ${coveredRest.length} documented REST operations · ${coveredTools.length} MCP tools**
+Updated ${data.updated}.
+
+${data.scope}
+
+Start here to find a feature, its authority and its technical owner. Read [repository standards](REPOSITORY_STANDARDS.md) and the [documentation index](README.md) for shared conventions. The [offline visual atlas](FEATURE_MAP.html) provides search; [feature-map.json](feature-map.json) is the single editable source. Regenerate with \`npm run docs:build\`.
+
+## Feature tree
+
+\`\`\`mermaid
+mindmap
+  root((Guteneo))
+${tree}
+\`\`\`
+
+${categories
+  .map(
+    (category) =>
+      `### ${category}\n\n${data.groups
+        .filter((g) => g.category === category)
+        .map(
+          (g) =>
+            `- [${g.title}](#${g.id}) — ${g.features.length} features; ${g.availability}.`,
+        )
+        .join("\n")}`,
+  )
+  .join("\n\n")}
+
+## Availability and evidence
+
+${boundary}
+
+An availability label describes the access/gating model, never an assertion of live activation. \`partial\` and \`local-candidate\` mark material qualification gaps. Read each detailed contract and the dated [release record](LIVE_RELEASE.md); no hard-coded historical release summary is duplicated here.
+
+## Roles and permissions
+
+${data.roleNote}
+
+| ${headers.join(" | ")} |
+| ${headers.map(() => "---").join(" | ")} |
+${data.permissions.map((p) => `| ${p.join(" | ")} |`).join("\n")}
+
+Supervisor approval/reporting options are independent and off by default. Resource ownership/context checks still apply. See [workspace roles](WORKSPACE_ROLES.md), [expert approval](EXPERT_APPROVAL.md) and [studio access](TEMPLATES_DATA_DISTRIBUTION.md).
+
+## Complete feature inventory
+
+${data.groups.map((g) => `<a id="${g.id}"></a>\n### ${g.title}\n\n**Availability model:** ${g.availability}. ${g.status}\n\n**Surfaces:** ${g.surfaces}\n\n${g.features.map((f) => `- ${f}`).join("\n")}\n\n**Contract:** [${g.doc}](${g.doc}) · **Implementation:** [${g.source}](../${g.source})\n\n**Tests:** ${g.tests.map((t) => `[${t}](../${t})`).join(", ")}\n\n${g.rest.length ? `**Documented REST operations**\n\n${g.rest.map((r) => `- \`${r}\``).join("\n")}\n\n` : ""}${g.tools.length ? `**MCP tools**\n\n${g.tools.map((t) => `- \`${t}\``).join("\n")}` : ""}`).join("\n\n")}
+
+## Customer journeys and recovery
+
+${data.journeys.map((j) => `### ${j.id} · ${j.title}\n\n**Actor:** ${j.actor}. **Branch:** ${j.branch}.\n\n${j.steps}\n\n**Failure/recovery:** ${j.failure}\n\n[Detailed contract](${j.doc}).`).join("\n\n")}
+
+## Required maintenance
+
+${maintenance}
+
+[Developer API guide](DEVELOPER_API.md) · [REST contract](API_CONTRACT.md) · [OpenAPI](../apps/web/public/openapi.json) · [MCP annotations](../integrations/chatgpt/tool-annotations.md) · [CI](CI.md) · [Dated test evidence](TEST_RESULTS.md).
+`;
 const esc = (s) =>
   String(s).replace(
     /[&<>"']/g,
@@ -60,93 +187,47 @@ const esc = (s) =>
         c
       ],
   );
-const cells = (row) => row.map((c) => `<td>${esc(c)}</td>`).join("");
-const headers = ["Capacité", ...data.roles];
-const table = `<div class="table-wrap"><table><thead><tr>${headers.map((h) => `<th scope="col">${esc(h)}</th>`).join("")}</tr></thead><tbody>${data.permissions.map((p) => `<tr><th scope="row">${esc(p[0])}</th>${cells(p.slice(1))}</tr>`).join("")}</tbody></table></div>`;
-const featureCount = data.groups.reduce((n, g) => n + g.features.length, 0);
-const markdown = `<!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
-# Guteneo · atlas technique
-
-> **${data.groups.length} domaines · ${featureCount} fonctionnalités · ${data.journeys.length} parcours** — mis à jour le ${data.updated}.
-> ${data.scope}
-
-Vue visuelle hors ligne : ouvrir [FEATURE_MAP.html](FEATURE_MAP.html) dans un navigateur. Source éditable : [feature-map.json](feature-map.json). Régénérer avec \`node docs/build-feature-map.mjs\`.
-
-## Vue d’ensemble
-
-\`\`\`mermaid
-mindmap
-  root((Guteneo))
-    Accès
-      Identité et sessions
-      Documents personnels
-      Équipe et droits
-    Créer
-      Documents sécurisés
-      Modèles et designer
-      Données et mappings
-      Génération PDF
-    Distribuer
-      Fax
-      Courrier postal
-      E-mail et liens protégés
-      Distribution sensible
-      Campagnes et lots
-    Piloter
-      Suivi et rapports
-      Crédits et facturation
-      Horizon et diagnostics
-    Interfaces
-      Web multilingue
-      Assistants et API
-      iPhone et iPad
-    Exploiter
-      Sécurité et confidentialité
-      CI et publication depuis main
-\`\`\`
-
-## Droits en un coup d’œil
-
-${data.roleNote}
-
-| ${headers.join(" | ")} |
-| ${headers.map(() => "---").join(" | ")} |
-${data.permissions.map((p) => `| ${p.join(" | ")} |`).join("\n")}
-
-Les deux options du superviseur sont indépendantes et fermées par défaut. Le rôle appartient à un atelier ; changer de rôle révoque les accès et les approbations encore en attente. Les scopes OAuth n’élèvent jamais les droits. La lecture de l’atelier n’ouvre pas les données ou PDF privés d’un autre créateur. Une demande liée peut donner une revue bornée aux approbateurs actuels ; elle n’ouvre pas la bibliothèque privée. Voir [le contrat des rôles](WORKSPACE_ROLES.md) et [le contrat du studio](TEMPLATES_DATA_DISTRIBUTION.md).
-
-## Arbre exhaustif des fonctionnalités
-
-${data.groups.map((g, i) => `### ${String(i + 1).padStart(2, "0")} · ${g.title}\n\n**État :** ${g.status}.\n\nContrat : [${g.doc}](${g.doc}) · Source : [${g.source}](../${g.source}).\n\n**Surfaces :** ${g.surfaces}. **Tests :** ${g.tests.map((t) => `[${t}](../${t})`).join(", ")}.\n\n${g.features.map((f) => `- ${f}`).join("\n")}`).join("\n\n")}
-
-## Parcours clients et reprise sur erreur
-
-${data.journeys.map((j) => `### ${j.id} · ${j.title}\n\n**Acteur :** ${j.actor}. **Branche :** ${j.branch}.\n\n${j.steps}\n\n**Blocage / reprise :** ${j.failure}\n\nRéférence : [${j.doc}](${j.doc}).`).join("\n\n")}
-
-## Frontières d’activation et preuves
-
-- Un merge ne prouve ni un déploiement ni l’ouverture d’un canal. Lire les capacités du compte, le manifeste public et la version distante.
-- Les PR #38, #41, #43, #47 et #48 sont fusionnées dans main ; la publication c5cc0dd et les migrations 0050–0051 sont vérifiées. L’ouverture d’Horizon sur crédits est autorisée ; la qualification hébergée et la publication de son activation restent des preuves distinctes.
-- Horizon requiert service privé qualifié, scanner et activation explicite. Souscription : administrateur navigateur, 30 € de crédits disponibles et consentement récurrent. Le bonus promotionnel est unique et la recharge indisponible. Diagnostic : droits, propriété, abonnement et quota courants. Voir [la décision d’ouverture](HORIZON_OPENING_2026_10_03.md).
-- Invitations, e-mail, fournisseurs réels et IA ont leurs propres conditions. Ne pas activer ces services pour rendre une démonstration possible.
-- Une simulation ne qualifie pas un envoi réel. Une issue inconnue exige un rapprochement ; pas de nouvelle tentative aveugle.
-- Tests et qualification : [CI](CI.md), [TEST_RESULTS](TEST_RESULTS.md), [MAIN_RELEASE](MAIN_RELEASE.md). Les résultats datés restent historiques.
-
-## Maintenance obligatoire
-
-Chaque PR qui ajoute, modifie ou retire une fonction met à jour cet arbre, les droits et les parcours concernés dans le même changement. Décrire entrée, étapes, sortie, erreurs/reprise, canaux, données privées, activation et preuve de test. Ajouter un lien vers le contrat détaillé, le code et les tests pertinents. Régénérer Markdown et HTML, puis vérifier liens, mise en page et cohérence avec le code. La CI exécute node docs/build-feature-map.mjs --check : vues synchronisées, matrice cohérente, références existantes et parcours complets ; la revue contrôle la couverture sémantique. Aucun de ces fichiers n’est relié au build ou à la navigation du site officiel.
-`;
-// Backticks in the command above are emitted literally for Markdown.
-await emit(new URL("FEATURE_MAP.md", root), markdown.replaceAll("\\`", "`"));
-await emit(
-  new URL("FEATURE_MAP.html", root),
-  `<!doctype html>
-<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Guteneo · Atlas technique</title><style>
-:root{color-scheme:light;--ink:#182338;--blue:#2153dd;--paper:#f6f3ec;--line:#dbdedf}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.6 system-ui,sans-serif}a{color:var(--blue)}header{background:var(--ink);color:white;padding:54px max(24px,calc((100vw - 1280px)/2));border-bottom:7px solid var(--blue)}.eyebrow{letter-spacing:.17em;text-transform:uppercase;font-size:12px}h1{font:clamp(40px,6vw,76px)/1.08 Georgia,serif;margin:18px 0}h2{font:36px/1.2 Georgia,serif;margin-top:0}h3{margin:0 0 12px;font-size:20px}header p{max-width:750px;color:#d2dae8}.stats{display:flex;flex-wrap:wrap;gap:28px;margin-top:28px}.stats strong{font:34px Georgia,serif;display:block}.stats span{font-size:13px;color:#d2dae8}main{max-width:1280px;margin:auto;padding:28px 24px 64px}nav{display:flex;flex-wrap:wrap;gap:12px;margin:0 0 32px}nav a{padding:8px 14px;border:1px solid var(--line);border-radius:24px;background:white;text-decoration:none}section{margin:36px 0}.note{background:#e9eefc;border-left:4px solid var(--blue);padding:16px 20px}.toolbar{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin:24px 0}input{font:inherit;padding:12px 16px;border:1px solid #99a4b6;border-radius:8px;min-width:240px;flex:1}label{font-weight:600}.tree{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,350px),1fr));gap:18px}.branch{background:white;border:1px solid var(--line);border-top:4px solid var(--blue);padding:24px;border-radius:10px}.index{color:var(--blue);font:13px ui-monospace,monospace;display:block;margin-bottom:12px}.badge{display:inline-block;font-size:12px;background:#eef2fc;color:#224495;padding:4px 9px;border-radius:5px;margin-bottom:12px}.branch ul{padding-left:20px;font-size:14px}.branch li{margin:8px 0}.links{font-size:12px;overflow-wrap:anywhere}.table-wrap{overflow-x:auto;background:white;border:1px solid var(--line);border-radius:10px}table{border-collapse:collapse;width:100%;min-width:980px;font-size:13px}th,td{padding:14px 16px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}thead th{background:var(--ink);color:white}tbody th{width:230px}tr:nth-child(even){background:#f7f9fc}details{background:white;border:1px solid var(--line);border-radius:8px;margin:12px 0;padding:18px 22px}summary{cursor:pointer;font-weight:650}summary span{color:var(--blue);font:13px ui-monospace,monospace;margin-right:16px}.steps{border-left:3px solid var(--blue);padding-left:18px}.muted{color:#536079;font-size:14px}footer{border-top:1px solid var(--line);padding-top:24px;font-size:13px}a:focus-visible,summary:focus-visible,input:focus-visible{outline:3px solid var(--blue);outline-offset:4px}[hidden]{display:none!important}@media print{header{color:var(--ink);background:white}.toolbar,nav{display:none}.tree{display:block}.branch,details{break-inside:avoid;margin-bottom:16px}header p,.stats span{color:var(--ink)}table{min-width:0;font-size:10px}th,td{padding:6px}}@media(max-width:600px){header{padding:36px 24px}main{padding:20px 16px}.stats{gap:20px}h2{font-size:30px}}
-</style></head><body><header><div class="eyebrow">Documentation développeurs · ${esc(data.updated)}</div><h1>Le produit,<br>branche par branche.</h1><p>Un atlas pour comprendre Guteneo : fonctionnalités, responsabilités et parcours clients, reliés aux contrats et aux sources.</p><div class="stats"><div><strong>${data.groups.length}</strong><span>domaines</span></div><div><strong>${featureCount}</strong><span>fonctionnalités</span></div><div><strong>${data.journeys.length}</strong><span>parcours</span></div><div><strong>4 + 1</strong><span>rôles humains + acteur assistant</span></div></div></header><main><nav aria-label="Sections"><a href="#roles">Droits</a><a href="#features">Arbre des features</a><a href="#journeys">Parcours clients</a><a href="#boundaries">Activation & maintenance</a></nav><p class="note">${esc(data.scope)} Cette vue reste dans le dépôt ; aucun lien depuis le site officiel.</p><section id="roles"><div class="eyebrow">01 / Responsabilités</div><h2>Qui peut faire quoi ?</h2><p>${esc(data.roleNote)}</p>${table}<p class="muted">Superviseur : Approbation et Rapports sont indépendants. OAuth n’élève pas le rôle. Les données et PDF privés restent soumis à la propriété ; une revue d’envoi ouvre seulement son contexte lié.</p></section><section id="features"><div class="eyebrow">02 / Cartographie</div><h2>L’arbre des fonctionnalités</h2><div class="toolbar"><label for="search">Rechercher</label><input id="search" type="search" placeholder="Fax, modèle, langue, quota…"><span id="count" role="status" aria-live="polite">${data.groups.length} domaines</span></div><div class="tree">${data.groups.map((g, i) => `<article class="branch" data-search="${esc([g.title, ...g.features].join(" ").toLocaleLowerCase("fr"))}"><span class="index">GUTENEO / ${String(i + 1).padStart(2, "0")}</span><h3>${esc(g.title)}</h3><span class="badge">${esc(g.status)}</span><p class="muted">${esc(g.surfaces)}</p><ul>${g.features.map((f) => `<li>${esc(f)}</li>`).join("")}</ul><p class="links"><a href="${esc(g.doc)}">Contrat technique ↗</a><br><a href="../${esc(g.source)}">${esc(g.source)}</a><br>${g.tests.map((t) => `<a href="../${esc(t)}">Test : ${esc(t)}</a>`).join("<br>")}</p></article>`).join("")}</div><p id="empty" hidden>Aucun domaine trouvé. Essayez un autre terme.</p></section><section id="journeys"><div class="eyebrow">03 / Expérience client</div><h2>Du besoin au résultat</h2><p>Chaque parcours nomme l’acteur, les étapes et la conduite à tenir en cas de blocage.</p>${data.journeys.map((j) => `<details><summary><span>${esc(j.id)}</span>${esc(j.title)}</summary><p class="muted">${esc(j.actor)} · ${esc(j.branch)}</p><p class="steps">${esc(j.steps)}</p><p><strong>Blocage / reprise.</strong> ${esc(j.failure)}</p><a href="${esc(j.doc)}">Ouvrir le contrat technique ↗</a></details>`).join("")}</section><section id="boundaries"><div class="eyebrow">04 / Contrat développeur</div><h2>Maintenir une carte fidèle</h2><p class="note">Chaque évolution doit mettre à jour l’arbre, la matrice des droits et les parcours affectés dans la même PR.</p><p>Décrire entrées, sorties, erreurs/reprise, confidentialité, surfaces, activation, sources et tests. La source éditable est <a href="feature-map.json">feature-map.json</a> ; régénérer avec <code>node docs/build-feature-map.mjs</code>. Le <a href="FEATURE_MAP.md">Markdown</a> offre la même carte sur GitHub.</p><p>Les PR #38, #41, #43, #47 et #48 et les migrations 0050–0051 sont intégrées et publiées dans c5cc0dd. L’ouverture d’Horizon sur crédits est autorisée ; sa qualification hébergée et son activation restent à attester séparément. Voir <a href="HORIZON_OPENING_2026_10_03.md">la décision d’ouverture</a>. Un merge ne prouve ni activation ni publication. Les capacités du compte, <code>/release.json</code>, la CI du commit et la preuve distante font foi. Les services fermés restent fermés jusqu’à qualification ; les simulations restent distinctes des opérations réelles.</p><p><a href="MAIN_RELEASE.md">Publication depuis main</a> · <a href="CI.md">CI</a> · <a href="WORKSPACE_ROLES.md">Contrat des rôles</a> · <a href="TEST_RESULTS.md">Preuves datées</a></p></section><footer>Guteneo · documentation technique du dépôt · sans dépendance externe, sans requête réseau, sans intégration au site officiel.</footer></main><script>
-const search=document.getElementById('search');const cards=[...document.querySelectorAll('.branch')];search.addEventListener('input',()=>{const query=search.value.trim().toLocaleLowerCase('fr');let visible=0;for(const card of cards){card.hidden=!card.dataset.search.includes(query);if(!card.hidden)visible++;}document.getElementById('count').textContent=visible+' domaine'+(visible>1?'s':'');document.getElementById('empty').hidden=visible!==0;});
-</script></body></html>`,
-);
+const links = (items, prefix = "") =>
+  items.map((p) => `<a href="${esc(prefix + p)}">${esc(p)}</a>`).join(" · ");
+const html = `<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><title>Guteneo feature tree and developer atlas</title><style>
+:root{--paper:#f7f5ef;--ink:#182338;--blue:#204bc7;--muted:#536079;--line:#d5d9de}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.65 system-ui,sans-serif}a{color:var(--blue);text-underline-offset:.2em}a:focus-visible,summary:focus-visible,input:focus-visible{outline:3px solid var(--blue);outline-offset:4px}::selection{background:#c9d7fc;color:var(--ink)}header{padding:64px max(24px,calc((100vw - 1160px)/2));background:var(--ink);color:var(--paper)}header a{color:#c5d5ff}h1{font:clamp(2.5rem,7vw,5.5rem)/1.04 Georgia,serif;max-width:15ch;margin:20px 0 28px;font-weight:400}h2{font:2.25rem/1.18 Georgia,serif;margin:0 0 20px}h3{font-size:1.2rem;margin:0}p{max-width:75ch}header p{color:#d5ddeb}header .identity{display:inline-block;background:var(--paper);color:#181b22;padding:6px 12px;text-decoration:none;font-weight:650;letter-spacing:.02em}.counts{display:flex;flex-wrap:wrap;gap:12px 28px;font-variant-numeric:tabular-nums}.counts span{white-space:nowrap}main{max-width:1208px;padding:32px 24px 72px;margin:auto}nav{display:flex;flex-wrap:wrap;gap:12px 24px;padding-bottom:28px;border-bottom:1px solid var(--line)}section{margin-top:56px}.note{background:#e9eefb;padding:18px 22px;border-radius:12px}.muted{color:var(--muted)}.toolbar{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin:24px 0}label{font-weight:650}input{font:inherit;color:var(--ink);background:white;min-width:0;width:min(100%,38rem);padding:12px 16px;border:1px solid #919bad;border-radius:8px}.category{margin:36px 0}.category>h3{margin-bottom:12px;color:var(--blue)}.domain{border-top:1px solid var(--line);padding:0 0 8px}.domain:last-child{border-bottom:1px solid var(--line)}summary{cursor:pointer;min-height:56px;padding:16px 8px}.domain summary{font-weight:650}.meta{font-size:.875rem;color:var(--muted);font-weight:400;margin-left:12px}.domain-content{padding:0 8px 24px 28px}.domain ul{padding-left:20px;max-width:90ch}.domain li{margin:8px 0}.references{font-size:.875rem;overflow-wrap:anywhere}.operations{font-size:.875rem;margin-top:20px}.operations code{white-space:normal;overflow-wrap:anywhere;font-size:.875rem}.operations ul{columns:2;column-gap:32px}.operations li{break-inside:avoid}.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:12px;background:white;max-height:650px}table{border-collapse:collapse;width:100%;min-width:1024px;font-size:.875rem}th,td{padding:14px 16px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}thead th{background:var(--ink);color:white;position:sticky;top:0}tbody th{min-width:190px}tr:nth-child(even){background:#f3f6fc}.journey{border-top:1px solid var(--line)}.journey summary{font-weight:600}.journey>div{padding:0 8px 20px 28px}footer{margin-top:56px;padding-top:24px;border-top:1px solid var(--line);font-size:.875rem}[hidden]{display:none!important}@media(max-width:600px){header{padding:36px 24px}.meta{display:block;margin-left:20px}.domain-content,.journey>div{padding-left:8px}.operations ul{columns:1}h2{font-size:1.9rem}.toolbar{align-items:flex-start;flex-direction:column;width:100%}.toolbar input{width:100%}}@media print{header{color:var(--ink);background:white;padding:20px}header p{color:var(--ink)}main{max-width:none;padding:20px}nav,.toolbar{display:none}.table-wrap{max-height:none;overflow:visible}table{min-width:0;font-size:9px}th,td{padding:5px}thead th{position:static}.domain,.journey{break-inside:avoid}a{color:inherit}}
+</style></head><body><header><a class="identity" href="README.md">guteneo · developer documentation</a><h1>The product,<br>branch by branch.</h1><p>One reference for features, authority, interfaces and recovery, linked to implementation and evidence.</p><p class="counts"><span>${data.groups.length} domains</span><span>${featureCount} features</span><span>${data.journeys.length} journeys</span><span>${coveredRest.length} REST operations</span><span>${coveredTools.length} MCP tools</span></p><p>Updated ${esc(data.updated)} · Repository inventory</p></header><main><nav aria-label="Atlas sections"><a href="#features">Feature tree</a><a href="#roles">Permissions</a><a href="#journeys">Journeys</a><a href="#maintenance">Maintenance</a><a href="FEATURE_MAP.md">Markdown view</a></nav><p class="note">${esc(boundary)}</p><section id="features"><h2>The feature tree</h2><p>Expand a domain to inspect its features and contracts. Search names, details, paths or tool identifiers. Availability labels describe gates, not verified live activation.</p><div class="toolbar"><label for="search">Find a feature</label><input id="search" type="search" placeholder="PDF, postal, language, quota…" autocomplete="off"><span id="count" role="status" aria-live="polite">${data.groups.length} domains</span></div><p id="empty" hidden>No matching domain. Try another feature, path or tool name.</p>${categories
+  .map(
+    (category) =>
+      `<div class="category"><h3>${esc(category)}</h3>${data.groups
+        .filter((g) => g.category === category)
+        .map(
+          (g) =>
+            `<details class="domain" id="${esc(g.id)}" data-search="${esc([g.title, g.surfaces, ...g.features, ...g.tools, ...g.rest].join(" ").toLowerCase())}"><summary>${esc(g.title)}<span class="meta">${g.features.length} features · ${esc(g.availability)}</span></summary><div class="domain-content"><p>${esc(g.status)}</p><p class="muted">${esc(g.surfaces)}</p><ul>${g.features.map((f) => `<li>${esc(f)}</li>`).join("")}</ul><p class="references">Contract: ${links([g.doc])}<br>Implementation: ${links([g.source], "../")}<br>Tests: ${links(g.tests, "../")}</p>${g.rest.length || g.tools.length ? `<div class="operations">${g.rest.length ? `<strong>Documented REST operations</strong><ul>${g.rest.map((r) => `<li><code>${esc(r)}</code></li>`).join("")}</ul>` : ""}${g.tools.length ? `<strong>MCP tools</strong><ul>${g.tools.map((t) => `<li><code>${esc(t)}</code></li>`).join("")}</ul>` : ""}</div>` : ""}</div></details>`,
+        )
+        .join("")}</div>`,
+  )
+  .join(
+    "",
+  )}</section><section id="roles"><h2>Who can do what?</h2><p>${esc(data.roleNote)}</p><div class="table-wrap" tabindex="0" role="region" aria-label="Scrollable role permission matrix"><table><thead><tr>${headers.map((h) => `<th scope="col">${esc(h)}</th>`).join("")}</tr></thead><tbody>${data.permissions
+  .map(
+    (p) =>
+      `<tr><th scope="row">${esc(p[0])}</th>${p
+        .slice(1)
+        .map((c) => `<td>${esc(c)}</td>`)
+        .join("")}</tr>`,
+  )
+  .join(
+    "",
+  )}</tbody></table></div><p class="muted">Supervisor approval and reporting are independent and off by default. Ownership/context checks remain mandatory. Read the <a href="WORKSPACE_ROLES.md">role contract</a>.</p></section><section id="journeys"><h2>From intent to result</h2>${data.journeys.map((j) => `<details class="journey"><summary>${esc(j.id)} · ${esc(j.title)}</summary><div><p class="muted">${esc(j.actor)} · ${esc(j.branch)}</p><p>${esc(j.steps)}</p><p><strong>Failure and recovery.</strong> ${esc(j.failure)}</p><a href="${esc(j.doc)}">Read the detailed contract</a></div></details>`).join("")}</section><section id="maintenance"><h2>Keep the tree true</h2><p>${esc(maintenance)}</p><p><a href="feature-map.json">Editable source</a> · <a href="DEVELOPER_API.md">Developer API guide</a> · <a href="REPOSITORY_STANDARDS.md">Repository standards</a> · <a href="CI.md">CI</a> · <a href="TEST_RESULTS.md">Dated evidence</a></p></section><footer>Guteneo · repository documentation · offline, without external dependencies or network requests · raw atlas kept in the repository; curated engineering views are generated separately.</footer></main><script>
+const search=document.getElementById('search');const domains=[...document.querySelectorAll('.domain')];search.addEventListener('input',()=>{const query=search.value.trim().toLowerCase();let count=0;for(const domain of domains){domain.hidden=!domain.dataset.search.includes(query);domain.open=!!query&&!domain.hidden;if(!domain.hidden)count++;}for(const category of document.querySelectorAll('.category'))category.hidden=![...category.querySelectorAll('.domain')].some(d=>!d.hidden);document.getElementById('count').textContent=count+' domain'+(count===1?'':'s');document.getElementById('empty').hidden=count!==0;});const printState=new Map();window.addEventListener('beforeprint',()=>{for(const item of document.querySelectorAll('details')){printState.set(item,item.open);item.open=true;}});window.addEventListener('afterprint',()=>{for(const[item,open]of printState)item.open=open;printState.clear();});
+</script></body></html>`;
+for (const [filename, content] of [
+  ["FEATURE_MAP.md", markdown],
+  ["FEATURE_MAP.html", html],
+]) {
+  const url = new URL(filename, root);
+  if (check) {
+    if ((await readFile(url, "utf8")) !== content)
+      throw new Error(`Stale ${filename}; run npm run docs:build`);
+  } else await writeFile(url, content);
+}
 console.log(
-  `${check ? "Verified" : "Generated"} developer map: ${data.groups.length} domains, ${featureCount} features, ${data.journeys.length} journeys.`,
+  `${check ? "Verified" : "Generated"} feature atlas: ${data.groups.length} domains, ${featureCount} features, ${data.journeys.length} journeys, ${coveredRest.length} REST operations, ${coveredTools.length} MCP tools.`,
 );

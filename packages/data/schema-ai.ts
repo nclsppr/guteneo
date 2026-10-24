@@ -70,14 +70,14 @@ function addField(
   )
     throw new DatasetError(
       "AI_INVALID_SCHEMA",
-      "La proposition contient un chemin incompatible avec le schéma métier.",
+      "The proposal contains a path incompatible with the business schema.",
     );
   let parent = root;
   for (const [index, name] of names.entries()) {
     if (parent.type !== "object" || !parent.properties)
       throw new DatasetError(
         "AI_INVALID_SCHEMA",
-        "Les champs du schéma se chevauchent.",
+        "Schema fields overlap.",
       );
     if (required && !parent.required!.includes(name))
       parent.required!.push(name);
@@ -85,7 +85,7 @@ function addField(
       if (Object.hasOwn(parent.properties, name))
         throw new DatasetError(
           "AI_INVALID_SCHEMA",
-          "Un champ métier est proposé plusieurs fois.",
+          "A business field is proposed more than once.",
         );
       parent.properties[name] = field;
     } else {
@@ -120,7 +120,7 @@ function sample(schema: BusinessField): unknown {
   if (schema.type === "integer") return 1;
   if (schema.type === "boolean") return true;
   if (schema.format === "date") return "2026-01-01";
-  return "Exemple";
+  return "Example";
 }
 const bindingFormat = (
   type: DatasetField["type"],
@@ -186,7 +186,7 @@ function shape(mapping: MappingPlan) {
   )
     throw new DatasetError(
       "AI_SCHEMA_LIMIT",
-      "La création assistée est limitée à 24 champs simples et 4 tableaux de 10 colonnes. Réduisez les champs demandés ou utilisez le mapping manuel.",
+      "Assisted creation is limited to 24 scalar fields and 4 tables of 10 columns. Reduce requested fields or use manual mapping.",
     );
   return { scalar, tables };
 }
@@ -203,7 +203,7 @@ export async function suggestDatasetSchemaWithOpenAI(
     profile,
     config,
     instruction ??
-      "Propose les chemins et types d’un nouveau schéma métier pour un document par client. Conserve les identifiants en texte et les montants en unités mineures explicites. Au plus 24 champs simples et 4 tableaux de 10 colonnes. N’invente pas de données ni de destinataires.",
+      "Propose paths/types for a new business schema with one document per customer. Keep identifiers as text and amounts in explicit minor units. At most 24 scalar fields and 4 tables of 10 columns. Invent no data or recipients.",
   );
   const { scalar, tables } = shape(suggestion.mapping);
   const schema = objectSchema();
@@ -211,12 +211,12 @@ export async function suggestDatasetSchemaWithOpenAI(
   const envelope = blankTemplate();
   envelope.name = suggestion.mapping.name.slice(0, 160);
   envelope.description =
-    "Brouillon issu d’une proposition de structure. Données d’exemple entièrement synthétiques ; champs, mise en page et correspondance à vérifier avant publication.";
+    "Draft from a structure proposal. Sample data is entirely synthetic; verify fields, layout and mappings before publication.";
   envelope.definition.schemas = [[]];
   envelope.bindings = [];
   const warnings = [
-    "Proposition à relire : aucun modèle ou mapping n’est encore enregistré et aucune publication ni génération n’a eu lieu.",
-    "La mise en page initiale est déterministe ; relisez les libellés, les types et les tableaux dans l’éditeur.",
+    "Proposal needs review: no template/mapping has been saved and no publication/generation has occurred.",
+    "The initial layout is deterministic; review labels, types and tables in the editor.",
   ];
   for (const [index, entry] of scalar.entries()) {
     addField(
@@ -227,7 +227,7 @@ export async function suggestDatasetSchemaWithOpenAI(
     );
     const block = `field${index + 1}`;
     envelope.definition.schemas[0].push(
-      textBlock(block, "Exemple", 20, 32 + index * 9, 170, 8, 10),
+      textBlock(block, "Example", 20, 32 + index * 9, 170, 8, 10),
     );
     envelope.bindings.push({
       block,
@@ -308,7 +308,7 @@ export async function suggestDatasetSchemaWithOpenAI(
   }
   if (fields.some((field) => field.type === "minor"))
     warnings.push(
-      "Les montants sont affichés en unités mineures entières. Choisissez explicitement leur devise et leur présentation dans l’éditeur.",
+      "Amounts are displayed as integer minor units. Explicitly choose currency and presentation in the editor.",
     );
   let validated: TemplateEnvelope;
   try {
@@ -318,7 +318,7 @@ export async function suggestDatasetSchemaWithOpenAI(
   } catch {
     throw new DatasetError(
       "AI_INVALID_SCHEMA",
-      "La structure proposée ne forme pas un modèle métier valide. Précisez les champs souhaités ou utilisez la création manuelle.",
+      "The proposed structure does not form a valid business template. Specify the requested fields or use manual creation.",
     );
   }
   const issues = [...suggestion.validation.issues];
@@ -329,7 +329,7 @@ export async function suggestDatasetSchemaWithOpenAI(
       const issue = {
         code: "AI_SCHEMA_DATA_MISMATCH",
         severity: "error" as const,
-        message: `Les données de ${record.recordId} ne respectent pas le schéma proposé ; corrigez la correspondance avant génération.`,
+        message: `Data in ${record.recordId} does not match the proposed schema; correct the mapping before generation.`,
       };
       if (issues.length < DATASET_LIMITS.issues) issues.push(issue);
       else issues[issues.length - 1] = issue;

@@ -144,7 +144,7 @@ for (const appearance of ["classic", "v2"] as const) {
     });
     try {
       await page.goto(
-        `/?atelier=${appearance}#/app/dispatch/dispatch_protected_ui`,
+        `/?appearance=${appearance}#/app/dispatch/dispatch_protected_ui`,
       );
       const viewport = page.getByRole("region", {
         name: "Aperçu du document approuvé",
@@ -262,7 +262,7 @@ for (const appearance of ["classic", "v2"] as const) {
     });
     try {
       await page.goto(
-        `/?atelier=${appearance}#/app/dispatch/dispatch_protected_ui`,
+        `/?appearance=${appearance}#/app/dispatch/dispatch_protected_ui`,
       );
       const viewport = page.getByRole("region", {
         name: "Aperçu du document approuvé",

@@ -120,6 +120,30 @@ for (const width of [1440, 390, 320]) {
   });
 }
 
+test("the browser report uses English source copy and reads historical developer checks", async ({
+  page,
+}) => {
+  const evidence = await fixtures(page, { e2eStatus: report() });
+  await page.goto("/?lang=en");
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await expect(page.locator("#browser-title")).toHaveText(
+    "Public browser journeys",
+  );
+  await expect(page.locator("#e2e-title")).toHaveText(
+    "Public journeys verified in the browser",
+  );
+  await expect(page.locator("#e2e-counts")).toContainText("28 checks passed");
+  await page.locator("#e2e-check-details summary").click();
+  await expect(page.locator("#e2e-checks")).toContainText(
+    "Public contract · Developer guide",
+  );
+  await expect(page.locator("#e2e-authenticated")).toHaveText(
+    "Qualification pending",
+  );
+  expect(evidence.errors).toEqual([]);
+  expect(evidence.external).toEqual([]);
+});
+
 test("missing browser evidence leaves the availability result positive", async ({
   page,
 }) => {

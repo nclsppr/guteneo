@@ -41,7 +41,7 @@ struct WelcomeView: View {
                                 .opacity(model.isWorking ? 0 : 1)
                                 .accessibilityHidden(model.isWorking)
                             Spacer(minLength: 0)
-                            Picker("Langue", selection: Binding(get: { model.language }, set: { language in
+                            Picker("Language", selection: Binding(get: { model.language }, set: { language in
                                 model.chooseWelcomeLanguage(language)
                             })) {
                                 ForEach(AppLanguage.allCases) { Text(verbatim: $0.name).tag($0) }
@@ -56,17 +56,17 @@ struct WelcomeView: View {
                             }
                             PaperRule()
                             HStack(alignment: .top, spacing: 40) {
-                                principle("Vos documents, sans les modifier", symbol: "doc.text")
-                                principle("Chaque envoi sous votre contrôle", symbol: "checkmark.shield")
-                                principle("Un suivi partagé avec votre atelier", symbol: "clock.arrow.circlepath")
+                                principle("Your documents, unchanged", symbol: "doc.text")
+                                principle("You control every dispatch", symbol: "checkmark.shield")
+                                principle("Tracking shared with your workspace", symbol: "clock.arrow.circlepath")
                             }
                         } else {
                             welcomeCopy
                             if !typeSize.isAccessibilitySize { PrintWorkshopArtwork(height: 150) }
                         }
                         HStack(spacing: 24) {
-                            Link(destination: Brand.siteURL("/confidentialite/", locale: model.language.locale)) { Text("Confidentialité").frame(minHeight: 44) }
-                            Link(destination: Brand.supportURL) { Text("Assistance").frame(minHeight: 44) }
+                            Link(destination: Brand.siteURL("/privacy/", locale: model.language.locale)) { Text("Privacy").frame(minHeight: 44) }
+                            Link(destination: Brand.supportURL) { Text("Support").frame(minHeight: 44) }
                         }.font(.footnote)
                     }
                     .frame(maxWidth: 1120, alignment: .leading)
@@ -81,23 +81,23 @@ struct WelcomeView: View {
 
     private var welcomeCopy: some View {
         VStack(alignment: .leading, spacing: 22) {
-            Text("Votre atelier,\nà portée de main.")
+            Text("Your workspace,\nwithin reach.")
                 .font(.system(.largeTitle, design: .serif)).foregroundStyle(Brand.ink)
                 .fixedSize(horizontal: false, vertical: true)
-            Text("Retrouvez vos PDF, préparez vos envois et suivez leur parcours.")
+            Text("Find your PDFs, prepare dispatches and track their progress.")
                 .font(.title3).foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
             if let error = model.errorMessage {
                 Notice(text: error, symbol: "exclamationmark.circle")
             }
             if model.phase == .expired {
-                Notice(text: "Votre session a expiré. Reconnectez-vous pour retrouver votre atelier.")
+                Notice(text: "Your session has expired. Sign in again to return to your workspace.")
             }
             Button {
                 Task { await model.signIn() }
             } label: {
                 HStack {
-                    Text("Se connecter").fontWeight(.semibold)
+                    Text("Sign in").fontWeight(.semibold)
                     Spacer()
                     if model.isWorking { ProgressView() }
                     else { Image(systemName: "arrow.right") }
@@ -105,7 +105,7 @@ struct WelcomeView: View {
             }
             .buttonStyle(.borderedProminent).disabled(model.isWorking)
             .accessibilityIdentifier("signIn")
-            Text("La connexion sécurisée s’ouvre dans le navigateur système.")
+            Text("Secure sign-in opens in the system browser.")
                 .font(.footnote).foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
         }
@@ -132,12 +132,12 @@ struct OverviewView: View {
                 VStack(alignment: .leading, spacing: 30) {
                     introduction(wide: wide)
                     if model.session?.simulation == true {
-                        Notice(text: "Simulation · aucun envoi réel.", symbol: "testtube.2")
+                        Notice(text: "Simulation · no real dispatches.", symbol: "testtube.2")
                     }
                     if let error = model.errorMessage {
                         VStack(alignment: .leading, spacing: 8) {
                             Notice(text: error, symbol: "exclamationmark.circle")
-                            Button("Réessayer") { Task { await model.refresh() } }
+                            Button("Try again") { Task { await model.refresh() } }
                         }
                     }
                     if wide {
@@ -159,7 +159,7 @@ struct OverviewView: View {
             .refreshable { await model.refresh() }
             .overlay { if model.isLoading && model.dispatches.isEmpty { ProgressView() } }
         }
-        .navigationTitle("Atelier")
+        .navigationTitle("Workspace")
     }
 
     private func introduction(wide: Bool) -> some View {
@@ -179,13 +179,13 @@ struct OverviewView: View {
     private var introductionCopy: some View {
         VStack(alignment: .leading, spacing: 16) {
             Wordmark()
-            Text("Le bon document.\nLe bon destinataire.")
+            Text("The right document.\nThe right recipient.")
                 .font(.system(.title, design: .serif)).foregroundStyle(Brand.ink)
                 .fixedSize(horizontal: false, vertical: true)
-            Text(verbatim: model.session?.organization.name ?? L10n.text("Votre atelier", locale: locale))
+            Text(verbatim: model.session?.organization.name ?? L10n.text("Your workspace", locale: locale))
                 .foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
             Button { composing = true } label: {
-                Label("Préparer un envoi", systemImage: "plus")
+                Label("Prepare a dispatch", systemImage: "plus")
                     .fontWeight(.semibold).padding(.vertical, 7).foregroundStyle(Brand.paper)
             }
             .buttonStyle(.borderedProminent)
@@ -196,10 +196,10 @@ struct OverviewView: View {
 
     private var recentDispatches: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Derniers envois").font(.system(.title2, design: .serif))
+            Text("Recent dispatches").font(.system(.title2, design: .serif))
             if model.dispatches.isEmpty {
-                ContentUnavailableView("Aucun envoi pour le moment", systemImage: "paperplane",
-                    description: Text("Commencez par importer un PDF ou préparer un message."))
+                ContentUnavailableView("No dispatches yet", systemImage: "paperplane",
+                    description: Text("Start by importing a PDF or preparing a message."))
                     .frame(maxWidth: .infinity)
             } else {
                 VStack(spacing: 0) {
@@ -217,9 +217,9 @@ struct OverviewView: View {
 
     private var recentDocuments: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("À portée de main").font(.system(.title2, design: .serif))
+            Text("Close at hand").font(.system(.title2, design: .serif))
             if model.documents.isEmpty {
-                Label("Vos PDF trouveront leur place ici.", systemImage: "doc.on.doc")
+                Label("Your PDFs will find their place here.", systemImage: "doc.on.doc")
                     .foregroundStyle(.secondary).padding(.vertical, 20)
             } else {
                 VStack(spacing: 0) {
@@ -233,11 +233,11 @@ struct OverviewView: View {
                 }
             }
             Button(action: openDocuments) {
-                Label("Tous les documents", systemImage: "arrow.right")
+                Label("All documents", systemImage: "arrow.right")
                     .font(.subheadline.weight(.semibold)).frame(minHeight: 44)
             }
             .accessibilityIdentifier("atelier.openDocuments")
-            Notice(text: "Le PDF original est conservé. Sa vérification précède son utilisation.", symbol: "lock.doc")
+            Notice(text: "The original PDF is preserved. It is verified before use.", symbol: "lock.doc")
         }
     }
 
@@ -254,13 +254,13 @@ struct OverviewView: View {
     private func workflow(wide: Bool) -> some View {
         VStack(alignment: .leading, spacing: 18) {
             PaperRule()
-            Text("Chaque envoi sous votre contrôle.")
+            Text("Every dispatch under your control.")
                 .font(.system(.title3, design: .serif)).foregroundStyle(Brand.ink)
             let layout = wide ? AnyLayout(HStackLayout(alignment: .top, spacing: 30)) : AnyLayout(VStackLayout(alignment: .leading, spacing: 16))
             layout {
-                workflowStep("Préparez", detail: "Un PDF et son destinataire.", symbol: "doc.badge.plus")
-                workflowStep("Vérifiez", detail: "Le contenu, les options et le devis.", symbol: "doc.text.magnifyingglass")
-                workflowStep("Validez", detail: "Personnellement, dans votre espace sécurisé.", symbol: "checkmark.shield")
+                workflowStep("Prepare", detail: "A PDF and its recipient.", symbol: "doc.badge.plus")
+                workflowStep("Review", detail: "The content, options and quote.", symbol: "doc.text.magnifyingglass")
+                workflowStep("Approve", detail: "Personally, in your secure workspace.", symbol: "checkmark.shield")
             }
         }
     }

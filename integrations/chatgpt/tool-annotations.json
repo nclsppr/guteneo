@@ -245,7 +245,7 @@
         "idempotentHint": false
       },
       "justification": {
-        "readOnlyHint": "Consumes an existing exact strong browser approval to accept a distribution, commit its non-refundable retention charge and publish its durable notification command. A validated successful production result may also advance the connection last-successful-use timestamp.",
+        "readOnlyHint": "Consumes an existing exact browser approval under the active document authentication policy to accept a distribution, commit its non-refundable retention charge and publish its durable notification command. A validated successful production result may also advance the connection last-successful-use timestamp.",
         "destructiveHint": "Activation commits funded retention even if access is later revoked; can cause a real communication and credit consumption. A delegated expert mandate cannot create this browser approval.",
         "openWorldHint": "Can submit the notification to the configured recipient through the configured delivery provider.",
         "idempotentHint": "A stable key prevents a second accepted command; lost or unknown outcomes must be inspected instead of retried with a new key. A validated successful production result may also advance the connection last-successful-use timestamp."

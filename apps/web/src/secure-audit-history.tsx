@@ -44,12 +44,12 @@ export function SecureAuditHistory({
     <>
       <p className="field-hint">
         {msg(
-          "Les événements d’accès détaillés sont conservés 90 jours. Les reçus d’approbation, de facturation et de remise suivent leur propre durée de conservation.",
+          "Detailed access events are retained for 90 days. Approval, billing and delivery receipts have their own retention periods.",
         )}
       </p>
       <p className="field-hint">
         {msg(
-          "Les noms désignent des comptes Guteneo, sans certifier l’identité physique de la personne.",
+          "Names identify Guteneo accounts and do not certify the physical identity of the person.",
         )}
       </p>
       {items.length ? (
@@ -61,20 +61,20 @@ export function SecureAuditHistory({
               {(event.actorName || event.actorUserId) && (
                 <small>
                   {msg(
-                    "Compte connecté : {0}",
+                    "Signed-in account: {0}",
                     event.actorName || event.actorUserId || "",
                   )}
                 </small>
               )}
               {event.page && <small>{msg("Page {0}", event.page)}</small>}
               {event.provenance === "browser" && (
-                <small>{msg("Source : déclaration du navigateur")}</small>
+                <small>{msg("Source: browser report")}</small>
               )}
             </li>
           ))}
         </ol>
       ) : (
-        <p>{msg("Aucun événement disponible.")}</p>
+        <p>{msg("No events available.")}</p>
       )}
       {cursor && (
         <button
@@ -83,9 +83,7 @@ export function SecureAuditHistory({
           disabled={action.pending}
           onClick={() => void load()}
         >
-          {action.pending
-            ? msg("Chargement…")
-            : msg("Afficher les événements précédents")}
+          {action.pending ? msg("Loading…") : msg("Show earlier events")}
         </button>
       )}
       <ErrorNotice error={action.error} />

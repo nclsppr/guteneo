@@ -1,363 +1,643 @@
-# Un compte Guteneo, les documents reçus et les services d’envoi
+# One Guteneo account for received documents and delivery services
 
-Plan produit, sécurité, architecture et interface du **24 octobre 2026**. Les décisions de conception ont ensuite fait l'objet d'un candidat local décrit dans [la fiche d'implémentation](SECURE_DISTRIBUTION_IMPLEMENTATION.md), avec [prix versionnés](SECURE_DISTRIBUTION_PRICING.md) et tests séparés. Ce plan ne constitue aucune preuve d'activation Auth0, migration distante, communication ou publication.
+Product, security, architecture and interface plan dated **24 October 2026**.
+Design decisions later informed the local candidate described in the
+[implementation record](SECURE_DISTRIBUTION_IMPLEMENTATION.md), with
+[versioned prices](SECURE_DISTRIBUTION_PRICING.md) and separate tests. This plan
+proves no Auth0 activation, remote migration, communication or publication.
 
-## 1. Décisions de l’utilisateur et recommandation
+**Later launch decision:** document authentication uses **`verified_account`**.
+A verified account following the normal sign-in flow may access its authorized
+documents without an extra passkey or MFA requirement. Server identity,
+freshness, session and document-authority checks remain mandatory. This later
+choice supersedes the strong-only authentication recommendation in this historical
+plan. Sections about compulsory WebAuthn, strong recovery, KMS/HSM targets and
+future content entitlements preserve research/proposals; they do not describe
+implemented or activated guarantees. See the implementation record for the
+current boundary and remaining gaps.
 
-Décisions exprimées :
+## 1. User decisions and recommendation
 
-- Solution intégrée Guteneo, sans DRM dans le PDF.
-- Tous les documents de ce parcours sont traités comme très sensibles ; pas de profil de réception à sécurité réduite.
-- Compte obligatoire, même pour recevoir un seul document.
-- **Un seul compte pour tout Guteneo** : recevoir, retrouver ses documents, découvrir et utiliser les services, participer à des ateliers.
-- Deux catégories explicites : accès partagé révocable ; copie personnelle conservée seulement si l’atelier autorise cette remise.
+Decisions expressed during the original design discussion:
 
-Recommandation : **un compte et une connexion, plusieurs contextes de travail et droits distincts**. « Destinataire » et « expéditeur » sont des usages du compte, pas deux types de comptes à fusionner plus tard. L’espace personnel n’est pas un atelier fictif. Recevoir un document ne crée jamais d’appartenance ni de droits dans l’atelier émetteur ; un membre existant peut aussi être destinataire à titre individuel.
+- An integrated Guteneo solution without DRM inside PDFs.
+- Treat every document in this workflow as very sensitive, originally with no
+  lower-assurance reception profile; the later launch authentication decision
+  above supersedes that original strong-only requirement.
+- Require an account even to receive one document.
+- **One account for all Guteneo:** receiving/finding documents, discovering/using
+  services and participating in workspaces.
+- Two explicit categories: revocable shared access and a retained personal copy
+  only when the workspace authorizes delivery.
 
-La personne peut accéder à la rubrique des services immédiatement après connexion. Sa première opération d’envoi crée ou sélectionne son atelier, avec les seules informations requises pour l’opération. Il n’y a ni seconde inscription, ni second mot de passe, ni abonnement imposé pour découvrir les services. Les contrôles métier normaux restent nécessaires avant un envoi réel.
+Recommendation: **one account/sign-in, several working contexts and distinct
+rights**. Recipient and sender are uses of one account, not separate account
+types to merge later. A personal space is not a fictional workspace. Receiving
+a document never creates membership/rights in the sending workspace; an existing
+member may also receive a document individually.
 
-Les détails de rendu, filigrane et audit de [l’étude web précédente](SECURE_WEB_DOCUMENTS_PLAN.md) restent utiles. Son parcours invité sans compte est remplacé par ce plan. Les comparaisons Adobe/FileOpen deviennent des recherches historiques.
+The person can discover services immediately after sign-in. Their first sending
+operation creates or selects a workspace with only the information needed for
+that operation. No second registration/password or subscription is required to
+discover services. Normal business controls still precede real sending.
 
-## 2. Ce que je challenge
+Rendering, watermarking and audit research in the [previous web study](SECURE_WEB_DOCUMENTS_PLAN.md)
+remains useful. This plan supersedes its account-free guest journey. Adobe/FileOpen
+comparisons become historical research.
 
-| Intuition | Ce qu’elle apporte | Ce qu’il faut résoudre |
-| --- | --- | --- |
-| Un compte rend le destinataire certain | Continuité, authentification, récupération, historique | Le premier rattachement à la bonne personne reste à prouver ; nom et email ne suffisent pas |
-| Tout centraliser dans un coffre améliore la sécurité | Moins de pièces jointes dispersées, gestion des accès | Un seul compte compromis expose potentiellement les documents de nombreux ateliers |
-| Tous les documents sont très sensibles | Une politique uniforme compréhensible | Les expéditeurs, opérateurs, supports et voies de récupération doivent être au même niveau |
-| Un coffre conserve les documents | Valeur personnelle récurrente | Il faut financer la conservation et distinguer copies personnelles et accès révocables |
-| Les destinataires deviennent des clients potentiels | Acquisition par découverte réelle du produit | Une inscription imposée n’est pas une conversion ; le commercial peut dégrader la confiance et la délivrabilité du parcours |
+## 2. Assumptions challenged by the study
 
-La vérification d’une adresse établit l’accès à une boîte, pas l’identité revendiquée. Un attaquant possédant cette boîte au premier accès peut créer sa propre passkey. Auth0 explicite cette limite. [Vérification email](https://auth0.com/docs/manage-users/user-accounts/verify-emails).
+| Intuition                                   | Benefit                                          | Problem to resolve                                                                                |
+| ------------------------------------------- | ------------------------------------------------ | ------------------------------------------------------------------------------------------------- |
+| An account makes recipient identity certain | Continuity, authentication, recovery and history | Initial association with the right person still needs evidence; name/email alone are insufficient |
+| Centralizing a vault improves security      | Fewer scattered attachments and managed access   | One compromised account may expose documents from many workspaces                                 |
+| Every document is very sensitive            | A consistent understandable policy               | Senders, operators, support and recovery need equivalent protection                               |
+| A vault retains documents                   | Recurring personal value                         | Fund retention and distinguish personal copies from revocable access                              |
+| Recipients become prospective customers     | Acquisition through genuine discovery            | Compulsory registration is not conversion; sales pressure can undermine trust and deliverability  |
 
-Le besoin de sécurité ne conduit donc pas seulement à « ajouter un formulaire d’inscription ». Il impose une politique de rattachement, d’authentification effective, de récupération et d’habilitation. Si cette politique crée trop d’abandons, il faut améliorer l’accompagnement ou réduire le périmètre commercial ; ne pas introduire discrètement un accès par simple email sous la même promesse.
+Email verification establishes mailbox access, not claimed identity. An attacker
+controlling the mailbox on first access may enroll their own passkey.
+[Auth0 email verification](https://auth0.com/docs/manage-users/user-accounts/verify-emails).
 
-## 3. Identité unique et accès fort
+Security therefore requires recipient binding, actual authentication, recovery
+and authorization rather than merely adding registration. Under the original
+strong-policy proposal, abandonment should be addressed through support or a
+narrower commercial scope rather than silently replacing the same assurance
+promise with email access. The later `verified_account` choice is an explicit
+product decision, not evidence that the historical strong design was qualified.
 
-### Compte personnel indépendant des ateliers
+## 3. Unique identity and historical strong-access proposal
 
-Une personne possède un identifiant Guteneo stable. Ses identités de connexion sont rattachées par `(issuer, subject)` ; son adresse sert au routage et à une vérification datée, pas de clé du coffre. Changer d’adresse ou perdre une membership ne transfère ni ne supprime automatiquement ses documents personnels.
+### A personal account independent of workspaces
 
-Conserver Auth0 comme fournisseur d’identité. Réutiliser le BFF serveur et les sessions sécurisées du produit ; ne pas construire un fournisseur d’identité maison, ni migrer vers un autre fournisseur pour cette feature sans raison démontrée.
+A person has a stable Guteneo identifier. Sign-in identities bind through
+`(issuer, subject)`; email is routing information and dated verification, never
+the vault key. Changing an address or losing membership does not automatically
+transfer/delete personal documents.
 
-Proposition de sécurité commune aux destinataires et aux personnes accédant au contenu côté atelier :
+Keep Auth0 as identity provider and reuse the server BFF/secure sessions. Do not
+build a custom identity provider or migrate providers for this feature without
+demonstrated reason.
 
-- Connexion par passkey avec vérification de l’utilisateur, ou méthode d’entreprise dont l’assurance et la récupération ont été qualifiées au même niveau.
-- Contrôle serveur de la méthode réellement utilisée, de sa fraîcheur et de la version de politique. Un champ « passkey enregistrée » ou un ancien booléen `mfa=true` n’est pas suffisant.
-- Réauthentification récente pour export original, remise personnelle, export massif, ajout de facteur, récupération, association d’identité et changement de droits sensible. Éviter une nouvelle authentification à chaque page.
-- Sessions bornées, rotation/revocation, écran d’appareils/sessions et signalement d’accès suspect. Pas de code email utilisé comme accès de secours à tout le coffre.
-- Domaine de connexion stable à qualifier avant l’enrôlement des passkeys, avec procédure de migration du domaine et tests sur les appareils visés.
+The original proposal applied the following strong policy to recipients and
+workspace members viewing content:
 
-Auth0 propose les passkeys via Universal Login ; leur activation ne retire pas nécessairement les autres méthodes. L’offre et la configuration exactes doivent être qualifiées avant de promettre cette politique. Aucune activation ni disponibilité du tenant réel n’est déduite de la documentation. [Passkeys Auth0](https://auth0.com/docs/authenticate/database-connections/passkeys).
+- Passkey login with user verification, or an enterprise method whose assurance
+  and recovery are qualified to the same level.
+- Server verification of the actual method, freshness and policy version. An
+  enrolled-passkey field or old `mfa=true` boolean is insufficient.
+- Recent reauthentication for original export, personal delivery, bulk export,
+  factor enrollment, recovery, identity linking and sensitive permission changes;
+  avoid reauthentication for every page.
+- Bounded sessions, rotation/revocation, device/session visibility and suspicious
+  access reporting. No email-code fallback granting the entire vault.
+- A stable login domain qualified before passkey enrollment, with a domain
+  migration procedure and target-device tests.
 
-### Première association d’un document à une personne
+These were strong-profile design targets, not current `verified_account` launch
+requirements. Auth0 offers passkeys through Universal Login; activation does not
+necessarily remove other methods. Exact plan/configuration must be qualified
+before promising strong policy. Documentation alone proves neither activation
+nor actual tenant availability.
+[Auth0 passkeys](https://auth0.com/docs/authenticate/database-connections/passkeys).
 
-Deux parcours, avec une même exigence de rattachement fiable :
+### Initial association of a document with a person
 
-1. **Destinataire déjà connu de cet atelier** : envoi vers un compte stable précédemment associé, avec contrôle de validité de cette relation. L’atelier ne dispose pas d’un annuaire global des comptes Guteneo.
-2. **Nouveau destinataire** : invitation opaque, vérification de l’adresse, création/connexion forte et rattachement fiable. Une association prévalidée en amont ou une preuve d’identité/fédération qualifiée peut suffire. Sinon, confirmation de l’association par l’atelier sur la base d’une relation préexistante ou d’un canal indépendant connu. Ne pas rendre obligatoire une collecte de pièce d’identité par défaut.
+Two proposed journeys share a reliable-binding requirement:
 
-L’invitation seule ne livre pas le contenu. Tant que l’association est en attente, aucun titre sensible, aperçu ou fichier n’est révélé. Cliquer sur « Confirmer » en se fondant uniquement sur le nom saisi par le visiteur ne constitue pas la vérification proposée.
+1. **Recipient already known to this workspace:** send to a previously associated
+   stable account after checking that the relationship remains valid. The
+   workspace gets no global Guteneo account directory.
+2. **New recipient:** opaque invitation, address verification, account creation/
+   sign-in and reliable association. The original proposal requested strong
+   sign-in. A prevalidated relationship or qualified identity/federation evidence
+   may suffice; otherwise the workspace confirms through an existing relationship
+   or known independent channel. Do not require identity-document collection by
+   default.
 
-La confirmation manuelle n’est donc pas un obstacle imposé à chaque nouveau compte : elle intervient lorsqu’aucune preuve suffisante ne préexiste. Si le pilote la retient, afficher l’attente, le responsable et le moyen de résolution ; ne pas promettre un accès immédiat au document après inscription. Prévalider la relation lors de l’échange habituel atelier/client réduit ce délai.
+The invitation alone reveals no content. Pending association exposes no sensitive
+title, preview or file. Clicking Confirm based only on a visitor-entered name is
+not the proposed verification.
 
-L’approbation de départ lie le document, l’adresse attendue et la règle d’attribution. La confirmation ultérieure ajoute une preuve immuable liant compte stable, atelier, destinataire prévu et publication ; elle ne réécrit pas le destinataire de l’envoi approuvé. Une correction d’adresse ou une attribution à une autre personne demande une nouvelle préparation ; aucun transfert silencieux de grant.
+Manual confirmation is not necessarily required for every new account: it applies
+when adequate evidence does not preexist. If the pilot uses it, show the pending
+state, responsible person and recovery route rather than promising immediate
+access after signup. Prevalidating the relationship during normal customer
+contact reduces delay.
 
-L’enrôlement ne doit pas faire passer l’état « compte créé » pour « bonne personne identifiée ». Le journal conserve la méthode d’association, l’auteur habilité et la date. La certitude absolue sur la personne devant l’écran ou sur sa lecture n’est pas promise.
+Initial approval binds document, expected address and attribution rule. Later
+confirmation adds immutable evidence linking stable account, workspace, intended
+recipient and publication; it does not rewrite the approved dispatch's recipient.
+Address correction or attribution to another person requires new preparation,
+never silent grant transfer.
 
-### Récupération : partie du produit principal
+Enrollment must not turn account created into right person identified. Record
+binding method, authorized actor and date. Promise neither absolute certainty
+about who is at the screen nor complete reading.
 
-Préparer un moyen de secours indépendant, par exemple une seconde passkey sur un autre support ou une clé de sécurité. Tester l’absence de smartphone et l’accessibilité du parcours. Une personne ne pouvant utiliser la méthode prévue doit disposer d’une alternative de niveau équivalent ; sinon le pilote ne couvre pas son équipement.
+### Recovery is part of the product
 
-Deux appareils utilisant le même trousseau synchronisé ne constituent pas nécessairement deux secours indépendants. Qualifier la récupération du compte de synchronisation et prévoir, par exemple, une clé de sécurité distincte. [NIST, authentificateurs synchronisables](https://pages.nist.gov/800-63-4/sp800-63b/syncable/).
+The historical strong proposal recommends an independent backup, such as another
+passkey on separate hardware or a security key. Test loss of the smartphone and
+accessible recovery. Someone unable to use the chosen method needs an
+equivalent-assurance alternative; otherwise the pilot does not cover their
+hardware.
 
-En perte complète : parcours renforcé documenté, attente et notifications appropriées, révocation des sessions compromises, preuve de récupération contrôlée. Le support n’a pas de bouton universel « supprimer MFA et ouvrir le coffre ». La récupération de l’interface du compte peut précéder la réouverture des documents tant que l’assurance nécessaire n’est pas rétablie.
+Two devices using one synchronized keychain are not necessarily independent
+backups. Qualify recovery of the synchronization account and consider a separate
+security key.
+[NIST, syncable authenticators](https://pages.nist.gov/800-63-4/sp800-63b/syncable/).
 
-Les ateliers peuvent revalider leurs propres relations de réception ; aucun atelier ne peut, par cette seule validation, déverrouiller le coffre provenant des autres expéditeurs. Pour les copies personnelles, prévoir une preuve de récupération indépendante de la survie de l’atelier émetteur.
+For complete factor loss, the proposed strong recovery is documented, includes
+appropriate waiting/notifications, revokes compromised sessions and records
+controlled recovery evidence. Support has no universal remove-MFA-and-open-vault
+button. Account UI recovery may precede content reopening until required
+assurance is restored.
 
-Le NIST distingue preuve d’identité et authentification ; l’email ne constitue pas une authentification hors bande conforme à son référentiel. Il s’agit d’une référence de conception, pas d’une certification Guteneo ou d’une obligation universelle. [NIST SP 800-63](https://pages.nist.gov/800-63-4/sp800-63.html), [authentificateurs](https://pages.nist.gov/800-63-4/sp800-63b/authenticators/).
+Workspaces may revalidate their own recipient relationships; that alone cannot
+unlock documents from other senders. Personal-copy recovery needs evidence
+independent of the sending workspace's continued existence.
 
-### Adresses et identités particulières
+NIST distinguishes identity proofing from authentication and excludes email as
+out-of-band authentication under its framework. It is a design reference, not
+Guteneo certification or a universal legal obligation.
+[NIST SP 800-63](https://pages.nist.gov/800-63-4/sp800-63.html),
+[authenticators](https://pages.nist.gov/800-63-4/sp800-63b/authenticators/).
 
-- Une adresse recyclée n’hérite jamais des anciens documents : les droits acceptés restent liés au compte stable.
-- Pas de fusion automatique sur égalité d’email. Les futures liaisons de comptes nécessitent une réauthentification des deux identités et une politique de fusion explicite. [Auth0 Account Linking](https://auth0.com/docs/manage-users/user-accounts/user-account-linking/link-user-accounts).
-- Une boîte collective ne doit pas devenir le coffre personnel du premier salarié qui clique. V1 : destinataires individuels ; délégations, représentants et coffres d’équipe constituent des extensions explicites.
-- Une identité administrée par un employeur ne suffit pas, à elle seule, à ouvrir les documents personnels d’autres expéditeurs, à inscrire leurs facteurs d’accès ou à récupérer le coffre : un administrateur de l’IdP pourrait reprendre cette identité, même encore active. Exiger un authentificateur personnel indépendant ou un mécanisme qualifié contre ce risque. Cela reste le même compte Guteneo, avec une réauthentification adaptée. Le SSO conserve son périmètre professionnel qualifié.
+### Special addresses and identities
 
-## 4. Deux catégories, deux contrats d’accès
+- A recycled address inherits no old documents: accepted rights stay bound to
+  the stable account.
+- No automatic linking on equal email. Future account linking needs
+  reauthentication of both identities and an explicit merge policy.
+  [Auth0 Account Linking](https://auth0.com/docs/manage-users/user-accounts/user-account-linking/link-user-accounts).
+- A shared mailbox must not become the personal vault of the first employee who
+  clicks. V1 assumes individual recipients; representatives, delegation and team
+  vaults are explicit extensions.
+- Employer-controlled identity alone must not open other senders' personal
+  documents, enroll their access factors or recover the vault: an IdP
+  administrator may take over that identity while it remains active. The strong
+  study proposes an independent personal authenticator or a qualified mechanism
+  against that risk. This remains one Guteneo account with appropriate
+  reauthentication; SSO retains its qualified professional scope.
 
-Ce choix a été confirmé par l’utilisateur.
+## 4. Two categories and two access contracts
 
-| Propriété | Partagé avec moi | Conservé dans mon espace personnel |
-| --- | --- | --- |
-| Origine du droit | Autorisation de l’atelier pour ce compte | Remise personnelle autorisée par l’atelier puis acceptée par le destinataire |
-| Expiration | Celle du partage, affichée | Durée de conservation propre, affichée et financée |
-| Révocation atelier | Bloque les nouveaux accès | N’efface pas une copie déjà remise |
-| Fin du contrat atelier | Selon le contrat du partage et notifications prévues | La conservation promise doit survivre à ce départ |
-| Téléchargement original | Seulement si autorisé | Export personnel prévu dans le contrat de conservation |
-| Audit visible par l’atelier | Événements de son partage, avec provenance | Preuve de remise ; aucune surveillance des lectures privées ultérieures |
-| Audit visible par la personne | Ses accès et changements pertinents | Historique de ses opérations et des accès autorisés à son espace |
+The user confirmed this distinction.
 
-Proposition : `allowVaultDeposit` autorise une remise autonome et exportable. Une « copie personnelle » que l’atelier peut encore empêcher d’exporter ou faire disparaître est une promesse différente. Le droit de téléchargement du partage peut exister sans droit de dépôt ; les combinaisons admises doivent être explicites.
+| Property                  | Shared with me                              | Kept in my personal space                                               |
+| ------------------------- | ------------------------------------------- | ----------------------------------------------------------------------- |
+| Authority source          | Workspace authorization for this account    | Workspace-authorized personal delivery followed by recipient acceptance |
+| Expiration                | Displayed share expiry                      | Independent displayed/funded retention term                             |
+| Workspace revocation      | Blocks new access                           | Does not erase a delivered copy                                         |
+| End of workspace contract | Under share terms and planned notifications | Promised personal retention must survive that departure                 |
+| Original download         | Only when authorized                        | Personal export belongs to the retention contract                       |
+| Workspace-visible audit   | Its share's events with provenance          | Delivery evidence, without surveillance of later private reading        |
+| Recipient-visible audit   | Own access and relevant changes             | Own operations and authorized access to the personal space              |
 
-Par défaut, un partage reste révocable et le téléchargement est désactivé. Le destinataire ne peut conserver une copie que si l’atelier a choisi cette possibilité avant approbation. Le clic « Conserver une copie » explique la durée, l’origine et l’export ; aucun achat supplémentaire n’est imposé pour bénéficier d’une conservation déjà financée.
+`allowVaultDeposit` proposes autonomous, exportable delivery. A personal copy that
+the workspace can still prevent exporting or make disappear is a different
+promise. Share-download permission may exist without deposit permission; allowed
+combinations must be explicit.
 
-Le document source et la copie personnelle sont deux objets de conservation, même si leurs octets sont identiques. L’atelier peut mettre fin au partage ; la suppression personnelle, les obligations légales et la fin de conservation suivent leurs règles propres. Ne pas traiter une simple révocation de l’atelier comme un ordre de suppression du coffre.
+By default, sharing remains revocable and download is disabled. Recipients may
+retain a copy only if the workspace chose that option before approval. Keep a
+copy explains term, origin and export; no additional purchase is required to use
+already funded retention.
 
-L’original téléchargé quitte le contrôle de Guteneo. Ses ouvertures hors plateforme, copies, impressions et captures ne deviennent pas observables parce qu’un compte existe.
+The source and personal copy are separate retention objects even with identical
+bytes. Workspace revocation, personal deletion, legal obligations and retention
+expiry follow their own rules. Workspace revocation is not a vault deletion
+instruction.
 
-### Transaction de remise personnelle
+A downloaded original leaves Guteneo's control. Accounts do not make off-platform
+opening, copying, printing or screenshots observable.
 
-1. La politique approuvée autorise le dépôt pour ce destinataire, sur une version précise, avec durée et financement bornés. Dès l’activation du partage, la capacité de remise est prépayée et débitée irrévocablement pour honorer la conservation promise ; l’atelier ne peut pas dépenser ensuite cette même somme ailleurs.
-2. Le destinataire fortement authentifié demande la copie ; une opération unique par partage et personne utilise cette capacité prépayée. L'expiration sans dépôt ne rembourse pas cette option, conformément à la règle commerciale annoncée avant approbation ; un résultat incertain se réconcilie avec cette même opération.
-3. Un travail privé crée une copie dans le périmètre personnel, avec objet immuable, empreinte, origine et clés distinctes. Le résultat reste invisible tant qu’il n’est pas vérifié.
-4. Une transaction valide encore le grant, sa version, le destinataire, l’autorisation de dépôt et sa réservation ; elle consomme celle-ci au plus une fois et active la copie, son engagement de conservation et les événements/outbox.
-5. Révocation avant cette activation : aucune copie n’est acquise, les objets orphelins sont nettoyés. Révocation après : la copie acquise reste personnelle. Un timeout se réconcilie par identifiants et empreintes ; il ne crée pas plusieurs dépôts ou débits.
+### Personal-copy delivery transaction
 
-D1 et R2 ne forment pas une transaction distribuée : la préparation invisible et l’activation conditionnelle définissent le point de remise. La restauration des sauvegardes doit préserver cet ordre et les révocations.
+1. Approved policy authorizes deposit for that recipient/exact version, with a
+   bounded funded term. On share activation, delivery capacity is prepaid and
+   irrevocably charged to honor retention; the workspace cannot spend it again.
+2. The authenticated recipient requests the copy. The historical proposal
+   requires strong authentication; current implementation applies its selected
+   document policy. A unique operation per share/person consumes prepaid
+   capacity. Expiry without deposit refunds no option under terms disclosed
+   before approval. Uncertainty is reconciled through the same operation.
+3. A private job creates a personal-namespace copy with immutable object, hash,
+   provenance and distinct keys. It remains invisible until verified.
+4. A transaction revalidates grant/version/recipient/deposit authority and its
+   reservation; consumes it at most once; activates the copy, retention
+   commitment and events/outbox.
+5. Revocation before activation acquires no copy and orphan objects are cleaned.
+   After activation, the acquired copy stays personal. A timeout reconciles by
+   identifiers/hashes rather than creating multiple deposits or charges.
 
-## 5. Architecture des droits et des données
+D1/R2 do not form a distributed transaction. Invisible preparation followed by
+conditional activation defines delivery. Backup restoration must preserve that
+order and revocations.
+
+## 5. Rights and data architecture
+
+The diagram records the original strong-profile design. Its identity-method
+requirement is superseded for launch by `verified_account`; the separate authority
+domains remain the design principle.
 
 ```mermaid
 flowchart TB
-  Personne[Un compte Guteneo] --> Id[Auth0 : connexion forte]
-  Id --> BFF[Session personnelle serveur]
-  BFF --> Perso[API personnelle : propriétaire du compte]
-  BFF --> Atelier[API atelier : membership et habilitation documentaire]
-  Perso --> Grants[Accès partagés : grants individuels]
-  Perso --> Copies[Copies personnelles : espace personnel]
-  Atelier --> Pub[Publications : périmètre atelier]
-  Pub --> Grants
-  Grants --> Remise[Remise explicitement autorisée]
-  Remise --> Copies
-  Perso --> Services[Services Guteneo accessibles avec le même compte]
-  Services --> Contexte[Choisir ou créer son atelier à la première opération]
-  Contexte --> Atelier
+  Person[One Guteneo account] --> Identity[Auth0: historical strong-profile proposal]
+  Identity --> BFF[Server personal session]
+  BFF --> Personal[Personal API: account owner]
+  BFF --> Workspace[Workspace API: membership and document authority]
+  Personal --> Grants[Shared access: individual grants]
+  Personal --> Copies[Personal copies: personal namespace]
+  Workspace --> Publications[Publications: workspace scope]
+  Publications --> Grants
+  Grants --> Delivery[Explicitly authorized personal delivery]
+  Delivery --> Copies
+  Personal --> Services[Guteneo services with the same account]
+  Services --> Context[Choose or create a workspace at first operation]
+  Context --> Workspace
 ```
 
-Trois autorités distinctes :
+Three distinct authorities:
 
-- **Identité** : utilisateur authentifié, méthode, fraîcheur, état de sécurité. Peut exister avec zéro atelier.
-- **Atelier** : membership actuelle, rôle, habilitation sur le dossier/document et autorité de l’opération. Le client peut désigner un contexte, jamais s’en octroyer les droits.
-- **Espace personnel** : propriétaire authentifié et droits de remise personnels. Un rôle administrateur dans un atelier ne donne aucune autorité sur le coffre d’autrui.
+- **Identity:** authenticated person, method, freshness and security state; may
+  exist with zero workspaces.
+- **Workspace:** current membership, role, document/folder entitlement and
+  operation authority. A client may select context, never grant itself rights.
+- **Personal space:** authenticated owner and personal-delivery rights. A
+  workspace administrator has no authority over someone else's vault.
 
-Conserver `AuthContext` métier strict. Ajouter un principal personnel et des gardes séparés plutôt que rendre `organizationId` facultatif partout. Chaque route déclare son domaine : personnel, atelier, document partagé ou opération interne privée.
+Keep business `AuthContext` strict. Add a personal principal and separate guards
+rather than making `organizationId` optional everywhere. Each route declares
+its domain: personal, workspace, shared document or private internal operation.
 
-| Entité cible | Autorité et points clés |
-| --- | --- |
-| `users`, `auth_identities` | Identité globale stable ; aucune clé email utilisée comme autorité |
-| Sessions personnelles | User, preuve d’authentification/fraîcheur, révocation, politique ; indépendantes des memberships |
-| Contexte atelier | Membership et rôle courants, contexte attendu de la requête, autorisation documentaire |
-| `recipient_relationships` | Atelier + destinataire stable + méthode/preuve d’association ; pas d’annuaire global exposé |
-| `document_publications`, `recipient_grants` | Toutes les relations source/publication/grant/audit portent l’organisation et des clés composites |
-| Invitations documentaires | Cible immuable, secret haché, état, échéance, preuve de claim ; ne créent jamais de membership |
-| Index « Partagé avec moi » | Projection des grants dont le compte est destinataire ; ne remplace jamais l’autorisation courante |
-| `personal_spaces`, `personal_documents` | Périmètre personnel explicite, propriétaire stable, objets et rétention autonomes ; aucune cascade liée à la suppression d’un atelier |
-| `vault_deposit_operations` | Pont contrôlé entre source atelier et copie personnelle, idempotence, version, financement, point d’activation |
-| Journaux | Sécurité du compte, activité des partages, activité personnelle et administration séparées |
+| Proposed entity                             | Authority and key points                                                                               |
+| ------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `users`, `auth_identities`                  | Stable global identity; email is never authority                                                       |
+| Personal sessions                           | User, method/freshness evidence, revocation and policy; independent of membership                      |
+| Workspace context                           | Current membership/role, expected request context and document authority                               |
+| `recipient_relationships`                   | Workspace + stable recipient + binding method/evidence; no exposed global directory                    |
+| `document_publications`, `recipient_grants` | Source/publication/grant/audit relationships carry organization and composite keys                     |
+| Document invitations                        | Immutable target, hashed secret, status, deadline and claim evidence; never create membership          |
+| Shared with me index                        | Projection of grants addressed to the account; never replaces current authority                        |
+| `personal_spaces`, `personal_documents`     | Explicit personal boundary, stable owner, independent objects/retention; no workspace-deletion cascade |
+| `vault_deposit_operations`                  | Controlled source-to-personal-copy bridge, idempotency, version, funding and activation point          |
+| Journals                                    | Separate account security, share activity, personal activity and administration                        |
 
-L’agrégation « tous mes documents reçus » est une requête autorisée par le `user_id` du principal, avec jointures sur les grants et leurs organisations. Elle ne consiste pas à retirer le filtre tenant d’une API atelier. L’espace personnel est un nouveau périmètre de sécurité, pas une exception globale aux règles d’isolation.
+All received documents is a query authorized by the principal's `user_id`,
+joining grants and their organizations. It is not a workspace API with its tenant
+filter removed. Personal space adds a security domain, not a global isolation
+exception.
 
-Les titres, miniatures, résultats de recherche, compteurs et exports sont soumis aux mêmes droits que le contenu. Une liste en retard ne doit pas réouvrir un partage révoqué. La suppression d’une membership retire les droits atelier sans effacer les copies personnelles.
+Titles, thumbnails, search results, counts and exports follow content authority.
+A stale list never reopens a revoked share. Removing membership revokes workspace
+rights without erasing personal copies.
 
-Le changement d’espace n’est pas une nouvelle connexion. En présence de deux onglets sur deux ateliers, chaque mutation transporte son contexte attendu, vérifié côté serveur ; le changement dans un onglet ne doit pas modifier silencieusement la cible de l’autre.
+Changing space is not another sign-in. With two tabs in different workspaces,
+each mutation carries its expected context for server verification; one tab's
+switch must not silently retarget the other.
 
-### Réutiliser un document pour les services Guteneo
+### Reusing a document for Guteneo services
 
-« Envoyer avec Guteneo » est possible pour une copie personnelle exportable ou une remise explicitement autorisée. Avant de créer la copie métier, une confirmation montre l’atelier cible et les personnes/habilitations qui pourront lire le contenu : cette publication interne peut exposer le document avant même l’envoi. Aucun transfert automatique vers le dernier atelier utilisé. L’analyse, la revue, le destinataire, le coût et l’approbation d’envoi viennent ensuite ; cette approbation ne remplace pas l’autorisation de transfert interne. Un document en consultation seule ne peut pas être réexpédié en contournant sa politique.
+Send with Guteneo is possible for an exportable personal copy or explicitly
+authorized delivery. Before creating a business copy, show/confirm the target
+workspace and people/entitlements that may read it: internal publication may
+expose content before sending. Never transfer automatically to the last-used
+workspace. Scanning, review, recipient, cost and dispatch approval follow;
+dispatch approval does not replace internal-transfer authorization. View-only
+content must not bypass policy through forwarding.
 
-Les assistants et autorisations OAuth actuels restent limités à leurs ateliers. Aucun nouveau scope implicite pour parcourir le coffre. Les mandats existants n’acquièrent ni remise personnelle, ni lecture inter-ateliers, ni autorité d’enrôlement.
+Existing assistants/OAuth authority remain workspace scoped. No implicit vault
+scope is added. Existing mandates gain neither personal delivery, cross-workspace
+reading nor enrollment authority.
 
-## 6. Hébergement, chiffrement et exploitation
+## 6. Hosting, encryption and operations
 
-Cloudflare reste le centre applicatif : Workers/Hono, D1, R2 privé, outbox/Queues et service documentaire isolé. Auth0 gère l’identité. Les notifications atelier peuvent commencer par une lecture incrémentale du journal toutes les quelques secondes ; le transport temps réel n’est pas l’autorité d’accès.
+Cloudflare remains the application center: Workers/Hono, D1, private R2,
+outbox/Queues and isolated document service. Auth0 supplies identity. Workspace
+notifications may start with incremental journal reads every few seconds;
+real-time transport is not access authority.
 
-Pour les partages : source exact analysé, rendu serveur qualifié, pages personnalisées figées avant approbation, filigrane dans les pixels, alternative accessible, aucune source PDF remise implicitement au lecteur. Téléchargement autorisé par une route distincte et auditée. Les règles de provenance de l’audit et les limites physiques de la capture restent celles de l’étude web.
+For shares, scan exact sources, qualify server rendering, freeze personalized
+pages before approval, integrate pixel watermarks and provide an accessible
+alternative. Deliver no source PDF implicitly to the reader. Authorized download
+has a separate audited route. Audit provenance and physical capture limits
+remain those of the web study.
 
-Pour les copies personnelles : stockage séparé des sources d’ateliers et rétention autonome. Pas de déduplication interpersonnelle pour économiser quelques objets avant d’avoir démontré l’isolation, la gestion des clés et la suppression.
+Personal copies use storage separate from workspace sources and independent
+retention. Avoid cross-person deduplication for marginal object savings before
+proving isolation, key handling and deletion.
 
-R2 chiffre automatiquement les objets au repos avec des clés gérées par Cloudflare. Cela ne prouve ni chiffrement de bout en bout ni impossibilité d’accès par Guteneo. [Sécurité R2](https://developers.cloudflare.com/r2/reference/data-security/).
+R2 automatically encrypts objects at rest with Cloudflare-managed keys. This
+proves neither end-to-end encryption nor impossibility of Guteneo access.
+[R2 security](https://developers.cloudflare.com/r2/reference/data-security/).
 
-**Cible recommandée à qualifier pour ce niveau sensible :** chiffrement applicatif par enveloppe avec clé de données propre à chaque objet, contexte authentifié liant propriétaire/source/version, clés d’enveloppe séparées des objets et accès limité aux services nécessaires. Employer des primitives et bibliothèques éprouvées, avec rotation, restauration et destruction documentées ; ne pas inventer un protocole cryptographique.
+**Historical recommended target to qualify:** application envelope encryption
+with one data key per object, authenticated owner/source/version context, wrapping
+keys separate from objects and least-privilege service access. Use established
+primitives/libraries with documented rotation, restore and destruction; invent
+no cryptographic protocol.
 
-Le choix du gestionnaire de clés est un jalon d’architecture : service KMS/HSM avec région et audit qualifiés, intégré aux Workers. S’il nécessite une dépendance externe européenne, l’assumer plutôt que promettre un dispositif entièrement Cloudflare non démontré. Secrets Store est un gestionnaire de secrets, publié en bêta, pas une preuve de KMS non exportable ni de traitement uniquement UE. [Secrets Store](https://developers.cloudflare.com/secrets-store/).
+Selecting a key manager is an architecture milestone: a KMS/HSM with qualified
+region/audit integrated into Workers. If that needs an external European service,
+state it rather than claiming an unproven all-Cloudflare design. At the time of
+research, Secrets Store was described as a beta secrets manager, not evidence of
+non-exportable KMS or EU-only processing.
+[Secrets Store](https://developers.cloudflare.com/secrets-store/).
+Current server-secret envelope encryption must not be relabelled as qualified
+KMS/HSM or end-to-end encryption.
 
-Le rendu côté serveur implique du contenu en clair pendant le traitement autorisé. Cette architecture protège des risques précis ; elle ne permet pas de dire « même Guteneo ne peut jamais lire vos documents ». Une exigence d’inaccessibilité cryptographique au fournisseur nécessiterait une autre architecture de clés et de traitement, et doit être arbitrée avant l’engagement commercial.
+Server rendering processes plaintext during authorized execution. This design
+protects specific risks; it cannot promise that even Guteneo can never read
+content. Cryptographic provider inaccessibility would need a different
+key/processing architecture, decided before a commercial commitment.
 
-Définir et vérifier : identité des services, séparation des privilèges R2/D1/clés, absence de contenu dans logs et traces, sandbox du rendu, sorties réseau bornées, caches privés, sources interdites aux outils analytiques, sauvegarde chiffrée indépendante et exercices de restauration. Les journaux d’administration et d’accès aux clés doivent être exportés hors du chemin que peut réécrire un seul administrateur.
+Define/verify service identity, R2/D1/key privilege separation, absence of content
+in logs/traces, rendering sandbox, bounded egress, private caches, source exclusion
+from analytics, independently encrypted backup and restoration drills. Export
+administration/key-access logs outside a path one administrator can rewrite.
 
-Pas d’accès universel au contenu pour le support. Toute intervention exceptionnelle doit être limitée, motivée, autorisée selon le cadre applicable et tracée ; le personnel commercial n’obtient jamais les documents ou leur historique détaillé.
+Support has no universal content access. Exceptional intervention must be limited,
+justified, authorized under the applicable framework and audited. Sales staff
+never receive documents or detailed reading history.
 
-Une juridiction UE de D1/R2 ne localise pas à elle seule Auth0, le rendu, l’exécution Workers, les clés, les emails, les traces et les sauvegardes. Le pilote confidentiel exige la qualification de la chaîne réellement déployée, et non une simple mention « hébergé en Europe ».
+D1/R2 EU jurisdiction alone does not locate Auth0, rendering, Worker execution,
+keys, email, traces and backups. A confidential pilot requires qualification of
+the actual deployed chain, not merely hosted-in-Europe wording.
 
-## 7. Implications pour les ateliers
+## 7. Implications for workspaces
 
-### Une exigence forte des deux côtés
+### The historical high-assurance target on both sides
 
-Le contrat actuel autorise tous les membres à lire tous les documents et destinataires d’un atelier. Le rôle Observateur ne fournit pas de restriction documentaire. Cette lecture a été vérifiée dans `docs/WORKSPACE_ROLES.md` et les sources locales.
+At the checkout inspected for this study, the existing contract allowed all
+members to read a workspace's documents/recipients; Viewer alone provided no
+document-level isolation. This was checked in `docs/WORKSPACE_ROLES.md` and local
+source. It is a dated baseline, not a claim that later secure-source guards do
+not exist.
 
-Recommandation : compléter les rôles existants par des habilitations de dossier/document. Un rôle définit les opérations possibles ; l’habilitation définit sur quels contenus. Préparateur, approbateur et destinataires sont explicitement désignés ; un simple droit de reporting n’ouvre pas le contenu. L’administration de l’atelier ne doit pas devenir une lecture personnelle universelle implicite.
+The proposal recommends supplementing roles with folder/document entitlements.
+A role defines possible operations; an entitlement defines affected content.
+Explicitly designate preparer, approver and recipients. Reporting alone should
+not open content; workspace administration must not silently become universal
+personal reading authority.
 
-Définir aussi qui peut attribuer ces habilitations. Si un administrateur peut s’accorder lui-même l’accès à un dossier, ne pas prétendre qu’il lui est impossible d’en lire le contenu ; cette autorité et ses usages doivent être visibles et audités. Une séparation plus forte demande un contrôle indépendant de ces attributions.
+Define who assigns entitlements. If an administrator may grant themselves folder
+access, do not claim they cannot read its contents; expose/audit that authority.
+Stronger separation needs independent control over assignments.
 
-Appliquer cette frontière à toutes les routes : source, rendu, recherche, destinataires, envoi, rapport, export, API, natif et MCP. Ne pas renforcer seulement le nouveau lecteur en laissant l’original lisible par une ancienne route.
+Apply the boundary to source, render, search, recipients, dispatch, reports,
+exports, REST, native and MCP. Do not harden only the new reader while leaving
+an old original route open.
 
-La séparation préparateur/approbateur et une validation indépendante de changement de destinataire réduisent les erreurs internes. Prévoir le cas de l’atelier d’une seule personne : son absence de double contrôle doit être explicite, pas décrite comme une validation à deux personnes.
+Separating preparer/approver and independently validating recipient changes
+reduces internal errors. A one-person workspace must explicitly acknowledge the
+absence of dual control rather than claim two-person validation.
 
-### Ce que l’atelier devra choisir ou faire
+### What the workspace must choose or do
 
-1. Vérifier le destinataire et sa relation au compte lors de la première remise ; informer de l’inscription et de l’authentification requises.
-2. Choisir la durée du partage, le téléchargement original et l’éventuelle autorisation de copie personnelle, avec durée et coût de conservation distincts.
-3. Revoir le document final et sa politique, puis approuver conformément aux droits Guteneo.
-4. Traiter les erreurs de destinataire, demandes de prolongation et questions sur le contenu. Guteneo prend en charge la sécurité du compte et l’incident technique.
-5. Comprendre qu’une copie acquise ou téléchargée ne peut plus être rappelée par une simple révocation.
+1. Verify the recipient/account relationship for initial delivery; explain
+   account creation and the actual authentication policy.
+2. Choose share term, original download and any personal-copy permission, with
+   separate personal-retention term/cost.
+3. Review final document/policy and approve under Guteneo authority.
+4. Resolve recipient mistakes, extension requests and content questions. Guteneo
+   handles account security and technical incidents.
+5. Understand that an acquired/downloaded copy cannot be recalled by revocation.
 
-Le suivi distingue invitation soumise/livrée, association en attente/validée, accès autorisé, affichage déclaré, téléchargement demandé/lancé et copie personnelle remise. Un échec d’inscription n’est pas une livraison documentaire réussie ; un flux serveur terminé n’est pas une sauvegarde disque prouvée.
+Tracking distinguishes notification submitted/delivered, association pending/
+confirmed, access authorized, display reported, download requested/started and
+personal-copy delivery. Failed registration is not successful document delivery;
+a completed server stream is not proven disk storage.
 
-L’atelier ne découvre ni l’existence globale du compte, ni ses autres expéditeurs, ni ses services achetés. Il voit seulement les faits nécessaires à ses publications. Après dépôt personnel, l’audit privé appartient au destinataire ; l’atelier conserve la preuve de remise sans suivi continu du coffre.
+A workspace sees neither global account existence, other senders nor purchased
+services. It sees only facts needed for its publications. After personal deposit,
+private audit belongs to the recipient; the workspace retains delivery evidence
+without continuous vault surveillance.
 
-Le niveau « très sensible » est un choix de protection produit, pas une qualification réglementaire universelle. Définir le périmètre sectoriel du pilote. Les anciens liens protégés restent des engagements historiques à migrer ou laisser expirer selon un plan explicite ; tant qu’ils subsistent, ne pas annoncer qu’ils ont acquis rétroactivement cette sécurité.
+Very sensitive is a product-protection choice, not universal regulatory
+qualification. Define the pilot's sector scope. Legacy protected links need an
+explicit migration/expiry plan; their continued existence must not be described
+as retroactive adoption of the new protection.
 
-## 8. Représentation de l’interface
+## 8. Interface representation
 
-### Un seul produit, accès centré sur l’intention
+### One product with intent-based access
 
 ```mermaid
 flowchart LR
-  Login[Compte Guteneo unique] --> Documents[Mes documents]
-  Documents --> Partages[Partagés avec moi]
-  Documents --> Persos[Copies conservées]
-  Login --> Services[Utiliser Guteneo]
-  Services --> Envoi[Envoyer un document]
-  Envoi --> Choix[Atelier existant ou création au premier usage]
-  Login --> Securite[Compte et sécurité communs]
+  Login[One Guteneo account] --> Documents[My documents]
+  Documents --> Shared[Shared with me]
+  Documents --> Personal[Retained personal copies]
+  Login --> Services[Use Guteneo]
+  Services --> Dispatch[Send a document]
+  Dispatch --> Choice[Existing workspace or creation at first use]
+  Login --> Security[Shared account and security]
 ```
 
-| Surface | Contenu principal | Action principale |
-| --- | --- | --- |
-| Invitation avant connexion | Contexte minimal, langue/aide, état de l’invitation ; pas de titre sensible | Accéder à mon document |
-| Première réception | Connexion/inscription minimale, authentification forte, association si nécessaire | Continuer vers le document attendu |
-| Mes documents | Partagés / Conservés ; expéditeur, date, état et échéance, recherche sous droits | Ouvrir le document |
-| Document partagé | Pages, expéditeur, durée, filigrane, information sur l’audit | Consulter ; Télécharger / Conserver seulement si autorisés |
-| Copie personnelle | Version/origine, conservation, export, historique personnel | Consulter / exporter / supprimer avec les confirmations nécessaires |
-| Utiliser Guteneo | Services existants expliqués, tarifs disponibles, aucune donnée confidentielle utilisée pour cibler | Préparer un envoi |
-| Compte et sécurité | Identité visible, moyens de connexion, récupération, sessions, langue, vie privée | Gérer la sécurité / changer de compte |
-| Atelier | Navigation métier existante, habilitations et suivi | Préparer / approuver / gérer selon droits |
+| Surface                   | Main content                                                                                               | Primary action                                      |
+| ------------------------- | ---------------------------------------------------------------------------------------------------------- | --------------------------------------------------- |
+| Invitation before sign-in | Minimal context, language/help, invitation state; no sensitive title                                       | Access my document                                  |
+| First reception           | Minimal signup/login, applicable authentication, binding if needed; original strong-only design superseded | Continue to the expected document                   |
+| My documents              | Shared / Retained, sender/date/status/expiry, permission-scoped search                                     | Open document                                       |
+| Shared document           | Pages, sender, term, watermark and audit notice                                                            | View; Download / Keep only if authorized            |
+| Personal copy             | Version/origin, retention, export and personal history                                                     | View / export / delete with necessary confirmations |
+| Use Guteneo               | Existing services explained, available prices, no confidential targeting                                   | Prepare a dispatch                                  |
+| Account and security      | Visible identity, sign-in methods, recovery, sessions, language and privacy                                | Manage security / change account                    |
+| Workspace                 | Existing business navigation, entitlements and tracking                                                    | Prepare / approve / administer under current rights |
 
-Depuis un lien de document, retour direct au document après connexion, même si le dernier contexte était un atelier. Depuis l’accueil général, retrouver le dernier contexte choisi, avec « Mes documents » comme entrée par défaut pour une personne n’ayant encore utilisé que la réception.
+A document link returns directly to its document after login even if the last
+context was a workspace. General entry restores the last chosen context, with
+My documents as default for someone who has only received documents.
 
-Dans l’en-tête : nom du compte et contexte actif visibles ; sélecteur « Espace personnel / Atelier … ». Ne pas présenter « se connecter comme destinataire » et « se connecter comme expéditeur ». La rubrique des services reste accessible depuis l’espace personnel, sans changement d’identité.
+The header shows account name/current context, with a Personal space / Workspace
+selector. Do not present separate sign-in-as-recipient and sign-in-as-sender
+accounts. Services remain accessible from personal space without identity change.
 
-Sur mobile, navigation courte : Documents, Services, Compte ; contexte atelier visible lorsque nécessaire. Reprendre la marque ivoire/cobalt de Guteneo, des libellés concrets et les quatre langues existantes. Conserver un réglage de langue de compte unique et une sélection accessible avant connexion. Le lecteur reste utilisable au clavier et avec les technologies d’assistance qualifiées.
+Mobile navigation stays short: Documents, Services, Account, with workspace
+context visible when needed. Reuse Guteneo ivory/cobalt, concrete labels and the
+existing four languages. Keep one account-language preference and accessible
+pre-login language selection. Qualify keyboard/assistive-technology reader use.
 
-### Contrats d’interaction à montrer dans les maquettes
+### Interaction contracts for prototypes
 
-| Situation | Comportement attendu |
-| --- | --- |
-| Mauvais compte connecté | Ne pas ouvrir le document ; proposer explicitement changer de compte, sans déplacer le grant |
-| Association en attente | État expliqué et aide ; aucun faux état « document disponible » |
-| Révocation pendant lecture | Refus des nouvelles remises ; indication claire ; ne pas prétendre effacer les pixels déjà reçus |
-| Conserver une copie | Afficher droits/durée, état en cours, puis succès uniquement après activation durable ; un double clic ne double pas copie/coût |
-| Quitter pendant le dépôt | Retrouver l’opération et son état au retour ; navigation n’annule pas une remise déjà acceptée |
-| Compte récupéré, assurance insuffisante | Interface accessible mais documents verrouillés jusqu’au contrôle requis ; aide compréhensible |
-| Premier usage d’un service | Même compte ; informations métier demandées au moment utile ; création d’atelier idempotente sans adhésion chez l’expéditeur |
-| Masquer / supprimer | Masquer un partage ne révoque pas l’envoi de l’atelier ; supprimer une copie personnelle ne supprime pas son original atelier |
+| Situation                                  | Expected behavior                                                                                                                          |
+| ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| Wrong signed-in account                    | No content; explicitly offer account switching without moving the grant                                                                    |
+| Pending binding                            | Explain status/help; no false document-available state                                                                                     |
+| Revocation while reading                   | Refuse new deliveries and explain; do not claim erasure of received pixels                                                                 |
+| Keep a copy                                | Show rights/term, progress, success only after durable activation; double-click creates no duplicate copy/charge                           |
+| Leave during deposit                       | Recover the same operation/status on return; navigation does not cancel accepted delivery                                                  |
+| Recovered account lacks required assurance | Account UI may open while documents remain locked pending the actual required check, with clear help                                       |
+| First service use                          | Same account; collect needed business information at the right time; idempotent workspace creation creates no sending-workspace membership |
+| Hide / delete                              | Hiding a share does not revoke its workspace dispatch; deleting a personal copy does not delete the workspace original                     |
 
-## 9. Cross-selling : utile, mais secondaire au service rendu
+## 9. Cross-selling is secondary to delivering the service
 
-Position recommandée : entrée permanente et discrète « Utiliser Guteneo », puis suggestion générique après consultation, par exemple « Vous aussi, envoyez vos documents avec Guteneo ». Aucune offre dans l’email confidentiel, l’écran de sécurité ou avant le document attendu. Une offre reçue sous contrainte réduit la confiance envers Guteneo et l’atelier.
+Recommended placement: a permanent discreet Use Guteneo entry, then a generic
+suggestion after viewing, such as Send your own documents with Guteneo. No offer
+in confidential email, security screens or before the expected document. A
+coercive offer reduces trust in Guteneo and the workspace.
 
-L’accès aux documents promis ne dépend ni d’un achat, ni d’une case commerciale, ni de l’activation d’un atelier. L’utilisateur peut explorer immédiatement les services. La création d’un espace d’envoi se fait seulement lorsqu’il engage une opération qui en a besoin, dans la même session et avec le même profil.
+Promised document access depends on no purchase, marketing checkbox or workspace
+activation. Users may explore services immediately. A sending workspace is
+created only when an operation needs it, within the same session/profile.
 
-Ne pas déduire un centre d’intérêt du titre, contenu, expéditeur, ouverture ou téléchargement d’un document. Séparer données de remise pour le compte de l’atelier, compte personnel, sécurité et préférences commerciales propres à Guteneo. La CNIL encadre la réutilisation des données confiées à un sous-traitant pour ses finalités propres. [CNIL réutilisation](https://www.cnil.fr/fr/sous-traitants-la-reutilisation-de-donnees-confiees-par-un-responsable-de-traitement).
+Do not infer interests from document title/content/sender/opening/download.
+Separate workspace delivery data, personal-account data, security and Guteneo's
+own marketing preferences. CNIL addresses a processor's reuse of entrusted data
+for its own purposes.
+[CNIL reuse guidance](https://www.cnil.fr/fr/sous-traitants-la-reutilisation-de-donnees-confiees-par-un-responsable-de-traitement).
 
-Un compte créé ne vaut pas consentement aux emails marketing. En B2C, la CNIL précise que la simple création de compte ne suffit pas à invoquer l’exception client existant ; les règles B2B sont distinctes. Prévoir des préférences séparées, un choix libre et une suppression des sollicitations indépendante des notifications de sécurité/document. [CNIL prospection](https://www.cnil.fr/fr/la-prospection-commerciale-par-courrier-electronique-sms-mms-et-automate-dappel).
+Creating an account is not marketing-email consent. CNIL states that account
+creation alone is insufficient for the B2C existing-customer exception; B2B rules
+differ. Provide separate preferences, free choice and suppression independent of
+security/document notifications.
+[CNIL prospecting guidance](https://www.cnil.fr/fr/la-prospection-commerciale-par-courrier-electronique-sms-mms-et-automate-dappel).
 
-Indicateurs de succès, dans cet ordre : accès au document réussi, temps d’accès, abandon d’enrôlement, incidents/récupérations, satisfaction atelier/destinataire ; puis découverte volontaire des services, première préparation et premier envoi. Mesurer le tunnel commercial séparément des traces documentaires et à un niveau agrégé approprié. Les comptes contraints ne sont pas comptés comme clients expéditeurs acquis.
+Success metrics, in order: successful content access, access time, enrollment
+abandonment, incidents/recovery, sender/recipient satisfaction; then voluntary
+service discovery, first preparation and first dispatch. Measure the commercial
+funnel separately from document traces with appropriate aggregation. Compulsory
+accounts are not acquired sending customers.
 
-## 10. Conservation, appellation et économie
+## 10. Retention, naming and economics
 
-### Ne pas promettre un coffre éternel
+### Promise no perpetual vault
 
-Proposition économique : réception et consultation sans paiement demandé au destinataire ; l’atelier finance le partage et, s’il l’autorise, une durée de conservation personnelle définie. Cette durée reste acquise même si l’atelier quitte Guteneo. Prolongations éventuelles explicites, information avant échéance et mécanisme d’export ; aucun tarif ou prélèvement décidé par ce plan.
+Proposed economics: recipients pay nothing to receive/view; the workspace funds
+sharing and, if authorized, a defined personal-retention term. That term survives
+workspace departure. Extensions are explicit, with pre-expiry information and
+export. This plan decides no tariff or debit; later versioned pricing is separate.
 
-Définir séparément les durées des documents, preuves de remise, traces de sécurité du compte et activité personnelle. Effacer ou masquer un document ne supprime pas mécaniquement toute preuve, et conserver une preuve ne justifie pas de garder indéfiniment le contenu. Contrats, information des utilisateurs et purge doivent correspondre à cette matrice.
+Define distinct retention for documents, delivery evidence, account-security
+traces and personal activity. Deleting/hiding content does not mechanically erase
+all evidence; preserving evidence does not justify indefinite content storage.
+Contracts, user information and purge must match this matrix.
 
-Un pilote peut tester une durée limitée, par exemple douze mois, mais ce chiffre est une hypothèse à chiffrer et valider, pas une obligation légale ni une durée suffisante pour tous les documents. Pour des durées de plusieurs années, provisionner exploitation, identité, support, sauvegardes et sortie dès la remise. La suppression du compte, d’une copie personnelle et d’un atelier suivent trois procédures différentes.
+A pilot might test twelve months, but that is a hypothesis to cost/validate,
+not a legal obligation or sufficient term for every document. Multi-year promises
+must fund operations, identity, support, backups and exit at delivery. Deleting an
+account, personal copy and workspace are three procedures.
 
-### « Coffre-fort numérique » n’est pas un simple libellé
+### The French digital-safe designation is not a simple UI label
 
-Pour un service relevant du cadre français, l’appellation est encadrée : L122-22 renvoie aux obligations de L103 du CPCE. Celles-ci couvrent notamment intégrité/origine, traçabilité accessible à l’utilisateur, identification, accès exclusif et récupération. L103 prévoit aussi le cas d’un traitement par le prestataire au bénéfice de l’utilisateur avec son consentement ; cela ne dispense pas de qualifier notre architecture et ses contrats. Ne pas annoncer une conformité ou certification déjà acquise. [L122-22](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000035723787/2026-07-16), [L103](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000037825515/).
+For a service within the French framework, L122-22 refers to CPCE L103 duties,
+including integrity/origin, user-accessible traceability, identification,
+exclusive access and recovery. L103 also addresses provider processing for the
+user's benefit with consent; this does not eliminate architecture/contract
+qualification. Claim no already achieved compliance/certification.
+[L122-22](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000035723787/2026-07-16),
+[L103](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000037825515/).
 
-Le régime prévoit des modalités de récupération et de fermeture ; D541 mentionne notamment trois mois de préavis et, dans les situations qu’il définit, un maintien de récupération d’au moins douze mois. Intégrer ce coût et faire confirmer l’applicabilité exacte au service et à ses marchés avant commercialisation. [CPCE D537 à D541](https://www.legifrance.gouv.fr/codes/id/LEGISCTA000037472172/).
+The regime includes recovery/closure arrangements. D541 mentions three months'
+notice and, in specified circumstances, at least twelve months of continued
+recovery. Budget this and obtain qualified confirmation of applicability to the
+actual service/markets before commercialization.
+[CPCE D537–D541](https://www.legifrance.gouv.fr/codes/id/LEGISCTA000037472172/).
+These are dated research references, not a claim of legal qualification.
 
-Nom d’interface de travail recommandé : **Mes documents**, avec **Partagés avec moi** et **Conservés**. La cible de coffre personnel demeure ; changer le libellé ne remplace pas l’analyse des obligations du service effectivement fourni. Une revue juridique qualifiée est un jalon avant la promesse commerciale de coffre-fort numérique.
+Recommended working UI: **My documents**, **Shared with me** and **Retained**.
+The personal-vault goal remains; changing labels does not replace analysis of
+actual service duties. Qualified legal review precedes a commercial digital-safe
+promise.
 
-### Coûts nouveaux à budgéter
+### New costs to budget
 
-| Poste | Ce qui change |
-| --- | --- |
-| Identité | Destinataires actifs + membres d’ateliers, fonctions d’authentification, récupération et support, offre hybride B2C/B2B |
-| Enrôlement | Temps de validation de la relation par atelier, assistance aux destinataires uniques, abandon |
-| Conservation | Copies personnelles indépendantes, rendus, clés, sauvegardes et engagements restant après départ de l’atelier |
-| Exploitation | Supervision, alertes, rotation de clés, restauration, incident et export de sortie |
-| Produit | Deux domaines d’autorisation, nouvelles vues, migrations, accessibilité, multilingue et support |
-| Acquisition | Découverte des services mesurée sans financer les documents promis par une conversion supposée |
+| Area        | Change                                                                                                    |
+| ----------- | --------------------------------------------------------------------------------------------------------- |
+| Identity    | Active recipients plus workspace members, authentication functions, recovery/support, hybrid B2C/B2B plan |
+| Enrollment  | Workspace relationship verification, one-off-recipient support and abandonment                            |
+| Retention   | Independent personal copies, renders, keys, backups and commitments after workspace departure             |
+| Operations  | Monitoring, alerts, key rotation, restoration, incident response and exit export                          |
+| Product     | Two authority domains, new views/migrations, accessibility, languages and support                         |
+| Acquisition | Service discovery measured without funding promised documents through assumed conversion                  |
 
-L’offre Auth0 publique utilise notamment les utilisateurs actifs mensuels et différencie les fonctions/plans. L’ancien choix Free ne qualifie pas automatiquement notre future politique forte, ses fonctionnalités, son SLA ou sa facture. Obtenir un dimensionnement de la configuration réelle ; ne pas confondre comptes cumulés, personnes actives mensuelles et ouvertures de documents. [Tarification Auth0](https://auth0.com/pricing).
+Public Auth0 plans use monthly active users and distinguish functions/plans. A
+past Free selection does not qualify a future strong policy, functions, SLA or
+invoice. Size the actual configuration; cumulative accounts, MAU and document
+opens are different quantities.
+[Auth0 pricing](https://auth0.com/pricing).
 
-Reprendre le scénario de travail : 100 ateliers, 10 000 PDF/mois, 5 000 destinataires actifs/mois, 1 000 nouvelles personnes/mois après M1. Cela conduit à 16 000 personnes rencontrées à M12 et 40 000 à M36, pas nécessairement autant de MAU. Tester parts de copies conservées de 10/50/100 %, durées de 1/3/5 ans, support par nouvel utilisateur et pics de récupération. Ce sont des hypothèses, pas des volumes Guteneo observés.
+Retained planning scenario: 100 workspaces, 10,000 PDFs/month, 5,000 active
+recipients/month, 1,000 new people/month after M1. This reaches 16,000 people at
+M12 and 40,000 at M36, not necessarily that many MAU. Test personal-copy shares
+of 10/50/100%, terms of 1/3/5 years, support per new user and recovery peaks.
+These are hypotheses, not observed Guteneo volumes.
 
-`Coût complet = identité + enrôlement/support + rendu + stockage/rétention + clés + audit + emails + exploitation + réserve de continuité/sortie`.
+`Full cost = identity + enrollment/support + rendering + storage/retention + keys + audit + email + operations + continuity/exit reserve`.
 
-Évaluer la rentabilité sans aucun revenu de cross-selling dans le scénario prudent. La conversion future est un gain possible ; elle ne doit pas financer implicitement une conservation déjà promise.
+Evaluate the conservative scenario with no cross-selling revenue. Future
+conversion is potential upside, not implicit funding of promised retention.
 
-## 11. Écarts précis du code actuel
+## 11. Code gaps observed at the historical checkout
 
-Constats du checkout local `8b060bb`, revérifiés pour cette étude ; aucune affirmation sur le tenant Auth0 ou l’état actuellement servi en production.
+These observations were rechecked against local checkout **`8b060bb`** for this
+study, not against today's deployed/Auth0 state. Later implementation and
+migrations may address them; do not present this table as a current defect list.
 
-| Fichier | Constat | Évolution nécessaire |
-| --- | --- | --- |
-| `apps/api/src/auth.ts` | `AuthContext` et session exigent un atelier ; signup ordinaire crée organisation, administrateur, quotas et mécanisme de crédit | Session personnelle indépendante ; création d’atelier à l’usage explicite ; politique de méthode/fraîcheur |
-| `migrations/0002_auth.sql` | Session navigateur référencée à une membership | Migration additive de l’identité/session, compatibilité transitoire et invalidation contrôlée |
-| `apps/api/src/auth.ts` | Changement d’atelier déjà implémenté | Réutiliser le principe, ajouter espace personnel et protéger les onglets concurrents |
-| `migrations/0043_workspace_invitations.sql` | Invitations qui créent une membership | Invitations documentaires distinctes, avec association au destinataire |
-| `apps/api/src/protected-documents.ts` / migration 0040 | Lien partagé par document et remise du PDF | Nouveau mode obligatoire compte, droits individuels et remise originale séparée |
-| `apps/documents/src/expert-review.ts` | Rendu isolé destiné à la revue, avec limites de formats/résolution | Pipeline de consultation et alternative accessible qualifiés |
-| `packages/contracts/src/roles.ts`, `docs/WORKSPACE_ROLES.md` | Rôles d’action sans cloisonnement documentaire | Habilitations sur les contenus et inventaire de toutes les routes de lecture |
-| `apps/api/src/account.ts`, `apps/web/src/account-page.tsx` | Profil et atelier présentés ensemble | Compte/sécurité communs ; paramètres de chaque atelier dans son contexte |
-| `apps/api/src/maintenance.ts` | Purge selon dépendances métier actuelles | Références et conservation personnelles indépendantes, procédures de sortie |
-| Domaine, MCP, natif | Autorité atelier et approbations existantes | Aucune permission personnelle implicite ; migration sans affaiblir les garde-fous |
+| File                                                         | Observation at that checkout                                                                                            | Proposed evolution                                                                             |
+| ------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| `apps/api/src/auth.ts`                                       | `AuthContext`/sessions required a workspace; ordinary signup created organization/admin/quotas/welcome-credit mechanism | Independent personal session; explicit service-use workspace creation; method/freshness policy |
+| `migrations/0002_auth.sql`                                   | Browser session referenced membership                                                                                   | Additive identity/session migration, transitional compatibility and controlled invalidation    |
+| `apps/api/src/auth.ts`                                       | Workspace switching existed                                                                                             | Reuse its principle with personal space and concurrent-tab protection                          |
+| `migrations/0043_workspace_invitations.sql`                  | Invitations created membership                                                                                          | Separate document invitations with recipient binding                                           |
+| `apps/api/src/protected-documents.ts` / migration 0040       | Shared per-document link delivered the PDF                                                                              | New account-required mode, individual rights and separate original delivery                    |
+| `apps/documents/src/expert-review.ts`                        | Isolated review rendering with format/resolution limits                                                                 | Qualified viewing pipeline and accessible alternative                                          |
+| `packages/contracts/src/roles.ts`, `docs/WORKSPACE_ROLES.md` | Action roles without document isolation                                                                                 | Content entitlements and inventory of every reading route                                      |
+| `apps/api/src/account.ts`, `apps/web/src/account-page.tsx`   | Profile/workspace shown together                                                                                        | Common account/security; workspace settings in their context                                   |
+| `apps/api/src/maintenance.ts`                                | Purge followed then-current business dependencies                                                                       | Independent personal references/retention and exit procedures                                  |
+| Domain, MCP, native                                          | Workspace authority/existing approvals                                                                                  | No implicit personal rights; migration without weakening safeguards                            |
 
-Le texte ancien de `IDENTITY_MCP.md` indiquant un switcher différé est dépassé par le code local. Le même document décrit la politique beta `verified_email` : elle ne vaut pas preuve de passkeys fortes configurées. Ne pas utiliser un document historique comme preuve de capacité actuelle.
+Old `IDENTITY_MCP.md` wording that deferred the switcher was already superseded by
+local code. Its beta `verified_email` policy was not proof of configured strong
+passkeys. Historical documentation never proves current runtime capability.
 
-## 12. Plan de réalisation et preuves attendues
+## 12. Historical implementation plan and required evidence
 
-| Étape | Livrable | Condition de sortie |
-| --- | --- | --- |
-| 0 — Contrats du produit | Deux catégories, durée/financement, rattachement, récupération, audit personnel/atelier, appellation | Décisions applicables au pilote et responsabilités écrites |
-| 1 — Prototype identité | Compte sans atelier, login fort, compte existant, mauvais compte, perte de facteur | Méthode/fraîcheur et rattachement réellement qualifiés ; pas de fallback faible caché |
-| 2 — Isolation | Principaux personnels/ateliers, habilitations, grants, sessions, migrations additives | Matrice de droits exhaustive ; aucune lecture croisée via anciennes routes |
-| 3 — Consultation | Corpus synthétique, rendu/filigrane, accessibilité, invitation, approbation, suivi | Parcours vérifié, coûts et limites mesurés ; aucun envoi réel |
-| 4 — Conservation personnelle | Copie indépendante, point de remise, financement/rétention, export/suppression | Courses révocation/dépôt, atelier fermé et restauration démontrées |
-| 5 — Produit unifié | Mes documents, services immédiatement accessibles, atelier créé au premier usage, compte/sécurité communs | Retour au document, mobile, langues, contexte et absence de seconde inscription |
-| 6 — Qualification | Revue sécurité indépendante, récupération, clés/régions, support, continuité et qualification contractuelle | Preuves sur infrastructure et appareils réels ; économie supportable |
-| 7 — Pilote autorisé | Ateliers et destinataires informés, volumes/durées bornés | Autorisations distinctes de publication et d’envoi ; preuve de réception et d’accès |
+| Stage                  | Deliverable                                                                                    | Exit condition                                                                         |
+| ---------------------- | ---------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| 0 — Product contracts  | Two categories, term/funding, binding/recovery, personal/workspace audit, naming               | Pilot-applicable decisions and written responsibilities                                |
+| 1 — Identity prototype | Account without workspace, historical strong login, existing/wrong account, factor loss        | Actually qualified method/freshness/binding; no hidden weak fallback under that policy |
+| 2 — Isolation          | Personal/workspace principals, entitlements/grants/sessions, additive migrations               | Full rights matrix; no cross-reading through old routes                                |
+| 3 — Viewing            | Synthetic corpus, render/watermark/accessibility, invitation/approval/tracking                 | Verified journey, measured costs/limits, no real sending                               |
+| 4 — Personal retention | Independent copy, delivery point, funding/retention, export/deletion                           | Revocation/deposit races, closed workspace and restore demonstrated                    |
+| 5 — Unified product    | My documents, immediate service discovery, first-use workspace, shared account/security        | Document return, mobile/languages/context, no second registration                      |
+| 6 — Qualification      | Independent security review, recovery, keys/regions, support/continuity/contract qualification | Actual infrastructure/device evidence and sustainable economics                        |
+| 7 — Authorized pilot   | Informed workspaces/recipients, bounded volume/terms                                           | Separate release/send authority and observed reception/access                          |
 
-Le coffre complet comprend la conservation personnelle ; une livraison antérieure limitée aux partages doit être annoncée comme telle. Ne pas promettre le coffre final sur la seule base d’une liste de liens.
+The complete vault includes personal retention. An earlier share-only release
+must be labelled accordingly; a list of links does not establish the final vault.
 
-Tests structurants : compte sans atelier ni crédit ; personne déjà utilisatrice d’un atelier qui reçoit d’un autre ; relation destinataire falsifiée ; email recyclé ; mauvaise identité connectée ; passkey présente mais session faible ; récupération sans facteur ; droit documentaire retiré à un membre ; projection de liste en retard ; deux onglets/ateliers ; dépôts concurrents ; révocation avant/après dépôt ; suppression d’atelier sans suppression personnelle ; purge et restauration ; export privé ; aucun accès coffre par scope MCP existant ; aucune conversion commerciale imposée.
+Structural tests proposed: account without workspace/credit; a workspace member
+receiving from another workspace; forged recipient relationship; recycled email;
+wrong account; enrolled passkey but weak session under the historical strong
+policy; factorless recovery; member content-right revocation; stale list
+projection; two tabs/workspaces; concurrent deposits; revocation before/after
+deposit; workspace deletion preserving personal copy; purge/restore; private
+export; no vault access through current MCP scopes; no compulsory commercial
+conversion.
 
-Tests métier adaptés, puis types/lint/tests/E2E/build lors de l’implémentation. Simulation, preuve locale, Cloudflare déployé, Auth0 réel et terminaux physiques restent des niveaux de preuve distincts.
+During implementation run suitable business tests, then types/lint/tests/E2E/build.
+Simulation, local proof, deployed Cloudflare, real Auth0 and physical devices are
+separate levels of evidence.
 
-## 13. Décisions ouvertes, sans bloquer la préparation
+## 13. Historical open decisions
 
-Le compte unique, la sensibilité uniforme et les deux catégories sont retenus. Restent à fixer avant construction de leurs dépendances :
+One account and two categories were retained. The original uniform strong-policy
+recommendation was later superseded for launch by `verified_account`. The plan
+identified these dependencies for explicit decision before their implementation:
 
-1. Moyen de confirmation initiale du destinataire que les ateliers peuvent réellement opérer.
-2. Politique de récupération, équipements alternatifs et preuve de méthode Auth0 disponible.
-3. Durée financée de conservation personnelle et conditions de prolongation/sortie.
-4. Gestion des clés, modèle d’accès opérateur et qualification du terme coffre-fort sur les marchés servis.
-5. Habilitations documentaires minimales côté atelier et traitement des anciens accès.
+1. A practical initial-recipient confirmation mechanism for workspaces.
+2. Recovery policy, alternative equipment and available Auth0 method evidence.
+3. Funded personal-retention term and extension/exit conditions.
+4. Key management, operator access and qualified digital-safe terminology for
+   served markets.
+5. Minimum workspace content entitlements and legacy-access treatment.
 
-Hypothèses de travail : destinataires nominatifs adultes, pas de boîte collective ni de mandataire, pas de fusion de coffres ni d’import personnel arbitraire en V1 ; documents reçus via Guteneo, même compte pour les services. Ces extensions demandent des parcours dédiés plutôt qu’un partage de mots de passe.
+Working assumptions: named adult recipients; no shared mailbox/representative,
+vault merging or arbitrary personal import in V1. Documents arrive through
+Guteneo and the same account accesses services. These extensions require their
+own journeys rather than password sharing. Later choices and implemented
+boundaries belong in the implementation record, not silently rewritten as
+completed evidence in this historical plan.

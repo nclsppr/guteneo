@@ -33,8 +33,8 @@ vi.mock("../../apps/web/src/components", async (importOriginal) => {
   };
 });
 const session: Session = {
-  organization: { id: "org_fixture", name: "Atelier fictif" },
-  user: { id: "user_fixture", name: "Compte fictif", role: "admin" },
+  organization: { id: "org_fixture", name: "Fictional workspace" },
+  user: { id: "user_fixture", name: "Fictional account", role: "admin" },
   csrfToken: "synthetic-only",
   simulation: true,
 };
@@ -67,7 +67,7 @@ function publication(allowVaultDeposit = true): SecureDistributionView {
       sha256: document.sha256,
     },
     recipient: { address: "recipient@example.invalid" },
-    invitation: { subject: "Document fictif", message: "Message fictif" },
+    invitation: { subject: "Fictional document", message: "Fictional message" },
     policy,
     quote: secureDistributionQuote(policy, 1),
     expiresAt: "2026-11-24T12:00:00.000Z",
@@ -81,7 +81,7 @@ function publication(allowVaultDeposit = true): SecureDistributionView {
   };
 }
 const explanation =
-  "La copie personnelle sera exportable, même si le téléchargement du PDF original est désactivé.";
+  "The personal copy can be exported, even when downloading the original PDF is disabled.";
 function render(route: string, actor = session) {
   return renderToStaticMarkup(
     createElement(SecureDistributionPage, { route, session: actor }),
@@ -107,8 +107,8 @@ describe("secure distribution browser choices", () => {
     expect(html).toContain(
       "/auth/login?fresh=1&amp;returnTo=%2F%23%2Fapp%2Fsecure-distributions",
     );
-    expect(html).toContain(msg("Vérifier mon accès"));
-    expect(html).not.toContain(msg("Connexion renforcée nécessaire"));
+    expect(html).toContain(msg("Verify my access"));
+    expect(html).not.toContain(msg("Stronger sign-in required"));
   });
   for (const locale of ["fr", "en", "de", "lb"] as const) {
     it(`uses the verified-account recovery wording in ${locale} without requiring stronger sign-in`, () => {
@@ -117,17 +117,13 @@ describe("secure distribution browser choices", () => {
       const html = renderToStaticMarkup(
         createElement(PersonalSecurityNotice, { mode: "verified_account" }),
       );
-      expect(html).toContain(msg("Vérifiez votre connexion"));
+      expect(html).toContain(msg("Verify your sign-in"));
       expect(html).toContain(
-        msg(
-          "Reconnectez-vous à votre compte vérifié pour accéder à vos documents.",
-        ),
+        msg("Sign in again to your verified account to access your documents."),
       );
-      expect(html).not.toContain(msg("Connexion renforcée nécessaire"));
-      if (locale !== "fr")
-        expect(msg("Vérifiez votre connexion")).not.toBe(
-          "Vérifiez votre connexion",
-        );
+      expect(html).not.toContain(msg("Stronger sign-in required"));
+      if (locale !== "en")
+        expect(msg("Verify your sign-in")).not.toBe("Verify your sign-in");
     });
   }
   it("offers explicit pagination when the first document page has no verified PDF", () => {
@@ -163,15 +159,16 @@ describe("secure distribution browser choices", () => {
       resources.set(`/secure-distributions/${view.id}`, view);
       const html = render(`/app/secure-distribution/${view.id}`);
       expect(html).toContain(msg(explanation));
-      expect(html).toContain(msg("Téléchargement désactivé"));
-      if (locale !== "fr") expect(msg(explanation)).not.toBe(explanation);
+      expect(html).toContain(msg("Download disabled"));
+      expect(html).toContain(msg("{0} days", view.policy.retentionDays));
+      if (locale !== "en") expect(msg(explanation)).not.toBe(explanation);
     });
   }
   it("does not promise an exportable personal copy when the workshop disallows it", () => {
     const view = publication(false);
     resources.set(`/secure-distributions/${view.id}`, view);
     expect(render(`/app/secure-distribution/${view.id}`)).not.toContain(
-      explanation,
+      msg(explanation),
     );
   });
   it("keeps approval and activation controls unavailable to an observer", () => {
@@ -181,8 +178,8 @@ describe("secure distribution browser choices", () => {
       ...session,
       user: { ...session.user, role: "observer" },
     });
-    expect(html).not.toContain(msg("Approuver ce partage"));
-    expect(html).not.toContain(msg("Confirmer l’activation"));
+    expect(html).not.toContain(msg("Approve this share"));
+    expect(html).not.toContain(msg("Confirm activation"));
     expect(html).not.toContain('type="checkbox"');
   });
 });

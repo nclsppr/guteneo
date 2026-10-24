@@ -38,39 +38,39 @@ import {
 
 const messages: Record<string, string> = {
   POSTAL_ADDRESS_PAGE_PROCESSING:
-    "La page d’adresse est en cours de préparation. Réessayez dans quelques instants avec la même demande.",
+    "The address page is being prepared. Retry the same request in a few moments.",
   POSTAL_ADDRESS_PAGE_RETRY_EXHAUSTED:
-    "La préparation n’a pas pu aboutir. Relancez une nouvelle demande depuis le PDF d’origine.",
+    "Preparation failed. Start a new request from the original PDF.",
   POSTAL_ADDRESS_PAGE_EXPIRED:
-    "Cette préparation a expiré. Relancez une nouvelle demande depuis le PDF d’origine.",
+    "This preparation has expired. Start a new request from the original PDF.",
   POSTAL_ADDRESS_PAGE_RECURSIVE:
-    "Ce PDF contient déjà une page d’adresse créée par Guteneo. Choisissez le PDF d’origine pour en créer une nouvelle.",
+    "This PDF already contains an address page created by Guteneo. Select the original PDF to create another one.",
   POSTAL_ADDRESS_PAGE_PROFILE_CHANGED:
-    "Le profil postal a changé. Relancez une nouvelle préparation depuis le PDF d’origine.",
+    "The postal profile has changed. Start a new preparation from the original PDF.",
   POSTAL_ADDRESS_PAGE_SOURCE_UNSUPPORTED:
-    "Le PDF d’origine ne convient pas à l’impression postale. Utilisez un PDF A4 sans protection ni contenu interactif.",
+    "The original PDF is unsuitable for postal printing. Use an A4 PDF without protection or interactive content.",
   POSTAL_ADDRESS_PAGE_PAGE_LIMIT:
-    "Le document final dépasserait 100 pages. Réduisez le PDF d’origine ; la page d’adresse ajoute une page, ou deux en recto verso.",
+    "The final document would exceed 100 pages. Reduce the original PDF; the address page adds one page, or two for duplex printing.",
   POSTAL_ADDRESS_PAGE_PDF_SIZE:
-    "Le document final dépasserait la taille autorisée de 8 Mo. Réduisez le PDF d’origine.",
+    "The final document would exceed the 8 MB limit. Reduce the original PDF.",
   POSTAL_ADDRESS_PAGE_GLYPH_UNSUPPORTED:
-    "L’adresse contient un caractère qui ne peut pas être imprimé. Corrigez ce caractère avant de réessayer.",
+    "The address contains a character that cannot be printed. Correct it before trying again.",
   POSTAL_ADDRESS_PAGE_ADDRESS_TOO_LONG:
-    "L’adresse est trop longue pour la fenêtre de l’enveloppe. Vérifiez la saisie sans retirer d’information nécessaire. Si elle ne tient pas, utilisez un PDF postal adapté.",
+    "The address is too long for the envelope window. Check the input without removing necessary information. If it does not fit, use a suitable postal PDF.",
   POSTAL_ADDRESS_PAGE_ADDRESS_INVALID:
-    "L’adresse n’est pas compatible avec les règles postales de cette destination. Vérifiez le nom, la rue, le code postal et la ville.",
+    "The address does not meet this destination's postal rules. Check the name, street, postal code and city.",
   POSTAL_ADDRESS_PAGE_RENDER_TIMEOUT:
-    "La création du PDF a pris trop de temps. Réessayez la même demande dans quelques instants.",
+    "PDF creation took too long. Retry the same request in a few moments.",
   POSTAL_ADDRESS_PAGE_RENDER_FAILED:
-    "La création du PDF est momentanément indisponible. Réessayez la même demande dans quelques instants.",
+    "PDF creation is temporarily unavailable. Retry the same request in a few moments.",
   POSTAL_ADDRESS_PAGE_PROOF_INVALID:
-    "Le PDF final n’a pas passé les contrôles d’intégrité. Aucun envoi n’a été préparé.",
+    "The final PDF failed integrity checks. No dispatch was prepared.",
 };
 function fail(code: string, status = 409): never {
   throw new ContentError(
     code,
     messages[code] ??
-      "Cette préparation de page d’adresse ne peut pas être utilisée.",
+      "This address-page preparation cannot be used.",
     status,
   );
 }
@@ -156,7 +156,7 @@ export class PostalAddressPageService {
     )
       throw new ContentError(
         "INVALID_IDEMPOTENCY_KEY",
-        "Une clé de reprise valide est requise.",
+        "A valid recovery key is required.",
         400,
       );
     const org = authority.context.organizationId,
@@ -166,7 +166,7 @@ export class PostalAddressPageService {
     if (row && row.input_hash !== inputHash)
       throw new ContentError(
         "IDEMPOTENCY_CONFLICT",
-        "Cette clé de reprise correspond à une autre préparation.",
+        "This recovery key belongs to another preparation.",
         409,
       );
     if (row?.generated_document_id) return this.result(authority, row);
@@ -249,7 +249,7 @@ export class PostalAddressPageService {
         )
           throw new ContentError(
             "CONTENT_QUOTA_EXCEEDED",
-            "La limite quotidienne de création de PDF est atteinte.",
+            "The daily PDF creation limit has been reached.",
             429,
           );
         throw error;
@@ -262,7 +262,7 @@ export class PostalAddressPageService {
       if (row.input_hash !== inputHash)
         throw new ContentError(
           "IDEMPOTENCY_CONFLICT",
-          "Cette clé de reprise correspond à une autre préparation.",
+          "This recovery key belongs to another preparation.",
           409,
         );
     }

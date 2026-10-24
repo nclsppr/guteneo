@@ -18,8 +18,8 @@ export function documentAnalysis(
     return {
       state: "ready",
       code: "verified",
-      title: "PDF prêt",
-      message: "Votre PDF a été vérifié. Vous pouvez préparer votre envoi.",
+      title: "PDF ready",
+      message: "Your PDF has been verified. You can prepare your delivery.",
       nextAction: "continue",
       retryAfterSeconds: null,
     };
@@ -27,8 +27,8 @@ export function documentAnalysis(
     return {
       state: "blocked",
       code: status,
-      title: "PDF indisponible",
-      message: "Ce document ne peut pas être utilisé. Choisissez un autre PDF.",
+      title: "PDF unavailable",
+      message: "This document cannot be used. Choose another PDF.",
       nextAction: "replace_document",
       retryAfterSeconds: null,
     };
@@ -36,9 +36,9 @@ export function documentAnalysis(
     return {
       state,
       code,
-      title: "Vérification du PDF en cours",
+      title: "PDF verification in progress",
       message:
-        "Votre PDF est bien enregistré. Guteneo poursuit sa vérification automatiquement ; cela peut prendre quelques minutes. Vous n’avez pas besoin de le déposer à nouveau.",
+        "Your PDF has been saved. Guteneo is continuing its verification automatically; this may take a few minutes. You do not need to upload it again.",
       nextAction: "wait",
       retryAfterSeconds: 15,
     };
@@ -46,9 +46,9 @@ export function documentAnalysis(
     return {
       state: "blocked",
       code,
-      title: "PDF bloqué par le contrôle de sécurité",
+      title: "PDF blocked by the security check",
       message:
-        "Le contrôle de sécurité a refusé ce PDF. Vérifiez le fichier d’origine ou choisissez un autre PDF pour continuer.",
+        "The security check rejected this PDF. Check the original file or choose another PDF to continue.",
       nextAction: "replace_document",
       retryAfterSeconds: null,
     };
@@ -56,9 +56,9 @@ export function documentAnalysis(
     return {
       state: "blocked",
       code,
-      title: "Ce PDF ne peut pas être utilisé",
+      title: "This PDF cannot be used",
       message:
-        "Le PDF n’a pas passé le contrôle de format. Vérifiez qu’il s’ouvre correctement et qu’il n’est pas protégé par un mot de passe, puis déposez une version compatible.",
+        "The PDF did not pass the format check. Check that it opens correctly and is not password-protected, then upload a compatible version.",
       nextAction: "replace_document",
       retryAfterSeconds: null,
     };
@@ -66,9 +66,9 @@ export function documentAnalysis(
     return {
       state: "blocked",
       code,
-      title: "Service de vérification indisponible",
+      title: "Verification service unavailable",
       message:
-        "Votre PDF est conservé. Une intervention de Guteneo est nécessaire pour rétablir sa vérification. Contactez l’assistance pour reprendre votre envoi.",
+        "Your PDF is preserved. Guteneo needs to intervene to restore verification. Contact support to resume your delivery.",
       nextAction: "contact_support",
       retryAfterSeconds: null,
     };
@@ -76,9 +76,9 @@ export function documentAnalysis(
     return {
       state: "blocked",
       code,
-      title: "Vérification suspendue après un changement d’accès",
+      title: "Verification paused after an access change",
       message:
-        "Les droits du compte qui a lancé la vérification ont changé. Demandez à un administrateur de votre organisation de reprendre l’analyse depuis son compte.",
+        "The permissions of the account that started verification have changed. Ask an administrator in your organisation to resume analysis from their account.",
       nextAction: "contact_support",
       retryAfterSeconds: null,
     };
@@ -86,9 +86,9 @@ export function documentAnalysis(
     return {
       state,
       code,
-      title: "Vérification du PDF interrompue",
+      title: "PDF verification interrupted",
       message:
-        "Guteneo ne peut pas terminer la vérification de ce document. Contactez l’assistance depuis votre espace Guteneo pour reprendre votre envoi.",
+        "Guteneo cannot finish verifying this document. Contact support from your Guteneo workspace to resume your delivery.",
       nextAction: "contact_support",
       retryAfterSeconds: null,
     };
@@ -97,12 +97,12 @@ export function documentAnalysis(
     code,
     title:
       code === "not_started"
-        ? "PDF à vérifier"
-        : "La vérification prend plus de temps que prévu",
+        ? "PDF needs checking"
+        : "Verification is taking longer than expected",
     message:
       code === "not_started"
-        ? "Votre PDF est bien enregistré. Lancez sa vérification pour pouvoir préparer votre envoi ; aucun nouveau dépôt n’est nécessaire."
-        : "Guteneo n’a pas pu terminer la vérification. Votre PDF est conservé : relancez l’analyse ici, sans le déposer à nouveau. Si le problème persiste, contactez l’assistance.",
+        ? "Your PDF has been saved. Start verification to prepare your delivery; no new upload is needed."
+        : "Guteneo could not finish verification. Your PDF is preserved: restart the analysis here without uploading it again. If the problem persists, contact support.",
     nextAction: "rescan",
     retryAfterSeconds: null,
   };

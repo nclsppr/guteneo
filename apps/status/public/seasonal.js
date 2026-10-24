@@ -139,8 +139,9 @@
     document.body.classList.toggle("effects-paused", document.hidden);
     button.setAttribute("aria-pressed", String(active));
     button.textContent = preference.matches
-      ? "Animations : mouvement réduit"
-      : "Animations : " + (active ? "activées" : "désactivées");
+      ? statusText("Animations: reduced motion")
+      : statusText("Animations: ") +
+        (active ? statusText("enabled") : statusText("disabled"));
     button.disabled = preference.matches;
     canvas.dataset.season = season;
     canvas.dataset.running = String(

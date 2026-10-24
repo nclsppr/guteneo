@@ -77,7 +77,7 @@ function renderPublicContent(pathname: string) {
       canonical: origin + pathname,
       structuredData: [
         breadcrumbs([
-          { name: "Accueil", path: "/" },
+          { name: "Home", path: "/" },
           { name: information.label, path: pathname },
         ]),
       ],
@@ -87,18 +87,18 @@ function renderPublicContent(pathname: string) {
     const assistant = getAssistant(id);
     if (id && !assistant) return null;
     const title = assistant
-      ? `Connecter ${assistant.name} à Guteneo`
-      : "Vos assistants, votre correspondance";
+      ? `Connect ${assistant.name} to Guteneo`
+      : "Your assistants, your correspondence";
     return {
       html: renderToString(<AssistantsPage assistantId={id || undefined} />),
       title: `${title} | Guteneo`,
       description: assistant
-        ? `Suivez le guide pour ajouter Guteneo à ${assistant.name} : prérequis, configuration, autorisation et première demande de vérification.`
-        : "Choisissez votre assistant et découvrez comment le connecter à Guteneo. Guides ChatGPT, Claude, Grok, GitHub Copilot, Microsoft 365 Copilot et Cursor.",
+        ? `Follow the guide to add Guteneo to ${assistant.name}: prerequisites, setup, authorization and your first verification request.`
+        : "Choose your assistant and learn how to connect it to Guteneo. Guides for ChatGPT, Claude, Grok, GitHub Copilot, Microsoft 365 Copilot and Cursor.",
       canonical: origin + pathname,
       structuredData: [
         breadcrumbs([
-          { name: "Accueil", path: "/" },
+          { name: "Home", path: "/" },
           { name: "Assistants", path: "/assistants/" },
           ...(assistant ? [{ name: assistant.name, path: pathname }] : []),
         ]),
@@ -108,9 +108,9 @@ function renderPublicContent(pathname: string) {
   if (pathname === "/")
     return {
       html: renderToString(<Landing />),
-      title: "Guteneo · La suite de vos mots.",
+      title: "Guteneo · Where your words go next.",
       description:
-        "De la conversation à la correspondance. Préparez, approuvez et suivez vos documents par fax, e-mail ou courrier avec Guteneo.",
+        "From conversation to correspondence. Prepare, approve and track your documents by fax, email or post with Guteneo.",
       canonical: origin + "/",
       structuredData: [
         { "@context": "https://schema.org", ...publisher },
@@ -126,63 +126,63 @@ function renderPublicContent(pathname: string) {
         },
       ],
     };
-  if (pathname === "/developpeurs/")
+  if (pathname === "/developers/")
     return {
       html: renderToString(<DeveloperPage />),
-      title: "Développeurs · API, OAuth et référence OpenAPI | Guteneo",
+      title: "Developers · API, OAuth and OpenAPI reference | Guteneo",
       description:
-        "Intégrez vos PDF à Guteneo : guide REST et MCP, permissions OAuth, approbation humaine, limites et référence OpenAPI en lecture seule. Bêta en préparation.",
+        "Integrate PDFs with Guteneo: REST and MCP guide, OAuth permissions, human approval, limits and read-only OpenAPI reference. Beta in preparation.",
       canonical: origin + pathname,
       structuredData: [
         {
           "@context": "https://schema.org",
           "@type": "WebPage",
-          name: "Documentation développeurs Guteneo",
+          name: "Guteneo developer documentation",
           url: origin + pathname,
           inLanguage: "fr",
           publisher,
         },
         breadcrumbs([
-          { name: "Accueil", path: "/" },
-          { name: "Développeurs", path: pathname },
+          { name: "Home", path: "/" },
+          { name: "Developers", path: pathname },
         ]),
       ],
     };
   if (pathname === "/journal/")
     return {
       html: renderToString(<JournalPage />),
-      title: "Le journal · Histoire de l’imprimerie et des échanges | Guteneo",
+      title: "The journal · Printing and correspondence history | Guteneo",
       description:
-        "De Gutenberg au fax et à l’e-mail, jusqu’aux ateliers luxembourgeois : deux récits documentés et illustrés sur l’histoire de l’imprimerie.",
+        "From Gutenberg to fax and email, including Luxembourg workshops: two sourced and illustrated stories about printing history.",
       canonical: origin + pathname,
       image: "/editorial/gutenberg-to-digital.webp",
       imageWidth: 1536,
       imageHeight: 1024,
       imageType: "image/webp",
       imageAlt: getArticles().find(
-        (article) => article.slug === "de-gutenberg-au-numerique",
+        (article) => article.slug === "from-gutenberg-to-digital",
       )!.hero.alt,
       structuredData: [
         {
           "@context": "https://schema.org",
           "@type": "CollectionPage",
-          name: "Le journal de Guteneo",
+          name: "The Guteneo journal",
           url: origin + pathname,
           inLanguage: "fr",
           publisher,
         },
         breadcrumbs([
-          { name: "Accueil", path: "/" },
-          { name: "Le journal", path: pathname },
+          { name: "Home", path: "/" },
+          { name: "The journal", path: pathname },
         ]),
       ],
     };
-  if (pathname === "/mentions-legales/")
+  if (pathname === "/legal/")
     return {
       html: renderToString(<LegalPage />),
-      title: "Mentions légales | Guteneo",
+      title: "Legal notice | Guteneo",
       description:
-        "Informations sur Nicolas Pieper, éditeur de Guteneo, l’hébergement Cloudflare, les contenus et les données personnelles du site.",
+        "Information about Nicolas Pieper, Guteneo publisher, Cloudflare hosting, website content and personal data.",
       canonical: origin + pathname,
     };
   const article = getArticles().find(
@@ -217,8 +217,8 @@ function renderPublicContent(pathname: string) {
         citation: article.sources.map((source) => source.url),
       },
       breadcrumbs([
-        { name: "Accueil", path: "/" },
-        { name: "Le journal", path: "/journal/" },
+        { name: "Home", path: "/" },
+        { name: "The journal", path: "/journal/" },
         { name: article.title, path: pathname },
       ]),
     ],

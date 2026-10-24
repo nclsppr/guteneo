@@ -64,7 +64,21 @@ test("Claude source is a version-aligned remote-only candidate", async () => {
   ])
     assert(secure.includes(tool));
   assert(secure.includes("../../references/claude-host.md"));
-  assert(secure.includes("ne sera pas remboursée"));
+  assert(secure.includes("non-refundable"));
+});
+
+test("Claude workflow copies cannot drift from common instructions and their host overlay", async () => {
+  await withCopy(async (marketplaceRoot) => {
+    const path = join(marketplaceRoot, "plugins/guteneo/skills/email/SKILL.md");
+    await writeFile(
+      path,
+      (await readFile(path, "utf8")) + "\nStale copied instruction.\n",
+    );
+    await assert.rejects(
+      validateClaudePackage({ marketplaceRoot, repositoryRoot }),
+      /stale/,
+    );
+  });
 });
 
 test("Claude packaging rejects credential, executable and identity substitutions", async () => {

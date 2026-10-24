@@ -217,12 +217,12 @@ describe("secure distribution through the shared MCP transport", () => {
       expect(
         tools.find((tool) => tool.name === "confirm_secure_distribution")!
           .description,
-      ).toContain("mandat expert");
+      ).toContain("expert mandate");
       expect(
         (await client.listPrompts()).prompts.map((prompt) => prompt.name),
       ).toContain("secure_distribution");
       const prompt = await client.getPrompt({ name: "secure_distribution" });
-      expect(JSON.stringify(prompt)).toContain("non remboursable");
+      expect(JSON.stringify(prompt)).toContain("non-refundable");
     });
   });
   it("omits optional distribution tools when their service is not wired", async () => {
@@ -296,7 +296,7 @@ describe("secure distribution through the shared MCP transport", () => {
         expect(result.structuredContent).toMatchObject({
           data: { id: view.id, status: "preparing" },
         });
-        expect(JSON.stringify(result)).toContain("ne pas recréer");
+        expect(JSON.stringify(result)).toContain("do not recreate");
         expect(service.confirm).not.toHaveBeenCalled();
       },
       { status: "preparing" },

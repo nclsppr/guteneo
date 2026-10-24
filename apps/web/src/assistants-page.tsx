@@ -1,14 +1,7 @@
-import { LanguageMenu } from "./language-select";
 import { msg } from "./messages";
-import {
-  ArrowLeft,
-  ArrowRight,
-  ArrowUpRight,
-  DownloadSimple,
-} from "@phosphor-icons/react";
-import { Brand } from "./brand";
+import { ArrowLeft, ArrowRight, DownloadSimple } from "@phosphor-icons/react";
+import { PublicHeader } from "./public-chrome";
 import { workspaceEntryHref } from "./auth-navigation";
-import { t } from "./locale";
 import { AssistantGuide, AssistantPicker } from "./assistant-guides";
 import { getAssistant } from "./assistant-catalog";
 import { LuxembourgFooter } from "./landing-sections";
@@ -19,44 +12,28 @@ export function AssistantsPage({ assistantId }: { assistantId?: string }) {
   return (
     <div className="landing assistants-public">
       <a className="skip-link" href="#assistants-main">
-        {msg("Aller au contenu")}
+        {msg("Skip to content")}
       </a>
-      <header className="site-header assistants-header">
-        <Brand />
-        <LanguageMenu />
-        <nav aria-label={msg("Navigation principale")}>
-          <a
-            href="/assistants/"
-            aria-current={!assistantId ? "page" : undefined}
-          >
-            {msg("Assistants")}
-          </a>
-          <a href="/#tarifs">{msg("Tarifs")}</a>
-          <a className="button small" href={workspaceEntryHref()}>
-            {t.login.managed}
-            <ArrowUpRight size={16} aria-hidden="true" />
-          </a>
-        </nav>
-      </header>
+      <PublicHeader activePage="assistants" />
       <main id="assistants-main" tabIndex={-1}>
         {assistant ? (
           <>
             <a className="back-link" href="/assistants/">
               <ArrowLeft size={18} aria-hidden="true" />
-              {msg("Tous les assistants")}
+              {msg("All assistants")}
             </a>
             <AssistantGuide assistantId={assistant.id} />
           </>
         ) : assistantId ? (
           <section className="assistants-intro">
-            <h1>{msg("Ce guide n’existe pas.")}</h1>
+            <h1>{msg("This guide does not exist.")}</h1>
             <p>
               {msg(
-                "Retrouvez les instructions pour votre assistant dans le catalogue.",
+                "Find instructions for your assistant in the catalogue.",
               )}
             </p>
             <a className="button primary" href="/assistants/">
-              {msg("Choisir mon assistant ")}
+              {msg("Choose my assistant ")}
               <ArrowRight size={18} aria-hidden="true" />
             </a>
           </section>
@@ -64,18 +41,18 @@ export function AssistantsPage({ assistantId }: { assistantId?: string }) {
           <>
             <section className="assistants-intro">
               <h1>
-                {msg("Votre assistant.")}
+                {msg("Your assistant.")}
                 <br />
-                <em>{msg("Votre correspondance.")}</em>
+                <em>{msg("Your correspondence.")}</em>
               </h1>
               <p>
                 {msg(
-                  "Connectez votre assistant à Guteneo par MCP. Choisissez votre outil et suivez les étapes pour ajouter le serveur et connecter votre compte.",
+                  "Connect your assistant to Guteneo via MCP. Choose your tool and follow the steps to add the server and connect your account.",
                 )}
               </p>
               <p className="assistants-intro-note">
                 {msg(
-                  "L’installation par MCP ne nécessite pas de plugin publié. Les guides sont accessibles sans compte.",
+                  "Installation via MCP does not require a published plugin. The guides are available without an account.",
                 )}
               </p>
             </section>
@@ -85,10 +62,10 @@ export function AssistantsPage({ assistantId }: { assistantId?: string }) {
               aria-labelledby="plugin-package-title"
             >
               <div>
-                <h2 id="plugin-package-title">{msg("Le plugin Guteneo")}</h2>
+                <h2 id="plugin-package-title">{msg("The Guteneo plugin")}</h2>
                 <p>
                   {msg(
-                    "Le paquet contient les skills et la connexion MCP. Choisissez le guide de votre application pour l’installation et la vérification de votre compte.",
+                    "The package includes skills and the MCP connection. Choose your application’s guide to install it and verify your account connection.",
                   )}
                 </p>
               </div>
@@ -97,7 +74,7 @@ export function AssistantsPage({ assistantId }: { assistantId?: string }) {
                 href="/integrations/guteneo-plugin.zip"
                 download
               >
-                {msg("Télécharger le plugin (ZIP)")}
+                {msg("Download the plugin (ZIP)")}
                 <DownloadSimple size={18} aria-hidden="true" />
               </a>
             </section>
@@ -107,11 +84,11 @@ export function AssistantsPage({ assistantId }: { assistantId?: string }) {
             >
               <div>
                 <h2 id="direct-route-title">
-                  {msg("Vous avez déjà votre document ?")}
+                  {msg("Already have your document?")}
                 </h2>
                 <p>
                   {msg(
-                    "Ajoutez-le directement dans Guteneo, choisissez son destinataire et vérifiez le récapitulatif avant de confirmer. Aucun assistant n’est nécessaire.",
+                    "Add it directly in Guteneo, choose its recipient and check the summary before confirming. No assistant is required.",
                   )}
                 </p>
               </div>
@@ -119,7 +96,7 @@ export function AssistantsPage({ assistantId }: { assistantId?: string }) {
                 className="button"
                 href={workspaceEntryHref("/app/prepare?entry=direct")}
               >
-                {msg("Envoyer depuis Guteneo")}{" "}
+                {msg("Send from Guteneo")}{" "}
                 <ArrowRight size={18} aria-hidden="true" />
               </a>
             </section>

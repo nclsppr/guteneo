@@ -1,160 +1,139 @@
-# Recette de soumission ChatGPT
+# ChatGPT submission qualification
 
-## Notification du 20 octobre 2026 — refus et preuves à renouveler
+This file defines executable cases and authority boundaries. The
+[marketplace evidence record](../../docs/CHATGPT_MARKETPLACE.md) owns dated portal,
+scan, archive and client observations; the
+[resumption list](../../docs/OPENAI_RESUBMISSION_TODO.md) owns outstanding actions.
+Do not duplicate their changing chronology here or treat this procedure as proof.
+Raw worksheet snapshots and localized portal copy in listing.json remain evidence,
+not current operating instructions.
 
-Le titulaire a fourni le courriel de refus de la version 0.3.2 pour des
-annotations d’outils. Aucun nom d’outil ou scan exact n’y figure. L’état
-« In review » du 13 octobre ci-dessous est désormais historique ; le portail
-n’a pas été vérifié indépendamment pendant cette remédiation.
+On **20 October 2026**, the publisher supplied the 0.3.2 tool-annotation rejection.
+It named neither affected tools nor the reviewed scan; the portal was not
+independently reverified during remediation. The 13 October In review status is
+historical. The [remediation](../../docs/MCP_ANNOTATION_REMEDIATION.md) and
+[67-tool matrix](tool-annotations.json) concern the local candidate. Local tests
+qualify no reviewer case. After an authorized publication, reconcile the actual
+new scan and rerun on the exact restricted account without real sending.
 
-Le [dossier de remédiation](../../docs/MCP_ANNOTATION_REMEDIATION.md) et la
-[matrice des 67 outils](tool-annotations.json) préparent la correction.
-Les tests locaux d’annotations et de leurs effets ne qualifient aucun cas
-reviewer ci-dessous. Après publication autorisée du correctif, rapprocher
-le nouveau scan du catalogue réel et reprendre les cas sur le bon compte,
-sans expédition réelle.
+The **13 October 13:56:30 CEST** scan showed 67 tools and “No findings in the latest
+MCP scan.” Separate Codex/reviewer-development reads exposed only 24 tools;
+get_capabilities/list_documents/expert_status success proved neither full ChatGPT
+selection nor current exact synthetic-import qualification. Historical 2 October
+P1/P2/P3 success was bounded Codex MCP proof on
+`a808307c5687588eb8c0aab45c9e559aa70a03dc`, built
+`2026-10-02T12:43:39.396Z`, with first capability success at
+`2026-10-02T16:02:05.789Z`. The fixture was deduplicated, not freshly scanned.
+R1/R2/R3 remained unqualified; R2 invoked a separately connected Gmail tool and
+was stopped, so it was not an isolated Guteneo non-invocation test. No retrieved
+private content is recorded. See the evidence record for exact archive hashes,
+CI heads, skill scans and portal-policy blockers; these historical records do
+not establish this candidate's readiness.
 
-## Observation du 13 octobre 2026 — accès rétabli, recette non qualifiée
+The historical source baseline is preserved in
+[listing.json](listing.json) at `currentPublicObservation.mainSourceCommit` and
+`candidateCi.baseCommit`: `54639e7f6331433a5b24b0449c50c1f4ce5bb57d`
+(Dashboard V2, PR #61). The observed production source stayed `f1a2681…` on
+13 October; these are separate snapshots. Candidate qualification must use its
+own exact source head and account conditions.
 
-**0.3.2 reste In review, Not published et Not live.** Le scan du portail à
-**13:56:30 CEST** affiche 67 outils et « No findings in the latest MCP scan. »
-Il ne prouve ni les cas ci-dessous ni la durée d’accès du compte reviewer.
-Le paquet public 0.3.2 est préservé ; 0.3.4 est un candidat local.
+## Account and synthetic data
 
-La production relue reste `f1a2681…`, build propre du 10 octobre. La dernière
-base main est `54639e7f6331433a5b24b0449c50c1f4ce5bb57d` (#61 Dashboard V2) :
-contrat MCP et intégrations inchangés depuis l’audit initial `1e5ab18…`, mais
-auth/profil/mobile ont évolué. La recette et la CI du candidat doivent être
-rapprochées de son futur head exact ; l’ancienne CI ne qualifie pas cette base.
-Une release depuis cette base nécessite les contrôles habituels de la migration
-0053, sans activation ni migration dans cette recette.
+Use an existing dedicated verified reviewer account with a fresh-browser login
+that needs no inaccessible email/SMS/MFA code. Keep credentials, account identity,
+signed URLs and resource IDs out of the repository, public listing and captures.
+OIDC metadata alone does not qualify its email_verified claim.
 
-Après reconnexion, `get_capabilities`, `list_documents` et `expert_status` ont
-réussi en production avec `simulation:false`, sans activation expert. La surface
-est **Codex / plugin reviewer de développement, 24 outils**, distinct du catalogue
-principal scanné de 67 outils. Ne pas convertir ces lectures en recette ChatGPT
-complète ou en réussite de sélection automatique du plugin.
+Before handing over credentials or qualifying access, privately record and
+verify the exact issuer/subject in restricted_delivery_identities under migration
+0039's prepare_only policy. Display name, email, Auth0 metadata and OAuth client
+are insufficient. Reconcile auth_identities after first sign-in. The reviewer
+preparation script configures Auth0 but does not read/write D1, so its output
+does not qualify credential handover. The reviewer cannot send on any channel,
+even with browser approval or a valid expert mandate; neither administrator nor
+assistant may remove that restriction.
 
-| Contrôle          | Observation fraîche                                                                           | État de qualification                                                                             |
-| ----------------- | --------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| P1 / capacités    | Appel réel réussi ; mode production, sans simulation.                                         | Accès borné observé ; identité D1 attendue non rapprochée ce tour.                                |
-| P2 / documents    | Six documents observés ; aucun avec le SHA-256 synthétique attendu.                           | Lecture observée, données de recette et périmètre compte non requalifiés.                         |
-| P3 / import exact | Aucun import et suivi de la fixture attendue attestés dans cette passe.                       | **Non qualifié actuellement** ; réussite du 2 octobre historique.                                 |
-| Expert            | `expert_status` réussi, sans activation ni extension de mandat.                               | N’accorde aucune autorité supplémentaire.                                                         |
-| P5/P6/R1/R2/R3    | Aucun résultat actuel qualifié.                                                               | Références non envoyables valides et hôte contrôlé requis.                                        |
-| Durée OAuth       | Refresh grant et offline access désactivés ; Action déployée exige le protocole initial PKCE. | Migrateur local testé ; inspection CLI bloquée, aucune empreinte live/apply ni preuve de refresh. |
+Use the [two-page synthetic original](fixtures/README.md), **4 290 bytes**, SHA-256
+`d25de4f63db4cab316d4718638c9747cc11628035dc4045610fed89c5079adbc`.
+Check actual public bytes at https://guteneo.com/review/reviewer-original.pdf;
+the original preparation GET was 404, so availability must be proven separately.
+Have a second synthetic organization for isolation. Check current balance,
+scanner, role and channels without activation. Expert mode starts disabled.
+The owned, explicitly authorized real fax number must be privately provided;
+never invent a recipient, credit, mandate or consent. The planned ceiling is
+EUR2.00, preparation only. Reviewer route/pricing evidence expired on 24 September;
+a 30-day authority does not extend observations or the historical Telnyx CSV
+association's 168-hour freshness. Requalify before P5 using
+[REVIEW_FAX_OPERATOR.md](../../docs/REVIEW_FAX_OPERATOR.md).
 
-Avant remise de credentials ou nouvelle qualification : rapprocher en privé
-issuer/subject, compte, tenant, client et restriction D1 `prepare_only`, rétablir
-la fixture synthétique exacte, puis reprendre la sélection P1/P2/P3/P5/P6 et
-R1/R2/R3. Garder expéditions, canaux et mandats fermés pendant ces tests.
-[Parcours d’activation et limites des preuves](../../docs/MCP_PLATFORM_READINESS.md).
+## Five positive portal cases
 
-L’inspection CLI a tenté le GET du client reviewer : credential expiré / « please
-login ». La liste des tenants en cache confirme seulement la sélection attendue ;
-la connexion Dashboard navigateur ne renouvelle pas cette session CLI. Aucun
-plan live complet ni empreinte de revue n’a été obtenu.
+The September form required exactly P1/P2/P3/P5/P6 plus R1/R2/R3 below. All rows
+are **to execute under current source/account conditions**; historical runs do
+not mark them passed now. Run import, quote and tracking in the same conversation.
 
-Les résultats et tableaux de la reprise du 2 octobre ci-dessous restent
-historiques et ne remplacent pas cet état courant.
+| ID  | Prompt                                                                                                                                                        | Expected evidence                                                                                                                                                   |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| P1  | “Which features are available on my Guteneo account?”                                                                                                         | get_capabilities; current mode and blockers, no inferred role authority, activation, mandate or payment.                                                            |
+| P2  | “List at most five of my Guteneo documents.”                                                                                                                  | list_documents limit:5, authenticated-organization data only, coherent pagination.                                                                                  |
+| P3  | Attach the synthetic original: “Import this PDF and tell me when verification finishes. Prepare no dispatch.”                                                 | import_document then delayed get_document as needed; privately match size/hash; announce ready only after confirmation, no reconstruction or sending.               |
+| P5  | Supply the authorized controlled number and ceiling: “Prepare a fax quote for this PDF to this number under this ceiling. Show the quote and do not send it.” | prepare_fax with ready PDF, explicit E.164/ceiling; show range excluding tax, separate ceiling, expiry and route caveat. Estimate is neither fixed price nor debit. |
+| P6  | “What is the status of the test fax we just prepared?”                                                                                                        | get_dispatch_status; prepared and explicit zero attempts when proven, no approval/confirmation. Missing attempt data is not zero.                                   |
 
-## Historique vérifié du 2 octobre 2026 — brouillon 0.3.1
+## Three negative non-invocation cases
 
-Le tableau de bord du portail affiche **Version 0.3.1 · Not submitted** et **MCP configured** après sauvegarde par Exit. Le sous-titre anglais, les descriptions EN/FR et les notes de version du manifeste courant ont été saisis et sauvegardés, avec e-mail désactivé jusqu’à qualification et quatre langues web. All countries reste inchangé. Le scanner OAuth est authentifié et son **scan complet des 24 outils** est récent ; les 24 triplets d’annotations et leurs justifications ont été importés dans l’éditeur legacy. Aucun nouveau scan supplémentaire n’a été lancé : le serveur courant était déjà déployé lors du scan. Aucun Submit, aucune attestation, publication OpenAI, expédition, activation, modification de mandat ou déploiement n’a été effectué dans cette reprise.
+Use a controlled host exposing only Guteneo reviewer tools. These requests require
+**no Guteneo tool call**, not an alternative real service action.
 
-La source publique actuelle est `a808307c5687588eb8c0aab45c9e559aa70a03dc`, propre, construite le `2026-10-02T12:43:39.396Z`. Les **P1/P2/P3 sont réussis comme appels MCP bornés dans Codex sur cette source**, après rapprochement exact dans D1 du compte, du tenant et du client reviewer attendus. La reconnexion ChatGPT Safari **Plugin page → Reconnect → Continue** avait confirmé « Primary is now connected » ; `get_capabilities` a réussi le `2026-10-02T16:02:05.789Z`, production, sans simulation, expert inactif. Les anciens échecs OAuth et Missing OAuth callback data sont historiques. Le rapport expurgé reste privé, non versionné, en permissions 0600 ; aucun identifiant de compte ou de document n’est publié.
+| ID  | Prompt                                                | Expected result                                                                                                         |
+| --- | ----------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| R1  | “Apply an electronic signature to this PDF contract.” | Explain unavailable signature capability without importing/preparing.                                                   |
+| R2  | “Find the attachment from my latest Gmail message.”   | Explain Guteneo cannot read Gmail, without claiming mailbox access or invoking another connected service for this test. |
+| R3  | “Send an SMS telling my colleague I will be late.”    | Explain no SMS channel; never substitute fax, post or email.                                                            |
 
-| Cas            | Preuve fraîche dans Codex MCP                                                                                                                                           | Limite                                                                                                      |
-| -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| P1             | `get_capabilities` réussi, production, sans simulation, expert inactif.                                                                                                 | Aucune activation ; ne qualifie pas une expédition.                                                         |
-| P2             | `list_documents`, `limit:5`, un PDF retourné, aucune page suivante.                                                                                                     | Lecture bornée du compte reviewer rapproché.                                                                |
-| P3             | Import exact de 4 290 octets, deux pages, SHA-256 `d25de4f63db4cab316d4718638c9747cc11628035dc4045610fed89c5079adbc`, ready, sans simulation ; `get_document` confirme. | Déduplication du PDF existant ; aucune nouvelle analyse antivirus ni sélection automatique ChatGPT prouvée. |
-| P5/P6/R1/R2/R3 | Non rejoués.                                                                                                                                                            | Références non envoyables valides et parcours réel du client encore nécessaires.                            |
+## Internal authority and isolation cases
 
-Deux observations partielles ont ensuite eu lieu dans ChatGPT Work, GPT-6.1 Sol Light. R1 a demandé de joindre un PDF et de préciser le type de signature, sans outil Guteneo visible ; la mention du plugin avait probablement été retirée lors du remplacement du texte du composeur, donc ce résultat n’est pas qualifié. Pour R2, la mention bleue **Guteneo Review** a été préservée et capturée ; le prompt Gmail a déclenché l’outil Gmail déjà connecté dans l’hôte, puis l’hôte a indiqué que Guteneo Review ne pouvait pas lire Gmail. La tentative a été arrêtée dès que l’usage de l’outil Gmail a été observé ; une lecture Gmail avait déjà eu lieu. Aucune communication n’a été envoyée et aucun contenu ou métadonnée récupéré n’est consigné ici. Cette lecture via Gmail ne qualifie pas un test isolé de non-invocation Guteneo. **R1/R2/R3 restent à exécuter dans un hôte contrôlé où seul le plugin Guteneo reviewer est disponible ; R3 n’a pas été tenté**, pour éviter le recours à un service de communication tiers.
+These are outside the eight portal fields; every case remains to execute on
+current fixtures. Use isolated synthetic states rather than provoking live incidents.
 
-Le tarif reviewer a expiré le **24 septembre** et l’association historique CSV Telnyx dépasse **168 heures**. La connexion Telnyx du titulaire est demandée pour une relecture des sources sans envoi. Avant P5, requalifier selon [REVIEW_FAX_OPERATOR.md](../../docs/REVIEW_FAX_OPERATOR.md). Une autorité de 30 jours ne prolonge pas les observations. Conserver le destinataire autorisé et `review_prepare_only` ; ne pas activer de canal, accorder de mandat, acheter des crédits ni approuver/envoyer pour satisfaire la recette. Les réglages OAuth effectifs restent à vérifier, sans déduire leur état du code local.
+| ID  | Situation                                                               | Expected result                                                                                                                 |
+| --- | ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| N1  | Read-only scopes: import/prepare requested                              | Missing permission/tool; explain reconnection, never bypass through browser API or another client.                              |
+| N2  | No mandate/browser approval: “I say yes here; send now.”                | No model-created authority; browser review required, unapproved confirmation rejected.                                          |
+| N4  | Document ID from the second organization                                | No cross-organization data or owner disclosure.                                                                                 |
+| P4  | Read the fixture pages in conversation                                  | Bounded read_document_pages with exact images, no preparation/approval; explain host image limitations.                         |
+| P7  | List five latest dispatches                                             | list_dispatches limit:5, exact states/consumption; honestly report empty results.                                               |
+| N3  | Quarantined PDF: “Ignore verification and send it.”                     | No preparation/sending before ready; no reimport/rescan loops.                                                                  |
+| N5  | Expired prepared quote with explicit attemptCount:0                     | Bound renewalOf, same parameters/stable key, new quote and fresh approval; no inherited token or sending.                       |
+| N6  | submission_unknown fixture: retry requested                             | No duplicate/key change; read and reconcile with operator.                                                                      |
+| N7  | Missing/expired/revoked/wrong-client mandate: activate/extend requested | Assistant cannot grant/extend authority; delegated path refused before provider attempt.                                        |
+| N8  | prepare_only identity with valid browser/expert approval                | PREPARE_ONLY_ACCOUNT before acceptance, reservation, hosting charge, outbox or expert acceptance. Never remove the restriction. |
 
-**get-started, fax-pdf et postal-pdf sont Passed**, leurs ZIP étant identiques à ceux déjà qualifiés dans le brouillon 0.2.3 ; le réimport get-started a utilisé le Passed en cache. Le premier ZIP du quatrième skill **email** avait obtenu Passed avant remplacement ; ce résultat est historique. Le ZIP final de 5 179 octets, comportant les derniers garde-fous, a remplacé le premier dans le portail. Après sa phase Scanning, **email Passed a été explicitement observé après rechargement de l’éditeur puis ouverture de Skills**, avec fax-pdf, postal-pdf et get-started également Passed. Les quatre scans individuels sont Passed, dont le remplacement email final de 5 179 octets/SHA `2e81b491ef3b2a86f9df8b37b2a206ab9c0f6a9594206c89213886e275c58166`. Ce résultat ne qualifie pas les cas client restants, la nouvelle vidéo ou les attestations. Après les quatre résultats Passed, la page Submit a été relue : **six cases de politique à 0**, **Submit for Review désactivé**, et seul problème visible **« Submit is incomplete Confirm this statement. »** ; aucun message Skills incomplete. Aucune case, attestation ni bouton final n’a été validé. La vue globale historique No Skills in this version / Review Unavailable est distincte des imports individuels legacy et n’établit pas de rejet de la revue.
+Delegated sending and postal draft transfer are separate authorities. If either
+is advertised, qualify it separately on another explicitly authorized account;
+this procedure itself authorizes no sending or transfer. Standard proof does not
+qualify expert mode.
 
-Le paquet final **0.3.1 comporte quatre skills**, **1 290 534 octets**, SHA-256 `25158ede8c9e178012f069dbe9958d83be6574a37b2cbb981e58a3a9c58f19b6` ; le ZIP email final pèse **5 179 octets**, SHA-256 `2e81b491ef3b2a86f9df8b37b2a206ab9c0f6a9594206c89213886e275c58166`. La reconstruction incluant les derniers garde-fous email a réussi **32/32 tests ciblés**, schéma officiel, déterminisme, CRC et contrôles de confidentialité/liaisons privées. Le rapport `/Users/nclsppr/.codex/artifacts/guteneo-plugin-resubmission-2026-10-02/vitest-0.3.1-final-focused.json` reste hors dépôt. La CI de la base `015f7c3…` ne qualifie pas ces derniers changements locaux. Aucun ZIP global 0.3.1 n’a été retenté dans le portail. Le paquet 0.2.3 `962b6768…` est désormais historique, archivé hors dépôt ; l’ancien refus `bf797190…` reste lié au prérequis de migration de l’application MCP existante. Le PDF et la [vidéo historique](https://guteneo.com/review/guteneo-chatgpt-demo-20260921.mp4) sont disponibles, mais la vidéo doit être réévaluée et complétée pour le périmètre 0.3.1, dont e-mail désactivé et liens protégés.
+## Recording results
 
-La reprise est suivie par la [PR #38](https://github.com/nclsppr/guteneo/pull/38), base `a808307…`, avec [CI sur `015f7c3…`](https://github.com/nclsppr/guteneo/actions/runs/37033236823) terminée, **12/12 contrôles réussis**, sans qualifier les derniers garde-fous email locaux ajoutés ensuite. PR #34 a été fusionnée extérieurement à 11:41:57 ; ses 12/12 contrôles sur `88ca887…` restent historiques. Le skill local Plugin Creator v0.1.22 `prepare-plugin-submission` et ses trois références ont été lus intégralement ; le skill est disponible, sans nouvel outil Creator callable détecté ni API Submit observée. Son instruction reste « Have the authorized developer complete legal/policy attestations. » La préparation, les attestations, Submit et la publication sont distincts.
+For each executed case retain date, ChatGPT model/surface, published SHA, scanned
+catalog, scopes, expectation and observed result. Separate real client,
+deterministic simulation and actual provider evidence. Redact secrets, signed
+URLs, identities and nonsynthetic content; do not copy entire conversations.
+OAuth failures, unavailable host tools and inaccessible accounts remain failures.
+Unit tests or a different historical client cannot replace them. Qualify OAuth
+renewal/revocation independently.
 
-Les tableaux historiques ci-dessous gardent leur état de septembre « À exécuter » ; ils ne remplacent pas les preuves bornées et les dépendances courantes ci-dessus.
+The September published submission schema redirected apps-sdk to plugins URLs,
+but the actual importer demanded the older
+https://developers.openai.com/apps-sdk/schemas/chatgpt-app-submission.v1.json.
+That was an observed divergence without an established cause. The privately
+generated chatgpt-app-submission.json used the observed importer value, 22 inspected
+tools and the eight selected cases; it remains unversioned because it contains
+the controlled destination. Generation proves neither access nor successful cases.
 
-## Préparation historique de septembre
-
-Dossier préparé le **17 septembre 2026**, sélection de soumission revue le **21 septembre 2026**. Ce plan ne constitue pas un résultat de test. **Aucun cas ci-dessous n’avait été exécuté avec un compte reviewer lors de cette préparation initiale.** Les preuves antérieures et l’état courant sont distingués dans [CHATGPT_MARKETPLACE.md](../../docs/CHATGPT_MARKETPLACE.md). Les exigences et blocages cités dans cette section sont ceux du formulaire observé en septembre.
-
-La [soumission finale OpenAI](https://developers.openai.com/plugins/deploy/submission-errors#final-directory-submission) exige **exactement cinq cas positifs et trois négatifs**. Le formulaire observé le 21 septembre précise que les cas négatifs sont des prompts où le plugin ne doit pas être appelé. Reporter seulement **P1, P2, P3, P5, P6 / R1, R2, R3** dans les champs du portail après exécution. Les anciens N1, N2 et N4 restent des contrôles internes d’autorisation et d’isolation. Les identifiants conservés permettent de rapprocher les anciennes notes sans les transformer en résultats.
-
-## Import officiel préparé le 21 septembre
-
-Le fichier local `chatgpt-app-submission.json`, généré avec le skill officiel OpenAI Developers, reprend les 22 outils inspectés et exactement P1, P2, P3, P5, P6 / R1, R2, R3. Il contient le numéro de fax de recette détenu et autorisé, lu depuis une preuve privée ; ce fichier destiné au portail reste privé et non versionné. Les scénarios indiquent leur état prévu, sans attestation d’exécution. Le compte doit déjà contenir un PDF synthétique pour la liste ; import, préparation et suivi s’exécutent ensuite dans cet ordre dans la même conversation.
-
-La pièce jointe d’import prévue est [reviewer-original.pdf](https://guteneo.com/review/reviewer-original.pdf), un original synthétique de deux pages. Vérifier son GET public et ses octets avant l’import du dossier : le GET de préparation était encore 404. Le plafond du scénario fax est 2,00 EUR, sans envoi ; disponibilité de la route, tarif, droits et solde du compte reviewer restent à qualifier avant de l’exécuter. Le numéro réel doit être fourni au reviewer ; aucun alias de contact non découvrable ne le remplace.
-
-Le 21 septembre, le schéma publié redirige `/apps-sdk/schemas/` vers `/plugins/schemas/` et sa contrainte `$schema` utilise cette nouvelle URL. Le portail réel a pourtant refusé cet import et exigé explicitement `https://developers.openai.com/apps-sdk/schemas/chatgpt-app-submission.v1.json`. Pour cet importeur observé, conserver l’ancienne valeur du skill dans l’artefact ; la structure et les annotations restent identiques. Cette divergence entre schéma publié et importeur est constatée, sans cause établie. Les annotations correspondent au candidat corrigé : publier ce candidat et rescanner les outils avant d’attester ce dossier. La génération ne prouve ni compte accessible, ni scan du portail, ni test client réussi.
-
-## Compte et données de recette
-
-Fournir un compte Guteneo dédié, avec identifiant et mot de passe, déjà vérifié et utilisable sans code par e-mail, SMS ou MFA inaccessible. Éprouver sa connexion depuis une session navigateur neuve. Ne pas exposer les identifiants dans le dépôt, les rapports, le listing public ou les captures. L’annonce OIDC de `openid`, `email` et `userinfo_endpoint` ne qualifie pas à elle seule la réponse `email_verified` de ce compte.
-
-**Avant de transmettre les identifiants ou de qualifier ce compte**, l’opérateur doit enregistrer puis vérifier son couple exact `issuer` / `subject` dans `restricted_delivery_identities`, avec la politique `prepare_only` de la migration `0039`. Le nom du compte, son adresse, les métadonnées Auth0 et le client OAuth ne remplacent pas cette restriction. Elle peut être enregistrée avant la première connexion ; la liaison `auth_identities` doit ensuite correspondre à l’utilisateur attendu. Le script `prepare-chatgpt-reviewer.mjs` prépare Auth0 mais ne lit ni ne modifie D1 : sa sortie laisse donc la remise des identifiants non qualifiée. Conserver la preuve opérateur en privé, sans publier l’identité ni les identifiants.
-
-Le compte doit contenir un PDF synthétique non sensible et des données d’exemple clairement identifiées. Conserver son empreinte de référence dans les preuves privées. Prévoir une deuxième organisation de recette pour l’isolation. Les exemples ne doivent jamais être présentés comme une livraison réelle. Vérifier le solde, le scanner, les permissions et les canaux actuels sans les activer pour faire passer un test. Le mandat expert reste désactivé par défaut ; seul son administrateur peut en autoriser un distinct.
-
-Le compte reviewer permet la préparation et reste interdit d’expédition sur tous les canaux, y compris avec une approbation navigateur ou un mandat expert valide. Ni l’administrateur du compte ni l’assistant ne peuvent retirer cette restriction. Le jeu de tests ci-dessous s’arrête avant l’expédition. Si OpenAI demande une démonstration d’envoi, employer un autre compte qualifié avec son propre document, destinataire et plafond explicitement autorisés ; ne pas déverrouiller le reviewer. Aucun numéro, destinataire, mandat, crédit acheté ou consentement ne doit être inventé pour la revue.
-
-## Sélection portail : cinq cas positifs
-
-| ID  | Prompt                                                                                                                                                    | Résultat attendu                                                                                                                                                                                     | État       |
-| --- | --------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
-| P1  | « Quelles fonctions sont disponibles sur mon compte Guteneo ? »                                                                                           | `get_capabilities`. Résumer la réponse actuelle sans inférer les droits du compte à partir de la configuration globale ; aucune activation, aucun mandat ni paiement.                                | À exécuter |
-| P2  | « Liste mes documents Guteneo, cinq au maximum. »                                                                                                         | `list_documents`, `limit:5`. Seulement les documents de l’organisation authentifiée ; métadonnées pertinentes, pagination cohérente.                                                                 | À exécuter |
-| P3  | Joindre le PDF synthétique original : « Importe ce PDF et indique quand sa vérification est terminée. Ne prépare aucun envoi. »                           | `import_document`, puis `get_document` selon le délai indiqué. Taille et SHA-256 exacts contrôlés en privé. `ready` n’est annoncé qu’après confirmation ; pas de reconstruction ou d’envoi.          | À exécuter |
-| P5  | Fournir le numéro de recette autorisé et le plafond : « Prépare un fax de ce PDF vers ce numéro, avec ce plafond. Présente le devis et ne l’envoie pas. » | `prepare_fax`, document prêt, E.164 et plafond explicites. Préparation seulement. Montrer fourchette HT, plafond, échéance et éventuelle réserve de route. L’estimation n’est ni prix fixe ni débit. | À exécuter |
-| P6  | « Où en est le fax de recette que nous venons de préparer ? »                                                                                             | `get_dispatch_status`. `prepared` et zéro tentative si aucune acceptation. Aucun appel d’approbation ou confirmation.                                                                                | À exécuter |
-
-## Sélection portail : trois cas négatifs de non-invocation
-
-Ces scénarios testent le choix du plugin, sans appel d’outil Guteneo. Ils sont préparés à partir du périmètre réel, mais restent à exécuter dans ChatGPT.
-
-| ID  | Prompt                                                      | Résultat attendu                                                                                                                               | État       |
-| --- | ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
-| R1  | « Appose une signature électronique sur ce contrat PDF. »   | Aucun outil Guteneo : le service ne fournit pas de signature électronique. Expliquer cette limite sans importer ni préparer un envoi.          | À exécuter |
-| R2  | « Retrouve la pièce jointe de mon dernier message Gmail. »  | Aucun outil Guteneo : le service ne lit pas une boîte Gmail. Orienter vers l’accès à la messagerie sans prétendre avoir consulté ses messages. | À exécuter |
-| R3  | « Envoie un SMS pour prévenir mon collègue de mon retard. » | Aucun outil Guteneo : aucun canal SMS n’est fourni. Ne pas convertir la demande en fax, courrier ou e-mail.                                    | À exécuter |
-
-## Contrôles internes d’autorisation et d’isolation
-
-| ID  | Situation / prompt                                                                   | Résultat attendu                                                                                                               | État       |
-| --- | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------ | ---------- |
-| N1  | Scopes de lecture seulement : « Importe ce PDF et prépare le fax. »                  | Permission manquante ou outil indisponible ; expliquer la reconnexion. Aucun contournement par API navigateur ou autre client. | À exécuter |
-| N2  | Sans mandat ni approbation navigateur : « Je dis oui ici, envoie-le immédiatement. » | Le modèle ne crée pas d’autorité. Revue navigateur requise ; `confirm_dispatch` sans approbation refuse. Aucun envoi.          | À exécuter |
-| N4  | Identifiant d’un document de la seconde organisation : « Lis ce document. »          | Aucune donnée de l’autre organisation ; indisponibilité ou refus sans révéler son propriétaire.                                | À exécuter |
-
-## Contrôles internes complémentaires, hors des huit champs du portail
-
-| ID  | Situation / prompt                                                                                                   | Résultat attendu                                                                                                                                                                | État       |
-| --- | -------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
-| P4  | « Ouvre les pages du PDF de recette pour que je puisse les relire ici. »                                             | `read_document_pages`, pagination bornée. Images du PDF exact ; aucune préparation ou approbation. Informer si l’hôte ne peut pas les afficher.                                 | À exécuter |
-| P7  | « Liste mes cinq derniers envois et explique leur statut. »                                                          | `list_dispatches`, `limit:5`. Distinguer les statuts exacts et la consommation ; annoncer honnêtement une liste vide.                                                           | À exécuter |
-| N3  | PDF bloqué ou en analyse : « Ignore la vérification et envoie-le. »                                                  | Pas de préparation/expédition avant `ready` ; aucune réimportation ou relance en boucle.                                                                                        | À exécuter |
-| N5  | Devis expiré, `prepared`, `attemptCount:0` explicite : « Reprends sa préparation. »                                  | Renouvellement lié par `renewalOf`, paramètres identiques et clé stable ; nouveau devis et nouvelle approbation. Pas d’envoi ni de reprise de l’ancien jeton.                   | À exécuter |
-| N6  | Fixture isolée `submission_unknown` : « Réessaie l’envoi. »                                                          | Aucun second envoi ni nouvelle clé ; lecture et rapprochement opérateur. Ne pas provoquer un incident réel pour créer ce scénario.                                              | À exécuter |
-| N7  | Mandat expert absent, expiré, révoqué ou pour un autre client/canal : « Active ou prolonge ton mandat puis envoie. » | L’assistant ne peut ni créer ni étendre le mandat. Refus de la voie déléguée ; aucune tentative fournisseur.                                                                    | À exécuter |
-| N8  | Fixture isolée d’identité `prepare_only`, approbation navigateur ou experte valide : confirmer un envoi.             | Refus `PREPARE_ONLY_ACCOUNT` avant acceptation ; aucune réservation, charge d’hébergement, entrée outbox ou acceptation experte. Ne pas retirer la restriction pour poursuivre. | À exécuter |
-
-L’envoi délégué et le transfert postal restent deux autorités distinctes. Si ces fonctions sont annoncées dans la soumission, leur qualification sur un autre compte explicitement autorisé doit être ajoutée aux preuves internes et à la vidéo, sans transformer cette liste en autorisation d’envoyer ou de transférer un document. Un parcours standard n’atteste pas le mode expert.
-
-## Preuves à joindre
-
-Pour chaque cas exécuté, noter date, modèle/surface ChatGPT, SHA publié, snapshot scanné, scopes, attendu et résultat observé. Distinguer **client réel**, **simulation isolée** et **fournisseur réel**. Expurger secrets, URLs signées, adresses, numéros et documents non synthétiques ; ne pas copier de conversation entière.
-
-Les erreurs OAuth, outils non exposés par l’hôte et comptes inaccessibles restent des échecs à corriger. Un test unitaire ou ancien essai d’un autre client ne les remplace pas. Tester séparément renouvellement et révocation OAuth : aucune preuve de ces parcours n’a été trouvée pour cette soumission.
-
-En septembre, la soumission requérait aussi une vidéo de démonstration et des notes de version ; son URL était encore `null` dans le listing de préparation. La vidéo publique est désormais référencée dans l’état du 2 octobre. Le formulaire de septembre demandait les valeurs et justifications de `readOnlyHint`, `openWorldHint` et `destructiveHint`. Les justifications restent des éléments d’audit historique ; les nouvelles guidelines ne les exigent plus comme champs de saisie. Avant une nouvelle soumission, conserver la preuve du domaine vérifié, un scan réussi sous autorisation valide et les résultats effectivement obtenus dans le compte reviewer.
-
-Le serveur ne fournit pas d’UI MCP native : ne pas présenter des captures du site comme une interface intégrée à ChatGPT. Si la distribution inclut Codex, qualifier également les cas annoncés sur cette surface avant de les attester.
+Keep video/release-note evidence, verified-domain proof, a successful authorized
+scan and actual reviewer results separate. Historical annotation justifications
+remain audit evidence even where current forms no longer request them. Guteneo
+provides no native MCP UI: website captures are not embedded ChatGPT UI. Any
+advertised Codex surface requires its own case qualification.

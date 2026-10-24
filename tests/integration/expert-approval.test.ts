@@ -828,8 +828,10 @@ describe("exact private PDF before an expert review token", () => {
     expect(review.document).toBeNull();
     expect(review.documentResource).toBeUndefined();
     expect(review.text).toBe("Original content");
-    expect(review.instructions).toContain("ne contient pas de PDF");
-    expect(review.instructions).not.toContain("Lire la ressource PDF");
+    expect(review.instructions).toContain("contains no PDF");
+    expect(review.instructions).not.toContain(
+      "Read the exact embedded PDF resource",
+    );
   });
   it("refuses metadata-only services before issuing any token", async () => {
     const { dispatch } = await prepareWithPdf();

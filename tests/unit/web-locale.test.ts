@@ -80,6 +80,55 @@ describe("complete product language catalogs", () => {
       "Customer-supplied document title",
     );
   });
+  it.each(["fr", "en", "de", "lb"] as const)(
+    "localizes canonical administrator and Word conversion messages in %s",
+    (locale) => {
+      setLocale(locale, false);
+      const copy = [
+        [
+          "The workspace must retain at least one administrator. Appoint another administrator before changing this role.",
+          {
+            fr: "au moins un administrateur",
+            en: "at least one administrator",
+            de: "mindestens einen Administrator",
+            lb: "op d’mannst een Administrateur",
+          },
+        ],
+        [
+          "Paragraphs/tables imported as editable blocks. Word styles, page breaks, images, headers, footers, notes and automatic fields are not reproduced. Check the final PDF before publication.",
+          {
+            fr: "styles Word",
+            en: "Word styles",
+            de: "Word-Formatvorlagen",
+            lb: "Word-Stiler",
+          },
+        ],
+        [
+          "Word images were not imported; add a PNG/JPEG logo in the studio.",
+          {
+            fr: "images Word",
+            en: "Word images",
+            de: "Word-Bilder",
+            lb: "Word-Biller",
+          },
+        ],
+        [
+          "A table has a long first row; neutral column names were added and all rows retained.",
+          {
+            fr: "toutes les lignes ont été conservées",
+            en: "all rows retained",
+            de: "alle Zeilen beibehalten",
+            lb: "all Zeile goufe bäibehalen",
+          },
+        ],
+      ] as const;
+      for (const [source, expected] of copy) {
+        expect(msg(source)).toContain(expected[locale]);
+        if (locale === "en") expect(msg(source)).toBe(source);
+        else expect(msg(source)).not.toBe(source);
+      }
+    },
+  );
   it("provides page-specific metadata for every public route in all four languages", () => {
     for (const path of publicSite.paths) {
       const french = getPublicSocialCopy(path, "fr");

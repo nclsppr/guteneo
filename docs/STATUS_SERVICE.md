@@ -1,227 +1,183 @@
-# État du service Guteneo
+# Guteneo service status
 
-`https://status.guteneo.com/` est le point d’entrée public pour les clients,
-l’équipe produit et l’astreinte. Il possède son propre Worker et sa propre base
-D1 européenne. Il reste indépendant des bindings, secrets, documents, comptes
-et fournisseurs de l’application métier. Cette indépendance ne couvre pas une
-panne générale de Cloudflare, qui héberge les deux services.
+`https://status.guteneo.com/` serves customers, product staff and on-call operators.
+Its own Worker/European D1 are independent of business bindings, secrets, documents,
+accounts and providers. Both services still depend on Cloudflare.
 
-## Ce que les preuves permettent de conclure
+Status interface source copy is English. The browser offers English and French,
+selected by `?lang=en|fr` or the browser language; unsupported or malformed explicit
+choices fall back to English. Static labels, dynamic observations and animations
+share the English-keyed French catalog in `apps/status/public/locales/fr.js`.
+The page accepts historical French feature labels and current English report
+labels through exact aliases without rewriting stored reports; duplicate aliases
+for one feature are rejected. Historical checks retain their observed URL, including
+the former developer route, while new probes use canonical English paths.
+Legal/privacy links and the content anchor use the
+same English routes as the main website.
 
-- **Production observée** : quatorze lectures anonymes sur une liste fixe de
-  pages, contrats publics et refus d’accès attendus, toutes les quinze minutes.
-  Aucun devis, envoi, achat, scan hébergé ou rendu payant n’est déclenché.
-- **Fonctions qualifiées localement** : vrai domaine en mode production, D1/R2
-  locaux et scénarios synthétiques ; transports fournisseurs remplacés à leur
-  frontière. Le profil hors ligne interdit les connexions externes au niveau du
-  système et conserve une preuve horodatée, distincte de la production.
-- **Non vérifié** : livraison chez le destinataire, prestations fournisseurs,
-  intégration réelle du scanner et parcours authentifiés non exécutés. Une
-  lecture HTTP ou une simulation ne transforme jamais ces lignes en succès.
+## What evidence establishes
 
-Voir [les tests hors ligne](TESTING_OFFLINE.md) et
-[le diagnostic de commande sans consommation](PRODUCTION_DRY_RUN.md).
+- **Observed production:** fourteen anonymous reads on a fixed allowlist of public pages/contracts/expected access refusals every fifteen minutes, without quotes, sends, purchases, hosted scans or paid rendering.
+- **Locally qualified functions:** real production-mode domain, local D1/R2, synthetic scenarios and provider transport replaced at boundaries. System-level offline restrictions retain dated evidence separate from production.
+- **Unverified:** recipient delivery, provider services, actual scanner integration and unexecuted authenticated journeys. HTTP/simulation never turns these into success.
 
-## Rapports de navigateur en production — candidat du 24 octobre
+See [offline tests](TESTING_OFFLINE.md) and [nonconsuming dispatch validation](PRODUCTION_DRY_RUN.md).
 
-Le candidat ajoute une preuve distincte aux quatorze lectures du Cron : un
-workflow GitHub sur `main`, prévu toutes les six heures (`production-e2e.yml`)
-ou à la demande. Il observe uniquement des URL publiques fixes du domaine
-canonique. Ses 28 contrôles réunissent quatorze parcours dans Chromium
-(sept pages sur ordinateur et dans une vue mobile simulée) et quatorze contrats
-HTTP publics. Les pages couvrent les quatre langues d’accueil et les guides
-Rôles, Développeur et ChatGPT. Aucun appareil physique n’est qualifié.
+## Production browser reports — 24 October candidate
 
-La section **Parcours publics dans le navigateur** affiche la dernière
-exécution, le commit du produit testé, le commit actuellement observé, la
-fraîcheur, les contrôles et le lien vers l’exécution GitHub. Le commit du runner
-reste distinct de celui du produit publié. Au-delà de huit heures, après un
-changement de version, ou en l’absence de preuve valide, la présentation reste
-neutre : un ancien succès ne qualifie pas la version actuelle. Un véritable
-écart récent demeure visible dans cette section. Ce rapport ne remplace et ne
-modifie pas le bilan des quatorze contrôles de disponibilité.
+The candidate adds evidence separate from the fourteen Cron reads: a GitHub
+workflow on `main`, every six hours or manually (`production-e2e.yml`), observing
+only fixed canonical public URLs. Its 28 checks combine fourteen Chromium journeys
+(seven pages in desktop and simulated mobile views) and fourteen public HTTP
+contracts. Pages cover the four home languages and Roles, Developer and ChatGPT
+guides. This does not qualify a physical device.
 
-Le cycle **Distribution et réception authentifiées** reste explicitement
-**À qualifier** tant que des comptes de test dédiés et une authentification
-forte qualifiée ne sont pas configurés. Il ne reçoit ni succès fictif ni badge
-d’incident. Une réussite locale TesterArmy de la distribution ne constitue pas
-une exécution authentifiée en production. Le workflow public ne crée aucun
-compte, document, devis, achat, message, accès fournisseur ou commande métier.
+**Public browser journeys** shows the latest execution, tested product commit,
+currently observed commit, freshness, checks and GitHub execution link. Runner
+commit remains distinct from deployed product commit. After eight hours, a
+version change or absent/invalid evidence, presentation is neutral: an old pass
+cannot qualify the current version. A recent actual discrepancy stays visible.
+This report neither replaces nor changes the fourteen availability checks.
 
-L’écriture d’un rapport utilise une identité GitHub OIDC vérifiée et liée à
-l’empreinte du corps, au dépôt et au workflow autorisés. Aucun secret Cloudflare
-d’écriture ni identifiant de l’application métier n’est ajouté au runner.
-`GET /api/e2e-status` reste une lecture publique : aucun test n’est lancé par
-l’ouverture du statut. Le document reçu est borné et expurgé ; seuls les
-identifiants fixes de contrôle, codes autorisés, durées, états, commits et
-références publiques GitHub sont présentés. Aucun contenu client, nom de compte,
-capture, journal brut, destinataire, token ou URL privée n’est publié. Les liens
-externes de l’interface sont reconstruits vers le dépôt GitHub attendu.
+**Authenticated distribution and receipt** remains **To qualify** until dedicated
+test accounts and the real journey under the selected document authentication
+policy are qualified. Strong mode additionally requires qualified strong
+authentication; the explicitly selected `verified_account` mode does not claim
+MFA. Neither mode gets a synthetic success or incident badge. Local TesterArmy
+success is not authenticated production execution. The public workflow creates
+no account, document, quote, purchase, message, provider access or business order.
 
-L’interface lit ce document à l’ouverture, lors d’un rafraîchissement explicite,
-puis toutes les quinze minutes pendant qu’elle est visible ; le retour d’un
-onglet masqué ne relance la lecture qu’après ce délai. Ces lectures supplémentaires
-utilisent les quotas partagés du compte. Les minutes du runner GitHub et le
-stockage des rapports restent soumis aux conditions du dépôt ; aucun plafond
-de facture ou gratuité n’est déduit de la cadence. Le workflow conserve uniquement
-le rapport JSON expurgé en artefact, pendant quatorze jours.
+Report writes use verified GitHub OIDC bound to the body fingerprint, repository
+and allowed workflow. The runner gets no Cloudflare write secret or business
+credentials. `GET /api/e2e-status` is public read-only; opening status launches no
+test. Received reports are bounded and sanitized: only fixed check identifiers,
+allowed codes, durations, states, commits and public GitHub references appear.
+They contain no customer content, account name, screenshot, raw log, recipient,
+token or private URL. External links are rebuilt against the expected repository.
 
-Sources du candidat : `apps/status/production-e2e.ts`,
+The UI reads on opening, explicit refresh, then every fifteen minutes while
+visible; returning from a hidden tab refreshes only after that interval. Reads
+consume shared account quotas. GitHub runner minutes and report storage remain
+subject to repository terms; cadence promises neither free use nor a bill cap.
+Only sanitized JSON is retained as a workflow artifact for fourteen days.
+
+Candidate sources: `apps/status/production-e2e.ts`,
 `apps/status/public/production-e2e.js`, `scripts/production-e2e.ts`,
-`tests/production-e2e/`, `.github/workflows/production-e2e.yml` et la migration
-statut `0002_production_e2e.sql`. Qualification locale de présentation le
-24 octobre : **37 tests UI statut réussis**, dont dix nouveaux scénarios
-sur ordinateur et aux largeurs 390/320 px (rapport courant, absent, périmé,
-version changée, écart réel, contrôle bloqué, contrat incohérent, lien non autorisé).
-Ces réponses UI sont synthétiques. Le workflow exécuté, le stockage OIDC hébergé,
-la publication du statut et une première lecture de rapport réel restent des
-preuves séparées ; aucune de ces étapes n’est attestée par les tests UI locaux.
+`tests/production-e2e/`, `.github/workflows/production-e2e.yml` and status migration
+`0002_production_e2e.sql`. Local presentation qualification on 24 October:
+**37 passing status UI tests**, including ten new desktop/390/320 px scenarios
+(current, absent, stale, changed version, actual discrepancy, blocked check,
+inconsistent contract and unauthorized link). These are synthetic UI responses.
+Executed hosted workflow, OIDC ingestion, status publication and the first real
+report read remain separate, unestablished evidence.
 
-Le premier run hébergé du 24 octobre, `40128432279` tentative 1, a donné
-21/28 contrôles réussis et un échec global ; son ingestion n’est pas qualifiée.
-Les quatorze contrôles navigateur ont réussi, tandis que sept empreintes de
-pages ont échoué sur la taille reçue. Le candidat de diagnostic demande une
-représentation sans transformation dans le pilote Node, conserve les tailles
-et SHA stricts, et distingue refus OIDC/ingestion sans journaliser de secret.
-Dans ce premier correctif Node, le Worker, ses sondes Cron et son autorité OIDC
-restaient inchangés. Voir
-[le détail de cette preuve et ses limites](PRODUCTION_BROWSER_MONITOR.md).
+The first hosted run on 24 October, `40128432279` attempt 1, passed 21/28 checks
+and failed overall; ingestion is unqualified. All fourteen browser checks passed,
+while seven page comparisons failed on received size. The diagnostic candidate
+requests an untransformed representation in Node, preserves strict size/SHA
+checks, and distinguishes OIDC/ingestion refusals without logging secrets. The
+Worker, Cron probes and OIDC authority were unchanged by that first Node correction. See
+[the detailed observation and its limits](PRODUCTION_BROWSER_MONITOR.md).
 
-La seconde tentative `40131421762` échoue également à 21/28 : chaque HTML reçoit
-367 octets supplémentaires malgré un encodage `identity`, puis l’ingestion
-répond `401 REPORT_REJECTED`. Le garde proposé ajoute `no-transform` à la réponse
-de l’application pour ses seuls HTML publics canoniques, en conservant les
-empreintes intégrales. Les en-têtes de requête du moniteur ne remplacent pas
-cette règle d’origine. Le garde requiert une publication de l’application et
-une nouvelle preuve ; les deux échecs sont conservés, sans succès déduit.
+The second attempt `40131421762` also failed at 21/28: every HTML response gained
+367 bytes despite `identity` encoding, then ingestion returned
+`401 REPORT_REJECTED`. The proposed origin guard appends `no-transform` only to
+canonical public HTML responses while retaining complete hashes. Monitor request
+headers cannot replace that response rule. Application publication and fresh
+observation are required; both failures remain recorded without inferred success.
 
-Le diagnostic signé isolé `40132056947`, sans requête de production, confirme
-qu’un job direct GitHub peut aussi porter `job_workflow_ref` et
-`job_workflow_sha`. Le serveur accepte le format ancien où les deux sont absents,
-ou le seul couple exact du workflow canonique main et du commit du runner.
-Une autre référence, un autre SHA, un champ seul ou nul restent refusés ;
-signature, corps, dépôt, branche et anti-rejeu ne sont pas élargis. Cette
-correction exige une nouvelle publication du statut, en plus de l’application
-pour le garde HTML. Les 28 résultats et l’ingestion exacte restent à qualifier.
+Isolated signed diagnostic `40132056947`, without a production request, confirms
+that a direct GitHub job can also carry `job_workflow_ref` and `job_workflow_sha`.
+The server accepts their joint legacy absence or the exact canonical-main
+workflow/runner-commit pair. Foreign reference/SHA, one field alone or null remain
+denied; signature, body, repository, branch and replay authority do not expand.
+This correction needs a new status publication, separately from application
+publication for the HTML guard. All 28 results and exact ingestion remain to be
+qualified.
 
-## Historique et lecture
+## History and interpretation
 
-La vue **Service** présente les résultats de la surveillance publique, sa
-fraîcheur, les trois groupes de contrôles et leur historique. Quatorze contrôles
-récents réussis donnent un bilan positif limité à ce périmètre. Seul un écart
-observé déclenche une alerte ; une mesure absente, invalide ou ancienne reste
-inconnue. Le manque de couverture d’un parcours métier ne constitue pas une
-panne et ne dégrade pas ce bilan.
+Service view shows public monitoring, freshness, three check groups and history.
+Fourteen recent successful checks give a positive result within that scope. Only
+observed discrepancies alert; absent/invalid/stale measurements remain unknown.
+Missing business coverage is not an outage and does not degrade that result.
+Verifications view preserves detailed checks, local proof and journey coverage;
+out-of-public-scope/inactive functions use neutral badges. Neither simulation nor
+configuration becomes delivery proof.
 
-La vue **Vérifications** conserve les résultats détaillés, les preuves locales
-et la couverture des parcours. Les fonctions hors du périmètre public et les
-fonctions non activées y sont présentées avec des badges neutres. Cette
-séparation ne transforme ni une simulation ni une configuration en preuve de
-livraison réelle.
+7/30/365-day views use actual observations. Availability is measured over received
+samples; expected-slot coverage is separate. Unobserved days remain unknown, with
+no invented preactivation history. One snapshot per slot plus daily aggregates
+bounds annual reads. Retention: 366 days. Stale observation downgrades state to
+unknown. Public reads can neither run tests nor write results.
 
-Les vues 7 jours, 30 jours et 365 jours utilisent des observations réelles.
-Le taux de disponibilité porte uniquement sur les mesures reçues ; la couverture
-des créneaux attendus est affichée séparément. Une journée sans mesure demeure
-inconnue. Aucun historique antérieur à l’activation n’est reconstitué.
+## Operations
 
-Le collecteur écrit un instantané par créneau ; les agrégats journaliers évitent
-de relire tous les instantanés lors d’une vue annuelle. La rétention est bornée
-à 366 jours. Une observation trop ancienne déclasse l’état affiché en inconnu.
-Les lectures publiques ne peuvent ni exécuter de test, ni écrire de résultat.
+1. Check the last observation time before interpreting state.
+2. For stale history, inspect Cron Trigger, `guteneo-status` errors and `STATUS_DB`.
+3. For public-contract failures, compare the check with actual response/release. Create no quote/send to diagnose availability.
+4. Corrected sources need new local qualification; an old report proves no new version.
+5. Wait for fresh collection after correction; never rewrite historical snapshots to green charts.
 
-## Exploitation
+Only public facts/times/codes appear, never customer content, recipients, dispatch
+IDs, tokens or signed URLs. Seasonal effects are bounded, optional, status-page-only
+and respect `prefers-reduced-motion`.
 
-1. Consulter l’heure de la dernière mesure avant d’interpréter un état.
-2. Si les observations sont anciennes, vérifier le Cron Trigger, les erreurs
-   du Worker `guteneo-status` et la disponibilité de `STATUS_DB`.
-3. Si un contrat public échoue, comparer le détail du contrôle à la réponse
-   réelle et à la version `/release.json` de Guteneo. Ne pas déclencher un
-   envoi ou créer un devis pour diagnostiquer un problème de disponibilité.
-4. Un résultat local échoué nécessite une nouvelle qualification sur les sources
-   corrigées. Un rapport ancien ne prouve pas une nouvelle version.
-5. Après correction, attendre une nouvelle collecte. Ne pas modifier un
-   instantané historique pour rendre les graphiques verts.
+## Resources and cost
 
-L’interface expose des constats, dates et codes techniques publics, jamais de
-contenu client, destinataire, identifiant de commande, jeton ou URL signée.
-Les effets saisonniers sont décoratifs, désactivables, bornés et limités à la
-page de statut. Ils respectent `prefers-reduced-motion`.
+On 10 October 2026 the user explicitly allowed existing Cloudflare quotas with
+**no business cost**. Workers Standard applies; a Free Website domain does not
+make Workers free. Available credentials cannot read subscription/invoice, so no
+final bill is inferred. Official prices checked on that date:
 
-## Ressources et coût
+| Resource | Workers Paid account inclusion | Overage |
+| --- | --- | --- |
+| Worker requests | 10 million/month | USD0.30/million |
+| Worker CPU | 30 million ms/month | USD0.02/million ms |
+| D1 reads | 25 billion rows/month | USD0.001/million |
+| D1 writes | 50 million rows/month | USD1/million |
+| D1 storage | 5 GB | USD0.75/GB-month |
+| Direct static files | Unlimited | Free |
 
-L’utilisateur a explicitement accepté le 10 octobre 2026 l’utilisation des
-quotas Cloudflare existants, avec **aucun coût métier**. Le compte utilise le
-modèle Workers Standard ; le domaine « Free Website » ne rend pas Workers
-gratuit. La lecture de l’abonnement et de la facture n’est pas permise par les
-identifiants disponibles : aucune facture finale n’est inférée.
+[Workers pricing](https://developers.cloudflare.com/workers/platform/pricing/),
+[D1 pricing](https://developers.cloudflare.com/d1/platform/pricing/).
+Allowances are **account-shared**, not reserved. The subscription already exists;
+none is added.
 
-Tarifs officiels consultés le 10 octobre 2026 :
+Fifteen-minute collection means 2,880 runs/40,320 Guteneo reads in thirty days;
+Guteneo's own incoming quotas may also apply. Direct static pages bypass Worker;
+state/history reads invoke it according to audience. Cache reduces D1 reads without
+promising free Worker requests. Do not enable Workers Caching before static files,
+which changes their billing.
 
-| Ressource                             | Inclus dans le compte Workers Paid | Dépassement            |
-| ------------------------------------- | ---------------------------------- | ---------------------- |
-| Requêtes Worker                       | 10 millions/mois                   | 0,30 USD/million       |
-| CPU Worker                            | 30 millions de ms/mois             | 0,02 USD/million de ms |
-| Lectures D1                           | 25 milliards de lignes/mois        | 0,001 USD/million      |
-| Écritures D1                          | 50 millions de lignes/mois         | 1 USD/million          |
-| Stockage D1                           | 5 Go                               | 0,75 USD/Go-mois       |
-| Fichiers statiques servis directement | Illimité                           | Gratuit                |
+Annual aggregates read at most 1,460 rows/request. Collection launches no hosted
+browser/container. Bounds reduce cost without capping invoice. Build/startup/
+latency/resource observations belong with publication proof. Final-schema local
+measurement: eleven row writes for first collection excluding purge; 1,462 full-year
+reads (1,460 aggregates plus two metadata). Prepared Worker approximately 22 KB,
+under 8 KB compressed. 50 ms invocation CPU cap is a setting, not measured use.
+Hosted memory/CPU still need Cloudflare metrics; do not extrapolate local timings.
 
-Sources : [Workers](https://developers.cloudflare.com/workers/platform/pricing/)
-et [D1](https://developers.cloudflare.com/d1/platform/pricing/).
-Les quotas sont **partagés par le compte**, pas réservés à ce service.
-Le compte possède déjà son abonnement ; aucun nouvel abonnement n’est créé.
+`npx playwright test -c playwright.status.config.ts --project=chromium` uses synthetic
+responses and loopback static serving without collection/D1. CI retains UI, service,
+security and product tests. Production measurements/first actual Cron remain separate.
 
-À quinze minutes, prévoir 2 880 collectes et 40 320 lectures de Guteneo par mois
-de trente jours. Les appels entrants à Guteneo peuvent consommer ses propres
-quotas. La page statique évite le Worker ; seules les lectures d’état/historique
-l’invoquent. Leur nombre dépend de l’audience. Le cache limite les lectures D1,
-mais ne constitue pas une garantie de requêtes Worker gratuites. Ne pas activer
-Workers Caching devant les fichiers statiques, qui changerait leur facturation.
+## Publication and rollback
 
-Les agrégats annuels lisent au maximum 1 460 lignes par requête. La collecte ne
-lance ni navigateur hébergé ni container. Ces bornes réduisent les coûts ; elles
-ne constituent pas un plafond de facture. Les mesures de build, startup, latence
-et ressources exécutées sont consignées avec la preuve de publication.
+Observed **10 October 2026**: service/application exposed
+`c953596dc0650961a7294da622703f5edc3a764d`; **20 status assets** verified.
+First Cron completed **02:45:05.570 UTC**, **14/14 public checks passed**.
+02:45:37.358 reread found one sample in each 7/30/365 window; earlier days stayed
+unobserved. Public proof qualifies no authenticated business journey/delivery.
 
-Mesure locale historique du 10 octobre, sur le schéma alors qualifié :
-11 écritures de lignes pour une première
-collecte hors purge, et 1 462 lectures pour une année remplie (1 460 agrégats et
-deux métadonnées). Le bundle Worker de cette qualification pesait environ 22 Ko,
-moins de 8 Ko compressé ; cette mesure ne comprend pas le candidat de rapports
-GitHub du 24 octobre. Le plafond CPU est fixé à 50 ms par invocation ; ce plafond n’est pas
-une mesure de consommation. La mémoire et le CPU hébergés restent à mesurer
-dans les métriques Cloudflare, sans extrapoler les timings locaux.
+`npm run build:status` creates static files/source-bound manifest. Local qualification
+is included only when scope/fingerprint match current sources; otherwise unavailable.
+The fingerprint is rechecked after migration before publication.
+`npm run deploy:status` requires clean `main` matching freshly fetched `origin/main`,
+applies only dedicated status migrations and deploys its Worker, never business
+migrations. Verify domain, headers, manifest hashes, three windows and first real
+Cron. Empty precollection periods remain unknown. Main-site link uses normal
+`npm run deploy:live` release.
 
-La suite UI réutilisable se lance avec
-`npx playwright test -c playwright.status.config.ts --project=chromium`.
-Ses scénarios utilisent des réponses synthétiques et un serveur statique
-limité à la boucle locale ; ils ne lancent ni collecte ni D1. La CI les conserve
-avec les tests du service, de sécurité et du produit. Une mesure de production
-et sa première exécution Cron demeurent des preuves distinctes.
-
-## Publication et retour arrière
-
-Publication observée le **10 octobre 2026** : le service et l’application
-exposent le commit `c953596dc0650961a7294da622703f5edc3a764d`. Les **20 assets**
-publics du statut ont été vérifiés. La première collecte Cron a terminé à
-**02:45:05.570 UTC**, avec **14 contrôles publics réussis sur 14**. La lecture
-à 02:45:37.358 UTC confirme une mesure enregistrée dans chacune des fenêtres
-7/30/365 jours ; les jours antérieurs restent sans mesure. Ces preuves publiques
-ne qualifient aucun parcours métier authentifié ni aucune livraison.
-
-`npm run build:status` produit les fichiers statiques et leur manifeste lié aux
-sources. La preuve locale est incluse uniquement si son périmètre et son empreinte
-correspondent aux sources actuelles ; sinon elle apparaît indisponible. Cette
-empreinte est contrôlée à nouveau avant publication, après la migration.
-`npm run deploy:status` exige une branche `main` propre identique au
-`origin/main` fraîchement relu, applique uniquement les migrations dédiées au
-statut, puis publie le Worker. Il n’applique aucune migration métier.
-
-Vérifier ensuite le domaine, les headers, les empreintes du manifeste, les trois
-fenêtres d’historique et la première collecte Cron réelle. Les périodes vides
-avant cette collecte restent inconnues. Le lien depuis le site principal est
-publié par le circuit habituel `npm run deploy:live`.
-
-Pour revenir à une version précédente, sélectionner sa version Cloudflare
-vérifiée ; conserver les observations existantes et vérifier leur compatibilité.
-Ne pas supprimer la base d’historique comme moyen de retour arrière.
+Rollback selects a verified Cloudflare version, retaining observations and checking
+compatibility. Do not delete history as a rollback mechanism.

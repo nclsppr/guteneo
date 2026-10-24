@@ -94,7 +94,7 @@ would round to zero retain their exact precision. These strings are derived
 read-only and never enter tariff, fingerprint, reservation or settlement arithmetic.
 
 For the observed range 50,273,036–164,687,528 nanoEUR, presentation is
-“Environ 0,0503 à 0,1647 € HT”, with the same amount in euros of credit. The exact
+“Approximately EUR0.0503–0.1647 excluding tax”, with the same amount in euros of credit. The exact
 values are `0.050273036` and `0.164687528`. The historical integer remains 17;
 a separate 200-cent ceiling is “2,00 €”, reserved only at confirmation. The range
 is for the whole fax, including its estimated transmission. Actual duration is

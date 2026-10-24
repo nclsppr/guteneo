@@ -282,6 +282,19 @@ describe("public collector with no business transport", () => {
     });
     expect(result.checks).toHaveLength(14);
     expect(result.coverage).toHaveLength(11);
+    expect(result.coverage.map((row) => row.feature)).toEqual([
+      "Auth0 sign-in",
+      "PDF: import, antivirus, rendering",
+      "Studio: templates, data, generation",
+      "Cron, queues, callbacks, backups",
+      "MCP assistants",
+      "Fax",
+      "Email",
+      "Postal mail",
+      "Horizon / PDF validation",
+      "Stripe payments",
+      "AI proposals",
+    ]);
     expect(
       result.coverage.filter((c) => c.state === "not_checked"),
     ).toHaveLength(7);
@@ -704,6 +717,27 @@ describe("isolated D1 history and read-only public API", () => {
     expect(
       await db.prepare("SELECT COUNT(*) n FROM status_samples").first(),
     ).toEqual({ n: 1 });
+  });
+
+  it("reads historical public routes without rewriting the observed URL", async () => {
+    const historical = await snapshot();
+    historical.checks.find((check) => check.path === "/developers/")!.path =
+      "/developpeurs/";
+    await persistSnapshot(db, historical, NOW, NOW);
+    const response = await get("/api/status");
+    expect(response.status).toBe(200);
+    const data = (await response.json()) as Snapshot;
+    expect(data.checks.some((check) => check.path === "/developpeurs/")).toBe(
+      true,
+    );
+    expect(data.checks.some((check) => check.path === "/developers/")).toBe(
+      false,
+    );
+    expect(
+      await db
+        .prepare("SELECT sample_json FROM status_samples")
+        .first("sample_json"),
+    ).toBe(JSON.stringify(historical));
   });
 
   it("rejects empty snapshots before writes and corrupted stored evidence on reads", async () => {

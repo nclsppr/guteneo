@@ -1,49 +1,46 @@
-# Icône Guteneo pour Icon Composer
+# Guteneo icon for Icon Composer
 
-Le document natif [AppIcon.icon](../../Guteneo/Resources/AppIcon.icon) associe deux
-calques : un papier ivoire opaque `#F6F5EF` et le **portrait tramé officiel**,
-transparent. Le portrait n'est présent qu'une fois. Son bleu provient du fichier
-de marque existant ; aucune autre teinte n'a été générée pour le mode normal.
-Les rendus teintés suivent la couleur choisie par l'utilisateur dans iOS.
+The native [AppIcon.icon](../../Guteneo/Resources/AppIcon.icon) document combines
+two layers: opaque ivory paper `#F6F5EF` and the transparent **official halftone
+portrait**. The portrait appears once. Its blue comes from the existing brand
+file; no other hue was generated for normal mode. Tinted renders follow the
+color chosen by the user in iOS.
 
-L'icône classique `AppIcon.appiconset` reste dans le dépôt comme source de
-comparaison. Xcode sélectionne le document Icon Composer portant le même nom
-`AppIcon` ; ses rendus de compatibilité sont produits au build pour les anciens
-systèmes pris en charge par l'application.
+The classic `AppIcon.appiconset` remains in the repository for comparison.
+Xcode selects the Icon Composer document with the same `AppIcon` name and
+builds compatibility renders for the application's older supported systems.
 
-## Sources et fabrication
+## Sources and preparation
 
-- Portrait source : `../../Guteneo/Resources/Assets.xcassets/BrandPortrait.imageset/image.png`,
+- Portrait source: `../../Guteneo/Resources/Assets.xcassets/BrandPortrait.imageset/image.png`,
   512 × 512, SHA-256 `df22d2f73f7e281ece61a2c99b5331d30be344e647dc97c738d09f9df122fb9a`.
-- Papier : [01-paper.svg](01-paper.svg), rectangle vectoriel 1024 × 1024 couvrant
-  tout le canevas ; SVG identique dans le document natif.
-- [prepare-portrait.swift](prepare-portrait.swift) dispose le portrait inchangé
-  en couleur au centre d'un canevas RGBA 1024 × 1024, à 840 × 840. Le script ne
-  redessine ni ne détoure le logo. Le calque obtenu a un vrai canal alpha et
-  garde 92 pixels de marge de chaque côté.
-- Le document à deux calques a été exploré dans l'application **Icon Composer**
-  installée avec Xcode 27, puis le paquet éditable `.icon` a été conservé dans
-  le dépôt. Les cinq aperçus locaux ont été rendus par son binaire officiel
-  `ictool` 27.0 (129), sans retouche.
+- Paper: [01-paper.svg](01-paper.svg), a 1024 × 1024 vector rectangle covering
+  the full canvas; the native document contains the identical SVG.
+- [prepare-portrait.swift](prepare-portrait.swift) centers the unchanged color
+  portrait at 840 × 840 on a 1024 × 1024 RGBA canvas. The script neither redraws
+  nor removes the logo background. The resulting layer has a real alpha
+  channel and 92-pixel margins on each side.
+- The two-layer document was explored in **Icon Composer**, installed with
+  Xcode 27; the editable `.icon` package was then retained in the repository.
+  Its official `ictool` 27.0 (129) binary produced five unedited local previews.
 
-## Vérification du 22 septembre 2026
+## Verification on 22 September 2026
 
-- [Rendu normal 1024 px](previews/default.png) et
-  [rendu 64 px](previews/small.png) : le portrait unique reste reconnaissable et
-  son bleu cohérent avec le logo. Les modes sombre, teinté et génération 26 ont
-  aussi été exportés et inspectés localement ; leurs sorties ne sont pas la
-  source de l'icône.
-- Build iOS simulateur réussi sous Xcode 27. Le catalogue compilé contient
-  `AppIcon.iconstack` avec trois plans (fond système et deux groupes), plus des
-  rendus 1024 px iPhone/iPad en modes clair et sombre. Les rendus compilés sont
-  opaques. Le manifeste du binaire référence `AppIcon` comme icône primaire des
-  deux familles. `assetutil --validate-file` valide le catalogue.
-- Les coins arrondis transparents dans les **aperçus système** proviennent du
-  masque d'iOS ; le papier du document couvre le canevas de l'icône. L'exigence
-  de logos transparents concerne le portrait dans l'interface et le premier
-  plan de cette icône, pas le bitmap de distribution composé par Xcode.
+- [Normal 1024 px render](previews/default.png) and
+  [64 px render](previews/small.png): the single portrait remains recognizable
+  and its blue matches the logo. Dark, tinted and generation-26 modes were
+  also exported and inspected locally; their outputs are not the icon source.
+- iOS simulator build passed with Xcode 27. The compiled catalog contains
+  `AppIcon.iconstack` with three planes (system background and two groups),
+  plus 1024 px iPhone/iPad renders in light and dark modes. Compiled renders
+  are opaque. The binary manifest references `AppIcon` as the primary icon
+  for both families. `assetutil --validate-file` validates the catalog.
+- Transparent rounded corners in **system previews** come from the iOS mask;
+  the document's paper covers the icon canvas. Transparent-logo requirements
+  apply to the interface portrait and this icon's foreground, not to the
+  distribution bitmap composed by Xcode.
 
-Cette vérification locale ne remplace pas l'essai de l'icône installée sur un
-appareil physique ni la validation d'une archive de distribution signée.
+This local verification does not replace testing the installed icon on a
+physical device or validating a signed distribution archive.
 
-[Guide Apple Icon Composer](https://developer.apple.com/documentation/xcode/creating-your-app-icon-using-icon-composer).
+[Apple Icon Composer guide](https://developer.apple.com/documentation/xcode/creating-your-app-icon-using-icon-composer).

@@ -1,4 +1,4 @@
-import { msg } from "./messages";
+import { msg, msgIn } from "./messages";
 import { Field } from "./components";
 
 export function emailHtml(text: string, customHtml: string) {
@@ -38,11 +38,11 @@ export function EmailComposer({
         />
       </Field>
       <details className="email-advanced">
-        <summary>{msg("Personnaliser la version HTML (facultatif)")}</summary>
+        <summary>{msg("Customise the HTML version (optional)")}</summary>
         <Field
-          label={msg("Version HTML")}
+          label={msg("HTML version")}
           hint={msg(
-            "Sans HTML personnalisé, votre message est mis en forme automatiquement. Le message ci-dessus reste la version texte accessible.",
+            "Without custom HTML, your message is formatted automatically. The message above remains the accessible plain-text version.",
           )}
         >
           <textarea
@@ -62,16 +62,16 @@ export function EmailComposer({
 export function DistributionRoadmap() {
   return (
     <div className="distribution-roadmap">
-      <span className="eyebrow">{msg("Bientôt")}</span>
-      <h3>{msg("Une liste, tous vos destinataires.")}</h3>
+      <span className="eyebrow">{msgIn("short-status", "Coming soon")}</span>
+      <h3>{msg("One list, all your recipients.")}</h3>
       <p>
         {msg(
-          "L’import de listes de destinataires dans tous les formats et la distribution de PDF, de fichiers Excel et d’autres documents sont prévus. Ces possibilités ne sont pas encore disponibles.",
+          "Importing recipient lists in all formats and distributing PDFs, Excel files and other documents are planned. These features are not yet available.",
         )}
       </p>
       <p>
         {msg(
-          "Plus tard, chaque destinataire pourra retrouver ses documents dans son propre compte protégé par mot de passe.",
+          "Later, each recipient will be able to find their documents in their own password-protected account.",
         )}
       </p>
     </div>

@@ -1,5 +1,9 @@
 import site from "../../../packages/contracts/src/public-site.json" with { type: "json" };
 import {
+  canonicalPublicAssetPath,
+  canonicalPublicPath,
+} from "../../../packages/contracts/src/public-routes";
+import {
   isPublicLocaleAssetPath,
   localizedPublicPath,
   requestedPublicLocale,
@@ -74,6 +78,21 @@ export default {
       return new Response(request.method === "HEAD" ? null : response.body, {
         status: response.status,
         headers,
+      });
+    }
+
+    const canonicalPath =
+      canonicalPublicPath(pathname) ?? canonicalPublicAssetPath(pathname);
+    if (canonicalPath && canonicalPath !== url.pathname) {
+      const target = new URL(url);
+      target.pathname = canonicalPath;
+      return new Response(null, {
+        status: 308,
+        headers: {
+          ...privateHeaders,
+          Location: target.href,
+          "Cache-Control": "no-store",
+        },
       });
     }
 

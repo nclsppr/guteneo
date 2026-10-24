@@ -34,12 +34,16 @@ const test = base.extend<{ hosted: HostedEntry }>({
       try {
         await Promise.race([
           (async () => {
-            while (staticProxies.size)
-              await Promise.all([...staticProxies]);
+            while (staticProxies.size) await Promise.all([...staticProxies]);
           })(),
           new Promise<never>((_, reject) => {
             deadline = setTimeout(
-              () => reject(new Error("Local static proxy did not drain within 5 seconds.")),
+              () =>
+                reject(
+                  new Error(
+                    "Local static proxy did not drain within 5 seconds.",
+                  ),
+                ),
               5000,
             );
           }),
@@ -136,7 +140,9 @@ const test = base.extend<{ hosted: HostedEntry }>({
         });
       } else if (
         state.authenticated &&
-        ["/api/account/sessions", "/api/account/contacts"].includes(url.pathname)
+        ["/api/account/sessions", "/api/account/contacts"].includes(
+          url.pathname,
+        )
       ) {
         await route.fulfill({ json: { items: [], hasMore: false } });
       } else if (
@@ -235,16 +241,18 @@ test("explicit sign-out returns to the public site without reopening SSO and kee
   await page.reload();
   await expect(page).toHaveURL(publicEnglishUrl);
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
-  await expect(page.locator('.site-header a[href^="/auth/login?"]')).toHaveCount(
-    2,
-  );
+  await expect(
+    page.locator('.site-header a[href^="/auth/login?"]'),
+  ).toHaveCount(2);
   expect(hosted.authRequests).toEqual([]);
 
   await page.goto(`${origin}/#/app/connection/chatgpt`);
   await expect.poll(() => hosted.authRequests.length).toBe(1);
   const handoff = new URL(hosted.authRequests[0]);
   expect(handoff.pathname).toBe("/auth/login");
-  expect(handoff.searchParams.get("returnTo")).toBe("/#/app/connection/chatgpt");
+  expect(handoff.searchParams.get("returnTo")).toBe(
+    "/#/app/connection/chatgpt",
+  );
   await expect(page.locator(".access-panel")).toHaveCount(0);
 });
 
@@ -339,7 +347,7 @@ for (const copy of locales) {
       ).toHaveCount(0);
       await expect(
         page.getByRole("link", { name: copy.back, exact: true }),
-      ).toHaveAttribute("href", "#/");
+      ).toHaveAttribute("href", "/");
       await noHorizontalOverflow(page);
     }
     if (copy.code === "lb") {
@@ -427,7 +435,7 @@ for (const copy of locales) {
       '.site-header a[href^="/auth/login?"]:visible',
     );
     if (!(await visibleLink.count())) {
-      await page.locator(".mobile-menu-toggle").click();
+      await page.locator(".public-menu-toggle").click();
       visibleLink = page.locator(
         '.site-header a[href^="/auth/login?"]:visible',
       );

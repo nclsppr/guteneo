@@ -1,5 +1,9 @@
 import site from "../../../packages/contracts/src/public-site.json" with { type: "json" };
 import {
+  canonicalPublicAssetPath,
+  canonicalPublicPath,
+} from "../../../packages/contracts/src/public-routes";
+import {
   isPublicLocaleAssetPath,
   localizedPublicPath,
   requestedPublicLocale,
@@ -66,6 +70,28 @@ export async function servePublicAssets(
   } catch {
     return publicHttpError(request, pathname, 503, {
       plainMessage: "Service configuration unavailable",
+    });
+  }
+
+  const canonicalPath =
+    canonicalPublicPath(pathname) ?? canonicalPublicAssetPath(pathname);
+  if (canonicalPath && canonicalPath !== url.pathname) {
+    const target = new URL(url);
+    target.pathname = canonicalPath;
+    const crawlable =
+      url.origin === site.origin &&
+      publicPages.has(canonicalPath) &&
+      (!url.search ||
+        (requestedPublicLocale(url.searchParams) !== null &&
+          [...url.searchParams.keys()].every((key) => key === "lang")));
+    return new Response(null, {
+      status: 308,
+      headers: {
+        ...securityHeaders,
+        Location: target.href,
+        "X-Robots-Tag": crawlable ? "noindex, follow" : "noindex, nofollow",
+        "Cache-Control": crawlable ? "public, max-age=3600" : "no-store",
+      },
     });
   }
 

@@ -31,10 +31,10 @@ const json = (value: unknown, status = 200, headers: HeadersInit = {}) =>
   });
 async function input<T>(request: Request, schema: z.ZodType<T>): Promise<T> {
   if (!request.headers.get("Content-Type")?.startsWith("application/json"))
-    throw new AuthError("INVALID_INPUT", "Requête invalide.", 400);
+    throw new AuthError("INVALID_INPUT", "Invalid request.", 400);
   const reader = request.body?.getReader();
   let text = "";
-  if (!reader) throw new AuthError("INVALID_INPUT", "Requête invalide.", 400);
+  if (!reader) throw new AuthError("INVALID_INPUT", "Invalid request.", 400);
   const decoder = new TextDecoder();
   try {
     for (;;) {
@@ -43,7 +43,7 @@ async function input<T>(request: Request, schema: z.ZodType<T>): Promise<T> {
       text += decoder.decode(chunk.value, { stream: true });
       if (text.length > 2048) {
         await reader.cancel();
-        throw new AuthError("INVALID_INPUT", "Requête trop longue.", 413);
+        throw new AuthError("INVALID_INPUT", "The request is too long.", 413);
       }
     }
   } finally {
@@ -53,15 +53,11 @@ async function input<T>(request: Request, schema: z.ZodType<T>): Promise<T> {
   try {
     value = JSON.parse(text);
   } catch {
-    throw new AuthError("INVALID_INPUT", "Requête invalide.", 400);
+    throw new AuthError("INVALID_INPUT", "Invalid request.", 400);
   }
   const result = schema.safeParse(value);
   if (!result.success)
-    throw new AuthError(
-      "INVALID_INPUT",
-      "Vérifiez les informations du compte.",
-      400,
-    );
+    throw new AuthError("INVALID_INPUT", "Check the account information.", 400);
   return result.data;
 }
 
@@ -76,7 +72,9 @@ export async function publicPersonalSession(
     .bind(principal.tokenHash, principal.userId, now())
     .first<{ organization_id: string }>();
   const accessMode = documentAccessMode(env.SENSITIVE_DOCUMENT_AUTHENTICATION);
-  const policy = await env.DB.prepare("SELECT mode FROM secure_document_authentication_policy WHERE id=1").first<{ mode: string }>();
+  const policy = await env.DB.prepare(
+    "SELECT mode FROM secure_document_authentication_policy WHERE id=1",
+  ).first<{ mode: string }>();
   let documentAccessAllowed = false;
   try {
     requirePersonalDocumentAuthentication(principal, env);
@@ -122,14 +120,14 @@ export async function handlePersonalAccountRoute(
     if (!isLocalSimulation(request, env))
       throw new AuthError(
         "DEVELOPMENT_AUTH_FORBIDDEN",
-        "Disponible uniquement en simulation locale.",
+        "Available in local simulation only.",
         403,
       );
     requireSameOrigin(request, env);
     if (request.headers.has("Authorization"))
       throw new AuthError(
         "BROWSER_REQUIRED",
-        "Ouvrez Guteneo dans votre navigateur.",
+        "Open Guteneo in your browser.",
         403,
       );
     const body = await input(
@@ -150,8 +148,8 @@ export async function handlePersonalAccountRoute(
       .bind(
         userId,
         body.identity === "recipient"
-          ? "Destinataire de simulation"
-          : "Autre destinataire de simulation",
+          ? "Simulation recipient"
+          : "Another simulation recipient",
         email,
         now(),
       )
@@ -208,7 +206,7 @@ export async function handlePersonalAccountRoute(
       {
         error: {
           code: "RATE_LIMITED",
-          message: "Trop de requêtes. Réessayez dans une minute.",
+          message: "Too many requests. Try again in a minute.",
         },
       },
       429,
@@ -290,7 +288,7 @@ export async function handlePersonalAccountRoute(
     )
       .bind(principal.userId, revoke[1])
       .first<{ token_hash: string }>();
-    if (!row) throw new AuthError("NOT_FOUND", "Session introuvable.", 404);
+    if (!row) throw new AuthError("NOT_FOUND", "Session not found.", 404);
     await env.DB.batch([
       env.DB.prepare(
         "DELETE FROM browser_sessions WHERE token_hash=? AND user_id=? AND EXISTS(SELECT 1 FROM personal_sessions WHERE token_hash=? AND csrf_token=? AND expires_at>?)",
@@ -325,7 +323,7 @@ export async function handlePersonalAccountRoute(
     if (!principal.development && !principal.verifiedEmail)
       throw new AuthError(
         "EMAIL_VERIFICATION_REQUIRED",
-        "Vérifiez votre adresse email.",
+        "Verify your email address.",
         403,
       );
     let existing = await env.DB.prepare(
@@ -413,7 +411,7 @@ export async function handlePersonalAccountRoute(
   }
   return json(
     {
-      error: { code: "METHOD_NOT_ALLOWED", message: "Méthode non autorisée." },
+      error: { code: "METHOD_NOT_ALLOWED", message: "Method not allowed." },
     },
     405,
     { Allow: path.endsWith("session") ? "GET" : "GET, POST, PATCH" },

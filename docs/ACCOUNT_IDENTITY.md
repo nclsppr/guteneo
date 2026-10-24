@@ -1,346 +1,323 @@
-# Compte Guteneo unique et responsables de l’atelier
+# Signed-in account and workspace contacts
 
-## Compte unique et documents reçus — candidat du 24 octobre 2026
+## Unified account and received documents — 24 October 2026 candidate
 
-Le compte Guteneo est personnel et indépendant des ateliers. La même identité
-sert à recevoir des documents, conserver les copies autorisées, explorer les
-services et travailler dans ses ateliers. La réception n’ajoute aucune
-membership chez l’expéditeur. Il n’existe ni « compte destinataire » distinct à
-fusionner ensuite, ni atelier artificiel pour porter les documents personnels.
+A Guteneo account is personal and independent of workspaces. The same identity
+receives documents, keeps permitted copies, explores services and works in its
+workspaces. Receiving a document adds no membership in the sender's workspace.
+There is no separate “recipient account” to merge later and no artificial
+workspace holding personal documents.
 
-Les nouvelles inscriptions ordinaires créent une identité sans atelier. Les
-identités et memberships existantes sont conservées. L’espace **Mes documents**
-présente **Partagés avec moi** et **Copies conservées** ; **Utiliser Guteneo**
-donne accès aux services avec le même compte. Le choix ou la création d’un
-atelier intervient lors d’un usage d’envoi explicite. La création initiale est
-idempotente pour cette personne ; l’entrée dans un atelier recontrôle la
-membership et fait tourner la session. Aucun canal réel n’est ouvert par la
-création d’un atelier.
+Ordinary registration creates an identity without a workspace. Existing identities
+and memberships are retained. **My documents** contains **Shared with me** and
+**Saved copies**; **Use Guteneo** opens services with the same account. Choosing or
+creating a workspace occurs during explicit service use. Initial creation is
+idempotent for the person; entry rechecks membership and rotates the session.
+Creating a workspace activates no live channel.
 
-`GET /api/personal/session` expose le principal personnel, ses préférences et
-ses ateliers accessibles. Il ne remplace pas `GET /api/session`, qui garde son
-contrat d’atelier obligatoire. Les routes personnelles utilisent leur propre
-garde, le cookie navigateur et un CSRF lié à leur session ; un jeton Bearer
-d’atelier ne donne pas d’accès au coffre personnel. `POST /api/personal/workspace`
-crée l’atelier demandé ; `/api/personal/workspace/select` entre dans une
-membership courante. Le serveur déduit les droits et n’accepte aucun tenant
-affirmé par le navigateur.
+`GET /api/personal/session` exposes the personal principal, preferences and
+accessible workspaces. It does not replace `GET /api/session`, whose workspace
+requirement remains. Personal routes have their own guard, browser cookie and
+session-bound CSRF; a workspace Bearer token grants no personal-vault access.
+`POST /api/personal/workspace` creates the requested workspace;
+`/api/personal/workspace/select` enters a current membership. The server derives
+rights and accepts no browser-asserted tenant.
 
-L’identité continue d’être liée par issuer/sujet signés. Une égalité d’adresse
-e-mail ne fusionne jamais deux comptes et ne transfère pas les anciens documents
-à une adresse recyclée. La langue et le nom de profil sont communs aux contextes.
-Le profil personnel utilise `PATCH /api/personal/account` ; l’adresse reste en
-lecture seule. Ses sessions sont consultables et révocables sans disposer d’un
-atelier. La déconnexion personnelle révoque aussi la session d’atelier liée.
+Identity remains bound to the signed issuer/subject pair. Equal email addresses
+never merge accounts or transfer old documents to a recycled address. Profile
+language and name are shared across contexts. `PATCH /api/personal/account`
+updates the personal profile; the address remains read-only. Personal sessions
+can be inspected and revoked without a workspace. Personal logout also revokes
+the linked workspace session.
 
-Le contenu du nouveau parcours sensible exige une authentification récente
-attestée par le serveur. La preuve signée
-`https://guteneo.com/document_authentication` doit porter la politique
-`guteneo-sensitive-v1`, la méthode qualifiée et la même date `auth_time`.
-Une simple valeur `mfa`, un facteur enregistré ou le contrôle d’une boîte email
-ne suffit pas. Lecture et affichage sont bornés à quinze minutes depuis la
-preuve ; téléchargement original et remise personnelle demandent cinq minutes.
-La qualification de l’Action Auth0, des passkeys avec vérification utilisateur,
-de la fédération et des chemins de récupération demeure un jalon d’activation.
-Les preuves fortes de simulation locale sont explicitement fictives.
+Sensitive content requires recent server-attested authentication under the active
+document policy: `strong` by default or explicitly selected `verified_account`.
+The latter requires a verified account/email, an identity-linked Auth0 session
+and signed recent `auth_time`; it does not claim MFA. In `strong` mode the signed
+`https://guteneo.com/document_authentication` evidence must additionally contain
+policy `guteneo-sensitive-v1`, a qualified method and the matching `auth_time`.
+An `mfa` value, a registered factor or mailbox control alone is not strong proof.
+Reading, association and approval have a fifteen-minute freshness window; original
+export, personal deposit and deletion require five minutes. Qualified Auth0
+Actions, user-verified passkeys, federation and recovery remain activation gates
+for strong mode; the passkey choice is deferred. Local strong fixtures are
+explicitly synthetic. See the current policy and rollback contract in
+[implementation](SECURE_DISTRIBUTION_IMPLEMENTATION.md).
 
-L’invitation documentaire revient au parcours attendu après Auth0. Le token est
-retiré du fragment avant toute navigation de connexion : il n’entre jamais dans
-le `returnTo` d’une requête HTTP. Un transfert temporaire de dix minutes dans le
-`sessionStorage` du même onglet permet la reprise après callback. Il est nettoyé
-après rattachement, abandon ou déconnexion. Si ce stockage est indisponible,
-l’interface explique comment se connecter puis rouvrir l’invitation ; le token
-peut rester seulement en mémoire tant que cet onglet n’est pas quitté.
+Document invitations return to the intended journey after Auth0. The token is
+removed from the fragment before login navigation and never enters an HTTP
+`returnTo`. A ten-minute handoff in the same tab's `sessionStorage` resumes after
+callback and is cleared after association, abandonment or logout. If storage is
+unavailable, the UI explains signing in and reopening the invitation; the token
+can remain in memory only while that tab is retained.
 
-L’invitation ne livre pas le contenu : l’adresse vérifiée doit correspondre,
-puis l’atelier confirme l’association au compte sur une relation connue ou une
-preuve indépendante. L’attente n’affiche ni titre sensible ni pages. Le token
-n’est échangé que dans le corps de la demande de rattachement. Il n’apparaît
-jamais dans un journal d’atelier, une réponse MCP ou une preuve publique.
+An invitation delivers no content. The verified address must match, then the
+workspace independently confirms association with the account through a known
+relationship or separate evidence. Waiting exposes neither sensitive title nor
+pages. The token is exchanged only in the association request body and never
+appears in a workspace journal, MCP response or public evidence.
 
-Une réponse 401 d’un service documentaire ferme son accès et propose une reprise
-explicite ; elle ne relance pas automatiquement le bootstrap de session. La
-coque personnelle garde ses autres entrées. Le retour dans un onglet recontrôle
-la session ; un nouveau principal remonte ses pages sans l’état du précédent.
-Une erreur Auth0 affiche une reprise explicite et ne crée pas de boucle.
+A document-service 401 closes that access and offers explicit recovery; it does
+not restart session bootstrap automatically. Other personal navigation remains
+available. Returning to a tab rechecks the session; a changed principal remounts
+pages without the previous principal's state. Auth0 errors offer explicit
+recovery without a loop.
 
-La découverte des services reste volontaire. Aucune obligation d’achat, création
-automatique d’atelier, analyse du contenu à des fins commerciales ou inscription
-marketing n’est ajoutée. Les lectures d’une copie personnelle acquise ne sont
-plus communiquées à l’atelier d’origine. Les conditions détaillées et la matrice
-des surfaces figurent dans
-[les parcours de distribution et réception](SECURE_DISTRIBUTION_JOURNEYS.md).
+Service discovery is voluntary. It adds no purchase requirement, automatic
+workspace, commercial content analysis or marketing registration. Reads of an
+acquired personal copy are no longer reported to its original workspace. See
+[distribution and recipient journeys](SECURE_DISTRIBUTION_JOURNEYS.md) for the
+surface matrix and detailed terms.
 
-Ce candidat exige les migrations 0055–0058 et ses configurations privées ; il
-n’établit ni activation Auth0, ni migration distante, ni publication, ni
-qualification d’un navigateur humain en production. Les descriptions datées
-ci-dessous conservent la preuve des parcours antérieurs et ne signifient plus
-qu’un compte doit posséder un atelier.
+The initial candidate required migrations 0055–0058; the subsequent policy
+contract also requires 0059 and aligned private configuration. These requirements
+establish no Auth0 activation, remote migration, publication or human production
+browser qualification. Dated records below describe earlier journeys and no
+longer imply that every account must have a workspace.
 
-Le candidat 1.0.0 ignore les réponses d’une lecture web annulée, y compris un
-401 reçu pendant le changement de compte ou d’atelier. Elles ne doivent ni
-remplacer le contenu courant ni expirer la nouvelle session. Le hook partagé
-masque immédiatement les données d’un ancien chemin, et conserve seulement la
-ressource identique pendant son rafraîchissement. Les régressions observées sur
-fixtures couvrent le suivi de campagnes et le changement de compte ; les
-éditeurs déjà remontés par identifiant conservent leurs protections existantes.
+Candidate 1.0.0 ignores responses from cancelled web reads, including a 401
+received during account/workspace changes. They must neither replace current
+content nor expire the new session. The shared hook immediately hides data
+from an old path and retains only the identical resource during refresh.
+Fixture regressions cover campaign tracking and account switching; editors
+already remounted by identifier retain their existing protections.
 
-Contrat de compte enrichi les 9 et 11 octobre 2026 ; simplification de la coque V2
-du 14 octobre en cours de qualification. Cette page décrit l’implémentation ;
-la CI, la configuration Auth0 et la publication se qualifient séparément. Les
-preuves historiques et celles du candidat courant figurent dans
-[DASHBOARD_V2.md](DASHBOARD_V2.md).
+Account contract extended on 9 and 11 October 2026; the 14 October V2 shell
+simplification is undergoing qualification. This page describes implementation;
+CI, Auth0 configuration and publication are qualified separately. Historical
+and current-candidate evidence is in [DASHBOARD_V2.md](DASHBOARD_V2.md).
 
-Le contrat courant de production réserve l’application et sa connexion navigateur
-à `https://guteneo.com`. L’ancien hôte applicatif `workers.dev` et les URL de
-preview applicatives sont fermés ; ils ne sont pas des chemins de connexion de
-secours. Le callback, la déconnexion et les origines autorisées du client Auth0
-navigateur doivent être canoniques. La maquette fictive séparée reste hors scope.
-Voir [MAIN_RELEASE.md](MAIN_RELEASE.md). Aucune connexion, identité de retour ou
-reconnexion Auth0 avec un compte humain n’est déduite de ce contrat ni des tests
-sur fixtures.
+The current production contract reserves the application and browser login
+for `https://guteneo.com`. The former `workers.dev` application host and
+application preview URLs are closed; they are not fallback login paths.
+Browser Auth0 callback, logout and allowed origins must be canonical. The
+separate fictional mockup is out of scope. See [MAIN_RELEASE.md](MAIN_RELEASE.md).
+This contract and fixture tests imply no actual human Auth0 login, returned
+identity or reconnection.
 
-## Parcours et autorité
+## Journey and authority
 
-Tout membre navigateur retrouve son nom, son adresse de connexion et son rôle
-courant dans la navigation, même sur mobile. Le profil personnel est accessible
-par ce bloc ; Classique conserve également son entrée Compte. Le dashboard décrit les droits effectifs,
-y compris les options indépendantes d’approbation et de rapports du superviseur.
-Le rôle dépend de l’atelier actif ; il ne se modifie pas dans le profil personnel.
-Au retour dans un onglet, la session est relue pour réconcilier un changement de
-compte ou d’atelier effectué ailleurs. La langue enregistrée dans le compte est
-relue au même moment. Depuis le 10 octobre, son seul contrôle dans les vues
-connectées est celui de la configuration du compte ; il s’applique aussi au
-Belvédère. Un compte sans préférence utilise la langue du navigateur.
+Every browser member finds their name, login email and current role in
+navigation, including mobile. This block links to the personal profile;
+Classic also retains its Account entry. The dashboard explains effective
+rights, including the supervisor's independent approval/reporting options.
+Role depends on the active workspace and cannot be edited in the personal
+profile. On tab return, the session is reread to reconcile account/workspace
+changes elsewhere, including saved account language. Since 10 October,
+authenticated views expose its only selector in account configuration; the
+choice also applies to Belvédère. Accounts without a preference use browser
+language.
 
-Le nom d’affichage, la langue et la version de l’Atelier restent modifiables par la personne. L’adresse
-est en lecture seule : elle provient de l’identité de connexion et ne se change
-pas par `PATCH /api/account`. Une nouvelle connexion vérifiée actualise l’adresse
-sans écraser le nom personnel, la langue ni l’apparence enregistrée. En simulation, l’identité affichée
-reste une donnée locale fictive, explicitement marquée comme telle.
+People can edit their display name, language and workspace appearance.
+Email is read-only, comes from login identity and cannot be changed by
+`PATCH /api/account`. A new verified login updates email without overwriting
+personal name, saved language or appearance. Simulation identity remains
+explicitly identified local fictional data.
 
-L’action Changer de compte ouvre Auth0 avec une demande de réauthentification
-explicite. La connexion normale conserve le SSO. Auth0 ou un fournisseur social
-peut conserver son propre choix de compte ; l’interface affiche donc toujours
-l’identité réellement revenue du callback, sans promettre un sélecteur universel.
-L’état, le PKCE, la politique de vérification et le retour local restent vérifiés.
+Switch account opens Auth0 with an explicit reauthentication request. Normal
+login retains SSO. Auth0/social providers may retain their own account choice;
+the interface therefore shows the identity actually returned by the callback,
+without promising a universal picker. State, PKCE, verification policy and
+local return remain verified.
 
-## Déconnexion explicite — correctif local du 24 octobre
+## Explicit logout — local fix dated 24 October
 
-Après succès de `POST /api/logout`, le navigateur quitte complètement la route
-privée pour l’accueil public. Il ne remonte pas l’entrée de connexion, qui poursuit
-automatiquement vers Auth0 quand une route privée n’a plus de session. Ce départ
-évite qu’un SSO encore valide recrée immédiatement une session après le clic.
-Une erreur serveur conserve la vue et affiche l’échec, sans prétendre que la
-session a été fermée. Le contexte CSRF client est effacé après succès.
+After successful `POST /api/logout`, the browser fully leaves the private route
+for the public homepage. It does not remount login entry, which automatically
+continues to Auth0 when a private route has no session. This prevents valid
+SSO from immediately recreating a session after logout. Server error retains
+the view and displays failure without claiming session termination. Client
+CSRF context is cleared after success.
 
-Cette action termine la seule session Guteneo courante par le contrat existant ;
-elle ne révoque ni le SSO Auth0 ni les connexions OAuth. Une nouvelle entrée privée
-volontaire garde son passage direct vers Auth0 ; **Changer de compte** conserve
-sa demande explicite de réauthentification. Le correctif ne change aucun client,
-scope, rôle ou réglage fournisseur. Le test navigateur de l’entrée hébergée couvre
-le refus, le succès, le rechargement public et une nouvelle entrée privée sur un
-hôte réservé entièrement intercepté. Ces fixtures restent distinctes de la CI,
-de la publication et d’une déconnexion réellement observée après publication.
+This ends only the current Guteneo session under the existing contract;
+it revokes neither Auth0 SSO nor OAuth connections. Intentional new private
+entry retains direct Auth0 continuation; **Switch account** retains explicit
+reauthentication. No client, scope, role or provider setting changes. The
+hosted-entry browser test covers refusal, success, public reload and renewed
+private entry on a fully intercepted reserved host. Fixtures remain separate
+from CI, publication and actual observed logout after publication.
 
-## Apparence personnelle de l’Atelier
+## Personal workspace appearance
 
-Le compte est ancré en bas de la navigation de gauche sur ordinateur, avec nom,
-adresse, rôle, accès au profil et changement de compte. Dans Mon profil,
-**Version de l’atelier** est placée à côté de la langue et propose **Classique**
-ou **V2**. Le choix n’est appliqué durablement qu’après **Enregistrer les
-modifications** et réussite du `PATCH /api/account` existant. Les libellés sont
-disponibles en français, anglais, allemand et luxembourgeois. La V2 réelle ne
-porte pas de mention expérimentale ; les sessions simulées conservent leur
-bandeau de simulation.
+The account block sits at the bottom of left navigation on desktop, with
+name, email, role, profile and account switching. In My profile,
+**Workspace version** sits beside language and offers **Classic** or **V2**.
+The choice persists only after **Save changes** and successful existing
+`PATCH /api/account`. Labels exist in French, English, German and
+Luxembourgish. Actual V2 is not labeled experimental; simulated sessions
+retain their simulation banner.
 
-Dans le candidat V2 du 14 octobre, le nom d’atelier reste dans la navigation et
-l’identité personnelle dans le bloc de compte ; le tableau de bord conserve les
-droits effectifs sans recopier ces deux identités. Le pied de page redondant est
-retiré et le lien public **État du service** rejoint **Changer de compte** dans
-la ligne d’utilitaires du bloc d’identité.
-Ce bloc et ce lien restent accessibles sur mobile quand le menu est fermé.
-Le fuseau horaire du navigateur accompagne les dates concernées, sans nouveau
-réglage de profil ni changement de leur formatage. Classique garde sa coque.
-Ces déplacements ne changent ni l’adresse de connexion, ni les contacts, ni le
-rôle, ni la sauvegarde du profil et n’ajoutent aucune lecture métier.
+In the 14 October V2 candidate, workspace name stays in navigation and
+personal identity in the account block; the dashboard keeps effective rights
+without repeating either identity. The redundant footer is removed and
+public **Service status** joins **Switch account** in identity utilities.
+That block/link remains accessible with the mobile menu closed. Browser
+timezone accompanies relevant dates without a new profile setting or formatting
+change. Classic retains its shell. These moves change neither login email,
+contacts, role nor profile saving, and add no business read.
 
-Le champ facultatif strict `preferredDashboardAppearance: "classic" | "v2"`
-est personnel. Tout rôle navigateur peut le modifier pour sa propre identité,
-sans changer ses droits ou les réglages d’un autre membre. Il est stocké dans
-`users.preferred_dashboard_appearance`, ajouté par la migration `0053` avec
-défaut `classic`, contraintes `NOT NULL` et `CHECK`. Il suit la même personne
-entre sessions, appareils et memberships après relecture de session. La
-préférence n’appartient pas à l’atelier ; les contenus et autorisations métier
-restent soumis à l’atelier courant.
+Strict optional `preferredDashboardAppearance: "classic" | "v2"` is personal.
+Every browser role can edit its own preference without changing rights or
+another member's settings. It is stored in `users.preferred_dashboard_appearance`,
+added by migration `0053` with default `classic`, `NOT NULL` and `CHECK`
+constraints. After session reread it follows the same person across sessions,
+devices and memberships. It does not belong to the workspace; business content
+and authority remain subject to the current workspace.
 
-`GET /api/session` et `GET /api/account` exposent
-`user.preferredDashboardAppearance`. Les anciens PATCH de nom/langue qui
-omettent ce champ le préservent. La mutation utilise l’Origin, le CSRF et la
-revalidation transactionnelle d’autorité existants. Un ciblage étranger ou une
-valeur inconnue est refusé ; une membership révoquée avant écriture n’entraîne
-aucune modification partielle. L’audit `account.updated` enregistre les noms de
-champs, sans leurs valeurs.
+`GET /api/session` and `GET /api/account` expose
+`user.preferredDashboardAppearance`. Existing name/language PATCH requests
+omitting it preserve the field. Mutation uses existing Origin, CSRF and
+transactional authority revalidation. Foreign targets/unknown values are
+rejected; membership revoked before write produces no partial change.
+`account.updated` audits field names without values.
 
-Le paramètre `?atelier=v2` ou `?atelier=classic` force seulement la présentation
-pour cette entrée ; aucune écriture serveur n’est effectuée par le lien.
-Un enregistrement réussi après sélection explicite de l’apparence et le changement
-d’identité détecté abandonnent un ancien forçage. Une sauvegarde du nom ou de la
-langue seulement ne persiste ni ne retire le forçage. Le sélecteur expose le
-choix enregistré dans le compte, pas la présentation temporaire. Le cache navigateur est un amorçage best-effort,
-pas la source d’autorité du compte authentifié. Une erreur de sauvegarde doit
-rester visible et ne vaut pas confirmation de la préférence.
+`?appearance=v2` or `?appearance=classic` forces presentation only for that entry;
+the link performs no server write. Legacy `atelier` links remain accepted inbound. Successful saving after explicit appearance
+selection and detected identity changes discard an old override. Saving only
+name/language neither persists nor removes it. The selector shows the saved
+account choice, not temporary presentation. Browser cache is best-effort
+bootstrap, not authenticated account authority. Save errors remain visible
+and do not confirm preference persistence.
 
-## Qui contacter
+## Who to contact
 
-`GET /api/account/contacts` est réservé aux sessions navigateur. Le serveur déduit
-l’atelier de la membership authentifiée. Il expose au plus 50 administrateurs et
-superviseurs courants, hors demandeur : identifiant, nom, adresse et permissions.
-`hasMore` signale la limite ; aucune liste d’autres ateliers, session ou connexion
-n’est incluse. L’adresse permet un lien mailto choisi par l’utilisateur ; aucune
-communication n’est envoyée par Guteneo ou par un assistant.
+`GET /api/account/contacts` is browser-session only. The server derives the
+workspace from authenticated membership. It exposes at most 50 current
+administrators/supervisors other than the requester: ID, name, email and
+permissions. `hasMore` indicates the limit; no other-workspace, session or
+connection list is included. Email supports a user-chosen mailto link;
+neither Guteneo nor an assistant sends a communication.
 
-Les administrateurs sont les contacts pour les accès et la facturation. Les
-superviseurs ne sont présentés comme approbateurs que si leur option d’approbation
-est réellement active. Un superviseur sans cette option reste identifiable sans
-lui attribuer ce pouvoir. L’absence de contact, l’adresse manquante et les erreurs
-réseau ont un état explicite et une reprise manuelle ; les lectures sont rafraîchies
-au retour dans l’onglet. Les refus de permissions orientent vers le profil et les
-contacts. Le profil ne permet jamais une auto-promotion.
+Administrators handle access/billing. Supervisors appear as approvers only
+when their approval option is active. A supervisor without it remains
+identifiable without that authority. Missing contacts/email and network errors
+have explicit states/manual recovery; reads refresh on tab return. Permission
+refusals direct users to profile/contacts. The profile never permits
+self-promotion.
 
-Une erreur de lecture de cet annuaire conserve le focus dans le contrôle déjà utilisé. Elle reste annoncée par `role=alert` et propose **Réessayer**, sans détourner la saisie du profil ni accorder de droits. Ce choix concerne seulement l’annuaire chargé en arrière-plan ; les erreurs d’action conservent leur comportement de focalisation habituel. Aucun endpoint, contenu, destinataire ou règle de membership n’est modifié.
+Directory-read errors preserve focus in the control already in use. They
+remain announced through `role=alert` with **Retry**, without stealing profile
+input focus or granting rights. This applies only to the background-loaded
+directory; action errors retain normal focus behavior. No endpoint, content,
+recipient or membership rule changes.
 
-La liste administrative des membres inclut l’adresse pour distinguer les
-homonymes. Seul l’administrateur peut modifier les rôles, inviter ou déconnecter les accès d’un
-membre. La protection du dernier administrateur et la révocation des sessions,
-connexions et mandats lors d’un changement de droits restent applicables.
+The administrative member list includes email to distinguish namesakes.
+Only administrators edit roles, invite or disconnect members. Last-admin
+protection and session/connection/mandate revocation on rights changes remain.
 
-## Surfaces et confidentialité
+## Surfaces and privacy
 
-Web en français, anglais, allemand et luxembourgeois. Les endpoints d’identité
-existants restent des endpoints navigateur : aucun annuaire MCP, privilège OAuth
-ou mandat expert n’est ajouté. Le natif conserve ses réglages existants ; ses
-lectures de session et de compte ajoutent `preferredDashboardAppearance`, sans
-nouveau contrôle ni mutation native de ce champ. Le panneau de contacts reste
-une évolution web. Les emails ne sont ni
-indexés publiquement, ni ajoutés aux logs ou preuves publiques. Les réponses
-privées portent `Cache-Control: no-store`.
+Web supports French, English, German and Luxembourgish. Existing identity
+endpoints remain browser endpoints: no MCP directory, OAuth privilege or
+expert mandate is added. Native retains existing settings; session/account
+reads add `preferredDashboardAppearance` without a new native control/mutation.
+Contacts remain a web enhancement. Emails are neither publicly indexed nor
+added to logs/public evidence. Private responses use `Cache-Control: no-store`.
 
-Belvédère demeure une autorité plateforme distincte et en lecture seule. Un
-administrateur d’atelier ne devient pas Veilleur. Sa migration additive est
-`0052_belvedere.sql`, après les migrations déjà publiées 0044–0051 ; la configuration
-privée et la qualification hébergée restent nécessaires avant activation.
+Belvédère remains separate read-only platform authority. A workspace
+administrator does not become Watcher. Its additive migration is
+`0052_belvedere.sql`, after published migrations 0044–0051; private configuration
+and hosted qualification remain necessary before activation.
 
-## Preuves
+## Evidence
 
-Les commandes exécutées, résultats et limites du candidat sont consignés dans
-[DASHBOARD_IDENTITY_PROOF.md](DASHBOARD_IDENTITY_PROOF.md). Les anciennes preuves
-Belvédère restent historiques et ne qualifient pas cette intégration.
+Executed commands, results and candidate limits are in
+[DASHBOARD_IDENTITY_PROOF.md](DASHBOARD_IDENTITY_PROOF.md). Older Belvédère
+evidence remains historical and does not qualify this integration.
 
-### Simplification V2 — candidat du 14 octobre 2026
+### V2 simplification — 14 October 2026 candidate
 
-Les vérifications du compte visible sur ordinateur et mobile, du menu fermé,
-du lien de statut et des actions soumises aux permissions passent dans les
-18 cas navigateur du candidat, avec persistance et consentement conservés.
-Quinze routes racines sont parcourues en Classique/V2 au viewport de chacun
-des trois projets puis à 320 px ; aucune qualification d’appareil physique
-n’est déduite. Typecheck, lint, build web, atlas et 40 tests de locale/apparence
-réussissent. CI du commit exact et contrôle authentifié après publication restent
-distincts et à qualifier ; preuves dans [DASHBOARD_V2.md](DASHBOARD_V2.md).
-Aucune modification du contrat compte/session, migration, identité Auth0, droit
-ou surface native/REST/MCP n’est requise par cette simplification.
+Desktop/mobile account visibility, closed menu, status link and permission-bound
+actions pass the candidate's 18 browser cases with persistence/consent preserved.
+Fifteen root routes are traversed in Classic/V2 at each of three projects'
+viewports and then 320 px; no physical-device qualification is inferred.
+Typecheck, lint, web build, feature map and 40 locale/appearance tests pass.
+Exact-commit CI and authenticated postpublication verification remain separate
+and unqualified; see [DASHBOARD_V2.md](DASHBOARD_V2.md). This simplification
+requires no account/session-contract change, migration, Auth0 identity, right
+or native/REST/MCP surface change.
 
-### Préférence d’apparence — qualification locale du 11 octobre 2026
+### Appearance preference — local qualification on 11 October 2026
 
-L’extension de compte a 91 tests backend ciblés réussis : 27 compte, 47
-authentification et 17 mobile. Le parcours final ajoute 7 tests d’apparence et
-29 cas navigateur locaux réussis, dont 14 sur la maquette isolée et 15 sur
-l’application locale. Cette dernière distingue simulation D1/queue et sessions
-interceptées selon le scénario. Un passage manuel par Mon compte a également
-vérifié la sauvegarde du français et de V2, la confirmation affichée, le retrait
-du paramètre temporaire et la conservation de la route.
+The account extension passed 91 targeted backend tests: 27 account, 47
+authentication and 17 mobile. The final journey adds 7 appearance tests and
+29 local browser cases, including 14 isolated-mockup and 15 local-application
+cases. The latter distinguishes D1/queue simulation from intercepted sessions
+by scenario. A manual My account journey verified saving French/V2, displayed
+confirmation, temporary-parameter removal and retained route.
 
-Le typecheck, le lint final, les builds preview/live et le contrôle de l’atlas
-ont réussi. Les rapports, périmètres et résultats antérieurs sont détaillés dans
-[DASHBOARD_V2.md](DASHBOARD_V2.md). Ces preuves ne qualifient pas la CI du commit,
-la migration 0053 distante, la publication ou la persistance entre appareils
-humains sur le service hébergé. Aucune communication réelle n’a été effectuée.
+Typecheck, final lint, preview/live builds and feature-map checks passed.
+Reports, scopes and earlier results are detailed in
+[DASHBOARD_V2.md](DASHBOARD_V2.md). They qualify neither commit CI, remote
+migration 0053, publication nor cross-device persistence for actual users
+on the hosted service. No real communication occurred.
 
-### Session humaine en production — 10 octobre 2026
+### Human production session — 10 October 2026
 
-Une connexion Auth0 humaine sur `https://guteneo.com` a été vérifiée avec le
-compte de l’opérateur, sur la version publique issue de
-`4ce1bdd467f9aa35f98e525986db888eff3bf977`. Le profil affiche l’identité, l’adresse
-de connexion et le rôle Administrateur ; les quatre droits effectifs et les
-réglages de nom, d’atelier et de langue sont visibles. L’identité et les valeurs
-existantes restent présentes après rechargement. Le dashboard affiche également
-l’identité, le rôle et l’accès administratif ; les contacts se chargent sans
-erreur, avec un état explicite lorsqu’aucun autre responsable n’est disponible.
-Les résultats bornés et la capture privée sont conservés hors dépôt, sans publier
-les coordonnées du compte. Aucun profil, rôle, mandat ou envoi n’a été modifié.
-Cette preuve qualifie ce compte Administrateur et cette session ; elle ne
-remplace pas les fixtures des autres rôles ou une qualification iOS réelle.
-Elle précède la préférence d’apparence du 11 octobre et ne prouve ni sa migration
-distante, ni sa sauvegarde sur le service hébergé.
+Human Auth0 login on `https://guteneo.com` was verified with the operator's
+account on the public version from
+`4ce1bdd467f9aa35f98e525986db888eff3bf977`. Profile shows identity, login email,
+Administrator role, four effective rights, and name/workspace/language settings.
+Existing identity/values remain after reload. Dashboard also shows identity,
+role and administrative access; contacts load without error and explicitly
+state when no other responsible contact is available. Bounded results and
+private capture remain outside the repository without exposing contact details.
+No profile, role, mandate or dispatch changed. This qualifies that Administrator
+account/session, not other-role fixtures or actual iOS use. It predates the
+11 October appearance preference and proves neither remote migration nor
+hosted saving of that preference.
 
-## Entrée navigateur et continuité Auth0 — candidat du 24 octobre 2026
+## Browser entry and Auth0 continuity — 24 October 2026 candidate
 
-Les liens publics « Se connecter » ouvrent directement Auth0, avec la langue
-active et la destination demandée. Le helper `auth-navigation.ts` sert aussi le
-rendu statique : accueil, journal, guides assistants, préparation directe et
-Horizon partagent la même construction d’URL. Auth0 conserve son formulaire
-natif de connexion, inscription et récupération du mot de passe. Aucun écran
-Guteneo de choix ne précède cette authentification. Une route privée ouverte
-sans session poursuit automatiquement vers Auth0 après le contrôle initial de
-session ; le démarrage est borné à une navigation et remplace l’entrée dans
-l’historique. Les liens normaux restent utilisables dans un nouvel onglet.
+Public sign-in links open Auth0 directly with active language/requested
+destination. `auth-navigation.ts` also serves static rendering: homepage,
+journal, assistant guides, direct preparation and Horizon share URL construction.
+Auth0 retains its native login/signup/password-recovery forms. No Guteneo
+choice screen precedes authentication. A private route without a session
+automatically continues to Auth0 after initial session checking; startup is
+bounded to one navigation and replaces the history entry. Normal links remain
+usable in a new tab.
 
-Les repères suivent la hiérarchie observée sur le formulaire public Stripe :
-une seule action de connexion, le mot de passe oublié près du champ natif et
-l’inscription en lien secondaire. Les textes préparés nomment Guteneo dès le
-titre et précisent « Retrouvez vos documents et suivez vos envois. ».
-« Première visite ? Créer un accès » et « Déjà inscrit ? Se connecter » guident
-le changement de formulaire. L’étape mot de passe annonce le retour vers la
-page demandée. Ces textes n’ajoutent pas de connexion sociale, de champ,
-d’étape ou de droit. Référence : https://dashboard.stripe.com/login.
+Visual hierarchy follows the observed public Stripe form: one login action,
+forgotten password beside its native field and signup as a secondary link.
+Prepared copy names Guteneo in the title and explains finding documents and
+tracking dispatches. First-visit/create-access and existing-user/sign-in links
+guide form switching. The password step announces return to the requested
+page. This adds no social login, field, step or right.
+Reference: https://dashboard.stripe.com/login.
 
-L’écran Guteneo est réservé à une erreur de connexion. Il propose une reprise
-explicite, avec un titre unique, une description courte, l’annonce du passage
-vers Auth0 et les liens de confidentialité, conditions et assistance. Un retour
-au site reste accessible. Le portrait officiel et le mot-symbole noir sont
-conservés. Aucun grand visuel ni répétition de promesse. Une erreur ne relance
-jamais automatiquement le fournisseur. Un retour depuis le cache de navigation
-rétablit les liens. L’inscription secondaire n’est proposée sur cet écran que si
-les capacités serveur annoncent sa disponibilité. La démonstration locale et la
-maquette gardent leurs organisations fictives et leur signal de simulation.
+The Guteneo screen is reserved for login errors. It offers explicit recovery
+with one title, short description, Auth0 transition announcement and privacy,
+terms/support links. Return to the site remains available. The official portrait
+and black wordmark stay. No large artwork or repeated promise. An error never
+automatically retries the provider. Returning from navigation cache restores
+links. Secondary signup appears only when server capabilities advertise it.
+Local demonstration/mockup retain fictional organizations and simulation cues.
 
-Le contrôle initial de session n’écrase pas la langue visiteur en cas d’échec,
-ni une sélection effectuée pendant sa lecture. Une session valide applique
-toujours la langue enregistrée du compte. La récupération reprend la route et
-la langue de la transaction seulement après validation et consommation du state
-lié au navigateur. Les paramètres de callback ne fournissent aucun contexte.
-La reprise ne recopie pas tokens, invitations, destinataires ou URL privées ;
-seuls les paramètres de navigation autorisés sont conservés. Un state expiré ou
-invalide revient à l’entrée générique sûre. PKCE, nonce, Origin/CSRF, membership,
-MFA, consentement et mandats sont inchangés. Les surfaces natives, REST métier
-et MCP ne reçoivent aucun droit supplémentaire.
+Initial session checking overwrites neither visitor language on failure nor
+a selection made during the read. Valid sessions still apply saved account
+language. Recovery resumes transaction route/language only after validating
+and consuming browser-bound state. Callback parameters provide no context.
+Recovery copies neither tokens, invitations, recipients nor private URLs;
+only allowed navigation parameters survive. Expired/invalid state returns
+to a safe generic entry. PKCE, nonce, Origin/CSRF, membership, MFA, consent
+and mandates are unchanged. Native, business REST and MCP gain no rights.
 
-Le script `scripts/setup-auth0-branding.mjs` prépare une présentation compacte
-ivoire/cobalt avec le portrait officiel et des textes français, anglais et
-allemands. Auth0 ne prend pas en charge le luxembourgeois : Guteneo conserve
-`lb`, tandis que `ui_locales` demande `de`. Le script ne modifie pas
-`enabled_locales` ; si `de` n’est pas activé, Auth0 peut utiliser la langue par
-défaut du tenant. Le thème préserve les champs optionnels existants, les
-dictionnaires de texte et les politiques d’identité.
+`scripts/setup-auth0-branding.mjs` prepares a compact ivory/cobalt presentation
+with the official portrait and French/English/German copy. Auth0 does not
+support Luxembourgish: Guteneo retains `lb`, while `ui_locales` requests `de`.
+The script does not modify `enabled_locales`; if `de` is disabled, Auth0 may
+use tenant default language. The theme preserves optional existing fields,
+text dictionaries and identity policies.
 
-La préparation et les tests locaux ne publient pas cette expérience. La fusion,
-la publication web, l’application du thème Auth0 et sa vérification hébergée
-restent distinctes et soumises à autorisation. Aucun identifiant n’a été saisi
-et aucun réglage Auth0 n’a été écrit pendant l’inspection visuelle.
+Preparation/local tests do not publish this experience. Merge, web publication,
+Auth0 theme application and hosted verification remain separate and require
+authorization. No credential was entered or Auth0 setting written during
+visual inspection.
 
-La bascule vers `auth.guteneo.com` est un chantier distinct. Les liens publics
-utilisent `/auth/login` et les endpoints serveur suivent l’issuer configuré ;
-aucun nouveau domaine n’est codé en dur dans ce parcours. Cette bascule doit
-qualifier séparément la continuité des identités et connexions, dont les clés
-incluent l’issuer exact. Le tenant Management du script de branding reste le
-tenant Auth0 d’origine, même lorsque l’interface utilise le domaine personnalisé.
+Switching to `auth.guteneo.com` is separate work. Public links use `/auth/login`
+and server endpoints follow the configured issuer; this journey hardcodes no
+new domain. The switch must independently qualify identity/connection
+continuity, whose keys include the exact issuer. The branding script's
+Management tenant remains the original Auth0 tenant even when the interface
+uses a custom domain.

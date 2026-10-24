@@ -55,7 +55,8 @@ test("Word import exposes conversion warnings, supports native visual editing an
   const warnings = page
     .getByRole("status")
     .filter({ hasText: "Le modèle a été importé" });
-  await expect(warnings).toContainText("Styles Word");
+  await expect(warnings).toContainText("styles Word");
+  await expect(warnings).not.toContainText(imported.warnings[0].message);
   await expect(warnings).toContainText("DOCX_LAYOUT_REVIEW");
   await page
     .getByRole("link", { name: "Ouvrir le modèle Word importé", exact: true })

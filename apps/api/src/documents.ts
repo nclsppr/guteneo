@@ -186,7 +186,7 @@ async function reserveScanBudget(
   if (!result)
     throw new ContentError(
       "SCAN_QUOTA_EXCEEDED",
-      "Limite quotidienne d’analyses atteinte. Réessayez demain.",
+      "Daily analysis limit reached. Try again tomorrow.",
       429,
     );
 }
@@ -198,13 +198,13 @@ export async function readLimited(
   if (!response.ok)
     throw new ContentError(
       "DOWNLOAD_FAILED",
-      "Le fichier source est inaccessible.",
+      "The source file is inaccessible.",
       422,
     );
   const declared = Number(response.headers.get("content-length") ?? 0);
   if (declared > limit)
-    throw new ContentError("FILE_TOO_LARGE", "Fichier trop volumineux.", 413);
-  if (!response.body) throw new ContentError("EMPTY_DOWNLOAD", "Fichier vide.");
+    throw new ContentError("FILE_TOO_LARGE", "File is too large.", 413);
+  if (!response.body) throw new ContentError("EMPTY_DOWNLOAD", "Empty file.");
   const reader = response.body.getReader();
   const chunks: Uint8Array[] = [];
   let size = 0;
@@ -216,11 +216,7 @@ export async function readLimited(
       if (next.done) break;
       size += next.value.byteLength;
       if (size > limit)
-        throw new ContentError(
-          "FILE_TOO_LARGE",
-          "Fichier trop volumineux.",
-          413,
-        );
+        throw new ContentError("FILE_TOO_LARGE", "File is too large.", 413);
       chunks.push(next.value);
     }
   } finally {
@@ -270,7 +266,7 @@ export class ImportSourceError extends ContentError {
     const safeHost = hostname ? publicImportHostname(hostname) : undefined;
     super(
       code,
-      `${message}${safeHost ? ` Domaine source : ${safeHost}.` : ""}`,
+      `${message}${safeHost ? ` Source domain: ${safeHost}.` : ""}`,
       status,
     );
     this.sourceHost = safeHost;
@@ -298,7 +294,7 @@ export function permittedImportUrl(raw: string): URL {
     throw new ImportSourceError(
       "INVALID_URL",
       "invalid_url",
-      "URL source invalide. Joignez de nouveau le PDF pour obtenir une référence de fichier téléchargeable.",
+      "Invalid source URL. Attach the PDF again to obtain a downloadable file reference.",
     );
   }
   const hostname = url.hostname.toLowerCase();
@@ -312,7 +308,7 @@ export function permittedImportUrl(raw: string): URL {
     throw new ImportSourceError(
       "SOURCE_NOT_ALLOWED",
       reason,
-      "Source non autorisée. Utilisez un lien direct HTTPS vers un domaine public, sans identifiants, port personnalisé ni fragment, ou le téléversement authentifié Guteneo.",
+      "Source not allowed. Use a direct HTTPS link to a public domain without credentials, a custom port or a fragment, or use authenticated Guteneo upload.",
       hostname,
     );
   return url;
@@ -551,7 +547,7 @@ export class DocumentService {
     if (!object)
       throw new ContentError(
         "DOCUMENT_UNAVAILABLE",
-        "L’original de ce document est indisponible.",
+        "The original of this document is unavailable.",
         404,
       );
     if (
@@ -561,7 +557,7 @@ export class DocumentService {
     )
       throw new ContentError(
         "DOCUMENT_INTEGRITY_ERROR",
-        "L’intégrité de l’original n’a pas pu être vérifiée.",
+        "The original file's integrity could not be verified.",
         423,
       );
     const bytes = await readLimited(
@@ -578,7 +574,7 @@ export class DocumentService {
     if (bytes.byteLength !== document.size || hash !== document.sha256)
       throw new ContentError(
         "DOCUMENT_INTEGRITY_ERROR",
-        "L’intégrité de l’original n’a pas pu être vérifiée.",
+        "The original file's integrity could not be verified.",
         423,
       );
     return bytes;
@@ -677,7 +673,7 @@ export class DocumentService {
     if (result[0].meta.changes !== 1 && current.status === "quarantined")
       throw new ContentError(
         "DOCUMENT_SCAN_EXPIRED",
-        "Cette analyse a expiré. Vous pouvez réessayer.",
+        "This analysis has expired. You can try again.",
         409,
       );
     return current;
@@ -690,7 +686,7 @@ export class DocumentService {
     if (document.status !== "quarantined" || document.pages !== 0)
       throw new ContentError(
         "DOCUMENT_NOT_RESCANABLE",
-        "Ce document ne peut pas être analysé de nouveau.",
+        "This document cannot be analyzed again.",
         409,
       );
     if (document.analysis.state === "processing") return document;
@@ -703,7 +699,7 @@ export class DocumentService {
       );
       throw new ContentError(
         "SCANNER_NOT_CONFIGURED",
-        "Le service d’analyse doit être raccordé avant de réessayer.",
+        "The analysis service must be connected before trying again.",
         503,
       );
     }
@@ -912,13 +908,13 @@ export class DocumentService {
     if (ctx.actor !== "browser" || ctx.role !== "admin")
       throw new ContentError(
         "SCANNER_ADMIN_REQUIRED",
-        "Seul un administrateur peut préparer le service d’analyse depuis son navigateur.",
+        "Only an administrator can prepare the analysis service in their browser.",
         403,
       );
     if (!this.env.SCANNER)
       throw new ContentError(
         "SCANNER_NOT_CONFIGURED",
-        "Le service d’analyse n’est pas raccordé.",
+        "The analysis service is not connected.",
         503,
       );
     await reserveScanBudget(this.env.DB, ctx.organizationId, true);
@@ -970,7 +966,7 @@ export class DocumentService {
         if (existing.sha256 !== hash)
           throw new ContentError(
             "DOCUMENT_INTEGRITY_MISMATCH",
-            "Document immuable incompatible.",
+            "Incompatible immutable document.",
             409,
           );
         // Recover historical/interrupted ready registrations whose exact scan
@@ -1001,7 +997,7 @@ export class DocumentService {
       input.bytes.length > LIMITS.pdfBytes ||
       !new TextDecoder().decode(input.bytes.subarray(0, 8)).startsWith("%PDF-")
     )
-      throw new ContentError("NOT_PDF", "PDF absent ou trop volumineux.");
+      throw new ContentError("NOT_PDF", "PDF is missing or too large.");
     const local =
       this.env.ENVIRONMENT === "local" && this.env.MODE === "simulation";
     const digest = await crypto.subtle.digest(
@@ -1072,7 +1068,7 @@ export class DocumentService {
     )
       throw new ContentError(
         "VERIFIED_SCAN_REQUIRED",
-        "La vérification du PDF final n’est pas terminée. Réessayez la même préparation dans quelques instants.",
+        "The final PDF verification is incomplete. Retry the same preparation in a few moments.",
         409,
       );
     if (document.status === "quarantined")
@@ -1090,14 +1086,14 @@ export class DocumentService {
   ) {
     await this.domain.authorizeWrite(ctx);
     if (file.mime_type && file.mime_type !== "application/pdf")
-      throw new ContentError("NOT_PDF", "Seuls les PDF sont acceptés.");
+      throw new ContentError("NOT_PDF", "Only PDFs are accepted.");
     // Wrangler/Miniflare local fetch can reach the developer's private network.
     // Hosted Workers enforce public egress, including DNS resolution; see PUBLIC_PDF_IMPORT.md.
     if (!["production", "staging"].includes(this.env.ENVIRONMENT))
       throw new ImportSourceError(
         "SOURCE_NOT_ALLOWED",
         "local_import_disabled",
-        "L’import par URL est disponible sur Guteneo hébergé. En développement local, utilisez le téléversement authentifié du PDF.",
+        "URL import is available on hosted Guteneo. In local development, use authenticated PDF upload.",
       );
     const url = permittedImportUrl(file.download_url);
     // One deadline covers connection, streamed body and cancellation, even if a provider ignores abort.
@@ -1119,7 +1115,7 @@ export class DocumentService {
         throw new ImportSourceError(
           "SOURCE_REDIRECT_NOT_ALLOWED",
           "redirect_rejected",
-          "Le fournisseur a redirigé le téléchargement. Joignez de nouveau le PDF pour obtenir un lien direct ; les redirections ne sont pas suivies.",
+          "The provider redirected the download. Attach the PDF again to obtain a direct link; redirects are not followed.",
           url.hostname,
           422,
         );
@@ -1127,7 +1123,7 @@ export class DocumentService {
         throw new ImportSourceError(
           "SOURCE_EXPIRED_OR_UNAVAILABLE",
           "source_expired",
-          "Le lien temporaire est expiré ou inaccessible. Joignez de nouveau le PDF et relancez import_document avec la nouvelle référence de fichier.",
+          "The temporary link has expired or is inaccessible. Attach the PDF again and retry import_document with the new file reference.",
           url.hostname,
           422,
         );
@@ -1135,7 +1131,7 @@ export class DocumentService {
         throw new ImportSourceError(
           "SOURCE_DOWNLOAD_TIMEOUT",
           "download_timeout",
-          "Le téléchargement du PDF a dépassé le délai autorisé. Joignez de nouveau le PDF et réessayez l’import.",
+          "The PDF download exceeded the allowed time. Attach the PDF again and retry the import.",
           url.hostname,
           408,
         );
@@ -1149,7 +1145,7 @@ export class DocumentService {
         throw new ImportSourceError(
           "SOURCE_DOWNLOAD_TIMEOUT",
           "download_timeout",
-          "Le téléchargement du PDF a dépassé le délai de 15 secondes. Joignez de nouveau le PDF et réessayez l’import.",
+          "The PDF download exceeded the 15-second limit. Attach the PDF again and retry the import.",
           url.hostname,
           408,
         );
@@ -1158,7 +1154,7 @@ export class DocumentService {
       throw new ImportSourceError(
         "DOWNLOAD_FAILED",
         "download_failed",
-        "Le fichier source est inaccessible. Joignez de nouveau le PDF pour renouveler son lien temporaire, puis réessayez l’import.",
+        "The source file is inaccessible. Attach the PDF again to renew its temporary link, then retry the import.",
         url.hostname,
         422,
       );
@@ -1194,14 +1190,14 @@ export class DocumentService {
       if (!["127.0.0.1", "localhost"].includes(url.hostname))
         throw new ContentError(
           "INVALID_RENDERER",
-          "Le moteur local doit être sur loopback.",
+          "The local engine must use loopback.",
           503,
         );
       response = await fetch(new Request(new URL("/render", url), request));
     } else
       throw new ContentError(
         "RENDERER_NOT_CONFIGURED",
-        "Le moteur PDF n’est pas raccordé.",
+        "The PDF engine is not connected.",
         503,
       );
     return this.upload(
@@ -1221,11 +1217,29 @@ export class DocumentService {
   ): Promise<ExactReviewPdf> {
     return this.readReviewOriginal(ctx, id, REVIEW_PDF_MAX_BYTES, dispatchId);
   }
-  private async assertSensitiveSourceSession(ctx:DocumentContext,id:string) {
-    const protectedSource=await this.env.DB.prepare("SELECT 1 FROM secure_distributions WHERE organization_id=? AND source_id=? LIMIT 1").bind(ctx.organizationId,id).first();
-    if(!protectedSource)return;
-    const allowed=ctx.actor==="browser" && ctx.documentSessionHash && await this.env.DB.prepare(`SELECT 1 FROM personal_sessions ps JOIN browser_sessions bs ON bs.token_hash=ps.token_hash AND bs.user_id=ps.user_id WHERE ps.token_hash=? AND ps.user_id=? AND bs.organization_id=? AND ps.expires_at>strftime('%Y-%m-%dT%H:%M:%fZ','now') AND bs.expires_at>strftime('%Y-%m-%dT%H:%M:%fZ','now') AND ${sensitiveSessionPolicy(this.env)} AND ps.authenticated_at BETWEEN CAST(strftime('%s','now') AS INTEGER)-900 AND CAST(strftime('%s','now') AS INTEGER)+5`).bind(ctx.documentSessionHash,ctx.userId,ctx.organizationId).first();
-    if(!allowed)throw new ContentError(this.env.SENSITIVE_DOCUMENT_AUTHENTICATION==="verified_account"?"DOCUMENT_AUTHENTICATION_REQUIRED":"STRONG_AUTHENTICATION_REQUIRED","Reconnectez-vous dans Guteneo pour accéder à ce document.",403);
+  private async assertSensitiveSourceSession(ctx: DocumentContext, id: string) {
+    const protectedSource = await this.env.DB.prepare(
+      "SELECT 1 FROM secure_distributions WHERE organization_id=? AND source_id=? LIMIT 1",
+    )
+      .bind(ctx.organizationId, id)
+      .first();
+    if (!protectedSource) return;
+    const allowed =
+      ctx.actor === "browser" &&
+      ctx.documentSessionHash &&
+      (await this.env.DB.prepare(
+        `SELECT 1 FROM personal_sessions ps JOIN browser_sessions bs ON bs.token_hash=ps.token_hash AND bs.user_id=ps.user_id WHERE ps.token_hash=? AND ps.user_id=? AND bs.organization_id=? AND ps.expires_at>strftime('%Y-%m-%dT%H:%M:%fZ','now') AND bs.expires_at>strftime('%Y-%m-%dT%H:%M:%fZ','now') AND ${sensitiveSessionPolicy(this.env)} AND ps.authenticated_at BETWEEN CAST(strftime('%s','now') AS INTEGER)-900 AND CAST(strftime('%s','now') AS INTEGER)+5`,
+      )
+        .bind(ctx.documentSessionHash, ctx.userId, ctx.organizationId)
+        .first());
+    if (!allowed)
+      throw new ContentError(
+        this.env.SENSITIVE_DOCUMENT_AUTHENTICATION === "verified_account"
+          ? "DOCUMENT_AUTHENTICATION_REQUIRED"
+          : "STRONG_AUTHENTICATION_REQUIRED",
+        "Sign in again to Guteneo to access this document.",
+        403,
+      );
   }
   private async readReviewOriginal(
     ctx: DocumentContext,
@@ -1235,17 +1249,17 @@ export class DocumentService {
   ): Promise<ExactReviewPdf> {
     const document = await this.domain.getDocument(ctx, id, dispatchId);
     const fallback =
-      " Aucune approbation ne peut être donnée tant que cette vérification échoue.";
+      "No approval may be granted while this verification fails.";
     if (document.status !== "ready" || document.pages < 1)
       throw new ContentError(
         "DOCUMENT_QUARANTINED",
-        "PDF non prêt pour la revue." + fallback,
+        "PDF is not ready for review." + fallback,
         423,
       );
     if (document.size > maximumBytes)
       throw new ContentError(
         "EXPERT_DOCUMENT_TOO_LARGE",
-        `Cette lecture accepte un PDF de ${maximumBytes / (1024 * 1024)} Mio maximum, sans troncature.` +
+        `This reader accepts a PDF of ${maximumBytes / (1024 * 1024)} MiB maximum, without truncation.` +
           fallback,
         413,
       );
@@ -1256,13 +1270,13 @@ export class DocumentService {
     )
       throw new ContentError(
         "DOCUMENT_INTEGRITY_ERROR",
-        "Original PDF non vérifiable." + fallback,
+        "The original PDF cannot be verified." + fallback,
         423,
       );
     const local =
       this.env.ENVIRONMENT === "local" && this.env.MODE === "simulation";
     const assertProof = async () => {
-      await this.assertSensitiveSourceSession(ctx,id);
+      await this.assertSensitiveSourceSession(ctx, id);
       const current = await this.domain.getDocument(ctx, id, dispatchId);
       if (
         current.status !== "ready" ||
@@ -1279,7 +1293,7 @@ export class DocumentService {
       )
         throw new ContentError(
           "DOCUMENT_INTEGRITY_ERROR",
-          "La preuve du PDF exact est indisponible." + fallback,
+          "Exact PDF evidence is unavailable." + fallback,
           423,
         );
     };
@@ -1294,7 +1308,7 @@ export class DocumentService {
       if (!object)
         throw new ContentError(
           "DOCUMENT_UNAVAILABLE",
-          "Original PDF indisponible." + fallback,
+          "Original PDF unavailable." + fallback,
           404,
         );
       if (object.size !== document.size) {
@@ -1304,7 +1318,7 @@ export class DocumentService {
         ).catch(() => {});
         throw new ContentError(
           "DOCUMENT_INTEGRITY_ERROR",
-          "La taille du PDF a changé." + fallback,
+          "The PDF size has changed." + fallback,
           423,
         );
       }
@@ -1317,14 +1331,14 @@ export class DocumentService {
       if (error instanceof ContentError && error.code === "FILE_TOO_LARGE")
         throw new ContentError(
           "EXPERT_DOCUMENT_TOO_LARGE",
-          "Le PDF dépasse la taille autorisée ; aucun extrait n’a été retourné." +
+          "The PDF exceeds the allowed size; no excerpt was returned." +
             fallback,
           413,
         );
       if (error instanceof ContentError) throw error;
       throw new ContentError(
         "DOCUMENT_UNAVAILABLE",
-        "La lecture du PDF n’a pas abouti." + fallback,
+        "The PDF could not be read." + fallback,
         503,
       );
     }
@@ -1337,7 +1351,7 @@ export class DocumentService {
     if (bytes.byteLength !== document.size || hash !== document.sha256)
       throw new ContentError(
         "DOCUMENT_INTEGRITY_ERROR",
-        "L’intégrité du PDF exact n’a pas pu être vérifiée." + fallback,
+        "The exact PDF's integrity could not be verified." + fallback,
         423,
       );
     await assertProof();
@@ -1363,7 +1377,7 @@ export class DocumentService {
     )
       throw new ContentError(
         "REVIEW_PAGE_RANGE",
-        "Cette page n’existe pas dans le PDF.",
+        "This page does not exist in the PDF.",
       );
     const pageCount = Math.min(
       REVIEW_PAGE_BATCH,
@@ -1400,7 +1414,7 @@ export class DocumentService {
         if (!["localhost", "127.0.0.1"].includes(base.hostname))
           throw new ContentError(
             "RENDERER_NOT_CONFIGURED",
-            "Le lecteur PDF local est indisponible.",
+            "The local PDF reader is unavailable.",
             503,
           );
         response = await withinDeadline(
@@ -1410,7 +1424,7 @@ export class DocumentService {
       } else {
         throw new ContentError(
           "RENDERER_NOT_CONFIGURED",
-          "La lecture des pages du PDF est temporairement indisponible. Le document reste enregistré.",
+          "PDF page reading is temporarily unavailable. The document remains saved.",
           503,
         );
       }
@@ -1423,13 +1437,13 @@ export class DocumentService {
       if (error instanceof ContentError && error.code === "FILE_TOO_LARGE")
         throw new ContentError(
           "REVIEW_RESULT_SIZE",
-          "Ces pages dépassent le budget du lecteur de la conversation.",
+          "These pages exceed the conversation reader's budget.",
           413,
         );
       if (error instanceof ContentError) throw error;
       throw new ContentError(
         signal.aborted ? "REVIEW_RENDER_TIMEOUT" : "REVIEW_RENDER_FAILED",
-        "La lecture des pages est temporairement indisponible. Le même PDF reste enregistré.",
+        "Page reading is temporarily unavailable. The same PDF remains saved.",
         503,
       );
     }
@@ -1456,8 +1470,8 @@ export class DocumentService {
       throw new ContentError(
         code,
         code === "REVIEW_UNSUPPORTED_CONTENT"
-          ? "Ce PDF contient des éléments que le lecteur de la conversation ne peut pas restituer fidèlement. Aucun envoi n’a été autorisé."
-          : "La lecture de ces pages n’a pas abouti. Le PDF reste enregistré ; reprenez la revue du même envoi.",
+          ? "This PDF contains elements that the conversation reader cannot reproduce faithfully. No dispatch has been authorized."
+          : "These pages could not be read. The PDF remains saved; resume reviewing the same dispatch.",
         422,
       );
     }
@@ -1502,12 +1516,12 @@ export class DocumentService {
     } catch {
       throw new ContentError(
         "DOCUMENT_INTEGRITY_ERROR",
-        "La lecture fidèle de ces pages n’a pas pu être vérifiée.",
+        "Faithful reproduction of these pages could not be verified.",
         423,
       );
     }
     // The caller also fences OAuth authority and the canonical scan proof after rendering.
-    await this.assertSensitiveSourceSession(ctx,id);
+    await this.assertSensitiveSourceSession(ctx, id);
     const current = await this.domain.getDocument(ctx, id, dispatchId);
     if (
       current.status !== "ready" ||
@@ -1518,7 +1532,7 @@ export class DocumentService {
     )
       throw new ContentError(
         "DOCUMENT_INTEGRITY_ERROR",
-        "Le PDF a changé pendant la lecture.",
+        "The PDF changed while it was being read.",
         423,
       );
     return { document: exact.document, view };
@@ -1532,7 +1546,7 @@ export class DocumentService {
     if (document.status !== "ready")
       throw new ContentError(
         "DOCUMENT_QUARANTINED",
-        "Document en quarantaine : aperçu et envoi bloqués.",
+        "Document quarantined: preview and sending are blocked.",
         423,
       );
     const object = exact
@@ -1541,7 +1555,7 @@ export class DocumentService {
     if (!object)
       throw new ContentError(
         "DOCUMENT_UNAVAILABLE",
-        "Document indisponible.",
+        "Document unavailable.",
         404,
       );
     await this.env.DB.prepare(
@@ -1558,7 +1572,7 @@ export class DocumentService {
       )
       .run();
     await this.domain.getDocument(ctx, id, dispatchId);
-    await this.assertSensitiveSourceSession(ctx,id);
+    await this.assertSensitiveSourceSession(ctx, id);
     return new Response(object.body, {
       headers: {
         "Content-Type": "application/pdf",
@@ -1604,7 +1618,7 @@ export async function reserveContentBudget(
   if (!result)
     throw new ContentError(
       "CONTENT_QUOTA_EXCEEDED",
-      "Limite documentaire atteinte ou crédits documentaires non attribués.",
+      "Document limit reached or document credits have not been granted.",
       429,
     );
 }

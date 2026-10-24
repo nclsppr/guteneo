@@ -166,7 +166,7 @@ export async function suggestTemplateWithOpenAI(
   if (!instruction.trim() || instruction.length > 2000)
     throw new DatasetError(
       "AI_INSTRUCTION_LIMIT",
-      "Décrivez le changement souhaité en 1 à 2 000 caractères.",
+      "Describe the desired change in 1 to 2,000 characters.",
     );
   const { proposal, usage } = await requestOpenAIStructured(
     config,
@@ -184,7 +184,7 @@ export async function suggestTemplateWithOpenAI(
     )
       throw new DatasetError(
         "AI_TEMPLATE_REPLACEMENT",
-        "Une sélection de galerie ne peut pas remplacer un modèle existant.",
+        "A gallery selection cannot replace an existing template.",
       );
     candidate = structuredClone(
       templateGallery().find((entry) => entry.id === proposal.galleryId)!
@@ -200,7 +200,7 @@ export async function suggestTemplateWithOpenAI(
       if (change.op === "remove_block")
         throw new DatasetError(
           "AI_TEMPLATE_PATCH",
-          "Suppression non autorisée dans ce parcours.",
+          "Deletion is not allowed in this workflow.",
         );
       const blockName =
         change.op === "set_binding" ? change.binding.block : change.block;
@@ -210,7 +210,7 @@ export async function suggestTemplateWithOpenAI(
       if (!target)
         throw new DatasetError(
           "AI_TEMPLATE_SOURCE",
-          "La proposition référence un bloc absent.",
+          "The proposal references a missing block.",
         );
       if (
         change.op === "set_text" &&
@@ -219,7 +219,7 @@ export async function suggestTemplateWithOpenAI(
       )
         throw new DatasetError(
           "AI_TEMPLATE_BINDING_LOSS",
-          "Le texte proposé supprimerait une variable existante. Choisissez un bloc de texte fixe.",
+          "The proposed text would remove an existing variable. Choose a fixed-text block.",
         );
       candidate = applyTemplatePatch(candidate, change);
       changes.push(change);
@@ -232,7 +232,7 @@ export async function suggestTemplateWithOpenAI(
     if (error instanceof DatasetError) throw error;
     throw new DatasetError(
       "AI_TEMPLATE_INVALID",
-      "La proposition ne respecte pas les blocs, variables, limites ou données d’exemple du modèle.",
+      "The proposal does not respect the template’s blocks, variables, limits or sample data.",
     );
   }
   return {
@@ -243,7 +243,7 @@ export async function suggestTemplateWithOpenAI(
     galleryId: proposal.galleryId,
     warnings: [
       ...proposal.warnings,
-      "Proposition à vérifier dans l’éditeur et dans un aperçu PDF avant publication.",
+      "Review the proposal in the editor and in a PDF preview before publication.",
     ],
     usage,
   };

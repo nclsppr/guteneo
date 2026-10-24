@@ -30,7 +30,7 @@ import {
   useResource,
 } from "./components";
 import { RolePermissionNotice } from "./role-guide";
-import { msg } from "./messages";
+import { msg, msgIn } from "./messages";
 import { getLocale } from "./locale";
 import "./secure-documents.css";
 import { SecureAuditHistory } from "./secure-audit-history";
@@ -74,17 +74,17 @@ export function SecureDistributionPage({
 
 function publicationStatus(status: string) {
   const labels: Record<string, string> = {
-    prepared: msg("À vérifier"),
-    draft: msg("À vérifier"),
-    approved: msg("Approuvé, à activer"),
-    active: msg("Accès actif"),
-    revoked: msg("Accès révoqué"),
-    expired: msg("Accès expiré"),
-    pending: msg("Préparation en cours"),
-    preparing: msg("Préparation en cours"),
-    failed: msg("Préparation échouée"),
+    prepared: msg("Needs checking"),
+    draft: msg("Needs checking"),
+    approved: msg("Approved, awaiting activation"),
+    active: msgIn("secure-distribution", "Active access"),
+    revoked: msg("Access revoked"),
+    expired: msg("Access expired"),
+    pending: msg("Preparation in progress"),
+    preparing: msg("Preparation in progress"),
+    failed: msg("Preparation failed"),
   };
-  return labels[status] ?? msg("État à vérifier");
+  return labels[status] ?? msg("Status needs checking");
 }
 
 function SecureDistributionList({ canPrepare }: { canPrepare: boolean }) {
@@ -94,15 +94,15 @@ function SecureDistributionList({ canPrepare }: { canPrepare: boolean }) {
   return (
     <div className="secure-document-layout">
       <PageHeading
-        title={msg("Distributions sécurisées")}
+        title={msg("Secure distributions")}
         intro={msg(
-          "Un accès individuel, une durée définie et un journal des événements observables.",
+          "Individual access, a defined term and a log of observable events.",
         )}
         action={
           canPrepare && (
             <a className="button primary" href="#/app/secure-distributions/new">
               <Plus size={18} aria-hidden="true" />
-              {msg("Nouveau partage")}
+              {msg("New share")}
             </a>
           )
         }
@@ -110,7 +110,7 @@ function SecureDistributionList({ canPrepare }: { canPrepare: boolean }) {
       <div className="section-toolbar">
         <p>
           {msg(
-            "La révocation bloque les nouveaux accès et ne rembourse pas la période activée.",
+            "Revocation blocks new access and does not refund the activated term.",
           )}
         </p>
         <RefreshButton onClick={resource.refresh} />
@@ -131,7 +131,7 @@ function SecureDistributionList({ canPrepare }: { canPrepare: boolean }) {
                 </span>
                 {item.expiresAt && (
                   <small>
-                    {msg("Disponible jusqu’au {0}", date(item.expiresAt))}
+                    {msg("Available until {0}", date(item.expiresAt))}
                   </small>
                 )}
               </div>
@@ -139,7 +139,7 @@ function SecureDistributionList({ canPrepare }: { canPrepare: boolean }) {
                 className="button"
                 href={`#/app/secure-distribution/${encodeURIComponent(item.id)}`}
               >
-                {msg("Voir le partage")}
+                {msg("View share")}
                 <ArrowRight size={18} aria-hidden="true" />
               </a>
             </li>
@@ -148,14 +148,12 @@ function SecureDistributionList({ canPrepare }: { canPrepare: boolean }) {
       ) : (
         !resource.error && (
           <EmptyState
-            title={msg("Aucune distribution sécurisée")}
-            text={msg(
-              "Préparez un partage à partir d’un PDF vérifié dans cet atelier.",
-            )}
+            title={msg("No secure distributions")}
+            text={msg("Prepare a share from a verified PDF in this workspace.")}
             action={
               canPrepare && (
                 <a className="button" href="#/app/secure-distributions/new">
-                  {msg("Nouveau partage")}
+                  {msg("New share")}
                 </a>
               )
             }
@@ -182,10 +180,10 @@ function SecureDistributionComposer() {
   const [allowVaultDeposit, setAllowVaultDeposit] = useState(false);
   const [personalRetentionDays, setPersonalRetentionDays] = useState(365);
   const [subject, setSubject] = useState(() =>
-    msg("Un document est disponible dans Guteneo"),
+    msg("A document is available in Guteneo"),
   );
   const [message, setMessage] = useState(() =>
-    msg("Un document vous a été adressé dans votre espace Guteneo."),
+    msg("A document has been sent to you in your Guteneo space."),
   );
   const [idempotencyKey, setIdempotencyKey] = useState(() =>
     crypto.randomUUID(),
@@ -239,12 +237,12 @@ function SecureDistributionComposer() {
     <div className="secure-document-layout">
       <a className="text-link" href="#/app/secure-distributions">
         <ArrowLeft size={17} aria-hidden="true" />
-        {msg("Revenir aux distributions")}
+        {msg("Back to distributions")}
       </a>
       <PageHeading
-        title={msg("Nouveau partage sécurisé")}
+        title={msg("New secure share")}
         intro={msg(
-          "Le destinataire utilise son compte Guteneo. Recevoir un document ne donne aucun droit dans votre atelier.",
+          "The recipient uses their Guteneo account. Receiving a document grants no permissions in your workspace.",
         )}
       />
       <ErrorNotice
@@ -264,11 +262,11 @@ function SecureDistributionComposer() {
             onSubmit={(event) => void prepare(event)}
           >
             <section className="secure-document-panel">
-              <h2>{msg("Document et destinataire")}</h2>
+              <h2>{msg("Document and recipient")}</h2>
               <Field
-                label={msg("PDF vérifié")}
+                label={msg("Verified PDF")}
                 hint={msg(
-                  "Le document original reste inchangé. La consultation utilise des pages préparées pour le destinataire.",
+                  "The original document remains unchanged. Viewing uses pages prepared for the recipient.",
                 )}
               >
                 <select
@@ -279,7 +277,7 @@ function SecureDistributionComposer() {
                     changed();
                   }}
                 >
-                  <option value="">{msg("Choisir un document")}</option>
+                  <option value="">{msg("Choose a document")}</option>
                   {readyDocuments.map((document) => (
                     <option key={document.id} value={document.id}>
                       {document.name}
@@ -294,12 +292,10 @@ function SecureDistributionComposer() {
               />
               {!readyDocuments.length && (
                 <p>
-                  <a href="#/app/documents">
-                    {msg("Importer et vérifier un PDF")}
-                  </a>
+                  <a href="#/app/documents">{msg("Import and verify a PDF")}</a>
                 </p>
               )}
-              <Field label={msg("Nom du destinataire")}>
+              <Field label={msg("Recipient name")}>
                 <input
                   value={recipientName}
                   autoComplete="off"
@@ -311,9 +307,9 @@ function SecureDistributionComposer() {
                 />
               </Field>
               <Field
-                label={msg("Adresse e-mail du destinataire")}
+                label={msg("Recipient email address")}
                 hint={msg(
-                  "Choisissez une adresse individuelle. Le rattachement au bon compte devra être confirmé avant l’accès.",
+                  "Choose an individual address. Association with the correct account must be confirmed before access.",
                 )}
               >
                 <input
@@ -330,8 +326,8 @@ function SecureDistributionComposer() {
               </Field>
             </section>
             <section className="secure-document-panel">
-              <h2>{msg("Durée et droits")}</h2>
-              <Field label={msg("Durée de l’accès partagé")}>
+              <h2>{msg("Term and permissions")}</h2>
+              <Field label={msg("Shared access term")}>
                 <select
                   value={retentionDays}
                   onChange={(event) => {
@@ -342,7 +338,7 @@ function SecureDistributionComposer() {
                   {catalog.data.retention.map((option) => (
                     <option key={option.days} value={option.days}>
                       {msg(
-                        "{0} jours · {1} HT",
+                        "{0} days · {1} excluding tax",
                         option.days,
                         money(option.priceMinor),
                       )}
@@ -360,10 +356,10 @@ function SecureDistributionComposer() {
                   }}
                 />
                 <span>
-                  {msg("Autoriser le téléchargement du PDF original")}
+                  {msg("Allow download of the original PDF")}
                   <small>
                     {msg(
-                      "Une copie téléchargée ne peut plus être rappelée. Ses ouvertures ultérieures ne sont pas suivies.",
+                      "A downloaded copy cannot be recalled. Its subsequent openings are not tracked.",
                     )}
                   </small>
                 </span>
@@ -378,22 +374,22 @@ function SecureDistributionComposer() {
                   }}
                 />
                 <span>
-                  {msg("Autoriser une copie personnelle conservée")}
+                  {msg("Allow a retained personal copy")}
                   <small>
                     {msg(
-                      "Après remise, la copie reste accessible pour sa durée propre, même si vous révoquez le partage.",
+                      "Once delivered, the copy remains accessible for its own term, even if you revoke the share.",
                     )}{" "}
                     {msg(
-                      "La copie personnelle sera exportable, même si le téléchargement du PDF original est désactivé.",
+                      "The personal copy can be exported, even when downloading the original PDF is disabled.",
                     )}{" "}
                     {msg(
-                      "L’option est facturée à l’activation, même si le destinataire ne conserve pas de copie.",
+                      "This option is charged on activation, even if the recipient does not save a copy.",
                     )}
                   </small>
                 </span>
               </label>
               {allowVaultDeposit && (
-                <Field label={msg("Durée de la copie personnelle")}>
+                <Field label={msg("Personal copy retention term")}>
                   <select
                     value={personalRetentionDays}
                     onChange={(event) => {
@@ -404,7 +400,7 @@ function SecureDistributionComposer() {
                     {catalog.data.personalRetention.map((option) => (
                       <option key={option.days} value={option.days}>
                         {msg(
-                          "{0} jours · {1} HT",
+                          "{0} days · {1} excluding tax",
                           option.days,
                           money(option.priceMinor),
                         )}
@@ -415,8 +411,8 @@ function SecureDistributionComposer() {
               )}
             </section>
             <section className="secure-document-panel">
-              <h2>{msg("Message d’invitation")}</h2>
-              <Field label={msg("Objet")}>
+              <h2>{msg("Invitation message")}</h2>
+              <Field label={msg("Subject")}>
                 <input
                   value={subject}
                   maxLength={160}
@@ -429,7 +425,7 @@ function SecureDistributionComposer() {
               <Field
                 label={msg("Message")}
                 hint={msg(
-                  "Évitez toute information confidentielle dans l’invitation par e-mail.",
+                  "Keep confidential information out of the email invitation.",
                 )}
               >
                 <textarea
@@ -446,13 +442,13 @@ function SecureDistributionComposer() {
             <div className="secure-document-price">
               <strong>
                 {displayedPrice === undefined
-                  ? msg("Prix à vérifier")
-                  : msg("Conservation : {0} HT", money(displayedPrice))}
+                  ? msg("Price to be confirmed")
+                  : msg("Retention: {0} excluding tax", money(displayedPrice))}
               </strong>
-              <p>{msg("Tarif par PDF et par destinataire.")}</p>
+              <p>{msg("Price per PDF and per recipient.")}</p>
               <p>
                 {msg(
-                  "Le transport de l’invitation sera ajouté au devis final. La période activée est due en totalité, même après révocation du document.",
+                  "Invitation delivery will be added to the final quote. The activated term is payable in full, even after document revocation.",
                 )}
               </p>
             </div>
@@ -466,8 +462,8 @@ function SecureDistributionComposer() {
               }
             >
               {action.pending
-                ? msg("Préparation en cours…")
-                : msg("Préparer et vérifier le partage")}
+                ? msgIn("secure-distribution", "Preparing…")
+                : msg("Prepare and review share")}
               <ArrowRight size={18} aria-hidden="true" />
             </button>
             <ErrorNotice error={action.error} />
@@ -563,10 +559,10 @@ function SecureDistributionDetail({
     <div className="secure-document-layout">
       <a className="text-link" href="#/app/secure-distributions">
         <ArrowLeft size={17} aria-hidden="true" />
-        {msg("Revenir aux distributions")}
+        {msg("Back to distributions")}
       </a>
       <PageHeading
-        title={msg("Vérifier le partage sécurisé")}
+        title={msg("Review secure share")}
         action={
           <RefreshButton
             onClick={() => {
@@ -588,12 +584,12 @@ function SecureDistributionDetail({
                 <span className="secure-document-tag">
                   <LockKey size={14} aria-hidden="true" />
                   {publication.approved && publication.status === "prepared"
-                    ? msg("Approuvé, à activer")
+                    ? msg("Approved, awaiting activation")
                     : publicationStatus(publication.status)}
                 </span>
               </p>
               <dl className="secure-document-facts">
-                <Definition label={msg("Destinataire")}>
+                <Definition label={msg("Recipient")}>
                   {publication.recipient.name && (
                     <>
                       {publication.recipient.name}
@@ -602,64 +598,76 @@ function SecureDistributionDetail({
                   )}
                   {publication.recipient.address}
                 </Definition>
-                <Definition label={msg("Durée de l’accès partagé")}>
-                  {msg("{0} jours", publication.policy.retentionDays)}
+                <Definition label={msg("Shared access term")}>
+                  {msg("{0} days", publication.policy.retentionDays)}
                 </Definition>
-                <Definition label={msg("PDF original")}>
+                <Definition label={msg("Original PDF")}>
                   {publication.policy.allowOriginalDownload
-                    ? msg("Téléchargement autorisé")
-                    : msg("Téléchargement désactivé")}
+                    ? msg("Download allowed")
+                    : msg("Download disabled")}
                 </Definition>
-                <Definition label={msg("Copie personnelle")}>
+                <Definition label={msg("Personal copy")}>
                   {publication.policy.allowVaultDeposit ? (
                     <>
                       {msg(
-                        "Autorisée · {0} jours",
+                        "Allowed · {0} days",
                         publication.policy.personalRetentionDays,
                       )}
                       <br />
                       <small>
                         {msg(
-                          "La copie personnelle sera exportable, même si le téléchargement du PDF original est désactivé.",
+                          "The personal copy can be exported, even when downloading the original PDF is disabled.",
                         )}
                       </small>
                     </>
                   ) : (
-                    msg("Désactivée")
+                    msg("Disabled")
                   )}
                 </Definition>
                 {publication.expiresAt && (
-                  <Definition label={msg("Échéance")}>
+                  <Definition label={msgIn("secure-distribution", "Expiry")}>
                     {date(publication.expiresAt)}
                   </Definition>
                 )}
               </dl>
               <div className="secure-document-price">
                 <strong>
-                  {msg("{0} HT", money(publication.quote.totalMinor))}
+                  {msg(
+                    "{0} excluding tax",
+                    money(publication.quote.totalMinor),
+                  )}
                 </strong>
                 <dl className="secure-document-facts">
-                  <Definition label={msg("Conservation partagée")}>
-                    {msg("{0} HT", money(publication.quote.sharedMinor))}
+                  <Definition label={msg("Shared retention")}>
+                    {msg(
+                      "{0} excluding tax",
+                      money(publication.quote.sharedMinor),
+                    )}
                   </Definition>
-                  <Definition label={msg("Conservation personnelle")}>
-                    {msg("{0} HT", money(publication.quote.personalMinor))}
+                  <Definition label={msg("Personal retention")}>
+                    {msg(
+                      "{0} excluding tax",
+                      money(publication.quote.personalMinor),
+                    )}
                   </Definition>
-                  <Definition label={msg("Envoi de l’invitation")}>
-                    {msg("{0} HT", money(publication.quote.transportMinor))}
+                  <Definition label={msg("Invitation delivery")}>
+                    {msg(
+                      "{0} excluding tax",
+                      money(publication.quote.transportMinor),
+                    )}
                   </Definition>
                 </dl>
                 <p>
                   {msg(
-                    "La période activée est due en totalité. Révoquer ou désactiver le partage ne donne pas droit à remboursement.",
+                    "The activated term is payable in full. Revoking or disabling the share does not entitle you to a refund.",
                   )}
                 </p>
               </div>
             </section>
             <section className="secure-document-panel">
-              <h2>{msg("Message d’invitation")}</h2>
+              <h2>{msg("Invitation message")}</h2>
               <dl className="secure-document-facts">
-                <Definition label={msg("Objet")}>
+                <Definition label={msg("Subject")}>
                   {publication.invitation.subject}
                 </Definition>
               </dl>
@@ -668,7 +676,7 @@ function SecureDistributionDetail({
               </p>
               <p className="field-hint">
                 {msg(
-                  "Le lien individuel et les instructions de connexion seront ajoutés à cette invitation.",
+                  "The individual link and sign-in instructions will be added to this invitation.",
                 )}
               </p>
             </section>
@@ -677,7 +685,7 @@ function SecureDistributionDetail({
                 <Loading />
                 <p>
                   {msg(
-                    "Le rendu sécurisé est en préparation. Cette page se met à jour pendant le traitement.",
+                    "Secure viewing is being prepared. This page updates during processing.",
                   )}
                 </p>
               </section>
@@ -689,10 +697,10 @@ function SecureDistributionDetail({
                   session={session}
                 />
                 <section className="secure-document-panel">
-                  <h2>{msg("Approbation du partage")}</h2>
+                  <h2>{msg("Share approval")}</h2>
                   <p>
                     {msg(
-                      "Vérifiez le PDF, le destinataire, les droits et le prix. L’approbation et l’activation sont deux étapes distinctes.",
+                      "Review the PDF, recipient, permissions and price. Approval and activation are separate steps.",
                     )}
                   </p>
                   {permissions.approveDispatches ? (
@@ -707,7 +715,7 @@ function SecureDistributionDetail({
                         />
                         <span>
                           {msg(
-                            "J’ai vérifié le document, le destinataire, les droits et le prix.",
+                            "I have reviewed the document, recipient, permissions and price.",
                           )}
                         </span>
                       </label>
@@ -721,7 +729,7 @@ function SecureDistributionDetail({
                         />
                         <span>
                           {msg(
-                            "Je confirme que ce destinataire a demandé cet e-mail et son document. Cet envoi ne constitue pas une prospection.",
+                            "I confirm that this recipient requested this email and its document. This delivery is not marketing outreach.",
                           )}
                         </span>
                       </label>
@@ -734,7 +742,7 @@ function SecureDistributionDetail({
                         onClick={() => void mutate("approve")}
                       >
                         <ShieldCheck size={18} aria-hidden="true" />
-                        {msg("Approuver ce partage")}
+                        {msg("Approve this share")}
                       </button>
                     </>
                   ) : (
@@ -747,20 +755,20 @@ function SecureDistributionDetail({
               publication.approved &&
               permissions.approveDispatches && (
                 <section className="secure-document-panel">
-                  <h2>{msg("Activer le partage")}</h2>
+                  <h2>{msg("Activate share")}</h2>
                   <p>
                     {msg(
-                      "Cette action active la période payante et prépare l’invitation. Le prix reste dû si vous révoquez ensuite le partage.",
+                      "This activates the paid term and prepares the invitation. The price remains payable if you later revoke the share.",
                     )}
                   </p>
                   <ConfirmAction
                     className="button primary"
-                    label={msg("Activer le partage")}
+                    label={msg("Activate share")}
                     question={msg(
-                      "Activer ce partage au prix de {0} HT ?",
+                      "Activate this share for {0} excluding tax?",
                       money(publication.quote.totalMinor),
                     )}
-                    confirmLabel={msg("Confirmer l’activation")}
+                    confirmLabel={msg("Confirm activation")}
                     disabled={action.pending}
                     onConfirm={() => void mutate("activate")}
                   />
@@ -770,10 +778,10 @@ function SecureDistributionDetail({
               publication.pendingClaim &&
               permissions.approveDispatches && (
                 <section className="secure-document-panel">
-                  <h2>{msg("Confirmer le destinataire")}</h2>
+                  <h2>{msg("Confirm recipient")}</h2>
                   <p>
                     {msg(
-                      "Ce compte a demandé l’accès à votre partage. Vérifiez son association au destinataire par un moyen indépendant avant de confirmer.",
+                      "This account requested access to your share. Independently verify that it belongs to the intended recipient before confirming.",
                     )}
                   </p>
                   <p>
@@ -781,7 +789,7 @@ function SecureDistributionDetail({
                     <br />
                     {publication.pendingClaim.email}
                   </p>
-                  <Field label={msg("Méthode de vérification")}>
+                  <Field label={msg("Verification method")}>
                     <select
                       value={verificationMethod}
                       onChange={(event) =>
@@ -789,13 +797,13 @@ function SecureDistributionDetail({
                       }
                     >
                       <option value="known_relationship">
-                        {msg("Relation déjà connue")}
+                        {msg("Known relationship")}
                       </option>
                       <option value="independent_channel">
-                        {msg("Canal indépendant connu")}
+                        {msg("Known independent channel")}
                       </option>
                       <option value="qualified_identity">
-                        {msg("Identité qualifiée")}
+                        {msg("Qualified identity")}
                       </option>
                     </select>
                   </Field>
@@ -809,7 +817,7 @@ function SecureDistributionDetail({
                     />
                     <span>
                       {msg(
-                        "J’ai vérifié que ce compte appartient au destinataire prévu.",
+                        "I have verified that this account belongs to the intended recipient.",
                       )}
                     </span>
                   </label>
@@ -819,30 +827,28 @@ function SecureDistributionDetail({
                     disabled={!bindingReviewed || action.pending}
                     onClick={() => void bindRecipient()}
                   >
-                    {msg("Confirmer l’association")}
+                    {msg("Confirm association")}
                   </button>
                 </section>
               )}
             {publication.recipientBinding === "confirmed" && (
               <p role="status">
-                {msg("Le destinataire est associé au compte confirmé.")}
+                {msg("The recipient is linked to the confirmed account.")}
               </p>
             )}
             {publication.status === "active" &&
               permissions.approveDispatches && (
                 <section className="secure-document-panel">
-                  <h2>{msg("Gérer l’accès")}</h2>
+                  <h2>{msg("Manage access")}</h2>
                   <p>
                     {msg(
-                      "La révocation bloque les nouveaux accès. Elle ne supprime ni les fichiers téléchargés ni les copies personnelles déjà remises.",
+                      "Revocation blocks new access. It does not delete downloaded files or personal copies already delivered.",
                     )}
                   </p>
                   <ConfirmAction
-                    label={msg("Révoquer ce partage")}
-                    question={msg(
-                      "Bloquer les nouveaux accès sans remboursement ?",
-                    )}
-                    confirmLabel={msg("Révoquer l’accès")}
+                    label={msg("Revoke this share")}
+                    question={msg("Block new access without a refund?")}
+                    confirmLabel={msg("Revoke access")}
                     disabled={action.pending}
                     onConfirm={() => void mutate("revoke")}
                   />
@@ -850,17 +856,17 @@ function SecureDistributionDetail({
               )}
             <ErrorNotice error={action.error} />
             <section className="secure-document-panel">
-              <h2>{msg("Journal de l’atelier")}</h2>
+              <h2>{msg("Workspace log")}</h2>
               {publication.status === "active" && (
                 <p className="field-hint">
                   {msg(
-                    "Le journal s’actualise automatiquement lorsque cette page est visible.",
+                    "The log updates automatically while this page is visible.",
                   )}
                 </p>
               )}
               <p>
                 {msg(
-                  "Un affichage déclaré ne prouve pas la lecture. Une transmission du PDF ne prouve pas son enregistrement sur le disque.",
+                  "A reported display does not prove reading. Transmitting the PDF does not prove that it was saved to disk.",
                 )}
               </p>
               <SecureAuditHistory
@@ -930,7 +936,7 @@ function PreparedDistributionPreview({
     };
   }, [publication.id, page, session, textMode]);
   return (
-    <section aria-label={msg("Aperçu du document partagé")}>
+    <section aria-label={msg("Shared document preview")}>
       <div className="secure-document-reader-toolbar">
         <button
           type="button"
@@ -938,9 +944,7 @@ function PreparedDistributionPreview({
           aria-pressed={textMode}
           onClick={() => setTextMode((current) => !current)}
         >
-          {textMode
-            ? msg("Afficher les pages")
-            : msg("Afficher le texte accessible")}
+          {textMode ? msg("Show pages") : msg("Show accessible text")}
         </button>
         <button
           type="button"
@@ -948,16 +952,16 @@ function PreparedDistributionPreview({
           disabled={page <= 1}
           onClick={() => setPage((current) => current - 1)}
         >
-          {msg("Page précédente")}
+          {msg("Previous page")}
         </button>
-        <span>{msg("Page {0} sur {1}", page, publication.source.pages)}</span>
+        <span>{msg("Page {0} of {1}", page, publication.source.pages)}</span>
         <button
           type="button"
           className="button small"
           disabled={page >= publication.source.pages}
           onClick={() => setPage((current) => current + 1)}
         >
-          {msg("Page suivante")}
+          {msg("Next page")}
         </button>
       </div>
       <div className="secure-document-pages">
@@ -965,14 +969,13 @@ function PreparedDistributionPreview({
           <ErrorNotice error={error} />
         ) : textMode && text !== undefined ? (
           <pre className="secure-document-accessible-text">
-            {text ||
-              msg("Aucun texte accessible n’est disponible pour cette page.")}
+            {text || msg("No accessible text is available for this page.")}
           </pre>
         ) : url ? (
           <figure className="secure-document-page">
             <img
               src={url}
-              alt={msg("Page {0} du document partagé", page)}
+              alt={msg("Page {0} of the shared document", page)}
               decoding="async"
             />
             <figcaption>{msg("Page {0}", page)}</figcaption>

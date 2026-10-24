@@ -6,7 +6,7 @@ const paths = [
   "/?lang=de",
   "/?lang=lb",
   "/roles/",
-  "/developpeurs/",
+  "/developers/",
   "/assistants/chatgpt/",
   "/release.json",
   "/api/health",

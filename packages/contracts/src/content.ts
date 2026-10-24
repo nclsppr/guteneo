@@ -28,13 +28,13 @@ export function boundedText(
   if (new TextEncoder().encode(value).byteLength > limit)
     throw new ContentError(
       code,
-      "Le contenu dépasse la limite autorisée.",
+      "Content exceeds the allowed limit.",
       413,
     );
 }
 export function safeHeader(value: string): string {
   if (!value.trim() || /[\r\n\x00-\x1f\x7f]/.test(value))
-    throw new ContentError("INVALID_HEADER", "En-tête invalide.");
+    throw new ContentError("INVALID_HEADER", "Invalid header.");
   return value.trim();
 }
 /** No client CSS, SVG, image, external resource or active markup is retained. */
@@ -100,7 +100,7 @@ export function htmlToText(html: string): string {
     .trim();
 }
 export function printableHtml(html: string): string {
-  return `<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'"><style>@page{size:A4;margin:22mm}body{font-family:Arial,sans-serif;color:#171b24;font-size:11pt;line-height:1.55;overflow-wrap:anywhere}h1{font-size:25pt}h2{font-size:18pt}table{border-collapse:collapse;max-width:100%}td,th{border:1px solid #aaa;padding:6px}img{max-width:100%}a{color:#1746c2}</style></head><body>${cleanHtml(html)}</body></html>`;
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'"><style>@page{size:A4;margin:22mm}body{font-family:Arial,sans-serif;color:#171b24;font-size:11pt;line-height:1.55;overflow-wrap:anywhere}h1{font-size:25pt}h2{font-size:18pt}table{border-collapse:collapse;max-width:100%}td,th{border:1px solid #aaa;padding:6px}img{max-width:100%}a{color:#1746c2}</style></head><body>${cleanHtml(html)}</body></html>`;
 }
 export function validateRecipient(
   channel: string,
@@ -122,19 +122,19 @@ export function validateRecipient(
     if (recipient.line2 !== undefined && String(recipient.line2).trim())
       throw new ContentError(
         "ADDRESS_LINE_UNSUPPORTED",
-        "Le complément d’adresse n’est pas pris en charge dans ce parcours. Il ne sera pas supprimé silencieusement.",
+        "An additional address line is not supported in this flow. It will not be silently removed.",
       );
     const out: Record<string, string> = {};
     for (const key of ["name", "line1", "postalCode", "city", "country"])
       out[key] = safeHeader(String(recipient[key] ?? ""));
     out.country = out.country.toUpperCase();
     if (!["FR", "LU", "DE"].includes(out.country))
-      throw new ContentError("COUNTRY_NOT_ALLOWED", "Pays non autorisé.");
+      throw new ContentError("COUNTRY_NOT_ALLOWED", "This country is not supported.");
     if (Object.values(out).some((v) => v.length > 160))
-      throw new ContentError("INVALID_ADDRESS", "Adresse trop longue.");
+      throw new ContentError("INVALID_ADDRESS", "The address is too long.");
     return out;
   }
-  throw new ContentError("INVALID_CHANNEL", "Canal inconnu.");
+  throw new ContentError("INVALID_CHANNEL", "Unknown delivery channel.");
 }
 export function validateCsv(csv: string) {
   boundedText(csv, LIMITS.csvBytes);
@@ -157,7 +157,7 @@ export function validateCsv(csv: string) {
   if (fields.some((f) => !allowed.includes(f)) || !fields.includes("channel"))
     throw new ContentError(
       "INVALID_CSV_HEADERS",
-      `Colonnes autorisées : ${allowed.join(", ")}.`,
+      `Allowed columns: ${allowed.join(", ")}.`,
     );
   if (parsed.data.length > LIMITS.campaignRows)
     throw new ContentError(
@@ -183,7 +183,7 @@ export function validateCsv(csv: string) {
           (v) => /^[\s]*[=+@-]/.test(v) && !/^\+\d[\d ()-]*$/.test(v),
         )
       )
-        throw new Error("Formule CSV interdite.");
+        throw new Error("CSV formulas are not allowed.");
       const channel = row.channel.trim().toLowerCase();
       const recipient = validateRecipient(channel, row);
       const key = JSON.stringify({ channel, recipient });
@@ -193,7 +193,7 @@ export function validateCsv(csv: string) {
     } catch (e) {
       errors.push({
         line,
-        message: e instanceof Error ? e.message : "Ligne invalide.",
+        message: e instanceof Error ? e.message : "Invalid row.",
       });
     }
   });

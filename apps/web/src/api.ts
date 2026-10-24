@@ -173,7 +173,7 @@ export async function getDocumentContent(
     announceSessionExpiry(`/documents/${id}/content`, response.status);
     throw new ApiError(
       "DOCUMENT_UNAVAILABLE",
-      "Ce document ne peut pas être affiché.",
+      "This document cannot be displayed.",
       response.status,
     );
   }
@@ -253,7 +253,7 @@ export async function api<T>(
       throw error;
     throw new ApiError(
       "NETWORK",
-      "Connexion interrompue. Actualisez le suivi avant de recommencer une opération.",
+      "Connection interrupted. Refresh the status before repeating an operation.",
       0,
     );
   }
@@ -270,7 +270,7 @@ export async function api<T>(
     throw new ApiError(
       failure?.error?.code ?? "HTTP_ERROR",
       failure?.error?.message ??
-        msg("Le service a répondu avec une erreur ({0}).", response.status),
+        msg("The service returned an error ({0}).", response.status),
       response.status,
     );
   }

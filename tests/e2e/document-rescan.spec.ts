@@ -324,7 +324,15 @@ for (const blocked of [
     await fixture.open();
     await expect(
       detailOf(page).locator(".document-analysis").getByRole("status"),
-    ).toContainText(fixture.document.analysis!.title);
+    ).toContainText(
+      {
+        security_rejected: "PDF bloqué par le contrôle de sécurité",
+        pdf_rejected: "Ce PDF ne peut pas être utilisé",
+        rejected: "PDF indisponible",
+        purged: "PDF indisponible",
+        integrity_failure: "Vérification du PDF interrompue",
+      }[blocked],
+    );
     await expectNotUsable(page);
     await expect(
       detailOf(page).getByRole("button", { name: "Relancer la vérification" }),

@@ -26,24 +26,24 @@ test("developer guide is SSR-readable and its download is a self-contained contr
   });
   try {
     const page = await context.newPage();
-    await page.goto("/developpeurs/");
+    await page.goto("/developers/");
     await expect(page.locator("main h1")).toHaveCount(1);
     await expect(
       page.getByText("Bêta en préparation.", { exact: true }),
     ).toBeVisible();
-    await expect(page.locator("#authentification")).toContainText(
+    await expect(page.locator("#authentication")).toContainText(
       "https://guteneo.com/mcp",
     );
-    await expect(page.locator("#authentification")).toContainText(
+    await expect(page.locator("#authentication")).toContainText(
       "auth.guteneo.com",
     );
-    await expect(page.locator("#authentification")).toContainText(
+    await expect(page.locator("#authentication")).toContainText(
       "https://pieper.eu.auth0.com/authorize",
     );
-    await expect(page.locator("#authentification")).toContainText(
+    await expect(page.locator("#authentication")).toContainText(
       "https://pieper.eu.auth0.com/oauth/token",
     );
-    await expect(page.locator("#fiabilite")).toContainText(
+    await expect(page.locator("#reliability")).toContainText(
       "submission_unknown",
     );
     await expect(page.locator("noscript p")).toContainText("sans JavaScript");
@@ -178,7 +178,7 @@ test("Swagger is lazy, does not authorize or execute, and cannot follow query ov
       })
     : null;
   await page.goto(
-    "/developpeurs/?url=https://untrusted.invalid/spec.json&config=https://untrusted.invalid/config.json",
+    "/developers/?url=https://untrusted.invalid/spec.json&config=https://untrusted.invalid/config.json",
   );
   if (documentationSession && documentationDenial) {
     const response = await documentationSession;
@@ -206,7 +206,7 @@ test("Swagger is lazy, does not authorize or execute, and cannot follow query ov
     requested.filter(
       (url) =>
         /\/api\/|swagger|openapi\.json|untrusted\.invalid\//.test(url) &&
-        new URL(url).pathname !== "/developpeurs/" &&
+        new URL(url).pathname !== "/developers/" &&
         !(publicApplication && url === sessionUrl),
     ),
   ).toEqual([]);
@@ -234,7 +234,7 @@ test("Swagger is lazy, does not authorize or execute, and cannot follow query ov
     expectedOperations,
   );
   await expect(
-    page.locator("#operations-Courrier-createPostalAddressPage"),
+    page.locator("#operations-Post-createPostalAddressPage"),
   ).toHaveCount(1);
   await expect(
     page.getByRole("button", { name: "Référence ouverte", exact: true }),

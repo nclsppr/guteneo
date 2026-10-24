@@ -78,6 +78,29 @@ test("OpenAPI is valid, self-contained and never resolves a remote document", as
   );
 });
 
+test("documentation groups use unique English names and every operation refers to a declared group", () => {
+  const englishGroups = new Set([
+    "Service",
+    "Documents",
+    "Dispatches",
+    "Campaigns",
+    "Account",
+    "Post",
+    "Document studio",
+    "Secure distribution",
+  ]);
+  const declared = spec.tags.map((tag) => tag.name);
+  assert.equal(new Set(declared).size, declared.length);
+  for (const name of declared)
+    assert(englishGroups.has(name), `Unexpected documentation group: ${name}`);
+  for (const { operation } of operations)
+    for (const name of operation.tags ?? [])
+      assert(
+        declared.includes(name),
+        `Undeclared documentation group: ${name}`,
+      );
+});
+
 test("documented routes exist and OAuth cannot acquire browser approval or private account operations", () => {
   const expected = new Set([
     "get /api/health",
@@ -216,11 +239,11 @@ test("documented routes exist and OAuth cannot acquire browser approval or priva
   }
   assert.match(
     spec.paths["/api/dispatches/{id}/confirm"].post.description,
-    /navigateur/,
+    /browser/,
   );
   assert.match(
     spec.paths["/api/dispatches/{id}"].get.description,
-    /Ne jamais recréer automatiquement/,
+    /Never automatically recreate/,
   );
 });
 
@@ -261,11 +284,11 @@ test("secure distribution documents retention charges and no personal OAuth auth
   );
   assert.match(
     spec.paths["/api/secure-distributions/{id}/confirm"].post.description,
-    /navigateur/,
+    /browser/,
   );
   assert.match(
     spec.paths["/api/secure-distributions/{id}/revoke"].post.description,
-    /sans remboursement/,
+    /without refunding/,
   );
   assert.equal(spec["x-secure-distribution"].noPersonalOAuthAuthority, true);
   assert(
@@ -465,12 +488,12 @@ test("registration documents both explicit beta and historical verification poli
   ]);
   assert.match(
     verification.description,
-    /sans politique explicite conserve verified_email_and_mfa/,
+    /without an explicit policy retains verified_email_and_mfa/,
   );
   assert.match(
     spec.components.securitySchemes.GuteneoOAuth.description,
     /https:\/\/guteneo\.com\/verified_account=true/,
   );
-  assert.match(spec.info.description, /MFA n’est pas obligatoire/);
-  assert.doesNotMatch(spec.info.description, /configurer la MFA/);
+  assert.match(spec.info.description, /MFA is optional/);
+  assert.doesNotMatch(spec.info.description, /configure MFA/);
 });

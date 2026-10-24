@@ -41,14 +41,14 @@ class DriverFailure extends Error {
   }
 }
 export const DRIVER_MESSAGES = Object.freeze({
-  connection_timeout: "Connexion privee expiree : aucune RPC declenchee.",
-  connection_failed: "Connexion privee indisponible : aucune RPC declenchee.",
+  connection_timeout: "Private connection expired: no RPC started.",
+  connection_failed: "Private connection unavailable: no RPC started.",
   registration_timeout:
-    "Inscription potentiellement inconnue. Ne pas relancer --register ; utiliser --inspect pour rapprocher le resultat.",
+    "Registration outcome may be unknown. Do not restart --register; use --inspect to reconcile the result.",
   registration_failed:
-    "Inscription potentiellement inconnue. Ne pas relancer --register ; utiliser --inspect pour rapprocher le resultat.",
-  inspection_timeout: "Inspection expiree : aucun resultat confirme.",
-  inspection_failed: "Inspection indisponible : aucun resultat confirme.",
+    "Registration outcome may be unknown. Do not restart --register; use --inspect to reconcile the result.",
+  inspection_timeout: "Inspection timed out: no confirmed result.",
+  inspection_failed: "Inspection unavailable: no confirmed result.",
 });
 async function bounded(promise, timeoutMs, code) {
   let timer;
@@ -209,7 +209,7 @@ if (
   } catch (error) {
     console.error(
       DRIVER_MESSAGES[error?.code] ??
-        "Commande de configuration invalide. Aucun resultat n'est infere.",
+        "Invalid configuration command. No result is inferred.",
     );
     process.exit(1);
   }

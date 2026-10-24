@@ -1,16 +1,16 @@
 # guteneo
 
-> guteneo est un atelier de correspondance pour préparer et suivre des documents par courrier, e-mail ou fax, depuis le web ou un assistant connecté.
+> guteneo is a correspondence workspace for preparing and tracking documents by postal mail, email or fax, through the web or a connected assistant.
 
-## Ressources publiques
-- [Accueil](https://guteneo.com/) : présentation du service, des canaux et du parcours de préparation.
-- [Assistants](https://guteneo.com/assistants/) : connexion des assistants et limites de chaque intégration.
-- [Guide développeurs](https://guteneo.com/developpeurs/) : API, OAuth, MCP et règles de préparation et d’approbation.
-- [Contrat OpenAPI](https://guteneo.com/openapi.json) : opérations, paramètres et réponses de l’API.
-- [Assistance](https://guteneo.com/support/) : aide et contact.
-- [Journal](https://guteneo.com/journal/) : histoire de l’imprimerie et de la correspondance.
+## Public resources
+- [Home](https://guteneo.com/): service, channels and preparation journey.
+- [Assistants](https://guteneo.com/assistants/): connection guides and host-specific limitations.
+- [Developer guide](https://guteneo.com/developers/): API, OAuth, MCP and preparation/approval rules.
+- [OpenAPI contract](https://guteneo.com/openapi.json): API operations, parameters and responses.
+- [Support](https://guteneo.com/support/): help and contact.
+- [Journal](https://guteneo.com/journal/): printing and correspondence history.
 
-## Préparation et envoi
-La préparation d’un document ou d’un devis ne vaut pas autorisation d’envoi. Par défaut, une personne relit le contenu, les destinataires, les options et le coût dans guteneo avant de confirmer.
-Le mode expert est désactivé par défaut. Seul un administrateur authentifié peut accorder à une connexion OAuth une délégation limitée et temporaire ; un assistant ne peut ni l’activer ni la prolonger.
-La disponibilité d’un canal dépend des capacités et de la configuration du service. Une simulation ou une démonstration ne prouve pas un envoi réel.
+## Preparation and sending
+Preparing a document or quote does not authorize sending. By default, a person reviews content, recipients, options and cost in guteneo before confirmation.
+Expert mode starts disabled. Only an authenticated browser administrator may grant one OAuth connection a bounded, expiring mandate; an assistant cannot activate or extend it.
+Channel availability depends on current service capabilities and configuration. Simulation or demonstration does not prove real delivery.

@@ -34,7 +34,7 @@ export function BusinessDataForm({
   schema,
   value,
   onChange,
-  label = msg("Données du document"),
+  label = msg("Document data"),
   required = false,
   disabled = false,
 }: {
@@ -84,7 +84,7 @@ export function BusinessDataForm({
         <legend>
           {title}{" "}
           <span className="field-hint">
-            ({items.length} {msg("lignes)")}
+            ({items.length} {msg("rows)")}
           </span>
         </legend>
         {items.map((item, index) => (
@@ -92,7 +92,7 @@ export function BusinessDataForm({
             <BusinessDataForm
               schema={schema.items!}
               value={item}
-              label={msg("Ligne {0}", index + 1)}
+              label={msg("Row {0}", index + 1)}
               disabled={disabled}
               onChange={(next) =>
                 onChange(items.map((entry, i) => (i === index ? next : entry)))
@@ -102,13 +102,13 @@ export function BusinessDataForm({
               type="button"
               className="text-button"
               aria-label={msg(
-                "Supprimer la ligne {0} de {1}",
+                "Remove row {0} from {1}",
                 index + 1,
                 title,
               )}
               onClick={() => onChange(items.filter((_, i) => i !== index))}
             >
-              {msg("Supprimer la ligne ")}
+              {msg("Remove row ")}
             </button>
           </div>
         ))}
@@ -118,7 +118,7 @@ export function BusinessDataForm({
           disabled={disabled || items.length >= 200}
           onClick={() => onChange([...items, initialData(schema.items!)])}
         >
-          {msg("Ajouter une ligne ")}
+          {msg("Add a row ")}
         </button>
       </fieldset>
     );
@@ -144,7 +144,7 @@ export function BusinessDataForm({
           schema.description,
           schema.default !== undefined
             ? msg(
-                "La valeur par défaut déclarée s’applique si ce champ reste vide.",
+                "The declared default value applies if this field is left empty.",
               )
             : undefined,
         ]
@@ -167,7 +167,7 @@ export function BusinessDataForm({
             )
           }
         >
-          <option value="">{msg("Choisir…")}</option>
+          <option value="">{msg("Choose…")}</option>
           {schema.enum.map((entry) => (
             <option key={String(entry)} value={String(entry)}>
               {String(entry)}

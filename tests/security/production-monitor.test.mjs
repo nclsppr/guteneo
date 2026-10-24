@@ -15,7 +15,7 @@ const paths = [
   "/?lang=de",
   "/?lang=lb",
   "/roles/",
-  "/developpeurs/",
+  "/developers/",
   "/assistants/chatgpt/",
 ];
 function fixture(change = () => {}) {
@@ -137,7 +137,7 @@ test("live evidence is bounded, anonymous and explicitly partial even when all p
   assert.equal(report.checks.length, 17);
   assert.equal(requests.length, 20);
   assert.equal(
-    report.coverage.find((c) => c.feature === "E-mail").state,
+    report.coverage.find((c) => c.feature === "Email").state,
     "disabled",
   );
   assert.equal(

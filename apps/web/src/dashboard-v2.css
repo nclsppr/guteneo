@@ -114,7 +114,7 @@
   color: #181b22;
 }
 .workspace-v2 .atelier-label {
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: var(--font-body);
   font-size: 12px;
   letter-spacing: 0;
   text-transform: none;
@@ -400,7 +400,7 @@
 .workspace-v2 .form-panel > h2,
 .workspace-v2 .assistant-welcome-heading h2,
 .workspace-v2 .assistant-direct-route h2 {
-  font-family: "EB Garamond", Georgia, serif;
+  font-family: var(--font-display);
   color: var(--heading-ink);
   font-weight: 400;
   font-size: 28px;
@@ -443,7 +443,7 @@
   margin-bottom: 12px;
 }
 .workspace-v2 .overview-stats strong {
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: var(--font-body);
   font-size: 32px;
   font-weight: 400;
   font-variant-numeric: tabular-nums;
@@ -563,7 +563,7 @@
     .operations-diagnostics > h2,
     .credit-balance h2
   ) {
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: var(--font-body);
   font-size: 18px;
   font-weight: 500;
   line-height: 1.4;
@@ -587,7 +587,7 @@
     .credit-balance-amount dd,
     .horizon-price strong
   ) {
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: var(--font-body);
   font-size: 32px;
   font-weight: 500;
   font-variant-numeric: tabular-nums;
@@ -824,7 +824,7 @@
   .workspace-v2 .dispatch-filter a {
     min-height: 44px;
   }
-  .workspace-v2 .page-heading > .button.primary {
+  .workspace-v2 .page-heading-actions > .button.primary {
     width: 100%;
     margin-top: 8px;
   }

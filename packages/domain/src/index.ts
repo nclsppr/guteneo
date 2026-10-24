@@ -1,4 +1,8 @@
-import { documentAccessMode, documentAccessPolicySql, documentSessionPolicySql } from "../../contracts/src/document-authentication";
+import {
+  documentAccessMode,
+  documentAccessPolicySql,
+  documentSessionPolicySql,
+} from "../../contracts/src/document-authentication";
 import {
   workspacePermissions,
   type WorkspaceRole,
@@ -218,7 +222,7 @@ function key(value: string) {
   if (!value || value.length > 200 || /[\r\n\0]/.test(value))
     throw new DomainError(
       "INVALID_IDEMPOTENCY_KEY",
-      "Une clé d’idempotence de 1 à 200 caractères est requise.",
+      "An idempotency key of 1 to 200 characters is required.",
     );
   return value;
 }
@@ -235,7 +239,7 @@ function requirePermission(
   if (!actorPermissions(ctx)[permission])
     throw new DomainError(
       "FORBIDDEN",
-      "Ce rôle ne permet pas cette opération.",
+      "This role does not permit this operation.",
       403,
     );
 }
@@ -251,9 +255,13 @@ export function membershipPermissionFence(
 }
 function writable(ctx: ActorContext) {
   if (!actorPermissions(ctx).prepareDispatches)
-    throw new DomainError("FORBIDDEN", "Droit de modification requis.", 403);
+    throw new DomainError("FORBIDDEN", "Editing permission required.", 403);
 }
-function browserDocumentApprovalFence(ctx: ActorContext, mode: Mode, requiredAuthentication?: string) {
+function browserDocumentApprovalFence(
+  ctx: ActorContext,
+  mode: Mode,
+  requiredAuthentication?: string,
+) {
   if (
     ctx.actor !== "browser" ||
     !ctx.documentSessionHash ||
@@ -263,7 +271,7 @@ function browserDocumentApprovalFence(ctx: ActorContext, mode: Mode, requiredAut
   return {
     condition: `EXISTS(SELECT 1 FROM personal_sessions secure_personal JOIN browser_sessions secure_browser ON secure_browser.token_hash=secure_personal.token_hash AND secure_browser.user_id=secure_personal.user_id
     WHERE secure_personal.token_hash=? AND secure_browser.organization_id=? AND secure_personal.user_id=?
-    AND ${documentSessionPolicySql('secure_personal', documentAccessMode(requiredAuthentication), mode === 'simulation')}
+    AND ${documentSessionPolicySql("secure_personal", documentAccessMode(requiredAuthentication), mode === "simulation")}
     AND ${documentAccessPolicySql(documentAccessMode(requiredAuthentication))}
     AND secure_personal.verified_email IS NOT NULL AND length(trim(secure_personal.verified_email))>0
     AND secure_personal.expires_at>strftime('%Y-%m-%dT%H:%M:%fZ','now') AND secure_browser.expires_at>strftime('%Y-%m-%dT%H:%M:%fZ','now')
@@ -276,111 +284,106 @@ function sqlError(error: unknown): never {
   if (String(error).includes("postal_preflight_required"))
     throw new DomainError(
       "POSTAL_PREFLIGHT_REQUIRED",
-      "Le contrôle postal doit être renouvelé.",
+      "Postal preflight must be renewed.",
       409,
     );
   const message = String(error);
   if (message.includes("secure_browser_approval_required"))
     throw new DomainError(
       "STRONG_BROWSER_APPROVAL_REQUIRED",
-      "Une approbation navigateur récente autorisée est requise pour cette distribution.",
+      "A recent authorized browser approval is required for this distribution.",
       403,
     );
   if (message.includes("approval_permission_required"))
     throw new DomainError(
       "FORBIDDEN",
-      "Le droit de validation a été retiré. Une nouvelle validation autorisée est nécessaire.",
+      "Approval authority was revoked. Fresh authorised approval is required.",
       403,
     );
   if (message.includes("expert_approval_invalid"))
     throw new DomainError(
       "EXPERT_APPROVAL_INVALID",
-      "La délégation ou la revue a expiré ou a été révoquée.",
+      "Delegation or review has expired or been revoked.",
       409,
     );
   if (message.includes("expert_budget_exceeded"))
     throw new DomainError(
       "EXPERT_BUDGET_EXCEEDED",
-      "Le plafond quotidien du mode expert est atteint.",
+      "The daily expert-mode ceiling has been reached.",
       409,
     );
   for (const [needle, code, label, status] of [
     [
       "prepare_only_account",
       "PREPARE_ONLY_ACCOUNT",
-      "Ce compte permet uniquement de préparer les envois. L’expédition est désactivée.",
+      "This account can only prepare dispatches. Sending is disabled.",
       403,
     ],
     [
       "recipient_request_required",
       "RECIPIENT_REQUEST_REQUIRED",
-      "Confirmez que le destinataire a demandé cet e-mail.",
+      "Confirm that the recipient requested this email.",
       409,
     ],
     [
       "credit_exhausted",
       "CREDIT_EXHAUSTED",
-      "Le crédit de bienvenue disponible est insuffisant. La recharge n’est pas encore disponible.",
+      "Insufficient available welcome credit. Top-up is not available yet.",
       409,
     ],
     [
       "live_quote_invalid",
       "LIVE_QUOTE_INVALID",
-      "Le devis fax a expiré ou sa configuration a changé. Renouvelez le devis avant de l’approuver à nouveau.",
+      "The fax quote expired or its configuration changed. Renew the quote before approving it again.",
       409,
     ],
     [
       "quota_exceeded",
       "QUOTA_EXCEEDED",
-      "Crédits ou plafond insuffisants.",
+      "Insufficient credits or ceiling.",
       409,
     ],
     [
       "approval_required",
       "APPROVAL_REQUIRED",
-      "Approbation humaine valide requise.",
+      "Valid human approval is required.",
       409,
     ],
     [
       "fax_review_preparation_only",
       "FAX_REVIEW_PREPARATION_ONLY",
-      "Ce devis de revue ne peut pas être envoyé.",
+      "This review quote cannot be sent.",
       409,
     ],
     [
       "channel_disabled",
       "CHANNEL_DISABLED",
-      "Ce canal est temporairement désactivé.",
+      "This channel is temporarily disabled.",
       409,
     ],
     [
       "campaign_frozen",
       "CAMPAIGN_FROZEN",
-      "La liste approuvée de cette campagne est figée.",
+      "This campaign’s approved recipient list is frozen.",
       409,
     ],
     [
       "document_not_ready",
       "DOCUMENT_QUARANTINED",
-      "Le document n’est pas prêt à expédier.",
+      "The document is not ready for dispatch.",
       409,
     ],
-    [
-      "sender_not_ready",
-      "SENDER_NOT_CONFIGURED",
-      "Expéditeur non vérifié.",
-      409,
-    ],
+    ["sender_not_ready", "SENDER_NOT_CONFIGURED", "Sender not verified.", 409],
     [
       "recipient_suppressed",
       "RECIPIENT_SUPPRESSED",
-      "Destinataire bloqué pour cette organisation.",
+      "Recipient blocked for this organisation.",
       409,
     ],
     [
       "campaign_too_large",
       "CAMPAIGN_TOO_LARGE",
-      "Maximum 500 destinataires.",
+      "At most 500 recipients.",
       413,
     ],
   ] as const)
@@ -438,7 +441,7 @@ export class DomainService {
     )
       throw new DomainError(
         "FORBIDDEN",
-        "Organisation ou rôle inaccessible.",
+        "Organisation or role is inaccessible.",
         403,
       );
     if (org.mode !== this.config.mode)
@@ -509,7 +512,7 @@ export class DomainService {
       (input.status === "ready" && input.pages === 0) ||
       input.pages > LIMITS.pages
     )
-      throw new DomainError("INVALID_DOCUMENT", "Métadonnées PDF invalides.");
+      throw new DomainError("INVALID_DOCUMENT", "Invalid PDF metadata.");
     if (
       this.config.mode === "production" &&
       input.status === "ready" &&
@@ -517,7 +520,7 @@ export class DomainService {
     )
       throw new DomainError(
         "SCAN_REQUIRED",
-        "Le document doit être analysé avant utilisation.",
+        "The document must be scanned before use.",
         409,
       );
     const id = input.id ?? uid("doc");
@@ -570,7 +573,7 @@ export class DomainService {
     if (!registered)
       throw new DomainError(
         "DOCUMENT_UNAVAILABLE",
-        "Document indisponible.",
+        "Document unavailable.",
         409,
       );
     return this.getDocument(ctx, registered.id);
@@ -598,7 +601,7 @@ export class DomainService {
         ...(dispatchId ? [dispatchId] : []),
       )
       .first<DocumentRecord>();
-    if (!doc) throw new DomainError("NOT_FOUND", "Document introuvable.", 404);
+    if (!doc) throw new DomainError("NOT_FOUND", "Document not found.", 404);
     return doc;
   }
   async listDocuments(ctx: ActorContext, cursor?: string, limit = 30) {
@@ -665,7 +668,7 @@ export class DomainService {
         )
           throw Error();
       } catch {
-        throw new DomainError("INVALID_CURSOR", "Curseur invalide.");
+        throw new DomainError("INVALID_CURSOR", "Invalid cursor.");
       }
     }
     // Statuses come from a server-side group, never from the request itself.
@@ -731,7 +734,7 @@ export class DomainService {
     )
       throw new DomainError(
         "SECURE_DISTRIBUTION_INVALID",
-        "La préparation sécurisée n’est plus disponible.",
+        "The secure preparation is no longer available.",
         409,
       );
     return this.prepareDispatchInternal(
@@ -761,7 +764,7 @@ export class DomainService {
     )
       throw new DomainError(
         "FAX_QUOTE_RENEWAL_UNSAFE",
-        "Seul un devis fax réel peut être renouvelé ici.",
+        "Only a live fax quote can be renewed here.",
         409,
       );
     const recipient = JSON.parse(source.recipient_json) as Record<
@@ -779,7 +782,7 @@ export class DomainService {
     )
       throw new DomainError(
         "RENEWAL_CONTENT_MISMATCH",
-        "Le renouvellement doit conserver le PDF, le destinataire, l’expéditeur et le plafond exacts du devis initial.",
+        "Renewal must preserve the original quote’s exact PDF, recipient, sender and ceiling.",
         409,
       );
     const idempotencyKey = `fax-renew:${source.id}`;
@@ -799,7 +802,7 @@ export class DomainService {
       )
         throw new DomainError(
           "FAX_QUOTE_RENEWAL_UNSAFE",
-          "La soumission de cet envoi a commencé ou il n’est plus préparé. Consultez son statut sans le réexpédier.",
+          "Submission has started or this dispatch is no longer prepared. Read its status without resending it.",
           409,
         );
       let invalid =
@@ -826,8 +829,8 @@ export class DomainService {
         throw new DomainError(
           "QUOTE_STILL_VALID",
           source.faxPricing?.executionScope === "review_prepare_only"
-            ? "Ce devis de préparation est encore valable et reste non envoyable."
-            : "Ce devis est encore valable. Vérifiez-le avant de l’approuver.",
+            ? "This preparation quote is still valid and remains unsendable."
+            : "This quote is still valid. Review it before approval.",
           409,
         );
     }
@@ -858,7 +861,7 @@ export class DomainService {
     await this.organization(ctx);
     key(idempotencyKey);
     if (!["fax", "email", "postal"].includes(input.channel))
-      throw new DomainError("INVALID_CHANNEL", "Canal inconnu.");
+      throw new DomainError("INVALID_CHANNEL", "Unknown delivery channel.");
     const requestHash = await sha256(
       canonicalJson(
         secureDistribution
@@ -878,7 +881,7 @@ export class DomainService {
       if (existing.request_hash !== requestHash)
         throw new DomainError(
           "IDEMPOTENCY_CONFLICT",
-          "Cette clé correspond à un contenu différent.",
+          "This key belongs to different content.",
           409,
         );
       return this.dispatch(ctx, existing.id);
@@ -893,7 +896,7 @@ export class DomainService {
     )
       throw new DomainError(
         "INVALID_OPTIONS",
-        "Ces options sont réservées au serveur.",
+        "These options are reserved for the server.",
       );
     if (
       input.channel !== "email" &&
@@ -901,7 +904,7 @@ export class DomainService {
     )
       throw new DomainError(
         "INVALID_OPTIONS",
-        "La protection est disponible pour les e-mails.",
+        "Protection is available for email.",
       );
     if (
       input.channel === "email" &&
@@ -912,7 +915,7 @@ export class DomainService {
     )
       throw new DomainError(
         "INVALID_OPTIONS",
-        "Choisissez une pièce jointe ou un lien protégé.",
+        "Choose an attachment or a protected link.",
       );
     if (
       options.protectedDays !== undefined &&
@@ -920,7 +923,7 @@ export class DomainService {
     )
       throw new DomainError(
         "INVALID_PROTECTION_DURATION",
-        "Choisissez une durée de 1, 7 ou 30 jours.",
+        "Choose a duration of 1, 7 or 30 days.",
       );
     if (
       options.protectedDays !== undefined &&
@@ -928,33 +931,44 @@ export class DomainService {
     )
       throw new DomainError(
         "INVALID_OPTIONS",
-        "La durée nécessite un lien protégé.",
+        "Duration requires a protected link.",
       );
     if (canonicalJson(options).length > 8192)
-      throw new DomainError("INVALID_OPTIONS", "Options trop volumineuses.");
+      throw new DomainError("INVALID_OPTIONS", "Options are too large.");
     if (secureDistribution) options.secureDistribution = secureDistribution;
     if (options.kind === "marketing")
       throw new DomainError(
         "MARKETING_NOT_ENABLED",
-        "Campagnes marketing désactivées jusqu’au raccordement de la désinscription.",
+        "Marketing campaigns remain disabled until unsubscribe handling is connected.",
         409,
       );
     let document: DocumentRecord | undefined;
     if (input.documentId) {
       document = await this.getDocument(ctx, input.documentId);
-      if(await this.db.prepare("SELECT 1 FROM secure_distributions WHERE organization_id=? AND source_id=?").bind(ctx.organizationId,document.id).first())
-        throw new DomainError("SENSITIVE_SOURCE_LEGACY_FORBIDDEN","Ce document sensible ne peut pas être utilisé dans ce parcours.",403);
+      if (
+        await this.db
+          .prepare(
+            "SELECT 1 FROM secure_distributions WHERE organization_id=? AND source_id=?",
+          )
+          .bind(ctx.organizationId, document.id)
+          .first()
+      )
+        throw new DomainError(
+          "SENSITIVE_SOURCE_LEGACY_FORBIDDEN",
+          "This sensitive document cannot be used in this workflow.",
+          403,
+        );
       if (document.status !== "ready")
         throw new DomainError(
           "DOCUMENT_QUARANTINED",
-          "Le document n’est pas prêt à expédier.",
+          "The document is not ready for dispatch.",
           409,
         );
     }
     if (input.channel !== "email" && !document)
       throw new DomainError(
         "DOCUMENT_REQUIRED",
-        "Un PDF validé est requis pour ce canal.",
+        "A verified PDF is required for this channel.",
       );
     let html: string | null = null,
       text: string | null = null,
@@ -964,14 +978,14 @@ export class DomainService {
       if (!subject || subject.length > 250)
         throw new DomainError(
           "INVALID_SUBJECT",
-          "Saisissez un objet de 1 à 250 caractères.",
+          "Enter a subject of 1 to 250 characters.",
         );
       html = cleanHtml(input.html ?? "");
       text = input.text?.trim() || htmlToText(html);
       if (!text || new TextEncoder().encode(text).length > LIMITS.htmlBytes)
         throw new DomainError(
           "INVALID_EMAIL_CONTENT",
-          "Version texte vide ou trop longue.",
+          "Text version is empty or too long.",
         );
       if (!html)
         html = `<p>${text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, "<br>")}</p>`;
@@ -985,7 +999,7 @@ export class DomainService {
       )
         throw new DomainError(
           "RECIPIENT_SUPPRESSED",
-          "Ce destinataire est bloqué pour cette organisation.",
+          "This recipient is blocked for this organisation.",
           409,
         );
     }
@@ -1001,12 +1015,12 @@ export class DomainService {
       if (!document)
         throw new DomainError(
           "DOCUMENT_REQUIRED",
-          "Choisissez le PDF à protéger.",
+          "Choose the PDF to protect.",
         );
       if (!this.config.prepareProtectedDocument)
         throw new DomainError(
           "PROTECTED_DOCUMENTS_NOT_CONFIGURED",
-          "La protection des documents n’est pas configurée.",
+          "Document protection is not configured.",
           409,
         );
       const {
@@ -1024,8 +1038,8 @@ export class DomainService {
       options.protectedDocument = protection;
       options.protectedDays = protection.durationDays;
       const safeUrl = url.replace(/&/g, "&amp;").replace(/"/g, "&quot;");
-      html += `<p><a href="${safeUrl}">Consulter le document protégé</a></p><p>Demandez le mot de passe à l’expéditeur par un autre canal. Ce lien expire le ${protection.expiresAt.slice(0, 10)}.</p>`;
-      text += `\n\nConsulter le document protégé : ${url}\nDemandez le mot de passe à l’expéditeur par un autre canal. Ce lien expire le ${protection.expiresAt.slice(0, 10)}.`;
+      html += `<p><a href="${safeUrl}">View the protected document</a></p><p>Ask the sender for the password through another channel. This link expires on ${protection.expiresAt.slice(0, 10)}.</p>`;
+      text += `\n\nView the protected document : ${url}\nAsk the sender for the password through another channel. This link expires on ${protection.expiresAt.slice(0, 10)}.`;
     }
     const selectedSenderId = input.senderId ?? defaultEmailSenderId;
     const sender = selectedSenderId
@@ -1050,7 +1064,7 @@ export class DomainService {
     if (!sender)
       throw new DomainError(
         "SENDER_NOT_CONFIGURED",
-        "Configurez et vérifiez un expéditeur pour ce canal.",
+        "Configure and verify a sender for this channel.",
         409,
       );
     const tariff =
@@ -1080,7 +1094,7 @@ export class DomainService {
     )
       throw new DomainError(
         "FAX_REVIEW_PREPARATION_ONLY",
-        "Le renouvellement doit rester une préparation de revue non envoyable. Une référence de revue valide est requise.",
+        "Renewal must remain an unsendable review preparation. A valid review reference is required.",
         409,
       );
     const deliveryPrice =
@@ -1116,7 +1130,7 @@ export class DomainService {
     )
       throw new DomainError(
         "INVALID_CEILING",
-        "Le plafond doit couvrir l’estimation en centimes.",
+        "The ceiling must cover the estimate in cents.",
       );
     if (input.campaignId) {
       const c = await this.db
@@ -1125,11 +1139,11 @@ export class DomainService {
         )
         .bind(ctx.organizationId, input.campaignId)
         .first<{ status: string }>();
-      if (!c) throw new DomainError("NOT_FOUND", "Campagne introuvable.", 404);
+      if (!c) throw new DomainError("NOT_FOUND", "Campaign not found.", 404);
       if (c.status !== "draft")
         throw new DomainError(
           "CAMPAIGN_FROZEN",
-          "Cette campagne a déjà été approuvée.",
+          "This campaign has already been approved.",
           409,
         );
       const count = await this.db
@@ -1141,7 +1155,7 @@ export class DomainService {
       if ((count?.n ?? 0) >= LIMITS.campaignRows)
         throw new DomainError(
           "CAMPAIGN_TOO_LARGE",
-          `Maximum ${LIMITS.campaignRows} destinataires.`,
+          `At most ${LIMITS.campaignRows} recipients.`,
           413,
         );
     }
@@ -1273,7 +1287,7 @@ export class DomainService {
       if (renewal && String(e).includes("malformed JSON"))
         throw new DomainError(
           "FAX_QUOTE_RENEWAL_UNSAFE",
-          "Cet envoi a changé ou sa soumission a commencé. Consultez son statut ; aucun nouveau fax n’a été préparé.",
+          "This dispatch changed or submission started. Read its status; no new fax was prepared.",
           409,
         );
       sqlError(e);
@@ -1287,7 +1301,7 @@ export class DomainService {
     if (saved.request_hash !== requestHash)
       throw new DomainError(
         "IDEMPOTENCY_CONFLICT",
-        "Cette clé correspond à un contenu différent.",
+        "This key belongs to different content.",
         409,
       );
     return this.dispatch(ctx, saved.id);
@@ -1304,7 +1318,7 @@ export class DomainService {
         ...this.secureDispatchVisibility(ctx, "d").values,
       )
       .first<Dispatch & { quote_fx_json: string | null }>();
-    if (!row) throw new DomainError("NOT_FOUND", "Envoi introuvable.", 404);
+    if (!row) throw new DomainError("NOT_FOUND", "Dispatch not found.", 404);
     if (row.document_id) await this.getDocument(ctx, row.document_id, row.id);
     const { quote_fx_json, ...result } = row;
     const fx =
@@ -1335,7 +1349,7 @@ export class DomainService {
     if (ctx.actor !== "browser")
       throw new DomainError(
         "HUMAN_APPROVAL_REQUIRED",
-        "L’approbation exige une session humaine authentifiée.",
+        "Approval requires an authenticated human session.",
         403,
       );
     return this.approveWithAuthority(ctx, id, fingerprint, attestation);
@@ -1351,7 +1365,7 @@ export class DomainService {
     if (ctx.actor !== "mcp" || ctx.role !== "admin")
       throw new DomainError(
         "FORBIDDEN",
-        "Une délégation expert active est requise.",
+        "Active expert delegation is required.",
         403,
       );
     return this.approveWithAuthority(ctx, id, fingerprint, attestation, proof);
@@ -1382,10 +1396,14 @@ export class DomainService {
       if (proof || ctx.actor !== "browser")
         throw new DomainError(
           "STRONG_BROWSER_APPROVAL_REQUIRED",
-          "La distribution sécurisée exige une approbation dans le navigateur, même sous mandat expert.",
+          "Secure distribution requires browser approval, including under an expert mandate.",
           403,
         );
-      const strong = browserDocumentApprovalFence(ctx, row.mode, this.config.sensitiveDocumentAuthentication);
+      const strong = browserDocumentApprovalFence(
+        ctx,
+        row.mode,
+        this.config.sensitiveDocumentAuthentication,
+      );
       const session = await this.db
         .prepare(
           `SELECT authenticated_at,expires_at,(SELECT expires_at FROM browser_sessions WHERE token_hash=personal_sessions.token_hash) browser_expires_at FROM personal_sessions WHERE token_hash=? AND (${strong.condition})`,
@@ -1399,7 +1417,7 @@ export class DomainService {
       if (!session)
         throw new DomainError(
           "STRONG_BROWSER_APPROVAL_REQUIRED",
-          "Reconnectez-vous avant d’approuver cette distribution.",
+          "Sign in again before approving this distribution.",
           403,
         );
       secureEvidence = {
@@ -1416,13 +1434,13 @@ export class DomainService {
     if (row.status !== "prepared")
       throw new DomainError(
         "INVALID_STATE",
-        "Cet envoi ne peut plus être approuvé.",
+        "This dispatch can no longer be approved.",
         409,
       );
     if (row.fingerprint !== fingerprint)
       throw new DomainError(
         "FINGERPRINT_MISMATCH",
-        "L’aperçu a changé. Rechargez avant approbation.",
+        "The preview changed. Reload before approval.",
         409,
       );
     if (
@@ -1432,7 +1450,7 @@ export class DomainService {
     )
       throw new DomainError(
         "RECIPIENT_REQUEST_REQUIRED",
-        "Confirmez que le destinataire a demandé cet e-mail.",
+        "Confirm that the recipient requested this email.",
         409,
       );
     const now = this.time();
@@ -1471,7 +1489,7 @@ export class DomainService {
     if (proof && !review)
       throw new DomainError(
         "EXPERT_APPROVAL_INVALID",
-        "La revue expert n’est plus valide.",
+        "Expert review is no longer valid.",
         409,
       );
     const approvalExpiresAt = new Date(
@@ -1541,7 +1559,13 @@ export class DomainService {
         id,
         {
           authority: proof ? "delegated" : "browser",
-          ...(secure ? { documentAccessMode: documentAccessMode(this.config.sensitiveDocumentAuthentication) } : {}),
+          ...(secure
+            ? {
+                documentAccessMode: documentAccessMode(
+                  this.config.sensitiveDocumentAuthentication,
+                ),
+              }
+            : {}),
           ...(proof ? { connectionId: proof.connectionId } : {}),
           fingerprint,
           recipientRequested: attestation.recipientRequested === true,
@@ -1556,7 +1580,7 @@ export class DomainService {
           secure
             ? "STRONG_BROWSER_APPROVAL_REQUIRED"
             : "EXPERT_APPROVAL_INVALID",
-          "L’autorisation a changé.",
+          "Authority has changed.",
           409,
         );
     } catch (error) {
@@ -1699,7 +1723,7 @@ export class DomainService {
     if (ctx.actor === "native")
       throw new DomainError(
         "HUMAN_APPROVAL_REQUIRED",
-        "La validation et l’expédition doivent être confirmées dans le navigateur.",
+        "Approval and dispatch must be confirmed in the browser.",
         403,
       );
     key(idempotencyKey);
@@ -1709,7 +1733,7 @@ export class DomainService {
     if (secure && proof)
       throw new DomainError(
         "STRONG_BROWSER_APPROVAL_REQUIRED",
-        "Une délégation expert ne remplace pas l’approbation navigateur de cette distribution.",
+        "Expert delegation does not replace browser approval for this distribution.",
         403,
       );
     if (
@@ -1720,13 +1744,13 @@ export class DomainService {
     )
       throw new DomainError(
         "FORBIDDEN",
-        "La connexion OAuth courante doit être vérifiée avant l’acceptation.",
+        "The current OAuth connection must be verified before acceptance.",
         403,
       );
     if (proof && (ctx.actor !== "mcp" || ctx.role !== "admin"))
       throw new DomainError(
         "FORBIDDEN",
-        "Une délégation expert active est requise.",
+        "Active expert delegation is required.",
         403,
       );
     const now = this.time();
@@ -1745,7 +1769,13 @@ export class DomainService {
         : "NOT EXISTS(SELECT 1 FROM approvals a WHERE a.organization_id=? AND a.dispatch_id=? AND a.approval_kind='expert')";
     const approvalFence = `(${membership.condition}) AND (${validApproval}) AND (${secure ? documentAccessPolicySql(documentAccessMode(this.config.sensitiveDocumentAuthentication)) : "1=1"}) AND (${acceptanceAuthority?.condition ?? "1=1"})`;
     const proofValues = secure
-      ? [ctx.organizationId, id, row.fingerprint, now, documentAccessMode(this.config.sensitiveDocumentAuthentication)]
+      ? [
+          ctx.organizationId,
+          id,
+          row.fingerprint,
+          now,
+          documentAccessMode(this.config.sensitiveDocumentAuthentication),
+        ]
       : proof
         ? [
             ctx.organizationId,
@@ -1808,24 +1838,28 @@ export class DomainService {
     if (!idem && row.status === "prepared")
       throw new DomainError(
         "APPROVAL_REQUIRED",
-        "L’approbation ou la délégation valide est requise.",
+        "Valid approval or delegation is required.",
         409,
       );
     if (idem?.request_hash !== hash)
       throw new DomainError(
         "IDEMPOTENCY_CONFLICT",
-        "Cette clé confirme un autre envoi.",
+        "This key confirms another dispatch.",
         409,
       );
     const saved = await this.dispatch(ctx, id);
     if (saved.status === "prepared")
       throw new DomainError(
         "APPROVAL_REQUIRED",
-        "Approbation humaine requise.",
+        "Human approval is required.",
         409,
       );
     if (saved.status === "cancelled")
-      throw new DomainError("INVALID_STATE", "Cet envoi a été annulé.", 409);
+      throw new DomainError(
+        "INVALID_STATE",
+        "This dispatch was cancelled.",
+        409,
+      );
     return saved;
   }
   async getDispatch(ctx: ActorContext, id: string) {
@@ -1871,7 +1905,7 @@ export class DomainService {
     if (group !== undefined && !isDispatchGroup(group))
       throw new DomainError(
         "INVALID_GROUP",
-        "Filtre d’envois inconnu. Utilisez approval, in_progress, attention ou done.",
+        "Unknown dispatch filter. Use approval, in_progress, attention or done.",
       );
     const page = await this.page<Dispatch>(
       "dispatches",
@@ -1961,7 +1995,7 @@ export class DomainService {
     if (!result.meta.changes && row.status !== "cancelled")
       throw new DomainError(
         "CANCELLATION_TOO_LATE",
-        "Soumission commencée : annulation non garantie, aucune nouvelle expédition déclenchée.",
+        "Submission started: cancellation is not guaranteed; no new dispatch was triggered.",
         409,
       );
     await this.audit(ctx, "dispatch.cancelled", id).run();
@@ -2001,7 +2035,7 @@ export class DomainService {
       .bind(ctx.organizationId, id)
       .first();
     if (!campaign)
-      throw new DomainError("NOT_FOUND", "Campagne introuvable.", 404);
+      throw new DomainError("NOT_FOUND", "Campaign not found.", 404);
     const visibility = this.dispatchVisibility(ctx);
     const dispatches = await this.db
       .prepare(
@@ -2039,7 +2073,7 @@ export class DomainService {
     )
       throw new DomainError(
         "RECIPIENT_SUPPRESSED",
-        "Ce destinataire est bloqué pour cette organisation.",
+        "This recipient is blocked for this organisation.",
         409,
       );
   }
@@ -2058,7 +2092,7 @@ export class DomainService {
     )
       throw new DomainError(
         "SECURE_DISTRIBUTION_UNAVAILABLE",
-        "Le partage sécurisé n’est plus disponible.",
+        "The secure share is no longer available.",
         409,
       );
     if (
@@ -2074,7 +2108,7 @@ export class DomainService {
     )
       throw new DomainError(
         "PROTECTED_DOCUMENT_UNAVAILABLE",
-        "Le lien protégé a expiré ou a été révoqué. Préparez un nouvel envoi.",
+        "The protected link expired or was revoked. Prepare a new dispatch.",
         409,
       );
   }
@@ -2111,7 +2145,11 @@ export class DomainService {
   async admin(ctx: ActorContext) {
     await this.organization(ctx);
     if (ctx.role !== "admin")
-      throw new DomainError("FORBIDDEN", "Administrateur requis.", 403);
+      throw new DomainError(
+        "FORBIDDEN",
+        "Administrator access is required.",
+        403,
+      );
     const [states, outbox, unknown, audit, controls, deadLetters] =
       await Promise.all([
         this.db
@@ -2480,7 +2518,7 @@ export class DomainService {
       ].includes(input.kind) ||
       !Number.isFinite(Date.parse(input.occurredAt))
     )
-      throw new DomainError("INVALID_EVENT", "Événement fournisseur invalide.");
+      throw new DomainError("INVALID_EVENT", "Invalid provider event.");
     const eventId = uid("evt");
     await this.db
       .prepare(
@@ -2723,7 +2761,7 @@ export function simulationProvider(
       if (dispatch.mode !== "simulation")
         throw new DomainError(
           "SIMULATION_FORBIDDEN",
-          "Simulation interdite pour une organisation de production.",
+          "Simulation is forbidden for a production organisation.",
           403,
         );
       if (options.outcome === "unknown")
@@ -2751,8 +2789,8 @@ export function simulationProvider(
               simulation: true,
               result:
                 channel === "postal"
-                  ? "Remise à la poste simulée, aucune lettre expédiée."
-                  : "Transmission simulée, aucun message envoyé.",
+                  ? "Simulated postal handover; no letter was sent."
+                  : "Simulated transmission; no message sent.",
             },
           },
         ],

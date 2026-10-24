@@ -50,7 +50,15 @@
     "test:prod:dry-run": "node --import tsx scripts/production-dry-run.ts",
     "test:offline": "node scripts/test-offline.mjs",
     "build:status": "node scripts/build-status.mjs",
-    "deploy:status": "node scripts/deploy-status.mjs"
+    "deploy:status": "node scripts/deploy-status.mjs",
+    "docs:build": "node docs/build-feature-map.mjs && node scripts/build-mcp-annotation-docs.mjs && node scripts/build-engineering-content.mjs",
+    "docs:check": "node docs/build-feature-map.mjs --check && node scripts/build-mcp-annotation-docs.mjs --check && node integrations/sync-claude-workflows.mjs --check && node scripts/repository-standards.mjs && node scripts/build-engineering-content.mjs --check",
+    "check:standards": "node scripts/repository-standards.mjs",
+    "dev:engineering": "npm --prefix apps/engineering run dev",
+    "build:engineering": "node scripts/build-engineering.mjs",
+    "check:engineering": "npm --prefix apps/engineering run typecheck && npm --prefix apps/engineering run lint:docs && node --test tests/security/engineering-site.test.mjs",
+    "test:engineering": "playwright test --config playwright.engineering.config.ts",
+    "deploy:engineering": "node scripts/deploy-engineering.mjs"
   },
   "dependencies": {
     "@cloudflare/puppeteer": "^1.4.0",

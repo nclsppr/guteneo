@@ -1,0 +1,138 @@
+{
+  "createdAt": "2026-10-24T20:50:13.957Z",
+  "tool": "Codex built-in image_gen",
+  "mode": "reference-guided generation",
+  "purpose": "Three requested engineering documentation scene headers",
+  "status": "Approved for integration after source and 720px/centered-mobile visual inspection",
+  "constraints": [
+    "Approved animated-film Gutenberg identity",
+    "No city panoramas",
+    "No inserted miniature stamps",
+    "No in-image text",
+    "No business or medical capability claims"
+  ],
+  "derivation": "Sharp deterministic resizing and WebP encoding only; centered 16:9 proof crops are private QA artifacts.",
+  "items": [
+    {
+      "key": "pdf-diagnostics",
+      "source": {
+        "path": "assets/engineering/scenes/pdf-diagnostics.png",
+        "width": 2172,
+        "height": 724,
+        "format": "png",
+        "bytes": 2135625,
+        "sha256": "ba5307cba78cc20a1976b1b18affca2ddb6a9114908a048253468a27c61a0e80"
+      },
+      "exports": [
+        {
+          "path": "apps/engineering/public/gutenberg/scenes/pdf-diagnostics-720.webp",
+          "intendedPublicPath": "/gutenberg/scenes/pdf-diagnostics-720.webp",
+          "width": 720,
+          "height": 240,
+          "bytes": 31926,
+          "sha256": "76cd7ddf8324bb95381600625aeac211e754c0958a163a08185ba3ef9599b666"
+        },
+        {
+          "path": "apps/engineering/public/gutenberg/scenes/pdf-diagnostics-1440.webp",
+          "intendedPublicPath": "/gutenberg/scenes/pdf-diagnostics-1440.webp",
+          "width": 1440,
+          "height": 480,
+          "bytes": 88272,
+          "sha256": "6049c33e3bc0f2d2982b69b9e292e918942d13c0e13aac3ef5045995d39739da"
+        }
+      ],
+      "references": [
+        {
+          "path": "videos/guteneo-gutenberg/archive/production/images/Pixar-proposition-2.png",
+          "sha256": "3a9b2d2b9e09418b682dd554a6af003e91a3493d10ddf5802f5da9eb469310e2"
+        },
+        {
+          "path": "apps/engineering/public/gutenberg/gutenberg-review.webp",
+          "sha256": "c2e8bec068f288395019e8e93269ad21cb73fe569b8b04a88d71a1b7dd4f4993"
+        }
+      ],
+      "prompt": "Use case: illustration-story. Create a final production editorial scene header for Guteneo engineering documentation. WIDE PANORAMIC CANVAS, 3:1 aspect ratio, approximately 2304 by 768 pixels. One coherent scene, not a collage or mockup. Use the input images ONLY as identity and rendering references. Preserve exactly the approved animated-film Gutenberg character: warm ivory limestone body and draped classical robe, soft carved wavy hair, long undivided wavy beard, rounded warm face, brown eyes, friendly intelligent expression. He is a living sculpted stone character with expressive hands, not a flat engraving, not a stamp, not a blue silhouette and not a human in costume. Preserve his natural face and material. Render in the same polished, warmly lit, tactile family-animation 3D style as the reference. Restrained ivory, warm paper, muted wood, charcoal and small deep cobalt #2450db accents. Neutral warm paper workshop wall, no scenery outside, no city, no panorama, no skyline. Character and key action entirely within the middle 60% of image; outer 20% on each side is quiet contextual workshop space and soft light, safe for cropping to 16:9 on phone. Camera eye level, generous headroom and visible hands and action. Spacious balanced composition, moderate detail, not cluttered. No typography, no letters, no numbers, no words anywhere on papers, tools, wall, books or objects; blank sheets may have sparse cobalt rules, registration ticks or simple geometric diagrams only. No wordmark, badge, watermark, border, postage-stamp edge, inset frame or UI. NO extra people, NO birds, NO floating confetti. Finished full-bleed wide scene with soft ivory neutral edge background suitable inside a warm-paper panel in light or dark UI.\nSubject and action: Gutenberg as an amusing but careful PDF doctor in a traditional printing workshop. In the center he leans toward one oversized ivory paper sheet laid flat on a tidy inspection table. He wears a small cobalt-accent stethoscope around his stone robe and gently presses its circular chestpiece to the paper with one hand; his other hand holds a cobalt-rimmed magnifying glass over the same sheet. Both tools and their hand positions are clear and anatomically coherent. His raised eyebrow and thoughtful half-smile make this a friendly second opinion on a document. The paper is blank except two fine cobalt registration marks and a folded corner, no medical symbols or diagnoses. A low dark old printing press softly blurred at the far left and a short orderly paper stack at far right provide quiet workshop context. No hat, no coat needed; the stone robe remains clearly visible. His face and diagnostic action should be recognizable at 288px display width. Grounded, reassuring, playful, refined."
+    },
+    {
+      "key": "diagram-workshop",
+      "source": {
+        "path": "assets/engineering/scenes/diagram-workshop.png",
+        "width": 2172,
+        "height": 724,
+        "format": "png",
+        "bytes": 2165537,
+        "sha256": "819a4abada8dd37505ef55e1ee0c62b752da2b7d4dad9df7965134ef6f565b3d"
+      },
+      "exports": [
+        {
+          "path": "apps/engineering/public/gutenberg/scenes/diagram-workshop-720.webp",
+          "intendedPublicPath": "/gutenberg/scenes/diagram-workshop-720.webp",
+          "width": 720,
+          "height": 240,
+          "bytes": 33762,
+          "sha256": "b5d4881b3489ac78fab3a54313c857e2145b6e37a5bf93c4ba67bfb9ec8a1b65"
+        },
+        {
+          "path": "apps/engineering/public/gutenberg/scenes/diagram-workshop-1440.webp",
+          "intendedPublicPath": "/gutenberg/scenes/diagram-workshop-1440.webp",
+          "width": 1440,
+          "height": 480,
+          "bytes": 91892,
+          "sha256": "b38cd1f827fb1e0da2d12fd7a602d84554bff60acf07b34d1531ce4bf2fdd36c"
+        }
+      ],
+      "references": [
+        {
+          "path": "videos/guteneo-gutenberg/archive/production/images/Pixar-proposition-2.png",
+          "sha256": "3a9b2d2b9e09418b682dd554a6af003e91a3493d10ddf5802f5da9eb469310e2"
+        },
+        {
+          "path": "apps/engineering/public/gutenberg/gutenberg-studio.webp",
+          "sha256": "9f7a0f5d6987da285972dd23f1b2afa7c3b624dc7211525ba999d889bb87c4b2"
+        }
+      ],
+      "prompt": "Use case: illustration-story. Create a final production editorial scene header for Guteneo engineering documentation. WIDE PANORAMIC CANVAS, 3:1 aspect ratio, approximately 2304 by 768 pixels. One coherent scene, not a collage or mockup. Use the input images ONLY as identity and rendering references. Preserve exactly the approved animated-film Gutenberg character: warm ivory limestone body and draped classical robe, soft carved wavy hair, long undivided wavy beard, rounded warm face, brown eyes, friendly intelligent expression. He is a living sculpted stone character with expressive hands, not a flat engraving, not a stamp, not a blue silhouette and not a human in costume. Preserve his natural face and material. Render in the same polished, warmly lit, tactile family-animation 3D style as the reference. Restrained ivory, warm paper, muted wood, charcoal and small deep cobalt #2450db accents. Neutral warm paper workshop wall, no scenery outside, no city, no panorama, no skyline. Character and key action entirely within the middle 60% of image; outer 20% on each side is quiet contextual workshop space and soft light, safe for cropping to 16:9 on phone. Camera eye level, generous headroom and visible hands and action. Spacious balanced composition, moderate detail, not cluttered. No typography, no letters, no numbers, no words anywhere on papers, tools, wall, books or objects; blank sheets may have sparse cobalt rules, registration ticks or simple geometric diagrams only. No wordmark, badge, watermark, border, postage-stamp edge, inset frame or UI. NO extra people, NO birds, NO floating confetti. Finished full-bleed wide scene with soft ivory neutral edge background suitable inside a warm-paper panel in light or dark UI.\nSubject and action: Gutenberg the architect at a broad tidy drafting desk in a printing workshop. In the center, he bends slightly over one large cream plan sheet with a cobalt wooden straightedge under his left hand and a fine graphite drawing pencil in his right hand, carefully drawing a single clean connection between three simple cobalt rectangles. These are sparse abstract plan shapes, not text or UI. The plan and pencil touch are fully visible below his expressive face; he has a delighted focused half-smile, one gently lifted eyebrow. Keep his ivory stone robe and original sculpted character clear, no helmet, hat or modern costume. A rolled blank plan sits at one end of the desk; at the far edges only softly blurred printing type drawers and a small drafting lamp. One tiny neatly folded paper corner adds understated humor. Spacious eye-level three-quarter view, restrained object count, naturally coherent hand anatomy. The act of measuring and drawing must read at phone size."
+    },
+    {
+      "key": "feature-archive",
+      "source": {
+        "path": "assets/engineering/scenes/feature-archive.png",
+        "width": 2172,
+        "height": 724,
+        "format": "png",
+        "bytes": 2028298,
+        "sha256": "f5d48a29980c5786c2242d4380c1ae5d8775e64c921f634a12e753e0d7f424f5"
+      },
+      "exports": [
+        {
+          "path": "apps/engineering/public/gutenberg/scenes/feature-archive-720.webp",
+          "intendedPublicPath": "/gutenberg/scenes/feature-archive-720.webp",
+          "width": 720,
+          "height": 240,
+          "bytes": 26760,
+          "sha256": "dbdbc1268bcf7b0e934c402a369440be50fc989a9364610f40d7caf472785221"
+        },
+        {
+          "path": "apps/engineering/public/gutenberg/scenes/feature-archive-1440.webp",
+          "intendedPublicPath": "/gutenberg/scenes/feature-archive-1440.webp",
+          "width": 1440,
+          "height": 480,
+          "bytes": 74298,
+          "sha256": "f200fc26ce7ae269f2520fb20424df0841fdef6f9e3b09855bd3348eb242c771"
+        }
+      ],
+      "references": [
+        {
+          "path": "videos/guteneo-gutenberg/archive/production/images/Pixar-proposition-2.png",
+          "sha256": "3a9b2d2b9e09418b682dd554a6af003e91a3493d10ddf5802f5da9eb469310e2"
+        },
+        {
+          "path": "apps/engineering/public/gutenberg/gutenberg-studio.webp",
+          "sha256": "9f7a0f5d6987da285972dd23f1b2afa7c3b624dc7211525ba999d889bb87c4b2"
+        }
+      ],
+      "prompt": "Use case: illustration-story. Create a final production editorial scene header for Guteneo engineering documentation. WIDE PANORAMIC CANVAS, 3:1 aspect ratio, approximately 2304 by 768 pixels. One coherent scene, not a collage or mockup. Use the input images ONLY as identity and rendering references. Preserve exactly the approved animated-film Gutenberg character: warm ivory limestone body and draped classical robe, soft carved wavy hair, long undivided wavy beard, rounded warm face, brown eyes, friendly intelligent expression. He is a living sculpted stone character with expressive hands, not a flat engraving, not a stamp, not a blue silhouette and not a human in costume. Preserve his natural face and material. Render in the same polished, warmly lit, tactile family-animation 3D style as the reference. Restrained ivory, warm paper, muted wood, charcoal and small deep cobalt #2450db accents. Neutral warm paper workshop wall, no scenery outside, no city, no panorama, no skyline. Character and key action entirely within the middle 60% of image; outer 20% on each side is quiet contextual workshop space and soft light, safe for cropping to 16:9 on phone. Camera eye level, generous headroom and visible hands and action. Spacious balanced composition, moderate detail, not cluttered. No typography, no letters, no numbers, no words anywhere on papers, tools, wall, books or objects; blank sheets may have sparse cobalt rules, registration ticks or simple geometric diagrams only. No wordmark, badge, watermark, border, postage-stamp edge, inset frame or UI. NO extra people, NO birds, NO floating confetti. Finished full-bleed wide scene with soft ivory neutral edge background suitable inside a warm-paper panel in light or dark UI.\nSubject and action: Gutenberg trying to sort many feature sheets into a sensible archive in his printing workshop, charming rather than chaotic. Central warm ivory stone Gutenberg stands behind a long low desk with exactly two small sorting trays and several piles of cream paper. He holds a modest fanned bundle of blank sheets in one hand, and with the other gently places one sheet into the cobalt-edged tray. A single extra blank sheet has comically stuck to the outer side of his robe near his elbow; he notices it with an amused sideways glance and half-smile. His face and both hands remain clear. Papers contain no text, only occasional tiny cobalt rectangle/branch motifs and registration ticks. Spread paper piles and small archive drawers toward the quiet far edges while keeping most of the upper background clean warm paper. Do not make a blizzard or flying paper storm. No full wall of labels. Finite piles, pleasant handmade organization, one playful detail, plenty of breathing room. His original face, hair, long beard and robe must match the references."
+    }
+  ],
+  "privacy": "Source masters and generation provenance are repository-only; only the six WebP exports are in the public asset directory."
+}

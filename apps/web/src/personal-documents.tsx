@@ -36,10 +36,10 @@ import {
 
 function personalDocumentStatus(status: PersonalDocumentItem["status"]) {
   return {
-    active: msg("Accès disponible"),
-    pending: msg("Association en attente"),
-    expired: msg("Accès expiré"),
-    revoked: msg("Accès révoqué"),
+    active: msg("Access available"),
+    pending: msg("Association pending"),
+    expired: msg("Access expired"),
+    revoked: msg("Access revoked"),
   }[status];
 }
 
@@ -121,7 +121,7 @@ function ClaimDocumentInvitation({
         throw new ApiError(
           "INVITATION_HANDOFF_EXPIRED",
           msg(
-            "Le délai de connexion de cette invitation est dépassé. Rouvrez le lien reçu pour reprendre.",
+            "The sign-in time limit for this invitation has expired. Reopen the received link to continue.",
           ),
           410,
         );
@@ -145,23 +145,25 @@ function ClaimDocumentInvitation({
   return (
     <div className="secure-document-layout">
       <PageHeading
-        title={msg("Un document vous a été adressé")}
+        title={msg("A document has been sent to you")}
         intro={msg(
-          "Vérifiez le compte connecté avant de demander l’accès. L’invitation ne donne aucun droit dans l’atelier expéditeur.",
+          "Check the signed-in account before requesting access. This invitation grants no permissions in the sender’s workspace.",
         )}
       />
       <section className="secure-document-panel">
-        <h2>{msg("Connecté avec {0}", session.user.email)}</h2>
+        <h2>{msg("Signed in as {0}", session.user.email)}</h2>
         <p>
           {msg(
-            "L’atelier peut devoir confirmer l’association à votre compte avant de vous donner accès au contenu.",
+            "The workspace may need to confirm the association with your account before granting access to the content.",
           )}
         </p>
         {!(session.documentAccessAllowed ?? session.strongAuthentication) ? (
           <PersonalSecurityNotice mode={session.documentAccessMode} />
         ) : pending ? (
           <p role="status">
-            {msg("Votre demande d’accès attend la confirmation de l’atelier.")}
+            {msg(
+              "Your access request is awaiting confirmation from the workspace.",
+            )}
           </p>
         ) : (
           <button
@@ -171,8 +173,8 @@ function ClaimDocumentInvitation({
             onClick={() => void claim()}
           >
             {action.pending
-              ? msg("Vérification en cours…")
-              : msg("Demander l’accès au document")}
+              ? msg("Verifying…")
+              : msg("Request access to the document")}
             <ArrowRight size={18} aria-hidden="true" />
           </button>
         )}
@@ -183,7 +185,7 @@ function ClaimDocumentInvitation({
         )}
       </section>
       <a className="text-link" href="#/app/my-documents" onClick={onDismiss}>
-        {msg("Revenir à mes documents")}
+        {msg("Back to my documents")}
       </a>
     </div>
   );
@@ -271,27 +273,25 @@ function PersonalDocumentList({
   return (
     <div className="secure-document-layout">
       <PageHeading
-        title={msg("Mes documents")}
-        intro={msg(
-          "Un seul compte pour vos documents et les services Guteneo.",
-        )}
+        title={msg("My documents")}
+        intro={msg("One account for your documents and Guteneo services.")}
         action={<RefreshButton onClick={() => setVersion((n) => n + 1)} />}
       />
       <nav
         className="secure-document-tabs"
-        aria-label={msg("Catégories de documents")}
+        aria-label={msg("Document categories")}
       >
         <a
           href={`#/app/my-documents${search ? `?q=${encodeURIComponent(search)}` : ""}`}
           aria-current={kind === "shared" ? "page" : undefined}
         >
-          {msg("Partagés avec moi")}
+          {msg("Shared with me")}
         </a>
         <a
           href={`#/app/my-documents?kind=personal${search ? `&q=${encodeURIComponent(search)}` : ""}`}
           aria-current={kind === "personal" ? "page" : undefined}
         >
-          {msg("Copies conservées")}
+          {msg("Saved copies")}
         </a>
       </nav>
       <form
@@ -304,7 +304,7 @@ function PersonalDocumentList({
         }}
         role="search"
       >
-        <Field label={msg("Rechercher dans mes documents")}>
+        <Field label={msg("Search my documents")}>
           <input
             type="search"
             value={searchInput}
@@ -313,16 +313,16 @@ function PersonalDocumentList({
           />
         </Field>
         <button className="button" type="submit">
-          {msg("Rechercher")}
+          {msg("Search")}
         </button>
       </form>
       <p className="secure-document-intro">
         {kind === "shared"
           ? msg(
-              "Ces documents restent sous le contrôle de leur expéditeur. Leur accès peut expirer ou être révoqué.",
+              "These documents remain under the sender’s control. Access may expire or be revoked.",
             )
           : msg(
-              "Ces copies vous ont été remises pour la durée indiquée. L’atelier ne peut plus les retirer.",
+              "These copies were delivered to you for the stated retention period. The workspace can no longer withdraw them.",
             )}
       </p>
       {needsAuthentication(listError) ? (
@@ -332,7 +332,7 @@ function PersonalDocumentList({
       )}
       {listError instanceof ApiError && listError.status === 401 && (
         <button className="button" type="button" onClick={onSessionInvalid}>
-          {msg("Se connecter à mon compte")}
+          {msg("Sign in to my account")}
         </button>
       )}
       {loading && !items ? (
@@ -344,11 +344,11 @@ function PersonalDocumentList({
               <div>
                 <h2>
                   {item.status === "pending"
-                    ? msg("Document en attente de vérification")
+                    ? msg("Document awaiting verification")
                     : item.title}
                 </h2>
                 <p>
-                  {msg("Expéditeur")} : {item.sender}
+                  {msg("Sender")} : {item.sender}
                 </p>
                 <span className="secure-document-tag">
                   <LockKey size={14} aria-hidden="true" />
@@ -356,15 +356,15 @@ function PersonalDocumentList({
                 </span>
                 <small>
                   {kind === "personal"
-                    ? msg("Conservation jusqu’au {0}", date(item.expiresAt))
-                    : msg("Disponible jusqu’au {0}", date(item.expiresAt))}
+                    ? msg("Retained until {0}", date(item.expiresAt))
+                    : msg("Available until {0}", date(item.expiresAt))}
                 </small>
               </div>
               <a
                 className="button"
                 href={`#/app/my-documents/${encodeURIComponent(item.id)}`}
               >
-                {msg("Ouvrir le document")}
+                {msg("Open the document")}
                 <ArrowRight size={18} aria-hidden="true" />
               </a>
             </li>
@@ -377,16 +377,16 @@ function PersonalDocumentList({
           <EmptyState
             title={
               kind === "personal"
-                ? msg("Aucune copie conservée")
-                : msg("Aucun document partagé")
+                ? msg("No saved copies")
+                : msg("No shared documents")
             }
             text={
               kind === "personal"
                 ? msg(
-                    "Vous pourrez conserver une copie si l’atelier expéditeur l’autorise.",
+                    "You can save a copy when the sending workspace allows it.",
                   )
                 : msg(
-                    "Les documents qui vous sont attribués apparaîtront ici après validation de votre accès.",
+                    "Documents assigned to you will appear here once your access has been validated.",
                   )
             }
           />
@@ -399,9 +399,7 @@ function PersonalDocumentList({
           disabled={more.pending}
           onClick={() => void loadMore()}
         >
-          {more.pending
-            ? msg("Chargement…")
-            : msg("Afficher les documents suivants")}
+          {more.pending ? msg("Loading…") : msg("Show more documents")}
         </button>
       )}
     </div>
@@ -526,13 +524,13 @@ function PersonalDocumentReader({
         }
       >
         <ArrowLeft size={17} aria-hidden="true" />
-        {msg("Revenir à mes documents")}
+        {msg("Back to my documents")}
       </a>
       <PageHeading
         title={
           document?.status === "pending"
-            ? msg("Document en attente de vérification")
-            : (document?.title ?? msg("Document reçu"))
+            ? msg("Document awaiting verification")
+            : (document?.title ?? msg("Received document"))
         }
         action={<RefreshButton onClick={() => setVersion((n) => n + 1)} />}
       />
@@ -543,7 +541,7 @@ function PersonalDocumentReader({
       )}
       {error instanceof ApiError && error.status === 401 && (
         <button className="button" type="button" onClick={onSessionInvalid}>
-          {msg("Se connecter à mon compte")}
+          {msg("Sign in to my account")}
         </button>
       )}
       {loading && !document ? (
@@ -553,17 +551,17 @@ function PersonalDocumentReader({
           <>
             <section className="secure-document-panel">
               <p>
-                {msg("Expéditeur")} : <strong>{document.sender}</strong>
+                {msg("Sender")} : <strong>{document.sender}</strong>
               </p>
               <p>
                 {document.kind === "personal"
-                  ? msg("Conservation jusqu’au {0}", date(document.expiresAt))
-                  : msg("Disponible jusqu’au {0}", date(document.expiresAt))}
+                  ? msg("Retained until {0}", date(document.expiresAt))
+                  : msg("Available until {0}", date(document.expiresAt))}
               </p>
               {document.status === "pending" ? (
                 <p role="status">
                   {msg(
-                    "Votre demande d’accès attend la confirmation de l’atelier.",
+                    "Your access request is awaiting confirmation from the workspace.",
                   )}
                 </p>
               ) : document.status !== "active" ? (
@@ -572,10 +570,10 @@ function PersonalDocumentReader({
                 <p>
                   {document.kind === "shared"
                     ? msg(
-                        "L’atelier reçoit un journal des accès autorisés et des affichages déclarés. Les captures d’écran ne sont pas détectées.",
+                        "The workspace receives a log of authorized access and reported displays. Screenshots are not detected.",
                       )
                     : msg(
-                        "Vos consultations de cette copie personnelle ne sont pas communiquées à l’atelier expéditeur.",
+                        "Your views of this personal copy are not shared with the sending workspace.",
                       )}
                 </p>
               )}
@@ -589,9 +587,7 @@ function PersonalDocumentReader({
                     aria-pressed={textMode}
                     onClick={() => setTextMode((current) => !current)}
                   >
-                    {textMode
-                      ? msg("Afficher les pages")
-                      : msg("Afficher le texte accessible")}
+                    {textMode ? msg("Show pages") : msg("Show accessible text")}
                   </button>
                   <span>{msg("{0} page(s)", document.pages.length)}</span>
                   <div className="secure-document-actions">
@@ -601,14 +597,14 @@ function PersonalDocumentReader({
                           <>
                             <DownloadSimple size={18} aria-hidden="true" />
                             {document.kind === "personal"
-                              ? msg("Exporter ma copie")
-                              : msg("Télécharger le PDF original")}
+                              ? msg("Export my copy")
+                              : msg("Download the original PDF")}
                           </>
                         }
                         question={msg(
-                          "Le fichier quittera le contrôle de Guteneo. Continuer ?",
+                          "The file will leave Guteneo’s control. Continue?",
                         )}
-                        confirmLabel={msg("Lancer le téléchargement")}
+                        confirmLabel={msg("Start download")}
                         disabled={action.pending}
                         onConfirm={() => void download()}
                       />
@@ -618,13 +614,13 @@ function PersonalDocumentReader({
                 {downloadStarted && (
                   <p role="status">
                     {msg(
-                      "Téléchargement lancé. Guteneo ne peut pas confirmer l’enregistrement sur votre appareil.",
+                      "Download started. Guteneo cannot confirm that it was saved on your device.",
                     )}
                   </p>
                 )}
                 {textMode ? (
                   <section
-                    aria-label={msg("Texte accessible du document")}
+                    aria-label={msg("Accessible document text")}
                     className="secure-document-layout"
                   >
                     {document.pages.map((page) => (
@@ -655,35 +651,35 @@ function PersonalDocumentReader({
                   !document.depositedDocumentId &&
                   !deposited && (
                     <section className="secure-document-panel">
-                      <h2>{msg("Conserver une copie personnelle")}</h2>
+                      <h2>{msg("Save a personal copy")}</h2>
                       <p>
                         {msg(
-                          "Cette copie sera exportable et conservée pendant {0} jours à partir de sa remise. L’atelier ne pourra plus la retirer.",
+                          "This copy can be exported and will be retained for {0} days from delivery. The workspace will no longer be able to withdraw it.",
                           document.policy.personalRetentionDays,
                         )}
                       </p>
                       {depositPreparing && (
                         <p role="status">
                           {msg(
-                            "La copie est en préparation. Actualisez le suivi avant de réessayer.",
+                            "The copy is being prepared. Refresh its status before trying again.",
                           )}
                         </p>
                       )}
                       <ConfirmAction
                         label={
                           depositPreparing
-                            ? msg("Reprendre la préparation de ma copie")
-                            : msg("Conserver une copie")
+                            ? msg("Resume preparation of my copy")
+                            : msg("Save a copy")
                         }
                         question={msg(
                           depositPreparing
-                            ? "Reprendre cette opération sans créer de nouvelle copie ?"
-                            : "Accepter la remise de cette copie dans votre espace personnel ?",
+                            ? "Resume this operation without creating another copy?"
+                            : "Accept delivery of this copy to your personal space?",
                         )}
                         confirmLabel={
                           depositPreparing
-                            ? msg("Reprendre la préparation")
-                            : msg("Accepter et conserver")
+                            ? msg("Resume preparation")
+                            : msg("Accept and save")
                         }
                         disabled={action.pending}
                         onConfirm={() => void deposit()}
@@ -692,20 +688,17 @@ function PersonalDocumentReader({
                   )}
                 {(document.depositedDocumentId || deposited) && (
                   <section className="secure-document-panel" role="status">
-                    <h2>{msg("Copie conservée")}</h2>
+                    <h2>{msg("Copy saved")}</h2>
                     {deposited && (
                       <p>
-                        {msg(
-                          "Conservation jusqu’au {0}",
-                          date(deposited.expiresAt),
-                        )}
+                        {msg("Retained until {0}", date(deposited.expiresAt))}
                       </p>
                     )}
                     <a
                       className="button"
                       href={`#/app/my-documents/${encodeURIComponent(document.depositedDocumentId || deposited!.id)}`}
                     >
-                      {msg("Ouvrir ma copie personnelle")}
+                      {msg("Open my personal copy")}
                     </a>
                   </section>
                 )}
@@ -716,16 +709,16 @@ function PersonalDocumentReader({
                 )}
                 {document.kind === "personal" && (
                   <section className="secure-document-panel">
-                    <h2>{msg("Gérer ma copie personnelle")}</h2>
+                    <h2>{msg("Manage my personal copy")}</h2>
                     <p>
                       {msg(
-                        "La suppression retire votre copie de cet espace. Elle ne supprime pas l’original de l’atelier ni les fichiers déjà téléchargés.",
+                        "Deleting removes your copy from this space. It does not delete the workspace original or files already downloaded.",
                       )}
                     </p>
                     <ConfirmAction
-                      label={msg("Supprimer ma copie")}
-                      question={msg("Supprimer cette copie personnelle ?")}
-                      confirmLabel={msg("Confirmer la suppression")}
+                      label={msg("Delete my copy")}
+                      question={msg("Delete this personal copy?")}
+                      confirmLabel={msg("Confirm deletion")}
                       disabled={action.pending}
                       onConfirm={() =>
                         void action.run(async () => {
@@ -745,7 +738,7 @@ function PersonalDocumentReader({
                   </section>
                 )}
                 <section className="secure-document-panel">
-                  <h2>{msg("Mon historique d’accès")}</h2>
+                  <h2>{msg("My access history")}</h2>
                   <SecureAuditHistory
                     key={`${id}:${version}`}
                     events={document.audit}
@@ -853,14 +846,13 @@ function AccessiblePage({
             disabled={visible}
             onClick={() => setVisible(true)}
           >
-            {msg("Afficher le texte de la page {0}", page.number)}
+            {msg("Show text for page {0}", page.number)}
           </button>
           {visible && <Loading />}
         </>
       ) : (
         <pre className="secure-document-accessible-text">
-          {text ||
-            msg("Aucun texte accessible n’est disponible pour cette page.")}
+          {text || msg("No accessible text is available for this page.")}
         </pre>
       )}
     </section>
@@ -970,14 +962,14 @@ function PrivatePage({
           height={page.height}
           decoding="async"
           alt={msg(
-            "Page {0}. Le texte accessible est disponible avec le bouton au-dessus du document.",
+            "Page {0}. Accessible text is available using the button above the document.",
             page.number,
           )}
           onLoad={() => setLoaded(true)}
           onError={() => {
             const cause = new ApiError(
               "DOCUMENT_UNAVAILABLE",
-              msg("Ce document ne peut pas être affiché."),
+              msg("This document cannot be displayed."),
               502,
             );
             setError(cause);

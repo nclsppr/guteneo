@@ -36,7 +36,7 @@ test("homepage exposes the entity, contact, questions and real fragment targets 
     await expect(
       page.locator('a[href="mailto:guteneo@pieper.fr"]'),
     ).toBeVisible();
-    await expect(page.locator('a[href="/a-propos/"]')).toBeVisible();
+    await expect(page.locator('a[href="/about/"]')).toBeVisible();
     expect(await page.locator("h2, h3, h4").allTextContents()).toEqual(
       expect.arrayContaining(["Mon PDF original est-il modifié ?"]),
     );
@@ -66,7 +66,7 @@ test("homepage exposes the entity, contact, questions and real fragment targets 
     await expect(page.locator(".skip-link").first()).toBeFocused();
     await page.keyboard.press("Enter");
     await expect(page.locator("#landing-main")).toBeFocused();
-    await page.goto("/a-propos/");
+    await page.goto("/about/");
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(
       "À propos de Guteneo",
     );

@@ -1,5 +1,11 @@
 # Execution plan and handoff
 
+24 October reconciliation: merge incoming main `4f033e2` (PR 74) with the English
+repository standards and curated engineering site. The recorded passes below
+remain evidence for their stated source and fixtures. This reconciliation needs
+its own complete generated inventory, exact-source CI, build and publication
+verification; none is inferred from either branch's earlier results.
+
 24 October publication decision: the user explicitly selects
 `SENSITIVE_DOCUMENT_AUTHENTICATION=verified_account` for the live document
 profile. The default remains `strong`, and unknown values deny access. Migration
@@ -23,7 +29,7 @@ It exercises sharing, human approval, independent association, private copy/expo
 and revocation without real Auth0 login or delivery. The targeted backend report
 passes 73 cases, tariff qualification 31 cases and UI rendering 13 cases.
 The 355 Node cases, build/dry run, typecheck and lint passed
-before the final explicit workshop **Vérifier mon accès** recovery link. That
+before the final explicit workspace **Vérifier mon accès** recovery link. That
 link requests fresh login and a secret-free return to the distribution list;
 it grants no approval. The final build/dry run, typecheck and 13 UI cases now pass.
 Strict run `01a16efd-d3c7-7c1e-b6db-7d1c647da7f1` passes 14/14 in 105.63 seconds,
@@ -31,7 +37,7 @@ without skips, flaky results or model calls, with a sanitized archive. Exact-hea
 CI remains pending; local success does not establish production activation.
 
 24 October reprise: continue secure distribution and **Mes documents** while
-deferring the passkey choice. Workshop source pagination, explicit personal-copy
+deferring the passkey choice. Workspace source pagination, explicit personal-copy
 export policy, claim-bound association confirmation, inaccessible personal-list
 cleanup and deletion/expiry recovery were checked under the then-current strong
 test fixtures. Local checks pass on that recorded source: 23 service cases, eight UI rendering cases,
@@ -63,6 +69,13 @@ is performed by these local checks. Scheduled GitHub production browser reports
 and their status-page ingestion are a separate candidate; authenticated
 production test accounts and the real journey under the selected document policy
 require qualification; public reports cannot qualify either mode.
+
+
+24 October 2026: [repository and interface harmonization](HARMONIZATION.md) records
+the isolated branch, English source/documentation and canonical links, shared
+interface patterns, feature-atlas maintenance rules and bounded local evidence.
+Its local verification records full-suite, browser-preview and native UI results;
+it establishes no merge, deployment or live-provider qualification.
 
 23 October 2026: [v1.0.0 preparation](V1_RELEASE_CANDIDATE.md) consolidates release
 identity, dependency security, MCP request bounds, web navigation cancellation
@@ -182,7 +195,7 @@ before server publication. Display choices do not change document bytes, recipie
 input, approval fingerprints or provider options. No production publication or
 App Store qualification is claimed. See [MULTILINGUAL.md](MULTILINGUAL.md).
 
-Candidat du 21 septembre 2026 : envoi Resend sans document, avec PDF, ou par lien protégé à 1 € par document hébergé. Même contrat REST/MCP, mot de passe navigateur uniquement, acceptation atomique et facturation unique. Voir [PROTECTED_EMAIL.md](PROTECTED_EMAIL.md) pour le contrat courant et [RESEND_PROOF.md](RESEND_PROOF.md) pour la preuve de publication. Les sections datées antérieures restent historiques.
+21 September 2026 candidate: Resend delivery without a document, with a PDF, or through a protected link at EUR1 per hosted document. The REST/MCP contract is shared; passwords are browser-only, acceptance is atomic and billing occurs once. See [PROTECTED_EMAIL.md](PROTECTED_EMAIL.md) for the current contract and [RESEND_PROOF.md](RESEND_PROOF.md) for publication evidence. Earlier dated sections remain historical.
 
 ## Native iOS candidate — 22 September 2026
 

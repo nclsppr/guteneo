@@ -19,17 +19,17 @@ export async function validatePdf(
   if (bytes.byteLength < 20 || bytes.byteLength > LIMITS.pdfBytes)
     throw new ContentError(
       "PDF_SIZE",
-      "PDF vide ou trop volumineux (maximum 10 Mio).",
+      "Empty or oversized PDF (maximum 10 MiB).",
       413,
     );
   if (!new TextDecoder().decode(bytes.subarray(0, 8)).startsWith("%PDF-"))
-    throw new ContentError("NOT_PDF", "Le fichier ne contient pas un PDF.");
+    throw new ContentError("NOT_PDF", "The file does not contain a PDF.");
   if (
     !new TextDecoder()
       .decode(bytes.subarray(Math.max(0, bytes.length - 1024)))
       .includes("%%EOF")
   )
-    throw new ContentError("CORRUPT_PDF", "PDF tronqué ou invalide.");
+    throw new ContentError("CORRUPT_PDF", "Truncated or invalid PDF.");
   let pdf: PDFDocument;
   try {
     pdf = await PDFDocument.load(bytes, {
@@ -40,19 +40,19 @@ export async function validatePdf(
   } catch {
     throw new ContentError(
       "UNSUPPORTED_PDF",
-      "PDF illisible, corrompu ou chiffré.",
+      "Unreadable, corrupt or encrypted PDF.",
     );
   }
   if (pdf.isEncrypted)
     throw new ContentError(
       "ENCRYPTED_PDF",
-      "Les PDF chiffrés ne sont pas pris en charge.",
+      "Encrypted PDFs are not supported.",
     );
   const pages = pdf.getPageCount();
   if (pages < 1 || pages > LIMITS.pages)
     throw new ContentError(
       "PAGE_LIMIT",
-      `Le PDF doit contenir entre 1 et ${LIMITS.pages} pages.`,
+      `The PDF must contain between 1 and ${LIMITS.pages} pages.`,
     );
   const seen = new Set<unknown>();
   let count = 0;
@@ -60,11 +60,11 @@ export async function validatePdf(
     if (!obj || seen.has(obj)) return;
     seen.add(obj);
     if (++count > 100000)
-      throw new ContentError("COMPLEX_PDF", "PDF trop complexe.");
+      throw new ContentError("COMPLEX_PDF", "PDF is too complex.");
     if (obj instanceof PDFName && forbiddenNames.has(obj.decodeText()))
       throw new ContentError(
         "ACTIVE_PDF",
-        "Ce PDF contient une fonction active ou une pièce jointe non autorisée.",
+        "This PDF contains an active feature or an unauthorized attachment.",
       );
     if (obj instanceof PDFDict)
       for (const [key, val] of obj.entries()) {

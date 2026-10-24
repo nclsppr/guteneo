@@ -320,28 +320,28 @@ export function publicReport({
     providerMode: "simulated",
     counts,
     scope: [
-      "Fax, email et postal : devis existants, approbations et envois testés sur D1 locale.",
-      "Diagnostics sans mutation métier, isolation des ateliers, rôles et droits sur les documents.",
-      "Documents protégés et résultats fournisseur incertains avec transports synthétiques.",
+      "Fax, email and post: existing quotes, approvals and dispatches tested on local D1.",
+      "Diagnostics without business mutation, workshop isolation, roles and document permissions.",
+      "Protected documents and uncertain provider outcomes using synthetic transports.",
       ...(withPdf
         ? [
-            "Rendu PDF réel dans Chromium local : cinq documents synthétiques et gardes du moteur.",
+            "Real PDF rendering in local Chromium: five synthetic documents and renderer guards.",
           ]
         : []),
     ],
     limitations: [
-      "Qualification locale sélectionnée ; ce résultat ne prouve pas le fonctionnement de la production.",
-      "Aucun fournisseur réel, communication réelle, ressource payante, dépôt distant ou téléchargement.",
-      "Le réseau sortant est bloqué pour le processus et ses descendants ; la boucle locale reste autorisée pour D1, R2 et les services de test.",
-      "Les transports, réponses fournisseur et preuves de scan métier sont synthétiques ; les données sont fictives.",
+      "Selected local qualification; this result does not prove production operation.",
+      "No real provider, real communication, paid resource, remote upload or download.",
+      "Outbound network is blocked for the process and descendants; loopback stays available for D1, R2 and test services.",
+      "Transports, provider responses and business scan evidence are synthetic; data is fictional.",
       ...(withPdf
         ? [
-            "Le rendu PDF local ne qualifie pas le service PDF ou l’antivirus déployé.",
+            "Local PDF rendering does not qualify the deployed PDF service or antivirus.",
           ]
         : [
-            "Le rendu PDF réel, l’antivirus réel et les parcours navigateur ne font pas partie de cette sélection.",
+            "Real PDF rendering, real antivirus and browser journeys are outside this selection.",
           ]),
-      "Les suites complètes, les moteurs Docker et les parcours réels nécessitent leurs preuves distinctes.",
+      "Complete suites, Docker engines and real workflows require separate proof.",
     ],
     sourceCommit,
     sourceSnapshotSha256: sourceBefore?.sha256 ?? null,
@@ -389,8 +389,8 @@ export function failureReport(code) {
     scope: [],
     sourceCommit: null,
     limitations: [
-      "La qualification ne s’est pas terminée ; aucun résultat de test ni blocage réseau n’est attesté par ce rapport.",
-      "Aucun état de production ne peut être déduit de cet échec local.",
+      "Qualification did not finish; this report attests neither test results nor network blocking.",
+      "No production state can be inferred from this local failure.",
     ],
     code,
   };

@@ -274,7 +274,7 @@ describe("one personal identity without implicit workshop authority", () => {
     expect(fixture.principal.strongAuthentication).toBe(false);
     expect(() =>
       requirePersonalStrongAuthentication(fixture.principal),
-    ).toThrow(/authentification forte/);
+    ).toThrow(/strong authentication/);
   });
   it.each([
     {

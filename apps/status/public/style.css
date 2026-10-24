@@ -1502,6 +1502,21 @@ td:first-child {
   color: var(--muted);
   font-size: 12px;
 }
+.status-language {
+  display: grid;
+  gap: 6px;
+  font-size: 12px;
+}
+.status-language select {
+  min-height: 40px;
+  max-width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: var(--surface);
+  color: var(--ink);
+  padding: 6px 12px;
+  font: inherit;
+}
 .status-landscape {
   position: relative;
   overflow: hidden;

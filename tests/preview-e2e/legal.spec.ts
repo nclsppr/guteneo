@@ -17,7 +17,7 @@ test("privacy, terms and support work without JavaScript or account access", asy
       if (/^\/(api|auth|oauth|mcp)\//.test(new URL(request.url()).pathname))
         accountRequests.push(request.url());
     });
-    for (const path of ["confidentialite", "conditions", "support"]) {
+    for (const path of ["privacy", "terms", "support"]) {
       const response = await page.goto(`/${path}/`);
       expect(response?.status()).toBe(200);
       await expect(page.locator("main h1")).toBeVisible();
@@ -43,7 +43,7 @@ test("privacy, terms and support work without JavaScript or account access", asy
     await page
       .getByRole("link", { name: "Confidentialité", exact: true })
       .click();
-    await expect(page).toHaveURL(/\/confidentialite\/$/);
+    await expect(page).toHaveURL(/\/privacy\/$/);
     // A font swap can rewrap the mobile index between pointer down and up.
     await page.evaluate(async () => {
       await document.fonts.ready;
@@ -51,11 +51,11 @@ test("privacy, terms and support work without JavaScript or account access", asy
     await page
       .getByRole("link", { name: "Exercer vos droits", exact: true })
       .click();
-    await expect(page).toHaveURL(/\/confidentialite\/#droits$/);
+    await expect(page).toHaveURL(/\/privacy\/#rights$/);
     await expect(
       page.getByRole("heading", { name: "Exercer vos droits", exact: true }),
     ).toBeInViewport();
-    await expect(page.locator("#conservation")).toContainText("90 jours");
+    await expect(page.locator("#retention")).toContainText("90 jours");
     expect(accountRequests).toEqual([]);
   } finally {
     await context.close();
@@ -90,9 +90,7 @@ test("legal information is public, accurate and returns to the homepage", async 
     path: await evidencePath(`homepage/legal-${testInfo.project.name}.png`),
     fullPage: true,
   });
-  await page
-    .getByRole("link", { name: "Retour à l’accueil", exact: true })
-    .click();
+  await page.locator("header.public-header > .brand").click();
   await expect(
     page.getByRole("heading", {
       name: "Votre assistant prépare. Guteneo transmet.",

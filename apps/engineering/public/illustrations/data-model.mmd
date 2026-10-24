@@ -1,0 +1,68 @@
+erDiagram
+  accTitle: Selected core Guteneo entity relationships
+  accDescr: Organizations scope membership, document and dispatch records. Each dispatch can reference zero or one document and has at most one current approval, reservation and outbox row. The schema allows multiple attempt records; this does not authorize automatic retry. Selected relationships and columns only, not the complete schema.
+  direction TB
+  organizations ||--o{ memberships : scopes
+  users ||--o{ memberships : holds
+  organizations ||..o{ documents : owns
+  organizations ||..o{ dispatches : owns
+  documents |o..o{ dispatches : "optionally supplies bytes"
+  dispatches ||..o| approvals : "has current record"
+  dispatches ||--o| reservations : "reserves on acceptance"
+  dispatches ||..o| outbox : "publishes through"
+  dispatches ||..o{ attempts : "records submission facts"
+
+  organizations {
+    text id PK
+    text mode
+  }
+  users {
+    text id PK
+  }
+  memberships {
+    text organization_id PK,FK
+    text user_id PK,FK
+    text role
+  }
+  documents {
+    text id PK
+    text organization_id FK
+    text sha256
+    text storage_key
+    text status
+  }
+  dispatches {
+    text id PK
+    text organization_id FK
+    text document_id FK "nullable"
+    text fingerprint
+    text status
+  }
+  approvals {
+    text id PK
+    text organization_id FK
+    text dispatch_id FK
+    text approval_kind
+    text fingerprint
+    text expires_at
+  }
+  reservations {
+    text dispatch_id PK,FK
+    text organization_id
+    integer amount_minor
+    text status
+  }
+  outbox {
+    text id PK
+    text dispatch_id FK,UK
+    text organization_id FK
+    text status
+  }
+  attempts {
+    text id PK
+    text dispatch_id FK
+    text organization_id FK
+    text status
+  }
+  classDef commitment fill:#e8edff,stroke:#2450db,color:#242c38
+  class organizations,dispatches,approvals commitment

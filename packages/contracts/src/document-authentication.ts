@@ -21,8 +21,9 @@ export function documentSessionPolicySql(
   if (!/^[a-z_]+$/.test(alias)) throw new Error("INVALID_SESSION_ALIAS");
   const p = alias;
   const realIdentity = `${p}.is_development=0 AND EXISTS(SELECT 1 FROM auth_identities document_identity JOIN users document_user ON document_user.id=document_identity.user_id WHERE document_identity.user_id=${p}.user_id AND document_identity.issuer=${p}.identity_issuer AND document_identity.subject=${p}.identity_subject AND document_user.email=${p}.verified_email)`;
-  const authentication = mode === "strong"
-    ? `${p}.strong_authentication=1 AND ${p}.authentication_policy_version='guteneo-sensitive-v1'`
-    : `${p}.verified_account=1 AND ((${realIdentity})${allowDevelopment ? ` OR ${p}.is_development=1` : ""})`;
+  const authentication =
+    mode === "strong"
+      ? `${p}.strong_authentication=1 AND ${p}.authentication_policy_version='guteneo-sensitive-v1'`
+      : `${p}.verified_account=1 AND ((${realIdentity})${allowDevelopment ? ` OR ${p}.is_development=1` : ""})`;
   return `(${authentication}) AND ${p}.verified_email IS NOT NULL AND length(trim(${p}.verified_email))>0${allowDevelopment ? "" : ` AND ${p}.is_development=0`}`;
 }

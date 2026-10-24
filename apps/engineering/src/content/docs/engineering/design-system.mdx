@@ -1,0 +1,201 @@
+---
+title: Design system, languages and accessibility
+description: Build a Guteneo interface with the shared visual language, correct locale behavior and accessible interactions.
+sidebar:
+  label: Design system
+  order: 9
+---
+
+Guteneo combines the character of a printing workshop with an operational
+interface: warm paper, precise ink, cobalt illustrations and readable controls.
+A new frontend should feel like another room in that workshop. Start with shared
+components and real product states, then add a small amount of illustration.
+
+This guide is the implementation companion to `docs/BRAND_IDENTITY.md`,
+`docs/MULTILINGUAL.md` and `docs/REPOSITORY_STANDARDS.md`. Those files own their
+respective rules. Change them and this guide together when the rules evolve.
+For service boundaries, use the [system architecture](/architecture/system/).
+
+## Choose the right surface
+
+| Surface | Reuse | Preserve |
+| --- | --- | --- |
+| Public website | `public-chrome.tsx`, `public-chrome.css`, `legal-links.tsx`, `brand.tsx` | One header/footer, English canonical routes, visitor language selection |
+| Authenticated web app | Existing application shell and `components.tsx` | Account language, workspace authority, unsaved work and the current route |
+| Belvédère | Existing private shell and `docs/belvedere/DESIGN.md` | Its denser operational layout, read-only data and separate platform access |
+| Engineering site | Nimbus layouts, shared MDX components and its theme | English technical prose, light/dark themes, one layout-owned page heading |
+| Native app | Existing SwiftUI components and bundled string catalog | Platform navigation, dynamic text, native accessibility and account language |
+
+Do not copy an entire shell into a new page. Public shell changes belong in the
+shared source; another independent header quickly drifts in wording, language
+controls and small-screen behavior. A component migration must preserve every
+meaningful state, including loading, empty, denied, unavailable and recoverable
+failure states.
+
+## Use the established visual vocabulary
+
+The web source tokens live in `apps/web/src/styles.css`. Use token references in
+components rather than another palette of almost-identical values.
+
+| Role | Source token / value | Application |
+| --- | --- | --- |
+| Paper | `--paper`, `#f6f5ef` | Main reading surface |
+| Surface | `--surface`, `#fffefa` | Fields and restrained panels |
+| Ink | `--ink`, `#181b22` | Body, headings and ordinary wordmark |
+| Cobalt | `--blue`, `#2450db` | Actions, focus and approved blue artwork |
+| Display | `--font-display`, EB Garamond | Editorial headings and wordmark |
+| Body | `--font-body`, IBM Plex Sans | Prose, controls and operational data |
+| Code | `--font-code`, IBM Plex Mono | Code and technical identifiers |
+| Shape | `--radius`, `3px` | Ordinary controls and restrained corners |
+| Reading measure | `--content-measure`, `68ch` | Long-form text |
+| Control height | `--control-height`, `44px` | Comfortable interactive targets |
+
+Use thin separators and spacing to establish hierarchy. Reserve depth for an
+actual overlay or an explanatory spatial figure. Keep numeric comparisons aligned
+with tabular figures. Status colors always accompany a written state; missing
+data must remain unknown rather than appearing as zero or success.
+
+Belvédère has intentional local density and token choices documented in its own
+design contract. Engineering maps the brand to Nimbus theme variables. Extending
+either surface does not require replacing its complete theme with raw web tokens.
+
+## Compose a page around one task
+
+Start with one page title, a short introduction only where it adds context, and
+the primary action appropriate to the current actor. The shared `PageHeading`
+accepts `title`, optional `intro` and optional `action`. Reuse `EmptyState`,
+`ErrorNotice` and the established forms instead of inventing a parallel vocabulary.
+
+Keep the page's identity out of repeated cards and banners. Move common legal or
+support links into their shared owner. Retain exact cost, recipient, document
+version, options and recovery information at the decision where a person needs
+them. Reducing repetition never removes approval information.
+
+On an authenticated page, client visibility is a convenience. The server still
+determines tenant membership, permissions and current authority. An attractive
+disabled button is not an authorization check. Read the
+[roles and authority guide](/features/permissions/) before designing an action.
+
+## Use portraits, stamps and illustrations deliberately
+
+The transparent Gutenberg portrait, the paper stamp and the simple emblem have
+different jobs. Preserve the portrait asset's transparency; the lowercase
+wordmark is ink black in light mode. The approved engineering-header exception
+uses ivory lettering directly on the dark header. Its stamp may sit on a small
+white paper backing confined to the stamp, with no light panel behind the
+wordmark. Decorative stamps likewise retain white paper in both themes: do not
+invert their portraits or make their printed paper dark.
+
+The communication stamp already carries a domain signature. Do not add a second
+wordmark or domain to the same promotional composition. Keep the official source
+assets intact and record generated derivatives separately with their prompt,
+reference images, provenance and optimized exports.
+
+Gutenberg can introduce a useful note or demonstrate a workflow. Engineering
+illustrations use the established animated-film character and its printing
+workshop vocabulary. Keep the small character in editorial notes; do not replace
+it with miniature postage stamps or add city panoramas. Selected section openings
+can use a playful scene with the same character: diagnosing a PDF, drawing a plan
+or organizing features. `GutenbergScene.astro` owns their three routes, responsive
+images and short captions. Keep the page title and all technical information as
+HTML outside the picture. Decorative scenes and notes opt out of Nimbus image
+zoom with `data-nb-zoom="off"`; they must not become extra keyboard stops.
+
+A short printer's rule, restrained registration marks and a cobalt navigation
+marker add character without changing the reading hierarchy. Keep imagery sparse
+and leave text unobstructed. Where birds belong in an approved composition,
+reuse the existing blue swallow sheet. Decorative artwork uses an empty
+alternative and is hidden from assistive technology. Explanatory diagrams need
+an equivalent readable explanation.
+
+Reserve image dimensions, use appropriately sized WebP exports and lazy-load
+below-the-fold decoration. Keep labels and instructions as real HTML. A generated
+picture must not become the only source of a technical fact or an instruction.
+
+## Internationalization is part of the component
+
+The product supports French, English, German and Luxembourgish (`fr`, `en`, `de`,
+`lb`). Repository code, comments, diagrams, API contracts and engineering prose
+are authored in English. English source does **not** change the product's locale
+resolution or its French fallback for unsupported visitor languages.
+
+Before login, explicit public `?lang=` wins over this browser's saved selection,
+then supported browser languages are considered. After login, the account's
+`preferredLocale` applies; an account without it uses browser language, without
+inheriting a visitor's or another account's preference. Saving a public choice
+does not save an account preference. Preserve those boundaries when adding a
+frontend or changing its shell.
+
+For web copy, call `msg("English source", ...values)` during render or reuse a
+common `t` entry. Register complete translations in the established locale
+catalogs. Their existing storage format uses a French lookup with an
+English/German/Luxembourgish array; `message-catalog.ts` derives the English
+source lookup. That storage format is localization data, not permission to add
+French prose to component source.
+
+Use `msgIn("stable-context", "English source", ...values)` when the same English
+phrase has distinct grammatical meanings, and register its explicit context in
+`locales/message-contexts.json`. Preserve interpolation parameters in every
+language. Build label-bearing arrays during rendering or through getters so
+switching languages updates existing screens without a reload.
+
+| Translate | Preserve exactly |
+| --- | --- |
+| Labels, descriptions, validation and recovery text | User content, names, addresses and document bytes |
+| Accessible names and state descriptions | Standard ARIA attribute values and machine states |
+| Dates, numbers and displayed amounts through locale formatters | Integer monetary values and quote precision |
+| Video narration, captions, posters and on-screen copy | Stable video identities and provenance |
+| Navigation labels | English paths, fragments, API keys, scopes and error codes |
+
+Never pass arbitrary server values or user documents through `msg`. Preserve
+canonical routes with the shared helpers and retain public language parameters.
+Native strings live in `ios/Guteneo/Resources/Localizable.xcstrings`; new Swift
+lookup keys are English. Belvédère follows the same account preference. Films
+must select the matching localized asset and stop old playback when the language
+changes; use the [video production guide](/engineering/video-production/).
+
+## Build accessible interactions, then inspect them
+
+Use semantic headings, landmarks, buttons, links and form labels. Every action
+must work from a keyboard, expose its purpose and show a visible focus indicator.
+Keep focus visible beneath sticky headers. A disclosure reports its expanded
+state; Escape closes an overlay and returns focus to its trigger. Preserve the
+application's existing route-focus and unsaved-work behavior.
+
+Labels remain visible when fields contain values. Put errors beside the relevant
+field and announce important asynchronous outcomes without repeatedly taking
+focus. Keep navigation distinct from actions, and provide an alternative to
+drag-only interactions. Never make color, a canvas, motion or a hover tooltip the
+only route to information.
+
+The [WCAG 2.2 quick reference](https://www.w3.org/WAI/WCAG22/quickref/) is the
+review baseline. Check contrast, text alternatives, keyboard access, focus,
+reflow, labels, status messages and accessible authentication. A passing automated
+suite is not a declaration of complete WCAG conformance.
+
+For Guteneo's review, inspect 320px and phone widths, desktop, zoomed text,
+all four interface languages and every supported theme. Keep large tables or
+diagrams scrollable inside their region while surrounding controls reflow.
+Respect `prefers-reduced-motion`; decorative birds and diagrams must remain
+understandable when animation stops. Check captions and a text alternative for
+new instructional media rather than assuming that narration is accessible to all.
+
+## A practical recipe for the next frontend
+
+1. Find its actors, entry conditions and failure states in the feature atlas.
+   Choose the existing surface and shared shell before designing a new one.
+2. Implement the smallest task flow with shared headings, controls and routes.
+   Use real contract states and synthetic fixtures that are clearly examples.
+3. Add English source copy and all supported translations together. Test a
+   language change with an unfinished form and account switching where relevant.
+4. Apply tokens and approved imagery. Verify light/dark contrast, keyboard order,
+   mobile reflow and reduced motion in the rendered page.
+5. Update the feature tree, its developer contract, and the affected engineering
+   guide. Follow [testing and evidence](/engineering/testing/) and
+   [CI and release](/engineering/ci-and-release/) for publication.
+
+Useful focused checks include `tests/unit/web-locale.test.ts`,
+`tests/e2e/locale.spec.ts`, `tests/e2e/locale-boundaries.spec.ts` and the preview
+or Belvédère suite for the actual surface. Inspect the new interaction manually
+with keyboard and assistive technology as well; catalog parity alone cannot
+prove good wording, reading order or usable error recovery.

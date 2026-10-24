@@ -1,103 +1,96 @@
-# Notes de préparation à App Review
+# App Review preparation notes
 
-Document interne — 22 septembre 2026 — non soumis.
+Internal document — 22 September 2026 — not submitted.
 
-Le backend mobile est en développement local et n'est pas déployé. Ces notes
-doivent être actualisées après validation du binaire et du service. Elles ne
-doivent pas être copiées comme attestation de disponibilité actuelle.
+The mobile backend is under local development and is not deployed. Update
+these notes after binary and service qualification. They must not be copied
+as an assertion of current availability.
 
-## Informations à transmettre avec le binaire qualifié
+## Information to provide with the qualified binary
 
-Guteneo est une application iOS gratuite, compagnon du service web Guteneo. Son
-interface est native. Elle permet de consulter le suivi, de travailler avec les
-PDF du compte et de préparer les opérations prises en charge. Les fonctionnalités
-visibles et les canaux réellement disponibles doivent correspondre au compte
-fourni à App Review.
+Guteneo is a free iOS companion to the Guteneo web service. Its interface is
+native. It lets users view tracking, work with account PDFs and prepare
+supported operations. Visible features and actually available channels must
+match the account supplied to App Review.
 
-La connexion utilise `ASWebAuthenticationSession`, avec une fenêtre sécurisée
-présentée par iOS depuis l'application et un retour contrôlé vers celle-ci.
-Elle ne lance pas le navigateur par défaut avec `openURL` pour demander de se
-connecter. Ce mécanisme système est décrit dans la
-[documentation d'authentification Apple](https://developer.apple.com/documentation/authenticationservices/authenticating-a-user-through-a-web-service).
-L'ouverture du navigateur pour la validation humaine d'un envoi est un parcours
-distinct de cette connexion.
+Login uses `ASWebAuthenticationSession`, with a secure window presented by
+iOS from the app and a controlled return to it. It does not launch the default
+browser through `openURL` to request login. This system mechanism is described
+in [Apple's authentication documentation](https://developer.apple.com/documentation/authenticationservices/authenticating-a-user-through-a-web-service).
+Opening the browser for human dispatch validation is a separate flow.
 
-L'application ne vend rien. Elle ne contient ni achat intégré, ni ajout de
-crédits, ni lien ou invitation à un achat externe. Le solde déjà disponible et
-les devis servent à informer l'utilisateur du coût d'une opération. La règle
-3.1.3(f) relative aux compagnons gratuits d'outils web payants est le fondement
-proposé de ce modèle. Nous ne présumons pas qu'Apple a déjà confirmé la
-classification du fax. Le courrier physique ne sert pas à revendiquer une
-exemption globale pour un portefeuille partagé avec d'autres services.
+The application sells nothing. It contains no in-app purchase, credit top-up,
+link or invitation to an external purchase. The existing balance and quotes
+inform the user of an operation's cost. Guideline 3.1.3(f), concerning free
+companions to paid web tools, is the proposed basis for this model. We do not
+assume Apple has confirmed the classification of fax. Physical mail does not
+justify a blanket exemption for a wallet shared with other services.
 
-La préparation dans l'application ne déclenche pas l'envoi. L'utilisateur ouvre
-le navigateur système pour relire et approuver l'opération dans son espace
-Guteneo. Cette approbation porte sur le document immuable, le destinataire, les
-options et le coût. Le navigateur ne contient pas une WebView embarquée dans
-l'application. Les contrôles de sécurité et de disponibilité du service restent
-applicables.
+Preparation in the app does not send. The user opens the system browser to
+review and approve the operation in Guteneo. That approval binds the immutable
+document, recipient, options and cost. The browser is not an embedded app
+WebView. Service security and availability checks still apply.
 
-Un devis de référence, limité à la préparation par le serveur, ne donne pas
-accès à une validation ou à une expédition. Il doit être présenté comme tel,
-y compris lorsqu’un fournisseur ou un mandat ne permet pas la suite du parcours.
-Ce cas doit faire partie des vérifications du compte reviewer.
+A server-limited preparation-only reference quote provides neither validation
+nor dispatch access. Present it accordingly, including when a provider or
+mandate prevents further steps. Include this case when checking the reviewer
+account.
 
-La démonstration éventuelle doit être clairement identifiée et ne produit aucune
-communication réelle. Elle ne remplace pas une preuve de fonctionnement du
-backend mobile. Les notes finales doivent identifier précisément le parcours
-offert au reviewer et distinguer ses résultats simulés des résultats réels.
+Any demonstration must be clearly identified and produces no real
+communication. It does not replace mobile-backend operation evidence.
+Final notes must identify the reviewer journey precisely and distinguish
+simulated from real results.
 
-Référence : [App Review Guidelines, notamment 3.1.3(f)](https://developer.apple.com/app-store/review/guidelines/).
+Reference: [App Review Guidelines, including 3.1.3(f)](https://developer.apple.com/app-store/review/guidelines/).
 
-## Canal annoncé pour cette première fiche
+## Channel advertised for the initial listing
 
-Le service de production observé le 22 septembre 2026 n’active pas l’envoi
-par email. La description et les mots-clés de cette version annoncent la
-préparation des fax, la consultation des PDF et le suivi des opérations.
-La capacité technique du client à gérer ultérieurement l’email ne constitue
-pas une disponibilité du service. La préparation du courrier postal n’est
-pas annoncée dans cette première fiche.
+The production service observed on 22 September 2026 does not enable email
+sending. This version's description and keywords advertise fax preparation,
+PDF viewing and operation tracking. The client's technical ability to support
+email later is not service availability. The initial listing does not advertise
+postal preparation.
 
-## Accès du reviewer — non fourni
+## Reviewer access — not supplied
 
-Aucun compte, mot de passe ou code d'accès App Review n'a été créé ni inventé.
-Un responsable autorisé doit fournir un compte dédié, utilisable pendant
-l'examen, dans les champs protégés d'App Store Connect. Ne pas placer ces secrets
-dans ce dépôt.
+No App Review account, password or access code was created or invented.
+An authorized owner must supply a dedicated account that remains usable
+during review through App Store Connect's protected fields. Do not put those
+secrets in this repository.
 
-Avant soumission, vérifier avec ce compte :
+Before submission, use that account to verify:
 
-1. La connexion réelle, les exigences de vérification et tout second facteur.
-2. La présence de PDF fictifs autorisés à être examinés et des états de suivi
-   nécessaires à une review complète.
-3. La préparation d’un fax vers une destination disponible, et l’explication
-   claire des canaux qui ne le sont pas.
-4. L'ouverture de l'approbation humaine dans le navigateur système, puis le retour
-   au suivi. L'app ne peut pas présenter l'approbation comme déjà donnée.
-5. Le comportement en cas de solde insuffisant, devis expiré, document encore en
-   analyse, panne réseau et session expirée.
-6. L'accès à la confidentialité, à l'assistance et à la suppression effective du
-   compte selon le parcours retenu.
+1. Real login, verification requirements and any second factor.
+2. Fictional PDFs authorized for review and the tracking states needed for
+   a complete review.
+3. Fax preparation to an available destination and clear explanations of
+   unavailable channels.
+4. Human approval opening in the system browser, then returning to tracking.
+   The app cannot represent approval as already granted.
+5. Insufficient balance, expired quotes, documents still under analysis,
+   network failures and expired sessions.
+6. Access to privacy, support and actual account deletion through the chosen
+   journey.
 
-L'examen ne doit pas nécessiter un envoi à une personne non consentante. Le
-responsable doit fournir des destinataires de test autorisés et préciser ce qui
-serait réellement transmis avant toute utilisation d'un canal réel. Si un mode
-review isolé est retenu, documenter ses limites et obtenir l'accord d'Apple
-lorsqu'il remplace l'accès demandé au service.
+Review must not require sending to a nonconsenting person. The owner must
+supply authorized test recipients and explain what would actually be
+transmitted before any real channel is used. If an isolated review mode is
+chosen, document its limits and obtain Apple's agreement when it replaces
+the requested service access.
 
-## Bloquants de soumission
+## Submission blockers
 
-- Backend mobile non déployé et intégration de production non qualifiée.
-- Parcours d'authentification natif, retours, cycle de session et suppression de
-  compte à vérifier de bout en bout.
-- Compte reviewer, données fictives et destinataires d'essai autorisés non
-  fournis dans ce dossier.
-- Preuves appareil physique, accessibilité, archive signée, validation Apple et
-  installation TestFlight à joindre pour le build final.
-- Métadonnées à comparer aux fonctions effectivement livrées ; captures réelles
-  et fiche de confidentialité à terminer après cette vérification.
-- Toute soumission, activation de production ou publication reste une action
-  externe distincte ; aucune n'est attestée par ce document.
+- Mobile backend not deployed; production integration unqualified.
+- Native authentication, returns, session lifecycle and account deletion need
+  end-to-end qualification.
+- Reviewer account, fictional data and authorized test recipients are not
+  supplied in this folder.
+- Physical-device, accessibility, signed-archive, Apple-validation and
+  TestFlight-installation evidence must accompany the final build.
+- Compare metadata against actually delivered features; finish real captures
+  and privacy details after that check.
+- Submission, production activation and publication are separate external
+  actions; this document attests none of them.
 
-Les limites de commerce, les sources et le détail des conditions de soumission
-figurent dans [REVIEW_POLICY.md](REVIEW_POLICY.md).
+Commerce boundaries, sources and detailed submission conditions are in
+[REVIEW_POLICY.md](REVIEW_POLICY.md).

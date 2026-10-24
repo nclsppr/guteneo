@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState, type MouseEvent } from "react";
 import { ArrowLeft, ArrowRight, LockSimple } from "@phosphor-icons/react";
 import { api, isPublicPreview, setSession, type Session } from "./api";
-import { Brand } from "./brand";
+import { PublicHeader } from "./public-chrome";
+import { LegalLinks } from "./legal-links";
 import { ErrorNotice, Loading, useAction } from "./components";
-import { LanguageMenu } from "./language-select";
 import { getLocale, t, useLocale } from "./locale";
 import { msg } from "./messages";
 
@@ -29,34 +29,32 @@ export function Login({
   const loginHref = `/auth/login?locale=${locale}&${authCode ? "fresh=1&" : ""}returnTo=${returnTo}`;
   const authMessages: Record<string, string> = {
     INVITATION_EMAIL_MISMATCH: msg(
-      "Cette invitation est liée à une autre adresse. Rouvrez le lien reçu et connectez-vous avec l’adresse vérifiée qui a reçu l’invitation.",
+      "This invitation is linked to another address. Reopen the link and sign in with the verified address that received the invitation.",
     ),
     INVITATION_UNAVAILABLE: msg(
-      "Cette invitation a expiré, a été révoquée ou a déjà été utilisée. Demandez un nouveau lien à l’administrateur de l’atelier.",
+      "This invitation has expired, been revoked or already been used. Ask the workspace administrator for a new link.",
     ),
     INVITATION_EXISTING_MEMBER: msg(
-      "Vous êtes déjà membre de cet atelier. Connectez-vous à votre compte et choisissez cet atelier dans Mon compte.",
+      "You already belong to this workspace. Sign in and select it in My account.",
     ),
     EMAIL_VERIFICATION_REQUIRED: msg(
-      "Vérifiez votre adresse avec le lien reçu par e-mail, puis reconnectez-vous.",
+      "Verify your address using the link in the email, then sign in again.",
     ),
     ACCOUNT_VERIFICATION_REQUIRED: msg(
-      "La vérification de votre compte n’a pas été confirmée. Vérifiez votre adresse e-mail, puis reconnectez-vous.",
+      "Your account verification could not be confirmed. Verify your email address, then sign in again.",
     ),
     MFA_REQUIRED: msg(
-      "La double authentification est nécessaire pour protéger votre espace. Reconnectez-vous pour terminer sa configuration.",
+      "Two-factor authentication is required to protect your workspace. Sign in again to finish setting it up.",
     ),
     IDENTITY_NOT_CONFIGURED: msg(
-      "L’ouverture des comptes est en cours de configuration. Réessayez bientôt.",
+      "Account registration is being set up. Please try again soon.",
     ),
     LOGIN_STATE_INVALID: msg(
-      "Votre connexion a expiré. Recommencez pour ouvrir votre espace.",
+      "Your sign-in has expired. Start again to access your workspace.",
     ),
-    LOGIN_EXCHANGE_FAILED: msg(
-      "La connexion n’a pas abouti. Vous pouvez réessayer.",
-    ),
+    LOGIN_EXCHANGE_FAILED: msg("Sign-in did not complete. You can try again."),
     LOGIN_RATE_LIMITED: msg(
-      "Trop de tentatives de connexion. Réessayez dans une heure.",
+      "Too many sign-in attempts. Try again in one hour.",
     ),
   };
 
@@ -122,21 +120,18 @@ export function Login({
       >
         {t.skip}
       </a>
-      <header className="access-header">
-        <Brand />
-        <LanguageMenu />
-      </header>
+      <PublicHeader showWorkspaceLink={false} />
       <main className="access-main" id="main-content" tabIndex={-1}>
         <div className="access-panel">
           <h1>
             {local
-              ? msg("Explorez la démonstration")
-              : msg("Reprenons la connexion.")}
+              ? msg("Explore the demonstration")
+              : msg("Let’s try signing in again.")}
           </h1>
           <p className="access-description">
             {local
               ? t.login.body
-              : msg("Réessayez pour retrouver la page demandée.")}
+              : msg("Try again to return to the page you requested.")}
           </p>
           {local ? (
             <>
@@ -168,7 +163,7 @@ export function Login({
                   <p>
                     {authMessages[authCode] ??
                       msg(
-                        "La connexion n’a pas abouti. Recommencez pour accéder à votre espace.",
+                        "Sign-in did not complete. Start again to access your workspace.",
                       )}
                   </p>
                 </div>
@@ -181,53 +176,51 @@ export function Login({
                 onClick={(event) => startRedirect(event, "login")}
               >
                 {redirecting === "login"
-                  ? msg("Ouverture de la connexion…")
+                  ? msg("Opening sign-in…")
                   : t.login.managed}
                 <ArrowRight size={20} aria-hidden="true" />
               </a>
               <p className="access-provider" role="status">
                 <LockSimple size={15} aria-hidden="true" />
                 {redirecting
-                  ? msg("Redirection vers Auth0…")
-                  : msg("Connexion sécurisée par Auth0.")}
+                  ? msg("Redirecting to Auth0…")
+                  : msg("Secure sign-in with Auth0.")}
               </p>
               {locale === "lb" && (
                 <p className="access-locale-note">
                   {msg(
-                    "Auth0 ne propose pas le luxembourgeois. Une langue de repli sera utilisée pour cette étape.",
+                    "Auth0 does not support Luxembourgish. A fallback language will be used for this step.",
                   )}
                 </p>
               )}
               {registrationAvailable ? (
                 <p className="access-signup">
-                  {msg("Première visite ?")}{" "}
+                  {msg("New here?")}{" "}
                   <a
                     href={`/auth/signup?locale=${locale}&returnTo=${returnTo}`}
                     aria-disabled={redirecting ? true : undefined}
                     onClick={(event) => startRedirect(event, "signup")}
                   >
-                    {msg("Créer un compte")}
+                    {msg("Create an account")}
                   </a>
                 </p>
               ) : (
                 <p className="access-signup">
                   {msg(
-                    "L’inscription sera disponible dès que le service de connexion sera raccordé.",
+                    "Sign-up will be available once the sign-in service is connected.",
                   )}
                 </p>
               )}
             </>
           )}
         </div>
-        <a className="access-back" href="#/">
+        <a className="access-back" href="/">
           <ArrowLeft size={16} aria-hidden="true" />
-          {msg("Retour au site")}
+          {msg("Back to the website")}
         </a>
       </main>
       <footer className="access-footer">
-        <a href="/confidentialite/">{msg("Confidentialité")}</a>
-        <a href="/conditions/">{msg("Conditions")}</a>
-        <a href="/support/">{msg("Assistance")}</a>
+        <LegalLinks compact />
       </footer>
     </div>
   );

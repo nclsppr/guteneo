@@ -17,7 +17,7 @@ The operation uses a single hard 30-second deadline across retrieval, scanning, 
 
 Successful promotion updates only `status` and the newly verified page count on the original row. The document ID, original name, hash, private object key, bytes and creation time remain unchanged. No upload, duplicate object or original rewrite occurs. Current membership is checked again before promotion; the SQL write also checks it. Status promotion, the `document.rescan_verified`/document-ID audit and the canonical `document.scan_verified`/SHA-256 proof commit in the same fenced D1 batch. The latter is required by live provider preflight; a failed audit insertion also rolls back readiness. An original purged while scanning is never revived.
 
-`rescan` returns the current `DocumentRecord`. A `ready` result means this attempt or an already-completed qualified analysis permits viewing. A `quarantined` result remains blocked and can be presented as “L’analyse n’a pas abouti. Vous pourrez réessayer.” It does not create approval, prepare a dispatch or send a document.
+`rescan` returns the current `DocumentRecord`. A `ready` result means this attempt or an already-completed qualified analysis permits viewing. A `quarantined` result remains blocked and can be presented as “Analysis did not complete. You can try again.” It does not create approval, prepare a dispatch or send a document.
 
 ## Limits and concurrency
 

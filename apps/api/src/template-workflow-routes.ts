@@ -28,7 +28,7 @@ export function createTemplateWorkflowRoutes(
     if (!value)
       throw new ContentError(
         "IDEMPOTENCY_REQUIRED",
-        "En-tête Idempotency-Key requis.",
+        "Idempotency-Key header required.",
       );
     return value;
   };
@@ -56,7 +56,7 @@ export function createTemplateWorkflowRoutes(
     if (!file || typeof file === "string")
       throw new ContentError(
         "FILE_REQUIRED",
-        "Choisissez un fichier Word .docx.",
+        "Choose a Word .docx file.",
       );
     return c.json(
       await service(c.env).importDocx(c.get("actor"), {
@@ -190,7 +190,7 @@ export function createTemplateWorkflowRoutes(
       if (!file || typeof file === "string")
         throw new ContentError(
           "FILE_REQUIRED",
-          "Choisissez un fichier XML, CSV, XLSX ou JSON.",
+          "Choose an XML, CSV, XLSX or JSON file.",
         );
       const format = z
         .enum(["csv", "xlsx", "json", "xml"])
@@ -396,7 +396,7 @@ export function createTemplateWorkflowRoutes(
       if (!postalAuthority)
         throw new ContentError(
           "POSTAL_AUTHORITY_REQUIRED",
-          "Autorité postale indisponible.",
+          "Postal authority unavailable.",
         );
       const authority = await postalAuthority(
         c.req.raw,

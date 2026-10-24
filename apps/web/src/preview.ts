@@ -95,10 +95,7 @@ function recipient(channel: Channel, input: Record<string, unknown>) {
   if (channel === "email") {
     const email = text("email").toLowerCase();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
-      fail(
-        "INVALID_EMAIL",
-        "Indiquez une adresse e-mail valide pour cet exemple.",
-      );
+      fail("INVALID_EMAIL", "Enter a valid email address for this example.");
     return { email };
   }
   if (channel === "fax") {
@@ -111,23 +108,20 @@ function recipient(channel: Channel, input: Record<string, unknown>) {
   for (const key of ["name", "line1", "postalCode", "city", "country"]) {
     result[key] = text(key);
     if (!result[key] || result[key].length > 160)
-      fail(
-        "INVALID_ADDRESS",
-        "Complétez les cinq champs de l’adresse postale.",
-      );
+      fail("INVALID_ADDRESS", "Complete all five postal address fields.");
   }
   result.country = result.country.toUpperCase();
   if (!["FR", "LU", "DE"].includes(result.country))
     fail(
       "COUNTRY_NOT_ALLOWED",
-      "Pays disponibles : France, Luxembourg et Allemagne.",
+      "Available countries: France, Luxembourg and Germany.",
     );
   return result;
 }
 
 function validateCsv(csv: string) {
   if (new TextEncoder().encode(csv).length > 256 * 1024)
-    fail("CSV_TOO_LARGE", "Maximum 256 Ko par exemple CSV.");
+    fail("CSV_TOO_LARGE", "Maximum 256 KB per CSV example.");
   const parsed = Papa.parse<Record<string, string>>(csv, {
     header: true,
     skipEmptyLines: "greedy",
@@ -147,9 +141,9 @@ function validateCsv(csv: string) {
     !parsed.meta.fields?.includes("channel") ||
     parsed.meta.fields.some((field) => !allowed.includes(field))
   )
-    fail("INVALID_CSV_HEADERS", `Colonnes autorisées : ${allowed.join(", ")}.`);
+    fail("INVALID_CSV_HEADERS", `Allowed columns: ${allowed.join(", ")}.`);
   if (parsed.data.length > 500)
-    fail("CAMPAIGN_TOO_LARGE", "Maximum 500 lignes par exemple.");
+    fail("CAMPAIGN_TOO_LARGE", "Maximum 500 rows per example.");
   const errors = parsed.errors.map((error) => ({
     line: (error.row ?? 0) + 2,
     message: error.message,
@@ -170,10 +164,10 @@ function validateCsv(csv: string) {
             /^[\s]*[=+@-]/.test(value) && !/^\+\d[\d ()-]*$/.test(value),
         )
       )
-        fail("CSV_FORMULA", "Formule CSV interdite.");
+        fail("CSV_FORMULA", "CSV formulas are not allowed.");
       const channel = row.channel?.trim().toLowerCase() as Channel;
       if (!channels.includes(channel))
-        fail("INVALID_CHANNEL", "Canal inconnu.");
+        fail("INVALID_CHANNEL", "Unknown delivery channel.");
       const target = recipient(channel, row);
       const key = JSON.stringify({ channel, target });
       const previous = seen.get(key);
@@ -184,7 +178,7 @@ function validateCsv(csv: string) {
     } catch (error) {
       errors.push({
         line,
-        message: error instanceof Error ? error.message : "Ligne invalide.",
+        message: error instanceof Error ? error.message : "Invalid row.",
       });
     }
   });
@@ -198,8 +192,8 @@ function validateCsv(csv: string) {
 
 async function fixturePdf(title: string) {
   const pdf = await PDFDocument.create();
-  pdf.setTitle(`${title} — Document fictif`);
-  pdf.setAuthor("Guteneo — aperçu de design");
+  pdf.setTitle(`${title} — Fictional document`);
+  pdf.setAuthor("Guteneo — design preview");
   pdf.setCreationDate(new Date("2026-09-16T08:00:00Z"));
   pdf.setModificationDate(new Date("2026-09-16T08:00:00Z"));
   const sheet = pdf.addPage([595.28, 841.89]);
@@ -217,21 +211,21 @@ async function fixturePdf(title: string) {
   });
   sheet.drawText(title, { x: 56, y: 665, size: 30, font: serif, color: ink });
   const lines = [
-    "Atelier Gutenberg",
-    "Document de démonstration",
+    "Gutenberg workshop",
+    "Demonstration document",
     "",
-    "Madame, Monsieur,",
+    "Dear recipient,",
     "",
-    "Ce courrier fictif vous permet de découvrir la préparation",
-    "et le suivi d’un document dans Guteneo.",
+    "This fictional letter demonstrates document preparation",
+    "and tracking in Guteneo.",
     "",
-    "Vous pouvez examiner ce PDF, choisir un canal et parcourir",
-    "les étapes de validation. Aucun envoi réel n’est effectué.",
+    "Review this PDF, choose a channel and explore",
+    "the approval steps. No real communication is sent.",
     "",
-    "Toutes les coordonnées et références présentées sont fictives.",
+    "All displayed contact details and references are fictional.",
     "",
-    "Bien cordialement,",
-    "L’atelier Guteneo",
+    "Kind regards,",
+    "The Guteneo workshop",
   ];
   lines.forEach((line, index) =>
     sheet.drawText(line, {
@@ -248,7 +242,7 @@ async function fixturePdf(title: string) {
     thickness: 0.5,
     color: blue,
   });
-  sheet.drawText("EXEMPLE FICTIF · APERÇU DE DESIGN · AUCUN ENVOI", {
+  sheet.drawText("FICTIONAL EXAMPLE · DESIGN PREVIEW · NO REAL DISPATCH", {
     x: 56,
     y: 78,
     size: 9,
@@ -262,15 +256,15 @@ async function createWorkspace(slug: string): Promise<Workspace> {
   const documents: DocumentRecord[] = [];
   const contents = new Map<string, Uint8Array>();
   for (const [index, title] of [
-    "Votre courrier",
-    "Invitation à l’atelier",
+    "Your correspondence",
+    "Workshop invitation",
   ].entries()) {
     const bytes = await fixturePdf(title);
     const digest = await crypto.subtle.digest("SHA-256", new Uint8Array(bytes));
     const id = `preview_${slug}_document_${index + 1}`;
     documents.push({
       id,
-      name: `${title} · exemple.pdf`,
+      name: `${title} · example.pdf`,
       sha256: Array.from(new Uint8Array(digest), (b) =>
         b.toString(16).padStart(2, "0"),
       ).join(""),
@@ -284,7 +278,7 @@ async function createWorkspace(slug: string): Promise<Workspace> {
   }
   const campaign: Campaign = {
     id: `preview_${slug}_campaign`,
-    name: "Les nouvelles de l’atelier · exemple",
+    name: "Workshop news · example",
     status: "prepared",
     created_at: now(),
     updated_at: now(),
@@ -299,14 +293,14 @@ async function createWorkspace(slug: string): Promise<Workspace> {
       channel: "email",
       status: "prepared",
       recipient: { email: "camille@example.invalid" },
-      subject: "Une nouvelle de l’atelier",
+      subject: "Workshop news",
     },
     {
       channel: "postal",
       status: "submitted",
       recipient: {
-        name: "Maison Papier · fictive",
-        line1: "12 rue de l’Exemple",
+        name: "Paper Company · fictional",
+        line1: "12 Example Street",
         postalCode: "75002",
         city: "Paris",
         country: "FR",
@@ -321,7 +315,7 @@ async function createWorkspace(slug: string): Promise<Workspace> {
       channel: "email",
       status: "delivered",
       recipient: { email: "studio@example.invalid" },
-      subject: "Votre invitation",
+      subject: "Your invitation",
     },
     {
       channel: "fax",
@@ -341,16 +335,16 @@ async function createWorkspace(slug: string): Promise<Workspace> {
       subject: sample.subject,
       html:
         sample.channel === "email"
-          ? "<h1>Les nouvelles de l’atelier</h1><p>Bonjour Camille,</p><p>Votre document est prêt. Cet exemple vous invite à parcourir Guteneo.</p><p>À bientôt,<br>L’atelier Gutenberg</p>"
+          ? "<h1>Workshop news</h1><p>Hello Camille,</p><p>Your document is ready. This example invites you to explore Guteneo.</p><p>Best wishes,<br>The Gutenberg workshop</p>"
           : undefined,
       text:
         sample.channel === "email"
-          ? "Bonjour Camille, votre document est prêt. Ceci est un exemple fictif."
+          ? "Hello Camille, your document is ready. This is a fictional example."
           : undefined,
       sender_address:
         sample.channel === "email"
           ? `${slug}@example.invalid`
-          : "Expéditeur fictif · simulation",
+          : "Fictional sender · simulation",
       status: sample.status,
       mode: "simulation",
       estimated_minor:
@@ -370,7 +364,7 @@ async function createWorkspace(slug: string): Promise<Workspace> {
           id: `${dispatch.id}_prepared`,
           type: "prepared",
           created_at: created,
-          detail: "Exemple fictif chargé dans votre navigateur.",
+          detail: "Fictional example loaded in your browser.",
         },
         ...(sample.status === "prepared"
           ? []
@@ -379,8 +373,7 @@ async function createWorkspace(slug: string): Promise<Workspace> {
                 id: `${dispatch.id}_outcome`,
                 type: sample.status,
                 created_at: created,
-                detail:
-                  "État illustratif de l’aperçu : aucun fournisseur contacté.",
+                detail: "Illustrative preview state: no provider contacted.",
               },
             ]),
       ],
@@ -390,7 +383,7 @@ async function createWorkspace(slug: string): Promise<Workspace> {
           : [
               {
                 id: `${dispatch.id}_attempt`,
-                provider: "Scénario fictif du navigateur",
+                provider: "Fictional browser scenario",
                 status: sample.status,
                 created_at: created,
               },
@@ -414,7 +407,7 @@ export function createPreviewApi() {
     if (!organization)
       fail(
         "UNAUTHENTICATED",
-        "Ouvrez un atelier de démonstration pour continuer.",
+        "Open a demonstration workspace to continue.",
         401,
       );
     const slug = organization!;
@@ -441,7 +434,7 @@ export function createPreviewApi() {
     if (!organization)
       fail(
         "UNAUTHENTICATED",
-        "Ouvrez un atelier de démonstration pour continuer.",
+        "Open a demonstration workspace to continue.",
         401,
       );
     if (route === "/session" && method === "GET") {
@@ -450,12 +443,12 @@ export function createPreviewApi() {
           id: `preview_${organization}`,
           name:
             organization === "atelier"
-              ? "Atelier Gutenberg · Démo"
-              : "Studio Papier · Démo",
+              ? "Gutenberg workshop · Demo"
+              : "Paper Studio · Demo",
         },
         user: {
           id: `preview_user_${organization}`,
-          name: "Camille · Démonstration",
+          name: "Camille · Demonstration",
           role: "admin",
         },
         csrfToken: "browser-preview-no-server-session",
@@ -468,7 +461,7 @@ export function createPreviewApi() {
     )
       fail(
         "PREVIEW_DOCUMENTS_UNAVAILABLE",
-        "L’aperçu utilise deux PDF fictifs prêts à explorer. L’import et le rendu HTML sont réservés à l’application complète ; aucun fichier n’a été téléversé.",
+        "The preview provides two fictional PDFs to explore. Import and HTML rendering require the full application; no file was uploaded.",
       );
     const state = await workspace();
     init.signal?.throwIfAborted();
@@ -478,7 +471,7 @@ export function createPreviewApi() {
       if (cached.input !== input)
         fail(
           "IDEMPOTENCY_CONFLICT",
-          "Cet exemple a déjà été préparé avec un autre contenu.",
+          "This example was already prepared with different content.",
           409,
         );
       return copy(cached.result);
@@ -515,7 +508,7 @@ export function createPreviewApi() {
       if (route === "/dispatches") {
         const group = new URLSearchParams(path.split("?")[1]).get("group");
         if (group !== null && !isDispatchGroup(group))
-          fail("INVALID_GROUP", "Filtre d’envois inconnu.");
+          fail("INVALID_GROUP", "Unknown dispatch filter.");
         const members: readonly string[] | undefined =
           group === null
             ? undefined
@@ -552,12 +545,12 @@ export function createPreviewApi() {
         return page(
           channels.map((channel) => ({
             id: `preview_${organization}_${channel}`,
-            name: "Atelier · exemple fictif",
+            name: "Workshop · fictional example",
             channel,
             address:
               channel === "email"
                 ? `${organization}@example.invalid`
-                : "Coordonnées fictives · aucun envoi",
+                : "Fictional contact details · no dispatch",
             status: "verified",
             mode: "simulation",
           })),
@@ -565,18 +558,18 @@ export function createPreviewApi() {
       if (route === "/connections") return page([]);
       if (route === "/capabilities")
         return {
-          aperçu: "Modèle interactif dans ce navigateur",
-          données: "Fictives ; réinitialisées en rechargeant la page",
-          envois_réels: false,
-          API_hébergée: false,
-          connexion_assistant: "Non disponible dans cet aperçu",
-          import_documents: "Non disponible dans cet aperçu",
+          preview: "Interactive model in this browser",
+          data: "Fictional; reset on page reload",
+          real_dispatches: false,
+          hosted_api: false,
+          assistant_connection: "Unavailable in this preview",
+          document_import: "Unavailable in this preview",
         };
       if (route === "/admin")
         return {
-          mode: "Aperçu de design · scénarios fictifs",
-          envois_réels: false,
-          stockage: "Mémoire de cet onglet uniquement",
+          mode: "Design preview · fictional scenarios",
+          real_dispatches: false,
+          storage: "Memory in this tab only",
           controls: channels.map((channel) => ({
             channel,
             enabled: Number(state.enabled[channel]),
@@ -655,14 +648,11 @@ export function createPreviewApi() {
     if (route === "/campaigns" && method === "POST") {
       const name = String(body.name ?? "").trim();
       if (!name || name.length > 120)
-        fail(
-          "INVALID_NAME",
-          "Indiquez un nom de campagne de 1 à 120 caractères.",
-        );
+        fail("INVALID_NAME", "Enter a campaign name from 1 to 120 characters.");
       if (state.campaigns.length >= 20)
         fail(
           "PREVIEW_LIMIT",
-          "L’aperçu est limité à 20 campagnes. Rechargez pour recommencer.",
+          "The preview is limited to 20 campaigns. Reload to restart.",
         );
       const campaign = {
         id: `preview_campaign_${crypto.randomUUID()}`,
@@ -677,17 +667,17 @@ export function createPreviewApi() {
     if (route === "/dispatches" && method === "POST") {
       const channel = body.channel as Channel;
       if (!channels.includes(channel))
-        fail("INVALID_CHANNEL", "Choisissez un canal disponible.");
+        fail("INVALID_CHANNEL", "Choose an available channel.");
       if (!state.enabled[channel])
         fail(
           "CHANNEL_PAUSED",
-          "Ce canal est en pause dans votre aperçu. Réactivez-le dans Administration.",
+          "This channel is paused in your preview. Enable it in Administration.",
           409,
         );
       if (state.dispatches.length >= 550)
         fail(
           "PREVIEW_LIMIT",
-          "L’aperçu est complet. Rechargez la page pour réinitialiser ses exemples.",
+          "The preview is full. Reload the page to reset its examples.",
         );
       const target = recipient(
         channel,
@@ -700,22 +690,22 @@ export function createPreviewApi() {
       )
         fail(
           "DOCUMENT_NOT_FOUND",
-          "Choisissez un document de cet atelier fictif.",
+          "Choose a document from this fictional workspace.",
           404,
         );
       if (channel !== "email" && !documentId)
-        fail("DOCUMENT_REQUIRED", "Choisissez l’un des PDF fictifs.");
+        fail("DOCUMENT_REQUIRED", "Choose one of the fictional PDFs.");
       if (channel === "email" && (!body.subject || !body.html || !body.text))
         fail(
           "EMAIL_REQUIRED",
-          "Complétez l’objet, le contenu HTML et la version texte.",
+          "Complete the subject, HTML content and text version.",
         );
       if (
         [body.html, body.text].some(
           (value) => typeof value === "string" && value.length > 128 * 1024,
         )
       )
-        fail("CONTENT_TOO_LARGE", "Le contenu dépasse la limite de l’aperçu.");
+        fail("CONTENT_TOO_LARGE", "Content exceeds the preview limit.");
       const campaignId = body.campaignId ? String(body.campaignId) : undefined;
       if (
         campaignId &&
@@ -723,7 +713,7 @@ export function createPreviewApi() {
       )
         fail(
           "CAMPAIGN_NOT_FOUND",
-          "Choisissez une campagne de cet atelier fictif.",
+          "Choose a campaign from this fictional workspace.",
           404,
         );
       const estimate = channel === "email" ? 1 : channel === "fax" ? 12 : 145;
@@ -731,7 +721,7 @@ export function createPreviewApi() {
       if (!Number.isSafeInteger(ceiling) || ceiling < estimate)
         fail(
           "COST_CEILING",
-          "Le plafond fictif doit couvrir l’estimation de cet exemple.",
+          "The fictional cap must cover this example’s estimate.",
         );
       const dispatch: Dispatch = {
         id: `preview_dispatch_${crypto.randomUUID()}`,
@@ -745,7 +735,7 @@ export function createPreviewApi() {
         sender_address:
           channel === "email"
             ? `${organization}@example.invalid`
-            : "Expéditeur fictif · simulation",
+            : "Fictional sender · simulation",
         status: "prepared",
         mode: "simulation",
         estimated_minor: estimate,
@@ -763,7 +753,7 @@ export function createPreviewApi() {
             id: crypto.randomUUID(),
             type: "prepared",
             created_at: now(),
-            detail: "Préparation fictive dans cet onglet. Aucun envoi réel.",
+            detail: "Fictional preparation in this tab. No real dispatch.",
           },
         ],
         attempts: [],
@@ -778,19 +768,23 @@ export function createPreviewApi() {
         state.dispatches.find(
           (entry) => entry.dispatch.id === decodeURIComponent(action[1]),
         ) ??
-        fail("NOT_FOUND", "Envoi introuvable dans cet atelier fictif.", 404);
+        fail(
+          "NOT_FOUND",
+          "Dispatch not found in this fictional workspace.",
+          404,
+        );
       const dispatch = detail.dispatch;
       if (dispatch.status !== "prepared")
         fail(
           "INVALID_STATE",
-          "Cet exemple n’est plus modifiable. Un résultat incertain ne peut pas être relancé automatiquement.",
+          "This example can no longer be changed. An uncertain outcome cannot be retried automatically.",
           409,
         );
       if (action[2] === "approve") {
         if (body.fingerprint !== dispatch.fingerprint)
           fail(
             "FINGERPRINT_MISMATCH",
-            "Le contenu de cet exemple a changé. Actualisez-le avant de valider.",
+            "This example’s content changed. Refresh before approving.",
             409,
           );
         detail.approval = {
@@ -801,7 +795,7 @@ export function createPreviewApi() {
           id: crypto.randomUUID(),
           type: "approved",
           created_at: now(),
-          detail: "Validation du scénario fictif dans le navigateur.",
+          detail: "Approval of the fictional browser scenario.",
         });
       } else if (action[2] === "confirm") {
         if (
@@ -811,22 +805,22 @@ export function createPreviewApi() {
         )
           fail(
             "APPROVAL_REQUIRED",
-            "Examinez puis validez cet exemple avant de lancer sa simulation.",
+            "Review and approve this example before starting its simulation.",
             409,
           );
         if (!state.enabled[dispatch.channel])
-          fail("CHANNEL_PAUSED", "Ce canal est en pause dans l’aperçu.", 409);
+          fail("CHANNEL_PAUSED", "This channel is paused in the preview.", 409);
         if (dispatch.ceiling_minor > previewCredit(state).availableMinor)
           fail(
             "CREDIT_EXHAUSTED",
-            "Le crédit disponible de cet exemple ne couvre pas le plafond de cet envoi.",
+            "This example’s available credit does not cover the dispatch cap.",
             409,
           );
         dispatch.status =
           dispatch.channel === "postal" ? "submitted" : "delivered";
         detail.attempts.push({
           id: crypto.randomUUID(),
-          provider: "Scénario fictif du navigateur",
+          provider: "Fictional browser scenario",
           status: dispatch.status,
           created_at: now(),
         });
@@ -835,14 +829,14 @@ export function createPreviewApi() {
             id: crypto.randomUUID(),
             type: "queued",
             created_at: now(),
-            detail: "Étape illustrée : mise en attente fictive.",
+            detail: "Illustrated step: fictional queue placement.",
           },
           {
             id: crypto.randomUUID(),
             type: dispatch.status,
             created_at: now(),
             detail:
-              "Résultat illustratif immédiat. Aucun fournisseur contacté, aucun envoi réel.",
+              "Immediate illustrative result. No provider contacted, no real dispatch.",
           },
         );
       } else {
@@ -852,7 +846,7 @@ export function createPreviewApi() {
           id: crypto.randomUUID(),
           type: "cancelled",
           created_at: now(),
-          detail: "Exemple annulé dans cet onglet.",
+          detail: "Example cancelled in this tab.",
         });
       }
       dispatch.updated_at = now();
@@ -865,7 +859,7 @@ export function createPreviewApi() {
     }
     fail(
       "PREVIEW_UNAVAILABLE",
-      "Cette opération nécessite l’application complète. L’aperçu public conserve uniquement des scénarios fictifs dans votre navigateur.",
+      "This operation requires the full application. Public preview retains only fictional scenarios in your browser.",
       501,
     );
   }
@@ -875,7 +869,7 @@ export function createPreviewApi() {
       state.contents.get(id) ??
       fail(
         "DOCUMENT_NOT_FOUND",
-        "Ce PDF ne se trouve pas dans cet atelier fictif.",
+        "This PDF is not in this fictional workspace.",
         404,
       );
     return new Uint8Array(bytes);

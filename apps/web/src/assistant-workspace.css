@@ -235,23 +235,6 @@
   margin-bottom: 18px;
 }
 @media (max-width: 767px) {
-  .assistants-public .assistants-header {
-    align-items: flex-start;
-    gap: 18px;
-    height: auto;
-    min-height: 98px;
-    padding-block: 18px;
-  }
-  .assistants-public .assistants-header nav {
-    gap: 4px 16px;
-    flex-wrap: wrap;
-    justify-content: flex-end;
-  }
-  .assistants-public .site-header.assistants-header nav > a:not([hidden]) {
-    min-height: 44px;
-    display: inline-flex;
-    align-items: center;
-  }
   .assistants-public main {
     padding-top: 24px;
   }

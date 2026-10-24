@@ -1,3 +1,4 @@
+const statusText = window.statusI18n.msg;
 const $ = (id) => document.getElementById(id);
 const tabs = [...document.querySelectorAll("[data-tab]")];
 const checkButtons = [...document.querySelectorAll("[data-check-filter]")];
@@ -11,7 +12,7 @@ let latest = null,
   signature = "",
   lastReadAt = 0;
 const openStates = new Map();
-const time = new Intl.DateTimeFormat("fr-FR", {
+const time = new Intl.DateTimeFormat(window.statusI18n.locale, {
   timeZone: "Europe/Paris",
   day: "2-digit",
   month: "2-digit",
@@ -19,49 +20,78 @@ const time = new Intl.DateTimeFormat("fr-FR", {
   minute: "2-digit",
   second: "2-digit",
 });
-const fullTime = new Intl.DateTimeFormat("fr-FR", {
+const fullTime = new Intl.DateTimeFormat(window.statusI18n.locale, {
   timeZone: "Europe/Paris",
   dateStyle: "long",
   timeStyle: "medium",
 });
+const legacyFeatureNames = {
+  "Connexion Auth0": "Auth0 sign-in",
+  "PDF : import, antivirus, rendu": "PDF: import, antivirus, rendering",
+  "Studio : modèles, données, génération":
+    "Studio: templates, data, generation",
+  "Cron, files, callbacks, sauvegardes": "Cron, queues, callbacks, backups",
+  "Assistants MCP": "MCP assistants",
+  "Courrier postal": "Postal mail",
+  "E-mail": "Email",
+  "Horizon / validation PDF": "Horizon / PDF validation",
+  "Paiements Stripe": "Stripe payments",
+  "Propositions IA": "AI proposals",
+};
+const canonicalFeatureName = (name) =>
+  Object.hasOwn(legacyFeatureNames, name) ? legacyFeatureNames[name] : name;
+// Historical observations retain the URL that was actually checked.
+const canonicalProbePath = (path) =>
+  path === "/developpeurs/" ? "/developers/" : path;
 const names = {
-  "/": "Afficher l’accueil en français",
-  "/?lang=en": "Afficher l’accueil en anglais",
-  "/?lang=de": "Afficher l’accueil en allemand",
-  "/?lang=lb": "Afficher l’accueil en luxembourgeois",
-  "/roles/": "Afficher le guide des rôles",
-  "/developpeurs/": "Afficher le guide développeur",
-  "/assistants/chatgpt/": "Afficher le guide ChatGPT",
-  "/release.json": "Identifier la version publique",
-  "/api/health": "Vérifier l’état annoncé par l’API",
-  "/api/capabilities": "Vérifier la cohérence de la configuration",
-  "/api/documents": "Refuser les documents sans connexion",
-  "/api/dispatches": "Refuser les envois sans connexion",
-  "/api/overview": "Refuser la synthèse sans connexion",
-  "/mcp": "Refuser l’accès MCP sans authentification",
+  "/": statusText("Show the homepage in French"),
+  "/?lang=en": statusText("Show the homepage in English"),
+  "/?lang=de": statusText("Show the homepage in German"),
+  "/?lang=lb": statusText("Show the homepage in Luxembourgish"),
+  "/roles/": statusText("Show the role guide"),
+  "/developers/": statusText("Show the developer guide"),
+  "/assistants/chatgpt/": statusText("Show the ChatGPT guide"),
+  "/release.json": statusText("Identify the public release"),
+  "/api/health": statusText("Check the state reported by the API"),
+  "/api/capabilities": statusText("Check configuration consistency"),
+  "/api/documents": statusText("Reject unauthenticated document access"),
+  "/api/dispatches": statusText("Reject unauthenticated dispatch access"),
+  "/api/overview": statusText("Reject unauthenticated overview access"),
+  "/mcp": statusText("Reject unauthenticated MCP access"),
 };
 const expectations = {
-  public_page:
-    "HTTP 200, type HTML, taille et SHA-256 conformes au manifeste, langue attendue, nosniff, CSP avec frame-ancestors 'none' et absence de noindex/none dans X-Robots-Tag.",
-  release:
-    "HTTP 200, manifeste de production hors preview et source propre ; commit et empreintes au format attendu, liste d’assets présente. Indicateur d’envoi cohérent avec les capacités de cette collecte.",
-  liveness:
-    "HTTP 200, état déclaré « ok », mode production et indicateur d’envoi booléen cohérent avec les capacités.",
-  configuration:
-    "HTTP 200, mode production, simulation désactivée, inscription annoncée active et scanner annoncé raccordé. Canaux reconnus et interrupteurs fax, e-mail et postal cohérents avec le manifeste.",
-  access_control: "HTTP 401 et en-tête Cache-Control contenant no-store.",
+  public_page: statusText(
+    "HTTP 200, HTML content type, size and SHA-256 matching the manifest, expected language, nosniff, CSP with frame-ancestors 'none' and no noindex/none in X-Robots-Tag.",
+  ),
+  release: statusText(
+    "HTTP 200, production manifest outside preview and clean source; commit and fingerprints in the expected format, asset list present. Dispatch flag consistent with capabilities from this collection.",
+  ),
+  liveness: statusText(
+    "HTTP 200, reported state 'ok', production mode and a boolean dispatch flag consistent with capabilities.",
+  ),
+  configuration: statusText(
+    "HTTP 200, production mode, simulation disabled, registration reported active and scanner reported connected. Recognised channels and fax, email and postal switches consistent with the manifest.",
+  ),
+  access_control: statusText(
+    "HTTP 401 and a Cache-Control header containing no-store.",
+  ),
 };
 const limits = {
-  public_page:
-    "Contrôle du contenu publié et de protections ciblées ; les interactions du navigateur ne sont pas exercées.",
-  release:
-    "Les empreintes déclarées ne sont pas une attestation indépendante du build.",
-  liveness:
-    "Ne teste pas la base de données, les fichiers, Auth0, les files ni les fournisseurs.",
-  configuration:
-    "Une configuration annoncée ne prouve pas le fonctionnement réel du scanner ou des fournisseurs.",
-  access_control:
-    "Refus anonyme de cette route uniquement ; les rôles et l’isolation entre ateliers restent à qualifier.",
+  public_page: statusText(
+    "Checks published content and selected protections; browser interactions are not exercised.",
+  ),
+  release: statusText(
+    "Reported fingerprints are not an independent build attestation.",
+  ),
+  liveness: statusText(
+    "Does not test the database, files, Auth0, queues or providers.",
+  ),
+  configuration: statusText(
+    "Reported configuration does not prove that the scanner or providers work.",
+  ),
+  access_control: statusText(
+    "Anonymous rejection for this route only; roles and workspace isolation still need qualification.",
+  ),
 };
 function node(tag, text, cls) {
   const el = document.createElement(tag);
@@ -107,10 +137,12 @@ function valid(d) {
     Array.isArray(d.checks) &&
     d.checks.length ===
       (d.checkedAt === null ? 0 : Object.keys(names).length) &&
-    new Set(d.checks.map((c) => c?.path)).size === d.checks.length &&
+    new Set(d.checks.map((c) => canonicalProbePath(c?.path))).size ===
+      d.checks.length &&
     Array.isArray(d.coverage) &&
     d.coverage.length === Object.keys(featureDescriptions).length &&
-    new Set(d.coverage.map((c) => c?.feature)).size === d.coverage.length &&
+    new Set(d.coverage.map((c) => canonicalFeatureName(c?.feature))).size ===
+      d.coverage.length &&
     (d.sourceCommit === null ||
       (typeof d.sourceCommit === "string" &&
         /^[a-f0-9]{40}$/.test(d.sourceCommit))) &&
@@ -120,7 +152,7 @@ function valid(d) {
         c &&
         ["pass", "fail"].includes(c.status) &&
         c.origin === "https://guteneo.com" &&
-        Object.hasOwn(names, c.path) &&
+        Object.hasOwn(names, canonicalProbePath(c.path)) &&
         c.kind === expectedKind(c.path) &&
         (c.status !== "pass" ||
           c.httpStatus === (c.kind === "access_control" ? 401 : 200)),
@@ -128,7 +160,7 @@ function valid(d) {
     d.coverage.every(
       (c) =>
         c &&
-        Object.hasOwn(featureDescriptions, c.feature) &&
+        Object.hasOwn(featureDescriptions, canonicalFeatureName(c.feature)) &&
         typeof c.evidence === "string" &&
         ["not_checked", "disabled"].includes(c.state),
     )
@@ -143,19 +175,24 @@ function hasMeasure() {
   return !!latest && Number.isFinite(Date.parse(latest.checkedAt));
 }
 function ageLabel() {
-  if (!hasMeasure()) return "Indisponible";
+  if (!hasMeasure()) return statusText("Unavailable");
   const seconds = Math.floor(
     (Date.now() - Date.parse(latest.checkedAt)) / 1000,
   );
   if (seconds < 0)
-    return seconds < -30 ? "Horloge à vérifier" : "Moins d’une minute";
-  if (seconds < 60) return "Moins d’une minute";
+    return seconds < -30
+      ? statusText("Check the clock")
+      : statusText("Less than a minute");
+  if (seconds < 60) return statusText("Less than a minute");
   const minutes = Math.floor(seconds / 60);
   return minutes + " min";
 }
 function updateAge() {
   const label = ageLabel();
-  put("measure-age", hasMeasure() ? "Âge : " + label : "Âge inconnu");
+  put(
+    "measure-age",
+    hasMeasure() ? statusText("Age: ") + label : statusText("Unknown age"),
+  );
   put("operations-measure-age", label);
 }
 function setBadge(id, label, state) {
@@ -170,20 +207,29 @@ function setState(state, title, detail) {
   const current = ["pass", "attention"].includes(state);
   for (const id of ["summary-grid", "probes", "coverage"])
     $(id).dataset.current = String(current);
-  put("proof-caption", current ? "Dernière mesure" : "Dernière preuve reçue");
+  put(
+    "proof-caption",
+    current
+      ? statusText("Latest measurement")
+      : statusText("Latest evidence received"),
+  );
   put(
     "freshness-label",
     current
-      ? "Mesure récente"
+      ? statusText("Recent measurement")
       : state === "loading"
-        ? "En attente"
-        : "État actuel inconnu",
+        ? statusText("Pending")
+        : statusText("Current state unknown"),
   );
   put(
     "service-explanation",
     current
-      ? "Ces parcours nécessitent des contrôles distincts des mesures de disponibilité. Leur couverture est documentée ci-dessous ; elle ne constitue pas un signal d’incident."
-      : "La situation actuelle n’est pas connue. Les éventuels résultats ci-dessous proviennent de la dernière preuve reçue.",
+      ? statusText(
+          "These workflows need checks separate from availability measurements. Their coverage is documented below; it does not indicate an incident.",
+        )
+      : statusText(
+          "The current state is unknown. Any results below come from the latest evidence received.",
+        ),
   );
   for (const id of ["pages", "api", "access"]) {
     const checks = publicChecks().filter((check) => groupId(check) === id);
@@ -192,21 +238,27 @@ function setState(state, title, detail) {
       `service-${id}-state`,
       !current
         ? hasMeasure()
-          ? "Mesure ancienne"
-          : "Mesure indisponible"
+          ? statusText("Old measurement")
+          : statusText("Measurement unavailable")
         : failures
-          ? `${failures} contrôle${failures > 1 ? "s" : ""} en écart`
-          : `${checks.length}/${checks.length} contrôles réussis`,
+          ? statusText("{0} check{1} failed", failures, failures > 1 ? "s" : "")
+          : statusText("{0}/{1} checks passed", checks.length, checks.length),
       !current ? "historical" : failures ? "failure" : "success",
     );
   }
   put(
     "live-explanation",
     !current
-      ? "Les résultats ci-dessous sont la dernière preuve reçue ; ils ne décrivent pas l’état actuel."
+      ? statusText(
+          "The results below are the latest evidence received; they do not describe the current state.",
+        )
       : publicChecks().some((c) => c.status === "fail")
-        ? "Les contrôles en écart sont à examiner. Ouvrez leur preuve pour comparer l’attendu et l’observé."
-        : "Ces contrôles vérifient les pages, la configuration et le refus des accès anonymes. Les parcours métier sont évalués séparément.",
+        ? statusText(
+            "Examine failed checks. Open their evidence to compare expected and observed results.",
+          )
+        : statusText(
+            "These checks verify pages, configuration and anonymous access rejection. Business workflows are assessed separately.",
+          ),
   );
   const checks = publicChecks(),
     bad = checks.filter((c) => c.status === "fail").length;
@@ -214,22 +266,22 @@ function setState(state, title, detail) {
     "public-evidence-state",
     current
       ? bad
-        ? bad + " en écart"
-        : checks.length + " contrôles réussis"
+        ? bad + statusText(" failed")
+        : checks.length + statusText(" checks passed")
       : hasMeasure()
-        ? "Preuve historique"
-        : "Aucune mesure",
+        ? statusText("Historical evidence")
+        : statusText("No measurement"),
     current ? (bad ? "failure" : "success") : "historical",
   );
   setBadge(
     "operations-measure-state",
     current
       ? bad
-        ? "À examiner"
-        : "Mesure récente"
+        ? statusText("Review needed")
+        : statusText("Recent measurement")
       : state === "loading"
-        ? "En attente"
-        : "État inconnu",
+        ? statusText("Pending")
+        : statusText("Unknown state"),
     current ? (bad ? "failure" : "success") : "historical",
   );
   put(
@@ -237,12 +289,12 @@ function setState(state, title, detail) {
     hasMeasure()
       ? checks.length -
           bad +
-          " contrôles réussis sur " +
+          statusText(" checks passed out of ") +
           checks.length +
           " · " +
           fullTime.format(new Date(latest.checkedAt)) +
           " · Paris."
-      : "Aucune mesure reçue.",
+      : statusText("No measurement received."),
   );
 }
 function updateFreshness() {
@@ -251,13 +303,13 @@ function updateFreshness() {
     setState(
       starting ? "loading" : "offline",
       starting
-        ? "Première mesure en cours"
-        : "Mesure indisponible — état actuel inconnu",
+        ? statusText("First measurement in progress")
+        : statusText("Measurement unavailable \u2014 current state unknown"),
       latest
-        ? "Les résultats précédents restent consultables avec leur date."
+        ? statusText("Earlier results remain available with their date.")
         : starting
-          ? "Le moniteur prépare sa première preuve."
-          : "Aucune mesure exploitable n’a été reçue.",
+          ? statusText("The monitor is preparing its first evidence.")
+          : statusText("No usable measurement received."),
     );
     return;
   }
@@ -265,8 +317,8 @@ function updateFreshness() {
   if (!hasMeasure() || latest.freshness === "missing") {
     setState(
       "unknown",
-      "Première mesure attendue",
-      "Aucune observation de production exploitable n’est encore disponible.",
+      statusText("Waiting for the first measurement"),
+      statusText("No usable production observation is available yet."),
     );
     return;
   }
@@ -279,8 +331,8 @@ function updateFreshness() {
   ) {
     setState(
       "stale",
-      "Preuve périmée — état actuel inconnu",
-      "Les résultats précédents restent consultables avec leur date.",
+      statusText("Stale evidence \u2014 current state unknown"),
+      statusText("Earlier results remain available with their date."),
     );
     return;
   }
@@ -289,31 +341,35 @@ function updateFreshness() {
   if (!checks.length)
     setState(
       "offline",
-      "Aucun contrôle public exploitable",
-      "Le fonctionnement du service reste à vérifier.",
+      statusText("No usable public check"),
+      statusText("Service operation still needs verification."),
     );
   else if (bad.length)
     setState(
       "attention",
-      bad.length +
-        " contrôle" +
-        (bad.length > 1 ? "s" : "") +
-        " public" +
-        (bad.length > 1 ? "s" : "") +
-        " en écart",
-      "Une anomalie a été détectée. Consultez les services concernés et le détail des contrôles.",
+      statusText(
+        "{0} public check{1} failed",
+        bad.length,
+        bad.length > 1 ? "s" : "",
+      ),
+      statusText(
+        "An anomaly was detected. Review the affected services and check details.",
+      ),
     );
   else if (checks.length !== 14)
     setState(
       "attention",
-      "Mesure publique incomplète",
-      checks.length + " contrôles reçus sur les 14 attendus.",
+      statusText("Incomplete public measurement"),
+      checks.length + statusText(" checks received out of the expected 14."),
     );
   else
     setState(
       "pass",
-      "Contrôles de disponibilité réussis",
-      `${checks.length} contrôles publics réussis. Aucune anomalie détectée dans ce périmètre.`,
+      statusText("Availability checks passed"),
+      statusText(
+        "{0} public checks passed. No anomaly detected within this scope.",
+        checks.length,
+      ),
     );
 }
 function preserve(container) {
@@ -338,7 +394,7 @@ function details(key, cls, defaultOpen = false) {
   return el;
 }
 function checkName(c) {
-  return names[c.path] ?? c.path;
+  return names[canonicalProbePath(c.path)] ?? c.path;
 }
 function groupId(c) {
   if (c.kind === "public_page") return "pages";
@@ -360,9 +416,9 @@ function renderChecks(forceOpen = false) {
   );
   list.replaceChildren();
   for (const [id, title] of [
-    ["pages", "Pages publiques"],
-    ["api", "API et configuration"],
-    ["access", "Protection des accès"],
+    ["pages", statusText("Public pages")],
+    ["api", statusText("API and configuration")],
+    ["access", statusText("Access protection")],
   ]) {
     const rows = checks.filter((c) => groupId(c) === id);
     if (!rows.length) continue;
@@ -373,9 +429,11 @@ function renderChecks(forceOpen = false) {
     summary.dataset.focus = `group:${id}`;
     summary.append(
       node("span", title),
-      node("span", `${rows.length} contrôles`, "group-count"),
+      node("span", statusText("{0} checks", rows.length), "group-count"),
       badge(
-        fails ? `${fails} en écart` : `${rows.length} réussis`,
+        fails
+          ? statusText("{0} failed", fails)
+          : statusText("{0} passed", rows.length),
         fails ? "failure" : "success",
       ),
     );
@@ -389,7 +447,7 @@ function renderChecks(forceOpen = false) {
       heading.append(
         node("span", checkName(c), "scenario-name"),
         badge(
-          c.status === "pass" ? "Réussi" : "En écart",
+          c.status === "pass" ? statusText("Passed") : statusText("Failed"),
           c.status === "pass" ? "success" : "failure",
         ),
         node(
@@ -401,17 +459,22 @@ function renderChecks(forceOpen = false) {
       item.append(heading);
       const body = node("div", undefined, "detail-body"),
         steps = node("dl", undefined, "steps");
-      step(steps, "Requête", `GET ${c.origin}${c.path}`);
+      step(steps, statusText("Request"), `GET ${c.origin}${c.path}`);
       let expected =
-        expectations[c.kind] ?? "Contrat non décrit pour ce type de contrôle.";
-      step(steps, "Attendu", expected);
+        expectations[c.kind] ??
+        statusText("No contract described for this check type.");
+      step(steps, statusText("Expected"), expected);
       const http = Number.isInteger(c.httpStatus)
         ? `HTTP ${c.httpStatus}`
-        : "Aucun code HTTP reçu";
+        : statusText("No HTTP status received");
       step(
         steps,
-        "Observé",
-        `${http} · verdict du contrôle : ${c.status === "pass" ? "réussi" : "en écart"}.`,
+        statusText("Observed"),
+        statusText(
+          "{0} \u00B7 check verdict: {1}.",
+          http,
+          c.status === "pass" ? statusText("passed") : statusText("failed"),
+        ),
       );
       if (c.status === "fail") {
         const expectedHttp = c.kind === "access_control" ? 401 : 200;
@@ -419,21 +482,31 @@ function renderChecks(forceOpen = false) {
           step(steps, "Diagnostic", c.code);
         step(
           steps,
-          "Écart",
+          statusText("Failure"),
           c.httpStatus !== expectedHttp
-            ? `HTTP ${expectedHttp} attendu ; ${http.toLowerCase()} observé.`
-            : "Le code HTTP attendu a été reçu, mais l’ensemble du contrôle n’a pas été validé. Le détail de la condition en échec n’est pas exporté.",
+            ? statusText(
+                "HTTP {0} expected; {1} observed.",
+                expectedHttp,
+                http.toLowerCase(),
+              )
+            : statusText(
+                "The expected HTTP status was received, but the complete check did not pass. Details of the failed condition are not exported.",
+              ),
         );
       }
       step(
         steps,
-        "Mesure",
-        `${fullTime.format(new Date(latest.checkedAt))} · heure de Paris`,
+        statusText("Measurement"),
+        statusText(
+          "{0} \u00B7 Paris time",
+          fullTime.format(new Date(latest.checkedAt)),
+        ),
       );
       step(
         steps,
-        "Portée",
-        limits[c.kind] ?? "Résultat limité au contrat de cette sonde.",
+        statusText("Scope"),
+        limits[c.kind] ??
+          statusText("Result limited to this probe's contract."),
       );
       body.append(steps);
       item.append(body);
@@ -443,40 +516,58 @@ function renderChecks(forceOpen = false) {
   }
   if (!checks.length)
     list.append(
-      node("p", "Aucun contrôle ne correspond à ces filtres.", "empty"),
+      node("p", statusText("No check matches these filters."), "empty"),
     );
   put(
     "result-count",
-    `${checks.length} contrôle${checks.length > 1 ? "s" : ""} affiché${checks.length > 1 ? "s" : ""} sur ${publicChecks().length} · ouvrir un résultat pour voir sa preuve`,
+    statusText(
+      "{0} check{1} displayed out of {3} \u00B7 open a result to view its evidence",
+      checks.length,
+      checks.length > 1 ? "s" : "",
+      checks.length > 1 ? "s" : "",
+      publicChecks().length,
+    ),
   );
   restore(list, focus);
 }
 const featureNames = {
-  "Connexion Auth0": "Connexion et session",
-  "Cron, files, callbacks, sauvegardes": "Traitements et sauvegardes",
-  "Assistants MCP": "Assistants connectés",
-  "Horizon / validation PDF": "Diagnostic PDF",
-  "Paiements Stripe": "Paiements",
-  "Propositions IA": "Aide à la création",
+  "PDF: import, antivirus, rendering": statusText(
+    "PDF import, scan and rendering",
+  ),
+  "Studio: templates, data, generation": statusText(
+    "Studio: templates, data and generation",
+  ),
+  "Postal mail": statusText("Postal mail"),
+  Email: statusText("Email"),
+  "Auth0 sign-in": statusText("Sign-in and session"),
+  "Cron, queues, callbacks, backups": statusText("Processing and backups"),
+  "MCP assistants": statusText("Connected assistants"),
+  "Horizon / PDF validation": statusText("PDF diagnostics"),
+  "Stripe payments": statusText("Payments"),
+  "AI proposals": statusText("Creation assistance"),
 };
 const featureDescriptions = {
-  "Connexion Auth0":
-    "Se connecter à son atelier et conserver une session valide.",
-  "PDF : import, antivirus, rendu":
-    "Importer un PDF, vérifier sa sécurité et consulter toutes ses pages.",
-  "Studio : modèles, données, génération":
-    "Créer un document à partir d’un modèle et de données.",
-  "Cron, files, callbacks, sauvegardes":
-    "Terminer les traitements différés et préserver les données.",
-  "Assistants MCP":
-    "Utiliser un assistant autorisé pour consulter et préparer ses documents.",
-  Fax: "Préparer un fax et suivre son acheminement.",
-  "Courrier postal": "Préparer un courrier et suivre sa prise en charge.",
-  "E-mail": "Préparer un message et suivre son acheminement.",
-  "Horizon / validation PDF": "Obtenir un diagnostic automatique du PDF.",
-  "Paiements Stripe": "Effectuer un paiement.",
-  "Propositions IA":
-    "Recevoir une proposition de contenu à vérifier avant utilisation.",
+  "Auth0 sign-in": statusText(
+    "Sign in to your workspace and retain a valid session.",
+  ),
+  "PDF: import, antivirus, rendering": statusText(
+    "Import a PDF, check its security and view every page.",
+  ),
+  "Studio: templates, data, generation": statusText(
+    "Create a document from a template and data.",
+  ),
+  "Cron, queues, callbacks, backups": statusText(
+    "Complete background processing and preserve data.",
+  ),
+  "MCP assistants": statusText(
+    "Use an authorised assistant to view and prepare documents.",
+  ),
+  Fax: statusText("Prepare a fax and track delivery."),
+  "Postal mail": statusText("Prepare postal mail and track acceptance."),
+  Email: statusText("Prepare a message and track delivery."),
+  "Horizon / PDF validation": statusText("Get an automatic PDF diagnostic."),
+  "Stripe payments": statusText("Make a payment."),
+  "AI proposals": statusText("Receive proposed content to review before use."),
 };
 function renderCoverage() {
   if (!latest) return;
@@ -494,15 +585,16 @@ function renderCoverage() {
     summary.append(
       node(
         "span",
-        featureNames[feature.feature] ?? feature.feature,
+        featureNames[canonicalFeatureName(feature.feature)] ??
+          canonicalFeatureName(feature.feature),
         "scenario-name",
       ),
       badge(
         !hasMeasure()
-          ? "État non mesuré"
+          ? statusText("State not measured")
           : feature.state === "disabled"
-            ? "Non activé"
-            : "Hors périmètre de ces contrôles",
+            ? statusText("Not enabled")
+            : statusText("Outside the scope of these checks"),
         "disabled",
       ),
     );
@@ -510,43 +602,48 @@ function renderCoverage() {
       steps = node("dl", undefined, "steps");
     step(
       steps,
-      "Fonction",
-      featureDescriptions[feature.feature] ??
-        "Fonctionnalité suivie dans le rapport.",
+      statusText("Feature"),
+      featureDescriptions[canonicalFeatureName(feature.feature)] ??
+        statusText("Feature monitored in this report."),
     );
     step(
       steps,
-      "Situation connue",
+      statusText("Known state"),
       !hasMeasure()
-        ? "Aucune mesure actuelle n’a été reçue pour cette fonctionnalité."
+        ? statusText("No current measurement received for this feature.")
         : feature.state === "disabled"
-          ? "Fonction annoncée désactivée dans la dernière configuration reçue."
-          : "Aucune preuve complète et actuelle de ce parcours en production n’est disponible dans ce rapport.",
+          ? statusText(
+              "Feature reported disabled in the latest configuration received.",
+            )
+          : statusText(
+              "No complete, current evidence of this production workflow is available in this report.",
+            ),
     );
     step(
       steps,
-      "Portée",
+      statusText("Scope"),
       feature.state === "disabled"
-        ? "Ce statut décrit sa configuration ; aucun succès de parcours n’est revendiqué."
-        : "Les contrôles publics ne suffisent pas à conclure que cette fonction réussit ou échoue.",
+        ? statusText(
+            "This status describes its configuration; no workflow success is claimed.",
+          )
+        : statusText(
+            "Public checks cannot establish whether this feature succeeds or fails.",
+          ),
     );
     body.append(steps);
     item.append(summary, body);
     list.append(item);
   }
   if (!features.length)
-    list.append(
-      node("p", "Aucune fonctionnalité dans cette catégorie.", "empty"),
-    );
+    list.append(node("p", statusText("No feature in this category."), "empty"));
   put(
     "coverage-count",
-    features.length +
-      " fonctionnalité" +
-      (features.length > 1 ? "s" : "") +
-      " affichée" +
-      (features.length > 1 ? "s" : "") +
-      " sur " +
+    statusText(
+      "{0} feature{1} displayed out of {2}",
+      features.length,
+      features.length > 1 ? "s" : "",
       latest.coverage.length,
+    ),
   );
   restore(list, focus);
 }
@@ -556,14 +653,14 @@ function renderSnapshot() {
     bad = checks.length - pass;
   put("passed-count", hasMeasure() ? String(pass) : "—");
   put("failed-count", hasMeasure() ? String(bad) : "—");
-  put("public-total", `${checks.length} contrôles`);
-  put("business-total", `${latest.coverage.length} fonctionnalités`);
-  put("tab-public-count", checks.length + " contrôles");
+  put("public-total", statusText("{0} checks", checks.length));
+  put("business-total", statusText("{0} features", latest.coverage.length));
+  put("tab-public-count", checks.length + statusText(" checks"));
   put(
     "checked-time",
     hasMeasure()
       ? time.format(new Date(latest.checkedAt)) + " · Paris"
-      : "Aucune mesure",
+      : statusText("No measurement"),
   );
   $("checked-time").dateTime = latest.checkedAt ?? "";
   $("checked-time").title = hasMeasure()
@@ -703,10 +800,9 @@ document.addEventListener("visibilitychange", () => {
     loadHistory();
   }
 });
-
 let historyDays = 7,
   historyRequest = 0;
-const dayFormat = new Intl.DateTimeFormat("fr-FR", {
+const dayFormat = new Intl.DateTimeFormat(window.statusI18n.locale, {
   day: "numeric",
   month: "short",
   year: "numeric",
@@ -716,9 +812,9 @@ function dayLabel(value) {
   return dayFormat.format(new Date(value + "T00:00:00Z"));
 }
 function number(value) {
-  return new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 1 }).format(
-    value,
-  );
+  return new Intl.NumberFormat(window.statusI18n.locale, {
+    maximumFractionDigits: 1,
+  }).format(value);
 }
 async function readJson(url) {
   const response = await fetch(url, {
@@ -782,17 +878,19 @@ function clearHistory(message) {
   ])
     put(id, "—");
   $("history-chart").replaceChildren(
-    node("p", "Aucune donnée exploitable pour cette période.", "history-empty"),
+    node("p", statusText("No usable data for this period."), "history-empty"),
   );
   $("history-chart").setAttribute(
     "aria-label",
-    "Historique indisponible ; aucune disponibilité ne peut être déduite.",
+    statusText("History unavailable; availability cannot be inferred."),
   );
   $("history-rows").replaceChildren();
-  put("history-range", "Journées en UTC");
+  put("history-range", statusText("Days in UTC"));
   put(
     "history-start",
-    "L’historique ne peut pas être confirmé actuellement. Aucun jour vide n’est considéré comme réussi.",
+    statusText(
+      "History cannot currently be confirmed. Empty days never count as successful.",
+    ),
   );
 }
 function renderHistory(data) {
@@ -815,35 +913,41 @@ function renderHistory(data) {
       : null;
   put(
     "history-availability",
-    observed ? number((100 * passed) / observed) + " %" : "Aucune mesure",
+    observed
+      ? number((100 * passed) / observed) + " %"
+      : statusText("No measurement"),
   );
   put(
     "history-coverage",
     expected
       ? observed + " / " + expected
       : observed
-        ? observed + " reçues"
-        : "Aucune collecte",
+        ? observed + statusText(" received")
+        : statusText("No collection"),
   );
   put(
     "history-latency",
-    latency === null ? "Non mesurée" : number(latency) + " ms",
+    latency === null ? statusText("Not measured") : number(latency) + " ms",
   );
   put(
     "history-state",
     observed
-      ? passed +
-          (passed > 1 ? " mesures réussies sur " : " mesure réussie sur ") +
-          observed +
-          (observed > 1 ? " reçues." : " reçue.") +
+      ? statusText(
+          "{0} successful measurement{1} out of {2} received.",
+          passed,
+          passed > 1 ? "s" : "",
+          observed,
+          observed > 1 ? "s" : "",
+        ) +
           (unknown
             ? " " +
-              unknown +
-              (unknown > 1
-                ? " mesures attendues non reçues."
-                : " mesure attendue non reçue.")
+              statusText(
+                "{0} expected measurement{1} not received.",
+                unknown,
+                unknown > 1 ? "s" : "",
+              )
             : "")
-      : "Aucune mesure enregistrée sur cette période.",
+      : statusText("No measurement recorded for this period."),
   );
   put(
     "history-range",
@@ -855,10 +959,12 @@ function renderHistory(data) {
   put(
     "history-start",
     data.collectionStartedAt
-      ? "Collecte commencée le " +
+      ? statusText("Collection started on ") +
           fullTime.format(new Date(data.collectionStartedAt)) +
-          " · Paris. Aucun historique antérieur n’est reconstitué."
-      : "La collecte n’a pas encore fourni de première mesure. Aucun historique antérieur n’est reconstitué.",
+          statusText(" \u00B7 Paris. No earlier history is reconstructed.")
+      : statusText(
+          "Collection has not provided its first measurement yet. No earlier history is reconstructed.",
+        ),
   );
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   svg.setAttribute("viewBox", "0 0 1000 100");
@@ -891,13 +997,14 @@ function renderHistory(data) {
       dayLabel(bucket.date) +
       " : " +
       (empty
-        ? "aucune mesure"
-        : number(bucket.availabilityPercent) + " % de réussite observée") +
+        ? statusText("no measurement")
+        : number(bucket.availabilityPercent) +
+          statusText(" % observed success")) +
       " ; " +
       bucket.observedSamples +
       " / " +
       bucket.expectedSamples +
-      " mesures.";
+      statusText(" measurements.");
     rect.append(title);
     svg.append(rect);
   }
@@ -905,16 +1012,18 @@ function renderHistory(data) {
   $("history-chart").setAttribute(
     "aria-label",
     historyDays +
-      " jours : " +
+      statusText(" days: ") +
       (observed
         ? number((100 * passed) / observed) +
-          " % de réussite sur les mesures reçues, couverture " +
+          statusText(" % success among received measurements, coverage ") +
           observed +
-          " sur " +
+          statusText(" out of ") +
           expected +
           "."
-        : "aucune mesure enregistrée.") +
-      " Les jours gris ne comportent aucune mesure. Le tableau fournit les valeurs exactes.",
+        : statusText("no measurement recorded.")) +
+      statusText(
+        " Grey days have no measurement. The table provides exact values.",
+      ),
   );
   const body = $("history-rows");
   body.replaceChildren();
@@ -927,14 +1036,14 @@ function renderHistory(data) {
       node(
         "td",
         bucket.availabilityPercent === null
-          ? "Sans mesure"
+          ? statusText("No measurement")
           : number(bucket.availabilityPercent) + " %",
       ),
       node("td", bucket.observedSamples + " / " + bucket.expectedSamples),
       node(
         "td",
         bucket.latencyMs === null
-          ? "Non mesurée"
+          ? statusText("Not measured")
           : number(bucket.latencyMs) + " ms",
       ),
     );
@@ -943,7 +1052,7 @@ function renderHistory(data) {
 }
 async function loadHistory() {
   const request = ++historyRequest;
-  put("history-state", "Lecture de l’historique…");
+  put("history-state", statusText("Loading history\u2026"));
   try {
     const data = await readJson("/api/history?days=" + historyDays);
     if (request !== historyRequest) return;
@@ -951,7 +1060,9 @@ async function loadHistory() {
     renderHistory(data);
   } catch {
     if (request === historyRequest)
-      clearHistory("Historique indisponible. Réessayez en relisant la mesure.");
+      clearHistory(
+        statusText("History unavailable. Try refreshing the measurement."),
+      );
   }
 }
 for (const button of document.querySelectorAll("[data-days]"))
@@ -965,8 +1076,12 @@ function qualificationDetails(d) {
   const detail = $("qualification-detail");
   detail.hidden = true;
   for (const [id, items, title] of [
-    ["qualification-scope", d?.scope, "Parcours exercés"],
-    ["qualification-limits", d?.limitations, "Limites de la preuve"],
+    ["qualification-scope", d?.scope, statusText("Tested workflows")],
+    [
+      "qualification-limits",
+      d?.limitations,
+      statusText("Evidence limitations"),
+    ],
   ]) {
     const host = $(id);
     host.replaceChildren();
@@ -1016,44 +1131,55 @@ async function loadQualification() {
       "qualification-state",
       passed
         ? d.counts.testsPassed + " tests · local"
-        : "Qualification incomplète",
+        : statusText("Incomplete qualification"),
       passed ? "success" : "pending",
     );
     put(
       "qualification-summary",
       passed
-        ? "Code applicatif exercé localement : " +
+        ? statusText("Application code exercised locally: ") +
             d.counts.testsPassed +
-            " tests réussis, " +
+            statusText(" tests passed, ") +
             d.counts.suitesPassed +
-            " fichiers de tests. Réseau externe bloqué ; fournisseur de livraison simulé. Cette preuve ne qualifie pas la production."
-        : "Le rapport local ne permet pas de conclure à une qualification complète. " +
+            statusText(
+              " test files. External network blocked; delivery provider simulated. This evidence does not qualify production.",
+            )
+        : statusText(
+            "The local report does not establish complete qualification. ",
+          ) +
             (isolated
-              ? "Le blocage du réseau externe est vérifié."
-              : "Le blocage du réseau externe reste non prouvé.") +
-            " Les détails d’exécution doivent être examinés par l’équipe.",
+              ? statusText("External network blocking is verified.")
+              : statusText("External network blocking remains unproven.")) +
+            statusText(" The team must review execution details."),
     );
     put(
       "qualification-date",
-      "Exécuté le " +
+      statusText("Executed on ") +
         fullTime.format(new Date(d.executedAt)) +
         " · Paris." +
         (passed
-          ? " Sources vérifiées : " + d.sourceSnapshotSha256.slice(0, 12) + "."
+          ? statusText(" Verified sources: ") +
+            d.sourceSnapshotSha256.slice(0, 12) +
+            "."
           : ""),
     );
     qualificationDetails(d);
   } catch {
     qualificationDetails(null);
-    setBadge("qualification-state", "Preuve indisponible", "pending");
+    setBadge(
+      "qualification-state",
+      statusText("Evidence unavailable"),
+      "pending",
+    );
     put(
       "qualification-summary",
-      "Aucun rapport local exploitable n’est disponible. Aucun résultat local ni de production n’est déduit de cette absence.",
+      statusText(
+        "No usable local report is available. Its absence establishes no local or production result.",
+      ),
     );
-    put("qualification-date", "Date de qualification indisponible.");
+    put("qualification-date", statusText("Qualification date unavailable."));
   }
 }
-
 selectTab(location.hash.slice(1));
 if (["localhost", "127.0.0.1", "[::1]"].includes(location.hostname))
   $("preview-banner").hidden = false;

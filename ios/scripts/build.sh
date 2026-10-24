@@ -11,9 +11,9 @@ for argument in "$@"; do
     --release) configuration=Release ;;
     --device) destination='generic/platform=iOS'; sdk=iphoneos; signing=(CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO) ;;
     --help)
-      printf '%s\n' 'Usage: build.sh [--release] [--device]' 'Signature ad hoc pour le simulateur, sans signature pour --device ; aucune publication.'
+      printf '%s\n' 'Usage: build.sh [--release] [--device]' 'Ad hoc signing for the simulator, unsigned for --device; no publication.'
       exit 0 ;;
-    *) printf 'Option inconnue : %s\n' "$argument" >&2; exit 64 ;;
+    *) printf 'Unknown option: %s\n' "$argument" >&2; exit 64 ;;
   esac
 done
 

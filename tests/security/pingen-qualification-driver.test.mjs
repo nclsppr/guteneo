@@ -113,7 +113,7 @@ test("connection timeout triggers no RPC and disposes a late proxy", async () =>
   await new Promise((done) => setImmediate(done));
   assert.equal(calls, 0);
   assert.equal(disposed, 1);
-  assert.match(DRIVER_MESSAGES.connection_timeout, /aucune RPC/);
+  assert.match(DRIVER_MESSAGES.connection_timeout, /no RPC/);
 });
 test("timeout after create invocation is unknown and never retries", async () => {
   let calls = 0;
@@ -143,7 +143,7 @@ test("timeout after create invocation is unknown and never retries", async () =>
   assert.equal(disposed, 1);
   assert.deepEqual(output, []);
   assert.match(DRIVER_MESSAGES.create_timeout, /--inspect-created/);
-  assert.match(DRIVER_MESSAGES.create_timeout, /Ne pas relancer/);
+  assert.match(DRIVER_MESSAGES.create_timeout, /Do not restart/);
 });
 test("an RPC exception containing a secret becomes only a fixed error code", async () => {
   await assert.rejects(

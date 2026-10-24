@@ -6,7 +6,7 @@ import {
 } from "../../packages/contracts/src/roles";
 
 async function login(page: Page, appearance?: "v2") {
-  await page.goto(appearance ? "/?atelier=v2#/app" : "/#/app");
+  await page.goto(appearance ? "/?appearance=v2#/app" : "/#/app");
   await page.getByRole("button", { name: "Entrer dans l’Atelier" }).click();
   // The sign-in screen already has an h1. Wait for the authenticated shell
   // before a caller can navigate and cancel the pending login request.
@@ -146,7 +146,7 @@ test("V2 gives each creation page one prominent action and keeps account utiliti
     { path: "generations", title: "Générations", action: "Créer un document" },
     { path: "dispatches", title: "Le fil des envois.", action: "Nouvel envoi" },
   ]) {
-    await page.goto(`/?atelier=v2#/app/${destination.path}`);
+    await page.goto(`/?appearance=v2#/app/${destination.path}`);
     await expect(
       main.getByRole("heading", {
         level: 1,
@@ -168,7 +168,7 @@ test("V2 gives each creation page one prominent action and keeps account utiliti
     } else await expect(page.locator(".workspace-create")).toHaveCount(0);
   }
 
-  await page.goto("/?atelier=v2#/app/templates");
+  await page.goto("/?appearance=v2#/app/templates");
   const create = main.getByRole("button", {
     name: "Créer un document",
     exact: true,
@@ -185,7 +185,7 @@ test("V2 gives each creation page one prominent action and keeps account utiliti
   await expect(create).toHaveAttribute("aria-expanded", "false");
   await expectProminentAction(create, isMobile);
 
-  await page.goto("/?atelier=v2#/app/documents");
+  await page.goto("/?appearance=v2#/app/documents");
   const importPdf = main.getByRole("button", {
     name: "Importer un PDF",
     exact: true,
@@ -257,7 +257,7 @@ test("account language and appearance save together, survive a fresh browser, an
       preferredDashboardAppearance: "v2",
     }),
   );
-  expect(new URL(page.url()).searchParams.has("atelier")).toBe(false);
+  expect(new URL(page.url()).searchParams.has("appearance")).toBe(false);
   await page.reload();
   await expect(page.locator(".workspace")).toHaveAttribute(
     "data-appearance",
@@ -563,7 +563,7 @@ test("V2 does not add reporting, preparation or approval rights to restricted ro
     // The session is read when the application mounts. A hash-only navigation
     // intentionally retains its current actor, so each fixture needs a new page.
     await page.goto(
-      `/?atelier=v2&role-fixture=${role}-${approval}-${reporting}#/app`,
+      `/?appearance=v2&role-fixture=${role}-${approval}-${reporting}#/app`,
     );
     await expect(page.locator("#main-content h1")).toBeVisible();
     await expect(page.locator(".workspace")).toHaveAttribute(
@@ -577,7 +577,7 @@ test("V2 does not add reporting, preparation or approval rights to restricted ro
     await expect(page.getByRole("alert")).toHaveCount(0);
     if (!scenario.preparation)
       await expect(page.locator('a[href="#/app/prepare"]')).toHaveCount(0);
-    await page.goto("/?atelier=v2#/app/generations");
+    await page.goto("/?appearance=v2#/app/generations");
     await expect(
       page.getByRole("heading", { level: 1, name: "Générations" }),
     ).toBeVisible();
@@ -587,7 +587,7 @@ test("V2 does not add reporting, preparation or approval rights to restricted ro
     await expect(page.locator(".workspace-create")).toHaveCount(
       scenario.preparation ? 1 : 0,
     );
-    await page.goto("/?atelier=v2#/app/dispatch/v2-review");
+    await page.goto("/?appearance=v2#/app/dispatch/v2-review");
     await expect(
       page.getByRole("heading", { name: "Le bon à envoyer." }),
     ).toBeVisible();
@@ -595,7 +595,7 @@ test("V2 does not add reporting, preparation or approval rights to restricted ro
     if (approval)
       await expect(page.locator(".approval-panel button")).toBeDisabled();
     if (!scenario.preparation) {
-      await page.goto("/?atelier=v2#/app/prepare");
+      await page.goto("/?appearance=v2#/app/prepare");
       await expect(
         page.getByText("Votre rôle ne permet pas cette action.", {
           exact: false,
@@ -606,7 +606,7 @@ test("V2 does not add reporting, preparation or approval rights to restricted ro
   // This session is a fully intercepted projection of the live UI. It performs
   // no business request and must not carry the simulation or former trial badge.
   simulation = false;
-  await page.goto("/?atelier=v2&role-fixture=real-projection#/app");
+  await page.goto("/?appearance=v2&role-fixture=real-projection#/app");
   await expect(page.locator("#main-content h1")).toBeVisible();
   await expect(page.locator(".simulation-banner")).toHaveCount(0);
   await expect(page.locator(".dashboard-v2-notice")).toHaveCount(0);
@@ -617,7 +617,7 @@ test("saving a name from a temporary V2 link leaves the account appearance uncha
   page,
 }) => {
   await login(page);
-  await page.goto("/?atelier=v2&lang=fr#/app/account");
+  await page.goto("/?appearance=v2&lang=fr#/app/account");
   await expect(page.locator(".workspace")).toHaveAttribute(
     "data-appearance",
     "v2",
@@ -641,7 +641,7 @@ test("saving a name from a temporary V2 link leaves the account appearance uncha
     (await (await page.request.get("/api/session")).json()).user
       .preferredDashboardAppearance,
   ).toBe("classic");
-  expect(new URL(page.url()).searchParams.get("atelier")).toBe("v2");
+  expect(new URL(page.url()).searchParams.get("appearance")).toBe("v2");
   await page.reload();
   await expect(page.locator(".workspace")).toHaveAttribute(
     "data-appearance",
@@ -654,7 +654,7 @@ test("saving a name from a temporary V2 link leaves the account appearance uncha
   expect(writes[1].body).toEqual(
     expect.objectContaining({ preferredDashboardAppearance: "v2" }),
   );
-  expect(new URL(page.url()).searchParams.has("atelier")).toBe(false);
+  expect(new URL(page.url()).searchParams.has("appearance")).toBe(false);
   expect(new URL(page.url()).searchParams.get("lang")).toBe("fr");
   expect(
     (await (await page.request.get("/api/session")).json()).user
@@ -714,7 +714,7 @@ test("V2 keeps the account reachable below scrollable navigation and both appear
         "/admin",
         "/prepare",
       ]) {
-        await page.goto(`/?atelier=${appearance}#/app${route}`);
+        await page.goto(`/?appearance=${appearance}#/app${route}`);
         await expect(page.locator("#main-content h1")).toBeVisible();
         await expect(page.locator(".workspace")).toHaveAttribute(
           "data-appearance",

@@ -1,4 +1,8 @@
-import { ingestProductionReport, readProductionE2EStatus } from "./production-e2e";
+import { PUBLIC_ROUTE_ALIASES } from "../../packages/contracts/src/public-routes";
+import {
+  ingestProductionReport,
+  readProductionE2EStatus,
+} from "./production-e2e";
 
 /** Public, anonymous observations only. No business bindings. GitHub's bounded
  * signed report ingestion is separate from the read-only public status routes. */
@@ -23,7 +27,7 @@ export const PUBLIC_PATHS = [
   "/?lang=de",
   "/?lang=lb",
   "/roles/",
-  "/developpeurs/",
+  "/developers/",
   "/assistants/chatgpt/",
 ] as const;
 const PRIVATE_PATHS = [
@@ -40,6 +44,8 @@ export const PROBE_PATHS = [
   ...PRIVATE_PATHS,
 ];
 const CHANNELS = ["fax", "email", "postal"];
+const canonicalProbePath = (path: string): string =>
+  Object.hasOwn(PUBLIC_ROUTE_ALIASES, path) ? PUBLIC_ROUTE_ALIASES[path] : path;
 
 export interface PublicCheck {
   origin: string;
@@ -227,33 +233,32 @@ function coverageFor(caps: JsonObject | null): Coverage[] {
     : [];
   return [
     {
-      feature: "Connexion Auth0",
+      feature: "Auth0 sign-in",
       state: "not_checked",
       evidence:
-        "Configuration et refus anonyme seulement ; connexion et renouvellement à qualifier.",
+        "Configuration and anonymous refusal only; sign-in and renewal require qualification.",
     },
     {
-      feature: "PDF : import, antivirus, rendu",
+      feature: "PDF: import, antivirus, rendering",
       state: "not_checked",
       evidence:
-        "Configuration publique seulement ; fraîcheur des signatures, analyse et rendu non testés.",
+        "Public configuration only; signature freshness, scanning and rendering untested.",
     },
     {
-      feature: "Studio : modèles, données, génération",
+      feature: "Studio: templates, data, generation",
       state: "not_checked",
-      evidence: "Aucune génération authentifiée exécutée par ce contrôle.",
+      evidence: "This check performed no authenticated generation.",
     },
     {
-      feature: "Cron, files, callbacks, sauvegardes",
+      feature: "Cron, queues, callbacks, backups",
+      state: "not_checked",
+      evidence: "Requires private metrics and recent restore evidence.",
+    },
+    {
+      feature: "MCP assistants",
       state: "not_checked",
       evidence:
-        "Nécessite des métriques privées et une preuve de restauration récente.",
-    },
-    {
-      feature: "Assistants MCP",
-      state: "not_checked",
-      evidence:
-        "Contrôle limité au refus anonyme ; parcours OAuth et outils en client réel non testés.",
+        "Anonymous refusal only; real-client OAuth and tool workflows untested.",
     },
     ...CHANNELS.map((id): Coverage => {
       const enabled = channels.find(
@@ -261,29 +266,29 @@ function coverageFor(caps: JsonObject | null): Coverage[] {
       )?.liveSending;
       return {
         feature:
-          id === "fax" ? "Fax" : id === "postal" ? "Courrier postal" : "E-mail",
+          id === "fax" ? "Fax" : id === "postal" ? "Postal mail" : "Email",
         state: enabled === false ? "disabled" : "not_checked",
         evidence:
           enabled === true
-            ? "Envoi autorisé par configuration ; devis, remise fournisseur et livraison non testés."
+            ? "Sending allowed by configuration; quotes, provider handoff and delivery untested."
             : enabled === false
-              ? "Canal fermé par configuration."
-              : "Configuration indisponible.",
+              ? "Channel disabled by configuration."
+              : "Configuration unavailable.",
       };
     }),
     ...(
       [
-        ["Horizon / validation PDF", nested(caps?.horizon, "available")],
-        ["Paiements Stripe", nested(caps?.billing, "chargingEnabled")],
-        ["Propositions IA", nested(nested(caps?.studio, "ai"), "configured")],
+        ["Horizon / PDF validation", nested(caps?.horizon, "available")],
+        ["Stripe payments", nested(caps?.billing, "chargingEnabled")],
+        ["AI proposals", nested(nested(caps?.studio, "ai"), "configured")],
       ] as const
     ).map(([feature, enabled]): Coverage => ({
       feature,
       state: enabled === false ? "disabled" : "not_checked",
       evidence:
         enabled === false
-          ? "Fonction désactivée dans la configuration publique."
-          : "Parcours authentifié non testé.",
+          ? "Feature disabled in public configuration."
+          : "Authenticated workflow untested.",
     })),
   ];
 }
@@ -499,12 +504,13 @@ function completeSnapshot(sample: Snapshot): boolean {
     ["public_checks_passed", "attention"].includes(sample.status) &&
     Array.isArray(sample.checks) &&
     sample.checks.length === PROBE_PATHS.length &&
-    new Set(sample.checks.map((c) => c?.path)).size === PROBE_PATHS.length &&
+    new Set(sample.checks.map((c) => canonicalProbePath(c?.path))).size ===
+      PROBE_PATHS.length &&
     sample.checks.every(
       (c) =>
         c &&
         c.origin === ORIGIN &&
-        PROBE_PATHS.includes(c.path) &&
+        PROBE_PATHS.includes(canonicalProbePath(c.path)) &&
         c.kind === kindOf(c.path) &&
         ["pass", "fail"].includes(c.status) &&
         Number.isSafeInteger(c.durationMs) &&
@@ -683,7 +689,10 @@ export async function handleStatusRequest(
     !local
   )
     return json({ error: "HOST_NOT_ALLOWED" }, 403);
-  const reportWrite = url.pathname === "/api/e2e-reports" && !url.search && request.method === "POST";
+  const reportWrite =
+    url.pathname === "/api/e2e-reports" &&
+    !url.search &&
+    request.method === "POST";
   if (!["GET", "HEAD"].includes(request.method) && !reportWrite) {
     const response = json({ error: "METHOD_NOT_ALLOWED" }, 405);
     response.headers.set("Allow", "GET, HEAD");

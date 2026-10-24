@@ -86,13 +86,16 @@ schema(
           draftHours: z.number().int().positive(),
         })
         .strict(),
-      authentication: z.enum(["account_and_fresh_strong_authentication", "verified_account_and_fresh_authentication"]),
+      authentication: z.enum([
+        "account_and_fresh_strong_authentication",
+        "verified_account_and_fresh_authentication",
+      ]),
     })
     .strict(),
 );
 const success = (name: string) => ({
   description:
-    "Succès ; état enregistré, distinct d’une notification remise ou d’une lecture prouvée.",
+    "Success; recorded state, distinct from a delivered notification or proven reading.",
   content: {
     "application/json": { schema: { $ref: `#/components/schemas/${name}` } },
   },
@@ -112,7 +115,7 @@ const operation = (
   parameters: unknown[] = [],
 ) => ({
   operationId,
-  tags: ["Distribution sécurisée"],
+  tags: ["Secure distribution"],
   summary,
   description,
   security: [{ GuteneoOAuth: [scope] }],
@@ -122,18 +125,18 @@ const operation = (
 const id = { $ref: "#/components/parameters/Id" };
 const key = { $ref: "#/components/parameters/IdempotencyKey" };
 spec.tags = spec.tags.filter(
-  (tag: { name: string }) => tag.name !== "Distribution sécurisée",
+  (tag: { name: string }) => tag.name !== "Secure distribution",
 );
 spec.tags.push({
-  name: "Distribution sécurisée",
+  name: "Secure distribution",
   description:
-    "Partage par compte, durée financée, politique immuable et approbation navigateur selon la politique documentaire active. Aucun accès au coffre personnel par OAuth.",
+    "Account-based sharing, a funded term, immutable policy and browser approval under the active document authentication policy. No personal vault access through OAuth.",
 });
 spec.paths["/api/secure-distributions"] = {
   get: operation(
     "listSecureDistributions",
-    "Lister les distributions de l’atelier",
-    "Métadonnées et audit de l’atelier autorisé uniquement. Pagination bornée ; aucun document personnel, claim ou association d’identité n’est exposé.",
+    "List workspace distributions",
+    "Metadata and audit for the authorized workspace only. Bounded pagination; no personal document, claim or identity association is exposed.",
     "dispatches:read",
     "SecureDistributionPage",
     [
@@ -144,8 +147,8 @@ spec.paths["/api/secure-distributions"] = {
   post: {
     ...operation(
       "prepareSecureDistribution",
-      "Préparer une distribution sécurisée",
-      "Prépare un PDF immuable pour un destinataire et une durée. Le rendu asynchrone peut retourner preparing : consulter le même identifiant sans recréer la commande. Aucun envoi ni approbation. Le devis distingue partage, copie personnelle éventuellement autorisée et notification. L’activation de la durée est non remboursable même si le document est révoqué. Lire /api/capabilities et le catalogue actuel ; les gates de scan, service, notification et compte restent obligatoires.",
+      "Prepare a secure distribution",
+      "Prepares an immutable PDF for one recipient and term. Asynchronous rendering may return preparing: query the same identifier without recreating the command. No sending or approval. The quote separates sharing, any authorized personal copy and notification. Term activation is non-refundable, including if the document is revoked. Read /api/capabilities and the current catalog; scan, service, notification and account gates remain mandatory.",
       "dispatches:prepare",
       "SecureDistribution",
       [key],
@@ -163,8 +166,8 @@ spec.paths["/api/secure-distributions"] = {
 spec.paths["/api/secure-distributions/catalog"] = {
   get: operation(
     "getSecureDistributionCatalog",
-    "Lire les durées et tarifs du service",
-    "Catalogue actuel en centimes EUR hors taxes, par PDF et destinataire. Les frais de notification sont ajoutés dans le devis exact. Non remboursable après activation, même en cas de révocation. La lecture du catalogue ne prouve pas l’activation du service.",
+    "Read service terms and prices",
+    "Current catalog in EUR cents excluding tax, per PDF and recipient. Notification fees are added in the exact quote. Non-refundable after activation, including after revocation. Reading the catalog does not prove service activation.",
     "dispatches:read",
     "SecureDistributionCatalog",
   ),
@@ -172,8 +175,8 @@ spec.paths["/api/secure-distributions/catalog"] = {
 spec.paths["/api/secure-distributions/{id}"] = {
   get: operation(
     "getSecureDistribution",
-    "Suivre une distribution de l’atelier",
-    "Retourne politique, devis, état et événements avec provenance. Affichage navigateur ne signifie pas lecture intégrale ; téléchargement lancé ne signifie pas enregistrement sur disque. Aucune détection fiable de capture d’écran ni suivi de copie personnelle. Ne jamais recréer automatiquement une distribution après résultat incertain.",
+    "Track a workspace distribution",
+    "Returns policy, quote, status and events with provenance. Browser display does not mean complete reading; a started download does not mean saving to disk. No reliable screenshot detection or personal-copy tracking. Never recreate a distribution automatically after an uncertain outcome.",
     "dispatches:read",
     "SecureDistribution",
     [id],
@@ -182,8 +185,8 @@ spec.paths["/api/secure-distributions/{id}"] = {
 spec.paths["/api/secure-distributions/{id}/confirm"] = {
   post: operation(
     "confirmSecureDistribution",
-    "Activer après approbation navigateur authentifiée",
-    "Sans corps. Une approbation enregistrée dans le navigateur selon la politique documentaire active lie PDF, destinataire, politique, durée et coût. Un mandat expert ni un oui dans le chat ne remplace cette preuve. L’acceptation, le financement non remboursable et la commande durable de notification sont atomiques. Le scope ne remplace pas le droit actuel de rôle. Après résultat perdu ou incertain, consulter le même identifiant et conserver la clé logique ; aucune nouvelle expédition automatique.",
+    "Activate after authenticated browser approval",
+    "No body. Recorded browser approval under the active document authentication policy binds PDF, recipient, policy, term and cost. Neither an expert mandate nor a yes in chat replaces this evidence. Acceptance, non-refundable funding and the durable notification command are atomic. A scope does not replace current role authority. After a lost or uncertain outcome, query the same identifier and retain the logical key; no automatic new dispatch.",
     "dispatches:send",
     "SecureDistribution",
     [id, key],
@@ -192,8 +195,8 @@ spec.paths["/api/secure-distributions/{id}/confirm"] = {
 spec.paths["/api/secure-distributions/{id}/revoke"] = {
   post: operation(
     "revokeSecureDistribution",
-    "Révoquer le partage sans remboursement",
-    "Sans corps. Permission actuelle de l’atelier requise. Bloque les prochains accès au partage, sans remboursement de la conservation financée, sans effacement des copies personnelles déjà remises ni récupération des copies exportées. Les preuves et le PDF source restent soumis à leur conservation propre.",
+    "Revoke sharing without a refund",
+    "No body. Current workspace permission is required. Blocks future share access, without refunding funded retention, deleting personal copies already delivered or recovering exported copies. Evidence and the source PDF remain subject to their own retention rules.",
     "dispatches:send",
     "SecureDistribution",
     [id],

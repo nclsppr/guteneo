@@ -1,355 +1,355 @@
-# Distribution de documents confidentiels : étude DRM et plan de réalisation
+# Confidential document distribution: DRM study and implementation plan
 
-**Décision ultérieure du 24 octobre 2026 : l’utilisateur retient une solution maison dans Guteneo, sans DRM PDF. Le [plan de consultation sécurisée web](SECURE_WEB_DOCUMENTS_PLAN.md) fait désormais référence. Les comparaisons et recommandations DRM ci-dessous sont conservées comme étude historique ; elles ne pilotent plus l’implémentation.**
+**Later decision on 24 October 2026: the user selected an integrated Guteneo solution without PDF DRM. The [secure web viewing plan](SECURE_WEB_DOCUMENTS_PLAN.md) became the reference. The DRM comparisons/recommendations below are retained as historical research and no longer direct implementation. The subsequent [unified account plan](UNIFIED_ACCOUNT_AND_VAULT_PLAN.md) and [current implementation contract](SECURE_DISTRIBUTION_IMPLEMENTATION.md) record later account and authentication decisions.**
 
-Étude du 24 octobre 2026. **Proposition à valider, aucune implémentation ni activation.**
+Study dated 24 October 2026. **Proposal for validation, without implementation or activation.**
 
-Complément : [licences et coûts Adobe/FileOpen pour Guteneo](DRM_LICENSING_AND_COSTS.md). L’approfondissement contractuel donne la priorité à la négociation FileOpen OEM, avec Adobe maintenu comme comparateur ; aucun moteur n’est choisi pour implémentation.
+Supplement: [Adobe/FileOpen licensing and costs for Guteneo](DRM_LICENSING_AND_COSTS.md). Detailed contractual research prioritizes FileOpen OEM negotiation, retaining Adobe as comparator; no engine is selected for implementation.
 
-Besoin : distribuer des PDF professionnels confidentiels, attribuer les accès à des destinataires, contrôler les usages et présenter un journal précis à l’atelier expéditeur. L’étude couvre explicitement un PDF protégé qui reste contrôlé après téléchargement, comme avec Adobe AEM Document Security.
+Need: distribute confidential professional PDFs, assign recipient access, control use and present a precise audit to the sending workspace. This study explicitly covers a protected PDF whose controls survive download, as with Adobe AEM Document Security.
 
-Les constats Guteneo proviennent du checkout local `main`, commit `8b060bb`. Ils ne certifient pas l’état actuel de production. Les modifications préexistantes du checkout sont conservées. Les références fournisseurs ont été consultées le 24 octobre 2026 ; leurs caractéristiques et conditions restent à confirmer pour les versions effectivement achetées et déployées.
+Guteneo observations come from local `main` checkout `8b060bb`, not current-production certification. Pre-existing checkout changes are preserved. Provider references were consulted on 24 October 2026; characteristics/terms require confirmation for versions actually purchased/deployed.
 
-## 1. Décision recommandée
+## 1. Recommended decision
 
-**Pour la demande de protection persistante du PDF : architecture hybride, avec Guteneo sur Cloudflare et un moteur DRM documentaire sous licence. Adobe AEM Forms Document Security et FileOpen restent candidats techniques ; la priorité commerciale est la qualification d’un accord FileOpen OEM adapté au SaaS multi-ateliers.**
+**For persistent PDF protection: a hybrid architecture, keeping Guteneo on Cloudflare with a licensed document DRM engine. Adobe AEM Forms Document Security and FileOpen remain technical candidates; commercial priority is qualification of a FileOpen OEM agreement suited to multi-workspace SaaS.**
 
-Ne pas développer un DRM propriétaire ni acheter AEM avant un essai comparatif et la confirmation du droit de l’intégrer dans un SaaS multi-ateliers. Le premier livrable de réalisation doit être une preuve de faisabilité sur de vrais lecteurs, accompagnée d’un devis exploitable. Ce choix répond au besoin de protection après téléchargement ; un simple lecteur web ne répond pas à cette même exigence.
+Do not develop proprietary DRM or purchase AEM before a comparative trial and confirmation of multi-workspace SaaS rights. The first implementation deliverable should demonstrate feasibility on actual readers with an actionable quote. This addresses protection after download; a web viewer alone has a different protection contract.
 
-Si l’installation d’un lecteur compatible ou l’économie des licences est incompatible avec le marché, proposer **une consultation web contrôlée**, majoritairement native Cloudflare, avec un contrat de protection différent et explicite. Ne pas construire simultanément deux produits complets : garder des contrats métier capables de représenter les deux, puis livrer le mode retenu après l’essai.
+If compatible-reader installation or licensing economics conflict with the market, offer **controlled web viewing**, largely native to Cloudflare, with explicit different protection. Do not build two complete products simultaneously: retain business contracts capable of representing both, then deliver the selected mode after trials.
 
-Recommandations initiales pour des documents professionnels confidentiels : destinataires nominatifs, lecture en ligne, expiration de sept jours proposée dans l’interface, impression/copie/export en clair désactivés, filigrane, révocation et audit des événements disponibles. Ces valeurs sont des hypothèses de produit configurables avant approbation, pas des obligations légales ni des capacités déjà qualifiées.
+Initial confidential-document recommendations: named recipients, online reading, proposed seven-day expiry, printing/copying/clear export disabled, watermark, revocation and available-event audit. These are configurable preapproval product assumptions, not legal obligations or qualified capabilities.
 
-### Pourquoi « un DRM dans le PDF » est possible, mais incomplet comme description
+### Why “DRM inside a PDF” is possible but incomplete
 
-Le système comporte trois éléments : un fichier chiffré lié à une politique, un lecteur qui applique les droits, et un service qui délivre/vérifie les autorisations. Le fichier peut être joint à un email, téléchargé depuis Guteneo ou copié sur un autre support ; sa protection peut subsister. Un lecteur PDF quelconque n’est pas nécessairement capable de l’ouvrir.
+Three elements are involved: an encrypted policy-bound file, a rights-enforcing reader and an authorization service. The file may be attached, downloaded or copied while protection remains; arbitrary PDF readers may be unable to open it.
 
-Le chiffrement avec un mot de passe PDF ne fournit pas à lui seul des droits évolutifs, une identité par destinataire ou un journal distant. L’API Adobe PDF Services « protection par mot de passe » et les extensions de droits Reader ne doivent pas être confondues avec AEM Document Security. [Politiques serveur Acrobat](https://helpx.adobe.com/uk/acrobat/desktop/protect-documents/security-policies/server-based-policies.html), [sécurité PDF Services](https://developer.adobe.com/document-services/docs/overview/security).
+PDF password encryption alone provides neither changing rights, per-recipient identity nor remote audit. Adobe PDF Services password protection and Reader rights extensions must not be confused with AEM Document Security. [Acrobat server policies](https://helpx.adobe.com/uk/acrobat/desktop/protect-documents/security-policies/server-based-policies.html), [PDF Services security](https://developer.adobe.com/document-services/docs/overview/security).
 
-## 2. Ce que le produit peut réellement garantir
+## 2. What the product can actually guarantee
 
-Le destinataire contrôle son ordinateur et peut avoir des droits administrateur. Le modèle doit couvrir lien transféré, boîte partagée ou compromise, client modifié, fichier recopié, accès hors ligne, capture/photo, panne fournisseur et opérateur malveillant. Il ne doit pas annoncer une résistance absolue à un terminal compromis ou à la photographie de l’écran.
+Recipients control their computers and may be administrators. Cover forwarded links, shared/compromised mailboxes, modified clients, copied files, offline access, screenshots/photos, provider failure and malicious operators. Promise no absolute resistance to compromised devices or photographed screens.
 
-| Action | Consultation web contrôlée | PDF sous DRM dans un lecteur compatible | Libellé honnête dans Guteneo |
+| Action | Controlled web viewing | DRM PDF in compatible reader | Honest Guteneo wording |
 | --- | --- | --- | --- |
-| Email | Acceptation/livraison fournisseur selon les preuves reçues | Identique | « Accepté par le fournisseur » puis « Livraison signalée » |
-| Clic sur lien | Requête reçue, y compris robot/scanner | Requête de téléchargement du fichier protégé | « Lien demandé », sans preuve de lecture |
-| Ouverture | Droit vérifié et page autorisée ; affichage déclaré par le client | Événement d’ouverture/autorisation du lecteur ou serveur, selon SDK | Afficher provenance, identité et méthode de vérification |
-| Pages et durée | Visibilité/durée déclarées, préchargement distinct | Selon instrumentation et capacités du lecteur ; pas universel | « Page affichée selon le lecteur », « Durée estimée » |
-| Sauvegarde | Demande de téléchargement observable, sauvegarde disque non prouvée | Copie chiffrée possible ; certains événements Save As instrumentables | Distinguer « Fichier protégé remis » et « Enregistrement signalé » |
-| Impression | Bouton/aperçu observables, résultat papier inconnu | Permissions mieux appliquées ; événement du lecteur selon configuration | « Impression signalée par le lecteur », sans preuve de sortie papier |
-| Capture d’écran | Pas de détection ou blocage universel | Certaines protections dépendent du produit, de l’OS et du lecteur | « Non observable » si aucune capacité précisément qualifiée |
-| Photo de l’écran | Non détectable | Non empêchable de façon générale | Aucune prétention de détection |
-| Révocation | Bloque les nouvelles remises ; ne retire pas les pixels/fichiers reçus | Peut empêcher une future ouverture de la copie chiffrée, après contrôle de licence | Montrer délai de contrôle, cache/offline et statut fournisseur |
-| Après export en clair ou impression | Hors contrôle | Hors contrôle également | Prévenir avant d’autoriser l’export ou l’impression |
+| Email | Provider acceptance/delivery according to received evidence | Same | “Accepted by provider”, then “Delivery reported” |
+| Link click | Received request, possibly robot/scanner | Protected-file download request | “Link requested”, without reading proof |
+| Opening | Right checked/page authorized; client-declared display | Reader/server opening or authorization event, depending on SDK | Show provenance, identity and verification method |
+| Pages/duration | Declared visibility/duration; distinguish preloading | Depends on reader instrumentation/capability | “Page displayed according to reader”, “Estimated duration” |
+| Saving | Download request observable, disk save unproven | Encrypted copy possible; some Save As events instrumentable | Distinguish protected-file delivery and reported saving |
+| Printing | Button/preview observable, paper outcome unknown | Better-enforced permissions; reader event depends on configuration | Reader-reported printing, without paper-output proof |
+| Screenshot | No universal detection/blocking | Product/OS/reader-dependent protection | “Not observable” absent specific qualification |
+| Screen photograph | Undetectable | Generally unpreventable | No detection claim |
+| Revocation | Blocks future deliveries, cannot recall received pixels/files | May prevent later opening after license check | Show check delay, cache/offline and provider state |
+| Clear export/printing completed | Outside control | Also outside control | Warn before permitting |
 
-Le navigateur émet notamment `afterprint` lorsque l’aperçu se ferme : ce n’est pas une confirmation d’impression. Les événements client peuvent être supprimés, fabriqués ou rejoués. Le serveur peut attester les opérations qu’il a exécutées, pas l’attention humaine ni toutes les actions du système d’exploitation. [MDN](https://developer.mozilla.org/en-US/docs/Web/API/Window/afterprint_event), [OWASP Logging](https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html).
+Browser `afterprint` also fires when preview closes; it does not confirm printing. Client events can be suppressed, forged or replayed. Servers attest executed operations, not attention or every OS action. [MDN](https://developer.mozilla.org/en-US/docs/Web/API/Window/afterprint_event), [OWASP Logging](https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html).
 
-Pour un PDF DRM, enregistrer la copie du fichier dans un autre dossier peut ne déclencher aucun événement du lecteur : les droits protègent l’ouverture de cette copie, pas chaque opération du système de fichiers. Un événement d’impression DRM demeure un fait rapporté par le lecteur, sans attestation de l’imprimante physique.
+Copying a DRM file between folders may generate no reader event: rights govern opening copies, not every filesystem operation. A DRM print event remains reader-reported, not a physical-printer attestation.
 
-## 3. Comparaison des solutions
+## 3. Solution comparison
 
-| Solution | Protection après téléchargement | Contraintes destinataire | Compatibilité Cloudflare | Appréciation pour Guteneo |
+| Solution | Protection after download | Recipient constraints | Cloudflare fit | Guteneo assessment |
 | --- | --- | --- | --- | --- |
-| **Adobe AEM Forms Document Security** | Oui, PDF chiffré et politiques persistantes dans lecteurs compatibles | Acrobat/Reader pris en charge ; identité autorisée ; capacités variables selon plateforme | Orchestration, distribution et audit sur Cloudflare ; serveur Adobe séparé recommandé | Référence technique ; droit SaaS et coût des destinataires à négocier |
-| **FileOpen** | Oui pour son mode PDF avec lecteur/plugin compatible | Généralement Reader avec plugin ou client pris en charge ; son mode navigateur est une offre distincte | API et adaptateur possibles ; support SDK/hébergement et contrat OEM à qualifier | Priorité de qualification commerciale OEM ; essai technique comparatif requis |
-| **Microsoft Purview Information Protection** | Chiffrement PDF dans les clients pris en charge | Écosystème d’identité Microsoft et lecteurs compatibles | Intégration hybride Microsoft | Pertinent pour clients Microsoft ; ne pas présumer l’audit/révocation PDF équivalent |
-| **Locklizard Safeguard** | Protection dans un conteneur propriétaire | Application et licence ; sortie `.pdc`, pas PDF universel | Intégration fournisseur à qualifier | Secondaire : friction et format éloignés de l’idée PDF/Acrobat |
-| **Lecteur Guteneo avec rendu serveur** | Contrôle des remises web ; pas de protection portable après extraction des pixels | Navigateur, accès invité possible | Très bon alignement Cloudflare | Alternative si simplicité et Cloudflare priment sur le DRM portable |
-| **PDF à mot de passe / permissions standard** | Confidentialité tant que le secret n’est pas partagé ; contrôle d’usage limité | Mot de passe/lecteur | Simple | Insuffisant pour le produit demandé |
+| **Adobe AEM Forms Document Security** | Encrypted PDF/persistent policy in supported readers | Supported Acrobat/Reader, authorized identity; platform-dependent features | Cloudflare orchestration/distribution/audit with separate Adobe server | Technical reference; negotiate SaaS rights and recipient cost |
+| **FileOpen** | PDF mode with compatible reader/plugin | Usually Reader/plugin or supported client; browser mode is separate | API/adapter possible; qualify SDK/hosting/OEM | Commercial OEM priority with comparative technical trial |
+| **Microsoft Purview Information Protection** | PDF encryption in supported clients | Microsoft identity ecosystem/compatible readers | Hybrid Microsoft integration | Relevant to Microsoft customers; do not presume equivalent PDF audit/revocation |
+| **Locklizard Safeguard** | Proprietary container protection | App/license and `.pdc`, not universal PDF | Qualify vendor integration | Secondary due to friction/format distance from PDF/Acrobat |
+| **Guteneo server-rendered viewer** | Controlled web delivery, no portable protection after pixel extraction | Browser; guest access possible in this historical proposal | Strong alignment | Alternative if simplicity/Cloudflare outweigh portable DRM |
+| **Password/standard-permission PDF** | Confidential while secret remains private; limited usage control | Password/reader | Simple | Insufficient for requested product |
 
-### Adobe : intérêt et contraintes concrètes
+### Adobe's concrete strengths and constraints
 
-AEM Forms Document Security expose des opérations de protection, gestion des politiques, révocation et recherche d’événements. Les intégrations documentées utilisent notamment Java/SOAP sur AEM Forms JEE ; la protection produit un nouveau PDF. [API Adobe](https://experienceleague.adobe.com/en/docs/experience-manager-65/content/forms/developer-reference/programming-aem-forms-jee/performing-service-operations-using-apis/protecting-documents-policies).
+AEM Forms Document Security exposes protection, policy management, revocation and event search. Documented integrations include Java/SOAP on AEM Forms JEE; protection creates a new PDF. [Adobe API](https://experienceleague.adobe.com/en/docs/experience-manager-65/content/forms/developer-reference/programming-aem-forms-jee/performing-service-operations-using-apis/protecting-documents-policies).
 
-Adobe documente Acrobat, Reader et Reader Mobile comme clients PDF. Cela ne certifie pas la parité des fonctions sur Windows, macOS, iOS et Android. Le navigateur utilisé pour l’authentification n’est pas le lecteur PDF du navigateur. Établir une matrice par version et tester les fonctions réellement vendues. [Offre Document Security](https://experienceleague.adobe.com/en/docs/experience-manager-65-lts/content/forms/use-document-security/document-security-offerings).
+Adobe documents Acrobat, Reader and Reader Mobile clients without certifying Windows/macOS/iOS/Android feature parity. Authentication in a system browser is not PDF viewing in that browser. Establish a versioned matrix and test sold functions. [Document Security offering](https://experienceleague.adobe.com/en/docs/experience-manager-65-lts/content/forms/use-document-security/document-security-offerings).
 
-L’audit standard et le suivi détaillé sont distincts. Adobe décrit un suivi détaillé que le destinataire peut refuser, envoyé notamment par lots ou à la fermeture ; un script peut demander une transmission. L’accès hors ligne implique des licences/éléments de clés conservés sur le poste et une synchronisation ultérieure. **Aucune promesse d’audit exhaustif instantané ou de révocation immédiate hors ligne.** Pour le premier profil confidentiel, désactiver l’usage hors ligne et mesurer tout de même le comportement des sessions et caches du lecteur. [Options client/serveur Adobe](https://experienceleague.adobe.com/en/docs/experience-manager-65/content/forms/administrator-help/work-with-document-security/configuring-client-server-options).
+Standard audit differs from detailed tracking. Detailed tracking can be refused by recipients and sent in batches/on closing; scripts may request transmission. Offline access retains licenses/key material locally and synchronizes later. **Promise neither instantaneous complete audit nor immediate offline revocation.** Initially disable offline use but still measure reader sessions/caches. [Adobe client/server options](https://experienceleague.adobe.com/en/docs/experience-manager-65/content/forms/administrator-help/work-with-document-security/configuring-client-server-options).
 
-Le serveur Adobe reste une infrastructure d’entreprise : Java, serveur d’applications, base supportée, sauvegarde et correctifs. Document Security seul ne nécessite pas forcément tout le Content Repository. Il ne faut toutefois pas assimiler AEM Forms as a Cloud Service à une API DRM directement substituable à cette pile JEE. La disponibilité commerciale précise doit être confirmée. [Plateformes AEM LTS](https://experienceleague.adobe.com/en/docs/experience-manager-65-lts/content/forms/install-aem-forms/jee-installation/aem-forms-jee-supported-platforms), [différences avec Forms Cloud Service](https://experienceleague.adobe.com/en/docs/experience-manager-cloud-service/content/forms/forms-overview/notable-changes).
+Adobe remains enterprise infrastructure: Java, application server, supported database, backups and patching. Document Security alone may not need the entire Content Repository; AEM Forms as a Cloud Service is nevertheless not a directly substitutable DRM API for this JEE stack. Confirm precise commercial availability. [AEM LTS platforms](https://experienceleague.adobe.com/en/docs/experience-manager-65-lts/content/forms/install-aem-forms/jee-installation/aem-forms-jee-supported-platforms), [Forms Cloud differences](https://experienceleague.adobe.com/en/docs/experience-manager-cloud-service/content/forms/forms-overview/notable-changes).
 
-### Comparateurs : points susceptibles de décider le choix
+### Comparators that could decide the choice
 
-FileOpen expose une intégration API/SDK et plusieurs modèles de lecteur. Sa FAQ officielle indique qu’une instance unique d’un produit standard ne permet pas de revendre un service de chiffrement à des tiers : un accord OEM/VAR est à négocier. Le prix dépend notamment des administrateurs, utilisateurs, documents et requêtes. Les affirmations commerciales anti-capture doivent devenir des cas de test par OS ; elles ne valent pas garantie contre une photo. Certaines pages historiques du fournisseur parlent encore de Flash : ne pas les utiliser comme preuve de compatibilité actuelle. [Intégration FileOpen](https://www.fileopen.com/integrate-adobe-drm), [licences et prix](https://www.fileopen.com/subscription-plans), [clients distribués](https://plugin.fileopen.com/all.aspx).
+FileOpen offers API/SDK integration and multiple readers. Its official FAQ says one standard-product instance cannot resell encryption services to third parties; negotiate OEM/VAR. Price depends on administrators, users, documents and requests. Anti-capture marketing must become OS-specific tests, never photograph guarantees. Historical Flash references do not prove current compatibility. [Integration](https://www.fileopen.com/integrate-adobe-drm), [licensing/prices](https://www.fileopen.com/subscription-plans), [distributed clients](https://plugin.fileopen.com/all.aspx).
 
-Purview protège des PDF dans les clients compatibles, mais la documentation de **Track and revoke** réserve explicitement cette fonctionnalité aux fichiers Office. Cela ne signifie pas que toute gestion des droits PDF est impossible ; cela signifie que l’équivalence avec le journal/révocation PDF demandé n’est pas établie par cette fonction. Ne pas en faire le moteur par défaut sans une autre API et une preuve spécifique. [PDF Purview dans Acrobat](https://helpx.adobe.com/acrobat/desktop/protect-documents/security-policies/mpip-support-acrobat.html), [limite Microsoft](https://learn.microsoft.com/en-us/purview/track-and-revoke-admin).
+Purview supports protected PDFs in compatible clients, but **Track and revoke** explicitly applies to Office files. This does not make all PDF rights impossible; it leaves the requested PDF audit/revocation equivalence unestablished. Do not choose it without another API and specific proof. [Purview PDF in Acrobat](https://helpx.adobe.com/acrobat/desktop/protect-documents/security-policies/mpip-support-acrobat.html), [Microsoft limitation](https://learn.microsoft.com/en-us/purview/track-and-revoke-admin).
 
-Locklizard impose son lecteur et un fichier `.pdc`. Il revendique des restrictions de capture dans les environnements pris en charge, tout en reconnaissant la limite de la photographie. À évaluer seulement si ce changement de format et d’application est accepté. [Format et lecteur Locklizard](https://www.locklizard.com/copy-prevention/), [limites reconnues](https://www.locklizard.com/restrict-pdf/).
+Locklizard requires its reader and `.pdc`. It claims supported-environment capture restrictions while acknowledging photographs. Consider it only if the application/format change is acceptable. [Format/reader](https://www.locklizard.com/copy-prevention/), [acknowledged limits](https://www.locklizard.com/restrict-pdf/).
 
-## 4. Le destinataire doit-il créer un compte ?
+## 4. Must recipients create accounts?
 
-**Pas nécessairement un compte Guteneo. Pour un contrôle nominatif, il faut cependant une identité ou une licence attribuable au destinataire.** Plusieurs parcours sont possibles :
+**Not necessarily a Guteneo account in this historical DRM proposal. Named control nevertheless requires an attributable identity or license.** Later account-required decisions supersede this proposal, not its recorded comparison.
 
-| Parcours | Inscription visible | Niveau réellement obtenu |
+| Journey | Visible registration | Actual assurance |
 | --- | --- | --- |
-| Web invité avec code email | Aucune création de mot de passe/atelier ; identité technique invitée | Contrôle ponctuel de la boîte mail, pas identité civile |
-| DRM Adobe avec utilisateur externe standard | Invitation, inscription et activation Document Security | Compte reconnu par le service DRM ; ce n’est pas nécessairement un Adobe ID grand public |
-| DRM avec identité professionnelle fédérée | Connexion SSO existante, si intégration qualifiée | Identité de l’entreprise ; MFA/passkey selon sa politique |
-| FileOpen intégré | Identité/session existante ou licence liée à un appareil, selon intégration | Peut éviter une inscription supplémentaire ; attribution et récupération à qualifier |
+| Guest web/email code | No password/workspace creation; technical guest identity | Temporary mailbox control, not civil identity |
+| Standard Adobe external user | Document Security invitation/registration/activation | DRM-recognized account, not necessarily consumer Adobe ID |
+| Federated professional identity | Existing SSO, if integration qualified | Enterprise identity; MFA/passkey according to policy |
+| Integrated FileOpen | Existing identity/session or device license | May avoid extra registration; attribution/recovery need qualification |
 
-Adobe documente l’inscription des invités externes. Un mode anonyme existe aussi, mais il serait contraire à l’objectif d’attribution nominative : l’exclure des profils confidentiels. [Invités Adobe](https://experienceleague.adobe.com/en/docs/experience-manager-65/content/forms/administrator-help/work-with-document-security/registering-as-a-user), [options d’accès](https://experienceleague.adobe.com/en/docs/experience-manager-65/content/forms/administrator-help/work-with-document-security/configuring-client-server-options).
+Adobe documents external guest registration. Anonymous access also exists but conflicts with named attribution and should be excluded from confidential profiles. [Adobe guests](https://experienceleague.adobe.com/en/docs/experience-manager-65/content/forms/administrator-help/work-with-document-security/registering-as-a-user), [access options](https://experienceleague.adobe.com/en/docs/experience-manager-65/content/forms/administrator-help/work-with-document-security/configuring-client-server-options).
 
-Une évolution récente d’Adobe permet d’ouvrir l’authentification dans le navigateur système avec un fournisseur d’identité moderne, puis de revenir à Acrobat/Reader. La documentation consultée exige notamment Forms JEE 6.5.25 ou 6.5.24 corrigé et un client Windows Acrobat/Reader 64 bits à jour. Cela rend une intégration avec l’identité Guteneo envisageable, **sans prouver qu’Auth0, macOS et les mobiles fonctionneront déjà ensemble**. Ce parcours est un critère prioritaire de l’essai. [Authentification externe Adobe, 9 octobre 2026](https://experienceleague.adobe.com/en/docs/experience-manager-65/content/forms/administrator-help/work-with-document-security/configure-external-browser-authentication-document-security).
+A recent Adobe flow opens authentication in the system browser with a modern IdP, then returns to Acrobat/Reader. Consulted documentation requires Forms JEE 6.5.25 or patched 6.5.24 and current 64-bit Windows Acrobat/Reader. Integration with Guteneo identity is conceivable, **without proving Auth0/macOS/mobile interoperability**; prioritize that trial. [Adobe external authentication, 9 October 2026](https://experienceleague.adobe.com/en/docs/experience-manager-65/content/forms/administrator-help/work-with-document-security/configure-external-browser-authentication-document-security).
 
-Pour l’option web, le code est envoyé exclusivement à l’adresse invitée, jamais à une nouvelle adresse saisie par le visiteur. Le lien et le code reçus dans la même boîte ne constituent pas deux facteurs indépendants. Une création de compte n’améliore pas automatiquement la sécurité ; la qualité de l’authentification, la récupération et le lien avec l’identité professionnelle comptent davantage.
+Guest web codes go only to the invited address, never a visitor-entered replacement. Link/code in one mailbox are not independent factors. Account creation alone does not improve security; authentication, recovery and professional-identity binding matter.
 
-Les invités ne deviennent jamais membres de l’atelier. Les API atelier continuent à résoudre l’organisation depuis la membership authentifiée ; les API destinataire utilisent un principal invité restreint dont l’organisation est résolue depuis un grant serveur. Aucun `organization_id` fourni par l’invité ne fait autorité.
+Guests never become workspace members. Workspace APIs still resolve organization from authenticated membership; recipient APIs use a restricted guest principal whose organization derives from a server grant, never guest-supplied `organization_id`.
 
-L’intégration d’identité FileOpen doit être confirmée avec le mode de lecteur retenu ; une licence d’appareil n’atteste pas à elle seule l’identité de la personne devant l’écran. [Intégration FileOpen](https://www.fileopen.com/integrate-adobe-drm).
+Confirm FileOpen identity integration for the selected reader; a device license alone does not identify the person at the screen. [Integration](https://www.fileopen.com/integrate-adobe-drm).
 
-## 5. Parcours produit proposé
+## 5. Proposed product journey
 
-1. L’atelier choisit un PDF déjà analysé, nomme les destinataires et sélectionne les droits, l’expiration et le profil de protection.
-2. Guteneo affiche les contraintes de lecture et le coût prévu. Privilégier une préparation non facturée ; si le moteur facture dès la protection, obtenir une **autorisation préalable distincte de préparation**, avec destinataires, traitement/transfert éventuel du source, plafond de coût et règles d’annulation. Un devis affiché ne vaut pas autorisation de débit. Cette commande réserve son plafond et écrit son outbox atomiquement ; une issue incertaine conserve la réservation. L’approbation d’envoi ultérieure ne facture pas une seconde fois cette préparation.
-3. Le moteur prépare un **artefact protégé immuable**, lié au source et à une politique exacte. Tant que le résultat est inconnu ou non vérifié, il n’est pas distribuable.
-4. L’expéditeur revoit le contenu, les destinataires, les restrictions, la disponibilité hors ligne, l’artefact, le message et le plafond de coût ; il approuve le tout selon les règles Guteneo.
-5. L’acceptation réserve le quota et écrit l’outbox atomiquement. L’email est ensuite soumis au fournisseur qualifié.
-6. Le destinataire reçoit par défaut un lien vers le téléchargement du **PDF déjà protégé** avec des instructions adaptées au lecteur. La pièce jointe DRM peut être une option : le lien n’est pas une nécessité cryptographique.
-7. Le lecteur compatible vérifie l’identité et la licence, puis applique les droits. Guteneo affiche les événements effectivement reçus et leur délai.
-8. L’atelier peut révoquer un destinataire ou la publication. Le tableau distingue arrêt local de distribution, demande transmise au DRM, confirmation fournisseur et limite des licences déjà délivrées.
+1. Select an already scanned PDF, named recipients, rights, expiry and protection profile.
+2. Show reading constraints/expected cost. Prefer free preparation. If protection is billable immediately, obtain **separate prior preparation authorization** covering recipients, source processing/transfer, ceiling and cancellation. A displayed quote grants no debit authority. Atomically reserve the ceiling/write outbox; uncertainty retains the reservation. Later sending approval must not charge preparation twice.
+3. Produce an **immutable protected artifact** bound to exact source/policy. Unknown/unverified output is not distributable.
+4. Review content, recipients, restrictions, offline availability, artifact, message and ceiling; approve under Guteneo rules.
+5. Atomically reserve quota/write outbox, then submit email to the qualified provider.
+6. Default email links to the **already protected PDF** with reader instructions. DRM attachment can be optional; links are not cryptographically necessary.
+7. Compatible reader verifies identity/license and enforces rights. Guteneo shows events actually received and their delay.
+8. Revoke recipient/publication, distinguishing local distribution stop, DRM request, provider confirmation and residual issued-license limits.
 
-Un échec d’ouverture ne déclenche jamais l’envoi automatique d’un PDF en clair. Une alternative accessible, une autorisation d’impression ou un export en clair exige une décision explicite et tracée conforme aux droits de l’atelier.
+Opening failure never automatically sends a clear PDF. Accessible alternatives, print permission or clear export require explicit audited decisions under workspace rights.
 
-**Attention aux invitations automatiques Adobe :** l’ajout d’un destinataire externe à une politique peut initier son inscription par email. La préparation doit utiliser un parcours sans notification démontré, ou obtenir une autorisation distincte préalable pour les invitations/activations. L’approbation finale de distribution ne les autorise pas rétroactivement. Inventorier aussi les réinitialisations, leurs coûts et leurs possibilités de répétition ; tester qu’une simple préparation non autorisée à communiquer n’envoie aucun message. [Inscription déclenchée par une politique Adobe](https://experienceleague.adobe.com/en/docs/experience-manager-65/content/forms/administrator-help/work-with-document-security/registering-as-a-user).
+**Adobe automatic invitations:** adding an external recipient to a policy can initiate registration email. Preparation needs a demonstrated notification-free flow or separate prior invitation/activation authorization; final distribution approval cannot authorize those retroactively. Inventory resets, charges and repeat behavior too. Test that unapproved preparation sends no message. [Policy-triggered registration](https://experienceleague.adobe.com/en/docs/experience-manager-65/content/forms/administrator-help/work-with-document-security/registering-as-a-user).
 
-## 6. Architecture cible : Cloudflare au centre, DRM isolé
+## 6. Target architecture: Cloudflare core, isolated DRM
 
-Le schéma suivant détaille la variante Adobe servant de référence technique. Il ne présélectionne pas ce fournisseur. La variante FileOpen pourrait utiliser un serveur de permissions intégré et un module natif de chiffrement ; son protocole, sa licence et son support Cloudflare restent à qualifier.
+This diagram details Adobe as technical reference, not preselection. FileOpen might use an integrated permissions server/native encryption module; protocol, licensing and Cloudflare support remain unqualified.
 
 ```mermaid
 flowchart LR
-  Atelier[Atelier authentifié] --> API[API Guteneo - Workers]
-  API --> D1[D1 - métier, grants, approbations, audit]
-  API --> R2[R2 privé - sources et artefacts]
-  API --> OUT[Outbox et Queues]
-  OUT --> AD[Adaptateur DRM privé]
-  AD --> DRM[AEM Document Security - infrastructure supportée]
-  DRM --> DB[Base et sauvegardes Adobe]
-  OUT --> MAIL[Fournisseur email qualifié]
-  MAIL --> USER[Destinataire]
-  USER --> Reader[Acrobat ou Reader compatible]
+  Workspace[Authenticated workspace] --> API[Guteneo API - Workers]
+  API --> D1[D1 - business state, grants, approvals, audit]
+  API --> R2[Private R2 - sources and artifacts]
+  API --> OUT[Outbox and Queues]
+  OUT --> AD[Private DRM adapter]
+  AD --> DRM[AEM Document Security - supported infrastructure]
+  DRM --> DB[Adobe database and backups]
+  OUT --> MAIL[Qualified email provider]
+  MAIL --> USER[Recipient]
+  USER --> Reader[Compatible Acrobat or Reader]
   Reader <--> DRM
-  AD --> ING[Ingestion des événements DRM]
+  AD --> ING[DRM event ingestion]
   ING --> D1
   D1 --> HUB[Notifications - Durable Objects]
-  HUB --> Atelier
+  HUB --> Workspace
 ```
 
-| Composant | Choix et raison |
+| Component | Choice and rationale |
 | --- | --- |
-| Produit / API | React/Vite, Hono et TypeScript existants ; conserver les domaines métier partagés REST/MCP |
-| Autorité métier | D1 pour ateliers, approbations, grants, coûts, opérations et journal Guteneo |
-| Autorité d’ouverture du PDF DRM | Moteur Adobe ; D1 conserve l’état souhaité et confirmé, sans prétendre modifier instantanément une licence distante |
-| Stockage | R2 privé, juridiction UE explicite, sources et artefacts séparés, objets immuables |
-| Travail asynchrone | Outbox/Queues existantes, opérations idempotentes quand le fournisseur le permet, réconciliation sinon |
-| Adaptateur | Service privé pour API/SDK Adobe, secrets limités, identifiants corrélés par atelier, délai et volume bornés |
-| DRM | AEM sur environnement officiellement supporté, auto-hébergé ou géré sous contrat ; pas tout AEM dans Workers |
-| Temps réel atelier | Durable Objects avec WebSockets et hibernation ; rattrapage paginé depuis D1 |
-| Authentification | Auth0 existant pour les membres ; identité destinataire dédiée/SSO à qualifier avec le moteur |
-| Protection des entrées | Limites de fréquence, défense contre abus, CSP, sessions courtes, vérification des signatures fournisseurs |
+| Product/API | Existing React/Vite, Hono, TypeScript; shared REST/MCP domains |
+| Business authority | D1 workspaces, approvals, grants, costs, operations and audit |
+| DRM opening authority | Adobe; D1 records desired/confirmed state without claiming instant remote-license updates |
+| Storage | Private explicitly EU-jurisdiction R2, separate immutable sources/artifacts |
+| Asynchronous work | Existing outbox/Queues; provider-supported idempotency or reconciliation |
+| Adapter | Private Adobe API/SDK service, limited secrets, workspace-correlated IDs and bounded time/volume |
+| DRM | Supported self-hosted/contract-managed AEM; never the whole stack in Workers |
+| Workspace updates | Durable Objects/WebSockets/hibernation, paginated D1 catch-up |
+| Authentication | Existing member Auth0; qualify recipient identity/SSO with engine |
+| Input protection | Rate/abuse limits, CSP, short sessions and provider signatures |
 
-Les mécanismes de batch D1 permettent de garder les écritures locales atomiques ; cela n’étend pas la transaction au serveur Adobe, à R2 ou à l’email. Queues peut livrer en double et hors ordre : identifiant d’événement, déduplication et séquence durable sont nécessaires. [D1](https://developers.cloudflare.com/d1/worker-api/d1-database/), [garanties Queues](https://developers.cloudflare.com/queues/reference/delivery-guarantees/), [ordre des messages](https://developers.cloudflare.com/queues/reference/how-queues-works/).
+D1 batches keep local writes atomic, not Adobe/R2/email. Queues can duplicate/reorder, requiring durable event IDs, deduplication and sequence. [D1](https://developers.cloudflare.com/d1/worker-api/d1-database/), [delivery guarantees](https://developers.cloudflare.com/queues/reference/delivery-guarantees/), [ordering](https://developers.cloudflare.com/queues/reference/how-queues-works/).
 
-Le serveur de licences doit être joignable par les lecteurs. Une page interactive Cloudflare Access devant cet endpoint peut casser leur protocole : réserver les contrôles de service aux interfaces d’administration et qualifier le chemin public lecteur séparément. Conserver un domaine de licences durable : son adresse est incorporée aux documents Adobe. La migration de ce domaine, de ses certificats et des licences fait partie du plan de continuité. [Configuration Adobe](https://experienceleague.adobe.com/en/docs/experience-manager-65/content/forms/administrator-help/work-with-document-security/configuring-client-server-options).
+Readers must reach the license server. Interactive Cloudflare Access can break that protocol; restrict administrative interfaces separately and qualify the public reader path. Keep a durable license domain embedded in Adobe files; domain/certificate/license migration belongs to continuity planning. [Adobe options](https://experienceleague.adobe.com/en/docs/experience-manager-65/content/forms/administrator-help/work-with-document-security/configuring-client-server-options).
 
-### Option intéressante : protection locale par Adobe PPL
+### Interesting option: local Adobe PPL protection
 
-La Portable Protection Library d’Adobe peut protéger le fichier localement sans envoyer ses octets au serveur AEM ; politiques et authentification continuent à circuler. Elle est proposée en Java/C++ et nécessite une licence. Un petit adaptateur PPL sur Cloudflare Containers serait donc une piste de réduction des transferts du source, **pas une suppression du serveur DRM**. Adobe documente une limite croisée de déprotection entre PPL et CSDK : tester la chaîne exacte de protection, récupération et migration. Compatibilité, licence de redistribution, support et restauration doivent être démontrés. [PPL Adobe](https://experienceleague.adobe.com/en/docs/experience-manager-65-lts/content/forms/use-document-security/document-security-offerings).
+Adobe Portable Protection Library can protect locally without sending bytes to AEM; policy/authentication still cross the boundary. Java/C++ and licensing are required. A small Cloudflare Container PPL adapter could reduce source transfers, **not eliminate the DRM server**. Adobe documents cross-unprotection limits between PPL/CSDK; test the exact protection/recovery/migration chain and demonstrate compatibility, redistribution rights, support/restoration. [Adobe PPL](https://experienceleague.adobe.com/en/docs/experience-manager-65-lts/content/forms/use-document-security/document-security-offerings).
 
-Ne pas héberger tout AEM dans Containers par simple analogie : la pile Adobe exige une base supportée et une installation persistante ; D1 n’est pas une base AEM documentée. Les limites Containers sont ajustables, mais leur disque et leur cycle de vie ne constituent pas une architecture AEM supportée. [Plateformes Adobe](https://experienceleague.adobe.com/en/docs/experience-manager-65-lts/content/forms/install-aem-forms/jee-installation/aem-forms-jee-supported-platforms), [architecture Containers](https://developers.cloudflare.com/containers/concepts/architecture/).
+Do not infer that all AEM belongs in Containers: it requires supported database/persistent installation, and D1 is not a documented AEM database. Adjustable Container limits do not make its disk/lifecycle a supported AEM architecture. [Adobe platforms](https://experienceleague.adobe.com/en/docs/experience-manager-65-lts/content/forms/install-aem-forms/jee-installation/aem-forms-jee-supported-platforms), [Containers](https://developers.cloudflare.com/containers/concepts/architecture/).
 
-## 7. Intégration au code Guteneo existant
+## 7. Integration with existing Guteneo code
 
-Le socle actuel contient déjà un lien protégé sans compte destinataire, un mot de passe distinct, des sessions de quinze minutes, l’expiration et la révocation. Il sert toutefois un PDF ordinaire et réutilise un hébergement entre plusieurs destinataires. Ce n’est pas déjà un DRM individuel. [Contrat existant](PROTECTED_EMAIL.md).
+The inspected baseline already had accountless protected links, separate passwords, fifteen-minute sessions, expiry/revocation. It nevertheless served ordinary PDFs and reused hosting across recipients, not individual DRM. [Existing contract](PROTECTED_EMAIL.md).
 
-| Source locale | Réutilisation / modification à prévoir |
+| Local source | Reuse/change |
 | --- | --- |
-| `apps/api/src/protected-documents.ts` | Réutiliser l’expérience de contrôle d’accès ; conserver le comportement historique de `protected_link` |
-| `migrations/0040_protected_documents.sql` | Hébergement courant unique par organisation/document : ajouter des grants individuels dans de nouvelles tables, sans modifier une migration appliquée |
-| `apps/api/src/documents.ts` | Réutiliser source immuable, stockage privé, scanner, SHA et validation |
-| `packages/contracts/src/pdf.ts` | Le validateur refuse les PDF chiffrés : créer un type d’artefact DRM distinct, sans contourner ce refus pour les imports ordinaires |
-| `packages/domain/src/index.ts` | Étendre le fingerprint et les contrôles atomiques aux artefacts/politiques exacts |
-| `apps/documents/src/expert-review.ts` | Rendu serveur déjà disponible pour l’alternative web ; limites actuelles sur annotations, formulaires et couches à tester |
-| `packages/contracts/src/roles.ts` | Réutiliser préparation, validation et accès aux rapports selon les permissions |
-| `apps/api/src/maintenance.ts` | Intégrer rétention, grants actifs, artefacts et nettoyage vérifiable |
-| `wrangler.live.jsonc` | Ajouter les bindings et capacités seulement à l’étape d’implémentation autorisée |
+| `apps/api/src/protected-documents.ts` | Reuse access experience; preserve historical `protected_link` |
+| `migrations/0040_protected_documents.sql` | Existing organization/document hosting uniqueness; add individual grants in new tables, never edit applied migration |
+| `apps/api/src/documents.ts` | Reuse immutable source/private storage/scanner/SHA/validation |
+| `packages/contracts/src/pdf.ts` | Ordinary validator rejects encrypted PDFs; introduce a distinct DRM artifact type without bypassing import refusal |
+| `packages/domain/src/index.ts` | Extend fingerprints/atomic checks to exact artifacts/policies |
+| `apps/documents/src/expert-review.ts` | Existing server rendering for web alternative; test annotation/form/layer limits |
+| `packages/contracts/src/roles.ts` | Reuse preparation, approval and report permissions |
+| `apps/api/src/maintenance.ts` | Add retention, active grants, artifacts and verifiable cleanup |
+| `wrangler.live.jsonc` | Add bindings/capabilities only during authorized implementation |
 
-L’événement existant `protected_document.downloaded` est enregistré avant la réponse et sert aussi l’affichage inline. Il ne prouve pas une sauvegarde disque. Ajouter des libellés v2 précis et documenter l’interprétation des anciens événements, sans réécrire l’histoire.
+Existing `protected_document.downloaded` is written before response and also serves inline display. It proves no disk save. Add precise V2 labels/document historical meanings without rewriting history.
 
-### Invariants à conserver
+### Invariants to preserve
 
-- Scanner et valider le **source exact non chiffré** avant protection. Le ciphertext a une preuve de transformation et d’intégrité distincte ; un scan de ciphertext ne prouve pas l’innocuité du contenu déchiffré.
-- Générer l’artefact DRM avant l’approbation finale. Lier source SHA, artefact SHA, version moteur, politique, destinataire, message, options et coût au fingerprint approuvé.
-- Ne jamais régénérer silencieusement un PDF DRM au téléchargement ou remplacer un objet sous le même identifiant/version.
-- Après un résultat fournisseur incertain, conserver `protection_unknown` et réconcilier. Aucun retry aveugle de création de licence, envoi ou opération facturable.
-- Activation, réservation et outbox restent atomiques localement ; l’acceptation du fournisseur n’est pas une livraison, et une livraison n’est pas une lecture.
-- Les politiques de deux ateliers ne doivent jamais partager une autorité modifiable qui étendrait les droits d’un autre atelier.
-- Une révocation/diminution de droits est contrôlée et auditée ; un élargissement, nouveau destinataire, rétablissement ou prolongation requiert une nouvelle autorité/approbation adaptée.
-- Relire la version/empreinte de politique effective avant distribution et la comparer au snapshot approuvé. Surveiller aussi les modifications directes dans le moteur DRM. En cas de dérive, alerter et suspendre les nouvelles distributions ; cela ne suffit pas à annuler les droits de copies déjà distribuées. Leur correction doit être confirmée par le moteur. Inclure dans l’essai une modification directe via la console fournisseur.
-- Aucun assistant ne crée de consentement humain, n’active une délégation ni ne renouvelle un mandat. Le nouveau mode doit être exclu des mandats existants jusqu’à définition explicite de ses droits.
-- Aucun envoi réel, achat/licence, provisioning payant, merge ou déploiement ne fait partie de cette étude.
+- Scan/validate **exact clear source** before protection. Ciphertext has separate transformation/integrity proof; scanning ciphertext cannot prove decrypted-content safety.
+- Generate DRM artifact before final approval. Bind source/artifact SHA, engine version, policy, recipient, message, options and cost to approval fingerprint.
+- Never silently regenerate at download or replace an object under the same ID/version.
+- Unknown provider results retain `protection_unknown` and reconcile; no blind license-creation/send/billable retry.
+- Activation/reservation/outbox remain locally atomic; provider acceptance is not delivery, delivery is not reading.
+- Workspaces never share mutable policy authority that could broaden another's rights.
+- Revoke/reduce rights under audit; broadening, new recipient, reinstatement or extension requires suitable new authority/approval.
+- Compare effective policy version/fingerprint to the approved snapshot before distribution. Monitor direct DRM-console changes; drift suspends new distribution and alerts. This cannot revoke delivered copies by itself; engine confirmation is required. Trial direct console mutation.
+- Assistants create no human consent, delegation or renewal. Exclude the new mode from existing mandates until its authority is explicitly defined.
+- This study includes no real send, license purchase, paid provisioning, merge or deployment.
 
-### Modèle de données proposé
+### Proposed data model
 
-Toutes les entités métier portent `organization_id`, avec contraintes et relations composites tenant-scoped. Les identifiants externes sont rattachés à une connexion fournisseur de l’atelier ; aucun ID reçu du client n’est une autorité en soi.
+All business entities carry `organization_id` and tenant-scoped composite constraints/relations. External IDs bind the workspace provider connection; client-supplied IDs alone grant no authority.
 
-| Entité | Contenu essentiel |
+| Entity | Essential content |
 | --- | --- |
-| `secure_publications` | Source/version/SHA, profil de protection, politique immuable, statut, expiration, devis |
-| `secure_recipient_grants` | Destinataire opaque, identité attendue, droits, publication, dispatch, révocation |
-| `secure_artifacts` | Type DRM ou rendu, SHA source/résultat, moteur/version, clé R2, licence/politique distante, preuve de transformation |
-| `secure_recipient_sessions` | Empreinte du secret, grant, méthode d’authentification, échéances ; uniquement si session Guteneo nécessaire |
-| `secure_provider_operations` | Opération, état souhaité/confirmé, identifiant distant, tentative, incertitude, réconciliation |
-| `secure_access_events` | Action, résultat, provenance, séquence, heures fournisseur/réception, identifiants opaques, version de schéma |
-| `secure_audit_outbox` | Notifications/export à publier après commit, reprise et déduplication |
-| `secure_evidence_batches` | Bornes de séquence, hashes, manifeste/signature, version de clé et archive |
+| `secure_publications` | Source/version/SHA, profile, immutable policy, state, expiry, quote |
+| `secure_recipient_grants` | Opaque recipient, expected identity, rights, publication, dispatch, revocation |
+| `secure_artifacts` | DRM/render type, input/output SHA, engine/version, R2 key, remote license/policy, transformation proof |
+| `secure_recipient_sessions` | Secret hash, grant, method, deadlines; only if Guteneo session needed |
+| `secure_provider_operations` | Operation, desired/confirmed state, remote ID, attempt, uncertainty/reconciliation |
+| `secure_access_events` | Action/result/provenance/sequence, source/received times, opaque IDs, schema version |
+| `secure_audit_outbox` | Postcommit notification/export, resume/deduplication |
+| `secure_evidence_batches` | Sequence bounds, hashes, manifest/signature, key version/archive |
 
-États de publication : `draft → preparing → ready_for_review → approved → active → expired/revoked`. Branches explicites `preparation_failed` et `protection_unknown`. Pour le DRM, distinguer `revocation_requested`, `revocation_confirmed_by_provider` et la fenêtre résiduelle de licence ; ne pas afficher « révoqué partout » sur un simple changement D1.
+Proposed publication states: `draft → preparing → ready_for_review → approved → active → expired/revoked`, with `preparation_failed` and `protection_unknown`. DRM distinguishes `revocation_requested`, `revocation_confirmed_by_provider` and residual license windows; D1 changes alone cannot display “revoked everywhere”. These historical proposed states do not redefine the current dispatch state machine.
 
-Interfaces proposées : préparer une publication, suivre sa préparation, revoir/approuver, accepter l’envoi, révoquer un grant, lire les événements avec curseur, exporter un journal et connaître les capacités du moteur. Les opérations d’administration du DRM ne sont pas exposées directement au navigateur ni au MCP. Un adaptateur retourne une matrice de capacités ; il ne prétend pas que tous les fournisseurs ont les mêmes garanties.
+Proposed interfaces: prepare/follow/review/approve/accept publication, revoke grant, cursor-read/export audit and discover engine capabilities. DRM administration is not directly exposed to browser/MCP. Adapters return capability matrices rather than pretending all providers have identical guarantees.
 
-## 8. Audit précis et temps réel mesurable
+## 8. Precise audit and measurable real time
 
-Le journal sépare quatre provenances : **serveur Guteneo**, **fournisseur email**, **serveur/lecteur DRM**, **déclaration du navigateur**. Une signature protège l’intégrité du rapport ; elle ne transforme pas une déclaration client en fait physique certain.
+Separate **Guteneo server**, **email provider**, **DRM server/reader** and **browser declaration** provenance. Signatures protect report integrity, not the physical truth of a client declaration.
 
-Enveloppe minimale : identifiant, organisation, publication/version, grant, session pseudonyme, acteur, action, résultat, provenance, niveau de preuve, heure source, heure de réception serveur, séquence, version de politique, identifiant de corrélation et clé de déduplication. Ne pas dupliquer document, email brut, OTP, jeton, URL signée ou corps de requête dans les journaux techniques. L’interface résout le destinataire depuis les données métier sous contrôle d’accès.
+Minimum envelope: ID, organization, publication/version, grant, pseudonymous session, actor, action/result/provenance/evidence level, source/received timestamps, sequence, policy version, correlation and deduplication key. Never duplicate document, raw email, OTP, token, signed URL or request body in technical logs. UI resolves recipient under business access controls.
 
-L’audit Adobe peut lui-même contenir des identités et adresses IP : normaliser les réponses en références opaques avant persistance Guteneo, sans archiver automatiquement les réponses brutes. Les durées, accès et engagements de sous-traitance doivent aussi couvrir le journal conservé chez le fournisseur. [Champs des événements Adobe](https://experienceleague.adobe.com/en/docs/experience-manager-65/content/forms/administrator-help/work-with-document-security/monitoring-events).
+Adobe audit may contain identities/IPs: normalize opaque references before Guteneo persistence without automatically archiving raw responses. Retention/access/subprocessor terms also cover provider-retained audit. [Adobe fields](https://experienceleague.adobe.com/en/docs/experience-manager-65/content/forms/administrator-help/work-with-document-security/monitoring-events).
 
-Exemples de libellés : « Accès autorisé », « Ouverture signalée par Acrobat », « Impression signalée par le lecteur », « Demande d’export refusée », « Révocation confirmée par le service DRM », « Synchronisation en retard ». Aucun faux événement « capture détectée » ou « lecture prouvée ».
+Suggested labels: “Access authorized”, “Opening reported by Acrobat”, “Printing reported by reader”, “Export request refused”, “Revocation confirmed by DRM service”, “Synchronization delayed”. Never fabricate “screenshot detected” or “reading proven”.
 
-### Collecte et diffusion
+### Collection and distribution
 
-1. Persister les événements Guteneo obligatoires avant remise du contenu ; panne de l’écriture obligatoire = refus de nouvelle remise sensible.
-2. Importer les événements Adobe via API incrémentale, avec chevauchement et déduplication. Les API de recherche sont documentées ; aucun webhook à faible latence n’a été qualifié dans cette étude. Traiter les horodatages et événements tardifs sans inventer l’ordre des actions humaines.
-3. Écrire l’événement et son outbox locale atomiquement, puis notifier le hub de l’atelier. Si la diffusion tombe, le journal durable reste consultable.
-4. WebSockets avec hibernation et repli par lecture périodique ; rattrapage par curseur, reconnexion et réévaluation des droits pendant les connexions longues. [Durable Objects](https://developers.cloudflare.com/durable-objects/best-practices/websockets/).
-5. Afficher « dernière synchronisation » et événements manquants/retardés connus. Les événements hors ligne apparaissent comme reçus après coup.
+1. Persist mandatory Guteneo events before content delivery; failed required writes deny new sensitive delivery.
+2. Import Adobe events incrementally with overlap/deduplication. Search APIs are documented; no low-latency webhook is qualified by this study. Handle late timestamps without inventing human-action order.
+3. Commit event/local outbox atomically, then notify workspace hub. Hub failure leaves durable audit readable.
+4. Use hibernating WebSockets with periodic-read fallback, cursor catch-up/reconnection and continuing rights checks. [Durable Objects](https://developers.cloudflare.com/durable-objects/best-practices/websockets/).
+5. Show last synchronization and known delayed/missing events. Offline events appear as received later.
 
-Objectifs initiaux à mesurer : notification atelier p95 sous deux secondes **après persistance Guteneo** ; délai d’ingestion DRM mesuré séparément ; reprise sans doublons après interruption. Aucun SLA « action du lecteur → atelier en deux secondes » avant preuve fournisseur, réseau et client.
+Initial measurable goals: workspace p95 notification below two seconds **after Guteneo persistence**, separately measured DRM ingestion delay and duplicate-free recovery. No reader-to-workspace two-second SLA before provider/network/client evidence.
 
-Pour Adobe, activer l’audit à la fois au niveau serveur et au niveau politique. Les événements d’une copie protégée peuvent être rattachés au document d’origine ; cela ne détecte pas la création de toute copie. [Suivi Adobe](https://experienceleague.adobe.com/en/docs/experience-manager-65/content/forms/administrator-help/work-with-document-security/monitoring-events). Une panne de notre ingestion n’arrête pas nécessairement un lecteur déjà autorisé : qualifier séparément le comportement du moteur si son propre audit échoue. Ne pas déduire un refus d’accès distant d’un simple état « audit indisponible » dans Guteneo.
+Enable Adobe audit at both server/policy levels. Copy events may bind original documents without detecting every file copy. [Adobe tracking](https://experienceleague.adobe.com/en/docs/experience-manager-65/content/forms/administrator-help/work-with-document-security/monitoring-events). Guteneo ingestion failure need not stop an already authorized reader; separately qualify engine behavior when its audit fails. An unavailable local audit badge cannot prove remote refusal.
 
-### Intégrité et rétention
+### Integrity and retention
 
-Écriture applicative append-only, accès par rôle, accès/export du journal eux-mêmes audités, lots scellés avec empreintes et signatures, vérificateur indépendant des exports. Pour une résistance à un administrateur disposant des clés et bases, prévoir un ancrage indépendant ou un service de preuve externe. Le chaînage seul ne suffit pas face à la réécriture complète ou à la suppression de la fin du journal.
+Application append-only writes, role access, audited audit-access/export, hash/signature-sealed batches and independent export verification are required. Resistance to administrators holding keys/database needs independent anchoring/external proof. Hash chaining alone cannot resist complete rewrite or tail deletion.
 
-Les règles de verrouillage R2 ajoutent une protection opérationnelle mais peuvent être retirées par un administrateur autorisé : ne pas les vendre comme un WORM irréversible. Définir les durées avant de verrouiller des archives. [Bucket locks R2](https://developers.cloudflare.com/r2/buckets/bucket-locks/).
+R2 bucket locks add operational protection but authorized administrators can remove them; do not market irreversible WORM. Define retention before locking archives. [R2 locks](https://developers.cloudflare.com/r2/buckets/bucket-locks/).
 
-## 9. Chiffrement, identité et confidentialité
+## 9. Encryption, identity and confidentiality
 
-R2 chiffre déjà les objets au repos ; le PDF DRM ajoute une protection portable distincte. TLS protège les échanges. Le source est visible aux composants autorisés pour analyse/protection : **ce modèle n’est pas du chiffrement de bout en bout ou du zero knowledge**. [Sécurité R2](https://developers.cloudflare.com/r2/reference/data-security/).
+R2 already encrypts at rest; PDF DRM adds separate portable protection. TLS protects transport. Authorized scanning/protection components see source plaintext: **neither end-to-end encryption nor zero knowledge is claimed**. [R2 security](https://developers.cloudflare.com/r2/reference/data-security/).
 
-Pour renforcer le contrôle des clés de stockage : évaluer SSE-C R2 avec clé indépendante par objet/version, enveloppée par une clé maître versionnée hors D1. Les bindings Workers le permettent, y compris les gros objets. Cette option ne remplace pas le DRM et doit être livrée avec rotation, sauvegarde/restauration et traitement de la perte de clé. Préférer des primitives standard à un format de chiffrement par blocs inventé pour le projet. [SSE-C](https://developers.cloudflare.com/r2/examples/ssec/), [WebCrypto](https://developers.cloudflare.com/workers/runtime-apis/web-crypto/).
+Evaluate R2 SSE-C for stronger storage-key control: per-object/version keys wrapped by versioned master keys outside D1, supported by Workers bindings including large objects. This does not replace DRM; ship rotation, backup/restore and key-loss handling together. Prefer standard primitives to invented chunk encryption. [SSE-C](https://developers.cloudflare.com/r2/examples/ssec/), [WebCrypto](https://developers.cloudflare.com/workers/runtime-apis/web-crypto/).
 
-Un secret Worker est un premier mécanisme de stockage de clé, pas un HSM indépendant. Secrets Store est encore présenté en bêta et distribué mondialement ; il n’est pas une justification automatique de souveraineté UE. Un KMS externe régional est une option entreprise à évaluer selon le risque. Ne pas promettre un effacement cryptographique tant que des clés récupérables subsistent dans les sauvegardes. [Secrets Store](https://developers.cloudflare.com/secrets-store/).
+A Worker secret is initial key storage, not an independent HSM. Secrets Store was presented as beta/global, not automatic EU sovereignty. Evaluate regional enterprise KMS according to risk. Claim no cryptographic erasure while recoverable backup keys remain. [Secrets Store](https://developers.cloudflare.com/secrets-store/).
 
-Liens opaques, jetons stockés par empreinte, cookies HttpOnly/Secure, contrôle CSRF/origine, absence de contenu sensible avant authentification, aucune analytique tierce dans le lecteur, `no-store`, `no-referrer`, CSP stricte. Supprimer les tokens aussi des logs de chemin, des proxies et du suivi de liens du prestataire email. Un paramètre masqué ne suffit pas si le secret est dans l’URL.
+Use opaque links, hashed tokens, HttpOnly/Secure cookies, CSRF/origin checks, no preauthentication sensitive content, no third-party viewer analytics, `no-store`, `no-referrer` and strict CSP. Remove tokens from path/proxy/email-link-tracking logs too; hiding a parameter does not protect an underlying URL secret.
 
-Les `GET`/`HEAD` ne consomment pas d’invitation, ne déclenchent pas d’OTP et ne comptent pas comme lecture humaine. Les protections email préchargent des liens. Pour l’option invitée : action explicite, code à durée courte et usage unique, nombre d’essais et fréquence limités, réponse neutre contre l’énumération, destinataire figé. Le dispositif doit résister au spam OTP. [Préchargement documenté](https://supabase.com/docs/guides/auth/auth-email-templates).
+`GET`/`HEAD` consume no invitation, send no OTP and prove no human reading; mail security preloads links. Historical guest option requires explicit action, short-lived single-use codes, bounded attempts/rate, neutral anti-enumeration responses and frozen recipient, including OTP-spam defenses. [Documented prefetch](https://supabase.com/docs/guides/auth/auth-email-templates).
 
-### Localisation et données personnelles
+### Location and personal data
 
-Juridiction UE de D1/R2, et de DO/Queues/Containers si utilisés, à configurer et vérifier explicitement. Cela ne garantit pas que Workers, terminaison TLS, logs, secrets, Auth0, email et serveur DRM traitent tout en UE. Les capacités de résidence diffèrent par service ; pour Browser Run, aucune contrainte de juridiction suffisante n’a été établie dans cette recherche. [R2](https://developers.cloudflare.com/r2/reference/data-location/), [D1](https://developers.cloudflare.com/d1/configuration/data-location/), [DO](https://developers.cloudflare.com/durable-objects/reference/data-location/), [Queues](https://developers.cloudflare.com/queues/configuration/data-location/), [Containers](https://developers.cloudflare.com/containers/concepts/placement/).
+Explicitly configure/verify EU jurisdiction for D1/R2 and any DO/Queues/Containers used. This alone does not locate Workers, TLS, logs, secrets, Auth0, email or DRM entirely in Europe. Service residency differs; this research established no sufficient Browser Run jurisdiction constraint. [R2](https://developers.cloudflare.com/r2/reference/data-location/), [D1](https://developers.cloudflare.com/d1/configuration/data-location/), [DO](https://developers.cloudflare.com/durable-objects/reference/data-location/), [Queues](https://developers.cloudflare.com/queues/configuration/data-location/), [Containers](https://developers.cloudflare.com/containers/concepts/placement/).
 
-Informer avant consultation : données enregistrées, finalité, atelier destinataire du journal, durée, droits et sous-traitants. Un bouton d’acceptation de notice n’établit pas à lui seul la base légale du traitement. Définir celle-ci et examiner l’AIPD selon risque/échelle ; éviter géolocalisation précise, empreinte matérielle et collecte comportementale extensive par défaut. Le filigrane peut employer un identifiant de destinataire, avec résolution autorisée côté atelier, plutôt que répéter une adresse personnelle complète.
+Before viewing, explain recorded data/purpose, receiving workspace, retention, rights and subprocessors. Accepting a notice alone does not establish lawful basis. Define it and consider DPIA according to risk/scale; avoid precise geolocation, hardware fingerprinting and extensive default behavioral collection. Watermark opaque recipient references resolved under workspace authority instead of repeated full personal addresses.
 
-Séparer documents, licences, identité, traces de sécurité, détails de consultation et pièces comptables. La CNIL évoque généralement six à douze mois pour les journaux de sécurité avec adaptation motivée ; cela ne fixe pas la durée de toute télémétrie. Définir une matrice de rétention et tester l’effacement, y compris archives et cycles de sauvegarde. La révocation n’est pas l’effacement ; un PDF DRM ne peut pas être rappelé depuis le disque du destinataire. [RGPD](https://eur-lex.europa.eu/legal-content/FR/TXT/?uri=CELEX:32016R0679), [CNIL journalisation](https://www.cnil.fr/fr/la-cnil-publie-une-recommandation-relative-aux-mesures-de-journalisation).
+Separate documents, licenses, identity, security traces, viewing detail and accounting records. CNIL's generally six-to-twelve-month security-log guidance requires justified adaptation and does not define all telemetry retention. Define/test erasure including archives/backup cycles. Revocation is not erasure; DRM PDFs cannot be recalled from recipient disks. [GDPR](https://eur-lex.europa.eu/legal-content/FR/TXT/?uri=CELEX:32016R0679), [CNIL logging](https://www.cnil.fr/fr/la-cnil-publie-une-recommandation-relative-aux-mesures-de-journalisation).
 
-## 10. Alternative entièrement centrée sur le web
+## 10. Entirely web-centered alternative
 
-À choisir si les contraintes du DRM portable sont rejetées, ou à ajouter ultérieurement comme offre distincte.
+Choose this if portable DRM constraints are rejected, or later add it as a distinct offering.
 
-Réutiliser le renderer privé PDF.js/Browser Run pour produire des pages avec filigrane incorporé aux pixels avant remise. Garder le source et les rendus non filigranés privés ; préproduire les variantes utiles et ne pas démarrer un navigateur à chaque page affichée. Le PDF original n’est pas fourni. Les images restent enregistrables, photographiables et reconstructibles : ce mode réduit l’extraction directe du fichier, sans rendre le contenu incopiable.
+Reuse private PDF.js/Browser Run rendering for pages with pixel-burned watermark before delivery. Keep source/unwatermarked renders private; preproduce needed variants rather than launching a browser for every displayed page. Never provide the original implicitly. Images remain saveable, photographable and reconstructable: this reduces direct file extraction without making content uncopyable.
 
-PDF.js dans le navigateur destinataire nécessiterait de lui remettre le PDF et ne fournirait pas cette frontière. WebCrypto/clé non exportable ou Widevine/FairPlay ne créent pas un DRM PDF universel. EME vise les médias, pas la gestion générale des droits de documents. [WebCrypto, limites](https://www.w3.org/TR/WebCryptoAPI/#security-considerations), [EME](https://www.w3.org/TR/encrypted-media/).
+Recipient-side PDF.js would require delivery of the PDF and lose that boundary. WebCrypto/nonexportable keys or Widevine/FairPlay do not create universal PDF DRM; EME concerns media rather than general document rights. [WebCrypto limits](https://www.w3.org/TR/WebCryptoAPI/#security-considerations), [EME](https://www.w3.org/TR/encrypted-media/).
 
-Dans ce mode, D1 est l’autorité des droits web : écrire conditionnellement une autorisation d’accès et son audit dans une transaction vérifiant session, grant, politique et expiration. Servir la page uniquement si l’autorisation a réussi, après préparation et contrôle de l’artefact. Cela définit l’ordre avec la révocation : une autorisation postérieure à sa validation doit échouer ; une réponse déjà autorisée ou des pixels déjà reçus ne sont pas récupérables. Ne pas utiliser un réplica potentiellement en retard ou KV comme seul arbitre de sécurité. [Réplication D1](https://developers.cloudflare.com/d1/best-practices/read-replication/).
+D1 governs web rights: transactionally authorize/audit only after checking session, grant, policy and expiry. Serve pages only after successful authorization and prepared-artifact verification. This orders revocation: authorization after its commit must fail, while already-authorized responses/received pixels cannot be recalled. A lagging replica/KV cannot be the sole security arbiter. [D1 replication](https://developers.cloudflare.com/d1/best-practices/read-replication/).
 
-Tester d’abord le moteur existant. Évaluer PDFium en Container dédié si fidélité, débit/coût ou résidence du traitement l’exigent. MuPDF implique une décision de licence AGPL/commerciale. Rendu isolé du scanner, processus à privilèges réduits, réseau restreint, budgets pages/pixels/mémoire/temps et dépendances épinglées. [Comparaison des moteurs par Mozilla](https://github.com/mozilla/pdf.js.comparator/blob/main/README.md), [réseau Containers](https://developers.cloudflare.com/containers/configuration/outbound-traffic/).
+Test the existing engine first. Consider isolated PDFium Containers if fidelity, throughput/cost or residency requires them. MuPDF needs AGPL/commercial licensing decisions. Isolate rendering from scanning, restrict privilege/network, bound pages/pixels/memory/time and pin dependencies. [Mozilla engine comparison](https://github.com/mozilla/pdf.js.comparator/blob/main/README.md), [Container egress](https://developers.cloudflare.com/containers/configuration/outbound-traffic/).
 
-L’accessibilité est un critère de sortie : des images seules pénalisent lecteurs d’écran, recherche, sélection et documents signés. Proposer un parcours accessible évalué avec les utilisateurs ; si du texte est remis au client, reconnaître qu’il est extractible. Ne pas rendre une personne dépendante d’un lecteur d’écran incapable d’accéder à son document sous prétexte de protection.
+Accessibility is an exit criterion: images alone harm screen readers, search, selection and signed-document use. Evaluate an accessible path with users; client-delivered text remains extractable. Protection must not prevent screen-reader users from accessing their documents.
 
-## 11. Essai comparatif à mener avant développement du produit
+## 11. Comparative trial before product development
 
-Corpus synthétique : PDF texte et scanné, polices embarquées, français/anglais/allemand/luxembourgeois, RTL/CJK, images, rotations, annotations, formulaires, signatures/certification, documents longs et cas malformés. Ne pas transmettre de vrais documents clients au fournisseur pour cet essai.
+Synthetic corpus: text/scanned PDFs, embedded fonts, French/English/German/Luxembourgish, RTL/CJK, images, rotation, annotations/forms, signatures/certification, long/malformed documents. Send no actual customer document to vendors for this trial.
 
-| Test | Preuve attendue / décision |
+| Test | Expected evidence/decision |
 | --- | --- |
-| Protection | Source et sortie identifiés par SHA ; politique/licence et version moteur connues ; octets distribués identiques aux octets approuvés |
-| Lecteurs | Windows/macOS et mobiles retenus : ouverture, identité, texte/accessibilité et contraintes vérifiées par version |
-| Mauvais lecteur | Refus clair avec instructions ; jamais de dégradation automatique en fichier libre |
-| Destinataire tiers | Lien/fichier transmis à une autre identité : contenu refusé |
-| Save As / copie fichier | Copie toujours protégée ; distinguer événement lecteur et copie du système de fichiers non observée |
-| Impression | Autorisée/refusée, imprimante virtuelle, annulation d’aperçu et événement exact enregistré ; aucune fausse sortie papier |
-| Captures | Outils OS, raccourcis, enregistrement, partage d’écran et appareil secondaire ; documenter les limites, ne pas supposer réussite |
-| Révocation | Copie déjà téléchargée, lecteur ouvert, nouvelle ouverture, session expirée, hors ligne/cache et coupure réseau ; mesurer le délai réel |
-| Audit | Ouverture, refus, impression, suivi détaillé refusé, client tué, fermeture, offline ; mesurer couverture et délais séparément |
-| Identité | Invité Adobe, SSO, retour navigateur/lecteur, récupération et MFA ; vérifier Auth0 réellement, pas seulement sa présence dans le schéma |
-| Invitations et frais | Préparation sans email/débit implicite ; invitation/activation autorisée séparément si nécessaire ; aucune répétition aveugle après timeout |
-| Isolation | Deux ateliers, documents/identités/politiques aux IDs proches ; aucune lecture, révocation ou recherche croisée |
-| Pannes | AEM/DB indisponible, timeout protection, Queues doublonnée, hub coupé ; états incertains et reprise sans action distante doublée |
-| Restauration | Restaurer clés, licences, base et PDF ; vérifier accès, révocations et absence de réouverture des droits supprimés |
-| Signatures | Vérifier la signature du source et ce que le lecteur indique sur l’artefact ; ne pas promettre sa conservation avant test |
+| Protection | Input/output SHA, known license/policy/engine; distributed bytes equal approved bytes |
+| Readers | Target Windows/macOS/mobile versions: opening, identity, text/accessibility and restrictions |
+| Wrong reader | Clear refusal/instructions, never automatic unrestricted-file fallback |
+| Third-party recipient | Forwarded link/file refused to another identity |
+| Save As/file copy | Copy remains protected; distinguish reader event from unseen filesystem copy |
+| Printing | Allow/deny, virtual printer, preview cancellation and exact event; no false paper proof |
+| Captures | OS tools/shortcuts/recording/screenshare/second device; document limits without assuming prevention |
+| Revocation | Downloaded copy, open reader, reopening, session expiry, offline/cache/network loss; actual delay |
+| Audit | Opening/refusal/printing, declined detailed tracking, killed client, closing/offline; separate coverage/latency |
+| Identity | Adobe guest, SSO, browser-reader return, recovery/MFA; actually verify Auth0, not diagram presence |
+| Invitations/cost | No implicit preparation email/debit; separately authorized invitation/activation; no blind timeout repeat |
+| Isolation | Two workspaces with similar IDs: no cross-read/revoke/search |
+| Failure | AEM/database outage, protection timeout, duplicate queue, unavailable hub; uncertainty/recovery without duplicate remote effects |
+| Restoration | Restore keys/licenses/database/PDF; verify access, revocations and no reopening removed rights |
+| Signatures | Validate source signature and reader interpretation of protected artifact; no preservation claim before tests |
 
-Critères éliminatoires : licence SaaS/OEM refusée, fonction essentielle non supportée sur le parc cible, impossibilité de séparer les ateliers, récupération de clés non maîtrisée, ou économie incompatible avec le produit. Une capture non empêchable impose une limite contractuelle ; si le besoin exige son interdiction absolue, aucune solution de cette étude ne le satisfait.
+Disqualifiers: denied SaaS/OEM licensing, missing essential target-platform support, inability to isolate workspaces, uncontrolled key recovery or incompatible economics. Unpreventable capture requires contractual limits; absolute prohibition cannot be satisfied by any studied solution.
 
-La synthèse de l’essai doit présenter chaque assertion avec son statut : documentation fournisseur, test local, test du fournisseur, essai réel sur terminal, ou non vérifié. Le choix final Adobe/FileOpen se fait après ces résultats, pas sur un score marketing.
+Trial summary must label each assertion as provider documentation, local test, provider test, real-device trial or unverified. Choose Adobe/FileOpen from these results rather than marketing scores.
 
-## 12. Plan de livraison par étapes
+## 12. Staged delivery plan
 
-| Étape | Livrable concret | Condition pour continuer |
+| Stage | Concrete deliverable | Continue only when |
 | --- | --- | --- |
-| 0 — Cadrage et faisabilité contractuelle | Droits attendus, parc lecteur, absence/offline, corpus, volumes hypothétiques ; demandes de devis préparées Adobe et FileOpen | Droit SaaS et essais/licences disponibles ; aucun achat/envoi de demande sans autorisation |
-| 1 — Essai moteur/identité | Protection, ouverture/Save As, impression, révocation, audit, SSO et restauration sur corpus synthétique | Matrice de preuves et coût total validables ; choix d’un moteur et des plateformes supportées |
-| 2 — Contrats et données | ADR, types source/artefact, droits, modèle invité, schémas additifs, capacités, menaces et rétention | Revue isolation/immuabilité/coût ; aucun ancien lien changé implicitement |
-| 3 — Préparation et envoi | Pipeline source → protection → revue → approbation → outbox, email/lien exact, gestion des incertitudes | Simulation et tests de concurrence/rollback ; aucun envoi réel |
-| 4 — Audit et gestion | Ingestion fournisseur, provenance, recherche/export, notifications, révocation et rapprochement des états | Pannes/reprises/déduplication et droits de rapport démontrés |
-| 5 — Qualification Cloudflare et lecteurs | Staging synthétique, mobiles/desktop physiques, sécurité, accessibilité et benchmark | Configuration réelle et capacités observées ; budget acceptable |
-| 6 — Pilote autorisé | Ateliers/destinataires volontaires, limites de volume et durée, support, mesure des délais | Autorisation distincte pour déploiement et envois ; dossier de preuve du parcours complet |
-| 7 — Généralisation | Limites publiées, prix, maintenance, supervision, export/réversibilité | Licence commerciale, documentation et exploitation prêtes |
+| 0 — Scope/contracts | Expected rights, readers, offline needs, corpus, hypothetical volumes, prepared Adobe/FileOpen quote requests | SaaS rights and trial licenses available; no purchase/request sending without authorization |
+| 1 — Engine/identity trial | Protection/opening/Save As/print/revoke/audit/SSO/restore on synthetic corpus | Reviewable evidence/cost matrix and selected engine/platforms |
+| 2 — Contracts/data | ADR, source/artifact types, rights, guest model, additive schema, capability/threat/retention | Isolation/immutability/cost reviewed; no implicit legacy-link change |
+| 3 — Preparation/sending | Source → protection → review → approval → outbox; exact email/link and uncertainty | Concurrency/rollback simulation; no actual sends |
+| 4 — Audit/management | Ingestion/provenance/search/export/notification/revocation/reconciliation | Failure/recovery/deduplication/report rights demonstrated |
+| 5 — Cloudflare/readers | Synthetic staging, physical desktop/mobile, security/accessibility/benchmark | Real configuration/capabilities observed and affordable budget |
+| 6 — Authorized pilot | Informed voluntary workspaces/recipients, bounded duration/volume, support/latency | Separate deployment/send authorization and complete journey evidence |
+| 7 — General availability | Published limits/pricing/maintenance/monitoring/export/reversibility | Commercial license, documentation and operations ready |
 
-Ne pas annoncer une date de livraison avant disponibilité SDK/licence et réussite de l’étape 1. Le délai de contractualisation et le support des lecteurs peuvent dominer le développement applicatif.
+Promise no delivery date before SDK/license availability and stage 1 success. Contracting/reader support may dominate application development.
 
-Les vérifications d’implémentation incluront les commandes habituelles du projet (types, lint, tests, E2E et build), les cas d’isolation et concurrence, puis des preuves staging/production distinctes. Une CI verte ne prouve ni réception d’email, ni comportement Acrobat, ni qualification d’un compte fournisseur.
+Implementation checks include normal types/lint/tests/E2E/build, isolation/concurrency and separate staging/production proof. Green CI proves neither email receipt, Acrobat behavior nor provider-account qualification.
 
-## 13. Coûts et dimensionnement
+## 13. Costs and sizing
 
-L’[étude commerciale approfondie](DRM_LICENSING_AND_COSTS.md) détaille les contrats entreprise Adobe 2025, les routes On-premise/Managed Services, l’accord FileOpen OEM, les scénarios sur trois ans et le brief de devis. Le minimum Adobe de 1 000 destinataires est documenté pour Managed Services, pas établi pour On-premise.
+The [commercial study](DRM_LICENSING_AND_COSTS.md) details Adobe 2025 enterprise terms, On-premise/Managed Services, FileOpen OEM, three-year scenarios and quote brief. Adobe's documented 1,000-recipient minimum applies to Managed Services, not established for On-premise.
 
-Pas de prix par document annoncé à ce stade. Le tarif historique Guteneo d’hébergement protégé ne qualifie pas le prix d’un DRM sous licence.
+No per-document price is announced. Guteneo's historical protected-hosting price does not qualify licensed DRM pricing.
 
-Adobe publie une métrique de licence par destinataire dans des conditions effectives au 11 mai 2023 ; le devis actuel doit confirmer son application, le socle nécessaire, les invités, la non-production, le secours et l’exploitation en SaaS. FileOpen fournit des devis et négocie l’OEM/VAR. [Conditions Adobe](https://helpx.adobe.com/legal/product-descriptions/adobe-experience-manager-on-premise-1.html), [devis Adobe](https://business.adobe.com/products/experience-manager/forms/pricing.html), [devis FileOpen](https://www.fileopen.com/subscription-plans).
+Adobe published recipient licensing under terms effective 11 May 2023; current quotes must confirm applicability, base components, guests, nonproduction, disaster recovery and SaaS operation. FileOpen quotes/negotiates OEM/VAR. [Adobe terms](https://helpx.adobe.com/legal/product-descriptions/adobe-experience-manager-on-premise-1.html), [Adobe quote](https://business.adobe.com/products/experience-manager/forms/pricing.html), [FileOpen quote](https://www.fileopen.com/subscription-plans).
 
-Modèle économique à renseigner :
+Populate this model:
 
-`Coût mensuel = licences DRM + hébergement/maintenance DRM + stockage Cloudflare + requêtes/écritures/audit + préparation des artefacts + emails/authentification + support destinataire + sauvegardes/preuve`.
+`Monthly cost = DRM licenses + DRM hosting/maintenance + Cloudflare storage + requests/writes/audit + artifact preparation + email/authentication + recipient support + backup/evidence`.
 
-Exemple de charge **hypothétique** à utiliser pour le benchmark : 10 000 documents/mois, 10 pages, 3 destinataires/document, 2 sessions/destinataire. Cela représente 30 000 grants, 60 000 sessions et jusqu’à 600 000 demandes de pages si chacune parcourt tout le document. Pour le web, une variante par page et destinataire représente 300 000 images ; le stockage varie fortement avec leur taille et leur rétention. Pour le DRM, la facturation peut dépendre de personnes uniques plutôt que de grants : ne pas confondre ces unités.
+**Hypothetical** benchmark load: 10,000 documents/month, ten pages, three recipients/document, two sessions/recipient = 30,000 grants, 60,000 sessions and up to 600,000 page requests if every session reads everything. Web variants per page/recipient yield 300,000 images, with size/retention-sensitive storage. DRM may bill unique people rather than grants; never confuse units.
 
-Mesurer coût par publication, par nouveau destinataire, par ouverture et par mois conservé, plus temps de support. D1 écritures/index et volume d’audit, variantes de rendu, taux d’OTP et serveur de licences disponible en permanence sont les principaux postes à observer. D1 a une limite par base et une capacité d’écriture à tester ; prévoir archivage et partitionnement uniquement si les mesures l’exigent. [Limites D1](https://developers.cloudflare.com/d1/platform/limits/), [tarifs D1](https://developers.cloudflare.com/d1/platform/pricing/), [R2](https://developers.cloudflare.com/r2/pricing/), [Browser Run](https://developers.cloudflare.com/browser-run/pricing/), [Containers](https://developers.cloudflare.com/containers/platform/pricing/).
+Measure cost/publication/new recipient/opening/retained month and support time. Observe D1 rows/indexes/audit, rendered variants, OTP rates and continuously available licenses. D1 per-database/write limits need testing; partition/archive only when measured. [D1 limits](https://developers.cloudflare.com/d1/platform/limits/), [D1 price](https://developers.cloudflare.com/d1/platform/pricing/), [R2](https://developers.cloudflare.com/r2/pricing/), [Browser Run](https://developers.cloudflare.com/browser-run/pricing/), [Containers](https://developers.cloudflare.com/containers/platform/pricing/).
 
-## 14. Questions à faire confirmer aux éditeurs
+## 14. Questions for vendors
 
-Cette liste est prête pour un échange commercial/technique ; aucune demande n’a été envoyée.
+Prepared for commercial/technical discussion; no request was sent.
 
-1. Le contrat autorise-t-il Guteneo à protéger les documents de multiples ateliers tiers et à facturer ce service ? OEM/VAR, marque blanche, isolation et notices imposées ?
-2. Quelles métriques s’appliquent aux destinataires externes occasionnels, invités, personnes récurrentes, tests et restauration ? Minimum annuel, coût marginal, support et frais de sortie ?
-3. Quelles versions Windows/macOS/iOS/Android appliquent chaque droit ? Reader gratuit suffit-il pour le parcours exact, et faut-il un plugin ?
-4. Quels parcours d’authentification externes et fédérés sont supportés, avec Auth0/SSO, MFA/passkeys et récupération ?
-5. Quels événements remontent exactement : ouverture, page, impression, Save As, refus ? Lesquels sont facultatifs, locaux, différés ou falsifiables ?
-6. Quelle latence d’audit est contractuelle ? API incrémentale, rétention, pagination, limites, identifiant de déduplication et éventuel webhook ?
-7. Quels sont les délais de révocation pour document ouvert, reconnexion, licence en cache et offline désactivé ?
-8. Quelles captures sont empêchées ou signalées, sur quelles versions précises ? Quelles limites sont officiellement reconnues ?
-9. L’API de protection est-elle idempotente ? Comment retrouver une création de licence après timeout sans refacturation ou duplicata ?
-10. PPL/SDK peut-il fonctionner dans un Container Cloudflare, sous quelle licence et quel support ? Quelles données quittent Cloudflare ?
-11. Quels hébergement/région, sous-traitants, sauvegardes et mesures de sécurité sont proposés ? Quelle architecture de secours est supportée ?
-12. Que deviennent les PDF déjà distribués à l’arrêt du contrat, en panne durable ou lors d’une migration ? Peut-on exporter politiques, événements et éléments nécessaires à la continuité ?
+1. Does the agreement allow protection/billing for documents from multiple third-party workspaces? OEM/VAR, white labeling, isolation and required notices?
+2. How are occasional external recipients, guests, recurring people, test/recovery billed? Annual minimum, marginal/support/exit charges?
+3. Which Windows/macOS/iOS/Android versions enforce each permission? Does free Reader suffice, and is a plugin required?
+4. Which external/federated Auth0/SSO/MFA/passkey/recovery flows are supported?
+5. Which open/page/print/Save As/refusal events exist; which are optional, local, deferred or forgeable?
+6. Contractual audit latency, incremental API, retention, pagination/limits, deduplication ID and possible webhook?
+7. Revocation delays for open files, reconnecting, cached licenses and disabled offline use?
+8. Which captures are prevented/reported on which exact versions; acknowledged limitations?
+9. Is protection idempotent; how can timed-out license creation be recovered without duplication/rebilling?
+10. Can PPL/SDK run in Cloudflare Containers under what license/support, and what data leaves Cloudflare?
+11. Offered hosting/regions/subprocessors/backups/security and supported disaster recovery?
+12. What happens to distributed PDFs at contract termination, prolonged outage or migration? Exportable policies/events/continuity material?
 
-## 15. Positionnement et décision de lancement
+## 15. Positioning and launch decision
 
-Promesse proposée : **« Distribuez des documents confidentiels avec des droits d’accès, une expiration, une révocation et un journal des événements disponibles dans les lecteurs compatibles. »** Les plateformes, événements et délais réellement qualifiés doivent être visibles avant l’envoi.
+Proposed promise: **“Distribute confidential documents with access rights, expiry, revocation and an audit of events available in compatible readers.”** Show qualified platforms/events/delays before sending.
 
-Pour une option web : **« Consultez le document dans un espace sécurisé, avec vérification du destinataire, filigrane et journal d’accès. »** Les deux modes doivent rester reconnaissables dans les devis, les permissions, les emails et les rapports.
+Web option: **“View the document in a protected space with recipient verification, watermark and access audit.”** Keep modes distinguishable in quotes, permissions, emails and reports.
 
-La prochaine étape recommandée est la qualification commerciale FileOpen OEM et Adobe en parallèle, suivie d’un essai comparatif sous licence autorisée, centré sur le parcours destinataire et la réalité de l’audit. L’architecture Guteneo demeure Cloudflare ; l’ajout d’un moteur spécialisé est motivé par la protection persistante du fichier. Aucun élément de cette étude ne justifie une promesse de surveillance totale, de capture universellement détectée ou de preuve juridique incontestable.
+The historical recommended next step was parallel FileOpen OEM/Adobe commercial qualification, then an authorized licensed comparative trial centered on recipient experience and actual audit. Guteneo remains on Cloudflare; specialized DRM was justified by persistent file protection. Nothing here supports total-surveillance, universal capture-detection or indisputable legal-proof claims. The later integrated-web decision at the top supersedes that launch recommendation.

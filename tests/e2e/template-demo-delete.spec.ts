@@ -15,7 +15,7 @@ async function login(page: Page) {
   expect(session.simulation).toBe(true);
 }
 
-async function createDemo(page: Page, name: string) {
+async function createDemo(page: Page, name: string, storedName: string) {
   const created = page.waitForResponse(
     (response) =>
       response.url().endsWith("/api/templates") &&
@@ -32,9 +32,10 @@ async function createDemo(page: Page, name: string) {
   const model = (await response.json()) as TemplateView;
   expect(model.visibility).toBe("private");
   expect(model.canDelete).toBe(true);
+  expect(model.envelope.name).toBe(storedName);
   await expect(page).toHaveURL(new RegExp(`#/app/template/${model.id}$`));
   await expect(page.getByLabel("Nom du modèle", { exact: true })).toHaveValue(
-    name,
+    storedName,
   );
   return model;
 }
@@ -111,7 +112,11 @@ test("demo copy can be edited, saved and deleted from the library after keyboard
   await page.locator(".studio-gallery").screenshot({
     path: `reports/template-demos/gallery-${testInfo.project.name}.png`,
   });
-  const model = await createDemo(page, "Devis de démonstration");
+  const model = await createDemo(
+    page,
+    "Devis de démonstration",
+    "Demo quotation",
+  );
   const name = `Devis client synthétique ${crypto.randomUUID().slice(0, 8)}`;
   await page.getByLabel("Nom du modèle", { exact: true }).fill(name);
   const savedResponse = page.waitForResponse(
@@ -133,7 +138,7 @@ test("demo copy can be edited, saved and deleted from the library after keyboard
     await expect(
       page
         .locator(".studio-designer")
-        .getByText("Validité du devis", { exact: true }),
+        .getByText("Quote validity", { exact: true }),
     ).toBeVisible();
   await expect(
     page.getByRole("button", { name: "Enregistrer le brouillon", exact: true }),
@@ -216,7 +221,11 @@ test("owner deletes a shared demo with unsaved edits in one named confirmation",
 }, testInfo) => {
   await login(page);
   await page.goto("/#/app/templates");
-  const model = await createDemo(page, "Bon de livraison de démonstration");
+  const model = await createDemo(
+    page,
+    "Bon de livraison de démonstration",
+    "Demo delivery note",
+  );
   await page.getByRole("button", { name: "Partage", exact: true }).click();
   await page
     .getByLabel("Visibilité", { exact: true })

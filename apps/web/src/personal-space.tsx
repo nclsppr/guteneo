@@ -63,37 +63,35 @@ export function PersonalSignIn({
   const authCode = new URLSearchParams(window.location.search).get("auth");
   const authenticationMessages: Record<string, string> = {
     EMAIL_VERIFICATION_REQUIRED: msg(
-      "Vérifiez votre adresse avec le lien reçu par e-mail, puis reconnectez-vous.",
+      "Verify your address using the link in the email, then sign in again.",
     ),
     ACCOUNT_VERIFICATION_REQUIRED: msg(
-      "La vérification de votre compte n’a pas été confirmée. Vérifiez votre adresse e-mail, puis reconnectez-vous.",
+      "Your account verification could not be confirmed. Verify your email address, then sign in again.",
     ),
     MFA_REQUIRED: msg(
-      "Reconnectez-vous avec la méthode de sécurité requise pour accéder à vos documents.",
+      "Sign in again using the required security method to access your documents.",
     ),
     STRONG_AUTHENTICATION_REQUIRED: msg(
-      "Reconnectez-vous avec la méthode de sécurité requise pour accéder à vos documents.",
+      "Sign in again using the required security method to access your documents.",
     ),
     DOCUMENT_AUTHENTICATION_REQUIRED: msg(
-      "Reconnectez-vous à votre compte vérifié pour accéder à vos documents.",
+      "Sign in again to your verified account to access your documents.",
     ),
     IDENTITY_NOT_CONFIGURED: msg(
-      "L’ouverture des comptes est en cours de configuration. Réessayez bientôt.",
+      "Account registration is being set up. Please try again soon.",
     ),
     LOGIN_STATE_INVALID: msg(
-      "Votre connexion a expiré. Recommencez pour ouvrir votre espace.",
+      "Your sign-in has expired. Start again to access your workspace.",
     ),
-    LOGIN_EXCHANGE_FAILED: msg(
-      "La connexion n’a pas abouti. Vous pouvez réessayer.",
-    ),
+    LOGIN_EXCHANGE_FAILED: msg("Sign-in did not complete. You can try again."),
     LOGIN_RATE_LIMITED: msg(
-      "Trop de tentatives de connexion. Réessayez dans une heure.",
+      "Too many sign-in attempts. Try again in one hour.",
     ),
   };
   const authenticationError = authCode
     ? new Error(
         authenticationMessages[authCode] ??
-          msg("La connexion n’a pas abouti. Vous pouvez réessayer."),
+          msg("Sign-in did not complete. You can try again."),
       )
     : undefined;
   const redirectStarted = useRef(false);
@@ -119,38 +117,38 @@ export function PersonalSignIn({
     <div className="personal-space-login">
       <Brand />
       <LanguageSelect />
-      <h1>{msg("Mes documents")}</h1>
+      <h1>{msg("My documents")}</h1>
       <p>
         {msg(
-          "Votre identité de compte et votre accès doivent être vérifiés avant l’affichage du document.",
+          "Your account identity and access must be verified before the document can be displayed.",
         )}
       </p>
       <ErrorNotice error={authenticationError} />
       {invitationStorageBlocked && (
         <p role="alert">
           {msg(
-            "Ce navigateur ne peut pas conserver le lien pendant la connexion. Connectez-vous, puis rouvrez le lien reçu dans cet onglet.",
+            "This browser cannot retain the link while you sign in. Sign in, then reopen the received link in this tab.",
           )}
         </p>
       )}
       <div className="secure-document-actions">
         <a className="button primary" href={authHref("login")}>
-          {msg("Se connecter à mon compte")}
+          {msg("Sign in to my account")}
           <ArrowRight size={18} aria-hidden="true" />
         </a>
         <a className="button" href={authHref("signup")}>
-          {msg("Créer mon compte Guteneo")}
+          {msg("Create my Guteneo account")}
         </a>
       </div>
       <p className="field-hint">
         {msg(
-          "Votre compte sert aussi à utiliser les services Guteneo. Aucun atelier n’est créé pour consulter vos documents.",
+          "Your account also gives you access to Guteneo services. No workspace is created to view your documents.",
         )}
       </p>
       {local && (
         <div className="secure-document-panel">
           <p>
-            {msg("Simulation locale : les comptes et documents sont fictifs.")}
+            {msg("Local simulation: accounts and documents are fictional.")}
           </p>
           <button
             type="button"
@@ -167,7 +165,7 @@ export function PersonalSignIn({
               })
             }
           >
-            {msg("Ouvrir le compte destinataire fictif")}
+            {msg("Open the fictional recipient account")}
           </button>
           <ErrorNotice error={action.error} />
         </div>
@@ -186,21 +184,21 @@ export function PersonalSecurityNotice({
     <section className="secure-document-panel" role="status">
       <h2>
         {mode === "verified_account"
-          ? msg("Vérifiez votre connexion")
-          : msg("Connexion renforcée nécessaire")}
+          ? msg("Verify your sign-in")
+          : msg("Stronger sign-in required")}
       </h2>
       <p>
         {mode === "verified_account"
           ? msg(
-              "Reconnectez-vous à votre compte vérifié pour accéder à vos documents.",
+              "Sign in again to your verified account to access your documents.",
             )
           : msg(
-              "Reconnectez-vous avec la méthode de sécurité requise pour accéder à vos documents.",
+              "Sign in again using the required security method to access your documents.",
             )}
       </p>
       <a className="button primary" href={authHref("login", true)}>
         <ShieldCheck size={18} aria-hidden="true" />
-        {msg("Vérifier mon accès")}
+        {msg("Verify my access")}
       </a>
     </section>
   );
@@ -312,30 +310,30 @@ export function PersonalSpace({
           document.getElementById("main-content")?.focus();
         }}
       >
-        {msg("Aller au contenu")}
+        {msg("Skip to content")}
       </a>
       <header className="personal-space-header">
         <Brand />
-        <nav aria-label={msg("Navigation personnelle")}>
+        <nav aria-label={msg("Personal navigation")}>
           <a
             href="#/app/my-documents"
             aria-current={
               page.startsWith("/app/my-documents") ? "page" : undefined
             }
           >
-            {msg("Mes documents")}
+            {msg("My documents")}
           </a>
           <a
             href="#/app/services"
             aria-current={page === "/app/services" ? "page" : undefined}
           >
-            {msg("Utiliser Guteneo")}
+            {msg("Use Guteneo")}
           </a>
           <a
             href="#/app/personal-account"
             aria-current={page === "/app/personal-account" ? "page" : undefined}
           >
-            {msg("Compte et sécurité")}
+            {msg("Account and security")}
           </a>
         </nav>
       </header>
@@ -347,9 +345,9 @@ export function PersonalSpace({
       >
         <div className="personal-space-account">
           <p>
-            {msg("Connecté avec {0}", session.user.email)}
+            {msg("Signed in as {0}", session.user.email)}
             <br />
-            <small>{msg("Espace personnel")}</small>
+            <small>{msg("Personal space")}</small>
           </p>
           <button
             type="button"
@@ -358,15 +356,13 @@ export function PersonalSpace({
             onClick={() => void logout()}
           >
             <SignOut size={18} aria-hidden="true" />
-            {msg("Se déconnecter")}
+            {msg("Sign out")}
           </button>
         </div>
         {session.simulation && (
           <div className="notice info" role="note">
             <p>
-              {msg(
-                "Simulation locale : les comptes et documents sont fictifs.",
-              )}
+              {msg("Local simulation: accounts and documents are fictional.")}
             </p>
           </div>
         )}
@@ -439,21 +435,21 @@ function PersonalServices({
   return (
     <div className="secure-document-layout">
       <PageHeading
-        title={msg("Utiliser Guteneo")}
-        intro={msg(
-          "Un seul compte pour vos documents et les services Guteneo.",
-        )}
+        title={msg("Use Guteneo")}
+        intro={msg("One account for your documents and Guteneo services.")}
       />
       <p className="secure-document-intro">
-        {msg("Vos documents reçus restent accessibles sans achat de service.")}
+        {msg(
+          "Your received documents remain accessible without purchasing a service.",
+        )}
       </p>
       <div className="personal-space-service-grid">
         <article className="secure-document-panel">
           <PaperPlaneTilt size={28} aria-hidden="true" />
-          <h2>{msg("Envoyer des documents")}</h2>
+          <h2>{msg("Send documents")}</h2>
           <p>
             {msg(
-              "Préparez un envoi par e-mail, fax ou courrier postal. Vous vérifiez le contenu et le prix avant de confirmer.",
+              "Prepare an email, fax or postal dispatch. Review the content and price before confirming.",
             )}
           </p>
           <button
@@ -464,15 +460,15 @@ function PersonalServices({
               document.getElementById("personal-workspace-entry")?.focus();
             }}
           >
-            {msg("Préparer un envoi")}
+            {msg("Prepare a dispatch")}
           </button>
         </article>
         <article className="secure-document-panel">
           <Files size={28} aria-hidden="true" />
-          <h2>{msg("Partager un document sensible")}</h2>
+          <h2>{msg("Share a sensitive document")}</h2>
           <p>
             {msg(
-              "Accordez un accès individuel à un document et suivez les événements de consultation disponibles.",
+              "Grant individual access to a document and follow the available viewing events.",
             )}
           </p>
           <button
@@ -483,7 +479,7 @@ function PersonalServices({
               document.getElementById("personal-workspace-entry")?.focus();
             }}
           >
-            {msg("Nouveau partage")}
+            {msg("New share")}
           </button>
         </article>
       </div>
@@ -494,11 +490,11 @@ function PersonalServices({
       >
         <h2 id="personal-workspace-entry" tabIndex={-1}>
           {session.workspaces.length
-            ? msg("Choisir un atelier")
-            : msg("Créer mon atelier")}
+            ? msg("Choose a workspace")
+            : msg("Create my workspace")}
         </h2>
         {session.workspaces.length ? (
-          <Field label={msg("Atelier actif")}>
+          <Field label={msg("Active workspace")}>
             <select
               value={workspaceId}
               onChange={(event) => setWorkspaceId(event.target.value)}
@@ -508,15 +504,15 @@ function PersonalServices({
                   {workspace.name}
                 </option>
               ))}
-              <option value="">{msg("Créer mon atelier")}</option>
+              <option value="">{msg("Create my workspace")}</option>
             </select>
           </Field>
         ) : null}
         {!workspaceId && (
           <Field
-            label={msg("Nom de votre atelier")}
+            label={msg("Your workspace name")}
             hint={msg(
-              "Votre espace d’envoi est créé uniquement à votre demande, avec le même compte.",
+              "Your sending workspace is created only when you request it, using the same account.",
             )}
           >
             <input
@@ -535,16 +531,16 @@ function PersonalServices({
           disabled={action.pending || (!workspaceId && name.trim().length < 2)}
         >
           {action.pending
-            ? msg("Chargement…")
+            ? msg("Loading…")
             : workspaceId
-              ? msg("Ouvrir mon atelier")
-              : msg("Créer mon atelier")}
+              ? msg("Open my workspace")
+              : msg("Create my workspace")}
           <ArrowRight size={18} aria-hidden="true" />
         </button>
         <ErrorNotice error={action.error} />
       </form>
-      <a className="text-link" href="/#tarifs">
-        {msg("Découvrir les tarifs")}
+      <a className="text-link" href="/#pricing">
+        {msg("View pricing")}
       </a>
     </div>
   );
@@ -603,9 +599,9 @@ function PersonalAccount({
   return (
     <div className="secure-document-layout">
       <PageHeading
-        title={msg("Compte et sécurité")}
+        title={msg("Account and security")}
         intro={msg(
-          "Vos documents et les droits de vos ateliers restent liés à ce compte unique.",
+          "Your documents and workspace permissions remain linked to this single account.",
         )}
       />
       <form
@@ -613,8 +609,8 @@ function PersonalAccount({
         onSubmit={(event) => void save(event)}
         aria-busy={action.pending}
       >
-        <h2>{msg("Identité du compte")}</h2>
-        <Field label={msg("Nom")}>
+        <h2>{msg("Account identity")}</h2>
+        <Field label={msg("Name")}>
           <input
             value={name}
             required
@@ -623,7 +619,7 @@ function PersonalAccount({
             onChange={(event) => setName(event.target.value)}
           />
         </Field>
-        <Field label={msg("Adresse e-mail")}>
+        <Field label={msg("Email address")}>
           <input
             type="email"
             value={session.user.email}
@@ -650,24 +646,24 @@ function PersonalAccount({
           className="button"
           disabled={action.pending || !name.trim()}
         >
-          {msg("Enregistrer les préférences")}
+          {msg("Save preferences")}
         </button>
-        {saved && <p role="status">{msg("Préférences enregistrées.")}</p>}
+        {saved && <p role="status">{msg("Preferences saved.")}</p>}
         <ErrorNotice error={action.error} />
       </form>
       <section className="secure-document-panel">
-        <h2>{msg("Sécurité du compte")}</h2>
+        <h2>{msg("Account security")}</h2>
         <p>
           {msg(
-            "L’accès au contenu est contrôlé par le serveur à chaque opération. Une vérification supplémentaire peut vous être demandée.",
+            "The server checks content access for each operation. You may be asked to verify your identity again.",
           )}
         </p>
         <a className="button" href={authHref("login", true)}>
-          {msg("Gérer ma connexion")}
+          {msg("Manage sign-in")}
         </a>
       </section>
       <section className="secure-document-panel">
-        <h2>{msg("Sessions actives")}</h2>
+        <h2>{msg("Active sessions")}</h2>
         <ErrorNotice
           error={sessionsError}
           retry={() => setVersion((n) => n + 1)}
@@ -681,18 +677,18 @@ function PersonalAccount({
                 <div>
                   <strong>
                     {item.current
-                      ? msg("Session actuelle")
-                      : msg("Session du {0}", date(item.createdAt))}
+                      ? msg("Current session")
+                      : msg("Session from {0}", date(item.createdAt))}
                   </strong>
                   <small>
-                    {msg("Disponible jusqu’au {0}", date(item.expiresAt))}
+                    {msg("Available until {0}", date(item.expiresAt))}
                   </small>
                 </div>
                 {!item.current && (
                   <ConfirmAction
-                    label={msg("Fermer cette session")}
-                    question={msg("Fermer cet accès au compte ?")}
-                    confirmLabel={msg("Fermer la session")}
+                    label={msg("Close this session")}
+                    question={msg("Close this account session?")}
+                    confirmLabel={msg("Close session")}
                     disabled={action.pending}
                     onConfirm={() =>
                       void action.run(async () => {
@@ -710,7 +706,7 @@ function PersonalAccount({
             ))}
           </ul>
         ) : (
-          <EmptyState title={msg("Aucune session active")} />
+          <EmptyState title={msg("No active sessions")} />
         )}
       </section>
     </div>

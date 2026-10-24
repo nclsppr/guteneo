@@ -1,142 +1,182 @@
-# Guteneo — e-mails et correspondance PDF
+# Guteneo — email and PDF correspondence
 
-Ce dossier prépare le candidat **1.1.0**. La version du paquet, les capacités
-applicatives et l’identité du serveur MCP suivent la même version source ;
-l’empreinte de publication permet de vérifier le code réellement servi.
-Une archive construite localement ne met pas à jour le serveur ni un annuaire.
-Le build produit aussi deux archives Claude Code dédiées :
-`guteneo-claude-code.zip` et `guteneo-claude-marketplace.zip`, avec des parcours
-adaptés à Claude. Leurs README distinguent validation du format, installation,
-connexion OAuth et qualification réelle.
+This directory prepares candidate **1.1.0**. Package version, application
+capabilities and MCP server identity follow the same source version; the release
+fingerprint identifies actually served code. Building an archive updates neither
+the server nor a directory. The builder also emits the dedicated
+`guteneo-claude-code.zip` and `guteneo-claude-marketplace.zip`; their READMEs
+separate format checks, installation, OAuth and actual host qualification.
 
-## Fonctions et accès
+## Features and access
 
-Ce paquet réunit le serveur MCP Guteneo et les parcours `get-started`, `email`,
-`fax-pdf`, `postal-pdf`, `document-studio`, `pdf-accessibility` et
-`secure-distribution`. Sa version est
-indiquée dans `plugin.json`. Les fonctions utilisables dépendent du serveur
-connecté, des droits du compte, des canaux et services activés, et des capacités
-réelles de l’hôte. L’installation n’accorde aucun mandat et ne prouve ni recette
-complète, ni approbation OpenAI, ni publication dans l’annuaire.
+The package combines the Guteneo MCP connection with `get-started`, `email`,
+`fax-pdf`, `postal-pdf`, `document-studio`, `pdf-accessibility` and `secure-distribution`. Available actions
+depend on the connected server, account permissions, activated channels/services
+and actual host capabilities. Installation grants no mandate and proves neither
+end-to-end qualification, OpenAI approval nor directory publication. It installs
+no executable or local hook and contains no credentials.
 
-Les contrôles PDF/UA et PDF/A nécessitent un compte disposant de l’accès existant
-et un service veraPDF disponible. Ils produisent des diagnostics liés à
-l’original ; ils ne certifient ni l’accessibilité complète ni la conformité
-juridique. Le plugin ne souscrit, n’annule et ne renouvelle aucun forfait,
-n’achète aucun crédit et ne gère pas la facturation.
+Server: **https://guteneo.com/mcp**; OAuth is required. Account/server access must
+already work. A valid archive proves neither connection nor successful sending.
+The manifest contains an English listing and localized French interface copy,
+with [support](https://guteneo.com/support/?lang=en),
+[privacy](https://guteneo.com/privacy/?lang=en) and
+[terms](https://guteneo.com/terms/?lang=en). Skills depend on the Guteneo MCP;
+only tools actually exposed to this connection may be used.
 
-L’e-mail demeure désactivé dans la configuration de production. Les permissions,
-restrictions documentaires et validations avant envoi restent applicables. Le
-paquet n’installe aucun exécutable ni hook local et ne contient aucun secret.
+The workflows exclude PCI DSS payment-card data, protected health information,
+government identifiers, authentication secrets and sensitive personal data,
+including known excluded data in existing documents. Malware scanning does not
+establish their absence. A `review_prepare_only` quote stops at preparation,
+without approval, expert review or sending. Business email requires qualified operational controls and current
+account/channel gates; package installation does not enable it.
 
-Serveur : **https://guteneo.com/mcp**. Connexion OAuth requise. La configuration serveur et l’accès de votre compte doivent être opérationnels ; un paquet valide ne prouve pas une connexion ni un envoi réussi.
+PDF/UA/PDF/A checks require existing account entitlement and an available
+veraPDF service. Reports bind exact original bytes and certify neither complete
+accessibility nor legal compliance. The plugin never subscribes, renews/cancels
+a plan, buys credit or manages billing. Existing account authority and balance
+explain availability; they are not a plugin sales flow.
 
-Le manifeste fournit un listing anglais, sa traduction française et les liens [support](https://guteneo.com/support/?lang=en), [confidentialité](https://guteneo.com/confidentialite/?lang=en) et [conditions](https://guteneo.com/conditions/?lang=en). L’accueil consulte les fonctions du compte sans importer ni envoyer. Les skills déclarent leur dépendance au MCP Guteneo ; seuls les outils effectivement exposés par cette connexion sont utilisables.
+## Manual installation
 
-Les parcours excluent les données de carte de paiement PCI DSS, les données de santé protégées, les identifiants gouvernementaux, les secrets d’authentification et les données personnelles sensibles, y compris dans un document Guteneo existant lorsque leur présence est connue. Ils ne prétendent pas que l’analyse antivirus détecte ces catégories. Un devis `review_prepare_only` s’arrête à la préparation : aucune approbation, revue expert ni expédition ne suit.
+Sources were reviewed on **13 October 2026**; Claude Code/Claude web/Desktop
+instructions were rechecked on **23 October 2026** with Claude Code 2.1.309 and
+official guides. The [public ZIP](https://guteneo.com/integrations/guteneo-plugin.zip)
+and [version/SHA-256 manifest](https://guteneo.com/integrations/manifest.json)
+allow manual retrieval independently of directory publication. The
+[repository](https://github.com/nclsppr/guteneo) includes this directory on main.
+Loading a folder does not require compiling Guteneo; rebuilding uses `npm ci`
+and `npm run build:integrations` at repository root. Check the selected archive's
+version/hash: the website and main may represent different versions.
 
-L’accès repose sur un compte Guteneo existant et ses droits. Ce paquet ne crée ni checkout, ni abonnement, ni recharge ou montée en gamme. Les devis et le solde expliquent l’opération disponible ; ils ne servent pas à vendre des crédits dans le plugin.
+| Host                 | Installation and qualification boundary                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ChatGPT              | Plugins → `+` → **Add custom MCP server**; enter the server URL, configure OAuth, review permissions, then **Create as a plugin**. Check tools, install the created plugin and select it with `@` in a new conversation. Account/workspace policy applies; developer mode is not a universal prerequisite. Personal MCP connection alone does not distribute this archive's skills. [OpenAI guide](https://developers.openai.com/plugins/deploy/connect-chatgpt).                                                                                                          |
+| Claude web / Desktop | For MCP only, use [Connect to Claude](https://guteneo.com/assistants/claude/) or Customize → Connectors. For the full package: **Customize → Plugins → Add → Upload plugin**, then open **Connectors** in the plugin and connect Guteneo. Loading skills does not complete OAuth. [Claude plugins](https://claude.com/docs/plugins/overview).                                                                                                                                                                                                                              |
+| Claude Code          | From the repository: `claude --plugin-dir ./integrations/guteneo`, or `claude --plugin-url https://guteneo.com/integrations/guteneo-plugin.zip` without cloning. Use the real extracted path when applicable. Loading is session-scoped; open `/mcp` to connect. The dedicated Claude package documents its separate OAuth prerequisites. [Direct loading](https://code.claude.com/docs/en/plugins/create#develop-without-a-marketplace).                                                                                                                                  |
+| Grok web             | [Connectors](https://grok.com/connectors) → **New Connector → Custom**, add the MCP URL and complete authentication. Team policy may require administrator authorization. [Grok connectors](https://docs.x.ai/grok/connectors).                                                                                                                                                                                                                                                                                                                                            |
+| Grok Build           | `grok mcp add --transport http guteneo https://guteneo.com/mcp`, then `grok mcp doctor guteneo`; `/mcps` handles authentication. `grok --plugin-dir ./integrations/guteneo` is a candidate based on documented Claude Code compatibility. Guteneo connection/skills remain to be qualified there. [MCP](https://docs.x.ai/build/features/mcp-servers), [plugins](https://docs.x.ai/build/features/skills-plugins-marketplaces).                                                                                                                                            |
+| Cursor               | Copy the entire package, including hidden files, to an empty `~/.cursor/plugins/local/guteneo/`; preserve any existing local changes. From the repository use `mkdir -p ~/.cursor/plugins/local/guteneo`, then `cp -R ./integrations/guteneo/. ~/.cursor/plugins/local/guteneo/`. Restart or **Developer: Reload Window**, inspect **Customize** and connect MCP. Local imports must be allowed; external symlinks are ignored. For MCP only, merge cursor-mcp.json into `.cursor/mcp.json`. [Cursor local plugins](https://cursor.com/docs/plugins#test-plugins-locally). |
+| GitHub Copilot       | Merge copilot-vscode-mcp.json into `.vscode/mcp.json`, then **MCP: List Servers**. Copilot CLI uses copilot-cli-mcp.json in `~/.copilot/mcp-config.json`, then `/mcp auth guteneo` when requested. Templates prove neither installation of this ZIP nor Microsoft consumer Copilot compatibility. [Guteneo guide](https://github.com/nclsppr/guteneo/blob/main/docs/COPILOT.md).                                                                                                                                                                                           |
 
-La vidéo référencée dans le manifeste est l’enregistrement public du **21 septembre 2026** ; elle ne prouve ni cette nouvelle version de paquet, ni une nouvelle recette reviewer, ni une qualification postale. Les cas de test ne sont pas redéclarés dans le ZIP afin de conserver ceux déjà enregistrés dans le portail. Les identifiants et instructions d’accès reviewer restent dans ses champs sécurisés. Aucun résultat de test, approbation OpenAI ou publication dans l’annuaire n’est attesté par le paquet.
+URLs, archives and JSON templates are installation mechanisms, not live access
+proof. Replace `REPLACE_WITH_REGISTERED_PUBLIC_CLIENT_ID` or
+`GUTENEO_CURSOR_CLIENT_ID` only with an actually registered public client matching
+the host's exact callback. Claude.ai's hosted client is not a Claude Code loopback
+client. Discovery of a registration URL proves neither DCR nor CIMD compatibility.
 
-## Installation manuelle
+For OAuth rejection, compare the advertised issuer exactly, including its
+trailing slash. Reconnect after token expiry or new scope grants, then check
+`get_capabilities`. ChatGPT **Refresh** updates metadata and proves no token
+renewal. Automatic refresh and revocation require separate per-client proof.
+See [connection diagnostics](https://github.com/nclsppr/guteneo/blob/main/docs/LLM_SETUP.md)
+and [RFC 8414 §3.3](https://www.rfc-editor.org/rfc/rfc8414.html#section-3.3).
 
-Parcours relus dans les sources officielles le **13 octobre 2026**. Le [ZIP public](https://guteneo.com/integrations/guteneo-plugin.zip) et son [manifeste de version et SHA-256](https://guteneo.com/integrations/manifest.json) permettent de récupérer le paquet sans attendre sa publication dans un catalogue. Le [dépôt public](https://github.com/nclsppr/guteneo) contient aussi son dossier `integrations/guteneo/` sur `main`. Le chargement d’un dossier ne nécessite pas de compiler Guteneo ; la reconstruction du ZIP utilise `npm ci`, puis `npm run build:integrations` depuis la racine du dépôt.
+## Preparation and authority
 
-Les commandes Claude Code et le chargement de ZIP dans Claude web/Desktop ont
-été revérifiés le **23 octobre 2026**, avec Claude Code 2.1.309 et les guides
-officiels. La distribution Claude dédiée précise ses prérequis OAuth ; les
-instructions ci-dessous conservent aussi la compatibilité du paquet combiné.
+Example requests: “Prepare this email with my PDF and show the quote”, “Prepare
+this email without an attachment”, or “Prepare a protected link for this PDF for
+7 days”. Fax/postal remain account-dependent. Collect only missing recipient,
+channel and ceiling details. Missing tools or disabled channels are blockers.
 
-Les liens du site et de `main` fournissent leurs versions respectives. Vérifiez
-la version et l’empreinte du paquet choisi avant l’installation. Les preuves de
-connexion, de déploiement et de revue sont distinctes du contenu du ZIP.
+Standard sending requires the person's review and approval in Guteneo. Expert
+mode starts disabled: only a browser administrator can grant this exact OAuth
+connection a bounded, expiring mandate, with selected channels, per-send/daily EUR
+ceilings, daily count and expiry within 30 days. The assistant cannot activate or
+extend it; chat agreement creates no mandate. Read `get_expert_status`.
+`review_dispatch` returns readable PDF pages (up to 10 MiB, three pages per call),
+then a token valid at most five minutes only after every page. Exact delegated
+acceptance uses `approve_and_send_dispatch`. Postal `transfer_postal_draft` needs
+distinct delegated authority and transfers a draft without sending. Host
+confirmations and server gates remain mandatory.
 
-- **ChatGPT** : Plugins → `+` → **Add custom MCP server**, saisir `https://guteneo.com/mcp`, configurer OAuth, examiner les permissions puis **Create as a plugin**. Vérifier les outils, installer le plugin créé et le sélectionner avec `@` dans une nouvelle conversation. Les règles du compte ou de l’espace s’appliquent ; le mode développeur n’est pas une étape systématique du guide courant. Cette connexion MCP personnelle ne distribue pas à elle seule les skills de ce ZIP. [Guide OpenAI](https://developers.openai.com/plugins/deploy/connect-chatgpt).
-- **Claude web / Desktop** : pour le connecteur seul, utiliser [Connecter à Claude](https://guteneo.com/assistants/claude/) ou ajouter l’URL dans Personnaliser → Connecteurs. Pour le paquet complet : **Customize → Plugins → Add → Upload plugin**, choisir le ZIP, puis ouvrir **Connectors** dans le plugin pour ajouter et connecter Guteneo. Charger les skills ne réalise pas le consentement OAuth. [Plugins Claude](https://claude.com/docs/plugins/overview).
-- **Claude Code** : depuis le dépôt, lancer `claude --plugin-dir ./integrations/guteneo`, ou `claude --plugin-url https://guteneo.com/integrations/guteneo-plugin.zip` sans clone. Dans un paquet extrait, passer son chemin réel. Le chargement vaut pour la session ; ouvrir `/mcp` pour connecter Guteneo. [Chargement direct Claude Code](https://code.claude.com/docs/en/plugins/create#develop-without-a-marketplace).
-- **Grok web** : [Connectors](https://grok.com/connectors) → **New Connector → Custom**, ajouter l’URL MCP et terminer l’authentification. Les règles d’équipe peuvent nécessiter une autorisation administrateur. [Connecteurs Grok](https://docs.x.ai/grok/connectors).
-- **Grok Build** : `grok mcp add --transport http guteneo https://guteneo.com/mcp`, puis `grok mcp doctor guteneo` ; `/mcps` permet l’authentification. `grok --plugin-dir ./integrations/guteneo` est aussi un chemin candidat fondé sur la compatibilité Claude Code documentée par Grok. La connexion Guteneo et les skills restent à qualifier dans ce client. [MCP Grok Build](https://docs.x.ai/build/features/mcp-servers), [plugins Grok Build](https://docs.x.ai/build/features/skills-plugins-marketplaces).
-- **Cursor** : copier le contenu complet du paquet, fichiers cachés inclus, dans `~/.cursor/plugins/local/guteneo/`. Préserver les modifications d’une éventuelle copie existante et utiliser un dossier cible vide. Depuis le dépôt, créer le dossier s’il manque avec `mkdir -p ~/.cursor/plugins/local/guteneo`, puis copier avec `cp -R ./integrations/guteneo/. ~/.cursor/plugins/local/guteneo/`. Redémarrer ou lancer **Developer: Reload Window**, puis vérifier **Customize** et connecter le MCP. Les imports locaux doivent être autorisés ; un lien symbolique externe est ignoré. Pour le MCP seul, fusionner `cursor-mcp.json` dans `.cursor/mcp.json`. [Plugins locaux Cursor](https://cursor.com/docs/plugins#test-plugins-locally).
-- **GitHub Copilot dans VS Code** : fusionner `copilot-vscode-mcp.json` dans `.vscode/mcp.json`, puis ouvrir `MCP: List Servers`. **Copilot CLI** utilise `copilot-cli-mcp.json` dans `~/.copilot/mcp-config.json`, puis `/mcp auth guteneo` si demandé. Ces modèles ne prouvent pas l’installation de ce ZIP dans Copilot ni sa compatibilité avec Microsoft Copilot grand public. [Guide Guteneo Copilot](https://github.com/nclsppr/guteneo/blob/main/docs/COPILOT.md).
+ChatGPT import requires the host's actual file contract. Guteneo fetches exact
+bytes from a direct public HTTPS source and verifies the PDF; private, expired or
+redirected URLs are rejected. Without qualified file transport, the user may
+choose [authenticated document upload](https://guteneo.com/?lang=en#/app/documents)
+and reuse the document ID. A separately installed Cursor/Claude Code local
+adapter is documented independently; this package grants it no disk access.
 
-L’URL, le ZIP et les modèles JSON sont des moyens d’installation, pas une preuve de connexion réelle ou de publication. Un modèle OAuth contenant `REPLACE_WITH_REGISTERED_PUBLIC_CLIENT_ID` ou `GUTENEO_CURSOR_CLIENT_ID` doit recevoir l’identifiant public d’un client réellement enregistré pour le callback de cet hôte. Le client Claude.ai hébergé ne remplace pas un client localhost Claude Code. La découverte d’une URL d’enregistrement ne prouve pas que DCR ou CIMD permettent une installation automatique.
+For postal requests, preserve the postal channel. `get_postal_setup` reads the
+sender. If absent, collect its name/full address in the conversation; an OAuth
+administrator with dispatches:prepare may call `configure_postal_sender` without
+a web setup form. It cannot replace existing identity or restore suspended
+service. OAuth submission is recorded distinctly from human send consent and
+physical address verification. Then collect missing recipient/options, preflight
+the PDF and present `reviewUrl`. A fax-only mandate does not block standard
+postal preparation.
 
-En cas de refus OAuth, vérifier que l’issuer annoncé dans les métadonnées MCP est **identique** à celui de l’autorité, slash final compris. En cas de jeton expiré ou de nouveaux scopes, reconnecter Guteneo et vérifier `get_capabilities`. **Refresh** dans ChatGPT actualise les métadonnées et ne prouve pas le renouvellement d’un jeton. Le refresh automatique et la révocation restent à qualifier par client. [Diagnostic et callbacks exacts](https://github.com/nclsppr/guteneo/blob/main/docs/LLM_SETUP.md#diagnostics-de-connexion-et-renouvellement), [RFC 8414 §3.3](https://www.rfc-editor.org/rfc/rfc8414.html#section-3.3).
+Read `analysis` on the same stored document. Processing continues automatically;
+wait the returned delay, read `get_document` at most three times and never
+reimport or loop on rescans. `documentUrl` is optional when the person wants the
+website. Analysis prepares, approves and sends no communication. The server
+remains authoritative; follow current tool schemas and error.recovery. An
+uncertain response never authorizes another dispatch.
 
-Demandez : « Prépare cet e-mail avec mon PDF et montre-moi le devis », « Prépare cet e-mail sans pièce jointe » ou « Prépare un lien protégé pour ce PDF pendant 7 jours ». Le fax et le courrier postal restent disponibles selon le compte. Le destinataire, le canal et le plafond restent à préciser. Si le canal ou son outil manque, le parcours doit signaler ce blocage. Par défaut, vous relisez et approuvez le document et le devis dans Guteneo. Le mode expert est facultatif et désactivé : un administrateur peut accorder dans le navigateur un mandat à cette connexion OAuth, pour des canaux choisis, avec plafond EUR par envoi/jour, nombre maximal quotidien et expiration dans les 30 jours. L’assistant ne l’active ni ne l’étend. L’assistant vérifie le mandat de sa connexion avec `get_expert_status`. Sous ce mandat, `review_dispatch` fournit les pages lisibles du PDF dans la conversation (jusqu’à 10 Mio, trois pages par appel), puis une preuve de revue valable au plus cinq minutes seulement après toutes les pages. Ensuite, `approve_and_send_dispatch` demande une approbation déléguée et l’envoi exact. Le dépôt postal via `transfer_postal_draft` est une étape distincte, explicitement déléguée, sans expédition. Les confirmations de votre hôte et les contrôles Guteneo restent applicables. Aucun « oui » dans le chat ne crée à lui seul ce mandat.
+## Account-protected distribution
 
-Dans ChatGPT, l’import utilise le contrat de fichier fourni par l’hôte. Guteneo télécharge directement les octets depuis une source HTTPS publique et vérifie le PDF avant utilisation ; une URL privée, expirée ou redirigée reste refusée. Pour Claude, GitHub Copilot ou tout hôte sans transfert de fichier qualifié, déposez le PDF dans [Documents Guteneo](https://guteneo.com/?lang=en#/app/documents), puis utilisez son identifiant. Un adaptateur local optionnel pour Cursor et Claude Code est documenté séparément ; ce paquet ne lui donne aucun accès au disque.
+`secure-distribution` prepares delivery through a recipient account and a
+secure page reader, with a funded retention term and the server’s active
+document authentication policy. It uses `prepare_secure_distribution`,
+`list_secure_distributions`, `get_secure_distribution`,
+`confirm_secure_distribution` and `revoke_secure_distribution`. The term,
+original-download permission and any authorized personal copy are part of the
+immutable preparation and approved quote. Revocation refunds no funded term and
+does not delete a personal copy already delivered.
 
-Pour « envoie ce PDF par courrier », le parcours reste postal. `get_postal_setup` retrouve l’expéditeur du compte ; s’il manque, l’assistant demande son nom et son adresse complète directement dans la conversation. Un administrateur OAuth disposant de `dispatches:prepare` peut les enregistrer via `configure_postal_sender`, sans formulaire web. Une configuration existante ne peut pas être remplacée ou réactivée par cet outil. Son origine dans la conversation est enregistrée distinctement ; elle ne prouve pas une vérification physique de l’adresse et ne constitue pas une approbation d’envoi. L’assistant recueille les seules informations manquantes, utilise le contrôle postal, puis donne le `reviewUrl` de Guteneo. Un mandat limité au fax n’empêche pas cette préparation standard.
+Rendering can return `preparing`: query the same identifier without recreating
+the operation. Activation requires recorded browser approval under the active
+document authentication policy, including for an expert connection. The
+assistant never confirms recipient identity, performs initial account binding
+or accesses personal documents. Display/download events preserve their
+provenance; they prove neither complete reading, saving to disk nor screenshot
+detection.
 
-Après l’import, `analysis` explique si la vérification continue, si le PDF est prêt ou si une action est nécessaire. La suite reste dans la conversation avec le même document ; `documentUrl` est une consultation facultative si vous souhaitez ouvrir le site. Une indisponibilité temporaire du scanner est reprise automatiquement par Guteneo ; l’assistant consulte `get_document` après le délai indiqué, sans réimporter ni multiplier les relances. La vérification ne prépare, n’approuve et n’envoie aucune communication.
+All clients connected to `https://guteneo.com/mcp` discover the same tools under
+their current server authority: the combined ChatGPT/Cursor/Claude package,
+the dedicated Claude package and the MCP configuration examples. Existing
+`dispatches:prepare`, `dispatches:read` and `dispatches:send` scopes cover this
+workspace workflow and grant no access to someone else’s personal space. REST
+describes the same workspace operations in `/openapi.json`.
 
-Installation, enregistrement dans un annuaire et qualification réelle de chaque hôte sont des étapes distinctes. Guide détaillé : [LLM_SETUP.md](https://github.com/nclsppr/guteneo/blob/main/docs/LLM_SETUP.md).
+Configuration, rendering, scanning, notification, authentication and account
+availability gates remain mandatory. A local archive proves neither production
+activation nor qualification in each host. The legacy password-protected email
+link remains a separate workflow; never switch modes without an explicit choice.
 
-Le serveur reste l’autorité ; n’utilisez que les outils effectivement disponibles et les champs de leur schéma courant. Une réponse incertaine se consulte, elle ne justifie jamais une nouvelle expédition. Détails du contrat : [EXPERT_APPROVAL.md](https://github.com/nclsppr/guteneo/blob/main/docs/EXPERT_APPROVAL.md).
+## Email, protected documents and studio
 
-## Identité et publication
+`email` reuses `prepare_dispatch` for no attachment, original PDF attachment or
+protected link. The quote separates delivery and applicable EUR1 hosting per
+protected document. Duration is 1, 7 or 30 days. The verified original remains
+immutable. Recipients need a password, not an account. The sender reads the
+password only in their authenticated browser and shares it separately; no MCP
+tool reads or transmits it. Preparation-only review accounts still cannot send.
 
-Le logo d’annuaire conserve l’emblème simple Guteneo approuvé dans `assets/guteneo-mark.png` (512 × 512). Le composer utilise son dérivé `assets/guteneo-composer.png` (1 254 × 1 254), avec un contour extérieur transparent et un cadre simplifié pour les petites tailles. Le portrait tramé reste réservé aux surfaces du site et de connexion. Ces assets ne constituent pas une preuve de publication dans ChatGPT.
+`document-studio` covers editable pdfme templates, DOCX import warnings,
+CSV/XLSX/XML/JSON, versioned mappings, private PDF jobs and separate distribution
+preparation. Executable examples live in `examples/template-workflow/`. Dedicated
+OAuth scopes are templates:read/write/publish/share, datasets:read/write and
+generations:read/write, plus document/dispatch scopes for their own actions.
+Discover current rules with `get_template_authoring_guide`, then five synthetic
+bases with `list_template_examples`/`get_template_example`. Direct assistant
+authoring needs no extra internal AI call. The packaged
+[authoring reference](skills/document-studio/references/template-authoring.md)
+explains the envelope. Owners may remove creations or demo copies through
+`delete_template`; existing PDFs/history remain. Shared templates do not share
+private data sources. Data files are not email attachments; recipient accounts
+and Excel/other attachments remain unavailable in the email journey.
 
-Le dossier de revue, les cas de test reproductibles et les prérequis encore ouverts sont décrits dans [CHATGPT_MARKETPLACE.md](https://github.com/nclsppr/guteneo/blob/main/docs/CHATGPT_MARKETPLACE.md). La création du dossier, sa soumission, l’approbation OpenAI et la mise en ligne sont des étapes distinctes.
+## Identity and publication evidence
 
-## Distribution sécurisée avec compte destinataire
+The approved simple directory emblem is assets/guteneo-mark.png (512 × 512).
+The composer derivative assets/guteneo-composer.png (1 254 × 1 254) has a transparent
+outer contour and simplified frame. The halftone portrait belongs to website and
+sign-in surfaces. Assets alone prove no ChatGPT publication.
 
-Le parcours `secure-distribution` prépare une distribution avec un compte Guteneo
-unique côté destinataire et une authentification forte récente. Il utilise
-`prepare_secure_distribution`, `list_secure_distributions`,
-`get_secure_distribution`, `confirm_secure_distribution` et
-`revoke_secure_distribution`. La durée, le droit de télécharger l’original et
-l’autorisation d’une copie personnelle font partie de la préparation et du prix
-approuvés. Une révocation ne rembourse pas la durée financée et ne supprime pas
-une copie personnelle déjà remise.
-
-Le rendu peut répondre `preparing` : consulter le même identifiant jusqu’à l’état
-préparé, sans recréer l’opération. L’activation exige une approbation navigateur
-forte enregistrée, même pour une connexion disposant d’un mandat expert.
-L’assistant ne confirme jamais l’identité du destinataire, n’effectue pas son
-association initiale et n’accède pas à ses documents personnels. Les événements
-d’affichage et de téléchargement gardent leur provenance ; ils ne prouvent pas
-une lecture intégrale, un enregistrement sur disque ou une capture d’écran.
-
-Tous les clients configurés sur `https://guteneo.com/mcp` découvrent les mêmes
-outils autorisés par le serveur : paquet universel ChatGPT/Cursor/Claude,
-paquet Claude dédié et modèles MCP Copilot/Cursor/Claude. Les scopes existants
-`dispatches:prepare`, `dispatches:read` et `dispatches:send` couvrent ce parcours ;
-ils ne donnent aucune autorité sur l’espace personnel d’autrui. Le REST décrit
-les mêmes opérations d’atelier dans `/openapi.json`.
-
-Ce candidat conserve les gates de configuration, rendu, scan, notification,
-authentification et disponibilité du compte. Une archive locale ne prouve ni
-l’activation en production ni la qualification de ces nouveaux outils dans
-chaque hôte. Le lien email historique à mot de passe reste un parcours distinct.
-
-## E-mail historique et document à mot de passe
-
-Le parcours `email` réutilise `prepare_dispatch` pour les e-mails sans pièce jointe, les PDF joints et les PDF remis par lien protégé. Le devis distingue la remise et le supplément d’hébergement lorsqu’il s’applique : 1 € par document protégé. La durée choisie est de 1, 7 ou 30 jours ; le PDF original reste soumis à sa vérification. Le destinataire consulte une page protégée par mot de passe, sans compte requis. L’expéditeur consulte le mot de passe uniquement dans son compte navigateur et le transmet séparément. Aucun outil MCP ne lit ou ne transmet ce mot de passe.
-
-Le studio documentaire prépare des PDF personnalisés depuis des données CSV, XLSX, XML ou JSON. Il ne joint pas les fichiers de données aux e-mails ; les autres pièces jointes et les comptes destinataires restent hors de ce parcours. Le compte de revue ChatGPT conserve ses restrictions de préparation seule.
-
-## Studio documentaire
-
-Le parcours `document-studio` couvre les modèles pdfme rééditables, l’import DOCX
-avec avertissements, CSV/XLSX/XML/JSON, les mappings versionnés, les jobs de PDF et la
-préparation séparée de la distribution. Les exemples exécutables figurent dans
-`examples/template-workflow/` du dépôt. Les autorisations OAuth dédiées sont
-`templates:read`, `templates:write`, `templates:publish`, `templates:share`,
-`datasets:read`, `datasets:write`, `generations:read`, `generations:write`, auxquelles
-s’ajoutent les scopes documents/envois pour leurs opérations propres.
-
-Les assistants découvrent les règles avec `get_template_authoring_guide`, puis
-les cinq bases fictives avec `list_template_examples` et `get_template_example`.
-Ils peuvent adapter une enveloppe et la créer avec `create_template`, sans
-appel IA interne. La [référence de création](skills/document-studio/references/template-authoring.md)
-est aussi incluse dans le ZIP. Le propriétaire peut supprimer ses créations,
-y compris les copies de démonstration, depuis l’interface ou `delete_template` ;
-les PDF déjà générés et leur historique restent conservés.
-
-La présence du parcours ne prouve ni disponibilité du service pour le compte,
-ni nouvelle autorisation accordée à un client existant, ni publication marketplace.
-Le transfert natif de fichiers dépend des capacités réellement annoncées par l’hôte.
+The manifest's public video is the **21 September 2026** recording. It qualifies
+neither this package, a fresh reviewer run nor postal execution. Test cases are
+not redeclared inside the ZIP, preserving existing portal cases. Reviewer access
+stays in secure portal fields. Package preparation, submission, OpenAI approval
+and directory publication are separate. Current review evidence and open cases:
+[CHATGPT_MARKETPLACE.md](https://github.com/nclsppr/guteneo/blob/main/docs/CHATGPT_MARKETPLACE.md).

@@ -61,7 +61,7 @@ export async function personalApi<T>(
     throw new ApiError(
       "NETWORK",
       msg(
-        "Connexion interrompue. Actualisez le suivi avant de recommencer une opération.",
+        "Connection interrupted. Refresh the status before repeating an operation.",
       ),
       0,
     );
@@ -74,7 +74,7 @@ export async function personalApi<T>(
     throw new ApiError(
       data?.error?.code ?? "HTTP_ERROR",
       data?.error?.message ??
-        msg("Le service a répondu avec une erreur ({0}).", response.status),
+        msg("The service returned an error ({0}).", response.status),
       response.status,
     );
   return data as T;
@@ -114,7 +114,7 @@ export async function personalBlob(
     throw new ApiError(
       "NETWORK",
       msg(
-        "Connexion interrompue. Actualisez le suivi avant de recommencer une opération.",
+        "Connection interrupted. Refresh the status before repeating an operation.",
       ),
       0,
     );
@@ -125,7 +125,7 @@ export async function personalBlob(
     } | null;
     throw new ApiError(
       data?.error?.code ?? "DOCUMENT_UNAVAILABLE",
-      data?.error?.message ?? msg("Ce document ne peut pas être affiché."),
+      data?.error?.message ?? msg("This document cannot be displayed."),
       response.status,
     );
   }
@@ -137,7 +137,7 @@ export async function personalBlob(
   )
     throw new ApiError(
       "DOCUMENT_UNAVAILABLE",
-      msg("Ce document ne peut pas être affiché."),
+      msg("This document cannot be displayed."),
       502,
     );
   return response.blob();

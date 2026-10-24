@@ -1,0 +1,177 @@
+---
+title: Provider and tariff maintenance
+description: Keep account evidence, dated price policies and delivery contracts current without mutating approved commitments or inventing availability.
+sidebar:
+  order: 8
+---
+
+Provider configuration and prices change independently of Guteneo releases.
+Maintenance therefore tracks both the implementation contract and fresh evidence
+for the exact account, route, currency and validity window. An expired or unknown
+price closes new preparation or acceptance; it never becomes zero cost.
+
+This is the maintenance model, not a list of current live rates. The server's
+qualified catalog/quote and private dated evidence own actual amounts and
+activation. [Channel adapters](/workflows/delivery-channels/) describes transport;
+[CI and release evidence](/engineering/ci-and-release/) describes source checks.
+
+<ServiceRelease />
+
+## Keep four kinds of evidence separate
+
+| Record | Establishes | Does not establish |
+| --- | --- | --- |
+| Official public documentation/price | Dated published terms and API meaning | Account-specific agreement, balance or live route |
+| Authorized private account inspection | Exact account/application/profile configuration at that time | Successful delivery or final billing |
+| Qualified immutable policy/quote | Explicit pricing basis, route, currency, expiry and approved ceiling | A future invoice or permission to send |
+| Signed outcome and correlated usage | A bounded observed submission/delivery/cost fact | Unobserved reading, an unrelated route or authorization to retry |
+
+Store source date/hash, qualification date and expiry separately. A reinspection
+must not rewrite the historical date of an old price or exchange-rate reference.
+A commercial fixed FX reference is not a live currency quote. Unknown, absent,
+false, zero and provider `null` have different meanings.
+
+## Telnyx: qualify the route and the complete pricing basis
+
+Fax pricing combines page and transmission components. The qualified route binds
+sender/account/application/profile, origin classification, destination category
+and longest applicable prefix, units, billing intervals, permitted fees, FX and
+validity. Country availability alone does not price every special/mobile route.
+A missing or revoked more-specific tariff must not fall back to a cheaper broad
+country row.
+
+A dated public page rate is distinct from an account-specific negotiated rate.
+Likewise, T.38 support, destination permission and an active number do not prove
+Local Calling qualification or successful fax delivery. An explicit bounded
+operator-test exception remains an exception with its own immutable authority;
+it cannot silently become normal provider qualification.
+
+Prepare from the disclosed qualified estimate and firm customer ceiling. Record
+future usage separately; Guteneo's ceiling is not a physical cap on supplier
+exposure. Keep reservations for ambiguous outcomes and reconcile against the
+fenced attempt/account/provider reference. Do not sum a complete rollup and its
+leaf charges twice. Never rewrite an approved quote or debit above its ceiling
+because a new rate or late adjustment appears.
+
+## Pingen: preserve the exact document/options quote
+
+Postal calculation depends on the actual provider preparation, destination,
+paper, print options and account. A country-wide marketing price is not a
+substitute for the final qualified option set. Uploaded bytes, provider draft,
+inspection, print preview and sending are distinct steps with distinct authority.
+
+A synthetic draft test does not qualify a customer document, a French postal
+product, account credit or real signed delivery callback. `auto_send:false`
+preparation must remain unsent until the explicit authorized send path. Changes
+to upload origins, webhook scopes or calculator semantics require reinspection
+and regression coverage, never broadening scopes as a silent fallback.
+
+For maintenance, confirm the documented bounded account/upload-origin reader,
+exact quote inputs/output, tax/currency basis, signed webhook verification and
+prepared-document equivalence. Provider credentials and ephemeral upload URLs
+stay in private runtime; never copy them into engineering content or logs.
+
+## Resend and SES: distinguish price, shared quota and delivery
+
+Email policies bind an explicit provider/plan/tier, recipient unit, attachment
+basis, currency, source date, FX basis and qualification window. A public paid-tier
+reference does not become the marginal charge of a free account. Included quotas
+are shared by the account, including use outside Guteneo; do not allocate the
+entire allowance independently to every workspace.
+
+Account-wide admission policy, minimum submission spacing and provider rate limits
+are separate from per-workspace quotas. A verified sender domain or enabled local
+flag proves neither installed global quota policy nor signed webhook secret.
+Verify callback authentication, duplicate/reordered event handling, sender
+identity and actual activation independently. SES sandbox/region and SNS
+signature/topic configuration remain distinct from Resend's webhook contract.
+
+A secure-document invitation is still a communication. It needs current transport,
+funding, approval and uncertainty controls as other sends. Secure retention
+charges are separate from invitation transport: a delivery failure does not
+recreate an already committed retention service.
+
+## Refresh safely, then verify the actual effect
+
+1. Identify an approaching expiry, documented API change or observed mismatch.
+   Preserve the old evidence and state which new fact is required.
+2. Read current official sources and perform only the authorized bounded private
+   inspection. Retain sanitized dates/hashes and precise limitations.
+3. Prepare a new immutable policy/version and local regression evidence. Preserve
+   old quotes, approvals, reservations and settlement history.
+4. Update implementation, feature inventory and affected engineering guide when
+   semantics, CI or infrastructure changes. Review changed scope and cost.
+5. Obtain the applicable operator authorization before installation, paid changes,
+   activation or publication. Recheck exact source/configuration afterwards.
+6. Prove the deployed capability and, separately, any authorized real journey.
+   Missing proof remains visible; do not extend expiry merely to hide a blocker.
+
+There is no automatic price crawler or automatic tariff deployment promised here.
+Current gates enforce validity; maintenance owners must monitor windows and use
+the reviewed operator procedure. Contract, budget, webhook, scanner, identity and
+real delivery evidence can expire or fail independently.
+
+## Maintenance register
+
+This register identifies what must stay current. A trigger is not a claim of
+existing automation. Review upcoming expiries before they close a gate and review
+provider/security announcements when they change the supported contract. The
+scanner workflow and scheduled application/status jobs have explicit cadences;
+other rows require deliberate owner review and authorized action.
+
+| Subject | Trigger or deadline | Authoritative source/tool | Verification after maintenance |
+| --- | --- | --- | --- |
+| Telnyx tariff/route | Before qualified tariff or sender validity expires; new rate deck, profile, origin or prefix classification | `docs/TELNYX_RATE_QUALIFICATION.md`, `TELNYX_READINESS.md`, `LIVE_FAX_QUOTES.md`; bounded `scripts/provider-readiness.mjs` reader | Source hash/date, account/application/profile binding, most-specific route, expiry refusal and unchanged old quotes; real route proof remains separate |
+| Pingen quote/preparation | Before quote validity ends; changed options, calculator, upload origin, account or postal product | `docs/PINGEN_SETUP.md`, `PINGEN_PREFLIGHT.md`, `LIVE_DELIVERY_QUOTES.md`; reviewed synthetic-draft/preflight qualifiers | Exact document/options/tax/currency/expiry, unsent draft state, final-preview equivalence and separately authorized signed callback/send |
+| Resend/SES price policy | Before qualification expiry; plan/tier, attachment basis, account/domain or source-price change | `docs/RESEND_SETUP.md`, `RESEND_PROOF.md`, `SES_SETUP.md`, `LIVE_DELIVERY_QUOTES.md`; server quote policy | New dated basis and correct provider identity; separate actual installation, sender verification, quota admission and signed events |
+| FX and quote clocks | Before policy/quote expiry; changed commercial FX assumption or clock drift | Immutable quote contracts in `packages/domain/src/live-fax-quotes.ts` and `live-delivery-quotes.ts` | Preserve historical FX/source date and integer/rational units; new version rather than rewriting approval; expiry tested at review/acceptance/preflight |
+| Shared account quotas | Changed provider limit, account-wide traffic, abuse or sustained usage | Provider-account evidence, D1 quota policy and current capability blockers | Headroom includes non-Guteneo/Auth0 usage where shared; per-workspace and global admission both enforced; no extra capacity inferred from a new workspace |
+| Scanner signatures | Runtime rejects signatures older than 72 hours; configured refresh workflow is daily with a separate six-hour maintenance check | `docs/SCANNER_CI.md`, `SCANNER.md`; `apps/scanner/scripts/{ci-refresh,maintenance-status,refresh-definitions}.mjs` | Exact image/version, real engine health/signature time, clean/EICAR/hash/refusal corpus and hosted freshness; successful build alone is insufficient |
+| Dependencies and processing engines | Security advisory, supported-runtime change or renderer/scanner/library update | Lockfiles, dependency audit, scanner/validator suites and renderer corpus; `docs/CI.md` | Fresh installs, pinned engine provenance, relevant real-render tests, language/accessibility parity and exact-source CI; signature refresh is not an engine upgrade |
+| Auth0 identity/session | Callback/domain/client/scope/action/key/recovery change; policy or session freshness boundary | `docs/ACCOUNT_IDENTITY.md`, `IDENTITY_MCP.md`, current auth guards and reviewed qualification scripts | Exact issuer/subject/audience, callback/PKCE, signed claims/time, current connection/membership, logout/recovery and independent browser/native/host journeys |
+| Provider webhooks | URL, signing key, API version, topic/subscription or event-schema change | `docs/PROVIDERS.md`, `PINGEN_WEBHOOK_SETUP.md`, `SES_SUBSCRIPTION_CONFIRMATION.md`, `BILLING.md` | Genuine signature/account/topic checks, timestamp/replay/deduplication and reordered events; unsigned HTTP refusal is not a signed-callback success |
+| Backups, wrapping keys and restoration | Retention/schema/key change; planned recovery rehearsal or incident | `docs/RUNBOOK.md`, `RESTORE_PROOF.md`, `SECURE_DISTRIBUTION_IMPLEMENTATION.md`; local restore integration test | Matching objects/hashes/key versions, revocations, approvals, charges, reservations/outbox and independent acquired copies; hosted rehearsal recorded separately |
+| Cloudflare resources and costs | Usage trend, shared-quota pressure, service/region/binding/plan change | Wrangler configuration, `docs/COSTS.md`, `HORIZON_COSTS.md`, `STATUS_SERVICE.md`; `scripts/costs.ts` and private metrics | Actual billed units and inclusions, bounded queries/jobs/retention, CPU/storage/queue/browser budgets and real location terms; local models are not invoices |
+| Stripe prices/taxes/events | Commercial product/portal/price/tax/refund/API-version or signing-key change | `docs/BILLING.md`, `MONTHLY_PLAN.md`; browser-admin billing and canonical event projection | Existing plan/entitlement guards, environment separation, signed deduplicated canonical objects and separately qualified commercial/tax setup; no implicit checkout/top-up |
+| CI/release and monitoring | Matrix, artifact, Node/browser/toolchain, service or public-check contract changes | `.github/workflows/`, `scripts/ci/verify-results.mjs`, release/verifier scripts | Exact source, all required reports, sanitized uploads, origin representation preservation, strict GitHub workflow-claim pairs, manifest/served-byte match and current-version freshness; old green reports remain historical |
+
+GitHub report OIDC is separate from Auth0 account login. Review token-format or
+CDN-transformation changes against the [testing contract](/engineering/testing/):
+maintain exact workflow/commit authority and received-byte checks, then qualify
+application responses and status ingestion independently after publication.
+
+## Auth0 maintenance is more than keeping a login page working
+
+Guteneo roles and supervisor options remain current application memberships;
+OAuth scopes restrict a specific connection and never replace them. Registered
+client scopes, exact callbacks, token audience/resource and canonical issuer must
+stay consistent without broadening consent as a recovery tactic. Optional browser
+identity aliases do not silently change the MCP authorization-server namespace.
+
+Validate signed issuer/subject and primary authentication time before recording
+identity evidence. Under strong document policy, validate the qualified method
+claim as well; an installed Action, enrolled factor or `mfa` flag alone proves no
+actual strong ceremony. Under explicitly selected verified-account policy, keep
+ordinary assurance factual. Align the durable D1 policy and environment; never
+make a mismatch fall back to weaker access.
+
+Signing-key rotation, cached discovery/JWKS, session revocation, identity changes,
+recovery and logout need their relevant regression/connected checks. Installation
+scripts or tenant configuration are not proof that a real user's callback,
+recovery or host OAuth refresh succeeds. Keep any necessary Action/claim changes
+reviewable, bound to the intended client, and separate from passkey activation or
+paid-plan changes. Private account details and credentials stay outside this site.
+
+## Cloud costs and identity belong in the same review
+
+Workers CPU/requests, D1 rows/storage, R2 operations/storage, Queues, browser
+rendering and identity plans have different units and shared inclusions. An R2
+storage calculation alone cannot prove total margin, unlimited reading or a bill
+cap. Budget repeated reads, durable jobs, audit retention, abuse, recovery,
+backups and support. Record representative hosted measurements separately from
+local Node timing or synthetic maximal-buffer benchmarks.
+
+See [system architecture](/architecture/system/) for the dependency boundaries,
+[background jobs](/engineering/background-jobs/) for ongoing work, and
+[security/reliability](/engineering/security-and-reliability/) for fail-closed
+operation when a dependency loses qualification.

@@ -1,0 +1,234 @@
+/* The reading surface inherits Guteneo's paper, ink, type and cobalt. */
+
+html {
+  font-feature-settings: "kern", "liga";
+  font-variant-numeric: lining-nums;
+  caret-color: var(--nb-brand);
+  accent-color: var(--nb-brand);
+  scroll-padding-top: calc(var(--nb-header-height) + 1rem);
+}
+
+::selection {
+  color: var(--nb-foreground);
+  background: var(--nb-selected);
+}
+
+.engineering-header {
+  isolation: isolate;
+}
+
+.engineering-brand {
+  --engineering-logo-ink: var(--ink);
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.25rem 0.5rem 0.25rem 0.25rem;
+  color: var(--engineering-logo-ink);
+  background: transparent;
+}
+
+[data-mode="dark"] .engineering-brand {
+  --engineering-logo-ink: var(--paper);
+}
+
+.engineering-brand img {
+  display: block;
+  width: 2.25rem;
+  height: 2.25rem;
+  flex: none;
+}
+
+.engineering-brand-name {
+  display: grid;
+  gap: 0.125rem;
+}
+
+.engineering-wordmark {
+  color: var(--engineering-logo-ink);
+  font-family: var(--nb-font-display);
+  font-size: 1.75rem;
+  font-weight: 400;
+  line-height: 0.85;
+  letter-spacing: -0.03em;
+}
+
+.engineering-brand-section {
+  color: var(--engineering-logo-ink);
+  font-family: var(--nb-font-sans);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.engineering-product-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  min-height: 2.75rem;
+  margin-inline-end: 0.75rem;
+  color: var(--nb-muted-foreground);
+  font-size: 0.8125rem;
+  text-decoration: none;
+}
+
+.engineering-product-link:hover {
+  color: var(--nb-brand);
+}
+
+.engineering-header button,
+.engineering-header a[aria-label="GitHub"],
+[data-close-sidebar] {
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+}
+
+[data-nb-desktop-sidebar],
+[data-nb-toc-scroll-host] {
+  top: var(--nb-header-height);
+  height: calc(100dvh - var(--nb-header-height));
+}
+
+#main-content {
+  outline-offset: -0.2rem;
+}
+
+[data-slot="page-header"] {
+  padding-bottom: 0.25rem;
+}
+
+/* A short printer's rule introduces each page without competing with its title. */
+[data-slot="page-header"]::before {
+  content: "";
+  display: block;
+  width: 2.25rem;
+  margin-bottom: 0.875rem;
+  border-top: 2px solid var(--nb-brand);
+}
+
+[data-nb-sidebar] a[aria-current="page"] {
+  box-shadow: inset 2px 0 0 var(--nb-brand);
+}
+
+[data-slot="page-header"] h1,
+.docs-content :where(h1:not([class]), h2:not([class])) {
+  font-family: var(--nb-font-display);
+}
+
+[data-slot="page-header"] > p {
+  max-width: 62ch;
+  margin-top: 1rem;
+  font-size: 1.0625rem;
+  line-height: 1.7;
+}
+
+.docs-content {
+  line-height: 1.8;
+}
+
+.docs-content :where(p:not([class]), ul:not([class]), ol:not([class])) {
+  max-width: 70ch;
+}
+
+.docs-content a {
+  text-underline-offset: 0.2em;
+  text-decoration-thickness: 1px;
+}
+
+.docs-content :where(table) {
+  font-variant-numeric: tabular-nums;
+}
+
+.docs-content :where(code, pre) {
+  font-variant-numeric: normal;
+}
+
+[data-slot="card"] {
+  box-shadow: none;
+  border: 1px solid var(--nb-border);
+  border-radius: var(--nb-radius);
+}
+
+[data-slot="card"]:hover {
+  box-shadow: none;
+  border-color: var(--nb-brand);
+}
+
+[data-slot="card-content"] {
+  font-size: 0.9375rem;
+  line-height: 1.7;
+}
+
+@media (max-width: 47.99rem) {
+  .engineering-product-link,
+  .engineering-header a[aria-label="GitHub"] {
+    display: none;
+  }
+
+  :root {
+    --nb-sidebar-width: 19rem;
+  }
+}
+
+[data-slot="page-actions"] :is(button, a),
+[data-mobile-sidebar]
+  :is(button, [data-nb-sidebar] li > a, [data-nb-sidebar] details > summary) {
+  min-height: 2.75rem;
+}
+
+[data-slot="pagination-bar"],
+[data-slot="pagination-highlight"] {
+  border-radius: var(--nb-radius);
+  box-shadow: none;
+}
+
+[data-slot="pagination-link"] {
+  border-radius: var(--nb-radius-sm);
+}
+
+.escaped-swallow {
+  display: block;
+  width: 5rem;
+  height: 5rem;
+  margin: 0.75rem auto 1rem;
+  background: url("/brand/swallow-sheet.webp") 0 0 / 200% 200% no-repeat;
+}
+
+[data-mode="dark"] .escaped-swallow {
+  background-color: var(--paper);
+  border-radius: var(--nb-radius);
+}
+
+[data-search-input] {
+  min-height: 2.75rem;
+  font-size: 1rem;
+}
+
+[data-slot="search-dialog"] button {
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+}
+
+@media (max-width: 22.5rem) {
+  .engineering-brand {
+    gap: 0.45rem;
+    padding-inline: 0.125rem 0.375rem;
+  }
+
+  .engineering-brand img {
+    width: 1.75rem;
+    height: 1.75rem;
+  }
+
+  .engineering-wordmark {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 47.99rem) {
+  [data-nb-sidebar-filter-input],
+  [data-nb-mobile-toc-select] {
+    min-height: 2.75rem;
+    font-size: 1rem;
+  }
+}

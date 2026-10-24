@@ -1,290 +1,105 @@
-# Distribution sensible et documents personnels
+# Sensitive distribution and personal documents
 
-Contrat et parcours du candidat local du 24 octobre 2026. Ce document décrit
-l’implémentation courante et ses limites. Il ne vaut ni publication, ni activation
-du service, ni preuve de livraison réelle. Le compte est unique pour tout
-Guteneo ; les ateliers sont des appartenances facultatives et les documents
-personnels ne constituent pas un atelier artificiel.
+Contract and journeys for the local 24 October 2026 candidate. This describes current implementation/limits, not publication, activation or real delivery. One account spans Guteneo; workspaces are optional memberships and personal documents do not form an artificial workspace.
 
-## Autorités et conditions d’entrée
+## Authority and entry conditions
 
-| Acteur                       | Autorité nécessaire                                                                        | Portée                                                                                                                     |
-| ---------------------------- | ------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------- |
-| Préparateur                  | Membership courante, préparation, source accessible et vérifiée                            | Sa préparation, sa source exacte et le devis figé                                                                          |
-| Approbateur                  | Administrateur ou superviseur avec option Approbation ; navigateur et session conforme à la politique courante | Revue, approbation et association des destinataires dans cet atelier                                                       |
-| Destinataire                 | Principal personnel, adresse vérifiée, session récente et association confirmée       | Ses accès partagés et ses copies personnelles                                                                              |
-| Assistant / client API OAuth | Intersection du rôle, des scopes et de la connexion courante                               | Préparation et suivi de l’atelier ; confirmation après preuve navigateur, aucune identité destinataire ni coffre personnel |
-| Opérateur plateforme         | Autorisation distincte de configuration et de publication                                  | Activation des services ; aucun droit tiré d’un rôle atelier                                                               |
+| Actor | Required authority | Scope |
+| --- | --- | --- |
+| Preparer | Current membership, preparation permission, accessible verified source | Own preparation, exact source and frozen quote |
+| Approver | Administrator or supervisor with approval permission; browser and current-policy session | Workspace review, approval and recipient association |
+| Recipient | Personal principal, verified address, recent session and confirmed association | Own shared access and personal copies |
+| Assistant / OAuth API client | Intersection of role, scopes and current connection | Workspace preparation/follow-up; confirmation after browser evidence, no recipient identity or personal vault |
+| Platform operator | Separate configuration/publication authorization | Service activation; no authority derived from workspace role |
 
-Le compte, sa langue et sa connexion sont communs. Recevoir ne crée pas de
-membership chez l’expéditeur ; installer un plugin ou posséder l’adresse d’un
-document ne crée aucun droit. Un email vérifié ne prétend pas établir l’identité
-physique. La politique documentaire est contrôlée par le serveur, pas par un champ fourni
-par le navigateur. `strong` est le défaut ; `verified_account` est le choix live
-explicitement demandé. Il exige compte et email vérifiés, identité Auth0 liée et
-`auth_time` signé récent, sans prétendre à une MFA ou à une identité physique
-certifiée. Une valeur inconnue ou un désaccord entre environnement et politique D1
-ferme le parcours. Les lectures, associations et approbations demandent une
-connexion de quinze minutes au plus ; export, dépôt et suppression : cinq minutes.
+Account, language and sign-in are shared. Receipt creates no sender membership; plugin installation or possession of a document address creates no rights. Verified email does not establish physical identity. The server controls document policy, never a browser field. `strong` is default; `verified_account` is the explicitly requested live choice, requiring verified account/email, linked Auth0 identity and signed recent `auth_time`, without claiming MFA or certified physical identity. Unknown values or environment/D1 disagreement close access. Reading, association and approval require authentication at most fifteen minutes old; export, deposit and deletion require five minutes.
 
-Le choix des passkeys reste différé à la demande du produit. La configuration
-`verified_account` ne modifie pas Auth0 et ne fabrique aucune preuve forte ; le
-mode `strong` conserve ses conditions de méthode réellement qualifiée. Les
-champs de session `documentAccessMode` et `documentAccessAllowed` expliquent
-l’accès au navigateur ; le serveur recontrôle chaque opération. L’activation
-et le parcours connecté restent des qualifications distinctes.
+Passkey choice remains deferred by product request. `verified_account` changes no Auth0 setting and fabricates no strong proof; `strong` retains its qualified-method requirement. Session fields `documentAccessMode`/`documentAccessAllowed` explain browser access; every operation is rechecked server-side. Activation and connected journey remain separately qualified.
 
-Dans l’atelier, un refus de politique documentaire, d’authentification forte,
-de fraîcheur ou d’approbation propose **Vérifier mon accès**. Ce lien demande
-une connexion fraîche par `/auth/login?fresh=1`, puis revient à la liste
-**Distribution sécurisée**, sans identifiant de document ou invitation dans le
-retour. L’action est volontaire : aucun renvoi automatique ne recycle une
-ancienne session SSO. Après connexion, retrouver la même préparation et reprendre
-la revue sous les droits courants ; la reconnexion n’approuve ni n’active rien.
+In the workspace, document-policy, strong-authentication, freshness or approval refusal offers **Check my access**. This voluntarily requests fresh login through `/auth/login?fresh=1`, returning to **Secure distribution** without document/invitation identifiers. No automatic redirect reuses old SSO. Find the same preparation and resume review under current rights; reauthentication approves/activates nothing.
 
-## Préparer, revoir et activer un partage
+## Prepare, review and activate sharing
 
-1. Ouvrir **Distribution sécurisée → Nouveau partage**, ou utiliser la même
-   opération REST/MCP depuis un client autorisé. Dans la navigation de l’atelier,
-   cette entrée suit **Documents** et conserve **Vue d’ensemble → Assistants**
-   en tête. Les détails du partage restent rattachés à cette entrée active.
-2. Choisir un PDF `ready`, limité à 100 pages et 10 Mio ; désigner une adresse
-   individuelle et choisir 7, 30, 90 ou 365 jours d’accès partagé. Le téléchargement
-   original est désactivé par défaut. L’option de copie personnelle permet une
-   conservation autonome de 365 ou 1 095 jours. Charger explicitement les pages
-   suivantes du sélecteur pour retrouver une source plus ancienne. L’autorisation
-   d’une copie personnelle explique qu’elle sera exportable, même si l’original
-   du partage ne peut pas être téléchargé.
-3. Préparer le sujet et le message d’invitation sans contenu confidentiel.
-   La langue de notification est figée dans l’entrée. Le lien individuel et les
-   consignes de connexion sont ajoutés par le serveur.
-4. Conserver l’identifiant et la clé d’idempotence. Le rendu se fait par travaux
-   bornés et persistants. L’état `preparing` n’est ni une activation ni un envoi.
-   Les lectures de suivi ne recréent pas la préparation. Les pages et le texte
-   accessibles proviennent de la version immuable vérifiée ; aucun repli vers
-   le PDF original n’est livré au destinataire.
-5. L’approbateur examine les pages finales ou leur texte, le destinataire, les
-   droits, le message et le prix complet hors taxes. La part de conservation
-   et le transport de l’invitation apparaissent séparément. Deux choix explicites
-   couvrent la revue et la demande préalable du destinataire.
-6. Approuver dans le navigateur sous la politique documentaire courante, puis confirmer
-   l’activation. Un assistant peut confirmer une préparation exactement approuvée
-   sous ses scopes et les confirmations de l’hôte ; il ne fournit jamais
-   l’approbation sensible lui-même, même avec un mandat expert.
-7. L’activation enregistre atomiquement les engagements, la consommation et
-   l’outbox selon les gardes du domaine. Les fournisseurs, le scanner, la
-   facturation et les capacités courantes restent obligatoires en production.
+1. Open **Secure distribution → New share**, or the same REST/MCP operation through an authorized client. Workspace navigation puts this after **Documents**, with **Overview → Assistants** first. Details retain that active entry.
+2. Select a `ready` PDF up to 100 pages/10 MiB; choose one individual address and 7/30/90/365 days of shared access. Original download defaults off. Optional personal copies retain independently for 365/1,095 days. Explicitly load source-selector pages for older documents. Copy permission explains that personal copies remain exportable even when the shared original is not.
+3. Prepare an invitation subject/message without confidential content. Notification language is frozen in the input; the server adds individual link/login instructions.
+4. Keep the identifier/idempotency key. Rendering uses bounded durable jobs. `preparing` means neither activation nor sending; follow-up reads do not recreate preparation. Accessible pages/text derive from the verified immutable version; recipients receive no original-PDF fallback.
+5. Approvers inspect final pages or text, recipient, permissions, message and complete tax-exclusive price. Retention/invitation transport appear separately. Two explicit choices cover review and the recipient's prior email request.
+6. Approve in the browser under current document policy, then confirm activation. Assistants may confirm the exactly approved preparation under scopes and host confirmations, but never supply sensitive approval, including with expert mandates.
+7. Activation atomically records commitments, consumption and outbox under domain guards. Live providers, scanner, billing and current capabilities remain mandatory in production.
 
-Le prix est par PDF et par destinataire. Le terme activé est intégralement dû ;
-désactiver ou révoquer le partage ne rembourse ni sa conservation ni l’option
-personnelle déjà financée. Le tarif versionné du contrat partagé est la source
-du devis, pas une valeur calculée par l’assistant. Un résultat fournisseur inconnu
-reste à rapprocher : aucune relance aveugle ou nouvelle préparation automatique.
+Price is per PDF/recipient. Activated terms are fully due; disabling/revoking refunds neither retention nor the funded personal option. The versioned shared contract supplies the quote, never an assistant-calculated amount. Unknown provider outcomes require reconciliation, never blind retry or automatic new preparation.
 
-## Compatibilité de la source avec les anciens parcours
+## Source compatibility with legacy flows
 
-Une distribution sensible n’est pas une mise à niveau transparente d’un ancien
-lien par mot de passe ou d’une préparation postale. Avant de la préparer :
+Sensitive distribution is not a transparent upgrade of password links or postal preparations:
 
-- Un ancien hébergement `draft` ou `active` dont le terme n’est pas échu doit
-  être révoqué. Le refus `SECURE_SOURCE_LEGACY_LINK` invite à cette action sous
-  les droits courants de l’atelier.
-- Toute ligne de préparation postale dérivée, réservée ou générée, bloque cette
-  conversion avec `SECURE_SOURCE_LEGACY_DERIVATION`. Choisir un document dédié
-  à la distribution sensible ; ne pas effacer un historique pour contourner
-  cette limite.
-- Tout ancien envoi, précontrôle postal ou brouillon fournisseur qui référence
-  la source bloque aussi la préparation avec `SECURE_SOURCE_LEGACY_OUTBOUND`,
-  y compris après annulation ou échec. Choisir une source dédiée ; cette garde
-  empêche notamment une conversion pendant qu’un transfert fournisseur est en
-  cours.
+- Revoke unexpired legacy `draft`/`active` hosting first. `SECURE_SOURCE_LEGACY_LINK` directs this under current workspace rights.
+- Any derived/reserved/generated postal-preparation row blocks conversion with `SECURE_SOURCE_LEGACY_DERIVATION`. Use a dedicated sensitive source; never erase history to bypass the restriction.
+- Any legacy send, postal preflight or provider draft referencing the source also blocks preparation with `SECURE_SOURCE_LEGACY_OUTBOUND`, including after cancellation/failure. Use a dedicated source; this prevents conversion during an in-flight provider transfer.
 
-Une source déjà référencée par une distribution sensible ne peut plus servir
-aux anciens traitements postaux, recadrages ou analyses, ni à la récupération
-d’un mot de passe ou du contenu d’un ancien lien. Les nouvelles pièces jointes
-ordinaires email, fax et courrier sont également interdites pour cette source.
-Seule l’invitation dédiée du nouveau parcours sensible, sans pièce jointe source
-(`document_id` nul), poursuit sa préparation sous les droits habituels. Le refus
-`SENSITIVE_SOURCE_LEGACY_FORBIDDEN` s’applique aussi si la distribution sensible
-a échoué ou a été révoquée. Aucun rôle atelier, scope OAuth ou mandat expert ne
-permet de revenir à ces parcours.
+Once referenced by sensitive distribution, a source cannot serve legacy postal processing, cropping, analysis, old-password recovery or legacy-link content. New ordinary email/fax/postal attachments are also prohibited. Only the dedicated sensitive invitation without source attachment (`document_id` null) continues under ordinary rights. `SENSITIVE_SOURCE_LEGACY_FORBIDDEN` applies even after sensitive failure/revocation; no workspace role, OAuth scope or expert mandate reverses it.
 
-La première lecture de compatibilité ne suffit pas : des gardes SQL symétriques
-refusent l’insertion sensible si un ancien hébergement, une préparation postale,
-un envoi, un précontrôle ou un brouillon fournisseur interdit existe, puis
-refusent dans l’autre direction les écritures concurrentes de ces anciens
-parcours dès que la source est référencée. Elles sont
-bornées à l’atelier authentifié et à la source exacte. Cette exclusion ne rappelle
-pas les fichiers déjà exportés et ne constitue pas une protection rétroactive
-de leurs copies.
+Initial compatibility reads are insufficient. Symmetric SQL guards reject sensitive insertion when prohibited legacy hosting/preparation/send/preflight/provider draft exists, and reject concurrent legacy writes once sensitive reference exists. Guards bind authenticated workspace and exact source. This neither recalls exported files nor retroactively protects their copies.
 
-Cette incompatibilité est volontaire dans la première version. Elle ne transforme
-pas une opération déjà exposée aux anciens parcours en source sensible isolée.
+This deliberate V1 incompatibility never converts an operation exposed to legacy flows into an isolated sensitive source.
 
-## Recevoir avec son compte unique
+## Receive with one account
 
-1. Le lien reçu ouvre **Mes documents**. Son invitation est retirée du fragment
-   avant toute URL HTTP de connexion et reste au plus dix minutes dans le
-   `sessionStorage` de cet onglet. Auth0 reçoit un retour personnel sans token,
-   et la demande reprend après callback. Si le stockage est bloqué, une reprise
-   explicite demande de rouvrir le lien après connexion. Ni achat ni activation
-   d’un atelier ne sont imposés.
-2. La personne se connecte ou crée son unique compte Guteneo. Le contrôle de
-   l’adresse attendue et une session récente conforme à la politique documentaire
-   précèdent la demande d’association.
-3. La demande reste en attente tant que l’atelier n’a pas confirmé le lien entre
-   ce compte stable et le destinataire prévu. Le titre sensible, les pages et le
-   fichier restent indisponibles durant cette attente.
-4. L’approbateur retrouve seulement la demande de son propre partage. Il
-   vérifie une relation connue, un canal indépendant ou une identité qualifiée,
-   puis confirme explicitement l’association ; le nom saisi par la personne
-   n’est pas, à lui seul, une preuve indépendante. Sa case de vérification est
-   liée au compte et à la demande affichés : un autre candidat lors d’un
-   rafraîchissement exige une nouvelle attestation.
-5. La personne consulte les pages préparées, leur texte accessible et la date
-   d’échéance. Chaque remise de page recontrôle le droit et la session. Une
-   révocation empêche les nouvelles remises et n’efface pas les pixels déjà reçus.
+1. The link opens **My documents**. Its invitation leaves the fragment before HTTP login navigation and stays at most ten minutes in that tab's `sessionStorage`. Auth0 gets a token-free personal return; association resumes after callback. Blocked storage offers explicit reopening after sign-in. No purchase/workspace activation is required.
+2. Sign in or create the one Guteneo account. Expected-address verification and recent policy-compliant session precede association request.
+3. The request remains pending until the workspace confirms the stable-account/intended-recipient link. Sensitive title, pages and file remain unavailable.
+4. Approvers see only their own share's request. Verify a known relationship, independent channel or qualified identity, then explicitly confirm association; a self-entered name alone is not independent proof. Attestation binds displayed account/request; refresh with another candidate requires new attestation.
+5. Recipients read prepared pages, accessible text and expiry. Each delivery rechecks authority/session. Revocation prevents future deliveries without erasing received pixels.
 
-Un mauvais compte ou une invitation indisponible ne révèle pas l’existence
-d’autres comptes. La reprise est explicite. Une erreur documentaire 401 ne
-déclenche pas une boucle de connexion automatique. Les routes personnelles
-restent distinctes de l’API atelier et n’acceptent pas l’autorité d’un Bearer
-d’atelier pour lire les documents personnels.
+Wrong accounts/unavailable invitations reveal no other-account existence. Recovery is explicit; document 401 does not trigger automatic login loops. Personal routes remain separate from workspace API and reject workspace Bearer authority for personal content.
 
-## Deux catégories et opérations distinctes
+## Two categories and distinct operations
 
-| Catégorie         | Promesse et opérations                                                                                                                                                |
-| ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Partagés avec moi | Accès individuel, révocable par l’atelier et limité à son terme ; original seulement si autorisé ; association requise                                                |
-| Copies conservées | Copie indépendante remise avec autorisation, durée propre, export personnel et suppression par la personne ; le départ ou la révocation de l’atelier ne la retire pas |
+| Category | Promise and operations |
+| --- | --- |
+| Shared with me | Individual, workspace-revocable, term-limited access; original only if permitted; confirmed association required |
+| Saved copies | Independently delivered authorized copy, own term, personal export/deletion; workspace departure/revocation cannot remove it |
 
-**Télécharger le PDF original** est une action séparée, confirmée et soumise à
-une authentification de cinq minutes au plus selon la politique courante. Le journal distingue demande et
-transmission lancée. Le succès réseau ne démontre jamais une sauvegarde disque.
-Les ouvertures, copies, captures et impressions après export quittent le champ
-d’observation de Guteneo.
+**Download original PDF** is separate, explicit and requires current-policy authentication at most five minutes old. Audit distinguishes request from started transfer. Network success never proves disk saving. Later openings/copies/screenshots/printing are outside Guteneo's observation.
 
-**Conserver une copie** explique la durée autonome et l’impossibilité pour
-l’atelier de rappeler une copie acquise. Le dépôt est une opération persistante
-unique par source et propriétaire. Les petits dépôts peuvent se terminer dans
-la demande ; les autres progressent par travaux bornés. L’interface affiche
-la préparation et suit le même partage jusqu’à l’identifiant de copie activée.
-Fermer l’onglet n’annule pas une opération déjà acceptée ; revenir et reprendre
-ne crée ni seconde copie ni seconde facturation. Aucun succès n’est annoncé
-avant l’activation durable. Une révocation avant le point de remise empêche
-l’acquisition ; après, la copie reste personnelle.
+**Keep a copy** explains independent retention and the workspace's inability to recall an acquired copy. Deposit is one durable operation per source/owner. Small deposits can finish in-request; others progress through bounded jobs. UI follows the same share until an activated copy identifier appears. Closing the tab cannot cancel accepted work; returning/resuming creates no second copy/charge. No success appears before durable activation. Revocation before delivery prevents acquisition; afterwards the copy remains personal.
 
-L’utilisateur peut exporter puis supprimer sa copie. La suppression retire
-l’accès personnel ; elle ne supprime pas la source atelier ni les exports déjà
-effectués. Annuler la confirmation conserve la copie. Une copie supprimée ou
-expirée n’est pas remise une seconde fois depuis la même invitation : la liste
-ne propose plus ce dépôt et un appel direct le refuse, sans attente indéfinie,
-nouvelle copie ou nouveau débit. La suppression ne communique aucun événement
-privé supplémentaire au journal de l’atelier. Les lectures privées ultérieures
-ne remontent pas à l’atelier d’origine.
-L’engagement de durée est borné : aucune conservation éternelle ni certification
-de coffre-fort numérique n’est annoncée.
+Recipients may export then delete their copy. Deletion removes personal access, not workspace source/previous exports. Cancelling confirmation retains it. Deleted/expired copies cannot be redelivered through the same invitation: UI removes deposit and direct calls reject without indefinite waiting, recreation or debit. Deletion adds no extra private event to workspace audit; later private reads are not reported to the sender. Retention is bounded; no perpetual retention or certified digital-vault claim is made.
 
-## Retrouver ses documents et découvrir les services
+## Find documents and discover services
 
-**Mes documents** sépare les deux catégories. Filtre, recherche bornée et
-pagination sont évalués côté serveur sous l’identité propriétaire ; les
-résultats ne sont pas limités aux premières lignes d’un filtre navigateur.
-Un refus 401/403 retire la liste et les curseurs déjà chargés ; une réponse de
-pagination devenue obsolète après rafraîchissement ne les réintroduit pas.
-La langue de compte reste commune au reste de Guteneo.
+**My documents** separates both categories. Server-side owner-bound filtering, bounded search and pagination cover all authorized documents rather than only the first client-filtered rows. 401/403 clears loaded lists/cursors; obsolete pagination responses after refresh cannot restore them. Account language remains shared across Guteneo.
 
-**Utiliser Guteneo** est disponible dans la même session. La personne peut
-préparer un envoi ou partager à son tour, choisir un atelier auquel elle
-appartient ou demander son premier atelier. Le serveur crée alors les
-structures métier nécessaires, en ferme les canaux réels et attribue le rôle
-d’administrateur au créateur. Après création ou sélection, l’application recharge
-le document sur la préparation choisie et relit la session atelier : identité,
-droits et jeton CSRF proviennent tous de la nouvelle session serveur, sans
-conserver l’ancien contexte d’atelier. Un échec serveur reste visible dans
-l’espace personnel. Une tentative de choisir l’atelier expéditeur
-sans membership est refusée. Aucun nouvel identifiant de connexion, abonnement
-imposé ou consentement marketing n’est déduit de la réception.
+**Use Guteneo** remains in the same session. Recipients can prepare sends/share documents, choose an existing membership or request an initial workspace. The server explicitly creates required business structures with real channels closed and administrator role for the creator. Creation/selection reloads the chosen preparation document and workspace session; identity, rights and CSRF all come from the new server session without retaining old workspace context. Failures stay visible in the personal area. Selecting the sender's workspace without membership is denied. Receipt implies no new login identity, mandatory subscription or marketing consent.
 
-Le cross-selling est générique et volontaire. Les titres, contenus, expéditeurs
-et actions de lecture ne servent pas à personnaliser les offres. L’accès aux
-documents promis ne dépend pas d’une conversion commerciale.
+Service promotion is generic/voluntary. Titles, contents, senders and reading actions do not personalize offers. Promised document access never depends on commercial conversion.
 
-## Journal et information des personnes
+## Audit and information for people
 
-Le journal de l’atelier porte sur son partage : préparation, activation,
-association, accès autorisés, déclarations du navigateur, demande de téléchargement,
-début de transmission, remise personnelle et révocation. Les événements portent
-leur provenance. Un affichage déclaré ne vaut ni lecture intégrale ni présence
-certaine d’une personne. Aucune détection fiable de capture d’écran ou preuve
-d’impression physique n’est annoncée.
+Workspace audit concerns its share: preparation, activation, association, authorized access, browser declarations, download requests, transfer start, copy delivery and revocation. Events identify provenance. Declared display proves neither full reading nor a person's certain presence. No reliable screenshot detection or physical-print proof is claimed.
 
-Lorsqu’il existe, le compte acteur est indiqué par son nom actuel ou son
-identifiant stable. Cela attribue la requête à un compte Guteneo authentifié,
-sans certifier l’identité physique de la personne. Les événements d’accès
-détaillés (pages, texte, téléchargement et début de transmission) sont conservés
-90 jours, puis purgés par lots bornés. Les reçus d’approbation, de facturation,
-d’association et de remise restent distincts et suivent leurs propres règles de
-conservation ; la purge d’activité ne retire pas ces preuves immuables.
+When available, actor account appears by current name/stable identifier, attributing requests to an authenticated Guteneo account without certifying physical identity. Detailed access events (page/text/download/transfer-start) retain ninety days, then purge in bounded batches. Approval, billing, association and delivery receipts remain separate with their own retention; activity purge never removes those immutable records.
 
-Le journal se rafraîchit lorsque sa fiche active est visible. La préparation et
-le dépôt en cours utilisent un suivi borné ; aucun rafraîchissement périodique
-n’est maintenu dans un onglet masqué. La pagination donne accès aux événements
-plus anciens. Le propriétaire retrouve aussi son historique personnel, qui
-reste indépendant du journal atelier après remise d’une copie.
+Audit refreshes while its active detail is visible. Preparing/deposit work uses bounded tracking; hidden tabs retain no periodic polling. Pagination reaches older events. Owners have personal history independent of workspace audit after copy delivery.
 
-Les invitations opaques, les tokens, les URL privées et le contenu ne sont pas
-ajoutés aux journaux. Les réponses sensibles sont privées, non mises en cache et
-non indexables. La révocation et la récupération de compte n’autorisent jamais
-un atelier à récupérer le coffre provenant d’autres expéditeurs.
+Opaque invitations, tokens, private URLs and content never enter logs. Sensitive responses are private, noncacheable and nonindexable. Revocation/account recovery never authorizes a workspace to recover a vault containing other senders' documents.
 
-## Surfaces, erreurs et activation
+## Surfaces, errors and activation
 
-| Surface                   | Contrat courant                                                                                                                                                                 |
-| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Web atelier               | `/app/secure-distributions`, préparation, revue finale, approbation, activation, association et révocation sous droits                                                          |
-| Web personnel             | `/app/my-documents`, `/app/services`, `/app/personal-account`, lecteur image/texte, export et copie autorisés                                                                   |
-| REST atelier              | `/api/secure-distributions` et opérations bornées ; tenant authentifié, scopes OAuth et permissions courantes                                                                   |
-| REST personnel            | `/api/personal/*`, principal propriétaire et navigateur ; aucun accès personnel implicite via OAuth atelier                                                                     |
-| MCP et paquets assistants | Catalogue, préparation, liste, détail, confirmation après approbation navigateur et révocation ; aucun outil d’association, approbation sensible ou lecture du coffre personnel |
-| Natif                     | Contrat natif existant et ouverture du navigateur conservés ; une intégration locale ou un paquet ne qualifie pas les clients réels ou les appareils physiques                  |
+| Surface | Current contract |
+| --- | --- |
+| Workspace web | `/app/secure-distributions`: preparation, final review, approval, activation, association and revocation under current rights |
+| Personal web | `/app/my-documents`, `/app/services`, `/app/personal-account`: image/text reader, permitted export/copy |
+| Workspace REST | `/api/secure-distributions`: bounded operations, authenticated tenant, OAuth scopes/current permissions |
+| Personal REST | `/api/personal/*`: browser owner principal; no implicit personal access through workspace OAuth |
+| MCP/assistant packages | Catalog, prepare, list, detail, confirmation after browser approval, revoke; no association, sensitive-approval or personal-vault-reading tool |
+| Native | Existing native contract/browser opening retained; local integration/package qualifies neither real clients nor physical devices |
 
-Les erreurs de scan, intégrité, rendu, texte trop volumineux, financement,
-autorisation, fraîcheur et configuration ferment le parcours. Un état `failed`
-n’est pas transformé en succès ; l’utilisateur consulte le même identifiant
-avant de décider d’une nouvelle préparation. Les anciennes URL par mot de passe
-restent un contrat historique distinct et n’acquièrent pas rétroactivement
-la sécurité du nouveau parcours.
+Scan, integrity, rendering, oversized text, funding, authorization, freshness and configuration errors close the flow. `failed` never becomes success; inspect the same identifier before deciding on a new preparation. Legacy password URLs remain a separate historical contract and gain no retroactive sensitive-flow security.
 
-Migrations : `0055_personal_accounts.sql`, `0056_secure_distributions.sql`,
-`0057_secure_approval_evidence.sql`, `0058_secure_copy_jobs.sql`,
-`0059_document_authentication_policy.sql`. Production : activation dédiée, clé
-privée valide, renderer privé, scanner et fournisseur réels configurés. Après
-migration 0059, la ligne D1 `secure_document_authentication_policy(id=1)` vaut
-`strong` par défaut. L’opérateur choisit explicitement `mode='verified_account'`
-et publie `SENSITIVE_DOCUMENT_AUTHENTICATION=verified_account` pour le profil
-autorisé ; le Worker ne modifie pas cette ligne. Désaccord ou valeur inconnue :
-refus. Un retour à `strong` coordonne les deux réglages et invalide les reçus
-ordinaires pour les nouvelles confirmations, sans effacer leur historique.
-La confirmation et le SQL recontrôlent la politique et l’identité courantes,
-même pour un ancien reçu fort. Le mode déterministe et ses identités locales
-restent des instruments de test ; aucun parcours connecté n’en est déduit.
+Migrations: `0055_personal_accounts.sql`, `0056_secure_distributions.sql`, `0057_secure_approval_evidence.sql`, `0058_secure_copy_jobs.sql`, `0059_document_authentication_policy.sql`. Production requires dedicated activation, valid private key, private renderer, real scanner/provider. After 0059, D1 singleton `secure_document_authentication_policy(id=1)` defaults `strong`. For the authorized profile the operator explicitly selects `mode='verified_account'` and publishes matching `SENSITIVE_DOCUMENT_AUTHENTICATION=verified_account`; the Worker never edits the row. Unknown values/mismatch deny access. Returning to `strong` coordinates both values and invalidates ordinary receipts for new confirmations without deleting history. Confirmation/SQL recheck current policy/identity, including old strong receipts. Deterministic identities remain test instruments, never connected proof.
 
-Sources : `apps/api/src/auth.ts`, `personal-auth.ts`, `secure-distributions.ts`,
-`personal-documents.ts`, `secure-distribution-routes.ts`, `secure-storage.ts` ;
-contrat partagé `packages/contracts/src/secure-distribution.ts` ; interfaces
-`apps/web/src/personal-*` et `secure-*`. Tests ciblés :
-`tests/unit/personal-auth.test.ts`, `tests/unit/mcp-secure-distribution.test.ts`,
-`tests/integration/secure-approval-boundary.test.ts` et
-`tests/distribution-e2e/*.e2e.ts`. Les commandes, rapports et limites du framework
-demandé sont décrits dans [le guide e2e](../tests/distribution-e2e/README.md).
-La présence des tests n’affirme pas leur réussite, la CI du commit exact,
-l’activation des services ou la qualification d’un hôte assistant réel. Le run
-local `verified_account` du 24 octobre
-`01a16ef7-4017-783f-80e7-80426686b572` passe deux résultats ordinateur/téléphone
-avec des sessions ordinaires synthétiques et sans preuve forte. Il n’effectue
-aucune connexion Auth0 réelle ni communication réelle ; les preuves détaillées
-et leurs limites sont datées dans [l’implémentation](SECURE_DISTRIBUTION_IMPLEMENTATION.md).
-Le profil local `strong` repasse 14/14 dans
-`01a16efd-d3c7-7c1e-b6db-7d1c647da7f1` ; build final et treize tests d’interface
-passent également. La CI exacte et les qualifications distantes restent distinctes.
+Sources: `apps/api/src/auth.ts`, `personal-auth.ts`, `secure-distributions.ts`, `personal-documents.ts`, `secure-distribution-routes.ts`, `secure-storage.ts`; shared `packages/contracts/src/secure-distribution.ts`; web `apps/web/src/personal-*` and `secure-*`. Targeted tests: `tests/unit/personal-auth.test.ts`, `tests/unit/mcp-secure-distribution.test.ts`, `tests/integration/secure-approval-boundary.test.ts`, `tests/distribution-e2e/*.e2e.ts`. Commands, reports and framework limits are in the [e2e guide](../tests/distribution-e2e/README.md).
+
+Test presence claims neither passing execution, exact-commit CI, service activation nor real assistant-host qualification. Local `verified_account` run `01a16ef7-4017-783f-80e7-80426686b572` on 24 October passes two desktop/phone results with ordinary synthetic sessions and no strong evidence; no real Auth0 login or communication. [Implementation](SECURE_DISTRIBUTION_IMPLEMENTATION.md) dates detailed evidence/limits. Local `strong` rerun `01a16efd-d3c7-7c1e-b6db-7d1c647da7f1` passes 14/14; final build and thirteen UI tests also pass. Exact CI/remote qualification remain separate.

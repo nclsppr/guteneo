@@ -155,21 +155,21 @@ describe("fax pricing through the official MCP transport", () => {
           expect(pricing).toEqual({
             ...faxPricing,
             display: {
-              locale: "fr-FR",
+              locale: "en-GB",
               creditUnit: "EUR_balance",
               estimate: {
                 lowEur: "0.050273036",
                 highEur: "0.164687528",
-                label: "Environ 0,0503 à 0,1647 € HT",
-                creditLabel: "Environ 0,0503 à 0,1647 € de crédit",
+                label: "About EUR0.0503 to 0.1647 excl. tax",
+                creditLabel: "About EUR0.0503 to 0.1647 in credit",
               },
               ceiling: {
                 eur: "2.00",
-                label: "Plafond ferme : 2,00 € HT",
-                creditLabel: "Réservation à la confirmation : 2,00 € de crédit",
+                label: "Firm ceiling: EUR2.00 excl. tax",
+                creditLabel: "Reservation on confirmation: EUR2.00 in credit",
               },
               explanation: expect.stringContaining(
-                "Ce n’est ni un prix fixe par page ni un débit",
+                "It is neither a fixed per-page price nor a charge",
               ),
               legacyEstimatedMinorMeaning: "rounded_up_estimated_high_centimes",
             },
@@ -207,7 +207,7 @@ describe("fax pricing through the official MCP transport", () => {
         const prepare = tools.tools.find(
           (tool) => tool.name === "prepare_fax",
         )!;
-        expect(prepare.description).toContain("borne haute arrondie");
+        expect(prepare.description).toContain("upper bound rounded up");
         expect(
           tools.tools.some((tool) => /settle|price|cost/.test(tool.name)),
         ).toBe(false);
@@ -240,8 +240,8 @@ describe("fax display precision", () => {
     expect(result.display.estimate).toEqual({
       lowEur: "0.000000001",
       highEur: "0.000049999",
-      label: "Environ 0,000000001 à 0,000049999 € HT",
-      creditLabel: "Environ 0,000000001 à 0,000049999 € de crédit",
+      label: "About EUR0.000000001 to 0.000049999 excl. tax",
+      creditLabel: "About EUR0.000000001 to 0.000049999 in credit",
     });
     expect(result.settlement).toEqual(pricing.settlement);
   });
@@ -252,7 +252,9 @@ describe("fax display precision", () => {
       estimatedHighNanoeur: 1_000_000_000,
       ceilingMinor: 200,
     });
-    expect(result.display.estimate.label).toBe("Environ 0,00 à 1,00 € HT");
+    expect(result.display.estimate.label).toBe(
+      "About EUR0.00 to 1.00 excl. tax",
+    );
     expect(result.display.ceiling.eur).toBe("2.00");
     expect(result.settlement.chargedMinor).toBeNull();
   });

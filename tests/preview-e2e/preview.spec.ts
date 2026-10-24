@@ -23,6 +23,7 @@ test("public design and every workspace page render without server data or overf
   await page.screenshot({
     path: await evidencePath(`preview/landing-${info.project.name}.png`),
     fullPage: true,
+    scale: "css",
   });
   const menu = page.getByRole("button", { name: "Menu", exact: true });
   if (await menu.isVisible()) await menu.click();
@@ -36,6 +37,7 @@ test("public design and every workspace page render without server data or overf
   await page.screenshot({
     path: await evidencePath(`preview/workspace-${info.project.name}.png`),
     fullPage: true,
+    scale: "css",
   });
   for (const route of [
     "documents",
@@ -68,6 +70,7 @@ test("public design and every workspace page render without server data or overf
       await page.screenshot({
         path: await evidencePath(`preview/billing-${info.project.name}.png`),
         fullPage: true,
+        scale: "css",
       });
     }
     if (route === "plan") {

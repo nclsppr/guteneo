@@ -1,17 +1,6 @@
 .developer-page {
   color: var(--ink);
 }
-.developer-header nav {
-  display: flex;
-  align-items: center;
-  gap: 25px;
-}
-.developer-header nav a {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 44px;
-}
 .developer-page main {
   width: 100%;
 }
@@ -19,19 +8,8 @@
   padding: 65px 0 55px;
   border-bottom: 1px solid var(--blue);
 }
-.developer-kicker {
-  font:
-    400 11px/1.6 "IBM Plex Mono",
-    monospace;
-  letter-spacing: 0.05em;
-  color: var(--blue);
-  margin: 0 0 23px;
-}
 .developer-intro h1 {
-  font:
-    400 clamp(43px, 5.7vw, 78px)/1.04 "EB Garamond",
-    Georgia,
-    serif;
+  font: 400 clamp(43px, 5.7vw, 78px)/1.04 var(--font-display);
   letter-spacing: -0.035em;
   margin: 0 0 26px;
   text-wrap: balance;
@@ -61,8 +39,8 @@
   min-height: 44px;
 }
 .developer-beta {
-  border-left: 3px solid var(--blue);
-  padding: 2px 0 2px 18px;
+  border-block: 1px solid var(--line);
+  padding: 16px 0;
   max-width: 760px;
   font-size: 13px;
   line-height: 1.65;
@@ -75,9 +53,7 @@
   margin: 0;
 }
 .developer-facts dt {
-  font:
-    11px/1.6 "IBM Plex Mono",
-    monospace;
+  font: 11px/1.6 var(--font-code);
   color: var(--muted);
 }
 .developer-facts dd {
@@ -98,9 +74,7 @@
   align-content: start;
 }
 .developer-contents span {
-  font:
-    11px/1.6 "IBM Plex Mono",
-    monospace;
+  font: 11px/1.6 var(--font-code);
   margin-bottom: 14px;
   color: var(--muted);
 }
@@ -125,10 +99,7 @@
 }
 .developer-copy h2,
 .developer-reference h2 {
-  font:
-    400 clamp(32px, 3.5vw, 46px)/1.1 "EB Garamond",
-    Georgia,
-    serif;
+  font: 400 clamp(32px, 3.5vw, 46px)/1.1 var(--font-display);
   letter-spacing: -0.025em;
   margin: 0 0 25px;
 }
@@ -140,10 +111,6 @@
 }
 .developer-copy p {
   margin: 20px 0;
-}
-.developer-copy .developer-kicker {
-  margin-top: 0;
-  font-size: 11px;
 }
 .developer-copy ul,
 .developer-copy ol {
@@ -158,9 +125,7 @@
   text-underline-offset: 4px;
 }
 .developer-copy code {
-  font:
-    0.82em/1.6 "IBM Plex Mono",
-    monospace;
+  font: 0.82em/1.6 var(--font-code);
   overflow-wrap: anywhere;
   color: var(--blue);
 }
@@ -173,9 +138,7 @@
 .developer-code figcaption {
   padding: 13px 18px;
   border-bottom: 1px solid var(--line);
-  font:
-    11px/1.6 "IBM Plex Mono",
-    monospace;
+  font: 11px/1.6 var(--font-code);
 }
 .developer-code pre {
   margin: 0;
@@ -286,7 +249,7 @@
   max-width: 100%;
 }
 #swagger-reference .swagger-ui {
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: var(--font-body);
   color: var(--ink);
 }
 #swagger-reference .swagger-ui .wrapper {
@@ -359,23 +322,7 @@
   }
 }
 @media (max-width: 520px) {
-  .developer-header {
-    align-items: center;
-    gap: 12px;
-  }
-  .developer-header nav {
-    gap: 10px;
-  }
-  .developer-header nav a {
-    font-size: 11px;
-  }
-  .developer-page .developer-header nav a:last-child {
-    display: inline-flex;
-  }
-  .developer-header nav a:first-child {
-    display: none;
-  }
-  .developer-intro h1 {
+  .developer-page .developer-intro h1 {
     font-size: 44px;
   }
   .developer-dek {

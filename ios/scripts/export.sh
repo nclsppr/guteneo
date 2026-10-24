@@ -3,30 +3,30 @@ set -euo pipefail
 source "$(dirname "$0")/common.sh"
 
 if [[ "${1:-}" == --help ]]; then
-  printf '%s\n' 'Usage: export.sh /chemin/Guteneo-signed.xcarchive' \
-    'Exige GUTENEO_TEAM_ID, GUTENEO_PROFILE_NAME et un certificat Apple Distribution avec clé privée.' \
-    'GUTENEO_DISTRIBUTION_CERTIFICATE peut préciser son empreinte SHA-1.' \
-    'Export local uniquement : aucun téléversement ni publication.'
+  printf '%s\n' 'Usage: export.sh /path/Guteneo-signed.xcarchive' \
+    'Requires GUTENEO_TEAM_ID, GUTENEO_PROFILE_NAME and an Apple Distribution certificate with its private key.' \
+    'GUTENEO_DISTRIBUTION_CERTIFICATE can specify its SHA-1 fingerprint.' \
+    'Local export only: no upload or publication.'
   exit 0
 fi
 [[ $# == 1 && -d "$1/Products/Applications/Guteneo.app" ]] || {
-  printf '%s\n' 'Fournissez le chemin d’une archive Guteneo signée.' >&2
+  printf '%s\n' 'Provide the path to a signed Guteneo archive.' >&2
   exit 64
 }
 archive_path="$(cd "$1" && pwd)"
 guteneo_require_team
 [[ -n "${GUTENEO_PROFILE_NAME:-}" ]] || {
-  printf '%s\n' 'Définissez GUTENEO_PROFILE_NAME avec le nom ou UUID du profil App Store installé pour com.guteneo.ios.' >&2
+  printf '%s\n' 'Set GUTENEO_PROFILE_NAME to the name or UUID of the installed App Store profile for com.guteneo.ios.' >&2
   exit 64
 }
 certificate="${GUTENEO_DISTRIBUTION_CERTIFICATE:-Apple Distribution}"
 identities="$(/usr/bin/security find-identity -v -p codesigning)"
 if [[ "$identities" != *'Apple Distribution'* ]]; then
-  printf '%s\n' 'Aucune identité Apple Distribution utilisable avec clé privée dans le trousseau. Un certificat Apple Development ne suffit pas.' >&2
+  printf '%s\n' 'No usable Apple Distribution identity with a private key was found in the keychain. An Apple Development certificate is insufficient.' >&2
   exit 69
 fi
 if [[ "$certificate" != 'Apple Distribution' && "$identities" != *"$certificate"* ]]; then
-  printf '%s\n' 'Le certificat de distribution demandé est introuvable.' >&2
+  printf '%s\n' 'The requested distribution certificate was not found.' >&2
   exit 69
 fi
 unset identities
@@ -46,5 +46,5 @@ options_path="$export_directory/ExportOptions.plist"
 /usr/bin/plutil -insert uploadSymbols -bool false "$options_path"
 "$GUTENEO_XCODEBUILD" -exportArchive -archivePath "$archive_path" \
   -exportPath "$export_directory/Package" -exportOptionsPlist "$options_path"
-printf 'Export local : %s\n' "$export_directory/Package"
-printf '%s\n' 'Aucun build envoyé à App Store Connect. Cet export ne vaut pas validation App Review.'
+printf 'Local export: %s\n' "$export_directory/Package"
+printf '%s\n' 'No build was uploaded to App Store Connect. This export does not establish App Review approval.'

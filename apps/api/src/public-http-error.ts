@@ -455,7 +455,7 @@ function errorDocument(locale: SupportedLocale, status: number): string {
 <div><p class="code">HTTP ${status}</p><h1>${title}</h1><p class="description">${description}</p><nav class="recovery" aria-label="${message.recovery}"><a class="home" href="${site.origin}/?lang=${locale}">${message.home}</a><a href="${site.origin}/support/?lang=${locale}">${message.support}</a></nav></div>
 <figure class="art"><img src="/errors/illustration-${family}-640.webp" srcset="/errors/illustration-${family}-640.webp 640w, /errors/illustration-${family}.webp 960w" sizes="(max-width:468px) calc(100vw - 48px), 420px" width="960" height="960" alt=""><div class="birds" aria-hidden="true"><span class="bird"></span><span class="bird"></span></div></figure>
 </main>
-<footer><div><p>${message.pitch}</p><a class="domain" href="${site.origin}/?lang=${locale}">guteneo.com</a></div><nav aria-label="${message.navigation}"><a href="${site.origin}/assistants/?lang=${locale}">${message.assistants}</a><a href="${site.origin}/developpeurs/?lang=${locale}">${message.developers}</a><a href="https://status.guteneo.com">${message.status}</a></nav></footer>
+<footer><div><p>${message.pitch}</p><a class="domain" href="${site.origin}/?lang=${locale}">guteneo.com</a></div><nav aria-label="${message.navigation}"><a href="${site.origin}/assistants/?lang=${locale}">${message.assistants}</a><a href="${site.origin}/developers/?lang=${locale}">${message.developers}</a><a href="https://status.guteneo.com">${message.status}</a></nav></footer>
 </body>
 </html>`;
 }

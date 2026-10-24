@@ -75,6 +75,15 @@ jobs:
         run: npm run audit:dependencies
       - name: Require a synchronized developer feature tree and valid references
         run: node docs/build-feature-map.mjs --check
+      - name: Require synchronized documentation, English sources and canonical links
+        run: npm run docs:check
+      - name: Require feature and developer documentation in the same change
+        if: github.event_name == 'pull_request'
+        env:
+          DOCS_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          git fetch --no-tags --depth=1 origin "$DOCS_BASE_SHA"
+          node scripts/repository-standards.mjs --base "$DOCS_BASE_SHA"
       - name: Audit every advertised MCP tool annotation and justification
         run: npm run audit:mcp
       - name: Require synchronized annotation review documentation
@@ -339,6 +348,47 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
+  engineering:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/videos/guteneo-gutenberg/archive/
+            !/videos/guteneo-gutenberg/media-parts/
+            !/reports/screenshots/
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            apps/engineering/package-lock.json
+      - run: npm ci
+      - run: PUPPETEER_SKIP_DOWNLOAD=true npm ci --prefix apps/engineering
+      - run: npm audit --prefix apps/engineering --audit-level=high
+      - run: npm run docs:check
+      - run: npm run build:engineering
+      - name: Install the documentation browsers
+        run: npx playwright install --with-deps chromium webkit
+      - run: npm run test:engineering
+      - name: Verify asset-only deployment configuration
+        working-directory: apps/engineering
+        run: npx wrangler deploy --dry-run
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: ci-evidence-engineering
+          path: |
+            test-results/engineering/
+            test-results/engineering-report/
+            apps/engineering/dist/release.json
+          if-no-files-found: error
+          retention-days: 14
+
   distribution-e2e:
     needs: build
     runs-on: ubuntu-latest
@@ -445,7 +495,7 @@ jobs:
   # Native XCTest/archive have their own source-filtered workflow, not a web gate.
   verify:
     if: always()
-    needs: [pdf-validator, scanner, checks, vitest, security, build, browser, distribution-e2e]
+    needs: [pdf-validator, scanner, checks, vitest, security, build, browser, distribution-e2e, engineering]
     runs-on: ubuntu-latest
     # Checkout and evidence download share this budget with verification.
     timeout-minutes: 10

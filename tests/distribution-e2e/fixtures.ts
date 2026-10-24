@@ -9,6 +9,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { PDFDocument } from "pdf-lib";
 
 export { expect } from "e2e";
+export { readSecureCharge } from "./secure-charge-read";
 
 const run = promisify(execFile);
 
@@ -80,49 +81,6 @@ DELETE FROM memberships WHERE user_id='user_recipient' AND role='member' AND org
       },
     ),
   );
-}
-
-export async function readSecureCharge(distributionId: string) {
-  const state = process.env.GUTENEO_DISTRIBUTION_E2E_STATE;
-  if (
-    !state ||
-    !/^\.wrangler\/distribution-e2e-[a-f0-9-]{36}$/u.test(state) ||
-    !/^sd_[a-f0-9]{32}$/u.test(distributionId)
-  )
-    throw new Error(
-      "The billing assertion requires an isolated fictional distribution.",
-    );
-  const result = await run(
-    process.execPath,
-    [
-      fileURLToPath(
-        new URL("../../node_modules/wrangler/bin/wrangler.js", import.meta.url),
-      ),
-      "d1",
-      "execute",
-      "guteneo-local",
-      "--local",
-      "--persist-to",
-      state,
-      "--json",
-      "--command",
-      `SELECT amount_minor,evidence FROM secure_distribution_charges WHERE organization_id='org_atelier' AND distribution_id='${distributionId}'`,
-    ],
-    {
-      cwd: fileURLToPath(new URL("../../", import.meta.url)),
-      timeout: 15_000,
-      env: {
-        ...process.env,
-        WRANGLER_SEND_METRICS: "false",
-        WRANGLER_WRITE_LOGS: "false",
-      },
-    },
-  );
-  return (
-    JSON.parse(result.stdout) as {
-      results: { amount_minor: number; evidence: string }[];
-    }[]
-  )[0].results;
 }
 
 /** Browser-level egress guard: these scenarios may only reach the local fixture app. */

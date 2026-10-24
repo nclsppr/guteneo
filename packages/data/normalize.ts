@@ -1,6 +1,7 @@
 import {
   DATASET_LIMITS,
   MappingPlanSchema,
+  resolveDatasetSheet,
   type DatasetProfile,
   type DatasetField,
   type DatasetIssue,
@@ -20,13 +21,13 @@ function decimal(value: string, separator: "." | "," | undefined): string {
   if (text.includes(",") && !separator)
     throw new DatasetError(
       "DECIMAL_CONVENTION_REQUIRED",
-      "Choisissez le séparateur décimal ; aucun séparateur de milliers n’est deviné.",
+      "Choose the decimal separator; no thousands separator is inferred.",
     );
   const normalized = separator === "," ? text.replace(",", ".") : text;
   if (!/^[+-]?\d+(\.\d+)?$/.test(normalized) || normalized.length > 100)
     throw new DatasetError(
       "INVALID_DECIMAL",
-      "Nombre décimal invalide, groupement ou exposant non autorisé.",
+      "Invalid decimal number; grouping and exponents are not allowed.",
     );
   const [whole, fraction] = normalized.replace(/^\+/, "").split(".");
   return (
@@ -45,11 +46,11 @@ function date(value: string, order?: DatasetField["dateOrder"]): string {
     if (!order)
       throw new DatasetError(
         "DATE_ORDER_REQUIRED",
-        "Sélectionnez un ordre de date explicite.",
+        "Select an explicit date order.",
       );
     const parts = text.split(/[/.\-]/);
     if (parts.length !== 3 || !parts.every((p) => /^\d+$/.test(p)))
-      throw new DatasetError("INVALID_DATE", "Date invalide.");
+      throw new DatasetError("INVALID_DATE", "Invalid date.");
     const values = parts.map(Number);
     if (order === "YMD") [year, month, day] = values;
     else if (order === "DMY") [day, month, year] = values;
@@ -63,7 +64,7 @@ function date(value: string, order?: DatasetField["dateOrder"]): string {
     day < 1 ||
     day > new Date(Date.UTC(year, month, 0)).getUTCDate()
   )
-    throw new DatasetError("INVALID_DATE", "Date de calendrier invalide.");
+    throw new DatasetError("INVALID_DATE", "Invalid calendar date.");
   return `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
 }
 export function normalizeCell(
@@ -77,18 +78,15 @@ export function normalizeCell(
   )
     throw new DatasetError(
       cell.cached ? "FORMULA_REQUIRES_REVIEW" : "FORMULA_NO_CACHE",
-      "Validez explicitement le résultat en cache ou fournissez une valeur sans formule.",
+      "Explicitly validate the cached result or provide a value without a formula.",
     );
   if (cell?.kind === "error")
-    throw new DatasetError(
-      "CELL_ERROR",
-      "La cellule source contient une erreur.",
-    );
+    throw new DatasetError("CELL_ERROR", "The source cell contains an error.");
   let raw = cell?.raw;
   if (raw === undefined || raw === null || raw.trim() === "") {
     if (field.defaultValue !== undefined) raw = String(field.defaultValue);
     else if (field.required)
-      throw new DatasetError("REQUIRED_VALUE", "Valeur obligatoire absente.");
+      throw new DatasetError("REQUIRED_VALUE", "Required value is missing.");
     else return null;
   }
   if (field.type === "text") return raw;
@@ -98,7 +96,7 @@ export function normalizeCell(
     if (["false", "0"].includes(raw.trim().toLowerCase())) return false;
     throw new DatasetError(
       "INVALID_BOOLEAN",
-      "Valeur booléenne attendue : true, false, 1 ou 0.",
+      "Expected boolean value: true, false, 1 or 0.",
     );
   }
   const value = decimal(raw, field.decimalSeparator);
@@ -108,7 +106,7 @@ export function normalizeCell(
     if (value.includes("."))
       throw new DatasetError(
         "INTEGER_REQUIRED",
-        "Un entier exact est attendu.",
+        "An exact integer is required.",
       );
     exact = BigInt(value);
   } else {
@@ -117,7 +115,7 @@ export function normalizeCell(
     if (fraction.length > scale)
       throw new DatasetError(
         "PRECISION_LOSS",
-        "La précision dépasse l’échelle déclarée ; aucun arrondi implicite.",
+        "Precision exceeds the declared scale; no implicit rounding.",
       );
     const negative = raw.trim().startsWith("-");
     exact =
@@ -131,7 +129,7 @@ export function normalizeCell(
   )
     throw new DatasetError(
       "INTEGER_PRECISION_LIMIT",
-      "Entier hors de la précision sûre ; utiliser un champ décimal textuel.",
+      "Integer exceeds safe precision; use a textual decimal field.",
     );
   return Number(exact);
 }
@@ -167,7 +165,7 @@ export function validateMapping(
   if (!parsed.success)
     throw new DatasetError(
       "INVALID_MAPPING",
-      "Mapping invalide : champs, types ou limites non conformes.",
+      "Invalid mapping: incompatible fields, types or limits.",
     );
   const mapping = parsed.data;
   const result: MappingValidation = {
@@ -209,21 +207,21 @@ export function validateMapping(
     expected: string[] | undefined,
     excludes: number[],
   ): Table | undefined => {
-    const sheet = profile.sheets.find((candidate) => candidate.name === name);
+    const sheet = resolveDatasetSheet(profile, name);
     if (!sheet) {
-      issue("MISSING_SHEET", "Feuille source absente.");
+      issue("MISSING_SHEET", "Source sheet is missing.");
       return;
     }
     if (sheet.hidden && !mapping.includeHidden) {
       issue(
         "HIDDEN_SHEET_REVIEW",
-        "La feuille source est masquée : validez explicitement son inclusion.",
+        "The source sheet is hidden: explicitly confirm its inclusion.",
       );
       return;
     }
     const header = sheet.rows.find((row) => row.rowNumber === headerRow);
     if (!header) {
-      issue("MISSING_HEADER", "Ligne d’en-tête absente.");
+      issue("MISSING_HEADER", "Header row is missing.");
       return;
     }
     const headers = new Map<string, number>();
@@ -233,13 +231,13 @@ export function validateMapping(
       if (cell.formula !== undefined)
         issue(
           "FORMULA_HEADER",
-          "Une formule ne peut pas définir un en-tête.",
+          "A formula cannot define a header.",
           source(sheet, header, cell.column),
         );
       if (headers.has(label))
         issue(
           "DUPLICATE_HEADER",
-          "En-tête dupliqué : source ambiguë.",
+          "Duplicate header: ambiguous source.",
           source(sheet, header, cell.column),
         );
       headers.set(label, cell.column);
@@ -251,7 +249,7 @@ export function validateMapping(
     )
       issue(
         "STRUCTURE_CHANGED",
-        "Les colonnes ont changé ; validez une nouvelle version du mapping.",
+        "Columns changed; validate a new mapping version.",
       );
     const rows = sheet.rows.filter((row) => {
       if (
@@ -292,7 +290,7 @@ export function validateMapping(
     } catch (error) {
       issue(
         error instanceof DatasetError ? error.code : "INVALID_KEY",
-        "Clé absente ou non exploitable.",
+        "Key is missing or unusable.",
         source(table.sheet, row, table.headers.get(name) ?? 1),
       );
       return;
@@ -300,12 +298,12 @@ export function validateMapping(
   };
   const checkFields = (table: Table, fields: DatasetField[]) => {
     if (pathsConflict(fields.map((field) => field.target)))
-      issue("CONFLICTING_TARGETS", "Des champs de destination se chevauchent.");
+      issue("CONFLICTING_TARGETS", "Destination fields overlap.");
     for (const field of fields)
       if (!table.headers.has(field.source))
         issue(
           "MISSING_COLUMN",
-          "Colonne source absente.",
+          "Source column is missing.",
           undefined,
           field.target,
         );
@@ -334,7 +332,7 @@ export function validateMapping(
           error instanceof DatasetError ? error.code : "INVALID_VALUE",
           error instanceof DatasetError
             ? error.message
-            : "Valeur source invalide.",
+            : "Invalid source value.",
           ref,
           target,
         );
@@ -358,14 +356,14 @@ export function validateMapping(
   if (pathsConflict(topPaths))
     issue(
       "CONFLICTING_TARGETS",
-      "Les champs, tableaux ou jointures de destination se chevauchent.",
+      "Destination fields, tables or joins overlap.",
     );
   if (mapping.group && !mapping.recordKey.length)
-    issue("GROUP_KEY_REQUIRED", "Un regroupement exige une clé explicite.");
+    issue("GROUP_KEY_REQUIRED", "Grouping requires an explicit key.");
   if (mapping.group) checkFields(table, mapping.group.fields);
   for (const key of mapping.recordKey)
     if (!table.headers.has(key))
-      issue("MISSING_KEY_COLUMN", "Colonne de clé absente.");
+      issue("MISSING_KEY_COLUMN", "Key column is missing.");
   // Reject path/schema errors before setting any property on an output object.
   if (result.issues.some((entry) => entry.severity === "error")) return result;
   const groups = new Map<
@@ -377,7 +375,7 @@ export function validateMapping(
     if (keyValues.some((value) => !value?.trim())) {
       issue(
         "EMPTY_RECORD_KEY",
-        "Clé de document absente.",
+        "Document key is missing.",
         source(table.sheet, row),
       );
       continue;
@@ -389,14 +387,14 @@ export function validateMapping(
     if (group && !mapping.group) {
       issue(
         "DUPLICATE_RECORD_KEY",
-        "Clé de document dupliquée ; définissez un regroupement explicite.",
+        "Duplicate document key; define explicit grouping.",
         source(table.sheet, row),
       );
       continue;
     }
     if (!group) {
       if (groups.size >= DATASET_LIMITS.documents) {
-        issue("DOCUMENT_LIMIT", "Maximum 500 documents par génération.");
+        issue("DOCUMENT_LIMIT", "At most 500 documents per generation.");
         break;
       }
       group = {
@@ -417,7 +415,7 @@ export function validateMapping(
     )
       issue(
         "GROUP_VALUE_CONFLICT",
-        "Les champs du document diffèrent entre lignes du groupe.",
+        "Document fields differ between rows in the group.",
         source(table.sheet, row),
       );
     else if (!group.rows.length) group.record.data = fields;
@@ -449,7 +447,7 @@ export function validateMapping(
       !table.headers.has(join.parentKey) ||
       !child.headers.has(join.childKey)
     ) {
-      issue("JOIN_KEY_COLUMN", "Une colonne de jointure est absente.");
+      issue("JOIN_KEY_COLUMN", "A join column is missing.");
       continue;
     }
     if (pathsConflict(join.fields.map((field) => field.target))) continue;
@@ -465,14 +463,14 @@ export function validateMapping(
       if (keys.size !== 1 || !key?.trim()) {
         issue(
           "JOIN_PARENT_KEY",
-          "Clé parent absente ou incohérente dans un groupe.",
+          "Parent key is missing or inconsistent within a group.",
         );
         continue;
       }
       if (parents.has(key)) {
         issue(
           "JOIN_PARENT_CARDINALITY",
-          "La clé parent n’est pas unique ; aucun produit cartésien autorisé.",
+          "Parent key is not unique; Cartesian products are not allowed.",
         );
         continue;
       }
@@ -485,7 +483,7 @@ export function validateMapping(
       if (!key || !parent) {
         issue(
           "JOIN_ORPHAN",
-          "Ligne enfant sans parent correspondant.",
+          "Child row has no matching parent.",
           source(child.sheet, row),
         );
         continue;
@@ -494,7 +492,7 @@ export function validateMapping(
       if (join.cardinality === "one-to-one" && entries.length) {
         issue(
           "JOIN_CHILD_CARDINALITY",
-          "La jointure un-à-un possède plusieurs lignes enfants.",
+          "The one-to-one join has multiple child rows.",
           source(child.sheet, row),
         );
         continue;
@@ -513,10 +511,7 @@ export function validateMapping(
     for (const [key, parent] of parents) {
       const entries = joined.get(key) ?? [];
       if (join.cardinality === "one-to-one" && entries.length !== 1)
-        issue(
-          "JOIN_MISSING_CHILD",
-          "La jointure un-à-un n’a pas de ligne enfant.",
-        );
+        issue("JOIN_MISSING_CHILD", "The one-to-one join has no child row.");
       setPath(
         parent.record.data,
         join.target,
@@ -530,8 +525,7 @@ export function validateMapping(
     result.issues[result.issues.length - 1] = {
       code: "ISSUE_LIMIT",
       severity: "error",
-      message:
-        "Plus de 1 000 anomalies ; corrigez le fichier avant génération.",
+      message: "More than 1,000 anomalies; correct the file before generation.",
     };
   if (
     !result.issues.some((entry) => entry.severity === "error") &&
@@ -539,7 +533,7 @@ export function validateMapping(
   )
     result.status = "ready";
   if (!result.documentCount)
-    issue("EMPTY_DATASET", "Aucun document n’est produit par ce mapping.");
+    issue("EMPTY_DATASET", "This mapping produces no document.");
   return result;
 }
 export const normalizeDataset = validateMapping;

@@ -1,0 +1,106 @@
+---
+title: GitHub checks and release evidence
+description: Understand the actual jobs, their shared artifacts and the independent authorization boundary before deployment.
+sidebar:
+  order: 7
+---
+
+GitHub CI checks proposed source and then checks `main` again. It does not deploy
+Guteneo automatically. The reviewed revision, required job results, clean build,
+authorized publication and served bytes form a chain of evidence with distinct
+owners and failure states.
+
+[Changes and releases](/engineering/releases/) owns the publication/recovery
+sequence. This page maps the implementation of that sequence to the workflows
+and explains how to maintain it when services or dependencies change.
+
+## What the application workflow runs
+
+`Guteneo checks` runs on every pull request and `main` push without application
+path filters. Shared contracts, mobile API routes, migrations and npm dependencies
+can affect more than their immediate directory, so they retain complete coverage.
+
+| Job family | Responsibility | Evidence boundary |
+| --- | --- | --- |
+| Private services | Scanner and PDF-validator type/behavior tests | Local service contracts, not hosted engine freshness |
+| Checks | Type/lint, dependency audit, generated docs, language/route standards, MCP annotations, migration equivalence, cost model and narration checks | Repository consistency for that revision |
+| Four Vitest shards | Sequential isolated domain/integration files and restore evidence | Deterministic local database/provider fixtures |
+| Security and renderer | Browser-backed document rendering and Node security guards | Actual local Chromium processing plus controlled refusal paths |
+| Build | Main, live, preview and status builds; Worker dry runs | Buildable artifacts/configuration without publication |
+| Browser matrix | Desktop/mobile Chromium and iPhone WebKit, with applicable preview, Belvédère and status suites | Same-run application artifacts and fictional local data |
+| Distribution profiles | Isolated strong and verified-account lifecycles on desktop/phone | Separate synthetic identity policies, no real Auth0 or delivery |
+| Engineering | Independent dependency install/audit, content checks, static build, browsers and asset-only dry run | Documentation release surface only |
+| Aggregate verification | Required dependencies and current-run reports | Missing, failed, skipped or cancelled required work is not success |
+
+Browser/distribution jobs download the build from the same GitHub revision rather
+than rebuilding assets concurrently. Distribution reports require complete
+execution on both targets without skips, flaky results or model calls; a separate
+privacy guard checks every upload path before evidence is archived. Do not weaken
+these assertions to make a partial run green.
+
+The source workflows and result verifier own exact job names, matrix entries and
+expected counts. A future matrix change must update both, its tests and this
+explanation together. A configured job is not proof that its latest execution
+succeeded.
+
+## Install the dependency tree actually used by each job
+
+Root tools use the root lockfile and `npm ci`. Scanner, PDF validator and engineering
+have their own package/lockfile boundaries. The engineering job installs both
+root dependencies and `apps/engineering` dependencies; it cannot rely on a
+previous developer checkout. CI currently uses Node 24. Engineering requires
+Node 22.23.4+ or a supported Node 24+ version.
+
+Browser-backed jobs install their required engines and Linux dependencies.
+Installing Chromium for a renderer is distinct from installing an independent
+browser-test framework's engine. Keep sandbox/dependency setup intact. A download
+failure before assertions is setup failure, not product qualification and not a
+reason to silently omit the suite.
+
+The sparse checkout omits immutable historical film archives and screenshots,
+while retaining current source, tests, narration and assets needed to reproduce
+checks. Cache entries accelerate installation; lockfiles and fresh installation
+remain authoritative.
+
+## Native and public monitoring are separate workflows
+
+`Guteneo iOS` runs native XCTest/archive for changes under `ios/**` or its workflow,
+plus manual dispatch. If a future native dependency moves elsewhere, update both
+native path filters. A web build does not qualify simulator, physical-device or
+App Store behavior.
+
+The scheduled production workflow observes fixed anonymous public pages/contracts
+every six hours. Its version-bound sanitized report is separate from PR tests,
+business authentication and provider delivery. An absent, stale or mismatched
+report cannot qualify current production; opening the status page launches no
+test. See [testing boundaries](/engineering/testing/).
+
+## CI success is a prerequisite, not deployment authority
+
+After an authorized merge, examine required results for the actual merged
+revision. An earlier PR run does not prove the merge commit. Project release
+guards then check the intended clean source and generated artifacts; they do not
+replace GitHub review or operator authorization.
+
+Application, preview, status, engineering and private-service publication each
+have their own bindings and verification. No documentation job should receive
+business database, storage, identity or send credentials. No price refresh should
+silently deploy an unrelated application change. No workflow should provision
+paid infrastructure or submit a communication merely to produce a green badge.
+
+## Maintain the pipeline with the change
+
+When changing a workflow, Node/browser version, lockfile, Cloudflare binding,
+private service or provider contract:
+
+1. Update the relevant workflow, result verifier and meaningful behavior guards.
+2. Update the feature registry and the affected engineering guide in the same
+   change; explain any new capability or evidence boundary.
+3. Prove fresh dependency installation and all affected jobs on the exact source.
+4. Preserve failed attempts and distinguish setup failures from assertions.
+5. Record separately the authorized publication and exact served verification.
+
+[Provider maintenance](/engineering/provider-maintenance/) applies the same
+source/evidence discipline to tariff expiry, callbacks and external contracts.
+[Background jobs](/engineering/background-jobs/) explains why successful queue
+processing never grants approval or permission to retry uncertain sends.

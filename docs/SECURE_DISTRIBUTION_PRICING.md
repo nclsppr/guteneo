@@ -1,45 +1,45 @@
-# Prix de distribution sécurisée
+# Secure distribution pricing
 
-Prix client choisis pour le candidat du 24 octobre 2026, **en EUR HT, par PDF et par destinataire nommé**. Ce sont les montants du catalogue serveur, pas des prix Cloudflare ni un devis de sous-traitant. Version immuable : `secure-distribution-2026-10-24-v1`.
+Customer prices chosen for the 24 October 2026 candidate, **EUR excluding VAT, per PDF and named recipient**. These are server-catalog amounts, not Cloudflare prices or subcontractor quotes. Immutable version: `secure-distribution-2026-10-24-v1`.
 
-| Conservation du partage | Prix |
+| Shared retention | Price |
 | --- | ---: |
-| 7 jours | 0,49 € |
-| 30 jours | 0,99 € |
-| 90 jours | 1,99 € |
-| 365 jours | 4,99 € |
+| 7 days | EUR 0.49 |
+| 30 days | EUR 0.99 |
+| 90 days | EUR 1.99 |
+| 365 days | EUR 4.99 |
 
-| Option prépayée de remise personnelle | Supplément |
+| Prepaid personal-delivery option | Supplement |
 | --- | ---: |
-| Conservation autonome pendant 365 jours | 1,99 € |
-| Conservation autonome pendant 1 095 jours | 4,99 € |
+| Independent retention for 365 days | EUR 1.99 |
+| Independent retention for 1,095 days | EUR 4.99 |
 
-L'option finance une capacité de remise au destinataire prévu, jusqu'à l'expiration du partage. Elle est facturée dès l'activation, même si le destinataire ne demande finalement pas sa copie. Si la copie est remise, sa durée propre commence à cette remise. La préparation affiche le partage, l'option et le transport de l'invitation séparément, avec total et plafond, avant approbation. Aucune facturation ultérieure n'est cachée au destinataire.
+The option funds delivery capacity for the intended recipient until sharing expires. It is billed at activation even if the recipient never requests a copy. When delivered, the copy's own term starts at delivery. Preparation displays sharing, option and invitation transport separately, with total/ceiling before approval. No later charge is hidden from the recipient.
 
-Exemple : partage de trente jours, copie personnelle d'un an et transport coté à 0,01 € donnent 2,99 € HT. Le centime de cet exemple représente un devis de transport hypothétique ou simulé, pas une promesse tarifaire fournisseur. Le prix réel de l'email utilise le contrat de devis qualifié déjà présent dans Guteneo.
+Example: thirty-day sharing, one-year personal copy and transport quoted at EUR 0.01 total EUR 2.99 excluding VAT. That cent represents hypothetical/simulated transport, not a provider-price promise. Actual email pricing uses Guteneo's existing qualified quote contract.
 
-**La révocation ne rembourse ni la durée engagée ni l'option de remise prépayée.** Le débit de service est conservé séparément du transport. Un échec ou résultat inconnu du fournisseur suit les règles de réservation et réconciliation du transport ; il ne recrée pas le service. Les reprises idempotentes, confirmations répétées et demandes de copie répétées ne créent pas un deuxième débit. Aucune carte de paiement ni débit externe n'est déclenché par les tests.
+**Revocation refunds neither committed retention nor the prepaid personal-delivery option.** Service charges remain separate from transport. Provider failure/unknown outcomes follow transport reservation/reconciliation rules without recreating the service. Idempotent recovery, repeated confirmation and repeated copy requests create no second charge. Tests trigger no card or external debit.
 
-## Coûts techniques et limites de l'estimation
+## Technical costs and estimation limits
 
-Tarifs publics consultés le 24 octobre 2026, hors taxes, en USD. Quotas inclus partagés à l'échelle du compte existant : ne pas les réattribuer intégralement à chaque atelier ou document.
+Public prices consulted on 24 October 2026, excluding tax, in USD. Included quotas are shared across the existing account, never fully reallocated to each workspace/document.
 
-| Ressource | Dépassement public |
+| Resource | Public overage |
 | --- | --- |
-| R2 Standard | 0,015 USD/Go-mois ; 4,50 USD/million d'écritures de classe A ; 0,36 USD/million de lectures de classe B |
-| Workers Standard | 0,30 USD/million de requêtes et 0,02 USD/million de millisecondes CPU, après inclusions du compte |
-| D1 Paid | 0,001 USD/million de lignes lues ; 1 USD/million de lignes écrites ; 0,75 USD/Go-mois, après inclusions |
-| Queues Paid | 0,40 USD/million d'opérations après inclusion ; normalement écriture, lecture et suppression par message |
-| Browser Run Paid | 0,09 USD/heure au-delà de dix heures mensuelles incluses ; concurrence facturée séparément au-delà de l'inclusion |
+| R2 Standard | USD 0.015/GB-month; USD 4.50/million class A writes; USD 0.36/million class B reads |
+| Workers Standard | USD 0.30/million requests and USD 0.02/million CPU milliseconds after account inclusions |
+| D1 Paid | USD 0.001/million rows read; USD 1/million rows written; USD 0.75/GB-month after inclusions |
+| Queues Paid | USD 0.40/million operations after inclusion; normally write, read and delete per message |
+| Browser Run Paid | USD 0.09/hour beyond ten included monthly hours; concurrency billed separately beyond inclusion |
 
-Sources officielles : [R2](https://developers.cloudflare.com/r2/pricing/), [Workers](https://developers.cloudflare.com/workers/platform/pricing/), [D1](https://developers.cloudflare.com/d1/platform/pricing/), [Queues](https://developers.cloudflare.com/queues/platform/pricing/), [Browser Run](https://developers.cloudflare.com/browser-run/pricing/).
+Official sources: [R2](https://developers.cloudflare.com/r2/pricing/), [Workers](https://developers.cloudflare.com/workers/platform/pricing/), [D1](https://developers.cloudflare.com/d1/platform/pricing/), [Queues](https://developers.cloudflare.com/queues/platform/pricing/), [Browser Run](https://developers.cloudflare.com/browser-run/pricing/).
 
-Les plafonds de sérialisation du candidat donnent environ **40,6 Mo par namespace chiffré** au maximum : original de 10 Mio, cent images de 268 800 octets décodés maximum et cent couches texte de 32 000 octets UTF-8 maximum, plus enveloppes. La source initiale de l'atelier ajoute au plus 10 Mio. Une copie personnelle est un second namespace complet, sans dépendance de conservation envers le premier.
+Candidate serialization ceilings allow approximately **40.6 MB per encrypted namespace**: 10 MiB original, one hundred images up to 268,800 decoded bytes and one hundred text layers up to 32,000 UTF-8 bytes, plus envelopes. Initial workspace source adds at most 10 MiB. A personal copy is a complete second namespace with independent retention.
 
-À ces plafonds, le stockage R2 d'un partage d'un an avec sa source représente environ **0,0094 USD**, et celui d'une copie de trois ans environ **0,0223 USD**, avant arrondi global et sans compter les autres ressources. Ce calcul de volume n'est pas le coût complet. Le rendu comporte jusqu'à 34 lots de trois pages ; un budget hypothétique de trente secondes par lot représente 0,0255 USD d'heures navigateur avant concurrence. Ce budget n'est pas une mesure de durée réelle.
+At these ceilings, R2 storage for a one-year share/source is approximately **USD 0.0094**, and a three-year copy approximately **USD 0.0223**, before aggregate rounding and excluding other resources. Volume calculation is not total cost. Rendering uses up to 34 three-page batches; hypothetical thirty-second batches imply USD 0.0255 in browser hours before concurrency. This is not a measured duration.
 
-Le script `scripts/benchmark-secure-storage.ts` mesure séparément le chiffrement local, ses lectures/écritures et ses volumes avec des buffers synthétiques maximaux ; son rapport `test-results/secure-storage-capacity.json` étiquette explicitement cet environnement. Le CPU et la mémoire Node ne représentent pas les métriques facturées par Workers. Le test e2e fait réellement rendre et copier un PDF de quatre pages, sans extrapoler sa durée à tous les PDF.
+`scripts/benchmark-secure-storage.ts` separately measures local encryption, reads/writes and volumes using maximal synthetic buffers; `test-results/secure-storage-capacity.json` labels that environment explicitly. Node CPU/memory is not billable Workers telemetry. E2E actually renders/copies a four-page PDF without extrapolating its duration to every PDF.
 
-Les coûts décisifs incluent aussi Auth0, les sessions et comptes actifs, les index/événements du journal, l'exploitation, le support, la récupération d'identité, la sécurité et les sauvegardes indépendantes. La grille d'[Auth0](https://auth0.com/pricing) dépend notamment des utilisateurs actifs, fonctions de sécurité et contrats. Le choix des passkeys et le coût de la méthode de sécurité définitive sont différés ; poursuivre l'interface ne qualifie aucun coût d'identité supplémentaire et n'active aucun abonnement. Aucun tarif par destinataire Auth0 n'est inventé. Les quotas GitHub Actions et la surveillance sont également partagés avec les pipelines existants.
+Decisive costs also include Auth0, active accounts/sessions, audit indexes/events, operations, support, identity recovery, security and independent backups. [Auth0 pricing](https://auth0.com/pricing) depends on active users, security features and contracts. Passkey choice and final security-method cost are deferred; continuing UI implementation qualifies no extra identity cost and activates no subscription. No Auth0 per-recipient price is invented. GitHub Actions/monitoring quotas are shared with existing pipelines.
 
-La grille client est un choix produit exécutable, pas une marge garantie par le seul coût R2. L'activation commerciale nécessite une mesure de trafic représentatif, un budget de journalisation et d'abus, la qualification du coût d'identité et une politique de conservation des événements. Ne pas promettre des consultations intensives illimitées ou une facture d'infrastructure plafonnée tant que ces budgets ne sont pas éprouvés. Une évolution de prix concernera de nouvelles préparations avec nouvelle version ; elle ne réécrit pas les commandes approuvées.
+Customer pricing is an executable product choice, not a margin guaranteed by R2 cost alone. Commercial activation requires representative traffic measurements, audit/abuse budgets, identity-cost qualification and event-retention policy. Promise neither unlimited intensive reading nor a capped infrastructure bill until those budgets are tested. Price changes apply to new preparations with a new version, never rewrite approved commands.

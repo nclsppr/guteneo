@@ -1,0 +1,140 @@
+---
+title: Working with AI contributors
+description: Give an AI contributor a clear task, the current contracts and a verifiable definition of done.
+sidebar:
+  label: AI contribution rules
+  order: 10
+---
+
+An AI contributor should leave a change that another engineer can understand,
+review and maintain. The repository's `AGENTS.md` is the authoritative instruction
+entry point. This guide explains its application; it does not grant permissions
+to a tool, a connected assistant or a production account.
+
+Distinguish a development agent editing this repository from a connected product
+assistant acting for a workspace. Product assistants follow server-side OAuth,
+role, confirmation and delegation rules described in
+[roles and authority](/features/permissions/) and [assistant integration](/integrations/mcp/).
+Repository write access never creates production sending authority.
+
+## Give the contributor a bounded brief
+
+A useful brief names the user-visible result, the affected surface, the current
+contract, acceptance criteria and the evidence required. State any authorized
+external actions precisely. Prefer an observable outcome such as preserving a
+draft through a language change over an instruction to make a screen better.
+
+Before editing, the contributor should read `AGENTS.md`,
+`docs/REPOSITORY_STANDARDS.md` and the relevant feature entry. Changes to product
+invariants also require `docs/PRODUCT.md`, `docs/ARCHITECTURE.md` and
+`docs/EXECUTION_PLAN.md`. Search the implementation and tests to verify the current
+behavior instead of inferring it from a stale screenshot or an old report.
+
+When several agents share a repository, assign file ownership and coordinate
+generated outputs. Preserve unrelated local work. Do not reset another person's
+checkout or treat concurrent edits as disposable. Review the final combined
+source before treating individual agent results as evidence for the whole change.
+
+## Preserve the product invariants
+
+The server derives the tenant from authenticated membership. Lookups and writes
+remain tenant-scoped; a supplied identifier never grants access. A personal
+recipient is not silently made a workspace member by a document invitation.
+
+Approval binds immutable content, recipient, options and cost. Acceptance,
+reservation and outbox insertion form one atomic commitment. Monetary values use
+integer minor units. Unknown provider outcomes require reconciliation and must
+not be automatically retried. Refactoring a UI, generated contract or error
+message must preserve these boundaries.
+
+An agent cannot assert human consent. Expert delegation remains off by default;
+only an authenticated browser administrator can grant a bounded, expiring mandate
+to one OAuth client. Separate postal-transfer authority and host confirmations
+still apply. The [dispatch lifecycle](/architecture/dispatch-lifecycle/) owns the
+detailed state explanation.
+
+Never perform a real communication, paid provisioning, production deployment or
+merge without explicit authorization. An already authorized action should be
+completed within its approved scope; the documentation must not create a second,
+contradictory approval policy. Do not log documents, recipients, credentials,
+tokens or signed URLs while investigating a failure.
+
+## Write source that belongs to this repository
+
+Use English for identifiers, code comments, tests, documentation, diagrams,
+examples, integration instructions and API messages. Frontend localization and
+localized video content are the product-language exceptions. Preserve exact user
+content, proper names, external identifiers and historical evidence.
+
+Canonical routes and machine contracts remain English across locales. Reuse the
+shared route helpers, UI shells, components, styles and translation keys. Do not
+duplicate an existing page title, account identity or primary action in a new
+wrapper. Keep consent, prices and recovery details at the decision where they
+are required. Follow the [design system](/engineering/design-system/) for a new
+interface and [video production](/engineering/video-production/) for media.
+
+Generated code or artwork still needs review. An image may illustrate a concept;
+it must not invent a product capability, prove a provider delivery or contain the
+only readable instructions. Preserve source assets and record the actual tool,
+reference, prompt and selected output when producing a derivative.
+
+## Update the explanation with the implementation
+
+| Change | Required documentation update |
+| --- | --- |
+| Feature addition, behavior change or removal | Feature-tree node, affected roles/journeys and developer contract |
+| GitHub workflow or CI/CD gate | Authored CI/release guide, job flow and evidence boundary |
+| Cloudflare resource, binding, runtime or deployment change | Architecture, relevant operations guide and diagram |
+| Third-party service, pricing or qualification change | Integration contract and provider maintenance guide |
+| Design, i18n, accessibility or AI instruction | Authoritative rule and its engineering implementation guide |
+| Video source, narration, voice or rendering process | Video guide, catalog/provenance and affected localized assets |
+
+Edit `docs/feature-map.json`, then regenerate its views through `npm run docs:build`.
+Do not maintain an independent feature inventory or hand-edit generated MDX.
+Portable integration instructions are authored under `integrations/guteneo/`;
+generate host overlays through the existing synchronization script.
+
+Keep detailed operator evidence in the repository or its private evidence store.
+Engineering publishes curated explanations and a reviewed feature projection,
+not raw runbooks, credentials, account identities or test traces. Use one
+authoritative explanation and links rather than copying a procedure across guides.
+
+## Prove the changed boundary
+
+Run relevant functional checks and the repository gates. Preserve an assertion's
+meaning when a label or route changes. Do not weaken permissions, remove a browser,
+skip a failing case or invent a passing report to finish a task.
+
+```sh
+npm run typecheck
+npm run lint
+npm run docs:build
+npm run docs:check
+npm run check:engineering
+```
+
+The affected behavior may also require unit, integration, browser, native or
+engine-specific checks; use [testing and evidence](/engineering/testing/).
+Documentation illustrations require rendered review, including phone and dark
+mode. A source-only assertion cannot prove that text is legible or a diagram
+control works.
+
+Report the exact source revision, checked environment, result and remaining
+limits. Local simulation, CI, a served release, authenticated browser behavior,
+provider readiness and real delivery are separate observations. A clean build
+does not prove production activation. Once publication is authorized, follow the
+[release process](/engineering/ci-and-release/) and verify the served version.
+
+## Keep these instructions current
+
+Change `AGENTS.md` when a project-wide instruction changes, the authoritative
+topic contract when its rule changes, and this guide when the contributor
+workflow changes. The repository standards check requires an authored engineering
+guide for operational and contribution-rule changes; generated feature pages
+alone do not satisfy it. Human review still checks that the explanation actually
+matches the changed behavior.
+
+The final handoff should state the concrete result, its verification and any
+remaining qualification limit. Link to the changed source or served page so the
+next contributor can inspect it. Keep proposed work, implemented work and
+published work unmistakably separate.

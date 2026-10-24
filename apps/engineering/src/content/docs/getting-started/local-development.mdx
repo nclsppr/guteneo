@@ -1,0 +1,76 @@
+---
+title: Run locally
+description: Start the complete Workers application with deterministic simulation and local PDF rendering.
+sidebar:
+  order: 2
+---
+
+Use Node.js 22.16 or later and npm from a checkout whose uncommitted work you
+understand. The lockfile owns dependency resolution. The default Wrangler
+configuration is local simulation; no cloud account, real recipient or transport
+credential is needed for the first run.
+
+## Start the complete application
+
+```sh
+npm ci
+npx playwright install chromium
+npm run demo
+```
+
+Open `http://localhost:8787` exactly. The development workflow applies local D1
+migrations, seeds synthetic workspaces and credits, builds the web assets and
+starts the Workers application plus the local PDF renderer. Select a fictional
+workspace through the local sign-in screen.
+
+The canonical local origin matters: authenticated mutations check Origin and
+CSRF. `localhost` and `127.0.0.1` are different origins even when they reach the
+same machine. Keep browser URLs and configuration coherent instead of weakening
+those checks.
+
+## Understand the local modes
+
+| Workflow | Command | Boundary |
+| --- | --- | --- |
+| Complete application | `npm run dev` | Builds web assets and starts the local API and renderer; apply migrations/seed first if needed |
+| Repeatable initial setup | `npm run demo` | Includes migrations and synthetic seed before development startup |
+| Frontend-only iteration | `npm run dev:web` | Vite origin; authenticated work needs an intentionally coherent origin/proxy setup |
+| Browser-only design preview | `npm run build:preview` | Independent fictional per-tab data; no business bindings |
+
+Local simulation exercises the domain and persistence paths without a real
+communication. The public design preview is a different fixture model; it is
+useful for presentation checks but does not qualify the backend.
+
+## Check the first change
+
+```sh
+npm run typecheck
+npm run lint
+npm test
+npm run docs:check
+npm run build
+```
+
+The production build includes a Worker dry run; it does not deploy an application.
+Browser checks require their actual browser engines:
+
+```sh
+npx playwright install chromium webkit
+npm run test:e2e
+```
+
+The renderer can use the installed bundled Chromium fallback on supported Linux
+environments via `npm run browser:prepare`. That fallback is not Safari or remote
+Browser Run evidence. Use the [testing guide](/engineering/testing/) to choose
+focused suites and interpret the result.
+
+## Work on native or private services
+
+The SwiftUI project lives under `ios/`. Its local scripts inspect Xcode, build
+unsigned/ad hoc artifacts and run simulator tests. Private scanner, renderer and
+validator qualification have separate runtimes and fixtures. An application test
+with an injected scanner response is not a qualification of those services.
+
+Begin with the existing local fixtures and contracts. Connecting hosted identity,
+providers, paid services or real sending is a distinct operational activity,
+not a prerequisite for understanding the repository.

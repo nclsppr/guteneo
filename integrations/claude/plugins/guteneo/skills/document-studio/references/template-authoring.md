@@ -1,47 +1,38 @@
-# Créer un modèle Guteneo depuis un assistant
+# Create a Guteneo template from an assistant
 
-Le serveur est l’autorité. Lire get_capabilities, puis
-get_template_authoring_guide avant de construire une définition. Cette référence
-est embarquée dans le plugin ; le guide vivant contient les schémas JSON issus du
-validateur courant, les liaisons, les modifications sémantiques, les propriétés
-graphiques autorisées et les limites. Ne pas supposer la présence d’un outil qui
-n’est pas annoncé par le serveur connecté.
+The server is authoritative. Read `get_capabilities`, then
+`get_template_authoring_guide` before constructing a definition. The live guide
+exposes JSON schemas from current validators, bindings, semantic edits, allowed
+visual properties and limits. Never assume a tool absent from the connected catalog.
 
-## Partir d’un exemple complet
+## Start with a complete example
 
-list_template_examples propose un courrier, une facture de démonstration, un
-relevé, un devis et un bon de livraison. get_template_example avec exampleId
-retourne {id,envelope}. Modifier envelope, puis transmettre {envelope} à
-create_template. Le brouillon appartient à l’utilisateur authentifié ; il reste
-privé jusqu’à un partage explicite. Lire une démonstration ne crée rien et ne
-modifie pas la galerie commune. Les exemples ne revendiquent aucune conformité
-fiscale ou validation métier particulière.
+`list_template_examples` exposes letter, demonstration invoice, statement, quote
+and delivery-note examples. `get_template_example({exampleId})` returns
+`{id,envelope}`. Adapt the envelope and pass `{envelope}` to `create_template`.
+The authenticated user owns the private draft until explicit sharing. Reading
+an example changes neither the common gallery nor any private resource. Examples
+claim no specific tax compliance or business validation.
 
-## Règles à respecter
+## Authoring rules
 
-- Version : schemaVersion 1, engine pdfme et engineVersion 6.1.13. basePdf est un
-  objet de dimensions et marges en millimètres. Les tailles de police sont en
-  points, avec la police embarquée GuteneoSans et du texte simple.
-- Déclarer l’objet métier dans inputSchema et des exemples entièrement fictifs
-  dans sampleData ; sampleDataSynthetic reste true. Garder resources vide.
-- Relier les blocs avec bindings : value pour un champ, table pour un tableau,
-  sum pour un total. Les noms des blocs et les chemins du schéma doivent exister.
-  Les chemins des colonnes sont relatifs à une ligne, ceux des conditions à la racine.
-- Ne pas écrire de variables entre accolades dans le contenu graphique ; seuls
-  les compteurs {currentPage} et {totalPages} sont permis. Aucun JavaScript,
-  expression, SVG, police distante ou image distante.
-- Les montants sont des entiers en unités mineures ; 1250 signifie 12,50 EUR.
-  Les dates sont ISO YYYY-MM-DD. Un code postal ou un identifiant reste une chaîne.
-- Les champs required doivent être fournis ou disposer d’un default valide.
-  Ne jamais inventer une valeur manquante ou un taux de conversion.
-- Un tableau dynamique utilise repeatHead=true et un nombre de colonnes identique
-  dans head et dans le binding. Vérifier le PDF réel pour la pagination et les
-  superpositions. Le schéma JSON ne suffit pas à qualifier la mise en page.
+- Use schemaVersion 1, engine pdfme and engineVersion 6.1.13. `basePdf` contains
+  dimensions/margins in millimeters. Fonts use points, embedded GuteneoSans and plain text.
+- Declare the business object in `inputSchema`, wholly synthetic `sampleData`,
+  `sampleDataSynthetic:true` and empty `resources`.
+- Use `bindings`: value for fields, table for arrays and sum for totals. Block
+  names and schema paths must exist. Column paths are row-relative; conditions are root-relative.
+- Do not embed braced variables in visual content; only `{currentPage}` and
+  `{totalPages}` counters are allowed. No JavaScript, expressions, SVG, remote fonts/images.
+- Money uses integer minor units: 1250 means EUR12.50. Dates use ISO YYYY-MM-DD.
+  Postcodes and identifiers remain strings. Required fields need a supplied value
+  or valid default. Never invent missing values or exchange rates.
+- Dynamic tables use `repeatHead:true` with matching header/binding column counts.
+  Inspect the actual PDF for pagination and overlap; JSON validity is not layout proof.
 
-## Enveloppe minimale exécutable
+## Executable minimal envelope
 
-Le corps ci-dessous s’utilise tel quel avec create_template, ou avec
-POST /api/templates. Il crée uniquement un brouillon privé.
+Use this body with `create_template` or `POST /api/templates`; it creates only a private draft.
 
 ```json
 {
@@ -49,19 +40,14 @@ POST /api/templates. Il crée uniquement un brouillon privé.
     "schemaVersion": 1,
     "engine": "pdfme",
     "engineVersion": "6.1.13",
-    "name": "Mon premier modèle",
-    "description": "Exemple minimal avec une variable et des données fictives.",
-    "locale": "fr-FR",
+    "name": "My first template",
+    "description": "Minimal example with one variable and synthetic data.",
+    "locale": "en-GB",
     "definition": {
       "basePdf": {
         "width": 210,
         "height": 297,
-        "padding": [
-          22,
-          20,
-          20,
-          20
-        ],
+        "padding": [22, 20, 20, 20],
         "staticSchema": [
           {
             "name": "header",
@@ -72,7 +58,7 @@ POST /api/templates. Il crée uniquement un brouillon privé.
             },
             "width": 170,
             "height": 6,
-            "content": "ENTREPRISE EXEMPLE",
+            "content": "EXAMPLE COMPANY",
             "readOnly": true,
             "fontName": "GuteneoSans",
             "fontSize": 8,
@@ -92,7 +78,7 @@ POST /api/templates. Il crée uniquement un brouillon privé.
             },
             "width": 170,
             "height": 6,
-            "content": "Données fictives · Page {currentPage} / {totalPages}",
+            "content": "Synthetic data · Page {currentPage} / {totalPages}",
             "readOnly": true,
             "fontName": "GuteneoSans",
             "fontSize": 8,
@@ -116,7 +102,7 @@ POST /api/templates. Il crée uniquement un brouillon privé.
             },
             "width": 170,
             "height": 15,
-            "content": "Bonjour",
+            "content": "Hello",
             "readOnly": true,
             "fontName": "GuteneoSans",
             "fontSize": 18,
@@ -136,13 +122,11 @@ POST /api/templates. Il crée uniquement un brouillon privé.
       "properties": {
         "personName": {
           "type": "string",
-          "title": "Prénom",
+          "title": "First name",
           "maxLength": 160
         }
       },
-      "required": [
-        "personName"
-      ]
+      "required": ["personName"]
     },
     "bindings": [
       {
@@ -151,11 +135,11 @@ POST /api/templates. Il crée uniquement un brouillon privé.
         "path": "personName",
         "format": "text",
         "required": true,
-        "prefix": "Bonjour "
+        "prefix": "Hello "
       }
     ],
     "sampleData": {
-      "personName": "Camille Exemple"
+      "personName": "Camille Example"
     },
     "sampleDataSynthetic": true,
     "resources": []
@@ -163,39 +147,35 @@ POST /api/templates. Il crée uniquement un brouillon privé.
 }
 ```
 
-## Relire, publier et partager
+## Review, publish and share
 
-Après création, conserver id et revision retournés. preview_template reçoit
-{id,expectedRevision,data} et retourne un véritable aperçu documentaire.
-Relire le PDF avec les outils documentaires disponibles ; corriger les erreurs
-avant publication. update_template reçoit {id,change:{expectedRevision,patch}}
-ou change.envelope pour une définition complète. Le guide fournit patchSchema.
-Après REVISION_CONFLICT, relire get_template ; ne pas écraser une modification
-concurrente et ne pas incrémenter une révision devinée.
+Keep the returned id/revision. `preview_template({id,expectedRevision,data})`
+returns an actual document preview. Read it with available document tools and
+correct errors before publication. `update_template` accepts
+`{id,change:{expectedRevision,patch}}` or `change.envelope` for full replacement.
+The guide includes patchSchema. After REVISION_CONFLICT, reread `get_template`;
+never overwrite a concurrent edit or guess an incremented revision.
 
-publish_template reçoit {id,expectedRevision} et fige une version. share_template
-reste une action distincte avec des droits explicites. Une création, un aperçu,
-une publication et une génération ne valent jamais approbation d’envoi.
+`publish_template({id,expectedRevision})` freezes a version. `share_template`
+remains separate with explicit permissions. Creation, preview, publication and
+generation never constitute send approval.
 
-## Supprimer une création à la demande de son propriétaire
+## Delete only on the owner's request
 
-Lire canDelete dans get_template, puis appeler delete_template avec
-{id,expectedRevision}. Le modèle disparaît de la bibliothèque de l’atelier, y
-compris s’il avait été partagé ; les PDF déjà générés et leur historique restent
-conservés. Un autre membre ayant un droit d’édition ou de publication ne devient
-pas propriétaire. La suppression d’une copie ne supprime jamais sa base dans la
-galerie de démonstration. Ne pas assimiler cette action à un effacement des PDF.
+Read `canDelete`, then call `delete_template({id,expectedRevision})`. The template
+leaves the workspace library, including shared copies; generated PDFs/history
+remain. Another member's edit/publish rights do not confer ownership. Deleting a
+copy never removes its gallery base and never constitutes erasure of its PDFs.
 
-## Équivalents REST
+## REST equivalents
 
-- GET /api/templates/authoring-guide
-- GET /api/templates/examples
-- GET /api/templates/examples/{exampleId}
-- POST /api/templates avec {envelope}
-- DELETE /api/templates/{id} avec {expectedRevision}
+- `GET /api/templates/authoring-guide`
+- `GET /api/templates/examples`
+- `GET /api/templates/examples/{exampleId}`
+- `POST /api/templates` with `{envelope}`
+- `DELETE /api/templates/{id}` with `{expectedRevision}`
 
-Les lectures utilisent templates:read ; créer, modifier et supprimer nécessitent
-templates:write. L’aperçu requiert generations:write. Publier et partager ont leurs scopes distincts. L’appartenance
-et les droits sont toujours vérifiés par le serveur. Aucun appel OpenAI interne,
-aucune clé supplémentaire et aucun accès au fournisseur d’envoi ne sont requis
-pour qu’un LLM compose une enveloppe lui-même.
+Reads require templates:read; creation/edit/deletion require templates:write.
+Preview requires generations:write; publication/sharing have separate scopes.
+The server always checks membership and resource authority. Direct assistant
+authoring requires no internal OpenAI call, extra key or delivery-provider access.

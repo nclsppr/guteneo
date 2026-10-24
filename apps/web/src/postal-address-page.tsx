@@ -25,7 +25,7 @@ export function PostalAddressChoice({
       className="postal-address-choice"
       aria-describedby="postal-address-mode-help"
     >
-      <legend>{msg("Adresse sur le courrier")}</legend>
+      <legend>{msg("Address on the letter")}</legend>
       <label>
         <input
           type="radio"
@@ -33,7 +33,7 @@ export function PostalAddressChoice({
           checked={mode === "document"}
           onChange={() => onChange("document")}
         />
-        <span>{msg("Utiliser l’adresse du document")}</span>
+        <span>{msg("Use the document’s address")}</span>
       </label>
       <label>
         <input
@@ -42,19 +42,19 @@ export function PostalAddressChoice({
           checked={mode === "generated_address_page"}
           onChange={() => onChange("generated_address_page")}
         />
-        <span>{msg("Ajouter une page d’adresse")}</span>
+        <span>{msg("Add an address page")}</span>
       </label>
       <p id="postal-address-mode-help" className="field-hint">
         {mode === "document"
           ? msg(
-              "Le PDF reste inchangé. Son adresse doit déjà correspondre au destinataire et apparaître dans la fenêtre de l’enveloppe.",
+              "The PDF stays unchanged. Its address must already match the recipient and appear in the envelope window.",
             )
           : msg(
-              "Le destinataire sera imprimé sur une nouvelle première page, dans la fenêtre choisie. Votre PDF source est conservé.",
+              "The recipient will be printed on a new first page, in the selected window. Your source PDF is preserved.",
             )}
       </p>
       <fieldset className="postal-window-choice">
-        <legend>{msg("Fenêtre de l’enveloppe")}</legend>
+        <legend>{msg("Envelope window")}</legend>
         {positions.map((position) => (
           <label key={position}>
             <input
@@ -65,7 +65,7 @@ export function PostalAddressChoice({
               onChange={() => onPositionChange(position)}
             />
             <span>
-              {position === "left" ? msg("À gauche") : msg("À droite")}
+              {position === "left" ? msg("On the left") : msg("On the right")}
             </span>
           </label>
         ))}
@@ -74,13 +74,13 @@ export function PostalAddressChoice({
         <p className="field-hint" role="status">
           {printMode === "duplex"
             ? msg(
-                "En recto verso, 2 pages PDF sont ajoutées : la page d’adresse et son verso blanc, soit 1 feuille supplémentaire. Les rectos et versos du document source restent appariés.",
+                "For double-sided printing, 2 PDF pages are added: the address page and its blank reverse, making 1 additional sheet. The front and back pages of the source document stay paired.",
               )
             : msg(
-                "En recto, 1 page PDF est ajoutée, soit 1 feuille supplémentaire.",
+                "For single-sided printing, 1 PDF page is added, making 1 additional sheet.",
               )}{" "}
           {msg(
-            "Le prix du courrier complet sera affiché avant votre accord d’envoi.",
+            "The price of the complete letter will be shown before you approve sending.",
           )}
         </p>
       )}
@@ -102,27 +102,27 @@ export function PostalAddressPageSummary({
   return (
     <div className="postal-generated-summary">
       <p>
-        <strong>{msg("PDF final avec page d’adresse")}</strong>
+        <strong>{msg("Final PDF with address page")}</strong>
         <br />
         {document.pages} {document.pages === 1 ? msg("page") : msg("pages")}{" "}
         {msg(" PDF ·")} {sheets}{" "}
-        {sheets === 1 ? msg("feuille") : msg("feuilles")} {msg(" en")}{" "}
-        {provenance.printMode === "duplex" ? msg("recto verso") : msg("recto")}
-        {msg(". Dont")} {provenance.addedPages}{" "}
+        {sheets === 1 ? msg("sheet") : msg("sheets")} {msg(" in")}{" "}
+        {provenance.printMode === "duplex" ? msg("double-sided printing") : msg("single-sided printing")}
+        {msg(". Including")} {provenance.addedPages}{" "}
         {provenance.addedPages === 1
-          ? msg("page ajoutée")
-          : msg("pages ajoutées")}
-        {provenance.addedPages === 2 ? msg(", avec un verso blanc") : ""}.
+          ? msg("added page")
+          : msg("added pages")}
+        {provenance.addedPages === 2 ? msg(", with a blank reverse") : ""}.
       </p>
       <p className="field-hint">
         {msg(
-          "Parcourez toutes les pages de ce PDF final avant de poursuivre. Le devis porte sur ce fichier complet.",
+          "Review every page of this final PDF before continuing. The quote covers this complete file.",
         )}
       </p>
       <a
         href={`#/app/documents?document=${encodeURIComponent(provenance.sourceDocumentId)}`}
       >
-        {msg("Consulter le PDF source conservé")}
+        {msg("View the preserved source PDF")}
       </a>
     </div>
   );

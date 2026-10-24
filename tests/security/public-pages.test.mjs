@@ -355,7 +355,7 @@ test("an absent article rejects the generation before replacing the built homepa
       output,
       indexable: true,
       renderPublicPage: (pathname, locale) =>
-        pathname === "/journal/histoire-imprimerie-luxembourg/"
+        pathname === "/journal/printing-history-luxembourg/"
           ? null
           : page(pathname, locale),
     }),
@@ -402,11 +402,11 @@ test("real Static Assets parsing retains noindex and security headers together",
     for (const path of [
       "/",
       "/journal/",
-      "/mentions-legales/",
-      "/confidentialite/",
-      "/conditions/",
+      "/legal/",
+      "/privacy/",
+      "/terms/",
       "/support/",
-      "/developpeurs/",
+      "/developers/",
       "/assistants/",
       "/assistants/chatgpt/",
     ]) {

@@ -1,11 +1,9 @@
-# Projets vidéo Guteneo
+# Guteneo video projects
 
-- [Films d'accueil et de rôles](guteneo-film/README.md) : sources Remotion,
-  narrations localisées et procédure des films déjà publiés.
-- [Gutenberg à travers les âges](guteneo-gutenberg/README.md) : archive de
-  production ElevenLabs / Seedance, médias originaux archivés, vocaux approuvés,
-  nouveau storyboard, prompts et dossier complet de reprise.
+- [Homepage and roles films](guteneo-film/README.md): Remotion sources, localized narration and published-film workflow.
+- [Gutenberg through the ages](guteneo-gutenberg/README.md): ElevenLabs/Seedance production archive, original media, approved voices, revised storyboard/prompts and recovery dossier.
 
-Le projet Gutenberg est encore incomplet et sa production payante est suspendue
-pour revue du budget. Ses essais et aperçus archivés ne remplacent aucune vidéo
-diffusée sur le site.
+Gutenberg remains incomplete and paid production is suspended pending total-budget
+review. Archived trials/previews replace no publicly served film. Engineering
+instructions use English; narration, captions and on-screen text use the declared
+video language under [repository standards](../docs/REPOSITORY_STANDARDS.md).

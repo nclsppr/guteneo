@@ -157,7 +157,7 @@ test("a lost registration result stays unknown and never retries", async () => {
   assert.equal(calls, 1);
   assert.equal(disposed, 1);
   assert.deepEqual(output, []);
-  assert.match(DRIVER_MESSAGES.registration_timeout, /Ne pas relancer/);
+  assert.match(DRIVER_MESSAGES.registration_timeout, /Do not restart/);
   assert.match(DRIVER_MESSAGES.registration_timeout, /--inspect/);
 });
 

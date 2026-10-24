@@ -1,158 +1,150 @@
-# Belvédère — Cloudflare en lecture seule
+# Belvédère — read-only Cloudflare access
 
-Le connecteur local interroge un compte et un Worker configurés côté serveur.
-Il ne provisionne rien, ne déploie rien et n'active aucun accès distant.
-Sa qualification repose sur des réponses simulées au format de l'API ; un
-compte Cloudflare réel n'a pas été interrogé pendant ces tests.
+The local connector queries one server-configured account and Worker. It
+provisions nothing, deploys nothing and activates no remote access.
+Qualification uses simulated API-format responses; no real Cloudflare account
+was queried during these tests.
 
-## Configuration après autorisation d'activation
+## Configuration after activation authorization
 
-| Variable serveur                     | Valeur attendue                                                                              |
-| ------------------------------------ | -------------------------------------------------------------------------------------------- |
-| `BELVEDERE_CLOUDFLARE_ACCOUNT_ID`    | Identifiant du seul compte Guteneo, 32 caractères hexadécimaux                               |
-| `BELVEDERE_CLOUDFLARE_SCRIPT_NAME`   | Nom exact du Worker à observer, sans route ni URL                                            |
-| `BELVEDERE_CLOUDFLARE_API_TOKEN`     | Secret Cloudflare limité à **Account / Account Analytics / Read** et au seul compte Guteneo  |
-| `BELVEDERE_CLOUDFLARE_BILLING_TOKEN` | Secret distinct limité à **Account / Billing / Read** et au seul compte Guteneo ; facultatif |
+| Server variable | Expected value |
+| --- | --- |
+| `BELVEDERE_CLOUDFLARE_ACCOUNT_ID` | Only the Guteneo account ID, 32 hexadecimal characters |
+| `BELVEDERE_CLOUDFLARE_SCRIPT_NAME` | Exact observed Worker name, without route/URL |
+| `BELVEDERE_CLOUDFLARE_API_TOKEN` | Cloudflare secret restricted to **Account / Account Analytics / Read** and the Guteneo account |
+| `BELVEDERE_CLOUDFLARE_BILLING_TOKEN` | Separate optional secret restricted to **Account / Billing / Read** and the Guteneo account |
 
-Cloudflare documente les [jetons Analytics et leur permission en lecture](https://developers.cloudflare.com/analytics/graphql-api/getting-started/authentication/api-token-auth/).
-Ne pas réutiliser une clé globale, un jeton de déploiement ou un compte externe.
-Ne pas placer le jeton dans une variable `VITE_*`, une URL, le dépôt, les logs ou
-le navigateur. Le compte et le script sont également des paramètres serveur :
-l'utilisateur de l'API ne peut pas en choisir d'autres.
+Cloudflare documents [Analytics tokens and read permission](https://developers.cloudflare.com/analytics/graphql-api/getting-started/authentication/api-token-auth/).
+Reuse no global key, deployment token or external account. Never put the
+token in a `VITE_*` variable, URL, repository, log or browser. Account/script
+are server parameters too; API users cannot choose others.
 
-L'API Belvédère doit vérifier son identité navigateur privilégiée avant
-d'appeler `getBelvedereCloudflareMetrics`. Le résultat doit être servi avec
-`Cache-Control: no-store`. L'adaptateur ne conserve aucune donnée dans D1, R2,
-KV, un cache externe ou un fournisseur tiers.
+The Belvédère API must verify its privileged browser identity before calling
+`getBelvedereCloudflareMetrics`. Serve results with `Cache-Control: no-store`.
+The adapter persists nothing in D1, R2, KV, external cache or third-party
+provider.
 
-## Données effectivement implémentées
+## Actually implemented data
 
-Un seul POST de lecture vers `https://api.cloudflare.com/client/v4/graphql`
-interroge `viewer.accounts.workersInvocationsAdaptive`, avec les filtres
-`accountTag`, `scriptName`, `datetime_geq` et `datetime_lt`. La fenêtre vaut
-strictement les dernières **24 heures** ou **7 jours**. Le
-[tutoriel Workers officiel](https://developers.cloudflare.com/analytics/graphql-api/tutorials/querying-workers-metrics/)
-décrit ce dataset, ses sommes et quantiles. La
-[référence GraphQL du dépôt officiel Cloudflare](https://github.com/cloudflare/skills/blob/main/skills/cloudflare/references/graphql-api/api.md)
-confirme les dimensions horaires et les quantiles de wall time utilisés ici.
+One read-only POST to `https://api.cloudflare.com/client/v4/graphql` queries
+`viewer.accounts.workersInvocationsAdaptive`, filtered by `accountTag`,
+`scriptName`, `datetime_geq` and `datetime_lt`. The window is strictly the
+last **24 hours** or **7 days**. The
+[official Workers tutorial](https://developers.cloudflare.com/analytics/graphql-api/tutorials/querying-workers-metrics/)
+describes this dataset, sums and quantiles. The
+[official Cloudflare repository's GraphQL reference](https://github.com/cloudflare/skills/blob/main/skills/cloudflare/references/graphql-api/api.md)
+confirms the hourly dimensions and wall-time quantiles used here.
 
-- Requêtes, erreurs d'invocation et sous-requêtes sur la fenêtre entière.
-- Proportion d'erreurs d'invocation parmi les requêtes.
-- Wall time p50 et p99 en millisecondes, calculés par Cloudflare sur la période
-  entière, dans une sélection distincte sans dimension temporelle.
-- Série horaire de requêtes, erreurs et sous-requêtes, limitée à 169 intervalles
-  possibles pour sept jours glissants. Les heures absentes restent absentes.
+- Requests, invocation errors and subrequests over the whole window.
+- Invocation-error proportion among requests.
+- Wall-time p50/p99 in milliseconds, calculated by Cloudflare across the
+  full period in a separate selection without a time dimension.
+- Hourly request/error/subrequest series, bounded to 169 possible intervals
+  for seven rolling days. Missing hours remain missing.
 
-Les percentiles horaires ne sont jamais moyennés. Aucun coût n'est extrapolé à
-partir d'un percentile multiplié par un nombre de requêtes. Les
-[métriques Workers](https://developers.cloudflare.com/workers/observability/metrics-and-analytics/)
-distinguent wall time, latence de réponse et statut HTTP : une erreur
-d'invocation n'est donc pas une réponse HTTP 4xx/5xx. Les quantiles sont issus
-d'échantillons et la télémétrie peut arriver avec un délai. Le résultat expose
-`sampled: true` et ses bornes temporelles ; ce n'est pas un journal exhaustif.
+Never average hourly percentiles. Extrapolate no cost by multiplying a
+percentile by a request count.
+[Workers metrics](https://developers.cloudflare.com/workers/observability/metrics-and-analytics/)
+distinguish wall time, response latency and HTTP status: invocation error is
+not an HTTP 4xx/5xx response. Quantiles are sampled and telemetry can arrive
+late. Results expose `sampled: true` and time bounds; they are not an
+exhaustive log.
 
-Les pays des membres proviennent des événements d'authentification Guteneo.
-Le code de datacenter `coloCode` de Cloudflare n'est pas le pays d'un membre ;
-ce connecteur ne mélange pas ces deux sources.
+Member countries come from Guteneo authentication events. Cloudflare datacenter
+`coloCode` is not a member's country; this connector never mixes those sources.
 
-## États et limites
+## States and limits
 
-| État             | Signification                                                                |
-| ---------------- | ---------------------------------------------------------------------------- |
-| `ok`             | Réponse validée, compteurs et série présents                                 |
-| `not_configured` | Paramètre absent ou invalide, aucun appel réseau                             |
-| `forbidden`      | Refus HTTP 401/403 ou erreur GraphQL d'authentification reconnue             |
-| `no_data`        | Dataset valide mais aucune invocation observée                               |
-| `unavailable`    | Délai, quota, erreur de schéma, réponse incohérente ou autre indisponibilité |
+| State | Meaning |
+| --- | --- |
+| `ok` | Validated response with counters/series |
+| `not_configured` | Missing/invalid parameter; no network call |
+| `forbidden` | HTTP 401/403 or recognized GraphQL authentication error |
+| `no_data` | Valid dataset without observed invocation |
+| `unavailable` | Timeout, quota, schema error, inconsistent response or other unavailability |
 
-La réponse complète est bornée à 128 Kio et huit secondes, corps compris.
-Les redirections et les nouvelles tentatives automatiques sont désactivées.
-Les [erreurs GraphQL peuvent accompagner un HTTP 200](https://developers.cloudflare.com/analytics/graphql-api/errors/) :
-toute erreur rend les données partielles inutilisables. Les corps et messages
-du fournisseur ne sont jamais renvoyés au navigateur ni journalisés. Une
-indisponibilité ne devient jamais un compteur nul.
+The full response is bounded to 128 KiB and eight seconds, including its
+body. Redirects/automatic retries are disabled.
+[GraphQL errors can accompany HTTP 200](https://developers.cloudflare.com/analytics/graphql-api/errors/):
+any error makes partial data unusable. Provider bodies/messages are never
+returned to the browser or logged. Unavailability never becomes zero counters.
 
-`billing.status: unavailable` signifie **dépense d'infrastructure non
-rapprochée**. `amountMinor` et `currency` restent `null`. Les métriques ne
-constituent ni une facture ni une preuve de marge nette.
+`billing.status: unavailable` means **unreconciled infrastructure spending**.
+`amountMinor`/`currency` remain `null`. Metrics are neither an invoice nor net
+margin evidence.
 
-## Coûts d'usage déclarés par Cloudflare
+## Usage costs reported by Cloudflare
 
-Le second adaptateur `getBelvedereCloudflareBilling` utilise un secret de
-facturation distinct et un seul GET vers
-`/accounts/{account_id}/billable-usage`. Il prend le **cycle de facturation en
-cours**, indépendamment de la fenêtre des métriques Workers. La
-[référence v1](https://developers.cloudflare.com/api/resources/billing/subresources/usage/methods/get_account_usage_v1/)
-précise qu'un filtre `from`/`to` excluant le jour d'ancrage de l'abonnement
-retourne un résultat vide : demander arbitrairement sept jours produirait une
-absence de coûts trompeuse. Aucun paramètre temporel arbitraire n'est exposé.
+The second adapter, `getBelvedereCloudflareBilling`, uses a separate billing
+secret and one GET to `/accounts/{account_id}/billable-usage`. It requests the
+**current billing cycle**, independently of the Workers-metrics window. The
+[v1 reference](https://developers.cloudflare.com/api/resources/billing/subresources/usage/methods/get_account_usage_v1/)
+notes that a `from`/`to` filter excluding the subscription anchor day returns
+empty data: arbitrarily requesting seven days would create misleading missing
+costs. No arbitrary time parameter is exposed.
 
-La [présentation officielle de Billable Usage](https://blog.cloudflare.com/billable-usage-api/)
-documente `ContractedCost` dans `BillingCurrency`, les périodes de charge et les
-sous-totaux cumulatifs. Le connecteur additionne exclusivement `ContractedCost`,
-jamais `CumulatedContractedCost`, et conserve les devises séparées. Il restitue
-des sous-totaux par service et par devise, avec les premières et dernières
-dates des périodes de charge observées. Les noms de compte, zone, abonnement,
-descriptions détaillées et URL de facture ne sont pas renvoyés.
+The [official Billable Usage introduction](https://blog.cloudflare.com/billable-usage-api/)
+documents `ContractedCost` in `BillingCurrency`, charge periods and cumulative
+subtotals. The connector sums only `ContractedCost`, never
+`CumulatedContractedCost`, and keeps currencies separate. It returns subtotals
+by service/currency with earliest/latest observed charge-period dates.
+Account, zone and subscription names, detailed descriptions and invoice URLs
+are not returned.
 
-Chaque jeton numérique `ContractedCost` est conservé sous forme décimale avant
-la conversion JSON en nombre binaire. Le calcul utilise `BigInt`, avec jusqu'à
-18 décimales dans l'unité monétaire principale. Les sous-centimes sont
-additionnés exactement ; chaque sous-total d'affichage est ensuite arrondi une
-fois au centime le plus proche, les demi-centimes vers le haut. La réponse
-fournit l'entier `amountMinor`, la chaîne décimale exacte
-`reportedAmountDecimal` et `rounding: nearest_minor_half_up`. Ainsi la somme des
-lignes affichées peut différer d'un centime du total arrondi après addition.
-EUR et USD sont acceptés ; une autre devise rend le résultat indisponible
-plutôt que d'inventer son nombre de décimales ou un taux de conversion.
+Each numeric `ContractedCost` token is preserved as decimal before JSON
+conversion to binary numbers. Calculation uses `BigInt`, with up to 18 decimal
+places in major currency units. Subcent amounts are added exactly; each display
+subtotal is then rounded once to the nearest cent, half up. Response fields:
+integer `amountMinor`, exact `reportedAmountDecimal` string and
+`rounding: nearest_minor_half_up`. Displayed row sums can therefore differ
+by one cent from a total rounded after addition. EUR/USD are accepted; another
+currency makes the result unavailable rather than inventing decimal precision
+or an exchange rate.
 
-La lecture est bornée à huit secondes, 512 Kio et 2 000 lignes. Des périodes
-dupliquées ou incohérentes, un autre compte, des corrections, un coût négatif,
-une précision non représentable ou un dépassement d'entier sûr rendent
-l'ensemble indisponible. Le contrat couvre les cycles mensuels courants :
-les cycles de plus de 62 jours et les périodes de charge de plus de 31 jours
-nécessitent une extension explicite. Aucun sous-total partiel n'est présenté
-comme complet. Une réponse vide est `no_data`, distincte d'un coût nul validé.
+Reads are bounded to eight seconds, 512 KiB and 2,000 rows. Duplicate/inconsistent
+periods, another account, corrections, negative cost, unrepresentable precision
+or safe-integer overflow make the entire result unavailable. The contract
+covers current monthly cycles: cycles longer than 62 days and charge periods
+longer than 31 days require explicit extension. No partial subtotal is presented
+as complete. An empty response is `no_data`, distinct from validated zero cost.
 
-La couverture reste `metered_usage_only`. Le
-[suivi officiel des coûts](https://developers.cloudflare.com/billing/manage/billable-usage/)
-exclut les abonnements à prix fixe et aligne les données sur le cycle propre au
-compte. Ce connecteur ne démontre ni un paiement, ni une facture totale incluant
-taxes et frais fixes, ni une marge nette de Guteneo. Il n'utilise pas l'API v2 :
-sa [référence actuelle](https://developers.cloudflare.com/api/resources/billing/subresources/usage/methods/get_account_usage_v2/)
-indique que les champs de coût et de prix ne sont pas encore alimentés.
+Coverage remains `metered_usage_only`.
+[Official cost tracking](https://developers.cloudflare.com/billing/manage/billable-usage/)
+excludes fixed-price subscriptions and aligns data to each account's cycle.
+This connector proves neither payment, total invoices including taxes/fixed
+fees nor Guteneo net margin. It does not use API v2: its
+[current reference](https://developers.cloudflare.com/api/resources/billing/subresources/usage/methods/get_account_usage_v2/)
+states that cost/price fields are not yet populated.
 
-## Extensions documentées, non activées
+## Documented extensions, not activated
 
-Les pistes ci-dessous sont des capacités officiellement documentées et non des
-connecteurs déjà implémentés :
+The following are officially documented capabilities, not implemented
+connectors:
 
-| Source                                                                                                                | Extension possible                                                                | Qualification nécessaire                                                                                                                                                     |
-| --------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [D1 Analytics](https://developers.cloudflare.com/d1/observability/metrics-analytics/)                                 | `d1AnalyticsAdaptiveGroups`, `d1StorageAdaptiveGroups`, `d1QueriesAdaptiveGroups` | Fixer les identifiants des seules bases Guteneo et vérifier schéma, période et permissions accessibles                                                                       |
-| [R2 Analytics](https://developers.cloudflare.com/r2/platform/metrics-analytics/)                                      | Opérations, nombre d'objets, volume stocké et bande passante                      | Fixer les buckets ; utiliser le préfixe de juridiction `eu_` attendu pour les buckets européens ; les transferts inférieurs à 100 Kio sont absents du dataset bande passante |
-| [Account Billing History](https://developers.cloudflare.com/api/resources/billing/subresources/history/methods/list/) | Historique des factures et règlements                                             | Jeton distinct **Account / Billing / Read**, pagination, validation devise/unité et rapprochement par facture ; ne pas compter facture et règlement deux fois                |
+| Source | Possible extension | Required qualification |
+| --- | --- | --- |
+| [D1 Analytics](https://developers.cloudflare.com/d1/observability/metrics-analytics/) | `d1AnalyticsAdaptiveGroups`, `d1StorageAdaptiveGroups`, `d1QueriesAdaptiveGroups` | Pin only Guteneo database IDs; verify accessible schema, period and permissions |
+| [R2 Analytics](https://developers.cloudflare.com/r2/platform/metrics-analytics/) | Operations, object count, stored volume and bandwidth | Pin buckets; use required `eu_` jurisdiction prefix for European buckets; transfers below 100 KiB are absent from bandwidth data |
+| [Account Billing History](https://developers.cloudflare.com/api/resources/billing/subresources/history/methods/list/) | Invoice/payment history | Separate **Account / Billing / Read** token, pagination, currency/unit validation and per-invoice reconciliation; do not count invoice and payment twice |
 
-L'API d'historique de facturation existe mais n'est pas appelée : elle expose
-des champs `action`, `type` et `status` sans vocabulaire permettant de prouver
-ici un rapprochement des factures réglées. Une extension devra qualifier ces
-états, préserver les devises sans taux de change implicite, et distinguer
-dépenses facturées, paiements et estimations. Les URL de facture hébergée, qui
-peuvent être sensibles, ne devront pas apparaître dans des logs ou exports publics.
+Billing History exists but is not called: its `action`, `type` and `status`
+fields lack a qualified vocabulary proving settled-invoice reconciliation
+here. An extension must qualify those states, preserve currencies without
+implicit exchange rates and distinguish invoiced spending, payments and
+estimates. Potentially sensitive hosted-invoice URLs must appear in neither
+logs nor public exports.
 
-## Preuve locale
+## Local evidence
 
 `npx vitest run tests/unit/belvedere-cloudflare.test.ts --reporter=default`
-vérifie les fenêtres et filtres, le format des résultats, l'absence de requête
-sans configuration, les refus d'accès HTTP/GraphQL, les données partielles et
-malformées, les limites de taille et de délai, et l'absence de fuite des secrets.
-Ces tests n'activent pas Cloudflare. Une validation avec le compte réel et la
-publication demandent leurs autorisations explicites respectives.
+checks windows/filters, result format, absence of requests without configuration,
+HTTP/GraphQL access refusals, partial/malformed data, size/time bounds and
+absence of secret leaks. These tests activate no Cloudflare access. Real-account
+validation and publication require their respective explicit authorizations.
 
 `npx vitest run tests/unit/belvedere-cloudflare-billing.test.ts --reporter=default`
-vérifie séparément le transport de facturation, la précision décimale, l'arrondi
-après addition, les devises, l'identité du compte, les périodes, l'absence de
-double comptage et les limites de lecture. Les réponses utilisées sont des
-fixtures fictives, jamais des preuves de dépenses réelles.
+separately checks billing transport, decimal precision, rounding after addition,
+currencies, account identity, periods, no double counting and read limits.
+Responses are fictional fixtures, never evidence of real spending.
 
-Sources officielles consultées le 2 octobre 2026.
+Official sources consulted on 2 October 2026.

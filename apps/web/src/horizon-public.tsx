@@ -52,22 +52,22 @@ export function HorizonPublicOffer({
       <div>
         <p className="eyebrow" role="status">
           {state === "available"
-            ? msg("Disponible dans votre atelier")
+            ? msg("Available in your workspace")
             : state === "closed"
-              ? msg("Souscription indisponible")
-              : msg("Consultez votre atelier")}
+              ? msg("Subscription unavailable")
+              : msg("Check your workspace")}
         </p>
         <h3 id="horizon-public-title">guteneo Horizon</h3>
         <p className="horizon-price">
           <strong>30 €</strong>
-          <span>{msg("par mois")}</span>
+          <span>{msg("per month")}</span>
         </p>
         <p>
-          {msg("Repérez les obstacles dans vos PDF avant de les partager.")}
+          {msg("Find barriers in your PDFs before sharing them.")}
         </p>
         <p>
           {msg(
-            "Un forfait mensuel pour contrôler l’accessibilité PDF/UA et l’archivage PDF/A, depuis votre atelier ou votre assistant.",
+            "A monthly plan to check PDF/UA accessibility and PDF/A archiving from your workspace or assistant.",
           )}
         </p>
       </div>
@@ -75,25 +75,25 @@ export function HorizonPublicOffer({
         <HorizonBenefits />
         <p className="horizon-limit">
           {msg(
-            "Limite incluse : 100 tentatives de contrôle par mois civil, PDF de 10 Mio et 100 pages maximum. Les contrôles interrompus comptent dans cette limite.",
+            "Included allowance: 100 check attempts per calendar month, PDFs up to 10 MiB and 100 pages. Interrupted checks count towards this limit.",
           )}
         </p>
         <p className="horizon-limit">
           {state === "available"
             ? msg(
-                "L’administrateur peut souscrire dans l’atelier avec au moins 30 € de crédits disponibles. Les contrôles sont ensuite accessibles aux membres autorisés.",
+                "The administrator can subscribe in the workspace with at least €30 in available credits. Checks are then available to authorised members.",
               )
             : state === "closed"
               ? msg(
-                  "La souscription et les contrôles PDF sont actuellement indisponibles. Consultez l’offre dans votre atelier.",
+                  "Subscriptions and PDF checks are currently unavailable. View the offer in your workspace.",
                 )
               : msg(
-                  "La disponibilité du forfait est confirmée dans votre atelier avant toute souscription.",
+                  "Plan availability is confirmed in your workspace before you subscribe.",
                 )}
         </p>
         <HorizonCreditTerms />
         <a className="text-link" href={workspaceEntryHref("/app/plan")}>
-          {msg("Découvrir le forfait Horizon")}
+          {msg("Explore the Horizon plan")}
         </a>
       </div>
     </section>
@@ -110,23 +110,23 @@ export function HorizonFaq({
     <>
       <details>
         <summary>
-          {msg("Que comprennent les contrôles PDF du forfait Horizon ?")}
+          {msg("What do the Horizon plan’s PDF checks include?")}
           <Plus size={19} aria-hidden="true" />
         </summary>
         <p>
           {msg(
-            "Horizon comprend les contrôles PDF/UA-1 et PDF/UA-2, PDF/A-1b, 2b, 3b et 4, les rapports liés au PDF original et une liste de points à revoir manuellement. Le même contrôle est accessible depuis le plugin de votre assistant lorsque le service et le forfait sont actifs.",
+            "Horizon includes PDF/UA-1 and PDF/UA-2, PDF/A-1b, 2b, 3b and 4 checks, reports linked to the original PDF and a manual review checklist. The same check is available through your assistant’s plugin when the service and plan are active.",
           )}
         </p>
         <p>
           {msg(
-            "Le forfait de 30 € par mois est prélevé sur les crédits disponibles du compte. Seul l’administrateur peut souscrire, résilier ou gérer la facturation.",
+            "The €30 monthly plan is deducted from the account’s available credits. Only the administrator can subscribe, cancel or manage billing.",
           )}
         </p>
         {state !== "available" && (
           <p>
             {msg(
-              "Consultez l’offre dans votre atelier pour vérifier la disponibilité du service avant de souscrire.",
+              "View the offer in your workspace to check service availability before subscribing.",
             )}
           </p>
         )}
@@ -134,44 +134,44 @@ export function HorizonFaq({
       </details>
       <details>
         <summary>
-          {msg("La loi européenne impose-t-elle des PDF accessibles ?")}
+          {msg("Does European law require accessible PDFs?")}
           <Plus size={19} aria-hidden="true" />
         </summary>
         <p>
           {msg(
-            "L’Acte européen sur l’accessibilité, directive (UE) 2019/882, s’applique depuis le 28 juin 2025 à certains produits et services destinés aux consommateurs, dont le commerce électronique. Son périmètre comporte des exceptions, notamment pour les microentreprises qui fournissent des services. Il n’impose pas une obligation universelle à tous les PDF.",
+            "The European Accessibility Act, Directive (EU) 2019/882, has applied since 28 June 2025 to certain consumer products and services, including e-commerce. Its scope has exceptions, including microenterprises providing services. It does not impose a universal requirement on every PDF.",
           )}
         </p>
         <p>
           {msg(
-            "La directive (UE) 2016/2102 encadre aussi les sites et applications mobiles du secteur public. Les obligations précises dépendent du service, du document, des exceptions et de la transposition nationale.",
+            "Directive (EU) 2016/2102 also covers public-sector websites and mobile apps. Exact duties depend on the service, document, exceptions and national implementation.",
           )}
         </p>
         <p>
           <a href="https://eur-lex.europa.eu/EN/legal-content/summary/accessibility-of-products-and-services.html">
-            {msg("Lire la synthèse européenne sur l’accessibilité")}
+            {msg("Read the European accessibility summary")}
           </a>
           {" · "}
           <a href="https://eur-lex.europa.eu/legal-content/en/LSU/?uri=CELEX%3A32016L2102">
-            {msg("Lire les règles applicables au secteur public")}
+            {msg("Read the public-sector rules")}
           </a>
         </p>
       </details>
       <details>
         <summary>
           {msg(
-            "Un PDF/A ou un contrôle PDF/UA suffit-il à prouver l’accessibilité ?",
+            "Does PDF/A or a PDF/UA check prove accessibility?",
           )}
           <Plus size={19} aria-hidden="true" />
         </summary>
         <p>
           {msg(
-            "PDF/A sert à la conservation à long terme ; PDF/UA porte sur l’accessibilité. Ces objectifs sont distincts. veraPDF vérifie les règles contrôlables automatiquement, mais l’ordre de lecture, la pertinence des alternatives et l’expérience réelle nécessitent une revue humaine. Un rapport favorable ne constitue pas une certification de conformité légale.",
+            "PDF/A is for long-term preservation; PDF/UA concerns accessibility. These are distinct goals. veraPDF checks rules that can be automated, but reading order, meaningful alternatives and the real experience require human review. A passing report does not certify legal compliance.",
           )}
         </p>
         <p>
           <a href="https://docs.verapdf.org/validation/">
-            {msg("Consulter la documentation de veraPDF")}
+            {msg("Read the veraPDF documentation")}
           </a>
         </p>
       </details>

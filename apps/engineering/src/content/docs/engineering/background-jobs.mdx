@@ -1,0 +1,98 @@
+---
+title: Background work and retention
+description: Understand queues, durable reconciliation and bounded cleanup without turning retries into duplicate communications or revocation into erasure.
+sidebar:
+  order: 11
+---
+
+Asynchronous work is driven by durable references, current authorization and
+conditional state transitions. A queue message is a request to inspect recorded
+work, never a new approval. Scheduled maintenance recovers eligible work and
+cleans bounded records; it does not grant authority to repeat a provider call.
+
+The [dispatch lifecycle](/architecture/dispatch-lifecycle/) owns ordinary sending
+states. [Secure distribution](/workflows/secure-distribution/) owns independent
+render/deposit commitments. This page explains how their background work differs.
+
+## Route the message to its actual job
+
+The application consumer distinguishes ordinary dispatch references from secure
+render and secure deposit work. Each path resolves the corresponding durable
+record rather than accepting document bytes, recipient or cost supplied by the
+queue as authority.
+
+| Work | Durable responsibility | Retry boundary |
+| --- | --- | --- |
+| Outbox publication | Publish already accepted work into the appropriate queue | Duplicate publication is possible; conditional claim prevents unconditional duplicate attempts |
+| Dispatch consumer | Recheck current eligible command, approval, funding and fenced attempt | Unknown provider outcome requires reconciliation, never blind resubmission |
+| Secure rendering | Produce a bounded batch for the recorded immutable source/policy | Resume the same preparation and validate results; no original fallback |
+| Personal deposit | Build an independent encrypted copy before final activation | Same operation, no second acquisition/charge; recheck grant and fresh session at activation |
+| Dead-letter handling | Record/reconcile exhausted or invalid work under its actual domain | Dead-letter presence is not permission to send again |
+
+A lease bounds a worker's claim. Expiry means another worker may inspect/reconcile
+that durable operation; it does not prove the previous external effect never
+happened. Read/recovery retries and submission retries therefore have different
+rules. Keep attempt identifiers and fingerprints through recovery.
+
+## Scheduled recovery preserves the commitment order
+
+Scheduled processing first reconciles durable callbacks before its identity gate,
+then handles eligible outbox/leases, scanning, Studio work, secure jobs and cleanup
+under their respective guards. This ordering lets already recorded provider
+facts become durable state without converting unavailable identity or a new
+configuration into approval for unrelated work.
+
+Document/object/job maintenance uses bounded queries or batches and persistent
+eligibility. Separate expired-session and HTTP-limit cleanup does not universally
+use the same batch limits; do not describe every scheduled deletion as bounded.
+Preserve cursor-based document work rather than replacing it with an unbounded
+full-tenant scan. When adding
+a job, define its authority snapshot, lease, idempotency key, maximum batch,
+observable state, timeout and safe recovery before wiring it into the scheduler.
+
+## Retention is a graph of references
+
+Ordinary PDF maintenance considers the existing ninety-day retention policy
+and its protected-hosting/dependency exclusions. Dataset/template source expiry
+is separately recorded, normally thirty days; active generation work defers
+eligible dataset cleanup. Objects still referenced
+by eligible work cannot be deleted as “orphans” merely because a first listing
+failed to show them. Session expiry and storage cleanup are separate effects.
+
+Secure objects add independent shared, personal and pending-deposit lifetimes.
+An acquired personal copy cannot depend on continued existence of its sender's
+workspace objects. A still-authorized pending copy must survive resumable work;
+failed/expired invisible staging can be cleaned under its own bounded rules.
+
+| Event | What changes | What does not follow |
+| --- | --- | --- |
+| Shared access revoked | Future authorized deliveries stop | No refund, recalled pixels, source erasure or acquired-copy deletion |
+| Personal copy deleted/expired | Owner loses reading/export; eligible objects can purge | No workspace-source deletion or removal of previous exports |
+| Detailed access activity reaches retention | Bounded purge of page/text/download details | Immutable approval, association, charge and acquisition receipts remain separate |
+| Membership removed | Workspace authority ends | Acquired personal copies are not erased |
+| Orphan candidate found | Recheck references/eligibility before deletion | A storage listing alone grants no deletion authority |
+
+## Recovery must survive storage/database separation
+
+D1 and R2 do not form one distributed transaction. Rendering/copying writes
+invisible objects first; conditional database activation establishes a usable
+result. Recheck authority after storage waits and before final response or
+activation. Failed verification or durable-audit insertion must deny delivery.
+
+Backups/restoration must preserve object hashes, key versions, revocations,
+retention commitments, reservations and outbox order. Restoring old records
+without matching current revocation/settlement knowledge can reopen access or
+repeat work. Local restoration tests exercise their controlled dataset; hosted
+restoration and key recovery require their own qualified rehearsal.
+
+## Observe facts without leaking payloads
+
+Use durable job identifiers, fixed error codes, states, batch progress and bounded
+counts. Do not log content, recipients, tokens, signed URLs or encryption secrets.
+Show `preparing`, waiting, failed and unknown as distinct states. Closing a tab
+need not cancel accepted work, and a progress timeout is not successful delivery.
+
+When work stalls, inspect the same operation and its lease/evidence before making
+a new command. [Troubleshooting](/engineering/troubleshooting/) separates safe
+reads from explicit recovery and operator escalation. [Provider maintenance](/engineering/provider-maintenance/)
+explains why an old callback or tariff cannot qualify a new submission.

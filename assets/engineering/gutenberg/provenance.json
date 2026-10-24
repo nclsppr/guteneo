@@ -1,0 +1,38 @@
+{
+  "generated": "2026-10-24",
+  "generator": "Built-in ChatGPT image generation",
+  "reference": "videos/guteneo-gutenberg/archive/production/images/Pixar-proposition-2.png",
+  "referenceSha256": "3a9b2d2b9e09418b682dd554a6af003e91a3493d10ddf5802f5da9eb469310e2",
+  "purpose": "Decorative engineering documentation guide. Preserve approved Gutenberg identity; no authentication, approval or provider status is implied.",
+  "direction": "Exact approved ivory marble Gutenberg, warm brown eyes, rounded nose, wavy hair, sculpted beard, classical draped robe. Transparent cutouts with cobalt props; no text or logo. Welcome: closed blue folio and open palm. Review: magnifier inspecting one blank sheet. Studio: blank movable type in a blue composing stick. Same refined stylized 3D lighting and identity across poses.",
+  "processing": "PNG masters preserved. Sharp conversion to 512x512 transparent WebP with contain fit, quality88 and alphaQuality100; no retouching.",
+  "assets": [
+    {
+      "pose": "welcome",
+      "source": "assets/engineering/gutenberg/welcome.png",
+      "output": "apps/engineering/public/gutenberg/gutenberg-welcome.webp",
+      "sourceSha256": "bf6156590c454644b20362b4c058c6aa1eb55eaa7cac8b08313cd9b3e18159e8",
+      "width": 512,
+      "height": 512,
+      "alpha": true
+    },
+    {
+      "pose": "review",
+      "source": "assets/engineering/gutenberg/review.png",
+      "output": "apps/engineering/public/gutenberg/gutenberg-review.webp",
+      "sourceSha256": "a4207e66e6608be121f1f8dfcc77d6f8b36bc4aede654b7598aea64963390c5c",
+      "width": 512,
+      "height": 512,
+      "alpha": true
+    },
+    {
+      "pose": "studio",
+      "source": "assets/engineering/gutenberg/studio.png",
+      "output": "apps/engineering/public/gutenberg/gutenberg-studio.webp",
+      "sourceSha256": "af93c19692996ed504257c4ced7f99722b4340296eef0f5adb4a0aad17f6a72c",
+      "width": 512,
+      "height": 512,
+      "alpha": true
+    }
+  ]
+}

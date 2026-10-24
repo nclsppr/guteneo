@@ -7,25 +7,25 @@ test_selection=all
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --destination)
-      [[ $# -ge 2 ]] || { printf '%s\n' '--destination requiert une valeur.' >&2; exit 64; }
+      [[ $# -ge 2 ]] || { printf '%s\n' '--destination requires a value.' >&2; exit 64; }
       destination="$2"; shift 2 ;;
     --unit) test_selection=GuteneoTests; shift ;;
     --ui) test_selection=GuteneoUITests; shift ;;
     --help)
-      printf '%s\n' 'Usage: test.sh [--destination "platform=iOS Simulator,id=UDID"] [--unit|--ui]' 'Exécute les tests en Debug. Les fixtures UI restent locales et sans envoi.'
+      printf '%s\n' 'Usage: test.sh [--destination "platform=iOS Simulator,id=UDID"] [--unit|--ui]' 'Runs Debug tests. UI fixtures remain local and send no communications.'
       exit 0 ;;
-    *) printf 'Option inconnue : %s\n' "$1" >&2; exit 64 ;;
+    *) printf 'Unknown option: %s\n' "$1" >&2; exit 64 ;;
   esac
 done
 
 case "$destination" in
   'platform=iOS Simulator,'*) ;;
-  *) printf '%s\n' 'Ce script est limité aux simulateurs iOS. Utilisez Xcode pour qualifier un appareil physique.' >&2; exit 64 ;;
+  *) printf '%s\n' 'This script is limited to iOS simulators. Use Xcode to qualify a physical device.' >&2; exit 64 ;;
 esac
 
 if ! "$GUTENEO_XCODEBUILD" -checkFirstLaunchStatus; then
-  printf '%s\n' 'La configuration initiale de Xcode doit être terminée avant les tests.' \
-    'Ouvrez Xcode et installez les composants officiels proposés, puis exécutez doctor.sh.' >&2
+  printf '%s\n' 'Initial Xcode setup must finish before testing.' \
+    'Open Xcode, install the offered official components, then run doctor.sh.' >&2
   exit 69
 fi
 
@@ -40,4 +40,4 @@ if [[ "$test_selection" != all ]]; then
 fi
 "$GUTENEO_XCODEBUILD" "${arguments[@]}" \
   CODE_SIGNING_ALLOWED=YES CODE_SIGNING_REQUIRED=YES CODE_SIGN_IDENTITY=- test
-printf 'Résultats : %s\n' "$result_directory/Tests.xcresult"
+printf 'Results: %s\n' "$result_directory/Tests.xcresult"

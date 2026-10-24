@@ -19,12 +19,12 @@ struct DispatchesWorkspaceView: View {
                             Image(systemName: "paperplane")
                                 .font(.largeTitle).foregroundStyle(Brand.cobalt)
                                 .accessibilityHidden(true)
-                            Text("Le parcours\nde chaque envoi.")
+                            Text("The journey\nof every dispatch.")
                                 .font(.system(.largeTitle, design: .serif))
                                 .foregroundStyle(Brand.ink)
-                            Text("Choisissez un envoi pour retrouver son destinataire, le document joint et les derniers événements connus.")
+                            Text("Choose a dispatch to find its recipient, attached document and latest known events.")
                                 .font(.title3).foregroundStyle(.secondary)
-                            Text("Le filtre « À valider uniquement » vous aide à retrouver les préparations qui attendent votre vérification.")
+                            Text("The “Awaiting approval only” filter helps you find preparations waiting for your review.")
                                 .foregroundStyle(.secondary)
                         }
                         .fixedSize(horizontal: false, vertical: true)
@@ -55,13 +55,13 @@ struct DispatchesView: View {
     }
     var body: some View {
         dispatchList
-        .paperList().navigationTitle("Envois")
+        .paperList().navigationTitle("Dispatches")
         .accessibilityIdentifier("dispatches.list")
-        .searchable(text: $search, prompt: "Destinataire ou objet")
+        .searchable(text: $search, prompt: "Recipient or subject")
         .refreshable { await model.refresh() }
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
-                Button { composing = true } label: { Label("Préparer un envoi", systemImage: "plus") }
+                Button { composing = true } label: { Label("Prepare a dispatch", systemImage: "plus") }
                     .disabled(model.session?.canPrepare != true)
             }
         }
@@ -78,10 +78,10 @@ struct DispatchesView: View {
 
     @ViewBuilder
     private var listContent: some View {
-        Section { Toggle("À valider uniquement", isOn: $needsReview) }
+        Section { Toggle("Awaiting approval only", isOn: $needsReview) }
         if let error = model.errorMessage { Section { Notice(text: error, symbol: "exclamationmark.circle") } }
         if dispatches.isEmpty && !model.isLoading {
-            ContentUnavailableView("Aucun envoi à afficher", systemImage: "paperplane", description: Text("Vos envois apparaîtront ici avec leur dernier état connu."))
+            ContentUnavailableView("No dispatches to display", systemImage: "paperplane", description: Text("Your dispatches will appear here with their latest known status."))
                 .listRowBackground(Color.clear)
         }
         ForEach(dispatches) { dispatch in
@@ -95,7 +95,7 @@ struct DispatchesView: View {
             .accessibilityIdentifier("dispatch.row.\(dispatch.id)")
         }
         if model.hasMoreDispatches {
-            Button("Charger les envois suivants") { Task { await model.loadMoreDispatches() } }
+            Button("Load more dispatches") { Task { await model.loadMoreDispatches() } }
                 .disabled(model.isLoading)
         }
     }
@@ -116,49 +116,49 @@ struct DispatchDetailView: View {
             if let error { Section { Notice(text: error, symbol: "exclamationmark.circle") } }
             if let detail {
                 Section { DispatchRow(dispatch: detail.dispatch) }
-                Section("Votre envoi") {
-                    LabeledContent("Canal", value: L10n.text(detail.dispatch.channel.title, locale: locale))
-                    LabeledContent("Destinataire", value: detail.dispatch.recipientLabel)
-                    if let subject = detail.dispatch.subject { LabeledContent("Objet", value: subject) }
+                Section("Your dispatch") {
+                    LabeledContent("Channel", value: L10n.text(detail.dispatch.channel.title, locale: locale))
+                    LabeledContent("Recipient", value: detail.dispatch.recipientLabel)
+                    if let subject = detail.dispatch.subject { LabeledContent("Subject", value: subject) }
                     if let text = detail.dispatch.text, !text.isEmpty { Text(text).textSelection(.enabled) }
                     if let documentID = detail.dispatch.documentId {
-                        NavigationLink { DocumentDetailView(id: documentID) } label: { Label("Document joint", systemImage: "doc.text") }
+                        NavigationLink { DocumentDetailView(id: documentID) } label: { Label("Attached document", systemImage: "doc.text") }
                     }
                 }
-                Section("Limite de coût") {
-                    LabeledContent("Plafond", value: amount(detail.dispatch.ceilingMinor, currency: detail.dispatch.currency, locale: locale))
-                    Notice(text: "Ce plafond n’est pas un montant débité. Consultez le devis détaillé et ses conditions dans votre espace sécurisé.")
-                    if let expires = detail.dispatch.quoteExpiresAt { LabeledContent("Devis valable jusqu’au", value: GuteneoDate.label(expires, locale: locale)) }
+                Section("Cost limit") {
+                    LabeledContent("Limit", value: amount(detail.dispatch.ceilingMinor, currency: detail.dispatch.currency, locale: locale))
+                    Notice(text: "This limit is not an amount charged. View the detailed quote and its terms in your secure space.")
+                    if let expires = detail.dispatch.quoteExpiresAt { LabeledContent("Quote valid until", value: GuteneoDate.label(expires, locale: locale)) }
                 }
                 if detail.dispatch.isReviewPreparation {
-                    Section("Devis de référence") {
-                        Notice(text: "Cette préparation sert uniquement à consulter le document et le devis. Elle ne peut être ni approuvée ni envoyée et ne réserve aucun montant.", symbol: "doc.text.magnifyingglass")
+                    Section("Reference quote") {
+                        Notice(text: "This preparation is only for viewing the document and quote. It cannot be approved or sent and does not reserve any amount.", symbol: "doc.text.magnifyingglass")
                         if let url = detail.reviewURL {
-                            Button { openReview(url) } label: { Label("Consulter le devis de référence", systemImage: "safari") }
+                            Button { openReview(url) } label: { Label("View reference quote", systemImage: "safari") }
                         }
                     }
                 } else if detail.dispatch.canHumanReview && model.session?.canApprove == true {
-                    Section("Votre validation") {
-                        Notice(text: "Vérifiez le contenu, le destinataire, les options et le devis dans l’espace sécurisé avant de confirmer l’envoi.", symbol: "checkmark.shield")
+                    Section("Your approval") {
+                        Notice(text: "Review the content, recipient, options and quote in your secure workspace before confirming sending.", symbol: "checkmark.shield")
                         if let url = detail.reviewURL {
-                            Button { openReview(url) } label: { Label("Ouvrir la validation sécurisée", systemImage: "safari") }
+                            Button { openReview(url) } label: { Label("Open secure approval", systemImage: "safari") }
                         }
                     }
                 }
                 if detail.dispatch.canCancel && model.session?.canApprove == true {
                     Section("Actions") {
-                        Button("Annuler cet envoi", role: .destructive) { confirmingCancel = true }
+                        Button("Cancel this dispatch", role: .destructive) { confirmingCancel = true }
                             .disabled(cancelling || model.session?.canApprove != true)
                     }
                 }
                 if ["unknown", "submission_unknown"].contains(detail.dispatch.status) {
                     Section {
-                        Notice(text: "Le fournisseur n’a pas confirmé le résultat. Ne créez pas un second envoi : actualisez le suivi ou contactez l’assistance.", symbol: "exclamationmark.triangle")
-                        Link("Contacter l’assistance", destination: Brand.supportURL)
+                        Notice(text: "The provider has not confirmed the outcome. Do not create a second dispatch: refresh tracking or contact support.", symbol: "exclamationmark.triangle")
+                        Link("Contact support", destination: Brand.supportURL)
                     }
                 }
-                Section("Historique") {
-                    if detail.events.isEmpty { Text("Aucun événement supplémentaire.").foregroundStyle(.secondary) }
+                Section("History") {
+                    if detail.events.isEmpty { Text("No further events.").foregroundStyle(.secondary) }
                     ForEach(detail.events) { event in
                         VStack(alignment: .leading, spacing: 5) {
                             Text(LocalizedStringKey(event.title))
@@ -166,14 +166,14 @@ struct DispatchDetailView: View {
                         }.padding(.vertical, 4)
                     }
                 }
-            } else if error == nil { ProgressView("Chargement de l’envoi…") }
-            Button("Actualiser le suivi") { Task { await load() } }
-        }.paperList().navigationTitle("Suivi de l’envoi").navigationBarTitleDisplayMode(.inline)
+            } else if error == nil { ProgressView("Loading dispatch…") }
+            Button("Refresh tracking") { Task { await load() } }
+        }.paperList().navigationTitle("Dispatch tracking").navigationBarTitleDisplayMode(.inline)
             .accessibilityIdentifier("dispatch.detail")
             .task { await load() }.refreshable { await load() }
             .onChange(of: scenePhase) { _, phase in if phase == .active { Task { await load() } } }
-            .confirmationDialog("Annuler cet envoi ?", isPresented: $confirmingCancel, titleVisibility: .visible) {
-                Button("Annuler l’envoi", role: .destructive) {
+            .confirmationDialog("Cancel this dispatch?", isPresented: $confirmingCancel, titleVisibility: .visible) {
+                Button("Cancel dispatch", role: .destructive) {
                     Task {
                         cancelling = true
                         defer { cancelling = false }
@@ -181,7 +181,7 @@ struct DispatchDetailView: View {
                         catch { self.error = APIError.safeMessage(for: error) }
                     }
                 }
-            } message: { Text("Un envoi déjà pris en charge ne peut plus être annulé. Le serveur vérifiera son état.") }
+            } message: { Text("A dispatch already accepted cannot be cancelled. The server will check its status.") }
     }
     private func openReview(_ url: URL) {
         guard var components = URLComponents(url: url, resolvingAgainstBaseURL: false) else { return }

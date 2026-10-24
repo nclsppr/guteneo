@@ -1,104 +1,79 @@
-# Guteneo 1.0.0 — candidat de qualification
+# Guteneo 1.0.0 — qualification candidate
 
-Ce chantier prépare la version web, le serveur MCP et les paquets d’intégration
-1.0.0 à partir de `5e4c758`. Les preuves exécutées et les limites externes doivent
-être consignées avant la revue ; la préparation ne constitue pas une publication.
+This work prepares web, MCP and integration packages 1.0.0 from `5e4c758`.
+Record executed proof/external limits before review; preparation is not publication.
 
-## Contrat de version
+## Version contract
 
-`package.json` porte la version de l’application. Les capacités HTTP et le
-`serverInfo` MCP la lisent via `packages/contracts/src/release.ts` ; le build
-public utilise la même source. La version du protocole MCP et les empreintes
-immuables de source/paquet restent des informations distinctes. Le vérificateur
-de publication compare aussi la version annoncée par `release.json`.
+Root `package.json` owns app version. HTTP capabilities, MCP `serverInfo` and
+public build share `packages/contracts/src/release.ts`. MCP protocol version and
+immutable source/package hashes remain separate. Release verification also compares
+`release.json` version.
 
-Le build refuse une divergence entre le manifeste portable, ses surcouches
-Claude/Cursor et la version applicative. Il refuse aussi une liaison privée
-d’application dans les manifestes de l’upload public, ou un endpoint différent
-dans la configuration MCP de compatibilité. L’identité publique OpenAI existante
-est conservée. Les paquets ne prouvent pas que le serveur de production exécute
-déjà cette version.
+Build rejects portable-manifest/Claude/Cursor/application version divergence,
+private app bindings in public-upload manifests and differing compatibility MCP
+endpoint. Existing public OpenAI identity stays. Packages prove no production
+server version.
 
-## Périmètre de qualité
+## Quality scope
 
-- Corriger les réponses web tardives et l’affichage de ressources après un
-  changement de chemin, de compte ou d’atelier.
-- Recontrôler les droits et le consentement aux données après le retour d’une
-  proposition IA, avant de restituer le contenu du modèle.
-- Qualifier les mises à jour de sécurité des dépendances et borner les entrées
-  MCP au niveau du transport et de la validation.
-- Construire des archives reproductibles ChatGPT et Claude, avec leurs propres
-  instructions et une qualification explicite de leurs prérequis.
+- Prevent stale web responses/resource display after path/account/workspace changes.
+- Recheck current authority and AI data consent before returning model proposals.
+- Qualify dependency security updates and bound MCP transport/validation input.
+- Build reproducible ChatGPT/Claude archives with their own instructions and explicit prerequisites.
 
-Les quatre rôles humains, le tenant authentifié, les plafonds et approbations
-immuables, la fermeture des services non qualifiés et l’absence de renvoi
-automatique après résultat inconnu restent les invariants de référence.
+Four human roles, authenticated tenant, immutable approval/ceilings, closed
+unqualified services and no automatic retry after unknown outcomes remain invariant.
 
-## Dépendances et protections MCP
+## Dependencies and MCP protection
 
-L’audit npm du 23 octobre a conduit à mettre à jour les SDK MCP client/serveur
-vers 2.3.1, le SDK de compatibilité vers 1.32.1, Agents vers 0.30.0, Hono vers
-4.13.13, sanitize-html vers 2.18.1, ainsi que DOMPurify, ip-address, Vite et
-Vitest dans le lockfile. L’audit complet après mise à jour ne signale aucune
-vulnérabilité connue. La CI refuse désormais les alertes high/critical avec
-`npm run audit:dependencies`. Cette vérification est datée et dépend du registre.
+23 October npm audit prompted MCP client/server 2.3.1, compatibility SDK 1.32.1,
+Agents 0.30.0, Hono 4.13.13, sanitize-html 2.18.1, plus DOMPurify, ip-address,
+Vite/Vitest lockfile updates. Full post-update audit found no known vulnerability.
+CI now rejects high/critical findings through `npm run audit:dependencies`; this
+is dated registry-dependent evidence.
 
-Le [correctif MCP sur la validation des entrées](https://github.com/modelcontextprotocol/typescript-sdk/security/advisories/GHSA-46jr-4wx8-v453)
-nécessite aussi des limites explicites. Le candidat borne les arguments à
-120 000 éléments pour conserver les 100 000 cellules métier, leurs lignes et
-leur enveloppe ; le corps MCP reste limité à 2 Mio. Les serveurs sont créés par
-requête, comme le demande le
-[contrat d’isolation du SDK](https://github.com/modelcontextprotocol/typescript-sdk/security/advisories/GHSA-jm63-cq47-j5jp).
-L’authentification et le budget de requêtes restent appliqués avant les opérations.
-Aucune configuration d’instance, activation de service ou hypothèse de coût
-gratuit n’est ajoutée par ces corrections.
+[MCP input advisory](https://github.com/modelcontextprotocol/typescript-sdk/security/advisories/GHSA-46jr-4wx8-v453)
+also requires explicit limits. Candidate bounds arguments to 120,000 elements,
+retaining 100,000 business cells/rows/envelope, and MCP body to 2 MiB. Per-request
+servers follow [SDK isolation advisory](https://github.com/modelcontextprotocol/typescript-sdk/security/advisories/GHSA-jm63-cq47-j5jp).
+Authentication/request budgets precede operations. No instance setting, activation
+or free-cost assumption is added.
 
-## Preuves et disponibilité
+## Evidence and availability
 
-Les tests locaux utilisent des environnements et fixtures synthétiques. Ils ne
-valent ni envoi réel, ni preuve de renouvellement OAuth, ni essai d’un compte
-Claude ou ChatGPT après publication. Les erreurs, contrôles non exécutés et
-services non activés doivent conserver leur statut réel.
+Local synthetic tests prove no real send, OAuth renewal or post-release Claude/
+ChatGPT journey. Preserve actual error/unexecuted/inactive states. Authorized
+OpenAI 0.3.5 follow-up continues on its existing archive; 1.0.0 does not silently
+replace it. Public OpenAI plugin still needs portal command restoration. Distinguish
+hosted Claude.ai connector, Claude Code package and Anthropic directory publication.
 
-Le suivi autorisé de la soumission OpenAI 0.3.5 continue sur son archive
-existante. La 1.0.0 est un candidat distinct ; elle ne remplace pas silencieusement
-une soumission existante. La configuration du plugin public OpenAI nécessite
-encore la restauration de ses commandes dans le portail. La préparation Claude
-distingue le connecteur hébergé Claude.ai, le paquet Claude Code et la publication
-dans un annuaire Anthropic.
+## Executed local qualification — 23 October 2026
 
-## Qualification locale exécutée le 23 octobre 2026
+`npm test`: **2,125 Vitest cases/111 files and 328 Node security cases passed**, no
+failure/skip. Typecheck, lint, 67-tool annotation audit, atlas synchronization and
+application/Worker dry-run build passed. Nine focused browser regressions passed
+across desktop Chromium, Android Chromium and iPhone WebKit with synthetic data.
+Focused cases overlap these suites and are not added to totals. Final-commit CI
+remains independent.
 
-`npm test` termine avec 2 125 cas Vitest dans 111 fichiers et 328 cas de sécurité
-Node réussis, sans échec ni skip. Le typage, le lint, l’audit des 67 annotations,
-la synchronisation de l’atlas et le build applicatif avec dry-run Worker ont
-réussi. Les neuf régressions navigateur ciblées passent sur desktop Chromium,
-Android Chromium et iPhone WebKit ; leurs données sont synthétiques.
-Les comptes de tests ciblés sont inclus ou recoupent ces suites, et ne sont pas
-additionnés aux totaux. La CI du commit final reste une preuve indépendante.
+External qualification remains: existing OpenAI configuration, actual Claude Code
+OAuth, served version, guarded channels/billing and remote backup restoration.
+Local restore/archive preparation is no service acceptance proof. See
+[tests](TEST_RESULTS.md), [Claude package](CLAUDE_PLUGIN.md), [release procedure](MAIN_RELEASE.md).
 
-Les qualifications externes restent explicites : configuration OpenAI existante,
-OAuth Claude Code réel, version servie après déploiement, canaux/facturation selon
-leurs gardes et restauration de sauvegarde distante. Une preuve locale de
-restauration et la préparation d’une archive ne valent pas une recette de ces
-services. Voir [TEST_RESULTS.md](TEST_RESULTS.md), [CLAUDE_PLUGIN.md](CLAUDE_PLUGIN.md)
-et [MAIN_RELEASE.md](MAIN_RELEASE.md).
+## Production transition
 
-## Passage en production
+After review/exact-commit CI, obtain this candidate's merge/publication authority,
+build clean `main` equal to fresh `origin/main`, publish normally and verify public
+bytes/hashes. Then qualify each host with actually consented rights, without
+implicit authority expansion or mandate activation.
 
-Après revue et CI du commit exact : autorisation de fusion/publication de ce
-candidat, build depuis un main propre égal à origin/main, publication par le
-chemin normal et vérification des octets/empreintes publics. Puis qualification
-dans chaque hôte avec les droits réellement consentis, sans élargissement
-d’autorité ni activation implicite d’un mandat expert.
+Claude Code 2.1.309 strict format validation passed for both dedicated archives.
+Anthropic-directory publication still needs owner license selection:
+`LICENSE_MISSING`. No repository license was invented. Local loading/OAuth differ
+from public submission.
 
-La validation stricte du format par Claude Code 2.1.309 réussit sur les deux
-archives dédiées. Le profil de publication dans l’annuaire Anthropic exige encore
-un choix de licence du propriétaire : le contrôle retourne `LICENSE_MISSING`.
-Aucune licence de dépôt n’a été inventée ; le chargement local et la connexion
-OAuth sont distincts de cette soumission publique.
-
-Les communications réelles, l’achat ou la création de services payants, la
-configuration de nouveaux accès et les attestations légales restent des décisions
-distinctes. Aucun contrôle automatisé ne peut garantir une absence absolue de
-défaut ou l’acceptation par un annuaire.
+Real communications, paid services, new access configuration and legal attestations
+remain separate decisions. Automation guarantees neither zero defects nor directory
+acceptance.

@@ -75,8 +75,8 @@ authority must already exist, and a preparation-only account cannot send.
 
 Secure distribution uses the same centralized MCP service as the other packages.
 Its five tools prepare, list, inspect, confirm and revoke workshop distributions.
-Activation always requires recorded strong browser approval, even for expert
-connections. The funded retention term is not refunded on revocation. The
+Activation always requires recorded browser approval under the active document
+authentication policy, even for expert connections. The funded retention term is not refunded on revocation. The
 assistant cannot bind recipient identity or inspect personal documents. Original
 download and personal-copy rights are explicit and distinct. Display telemetry
 does not certify reading, saving to disk, printing or screenshots.
@@ -100,5 +100,5 @@ this candidate. Passing local format validation is not directory approval.
 
 [Claude Code plugin manifest](https://code.claude.com/docs/en/plugins-reference),
 [MCP authentication](https://code.claude.com/docs/en/mcp),
-[Guteneo privacy](https://guteneo.com/confidentialite/?lang=en),
+[Guteneo privacy](https://guteneo.com/privacy/?lang=en),
 [Guteneo support](https://guteneo.com/support/?lang=en).

@@ -105,7 +105,7 @@ export async function productionStatus(fetcher = fetch) {
     scannerFreshness: "not_checked",
     dependencyReadiness: "not_checked",
     operationalHistory:
-      "Consulter Observability : erreurs, dernier cron, files et inconnus.",
+      "Review Observability: errors, latest cron run, queues and unknown outcomes.",
     dashboards: dashboardLinks,
   };
 }
@@ -115,7 +115,7 @@ if (
   import.meta.url === pathToFileURL(process.argv[1]).href
 ) {
   if (process.argv.length !== 2) {
-    console.error("Usage : node scripts/production-status.mjs (sans argument)");
+    console.error("Usage: node scripts/production-status.mjs (no arguments)");
     process.exitCode = 1;
   } else {
     const status = await productionStatus();

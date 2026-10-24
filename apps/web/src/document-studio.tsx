@@ -23,7 +23,7 @@ export default function DocumentStudio({
     return (
       <p className="notice info">
         {msg(
-          "Le studio documentaire est disponible dans l’espace privé. Cette démonstration publique ne traite pas de fichiers. ",
+          "The document studio is available in your private workspace. This public demo does not process files. ",
         )}
       </p>
     );
@@ -73,11 +73,11 @@ export default function DocumentStudio({
 
 export function StudioSteps() {
   return (
-    <ol className="studio-guide" aria-label={msg("Parcours documentaire")}>
-      <li>{msg("Vos données")}</li>
-      <li>{msg("Votre modèle")}</li>
-      <li>{msg("PDF vérifiés")}</li>
-      <li>{msg("Distribution facultative")}</li>
+    <ol className="studio-guide" aria-label={msg("Document workflow")}>
+      <li>{msg("Your data")}</li>
+      <li>{msg("Your template")}</li>
+      <li>{msg("Verified PDFs")}</li>
+      <li>{msg("Optional distribution")}</li>
     </ol>
   );
 }

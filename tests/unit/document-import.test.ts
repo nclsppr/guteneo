@@ -179,6 +179,7 @@ describe("exact remote document imports", () => {
       sourceCategory: "public_host",
     });
     expect(JSON.stringify(error)).not.toContain(secret);
+    expect(error.message).toContain(`Source domain: ${domain}.`);
     const known = errorFor(`http://${host}/${secret}`);
     expect(known.observation()).toEqual({
       reason: "invalid_scheme",

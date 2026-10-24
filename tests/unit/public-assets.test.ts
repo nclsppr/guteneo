@@ -516,7 +516,7 @@ describe("production static crawl boundary", () => {
         new Response(null, { status: 308, headers: { Location: location } }),
       );
       const response = (await servePublicAssets(
-        new Request(site.origin + "/journal/index.html"),
+        new Request(site.origin + "/legacy-fixture.html"),
         env,
       ))!;
       expect(response.status).toBe(308);

@@ -10,7 +10,7 @@ export function WorkspaceIdentity({ session }: { session: Session }) {
   const { appearance } = useDashboardAppearance();
   const returnTo = encodeURIComponent("/" + (window.location.hash || "#/app"));
   return (
-    <section className="workspace-identity" aria-label={msg("Votre compte")}>
+    <section className="workspace-identity" aria-label={msg("Your account")}>
       <a
         className="workspace-identity-profile"
         href="#/app/account"
@@ -30,15 +30,15 @@ export function WorkspaceIdentity({ session }: { session: Session }) {
             .join("")
             .toLocaleUpperCase()}
         </span>
-        <span className="workspace-identity-label">{msg("Connecté avec")}</span>
+        <span className="workspace-identity-label">{msg("Signed in as")}</span>
         <strong>{session.user.name}</strong>
         <span className="workspace-identity-email">
-          {session.user.email || msg("Adresse de connexion indisponible")}
+          {session.user.email || msg("Sign-in email unavailable")}
         </span>
         <span className="workspace-role">{roleLabel(session.user.role)}</span>
         <span className="workspace-identity-action">
           <UserCircle size={17} aria-hidden="true" />
-          {msg("Mon profil et mes droits")}
+          {msg("My profile and permissions")}
           <ArrowRight size={15} aria-hidden="true" />
         </span>
       </a>
@@ -48,7 +48,7 @@ export function WorkspaceIdentity({ session }: { session: Session }) {
             className="workspace-switch-account"
             href={`/auth/login?intent=switch-account&locale=${getLocale()}&returnTo=${returnTo}`}
           >
-            {msg("Changer de compte")}
+            {msg("Switch account")}
           </a>
         )}
         {appearance === "v2" && (
@@ -56,7 +56,7 @@ export function WorkspaceIdentity({ session }: { session: Session }) {
             className="workspace-service-status"
             href="https://status.guteneo.com/"
           >
-            {msg("État du service")}
+            {msg("Service status")}
             <ArrowUpRight size={14} aria-hidden="true" />
           </a>
         )}
@@ -71,7 +71,7 @@ export function DashboardIdentity({ session }: { session: Session }) {
   return (
     <section
       className="dashboard-identity"
-      aria-label={msg("Votre rôle dans cet atelier")}
+      aria-label={msg("Your role in this workshop")}
     >
       <div>
         {appearance !== "v2" && (
@@ -85,20 +85,20 @@ export function DashboardIdentity({ session }: { session: Session }) {
         <p>
           <span className="workspace-role">{roleLabel(session.user.role)}</span>
           {permissions.manageMembers
-            ? msg("Vous gérez les accès et pouvez valider les envois.")
+            ? msg("You manage access and can approve dispatches.")
             : permissions.approveDispatches
-              ? msg("Vous pouvez préparer et valider les envois.")
+              ? msg("You can prepare and approve dispatches.")
               : permissions.prepareDispatches
                 ? msg(
-                    "Vous préparez les envois ; une personne habilitée les valide.",
+                    "You prepare dispatches; an authorized person approves them.",
                   )
                 : msg(
-                    "Vous consultez l’activité de cet atelier en lecture seule.",
+                    "You can view this workshop’s activity in read-only mode.",
                   )}
         </p>
       </div>
       <a className="text-link" href="#/app/account">
-        {msg("Mon profil et mes droits")}
+        {msg("My profile and permissions")}
         <ArrowRight size={17} aria-hidden="true" />
       </a>
     </section>

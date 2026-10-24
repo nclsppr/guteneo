@@ -69,9 +69,9 @@ async function body(request: Request): Promise<unknown> {
       ?.toLowerCase()
       .startsWith("application/json")
   )
-    fail("INVALID_INPUT", "Une requête JSON est nécessaire.");
+    fail("INVALID_INPUT", "A JSON request is required.");
   const reader = request.body?.getReader();
-  if (!reader) fail("INVALID_INPUT", "La requête JSON est absente.");
+  if (!reader) fail("INVALID_INPUT", "The JSON request is missing.");
   const parts: Uint8Array[] = [];
   let size = 0;
   try {
@@ -81,7 +81,7 @@ async function body(request: Request): Promise<unknown> {
       size += chunk.value.byteLength;
       if (size > 4096) {
         await reader.cancel();
-        fail("INVALID_INPUT", "La requête est trop volumineuse.", 413);
+        fail("INVALID_INPUT", "The request is too large.", 413);
       }
       parts.push(chunk.value);
     }
@@ -98,20 +98,19 @@ async function body(request: Request): Promise<unknown> {
   try {
     return JSON.parse(text);
   } catch {
-    fail("INVALID_INPUT", "La requête JSON est invalide.");
+    fail("INVALID_INPUT", "The JSON request is invalid.");
   }
 }
 function parse<T extends z.ZodType>(schema: T, value: unknown): z.infer<T> {
   const result = schema.safeParse(value);
-  if (!result.success)
-    fail("INVALID_INPUT", "Vérifiez les champs du formulaire.");
+  if (!result.success) fail("INVALID_INPUT", "Check the form fields.");
   return result.data;
 }
 function admin(session: AuthenticatedSession) {
   if (session.context.role !== "admin")
     fail(
       "FORBIDDEN",
-      "Seul un administrateur de cet atelier peut effectuer cette action.",
+      "Only a workspace administrator can perform this action.",
       403,
     );
 }
@@ -168,14 +167,14 @@ async function mutate(
     if (!results[0].meta.changes)
       fail(
         "ACCESS_CHANGED",
-        "Vos droits ou la ressource ont changé. Actualisez la page.",
+        "Your permissions or the resource have changed. Refresh the page.",
         409,
       );
   } catch (error) {
     if (String(error).includes("last_admin_required"))
       fail(
         "LAST_ADMIN_REQUIRED",
-        "L’atelier doit conserver au moins un administrateur. Nommez-en un autre avant de modifier ce rôle.",
+        "The workspace must retain at least one administrator. Appoint another administrator before changing this role.",
         409,
       );
     throw error;
@@ -381,7 +380,7 @@ export async function handleAccountRoute(
   if (request.headers.has("Authorization"))
     fail(
       "BROWSER_REQUIRED",
-      "Ouvrez Guteneo dans votre navigateur pour gérer votre compte.",
+      "Open Guteneo in your browser to manage your account.",
       403,
     );
   const session = await authenticateBrowser(
@@ -399,7 +398,7 @@ export async function handleAccountRoute(
       {
         error: {
           code: "RATE_LIMITED",
-          message: "Trop de requêtes. Réessayez dans une minute.",
+          message: "Too many requests. Try again in a minute.",
         },
       },
       {
@@ -430,18 +429,18 @@ export async function handleAccountRoute(
     )
       fail(
         "EXPERT_POLICY_INVALID",
-        "Vérifiez les plafonds et choisissez une expiration dans les 30 prochains jours.",
+        "Check the limits and choose an expiry within the next 30 days.",
       );
     const connection = await env.DB.prepare(
       "SELECT status FROM authorized_connections WHERE id=? AND organization_id=? AND user_id=?",
     )
       .bind(connectionId, org, userId)
       .first<{ status: string }>();
-    if (!connection) fail("NOT_FOUND", "Connexion introuvable.", 404);
+    if (!connection) fail("NOT_FOUND", "Connection not found.", 404);
     if (input.enabled && connection.status !== "active")
       fail(
         "CONNECTION_REVOKED",
-        "Reconnectez cet assistant avant de lui déléguer une autorisation.",
+        "Reconnect this assistant before delegating authority to it.",
         409,
       );
     await mutate(
@@ -553,7 +552,7 @@ export async function handleAccountRoute(
     )
       .bind(session.tokenHash, org, userId, sessionMatch[1])
       .first<{ current: number }>();
-    if (!current) fail("NOT_FOUND", "Session introuvable.", 404);
+    if (!current) fail("NOT_FOUND", "Session not found.", 404);
     await mutate(
       env,
       session,
@@ -622,7 +621,7 @@ export async function handleAccountRoute(
         supervisor_can_approve: number;
         supervisor_can_report: number;
       }>();
-    if (!target) fail("NOT_FOUND", "Membre introuvable dans cet atelier.", 404);
+    if (!target) fail("NOT_FOUND", "Member not found in this workspace.", 404);
     const input = memberMatch[2]
       ? parse(z.object({}).strict(), await body(request))
       : parse(roleSchema, await body(request));
@@ -690,7 +689,7 @@ export async function handleAccountRoute(
   }
   return json(
     {
-      error: { code: "METHOD_NOT_ALLOWED", message: "Méthode non autorisée." },
+      error: { code: "METHOD_NOT_ALLOWED", message: "Method not allowed." },
     },
     405,
   );

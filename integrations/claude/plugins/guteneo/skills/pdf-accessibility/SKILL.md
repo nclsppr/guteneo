@@ -19,7 +19,7 @@ a version from which the user has removed the excluded data before sharing it.
 Do not request the excluded values or suggest a web upload to bypass this limit.
 A successful security scan or a ready state does not establish that the file is
 free of excluded data. See the
-[privacy policy](https://guteneo.com/confidentialite/?lang=en#donnees) for processing
+[privacy policy](https://guteneo.com/privacy/?lang=en#data) for processing
 and available controls.
 
 1. Reuse the exact original with `get_document` / `list_documents`. If needed,

@@ -1,0 +1,28 @@
+flowchart TB
+  accTitle: Guteneo runtime and provider trust boundaries
+  accDescr: Clients reach the shared domain service through Workers. D1, private R2, queues and private validation are inside the Cloudflare boundary. Fax, postal and email providers are outside it. Provider events return through the domain service. This is implementation architecture, not live qualification or a residency guarantee.
+  client["Browser · native app · REST · MCP"] --> api
+  subgraph cf["Cloudflare — application boundary"]
+    api["Workers API + shared domain service"]
+    d1[("D1\nrecords · approval · quota · outbox")]
+    r2[("Private R2\noriginal + derived bytes")]
+    private["Private document services\nscan · render · validate where configured"]
+    publisher["Outbox publisher"]
+    queue["Queues\ninteractive + bulk"]
+    adapter["Claim one attempt\nprovider adapter"]
+    api --> d1
+    api --> r2
+    api --> private
+    d1 --> publisher --> queue --> adapter
+  end
+  subgraph external["External providers — separate trust boundary"]
+    telnyx["Telnyx\nfax"]
+    pingen["Pingen\nprinting + post"]
+    resend["Resend\nemail"]
+  end
+  adapter --> telnyx
+  adapter --> pingen
+  adapter --> resend
+  external -. "verified callbacks / reconciliation" .-> api
+  classDef focus fill:#e8edff,stroke:#2450db,color:#242c38,stroke-width:1.5px
+  class api,adapter focus

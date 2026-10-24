@@ -89,11 +89,11 @@ export const generationInputSchema = z
     (v) =>
       Boolean(v.records) !==
       Boolean(v.datasetId && v.mappingId && v.mappingVersion),
-    "Choisissez les données directes OU un dataset et une version de mapping.",
+    "Choose direct data OR a dataset and mapping version.",
   )
   .refine(
     (v) => !v.records || (!v.datasetId && !v.mappingId && !v.mappingVersion),
-    "Les deux sources sont exclusives.",
+    "The two sources are mutually exclusive.",
   );
 export type GenerationInput = z.infer<typeof generationInputSchema>;
 export type GenerationJobView = {
@@ -175,22 +175,22 @@ export const distributionEntrySchema = z
   .strict()
   .refine(
     (v) => !(v.senderId !== undefined && v.senderIdsByChannel !== undefined),
-    "Choisissez un expéditeur commun OU les expéditeurs par canal.",
+    "Choose a shared sender OR per-channel senders.",
   )
   .refine(
     (v) => !(v.options !== undefined && v.optionsByChannel !== undefined),
-    "Choisissez des options communes OU les options par canal.",
+    "Choose shared options OR per-channel options.",
   )
   .refine(
     (v) => Boolean(v.channel) !== Boolean(v.channelField),
-    "Choisissez un canal explicite OU son champ dans les données figées.",
+    "Choose an explicit channel OR its field in the frozen data.",
   )
   .refine(
     (v) =>
       [v.recipient, v.recipientFields, v.recipientFieldsByChannel].filter(
         Boolean,
       ).length === 1,
-    "Choisissez un destinataire explicite OU les champs des données figées.",
+    "Choose an explicit recipient OR fields in the frozen data.",
   );
 export const distributionInputSchema = z
   .object({

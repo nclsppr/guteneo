@@ -25,7 +25,7 @@ export async function assertLegacySourceAllowed(
   )
     throw new DomainError(
       "SENSITIVE_SOURCE_LEGACY_FORBIDDEN",
-      "Ce document sensible doit être consulté et distribué dans son parcours sécurisé.",
+      "This sensitive document must be viewed and distributed through its secure workflow.",
       403,
     );
 }

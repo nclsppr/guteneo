@@ -22,8 +22,8 @@ export function normalizeFaxNumber(value: string): string {
  */
 export function faxNumberProblem(phone: string): string | null {
   if (/^\+(33|352|49)0/.test(phone))
-    return "Retirez le 0 qui suit l’indicatif du pays : +33 1 23 45 67 89, et non +33 01 23 45 67 89.";
+    return "Remove the 0 after the country code: +33 1 23 45 67 89, rather than +33 01 23 45 67 89.";
   if (!DESTINATION.test(phone))
-    return "Numéro international requis, destination FR, LU ou DE.";
+    return "An international number is required, with a destination in FR, LU or DE.";
   return null;
 }

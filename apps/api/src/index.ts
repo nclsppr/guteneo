@@ -76,11 +76,22 @@ import {
 import { handleAccountRoute } from "./account";
 import { handlePersonalAccountRoute } from "./personal-auth";
 import { authenticatePersonalBrowser } from "./personal-auth";
-import { SecureDistributionService, secureDistributionAvailable } from "./secure-distributions";
+import {
+  SecureDistributionService,
+  secureDistributionAvailable,
+} from "./secure-distributions";
 import { documentAccessMode } from "../../../packages/contracts/src/document-authentication";
-import { handlePersonalDocumentRoute, secureWorkshopPreview, secureJson } from "./secure-distribution-routes";
+import {
+  handlePersonalDocumentRoute,
+  secureWorkshopPreview,
+  secureJson,
+} from "./secure-distribution-routes";
 import { PersonalDocumentsService } from "./personal-documents";
-import { secureDistributionCatalog, secureDistributionInputSchema, secureBindingSchema } from "../../../packages/contracts/src/secure-distribution";
+import {
+  secureDistributionCatalog,
+  secureDistributionInputSchema,
+  secureBindingSchema,
+} from "../../../packages/contracts/src/secure-distribution";
 import { handleMobileRoute } from "./mobile";
 import {
   configurePostalSenderForMcp,
@@ -120,7 +131,15 @@ export function getCapabilities(env: Env) {
     version: GUTENEO_VERSION,
     mode: env.MODE,
     simulation: env.MODE === "simulation",
-    secureDistribution: { ...secureDistributionCatalog(documentAccessMode(env.SENSITIVE_DOCUMENT_AUTHENTICATION)), available: secureDistributionAvailable(env), accountRequired: true, originalDownload: "explicit_policy", revokeRefunds: false },
+    secureDistribution: {
+      ...secureDistributionCatalog(
+        documentAccessMode(env.SENSITIVE_DOCUMENT_AUTHENTICATION),
+      ),
+      available: secureDistributionAvailable(env),
+      accountRequired: true,
+      originalDownload: "explicit_policy",
+      revokeRefunds: false,
+    },
     humanApproval: "authenticated_browser",
     approval: {
       default: "authenticated_browser",
@@ -167,7 +186,7 @@ export function getCapabilities(env: Env) {
       {
         id: "email",
         liveSending: liveSendingEnabled(env, "email"),
-        name: "E-mail",
+        name: "Email",
         deliveryModes: ["none", "attachment", "protected_link"],
         maxAttachmentBytes: 10_000_000,
         protectedDocument: {
@@ -197,8 +216,8 @@ export function getCapabilities(env: Env) {
       {
         id: "postal",
         liveSending: liveSendingEnabled(env, "postal"),
-        name: "Courrier postal",
-        provider: "Service courrier Guteneo",
+        name: "Postal letter",
+        provider: "Guteneo postal service",
         status: env.PINGEN_CLIENT_ID
           ? "configured_not_live_validated"
           : "not_configured",
@@ -359,7 +378,7 @@ app.use("*", async (c, next) => {
       {
         error: {
           code: "CONFIGURATION_INVALID",
-          message: "Configuration du service invalide.",
+          message: "Invalid service configuration.",
         },
       },
       503,
@@ -375,7 +394,7 @@ const ordinaryBodyLimit = bodyLimit({
       {
         error: {
           code: "REQUEST_TOO_LARGE",
-          message: "Requête trop volumineuse.",
+          message: "Request too large.",
         },
       },
       413,
@@ -405,15 +424,34 @@ app.all("/mcp", (c) =>
     documents: new DocumentService(c.env, domain(c.env)),
     workflow: new TemplateWorkflowService(c.env, domain(c.env)),
     secureDistribution: {
-      prepare: async (identity, input, key) => (await secureMcpService(c.env,identity,"dispatches:prepare")).prepare(identity.context,input,key),
-      list: async (identity, query) => (await secureMcpService(c.env,identity,"dispatches:read")).list(identity.context,query),
-      get: async (identity, id) => (await secureMcpService(c.env,identity,"dispatches:read")).get(identity.context,id),
+      prepare: async (identity, input, key) =>
+        (await secureMcpService(c.env, identity, "dispatches:prepare")).prepare(
+          identity.context,
+          input,
+          key,
+        ),
+      list: async (identity, query) =>
+        (await secureMcpService(c.env, identity, "dispatches:read")).list(
+          identity.context,
+          query,
+        ),
+      get: async (identity, id) =>
+        (await secureMcpService(c.env, identity, "dispatches:read")).get(
+          identity.context,
+          id,
+        ),
       confirm: async (identity, id, key) => {
-        const result=await (await secureMcpService(c.env,identity,"dispatches:send")).confirm(identity.context,id,key);
-        await publishOutbox(c.env,domain(c.env));
+        const result = await (
+          await secureMcpService(c.env, identity, "dispatches:send")
+        ).confirm(identity.context, id, key);
+        await publishOutbox(c.env, domain(c.env));
         return result;
       },
-      revoke: async (identity, id) => (await secureMcpService(c.env,identity,"dispatches:send")).revoke(identity.context,id),
+      revoke: async (identity, id) =>
+        (await secureMcpService(c.env, identity, "dispatches:send")).revoke(
+          identity.context,
+          id,
+        ),
     },
     afterGeneration: () =>
       c.executionCtx.waitUntil(
@@ -590,7 +628,9 @@ app.use("/api/*", async (c, next) => {
         ? c.req.method === "GET"
           ? "documents:read"
           : "documents:write"
-        : path.endsWith("/confirm") || path.endsWith("/cancel") || path.endsWith("/revoke")
+        : path.endsWith("/confirm") ||
+            path.endsWith("/cancel") ||
+            path.endsWith("/revoke")
           ? "dispatches:send"
           : c.req.method === "GET"
             ? "dispatches:read"
@@ -625,7 +665,7 @@ app.use("/api/*", async (c, next) => {
       {
         error: {
           code: "RATE_LIMITED",
-          message: "Trop de requêtes. Réessayez dans une minute.",
+          message: "Too many requests. Try again in a minute.",
         },
       },
       429,
@@ -654,7 +694,7 @@ const idempotency = (value: string | undefined) => {
   if (!value)
     throw new ContentError(
       "IDEMPOTENCY_REQUIRED",
-      "En-tête Idempotency-Key requis.",
+      "Idempotency-Key header required.",
     );
   return value;
 };
@@ -671,50 +711,186 @@ const postalAuthority = async (request: Request, env: Env, scope: string) => {
   return postalBrowserAuthority(request, env, request.method !== "GET");
 };
 app.route("/", createTemplateWorkflowRoutes(domain, postalAuthority));
-const secureService=(env:Env)=>new SecureDistributionService(env,domain(env));
-async function secureMcpService(env:Env,identity:McpIdentity,scope:string) {
-  const authority=await postalMcpAuthority(identity,env,scope);
-  const snapshot=identity.connectionObservation?{kind:"oauth" as const,...identity.connectionObservation,expiresAt:identity.expiresAt}:identity.token.startsWith("gtn_dev_")&&env.ENVIRONMENT==="local"&&env.MODE==="simulation"?{kind:"development" as const,tokenHash:await hashSecret(identity.token),expiresAt:identity.expiresAt}:undefined;
-  if(!snapshot)throw new DomainError("FORBIDDEN","Une connexion OAuth courante est requise.",403);
-  return new SecureDistributionService(env,domain(env),authority,snapshot);
+const secureService = (env: Env) =>
+  new SecureDistributionService(env, domain(env));
+async function secureMcpService(
+  env: Env,
+  identity: McpIdentity,
+  scope: string,
+) {
+  const authority = await postalMcpAuthority(identity, env, scope);
+  const snapshot = identity.connectionObservation
+    ? {
+        kind: "oauth" as const,
+        ...identity.connectionObservation,
+        expiresAt: identity.expiresAt,
+      }
+    : identity.token.startsWith("gtn_dev_") &&
+        env.ENVIRONMENT === "local" &&
+        env.MODE === "simulation"
+      ? {
+          kind: "development" as const,
+          tokenHash: await hashSecret(identity.token),
+          expiresAt: identity.expiresAt,
+        }
+      : undefined;
+  if (!snapshot)
+    throw new DomainError(
+      "FORBIDDEN",
+      "A current OAuth connection is required.",
+      403,
+    );
+  return new SecureDistributionService(env, domain(env), authority, snapshot);
 }
-async function secureRequestService(request:Request,env:Env,scope:string) {
-  return request.headers.has("Authorization")?secureMcpService(env,await authenticateMcp(request,env),scope):secureService(env);
+async function secureRequestService(request: Request, env: Env, scope: string) {
+  return request.headers.has("Authorization")
+    ? secureMcpService(env, await authenticateMcp(request, env), scope)
+    : secureService(env);
 }
-const secureResult=(actor:ActorContext,value:Awaited<ReturnType<SecureDistributionService["get"]>>)=>actor.actor==="mcp"?secureDistributionSummary(value):value;
-app.get("/api/secure-distributions/catalog",(c)=>c.json({...secureDistributionCatalog(documentAccessMode(c.env.SENSITIVE_DOCUMENT_AUTHENTICATION)),available:secureDistributionAvailable(c.env)}));
-app.get("/api/secure-distributions",async(c)=>{
-  const [cursor,limit]=page(c.req.url),actor=c.get("actor"),result=await (await secureRequestService(c.req.raw,c.env,"dispatches:read")).list(actor,{cursor,limit});
-  return c.json({...result,items:result.items.map((item)=>secureResult(actor,item))});
+const secureResult = (
+  actor: ActorContext,
+  value: Awaited<ReturnType<SecureDistributionService["get"]>>,
+) => (actor.actor === "mcp" ? secureDistributionSummary(value) : value);
+app.get("/api/secure-distributions/catalog", (c) =>
+  c.json({
+    ...secureDistributionCatalog(
+      documentAccessMode(c.env.SENSITIVE_DOCUMENT_AUTHENTICATION),
+    ),
+    available: secureDistributionAvailable(c.env),
+  }),
+);
+app.get("/api/secure-distributions", async (c) => {
+  const [cursor, limit] = page(c.req.url),
+    actor = c.get("actor"),
+    result = await (
+      await secureRequestService(c.req.raw, c.env, "dispatches:read")
+    ).list(actor, { cursor, limit });
+  return c.json({
+    ...result,
+    items: result.items.map((item) => secureResult(actor, item)),
+  });
 });
-app.post("/api/secure-distributions",async(c)=>{
-  const actor=c.get("actor"),input=await secureJson(c.req.raw,secureDistributionInputSchema);
-  return c.json(secureResult(actor,await (await secureRequestService(c.req.raw,c.env,"dispatches:prepare")).prepare(actor,input,idempotency(c.req.header("Idempotency-Key")))),201);
+app.post("/api/secure-distributions", async (c) => {
+  const actor = c.get("actor"),
+    input = await secureJson(c.req.raw, secureDistributionInputSchema);
+  return c.json(
+    secureResult(
+      actor,
+      await (
+        await secureRequestService(c.req.raw, c.env, "dispatches:prepare")
+      ).prepare(actor, input, idempotency(c.req.header("Idempotency-Key"))),
+    ),
+    201,
+  );
 });
-app.get("/api/secure-distributions/:id",async(c)=>c.json(secureResult(c.get("actor"),await (await secureRequestService(c.req.raw,c.env,"dispatches:read")).get(c.get("actor"),c.req.param("id")))));
-app.post("/api/secure-distributions/:id/approve",async(c)=>{
-  const input=await secureJson(c.req.raw,z.object({reviewed:z.literal(true),recipientRequested:z.boolean().default(false)}).strict());
-  const principal=await authenticatePersonalBrowser(c.req.raw,c.env,true);
-  return c.json(await secureService(c.env).approve(c.get("actor"),c.req.param("id"),principal,input.reviewed,input.recipientRequested));
+app.get("/api/secure-distributions/:id", async (c) =>
+  c.json(
+    secureResult(
+      c.get("actor"),
+      await (
+        await secureRequestService(c.req.raw, c.env, "dispatches:read")
+      ).get(c.get("actor"), c.req.param("id")),
+    ),
+  ),
+);
+app.post("/api/secure-distributions/:id/approve", async (c) => {
+  const input = await secureJson(
+    c.req.raw,
+    z
+      .object({
+        reviewed: z.literal(true),
+        recipientRequested: z.boolean().default(false),
+      })
+      .strict(),
+  );
+  const principal = await authenticatePersonalBrowser(c.req.raw, c.env, true);
+  return c.json(
+    await secureService(c.env).approve(
+      c.get("actor"),
+      c.req.param("id"),
+      principal,
+      input.reviewed,
+      input.recipientRequested,
+    ),
+  );
 });
-app.post("/api/secure-distributions/:id/activate",async(c)=>{
-  if(c.get("actor").actor!=="browser")throw new DomainError("BROWSER_REQUIRED","Utilisez confirm pour une confirmation API après approbation navigateur.",403);
-  const result=await secureService(c.env).confirm(c.get("actor"),c.req.param("id"),idempotency(c.req.header("Idempotency-Key")));
-  await publishOutbox(c.env,domain(c.env));return c.json(result);
+app.post("/api/secure-distributions/:id/activate", async (c) => {
+  if (c.get("actor").actor !== "browser")
+    throw new DomainError(
+      "BROWSER_REQUIRED",
+      "Use confirm for API confirmation after browser approval.",
+      403,
+    );
+  const result = await secureService(c.env).confirm(
+    c.get("actor"),
+    c.req.param("id"),
+    idempotency(c.req.header("Idempotency-Key")),
+  );
+  await publishOutbox(c.env, domain(c.env));
+  return c.json(result);
 });
-app.post("/api/secure-distributions/:id/confirm",async(c)=>{
-  const actor=c.get("actor"),result=await (await secureRequestService(c.req.raw,c.env,"dispatches:send")).confirm(actor,c.req.param("id"),idempotency(c.req.header("Idempotency-Key")));
-  await publishOutbox(c.env,domain(c.env));return c.json(secureResult(actor,result));
+app.post("/api/secure-distributions/:id/confirm", async (c) => {
+  const actor = c.get("actor"),
+    result = await (
+      await secureRequestService(c.req.raw, c.env, "dispatches:send")
+    ).confirm(
+      actor,
+      c.req.param("id"),
+      idempotency(c.req.header("Idempotency-Key")),
+    );
+  await publishOutbox(c.env, domain(c.env));
+  return c.json(secureResult(actor, result));
 });
-app.post("/api/secure-distributions/:id/revoke",async(c)=>c.json(secureResult(c.get("actor"),await (await secureRequestService(c.req.raw,c.env,"dispatches:send")).revoke(c.get("actor"),c.req.param("id")))));
-app.post("/api/secure-distributions/:id/bind",async(c)=>{
-  const principal=await authenticatePersonalBrowser(c.req.raw,c.env,true),input=await secureJson(c.req.raw,secureBindingSchema);
-  return c.json(await secureService(c.env).bind(c.get("actor"),c.req.param("id"),principal,input));
+app.post("/api/secure-distributions/:id/revoke", async (c) =>
+  c.json(
+    secureResult(
+      c.get("actor"),
+      await (
+        await secureRequestService(c.req.raw, c.env, "dispatches:send")
+      ).revoke(c.get("actor"), c.req.param("id")),
+    ),
+  ),
+);
+app.post("/api/secure-distributions/:id/bind", async (c) => {
+  const principal = await authenticatePersonalBrowser(c.req.raw, c.env, true),
+    input = await secureJson(c.req.raw, secureBindingSchema);
+  return c.json(
+    await secureService(c.env).bind(
+      c.get("actor"),
+      c.req.param("id"),
+      principal,
+      input,
+    ),
+  );
 });
-app.get("/api/secure-distributions/:id/preview/:page",async(c)=>secureWorkshopPreview(c.req.raw,c.env,secureService(c.env),c.get("actor"),c.req.param("id"),z.coerce.number().int().min(1).max(100).parse(c.req.param("page"))));
-app.get("/api/secure-distributions/:id/preview/:page/text",async(c)=>secureWorkshopPreview(c.req.raw,c.env,secureService(c.env),c.get("actor"),c.req.param("id"),z.coerce.number().int().min(1).max(100).parse(c.req.param("page")),true));
-app.get("/api/secure-distributions/:id/events",async(c)=>{
-  const [cursor,limit]=page(c.req.url);return c.json(await (await secureRequestService(c.req.raw,c.env,"dispatches:read")).events(c.get("actor"),c.req.param("id"),{cursor,limit}));
+app.get("/api/secure-distributions/:id/preview/:page", async (c) =>
+  secureWorkshopPreview(
+    c.req.raw,
+    c.env,
+    secureService(c.env),
+    c.get("actor"),
+    c.req.param("id"),
+    z.coerce.number().int().min(1).max(100).parse(c.req.param("page")),
+  ),
+);
+app.get("/api/secure-distributions/:id/preview/:page/text", async (c) =>
+  secureWorkshopPreview(
+    c.req.raw,
+    c.env,
+    secureService(c.env),
+    c.get("actor"),
+    c.req.param("id"),
+    z.coerce.number().int().min(1).max(100).parse(c.req.param("page")),
+    true,
+  ),
+);
+app.get("/api/secure-distributions/:id/events", async (c) => {
+  const [cursor, limit] = page(c.req.url);
+  return c.json(
+    await (
+      await secureRequestService(c.req.raw, c.env, "dispatches:read")
+    ).events(c.get("actor"), c.req.param("id"), { cursor, limit }),
+  );
 });
 app.get("/api/postal/requirements", async (c) =>
   c.json(
@@ -784,7 +960,7 @@ app.post("/api/postal/preflights/:id/quote", async (c) => {
   if (body && body !== "{}")
     throw new ContentError(
       "POSTAL_QUOTE_INPUT_INVALID",
-      "Le devis reprend le document et le destinataire déjà vérifiés.",
+      "The quote uses the document and recipient already verified.",
     );
   return c.json(
     await new PostalService(c.env, domain(c.env)).quote(
@@ -820,9 +996,9 @@ app.post("/api/documents", async (c) => {
   const data = await c.req.raw.formData();
   const file = data.get("file");
   if (!file || typeof file === "string")
-    throw new ContentError("FILE_REQUIRED", "Choisissez un PDF.");
+    throw new ContentError("FILE_REQUIRED", "Choose a PDF.");
   if (file.size > LIMITS.pdfBytes)
-    throw new ContentError("FILE_TOO_LARGE", "PDF trop volumineux.", 413);
+    throw new ContentError("FILE_TOO_LARGE", "PDF is too large.", 413);
   return c.json(
     await new DocumentService(c.env, domain(c.env)).upload(c.get("actor"), {
       name: file.name,
@@ -962,7 +1138,10 @@ app.post("/api/dispatches/:id/approve", async (c) => {
 });
 app.post("/api/dispatches/:id/confirm", async (c) => {
   const service = domain(c.env);
-  const acceptanceAuthority=c.get("actor").actor==="mcp"?(await postalAuthority(c.req.raw,c.env,"dispatches:send")).sql():undefined;
+  const acceptanceAuthority =
+    c.get("actor").actor === "mcp"
+      ? (await postalAuthority(c.req.raw, c.env, "dispatches:send")).sql()
+      : undefined;
   const result = await service.confirmDispatch(
     c.get("actor"),
     c.req.param("id"),
@@ -1020,7 +1199,7 @@ app.get("/api/overview", async (c) => {
   if (c.get("actor").actor !== "browser")
     throw new ContentError(
       "BROWSER_REQUIRED",
-      "Ouvrez Guteneo dans votre navigateur pour consulter cette synthèse.",
+      "Open Guteneo in your browser to view this summary.",
       403,
     );
   return c.json(await domain(c.env).dispatchOverview(c.get("actor")));
@@ -1036,7 +1215,7 @@ app.post("/api/admin/channels/:channel", async (c) => {
   if (actor.role !== "admin" || actor.actor !== "browser")
     throw new ContentError(
       "ADMIN_REQUIRED",
-      "Administrateur authentifié requis.",
+      "Authenticated administrator required.",
       403,
     );
   const channel = z
@@ -1065,7 +1244,7 @@ app.post("/api/admin/channels/:channel", async (c) => {
   return c.json({ channel, enabled });
 });
 app.all("/api/*", (c) =>
-  c.json({ error: { code: "NOT_FOUND", message: "Route introuvable." } }, 404),
+  c.json({ error: { code: "NOT_FOUND", message: "Route not found." } }, 404),
 );
 app.get("*", (c) => c.env.ASSETS.fetch(c.req.raw));
 app.onError((error, c) => {
@@ -1113,7 +1292,7 @@ app.onError((error, c) => {
       {
         error: {
           code: "VALIDATION_ERROR",
-          message: "Données invalides.",
+          message: "Invalid data.",
           fields: error.issues.map((i) => ({
             path: i.path.join("."),
             message: i.message,
@@ -1126,8 +1305,7 @@ app.onError((error, c) => {
     {
       error: {
         code: "INTERNAL_ERROR",
-        message:
-          "L’opération a échoué. Conservez l’identifiant de corrélation.",
+        message: "The operation failed. Keep the correlation identifier.",
       },
     },
     500,
@@ -1164,8 +1342,8 @@ const simulation: ProviderHook = {
             simulation: true,
             description:
               dispatch.channel === "postal"
-                ? "Remise à la poste simulée, aucune lettre expédiée."
-                : "Résultat de simulation déterministe, aucun envoi réel.",
+                ? "Simulated postal handover; no letter was sent."
+                : "Deterministic simulation result; no real communication.",
           },
         },
       ],
@@ -1199,14 +1377,33 @@ export default {
             .passthrough()
             .safeParse(message.body);
           if (batch.queue.endsWith("-dlq") || !parsed.success) {
-            if(parsed.success && parsed.data.dispatchId.startsWith("secure_deposit:")) {
-              await env.DB.prepare("UPDATE secure_deposit_operations SET auth_session_hash=NULL,lease_expires_at=? WHERE id=? AND status='preparing'").bind(new Date().toISOString(),parsed.data.dispatchId.slice("secure_deposit:".length)).run();
-              message.ack();counts.acked++;counts.deadLetters++;
+            if (
+              parsed.success &&
+              parsed.data.dispatchId.startsWith("secure_deposit:")
+            ) {
+              await env.DB.prepare(
+                "UPDATE secure_deposit_operations SET auth_session_hash=NULL,lease_expires_at=? WHERE id=? AND status='preparing'",
+              )
+                .bind(
+                  new Date().toISOString(),
+                  parsed.data.dispatchId.slice("secure_deposit:".length),
+                )
+                .run();
+              message.ack();
+              counts.acked++;
+              counts.deadLetters++;
               continue;
             }
-            if(parsed.success && parsed.data.dispatchId.startsWith("secure_render:")) {
-              await secureService(env).failRender(parsed.data.dispatchId.slice("secure_render:".length));
-              message.ack();counts.acked++;counts.deadLetters++;
+            if (
+              parsed.success &&
+              parsed.data.dispatchId.startsWith("secure_render:")
+            ) {
+              await secureService(env).failRender(
+                parsed.data.dispatchId.slice("secure_render:".length),
+              );
+              message.ack();
+              counts.acked++;
+              counts.deadLetters++;
               continue;
             }
             await env.DB.prepare(
@@ -1224,14 +1421,20 @@ export default {
             counts.deadLetters++;
             continue;
           }
-          if(parsed.data.dispatchId.startsWith("secure_render:")) {
-            await secureService(env).processRender(parsed.data.dispatchId.slice("secure_render:".length));
-            message.ack();counts.acked++;
+          if (parsed.data.dispatchId.startsWith("secure_render:")) {
+            await secureService(env).processRender(
+              parsed.data.dispatchId.slice("secure_render:".length),
+            );
+            message.ack();
+            counts.acked++;
             continue;
           }
-          if(parsed.data.dispatchId.startsWith("secure_deposit:")) {
-            await new PersonalDocumentsService(env).processDeposit(parsed.data.dispatchId.slice("secure_deposit:".length));
-            message.ack();counts.acked++;
+          if (parsed.data.dispatchId.startsWith("secure_deposit:")) {
+            await new PersonalDocumentsService(env).processDeposit(
+              parsed.data.dispatchId.slice("secure_deposit:".length),
+            );
+            message.ack();
+            counts.acked++;
             continue;
           }
           if (env.MODE !== "simulation" && env.LIVE_SENDS_ENABLED !== "true") {

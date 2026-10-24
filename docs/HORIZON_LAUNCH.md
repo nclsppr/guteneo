@@ -12,12 +12,11 @@ The shared brand is **guteneo Horizon**. Keep `guteneo` lowercase. A single name
 helps people recognise the same service when changing language or using an
 assistant.
 
-| Language       | Product label      | Launch line                                                 |
-| -------------- | ------------------ | ----------------------------------------------------------- |
-| Français       | Forfait Horizon    | Repérez les obstacles dans vos PDF avant de les partager.   |
-| English        | Horizon plan       | Find barriers in your PDFs before sharing them.             |
-| Deutsch        | Horizon-Tarif      | Erkennen Sie Barrieren in Ihren PDFs, bevor Sie sie teilen. |
-| Lëtzebuergesch | Horizon-Abonnement | Fannt Barrièren an Äre PDFen, ier Dir se deelt.             |
+The English product label is **Horizon plan**; the launch line is **Find barriers
+in your PDFs before sharing them.** Localized labels belong to
+`apps/web/src/locales/messages-horizon.json` and the frontend locale catalogs,
+which own French, English, German and Luxembourgish copy. Do not duplicate those
+translations in developer documentation.
 
 Price: **€30 per month**, deducted from available account credits. Sending still
 consumes its separate existing credit. No invented tax qualification, free trial,
@@ -39,17 +38,6 @@ does not certify accessibility or legal compliance.
 
 ## Announcement drafts — preparation state
 
-### Français
-
-**guteneo Horizon : vos PDF, mieux préparés.**
-
-Nous préparons Horizon, un forfait à 30 € par mois pour vérifier l’accessibilité
-PDF/UA et l’archivage PDF/A, dans votre atelier ou depuis votre assistant.
-100 tentatives de contrôle par mois civil seront incluses, avec des rapports
-exportables liés au PDF original et des repères pour compléter la revue humaine.
-La souscription sera réservée à l’administrateur ; le forfait sera prélevé sur
-les crédits du compte. L’offre n’est pas encore ouverte.
-
 ### English
 
 **guteneo Horizon: better prepared PDFs.**
@@ -60,28 +48,6 @@ archival checks in your workspace or through your assistant. It will include
 PDF and guidance for completing human review. Only the administrator can
 subscribe, with the plan deducted from account credits. Subscriptions are not
 open yet.
-
-### Deutsch
-
-**guteneo Horizon: besser vorbereitete PDFs.**
-
-Wir bereiten Horizon vor: einen Tarif für 30 € pro Monat, mit dem Sie
-PDF/UA-Barrierefreiheit und PDF/A-Archivierung im Arbeitsbereich oder über Ihren
-Assistenten prüfen können. Enthalten sind 100 Prüfversuche pro Kalendermonat,
-exportierbare Berichte zum Original-PDF und Hinweise zur ergänzenden menschlichen
-Prüfung. Nur der Administrator kann den Tarif buchen; der Betrag wird vom
-Kontoguthaben abgezogen. Buchungen sind noch nicht geöffnet.
-
-### Lëtzebuergesch
-
-**guteneo Horizon: besser preparéiert PDFen.**
-
-Mir preparéieren Horizon, en Abonnement fir 30 € pro Mount fir
-PDF/UA-Accessibilitéit a PDF/A-Archivatioun am Atelier oder iwwer Ären Assistent
-ze kontrolléieren. Et enthält 100 Kontrollversich pro Kalennermount,
-exportéierbar Rapporten zum Original-PDF an Hiweiser fir déi mënschlech
-Iwwerpréiwung ze ergänzen. Nëmmen den Administrateur kann abonnéieren; d’Zomm
-gëtt vun de Kontkreditter ofgezunn. D’Abonnement kann nach net ofgeschloss ginn.
 
 ## Accurate legal and technical explanation
 

@@ -126,14 +126,16 @@ qualified integration.
 
 ## Validation
 
+Historical report and capture paths identify local evidence artifacts that are not checked into this checkout.
+
 These are local candidate results. The browser runs overlap and must not be
 added together as a unique-test total.
 
 After the MCP-first copy clarification, the preview build, typecheck and scoped
 lint passed again. All 18 public assistant-guide checks passed on desktop and
 iPhone, including the same guide component used in the dashboard; see the
-[copy clarification report](../reports/assistant-mcp-copy-playwright.json) and
-[updated captures](../reports/screenshots/assistant-mcp-copy/).
+copy clarification report (`reports/assistant-mcp-copy-playwright.json`) and
+updated captures (`reports/screenshots/assistant-mcp-copy/`).
 This follow-up changes guidance and labels only, with no backend change.
 
 Release preparation caught a missed hash navigation between the initial render
@@ -142,17 +144,17 @@ previous bundle, then passed after resynchronizing the route at subscription
 without moving the initial scroll position. The postal review test now waits
 for the rendered PDF before interacting with consent checkboxes. All nine
 targeted checks (three scenarios across three browser profiles) passed; see
-[the release-fix report](../reports/ci-iphone-fixes-playwright.json).
+the release-fix report (`reports/ci-iphone-fixes-playwright.json`).
 
 | Check | Result and evidence |
 | --- | --- |
-| Public browser suite | 56 passed, 4 intentionally skipped, no failures or flaky results. The skipped cases are iPhone/WebKit-specific checks omitted from the desktop project. [Report](../reports/assistant-hub-preview-playwright.json). |
-| Final public regression | 32 passed, no skipped or flaky results, across desktop and iPhone projects. [Report](../reports/assistant-hub-preview-final-playwright.json). |
-| Narrow navigation | 2 passed at 320 px, desktop and iPhone projects. [Report](../reports/assistant-hub-narrow-navigation-playwright.json). |
-| Private assistant journey | 18 passed across three profiles (`chromium`, `mobile-chromium`, `iphone-webkit`), covering two browser engines. [Report](../reports/assistant-hub-private-playwright.json). |
+| Public browser suite | 56 passed, 4 intentionally skipped, no failures or flaky results. The skipped cases are iPhone/WebKit-specific checks omitted from the desktop project. Report (`reports/assistant-hub-preview-playwright.json`). |
+| Final public regression | 32 passed, no skipped or flaky results, across desktop and iPhone projects. Report (`reports/assistant-hub-preview-final-playwright.json`). |
+| Narrow navigation | 2 passed at 320 px, desktop and iPhone projects. Report (`reports/assistant-hub-narrow-navigation-playwright.json`). |
+| Private assistant journey | 18 passed across three profiles (`chromium`, `mobile-chromium`, `iphone-webkit`), covering two browser engines. Report (`reports/assistant-hub-private-playwright.json`). |
 | Typecheck, lint and builds | Passed for the local candidate. These establish code/build validity, not production deployment or real-host qualification. |
-| Vitest | The initial full run covered 1,108 tests in 56 files: 1,100 passed and 8 failed in the postal-authority fixture because migration 0030 was missing from that fixture. After a one-line test setup correction, all 18 postal-authority tests passed, including the 8 failures. No product code changed after the full run. Together these runs cover the 1,108 tests; a fresh full `npm test` run is not claimed. [Initial JSON](../reports/assistant-hub-vitest-initial.json), [run log](../reports/assistant-hub-vitest.log). |
-| Node security suite | 132 passed. [Run log](../reports/assistant-hub-security-tests.log). |
+| Vitest | The initial full run covered 1,108 tests in 56 files: 1,100 passed and 8 failed in the postal-authority fixture because migration 0030 was missing from that fixture. After a one-line test setup correction, all 18 postal-authority tests passed, including the 8 failures. No product code changed after the full run. Together these runs cover the 1,108 tests; a fresh full `npm test` run is not claimed. Initial JSON (`reports/assistant-hub-vitest-initial.json`), run log (`reports/assistant-hub-vitest.log`). |
+| Node security suite | 132 passed. Run log (`reports/assistant-hub-security-tests.log`). |
 | Design review | The bounded Impeccable review concluded `SHIP` for this local candidate, with no material design reservation. This is a local design judgment, not release authorization. |
 
 The tested behavior includes public guide access without a session, responsive
@@ -162,7 +164,7 @@ connection-list failure and refresh, and the separation of OAuth authorization
 from observed successful exchanges. Test ownership is in the
 [public suite](../tests/preview-e2e/assistant-hub.spec.ts) and
 [private suite](../tests/e2e/assistant-hub.spec.ts). Representative visual proof
-is kept in [the assistant-hub captures](../reports/screenshots/assistant-hub/),
+is kept in the assistant-hub captures (`reports/screenshots/assistant-hub/`),
 including the public directory, guide pages, private workspace and Luxembourg
 footer at desktop and mobile widths.
 

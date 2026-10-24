@@ -337,8 +337,8 @@ describe("distributable LLM integrations", () => {
       for (const prerequisite of [
         "status=prepared",
         "attemptCount=0",
-        "renewalOf=ancien dispatchId",
-        "documentId, phone E.164 et ceilingMinor exacts",
+        "renewalOf=the previous dispatchId",
+        "documentId, E.164 phone and ceilingMinor",
       ])
         expect(recovery.message).toContain(prerequisite);
     }
@@ -414,8 +414,10 @@ describe("distributable LLM integrations", () => {
         const error = result.structuredContent?.error as
           { recovery: unknown } | undefined;
         const recovery = assistantRecoverySchema.parse(error?.recovery);
-        expect(recovery.message).toContain("mêmes documentId et page");
-        expect(recovery.message).toContain("ni envoi préparé ni mandat expert");
+        expect(recovery.message).toContain("same documentId and page");
+        expect(recovery.message).toContain(
+          "neither a prepared dispatch nor an expert mandate",
+        );
         expect(recovery.message).not.toContain("review_dispatch");
         expect(JSON.stringify(result)).not.toContain("get_dispatch_status");
         expect(JSON.stringify(result)).not.toContain(
@@ -488,7 +490,7 @@ describe("distributable LLM integrations", () => {
         expect(result.isError).not.toBe(true);
         const message = result.content[0];
         expect(message.type).toBe("text");
-        expect(message.text).toContain("dans cette conversation");
+        expect(message.text).toContain("in this conversation");
         expect(message.text).not.toMatch(/https?:\/\/|quarantined|doc_/);
         expect(result.structuredContent?.data).toMatchObject({
           id: documentId,
@@ -501,7 +503,7 @@ describe("distributable LLM integrations", () => {
           },
         });
         const analysis = result.structuredContent?.data?.analysis;
-        expect(JSON.stringify(analysis)).toContain("automatiquement");
+        expect(JSON.stringify(analysis)).toContain("automatically");
         expect(JSON.stringify(analysis)).not.toContain("quarantined");
         expect(JSON.stringify(result)).not.toContain("private-test-document");
         const listing = await call(client, "list_documents");
@@ -547,7 +549,7 @@ describe("distributable LLM integrations", () => {
           );
           expect(
             JSON.stringify(result.structuredContent?.data?.analysis),
-          ).not.toContain("automatiquement");
+          ).not.toContain("automatically");
         },
         identity,
         { rescan: async () => ({ ...doc, ...(analysis ? { analysis } : {}) }) },
@@ -654,15 +656,15 @@ describe("distributable LLM integrations", () => {
         "revoke_secure_distribution",
       ])
         expect(secureSkill).toContain(tool);
-      expect(secureSkill).toContain("ne sera pas remboursée");
-      expect(secureSkill).toContain("mandat expert");
+      expect(secureSkill).toContain("non-refundable");
+      expect(secureSkill).toContain("expert mandate");
       const branding = plugin.extensions["com.openai"].interface;
       expect(branding.supportURL).toBe("https://guteneo.com/support/?lang=en");
       expect(branding.privacyPolicyURL).toBe(
-        "https://guteneo.com/confidentialite/?lang=en",
+        "https://guteneo.com/privacy/?lang=en",
       );
       expect(branding.termsOfServiceURL).toBe(
-        "https://guteneo.com/conditions/?lang=en",
+        "https://guteneo.com/terms/?lang=en",
       );
       expect(branding.shortDescription.length).toBeLessThanOrEqual(30);
       expect(new Set(branding.defaultPrompt).size).toBe(
@@ -707,12 +709,12 @@ describe("distributable LLM integrations", () => {
         { encoding: "utf8" },
       );
       expect(emailSkill).toContain("prepare_dispatch");
-      expect(emailSkill).toContain("aucun `documentId`");
+      expect(emailSkill).toContain("supply no documentId");
+      expect(emailSkill).toContain("options.emailDeliveryMode=protected_link");
+      expect(emailSkill).toContain("Never open this page with a tool");
       expect(emailSkill).toContain(
-        'options.emailDeliveryMode="protected_link"',
+        "Preparation-only review accounts cannot send",
       );
-      expect(emailSkill).toContain("Ne jamais ouvrir cette page avec un outil");
-      expect(emailSkill).toContain("préparation ne peuvent pas envoyer");
       expect(emailSkill).toContain("submission_unknown");
       expect(manifest.files).toContain("skills/document-studio/SKILL.md");
       const authoringPath =
@@ -743,7 +745,7 @@ describe("distributable LLM integrations", () => {
         { encoding: "utf8" },
       );
       expect(postalSkill).toContain("get_capabilities");
-      expect(postalSkill).toContain("n’est pas disponible");
+      expect(postalSkill).toContain("if unavailable");
       expect(postalSkill).toContain("submission_unknown");
       for (const name of ["copilot-vscode-mcp.json", "copilot-cli-mcp.json"]) {
         const built = await readFile(path.join(first, name), "utf8");
@@ -814,7 +816,7 @@ describe("distributable LLM integrations", () => {
       const prompt = await client.getPrompt({ name: "fax_pdf" });
       expect(JSON.stringify(prompt)).toContain("submission_unknown");
       expect(JSON.stringify(prompt)).toContain(
-        "ne remplace pas cette approbation",
+        "neither replaces that approval",
       );
     });
   });

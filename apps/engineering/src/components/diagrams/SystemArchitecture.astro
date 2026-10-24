@@ -1,0 +1,6 @@
+---
+import DiagramFigure from './DiagramFigure.astro';
+import { diagrams } from './model';
+import svg from '../../../public/illustrations/system-architecture.svg?raw';
+---
+<DiagramFigure model={diagrams.system} svg={svg} />

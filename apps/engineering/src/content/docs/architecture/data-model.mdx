@@ -1,0 +1,183 @@
+---
+title: Data model
+description: How tenant ownership, document versions, Studio provenance and durable dispatch commitments fit together.
+sidebar:
+  label: Data model
+  order: 2
+---
+
+The model separates a person's identity, the workspace they act in, the bytes
+they create and the communication they authorize. D1 stores relationships and
+durable business state; private R2 objects hold document and source bytes. A
+document hash identifies content, while membership and resource policy determine
+who may use it.
+
+The diagram shows selected core workspace relationships. Personal sessions,
+sensitive sharing/copy records, Studio lineage, provider events and billing
+projections are explained below rather than folded into a complete database
+inventory. A person may have no workspace membership.
+
+<DataModelDiagram />
+
+## A workspace is the tenant
+
+The product calls a tenant a **workspace**; the database calls it an
+`organization`. A user can have several memberships, with a different role in
+each workspace. The membership pair is unique. Personal preferences belong to
+the user; workspace role and supervisor options belong to that membership.
+
+Authentication identities map an exact issuer/subject pair to the application
+user. Workspace browser sessions and authorized OAuth connections bind that person to a
+membership. Personal browser sessions instead bind the owner without a membership
+and cannot be substituted with a workspace Bearer token. An email address, a client-supplied organization field or knowledge
+of an object identifier does not establish workspace authority. Current
+membership and resource checks still apply when a stored session or connection
+is used.
+
+Private queries and critical relations carry the tenant. For example, a
+dispatch's document, sender and campaign references include its organization,
+preventing an otherwise valid identifier from attaching another workspace's
+record. [Authority and tenancy](/architecture/authority-and-tenancy/) owns the
+role, scope and delegation rules.
+
+## A document record identifies one retained version
+
+A document records its hash, byte size, source, private storage key and
+verification state. Exact bytes are immutable. The narrowly allowed promotion
+from an unparsed quarantine to a verified PDF can establish its page count; it
+does not replace the stored content. Renaming a display label also does not
+create a new content version.
+
+Retained ordinary documents deduplicate by workspace and hash. Creator-private
+documents add their owner to that boundary: equal bytes do not reveal another
+person's private PDF. Sharing a template grants no automatic access to its
+owner's datasets, mappings, generation jobs or private generated documents.
+Dispatch-context access for a current approver is a separate, bounded exception.
+
+Rendering, generation and adding a postal address page produce separate document
+records. Their workflow associations preserve the relevant source or generation
+context; they do not mutate the original's bytes. A dispatch references the
+specific document version it prepared, so a derivative needs its own quotation
+and review. The [document workflow](/workflows/documents/) explains the verification
+states and import boundaries.
+
+## Studio keeps design, interpretation and output separate
+
+| Record family | Relationship and purpose |
+| --- | --- |
+| Template and published versions | An owner edits a revision-checked draft. Publishing creates an immutable envelope snapshot with a version and hash; later edits cannot change that published design. Separate grants control use, edit, publish and share. |
+| Dataset and source objects | An owner retains the original source, its hash, format, parsing options and derived profile. Profiling does not overwrite the source. |
+| Mapping versions | A mapping binds a particular dataset and structural signature to an explicit interpretation plan. Validated versions are fixed; changing the plan creates a new version. |
+| Generation jobs and records | A job fixes the selected published template, input source or direct records, mapping version where applicable and request hash. Each stable record has its own input hash, progress, errors and eventual document reference. |
+| Generation provenance | A record's immutable provenance stores source coordinates, hashes and renderer metadata. The provenance record excludes copied cell values; normalized generation input is separately retained under its own policy. |
+| Distribution plan and entries | A frozen manifest binds selected records to exact document versions/hashes, channels and recipients. Each entry tracks its preparation result and the resulting ordinary dispatch. |
+
+Direct business records and dataset-plus-mapping generation are distinct input
+paths. A source row is not automatically a document or a recipient: an explicit
+mapping may group several rows into one business object. The result record keeps
+that object's identity even if rendering completes out of order.
+
+Generation uses `generate_only`; producing a PDF creates no delivery approval or
+transport reservation. A distribution plan also grants no sending authority.
+Its first creation freezes the entire generation batch against failed-record
+retries, including unselected records. Preparing or resuming its entries follows
+the existing dispatch service. Use the [Studio and data guide](/workflows/studio-and-data/)
+for mapping validation, retry choices and distribution behavior.
+
+## Dispatch records form a durable commitment
+
+Preparation fixes one recipient, channel, document or supported text content,
+sender snapshot, options and monetary bounds. Its fingerprint binds that
+immutable preparation. Tenant/operation-scoped idempotency keys also bind a
+request hash; using the same key for different content conflicts.
+
+The unique workspace/dispatch pair permits one **current approval row**, not
+an `approved` dispatch status. It records the matching fingerprint, actor, expiry
+and browser or delegated approval kind. Renewing that row does not change the
+prepared communication or substitute for the approval audit trail. At acceptance,
+the server rechecks the current authority and all required content, quote and
+channel gates. An assistant-supplied consent flag cannot create human approval.
+
+Acceptance commits three effects atomically: the transition to `queued`, a
+reservation against the workspace's bounded usage and a durable outbox row.
+Money uses integer minor units. Each dispatch has at most one reservation and
+one outbox row; a database failure cannot leave an accepted dispatch with only
+part of that commitment.
+
+The outbox records publication intent; a queue message carries work. Attempts
+record the provider submission outcome. Their schema supports multiple related
+records, but that cardinality grants no retry permission: the domain permits at
+most one automatic provider submission per business command. An unknown outcome
+retains its reservation and requires reconciliation. Provider events are stored
+as deduplicated facts, including events waiting for correlation, before their
+effect is projected onto a dispatch.
+
+The [dispatch lifecycle](/architecture/dispatch-lifecycle/) is the maintained
+explanation of state transitions, settlement and uncertainty. A provider
+acceptance, confirmed quota consumption and final customer settlement remain
+separate facts.
+
+## Sensitive sharing and personal ownership are distinct records
+
+The sensitive-distribution records bind a workspace source, immutable rendering,
+one intended recipient, sharing policy, versioned retention price and dedicated
+invitation dispatch. Current creators/approvers may inspect their eligible
+preparations; general workspace reading grants no sensitive-content access.
+Approval evidence records the actual authentication mode as well as the exact
+fingerprint, approver and session. The durable policy singleton and environment
+must agree; an ordinary receipt cannot become strong evidence on policy rollback.
+
+Recipient association links a stable personal account to the intended recipient
+only after an address-verified request and independent browser confirmation by
+the workspace. Possessing an invitation token creates neither membership nor
+content authority. Personal lists project eligible grants for their owner; each
+content response still checks the current share and session.
+
+A deposit operation bridges an authorized share to a separate personal document.
+Encrypted copy objects remain invisible until conditional activation rechecks
+owner, grant, policy, freshness and funding. D1 and R2 are not a distributed
+transaction; that activation is the acquisition point. Revocation before it blocks
+acquisition, while later workspace revocation cannot remove an acquired copy.
+Deleted/expired personal copies cannot be recreated through the same invitation.
+
+This model uses independent shared/personal retention and separate immutable
+approval, association, charge and acquisition evidence. Detailed access activity
+has its own ninety-day purge. The [secure workflow](/workflows/secure-distribution/)
+owns the complete contract; [background jobs](/engineering/background-jobs/)
+explains bounded recovery and cleanup.
+
+## Retention removes eligible bytes without rewriting history
+
+Retention is bounded maintenance, not an immediate deletion timer. Current
+policies make these objects eligible for cleanup:
+
+| Object | Current cleanup boundary |
+| --- | --- |
+| Dataset originals/profiles and imported Word sources | Source expiry is normally 30 days. Active generation jobs defer dataset cleanup. |
+| Normalized generation input and intermediate artifacts | After 90 days, when the job is no longer queued or running. Hashes, document references and provenance remain. |
+| Final PDF objects | After 90 days, subject to dispatch state and active protected-hosting guards. Unresolved or otherwise nonterminal dispatches block ordinary PDF purge. |
+| Removed templates | Owner-only logical deletion archives and hides the template. Published versions, generated PDFs and job history remain referenced. |
+
+A purged document remains a historical record and cannot be restored to ready.
+Reimporting identical bytes after purge creates a new version, creation time and
+object key. It never revives the old approval. Cleanup of an interrupted older
+purge targets its own key and cannot delete the newer import.
+
+These policies do not claim that every related ledger or audit field is erased,
+or that a hosted backup has been purged. Operational backup/restoration controls
+require separate qualification. Missing bytes never authorize retransmission.
+
+## Implementation boundaries
+
+The SQL migrations and shared contracts are the maintained source for exact
+columns and constraints. This conceptual view deliberately omits provider-specific
+quotes, billing projections, sessions and policy detail. Workspace scoping is an
+access rule as well as a schema rule; a relationship diagram cannot prove that a
+route enforces it.
+
+Start implementation review with `docs/DATA_MODEL.md`, `packages/domain/src/index.ts`,
+`packages/contracts/src/template-workflow.ts`, `apps/api/src/template-workflow.ts`
+and `apps/api/src/maintenance.ts`, then follow their migrations and tests.
+Local schema/invariant tests establish bounded behavior, not a remote migration,
+production capacity or actual provider delivery. The [testing guide](/engineering/testing/)
+keeps those evidence levels separate.

@@ -373,5 +373,20 @@
     "Zeile {0} aus {1} entfernen",
     "Rei {0} aus {1} läschen"
   ],
-  "Annuler la modification": ["Undo", "Rückgängig", "Réckgängeg maachen"]
+  "Annuler la modification": ["Undo", "Rückgängig", "Réckgängeg maachen"],
+  "Les paragraphes et les tableaux sont importés sous forme de blocs éditables. Les styles Word, sauts de page, images, en-têtes, pieds de page, notes et champs automatiques ne sont pas reproduits. Vérifiez le PDF final avant publication.": [
+    "Paragraphs/tables imported as editable blocks. Word styles, page breaks, images, headers, footers, notes and automatic fields are not reproduced. Check the final PDF before publication.",
+    "Absätze und Tabellen werden als bearbeitbare Blöcke importiert. Word-Formatvorlagen, Seitenumbrüche, Bilder, Kopf- und Fußzeilen, Notizen und automatische Felder werden nicht übernommen. Prüfen Sie das endgültige PDF vor der Veröffentlichung.",
+    "Abschnitter an Tabelle ginn als editéierbar Bléck importéiert. Word-Stiler, Säitenëmbroch, Biller, Kapp- a Fousszeilen, Notizen an automatesch Felder ginn net iwwerholl. Kontrolléiert de fäerdege PDF virun der Verëffentlechung."
+  ],
+  "Les images Word ne sont pas importées ; ajoutez un logo PNG/JPEG dans le studio.": [
+    "Word images were not imported; add a PNG/JPEG logo in the studio.",
+    "Word-Bilder wurden nicht importiert; fügen Sie im Studio ein PNG/JPEG-Logo hinzu.",
+    "Word-Biller goufen net importéiert; füügt am Studio e PNG/JPEG-Logo derbäi."
+  ],
+  "Un tableau comporte une première ligne longue ; des noms de colonnes neutres ont été ajoutés et toutes les lignes ont été conservées.": [
+    "A table has a long first row; neutral column names were added and all rows retained.",
+    "Eine Tabelle hat eine lange erste Zeile; neutrale Spaltennamen wurden hinzugefügt und alle Zeilen beibehalten.",
+    "Eng Tabell huet eng laang éischt Zeil; neutral Kolonnennimm goufen derbäigesat an all Zeile goufe bäibehalen."
+  ]
 }

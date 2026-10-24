@@ -509,7 +509,7 @@ describe("signed Telnyx callbacks during identity setup", () => {
       expect(await response.json()).toEqual({
         error: {
           code: "CONFIGURATION_INVALID",
-          message: "Configuration du service invalide.",
+          message: "Invalid service configuration.",
         },
       });
     }

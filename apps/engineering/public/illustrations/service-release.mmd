@@ -1,0 +1,24 @@
+flowchart TB
+  accTitle: Separate source, service and provider qualification
+  accDescr: Exact-source tests precede authorized releases. Private scanner, renderer and validator qualification and external-provider readiness are separate gates. Enabled configuration is not permission to send.
+  source["Reviewed source and dependency locks"] --> ci["Required CI for the exact commit"]
+  ci --> main["Authorized merge: clean main equals fresh origin/main"]
+  main --> assets["Application build and asset fingerprint"]
+  assets --> app["Separately authorized application release"]
+  app --> proof["Canonical release, assets and browser proof"]
+  main --> private["Private service release and qualification"]
+  private --> scanner["Scanner: exact bytes and fresh signatures"]
+  private --> renderer["Renderer: isolated processing and bounded outputs"]
+  private --> validator["Validator: private profiles and exact-byte reports"]
+  operators["Authorized provider setup and inspection"] --> providers["External fax, postal and email readiness"]
+  scanner --> capability["Current capability gates"]
+  renderer --> capability
+  validator --> capability
+  providers --> capability
+  proof --> capability
+  capability --> authority["Current actor, exact approval, credit and quota"]
+  authority --> accepted["Atomic acceptance and durable outbox"]
+  classDef blue fill:#2450db,color:#ffffff,stroke:#2450db
+  classDef paper fill:#fffdf8,color:#181b22,stroke:#9a9da4
+  class ci,main,capability,accepted blue
+  class source,assets,app,proof,private,scanner,renderer,validator,operators,providers,authority paper
