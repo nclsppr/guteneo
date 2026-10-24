@@ -86,7 +86,7 @@ schema(
           draftHours: z.number().int().positive(),
         })
         .strict(),
-      authentication: z.literal("account_and_fresh_strong_authentication"),
+      authentication: z.enum(["account_and_fresh_strong_authentication", "verified_account_and_fresh_authentication"]),
     })
     .strict(),
 );
@@ -127,7 +127,7 @@ spec.tags = spec.tags.filter(
 spec.tags.push({
   name: "Distribution sécurisée",
   description:
-    "Partage par compte, durée financée, politique immuable et approbation navigateur forte. Aucun accès au coffre personnel par OAuth.",
+    "Partage par compte, durée financée, politique immuable et approbation navigateur selon la politique documentaire active. Aucun accès au coffre personnel par OAuth.",
 });
 spec.paths["/api/secure-distributions"] = {
   get: operation(
@@ -182,8 +182,8 @@ spec.paths["/api/secure-distributions/{id}"] = {
 spec.paths["/api/secure-distributions/{id}/confirm"] = {
   post: operation(
     "confirmSecureDistribution",
-    "Activer après approbation navigateur forte",
-    "Sans corps. Une approbation forte enregistrée dans le navigateur lie PDF, destinataire, politique, durée et coût. Un mandat expert ni un oui dans le chat ne remplace cette preuve. L’acceptation, le financement non remboursable et la commande durable de notification sont atomiques. Le scope ne remplace pas le droit actuel de rôle. Après résultat perdu ou incertain, consulter le même identifiant et conserver la clé logique ; aucune nouvelle expédition automatique.",
+    "Activer après approbation navigateur authentifiée",
+    "Sans corps. Une approbation enregistrée dans le navigateur selon la politique documentaire active lie PDF, destinataire, politique, durée et coût. Un mandat expert ni un oui dans le chat ne remplace cette preuve. L’acceptation, le financement non remboursable et la commande durable de notification sont atomiques. Le scope ne remplace pas le droit actuel de rôle. Après résultat perdu ou incertain, consulter le même identifiant et conserver la clé logique ; aucune nouvelle expédition automatique.",
     "dispatches:send",
     "SecureDistribution",
     [id, key],

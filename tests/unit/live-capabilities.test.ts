@@ -18,6 +18,20 @@ const hosted = {
 } as Env;
 
 describe("truthful live transport capabilities", () => {
+  it.each([
+    [undefined, "account_and_fresh_strong_authentication"],
+    ["strong", "account_and_fresh_strong_authentication"],
+    ["verified_account", "verified_account_and_fresh_authentication"],
+  ] as const)("reports the selected document authentication policy %s", (mode, authentication) => {
+    expect(getCapabilities({ ...hosted, SENSITIVE_DOCUMENT_AUTHENTICATION: mode }).secureDistribution.authentication)
+      .toBe(authentication);
+  });
+
+  it("does not announce document capabilities for an unknown authentication policy", () => {
+    expect(() => getCapabilities({ ...hosted, SENSITIVE_DOCUMENT_AUTHENTICATION: "unknown" }))
+      .toThrow("INVALID_SENSITIVE_DOCUMENT_AUTHENTICATION");
+  });
+
   it("announces the application release through the public capability endpoint", async () => {
     const response = await worker.fetch(
       new Request("https://guteneo.com/api/capabilities"),

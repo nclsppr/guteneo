@@ -54,7 +54,7 @@
     },
     {
       "name": "Distribution sécurisée",
-      "description": "Partage par compte, durée financée, politique immuable et approbation navigateur forte. Aucun accès au coffre personnel par OAuth."
+      "description": "Partage par compte, durée financée, politique immuable et approbation navigateur selon la politique documentaire active. Aucun accès au coffre personnel par OAuth."
     }
   ],
   "paths": {
@@ -5501,8 +5501,8 @@
         "tags": [
           "Distribution sécurisée"
         ],
-        "summary": "Activer après approbation navigateur forte",
-        "description": "Sans corps. Une approbation forte enregistrée dans le navigateur lie PDF, destinataire, politique, durée et coût. Un mandat expert ni un oui dans le chat ne remplace cette preuve. L’acceptation, le financement non remboursable et la commande durable de notification sont atomiques. Le scope ne remplace pas le droit actuel de rôle. Après résultat perdu ou incertain, consulter le même identifiant et conserver la clé logique ; aucune nouvelle expédition automatique.",
+        "summary": "Activer après approbation navigateur authentifiée",
+        "description": "Sans corps. Une approbation enregistrée dans le navigateur selon la politique documentaire active lie PDF, destinataire, politique, durée et coût. Un mandat expert ni un oui dans le chat ne remplace cette preuve. L’acceptation, le financement non remboursable et la commande durable de notification sont atomiques. Le scope ne remplace pas le droit actuel de rôle. Après résultat perdu ou incertain, consulter le même identifiant et conserver la clé logique ; aucune nouvelle expédition automatique.",
         "security": [
           {
             "GuteneoOAuth": [
@@ -13010,7 +13010,8 @@
           "authentication": {
             "type": "string",
             "enum": [
-              "account_and_fresh_strong_authentication"
+              "account_and_fresh_strong_authentication",
+              "verified_account_and_fresh_authentication"
             ]
           }
         },

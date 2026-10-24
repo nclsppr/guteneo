@@ -77,6 +77,7 @@ import { handleAccountRoute } from "./account";
 import { handlePersonalAccountRoute } from "./personal-auth";
 import { authenticatePersonalBrowser } from "./personal-auth";
 import { SecureDistributionService, secureDistributionAvailable } from "./secure-distributions";
+import { documentAccessMode } from "../../../packages/contracts/src/document-authentication";
 import { handlePersonalDocumentRoute, secureWorkshopPreview, secureJson } from "./secure-distribution-routes";
 import { PersonalDocumentsService } from "./personal-documents";
 import { secureDistributionCatalog, secureDistributionInputSchema, secureBindingSchema } from "../../../packages/contracts/src/secure-distribution";
@@ -119,7 +120,7 @@ export function getCapabilities(env: Env) {
     version: GUTENEO_VERSION,
     mode: env.MODE,
     simulation: env.MODE === "simulation",
-    secureDistribution: { ...secureDistributionCatalog(), available: secureDistributionAvailable(env), accountRequired: true, originalDownload: "explicit_policy", revokeRefunds: false },
+    secureDistribution: { ...secureDistributionCatalog(documentAccessMode(env.SENSITIVE_DOCUMENT_AUTHENTICATION)), available: secureDistributionAvailable(env), accountRequired: true, originalDownload: "explicit_policy", revokeRefunds: false },
     humanApproval: "authenticated_browser",
     approval: {
       default: "authenticated_browser",
@@ -681,7 +682,7 @@ async function secureRequestService(request:Request,env:Env,scope:string) {
   return request.headers.has("Authorization")?secureMcpService(env,await authenticateMcp(request,env),scope):secureService(env);
 }
 const secureResult=(actor:ActorContext,value:Awaited<ReturnType<SecureDistributionService["get"]>>)=>actor.actor==="mcp"?secureDistributionSummary(value):value;
-app.get("/api/secure-distributions/catalog",(c)=>c.json({...secureDistributionCatalog(),available:secureDistributionAvailable(c.env)}));
+app.get("/api/secure-distributions/catalog",(c)=>c.json({...secureDistributionCatalog(documentAccessMode(c.env.SENSITIVE_DOCUMENT_AUTHENTICATION)),available:secureDistributionAvailable(c.env)}));
 app.get("/api/secure-distributions",async(c)=>{
   const [cursor,limit]=page(c.req.url),actor=c.get("actor"),result=await (await secureRequestService(c.req.raw,c.env,"dispatches:read")).list(actor,{cursor,limit});
   return c.json({...result,items:result.items.map((item)=>secureResult(actor,item))});

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import type { DocumentAccessMode } from "./document-authentication";
 
 /** Customer prices, excluding tax, per immutable PDF and named recipient.
  * A committed hosting term is never refunded by revocation. Transport is quoted
@@ -58,7 +59,7 @@ export interface SecureDistributionQuote {
   nonRefundable: true;
   taxBasis: "excluding_tax";
 }
-export function secureDistributionCatalog() {
+export function secureDistributionCatalog(mode: DocumentAccessMode = "strong") {
   return {
     retention: SECURE_RETENTION_PRICES,
     personalRetention: PERSONAL_RETENTION_PRICES,
@@ -68,7 +69,9 @@ export function secureDistributionCatalog() {
     taxBasis: "excluding_tax" as const,
     unit: "pdf_per_recipient" as const,
     limits: SECURE_DISTRIBUTION_LIMITS,
-    authentication: "account_and_fresh_strong_authentication" as const,
+    authentication: mode === "verified_account"
+      ? "verified_account_and_fresh_authentication" as const
+      : "account_and_fresh_strong_authentication" as const,
   };
 }
 export function secureDistributionQuote(policy: SecureDistributionPolicy, transportMinor = 0): SecureDistributionQuote {
