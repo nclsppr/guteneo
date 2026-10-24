@@ -1,6 +1,6 @@
 # Guteneo — email and PDF correspondence
 
-This directory prepares candidate **1.0.0**. Package version, application
+This directory prepares candidate **1.1.0**. Package version, application
 capabilities and MCP server identity follow the same source version; the release
 fingerprint identifies actually served code. Building an archive updates neither
 the server nor a directory. The builder also emits the dedicated
@@ -10,7 +10,7 @@ separate format checks, installation, OAuth and actual host qualification.
 ## Features and access
 
 The package combines the Guteneo MCP connection with `get-started`, `email`,
-`fax-pdf`, `postal-pdf`, `document-studio` and `pdf-accessibility`. Available actions
+`fax-pdf`, `postal-pdf`, `document-studio`, `pdf-accessibility` and `secure-distribution`. Available actions
 depend on the connected server, account permissions, activated channels/services
 and actual host capabilities. Installation grants no mandate and proves neither
 end-to-end qualification, OpenAI approval nor directory publication. It installs
@@ -28,8 +28,8 @@ The workflows exclude PCI DSS payment-card data, protected health information,
 government identifiers, authentication secrets and sensitive personal data,
 including known excluded data in existing documents. Malware scanning does not
 establish their absence. A `review_prepare_only` quote stops at preparation,
-without approval, expert review or sending. Email remains disabled in production
-configuration until its operational controls are qualified.
+without approval, expert review or sending. Business email requires qualified operational controls and current
+account/channel gates; package installation does not enable it.
 
 PDF/UA/PDF/A checks require existing account entitlement and an available
 veraPDF service. Reports bind exact original bytes and certify neither complete
@@ -112,6 +112,37 @@ reimport or loop on rescans. `documentUrl` is optional when the person wants the
 website. Analysis prepares, approves and sends no communication. The server
 remains authoritative; follow current tool schemas and error.recovery. An
 uncertain response never authorizes another dispatch.
+
+## Account-protected distribution
+
+`secure-distribution` prepares delivery through a recipient account and a
+secure page reader, with a funded retention term and the server’s active
+document authentication policy. It uses `prepare_secure_distribution`,
+`list_secure_distributions`, `get_secure_distribution`,
+`confirm_secure_distribution` and `revoke_secure_distribution`. The term,
+original-download permission and any authorized personal copy are part of the
+immutable preparation and approved quote. Revocation refunds no funded term and
+does not delete a personal copy already delivered.
+
+Rendering can return `preparing`: query the same identifier without recreating
+the operation. Activation requires recorded browser approval under the active
+document authentication policy, including for an expert connection. The
+assistant never confirms recipient identity, performs initial account binding
+or accesses personal documents. Display/download events preserve their
+provenance; they prove neither complete reading, saving to disk nor screenshot
+detection.
+
+All clients connected to `https://guteneo.com/mcp` discover the same tools under
+their current server authority: the combined ChatGPT/Cursor/Claude package,
+the dedicated Claude package and the MCP configuration examples. Existing
+`dispatches:prepare`, `dispatches:read` and `dispatches:send` scopes cover this
+workspace workflow and grant no access to someone else’s personal space. REST
+describes the same workspace operations in `/openapi.json`.
+
+Configuration, rendering, scanning, notification, authentication and account
+availability gates remain mandatory. A local archive proves neither production
+activation nor qualification in each host. The legacy password-protected email
+link remains a separate workflow; never switch modes without an explicit choice.
 
 ## Email, protected documents and studio
 

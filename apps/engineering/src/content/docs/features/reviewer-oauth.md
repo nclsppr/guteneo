@@ -2,7 +2,7 @@
 title: "Reviewer OAuth qualification"
 description: "9 capabilities in the operations branch of Guteneo."
 sidebar:
-  order: 14
+  order: 15
 ---
 
 <!-- Generated from docs/feature-map.json. Run npm run docs:build; do not edit this view. -->

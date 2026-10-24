@@ -11,9 +11,9 @@ These journeys are generated from the same inventory as the [feature tree](/feat
 
 ## J01: Discover and sign in
 
-**Actor:** Visitor → verified member · **Branch:** Access
+**Actor:** Visitor → verified account owner, with optional workspace membership · **Branch:** Access
 
-Open the public site → select a visitor language → read the offer/assistant guide → enter canonical Auth0 sign-in → create/join a workshop → verify identity and current rights. Return to the exact valid destination. Explicit logout opens the public home.
+Open the public site → choose a visitor language → read the offer/assistant guide → enter canonical Auth0 → register one personal account without an automatic workspace → receive documents or voluntarily choose/create a workspace for service use → verify current identity and rights. Return to the valid destination. Explicit logout opens the public home.
 
 **Failure and recovery:** Refuse invalid callback state, unknown issuer/subject or expired invitation. Recovery retries are explicit. Package download, optional Auth0 branding/domain and actual host sign-in each need separate proof.
 
@@ -209,7 +209,47 @@ Request an eligible public HTML document → retain real error status → show l
 
 **Failure and recovery:** Private/API/auth/MCP, JSON/PDF/binary/event-stream, explicit downloads and range protocols retain their contracts. Missing media/translation remains closed; reflect no private URI/query/body and never invent success.
 
-## J26: Understand and change a feature
+## J26: Receive a sensitive document with one Guteneo account
+
+**Actor:** Personal recipient, with or without a workspace; sender’s current approver confirms association · **Branch:** Active individual invitation, personal principal and current document policy; association confirmed before content
+
+Open the invitation → capture/remove its fragment token before any HTTP login URL → same-tab ten-minute handoff → Auth0 sign-in/registration and secret-free return → request association with verified account/address and a recent session under the active policy → await independent workspace confirmation → read authorized pages/text and find the share in My documents. Receipt creates no workspace, purchase or marketing consent.
+
+**Failure and recovery:** Wrong account, expired token, revoked access or insufficient policy evidence exposes no sensitive title/original. Explicitly switch account or reopen the link; if storage is blocked, sign in then reopen without a secret returnTo. A 401 offers explicit recovery without loops. No physical identity or complete reading is promised. A changed association candidate requires fresh attestation. Personal-list 401/403 clears metadata/cursors and ignores late obsolete responses.
+
+## J27: Prepare and activate sensitive distribution
+
+**Actor:** Authorized preparer → browser approver under the active document policy → authorized confirmer · **Branch:** Web/REST/MCP/packages prepare and follow; sensitive approval is browser-only
+
+Open Secure distribution after Documents, keeping Overview/Assistants first and the active entry coherent → select an accessible ready PDF up to 100 pages/10 MiB → one recipient → 7/30/90/365 days → optional original export/personal copy → subject/message/language → idempotent preparation → follow preparing under the same ID → review final pages/text, recipient, rights, message and tax-exclusive total including transport → separately attest the email request → browser approve → confirm/activate → inspect paginated provenance/actor audit with ninety-day detailed access and separate immutable receipts. Revocation blocks future access without refund. Explicit source pagination reaches older PDFs; permitted personal copies remain exportable even when the shared original is not.
+
+**Failure and recovery:** Unqualified source, integrity, scan, rendering, authority, price, credit or configuration closes the flow. Revoke unexpired legacy draft/active hosting first. A prior postal derivation, legacy send, postal preflight or provider draft requires a dedicated source even after cancellation/failure. Sensitive reference permanently excludes ordinary email/fax/postal attachments, legacy transforms, cropping, analysis and password reads; only the dedicated sourceless invitation remains eligible. Bidirectional service/SQL guards close concurrent legacy writes and provider-transfer races. No original/legacy-link fallback. Expert mandates and assistant-asserted consent cannot approve. Unknown outcomes reread the same ID without new orders or blind provider retry. Check my access voluntarily opens /auth/login?fresh=1 and returns to the distribution list without sensitive IDs/invitations; it grants no preparation/approval or implicit old SSO. Dated Resend qualification/local email flags establish no installed global D1 quotas, webhook/secret or delivery.
+
+## J28: Keep, export and delete a personal copy
+
+**Actor:** Recipient owner with a recent policy-compliant session, independent of the original workspace · **Branch:** Independent copy funded at share activation and acquired only after durable deposit activation
+
+In an active share allowing deposit, read independent retention/export terms → explicitly Keep a copy → follow the same bounded persistent operation → wait for active copy → open Saved copies → export with five-minute authentication freshness → view personal history or explicitly confirm deletion. The same account also opens Guteneo services.
+
+**Failure and recovery:** Revocation before acquisition prevents acquisition; later revocation cannot delete the copy. After timeout/tab closure, resume the same operation without a second copy/charge. No success before activation. Personal deletion removes neither workspace source nor exported files; later private reads are not reported to the workspace. Deletion/expiry prevents redeposit through the same invitation, including direct calls, without fake preparation, recreation or debit.
+
+## J29: Move from received documents to services with the same account
+
+**Actor:** Guteneo account owner with zero or more memberships · **Branch:** Personal-to-workspace navigation, without another registration or separate sender account
+
+Start in My documents → voluntarily open Use Guteneo → choose Prepare a dispatch or New share → select a current membership or request the initial workspace → idempotent creation, initial administrator and closed channels → reload the chosen destination and reread server session/workspace/rights/CSRF → continue normal preparation using the same name/language/identity. Local browser regression creates an administrator workspace then selects another as operator, with real screen/profile changes in both contexts.
+
+**Failure and recovery:** Receipt never permits entry into the sender’s workspace; an organizationId without membership is denied. Creation/selection failure stays visible in the personal area without false navigation. Success retains no previous workspace session/authority. Registration implies no purchase, subscription, confidential-content targeting or marketing email; promised document access remains independent of conversion.
+
+## J30: Read browser reports for the deployed version
+
+**Actor:** Anonymous reader; authorized GitHub runner only for report ingestion, without membership · **Branch:** Public status → browser report → version and freshness
+
+Scheduled/manual main workflow → twenty-eight fixed public checks without business login/sending → sanitized report with body-bound OIDC → read execution date, tested commit and observed version → inspect checks, GitHub execution and history. Fourteen Cron checks remain independent. Authenticated business coverage awaits dedicated accounts and a qualified connected journey under the active document policy.
+
+**Failure and recovery:** Absent, stale, incomplete, invalid or version-mismatched reports remain neutral with explicit limits. An observed discrepancy stays in that report. Public reads launch no test. Incorrect OIDC identity, body hash or GitHub context denies ingestion. Local checks establish no paid operation, business authentication, communication, publication or delivery.
+
+## J31: Understand and change a feature
 
 **Actor:** Reader → contributor · **Branch:** Engineering
 

@@ -5,8 +5,8 @@ sidebar:
   order: 1
 ---
 
-The same backend serves the web workspace, a SwiftUI companion and OAuth-connected
-assistants. These clients offer different interaction patterns, but they share
+The same backend serves personal document receipt, the web workspace, a SwiftUI
+companion and OAuth-connected assistants. These clients offer different interaction patterns, but they share
 business rules. A new button or MCP tool must enter the existing service boundary
 rather than create another way to approve or send.
 
@@ -14,6 +14,8 @@ rather than create another way to approve or send.
 
 | Object | What it represents | What it does not establish |
 | --- | --- | --- |
+| Personal account | Stable identity that can receive documents with zero workspaces | Membership in a sender’s workspace or certified physical identity |
+| Shared access / personal copy | Revocable sender grant or independently acquired authorized copy | Automatic acquisition, unlimited retention or sender control over an acquired copy |
 | Workspace | The tenant selected through current authenticated membership | Platform-wide access |
 | Document | Private PDF bytes, hash, provenance and verification state | Permission to deliver them |
 | Template version | A published immutable authoring definition | Approval of generated communications |
@@ -27,15 +29,27 @@ rules. Preparing a dispatch can grant a currently authorized approver access to
 its exact private PDF in that review context; it does not publish the document
 into a general library.
 
-## Follow one communication
+Receiving creates no workspace, credit or quota. Personal browser authority is
+separate from workspace membership and OAuth. Voluntarily choosing services can
+create/select a workspace without another identity; current session/rights are
+then reloaded. [Secure distribution](/workflows/secure-distribution/) explains
+independent recipient association, the active document policy and copy ownership.
+
+## Follow an ordinary communication
 
 1. Import an existing PDF or explicitly generate a new one.
 2. Wait for its usable verification state. A stored PDF may still be quarantined.
 3. Prepare a dispatch using an authorized sender, exact recipient and valid quote.
 4. Review the final document, options, estimate and ceiling.
-5. Record valid human approval, or use an already granted bounded delegation.
+5. Record valid human approval, or use an already granted bounded delegation for an eligible ordinary workflow.
 6. Confirm acceptance through the existing domain service.
 7. Track the same dispatch through queueing, provider submission and delivery.
+
+Sensitive distribution has a separate browser-only human approval requirement:
+an expert mandate never supplies that approval or recipient/account association.
+An authorized assistant can confirm only after matching browser evidence exists.
+Its image/text reader and independent copies also have different retention and
+privacy rules, detailed in the [secure workflow](/workflows/secure-distribution/).
 
 Document generation, tariff calculation and read-only validation do not perform
 steps five or six. Provider acceptance and confirmed delivery also remain

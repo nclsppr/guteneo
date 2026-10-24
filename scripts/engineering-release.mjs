@@ -2,6 +2,29 @@ import { createHash } from "node:crypto";
 import { readdir, readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import ts from "typescript";
+import { sha256, sourceSnapshot } from "./release-source.mjs";
+
+export const engineeringSourceScope = Object.freeze([
+  "apps/engineering",
+  "docs/feature-map.json",
+  "packages/contracts",
+  "scripts/build-engineering.mjs",
+  "scripts/build-engineering-content.mjs",
+  "scripts/engineering-release.mjs",
+  "scripts/deploy-engineering.mjs",
+  "scripts/verify-engineering.mjs",
+  "scripts/deploy-public.mjs",
+  "scripts/release-source.mjs",
+  "playwright.engineering.config.ts",
+  "tests/engineering-e2e",
+  "tests/security/engineering-site.test.mjs",
+  "tests/security/engineering-release.test.mjs",
+  "package.json",
+  "package-lock.json",
+]);
+
+export const engineeringSourceSnapshot = (root) =>
+  sourceSnapshot(root, engineeringSourceScope);
 
 export async function readEngineeringConfig(path) {
   const parsed = ts.parseConfigFileTextToJson(
@@ -94,4 +117,54 @@ export async function engineeringManifest(directory) {
     if (!entries.some((entry) => entry.path === required))
       throw new Error(`Missing engineering output: ${required}`);
   return entries;
+}
+
+/** Build evidence is usable only for its exact source and complete static output. */
+export async function createEngineeringRelease(
+  root,
+  { commit, dirty, snapshot },
+) {
+  const currentSnapshot = await engineeringSourceSnapshot(root);
+  if (snapshot !== currentSnapshot)
+    throw new Error("ENGINEERING_SOURCE_CHANGED");
+  const assets = await engineeringManifest(
+    resolve(root, "apps/engineering/dist"),
+  );
+  return {
+    service: "guteneo-engineering",
+    commit,
+    dirty,
+    sourceSnapshotScope: engineeringSourceScope,
+    sourceSnapshotSha256: currentSnapshot,
+    assetsSha256: sha256(JSON.stringify(assets)),
+    assets,
+  };
+}
+
+/** Reread ignored output after browser checks; a valid replacement is still a replacement. */
+export async function verifyEngineeringRelease(root, reviewedCommit, expected) {
+  const app = resolve(root, "apps/engineering");
+  validateEngineeringConfig(
+    await readEngineeringConfig(resolve(app, "wrangler.jsonc")),
+  );
+  const manifest = JSON.parse(
+    await readFile(resolve(app, "dist/release.json"), "utf8"),
+  );
+  if (
+    manifest.service !== "guteneo-engineering" ||
+    manifest.commit !== reviewedCommit ||
+    manifest.dirty !== false ||
+    JSON.stringify(manifest.sourceSnapshotScope) !==
+      JSON.stringify(engineeringSourceScope) ||
+    manifest.sourceSnapshotSha256 !== (await engineeringSourceSnapshot(root))
+  )
+    throw new Error("ENGINEERING_MANIFEST_SOURCE_MISMATCH");
+  const assets = await engineeringManifest(resolve(app, "dist"));
+  if (
+    JSON.stringify(manifest.assets) !== JSON.stringify(assets) ||
+    manifest.assetsSha256 !== sha256(JSON.stringify(assets)) ||
+    (expected && JSON.stringify(manifest) !== JSON.stringify(expected))
+  )
+    throw new Error("ENGINEERING_RELEASE_ASSETS_MISMATCH");
+  return manifest;
 }

@@ -18,6 +18,8 @@ export async function renderExpertReviewPage(input: {
   maxPixels: number;
   maxImageCharacters: number;
   maxTextCharacters: number;
+  /** Trusted private-service input; never an arbitrary recipient-supplied label. */
+  watermark?: string;
 }): Promise<ExpertReviewPage> {
   const state = globalThis as BrowserState;
   if (!state.guteneoPdf) throw new Error("PDF_NOT_OPEN");
@@ -67,6 +69,20 @@ export async function renderExpertReviewPage(input: {
       background: "rgb(255,255,255)",
     }).promise;
     if (state.guteneoRenderWarning) throw new Error("PDF_RENDER_WARNING");
+    if (input.watermark) {
+      if (!/^[A-Za-z0-9_-]{8,120}$/.test(input.watermark))
+        throw new Error("WATERMARK_INVALID");
+      context.save();
+      context.translate(width / 2, height / 2);
+      context.rotate(-Math.PI / 6);
+      context.font = `${Math.max(12, Math.floor(width / 45))}px sans-serif`;
+      context.textAlign = "center";
+      context.fillStyle = "rgba(24,27,34,0.20)";
+      const label = `CONFIDENTIEL - ${input.watermark}`;
+      for (let y = -height; y <= height; y += Math.max(100, height / 4))
+        context.fillText(label, 0, y, width * 1.25);
+      context.restore();
+    }
     let imageBase64 = "";
     // A small fixed encoding budget keeps dense pages within the MCP envelope
     // while preserving the full canvas dimensions and every rendered region.

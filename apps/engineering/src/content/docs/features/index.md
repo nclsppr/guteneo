@@ -7,7 +7,7 @@ sidebar:
 
 <!-- Generated from docs/feature-map.json. Run npm run docs:build; do not edit this view. -->
 
-**22 domains · 230 capabilities · 26 journeys · 67 REST operations · 67 MCP tools.**
+**23 domains · 269 capabilities · 31 journeys · 73 REST operations · 72 MCP tools.**
 
 Follow a branch to find its behavior, access boundary and engineering guide. Use the site search to find a specific capability.
 
@@ -15,8 +15,8 @@ This is an implementation inventory, not a live availability dashboard. Current 
 
 ## Access
 
-- [Access and identity](/features/identity/) — 26 capabilities
-- [Team and responsibilities](/features/team/) — 7 capabilities
+- [Access and identity](/features/identity/) — 31 capabilities
+- [Team and responsibilities](/features/team/) — 10 capabilities
 
 ## Create
 
@@ -30,6 +30,7 @@ This is an implementation inventory, not a live availability dashboard. Current 
 - [Fax](/features/fax/) — 6 capabilities
 - [Postal mail](/features/postal/) — 8 capabilities
 - [Email and protected links](/features/email/) — 7 capabilities
+- [Sensitive distribution and personal documents](/features/secure-distribution/) — 23 capabilities
 - [Dispatch dry run](/features/dry-run/) — 7 capabilities
 
 ## Operate
@@ -48,10 +49,10 @@ This is an implementation inventory, not a live availability dashboard. Current 
 ## Operations
 
 - [Reviewer OAuth qualification](/features/reviewer-oauth/) — 9 capabilities
-- [Operations and reliability](/features/operations/) — 16 capabilities
+- [Operations and reliability](/features/operations/) — 18 capabilities
 - [Belvédère platform oversight](/features/belvedere/) — 7 capabilities
-- [Public service status](/features/status/) — 8 capabilities
-- [Engineering documentation](/features/engineering-docs/) — 8 capabilities
+- [Public service status](/features/status/) — 12 capabilities
+- [Engineering documentation](/features/engineering-docs/) — 10 capabilities
 
 ## Across the branches
 

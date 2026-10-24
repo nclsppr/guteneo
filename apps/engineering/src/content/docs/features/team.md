@@ -1,6 +1,6 @@
 ---
 title: "Team and responsibilities"
-description: "7 capabilities in the access branch of Guteneo."
+description: "10 capabilities in the access branch of Guteneo."
 sidebar:
   order: 2
 ---
@@ -25,4 +25,7 @@ Implemented; invitations require separately configured delivery.
 <li id="feature-6790e1b431ec">Verified-email acceptance, expiry and invitation revocation</li>
 <li id="feature-8fa1f89008dd">Bounded browser-only responsible contacts filtered by current workshop membership</li>
 <li id="feature-8de991823011">Login email distinguishes members with the same name; effective permissions stay readable</li>
+<li id="feature-0f4c31854ae1">Sensitive preparations are visible to their creator and current approvers; operators and observers gain no general access to other preparations</li>
+<li id="feature-149da7afd29d">Sensitive approval and recipient/account association require a browser under the current document policy; OAuth confirmation follows recorded browser evidence, with no expert-mandate substitute</li>
+<li id="feature-f4b883cce481">Workspace roles grant no access to another person’s vault; a recipient gains no membership in the sender’s workspace</li>
 </ol>

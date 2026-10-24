@@ -509,9 +509,10 @@ export async function makeDeliveryQuote(
   const protection = (
     frozen.options as { protectedDocument?: { hostingFeeMinor?: number } }
   ).protectedDocument;
+  const secure=(frozen.options as {secureDistribution?:{serviceFeeMinor?:number}}).secureDistribution;
   if (
     frozen.estimatedMinor !==
-    price.amountMinor + (protection?.hostingFeeMinor ?? 0)
+    price.amountMinor + (protection?.hostingFeeMinor ?? 0) + (secure?.serviceFeeMinor ?? 0)
   )
     throw invalid();
   const input = canonicalJson(frozen),

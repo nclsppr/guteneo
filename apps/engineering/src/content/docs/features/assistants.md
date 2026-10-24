@@ -2,7 +2,7 @@
 title: "Assistants and API"
 description: "20 capabilities in the interfaces branch of Guteneo."
 sidebar:
-  order: 13
+  order: 14
 ---
 
 <!-- Generated from docs/feature-map.json. Run npm run docs:build; do not edit this view. -->

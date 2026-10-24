@@ -129,6 +129,21 @@ verify generated copies. Do not edit a generated host copy independently. Shared
 instructions describe authority and behavior in English while each host retains
 its own permission prompts and transfer limits.
 
+## Infrastructure, provider and production-documentation maintenance
+
+Any change to GitHub CI/CD, Cloudflare runtime/bindings/migrations, Auth0 identity,
+private services, provider contracts, tariff validity/qualification, callbacks or
+ongoing maintenance must update its authoritative contract, affected feature-map
+nodes and curated engineering guide in the same change. Keep the relevant diagram
+and pipeline result verifier synchronized when responsibilities or job matrices
+change. The public [CI guide](../apps/engineering/src/content/docs/engineering/ci-and-release.mdx),
+[provider maintenance](../apps/engineering/src/content/docs/engineering/provider-maintenance.mdx)
+and [background jobs](../apps/engineering/src/content/docs/engineering/background-jobs.mdx)
+explain the maintained boundaries; private operator procedures/evidence remain
+in the repository. A new price/version never rewrites an approved quote. Expired
+or missing qualification stays fail-closed; no automatic tariff deployment is
+claimed by documentation.
+
 ## Repository checks
 
 `npm run docs:build` regenerates the feature atlas, engineering feature pages and MCP annotation matrix;

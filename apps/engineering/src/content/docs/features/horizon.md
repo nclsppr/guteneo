@@ -2,7 +2,7 @@
 title: "Horizon PDF diagnostics"
 description: "10 capabilities in the operate branch of Guteneo."
 sidebar:
-  order: 18
+  order: 19
 ---
 
 <!-- Generated from docs/feature-map.json. Run npm run docs:build; do not edit this view. -->

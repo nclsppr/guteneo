@@ -32,6 +32,7 @@ const guide = {
   fax: "/workflows/delivery-channels/",
   postal: "/workflows/delivery-channels/",
   email: "/workflows/delivery-channels/",
+  "secure-distribution": "/workflows/secure-distribution/",
   "dry-run": "/architecture/dispatch-lifecycle/",
   campaigns: "/architecture/dispatch-lifecycle/",
   billing: "/architecture/dispatch-lifecycle/",

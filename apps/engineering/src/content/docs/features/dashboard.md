@@ -2,7 +2,7 @@
 title: "Workspace appearance"
 description: "15 capabilities in the operate branch of Guteneo."
 sidebar:
-  order: 17
+  order: 18
 ---
 
 <!-- Generated from docs/feature-map.json. Run npm run docs:build; do not edit this view. -->

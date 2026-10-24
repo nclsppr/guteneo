@@ -29,6 +29,24 @@ without a light cartouche. Preserve the portrait's original blue and EB Garamond
 lettering. This exception is scoped to the engineering documentation header;
 other templates retain their established composition rules.
 
+### Engineering stamp paper and editorial character
+
+The engineering header may add white paper only behind its square portrait/stamp
+area in both themes. Preserve the official portrait asset's alpha; never flatten
+it onto paper or place a light panel behind the wordmark or entire header. The
+lowercase dark-mode wordmark stays ivory without a cartouche. This header rule
+is separate from the choice of editorial artwork.
+
+For explanatory notes in the engineering documentation, use the approved Gutenberg
+character from the video production, with its recognizable face, costume and
+proportions. Its reference is
+`videos/guteneo-gutenberg/archive/production/images/Pixar-proposition-2.png`;
+record derivatives and provenance separately. The latest direction replaces the
+experimental city/landscape banners and small blue postage-stamp notes with this
+character. Do not require those banners or stamp variants on new pages. Preserve
+the official header/footer assets and the approved film ending; explanatory
+technical diagrams retain their own facts and readable alternatives.
+
 A standalone promotional card carries **one signature**: `guteneo` or
 `guteneo.com`. Do not combine the wordmark with a second `guteneo.com`.
 Sharing cards use one `guteneo.com` signature with the portrait without text.

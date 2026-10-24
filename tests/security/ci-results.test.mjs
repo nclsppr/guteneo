@@ -19,6 +19,7 @@ const jobs = () =>
       "security",
       "build",
       "browser",
+      "distribution-e2e",
       "engineering",
     ].map((name) => [name, { result: "success" }]),
   );

@@ -10,6 +10,7 @@ const requiredJobs = [
   "security",
   "build",
   "browser",
+  "distribution-e2e",
   "engineering",
 ];
 export function requireJobs(results) {

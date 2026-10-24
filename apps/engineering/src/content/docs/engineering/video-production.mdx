@@ -1,0 +1,240 @@
+---
+title: Video production and narration
+description: Reproduce Guteneo's films from their real Remotion sources, approved speech and immutable narration libraries.
+sidebar:
+  label: Video production
+  order: 6
+---
+
+Guteneo's public films are editable Remotion compositions backed by local media,
+not screen recordings of an automatically available delivery service. Replaying
+an approved film uses stored narration and makes no speech-provider call. Creating
+new speech, approving a new film and publishing it are separate operations.
+
+## Choose the correct production
+
+| Production                                    | Current source                                                 | Voice actually used                                                                                                        | Evidence boundary                                                                                  |
+| --------------------------------------------- | -------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| Homepage introduction, horizontal and iPhone  | `videos/guteneo-film`, V8, French/English/German/Luxembourgish | **Manon Voix française spontanée sérieuse**, Eleven v4, three contextual blocks, selected second Creative Studio variation | Both formats reuse the same language-specific speech; scenes follow actual duration                |
+| Four-role overview                            | Same project; V3 French, V4 English/German/Luxembourgish       | The same **Manon** voice and method                                                                                        | French V3 was listened to and approved by the user; preserve its exact bytes                       |
+| Historical introduction V6 / English roles V2 | Immutable `narration/releases/fr-en-g2/`                       | **George — Warm, Captivating Storyteller**, Eleven v4, second web generation                                               | Historical source, not the active twelve-film catalog; Generation 2 does not mean Multilingual v2  |
+| Gutenberg through the ages                    | `videos/guteneo-gutenberg/` archive and handoff                | **François-Louis**, Eleven v4, French scenes 1–7; **Manon** for the signature                                              | Separate approved character and voices; revised scene proposals are not completed approved exports |
+
+The active catalog has twelve films: horizontal introduction, vertical
+introduction and role overview in each of `fr`, `en`, `de`, `lb`. Its authority is
+`packages/contracts/src/public-videos.json`, with actual durations and matching
+posters/captions. The server's `apps/api/src/public-video-manifest.json` records
+served MP4 byte counts and hashes. Neither a historical filename nor a generated
+provider result selects a film for the website.
+
+## Install and inspect locally
+
+From the repository root, install the locked application and film dependencies.
+The film package pins Remotion **4.0.526**. Keep all Remotion packages at their
+locked, matching versions; an upgrade needs its own qualification.
+
+```sh
+npm ci
+npm --prefix videos/guteneo-film ci
+npm --prefix videos/guteneo-film run lint
+npm --prefix videos/guteneo-film run dev
+```
+
+Open the exact local address printed by Remotion Studio. Select a composition in
+`videos/guteneo-film/src/Root.tsx`. The `Natural-C` folder contains dynamic
+narration-timed introductions and the English/German/Luxembourgish role versions;
+French roles retain their approved natural timeline. Frame-driven React animation
+lives in `src/scenes/`, `src/landscape/`, `src/vertical/` and `src/roles/`.
+
+FFmpeg, ffprobe and cwebp must also be available for local regeneration. Fonts,
+images and approved audio are local. The renderer has no customer account,
+business binding or communication secret. An ordinary Studio preview is a local
+review, not a publication or provider qualification.
+
+## Change a story without changing the product's promises
+
+Start from complete sentences and the actual workflow. The four roles and
+independent supervisor permissions come from `packages/contracts/src/roles.ts`.
+Preparation, human review, approval, provider acceptance and delivery must retain
+their distinct meanings. A film does not grant a mandate, make a channel available
+or certify a marketplace integration.
+
+Use only synthetic product captures. Keep their demonstration disclosures and
+provenance; do not retouch the DOM to invent a feature. Reconstructed assistant
+screens are labelled advertising reconstructions, not real chat or published
+widget evidence. Printed-paper, envelope and fax scenes illustrate uses; they
+are not delivery receipts.
+
+Review factual claims and the complete script before synthesis. Technical
+instructions and code stay English; narration, captions and on-screen wording
+may use their declared language. Localize all three media companions together:
+film, poster and captions. The player resolves UI/account language and must never
+silently substitute another language's voice.
+
+## Produce new narration only when authorized
+
+Existing approved speech should be reused. For a new authorized narration batch,
+follow the actual **method C: three contextual blocks** rather than synthesizing
+isolated visual headlines. Introductions group eleven paragraphs **4/4/3**;
+role films group six paragraphs **2/2/2**. Horizontal and iPhone introductions
+share one narration per language.
+
+1. Run the complete script through native ElevenLabs **Enhance** and accept
+   **Keep**. Preserve the exact native result in `enhancement.json`. The connected
+   Creative Studio path did not supply native Enhance; the recorded workflow used
+   authorized Safari account UI.
+2. Review the wording and permissions. If needed, record calm-tone edits in
+   `editorialEdits`; `[thoughtful]` and `[short pause]` describe the retained
+   direction. Keep the native enhancement separate from the final edited script.
+3. Inspect the live model schema, choose the actual Manon voice and set
+   `model_parameters.language_code` explicitly to `fr`, `en`, `de` or `lb`.
+   Use `eleven_v4`, not an assumed similarly named model. The display name is a
+   selection aid; the approved library retains the actual provider identity.
+4. Generate two variations per block through the authorized Creative Studio
+   connection and retain the second by its real session/generation identity.
+   Returned-media order is not selection evidence. If an outcome is uncertain,
+   inspect that existing flow/session instead of generating again.
+5. Archive original selected MP3s, exact scripts, filtered receipts, durations,
+   byte counts and hashes. Keep credentials, signed URLs and private project
+   identifiers out of public documentation. Estimates do not prove billed usage.
+
+This is an account-bound, potentially paid phase; the offline render commands
+below do not perform it. The old local `narration:generate` adapter remains blocked
+before network with `API_ADAPTER_UNQUALIFIED`. Plugin access does not qualify that
+adapter, and `narration/voices.example.json` is a historical configuration example,
+not the authority for the currently published voice.
+
+## Fit scenes to the voice, never accelerate the voice
+
+Decode complete MP3s to mono PCM24 at 44.1 kHz. Establish boundaries from word
+timestamps and acoustic pauses without prompting a recognizer with the expected
+script. Preserve real transcription differences. In this batch, French, English
+and German used Whisper word timing; Luxembourgish used native Scribe JSON after
+local recognition proved inadequate. Recognition does not certify pronunciation
+or create missing words/timestamps.
+
+Retain every source sample in order at **`tempoFactor:1`**. Lengthen scenes to
+actual speech, with readable minimum holds and interblock pauses. Do not trim a
+last word, time-stretch a voice or force a localized narration into the old
+56-second instrumental timeline.
+
+All films retain the approved **five-second silent logo**, exactly 150 frames at
+30 fps; introductions also retain **two silent Signature seconds**. Music remains
+at a constant **0.22 gain** during speech, pauses and the logo, with the original
+score's cadence/end fade. Voice normalization and peak checks are separate. The
+old George mix's between-sentence music ducking is historical, not this policy.
+
+Each of the eight immutable directories
+`narration/releases/{introduction,roles}-{fr,en,de,lb}-natural-c-v1/` retains
+scripts, enhancement, three MP3 sources, canonical WAV cuts, timing/alignment,
+receipts and hashes. Together they hold 24 selected MP3s and 68 PCM24 cuts. The
+builder rejects overwriting an existing snapshot.
+
+MP3, canonical PCM and cut hashes remain strict. Decoder qualification permits
+only a documented difference of at most eight PCM24 least-significant bits with
+an unchanged sample count. Scalar FFmpeg decoding uses `-cpuflags 0` to avoid
+CPU-specific optimized paths; this bounded decoder allowance does not permit
+changing canonical WAVs or published films.
+
+## Rebuild approved films offline
+
+Run these commands from the repository root:
+
+```sh
+npm run test:videos:narration
+npm run videos:render
+```
+
+The renderer qualifies narration libraries before public writes, renders musical
+bases, remixes stored speech while preserving base H.264 packets, then writes
+posters, VTT captions and the server manifest. It requires no ElevenLabs call.
+It writes generated public media: review the resulting diff and hashes before
+including them in a release.
+
+For a bounded subset, pass the existing renderer's explicit selectors:
+
+```sh
+npm run videos:render -- --locales de,lb --kind introduction
+npm run videos:render -- --locales en --kind roles --skip-existing
+```
+
+`--skip-existing` still checks the manifest hash and matching poster/captions.
+It is not permission to reuse an arbitrary file. Normal output masters and
+`render-proof.json` are under `videos/guteneo-film/out/localized/`; public movies
+and posters are under `apps/web/public/videos/`.
+
+A new library has a separate initialization path.
+`scripts/build-natural-library.mjs --input <prepared-directory>` validates and
+freezes a prepared library; it does not synthesize audio.
+`scripts/render-natural-sources.mjs --libraries <snapshot-id>` writes musical
+sources only under ignored `out/`. These are controlled authoring steps, not
+shortcuts for replacing an approved snapshot or updating the catalog implicitly.
+
+## Preserve the approved visual ending
+
+The visual base is the approved V5 composition even when natural narration
+extends the film. Landscape and iPhone scenes are individually recomposed, not
+cropped versions of each other. Preserve the simple unpostmarked opening mark and
+the large final **official V5 halftone stamp, postmark and `guteneo.com`**. Do not
+regenerate or redraw that ending to match a new illustration style.
+
+Use paper **`#f6f5ef`**, ink **`#181b22`**, cobalt **`#2450db`**, local EB Garamond
+and IBM Plex Sans/Mono. Keep `guteneo` lettering lowercase and ink black under the
+existing video composition rules. The stamp already contains the signature; add
+no duplicate domain. The engineering header's separate dark-mode exception is
+not a video-brand change.
+
+Image/font/audio provenance lives beside the assets: `public/images/PROVENANCE.md`,
+`public/frontend/provenance.md`, `public/fonts/` licenses and `public/audio/README.md`
+in the film project. The original soundtrack is procedural local synthesis, not
+a third-party music extract. Preserve licenses and generated-asset disclosures;
+a provider receipt does not by itself establish rights for an unrelated asset.
+
+## Verify, then publish through the release process
+
+```sh
+node --test tests/security/public-video-assets.test.mjs
+ffprobe -v error -show_streams -show_format -of json \
+  apps/web/public/videos/guteneo-horizontal-v8-en.mp4
+ffmpeg -v error -i apps/web/public/videos/guteneo-horizontal-v8-en.mp4 \
+  -f null -
+```
+
+Check all changed outputs, not just this example: H.264/AAC stereo, 30 fps,
+fast-start, intended dimensions, complete decoding, bounded file size below
+25 MiB, exact catalog duration, synchronized captions, suitable posters and the
+unchanged final logo hold. Inspect desktop and mobile framing, active-language
+media, keyboard controls, sound and reduced-motion behavior.
+
+Listen to every changed language continuously. Automated ASR, peak measurements
+or successful decoding do not prove a natural accent, complete words or human
+approval. Only the French role film carries the recorded user-listening approval;
+other libraries retain pending critical-listening evidence. A phone viewport is
+not a physical-device test.
+
+Local rendering does not publish files. Follow [changes and releases](/engineering/releases/)
+for the exact merged commit, CI, clean main checkout and authorized deployment.
+Then verify the actual public assets, hashes, byte-range behavior, captions and
+player on the served release. No film build sends a fax, email or postal letter.
+
+## Keep the Gutenberg production separate
+
+The cinematic Gutenberg archive preserves the approved proposal-2 character,
+François-Louis narration and Manon signature. Do not replace its voice with the
+public-film default or claim that its revised seven environments have already
+been rendered. Approved voice files need no resynthesis or speed correction.
+Its current handoff distinguishes existing short previews from unfinished full
+exports.
+
+The archive can be recovered and checked locally without a provider account:
+
+```sh
+python3 videos/guteneo-gutenberg/tools/restore_large_media.py
+python3 videos/guteneo-gutenberg/tools/verify_archive.py
+```
+
+Restoration reconstructs exact bytes from tracked chunks without transcoding.
+Historical localized prompts and voices stay immutable. Read its
+`TECHNICAL_HANDOFF.md`, `STORYBOARD_AND_PROMPTS.md` and `DECISIONS_AND_STATUS.md`
+before resuming work; source availability, approved speech, animation quality,
+finished export and publication remain separate evidence.

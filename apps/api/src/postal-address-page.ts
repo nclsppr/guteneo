@@ -31,6 +31,10 @@ import {
 } from "./postal-address-page-binding";
 import type { PostalAuthority } from "./postal-authority";
 import type { Env } from "./env";
+import {
+  assertLegacySourceAllowed,
+  legacySourceFence,
+} from "./sensitive-source";
 
 const messages: Record<string, string> = {
   POSTAL_ADDRESS_PAGE_PROCESSING:
@@ -95,6 +99,11 @@ export class PostalAddressPageService {
     row: AddressPageRow,
   ): Promise<PostalAddressPageResult> {
     await authority.assertCurrent();
+    await assertLegacySourceAllowed(
+      this.env.DB,
+      row.organization_id,
+      row.source_document_id,
+    );
     const provenance = addressPageProvenance(row);
     const document = await new DocumentService(this.env, this.domain).get(
       authority.context,
@@ -108,6 +117,11 @@ export class PostalAddressPageService {
     )
       fail("POSTAL_ADDRESS_PAGE_PROOF_INVALID");
     await authority.assertCurrent();
+    await assertLegacySourceAllowed(
+      this.env.DB,
+      row.organization_id,
+      row.source_document_id,
+    );
     return {
       document: {
         id: document.id,
@@ -147,6 +161,7 @@ export class PostalAddressPageService {
       );
     const org = authority.context.organizationId,
       inputHash = await sha256(canonicalJson(input));
+    await assertLegacySourceAllowed(this.env.DB, org, input.documentId);
     let row = await this.row(org, idempotencyKey);
     if (row && row.input_hash !== inputHash)
       throw new ContentError(
@@ -285,6 +300,11 @@ export class PostalAddressPageService {
       context: authority.context,
       assertCurrent: async () => {
         await authority.assertCurrent();
+        await assertLegacySourceAllowed(
+          this.env.DB,
+          org,
+          activeRow.source_document_id,
+        );
         if (
           !(await this.env.DB.prepare(
             "SELECT 1 FROM postal_address_pages p JOIN documents d ON d.organization_id=p.organization_id AND d.id=p.source_document_id WHERE p.organization_id=? AND p.id=? AND p.lease_token=? AND p.lease_until>? AND p.generated_document_id IS NULL AND d.status='ready' AND d.sha256=p.source_sha256",
@@ -296,9 +316,16 @@ export class PostalAddressPageService {
       },
       sql: () => {
         const current = authority.sql();
+        const source = legacySourceFence(org, activeRow.source_document_id);
         return {
-          condition: `(${current.condition}) AND EXISTS(SELECT 1 FROM postal_address_pages p WHERE p.organization_id=? AND p.id=? AND p.lease_token=? AND p.lease_until>strftime('%Y-%m-%dT%H:%M:%fZ','now') AND p.generated_document_id IS NULL AND EXISTS(SELECT 1 FROM documents d WHERE d.organization_id=p.organization_id AND d.id=p.source_document_id AND d.status='ready' AND d.sha256=p.source_sha256))`,
-          values: [...current.values, org, activeRow.id, leaseToken],
+          condition: `(${current.condition}) AND (${source.condition}) AND EXISTS(SELECT 1 FROM postal_address_pages p WHERE p.organization_id=? AND p.id=? AND p.lease_token=? AND p.lease_until>strftime('%Y-%m-%dT%H:%M:%fZ','now') AND p.generated_document_id IS NULL AND EXISTS(SELECT 1 FROM documents d WHERE d.organization_id=p.organization_id AND d.id=p.source_document_id AND d.status='ready' AND d.sha256=p.source_sha256))`,
+          values: [
+            ...current.values,
+            ...source.values,
+            org,
+            activeRow.id,
+            leaseToken,
+          ],
         };
       },
     };

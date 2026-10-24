@@ -3,6 +3,7 @@ import {
   type DiagramId,
 } from "./src/components/diagrams/model";
 import { dataModelMarkdown } from "./src/components/diagrams/data-model";
+import { serviceReleaseMarkdown } from "./src/components/diagrams/service-release";
 import { defineConfig } from "astro/config";
 import tailwindcss from "@tailwindcss/vite";
 import nimbus, {
@@ -60,6 +61,10 @@ export default defineConfig({
       },
       markdown: {
         componentMap: {
+          ServiceRelease: {
+            revision: "guteneo-service-release-diagram-v1",
+            render: () => serviceReleaseMarkdown(),
+          },
           DataModelDiagram: {
             revision: "guteneo-data-model-diagram-v1",
             render: () => dataModelMarkdown(),

@@ -14,6 +14,7 @@ import studioDatasets from "./locales/messages-studio-datasets.json";
 import studioExtra from "./locales/messages-studio-extra.json";
 import studioDistribution from "./locales/messages-studio-distribution-settings.json";
 import roles from "./locales/messages-roles.json";
+import secureDocuments from "./locales/messages-secure-documents.json";
 import identity from "./locales/messages-identity.json";
 import horizon from "./locales/messages-horizon.json";
 import dashboardV2 from "./locales/messages-dashboard-v2.json";
@@ -46,6 +47,7 @@ export const messages: Record<string, readonly string[]> = {
   ...shell,
   ...pricing,
   ...roles,
+  ...secureDocuments,
   ...identity,
   ...horizon,
   ...dashboardV2,

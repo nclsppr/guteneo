@@ -422,4 +422,91 @@ window.STATUS_FRENCH_MESSAGES = {
     "{0} mesure{1} réussie{1} sur {2} reçue{3}.",
   "{0} expected measurement{1} not received.":
     "{0} mesure{1} attendue{1} non reçue{1}.",
+  "Homepage in French": "Accueil en français",
+  "Homepage in English": "Accueil en anglais",
+  "Homepage in German": "Accueil en allemand",
+  "Homepage in Luxembourgish": "Accueil en luxembourgeois",
+  "Role guide": "Guide des rôles",
+  "Developer guide": "Guide développeur",
+  "ChatGPT guide": "Guide ChatGPT",
+  "Public release": "Version publique",
+  "State reported by the API": "État annoncé par l’API",
+  "Reported configuration": "Configuration annoncée",
+  "Document access rejected without sign-in":
+    "Documents refusés sans connexion",
+  "Dispatch access rejected without sign-in": "Envois refusés sans connexion",
+  "Overview access rejected without sign-in": "Synthèse refusée sans connexion",
+  "Assistant access rejected without authentication":
+    "Assistant refusé sans authentification",
+  Incomplete: "Incomplet",
+  "No report": "Aucun rapport",
+  "No browser report received": "Aucun rapport de navigateur reçu",
+  "The public checks above remain the source of the availability summary.":
+    "Les contrôles publics ci-dessus restent la source du bilan de disponibilité.",
+  "Read unavailable": "Lecture indisponible",
+  "Browser report unavailable": "Rapport de navigateur indisponible",
+  "The latest result remains available with its date; its freshness cannot be confirmed.":
+    "Le dernier résultat reste consultable avec sa date ; son actualité ne peut pas être confirmée.",
+  "No conclusion is drawn about browser journeys. The availability summary remains independent.":
+    "Aucune conclusion n’est tirée sur les parcours du navigateur. Le bilan de disponibilité reste indépendant.",
+  "Old report": "Rapport ancien",
+  "Old report — current state unknown":
+    "Rapport ancien — situation actuelle inconnue",
+  "The displayed run describes a past observation. A new run is required to reach a conclusion.":
+    "L’exécution affichée décrit une observation passée. Une nouvelle exécution est nécessaire pour conclure.",
+  "Different release": "Autre version",
+  "A new release has been published since this report":
+    "Une nouvelle version a été publiée depuis ce rapport",
+  "The report remains evidence of the tested release. It does not qualify the current public release.":
+    "Le rapport reste une preuve de la version testée. Il ne qualifie pas la version publique actuelle.",
+  "Release comparison required": "Version à rapprocher",
+  "The report release still needs to be compared":
+    "La version du rapport reste à rapprocher",
+  "The current public release or tested release is not established. No current success is inferred from the report.":
+    "La version publique actuelle ou celle testée n’est pas établie. Aucun succès actuel n’est déduit du rapport.",
+  "Public journeys verified in the browser":
+    "Parcours publics vérifiés dans le navigateur",
+  "Public journeys need review": "Des parcours publics sont à examiner",
+  "The public journey run is incomplete":
+    "L’exécution des parcours publics est incomplète",
+  "This recent run matches the observed public release. It covers the public pages and contracts listed below.":
+    "Cette exécution récente correspond à la version publique observée. Elle couvre les pages et contrats publics indiqués ci-dessous.",
+  "A discrepancy was observed in this run. The detailed report preserves the exact result and its release.":
+    "Un écart a été observé dans cette exécution. Le rapport détaillé conserve le résultat exact et sa version.",
+  "Some checks could not run. No overall journey success is claimed.":
+    "Certains contrôles n’ont pas pu être exécutés. Aucun succès global des parcours n’est annoncé.",
+  "No report received": "Aucun rapport reçu",
+  recent: "récent",
+  old: "ancien",
+  "Desktop browser": "Navigateur ordinateur",
+  "Mobile view": "Vue mobile",
+  "No run received": "Aucune exécution reçue",
+  "Not established": "Non établie",
+  "not established": "non établie",
+  "Not run": "Non exécuté",
+  "No browser result received.": "Aucun résultat de navigateur reçu.",
+  "Public browser journeys": "Parcours publics dans le navigateur",
+  "Published pages, public interactions and access protection on desktop and in a mobile viewport. These GitHub runs are separate from the availability measurements above.":
+    "Pages publiées, interactions publiques et protection des accès, sur ordinateur et dans une vue mobile. Ces exécutions GitHub sont distinctes des mesures de disponibilité ci-dessus.",
+  "Reading the latest report…": "Lecture du dernier rapport…",
+  "Reading browser results.": "Lecture des résultats du navigateur.",
+  "Latest run": "Dernière exécution",
+  "Tested release": "Version testée",
+  "Unknown release": "Inconnue",
+  "Observed public release": "Version publique observée",
+  "Report freshness": "Actualité du rapport",
+  "No result received.": "Aucun résultat reçu.",
+  "Open the GitHub report": "Ouvrir le rapport GitHub",
+  "View report checks": "Voir les contrôles du rapport",
+  "Authenticated distribution and receipt":
+    "Distribution et réception authentifiées",
+  "Qualification pending": "À qualifier",
+  "The business lifecycle requires dedicated test accounts and qualified strong authentication. This pending coverage is not a service outage.":
+    "Le cycle métier attend des comptes de test dédiés et une authentification forte qualifiée. Cette couverture en attente ne constitue pas une panne du service.",
+  "Previous runs": "Exécutions précédentes",
+  "Search checks…": "Rechercher un contrôle…",
+  "Public contract · {0}": "Contrat public · {0}",
+  "{0} checks passed · {1} failed · {2} not run. Simulated mobile viewport; no physical device or business dispatch is tested.":
+    "{0} contrôles réussis · {1} en écart · {2} non exécutés. Vue mobile simulée ; aucun appareil physique ni envoi métier n’est testé.",
+  "Tested release: {0}": "Version testée : {0}",
 };

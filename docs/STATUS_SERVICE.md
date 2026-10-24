@@ -23,6 +23,54 @@ same English routes as the main website.
 
 See [offline tests](TESTING_OFFLINE.md) and [nonconsuming dispatch validation](PRODUCTION_DRY_RUN.md).
 
+## Production browser reports — 24 October candidate
+
+The candidate adds evidence separate from the fourteen Cron reads: a GitHub
+workflow on `main`, every six hours or manually (`production-e2e.yml`), observing
+only fixed canonical public URLs. Its 28 checks combine fourteen Chromium journeys
+(seven pages in desktop and simulated mobile views) and fourteen public HTTP
+contracts. Pages cover the four home languages and Roles, Developer and ChatGPT
+guides. This does not qualify a physical device.
+
+**Public browser journeys** shows the latest execution, tested product commit,
+currently observed commit, freshness, checks and GitHub execution link. Runner
+commit remains distinct from deployed product commit. After eight hours, a
+version change or absent/invalid evidence, presentation is neutral: an old pass
+cannot qualify the current version. A recent actual discrepancy stays visible.
+This report neither replaces nor changes the fourteen availability checks.
+
+**Authenticated distribution and receipt** remains **To qualify** until dedicated
+test accounts and the real journey under the selected document authentication
+policy are qualified. Strong mode additionally requires qualified strong
+authentication; the explicitly selected `verified_account` mode does not claim
+MFA. Neither mode gets a synthetic success or incident badge. Local TesterArmy
+success is not authenticated production execution. The public workflow creates
+no account, document, quote, purchase, message, provider access or business order.
+
+Report writes use verified GitHub OIDC bound to the body fingerprint, repository
+and allowed workflow. The runner gets no Cloudflare write secret or business
+credentials. `GET /api/e2e-status` is public read-only; opening status launches no
+test. Received reports are bounded and sanitized: only fixed check identifiers,
+allowed codes, durations, states, commits and public GitHub references appear.
+They contain no customer content, account name, screenshot, raw log, recipient,
+token or private URL. External links are rebuilt against the expected repository.
+
+The UI reads on opening, explicit refresh, then every fifteen minutes while
+visible; returning from a hidden tab refreshes only after that interval. Reads
+consume shared account quotas. GitHub runner minutes and report storage remain
+subject to repository terms; cadence promises neither free use nor a bill cap.
+Only sanitized JSON is retained as a workflow artifact for fourteen days.
+
+Candidate sources: `apps/status/production-e2e.ts`,
+`apps/status/public/production-e2e.js`, `scripts/production-e2e.ts`,
+`tests/production-e2e/`, `.github/workflows/production-e2e.yml` and status migration
+`0002_production_e2e.sql`. Local presentation qualification on 24 October:
+**37 passing status UI tests**, including ten new desktop/390/320 px scenarios
+(current, absent, stale, changed version, actual discrepancy, blocked check,
+inconsistent contract and unauthorized link). These are synthetic UI responses.
+Executed hosted workflow, OIDC ingestion, status publication and the first real
+report read remain separate, unestablished evidence.
+
 ## History and interpretation
 
 Service view shows public monitoring, freshness, three check groups and history.

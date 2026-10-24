@@ -1,5 +1,80 @@
 # Signed-in account and workspace contacts
 
+## Unified account and received documents — 24 October 2026 candidate
+
+A Guteneo account is personal and independent of workspaces. The same identity
+receives documents, keeps permitted copies, explores services and works in its
+workspaces. Receiving a document adds no membership in the sender's workspace.
+There is no separate “recipient account” to merge later and no artificial
+workspace holding personal documents.
+
+Ordinary registration creates an identity without a workspace. Existing identities
+and memberships are retained. **My documents** contains **Shared with me** and
+**Saved copies**; **Use Guteneo** opens services with the same account. Choosing or
+creating a workspace occurs during explicit service use. Initial creation is
+idempotent for the person; entry rechecks membership and rotates the session.
+Creating a workspace activates no live channel.
+
+`GET /api/personal/session` exposes the personal principal, preferences and
+accessible workspaces. It does not replace `GET /api/session`, whose workspace
+requirement remains. Personal routes have their own guard, browser cookie and
+session-bound CSRF; a workspace Bearer token grants no personal-vault access.
+`POST /api/personal/workspace` creates the requested workspace;
+`/api/personal/workspace/select` enters a current membership. The server derives
+rights and accepts no browser-asserted tenant.
+
+Identity remains bound to the signed issuer/subject pair. Equal email addresses
+never merge accounts or transfer old documents to a recycled address. Profile
+language and name are shared across contexts. `PATCH /api/personal/account`
+updates the personal profile; the address remains read-only. Personal sessions
+can be inspected and revoked without a workspace. Personal logout also revokes
+the linked workspace session.
+
+Sensitive content requires recent server-attested authentication under the active
+document policy: `strong` by default or explicitly selected `verified_account`.
+The latter requires a verified account/email, an identity-linked Auth0 session
+and signed recent `auth_time`; it does not claim MFA. In `strong` mode the signed
+`https://guteneo.com/document_authentication` evidence must additionally contain
+policy `guteneo-sensitive-v1`, a qualified method and the matching `auth_time`.
+An `mfa` value, a registered factor or mailbox control alone is not strong proof.
+Reading, association and approval have a fifteen-minute freshness window; original
+export, personal deposit and deletion require five minutes. Qualified Auth0
+Actions, user-verified passkeys, federation and recovery remain activation gates
+for strong mode; the passkey choice is deferred. Local strong fixtures are
+explicitly synthetic. See the current policy and rollback contract in
+[implementation](SECURE_DISTRIBUTION_IMPLEMENTATION.md).
+
+Document invitations return to the intended journey after Auth0. The token is
+removed from the fragment before login navigation and never enters an HTTP
+`returnTo`. A ten-minute handoff in the same tab's `sessionStorage` resumes after
+callback and is cleared after association, abandonment or logout. If storage is
+unavailable, the UI explains signing in and reopening the invitation; the token
+can remain in memory only while that tab is retained.
+
+An invitation delivers no content. The verified address must match, then the
+workspace independently confirms association with the account through a known
+relationship or separate evidence. Waiting exposes neither sensitive title nor
+pages. The token is exchanged only in the association request body and never
+appears in a workspace journal, MCP response or public evidence.
+
+A document-service 401 closes that access and offers explicit recovery; it does
+not restart session bootstrap automatically. Other personal navigation remains
+available. Returning to a tab rechecks the session; a changed principal remounts
+pages without the previous principal's state. Auth0 errors offer explicit
+recovery without a loop.
+
+Service discovery is voluntary. It adds no purchase requirement, automatic
+workspace, commercial content analysis or marketing registration. Reads of an
+acquired personal copy are no longer reported to its original workspace. See
+[distribution and recipient journeys](SECURE_DISTRIBUTION_JOURNEYS.md) for the
+surface matrix and detailed terms.
+
+The initial candidate required migrations 0055–0058; the subsequent policy
+contract also requires 0059 and aligned private configuration. These requirements
+establish no Auth0 activation, remote migration, publication or human production
+browser qualification. Dated records below describe earlier journeys and no
+longer imply that every account must have a workspace.
+
 Candidate 1.0.0 ignores responses from cancelled web reads, including a 401
 received during account/workspace changes. They must neither replace current
 content nor expire the new session. The shared hook immediately hides data

@@ -37,7 +37,9 @@ const immutableMedia = (file) =>
   /\/archive\//.test(file) ||
   /\/(?:media-parts|node_modules|dist)\//.test(file);
 export function sourceFindings(file, source) {
-  if (immutableMedia(file) || localizedSource(file)) return [];
+  if (immutableMedia(file)) return [];
+  const localized = localizedSource(file);
+  if (localized && !/\.(?:ts|tsx|mjs|js)$/.test(file)) return [];
   const findings = [];
   const add = (position, text, kind) => {
     if (nonEnglishProse(text))
@@ -57,6 +59,7 @@ export function sourceFindings(file, source) {
     );
     function visit(node) {
       if (
+        !localized &&
         !file.startsWith("videos/") &&
         (ts.isStringLiteral(node) ||
           ts.isNoSubstitutionTemplateLiteral(node) ||
@@ -165,12 +168,12 @@ export function interfaceSourceFindings(
     ) {
       const contextual = node.expression.text.endsWith("In");
       const value = node.arguments[contextual ? 1 : 0];
-      if (value && ts.isStringLiteral(value)) {
+      if (value && ts.isStringLiteralLike(value)) {
         const key = value.text.trim();
         const context =
           contextual &&
           node.arguments[0] &&
-          ts.isStringLiteral(node.arguments[0])
+          ts.isStringLiteralLike(node.arguments[0])
             ? node.arguments[0].text
             : undefined;
         if (
@@ -190,20 +193,22 @@ export function interfaceSourceFindings(
   visit(tree);
   return findings;
 }
-export function documentationDrift(files) {
+export function documentationDrift(files, presentFiles = files) {
+  const present = new Set(presentFiles);
+  const updated = files.filter((file) => present.has(file));
   const featureChange = files.some((f) =>
     /^(apps\/(?:api|web|documents|status|engineering)\/|packages\/|ios\/Guteneo\/)/.test(
       f,
     ),
   );
-  if (!featureChange) return [];
   const missing = [];
-  if (!files.includes("docs/feature-map.json"))
+  if (featureChange && !updated.includes("docs/feature-map.json"))
     missing.push(
       "Update docs/feature-map.json for changed feature behavior/surfaces.",
     );
   if (
-    !files.some(
+    featureChange &&
+    !updated.some(
       (f) =>
         /^docs\/.+\.md$/.test(f) &&
         !/[\/]FEATURE_MAP\.md$/.test(f) &&
@@ -211,6 +216,37 @@ export function documentationDrift(files) {
     )
   )
     missing.push("Update the affected developer/technical contract in docs/.");
+  const engineeringSources = [
+    /^\.github\/(?:workflows|actions)\//,
+    /^scripts\/ci\//,
+    /^scripts\/repository-standards\.mjs$/,
+    /^migrations\/.+\.sql$/,
+    /(?:^|\/)wrangler[^/]*\.(?:jsonc?|json\.example)$/,
+    /^apps\/(?:scanner|pdf-validator|documents)\/(?:Dockerfile|src\/)/,
+    /^packages\/providers\//,
+    /^packages\/contracts\/src\/secure-distribution\.ts$/,
+    /^apps\/api\/src\/(?:index|maintenance|webhooks)\.ts$/,
+    /^packages\/(?:contracts|domain)\/.*(?:pricing|price|tariff|live-delivery-quotes)/,
+    /^apps\/api\/src\/(?:auth|auth0[^/]*|.*(?:provider|telnyx|pingen|resend|tariff|pricing|capabilit)[^/]*)\.[cm]?ts$/,
+    /^scripts\/(?:deploy|provision|secure-setup|setup-|auth0-|production-|qualify-|provider-|verify-release|build-live|build-status|build-engineering|engineering-release|release-source|costs|sync-.*(?:tariff|price)|refresh-.*(?:tariff|price))[^/]*\.(?:mjs|ts)$/,
+    /^AGENTS\.md$/,
+    /^docs\/(?:BRAND_IDENTITY|REPOSITORY_STANDARDS|MULTILINGUAL|ACCESSIBILITY|HOMEPAGE_FILM|ROLES_FILM|VIDEO[^/]*)\.md$/,
+    /^videos\/[^/]+\/(?:src\/|scripts\/|narration\/|public\/audio\/|package\.json$)/,
+  ];
+  const engineeringContractChange = files.some((file) =>
+    engineeringSources.some((pattern) => pattern.test(file)),
+  );
+  if (
+    engineeringContractChange &&
+    !updated.some((file) =>
+      /^apps\/engineering\/src\/content\/docs\/(?:engineering|architecture|workflows)\/.+\.mdx?$/.test(
+        file,
+      ),
+    )
+  )
+    missing.push(
+      "Update the affected authored engineering guide for CI/CD, Cloudflare, providers or contribution rules; generated feature pages are insufficient.",
+    );
   return missing;
 }
 async function main() {
@@ -286,7 +322,7 @@ async function main() {
     })
       .trim()
       .split("\n");
-    for (const message of documentationDrift(changed))
+    for (const message of documentationDrift(changed, files))
       findings.push({ file: "documentation", line: 1, kind: message });
   }
   if (findings.length) {

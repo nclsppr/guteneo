@@ -78,6 +78,12 @@ import {
   type McpIdentity,
 } from "./auth";
 import { postalMcpAuthority } from "./postal-authority";
+import {
+  secureDistributionInputSchema,
+  securePolicySchema,
+  type SecureDistributionInput,
+  type SecureDistributionView,
+} from "../../../packages/contracts/src/secure-distribution";
 
 export interface McpDocuments {
   get?: DocumentService["get"];
@@ -118,6 +124,24 @@ export interface McpServices {
     ): Promise<{ items: PdfValidationReport[] }>;
   };
   afterConfirmation?: () => Promise<void>;
+  secureDistribution?: {
+    prepare(
+      identity: McpIdentity,
+      input: SecureDistributionInput,
+      key: string,
+    ): Promise<SecureDistributionView>;
+    list(
+      identity: McpIdentity,
+      query: { cursor?: string; limit: number },
+    ): Promise<{ items: SecureDistributionView[]; nextCursor: string | null }>;
+    get(identity: McpIdentity, id: string): Promise<SecureDistributionView>;
+    confirm(
+      identity: McpIdentity,
+      id: string,
+      key: string,
+    ): Promise<SecureDistributionView>;
+    revoke(identity: McpIdentity, id: string): Promise<SecureDistributionView>;
+  };
   onToolFailure?: (
     code: "AUTH_REJECTED" | "DOMAIN_REJECTED" | "INTERNAL_ERROR",
     importFailure?: ImportFailureObservation,
@@ -349,6 +373,141 @@ function output<T extends z.ZodType>(data: T) {
 }
 const id = z.string().min(1).max(200);
 const key = z.string().min(1).max(200);
+export const secureDistributionSchema = z
+  .object({
+    id,
+    dispatchId: id.nullable(),
+    status: z.enum([
+      "preparing",
+      "prepared",
+      "active",
+      "revoked",
+      "expired",
+      "failed",
+    ]),
+    title: z.string(),
+    source: z
+      .object({
+        id,
+        name: z.string(),
+        pages: z.number().int().nonnegative(),
+        sha256: z.string(),
+      })
+      .strict(),
+    recipient: z
+      .object({ address: z.string(), name: z.string().optional() })
+      .strict(),
+    invitation: z.object({ subject: z.string(), message: z.string() }).strict(),
+    policy: securePolicySchema,
+    quote: z
+      .object({
+        sharedMinor: z.number().int().nonnegative(),
+        personalMinor: z.number().int().nonnegative(),
+        transportMinor: z.number().int().nonnegative(),
+        totalMinor: z.number().int().nonnegative(),
+        currency: z.literal("EUR"),
+        priceVersion: z.string(),
+        nonRefundable: z.literal(true),
+        taxBasis: z.literal("excluding_tax"),
+      })
+      .strict(),
+    expiresAt: z.string().nullable(),
+    approvalUrl: z.string().nullable(),
+    approved: z.boolean(),
+    approval: z
+      .object({ fingerprint: z.string(), expiresAt: z.string() })
+      .strict()
+      .nullable(),
+    audit: z.array(
+      z
+        .object({
+          id: z.string(),
+          type: z.string(),
+          createdAt: z.string(),
+          provenance: z.enum(["server", "browser", "provider"]),
+          page: z.number().int().positive().optional(),
+        })
+        .strict(),
+    ),
+    nextActions: z.array(z.string()),
+  })
+  .strict();
+
+/** Workshop metadata only. Recipient claim, binding authority, private account
+ * identity and invitation capabilities never cross the assistant boundary. */
+export function secureDistributionSummary(view: SecureDistributionView) {
+  return {
+    id: view.id,
+    dispatchId: view.dispatchId,
+    status: view.status,
+    title: view.title,
+    source: {
+      id: view.source.id,
+      name: view.source.name,
+      pages: view.source.pages,
+      sha256: view.source.sha256,
+    },
+    recipient: {
+      address: view.recipient.address,
+      ...(view.recipient.name ? { name: view.recipient.name } : {}),
+    },
+    invitation: {
+      subject: view.invitation.subject,
+      message: view.invitation.message,
+    },
+    policy: {
+      retentionDays: view.policy.retentionDays,
+      allowOriginalDownload: view.policy.allowOriginalDownload,
+      allowVaultDeposit: view.policy.allowVaultDeposit,
+      personalRetentionDays: view.policy.personalRetentionDays,
+    },
+    quote: {
+      sharedMinor: view.quote.sharedMinor,
+      personalMinor: view.quote.personalMinor,
+      transportMinor: view.quote.transportMinor,
+      totalMinor: view.quote.totalMinor,
+      currency: view.quote.currency,
+      priceVersion: view.quote.priceVersion,
+      nonRefundable: view.quote.nonRefundable,
+      taxBasis: view.quote.taxBasis,
+    },
+    expiresAt: view.expiresAt,
+    approvalUrl: view.approvalUrl,
+    approved: view.approved,
+    approval: view.approval
+      ? {
+          fingerprint: view.approval.fingerprint,
+          expiresAt: view.approval.expiresAt,
+        }
+      : null,
+    audit: view.audit.map((event) => ({
+      id: event.id,
+      type: event.type,
+      createdAt: event.createdAt,
+      provenance: event.provenance,
+      ...(event.page !== undefined ? { page: event.page } : {}),
+    })),
+    nextActions:
+      view.status === "preparing"
+        ? [
+            "Secure rendering is in progress. Query get_secure_distribution with the same identifier; do not recreate the preparation.",
+          ]
+        : view.status === "prepared"
+          ? [
+              "Present the term, the exact cost excluding tax, and its non-refundable nature after activation, including after revocation.",
+              "Have the person open approvalUrl in the browser for review and approval under the active document authentication policy. A yes in chat or an expert mandate cannot replace this approval.",
+              "After browser approval is recorded, call confirm_secure_distribution with a stable key. After an uncertain outcome, query the same identifier without a new command.",
+            ]
+          : view.status === "active"
+            ? [
+                "Inspect share events. Displaying a page does not prove it was read, and starting a download does not prove the file was saved to disk.",
+                "Revocation blocks future access to the share and does not refund the funded term. Personal copies already delivered remain independent.",
+              ]
+            : [
+                "Read the recorded status. No automatic redistribution or new charge.",
+              ],
+  };
+}
 export const MCP_LIMITS = Object.freeze({
   requestBytes: 2 * 1024 * 1024,
   // Preserve 100,000 dataset cells plus their rows and envelope keys.
@@ -807,6 +966,129 @@ export function createGuteneoMcpServer(
       return result;
     }
   };
+  if (services.secureDistribution) {
+    const distribution = services.secureDistribution;
+    registerTool(
+      "prepare_secure_distribution",
+      {
+        title: "Prepare a secure distribution",
+        description:
+          "Prepares delivery of a PDF to a recipient through their Guteneo account and a secure page reader, without DRM. Returns preparing during asynchronous rendering, then a quote per PDF/recipient, term and optionally authorized personal retention. Preparation sends nothing and approves nothing. Retention becomes non-refundable on activation, including if the workspace later revokes access. Notification pricing is calculated separately in the total quote. The original is downloadable only if policy permits it. Delivery of a personal copy requires explicit workspace authorization followed by recipient action. Always have the person open approvalUrl for browser approval under the active document authentication policy; no expert mandate replaces it. Never request a sign-in code, identify a person, confirm their relationship or access their personal area through a tool.",
+        inputSchema: secureDistributionInputSchema.extend({
+          idempotencyKey: key,
+        }),
+        outputSchema: output(secureDistributionSchema),
+        annotations: writeAnnotations,
+        _meta: oauthMetadata("dispatches:prepare"),
+      },
+      ({ idempotencyKey, ...input }) =>
+        run("dispatches:prepare", async () =>
+          secureDistributionSummary(
+            await distribution.prepare(identity, input, idempotencyKey),
+          ),
+        ),
+    );
+    registerTool(
+      "list_secure_distributions",
+      {
+        title: "Find secure distributions",
+        description:
+          "Lists distributions for the currently authorized workspace with bounded pagination, costs, policies and known states. This list grants no access to recipients’ personal vaults and confirms no identity. Current server activation and access controls remain mandatory.",
+        inputSchema: z
+          .object({
+            cursor: z.string().max(2048).optional(),
+            limit: z.number().int().min(1).max(50).default(20),
+          })
+          .strict(),
+        outputSchema: output(
+          z
+            .object({
+              items: z.array(secureDistributionSchema),
+              nextCursor: z.string().nullable(),
+            })
+            .strict(),
+        ),
+        annotations: observedReadAnnotations,
+        _meta: oauthMetadata("dispatches:read"),
+      },
+      (query) =>
+        run("dispatches:read", async () => {
+          const result = await distribution.list(identity, query);
+          return {
+            items: result.items.map(secureDistributionSummary),
+            nextCursor: result.nextCursor,
+          };
+        }),
+    );
+    registerTool(
+      "get_secure_distribution",
+      {
+        title: "Track a secure distribution",
+        description:
+          "Reads the status, quote, policy and auditable events of a workspace share. Events distinguish server, browser and provider provenance. Display does not prove complete reading; a started download does not prove the file was saved. No screenshot detection or tracking of personal-copy reading is promised. After an uncertain command response, query this identifier before any further action.",
+        inputSchema: z.object({ distributionId: id }).strict(),
+        outputSchema: output(secureDistributionSchema),
+        annotations: observedReadAnnotations,
+        _meta: oauthMetadata("dispatches:read"),
+      },
+      ({ distributionId }) =>
+        run("dispatches:read", async () =>
+          secureDistributionSummary(
+            await distribution.get(identity, distributionId),
+          ),
+        ),
+    );
+    registerTool(
+      "confirm_secure_distribution",
+      {
+        title: "Distribute after browser approval",
+        description:
+          "Accepts the exact distribution after human approval has already been recorded in the Guteneo browser under the active document authentication policy. May trigger a real notification, consume credit and create a non-refundable retention commitment, including after revocation. The model cannot give this approval or replace it with an expert mandate. Respect host confirmations. Keep the same idempotency key; after a lost response or uncertain outcome, query get_secure_distribution without creating a new command.",
+        inputSchema: z
+          .object({ distributionId: id, idempotencyKey: key })
+          .strict(),
+        outputSchema: output(secureDistributionSchema),
+        annotations: {
+          ...writeAnnotations,
+          destructiveHint: true,
+          openWorldHint: true,
+        },
+        _meta: oauthMetadata("dispatches:send"),
+      },
+      ({ distributionId, idempotencyKey }) =>
+        run("dispatches:send", async () => {
+          const result = await distribution.confirm(
+            identity,
+            distributionId,
+            idempotencyKey,
+          );
+          try {
+            await services.afterConfirmation?.();
+          } catch {
+            /* durable outbox owns recovery */
+          }
+          return secureDistributionSummary(result);
+        }),
+    );
+    registerTool(
+      "revoke_secure_distribution",
+      {
+        title: "Revoke shared access",
+        description:
+          "Revokes future access to the share for a current workspace and permission. Does not refund the funded period or erase downloads already received or a personal copy already delivered with authorization. Does not delete the recipient’s personal documents and promises no physical recovery. Respect host confirmations.",
+        inputSchema: z.object({ distributionId: id }).strict(),
+        outputSchema: output(secureDistributionSchema),
+        annotations: { ...writeAnnotations, destructiveHint: true },
+        _meta: oauthMetadata("dispatches:send"),
+      },
+      ({ distributionId }) =>
+        run("dispatches:send", async () =>
+          secureDistributionSummary(
+            await distribution.revoke(identity, distributionId),
+          ),
+        ),
+    );
+  }
   if (services.postal) {
     const postal = services.postal;
     if (postal.getSetup)
@@ -2040,11 +2322,30 @@ export function createGuteneoMcpServer(
     },
     ({ dispatchId, idempotencyKey }) =>
       run("dispatches:send", async () => {
-        const dispatch = await services.domain.confirmDispatch(
-          identity.context,
-          dispatchId,
-          idempotencyKey,
-        );
+        let dispatch: Dispatch;
+        const current = services.secureDistribution
+          ? await services.domain.getDispatch(identity.context, dispatchId)
+          : null;
+        const descriptor = current
+          ? JSON.parse(current.dispatch.options_json).secureDistribution
+          : null;
+        if (descriptor && services.secureDistribution) {
+          // Preserve the credential fence used by the new service even when an
+          // older client still invokes the generic confirmation tool.
+          await services.secureDistribution.confirm(
+            identity,
+            descriptor.distributionId,
+            idempotencyKey,
+          );
+          dispatch = (
+            await services.domain.getDispatch(identity.context, dispatchId)
+          ).dispatch;
+        } else
+          dispatch = await services.domain.confirmDispatch(
+            identity.context,
+            dispatchId,
+            idempotencyKey,
+          );
         // Persisted outbox owns recovery. A publication failure does not make an accepted command disappear.
         try {
           await services.afterConfirmation?.();
@@ -2163,6 +2464,28 @@ export function createGuteneoMcpServer(
         ),
       ),
   );
+  if (services.secureDistribution)
+    server.registerPrompt(
+      "secure_distribution",
+      {
+        title: "Distribute a PDF through a recipient account",
+        description:
+          "Preparation, funded term, browser approval under the active document authentication policy and share tracking. No access to the recipient’s personal documents.",
+      },
+      () => ({
+        description:
+          "Prepare a secure distribution without replacing human review or verification.",
+        messages: [
+          {
+            role: "user",
+            content: {
+              type: "text",
+              text: "Read get_capabilities, then use prepare_secure_distribution for a ready PDF, a named recipient and an explicit term. Tool document exclusions still apply. Collect original-download permission separately from any personal-copy authorization and its term. Read the exact EUR quote excluding tax and explain that activation funds a non-refundable term, including after revocation. If preparing, query get_secure_distribution with the same identifier without recreating the preparation. Have the person open approvalUrl for browser approval under the active document authentication policy: a yes in chat or an expert mandate cannot replace it. After recorded approval and host confirmation, confirm_secure_distribution uses a stable key. After an uncertain outcome, query the same identifier without a new command. list_secure_distributions and get_secure_distribution track the workspace share; revoke_secure_distribution blocks future access without deleting a personal copy already delivered or refunding retention. Do not confirm an identity, associate a recipient account, open a personal vault or request a sign-in secret. Displays and downloads retain their provenance and prove neither complete reading, saving to disk, printing nor screenshot capture.",
+            },
+          },
+        ],
+      }),
+    );
   server.registerPrompt(
     "email",
     {

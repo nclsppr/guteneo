@@ -10,6 +10,20 @@ Permissions determine eligible operations. Approval authorizes one exact
 communication. Provider and financial gates determine whether that authorized
 operation can proceed. None of these layers replaces another.
 
+## Personal identity is separate from workspace membership
+
+One account can have zero workspaces. A document recipient uses an owner-bound
+personal browser principal; receiving an invitation creates no sender membership.
+Personal sessions/CSRF and `/api/personal/*` guards remain separate from the
+workspace contract. A workspace Bearer token, administrator role or expert mandate
+cannot read another person's personal documents. Identity binds issuer/subject,
+never equality of email addresses.
+
+Explicit workspace creation/selection reloads current workspace authority. It
+does not weaken the owner boundary or automatically activate a channel. See
+[secure distribution](/workflows/secure-distribution/) for independent recipient
+association, document authentication policy and acquired-copy ownership.
+
 ## Resolve the tenant on the server
 
 Private lookups, unique keys and relations are workspace-scoped. The authenticated
@@ -68,6 +82,11 @@ Postal draft transfer has its own delegated authority and provider-transfer
 consent. Preparation transfer and final sending are separate side effects.
 Preserve host confirmations, OAuth scopes and provider gates in addition to the
 mandate; do not suppress one layer because another layer passed.
+
+Sensitive distribution is an explicit exception to delegated approval: human
+browser review under the active document policy and independent recipient
+association cannot be supplied by a mandate or assistant. An authorized assistant
+can confirm a preparation only after its matching browser approval exists.
 
 ## Preserve resource privacy through the whole operation
 

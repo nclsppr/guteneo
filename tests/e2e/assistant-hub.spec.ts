@@ -388,6 +388,7 @@ test("Assistants is the second workspace destination and every private guide sur
     text.trim(),
   );
   expect(labels.slice(0, 2)).toEqual(["Vue d’ensemble", "Assistants"]);
+  expect(labels.slice(2, 4)).toEqual(["Documents", "Distribution sécurisée"]);
   await nav.getByRole("link", { name: "Assistants", exact: true }).focus();
   await page.keyboard.press("Enter");
   await expect(page).toHaveURL(/#\/app\/connection$/);
@@ -449,7 +450,12 @@ test("direct authentication and recovery preserve the requested guide or sending
     if (url.origin !== testOrigin || request.method() !== "GET") {
       unexpected.push(`${request.method()} ${url.origin}${url.pathname}`);
       await route.fulfill({ status: 403, body: "Blocked by the UI fixture." });
-    } else if (url.pathname === "/api/session") {
+    } else if (
+      url.pathname === "/api/session" ||
+      url.pathname === "/api/personal/session"
+    ) {
+      // The unified bootstrap checks personal authority after an unauthenticated
+      // workshop response. Neither account context exists in this hosted fixture.
       await route.fulfill({
         status: 401,
         json: {

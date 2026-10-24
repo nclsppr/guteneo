@@ -27,6 +27,11 @@ The [contribution guide](/engineering/contributing/) owns the source/documentati
 maintenance workflow. The [testing guide](/engineering/testing/) explains which
 suites exercise each boundary; this page follows their results into release.
 
+The [GitHub pipeline guide](/engineering/ci-and-release/) maps each actual job,
+fresh dependency installation and same-revision artifacts. Use
+[provider maintenance](/engineering/provider-maintenance/) when a release changes
+Cloudflare configuration, identity, tariffs, transport or callbacks.
+
 ## Prepare the persistence change with the code
 
 Migrations participate in business behavior. Tenant relations, immutable approval,
@@ -91,10 +96,15 @@ artifact guard does not itself query GitHub job results. Direct platform access
 can also bypass project scripts, so their existence is not a replacement for
 operator authorization or access policy.
 
-Engineering publication has its own dedicated guard for an explicitly reviewed
-clean commit and static-only configuration. A documentation release never implies
-application publication, a production migration, provider activation or permission
-to send a communication.
+Engineering publication uses the same fresh, clean-main guard and requires the
+explicitly reviewed full commit. Its static-only configuration rejects business
+bindings. The build records an explicit source snapshot plus every output path,
+byte length and hash. After browser checks, the publisher rechecks fresh main,
+the reviewed commit, `dirty:false`, source scope/digest and all asset bytes/list
+hashes against the original build manifest. Replacing ignored `dist` files or
+even a self-consistent replacement manifest blocks publication before Wrangler.
+A documentation release never implies application publication, a production
+migration, provider activation or permission to send a communication.
 
 ## Verify what the public origin actually serves
 

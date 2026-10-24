@@ -2,7 +2,7 @@
 title: "Credits and billing"
 description: "6 capabilities in the operate branch of Guteneo."
 sidebar:
-  order: 12
+  order: 13
 ---
 
 <!-- Generated from docs/feature-map.json. Run npm run docs:build; do not edit this view. -->

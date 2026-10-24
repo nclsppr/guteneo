@@ -1,6 +1,6 @@
-# Guteneo for Claude Code — 1.0.0 candidate
+# Guteneo for Claude Code — 1.1.0 candidate
 
-Six skills guide PDF diagnostics, document creation, email, fax and postal
+Seven skills guide PDF diagnostics, document creation, secure distribution, email, fax and postal
 preparation through the existing Guteneo service. The package connects to
 `https://guteneo.com/mcp` over HTTP and carries no credentials, local executable,
 permission grants or automatic actions. Each workflow checks the connected
@@ -61,6 +61,7 @@ separate static configuration template; that template is not a ready credential.
 - `/guteneo:email` — prepare the requested email and its chosen document mode.
 - `/guteneo:document-studio` — create templates and private PDFs when entitled.
 - `/guteneo:pdf-accessibility` — explain an automated PDF diagnostic and its limits.
+- `/guteneo:secure-distribution` — prepare account-protected PDF access with a quoted retention term, optional download and authorized personal copy.
 
 Use synthetic data for qualification. The remote package cannot read local PDF
 paths or extract a Claude attachment. Where file transfer is unavailable, the
@@ -71,6 +72,18 @@ workflow. Standard sending requires authenticated browser approval; expert
 authority must already exist, and a preparation-only account cannot send.
 
 ## Qualification boundary
+
+Secure distribution uses the same centralized MCP service as the other packages.
+Its five tools prepare, list, inspect, confirm and revoke workshop distributions.
+Activation always requires recorded browser approval under the active document
+authentication policy, even for expert connections. The funded retention term is not refunded on revocation. The
+assistant cannot bind recipient identity or inspect personal documents. Original
+download and personal-copy rights are explicit and distinct. Display telemetry
+does not certify reading, saving to disk, printing or screenshots.
+
+These additions are source and package candidates. The historical validator
+result below does not qualify this changed archive, its OAuth connection, the
+server activation or execution of the new tools in Claude.
 
 Packaging tests check the declared files, matching versions, endpoint/scopes,
 relative paths and absence of credential or permission overrides. The official

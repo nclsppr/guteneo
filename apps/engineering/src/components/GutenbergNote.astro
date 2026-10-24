@@ -6,7 +6,7 @@ interface Props {
 const { pose = "welcome", title = "A note from Gutenberg" } = Astro.props;
 ---
 
-<aside class:list={["gutenberg-note", { "gutenberg-welcome": pose === "welcome" }]} aria-label={title}>
+<aside class:list={["gutenberg-note", { "gutenberg-welcome": pose === "welcome" }]} aria-label={title} data-nb-zoom="off">
   <img src={`/gutenberg/gutenberg-${pose}.webp`} width="512" height="512" alt="" aria-hidden="true" loading="lazy" decoding="async" />
   <div class="gutenberg-copy">
     <p class="gutenberg-title">{title}</p>

@@ -2,7 +2,7 @@
 title: "iPhone and iPad"
 description: "9 capabilities in the interfaces branch of Guteneo."
 sidebar:
-  order: 15
+  order: 16
 ---
 
 <!-- Generated from docs/feature-map.json. Run npm run docs:build; do not edit this view. -->

@@ -108,5 +108,20 @@
     "Annulée",
     "Storniert",
     "Annuléiert"
+  ],
+  "secure-distribution\u0004Active access": [
+    "Accès actif",
+    "Aktiver Zugriff",
+    "Aktiven Zougang"
+  ],
+  "secure-distribution\u0004Preparing…": [
+    "Préparation en cours…",
+    "Wird vorbereitet…",
+    "Gëtt virbereet…"
+  ],
+  "secure-distribution\u0004Expiry": [
+    "Échéance",
+    "Ablauf",
+    "Oflaf"
   ]
 }

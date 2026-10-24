@@ -2,7 +2,7 @@
 title: "Public pages and languages"
 description: "14 capabilities in the interfaces branch of Guteneo."
 sidebar:
-  order: 16
+  order: 17
 ---
 
 <!-- Generated from docs/feature-map.json. Run npm run docs:build; do not edit this view. -->

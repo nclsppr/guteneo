@@ -270,6 +270,21 @@ export function ErrorNotice({
         {error instanceof ApiError && (
           <small className="mono">{error.code}</small>
         )}
+        {error instanceof ApiError &&
+          [
+            "DOCUMENT_AUTHENTICATION_REQUIRED",
+            "STRONG_AUTHENTICATION_REQUIRED",
+            "STRONG_BROWSER_APPROVAL_REQUIRED",
+            "FRESH_AUTHENTICATION_REQUIRED",
+            "AUTHENTICATION_FRESHNESS_REQUIRED",
+          ].includes(error.code) && (
+            <a
+              className="button primary"
+              href="/auth/login?fresh=1&returnTo=%2F%23%2Fapp%2Fsecure-distributions"
+            >
+              {msg("Verify my access")}
+            </a>
+          )}
         {retry && (
           <button className="text-button" onClick={retry}>
             {t.retry}
@@ -887,6 +902,41 @@ function generalErrorMessage(code: string): string | undefined {
     FORBIDDEN: msg("This action is not permitted for your account."),
     CSRF_REJECTED: msg(
       "Your session has changed. Reload the page before trying again.",
+    ),
+    STRONG_AUTHENTICATION_REQUIRED: msg(
+      "Sign in again using the required security method to access your documents.",
+    ),
+    DOCUMENT_AUTHENTICATION_REQUIRED: msg(
+      "Sign in again to your verified account to access your documents.",
+    ),
+    SECURE_DISTRIBUTION_NOT_CONFIGURED: msg(
+      "Secure distribution is not enabled.",
+    ),
+    SECURE_STORAGE_NOT_CONFIGURED: msg(
+      "The document is temporarily unavailable.",
+    ),
+    SECURE_STORAGE_INTEGRITY: msg("The document is temporarily unavailable."),
+    ORIGINAL_DOWNLOAD_FORBIDDEN: msg(
+      "Downloading the original PDF is not allowed.",
+    ),
+    PERSONAL_COPY_FORBIDDEN: msg(
+      "The workspace has not allowed a personal copy.",
+    ),
+    PERSONAL_COPY_UNAVAILABLE: msg("The copy is no longer available."),
+    SECURE_DISTRIBUTION_LIMIT: msg(
+      "The daily preparation limit was reached or your permissions have changed.",
+    ),
+    SECURE_SOURCE_LEGACY_LINK: msg(
+      "Revoke the existing protected link before preparing a secure distribution of this document.",
+    ),
+    SECURE_SOURCE_LEGACY_DERIVATION: msg(
+      "This document has been used to prepare postal mail. Choose a separate document for secure distribution.",
+    ),
+    SECURE_SOURCE_LEGACY_OUTBOUND: msg(
+      "This document is already used in another sending workflow. Choose a separate document for secure distribution.",
+    ),
+    SENSITIVE_SOURCE_LEGACY_FORBIDDEN: msg(
+      "This sensitive document cannot be used in this workflow.",
     ),
   };
   return labels[code] ? msg(labels[code]) : undefined;

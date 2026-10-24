@@ -12,9 +12,10 @@ durable business state; private R2 objects hold document and source bytes. A
 document hash identifies content, while membership and resource policy determine
 who may use it.
 
-The diagram shows selected core relationships. Studio lineage, provider events
-and billing projections are explained below rather than folded into a full
-database inventory.
+The diagram shows selected core workspace relationships. Personal sessions,
+sensitive sharing/copy records, Studio lineage, provider events and billing
+projections are explained below rather than folded into a complete database
+inventory. A person may have no workspace membership.
 
 <DataModelDiagram />
 
@@ -26,8 +27,9 @@ each workspace. The membership pair is unique. Personal preferences belong to
 the user; workspace role and supervisor options belong to that membership.
 
 Authentication identities map an exact issuer/subject pair to the application
-user. Browser sessions and authorized OAuth connections bind that person to a
-membership. An email address, a client-supplied organization field or knowledge
+user. Workspace browser sessions and authorized OAuth connections bind that person to a
+membership. Personal browser sessions instead bind the owner without a membership
+and cannot be substituted with a workspace Bearer token. An email address, a client-supplied organization field or knowledge
 of an object identifier does not establish workspace authority. Current
 membership and resource checks still apply when a stored session or connection
 is used.
@@ -114,6 +116,35 @@ The [dispatch lifecycle](/architecture/dispatch-lifecycle/) is the maintained
 explanation of state transitions, settlement and uncertainty. A provider
 acceptance, confirmed quota consumption and final customer settlement remain
 separate facts.
+
+## Sensitive sharing and personal ownership are distinct records
+
+The sensitive-distribution records bind a workspace source, immutable rendering,
+one intended recipient, sharing policy, versioned retention price and dedicated
+invitation dispatch. Current creators/approvers may inspect their eligible
+preparations; general workspace reading grants no sensitive-content access.
+Approval evidence records the actual authentication mode as well as the exact
+fingerprint, approver and session. The durable policy singleton and environment
+must agree; an ordinary receipt cannot become strong evidence on policy rollback.
+
+Recipient association links a stable personal account to the intended recipient
+only after an address-verified request and independent browser confirmation by
+the workspace. Possessing an invitation token creates neither membership nor
+content authority. Personal lists project eligible grants for their owner; each
+content response still checks the current share and session.
+
+A deposit operation bridges an authorized share to a separate personal document.
+Encrypted copy objects remain invisible until conditional activation rechecks
+owner, grant, policy, freshness and funding. D1 and R2 are not a distributed
+transaction; that activation is the acquisition point. Revocation before it blocks
+acquisition, while later workspace revocation cannot remove an acquired copy.
+Deleted/expired personal copies cannot be recreated through the same invitation.
+
+This model uses independent shared/personal retention and separate immutable
+approval, association, charge and acquisition evidence. Detailed access activity
+has its own ninety-day purge. The [secure workflow](/workflows/secure-distribution/)
+owns the complete contract; [background jobs](/engineering/background-jobs/)
+explains bounded recovery and cleanup.
 
 ## Retention removes eligible bytes without rewriting history
 

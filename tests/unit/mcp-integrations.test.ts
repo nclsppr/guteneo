@@ -635,6 +635,29 @@ describe("distributable LLM integrations", () => {
       expect(manifest.files).toContain("skills/pdf-accessibility/SKILL.md");
       expect(manifest.files).toContain("skills/fax-pdf/SKILL.md");
       expect(manifest.files).toContain("skills/postal-pdf/SKILL.md");
+      expect(manifest.files).toContain("skills/secure-distribution/SKILL.md");
+      expect(manifest.files).toContain(
+        "skills/secure-distribution/agents/openai.yaml",
+      );
+      const secureSkill = execFileSync(
+        "unzip",
+        [
+          "-p",
+          path.join(first, "guteneo-plugin.zip"),
+          "skills/secure-distribution/SKILL.md",
+        ],
+        { encoding: "utf8" },
+      );
+      for (const tool of [
+        "prepare_secure_distribution",
+        "list_secure_distributions",
+        "get_secure_distribution",
+        "confirm_secure_distribution",
+        "revoke_secure_distribution",
+      ])
+        expect(secureSkill).toContain(tool);
+      expect(secureSkill).toContain("non-refundable");
+      expect(secureSkill).toContain("expert mandate");
       const branding = plugin.extensions["com.openai"].interface;
       expect(branding.supportURL).toBe("https://guteneo.com/support/?lang=en");
       expect(branding.privacyPolicyURL).toBe(

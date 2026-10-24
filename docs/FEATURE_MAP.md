@@ -1,7 +1,7 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
 # Guteneo feature tree and developer atlas
 
-**22 domains · 230 features · 26 journeys · 67 documented REST operations · 67 MCP tools**
+**23 domains · 269 features · 31 journeys · 73 documented REST operations · 72 MCP tools**
 Updated 2026-10-24.
 
 Repository implementation inventory. Availability depends on current capabilities and authority; implementation, activation and deployed proof are distinct.
@@ -14,8 +14,8 @@ Start here to find a feature, its authority and its technical owner. Read [repos
 mindmap
   root((Guteneo))
     Access
-      Access and identity (26)
-      Team and responsibilities (7)
+      Access and identity (31)
+      Team and responsibilities (10)
     Create
       Documents and protection (8)
       Template studio (12)
@@ -25,6 +25,7 @@ mindmap
       Fax (6)
       Postal mail (8)
       Email and protected links (7)
+      Sensitive distribution and personal documents (23)
       Dispatch dry run (7)
     Operate
       Campaigns and tracking (8)
@@ -37,16 +38,16 @@ mindmap
       Public pages and languages (14)
     Operations
       Reviewer OAuth qualification (9)
-      Operations and reliability (16)
+      Operations and reliability (18)
       Belvédère platform oversight (7)
-      Public service status (8)
-      Engineering documentation (8)
+      Public service status (12)
+      Engineering documentation (10)
 ```
 
 ### Access
 
-- [Access and identity](#identity) — 26 features; browser-session.
-- [Team and responsibilities](#team) — 7 features; browser-session.
+- [Access and identity](#identity) — 31 features; browser-session.
+- [Team and responsibilities](#team) — 10 features; browser-session.
 
 ### Create
 
@@ -60,6 +61,7 @@ mindmap
 - [Fax](#fax) — 6 features; capability-gated.
 - [Postal mail](#postal) — 8 features; capability-gated.
 - [Email and protected links](#email) — 7 features; capability-gated.
+- [Sensitive distribution and personal documents](#secure-distribution) — 23 features; capability-gated.
 - [Dispatch dry run](#dry-run) — 7 features; read-only.
 
 ### Operate
@@ -78,10 +80,10 @@ mindmap
 ### Operations
 
 - [Reviewer OAuth qualification](#reviewer-oauth) — 9 features; operator-gated.
-- [Operations and reliability](#operations) — 16 features; operator-gated.
+- [Operations and reliability](#operations) — 18 features; operator-gated.
 - [Belvédère platform oversight](#belvedere) — 7 features; operator-gated.
-- [Public service status](#status) — 8 features; public.
-- [Engineering documentation](#engineering-docs) — 8 features; public.
+- [Public service status](#status) — 12 features; public.
+- [Engineering documentation](#engineering-docs) — 10 features; public.
 
 ## Availability and evidence
 
@@ -91,7 +93,7 @@ An availability label describes the access/gating model, never an assertion of l
 
 ## Roles and permissions
 
-Four human workshop roles are defined by packages/contracts/src/roles.ts. The assistant column describes a connected OAuth actor, never a fifth membership role. Effective membership, independent supervisor permissions, consented scopes and any bounded expert mandate are rechecked by the server. Installing a package or renewing tokens grants no additional authority. Browser-only account/platform controls remain distinct. Assistant content-exclusion instructions are workflow restrictions, not automatic classification or new server guards.
+Four human workshop roles are defined by packages/contracts/src/roles.ts. The assistant column describes a connected OAuth actor, never a fifth membership role. Effective membership, independent supervisor permissions, consented scopes and any bounded expert mandate are rechecked by the server. Installing a package or renewing tokens grants no additional authority. Browser-only account/platform controls remain distinct. Assistant content-exclusion instructions are workflow restrictions, not automatic classification or new server guards. Personal account authority is separate from workspace membership. Sensitive approval and recipient association always require the browser under the active document policy; an expert mandate cannot replace them.
 
 | Capability | Administrator | Supervisor | Operator | Observer | Connected assistant |
 | --- | --- | --- | --- | --- | --- |
@@ -117,6 +119,16 @@ Four human workshop roles are defined by packages/contracts/src/roles.ts. The as
 | Configure Auth0/DNS/reviewer refresh | No authority from workshop role | No authority from workshop role | No authority from workshop role | No authority from workshop role | No business REST/MCP route; distinct authorised platform operator |
 | Open global Belvédère | No authority from workshop role | No authority from workshop role | No authority from workshop role | No authority from workshop role | No; distinct verified browser Watchkeeper |
 | Apply assistant content exclusions | No additional rights | No additional rights | No additional rights | No additional rights | Announce exclusions, stop known excluded content, request person-redacted copy; no automatic classification or web bypass |
+| Use a personal account and received documents without a workspace | Personal principal, no workspace authority gained | Personal principal, no workspace authority gained | Personal principal, no workspace authority gained | Personal principal, no workspace authority gained | No personal access through workspace Bearer |
+| Prepare sensitive distribution | Accessible source + preparation | Accessible source + preparation | Accessible source + preparation | No | Membership + dispatches:prepare + current connection; no invitation secret returned |
+| Read a sensitive share and its audit | Current workspace approver | All with approval permission; otherwise own creations | Own creations | No | Same resource access + dispatches:read; no other recipient documents |
+| Approve sensitive distribution | Browser + recent document session | Approval permission + browser + recent document session | No | No | No; expert mandate is insufficient |
+| Confirm sensitive distribution after human approval | Current browser evidence | Approval permission + current browser evidence | No | No | Approver role + dispatches:send + existing sensitive browser evidence + host confirmation |
+| Associate recipient with a stable account | Browser + document policy + independent verification | Approval permission + browser + document policy + independent verification | No | No | No |
+| Revoke shared access without refund | Current authority | Approval permission | No | No | Approver role + dispatches:send; acquired personal copy retained |
+| Read/export/delete another person’s personal copy | No, including workspace administrator | No | No | No | No |
+| Keep or export one’s own received document | Personal principal + document policy + share permission | Personal principal + document policy + share permission | Personal principal + document policy + share permission | Personal principal + document policy + share permission | No; personal operation outside workspace OAuth |
+| Read public browser reports | Public access without workspace privilege | Public access without workspace privilege | Public access without workspace privilege | Public access without workspace privilege | Public read only; no ingestion or business authority |
 
 Supervisor approval/reporting options are independent and off by default. Resource ownership/context checks still apply. See [workspace roles](WORKSPACE_ROLES.md), [expert approval](EXPERT_APPROVAL.md) and [studio access](TEMPLATES_DATA_DISTRIBUTION.md).
 
@@ -125,13 +137,12 @@ Supervisor approval/reporting options are independent and off by default. Resour
 <a id="identity"></a>
 ### Access and identity
 
-**Availability model:** browser-session. Implemented browser identity; optional Auth0/DNS configuration and hosted qualification remain separately gated.
+**Availability model:** browser-session. Unified personal account and optional workspace implementation; migrations, aligned document policy, Auth0 configuration and connected production qualification require separate evidence.
 
-**Surfaces:** Authenticated browser; MCP resource OAuth discovery; native identity/session contracts. Optional custom domain affects browser sign-in only.
+**Surfaces:** Personal browser API/session without workspace Bearer authority; workspace browser and native sessions; canonical MCP resource OAuth discovery. Optional custom domain affects browser sign-in only.
 
 - Auth0 sign-in, verified accounts and explicit MFA policy
 - Canonical browser sign-in/callback; retired hosts and preview URLs refuse authentication
-- Workshop creation with its initial administrator
 - Personal profile, interface language and saved Classic/V2 appearance
 - Session listing, revocation and explicit logout
 - Successful logout returns to the public home before Login remounts; failures stay visible and never claim a logout
@@ -155,10 +166,16 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Optional auth.guteneo.com browser domain for the existing Auth0 tenant; MCP issuer/discovery/tokens remain canonical
 - Additive migration 0054 binds authorisation issuer and identity namespace to PKCE; legacy NULL flows stay canonical and rollback never silently switches provider
 - Verified dual-token subject binds to the canonical namespace without email linking or duplicate person/workshop/credits/authority; browser evidence and prepare_only restriction remain
+- One Guteneo account without an automatic workspace; idempotent initial administrator/workspace creation only on explicit service use
+- Personal browser principal and session without membership, separate from workspace API authority; shared profile name/language and no email-based identity merging
+- My documents, Use Guteneo and Account and security share one sign-in; voluntary workspace choice/creation reloads the chosen destination and bootstraps that workspace’s current session, rights and CSRF
+- Document policy defaults to strong or explicitly selects verified_account: verified account/address and signed recent auth_time; fifteen minutes for reading/association/approval and five for export/deposit/deletion; documentAccessAllowed/documentAccessMode do not imply MFA or strongAuthentication; D1 defaults strong and environment disagreement fails closed
+- Document invitation handoff lasts at most ten minutes in the same tab, then is deleted; capture before Auth0 with secret-free returnTo and no arbitrary private query
+- Document-service 401 offers explicit recovery without session-bootstrap loops; Auth0 recovery reconciles language and returned identity
 
 **Contract:** [ACCOUNT_IDENTITY.md](ACCOUNT_IDENTITY.md) · **Implementation:** [apps/api/src/auth.ts](../apps/api/src/auth.ts)
 
-**Tests:** [tests/unit/auth.test.ts](../tests/unit/auth.test.ts), [tests/unit/account.test.ts](../tests/unit/account.test.ts), [tests/e2e/account-identity.spec.ts](../tests/e2e/account-identity.spec.ts), [tests/e2e/resource-navigation.spec.ts](../tests/e2e/resource-navigation.spec.ts), [tests/unit/web-api-cancellation.test.ts](../tests/unit/web-api-cancellation.test.ts), [tests/e2e/login-entry.spec.ts](../tests/e2e/login-entry.spec.ts), [tests/security/auth0-branding.test.mjs](../tests/security/auth0-branding.test.mjs), [tests/e2e/horizon-pdf.spec.ts](../tests/e2e/horizon-pdf.spec.ts), [tests/e2e/dashboard.spec.ts](../tests/e2e/dashboard.spec.ts), [tests/e2e/locale-boundaries.spec.ts](../tests/e2e/locale-boundaries.spec.ts)
+**Tests:** [tests/unit/auth.test.ts](../tests/unit/auth.test.ts), [tests/unit/account.test.ts](../tests/unit/account.test.ts), [tests/e2e/account-identity.spec.ts](../tests/e2e/account-identity.spec.ts), [tests/e2e/resource-navigation.spec.ts](../tests/e2e/resource-navigation.spec.ts), [tests/unit/web-api-cancellation.test.ts](../tests/unit/web-api-cancellation.test.ts), [tests/e2e/login-entry.spec.ts](../tests/e2e/login-entry.spec.ts), [tests/security/auth0-branding.test.mjs](../tests/security/auth0-branding.test.mjs), [tests/e2e/horizon-pdf.spec.ts](../tests/e2e/horizon-pdf.spec.ts), [tests/e2e/dashboard.spec.ts](../tests/e2e/dashboard.spec.ts), [tests/e2e/locale-boundaries.spec.ts](../tests/e2e/locale-boundaries.spec.ts), [tests/unit/personal-auth.test.ts](../tests/unit/personal-auth.test.ts), [tests/unit/document-invitation.test.ts](../tests/unit/document-invitation.test.ts), [tests/distribution-e2e/personal-account.e2e.ts](../tests/distribution-e2e/personal-account.e2e.ts)
 
 
 
@@ -176,10 +193,13 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Verified-email acceptance, expiry and invitation revocation
 - Bounded browser-only responsible contacts filtered by current workshop membership
 - Login email distinguishes members with the same name; effective permissions stay readable
+- Sensitive preparations are visible to their creator and current approvers; operators and observers gain no general access to other preparations
+- Sensitive approval and recipient/account association require a browser under the current document policy; OAuth confirmation follows recorded browser evidence, with no expert-mandate substitute
+- Workspace roles grant no access to another person’s vault; a recipient gains no membership in the sender’s workspace
 
 **Contract:** [WORKSPACE_ROLES.md](WORKSPACE_ROLES.md) · **Implementation:** [packages/contracts/src/roles.ts](../packages/contracts/src/roles.ts)
 
-**Tests:** [tests/integration/workspace-roles.test.ts](../tests/integration/workspace-roles.test.ts), [tests/unit/account.test.ts](../tests/unit/account.test.ts), [tests/e2e/account-identity.spec.ts](../tests/e2e/account-identity.spec.ts)
+**Tests:** [tests/integration/workspace-roles.test.ts](../tests/integration/workspace-roles.test.ts), [tests/unit/account.test.ts](../tests/unit/account.test.ts), [tests/e2e/account-identity.spec.ts](../tests/e2e/account-identity.spec.ts), [tests/integration/secure-approval-boundary.test.ts](../tests/integration/secure-approval-boundary.test.ts), [tests/unit/mcp-secure-distribution.test.ts](../tests/unit/mcp-secure-distribution.test.ts)
 
 
 
@@ -454,7 +474,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 <a id="email"></a>
 ### Email and protected links
 
-**Availability model:** capability-gated. Implemented; provider activation, recipient attestation and browser-only password access apply.
+**Availability model:** capability-gated. Implemented email candidate; dated operator qualification is separate from deployment, global D1 quota policy, signed webhooks and actual delivery.
 
 **Surfaces:** Web, REST, MCP and native preparation/tracking; protected password is browser-only.
 
@@ -464,13 +484,65 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Private link, expiry and browser-only password entry
 - Download without a recipient account under access controls
 - Preparation, approval, tracking and provider policy
-- Resend/SES availability is gated; provider activation is separate
+- Resend/SES availability is gated separately from activation; public price references and operator account limits have dated qualification, while account-wide quota policy, webhook/secret and delivery require independent installation and verification
 
 **Contract:** [PROTECTED_EMAIL.md](PROTECTED_EMAIL.md) · **Implementation:** [apps/api/src/protected-documents.ts](../apps/api/src/protected-documents.ts)
 
 **Tests:** [tests/integration/protected-documents.test.ts](../tests/integration/protected-documents.test.ts)
 
 
+
+<a id="secure-distribution"></a>
+### Sensitive distribution and personal documents
+
+**Availability model:** capability-gated. Implemented candidate with migrations 0055–0059 and separate deterministic strong/verified_account qualification. Default strong, explicitly selected verified_account, aligned environment/D1 policy and human approval remain mandatory; real Auth0, provider delivery, publication and external-client proof are separate.
+
+**Surfaces:** Workspace and personal web UI in FR/EN/DE/LB; workspace REST/MCP and assistant packages under scopes. Recipient access and sensitive approval are browser-only; workspace Bearer tokens cannot open the personal vault. Native and real host support need surface-specific qualification.
+
+- One Guteneo account receives, keeps documents and uses services, with zero workspaces permitted
+- Prepare a verified PDF for one named recipient; immutable permissions, term, tax-exclusive price and notification language; revoke unexpired legacy draft/active hosting first, and use a dedicated source after any referenced postal derivation, legacy send, postal preflight or provider draft
+- Bounded durable private rendering serves authorized page images and accessible text; the reader never delivers the original PDF
+- Shared terms of 7/30/90/365 days and personal-copy terms of 365/1095 days; personal-copy options are funded at activation even when unused
+- Versioned prices and separate invitation transport; activated retention commitments are nonrefundable even after revocation
+- Review final pages/text, recipient, message, permissions and quote before browser approval under the active policy; email-request attestation remains separate
+- Atomic activation and outbox insertion require sensitive browser evidence even through REST/MCP confirmation; expert delegation cannot approve this flow
+- Opaque invitation moves through same-tab handoff and a POST exchange, never authentication returnTo, logs, MCP responses or public captures
+- Individual association requires a verified address, stable-account request and independent workspace confirmation; pending association exposes no sensitive title
+- My documents separates Shared with me and Saved copies, with bounded server filtering/search and pagination over authorized documents
+- Private pages and text load on demand; document policy, recent session and current grant are rechecked before each delivery
+- Paginated workspace audit distinguishes server/browser provenance and actor account without claiming physical identity; detailed access events retain ninety days, immutable receipts remain separate, visible refresh is bounded and no full reading, disk save or screenshot is proven
+- Optional original export is explicit and requires five-minute authentication freshness under the current policy; requested download and started transfer are distinct events
+- Idempotent personal deposit uses bounded durable jobs, visible automatic progress and recovery after tab closure; success appears only after activation
+- Acquired copies survive workspace revocation or departure; personal export/deletion/history are private from the sender; cancelling deletion retains the copy, confirming removes reading/export, and deletion/expiry prevents redeposit through the same invitation without an extra charge
+- Services remain available through the same account, with voluntary workspace choice/creation, no mandatory purchase and no confidential-content targeting
+- Existing REST/MCP and assistant packages expose catalog, preparation, listing, detail, confirmation after browser evidence and revocation under current rights/scopes
+- Workspace tools expose neither personal principal, recipient association nor personal-vault content
+- Activation fails closed until keys, renderer, scanner, provider and aligned document policy are qualified; V1 excludes ordinary attachments, legacy postal transformations, cropping, analysis and password access after sensitive reference, even after failure/revocation; only a dedicated invitation without source attachment is eligible, with bidirectional service/SQL race guards; local email flags and dated provider qualification prove no installed quota policy, signed webhook or delivery
+- Secure distribution navigation follows Documents while Overview and Assistants lead; list/preparation/detail retain a coherent title and active entry; document-policy, assurance, freshness or approval refusal offers voluntary Check my access for fresh sign-in and a secret-free list return, without SSO loops or automatic approval
+- Workspace preparation explicitly paginates PDF sources and explains that an authorized personal copy can be exported even when the shared original cannot
+- Association attestation binds the displayed account, address and request; changing the candidate requires new independent verification
+- Personal-list 401/403 clears loaded metadata and cursors; stale pagination responses cannot restore an old list after refresh
+
+**Contract:** [SECURE_DISTRIBUTION_JOURNEYS.md](SECURE_DISTRIBUTION_JOURNEYS.md) · **Implementation:** [apps/api/src/secure-distributions.ts](../apps/api/src/secure-distributions.ts)
+
+**Tests:** [tests/unit/personal-auth.test.ts](../tests/unit/personal-auth.test.ts), [tests/unit/document-invitation.test.ts](../tests/unit/document-invitation.test.ts), [tests/unit/mcp-secure-distribution.test.ts](../tests/unit/mcp-secure-distribution.test.ts), [tests/integration/secure-approval-boundary.test.ts](../tests/integration/secure-approval-boundary.test.ts), [tests/distribution-e2e/personal-account.e2e.ts](../tests/distribution-e2e/personal-account.e2e.ts), [tests/distribution-e2e/distribution-pricing.e2e.ts](../tests/distribution-e2e/distribution-pricing.e2e.ts), [tests/distribution-e2e/distribution-lifecycle.e2e.ts](../tests/distribution-e2e/distribution-lifecycle.e2e.ts), [tests/e2e/assistant-hub.spec.ts](../tests/e2e/assistant-hub.spec.ts), [tests/unit/secure-distribution-web.test.ts](../tests/unit/secure-distribution-web.test.ts), [tests/distribution-verified-e2e/lifecycle.e2e.ts](../tests/distribution-verified-e2e/lifecycle.e2e.ts)
+
+**Documented REST operations**
+
+- `GET /api/secure-distributions`
+- `POST /api/secure-distributions`
+- `GET /api/secure-distributions/catalog`
+- `GET /api/secure-distributions/{id}`
+- `POST /api/secure-distributions/{id}/confirm`
+- `POST /api/secure-distributions/{id}/revoke`
+
+**MCP tools**
+
+- `confirm_secure_distribution`
+- `get_secure_distribution`
+- `list_secure_distributions`
+- `prepare_secure_distribution`
+- `revoke_secure_distribution`
 
 <a id="dry-run"></a>
 ### Dispatch dry run
@@ -764,6 +836,8 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - One source version with release comparison; dependency updates qualified by audit/tests/exact build without paid configuration
 - Dated high/critical registry advisory gate via audit:dependencies does not guarantee unknown-defect absence
 - Repository standards and automated checks require English authored sources, valid English routes and synchronized feature/developer documentation
+- Separate secure render/deposit queue work, bounded lease reconciliation and shared/personal retention cleanup; revocation, erasure, acquisition and immutable evidence remain distinct
+- Documented provider/tariff maintenance separates official price, private account observation, immutable quote and actual outcome; expiry blocks new work without rewriting approved commitments
 
 **Contract:** [PRODUCTION_REVIEW_2026_10_09.md](PRODUCTION_REVIEW_2026_10_09.md) · **Implementation:** [scripts/deploy-public.mjs](../scripts/deploy-public.mjs)
 
@@ -799,9 +873,9 @@ Supervisor approval/reporting options are independent and off by default. Resour
 <a id="status"></a>
 ### Public service status
 
-**Availability model:** public. Independent public observations; HTTP success is not provider-delivery evidence.
+**Availability model:** public. Public availability, local coverage and version-bound browser reports are separate. Historical deployments and synthetic UI passes do not establish current hosted ingestion or authenticated business qualification.
 
-**Surfaces:** Independent public browser and anonymous read-only /api/status and /api/history; no business authority.
+**Surfaces:** Independent public page and read-only GET /api/status, /api/history and /api/e2e-status; bounded GitHub OIDC report ingestion is independent of workspace membership and business REST/MCP authority.
 
 - Independent status.guteneo.com service with fourteen bounded anonymous canonical checks every fifteen minutes and no business bindings/secrets
 - D1 7/30/365-day history separates observed success and slot coverage; daily aggregates, unknown missing days and no reconstructed past
@@ -811,10 +885,14 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Branded footer and bounded seasonal decoration, optional and respecting reduced motion
 - English authored status copy with English/French browser selection and a shared locale catalog; historical French feature labels remain accepted alongside canonical English reports
 - Dedicated release from clean main with source checks, manifest and status-only D1 migrations
+- Separate public browser reports run on GitHub main every six hours: fourteen desktop/simulated-mobile Chromium journeys and fourteen fixed HTTP contracts, without business operations
+- Public GET /api/e2e-status exposes execution, tested/observed commit, eight-hour freshness, twenty-eight checks and history; absent/stale/version-mismatched proof stays neutral without degrading Cron availability
+- Bounded report ingestion uses GitHub OIDC bound to body and allowed workflow; sanitized output contains no content, account, screenshot or token, and requires no business secret
+- Authenticated distribution/receipt stays To qualify until dedicated accounts and the real journey under the active document policy are qualified; public journeys establish no delivery or personal coverage
 
 **Contract:** [STATUS_SERVICE.md](STATUS_SERVICE.md) · **Implementation:** [apps/status/worker.ts](../apps/status/worker.ts)
 
-**Tests:** [tests/integration/status-service.test.ts](../tests/integration/status-service.test.ts), [tests/security/status-release.test.mjs](../tests/security/status-release.test.mjs), [tests/security/test-offline.test.mjs](../tests/security/test-offline.test.mjs), [tests/status-e2e/status.spec.ts](../tests/status-e2e/status.spec.ts)
+**Tests:** [tests/integration/status-service.test.ts](../tests/integration/status-service.test.ts), [tests/security/status-release.test.mjs](../tests/security/status-release.test.mjs), [tests/security/test-offline.test.mjs](../tests/security/test-offline.test.mjs), [tests/status-e2e/status.spec.ts](../tests/status-e2e/status.spec.ts), [tests/status-e2e/production-e2e.spec.ts](../tests/status-e2e/production-e2e.spec.ts), [tests/integration/production-e2e-status.test.ts](../tests/integration/production-e2e-status.test.ts)
 
 
 
@@ -830,13 +908,15 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Single-source feature tree with role permissions and customer journeys; feature changes update the registry and developer guide together
 - Brand-colored Mermaid and isometric architecture diagrams with textual equivalents and explicit external provider boundaries
 - Approved Gutenberg character identity, restrained printshop details and reduced-motion support; transparent header branding with ink-black lettering in light mode and explicitly approved ivory lettering in dark mode
-- Asset-only publication without application, tenant, document or communication bindings; local validation and hosted proof remain separate
+- Asset-only publication from clean main matching fresh origin/main and the reviewed commit, with source snapshots and complete output hashes revalidated after browser checks; no business bindings or delivery authority
 - Discoverable architecture diagram gallery with three brand-colored Mermaid flows, source downloads and accessible textual explanations
 - Curated Belvédère administration, data-model, release and troubleshooting guides that preserve authority, evidence and recovery boundaries
+- Maintained GitHub job/artifact/release explanation, fresh dependency boundaries and separate application/native/engineering evidence
+- Curated Cloudflare/Auth0/transport dependencies, background jobs, tariff maintenance, design/i18n/accessibility, AI contribution and reproducible video/voice production guides
 
 **Contract:** [ENGINEERING_SITE.md](ENGINEERING_SITE.md) · **Implementation:** [apps/engineering/astro.config.ts](../apps/engineering/astro.config.ts)
 
-**Tests:** [tests/security/engineering-site.test.mjs](../tests/security/engineering-site.test.mjs), [tests/engineering-e2e/site.spec.ts](../tests/engineering-e2e/site.spec.ts)
+**Tests:** [tests/security/engineering-site.test.mjs](../tests/security/engineering-site.test.mjs), [tests/engineering-e2e/site.spec.ts](../tests/engineering-e2e/site.spec.ts), [tests/security/engineering-release.test.mjs](../tests/security/engineering-release.test.mjs)
 
 
 
@@ -844,9 +924,9 @@ Supervisor approval/reporting options are independent and off by default. Resour
 
 ### J01 · Discover and sign in
 
-**Actor:** Visitor → verified member. **Branch:** Access.
+**Actor:** Visitor → verified account owner, with optional workspace membership. **Branch:** Access.
 
-Open the public site → select a visitor language → read the offer/assistant guide → enter canonical Auth0 sign-in → create/join a workshop → verify identity and current rights. Return to the exact valid destination. Explicit logout opens the public home.
+Open the public site → choose a visitor language → read the offer/assistant guide → enter canonical Auth0 → register one personal account without an automatic workspace → receive documents or voluntarily choose/create a workspace for service use → verify current identity and rights. Return to the valid destination. Explicit logout opens the public home.
 
 **Failure/recovery:** Refuse invalid callback state, unknown issuer/subject or expired invitation. Recovery retries are explicit. Package download, optional Auth0 branding/domain and actual host sign-in each need separate proof.
 
@@ -1092,7 +1172,57 @@ Request an eligible public HTML document → retain real error status → show l
 
 [Detailed contract](PUBLIC_HTTP_ERRORS.md).
 
-### J26 · Understand and change a feature
+### J26 · Receive a sensitive document with one Guteneo account
+
+**Actor:** Personal recipient, with or without a workspace; sender’s current approver confirms association. **Branch:** Active individual invitation, personal principal and current document policy; association confirmed before content.
+
+Open the invitation → capture/remove its fragment token before any HTTP login URL → same-tab ten-minute handoff → Auth0 sign-in/registration and secret-free return → request association with verified account/address and a recent session under the active policy → await independent workspace confirmation → read authorized pages/text and find the share in My documents. Receipt creates no workspace, purchase or marketing consent.
+
+**Failure/recovery:** Wrong account, expired token, revoked access or insufficient policy evidence exposes no sensitive title/original. Explicitly switch account or reopen the link; if storage is blocked, sign in then reopen without a secret returnTo. A 401 offers explicit recovery without loops. No physical identity or complete reading is promised. A changed association candidate requires fresh attestation. Personal-list 401/403 clears metadata/cursors and ignores late obsolete responses.
+
+[Detailed contract](SECURE_DISTRIBUTION_JOURNEYS.md).
+
+### J27 · Prepare and activate sensitive distribution
+
+**Actor:** Authorized preparer → browser approver under the active document policy → authorized confirmer. **Branch:** Web/REST/MCP/packages prepare and follow; sensitive approval is browser-only.
+
+Open Secure distribution after Documents, keeping Overview/Assistants first and the active entry coherent → select an accessible ready PDF up to 100 pages/10 MiB → one recipient → 7/30/90/365 days → optional original export/personal copy → subject/message/language → idempotent preparation → follow preparing under the same ID → review final pages/text, recipient, rights, message and tax-exclusive total including transport → separately attest the email request → browser approve → confirm/activate → inspect paginated provenance/actor audit with ninety-day detailed access and separate immutable receipts. Revocation blocks future access without refund. Explicit source pagination reaches older PDFs; permitted personal copies remain exportable even when the shared original is not.
+
+**Failure/recovery:** Unqualified source, integrity, scan, rendering, authority, price, credit or configuration closes the flow. Revoke unexpired legacy draft/active hosting first. A prior postal derivation, legacy send, postal preflight or provider draft requires a dedicated source even after cancellation/failure. Sensitive reference permanently excludes ordinary email/fax/postal attachments, legacy transforms, cropping, analysis and password reads; only the dedicated sourceless invitation remains eligible. Bidirectional service/SQL guards close concurrent legacy writes and provider-transfer races. No original/legacy-link fallback. Expert mandates and assistant-asserted consent cannot approve. Unknown outcomes reread the same ID without new orders or blind provider retry. Check my access voluntarily opens /auth/login?fresh=1 and returns to the distribution list without sensitive IDs/invitations; it grants no preparation/approval or implicit old SSO. Dated Resend qualification/local email flags establish no installed global D1 quotas, webhook/secret or delivery.
+
+[Detailed contract](SECURE_DISTRIBUTION_JOURNEYS.md).
+
+### J28 · Keep, export and delete a personal copy
+
+**Actor:** Recipient owner with a recent policy-compliant session, independent of the original workspace. **Branch:** Independent copy funded at share activation and acquired only after durable deposit activation.
+
+In an active share allowing deposit, read independent retention/export terms → explicitly Keep a copy → follow the same bounded persistent operation → wait for active copy → open Saved copies → export with five-minute authentication freshness → view personal history or explicitly confirm deletion. The same account also opens Guteneo services.
+
+**Failure/recovery:** Revocation before acquisition prevents acquisition; later revocation cannot delete the copy. After timeout/tab closure, resume the same operation without a second copy/charge. No success before activation. Personal deletion removes neither workspace source nor exported files; later private reads are not reported to the workspace. Deletion/expiry prevents redeposit through the same invitation, including direct calls, without fake preparation, recreation or debit.
+
+[Detailed contract](SECURE_DISTRIBUTION_JOURNEYS.md).
+
+### J29 · Move from received documents to services with the same account
+
+**Actor:** Guteneo account owner with zero or more memberships. **Branch:** Personal-to-workspace navigation, without another registration or separate sender account.
+
+Start in My documents → voluntarily open Use Guteneo → choose Prepare a dispatch or New share → select a current membership or request the initial workspace → idempotent creation, initial administrator and closed channels → reload the chosen destination and reread server session/workspace/rights/CSRF → continue normal preparation using the same name/language/identity. Local browser regression creates an administrator workspace then selects another as operator, with real screen/profile changes in both contexts.
+
+**Failure/recovery:** Receipt never permits entry into the sender’s workspace; an organizationId without membership is denied. Creation/selection failure stays visible in the personal area without false navigation. Success retains no previous workspace session/authority. Registration implies no purchase, subscription, confidential-content targeting or marketing email; promised document access remains independent of conversion.
+
+[Detailed contract](SECURE_DISTRIBUTION_JOURNEYS.md).
+
+### J30 · Read browser reports for the deployed version
+
+**Actor:** Anonymous reader; authorized GitHub runner only for report ingestion, without membership. **Branch:** Public status → browser report → version and freshness.
+
+Scheduled/manual main workflow → twenty-eight fixed public checks without business login/sending → sanitized report with body-bound OIDC → read execution date, tested commit and observed version → inspect checks, GitHub execution and history. Fourteen Cron checks remain independent. Authenticated business coverage awaits dedicated accounts and a qualified connected journey under the active document policy.
+
+**Failure/recovery:** Absent, stale, incomplete, invalid or version-mismatched reports remain neutral with explicit limits. An observed discrepancy stays in that report. Public reads launch no test. Incorrect OIDC identity, body hash or GitHub context denies ingestion. Local checks establish no paid operation, business authentication, communication, publication or delivery.
+
+[Detailed contract](STATUS_SERVICE.md).
+
+### J31 · Understand and change a feature
 
 **Actor:** Reader → contributor. **Branch:** Engineering.
 

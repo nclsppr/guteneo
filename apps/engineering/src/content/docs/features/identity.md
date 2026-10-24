@@ -1,6 +1,6 @@
 ---
 title: "Access and identity"
-description: "26 capabilities in the access branch of Guteneo."
+description: "31 capabilities in the access branch of Guteneo."
 sidebar:
   order: 1
 ---
@@ -9,9 +9,9 @@ sidebar:
 
 **Access boundary:** Authenticated browser session.
 
-Implemented browser identity; optional Auth0/DNS configuration and hosted qualification remain separately gated.
+Unified personal account and optional workspace implementation; migrations, aligned document policy, Auth0 configuration and connected production qualification require separate evidence.
 
-**Surfaces:** Authenticated browser; MCP resource OAuth discovery; native identity/session contracts. Optional custom domain affects browser sign-in only.
+**Surfaces:** Personal browser API/session without workspace Bearer authority; workspace browser and native sessions; canonical MCP resource OAuth discovery. Optional custom domain affects browser sign-in only.
 
 [Read the engineering guide](/architecture/authority-and-tenancy/) · [All features](/features/)
 
@@ -20,7 +20,6 @@ Implemented browser identity; optional Auth0/DNS configuration and hosted qualif
 <ol>
 <li id="feature-118253ca6bfe">Auth0 sign-in, verified accounts and explicit MFA policy</li>
 <li id="feature-5996e8b92f62">Canonical browser sign-in/callback; retired hosts and preview URLs refuse authentication</li>
-<li id="feature-703c99688915">Workshop creation with its initial administrator</li>
 <li id="feature-0485df390661">Personal profile, interface language and saved Classic/V2 appearance</li>
 <li id="feature-1b09fee94068">Session listing, revocation and explicit logout</li>
 <li id="feature-258bd6db5347">Successful logout returns to the public home before Login remounts; failures stay visible and never claim a logout</li>
@@ -44,4 +43,10 @@ Implemented browser identity; optional Auth0/DNS configuration and hosted qualif
 <li id="feature-c784c69cee8c">Optional auth.guteneo.com browser domain for the existing Auth0 tenant; MCP issuer/discovery/tokens remain canonical</li>
 <li id="feature-639934edd469">Additive migration 0054 binds authorisation issuer and identity namespace to PKCE; legacy NULL flows stay canonical and rollback never silently switches provider</li>
 <li id="feature-e4042fab26c4">Verified dual-token subject binds to the canonical namespace without email linking or duplicate person/workshop/credits/authority; browser evidence and prepare_only restriction remain</li>
+<li id="feature-1a57b0baee0f">One Guteneo account without an automatic workspace; idempotent initial administrator/workspace creation only on explicit service use</li>
+<li id="feature-32b756cf5246">Personal browser principal and session without membership, separate from workspace API authority; shared profile name/language and no email-based identity merging</li>
+<li id="feature-ca1439eebfa1">My documents, Use Guteneo and Account and security share one sign-in; voluntary workspace choice/creation reloads the chosen destination and bootstraps that workspace’s current session, rights and CSRF</li>
+<li id="feature-fd09f6d08c28">Document policy defaults to strong or explicitly selects verified_account: verified account/address and signed recent auth_time; fifteen minutes for reading/association/approval and five for export/deposit/deletion; documentAccessAllowed/documentAccessMode do not imply MFA or strongAuthentication; D1 defaults strong and environment disagreement fails closed</li>
+<li id="feature-f9f5d7df1035">Document invitation handoff lasts at most ten minutes in the same tab, then is deleted; capture before Auth0 with secret-free returnTo and no arbitrary private query</li>
+<li id="feature-455cf75df968">Document-service 401 offers explicit recovery without session-bootstrap loops; Auth0 recovery reconciles language and returned identity</li>
 </ol>

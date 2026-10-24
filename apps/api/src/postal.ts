@@ -29,6 +29,7 @@ import { preparePostalDraft } from "./live-providers";
 import { readLimited } from "./documents";
 import type { Env } from "./env";
 import type { PostalAuthority } from "./postal-authority";
+import { assertLegacySourceAllowed } from "./sensitive-source";
 import { postalAddressLines } from "../../../packages/contracts/src/postal-address-page";
 import {
   addressPageForDocument,
@@ -319,6 +320,7 @@ export class PostalService {
   }
 
   async exactDocument(organizationId: string, documentId: string) {
+    await assertLegacySourceAllowed(this.env.DB, organizationId, documentId);
     const document = await this.env.DB.prepare(
       "SELECT * FROM documents WHERE organization_id=? AND id=? AND status='ready' AND pages>0 AND size<=?",
     )
@@ -343,6 +345,7 @@ export class PostalService {
       (await sha256(bytes)) !== document.sha256
     )
       error("DOCUMENT_INTEGRITY_MISMATCH");
+    await assertLegacySourceAllowed(this.env.DB, organizationId, documentId);
     return { document, bytes };
   }
   private async sender(organizationId: string, senderId: string) {
@@ -363,6 +366,11 @@ export class PostalService {
       .first<Row>();
     if (!row) error("POSTAL_PREFLIGHT_NOT_FOUND", 404);
     await this.domain.getDocument(authority.context, row.document_id);
+    await assertLegacySourceAllowed(
+      this.env.DB,
+      row.organization_id,
+      row.document_id,
+    );
     return row;
   }
   private async current(authority: PostalAuthority, row: Row, profile = false) {
@@ -399,6 +407,11 @@ export class PostalService {
     )
       error("POSTAL_PROFILE_CHANGED");
     await authority.assertCurrent();
+    await assertLegacySourceAllowed(
+      this.env.DB,
+      row.organization_id,
+      row.document_id,
+    );
     return exact;
   }
   private report(row: Row): StoredReport | null {
@@ -436,6 +449,13 @@ export class PostalService {
       document.status === "ready",
     );
     await authority.assertCurrent();
+    // Cached analysis contains source text and unwatermarked pixels. Postal
+    // authority does not carry a qualified sensitive browser proof.
+    await assertLegacySourceAllowed(
+      this.env.DB,
+      row.organization_id,
+      row.document_id,
+    );
     return {
       id: row.id,
       fingerprint: row.request_hash,
@@ -529,6 +549,11 @@ export class PostalService {
     const raw = atob(report.address.crop.pngBase64);
     const bytes = Uint8Array.from(raw, (character) => character.charCodeAt(0));
     await authority.assertCurrent();
+    await assertLegacySourceAllowed(
+      this.env.DB,
+      row.organization_id,
+      row.document_id,
+    );
     return new Response(bytes, {
       headers: {
         "Content-Type": "image/png",

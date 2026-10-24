@@ -2,7 +2,7 @@
 title: "Belvédère platform oversight"
 description: "7 capabilities in the operations branch of Guteneo."
 sidebar:
-  order: 20
+  order: 21
 ---
 
 <!-- Generated from docs/feature-map.json. Run npm run docs:build; do not edit this view. -->

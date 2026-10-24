@@ -1,9 +1,16 @@
 import {
+  documentAccessMode,
+  documentAccessPolicySql,
+  documentSessionPolicySql,
+} from "../../contracts/src/document-authentication";
+import {
   workspacePermissions,
   type WorkspaceRole,
   type WorkspacePermissions,
 } from "../../contracts/src/roles";
 import { assertFaxDispatchSendable } from "./live-fax-usage";
+import { validateSecureDistribution } from "./secure-distribution";
+import type { SecureDistributionDescriptor } from "../../contracts/src/secure-distribution";
 import {
   validateProtectedDocument,
   type PreparedProtectedDocument,
@@ -67,6 +74,8 @@ export type ActorContext = {
   supervisorCanApprove?: boolean;
   supervisorCanReport?: boolean;
   actor: "browser" | "native" | "mcp" | "system";
+  /** Internal browser credential evidence; never a user-supplied identifier. */
+  documentSessionHash?: string;
 };
 export type DomainContext = ActorContext;
 /** Server-created proof: credentials and current authority are rechecked in the acceptance transaction. */
@@ -248,6 +257,29 @@ function writable(ctx: ActorContext) {
   if (!actorPermissions(ctx).prepareDispatches)
     throw new DomainError("FORBIDDEN", "Editing permission required.", 403);
 }
+function browserDocumentApprovalFence(
+  ctx: ActorContext,
+  mode: Mode,
+  requiredAuthentication?: string,
+) {
+  if (
+    ctx.actor !== "browser" ||
+    !ctx.documentSessionHash ||
+    !/^[a-f0-9]{64}$/.test(ctx.documentSessionHash)
+  )
+    return { condition: "0=1", values: [] as (string | number | null)[] };
+  return {
+    condition: `EXISTS(SELECT 1 FROM personal_sessions secure_personal JOIN browser_sessions secure_browser ON secure_browser.token_hash=secure_personal.token_hash AND secure_browser.user_id=secure_personal.user_id
+    WHERE secure_personal.token_hash=? AND secure_browser.organization_id=? AND secure_personal.user_id=?
+    AND ${documentSessionPolicySql("secure_personal", documentAccessMode(requiredAuthentication), mode === "simulation")}
+    AND ${documentAccessPolicySql(documentAccessMode(requiredAuthentication))}
+    AND secure_personal.verified_email IS NOT NULL AND length(trim(secure_personal.verified_email))>0
+    AND secure_personal.expires_at>strftime('%Y-%m-%dT%H:%M:%fZ','now') AND secure_browser.expires_at>strftime('%Y-%m-%dT%H:%M:%fZ','now')
+    AND secure_personal.authenticated_at BETWEEN CAST(strftime('%s','now') AS INTEGER)-900 AND CAST(strftime('%s','now') AS INTEGER)+5
+    AND (?='simulation' OR (secure_personal.is_development=0 AND secure_browser.is_development=0)))`,
+    values: [ctx.documentSessionHash, ctx.organizationId, ctx.userId, mode],
+  };
+}
 function sqlError(error: unknown): never {
   if (String(error).includes("postal_preflight_required"))
     throw new DomainError(
@@ -256,6 +288,12 @@ function sqlError(error: unknown): never {
       409,
     );
   const message = String(error);
+  if (message.includes("secure_browser_approval_required"))
+    throw new DomainError(
+      "STRONG_BROWSER_APPROVAL_REQUIRED",
+      "A recent authorized browser approval is required for this distribution.",
+      403,
+    );
   if (message.includes("approval_permission_required"))
     throw new DomainError(
       "FORBIDDEN",
@@ -308,7 +346,7 @@ function sqlError(error: unknown): never {
     [
       "approval_required",
       "APPROVAL_REQUIRED",
-      "Approbation humaine valide requise.",
+      "Valid human approval is required.",
       409,
     ],
     [
@@ -358,6 +396,7 @@ export class DomainService {
     public readonly db: D1Database,
     public readonly config: {
       mode: Mode;
+      sensitiveDocumentAuthentication?: string;
       now?: () => number;
       liveFaxIdentity?: LiveFaxIdentity;
       liveDeliveryIdentity?: LiveDeliveryIdentities;
@@ -537,10 +576,7 @@ export class DomainService {
         "Document unavailable.",
         409,
       );
-    return (await this.db
-      .prepare("SELECT * FROM documents WHERE organization_id=? AND id=?")
-      .bind(ctx.organizationId, registered.id)
-      .first<DocumentRecord>())!;
+    return this.getDocument(ctx, registered.id);
   }
   async getDocument(
     ctx: ActorContext,
@@ -554,17 +590,18 @@ export class DomainService {
         : { condition: "0=1", values: [] };
     const doc = await this.db
       .prepare(
-        `SELECT * FROM documents WHERE organization_id=? AND id=? AND (access_owner_id IS NULL OR access_owner_id=? OR (${review.condition})) ${dispatchId ? "AND EXISTS(SELECT 1 FROM dispatches d WHERE d.organization_id=documents.organization_id AND d.id=? AND d.document_id=documents.id)" : ""}`,
+        `SELECT * FROM documents WHERE organization_id=? AND id=? AND (access_owner_id IS NULL OR access_owner_id=? OR (${review.condition})) AND (${this.secureSourceVisibility(ctx).condition}) ${dispatchId ? "AND EXISTS(SELECT 1 FROM dispatches d WHERE d.organization_id=documents.organization_id AND d.id=? AND d.document_id=documents.id)" : ""}`,
       )
       .bind(
         ctx.organizationId,
         id,
         ctx.userId,
         ...review.values,
+        ...this.secureSourceVisibility(ctx).values,
         ...(dispatchId ? [dispatchId] : []),
       )
       .first<DocumentRecord>();
-    if (!doc) throw new DomainError("NOT_FOUND", "Document introuvable.", 404);
+    if (!doc) throw new DomainError("NOT_FOUND", "Document not found.", 404);
     return doc;
   }
   async listDocuments(ctx: ActorContext, cursor?: string, limit = 30) {
@@ -579,13 +616,36 @@ export class DomainService {
     );
   }
   /** Prepared requests are reviewable by current approvers; the document library stays private. */
+  private secureSourceVisibility(ctx: ActorContext, alias = "documents") {
+    const review = actorPermissions(ctx).approveDispatches
+      ? membershipPermissionFence(ctx, "approveDispatches")
+      : { condition: "0=1", values: [] };
+    return {
+      condition: `(NOT EXISTS(SELECT 1 FROM secure_distributions secure_source WHERE secure_source.organization_id=${alias}.organization_id AND secure_source.source_id=${alias}.id) OR EXISTS(SELECT 1 FROM secure_distributions secure_source WHERE secure_source.organization_id=${alias}.organization_id AND secure_source.source_id=${alias}.id AND (secure_source.created_by=? OR (${review.condition}))))`,
+      values: [ctx.userId, ...review.values],
+    };
+  }
+  private secureDispatchVisibility(ctx: ActorContext, alias = "dispatches") {
+    const review = actorPermissions(ctx).approveDispatches
+      ? membershipPermissionFence(ctx, "approveDispatches")
+      : { condition: "0=1", values: [] };
+    return {
+      condition: `(json_type(${alias}.options_json,'$.secureDistribution') IS NOT 'object' OR EXISTS(SELECT 1 FROM secure_distributions secure_share WHERE secure_share.organization_id=${alias}.organization_id AND secure_share.id=json_extract(${alias}.options_json,'$.secureDistribution.distributionId') AND (secure_share.dispatch_id IS NULL OR secure_share.dispatch_id=${alias}.id) AND (secure_share.created_by=? OR (${review.condition}))))`,
+      values: [ctx.userId, ...review.values],
+    };
+  }
   private dispatchVisibility(ctx: ActorContext) {
     const review = actorPermissions(ctx).approveDispatches
       ? membershipPermissionFence(ctx, "approveDispatches")
       : { condition: "0=1", values: [] };
     return {
-      condition: `(document_id IS NULL OR EXISTS(SELECT 1 FROM documents doc WHERE doc.organization_id=dispatches.organization_id AND doc.id=dispatches.document_id AND (doc.access_owner_id IS NULL OR doc.access_owner_id=? OR (${review.condition}))))`,
-      values: [ctx.userId, ...review.values],
+      condition: `(document_id IS NULL OR EXISTS(SELECT 1 FROM documents doc WHERE doc.organization_id=dispatches.organization_id AND doc.id=dispatches.document_id AND (doc.access_owner_id IS NULL OR doc.access_owner_id=? OR (${review.condition})) AND (${this.secureSourceVisibility(ctx, "doc").condition}))) AND (${this.secureDispatchVisibility(ctx).condition})`,
+      values: [
+        ctx.userId,
+        ...review.values,
+        ...this.secureSourceVisibility(ctx, "doc").values,
+        ...this.secureDispatchVisibility(ctx).values,
+      ],
     };
   }
   private async page<T>(
@@ -615,8 +675,11 @@ export class DomainService {
     const visibility = documentActor
       ? table === "documents"
         ? {
-            condition: "(access_owner_id IS NULL OR access_owner_id=?)",
-            values: [documentActor.userId],
+            condition: `(access_owner_id IS NULL OR access_owner_id=?) AND (${this.secureSourceVisibility(documentActor).condition})`,
+            values: [
+              documentActor.userId,
+              ...this.secureSourceVisibility(documentActor).values,
+            ],
           }
         : this.dispatchVisibility(documentActor)
       : undefined;
@@ -648,6 +711,39 @@ export class DomainService {
     idempotencyKey: string,
   ): Promise<Dispatch> {
     return this.prepareDispatchInternal(ctx, input, idempotencyKey);
+  }
+  /** Server-only preparation from a previously rendered, tenant-scoped source.
+   * Generic clients cannot inject this descriptor through options. */
+  async prepareSecureDistributionDispatch(
+    ctx: ActorContext,
+    input: PrepareInput,
+    idempotencyKey: string,
+    descriptor: SecureDistributionDescriptor,
+  ): Promise<Dispatch> {
+    const recipient = validateRecipient("email", input.recipient);
+    if (
+      input.channel !== "email" ||
+      input.documentId ||
+      !(await validateSecureDistribution(
+        this.db,
+        ctx.organizationId,
+        descriptor,
+        recipient.email,
+        this.time(),
+      ))
+    )
+      throw new DomainError(
+        "SECURE_DISTRIBUTION_INVALID",
+        "The secure preparation is no longer available.",
+        409,
+      );
+    return this.prepareDispatchInternal(
+      ctx,
+      input,
+      idempotencyKey,
+      undefined,
+      descriptor,
+    );
   }
   async renewFaxQuote(
     ctx: ActorContext,
@@ -759,6 +855,7 @@ export class DomainService {
     input: PrepareInput,
     idempotencyKey: string,
     renewal?: Dispatch,
+    secureDistribution?: SecureDistributionDescriptor,
   ): Promise<Dispatch> {
     writable(ctx);
     await this.organization(ctx);
@@ -766,7 +863,13 @@ export class DomainService {
     if (!["fax", "email", "postal"].includes(input.channel))
       throw new DomainError("INVALID_CHANNEL", "Unknown delivery channel.");
     const requestHash = await sha256(
-      canonicalJson(renewal ? { ...input, renewalOf: renewal.id } : input),
+      canonicalJson(
+        secureDistribution
+          ? { ...input, secureDistribution }
+          : renewal
+            ? { ...input, renewalOf: renewal.id }
+            : input,
+      ),
     );
     const existing = await this.db
       .prepare(
@@ -787,6 +890,7 @@ export class DomainService {
     const options: Record<string, unknown> = { ...(input.options ?? {}) };
     if (
       "protectedDocument" in options ||
+      "secureDistribution" in options ||
       "password" in options ||
       "replyTo" in options
     )
@@ -831,6 +935,7 @@ export class DomainService {
       );
     if (canonicalJson(options).length > 8192)
       throw new DomainError("INVALID_OPTIONS", "Options are too large.");
+    if (secureDistribution) options.secureDistribution = secureDistribution;
     if (options.kind === "marketing")
       throw new DomainError(
         "MARKETING_NOT_ENABLED",
@@ -840,6 +945,19 @@ export class DomainService {
     let document: DocumentRecord | undefined;
     if (input.documentId) {
       document = await this.getDocument(ctx, input.documentId);
+      if (
+        await this.db
+          .prepare(
+            "SELECT 1 FROM secure_distributions WHERE organization_id=? AND source_id=?",
+          )
+          .bind(ctx.organizationId, document.id)
+          .first()
+      )
+        throw new DomainError(
+          "SENSITIVE_SOURCE_LEGACY_FORBIDDEN",
+          "This sensitive document cannot be used in this workflow.",
+          403,
+        );
       if (document.status !== "ready")
         throw new DomainError(
           "DOCUMENT_QUARANTINED",
@@ -1001,6 +1119,7 @@ export class DomainService {
           (input.channel === "fax" ? (document?.pages ?? 1) : 1);
     const estimatedMinor =
       transportMinor +
+      (secureDistribution?.serviceFeeMinor ?? 0) +
       ((options.protectedDocument as ProtectedDocumentDescriptor | undefined)
         ?.hostingFeeMinor ?? 0);
     const ceilingMinor = input.ceilingMinor ?? estimatedMinor;
@@ -1020,7 +1139,7 @@ export class DomainService {
         )
         .bind(ctx.organizationId, input.campaignId)
         .first<{ status: string }>();
-      if (!c) throw new DomainError("NOT_FOUND", "Campagne introuvable.", 404);
+      if (!c) throw new DomainError("NOT_FOUND", "Campaign not found.", 404);
       if (c.status !== "draft")
         throw new DomainError(
           "CAMPAIGN_FROZEN",
@@ -1191,11 +1310,15 @@ export class DomainService {
     await this.organization(ctx);
     const row = await this.db
       .prepare(
-        "SELECT d.*,COALESCE(q.expires_at,(SELECT f.expires_at FROM live_fax_quotes_v3 f WHERE f.organization_id=d.organization_id AND f.dispatch_id=d.id),(SELECT f.expires_at FROM live_fax_quotes_v2 f WHERE f.organization_id=d.organization_id AND f.dispatch_id=d.id),(SELECT f.expires_at FROM live_fax_quotes f WHERE f.organization_id=d.organization_id AND f.dispatch_id=d.id)) AS quote_expires_at,q.customer_nanoeur AS quote_customer_nanoeur,q.fiscal_basis AS quote_pricing_basis,json_extract(q.input_json,'$.fx') AS quote_fx_json FROM dispatches d LEFT JOIN live_delivery_quotes q ON q.organization_id=d.organization_id AND q.dispatch_id=d.id WHERE d.organization_id=? AND d.id=?",
+        `SELECT d.*,COALESCE(q.expires_at,(SELECT f.expires_at FROM live_fax_quotes_v3 f WHERE f.organization_id=d.organization_id AND f.dispatch_id=d.id),(SELECT f.expires_at FROM live_fax_quotes_v2 f WHERE f.organization_id=d.organization_id AND f.dispatch_id=d.id),(SELECT f.expires_at FROM live_fax_quotes f WHERE f.organization_id=d.organization_id AND f.dispatch_id=d.id)) AS quote_expires_at,q.customer_nanoeur AS quote_customer_nanoeur,q.fiscal_basis AS quote_pricing_basis,json_extract(q.input_json,'$.fx') AS quote_fx_json FROM dispatches d LEFT JOIN live_delivery_quotes q ON q.organization_id=d.organization_id AND q.dispatch_id=d.id WHERE d.organization_id=? AND d.id=? AND ${this.secureDispatchVisibility(ctx, "d").condition}`,
       )
-      .bind(ctx.organizationId, id)
+      .bind(
+        ctx.organizationId,
+        id,
+        ...this.secureDispatchVisibility(ctx, "d").values,
+      )
       .first<Dispatch & { quote_fx_json: string | null }>();
-    if (!row) throw new DomainError("NOT_FOUND", "Envoi introuvable.", 404);
+    if (!row) throw new DomainError("NOT_FOUND", "Dispatch not found.", 404);
     if (row.document_id) await this.getDocument(ctx, row.document_id, row.id);
     const { quote_fx_json, ...result } = row;
     const fx =
@@ -1255,11 +1378,59 @@ export class DomainService {
     proof?: ExpertDispatchAuthority,
   ): Promise<Dispatch> {
     const membership = membershipPermissionFence(ctx, "approveDispatches");
-    const authority = {
+    let authority = {
       condition: `(${membership.condition}) AND (${proof?.condition ?? "1=1"})`,
       values: [...membership.values, ...(proof?.values ?? [])],
     };
     const row = await this.dispatch(ctx, id);
+    const secure = !!JSON.parse(row.options_json).secureDistribution;
+    let secureEvidence:
+      | {
+          id: string;
+          authenticatedAt: number;
+          expiresAt: string;
+          browserExpiresAt: string;
+        }
+      | undefined;
+    if (secure) {
+      if (proof || ctx.actor !== "browser")
+        throw new DomainError(
+          "STRONG_BROWSER_APPROVAL_REQUIRED",
+          "Secure distribution requires browser approval, including under an expert mandate.",
+          403,
+        );
+      const strong = browserDocumentApprovalFence(
+        ctx,
+        row.mode,
+        this.config.sensitiveDocumentAuthentication,
+      );
+      const session = await this.db
+        .prepare(
+          `SELECT authenticated_at,expires_at,(SELECT expires_at FROM browser_sessions WHERE token_hash=personal_sessions.token_hash) browser_expires_at FROM personal_sessions WHERE token_hash=? AND (${strong.condition})`,
+        )
+        .bind(ctx.documentSessionHash ?? "", ...strong.values)
+        .first<{
+          authenticated_at: number;
+          expires_at: string;
+          browser_expires_at: string;
+        }>();
+      if (!session)
+        throw new DomainError(
+          "STRONG_BROWSER_APPROVAL_REQUIRED",
+          "Sign in again before approving this distribution.",
+          403,
+        );
+      secureEvidence = {
+        id: uid("secure_approval"),
+        authenticatedAt: session.authenticated_at,
+        expiresAt: session.expires_at,
+        browserExpiresAt: session.browser_expires_at,
+      };
+      authority = {
+        condition: `(${authority.condition}) AND (${strong.condition})`,
+        values: [...authority.values, ...strong.values],
+      };
+    }
     if (row.status !== "prepared")
       throw new DomainError(
         "INVALID_STATE",
@@ -1326,6 +1497,11 @@ export class DomainService {
         review ? Date.parse(review.expires_at) : Infinity,
         this.now() + 15 * 60_000,
         quote ? Date.parse(quote.expires_at) : Infinity,
+        secureEvidence
+          ? (secureEvidence.authenticatedAt + 900) * 1000
+          : Infinity,
+        secureEvidence ? Date.parse(secureEvidence.expiresAt) : Infinity,
+        secureEvidence ? Date.parse(secureEvidence.browserExpiresAt) : Infinity,
       ),
     ).toISOString();
     const statements: D1PreparedStatement[] = [];
@@ -1337,10 +1513,31 @@ export class DomainService {
           )
           .bind(now, ctx.organizationId, row.campaign_id, ...authority.values),
       );
+    if (secureEvidence)
+      statements.push(
+        this.db
+          .prepare(
+            `INSERT INTO secure_approval_evidence(id,organization_id,dispatch_id,fingerprint,user_id,session_hash,authenticated_at,policy_version,authentication_mode,created_at)
+        SELECT ?,?,?,?,?,token_hash,authenticated_at,'guteneo-sensitive-v1',?,? FROM personal_sessions WHERE token_hash=? AND user_id=? AND ${authority.condition}`,
+          )
+          .bind(
+            secureEvidence.id,
+            ctx.organizationId,
+            id,
+            fingerprint,
+            ctx.userId,
+            documentAccessMode(this.config.sensitiveDocumentAuthentication),
+            now,
+            ctx.documentSessionHash,
+            ctx.userId,
+            ...authority.values,
+          ),
+      );
+    const approvalIndex = statements.length;
     statements.push(
       this.db
         .prepare(
-          `INSERT INTO approvals(id,organization_id,dispatch_id,user_id,fingerprint,expires_at,created_at,recipient_requested,approval_kind,expert_review_hash) SELECT ?,?,?,?,?,?,?,?,?,? WHERE ${authority.condition} ON CONFLICT(organization_id,dispatch_id) DO UPDATE SET user_id=excluded.user_id,fingerprint=excluded.fingerprint,expires_at=excluded.expires_at,created_at=excluded.created_at,recipient_requested=excluded.recipient_requested,approval_kind=excluded.approval_kind,expert_review_hash=excluded.expert_review_hash`,
+          `INSERT INTO approvals(id,organization_id,dispatch_id,user_id,fingerprint,expires_at,created_at,recipient_requested,approval_kind,expert_review_hash,secure_approval_evidence_id) SELECT ?,?,?,?,?,?,?,?,?,?,? WHERE ${authority.condition} ON CONFLICT(organization_id,dispatch_id) DO UPDATE SET user_id=excluded.user_id,fingerprint=excluded.fingerprint,expires_at=excluded.expires_at,created_at=excluded.created_at,recipient_requested=excluded.recipient_requested,approval_kind=excluded.approval_kind,expert_review_hash=excluded.expert_review_hash,secure_approval_evidence_id=excluded.secure_approval_evidence_id`,
         )
         .bind(
           uid("approval"),
@@ -1353,6 +1550,7 @@ export class DomainService {
           attestation.recipientRequested === true ? 1 : 0,
           proof ? "expert" : "browser",
           proof?.reviewHash ?? null,
+          secureEvidence?.id ?? null,
           ...authority.values,
         ),
       this.audit(
@@ -1361,6 +1559,13 @@ export class DomainService {
         id,
         {
           authority: proof ? "delegated" : "browser",
+          ...(secure
+            ? {
+                documentAccessMode: documentAccessMode(
+                  this.config.sensitiveDocumentAuthentication,
+                ),
+              }
+            : {}),
           ...(proof ? { connectionId: proof.connectionId } : {}),
           fingerprint,
           recipientRequested: attestation.recipientRequested === true,
@@ -1370,9 +1575,11 @@ export class DomainService {
     );
     try {
       const results = await this.db.batch(statements);
-      if (results[row.campaign_id ? 1 : 0].meta.changes !== 1)
+      if (results[approvalIndex].meta.changes !== 1)
         throw new DomainError(
-          "EXPERT_APPROVAL_INVALID",
+          secure
+            ? "STRONG_BROWSER_APPROVAL_REQUIRED"
+            : "EXPERT_APPROVAL_INVALID",
           "Authority has changed.",
           409,
         );
@@ -1507,6 +1714,10 @@ export class DomainService {
     id: string,
     idempotencyKey: string,
     proof?: ExpertDispatchAuthority,
+    acceptanceAuthority?: {
+      condition: string;
+      values: (string | number | null)[];
+    },
   ): Promise<Dispatch> {
     await this.authorizeApproval(ctx);
     if (ctx.actor === "native")
@@ -1518,6 +1729,24 @@ export class DomainService {
     key(idempotencyKey);
     const row = await this.dispatch(ctx, id);
     await assertFaxDispatchSendable(this.db, row);
+    const secure = !!JSON.parse(row.options_json).secureDistribution;
+    if (secure && proof)
+      throw new DomainError(
+        "STRONG_BROWSER_APPROVAL_REQUIRED",
+        "Expert delegation does not replace browser approval for this distribution.",
+        403,
+      );
+    if (
+      secure &&
+      row.status === "prepared" &&
+      ctx.actor === "mcp" &&
+      !acceptanceAuthority
+    )
+      throw new DomainError(
+        "FORBIDDEN",
+        "The current OAuth connection must be verified before acceptance.",
+        403,
+      );
     if (proof && (ctx.actor !== "mcp" || ctx.role !== "admin"))
       throw new DomainError(
         "FORBIDDEN",
@@ -1533,14 +1762,34 @@ export class DomainService {
       canonicalJson({ id, fingerprint: row.fingerprint }),
     );
     const membership = membershipPermissionFence(ctx, "approveDispatches");
-    const validApproval = proof
-      ? `EXISTS(SELECT 1 FROM approvals a WHERE a.organization_id=? AND a.dispatch_id=? AND a.approval_kind='expert' AND a.expert_review_hash=? AND a.user_id=?) AND (${proof.condition})`
-      : "NOT EXISTS(SELECT 1 FROM approvals a WHERE a.organization_id=? AND a.dispatch_id=? AND a.approval_kind='expert')";
-    const approvalFence = `(${membership.condition}) AND (${validApproval})`;
-    const proofValues = proof
-      ? [ctx.organizationId, id, proof.reviewHash, ctx.userId, ...proof.values]
-      : [ctx.organizationId, id];
-    const approvalValues = [...membership.values, ...proofValues];
+    const validApproval = secure
+      ? `EXISTS(SELECT 1 FROM approvals a JOIN valid_secure_approval_evidence e ON e.id=a.secure_approval_evidence_id WHERE a.organization_id=? AND a.dispatch_id=? AND a.fingerprint=? AND a.approval_kind='browser' AND a.expert_review_hash IS NULL AND a.expires_at>? AND e.organization_id=a.organization_id AND e.dispatch_id=a.dispatch_id AND e.fingerprint=a.fingerprint AND e.user_id=a.user_id AND e.created_at=a.created_at AND (e.authentication_mode='strong' OR ?='verified_account'))`
+      : proof
+        ? `EXISTS(SELECT 1 FROM approvals a WHERE a.organization_id=? AND a.dispatch_id=? AND a.approval_kind='expert' AND a.expert_review_hash=? AND a.user_id=?) AND (${proof.condition})`
+        : "NOT EXISTS(SELECT 1 FROM approvals a WHERE a.organization_id=? AND a.dispatch_id=? AND a.approval_kind='expert')";
+    const approvalFence = `(${membership.condition}) AND (${validApproval}) AND (${secure ? documentAccessPolicySql(documentAccessMode(this.config.sensitiveDocumentAuthentication)) : "1=1"}) AND (${acceptanceAuthority?.condition ?? "1=1"})`;
+    const proofValues = secure
+      ? [
+          ctx.organizationId,
+          id,
+          row.fingerprint,
+          now,
+          documentAccessMode(this.config.sensitiveDocumentAuthentication),
+        ]
+      : proof
+        ? [
+            ctx.organizationId,
+            id,
+            proof.reviewHash,
+            ctx.userId,
+            ...proof.values,
+          ]
+        : [ctx.organizationId, id];
+    const approvalValues = [
+      ...membership.values,
+      ...proofValues,
+      ...(acceptanceAuthority?.values ?? []),
+    ];
     try {
       await this.db.batch([
         ensureCreditPeriod(
@@ -1602,7 +1851,7 @@ export class DomainService {
     if (saved.status === "prepared")
       throw new DomainError(
         "APPROVAL_REQUIRED",
-        "Approbation humaine requise.",
+        "Human approval is required.",
         409,
       );
     if (saved.status === "cancelled")
@@ -1630,7 +1879,7 @@ export class DomainService {
         .all(),
       this.db
         .prepare(
-          "SELECT a.fingerprint,a.expires_at,a.approval_kind FROM approvals a JOIN memberships m ON m.organization_id=a.organization_id AND m.user_id=a.user_id WHERE a.organization_id=? AND a.dispatch_id=? AND a.fingerprint=? AND a.expires_at>? AND (m.role='admin' OR (a.approval_kind='browser' AND m.role='supervisor' AND m.supervisor_can_approve=1))",
+          `SELECT a.fingerprint,a.expires_at,a.approval_kind FROM approvals a JOIN memberships m ON m.organization_id=a.organization_id AND m.user_id=a.user_id WHERE a.organization_id=? AND a.dispatch_id=? AND a.fingerprint=? AND a.expires_at>? AND (m.role='admin' OR (a.approval_kind='browser' AND m.role='supervisor' AND m.supervisor_can_approve=1)) ${JSON.parse(dispatch.options_json).secureDistribution ? `AND a.approval_kind='browser' AND EXISTS(SELECT 1 FROM valid_secure_approval_evidence e WHERE e.id=a.secure_approval_evidence_id AND e.organization_id=a.organization_id AND e.dispatch_id=a.dispatch_id AND e.user_id=a.user_id AND e.fingerprint=a.fingerprint AND e.created_at=a.created_at AND ${documentAccessPolicySql(documentAccessMode(this.config.sensitiveDocumentAuthentication))})` : ""}`,
         )
         .bind(ctx.organizationId, id, dispatch.fingerprint, this.time())
         .first<{
@@ -1699,9 +1948,13 @@ export class DomainService {
     const [documents, statuses] = await Promise.all([
       this.db
         .prepare(
-          "SELECT count(*) AS n FROM documents WHERE organization_id=? AND (access_owner_id IS NULL OR access_owner_id=?)",
+          `SELECT count(*) AS n FROM documents WHERE organization_id=? AND (access_owner_id IS NULL OR access_owner_id=?) AND (${this.secureSourceVisibility(ctx).condition})`,
         )
-        .bind(ctx.organizationId, ctx.userId)
+        .bind(
+          ctx.organizationId,
+          ctx.userId,
+          ...this.secureSourceVisibility(ctx).values,
+        )
         .first<{ n: number }>(),
       this.db
         .prepare(
@@ -1782,7 +2035,7 @@ export class DomainService {
       .bind(ctx.organizationId, id)
       .first();
     if (!campaign)
-      throw new DomainError("NOT_FOUND", "Campagne introuvable.", 404);
+      throw new DomainError("NOT_FOUND", "Campaign not found.", 404);
     const visibility = this.dispatchVisibility(ctx);
     const dispatches = await this.db
       .prepare(
@@ -1826,6 +2079,22 @@ export class DomainService {
   }
   private async validateProtection(row: Dispatch) {
     const options = JSON.parse(row.options_json);
+    if (
+      options.secureDistribution &&
+      !(await validateSecureDistribution(
+        this.db,
+        row.organization_id,
+        options.secureDistribution,
+        (JSON.parse(row.recipient_json) as { email: string }).email,
+        this.time(),
+        row.id,
+      ))
+    )
+      throw new DomainError(
+        "SECURE_DISTRIBUTION_UNAVAILABLE",
+        "The secure share is no longer available.",
+        409,
+      );
     if (
       options.emailDeliveryMode === "protected_link" &&
       (!row.document_id ||
@@ -1876,7 +2145,11 @@ export class DomainService {
   async admin(ctx: ActorContext) {
     await this.organization(ctx);
     if (ctx.role !== "admin")
-      throw new DomainError("FORBIDDEN", "Administrateur requis.", 403);
+      throw new DomainError(
+        "FORBIDDEN",
+        "Administrator access is required.",
+        403,
+      );
     const [states, outbox, unknown, audit, controls, deadLetters] =
       await Promise.all([
         this.db

@@ -48,6 +48,13 @@ test("localised UI/video copy and exact quoted evidence remain valid", () => {
   );
   assert.equal(
     sourceFindings(
+      "apps/web/src/locales/fr.ts",
+      '// Vérifier les droits avant chaque envoi.\nexport const label = "Votre document est prêt pour vous.";',
+    ).length,
+    1,
+  );
+  assert.equal(
+    sourceFindings(
       "videos/film/src/Scene.tsx",
       "// Vérifier les droits avant chaque envoi.",
     ).length,
@@ -131,6 +138,72 @@ test("native, script and static shell prose follow the same English rule", () =>
   );
 });
 
+test("operational and contribution changes require an authored engineering guide", () => {
+  for (const file of [
+    ".github/workflows/ci.yml",
+    ".github/workflows/production-e2e.yml",
+    ".github/actions/setup/action.yml",
+    "wrangler.live.jsonc",
+    "apps/status/wrangler.jsonc",
+    "scripts/ci/verify-results.mjs",
+    "scripts/repository-standards.mjs",
+    "migrations/0060_example.sql",
+    "scripts/deploy-public.mjs",
+    "packages/providers/src/pingen.ts",
+    "apps/api/src/auth.ts",
+    "apps/api/src/maintenance.ts",
+    "apps/api/src/index.ts",
+    "apps/api/src/webhooks.ts",
+    "packages/contracts/src/secure-distribution.ts",
+    "apps/api/src/telnyx-readiness.ts",
+    "AGENTS.md",
+    "docs/BRAND_IDENTITY.md",
+    "videos/guteneo-film/src/Film.tsx",
+  ]) {
+    const accompanying = ["docs/feature-map.json", "docs/ARCHITECTURE.md"];
+    assert.match(
+      documentationDrift([file, ...accompanying]).join("\n"),
+      /authored engineering guide/,
+      file,
+    );
+    assert.deepEqual(
+      documentationDrift([
+        file,
+        ...accompanying,
+        "apps/engineering/src/content/docs/engineering/ci-and-release.mdx",
+      ]),
+      [],
+      file,
+    );
+  }
+  assert.equal(
+    documentationDrift([
+      ".github/workflows/ci.yml",
+      "apps/engineering/src/content/docs/features/platform.mdx",
+      "docs/feature-map.json",
+      "docs/ARCHITECTURE.md",
+    ]).length,
+    1,
+  );
+  assert.deepEqual(documentationDrift(["tests/unit/provider.test.ts"]), []);
+  assert.equal(
+    documentationDrift(
+      [
+        ".github/workflows/ci.yml",
+        "docs/feature-map.json",
+        "docs/ARCHITECTURE.md",
+        "apps/engineering/src/content/docs/engineering/deleted.mdx",
+      ],
+      [
+        ".github/workflows/ci.yml",
+        "docs/feature-map.json",
+        "docs/ARCHITECTURE.md",
+      ],
+    ).length,
+    1,
+  );
+});
+
 test("translated interface calls require English source and an explicit context catalog", () => {
   const keys = new Set(["Cancel", "Cancelled"]);
   const contexts = new Set(["generation-state\u0004Cancelled"]);
@@ -147,6 +220,15 @@ test("translated interface calls require English source and an explicit context 
     interfaceSourceFindings(
       "apps/web/src/page.tsx",
       'msg("Annuler"); msgIn("unknown-context", "Cancelled");',
+      keys,
+      contexts,
+    ).length,
+    2,
+  );
+  assert.equal(
+    interfaceSourceFindings(
+      "apps/web/src/page.tsx",
+      "msg(`Unregistered label`); msgIn(`missing-context`, `Cancel`);",
       keys,
       contexts,
     ).length,

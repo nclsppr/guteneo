@@ -9,7 +9,7 @@ sidebar:
 
 **Access boundary:** Current capability and authority required.
 
-Implemented; provider activation, recipient attestation and browser-only password access apply.
+Implemented email candidate; dated operator qualification is separate from deployment, global D1 quota policy, signed webhooks and actual delivery.
 
 **Surfaces:** Web, REST, MCP and native preparation/tracking; protected password is browser-only.
 
@@ -24,5 +24,5 @@ Implemented; provider activation, recipient attestation and browser-only passwor
 <li id="feature-4c66fb41a3ae">Private link, expiry and browser-only password entry</li>
 <li id="feature-0300dfeb9845">Download without a recipient account under access controls</li>
 <li id="feature-55e615792e90">Preparation, approval, tracking and provider policy</li>
-<li id="feature-4f833c48af64">Resend/SES availability is gated; provider activation is separate</li>
+<li id="feature-4b3aba9029e8">Resend/SES availability is gated separately from activation; public price references and operator account limits have dated qualification, while account-wide quota policy, webhook/secret and delivery require independent installation and verification</li>
 </ol>

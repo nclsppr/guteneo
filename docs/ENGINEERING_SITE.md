@@ -36,10 +36,10 @@ Authored navigation:
 | Home | Engineering overview | Find the architecture, implementation inventory and first development steps |
 | Getting started | Overview; local development; repository map | Run the actual local application and locate the right implementation boundary |
 | Architecture | System; data model; dispatch lifecycle; authority and tenancy; diagrams | Understand persistence, ownership, asynchronous work and the distinction between identity, permission and approval |
-| Workflows | Documents; Studio and data; delivery channels; PDF diagnostics | Follow original bytes, generated versions, mapping provenance and gated provider transitions |
+| Workflows | Documents; Studio and data; delivery channels; PDF diagnostics; secure distribution | Follow original bytes, generated versions, mapping provenance and gated provider transitions |
 | Integrations | REST API; MCP | Discover the real contracts and integrate without bypassing human/delegated authority |
 | Administration | Belvédère | Understand restricted platform oversight, its seven views and the boundary with workspace administration |
-| Engineering | Security and reliability; testing; contributing; changes and releases; troubleshooting | Maintain invariants, qualify changes through publication and investigate failures without unsafe retries |
+| Engineering | Security and reliability; testing; contributing; releases; troubleshooting; video production; CI/release evidence; provider maintenance; design system; AI contributions; background jobs | Maintain invariants, qualify changes through publication and investigate failures without unsafe retries |
 | Feature atlas | Generated index, domain pages, permissions and journeys | Inspect the complete feature inventory with its availability and actor boundaries |
 
 ## Source inventory and curation
@@ -187,17 +187,25 @@ npm run deploy:engineering -- --confirm-production --commit <reviewed-full-sha>
 
 The flags identify an explicitly authorized engineering publication and its full
 40-character reviewed commit. They do not replace authorization. The release
-script refuses a dirty checkout or a different `HEAD`, validates the dedicated
-asset-only configuration, then runs documentation checks, the engineering build
-and browser checks. It rechecks the checkout before invoking deployment.
+script uses the shared `verifyMainSource` guard: local `main` must be completely
+clean, with no hidden index flags, and match freshly fetched `origin/main` and
+the reviewed commit. Fetch failure or drift blocks publication. It validates the
+dedicated asset-only configuration, runs documentation/build/browser checks, then
+repeats the fresh-main check immediately before artifact verification and Wrangler.
 
 The configuration allowlist permits only static assets on
 `engineering.guteneo.com`, with the separate `guteneo-engineering` service,
 `workers_dev` and preview URLs disabled, trailing-slash HTML and a real 404 page.
 Runtime entry points, environment variables and business bindings are rejected.
 The build manifest inventories asset paths, byte lengths and SHA-256 hashes,
-rejects symlinks/restricted repository assets, and records the source commit and
-dirty state honestly.
+rejects symlinks/restricted repository assets, and records the source commit,
+dirty state, explicit source scope/digest and aggregate asset-list hash. The build
+refuses a source change during validation. After browser checks, publication
+rereads every asset and compares its path, size and hash, the complete list and
+aggregate hash, the current source snapshot and the original build manifest. A
+replaced manifest is rejected even if it is internally consistent with replaced
+files. None of these checks is bypassed by a CLI option; local regression tests
+inject command execution against temporary Git remotes without publishing.
 
 After deployment, `scripts/verify-engineering.mjs` compares the served release
 manifest with the clean local build, checks representative page/index/image bytes
@@ -211,7 +219,40 @@ production migrations, provider activation, paid provisioning, expert mandates,
 real communications or marketplace submissions. Those keep their existing
 explicit authority and qualification requirements.
 
-## Final local candidate acceptance — 24 October 2026
+## Main reconciliation and expanded coverage — pending qualification
+
+The reconciliation with incoming main `4f033e2` preserves the unified personal
+account and sensitive-distribution contracts, including the explicitly selected
+`verified_account` profile, default `strong` behavior, browser-only sensitive
+approval, independent recipient association and separate acquired-copy ownership.
+The feature source includes all incoming REST/MCP operations and current human/
+assistant permissions; generated counts remain computed from that source.
+
+New authored guides explain `/workflows/secure-distribution/`,
+`/engineering/ci-and-release/`, `/engineering/provider-maintenance/` and
+`/engineering/background-jobs/`. Current system/authority/data-model/MCP pages
+link these contracts rather than duplicate full procedures. The system guide
+explicitly distinguishes configured Workers/D1/R2/Queues/Cron/private browser
+services, external Auth0/Telnyx/Pingen/Resend/Stripe, legacy SES/SNS, and unconfigured
+Workers AI/Durable Objects proposals. Provider prices are not copied into public
+prose; the maintenance procedure preserves qualification/expiry and immutable
+approved terms.
+
+The design-system, AI-contribution and video-production guides document current
+brand, i18n, accessibility, review and narration contracts. Editorial artwork preserves the approved Gutenberg character identity from the
+video reference; a service-release Mermaid
+separates main application release from private-service/provider qualification.
+Every affected CI, cloud, service, tariff, design, AI, locale, accessibility or
+video change updates its source contract, feature node and authored engineering
+guide in the same change. The repository standards and CI guard own this rule.
+
+**All results below precede this reconciliation.** New source coverage, generated
+views, English review, build, public-output/link/fragment audit, browser behavior,
+responsive rendering, exact-commit CI and authorized served publication remain
+pending for the expanded candidate. Do not reuse earlier pass counts as proof of
+new content or merged code.
+
+## Prior local candidate acceptance — 24 October 2026
 
 The extended site builds 46 documentation routes: 21 authored MDX pages and 25
 generated Markdown pages. Its manifest inventories 333 static assets. The shared

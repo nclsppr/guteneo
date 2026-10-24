@@ -13,6 +13,7 @@
     <script src="locales/fr.js" defer></script>
     <script src="i18n.js" defer></script>
     <script src="app.js" defer></script>
+    <script src="production-e2e.js" defer></script>
     <script src="seasonal.js" defer></script>
   </head>
   <body>
@@ -191,6 +192,70 @@
             Track your documents in your workspace.
           </p>
         </section>
+        <section class="browser-panel" aria-labelledby="browser-title">
+          <div class="panel-heading">
+            <h2 id="browser-title">Public browser journeys</h2>
+            <span id="e2e-state" class="badge historical">Pending</span>
+          </div>
+          <p class="section-note">
+            Published pages, public interactions and access protection on
+            desktop and in a mobile viewport. These GitHub runs are separate
+            from the availability measurements above.
+          </p>
+          <div class="browser-report-summary" role="status" aria-live="polite">
+            <h3 id="e2e-title">Reading the latest report…</h3>
+            <p id="e2e-detail">Reading browser results.</p>
+          </div>
+          <dl class="browser-report-facts">
+            <div>
+              <dt>Latest run</dt>
+              <dd><time id="e2e-completed">Pending</time></dd>
+            </div>
+            <div>
+              <dt>Tested release</dt>
+              <dd id="e2e-tested-release">Unknown release</dd>
+            </div>
+            <div>
+              <dt>Observed public release</dt>
+              <dd id="e2e-current-release">Unknown release</dd>
+            </div>
+            <div>
+              <dt>Report freshness</dt>
+              <dd id="e2e-freshness">Pending</dd>
+            </div>
+          </dl>
+          <p id="e2e-counts" class="section-note">No result received.</p>
+          <p id="e2e-run" hidden>
+            <a id="e2e-run-link" rel="noopener noreferrer" target="_blank"
+              >Open the GitHub report</a
+            >
+          </p>
+          <details id="e2e-check-details" class="browser-report-details" hidden>
+            <summary>View report checks</summary>
+            <ul id="e2e-checks" class="browser-report-checks"></ul>
+          </details>
+          <div class="browser-authenticated-scope">
+            <div class="panel-heading">
+              <h3>Authenticated distribution and receipt</h3>
+              <span id="e2e-authenticated" class="badge historical"
+                >Qualification pending</span
+              >
+            </div>
+            <p id="e2e-authenticated-detail">
+              The business lifecycle requires dedicated test accounts and
+              qualified strong authentication. This pending coverage is not a
+              service outage.
+            </p>
+          </div>
+          <details
+            id="e2e-history-details"
+            class="browser-report-details"
+            hidden
+          >
+            <summary>Previous runs</summary>
+            <ol id="e2e-history" class="browser-report-history"></ol>
+          </details>
+        </section>
         <section class="history-panel" aria-labelledby="history-title">
           <div class="panel-heading">
             <h2 id="history-title">
@@ -278,7 +343,7 @@
             </div>
           </details>
           <p class="section-note">
-            Availability covers received measurements only. Incomplete coverage
+            Availability covers received measurements only. Incompletee coverage
             leaves unknown periods; average latency is not a service commitment.
           </p>
         </section>
@@ -408,7 +473,7 @@
             ><input
               id="check-search"
               type="search"
-              placeholder="Rechercher un contrôle…"
+              placeholder="Search checks…"
               autocomplete="off"
           /></label>
         </div>

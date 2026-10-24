@@ -2,7 +2,7 @@
 title: "Campaigns and tracking"
 description: "8 capabilities in the operate branch of Guteneo."
 sidebar:
-  order: 11
+  order: 12
 ---
 
 <!-- Generated from docs/feature-map.json. Run npm run docs:build; do not edit this view. -->

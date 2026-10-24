@@ -1,10 +1,10 @@
 {
   "name": "guteneo",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "type": "module",
   "engines": {
-    "node": ">=22.16"
+    "node": "^22.22.3 || >=24.8.0"
   },
   "scripts": {
     "dev": "npm run build:web && node scripts/dev.mjs",
@@ -17,6 +17,7 @@
     "audit:dependencies": "npm audit --audit-level=high",
     "test": "vitest run && node --test tests/security/*.test.mjs",
     "test:e2e": "playwright test",
+    "test:distribution": "node scripts/test-distribution.mjs",
     "test:preview": "playwright test --config playwright.preview.config.ts",
     "build:web": "vite build --config apps/web/vite.config.ts && node integrations/build.mjs dist/web/integrations",
     "build:preview": "node scripts/build-preview.mjs",
@@ -91,6 +92,7 @@
   "devDependencies": {
     "@apidevtools/swagger-parser": "13.0.0",
     "@cloudflare/workers-types": "^5.20260916.1",
+    "@e2e-dev/web": "0.15.3",
     "@playwright/test": "^1.63.0",
     "@sparticuz/chromium": "^153.0.0",
     "@types/node": "^22.20.3",
@@ -99,6 +101,7 @@
     "@types/react-dom": "^19.3.0",
     "@types/sanitize-html": "^2.16.1",
     "@vitejs/plugin-react": "^6.1.1",
+    "e2e": "0.21.3",
     "esbuild": "0.28.2",
     "eslint": "^10.10.0",
     "eslint-plugin-react-hooks": "^7.1.1",
@@ -112,6 +115,9 @@
     "wrangler": "4.149.0"
   },
   "overrides": {
+    "e2e": {
+      "zod": "4.6.6"
+    },
     "@cloudflare/puppeteer": {
       "@puppeteer/browsers": "3.2.2"
     },

@@ -37,6 +37,7 @@ Run `npm run docs:build` and `npm run docs:check` to synchronize both views.
 | Brand and localization | [Brand identity](BRAND_IDENTITY.md), [multilingual behavior](MULTILINGUAL.md), [video narration](VIDEO_NARRATION.md) |
 | Shared web, REST and assistant contract | [API contract](API_CONTRACT.md), [developer API](DEVELOPER_API.md), [identity and MCP](IDENTITY_MCP.md) |
 | Workspace roles and account management | [Roles](WORKSPACE_ROLES.md), [account administration](ACCOUNT_ADMIN.md), [identity](ACCOUNT_IDENTITY.md), [deletion](ACCOUNT_DELETION.md) |
+| Sensitive distribution and personal receipt | [Current implementation](SECURE_DISTRIBUTION_IMPLEMENTATION.md), [journeys](SECURE_DISTRIBUTION_JOURNEYS.md), [pricing](SECURE_DISTRIBUTION_PRICING.md), [unified-account historical plan](UNIFIED_ACCOUNT_AND_VAULT_PLAN.md) |
 | Documents and authoring | [Studio workflow](TEMPLATES_DATA_DISTRIBUTION.md), [template engine](TEMPLATE_ENGINE.md), [data import](DATA_IMPORT.md), [verification recovery](DOCUMENT_ANALYSIS_RECOVERY.md) |
 | PDF accessibility diagnostics | [Horizon contract](PDF_ACCESSIBILITY.md), [validator](PDF_VALIDATOR.md), [activation runbook](HORIZON_ACTIVATION_RUNBOOK.md), [costs](HORIZON_COSTS.md) |
 | Dispatch channels and provider setup | [Provider contracts](PROVIDERS.md), [live activation](LIVE_ACTIVATION.md), [Telnyx](TELNYX_READINESS.md), [Resend](RESEND_SETUP.md), [SES](SES_SETUP.md), [Pingen](PINGEN_SETUP.md) |

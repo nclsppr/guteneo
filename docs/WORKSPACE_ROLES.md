@@ -1,5 +1,79 @@
 # Workspace roles and permissions
 
+## Unified account and sensitive distribution — 24 October 2026 candidate
+
+A Guteneo account may belong to no workspace. Receiving a document and acquiring
+a personal copy use personal authority independent of the four roles below.
+“Recipient” is not a fifth human role. The same account can read its documents
+and voluntarily create or choose a workspace to use Guteneo services. Receiving
+an invitation never joins the sender's workspace. After voluntary creation or
+selection, the browser reloads the chosen destination and workspace session;
+current rights and CSRF are read together before business operations. The browser
+regression creates an administrator workspace, then selects another as operator,
+with a real profile update in each local context.
+
+Document policy is independent of role: `strong` by default, `verified_account`
+only by explicit selection. The requested live profile uses a verified account
+and email, an identity-linked recent Auth0 session, independent recipient
+confirmation and human review. It claims neither MFA nor strong assurance.
+Reading, association and approval require fifteen-minute freshness; export,
+deposit and deletion require five minutes. `SENSITIVE_DOCUMENT_AUTHENTICATION`
+must match `secure_document_authentication_policy(id=1, mode)` created by 0059.
+Only the operator changes this D1 row; unknown values or disagreement deny access.
+An ordinary approval receipt cannot replace strong evidence after returning to
+`strong`. `documentAccessAllowed` and `documentAccessMode` inform the UI without
+extending current server/SQL authority.
+
+The server rechecks the following sensitive-distribution permissions at action
+time. Creators see their own preparations; current workspace approvers may review
+them. Other operators, supervisors without approval permission and observers
+receive no sensitive content through general read access.
+
+| Action | Administrator | Supervisor | Operator | Observer | Connected assistant |
+| --- | --- | --- | --- | --- | --- |
+| Prepare sharing of an accessible PDF | Yes | Yes | Yes | No | Membership, `dispatches:prepare` and current authority |
+| Read a distribution and workspace audit | Yes | All with approval permission; otherwise own creations | Own creations | No | Same resource access and `dispatches:read` |
+| Inspect final review pages | Browser and recent document session | Same requirement, with approval permission or own creation | Own creation, browser and recent document session | No | No recipient-page or personal-principal access |
+| Give sensitive approval | Browser and recent document session | Approval permission, browser and recent document session | No | No | No; an expert mandate cannot replace approval |
+| Activate an already approved distribution | Yes, with current evidence | Approval permission and current evidence | No | No | Approver role, `dispatches:send`, existing sensitive browser evidence and host confirmation |
+| Confirm a recipient/account association | Browser, independent verification and recent document session | Same requirement and approval permission | No | No | No |
+| Revoke shared access without refund | Yes | Approval permission | No | No | Approver role and `dispatches:send`; acquired personal copies remain |
+| Read, export or delete another person's personal copy | No | No | No | No | No |
+
+Any account owner, with or without a workspace role, can read their own documents
+under the active document policy, then download or retain only what the sharing
+policy permits. An acquired personal copy keeps its own retention/export
+commitment; its original workspace cannot revoke it. Neither workspace
+administrators nor assistants gain a global view of a person's personal documents.
+
+Price, term, recipient and permissions are frozen before approval. The separate
+attestation that the recipient requested this email and document is not inferred
+from a general review checkbox. Activation funds the entire term; revocation
+provides no refund. A personal-copy option is funded at activation even when
+unused. See [journeys](SECURE_DISTRIBUTION_JOURNEYS.md).
+
+This isolation applies to the new sensitive flow. Ordinary-document, Studio and
+preparer/approver limitations remain below. The candidate establishes no general
+folder isolation, retroactive migration of old links or hosted qualification.
+
+One source cannot combine sensitive distribution with legacy sending,
+password-link hosting, postal transformation, cropping or analysis. This is a
+deliberate V1 incompatibility that no role, scope or mandate overrides.
+
+| Source state or operation | Compatibility with sensitive distribution |
+| --- | --- |
+| Unexpired legacy `draft` or `active` hosting | Revoke the link before first sensitive preparation; all other restrictions still apply |
+| Derived, reserved or generated postal preparation | Choose a dedicated source |
+| Legacy send, postal preflight or provider draft already referencing the source | Choose a dedicated source, even after failure or cancellation |
+| New ordinary email, fax or postal attachment after sensitive reference | Forbidden for every role |
+| Legacy password/link content, postal processing, cropping or analysis after sensitive reference | Forbidden, including after sensitive failure or revocation |
+| Dedicated sensitive invitation | Allowed under current rights, without the source attachment (`document_id` is null) |
+
+Bidirectional service and SQL guards protect sensitive insertion and concurrent
+legacy writes for the same workspace/source. A legacy operation already under
+way cannot become sensitive during provider transfer. This exclusion cannot
+recall files already exported.
+
 2 October 2026 local candidate contract/migration, not production-publication
 proof. The customer guide at `/roles/` is localized in French, English, German and
 Luxembourgish; account/member management link to it.

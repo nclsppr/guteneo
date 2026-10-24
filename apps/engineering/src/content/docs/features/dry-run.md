@@ -2,7 +2,7 @@
 title: "Dispatch dry run"
 description: "7 capabilities in the deliver branch of Guteneo."
 sidebar:
-  order: 10
+  order: 11
 ---
 
 <!-- Generated from docs/feature-map.json. Run npm run docs:build; do not edit this view. -->

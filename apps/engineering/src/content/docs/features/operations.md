@@ -1,8 +1,8 @@
 ---
 title: "Operations and reliability"
-description: "16 capabilities in the operations branch of Guteneo."
+description: "18 capabilities in the operations branch of Guteneo."
 sidebar:
-  order: 19
+  order: 20
 ---
 
 <!-- Generated from docs/feature-map.json. Run npm run docs:build; do not edit this view. -->
@@ -34,6 +34,8 @@ Implemented operational tooling; changes require explicit authority and exact-so
 <li id="feature-3d7d712b8b1e">One source version with release comparison; dependency updates qualified by audit/tests/exact build without paid configuration</li>
 <li id="feature-1217012ad371">Dated high/critical registry advisory gate via audit:dependencies does not guarantee unknown-defect absence</li>
 <li id="feature-34ce16adfe4b">Repository standards and automated checks require English authored sources, valid English routes and synchronized feature/developer documentation</li>
+<li id="feature-e16ee26106cc">Separate secure render/deposit queue work, bounded lease reconciliation and shared/personal retention cleanup; revocation, erasure, acquisition and immutable evidence remain distinct</li>
+<li id="feature-9bdad62eb4b0">Documented provider/tariff maintenance separates official price, private account observation, immutable quote and actual outcome; expiry blocks new work without rewriting approved commitments</li>
 </ol>
 
 ## REST operations

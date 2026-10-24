@@ -10,6 +10,7 @@ const skills = [
   "get-started",
   "pdf-accessibility",
   "postal-pdf",
+  "secure-distribution",
 ];
 const hostNotice =
   "Before using this skill, read the [Claude host contract](../../references/claude-host.md). Use the connected Guteneo tools and preserve the host’s permission prompts.";

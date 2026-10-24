@@ -1,8 +1,8 @@
 ---
 title: "Engineering documentation"
-description: "8 capabilities in the operations branch of Guteneo."
+description: "10 capabilities in the operations branch of Guteneo."
 sidebar:
-  order: 22
+  order: 23
 ---
 
 <!-- Generated from docs/feature-map.json. Run npm run docs:build; do not edit this view. -->
@@ -23,7 +23,9 @@ Implemented documentation candidate; production publication requires an explicit
 <li id="feature-1869942d88ad">Single-source feature tree with role permissions and customer journeys; feature changes update the registry and developer guide together</li>
 <li id="feature-33377652b28d">Brand-colored Mermaid and isometric architecture diagrams with textual equivalents and explicit external provider boundaries</li>
 <li id="feature-7852cd23246a">Approved Gutenberg character identity, restrained printshop details and reduced-motion support; transparent header branding with ink-black lettering in light mode and explicitly approved ivory lettering in dark mode</li>
-<li id="feature-831f6868291d">Asset-only publication without application, tenant, document or communication bindings; local validation and hosted proof remain separate</li>
+<li id="feature-bd140b5ed6b8">Asset-only publication from clean main matching fresh origin/main and the reviewed commit, with source snapshots and complete output hashes revalidated after browser checks; no business bindings or delivery authority</li>
 <li id="feature-36c2610cdd03">Discoverable architecture diagram gallery with three brand-colored Mermaid flows, source downloads and accessible textual explanations</li>
 <li id="feature-f8ef1441b020">Curated Belvédère administration, data-model, release and troubleshooting guides that preserve authority, evidence and recovery boundaries</li>
+<li id="feature-280042af7cd5">Maintained GitHub job/artifact/release explanation, fresh dependency boundaries and separate application/native/engineering evidence</li>
+<li id="feature-213043d2677b">Curated Cloudflare/Auth0/transport dependencies, background jobs, tariff maintenance, design/i18n/accessibility, AI contribution and reproducible video/voice production guides</li>
 </ol>

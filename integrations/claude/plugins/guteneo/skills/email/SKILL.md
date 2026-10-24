@@ -24,3 +24,8 @@ Without a file, supply no documentId. Reuse a ready PDF for attachment or protec
 Preparation-only review accounts cannot send. A yes in chat is not browser approval or a mandate. recipientRequested requires the person's actual declaration. Keep recipient, message, HTML and attachments within the sensitive-content exclusions above; request a synthetic or redacted version instead of processing excluded data. Follow analysis on the same PDF at most three times per interaction; do not reimport or loop on rescans.
 
 Data files and recipient lists use the separate document-studio workflow only when actually available. Excel/other attachments and recipient accounts remain unavailable in this email workflow. Installing the plugin enables no channel, mandate or marketplace publication.
+
+When the person requests a recipient account, auditable access and defined
+retention, use the separate `secure-distribution` workflow when advertised by
+the server. The legacy password-protected email link is a different mode; never
+switch between these modes without the person’s explicit choice.

@@ -1,5 +1,36 @@
 # Resend and protected-document evidence
 
+## Operator requalification on 24 October 2026
+
+Around 17:39 UTC, the operator inspected Resend account `nclsppr` in Safari:
+**Free** plan, **0/3,000 emails per month**, **0/100 per day**, **10 requests/second**,
+paid overages disabled. Domain `guteneo.com`, ID
+`0140c1df-a406-495d-adb7-78a1204607b3`, remained **Verified** in `eu-west-1`;
+open/click tracking was not configured. No customer message was read for this
+qualification.
+
+The [public Resend price](https://resend.com/pricing) and its UI still showed
+USD 0.90 per 1,000 additional emails. `RESEND_RATE` retains this public Pro-tier
+commercial reference separately from the observed Free plan; it is not the
+actual marginal charge to that free account. **1.1537 USD/EUR**, dated
+16 September, remains a **fixed historical commercial reference**, never a current
+exchange rate. Requalification is bounded to **23 November 2026 at 00:00 UTC**;
+the historical price and exchange-rate dates are not rewritten.
+
+The publication candidate selects `LIVE_SEND_CHANNELS=fax,postal,email`,
+`RESEND_SENDS_ENABLED=true` and `SECURE_DISTRIBUTION_ENABLED=true`. Local values
+prove neither publication nor sending. The Resend webhook and
+`RESEND_WEBHOOK_SECRET` still require creation, installation and qualification.
+The prepared account-wide policy allows **80 recipients per rolling 24 hours**,
+**2,400 per UTC month** and **at least 500 ms** between submissions. Both quotas
+retain a 20% margin below observed limits; the cadence is a conservative
+operational ceiling, not a new provider limit. Usage outside Guteneo can consume
+this shared capacity. Installing the D1 policy is a separate operation after
+main/CI, with operator authorization.
+
+This observation establishes no delivery, receipt, signed notification or remote
+activation. The dated sections below remain historical.
+
 ## Integration — 2 October 2026
 
 Resend/protected links were reconciled with FR/EN/DE/LB web, native API and dashboard
