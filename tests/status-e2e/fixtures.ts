@@ -175,7 +175,7 @@ export async function fixtures(page: Page, fixture: Fixtures = {}) {
           history: [],
           authenticated: {
             status: "blocked",
-            code: "DEDICATED_STRONG_AUTH_FIXTURES_NOT_CONFIGURED",
+            code: "DEDICATED_AUTHENTICATED_FIXTURES_NOT_CONFIGURED",
           },
         },
       );

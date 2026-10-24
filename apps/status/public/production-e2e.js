@@ -137,7 +137,7 @@
       (data.currentReleaseCommit !== null && !sha(data.currentReleaseCommit)) ||
       data.authenticated?.status !== "blocked" ||
       data.authenticated?.code !==
-        "DEDICATED_STRONG_AUTH_FIXTURES_NOT_CONFIGURED" ||
+        "DEDICATED_AUTHENTICATED_FIXTURES_NOT_CONFIGURED" ||
       !Array.isArray(data.history) ||
       data.history.length > 20 ||
       !data.history.every((run) => validRun(run))

@@ -216,7 +216,7 @@ function publicRun(report: ProductionE2EReport) {
 export async function readProductionE2EStatus(db: D1Database, now = Date.now()) {
   const base = {
     schema: 1, generatedAt: new Date(now).toISOString(), staleAfterSeconds: E2E_STALE_MS / 1000,
-    authenticated: { status: "blocked", code: "DEDICATED_STRONG_AUTH_FIXTURES_NOT_CONFIGURED" },
+    authenticated: { status: "blocked", code: "DEDICATED_AUTHENTICATED_FIXTURES_NOT_CONFIGURED" },
   };
   try {
     const [rows, releaseRow] = await Promise.all([

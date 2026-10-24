@@ -2,6 +2,15 @@
 
 Date de recherche : 24 octobre 2026. **Spécification proposée, non activée.** Aucun compte, secret, facteur Auth0, fixture métier, réglage de tenant ou workflow connecté n’a été créé par cette étude.
 
+**Décision de lancement ultérieure :** le profil live choisi est désormais
+`verified_account`. Un compte vérifié connecté par le flux normal peut accéder
+aux documents autorisés sans passkey ou MFA supplémentaire. Les propositions
+WebAuthn ci-dessous documentent la recherche initiale du profil `strong` ; elles
+ne sont pas des prérequis de cette livraison. La surveillance connectée reste
+à configurer avec des identités de recette autorisées, un accès CI protégé et
+des fixtures synthétiques préapprouvées. Les contrôles publics ne la qualifient
+pas.
+
 ## Décision proposée
 
 Utiliser des comptes Auth0 réels réservés à la qualification, sur le même émetteur et la même application web que les clients. **Privilégier le MFA WebAuthn natif d’Auth0 avec vérification utilisateur obligatoire**, puis une Action distincte attestant le facteur réellement utilisé. Un authentificateur virtuel Chromium, enrôlé par le vrai parcours Auth0, peut répondre aux challenges. Guteneo reçoit le callback normal et crée sa session normale ; aucun JWT, cookie applicatif, facteur fort ou consentement humain n’est fabriqué par le test.

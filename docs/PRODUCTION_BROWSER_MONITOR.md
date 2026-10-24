@@ -84,8 +84,10 @@ autorisée du workflow. Aucun de ces actes n’est effectué par les tests locau
 ## Parcours authentifiés
 
 Le résultat `authenticated.status: blocked` est indépendant des 28 contrôles
-publics et du bilan des quatorze sondes Cron. Les comptes forts dédiés, les
-passkeys réelles et les fixtures métier préapprouvées restent à qualifier.
+publics et du bilan des quatorze sondes Cron. Les comptes de recette dédiés,
+leur accès CI protégé et les fixtures métier préapprouvées restent à qualifier.
+Le profil live `verified_account` ne requiert pas de passkey ou de MFA ;
+leur absence ne constitue pas le blocage de cette suite.
 Le rapport anonyme ne peut pas déclarer ce cycle réussi. Une future suite
 authentifiée nécessite un job protégé et un schéma de preuve distinct ; elle
 ne doit jamais publier de JWT, capture de document, trace, état de session ou
