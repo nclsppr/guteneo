@@ -30,6 +30,6 @@ Public UI/localised content implemented; current candidate changes are local unt
 <li id="feature-c5475b39f98a">Multilingual social cards and reader sharing controls</li>
 <li id="feature-7d0f587da524">Public error documents retain real HTTP status with 17 dedicated four-language messages and 4xx/5xx fallback; only eligible public failures, no status-selector/demo endpoint</li>
 <li id="feature-93e9a29f288b">Original responsive navigation/access/service artwork, retained masters/provenance and accessible text independent of bitmap</li>
-<li id="feature-89ef06e2203e">Shared public header/footer/legal navigation; English canonical paths and anchors with explicit legacy path and public-hash aliases</li>
+<li id="feature-7901a73ca9a7">Shared public header/footer/legal navigation; the mobile menu closes on an unhandled Escape after pointer or keyboard opening and restores trigger focus; English canonical paths and anchors with explicit legacy path and public-hash aliases</li>
 <li id="feature-070eb59ffb63">English source copy with context-aware translations; shared app primitives and one authoritative documentation/feature tree</li>
 </ol>

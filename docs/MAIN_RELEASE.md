@@ -57,6 +57,16 @@ byte fingerprint, using the shared builder calculation. Every asset is reread an
 compared: added, missing or changed files block publication. Preview `health.json`
 is checked separately. One final branch/commit/cleanliness check precedes Wrangler.
 
+The shared [`public-site.json`](../packages/contracts/src/public-site.json)
+registry owns canonical public page paths and legacy page/download aliases.
+Aliases are HTTP redirects in both application and preview routing;
+do not add physical stubs at those paths. The real-build regression checks every
+alias against both manifests and output directories, including localized page
+variants, and checks the canonical download bytes. Preserve strict served-byte
+verification: an unexpected redirect fails the release proof. Remove an obsolete
+alias file from source and rebuild through normal review/CI gates instead of
+following the redirect or excluding the file from verification.
+
 After an authorized merge, fast-forward `main`, verify merged-commit CI and publish
 from a clean checkout of that commit. Retain Cloudflare version/traffic, health
 and public `scripts/verify-release.mjs` evidence. Review and preserve test-modified
@@ -127,3 +137,10 @@ temporary Git repositories and a local bare remote exercise wrong branches,
 dirty sources, stale refs, fetch failure, changes during build, manifest/asset
 mismatch and absence of deployment after refusal. Build/deploy are intercepted;
 no test accesses the product remote or Cloudflare.
+
+Public artifact and redirect regressions:
+`node --test tests/security/preview-release-assets.test.mjs tests/security/verify-release.test.mjs`
+builds both static products and checks the verifier with local fixtures;
+`npx vitest run tests/unit/public-routes.test.ts` checks GET/HEAD alias status,
+target, query preservation and absence of asset reads on both routing surfaces.
+These local checks do not replace post-publication verification.

@@ -121,6 +121,16 @@ according to their contracts; a successful HTTP status alone cannot substitute
 for matching bytes. A changed or missing asset fails verification. Retain the
 result with the exact source and actual platform version/traffic observation.
 
+Public downloads and pages have canonical build paths. Shared routing retains
+old links as redirects in both the application and public preview, without
+duplicate files at alias paths. The build regression checks both manifests,
+localized page paths and canonical download bytes; routing tests separately
+check GET/HEAD redirects and preserved query parameters. If served verification
+finds an unexpected redirect, correct the source/build mismatch and repeat the
+reviewed release sequence. Keep byte verification strict instead of following
+redirects or omitting an advertised asset. Local regression evidence still needs
+the exact merged revision's CI and fresh served verification.
+
 The application uses its canonical origin for browser authentication and public
 verification. Old application hosts and version previews remain closed under
 their own routing checks. An alternate hostname serving a page is not an approved

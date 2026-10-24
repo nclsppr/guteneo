@@ -26,7 +26,7 @@ Implemented operational tooling; changes require explicit authority and exact-so
 <li id="feature-749face2ff7c">Private scanner, renderer and validator releases from clean main; loopback qualification bridge with temporary secret, Origin refusal and no secret transfer; validator operators check Horizon closed on canonical guteneo.com only</li>
 <li id="feature-c054fe8b17d6">Backend/security/browser suites and exhaustive CI; basic validator max 1, 5-second idle, qualified JVM corpus to 100 pages/9.887 MiB; measured local CPU savings do not prove hosted cost</li>
 <li id="feature-0860eb993dd2">Release from clean, synchronized, verified main</li>
-<li id="feature-5e71b53295e1">Release manifests, asset hashes and canonical remote health; retired workers.dev/preview closure has separate evidence</li>
+<li id="feature-d35cb15a18d3">Release manifests contain canonical public assets with exact byte hashes; shared application/preview redirects preserve old page/download links without duplicate alias files; unexpected redirects fail served verification; retired workers.dev/preview closure has separate evidence</li>
 <li id="feature-3ebafa0151f6">Local production monitor uses bounded anonymous canonical reads and retired-host refusal checks, page hashes, private-access refusal and 120-second staleness; partial feature proof, no sends or permanent task</li>
 <li id="feature-2eb834115a08">Idempotent cursor-wrap purge with tenant-bound tombstones/success audit and R2/audit failure recovery without recounting completed purges</li>
 <li id="feature-b3c8636a3f23">Targeted CI checkout preserves suites and published media; excludes immutable work archives and prefers official Ubuntu mirrors without dropping tests</li>

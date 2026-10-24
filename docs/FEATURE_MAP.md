@@ -743,12 +743,12 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Multilingual social cards and reader sharing controls
 - Public error documents retain real HTTP status with 17 dedicated four-language messages and 4xx/5xx fallback; only eligible public failures, no status-selector/demo endpoint
 - Original responsive navigation/access/service artwork, retained masters/provenance and accessible text independent of bitmap
-- Shared public header/footer/legal navigation; English canonical paths and anchors with explicit legacy path and public-hash aliases
+- Shared public header/footer/legal navigation; the mobile menu closes on an unhandled Escape after pointer or keyboard opening and restores trigger focus; English canonical paths and anchors with explicit legacy path and public-hash aliases
 - English source copy with context-aware translations; shared app primitives and one authoritative documentation/feature tree
 
 **Contract:** [MULTILINGUAL.md](MULTILINGUAL.md) · **Implementation:** [packages/contracts/src/public-site.json](../packages/contracts/src/public-site.json)
 
-**Tests:** [tests/e2e/locale-boundaries.spec.ts](../tests/e2e/locale-boundaries.spec.ts), [tests/preview-e2e/language-navigation.spec.ts](../tests/preview-e2e/language-navigation.spec.ts), [tests/preview-e2e/assistant-hub.spec.ts](../tests/preview-e2e/assistant-hub.spec.ts), [tests/unit/public-assets.test.ts](../tests/unit/public-assets.test.ts), [tests/security/public-assets.test.mjs](../tests/security/public-assets.test.mjs), [tests/unit/public-http-error.test.ts](../tests/unit/public-http-error.test.ts)
+**Tests:** [tests/e2e/locale-boundaries.spec.ts](../tests/e2e/locale-boundaries.spec.ts), [tests/preview-e2e/language-navigation.spec.ts](../tests/preview-e2e/language-navigation.spec.ts), [tests/preview-e2e/assistant-hub.spec.ts](../tests/preview-e2e/assistant-hub.spec.ts), [tests/preview-e2e/public-menu-escape.spec.ts](../tests/preview-e2e/public-menu-escape.spec.ts), [tests/unit/public-assets.test.ts](../tests/unit/public-assets.test.ts), [tests/security/public-assets.test.mjs](../tests/security/public-assets.test.mjs), [tests/unit/public-http-error.test.ts](../tests/unit/public-http-error.test.ts)
 
 
 
@@ -828,7 +828,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Private scanner, renderer and validator releases from clean main; loopback qualification bridge with temporary secret, Origin refusal and no secret transfer; validator operators check Horizon closed on canonical guteneo.com only
 - Backend/security/browser suites and exhaustive CI; basic validator max 1, 5-second idle, qualified JVM corpus to 100 pages/9.887 MiB; measured local CPU savings do not prove hosted cost
 - Release from clean, synchronized, verified main
-- Release manifests, asset hashes and canonical remote health; retired workers.dev/preview closure has separate evidence
+- Release manifests contain canonical public assets with exact byte hashes; shared application/preview redirects preserve old page/download links without duplicate alias files; unexpected redirects fail served verification; retired workers.dev/preview closure has separate evidence
 - Local production monitor uses bounded anonymous canonical reads and retired-host refusal checks, page hashes, private-access refusal and 120-second staleness; partial feature proof, no sends or permanent task
 - Idempotent cursor-wrap purge with tenant-bound tombstones/success audit and R2/audit failure recovery without recounting completed purges
 - Targeted CI checkout preserves suites and published media; excludes immutable work archives and prefers official Ubuntu mirrors without dropping tests
@@ -841,7 +841,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 
 **Contract:** [PRODUCTION_REVIEW_2026_10_09.md](PRODUCTION_REVIEW_2026_10_09.md) · **Implementation:** [scripts/deploy-public.mjs](../scripts/deploy-public.mjs)
 
-**Tests:** [tests/security/main-only-release.test.mjs](../tests/security/main-only-release.test.mjs), [tests/security/pdf-validator-release.test.mjs](../tests/security/pdf-validator-release.test.mjs), [apps/pdf-validator/tests/probe-credentials.test.mjs](../apps/pdf-validator/tests/probe-credentials.test.mjs), [tests/security/production-monitor.test.mjs](../tests/security/production-monitor.test.mjs), [tests/security/observability.test.mjs](../tests/security/observability.test.mjs), [tests/integration/documents.test.ts](../tests/integration/documents.test.ts), [tests/unit/telnyx-readiness.test.ts](../tests/unit/telnyx-readiness.test.ts), [apps/scanner/tests/maintenance-status.test.mjs](../apps/scanner/tests/maintenance-status.test.mjs), [apps/scanner/tests/qualification-artifact.test.mjs](../apps/scanner/tests/qualification-artifact.test.mjs), [tests/security/verify-release.test.mjs](../tests/security/verify-release.test.mjs)
+**Tests:** [tests/security/main-only-release.test.mjs](../tests/security/main-only-release.test.mjs), [tests/security/pdf-validator-release.test.mjs](../tests/security/pdf-validator-release.test.mjs), [apps/pdf-validator/tests/probe-credentials.test.mjs](../apps/pdf-validator/tests/probe-credentials.test.mjs), [tests/security/production-monitor.test.mjs](../tests/security/production-monitor.test.mjs), [tests/security/observability.test.mjs](../tests/security/observability.test.mjs), [tests/integration/documents.test.ts](../tests/integration/documents.test.ts), [tests/unit/telnyx-readiness.test.ts](../tests/unit/telnyx-readiness.test.ts), [apps/scanner/tests/maintenance-status.test.mjs](../apps/scanner/tests/maintenance-status.test.mjs), [apps/scanner/tests/qualification-artifact.test.mjs](../apps/scanner/tests/qualification-artifact.test.mjs), [tests/security/verify-release.test.mjs](../tests/security/verify-release.test.mjs), [tests/security/preview-release-assets.test.mjs](../tests/security/preview-release-assets.test.mjs), [tests/unit/public-routes.test.ts](../tests/unit/public-routes.test.ts)
 
 **Documented REST operations**
 
@@ -1066,9 +1066,9 @@ Open the private link → enter the separately supplied password → download th
 
 **Actor:** Developer and explicitly authorised release operator. **Branch:** Operations.
 
-Update feature tree/developer contracts/source/tests together → regenerate and check atlas → run exact-source checks → review → obtain explicit merge/release authority → publish from clean synchronized main → verify public manifest/assets and separately qualify authenticated/runtime behavior.
+Update feature tree/developer contracts/source/tests together → regenerate and check atlas → check canonical build assets and compatibility redirects → run exact-source checks → review → obtain explicit merge/release authority → publish from clean synchronized main → verify public manifest/assets and separately qualify authenticated/runtime behavior.
 
-**Failure/recovery:** Dirty source, drift, failing checks, missing configuration/scan or absent authority blocks release. CI, local fixtures, production HTTP and real provider/client proof remain distinct.
+**Failure/recovery:** Dirty source, drift, failing checks, missing configuration/scan or absent authority blocks release. Unexpected redirects or changed/missing advertised bytes fail served verification; correct the source and repeat the reviewed release sequence without weakening verification. CI, local fixtures, production HTTP and real provider/client proof remain distinct.
 
 [Detailed contract](MAIN_RELEASE.md).
 

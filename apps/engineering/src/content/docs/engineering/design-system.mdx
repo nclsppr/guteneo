@@ -162,6 +162,14 @@ Keep focus visible beneath sticky headers. A disclosure reports its expanded
 state; Escape closes an overlay and returns focus to its trigger. Preserve the
 application's existing route-focus and unsaved-work behavior.
 
+The shared public mobile menu handles Escape at document level while open.
+WebKit can leave focus on the document body after pointer activation, so a
+header-only key listener misses that input. Both pointer and keyboard opening
+must close with Escape and restore the menu button's focus. Remove the listener
+when the menu closes, and respect an Escape already consumed by another control.
+The focused regression in `tests/preview-e2e/public-menu-escape.spec.ts` covers
+the homepage and developer guide at 320px and 390px in Chromium and WebKit.
+
 Labels remain visible when fields contain values. Put errors beside the relevant
 field and announce important asynchronous outcomes without repeatedly taking
 focus. Keep navigation distinct from actions, and provide an alternative to
