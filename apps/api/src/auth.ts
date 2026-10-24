@@ -40,6 +40,8 @@ export interface AuthEnv {
   MODE: string;
   APP_ORIGIN: string;
   AUTH0_DOMAIN?: string;
+  /** Browser-only alias; never changes the canonical identity/MCP issuer. */
+  AUTH0_BROWSER_DOMAIN?: string;
   AUTH0_CLIENT_ID?: string;
   AUTH0_CLIENT_SECRET?: string;
   AUTH0_AUDIENCE?: string;
@@ -305,6 +307,60 @@ export function auth0Issuer(env: AuthEnv): string {
     );
   return url.href;
 }
+// The alias belongs to this same Auth0 tenant. Never learn this mapping from a
+// token's unverified `iss`, discovery metadata, a request or an email address.
+const CUSTOM_BROWSER_IDENTITY = {
+  canonical: "https://pieper.eu.auth0.com/",
+  browser: "https://auth.guteneo.com/",
+} as const;
+function invalidIdentityConfiguration(): never {
+  throw new AuthError(
+    "IDENTITY_CONFIG_INVALID",
+    "Configuration d’identité invalide.",
+    503,
+  );
+}
+function browserAuth0Issuer(env: AuthEnv): string {
+  const canonical = auth0Issuer(env);
+  if (env.AUTH0_BROWSER_DOMAIN === undefined) return canonical;
+  let browser: string;
+  try {
+    browser = auth0Issuer({ ...env, AUTH0_DOMAIN: env.AUTH0_BROWSER_DOMAIN });
+  } catch {
+    return invalidIdentityConfiguration();
+  }
+  if (
+    canonical !== CUSTOM_BROWSER_IDENTITY.canonical ||
+    browser !== CUSTOM_BROWSER_IDENTITY.browser
+  )
+    invalidIdentityConfiguration();
+  return browser;
+}
+function transactionAuth0Issuer(
+  env: AuthEnv,
+  transaction: {
+    authorization_issuer: string | null;
+    identity_issuer: string | null;
+  },
+): string {
+  const canonical = auth0Issuer(env);
+  // Pre-migration transactions were always initiated at the canonical domain.
+  // In particular they must not inherit a newly enabled browser alias.
+  if (
+    transaction.authorization_issuer === null &&
+    transaction.identity_issuer === null
+  )
+    return canonical;
+  if (transaction.identity_issuer !== canonical) invalidIdentityConfiguration();
+  if (transaction.authorization_issuer === canonical) return canonical;
+  // Keep an already-started alias flow valid when the opt-in is rolled back.
+  if (
+    canonical === CUSTOM_BROWSER_IDENTITY.canonical &&
+    transaction.authorization_issuer === CUSTOM_BROWSER_IDENTITY.browser
+  )
+    return transaction.authorization_issuer;
+  return invalidIdentityConfiguration();
+}
 function configuredIdentity(env: AuthEnv): {
   issuer: string;
   clientId: string;
@@ -331,7 +387,23 @@ export async function validateAuth0Token(
   kind: "id" | "access",
   keyOverride?: JWTVerifyGetKey,
 ): Promise<JWTPayload> {
-  const issuer = auth0Issuer(env);
+  return validateAuth0TokenAtIssuer(
+    token,
+    env,
+    kind,
+    auth0Issuer(env),
+    keyOverride,
+  );
+}
+/** Only the configured canonical issuer or a checked server-side browser
+ * transaction can reach this verifier. The JWT never selects its own JWKS. */
+async function validateAuth0TokenAtIssuer(
+  token: string,
+  env: AuthEnv,
+  kind: "id" | "access",
+  issuer: string,
+  keyOverride?: JWTVerifyGetKey,
+): Promise<JWTPayload> {
   const audience = kind === "id" ? env.AUTH0_CLIENT_ID : env.AUTH0_AUDIENCE;
   if (!audience)
     throw new AuthError(
@@ -888,6 +960,7 @@ async function handleAuthRouteOperation(
     ["/auth/login", "/auth/signup"].includes(url.pathname)
   ) {
     const config = configuredIdentity(env);
+    const authorizationIssuer = browserAuth0Issuer(env);
     const preferredLocale = requestedLoginLocale(request);
     if (env.ENVIRONMENT !== "local") {
       const ip = request.headers.get("CF-Connecting-IP");
@@ -932,7 +1005,7 @@ async function handleAuthRouteOperation(
         ? await hashSecret(invitationToken)
         : null;
     await env.DB.prepare(
-      "INSERT INTO auth_transactions(state_hash,browser_hash,code_verifier,nonce,return_to,expires_at,preferred_locale,invitation_token_hash) VALUES(?,?,?,?,?,?,?,?)",
+      "INSERT INTO auth_transactions(state_hash,browser_hash,code_verifier,nonce,return_to,expires_at,preferred_locale,invitation_token_hash,authorization_issuer,identity_issuer) VALUES(?,?,?,?,?,?,?,?,?,?)",
     )
       .bind(
         await hashSecret(state),
@@ -943,9 +1016,11 @@ async function handleAuthRouteOperation(
         new Date(Date.now() + 600_000).toISOString(),
         preferredLocale,
         invitationHash,
+        authorizationIssuer,
+        config.issuer,
       )
       .run();
-    const destination = new URL("authorize", config.issuer);
+    const destination = new URL("authorize", authorizationIssuer);
     destination.search = new URLSearchParams({
       client_id: config.clientId,
       response_type: "code",
@@ -989,11 +1064,13 @@ async function handleAuthRouteOperation(
     )
       throw new AuthError("LOGIN_STATE_INVALID", "Recommencez la connexion.");
     const transaction = await env.DB.prepare(
-      "DELETE FROM auth_transactions WHERE state_hash=? AND browser_hash=? AND expires_at>? RETURNING code_verifier,nonce,return_to,preferred_locale,invitation_token_hash",
+      "DELETE FROM auth_transactions WHERE state_hash=? AND browser_hash=? AND expires_at>? RETURNING code_verifier,nonce,return_to,preferred_locale,invitation_token_hash,authorization_issuer,identity_issuer",
     )
       .bind(await hashSecret(state), await hashSecret(browser), nowISO())
       .first<{
         invitation_token_hash: string | null;
+        authorization_issuer: string | null;
+        identity_issuer: string | null;
         code_verifier: string;
         nonce: string;
         return_to: string;
@@ -1012,7 +1089,8 @@ async function handleAuthRouteOperation(
     };
     if (!code)
       throw new AuthError("LOGIN_STATE_INVALID", "Recommencez la connexion.");
-    const response = await fetch(new URL("oauth/token", config.issuer), {
+    const authorizationIssuer = transactionAuth0Issuer(env, transaction);
+    const response = await fetch(new URL("oauth/token", authorizationIssuer), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       redirect: "manual",
@@ -1058,11 +1136,17 @@ async function handleAuthRouteOperation(
         "LOGIN_EXCHANGE_FAILED",
         "Réponse d’identité incomplète.",
       );
-    const claims = await validateAuth0Token(tokens.id_token, env, "id");
-    const accessClaims = await validateAuth0Token(
+    const claims = await validateAuth0TokenAtIssuer(
+      tokens.id_token,
+      env,
+      "id",
+      authorizationIssuer,
+    );
+    const accessClaims = await validateAuth0TokenAtIssuer(
       tokens.access_token,
       env,
       "access",
+      authorizationIssuer,
     );
     if (claims.nonce !== transaction.nonce || claims.sub !== accessClaims.sub)
       throw new AuthError(
