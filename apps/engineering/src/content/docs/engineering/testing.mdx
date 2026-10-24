@@ -1,0 +1,110 @@
+---
+title: Testing and evidence
+description: Choose checks that exercise the changed boundary and describe exactly what their results establish.
+sidebar:
+  order: 2
+---
+
+A passing check answers a bounded question. A local provider stub can establish
+request construction and uncertainty handling; it cannot establish a real fax
+delivery. Keep those layers explicit when choosing tests and reporting results.
+
+## Start with the affected contract
+
+| Change | Useful evidence |
+| --- | --- |
+| Pure domain or parser behavior | Focused unit cases, malformed inputs and exact numeric/string handling |
+| Persistence or authorization | Local D1 integration cases with populated migrations, multiple workspaces and revoked authority |
+| Approval, billing or dispatch | Immutable fingerprints, concurrent acceptance, atomic reservation/outbox and unknown-outcome cases |
+| Browser behavior | Actual application E2E with local synthetic records; responsive, keyboard and locale checks |
+| Public layout | Separate browser-only preview tests, without implying business-service coverage |
+| Private rendering, scanner or validator | Qualification of the actual installed engine and its runtime boundary |
+| Native client | Native unit and UI checks; physical-device and distribution proof remain separate |
+| Hosted release | Exact-source deployment verification plus the specific authenticated/provider journey being claimed |
+
+Avoid assertions that merely repeat the implementation. Exercise a failure that
+would violate the contract: a cross-workspace identifier, a changed review hash,
+a stale membership, a duplicate callback or a timeout after a provider may have
+accepted work.
+
+## Run the repository checks
+
+From the repository root after [local setup](/getting-started/local-development/):
+
+```sh
+npm run typecheck
+npm run lint
+npm test
+npm run docs:check
+npm run build
+```
+
+`npm test` runs the Vitest selection and Node security suites. Integration tests
+use local Workers/D1 fixtures and injected transports. Their production-mode
+guards exercise production rules against synthetic records; they do not contact
+the deployed application merely because a fixture selects production mode.
+
+Run the focused suite while developing, then the required repository checks for
+the final change. If another agent or process is changing the same files, agree
+on a stable source snapshot before treating a combined run as final evidence.
+
+## Keep the two browser environments distinct
+
+```sh
+npx playwright install chromium webkit
+npm run test:e2e
+npm run build:preview
+npm run test:preview
+```
+
+Application E2E starts the real local service, migrations and seeded fixtures.
+Preview tests exercise an independent public design model with no business
+bindings. Both are useful, but preview success cannot establish tenant isolation,
+approval acceptance or provider behavior.
+
+Use the configured desktop Chromium, mobile Chromium and iPhone WebKit projects
+for the relevant change. A Chromium fallback is not evidence for Safari. Preserve
+business assertions when adapting a stale label or selector, and retain failure
+traces privately rather than publishing customer-like fixtures by accident.
+
+## Optional local network isolation
+
+On supported macOS hosts, `npm run test:offline` runs a fixed installed selection
+under an OS network boundary. The runner first proves loopback access and an
+actual denied outbound connection. It refuses unsupported hosts instead of
+quietly falling back to online execution.
+
+This selection never installs dependencies or downloads engines. The optional
+`--with-pdf` case requires an already installed browser. The report describes
+synthetic local evidence and captures the tested source before and after the run;
+a changing source set cannot retain a passing result. This is a boundary for
+trusted local test code, not a general-purpose hostile-code sandbox.
+
+## Qualify CI, engines and hosted behavior separately
+
+CI must report the required jobs for the same source revision. Missing, skipped,
+cancelled or failed required jobs do not become a passing release through an
+aggregate label. Reusing a build is meaningful only when its source matches the
+revision under review.
+
+Qualify the actual scanner signatures, renderer, validator and remote browser
+runtime separately from stubbed service responses. An installed container image
+is not evidence of fresh antivirus signatures. Native simulator UI checks do not
+establish physical-device behavior or App Store distribution.
+
+Hosted health, OAuth discovery, authenticated host calls, provider configuration
+and real delivery each need their own observation. Read-only checks cannot prove
+an unperformed send. A build, a package archive or an integration catalog entry
+does not publish or activate a capability.
+
+## Report a result that another engineer can assess
+
+Record the source revision or explicit tested snapshot, environment, suite scope,
+result and material limitations. Keep real, sandbox and deterministic simulation
+evidence separate. A failed or unavailable check remains visible; do not replace
+it with an older passing report.
+
+Use private, untracked artifact destinations for diagnostic logs, screenshots and
+traces. Review sanitized summaries before any public publication. Never collect
+actual documents, recipient addresses, credentials or signed URLs merely to prove
+that instrumentation works.

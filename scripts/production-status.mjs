@@ -105,7 +105,7 @@ export async function productionStatus(fetcher = fetch) {
     scannerFreshness: "not_checked",
     dependencyReadiness: "not_checked",
     operationalHistory:
-      "Consulter Observability : erreurs, dernier cron, files et inconnus.",
+      "Review Observability: errors, latest cron run, queues and unknown outcomes.",
     dashboards: dashboardLinks,
   };
 }

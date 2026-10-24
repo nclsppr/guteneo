@@ -286,6 +286,9 @@ owns inputs/scopes/five-minute review/transfer boundaries. Initial MCP options
 REST business errors use `{error:{code,message}}`, optionally
 `fields:[{path,message}]` for `VALIDATION_ERROR`. Handle `code`, not display text.
 API messages are English under [repository standards](REPOSITORY_STANDARDS.md).
+Remote-import diagnostics may append `Source domain: <public hostname>.` after
+hostname sanitization. Private URL paths, query parameters and signed credentials
+are discarded; observations retain only the bounded source category/known host.
 
 | Status | Examples/recovery |
 | --- | --- |

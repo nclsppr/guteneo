@@ -1,0 +1,17 @@
+flowchart TB
+  accTitle: Private originals, versioned templates and derived PDFs
+  accDescr: Original uploads remain private and byte-for-byte intact. Parsed datasets and saved mapping profiles combine with a concrete template version in a generation job. The job creates derived PDFs and a provenance manifest. Address-page derivation also creates a new document. Applicable validation, review and approval remain necessary before a separate dispatch.
+  upload["Original upload"] --> original[("Private original\nidentity + exact bytes retained")]
+  data["CSV · workbook · structured data"] --> parse["Parse sheets + rows"]
+  parse --> mapping["Mapping profile\nfields · transformations · preview"]
+  template["Studio template\nconcrete version + settings"] --> generate
+  mapping --> generate["Generation job"]
+  generate --> derived[("New derived PDF\nseparate identity + private bytes")]
+  generate --> provenance["Manifest + provenance"]
+  original --> address["Add a postal address page"]
+  address --> derived
+  derived --> checks["Applicable scan + validation + preview"]
+  checks --> approval["Later immutable approval"]
+  approval --> dispatch["Separate dispatch acceptance"]
+  classDef focus fill:#e8edff,stroke:#2450db,color:#242c38,stroke-width:1.5px
+  class original,derived focus

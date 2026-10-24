@@ -1,0 +1,100 @@
+---
+title: Security and reliability
+description: The boundaries that protect private documents and keep uncertain delivery from becoming duplicate work.
+sidebar:
+  order: 1
+---
+
+guteneo treats documents as untrusted input and communications as durable business
+commitments. A control is useful only if it survives a different client, a repeated
+message, a revoked permission or an interrupted provider request. These boundaries
+are enforced in the shared service and persistence layer.
+
+## Resolve access before touching private data
+
+The authenticated actor resolves to current workspace membership or a bound OAuth
+connection. Resource lookups, deduplication, idempotency keys and relationships are
+workspace scoped. A document identifier, object key or assistant-supplied workspace
+value never grants access by itself.
+
+Browser mutations retain session, Origin and CSRF checks. Connected clients also
+need the appropriate scopes and current resource authority; the token alone does
+not preserve a role that has since been revoked. Native and assistant clients do
+not inherit administrator powers from the browser UI.
+
+See [authority and tenancy](/architecture/authority-and-tenancy/) for the full
+distinction between identity, permission, human review and bounded delegation.
+
+## Keep hostile input away from privileged execution
+
+Uploaded PDFs retain their exact bytes and hash. They remain quarantined until the
+required verification succeeds for that version. Missing, stale or mismatched
+scan evidence fails closed; a successful browser preview cannot supply that proof.
+
+HTML rendering uses a restricted input model and blocks unwanted browser requests.
+Source parsing and document generation have explicit size, page, resource and time
+bounds. Dataset formulas are not executable application code. Public URL imports
+use a separate trusted HTTPS policy; private service bindings do not authorize
+arbitrary outbound fetches.
+
+These controls reduce specific risks. They are not a claim that every possible
+hostile PDF, compressed archive or browser resource pattern is harmless. New
+parsers, formats and rendering dependencies need focused hostile-input tests and
+qualification of the actual isolated runtime.
+
+## Seal approval, then commit work
+
+An approval binds the exact content, recipient, options and cost reviewed. Changes
+to those values require a new review. A model's assertion of consent is not
+evidence of a human action. Optional delegation has its own server-recorded actor,
+expiry, channel and budget limits; it does not relabel delegated approval as human.
+
+Acceptance, quota reservation and outbox insertion happen atomically. Consumers
+use a conditional claim and durable attempt records. Duplicate queue publication
+can therefore be handled without treating every delivery of a message as a new
+permission to contact a provider.
+
+The hardest case is an interrupted request whose remote outcome is unknown.
+`submission_unknown` preserves that uncertainty. It blocks automatic resubmission
+until reconciliation establishes what happened. A timeout does not mean a provider
+rejected the communication, and a retry button cannot safely assume it did.
+
+## Treat callbacks as evidence
+
+Provider callbacks require signature verification and durable, deduplicated
+receipts before projecting a status. Events may arrive more than once or out of
+order; some may arrive before their corresponding local association is available.
+Reconciliation must retain those facts without inventing a successful delivery.
+
+Acceptance by a provider, recipient delivery, postal handoff and financial
+settlement are distinct observations. Read the [dispatch lifecycle](/architecture/dispatch-lifecycle/)
+and [channel contracts](/workflows/delivery-channels/) before changing projections.
+
+## Observe failures without collecting document contents
+
+Application diagnostics use bounded event codes, correlation identifiers, route
+codes, version metadata, durations and integer counters. They exclude document
+contents, recipients, tokens, signed URLs and raw request/response bodies. Avoid
+logging free-form provider exceptions: they may contain private payloads.
+
+Metrics and logs help locate a failure; they are neither a backup nor the durable
+business audit. Platform and dependency metadata need their own privacy review.
+A safe application event does not prove that every surrounding runtime log is
+safe to persist.
+
+## Keep failure closed through recovery
+
+Missing identity, scanner, provider, tariff or required billing configuration
+must stop the affected capability. Production rejects development authentication
+and simulation shortcuts. A configured key or healthy process is not sufficient
+authority to send.
+
+Recovery must preserve accepted commitments and unknown attempts. Restoring a
+database does not establish that an external provider forgot a request. Reconcile
+provider facts and persisted attempts before replay; do not turn a restore into a
+bulk resubmission mechanism.
+
+The [testing guide](/engineering/testing/) separates local regression evidence,
+isolated-engine qualification, exact-source CI, hosted observations and real
+delivery. Public [status](https://status.guteneo.com/) reports bounded health; it
+does not certify every account, host, provider or security control.

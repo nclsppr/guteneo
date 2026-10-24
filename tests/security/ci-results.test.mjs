@@ -11,9 +11,16 @@ import {
 
 const jobs = () =>
   Object.fromEntries(
-    ["pdf-validator", "scanner", "checks", "vitest", "security", "build", "browser"].map(
-      (name) => [name, { result: "success" }],
-    ),
+    [
+      "pdf-validator",
+      "scanner",
+      "checks",
+      "vitest",
+      "security",
+      "build",
+      "browser",
+      "engineering",
+    ].map((name) => [name, { result: "success" }]),
   );
 const report = (names) => ({
   success: true,

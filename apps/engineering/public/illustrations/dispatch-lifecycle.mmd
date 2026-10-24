@@ -1,0 +1,20 @@
+flowchart TB
+  accTitle: Immutable approval and the dispatch acceptance lifecycle
+  accDescr: Approval is a separate immutable record attached while a dispatch remains prepared. One D1 transaction verifies acceptance, reserves quota, inserts the outbox and moves to queued. A claimed attempt moves to submitting. Known outcomes are accepted or failed. An uncertain outcome becomes submission_unknown and requires reconciliation, never automatic resubmission. Accepted does not mean delivered.
+  prepared["prepared\nconcrete document · recipient · options · quote"]
+  approval["Separate approval record\nimmutable binding + authenticated authority"]
+  approval -. "verified at acceptance" .-> atomic
+  prepared --> atomic
+  atomic["Atomic D1 acceptance\nverify approval + reserve quota + insert outbox"]
+  atomic --> queued["queued"]
+  queued --> claim["Conditional attempt claim"]
+  claim --> submitting["submitting"]
+  submitting -->|"known response"| accepted["accepted\nprovider accepted the submission"]
+  submitting -->|"known failure"| failed["failed"]
+  submitting -->|"uncertain response or expired lease"| unknown["submission_unknown\nSTOP — no automatic retry"]
+  unknown --> reconcile["Provider-specific reconciliation"]
+  accepted --> events["Later channel events\nfax: delivered / failed\npost: printed / handed_to_post\nemail: delivered / bounced / complained"]
+  classDef focus fill:#e8edff,stroke:#2450db,color:#242c38,stroke-width:1.5px
+  classDef hold fill:#f1ece3,stroke:#242c38,color:#242c38,stroke-width:2px
+  class atomic,approval focus
+  class unknown hold

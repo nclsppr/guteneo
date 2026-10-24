@@ -269,7 +269,7 @@ export class ImportSourceError extends ContentError {
     const safeHost = hostname ? publicImportHostname(hostname) : undefined;
     super(
       code,
-      `${message}${safeHost ? ` Domaine source : ${safeHost}.` : ""}`,
+      `${message}${safeHost ? ` Source domain: ${safeHost}.` : ""}`,
       status,
     );
     this.sourceHost = safeHost;

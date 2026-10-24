@@ -1,0 +1,9 @@
+---
+import MermaidFigure from './MermaidFigure.astro';
+import { diagrams, mermaidDiagrams, type DiagramId } from './model';
+interface Props { diagram?: DiagramId }
+const { diagram = 'system' } = Astro.props;
+const model = diagrams[diagram] ?? diagrams.system;
+const logical = mermaidDiagrams[model.id];
+---
+<MermaidFigure id={model.id} asset={model.asset} {...logical} />

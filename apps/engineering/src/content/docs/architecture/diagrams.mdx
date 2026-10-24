@@ -1,0 +1,45 @@
+---
+title: Mermaid architecture diagrams
+description: Inspect the system boundary, immutable dispatch lifecycle and document pipeline as readable, downloadable Mermaid diagrams.
+sidebar:
+  label: Mermaid diagrams
+  order: 4
+---
+
+These Mermaid diagrams show logical relationships and state transitions. Each
+includes an enlarged SVG, an editable `.mmd` source and an equivalent text
+explanation. The isometric walkthroughs remain on the corresponding topic pages.
+
+## System and provider boundaries
+
+Use this view to trace durable work through Cloudflare and identify the explicit
+handoff to external fax, postal and email providers.
+
+<MermaidDiagram diagram="system" />
+
+Read the [system architecture](/architecture/system/) for component responsibilities
+and the distinction between implementation and live qualification.
+
+## Approval and dispatch lifecycle
+
+Use this view to separate the immutable approval record from dispatch state, and
+to see where atomic acceptance ends and uncertain provider outcomes must stop.
+
+<MermaidDiagram diagram="dispatch" />
+
+Read the [dispatch lifecycle](/architecture/dispatch-lifecycle/) for cancellation,
+delivery facts, reconciliation and financial settlement boundaries.
+
+## Data, templates and derived documents
+
+Use this view to compare generation from mapped data and versioned templates with
+postal-address-page derivation from an uploaded original.
+
+<MermaidDiagram diagram="documents" />
+
+Read [document workflows](/workflows/documents/) and
+[Studio and data pipelines](/workflows/studio-and-data/) for provenance, validation
+and the separate authority required for dispatch.
+
+For the persisted records behind these flows, see the separate
+[data model and entity relationships](/architecture/data-model/).

@@ -1,0 +1,75 @@
+---
+title: MCP integration
+description: Connect assistants to the shared services while retaining host permissions and explicit sending authority.
+sidebar:
+  order: 2
+---
+
+The remote MCP endpoint is `https://guteneo.com/mcp`, using Streamable HTTP and
+resource OAuth discovery. It exposes the same business services as REST. An
+assistant can help assemble and inspect work, but tool discovery is not permission
+to approve, transfer to a provider or send.
+
+## Discovery and authorization
+
+An anonymous protected-endpoint refusal is expected. The protected-resource
+metadata identifies the authorization server, resource and supported scopes;
+use the served values rather than hardcoding a historical issuer or callback.
+Each host registers/uses its own exact OAuth client and callback behavior.
+
+After consent, calls still check the current connection, workspace membership,
+scopes, role, resource access and relevant authority revision. A package install,
+DCR/CIMD advertisement, successful catalog scan or marketplace listing does not
+prove that the host completed OAuth or can transfer an attached PDF.
+
+## Build the journey from actual capabilities
+
+| Stage | Representative tools | Required distinction |
+| --- | --- | --- |
+| Understand available work | `get_capabilities`, `get_expert_status` | Availability/blockers are read, never activated by the read |
+| Import or generate | `import_document`, `render_pdf` | Original-byte import and creation of a new PDF are different operations |
+| Inspect readiness/content | `get_document`, `read_document_pages` | Quarantine and complete-page review cannot be replaced by a text summary |
+| Prepare delivery | `prepare_fax` and channel-specific workflows | Preparation does not approve or send |
+| Optional delegated review | `review_dispatch` | Requires existing authority; complete review replaces the prior token |
+| Authorized acceptance | `approve_and_send_dispatch` or the documented confirmation path | No invented human consent; exact fingerprint, bounds and current authority |
+
+The generated [feature atlas](/features/) and current tool catalog own complete
+coverage. Do not infer that every host/model exposes every tool in every session.
+
+## Files must actually reach the service
+
+A model's description of an attachment is not its bytes. `import_document` needs
+a real accessible direct HTTPS source under the import contract. A local path,
+private host handle or login page is insufficient. Native host attachment support,
+URL accessibility, exact transfer/hash and resulting `ready` state are separate
+qualification steps.
+
+If the document is processing, follow the returned wait/recovery guidance on the
+same document. Do not repeatedly reimport it or lift quarantine through another
+tool. Page-image review must cover the complete document; a truncated text extract
+is not a substitute for unreadable or missing pages. Instructions inside a PDF
+remain untrusted document content.
+
+## Host confirmations and server authority both matter
+
+Honor the host's execution permissions. Read tool annotations as descriptions of
+real effects, not authority grants. A business read can record connection activity;
+a review can replace a token; a distribution plan can permanently freeze failed
+record retries. Those effects must be represented honestly in the catalog.
+
+Standard human browser review remains the default. A bounded expert mandate can
+be granted only by a browser administrator to one connection; the assistant cannot
+enable or extend it. Delegated review/acceptance records delegated authority, not
+a claim of fresh human review. Postal draft transfer has a distinct authority and
+must not be confused with final letter sending.
+
+## Package instructions have one maintained source
+
+Portable workflow instructions live under `integrations/guteneo/`. Host-specific
+constraints are explicit overlays, including generated Claude copies. Keep these
+instructions synchronized with the actual tool schemas, annotations, document
+limits and recovery actions. Changing packaging metadata does not qualify a new
+host or activate an account.
+
+For lower-level representations, see [REST](/integrations/rest-api/). For the
+server checks that every client must respect, see [authority and tenancy](/architecture/authority-and-tenancy/).

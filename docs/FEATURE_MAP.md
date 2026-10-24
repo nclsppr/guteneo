@@ -1,7 +1,7 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
 # Guteneo feature tree and developer atlas
 
-**21 domains · 222 features · 25 journeys · 67 documented REST operations · 67 MCP tools**
+**22 domains · 230 features · 26 journeys · 67 documented REST operations · 67 MCP tools**
 Updated 2026-10-24.
 
 Repository implementation inventory. Availability depends on current capabilities and authority; implementation, activation and deployed proof are distinct.
@@ -40,6 +40,7 @@ mindmap
       Operations and reliability (16)
       Belvédère platform oversight (7)
       Public service status (8)
+      Engineering documentation (8)
 ```
 
 ### Access
@@ -80,6 +81,7 @@ mindmap
 - [Operations and reliability](#operations) — 16 features; operator-gated.
 - [Belvédère platform oversight](#belvedere) — 7 features; operator-gated.
 - [Public service status](#status) — 8 features; public.
+- [Engineering documentation](#engineering-docs) — 8 features; public.
 
 ## Availability and evidence
 
@@ -188,7 +190,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 
 **Surfaces:** Web, REST and MCP with current document authority; native import/inspection subset.
 
-- Bounded PDF upload and remote import
+- Bounded PDF upload and remote import with English API diagnostics and only a sanitized public source hostname
 - Search, paginated listing, metadata and page reading
 - Quarantine, real antivirus, exact hash and PDF validation
 - Resume analysis of the same document without reimport
@@ -816,6 +818,28 @@ Supervisor approval/reporting options are independent and off by default. Resour
 
 
 
+<a id="engineering-docs"></a>
+### Engineering documentation
+
+**Availability model:** public. Implemented documentation candidate; production publication requires an explicitly authorized, independently verified release.
+
+**Surfaces:** Public static engineering documentation; no business API or authentication surface.
+
+- Dedicated engineering.guteneo.com reading surface built with Cloudflare Nimbus; customer documentation retains docs.guteneo.com
+- Curated English architecture, workflow and integration guides with local search, Markdown copies and assistant-readable indexes
+- Single-source feature tree with role permissions and customer journeys; feature changes update the registry and developer guide together
+- Brand-colored Mermaid and isometric architecture diagrams with textual equivalents and explicit external provider boundaries
+- Approved Gutenberg character identity, restrained printshop details and reduced-motion support; transparent header branding with ink-black lettering in light mode and explicitly approved ivory lettering in dark mode
+- Asset-only publication without application, tenant, document or communication bindings; local validation and hosted proof remain separate
+- Discoverable architecture diagram gallery with three brand-colored Mermaid flows, source downloads and accessible textual explanations
+- Curated Belvédère administration, data-model, release and troubleshooting guides that preserve authority, evidence and recovery boundaries
+
+**Contract:** [ENGINEERING_SITE.md](ENGINEERING_SITE.md) · **Implementation:** [apps/engineering/astro.config.ts](../apps/engineering/astro.config.ts)
+
+**Tests:** [tests/security/engineering-site.test.mjs](../tests/security/engineering-site.test.mjs), [tests/engineering-e2e/site.spec.ts](../tests/engineering-e2e/site.spec.ts)
+
+
+
 ## Customer journeys and recovery
 
 ### J01 · Discover and sign in
@@ -1068,8 +1092,18 @@ Request an eligible public HTML document → retain real error status → show l
 
 [Detailed contract](PUBLIC_HTTP_ERRORS.md).
 
+### J26 · Understand and change a feature
+
+**Actor:** Reader → contributor. **Branch:** Engineering.
+
+Open the engineering site → find a feature in the generated tree → read its architecture and workflow guide → reproduce the behavior locally → update the authoritative feature source and developer guide together → run documentation and relevant behavior checks.
+
+**Failure/recovery:** Stale generated pages and broken internal links fail validation. Restricted runbooks and dated private evidence remain in the repository. Publication needs explicit authorization and separate hosted verification.
+
+[Detailed contract](ENGINEERING_SITE.md).
+
 ## Required maintenance
 
-Every feature addition, change or removal must update feature-map.json, affected permissions/journeys, the developer guide and the detailed technical contract in the same PR. Include entry conditions, authority, result, errors/recovery, surfaces, privacy, activation gates, source and tests. Update OpenAPI/MCP contracts where relevant, regenerate both atlas views, and run npm run docs:check. The generator rejects missing or stale advertised REST/MCP operations. Review remains responsible for semantic coverage and factual status. These files stay in the repository; never import, publish or link them from the official site.
+Every feature addition, change or removal must update feature-map.json, affected permissions/journeys, the developer guide and the detailed technical contract in the same PR. Include entry conditions, authority, result, errors/recovery, surfaces, privacy, activation gates, source and tests. Update OpenAPI/MCP contracts where relevant, regenerate both atlas views, and run npm run docs:check. The generator rejects missing or stale advertised REST/MCP operations. Review remains responsible for semantic coverage and factual status. These raw atlas files stay in the repository. The separate engineering site publishes only curated guides and the explicit generated feature projection; regenerate that projection with npm run docs:build.
 
 [Developer API guide](DEVELOPER_API.md) · [REST contract](API_CONTRACT.md) · [OpenAPI](../apps/web/public/openapi.json) · [MCP annotations](../integrations/chatgpt/tool-annotations.md) · [CI](CI.md) · [Dated test evidence](TEST_RESULTS.md).

@@ -1,0 +1,55 @@
+---
+interface Props {
+  id: string;
+  asset: string;
+  title: string;
+  caption: string;
+  width: number;
+  text: string[];
+}
+const { id, asset, title, caption, width, text } = Astro.props;
+const captionId = `mermaid-${id}-caption`;
+---
+<figure class="mermaid-figure" data-mermaid={id} aria-describedby={captionId}>
+  <div class="mermaid-heading"><span>MERMAID</span><strong>{title}</strong></div>
+  <div class="mermaid-paper" role="region" aria-label={`${title}: scrollable diagram`} tabindex="0" style={`--mermaid-width:${width}px`}>
+    <img src={`/illustrations/${asset}-mermaid.svg`} alt={`${title}. Read the equivalent text below or open the full-size SVG.`} loading="lazy" decoding="async" />
+  </div>
+  <p class="mermaid-hint">Scroll across the diagram on smaller screens, or open the full-size view.</p>
+  <figcaption id={captionId}>{caption}</figcaption>
+  <details><summary>Read the flow as text</summary><ul>{text.map((paragraph) => <li>{paragraph}</li>)}</ul></details>
+  <div class="mermaid-downloads">
+    <a href={`/illustrations/${asset}-mermaid.svg`} target="_blank" rel="noopener">Open full-size SVG <span aria-hidden="true">↗</span></a>
+    <a href={`/illustrations/${asset}-mermaid.svg`} download>Download SVG</a>
+    <a href={`/illustrations/${asset}.mmd`} download>Mermaid source</a>
+  </div>
+</figure>
+<script>
+  // Native arrow scrolling can fail in WebKit when a diagram exceeds the viewport height.
+  document.addEventListener('keydown', (event: KeyboardEvent) => {
+    const canvas = event.target;
+    if (
+      event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey ||
+      !(canvas instanceof HTMLElement) || canvas !== document.activeElement ||
+      !canvas.matches('.mermaid-paper') || canvas.scrollWidth <= canvas.clientWidth + 1 ||
+      (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight')
+    ) return;
+    event.preventDefault();
+    canvas.scrollLeft += event.key === 'ArrowRight' ? 40 : -40;
+  });
+</script>
+<style>
+  .mermaid-figure{margin:2rem 0!important}
+  .mermaid-heading{display:flex;align-items:baseline;justify-content:space-between;gap:1rem;margin-bottom:.75rem}
+  .mermaid-heading span{font:500 .65rem/1.5 'IBM Plex Mono',monospace;letter-spacing:.12em;color:var(--nb-brand,#2450db)}
+  .mermaid-heading strong{font-size:.875rem;font-weight:500;text-align:right}
+  .mermaid-paper{background:#f6f5ef;border:1px solid #d5d1c8;padding:1rem;border-radius:4px;overflow:auto;overscroll-behavior-x:contain;scrollbar-gutter:stable}
+  img{display:block;width:max(100%,var(--mermaid-width));max-width:none;height:auto}
+  .mermaid-hint{margin:.5rem 0 .85rem;color:var(--nb-muted-foreground,#68717e);font-size:.75rem;line-height:1.5}
+  figcaption{margin:.85rem 0;color:var(--nb-muted-foreground,#68717e);font-size:.875rem;line-height:1.65}
+  details{font-size:.875rem;line-height:1.7}
+  summary{cursor:pointer;min-height:44px}
+  ul{padding-left:1.3rem}li{margin:.65rem 0}
+  .mermaid-downloads{display:flex;flex-wrap:wrap;gap:.35rem 1.25rem;margin-top:.65rem;font-size:.8rem}
+  a{display:inline-flex;gap:.35rem;align-items:center;min-height:44px;color:var(--nb-brand,#2450db)}a:focus-visible,summary:focus-visible,.mermaid-paper:focus-visible{outline:2px solid var(--nb-brand,#2450db);outline-offset:3px}
+</style>

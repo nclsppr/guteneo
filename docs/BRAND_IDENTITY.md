@@ -7,16 +7,27 @@ publication evidence is recorded separately after delivery.
 ## Composition rules clarified on 3 October 2026
 
 The brand lettering **guteneo**, and **guteneo.com** when used as a graphic
-signature, remains lowercase and **ink black `#181b22`**, never cobalt blue.
+signature, remains lowercase and defaults to **ink black `#181b22`**, never cobalt blue.
 This is already the site's color: `--ink: #181b22` in
 `apps/web/src/styles.css`, applied to `.brand` and inherited by
 `.brand-wordmark`. The wordmark retains EB Garamond. Blue belongs to the
 official portrait, illustrations and decorative elements.
 
-This rule applies to every new or revised brand template: website and
+Unless the explicit engineering-header exception below applies, this rule
+applies to every new or revised brand template: website and
 application, email, sharing card, social post, video and other promotional
 material. On a dark background, place the black signature on a light paper
 panel using the site's ivory `#f6f5ef`; do not create a white or blue wordmark.
+
+### Engineering-header dark-mode exception (24 October 2026)
+
+The engineering documentation header uses a transparent background in both themes.
+The existing portrait already contains transparency; never flatten it onto paper.
+Keep the lowercase wordmark ink black in light mode. In dark mode, the explicitly
+approved exception uses ivory `#f6f5ef` for the wordmark and its Engineering label,
+without a light cartouche. Preserve the portrait's original blue and EB Garamond
+lettering. This exception is scoped to the engineering documentation header;
+other templates retain their established composition rules.
 
 A standalone promotional card carries **one signature**: `guteneo` or
 `guteneo.com`. Do not combine the wordmark with a second `guteneo.com`.

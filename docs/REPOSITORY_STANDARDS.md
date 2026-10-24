@@ -52,7 +52,7 @@ separate; unknown or external-looking hashes must not become redirects.
 
 | Concept | English term | Contract |
 | --- | --- | --- |
-| Product | guteneo | Lowercase ink-black brand lettering; see [brand identity](BRAND_IDENTITY.md). |
+| Product | guteneo | Lowercase brand lettering; ink black by default, with the documented engineering dark-mode exception. See [brand identity](BRAND_IDENTITY.md). |
 | Shared tenant | Workspace | A tenant-scoped organization; preserve existing `organization`/`organisation` wire identifiers. |
 | Human roles | Administrator, Supervisor, Operator, Observer | The four membership roles in `packages/contracts/src/roles.ts`. |
 | Connected assistant | Assistant | A separate actor with OAuth authority; never a fifth human role. |
@@ -79,8 +79,9 @@ shared `PageHeading`. Extend these sources rather than adding a second shell.
 Use the established paper/ink/cobalt palette, EB Garamond display type and IBM
 Plex body type through shared style tokens (`--font-body`, `--font-display`,
 `--font-code`, `--content-measure`, `--control-height`). Preserve approved assets
-and the black lowercase wordmark. The [brand contract](BRAND_IDENTITY.md) owns
-visual identity; public shell code owns its implementation.
+and the lowercase wordmark. The [brand contract](BRAND_IDENTITY.md) owns
+visual identity, including ivory lettering on transparent engineering headers in
+dark mode; public shell code owns its implementation.
 
 ## Documentation ownership
 
@@ -94,6 +95,7 @@ of copying the same operational instructions into multiple files.
 | [Architecture](ARCHITECTURE.md) | System boundaries, trust, persistence, atomicity and runtime design. |
 | [API contract](API_CONTRACT.md) | Shared web/REST/MCP contract and interface discovery. |
 | [Feature-map source](feature-map.json) | Feature tree, role matrix, journeys, references and availability. |
+| [Engineering site](ENGINEERING_SITE.md) | Curated Nimbus publication, public feature projection, diagrams, assets and documentation release. |
 | [Brand identity](BRAND_IDENTITY.md) | Approved assets, colors, lettering and composition. |
 | [Multilingual contract](MULTILINGUAL.md) | Locale resolution, persistence, translation parity and boundaries. |
 | [Main release procedure](MAIN_RELEASE.md) | Publication sequence and exact-source release gates. |
@@ -111,8 +113,14 @@ When adding, changing or removing a feature, update both its feature-map node
 and the affected developer documentation in the same pull request, including
 the role matrix and customer journeys. Regenerate the Markdown/HTML atlas
 and verify it with `node docs/build-feature-map.mjs --check`. Generated documents
-are outputs: edit their source. The technical atlas stays repository-only and
-must not become an official website asset, page, navigation item or sitemap URL.
+are outputs: edit their source. The raw technical atlas, internal runbooks and
+dated private evidence stay in the repository. The separate Nimbus site at
+`engineering.guteneo.com` publishes only its curated guides and explicit generated
+feature projection. Keep `docs.guteneo.com` reserved for customer documentation.
+Update the affected engineering guide and diagrams with their authoritative
+contract; link to one explanation instead of duplicating it. Regenerate both
+atlas views and engineering feature pages with `npm run docs:build`, then run
+`npm run docs:check` and `npm run check:engineering`.
 
 Portable integration instructions are authored once under `integrations/guteneo/`.
 Claude-specific host constraints are an explicit overlay; run
@@ -123,7 +131,7 @@ its own permission prompts and transfer limits.
 
 ## Repository checks
 
-`npm run docs:build` regenerates the feature atlas and MCP annotation matrix;
+`npm run docs:build` regenerates the feature atlas, engineering feature pages and MCP annotation matrix;
 `npm run docs:check` rejects
 stale views, missing references and incomplete interface coverage. Run
 `npm run check:standards` for language/routing/source-ownership regression checks.

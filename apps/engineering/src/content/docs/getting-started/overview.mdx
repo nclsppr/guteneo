@@ -1,0 +1,63 @@
+---
+title: Start with the domain model
+description: The documents, workspaces, dispatches and evidence that connect guteneo's interfaces.
+sidebar:
+  order: 1
+---
+
+The same backend serves the web workspace, a SwiftUI companion and OAuth-connected
+assistants. These clients offer different interaction patterns, but they share
+business rules. A new button or MCP tool must enter the existing service boundary
+rather than create another way to approve or send.
+
+## The important objects
+
+| Object | What it represents | What it does not establish |
+| --- | --- | --- |
+| Workspace | The tenant selected through current authenticated membership | Platform-wide access |
+| Document | Private PDF bytes, hash, provenance and verification state | Permission to deliver them |
+| Template version | A published immutable authoring definition | Approval of generated communications |
+| Dataset and mapping | Original source data plus an explicit deterministic interpretation | Permission to infer missing recipients or change channels |
+| Dispatch | One prepared communication with exact recipient, content, options and financial bounds | Delivery merely because preparation succeeded |
+| Approval | Authority for the dispatch's immutable fingerprint | Authority for a changed document or refreshed quote |
+| Attempt and provider event | Submission and subsequent provider facts | An automatic reason to resend when a response is uncertain |
+
+Ordinary workspace documents and creator-private Studio PDFs have different read
+rules. Preparing a dispatch can grant a currently authorized approver access to
+its exact private PDF in that review context; it does not publish the document
+into a general library.
+
+## Follow one communication
+
+1. Import an existing PDF or explicitly generate a new one.
+2. Wait for its usable verification state. A stored PDF may still be quarantined.
+3. Prepare a dispatch using an authorized sender, exact recipient and valid quote.
+4. Review the final document, options, estimate and ceiling.
+5. Record valid human approval, or use an already granted bounded delegation.
+6. Confirm acceptance through the existing domain service.
+7. Track the same dispatch through queueing, provider submission and delivery.
+
+Document generation, tariff calculation and read-only validation do not perform
+steps five or six. Provider acceptance and confirmed delivery also remain
+separate. For fax usage, financial settlement has its own evidence and bounds.
+
+## Read state, not assumptions
+
+A channel can exist in code while being disabled for a workspace. A scanner can
+be configured while being unavailable or stale. A host can discover an MCP tool
+without having the scope or file-transfer mechanism needed for its journey.
+Read current capabilities and the operation's returned gates; never infer the
+next action from a package version or a screenshot.
+
+The [feature atlas](/features/) covers the complete catalog. The focused workflow
+pages explain how those features fit together without repeating every feature
+entry.
+
+## Build your first local understanding
+
+Use [local development](/getting-started/local-development/) to inspect a synthetic
+workspace. Then trace a single operation from its route through
+`DomainService` or `DocumentService`, its D1 write and its returned representation.
+The [repository map](/getting-started/repository-map/) identifies those locations;
+[authority and tenancy](/architecture/authority-and-tenancy/) explains the checks
+that must survive any refactor.

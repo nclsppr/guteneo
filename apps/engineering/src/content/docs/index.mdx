@@ -1,0 +1,81 @@
+---
+title: Engineering approved communications
+description: How guteneo preserves documents, separates authority and makes asynchronous delivery reviewable.
+sidebar:
+  label: Overview
+  order: 0
+---
+
+guteneo turns exact documents into reviewable communications. A browser, native
+client or connected assistant can prepare work; the server decides which actor
+may read it, approve its immutable version and request delivery. PDF verification,
+provider readiness, budgets and delivery evidence remain separate checks.
+
+This site explains the implementation and the decisions behind it. It serves
+engineers and integrators; customer task guides belong to the separate future
+customer documentation site.
+
+<GutenbergNote pose="welcome" title="Welcome to the workshop">
+  Good printing starts with a clear proof. Here, the proof is an exact document
+  and a visible chain of decisions, from the first local fixture to the provider's
+  final evidence.
+</GutenbergNote>
+
+<CardGrid>
+  <Card title="Run the application" href="/getting-started/local-development/" icon="ph:terminal-window">
+    Start the real Workers application with local D1, private document storage and synthetic data.
+  </Card>
+  <Card title="Understand the system" href="/architecture/system/" icon="ph:graph">
+    Follow the browser, shared domain service, private PDF services, outbox and delivery queues.
+  </Card>
+  <Card title="Explore the feature atlas" href="/features/" icon="ph:tree-structure">
+    Browse the complete generated implementation inventory, including actors and activation gates.
+  </Card>
+  <Card title="Build an integration" href="/integrations/rest-api/" icon="ph:plugs-connected">
+    Use the same document and dispatch contracts through REST or MCP without bypassing approval.
+  </Card>
+</CardGrid>
+
+## The commitments that shape the code
+
+**Preserve the original.** Uploaded PDF bytes have a stable hash. Rendering,
+address-page creation and Studio generation produce distinct document versions;
+they do not silently modify an approved original.
+
+**Keep permission and approval distinct.** Workspace membership and OAuth scopes
+control access. Approval binds exact content, recipient, options and cost. An
+assistant connection is not human consent; optional delegation is a separate,
+bounded administrator decision.
+
+**Commit before dispatching.** Acceptance, quota reservation and outbox insertion
+are atomic. Queue publication can repeat; a conditional claim controls provider
+attempts. An unknown provider outcome requires reconciliation rather than blind
+retry.
+
+**Describe the evidence.** Implemented code, an enabled account capability, a
+local fixture, a deployed release and a verified delivery prove different things.
+Feature pages retain that distinction. They are an engineering inventory, not a
+promise that every account, host or country is currently enabled.
+
+## Choose a reading path
+
+- New to the repository: [start with the domain model](/getting-started/overview/),
+  then use the [repository map](/getting-started/repository-map/).
+- Tracing stored relationships: read the [data model and ownership](/architecture/data-model/)
+  for tenant boundaries, immutable versions, accounting and retention.
+- Working on document creation: follow [PDF handling](/workflows/documents/),
+  [Studio and data](/workflows/studio-and-data/) and [PDF diagnostics](/workflows/pdf-diagnostics/).
+- Working on delivery: read the [dispatch lifecycle](/architecture/dispatch-lifecycle/)
+  before the [channel adapters](/workflows/delivery-channels/).
+- Adding a client or assistant: understand [authority and tenancy](/architecture/authority-and-tenancy/),
+  then choose [REST](/integrations/rest-api/) or [MCP](/integrations/mcp/).
+- Operating the platform: read [Belvédère administration](/administration/belvedere/)
+  for its seven views, privileged access and read-only boundaries.
+- Following a flow visually: open the [technical diagram reference](/architecture/diagrams/)
+  for the interactive figures, Mermaid flows and downloadable sources.
+- Changing the implementation: use the [testing boundaries](/engineering/testing/)
+  and [contribution workflow](/engineering/contributing/).
+- Preparing a release: follow [changes and releases](/engineering/releases/)
+  from reviewed source through CI to exact served verification.
+- Investigating a failure: use [troubleshooting](/engineering/troubleshooting/)
+  to separate safe reads, explicit recovery and operator escalation.

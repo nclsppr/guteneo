@@ -346,12 +346,53 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
+  engineering:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/videos/guteneo-gutenberg/archive/
+            !/videos/guteneo-gutenberg/media-parts/
+            !/reports/screenshots/
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            apps/engineering/package-lock.json
+      - run: npm ci
+      - run: PUPPETEER_SKIP_DOWNLOAD=true npm ci --prefix apps/engineering
+      - run: npm audit --prefix apps/engineering --audit-level=high
+      - run: npm run docs:check
+      - run: npm run build:engineering
+      - name: Install the documentation browsers
+        run: npx playwright install --with-deps chromium webkit
+      - run: npm run test:engineering
+      - name: Verify asset-only deployment configuration
+        working-directory: apps/engineering
+        run: npx wrangler deploy --dry-run
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: ci-evidence-engineering
+          path: |
+            test-results/engineering/
+            test-results/engineering-report/
+            apps/engineering/dist/release.json
+          if-no-files-found: error
+          retention-days: 14
+
   # Branch protection keeps the same required check. A skipped/cancelled/failed
   # dependency must fail this job rather than produce a green skipped gate.
   # Native XCTest/archive have their own source-filtered workflow, not a web gate.
   verify:
     if: always()
-    needs: [pdf-validator, scanner, checks, vitest, security, build, browser]
+    needs: [pdf-validator, scanner, checks, vitest, security, build, browser, engineering]
     runs-on: ubuntu-latest
     # Checkout and evidence download share this budget with verification.
     timeout-minutes: 10

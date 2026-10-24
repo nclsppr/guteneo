@@ -1,0 +1,136 @@
+---
+import type { DiagramModel } from './model';
+interface Props { model: DiagramModel; svg: string }
+const { model, svg } = Astro.props;
+---
+<guteneo-anatomy class="anatomy-figure" data-figure={model.id}>
+  <figure>
+    <div class="anatomy-plate">
+      <div class="anatomy-corners"><span>FIG. {model.figure}</span><strong>{model.title}</strong></div>
+      <div class="anatomy-stage" set:html={svg} />
+      <div class="anatomy-corners anatomy-bottom"><span class="anatomy-hint">Follow the envelope · choose a step</span><span data-readout>{model.steps[0].label}</span></div>
+    </div>
+    <div class="anatomy-controls" role="group" aria-label={`${model.title}: explanatory steps`}>
+      {model.steps.map((step, i) => <button type="button" data-step={i} aria-pressed={i === 0}><span aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>{step.label}</button>)}
+    </div>
+    <div class="anatomy-description" aria-live="polite" aria-atomic="true" data-description>{model.steps[0].detail}</div>
+    <figcaption>{model.caption}</figcaption>
+    <div class="anatomy-tools"><button type="button" data-tour aria-pressed="false" hidden>Play walkthrough</button><a href={`/illustrations/${model.asset}.svg`} download>Download SVG <span aria-hidden="true">↗</span></a></div>
+    <details class="anatomy-fallback"><summary>Read the complete explanation</summary><ol>{model.steps.map((step) => <li><strong>{step.label}.</strong> {step.detail}</li>)}</ol></details>
+  </figure>
+  <script type="application/json" data-step-copy set:html={JSON.stringify(model.steps).replace(/</g, '\\u003c')} />
+</guteneo-anatomy>
+
+<script>
+  class GuteneoAnatomy extends HTMLElement {
+    private cleanup?: () => void;
+    connectedCallback() {
+      if (this.cleanup) return;
+      const buttons = [...this.querySelectorAll<HTMLButtonElement>('[data-step]')];
+      const packet = this.querySelector<SVGGElement>('[data-packet]');
+      const svg = this.querySelector<SVGSVGElement>('svg');
+      const description = this.querySelector<HTMLElement>('[data-description]');
+      const readout = this.querySelector<HTMLElement>('[data-readout]');
+      const tourButton = this.querySelector<HTMLButtonElement>('[data-tour]');
+      const copy = JSON.parse(this.querySelector('[data-step-copy]')?.textContent ?? '[]') as { label: string; detail: string }[];
+      if (!packet || !svg || !description || !readout || !tourButton || !buttons.length) return;
+      const stops = JSON.parse(packet.dataset.stops ?? '[]') as [number, number][];
+      const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+      let selected = 0, current = [0, 0], target = [0, 0], frame = 0, previous = 0;
+      let visible = true, playing = false, hovering = false, lastStep = 0;
+      const controller = new AbortController();
+      const { signal } = controller;
+      const paint = () => packet.setAttribute('transform', `translate(${current[0].toFixed(2)} ${current[1].toFixed(2)})`);
+      const schedule = () => { if (!frame && visible && !document.hidden) frame = requestAnimationFrame(tick); };
+      const select = (index: number, announce = true) => {
+        selected = Math.max(0, Math.min(buttons.length - 1, index));
+        target = stops[selected] ?? [0, 0];
+        buttons.forEach((button, i) => button.setAttribute('aria-pressed', String(i === selected)));
+        svg.querySelectorAll<SVGGElement>('[data-station]').forEach((part) => part.classList.toggle('is-active', part.dataset.station === String(selected) || part.dataset.station === '-1'));
+        svg.classList.add('is-filtered');
+        // Idle animation never streams live-region announcements.
+        description.setAttribute('aria-live', announce ? 'polite' : 'off');
+        description.textContent = copy[selected].detail;
+        readout.textContent = copy[selected].label;
+        if (reduced.matches) { current = [...target]; paint(); } else schedule();
+      };
+      const setPlaying = (value: boolean) => {
+        playing = value && !reduced.matches;
+        tourButton.setAttribute('aria-pressed', String(playing));
+        tourButton.textContent = playing ? 'Pause walkthrough' : 'Play walkthrough';
+        lastStep = 0; schedule();
+      };
+      const tick = (time: number) => {
+        frame = 0;
+        if (!visible || document.hidden) { previous = 0; return; }
+        const dt = previous ? Math.min((time - previous) / 1000, 1 / 30) : 1 / 60;
+        previous = time;
+        const alpha = 1 - Math.exp(-dt / .18);
+        current = current.map((value, i) => value + (target[i] - value) * alpha);
+        paint();
+        const interacting = hovering || this.matches(':focus-within');
+        if (playing && !interacting && !reduced.matches) {
+          if (!lastStep) lastStep = time;
+          if (time - lastStep > 4600) { select((selected + 1) % buttons.length, false); lastStep = time; }
+        } else lastStep = time;
+        if (Math.hypot(current[0] - target[0], current[1] - target[1]) > .03 || (playing && !interacting)) schedule();
+        else previous = 0;
+      };
+      buttons.forEach((button, i) => {
+        button.addEventListener('click', () => { setPlaying(false); select(i); }, { signal });
+        button.addEventListener('keydown', (event) => {
+          let next: number | undefined;
+          if (event.key === 'ArrowRight' || event.key === 'ArrowDown') next = (i + 1) % buttons.length;
+          if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') next = (i + buttons.length - 1) % buttons.length;
+          if (event.key === 'Home') next = 0;
+          if (event.key === 'End') next = buttons.length - 1;
+          if (next !== undefined) { event.preventDefault(); setPlaying(false); select(next); buttons[next].focus(); }
+        }, { signal });
+      });
+      this.addEventListener('pointerenter', () => { hovering = true; }, { signal });
+      this.addEventListener('pointerleave', () => { hovering = false; schedule(); }, { signal });
+      this.addEventListener('focusout', schedule, { signal });
+      this.addEventListener('pointerdown', (event) => { if (event.pointerType === 'touch') setPlaying(false); }, { signal });
+      tourButton.addEventListener('click', () => setPlaying(!playing), { signal });
+      const onReduced = () => { if (reduced.matches) { setPlaying(false); current = [...target]; paint(); } };
+      reduced.addEventListener('change', onReduced, { signal });
+      document.addEventListener('visibilitychange', schedule, { signal });
+      const observer = new IntersectionObserver((entries) => { visible = entries.at(-1)?.isIntersecting ?? false; if (visible) schedule(); else { cancelAnimationFrame(frame); frame = 0; previous = 0; } });
+      observer.observe(this);
+      tourButton.hidden = false;
+      select(0, false);
+      setPlaying(false);
+      this.cleanup = () => { controller.abort(); observer.disconnect(); cancelAnimationFrame(frame); };
+    }
+    disconnectedCallback() { this.cleanup?.(); this.cleanup = undefined; }
+  }
+  if (!customElements.get('guteneo-anatomy')) customElements.define('guteneo-anatomy', GuteneoAnatomy);
+</script>
+
+<style>
+  .anatomy-figure{display:block;margin:2.2rem 0;color:var(--nb-foreground)}
+  figure{margin:0!important}
+  .anatomy-plate{border:1px solid #d5d1c8;background:#f6f5ef;color:#242c38;border-radius:4px;overflow:hidden}
+  .anatomy-corners{display:flex;align-items:baseline;justify-content:space-between;gap:1rem;padding:1.15rem 1.3rem 0;font:500 .65rem/1.4 'IBM Plex Mono',monospace;letter-spacing:.06em}
+  .anatomy-corners strong{font:500 .92rem/1.4 'IBM Plex Sans',sans-serif;letter-spacing:0;text-align:right}
+  .anatomy-stage{margin:-.4rem 0 -1rem}
+  .anatomy-stage :global(svg){width:100%;height:auto;display:block}
+  .anatomy-bottom{padding:0 1.3rem 1.1rem;letter-spacing:0;color:#575d67}
+  .anatomy-bottom [data-readout]{color:#2450db;text-align:right}
+  .anatomy-controls{display:flex;flex-wrap:wrap;gap:.5rem;margin:1rem 0 .85rem}
+  .anatomy-controls button{display:inline-flex;align-items:center;gap:.5rem;padding:.55rem .75rem;border:1px solid var(--nb-border,#d5d1c8);border-radius:4px;background:transparent;color:inherit;font:500 .78rem/1.3 'IBM Plex Sans',sans-serif;cursor:pointer;min-height:44px}
+  .anatomy-controls button span{font:400 .65rem/1.3 'IBM Plex Mono',monospace;opacity:.65}
+  .anatomy-controls button[aria-pressed=true]{border-color:var(--nb-brand,#2450db);color:var(--nb-brand,#2450db);background:color-mix(in srgb,var(--nb-brand,#2450db) 6%,transparent)}
+  .anatomy-controls button:focus-visible,.anatomy-tools button:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid var(--nb-brand,#2450db);outline-offset:3px}
+  .anatomy-description{min-height:5rem;font-size:.88rem;line-height:1.65}
+  figcaption{margin-top:.8rem;color:var(--nb-muted-foreground,#68717e);font-size:.875rem;line-height:1.65}
+  .anatomy-tools{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-top:.75rem;font-size:.75rem}
+  .anatomy-tools button{border:0;background:transparent;padding:.5rem 0;min-height:44px;color:inherit;text-decoration:underline;text-underline-offset:4px;cursor:pointer;font:inherit}
+  .anatomy-tools button[hidden]{display:none}
+  .anatomy-tools a{display:inline-flex;align-items:center;min-height:44px;color:var(--nb-brand,#2450db)}
+  .anatomy-fallback{font-size:.875rem;margin-top:.6rem;border-top:1px solid var(--nb-border,#d5d1c8);padding-top:.8rem}
+  summary{cursor:pointer;min-height:44px}
+  .anatomy-fallback ol{padding-left:1.3rem;line-height:1.7}
+  .anatomy-fallback li{margin:.7rem 0}
+  @media(max-width:480px){.anatomy-corners{padding:1rem 1rem 0;font-size:.6rem;gap:.6rem}.anatomy-corners strong{font-size:.79rem;max-width:70%}.anatomy-bottom{padding:0 1rem 1rem}.anatomy-hint{max-width:55%;line-height:1.5}.anatomy-stage{width:114%;margin-left:-7%;margin-top:.1rem}.anatomy-description{min-height:8rem}}
+</style>

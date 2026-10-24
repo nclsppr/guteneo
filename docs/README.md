@@ -19,13 +19,17 @@ node docs/build-feature-map.mjs --check
 
 CI rejects stale generated views, inconsistent permissions, missing references and
 incomplete journeys. Review also checks the semantic coverage of each change.
-The atlas and internal engineering documents remain in the repository; do not
-publish them through the official website.
+The raw atlas, internal runbooks and private evidence remain in the repository.
+The [engineering site](ENGINEERING_SITE.md) defines the separately curated Nimbus
+publication at `engineering.guteneo.com`: readable guides, generated feature pages
+and brand-aligned diagrams. `docs.guteneo.com` is reserved for customer documentation.
+Run `npm run docs:build` and `npm run docs:check` to synchronize both views.
 
 ## Current sources of truth
 
 | Need | Start here |
 | --- | --- |
+| Engineering publication and visual documentation | [Site plan and contract](ENGINEERING_SITE.md), [authored guides](../apps/engineering/src/content/docs/index.mdx) |
 | Scope, behavior and accepted journeys | [Product](PRODUCT.md), [feature atlas](FEATURE_MAP.md) |
 | Current work, evidence and open gates | [Execution plan](EXECUTION_PLAN.md), [verification](VERIFICATION.md), [24 October harmonization review](HARMONIZATION.md) |
 | System and data boundaries | [Architecture](ARCHITECTURE.md), [data model](DATA_MODEL.md), [ADR](adr/0001-reliable-modular-monolith.md) |

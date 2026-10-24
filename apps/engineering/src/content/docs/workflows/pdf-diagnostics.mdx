@@ -1,0 +1,64 @@
+---
+title: PDF diagnostics with Horizon
+description: Separate automated conformance reports from security readiness, remediation and certification.
+sidebar:
+  order: 4
+---
+
+Horizon diagnoses an existing ready PDF without rewriting it. Its private validator
+checks supported archival/accessibility profiles and returns a bounded report tied
+to the original hash. This is a separate pipeline from antivirus verification,
+document readiness and dispatch approval.
+
+## Three different questions
+
+| Question | Responsible boundary |
+| --- | --- |
+| Can this exact PDF be used safely under the application's checks? | Document scanning and isolated PDF validation |
+| Which supported machine-checkable conformance rules pass or fail? | Horizon diagnostic profile and private validator |
+| Is the document usable and appropriate for its real audience? | Human review, including reading order, alternatives and interaction |
+
+A quarantined document cannot bypass its security gate by requesting a diagnostic.
+A favorable automated report is not a certification, human review or permission
+to send. Reports retain explicit manual-review requirements.
+
+## A bounded, immutable report
+
+Web, REST and MCP share the validation service. The request chooses a supported
+profile and stable idempotency key; the tenant and original bytes come from
+authenticated access, not caller-supplied ownership fields.
+
+Before execution and again before publishing a report, the server checks current
+session/connection authority, scopes, resource access, exact bytes and entitlement.
+The response must match the expected hash/profile, pinned validator and complete
+rule totals. Time, stream/chunk size and retained findings are bounded. Replaying
+an already handled idempotent request does not start a second engine run.
+
+The private validator operates on a temporary exact original without runtime
+network access. Reports keep allowed rule identifiers and counters, not arbitrary
+PDF text, snippets, raw engine output or customer content in logs.
+
+## Entitlement does not grant document access
+
+The optional plan uses explicit recurring administrator-browser consent, atomic
+credit accounting and a bounded attempt allowance. Assistants and ordinary members
+cannot create billing consent. Running diagnostics still requires the caller's
+current document permission and applicable OAuth scope.
+
+Engine errors are not passing conformance results and can consume an allowed
+attempt. Missing required bindings or scanner readiness must fail closed; enough
+credit alone does not enable the service. Existing report-read policy is separate
+from the ability to start a new diagnostic.
+
+## Corrections create new documents
+
+A report may explain findings, but the pipeline performs no silent remediation.
+A corrected PDF must be imported or generated as a new immutable version, scanned
+and diagnosed as appropriate. An old report or dispatch approval does not transfer
+to its changed bytes.
+
+For the underlying file lifecycle, read [documents and exact bytes](/workflows/documents/).
+For client authorization and capability checks, read [REST](/integrations/rest-api/)
+and [MCP](/integrations/mcp/). The [feature atlas](/features/) records the implementation
+and activation boundaries without claiming that a plan is currently open for every
+account.

@@ -87,7 +87,7 @@
       "doc": "SCANNER_RESCAN.md",
       "source": "apps/api/src/documents.ts",
       "features": [
-        "Bounded PDF upload and remote import",
+        "Bounded PDF upload and remote import with English API diagnostics and only a sanitized public source hostname",
         "Search, paginated listing, metadata and page reading",
         "Quarantine, real antivirus, exact hash and PDF validation",
         "Resume analysis of the same document without reimport",
@@ -807,6 +807,32 @@
       "availability": "public",
       "tools": [],
       "rest": []
+    },
+    {
+      "title": "Engineering documentation",
+      "doc": "ENGINEERING_SITE.md",
+      "source": "apps/engineering/astro.config.ts",
+      "features": [
+        "Dedicated engineering.guteneo.com reading surface built with Cloudflare Nimbus; customer documentation retains docs.guteneo.com",
+        "Curated English architecture, workflow and integration guides with local search, Markdown copies and assistant-readable indexes",
+        "Single-source feature tree with role permissions and customer journeys; feature changes update the registry and developer guide together",
+        "Brand-colored Mermaid and isometric architecture diagrams with textual equivalents and explicit external provider boundaries",
+        "Approved Gutenberg character identity, restrained printshop details and reduced-motion support; transparent header branding with ink-black lettering in light mode and explicitly approved ivory lettering in dark mode",
+        "Asset-only publication without application, tenant, document or communication bindings; local validation and hosted proof remain separate",
+        "Discoverable architecture diagram gallery with three brand-colored Mermaid flows, source downloads and accessible textual explanations",
+        "Curated Belvédère administration, data-model, release and troubleshooting guides that preserve authority, evidence and recovery boundaries"
+      ],
+      "status": "Implemented documentation candidate; production publication requires an explicitly authorized, independently verified release.",
+      "tests": [
+        "tests/security/engineering-site.test.mjs",
+        "tests/engineering-e2e/site.spec.ts"
+      ],
+      "surfaces": "Public static engineering documentation; no business API or authentication surface.",
+      "id": "engineering-docs",
+      "category": "Operations",
+      "availability": "public",
+      "tools": [],
+      "rest": []
     }
   ],
   "journeys": [
@@ -1034,6 +1060,15 @@
       "branch": "Interfaces",
       "doc": "PUBLIC_HTTP_ERRORS.md",
       "failure": "Private/API/auth/MCP, JSON/PDF/binary/event-stream, explicit downloads and range protocols retain their contracts. Missing media/translation remains closed; reflect no private URI/query/body and never invent success."
+    },
+    {
+      "id": "J26",
+      "title": "Understand and change a feature",
+      "actor": "Reader → contributor",
+      "steps": "Open the engineering site → find a feature in the generated tree → read its architecture and workflow guide → reproduce the behavior locally → update the authoritative feature source and developer guide together → run documentation and relevant behavior checks.",
+      "branch": "Engineering",
+      "doc": "ENGINEERING_SITE.md",
+      "failure": "Stale generated pages and broken internal links fail validation. Restricted runbooks and dated private evidence remain in the repository. Publication needs explicit authorization and separate hosted verification."
     }
   ],
   "roles": [

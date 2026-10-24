@@ -153,3 +153,21 @@ test("translated interface calls require English source and an explicit context 
     2,
   );
 });
+
+// Nimbus sources follow the same authored-language and feature maintenance rules.
+test("engineering guides and Astro components require English and synchronized feature docs", () => {
+  for (const file of [
+    "apps/engineering/src/content/docs/example.mdx",
+    "apps/engineering/src/components/Example.astro",
+  ])
+    assert.equal(
+      sourceFindings(file, "Le document doit être vérifié avant son envoi.")
+        .length,
+      1,
+    );
+  assert.equal(
+    documentationDrift(["apps/engineering/src/components/Example.astro"])
+      .length,
+    2,
+  );
+});

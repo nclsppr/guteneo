@@ -1,0 +1,141 @@
+---
+title: Changes and releases
+description: Follow a change from local evidence to reviewed source, authorized publication and verification of the bytes actually served.
+sidebar:
+  label: Changes and releases
+  order: 4
+---
+
+A release connects reviewed source to a specific running surface. Local tests,
+GitHub checks, application publication, a private-service update and an
+authenticated provider journey establish different facts. Keep that chain visible
+instead of treating a successful build as the end of the work.
+
+## From change to publication
+
+| Stage | Required outcome | What remains separate |
+| --- | --- | --- |
+| Local implementation | Code, contracts, feature inventory and relevant documentation agree | Nothing has been merged or published |
+| Local validation | Relevant behavior checks pass against a stable source snapshot | Remote CI and actual hosted dependencies |
+| Pull-request review | Reviewers can assess behavior, authority, migrations, evidence and known gaps | Approval to merge or perform an external operation |
+| Exact-source CI | Required checks succeed for the reviewed revision | Publication and live availability |
+| Authorized merge and release preparation | The approved source and its prerequisite schema/configuration are known | A channel's activation and actual sending |
+| Authorized publication | The intended surface receives the checked build/configuration | Proof of the version and bytes now served |
+| Served verification | Manifest, assets, routing and headers match the intended release | Authenticated login, assistant, scanner and provider journeys |
+
+The [contribution guide](/engineering/contributing/) owns the source/documentation
+maintenance workflow. The [testing guide](/engineering/testing/) explains which
+suites exercise each boundary; this page follows their results into release.
+
+## Prepare the persistence change with the code
+
+Migrations participate in business behavior. Tenant relations, immutable approval,
+reservation and outbox triggers must remain valid on populated data, not just an
+empty new database. Treat applied migrations as immutable and introduce a reviewed
+new migration for the next change.
+
+The repository's transport helper compares source SQL with its bounded D1
+transport representation using separate local databases. A useful local check is:
+
+```sh
+node scripts/migrate-remote.mjs --verify
+```
+
+That command proves local schema/guard equivalence and integrity for the selected
+source. It neither applies remote migrations nor proves a hosted backup. The
+transport keeps each migration and its ledger insertion in one batch; unsupported
+SQL transformations stop for review rather than silently weakening a guard.
+
+Before an authorized application update, establish which unapplied migrations are
+actually required and whether old/new code can coexist with the schema. An
+authorized operator must verify the remote ledger and recovery position under the
+private release procedure. Applying a migration alone enables no channel and is
+not application publication.
+
+## Check the exact revision in CI
+
+Application checks run for pull requests and again on `main`. The pipeline covers
+the domain/integration suites, security and renderer checks, private service tests,
+browser projects, builds and engineering documentation. Same-run browser artifacts
+are bound to the source revision; they are test artifacts rather than an already
+approved deployment.
+
+The aggregate verification gate requires its dependencies to succeed. A skipped,
+cancelled, missing or failed required job cannot count as a successful release.
+Native changes additionally use their source-filtered XCTest/archive workflow;
+web checks do not establish simulator, physical-device or distribution behavior.
+
+After an authorized merge, check the merged commit's required results. A passing
+pull-request revision or an older `main` run is not interchangeable with a new
+merge commit. Record remaining failures honestly instead of substituting older
+evidence.
+
+## Keep publication targets distinct
+
+| Surface | Publication boundary |
+| --- | --- |
+| Main application | Canonical `guteneo.com`, application configuration, business services and exact-source release manifest |
+| Public design preview | Independent fictional browser model and its own preview manifest; no business bindings |
+| Engineering documentation | Dedicated asset-only domain, reviewed public content and its own guarded build/release manifest |
+| Status service | Independent bounded public observations; no customer document access |
+| Private document/scanner/validator services | Separate runtime, engine/configuration and hosted qualification |
+
+The main application's project release guard requires a clean local `main`
+matching freshly fetched `origin/main`. It refuses hidden index changes, dirty
+tracked/untracked source and a stale or changed commit. It rebuilds, compares the
+source fingerprint and every generated asset, then repeats its source checks
+before submission.
+
+Reviewing merged-commit CI is a separate release responsibility: the local Git/
+artifact guard does not itself query GitHub job results. Direct platform access
+can also bypass project scripts, so their existence is not a replacement for
+operator authorization or access policy.
+
+Engineering publication has its own dedicated guard for an explicitly reviewed
+clean commit and static-only configuration. A documentation release never implies
+application publication, a production migration, provider activation or permission
+to send a communication.
+
+## Verify what the public origin actually serves
+
+The main application verifier compares the canonical release manifest, source
+fingerprint, sending flags and published asset bytes with the clean local build.
+It also checks the appropriate robots policy and required public headers:
+
+```sh
+node scripts/verify-release.mjs https://guteneo.com dist/web/release.json
+```
+
+The verifier treats configuration assets and host-specific dynamic robots content
+according to their contracts; a successful HTTP status alone cannot substitute
+for matching bytes. A changed or missing asset fails verification. Retain the
+result with the exact source and actual platform version/traffic observation.
+
+The application uses its canonical origin for browser authentication and public
+verification. Old application hosts and version previews remain closed under
+their own routing checks. An alternate hostname serving a page is not an approved
+fallback around those boundaries.
+
+Authenticated browser, assistant-host, scan freshness and provider callbacks need
+their own bounded checks. Do not send a real communication just to make a release
+report look complete; report the unperformed journey separately.
+
+## Recovery and rollback have different scopes
+
+A code-version change, a schema migration and a database restore are different
+operations. Reverting application code does not undo an external transmission,
+remove an applied schema change or reconstruct matching R2 objects. Determine the
+affected surface and compatibility before selecting a recovery action.
+
+The local restoration rehearsal preserves document hashes, reservations, outbox
+state and uncertain attempts while producers/consumers are quiesced. It does not
+establish a hosted recovery point/time or a consistent live backup. A production
+restore requires separately reviewed authority, consistent database/object
+recovery and provider reconciliation before releasing work.
+
+A restored `queued` row can predate a request already received by a provider.
+`submission_unknown` retains its reservation and reconciliation requirement; a
+restore cannot make it safe to resend automatically. Follow the
+[dispatch lifecycle](/architecture/dispatch-lifecycle/) and
+[troubleshooting guide](/engineering/troubleshooting/) before acting on an
+interrupted communication.

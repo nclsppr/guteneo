@@ -1,0 +1,64 @@
+---
+title: Repository map
+description: Where the interfaces, domain rules, private services, contracts and generated documentation live.
+sidebar:
+  order: 3
+---
+
+Start from the behavior you are changing, then follow its trust boundary. The
+repository is a modular application with shared business services, not separate
+web, native and assistant backends.
+
+## Application and service code
+
+| Location | Responsibility |
+| --- | --- |
+| `apps/web/` | React/Vite public pages, authenticated workspace, localization and published contract assets |
+| `apps/api/src/` | Hono routes, identity/session guards, documents, workflow orchestration, MCP and provider integration |
+| `packages/domain/` | Dispatch preparation, approval, acceptance, quotas, outbox and provider-outcome rules |
+| `packages/contracts/` | Shared types, schemas, roles, locale rules, routes and business representations |
+| `apps/documents/` | Private browser/document processing, template rendering, document review and postal preflight |
+| `apps/scanner/` | Private antivirus boundary and its qualification fixtures |
+| `apps/pdf-validator/` | Private PDF accessibility/conformance validation boundary |
+| `packages/templates/` | Template envelopes, authoring, DOCX conversion and engine adapters |
+| `packages/data/` | Dataset profiling, mapping, normalization and bounded suggestion adapters |
+| `ios/` | Native SwiftUI/PDFKit companion using the mobile API |
+| `apps/status/` | Independent public status application and bounded public observations |
+| `apps/preview/` | Separate browser-only design preview |
+| `apps/engineering/` | This static engineering site |
+
+## Persistence and asynchronous work
+
+D1 schema changes live in `migrations/`. Migrations are part of the business
+contract: constraints and triggers enforce tenant boundaries and atomic
+commitments, not merely convenient indexes. R2 holds private immutable bytes;
+queue messages refer to persisted work rather than carrying customer documents.
+
+Wrangler files describe separate local, preview and hosted deployments. Read the
+specific configuration before interpreting a binding. A fixture preview has no
+business bindings; a private service binding is not a public unauthenticated URL.
+
+## Contracts, examples and verification
+
+`apps/web/public/openapi.json` is the current REST discovery document.
+`apps/api/src/mcp.ts` defines the tool surface over shared services. The portable
+assistant instructions under `integrations/guteneo/` are the common source;
+host-specific generated copies must stay synchronized.
+
+Tests are grouped by boundary: `tests/unit/`, `tests/integration/`,
+`tests/security/`, browser suites and native XCTest targets. Use the
+[testing guide](/engineering/testing/) for the evidence each group provides.
+Scripts automate local development, qualification and guarded operational work;
+reading a script does not authorize running its external mutation steps.
+
+## Documentation sources
+
+The repository's engineering contracts live in `docs/`. This public site curates
+those contracts instead of publishing private runbooks and dated proof wholesale.
+The [feature atlas](/features/) is generated from `docs/feature-map.json` so the
+implementation inventory has one maintained source.
+
+For a change, locate the shared contract first, then the service, route/client
+adapter and relevant tests. Update the authoritative developer explanation and
+feature source with the implementation. The [contribution guide](/engineering/contributing/)
+keeps that work in one reviewable change.

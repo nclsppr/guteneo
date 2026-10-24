@@ -13,6 +13,7 @@ const luxembourgish =
   /\b(?:dësen|dës|déi|Är|keng|gëtt|sinn|wielt|sprooch)\b/giu;
 const cleanProse = (text) =>
   text
+    .replace(/\b(?:IBM Plex Sans|sans-serif)\b/g, "")
     .replace(/https?:\/\/[^\s)<>"']+/g, "")
     .replace(/`[^`]*`/g, "")
     .replace(/\b[\w./-]+\.(?:md|tsx?|mjs|json|html|swift|png|webp|pdf)\b/g, "")
@@ -81,7 +82,7 @@ export function sourceFindings(file, source) {
         token === ts.SyntaxKind.MultiLineCommentTrivia
       )
         add(scanner.getTokenPos(), scanner.getTokenText(), "comment");
-  } else if (/\.(?:swift|sh|sql|py|html|css)$/.test(file)) {
+  } else if (/\.(?:swift|sh|sql|py|html|css|astro|svg)$/.test(file)) {
     // These sources do not share the TypeScript parser. Check prose per line;
     // localized resource files and test display fixtures have separate ownership.
     const lines = source.split("\n");
@@ -98,7 +99,7 @@ export function sourceFindings(file, source) {
         line: 2,
         kind: "the unlocalized document shell must default to English",
       });
-  } else if (/\.md$/.test(file)) {
+  } else if (/\.mdx?$/.test(file)) {
     // Exact fenced examples, quoted original evidence and declared video scripts
     // retain their bytes. Authored explanations around them remain English.
     if (
@@ -191,7 +192,9 @@ export function interfaceSourceFindings(
 }
 export function documentationDrift(files) {
   const featureChange = files.some((f) =>
-    /^(apps\/(?:api|web|documents|status)\/|packages\/|ios\/Guteneo\/)/.test(f),
+    /^(apps\/(?:api|web|documents|status|engineering)\/|packages\/|ios\/Guteneo\/)/.test(
+      f,
+    ),
   );
   if (!featureChange) return [];
   const missing = [];
@@ -254,7 +257,9 @@ async function main() {
   );
   for (const file of files.filter(
     (f) =>
-      /\.(?:ts|tsx|js|mjs|md|swift|sh|sql|py|html|css)$/.test(f) &&
+      /\.(?:ts|tsx|js|mjs|md|mdx|swift|sh|sql|py|html|css|astro|svg)$/.test(
+        f,
+      ) &&
       !f.startsWith("tests/") &&
       !/^ios\/Guteneo(?:UI)?Tests\//.test(f),
   )) {
