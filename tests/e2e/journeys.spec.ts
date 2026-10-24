@@ -370,7 +370,9 @@ test("CSV duplicate checks precede a campaign with individual frozen preparation
   await login(page);
   await page.goto("/#/app/campaigns");
   const name = `Campagne E2E ${crypto.randomUUID().slice(0, 8)}`;
-  await page.getByLabel("Nom de la campagne").fill(name);
+  const campaignNameInput = page.getByLabel("Nom de la campagne");
+  await campaignNameInput.fill(name);
+  await expect(campaignNameInput).toHaveValue(name);
   await page
     .getByLabel("Liste des destinataires au format CSV")
     .fill(
@@ -394,6 +396,7 @@ test("CSV duplicate checks precede a campaign with individual frozen preparation
   await page
     .getByLabel("Message", { exact: true })
     .fill("Correspondance individuelle.");
+  await expect(campaignNameInput).toHaveValue(name);
   await page.getByRole("button", { name: "Créer la campagne" }).click();
   await expect(page.getByRole("heading", { name, exact: true })).toBeVisible();
   await expect(page.locator("tbody tr")).toHaveCount(2);
