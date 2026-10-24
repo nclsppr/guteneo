@@ -124,3 +124,24 @@ this candidate evidence; never present local test success as activation.
 Primary references: [Auth0 custom domains](https://auth0.com/docs/customize/custom-domains),
 [configure features to use a custom domain](https://auth0.com/docs/customize/custom-domains/configure-features-to-use-custom-domains),
 [Auth0-managed certificates](https://auth0.com/docs/customize/custom-domains/auth0-managed-certificates).
+
+## Dependency audit during this candidate
+
+The first PR CI run failed its existing dependency security gate on newly indexed
+advisories. The bounded correction raises Zod to 4.6.6, refreshes compatible
+body-parser/fast-uri resolutions and adds the exact override
+`miniflare@5.20261006.1-alpha → undici@7.30.1`. Wrangler 4.149.0, Miniflare and
+workerd stay at their existing versions: the newer available Wrangler/Miniflare
+manifests still select vulnerable undici 7.29.1, so changing that toolchain would
+add drift without resolving the advisory. There is no global undici override,
+major-version migration or new beta toolchain.
+
+Remove this scoped exception only after an adopted upstream Miniflare version
+natively resolves a patched undici, followed by clean installation, dependency
+audit, representative MCP/D1/domain tests and a Worker dry build. Never remove it
+by restoring the vulnerable resolution. On 24 October 2026, the root dependency
+audit after clean installation reported zero known advisories of any severity;
+233 representative fixture tests and the local Worker dry build passed. This is
+local evidence for the root lockfile at that time. It neither qualifies other
+package roots nor guarantees absence of future advisories. Complete CI against
+the updated commit and authorized production qualification remain separate gates.

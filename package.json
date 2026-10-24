@@ -78,7 +78,7 @@
     "read-excel-file": "9.3.10",
     "sanitize-html": "2.18.1",
     "swagger-ui-dist": "5.33.0",
-    "zod": "^4.6.5"
+    "zod": "^4.6.6"
   },
   "devDependencies": {
     "@apidevtools/swagger-parser": "13.0.0",
@@ -106,6 +106,9 @@
   "overrides": {
     "@cloudflare/puppeteer": {
       "@puppeteer/browsers": "3.2.2"
+    },
+    "miniflare@5.20261006.1-alpha": {
+      "undici": "7.30.1"
     }
   }
 }
