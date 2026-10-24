@@ -225,6 +225,12 @@ replaced manifest is rejected even if it is internally consistent with replaced
 files. None of these checks is bypassed by a CLI option; local regression tests
 inject command execution against temporary Git remotes without publishing.
 
+Static response headers include `Cache-Control: no-transform` to preserve the
+reviewed HTML/artwork representations. The hash-named `/_astro/*` block retains
+its `public, max-age=31536000, immutable` cache policy. Their effective served
+combination, byte hashes and any compression/latency/bandwidth tradeoff require
+postpublication observation; source configuration alone is not hosted proof.
+
 After deployment, `scripts/verify-engineering.mjs` compares the served release
 manifest with the clean local build, checks representative page/index/image bytes
 against their hashes, and confirms an unknown route returns HTTP 404. A passing
@@ -271,6 +277,13 @@ report. Detailed dated run/Worker IDs remain in repository observation records.
 The authored testing guide explains why a saved artifact cannot prove ingestion.
 The three new character scenes and small original character notes likewise need
 fresh final-output and browser review after their source stabilizes.
+
+The subsequent monitor correction requires origin response preservation and
+strict paired direct-job workflow claims, with rejection-only bounded OIDC
+diagnostics. Its authored testing explanation distinguishes application and
+status-service publication, received-byte integrity and actual stored report
+proof. Upstream code/fixtures and isolated signed diagnostics do not establish a
+successful production ingestion or connected customer journey.
 
 **All results below precede this reconciliation.** New source coverage, generated
 views, English review, build, public-output/link/fragment audit, browser behavior,

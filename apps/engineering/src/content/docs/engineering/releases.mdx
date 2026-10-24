@@ -126,6 +126,14 @@ verification. Old application hosts and version previews remain closed under
 their own routing checks. An alternate hostname serving a page is not an approved
 fallback around those boundaries.
 
+The engineering site's static responses also declare `Cache-Control: no-transform`
+to preserve reviewed HTML and artwork bytes across the CDN. Its separate
+`/_astro/*` rule keeps `public, max-age=31536000, immutable` for hash-named build
+assets. Preserve both directives when changing headers; integrity protection is
+not a reason to remove immutable caching. Check actual served bytes and effective
+headers after publication, including any compression/bandwidth effect, rather
+than inferring hosted behavior from a local header file.
+
 Authenticated browser, assistant-host, scan freshness and provider callbacks need
 their own bounded checks. Do not send a real communication just to make a release
 report look complete; report the unperformed journey separately.

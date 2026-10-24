@@ -411,7 +411,7 @@ export function quoteTemplate(): TemplateEnvelope {
   blocks.push(textBlock("validUntil", "Quote validity", 20, 76, 170, 8, 10));
   envelope.inputSchema.properties!.validUntil = {
     type: "string",
-    title: "Valable jusqu’au",
+    title: "Valid until",
     format: "date",
   };
   envelope.inputSchema.required!.push("validUntil");
@@ -420,7 +420,7 @@ export function quoteTemplate(): TemplateEnvelope {
     kind: "value",
     path: "validUntil",
     format: "date",
-    prefix: "Valable jusqu’au : ",
+    prefix: "Valid until: ",
     required: true,
   });
   envelope.bindings.find((binding) => binding.block === "date")!.prefix =
@@ -429,7 +429,7 @@ export function quoteTemplate(): TemplateEnvelope {
     "Proposed total: ";
   envelope.sampleData = {
     customer: { name: "Example Workshop — Luxembourg" },
-    reference: "DEVIS-DEMO-001",
+    reference: "QUOTE-DEMO-001",
     date: "2026-10-02",
     validUntil: "2026-10-31",
     items: [
@@ -454,9 +454,9 @@ export function deliveryNoteTemplate(): TemplateEnvelope {
     "A recipient, a reference and the delivered items, without prices. All contact details are fictional.",
   );
   envelope.definition.schemas[0] = [
-    textBlock("title", "BON DE LIVRAISON", 20, 27, 170, 13, 21),
+    textBlock("title", "DELIVERY NOTE", 20, 27, 170, 13, 21),
     textBlock("recipient", "Demo recipient", 110, 47, 80, 28),
-    textBlock("reference", "BL-DEMO-001", 20, 49, 80),
+    textBlock("reference", "DELIVERY-DEMO-001", 20, 49, 80),
     textBlock("date", "02/10/2026", 20, 63, 80),
     tableBlock("items", ["Item reference", "Description", "Quantity"], 92),
     textBlock("notes", "Delivery notes", 20, 128, 170, 22, 10),
@@ -497,7 +497,7 @@ export function deliveryNoteTemplate(): TemplateEnvelope {
       },
       notes: {
         type: "string",
-        title: "Remarques",
+        title: "Notes",
         default: "Demo delivery, without actual dispatch.",
       },
     },
@@ -558,7 +558,7 @@ export function deliveryNoteTemplate(): TemplateEnvelope {
       kind: "value",
       path: "notes",
       format: "text",
-      prefix: "Remarques : ",
+      prefix: "Notes: ",
       required: false,
     },
   ];
@@ -566,12 +566,12 @@ export function deliveryNoteTemplate(): TemplateEnvelope {
     recipient: {
       address: "Example Workshop\n12 rue des Ateliers\n75002 Paris",
     },
-    reference: "BL-DEMO-001",
+    reference: "DELIVERY-DEMO-001",
     date: "2026-10-02",
     items: [
-      { sku: "DOS-001", description: "Presentation folder", quantity: 12 },
+      { sku: "FOLDER-001", description: "Presentation folder", quantity: 12 },
       {
-        sku: "ENV-002",
+        sku: "ENVELOPE-002",
         description: "Demo envelope",
         quantity: 12,
       },

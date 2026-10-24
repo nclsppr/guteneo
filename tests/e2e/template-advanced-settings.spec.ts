@@ -205,7 +205,7 @@ test("business rules edited in the studio persist and govern real PDF totals, de
   }
   await preview();
   await expect(page.locator(".studio-result-preview")).toContainText(
-    /À régler : 25,00\s+CHF/,
+    /À régler : 25\.00\s+CHF/,
   );
   await page.getByLabel("Afficher le total", { exact: true }).uncheck();
   await preview();

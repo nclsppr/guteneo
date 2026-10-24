@@ -338,7 +338,7 @@ export function TemplateLibrary({
               <ul>
                 {importWarnings.map((warning, i) => (
                   <li key={i}>
-                    {warning.message} <code>{warning.code}</code>
+                    {msg(warning.message)} <code>{warning.code}</code>
                   </li>
                 ))}
               </ul>

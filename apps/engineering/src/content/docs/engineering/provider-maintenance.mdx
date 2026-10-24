@@ -133,7 +133,12 @@ other rows require deliberate owner review and authorized action.
 | Backups, wrapping keys and restoration | Retention/schema/key change; planned recovery rehearsal or incident | `docs/RUNBOOK.md`, `RESTORE_PROOF.md`, `SECURE_DISTRIBUTION_IMPLEMENTATION.md`; local restore integration test | Matching objects/hashes/key versions, revocations, approvals, charges, reservations/outbox and independent acquired copies; hosted rehearsal recorded separately |
 | Cloudflare resources and costs | Usage trend, shared-quota pressure, service/region/binding/plan change | Wrangler configuration, `docs/COSTS.md`, `HORIZON_COSTS.md`, `STATUS_SERVICE.md`; `scripts/costs.ts` and private metrics | Actual billed units and inclusions, bounded queries/jobs/retention, CPU/storage/queue/browser budgets and real location terms; local models are not invoices |
 | Stripe prices/taxes/events | Commercial product/portal/price/tax/refund/API-version or signing-key change | `docs/BILLING.md`, `MONTHLY_PLAN.md`; browser-admin billing and canonical event projection | Existing plan/entitlement guards, environment separation, signed deduplicated canonical objects and separately qualified commercial/tax setup; no implicit checkout/top-up |
-| CI/release and monitoring | Matrix, artifact, Node/browser/toolchain, service or public-check contract changes | `.github/workflows/`, `scripts/ci/verify-results.mjs`, release/verifier scripts | Exact source, all required reports, sanitized uploads, manifest/served-byte match and current-version freshness; old green reports remain historical |
+| CI/release and monitoring | Matrix, artifact, Node/browser/toolchain, service or public-check contract changes | `.github/workflows/`, `scripts/ci/verify-results.mjs`, release/verifier scripts | Exact source, all required reports, sanitized uploads, origin representation preservation, strict GitHub workflow-claim pairs, manifest/served-byte match and current-version freshness; old green reports remain historical |
+
+GitHub report OIDC is separate from Auth0 account login. Review token-format or
+CDN-transformation changes against the [testing contract](/engineering/testing/):
+maintain exact workflow/commit authority and received-byte checks, then qualify
+application responses and status ingestion independently after publication.
 
 ## Auth0 maintenance is more than keeping a login page working
 

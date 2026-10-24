@@ -140,6 +140,7 @@ test("the sole admin cannot demote themselves and disconnecting their access ref
   await expect(team.getByRole("alert")).toContainText(
     "au moins un administrateur",
   );
+  await expect(team.getByRole("alert")).toContainText("LAST_ADMIN_REQUIRED");
   const unchanged = (await (
     await page.request.get("/api/session")
   ).json()) as Session;
