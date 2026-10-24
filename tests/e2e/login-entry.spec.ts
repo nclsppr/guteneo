@@ -223,12 +223,18 @@ test("explicit sign-out returns to the public site without reopening SSO and kee
 
   hosted.logoutStatus = 200;
   await logout.click();
-  await expect(page).toHaveURL(`${origin}/`);
+  // The explicit English choice survives sign-out. The bare public URL is only
+  // a navigation intermediate before locale initialization canonicalizes it.
+  const publicEnglishUrl = `${origin}/?lang=en`;
+  await expect(page).toHaveURL(publicEnglishUrl);
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
   await expect(page.locator(".workspace")).toHaveCount(0);
   expect(hosted.authenticated).toBe(false);
   expect(hosted.logoutRequests).toBe(2);
   expect(hosted.authRequests).toEqual([]);
   await page.reload();
+  await expect(page).toHaveURL(publicEnglishUrl);
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
   await expect(page.locator('.site-header a[href^="/auth/login?"]')).toHaveCount(
     2,
   );
