@@ -1,6 +1,7 @@
 import { recordConnectionEvent } from "./belvedere-telemetry";
 import { accountEmail } from "../../../packages/contracts/src/account-identity";
 import type { DashboardAppearance } from "../../../packages/contracts/src/dashboard-appearance";
+import { isDispatchGroup } from "../../../packages/contracts/src/dispatch-groups";
 import { acceptWorkspaceInvitation, getInvitationPreview } from "./invitations";
 import {
   workspacePermissions,
@@ -159,6 +160,86 @@ export function safeReturnPath(value: string | null): string {
   return parsed.origin === "https://guteneo.invalid"
     ? `${parsed.pathname}${parsed.search}${parsed.hash}`
     : "/#/app";
+}
+interface LoginFailureContext {
+  returnTo: string;
+  locale: SupportedLocale;
+}
+// Recovery context stays private to the thrown error and is never serialized.
+// Callback context is populated only after the browser-bound state is consumed.
+const loginFailureContexts = new WeakMap<object, LoginFailureContext>();
+
+function requestedLoginLocale(request: Request): SupportedLocale {
+  const url = new URL(request.url);
+  return (
+    normalizeLocale(url.searchParams.get("locale")) ??
+    normalizeLocale(url.searchParams.get("ui_locales")) ??
+    localeFromAcceptLanguage(request.headers.get("Accept-Language"))
+  );
+}
+
+function recoveryHash(returnTo: string): string {
+  const destination = new URL(
+    safeReturnPath(returnTo),
+    "https://guteneo.invalid",
+  );
+  // A fragment is navigation data, not an arbitrary URL to parse. Reject it
+  // before URL construction so malformed hosts cannot break error recovery.
+  if (destination.hash && !/^#\/app(?:[/?]|$)/.test(destination.hash))
+    return "#/app";
+  const route = destination.hash
+    ? new URL(destination.hash.slice(1), "https://guteneo.invalid")
+    : destination;
+  if (
+    route.pathname.length > 512 ||
+    !/^\/app(?:\/[A-Za-z0-9_-]+)*\/?$/.test(route.pathname)
+  )
+    return "#/app";
+  // Keep explicit navigation choices, never arbitrary query data or capability
+  // tokens. These references still require current authenticated membership.
+  const query = new URLSearchParams();
+  for (const [key, value] of route.searchParams) {
+    if (
+      (key === "entry" && value === "direct") ||
+      (key === "channel" && ["fax", "email", "postal"].includes(value)) ||
+      (key === "group" && isDispatchGroup(value)) ||
+      (key === "new" && value === "blank") ||
+      (["document", "connection"].includes(key) &&
+        /^[A-Za-z0-9_-]{1,120}$/.test(value))
+    )
+      query.set(key, value);
+  }
+  return `#${route.pathname}${query.size ? `?${query}` : ""}`;
+}
+
+export function authFailureRedirect(
+  request: Request,
+  env: Pick<AuthEnv, "APP_ORIGIN">,
+  code: string,
+  error?: unknown,
+): string {
+  const url = new URL(request.url);
+  const startingLogin = ["/auth/login", "/auth/signup"].includes(url.pathname);
+  const context =
+    error !== null && typeof error === "object"
+      ? loginFailureContexts.get(error)
+      : undefined;
+  const destination = new URL("/", env.APP_ORIGIN);
+  destination.searchParams.set("auth", code);
+  destination.searchParams.set(
+    "lang",
+    context?.locale ??
+      (startingLogin
+        ? requestedLoginLocale(request)
+        : localeFromAcceptLanguage(request.headers.get("Accept-Language"))),
+  );
+  destination.hash = recoveryHash(
+    context?.returnTo ??
+      (startingLogin
+        ? safeReturnPath(url.searchParams.get("returnTo"))
+        : "/#/app"),
+  );
+  return destination.href;
 }
 function cookieName(
   env: AuthEnv,
@@ -747,6 +828,20 @@ export async function handleAuthRoute(
   request: Request,
   env: AuthEnv,
 ): Promise<Response | null> {
+  const failureContext: { validated?: LoginFailureContext } = {};
+  try {
+    return await handleAuthRouteOperation(request, env, failureContext);
+  } catch (error) {
+    if (failureContext.validated && error !== null && typeof error === "object")
+      loginFailureContexts.set(error, failureContext.validated);
+    throw error;
+  }
+}
+async function handleAuthRouteOperation(
+  request: Request,
+  env: AuthEnv,
+  failureContext: { validated?: LoginFailureContext },
+): Promise<Response | null> {
   const url = new URL(request.url);
   if (
     request.method === "GET" &&
@@ -793,10 +888,7 @@ export async function handleAuthRoute(
     ["/auth/login", "/auth/signup"].includes(url.pathname)
   ) {
     const config = configuredIdentity(env);
-    const preferredLocale =
-      normalizeLocale(url.searchParams.get("locale")) ??
-      normalizeLocale(url.searchParams.get("ui_locales")) ??
-      localeFromAcceptLanguage(request.headers.get("Accept-Language"));
+    const preferredLocale = requestedLoginLocale(request);
     if (env.ENVIRONMENT !== "local") {
       const ip = request.headers.get("CF-Connecting-IP");
       if (!ip)
@@ -859,7 +951,9 @@ export async function handleAuthRoute(
       response_type: "code",
       redirect_uri: `${env.APP_ORIGIN}/auth/callback`,
       scope: "openid profile email",
-      ui_locales: preferredLocale,
+      // Auth0 does not offer Luxembourgish. Keep the personal preference intact
+      // while requesting its supported German interface for the hosted screen.
+      ui_locales: preferredLocale === "lb" ? "de" : preferredLocale,
       audience: config.audience,
       state,
       nonce,
@@ -887,7 +981,12 @@ export async function handleAuthRoute(
     const browser = readCookie(request, cookieName(env, "login"));
     const state = url.searchParams.get("state");
     const code = url.searchParams.get("code");
-    if (!browser || !state || !code || state.length > 256 || code.length > 4096)
+    if (
+      !browser ||
+      !state ||
+      state.length > 256 ||
+      (code && code.length > 4096)
+    )
       throw new AuthError("LOGIN_STATE_INVALID", "Recommencez la connexion.");
     const transaction = await env.DB.prepare(
       "DELETE FROM auth_transactions WHERE state_hash=? AND browser_hash=? AND expires_at>? RETURNING code_verifier,nonce,return_to,preferred_locale,invitation_token_hash",
@@ -905,6 +1004,14 @@ export async function handleAuthRoute(
         "LOGIN_STATE_INVALID",
         "Connexion expirée ou déjà utilisée.",
       );
+    failureContext.validated = {
+      returnTo: safeReturnPath(transaction.return_to),
+      locale:
+        normalizeLocale(transaction.preferred_locale) ??
+        localeFromAcceptLanguage(request.headers.get("Accept-Language")),
+    };
+    if (!code)
+      throw new AuthError("LOGIN_STATE_INVALID", "Recommencez la connexion.");
     const response = await fetch(new URL("oauth/token", config.issuer), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -1091,10 +1198,17 @@ export async function handleAuthRoute(
       }
     }
     const memberRows = await memberships(env, identity.user_id);
-    if (!memberRows.length)
-      return redirect(`${env.APP_ORIGIN}/?auth=invitation_required#/app`, [
+    if (!memberRows.length) {
+      const error = new AuthError(
+        "invitation_required",
+        "Une invitation est nécessaire pour accéder à un atelier.",
+        403,
+      );
+      loginFailureContexts.set(error, failureContext.validated);
+      return redirect(authFailureRedirect(request, env, error.code, error), [
         cookie(env, "login", "", 0),
       ]);
+    }
     const member = invitedOrganizationId
       ? memberRows.find(
           (entry) => entry.organization_id === invitedOrganizationId,

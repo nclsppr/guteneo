@@ -16,6 +16,7 @@ import {
   type AssistantGuideLink,
 } from "./assistant-catalog";
 import { ClaudeConnect } from "./claude-connect";
+import { workspaceEntryHref } from "./auth-navigation";
 import "./assistant-guides.css";
 
 export type AssistantPickerProps = {
@@ -239,7 +240,7 @@ function GuideArticle({
               </p>
               <a
                 className="assistant-guide-account-link"
-                href={`/#/app/connection/${assistant.id}`}
+                href={workspaceEntryHref(`/#/app/connection/${assistant.id}`)}
               >
                 {msg("Créer ou ouvrir mon espace")}
                 <ArrowRight size={18} aria-hidden="true" />

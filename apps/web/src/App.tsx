@@ -31,19 +31,17 @@ import {
   setSession,
   type Session,
 } from "./api";
-import { t, getLocale, getLocaleSelectionVersion, useLocale } from "./locale";
+import {
+  t,
+  getLocaleSelectionVersion,
+  initializeLocale,
+  useLocale,
+} from "./locale";
 import { isSupportedLocale } from "../../../packages/contracts/src/locale";
 import { LanguageMenu, LanguageSelect } from "./language-select";
 import { syncPublicSharing } from "./public-sharing";
 import { Brand } from "./brand";
-import {
-  ErrorNotice,
-  go,
-  Loading,
-  useAction,
-  useRoute,
-  useResource,
-} from "./components";
+import { ErrorNotice, go, Loading, useRoute, useResource } from "./components";
 import {
   Overview,
   Documents,
@@ -66,6 +64,8 @@ import {
 } from "./horizon-public";
 import { PostalReviewPage } from "./postal-review-page";
 import { Account, TeamAdmin } from "./account-page";
+import { Login } from "./login-page";
+import { workspaceEntryHref } from "./auth-navigation";
 import { WorkspaceIdentity } from "./workspace-identity";
 import { RolePermissionNotice } from "./role-guide";
 import { TeamInvitations } from "./team-invitations";
@@ -188,8 +188,8 @@ export function Landing() {
             {t.homepage.navPricing}
           </a>
           <LanguageMenu />
-          <a className="button small" href="/app">
-            {publicPreview ? msg("Explorer la démo") : t.landing.navApp}
+          <a className="button small" href={workspaceEntryHref()}>
+            {publicPreview ? msg("Explorer la démo") : t.login.managed}
             <ArrowUpRight size={16} />
           </a>
         </nav>
@@ -234,8 +234,8 @@ export function Landing() {
             {msg("Assistants ")}
             <ArrowRight size={17} aria-hidden="true" />
           </a>
-          <a href="/app" onClick={closeMenu}>
-            {publicPreview ? msg("Explorer la démo") : t.landing.navApp}
+          <a href={workspaceEntryHref()} onClick={closeMenu}>
+            {publicPreview ? msg("Explorer la démo") : t.login.managed}
             <ArrowUpRight size={17} aria-hidden="true" />
           </a>
           <LanguageSelect automatic />
@@ -340,168 +340,6 @@ export function Landing() {
   );
 }
 
-function Login({
-  onLogin,
-  registrationAvailable,
-}: {
-  onLogin: (session: Session) => void;
-  registrationAvailable: boolean;
-}) {
-  const action = useAction();
-  const local =
-    publicPreview ||
-    ["localhost", "127.0.0.1", "[::1]"].includes(window.location.hostname);
-  const authCode = new URLSearchParams(window.location.search).get("auth");
-  const authMessages: Record<string, string> = {
-    INVITATION_EMAIL_MISMATCH: msg(
-      "Cette invitation est liée à une autre adresse. Rouvrez le lien reçu et connectez-vous avec l’adresse vérifiée qui a reçu l’invitation.",
-    ),
-    INVITATION_UNAVAILABLE: msg(
-      "Cette invitation a expiré, a été révoquée ou a déjà été utilisée. Demandez un nouveau lien à l’administrateur de l’atelier.",
-    ),
-    INVITATION_EXISTING_MEMBER: msg(
-      "Vous êtes déjà membre de cet atelier. Connectez-vous à votre compte et choisissez cet atelier dans Mon compte.",
-    ),
-    EMAIL_VERIFICATION_REQUIRED: msg(
-      "Vérifiez votre adresse avec le lien reçu par e-mail, puis reconnectez-vous.",
-    ),
-    ACCOUNT_VERIFICATION_REQUIRED: msg(
-      "La vérification de votre compte n’a pas été confirmée. Vérifiez votre adresse e-mail, puis reconnectez-vous.",
-    ),
-    MFA_REQUIRED: msg(
-      "La double authentification est nécessaire pour protéger votre espace. Reconnectez-vous pour terminer sa configuration.",
-    ),
-    IDENTITY_NOT_CONFIGURED: msg(
-      "L’ouverture des comptes est en cours de configuration. Réessayez bientôt.",
-    ),
-    LOGIN_STATE_INVALID: msg(
-      "Votre connexion a expiré. Recommencez pour ouvrir votre espace.",
-    ),
-    LOGIN_EXCHANGE_FAILED: msg(
-      "La connexion n’a pas abouti. Vous pouvez réessayer.",
-    ),
-    LOGIN_RATE_LIMITED: msg(
-      "Trop de tentatives de connexion. Réessayez dans une heure.",
-    ),
-  };
-  async function login(organization: "atelier" | "studio") {
-    await action.run(async () => {
-      await api("/dev/login", { method: "POST", body: { organization } });
-      const session = await api<Session>("/session");
-      setSession(session);
-      onLogin(session);
-    });
-  }
-  return (
-    <div className="login-page">
-      <header className="site-header">
-        <Brand />
-        <LanguageMenu />
-        <a href="#/">
-          {t.back}
-          <ArrowUpRight size={17} />
-        </a>
-      </header>
-      <main className="login-layout">
-        <div className="login-intro">
-          <h1>{t.login.title}</h1>
-          <p>
-            {local
-              ? t.login.body
-              : msg(
-                  "Vos documents, vos envois et votre facturation réunis dans un espace personnel et protégé.",
-                )}
-          </p>
-          <img src="/press-halftone.webp" width="1200" height="1200" alt="" />
-        </div>
-        <div className="login-panel">
-          <h2>
-            {publicPreview
-              ? msg("Explorez la démonstration")
-              : local
-                ? t.login.local
-                : t.login.separator}
-          </h2>
-          {local ? (
-            <>
-              <div className="notice info">
-                <span className="simulation-stamp">{t.simulation}</span>
-                <p>{t.simulationBody}</p>
-              </div>
-              <button
-                className="organization-button"
-                onClick={() => void login("atelier")}
-                disabled={action.pending}
-              >
-                <span className="organization-initial">A</span>
-                <span>{t.login.atelier}</span>
-                <ArrowRight size={22} />
-              </button>
-              <button
-                className="organization-button"
-                onClick={() => void login("studio")}
-                disabled={action.pending}
-              >
-                <span className="organization-initial">S</span>
-                <span>{t.login.studio}</span>
-                <ArrowRight size={22} />
-              </button>
-            </>
-          ) : (
-            <>
-              <p>
-                {msg(
-                  "Un compte personnel, vos documents et le suivi de vos envois dans un espace privé.",
-                )}
-              </p>
-              {authCode && (
-                <div className="notice warning" role="status">
-                  <p>
-                    {authMessages[authCode] ??
-                      msg(
-                        "La connexion n’a pas abouti. Recommencez pour accéder à votre espace.",
-                      )}
-                  </p>
-                </div>
-              )}
-              {registrationAvailable ? (
-                <a
-                  href={`/auth/signup?locale=${getLocale()}&returnTo=${encodeURIComponent("/" + (window.location.hash || "#/app"))}`}
-                  className="button primary"
-                >
-                  {msg("Créer mon compte")}
-                  <ArrowRight size={18} />
-                </a>
-              ) : (
-                <p className="notice info" role="status">
-                  {msg(
-                    "L’inscription sera disponible dès que le service de connexion sera raccordé.",
-                  )}
-                </p>
-              )}
-              <p>{msg("Vous avez déjà un compte ?")}</p>
-              <a
-                href={`/auth/login?locale=${getLocale()}&${authCode ? "fresh=1&" : ""}returnTo=${encodeURIComponent("/" + (window.location.hash || "#/app"))}`}
-                className="button"
-              >
-                {t.login.managed}
-                <ArrowRight size={18} />
-              </a>
-              <p className="field-hint">
-                {msg(
-                  "Adresse e-mail vérifiée requise. Aucun envoi payant sans votre accord.",
-                )}
-              </p>
-            </>
-          )}
-          <ErrorNotice error={action.error} />
-          {action.pending && <p role="status">{t.loading}</p>}
-        </div>
-      </main>
-    </div>
-  );
-}
-
 function SessionExpiredNotice({ onReconnect }: { onReconnect: () => void }) {
   const local =
     publicPreview ||
@@ -592,7 +430,13 @@ function Application() {
           updateSession(s);
         }
       })
-      .catch(() => undefined)
+      .catch(() => {
+        // This is still a visitor until a server session is established. Restore
+        // their URL/device choice after the guarded private-page bootstrap,
+        // without overwriting a language selected while the probe was pending.
+        if (alive && languageVersion === getLocaleSelectionVersion())
+          initializeLocale();
+      })
       .finally(() => {
         if (alive) setReady(true);
       });
@@ -678,7 +522,13 @@ function WorkspaceApplication({
   const capabilities = useResource<{
     scanner: string;
     registration?: { enabled: boolean };
-  }>(page.startsWith("/app") ? "/capabilities" : null);
+  }>(
+    !session &&
+      page.startsWith("/app") &&
+      new URLSearchParams(window.location.search).has("auth")
+      ? "/capabilities"
+      : null,
+  );
   const [logoutError, setLogoutError] = useState<Error>();
   const [sessionExpired, setSessionExpired] = useState(false);
   const lastSessionRead = useRef(0);
