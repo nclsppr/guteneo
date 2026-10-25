@@ -260,6 +260,7 @@ class Handler(BaseHTTPRequestHandler):
             if self.path == "/qualification/process-deadline":
                 if not VALIDATION_LOCK.acquire(blocking=False):
                     return self.send_json(503, {"code": "VALIDATOR_BUSY"})
+                status, result = 503, {"code": "VALIDATION_INCOMPLETE"}
                 try:
                     # Exercise the real process-group deadline on harmless synthetic work.
                     # This is explicitly not a claim that a Java PDF timed out.
@@ -268,15 +269,13 @@ class Handler(BaseHTTPRequestHandler):
                             bounded_process([sys.executable, "-c", "import time; time.sleep(1)"], 0.05, 1024)
                         except ValidationError as error:
                             if error.args == ("VALIDATION_TIMEOUT",):
+                                status = 200
                                 result = {"code": "VALIDATION_TIMEOUT"}
-                            else:
-                                return self.send_json(503, {"code": "VALIDATION_INCOMPLETE"})
-                        else:
-                            return self.send_json(503, {"code": "VALIDATION_INCOMPLETE"})
-                    result["temporaryDirectories"] = len(list(Path(tempfile.gettempdir()).glob("guteneo-pdf-*")))
-                    return self.send_json(200, result)
+                    if status == 200:
+                        result["temporaryDirectories"] = len(list(Path(tempfile.gettempdir()).glob("guteneo-pdf-*")))
                 finally:
                     VALIDATION_LOCK.release()
+                return self.send_json(status, result)
         if self.path != "/health":
             return self.send_json(404, {"code": "NOT_FOUND"})
         if not ENGINE_READY:
@@ -301,7 +300,7 @@ class Handler(BaseHTTPRequestHandler):
             return self.send_json(503, {"code": "VALIDATOR_BUSY"})
         try:
             if SHUTDOWN_REQUESTED:
-                return self.send_json(503, {"code": "VALIDATOR_UNAVAILABLE"})
+                raise ValidationError("VALIDATOR_UNAVAILABLE")
             deadline = time.monotonic() + BODY_SECONDS
             data = bytearray()
             while len(data) < int(length):
@@ -315,18 +314,19 @@ class Handler(BaseHTTPRequestHandler):
                 if not chunk:
                     raise ValidationError("INVALID_PDF")
                 data.extend(chunk)
-            self.send_json(200, validate_bytes(bytes(data), query["profile"][0]))
+            status, result = 200, validate_bytes(bytes(data), query["profile"][0])
         except (TimeoutError, ConnectionError):
-            self.send_json(503, {"code": "VALIDATION_TIMEOUT"})
+            status, result = 503, {"code": "VALIDATION_TIMEOUT"}
         except ValidationError as error:
             code = error.args[0] if error.args and error.args[0] in (
                 "INVALID_PDF", "VALIDATOR_UNAVAILABLE", "VALIDATION_TIMEOUT", "VALIDATION_INCOMPLETE",
             ) else "VALIDATION_INCOMPLETE"
-            self.send_json(400 if code == "INVALID_PDF" else 503, {"code": code})
+            status, result = 400 if code == "INVALID_PDF" else 503, {"code": code}
         except Exception:
-            self.send_json(503, {"code": "VALIDATION_INCOMPLETE"})
+            status, result = 503, {"code": "VALIDATION_INCOMPLETE"}
         finally:
             VALIDATION_LOCK.release()
+        self.send_json(status, result)
 
 
 class PrivateServer(ThreadingHTTPServer):
