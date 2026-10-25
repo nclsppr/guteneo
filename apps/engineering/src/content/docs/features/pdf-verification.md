@@ -22,7 +22,7 @@ Individual purchase candidate; no new subscription or recurring renewal. Runtime
 <li id="feature-1bdd67171ab5">Current browser administrator alone accepts the immutable purchase; assistants, native callers and other members cannot create financial consent</li>
 <li id="feature-34a6fe22cc01">Atomic reservation and one settled charge for a complete valid report; engine failure releases the reservation without a settled debit</li>
 <li id="feature-44ece89298b1">New subscriptions and automatic recurring renewals are retired; immutable legacy actions and charges are retained, and posted charge history remains visible under current reporting authority</li>
-<li id="feature-7f69dc7a2ab1">Pinned private veraPDF for PDF/UA-1/-2 and PDF/A-1b/2b/3b/4, with official positive/negative corpus and separate offline/hosted qualification</li>
+<li id="feature-8eacf06733b6">Pinned private veraPDF for PDF/UA-1/-2 and PDF/A-1b/2b/3b/4, with official positive/negative corpus, signal-aware bounded cleanup and separate offline/hosted graceful-stop qualification</li>
 <li id="feature-01e5d5dea05b">Exact-byte reports, history and JSON export under current PDF access, independent of a monthly entitlement</li>
 <li id="feature-2acdd0b62b62">Required human review; a valid report with failed conformance checks is billable, while operational failure is not a conformity verdict</li>
 <li id="feature-31d5342b365a">One explicit activation flag, private validator and production scanner gates; activation after hosted qualification, never legal certification</li>

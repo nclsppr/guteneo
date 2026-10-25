@@ -235,6 +235,7 @@ test("every local probe route requires the configured per-run credential before 
     ["GET", "/state"],
     ["GET", "/privacy"],
     ["POST", "/stop"],
+    ["POST", "/stop?force=true"],
     ["POST", "/process-deadline"],
     ["GET", "/health"],
     ["POST", "/validate?profile=ua1"],
@@ -327,6 +328,51 @@ test("authenticated CLI probe can call private RPC without browser-origin permis
   assert.equal(calls, 1);
 });
 
+test("only the exact authenticated force option reaches private stop recovery", async () => {
+  const calls = [];
+  const env = {
+    PDF_VALIDATOR_QUALIFICATION_TOKEN: probeToken,
+    QUALIFICATION: {
+      stop: async (options) => {
+        calls.push(options);
+        return { status: "stopped" };
+      },
+    },
+  };
+  for (const [path, expected] of [
+    ["/stop", undefined],
+    ["/stop?force=true", { force: true }],
+  ]) {
+    const response = await bridge.fetch(
+      new Request(`http://127.0.0.1:8891${path}`, {
+        method: "POST",
+        headers: probeHeaders,
+      }),
+      env,
+    );
+    assert.equal(response.status, 200);
+    assert.deepEqual(calls.at(-1), expected);
+  }
+  for (const search of [
+    "?force=false",
+    "?force=TRUE",
+    "?force=1",
+    "?force=%74rue",
+    "?force=true&force=true",
+    "?force=true&extra=1",
+  ]) {
+    const response = await bridge.fetch(
+      new Request(`http://127.0.0.1:8891/stop${search}`, {
+        method: "POST",
+        headers: probeHeaders,
+      }),
+      env,
+    );
+    assert.equal(response.status, 404);
+  }
+  assert.equal(calls.length, 2);
+});
+
 test("local bridge targets only the fixed private validator with unchanged diagnostic bytes", async () => {
   const bytes = new Uint8Array([37, 80, 68, 70, 45]);
   const response = await bridge.fetch(
@@ -385,8 +431,117 @@ test("qualification RPC is disabled by default before any container access or st
       "processDeadline",
     ])
       await assert.rejects(qualification[method](), /QUALIFICATION_DISABLED/);
+    await assert.rejects(
+      qualification.stop({ force: true }),
+      /QUALIFICATION_DISABLED/,
+    );
   }
   assert.equal(calls, 0);
+});
+
+test("private force recovery is explicit, bounded to one DO and cannot expose its stub", async () => {
+  let stops = 0;
+  let destroys = 0;
+  const qualification = new ValidatorQualification({
+    QUALIFICATION_ENABLED: "true",
+    PDF_VALIDATOR_CONTAINER: {
+      getByName: (name) => {
+        assert.equal(name, "pdf-validator-v1");
+        return {
+          stop: async () => {
+            stops++;
+          },
+          destroy: async () => {
+            destroys++;
+          },
+          getState: async () => ({
+            status: "stopped",
+            private: "not returned",
+          }),
+        };
+      },
+    },
+  });
+  assert.equal(qualification.container, undefined);
+  for (const options of [undefined, {}, { force: false }])
+    assert.deepEqual(await qualification.stop(options), { status: "stopped" });
+  assert.equal(stops, 3);
+  assert.equal(destroys, 0);
+  assert.deepEqual(await qualification.stop({ force: true }), {
+    status: "stopped",
+  });
+  assert.equal(stops, 3);
+  assert.equal(destroys, 1);
+  for (const options of [
+    null,
+    true,
+    1,
+    "true",
+    [],
+    { force: "true" },
+    { force: 1 },
+    { force: null },
+    { force: {} },
+    { force: true, extra: true },
+    Object.create({ force: true }),
+    { [Symbol("force")]: true },
+  ])
+    await assert.rejects(
+      qualification.stop(options),
+      /QUALIFICATION_INVALID_STOP/,
+    );
+  assert.equal(stops, 3);
+  assert.equal(destroys, 1);
+});
+
+test("private force recovery stays unavailable after qualification is disabled", async () => {
+  let calls = 0;
+  const qualification = new ValidatorQualification({
+    QUALIFICATION_ENABLED: "false",
+    PDF_VALIDATOR_CONTAINER: {
+      getByName: () => {
+        calls++;
+        throw new Error("must not access");
+      },
+    },
+  });
+  const response = await bridge.fetch(
+    new Request("http://127.0.0.1:8891/stop?force=true", {
+      method: "POST",
+      headers: probeHeaders,
+    }),
+    {
+      PDF_VALIDATOR_QUALIFICATION_TOKEN: probeToken,
+      QUALIFICATION: qualification,
+    },
+  );
+  assert.equal(response.status, 503);
+  assert.deepEqual(await response.json(), {
+    code: "PRIVATE_PROBE_UNAVAILABLE",
+  });
+  assert.equal(calls, 0);
+});
+
+test("an unsuccessful ordinary stop never escalates or retries automatically", async () => {
+  let stops = 0;
+  let destroys = 0;
+  const qualification = new ValidatorQualification({
+    QUALIFICATION_ENABLED: "true",
+    PDF_VALIDATOR_CONTAINER: {
+      getByName: () => ({
+        stop: async () => {
+          stops++;
+          throw new Error("synthetic stop failure");
+        },
+        destroy: async () => {
+          destroys++;
+        },
+      }),
+    },
+  });
+  await assert.rejects(qualification.stop(), /synthetic stop failure/);
+  assert.equal(stops, 1);
+  assert.equal(destroys, 0);
 });
 
 test("qualification RPC exposes bounded state/counts and never container metadata or paths", async () => {

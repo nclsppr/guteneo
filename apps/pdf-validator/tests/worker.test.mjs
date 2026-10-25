@@ -77,6 +77,32 @@ test("worker forwards exact bytes and returns only bounded technical findings", 
   assert.equal(response.headers.get("cache-control"), "no-store");
 });
 
+test("ordinary service HTTP never exposes graceful or forced qualification stops", async () => {
+  let calls = 0;
+  const environment = {
+    PDF_VALIDATOR_CONTAINER: {
+      getByName: () => {
+        calls++;
+        throw new Error("must not access");
+      },
+    },
+  };
+  for (const path of [
+    "/stop",
+    "/stop?force=true",
+    "/qualification/stop?force=true",
+  ])
+    for (const method of ["GET", "POST"]) {
+      const response = await handleRequest(
+        new Request(`https://validator.internal${path}`, { method }),
+        environment,
+      );
+      assert.equal(response.status, 404);
+      assert.deepEqual(await response.json(), { code: "NOT_FOUND" });
+    }
+  assert.equal(calls, 0);
+});
+
 test("worker rejects wrong byte hash, profile, version, count, duplicate, and arbitrary clauses", () => {
   const variants = [
     { sha256: "b".repeat(64) },

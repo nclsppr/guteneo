@@ -226,7 +226,7 @@ arguments, proofs or a deployed configuration:
 
 ```sh
 node apps/pdf-validator/scripts/setup-probe.mjs
-apps/pdf-validator/node_modules/.bin/wrangler dev \
+node node_modules/wrangler/bin/wrangler.js dev \
   --config apps/pdf-validator/qualification/wrangler.jsonc \
   --ip 127.0.0.1 --port 8891 --log-level error
 ```

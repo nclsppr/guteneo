@@ -4,7 +4,7 @@ interface QualificationEnv {
   QUALIFICATION: {
     release(): Promise<{ sourceCommit: string; workerVersion: string }>;
     state(): Promise<{ status: string }>;
-    stop(): Promise<{ status: string }>;
+    stop(options?: { force?: boolean }): Promise<{ status: string }>;
     privacy(): Promise<{ temporaryDirectories: number }>;
     processDeadline(): Promise<{ code: string; temporaryDirectories: number }>;
   };
@@ -51,8 +51,16 @@ export default {
         !url.search
       )
         return Response.json(await env.QUALIFICATION.privacy());
-      if (request.method === "POST" && url.pathname === "/stop" && !url.search)
-        return Response.json(await env.QUALIFICATION.stop());
+      if (
+        request.method === "POST" &&
+        url.pathname === "/stop" &&
+        (url.search === "" || url.search === "?force=true")
+      )
+        return Response.json(
+          await env.QUALIFICATION.stop(
+            url.search === "?force=true" ? { force: true } : undefined,
+          ),
+        );
       if (
         request.method === "POST" &&
         url.pathname === "/process-deadline" &&

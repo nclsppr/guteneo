@@ -35,8 +35,12 @@ diagnostic never changes a document's quarantine status or grants permission to
 send it. Originals remain immutable; remediation must produce a new document
 that passes the existing import and technical verification gates.
 
-This is a local candidate. No service, paid infrastructure, production binding,
-customer PDF transfer or public endpoint has been activated.
+The first hosted attempt on 25 October 2026 created the explicitly authorized
+private service. Cold engine health passed in 2960 ms, but the unchanged
+twenty-second stop check failed before any reference PDF was processed: Python
+as PID 1 ignored SIGTERM. That failed attempt does not qualify the hosted corpus
+or idle behavior. The lifecycle correction and fresh hosted suite remain release
+gates. Customer verification stays closed; no customer PDF or purchase was used.
 
 ## Supported checks and limits
 
@@ -133,6 +137,18 @@ The Container class sets `enableInternet=false`. Wrangler has no routes,
 and EU container jurisdiction. These are deployment constraints, not evidence
 about all Guteneo processing or a hosted cold start. The SDK's own transient error
 behavior requires hosted review before enabling any persisted observability.
+
+The Python entrypoint explicitly handles SIGTERM/SIGINT, stops new admission and
+drains its bounded handlers while the existing subprocess/temp-file cleanup
+finishes. The normal SDK stop and five-second idle policy remain graceful; no
+automatic force-kill or longer process/request budget is introduced. An explicit
+`stop({ force: true })` exists only on the temporary qualification RPC, behind
+its exact enabled flag and authenticated loopback bridge, for a stuck prelaunch
+instance. It calls SDK `destroy()` and still requires a terminal-state check.
+Forced recovery is not proof of graceful stop or automatic sleep. The internal
+container helper is an ECMAScript `#` private method and cannot return a DO stub
+through the RPC surface. Normal deployment refuses every qualification operation,
+including the forced stop variant.
 
 ## Reproducible binary and notices
 
