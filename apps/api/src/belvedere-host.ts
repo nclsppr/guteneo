@@ -102,6 +102,8 @@ export async function handleBelvedereHost(
     !url.search &&
     (assets.test(url.pathname) ||
       url.pathname === "/brand/guteneo-mark-128.webp" ||
+      url.pathname === "/brand/guteneo-portrait-128.webp" ||
+      url.pathname === "/brand/guteneo-portrait-192.webp" ||
       url.pathname === "/theme-init.js")
   ) {
     try {

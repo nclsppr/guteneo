@@ -1,6 +1,6 @@
 ---
 title: "Engineering documentation"
-description: "11 capabilities in the operations branch of Guteneo."
+description: "12 capabilities in the operations branch of Guteneo."
 sidebar:
   order: 23
 ---
@@ -29,4 +29,5 @@ Implemented documentation candidate; production publication requires an explicit
 <li id="feature-280042af7cd5">Maintained GitHub job/artifact/release explanation, fresh dependency boundaries and separate application/native/engineering evidence</li>
 <li id="feature-213043d2677b">Curated Cloudflare/Auth0/transport dependencies, background jobs, tariff maintenance, design/i18n/accessibility, AI contribution and reproducible video/voice production guides</li>
 <li id="feature-ccbf884be9f3">Origin-scoped system/light/dark selection uses guteneo.theme with pre-paint resolution, cross-tab/system updates and optional migration of a prior ui-mode choice; Nimbus data-mode styling, fixed blue chrome, script-free system fallback and readable ivory dark branding grant no account or operational authority</li>
+<li id="feature-ac92f68fedde">Three isolated browser shards for each desktop/mobile Chromium and iPhone WebKit profile, same-revision build artifacts and independent complete test-ID inventory accounting; no missing/duplicate shard, skipped required job, automatic retry or merged-main publication shortcut</li>
 </ol>

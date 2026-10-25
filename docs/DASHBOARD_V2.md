@@ -17,9 +17,9 @@ in [WORKSPACE_ROLES.md](WORKSPACE_ROLES.md). This page owns V2 presentation,
 appearance-specific behavior and dated evidence rather than duplicating those
 complete contracts.
 
-## Current presentation — 25 October 2026 candidate
+## Current presentation — 25 October 2026
 
-The current candidate removes decorative `DashboardArtwork` panels and their
+The release from `03daa4136de8999cc79018f33f2a22038917c621` removes decorative `DashboardArtwork` panels and their
 swallows from overview, empty Documents and the assistant introduction. The
 component is retired; historical artwork/provenance below remains a record of
 its earlier candidate. Official identity, actual document previews, controls,
@@ -36,10 +36,9 @@ contracts below remain unchanged.
 Personal documents start from their personal session without waiting for a
 workshop bootstrap, and discard obsolete workspace/account results across
 navigation. [FRONTEND_PERFORMANCE.md](FRONTEND_PERFORMANCE.md) owns that lifecycle,
-regression protocol and bounded local timing evidence. These presentation/loading
-changes are local candidates; older illustration measurements and release proof
-are not renewed evidence for them. No provider, domain, migration, paid resource,
-communication or production publication is performed by this change.
+regression protocol and bounded local timing evidence. The initial presentation/loading changes were published from that release.
+The personal-space and Belvédère alignment below is a subsequent source change;
+older illustration measurements and release proof do not qualify it.
 
 ## Scope and entry
 
@@ -50,7 +49,8 @@ and server capabilities remain required.
 
 Presentation covers navigation, overview, documents, dispatch preparation/
 review/tracking, assistants, account, Studio, PDF verification, credits, tables and forms.
-Belvédère retains its separate presentation/platform authority. Business
+Belvédère shares the V2 visual vocabulary while retaining its separate platform
+authority and read-only data. Business
 contracts remain unchanged.
 
 Preserve the official portrait and lowercase `guteneo` wordmark: ink-black
@@ -66,6 +66,29 @@ alerts and recent activity precede the introduction; metrics remain subject
 to reporting rights. Assistants become a compact shortcut. Empty workspaces
 retain the full welcome. Review content precedes approval actions in reading
 and keyboard order.
+
+## Personal documents and account customization — follow-up
+
+The personal documents application applies the same authenticated account's
+saved `preferredDashboardAppearance`: Classic keeps its compact top navigation,
+while V2 uses the workshop's sidebar, account utilities, page geometry and shared
+controls. The personal shell remains independently loaded and works without any
+workshop membership or workshop bootstrap. Both layouts expose the same documents,
+services, account/security and sign-out routes. The header/page appearance action
+is the shared single light/dark icon; color and layout preferences remain separate.
+
+Personal account customization reuses the workshop's small preference controls
+for language, system/light/dark color and Classic/V2 layout, with matching identity,
+profile and session panels. It does not import the full workshop account page.
+Explicit layout edits use the existing Origin/CSRF-protected personal account
+PATCH, apply only after success and reconcile the returned authenticated identity.
+Failed saves retain the draft for correction without changing the saved layout.
+Changing a name or language alone must not accidentally save a temporary URL
+layout override. No migration, new API or assistant authority is introduced.
+
+Regression sources include `tests/e2e/personal-appearance.spec.ts` and
+`tests/e2e/personal-document-performance.spec.ts`; executed results and hosted
+proof remain separate from the source contract.
 
 ## Navigation and action clarity — 14 October 2026
 
@@ -133,17 +156,17 @@ artwork-removal candidate above supersedes the earlier engraving placement.
 
 ### Candidate qualification
 
-| Evidence | State at implementation |
-| --- | --- |
-| Source, feature map and permission matrix | Affected journeys updated; generation/check passed: 21 domains, 183 features, 22 journeys |
-| Desktop/mobile navigation, titles, actions and dates | 18/18 browser cases passed, no failures/skips/flakes, on desktop/mobile Chromium and iPhone WebKit; 15 root routes in Classic/V2 at each project's viewport and 320 px; no physical-device inference |
-| Roles, detail return, account/status with menu closed | Included in 18 cases: permissions, explicit consent, persistence, returns, account outside closed mobile menu, primary action/timezone with populated list; local simulation API or fixtures by scenario |
-| Local checks | Typecheck, lint, web build and feature map passed; 40/40 locale/appearance unit tests without failure/skip |
-| Local visual verification | Generations at 1440 × 1000 and 390 × 844, overview at 1025 × 900 inspected; consistent landmarks/actions/account areas |
-| Exact-commit CI | Qualify on PR and merged commit before publication |
-| Postpublication fingerprint, served assets and human session | Verify separately after authorized deployment |
-| Cost/resources | Six bounded local trials: same 9 simulated API reads, one fewer static asset, no request during 10 s idle; loaded JS/CSS +836 gzip bytes. Limits below; no hosted Worker CPU/billing measurement |
-| Real communication, provider activation/debit | None needed for presentation qualification |
+| Evidence                                                     | State at implementation                                                                                                                                                                                  |
+| ------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Source, feature map and permission matrix                    | Affected journeys updated; generation/check passed: 21 domains, 183 features, 22 journeys                                                                                                                |
+| Desktop/mobile navigation, titles, actions and dates         | 18/18 browser cases passed, no failures/skips/flakes, on desktop/mobile Chromium and iPhone WebKit; 15 root routes in Classic/V2 at each project's viewport and 320 px; no physical-device inference     |
+| Roles, detail return, account/status with menu closed        | Included in 18 cases: permissions, explicit consent, persistence, returns, account outside closed mobile menu, primary action/timezone with populated list; local simulation API or fixtures by scenario |
+| Local checks                                                 | Typecheck, lint, web build and feature map passed; 40/40 locale/appearance unit tests without failure/skip                                                                                               |
+| Local visual verification                                    | Generations at 1440 × 1000 and 390 × 844, overview at 1025 × 900 inspected; consistent landmarks/actions/account areas                                                                                   |
+| Exact-commit CI                                              | Qualify on PR and merged commit before publication                                                                                                                                                       |
+| Postpublication fingerprint, served assets and human session | Verify separately after authorized deployment                                                                                                                                                            |
+| Cost/resources                                               | Six bounded local trials: same 9 simulated API reads, one fewer static asset, no request during 10 s idle; loaded JS/CSS +836 gzip bytes. Limits below; no hosted Worker CPU/billing measurement         |
+| Real communication, provider activation/debit                | None needed for presentation qualification                                                                                                                                                               |
 
 Final local results remain outside the repository at
 `/tmp/guteneo-v2-clarity/dashboard-v2.json` (18 cases, 76.7 s) and `unit.json`
@@ -168,16 +191,16 @@ intercepted fixtures; external origins/non-GET methods are blocked. Files
 are served only at `127.0.0.1:4481/4482`, then servers stop. No backend,
 provider, private document, dispatch or subscription is used.
 
-| Median of three trials | Base V2 | Candidate V2 |
-| --- | --- | --- |
-| Startup to visible title, fonts/initial images ready | 138.1 ms | 129.9 ms |
-| Controlled journey including four 500 ms pauses | 2,155.0 ms | 2,147.3 ms |
-| Renderer work at journey end (`TaskDuration`) | 133.5 ms | 129.6 ms |
-| Renderer work at startup | 99.2 ms | 91.6 ms |
-| JavaScript heap at journey end | 6,623,332 bytes | 6,614,704 bytes |
-| Renderer work during 10 s idle | 0.572 ms | 0.659 ms |
-| Journey requests, including simulated API reads | 36, including 9 | 35, including 9 |
-| Requests during 10 s idle | 0 | 0 |
+| Median of three trials                               | Base V2         | Candidate V2    |
+| ---------------------------------------------------- | --------------- | --------------- |
+| Startup to visible title, fonts/initial images ready | 138.1 ms        | 129.9 ms        |
+| Controlled journey including four 500 ms pauses      | 2,155.0 ms      | 2,147.3 ms      |
+| Renderer work at journey end (`TaskDuration`)        | 133.5 ms        | 129.6 ms        |
+| Renderer work at startup                             | 99.2 ms         | 91.6 ms         |
+| JavaScript heap at journey end                       | 6,623,332 bytes | 6,614,704 bytes |
+| Renderer work during 10 s idle                       | 0.572 ms        | 0.659 ms        |
+| Journey requests, including simulated API reads      | 36, including 9 | 35, including 9 |
+| Requests during 10 s idle                            | 0               | 0               |
 
 No JavaScript error, failed HTTP response or forbidden request attempt in six
 trials. Removed asset: compact footer emblem `brand/guteneo-mark-128.webp`
@@ -239,7 +262,7 @@ The desktop account block sits at left-navigation bottom and remains accessible
 on mobile, retaining actual identity, current role, profile and account switching.
 
 1. Open **My account** from the block; Classic also retains Account navigation.
-2. In **My profile**, choose **Classic** or **V2** under **Workspace version**,
+2. In **My profile**, choose **Classic** or **V2** under **Interface version**,
    beside language.
 3. Select **Save changes**.
 4. After server success, apply appearance and show **Your profile has been saved.**
@@ -266,23 +289,23 @@ and route remain.
 
 ## Server contract and reconciliation
 
-| Item | Contract |
-| --- | --- |
-| Values | `classic`/`v2`, `packages/contracts/src/dashboard-appearance.ts` |
-| Durable storage | Personal `users.preferred_dashboard_appearance`, not organization preference |
-| Migration | `0053_user_dashboard_appearance.sql`; `TEXT NOT NULL DEFAULT 'classic'`, `CHECK` on both values |
-| Browser reads | `user.preferredDashboardAppearance` in `GET /api/session` and `GET /api/account` |
-| Write | Optional `preferredDashboardAppearance` in existing strict `PATCH /api/account` body |
-| Authority | Current browser session, Origin/CSRF; every role can change its own preference |
-| Target | Session identity/workspace; no body `userId`/`organizationId` targeting |
-| Omitted field | Preserves preference, including older name/language clients |
-| Audit | `account.updated`, changed field names without values/document data |
-| Refusal | Invalid value/unknown field: `INVALID_INPUT`; invalid CSRF: `CSRF_REJECTED`; revoked authority: `ACCESS_CHANGED`, no partial update |
-| Authenticated account | Session rereads preference; same user retained across workspace switching, different identity reconciled |
-| URL | Valid `appearance=v2`/`appearance=classic` temporarily wins for that entry without persistence; legacy `atelier` accepted inbound |
-| Browser cache | `guteneo.dashboard.appearance` in `localStorage`, best-effort bootstrap/cache; authenticated session authoritative outside explicit override |
-| Unavailable cache | Guarded reads/writes; account preference works after session read |
-| Unavailable history | `history.replaceState` restrictions do not block applying saved preference |
+| Item                  | Contract                                                                                                                                     |
+| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| Values                | `classic`/`v2`, `packages/contracts/src/dashboard-appearance.ts`                                                                             |
+| Durable storage       | Personal `users.preferred_dashboard_appearance`, not organization preference                                                                 |
+| Migration             | `0053_user_dashboard_appearance.sql`; `TEXT NOT NULL DEFAULT 'classic'`, `CHECK` on both values                                              |
+| Browser reads         | `user.preferredDashboardAppearance` in `GET /api/session` and `GET /api/account`                                                             |
+| Write                 | Optional `preferredDashboardAppearance` in existing strict `PATCH /api/account` body                                                         |
+| Authority             | Current browser session, Origin/CSRF; every role can change its own preference                                                               |
+| Target                | Session identity/workspace; no body `userId`/`organizationId` targeting                                                                      |
+| Omitted field         | Preserves preference, including older name/language clients                                                                                  |
+| Audit                 | `account.updated`, changed field names without values/document data                                                                          |
+| Refusal               | Invalid value/unknown field: `INVALID_INPUT`; invalid CSRF: `CSRF_REJECTED`; revoked authority: `ACCESS_CHANGED`, no partial update          |
+| Authenticated account | Session rereads preference; same user retained across workspace switching, different identity reconciled                                     |
+| URL                   | Valid `appearance=v2`/`appearance=classic` temporarily wins for that entry without persistence; legacy `atelier` accepted inbound            |
+| Browser cache         | `guteneo.dashboard.appearance` in `localStorage`, best-effort bootstrap/cache; authenticated session authoritative outside explicit override |
+| Unavailable cache     | Guarded reads/writes; account preference works after session read                                                                            |
+| Unavailable history   | `history.replaceState` restrictions do not block applying saved preference                                                                   |
 
 Cache contains appearance only: no content, recipient, token or signed URL.
 Old browser values cannot replace authenticated preference. Existing session
@@ -319,16 +342,16 @@ channel activation, mandate grant/extension nor server-check bypass. See
 
 ## Journeys and recovery
 
-| Journey | Expected result | Error/recovery |
-| --- | --- | --- |
-| Login/tab return | Actual identity/current workspace/personal appearance reconciled | Normal Auth0 recovery; no other-user private data |
-| Account → language/version → save | Same person; durable preference after success | Network/CSRF/authority failure explicit; no invented success |
-| Appearance link | Temporary override without profile PATCH | Unknown parameter ignored; save explicitly for persistence |
-| Workspace switch | Same preference, current membership rights/data | No previous-workspace privilege retained |
-| Account switch | Returned account preference; old override discarded | Old local cache never presented as new account preference |
-| Documents → preparation → review → tracking | Same resources/requests/guards, new presentation | Existing quarantine, quote-expiry, closed-channel, permission and unknown-outcome recovery |
-| Studio/PDF verification/credits | Coherent presentation, unchanged authority | No appearance-created subscription/quota/debit/transfer |
-| Assistant → browser review | Same scopes/consent, browser preference | No added tool, mandate or implicit consent |
+| Journey                                     | Expected result                                                  | Error/recovery                                                                             |
+| ------------------------------------------- | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| Login/tab return                            | Actual identity/current workspace/personal appearance reconciled | Normal Auth0 recovery; no other-user private data                                          |
+| Account → language/version → save           | Same person; durable preference after success                    | Network/CSRF/authority failure explicit; no invented success                               |
+| Appearance link                             | Temporary override without profile PATCH                         | Unknown parameter ignored; save explicitly for persistence                                 |
+| Workspace switch                            | Same preference, current membership rights/data                  | No previous-workspace privilege retained                                                   |
+| Account switch                              | Returned account preference; old override discarded              | Old local cache never presented as new account preference                                  |
+| Documents → preparation → review → tracking | Same resources/requests/guards, new presentation                 | Existing quarantine, quote-expiry, closed-channel, permission and unknown-outcome recovery |
+| Studio/PDF verification/credits             | Coherent presentation, unchanged authority                       | No appearance-created subscription/quota/debit/transfer                                    |
+| Assistant → browser review                  | Same scopes/consent, browser preference                          | No added tool, mandate or implicit consent                                                 |
 
 Journeys/matrix are also maintained in [feature-map.json](feature-map.json).
 Public mockup remains fictional/backend isolated; its settings change no
@@ -346,10 +369,10 @@ Three illustrations were generated with actual `image_gen`, then resized/
 WebP encoded. Masters/prompts/fingerprints: `assets/brand/dashboard-v2/`.
 The official portrait was not regenerated.
 
-| Served asset | Dimensions | Bytes | Export verification |
-| --- | --- | --- | --- |
-| `apps/web/public/brand/dashboard-v2/atelier.webp` | 1280 × 853 | 158,328 | Original/440 px use inspected |
-| `apps/web/public/brand/dashboard-v2/documents.webp` | 1280 × 960 | 75,294 | Original/320 px use inspected |
+| Served asset                                               | Dimensions | Bytes   | Export verification           |
+| ---------------------------------------------------------- | ---------- | ------- | ----------------------------- |
+| `apps/web/public/brand/dashboard-v2/atelier.webp`          | 1280 × 853 | 158,328 | Original/440 px use inspected |
+| `apps/web/public/brand/dashboard-v2/documents.webp`        | 1280 × 960 | 75,294  | Original/320 px use inspected |
 | `apps/web/public/brand/dashboard-v2/pdf-verification.webp` | 1280 × 427 | 105,592 | Original/600 px use inspected |
 
 Display evidence: `/tmp/guteneo-v2-qa/artwork/`, outside the repository.
@@ -384,15 +407,15 @@ fresh context, visits empty overview → empty documents → connections, then
 idles ten seconds. Eight API reads use identical fictional interceptions;
 all writes/external destinations are forbidden. No backend/provider is called.
 
-| Median of three local trials | Base Classic | Candidate Classic | Candidate V2 |
-| --- | ---: | ---: | ---: |
-| Startup to visible title/fonts ready, ms | 112.7 | 121.4 | 121.4 |
-| Chromium renderer `TaskDuration`, full journey, ms | 112.1 | 110.5 | 118.1 |
-| Controlled journey including three 500 ms pauses, s | 1.627 | 1.635 | 1.641 |
-| End-of-journey JavaScript heap, decimal MB | 6.55 | 6.54 | 6.56 |
-| Renderer work during ten idle seconds, ms | 0.675 | 0.715 | 0.485 |
-| Browser requests, including eight synthetic API GETs | 30 | 30 | 34 |
-| Extra requests during ten idle seconds | 0 | 0 | 0 |
+| Median of three local trials                         | Base Classic | Candidate Classic | Candidate V2 |
+| ---------------------------------------------------- | -----------: | ----------------: | -----------: |
+| Startup to visible title/fonts ready, ms             |        112.7 |             121.4 |        121.4 |
+| Chromium renderer `TaskDuration`, full journey, ms   |        112.1 |             110.5 |        118.1 |
+| Controlled journey including three 500 ms pauses, s  |        1.627 |             1.635 |        1.641 |
+| End-of-journey JavaScript heap, decimal MB           |         6.55 |              6.54 |         6.56 |
+| Renderer work during ten idle seconds, ms            |        0.675 |             0.715 |        0.485 |
+| Browser requests, including eight synthetic API GETs |           30 |                30 |           34 |
+| Extra requests during ten idle seconds               |            0 |                 0 |            0 |
 
 Zero JavaScript/HTTP errors in nine trials. V2 adds four resources: three
 engravings and sprite. Actually loaded shared JS/CSS chunks, including API,
@@ -409,11 +432,11 @@ Three runs/operation, outside global HTTP middleware. `.first()` uses the same
 `.all()` query to preserve D1 metadata without logging bound SQL, identity
 or content.
 
-| Local operation | Base: statements / rows read / written | Candidate: statements / rows read / written |
-| --- | --- | --- |
-| GET session | 1 / 4 / 0 | 1 / 4 / 0 |
-| GET account | 4 / 7–8 / 1–2 | 4 / 7–8 / 1–2 |
-| Minimal `preferredLocale` PATCH, plus candidate `preferredDashboardAppearance` | 6 / 13 / 5 | 7 / 15 / 6 |
+| Local operation                                                                | Base: statements / rows read / written | Candidate: statements / rows read / written |
+| ------------------------------------------------------------------------------ | -------------------------------------- | ------------------------------------------- |
+| GET session                                                                    | 1 / 4 / 0                              | 1 / 4 / 0                                   |
+| GET account                                                                    | 4 / 7–8 / 1–2                          | 4 / 7–8 / 1–2                               |
+| Minimal `preferredLocale` PATCH, plus candidate `preferredDashboardAppearance` | 6 / 13 / 5                             | 7 / 15 / 6                                  |
 
 Measured joint-save delta: one UPDATE, two rows read, one written. UI retains
 one PATCH then session reread, without an extra round trip. Cumulative local
@@ -499,27 +522,27 @@ Earlier evidence is retained without extending it to server preference:
 - Earlier 7 bootstrap unit tests/62 release-security tests alone do not prove
   personal saving.
 
-| Historical qualification, 11–13 October 2026 | State |
-| --- | --- |
-| Account/session, migration, roles, OAuth/CSRF refusal, revocation/native read | 91 targeted local tests: 27 `tests/unit/account.test.ts`, 47 `tests/unit/auth.test.ts`, 17 `tests/integration/mobile.test.ts` |
-| Bootstrap, temporary URL, unavailable storage/translations | 7/7 `tests/unit/dashboard-appearance.test.ts` passed |
-| Isolated mockup: account control, language proximity, four languages, reading/mobile order | 14/14 passed: 8 V2, 6 baseline; desktop/iPhone WebKit without business backend |
-| Local app: personal save, fresh browser, name-only forced URL, draft, consent, roles/account bottom | 15/15: five scenarios on three browsers; local simulation API/intercepted sessions by scenario |
-| Fifteen workspace routes at 320 px including Studio/PDF verification/credits | Included in Classic/V2 app suite; overflow/account access checked, no physical-device qualification |
-| Narrow navigation, long identity, fax quote/PDF and test-interception closure regressions | 122/122 after fixes: 105 on three browsers, 17 additional iPhone WebKit; quote/PDF captures reviewed |
-| Historical quote migration with new user schema | 16/16; fixture copies four historical-schema columns without changing business assertions |
-| Transient local test-database lock | 18/18 bounded-reset tests, 5/5 Chromium V2 scenarios; only explicit `SQLITE_BUSY` retries idempotent reset, never scenario/business operation |
-| Preview/live builds | Passed after navigation/name-only-save fixes; `release-build-preview.log`, `release-build-live.log` |
-| Typecheck/lint | Final run passed after final changes; `/tmp/guteneo-v2-qa/release-lint.log` |
-| Developer feature map | Generation/sync passed: 20 domains, 166 features, 21 journeys |
-| Full Vitest | 2,052/2,052 in 108 files before final changes; 91 targeted after profile extension, no renewed full-suite proof |
-| Release security | 62 `main-only-release`/`preview-release-assets` passed before account extension; release code unchanged, bounded evidence |
-| Manual local account | French/V2 selected/saved, historical `atelier` parameter removed, route retained/subsequent pages use server V2; simulation API only |
-| Stable PDF review, consent, error, multipage/keyboard | 36/36 `protected-email.spec.ts` cases across three projects; typecheck/lint/web build passed. Fix CI pending. |
-| Exact-commit CI | PR #61: 13/13 green on `207cf04`; merged main `54639e7`: iPhone PDF-stability failure during consent. Publication held for fix/new-main CI. |
-| Remote D1 migration/canonical deployment | Not performed for that candidate at writing |
-| Authenticated human use on actual data/other devices | Not qualified by local tests |
-| Real communication/provider delivery | None performed |
+| Historical qualification, 11–13 October 2026                                                        | State                                                                                                                                         |
+| --------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| Account/session, migration, roles, OAuth/CSRF refusal, revocation/native read                       | 91 targeted local tests: 27 `tests/unit/account.test.ts`, 47 `tests/unit/auth.test.ts`, 17 `tests/integration/mobile.test.ts`                 |
+| Bootstrap, temporary URL, unavailable storage/translations                                          | 7/7 `tests/unit/dashboard-appearance.test.ts` passed                                                                                          |
+| Isolated mockup: account control, language proximity, four languages, reading/mobile order          | 14/14 passed: 8 V2, 6 baseline; desktop/iPhone WebKit without business backend                                                                |
+| Local app: personal save, fresh browser, name-only forced URL, draft, consent, roles/account bottom | 15/15: five scenarios on three browsers; local simulation API/intercepted sessions by scenario                                                |
+| Fifteen workspace routes at 320 px including Studio/PDF verification/credits                        | Included in Classic/V2 app suite; overflow/account access checked, no physical-device qualification                                           |
+| Narrow navigation, long identity, fax quote/PDF and test-interception closure regressions           | 122/122 after fixes: 105 on three browsers, 17 additional iPhone WebKit; quote/PDF captures reviewed                                          |
+| Historical quote migration with new user schema                                                     | 16/16; fixture copies four historical-schema columns without changing business assertions                                                     |
+| Transient local test-database lock                                                                  | 18/18 bounded-reset tests, 5/5 Chromium V2 scenarios; only explicit `SQLITE_BUSY` retries idempotent reset, never scenario/business operation |
+| Preview/live builds                                                                                 | Passed after navigation/name-only-save fixes; `release-build-preview.log`, `release-build-live.log`                                           |
+| Typecheck/lint                                                                                      | Final run passed after final changes; `/tmp/guteneo-v2-qa/release-lint.log`                                                                   |
+| Developer feature map                                                                               | Generation/sync passed: 20 domains, 166 features, 21 journeys                                                                                 |
+| Full Vitest                                                                                         | 2,052/2,052 in 108 files before final changes; 91 targeted after profile extension, no renewed full-suite proof                               |
+| Release security                                                                                    | 62 `main-only-release`/`preview-release-assets` passed before account extension; release code unchanged, bounded evidence                     |
+| Manual local account                                                                                | French/V2 selected/saved, historical `atelier` parameter removed, route retained/subsequent pages use server V2; simulation API only          |
+| Stable PDF review, consent, error, multipage/keyboard                                               | 36/36 `protected-email.spec.ts` cases across three projects; typecheck/lint/web build passed. Fix CI pending.                                 |
+| Exact-commit CI                                                                                     | PR #61: 13/13 green on `207cf04`; merged main `54639e7`: iPhone PDF-stability failure during consent. Publication held for fix/new-main CI.   |
+| Remote D1 migration/canonical deployment                                                            | Not performed for that candidate at writing                                                                                                   |
+| Authenticated human use on actual data/other devices                                                | Not qualified by local tests                                                                                                                  |
+| Real communication/provider delivery                                                                | None performed                                                                                                                                |
 
 Account reports outside repository:
 `/tmp/guteneo-v2-qa/account-preview-results.json` (14 cases, 9.1 s),

@@ -22,7 +22,7 @@ For service boundaries, use the [system architecture](/architecture/system/).
 | --------------------- | ------------------------------------------------------------------------ | ---------------------------------------------------------------------------- |
 | Public website        | `public-chrome.tsx`, `public-chrome.css`, `legal-links.tsx`, `brand.tsx` | One header/footer, English canonical routes, visitor language selection      |
 | Authenticated web app | Existing application shell and `components.tsx`                          | Account language, workspace authority, unsaved work and the current route    |
-| Belvédère             | Existing private shell and `docs/belvedere/DESIGN.md`                    | Its denser operational layout, read-only data and separate platform access   |
+| Belvédère             | V2 geometry, shared `ThemeToggle` and private shell                      | Readable operational data, keyboard navigation and separate platform access  |
 | Engineering site      | Nimbus layouts, shared MDX components and its theme                      | English technical prose, light/dark themes, one layout-owned page heading    |
 | Native app            | Existing SwiftUI components and bundled string catalog                   | Platform navigation, dynamic text, native accessibility and account language |
 
@@ -31,6 +31,13 @@ shared source; another independent header quickly drifts in wording, language
 controls and small-screen behavior. A component migration must preserve every
 meaningful state, including loading, empty, denied, unavailable and recoverable
 failure states.
+
+The application-space rule in `AGENTS.md` requires the workshop, personal
+documents and Belvédère to speak one design language in all four supported
+languages. Compare navigation, theme actions, typography, forms, tables and
+account customization against the shared components before changing any of them.
+Keep authority and loading independent: visual consistency never justifies
+importing another space's session bootstrap or granting its permissions.
 
 ## Use the established visual vocabulary
 
@@ -55,9 +62,13 @@ actual overlay or an explanatory spatial figure. Keep numeric comparisons aligne
 with tabular figures. Status colors always accompany a written state; missing
 data must remain unknown rather than appearing as zero or success.
 
-Belvédère has intentional local density and token choices documented in its own
-design contract. Engineering maps the brand to Nimbus theme variables. Extending
-either surface does not require replacing its complete theme with raw web tokens.
+Belvédère uses the workshop V2 navigation, type and control geometry while
+retaining its private platform guard and read-only data. Its own design contract
+records operational tables and the paired globe/list. Personal documents use the
+saved Classic/V2 account preference and small shared customization controls,
+without importing the workshop account page or requesting its resources. A theme
+icon changes only color; a successfully saved layout choice changes presentation.
+Engineering maps the brand to Nimbus theme variables.
 
 ## Compose a page around one task
 
@@ -78,7 +89,11 @@ homepage too; the large home closing stamp and panorama are a separate section
 above it. Use one 1440 px maximum outer frame and matching responsive gutters for
 header, main and footer, with narrower readable prose inside. The public header
 offers an appearance icon at every viewport; the default follows the operating
-system and the head bootstrap handles activation before React is ready. Put detailed
+system and the head bootstrap handles activation before React is ready. The
+personal header and Belvédère page actions use the same small control; three-way
+System/Light/Dark selection belongs in account customization. Keep Classic/V2
+layout independent, apply it only after a successful explicit save, and reconcile
+it when the current identity changes. Put detailed
 pricing, setup and support information on their appropriate pages rather than
 requiring visitors to search a long homepage. Keep those pages in the canonical
 public route registry so sitemap and language variants are generated together.
@@ -180,7 +195,10 @@ switching languages updates existing screens without a reload.
 Never pass arbitrary server values or user documents through `msg`. Preserve
 canonical routes with the shared helpers and retain public language parameters.
 Native strings live in `ios/Guteneo/Resources/Localizable.xcstrings`; new Swift
-lookup keys are English. Belvédère follows the same account preference. Films
+lookup keys are English. Belvédère follows the same account preference. Translate only exact known
+server-authored interface explanations through their declared catalog; preserve
+unknown explanations and customer names verbatim. Keep distinct financial
+messages distinct when translating. Films
 must select the matching localized asset and stop old playback when the language
 changes; use the [video production guide](/engineering/video-production/).
 

@@ -134,6 +134,80 @@ test("my documents opens independently of workspace authentication and unused ed
   }
 });
 
+test("the personal header follows the system and switches with one icon without reloading documents", async ({
+  page,
+}) => {
+  const state = await fixture(page);
+  await page.emulateMedia({ colorScheme: "dark" });
+  await page.addInitScript(() => {
+    Reflect.set(window, "personalThemeChanges", 0);
+    window.addEventListener("guteneo-theme-change", () => {
+      Reflect.set(
+        window,
+        "personalThemeChanges",
+        Number(Reflect.get(window, "personalThemeChanges")) + 1,
+      );
+    });
+  });
+  await page.goto("/#/app/my-documents");
+  await expect(
+    page.getByRole("heading", {
+      name: "Document for personal-performance-a",
+      exact: true,
+    }),
+  ).toBeVisible();
+  const root = page.locator("html");
+  const header = page.locator(".personal-space-header");
+  const button = header.locator("button[data-theme-toggle]");
+  await expect(button).toHaveCount(1);
+  await expect(button).toBeVisible();
+  await expect(header.locator("select")).toHaveCount(0);
+  await expect(root).toHaveAttribute("data-theme-preference", "system");
+  await expect(root).toHaveAttribute("data-theme", "dark");
+  await expect(button).toHaveAccessibleName("Switch to light mode");
+  const size = await button.boundingBox();
+  expect(size?.width).toBeGreaterThanOrEqual(44);
+  expect(size?.height).toBeGreaterThanOrEqual(44);
+  const readsBeforeAppearance = [...state.reads];
+  const changesBefore = await page.evaluate(() =>
+    Number(Reflect.get(window, "personalThemeChanges")),
+  );
+  await page.emulateMedia({ colorScheme: "light" });
+  await expect(root).toHaveAttribute("data-theme", "light");
+  await expect(root).toHaveAttribute("data-theme-preference", "system");
+  await button.click();
+  await expect(root).toHaveAttribute("data-theme", "dark");
+  await expect(root).toHaveAttribute("data-theme-preference", "dark");
+  await expect(button).toHaveAccessibleName("Switch to light mode");
+  await button.press("Enter");
+  await expect(root).toHaveAttribute("data-theme", "light");
+  await expect(button).toHaveAccessibleName("Switch to dark mode");
+  expect(
+    await page.evaluate(() =>
+      Number(Reflect.get(window, "personalThemeChanges")),
+    ),
+  ).toBe(changesBefore + 3);
+  expect(state.reads).toEqual(readsBeforeAppearance);
+  expect(state.writes).toEqual([]);
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+  await page.emulateMedia({ colorScheme: "dark" });
+  await expect(root).toHaveAttribute("data-theme", "light");
+  await page.reload();
+  await expect(
+    page.getByRole("heading", {
+      name: "Document for personal-performance-a",
+      exact: true,
+    }),
+  ).toBeVisible();
+  await expect(root).toHaveAttribute("data-theme-preference", "light");
+  await expect(root).toHaveAttribute("data-theme", "light");
+  expect(state.writes).toEqual([]);
+});
+
 test("a failed personal list can be retried without reloading the account", async ({
   page,
 }) => {

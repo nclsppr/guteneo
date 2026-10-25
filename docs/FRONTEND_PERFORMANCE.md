@@ -43,6 +43,17 @@ reader/editor task is entered. Starting My documents does not eagerly request
 those engines. Functional fonts, document previews and accessibility controls
 remain; source decoration never substitutes for content.
 
+The personal Classic/V2 follow-up reuses the small appearance context and
+`appearance-preferences.tsx` controls, without importing the workshop account
+page, contacts, Studio or document engines. Its saved layout comes from the
+already required personal session; changing browser color performs no business
+read or write. A successful existing personal profile PATCH returns the updated
+personal session directly, avoiding a second session waterfall. Acceptance is
+bound to the source account and CSRF/session generation; an obsolete response
+cannot replace a newly observed identity, language or layout. These request and
+bundle boundaries are checked by `tests/e2e/personal-appearance.spec.ts`; they do
+not establish a production timing improvement.
+
 Public detail pages use a separate lazy chunk. Their lightweight path/metadata
 module lets the entry point preload that chunk before React replaces complete
 initial HTML. Slow or failed chunk loading must preserve the useful static page;

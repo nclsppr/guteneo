@@ -12,6 +12,7 @@ import {
   PaperPlaneTilt,
   ShieldCheck,
   SignOut,
+  UserCircle,
 } from "@phosphor-icons/react";
 import { Brand } from "./brand";
 import { ApiError, date, type Session } from "./api";
@@ -26,7 +27,12 @@ import {
 } from "./components";
 import { LanguageSelect } from "./language-select";
 import { LegalLinks } from "./legal-links";
-import { ThemeSelect } from "./theme-select";
+import { ThemeToggle } from "./theme-toggle";
+import { AppearancePreferences } from "./appearance-preferences";
+import {
+  useDashboardAppearance,
+  type DashboardAppearance,
+} from "./dashboard-appearance";
 import {
   applyAccountLocale,
   getLocale,
@@ -221,11 +227,23 @@ export function PersonalSpace({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error>();
   const [version, setVersion] = useState(0);
+  const sessionReadRevision = useRef(0);
+  const { appearance, applyAccountAppearance } = useDashboardAppearance();
   const action = useAction();
   const page = route.split("?")[0] ?? "/app/my-documents";
   const onSessionInvalid = useCallback(() => {
+    sessionReadRevision.current += 1;
     setPersonalSession(null);
   }, []);
+  useEffect(() => {
+    if (session) {
+      applyAccountLocale(session.user.preferredLocale);
+      applyAccountAppearance(
+        session.user.preferredDashboardAppearance ?? "classic",
+        session.user.id,
+      );
+    }
+  }, [session, applyAccountAppearance]);
   useEffect(() => {
     const controller = new AbortController();
     let pending = false;
@@ -239,18 +257,27 @@ export function PersonalSpace({
         return;
       pending = true;
       lastRead = Date.now();
+      const revision = sessionReadRevision.current;
       try {
         const current = await personalApi<PersonalSession>(
           "/personal/session",
           undefined,
           { signal: controller.signal },
         );
-        if (controller.signal.aborted) return;
+        if (
+          controller.signal.aborted ||
+          revision !== sessionReadRevision.current
+        )
+          return;
         setPersonalSession(current);
         applyAccountLocale(current.user.preferredLocale);
         setError(undefined);
       } catch (cause) {
-        if (controller.signal.aborted) return;
+        if (
+          controller.signal.aborted ||
+          revision !== sessionReadRevision.current
+        )
+          return;
         if (cause instanceof ApiError && [401, 403].includes(cause.status))
           setPersonalSession(null);
         else setError(cause as Error);
@@ -282,6 +309,7 @@ export function PersonalSpace({
         <PersonalSignIn
           invitationStorageBlocked={invitationStorageBlocked}
           onSignedIn={(current) => {
+            sessionReadRevision.current += 1;
             setPersonalSession(current);
             setError(undefined);
           }}
@@ -295,14 +323,35 @@ export function PersonalSpace({
         body: {},
       });
       clearPendingDocumentInvitation();
+      sessionReadRevision.current += 1;
       setPersonalSession(null);
       // Leave the private route and discard workshop state before another
       // authentication screen can restart the provider's SSO flow.
       window.location.replace("/");
     });
   }
+  const accountUtility = (
+    <div className="personal-space-account">
+      <p>
+        {appearance === "v2" && <strong>{session.user.name}</strong>}
+        {msg("Signed in as {0}", session.user.email)}
+      </p>
+      <button
+        type="button"
+        className="button small subtle"
+        disabled={action.pending}
+        onClick={() => void logout()}
+      >
+        <SignOut size={18} aria-hidden="true" />
+        {msg("Sign out")}
+      </button>
+    </div>
+  );
   return (
-    <div className="personal-space">
+    <div
+      className={`personal-space${appearance === "v2" ? " personal-space-v2" : ""}`}
+      data-appearance={appearance}
+    >
       <a
         className="skip-link"
         href="#main-content"
@@ -322,22 +371,26 @@ export function PersonalSpace({
               page.startsWith("/app/my-documents") ? "page" : undefined
             }
           >
+            <Files size={20} aria-hidden="true" />
             {msg("My documents")}
           </a>
           <a
             href="#/app/services"
             aria-current={page === "/app/services" ? "page" : undefined}
           >
+            <PaperPlaneTilt size={20} aria-hidden="true" />
             {msg("Use Guteneo")}
           </a>
           <a
             href="#/app/personal-account"
             aria-current={page === "/app/personal-account" ? "page" : undefined}
           >
+            <UserCircle size={20} aria-hidden="true" />
             {msg("Account and security")}
           </a>
         </nav>
-        <ThemeSelect compact />
+        <ThemeToggle />
+        {appearance === "v2" && accountUtility}
       </header>
       <main
         id="main-content"
@@ -345,22 +398,7 @@ export function PersonalSpace({
         className="personal-space-main"
         key={session.user.id}
       >
-        <div className="personal-space-account">
-          <p>
-            {msg("Signed in as {0}", session.user.email)}
-            <br />
-            <small>{msg("Personal space")}</small>
-          </p>
-          <button
-            type="button"
-            className="button small subtle"
-            disabled={action.pending}
-            onClick={() => void logout()}
-          >
-            <SignOut size={18} aria-hidden="true" />
-            {msg("Sign out")}
-          </button>
-        </div>
+        {appearance !== "v2" && accountUtility}
         {session.simulation && (
           <div className="notice info" role="note">
             <p>
@@ -380,7 +418,18 @@ export function PersonalSpace({
         ) : page === "/app/personal-account" ? (
           <PersonalAccount
             session={session}
-            onUpdated={() => setVersion((n) => n + 1)}
+            onUpdated={(current) => {
+              // An already running focus read may contain the pre-save profile.
+              // Adopt the PATCH session without adding another read waterfall.
+              sessionReadRevision.current += 1;
+              setError(undefined);
+              setPersonalSession((previous) =>
+                previous?.user.id === session.user.id &&
+                previous.csrfToken === session.csrfToken
+                  ? current
+                  : previous,
+              );
+            }}
           />
         ) : (
           documents(session, onSessionInvalid)
@@ -561,17 +610,27 @@ function PersonalAccount({
   onUpdated,
 }: {
   session: PersonalSession;
-  onUpdated: () => void;
+  onUpdated: (session: PersonalSession) => void;
 }) {
   const [name, setName] = useState(session.user.name);
   const [locale, setLocale] = useState<SupportedLocale | "">(
     session.user.preferredLocale ?? "",
   );
   const [saved, setSaved] = useState(false);
+  const [draftAppearance, setDraftAppearance] =
+    useState<DashboardAppearance | null>(null);
+  const { saveAccountAppearance } = useDashboardAppearance();
+  const selectedAppearance =
+    draftAppearance ?? session.user.preferredDashboardAppearance ?? "classic";
   const [sessions, setSessions] = useState<PersonalSessionItem[]>();
   const [sessionsError, setSessionsError] = useState<Error>();
   const [version, setVersion] = useState(0);
+  const saveController = useRef<AbortController | null>(null);
   const action = useAction();
+  useEffect(
+    () => () => saveController.current?.abort(),
+    [session.user.id, session.csrfToken],
+  );
   useEffect(() => {
     const controller = new AbortController();
     personalApi<{ items: PersonalSessionItem[] }>(
@@ -589,128 +648,189 @@ function PersonalAccount({
     event.preventDefault();
     setSaved(false);
     await action.run(async () => {
-      await personalApi("/personal/account", session, {
-        method: "PATCH",
-        body: { name: name.trim(), preferredLocale: locale || null },
-      });
-      applyAccountLocale(locale || null);
+      const controller = new AbortController();
+      saveController.current = controller;
+      const current = await personalApi<PersonalSession>(
+        "/personal/account",
+        session,
+        {
+          method: "PATCH",
+          signal: controller.signal,
+          body: {
+            name: name.trim(),
+            preferredLocale: locale || null,
+            ...(draftAppearance !== null
+              ? { preferredDashboardAppearance: selectedAppearance }
+              : {}),
+          },
+        },
+      );
+      if (current.user.id !== session.user.id) return;
+      if (draftAppearance !== null)
+        saveAccountAppearance(
+          current.user.preferredDashboardAppearance ?? "classic",
+          current.user.id,
+        );
+      onUpdated(current);
+      setDraftAppearance(null);
       setSaved(true);
-      onUpdated();
     });
   }
   return (
-    <div className="secure-document-layout">
+    <div className="secure-document-layout personal-account-layout">
       <PageHeading
         title={msg("Account and security")}
         intro={msg(
           "Your documents and workspace permissions remain linked to this single account.",
         )}
       />
+      <section
+        className="form-panel personal-account-identity"
+        aria-labelledby="personal-account-identity-title"
+      >
+        <h2 id="personal-account-identity-title">{msg("Your account")}</h2>
+        <dl className="personal-account-identity-details">
+          <div>
+            <dt>{msg("Your name")}</dt>
+            <dd>{session.user.name}</dd>
+          </div>
+          <div>
+            <dt>{msg("Sign-in email")}</dt>
+            <dd>{session.user.email}</dd>
+          </div>
+        </dl>
+        <p className="field-hint">
+          {msg(
+            "Your sign-in email comes from your identity account. It cannot be changed in Guteneo.",
+          )}
+        </p>
+      </section>
       <form
-        className="secure-document-panel secure-document-form"
+        className="form-panel personal-account-profile"
         onSubmit={(event) => void save(event)}
         aria-busy={action.pending}
       >
-        <h2>{msg("Account identity")}</h2>
-        <Field label={msg("Name")}>
+        <h2>{msg("My profile")}</h2>
+        <Field label={msg("Your name")}>
           <input
             value={name}
             required
             maxLength={160}
             autoComplete="name"
-            onChange={(event) => setName(event.target.value)}
+            disabled={action.pending}
+            onChange={(event) => {
+              setName(event.target.value);
+              setSaved(false);
+              action.clear();
+            }}
           />
         </Field>
-        <Field label={msg("Email address")}>
-          <input
-            type="email"
-            value={session.user.email}
-            readOnly
-            autoComplete="email"
-          />
-        </Field>
-        <Field label={languageCopy().preference}>
-          <select
-            value={locale}
-            onChange={(event) =>
-              setLocale(event.target.value as SupportedLocale | "")
-            }
-          >
-            <option value="">{languageCopy().automatic}</option>
-            <option value="fr">Français</option>
-            <option value="en">English</option>
-            <option value="de">Deutsch</option>
-            <option value="lb">Lëtzebuergesch</option>
-          </select>
-        </Field>
+        <AppearancePreferences
+          appearance={selectedAppearance}
+          disabled={action.pending}
+          onAppearanceChange={(next) => {
+            setDraftAppearance(next);
+            setSaved(false);
+            action.clear();
+          }}
+          language={
+            <Field label={languageCopy().preference}>
+              <select
+                value={locale}
+                disabled={action.pending}
+                onChange={(event) => {
+                  setLocale(event.target.value as SupportedLocale | "");
+                  setSaved(false);
+                  action.clear();
+                }}
+              >
+                <option value="">{languageCopy().automatic}</option>
+                <option value="fr">Français</option>
+                <option value="en">English</option>
+                <option value="de">Deutsch</option>
+                <option value="lb">Lëtzebuergesch</option>
+              </select>
+            </Field>
+          }
+        />
         <button
           type="submit"
-          className="button"
+          className="button primary"
           disabled={action.pending || !name.trim()}
         >
-          {msg("Save preferences")}
+          {action.pending ? msg("Saving…") : msg("Save preferences")}
         </button>
         {saved && <p role="status">{msg("Preferences saved.")}</p>}
         <ErrorNotice error={action.error} />
       </form>
-      <section className="secure-document-panel">
-        <h2>{msg("Account security")}</h2>
-        <p>
-          {msg(
-            "The server checks content access for each operation. You may be asked to verify your identity again.",
+      <div className="personal-account-security-grid">
+        <section
+          className="form-panel"
+          aria-labelledby="personal-account-security-title"
+        >
+          <h2 id="personal-account-security-title">
+            {msg("Account security")}
+          </h2>
+          <p>
+            {msg(
+              "The server checks content access for each operation. You may be asked to verify your identity again.",
+            )}
+          </p>
+          <a className="button" href={authHref("login", true)}>
+            {msg("Manage sign-in")}
+          </a>
+        </section>
+        <section
+          className="form-panel"
+          aria-labelledby="personal-account-sessions-title"
+        >
+          <h2 id="personal-account-sessions-title">{msg("Active sessions")}</h2>
+          <ErrorNotice
+            error={sessionsError}
+            retry={() => setVersion((n) => n + 1)}
+          />
+          {!sessions ? (
+            <Loading />
+          ) : sessions.length ? (
+            <ul className="secure-document-list">
+              {sessions.map((item) => (
+                <li key={item.id}>
+                  <div>
+                    <strong>
+                      {item.current
+                        ? msg("Current session")
+                        : msg("Session from {0}", date(item.createdAt))}
+                    </strong>
+                    <small>
+                      {msg("Available until {0}", date(item.expiresAt))}
+                    </small>
+                  </div>
+                  {!item.current && (
+                    <ConfirmAction
+                      label={msg("Close this session")}
+                      question={msg("Close this account session?")}
+                      confirmLabel={msg("Close session")}
+                      disabled={action.pending}
+                      onConfirm={() =>
+                        void action.run(async () => {
+                          await personalApi(
+                            `/personal/account/sessions/${encodeURIComponent(item.id)}/revoke`,
+                            session,
+                            { method: "POST", body: {} },
+                          );
+                          setVersion((n) => n + 1);
+                        })
+                      }
+                    />
+                  )}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <EmptyState title={msg("No active sessions")} />
           )}
-        </p>
-        <a className="button" href={authHref("login", true)}>
-          {msg("Manage sign-in")}
-        </a>
-      </section>
-      <section className="secure-document-panel">
-        <h2>{msg("Active sessions")}</h2>
-        <ErrorNotice
-          error={sessionsError}
-          retry={() => setVersion((n) => n + 1)}
-        />
-        {!sessions ? (
-          <Loading />
-        ) : sessions.length ? (
-          <ul className="secure-document-list">
-            {sessions.map((item) => (
-              <li key={item.id}>
-                <div>
-                  <strong>
-                    {item.current
-                      ? msg("Current session")
-                      : msg("Session from {0}", date(item.createdAt))}
-                  </strong>
-                  <small>
-                    {msg("Available until {0}", date(item.expiresAt))}
-                  </small>
-                </div>
-                {!item.current && (
-                  <ConfirmAction
-                    label={msg("Close this session")}
-                    question={msg("Close this account session?")}
-                    confirmLabel={msg("Close session")}
-                    disabled={action.pending}
-                    onConfirm={() =>
-                      void action.run(async () => {
-                        await personalApi(
-                          `/personal/account/sessions/${encodeURIComponent(item.id)}/revoke`,
-                          session,
-                          { method: "POST", body: {} },
-                        );
-                        setVersion((n) => n + 1);
-                      })
-                    }
-                  />
-                )}
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <EmptyState title={msg("No active sessions")} />
-        )}
-      </section>
+        </section>
+      </div>
     </div>
   );
 }

@@ -4,9 +4,11 @@
 surface. It is neither a workspace role nor an assistant mandate.
 The [visual system](belvedere/DESIGN.md) documents the implemented interface.
 
-The 25 October 2026 candidate adds `https://belvedere.guteneo.com/` as a dedicated
-protected entry. Source implementation and synthetic tests are separate from
-actual DNS, Auth0 configuration, deployed routing and a verified browser journey.
+The initial 25 October 2026 release from
+`03daa4136de8999cc79018f33f2a22038917c621` added `https://belvedere.guteneo.com/` as a dedicated
+protected entry. DNS/TLS, normal Auth0 sign-in and the authenticated overview were verified
+separately after publication. The subsequent V2 visual alignment is a source
+follow-up and requires its own exact-source release proof.
 
 The exact additional browser callback, root logout return and web origin were
 saved in Auth0 and reread after a full dashboard reload at
@@ -19,8 +21,35 @@ French, English, German or Luxembourgish. Belvédère adds no selector. Direct
 entry receives the validated preference in private HTML after the normal
 guard; tab return rereads the session. Without a preference, browser languages
 apply. Labels, accessible messages, numbers, dates and charts follow that
-choice; names, identifiers and business data retain their values. Preference
+choice. Known source-authored finance explanations are localized with their
+original accounting meaning; unknown explanations remain verbatim. Names,
+identifiers and business data retain their values. Preference
 grants no role or access. See [MULTILINGUAL.md](MULTILINGUAL.md).
+
+## Presentation
+
+Belvédère uses the workshop V2 visual vocabulary: shared portrait/wordmark, a
+258 px desktop sidebar (232 px on compact desktop), 44 px navigation and actions,
+simple section titles, shared typography, rounded panels and readable tables.
+Navigation scrolls locally while account utilities remain reachable. At tablet
+and phone widths a labeled, keyboard-operable drawer preserves all seven views;
+wide tables retain their own scroll region. No workshop shell or customer
+bootstrap is imported to obtain this appearance. The dedicated host allows only
+the exact 128/192 px portrait files required by the shared mark, alongside its
+existing bounded assets; query-bearing or unrelated brand paths remain refused.
+
+One shared `ThemeToggle` in page actions replaces the sidebar appearance menu at
+every width. It defaults to the operating system, supports pointer and native
+keyboard activation and retains a local explicit light/dark choice. Theme changes
+preserve the selected view, search and filters without rereading business data or
+writing the account. [Interface appearance](THEMES.md) owns the bootstrap and
+origin-scoped color preference. Belvédère always uses this visual shell; it neither
+changes the account's Classic/V2 preference nor extends platform authority.
+
+The focused browser suites cover all views, four account languages, mobile
+navigation, read refusal/recovery, exact customer names and theme persistence.
+Their synthetic results and rendered screenshots do not establish deployed or
+physical-device proof.
 
 ## Journeys
 
@@ -207,20 +236,20 @@ from fictional responses.
 
 Local candidate verification on 2 October 2026:
 
-| Check | Result |
-| --- | --- |
-| TypeScript/ESLint | Passed on final source |
-| `npm run build` | Web bundle/Worker compiled; dry-run only |
-| `npm run build:live` and `npm run build:preview` | Passed without publication |
-| Local migration verification | 44 migrations, equivalent schema, `quickCheck: ok`, no FK violation |
-| Backend Belvédère tests | 16 passed: signed identity, refusals, isolation, projections, globe, dispatch filters/finance |
-| Targeted accounting regressions | 3 passed: actual fractional debit, retention after deletion, hosting counted once |
-| Cloudflare connectors | 65 passed on fictional responses: 31 metrics, 34 billing |
-| Globe geography | 16 passed: projection, hemispheres, coordinates/unknown countries |
-| Node security | 215 passed, including refusal to omit private prefix from public rules |
-| Belvédère browsers | 18 passed, desktop Chromium/iPhone WebKit, also with production bundle |
-| Affected public pages | 10 passed, privacy/legal/SEO/language selectors on both browsers |
-| Visual review | 16 captures inspected, mobile menu corrected, then `ship` verdict |
+| Check                                            | Result                                                                                        |
+| ------------------------------------------------ | --------------------------------------------------------------------------------------------- |
+| TypeScript/ESLint                                | Passed on final source                                                                        |
+| `npm run build`                                  | Web bundle/Worker compiled; dry-run only                                                      |
+| `npm run build:live` and `npm run build:preview` | Passed without publication                                                                    |
+| Local migration verification                     | 44 migrations, equivalent schema, `quickCheck: ok`, no FK violation                           |
+| Backend Belvédère tests                          | 16 passed: signed identity, refusals, isolation, projections, globe, dispatch filters/finance |
+| Targeted accounting regressions                  | 3 passed: actual fractional debit, retention after deletion, hosting counted once             |
+| Cloudflare connectors                            | 65 passed on fictional responses: 31 metrics, 34 billing                                      |
+| Globe geography                                  | 16 passed: projection, hemispheres, coordinates/unknown countries                             |
+| Node security                                    | 215 passed, including refusal to omit private prefix from public rules                        |
+| Belvédère browsers                               | 18 passed, desktop Chromium/iPhone WebKit, also with production bundle                        |
+| Affected public pages                            | 10 passed, privacy/legal/SEO/language selectors on both browsers                              |
+| Visual review                                    | 16 captures inspected, mobile menu corrected, then `ship` verdict                             |
 
 The initial general Vitest run validated 84 files/1,657 tests. Two Belvédère
 cases failed while module/new tests were still changing; the complete file

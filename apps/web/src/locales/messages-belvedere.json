@@ -1551,5 +1551,15 @@
     "Debits by ledger month, including PDF checks, legacy plans and the history of deleted dispatches.",
     "Belastungen nach Buchungsmonat, einschließlich PDF-Prüfungen, früherer Tarife und des Verlaufs gelöschter Sendungen.",
     "Belaaschtungen nom Buchungsmount, mat PDF-Kontrollen, fréieren Abonnementer an dem Verlaf vu geläschte Sendungen."
+  ],
+  "Les crédits promotionnels ne sont pas des revenus. Les factures fournisseurs, les remboursements, les taxes et les frais fixes ne sont pas encore tous rapprochés.": [
+    "Promotional credits are not revenue. Supplier invoices, refunds, taxes and fixed costs have not all been reconciled.",
+    "Aktionsguthaben sind keine Einnahmen. Lieferantenrechnungen, Erstattungen, Steuern und Fixkosten sind noch nicht vollständig abgeglichen.",
+    "Promotiounskreditter si keng Recetten. Fournisseursrechnungen, Remboursementer, Steieren a fix Käschte sinn nach net all ofgeglach."
+  ],
+  "Les coûts fournisseurs, les factures Cloudflare et les encaissements complets ne sont pas disponibles.": [
+    "Supplier costs, Cloudflare invoices and complete receipts are unavailable.",
+    "Lieferantenkosten, Cloudflare-Rechnungen und vollständige Zahlungseingänge sind nicht verfügbar.",
+    "Fournisseurskäschten, Cloudflare-Rechnungen an déi vollstänneg Bezuelungsagäng sinn net disponibel."
   ]
 }

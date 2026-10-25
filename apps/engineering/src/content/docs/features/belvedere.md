@@ -1,6 +1,6 @@
 ---
 title: "Belvédère platform oversight"
-description: "8 capabilities in the operations branch of Guteneo."
+description: "9 capabilities in the operations branch of Guteneo."
 sidebar:
   order: 21
 ---
@@ -9,7 +9,7 @@ sidebar:
 
 **Access boundary:** Restricted operator authority required.
 
-Private platform authority, separate from workshop roles; hosted activation is separately qualified.
+Initial dedicated-host release and authenticated overview verified from main 03daa4136de8999cc79018f33f2a22038917c621; subsequent V2 visual alignment requires its own exact-source release proof. Private read-only authority remains separate from workshop roles.
 
 **Surfaces:** Private verified Watchkeeper browser only; no workshop/native/OAuth/MCP authority.
 
@@ -25,5 +25,6 @@ Private platform authority, separate from workshop roles; hosted activation is s
 <li id="feature-278a3e9c9a84">Distinct promotional credits, dispatch/hosting/individual PDF purchases and legacy subscription charges, actual receipts and supplier costs</li>
 <li id="feature-7ecf65c9e78f">Server-side Cloudflare connectors with explicit availability; never invent cost or profit</li>
 <li id="feature-17f4133e5cce">Additive migration 0052 and deterministic loopback-only preview; hosted activation is separate</li>
-<li id="feature-a1a7cdd07930">Account-selected four-language UI on direct entry and tab focus; no additional private language selector</li>
+<li id="feature-5b314e9663e2">Account-selected four-language UI on direct entry and tab focus, including exact known source-authored finance explanations with distinct accounting meanings; unknown data remains verbatim and no private language selector is added</li>
+<li id="feature-462c38702cd1">V2 workshop visual vocabulary with independent platform navigation, shared single system-default light/dark action, readable tables/globe and keyboard mobile drawer; theme changes preserve filters without business reads/writes or layout-preference changes</li>
 </ol>

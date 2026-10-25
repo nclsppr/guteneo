@@ -56,9 +56,10 @@ import {
   useDebounced,
 } from "./belvedere-data";
 import { BelvedereGlobe } from "./belvedere-globe";
-import { bmsg, bmsgIn } from "./belvedere-i18n";
+import { bmsg, bmsgIn, belvedereNetResultReason } from "./belvedere-i18n";
+import { BrandMark } from "./brand";
 import { formatLocale, useLocale } from "./locale";
-import { ThemeSelect } from "./theme-select";
+import { ThemeToggle } from "./theme-toggle";
 import "./belvedere.css";
 
 type View =
@@ -86,32 +87,32 @@ const navigation = [
 ] as const;
 const pageCopy: Record<View, { title: string; description: string }> = {
   overview: {
-    title: "Everything in view, at the right level.",
+    title: "Overview",
     description: "guteneo activity, from workshops to connections.",
   },
   workshops: {
-    title: "Workshops in detail.",
+    title: "Workshops",
     description: "Find every team, its usage and consumption.",
   },
   jobs: {
-    title: "Every dispatch in view.",
+    title: "Dispatches",
     description:
       "All dispatches, their destination, status and detailed costs.",
   },
   members: {
-    title: "The people behind the activity.",
+    title: "Members",
     description: "All members, their workshops and access.",
   },
   connections: {
-    title: "Every connection has an origin.",
+    title: "Connections",
     description: "Browser sessions, native apps and assistants.",
   },
   finance: {
-    title: "Figures with a clear meaning.",
+    title: "Finances",
     description: "Consumption, receipts and provider costs shown separately.",
   },
   infrastructure: {
-    title: "Inside guteneo.",
+    title: "Infrastructure",
     description: "Service status and available Cloudflare measurements.",
   },
 };
@@ -145,12 +146,19 @@ export default function Belvedere({ basePath }: { basePath: string }) {
   );
   const lastWorkshopTrigger = useRef<HTMLElement | null>(null);
   const [mobileNav, setMobileNav] = useState(false);
+  const sidebar = useRef<HTMLElement>(null);
   const main = useRef<HTMLElement>(null);
   const navButton = useRef<HTMLButtonElement>(null);
   const demo =
     document.querySelector<HTMLMetaElement>(
       'meta[name="guteneo-belvedere-demo"]',
     )?.content === "true";
+  useEffect(() => {
+    if (mobileNav)
+      sidebar.current
+        ?.querySelector<HTMLAnchorElement>('nav a[aria-current="page"]')
+        ?.focus();
+  }, [mobileNav]);
   useEffect(() => {
     const originalTitle = document.title;
     document.title = "Belvédère — guteneo";
@@ -260,6 +268,7 @@ export default function Belvedere({ basePath }: { basePath: string }) {
         {bmsg("Skip to content")}
       </a>
       <aside
+        ref={sidebar}
         className={`bv-sidebar${mobileNav ? " is-open" : ""}`}
         onKeyDown={(event) => {
           if (event.key === "Escape") {
@@ -274,17 +283,22 @@ export default function Belvedere({ basePath }: { basePath: string }) {
           onClick={() => navigate("overview")}
           aria-label={bmsg("Belvédère, overview")}
         >
-          <img
-            src="/brand/guteneo-mark-128.webp"
-            width="38"
-            height="38"
-            alt=""
-          />
-          <span>
-            guteneo<span className="bv-identity-name">Belvédère</span>
-          </span>
+          <BrandMark variant="portrait" />
+          <span className="brand-wordmark">guteneo</span>
         </a>
-        <nav aria-label={bmsg("Belvédère navigation")}>
+        <div className="bv-context">
+          <ShieldCheck size={20} aria-hidden="true" />
+          <div>
+            <strong>Belvédère</strong>
+            <span>
+              {bmsg("Private area")} · {bmsg("Read-only")}
+            </span>
+          </div>
+        </div>
+        <nav
+          id="belvedere-navigation"
+          aria-label={bmsg("Belvédère navigation")}
+        >
           {navigation.map(({ id, label, icon: Icon }) => (
             <a
               key={id}
@@ -292,33 +306,20 @@ export default function Belvedere({ basePath }: { basePath: string }) {
               aria-current={view === id ? "page" : undefined}
               onClick={() => navigate(id)}
             >
-              <Icon size={19} weight={view === id ? "fill" : "regular"} />
+              <Icon size={21} aria-hidden="true" />
               <span>{bmsg(label)}</span>
-              {view === id && (
-                <span className="bv-nav-mark" aria-hidden="true" />
-              )}
             </a>
           ))}
         </nav>
         <div className="bv-sidebar-foot">
-          <ThemeSelect compact />
-          <div className="bv-private">
-            <ShieldCheck size={18} />
-            <span>
-              {bmsg("Private area")}
-              <span>{bmsg("Read-only")}</span>
-            </span>
+          <div className="bv-account">
+            <span className="bv-avatar">NP</span>
+            <span>Nicolas Pieper</span>
           </div>
           <a href={basePath === "" ? "https://guteneo.com/" : "/"}>
             {bmsg("Back to guteneo")}
-            <ArrowUpRight size={16} />
+            <ArrowUpRight size={16} aria-hidden="true" />
           </a>
-          <div className="bv-account">
-            <span className="bv-avatar">NP</span>
-            <span>
-              Nicolas Pieper<span>{bmsg("Watcher")}</span>
-            </span>
-          </div>
         </div>
       </aside>
       <div className="bv-workspace">
@@ -326,24 +327,23 @@ export default function Belvedere({ basePath }: { basePath: string }) {
           <button
             className="bv-mobile-toggle"
             ref={navButton}
+            type="button"
+            aria-controls="belvedere-navigation"
             aria-expanded={mobileNav}
             aria-label={
               mobileNav ? bmsg("Close navigation") : bmsg("Open navigation")
             }
             onClick={() => setMobileNav(!mobileNav)}
           >
-            {mobileNav ? <X size={20} /> : <List size={20} />}
+            {mobileNav ? (
+              <X size={20} aria-hidden="true" />
+            ) : (
+              <List size={20} aria-hidden="true" />
+            )}
             <span>Belvédère</span>
           </button>
-          <div className="bv-breadcrumb">
-            <span>Belvédère</span>
-            <span aria-hidden="true">/</span>
-            <strong>
-              {bmsg(navigation.find((item) => item.id === view)?.label ?? "")}
-            </strong>
-          </div>
           <span className="bv-topbar-access">
-            <ShieldCheck size={15} />
+            <ShieldCheck size={15} aria-hidden="true" />
             {bmsg("Personal access")}
           </span>
         </header>
@@ -368,14 +368,18 @@ export default function Belvedere({ basePath }: { basePath: string }) {
                   : bmsg(pageCopy[view].description)}
               </p>
             </div>
-            <button
-              className="bv-button bv-refresh"
-              onClick={refresh}
-              aria-label={bmsg("Refresh data")}
-            >
-              <ArrowClockwise size={17} />
-              <span>{bmsg("Refresh")}</span>
-            </button>
+            <div className="bv-heading-actions">
+              <ThemeToggle />
+              <button
+                className="bv-button bv-refresh"
+                type="button"
+                onClick={refresh}
+                aria-label={bmsg("Refresh data")}
+              >
+                <ArrowClockwise size={18} aria-hidden="true" />
+                <span>{bmsg("Refresh")}</span>
+              </button>
+            </div>
           </div>
           {view !== "infrastructure" && (
             <div className="bv-filterbar">
@@ -2054,12 +2058,7 @@ function Finance({ basePath, filters, revision, refresh }: ViewProps) {
         <section className="bv-panel bv-result">
           <SectionHeading title={bmsg("Net profit")} />
           <strong>{bmsg("Cannot be calculated")}</strong>
-          <p>
-            {data.netResultUnavailableReason ||
-              bmsg(
-                "The full costs have not been reconciled yet. Net profit cannot be calculated reliably.",
-              )}
-          </p>
+          <p>{belvedereNetResultReason(data.netResultUnavailableReason)}</p>
           <span className="bv-source-note">
             {bmsg(
               "Receipts, consumption and known costs alone do not establish an accounting result.",

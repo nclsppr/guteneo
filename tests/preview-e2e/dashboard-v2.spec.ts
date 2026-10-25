@@ -69,10 +69,10 @@ test("the appearance control follows all four workspace languages", async ({
   const requests = observeBusinessRequests(page);
   await page.goto("/?appearance=v2#/app/account");
   for (const [locale, label] of [
-    ["fr", "Version de l’atelier"],
-    ["en", "Workspace version"],
-    ["de", "Version des Arbeitsbereichs"],
-    ["lb", "Versioun vum Aarbechtsberäich"],
+    ["fr", "Version de l’interface"],
+    ["en", "Interface version"],
+    ["de", "Version der Oberfläche"],
+    ["lb", "Versioun vun der Uewerfläch"],
   ]) {
     await page
       .locator('#main-content select[name="language"]')
