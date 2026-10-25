@@ -116,8 +116,28 @@ test("homepage offers assistant and direct paths with pricing and Luxembourg pro
   await expect(page.locator("body")).not.toContainText(
     /deux fois|2\s*[×x]|coût prestataire|marge/i,
   );
+  const pdfChecks = page.locator("#pdf-checks");
+  await expect(pdfChecks.locator(".pdf-check-price")).toContainText(/0,10\s*€/);
+  await expect(pdfChecks.locator(".pdf-check-price")).toContainText(
+    "HT, par PDF et par profil",
+  );
+  await expect(pdfChecks).toContainText(
+    "Sans abonnement ni renouvellement automatique.",
+  );
+  await expect(
+    pdfChecks.getByRole("link", { name: "Découvrir les contrôles PDF" }),
+  ).toHaveAttribute("href", "/app/pdf-checks");
   const questions = page.locator(".faq-questions details");
-  await expect(questions).toHaveCount(9);
+  await expect(questions.locator("summary")).toHaveText([
+    "Mon PDF original est-il modifié ?",
+    "Puis-je partager un PDF protégé par mot de passe ?",
+    "Mon assistant peut-il envoyer sans mon accord ?",
+    "Comment connaître le prix de mon envoi ?",
+    "Comment savoir si mon envoi est arrivé ?",
+    "À quelle heure faut-il confirmer un courrier pour qu’il soit traité ?",
+    "La loi européenne impose-t-elle des PDF accessibles ?",
+    "Un PDF/A ou un contrôle PDF/UA suffit-il à prouver l’accessibilité ?",
+  ]);
   await expect(
     page.locator(".faq-questions #postal-cutoff-faq summary"),
   ).toHaveText(

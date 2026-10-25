@@ -360,14 +360,19 @@ final class GuteneoUITests: XCTestCase {
         ], timeout: 5), .completed, "Language option is not interactive: \(language)", file: file, line: line)
         option.tap()
 
-        // Locale changes recompose the SwiftUI picker and its native menu.
-        // Observe the displayed selection and closed menu before the next gesture.
-        let selected = NSPredicate(format: "label CONTAINS %@ AND hittable == true AND enabled == true", language)
-        let closed = NSPredicate(format: "exists == false")
-        XCTAssertEqual(XCTWaiter.wait(for: [
-            XCTNSPredicateExpectation(predicate: selected, object: picker),
-            XCTNSPredicateExpectation(predicate: closed, object: option)
-        ], timeout: 5), .completed, "Language choice was not applied or the menu remains open: \(language)", file: file, line: line)
+        // Locale changes recompose the picker and native menu. CI's rendered
+        // selection was correct while its accessibility query was rebuilding;
+        // the same journey has taken 17 seconds to settle on the hosted runner.
+        let settled = NSPredicate { _, _ in
+            picker.exists && picker.label.contains(language) && picker.isHittable && picker.isEnabled && !option.exists
+        }
+        let result = XCTWaiter.wait(for: [
+            XCTNSPredicateExpectation(predicate: settled, object: nil)
+        ], timeout: 20)
+        if result != .completed {
+            attachScreenshot(app, name: "Language selection did not settle — \(language)")
+        }
+        XCTAssertEqual(result, .completed, "Language choice was not applied or the menu remains open: \(language)", file: file, line: line)
     }
 
     private func launch(arguments: [String]) -> XCUIApplication {

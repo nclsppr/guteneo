@@ -62,6 +62,22 @@ an exact downloaded-JSON comparison. The previously failing export case passed
 all three local browser projects. Final combined-head CI is tracked on PR79;
 the earlier run is not an all-green release result.
 
+The later run `40166097337` on `93df302` passed all three application browser
+projects, including report exports. Preview exposed its obsolete ninth FAQ
+expectation; the current eight topics and individual price are now checked,
+with both affected preview files passing **22/22** desktop/iPhone cases. Its
+native run exposed a transient unresolved picker query after locale recomposition,
+while the recording showed the correct selected language and closed menu. The
+same state requirements now wait together for the picker to reappear, with a
+bounded 20-second budget and failure capture. **Three consecutive local native
+iterations passed**, without changing application code or conditional retries.
+
+A read-only production schema comparison at **2026-10-25T05:53:25Z** matched
+all **59 applied migrations and 415 application schema objects** to the clean
+main baseline, with no missing, additional or changed object. Both queries
+recorded zero writes and read no customer business data. Additive migration0060
+and the production release remain pending the separate activation gates.
+
 A read-only private scanner observation at **2026-10-25T02:18:29Z** verified
 ClamAV **1.5.4**, signature database **28163** dated **2026-10-24T06:26:10Z**,
 matching deployed version/build identity and an age below the 48-hour policy.
