@@ -1,7 +1,7 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
 # Guteneo feature tree and developer atlas
 
-**23 domains · 289 features · 33 journeys · 75 documented REST operations · 72 MCP tools**
+**23 domains · 291 features · 33 journeys · 75 documented REST operations · 72 MCP tools**
 Updated 2026-10-25.
 
 Repository implementation inventory. Availability depends on current capabilities and authority; implementation, activation and deployed proof are distinct.
@@ -30,7 +30,7 @@ mindmap
     Operate
       Campaigns and tracking (8)
       Credits and billing (8)
-      Workspace layout and browser appearance (20)
+      Workspace layout and browser appearance (21)
       PDF verification (10)
     Interfaces
       Assistants and API (20)
@@ -39,7 +39,7 @@ mindmap
     Operations
       Reviewer OAuth qualification (9)
       Operations and reliability (18)
-      Belvédère platform oversight (8)
+      Belvédère platform oversight (9)
       Public service status (15)
       Engineering documentation (11)
 ```
@@ -68,7 +68,7 @@ mindmap
 
 - [Campaigns and tracking](#campaigns) — 8 features; capability-gated.
 - [Credits and billing](#billing) — 8 features; partial.
-- [Workspace layout and browser appearance](#dashboard) — 20 features; browser-session.
+- [Workspace layout and browser appearance](#dashboard) — 21 features; browser-session.
 - [PDF verification](#pdf-verification) — 10 features; capability-gated.
 
 ### Interfaces
@@ -81,7 +81,7 @@ mindmap
 
 - [Reviewer OAuth qualification](#reviewer-oauth) — 9 features; operator-gated.
 - [Operations and reliability](#operations) — 18 features; operator-gated.
-- [Belvédère platform oversight](#belvedere) — 8 features; operator-gated.
+- [Belvédère platform oversight](#belvedere) — 9 features; operator-gated.
 - [Public service status](#status) — 15 features; public.
 - [Engineering documentation](#engineering-docs) — 11 features; public.
 
@@ -768,18 +768,19 @@ Supervisor approval/reporting options are independent and off by default. Resour
 <a id="dashboard"></a>
 ### Workspace layout and browser appearance
 
-**Availability model:** browser-session. Classic/V2 account layout authority is unchanged. The initial 25 October theme integration and removal of decorative panels were published from main 03daa4136de8999cc79018f33f2a22038917c621. The personal-header icon/frame follow-up requires its own exact-source release proof and grants no new business authority.
+**Availability model:** browser-session. Classic/V2 account layout authority is unchanged. The initial 25 October theme integration and removal of decorative panels were published from main 03daa4136de8999cc79018f33f2a22038917c621. The personal Classic/V2 account and Belvédère visual follow-up requires its own exact-source release proof and grants no new business authority.
 
 **Surfaces:** Authenticated web Classic/V2; native reads preference without a setter; no new business API/MCP authority.
 
 - Full real-web Classic/V2 views with the same account, tenant, resources and operations
 - Account at navigation bottom, saved Classic/V2 layout beside language, applied after a successful profile save; mobile identity remains visible with the menu closed; role and detailed permissions live on My account
 - Personal users.preferred_dashboard_appearance, migration 0053, classic default and cross-workshop/session/device reconciliation
+- Personal documents apply the same saved Classic/V2 account layout with lightweight independent navigation; personal and workshop customization reuse small shared language/theme/layout controls, preserving personal-only access and existing guarded PATCH authority
 - Strict browser account PATCH with current authority, Origin/CSRF and field-name audit; every role changes only its own preference
 - Temporary appearance=v2/classic override accepts legacy atelier URLs, never persists server-side and clears after explicit appearance save or identity change; local cache is non-authoritative
 - Existing activity/alerts precede introduction, otherwise a complete welcome; content preview precedes approval in reading/tab order
 - Stable PDF review frame across loading/render/error, keyboard-accessible internal scrolling and unchanged consent/data authority
-- Consistent documents, preparation, review, tracking, assistants, account, studio, PDF verification, credits, tables and forms; Belvédère remains a distinct platform surface
+- Consistent documents, preparation, review, tracking, assistants, account, studio, PDF verification, credits, tables and forms; Belvédère shares the V2 visual vocabulary while retaining distinct platform authority and read-only data
 - One brand signature, workshop in navigation and no redundant V2 footer; service status near account and browser timezone near dates
 - One page title, contextual detail back link and task-specific primary action; global New dispatch stays secondary and permission-aware
 - Generation introduction focuses on finding PDFs and makes clear that generation sends nothing
@@ -790,12 +791,12 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Compact My documents navigation link with personal-space context, without an oversized separate card or repeated role panel
 - Shared native file input with four-language authored chooser/empty text and literal filenames, keyboard validation and exact-byte upload semantics
 - Desktop Safari select height and protected-link hint spacing; visible keyboard focus, selection and forced-colors states remain readable in both palettes
-- Public and personal headers share one localized light/dark action icon at every viewport, defaulting to the operating system; personal header/main/footer use the same 1440 px frame and responsive gutters without changing personal navigation, identity, document access or logout. Browser theme is independent of saved Classic/V2 layout, account language and role; document/PDF/email content retains original light-paper appearance and bytes
+- Public and personal headers and Belvédère page actions share one localized light/dark action icon at every viewport, defaulting to the operating system; Classic personal header/main/footer use the same 1440 px frame and responsive gutters, while personal V2 follows workshop geometry without changing personal navigation, identity, document access or logout. Browser theme is independent of saved Classic/V2 layout, account language and role; document/PDF/email content retains original light-paper appearance and bytes
 - Template-designer controls adopt the resolved shared palette in place while original template content, output geometry, bindings and PDF bytes retain their document contract
 
 **Contract:** [DASHBOARD_V2.md](DASHBOARD_V2.md) · **Implementation:** [apps/web/src/account-page.tsx](../apps/web/src/account-page.tsx)
 
-**Tests:** [tests/unit/account.test.ts](../tests/unit/account.test.ts), [tests/integration/mobile.test.ts](../tests/integration/mobile.test.ts), [tests/unit/dashboard-appearance.test.ts](../tests/unit/dashboard-appearance.test.ts), [tests/preview-e2e/dashboard-v2.spec.ts](../tests/preview-e2e/dashboard-v2.spec.ts), [tests/e2e/dashboard-v2.spec.ts](../tests/e2e/dashboard-v2.spec.ts), [tests/e2e/protected-email.spec.ts](../tests/e2e/protected-email.spec.ts), [tests/e2e/account-identity.spec.ts](../tests/e2e/account-identity.spec.ts), [tests/e2e/team-invitations.spec.ts](../tests/e2e/team-invitations.spec.ts), [tests/e2e/template-images.spec.ts](../tests/e2e/template-images.spec.ts), [tests/preview-e2e/theme.spec.ts](../tests/preview-e2e/theme.spec.ts)
+**Tests:** [tests/unit/account.test.ts](../tests/unit/account.test.ts), [tests/integration/mobile.test.ts](../tests/integration/mobile.test.ts), [tests/unit/dashboard-appearance.test.ts](../tests/unit/dashboard-appearance.test.ts), [tests/preview-e2e/dashboard-v2.spec.ts](../tests/preview-e2e/dashboard-v2.spec.ts), [tests/e2e/dashboard-v2.spec.ts](../tests/e2e/dashboard-v2.spec.ts), [tests/e2e/protected-email.spec.ts](../tests/e2e/protected-email.spec.ts), [tests/e2e/account-identity.spec.ts](../tests/e2e/account-identity.spec.ts), [tests/e2e/team-invitations.spec.ts](../tests/e2e/team-invitations.spec.ts), [tests/e2e/template-images.spec.ts](../tests/e2e/template-images.spec.ts), [tests/preview-e2e/theme.spec.ts](../tests/preview-e2e/theme.spec.ts), [tests/e2e/personal-appearance.spec.ts](../tests/e2e/personal-appearance.spec.ts), [tests/e2e/personal-document-performance.spec.ts](../tests/e2e/personal-document-performance.spec.ts), [tests/belvedere-e2e/control-tower.spec.ts](../tests/belvedere-e2e/control-tower.spec.ts)
 
 
 
@@ -871,7 +872,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 <a id="belvedere"></a>
 ### Belvédère platform oversight
 
-**Availability model:** operator-gated. Private platform authority, separate from workshop roles; hosted activation is separately qualified.
+**Availability model:** operator-gated. Initial dedicated-host release and authenticated overview verified from main 03daa4136de8999cc79018f33f2a22038917c621; subsequent V2 visual alignment requires its own exact-source release proof. Private read-only authority remains separate from workshop roles.
 
 **Surfaces:** Private verified Watchkeeper browser only; no workshop/native/OAuth/MCP authority.
 
@@ -883,6 +884,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Server-side Cloudflare connectors with explicit availability; never invent cost or profit
 - Additive migration 0052 and deterministic loopback-only preview; hosted activation is separate
 - Account-selected four-language UI on direct entry and tab focus; no additional private language selector
+- V2 workshop visual vocabulary with independent platform navigation, shared single system-default light/dark action, readable tables/globe and keyboard mobile drawer; theme changes preserve filters without business reads/writes or layout-preference changes
 
 **Contract:** [BELVEDERE.md](BELVEDERE.md) · **Implementation:** [apps/api/src/belvedere.ts](../apps/api/src/belvedere.ts)
 
@@ -1146,11 +1148,11 @@ Open public status from its URL or common footer → read current summary, obser
 
 [Detailed contract](STATUS_SERVICE.md).
 
-### J21 · Save and restore Classic/V2 workspace layout
+### J21 · Save and restore Classic/V2 application layout
 
 **Actor:** Authenticated browser member changing their own preference. **Branch:** Operate.
 
-Enter through compact My documents/workshop navigation → inspect role and detailed rights on My account → choose Classic/V2 beside language → save successfully → reload or change workshop/device → reconcile the saved personal preference with current identity.
+Enter personal documents or the workshop → open account customization → choose Classic/V2 beside the shared language and color controls → save successfully through the existing context-specific profile endpoint → apply the saved personal preference → reload, switch identity or enter the other application context → reconcile the current account preference without workshop bootstrap in personal documents.
 
 **Failure/recovery:** Temporary atelier overrides never claim a server save and clear after explicit save/identity change. Old cache cannot override the current person; business authority remains identical. Immediate system/light/dark browser appearance is a separate preference and never claims an account profile save.
 
@@ -1260,7 +1262,7 @@ Open the engineering site → find a feature in the generated tree → read its 
 
 **Actor:** Anonymous or signed-in browser reader; no role or additional authority required. **Branch:** Interfaces.
 
-Start with the operating-system palette unless a valid local choice exists → use the shared public/personal header localized light/dark action icon at any viewport, with public activation available before React, or a three-way account setting where that surface exposes one → apply the resolved palette in place → retain the local origin preference when storage is available → follow system or same-origin storage changes. Main-site standalone HTML uses only the host-only enum cookie; status and engineering retain independent origin state. Native public pictures select matching dark art; header/app white paper stays inside each actual inner blue frame with transparent exterior/perforations, while document/PDF/email surfaces keep original content appearance.
+Start with the operating-system palette unless a valid local choice exists → use the shared public/personal header or Belvédère page-action localized light/dark action icon at any viewport, with public activation available before React, or a three-way account setting where that surface exposes one → apply the resolved palette in place → retain the local origin preference when storage is available → follow system or same-origin storage changes. Main-site standalone HTML uses only the host-only enum cookie; status and engineering retain independent origin state. Native public pictures select matching dark art; header/app white paper stays inside each actual inner blue frame with transparent exterior/perforations, while document/PDF/email surfaces keep original content appearance.
 
 **Failure/recovery:** Blocked persistence still permits an in-page choice. Invalid or duplicate cookies fall back to system without interpolation or account lookup. Script-free CSS follows system; language, Classic/V2 layout, identity, drafts, approval and provider gates remain independent. Local browser-engine evidence establishes no physical-device Safari or deployed-host pass.
 

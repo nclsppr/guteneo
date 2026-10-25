@@ -236,6 +236,24 @@
   margin-inline: auto;
   padding-inline: clamp(22px, 5.7vw, 82px);
 }
+.personal-space select {
+  appearance: none;
+  height: var(--control-height);
+  min-height: var(--control-height);
+  max-width: 100%;
+  padding-inline-end: 40px;
+  background-image: var(--select-chevron);
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+}
+@media (forced-colors: active) {
+  .personal-space select {
+    appearance: auto;
+    background-image: none;
+    padding-inline-end: 12px;
+  }
+}
 .personal-space-header {
   display: flex;
   align-items: center;
@@ -260,6 +278,9 @@
   align-items: center;
   min-height: 44px;
   text-decoration: none;
+}
+.personal-space-header nav svg {
+  display: none;
 }
 .personal-space-header nav a[aria-current="page"] {
   color: var(--blue-hover);
@@ -317,6 +338,153 @@
 .personal-space-service-grid .button {
   margin-top: auto;
 }
+.personal-account-layout .form-panel {
+  min-width: 0;
+  margin: 0;
+}
+.personal-account-identity-details {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px 30px;
+  margin: 0 0 20px;
+}
+.personal-account-identity-details > div {
+  min-width: 0;
+}
+.personal-account-identity-details dt {
+  margin-bottom: 5px;
+  color: var(--muted);
+  font-size: 13px;
+}
+.personal-account-identity-details dd {
+  margin: 0;
+  font-weight: 600;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.personal-account-security-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+  gap: 24px;
+  align-items: start;
+}
+.personal-space-v2 {
+  --radius: 7px;
+  display: grid;
+  grid-template-columns: 258px minmax(0, 1fr);
+  grid-template-rows: 1fr auto;
+  padding-inline: 0;
+  font-size: 14px;
+}
+.personal-space-v2 .personal-space-header {
+  position: sticky;
+  top: 0;
+  grid-column: 1;
+  grid-row: 1 / 3;
+  align-self: start;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  height: 100dvh;
+  min-height: 0;
+  gap: 28px;
+  padding: 22px 12px 12px;
+  border-bottom: 0;
+  border-right: 1px solid var(--line);
+  background: var(--sidebar-surface);
+  overflow-y: auto;
+}
+.personal-space-v2 .personal-space-header .brand {
+  --brand-mark-size: 42px;
+  gap: 9px;
+  font-size: 33px;
+  margin-inline: 12px;
+}
+.personal-space-v2 .personal-space-header > nav {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+  margin: 0;
+  font-size: 14px;
+}
+.personal-space-v2 .personal-space-header nav a {
+  gap: 12px;
+  padding: 10px 12px;
+  color: var(--muted);
+  border-radius: 7px;
+  line-height: 1.4;
+}
+.personal-space-v2 .personal-space-header nav svg {
+  display: block;
+  flex: 0 0 auto;
+}
+.personal-space-v2 .personal-space-header nav a:hover {
+  background: var(--surface-hover);
+}
+.personal-space-v2 .personal-space-header nav a[aria-current="page"] {
+  color: var(--blue);
+  background: var(--blue-tint);
+  font-weight: 500;
+  text-decoration: none;
+}
+.personal-space-v2 .personal-space-header > .theme-toggle {
+  align-self: flex-start;
+  margin-top: auto;
+}
+.personal-space-v2 .personal-space-account {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 18px 12px 0;
+  border-top: 1px solid var(--line);
+  font-size: 12px;
+  line-height: 1.5;
+}
+.personal-space-v2 .personal-space-account strong {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 500;
+}
+.personal-space-v2 .personal-space-account .button {
+  justify-self: start;
+  justify-content: flex-start;
+  min-height: 44px;
+  padding-inline: 0;
+  border: 0;
+  font-size: 13px;
+}
+.personal-space-v2 .personal-space-main {
+  grid-column: 2;
+  padding: 32px 36px 56px;
+}
+.personal-space-v2 .personal-space-footer {
+  grid-column: 2;
+  padding: 0 36px 32px;
+}
+.personal-space-v2 .page-heading h1 {
+  color: var(--heading-ink);
+  font-size: 38px;
+  letter-spacing: -0.02em;
+  line-height: 1.12;
+}
+.personal-space-v2 .page-heading p {
+  max-width: 64ch;
+  font-size: 15px;
+  line-height: 1.6;
+}
+.personal-space-v2 :is(.secure-document-panel, .form-panel, .notice) {
+  border-radius: 10px;
+}
+.personal-space-v2 :is(.secure-document-panel, .form-panel) > h2 {
+  font-family: var(--font-body);
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
 .sidebar nav .personal-context-link {
   margin-bottom: 8px;
 }
@@ -326,6 +494,52 @@
   }
 }
 @media (max-width: 900px) {
+  .personal-account-security-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .personal-space-v2 {
+    display: flex;
+    padding-inline: clamp(22px, 5.7vw, 82px);
+  }
+  .personal-space-v2 .personal-space-header {
+    position: static;
+    flex-direction: row;
+    align-items: center;
+    height: auto;
+    gap: 12px 20px;
+    padding: 18px 0;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+    background: transparent;
+    overflow: visible;
+  }
+  .personal-space-v2 .personal-space-header .brand {
+    margin-inline: 0;
+  }
+  .personal-space-v2 .personal-space-header > nav {
+    flex-direction: row;
+    gap: 6px;
+  }
+  .personal-space-v2 .personal-space-header > .theme-toggle {
+    align-self: center;
+    margin-top: 0;
+    margin-inline-start: auto;
+  }
+  .personal-space-v2 .personal-space-account {
+    display: flex;
+    order: 4;
+    flex-basis: 100%;
+    padding: 12px 0 0;
+  }
+  .personal-space-v2 .personal-space-account strong {
+    display: none;
+  }
+  .personal-space-v2 .personal-space-main {
+    padding: 24px 0 48px;
+  }
+  .personal-space-v2 .personal-space-footer {
+    padding: 0 0 32px;
+  }
   .personal-space-header {
     gap: 8px 20px;
   }
@@ -340,8 +554,19 @@
   }
 }
 @media (max-width: 767px) {
+  .personal-space select {
+    height: 48px;
+    min-height: 48px;
+    font-size: 16px;
+  }
   .personal-space {
     padding-inline: 22px;
+  }
+  .personal-space-v2 .page-heading h1 {
+    font-size: 34px;
+  }
+  .personal-account-identity-details {
+    grid-template-columns: minmax(0, 1fr);
   }
   .personal-space-header > nav {
     gap: 4px 20px;

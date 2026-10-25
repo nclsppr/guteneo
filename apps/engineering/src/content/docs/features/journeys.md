@@ -169,11 +169,11 @@ Open public status from its URL or common footer → read current summary, obser
 
 **Failure and recovery:** Missing, invalid, unreadable, contradictory, implausibly future or stale evidence makes current availability unknown; an earlier successful observation never stays green as a current result. An actual fresh failed check identifies its group. A history error supplies no percentage. Public reads trigger no collection, test, approval or transmission; local simulation and configuration never prove business delivery.
 
-## J21: Save and restore Classic/V2 workspace layout
+## J21: Save and restore Classic/V2 application layout
 
 **Actor:** Authenticated browser member changing their own preference · **Branch:** Operate
 
-Enter through compact My documents/workshop navigation → inspect role and detailed rights on My account → choose Classic/V2 beside language → save successfully → reload or change workshop/device → reconcile the saved personal preference with current identity.
+Enter personal documents or the workshop → open account customization → choose Classic/V2 beside the shared language and color controls → save successfully through the existing context-specific profile endpoint → apply the saved personal preference → reload, switch identity or enter the other application context → reconcile the current account preference without workshop bootstrap in personal documents.
 
 **Failure and recovery:** Temporary atelier overrides never claim a server save and clear after explicit save/identity change. Old cache cannot override the current person; business authority remains identical. Immediate system/light/dark browser appearance is a separate preference and never claims an account profile save.
 
@@ -261,7 +261,7 @@ Open the engineering site → find a feature in the generated tree → read its 
 
 **Actor:** Anonymous or signed-in browser reader; no role or additional authority required · **Branch:** Interfaces
 
-Start with the operating-system palette unless a valid local choice exists → use the shared public/personal header localized light/dark action icon at any viewport, with public activation available before React, or a three-way account setting where that surface exposes one → apply the resolved palette in place → retain the local origin preference when storage is available → follow system or same-origin storage changes. Main-site standalone HTML uses only the host-only enum cookie; status and engineering retain independent origin state. Native public pictures select matching dark art; header/app white paper stays inside each actual inner blue frame with transparent exterior/perforations, while document/PDF/email surfaces keep original content appearance.
+Start with the operating-system palette unless a valid local choice exists → use the shared public/personal header or Belvédère page-action localized light/dark action icon at any viewport, with public activation available before React, or a three-way account setting where that surface exposes one → apply the resolved palette in place → retain the local origin preference when storage is available → follow system or same-origin storage changes. Main-site standalone HTML uses only the host-only enum cookie; status and engineering retain independent origin state. Native public pictures select matching dark art; header/app white paper stays inside each actual inner blue frame with transparent exterior/perforations, while document/PDF/email surfaces keep original content appearance.
 
 **Failure and recovery:** Blocked persistence still permits an in-page choice. Invalid or duplicate cookies fall back to system without interpolation or account lookup. Script-free CSS follows system; language, Classic/V2 layout, identity, drafts, approval and provider gates remain independent. Local browser-engine evidence establishes no physical-device Safari or deployed-host pass.
 

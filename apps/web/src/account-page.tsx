@@ -28,7 +28,7 @@ import {
   type SupportedLocale,
 } from "./locale";
 import { LanguageSelect } from "./language-select";
-import { ThemeSelect } from "./theme-select";
+import { AppearancePreferences } from "./appearance-preferences";
 import {
   useDashboardAppearance,
   type DashboardAppearance,
@@ -71,34 +71,6 @@ function PreviewNotice() {
           "Accounts and access in this preview are fictional. You can edit them in your signed-in workspace.",
         )}
       </p>
-    </div>
-  );
-}
-
-function DashboardAppearanceSelect({
-  value,
-  onChange,
-  disabled = false,
-}: {
-  value: DashboardAppearance;
-  onChange: (appearance: DashboardAppearance) => void;
-  disabled?: boolean;
-}) {
-  return (
-    <div className="field dashboard-appearance-control">
-      <label htmlFor="dashboard-appearance">{msg("Workspace version")}</label>
-      <select
-        id="dashboard-appearance"
-        className="dashboard-appearance-select"
-        value={value}
-        disabled={disabled}
-        onChange={(event) =>
-          onChange(event.currentTarget.value === "v2" ? "v2" : "classic")
-        }
-      >
-        <option value="classic">{msg("Classic")}</option>
-        <option value="v2">V2</option>
-      </select>
     </div>
   );
 }
@@ -275,14 +247,11 @@ export function Account({ session, onUpdated }: Props) {
         <>
           <PreviewNotice />
           <section className="form-panel">
-            <div className="account-display-preferences">
-              <LanguageSelect profile />
-              <ThemeSelect />
-              <DashboardAppearanceSelect
-                value={appearance}
-                onChange={setAppearance}
-              />
-            </div>
+            <AppearancePreferences
+              language={<LanguageSelect profile />}
+              appearance={appearance}
+              onAppearanceChange={setAppearance}
+            />
             <p className="field-hint">{languageCopy().browser}</p>
           </section>
         </>
@@ -344,33 +313,32 @@ export function Account({ session, onUpdated }: Props) {
                   : msg("Only an administrator can rename this workspace.")}
               </small>
             </div>
-            <div className="account-display-preferences">
-              <ThemeSelect />
-              <LanguageSelect
-                profile
-                value={
-                  languageEdited
-                    ? preferredLocale
-                    : (session.user.preferredLocale ?? "")
-                }
-                disabled={action.pending}
-                onChange={(locale) => {
-                  setPreferredLocale(locale);
-                  setLanguageEdited(true);
-                  setSaved(false);
-                  action.clear();
-                }}
-              />
-              <DashboardAppearanceSelect
-                value={selectedAppearance}
-                disabled={action.pending}
-                onChange={(next) => {
-                  setDraftAppearance(next);
-                  setSaved(false);
-                  action.clear();
-                }}
-              />
-            </div>
+            <AppearancePreferences
+              language={
+                <LanguageSelect
+                  profile
+                  value={
+                    languageEdited
+                      ? preferredLocale
+                      : (session.user.preferredLocale ?? "")
+                  }
+                  disabled={action.pending}
+                  onChange={(locale) => {
+                    setPreferredLocale(locale);
+                    setLanguageEdited(true);
+                    setSaved(false);
+                    action.clear();
+                  }}
+                />
+              }
+              appearance={selectedAppearance}
+              disabled={action.pending}
+              onAppearanceChange={(next) => {
+                setDraftAppearance(next);
+                setSaved(false);
+                action.clear();
+              }}
+            />
             <button
               className="button primary"
               type="submit"

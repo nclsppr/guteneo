@@ -6,7 +6,7 @@ language selection. Appearance is presentation state, independent of language,
 account identity, workspace membership and the account's Classic/V2 layout choice.
 
 The initial 25 October 2026 theme and public-site release was published from
-`03daa4136de8999cc79018f33f2a22038917c621`. The personal-header alignment below
+`03daa4136de8999cc79018f33f2a22038917c621`. The personal-space and Belvédère alignment below
 is a follow-up source change; its deployed state is established separately by
 exact-source CI, publication and browser evidence.
 
@@ -20,13 +20,17 @@ the workshop and Belvédère; surfaces with three-way settings use `ThemeSelect`
 A change applies in place without
 reloading, navigating, saving the profile or clearing a draft.
 
-The public and personal headers share the same `ThemeToggle` appearance icon at
+The public and personal headers and Belvédère page actions share the same
+`ThemeToggle` appearance icon at
 every viewport. It follows
 the operating system by default; activating it stores the opposite resolved
 light/dark choice with a localized action name. The head bootstrap owns this
 native-button activation before React loads, and React adopts that state without
-flipping it again. Personal navigation retains its identity, document access and
-account routes inside the shared 1440 px frame and responsive gutters. Existing
+flipping it again. Classic personal navigation retains its identity, document access and
+account routes inside the shared 1440 px frame and responsive gutters. The saved
+V2 layout uses the workshop navigation geometry without requesting its resources.
+Belvédère adopts the V2 visual shell while keeping its independent platform guard
+and read-only data. Existing
 three-way account settings and independent status/engineering controls remain.
 
 The same-origin `/theme-init.js` runs in the document head before styles and the
@@ -72,16 +76,18 @@ remain owned by each route. A theme preference must never change their outcome.
 Local storage is scoped to an origin; the cookie is scoped to its host. Neither
 mechanism shares a choice automatically between `guteneo.com`, Belvédère's host,
 `status.guteneo.com`, `engineering.guteneo.com` or a preview host. No account
-appearance synchronization or cross-origin preference transfer is claimed.
+color-preference synchronization or cross-origin theme transfer is claimed. The
+separate Classic/V2 layout is an existing saved account preference; both personal
+and workshop sessions reconcile it for the authenticated identity.
 
 ## Surface ownership
 
 | Surface                                                                                                                      | Entry and current behavior                                                                                                                                                                                             |
 | ---------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Public homepage, product pages, journal, legal, support and assistant/developer guides                                       | Shared head bootstrap and tokens; `PublicHeader` exposes only the localized light/dark action icon at every viewport, with system as the default and activation available before React.                                |
-| Personal space                                                                                                               | Shared `ThemeToggle` icon, runtime and tokens; responsive header/main/footer frame matches the public site. Its account language remains a separate saved preference.                                                  |
+| Personal space                                                                                                               | Shared `ThemeToggle` icon, runtime and tokens; saved Classic/V2 layout and shared account preference controls retain independent personal document authority.                                                          |
 | Workshop, including account, documents, dispatches, Studio and PDF controls                                                  | Shared runtime and tokens; account configuration exposes `ThemeSelect`. Classic/V2 is a separate account layout setting.                                                                                               |
-| Belvédère                                                                                                                    | Shared runtime and tokens; the private sidebar exposes `ThemeSelect`. The host guard and injected account locale remain independent.                                                                                   |
+| Belvédère                                                                                                                    | Shared `ThemeToggle` in page actions, V2 navigation geometry and shared tokens. Platform guard, read-only data and injected account locale remain independent.                                                         |
 | Server-rendered public HTTP errors, protected-document forms, native browser authorization/review and denied Belvédère entry | `standalone-theme.ts` supplies fixed blue metadata, bounded cookie selection and CSS-only system fallback without adding scripts or asset requests. These pages do not expose a new appearance selector.               |
 | Independent status site                                                                                                      | `apps/status/public/theme.js` applies system/light/dark before styles, keeps `guteneo.theme` on that origin and handles system/storage changes. Its CSS follows system without scripts. It reads and writes no cookie. |
 | Curated engineering site                                                                                                     | A three-way control uses `guteneo.theme` on that origin, resolved datasets and Nimbus `data-mode` styling, with system/storage updates and script-free CSS system fallback. It reads and writes no cookie.             |
@@ -144,6 +150,9 @@ assets and approvals.
 Relevant regression sources are `tests/preview-e2e/theme.spec.ts`,
 `tests/preview-e2e/theme-toggle.spec.ts`,
 `tests/e2e/personal-document-performance.spec.ts`,
+`tests/e2e/personal-appearance.spec.ts`,
+`tests/belvedere-e2e/control-tower.spec.ts`,
+`tests/belvedere-e2e/locale.spec.ts`,
 `tests/unit/standalone-theme.test.ts`, the public HTTP-error and mobile tests,
 and status/engineering browser suites. They cover distinct surfaces and must be
 reported with their actual run results. The presence of a test is not a passing
