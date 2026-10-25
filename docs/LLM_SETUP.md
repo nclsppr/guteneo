@@ -1,5 +1,15 @@
 # Guteneo in ChatGPT, Claude, Grok, Cursor and GitHub Copilot
 
+<img src="https://guteneo.com/brand/guteneo-mark.png" alt="guteneo" width="64" height="64" />
+
+The MCP server advertises this existing 512 px PNG through standard
+`serverInfo.icons`, with its title and English developer-guide link. Display is
+controlled by each host; the add-connector dialog may ignore those fields. Where
+the host offers a manual logo field, use the
+[canonical PNG](https://guteneo.com/brand/guteneo-mark.png). Protected-resource
+metadata links the guide through standard `resource_documentation`; it invents
+no OAuth logo field or new authority.
+
 [Candidate 1.0.0](V1_RELEASE_CANDIDATE.md) adds a dedicated Claude Code
 distribution: [package, local catalog and qualification](CLAUDE_PLUGIN.md).
 Claude formats/loading commands were reviewed on 23 October 2026; package
@@ -33,10 +43,11 @@ old connection success does not prove expired-token renewal.
 ## Package and downloads
 
 `integrations/guteneo/` contains Agent Plugins, Claude/Cursor manifests, images
-and six journeys: welcome, email, fax PDF, postal mail, document studio and
-PDF validation. Instructions are conditional; they add no tool/activate no
-channel. The remote package installs no executable, hook/local disk access
-and contains no secret.
+and seven journeys: welcome, email, fax PDF, postal mail, document studio,
+PDF validation and secure distribution. Instructions are conditional; they add no tool/activate no
+channel. The remote package runs no code or hook on installation and grants no local disk access
+and contains no secret. The optional exact-file helper runs only with explicit
+host and file permission; inclusion grants no network authority.
 
 Local **0.3.4 candidate dated 13 October 2026** harmonizes five descriptions/
 titles, English public links and installation documentation. It accompanies
@@ -87,6 +98,30 @@ publishes nothing.
 
 ## Connecting hosts
 
+### Shared OAuth and separate host qualification
+
+All supported MCP transports start at `https://guteneo.com/mcp` and read its
+served resource/authorization metadata. The custom-domain migration changes the
+preferred authorization server, not the resource, audience, scopes, registered
+clients or canonical connection keys. Both configured issuer families remain
+valid; use one discovered issuer consistently for authorize/token/refresh within
+a client flow. No host may substitute a provider key, browser password, invented
+client secret or extra scope when its OAuth setup is unavailable.
+
+| Surface                                          | OAuth setup contract                                                                                                                                          | Qualification boundary                                                                                                                                                           |
+| ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Claude web, Desktop and iPhone application       | Use the hosted connector where that surface exposes it, with the existing registered hosted client/callback and person-owned consent                          | Each surface needs its own OAuth return/renewal and original-file/network proof; desktop or web evidence does not qualify iPhone                                                 |
+| ChatGPT web and iPhone application               | Retain the existing Guteneo plugin/custom-MCP identity and the exact host-displayed callback/client configuration                                             | Native file envelopes and the new private upload bridge are different transports; neither web installation nor a historical file-envelope test qualifies current iPhone transfer |
+| Cursor desktop and web/agents                    | Use the supplied remote-MCP configuration and the separately registered callback for that surface                                                             | Local file access/permission does not prove remote-agent file transfer, current OAuth or a successful original-byte upload                                                       |
+| Grok web and Build                               | Use the host's MCP OAuth flow and actually registered client/callback                                                                                         | Connector documentation is not a connected Guteneo pass or proof of private-attachment transfer                                                                                  |
+| Claude Code, Copilot local and other MCP clients | Where the client supports remote OAuth, use standards discovery plus its actually registered public client, S256 PKCE, exact callback and explicit API scopes | Confirm support separately for that surface; do not activate DCR/CIMD or create grants merely to fill a matrix                                                                   |
+| Copilot cloud and code review                    | Remote OAuth is not supported on these surfaces; Guteneo keeps its required OAuth boundary                                                                    | Do not replace it with a static shared Bearer or provider key                                                                                                                    |
+| Gemini consumer custom apps                      | Follow the current account, region, language and settings restrictions in the compatibility matrix before testing an actual custom app                        | Eligibility or an advertised MCP feature establishes neither Guteneo OAuth nor exact-file transfer                                                                               |
+
+The [host compatibility matrix](MCP_CLIENT_COMPATIBILITY.md) owns current
+per-surface evidence; [private upload](PRIVATE_DOCUMENT_UPLOAD.md) owns exact-byte
+transport rules. Server/SDK fixtures establish the server contract only.
+
 ### ChatGPT web
 
 1. Open Plugins, then `+` → **Add custom MCP server**.
@@ -115,6 +150,22 @@ For bundled skills/connector, download ZIP then **Customize → Plugins → Add
 → Upload plugin** on web/Desktop. Open the plugin **Connectors** tab, add
 Guteneo if needed/connect. ZIP import is not OAuth consent.
 [Claude plugins](https://claude.com/docs/plugins/overview).
+
+### Claude application on iPhone
+
+The iPhone application is a separate qualification surface. New MCP authorization
+uses served discovery, including the explicitly configured branded Auth0 issuer;
+public metadata and a successful web/Desktop/Code connection do not prove the
+iPhone OAuth return, renewal or attached-file transfer. Those require evidence on
+the actual device and account. This candidate has no physical-iPhone proof.
+
+For an attached private PDF, the host must actually read the selected original,
+compute its byte count/SHA-256 and transfer those unchanged bytes using the narrow
+[private upload contract](PRIVATE_DOCUMENT_UPLOAD.md). A mobile attachment preview,
+extracted text, file path or discovered MCP tool alone establishes none of that.
+Do not publish a CV/PDF to make import possible or claim that a local Claude Code
+helper runs inside the iPhone application. Host file/code/network capabilities
+and user authorization must be qualified before this transport is offered there.
 
 ### Claude Code
 
@@ -208,13 +259,13 @@ Journey scopes: `documents:read documents:write dispatches:prepare dispatches:se
 Read-only installation should request only reads. Missing scopes yield
 `INSUFFICIENT_SCOPE`; visibility grants no access.
 
-| Surface | Registered callback | Configuration |
-| --- | --- | --- |
-| ChatGPT | Copy **exactly** the server-management callback. `https://chatgpt.com/connector_platform_oauth_redirect` requires correctly advertised/returned issuer identification; otherwise `/connector/oauth/{callback_id}`. | Actually configured preregistered client, DCR or CIMD; never derive from a fictional ID. |
-| Hosted Claude | `https://claude.ai/api/mcp/auth_callback` | Advanced Client ID; secretless public client if server/host permit. |
-| Claude Code | `http://localhost:8788/callback` for supplied fixed port | `.mcp.json` `oauth.clientId`, `oauth.callbackPort`, `oauth.scopes`; replace `REPLACE_WITH_REGISTERED_PUBLIC_CLIENT_ID`. |
-| Cursor Desktop | `http://localhost:8787/callback` | `auth.CLIENT_ID`/`auth.scopes`, `cursor-static-oauth.json`. |
-| Cursor Web/Agents | `https://www.cursor.com/agents/mcp/oauth/callback` | Separate client or explicitly registered additional callback. |
+| Surface           | Registered callback                                                                                                                                                                                                | Configuration                                                                                                           |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------- |
+| ChatGPT           | Copy **exactly** the server-management callback. `https://chatgpt.com/connector_platform_oauth_redirect` requires correctly advertised/returned issuer identification; otherwise `/connector/oauth/{callback_id}`. | Actually configured preregistered client, DCR or CIMD; never derive from a fictional ID.                                |
+| Hosted Claude     | `https://claude.ai/api/mcp/auth_callback`                                                                                                                                                                          | Advanced Client ID; secretless public client if server/host permit.                                                     |
+| Claude Code       | `http://localhost:8788/callback` for supplied fixed port                                                                                                                                                           | `.mcp.json` `oauth.clientId`, `oauth.callbackPort`, `oauth.scopes`; replace `REPLACE_WITH_REGISTERED_PUBLIC_CLIENT_ID`. |
+| Cursor Desktop    | `http://localhost:8787/callback`                                                                                                                                                                                   | `auth.CLIENT_ID`/`auth.scopes`, `cursor-static-oauth.json`.                                                             |
+| Cursor Web/Agents | `https://www.cursor.com/agents/mcp/oauth/callback`                                                                                                                                                                 | Separate client or explicitly registered additional callback.                                                           |
 
 Claude Code template fixes scopes; replace the marker with actual public ID.
 Do not assume variable interpolation in `oauth.clientId`. Another documented
@@ -244,9 +295,11 @@ historical strict policy retains MFA when selected.
 
 - **Discovery/issuer refused:** inspect [MCP metadata](https://guteneo.com/.well-known/oauth-protected-resource/mcp)
   and authority discovery. `authorization_servers` must match `issuer` exactly,
-  including trailing slash. Public 13 October 2026 check found
-  `https://pieper.eu.auth0.com` in Guteneo versus `https://pieper.eu.auth0.com/`
-  in Auth0, blocking strict clients. Local fix needs deployment/recheck.
+  including trailing slash. The separately configured MCP custom-domain
+  preference advertises `https://auth.guteneo.com/`; canonical legacy clients
+  remain compatible while canonical/custom token trust is retained. The browser
+  domain setting alone does not activate that trust. See
+  [domain activation and independent rollback](AUTH0_CUSTOM_DOMAIN.md#independent-mcp-trust-and-discovery).
   Do not confuse issuer with MCP resource `https://guteneo.com/mcp`.
   [RFC 8414 §3.3](https://www.rfc-editor.org/rfc/rfc8414.html#section-3.3),
   [SDK discovery](https://github.com/modelcontextprotocol/typescript-sdk/blob/main/packages/client/src/client/auth.ts),

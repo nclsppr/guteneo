@@ -5,6 +5,7 @@ import {
   MCP_SCOPES,
   authenticationPolicy,
   auth0Issuer,
+  verifiedMcpTokenIssuer,
   hasMfa,
   hasVerifiedAccount,
   hashSecret,
@@ -120,6 +121,12 @@ export async function getExpertStatus(
     ];
   } else {
     issuer = auth0Issuer(env);
+    let tokenIssuer: string;
+    try {
+      tokenIssuer = verifiedMcpTokenIssuer(identity, env);
+    } catch {
+      invalid();
+    }
     let claims: ReturnType<typeof decodeJwt>;
     try {
       claims = decodeJwt(identity.token);
@@ -137,7 +144,7 @@ export async function getExpertStatus(
             )
         : [];
     if (
-      claims.iss !== issuer ||
+      claims.iss !== tokenIssuer ||
       clientId !== identity.clientId ||
       typeof claims.sub !== "string" ||
       !claims.sub ||

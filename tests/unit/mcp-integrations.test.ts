@@ -829,7 +829,9 @@ describe("distributable LLM integrations", () => {
       async (client) => {
         expect(client.getServerVersion()).toMatchObject({
           name: "guteneo",
+          title: "Guteneo",
           version: GUTENEO_VERSION,
+          websiteUrl: `${env.APP_ORIGIN}/developers/?lang=en`,
           icons: [
             {
               src: `${env.APP_ORIGIN}/brand/guteneo-mark.png`,

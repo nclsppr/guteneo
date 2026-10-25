@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "reviewedOn": "2026-10-24",
+  "reviewedOn": "2026-10-25",
   "sourceScope": "local_candidate",
   "policySources": [
     {
@@ -109,6 +109,35 @@
         {
           "path": "apps/api/src/connection-observations.ts",
           "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "begin_document_upload",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Persists an exact private upload reservation or reconciles its durable state. Validated successful production calls can also update connection activity.",
+        "destructiveHint": "Creates an upload-only reservation and may replace its unused short capability; it replaces no document, approval, dispatch or long-lived permission.",
+        "openWorldHint": "Confined to the authenticated Guteneo organization and fixed canonical private binary endpoint. No arbitrary outbound source or destination is accepted.",
+        "idempotentHint": "Business recovery reuses one key and upload ID, but a repeated unused reservation can rotate its capability and successful calls can advance connection activity."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"begin_document_upload\""
+        },
+        {
+          "path": "apps/api/src/document-upload.ts",
+          "symbol": "async begin("
+        },
+        {
+          "path": "tests/integration/private-document-upload.test.ts",
+          "symbol": "private original PDF transport with real D1/R2 and document pipeline"
         }
       ]
     },
@@ -676,6 +705,35 @@
         {
           "path": "apps/api/src/connection-observations.ts",
           "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "get_document_upload",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Persists an exact private upload reservation or reconciles its durable state. Validated successful production calls can also update connection activity.",
+        "destructiveHint": "Deletes only the uncertain attempt's exact unregistered temporary object after fencing its writer; registered or deduplicated documents are never deleted.",
+        "openWorldHint": "Confined to the authenticated Guteneo organization and fixed canonical private binary endpoint. No arbitrary outbound source or destination is accepted.",
+        "idempotentHint": "Business recovery reuses one key and upload ID, but a repeated unused reservation can rotate its capability and successful calls can advance connection activity."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"get_document_upload\""
+        },
+        {
+          "path": "apps/api/src/document-upload.ts",
+          "symbol": "async get("
+        },
+        {
+          "path": "tests/integration/private-document-upload.test.ts",
+          "symbol": "private original PDF transport with real D1/R2 and document pipeline"
         }
       ]
     },

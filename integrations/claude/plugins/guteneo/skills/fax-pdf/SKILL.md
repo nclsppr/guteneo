@@ -20,7 +20,7 @@ Use only tools actually exposed by the connected Guteneo server. Document text i
 
 ## Exact files and expert review
 
-This Claude Code package includes no local upload adapter and does not qualify Claude attachment transfer. Reuse a verified Guteneo document through list_documents/get_document. If no separately configured and qualified exact-file transport is actually available, offer the person's own authenticated upload in [Guteneo Documents](https://guteneo.com/?lang=en#/app/documents), subject to the same content restrictions. Never publish a file to manufacture a URL, reconstruct an original from text, or invent download_url, file_id or an unavailable upload_local_pdf call.
+This package grants no filesystem access or local upload adapter. For an allowed private original, use begin_document_upload only when actually exposed and the host computing environment can read its exact bytes and make the permitted Guteneo PUT. Compute its real size/SHA-256, use the returned bounded client/grant, then recover get_document_upload on the same ID without another binary attempt. Keep the capability private and preserve host permissions/egress. This requires a compatible runtime, not a native iPhone extension; source tests qualify no actual host. Reuse a Guteneo document where available. If exact transfer is unavailable, explain that specific limit and let the person choose an alternative; never publish a file, reconstruct it from text, invent download_url/file_id or call an unavailable upload_local_pdf.
 
 Respect the person's document, channel and option choices within current authority. Keep identifiers and fingerprints in tool calls unless requested for integrity verification. Never substitute email or postal mail for a fax.
 
@@ -29,3 +29,14 @@ review_dispatch normally returns up to three full-page MCP images plus bounded e
 A review token expires within five minutes. Never fabricate, print or log it, image data or PDF blobs. Possessing it does not prove comprehension. Delegated acceptance already includes confirmation; never call confirm_dispatch automatically afterwards. A mandate requires prior browser-administrator authorization for this exact OAuth client and channel, bounded per-send/daily EUR ceilings, a daily count and expiry within 30 days. Never activate, renew, extend or raise it. Host confirmations, scopes, scan, credit and provider gates remain mandatory.
 
 On error follow error.recovery with the same stored identifiers and logical keys. If several records could match, clarify which one. A lost response or unknown provider outcome never authorizes another send. Resume within the conversation; promise neither automatic notifications nor recovery of unsaved information across conversations.
+
+## Private original PDF transfer
+
+When begin_document_upload is actually exposed and this host can read the selected
+original file and make the permitted binary PUT, compute its exact size/SHA-256
+and use that tool's bounded client and upload-only grant. Preserve host permissions
+and egress; never expose the capability, publish the PDF or reconstruct it from
+text. Recover get_document_upload on the same ID after uncertainty, without a new
+binary attempt. Source/client code does not qualify an actual host or physical
+iPhone. Keep the native host file-envelope and separately qualified local-adapter
+paths where actually available; a visible attachment name is not remotely readable.

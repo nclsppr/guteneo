@@ -369,6 +369,8 @@ jobs:
       - run: npm audit --prefix apps/engineering --audit-level=high
       - run: npm run docs:check
       - run: npm run build:engineering
+      - name: Prefer official Ubuntu archives over the slow Azure mirror
+        run: node scripts/ci/ubuntu-mirrors.mjs
       - name: Install the documentation browsers
         run: npx playwright install --with-deps chromium webkit
       - run: npm run test:engineering

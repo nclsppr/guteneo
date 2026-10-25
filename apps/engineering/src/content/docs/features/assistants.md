@@ -1,6 +1,6 @@
 ---
 title: "Assistants and API"
-description: "20 capabilities in the interfaces branch of Guteneo."
+description: "21 capabilities in the interfaces branch of Guteneo."
 sidebar:
   order: 14
 ---
@@ -20,7 +20,8 @@ Implemented contracts/packages; actual host compatibility, OAuth and marketplace
 <ol>
 <li id="feature-7084b008de17">Discover actual account capabilities and limits</li>
 <li id="feature-f379fb2177b6">REST/OpenAPI and Streamable HTTP MCP catalogues</li>
-<li id="feature-110e46005f25">ChatGPT, Claude web/Desktop/Code, Grok web/Build, Cursor and Copilot installation guides; OAuth qualification is per surface</li>
+<li id="feature-300957045488">Standard MCP server title, developer websiteUrl and unchanged PNG512 icons; RFC9728 resource_documentation and visible guide logo, with host-controlled display and a manual canonical image URL</li>
+<li id="feature-0cfb709ce060">Current host-specific OAuth and original-file transport compatibility matrix for Claude and ChatGPT web/iPhone, Cursor desktop/cloud, Grok, Copilot, Gemini and other clients; installation/catalog presence never establishes a pass</li>
 <li id="feature-a1c80dd6ef8b">Import through the file transport actually supported by the host</li>
 <li id="feature-232fd93af26c">Document, template, dataset, generation and preparation tools</li>
 <li id="feature-f09d41d8e258">Browser review before sending; scopes never elevate membership rights</li>
@@ -37,7 +38,7 @@ Implemented contracts/packages; actual host compatibility, OAuth and marketplace
 <li id="feature-da0fda410e52">Single source version synchronises application, serverInfo and release/package manifests; builds reject version/connection drift</li>
 <li id="feature-29008e5fe906">MCP bodies limited to 2 MiB and 120,000 elements; existing 100,000-cell business limit remains</li>
 <li id="feature-bf0d4dc9dfef">Reproducible standalone Claude Code and relative-source local marketplace archives; six workflows without OpenAI metadata or tool preauthorisation</li>
-<li id="feature-4f07976a9a4b">Developer guidance distinguishes canonical REST/MCP resource/issuer from optional browser Auth0 domain</li>
+<li id="feature-f085985ee39b">MCP custom-domain discovery and signed issuer snapshot preserve canonical data keys, legacy credentials, current postal/expert fences and unchanged scopes; host consent and refresh remain separately qualified</li>
 </ol>
 
 ## REST operations

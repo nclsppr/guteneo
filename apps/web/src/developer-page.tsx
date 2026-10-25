@@ -208,7 +208,7 @@ export function DeveloperPage() {
                 )}{" "}
                 <code>auth.guteneo.com</code>
                 {msg(
-                  ". The OAuth addresses below are for API and MCP clients; their canonical domain stays unchanged for existing connections.",
+                  ". The OAuth addresses below are for new API and MCP connections. Existing connections keep working with their original issuer.",
                 )}
               </p>
               <p>
@@ -226,11 +226,11 @@ export function DeveloperPage() {
               <dl className="developer-endpoints">
                 <dt>{msg("API / MCP authorisation")}</dt>
                 <dd>
-                  <code>https://pieper.eu.auth0.com/authorize</code>
+                  <code>https://auth.guteneo.com/authorize</code>
                 </dd>
                 <dt>{msg("API / MCP code exchange")}</dt>
                 <dd>
-                  <code>https://pieper.eu.auth0.com/oauth/token</code>
+                  <code>https://auth.guteneo.com/oauth/token</code>
                 </dd>
                 <dt>{msg("HTTP token")}</dt>
                 <dd>

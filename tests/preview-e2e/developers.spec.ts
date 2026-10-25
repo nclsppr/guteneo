@@ -38,10 +38,10 @@ test("developer guide is SSR-readable and its download is a self-contained contr
       "auth.guteneo.com",
     );
     await expect(page.locator("#authentication")).toContainText(
-      "https://pieper.eu.auth0.com/authorize",
+      "https://auth.guteneo.com/authorize",
     );
     await expect(page.locator("#authentication")).toContainText(
-      "https://pieper.eu.auth0.com/oauth/token",
+      "https://auth.guteneo.com/oauth/token",
     );
     await expect(page.locator("#reliability")).toContainText(
       "submission_unknown",

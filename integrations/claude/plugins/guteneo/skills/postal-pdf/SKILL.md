@@ -54,3 +54,14 @@ An address cover adds one simplex page or an address page plus blank verso for d
 The browser-only cropUrl does not become readable through OAuth; never claim to have seen it. textVisibility remains not_verified even when text matches. canTransfer:false describes browser-button availability, not an expert mandate. Expert transfer must use the exact server preflight fingerprint, with auto_send:false, no provider preset, resizing or automatic correction. A prepared provider draft is neither analyzed nor sent; unknown requires reconciliation, never a new preflight or key.
 
 A no-send test stops at locally authorized checks, calculation or explicitly authorized draft preparation. It never permits real dispatch. Keep provider sandbox, production draft and Guteneo simulation evidence separate. Postal technical rules were checked on 17 September 2026; current addressGuidance and its sources remain authoritative. Present provider links as provenance when needed, not ordinary product navigation. Expert mandates remain browser-administrator-only, per-client/channel, bounded and expiring within 30 days; the assistant cannot activate, renew or raise them. Review-only server results stop before approval, provider transfer or sending, regardless of mandate or chat agreement.
+
+## Private original PDF transfer
+
+When begin_document_upload is actually exposed and this host can read the selected
+original file and make the permitted binary PUT, compute its exact size/SHA-256
+and use that tool's bounded client and upload-only grant. Preserve host permissions
+and egress; never expose the capability, publish the PDF or reconstruct it from
+text. Recover get_document_upload on the same ID after uncertainty, without a new
+binary attempt. Source/client code does not qualify an actual host or physical
+iPhone. Keep the native host file-envelope and separately qualified local-adapter
+paths where actually available; a visible attachment name is not remotely readable.

@@ -71,7 +71,7 @@ test("OpenAPI is valid, self-contained and never resolves a remote document", as
     for (const child of Object.values(value)) inspect(child);
   }
   inspect(spec);
-  assert.equal(operations.length, 75);
+  assert.equal(operations.length, 76);
   assert.equal(
     new Set(operations.map(({ operation }) => operation.operationId)).size,
     operations.length,
@@ -145,6 +145,7 @@ test("documented routes exist and OAuth cannot acquire browser approval or priva
     "get /api/documents",
     "get /api/documents/{id}",
     "post /api/documents",
+    "put /api/document-uploads/{id}/content",
     "post /api/documents/render",
     "get /api/documents/{id}/content",
     "post /api/documents/{id}/rescan",
@@ -221,9 +222,10 @@ test("documented routes exist and OAuth cannot acquire browser approval or priva
     expected,
   );
   for (const { path, method, operation } of operations) {
+    const uploadCapability = path === "/api/document-uploads/{id}/content";
     assert.ok(
       new RegExp(
-        `app\\.${method}\\(\\s*"${path.replaceAll("{id}", ":id").replaceAll("{entryId}", ":entryId").replaceAll("{exampleId}", ":exampleId")}"`,
+        `app\\.${uploadCapability ? "all" : method}\\(\\s*"${path.replaceAll("{id}", ":id").replaceAll("{entryId}", ":entryId").replaceAll("{exampleId}", ":exampleId")}"`,
       ).test(api),
       `${method} ${path} must exist in router`,
     );
@@ -268,17 +270,19 @@ test("documented routes exist and OAuth cannot acquire browser approval or priva
       operation.security,
       publicRoute
         ? []
-        : browserPurchase
-          ? [{ BrowserSession: [] }]
-          : [
-              {
-                GuteneoOAuth:
-                  path === "/api/postal/preflights" ||
-                  path.endsWith("/postal-preflight")
-                    ? ["documents:write", "dispatches:prepare"]
-                    : [scope],
-              },
-            ],
+        : uploadCapability
+          ? [{ DocumentUploadCapability: [] }]
+          : browserPurchase
+            ? [{ BrowserSession: [] }]
+            : [
+                {
+                  GuteneoOAuth:
+                    path === "/api/postal/preflights" ||
+                    path.endsWith("/postal-preflight")
+                      ? ["documents:write", "dispatches:prepare"]
+                      : [scope],
+                },
+              ],
     );
   }
   assert.match(
@@ -482,6 +486,7 @@ test("OAuth publishes the real audience and explicitly scoped authorities withou
   assert.deepEqual(Object.keys(spec.components.securitySchemes), [
     "GuteneoOAuth",
     "BrowserSession",
+    "DocumentUploadCapability",
   ]);
   const oauth = spec.components.securitySchemes.GuteneoOAuth;
   assert.equal(oauth.type, "oauth2");
@@ -490,11 +495,11 @@ test("OAuth publishes the real audience and explicitly scoped authorities withou
   assert.equal(oauth["x-pkce-required"], true);
   assert.equal(
     oauth.flows.authorizationCode.authorizationUrl,
-    "https://pieper.eu.auth0.com/authorize",
+    "https://auth.guteneo.com/authorize",
   );
   assert.equal(
     oauth.flows.authorizationCode.tokenUrl,
-    "https://pieper.eu.auth0.com/oauth/token",
+    "https://auth.guteneo.com/oauth/token",
   );
   const actualScopes = [
     ...auth
@@ -505,6 +510,40 @@ test("OAuth publishes the real audience and explicitly scoped authorities withou
     Object.keys(oauth.flows.authorizationCode.scopes).sort(),
     actualScopes.sort(),
   );
+});
+
+test("private PDF transfer has an upload-only capability without a public PDF or OAuth content endpoint", () => {
+  const capability = spec.components.securitySchemes.DocumentUploadCapability;
+  assert.equal(capability.type, "apiKey");
+  assert.equal(capability.in, "header");
+  assert.equal(capability.name, "X-Guteneo-Upload-Capability");
+  const path = spec.paths["/api/document-uploads/{id}/content"];
+  assert.deepEqual(Object.keys(path), ["put"]);
+  assert.deepEqual(path.put.security, [{ DocumentUploadCapability: [] }]);
+  assert.deepEqual(Object.keys(path.put.requestBody.content), [
+    "application/pdf",
+  ]);
+  assert.equal(
+    path.put.requestBody.content["application/pdf"].schema["x-max-bytes"],
+    10 * 1024 * 1024,
+  );
+  const received = spec.components.schemas.PrivateDocumentUploadReceived;
+  assert.equal(received.additionalProperties, false);
+  assert.deepEqual(received.required, ["uploadId", "status"]);
+  assert.deepEqual(Object.keys(received.properties), ["uploadId", "status"]);
+  const contract = spec["x-private-document-upload"];
+  assert.equal(contract.creatorPrivate, true);
+  assert.equal(contract.exactOriginalSizeAndSha256, true);
+  assert.equal(contract.maxCapabilityTtlSeconds, 300);
+  assert.equal(contract.boundedByOAuthTokenExpiry, true);
+  for (const field of [
+    "oauthBearerAcceptedOnContentRoute",
+    "browserCookiesAcceptedOnContentRoute",
+    "capabilityInUrl",
+    "automaticRetryAfterUnknownOutcome",
+    "sendingApprovalOrPurchaseAuthority",
+  ])
+    assert.equal(contract[field], false);
 });
 
 test("wire contracts retain integer prices, JSON strings, quarantine and required idempotency", () => {

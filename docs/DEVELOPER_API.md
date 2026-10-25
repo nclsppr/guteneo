@@ -43,14 +43,45 @@ private provider operations are excluded from this public OAuth contract.
 
 Website/native login starts at `guteneo.com` using `auth.guteneo.com`.
 `/auth/mobile/authorize` retains the mobile return and selects configured browser
-domain before canonical callback. Existing **API/MCP** clients retain issuer
-`https://pieper.eu.auth0.com/`, authorization
-`https://pieper.eu.auth0.com/authorize`, token
-`https://pieper.eu.auth0.com/oauth/token`, audience `https://guteneo.com/mcp`.
-Do not edit issuer documentation without coordinated server/client migration.
+domain before canonical callback. New **API/MCP** connections use the served
+resource discovery; the explicitly configured custom preference selects issuer
+`https://auth.guteneo.com/`, authorization `https://auth.guteneo.com/authorize`
+and token `https://auth.guteneo.com/oauth/token`. Audience stays
+`https://guteneo.com/mcp`. Existing canonical clients and tokens remain valid;
+identity, connection and mandate keys stay canonical. See the
+[independent trust/discovery and rollback contract](AUTH0_CUSTOM_DOMAIN.md#independent-mcp-trust-and-discovery).
+Do not mix token endpoints from different issuers within one client flow or replace
+`AUTH0_DOMAIN` as part of this endpoint migration.
 Registered clients require exact callbacks, Authorization Code + PKCE S256 and
 checked `state`. Access tokens use Bearer only; ID tokens, provider keys and URL
 tokens are no substitute. Public clients contain no client secret.
+
+## Private original-file transfer
+
+MCP `begin_document_upload` reserves a creator-private PDF using the actual
+original's filename, integer byte count and SHA-256. Both reservation and
+`get_document_upload` require current writer membership and the existing
+`documents:write` scope. Only the reservation can disclose the short-lived,
+upload-only capability. The binary PUT route accepts that capability instead of
+OAuth or browser cookies; it exposes no PDF or document ID. Its 202 receipt says
+only received. Scanner/quarantine and the ordinary document pipeline still decide
+readiness; recovery reads the same upload ID through OAuth without blind retries.
+No reservation or upload approves, sends or purchases anything.
+
+The reservation may also return the deterministic client source and its SHA-256
+for an authorized POSIX Python 3.9+ local or cloud environment. This avoids a separate
+package installation or external script fetch; it does not establish access to
+the actual attachment or permission/network availability. Status lookup returns
+neither client code nor capability. Host confirmation rules remain mandatory.
+Other authorized hosts can implement the same binary PUT protocol natively; the
+reference client's runtime requirements do not qualify another environment.
+
+The [private upload contract](PRIVATE_DOCUMENT_UPLOAD.md) owns exact limits,
+binding, expiry and recovery. A host must actually access and transfer original
+bytes. Claude on iPhone is independently unqualified: a web/Desktop/Code test,
+mobile attachment preview or local helper does not prove iPhone file/code/network
+capabilities, OAuth renewal or this device journey. Never publish a private PDF as
+a workaround. Browser/native/public-URL import retain their existing contracts.
 
 Verified-email onboarding, signed `https://guteneo.com/verified_account=true`,
 current membership and connection determine tenant and authority. Sessions lacking

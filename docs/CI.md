@@ -25,6 +25,15 @@ The separate `production-e2e.yml` candidate schedules twenty-eight fixed anonymo
 
 Every job uses lockfile-keyed `setup-node` npm download caching and still runs `npm ci`; `node_modules`, Miniflare databases and browser session state are not reused. Browser binaries are installed only in jobs that require them. No new browser cache is added: Playwright documents comparable download/restore costs and the need to install Linux system libraries anyway. A measured later change can revisit this choice; it is not assumed to save time.
 
+All jobs that install Ubuntu packages, including `engineering`, run the existing
+`scripts/ci/ubuntu-mirrors.mjs` before that installation. It prefers the runner's
+official HTTPS Ubuntu archives while retaining Azure as a fallback, without
+changing package signatures, suites or dependency coverage. On 25 October, the
+documentation job omitted this setup and spent over twelve minutes downloading
+packages from Azure before its browser assertions had started. This is setup
+latency, not a product-test failure. Unexpected mirror configuration fails closed;
+retain the failed or cancelled run and qualify the corrected source in fresh CI.
+
 The public-preview configuration uses one worker in CI too. Its real audible media cases share Linux GStreamer/audio resources; concurrent sessions have produced a fully buffered, visible, unpaused player whose clock never advanced. No decode, progression, duration, locale or final-frame assertion is removed, and production playback is unchanged. The application suite already uses one worker.
 
 On `main` run 37109071599, exclusive sessions did not eliminate the intermittent

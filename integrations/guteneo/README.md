@@ -1,5 +1,13 @@
 # Guteneo — email and PDF correspondence
 
+<img src="https://guteneo.com/brand/guteneo-mark.png" alt="guteneo" width="64" height="64" />
+
+Guteneo's MCP identity already includes the standard 512 px PNG icon. The server
+also supplies its title and developer-guide URL. Hosts decide whether their
+connector picker displays these fields; if a manual logo field is available,
+use [this canonical PNG](https://guteneo.com/brand/guteneo-mark.png). Installing a
+logo or package grants no account access or approval.
+
 This directory prepares candidate **1.1.0**. Package version, application
 capabilities and MCP server identity follow the same source version; the release
 fingerprint identifies actually served code. Building an archive updates neither
@@ -13,8 +21,10 @@ The package combines the Guteneo MCP connection with `get-started`, `email`,
 `fax-pdf`, `postal-pdf`, `document-studio`, `pdf-accessibility` and `secure-distribution`. Available actions
 depend on the connected server, account permissions, activated channels/services
 and actual host capabilities. Installation grants no mandate and proves neither
-end-to-end qualification, OpenAI approval nor directory publication. It installs
-no executable or local hook and contains no credentials.
+end-to-end qualification, OpenAI approval nor directory publication. Installation
+runs no code or local hook, and the package contains no credentials. Its optional
+exact-file helper runs only with explicit host and file permission; installation
+grants no filesystem access or network authority.
 
 Server: **https://guteneo.com/mcp**; OAuth is required. Account/server access must
 already work. A valid archive proves neither connection nor successful sending.
@@ -89,6 +99,11 @@ then a token valid at most five minutes only after every page. Exact delegated
 acceptance uses `approve_and_send_dispatch`. Postal `transfer_postal_draft` needs
 distinct delegated authority and transfers a draft without sending. Host
 confirmations and server gates remain mandatory.
+
+The private binary bridge uses begin_document_upload and get_document_upload only
+when the host actually supplies original-file access and permitted Guteneo egress.
+Its bounded POSIX Python client is explicit, grants no OAuth/filesystem permission,
+and proves no actual client or physical-iPhone transfer. Preserve host controls.
 
 ChatGPT import requires the host's actual file contract. Guteneo fetches exact
 bytes from a direct public HTTPS source and verifies the PDF; private, expired or

@@ -204,7 +204,23 @@ Guteneo roles and supervisor options remain current application memberships;
 OAuth scopes restrict a specific connection and never replace them. Registered
 client scopes, exact callbacks, token audience/resource and canonical issuer must
 stay consistent without broadening consent as a recovery tactic. Optional browser
-identity aliases do not silently change the MCP authorization-server namespace.
+identity aliases do not silently change MCP trust. MCP has a separate trusted
+domain setting and an independent canonical/custom discovery preference. The
+reviewed alias is bounded to the same tenant; access tokens keep their actual
+verified issuer while identity, connection and mandate data keep canonical keys.
+Signing keys come from the configured canonical endpoint, never a JWT-selected
+URL. Unknown configuration or issuer fails closed, and audience, scopes, lifetime,
+verified-account/MFA policy and current role/connection checks remain mandatory.
+
+For a discovery rollback, retain trusted-domain configuration so existing custom
+clients keep working; removing trust deliberately rejects those credentials.
+Canonical legacy clients remain supported throughout. Review browser callbacks,
+OAuth discovery, key rotation, existing connection/mandate revocation and each
+host's consent/refresh separately. This application change creates no Auth0
+client, scope, grant, DCR/CIMD activation or paid resource. Synthetic signed-token
+fixtures and public metadata/key checks establish their bounded contracts, not
+connected-host or production proof. The repository's Auth0 custom-domain contract
+owns exact activation/rollback settings and dated qualification evidence.
 
 The [authoritative Auth0 setup catalog](https://github.com/nclsppr/guteneo/blob/main/docs/AUTH0_SETUP.md)
 retains both exact browser hosts: `https://guteneo.com` and

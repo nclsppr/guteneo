@@ -27,3 +27,14 @@ review_dispatch normally returns up to three full-page MCP images plus bounded e
 A review token expires within five minutes. Never fabricate, print or log it, image data or PDF blobs. Possessing it does not prove comprehension. Delegated acceptance already includes confirmation; never call confirm_dispatch automatically afterwards. A mandate requires prior browser-administrator authorization for this exact OAuth client and channel, bounded per-send/daily EUR ceilings, a daily count and expiry within 30 days. Never activate, renew, extend or raise it. Host confirmations, scopes, scan, credit and provider gates remain mandatory.
 
 On error follow error.recovery with the same stored identifiers and logical keys. If several records could match, clarify which one. A lost response or unknown provider outcome never authorizes another send. Resume within the conversation; promise neither automatic notifications nor recovery of unsaved information across conversations.
+
+## Private original PDF transfer
+
+When begin_document_upload is actually exposed and this host can read the selected
+original file and make the permitted binary PUT, compute its exact size/SHA-256
+and use that tool's bounded client and upload-only grant. Preserve host permissions
+and egress; never expose the capability, publish the PDF or reconstruct it from
+text. Recover get_document_upload on the same ID after uncertainty, without a new
+binary attempt. Source/client code does not qualify an actual host or physical
+iPhone. Keep the native host file-envelope and separately qualified local-adapter
+paths where actually available; a visible attachment name is not remotely readable.

@@ -40,6 +40,10 @@ import {
 import { assertBaseConfiguration, assertConfiguration, type Env } from "./env";
 import { DocumentService } from "./documents";
 import {
+  PrivateDocumentUploadService,
+  privateUploadPath,
+} from "./document-upload";
+import {
   TemplateWorkflowService,
   type WorkflowActor,
 } from "./template-workflow";
@@ -410,7 +414,14 @@ const ordinaryBodyLimit = bodyLimit({
 });
 // MCP authenticates and applies its smaller byte bound before buffering.
 app.use("*", (c, next) =>
-  c.req.path === "/mcp" ? next() : ordinaryBodyLimit(c, next),
+  c.req.path === "/mcp" || privateUploadPath(c.req.path)
+    ? next()
+    : ordinaryBodyLimit(c, next),
+);
+// Authenticate the narrow upload capability before reading any original bytes.
+// This route never accepts ambient browser cookies or an OAuth token.
+app.all("/api/document-uploads/:id/content", (c) =>
+  new PrivateDocumentUploadService(c.env, domain(c.env)).receive(c.req.raw),
 );
 app.get("/api/health", (c) =>
   c.json({
@@ -430,6 +441,7 @@ app.all("/mcp", (c) =>
   handleMcp(c.req.raw, c.env, {
     domain: domain(c.env),
     documents: new DocumentService(c.env, domain(c.env)),
+    documentUploads: new PrivateDocumentUploadService(c.env, domain(c.env)),
     workflow: new TemplateWorkflowService(c.env, domain(c.env)),
     secureDistribution: {
       prepare: async (identity, input, key) =>

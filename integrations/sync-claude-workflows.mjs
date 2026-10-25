@@ -15,7 +15,7 @@ const skills = [
 const hostNotice =
   "Before using this skill, read the [Claude host contract](../../references/claude-host.md). Use the connected Guteneo tools and preserve the host’s permission prompts.";
 const claudeFileTransport =
-  "This Claude Code package includes no local upload adapter and does not qualify Claude attachment transfer. Reuse a verified Guteneo document through list_documents/get_document. If no separately configured and qualified exact-file transport is actually available, offer the person's own authenticated upload in [Guteneo Documents](https://guteneo.com/?lang=en#/app/documents), subject to the same content restrictions. Never publish a file to manufacture a URL, reconstruct an original from text, or invent download_url, file_id or an unavailable upload_local_pdf call.";
+  "This package grants no filesystem access or local upload adapter. For an allowed private original, use begin_document_upload only when actually exposed and the host computing environment can read its exact bytes and make the permitted Guteneo PUT. Compute its real size/SHA-256, use the returned bounded client/grant, then recover get_document_upload on the same ID without another binary attempt. Keep the capability private and preserve host permissions/egress. This requires a compatible runtime, not a native iPhone extension; source tests qualify no actual host. Reuse a Guteneo document where available. If exact transfer is unavailable, explain that specific limit and let the person choose an alternative; never publish a file, reconstruct it from text, invent download_url/file_id or call an unavailable upload_local_pdf.";
 
 /** Common English skills are the source; only actual host differences are overlaid. */
 export async function synchronizeClaudeWorkflows({
@@ -48,6 +48,19 @@ export async function synchronizeClaudeWorkflows({
     if ((await readFile(path, "utf8")) !== adapted) {
       changes.push(path);
       if (!check) await writeFile(path, adapted);
+    }
+  }
+  for (const file of ["scripts/upload-private-pdf.py"]) {
+    const source = await readFile(join(root, "guteneo", file), "utf8");
+    const target = join(marketplaceRoot, "plugins/guteneo", file);
+    const previous = await readFile(target, "utf8").catch(() => null);
+    if (previous !== source) {
+      changes.push(target);
+      if (!check) {
+        const { mkdir } = await import("node:fs/promises");
+        await mkdir(dirname(target), { recursive: true });
+        await writeFile(target, source);
+      }
     }
   }
   const reference = "skills/document-studio/references/template-authoring.md";

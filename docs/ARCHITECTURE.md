@@ -1,5 +1,26 @@
 # Architecture
 
+## MCP issuer migration — 25 October 2026 candidate
+
+The explicit trusted MCP alias and independently selected discovery domain are
+defined in [the Auth0 domain contract](AUTH0_CUSTOM_DOMAIN.md#independent-mcp-trust-and-discovery).
+Both token families use the server-owned canonical signing-key source and retain
+the exact verified token issuer in the authentication snapshot. Identity,
+membership, connection, revocation and mandate queries keep canonical keys.
+Postal/expert fences compare the signed issuer with that verified snapshot;
+no scope, personal authority or approval is inferred from an alias. Discovery
+rollback retains configured token trust. Browser/native issuer-bound PKCE
+transactions and provider configuration remain independent. Source and synthetic
+JWT tests do not establish actual host consent, refresh or deployed activation.
+
+Private original-file import adds an independent upload-only capability after
+current OAuth writer authorization. Migration 0061 stores the hashed capability
+and bounded identity/connection/expiry snapshot, never a replayable OAuth token.
+The binary route validates the exact original then enters the existing private
+document/scanner pipeline; status remains OAuth protected. It grants no read,
+approval, purchase or sending authority. [Private upload](PRIVATE_DOCUMENT_UPLOAD.md)
+owns its limits, same-ID recovery and actual-host/iPhone qualification boundary.
+
 ## Frontend presentation and bootstrap — 25 October 2026 candidate
 
 `public-site.json` owns canonical public paths; the public renderer and

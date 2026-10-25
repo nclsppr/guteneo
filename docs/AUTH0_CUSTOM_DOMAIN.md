@@ -1,8 +1,8 @@
-# Auth0 browser custom domain
+# Auth0 browser and MCP custom domain
 
 This candidate lets the existing browser login use `auth.guteneo.com` while
 preserving the Auth0 tenant, Guteneo accounts, workspaces, account restrictions,
-assistant connections and canonical MCP issuer. It introduces no new account,
+assistant connections and canonical identity namespace. It introduces no new account,
 OAuth client, scope, role, approval authority or delivery activation.
 
 Implementation, verified Auth0/DNS configuration, production activation and actual
@@ -15,8 +15,9 @@ domain or a passing test does not establish an active login on that domain.
 `https://pieper.eu.auth0.com/`. Do not replace it as part of this browser change.
 That namespace identifies the signed subject in `auth_identities`,
 `restricted_delivery_identities`, `authorized_connections`, expert/postal authority
-and `browser_identity_evidence`. It also controls MCP Bearer-token verification,
-JWKS and Protected Resource discovery.
+and `browser_identity_evidence`. It remains the server-owned MCP signing-key
+source. MCP discovery and additional token trust have separate explicit settings
+below; neither changes these data keys.
 
 The optional server setting `AUTH0_BROWSER_DOMAIN=auth.guteneo.com` changes only
 new browser authorization requests. This is an explicit, code-reviewed alias for
@@ -47,21 +48,71 @@ Existing application browser sessions remain usable until their normal expiry.
 Auth0's own SSO cookies belong to their provider domain, so switching domains may
 require a fresh provider login.
 
-MCP discovery and validation continue to accept the canonical issuer only.
-A custom-domain token presented as an MCP Bearer credential is rejected during
-this first phase. Existing assistant registrations, refresh credentials and
-public OpenAI plugin identity are not migrated or replaced by this change.
-Custom-domain MCP support would require its own reviewed migration and actual
-host qualification.
+The browser setting alone leaves MCP discovery and validation canonical.
+Custom-domain MCP tokens require the independent opt-in described below.
+Existing assistant registrations, refresh credentials and public OpenAI plugin
+identity are neither replaced nor automatically reauthorized.
 
-Public developer documentation labels the canonical endpoints as API/MCP
-endpoints and separately identifies `auth.guteneo.com` for website/iOS browser
-sign-in. The native application already enters through the server-owned
+Public developer documentation identifies the preferred custom authorization
+endpoints and directs clients to served resource discovery; historical canonical
+clients remain compatible. The native application enters through the server-owned
 `/auth/mobile/authorize` path on `guteneo.com`; it embeds no Auth0 hostname.
-Management scripts, canonical identity records, MCP discovery/OpenAPI and
-historical evidence must not undergo a global hostname replacement. Auth0 email
+Management scripts, canonical identity records and historical evidence must not
+undergo a global hostname replacement. Auth0 email
 and phone-notification domain selection is a separate provider setting; it is
 not changed by this browser opt-in.
+
+## Independent MCP trust and discovery
+
+The 25 October MCP migration uses two server settings. They are not browser
+parameters, OAuth scopes, tenant-admin changes or client-registration controls.
+
+| Setting | Default | Accepted configuration |
+| --- | --- | --- |
+| `AUTH0_MCP_TRUSTED_DOMAIN` | Absent: canonical tokens only | `auth.guteneo.com`, only with canonical `AUTH0_DOMAIN=pieper.eu.auth0.com` |
+| `AUTH0_MCP_DISCOVERY` | `canonical` | `canonical` or `custom`; `custom` requires the valid trusted domain |
+
+An unknown choice, malformed URL, foreign tenant/domain or missing trusted alias
+with custom discovery fails closed before discovery or production token
+authentication. `AUTH0_BROWSER_DOMAIN` cannot activate MCP trust. New clients
+discover `https://auth.guteneo.com/` only when the explicit custom choice is
+active; its OAuth metadata must return that exact issuer including trailing slash.
+Audience/resource stays `https://guteneo.com/mcp`; `/authorize` and `/oauth/token`
+remain on the issuer selected by the host's own discovered metadata.
+
+When trust is configured, access tokens from both exact issuers are checked with
+RS256 against the canonical tenant's cached JWKS, the unchanged audience,
+required subject/issued-at/expiry and one-hour maximum age/lifetime. The approved
+alias belongs to that same tenant and uses its signing keys. No token claim,
+request, metadata URL or arbitrary issuer can choose another JWKS endpoint.
+`McpIdentity.verifiedTokenIssuer` records the actual issuer only after validation;
+it does not rewrite the JWT. Current verified-account/MFA policy and consented
+scopes still apply. Authentication adds no second signing-key request for the alias.
+
+After verification, identity/connection/revocation/not-before lookups keep the
+canonical issuer and exact signed subject/client. Postal SQL fences and expert
+status compare the JWT to the verified issuer snapshot while querying the same
+canonical connection and mandate. The four membership roles and independent
+supervisor options keep their existing permissions. An assistant remains a
+separate OAuth actor: domain selection grants no scope, membership, human
+approval, personal-vault access or expert/postal mandate. Browser/native sign-in
+and all browser-only consent/purchase controls retain their contracts.
+
+Release order is reviewed code/tests/CI first, then explicit deployment of both
+MCP settings after checking TLS, both issuers and their signing keys. No new Auth0
+client, grant, DCR/CIMD setting, callback, audience, social provider or paid feature
+is required by this application change. Cached legacy client metadata and
+canonical refresh endpoints remain valid. A host that rediscovers the custom
+domain may need a fresh Auth0 login because provider SSO cookies are domain-bound.
+
+For a discovery rollback, set only `AUTH0_MCP_DISCOVERY=canonical`; retain
+`AUTH0_MCP_TRUSTED_DOMAIN` so already-connected custom clients can continue using
+their issued/refreshed credentials. Removing trusted-domain configuration is a
+separate deliberate trust revocation and rejects custom tokens, not a safe
+discovery rollback. Do not rewrite records or replace/revoke existing reviewer
+connections to manufacture evidence. Actual host consent, renewal and revocation
+need bounded connected qualification; metadata and synthetic JWT tests do not
+prove those journeys.
 
 ## Additive migration and configuration order
 
@@ -119,7 +170,7 @@ migrations in isolated Miniflare. Cases cover canonical/custom account continuit
 one welcome grant, saved name/language, existing browser sessions, canonical
 Belvédère evidence, a reviewer restriction installed before first login,
 separate same-email subjects, canonical/legacy/rollback transactions, canonical
-MCP continuity, custom Bearer rejection, invalid issuers/configurations and
+MCP continuity, browser-only custom Bearer rejection, invalid issuers/configurations and
 incomplete or changed transaction namespaces. Existing authentication tests retain
 nonce, PKCE, signature, audience, age, account verification, MFA, memberships,
 revocation and session gates.
@@ -129,6 +180,16 @@ not qualify DNS propagation, TLS, Auth0 configuration, a received verification
 email, an actual human login, a social provider callback, assistant refresh,
 revocation or marketplace review. Record those dated production results outside
 this candidate evidence; never present local test success as activation.
+
+`tests/unit/mcp-auth0-domain.test.ts` adds signed legacy/custom tokens, strict
+official-SDK discovery, independent rollback, unsupported settings, foreign
+issuer/key/audience/algorithm, expiry/lifetime, signed account evidence, unchanged
+MFA/scopes, current connection revocation/not-before, canonical postal fences and
+existing bounded expert-mandate continuity/revocation. These fixtures perform no
+real communication or provider configuration. On 25 October, anonymous public
+GETs observed valid tenant/custom OIDC and OAuth metadata with identical public
+signing keys; Guteneo's then-served discovery still advertised the tenant. That
+observation is not deployment or connected-host proof for this candidate.
 
 Primary references: [Auth0 custom domains](https://auth0.com/docs/customize/custom-domains),
 [configure features to use a custom domain](https://auth0.com/docs/customize/custom-domains/configure-features-to-use-custom-domains),

@@ -1,5 +1,23 @@
 # Guteneo product contract
 
+## MCP custom-domain candidate — 25 October 2026
+
+New assistant connections can use the same branded Auth0 domain as browser sign-in
+when the separately reviewed MCP trust and discovery settings are active. Existing
+canonical credentials and connections remain valid, with the same current roles,
+consented scopes and browser-only approval/mandate boundaries. The discovery
+preference can roll back without disconnecting custom clients. This changes
+neither client registration nor provider activation; live host consent/refresh
+remain separately qualified. [Identity and rollout contract](AUTH0_CUSTOM_DOMAIN.md#independent-mcp-trust-and-discovery).
+
+A connected writer can reserve a creator-private original PDF for an exact-byte
+upload-only transfer when the actual host can read and send those bytes. The
+reservation changes no scope, approval or sending right; the existing scanner
+and document policy still apply. Migration 0061 and the bounded
+[private upload contract](PRIVATE_DOCUMENT_UPLOAD.md) are prerequisites. Claude
+on iPhone remains independently unqualified; a mobile attachment preview or a
+successful desktop helper does not prove this journey there.
+
 ## Interface candidate — 25 October 2026
 
 The public site has a concise homepage and dedicated How it works, Pricing,

@@ -25,6 +25,9 @@ export interface Env {
   AUTH0_DOMAIN?: string;
   /** Browser-login alias; AUTH0_DOMAIN remains the canonical identity issuer. */
   AUTH0_BROWSER_DOMAIN?: string;
+  /** Reviewed same-tenant MCP token alias; never changes identity keys. */
+  AUTH0_MCP_TRUSTED_DOMAIN?: string;
+  AUTH0_MCP_DISCOVERY?: "canonical" | "custom";
   AUTH0_CLIENT_ID?: string;
   AUTH0_CLIENT_SECRET?: string;
   AUTH0_AUDIENCE?: string;

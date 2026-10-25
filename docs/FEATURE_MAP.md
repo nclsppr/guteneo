@@ -1,7 +1,7 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
 # Guteneo feature tree and developer atlas
 
-**23 domains · 292 features · 33 journeys · 75 documented REST operations · 72 MCP tools**
+**23 domains · 298 features · 34 journeys · 76 documented REST operations · 74 MCP tools**
 Updated 2026-10-25.
 
 Repository implementation inventory. Availability depends on current capabilities and authority; implementation, activation and deployed proof are distinct.
@@ -17,7 +17,7 @@ mindmap
       Access and identity (31)
       Team and responsibilities (10)
     Create
-      Documents and protection (8)
+      Documents and protection (13)
       Template studio (14)
       Data and mappings (9)
       PDF generation and distribution (11)
@@ -33,7 +33,7 @@ mindmap
       Workspace layout and browser appearance (21)
       PDF verification (10)
     Interfaces
-      Assistants and API (20)
+      Assistants and API (21)
       iPhone and iPad (9)
       Public pages, languages and appearance (17)
     Operations
@@ -51,7 +51,7 @@ mindmap
 
 ### Create
 
-- [Documents and protection](#documents) — 8 features; capability-gated.
+- [Documents and protection](#documents) — 13 features; capability-gated.
 - [Template studio](#templates) — 14 features; capability-gated.
 - [Data and mappings](#datasets) — 9 features; capability-gated.
 - [PDF generation and distribution](#generation) — 11 features; capability-gated.
@@ -73,7 +73,7 @@ mindmap
 
 ### Interfaces
 
-- [Assistants and API](#assistants) — 20 features; host-qualified.
+- [Assistants and API](#assistants) — 21 features; host-qualified.
 - [iPhone and iPad](#native) — 9 features; local-candidate.
 - [Public pages, languages and appearance](#public) — 17 features; public.
 
@@ -99,6 +99,7 @@ Four human workshop roles are defined by packages/contracts/src/roles.ts. The as
 | --- | --- | --- | --- | --- | --- |
 | Read accessible workshop content | Yes | Yes | Yes | Yes | Current member + consented scopes + document access |
 | Import and prepare | Yes | Yes | Yes | No | Current member + scopes + qualified channel/transport |
+| Reserve/transfer a private original PDF | Own connected OAuth writer + documents:write | Own connected OAuth writer + documents:write | Own connected OAuth writer + documents:write | No | Current writer + documents:write + actual original bytes; capability bound to one operation/connection/expiry, no read/send/approval authority |
 | Human approval and confirmation | Yes | Approval option | No | No | Cannot assert human consent; standard confirmation requires recorded browser approval |
 | Expert review and acceptance | Browser grants a bounded mandate | No mandate administration | No mandate administration | No | Pre-existing active client-bound mandate + current role/scopes + exact review + host confirmations |
 | Cancel prepared/queued dispatch | Yes | Approval option | No | No | Current approval authority + scope; never retries an unknown submission |
@@ -117,7 +118,7 @@ Four human workshop roles are defined by packages/contracts/src/roles.ts. The as
 | Read responsible workshop contacts | Authenticated browser | Authenticated browser | Authenticated browser | Authenticated browser | No |
 | Read public pages/errors/status | Public; no privilege acquired | Public; no privilege acquired | Public; no privilege acquired | Public; no privilege acquired | Public read only; no extra tool/authority |
 | Choose system/light/dark browser appearance | Local browser presentation only | Local browser presentation only | Local browser presentation only | Local browser presentation only | No account preference setter, mandate or extra REST/MCP authority |
-| Configure Auth0/DNS/reviewer refresh | No authority from workshop role | No authority from workshop role | No authority from workshop role | No authority from workshop role | No business REST/MCP route; distinct authorised platform operator |
+| Configure Auth0/DNS/MCP issuer trust/reviewer refresh | No authority from workshop role | No authority from workshop role | No authority from workshop role | No authority from workshop role | No business REST/MCP route; distinct authorised platform operator |
 | Open global Belvédère | No authority from workshop role | No authority from workshop role | No authority from workshop role | No authority from workshop role | No; distinct verified browser Watchkeeper |
 | Apply assistant content exclusions | No additional rights | No additional rights | No additional rights | No additional rights | Announce exclusions, stop known excluded content, request person-redacted copy; no automatic classification or web bypass |
 | Use a personal account and received documents without a workspace | Personal principal, no workspace authority gained | Personal principal, no workspace authority gained | Personal principal, no workspace authority gained | Personal principal, no workspace authority gained | No personal access through workspace Bearer |
@@ -141,7 +142,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 
 **Availability model:** browser-session. Unified personal account and optional workspace implementation; migrations, aligned document policy, Auth0 configuration and connected production qualification require separate evidence.
 
-**Surfaces:** Personal browser API/session without workspace Bearer authority; workspace browser and native sessions; canonical MCP resource OAuth discovery. Optional custom domain affects browser sign-in only.
+**Surfaces:** Personal browser authority and workspace/native sessions; REST/MCP resource OAuth with explicit same-tenant issuer trust, independently selected discovery and canonical identity/connection/mandate keys.
 
 - Auth0 sign-in, verified accounts and explicit MFA policy
 - Canonical browser sign-in/callback; retired hosts and preview URLs refuse authentication
@@ -165,7 +166,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Restore explicit visitor language after the initial session check without overwriting current selection or account preference
 - Recovery screen only after an error, with explicit retry and no automatic loop; native Auth0 signup, local demo and public fixture remain distinct
 - Reread workshop capabilities for a browser session; anonymous reads support recovery and refresh the shared public offer/FAQ after returning home
-- Optional auth.guteneo.com browser domain for the existing Auth0 tenant; MCP issuer/discovery/tokens remain canonical
+- Independent browser domain and bounded same-tenant MCP token trust; explicit custom/canonical MCP discovery preference with rollback that retains existing tokens and canonical identity/connection keys
 - Additive migration 0054 binds authorisation issuer and identity namespace to PKCE; legacy NULL flows stay canonical and rollback never silently switches provider
 - Verified dual-token subject binds to the canonical namespace without email linking or duplicate person/workshop/credits/authority; browser evidence and prepare_only restriction remain
 - One Guteneo account without an automatic workspace; idempotent initial administrator/workspace creation only on explicit service use
@@ -177,7 +178,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 
 **Contract:** [ACCOUNT_IDENTITY.md](ACCOUNT_IDENTITY.md) · **Implementation:** [apps/api/src/auth.ts](../apps/api/src/auth.ts)
 
-**Tests:** [tests/unit/auth.test.ts](../tests/unit/auth.test.ts), [tests/unit/account.test.ts](../tests/unit/account.test.ts), [tests/e2e/account-identity.spec.ts](../tests/e2e/account-identity.spec.ts), [tests/e2e/resource-navigation.spec.ts](../tests/e2e/resource-navigation.spec.ts), [tests/unit/web-api-cancellation.test.ts](../tests/unit/web-api-cancellation.test.ts), [tests/e2e/login-entry.spec.ts](../tests/e2e/login-entry.spec.ts), [tests/security/auth0-branding.test.mjs](../tests/security/auth0-branding.test.mjs), [tests/e2e/pdf-validation.spec.ts](../tests/e2e/pdf-validation.spec.ts), [tests/e2e/dashboard.spec.ts](../tests/e2e/dashboard.spec.ts), [tests/e2e/locale-boundaries.spec.ts](../tests/e2e/locale-boundaries.spec.ts), [tests/unit/personal-auth.test.ts](../tests/unit/personal-auth.test.ts), [tests/unit/document-invitation.test.ts](../tests/unit/document-invitation.test.ts), [tests/distribution-e2e/personal-account.e2e.ts](../tests/distribution-e2e/personal-account.e2e.ts)
+**Tests:** [tests/unit/auth.test.ts](../tests/unit/auth.test.ts), [tests/unit/account.test.ts](../tests/unit/account.test.ts), [tests/e2e/account-identity.spec.ts](../tests/e2e/account-identity.spec.ts), [tests/e2e/resource-navigation.spec.ts](../tests/e2e/resource-navigation.spec.ts), [tests/unit/web-api-cancellation.test.ts](../tests/unit/web-api-cancellation.test.ts), [tests/e2e/login-entry.spec.ts](../tests/e2e/login-entry.spec.ts), [tests/security/auth0-branding.test.mjs](../tests/security/auth0-branding.test.mjs), [tests/e2e/pdf-validation.spec.ts](../tests/e2e/pdf-validation.spec.ts), [tests/e2e/dashboard.spec.ts](../tests/e2e/dashboard.spec.ts), [tests/e2e/locale-boundaries.spec.ts](../tests/e2e/locale-boundaries.spec.ts), [tests/unit/personal-auth.test.ts](../tests/unit/personal-auth.test.ts), [tests/unit/document-invitation.test.ts](../tests/unit/document-invitation.test.ts), [tests/distribution-e2e/personal-account.e2e.ts](../tests/distribution-e2e/personal-account.e2e.ts), [tests/unit/mcp-auth0-domain.test.ts](../tests/unit/mcp-auth0-domain.test.ts), [tests/unit/postal-authority.test.ts](../tests/unit/postal-authority.test.ts), [tests/integration/expert-status.test.ts](../tests/integration/expert-status.test.ts)
 
 
 
@@ -210,7 +211,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 
 **Availability model:** capability-gated. Implemented; exact-byte, scanner and owner-access gates apply.
 
-**Surfaces:** Web, REST and MCP with current document authority; native import/inspection subset.
+**Surfaces:** Web/native and existing REST/MCP document access; bounded private upload reservation/status through MCP plus one upload-only binary PUT. Actual host original-file/code/network transfer and physical iPhone evidence remain separately qualified.
 
 - Bounded PDF upload and remote import with English API diagnostics and only a sanitized public source hostname
 - Search, paginated listing, metadata and page reading
@@ -220,10 +221,15 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Isolated HTML-to-PDF rendering into an immutable document
 - Private storage, quotas, retention and owner-level privacy
 - Assistant exclusions announced before content collection/processing; known excluded content is not imported/read even when stored or ready; scanning never proves its absence
+- Creator-private MCP original-file reservation with actual basename, integer byte count and SHA-256; unchanged documents:write plus current writer and connection authority
+- Upload-only 256-bit capability is returned only by reservation, hashed at rest, limited to five minutes/token expiry and claimed before a 30-second bounded binary PUT; no OAuth token, public PDF link, browser cookie or provider upload authority
+- Exact-size/hash private upload feeds the existing antivirus/quarantine/100-page pipeline under the same planned document ID; connection/trust/membership/expiry rechecks and same-ID status recovery refuse blind retries on unknown outcomes
+- Host file/code/network access and physical Claude iPhone OAuth/file transfer require separate qualification; attachment previews, extracted text, tool discovery and desktop helpers do not prove original-byte transfer
+- Reservation can return deterministic POSIX Python 3.9+ standard-library client code with its SHA-256 for authorized local/cloud execution; status never returns code/capability, and no package install, external script fetch or actual host qualification is implied
 
 **Contract:** [SCANNER_RESCAN.md](SCANNER_RESCAN.md) · **Implementation:** [apps/api/src/documents.ts](../apps/api/src/documents.ts)
 
-**Tests:** [tests/integration/documents.test.ts](../tests/integration/documents.test.ts), [tests/unit/mcp-integrations.test.ts](../tests/unit/mcp-integrations.test.ts)
+**Tests:** [tests/integration/documents.test.ts](../tests/integration/documents.test.ts), [tests/unit/mcp-integrations.test.ts](../tests/unit/mcp-integrations.test.ts), [tests/integration/private-document-upload.test.ts](../tests/integration/private-document-upload.test.ts), [tests/unit/private-document-upload-mcp.test.ts](../tests/unit/private-document-upload-mcp.test.ts), [tests/security/private-pdf-client.test.mjs](../tests/security/private-pdf-client.test.mjs)
 
 **Documented REST operations**
 
@@ -233,10 +239,13 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - `GET /api/documents/{id}/content`
 - `POST /api/documents/{id}/rescan`
 - `GET /api/documents/{id}`
+- `PUT /api/document-uploads/{id}/content`
 
 **MCP tools**
 
+- `begin_document_upload`
 - `get_document`
+- `get_document_upload`
 - `import_document`
 - `list_documents`
 - `read_document_pages`
@@ -656,7 +665,8 @@ Supervisor approval/reporting options are independent and off by default. Resour
 
 - Discover actual account capabilities and limits
 - REST/OpenAPI and Streamable HTTP MCP catalogues
-- ChatGPT, Claude web/Desktop/Code, Grok web/Build, Cursor and Copilot installation guides; OAuth qualification is per surface
+- Standard MCP server title, developer websiteUrl and unchanged PNG512 icons; RFC9728 resource_documentation and visible guide logo, with host-controlled display and a manual canonical image URL
+- Current host-specific OAuth and original-file transport compatibility matrix for Claude and ChatGPT web/iPhone, Cursor desktop/cloud, Grok, Copilot, Gemini and other clients; installation/catalog presence never establishes a pass
 - Import through the file transport actually supported by the host
 - Document, template, dataset, generation and preparation tools
 - Browser review before sending; scopes never elevate membership rights
@@ -673,9 +683,9 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Single source version synchronises application, serverInfo and release/package manifests; builds reject version/connection drift
 - MCP bodies limited to 2 MiB and 120,000 elements; existing 100,000-cell business limit remains
 - Reproducible standalone Claude Code and relative-source local marketplace archives; six workflows without OpenAI metadata or tool preauthorisation
-- Developer guidance distinguishes canonical REST/MCP resource/issuer from optional browser Auth0 domain
+- MCP custom-domain discovery and signed issuer snapshot preserve canonical data keys, legacy credentials, current postal/expert fences and unchanged scopes; host consent and refresh remain separately qualified
 
-**Contract:** [V1_RELEASE_CANDIDATE.md](V1_RELEASE_CANDIDATE.md) · **Implementation:** [apps/api/src/mcp.ts](../apps/api/src/mcp.ts)
+**Contract:** [MCP_CLIENT_COMPATIBILITY.md](MCP_CLIENT_COMPATIBILITY.md) · **Implementation:** [apps/api/src/mcp.ts](../apps/api/src/mcp.ts)
 
 **Tests:** [tests/unit/mcp-integrations.test.ts](../tests/unit/mcp-integrations.test.ts), [tests/unit/mcp-annotation-audit.test.ts](../tests/unit/mcp-annotation-audit.test.ts), [tests/integration/expert-approval.test.ts](../tests/integration/expert-approval.test.ts), [tests/unit/auth.test.ts](../tests/unit/auth.test.ts), [tests/integration/template-workflow.test.ts](../tests/integration/template-workflow.test.ts), [tests/unit/pdf-validation.test.ts](../tests/unit/pdf-validation.test.ts), [tests/security/integration-package.test.mjs](../tests/security/integration-package.test.mjs), [tests/security/claude-plugin.test.mjs](../tests/security/claude-plugin.test.mjs)
 
@@ -775,7 +785,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Full real-web Classic/V2 views with the same account, tenant, resources and operations
 - Account at navigation bottom, saved Classic/V2 layout beside language, applied after a successful profile save; mobile identity remains visible with the menu closed; role and detailed permissions live on My account
 - Personal users.preferred_dashboard_appearance, migration 0053, classic default and cross-workshop/session/device reconciliation
-- Personal documents apply the same saved Classic/V2 account layout with lightweight independent navigation; personal and workshop customization reuse small shared language/theme/layout controls, preserving personal-only access and existing guarded PATCH authority
+- Personal documents apply the same saved Classic/V2 account layout in a shell filling the available width with responsive gutters and readable internal form measures, with lightweight independent navigation; personal and workshop customization reuse small shared language/theme/layout controls, preserving personal-only access and existing guarded PATCH authority
 - Strict browser account PATCH with current authority, Origin/CSRF and field-name audit; every role changes only its own preference
 - Temporary appearance=v2/classic override accepts legacy atelier URLs, never persists server-side and clears after explicit appearance save or identity change; local cache is non-authoritative
 - Existing activity/alerts precede introduction, otherwise a complete welcome; content preview precedes approval in reading/tab order
@@ -791,7 +801,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Compact My documents navigation link with personal-space context, without an oversized separate card or repeated role panel
 - Shared native file input with four-language authored chooser/empty text and literal filenames, keyboard validation and exact-byte upload semantics
 - Desktop Safari select height and protected-link hint spacing; visible keyboard focus, selection and forced-colors states remain readable in both palettes
-- Public and personal headers and Belvédère page actions share one localized light/dark action icon at every viewport, defaulting to the operating system; Classic personal header/main/footer use the same 1440 px frame and responsive gutters, while personal V2 follows workshop geometry without changing personal navigation, identity, document access or logout. Browser theme is independent of saved Classic/V2 layout, account language and role; document/PDF/email content retains original light-paper appearance and bytes
+- Public and personal headers and Belvédère page actions share one localized light/dark action icon at every viewport, defaulting to the operating system; authenticated personal Classic/V2 shells fill the available width with responsive gutters, while personal V2 follows workshop geometry without changing personal navigation, identity, document access or logout. Browser theme is independent of saved Classic/V2 layout, account language and role; document/PDF/email content retains original light-paper appearance and bytes
 - Template-designer controls adopt the resolved shared palette in place while original template content, output geometry, bindings and PDF bytes retain their document contract
 
 **Contract:** [DASHBOARD_V2.md](DASHBOARD_V2.md) · **Implementation:** [apps/web/src/account-page.tsx](../apps/web/src/account-page.tsx)
@@ -936,7 +946,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Asset-only publication from clean main matching fresh origin/main and the reviewed commit, with source snapshots and complete output hashes revalidated after browser checks; no business bindings or delivery authority; static no-transform responses preserve reviewed HTML/artwork bytes while hash-named Astro assets retain immutable caching
 - Discoverable architecture diagram gallery with three brand-colored Mermaid flows, source downloads and accessible textual explanations
 - Curated Belvédère administration, data-model, release and troubleshooting guides that preserve authority, evidence and recovery boundaries
-- Maintained GitHub job/artifact/release explanation, fresh dependency boundaries and separate application/native/engineering evidence
+- Maintained GitHub job/artifact/release explanation, fresh dependency boundaries and separate application/native/engineering evidence; every Ubuntu package installation, including engineering browsers, first prefers the runner's recognized official HTTPS archives while retaining signed package verification and the Azure fallback, and an unexpected mirror configuration fails closed
 - Curated Cloudflare/Auth0/transport dependencies, background jobs, tariff maintenance, design/i18n/accessibility, AI contribution and reproducible video/voice production guides
 - Origin-scoped system/light/dark selection uses guteneo.theme with pre-paint resolution, cross-tab/system updates and optional migration of a prior ui-mode choice; Nimbus data-mode styling, fixed blue chrome, script-free system fallback and readable ivory dark branding grant no account or operational authority
 - Three isolated browser shards for each desktop/mobile Chromium and iPhone WebKit profile, same-revision build artifacts and independent complete test-ID inventory accounting; no missing/duplicate shard, skipped required job, automatic retry or merged-main publication shortcut
@@ -1153,7 +1163,7 @@ Open public status from its URL or common footer → read current summary, obser
 
 **Actor:** Authenticated browser member changing their own preference. **Branch:** Operate.
 
-Enter personal documents or the workshop → open account customization → choose Classic/V2 beside the shared language and color controls → save successfully through the existing context-specific profile endpoint → apply the saved personal preference → reload, switch identity or enter the other application context → reconcile the current account preference without workshop bootstrap in personal documents.
+Enter personal documents or the workshop → open account customization → choose Classic/V2 beside the shared language and color controls → save successfully through the existing context-specific profile endpoint → apply the saved personal preference in a full-width shell with responsive gutters and readable internal forms → reload, switch identity or enter the other application context → reconcile the current account preference without workshop bootstrap in personal documents.
 
 **Failure/recovery:** Temporary atelier overrides never claim a server save and clear after explicit save/identity change. Old cache cannot override the current person; business authority remains identical. Immediate system/light/dark browser appearance is a separate preference and never claims an account profile save.
 
@@ -1179,13 +1189,13 @@ Inspect exact hosted qualification/private health/signature freshness/token expi
 
 [Detailed contract](SCANNER_CI.md).
 
-### J24 · Use the Guteneo Auth0 browser domain
+### J24 · Use the Guteneo Auth0 browser and MCP domains
 
-**Actor:** Authorised platform operator for setup/release; person for ordinary browser sign-in. **Branch:** Access.
+**Actor:** Authorised platform operator for reviewed domain/trust/discovery configuration; person for browser sign-in or host OAuth consent. **Branch:** Access.
 
-Review exact Auth0/DNS/domain plan → explicitly configure/publish after qualification → start canonical browser/mobile-authorize flow → verify signed tokens → restore the same canonical subject/workshop and valid deep link.
+Qualify the exact same-tenant alias and signing keys → deploy reviewed code and explicit MCP trust/discovery settings → host reads exact issuer metadata and completes its own consent/PKCE exchange → validate signed issuer/audience/subject → use the same canonical identity/workshop/connection. Roll discovery back independently while retaining established token trust.
 
-**Failure/recovery:** Unknown domain/transaction, wrong issuer/nonce or differing subject fails closed. Never link identities by email. MCP resource/issuer stay canonical; rollback does not silently switch identities.
+**Failure/recovery:** Unknown domain/configuration/issuer, bad signature/audience/time/nonce or differing browser subjects fail closed. Never link identities by email or select JWKS from token claims. Existing canonical clients remain valid. Removing custom trust deliberately rejects custom tokens and is distinct from discovery rollback; no new scope, client, grant, approval or mandate is created.
 
 [Detailed contract](AUTH0_CUSTOM_DOMAIN.md).
 
@@ -1273,11 +1283,21 @@ Start with the operating-system palette unless a valid local choice exists → u
 
 **Actor:** Authenticated personal account owner, with or without a workspace. **Branch:** Access.
 
-Open My documents directly → start the personal shell → validate current personal session → read the authorized list → retry a failed list explicitly. On focus or account change reconcile the session and discard previous identity/document state; returning to a workshop loads its current session and rights.
+Open My documents directly → start the personal shell → validate current personal session → read the authorized list across the available main width with responsive gutters → retry a failed list explicitly. On focus or account change reconcile the session and discard previous identity/document state; returning to a workshop loads its current session and rights.
 
 **Failure/recovery:** Personal policy and recipient bindings are never skipped. Cancelled or late workspace/account results cannot restore earlier identity, language or documents; expired sessions use established recovery. The five-context synthetic timing comparison is bounded local instrumentation, not production latency, real-client access or provider delivery proof.
 
 [Detailed contract](FRONTEND_PERFORMANCE.md).
+
+### J34 · Upload a private original through a connected assistant
+
+**Actor:** Current OAuth writer (administrator, supervisor or operator) with documents:write and explicit original-file handling authorization; actual host byte-transfer capability required. **Branch:** Documents.
+
+Qualify the actual host’s access to the selected original and network → compute original filename, exact byte count and SHA-256 with code → reserve through begin_document_upload using the same idempotency key → PUT those original bytes to the returned canonical fixed endpoint with only the upload capability → read get_document_upload under current OAuth authority → inspect the same creator-private document after ordinary scanner/quarantine processing. Any later preparation, approval or sending follows its separate journey.
+
+**Failure/recovery:** Reject unknown/used/expired capability, cookies/Authorization/Origin/query/encoding, changed issuer trust/client/connection/revision/membership, size/hash mismatch, overflow and timeout. Never publish a private PDF or reconstruct it from extracted text. Recovery keeps the same upload/document ID and does not blindly retry an unknown outcome. No PDF or document ID is exposed by the capability; no sending, purchase or human/delegated approval is created. Web/Desktop/Code evidence does not qualify Claude on iPhone.
+
+[Detailed contract](PRIVATE_DOCUMENT_UPLOAD.md).
 
 ## Required maintenance
 

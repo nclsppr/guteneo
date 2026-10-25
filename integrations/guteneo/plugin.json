@@ -8,13 +8,7 @@
   },
   "homepage": "https://guteneo.com/about/?lang=en",
   "repository": "https://github.com/nclsppr/guteneo",
-  "keywords": [
-    "pdf",
-    "fax",
-    "postal",
-    "documents",
-    "guteneo"
-  ],
+  "keywords": ["pdf", "fax", "postal", "documents", "guteneo"],
   "extensions": {
     "com.openai": {
       "interface": {
@@ -50,7 +44,7 @@
         "demo_recording_url": "https://guteneo.com/review/guteneo-chatgpt-demo-20260921.mp4"
       },
       "publication": {
-        "release_notes": "Version 1.1.0 adds one Guteneo account for received documents and the existing services. The web recipient area separates revocable shared access from an explicitly acquired personal copy; original PDF downloads and personal retention require the sender's permission. Authenticated browser approval under the active document authentication policy is required for secure distribution, including for expert connections. Recipient association is confirmed by the sender through independent verification; account activity does not prove physical identity, complete reading, screenshot capture or saving to disk. Five secure-distribution tools and their workflow bring the MCP catalogue to 72 tools, all with explicit boolean annotations and per-value justifications. Funded retention is not refunded on revocation. Scheduled public production browser reports remain separate from availability checks and from authenticated business qualification. Existing content restrictions, account permissions, immutable approvals, sending safeguards and the public Guteneo plugin identity are preserved. Provider readiness, signed authentication evidence, deployment and per-host qualification remain separate gates; this source candidate does not assert directory publication or a production delivery.",
+        "release_notes": "Version 1.1.0 adds one Guteneo account for received documents and the existing services. The web recipient area separates revocable shared access from an explicitly acquired personal copy; original PDF downloads and personal retention require the sender's permission. Authenticated browser approval under the active document authentication policy is required for secure distribution, including for expert connections. Recipient association is confirmed by the sender through independent verification; account activity does not prove physical identity, complete reading, screenshot capture or saving to disk. Five secure-distribution tools and two private original-PDF upload tools bring the MCP catalogue to 74 tools, all with explicit boolean annotations and per-value justifications. The private binary bridge preserves exact bytes and uses a short-lived upload-only capability, with no OAuth credentials, public download URL or additional sending authority. Its optional reference client requires a compatible authorized runtime; actual original-file access and permitted network transfer remain independently qualified for each host. Funded retention is not refunded on revocation. Scheduled public production browser reports remain separate from availability checks and from authenticated business qualification. Existing content restrictions, account permissions, immutable approvals, sending safeguards and the public Guteneo plugin identity are preserved. Provider readiness, signed authentication evidence, deployment and per-host qualification remain separate gates; this source candidate does not assert directory publication or a production delivery.",
         "translations": {
           "fr-FR": {
             "subtitle": "PDF, devis et suivi des envois",
