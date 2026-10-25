@@ -372,11 +372,11 @@ final class GuteneoUITests: XCTestCase {
         ], timeout: 5), .completed, "Language option is not interactive: \(language)", file: file, line: line)
         option.tap()
 
-        // Locale changes recompose the picker and native menu. CI's rendered
-        // selection was correct while its accessibility query was rebuilding;
-        // the same journey has taken 17 seconds to settle on the hosted runner.
+        // Locale changes recompose the picker and native menu. Observe its
+        // value and menu closure here; hit-testing belongs before a gesture.
+        // UIKit may temporarily lack an activation point for the rebuilt picker.
         let settled = NSPredicate { _, _ in
-            picker.exists && picker.label.contains(language) && picker.isHittable && picker.isEnabled && !option.exists
+            picker.exists && picker.label.contains(language) && picker.isEnabled && !option.exists
         }
         let result = XCTWaiter.wait(for: [
             XCTNSPredicateExpectation(predicate: settled, object: nil)
