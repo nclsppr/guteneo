@@ -45,9 +45,9 @@ Read postal setup/requirements → collect missing sender/recipient/options → 
 
 **Actor:** Preparer → current approver · **Branch:** Deliver
 
-Collect recipient, requested message and ceiling → choose no file, ready PDF attachment or protected link → for protected links, append localized instructions from the sender account language (French fallback) before fingerprinting → obtain the quote → review final content/options → record recipient-request attestation and browser/existing delegated approval → confirm → track.
+Collect recipient, requested message and ceiling → choose no file, ready PDF attachment or protected link → optionally use trusted workspace subject/body defaults for an accessible ready PDF and choose branded or custom HTML → for protected links, resolve a safe custom button marker and append localized access instructions before fingerprinting → obtain the quote → review final content/options → record recipient-request attestation and browser/existing delegated approval → confirm → track.
 
-**Failure and recovery:** Never infer recipient consent. Protected passwords stay in the sender browser and are shared separately. Provider acceptance/delivery/PDF reading are different facts; unknown outcomes require reconciliation. Later profile changes do not rewrite frozen content or resend existing mail.
+**Failure and recovery:** Never infer recipient consent. Protected passwords stay in the sender browser and are shared separately. Provider acceptance/delivery/PDF reading are different facts; unknown outcomes require reconciliation. Later workspace/profile changes do not rewrite frozen content or resend existing mail. Missing/invalid documents do not permit defaults; malformed or wrong-mode button markers require corrected preparation.
 
 ## J06: Create a reusable template
 

@@ -1,7 +1,7 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
 # Guteneo feature tree and developer atlas
 
-**23 domains · 301 features · 34 journeys · 76 documented REST operations · 74 MCP tools**
+**23 domains · 304 features · 34 journeys · 76 documented REST operations · 74 MCP tools**
 Updated 2026-10-25.
 
 Repository implementation inventory. Availability depends on current capabilities and authority; implementation, activation and deployed proof are distinct.
@@ -24,7 +24,7 @@ mindmap
     Deliver
       Fax (6)
       Postal mail (8)
-      Email and protected links (9)
+      Email and protected links (12)
       Sensitive distribution and personal documents (25)
       Dispatch dry run (7)
     Operate
@@ -60,7 +60,7 @@ mindmap
 
 - [Fax](#fax) — 6 features; capability-gated.
 - [Postal mail](#postal) — 8 features; capability-gated.
-- [Email and protected links](#email) — 9 features; capability-gated.
+- [Email and protected links](#email) — 12 features; capability-gated.
 - [Sensitive distribution and personal documents](#secure-distribution) — 25 features; capability-gated.
 - [Dispatch dry run](#dry-run) — 7 features; read-only.
 
@@ -93,7 +93,7 @@ An availability label describes the access/gating model, never an assertion of l
 
 ## Roles and permissions
 
-Four human workshop roles are defined by packages/contracts/src/roles.ts. The assistant column describes a connected OAuth actor, never a fifth membership role. Effective membership, independent supervisor permissions, consented scopes and any bounded expert mandate are rechecked by the server. Installing a package or renewing tokens grants no additional authority. Browser-only account/platform controls remain distinct. Assistant content-exclusion instructions are workflow restrictions, not automatic classification or new server guards. Personal account authority is separate from workspace membership. Sensitive approval and recipient association always require the browser under the active document policy; an expert mandate cannot replace them.
+Four human workshop roles are defined by packages/contracts/src/roles.ts. The assistant column describes a connected OAuth actor, never a fifth membership role. Effective membership, independent supervisor permissions, consented scopes and any bounded expert mandate are rechecked by the server. Installing a package or renewing tokens grants no additional authority. Browser-only account/platform controls remain distinct. Assistant content-exclusion instructions are workflow restrictions, not automatic classification or new server guards. Personal account authority is separate from workspace membership. Template/default email copy and link placeholders grant no approval or recipient consent. Sensitive approval and recipient association always require the browser under the active document policy; an expert mandate cannot replace them.
 
 | Capability | Administrator | Supervisor | Operator | Observer | Connected assistant |
 | --- | --- | --- | --- | --- | --- |
@@ -491,13 +491,16 @@ Supervisor approval/reporting options are independent and off by default. Resour
 
 **Availability model:** capability-gated. Implemented email candidate; dated operator qualification is separate from deployment, global D1 quota policy, signed webhooks and actual delivery.
 
-**Surfaces:** Web, REST, MCP and native preparation/tracking; protected password is browser-only.
+**Surfaces:** Web, REST, MCP and mobile API preparation/tracking; current Swift composer offers message-only email, not document/template controls; protected password is browser-only.
 
 - Text/HTML email without a file, with a PDF attachment or with a protected link
 - Recipient-request attestation and transactional requirements
 - Explicit quote and per-document hosting charge
 - Protected-link footer and expiration date use the authenticated sender account language (French fallback), with four-language catalog, UTC date formatting and declared Luxembourgish months independent of runtime Intl support; recipient link locale freezes before fingerprinting; no translation of entered content or rewrite of approved/sent messages
 - Private /share route and unlock/content children bypass Static Assets and public-error rendering; existing links retain hosting and access checks, with no sitemap inclusion or automatic resend
+- Accessible ready document emails can omit subject/body independently for localized authenticated-workspace defaults (body only when both text and HTML are absent; HTML otherwise derives text); message-only email still requires content and caller HTML cannot select workspace identity
+- Web individual/campaign forms omit blank document-message fields, expose a protected-button marker helper and show a shared-template draft preview without invented access URLs; exact final link/expiry stays in prepared review
+- Branded default document-email template or custom HTML with safe inline email styles; exact protected-only anchor href={{document_url}} resolves server-side without a duplicate CTA; markerless custom HTML gets a styled fallback and both retain access instructions before quote/fingerprint, with malformed/unsupported markers rejected and private URL/password summary masking retained
 - Private link, expiry and browser-only password entry
 - Download without a recipient account under access controls
 - Preparation, approval, tracking and provider policy
@@ -505,7 +508,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 
 **Contract:** [PROTECTED_EMAIL.md](PROTECTED_EMAIL.md) · **Implementation:** [apps/api/src/protected-documents.ts](../apps/api/src/protected-documents.ts)
 
-**Tests:** [tests/integration/protected-documents.test.ts](../tests/integration/protected-documents.test.ts), [tests/integration/resend-email.test.ts](../tests/integration/resend-email.test.ts), [tests/unit/delivery-messages.test.ts](../tests/unit/delivery-messages.test.ts), [tests/security/public-assets.test.mjs](../tests/security/public-assets.test.mjs)
+**Tests:** [tests/integration/protected-documents.test.ts](../tests/integration/protected-documents.test.ts), [tests/integration/resend-email.test.ts](../tests/integration/resend-email.test.ts), [tests/unit/delivery-messages.test.ts](../tests/unit/delivery-messages.test.ts), [tests/unit/email-content.test.ts](../tests/unit/email-content.test.ts), [tests/security/email-content-runtime.test.mjs](../tests/security/email-content-runtime.test.mjs), [tests/unit/mcp-email.test.ts](../tests/unit/mcp-email.test.ts), [tests/unit/live-capabilities.test.ts](../tests/unit/live-capabilities.test.ts), [tests/integration/mobile.test.ts](../tests/integration/mobile.test.ts), [tests/security/openapi.test.mjs](../tests/security/openapi.test.mjs), [tests/security/public-assets.test.mjs](../tests/security/public-assets.test.mjs), [tests/e2e/protected-email.spec.ts](../tests/e2e/protected-email.spec.ts), [tests/e2e/protected-recipient.spec.ts](../tests/e2e/protected-recipient.spec.ts), [tests/e2e/email-recipient-attestation.spec.ts](../tests/e2e/email-recipient-attestation.spec.ts)
 
 
 
@@ -1007,9 +1010,9 @@ Read postal setup/requirements → collect missing sender/recipient/options → 
 
 **Actor:** Preparer → current approver. **Branch:** Deliver.
 
-Collect recipient, requested message and ceiling → choose no file, ready PDF attachment or protected link → for protected links, append localized instructions from the sender account language (French fallback) before fingerprinting → obtain the quote → review final content/options → record recipient-request attestation and browser/existing delegated approval → confirm → track.
+Collect recipient, requested message and ceiling → choose no file, ready PDF attachment or protected link → optionally use trusted workspace subject/body defaults for an accessible ready PDF and choose branded or custom HTML → for protected links, resolve a safe custom button marker and append localized access instructions before fingerprinting → obtain the quote → review final content/options → record recipient-request attestation and browser/existing delegated approval → confirm → track.
 
-**Failure/recovery:** Never infer recipient consent. Protected passwords stay in the sender browser and are shared separately. Provider acceptance/delivery/PDF reading are different facts; unknown outcomes require reconciliation. Later profile changes do not rewrite frozen content or resend existing mail.
+**Failure/recovery:** Never infer recipient consent. Protected passwords stay in the sender browser and are shared separately. Provider acceptance/delivery/PDF reading are different facts; unknown outcomes require reconciliation. Later workspace/profile changes do not rewrite frozen content or resend existing mail. Missing/invalid documents do not permit defaults; malformed or wrong-mode button markers require corrected preparation.
 
 [Detailed contract](PROTECTED_EMAIL.md).
 

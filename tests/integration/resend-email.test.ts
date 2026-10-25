@@ -672,6 +672,341 @@ describe("Resend domain, live bridge and populated migrations — synthetic tran
     },
   );
 
+  it.each([
+    [
+      "fr",
+      "Document envoyé par Atelier Rivage",
+      "vous a envoyé un document",
+      "vous a transmis un document protégé",
+    ],
+    [
+      "en",
+      "Document from Atelier Rivage",
+      "has sent you a document",
+      "has shared a protected document",
+    ],
+    [
+      "de",
+      "Dokument von Atelier Rivage",
+      "hat Ihnen ein Dokument gesendet",
+      "hat ein geschütztes Dokument",
+    ],
+    [
+      "lb",
+      "Dokument vun Atelier Rivage",
+      "huet Iech en Dokument geschéckt",
+      "huet e geschützt Dokument",
+    ],
+  ] as const)(
+    "prepares document-only email defaults and branded HTML in %s for both delivery modes",
+    async (locale, subject, attachmentText, protectedText) => {
+      await db.batch([
+        db
+          .prepare("UPDATE organizations SET name='Atelier Rivage' WHERE id=?")
+          .bind(ctx.organizationId),
+        db
+          .prepare("UPDATE users SET preferred_locale=? WHERE id=?")
+          .bind(locale, ctx.userId),
+      ]);
+      for (const mode of ["attachment", "protected_link"] as const) {
+        const row = await domain.prepareDispatch(
+          ctx,
+          {
+            channel: "email",
+            recipient: { email: "recipient@example.invalid" },
+            documentId: id("doc"),
+            options: { emailDeliveryMode: mode },
+            ceilingMinor: 200,
+          },
+          `default_${mode}`,
+        );
+        expect(row.subject).toBe(subject);
+        expect(row.text).toContain(
+          mode === "attachment" ? attachmentText : protectedText,
+        );
+        expect(row.text).toContain("guteneo · Atelier Rivage");
+        expect(row.html).toContain('role="presentation"');
+        expect(row.html).toContain(">guteneo</p>");
+        expect(row.html).toContain("Atelier Rivage");
+        expect(row.html).toContain("background-color:#f6f5ef");
+        expect(row.html).not.toMatch(/<img|<script|<style/);
+        if (mode === "protected_link") {
+          expect(row.text).toContain(`?lang=${locale}`);
+          expect(row.html!.match(/<a /g) ?? []).toHaveLength(1);
+        } else {
+          expect(row.html).not.toContain("/share/");
+          expect(row.text).not.toContain("/share/");
+        }
+        expect((await domain.getDocument(ctx, row.document_id!)).sha256).toBe(
+          documentSha,
+        );
+      }
+    },
+  );
+
+  it("defaults subject/body independently without replacing supplied content or branding custom HTML", async () => {
+    const attachment = {
+      documentId: id("doc"),
+      options: { emailDeliveryMode: "attachment" },
+    };
+    const bodyOnly = await domain.prepareDispatch(
+      ctx,
+      email({ ...attachment, subject: " ", html: undefined }),
+      "default_subject",
+    );
+    expect(bodyOnly.subject).toBe("Document envoyé par Isolated fixture");
+    expect(bodyOnly.text).toContain("Exact approved synthetic content.");
+    expect(bodyOnly.html).toContain(">guteneo</p>");
+    const subjectOnly = await domain.prepareDispatch(
+      ctx,
+      email({ ...attachment, text: " ", html: " " }),
+      "default_body",
+    );
+    expect(subjectOnly.subject).toBe("Requested synthetic message");
+    expect(subjectOnly.text).toContain(
+      "Isolated fixture vous a envoyé un document.",
+    );
+    const custom = await domain.prepareDispatch(
+      ctx,
+      email({
+        ...attachment,
+        subject: undefined,
+        text: undefined,
+        html: '<h1 style="color:#2450db">Customer-authored body</h1>',
+      }),
+      "custom_body",
+    );
+    expect(custom.subject).toBe("Document envoyé par Isolated fixture");
+    expect(custom.text).toBe("Customer-authored body");
+    expect(custom.html).toBe(
+      '<h1 style="color:#2450db">Customer-authored body</h1>',
+    );
+  });
+
+  it.each(["attachment", "protected_link"] as const)(
+    "freezes generated %s defaults before workspace/locale changes and sends that exact snapshot",
+    async (mode) => {
+      const input: PrepareInput = {
+        channel: "email",
+        recipient: { email: "recipient@example.invalid" },
+        documentId: id("doc"),
+        options: { emailDeliveryMode: mode },
+        ceilingMinor: 200,
+      };
+      const prepared = await domain.prepareDispatch(
+        ctx,
+        input,
+        "default_snapshot",
+      );
+      await db.batch([
+        db
+          .prepare(
+            "UPDATE organizations SET name='Renamed workspace' WHERE id=?",
+          )
+          .bind(ctx.organizationId),
+        db
+          .prepare("UPDATE users SET preferred_locale='de' WHERE id=?")
+          .bind(ctx.userId),
+      ]);
+      const replay = await domain.prepareDispatch(
+        ctx,
+        input,
+        "default_snapshot",
+      );
+      expect(replay).toMatchObject({
+        id: prepared.id,
+        subject: prepared.subject,
+        html: prepared.html,
+        text: prepared.text,
+        fingerprint: prepared.fingerprint,
+      });
+      await domain.approveDispatch(ctx, prepared.id, prepared.fingerprint, {
+        recipientRequested: true,
+      });
+      await domain.confirmDispatch(
+        ctx,
+        prepared.id,
+        "default_snapshot_confirmed",
+      );
+      const fetcher = vi
+        .fn<Fetcher>()
+        .mockResolvedValue(Response.json({ id: crypto.randomUUID() }));
+      await domain.processDispatch(
+        prepared.id,
+        createLiveProviderHook(env, "email", { fetcher, now: () => clock }),
+      );
+      expect(fetcher).toHaveBeenCalledTimes(1);
+      const body = JSON.parse(String(fetcher.mock.calls[0][1]?.body));
+      expect(body).toMatchObject({
+        subject: prepared.subject,
+        html: prepared.html,
+        text: prepared.text,
+      });
+      expect(body.html).not.toContain("Renamed workspace");
+      if (mode === "attachment")
+        expect(Buffer.from(body.attachments[0].content, "base64")).toEqual(
+          Buffer.from(pdfBytes),
+        );
+      else expect(body).not.toHaveProperty("attachments");
+    },
+  );
+
+  it("places the protected URL inside the styled custom button without adding a second CTA or exposing it in MCP summaries", async () => {
+    const input = email({
+      documentId: id("doc"),
+      options: { emailDeliveryMode: "protected_link" },
+      text: undefined,
+      html: '<p>Customer-authored body</p><a href="{{document_url}}" style="display:inline-block;background-color:#2450db;color:#ffffff;padding:12px 20px;border-radius:8px">Read my document</a>',
+    });
+    const prepared = await domain.prepareDispatch(
+      ctx,
+      input,
+      "custom_document_button",
+    );
+    expect(prepared.html).not.toContain("{{document_url}}");
+    expect(prepared.html).not.toContain(">guteneo</p>");
+    expect(prepared.html).not.toContain("Consulter le document protégé</a>");
+    expect(prepared.html!.match(/<a /g) ?? []).toHaveLength(1);
+    expect(prepared.html).toContain("background-color:#2450db");
+    expect(prepared.html).toContain("Read my document</a>");
+    expect(prepared.html).toContain("Demandez le mot de passe");
+    const link = prepared.html!.match(/href="([^"]+)"/)![1];
+    expect(link).toMatch(/^https:\/\/guteneo\.invalid\/share\/[^?]+\?lang=fr$/);
+    expect(prepared.text).toContain(link);
+    expect(prepared.text).toContain("Demandez le mot de passe");
+    const disclosed = await revealProtectedDocumentPassword(
+      env,
+      ctx,
+      prepared.id,
+      stamp(),
+    );
+    expect(JSON.stringify(prepared)).not.toContain(disclosed.password);
+    const summary = JSON.stringify(dispatchSummary(prepared, env.APP_ORIGIN));
+    expect(summary).not.toContain(link);
+    expect(summary).not.toContain(new URL(link).pathname.split("/").pop());
+    expect(summary).not.toContain(disclosed.password);
+    await domain.approveDispatch(ctx, prepared.id, prepared.fingerprint, {
+      recipientRequested: true,
+    });
+    await domain.confirmDispatch(
+      ctx,
+      prepared.id,
+      "custom_document_button_confirmed",
+    );
+    const fetcher = vi
+      .fn<Fetcher>()
+      .mockResolvedValue(Response.json({ id: crypto.randomUUID() }));
+    await domain.processDispatch(
+      prepared.id,
+      createLiveProviderHook(env, "email", { fetcher, now: () => clock }),
+    );
+    expect(fetcher).toHaveBeenCalledTimes(1);
+    expect(JSON.parse(String(fetcher.mock.calls[0][1]?.body))).toMatchObject({
+      html: prepared.html,
+      text: prepared.text,
+    });
+  });
+
+  it("rejects invalid marker positions before creating hosting or prepared dispatches", async () => {
+    const prepareHosting = vi.spyOn(domain.config, "prepareProtectedDocument");
+    for (const html of [
+      '<a href="https://external.invalid/?url={{document_url}}">Open</a>',
+      "<p>{{document_url}}</p>",
+      '<a href="{{document_link}}">Open</a>',
+      '<p>Message</p><a href="{{document_url}}"><script>x</script></a>',
+    ]) {
+      await expect(
+        domain.prepareDispatch(
+          ctx,
+          email({
+            documentId: id("doc"),
+            options: { emailDeliveryMode: "protected_link" },
+            html,
+          }),
+          crypto.randomUUID(),
+        ),
+      ).rejects.toMatchObject({ code: "INVALID_DOCUMENT_URL_PLACEHOLDER" });
+    }
+    await expect(
+      domain.prepareDispatch(
+        ctx,
+        email({
+          documentId: id("doc"),
+          html: '<a href="{{document_url}}">Open</a>',
+        }),
+        "attachment_marker",
+      ),
+    ).rejects.toMatchObject({ code: "DOCUMENT_URL_NOT_AVAILABLE" });
+    expect(prepareHosting).not.toHaveBeenCalled();
+    for (const table of ["protected_document_hostings", "dispatches"])
+      expect(
+        await db
+          .prepare(`SELECT COUNT(*) n FROM ${table} WHERE organization_id=?`)
+          .bind(ctx.organizationId)
+          .first(),
+      ).toEqual({ n: 0 });
+    prepareHosting.mockRestore();
+  });
+
+  it("does not invent defaults without an accessible ready document or change unrelated literal braces", async () => {
+    await expect(
+      domain.prepareDispatch(
+        ctx,
+        email({ subject: undefined, text: undefined, html: undefined }),
+        "empty_message",
+      ),
+    ).rejects.toMatchObject({ code: "INVALID_HEADER" });
+    await expect(
+      domain.prepareDispatch(
+        ctx,
+        email({ text: undefined, html: undefined }),
+        "missing_message_body",
+      ),
+    ).rejects.toMatchObject({ code: "INVALID_EMAIL_CONTENT" });
+    await expect(
+      domain.prepareDispatch(
+        ctx,
+        email({
+          documentId: "not_accessible",
+          subject: undefined,
+          text: undefined,
+          html: undefined,
+        }),
+        "missing_document_defaults",
+      ),
+    ).rejects.toMatchObject({ code: "NOT_FOUND" });
+    const literal = await domain.prepareDispatch(
+      ctx,
+      email({
+        subject: "Literal {{amount}}",
+        text: "Text {{amount}} and }}",
+        html: undefined,
+      }),
+      "literal_braces",
+    );
+    expect(literal.subject).toBe("Literal {{amount}}");
+    expect(literal.text).toBe("Text {{amount}} and }}");
+    expect(literal.html).toBe("<p>Text {{amount}} and }}</p>");
+    await db
+      .prepare(
+        "UPDATE documents SET status='quarantined' WHERE id=? AND organization_id=?",
+      )
+      .bind(id("doc"), ctx.organizationId)
+      .run();
+    await expect(
+      domain.prepareDispatch(
+        ctx,
+        email({
+          documentId: id("doc"),
+          subject: undefined,
+          text: undefined,
+          html: undefined,
+        }),
+        "quarantined_defaults",
+      ),
+    ).rejects.toMatchObject({ code: "DOCUMENT_QUARANTINED" });
+  });
+
   it("charges one hosting fee when two separately approved messages reuse the same protected original", async () => {
     const input = email({
       documentId: id("doc"),

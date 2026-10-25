@@ -201,6 +201,9 @@ the current authenticated sender's saved account language, with French fallback;
 it does not infer a language from customer content or browser headers. The
 [protected email contract](PROTECTED_EMAIL.md) owns this precedence, link locale
 and immutable-content boundary. The recipient reader reuses the same catalog.
+Document-email subject/body defaults also use declared localized copy and the
+authenticated workspace name; only missing fields are generated. The server never
+infers identity from HTML or translates supplied message text.
 Ordinary customer-authored subject/body, document bytes and non-protected email
 remain unchanged. API messages and machine identifiers remain English.
 

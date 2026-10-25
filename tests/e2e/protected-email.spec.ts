@@ -48,7 +48,7 @@ async function fixture(
     pageSize?: [number, number];
     secondPage?: boolean;
     unavailable?: boolean;
-    preferredLocale?: "fr";
+    preferredLocale?: "fr" | "en" | "de" | "lb";
   } = {},
 ) {
   const writes: { path: string; body: Record<string, unknown> }[] = [];
@@ -327,9 +327,9 @@ async function fillMessage(page: Page) {
   await page
     .getByLabel("Adresse e-mail", { exact: true })
     .fill("recipient@example.invalid");
-  await page.getByLabel("Objet", { exact: true }).fill("Votre document");
+  await page.getByLabel(/^Objet(?: \(facultatif\))?$/).fill("Votre document");
   await page
-    .getByLabel("Message", { exact: true })
+    .getByLabel(/^Message(?: \(facultatif\))?$/)
     .fill("Bonjour <Camille>,\nVoici votre document.");
 }
 
@@ -437,7 +437,7 @@ test.describe("localized preparation controls", () => {
   }
 });
 
-test("email without attachment needs one message and escapes its automatic HTML", async ({
+test("email without attachment requires its message and leaves automatic HTML to the server", async ({
   page,
 }) => {
   const writes = await fixture(page);
@@ -448,7 +448,20 @@ test("email without attachment needs one message and escapes its automatic HTML"
   await expect(
     page.getByRole("checkbox", { name: /Envoyer un lien protégé/ }),
   ).toHaveCount(0);
+  await expect(page.getByLabel("Objet", { exact: true })).toHaveAttribute(
+    "required",
+    "",
+  );
+  await expect(page.getByLabel("Message", { exact: true })).toHaveAttribute(
+    "required",
+    "",
+  );
+  await page.getByRole("button", { name: "Vérifier et préparer" }).click();
+  expect(writes).toEqual([]);
   await fillMessage(page);
+  await expect(
+    page.frameLocator(".email-preview").locator("body"),
+  ).toContainText("Bonjour <Camille>");
   await page.getByRole("button", { name: "Vérifier et préparer" }).click();
   await expect(
     page.getByRole("heading", { name: "Le bon à envoyer." }),
@@ -456,10 +469,164 @@ test("email without attachment needs one message and escapes its automatic HTML"
   expect(writes[0]?.body).toMatchObject({
     channel: "email",
     text: "Bonjour <Camille>,\nVoici votre document.",
-    html: "<p>Bonjour &lt;Camille&gt;,<br>Voici votre document.</p>",
   });
+  expect(writes[0]?.body).not.toHaveProperty("html");
   expect(writes[0]?.body).not.toHaveProperty("documentId");
   expect(writes[0]?.body).not.toHaveProperty("options");
+});
+
+for (const protectedLink of [false, true]) {
+  test(`document email omits default content for ${protectedLink ? "protected link" : "attachment"}`, async ({
+    page,
+  }) => {
+    const writes = await fixture(page);
+    await page.goto("/?appearance=v2#/app/prepare?channel=email");
+    await page
+      .getByLabel("Pièce jointe PDF (facultative)")
+      .selectOption(sampleDocument.id);
+    if (protectedLink)
+      await page
+        .getByRole("checkbox", { name: /Envoyer un lien protégé/ })
+        .check();
+    await expect(
+      page.getByLabel("Objet (facultatif)", { exact: true }),
+    ).not.toHaveAttribute("required", "");
+    await expect(
+      page.getByLabel("Message (facultatif)", { exact: true }),
+    ).not.toHaveAttribute("required", "");
+    await page
+      .getByLabel("Adresse e-mail", { exact: true })
+      .fill("recipient@example.invalid");
+    await page.getByRole("button", { name: "Vérifier et préparer" }).click();
+    await expect(
+      page.getByRole("heading", { name: "Le bon à envoyer." }),
+    ).toBeVisible();
+    expect(writes[0]?.body.documentId).toBe(sampleDocument.id);
+    for (const key of ["subject", "text", "html"])
+      expect(writes[0]?.body).not.toHaveProperty(key);
+    if (protectedLink)
+      expect(writes[0]?.body.options).toEqual({
+        emailDeliveryMode: "protected_link",
+        protectedDays: 7,
+      });
+    else expect(writes[0]?.body).not.toHaveProperty("options");
+    await expect(
+      page.frameLocator(".email-preview").locator("body"),
+    ).toContainText("Votre document demandé.");
+    await expect(
+      page.getByRole("checkbox", { name: /J’ai vérifié le contenu/ }),
+    ).not.toBeChecked();
+  });
+}
+
+for (const locale of ["fr", "en", "de", "lb"] as const) {
+  test(`${locale} document content controls are optional and restore requirements without a PDF`, async ({
+    page,
+  }) => {
+    const writes = await fixture(page, { preferredLocale: locale });
+    await page.goto(
+      `/?appearance=v2&lang=${locale}#/app/prepare?channel=email`,
+    );
+    const attachment = page.locator(".prepare-fields > .field select").first();
+    await attachment.selectOption(sampleDocument.id);
+    const subjectLabel = {
+      fr: "Objet (facultatif)",
+      en: "Subject (optional)",
+      de: "Betreff (optional)",
+      lb: "Betreff (optional)",
+    }[locale];
+    const messageLabel = {
+      fr: "Message (facultatif)",
+      en: "Message (optional)",
+      de: "Nachricht (optional)",
+      lb: "Message (optional)",
+    }[locale];
+    await expect(page.getByLabel(subjectLabel, { exact: true })).toBeVisible();
+    await expect(
+      page.getByLabel(messageLabel, { exact: true }),
+    ).not.toHaveAttribute("required", "");
+    await page.locator(".email-advanced summary").click();
+    await expect(page.locator(".email-document-link")).toHaveCount(0);
+    await page
+      .locator(".protected-document-choice input[type=checkbox]")
+      .check();
+    await expect(page.locator(".email-document-link")).toContainText(
+      "{{document_url}}",
+    );
+    await attachment.selectOption("");
+    await expect(page.locator(".email-document-link")).toHaveCount(0);
+    await expect(
+      page.locator(".prepare-fields input[maxlength='200']"),
+    ).toHaveAttribute("required", "");
+    await expect(
+      page.locator(".prepare-fields textarea:not(.code-input)"),
+    ).toHaveAttribute("required", "");
+    expect(writes).toEqual([]);
+  });
+}
+
+test.describe("unsaved account language", () => {
+  test.use({ locale: "en-GB" });
+  test("document draft copy follows the server French fallback when account language is unset", async ({
+    page,
+  }) => {
+    await fixture(page);
+    await page.goto("/?appearance=v2&lang=en#/app/prepare?channel=email");
+    await expect(page.locator("html")).toHaveAttribute("lang", "en");
+    await page
+      .locator(".prepare-fields > .field select")
+      .first()
+      .selectOption(sampleDocument.id);
+    await expect(
+      page.getByLabel("Subject (optional)", { exact: true }),
+    ).toBeVisible();
+    await expect(
+      page.frameLocator(".email-preview").locator("body"),
+    ).toContainText("Atelier de contrôle vous a envoyé un document.");
+  });
+});
+
+test("protected custom HTML inserts an editable styled button and preserves its submitted markup", async ({
+  page,
+}) => {
+  const writes = await fixture(page);
+  await page.goto("/?appearance=v2#/app/prepare?channel=email");
+  await page
+    .getByLabel("Pièce jointe PDF (facultative)")
+    .selectOption(sampleDocument.id);
+  await page.getByRole("checkbox", { name: /Envoyer un lien protégé/ }).check();
+  await page.locator(".email-advanced summary").click();
+  await page
+    .getByLabel("Version HTML", { exact: true })
+    .fill('<h2 style="color: #2450db;">Votre document</h2>');
+  await page
+    .getByRole("button", { name: "Insérer un bouton vers le document" })
+    .click();
+  const html = await page
+    .getByLabel("Version HTML", { exact: true })
+    .inputValue();
+  expect(html).toContain('href="{{document_url}}"');
+  expect(html).toContain("background-color: #2450db");
+  expect(html).toContain('<h2 style="color: #2450db;">Votre document</h2>');
+  await expect(
+    page
+      .frameLocator(".email-preview")
+      .getByRole("link", { name: "Consulter le document" }),
+  ).toHaveAttribute("href", "#");
+  await expect(page.getByLabel("Version HTML", { exact: true })).toBeFocused();
+  await expect(
+    page.getByRole("button", { name: "Insérer un bouton vers le document" }),
+  ).toBeDisabled();
+  await page
+    .getByLabel("Adresse e-mail", { exact: true })
+    .fill("recipient@example.invalid");
+  await page.getByRole("button", { name: "Vérifier et préparer" }).click();
+  await expect(
+    page.getByRole("heading", { name: "Le bon à envoyer." }),
+  ).toBeVisible();
+  expect(writes[0]?.body.html).toBe(html);
+  expect(writes[0]?.body).not.toHaveProperty("subject");
+  expect(writes[0]?.body).not.toHaveProperty("text");
 });
 
 test("PDF protection is optional, priced before preparation and binds its selected duration", async ({

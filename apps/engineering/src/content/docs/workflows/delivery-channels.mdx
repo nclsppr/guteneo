@@ -52,19 +52,44 @@ bounded access, with password retrieval restricted to an authorized browser
 operation; neither an assistant nor a log should receive the password. Its hosting charge follows the existing atomic
 billing rules rather than an unrelated client calculation.
 
+An accessible ready PDF permits independent defaults for an omitted/blank subject
+and body. Body defaults require both text and custom HTML to be absent; otherwise
+missing plain text is derived from the supplied HTML. The domain reads the workspace name through authenticated membership and
+uses the sender's saved language; a client cannot invent that identity. Message-only
+email still needs a subject and message and keeps its existing presentation.
+Document emails without custom HTML use the branded template for supplied/default text.
+
+Custom email HTML has a separate safe-inline-style sanitizer for typography,
+colors, spacing, borders and table layout. Scripts, remote resources and unsafe
+CSS are excluded; PDF sanitization is unchanged. A custom protected-link button
+uses the exact anchor `href="{{document_url}}"`. The domain substitutes its own
+private URL before fingerprinting and retains password/expiry instructions plus
+the plain-text URL. A valid marker suppresses the duplicate button; markerless
+protected custom HTML gets the styled fallback button. Access instructions remain
+in both cases. Embedded/malformed markers and use in another delivery mode
+are explicit errors, not a request to invent a token or bypass hosting.
+
+Web, REST, the mobile API and MCP use this same preparation; capability hints and plugin
+instructions describe it without enabling transport. Standard MCP summary reads
+keep private access material masked; authorized expert review still reads the exact
+final message. Native composer template controls are not implemented by the API
+contract. New content requires new preparation and
+review under the existing role and consent policy; template editing never grants
+approval or authorizes a send.
+
 The protected-link footer uses the authenticated sender's saved language, with
 French fallback, from the shared delivery-message catalog. Its button, password
 instructions, formatted expiration and recipient `?lang=` are fixed before the
 approval fingerprint. Customer-authored subject/body and PDF bytes remain exact;
 a later profile change or idempotent replay never translates an existing dispatch.
-Web, native, REST and MCP preparation share this boundary. Expiration dates use
+Web, the mobile API, REST and MCP preparation share this boundary. Expiration dates use
 UTC. The Luxembourgish formatter uses declared CLDR month names instead of
 relying on runtime Intl support, which can silently fall back to English; test
 that path in workerd as well as the Node-based unit suite.
 
 ```mermaid
 flowchart LR
-  Account["Current membership and saved locale"] --> Prepare["Final protected-link message"]
+  Account["Current membership and saved locale"] --> Prepare["Defaults, branded/custom HTML and resolved link"]
   Prepare --> Review["Fingerprint, quote and approval"]
   Review --> Provider["Exact approved provider request"]
   Provider --> Link["Recipient /share URL"]

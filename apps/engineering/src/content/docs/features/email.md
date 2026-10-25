@@ -1,6 +1,6 @@
 ---
 title: "Email and protected links"
-description: "9 capabilities in the deliver branch of Guteneo."
+description: "12 capabilities in the deliver branch of Guteneo."
 sidebar:
   order: 9
 ---
@@ -11,7 +11,7 @@ sidebar:
 
 Implemented email candidate; dated operator qualification is separate from deployment, global D1 quota policy, signed webhooks and actual delivery.
 
-**Surfaces:** Web, REST, MCP and native preparation/tracking; protected password is browser-only.
+**Surfaces:** Web, REST, MCP and mobile API preparation/tracking; current Swift composer offers message-only email, not document/template controls; protected password is browser-only.
 
 [Read the engineering guide](/workflows/delivery-channels/) · [All features](/features/)
 
@@ -23,6 +23,9 @@ Implemented email candidate; dated operator qualification is separate from deplo
 <li id="feature-4184f692aa5c">Explicit quote and per-document hosting charge</li>
 <li id="feature-394a796c5588">Protected-link footer and expiration date use the authenticated sender account language (French fallback), with four-language catalog, UTC date formatting and declared Luxembourgish months independent of runtime Intl support; recipient link locale freezes before fingerprinting; no translation of entered content or rewrite of approved/sent messages</li>
 <li id="feature-5379244d1629">Private /share route and unlock/content children bypass Static Assets and public-error rendering; existing links retain hosting and access checks, with no sitemap inclusion or automatic resend</li>
+<li id="feature-7da992808c43">Accessible ready document emails can omit subject/body independently for localized authenticated-workspace defaults (body only when both text and HTML are absent; HTML otherwise derives text); message-only email still requires content and caller HTML cannot select workspace identity</li>
+<li id="feature-434127353bda">Web individual/campaign forms omit blank document-message fields, expose a protected-button marker helper and show a shared-template draft preview without invented access URLs; exact final link/expiry stays in prepared review</li>
+<li id="feature-04c5a4e44e01">Branded default document-email template or custom HTML with safe inline email styles; exact protected-only anchor href={{document_url}} resolves server-side without a duplicate CTA; markerless custom HTML gets a styled fallback and both retain access instructions before quote/fingerprint, with malformed/unsupported markers rejected and private URL/password summary masking retained</li>
 <li id="feature-4c66fb41a3ae">Private link, expiry and browser-only password entry</li>
 <li id="feature-0300dfeb9845">Download without a recipient account under access controls</li>
 <li id="feature-55e615792e90">Preparation, approval, tracking and provider policy</li>

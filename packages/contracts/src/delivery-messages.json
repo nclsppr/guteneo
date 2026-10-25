@@ -1,4 +1,20 @@
 {
+  "Votre atelier": ["Your workspace", "Ihr Arbeitsbereich", "Ären Atelier"],
+  "Document envoyé par {0}": [
+    "Document from {0}",
+    "Dokument von {0}",
+    "Dokument vun {0}"
+  ],
+  "{0} vous a transmis un document protégé.": [
+    "{0} has shared a protected document with you.",
+    "{0} hat ein geschütztes Dokument mit Ihnen geteilt.",
+    "{0} huet e geschützt Dokument mat Iech gedeelt."
+  ],
+  "{0} vous a envoyé un document. Vous le trouverez en pièce jointe à cet e-mail.": [
+    "{0} has sent you a document. You will find it attached to this email.",
+    "{0} hat Ihnen ein Dokument gesendet. Sie finden es im Anhang dieser E-Mail.",
+    "{0} huet Iech en Dokument geschéckt. Dir fannt et am Unhang vun dëser E-Mail."
+  ],
   "janvier": ["January", "Januar", "Januar"],
   "février": ["February", "Februar", "Februar"],
   "mars": ["March", "März", "Mäerz"],

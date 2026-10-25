@@ -2,7 +2,7 @@
   "title": "Guteneo feature tree and developer atlas",
   "updated": "2026-10-25",
   "scope": "Repository implementation inventory. Availability depends on current capabilities and authority; implementation, activation and deployed proof are distinct.",
-  "roleNote": "Four human workshop roles are defined by packages/contracts/src/roles.ts. The assistant column describes a connected OAuth actor, never a fifth membership role. Effective membership, independent supervisor permissions, consented scopes and any bounded expert mandate are rechecked by the server. Installing a package or renewing tokens grants no additional authority. Browser-only account/platform controls remain distinct. Assistant content-exclusion instructions are workflow restrictions, not automatic classification or new server guards. Personal account authority is separate from workspace membership. Sensitive approval and recipient association always require the browser under the active document policy; an expert mandate cannot replace them.",
+  "roleNote": "Four human workshop roles are defined by packages/contracts/src/roles.ts. The assistant column describes a connected OAuth actor, never a fifth membership role. Effective membership, independent supervisor permissions, consented scopes and any bounded expert mandate are rechecked by the server. Installing a package or renewing tokens grants no additional authority. Browser-only account/platform controls remain distinct. Assistant content-exclusion instructions are workflow restrictions, not automatic classification or new server guards. Personal account authority is separate from workspace membership. Template/default email copy and link placeholders grant no approval or recipient consent. Sensitive approval and recipient association always require the browser under the active document policy; an expert mandate cannot replace them.",
   "groups": [
     {
       "title": "Access and identity",
@@ -402,6 +402,9 @@
         "Explicit quote and per-document hosting charge",
         "Protected-link footer and expiration date use the authenticated sender account language (French fallback), with four-language catalog, UTC date formatting and declared Luxembourgish months independent of runtime Intl support; recipient link locale freezes before fingerprinting; no translation of entered content or rewrite of approved/sent messages",
         "Private /share route and unlock/content children bypass Static Assets and public-error rendering; existing links retain hosting and access checks, with no sitemap inclusion or automatic resend",
+        "Accessible ready document emails can omit subject/body independently for localized authenticated-workspace defaults (body only when both text and HTML are absent; HTML otherwise derives text); message-only email still requires content and caller HTML cannot select workspace identity",
+        "Web individual/campaign forms omit blank document-message fields, expose a protected-button marker helper and show a shared-template draft preview without invented access URLs; exact final link/expiry stays in prepared review",
+        "Branded default document-email template or custom HTML with safe inline email styles; exact protected-only anchor href={{document_url}} resolves server-side without a duplicate CTA; markerless custom HTML gets a styled fallback and both retain access instructions before quote/fingerprint, with malformed/unsupported markers rejected and private URL/password summary masking retained",
         "Private link, expiry and browser-only password entry",
         "Download without a recipient account under access controls",
         "Preparation, approval, tracking and provider policy",
@@ -412,9 +415,18 @@
         "tests/integration/protected-documents.test.ts",
         "tests/integration/resend-email.test.ts",
         "tests/unit/delivery-messages.test.ts",
-        "tests/security/public-assets.test.mjs"
+        "tests/unit/email-content.test.ts",
+        "tests/security/email-content-runtime.test.mjs",
+        "tests/unit/mcp-email.test.ts",
+        "tests/unit/live-capabilities.test.ts",
+        "tests/integration/mobile.test.ts",
+        "tests/security/openapi.test.mjs",
+        "tests/security/public-assets.test.mjs",
+        "tests/e2e/protected-email.spec.ts",
+        "tests/e2e/protected-recipient.spec.ts",
+        "tests/e2e/email-recipient-attestation.spec.ts"
       ],
-      "surfaces": "Web, REST, MCP and native preparation/tracking; protected password is browser-only.",
+      "surfaces": "Web, REST, MCP and mobile API preparation/tracking; current Swift composer offers message-only email, not document/template controls; protected password is browser-only.",
       "id": "email",
       "category": "Deliver",
       "availability": "capability-gated",
@@ -1024,10 +1036,10 @@
       "id": "J05",
       "title": "Prepare an email",
       "actor": "Preparer → current approver",
-      "steps": "Collect recipient, requested message and ceiling → choose no file, ready PDF attachment or protected link → for protected links, append localized instructions from the sender account language (French fallback) before fingerprinting → obtain the quote → review final content/options → record recipient-request attestation and browser/existing delegated approval → confirm → track.",
+      "steps": "Collect recipient, requested message and ceiling → choose no file, ready PDF attachment or protected link → optionally use trusted workspace subject/body defaults for an accessible ready PDF and choose branded or custom HTML → for protected links, resolve a safe custom button marker and append localized access instructions before fingerprinting → obtain the quote → review final content/options → record recipient-request attestation and browser/existing delegated approval → confirm → track.",
       "branch": "Deliver",
       "doc": "PROTECTED_EMAIL.md",
-      "failure": "Never infer recipient consent. Protected passwords stay in the sender browser and are shared separately. Provider acceptance/delivery/PDF reading are different facts; unknown outcomes require reconciliation. Later profile changes do not rewrite frozen content or resend existing mail."
+      "failure": "Never infer recipient consent. Protected passwords stay in the sender browser and are shared separately. Provider acceptance/delivery/PDF reading are different facts; unknown outcomes require reconciliation. Later workspace/profile changes do not rewrite frozen content or resend existing mail. Missing/invalid documents do not permit defaults; malformed or wrong-mode button markers require corrected preparation."
     },
     {
       "id": "J06",

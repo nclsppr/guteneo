@@ -197,6 +197,13 @@ message after a profile edit. See the
 This exception does not translate API messages, machine identifiers or engineering
 prose.
 
+Default document-email copy names the authenticated workspace only when the
+author has omitted the corresponding subject/body. The branded template and custom
+HTML preview represent final sanitized email content, separately from application
+panel geometry. Custom buttons may use safe inline email CSS and the protected
+link marker documented in the delivery guide; previewing them grants no approval
+and must not expose a private token or password in assistant summaries.
+
 For web copy, call `msg("English source", ...values)` during render or reuse a
 common `t` entry. Register complete translations in the established locale
 catalogs. Their existing storage format uses a French lookup with an
