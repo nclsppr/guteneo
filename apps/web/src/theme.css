@@ -168,6 +168,46 @@ dialog::backdrop {
   background: #080c16a3;
 }
 
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 44px;
+  min-height: 44px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius, 3px);
+  color: var(--ink);
+  background: transparent;
+  cursor: pointer;
+}
+.theme-toggle:hover {
+  background: var(--blue-tint);
+  border-color: var(--blue-line);
+}
+.theme-toggle:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+}
+.theme-toggle [data-theme-icon="light"] {
+  display: none;
+}
+:root[data-theme="dark"] .theme-toggle [data-theme-icon="dark"] {
+  display: none;
+}
+:root[data-theme="dark"] .theme-toggle [data-theme-icon="light"] {
+  display: block;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) .theme-toggle [data-theme-icon="dark"] {
+    display: none;
+  }
+  :root:not([data-theme]) .theme-toggle [data-theme-icon="light"] {
+    display: block;
+  }
+}
+
 .theme-control {
   display: grid;
   gap: 6px;

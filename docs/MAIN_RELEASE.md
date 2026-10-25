@@ -108,10 +108,40 @@ results separately; see [TELNYX_READINESS.md](TELNYX_READINESS.md) and
 ## CI boundaries
 
 `Guteneo checks` runs for every PR and `main` push without path filters. It retains
-`scanner`, `checks`, four Vitest shards, `security`, `build`, three browsers and
-aggregate `verify`. `/api/mobile/v1`, shared contracts, migrations and npm
+`scanner`, `checks`, four Vitest shards, `security`, `build`, three browser
+profiles with three independent shards each, and aggregate `verify`. `/api/mobile/v1`, shared contracts, migrations and npm
 dependencies use the full suite. Required `verify`/`scanner` and branch policy are
 unchanged.
+
+### Parallel browser execution — 25 October 2026 follow-up
+
+The browser matrix runs nine independent jobs: three shards for each of desktop
+Chromium, mobile Chromium and iPhone WebKit. Each runner retains one test worker,
+its own local D1/R2 state and local server ports. The application and applicable
+public-preview suite use the same complete three-part partition. Belvédère runs
+once per supported desktop/iPhone profile on shard one; status runs once on the
+desktop first shard. Existing browser configurations, assertions, sandboxing,
+WebKit media pipeline and independent distribution profiles remain required.
+
+Every project/shard writes uniquely named reports and artifacts. Aggregate
+verification independently lists the unsharded browser inventory and accounts for
+the complete union of reported test IDs: missing/duplicate/unexpected entries or
+absent reports fail the gate. Intentional existing skip semantics remain distinct
+from a missing test or a skipped required job. The workflow still checks every PR
+and merged main revision, with no path-based coverage reduction, automatic retry
+or production deployment. The complete current application workflow has 22 jobs;
+required `verify` and `scanner` protections remain unchanged.
+
+Baseline main run [40226465628](https://github.com/nclsppr/guteneo/actions/runs/40226465628)
+completed all 16 previous jobs in about 25 minutes 49 seconds. Its iPhone browser
+job spent 3 minutes 15 seconds in setup, then ran application tests for 11 minutes
+48 seconds, preview tests for 7 minutes 12 seconds and Belvédère for 53 seconds
+sequentially. This identifies the browser critical path; dependency installation
+was not its main cost in that observed run. More parallel jobs trade repeated
+setup/runner minutes for shorter wall time. File balance, runner availability and
+network setup still affect actual results. Local guard/partition tests establish
+no hosted speedup; compare the next complete exact-source PR and main runs before
+claiming an improvement.
 
 `Guteneo iOS` runs XCTest/archive for PRs or `main` pushes changing `ios/**` or
 `.github/workflows/ios.yml`. Swift, tests, translations, assets, Xcode project and
@@ -138,7 +168,11 @@ can bypass it. Fetch and Cloudflare submission are not atomic: do not change the
 checkout or advance `main` while publishing. It checks Git sources/local artifacts,
 not the entire build environment, and replaces neither CI nor remote proof.
 
-Focused tests: `node --test tests/security/main-only-release.test.mjs`. Real
+Focused CI completeness tests: `node --test tests/security/ci-results.test.mjs
+tests/security/ci-browser-results.test.mjs`. These use local synthetic reports and
+independent inventory comparisons, not GitHub or production mutations.
+
+Focused release tests: `node --test tests/security/main-only-release.test.mjs`. Real
 temporary Git repositories and a local bare remote exercise wrong branches,
 dirty sources, stale refs, fetch failure, changes during build, manifest/asset
 mismatch and absence of deployment after refusal. Build/deploy are intercepted;

@@ -499,6 +499,43 @@ describe("isolated Belvedere custom host", () => {
       "frame-src 'none'",
     );
     expect(assetRequests.at(-1)!.headers.has("Cookie")).toBe(false);
+    const portraitEnv = {
+      ...env,
+      ASSETS: {
+        fetch: async (input: Request) => {
+          assetRequests.push(input);
+          return new Response(new Uint8Array([82, 73, 70, 70]), {
+            headers: { "Content-Type": "image/webp" },
+          });
+        },
+      },
+    } as unknown as Env;
+    for (const path of [
+      "/brand/guteneo-portrait-128.webp",
+      "/brand/guteneo-portrait-192.webp",
+    ]) {
+      const image = (await handleBelvedereHost(
+        privateRead(path),
+        portraitEnv,
+      ))!;
+      expect(image.status).toBe(200);
+      expect(image.headers.get("Content-Type")).toBe("image/webp");
+      expect(image.headers.get("Cache-Control")).toContain("no-store");
+      expect(assetRequests.at(-1)!.headers.has("Cookie")).toBe(false);
+      expect(assetRequests.at(-1)!.headers.has("Authorization")).toBe(false);
+    }
+    for (const path of [
+      "/brand/guteneo-portrait-128.webp?token=private",
+      "/brand/guteneo-portrait-512.webp",
+      "/brand/guteneo-portrait-192.webp/other",
+      "/brand/unrelated.webp",
+    ]) {
+      const count = assetRequests.length;
+      expect(
+        (await handleBelvedereHost(privateRead(path), portraitEnv))?.status,
+      ).toBe(404);
+      expect(assetRequests).toHaveLength(count);
+    }
     for (const path of [
       "/theme-init.js?token=private",
       "/theme-other.js",

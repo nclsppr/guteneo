@@ -1,6 +1,7 @@
 .bv-globe-panel {
   background: var(--bv-surface, var(--surface));
   border: 1px solid var(--bv-line, var(--line));
+  border-radius: 12px;
   margin-bottom: 24px;
   overflow: hidden;
 }
@@ -9,32 +10,32 @@
   justify-content: space-between;
   align-items: center;
   gap: 24px;
-  padding: 26px 28px 0;
+  padding: 24px 24px 0;
 }
 .bv-globe-header h2 {
-  font:
-    400 30px/1.1 "EB Garamond",
-    serif;
-  letter-spacing: -0.025em;
+  font: 500 18px/1.4 var(--font-body);
+  letter-spacing: -0.01em;
+  color: var(--ink);
 }
 .bv-globe-header p {
   margin-top: 8px;
   color: var(--bv-muted, var(--muted));
-  font-size: 13px;
+  font-size: 12px;
 }
 .bv-globe-switch {
   display: flex;
   flex-shrink: 0;
   background: var(--surface-alt);
   padding: 3px;
-  border-radius: 5px;
+  border-radius: var(--radius);
 }
 .bv-globe-switch button {
   border: 0;
   padding: 8px 14px;
+  min-height: 44px;
   color: var(--muted);
   background: transparent;
-  border-radius: 3px;
+  border-radius: var(--radius);
   cursor: pointer;
   font-size: 12px;
 }
@@ -48,7 +49,7 @@
   grid-template-columns: minmax(0, 1.38fr) minmax(290px, 1fr);
   align-items: stretch;
   gap: 18px;
-  padding: 8px 28px 18px;
+  padding: 8px 24px 24px;
 }
 .bv-globe-stage {
   min-width: 0;
@@ -78,7 +79,7 @@
   z-index: 1;
   color: var(--muted);
   font:
-    400 10px/1.7 "IBM Plex Mono",
+    400 11px/1.7 "IBM Plex Mono",
     monospace;
   letter-spacing: 0.03em;
   display: flex;
@@ -87,17 +88,18 @@
 }
 .bv-globe-toolbar {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  min-height: 36px;
+  min-height: 44px;
 }
 .bv-globe-toolbar p {
   display: flex;
   align-items: center;
   gap: 7px;
   color: var(--muted);
-  font-size: 11px;
+  font-size: 12px;
 }
 .bv-globe-toolbar p span {
   color: var(--muted);
@@ -105,16 +107,17 @@
 .bv-globe-toolbar > div {
   display: flex;
   gap: 4px;
+  margin-inline-start: auto;
 }
 .bv-globe-toolbar button {
   display: grid;
   place-items: center;
-  width: 31px;
-  height: 31px;
+  width: 44px;
+  height: 44px;
   border: 1px solid var(--line);
   color: var(--muted);
   background: var(--surface);
-  border-radius: 3px;
+  border-radius: var(--radius);
   cursor: pointer;
 }
 .bv-globe-toolbar button:hover {
@@ -136,14 +139,12 @@
   border-bottom: 1px solid var(--line);
 }
 .bv-globe-summary > strong {
-  font:
-    400 37px/1 "EB Garamond",
-    serif;
+  font: 400 32px/1.2 var(--font-body);
   letter-spacing: -0.025em;
-  color: var(--ink);
+  color: var(--heading-ink);
 }
 .bv-globe-summary > span {
-  font-size: 11px;
+  font-size: 12px;
   line-height: 1.65;
   color: var(--muted);
 }
@@ -177,7 +178,7 @@
   text-align: left;
   color: inherit;
   min-height: 48px;
-  border-radius: 3px;
+  border-radius: var(--radius);
 }
 .bv-globe-ranking button {
   cursor: pointer;
@@ -196,14 +197,14 @@
   width: 25px;
   flex-shrink: 0;
   font:
-    400 10px/1.2 "IBM Plex Mono",
+    400 11px/1.2 "IBM Plex Mono",
     monospace;
   color: var(--muted);
 }
 .bv-globe-country-name {
   min-width: 0;
   flex: 1;
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.4;
 }
 .bv-globe-country-bar {
@@ -217,19 +218,19 @@
 .bv-globe-country-bar i {
   display: block;
   height: 100%;
-  background: #839ad7;
+  background: var(--blue);
 }
 .bv-globe-ranking button[aria-pressed="true"] .bv-globe-country-bar i {
-  background: #2450db;
+  background: var(--blue);
 }
 .bv-globe-country-value {
-  font-size: 12px;
+  font-size: 13px;
   text-align: right;
   flex-shrink: 0;
 }
 .bv-globe-country-value small {
   display: block;
-  font-size: 10px;
+  font-size: 12px;
   color: var(--muted);
   margin-top: 3px;
 }
@@ -246,7 +247,7 @@
 }
 .bv-globe-selection p {
   color: var(--muted);
-  font-size: 11px;
+  font-size: 12px;
   margin-top: 3px;
 }
 .bv-globe-selection button {
@@ -255,9 +256,10 @@
   gap: 8px;
   border: 0;
   background: transparent;
-  color: #2450db;
+  color: var(--blue-ink);
+  min-height: 44px;
   padding: 8px 0 0;
-  font-size: 12px;
+  font-size: 13px;
   cursor: pointer;
 }
 .bv-globe-footer {
@@ -265,9 +267,9 @@
   justify-content: space-between;
   gap: 20px;
   border-top: 1px solid var(--line);
-  padding: 13px 28px;
+  padding: 16px 24px;
   color: var(--muted);
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.6;
   background: var(--surface);
 }
@@ -282,7 +284,7 @@
   height: 5px;
   border-radius: 50%;
   display: inline-block;
-  background: #2450db;
+  background: var(--blue);
 }
 .bv-globe-footer > span:last-child {
   text-align: right;
@@ -355,9 +357,6 @@
     flex-direction: column;
     gap: 16px;
     padding: 22px 20px 0;
-  }
-  .bv-globe-header h2 {
-    font-size: 29px;
   }
   .bv-globe-header p span {
     display: none;

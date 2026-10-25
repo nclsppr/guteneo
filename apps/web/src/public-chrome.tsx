@@ -4,8 +4,6 @@ import {
   ArrowUpRight,
   CaretDown,
   List,
-  Moon,
-  Sun,
   X,
 } from "@phosphor-icons/react";
 import { isPublicPreview } from "./api";
@@ -14,7 +12,7 @@ import { Brand } from "./brand";
 import { LanguageMenu } from "./language-select";
 import { t, useLocale } from "./locale";
 import { msg } from "./messages";
-import { useResolvedTheme } from "./theme";
+import { ThemeToggle } from "./theme-toggle";
 import publicFooter from "../../../packages/contracts/src/public-footer.json";
 import { publicSiteLabel } from "./public-site-metadata";
 import { useDarkImageMedia } from "./theme-media";
@@ -57,10 +55,6 @@ export function PublicHeader({
   const menuButton = useRef<HTMLButtonElement>(null);
   const menuId = useId();
   const resources = useRef<HTMLDetailsElement>(null);
-  const theme = useResolvedTheme();
-  const lightAction = msg("Switch to light mode");
-  const darkAction = msg("Switch to dark mode");
-  const themeAction = theme === "dark" ? lightAction : darkAction;
   const entryLabel = isPublicPreview
     ? msg("Explore the demo")
     : t.login.managed;
@@ -182,18 +176,7 @@ export function PublicHeader({
         </details>
       </nav>
       <div className="public-header-actions">
-        <button
-          className="public-theme-toggle"
-          type="button"
-          data-theme-toggle="true"
-          data-theme-label-light={lightAction}
-          data-theme-label-dark={darkAction}
-          aria-label={themeAction}
-          title={themeAction}
-        >
-          <Sun size={21} data-theme-icon="light" aria-hidden="true" />
-          <Moon size={21} data-theme-icon="dark" aria-hidden="true" />
-        </button>
+        <ThemeToggle />
         <LanguageMenu onOpen={() => setMenuOpen(false)} />
         {showWorkspaceLink && (
           <a

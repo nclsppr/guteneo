@@ -1,6 +1,7 @@
 import { readdir, readFile, writeFile } from "node:fs/promises";
 import { resolve, relative, sep } from "node:path";
 import { pathToFileURL } from "node:url";
+import { verifyBrowserEvidence } from "./browser-results.mjs";
 
 const requiredJobs = [
   "pdf-validator",
@@ -89,12 +90,16 @@ async function main() {
   const expected = await discoverTests(root);
   const report = JSON.parse(await readFile("reports/vitest.json", "utf8"));
   const proof = requireTestResults(report, expected, root);
+  const browser = await verifyBrowserEvidence(
+    root,
+    resolve(root, "test-results/ci/evidence"),
+  );
   await writeFile(
     "test-results/ci/verified.json",
-    JSON.stringify(proof, null, 2) + "\n",
+    JSON.stringify({ ...proof, browser }, null, 2) + "\n",
   );
   console.log(
-    `All required jobs succeeded; ${proof.files} test files and ${proof.passed} assertions accounted for.`,
+    `All required jobs succeeded; ${proof.files} Vitest files and ${proof.passed} assertions, plus ${browser.discovered} browser results across ${browser.rows} isolated shards, accounted for.`,
   );
 }
 if (

@@ -223,6 +223,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    outputs:
+      browser-matrix: ${{ steps.browser-matrix.outputs.matrix }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -240,6 +242,9 @@ jobs:
           node-version: "24"
           cache: npm
       - run: npm ci
+      - name: Define every isolated browser project and shard
+        id: browser-matrix
+        run: node scripts/ci/browser-results.mjs matrix >> "$GITHUB_OUTPUT"
       # Typecheck runs once in checks. These are the same two steps as build.
       - run: npm run build:web
       - run: npx wrangler deploy --dry-run --outdir dist/worker
@@ -264,8 +269,8 @@ jobs:
   browser:
     needs: build
     runs-on: ubuntu-latest
-    # Include dependency mirrors and all three complete browser suites.
-    # WebKit setup alone can take ten minutes before any assertion executes.
+    # Each project is split across isolated runners, never concurrent local DBs.
+    # Keep setup budgets and every browser/media assertion unchanged.
     timeout-minutes: 30
     env:
       # WebKit's legacy Linux playbin stalls on valid H.264/AAC media in its
@@ -274,18 +279,7 @@ jobs:
       WEBKIT_GST_USE_PLAYBIN3: "1"
     strategy:
       fail-fast: false
-      matrix:
-        include:
-          - project: chromium
-            browsers: chromium
-            preview: desktop
-          - project: mobile-chromium
-            browsers: chromium
-            preview: ""
-          - project: iphone-webkit
-            # The local HTML renderer needs Chromium even for WebKit clients.
-            browsers: chromium webkit
-            preview: iphone
+      matrix: ${{ fromJSON(needs.build.outputs.browser-matrix) }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -314,30 +308,33 @@ jobs:
           path: dist
       - name: Remove historical screenshot evidence from this fresh runner
         run: rm -rf reports/screenshots
-      # Each project has its own runner, D1 state and fixed local server ports.
-      - run: npx playwright test --project=${{ matrix.project }}
+      # Each shard has its own runner, D1/R2 state and fixed local server ports.
+      - run: npx playwright test --project=${{ matrix.project }} --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
         env:
           GUTENEO_E2E_PREBUILT: "true"
-          PLAYWRIGHT_HTML_OUTPUT_DIR: test-results/ci/${{ matrix.project }}/html
-          PLAYWRIGHT_JSON_OUTPUT_NAME: test-results/ci/${{ matrix.project }}/playwright.json
+          PLAYWRIGHT_HTML_OUTPUT_DIR: test-results/ci/browser/${{ matrix.project }}/shard-${{ matrix.shardIndex }}/html
+          PLAYWRIGHT_JSON_OUTPUT_NAME: test-results/ci/browser/${{ matrix.project }}/shard-${{ matrix.shardIndex }}/application.json
       - if: ${{ matrix.preview != '' }}
-        run: npx playwright test --config playwright.preview.config.ts --project=${{ matrix.preview }}
+        run: npx playwright test --config playwright.preview.config.ts --project=${{ matrix.preview }} --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
         env:
-          PLAYWRIGHT_JSON_OUTPUT_NAME: test-results/ci/${{ matrix.project }}/preview-playwright.json
+          PLAYWRIGHT_JSON_OUTPUT_NAME: test-results/ci/browser/${{ matrix.project }}/shard-${{ matrix.shardIndex }}/preview.json
       - name: Verify the private control tower with fictional local data
-        if: ${{ matrix.preview != '' }}
+        if: ${{ matrix.preview != '' && matrix.shardIndex == 1 }}
         run: npx playwright test --config playwright.belvedere.config.ts --project=${{ matrix.preview }}
         env:
-          PLAYWRIGHT_JSON_OUTPUT_NAME: test-results/ci/${{ matrix.project }}/belvedere-playwright.json
+          PLAYWRIGHT_JSON_OUTPUT_NAME: test-results/ci/browser/${{ matrix.project }}/shard-${{ matrix.shardIndex }}/belvedere.json
       - name: Verify status history, stale evidence and seasonal controls
-        if: ${{ matrix.project == 'chromium' }}
+        if: ${{ matrix.project == 'chromium' && matrix.shardIndex == 1 }}
         run: npx playwright test --config playwright.status.config.ts
         env:
-          PLAYWRIGHT_JSON_OUTPUT_NAME: test-results/ci/${{ matrix.project }}/status-playwright.json
+          PLAYWRIGHT_JSON_OUTPUT_NAME: test-results/ci/browser/${{ matrix.project }}/shard-${{ matrix.shardIndex }}/status.json
+      - name: Bind every suite report to this exact project, shard and run
+        if: always()
+        run: node scripts/ci/browser-results.mjs record '${{ matrix.project }}' '${{ matrix.shardIndex }}'
       - uses: actions/upload-artifact@v7
         if: always()
         with:
-          name: ci-evidence-browser-${{ matrix.project }}
+          name: ci-evidence-browser-${{ matrix.project }}-${{ matrix.shardIndex }}
           path: |
             test-results/ci/
             test-results/application/
@@ -495,7 +492,18 @@ jobs:
   # Native XCTest/archive have their own source-filtered workflow, not a web gate.
   verify:
     if: always()
-    needs: [pdf-validator, scanner, checks, vitest, security, build, browser, distribution-e2e, engineering]
+    needs:
+      [
+        pdf-validator,
+        scanner,
+        checks,
+        vitest,
+        security,
+        build,
+        browser,
+        distribution-e2e,
+        engineering,
+      ]
     runs-on: ubuntu-latest
     # Checkout and evidence download share this budget with verification.
     timeout-minutes: 10
@@ -503,11 +511,25 @@ jobs:
       - uses: actions/checkout@v7
         with:
           # Report merging loads only the root Vitest config; retain the complete
-          # test inventory so the gate still detects missing or duplicate files.
+          # unit/browser inventories and their source imports. The only public
+          # asset read during discovery is OpenAPI; do not fetch current films.
+          sparse-checkout-cone-mode: false
           sparse-checkout: |
-            scripts/ci
-            tests/unit
-            tests/integration
+            /*
+            !/*/
+            /scripts/
+            /tests/unit/
+            /tests/integration/
+            /tests/e2e/
+            /tests/preview-e2e/
+            /tests/belvedere-e2e/
+            /tests/status-e2e/
+            /tests/fixtures/
+            /tests/public-language.ts
+            /apps/web/src/
+            /apps/web/public/openapi.json
+            /apps/api/src/
+            /packages/
       - uses: actions/setup-node@v7
         with:
           node-version: "24"

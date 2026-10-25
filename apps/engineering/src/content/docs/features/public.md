@@ -9,7 +9,7 @@ sidebar:
 
 **Access boundary:** Public reading surface.
 
-The 25 October public hierarchy, four detail routes, shared footer, four-language static generation and appearance are local candidates. Dated preview evidence, exact-source CI, publication, indexing and provider/financial qualification remain separate.
+The 25 October public hierarchy, four detail routes, shared footer, four-language static generation and appearance were published from main 03daa4136de8999cc79018f33f2a22038917c621. Canonical served assets and four-language public layout/link checks passed. The separate preview retains an isolated provider asset-delivery failure; indexing, provider and real financial qualification remain separate.
 
 **Surfaces:** Public browser/static documents and four-language frontend/video catalogues; preview has no business bindings.
 

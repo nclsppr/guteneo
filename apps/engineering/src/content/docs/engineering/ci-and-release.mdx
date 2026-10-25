@@ -27,7 +27,7 @@ can affect more than their immediate directory, so they retain complete coverage
 | Four Vitest shards     | Sequential isolated domain/integration files and restore evidence                                                                              | Deterministic local database/provider fixtures                     |
 | Security and renderer  | Browser-backed document rendering and Node security guards                                                                                     | Actual local Chromium processing plus controlled refusal paths     |
 | Build                  | Main, live, preview and status builds; Worker dry runs                                                                                         | Buildable artifacts/configuration without publication              |
-| Browser matrix         | Desktop/mobile Chromium and iPhone WebKit, with applicable preview, Belvédère and status suites                                                | Same-run application artifacts and fictional local data            |
+| Browser matrix         | Three isolated shards per desktop/mobile Chromium and iPhone WebKit profile; applicable preview, Belvédère and status suites                   | Same-run application artifacts and fictional local data            |
 | Distribution profiles  | Isolated strong and verified-account lifecycles on desktop/phone                                                                               | Separate synthetic identity policies, no real Auth0 or delivery    |
 | Engineering            | Independent dependency install/audit, content checks, static build, browsers and asset-only dry run                                            | Documentation release surface only                                 |
 | Aggregate verification | Required dependencies and current-run reports                                                                                                  | Missing, failed, skipped or cancelled required work is not success |
@@ -42,6 +42,36 @@ The source workflows and result verifier own exact job names, matrix entries and
 expected counts. A future matrix change must update both, its tests and this
 explanation together. A configured job is not proof that its latest execution
 succeeded.
+
+## Shorten the critical path without dropping coverage
+
+The three browser profiles each run in three independent jobs. Application and
+applicable preview tests retain their complete file partition across those jobs;
+each job still uses one worker, isolated local D1/R2 state and its own servers.
+Belvédère runs on the first shard of each applicable desktop/iPhone profile, and
+status runs on the desktop first shard. No authentication or provider fixture is
+shared between runners, and every shard consumes the same-revision build.
+
+Reports and artifact names include the project and shard. The final gate lists
+the complete unsharded inventory independently and compares it with the union
+of reported test IDs. A missing, duplicated or unexpected test, missing shard or
+invalid report blocks success. Existing intentional test skips are accounted for
+without treating a skipped required job as success. Browser assertions, sandbox
+setup and the WebKit media pipeline remain intact; there is no automatic retry,
+path filter or publication shortcut.
+
+On the observed pre-sharding main run of 25 October, the complete workflow took
+about 26 minutes. Its iPhone job spent nearly 12 minutes on the application and
+more than seven on the preview, in sequence after setup. This justified splitting
+that work. Parallel execution repeats setup and may use more runner minutes;
+actual wall time depends on test-file balance, available runners and downloads.
+Measure completed exact-source runs before claiming a speedup. Synthetic report
+guards qualify completeness handling, not hosted execution or deployment.
+
+Maintain `scripts/ci/browser-results.mjs`, the workflow matrix and its security
+tests together. Adding a browser, suite or shard requires the matching inventory,
+report and artifact contract. Keep the final `verify` dependency and protected
+`scanner` check, and retain merged-main CI before an authorized publication.
 
 ## Install the dependency tree actually used by each job
 
