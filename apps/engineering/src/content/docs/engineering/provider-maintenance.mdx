@@ -17,6 +17,35 @@ activation. [Channel adapters](/workflows/delivery-channels/) describes transpor
 
 <ServiceRelease />
 
+## Private PDF validator qualification
+
+Temporary qualification may stop the private validator and therefore requires
+the canonical production document-validation capability to be explicitly
+`false`, with production mode and simulation explicitly disabled. When the newer
+unit-purchase capability is present, it must also be exactly closed. This supports
+a reviewed older release with the stable explicit document gate; missing,
+malformed, conflicting, open or unreachable gates refuse qualification. The deployment wrapper and hosted runner share this
+closed-feature assertion; normal deployment closes the qualification RPC gate.
+
+The loopback-only bridge needs a fresh owner-private credential, rejects every
+browser Origin and strips its local credential before remote service bindings.
+Current unit-purchase readiness and antivirus scanning are separate: public
+configuration proves neither a real paid check nor an actual hosted scan. The
+status page presents these as independent, unqualified business journeys until
+specific evidence is collected.
+
+The 25 October candidate selects one `standard-1` container with five-second idle
+sleep after the smaller tier timed out on the near-limit local corpus. Preserve
+the unchanged process/response deadlines, pinned engine, exact-byte and privacy
+checks; a larger allocation does not establish hosted performance. Before
+creating a missing paid service, obtain explicit resource authority, then qualify
+actual startup, full reference/large-file corpus, concurrency and idle stop/wake.
+Keep local native, hosted amd64 and actual financial observations separate. A
+failed hosted gate keeps paid checks closed; normal redeployment must close the
+temporary qualification RPC before customer activation. The authenticated pricing
+API owns the unit purchase price, and the repository cost model owns dated
+resource assumptions; neither a container count nor a local timing is a bill cap.
+
 ## Keep four kinds of evidence separate
 
 | Record | Establishes | Does not establish |
@@ -131,7 +160,7 @@ other rows require deliberate owner review and authorized action.
 | Auth0 identity/session | Callback/domain/client/scope/action/key/recovery change; policy or session freshness boundary | `docs/ACCOUNT_IDENTITY.md`, `IDENTITY_MCP.md`, current auth guards and reviewed qualification scripts | Exact issuer/subject/audience, callback/PKCE, signed claims/time, current connection/membership, logout/recovery and independent browser/native/host journeys |
 | Provider webhooks | URL, signing key, API version, topic/subscription or event-schema change | `docs/PROVIDERS.md`, `PINGEN_WEBHOOK_SETUP.md`, `SES_SUBSCRIPTION_CONFIRMATION.md`, `BILLING.md` | Genuine signature/account/topic checks, timestamp/replay/deduplication and reordered events; unsigned HTTP refusal is not a signed-callback success |
 | Backups, wrapping keys and restoration | Retention/schema/key change; planned recovery rehearsal or incident | `docs/RUNBOOK.md`, `RESTORE_PROOF.md`, `SECURE_DISTRIBUTION_IMPLEMENTATION.md`; local restore integration test | Matching objects/hashes/key versions, revocations, approvals, charges, reservations/outbox and independent acquired copies; hosted rehearsal recorded separately |
-| Cloudflare resources and costs | Usage trend, shared-quota pressure, service/region/binding/plan change | Wrangler configuration, `docs/COSTS.md`, `HORIZON_COSTS.md`, `STATUS_SERVICE.md`; `scripts/costs.ts` and private metrics | Actual billed units and inclusions, bounded queries/jobs/retention, CPU/storage/queue/browser budgets and real location terms; local models are not invoices |
+| Cloudflare resources and costs | Usage trend, shared-quota pressure, service/region/binding/plan change | Wrangler configuration, `docs/COSTS.md`, `PDF_VERIFICATION_COSTS.md`, `STATUS_SERVICE.md`; `scripts/costs.ts` and private metrics | Actual billed units and inclusions, bounded queries/jobs/retention, CPU/storage/queue/browser budgets and real location terms; local models are not invoices |
 | Stripe prices/taxes/events | Commercial product/portal/price/tax/refund/API-version or signing-key change | `docs/BILLING.md`, `MONTHLY_PLAN.md`; browser-admin billing and canonical event projection | Existing plan/entitlement guards, environment separation, signed deduplicated canonical objects and separately qualified commercial/tax setup; no implicit checkout/top-up |
 | CI/release and monitoring | Matrix, artifact, Node/browser/toolchain, service or public-check contract changes | `.github/workflows/`, `scripts/ci/verify-results.mjs`, release/verifier scripts | Exact source, all required reports, sanitized uploads, origin representation preservation, strict GitHub workflow-claim pairs, manifest/served-byte match and current-version freshness; old green reports remain historical |
 

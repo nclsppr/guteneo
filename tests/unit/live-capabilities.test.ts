@@ -22,14 +22,23 @@ describe("truthful live transport capabilities", () => {
     [undefined, "account_and_fresh_strong_authentication"],
     ["strong", "account_and_fresh_strong_authentication"],
     ["verified_account", "verified_account_and_fresh_authentication"],
-  ] as const)("reports the selected document authentication policy %s", (mode, authentication) => {
-    expect(getCapabilities({ ...hosted, SENSITIVE_DOCUMENT_AUTHENTICATION: mode }).secureDistribution.authentication)
-      .toBe(authentication);
-  });
+  ] as const)(
+    "reports the selected document authentication policy %s",
+    (mode, authentication) => {
+      expect(
+        getCapabilities({ ...hosted, SENSITIVE_DOCUMENT_AUTHENTICATION: mode })
+          .secureDistribution.authentication,
+      ).toBe(authentication);
+    },
+  );
 
   it("does not announce document capabilities for an unknown authentication policy", () => {
-    expect(() => getCapabilities({ ...hosted, SENSITIVE_DOCUMENT_AUTHENTICATION: "unknown" }))
-      .toThrow("INVALID_SENSITIVE_DOCUMENT_AUTHENTICATION");
+    expect(() =>
+      getCapabilities({
+        ...hosted,
+        SENSITIVE_DOCUMENT_AUTHENTICATION: "unknown",
+      }),
+    ).toThrow("INVALID_SENSITIVE_DOCUMENT_AUTHENTICATION");
   });
 
   it("announces the application release through the public capability endpoint", async () => {
@@ -41,7 +50,7 @@ describe("truthful live transport capabilities", () => {
     expect(await response.json()).toMatchObject({ version: release.version });
   });
 
-  it("reports Horizon configuration readiness consistently with its production gates", () => {
+  it("reports individual PDF-verification readiness consistently with its production gates", () => {
     const validator = {
       fetch: async () => new Response("fixture"),
     } as unknown as Fetcher;
@@ -50,15 +59,15 @@ describe("truthful live transport capabilities", () => {
     } as unknown as Fetcher;
     const ready = {
       ...hosted,
-      HORIZON_ENABLED: "true",
+      PDF_VALIDATION_ENABLED: "true",
       PDF_VALIDATOR: validator,
       SCANNER: scanner,
     };
     const cases: [Partial<Env>, boolean][] = [
       [{}, true],
-      [{ HORIZON_ENABLED: undefined }, false],
-      [{ HORIZON_ENABLED: "false" }, false],
-      [{ HORIZON_ENABLED: "TRUE" }, false],
+      [{ PDF_VALIDATION_ENABLED: undefined }, false],
+      [{ PDF_VALIDATION_ENABLED: "false" }, false],
+      [{ PDF_VALIDATION_ENABLED: "TRUE" }, false],
       [{ PDF_VALIDATOR: undefined }, false],
       [{ SCANNER: undefined }, false],
       [{ MODE: "simulation" }, false],
@@ -66,9 +75,46 @@ describe("truthful live transport capabilities", () => {
     ];
     for (const [overrides, available] of cases) {
       const capabilities = getCapabilities({ ...ready, ...overrides });
-      expect(capabilities.horizon.available).toBe(available);
+      expect(capabilities.pdfValidation.available).toBe(available);
       expect(capabilities.documents.validation.available).toBe(available);
+      expect(capabilities.documents.validation).toMatchObject({
+        requiresMonthlyPlan: false,
+        paidPerCheck: true,
+      });
+      expect(capabilities.billing.requiresMonthlyPlan).toBe(false);
+      expect(capabilities.pdfValidation).toMatchObject({
+        priceMinor: 10,
+        currency: "EUR",
+        taxBasis: "excluding_tax",
+        purchase: "administrator_browser_only",
+        unit: "completed_check",
+      });
     }
+  });
+
+  it("keeps paid PDF-verification activation independent of configured antivirus scanning", () => {
+    const scanner = {
+      fetch: async () => new Response("fixture"),
+    } as unknown as Fetcher;
+    const validator = {
+      fetch: async () => new Response("fixture"),
+    } as unknown as Fetcher;
+    const closed = getCapabilities({
+      ...hosted,
+      SCANNER: scanner,
+      PDF_VALIDATOR: validator,
+    });
+    expect(closed.scanner).toBe("connected");
+    expect(closed.pdfValidation.available).toBe(false);
+    expect(closed.documents.validation.available).toBe(false);
+    const opened = getCapabilities({
+      ...hosted,
+      SCANNER: scanner,
+      PDF_VALIDATOR: validator,
+      PDF_VALIDATION_ENABLED: "true",
+    });
+    expect(opened.scanner).toBe("connected");
+    expect(opened.pdfValidation.available).toBe(true);
   });
 
   it.each([

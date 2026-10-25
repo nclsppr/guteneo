@@ -4,11 +4,11 @@ import { useDashboardAppearance } from "./dashboard-appearance";
 export function DashboardArtwork({
   scene,
 }: {
-  scene: "atelier" | "documents" | "horizon";
+  scene: "atelier" | "documents" | "pdf-verification";
 }) {
   const { appearance } = useDashboardAppearance();
   if (appearance !== "v2") return null;
-  const heights = { atelier: 853, documents: 960, horizon: 427 };
+  const heights = { atelier: 853, documents: 960, "pdf-verification": 427 };
   return (
     <div
       className={`dashboard-artwork dashboard-artwork-${scene}`}

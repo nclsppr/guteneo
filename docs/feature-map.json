@@ -1,6 +1,6 @@
 {
   "title": "Guteneo feature tree and developer atlas",
-  "updated": "2026-10-24",
+  "updated": "2026-10-25",
   "scope": "Repository implementation inventory. Availability depends on current capabilities and authority; implementation, activation and deployed proof are distinct.",
   "roleNote": "Four human workshop roles are defined by packages/contracts/src/roles.ts. The assistant column describes a connected OAuth actor, never a fifth membership role. Effective membership, independent supervisor permissions, consented scopes and any bounded expert mandate are rechecked by the server. Installing a package or renewing tokens grants no additional authority. Browser-only account/platform controls remain distinct. Assistant content-exclusion instructions are workflow restrictions, not automatic classification or new server guards. Personal account authority is separate from workspace membership. Sensitive approval and recipient association always require the browser under the active document policy; an expert mandate cannot replace them.",
   "groups": [
@@ -18,7 +18,7 @@
         "OAuth connection binding, revocation and consented scopes",
         "Exact resource-metadata discovery issuer, including its trailing slash; official MCP SDK contract tests without external network",
         "Account deletion request; complete erasure processing remains unqualified",
-        "Visible signed-in name, login email and current role on desktop/mobile",
+        "Visible signed-in name and login email on desktop/mobile; current role and permissions belong on My account",
         "Explicit Auth0 account switching without disabling ordinary SSO",
         "Tab-focus reconciliation of identity, workshop and saved language",
         "One authenticated language control in the account; visitor choice stays separate",
@@ -50,7 +50,7 @@
         "tests/unit/web-api-cancellation.test.ts",
         "tests/e2e/login-entry.spec.ts",
         "tests/security/auth0-branding.test.mjs",
-        "tests/e2e/horizon-pdf.spec.ts",
+        "tests/e2e/pdf-validation.spec.ts",
         "tests/e2e/dashboard.spec.ts",
         "tests/e2e/locale-boundaries.spec.ts",
         "tests/unit/personal-auth.test.ts",
@@ -145,6 +145,8 @@
         "Private copy or blank creation with the REST/MCP authoring guide",
         "Word DOCX content import with explicit layout warnings",
         "Designer variables, tables, columns, logos, formats and conditions",
+        "Visible local PNG/JPEG image import above the visual editor; selected-page insertion preserves original bytes, aspect ratio, unique names and business bindings",
+        "Save, publish and studio navigation wait for committed native property edits; invalid numeric fields and reverting values recover without saving stale geometry",
         "Business schema, sample data, calculations and totals",
         "Review AI proposals before explicit application",
         "Exact PDF preview, immutable versions, publication, duplication and archival",
@@ -157,7 +159,9 @@
       "tests": [
         "tests/unit/template-authoring.test.ts",
         "tests/unit/mcp-integrations.test.ts",
-        "tests/integration/template-workflow.test.ts"
+        "tests/integration/template-workflow.test.ts",
+        "tests/unit/templates-images.test.ts",
+        "tests/e2e/template-images.spec.ts"
       ],
       "surfaces": "Web, REST and MCP; optional configured AI proposal service.",
       "id": "templates",
@@ -549,11 +553,21 @@
         "Atomic reservation with acceptance and outbox insertion",
         "Provider settlement and retained reserves for unknown outcomes",
         "Administrator credit/billing inspection",
-        "Prepared Stripe integration with separate commercial qualification"
+        "Prepared Stripe integration with separate commercial qualification",
+        "Read-only tenant-scoped monthly consumption history; current/latest/explicit UTC month selection preserves previous usage and simulation boundaries",
+        "GitHub-style annual daily activity grid from exact UTC posted debits, selectable years/day detail, keyboard navigation and contained phone scrolling; reservations and simulation remain distinct"
       ],
-      "status": "Credits and ledger implemented; commercial top-up remains unqualified.",
+      "status": "Credits, ledger and selectable consumption history implemented; commercial top-up and this candidate publication remain unqualified.",
       "tests": [
-        "tests/unit/billing.test.ts"
+        "tests/unit/billing.test.ts",
+        "tests/integration/welcome-credit.test.ts",
+        "tests/e2e/usage-history.spec.ts",
+        "tests/e2e/usage-activity.spec.ts",
+        "tests/integration/live-delivery-quotes.test.ts",
+        "tests/integration/protected-documents.test.ts",
+        "tests/unit/pdf-validation-pricing.test.ts",
+        "tests/unit/secure-distribution-core.test.ts",
+        "tests/unit/auth.test.ts"
       ],
       "surfaces": "Browser administration; shared backend ledger. No assistant billing administration.",
       "id": "billing",
@@ -561,7 +575,8 @@
       "availability": "partial",
       "tools": [],
       "rest": [
-        "GET /api/usage"
+        "GET /api/usage",
+        "GET /api/usage/activity"
       ]
     },
     {
@@ -711,20 +726,23 @@
       "source": "apps/web/src/account-page.tsx",
       "features": [
         "Full real-web Classic/V2 views with the same account, tenant, resources and operations",
-        "Account at navigation bottom, appearance beside language, applied after a successful profile save; mobile identity/role remain visible with the menu closed",
+        "Account at navigation bottom, appearance beside language, applied after a successful profile save; mobile identity remains visible with the menu closed; role and detailed permissions live on My account",
         "Personal users.preferred_dashboard_appearance, migration 0053, classic default and cross-workshop/session/device reconciliation",
         "Strict browser account PATCH with current authority, Origin/CSRF and field-name audit; every role changes only its own preference",
         "Temporary appearance=v2/classic override accepts legacy atelier URLs, never persists server-side and clears after explicit appearance save or identity change; local cache is non-authoritative",
         "Existing activity/alerts precede introduction, otherwise a complete welcome; content preview precedes approval in reading/tab order",
         "Stable PDF review frame across loading/render/error, keyboard-accessible internal scrolling and unchanged consent/data authority",
-        "Consistent documents, preparation, review, tracking, assistants, account, studio, Horizon, credits, tables and forms; Belvédère remains a distinct platform surface",
+        "Consistent documents, preparation, review, tracking, assistants, account, studio, PDF verification, credits, tables and forms; Belvédère remains a distinct platform surface",
         "One brand signature, workshop in navigation and no redundant V2 footer; service status near account and browser timezone near dates",
         "One page title, contextual detail back link and task-specific primary action; global New dispatch stays secondary and permission-aware",
         "Generation introduction focuses on finding PDFs and makes clear that generation sends nothing",
         "Official portrait/wordmark, approved engravings and blue swallows used sparingly on home, empty documents and assistants",
         "Four-language labels; simulation notices only for simulated sessions",
         "Same four roles, supervisor options, private access and consents; no new mandate, channel or business API/MCP tool",
-        "Native account/session reads include appearance without a setter; existing name/language browser PATCH and native language PATCH remain compatible"
+        "Native account/session reads include appearance without a setter; existing name/language browser PATCH and native language PATCH remain compatible",
+        "Compact My documents navigation link with personal-space context, without an oversized separate card or repeated role panel",
+        "Shared native file input with four-language authored chooser/empty text and literal filenames, keyboard validation and exact-byte upload semantics",
+        "Desktop Safari select height and protected-link hint spacing; neutral ink selection/focus states retain keyboard and forced-colors access"
       ],
       "status": "Implemented Classic/V2 personal appearance without new business authority.",
       "tests": [
@@ -733,7 +751,9 @@
         "tests/unit/dashboard-appearance.test.ts",
         "tests/preview-e2e/dashboard-v2.spec.ts",
         "tests/e2e/dashboard-v2.spec.ts",
-        "tests/e2e/protected-email.spec.ts"
+        "tests/e2e/protected-email.spec.ts",
+        "tests/e2e/account-identity.spec.ts",
+        "tests/e2e/team-invitations.spec.ts"
       ],
       "surfaces": "Authenticated web Classic/V2; native reads preference without a setter; no new business API/MCP authority.",
       "id": "dashboard",
@@ -743,25 +763,25 @@
       "rest": []
     },
     {
-      "title": "Horizon PDF diagnostics",
+      "title": "PDF verification",
       "doc": "PDF_ACCESSIBILITY.md",
       "source": "apps/api/src/pdf-validation.ts",
       "features": [
-        "EUR30 monthly subscription from available credits, including remaining welcome credits for the first period; private /app/plan entry",
-        "Immutable recurring consent by a browser administrator",
-        "Cancellation, renewal and suspension without debt; top-up remains unavailable",
-        "100 attempts per calendar month under atomic quota",
+        "Individual exact-PDF/profile purchase from available account credits; current integer EUR price and excluding-tax terms come from the authenticated pricing endpoint",
+        "Current browser administrator alone accepts the immutable purchase; assistants, native callers and other members cannot create financial consent",
+        "Atomic reservation and one settled charge for a complete valid report; engine failure releases the reservation without a settled debit",
+        "New subscriptions and automatic recurring renewals are retired; immutable legacy actions and charges are retained, and posted charge history remains visible under current reporting authority",
         "Pinned private veraPDF for PDF/UA-1/-2 and PDF/A-1b/2b/3b/4, with official positive/negative corpus and separate offline/hosted qualification",
-        "Exact-byte reports, history and JSON export",
-        "Web/MCP diagnostics with required human review; same-key recovery for uncertain network responses and new-key independent checks",
-        "Public/server availability share HORIZON_ENABLED, private validator and production scanner gates; activation after hosted qualification, never legal certification",
+        "Exact-byte reports, history and JSON export under current PDF access, independent of a monthly entitlement",
+        "Required human review; a valid report with failed conformance checks is billable, while operational failure is not a conformity verdict",
+        "One explicit activation flag, private validator and production scanner gates; activation after hosted qualification, never legal certification",
         "PDF-accessibility exclusions apply to originals and existing reports; person-redacted recovery without web bypass",
-        "Home → signed-in workspace → home preserves private capability reads and performs one fresh public read after failure, without writes or stale availability inference"
+        "Same-key recovery for uncertain network responses does not purchase or execute twice; a new independent check requires a new explicit purchase"
       ],
-      "status": "Implemented diagnostics/subscription contracts; runtime capability, private validator and scanner gates apply.",
+      "status": "Individual purchase candidate; no new subscription or recurring renewal. Runtime capability, private validator, scanner and final release qualification remain separate.",
       "tests": [
-        "tests/unit/monthly-plan.test.ts",
-        "tests/e2e/horizon-pdf.spec.ts",
+        "tests/unit/pdf-validation-pricing.test.ts",
+        "tests/e2e/pdf-validation.spec.ts",
         "tests/unit/pdf-validation.test.ts",
         "tests/preview-e2e/geo.spec.ts",
         "tests/preview-e2e/seo.spec.ts",
@@ -772,8 +792,8 @@
         "apps/pdf-validator/tests/test_server.py",
         "tests/unit/mcp-integrations.test.ts"
       ],
-      "surfaces": "Web, REST and MCP diagnostics; browser administrator alone manages recurring subscription.",
-      "id": "horizon",
+      "surfaces": "Web browser administrator purchases; REST and MCP retain current document-scoped history reads and cannot create assistant financial consent.",
+      "id": "pdf-verification",
       "category": "Operate",
       "availability": "capability-gated",
       "tools": [
@@ -781,6 +801,7 @@
         "validate_pdf"
       ],
       "rest": [
+        "GET /api/pdf-validation/pricing",
         "GET /api/documents/{id}/validation",
         "POST /api/documents/{id}/validation"
       ]
@@ -795,7 +816,7 @@
         "Private read-only Telnyx operator inspection reports bounded callback status/canonical-match booleans without raw URLs or credential extraction; fresh provider state requires separate proof",
         "Reconciliation, bounded recovery and dead-letter queues",
         "Ordered D1 migrations, integrity and restore bookmark",
-        "Private scanner, renderer and validator releases from clean main; loopback qualification bridge with temporary secret, Origin refusal and no secret transfer; validator operators check Horizon closed on canonical guteneo.com only",
+        "Private scanner, renderer and validator releases from clean main; loopback qualification bridge with temporary secret, Origin refusal and no secret transfer; deployment wrapper and hosted runner share strict production pdfValidation.available=false on canonical guteneo.com before container qualification",
         "Backend/security/browser suites and exhaustive CI; basic validator max 1, 5-second idle, qualified JVM corpus to 100 pages/9.887 MiB; measured local CPU savings do not prove hosted cost",
         "Release from clean, synchronized, verified main",
         "Release manifests contain canonical public assets with exact byte hashes; shared application/preview redirects preserve old page/download links without duplicate alias files; unexpected redirects fail served verification; retired workers.dev/preview closure has separate evidence",
@@ -839,9 +860,10 @@
       "source": "apps/api/src/belvedere.ts",
       "features": [
         "Private read-only Watchkeeper authority bound to verified browser identity and server-secret address, separate from workshop roles",
+        "Dedicated protected platform host at its root with exact Auth0 callback, host-only browser cookies and no customer API/signup/OAuth authority; compatible private entry retained",
         "Seven views: overview, workshops, members, dispatches, connections, finances and infrastructure",
         "Optional country observations with bounded deduplication, new sessions after workshop changes and 90-day retention",
-        "Distinct promotional credits, dispatch/hosting/Horizon usage, actual receipts and supplier costs",
+        "Distinct promotional credits, dispatch/hosting/individual PDF purchases and legacy subscription charges, actual receipts and supplier costs",
         "Server-side Cloudflare connectors with explicit availability; never invent cost or profit",
         "Additive migration 0052 and deterministic loopback-only preview; hosted activation is separate",
         "Account-selected four-language UI on direct entry and tab focus; no additional private language selector"
@@ -849,6 +871,7 @@
       "status": "Private platform authority, separate from workshop roles; hosted activation is separately qualified.",
       "tests": [
         "tests/unit/belvedere.test.ts",
+        "tests/unit/belvedere-host.test.ts",
         "tests/unit/auth-telemetry.test.ts",
         "tests/belvedere-e2e/control-tower.spec.ts",
         "tests/unit/belvedere-finance.test.ts",
@@ -873,7 +896,7 @@
         "Service view shows freshness/groups/history; Checks separates detailed observations, local proof and journey coverage; Operations states limits/actions, without customer data or command IDs",
         "Local qualification separately tests the real domain/PDFs with external network denied and final providers simulated; timestamped redacted evidence never becomes delivery proof or a production incident",
         "Branded footer and bounded seasonal decoration, optional and respecting reduced motion",
-        "English authored status copy with English/French browser selection and a shared locale catalog; historical French feature labels remain accepted alongside canonical English reports",
+        "English authored status copy with English/French browser selection and a shared locale catalog; historical French/PDF feature labels normalize without rewriting observations; current pdfValidation.available controls only the distinct paid PDF-verification coverage row, separately from antivirus/import/rendering",
         "Dedicated release from clean main with source checks, manifest and status-only D1 migrations",
         "Separate public browser reports run on GitHub main every six hours: fourteen desktop/simulated-mobile Chromium journeys and fourteen fixed HTTP contracts, without business operations; the Node driver requests identity/no-transform, preserves strict received-byte/SHA checks without automatic retries and emits bounded public diagnostics outside the signed report; canonical public HTML origin responses also declare no-transform while preserving existing cache directives, bytes, ETag and encoding, without widening private/API policies",
         "Public GET /api/e2e-status exposes execution, tested/observed commit, eight-hour freshness, twenty-eight checks and history; absent/stale/version-mismatched proof stays neutral without degrading Cron availability",
@@ -1034,19 +1057,19 @@
       "id": "J12",
       "title": "Manage credits",
       "actor": "Browser administrator",
-      "steps": "Read welcome/available/reserved/consumed balances → inspect usage/billing → reserve the exact approved ceiling atomically with acceptance/outbox → settle using qualified provider evidence.",
+      "steps": "Read welcome/available/reserved/consumed balances → inspect the annual UTC consumption grid and selected-day totals → open the latest recorded usage month or select current/previous UTC month → inspect usage/billing → reserve the exact approved ceiling atomically with acceptance/outbox → settle using qualified provider evidence.",
       "branch": "Operate",
       "doc": "WELCOME_CREDIT.md",
-      "failure": "Welcome credit is one-time, not monthly. Top-up is not commercially qualified. Unknown outcomes retain reserves; fax delivery alone does not settle verified usage."
+      "failure": "Welcome credit is one-time, not monthly. Top-up is not commercially qualified. Unknown outcomes retain reserves; fax delivery alone does not settle verified usage. An empty current month does not mean lost history; failed period reads offer retry without replacing ledger or balance."
     },
     {
       "id": "J13",
-      "title": "Diagnose a PDF with Horizon",
-      "actor": "Browser administrator for subscription; authorised preparer/assistant for checks; current PDF reader for history",
-      "steps": "Read current capabilities → administrator reviews EUR30 recurring-credit subscription → use ready original with selected PDF/UA or PDF/A flavour → consume atomic calendar-month quota → inspect exact-byte report/history/JSON → complete human review.",
+      "title": "Purchase a PDF verification",
+      "actor": "Current browser administrator for a purchase; current PDF reader for history",
+      "steps": "Read current capability and price → select the ready immutable PDF and PDF/UA or PDF/A profile → explicitly accept this exact purchase → reserve available account credit atomically → run the private engine → settle once for a complete valid report → inspect report/history/JSON and complete human review.",
       "branch": "Operate",
       "doc": "PDF_ACCESSIBILITY.md",
-      "failure": "Require active entitlement, current PDF authority, scanner/private validator and quota. Automatic checks are not certification. Reuse the key to recover an uncertain request; a new independent check uses a new key."
+      "failure": "Require current PDF authority, browser administrator purchase consent, available credit and scanner/private validator. Engine failure creates no settled charge; a valid failing-conformance report is billable. Recover uncertain responses with the same key. A new check needs a new purchase. Existing reports retain their document access policy without monthly subscription."
     },
     {
       "id": "J14",
@@ -1070,7 +1093,7 @@
       "id": "J16",
       "title": "Verify identity and find a responsible contact",
       "actor": "Browser member in the current workshop",
-      "steps": "Read visible name/login email/role → open account profile → inspect effective permissions and workshop responsible contacts → edit own name/language or explicitly switch account.",
+      "steps": "Read visible name/login email → open account profile for role → inspect effective permissions and workshop responsible contacts → edit own name/language or explicitly switch account.",
       "branch": "Access",
       "doc": "ACCOUNT_IDENTITY.md",
       "failure": "Provider login email is read-only identity data. Missing address/contact errors stay explicit. Reconcile identity after tab focus and ignore cancelled stale reads without interrupting editing."
@@ -1115,7 +1138,7 @@
       "id": "J21",
       "title": "Save and restore workspace appearance",
       "actor": "Authenticated browser member changing their own preference",
-      "steps": "Open account → choose Classic/V2 beside language → save successfully → reload or change workshop/device → reconcile the saved personal preference with current identity.",
+      "steps": "Enter through compact My documents/workshop navigation → inspect role and detailed rights on My account → choose Classic/V2 beside language → save successfully → reload or change workshop/device → reconcile the saved personal preference with current identity.",
       "branch": "Operate",
       "doc": "DASHBOARD_V2.md",
       "failure": "Temporary atelier overrides never claim a server save and clear after explicit save/identity change. Old cache cannot override the current person; business authority remains identical."
@@ -1276,23 +1299,23 @@
       "No"
     ],
     [
-      "Billing or Horizon subscription",
-      "Browser only, explicit recurring consent",
+      "Manage billing",
+      "Current browser administrator",
       "No",
       "No",
       "No",
       "No"
     ],
     [
-      "Run a Horizon diagnostic",
-      "Active plan + PDF access",
-      "Active plan + PDF access",
-      "Active plan + PDF access",
+      "Purchase a PDF verification",
+      "Current browser administrator + exact purchase + PDF access",
       "No",
-      "Active plan + PDF access + documents:write"
+      "No",
+      "No",
+      "No financial consent; history read only"
     ],
     [
-      "Read/export Horizon history",
+      "Read/export PDF verification history",
       "Current PDF access",
       "Current PDF access",
       "Current PDF access",
@@ -1474,6 +1497,14 @@
       "Public access without workspace privilege",
       "Public access without workspace privilege",
       "Public read only; no ingestion or business authority"
+    ],
+    [
+      "Read monthly and daily consumption history",
+      "Yes",
+      "Reporting option",
+      "No",
+      "No",
+      "Current reporting rights + tenant-scoped REST read; no new MCP billing tool"
     ]
   ],
   "schemaVersion": 2

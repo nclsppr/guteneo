@@ -104,6 +104,29 @@
   flex: 1;
   min-width: 180px;
 }
+/* Images are fixed page content, kept beside the visual editor rather than
+   hidden among business variables. */
+.studio-image-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  margin: 0 0 12px;
+}
+.studio-image-toolbar .button {
+  flex-shrink: 0;
+}
+.studio-image-toolbar .field-hint {
+  margin: 0;
+  max-width: 64ch;
+  font-size: 12px;
+}
+.studio-image-notice {
+  margin: 0 0 12px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
 .studio-designer {
   height: 760px;
   min-width: 0;
@@ -115,10 +138,10 @@
   font-family: Arial, sans-serif;
 }
 .studio-designer :where(button, input, select, textarea):focus-visible {
-  outline: 2px solid var(--blue);
+  outline: 2px solid var(--ink);
   outline-offset: 2px;
 }
-.studio-mobile-help {
+.workspace .studio-mobile-help {
   display: none;
 }
 .studio-list {
@@ -288,7 +311,7 @@
   .studio-designer {
     display: none;
   }
-  .studio-mobile-help {
+  .workspace .studio-mobile-help {
     display: block;
   }
   .business-fields,
@@ -356,7 +379,7 @@
 }
 .studio-table:focus-visible,
 .studio-record-selection:focus-visible {
-  outline: 2px solid var(--blue);
+  outline: 2px solid var(--ink);
   outline-offset: 3px;
 }
 @media (max-width: 767px) {

@@ -27,6 +27,14 @@ Languages use their own names without flags. Interface language changes
 immediately without reloading or clearing forms. HTML `lang`, accessible
 labels, dates, numbers and amounts follow the choice.
 
+File choosers share `apps/web/src/file-input.tsx`: authored choose/empty text
+comes from the resolved frontend locale, while native input behavior and exact
+filenames are preserved. This avoids browser-language labels in a differently
+localized interface, including Safari. Monthly consumption selectors and empty
+states also follow the account language; stored UTC period identifiers remain
+unchanged. See [workspace presentation](DASHBOARD_V2.md) for the related form
+and keyboard-focus contract.
+
 Before login, explicit public `?lang=de` takes precedence, followed by this
 browser's saved selection and browser languages. Regional variants such as
 `de-AT` are recognized. Unsupported languages fall back to French. Unavailable

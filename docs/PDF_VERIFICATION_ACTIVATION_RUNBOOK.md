@@ -1,18 +1,110 @@
-# Horizon activation and qualification
+# PDF verification activation and qualification
 
-This developer-only runbook separates an authorization, an implemented safeguard,
-an isolated test result and a production observation. Do not publish it in public
-assets or treat an unchecked row as a passed release gate.
+## Current release checklist — 25 October 2026
 
-Current production application checks use only `https://guteneo.com`. The former
-application `workers.dev` host and application version preview URLs must remain
-closed. Record their closure separately from Horizon availability checks.
-Follow [MAIN_RELEASE.md](MAIN_RELEASE.md) for this hosting contract.
-Earlier dated release observations below remain historical evidence.
+This checklist covers the individual-purchase contract: **EUR0.10 excluding tax
+per exact PDF and selected profile**, paid from available account credit only
+after an authenticated browser administrator confirms that purchase. There is
+no subscription, included monthly allowance, automatic purchase or renewal.
+Existing financial journals and reports remain readable historical evidence.
+See [the pricing contract](PDF_VERIFICATION_PRICING.md),
+[the purchase API](PDF_ACCESSIBILITY.md) and [the private engine](PDF_VALIDATOR.md).
+
+The user authorized delivery and activation during this task. Separately confirm
+any required paid-resource provisioning authority before creating a missing
+private container. A successful local test, declared configuration or old release
+record establishes neither hosted qualification nor an actual account debit.
+Record the exact source, UTC observation time, deployed version and private
+redacted artifact for every completed gate. Never retain PDF contents, session
+cookies, CSRF values, tokens or signed URLs in proof reports.
+
+1. **Freeze reviewed source.** Complete source/CI and migration checks on the
+   final candidate, then follow [MAIN_RELEASE.md](MAIN_RELEASE.md) from clean,
+   synchronized main. Keep all applied migrations unchanged. Verify additive
+   `0060_pdf_validation_per_check.sql` against the actual production ledger,
+   including the credit view and retirement of new recurring debit paths.
+   Historical charges must not be converted, refunded or charged again.
+2. **Prove the production gate closed before private qualification.** Read only
+   `https://guteneo.com/api/capabilities`, recording the served release identity.
+   The guarded deployment and hosted runner require `mode: "production"`,
+   `simulation: false` and `documents.validation.available: false`. If the newer
+   `pdfValidation` field is present, its `available` must also be exactly `false`.
+   An older reviewed release can therefore bootstrap from the stable closed
+   document gate; missing, malformed, contradictory or unreachable gates refuse
+   qualification. Do not substitute an unknown capability for a closed result.
+3. **Deploy and qualify only the private engine.** After any required resource
+   authorization, use `npm run deploy:pdf-validator -- --qualification` from the
+   same reviewed clean main. It temporarily enables the account-private RPC;
+   the customer feature stays closed. Preserve the pinned image, one bounded
+   EU instance, no public route/preview/workers.dev, no persistent observability
+   and disabled runtime network. Use the loopback-only credential bridge in
+   [PDF_VALIDATOR.md](PDF_VALIDATOR.md) and its qualification README. Test
+   synthetic pass/failure references for every advertised PDF/A and PDF/UA
+   profile, exact hash/version binding, deadlines, concurrency, malformed output
+   and recovery. A successful archival profile does not qualify accessibility.
+4. **Close the qualification RPC.** Stop the local driver/bridge and use
+   `npm run deploy:pdf-validator` from the same reviewed source. It forces
+   `QUALIFICATION_ENABLED="false"`. Record effective configuration and Worker
+   version, plus an engine-health result and specific qualification refusal.
+   A generic service-unavailable response alone proves no closure.
+5. **Release the application with the qualified binding.** Bind `PDF_VALIDATOR`
+   only to that qualified private service. Activate with the exact
+   `PDF_VALIDATION_ENABLED="true"`; retired flags do not enable purchases.
+   Verify production mode, normal identity policy, source, required scanner and
+   migration0060 independently. Compare `/release.json`, `/api/health` and
+   `/api/capabilities` on the canonical application origin. Both
+   `pdfValidation.available` and `documents.validation.available` must agree.
+   Configuration readiness does not establish a live engine verdict.
+6. **Verify purchase authority and price.** In a dedicated authenticated operator
+   account, use normal browser flows with synthetic PDFs. Read
+   `GET /api/pdf-validation/pricing`: `priceMinor: 10`, `currency: "EUR"`,
+   `taxBasis: "excluding_tax"`, `paymentSource: "account_credits"`, the current
+   `termsVersion`, available credit and current purchase authority. No login,
+   report read, profile selection or assistant/native call may subscribe or
+   purchase anything. Non-administrators and OAuth/native callers cannot create
+   browser purchase consent. The preview must continue refusing business writes.
+7. **Verify one explicitly confirmed purchase.** The browser reviews the exact
+   PDF/profile and EUR0.10 HT, then sends its existing same-origin CSRF protection,
+   an `Idempotency-Key` and `purchase: { confirmed: true, documentSha256,
+   priceMinor: 10, currency: "EUR", termsVersion }`. Wrong bytes, price, terms,
+   current authority or insufficient credit must refuse before engine work.
+   Retain a redacted journal/report relation proving one complete report settles
+   exactly ten cents, including a valid nonconformance report; replaying the same
+   key must not debit twice. Technical, integrity or authority failures release
+   the hold and settle zero. Use the same key to recover an uncertain response.
+8. **Verify independent safety and history.** Existing reports remain readable
+   through their document ACL without another purchase. Pending/completed checks
+   affect credit once; usage and Belvédère distinguish check charges from sends
+   and retained legacy charges. Verify antivirus readiness separately from paid
+   PDF checks. Screen-reader/reading-order/alternative-text human review remains
+   required; an automated report is never certification. Check French, English,
+   German and Luxembourgish copy on desktop and touch browsers.
+9. **Record rollback boundaries.** On a material qualification or purchase gate
+   failure, disable `PDF_VALIDATION_ENABLED`, release the reviewed rollback and
+   re-read the actual capabilities and authenticated pricing response. Preserve
+   financial journals and report reads. Never create a compensating debit/refund,
+   customer communication or automatic retry from an unknown outcome.
+
+Application release/health checks use `https://guteneo.com`; Belvédère's separate
+protected host is qualified under [BELVEDERE.md](BELVEDERE.md). The former
+application workers.dev host and application version preview URLs remain closed.
+The public design preview has no business bindings. Keep local, hosted synthetic,
+production capability, authenticated purchase and real financial evidence separate.
+
+## Archived 3 October 2026 subscription activation record
+
+The following dated record is preserved for audit only. **Do not execute its
+subscription, renewal or old activation instructions.** Its monthly price,
+allowance, endpoints, test filenames and former flags are historical facts, not
+current offer terms or current commands. Only the checklist above governs this
+release. No old authorization grants consent for a new customer purchase.
+
+<details>
+<summary>Historical record — retired subscription model, not actionable</summary>
 
 ## Authorization and scope
 
-On 3 October 2026, Nicolas explicitly requested all remaining Horizon activation
+On 3 October 2026, Nicolas explicitly requested all remaining PDF verification activation
 steps, accepting that commercial-offer work could follow while existing credits
 funded a first month and requesting later credit replenishment. This authorizes
 the private validator provisioning,
@@ -32,7 +124,7 @@ The previous publication owner reported source
 `c5cc0ddba3c8bb2bcd6fe144bc37a17d1f9cc596`, successful main CI run
 `37111666771` attempt 2, and applied migrations 0050–0051 with 51 migrations,
 343 matching schema objects and successful integrity/foreign-key checks. These
-are the **disabled Horizon baseline**, not evidence that this activation
+are the **disabled PDF verification baseline**, not evidence that this activation
 candidate, a hosted validator or a subscription has been released.
 
 ## Evidence ledger
@@ -44,7 +136,7 @@ JSON describe the application's mode; a synthetic fixture carrying
 
 | Gate                                         | Prepared evidence                                                                                                                                             | Production observation                           |
 | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------ |
-| Application availability                     | One `horizonAvailable` predicate requires the exact flag, private validator, production scanner and coherent production mode; focused capabilities regression | Not recorded by this runbook                     |
+| Application availability                     | One the shared PDF verification availability predicate predicate requires the exact flag, private validator, production scanner and coherent production mode; focused capabilities regression | Not recorded by this runbook                     |
 | Account debit and authority                  | Real isolated D1 triggers in `tests/unit/monthly-plan.test.ts`                                                                                                | Not recorded by this runbook                     |
 | Exact-file PDF adapter and ownership         | Real isolated D1/R2 with intercepted engine responses in `tests/unit/pdf-validation.test.ts`                                                                  | Not recorded by this runbook                     |
 | Real engine profiles                         | Pinned veraPDF 1.30.2 local Docker proof; hosted matrix is separate                                                                                           | Not recorded by this runbook                     |
@@ -57,7 +149,7 @@ JSON describe the application's mode; a synthetic fixture carrying
 For the shared availability fix, a focused local invocation of
 `live-capabilities.test.ts`, `monthly-plan.test.ts` and `pdf-validation.test.ts`
 passed **46 tests in three files**, without skips or failures. The retained local
-JSON is `/workspace/scratch/horizon-activation-application-proof.json` in the
+JSON is the retained activation-workspace JSON artifact in the
 activation workspace. The monthly-plan fixture uses isolated D1/session rows;
 the PDF adapter intercepts engine responses. Neither is a hosted qualification
 or a live account debit. CI must run on the final candidate and its merged main.
@@ -69,9 +161,9 @@ or a live account debit. CI must run on the final candidate and its merged main.
 2. From exact clean synchronized main, run
    `npm run deploy:pdf-validator -- --qualification` for the bounded prelaunch
    qualification. The wrapper first requires `https://guteneo.com/api/capabilities`
-   to report production mode and Horizon closed; unknown/error/open results prevent
+   to report production mode and PDF verification closed; unknown/error/open results prevent
    deployment. This explicit option temporarily enables only the account-private
-   `ValidatorQualification` RPC. It does not enable Horizon. Deploy the private
+   `ValidatorQualification` RPC. It does not enable PDF verification. Deploy the private
    pinned validator with no public route, no workers.dev or
    preview URL, no persisted observability, EU jurisdiction and runtime network
    disabled. Record the deployed image digest, Worker version, health/version
@@ -90,7 +182,7 @@ or a live account debit. CI must run on the final candidate and its merged main.
    effective flag; successful engine health plus refusal of the qualification
    RPC is additional evidence. A generic RPC 503 alone does not prove closure.
 4. Deploy the application with `PDF_VALIDATOR` bound to the qualified private
-   service while `HORIZON_ENABLED` remains absent/false. Confirm production mode,
+   service while the PDF verification activation flag remains absent/false. Confirm production mode,
    scanner, normal identity policy, source and both public availability flags.
    Missing/unready service must not produce a conformity verdict. Flags report
    configuration readiness; they are not a per-request engine-health probe.
@@ -98,16 +190,16 @@ or a live account debit. CI must run on the final candidate and its merged main.
    normal authenticated application flows. Do not create or borrow customer
    sessions, OAuth tokens or membership rows. Do not silently subscribe an
    existing customer's account or debit reserved communication credit.
-6. Enable the exact string `HORIZON_ENABLED="true"` in the reviewed production
+6. Enable the legacy PDF verification activation flag with the reviewed true value in the production
    configuration and release the same clean main. Read `/release.json`,
    `/api/health` and `/api/capabilities` only on `https://guteneo.com`.
-   `horizon.available` and
+   PDF verification availability and
    `documents.validation.available` must agree. Read authenticated `/api/plan`
    in the operator account; its entitlement remains inactive until consent.
    Separately record that the former application `workers.dev` host and
    application version preview URLs no longer serve application pages, the
    release manifest, API or authentication. Closed hosts are not targets for
-   release asset comparisons or Horizon availability checks.
+   release asset comparisons or PDF verification availability checks.
 7. Execute the browser/account and document protocols below. Preserve minimal
    redacted evidence without session cookies, CSRF values, signed URLs or PDF
    content in reports/logs. If a material hosted gate fails, disable the launch
@@ -137,18 +229,18 @@ apps/pdf-validator/node_modules/.bin/wrangler dev \
   --ip 127.0.0.1 --port 8891 --log-level error
 ```
 
-Set `HORIZON_MAIN_SHA`, `HORIZON_VALIDATOR_QUAL_VERSION` and
-`HORIZON_PROOF_PATH` from the exact clean source, observed qualification Worker
+Set `PDF_SOURCE_SHA`, `PDF_VALIDATOR_QUAL_VERSION` and
+`PDF_PROOF_PATH` from the exact clean source, observed qualification Worker
 version and a private artifact location. In another terminal:
 
 ```sh
 npm --prefix apps/pdf-validator run qualify:hosted -- \
-  --source-commit "$HORIZON_MAIN_SHA" \
-  --worker-version "$HORIZON_VALIDATOR_QUAL_VERSION" \
-  --proof "$HORIZON_PROOF_PATH"
+  --source-commit "$PDF_SOURCE_SHA" \
+  --worker-version "$PDF_VALIDATOR_QUAL_VERSION" \
+  --proof "$PDF_PROOF_PATH"
 ```
 
-The driver requires production mode and Horizon closed on `https://guteneo.com`
+The driver requires production mode and PDF verification closed on `https://guteneo.com`
 before stopping the container. It exercises the actual private service using
 pinned upstream references and writes pass/fail evidence locally. Its
 process-deadline probe deliberately kills harmless synthetic Python work; it
@@ -156,7 +248,7 @@ proves the process-group deadline,
 not an observed forty-second timeout of a real Java PDF. A failed hosted driver
 does not authorize activation. Keep the original failure and diagnosis.
 
-Before the normal private redeployment, while Horizon remains closed on
+Before the normal private redeployment, while PDF verification remains closed on
 `https://guteneo.com`, stop the container through the loopback-only bridge and
 stop Wrangler dev. Then run
 `npm run deploy:pdf-validator` and re-read actual deployed settings and health.
@@ -192,7 +284,7 @@ would not qualify this step. Subscription is not an MCP or native operation.
 | Tenant separation                       | An authenticated second tenant sees its own inactive plan and own balance only; no caller-supplied organization overrides authenticated membership                                                                        |
 
 For initial subscriptions a replayed response alone is insufficient financial
-proof. The read-only check must correlate the single `horizon_plan_charges` row,
+proof. The read-only check must correlate the single the legacy PDF subscription charge journal row,
 its consent-action reference, the paid period and the shared available balance.
 Never save a `session_hash`, cookie, bearer token or PDF body in the proof.
 
@@ -321,5 +413,7 @@ host/human-review items. Never include credentials, billing session URLs,
 customer document bodies or another tenant's financial rows.
 
 Sources: [monthly plan](MONTHLY_PLAN.md), [PDF access contract](PDF_ACCESSIBILITY.md),
-[private validator](PDF_VALIDATOR.md), [historical proof](HORIZON_PROOF.md),
+[private validator](PDF_VALIDATOR.md), [historical proof](PDF_VERIFICATION_PROOF.md),
 [technical atlas](FEATURE_MAP.md), and the exact tests/source files cited above.
+
+</details>

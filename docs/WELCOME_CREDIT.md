@@ -30,6 +30,51 @@ Three tenant-scoped journal entry kinds describe reserve, settle and release; ea
 
 ## Read contract
 
+Consumption history is tenant scoped and read only. `GET /api/usage` retains its
+current UTC month default; optional `period=YYYY-MM` selects a month, while
+`period=latest` selects the latest stored month no later than the current month.
+The response supplies `period`, `currentPeriod` and `availablePeriods` (the
+current month plus stored months). Existing `items` and `welcomeCredit` retain
+their meaning. Invalid period syntax fails with `INVALID_INPUT`; reporting
+permission and current workspace authority are required for every read.
+
+The browser initially requests `latest`, clearly labels the selected month and
+offers all recorded periods plus the current month. An empty month says that no
+consumption was recorded for that period; it does not imply deleted history.
+Read errors offer retry. Changing a period never changes the lifetime balance,
+reservations, journal, quotas, consent or provider state. Native and direct REST
+callers may use the additive query; no new MCP billing tool is introduced.
+
+The 25 October 2026 candidate fixes a current-month-only display regression.
+Read-only hosted inspection confirmed preserved September records while the
+October view appeared empty. Local regression evidence is recorded in
+[executed verification](TEST_RESULTS.md); deployment is a separate action.
+
+### Daily activity calendar
+
+The browser also shows a GitHub-style annual activity grid backed by
+`GET /api/usage/activity?year=YYYY`. Each day represents actual posted consumption
+in UTC, never a division of a monthly total. The server returns at most 366 daily
+aggregates, the available years, an `asOf` timestamp and yearly totals. Future
+days are not presented as measured zeroes. Current reporting rights and tenant
+scope are mandatory; the response contains no document content or recipients.
+
+Actual production debits include settled dispatch credit entries, protected
+document hosting, retained legacy PDF subscription charges, completed individual
+PDF-verification purchases and secure distribution charges. Fractional delivery
+entries are not added again: their incremental centime debit is already recorded
+in the settlement journal. A settled zero-cent operation still counts as activity.
+Reservations and unresolved provider outcomes remain separate from consumption;
+simulation has separately labelled evidence and never contributes real debits.
+Selecting a day exposes its exact posted amount and distinct operation/dispatch
+counts. Selecting a year never changes the lifetime balance or monthly limits.
+
+The grid supports arrow-key navigation with one tab stop, localized date/money
+labels and an inline selected-day detail. Its own horizontal scrolling contains
+the annual view on phones without widening the page. Loading, unavailable
+activity and a verified empty year remain distinct. This is a read projection;
+it creates no settlement, retrospective charge, grant or invoice.
+
 Both authenticated `GET /api/usage` and browser-admin `GET /api/billing` include:
 
 ```ts

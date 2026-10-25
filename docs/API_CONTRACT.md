@@ -200,9 +200,50 @@ works only from `prepared|queued`; repeating `cancelled` sends nothing.
 | `POST /api/recipients/validate` | Strict `{csv}`; `{rows,errors,duplicates,valid}`; no dispatch creation. |
 | `GET /api/senders` | Read-only `{items:[{id,channel,name,address,status,mode}]}`. |
 | `GET /api/overview` | Browser-only `{documents,dispatches:{total,approval,in_progress,attention,done}}`; organization-wide counts, no page bound; OAuth gets `403 BROWSER_REQUIRED`. |
-| `GET /api/usage` | `{items:[{channel,period,limit_count,reserved_count,confirmed_count,limit_minor,reserved_minor,confirmed_minor,currency}]}`, current UTC `YYYY-MM`. |
+| `GET /api/usage?period=YYYY-MM\|latest` | `{period,currentPeriod,availablePeriods,welcomeCredit,items:[{channel,period,limit_count,reserved_count,confirmed_count,limit_minor,reserved_minor,confirmed_minor,currency}]}`. Omitted `period` selects the current UTC month; `latest` selects the most recent stored month at or before it. |
+| `GET /api/usage/activity?year=YYYY` | `{year,currentYear,availableYears,asOf,timeZone:"UTC",currency:"EUR",evidence,days:[{date,amountMinor,dispatchCount,chargeCount}],totals:{amountMinor,dispatchCount,chargeCount,activeDays}}`. Omitted year selects the current UTC calendar year. |
 | `GET /api/admin` | `admin`; tenant-bounded `{states,outbox,uncertain,audit,controls,deadLetters,simulation,capabilities}`. |
 | `POST /api/admin/channels/:channel` | Browser admin/CSRF; strict `{enabled:boolean}`; audited stop/resume; `{channel,enabled}`. |
+
+Usage reads require current administrator authority or supervisor reporting
+permission; OAuth also retains its existing scope requirement. `availablePeriods`
+lists every retained month for this organization plus the current UTC month,
+newest first. A month returns at most one row per channel. A valid month with no
+stored rows returns `items: []`; malformed months return `400 INVALID_INPUT`.
+The browser opens `period=latest` and labels the selected month explicitly, so a
+month rollover cannot hide prior consumption. Users may switch to the current
+month even when it is empty. Historical monthly quotas/reservations do not become
+payments or invoices, and `welcomeCredit` always remains the current lifetime
+balance. Reads never create a new monthly quota or modify a credit journal.
+
+The annual activity endpoint requires the same current reporting authority and
+OAuth `dispatches:read` scope. Years must have four digits from 1000 through 9998;
+invalid values return `400 INVALID_INPUT`. Days are sparse, chronological UTC
+aggregates, at most 366 for one calendar year. `asOf` is the server timestamp:
+future-posted entries are excluded. `availableYears` contains the current UTC
+year and every retained year with posted entries for this organization. No
+recipient, document content or dispatch identifier is returned.
+
+Production `amountMinor` sums the actual integer debit in settled
+`welcome_credit_entries`, plus independently posted `protected_hosting_charges`,
+retained legacy subscription debits, production secure-distribution service
+charges and completed per-check PDF purchases.
+Posting dates select days; preparation dates, monthly quota totals, grants,
+reservations and unverified estimates never supply daily consumption. The
+fractional ledger is not added again: its incremental cent debit already appears
+in the settled credit journal. Zero-cent settlement entries remain activity.
+`dispatchCount` counts delivery settlements only, while `chargeCount` also
+includes service debits. `activeDays` counts days with at least one such entry.
+Financial history survives deletion of dispatch metadata without a content join.
+
+Simulation is returned distinctly as `evidence: "simulation"`: confirmed
+simulation reservations use their confirmation timestamps, with simulation
+legacy subscription, secure-distribution and completed PDF-check service debits.
+It is never real spending.
+The isolated public design preview uses its own labelled fictional timestamps
+and amounts, with no backend or business bindings. The annual endpoint performs
+one batch of aggregate reads for the selected year and available-year metadata;
+it does not issue one request per day or modify financial state.
 
 Campaign fields: `id`, `organization_id`, `name`, `status`, `manifest_hash`,
 `created_at`, `updated_at`. Prepare recipients individually with shared
@@ -323,6 +364,25 @@ scan, equal hash and isolated PDF validation; see [SCANNER_RESCAN.md](SCANNER_RE
 MCP document reading, simplified fax preparation and `rescan_document` retain
 scopes and cannot grant human approval. [LLM_SETUP.md](LLM_SETUP.md) owns host limits;
 [LIVE_FAX_QUOTES.md](LIVE_FAX_QUOTES.md) owns fax price/expiry/source.
+
+`GET /api/pdf-validation/pricing` is an authenticated browser-only offer read:
+`{enabled,priceMinor:10,currency:"EUR",taxBasis:"excluding_tax",termsVersion,
+paymentSource:"account_credits",purchaseAllowed,creditAvailableMinor,evidence}`.
+Only a current browser administrator sees available credits or can purchase.
+`POST /api/documents/:id/validation` requires that current administrator, CSRF,
+an idempotency key and strict `{profile,purchase:{confirmed:true,documentSha256,
+priceMinor:10,currency:"EUR",termsVersion:"pdf-check-2026-10-25-v1"}}`.
+The approved exact PDF/profile/price creates one immutable purchase and a shared
+credit hold atomically. A completed usable report, including noncompliance,
+settles 10 cents once; a technical failure, expiry or authority loss releases
+the hold without debit. No monthly entitlement, allowance or renewal is created.
+The private engine, production scanner and new `PDF_VALIDATION_ENABLED` flag
+must be ready; the retired flag cannot activate purchases. New purchases are off
+by default. Existing reports retain their document ACL and remain readable with
+OAuth `documents:read`. Assistants cannot assert this purchase approval.
+Retired `/api/plan` reads and subscription mutations return `410` without new
+financial entries. Migration 0060 retains historical paid records and rejects
+new subscription/renewal inserts. See [unit pricing](PDF_VERIFICATION_PRICING.md).
 
 ## Shared welcome credit
 

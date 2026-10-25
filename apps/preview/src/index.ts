@@ -66,7 +66,7 @@ export default {
     if (
       url.pathname === "/app" ||
       url.pathname === "/app/prepare" ||
-      url.pathname === "/app/plan"
+      ["/app/plan", "/app/pdf-checks"].includes(url.pathname)
     ) {
       const response = await env.ASSETS.fetch(
         new Request(new URL("/", url), request),

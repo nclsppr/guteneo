@@ -1,5 +1,9 @@
 import { expect, test, type Page } from "@playwright/test";
 import { mkdir } from "node:fs/promises";
+import {
+  PDF_VALIDATION_PRICE_MINOR,
+  PDF_VALIDATION_TERMS_VERSION,
+} from "../../packages/contracts/src/pdf-validation";
 
 // UI-only fixtures: every API request is intercepted. No identity, provider,
 // ledger or payment operation is performed by these mobile layout checks.
@@ -29,23 +33,14 @@ async function fixture(page: Page) {
     if (path === "/session") body = session;
     else if (path === "/capabilities")
       body = { scanner: "disabled_in_local_simulation" };
-    else if (path === "/plan")
+    else if (path === "/pdf-validation/pricing")
       body = {
-        plan: {
-          id: "horizon",
-          name: "guteneo Horizon",
-          priceMinor: 3000,
-          currency: "EUR",
-          interval: "month",
-        },
-        termsVersion: "horizon-2026-10-02-v1",
+        priceMinor: PDF_VALIDATION_PRICE_MINOR,
+        currency: "EUR",
+        taxBasis: "excluding_tax",
+        termsVersion: PDF_VALIDATION_TERMS_VERSION,
         enabled: true,
-        status: "active",
-        entitled: true,
-        currentPeriodStart: now,
-        currentPeriodEnd: "2026-10-17T10:00:00Z",
-        cancelAtPeriodEnd: false,
-        billingManagementAllowed: true,
+        purchaseAllowed: true,
         paymentSource: "account_credits",
         evidence: "simulation",
         creditAvailableMinor: 5000,

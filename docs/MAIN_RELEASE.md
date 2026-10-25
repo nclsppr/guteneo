@@ -1,15 +1,21 @@
 # Publication from main
 
-Production exposes the application only at **https://guteneo.com**. The application
+Production exposes the customer application at **https://guteneo.com**. The
+reviewed candidate also routes **https://belvedere.guteneo.com** to the isolated,
+read-only platform control tower; customer routes and bearer authority remain
+closed there. Its Auth0 configuration and authenticated hosted journey require
+separate qualification under [BELVEDERE.md](BELVEDERE.md). The application
 Worker disables its `workers.dev` subdomain and Cloudflare version-preview URLs
 (`workers_dev:false`, `preview_urls:false`); verify closure after publication.
 `https://guteneo-app.nclsppr.workers.dev` and application version previews are not
 fallback access. The fictional `deploy:preview` Worker remains separate under
 [PUBLIC_PREVIEW.md](PUBLIC_PREVIEW.md).
 
-Browser login and Auth0 callback use `https://guteneo.com`. Browser-client callback,
-logout and allowed-origin lists retain canonical URLs and exclude the old
-application host. Assistant callbacks are separate contracts. Configuration/tests
+Customer browser login and Auth0 callback use `https://guteneo.com`. Belvédère
+uses the same client with its exact dedicated-host callback, logout and allowed
+origin entries, separate host-only cookies and the unchanged Watcher identity
+guard. Keep canonical entries and exclude the old application host; never use a
+wildcard or shared parent-domain cookie. Assistant callbacks are separate contracts. Configuration/tests
 prove no human signup, callback or reconnection; qualify those separately without
 business sending.
 
@@ -86,9 +92,9 @@ or performing business POSTs. Earlier two-origin proof remains dated evidence.
 PDF operators [deploy-pdf-validator.mjs](../scripts/deploy-pdf-validator.mjs)
 (temporary qualification) and [qualify-hosted.mjs](../apps/pdf-validator/scripts/qualify-hosted.mjs)
 read `/api/capabilities` only on the canonical origin. Their guards require
-production mode and Horizon unavailable before qualification. The closed host is
+production mode and PDF verification unavailable before qualification. The closed host is
 no second check. [pdf-validator-release.test.mjs](../tests/security/pdf-validator-release.test.mjs)
-uses intercepted canonical reads and rejects Horizon open, unknown or unreachable.
+uses intercepted canonical reads and rejects PDF verification open, unknown or unreachable.
 Local evidence does not qualify the hosted PDF service.
 
 Fresh authorized provider inspection may use the existing private Telnyx reader

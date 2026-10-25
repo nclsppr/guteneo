@@ -49,6 +49,9 @@
 .protected-document-choice .field {
   margin: 20px 0 0;
 }
+.protected-document-choice .field-hint {
+  margin-top: 8px;
+}
 .protected-document-choice .field-hint,
 .protected-document-summary p:last-child {
   margin-bottom: 0;

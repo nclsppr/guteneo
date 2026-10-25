@@ -1,18 +1,19 @@
 # Operations and recovery
 
-For the 3 October Horizon opening on available credits, follow the
-[activation runbook](HORIZON_ACTIVATION_RUNBOOK.md),
+For the current PDF verification purchase candidate, follow the
+[unit-pricing and release contract](PDF_VERIFICATION_PRICING.md),
 [private validator qualification guide](../apps/pdf-validator/qualification/README.md)
-and [Cloudflare cost model](HORIZON_COSTS.md). The local resource-qualified
-candidate is one `basic` instance, five-second idle sleep and a pinned, tuned
+and [Cloudflare cost model](PDF_VERIFICATION_COSTS.md). The local resource-qualified
+candidate is one `standard-1` instance, five-second idle sleep and a pinned, tuned
 JVM. Startup admission and in-flight responses are protected from idle expiry;
 the Worker response is bounded even if the private transport ignores abort.
 The local qualification bridge requires a fresh secret, rejects browser Origin
 headers before any binding and never transfers its credential to Cloudflare.
 Hosted cold large-file validation and actual stop/wake remain release gates.
-The authorization is already recorded in the
-[opening decision](HORIZON_OPENING_2026_10_03.md); this preparation does not itself
-activate the service.
+The [3 October opening decision](PDF_VERIFICATION_OPENING_2026_10_03.md) and
+[old activation instructions](PDF_VERIFICATION_ACTIVATION_RUNBOOK.md) are historical
+subscription evidence. They do not enable new recurring charges. Current merge,
+production publication and any real purchase require their own authority and proof.
 
 ## Environments and release
 
@@ -20,7 +21,7 @@ Local: `npm ci`, `npx playwright install chromium`, `npm run demo`. Uses local D
 
 Staging/production: use separate reviewed configurations based on `wrangler.staging.json.example` / `wrangler.production.json.example`. `npm run deploy:plan -- staging` prints commands only. Never deploy the root local configuration. `node scripts/check-deployment.mjs path/to/reviewed.json` rejects placeholders, local endpoints, missing service bindings and initially enabled live sends. Verify D1 EU jurisdiction in the account after creation; an ID string cannot prove location. Set secrets via Wrangler secret, not committed vars.
 
-The production publication contract uses **https://guteneo.com** as its only application origin. Publish with `wrangler.live.jsonc`, retaining `workers_dev: false` and `preview_urls: false`; the former application hostname and application version preview URLs must then remain closed. The fictional browser-only design preview is a separate Worker at **https://guteneo-preview.nclsppr.workers.dev**, with no business bindings. Its configuration and journeys remain separate; see [PUBLIC_PREVIEW.md](PUBLIC_PREVIEW.md).
+The customer application uses **https://guteneo.com**. The reviewed candidate adds **https://belvedere.guteneo.com** only for the isolated, read-only platform host; see [BELVEDERE.md](BELVEDERE.md) for its separate Auth0 and hosted qualification. Publish with `wrangler.live.jsonc`, retaining `workers_dev: false` and `preview_urls: false`; the former application hostname and application version preview URLs must then remain closed. The fictional browser-only design preview is a separate Worker at **https://guteneo-preview.nclsppr.workers.dev**, with no business bindings. Its configuration and journeys remain separate; see [PUBLIC_PREVIEW.md](PUBLIC_PREVIEW.md).
 
 On 10 October 2026, the user explicitly accepted closing the old application hostname without migrating the dormant SES SNS subscription: SES is unused, and fresh configuration/capability evidence must confirm that business email sending remains disabled before closure. Leave the existing SNS binding untouched. Its historical endpoint will be unavailable after closure; that accepted deferral is recorded in [SES_STATUS.md](SES_STATUS.md), without claiming an AWS migration. Before any future SES activation, migrate and qualify the canonical callback, authenticated confirmation, exact topic/signature version and preserved subscription attributes through [SES_SUBSCRIPTION_CONFIRMATION.md](SES_SUBSCRIPTION_CONFIRMATION.md). Missing AWS access does not block this closure while those disabled-email conditions hold; it still blocks that future SES qualification. Identity-provider transactional email is a separate configuration.
 
@@ -32,7 +33,7 @@ node scripts/verify-release.mjs https://guteneo.com dist/web/release.json
 
 Record the deployed version and traffic, canonical health/capabilities and read-only public browser proof. Separately verify that the former application hostname and version preview URLs no longer serve Guteneo pages, manifest, API or authentication; retain the observed responses and Cloudflare configuration. Do not compare release asset bytes on a closed origin. No additional closure command is required: the reviewed Wrangler flags persist at publication. Dated two-origin evidence in [LIVE_RELEASE.md](LIVE_RELEASE.md) remains historical.
 
-Browser login and the Auth0 callback must use the canonical origin so the host-only login cookie accompanies its callback. Callback, logout and allowed-origin configuration must exclude the closed application hostname. Public page checks do not qualify a real human account, callback/session or reconnection; those require separate authorized browser proof. Keep public release checks away from `/auth/login` and business POST actions. EU D1/R2, queues and private scanning/rendering retain their existing boundaries; domain closure does not change roles or sending authority.
+Customer browser login and its Auth0 callback use the canonical origin. The dedicated Belvédère host uses its exact separately allowed callback; each host retains its own host-only login cookie. Callback, logout and allowed-origin configuration must exclude the closed application hostname. Public page checks do not qualify a real human account, callback/session or reconnection; those require separate authorized browser proof. Keep public release checks away from `/auth/login` and business POST actions. EU D1/R2, queues and private scanning/rendering retain their existing boundaries; domain closure does not change roles or sending authority.
 
 ## Activation gates
 

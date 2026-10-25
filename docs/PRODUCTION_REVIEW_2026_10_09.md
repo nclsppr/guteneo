@@ -24,7 +24,7 @@ release still needs clean local `verify-release.mjs`/Cloudflare deployment ident
 | Studio | Templates/CSV/XLSX/JSON/XML/generation announced | Authenticated synthetic journey/async PDF result |
 | Fax/postal | Send switches on; providers `configured_not_live_validated` | Current quotes/approval/actual handover/callback/delivery |
 | Email/protected link | Closed publicly | Separate activation/qualification |
-| Horizon/veraPDF | Off | Activation/private checks/authorized debit |
+| PDF verification/veraPDF | Off | Activation/private checks/authorized debit |
 | Stripe/AI | Off | Separate qualification; existing credits are distinct |
 | Assistants/native | Anonymous MCP refused; native code present | Real-client OAuth/tools/physical device |
 | Belvédère | Included deployed code; unknown private address refused | Platform-watcher access/private data not read here |
@@ -100,7 +100,7 @@ simulation; a remote canary must traverse actual authorized hosted services.
 | Quote preparation without approval | Daily | Price/provider/expiry; no approve/send |
 | Pingen draft transfer | Separate explicit authority only | Actual external transfer/confirmed deletion; excluded by default |
 | MCP | After release/daily | Real OAuth/read-preparation, no activated delegation |
-| Horizon/protected link/Stripe/AI | After authorized activation | Actual budgets/entitlements/billing, bounded separate tests |
+| PDF verification/protected link/Stripe/AI | After authorized activation | Actual budgets/entitlements/billing, bounded separate tests |
 | Restore | Monthly | Isolated restoration/integrity, never overwrite production |
 | iOS/assistant clients | After release | Actual device/client/identity/bytes/revocation, not emulation alone |
 

@@ -1,9 +1,16 @@
-# Horizon candidate — executed evidence and release gaps
+# PDF verification candidate — executed evidence and release gaps
+
+Historical record, superseded by the 25 October 2026 individual-purchase candidate.
+New subscriptions and recurring renewals are retired. Do not execute archived
+subscription activation/renewal instructions or treat their EUR30 monthly terms
+as a current offer. Current behavior is [PDF verification](PDF_ACCESSIBILITY.md)
+and the [unit-pricing contract](PDF_VERIFICATION_PRICING.md). Existing financial
+journals and dated observations are preserved; no new release is asserted here.
 
 3 October update: `c5cc0dd` and migrations 0050/0051 are now published and verified;
 the exact main CI is green. Nicolas authorizes qualification and activation on
 available credits, with commercial completion and recharge deferred. The
-[opening decision](HORIZON_OPENING_2026_10_03.md) records this scope. Hosted engine
+[opening decision](PDF_VERIFICATION_OPENING_2026_10_03.md) records this scope. Hosted engine
 qualification, customer browser consent and post-activation evidence must still
 be recorded separately; the original dated local evidence below is preserved.
 
@@ -28,13 +35,13 @@ peak memory is 165.75 MiB. The smaller `lite` configuration was actually tested
 and did not become ready within the bounded local probe. These remain local
 measurements, not hosted latency or billing evidence. See
 [resource proofs](../apps/pdf-validator/tests/benchmark-fixtures/local-resource-proof.json)
-and [cost assumptions](HORIZON_COSTS.md). Hosted qualification must also observe
+and [cost assumptions](PDF_VERIFICATION_COSTS.md). Hosted qualification must also observe
 the real cold large-file request, automatic idle stop and wake-up.
 
-Prepared on 2 October 2026 in the isolated branch
-`codex/pdf-accessibility-horizon`, initially based on `origin/main` at
+Prepared on 2 October 2026 in the original isolated PDF accessibility branch,
+initially based on `origin/main` at
 `8b060bbd805e1778f62ba795c1e6d942092bb670`, then reconciled with template-studio
-merge `4b5df4d753d30ec4e9564ec1dca2655d6c2a35ac`. Horizon migrations are now
+merge `4b5df4d753d30ec4e9564ec1dca2655d6c2a35ac`. PDF verification migrations are now
 0050–0051 after the upstream template migrations through 0049. The original
 dirty checkout was preserved. This document describes local preparation; no production service,
 migration, debit, communication, marketplace publication or deployment occurred.
@@ -107,7 +114,7 @@ The complete backend result retains actual assertion records. One authority file
 had been compiled before the final CSRF patch during the concurrent shard run;
 its result was replaced by a fresh passing 19-test process and the original blob
 and replacement audit were preserved. The complete 85-file inventory validator
-then confirmed all 1,614 assertions, including the latest Horizon UI tests.
+then confirmed all 1,614 assertions, including the latest PDF verification UI tests.
 
 The initial complete run exposed obsolete test cleanup that deleted organizations retaining
 immutable simulation credit grants, a deferred-migration fixture order, and old
@@ -135,7 +142,7 @@ package alongside the scanner; its required CI job compiles the complete package
 
 Upstream PR #39 had twelve successful required checks on its reviewed head before
 merge. The reconciled branch keeps its studio, private generated documents,
-OAuth authorities, background processing and renderer checks. Horizon migrations
+OAuth authorities, background processing and renderer checks. PDF verification migrations
 0050–0051 follow its unchanged migrations through 0049.
 
 Local post-reconciliation verification passed 142 focused backend assertions:
@@ -163,11 +170,11 @@ local evidence; they do not substitute for the reconciled PR's CI.
 
 The 3 October opening decision above supplies the authorization and defers
 commercial completion. The current execution order is in the
-[activation runbook](HORIZON_ACTIVATION_RUNBOOK.md); this original checklist is
+[activation runbook](PDF_VERIFICATION_ACTIVATION_RUNBOOK.md); this original checklist is
 retained as dated evidence.
 
 - Obtain explicit authorization for private service provisioning/binding,
-  production migrations and deployment. Keep `HORIZON_ENABLED` absent/false until
+  production migrations and deployment. Keep the PDF verification activation flag absent/false until
   the actual private service and production mode are qualified.
 - Qualify positive and negative real reference documents for every profile, as
   well as hosted failure, concurrency, timeout and exact-file privacy behaviour.
@@ -178,7 +185,7 @@ retained as dated evidence.
 - Perform human keyboard/screen-reader review and a real OAuth assistant journey.
   Local REST/MCP tests and a ZIP do not prove ChatGPT/Claude host availability.
 - Verify the exact deployed source and public surfaces, then authorize the
-  separate announcements. [Four-language launch drafts](HORIZON_LAUNCH.md) remain
+  separate announcements. [Four-language launch drafts](PDF_VERIFICATION_LAUNCH_ARCHIVE.md) remain
   preparation copy until that evidence exists.
 
 The public offer explains European accessibility rules with primary sources and

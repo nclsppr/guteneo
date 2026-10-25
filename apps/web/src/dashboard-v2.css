@@ -205,7 +205,7 @@
   width: 36px;
   height: 36px;
   grid-column: 1;
-  grid-row: 1 / 4;
+  grid-row: 1 / 3;
   align-self: start;
   border-radius: 50%;
   background: #dfe5f0;
@@ -215,7 +215,7 @@
 }
 .workspace-v2
   .workspace-identity-profile
-  > :is(strong, .workspace-identity-email, .workspace-role) {
+  > :is(strong, .workspace-identity-email) {
   grid-column: 2;
   grid-row: auto;
   justify-self: start;
@@ -226,13 +226,6 @@
 }
 .workspace-v2 .workspace-identity-email {
   font-size: 11px;
-  color: var(--muted);
-}
-.workspace-v2 .workspace-identity-profile .workspace-role {
-  padding: 0;
-  border: 0;
-  background: transparent;
-  font-weight: 400;
   color: var(--muted);
 }
 .workspace-v2 .workspace-identity-profile .workspace-identity-label,
@@ -362,20 +355,20 @@
   top: 9%;
   left: 25%;
 }
-.dashboard-artwork-horizon .dashboard-artwork-swallow-near {
+.dashboard-artwork-pdf-verification .dashboard-artwork-swallow-near {
   top: 8%;
   left: 40%;
   width: 9%;
 }
-.dashboard-artwork-horizon .dashboard-artwork-swallow-far {
+.dashboard-artwork-pdf-verification .dashboard-artwork-swallow-far {
   top: 16%;
   left: 56%;
   width: 5.5%;
 }
-.workspace-v2 .dashboard-editorial-heading-horizon {
+.workspace-v2 .dashboard-editorial-heading-pdf-verification {
   grid-template-columns: minmax(0, 1.15fr) minmax(180px, 0.85fr);
 }
-.dashboard-artwork-horizon {
+.dashboard-artwork-pdf-verification {
   max-width: 480px;
   max-height: 160px;
 }
@@ -528,7 +521,7 @@
     .studio-side,
     .studio-list,
     .studio-table,
-    .horizon-offer,
+    .pdf-check-offer,
     .pdf-validation,
     .credit-balance,
     .studio-gallery article
@@ -542,13 +535,13 @@
     .form-panel,
     .studio-section,
     .studio-side,
-    .horizon-offer,
+    .pdf-check-offer,
     .pdf-validation,
     .studio-gallery article
   ) {
   padding: 24px;
 }
-.workspace-v2 :is(.studio-section, .horizon-offer, .pdf-validation) {
+.workspace-v2 :is(.studio-section, .pdf-check-offer, .pdf-validation) {
   margin-block: 24px;
 }
 .workspace-v2
@@ -585,7 +578,7 @@
   :is(
     .usage-ledger dd strong,
     .credit-balance-amount dd,
-    .horizon-price strong
+    .pdf-check-price strong
   ) {
   font-family: var(--font-body);
   font-size: 32px;
@@ -634,6 +627,10 @@
   font-size: 15px;
   min-height: 46px;
   padding: 11px 12px;
+}
+.workspace-v2 .field select {
+  height: 46px;
+  padding-inline-end: 40px;
 }
 .workspace-v2 .channel-selector span {
   min-height: 46px;
@@ -750,7 +747,7 @@
       .form-panel,
       .studio-section,
       .studio-side,
-      .horizon-offer,
+      .pdf-check-offer,
       .pdf-validation,
       .credit-balance-main,
       .credit-balance-detail
@@ -758,7 +755,7 @@
     padding: 20px;
   }
   .workspace-v2 .dashboard-editorial-heading,
-  .workspace-v2 .dashboard-editorial-heading-horizon {
+  .workspace-v2 .dashboard-editorial-heading-pdf-verification {
     grid-template-columns: minmax(0, 1fr);
     gap: 12px;
     min-height: 0;
@@ -766,7 +763,7 @@
   .dashboard-artwork-atelier {
     display: none;
   }
-  .dashboard-artwork-horizon {
+  .dashboard-artwork-pdf-verification {
     max-width: 330px;
     max-height: 110px;
     object-position: left center;

@@ -48,6 +48,7 @@ async function fixture(
     pageSize?: [number, number];
     secondPage?: boolean;
     unavailable?: boolean;
+    preferredLocale?: "fr";
   } = {},
 ) {
   const writes: { path: string; body: Record<string, unknown> }[] = [];
@@ -76,7 +77,12 @@ async function fixture(
       path === "/api/session"
         ? {
             organization: { id: "org_ui", name: "Atelier de contrôle" },
-            user: { id: "user_ui", name: "Camille", role: "admin" },
+            user: {
+              id: "user_ui",
+              name: "Camille",
+              role: "admin",
+              preferredLocale: pdfOptions.preferredLocale,
+            },
             simulation: false,
             csrfToken: "fixture-only",
           }
@@ -326,6 +332,110 @@ async function fillMessage(page: Page) {
     .getByLabel("Message", { exact: true })
     .fill("Bonjour <Camille>,\nVoici votre document.");
 }
+
+test.describe("localized preparation controls", () => {
+  test.use({ locale: "en-GB" });
+
+  for (const appearance of ["classic", "v2"] as const) {
+    test(`${appearance} keeps French file copy, full-height expiry and keyboard focus`, async ({
+      page,
+      isMobile,
+      browserName,
+    }, testInfo) => {
+      await fixture(page, { preferredLocale: "fr" });
+      await page.route("**/api/documents", async (route) => {
+        if (route.request().method() === "GET") return route.fallback();
+        await route.fulfill({ json: sampleDocument });
+      });
+      await page.route(`**/api/documents/${sampleDocument.id}`, (route) =>
+        route.fulfill({ json: sampleDocument }),
+      );
+      await page.goto(
+        `/?lang=fr&appearance=${appearance}#/app/prepare?channel=email`,
+      );
+      await expect(page.locator("html")).toHaveAttribute("lang", "fr");
+      const upload = page.getByLabel("Ou importer un PDF", { exact: true });
+      const uploadSurface = upload.locator("..");
+      await expect(uploadSurface.locator(".file-input-button")).toHaveText(
+        "Choisir un fichier",
+      );
+      await expect(uploadSurface.locator(".file-input-name")).toHaveText(
+        "Aucun fichier sélectionné",
+      );
+      const fileName = "Correspondance — vérification française.pdf";
+      const chooserReady = page.waitForEvent("filechooser");
+      await upload.click();
+      const chooser = await chooserReady;
+      await chooser.setFiles({
+        name: fileName,
+        mimeType: "application/pdf",
+        buffer: Buffer.from("synthetic UI-only PDF selection"),
+      });
+      await expect(uploadSurface.locator(".file-input-name")).toHaveText(
+        fileName,
+      );
+      expect(
+        await upload.evaluate(
+          (element: HTMLInputElement) => element.files?.length,
+        ),
+      ).toBe(1);
+      const protection = page.getByRole("checkbox", {
+        name: /Envoyer un lien protégé/,
+      });
+      await protection.check();
+      const expiry = page.getByLabel("Expiration du lien");
+      await expiry.selectOption("30");
+      await expect(expiry).toHaveValue("30");
+      const choice = page.locator(".protected-document-choice");
+      const layout = await choice.evaluate((element) => {
+        const select = element.querySelector("select")!;
+        const hint = element.querySelector(".field-hint")!;
+        const selectRect = select.getBoundingClientRect();
+        return {
+          selectHeight: selectRect.height,
+          hintGap: hint.getBoundingClientRect().top - selectRect.bottom,
+        };
+      });
+      expect(layout.selectHeight).toBeGreaterThanOrEqual(44);
+      expect(layout.hintGap).toBeGreaterThanOrEqual(8);
+      await expect(expiry).toHaveCSS("appearance", "none");
+      if (!isMobile) {
+        const emailChannel = page.getByRole("radio", {
+          name: "E-mail",
+          exact: true,
+        });
+        await emailChannel.locator("..").click();
+        expect(
+          await emailChannel
+            .locator("..")
+            .locator("span")
+            .evaluate((element) => getComputedStyle(element).outlineStyle),
+        ).toBe("none");
+        await page.getByLabel("Pièce jointe PDF (facultative)").focus();
+        await page.keyboard.press(browserName === "webkit" ? "Alt+Tab" : "Tab");
+        await expect(upload).toBeFocused();
+        const keyboardFocus = await uploadSurface.evaluate((element) => {
+          const style = getComputedStyle(element);
+          return {
+            width: style.outlineWidth,
+            color: style.outlineColor,
+          };
+        });
+        expect(keyboardFocus.width).toBe("2px");
+        expect(keyboardFocus.color).toBe("rgb(24, 27, 34)");
+      }
+      expect(
+        await page.evaluate(
+          () => document.documentElement.scrollWidth <= window.innerWidth,
+        ),
+      ).toBe(true);
+      await page.screenshot({
+        path: testInfo.outputPath(`localized-controls-${appearance}.png`),
+        fullPage: true,
+      });
+    });
+  }
+});
 
 test("email without attachment needs one message and escapes its automatic HTML", async ({
   page,

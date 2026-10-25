@@ -30,7 +30,7 @@ import {
   isPublicPreview,
 } from "./api";
 import { t } from "./locale";
-import { horizonErrorMessage } from "./horizon-errors";
+import { pdfCheckErrorMessage } from "./pdf-check-errors";
 import { useDashboardAppearance } from "./dashboard-appearance";
 
 export const BEFORE_WORKSPACE_NAVIGATION =
@@ -260,7 +260,7 @@ export function ErrorNotice({
         <strong>{t.errorTitle}</strong>
         <p>
           {error instanceof ApiError
-            ? (horizonErrorMessage(error.code) ??
+            ? (pdfCheckErrorMessage(error.code) ??
               postalErrorMessage(error.code) ??
               emailErrorMessage(error.code) ??
               generalErrorMessage(error.code) ??

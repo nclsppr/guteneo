@@ -20,7 +20,8 @@ import "./dashboard-v2.css";
 if (
   window.location.pathname === "/app" ||
   window.location.pathname === "/app/prepare" ||
-  window.location.pathname === "/app/plan"
+  window.location.pathname === "/app/plan" ||
+  window.location.pathname === "/app/pdf-checks"
 ) {
   const entry = new URL(window.location.href);
   entry.hash =
@@ -37,7 +38,7 @@ const belvederePath = document.querySelector<HTMLMetaElement>(
   'meta[name="guteneo-belvedere"]',
 )?.content;
 const isBelvedere =
-  !!belvederePath &&
+  belvederePath !== undefined &&
   window.location.pathname.replace(/\/$/, "") === belvederePath;
 if (isBelvedere) {
   applyAccountLocale(

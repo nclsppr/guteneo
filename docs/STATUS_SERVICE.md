@@ -9,11 +9,27 @@ selected by `?lang=en|fr` or the browser language; unsupported or malformed expl
 choices fall back to English. Static labels, dynamic observations and animations
 share the English-keyed French catalog in `apps/status/public/locales/fr.js`.
 The page accepts historical French feature labels and current English report
-labels through exact aliases without rewriting stored reports; duplicate aliases
+labels through aliases without rewriting stored reports. Historical PDF feature
+labels normalize to PDF verification; duplicate aliases
 for one feature are rejected. Historical checks retain their observed URL, including
 the former developer route, while new probes use canonical English paths.
 Legal/privacy links and the content anchor use the
 same English routes as the main website.
+
+## PDF verification and scanner visibility
+
+The 25 October candidate reads `pdfValidation.available` for the paid PDF
+verification feature. Only an explicit `false` presents it as not enabled;
+`true`, absent or malformed availability stays unqualified until its own
+current authenticated journey is observed. This never claims a successful
+purchase, engine run or conformance result. Historical labels are normalized
+in the browser without changing stored observations.
+
+Antivirus/import/rendering retain a separate coverage row. The public
+`scanner: "connected"` setting is distinct from an actual hosted scan. Enabling
+paid PDF checks does not activate the antivirus service, and a closed paid-check
+feature does not mean antivirus is disabled. Private-service and exact-file
+scan proof remain separate from these anonymous status reads.
 
 ## What evidence establishes
 

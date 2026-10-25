@@ -25,7 +25,7 @@ a parallel business environment. Session, current membership, resource rights
 and server capabilities remain required.
 
 Presentation covers navigation, overview, documents, dispatch preparation/
-review/tracking, assistants, account, Studio, Horizon, credits, tables and forms.
+review/tracking, assistants, account, Studio, PDF verification, credits, tables and forms.
 Belvédère retains its separate presentation/platform authority. Business
 contracts remain unchanged.
 
@@ -41,9 +41,41 @@ and keyboard order.
 
 V2 no longer repeats a section title above the page title or displays an
 application footer. The official logo stays at navigation top; workspace name
-has its own block. Account retains person name/email/role; overview explains
-rights without repeating identity/workspace name. Active navigation and main
+has its own block. Account utilities retain person name/email; the role and
+rights are detailed on My account rather than repeated throughout the shell
+or overview. Active navigation and main
 heading serve distinct purposes and remain.
+
+### Form and navigation corrections — 25 October 2026 candidate
+
+My documents is a compact navigation entry into the personal space, using the
+same link size as the workshop destinations. It keeps its personal-space
+accessible description without a separate oversized card. The account page
+continues to show the current workshop role and permissions; operational access
+and permission-specific recovery messages still follow server authority.
+
+Shared `FileInput` controls author the chooser and empty-state text in the
+resolved interface language, independently of the browser's language. They keep
+the native file input for keyboard access, file restrictions, validation and
+exact original bytes. Literal filenames are never translated. PDF, template,
+dataset, campaign and invitation imports share the control.
+
+Workspace selects use an authored face and explicit control height, including
+desktop Safari. Protected-link explanations sit below the expiry field with
+positive spacing. Pointer activation does not leave a native blue outline;
+keyboard focus uses a visible two-pixel ink outline. Selected dispatch channels
+and checked options retain visible ink states. Forced-colors mode retains the
+native select arrow. These presentation changes grant no authority, prepare no
+dispatch and change no consent or price.
+
+The consumption page offers stored monthly history rather than implying that
+an empty current month means an empty account. Its read contract and accounting
+boundaries are documented in [welcome credit](WELCOME_CREDIT.md).
+
+Local synthetic browser evidence and static checks are recorded in
+[executed verification](TEST_RESULTS.md). Production read-only observation
+confirmed a nonzero balance with an empty current-month view; publication of
+this candidate and authenticated verification after release remain separate.
 
 **Service status** joins **Switch account** in identity utilities, at navigation
 bottom on desktop and accessible with the mobile menu closed. **Times shown:
@@ -265,7 +297,7 @@ channel activation, mandate grant/extension nor server-check bypass. See
 | Workspace switch | Same preference, current membership rights/data | No previous-workspace privilege retained |
 | Account switch | Returned account preference; old override discarded | Old local cache never presented as new account preference |
 | Documents → preparation → review → tracking | Same resources/requests/guards, new presentation | Existing quarantine, quote-expiry, closed-channel, permission and unknown-outcome recovery |
-| Studio/Horizon/credits | Coherent presentation, unchanged authority | No appearance-created subscription/quota/debit/transfer |
+| Studio/PDF verification/credits | Coherent presentation, unchanged authority | No appearance-created subscription/quota/debit/transfer |
 | Assistant → browser review | Same scopes/consent, browser preference | No added tool, mandate or implicit consent |
 
 Journeys/matrix are also maintained in [feature-map.json](feature-map.json).
@@ -283,11 +315,11 @@ The official portrait was not regenerated.
 | --- | --- | --- | --- |
 | `apps/web/public/brand/dashboard-v2/atelier.webp` | 1280 × 853 | 158,328 | Original/440 px use inspected |
 | `apps/web/public/brand/dashboard-v2/documents.webp` | 1280 × 960 | 75,294 | Original/320 px use inspected |
-| `apps/web/public/brand/dashboard-v2/horizon.webp` | 1280 × 427 | 105,592 | Original/600 px use inspected |
+| `apps/web/public/brand/dashboard-v2/pdf-verification.webp` | 1280 × 427 | 105,592 | Original/600 px use inspected |
 
 Display evidence: `/tmp/guteneo-v2-qa/artwork/`, outside the repository.
 Decorative images have empty alt text on opaque ivory; no consent/delivery
-information is embedded. Horizon evokes Luxembourg without claiming geographic
+information is embedded. The PDF verification illustration evokes Luxembourg without claiming geographic
 accuracy. Business information/document previews remain separate accessible
 content.
 
@@ -438,7 +470,7 @@ Earlier evidence is retained without extending it to server preference:
 | Bootstrap, temporary URL, unavailable storage/translations | 7/7 `tests/unit/dashboard-appearance.test.ts` passed |
 | Isolated mockup: account control, language proximity, four languages, reading/mobile order | 14/14 passed: 8 V2, 6 baseline; desktop/iPhone WebKit without business backend |
 | Local app: personal save, fresh browser, name-only forced URL, draft, consent, roles/account bottom | 15/15: five scenarios on three browsers; local simulation API/intercepted sessions by scenario |
-| Fifteen workspace routes at 320 px including Studio/Horizon/credits | Included in Classic/V2 app suite; overflow/account access checked, no physical-device qualification |
+| Fifteen workspace routes at 320 px including Studio/PDF verification/credits | Included in Classic/V2 app suite; overflow/account access checked, no physical-device qualification |
 | Narrow navigation, long identity, fax quote/PDF and test-interception closure regressions | 122/122 after fixes: 105 on three browsers, 17 additional iPhone WebKit; quote/PDF captures reviewed |
 | Historical quote migration with new user schema | 16/16; fixture copies four historical-schema columns without changing business assertions |
 | Transient local test-database lock | 18/18 bounded-reset tests, 5/5 Chromium V2 scenarios; only explicit `SQLITE_BUSY` retries idempotent reset, never scenario/business operation |

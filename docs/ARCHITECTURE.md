@@ -1,5 +1,16 @@
 # Architecture
 
+25 October 2026 branch candidate: PDF verification becomes an individual purchase
+for an exact original and selected profile. New subscriptions and recurring renewals
+are retired; immutable historical consent, charges and reports remain preserved.
+Only a current browser administrator can accept the explicit purchase. Failed
+engine execution does not create a settled charge; a complete conformance report
+can be billable whether its rules pass or fail. Billing administration retains
+current browser-administrator authority without a monthly entitlement. Current
+price and terms: [unit-pricing contract](PDF_VERIFICATION_PRICING.md),
+[PDF verification](PDF_ACCESSIBILITY.md). Source, CI, private-engine qualification,
+authenticated financial proof and deployed activation remain distinct.
+
 24 October 2026: migrations 0055–0059 separate personal authority from workshop
 membership, bind immutable secure distributions and paid terms, enforce human
 browser approval under the current document policy at SQL acceptance, and retain
@@ -76,7 +87,7 @@ and [DASHBOARD_IDENTITY_PROOF.md](DASHBOARD_IDENTITY_PROOF.md) for contracts and
 executed proof. Merge, production migration/configuration and deployment remain
 separate evidence.
 
-2 October Horizon branch candidate: migrations 0050–0051 add immutable recurring
+Historical 2 October PDF verification subscription candidate, now retired: migrations 0050–0051 add immutable recurring
 browser consent, atomic credit debits and tenant-scoped diagnostics. A private
 veraPDF 1.30.2 service is reached through `PDF_VALIDATOR`. Exact bytes, paid
 access and current browser/OAuth credential SQL fences guard writes. Diagnostics

@@ -14,6 +14,7 @@ import { qualifyPingenSynthetic } from "../../../packages/providers/pingen-quali
 import { configurePingenWebhooks } from "../../../packages/providers/pingen-webhook-setup";
 
 import application from "./index";
+import { handleBelvedereHost } from "./belvedere-host";
 import { servePublicAssets } from "./public-assets";
 import { publicHttpError } from "./public-http-error";
 import site from "../../../packages/contracts/src/public-site.json" with { type: "json" };
@@ -22,6 +23,8 @@ import { startObservation } from "../../../packages/observability/src/index";
 export default {
   ...application,
   async fetch(request: Request, env: Env, ctx: ExecutionContext) {
+    const platform = await handleBelvedereHost(request, env);
+    if (platform) return platform;
     let asset: Response | null;
     try {
       asset = await servePublicAssets(request, env);

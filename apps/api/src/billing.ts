@@ -1,7 +1,6 @@
 import { z } from "zod";
 import { DomainError } from "../../../packages/domain/src/index";
 import { readWelcomeCredit } from "../../../packages/domain/src/welcome-credit";
-import { requireHorizonPlan, type HorizonEnv } from "./monthly-plan";
 import {
   authenticateBrowser,
   hashSecret,
@@ -9,7 +8,7 @@ import {
   type AuthContext,
 } from "./auth";
 
-export interface BillingEnv extends AuthEnv, HorizonEnv {
+export interface BillingEnv extends AuthEnv {
   STRIPE_API_KEY?: string;
   STRIPE_WEBHOOK_SECRET?: string;
   STRIPE_MODE?: "test" | "live";
@@ -154,7 +153,6 @@ async function requireAdmin(env: BillingEnv, actor: AuthContext) {
       "Billing is restricted to workspace administrators.",
       403,
     );
-  await requireHorizonPlan(env, actor);
 }
 
 export class BillingService {
@@ -232,8 +230,7 @@ export class BillingService {
           .bind(actor.organizationId, live, stripeId.parse(after))
           .first<{ created: number; id: string }>()
       : null;
-    if (after && !cursor)
-      fail("NOT_FOUND", "Billing page not found.", 404);
+    if (after && !cursor) fail("NOT_FOUND", "Billing page not found.", 404);
     const columns =
       kind === "invoices"
         ? "id,number,status,currency,total_minor,amount_due_minor,amount_paid_minor,amount_remaining_minor,created,due_date,synced_at"
@@ -413,11 +410,7 @@ export async function handleBillingRoute(
   const url = new URL(request.url);
   if (!url.pathname.startsWith("/api/billing")) return null;
   if (request.headers.has("Authorization"))
-    fail(
-      "BILLING_BROWSER_REQUIRED",
-      "Open billing in your browser.",
-      403,
-    );
+    fail("BILLING_BROWSER_REQUIRED", "Open billing in your browser.", 403);
   const mutation = !["GET", "HEAD", "OPTIONS"].includes(request.method);
   const session = await authenticateBrowser(request, env, mutation);
   await requireAdmin(env, session.context);
@@ -475,11 +468,7 @@ export async function handleBillingRoute(
         current.context.organizationId !== session.context.organizationId ||
         current.context.userId !== session.context.userId
       )
-        fail(
-          "BILLING_ADMIN_REQUIRED",
-          "The billing session has changed.",
-          403,
-        );
+        fail("BILLING_ADMIN_REQUIRED", "The billing session has changed.", 403);
       return json(result);
     }
     const portal = await service.portal(
@@ -490,7 +479,6 @@ export async function handleBillingRoute(
     // must take effect before that bearer capability leaves this server.
     const current = await authenticateBrowser(request, env, true);
     await requireAdmin(env, current.context);
-    await requireHorizonPlan(env, current.context);
     if (
       current.context.organizationId !== session.context.organizationId ||
       current.context.userId !== session.context.userId

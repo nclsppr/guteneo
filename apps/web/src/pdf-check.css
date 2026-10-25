@@ -1,4 +1,4 @@
-.horizon-offer,
+.pdf-check-offer,
 .pdf-validation {
   border: 1px solid var(--line);
   padding: clamp(18px, 3vw, 30px);
@@ -6,86 +6,86 @@
   margin: 24px 0;
   min-width: 0;
 }
-.horizon-offer .eyebrow,
-.horizon-public .eyebrow {
+.pdf-check-offer .eyebrow,
+.pdf-check-public .eyebrow {
   font:
     12px "IBM Plex Mono",
     monospace;
   color: var(--blue);
   margin-bottom: 10px;
 }
-.horizon-price {
+.pdf-check-price {
   display: flex;
   align-items: baseline;
   gap: 10px;
   flex-wrap: wrap;
 }
-.horizon-price strong {
+.pdf-check-price strong {
   font-family: "EB Garamond", Georgia, serif;
   font-size: 46px;
   font-weight: 500;
   line-height: 1.1;
 }
-.horizon-price span {
+.pdf-check-price span {
   color: var(--muted);
 }
-.horizon-benefits {
+.pdf-check-benefits {
   list-style: none;
   padding: 0;
   margin: 22px 0;
 }
-.horizon-benefits li {
+.pdf-check-benefits li {
   display: flex;
   gap: 10px;
   align-items: flex-start;
   margin: 12px 0;
 }
-.horizon-benefits svg {
+.pdf-check-benefits svg {
   color: var(--blue);
   flex: 0 0 auto;
   margin-top: 3px;
 }
-.horizon-limit {
+.pdf-check-limit {
   font-size: 14px;
   line-height: 1.65;
   color: var(--muted);
 }
-.horizon-offer > .horizon-limit {
+.pdf-check-offer > .pdf-check-limit {
   display: flex;
   align-items: flex-start;
   gap: 10px;
   margin-top: 24px;
 }
-.horizon-limit svg {
+.pdf-check-limit svg {
   flex: 0 0 auto;
   margin-top: 3px;
 }
-.horizon-consent,
-.horizon-cancel form {
+.pdf-check-consent,
+.pdf-check-cancel form {
   margin-top: 22px;
   max-width: 76ch;
 }
-.horizon-consent .checkbox-field,
-.horizon-cancel .checkbox-field {
+.pdf-check-consent .checkbox-field,
+.pdf-check-cancel .checkbox-field {
   display: flex;
   align-items: flex-start;
   gap: 12px;
   line-height: 1.65;
   margin-bottom: 16px;
 }
-.horizon-consent input,
-.horizon-cancel input {
+.pdf-check-consent input,
+.pdf-check-cancel input {
   flex: 0 0 auto;
-  width: 18px;
-  height: 18px;
-  margin-top: 5px;
+  width: 24px;
+  height: 24px;
+  margin-top: 1px;
 }
-.horizon-cancel {
+.pdf-check-cancel {
   border-top: 1px solid var(--line);
   margin-top: 24px;
   padding-top: 20px;
 }
-.horizon-cancel summary,
+.pdf-check-cancel summary,
 .pdf-validation-report summary {
   cursor: pointer;
   padding: 8px 0;
@@ -148,14 +148,14 @@
   max-width: 100%;
 }
 .pdf-validation-report .table-scroll:focus-visible {
-  outline: 3px solid var(--blue);
+  outline: 2px solid var(--ink);
   outline-offset: 4px;
 }
 .pdf-validation-report caption {
   text-align: left;
   padding: 12px 0;
 }
-.horizon-public {
+.pdf-check-public {
   display: grid;
   grid-template-columns: 0.9fr 1.1fr;
   gap: clamp(24px, 5vw, 60px);
@@ -163,25 +163,32 @@
   margin-top: 34px;
   padding-top: 34px;
 }
-.horizon-public h3 {
+.pdf-check-public h3 {
   font:
     500 36px "EB Garamond",
     Georgia,
     serif;
   margin-bottom: 18px;
 }
-.horizon-public p {
+.pdf-check-public p {
   line-height: 1.65;
 }
+.pdf-check-public:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 8px;
+}
+.pdf-check-public:focus:not(:focus-visible) {
+  outline: none;
+}
 @media (max-width: 640px) {
-  .horizon-public {
+  .pdf-check-public {
     grid-template-columns: 1fr;
   }
   .pdf-validation .section-toolbar {
     align-items: flex-start;
     flex-wrap: wrap;
   }
-  .horizon-price strong {
+  .pdf-check-price strong {
     font-size: 40px;
   }
 }

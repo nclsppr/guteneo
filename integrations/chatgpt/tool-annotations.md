@@ -274,7 +274,7 @@ Evidence: [`"generate_documents"`](../../apps/api/src/mcp.ts), [`async createGen
 
 ### `get_capabilities`
 
-- **`readOnlyHint: false`** — Reads configured capabilities, account gates, current expert delegation, postal setup and Horizon status without enabling them. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.
+- **`readOnlyHint: false`** — Reads configured capabilities, account gates, current expert delegation, postal setup and PDF verification availability without enabling them. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.
 - **`destructiveHint: false`** — Does not modify documents, dispatches, mandates or enabled services. Connection activity records the latest successful use without removing business data or authority.
 - **`openWorldHint: false`** — Limited to Guteneo configuration and the authenticated organization and connection; it does not browse arbitrary external resources or contact recipients.
 - **`idempotentHint: false`** — Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused.
@@ -769,9 +769,9 @@ Evidence: [`"validate_mapping"`](../../apps/api/src/mcp.ts), [`async validateMap
 
 ### `validate_pdf`
 
-- **`readOnlyHint: false`** — Creates and persists a validation attempt and report, consumes allowance from an already active Horizon plan, and may settle already timed-out attempts as errors. It does not subscribe, renew a plan or alter billing. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.
-- **`destructiveHint: false`** — Adds a diagnostic report for the exact original PDF bytes without replacing a completed report. Settling an already timed-out attempt does not cancel a currently valid diagnosis. It neither modifies nor deletes the PDF, changes its security status, sends a communication, subscribes to a plan or debits a payment method.
-- **`openWorldHint: false`** — Uses the authenticated organization’s existing PDF and the configured private veraPDF validation service. It does not accept an arbitrary destination or publish the document.
-- **`idempotentHint: false`** — The same key and original PDF/profile reuse the saved validation report instead of consuming a second validation allowance. Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused.
+- **`readOnlyHint: false`** — Reads an already purchased exact-key PDF validation report. New checks require an explicitly approved browser-administrator purchase and are rejected for assistants; this tool cannot debit credits, renew access or assert consent. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.
+- **`destructiveHint: false`** — Returns an existing diagnostic report for the exact PDF, profile and approved request key. It cannot start a new check, modify or delete the PDF, change its security status, send a communication or debit credits.
+- **`openWorldHint: false`** — Reads the authenticated organization’s existing hash-bound report in Guteneo. This assistant operation does not call the private validator, accept an arbitrary destination or publish the document.
+- **`idempotentHint: false`** — The same request key, original PDF and profile reuse the saved report. Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect.
 
 Evidence: [`"validate_pdf"`](../../apps/api/src/mcp.ts), [`async validate(`](../../apps/api/src/pdf-validation.ts), [`recordSuccessfulConnectionTool`](../../apps/api/src/connection-observations.ts).

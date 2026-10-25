@@ -26,11 +26,6 @@ import {
 } from "./components";
 import { t } from "./locale";
 import { CreditBalance, type WelcomeCredit } from "./credit-balance";
-import {
-  HorizonOffer,
-  horizonBillingAllowed,
-  type HorizonPlan,
-} from "./horizon-plan";
 
 type Usage = {
   channel: Channel;
@@ -146,36 +141,7 @@ export function Billing({ session }: { session: Session }) {
         />
       </>
     );
-  return <HorizonBilling key={session.organization.id} session={session} />;
-}
-
-function HorizonBilling({ session }: { session: Session }) {
-  const plan = useResource<HorizonPlan>("/plan");
-  return (
-    <>
-      <PageHeading
-        title={msg("Billing")}
-        intro={msg(
-          "Billing is available to administrators of accounts with an active monthly plan.",
-        )}
-      />
-      <ErrorNotice error={plan.error} retry={plan.refresh} />
-      {plan.loading && !plan.data && <Loading />}
-      {plan.data && (
-        <HorizonOffer
-          key={`${session.organization.id}:${plan.data.status}:${plan.data.cancelAtPeriodEnd}`}
-          session={session}
-          plan={plan.data}
-          refresh={plan.refresh}
-          loading={plan.loading}
-          billing
-        />
-      )}
-      {horizonBillingAllowed(session, plan.data) && (
-        <BillingWorkspace session={session} showHeading={false} />
-      )}
-    </>
-  );
+  return <BillingWorkspace key={session.organization.id} session={session} />;
 }
 
 function PreviewBilling() {

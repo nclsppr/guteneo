@@ -113,7 +113,12 @@ async function fixture(
   pageCount = 1,
   accessMode: "strong" | "verified_account" = "strong",
 ) {
-  await db.prepare("UPDATE secure_document_authentication_policy SET mode=? WHERE id=1").bind(accessMode).run();
+  await db
+    .prepare(
+      "UPDATE secure_document_authentication_policy SET mode=? WHERE id=1",
+    )
+    .bind(accessMode)
+    .run();
   const organizationId = id("org"),
     userId = id("usr"),
     recipientId = id("usr");
@@ -205,7 +210,9 @@ async function fixture(
     ENVIRONMENT: mode === "production" ? "production" : "local",
     SECURE_DISTRIBUTION_ENABLED: "true",
     SENSITIVE_DOCUMENT_AUTHENTICATION: accessMode,
-    ...(accessMode === "verified_account" ? { AUTH0_AUTH_POLICY: "verified_email" } : {}),
+    ...(accessMode === "verified_account"
+      ? { AUTH0_AUTH_POLICY: "verified_email" }
+      : {}),
     SECURE_DOCUMENTS_KEY: btoa("s".repeat(32)),
     DOCUMENT_RENDERER: { fetch: renderer },
     DISPATCH_QUEUE: { send: queue },
@@ -239,13 +246,23 @@ async function fixture(
       )
       .run();
   }
-  if(accessMode === "verified_account") await db.batch([userId,recipientId].map((accountId)=>db.prepare("INSERT INTO auth_identities(issuer,subject,user_id,created_at) VALUES('https://fixture.invalid/',?,?,?)").bind(accountId,accountId,createdAt)));
+  if (accessMode === "verified_account")
+    await db.batch(
+      [userId, recipientId].map((accountId) =>
+        db
+          .prepare(
+            "INSERT INTO auth_identities(issuer,subject,user_id,created_at) VALUES('https://fixture.invalid/',?,?,?)",
+          )
+          .bind(accountId, accountId, createdAt),
+      ),
+    );
   const authEvidence = {
     verifiedEmail: ownerEmail,
     authenticatedAt: Math.floor(Date.now() / 1000),
     amr: accessMode === "strong" ? ["webauthn"] : ["pwd"],
     strongAuthentication: accessMode === "strong",
-    authenticationPolicyVersion: accessMode === "strong" ? "guteneo-sensitive-v1" : null,
+    authenticationPolicyVersion:
+      accessMode === "strong" ? "guteneo-sensitive-v1" : null,
     identityIssuer: "https://fixture.invalid/",
     identitySubject: userId,
   };
@@ -704,6 +721,30 @@ describe("secure distribution — asynchronous preparation and paid acceptance",
         fee = 248;
       const before = await financials(f, p.view.dispatchId!);
       expect(before.charge).toEqual({ amount_minor: fee, evidence: mode });
+      expect(
+        await db
+          .prepare(
+            "SELECT available_minor FROM pdf_validation_available_credits WHERE organization_id=? AND evidence=?",
+          )
+          .bind(f.organizationId, mode)
+          .first(),
+      ).toEqual({
+        available_minor:
+          5000 -
+          fee -
+          (mode === "production" ? p.view.quote.transportMinor : 0),
+      });
+      expect(
+        await new DomainService(db, { mode }).usageActivity(f.ctx),
+      ).toMatchObject({
+        evidence: mode,
+        totals: {
+          amountMinor: fee,
+          dispatchCount: 0,
+          chargeCount: 1,
+          activeDays: 1,
+        },
+      });
       expect(before.usage).toMatchObject({ confirmed_minor: fee });
       expect(before.transport).toEqual({
         amount_minor: p.view.quote.transportMinor,
@@ -743,12 +784,23 @@ describe("secure distribution — asynchronous preparation and paid acceptance",
 });
 
 describe("personal copies — independent ownership and final authorization", () => {
-  it.each(["strong","verified_account"] as const)("closes personal metadata access when %s Worker and database policies drift", async (accessMode) => {
-    const f=await fixture("simulation",1,accessMode);
-    expect((await f.personal.list(f.recipient)).items).toEqual([]);
-    await db.prepare("UPDATE secure_document_authentication_policy SET mode=? WHERE id=1").bind(accessMode==="strong"?"verified_account":"strong").run();
-    await expect(f.personal.list(f.recipient)).rejects.toMatchObject({code:"DOCUMENT_AUTHENTICATION_REQUIRED",status:403});
-  });
+  it.each(["strong", "verified_account"] as const)(
+    "closes personal metadata access when %s Worker and database policies drift",
+    async (accessMode) => {
+      const f = await fixture("simulation", 1, accessMode);
+      expect((await f.personal.list(f.recipient)).items).toEqual([]);
+      await db
+        .prepare(
+          "UPDATE secure_document_authentication_policy SET mode=? WHERE id=1",
+        )
+        .bind(accessMode === "strong" ? "verified_account" : "strong")
+        .run();
+      await expect(f.personal.list(f.recipient)).rejects.toMatchObject({
+        code: "DOCUMENT_AUTHENTICATION_REQUIRED",
+        status: 403,
+      });
+    },
+  );
 
   it("allows an authorized private deposit even when downloading the shared original is forbidden, then survives workshop revocation", async () => {
     const f = await fixture("simulation", 4),
@@ -904,10 +956,17 @@ describe("personal copies — independent ownership and final authorization", ()
         .first(),
     ).toEqual({ n: 0 });
   });
-  it.each((["strong","verified_account"] as const).flatMap(accessMode=>(["stale", "expired", "revoked"] as const).map(failure=>({accessMode,failure}))))(
+  it.each(
+    (["strong", "verified_account"] as const).flatMap((accessMode) =>
+      (["stale", "expired", "revoked"] as const).map((failure) => ({
+        accessMode,
+        failure,
+      })),
+    ),
+  )(
     "resumes the same paid copy in $accessMode after $failure during final R2 awaits",
-    async ({accessMode,failure}) => {
-      const f = await fixture("simulation",1,accessMode),
+    async ({ accessMode, failure }) => {
+      const f = await fixture("simulation", 1, accessMode),
         share = await bound(f),
         before = await financials(f, share.view.dispatchId!);
       let changed = false;
@@ -952,7 +1011,10 @@ describe("personal copies — independent ownership and final authorization", ()
           DOCUMENTS: racedBucket,
         }).deposit(f.recipient, share.view.id),
       ).rejects.toMatchObject({
-        code: accessMode === "strong" ? "STRONG_AUTHENTICATION_REQUIRED" : "DOCUMENT_AUTHENTICATION_REQUIRED",
+        code:
+          accessMode === "strong"
+            ? "STRONG_AUTHENTICATION_REQUIRED"
+            : "DOCUMENT_AUTHENTICATION_REQUIRED",
         status: 403,
       });
       expect(changed).toBe(true);
@@ -1007,7 +1069,8 @@ describe("personal copies — independent ownership and final authorization", ()
         authenticatedAt: Math.floor(Date.now() / 1000),
         amr: accessMode === "strong" ? ["webauthn"] : ["pwd"],
         strongAuthentication: accessMode === "strong",
-        authenticationPolicyVersion: accessMode === "strong" ? "guteneo-sensitive-v1" : null,
+        authenticationPolicyVersion:
+          accessMode === "strong" ? "guteneo-sensitive-v1" : null,
         identityIssuer: "https://fixture.invalid/",
         identitySubject: f.recipient.userId,
         development: false,
@@ -1085,77 +1148,92 @@ describe("personal copies — independent ownership and final authorization", ()
       ).toEqual({ auth_session_hash: signedIn.tokenHash, status: "active" });
     },
   );
-  it.each(["strong","verified_account"] as const)("rolls back and purges unpublished objects on workshop revocation in %s", async (accessMode) => {
-    const f = await fixture("simulation",1,accessMode),
-      p = await bound(f);
-    let revoked = false;
-    const racedBucket = proxyBucket({
-      get: (async (key: string) => {
-        const object = await bucket.get(key);
-        if (
-          !revoked &&
-          key.startsWith(`secure/personal/${f.recipient.userId}/`)
-        ) {
-          revoked = true;
-          await f.service.revoke(f.ctx, p.view.id);
-        }
-        return object;
-      }) as R2Bucket["get"],
-    });
-    const raced = new PersonalDocumentsService({
-      ...f.env,
-      DOCUMENTS: racedBucket,
-    });
-    await expect(raced.deposit(f.recipient, p.view.id)).rejects.toMatchObject({
-      code: "NOT_FOUND",
-    });
-    expect(revoked).toBe(true);
-    const operation = (await db
-      .prepare(
-        "SELECT id,personal_document_id,status FROM secure_deposit_operations WHERE distribution_id=?",
-      )
-      .bind(p.view.id)
-      .first<{ id: string; personal_document_id: string; status: string }>())!;
-    expect(operation.status).toBe("aborted");
-    expect(
-      await db
+  it.each(["strong", "verified_account"] as const)(
+    "rolls back and purges unpublished objects on workshop revocation in %s",
+    async (accessMode) => {
+      const f = await fixture("simulation", 1, accessMode),
+        p = await bound(f);
+      let revoked = false;
+      const racedBucket = proxyBucket({
+        get: (async (key: string) => {
+          const object = await bucket.get(key);
+          if (
+            !revoked &&
+            key.startsWith(`secure/personal/${f.recipient.userId}/`)
+          ) {
+            revoked = true;
+            await f.service.revoke(f.ctx, p.view.id);
+          }
+          return object;
+        }) as R2Bucket["get"],
+      });
+      const raced = new PersonalDocumentsService({
+        ...f.env,
+        DOCUMENTS: racedBucket,
+      });
+      await expect(raced.deposit(f.recipient, p.view.id)).rejects.toMatchObject(
+        {
+          code: "NOT_FOUND",
+        },
+      );
+      expect(revoked).toBe(true);
+      const operation = (await db
         .prepare(
-          "SELECT count(*) n FROM secure_personal_documents WHERE source_distribution_id=?",
+          "SELECT id,personal_document_id,status FROM secure_deposit_operations WHERE distribution_id=?",
         )
         .bind(p.view.id)
-        .first(),
-    ).toEqual({ n: 0 });
-    expect(
-      await db
-        .prepare(
-          "SELECT count(*) n FROM secure_document_events WHERE distribution_id=? AND type='personal_copy_delivered'",
-        )
-        .bind(p.view.id)
-        .first(),
-    ).toEqual({ n: 0 });
-    const prefix = `secure/personal/${f.recipient.userId}/${operation.personal_document_id}/`;
-    expect((await bucket.list({ prefix })).objects.length).toBeGreaterThan(0);
-    await maintainSecureObjects(f.env);
-    expect((await bucket.list({ prefix })).objects).toEqual([]);
-    expect(
-      await db
-        .prepare("SELECT scope FROM secure_object_purges WHERE resource_id=?")
-        .bind(operation.id)
-        .first(),
-    ).toEqual({ scope: "deposit" });
-    expect(
-      await db
-        .prepare(
-          "SELECT count(*) n FROM secure_distribution_charges WHERE distribution_id=?",
-        )
-        .bind(p.view.id)
-        .first(),
-    ).toEqual({ n: 1 });
-  });
-  it.each((["strong","verified_account"] as const).flatMap(accessMode=>(["expired", "revoked", "stale", "share_revoked"] as const).map(change=>({accessMode,change}))))(
+        .first<{
+          id: string;
+          personal_document_id: string;
+          status: string;
+        }>())!;
+      expect(operation.status).toBe("aborted");
+      expect(
+        await db
+          .prepare(
+            "SELECT count(*) n FROM secure_personal_documents WHERE source_distribution_id=?",
+          )
+          .bind(p.view.id)
+          .first(),
+      ).toEqual({ n: 0 });
+      expect(
+        await db
+          .prepare(
+            "SELECT count(*) n FROM secure_document_events WHERE distribution_id=? AND type='personal_copy_delivered'",
+          )
+          .bind(p.view.id)
+          .first(),
+      ).toEqual({ n: 0 });
+      const prefix = `secure/personal/${f.recipient.userId}/${operation.personal_document_id}/`;
+      expect((await bucket.list({ prefix })).objects.length).toBeGreaterThan(0);
+      await maintainSecureObjects(f.env);
+      expect((await bucket.list({ prefix })).objects).toEqual([]);
+      expect(
+        await db
+          .prepare("SELECT scope FROM secure_object_purges WHERE resource_id=?")
+          .bind(operation.id)
+          .first(),
+      ).toEqual({ scope: "deposit" });
+      expect(
+        await db
+          .prepare(
+            "SELECT count(*) n FROM secure_distribution_charges WHERE distribution_id=?",
+          )
+          .bind(p.view.id)
+          .first(),
+      ).toEqual({ n: 1 });
+    },
+  );
+  it.each(
+    (["strong", "verified_account"] as const).flatMap((accessMode) =>
+      (["expired", "revoked", "stale", "share_revoked"] as const).map(
+        (change) => ({ accessMode, change }),
+      ),
+    ),
+  )(
     "withholds decrypted page bytes in $accessMode when $change wins before authorization",
-    async ({accessMode,change}) => {
-      const f = await fixture("simulation",1,accessMode),
+    async ({ accessMode, change }) => {
+      const f = await fixture("simulation", 1, accessMode),
         p = await bound(f);
       let changed = false;
       const racedBucket = proxyBucket({
@@ -1209,23 +1287,47 @@ describe("personal copies — independent ownership and final authorization", ()
     },
   );
   it("runs the verified-account lifecycle with no invented strong evidence, preserving account boundaries and fees", async () => {
-    const f = await fixture("production",1,"verified_account"), share=await bound(f);
-    expect(f.owner).toMatchObject({identityVerified:true,mfa:false,strongAuthentication:false,authenticationPolicyVersion:null});
-    expect(f.recipient).toMatchObject({identityVerified:true,mfa:false,strongAuthentication:false,authenticationPolicyVersion:null});
-    expect(await db.prepare("SELECT authentication_mode FROM secure_approval_evidence WHERE dispatch_id=?").bind(share.view.dispatchId).first()).toEqual({authentication_mode:"verified_account"});
-    const before=await financials(f,share.view.dispatchId!);
-    expect((await f.personal.page(f.recipient,share.view.id,1)).status).toBe(200);
-    await expect(f.personal.download(f.recipient,share.view.id)).rejects.toMatchObject({code:"ORIGINAL_DOWNLOAD_FORBIDDEN"});
-    const other=await fixture("production",1,"verified_account");
-    await expect(f.personal.get(other.recipient,share.view.id)).rejects.toMatchObject({code:"NOT_FOUND"});
-    const copy=await f.personal.deposit(f.recipient,share.view.id);
+    const f = await fixture("production", 1, "verified_account"),
+      share = await bound(f);
+    expect(f.owner).toMatchObject({
+      identityVerified: true,
+      mfa: false,
+      strongAuthentication: false,
+      authenticationPolicyVersion: null,
+    });
+    expect(f.recipient).toMatchObject({
+      identityVerified: true,
+      mfa: false,
+      strongAuthentication: false,
+      authenticationPolicyVersion: null,
+    });
+    expect(
+      await db
+        .prepare(
+          "SELECT authentication_mode FROM secure_approval_evidence WHERE dispatch_id=?",
+        )
+        .bind(share.view.dispatchId)
+        .first(),
+    ).toEqual({ authentication_mode: "verified_account" });
+    const before = await financials(f, share.view.dispatchId!);
+    expect((await f.personal.page(f.recipient, share.view.id, 1)).status).toBe(
+      200,
+    );
+    await expect(
+      f.personal.download(f.recipient, share.view.id),
+    ).rejects.toMatchObject({ code: "ORIGINAL_DOWNLOAD_FORBIDDEN" });
+    const other = await fixture("production", 1, "verified_account");
+    await expect(
+      f.personal.get(other.recipient, share.view.id),
+    ).rejects.toMatchObject({ code: "NOT_FOUND" });
+    const copy = await f.personal.deposit(f.recipient, share.view.id);
     expect(copy.status).toBe("active");
-    expect((await f.personal.download(f.recipient,copy.id)).status).toBe(200);
-    await f.service.revoke(f.ctx,share.view.id);
-    expect((await f.personal.get(f.recipient,copy.id)).status).toBe("active");
-    await f.personal.remove(f.recipient,copy.id);
-    expect((await f.personal.get(f.recipient,copy.id)).status).toBe("revoked");
-    expect(await financials(f,share.view.dispatchId!)).toEqual(before);
+    expect((await f.personal.download(f.recipient, copy.id)).status).toBe(200);
+    await f.service.revoke(f.ctx, share.view.id);
+    expect((await f.personal.get(f.recipient, copy.id)).status).toBe("active");
+    await f.personal.remove(f.recipient, copy.id);
+    expect((await f.personal.get(f.recipient, copy.id)).status).toBe("revoked");
+    expect(await financials(f, share.view.dispatchId!)).toEqual(before);
   });
   it("keeps paid private objects out of general orphan deletion, and erases them after personal removal", async () => {
     const f = await fixture(),
@@ -1268,18 +1370,59 @@ describe("personal copies — independent ownership and final authorization", ()
         .first(),
     ).toEqual({ n: 1 });
   });
-  it("purges old activity detail while retaining current authorization and significant receipts",async()=>{
-    const f=await fixture(),p=await bound(f),old=new Date(Date.now()-91*86400000).toISOString();
-    const activity=id("sev"),receipt=id("sev");
+  it("purges old activity detail while retaining current authorization and significant receipts", async () => {
+    const f = await fixture(),
+      p = await bound(f),
+      old = new Date(Date.now() - 91 * 86400000).toISOString();
+    const activity = id("sev"),
+      receipt = id("sev");
     await db.batch([
-      db.prepare("INSERT INTO secure_document_events(id,organization_id,distribution_id,user_id,type,provenance,page_number,created_at) VALUES(?,?,?,?,'page_displayed','browser',1,?)").bind(activity,f.ctx.organizationId,p.view.id,f.recipient.userId,old),
-      db.prepare("INSERT INTO secure_document_events(id,organization_id,distribution_id,user_id,type,provenance,created_at) VALUES(?,?,?,?,'recipient_binding_confirmed','server',?)").bind(receipt,f.ctx.organizationId,p.view.id,f.ctx.userId,old),
+      db
+        .prepare(
+          "INSERT INTO secure_document_events(id,organization_id,distribution_id,user_id,type,provenance,page_number,created_at) VALUES(?,?,?,?,'page_displayed','browser',1,?)",
+        )
+        .bind(
+          activity,
+          f.ctx.organizationId,
+          p.view.id,
+          f.recipient.userId,
+          old,
+        ),
+      db
+        .prepare(
+          "INSERT INTO secure_document_events(id,organization_id,distribution_id,user_id,type,provenance,created_at) VALUES(?,?,?,?,'recipient_binding_confirmed','server',?)",
+        )
+        .bind(receipt, f.ctx.organizationId, p.view.id, f.ctx.userId, old),
     ]);
-    expect((await f.personal.page(f.recipient,p.view.id,1)).status).toBe(200);
+    expect((await f.personal.page(f.recipient, p.view.id, 1)).status).toBe(200);
     await maintainSecureObjects(f.env);
-    expect(await db.prepare("SELECT 1 FROM secure_document_events WHERE id=?").bind(activity).first()).toBeNull();
-    expect(await db.prepare("SELECT 1 FROM secure_document_events WHERE id=?").bind(receipt).first()).not.toBeNull();
-    expect(await db.prepare("SELECT 1 FROM secure_document_events WHERE distribution_id=? AND type='page_access_authorized'").bind(p.view.id).first()).not.toBeNull();
-    expect(await db.prepare("SELECT count(*) n FROM secure_distribution_charges WHERE distribution_id=?").bind(p.view.id).first()).toEqual({n:1});
+    expect(
+      await db
+        .prepare("SELECT 1 FROM secure_document_events WHERE id=?")
+        .bind(activity)
+        .first(),
+    ).toBeNull();
+    expect(
+      await db
+        .prepare("SELECT 1 FROM secure_document_events WHERE id=?")
+        .bind(receipt)
+        .first(),
+    ).not.toBeNull();
+    expect(
+      await db
+        .prepare(
+          "SELECT 1 FROM secure_document_events WHERE distribution_id=? AND type='page_access_authorized'",
+        )
+        .bind(p.view.id)
+        .first(),
+    ).not.toBeNull();
+    expect(
+      await db
+        .prepare(
+          "SELECT count(*) n FROM secure_distribution_charges WHERE distribution_id=?",
+        )
+        .bind(p.view.id)
+        .first(),
+    ).toEqual({ n: 1 });
   });
 });

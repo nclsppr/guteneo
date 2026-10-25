@@ -17,6 +17,11 @@ export const lb: Copy = {
   open: "Opmaachen",
   preview: "Virschau",
   download: "PDF opmaachen",
+  fileInput: {
+    choose: "Eng Datei wielen",
+    chooseMultiple: "Dateie wielen",
+    empty: "Keng Datei ausgewielt",
+  },
   unknown: "Net disponibel",
   simulation: "Simulatioun",
   simulationBody:
@@ -38,7 +43,7 @@ export const lb: Copy = {
     postal: "Bréifpost",
   },
   nav: {
-    horizon: "Horizon-Abonnement",
+    pdfChecks: "PDF-Kontrollen",
     overview: "Iwwersiicht",
     documents: "Dokumenter",
     templates: "Virlagen",
@@ -531,6 +536,12 @@ export const lb: Copy = {
     title: "All Sendung zielt.",
     intro:
       "Reservatiounen a Verbrauch vun Ärer Organisatioun. Simulatiounskreditter bleiwen getrennt.",
+    period: "Verbrauchsmount",
+    latest: "Leschten erfaasste Mount",
+    periodHint:
+      "Beim Opmaache gëtt de leschten erfaasste Mount gewisen. Wielt hei en anere Mount; d’Kredittsaldo weist ëmmer de Stand vun haut.",
+    monthlyTitle: "Sendungen a monatlech Limiten",
+    monthEmpty: "Fir dëse Mount goufe keng Sendungen erfaasst.",
     reserved: "Reservéiert",
     consumed: "Bestätegt",
     released: "Fräiginn",

@@ -1,9 +1,38 @@
-# Horizon — controlling Cloudflare costs
+# PDF verification — controlling Cloudflare costs
 
-Engineering documentation only. Official prices checked **3 October 2026**, in
+Engineering documentation only. This dated infrastructure model does not define
+the current customer price or revive a monthly subscription. The current
+[unit-pricing contract](PDF_VERIFICATION_PRICING.md) owns the individual purchase,
+new cost research and remaining release qualification.
+
+ Official prices checked **3 October 2026**, in
 **USD excluding tax**, without EUR conversion. Estimates model consumption rather
 than an invoice. Docker measurements are separate from assumptions and prove no
 hosted deployment/performance.
+
+## Current candidate — 25 October 2026
+
+Fresh native arm64 Docker qualification selects one `standard-1` instance
+(0.5 vCPU, 4 GiB memory, 8 GB disk), five-second idle sleep and the unchanged
+384 MiB JVM heap and 40/45-second process/request deadlines. All twelve official
+references and all six profiles of the 100-page near-limit fixture passed.
+Cold health took 16.345 seconds; the large-file checks took 13.191–13.922 seconds;
+peak memory was 233,508,864 bytes. The fresh `basic` run failed a large-file
+process deadline. Local native evidence is distinct from actual Cloudflare x86,
+cold-request, actual-resource and idle stop/wake qualification.
+
+At the current published overage rates, a modeled 50-second awake operation
+at full 0.5 vCPU costs `0.5*50*0.000020 + 4*50*0.0000025 + 8*50*0.00000007`
+= **USD0.001028** in Containers resources before shared allowance. One instance
+awake continuously at that full CPU allocation for 31 days models
+**USD55.067904** gross Containers use. Neither is an invoice or whole-account cap;
+Workers, Durable Objects, D1/R2, network and the shared plan remain separate.
+
+The earlier measurements and comparisons below are retained dated evidence.
+Their `basic` selection is superseded by this fresh result. The current
+[unit-price and activation contract](PDF_VERIFICATION_PRICING.md) records the
+EUR0.10 excluding-tax price and the still-required paid-resource authorization
+and hosted qualification.
 
 The main avoidable cost is **provisioned memory/disk while awake**, even without
 PDF processing. CPU is billed for active use. For spaced requests, short sleep
@@ -46,11 +75,11 @@ USD0.0000139 on basic. These are tail savings, not total bill savings.
 
 Short sleep must preserve in-flight work with the installed SDK. Configuration
 alone proves no exact Cloudflare shutdown time. Retain selected setting/proof in
-[activation evidence](HORIZON_ACTIVATION_RUNBOOK.md). Public health/capabilities must
+[activation evidence](PDF_VERIFICATION_ACTIVATION_RUNBOOK.md). Public health/capabilities must
 not call the engine. Private validator `/health` **wakes** it; never use as periodic
 availability polling. Scanner startup/memory requires separate qualification.
 
-## Local measurements and candidate choice
+## Historical local measurements and candidate choice — 3 October 2026
 
 3 October Docker `linux/amd64`, no network, read-only root, no swap, matched
 CPU/memory quotas; **not hosted Containers proof**. Engine/Worker budgets remain
@@ -93,20 +122,20 @@ no customer data.
 Full-batch request CPU reduction remains approximately **47%**. cgroup counters
 include the local Python driver; useful comparison, not hosted billing telemetry.
 Basic cold-plus-slowest sums to **38.042 seconds**, below 45, but this is not a
-hosted end-to-end request or a guarantee for other PDFs. Local evidence selects
-**basic/five-second sleep as candidate**, preserving profiles, bounds, cleanup,
-deadlines.
+hosted end-to-end request or a guarantee for other PDFs. That dated local evidence
+selected **basic/five-second sleep as candidate**, preserving profiles, bounds,
+cleanup and deadlines. The fresh result above supersedes that selection.
 
 Local evidence:
 
 - [Versioned resource/cost summary](../apps/pdf-validator/tests/benchmark-fixtures/local-resource-proof.json), with hashes of [basic](../apps/pdf-validator/tests/benchmark-fixtures/local-docker-basic-proof.json) and [standard-1](../apps/pdf-validator/tests/benchmark-fixtures/local-docker-standard-1-proof.json) full-batch observations.
-- `/workspace/scratch/horizon-validator/docker-standard-1-proof.json`, image `sha256:ae8a2523611c2f72763856a61808662cbd83fbdf2a44a586d10170c64b5ac840`.
-- `/workspace/scratch/horizon-validator/docker-basic-optimized-proof.json`, image `sha256:e2a8edd58c410cd9639b3350ee66d573cc7b0c7b6409bfed4d5a45f4715af1ca`.
-- `/workspace/scratch/horizon-validator/docker-standard-1-large-proof.json` and `docker-basic-large-proof.json`: six-profile large-PDF supplement.
+- The retained original standard-instance proof, image `sha256:ae8a2523611c2f72763856a61808662cbd83fbdf2a44a586d10170c64b5ac840`.
+- The retained optimized-basic proof, image `sha256:e2a8edd58c410cd9639b3350ee66d573cc7b0c7b6409bfed4d5a45f4715af1ca`.
+- The retained standard-instance large-file proof and `docker-basic-large-proof.json`: six-profile large-PDF supplement.
 
-Scratch paths belong to that qualification workspace, not public URLs/tracked
-files. Relative links are retained repository evidence; release proof must hash
-the actually hosted image.
+Private scratch artifacts belong to their qualification workspace, not public URLs.
+Relative links are retained repository evidence; release proof must hash the
+actually hosted image.
 
 ### Choosing sleep from startup cost
 
@@ -186,8 +215,9 @@ other costs:
 
 These model 744 hours at average 0.25/0.5 vCPU. Documented capacity alone proves no
 guaranteed billable CPU cap. They cap neither Workers/DO/scanner/storage nor whole
-Cloudflare invoice. A 100-diagnostic/customer-period limit is no global bound with
-many customers.
+Cloudflare invoice. A per-customer request limit is no global cost bound when
+many customers can submit paid checks. The former subscription allowance is
+retired; current unit pricing is documented in [PDF_VERIFICATION_PRICING.md](PDF_VERIFICATION_PRICING.md).
 
 ## Other invoice items
 
@@ -217,7 +247,7 @@ Usage**. Select the account **billing period**, potentially different from calen
 month, then product/family. Record `Total usage` including allowance, `Billable usage`
 over allowance and per-product `Usage cost`. Capture before/after qualification
 and after real use, documenting other scanner/account workload changes. A global
-delta cannot all be attributed to Horizon. Compare consistent units without
+delta cannot all be attributed to PDF verification. Compare consistent units without
 subtracting included allowance twice.
 
 This view shares invoice data but shows **usage overages**, not fixed subscriptions.

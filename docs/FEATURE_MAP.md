@@ -1,8 +1,8 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
 # Guteneo feature tree and developer atlas
 
-**23 domains · 269 features · 31 journeys · 73 documented REST operations · 72 MCP tools**
-Updated 2026-10-24.
+**23 domains · 277 features · 31 journeys · 75 documented REST operations · 72 MCP tools**
+Updated 2026-10-25.
 
 Repository implementation inventory. Availability depends on current capabilities and authority; implementation, activation and deployed proof are distinct.
 
@@ -18,7 +18,7 @@ mindmap
       Team and responsibilities (10)
     Create
       Documents and protection (8)
-      Template studio (12)
+      Template studio (14)
       Data and mappings (9)
       PDF generation and distribution (10)
     Deliver
@@ -29,9 +29,9 @@ mindmap
       Dispatch dry run (7)
     Operate
       Campaigns and tracking (8)
-      Credits and billing (6)
-      Workspace appearance (15)
-      Horizon PDF diagnostics (10)
+      Credits and billing (8)
+      Workspace appearance (18)
+      PDF verification (10)
     Interfaces
       Assistants and API (20)
       iPhone and iPad (9)
@@ -39,7 +39,7 @@ mindmap
     Operations
       Reviewer OAuth qualification (9)
       Operations and reliability (18)
-      Belvédère platform oversight (7)
+      Belvédère platform oversight (8)
       Public service status (12)
       Engineering documentation (10)
 ```
@@ -52,7 +52,7 @@ mindmap
 ### Create
 
 - [Documents and protection](#documents) — 8 features; capability-gated.
-- [Template studio](#templates) — 12 features; capability-gated.
+- [Template studio](#templates) — 14 features; capability-gated.
 - [Data and mappings](#datasets) — 9 features; capability-gated.
 - [PDF generation and distribution](#generation) — 10 features; capability-gated.
 
@@ -67,9 +67,9 @@ mindmap
 ### Operate
 
 - [Campaigns and tracking](#campaigns) — 8 features; capability-gated.
-- [Credits and billing](#billing) — 6 features; partial.
-- [Workspace appearance](#dashboard) — 15 features; browser-session.
-- [Horizon PDF diagnostics](#horizon) — 10 features; capability-gated.
+- [Credits and billing](#billing) — 8 features; partial.
+- [Workspace appearance](#dashboard) — 18 features; browser-session.
+- [PDF verification](#pdf-verification) — 10 features; capability-gated.
 
 ### Interfaces
 
@@ -81,7 +81,7 @@ mindmap
 
 - [Reviewer OAuth qualification](#reviewer-oauth) — 9 features; operator-gated.
 - [Operations and reliability](#operations) — 18 features; operator-gated.
-- [Belvédère platform oversight](#belvedere) — 7 features; operator-gated.
+- [Belvédère platform oversight](#belvedere) — 8 features; operator-gated.
 - [Public service status](#status) — 12 features; public.
 - [Engineering documentation](#engineering-docs) — 10 features; public.
 
@@ -104,9 +104,9 @@ Four human workshop roles are defined by packages/contracts/src/roles.ts. The as
 | Cancel prepared/queued dispatch | Yes | Approval option | No | No | Current approval authority + scope; never retries an unknown submission |
 | Aggregate reports | Yes | Reporting option | No | No | Current role + scopes |
 | Manage workshop or members | Browser only | No | No | No | No |
-| Billing or Horizon subscription | Browser only, explicit recurring consent | No | No | No | No |
-| Run a Horizon diagnostic | Active plan + PDF access | Active plan + PDF access | Active plan + PDF access | No | Active plan + PDF access + documents:write |
-| Read/export Horizon history | Current PDF access | Current PDF access | Current PDF access | Current PDF access | Current PDF access + documents:read |
+| Manage billing | Current browser administrator | No | No | No | No |
+| Purchase a PDF verification | Current browser administrator + exact purchase + PDF access | No | No | No | No financial consent; history read only |
+| Read/export PDF verification history | Current PDF access | Current PDF access | Current PDF access | Current PDF access | Current PDF access + documents:read |
 | Edit a shared template | Resource edit right | Resource edit right | Resource edit right | No | Current member + template scope + resource right; AI also requires current transfer consent/revision |
 | Publish/archive a template | Resource publish right | Resource publish right | Resource publish right | No | Current member + templates:publish + resource right |
 | Manage template sharing | Resource share right | Resource share right | Resource share right | No | Current member + templates:share + resource right; revocation disclosed |
@@ -129,6 +129,7 @@ Four human workshop roles are defined by packages/contracts/src/roles.ts. The as
 | Read/export/delete another person’s personal copy | No, including workspace administrator | No | No | No | No |
 | Keep or export one’s own received document | Personal principal + document policy + share permission | Personal principal + document policy + share permission | Personal principal + document policy + share permission | Personal principal + document policy + share permission | No; personal operation outside workspace OAuth |
 | Read public browser reports | Public access without workspace privilege | Public access without workspace privilege | Public access without workspace privilege | Public access without workspace privilege | Public read only; no ingestion or business authority |
+| Read monthly and daily consumption history | Yes | Reporting option | No | No | Current reporting rights + tenant-scoped REST read; no new MCP billing tool |
 
 Supervisor approval/reporting options are independent and off by default. Resource ownership/context checks still apply. See [workspace roles](WORKSPACE_ROLES.md), [expert approval](EXPERT_APPROVAL.md) and [studio access](TEMPLATES_DATA_DISTRIBUTION.md).
 
@@ -150,7 +151,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - OAuth connection binding, revocation and consented scopes
 - Exact resource-metadata discovery issuer, including its trailing slash; official MCP SDK contract tests without external network
 - Account deletion request; complete erasure processing remains unqualified
-- Visible signed-in name, login email and current role on desktop/mobile
+- Visible signed-in name and login email on desktop/mobile; current role and permissions belong on My account
 - Explicit Auth0 account switching without disabling ordinary SSO
 - Tab-focus reconciliation of identity, workshop and saved language
 - One authenticated language control in the account; visitor choice stays separate
@@ -175,7 +176,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 
 **Contract:** [ACCOUNT_IDENTITY.md](ACCOUNT_IDENTITY.md) · **Implementation:** [apps/api/src/auth.ts](../apps/api/src/auth.ts)
 
-**Tests:** [tests/unit/auth.test.ts](../tests/unit/auth.test.ts), [tests/unit/account.test.ts](../tests/unit/account.test.ts), [tests/e2e/account-identity.spec.ts](../tests/e2e/account-identity.spec.ts), [tests/e2e/resource-navigation.spec.ts](../tests/e2e/resource-navigation.spec.ts), [tests/unit/web-api-cancellation.test.ts](../tests/unit/web-api-cancellation.test.ts), [tests/e2e/login-entry.spec.ts](../tests/e2e/login-entry.spec.ts), [tests/security/auth0-branding.test.mjs](../tests/security/auth0-branding.test.mjs), [tests/e2e/horizon-pdf.spec.ts](../tests/e2e/horizon-pdf.spec.ts), [tests/e2e/dashboard.spec.ts](../tests/e2e/dashboard.spec.ts), [tests/e2e/locale-boundaries.spec.ts](../tests/e2e/locale-boundaries.spec.ts), [tests/unit/personal-auth.test.ts](../tests/unit/personal-auth.test.ts), [tests/unit/document-invitation.test.ts](../tests/unit/document-invitation.test.ts), [tests/distribution-e2e/personal-account.e2e.ts](../tests/distribution-e2e/personal-account.e2e.ts)
+**Tests:** [tests/unit/auth.test.ts](../tests/unit/auth.test.ts), [tests/unit/account.test.ts](../tests/unit/account.test.ts), [tests/e2e/account-identity.spec.ts](../tests/e2e/account-identity.spec.ts), [tests/e2e/resource-navigation.spec.ts](../tests/e2e/resource-navigation.spec.ts), [tests/unit/web-api-cancellation.test.ts](../tests/unit/web-api-cancellation.test.ts), [tests/e2e/login-entry.spec.ts](../tests/e2e/login-entry.spec.ts), [tests/security/auth0-branding.test.mjs](../tests/security/auth0-branding.test.mjs), [tests/e2e/pdf-validation.spec.ts](../tests/e2e/pdf-validation.spec.ts), [tests/e2e/dashboard.spec.ts](../tests/e2e/dashboard.spec.ts), [tests/e2e/locale-boundaries.spec.ts](../tests/e2e/locale-boundaries.spec.ts), [tests/unit/personal-auth.test.ts](../tests/unit/personal-auth.test.ts), [tests/unit/document-invitation.test.ts](../tests/unit/document-invitation.test.ts), [tests/distribution-e2e/personal-account.e2e.ts](../tests/distribution-e2e/personal-account.e2e.ts)
 
 
 
@@ -253,6 +254,8 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Private copy or blank creation with the REST/MCP authoring guide
 - Word DOCX content import with explicit layout warnings
 - Designer variables, tables, columns, logos, formats and conditions
+- Visible local PNG/JPEG image import above the visual editor; selected-page insertion preserves original bytes, aspect ratio, unique names and business bindings
+- Save, publish and studio navigation wait for committed native property edits; invalid numeric fields and reverting values recover without saving stale geometry
 - Business schema, sample data, calculations and totals
 - Review AI proposals before explicit application
 - Exact PDF preview, immutable versions, publication, duplication and archival
@@ -263,7 +266,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 
 **Contract:** [TEMPLATES_DATA_DISTRIBUTION.md](TEMPLATES_DATA_DISTRIBUTION.md) · **Implementation:** [apps/api/src/template-workflow.ts](../apps/api/src/template-workflow.ts)
 
-**Tests:** [tests/unit/template-authoring.test.ts](../tests/unit/template-authoring.test.ts), [tests/unit/mcp-integrations.test.ts](../tests/unit/mcp-integrations.test.ts), [tests/integration/template-workflow.test.ts](../tests/integration/template-workflow.test.ts)
+**Tests:** [tests/unit/template-authoring.test.ts](../tests/unit/template-authoring.test.ts), [tests/unit/mcp-integrations.test.ts](../tests/unit/mcp-integrations.test.ts), [tests/integration/template-workflow.test.ts](../tests/integration/template-workflow.test.ts), [tests/unit/templates-images.test.ts](../tests/unit/templates-images.test.ts), [tests/e2e/template-images.spec.ts](../tests/e2e/template-images.spec.ts)
 
 **Documented REST operations**
 
@@ -616,7 +619,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 <a id="billing"></a>
 ### Credits and billing
 
-**Availability model:** partial. Credits and ledger implemented; commercial top-up remains unqualified.
+**Availability model:** partial. Credits, ledger and selectable consumption history implemented; commercial top-up and this candidate publication remain unqualified.
 
 **Surfaces:** Browser administration; shared backend ledger. No assistant billing administration.
 
@@ -626,14 +629,17 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Provider settlement and retained reserves for unknown outcomes
 - Administrator credit/billing inspection
 - Prepared Stripe integration with separate commercial qualification
+- Read-only tenant-scoped monthly consumption history; current/latest/explicit UTC month selection preserves previous usage and simulation boundaries
+- GitHub-style annual daily activity grid from exact UTC posted debits, selectable years/day detail, keyboard navigation and contained phone scrolling; reservations and simulation remain distinct
 
 **Contract:** [WELCOME_CREDIT.md](WELCOME_CREDIT.md) · **Implementation:** [apps/api/src/billing.ts](../apps/api/src/billing.ts)
 
-**Tests:** [tests/unit/billing.test.ts](../tests/unit/billing.test.ts)
+**Tests:** [tests/unit/billing.test.ts](../tests/unit/billing.test.ts), [tests/integration/welcome-credit.test.ts](../tests/integration/welcome-credit.test.ts), [tests/e2e/usage-history.spec.ts](../tests/e2e/usage-history.spec.ts), [tests/e2e/usage-activity.spec.ts](../tests/e2e/usage-activity.spec.ts), [tests/integration/live-delivery-quotes.test.ts](../tests/integration/live-delivery-quotes.test.ts), [tests/integration/protected-documents.test.ts](../tests/integration/protected-documents.test.ts), [tests/unit/pdf-validation-pricing.test.ts](../tests/unit/pdf-validation-pricing.test.ts), [tests/unit/secure-distribution-core.test.ts](../tests/unit/secure-distribution-core.test.ts), [tests/unit/auth.test.ts](../tests/unit/auth.test.ts)
 
 **Documented REST operations**
 
 - `GET /api/usage`
+- `GET /api/usage/activity`
 
 
 
@@ -760,13 +766,13 @@ Supervisor approval/reporting options are independent and off by default. Resour
 **Surfaces:** Authenticated web Classic/V2; native reads preference without a setter; no new business API/MCP authority.
 
 - Full real-web Classic/V2 views with the same account, tenant, resources and operations
-- Account at navigation bottom, appearance beside language, applied after a successful profile save; mobile identity/role remain visible with the menu closed
+- Account at navigation bottom, appearance beside language, applied after a successful profile save; mobile identity remains visible with the menu closed; role and detailed permissions live on My account
 - Personal users.preferred_dashboard_appearance, migration 0053, classic default and cross-workshop/session/device reconciliation
 - Strict browser account PATCH with current authority, Origin/CSRF and field-name audit; every role changes only its own preference
 - Temporary appearance=v2/classic override accepts legacy atelier URLs, never persists server-side and clears after explicit appearance save or identity change; local cache is non-authoritative
 - Existing activity/alerts precede introduction, otherwise a complete welcome; content preview precedes approval in reading/tab order
 - Stable PDF review frame across loading/render/error, keyboard-accessible internal scrolling and unchanged consent/data authority
-- Consistent documents, preparation, review, tracking, assistants, account, studio, Horizon, credits, tables and forms; Belvédère remains a distinct platform surface
+- Consistent documents, preparation, review, tracking, assistants, account, studio, PDF verification, credits, tables and forms; Belvédère remains a distinct platform surface
 - One brand signature, workshop in navigation and no redundant V2 footer; service status near account and browser timezone near dates
 - One page title, contextual detail back link and task-specific primary action; global New dispatch stays secondary and permission-aware
 - Generation introduction focuses on finding PDFs and makes clear that generation sends nothing
@@ -774,37 +780,41 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Four-language labels; simulation notices only for simulated sessions
 - Same four roles, supervisor options, private access and consents; no new mandate, channel or business API/MCP tool
 - Native account/session reads include appearance without a setter; existing name/language browser PATCH and native language PATCH remain compatible
+- Compact My documents navigation link with personal-space context, without an oversized separate card or repeated role panel
+- Shared native file input with four-language authored chooser/empty text and literal filenames, keyboard validation and exact-byte upload semantics
+- Desktop Safari select height and protected-link hint spacing; neutral ink selection/focus states retain keyboard and forced-colors access
 
 **Contract:** [DASHBOARD_V2.md](DASHBOARD_V2.md) · **Implementation:** [apps/web/src/account-page.tsx](../apps/web/src/account-page.tsx)
 
-**Tests:** [tests/unit/account.test.ts](../tests/unit/account.test.ts), [tests/integration/mobile.test.ts](../tests/integration/mobile.test.ts), [tests/unit/dashboard-appearance.test.ts](../tests/unit/dashboard-appearance.test.ts), [tests/preview-e2e/dashboard-v2.spec.ts](../tests/preview-e2e/dashboard-v2.spec.ts), [tests/e2e/dashboard-v2.spec.ts](../tests/e2e/dashboard-v2.spec.ts), [tests/e2e/protected-email.spec.ts](../tests/e2e/protected-email.spec.ts)
+**Tests:** [tests/unit/account.test.ts](../tests/unit/account.test.ts), [tests/integration/mobile.test.ts](../tests/integration/mobile.test.ts), [tests/unit/dashboard-appearance.test.ts](../tests/unit/dashboard-appearance.test.ts), [tests/preview-e2e/dashboard-v2.spec.ts](../tests/preview-e2e/dashboard-v2.spec.ts), [tests/e2e/dashboard-v2.spec.ts](../tests/e2e/dashboard-v2.spec.ts), [tests/e2e/protected-email.spec.ts](../tests/e2e/protected-email.spec.ts), [tests/e2e/account-identity.spec.ts](../tests/e2e/account-identity.spec.ts), [tests/e2e/team-invitations.spec.ts](../tests/e2e/team-invitations.spec.ts)
 
 
 
-<a id="horizon"></a>
-### Horizon PDF diagnostics
+<a id="pdf-verification"></a>
+### PDF verification
 
-**Availability model:** capability-gated. Implemented diagnostics/subscription contracts; runtime capability, private validator and scanner gates apply.
+**Availability model:** capability-gated. Individual purchase candidate; no new subscription or recurring renewal. Runtime capability, private validator, scanner and final release qualification remain separate.
 
-**Surfaces:** Web, REST and MCP diagnostics; browser administrator alone manages recurring subscription.
+**Surfaces:** Web browser administrator purchases; REST and MCP retain current document-scoped history reads and cannot create assistant financial consent.
 
-- EUR30 monthly subscription from available credits, including remaining welcome credits for the first period; private /app/plan entry
-- Immutable recurring consent by a browser administrator
-- Cancellation, renewal and suspension without debt; top-up remains unavailable
-- 100 attempts per calendar month under atomic quota
+- Individual exact-PDF/profile purchase from available account credits; current integer EUR price and excluding-tax terms come from the authenticated pricing endpoint
+- Current browser administrator alone accepts the immutable purchase; assistants, native callers and other members cannot create financial consent
+- Atomic reservation and one settled charge for a complete valid report; engine failure releases the reservation without a settled debit
+- New subscriptions and automatic recurring renewals are retired; immutable legacy actions and charges are retained, and posted charge history remains visible under current reporting authority
 - Pinned private veraPDF for PDF/UA-1/-2 and PDF/A-1b/2b/3b/4, with official positive/negative corpus and separate offline/hosted qualification
-- Exact-byte reports, history and JSON export
-- Web/MCP diagnostics with required human review; same-key recovery for uncertain network responses and new-key independent checks
-- Public/server availability share HORIZON_ENABLED, private validator and production scanner gates; activation after hosted qualification, never legal certification
+- Exact-byte reports, history and JSON export under current PDF access, independent of a monthly entitlement
+- Required human review; a valid report with failed conformance checks is billable, while operational failure is not a conformity verdict
+- One explicit activation flag, private validator and production scanner gates; activation after hosted qualification, never legal certification
 - PDF-accessibility exclusions apply to originals and existing reports; person-redacted recovery without web bypass
-- Home → signed-in workspace → home preserves private capability reads and performs one fresh public read after failure, without writes or stale availability inference
+- Same-key recovery for uncertain network responses does not purchase or execute twice; a new independent check requires a new explicit purchase
 
 **Contract:** [PDF_ACCESSIBILITY.md](PDF_ACCESSIBILITY.md) · **Implementation:** [apps/api/src/pdf-validation.ts](../apps/api/src/pdf-validation.ts)
 
-**Tests:** [tests/unit/monthly-plan.test.ts](../tests/unit/monthly-plan.test.ts), [tests/e2e/horizon-pdf.spec.ts](../tests/e2e/horizon-pdf.spec.ts), [tests/unit/pdf-validation.test.ts](../tests/unit/pdf-validation.test.ts), [tests/preview-e2e/geo.spec.ts](../tests/preview-e2e/geo.spec.ts), [tests/preview-e2e/seo.spec.ts](../tests/preview-e2e/seo.spec.ts), [tests/unit/live-capabilities.test.ts](../tests/unit/live-capabilities.test.ts), [apps/pdf-validator/tests/qualification.test.mjs](../apps/pdf-validator/tests/qualification.test.mjs), [apps/pdf-validator/tests/container-lifecycle.test.mjs](../apps/pdf-validator/tests/container-lifecycle.test.mjs), [apps/pdf-validator/tests/worker.test.mjs](../apps/pdf-validator/tests/worker.test.mjs), [apps/pdf-validator/tests/test_server.py](../apps/pdf-validator/tests/test_server.py), [tests/unit/mcp-integrations.test.ts](../tests/unit/mcp-integrations.test.ts)
+**Tests:** [tests/unit/pdf-validation-pricing.test.ts](../tests/unit/pdf-validation-pricing.test.ts), [tests/e2e/pdf-validation.spec.ts](../tests/e2e/pdf-validation.spec.ts), [tests/unit/pdf-validation.test.ts](../tests/unit/pdf-validation.test.ts), [tests/preview-e2e/geo.spec.ts](../tests/preview-e2e/geo.spec.ts), [tests/preview-e2e/seo.spec.ts](../tests/preview-e2e/seo.spec.ts), [tests/unit/live-capabilities.test.ts](../tests/unit/live-capabilities.test.ts), [apps/pdf-validator/tests/qualification.test.mjs](../apps/pdf-validator/tests/qualification.test.mjs), [apps/pdf-validator/tests/container-lifecycle.test.mjs](../apps/pdf-validator/tests/container-lifecycle.test.mjs), [apps/pdf-validator/tests/worker.test.mjs](../apps/pdf-validator/tests/worker.test.mjs), [apps/pdf-validator/tests/test_server.py](../apps/pdf-validator/tests/test_server.py), [tests/unit/mcp-integrations.test.ts](../tests/unit/mcp-integrations.test.ts)
 
 **Documented REST operations**
 
+- `GET /api/pdf-validation/pricing`
 - `GET /api/documents/{id}/validation`
 - `POST /api/documents/{id}/validation`
 
@@ -825,7 +835,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Private read-only Telnyx operator inspection reports bounded callback status/canonical-match booleans without raw URLs or credential extraction; fresh provider state requires separate proof
 - Reconciliation, bounded recovery and dead-letter queues
 - Ordered D1 migrations, integrity and restore bookmark
-- Private scanner, renderer and validator releases from clean main; loopback qualification bridge with temporary secret, Origin refusal and no secret transfer; validator operators check Horizon closed on canonical guteneo.com only
+- Private scanner, renderer and validator releases from clean main; loopback qualification bridge with temporary secret, Origin refusal and no secret transfer; deployment wrapper and hosted runner share strict production pdfValidation.available=false on canonical guteneo.com before container qualification
 - Backend/security/browser suites and exhaustive CI; basic validator max 1, 5-second idle, qualified JVM corpus to 100 pages/9.887 MiB; measured local CPU savings do not prove hosted cost
 - Release from clean, synchronized, verified main
 - Release manifests contain canonical public assets with exact byte hashes; shared application/preview redirects preserve old page/download links without duplicate alias files; unexpected redirects fail served verification; retired workers.dev/preview closure has separate evidence
@@ -857,16 +867,17 @@ Supervisor approval/reporting options are independent and off by default. Resour
 **Surfaces:** Private verified Watchkeeper browser only; no workshop/native/OAuth/MCP authority.
 
 - Private read-only Watchkeeper authority bound to verified browser identity and server-secret address, separate from workshop roles
+- Dedicated protected platform host at its root with exact Auth0 callback, host-only browser cookies and no customer API/signup/OAuth authority; compatible private entry retained
 - Seven views: overview, workshops, members, dispatches, connections, finances and infrastructure
 - Optional country observations with bounded deduplication, new sessions after workshop changes and 90-day retention
-- Distinct promotional credits, dispatch/hosting/Horizon usage, actual receipts and supplier costs
+- Distinct promotional credits, dispatch/hosting/individual PDF purchases and legacy subscription charges, actual receipts and supplier costs
 - Server-side Cloudflare connectors with explicit availability; never invent cost or profit
 - Additive migration 0052 and deterministic loopback-only preview; hosted activation is separate
 - Account-selected four-language UI on direct entry and tab focus; no additional private language selector
 
 **Contract:** [BELVEDERE.md](BELVEDERE.md) · **Implementation:** [apps/api/src/belvedere.ts](../apps/api/src/belvedere.ts)
 
-**Tests:** [tests/unit/belvedere.test.ts](../tests/unit/belvedere.test.ts), [tests/unit/auth-telemetry.test.ts](../tests/unit/auth-telemetry.test.ts), [tests/belvedere-e2e/control-tower.spec.ts](../tests/belvedere-e2e/control-tower.spec.ts), [tests/unit/belvedere-finance.test.ts](../tests/unit/belvedere-finance.test.ts), [tests/belvedere-e2e/locale.spec.ts](../tests/belvedere-e2e/locale.spec.ts), [tests/unit/belvedere-locale.test.ts](../tests/unit/belvedere-locale.test.ts)
+**Tests:** [tests/unit/belvedere.test.ts](../tests/unit/belvedere.test.ts), [tests/unit/belvedere-host.test.ts](../tests/unit/belvedere-host.test.ts), [tests/unit/auth-telemetry.test.ts](../tests/unit/auth-telemetry.test.ts), [tests/belvedere-e2e/control-tower.spec.ts](../tests/belvedere-e2e/control-tower.spec.ts), [tests/unit/belvedere-finance.test.ts](../tests/unit/belvedere-finance.test.ts), [tests/belvedere-e2e/locale.spec.ts](../tests/belvedere-e2e/locale.spec.ts), [tests/unit/belvedere-locale.test.ts](../tests/unit/belvedere-locale.test.ts)
 
 
 
@@ -883,7 +894,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Service view shows freshness/groups/history; Checks separates detailed observations, local proof and journey coverage; Operations states limits/actions, without customer data or command IDs
 - Local qualification separately tests the real domain/PDFs with external network denied and final providers simulated; timestamped redacted evidence never becomes delivery proof or a production incident
 - Branded footer and bounded seasonal decoration, optional and respecting reduced motion
-- English authored status copy with English/French browser selection and a shared locale catalog; historical French feature labels remain accepted alongside canonical English reports
+- English authored status copy with English/French browser selection and a shared locale catalog; historical French/PDF feature labels normalize without rewriting observations; current pdfValidation.available controls only the distinct paid PDF-verification coverage row, separately from antivirus/import/rendering
 - Dedicated release from clean main with source checks, manifest and status-only D1 migrations
 - Separate public browser reports run on GitHub main every six hours: fourteen desktop/simulated-mobile Chromium journeys and fourteen fixed HTTP contracts, without business operations; the Node driver requests identity/no-transform, preserves strict received-byte/SHA checks without automatic retries and emits bounded public diagnostics outside the signed report; canonical public HTML origin responses also declare no-transform while preserving existing cache directives, bytes, ETag and encoding, without widening private/API policies
 - Public GET /api/e2e-status exposes execution, tested/observed commit, eight-hour freshness, twenty-eight checks and history; absent/stale/version-mismatched proof stays neutral without degrading Cron availability
@@ -1036,19 +1047,19 @@ Start system authentication on the canonical backend → use dedicated mobile se
 
 **Actor:** Browser administrator. **Branch:** Operate.
 
-Read welcome/available/reserved/consumed balances → inspect usage/billing → reserve the exact approved ceiling atomically with acceptance/outbox → settle using qualified provider evidence.
+Read welcome/available/reserved/consumed balances → inspect the annual UTC consumption grid and selected-day totals → open the latest recorded usage month or select current/previous UTC month → inspect usage/billing → reserve the exact approved ceiling atomically with acceptance/outbox → settle using qualified provider evidence.
 
-**Failure/recovery:** Welcome credit is one-time, not monthly. Top-up is not commercially qualified. Unknown outcomes retain reserves; fax delivery alone does not settle verified usage.
+**Failure/recovery:** Welcome credit is one-time, not monthly. Top-up is not commercially qualified. Unknown outcomes retain reserves; fax delivery alone does not settle verified usage. An empty current month does not mean lost history; failed period reads offer retry without replacing ledger or balance.
 
 [Detailed contract](WELCOME_CREDIT.md).
 
-### J13 · Diagnose a PDF with Horizon
+### J13 · Purchase a PDF verification
 
-**Actor:** Browser administrator for subscription; authorised preparer/assistant for checks; current PDF reader for history. **Branch:** Operate.
+**Actor:** Current browser administrator for a purchase; current PDF reader for history. **Branch:** Operate.
 
-Read current capabilities → administrator reviews EUR30 recurring-credit subscription → use ready original with selected PDF/UA or PDF/A flavour → consume atomic calendar-month quota → inspect exact-byte report/history/JSON → complete human review.
+Read current capability and price → select the ready immutable PDF and PDF/UA or PDF/A profile → explicitly accept this exact purchase → reserve available account credit atomically → run the private engine → settle once for a complete valid report → inspect report/history/JSON and complete human review.
 
-**Failure/recovery:** Require active entitlement, current PDF authority, scanner/private validator and quota. Automatic checks are not certification. Reuse the key to recover an uncertain request; a new independent check uses a new key.
+**Failure/recovery:** Require current PDF authority, browser administrator purchase consent, available credit and scanner/private validator. Engine failure creates no settled charge; a valid failing-conformance report is billable. Recover uncertain responses with the same key. A new check needs a new purchase. Existing reports retain their document access policy without monthly subscription.
 
 [Detailed contract](PDF_ACCESSIBILITY.md).
 
@@ -1076,7 +1087,7 @@ Update feature tree/developer contracts/source/tests together → regenerate and
 
 **Actor:** Browser member in the current workshop. **Branch:** Access.
 
-Read visible name/login email/role → open account profile → inspect effective permissions and workshop responsible contacts → edit own name/language or explicitly switch account.
+Read visible name/login email → open account profile for role → inspect effective permissions and workshop responsible contacts → edit own name/language or explicitly switch account.
 
 **Failure/recovery:** Provider login email is read-only identity data. Missing address/contact errors stay explicit. Reconcile identity after tab focus and ignore cancelled stale reads without interrupting editing.
 
@@ -1126,7 +1137,7 @@ Open public status → inspect freshness and public groups → compare observed 
 
 **Actor:** Authenticated browser member changing their own preference. **Branch:** Operate.
 
-Open account → choose Classic/V2 beside language → save successfully → reload or change workshop/device → reconcile the saved personal preference with current identity.
+Enter through compact My documents/workshop navigation → inspect role and detailed rights on My account → choose Classic/V2 beside language → save successfully → reload or change workshop/device → reconcile the saved personal preference with current identity.
 
 **Failure/recovery:** Temporary atelier overrides never claim a server save and clear after explicit save/identity change. Old cache cannot override the current person; business authority remains identical.
 

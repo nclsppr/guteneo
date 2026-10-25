@@ -59,7 +59,7 @@ separate; unknown or external-looking hashes must not become redirects.
 | Immutable send operation | Dispatch | Preparation, approval, acceptance and delivery are distinct states. |
 | Exact file | Document / PDF | Original and derived documents keep separate identities and hashes. |
 | Document authoring | Studio | Templates, datasets, mappings and generated PDFs. |
-| PDF diagnostics | Horizon | Automatic diagnostics, with their documented limits. |
+| PDF diagnostics | PDF verification | Automatic diagnostics, with their documented limits. |
 | Platform oversight | Belvédère | The proper name is retained; platform authority is separate from workspace roles. |
 
 Translate these concepts consistently in locale catalogs. Preserve a proper

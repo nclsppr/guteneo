@@ -24,7 +24,6 @@
     "Rechnungsverwaltung ausschließlich durch den Administrator",
     "Verwaltung vun der Facturatioun nëmme fir den Administrateur"
   ],
-  "Forfait Horizon": ["Horizon plan", "Horizon-Tarif", "Horizon-Abonnement"],
   "Des documents mieux préparés, un atelier mieux équipé.": [
     "Better prepared documents, a better equipped workspace.",
     "Besser vorbereitete Dokumente, ein besser ausgestatteter Arbeitsbereich.",
@@ -40,53 +39,6 @@
     "Kündigung vorgemerkt",
     "Kënnegung geplangt"
   ],
-  "Forfait actif": ["Plan active", "Tarif aktiv", "Abonnement aktiv"],
-  "Forfait souscrit": [
-    "Plan subscribed",
-    "Tarif gebucht",
-    "Abonnement ofgeschloss"
-  ],
-  "Crédit insuffisant au renouvellement": [
-    "Insufficient credit at renewal",
-    "Unzureichendes Guthaben bei Verlängerung",
-    "Net genuch Kredit bei der Erneierung"
-  ],
-  "Sans forfait mensuel": [
-    "No monthly plan",
-    "Kein monatlicher Tarif",
-    "Kee monatlecht Abonnement"
-  ],
-  "Le forfait a été souscrit. Actualisez son état pour consulter votre période.": [
-    "Your plan has been subscribed. Refresh its status to view your period.",
-    "Der Tarif wurde gebucht. Aktualisieren Sie den Status, um den Zeitraum zu sehen.",
-    "D’Abonnement gouf ofgeschloss. Aktualiséiert de Status, fir Är Period ze gesinn."
-  ],
-  "La résiliation a été demandée. Actualisez l’état de votre forfait.": [
-    "Cancellation has been requested. Refresh your plan status.",
-    "Die Kündigung wurde angefordert. Aktualisieren Sie den Tarifstatus.",
-    "D’Kënnegung gouf ugefrot. Aktualiséiert de Status vun Ärem Abonnement."
-  ],
-  "Le renouvellement mensuel a été rétabli.": [
-    "Monthly renewal has been restored.",
-    "Die monatliche Verlängerung wurde wieder aktiviert.",
-    "Déi monatlech Erneierung gouf nees aktivéiert."
-  ],
-  "par mois": ["per month", "pro Monat", "pro Mount"],
-  "Le forfait est prélevé chaque mois sur les crédits disponibles du compte. Les envois consomment leur propre crédit.": [
-    "The plan is deducted each month from the account’s available credits. Sending uses separate credit.",
-    "Der Tarif wird monatlich vom verfügbaren Kontoguthaben abgezogen. Sendungen verbrauchen zusätzliches Guthaben.",
-    "D’Abonnement gëtt all Mount vun de verfügbare Kreditter vum Kont ofgezunn. Sendunge verbrauchen eegene Kredit."
-  ],
-  "Cette offre est en préparation. La souscription et les contrôles PDF seront ouverts après activation du service.": [
-    "This offer is being prepared. Subscriptions and PDF checks will open once the service is activated.",
-    "Dieses Angebot wird vorbereitet. Buchung und PDF-Prüfungen werden nach Aktivierung des Dienstes geöffnet.",
-    "Dës Offer gëtt preparéiert. D’Abonnement an d’PDF-Kontrolle ginn no der Aktivatioun vum Service opgemaach."
-  ],
-  "Le service Horizon est indisponible. L’administrateur peut toujours arrêter le renouvellement du forfait.": [
-    "The Horizon service is unavailable. The administrator can still stop the plan’s renewal.",
-    "Der Horizon-Dienst ist nicht verfügbar. Der Administrator kann die Tarifverlängerung weiterhin stoppen.",
-    "Den Horizon-Service ass net disponibel. Den Administrateur kann d’Erneierung vum Abonnement nach ëmmer stoppen."
-  ],
   "Atelier de simulation : les montants et les droits affichés sont fictifs.": [
     "Simulation workspace: the displayed amounts and entitlements are fictional.",
     "Simulationsbereich: Die angezeigten Beträge und Berechtigungen sind fiktiv.",
@@ -97,65 +49,10 @@
     "Aktueller Zeitraum bis {0}.",
     "Déi aktuell Period leeft bis {0}."
   ],
-  "Seul l’administrateur de votre atelier peut souscrire, résilier et gérer la facturation.": [
-    "Only your workspace administrator can subscribe, cancel and manage billing.",
-    "Nur der Administrator Ihres Arbeitsbereichs kann buchen, kündigen und die Rechnungen verwalten.",
-    "Nëmmen den Administrateur vun Ärem Atelier kann abonnéieren, kënnegen an d’Facturatioun verwalten."
-  ],
   "Crédit disponible : {0}.": [
     "Available credit: {0}.",
     "Verfügbares Guthaben: {0}.",
     "Verfügbare Kredit: {0}."
-  ],
-  "J’accepte le forfait Horizon à {0} par mois, prélevé sur les crédits du compte, avec renouvellement mensuel jusqu’à résiliation.": [
-    "I accept the Horizon plan at {0} per month, deducted from account credits, renewing monthly until cancelled.",
-    "Ich akzeptiere den Horizon-Tarif für {0} pro Monat mit Abbuchung vom Kontoguthaben und monatlicher Verlängerung bis zur Kündigung.",
-    "Ech akzeptéieren d’Horizon-Abonnement fir {0} pro Mount, ofgezunn vun de Kontkreditter, mat monatlecher Erneierung bis zur Kënnegung."
-  ],
-  "La première période est débitée à la souscription. La résiliation arrête le prochain renouvellement.": [
-    "The first period is charged when you subscribe. Cancellation stops the next renewal.",
-    "Der erste Zeitraum wird bei der Buchung abgezogen. Die Kündigung stoppt die nächste Verlängerung.",
-    "Déi éischt Period gëtt beim Ofschloss ofgezunn. D’Kënnegung stoppt déi nächst Erneierung."
-  ],
-  "La période déjà payée est conservée sans nouveau débit. Les prochains renouvellements seront prélevés chaque mois sur les crédits du compte.": [
-    "The paid period is retained without a new charge. Future renewals will be deducted monthly from account credits.",
-    "Der bereits bezahlte Zeitraum bleibt ohne erneute Abbuchung erhalten. Künftige Verlängerungen werden monatlich vom Kontoguthaben abgezogen.",
-    "Déi scho bezuelte Period bleift ouni nei Ofbuchung erhalen. Déi nächst Erneierunge ginn all Mount vun de Kontkreditter ofgezunn."
-  ],
-  "Il faut au moins 30 € de crédits disponibles pour souscrire. Demandez une recharge du compte avant de continuer.": [
-    "You need at least €30 in available credits to subscribe. Request an account top-up before continuing.",
-    "Zur Buchung sind mindestens 30 € verfügbares Guthaben erforderlich. Fordern Sie vor dem Fortfahren eine Aufladung an.",
-    "Dir braucht op d’mannst 30 € verfügbare Kredit fir ze abonnéieren. Frot eng Opluedung vum Kont un, ier Dir weiderfuert."
-  ],
-  "Souscription en cours…": [
-    "Subscribing…",
-    "Buchung läuft…",
-    "Abonnement gëtt ofgeschloss…"
-  ],
-  "Souscrire Horizon": [
-    "Subscribe to Horizon",
-    "Horizon buchen",
-    "Horizon abonnéieren"
-  ],
-  "Rétablir le renouvellement": [
-    "Restore renewal",
-    "Verlängerung wieder aktivieren",
-    "Erneierung nees aktivéieren"
-  ],
-  "Résilier le forfait": [
-    "Cancel the plan",
-    "Tarif kündigen",
-    "D’Abonnement kënnegen"
-  ],
-  "La résiliation arrête le prochain prélèvement mensuel, y compris si le service est indisponible.": [
-    "Cancellation stops the next monthly deduction, including when the service is unavailable.",
-    "Die Kündigung stoppt die nächste monatliche Abbuchung, auch wenn der Dienst nicht verfügbar ist.",
-    "D’Kënnegung stoppt déi nächst monatlech Ofbuchung, och wann de Service net disponibel ass."
-  ],
-  "Je confirme l’arrêt du renouvellement mensuel.": [
-    "I confirm stopping monthly renewal.",
-    "Ich bestätige das Ende der monatlichen Verlängerung.",
-    "Ech bestätegen d’Enn vun der monatlecher Erneierung."
   ],
   "Confirmer la résiliation": [
     "Confirm cancellation",
@@ -171,31 +68,6 @@
     "Automated checks provide technical guidance. They do not replace human review or certify legal compliance.",
     "Automatische Prüfungen liefern technische Hinweise. Sie ersetzen keine menschliche Prüfung und bescheinigen keine gesetzliche Konformität.",
     "Automatesch Kontrolle ginn technesch Hiweiser. Si ersetzen keng mënschlech Iwwerpréiwung a si keng Zertifizéierung vun der gesetzlecher Konformitéit."
-  ],
-  "Un forfait mensuel pour contrôler l’accessibilité PDF/UA et l’archivage PDF/A, depuis votre atelier ou votre assistant.": [
-    "A monthly plan to check PDF/UA accessibility and PDF/A archiving from your workspace or assistant.",
-    "Ein monatlicher Tarif für PDF/UA-Barrierefreiheit und PDF/A-Archivierung aus Ihrem Arbeitsbereich oder Assistenten.",
-    "E monatlecht Abonnement fir PDF/UA-Accessibilitéit a PDF/A-Archivatioun aus Ärem Atelier oder Assistent ze kontrolléieren."
-  ],
-  "Découvrir le forfait Horizon": [
-    "Explore the Horizon plan",
-    "Horizon-Tarif entdecken",
-    "D’Horizon-Abonnement entdecken"
-  ],
-  "Que comprennent les contrôles PDF du forfait Horizon ?": [
-    "What do the Horizon plan’s PDF checks include?",
-    "Was umfassen die PDF-Prüfungen im Horizon-Tarif?",
-    "Wat enthalen d’PDF-Kontrolle vum Horizon-Abonnement?"
-  ],
-  "Horizon prévoit les contrôles PDF/UA-1 et PDF/UA-2, PDF/A-1b, 2b, 3b et 4, les rapports liés au PDF original et une liste de points à revoir manuellement. Le même contrôle pourra être demandé depuis le plugin de votre assistant.": [
-    "Horizon includes PDF/UA-1 and PDF/UA-2, PDF/A-1b, 2b, 3b and 4 checks, reports linked to the original PDF and a manual review checklist. The same check can be requested through your assistant’s plugin.",
-    "Horizon umfasst PDF/UA-1- und PDF/UA-2-, PDF/A-1b-, 2b-, 3b- und 4-Prüfungen, Berichte zum Original-PDF und eine Liste manuell zu prüfender Punkte. Dieselbe Prüfung kann über das Plugin Ihres Assistenten angefordert werden.",
-    "Horizon enthält PDF/UA-1- a PDF/UA-2-, PDF/A-1b-, 2b-, 3b- a 4-Kontrollen, Rapporten zum Original-PDF an eng Lëscht vu Punkten, déi manuell ze iwwerpréiwe sinn. Déiselwecht Kontroll kann iwwer de Plugin vun Ärem Assistent ugefrot ginn."
-  ],
-  "Le forfait de 30 € par mois sera prélevé sur les crédits du compte. Seul l’administrateur pourra souscrire, résilier ou gérer la facturation. L’offre est en préparation.": [
-    "The €30 monthly plan will be deducted from account credits. Only the administrator can subscribe, cancel or manage billing. The offer is being prepared.",
-    "Der Tarif für 30 € pro Monat wird vom Kontoguthaben abgezogen. Nur der Administrator kann buchen, kündigen oder die Rechnungen verwalten. Das Angebot wird vorbereitet.",
-    "D’Abonnement fir 30 € pro Mount gëtt vun de Kontkreditter ofgezunn. Nëmmen den Administrateur kann abonnéieren, kënnegen oder d’Facturatioun verwalten. D’Offer gëtt preparéiert."
   ],
   "La loi européenne impose-t-elle des PDF accessibles ?": [
     "Does European law require accessible PDFs?",
@@ -271,11 +143,6 @@
     "The check uses the original PDF and retains its fingerprint. It does not change the document or automatically fix errors.",
     "Die Prüfung verwendet das Original-PDF und bewahrt seinen Fingerabdruck. Sie verändert das Dokument nicht und korrigiert Fehler nicht automatisch.",
     "D’Kontroll benotzt den Original-PDF a behält säi Fangerofdrock. Si ännert d’Dokument net a korrigéiert Feeler net automatesch."
-  ],
-  "Ce contrôle est inclus dans le forfait Horizon à 30 € par mois.": [
-    "This check is included in the Horizon plan at €30 per month.",
-    "Diese Prüfung ist im Horizon-Tarif für 30 € pro Monat enthalten.",
-    "Dës Kontroll ass am Horizon-Abonnement fir 30 € pro Mount abegraff."
   ],
   "Le PDF doit d’abord terminer sa vérification de sécurité avant un contrôle d’accessibilité ou d’archivage.": [
     "The PDF must first finish its security check before accessibility or archival validation.",
@@ -381,21 +248,6 @@
     "JSON-Bericht exportieren",
     "JSON-Rapport exportéieren"
   ],
-  "Un forfait Horizon actif est nécessaire pour ce contrôle. L’administrateur peut consulter l’offre dans l’atelier.": [
-    "An active Horizon plan is required for this check. The administrator can view the offer in the workspace.",
-    "Für diese Prüfung ist ein aktiver Horizon-Tarif erforderlich. Der Administrator kann das Angebot im Arbeitsbereich ansehen.",
-    "Fir dës Kontroll ass en aktiven Horizon-Abonnement néideg. Den Administrateur kann d’Offer am Atelier kucken."
-  ],
-  "Le forfait Horizon est en préparation. La souscription n’est pas encore ouverte.": [
-    "The Horizon plan is being prepared. Subscriptions are not open yet.",
-    "Der Horizon-Tarif wird vorbereitet. Buchungen sind noch nicht geöffnet.",
-    "D’Horizon-Abonnement gëtt preparéiert. Et kann nach net ofgeschloss ginn."
-  ],
-  "Les conditions du forfait ont changé. Actualisez l’offre avant de confirmer.": [
-    "The plan terms have changed. Refresh the offer before confirming.",
-    "Die Tarifbedingungen haben sich geändert. Aktualisieren Sie das Angebot vor der Bestätigung.",
-    "D’Abonnementsbedéngungen hu sech geännert. Aktualiséiert d’Offer virun der Bestätegung."
-  ],
   "Le compte ne dispose pas des crédits nécessaires. Actualisez le solde avant de recommencer.": [
     "The account does not have enough credit. Refresh the balance before trying again.",
     "Das Konto hat nicht genügend Guthaben. Aktualisieren Sie den Saldo vor einem neuen Versuch.",
@@ -421,21 +273,6 @@
     "Die Prüfung konnte nicht abgeschlossen werden. Es wurde kein Konformitätsergebnis erstellt; Sie können eine neue Prüfung anfordern.",
     "D’Kontroll gouf net ofgeschloss. Et gouf kee Konformitéitsresultat produzéiert; Dir kënnt eng nei Kontroll ufroen."
   ],
-  "La facturation est disponible aux administrateurs des comptes disposant d’un forfait mensuel actif.": [
-    "Billing is available to administrators of accounts with an active monthly plan.",
-    "Rechnungen sind für Administratoren von Konten mit aktivem Monatstarif verfügbar.",
-    "D’Facturatioun ass fir Administrateure vu Konte mat engem aktive monatlechen Abonnement disponibel."
-  ],
-  "100 contrôles PDF par mois, sans supplément par contrôle": [
-    "100 PDF checks per month, with no per-check surcharge",
-    "100 PDF-Prüfungen pro Monat, ohne Zuschlag je Prüfung",
-    "100 PDF-Kontrolle pro Mount, ouni Zousaz pro Kontroll"
-  ],
-  "Limite incluse : 100 tentatives de contrôle par mois civil, PDF de 10 Mio et 100 pages maximum. Les contrôles interrompus comptent dans cette limite.": [
-    "Included allowance: 100 check attempts per calendar month, PDFs up to 10 MiB and 100 pages. Interrupted checks count towards this limit.",
-    "Enthaltenes Kontingent: 100 Prüfversuche pro Kalendermonat, PDFs bis 10 MiB und 100 Seiten. Abgebrochene Prüfungen zählen zu diesem Limit.",
-    "Abegraffe Limit: 100 Kontrollversich pro Kalennermount, PDFen bis 10 MiB an 100 Säiten. Ënnerbrach Kontrolle zielen an dëser Limit mat."
-  ],
   "Le mode de cet espace est incompatible.": [
     "This workspace’s mode is incompatible.",
     "Der Modus dieses Arbeitsbereichs ist nicht kompatibel.",
@@ -446,69 +283,136 @@
     "In Ihrem Arbeitsbereich verfügbar",
     "An Ärem Atelier disponibel"
   ],
-  "Souscription indisponible": [
-    "Subscription unavailable",
-    "Buchung nicht verfügbar",
-    "Abonnement net disponibel"
-  ],
   "Consultez votre atelier": [
     "Check your workspace",
     "Prüfen Sie Ihren Arbeitsbereich",
     "Kuckt an Ärem Atelier"
   ],
-  "L’administrateur peut souscrire dans l’atelier avec au moins 30 € de crédits disponibles. Les contrôles sont ensuite accessibles aux membres autorisés.": [
-    "The administrator can subscribe in the workspace with at least €30 in available credits. Checks are then available to authorised members.",
-    "Der Administrator kann den Tarif im Arbeitsbereich mit mindestens 30 € verfügbarem Guthaben buchen. Prüfungen sind anschließend für berechtigte Mitglieder verfügbar.",
-    "Den Administrateur kann am Atelier mat op d’mannst 30 € verfügbare Kredit abonnéieren. D’Kontrolle sinn duerno fir autoriséiert Memberen disponibel."
-  ],
-  "La souscription et les contrôles PDF sont actuellement indisponibles. Consultez l’offre dans votre atelier.": [
-    "Subscriptions and PDF checks are currently unavailable. View the offer in your workspace.",
-    "Buchungen und PDF-Prüfungen sind derzeit nicht verfügbar. Sehen Sie sich das Angebot in Ihrem Arbeitsbereich an.",
-    "D’Abonnement an d’PDF-Kontrolle sinn den Ament net disponibel. Kuckt d’Offer an Ärem Atelier."
-  ],
-  "La disponibilité du forfait est confirmée dans votre atelier avant toute souscription.": [
-    "Plan availability is confirmed in your workspace before you subscribe.",
-    "Die Verfügbarkeit des Tarifs wird in Ihrem Arbeitsbereich vor einer Buchung bestätigt.",
-    "D’Disponibilitéit vum Abonnement gëtt an Ärem Atelier bestätegt, ier Dir abonnéiert."
-  ],
-  "Horizon comprend les contrôles PDF/UA-1 et PDF/UA-2, PDF/A-1b, 2b, 3b et 4, les rapports liés au PDF original et une liste de points à revoir manuellement. Le même contrôle est accessible depuis le plugin de votre assistant lorsque le service et le forfait sont actifs.": [
-    "Horizon includes PDF/UA-1 and PDF/UA-2, PDF/A-1b, 2b, 3b and 4 checks, reports linked to the original PDF and a manual review checklist. The same check is available through your assistant’s plugin when the service and plan are active.",
-    "Horizon umfasst PDF/UA-1- und PDF/UA-2-, PDF/A-1b-, 2b-, 3b- und 4-Prüfungen, Berichte zum Original-PDF und eine Liste manuell zu prüfender Punkte. Dieselbe Prüfung ist über das Plugin Ihres Assistenten verfügbar, wenn der Dienst und der Tarif aktiv sind.",
-    "Horizon enthält PDF/UA-1- a PDF/UA-2-, PDF/A-1b-, 2b-, 3b- a 4-Kontrollen, Rapporten zum Original-PDF an eng Lëscht vu Punkten, déi manuell ze iwwerpréiwe sinn. Déiselwecht Kontroll ass iwwer de Plugin vun Ärem Assistent disponibel, wann de Service an d’Abonnement aktiv sinn."
-  ],
-  "Le forfait de 30 € par mois est prélevé sur les crédits disponibles du compte. Seul l’administrateur peut souscrire, résilier ou gérer la facturation.": [
-    "The €30 monthly plan is deducted from the account’s available credits. Only the administrator can subscribe, cancel or manage billing.",
-    "Der Tarif für 30 € pro Monat wird vom verfügbaren Kontoguthaben abgezogen. Nur der Administrator kann buchen, kündigen oder die Rechnungen verwalten.",
-    "D’Abonnement fir 30 € pro Mount gëtt vun de verfügbare Kontkreditter ofgezunn. Nëmmen den Administrateur kann abonnéieren, kënnegen oder d’Facturatioun verwalten."
-  ],
-  "Consultez l’offre dans votre atelier pour vérifier la disponibilité du service avant de souscrire.": [
-    "View the offer in your workspace to check service availability before subscribing.",
-    "Prüfen Sie das Angebot in Ihrem Arbeitsbereich, um die Verfügbarkeit des Dienstes vor einer Buchung zu bestätigen.",
-    "Kuckt d’Offer an Ärem Atelier, fir d’Disponibilitéit vum Service ze kontrolléieren, ier Dir abonnéiert."
-  ],
-  "Si votre compte dispose encore d’au moins 30 € de crédits promotionnels, ils peuvent financer la première période. Ce montant est déduit de votre solde.": [
-    "If your account still has at least €30 in promotional credits, they can fund the first period. This amount is deducted from your balance.",
-    "Wenn Ihr Konto noch mindestens 30 € Aktionsguthaben enthält, kann es den ersten Zeitraum finanzieren. Dieser Betrag wird von Ihrem Guthaben abgezogen.",
-    "Wann Äre Kont nach op d’mannst 30 € Promotiounskredit huet, kann dëse Kredit déi éischt Period finanzéieren. Dës Zomm gëtt vun Ärem Solde ofgezunn."
-  ],
-  "Sans 30 € de crédits disponibles à l’échéance, le renouvellement est suspendu à la fin de la période payée, sans dette ni solde négatif. La recharge de crédits n’est pas encore disponible.": [
-    "Without €30 in available credits when the period ends, renewal is suspended at the end of the paid period, without debt or a negative balance. Credit top-ups are not available yet.",
-    "Ohne 30 € verfügbares Guthaben bei Fälligkeit wird die Verlängerung am Ende des bezahlten Zeitraums ausgesetzt, ohne Schulden oder einen negativen Saldo. Guthabenaufladungen sind noch nicht verfügbar.",
-    "Ouni 30 € verfügbare Kredit bei der Fällegkeet gëtt d’Erneierung um Enn vun der bezuelter Period ausgesat, ouni Schold oder negative Solde. Kredit oplueden ass nach net méiglech."
-  ],
-  "Il faut au moins 30 € de crédits disponibles pour souscrire. La recharge de crédits n’est pas encore disponible.": [
-    "You need at least €30 in available credits to subscribe. Credit top-ups are not available yet.",
-    "Zur Buchung sind mindestens 30 € verfügbares Guthaben erforderlich. Guthabenaufladungen sind noch nicht verfügbar.",
-    "Dir braucht op d’mannst 30 € verfügbare Kredit fir ze abonnéieren. Kredit oplueden ass nach net méiglech."
-  ],
-  "Le service Horizon est actuellement indisponible. Actualisez l’offre dans votre atelier avant de recommencer.": [
-    "The Horizon service is currently unavailable. Refresh the offer in your workspace before trying again.",
-    "Der Horizon-Dienst ist derzeit nicht verfügbar. Aktualisieren Sie das Angebot in Ihrem Arbeitsbereich, bevor Sie es erneut versuchen.",
-    "Den Horizon-Service ass den Ament net disponibel. Aktualiséiert d’Offer an Ärem Atelier, ier Dir nach eng Kéier probéiert."
-  ],
   "Repérez les obstacles dans vos PDF avant de les partager.": [
     "Find barriers in your PDFs before sharing them.",
     "Erkennen Sie Barrieren in Ihren PDFs, bevor Sie sie teilen.",
     "Fannt Barrièren an Äre PDFen, ier Dir se deelt."
+  ],
+  "Contrôles PDF": ["PDF checks", "PDF-Prüfungen", "PDF-Kontrollen"],
+  "Vérification d’accessibilité PDF": [
+    "PDF accessibility checks",
+    "PDF-Prüfungen zur Barrierefreiheit",
+    "PDF-Kontrolle fir Accessibilitéit"
+  ],
+  "Vérifiez les règles techniques d’accessibilité ou d’archivage d’un document, selon vos besoins.": [
+    "Check a document’s technical accessibility or archival rules, when you need it.",
+    "Prüfen Sie bei Bedarf die technischen Regeln für Barrierefreiheit oder Archivierung eines Dokuments.",
+    "Kontrolléiert bei Bedarf déi technesch Reegele fir Accessibilitéit oder Archivatioun vun engem Dokument."
+  ],
+  "Un contrôle à la demande": [
+    "Pay for the check you need",
+    "Die benötigte Prüfung einzeln bezahlen",
+    "Bezuelt déi Kontroll, déi Dir braucht"
+  ],
+  "HT, par PDF et par profil": [
+    "excluding tax, per PDF and profile",
+    "zzgl. Steuern, pro PDF und Profil",
+    "ouni Steieren, pro PDF a Profil"
+  ],
+  "Les contrôles PDF sont actuellement indisponibles": [
+    "PDF checks are currently unavailable",
+    "PDF-Prüfungen sind derzeit nicht verfügbar",
+    "PDF-Kontrolle sinn den Ament net disponibel"
+  ],
+  "Chaque contrôle est payé avec votre crédit disponible après votre confirmation. Sans abonnement ni renouvellement automatique. La lecture d’un rapport existant est gratuite.": [
+    "Each check is paid from your available credit after your confirmation. There is no subscription or automatic renewal. Reading an existing report is free.",
+    "Jede Prüfung wird nach Ihrer Bestätigung aus Ihrem verfügbaren Guthaben bezahlt. Es gibt kein Abonnement und keine automatische Verlängerung. Bestehende Berichte können kostenlos gelesen werden.",
+    "All Kontroll gëtt no Ärer Bestätegung mat Ärem verfügbare Kredit bezuelt. Et gëtt keen Abonnement a keng automatesch Erneierung. Bestehend Rapporte kënne gratis gelies ginn."
+  ],
+  "Repères de revue humaine pour les points que l’automatisation ne peut pas évaluer": [
+    "Human review guidance for the points automation cannot assess",
+    "Hinweise zur menschlichen Prüfung der Punkte, die sich nicht automatisiert bewerten lassen",
+    "Hiweiser fir d’mënschlech Iwwerpréiwung vu Punkten, déi net automatesch kënne bewäert ginn"
+  ],
+  "PDF jusqu’à 10 Mio et 100 pages. Chaque profil fait l’objet d’un contrôle distinct ; le prix exact s’affiche avant votre confirmation.": [
+    "PDFs up to 10 MiB and 100 pages. Each profile is a separate check; the exact price is shown before you confirm.",
+    "PDFs bis 10 MiB und 100 Seiten. Jedes Profil ist eine separate Prüfung; der genaue Preis wird vor Ihrer Bestätigung angezeigt.",
+    "PDFe bis 10 MiB an 100 Säiten. All Profil ass eng separat Kontroll; den exakte Präis gëtt virun Ärer Bestätegung gewisen."
+  ],
+  "Atelier de simulation : les montants et les contrôles affichés sont fictifs.": [
+    "Simulation workspace: the displayed amounts and checks are fictional.",
+    "Simulationsbereich: Die angezeigten Beträge und Prüfungen sind fiktiv.",
+    "Simulatiounsatelier: déi ugewisen Zommen a Kontrolle si fiktiv."
+  ],
+  "Ouvrez un PDF prêt dans Documents pour choisir un profil et confirmer un contrôle payant. Seul un administrateur connecté dans le navigateur peut confirmer son paiement.": [
+    "Open a ready PDF in Documents to choose a profile and confirm one paid check. Only a browser administrator can confirm its payment.",
+    "Öffnen Sie eine bereitstehende PDF unter Dokumente, um ein Profil zu wählen und eine kostenpflichtige Prüfung zu bestätigen. Nur ein im Browser angemeldeter Administrator kann die Zahlung bestätigen.",
+    "Maacht e fäerdege PDF ënner Dokumenter op, fir e Profil ze wielen an eng bezuelte Kontroll ze bestätegen. Nëmmen en Administrateur am Browser kann d’Bezuelung bestätegen."
+  ],
+  "Choisir un PDF": ["Choose a PDF", "PDF auswählen", "E PDF wielen"],
+  "Choisissez l’accessibilité PDF/UA ou l’archivage PDF/A. Payez seulement le contrôle que vous confirmez, sans abonnement mensuel.": [
+    "Choose PDF/UA accessibility or PDF/A archiving. Pay only for the check you confirm, with no monthly subscription.",
+    "Wählen Sie PDF/UA-Barrierefreiheit oder PDF/A-Archivierung. Bezahlen Sie nur die bestätigte Prüfung, ohne monatliches Abonnement.",
+    "Wielt PDF/UA-Accessibilitéit oder PDF/A-Archivatioun. Bezuelt nëmmen déi Kontroll, déi Dir bestätegt, ouni monatlecht Abonnement."
+  ],
+  "La disponibilité du service est confirmée dans votre atelier avant l’achat d’un contrôle.": [
+    "Service availability is confirmed in your workspace before you purchase a check.",
+    "Die Verfügbarkeit des Dienstes wird vor dem Kauf einer Prüfung in Ihrem Arbeitsbereich bestätigt.",
+    "D’Disponibilitéit vum Service gëtt virum Kaf vun enger Kontroll an Ärem Atelier bestätegt."
+  ],
+  "Découvrir les contrôles PDF": [
+    "Explore PDF checks",
+    "PDF-Prüfungen entdecken",
+    "PDF-Kontrollen entdecken"
+  ],
+  "{0} HT par PDF et par profil, prélevés sur le crédit disponible après confirmation.": [
+    "{0} excluding tax per PDF and profile, deducted from available credit after confirmation.",
+    "{0} zzgl. Steuern pro PDF und Profil, nach Bestätigung vom verfügbaren Guthaben abgezogen.",
+    "{0} ouni Steieren pro PDF a Profil, no der Bestätegung vum verfügbare Kredit ofgezunn."
+  ],
+  "Les contrôles PDF sont actuellement indisponibles. Les rapports existants restent consultables.": [
+    "PDF checks are currently unavailable. Existing reports remain readable.",
+    "PDF-Prüfungen sind derzeit nicht verfügbar. Bestehende Berichte bleiben lesbar.",
+    "PDF-Kontrolle sinn den Ament net disponibel. Bestehend Rapporte bleiwe liesbar."
+  ],
+  "Vous pouvez lire les rapports existants. Seul un administrateur connecté dans le navigateur peut confirmer un contrôle payant.": [
+    "You can read existing reports. Only a browser administrator can confirm a paid check.",
+    "Sie können bestehende Berichte lesen. Nur ein im Browser angemeldeter Administrator kann eine kostenpflichtige Prüfung bestätigen.",
+    "Dir kënnt bestoend Rapporte liesen. Nëmmen en Administrateur am Browser kann eng bezuelte Kontroll bestätegen."
+  ],
+  "Un contrôle de {0} selon le profil {1} coûte {2} HT.": [
+    "One check of {0} using {1} costs {2} excluding tax.",
+    "Eine Prüfung von {0} mit dem Profil {1} kostet {2} zzgl. Steuern.",
+    "Eng Kontroll vu {0} mam Profil {1} kascht {2} ouni Steieren."
+  ],
+  "Je confirme ce contrôle unique à {0} HT, payé avec mon crédit disponible.": [
+    "I confirm this single check at {0} excluding tax, paid from my available credit.",
+    "Ich bestätige diese einzelne Prüfung für {0} zzgl. Steuern, bezahlt aus meinem verfügbaren Guthaben.",
+    "Ech bestätegen dës eenzel Kontroll fir {0} ouni Steieren, bezuelt mat mengem verfügbare Kredit."
+  ],
+  "Sans abonnement ni renouvellement automatique. Choisir un autre profil nécessite une nouvelle confirmation.": [
+    "No subscription or automatic renewal. Choosing another profile requires a new confirmation.",
+    "Kein Abonnement und keine automatische Verlängerung. Ein anderes Profil erfordert eine neue Bestätigung.",
+    "Keen Abonnement a keng automatesch Erneierung. En anere Profil erfuerdert eng nei Bestätegung."
+  ],
+  "Votre crédit disponible est insuffisant pour ce contrôle. Aucun contrôle n’a été lancé.": [
+    "Your available credit is insufficient for this check. No check has been started.",
+    "Ihr verfügbares Guthaben reicht für diese Prüfung nicht aus. Es wurde keine Prüfung gestartet.",
+    "Äre verfügbare Kredit geet net fir dës Kontroll duer. Et gouf keng Kontroll gestart."
+  ],
+  "Payer {0} HT et contrôler ce PDF": [
+    "Pay {0} excluding tax and check this PDF",
+    "{0} zzgl. Steuern bezahlen und diese PDF prüfen",
+    "{0} ouni Steiere bezuelen an dëse PDF kontrolléieren"
+  ],
+  "Un rapport technique complet est facturé même s’il révèle des erreurs. Un contrôle interrompu sans rapport exploitable n’est pas facturé.": [
+    "A completed technical report is charged even when issues are found. An interrupted check with no usable report is not charged.",
+    "Ein vollständiger technischer Bericht wird auch bei gefundenen Fehlern berechnet. Eine unterbrochene Prüfung ohne verwertbaren Bericht wird nicht berechnet.",
+    "E komplette technesche Rapport gëtt och bei fonntene Feeler berechent. Eng ënnerbrach Kontroll ouni brauchbare Rapport gëtt net berechent."
+  ],
+  "Le prix ou les conditions du contrôle ont changé. Actualisez le prix et confirmez à nouveau.": [
+    "The check price or terms have changed. Refresh the price and confirm again.",
+    "Preis oder Bedingungen der Prüfung haben sich geändert. Aktualisieren Sie den Preis und bestätigen Sie erneut.",
+    "De Präis oder d’Konditioune vun der Kontroll hunn geännert. Aktualiséiert de Präis a bestätegt nach eng Kéier."
+  ],
+  "Confirmez le prix affiché de ce contrôle avant de le lancer.": [
+    "Confirm the displayed price of this check before starting it.",
+    "Bestätigen Sie vor dem Start den angezeigten Preis dieser Prüfung.",
+    "Bestätegt den ugewisene Präis vun dëser Kontroll, ier Dir se start."
   ]
 }

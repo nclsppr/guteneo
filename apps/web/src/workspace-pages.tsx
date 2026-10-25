@@ -1,5 +1,12 @@
 import { msg } from "./messages";
-import { useRef, useState, type FormEvent, type ReactNode } from "react";
+import { FileInput } from "./file-input";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type FormEvent,
+  type ReactNode,
+} from "react";
 import {
   ArrowRight,
   ArrowLeft,
@@ -18,7 +25,7 @@ import {
   type Page,
   type Sender,
 } from "./api";
-import { t } from "./locale";
+import { formatLocale, t } from "./locale";
 import { ProtectedDocumentChoice } from "./protected-document";
 import {
   DistributionRoadmap,
@@ -26,6 +33,7 @@ import {
   emailHtml,
 } from "./email-composer";
 import { CreditBalance, type WelcomeCredit } from "./credit-balance";
+import { UsageActivityCalendar } from "./usage-activity";
 import type { PostalSetup } from "../../../packages/contracts/src/postal-setup";
 import { PostalSetupPanel } from "./postal-setup-panel";
 import {
@@ -190,8 +198,7 @@ export function Campaigns({
               />
             </Field>
             <Field label={t.campaigns.csvFile}>
-              <input
-                type="file"
+              <FileInput
                 accept=".csv,text/csv"
                 disabled={locked}
                 onChange={(e) => {
@@ -707,25 +714,74 @@ type UsageItem = {
   currency: string;
 };
 export function Usage() {
+  const [refreshVersion, setRefreshVersion] = useState(0);
+  const [period, setPeriod] = useState("latest");
+  const [knownPeriods, setKnownPeriods] = useState<string[]>([]);
+  const [resolvedPeriod, setResolvedPeriod] = useState<string>();
   const resource = useResource<{
     items: UsageItem[];
     welcomeCredit?: WelcomeCredit;
-  }>("/usage");
+    period?: string;
+    currentPeriod?: string;
+    availablePeriods?: string[];
+  }>(`/usage?period=${period}`);
+  useEffect(() => {
+    if (resource.data?.availablePeriods)
+      setKnownPeriods(resource.data.availablePeriods);
+    if (resource.data?.period) setResolvedPeriod(resource.data.period);
+  }, [resource.data?.availablePeriods, resource.data?.period]);
+  const selectedPeriod =
+    resource.data?.period ??
+    (period === "latest" ? (resolvedPeriod ?? period) : period);
+  const periods =
+    resource.data?.availablePeriods ??
+    (knownPeriods.length ? knownPeriods : [selectedPeriod]);
+  const periodLabel = (value: string) =>
+    value === "latest"
+      ? t.usage.latest
+      : new Intl.DateTimeFormat(formatLocale(), {
+          month: "long",
+          year: "numeric",
+          timeZone: "UTC",
+        }).format(new Date(`${value}-01T00:00:00Z`));
   return (
     <>
       <PageHeading
         title={t.usage.title}
         intro={t.usage.intro}
-        action={<RefreshButton onClick={resource.refresh} />}
+        action={
+          <RefreshButton
+            onClick={() => {
+              resource.refresh();
+              setRefreshVersion((version) => version + 1);
+            }}
+          />
+        }
       />
       <ErrorNotice error={resource.error} retry={resource.refresh} />
       {resource.data?.welcomeCredit && (
         <CreditBalance credit={resource.data.welcomeCredit} />
       )}
+      <UsageActivityCalendar refreshVersion={refreshVersion} />
+      <h2>{t.usage.monthlyTitle}</h2>
+      <Field label={t.usage.period} hint={t.usage.periodHint}>
+        <select
+          value={selectedPeriod}
+          disabled={resource.loading}
+          onChange={(event) => setPeriod(event.target.value)}
+        >
+          {periods.map((value) => (
+            <option key={value} value={value}>
+              {periodLabel(value)}
+            </option>
+          ))}
+        </select>
+      </Field>
       {resource.loading && !resource.data ? (
         <Loading />
-      ) : !resource.data?.items.length ? (
-        <EmptyState title={t.usage.empty} />
+      ) : resource.error && !resource.data ? null : !resource.data?.items
+          .length ? (
+        <EmptyState title={t.usage.monthEmpty} />
       ) : (
         <div className="usage-ledger">
           {resource.data.items.map((item) => (

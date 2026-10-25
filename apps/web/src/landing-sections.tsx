@@ -10,10 +10,10 @@ import { getCustomerPricing } from "./customer-pricing";
 import { AssistantPicker } from "./assistant-guides";
 import { PostalCutoffFaq } from "./postal-cutoff-faq";
 import {
-  HorizonFaq,
-  HorizonPublicOffer,
-  type HorizonPublicAvailability,
-} from "./horizon-public";
+  PdfCheckFaq,
+  PdfCheckPublicOffer,
+  type PdfCheckPublicAvailability,
+} from "./pdf-check-public";
 import "./assistant-workspace.css";
 
 export const scrollToSection = scrollToPublicSection;
@@ -75,9 +75,9 @@ export function Installation() {
 }
 
 export function WelcomePricing({
-  horizon,
+  pdfChecks,
 }: {
-  horizon?: HorizonPublicAvailability;
+  pdfChecks?: PdfCheckPublicAvailability;
 }) {
   const customerPricing = getCustomerPricing();
   return (
@@ -140,16 +140,16 @@ export function WelcomePricing({
         </div>
         <p className="price-qualification">{customerPricing.note}</p>
         <DistributionRoadmap />
-        <HorizonPublicOffer availability={horizon} />
+        <PdfCheckPublicOffer availability={pdfChecks} />
       </div>
     </section>
   );
 }
 
 export function FrequentlyAsked({
-  horizon,
+  pdfChecks,
 }: {
-  horizon?: HorizonPublicAvailability;
+  pdfChecks?: PdfCheckPublicAvailability;
 }) {
   return (
     <section
@@ -176,7 +176,7 @@ export function FrequentlyAsked({
           </details>
         ))}
         <PostalCutoffFaq />
-        <HorizonFaq availability={horizon} />
+        <PdfCheckFaq availability={pdfChecks} />
       </div>
     </section>
   );

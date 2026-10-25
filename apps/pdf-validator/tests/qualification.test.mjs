@@ -24,7 +24,7 @@ function compile(path, replace = (value) => value) {
 }
 const { default: bridge } = await compile("../qualification/worker.ts");
 const probeToken = "a".repeat(64);
-const probeHeaders = { "X-Horizon-Qualification-Token": probeToken };
+const probeHeaders = { "X-PDF-Validator-Qualification-Token": probeToken };
 const { ValidatorQualification } = await compile(
   "../src/qualification.ts",
   (source) =>
@@ -143,7 +143,7 @@ test("near-limit benchmark regenerates 100-page non-customer bytes and pins six 
   }
 });
 
-test("economic basic qualification retains exact profile results under its real CPU/RAM limits", () => {
+test("historical 3 October basic qualification retains its exact profile results and CPU/RAM evidence", () => {
   const base = new URL("benchmark-fixtures/", import.meta.url);
   const summary = JSON.parse(
     readFileSync(new URL("local-resource-proof.json", base), "utf8"),
@@ -191,7 +191,7 @@ test("economic basic qualification retains exact profile results under its real 
 test("qualification bridge rejects every non-loopback destination and arbitrary path before private bindings", async () => {
   let calls = 0;
   const env = {
-    HORIZON_QUALIFICATION_TOKEN: probeToken,
+    PDF_VALIDATOR_QUALIFICATION_TOKEN: probeToken,
     PDF_VALIDATOR: {
       fetch: () => {
         calls++;
@@ -242,7 +242,7 @@ test("every local probe route requires the configured per-run credential before 
   ];
   function environment(token) {
     return Object.defineProperties(
-      { HORIZON_QUALIFICATION_TOKEN: token },
+      { PDF_VALIDATOR_QUALIFICATION_TOKEN: token },
       {
         PDF_VALIDATOR: {
           get() {
@@ -264,8 +264,8 @@ test("every local probe route requires the configured per-run credential before 
     ["", probeHeaders],
     ["malformed", probeHeaders],
     [probeToken, {}],
-    [probeToken, { "X-Horizon-Qualification-Token": "b".repeat(64) }],
-    [probeToken, { "X-Horizon-Qualification-Token": "malformed" }],
+    [probeToken, { "X-PDF-Validator-Qualification-Token": "b".repeat(64) }],
+    [probeToken, { "X-PDF-Validator-Qualification-Token": "malformed" }],
   ];
   for (const [method, path] of routes) {
     for (const [configured, headers] of cases) {
@@ -313,7 +313,7 @@ test("authenticated CLI probe can call private RPC without browser-origin permis
       headers: probeHeaders,
     }),
     {
-      HORIZON_QUALIFICATION_TOKEN: probeToken,
+      PDF_VALIDATOR_QUALIFICATION_TOKEN: probeToken,
       QUALIFICATION: {
         stop: async () => {
           calls++;
@@ -333,15 +333,23 @@ test("local bridge targets only the fixed private validator with unchanged diagn
     new Request("http://127.0.0.1:8891/validate?profile=ua1", {
       method: "POST",
       body: bytes,
-      headers: { "Content-Type": "application/pdf", ...probeHeaders },
+      headers: {
+        "Content-Type": "application/pdf",
+        ...probeHeaders,
+        "X-Horizon-Qualification-Token": probeToken,
+      },
     }),
     {
-      HORIZON_QUALIFICATION_TOKEN: probeToken,
+      PDF_VALIDATOR_QUALIFICATION_TOKEN: probeToken,
       PDF_VALIDATOR: {
         fetch: async (request) => {
           assert.equal(
             request.url,
             "https://validator.internal/validate?profile=ua1",
+          );
+          assert.equal(
+            request.headers.has("X-PDF-Validator-Qualification-Token"),
+            false,
           );
           assert.equal(
             request.headers.has("X-Horizon-Qualification-Token"),

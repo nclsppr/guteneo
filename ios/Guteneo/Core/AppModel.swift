@@ -351,7 +351,7 @@ private enum PreviewFixtures {
         // Compile-only fixtures cannot enter release builds or authenticate real requests.
         try! JSONDecoder().decode(T.self, from: Data(value.utf8))
     }
-    static let session = decode(#"{"organization":{"id":"preview-org","name":"Atelier Horizon"},"user":{"id":"preview-user","name":"Camille Martin","role":"admin"},"simulation":true,"verifiedAccount":true,"mfa":false}"#, as: MobileSession.self)
+    static let session = decode(#"{"organization":{"id":"preview-org","name":"Atelier Exemple"},"user":{"id":"preview-user","name":"Camille Martin","role":"admin"},"simulation":true,"verifiedAccount":true,"mfa":false}"#, as: MobileSession.self)
     static let capabilities = decode(#"{"version":"1","mode":"preview","simulation":true,"humanApproval":"authenticated_browser","nativeApproval":false,"channels":[{"id":"fax","name":"Fax","liveSending":true},{"id":"email","name":"E-mail","liveSending":false}],"limits":{"pdfBytes":10485760,"pages":100}}"#, as: MobileCapabilities.self)
     static let documents = decode(#"[{"id":"preview-document-1","name":"Subscription application.pdf","sha256":"preview","size":284672,"pages":4,"status":"ready","source":"upload","created_at":"2026-09-22T09:40:00Z","analysis":{"state":"ready","code":"verified","title":"PDF ready","message":"Demo document.","nextAction":"continue","retryAfterSeconds":null}},{"id":"preview-document-2","name":"Proof of address.pdf","sha256":"preview","size":96320,"pages":1,"status":"quarantined","source":"upload","created_at":"2026-09-22T09:15:00Z","analysis":{"state":"processing","code":"scanning","title":"Verification in progress","message":"Demo document.","nextAction":"wait","retryAfterSeconds":15}}]"#, as: [DocumentRecord].self)
     static let dispatches = decode(#"""
@@ -361,7 +361,7 @@ private enum PreviewFixtures {
       {"id":"preview-dispatch-3","channel":"fax","recipient_json":{"phone":"+33 1 00 00 00 02"},"document_id":"preview-document-1","status":"prepared","mode":"simulation","estimated_minor":24,"ceiling_minor":500,"faxPricing":{"executionScope":"review_prepare_only"},"currency":"EUR","fingerprint":"preview-reference","created_at":"2026-09-21T13:00:00Z","updated_at":"2026-09-21T13:00:00Z"}
     ]
     """#, as: [DispatchRecord].self)
-    static let senders = decode(#"[{"id":"preview-sender","channel":"fax","name":"Atelier Horizon","address":"Demo sender","status":"verified","mode":"simulation"}]"#, as: [SenderRecord].self)
+    static let senders = decode(#"[{"id":"preview-sender","channel":"fax","name":"Atelier Exemple","address":"Demo sender","status":"verified","mode":"simulation"}]"#, as: [SenderRecord].self)
     static func detail(id: String) throws -> DispatchDetail {
         guard let dispatch = dispatches.first(where: { $0.id == id }) else { throw APIError(code: "NOT_FOUND") }
         return DispatchDetail(dispatch: dispatch, approval: nil,

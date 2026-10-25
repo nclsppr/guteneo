@@ -100,6 +100,7 @@ test("CSV invitations remove duplicates and bind supervisor options to the revie
       "name;email\nAlex;ALEX@example.com\nSam;sam@example.com\nAlex;alex@example.com\n",
     ),
   });
+  await expect(invites.locator(".file-input-name")).toHaveText("team.csv");
   await invites
     .getByLabel("Rôle des nouveaux membres")
     .selectOption("supervisor");
@@ -124,6 +125,14 @@ test("CSV invitations remove duplicates and bind supervisor options to the revie
     supervisorCanApprove: false,
     supervisorCanReport: true,
   });
+  await expect(invites.locator(".file-input-name")).toHaveText(
+    "Aucun fichier sélectionné",
+  );
+  expect(
+    await invites
+      .getByLabel("Fichier CSV des membres")
+      .evaluate((element: HTMLInputElement) => element.files?.length),
+  ).toBe(0);
 });
 
 test("invalid CSV prevents review and sending", async ({ page }) => {

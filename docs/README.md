@@ -39,13 +39,13 @@ Run `npm run docs:build` and `npm run docs:check` to synchronize both views.
 | Workspace roles and account management | [Roles](WORKSPACE_ROLES.md), [account administration](ACCOUNT_ADMIN.md), [identity](ACCOUNT_IDENTITY.md), [deletion](ACCOUNT_DELETION.md) |
 | Sensitive distribution and personal receipt | [Current implementation](SECURE_DISTRIBUTION_IMPLEMENTATION.md), [journeys](SECURE_DISTRIBUTION_JOURNEYS.md), [pricing](SECURE_DISTRIBUTION_PRICING.md), [unified-account historical plan](UNIFIED_ACCOUNT_AND_VAULT_PLAN.md) |
 | Documents and authoring | [Studio workflow](TEMPLATES_DATA_DISTRIBUTION.md), [template engine](TEMPLATE_ENGINE.md), [data import](DATA_IMPORT.md), [verification recovery](DOCUMENT_ANALYSIS_RECOVERY.md) |
-| PDF accessibility diagnostics | [Horizon contract](PDF_ACCESSIBILITY.md), [validator](PDF_VALIDATOR.md), [activation runbook](HORIZON_ACTIVATION_RUNBOOK.md), [costs](HORIZON_COSTS.md) |
+| PDF verification | [Current contract](PDF_ACCESSIBILITY.md), [unit pricing and release gates](PDF_VERIFICATION_PRICING.md), [validator](PDF_VALIDATOR.md), [dated cost model](PDF_VERIFICATION_COSTS.md) |
 | Dispatch channels and provider setup | [Provider contracts](PROVIDERS.md), [live activation](LIVE_ACTIVATION.md), [Telnyx](TELNYX_READINESS.md), [Resend](RESEND_SETUP.md), [SES](SES_SETUP.md), [Pingen](PINGEN_SETUP.md) |
 | Postal review, price and transfer | [Postal review](POSTAL_REVIEW.md), [streamlined journey](POSTAL_STREAMLINED.md), [preflight](PINGEN_PREFLIGHT.md), [address pages](POSTAL_ADDRESS_PAGE.md) |
 | Approval and assistant authority | [Expert approval](EXPERT_APPROVAL.md), [expert journey](EXPERT_CHAT_JOURNEY.md), [assistant installation](LLM_SETUP.md) |
 | Assistant packages and host qualification | [Claude package](CLAUDE_PLUGIN.md), [Claude qualification](CLAUDE_QUALIFICATION.md), [ChatGPT marketplace](CHATGPT_MARKETPLACE.md), [OpenAI follow-up](OPENAI_RESUBMISSION_TODO.md), [platform readiness](MCP_PLATFORM_READINESS.md) |
 | Native app and distribution | [iOS API](IOS_API.md), [native README](../ios/README.md), [review policy](../ios/AppStore/REVIEW_POLICY.md) |
-| Billing, costs and plans | [Billing](BILLING.md), [costs](COSTS.md), [monthly plan](MONTHLY_PLAN.md), [welcome credits](WELCOME_CREDIT.md) |
+| Billing, costs and plans | [Billing](BILLING.md), [costs](COSTS.md), [retired subscription history](MONTHLY_PLAN.md), [welcome credits](WELCOME_CREDIT.md) |
 | Local development and verification | [Root README](../README.md), [CI](CI.md), [offline tests](TESTING_OFFLINE.md), [dated test results](TEST_RESULTS.md) |
 | Publication and migrations | [Main release](MAIN_RELEASE.md), [D1 migrations](D1_MIGRATION.md), [current candidate](V1_RELEASE_CANDIDATE.md), [dated release proof](LIVE_RELEASE.md) |
 | Operations, security and restoration | [Runbook](RUNBOOK.md), [operations](OPERATIONS.md), [threats](THREATS.md), [secure setup](SECURE_CONFIGURATION.md), [restore proof](RESTORE_PROOF.md) |

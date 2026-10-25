@@ -182,7 +182,12 @@ test("app entry links resolve privately and reach the existing preview router", 
     if (/^\/(api|auth|oauth|mcp)(\/|$)/.test(new URL(request.url()).pathname))
       backendRequests.push(request.url());
   });
-  for (const path of ["/app", "/app/prepare?entry=direct", "/app/plan"]) {
+  for (const path of [
+    "/app",
+    "/app/prepare?entry=direct",
+    "/app/pdf-checks",
+    "/app/plan",
+  ]) {
     for (const method of ["GET", "HEAD"]) {
       const response = await request.fetch(path, { method });
       expect(response.status()).toBe(200);
@@ -216,14 +221,14 @@ test("app entry links resolve privately and reach the existing preview router", 
   await expect(page).toHaveURL(/\/\?lang=en#\/app$/);
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
   await page.goto("/");
-  await page.locator('a[href="/app/plan"]').click();
-  await expect(page).toHaveURL(/\/#\/app\/plan$/);
+  await page.locator('a[href="/app/pdf-checks"]').click();
+  await expect(page).toHaveURL(/\/#\/app\/pdf-checks$/);
   await expect(
-    page.getByRole("heading", { name: "Horizon plan", level: 1 }),
+    page.getByRole("heading", { name: "PDF checks", level: 1 }),
   ).toBeVisible();
   await page.reload();
   await expect(
-    page.getByRole("heading", { name: "Horizon plan", level: 1 }),
+    page.getByRole("heading", { name: "PDF checks", level: 1 }),
   ).toBeVisible();
   expect(backendRequests).toEqual([]);
   const backend = await request.get("/api/session");

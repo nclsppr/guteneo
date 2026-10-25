@@ -64,9 +64,12 @@ export function assistantRecovery(
     };
   if (
     [
-      "HORIZON_PLAN_REQUIRED",
-      "HORIZON_UNAVAILABLE",
-      "PDF_VALIDATION_QUOTA_EXCEEDED",
+      "PDF_VALIDATION_BROWSER_PURCHASE_REQUIRED",
+      "PDF_VALIDATION_ADMIN_REQUIRED",
+      "PDF_VALIDATION_PURCHASE_REQUIRED",
+      "PDF_VALIDATION_PRICE_CHANGED",
+      "PDF_VALIDATION_CREDIT_INSUFFICIENT",
+      "PDF_VALIDATION_UNAVAILABLE",
       "PDF_VALIDATOR_CONFIGURATION_REQUIRED",
     ].includes(code)
   )
@@ -75,7 +78,7 @@ export function assistantRecovery(
       tool: null,
       retry: "after_change",
       message:
-        "Explain the account or service limitation to the person. The assistant cannot change plans, credits or billing settings. Do not retry automatically or describe this refusal as a PDF check.",
+        "Open the supplied Guteneo document link for a current browser administrator to review the exact PDF, selected profile and unit price. An assistant cannot approve a purchase or change credits or billing settings. Do not retry automatically or describe this refusal as a completed PDF check.",
     };
   if (code === "CONNECTION_REVOKED")
     return {

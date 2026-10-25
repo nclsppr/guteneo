@@ -68,6 +68,15 @@ async function expectClearV2Shell(page: Page) {
   await expect(page.locator(".app-topbar")).toHaveCount(0);
   await expect(page.locator(".sidebar .organization")).toBeVisible();
   await expect(
+    page.locator(".workspace-role, .dashboard-identity"),
+  ).toHaveCount(0);
+  await expect(
+    page.locator('.sidebar nav a[href="#/app/my-documents"]'),
+  ).toHaveCount(1);
+  await expect(page.locator(".sidebar > .personal-context-link")).toHaveCount(
+    0,
+  );
+  await expect(
     page.locator('.sidebar-account a[href="#/app/account"]'),
   ).toBeVisible();
   await expect(

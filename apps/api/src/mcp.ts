@@ -18,6 +18,7 @@ import {
 import {
   pdfValidationInput,
   pdfValidationReportSchema,
+  PDF_VALIDATION_PRICE_MINOR,
   type PdfValidationReport,
 } from "../../../packages/contracts/src/pdf-validation";
 import {
@@ -1941,8 +1942,7 @@ export function createGuteneoMcpServer(
       "validate_pdf",
       {
         title: "Check PDF/UA or PDF/A rules",
-        description:
-          "On request, check a ready Guteneo original with veraPDF. Requires Horizon already subscribed by an administrator in the browser and documents:write. Choose ua1/ua2 for accessibility or 1b/2b/3b/4 for archiving. PDF/A does not guarantee accessibility. Reuse the same idempotencyKey after a lost response; if a check is in progress, read get_pdf_validation without looping or reimporting. Returns rules/counters bound to exact bytes. A favourable result covers automatic checks only; human verification is still required, without certification or legal guarantee. No document is changed or sent. Does not subscribe, renew or manage billing.",
+        description: `Read an already purchased exact-key PDF check with veraPDF, using documents:write. A new check requires an authenticated browser administrator to review the exact PDF, profile and EUR${(PDF_VALIDATION_PRICE_MINOR / 100).toFixed(2)} excluding-tax price and approve that single purchase in Guteneo. An assistant cannot approve or start a paid check or assert purchase consent. Choose ua1/ua2 for accessibility or 1b/2b/3b/4 for archiving. PDF/A does not guarantee accessibility. Reuse the same idempotencyKey after a lost response; if a check is in progress, read get_pdf_validation without looping or reimporting. Returns rules/counters bound to exact bytes. Automatic checks still require human verification, without certification or legal guarantee. No document is changed or sent. There is no subscription or renewal.`,
         inputSchema: pdfValidationInput
           .extend({
             documentId: id,
@@ -1972,7 +1972,7 @@ export function createGuteneoMcpServer(
       {
         title: "Read PDF/UA and PDF/A reports",
         description:
-          "Read the organisation’s 50 latest original-PDF validation reports. Starts no new check; historical reports remain available after subscription expiry. Automatic checks are not certification; retain the distinction between PDF/A, PDF/UA and human verification. Changes no balance, subscription or payment method.",
+          "Read the organisation’s 50 latest original-PDF validation reports. Starts no new check; purchased historical reports remain available under the document access policy. Automatic checks are not certification; retain the distinction between PDF/A, PDF/UA and human verification. Changes no balance or payment method.",
         inputSchema: z.object({ documentId: id }).strict(),
         outputSchema: output(
           z.object({ items: z.array(pdfValidationReportSchema) }).strict(),

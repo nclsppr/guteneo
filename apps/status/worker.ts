@@ -278,7 +278,7 @@ function coverageFor(caps: JsonObject | null): Coverage[] {
     }),
     ...(
       [
-        ["Horizon / PDF validation", nested(caps?.horizon, "available")],
+        ["PDF verification", nested(caps?.pdfValidation, "available")],
         ["Stripe payments", nested(caps?.billing, "chargingEnabled")],
         ["AI proposals", nested(nested(caps?.studio, "ai"), "configured")],
       ] as const

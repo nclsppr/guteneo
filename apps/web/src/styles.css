@@ -86,8 +86,11 @@ input:focus-visible,
 select:focus-visible,
 textarea:focus-visible,
 summary:focus-visible {
-  outline: 3px solid var(--blue);
-  outline-offset: 4px;
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}
+:is(a, button, input, select, textarea, summary):focus:not(:focus-visible) {
+  outline: none;
 }
 h1,
 h2,
@@ -519,7 +522,7 @@ ol {
   background: var(--blue-tint);
   font-weight: 500;
 }
-.sidebar nav a:nth-child(5) {
+.sidebar nav a[href="#/app/templates"] {
   margin-top: 24px;
 }
 .sidebar-footer {
@@ -1040,18 +1043,53 @@ ol {
   color: #72746d;
   opacity: 1;
 }
-.field input[type="file"] {
-  padding: 12px;
-  font-size: 12px;
-}
-.field input[type="file"]::file-selector-button {
-  border: 1px solid var(--line);
-  background: var(--paper);
-  padding: 7px 10px;
-  margin-right: 10px;
+.file-input {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  min-width: 0;
+  min-height: var(--control-height);
+  padding: 8px;
+  border: 1px solid #c9cbc3;
   border-radius: var(--radius);
+  background: var(--surface);
   color: var(--ink);
   cursor: pointer;
+}
+.file-input .file-input-native {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  opacity: 0;
+  cursor: inherit;
+}
+.file-input-button {
+  flex-shrink: 0;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  padding: 8px 12px;
+  border-radius: var(--radius);
+  font-size: 14px;
+}
+.file-input-name {
+  min-width: 0;
+  flex: 1 1 12ch;
+  overflow-wrap: anywhere;
+  font-size: 14px;
+}
+.file-input:has(.file-input-native:focus-visible) {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}
+.file-input[data-disabled="true"] {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 .field .code-input {
   font-family: var(--font-code);
@@ -1234,12 +1272,13 @@ ol {
   background: var(--surface);
 }
 .channel-selector input:checked + span {
-  border-color: var(--blue);
-  color: var(--blue);
-  background: var(--blue-tint);
+  border-color: var(--ink);
+  color: var(--ink);
+  background: var(--paper);
+  font-weight: 500;
 }
 .channel-selector input:focus-visible + span {
-  outline: 3px solid var(--blue);
+  outline: 2px solid var(--ink);
   outline-offset: 3px;
 }
 .prepare-preview {
@@ -1871,7 +1910,7 @@ ol {
     height: 16px;
     width: 16px;
   }
-  .sidebar nav a:nth-child(5) {
+  .sidebar nav a[href="#/app/templates"] {
     margin-top: 0;
   }
   .sidebar-footer {
@@ -3159,10 +3198,32 @@ ol {
 .mobile-cell-label {
   display: none;
 }
-.workspace :is(h1, h2, [role="alert"])[tabindex="-1"]:focus,
+.workspace :is(h1, h2, [role="alert"])[tabindex="-1"]:focus-visible,
 .workspace main:focus-visible {
-  outline: 2px solid var(--blue);
+  outline: 2px solid var(--ink);
   outline-offset: 5px;
+}
+.workspace :is(input[type="checkbox"], input[type="radio"]) {
+  accent-color: var(--ink);
+}
+.workspace select {
+  /* An authored face gives desktop Safari the same control size as other engines. */
+  appearance: none;
+  height: var(--control-height);
+  min-height: var(--control-height);
+  max-width: 100%;
+  padding-inline-end: 40px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath d='m4 6 4 4 4-4' fill='none' stroke='%2364666b' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+}
+@media (forced-colors: active) {
+  .workspace select {
+    appearance: auto;
+    background-image: none;
+    padding-inline-end: 12px;
+  }
 }
 .workspace :is(input, textarea, select) {
   caret-color: var(--blue);
@@ -3463,7 +3524,7 @@ ol {
   .workspace .atelier-label {
     display: none;
   }
-  .workspace .sidebar nav a:nth-child(5) {
+  .workspace .sidebar nav a[href="#/app/templates"] {
     margin-top: 0;
   }
   .workspace main {

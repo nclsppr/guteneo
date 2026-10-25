@@ -17,6 +17,11 @@ export const de: Copy = {
   open: "Öffnen",
   preview: "Vorschau",
   download: "PDF öffnen",
+  fileInput: {
+    choose: "Datei auswählen",
+    chooseMultiple: "Dateien auswählen",
+    empty: "Keine Datei ausgewählt",
+  },
   unknown: "Nicht verfügbar",
   simulation: "Simulation",
   simulationBody:
@@ -38,7 +43,7 @@ export const de: Copy = {
     postal: "Briefpost",
   },
   nav: {
-    horizon: "Horizon-Tarif",
+    pdfChecks: "PDF-Prüfungen",
     overview: "Übersicht",
     documents: "Dokumente",
     templates: "Vorlagen",
@@ -531,6 +536,12 @@ export const de: Copy = {
     title: "Jede Sendung zählt.",
     intro:
       "Reservierungen und Verbrauch Ihrer Organisation. Simulationsguthaben bleibt getrennt.",
+    period: "Verbrauchsmonat",
+    latest: "Zuletzt erfasster Monat",
+    periodHint:
+      "Beim Öffnen erscheint der zuletzt erfasste Monat. Wählen Sie hier einen anderen Monat; das Guthaben zeigt immer den heutigen Stand.",
+    monthlyTitle: "Sendungen und monatliche Limits",
+    monthEmpty: "Für diesen Monat wurden keine Sendungen erfasst.",
     reserved: "Reserviert",
     consumed: "Bestätigt",
     released: "Freigegeben",

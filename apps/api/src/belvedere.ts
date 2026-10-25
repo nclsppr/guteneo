@@ -1,4 +1,8 @@
 import { authenticateBrowser, AuthError } from "./auth";
+import {
+  BELVEDERE_WATCHER_EMAIL,
+  isBelvedereBrowserOrigin,
+} from "./belvedere-policy";
 import type { Env } from "./env";
 import type {
   BelvedereFilters,
@@ -606,23 +610,38 @@ async function connectionList(
 async function finance(env: Env, f: Filters): Promise<BelvedereFinance> {
   // Retained financial entries outlive dispatch metadata. Their posting date,
   // not a surviving dispatch's preparation date, selects the financial period.
-  // Horizon consumes account credits as its own service. It contributes to
+  // Legacy subscriptions consume account credits as a separate service. It contributes to
   // consumption, never to dispatch counts or delivery-channel totals.
   const chargeLedger =
     f.mode === "production"
       ? `WITH charges AS (
     SELECT e.organization_id,e.dispatch_id,e.spent_delta amount_minor,e.created_at charged_at,'dispatch' service FROM welcome_credit_entries e JOIN organizations o ON o.id=e.organization_id WHERE e.kind='settled' AND o.mode='production' AND e.created_at>=? AND e.created_at<?
     UNION ALL SELECT h.organization_id,h.dispatch_id,h.amount_minor,h.created_at,'dispatch' FROM protected_hosting_charges h JOIN organizations o ON o.id=h.organization_id WHERE o.mode='production' AND h.created_at>=? AND h.created_at<?
-    UNION ALL SELECT p.organization_id,NULL,p.amount_minor,p.created_at,'horizon' FROM horizon_plan_charges p JOIN organizations o ON o.id=p.organization_id AND o.mode=p.evidence WHERE p.evidence='production' AND p.created_at>=? AND p.created_at<?
+    UNION ALL SELECT p.organization_id,NULL,p.amount_minor,p.created_at,'legacy_plan' FROM horizon_plan_charges p JOIN organizations o ON o.id=p.organization_id AND o.mode=p.evidence WHERE p.evidence='production' AND p.created_at>=? AND p.created_at<?
+    UNION ALL SELECT p.organization_id,NULL,p.amount_minor,v.completed_at,'pdf_check' FROM pdf_validation_purchases p JOIN pdf_validations v ON v.organization_id=p.organization_id AND v.id=p.validation_id JOIN organizations o ON o.id=p.organization_id AND o.mode=p.evidence WHERE v.status='complete' AND p.evidence='production' AND v.completed_at>=? AND v.completed_at<?
+    UNION ALL SELECT s.organization_id,NULL,s.amount_minor,s.created_at,'secure_distribution' FROM secure_distribution_charges s JOIN organizations o ON o.id=s.organization_id AND o.mode=s.evidence WHERE s.evidence='production' AND s.created_at>=? AND s.created_at<?
   )`
       : `WITH charges AS (
     SELECT r.organization_id,r.dispatch_id,r.amount_minor,r.updated_at charged_at,'dispatch' service FROM reservations r JOIN organizations o ON o.id=r.organization_id WHERE o.mode='simulation' AND r.status='confirmed' AND r.updated_at>=? AND r.updated_at<?
-    UNION ALL SELECT p.organization_id,NULL,p.amount_minor,p.created_at,'horizon' FROM horizon_plan_charges p JOIN organizations o ON o.id=p.organization_id AND o.mode=p.evidence WHERE p.evidence='simulation' AND p.created_at>=? AND p.created_at<?
+    UNION ALL SELECT p.organization_id,NULL,p.amount_minor,p.created_at,'legacy_plan' FROM horizon_plan_charges p JOIN organizations o ON o.id=p.organization_id AND o.mode=p.evidence WHERE p.evidence='simulation' AND p.created_at>=? AND p.created_at<?
+    UNION ALL SELECT p.organization_id,NULL,p.amount_minor,v.completed_at,'pdf_check' FROM pdf_validation_purchases p JOIN pdf_validations v ON v.organization_id=p.organization_id AND v.id=p.validation_id JOIN organizations o ON o.id=p.organization_id AND o.mode=p.evidence WHERE v.status='complete' AND p.evidence='simulation' AND v.completed_at>=? AND v.completed_at<?
+    UNION ALL SELECT s.organization_id,NULL,s.amount_minor,s.created_at,'secure_distribution' FROM secure_distribution_charges s JOIN organizations o ON o.id=s.organization_id AND o.mode=s.evidence WHERE s.evidence='simulation' AND s.created_at>=? AND s.created_at<?
   )`;
   const ledgerBindings =
     f.mode === "production"
-      ? [f.start, f.end, f.start, f.end, f.start, f.end]
-      : [f.start, f.end, f.start, f.end];
+      ? [
+          f.start,
+          f.end,
+          f.start,
+          f.end,
+          f.start,
+          f.end,
+          f.start,
+          f.end,
+          f.start,
+          f.end,
+        ]
+      : [f.start, f.end, f.start, f.end, f.start, f.end, f.start, f.end];
   const [
     snapshot,
     posted,
@@ -640,11 +659,11 @@ async function finance(env: Env, f: Filters): Promise<BelvedereFinance> {
     ),
     first<{
       customerConsumptionMinor: number;
-      horizonConsumptionMinor: number;
-      horizonCharges: number;
+      legacyPlanConsumptionMinor: number;
+      legacyPlanCharges: number;
     }>(
       env.DB,
-      `${chargeLedger} SELECT COALESCE(sum(amount_minor),0) customerConsumptionMinor,COALESCE(sum(CASE WHEN service='horizon' THEN amount_minor ELSE 0 END),0) horizonConsumptionMinor,COALESCE(sum(service='horizon'),0) horizonCharges FROM charges`,
+      `${chargeLedger} SELECT COALESCE(sum(amount_minor),0) customerConsumptionMinor,COALESCE(sum(CASE WHEN service='legacy_plan' THEN amount_minor ELSE 0 END),0) legacyPlanConsumptionMinor,COALESCE(sum(service='legacy_plan'),0) legacyPlanCharges FROM charges`,
       ledgerBindings,
     ),
     first<{
@@ -672,7 +691,7 @@ async function finance(env: Env, f: Filters): Promise<BelvedereFinance> {
     ),
     rows<BelvedereFinance["monthly"][number]>(
       env.DB,
-      `${chargeLedger} SELECT substr(charged_at,1,7) month,sum(amount_minor) consumptionMinor,sum(CASE WHEN service='horizon' THEN amount_minor ELSE 0 END) horizonConsumptionMinor,count(DISTINCT CASE WHEN dispatch_id IS NOT NULL THEN json_array(organization_id,dispatch_id) END) dispatches FROM charges GROUP BY month ORDER BY month`,
+      `${chargeLedger} SELECT substr(charged_at,1,7) month,sum(amount_minor) consumptionMinor,sum(CASE WHEN service='legacy_plan' THEN amount_minor ELSE 0 END) legacyPlanConsumptionMinor,count(DISTINCT CASE WHEN dispatch_id IS NOT NULL THEN json_array(organization_id,dispatch_id) END) dispatches FROM charges GROUP BY month ORDER BY month`,
       ledgerBindings,
     ),
   ]);
@@ -750,7 +769,7 @@ async function belvedereAccess(
     : null;
   if (
     !row ||
-    row.verifiedEmail !== "nicolas@pieper.fr" ||
+    row.verifiedEmail !== BELVEDERE_WATCHER_EMAIL ||
     !expectedIssuer ||
     row.issuer !== expectedIssuer ||
     (env.BELVEDERE_AUTH0_SUBJECT && row.subject !== env.BELVEDERE_AUTH0_SUBJECT)
@@ -774,11 +793,18 @@ export async function handleBelvedereRoute(
   env: Env,
 ): Promise<Response | null> {
   const url = new URL(request.url);
-  if (url.pathname !== "/belvedere" && !url.pathname.startsWith("/belvedere/"))
-    return null;
-  const base = belvedereBasePath(env);
+  const dedicatedHost = isBelvedereBrowserOrigin(request, env);
   if (
-    !base ||
+    !dedicatedHost &&
+    url.pathname !== "/belvedere" &&
+    !url.pathname.startsWith("/belvedere/")
+  )
+    return null;
+  const configuredBase = belvedereBasePath(env);
+  const base = dedicatedHost ? "" : configuredBase;
+  if (
+    !configuredBase ||
+    base === null ||
     (url.pathname !== base &&
       url.pathname !== `${base}/` &&
       !url.pathname.startsWith(`${base}/api/`))
@@ -801,7 +827,7 @@ export async function handleBelvedereRoute(
           status: 302,
           headers: {
             ...headers,
-            Location: `${env.APP_ORIGIN}/auth/login?returnTo=${encodeURIComponent(base)}`,
+            Location: `${env.APP_ORIGIN}/auth/login?returnTo=${encodeURIComponent(base || "/")}`,
           },
         });
       return absent();

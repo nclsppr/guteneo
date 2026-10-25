@@ -14,7 +14,7 @@ export interface Env {
   DOCUMENT_RENDERER_URL?: string;
   SCANNER?: Fetcher;
   PDF_VALIDATOR?: Fetcher;
-  HORIZON_ENABLED?: string;
+  PDF_VALIDATION_ENABLED?: string;
   /** Server secrets only. No public capability exposes this path or privilege. */
   BELVEDERE_SECRET_SLUG?: string;
   BELVEDERE_AUTH0_SUBJECT?: string;

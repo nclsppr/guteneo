@@ -1,4 +1,8 @@
 import { recordConnectionEvent } from "./belvedere-telemetry";
+import {
+  BELVEDERE_WATCHER_EMAIL,
+  isBelvedereBrowserOrigin,
+} from "./belvedere-policy";
 import { accountEmail } from "../../../packages/contracts/src/account-identity";
 import { documentAccessMode } from "../../../packages/contracts/src/document-authentication";
 import type { DashboardAppearance } from "../../../packages/contracts/src/dashboard-appearance";
@@ -47,6 +51,7 @@ export interface AuthEnv {
   AUTH0_CLIENT_SECRET?: string;
   AUTH0_AUDIENCE?: string;
   AUTH0_AUTH_POLICY?: string;
+  BELVEDERE_AUTH0_SUBJECT?: string;
   SENSITIVE_DOCUMENT_AUTHENTICATION?: string;
 }
 export interface AuthContext {
@@ -1578,6 +1583,16 @@ async function handleAuthRouteOperation(
     )
       .bind(config.issuer, claims.sub)
       .first<{ user_id: string }>();
+    const platformBrowser = isBelvedereBrowserOrigin(request, env);
+    if (
+      platformBrowser &&
+      (!identity ||
+        transaction.invitation_token_hash ||
+        claims.email.trim().toLowerCase() !== BELVEDERE_WATCHER_EMAIL ||
+        (env.BELVEDERE_AUTH0_SUBJECT &&
+          claims.sub !== env.BELVEDERE_AUTH0_SUBJECT))
+    )
+      throw new AuthError("ACCESS_DENIED", "Access denied.", 403);
     let invitedOrganizationId: string | undefined;
     if (transaction.invitation_token_hash) {
       if (policy === "verified_email_and_mfa" && !hasMfa(claims)) {
@@ -1665,6 +1680,8 @@ async function handleAuthRouteOperation(
       }
     }
     const memberRows = await memberships(env, identity.user_id);
+    if (platformBrowser && !memberRows.length)
+      throw new AuthError("ACCESS_DENIED", "Access denied.", 403);
     if (
       !memberRows.length ||
       (transaction.account_context === "personal" && !invitedOrganizationId)

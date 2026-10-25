@@ -63,7 +63,7 @@ test("canonical English reports and legacy labels share the same coverage contra
     "Fax",
     "Postal mail",
     "Email",
-    "Horizon / PDF validation",
+    "PDF verification",
     "Stripe payments",
     "AI proposals",
   ];
@@ -91,6 +91,33 @@ test("canonical English reports and legacy labels share the same coverage contra
     "data-state",
     "offline",
   );
+  expect(evidence.errors).toEqual([]);
+});
+
+test("historical PDF feature labels normalize to the current name without claiming qualification", async ({
+  page,
+}) => {
+  const data = snapshot();
+  const pdf = data.coverage[8];
+  const evidence = await fixtures(page, { status: data });
+  for (const label of [
+    "Archived offer / validation PDF",
+    "Archived offer / PDF validation",
+    "PDF verification",
+  ]) {
+    pdf.feature = label;
+    await page.goto("/?lang=fr#verification");
+    const row = page
+      .locator(".business-row")
+      .filter({ hasText: "Vérification PDF" });
+    await expect(row).toHaveCount(1);
+    await expect(row).toContainText("Non activé");
+    await expect(row).not.toContainText("Archived offer");
+    await expect(page.locator("#live-state")).toHaveAttribute(
+      "data-state",
+      "pass",
+    );
+  }
   expect(evidence.errors).toEqual([]);
 });
 

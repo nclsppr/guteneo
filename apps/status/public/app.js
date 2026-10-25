@@ -34,12 +34,15 @@ const legacyFeatureNames = {
   "Assistants MCP": "MCP assistants",
   "Courrier postal": "Postal mail",
   "E-mail": "Email",
-  "Horizon / validation PDF": "Horizon / PDF validation",
   "Paiements Stripe": "Stripe payments",
   "Propositions IA": "AI proposals",
 };
 const canonicalFeatureName = (name) =>
-  Object.hasOwn(legacyFeatureNames, name) ? legacyFeatureNames[name] : name;
+  Object.hasOwn(legacyFeatureNames, name)
+    ? legacyFeatureNames[name]
+    : /\/ (?:validation PDF|PDF validation)$/.test(name)
+      ? "PDF verification"
+      : name;
 // Historical observations retain the URL that was actually checked.
 const canonicalProbePath = (path) =>
   path === "/developpeurs/" ? "/developers/" : path;
@@ -542,7 +545,7 @@ const featureNames = {
   "Auth0 sign-in": statusText("Sign-in and session"),
   "Cron, queues, callbacks, backups": statusText("Processing and backups"),
   "MCP assistants": statusText("Connected assistants"),
-  "Horizon / PDF validation": statusText("PDF diagnostics"),
+  "PDF verification": statusText("PDF verification"),
   "Stripe payments": statusText("Payments"),
   "AI proposals": statusText("Creation assistance"),
 };
@@ -565,7 +568,9 @@ const featureDescriptions = {
   Fax: statusText("Prepare a fax and track delivery."),
   "Postal mail": statusText("Prepare postal mail and track acceptance."),
   Email: statusText("Prepare a message and track delivery."),
-  "Horizon / PDF validation": statusText("Get an automatic PDF diagnostic."),
+  "PDF verification": statusText(
+    "Verify a PDF against an accessibility or archival profile.",
+  ),
   "Stripe payments": statusText("Make a payment."),
   "AI proposals": statusText("Receive proposed content to review before use."),
 };

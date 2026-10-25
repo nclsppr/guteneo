@@ -1,5 +1,16 @@
 # Execution plan and handoff
 
+25 October 2026 branch candidate: PDF verification becomes an individual purchase
+for an exact original and selected profile. New subscriptions and recurring renewals
+are retired; immutable historical consent, charges and reports remain preserved.
+Only a current browser administrator can accept the explicit purchase. Failed
+engine execution does not create a settled charge; a complete conformance report
+can be billable whether its rules pass or fail. Billing administration retains
+current browser-administrator authority without a monthly entitlement. Current
+price and terms: [unit-pricing contract](PDF_VERIFICATION_PRICING.md),
+[PDF verification](PDF_ACCESSIBILITY.md). Source, CI, private-engine qualification,
+authenticated financial proof and deployed activation remain distinct.
+
 24 October reconciliation: merge incoming main `4f033e2` (PR 74) with the English
 repository standards and curated engineering site. The recorded passes below
 remain evidence for their stated source and fixtures. This reconciliation needs
@@ -99,10 +110,10 @@ Belvédère captures were inspected. No real profile preference, role, provider
 configuration or communication was changed by these checks. Exact PR/main CI
 and canonical authenticated production verification remain release gates.
 The first PR browser run caught an absent account preference overwriting a
-public query and legacy Horizon fixtures relying on that query for private views.
+public query and legacy PDF verification fixtures relying on that query for private views.
 The correction preserves public choices without a preference and makes private
 fixtures use the account preference; two delayed-session regressions cover the
-boundary. The subsequent 93 Horizon, locale-boundary and studio browser cases
+boundary. The subsequent 93 PDF verification, locale-boundary and studio browser cases
 passed in all three projects, along with 47 locale/access unit cases.
 
 
@@ -142,12 +153,12 @@ and [DASHBOARD_IDENTITY_PROOF.md](DASHBOARD_IDENTITY_PROOF.md) for contracts and
 executed proof. Merge, production migration/configuration and deployment remain
 separate evidence.
 
-2 October separate Horizon branch: EUR30/month credit-funded plan, administrator
+Historical 2 October subscription branch, now retired: EUR30/month credit-funded plan, administrator
 billing gate, private veraPDF PDF/UA/PDF/A checks, shared web/REST/MCP journey
 and four-language publicity preparation. Migrations 0050–0051 and a qualified
 private binding are required. Production/publication remain separate.
-Read [PDF_ACCESSIBILITY.md](PDF_ACCESSIBILITY.md), [HORIZON_PROOF.md](HORIZON_PROOF.md)
-and [HORIZON_LAUNCH.md](HORIZON_LAUNCH.md) before release.
+Read [PDF_ACCESSIBILITY.md](PDF_ACCESSIBILITY.md), [PDF_VERIFICATION_PROOF.md](PDF_VERIFICATION_PROOF.md)
+and [PDF_VERIFICATION_LAUNCH_ARCHIVE.md](PDF_VERIFICATION_LAUNCH_ARCHIVE.md) before release.
 
 2 October follow-up: five synthetic demonstration templates, owner-only library
 removal (additive migration 0049) and discoverable REST/MCP authoring rules extend

@@ -59,11 +59,11 @@ import {
   Admin,
 } from "./workspace-pages";
 import { Billing } from "./billing-page";
-import { HorizonPage } from "./horizon-plan";
+import { PdfCheckPage } from "./pdf-check-offer";
 import {
-  horizonPublicAvailability,
+  pdfCheckPublicAvailability,
   type PublicCapabilities,
-} from "./horizon-public";
+} from "./pdf-check-public";
 import { PostalReviewPage } from "./postal-review-page";
 import { Account, TeamAdmin } from "./account-page";
 import { Login } from "./login-page";
@@ -116,7 +116,7 @@ export function Landing() {
   const capabilities = useResource<PublicCapabilities>(
     publicPreview ? null : "/capabilities",
   );
-  const horizon = horizonPublicAvailability(
+  const pdfChecks = pdfCheckPublicAvailability(
     capabilities.error ? undefined : capabilities.data,
     capabilities.loading,
   );
@@ -134,7 +134,7 @@ export function Landing() {
         "how",
         "installation",
         "pricing",
-        "horizon",
+        "pdf-checks",
         "faq",
         "postal-cutoff-faq",
       ].includes(id)
@@ -248,8 +248,8 @@ export function Landing() {
         <HomepageFilm />
         <GuidedExample />
         <Installation />
-        <WelcomePricing horizon={horizon} />
-        <FrequentlyAsked horizon={horizon} />
+        <WelcomePricing pdfChecks={pdfChecks} />
+        <FrequentlyAsked pdfChecks={pdfChecks} />
         <JournalTeaser />
         {publicPreview && (
           <p className="homepage-preview-note">
@@ -312,7 +312,7 @@ const navigation = [
   { id: "campaigns", path: "/app/campaigns", Icon: Stack },
   { id: "senders", path: "/app/senders", Icon: AddressBook },
   { id: "usage", path: "/app/usage", Icon: ChartBar },
-  { id: "horizon", path: "/app/plan", Icon: Check },
+  { id: "pdfChecks", path: "/app/pdf-checks", Icon: Check },
   { id: "billing", path: "/app/billing", Icon: Receipt },
   { id: "account", path: "/app/account", Icon: UserCircle },
   { id: "admin", path: "/app/admin", Icon: Wrench },
@@ -698,7 +698,8 @@ function WorkspaceApplication({
       <RolePermissionNotice reports />
     );
   else if (page === "/app/billing") content = <Billing session={session} />;
-  else if (page === "/app/plan") content = <HorizonPage session={session} />;
+  else if (page === "/app/pdf-checks" || page === "/app/plan")
+    content = <PdfCheckPage session={session} />;
   else if (page === "/app/account")
     content = <Account session={session} onUpdated={refreshSession} />;
   else if (page === "/app/admin" && !permissions.manageMembers)
@@ -754,15 +755,6 @@ function WorkspaceApplication({
             <small>{msg("Workshop")}</small>
           </div>
         </div>
-        {!publicPreview && (
-          <a className="personal-context-link" href="#/app/my-documents">
-            <Files size={20} aria-hidden="true" />
-            <span>
-              {msg("My documents")}
-              <small className="sub-label">{msg("Personal space")}</small>
-            </span>
-          </a>
-        )}
         <details
           className="workspace-navigation"
           open={navigationOpen}
@@ -783,6 +775,19 @@ function WorkspaceApplication({
             {msg("Workspace navigation")}
           </summary>
           <nav aria-label={msg("Workspace navigation")}>
+            {!publicPreview && (
+              <a
+                className="personal-context-link"
+                href="#/app/my-documents"
+                title={msg("Personal space")}
+              >
+                <Files size={21} aria-hidden="true" />
+                <span>
+                  {msg("My documents")}
+                  <span className="sr-only"> — {msg("Personal space")}</span>
+                </span>
+              </a>
+            )}
             {appearance === "v2" &&
               permissions.prepareDispatches &&
               !["/app", "/app/prepare", "/app/dispatches"].includes(page) && (

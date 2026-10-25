@@ -8,7 +8,10 @@
   "workers_dev": false,
   "preview_urls": false,
   // Auth0 is configured; real browser login is qualified on this canonical origin.
-  "routes": [{ "pattern": "guteneo.com", "custom_domain": true }],
+  "routes": [
+    { "pattern": "guteneo.com", "custom_domain": true },
+    { "pattern": "belvedere.guteneo.com", "custom_domain": true },
+  ],
   "assets": {
     "directory": "./dist/web",
     "binding": "ASSETS",
@@ -36,6 +39,8 @@
     "PINGEN_DEFAULT_COUNTRY": "LU",
     "AUTH0_AUTH_POLICY": "verified_email",
     "SECURE_DISTRIBUTION_ENABLED": "true",
+    // Publish only after the private validator has passed hosted qualification.
+    "PDF_VALIDATION_ENABLED": "true",
     // Fresh verified accounts; additional strong authentication remains optional.
     "SENSITIVE_DOCUMENT_AUTHENTICATION": "verified_account",
   },
@@ -56,6 +61,7 @@
   ],
   "services": [
     { "binding": "SCANNER", "service": "guteneo-scanner" },
+    { "binding": "PDF_VALIDATOR", "service": "guteneo-pdf-validator" },
     { "binding": "DOCUMENT_RENDERER", "service": "guteneo-documents" },
   ],
   "queues": {

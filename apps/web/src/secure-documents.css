@@ -306,15 +306,13 @@
 .personal-space-service-grid .button {
   margin-top: auto;
 }
-.personal-context-link {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 16px;
-  margin: 0 16px 12px;
-  background: var(--surface);
-  border: 1px solid var(--line);
-  text-decoration: none;
+.sidebar nav .personal-context-link {
+  margin-bottom: 8px;
+}
+@media (max-width: 1024px) {
+  .sidebar nav .personal-context-link {
+    margin-bottom: 0;
+  }
 }
 @media (max-width: 767px) {
   .personal-space-header,

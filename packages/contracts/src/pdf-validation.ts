@@ -1,5 +1,19 @@
 import { z } from "zod";
 
+export const PDF_VALIDATION_PRICE_MINOR = 10;
+export const PDF_VALIDATION_TERMS_VERSION = "pdf-check-2026-10-25-v1";
+export type PdfValidationPricing = {
+  enabled: boolean;
+  priceMinor: typeof PDF_VALIDATION_PRICE_MINOR;
+  currency: "EUR";
+  taxBasis: "excluding_tax";
+  termsVersion: typeof PDF_VALIDATION_TERMS_VERSION;
+  paymentSource: "account_credits";
+  purchaseAllowed: boolean;
+  creditAvailableMinor: number | null;
+  evidence: "production" | "simulation";
+};
+
 export const pdfValidationProfiles = [
   "ua1",
   "ua2",
@@ -19,6 +33,19 @@ export const pdfValidationRuleTotals = {
 export const PDF_VALIDATOR_VERSION = "1.30.2";
 export const pdfValidationInput = z
   .object({ profile: z.enum(pdfValidationProfiles) })
+  .strict();
+export const pdfValidationPurchaseInput = pdfValidationInput
+  .extend({
+    purchase: z
+      .object({
+        confirmed: z.literal(true),
+        documentSha256: z.string().regex(/^[a-f0-9]{64}$/),
+        priceMinor: z.literal(PDF_VALIDATION_PRICE_MINOR),
+        currency: z.literal("EUR"),
+        termsVersion: z.literal(PDF_VALIDATION_TERMS_VERSION),
+      })
+      .strict(),
+  })
   .strict();
 const count = z.number().int().nonnegative().max(1_000_000);
 export const pdfValidationFinding = z

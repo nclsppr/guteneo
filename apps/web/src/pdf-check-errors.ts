@@ -1,29 +1,28 @@
 import { msg } from "./messages";
 
-export function horizonErrorMessage(code: string): string | undefined {
+export function pdfCheckErrorMessage(code: string): string | undefined {
   const errors: Record<string, string> = {
-    HORIZON_PLAN_REQUIRED: msg(
-      "An active Horizon plan is required for this check. The administrator can view the offer in the workspace.",
+    PDF_VALIDATION_PURCHASE_REQUIRED: msg(
+      "Confirm the displayed price of this check before starting it.",
     ),
-    HORIZON_DISABLED: msg(
-      "The Horizon plan is being prepared. Subscriptions are not open yet.",
+    PDF_VALIDATION_PRICE_CHANGED: msg(
+      "The check price or terms have changed. Refresh the price and confirm again.",
     ),
-    HORIZON_UNAVAILABLE: msg(
-      "The Horizon service is currently unavailable. Refresh the offer in your workspace before trying again.",
-    ),
-    HORIZON_TERMS_CHANGED: msg(
-      "The plan terms have changed. Refresh the offer before confirming.",
-    ),
-    HORIZON_CONSENT_REQUIRED: msg(
-      "The plan terms have changed. Refresh the offer before confirming.",
+    PDF_VALIDATION_CREDIT_INSUFFICIENT: msg(
+      "The account does not have enough credit. Refresh the balance before trying again.",
     ),
     INSUFFICIENT_CREDIT: msg(
       "The account does not have enough credit. Refresh the balance before trying again.",
     ),
-    HORIZON_CREDIT_INSUFFICIENT: msg(
-      "The account does not have enough credit. Refresh the balance before trying again.",
+    PDF_VALIDATION_ADMIN_REQUIRED: msg(
+      "You can read existing reports. Only a browser administrator can confirm a paid check.",
     ),
-    HORIZON_MODE_MISMATCH: msg("This workspace’s mode is incompatible."),
+    PDF_VALIDATION_BROWSER_PURCHASE_REQUIRED: msg(
+      "You can read existing reports. Only a browser administrator can confirm a paid check.",
+    ),
+    PDF_VALIDATION_UNAVAILABLE: msg(
+      "PDF checks are currently unavailable. Existing reports remain readable.",
+    ),
     PDF_VALIDATOR_CONFIGURATION_REQUIRED: msg(
       "The PDF validation service is not activated yet. Your document is retained and no compliance result has been produced.",
     ),

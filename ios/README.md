@@ -205,8 +205,8 @@ Inspection confirms bundle `com.guteneo.ios`, version `1.0` (build `1`), minimum
 iOS 17, iPhone/iPad families, assets, privacy manifest and symbols. It is
 explicitly unsigned.
 
-Fixture markers `Atelier Horizon`, `Dossier de souscription` and
-`--uitesting-preview` are absent from the Release binary. The archive script
+The named preview-workshop and subscription-document fixture markers, plus
+`--uitesting-preview`, are absent from the Release binary. The archive script
 checks that exclusion on subsequent runs. This is neither device installation
 nor App Store validation.
 

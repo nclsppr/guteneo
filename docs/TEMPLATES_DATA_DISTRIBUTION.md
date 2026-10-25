@@ -1,5 +1,37 @@
 # Templates, data and distribution
 
+## Local images and committed editor changes — 25 October 2026 candidate
+
+An editor with current edit authority imports a local PNG/JPEG from the visible
+image action above the canvas, using pointer or keyboard. The existing image
+contract permits at most 250 KiB, four million pixels and 4,000 pixels per side;
+it rejects SVG, remote URLs and malformed raster data. The helper inserts on the
+selected page, fits the original aspect ratio, uses a name unique across pages
+and static content, and preserves business bindings and original embedded bytes.
+The new block is selected for direct position/size editing. No separate upload,
+asset store, external image fetch, AI call or production service is introduced.
+An unsupported image leaves the prior template intact and permits another choice.
+
+The native property panel debounces changes. Saving, publishing or changing studio
+tabs waits until the accepted model matches mapped authoring inputs, so a rapid
+save cannot persist old geometry. Search controls do not block saving. Invalid
+numbers remain visibly pending; correcting them or restoring the accepted value
+recovers without waiting for a nonexistent change callback. Ambiguous native
+changes restore the previous accepted definition under the existing reconciliation
+contract. Save/publish still use current authority and revision checks, and
+published versions remain immutable. Mobile import remains available while native
+visual editing requires a desktop viewport; the desktop help state reflects that.
+
+The REST/MCP envelope format and document-rendering path are unchanged. Native
+clients do not gain a designer or new authority. A generated PDF retains its normal
+exact-byte security gate; an embedded raster is not separately advertised as an
+antivirus-qualified file. Exporting a shared template includes its embedded image.
+Relevant source: `apps/web/src/template-designer.tsx`, `template-pages.tsx`,
+`packages/templates/designer-images.ts` and the existing image contract. The unit
+and actual browser/API/PDF round trip are in `templates-images.test.ts` and
+`template-images.spec.ts`; final browser-engine and hosted evidence is recorded in
+[TEST_RESULTS.md](TEST_RESULTS.md).
+
 ## AI suggestions — 23 October 2026 version 1.0.0 candidate
 
 Template edit permission, current membership/OAuth connection, revision and AI

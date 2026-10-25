@@ -41,7 +41,7 @@ const guide = {
   native: "/getting-started/repository-map/",
   public: "/engineering/contributing/",
   dashboard: "/engineering/contributing/",
-  horizon: "/workflows/pdf-diagnostics/",
+  "pdf-verification": "/workflows/pdf-diagnostics/",
   operations: "/engineering/security-and-reliability/",
   belvedere: "/administration/belvedere/",
   status: "/engineering/testing/",

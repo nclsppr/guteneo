@@ -42,7 +42,7 @@ components rather than another palette of almost-identical values.
 | Paper | `--paper`, `#f6f5ef` | Main reading surface |
 | Surface | `--surface`, `#fffefa` | Fields and restrained panels |
 | Ink | `--ink`, `#181b22` | Body, headings and ordinary wordmark |
-| Cobalt | `--blue`, `#2450db` | Actions, focus and approved blue artwork |
+| Cobalt | `--blue`, `#2450db` | Actions and approved blue artwork |
 | Display | `--font-display`, EB Garamond | Editorial headings and wordmark |
 | Body | `--font-body`, IBM Plex Sans | Prose, controls and operational data |
 | Code | `--font-code`, IBM Plex Mono | Code and technical identifiers |
@@ -169,6 +169,42 @@ must close with Escape and restore the menu button's focus. Remove the listener
 when the menu closes, and respect an Escape already consumed by another control.
 The focused regression in `tests/preview-e2e/public-menu-escape.spec.ts` covers
 the homepage and developer guide at 320px and 390px in Chromium and WebKit.
+
+Workspace controls use a two-pixel ink focus outline through `:focus-visible`;
+pointer-only controls suppress the browser's default outline without removing
+keyboard feedback. Ink borders and checked states identify selections. Do not
+remove focus visibility to solve a cosmetic pointer issue. A native file input
+under the shared `FileInput` presentation preserves keyboard, required/disabled,
+accept and file-change behavior while its chooser/empty labels follow Guteneo's
+locale rather than the browser language. Keep literal filenames unchanged.
+
+Give native selects an explicit height and an authored arrow: desktop Safari
+may ignore `min-height` on its default face. Retain native appearance in forced
+colors. Hints must have positive space below their control; inspect nested
+sections as well as ordinary fields. Verify both Classic and V2, desktop WebKit
+and phone sizes. My documents shares the compact navigation rhythm; detailed
+role information belongs on My account instead of every shell and overview.
+See the [workspace contract](https://github.com/nclsppr/guteneo/blob/main/docs/DASHBOARD_V2.md)
+and its dated qualification notes for the 25 October correction candidate.
+
+Place the template image action above the canvas, with a visible format/size
+hint and keyboard file chooser. Preserve embedded raster bytes and aspect ratio;
+select the new block so its position and dimensions are discoverable. A debounced
+editor must not expose Save, Publish or tab navigation as ready while visible
+property inputs differ from its accepted model. Track actual authoring fields,
+keep search independent and allow correction or restoration of invalid values.
+Verify original bytes, geometry after immediate save/reload and the image in the
+generated PDF through the existing rendering path; a toolbar screenshot is not
+sufficient evidence.
+
+Dense financial visualizations need an equivalent readable detail. The annual
+consumption calendar uses exact UTC journal dates, amount and count labels,
+one tab stop with arrow navigation and an inline selected-day summary. Keep its
+yearly scroll inside the calendar region on phones. A future day, a zero-activity
+day and a failed read have different meanings. Never derive a daily financial
+value by spreading a monthly total, and keep current reservations distinct from
+posted consumption. The [credit read contract](https://github.com/nclsppr/guteneo/blob/main/docs/WELCOME_CREDIT.md)
+owns the accounting sources and daily API semantics.
 
 Labels remain visible when fields contain values. Put errors beside the relevant
 field and announce important asynchronous outcomes without repeatedly taking

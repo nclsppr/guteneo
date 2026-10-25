@@ -1,5 +1,16 @@
 # Guteneo product contract
 
+25 October 2026 branch candidate: PDF verification becomes an individual purchase
+for an exact original and selected profile. New subscriptions and recurring renewals
+are retired; immutable historical consent, charges and reports remain preserved.
+Only a current browser administrator can accept the explicit purchase. Failed
+engine execution does not create a settled charge; a complete conformance report
+can be billable whether its rules pass or fail. Billing administration retains
+current browser-administrator authority without a monthly entitlement. Current
+price and terms: [unit-pricing contract](PDF_VERIFICATION_PRICING.md),
+[PDF verification](PDF_ACCESSIBILITY.md). Source, CI, private-engine qualification,
+authenticated financial proof and deployed activation remain distinct.
+
 24 October 2026: the secure distribution candidate uses one personal Guteneo
 account for received documents, a personal copy vault and sending services.
 Receiving creates no workshop membership or sending credit. Shared access is
@@ -39,11 +50,11 @@ and [DASHBOARD_IDENTITY_PROOF.md](DASHBOARD_IDENTITY_PROOF.md) for contracts and
 executed proof. Merge, production migration/configuration and deployment remain
 separate evidence.
 
-2 October separate branch candidate: **guteneo Horizon**, EUR30/month from
+Historical 2 October subscription candidate, now retired: EUR30/month from
 available organization credits after administrator browser consent, adds
 automatic PDF/UA/PDF/A diagnostics, immutable reports/history, JSON export and
-human-review guidance. Billing requires the monthly entitlement and a browser
-administrator. Web, REST and MCP share one service. The four-language offer is
+human-review guidance. That retired implementation required a monthly entitlement for billing; the current
+individual-purchase contract removes that prerequisite. Web, REST and MCP share one service. The four-language offer is
 prepared with activation off; automatic checks are not certification.
 See [PDF_ACCESSIBILITY.md](PDF_ACCESSIBILITY.md).
 

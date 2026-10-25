@@ -60,7 +60,8 @@ when opening dispatches.
 ## Access is rechecked for every read
 
 The application requires production environment/mode, a valid private entry
-configuration and the canonical application origin. It then checks a current
+configuration and the canonical application origin or its exact configured
+dedicated platform host. It then checks a current
 authenticated browser session and its signed login evidence: the expected identity
 issuer, verified allowed identity and any configured subject binding. Development
 sessions and bearer-authorized assistant/native requests are refused.
@@ -69,6 +70,13 @@ Changing a mutable profile email, holding workspace administrator rights or
 knowing an address cannot satisfy that independent identity check. Existing
 authentication/MFA policy still applies. Workspace membership remains current;
 Belvédère does not create an alternative login system.
+
+The dedicated platform host keeps the control tower at its root throughout normal
+Auth0 sign-in. Its callback and logout origins are exact allowlist entries; its
+secure browser cookie remains host-only. It exposes only the protected control
+tower reads and bounded session/sign-in assets. Customer APIs, signup, assistant
+tokens and business writes remain refused. The compatible private application
+entry still works without exposing its secret address on the dedicated host.
 
 Every JSON read repeats the guard before querying platform data or calling an
 infrastructure connector. Responses are private, non-cacheable and excluded from
@@ -86,7 +94,7 @@ or restart a provider submission.
 
 The Finances view selects production consumption by immutable ledger debit dates,
 including retained charges whose dispatch metadata has since been deleted.
-Protected-link hosting charges are counted once. Horizon consumption is identified
+Protected-link hosting charges are counted once. PDF verification consumption is identified
 separately and never increases the dispatch count. Simulation uses its distinct
 confirmation evidence.
 

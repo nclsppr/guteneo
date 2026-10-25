@@ -1,7 +1,7 @@
 # Private PDF validator candidate
 
 3 October opening preparation: Nicolas authorizes private deployment and hosted
-qualification before Horizon activation on existing credits. The updated local
+qualification before PDF verification activation on existing credits. The updated local
 Docker qualification now includes twelve pinned official references: a positive
 and negative case for each of the six profiles, exact counters and findings,
 concurrency, rejection and temporary-file/log checks. The retained
@@ -9,17 +9,25 @@ concurrency, rejection and temporary-file/log checks. The retained
 is local evidence, not a hosted observation. The original synthetic proof below
 remains historical. Publication and authenticated local-only hosted probe
 commands are in [the qualification guide](../apps/pdf-validator/qualification/README.md)
-and [the application activation runbook](HORIZON_ACTIVATION_RUNBOOK.md).
+and [the current individual-purchase release contract](PDF_VERIFICATION_PRICING.md).
+The [older activation record](PDF_VERIFICATION_ACTIVATION_RUNBOOK.md) is historical;
+its retired monthly-subscription steps must not be executed.
 
-The cost-qualified local candidate now uses `basic` (0.25 vCPU / 1 GiB / 4 GB),
-one instance and idle sleep after five seconds. JVM startup tuning preserves the
-pinned binary, rules, 384 MiB heap and all deadlines. The full reference and
-100-page near-limit batch uses 47.25% less measured request CPU than the original
-`standard-1` configuration. All six large-file verdicts and findings stay exact;
-the maximum warm request is 20.289 seconds. Actual local `lite` testing failed
-readiness. [Resource proofs](../apps/pdf-validator/tests/benchmark-fixtures/local-resource-proof.json)
-and [cost model](HORIZON_COSTS.md) record the constraints and assumptions. Real
-Cloudflare cold starts and five-second stop/wake still require the hosted run.
+The current candidate uses `standard-1` (0.5 vCPU / 4 GiB / 8 GB), one instance
+and idle sleep after five seconds. The fresh 25 October native arm64 Docker run
+passed all twelve official references and all six profiles of the 100-page
+near-limit fixture. Cold health took 16.345 seconds; large-file checks took
+13.191–13.922 seconds, with a 233,508,864-byte peak. The fresh `basic` run failed
+a large-file process deadline. The earlier emulated amd64 `basic` run also failed
+its initial version deadline; it does not establish hosted performance.
+
+JVM startup tuning preserves the pinned binary, rules, 384 MiB heap and all
+20/40/45-second version/process/request deadlines. The [3 October resource
+comparison](../apps/pdf-validator/tests/benchmark-fixtures/local-resource-proof.json)
+remains historical; its earlier `basic` selection does not override the fresh
+failure. [The cost model](PDF_VERIFICATION_COSTS.md) records the current candidate
+and dated assumptions separately. Actual Cloudflare x86 cold requests and
+five-second stop/wake still require the hosted run.
 
 The new `apps/pdf-validator/` package wraps the unmodified veraPDF Greenfield CLI
 **1.30.2**. It is independent of the antivirus and document renderer. A PDF/UA
@@ -131,6 +139,10 @@ behavior requires hosted review before enabling any persisted observability.
 The Docker build pins its Java 21 base by digest and verifies both the allowed
 release and archive checksum. Build arguments cannot select another release or
 checksum without a reviewed source change.
+The official installer download allows at most 300 seconds per attempt and two
+retries for transient build-network failures. TLS and the exact archive digest
+remain mandatory. These build limits do not change the 40-second engine or
+45-second request deadlines.
 
 - Archive: [official 1.30.2 Greenfield installer](https://software.verapdf.org/releases/1.30/verapdf-greenfield-1.30.2-installer.zip).
 - Archive SHA-256: `6cc6341cb1af644044054b81f00a6590a7918abb18f762243de115258bcad838`.
@@ -151,6 +163,17 @@ cmp /tmp/rules.json apps/pdf-validator/container/rules.json
 
 ## Local verification and release gates
 
+The private validator's Wrangler/Miniflare build and qualification dependencies
+use scoped `undici` 7.30.1 and `sharp` 0.35.5 overrides for the pinned Miniflare
+version. These are development/operation tools, separate from the deployed
+container's Python/Java engine. Full and runtime-only npm audits on 25 October
+2026 reported zero vulnerabilities after this update; future dependency changes
+need a fresh audit and the same qualification checks.
+
+The `pdf-validator` CI job runs type and unit checks. The real Docker corpus and
+hosted qualification are separate operator checks; passing CI alone does not
+prove either engine execution or production readiness.
+
 ```sh
 npm ci --prefix apps/pdf-validator
 npm run typecheck --prefix apps/pdf-validator
@@ -167,11 +190,15 @@ private-field suppression. Real process tests cover timeout, stdout overflow,
 stderr suppression and exact temporary-file cleanup. The Worker independently
 checks bytes, fixed version/profile/counts, bounded findings and private errors.
 
-The Docker qualification driver uses synthetic documents, a read-only root,
-unprivileged user, no network, 512 MiB memory, one CPU, bounded PIDs and no
-capabilities. It checks six failures, one real PDF/A-2b success, rejected profile,
-URL parameter, content type, oversized declaration, invalid/incomplete PDF,
-empty logs and temporary-file cleanup, then removes its temporary container.
+The current Docker qualification driver uses synthetic and pinned official
+documents, a read-only root, unprivileged user, no network, bounded PIDs and no
+capabilities. The default `standard-1` allocation is 0.5 vCPU and 4 GiB memory without
+swap. It checks the twelve official references and all six profiles of the
+100-page synthetic PDF, concurrency refusal, a synthetic process deadline,
+rejected profile, URL parameter, content type, oversized declaration,
+invalid/incomplete PDF, empty logs and temporary-file cleanup, then removes its
+temporary container. The dated 2 October observation below used the earlier
+one-CPU, 512 MiB allocation.
 This proves a local private engine path; it does not prove a hosted integration,
 full PDF/UA accessibility or legal certification.
 

@@ -10,14 +10,14 @@ immediately readable permissions.
 | --- | --- | --- |
 | #43 | Multilingual sharing/read buttons | `c232f2e`; merged in `5417aa0` after full CI |
 | #38 | Skill metadata/email safeguards | `fde084a`; ancestry preserved in #41 |
-| #41 | Horizon/PDF diagnostics | `f46aae9`; public-entry correction/integration with #43 |
+| #41 | PDF verification/PDF diagnostics | `f46aae9`; public-entry correction/integration with #43 |
 | #47 | Technical atlas/roles/journeys/maintenance | `417c414`; ancestry preserved in #41 |
 
 #41 combines remaining sources with parent commits, without squashing/replacing
 features. The only plugin conflict was release notes: retain 0.3.2, diagnostics,
 consent boundaries and email/reviewer safeguards.
 
-Horizon stays closed without `HORIZON_ENABLED=true`, qualified private `PDF_VALIDATOR`
+PDF verification stays closed without the PDF verification activation flag set to true, qualified private `PDF_VALIDATOR`
 and production scanner. Review found billing possible without scanner; shared
 availability was corrected to block subscription/renewal actions/debits even with
 sufficient funds. D1 tests cover both and atlas matches. Apply 0050–0051 before

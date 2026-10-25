@@ -34,16 +34,16 @@
     }
   },
   {
-    "name": "horizon",
+    "name": "pdf-verification",
     "master": {
-      "path": "assets/brand/dashboard-v2/horizon-master.png",
+      "path": "assets/brand/dashboard-v2/pdf-verification-master.png",
       "width": 2172,
       "height": 724,
       "bytes": 2684243,
       "sha256": "e1e13671d5a13891005629e68cd0dbf1df35725711a08197cdd82cc257accc80"
     },
     "web": {
-      "path": "apps/web/public/brand/dashboard-v2/horizon.webp",
+      "path": "apps/web/public/brand/dashboard-v2/pdf-verification.webp",
       "width": 1280,
       "height": 427,
       "bytes": 105592,

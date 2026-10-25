@@ -545,6 +545,28 @@ describe("protected PDF hosting on local D1 and private R2", () => {
         .first(),
     ).toMatchObject({ reserved_minor: 0, confirmed_minor: 100 });
     expect((await hosting()).hostingFeeMinor).toBe(0);
+    expect(
+      await new DomainService(db, {
+        mode: "production",
+        now: () => Date.parse(stamp),
+      }).usageActivity(ctx),
+    ).toMatchObject({
+      evidence: "production",
+      days: [
+        {
+          date: stamp.slice(0, 10),
+          amountMinor: 100,
+          dispatchCount: 0,
+          chargeCount: 1,
+        },
+      ],
+      totals: {
+        amountMinor: 100,
+        dispatchCount: 0,
+        chargeCount: 1,
+        activeDays: 1,
+      },
+    });
     const detail = await readBelvedereFixture<BelvedereWorkshopDetail>(
       db,
       ctx.userId,

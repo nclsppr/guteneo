@@ -23,7 +23,7 @@ Implemented operational tooling; changes require explicit authority and exact-so
 <li id="feature-cbbefe486542">Private read-only Telnyx operator inspection reports bounded callback status/canonical-match booleans without raw URLs or credential extraction; fresh provider state requires separate proof</li>
 <li id="feature-639f87168d5c">Reconciliation, bounded recovery and dead-letter queues</li>
 <li id="feature-dacebda8c3c8">Ordered D1 migrations, integrity and restore bookmark</li>
-<li id="feature-749face2ff7c">Private scanner, renderer and validator releases from clean main; loopback qualification bridge with temporary secret, Origin refusal and no secret transfer; validator operators check Horizon closed on canonical guteneo.com only</li>
+<li id="feature-16c79e186f2a">Private scanner, renderer and validator releases from clean main; loopback qualification bridge with temporary secret, Origin refusal and no secret transfer; deployment wrapper and hosted runner share strict production pdfValidation.available=false on canonical guteneo.com before container qualification</li>
 <li id="feature-c054fe8b17d6">Backend/security/browser suites and exhaustive CI; basic validator max 1, 5-second idle, qualified JVM corpus to 100 pages/9.887 MiB; measured local CPU savings do not prove hosted cost</li>
 <li id="feature-0860eb993dd2">Release from clean, synchronized, verified main</li>
 <li id="feature-d35cb15a18d3">Release manifests contain canonical public assets with exact byte hashes; shared application/preview redirects preserve old page/download links without duplicate alias files; unexpected redirects fail served verification; retired workers.dev/preview closure has separate evidence</li>

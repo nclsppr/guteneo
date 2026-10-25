@@ -7,7 +7,7 @@ sidebar:
 
 <!-- Generated from docs/feature-map.json. Run npm run docs:build; do not edit this view. -->
 
-**23 domains · 269 capabilities · 31 journeys · 73 REST operations · 72 MCP tools.**
+**23 domains · 277 capabilities · 31 journeys · 75 REST operations · 72 MCP tools.**
 
 Follow a branch to find its behavior, access boundary and engineering guide. Use the site search to find a specific capability.
 
@@ -21,7 +21,7 @@ This is an implementation inventory, not a live availability dashboard. Current 
 ## Create
 
 - [Documents and protection](/features/documents/) — 8 capabilities
-- [Template studio](/features/templates/) — 12 capabilities
+- [Template studio](/features/templates/) — 14 capabilities
 - [Data and mappings](/features/datasets/) — 9 capabilities
 - [PDF generation and distribution](/features/generation/) — 10 capabilities
 
@@ -36,9 +36,9 @@ This is an implementation inventory, not a live availability dashboard. Current 
 ## Operate
 
 - [Campaigns and tracking](/features/campaigns/) — 8 capabilities
-- [Credits and billing](/features/billing/) — 6 capabilities
-- [Workspace appearance](/features/dashboard/) — 15 capabilities
-- [Horizon PDF diagnostics](/features/horizon/) — 10 capabilities
+- [Credits and billing](/features/billing/) — 8 capabilities
+- [Workspace appearance](/features/dashboard/) — 18 capabilities
+- [PDF verification](/features/pdf-verification/) — 10 capabilities
 
 ## Interfaces
 
@@ -50,7 +50,7 @@ This is an implementation inventory, not a live availability dashboard. Current 
 
 - [Reviewer OAuth qualification](/features/reviewer-oauth/) — 9 capabilities
 - [Operations and reliability](/features/operations/) — 18 capabilities
-- [Belvédère platform oversight](/features/belvedere/) — 7 capabilities
+- [Belvédère platform oversight](/features/belvedere/) — 8 capabilities
 - [Public service status](/features/status/) — 12 capabilities
 - [Engineering documentation](/features/engineering-docs/) — 10 capabilities
 

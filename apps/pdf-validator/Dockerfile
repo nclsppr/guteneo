@@ -11,7 +11,7 @@ RUN --mount=type=secret,id=proxy_ca \
     if [ -r /run/secrets/proxy_ca ]; then export CURL_CA_BUNDLE=/run/secrets/proxy_ca; fi; \
     test "$VERAPDF_VERSION" = "1.30.2" \
     && test "$VERAPDF_SHA256" = "6cc6341cb1af644044054b81f00a6590a7918abb18f762243de115258bcad838" \
-    && curl --fail --silent --show-error --location --max-time 60 \
+    && curl --fail --silent --show-error --location --max-time 300 --retry 2 --retry-delay 2 --retry-all-errors \
        "https://software.verapdf.org/releases/1.30/verapdf-greenfield-${VERAPDF_VERSION}-installer.zip" -o /tmp/installer.zip \
     && printf '%s  /tmp/installer.zip\n' "$VERAPDF_SHA256" | sha256sum -c - \
     && unzip -q /tmp/installer.zip -d /tmp/installer \

@@ -71,7 +71,7 @@ test("OpenAPI is valid, self-contained and never resolves a remote document", as
     for (const child of Object.values(value)) inspect(child);
   }
   inspect(spec);
-  assert.equal(operations.length, 73);
+  assert.equal(operations.length, 75);
   assert.equal(
     new Set(operations.map(({ operation }) => operation.operationId)).size,
     operations.length,
@@ -126,6 +126,8 @@ test("documented routes exist and OAuth cannot acquire browser approval or priva
     "post /api/recipients/validate",
     "get /api/senders",
     "get /api/usage",
+    "get /api/usage/activity",
+    "get /api/pdf-validation/pricing",
     "get /api/secure-distributions",
     "post /api/secure-distributions",
     "get /api/secure-distributions/catalog",
@@ -193,6 +195,9 @@ test("documented routes exist and OAuth cannot acquire browser approval or priva
       /approve|transfer|admin|billing|session|webhooks|documents\/import/,
     );
     const publicRoute = ["/api/health", "/api/capabilities"].includes(path);
+    const browserPurchase =
+      path === "/api/pdf-validation/pricing" ||
+      (path === "/api/documents/{id}/validation" && method === "post");
     const scope = path.startsWith("/api/templates")
       ? /\/shar(e|ing)$/.test(path)
         ? "templates:share"
@@ -226,15 +231,17 @@ test("documented routes exist and OAuth cannot acquire browser approval or priva
       operation.security,
       publicRoute
         ? []
-        : [
-            {
-              GuteneoOAuth:
-                path === "/api/postal/preflights" ||
-                path.endsWith("/postal-preflight")
-                  ? ["documents:write", "dispatches:prepare"]
-                  : [scope],
-            },
-          ],
+        : browserPurchase
+          ? [{ BrowserSession: [] }]
+          : [
+              {
+                GuteneoOAuth:
+                  path === "/api/postal/preflights" ||
+                  path.endsWith("/postal-preflight")
+                    ? ["documents:write", "dispatches:prepare"]
+                    : [scope],
+              },
+            ],
     );
   }
   assert.match(
@@ -334,9 +341,110 @@ test("template authoring and removal stay explicit without extending share permi
   );
 });
 
+test("annual usage publishes only bounded daily aggregates with integer debits and explicit evidence", () => {
+  const operation = spec.paths["/api/usage/activity"].get;
+  assert.deepEqual(operation.security, [{ GuteneoOAuth: ["dispatches:read"] }]);
+  assert.deepEqual(
+    operation.parameters.map((parameter) => parameter.name),
+    ["year"],
+  );
+  assert.equal(operation.parameters[0].in, "query");
+  assert.deepEqual(operation.parameters[0].schema, {
+    type: "integer",
+    minimum: 1000,
+    maximum: 9998,
+  });
+  assert.equal(operation.requestBody, undefined);
+  assert.match(operation.description, /reporting authority/);
+  assert.match(operation.description, /Reservations, grants/);
+  assert.match(operation.description, /zero-cent/);
+  assert.match(operation.description, /future-posted rows are excluded/);
+  const activity = spec.components.schemas.UsageActivity;
+  assert.equal(activity.additionalProperties, false);
+  assert.deepEqual(activity.properties.evidence.enum, [
+    "production",
+    "simulation",
+  ]);
+  assert.deepEqual(activity.properties.currency.enum, ["EUR"]);
+  assert.deepEqual(activity.properties.timeZone.enum, ["UTC"]);
+  assert.equal(activity.properties.asOf.format, "date-time");
+  assert.equal(activity.properties.year.minimum, 1000);
+  assert.equal(activity.properties.year.maximum, 9998);
+  assert.equal(activity.properties.days.maxItems, 366);
+  assert.equal(activity.properties.availableYears.uniqueItems, true);
+  const day = spec.components.schemas.UsageActivityDay;
+  assert.equal(day.additionalProperties, false);
+  assert.deepEqual(Object.keys(day.properties).sort(), [
+    "amountMinor",
+    "chargeCount",
+    "date",
+    "dispatchCount",
+  ]);
+  assert.deepEqual(
+    day.required.slice().sort(),
+    Object.keys(day.properties).sort(),
+  );
+  assert.equal(day.properties.date.format, "date");
+  for (const field of ["amountMinor", "chargeCount", "dispatchCount"])
+    assert.deepEqual(
+      {
+        type: day.properties[field].type,
+        minimum: day.properties[field].minimum,
+      },
+      { type: "integer", minimum: 0 },
+    );
+  for (const field of [
+    "amountMinor",
+    "chargeCount",
+    "dispatchCount",
+    "activeDays",
+  ])
+    assert.equal(activity.properties.totals.properties[field].type, "integer");
+});
+
+test("paid PDF checks require exact browser-only purchase consent without recurring access", () => {
+  const schema = spec.components.schemas.PdfValidationPurchaseInput;
+  assert.deepEqual(schema.required, ["profile", "purchase"]);
+  assert.equal(schema.additionalProperties, false);
+  assert.deepEqual(schema.properties.purchase.required, [
+    "confirmed",
+    "documentSha256",
+    "priceMinor",
+    "currency",
+    "termsVersion",
+  ]);
+  assert.equal(schema.properties.purchase.additionalProperties, false);
+  assert.deepEqual(schema.properties.purchase.properties.confirmed.enum, [
+    true,
+  ]);
+  assert.deepEqual(schema.properties.purchase.properties.priceMinor.enum, [10]);
+  assert.deepEqual(schema.properties.purchase.properties.currency.enum, [
+    "EUR",
+  ]);
+  assert.deepEqual(schema.properties.purchase.properties.termsVersion.enum, [
+    "pdf-check-2026-10-25-v1",
+  ]);
+  const purchase = spec.paths["/api/documents/{id}/validation"].post;
+  assert.deepEqual(purchase.security, [{ BrowserSession: [] }]);
+  assert.ok(
+    purchase.parameters.some(
+      (field) => field.name === "X-CSRF-Token" && field.required,
+    ),
+  );
+  assert.match(purchase.description, /Technical failure.*releases the hold/);
+  assert.deepEqual(spec.paths["/api/pdf-validation/pricing"].get.security, [
+    { BrowserSession: [] },
+  ]);
+  assert.equal(spec.components.securitySchemes.BrowserSession.in, "cookie");
+  assert.equal(spec["x-pdf-validation-purchase"].monthlySubscriptions, false);
+  assert.equal(spec["x-pdf-validation-purchase"].defaultEnabled, false);
+  assert.equal(spec["x-horizon-plan"], undefined);
+});
+
 test("OAuth publishes the real audience and explicitly scoped authorities without fictitious API keys", () => {
   assert.deepEqual(Object.keys(spec.components.securitySchemes), [
     "GuteneoOAuth",
+    "BrowserSession",
   ]);
   const oauth = spec.components.securitySchemes.GuteneoOAuth;
   assert.equal(oauth.type, "oauth2");

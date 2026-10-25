@@ -305,7 +305,7 @@ window.STATUS_FRENCH_MESSAGES = {
   "Sign-in and session": "Connexion et session",
   "Processing and backups": "Traitements et sauvegardes",
   "Connected assistants": "Assistants connectés",
-  "PDF diagnostics": "Diagnostic PDF",
+  "PDF verification": "Vérification PDF",
   Payments: "Paiements",
   "Creation assistance": "Aide à la création",
   "Sign in to your workspace and retain a valid session.":
@@ -324,8 +324,8 @@ window.STATUS_FRENCH_MESSAGES = {
     "Préparer un courrier et suivre sa prise en charge.",
   "Prepare a message and track delivery.":
     "Préparer un message et suivre son acheminement.",
-  "Get an automatic PDF diagnostic.":
-    "Obtenir un diagnostic automatique du PDF.",
+  "Verify a PDF against an accessibility or archival profile.":
+    "Vérifier un PDF selon un profil d’accessibilité ou d’archivage.",
   "Make a payment.": "Effectuer un paiement.",
   "Receive proposed content to review before use.":
     "Recevoir une proposition de contenu à vérifier avant utilisation.",
