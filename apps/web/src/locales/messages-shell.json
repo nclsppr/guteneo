@@ -454,6 +454,10 @@
     "Versuchen Sie es erneut, um zur gewünschten Seite zurückzukehren.",
     "Probéiert nach eng Kéier, fir op déi gewënscht Säit zeréckzekommen."
   ],
+  "Apparence": ["Appearance", "Erscheinungsbild", "Ausgesinn"],
+  "Système": ["System", "System", "System"],
+  "Clair": ["Light", "Hell", "Hell"],
+  "Sombre": ["Dark", "Dunkel", "Däischter"],
   "L’atelier doit conserver au moins un administrateur. Nommez un autre administrateur avant de modifier ce rôle.": [
     "The workspace must retain at least one administrator. Appoint another administrator before changing this role.",
     "Der Arbeitsbereich muss mindestens einen Administrator behalten. Ernennen Sie einen weiteren Administrator, bevor Sie diese Rolle ändern.",

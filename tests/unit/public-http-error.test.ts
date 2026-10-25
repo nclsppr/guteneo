@@ -23,8 +23,38 @@ const environment = (fetch: (request: Request) => Promise<Response>) =>
   }) as unknown as Env;
 
 describe("bounded public HTTP error documents", () => {
+  it("uses only an allowlisted appearance cookie while preserving public error semantics", async () => {
+    for (const [cookie, theme] of [
+      ["guteneo_theme=dark", "dark"],
+      ["guteneo_theme=light", "light"],
+      ["guteneo_theme=system", null],
+      ['guteneo_theme=dark\"><script>private-marker</script>', null],
+    ] as const) {
+      const response = publicHttpError(
+        new Request(origin + "/missing?lang=en", {
+          headers: { ...navigation, Cookie: cookie },
+        }),
+        "/missing",
+        429,
+        { protocolHeaders: new Headers({ "Retry-After": "120" }) },
+      );
+      const html = await response.text();
+      expect(response.status).toBe(429);
+      expect(response.headers.get("Retry-After")).toBe("120");
+      expect(response.headers.get("Cache-Control")).toBe("no-store");
+      expect(response.headers.get("Vary")).toContain("Cookie");
+      expect(response.headers.get("Content-Length")).toBe(
+        String(new TextEncoder().encode(html).byteLength),
+      );
+      expect(html).toContain('<meta name="theme-color" content="#2450db">');
+      if (theme) expect(html).toContain(`data-theme="${theme}"`);
+      else expect(html).not.toMatch(/<html[^>]*data-theme=/);
+      expect(html).not.toContain("private-marker");
+      expect(html).not.toContain("<script");
+    }
+  });
   it.each(locales)(
-    "has localized copy, a short pitch and all five useful destinations in %s for each supported status",
+    "has localized copy and shared public destinations in %s for each supported status",
     async (locale) => {
       const titles = new Set<string>();
       for (const status of statuses) {
@@ -50,11 +80,13 @@ describe("bounded public HTTP error documents", () => {
         expect(response.headers.get("Location")).toBeNull();
         expect(html).toContain(`<html lang="${locale}">`);
         expect(html).toContain(`HTTP ${status}`);
-        expect(html).toContain("guteneo.com</a>");
+        expect(html).toContain("guteneo</span>");
         for (const path of ["/", "/assistants/", "/developers/", "/support/"])
           expect(html).toContain(`href="${origin}${path}?lang=${locale}"`);
-        expect(html).toContain('href="https://status.guteneo.com"');
-        expect(html).toMatch(/PDF/);
+        expect(html).toContain(
+          `href="https://status.guteneo.com/?lang=${locale}"`,
+        );
+        expect(html).toContain(`/pdf-checks/?lang=${locale}`);
         expect(html).not.toContain("<script");
         const family = [401, 403].includes(status)
           ? "access"

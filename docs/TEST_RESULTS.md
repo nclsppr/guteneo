@@ -1,5 +1,104 @@
 # Executed verification
 
+## UI, retained usage and individual PDF checks — candidate, 25 October 2026
+
+This candidate localizes file upload controls, gives native selects a stable
+height in Safari, preserves visible keyboard focus, compacts personal-document
+navigation and keeps account roles on My account. Consumption retains all stored
+monthly records, opens the latest used month and adds a keyboard-accessible UTC
+activity calendar backed by posted daily charges. It replaces the monthly offer
+with an explicitly confirmed EUR0.10 excluding-tax PDF/profile purchase; failed
+technical attempts release their hold, exact-key replays do not charge twice,
+and assistants cannot purchase a check. Historical journals remain unchanged.
+
+The broad application run exercised **2,597 Vitest cases in 125 files**:
+2,596 passed and the callback-only test database lacked the new technical-expiry
+table. After adding that fixture table, the complete affected webhook suite
+passed **14/14**. This combined evidence is not a fresh all-green full invocation.
+The independent Node security suite passed **394/394**. The post-migration pricing,
+credit competition, PDF validation, secure distribution and transport regression
+passed **115/115**. The guarded migration transport verifies **60 migrations and
+428 schema objects**, equivalent schemas, integrity `ok` and zero foreign-key
+violations. Known dependency advisories are zero in the root audit; private
+validator audit and tests are recorded separately in its package proof.
+
+The final eight-spec browser regression passed **184 cases**, with two expected
+platform-specific skips and no failure, across desktop/mobile Chromium and
+iPhone WebKit. It covers retained monthly history, annual activity, protected
+email geometry and locale, identity, invitations, dashboard, mobile account and
+document recovery. Earlier browser evidence includes **129/129** cases
+across Chromium, mobile Chromium and iPhone WebKit for identity, usage history,
+protected email, invitations and dashboard behavior; **57/57** paid-PDF scenarios
+across the same projects; **3/3** real local administrator billing cases; and
+explicit desktop WebKit form geometry/focus checks. These runs overlap, precede
+later template/domain additions and must not be summed as one release total.
+
+Fresh native-arm64 Docker qualification passed the full pinned PDF corpus at
+`standard-1` limits (0.5 vCPU / 4 GiB / 8 GB), including twelve official reference
+checks and all six profiles of the synthetic 100-page near-limit PDF. Cold health
+was 16.345 seconds; large-profile checks took 13.191-13.922 seconds. Concurrency,
+deadline cleanup, six rejection cases, empty logs and zero remaining temporary
+files passed. The smaller `basic` tier timed out on the near-limit corpus; its
+failed proof is preserved outside the repository. This native local observation
+does not qualify Cloudflare amd64 hosting, cold starts or actual billing.
+
+Template insertion passed **3 unit cases** and the actual import, immediate-save,
+reload and generated-PDF workflow in Chromium and desktop Safari/WebKit. The
+original embedded PNG and edited geometry survive persistence; the generated PDF
+contains its original-size raster image. Invalid image input and correction of
+pending native numeric fields are covered. The later monthly-delivery wording
+change passed all **9** history cases across three browser projects. Typecheck,
+ESLint, documentation/reference checks, MCP annotation audit and dependency audit
+passed before final combined-head CI; these counts overlap earlier runs.
+
+Hosted run `40162534738` on `8ff662a` passed all four Vitest shards, build,
+checks, security, engineering, scanner, PDF-validator and distribution jobs;
+its separate native run passed tests and archive.
+The browsers exposed an obsolete navigation-order assertion after personal
+documents became a normal link. Mobile WebKit also clicked the report export
+before its compositor finished scrolling. The navigation assertion now checks
+the personal link separately, and export uses native keyboard activation plus
+an exact downloaded-JSON comparison. The previously failing export case passed
+all three local browser projects. Final combined-head CI is tracked on PR79;
+the earlier run is not an all-green release result.
+
+The later run `40166097337` on `93df302` passed all three application browser
+projects, including report exports. Preview exposed its obsolete ninth FAQ
+expectation; the current eight topics and individual price are now checked,
+with both affected preview files passing **22/22** desktop/iPhone cases. Its
+native run exposed a transient unresolved picker query after locale recomposition,
+while the recording showed the correct selected language and closed menu. The
+same state requirements now wait together for the picker to reappear, with a
+bounded 20-second budget and failure capture. **Three consecutive local native
+iterations passed**, without changing application code or conditional retries.
+
+A read-only production schema comparison at **2026-10-25T05:53:25Z** matched
+all **59 applied migrations and 415 application schema objects** to the clean
+main baseline, with no missing, additional or changed object. Both queries
+recorded zero writes and read no customer business data. Additive migration0060
+and the production release remain pending the separate activation gates.
+
+Generated results now expose the current authorized exact-byte document analysis
+through a shared pure projection. **121** targeted workflow/recovery/projection
+cases and **13** OpenAPI checks passed; the two added integration scenarios were
+also rechecked after the final fixture correction. The new bounded-analysis
+browser suite passed **21/21** across three projects, and the actual XML workflow
+plus held-response keyboard regression passed **6/6**. These distinguish the job
+counter from loaded ready results and preserve native disabled-control behavior
+without taking focus. The native tab helper's fresh semantic queries passed
+**6/6** local cases, including enlarged text and translated navigation. These
+overlapping local proofs do not replace final combined-head CI.
+
+A read-only private scanner observation at **2026-10-25T02:18:29Z** verified
+ClamAV **1.5.4**, signature database **28163** dated **2026-10-24T06:26:10Z**,
+matching deployed version/build identity and an age below the 48-hour policy.
+It scanned no customer document and is separate from PDF accessibility-engine
+qualification. The private PDF validator was absent in the Cloudflare account
+at the hosting inspection. Local source, synthetic browser tests and a connected
+scanner do not establish a deployed accessibility service, real purchase, Auth0
+subdomain login or communication delivery. Hosted qualification and exact-release
+proof remain release gates, recorded with the final source and provider versions.
+
 ## Candidate 1.0.0 — 23 October 2026
 
 The [candidate contract](V1_RELEASE_CANDIDATE.md) records implementation and

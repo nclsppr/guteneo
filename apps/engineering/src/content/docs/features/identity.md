@@ -20,14 +20,14 @@ Unified personal account and optional workspace implementation; migrations, alig
 <ol>
 <li id="feature-118253ca6bfe">Auth0 sign-in, verified accounts and explicit MFA policy</li>
 <li id="feature-5996e8b92f62">Canonical browser sign-in/callback; retired hosts and preview URLs refuse authentication</li>
-<li id="feature-0485df390661">Personal profile, interface language and saved Classic/V2 appearance</li>
+<li id="feature-3b417c25ebfb">Personal profile, interface language and saved Classic/V2 workspace layout; browser color preference is separate presentation state</li>
 <li id="feature-1b09fee94068">Session listing, revocation and explicit logout</li>
 <li id="feature-258bd6db5347">Successful logout returns to the public home before Login remounts; failures stay visible and never claim a logout</li>
 <li id="feature-0d705f70130f">Workshop switching with current membership rights</li>
 <li id="feature-e45c48c38807">OAuth connection binding, revocation and consented scopes</li>
 <li id="feature-0902d179dfda">Exact resource-metadata discovery issuer, including its trailing slash; official MCP SDK contract tests without external network</li>
 <li id="feature-550f7a5eac9d">Account deletion request; complete erasure processing remains unqualified</li>
-<li id="feature-f05c328497cd">Visible signed-in name, login email and current role on desktop/mobile</li>
+<li id="feature-6cd634a938cf">Visible signed-in name and login email on desktop/mobile; current role and permissions belong on My account</li>
 <li id="feature-a27bec3f16f6">Explicit Auth0 account switching without disabling ordinary SSO</li>
 <li id="feature-91f1d79cca79">Tab-focus reconciliation of identity, workshop and saved language</li>
 <li id="feature-1422d346be7e">One authenticated language control in the account; visitor choice stays separate</li>

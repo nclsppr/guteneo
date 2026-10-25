@@ -1,8 +1,8 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
 # Guteneo feature tree and developer atlas
 
-**23 domains · 269 features · 31 journeys · 73 documented REST operations · 72 MCP tools**
-Updated 2026-10-24.
+**23 domains · 289 features · 33 journeys · 75 documented REST operations · 72 MCP tools**
+Updated 2026-10-25.
 
 Repository implementation inventory. Availability depends on current capabilities and authority; implementation, activation and deployed proof are distinct.
 
@@ -18,30 +18,30 @@ mindmap
       Team and responsibilities (10)
     Create
       Documents and protection (8)
-      Template studio (12)
+      Template studio (14)
       Data and mappings (9)
-      PDF generation and distribution (10)
+      PDF generation and distribution (11)
     Deliver
       Fax (6)
       Postal mail (8)
       Email and protected links (7)
-      Sensitive distribution and personal documents (23)
+      Sensitive distribution and personal documents (25)
       Dispatch dry run (7)
     Operate
       Campaigns and tracking (8)
-      Credits and billing (6)
-      Workspace appearance (15)
-      Horizon PDF diagnostics (10)
+      Credits and billing (8)
+      Workspace layout and browser appearance (20)
+      PDF verification (10)
     Interfaces
       Assistants and API (20)
       iPhone and iPad (9)
-      Public pages and languages (14)
+      Public pages, languages and appearance (17)
     Operations
       Reviewer OAuth qualification (9)
       Operations and reliability (18)
-      Belvédère platform oversight (7)
-      Public service status (12)
-      Engineering documentation (10)
+      Belvédère platform oversight (8)
+      Public service status (15)
+      Engineering documentation (11)
 ```
 
 ### Access
@@ -52,38 +52,38 @@ mindmap
 ### Create
 
 - [Documents and protection](#documents) — 8 features; capability-gated.
-- [Template studio](#templates) — 12 features; capability-gated.
+- [Template studio](#templates) — 14 features; capability-gated.
 - [Data and mappings](#datasets) — 9 features; capability-gated.
-- [PDF generation and distribution](#generation) — 10 features; capability-gated.
+- [PDF generation and distribution](#generation) — 11 features; capability-gated.
 
 ### Deliver
 
 - [Fax](#fax) — 6 features; capability-gated.
 - [Postal mail](#postal) — 8 features; capability-gated.
 - [Email and protected links](#email) — 7 features; capability-gated.
-- [Sensitive distribution and personal documents](#secure-distribution) — 23 features; capability-gated.
+- [Sensitive distribution and personal documents](#secure-distribution) — 25 features; capability-gated.
 - [Dispatch dry run](#dry-run) — 7 features; read-only.
 
 ### Operate
 
 - [Campaigns and tracking](#campaigns) — 8 features; capability-gated.
-- [Credits and billing](#billing) — 6 features; partial.
-- [Workspace appearance](#dashboard) — 15 features; browser-session.
-- [Horizon PDF diagnostics](#horizon) — 10 features; capability-gated.
+- [Credits and billing](#billing) — 8 features; partial.
+- [Workspace layout and browser appearance](#dashboard) — 20 features; browser-session.
+- [PDF verification](#pdf-verification) — 10 features; capability-gated.
 
 ### Interfaces
 
 - [Assistants and API](#assistants) — 20 features; host-qualified.
 - [iPhone and iPad](#native) — 9 features; local-candidate.
-- [Public pages and languages](#public) — 14 features; public.
+- [Public pages, languages and appearance](#public) — 17 features; public.
 
 ### Operations
 
 - [Reviewer OAuth qualification](#reviewer-oauth) — 9 features; operator-gated.
 - [Operations and reliability](#operations) — 18 features; operator-gated.
-- [Belvédère platform oversight](#belvedere) — 7 features; operator-gated.
-- [Public service status](#status) — 12 features; public.
-- [Engineering documentation](#engineering-docs) — 10 features; public.
+- [Belvédère platform oversight](#belvedere) — 8 features; operator-gated.
+- [Public service status](#status) — 15 features; public.
+- [Engineering documentation](#engineering-docs) — 11 features; public.
 
 ## Availability and evidence
 
@@ -104,18 +104,19 @@ Four human workshop roles are defined by packages/contracts/src/roles.ts. The as
 | Cancel prepared/queued dispatch | Yes | Approval option | No | No | Current approval authority + scope; never retries an unknown submission |
 | Aggregate reports | Yes | Reporting option | No | No | Current role + scopes |
 | Manage workshop or members | Browser only | No | No | No | No |
-| Billing or Horizon subscription | Browser only, explicit recurring consent | No | No | No | No |
-| Run a Horizon diagnostic | Active plan + PDF access | Active plan + PDF access | Active plan + PDF access | No | Active plan + PDF access + documents:write |
-| Read/export Horizon history | Current PDF access | Current PDF access | Current PDF access | Current PDF access | Current PDF access + documents:read |
+| Manage billing | Current browser administrator | No | No | No | No |
+| Purchase a PDF verification | Current browser administrator + exact purchase + PDF access | No | No | No | No financial consent; history read only |
+| Read/export PDF verification history | Current PDF access | Current PDF access | Current PDF access | Current PDF access | Current PDF access + documents:read |
 | Edit a shared template | Resource edit right | Resource edit right | Resource edit right | No | Current member + template scope + resource right; AI also requires current transfer consent/revision |
 | Publish/archive a template | Resource publish right | Resource publish right | Resource publish right | No | Current member + templates:publish + resource right |
 | Manage template sharing | Resource share right | Resource share right | Resource share right | No | Current member + templates:share + resource right; revocation disclosed |
 | Remove a template | Owner | Owner | Owner | No | Owner + current role/scopes |
 | Cancel/retry a generation | Batch owner | Batch owner | Batch owner | No | Owner + generations:write; frozen batches cannot retry |
 | Read private generated PDFs | Creator/context access | Creator/context access | Creator/context access | Explicit current document access | Owner/context authority; no general private-library access |
-| Profile, language, own sessions and appearance | Own account in browser | Own account in browser | Own account in browser | Own account in browser | No browser account administration or appearance setter |
+| Profile, language, own sessions and Classic/V2 layout | Own account in browser | Own account in browser | Own account in browser | Own account in browser | No browser account administration or Classic/V2 setter |
 | Read responsible workshop contacts | Authenticated browser | Authenticated browser | Authenticated browser | Authenticated browser | No |
 | Read public pages/errors/status | Public; no privilege acquired | Public; no privilege acquired | Public; no privilege acquired | Public; no privilege acquired | Public read only; no extra tool/authority |
+| Choose system/light/dark browser appearance | Local browser presentation only | Local browser presentation only | Local browser presentation only | Local browser presentation only | No account preference setter, mandate or extra REST/MCP authority |
 | Configure Auth0/DNS/reviewer refresh | No authority from workshop role | No authority from workshop role | No authority from workshop role | No authority from workshop role | No business REST/MCP route; distinct authorised platform operator |
 | Open global Belvédère | No authority from workshop role | No authority from workshop role | No authority from workshop role | No authority from workshop role | No; distinct verified browser Watchkeeper |
 | Apply assistant content exclusions | No additional rights | No additional rights | No additional rights | No additional rights | Announce exclusions, stop known excluded content, request person-redacted copy; no automatic classification or web bypass |
@@ -129,6 +130,7 @@ Four human workshop roles are defined by packages/contracts/src/roles.ts. The as
 | Read/export/delete another person’s personal copy | No, including workspace administrator | No | No | No | No |
 | Keep or export one’s own received document | Personal principal + document policy + share permission | Personal principal + document policy + share permission | Personal principal + document policy + share permission | Personal principal + document policy + share permission | No; personal operation outside workspace OAuth |
 | Read public browser reports | Public access without workspace privilege | Public access without workspace privilege | Public access without workspace privilege | Public access without workspace privilege | Public read only; no ingestion or business authority |
+| Read monthly and daily consumption history | Yes | Reporting option | No | No | Current reporting rights + tenant-scoped REST read; no new MCP billing tool |
 
 Supervisor approval/reporting options are independent and off by default. Resource ownership/context checks still apply. See [workspace roles](WORKSPACE_ROLES.md), [expert approval](EXPERT_APPROVAL.md) and [studio access](TEMPLATES_DATA_DISTRIBUTION.md).
 
@@ -143,14 +145,14 @@ Supervisor approval/reporting options are independent and off by default. Resour
 
 - Auth0 sign-in, verified accounts and explicit MFA policy
 - Canonical browser sign-in/callback; retired hosts and preview URLs refuse authentication
-- Personal profile, interface language and saved Classic/V2 appearance
+- Personal profile, interface language and saved Classic/V2 workspace layout; browser color preference is separate presentation state
 - Session listing, revocation and explicit logout
 - Successful logout returns to the public home before Login remounts; failures stay visible and never claim a logout
 - Workshop switching with current membership rights
 - OAuth connection binding, revocation and consented scopes
 - Exact resource-metadata discovery issuer, including its trailing slash; official MCP SDK contract tests without external network
 - Account deletion request; complete erasure processing remains unqualified
-- Visible signed-in name, login email and current role on desktop/mobile
+- Visible signed-in name and login email on desktop/mobile; current role and permissions belong on My account
 - Explicit Auth0 account switching without disabling ordinary SSO
 - Tab-focus reconciliation of identity, workshop and saved language
 - One authenticated language control in the account; visitor choice stays separate
@@ -175,7 +177,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 
 **Contract:** [ACCOUNT_IDENTITY.md](ACCOUNT_IDENTITY.md) · **Implementation:** [apps/api/src/auth.ts](../apps/api/src/auth.ts)
 
-**Tests:** [tests/unit/auth.test.ts](../tests/unit/auth.test.ts), [tests/unit/account.test.ts](../tests/unit/account.test.ts), [tests/e2e/account-identity.spec.ts](../tests/e2e/account-identity.spec.ts), [tests/e2e/resource-navigation.spec.ts](../tests/e2e/resource-navigation.spec.ts), [tests/unit/web-api-cancellation.test.ts](../tests/unit/web-api-cancellation.test.ts), [tests/e2e/login-entry.spec.ts](../tests/e2e/login-entry.spec.ts), [tests/security/auth0-branding.test.mjs](../tests/security/auth0-branding.test.mjs), [tests/e2e/horizon-pdf.spec.ts](../tests/e2e/horizon-pdf.spec.ts), [tests/e2e/dashboard.spec.ts](../tests/e2e/dashboard.spec.ts), [tests/e2e/locale-boundaries.spec.ts](../tests/e2e/locale-boundaries.spec.ts), [tests/unit/personal-auth.test.ts](../tests/unit/personal-auth.test.ts), [tests/unit/document-invitation.test.ts](../tests/unit/document-invitation.test.ts), [tests/distribution-e2e/personal-account.e2e.ts](../tests/distribution-e2e/personal-account.e2e.ts)
+**Tests:** [tests/unit/auth.test.ts](../tests/unit/auth.test.ts), [tests/unit/account.test.ts](../tests/unit/account.test.ts), [tests/e2e/account-identity.spec.ts](../tests/e2e/account-identity.spec.ts), [tests/e2e/resource-navigation.spec.ts](../tests/e2e/resource-navigation.spec.ts), [tests/unit/web-api-cancellation.test.ts](../tests/unit/web-api-cancellation.test.ts), [tests/e2e/login-entry.spec.ts](../tests/e2e/login-entry.spec.ts), [tests/security/auth0-branding.test.mjs](../tests/security/auth0-branding.test.mjs), [tests/e2e/pdf-validation.spec.ts](../tests/e2e/pdf-validation.spec.ts), [tests/e2e/dashboard.spec.ts](../tests/e2e/dashboard.spec.ts), [tests/e2e/locale-boundaries.spec.ts](../tests/e2e/locale-boundaries.spec.ts), [tests/unit/personal-auth.test.ts](../tests/unit/personal-auth.test.ts), [tests/unit/document-invitation.test.ts](../tests/unit/document-invitation.test.ts), [tests/distribution-e2e/personal-account.e2e.ts](../tests/distribution-e2e/personal-account.e2e.ts)
 
 
 
@@ -253,6 +255,8 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Private copy or blank creation with the REST/MCP authoring guide
 - Word DOCX content import with explicit layout warnings
 - Designer variables, tables, columns, logos, formats and conditions
+- Visible local PNG/JPEG image import above the visual editor; selected-page insertion preserves original bytes, aspect ratio, unique names and business bindings
+- Save, publish and studio navigation wait for committed native property edits; invalid numeric fields and reverting values recover without saving stale geometry
 - Business schema, sample data, calculations and totals
 - Review AI proposals before explicit application
 - Exact PDF preview, immutable versions, publication, duplication and archival
@@ -263,7 +267,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 
 **Contract:** [TEMPLATES_DATA_DISTRIBUTION.md](TEMPLATES_DATA_DISTRIBUTION.md) · **Implementation:** [apps/api/src/template-workflow.ts](../apps/api/src/template-workflow.ts)
 
-**Tests:** [tests/unit/template-authoring.test.ts](../tests/unit/template-authoring.test.ts), [tests/unit/mcp-integrations.test.ts](../tests/unit/mcp-integrations.test.ts), [tests/integration/template-workflow.test.ts](../tests/integration/template-workflow.test.ts)
+**Tests:** [tests/unit/template-authoring.test.ts](../tests/unit/template-authoring.test.ts), [tests/unit/mcp-integrations.test.ts](../tests/unit/mcp-integrations.test.ts), [tests/integration/template-workflow.test.ts](../tests/integration/template-workflow.test.ts), [tests/unit/templates-images.test.ts](../tests/unit/templates-images.test.ts), [tests/e2e/template-images.spec.ts](../tests/e2e/template-images.spec.ts)
 
 **Documented REST operations**
 
@@ -364,6 +368,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Single PDF from a business form
 - PDF batch from a validated mapping
 - Progress, per-record results and source-cell provenance
+- Exact authorized generated-document analysis state distinguishes processing, retryable and blocked results; bounded visible refresh follows pending scans after generation completes without changing readiness, stealing focus or retrying analysis
 - Generation cancellation and retry of failed records only
 - PDF selection and separate distribution-plan preparation
 - The first plan permanently freezes the full batch, including excluded failed records; prepare_distribution declares destructiveHint true
@@ -374,7 +379,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 
 **Contract:** [TEMPLATES_DATA_DISTRIBUTION.md](TEMPLATES_DATA_DISTRIBUTION.md) · **Implementation:** [apps/api/src/template-workflow-routes.ts](../apps/api/src/template-workflow-routes.ts)
 
-**Tests:** [tests/e2e/template-distribution.spec.ts](../tests/e2e/template-distribution.spec.ts), [tests/integration/template-workflow.test.ts](../tests/integration/template-workflow.test.ts), [tests/unit/mcp-annotation-audit.test.ts](../tests/unit/mcp-annotation-audit.test.ts), [tests/unit/mcp-integrations.test.ts](../tests/unit/mcp-integrations.test.ts)
+**Tests:** [tests/e2e/template-distribution.spec.ts](../tests/e2e/template-distribution.spec.ts), [tests/integration/template-workflow.test.ts](../tests/integration/template-workflow.test.ts), [tests/unit/document-analysis-projection.test.ts](../tests/unit/document-analysis-projection.test.ts), [tests/e2e/generation-analysis.spec.ts](../tests/e2e/generation-analysis.spec.ts), [tests/e2e/template-xml-multichannel.spec.ts](../tests/e2e/template-xml-multichannel.spec.ts), [tests/unit/mcp-annotation-audit.test.ts](../tests/unit/mcp-annotation-audit.test.ts), [tests/unit/mcp-integrations.test.ts](../tests/unit/mcp-integrations.test.ts)
 
 **Documented REST operations**
 
@@ -522,10 +527,12 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Workspace preparation explicitly paginates PDF sources and explains that an authorized personal copy can be exported even when the shared original cannot
 - Association attestation binds the displayed account, address and request; changing the candidate requires new independent verification
 - Personal-list 401/403 clears loaded metadata and cursors; stale pagination responses cannot restore an old list after refresh
+- Direct personal routes start their own small shell and authenticated personal session before the document list without waiting for workshop bootstrap; old workshop reads are aborted and fenced from applying identity/language after navigation, and return rereads current workshop authority
+- Personal focus/visibility session reconciliation is bounded and cleaned up; changed identity remounts document state, obsolete results are ignored and list retry does not reload a still-valid session; recipient/document-policy/server authorization remains unchanged
 
 **Contract:** [SECURE_DISTRIBUTION_JOURNEYS.md](SECURE_DISTRIBUTION_JOURNEYS.md) · **Implementation:** [apps/api/src/secure-distributions.ts](../apps/api/src/secure-distributions.ts)
 
-**Tests:** [tests/unit/personal-auth.test.ts](../tests/unit/personal-auth.test.ts), [tests/unit/document-invitation.test.ts](../tests/unit/document-invitation.test.ts), [tests/unit/mcp-secure-distribution.test.ts](../tests/unit/mcp-secure-distribution.test.ts), [tests/integration/secure-approval-boundary.test.ts](../tests/integration/secure-approval-boundary.test.ts), [tests/distribution-e2e/personal-account.e2e.ts](../tests/distribution-e2e/personal-account.e2e.ts), [tests/distribution-e2e/distribution-pricing.e2e.ts](../tests/distribution-e2e/distribution-pricing.e2e.ts), [tests/distribution-e2e/distribution-lifecycle.e2e.ts](../tests/distribution-e2e/distribution-lifecycle.e2e.ts), [tests/e2e/assistant-hub.spec.ts](../tests/e2e/assistant-hub.spec.ts), [tests/unit/secure-distribution-web.test.ts](../tests/unit/secure-distribution-web.test.ts), [tests/distribution-verified-e2e/lifecycle.e2e.ts](../tests/distribution-verified-e2e/lifecycle.e2e.ts)
+**Tests:** [tests/unit/personal-auth.test.ts](../tests/unit/personal-auth.test.ts), [tests/unit/document-invitation.test.ts](../tests/unit/document-invitation.test.ts), [tests/unit/mcp-secure-distribution.test.ts](../tests/unit/mcp-secure-distribution.test.ts), [tests/integration/secure-approval-boundary.test.ts](../tests/integration/secure-approval-boundary.test.ts), [tests/distribution-e2e/personal-account.e2e.ts](../tests/distribution-e2e/personal-account.e2e.ts), [tests/distribution-e2e/distribution-pricing.e2e.ts](../tests/distribution-e2e/distribution-pricing.e2e.ts), [tests/distribution-e2e/distribution-lifecycle.e2e.ts](../tests/distribution-e2e/distribution-lifecycle.e2e.ts), [tests/e2e/assistant-hub.spec.ts](../tests/e2e/assistant-hub.spec.ts), [tests/unit/secure-distribution-web.test.ts](../tests/unit/secure-distribution-web.test.ts), [tests/distribution-verified-e2e/lifecycle.e2e.ts](../tests/distribution-verified-e2e/lifecycle.e2e.ts), [tests/e2e/personal-document-performance.spec.ts](../tests/e2e/personal-document-performance.spec.ts)
 
 **Documented REST operations**
 
@@ -616,7 +623,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 <a id="billing"></a>
 ### Credits and billing
 
-**Availability model:** partial. Credits and ledger implemented; commercial top-up remains unqualified.
+**Availability model:** partial. Credits, ledger and selectable consumption history implemented; commercial top-up and this candidate publication remain unqualified.
 
 **Surfaces:** Browser administration; shared backend ledger. No assistant billing administration.
 
@@ -626,14 +633,17 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Provider settlement and retained reserves for unknown outcomes
 - Administrator credit/billing inspection
 - Prepared Stripe integration with separate commercial qualification
+- Read-only tenant-scoped monthly consumption history; current/latest/explicit UTC month selection preserves previous usage and simulation boundaries
+- GitHub-style annual daily activity grid from exact UTC posted debits, selectable years/day detail, keyboard navigation and contained phone scrolling; reservations and simulation remain distinct
 
 **Contract:** [WELCOME_CREDIT.md](WELCOME_CREDIT.md) · **Implementation:** [apps/api/src/billing.ts](../apps/api/src/billing.ts)
 
-**Tests:** [tests/unit/billing.test.ts](../tests/unit/billing.test.ts)
+**Tests:** [tests/unit/billing.test.ts](../tests/unit/billing.test.ts), [tests/integration/welcome-credit.test.ts](../tests/integration/welcome-credit.test.ts), [tests/e2e/usage-history.spec.ts](../tests/e2e/usage-history.spec.ts), [tests/e2e/usage-activity.spec.ts](../tests/e2e/usage-activity.spec.ts), [tests/integration/live-delivery-quotes.test.ts](../tests/integration/live-delivery-quotes.test.ts), [tests/integration/protected-documents.test.ts](../tests/integration/protected-documents.test.ts), [tests/unit/pdf-validation-pricing.test.ts](../tests/unit/pdf-validation-pricing.test.ts), [tests/unit/secure-distribution-core.test.ts](../tests/unit/secure-distribution-core.test.ts), [tests/unit/auth.test.ts](../tests/unit/auth.test.ts)
 
 **Documented REST operations**
 
 - `GET /api/usage`
+- `GET /api/usage/activity`
 
 
 
@@ -725,86 +735,95 @@ Supervisor approval/reporting options are independent and off by default. Resour
 
 
 <a id="public"></a>
-### Public pages and languages
+### Public pages, languages and appearance
 
-**Availability model:** public. Public UI/localised content implemented; current candidate changes are local until released.
+**Availability model:** public. The 25 October public hierarchy, four detail routes, shared footer, four-language static generation and appearance are local candidates. Dated preview evidence, exact-source CI, publication, indexing and provider/financial qualification remain separate.
 
 **Surfaces:** Public browser/static documents and four-language frontend/video catalogues; preview has no business bindings.
 
-- Product presentation, feature/role explanations and assistant guides
+- Concise homepage introduces document preparation, explicit review and channel choice; durable How it works, Getting started, Pricing and PDF checks routes retain the full existing offer, examples, guides and conditions
 - Four-language assistant hub and manual installation guides; OAuth, workflows and publication have separate qualification
 - Package download and version/SHA-256 manifest; compare published and local candidate versions; download grants no consent
 - Journal, articles, legal notices and privacy
 - French, English, German and Luxembourgish frontend/video localisation
 - Separate saved personal preference and anonymous visitor choice
 - Twelve localised films, posters, captions and actual durations
-- Static pages, canonical URLs, sitemap and language alternatives
+- Every registered main-site public route has generic and French/English/German/Luxembourgish initial HTML, canonical metadata, language alternatives and sitemap entries from one route registry; internal/private paths stay excluded
 - Fictional public preview isolated from the backend
 - Multilingual social cards and reader sharing controls
 - Public error documents retain real HTTP status with 17 dedicated four-language messages and 4xx/5xx fallback; only eligible public failures, no status-selector/demo endpoint
-- Original responsive navigation/access/service artwork, retained masters/provenance and accessible text independent of bitmap
-- Shared public header/footer/legal navigation; the mobile menu closes on an unhandled Escape after pointer or keyboard opening and restores trigger focus; English canonical paths and anchors with explicit legacy path and public-hash aliases
+- The homepage restores the existing four-language Ideas travel closing invitation, first-dispatch installation link and large stamp/postmark above its exclusive panorama with three original birds. The identical common PublicFooter remains on every public React route, including home, with its compact stamp/postmark, two original decorative swallows, fifteen links and colophon; no decoration enters the logged-in application
+- Shared public navigation uses one 1440 px maximum outer frame with matching responsive header/main/footer gutters and narrower readable prose inside. The four-group/fifteen-link catalog supplies canonical four-language links for React, status and public HTTP errors; keyboard/Escape/focus behavior and explicit language across origins remain
 - English source copy with context-aware translations; shared app primitives and one authoritative documentation/feature tree
+- Six legacy homepage fragments keep meaningful destinations, focus and next links; Support retains all eight FAQ answers including postal-processing and PDF limitations
+- Public details load as a lazy route chunk preloaded before hydration; delayed or failed loading preserves complete initial HTML, and the fictional diagram/example creates no business request or approval
+- The public header exposes only a localized light/dark action icon at every viewport, defaults to the operating system and supports activation before React through the head bootstrap. Shared origin preference and fixed royal-blue chrome remain; standalone HTML reads only a bounded host-only nonsecret enum cookie with script-free system fallback. Native theme-media and ArticlePicture select original transparent dark portrait and responsive RGBA art. White paper stays inside each asset’s actual inner blue frame with transparent exterior/perforations, without a universal inset rule or outer white contour; original light art and opaque stamp remain unchanged
 
 **Contract:** [MULTILINGUAL.md](MULTILINGUAL.md) · **Implementation:** [packages/contracts/src/public-site.json](../packages/contracts/src/public-site.json)
 
-**Tests:** [tests/e2e/locale-boundaries.spec.ts](../tests/e2e/locale-boundaries.spec.ts), [tests/preview-e2e/language-navigation.spec.ts](../tests/preview-e2e/language-navigation.spec.ts), [tests/preview-e2e/assistant-hub.spec.ts](../tests/preview-e2e/assistant-hub.spec.ts), [tests/preview-e2e/public-menu-escape.spec.ts](../tests/preview-e2e/public-menu-escape.spec.ts), [tests/unit/public-assets.test.ts](../tests/unit/public-assets.test.ts), [tests/security/public-assets.test.mjs](../tests/security/public-assets.test.mjs), [tests/unit/public-http-error.test.ts](../tests/unit/public-http-error.test.ts)
+**Tests:** [tests/e2e/locale-boundaries.spec.ts](../tests/e2e/locale-boundaries.spec.ts), [tests/preview-e2e/language-navigation.spec.ts](../tests/preview-e2e/language-navigation.spec.ts), [tests/preview-e2e/assistant-hub.spec.ts](../tests/preview-e2e/assistant-hub.spec.ts), [tests/preview-e2e/public-menu-escape.spec.ts](../tests/preview-e2e/public-menu-escape.spec.ts), [tests/unit/public-assets.test.ts](../tests/unit/public-assets.test.ts), [tests/security/public-assets.test.mjs](../tests/security/public-assets.test.mjs), [tests/unit/public-http-error.test.ts](../tests/unit/public-http-error.test.ts), [tests/preview-e2e/homepage.spec.ts](../tests/preview-e2e/homepage.spec.ts), [tests/preview-e2e/homepage-film.spec.ts](../tests/preview-e2e/homepage-film.spec.ts), [tests/preview-e2e/seo.spec.ts](../tests/preview-e2e/seo.spec.ts), [tests/preview-e2e/theme.spec.ts](../tests/preview-e2e/theme.spec.ts), [tests/unit/standalone-theme.test.ts](../tests/unit/standalone-theme.test.ts), [tests/preview-e2e/public-artwork.spec.ts](../tests/preview-e2e/public-artwork.spec.ts)
 
 
 
 <a id="dashboard"></a>
-### Workspace appearance
+### Workspace layout and browser appearance
 
-**Availability model:** browser-session. Implemented Classic/V2 personal appearance without new business authority.
+**Availability model:** browser-session. Classic/V2 account layout authority is unchanged. The 25 October theme integration and removal of decorative panels are local presentation candidates; no new business authority or publication is implied.
 
 **Surfaces:** Authenticated web Classic/V2; native reads preference without a setter; no new business API/MCP authority.
 
 - Full real-web Classic/V2 views with the same account, tenant, resources and operations
-- Account at navigation bottom, appearance beside language, applied after a successful profile save; mobile identity/role remain visible with the menu closed
+- Account at navigation bottom, saved Classic/V2 layout beside language, applied after a successful profile save; mobile identity remains visible with the menu closed; role and detailed permissions live on My account
 - Personal users.preferred_dashboard_appearance, migration 0053, classic default and cross-workshop/session/device reconciliation
 - Strict browser account PATCH with current authority, Origin/CSRF and field-name audit; every role changes only its own preference
 - Temporary appearance=v2/classic override accepts legacy atelier URLs, never persists server-side and clears after explicit appearance save or identity change; local cache is non-authoritative
 - Existing activity/alerts precede introduction, otherwise a complete welcome; content preview precedes approval in reading/tab order
 - Stable PDF review frame across loading/render/error, keyboard-accessible internal scrolling and unchanged consent/data authority
-- Consistent documents, preparation, review, tracking, assistants, account, studio, Horizon, credits, tables and forms; Belvédère remains a distinct platform surface
+- Consistent documents, preparation, review, tracking, assistants, account, studio, PDF verification, credits, tables and forms; Belvédère remains a distinct platform surface
 - One brand signature, workshop in navigation and no redundant V2 footer; service status near account and browser timezone near dates
 - One page title, contextual detail back link and task-specific primary action; global New dispatch stays secondary and permission-aware
 - Generation introduction focuses on finding PDFs and makes clear that generation sends nothing
-- Official portrait/wordmark, approved engravings and blue swallows used sparingly on home, empty documents and assistants
+- Official identity and real documents, metrics and controls remain; decorative DashboardArtwork panels and swallow styling are retired from overview, empty Documents and assistant introduction, without replacement illustrations
 - Four-language labels; simulation notices only for simulated sessions
 - Same four roles, supervisor options, private access and consents; no new mandate, channel or business API/MCP tool
 - Native account/session reads include appearance without a setter; existing name/language browser PATCH and native language PATCH remain compatible
+- Compact My documents navigation link with personal-space context, without an oversized separate card or repeated role panel
+- Shared native file input with four-language authored chooser/empty text and literal filenames, keyboard validation and exact-byte upload semantics
+- Desktop Safari select height and protected-link hint spacing; visible keyboard focus, selection and forced-colors states remain readable in both palettes
+- Immediate browser system/light/dark preference is independent of saved Classic/V2 layout, account language and role; document/PDF/email content retains original light-paper appearance and bytes
+- Template-designer controls adopt the resolved shared palette in place while original template content, output geometry, bindings and PDF bytes retain their document contract
 
 **Contract:** [DASHBOARD_V2.md](DASHBOARD_V2.md) · **Implementation:** [apps/web/src/account-page.tsx](../apps/web/src/account-page.tsx)
 
-**Tests:** [tests/unit/account.test.ts](../tests/unit/account.test.ts), [tests/integration/mobile.test.ts](../tests/integration/mobile.test.ts), [tests/unit/dashboard-appearance.test.ts](../tests/unit/dashboard-appearance.test.ts), [tests/preview-e2e/dashboard-v2.spec.ts](../tests/preview-e2e/dashboard-v2.spec.ts), [tests/e2e/dashboard-v2.spec.ts](../tests/e2e/dashboard-v2.spec.ts), [tests/e2e/protected-email.spec.ts](../tests/e2e/protected-email.spec.ts)
+**Tests:** [tests/unit/account.test.ts](../tests/unit/account.test.ts), [tests/integration/mobile.test.ts](../tests/integration/mobile.test.ts), [tests/unit/dashboard-appearance.test.ts](../tests/unit/dashboard-appearance.test.ts), [tests/preview-e2e/dashboard-v2.spec.ts](../tests/preview-e2e/dashboard-v2.spec.ts), [tests/e2e/dashboard-v2.spec.ts](../tests/e2e/dashboard-v2.spec.ts), [tests/e2e/protected-email.spec.ts](../tests/e2e/protected-email.spec.ts), [tests/e2e/account-identity.spec.ts](../tests/e2e/account-identity.spec.ts), [tests/e2e/team-invitations.spec.ts](../tests/e2e/team-invitations.spec.ts), [tests/e2e/template-images.spec.ts](../tests/e2e/template-images.spec.ts), [tests/preview-e2e/theme.spec.ts](../tests/preview-e2e/theme.spec.ts)
 
 
 
-<a id="horizon"></a>
-### Horizon PDF diagnostics
+<a id="pdf-verification"></a>
+### PDF verification
 
-**Availability model:** capability-gated. Implemented diagnostics/subscription contracts; runtime capability, private validator and scanner gates apply.
+**Availability model:** capability-gated. Individual purchase candidate; no new subscription or recurring renewal. Runtime capability, private validator, scanner and final release qualification remain separate.
 
-**Surfaces:** Web, REST and MCP diagnostics; browser administrator alone manages recurring subscription.
+**Surfaces:** Web browser administrator purchases; REST and MCP retain current document-scoped history reads and cannot create assistant financial consent.
 
-- EUR30 monthly subscription from available credits, including remaining welcome credits for the first period; private /app/plan entry
-- Immutable recurring consent by a browser administrator
-- Cancellation, renewal and suspension without debt; top-up remains unavailable
-- 100 attempts per calendar month under atomic quota
+- Individual exact-PDF/profile purchase from available account credits; current integer EUR price and excluding-tax terms come from the authenticated pricing endpoint
+- Current browser administrator alone accepts the immutable purchase; assistants, native callers and other members cannot create financial consent
+- Atomic reservation and one settled charge for a complete valid report; engine failure releases the reservation without a settled debit
+- New subscriptions and automatic recurring renewals are retired; immutable legacy actions and charges are retained, and posted charge history remains visible under current reporting authority
 - Pinned private veraPDF for PDF/UA-1/-2 and PDF/A-1b/2b/3b/4, with official positive/negative corpus and separate offline/hosted qualification
-- Exact-byte reports, history and JSON export
-- Web/MCP diagnostics with required human review; same-key recovery for uncertain network responses and new-key independent checks
-- Public/server availability share HORIZON_ENABLED, private validator and production scanner gates; activation after hosted qualification, never legal certification
+- Exact-byte reports, history and JSON export under current PDF access, independent of a monthly entitlement
+- Required human review; a valid report with failed conformance checks is billable, while operational failure is not a conformity verdict
+- One explicit activation flag, private validator and production scanner gates; activation after hosted qualification, never legal certification
 - PDF-accessibility exclusions apply to originals and existing reports; person-redacted recovery without web bypass
-- Home → signed-in workspace → home preserves private capability reads and performs one fresh public read after failure, without writes or stale availability inference
+- Same-key recovery for uncertain network responses does not purchase or execute twice; a new independent check requires a new explicit purchase
 
 **Contract:** [PDF_ACCESSIBILITY.md](PDF_ACCESSIBILITY.md) · **Implementation:** [apps/api/src/pdf-validation.ts](../apps/api/src/pdf-validation.ts)
 
-**Tests:** [tests/unit/monthly-plan.test.ts](../tests/unit/monthly-plan.test.ts), [tests/e2e/horizon-pdf.spec.ts](../tests/e2e/horizon-pdf.spec.ts), [tests/unit/pdf-validation.test.ts](../tests/unit/pdf-validation.test.ts), [tests/preview-e2e/geo.spec.ts](../tests/preview-e2e/geo.spec.ts), [tests/preview-e2e/seo.spec.ts](../tests/preview-e2e/seo.spec.ts), [tests/unit/live-capabilities.test.ts](../tests/unit/live-capabilities.test.ts), [apps/pdf-validator/tests/qualification.test.mjs](../apps/pdf-validator/tests/qualification.test.mjs), [apps/pdf-validator/tests/container-lifecycle.test.mjs](../apps/pdf-validator/tests/container-lifecycle.test.mjs), [apps/pdf-validator/tests/worker.test.mjs](../apps/pdf-validator/tests/worker.test.mjs), [apps/pdf-validator/tests/test_server.py](../apps/pdf-validator/tests/test_server.py), [tests/unit/mcp-integrations.test.ts](../tests/unit/mcp-integrations.test.ts)
+**Tests:** [tests/unit/pdf-validation-pricing.test.ts](../tests/unit/pdf-validation-pricing.test.ts), [tests/e2e/pdf-validation.spec.ts](../tests/e2e/pdf-validation.spec.ts), [tests/unit/pdf-validation.test.ts](../tests/unit/pdf-validation.test.ts), [tests/preview-e2e/geo.spec.ts](../tests/preview-e2e/geo.spec.ts), [tests/preview-e2e/seo.spec.ts](../tests/preview-e2e/seo.spec.ts), [tests/unit/live-capabilities.test.ts](../tests/unit/live-capabilities.test.ts), [apps/pdf-validator/tests/qualification.test.mjs](../apps/pdf-validator/tests/qualification.test.mjs), [apps/pdf-validator/tests/container-lifecycle.test.mjs](../apps/pdf-validator/tests/container-lifecycle.test.mjs), [apps/pdf-validator/tests/worker.test.mjs](../apps/pdf-validator/tests/worker.test.mjs), [apps/pdf-validator/tests/test_server.py](../apps/pdf-validator/tests/test_server.py), [tests/unit/mcp-integrations.test.ts](../tests/unit/mcp-integrations.test.ts)
 
 **Documented REST operations**
 
+- `GET /api/pdf-validation/pricing`
 - `GET /api/documents/{id}/validation`
 - `POST /api/documents/{id}/validation`
 
@@ -825,7 +844,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Private read-only Telnyx operator inspection reports bounded callback status/canonical-match booleans without raw URLs or credential extraction; fresh provider state requires separate proof
 - Reconciliation, bounded recovery and dead-letter queues
 - Ordered D1 migrations, integrity and restore bookmark
-- Private scanner, renderer and validator releases from clean main; loopback qualification bridge with temporary secret, Origin refusal and no secret transfer; validator operators check Horizon closed on canonical guteneo.com only
+- Private scanner, renderer and validator releases from clean main; loopback qualification bridge with temporary secret, Origin refusal and no secret transfer; deployment wrapper and hosted runner share strict production pdfValidation.available=false on canonical guteneo.com before container qualification
 - Backend/security/browser suites and exhaustive CI; basic validator max 1, 5-second idle, qualified JVM corpus to 100 pages/9.887 MiB; measured local CPU savings do not prove hosted cost
 - Release from clean, synchronized, verified main
 - Release manifests contain canonical public assets with exact byte hashes; shared application/preview redirects preserve old page/download links without duplicate alias files; unexpected redirects fail served verification; retired workers.dev/preview closure has separate evidence
@@ -857,42 +876,46 @@ Supervisor approval/reporting options are independent and off by default. Resour
 **Surfaces:** Private verified Watchkeeper browser only; no workshop/native/OAuth/MCP authority.
 
 - Private read-only Watchkeeper authority bound to verified browser identity and server-secret address, separate from workshop roles
+- Dedicated protected platform host at its root with exact Auth0 callback, host-only browser cookies and no customer API/signup/OAuth authority; compatible private entry retained and denied-identity recovery requests an explicit fresh login
 - Seven views: overview, workshops, members, dispatches, connections, finances and infrastructure
 - Optional country observations with bounded deduplication, new sessions after workshop changes and 90-day retention
-- Distinct promotional credits, dispatch/hosting/Horizon usage, actual receipts and supplier costs
+- Distinct promotional credits, dispatch/hosting/individual PDF purchases and legacy subscription charges, actual receipts and supplier costs
 - Server-side Cloudflare connectors with explicit availability; never invent cost or profit
 - Additive migration 0052 and deterministic loopback-only preview; hosted activation is separate
 - Account-selected four-language UI on direct entry and tab focus; no additional private language selector
 
 **Contract:** [BELVEDERE.md](BELVEDERE.md) · **Implementation:** [apps/api/src/belvedere.ts](../apps/api/src/belvedere.ts)
 
-**Tests:** [tests/unit/belvedere.test.ts](../tests/unit/belvedere.test.ts), [tests/unit/auth-telemetry.test.ts](../tests/unit/auth-telemetry.test.ts), [tests/belvedere-e2e/control-tower.spec.ts](../tests/belvedere-e2e/control-tower.spec.ts), [tests/unit/belvedere-finance.test.ts](../tests/unit/belvedere-finance.test.ts), [tests/belvedere-e2e/locale.spec.ts](../tests/belvedere-e2e/locale.spec.ts), [tests/unit/belvedere-locale.test.ts](../tests/unit/belvedere-locale.test.ts)
+**Tests:** [tests/unit/belvedere.test.ts](../tests/unit/belvedere.test.ts), [tests/unit/belvedere-host.test.ts](../tests/unit/belvedere-host.test.ts), [tests/unit/auth-telemetry.test.ts](../tests/unit/auth-telemetry.test.ts), [tests/belvedere-e2e/control-tower.spec.ts](../tests/belvedere-e2e/control-tower.spec.ts), [tests/unit/belvedere-finance.test.ts](../tests/unit/belvedere-finance.test.ts), [tests/belvedere-e2e/locale.spec.ts](../tests/belvedere-e2e/locale.spec.ts), [tests/unit/belvedere-locale.test.ts](../tests/unit/belvedere-locale.test.ts)
 
 
 
 <a id="status"></a>
 ### Public service status
 
-**Availability model:** public. Public availability, local coverage and version-bound browser reports are separate. Historical deployments and synthetic UI passes do not establish current hosted ingestion or authenticated business qualification.
+**Availability model:** public. The 25 October customer UI is an undeployed candidate with local browser, locale, backend and release-safety checks. Existing public observations and local replay remain separate from candidate publication, exact served-byte proof, browser-report ingestion and authenticated business qualification.
 
-**Surfaces:** Independent public page and read-only GET /api/status, /api/history and /api/e2e-status; bounded GitHub OIDC report ingestion is independent of workspace membership and business REST/MCP authority.
+**Surfaces:** Customer-only public browser page and existing read-only GET /api/status, /api/history and /api/e2e-status; the customer UI reads only availability/history. Bounded GitHub OIDC report ingestion remains separate from workspace membership, business REST/MCP authority and native capabilities.
 
 - Independent status.guteneo.com service with fourteen bounded anonymous canonical checks every fifteen minutes and no business bindings/secrets
-- D1 7/30/365-day history separates observed success and slot coverage; daily aggregates, unknown missing days and no reconstructed past
-- Public summary covers only recent checks; mismatches stay visible and missing/invalid/unavailable/stale (>30 minutes) measurements make current state unknown; public reads never collect probes
-- Service view shows freshness/groups/history; Checks separates detailed observations, local proof and journey coverage; Operations states limits/actions, without customer data or command IDs
-- Local qualification separately tests the real domain/PDFs with external network denied and final providers simulated; timestamped redacted evidence never becomes delivery proof or a production incident
-- Branded footer and bounded seasonal decoration, optional and respecting reduced motion
-- English authored status copy with English/French browser selection and a shared locale catalog; historical French feature labels remain accepted alongside canonical English reports
-- Dedicated release from clean main with source checks, manifest and status-only D1 migrations
+- Actual 7/30/365-day history defaults to thirty days, separates received success from expected-slot coverage and renders unknown/precollection days without reconstruction; annual calendar-month aggregates retain all 365 daily rows and explicit partial-data counts
+- Only complete fresh and internally consistent public observations show availability; actual failed checks identify their group, while missing, invalid, unreadable, future, stale or contradictory evidence makes current availability unknown and removes earlier green badges
+- Customer-only public interface presents observation time, Public website, Service response, Access protection and accessible history; technical probe, provider/engine qualification, local-proof, GitHub-report and Operations tabs are removed without changing backend evidence or business activation
+- Local qualification still tests production-mode domain/PDF paths with external network denied and final providers simulated; source-bound inclusion and release verification remain intact even though the customer UI no longer fetches or displays the dated report
+- System/light/dark appearance uses origin-scoped guteneo.theme, shared preference/resolved datasets and theme-change/storage events, with CSS system fallback when scripts are disabled; status writes no cookie or account preference, retains royal-blue browser chrome and supports contrast, forced colors and reduced motion; seasonal presentation is removed
+- English source catalog provides complete French, English, German and Luxembourgish static/dynamic/ARIA/metadata text; one supported normalized lang parameter wins, then the status origin saved choice, first supported browser language and French fallback; invalid/duplicate explicit parameters select no locale; in-place changes preserve the selected history and canonical localized destinations
+- Dedicated status release retains clean-main, status-only migrations and source/asset checks; the shared footer JSON joins the status source fingerprint, the generated four-language footer.js joins the asset manifest, and incomplete footer labels fail the build
 - Separate public browser reports run on GitHub main every six hours: fourteen desktop/simulated-mobile Chromium journeys and fourteen fixed HTTP contracts, without business operations; the Node driver requests identity/no-transform, preserves strict received-byte/SHA checks without automatic retries and emits bounded public diagnostics outside the signed report; canonical public HTML origin responses also declare no-transform while preserving existing cache directives, bytes, ETag and encoding, without widening private/API policies
 - Public GET /api/e2e-status exposes execution, tested/observed commit, eight-hour freshness, twenty-eight checks and history; absent/stale/version-mismatched proof stays neutral without degrading Cron availability
 - Bounded report ingestion uses GitHub OIDC bound to body and allowed workflow; sanitized output contains no content, account, screenshot or token, and requires no business secret; failures expose only the allowed stage, HTTP status and response code, never OIDC URLs or free-form upstream errors; direct-job workflow claims must be jointly absent or match the exact canonical main workflow and runner commit, with foreign/partial/empty/null pairs denied; only an actual 401 REPORT_REJECTED permits a bounded six-second boolean diagnostic and one signature verification, without requesting another token, retrying ingestion or changing the original result
-- Authenticated distribution/receipt stays To qualify until dedicated accounts and the real journey under the active document policy are qualified; public journeys establish no delivery or personal coverage
+- Authenticated distribution and receipt remain unqualified until dedicated accounts and a real journey under the active document policy are qualified; that separate report scope is not fetched by the customer status page and does not degrade Cron availability
+- The common public footer derives four groups and fifteen canonical destinations from the same four-language public-footer.json as React; the lightweight status build and loopback preview generate one adapter without React or a second checked-in catalog. Its stamp exactly copies the approved transparent-outer-edge derivative, retaining printed white interior and preserving the separate opaque official source; the header retains white paper inside its actual inner blue frame and transparent exterior/perforations with ivory dark lettering, and status includes no city panorama
+- The customer page makes two initial dynamic reads, /api/status and the selected /api/history window, and no /api/e2e-status or qualification.json read; explicit refresh and visible fifteen-minute follow-up preserve bounded anonymous reads, while language/theme changes require no additional data read
+- The unchanged status API retains bounded business-coverage projection, including explicit false paid-PDF availability separately from antivirus/import/rendering; configuration never proves hosted scanning, engine execution, purchase or provider delivery
 
 **Contract:** [STATUS_SERVICE.md](STATUS_SERVICE.md) · **Implementation:** [apps/status/worker.ts](../apps/status/worker.ts)
 
-**Tests:** [tests/integration/status-service.test.ts](../tests/integration/status-service.test.ts), [tests/security/status-release.test.mjs](../tests/security/status-release.test.mjs), [tests/security/test-offline.test.mjs](../tests/security/test-offline.test.mjs), [tests/status-e2e/status.spec.ts](../tests/status-e2e/status.spec.ts), [tests/status-e2e/production-e2e.spec.ts](../tests/status-e2e/production-e2e.spec.ts), [tests/integration/production-e2e-status.test.ts](../tests/integration/production-e2e-status.test.ts), [tests/unit/production-e2e-runtime.test.ts](../tests/unit/production-e2e-runtime.test.ts), [tests/unit/public-assets.test.ts](../tests/unit/public-assets.test.ts), [tests/security/public-assets.test.mjs](../tests/security/public-assets.test.mjs), [tests/unit/production-e2e-oidc-diagnostics.test.ts](../tests/unit/production-e2e-oidc-diagnostics.test.ts)
+**Tests:** [tests/integration/status-service.test.ts](../tests/integration/status-service.test.ts), [tests/security/status-release.test.mjs](../tests/security/status-release.test.mjs), [tests/security/test-offline.test.mjs](../tests/security/test-offline.test.mjs), [tests/status-e2e/status.spec.ts](../tests/status-e2e/status.spec.ts), [tests/status-e2e/production-e2e.spec.ts](../tests/status-e2e/production-e2e.spec.ts), [tests/integration/production-e2e-status.test.ts](../tests/integration/production-e2e-status.test.ts), [tests/unit/production-e2e-runtime.test.ts](../tests/unit/production-e2e-runtime.test.ts), [tests/unit/public-assets.test.ts](../tests/unit/public-assets.test.ts), [tests/security/public-assets.test.mjs](../tests/security/public-assets.test.mjs), [tests/unit/production-e2e-oidc-diagnostics.test.ts](../tests/unit/production-e2e-oidc-diagnostics.test.ts), [tests/unit/status-locale.test.ts](../tests/unit/status-locale.test.ts)
 
 
 
@@ -907,16 +930,17 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Curated English architecture, workflow and integration guides with local search, Markdown copies and assistant-readable indexes
 - Single-source feature tree with role permissions and customer journeys; feature changes update the registry and developer guide together
 - Brand-colored Mermaid and isometric architecture diagrams with textual equivalents and explicit external provider boundaries
-- Approved video Gutenberg character identity in small explanatory notes and three wide scenes: doctor for PDF diagnostics, architect for diagrams and archivist for the feature tree; no city panoramas or miniature stamp notes; transparent header branding keeps ink-black light-mode and approved ivory dark-mode lettering, with reduced-motion support
+- Approved video Gutenberg character identity in small explanatory notes and three wide scenes: doctor for PDF diagnostics, architect for diagrams and archivist for the feature tree; no city panoramas or miniature stamp notes; header branding preserves original portrait alpha and its existing approved five-percent StampPaper white interior without an outer contour; other assets follow their actual inner blue frames rather than copying that inset, with ink-black light-mode and approved ivory dark-mode lettering, with reduced-motion support
 - Asset-only publication from clean main matching fresh origin/main and the reviewed commit, with source snapshots and complete output hashes revalidated after browser checks; no business bindings or delivery authority; static no-transform responses preserve reviewed HTML/artwork bytes while hash-named Astro assets retain immutable caching
 - Discoverable architecture diagram gallery with three brand-colored Mermaid flows, source downloads and accessible textual explanations
 - Curated Belvédère administration, data-model, release and troubleshooting guides that preserve authority, evidence and recovery boundaries
 - Maintained GitHub job/artifact/release explanation, fresh dependency boundaries and separate application/native/engineering evidence
 - Curated Cloudflare/Auth0/transport dependencies, background jobs, tariff maintenance, design/i18n/accessibility, AI contribution and reproducible video/voice production guides
+- Origin-scoped system/light/dark selection uses guteneo.theme with pre-paint resolution, cross-tab/system updates and optional migration of a prior ui-mode choice; Nimbus data-mode styling, fixed blue chrome, script-free system fallback and readable ivory dark branding grant no account or operational authority
 
 **Contract:** [ENGINEERING_SITE.md](ENGINEERING_SITE.md) · **Implementation:** [apps/engineering/astro.config.ts](../apps/engineering/astro.config.ts)
 
-**Tests:** [tests/security/engineering-site.test.mjs](../tests/security/engineering-site.test.mjs), [tests/engineering-e2e/site.spec.ts](../tests/engineering-e2e/site.spec.ts), [tests/security/engineering-release.test.mjs](../tests/security/engineering-release.test.mjs)
+**Tests:** [tests/security/engineering-site.test.mjs](../tests/security/engineering-site.test.mjs), [tests/engineering-e2e/site.spec.ts](../tests/engineering-e2e/site.spec.ts), [tests/security/engineering-release.test.mjs](../tests/security/engineering-release.test.mjs), [tests/engineering-e2e/theme.spec.ts](../tests/engineering-e2e/theme.spec.ts)
 
 
 
@@ -926,9 +950,9 @@ Supervisor approval/reporting options are independent and off by default. Resour
 
 **Actor:** Visitor → verified account owner, with optional workspace membership. **Branch:** Access.
 
-Open the public site → choose a visitor language → read the offer/assistant guide → enter canonical Auth0 → register one personal account without an automatic workspace → receive documents or voluntarily choose/create a workspace for service use → verify current identity and rights. Return to the valid destination. Explicit logout opens the public home.
+Open the concise public homepage → choose visitor language or the header appearance icon → read How it works, Getting started, Pricing or PDF checks and the complete Support FAQ through canonical shared navigation → use the existing localized closing invitation and first-dispatch link above the home-only panorama → enter canonical Auth0 → register one personal account without an automatic workspace → receive documents or voluntarily choose/create a workspace for service use → verify current identity and rights. Return to the valid destination. Explicit logout opens the public home.
 
-**Failure/recovery:** Refuse invalid callback state, unknown issuer/subject or expired invitation. Recovery retries are explicit. Package download, optional Auth0 branding/domain and actual host sign-in each need separate proof.
+**Failure/recovery:** Refuse invalid callback state, unknown issuer/subject or expired invitation. Recovery retries are explicit. Package download, optional Auth0 branding/domain and actual host sign-in each need separate proof. Public route presentation, a localized status link and the fictional example grant no approval or provider activation; failed detail loading retains complete static information.
 
 [Detailed contract](ACCOUNT_IDENTITY.md).
 
@@ -988,7 +1012,7 @@ Read authoring guide or a synthetic example → create/private-copy or import DO
 
 Import CSV/XLSX/XML/JSON → verify/profile the exact original → select sheet/header/record path → define deterministic versioned mappings → validate every row → select published template → generate → inspect results and provenance.
 
-**Failure/recovery:** Resume the same original after transient analysis failure. Resolve mapping/type/join issues explicitly. AI is optional and separately consented; generation creates no dispatch or credit reservation.
+**Failure/recovery:** Resume the same original after transient analysis failure. Resolve mapping/type/join issues explicitly. Generation completion does not establish PDF readiness; follow the bounded security-analysis refresh and review retryable or blocked results explicitly. AI is optional and separately consented; generation creates no dispatch or credit reservation.
 
 [Detailed contract](TEMPLATES_DATA_DISTRIBUTION.md).
 
@@ -1036,19 +1060,19 @@ Start system authentication on the canonical backend → use dedicated mobile se
 
 **Actor:** Browser administrator. **Branch:** Operate.
 
-Read welcome/available/reserved/consumed balances → inspect usage/billing → reserve the exact approved ceiling atomically with acceptance/outbox → settle using qualified provider evidence.
+Read welcome/available/reserved/consumed balances → inspect the annual UTC consumption grid and selected-day totals → open the latest recorded usage month or select current/previous UTC month → inspect usage/billing → reserve the exact approved ceiling atomically with acceptance/outbox → settle using qualified provider evidence.
 
-**Failure/recovery:** Welcome credit is one-time, not monthly. Top-up is not commercially qualified. Unknown outcomes retain reserves; fax delivery alone does not settle verified usage.
+**Failure/recovery:** Welcome credit is one-time, not monthly. Top-up is not commercially qualified. Unknown outcomes retain reserves; fax delivery alone does not settle verified usage. An empty current month does not mean lost history; failed period reads offer retry without replacing ledger or balance.
 
 [Detailed contract](WELCOME_CREDIT.md).
 
-### J13 · Diagnose a PDF with Horizon
+### J13 · Purchase a PDF verification
 
-**Actor:** Browser administrator for subscription; authorised preparer/assistant for checks; current PDF reader for history. **Branch:** Operate.
+**Actor:** Current browser administrator for a purchase; current PDF reader for history. **Branch:** Operate.
 
-Read current capabilities → administrator reviews EUR30 recurring-credit subscription → use ready original with selected PDF/UA or PDF/A flavour → consume atomic calendar-month quota → inspect exact-byte report/history/JSON → complete human review.
+Read current capability and price → select the ready immutable PDF and PDF/UA or PDF/A profile → explicitly accept this exact purchase → reserve available account credit atomically → run the private engine → settle once for a complete valid report → inspect report/history/JSON and complete human review.
 
-**Failure/recovery:** Require active entitlement, current PDF authority, scanner/private validator and quota. Automatic checks are not certification. Reuse the key to recover an uncertain request; a new independent check uses a new key.
+**Failure/recovery:** Require current PDF authority, browser administrator purchase consent, available credit and scanner/private validator. Engine failure creates no settled charge; a valid failing-conformance report is billable. Recover uncertain responses with the same key. A new check needs a new purchase. Existing reports retain their document access policy without monthly subscription.
 
 [Detailed contract](PDF_ACCESSIBILITY.md).
 
@@ -1076,7 +1100,7 @@ Update feature tree/developer contracts/source/tests together → regenerate and
 
 **Actor:** Browser member in the current workshop. **Branch:** Access.
 
-Read visible name/login email/role → open account profile → inspect effective permissions and workshop responsible contacts → edit own name/language or explicitly switch account.
+Read visible name/login email → open account profile for role → inspect effective permissions and workshop responsible contacts → edit own name/language or explicitly switch account.
 
 **Failure/recovery:** Provider login email is read-only identity data. Missing address/contact errors stay explicit. Reconcile identity after tab focus and ignore cancelled stale reads without interrupting editing.
 
@@ -1112,23 +1136,23 @@ Select an existing accessible dispatch → call read-only dry run → inspect st
 
 [Detailed contract](PRODUCTION_DRY_RUN.md).
 
-### J20 · Read service status and evidence
+### J20 · Read public availability and history
 
-**Actor:** Anonymous visitor, customer or on-call reader. **Branch:** Operations.
+**Actor:** Anonymous browser reader or public-information consumer, with no workshop or platform authority. **Branch:** Operations.
 
-Open public status → inspect freshness and public groups → compare observed success and history coverage → read Checks for separate local evidence → read Operations for limits/actions.
+Open public status from its URL or common footer → read current summary, observation time and three public-access groups → choose 7/30/365 days → select a day/month or expand all daily records → distinguish received success, partial coverage and unknown/precollection periods → refresh existing evidence or use a canonical localized footer destination. Language/theme controls retain the selected history and create no business operation.
 
-**Failure/recovery:** Missing/invalid/unavailable/stale evidence makes current state unknown. Public reads do not trigger collection; local simulation never becomes production delivery proof.
+**Failure/recovery:** Missing, invalid, unreadable, contradictory, implausibly future or stale evidence makes current availability unknown; an earlier successful observation never stays green as a current result. An actual fresh failed check identifies its group. A history error supplies no percentage. Public reads trigger no collection, test, approval or transmission; local simulation and configuration never prove business delivery.
 
 [Detailed contract](STATUS_SERVICE.md).
 
-### J21 · Save and restore workspace appearance
+### J21 · Save and restore Classic/V2 workspace layout
 
 **Actor:** Authenticated browser member changing their own preference. **Branch:** Operate.
 
-Open account → choose Classic/V2 beside language → save successfully → reload or change workshop/device → reconcile the saved personal preference with current identity.
+Enter through compact My documents/workshop navigation → inspect role and detailed rights on My account → choose Classic/V2 beside language → save successfully → reload or change workshop/device → reconcile the saved personal preference with current identity.
 
-**Failure/recovery:** Temporary atelier overrides never claim a server save and clear after explicit save/identity change. Old cache cannot override the current person; business authority remains identical.
+**Failure/recovery:** Temporary atelier overrides never claim a server save and clear after explicit save/identity change. Old cache cannot override the current person; business authority remains identical. Immediate system/light/dark browser appearance is a separate preference and never claims an account profile save.
 
 [Detailed contract](DASHBOARD_V2.md).
 
@@ -1166,9 +1190,9 @@ Review exact Auth0/DNS/domain plan → explicitly configure/publish after qualif
 
 **Actor:** Browser visitor with no additional workshop authority. **Branch:** Interfaces.
 
-Request an eligible public HTML document → retain real error status → show localised message/accessible artwork → choose an explicit home/help/assistant/developer/status recovery link.
+Request an eligible public HTML document → retain real error status → show localized message/accessible artwork in system or the bounded host-only theme choice → use canonical shared footer or an explicit home/help/assistant/developer/status recovery link.
 
-**Failure/recovery:** Private/API/auth/MCP, JSON/PDF/binary/event-stream, explicit downloads and range protocols retain their contracts. Missing media/translation remains closed; reflect no private URI/query/body and never invent success.
+**Failure/recovery:** Private/API/auth/MCP, JSON/PDF/binary/event-stream, explicit downloads and range protocols retain their contracts. Missing media/translation remains closed; reflect no private URI/query/body and never invent success. An appearance cookie contains only an allowlisted nonsecret enum and grants no document/session access.
 
 [Detailed contract](PUBLIC_HTTP_ERRORS.md).
 
@@ -1208,15 +1232,15 @@ In an active share allowing deposit, read independent retention/export terms →
 
 Start in My documents → voluntarily open Use Guteneo → choose Prepare a dispatch or New share → select a current membership or request the initial workspace → idempotent creation, initial administrator and closed channels → reload the chosen destination and reread server session/workspace/rights/CSRF → continue normal preparation using the same name/language/identity. Local browser regression creates an administrator workspace then selects another as operator, with real screen/profile changes in both contexts.
 
-**Failure/recovery:** Receipt never permits entry into the sender’s workspace; an organizationId without membership is denied. Creation/selection failure stays visible in the personal area without false navigation. Success retains no previous workspace session/authority. Registration implies no purchase, subscription, confidential-content targeting or marketing email; promised document access remains independent of conversion.
+**Failure/recovery:** Receipt never permits entry into the sender’s workspace; an organizationId without membership is denied. Creation/selection failure stays visible in the personal area without false navigation. Success retains no previous workspace session/authority. Registration implies no purchase, subscription, confidential-content targeting or marketing email; promised document access remains independent of conversion. An obsolete workspace bootstrap cannot overwrite a personal route, and returning to service use reads fresh workspace authority.
 
 [Detailed contract](SECURE_DISTRIBUTION_JOURNEYS.md).
 
-### J30 · Read browser reports for the deployed version
+### J30 · Read version-bound browser reports through the public report API
 
-**Actor:** Anonymous reader; authorized GitHub runner only for report ingestion, without membership. **Branch:** Public status → browser report → version and freshness.
+**Actor:** Anonymous reader; authorized GitHub runner only for report ingestion, without membership. **Branch:** Separate browser monitor → public report API → version and freshness.
 
-Scheduled/manual main workflow → twenty-eight fixed public checks with Node identity/no-transform requests, canonical HTML origin no-transform responses and strict received-size/SHA comparison, without business login/sending → sanitized report with body-bound OIDC → read execution date, tested commit and observed version → inspect checks, GitHub execution and history. Fourteen Cron checks remain independent. Authenticated business coverage awaits dedicated accounts and a qualified connected journey under the active document policy.
+Scheduled/manual main workflow → twenty-eight fixed public checks with Node identity/no-transform requests, canonical HTML origin no-transform responses and strict received-size/SHA comparison, without business login/sending → sanitized report with body-bound OIDC → technical consumer reads GET /api/e2e-status for execution date, tested/observed commits, checks and history. The customer status page no longer fetches or presents these reports. Fourteen Cron checks remain independent; authenticated coverage still requires dedicated identities and a qualified connected journey under the active document policy.
 
 **Failure/recovery:** Absent, stale, incomplete, invalid or version-mismatched reports remain neutral with explicit limits. An observed discrepancy stays in that report. Public reads launch no test. Incorrect OIDC identity, body hash or GitHub context denies ingestion. Local checks establish no paid operation, business authentication, communication, publication or delivery. Failure diagnostics are bounded to HTTP/OIDC/ingestion stages and allowed codes outside the signed body. No silent retry replaces a failed observation; an artifact written before ingestion does not prove the report was stored. HTML transformation remains a complete verification failure; a client request cannot replace the origin response rule. Direct-job workflow claim pairs must match the canonical main workflow and expected commit, or both be absent for legacy tokens. Local diagnostics after an actual ingestion rejection cannot turn it into success. Application HTML preservation and status-service claim verification require separate publication and hosted proof.
 
@@ -1231,6 +1255,26 @@ Open the engineering site → find a feature in the generated tree → read its 
 **Failure/recovery:** Stale generated pages and broken internal links fail validation. Restricted runbooks and dated private evidence remain in the repository. Publication needs explicit authorization and separate hosted verification.
 
 [Detailed contract](ENGINEERING_SITE.md).
+
+### J32 · Choose browser appearance
+
+**Actor:** Anonymous or signed-in browser reader; no role or additional authority required. **Branch:** Interfaces.
+
+Start with the operating-system palette unless a valid local choice exists → use the public header’s localized light/dark action icon at any viewport, even before React is ready, or a three-way selector where that surface exposes one → apply the resolved palette in place → retain the local origin preference when storage is available → follow system or same-origin storage changes. Main-site standalone HTML uses only the host-only enum cookie; status and engineering retain independent origin state. Native public pictures select matching dark art; header/app white paper stays inside each actual inner blue frame with transparent exterior/perforations, while document/PDF/email surfaces keep original content appearance.
+
+**Failure/recovery:** Blocked persistence still permits an in-page choice. Invalid or duplicate cookies fall back to system without interpolation or account lookup. Script-free CSS follows system; language, Classic/V2 layout, identity, drafts, approval and provider gates remain independent. Local browser-engine evidence establishes no physical-device Safari or deployed-host pass.
+
+[Detailed contract](THEMES.md).
+
+### J33 · Open personal documents without an unrelated workspace wait
+
+**Actor:** Authenticated personal account owner, with or without a workspace. **Branch:** Access.
+
+Open My documents directly → start the personal shell → validate current personal session → read the authorized list → retry a failed list explicitly. On focus or account change reconcile the session and discard previous identity/document state; returning to a workshop loads its current session and rights.
+
+**Failure/recovery:** Personal policy and recipient bindings are never skipped. Cancelled or late workspace/account results cannot restore earlier identity, language or documents; expired sessions use established recovery. The five-context synthetic timing comparison is bounded local instrumentation, not production latency, real-client access or provider delivery proof.
+
+[Detailed contract](FRONTEND_PERFORMANCE.md).
 
 ## Required maintenance
 

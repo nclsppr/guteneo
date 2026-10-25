@@ -316,7 +316,7 @@ test("deployment contract is private, bounded, offline and pinned", () => {
   assert.deepEqual(config.routes, []);
   assert.equal(config.observability.enabled, false);
   assert.equal(config.containers[0].max_instances, 1);
-  assert.equal(config.containers[0].instance_type, "basic");
+  assert.equal(config.containers[0].instance_type, "standard-1");
   assert.equal(config.containers[0].constraints.jurisdiction, "eu");
   assert.match(
     readFileSync(new URL("src/index.ts", validator), "utf8"),
@@ -329,6 +329,11 @@ test("deployment contract is private, bounded, offline and pinned", () => {
   );
   assert.match(docker, /sha256sum -c/);
   assert.match(docker, /test "\$VERAPDF_VERSION" = "1\.30\.2"/);
+  assert.match(
+    docker,
+    /--max-time 300 --retry 2 --retry-delay 2 --retry-all-errors/,
+  );
+  assert.doesNotMatch(docker, /--insecure|--retry-connrefused/);
   assert.match(docker, /USER validator/);
   assert.doesNotMatch(docker, /:latest/);
 });

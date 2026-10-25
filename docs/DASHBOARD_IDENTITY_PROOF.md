@@ -13,7 +13,7 @@ is explicitly authorized; production and activation are not.
 | Technical feature map, permission matrix/journeys | Regenerated and checked |
 | Migrations | 52 migrations, 362 objects, equivalent schema, `quickCheck: ok`, zero FK violations |
 | Full local suite | 1,920 application and 242 security tests passed before telemetry fixes; final SHA checked in CI |
-| Authentication, account, Belvédère/finance | 92 tests passed, including actual Horizon-debit D1 triggers and six telemetry regressions |
+| Authentication, account, Belvédère/finance | 92 tests passed, including actual PDF verification-debit D1 triggers and six telemetry regressions |
 | Identity/profile/contacts/namesakes | 30 browser tests passed, three projects, four languages |
 | Dashboard/account/billing/role regression | 75 passed, 3 intentional desktop skips |
 | Belvédère navigation/finance | 20 passed on desktop and iPhone WebKit |
@@ -28,10 +28,10 @@ and malformed contacts without profile loss. Every call is intercepted:
 these are interface tests with fictional people, not hosted Auth0 qualification.
 Backend tests exercise actual session, membership and D1 guards.
 
-Belvédère finance includes Horizon debits by posting date, separately from
+Belvédère finance includes PDF verification debits by posting date, separately from
 dispatch channels and without adding them to dispatch counts. Operational
 overview/workspace views retain their period-created dispatch cohort. The
-new Horizon index bounds debit-read cost. Session rereads on tab return
+new PDF verification index bounds debit-read cost. Session rereads on tab return
 without periodic polling; focus/visibility events are deduplicated for one
 second.
 

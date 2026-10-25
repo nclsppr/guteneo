@@ -17,6 +17,11 @@ export const en: Copy = {
   open: "Open",
   preview: "Preview",
   download: "Open PDF",
+  fileInput: {
+    choose: "Choose a file",
+    chooseMultiple: "Choose files",
+    empty: "No file selected",
+  },
   unknown: "Not available",
   simulation: "Simulation",
   simulationBody:
@@ -38,7 +43,7 @@ export const en: Copy = {
     postal: "Postal mail",
   },
   nav: {
-    horizon: "Horizon plan",
+    pdfChecks: "PDF checks",
     overview: "Overview",
     documents: "Documents",
     templates: "Templates",
@@ -523,6 +528,12 @@ export const en: Copy = {
     title: "Every dispatch counts.",
     intro:
       "Your organisation’s reservations and usage. Simulation credits remain separate.",
+    period: "Usage month",
+    latest: "Latest recorded month",
+    periodHint:
+      "The latest recorded month opens first. Choose another month here; the credit balance always reflects today.",
+    monthlyTitle: "Dispatches and monthly limits",
+    monthEmpty: "No dispatches recorded for this month.",
     reserved: "Reserved",
     consumed: "Confirmed",
     released: "Released",

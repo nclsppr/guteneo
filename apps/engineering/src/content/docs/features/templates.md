@@ -1,6 +1,6 @@
 ---
 title: "Template studio"
-description: "12 capabilities in the create branch of Guteneo."
+description: "14 capabilities in the create branch of Guteneo."
 sidebar:
   order: 4
 ---
@@ -23,6 +23,8 @@ Implemented; AI suggestions require configuration and organisation consent.
 <li id="feature-dd83001d032c">Private copy or blank creation with the REST/MCP authoring guide</li>
 <li id="feature-8665658cf5b3">Word DOCX content import with explicit layout warnings</li>
 <li id="feature-3eada6ea27ff">Designer variables, tables, columns, logos, formats and conditions</li>
+<li id="feature-e25350103202">Visible local PNG/JPEG image import above the visual editor; selected-page insertion preserves original bytes, aspect ratio, unique names and business bindings</li>
+<li id="feature-868eba4e1c12">Save, publish and studio navigation wait for committed native property edits; invalid numeric fields and reverting values recover without saving stale geometry</li>
 <li id="feature-af9781225f01">Business schema, sample data, calculations and totals</li>
 <li id="feature-d9a8b8e4fb78">Review AI proposals before explicit application</li>
 <li id="feature-900e2a6510e0">Exact PDF preview, immutable versions, publication, duplication and archival</li>

@@ -32,6 +32,15 @@ html {
   --engineering-logo-ink: var(--paper);
 }
 
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]):not([data-mode]) .engineering-brand {
+    --engineering-logo-ink: var(--paper);
+  }
+  :root:not([data-theme]):not([data-mode]) pre.astro-code span {
+    color: var(--shiki-dark, inherit);
+  }
+}
+
 .engineering-brand img {
   display: block;
   width: 2.25rem;

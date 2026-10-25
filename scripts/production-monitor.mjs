@@ -272,8 +272,7 @@ export async function productionMonitor(
     {
       feature: "Cron, queues, callbacks, backups",
       state: "not_checked",
-      evidence:
-        "Requires private metrics and recent restore evidence.",
+      evidence: "Requires private metrics and recent restore evidence.",
     },
     {
       feature: "MCP assistants",
@@ -298,7 +297,7 @@ export async function productionMonitor(
       };
     }),
     ...[
-      ["Horizon / PDF validation", caps?.horizon?.available],
+      ["PDF verification", caps?.pdfValidation?.available],
       ["Stripe payments", caps?.billing?.chargingEnabled],
       ["AI proposals", caps?.studio?.ai?.configured],
     ].map(([feature, enabled]) => ({

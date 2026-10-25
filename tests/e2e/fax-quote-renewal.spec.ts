@@ -1,9 +1,16 @@
 import { expect, test, type Page } from "@playwright/test";
 
-async function fixture(page: Page, expiresIn = 2000) {
+async function fixture(
+  page: Page,
+  {
+    expiresIn = 2000,
+    controlledClock = false,
+  }: { expiresIn?: number; controlledClock?: boolean } = {},
+) {
   const now = Date.parse("2026-09-17T12:00:00.000Z");
-  await page.clock.install({ time: new Date(now - 60000) });
-  await page.clock.pauseAt(new Date(now));
+  if (controlledClock)
+    await page.clock.install({ time: new Date(now - 60_000) });
+  else await page.clock.setFixedTime(new Date(now));
   const writes: { path: string; body: unknown }[] = [];
   const old = {
     id: "quote_old",
@@ -69,14 +76,25 @@ async function fixture(page: Page, expiresIn = 2000) {
       body: JSON.stringify(error ? { error } : result),
     });
   });
-  return { old, next, writes, control };
+  return {
+    old,
+    next,
+    writes,
+    control,
+    async open() {
+      await page.goto("/#/app/dispatch/quote_old");
+      // The lazy route needs running timers before expiry is controlled.
+      await expect(page.locator(".dispatch-reference")).toBeVisible();
+      if (controlledClock) await page.clock.pauseAt(new Date(now));
+    },
+  };
 }
 
 test("expiry disables approval and renewal requires a fresh explicit consent", async ({
   page,
 }, testInfo) => {
-  const f = await fixture(page);
-  await page.goto("/#/app/dispatch/quote_old");
+  const f = await fixture(page, { controlledClock: true });
+  await f.open();
   const consent = page.getByRole("checkbox");
   const approve = page.getByRole("button", { name: "Approuver cette version" });
   await expect(
@@ -121,9 +139,9 @@ test("expiry disables approval and renewal requires a fresh explicit consent", a
 test("campaign renewal is disclosed before creating an individual quote", async ({
   page,
 }) => {
-  const f = await fixture(page, -1);
+  const f = await fixture(page, { expiresIn: -1 });
   f.old.campaign_id = "campaign_frozen";
-  await page.goto("/#/app/dispatch/quote_old");
+  await f.open();
   await expect(
     page.getByText("Ce renouvellement créera un devis individuel", {
       exact: false,
@@ -146,10 +164,10 @@ test("campaign renewal is disclosed before creating an individual quote", async 
 test("a live quote rejection offers renewal while preserving a real configuration failure", async ({
   page,
 }) => {
-  const f = await fixture(page, 900000);
+  const f = await fixture(page, { expiresIn: 900000 });
   f.control.invalidApproval = true;
   f.control.unavailableRenewal = true;
-  await page.goto("/#/app/dispatch/quote_old");
+  await f.open();
   await page.getByRole("checkbox").check();
   await page.getByRole("button", { name: "Approuver cette version" }).click();
   await expect(
@@ -175,9 +193,9 @@ for (const status of ["queued", "submission_unknown", "failed", "delivered"]) {
   test(`an expired ${status} dispatch is never offered for renewal`, async ({
     page,
   }) => {
-    const f = await fixture(page, -1000);
+    const f = await fixture(page, { expiresIn: -1000 });
     f.old.status = status;
-    await page.goto("/#/app/dispatch/quote_old");
+    await f.open();
     await expect(page.locator(".dispatch-reference")).toBeVisible();
     await expect(
       page.getByRole("button", { name: "Renouveler le devis", exact: true }),

@@ -26,10 +26,12 @@ test("the first supported browser preference is automatic and a manual choice su
   await preferGerman(page);
   await page.goto("/");
   await expect(page.locator("html")).toHaveAttribute("lang", "de");
+  await page.goto("/how-it-works/");
   await expect(page.locator('[data-film="introduction"]')).toHaveAttribute(
     "data-locale",
     "de",
   );
+  await page.goto("/");
   let picker = await publicLanguagePicker(page);
   await expect(picker).toHaveValue("auto");
   expect(
@@ -129,9 +131,25 @@ test("narrow public headers keep one row and navigation yields to language selec
 
     await toggle.click();
     await expect(toggle).toHaveAttribute("aria-expanded", "true");
-    await expect(
-      header.locator(".public-mobile-navigation > a:visible"),
-    ).toHaveCount(6);
+    const mobileLinks = header.locator(
+      ".public-mobile-navigation > a:visible",
+    );
+    await expect(mobileLinks).toHaveCount(9);
+    expect(
+      await mobileLinks.evaluateAll((links) =>
+        links.map((link) => new URL((link as HTMLAnchorElement).href).pathname),
+      ),
+    ).toEqual([
+      "/how-it-works/",
+      "/pricing/",
+      "/assistants/",
+      "/getting-started/",
+      "/pdf-checks/",
+      "/journal/",
+      "/developers/",
+      "/support/",
+      "/app",
+    ]);
     expect((await header.boundingBox())!.height).toBe(headerBounds!.height);
     // Touch activation on WebKit does not implicitly focus a button.
     await toggle.focus();

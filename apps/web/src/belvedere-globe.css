@@ -1,6 +1,6 @@
 .bv-globe-panel {
-  background: var(--bv-surface, #fffefa);
-  border: 1px solid var(--bv-line, #dedfd5);
+  background: var(--bv-surface, var(--surface));
+  border: 1px solid var(--bv-line, var(--line));
   margin-bottom: 24px;
   overflow: hidden;
 }
@@ -19,28 +19,28 @@
 }
 .bv-globe-header p {
   margin-top: 8px;
-  color: var(--bv-muted, #62665e);
+  color: var(--bv-muted, var(--muted));
   font-size: 13px;
 }
 .bv-globe-switch {
   display: flex;
   flex-shrink: 0;
-  background: #eeeee7;
+  background: var(--surface-alt);
   padding: 3px;
   border-radius: 5px;
 }
 .bv-globe-switch button {
   border: 0;
   padding: 8px 14px;
-  color: #62665e;
+  color: var(--muted);
   background: transparent;
   border-radius: 3px;
   cursor: pointer;
   font-size: 12px;
 }
 .bv-globe-switch button[aria-pressed="true"] {
-  background: #fffefa;
-  color: #193faf;
+  background: var(--surface);
+  color: var(--blue-ink);
   box-shadow: 0 2px 5px #2427220b;
 }
 .bv-globe-layout {
@@ -76,7 +76,7 @@
   top: 25px;
   left: 0;
   z-index: 1;
-  color: #607086;
+  color: var(--muted);
   font:
     400 10px/1.7 "IBM Plex Mono",
     monospace;
@@ -96,11 +96,11 @@
   display: flex;
   align-items: center;
   gap: 7px;
-  color: #657080;
+  color: var(--muted);
   font-size: 11px;
 }
 .bv-globe-toolbar p span {
-  color: #73766c;
+  color: var(--muted);
 }
 .bv-globe-toolbar > div {
   display: flex;
@@ -111,16 +111,16 @@
   place-items: center;
   width: 31px;
   height: 31px;
-  border: 1px solid #dedfd5;
-  color: #496286;
-  background: #fffefa;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  background: var(--surface);
   border-radius: 3px;
   cursor: pointer;
 }
 .bv-globe-toolbar button:hover {
-  color: #2450db;
-  border-color: #a8b8da;
-  background: #f0f3fc;
+  color: var(--blue);
+  border-color: var(--blue-line);
+  background: var(--blue-tint);
 }
 .bv-globe-data {
   padding: 28px 0 0 24px;
@@ -133,23 +133,23 @@
   align-items: center;
   gap: 17px;
   padding-bottom: 19px;
-  border-bottom: 1px solid #dedfd5;
+  border-bottom: 1px solid var(--line);
 }
 .bv-globe-summary > strong {
   font:
     400 37px/1 "EB Garamond",
     serif;
   letter-spacing: -0.025em;
-  color: #263322;
+  color: var(--ink);
 }
 .bv-globe-summary > span {
   font-size: 11px;
   line-height: 1.65;
-  color: #62665e;
+  color: var(--muted);
 }
 .bv-globe-summary b {
   font-weight: 500;
-  color: #353d32;
+  color: var(--muted);
 }
 .bv-globe-ranking {
   list-style: none;
@@ -159,7 +159,7 @@
   min-height: 220px;
   overflow-y: auto;
   scrollbar-width: thin;
-  scrollbar-color: #c2ccdf transparent;
+  scrollbar-color: var(--blue-line) transparent;
 }
 .bv-globe-ranking li {
   margin: 0;
@@ -183,13 +183,13 @@
   cursor: pointer;
 }
 .bv-globe-ranking button:hover {
-  background: #f1f3ee;
+  background: var(--surface-alt);
 }
 .bv-globe-ranking button[aria-pressed="true"] {
-  background: #edf1fc;
+  background: var(--blue-tint);
 }
 .bv-globe-ranking button[aria-pressed="true"] .bv-globe-country-name {
-  color: #193faf;
+  color: var(--blue-ink);
 }
 .bv-globe-country-code {
   display: block;
@@ -198,7 +198,7 @@
   font:
     400 10px/1.2 "IBM Plex Mono",
     monospace;
-  color: #65768a;
+  color: var(--muted);
 }
 .bv-globe-country-name {
   min-width: 0;
@@ -212,7 +212,7 @@
   max-width: 170px;
   margin-top: 6px;
   height: 2px;
-  background: #e6e9e3;
+  background: var(--surface-hover);
 }
 .bv-globe-country-bar i {
   display: block;
@@ -230,22 +230,22 @@
 .bv-globe-country-value small {
   display: block;
   font-size: 10px;
-  color: #686e62;
+  color: var(--muted);
   margin-top: 3px;
 }
 .bv-globe-selection {
   margin-top: auto;
-  border-top: 1px solid #dedfd5;
+  border-top: 1px solid var(--line);
   padding-top: 14px;
   min-height: 62px;
 }
 .bv-globe-selection > span {
-  color: #244ca8;
+  color: var(--blue-ink);
   font-weight: 500;
   font-size: 13px;
 }
 .bv-globe-selection p {
-  color: #62665e;
+  color: var(--muted);
   font-size: 11px;
   margin-top: 3px;
 }
@@ -264,12 +264,12 @@
   display: flex;
   justify-content: space-between;
   gap: 20px;
-  border-top: 1px solid #e5e6dc;
+  border-top: 1px solid var(--line);
   padding: 13px 28px;
-  color: #626c68;
+  color: var(--muted);
   font-size: 10px;
   line-height: 1.6;
-  background: #fafbf5;
+  background: var(--surface);
 }
 .bv-globe-footer > span:first-child {
   flex-shrink: 0;
@@ -293,9 +293,9 @@
   inset: 0;
   display: grid;
   place-items: center;
-  color: #244ca8;
+  color: var(--blue-ink);
   font-size: 12px;
-  background: #fffefa99;
+  background: var(--surface);
 }
 .bv-globe-empty {
   flex: 1;
@@ -305,11 +305,11 @@
   justify-content: center;
   align-items: flex-start;
   gap: 10px;
-  color: #737b70;
+  color: var(--muted);
 }
 .bv-globe-empty strong {
   font-weight: 500;
-  color: #454d40;
+  color: var(--muted);
   font-size: 13px;
 }
 .bv-globe-empty p {

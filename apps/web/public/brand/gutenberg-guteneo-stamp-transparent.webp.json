@@ -1,0 +1,17 @@
+{
+  "generator": "OpenAI image_gen built-in imagegen tool",
+  "generatedOn": "2026-10-25",
+  "alpha": true,
+  "references": ["apps/web/public/brand/gutenberg-guteneo-stamp.webp"],
+  "prompt": "Use case: background-extraction. Exact edit target: official Guteneo postage stamp containing the blue halftone Gutenberg portrait and exact text 'guteneo.com'. Remove ONLY the white outer background OUTSIDE the blue perforated stamp edge, turning that exterior and the outer perforation notches into real transparent alpha. Preserve the exact blue perforated outline, entire portrait, dot pattern, square proportions, lettering 'guteneo.com' and WHITE PRINTED PAPER INSIDE THE STAMP. This is faithful extraction of an approved logo, never a redesign. Do not repaint, distort, invent or erase blue marks or letters. No white rectangular outer margin, no shadow, no new border/background/checkerboard. Output one centered square RGBA image with the exact original small outer spacing. White must remain only in the original printed stamp interior, not outside the blue perforated edge.",
+  "source": "assets/brand/source/gutenberg-guteneo-stamp-transparent.png",
+  "sourceSha256": "917e566584060567c3fc2c9076b6b0e8e646b579880984c6ec49034ac479a987",
+  "sourceBytes": 2599753,
+  "web": "apps/web/public/brand/gutenberg-guteneo-stamp-transparent.webp",
+  "webSha256": "9f6af31bb4d308258bb224696d2ea23734efef570228c56824d4322be4832b8e",
+  "webBytes": 184368,
+  "width": 640,
+  "height": 640,
+  "conversion": "cwebp -q 88 -alpha_q 100 -resize 640 640 assets/brand/source/gutenberg-guteneo-stamp-transparent.png -o apps/web/public/brand/gutenberg-guteneo-stamp-transparent.webp",
+  "notes": "Outer background and perforation notches are transparent. Printed white paper, blue portrait and domain signature remain part of the stamp. Original opaque asset is retained unchanged."
+}

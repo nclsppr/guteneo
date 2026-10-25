@@ -154,8 +154,8 @@ export interface BelvedereFinance {
   generatedAt: string;
   filters: BelvedereFilters;
   customerConsumptionMinor: number;
-  horizonConsumptionMinor: number;
-  horizonCharges: number;
+  legacyPlanConsumptionMinor: number;
+  legacyPlanCharges: number;
   reservedMinor: number;
   promotionalGrantedMinor: number;
   promotionalRemainingMinor: number;
@@ -175,7 +175,7 @@ export interface BelvedereFinance {
   monthly: {
     month: string;
     consumptionMinor: number;
-    horizonConsumptionMinor: number;
+    legacyPlanConsumptionMinor: number;
     dispatches: number;
   }[];
 }

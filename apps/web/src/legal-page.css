@@ -3,9 +3,6 @@
   display: flex;
   flex-direction: column;
 }
-.legal-page .site-header {
-  padding-inline: 40px;
-}
 .legal-back,
 .legal-copy a {
   display: inline-flex;
@@ -128,10 +125,6 @@
   gap: 0 24px;
 }
 @media (max-width: 760px) {
-  .legal-page .site-header {
-    gap: 20px;
-    padding-inline: 22px;
-  }
   .legal-back {
     font-size: 13px;
   }

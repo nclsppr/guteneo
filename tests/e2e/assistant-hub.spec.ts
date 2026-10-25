@@ -384,12 +384,20 @@ test("Assistants is the second workspace destination and every private guide sur
   if (!(await nav.isVisible()))
     await page.locator(".workspace-navigation summary").click();
   await expect(nav).toBeVisible();
-  const labels = (await nav.getByRole("link").allTextContents()).map((text) =>
-    text.trim(),
-  );
+  const personal = nav.getByRole("link", {
+    name: "Mes documents — Espace personnel",
+    exact: true,
+  });
+  await expect(personal).toHaveCount(1);
+  await expect(personal).toHaveAttribute("href", "#/app/my-documents");
+  const labels = (
+    await nav.locator('a:not([href="#/app/my-documents"])').allTextContents()
+  ).map((text) => text.trim());
   expect(labels.slice(0, 2)).toEqual(["Vue d’ensemble", "Assistants"]);
   expect(labels.slice(2, 4)).toEqual(["Documents", "Distribution sécurisée"]);
-  await nav.getByRole("link", { name: "Assistants", exact: true }).focus();
+  const assistants = nav.getByRole("link", { name: "Assistants", exact: true });
+  await expect(assistants).toHaveAttribute("href", "#/app/connection");
+  await assistants.focus();
   await page.keyboard.press("Enter");
   await expect(page).toHaveURL(/#\/app\/connection$/);
   await expect(

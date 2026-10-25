@@ -9,6 +9,7 @@ import {
   type WorkspacePermissions,
 } from "../../contracts/src/roles";
 import { assertFaxDispatchSendable } from "./live-fax-usage";
+import { readUsageActivity } from "./usage-activity";
 import { validateSecureDistribution } from "./secure-distribution";
 import type { SecureDistributionDescriptor } from "../../contracts/src/secure-distribution";
 import {
@@ -2127,20 +2128,70 @@ export class DomainService {
       ).results,
     };
   }
-  async usage(ctx: ActorContext) {
+  async usage(ctx: ActorContext, requestedPeriod?: string) {
     requirePermission(ctx, "viewReports");
     await this.organization(ctx);
+    if (
+      requestedPeriod !== undefined &&
+      requestedPeriod !== "latest" &&
+      !/^\d{4}-(0[1-9]|1[0-2])$/.test(requestedPeriod)
+    )
+      throw new DomainError(
+        "INVALID_INPUT",
+        "Choose a usage period in YYYY-MM format or latest.",
+        400,
+      );
+    const currentPeriod = this.time().slice(0, 7);
+    const storedPeriods = (
+      await this.db
+        .prepare(
+          "SELECT DISTINCT period FROM usage WHERE organization_id=? ORDER BY period DESC",
+        )
+        .bind(ctx.organizationId)
+        .all<{ period: string }>()
+    ).results.map((row) => row.period);
+    const period =
+      requestedPeriod === "latest"
+        ? (storedPeriods.find((value) => value <= currentPeriod) ??
+          currentPeriod)
+        : (requestedPeriod ?? currentPeriod);
     return {
+      period,
+      currentPeriod,
+      availablePeriods: [...new Set([currentPeriod, ...storedPeriods])].sort(
+        (a, b) => b.localeCompare(a),
+      ),
       welcomeCredit: await readWelcomeCredit(this.db, ctx.organizationId),
       items: (
         await this.db
           .prepare(
             "SELECT channel,period,limit_count,reserved_count,confirmed_count,limit_minor,reserved_minor,confirmed_minor,currency FROM usage WHERE organization_id=? AND period=? ORDER BY channel",
           )
-          .bind(ctx.organizationId, this.time().slice(0, 7))
+          .bind(ctx.organizationId, period)
           .all()
       ).results,
     };
+  }
+  async usageActivity(ctx: ActorContext, requestedYear?: string) {
+    requirePermission(ctx, "viewReports");
+    await this.organization(ctx);
+    if (
+      requestedYear !== undefined &&
+      (!/^[1-9]\d{3}$/.test(requestedYear) || Number(requestedYear) > 9998)
+    )
+      throw new DomainError(
+        "INVALID_INPUT",
+        "Choose a usage year between 1000 and 9998.",
+        400,
+      );
+    const asOf = this.time();
+    return readUsageActivity(
+      this.db,
+      ctx.organizationId,
+      this.config.mode,
+      Number(requestedYear ?? asOf.slice(0, 4)),
+      asOf,
+    );
   }
   async admin(ctx: ActorContext) {
     await this.organization(ctx);

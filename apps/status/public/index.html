@@ -3,49 +3,60 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#2450db" />
+    <meta name="color-scheme" content="light dark" />
     <meta
       name="description"
-      content="Guteneo availability, automatic checks and service history."
+      content="Guteneo availability and service history."
+      data-i18n-content="Guteneo availability and service history."
     />
     <title>guteneo — Service status</title>
-    <link rel="icon" href="assets/logo.webp" />
-    <link rel="stylesheet" href="style.css" />
-    <script src="locales/fr.js" defer></script>
-    <script src="i18n.js" defer></script>
-    <script src="app.js" defer></script>
-    <script src="production-e2e.js" defer></script>
-    <script src="seasonal.js" defer></script>
+    <link rel="icon" href="/assets/logo.webp" />
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/style.css" />
+    <script src="/locales/messages.js" defer></script>
+    <script src="/footer.js" defer></script>
+    <script src="/i18n.js" defer></script>
+    <script src="/app.js" defer></script>
   </head>
   <body>
-    <canvas
-      id="season-canvas"
-      class="season-canvas"
-      aria-hidden="true"
-    ></canvas>
-    <p id="preview-banner" class="preview-banner" hidden>
-      Local preview · this data does not establish the state of the published
-      service.
-    </p>
-    <a class="skip" href="#content">Skip to report</a>
+    <a class="skip" href="#content" data-i18n="Skip to status"
+      >Skip to status</a
+    >
     <header class="masthead wrap">
-      <a class="brand" href="/" aria-label="guteneo, start of report"
-        ><img src="assets/logo.webp" alt="" width="38" height="38" /><span
+      <a
+        class="brand"
+        href="https://guteneo.com"
+        data-public-link
+        aria-label="guteneo"
+        ><img src="/assets/logo.webp" alt="" width="36" height="36" /><span
           >guteneo</span
         ></a
-      ><span class="report-label">Service status</span
-      ><a class="source-link" href="https://guteneo.com">Open guteneo</a>
+      >
+      <a
+        class="return-link"
+        href="https://guteneo.com"
+        data-public-link
+        data-i18n="Open Guteneo"
+        >Open Guteneo</a
+      >
     </header>
     <main id="content" class="wrap" tabindex="-1">
+      <p
+        id="preview-banner"
+        class="preview-banner"
+        hidden
+        data-i18n="Local preview · sample data"
+      >
+        Local preview · sample data
+      </p>
       <div class="page-heading">
-        <div>
-          <h1>Service status</h1>
-          <p>Observed availability and service history.</p>
-        </div>
-        <button id="refresh" class="button" type="button">
-          Refresh measurement
+        <h1 data-i18n="Service status">Service status</h1>
+        <button id="refresh" type="button" class="button" data-i18n="Refresh">
+          Refresh
         </button>
       </div>
-      <section aria-label="Latest observation summary" class="overview">
+      <section class="overview" aria-labelledby="state-title">
         <div
           id="live-state"
           class="live-state"
@@ -53,733 +64,302 @@
           role="status"
           aria-live="polite"
         >
-          <span class="state-dot" aria-hidden="true"></span>
-          <div>
-            <strong id="state-title">Reading the latest measurement…</strong>
-            <p id="state-detail">Reading the monitoring service.</p>
-          </div>
-          <span id="freshness-label" class="freshness-label">Pending</span>
-        </div>
-        <div class="summary-grid" id="summary-grid" data-current="false">
-          <div class="summary-block">
-            <div class="summary-heading">
-              <h2>Public checks</h2>
-              <span id="public-total">— checks</span>
-            </div>
-            <div class="totals">
-              <button type="button" data-shortcut="pass" class="metric success">
-                <strong id="passed-count">—</strong><span>Passed</span></button
-              ><button
-                type="button"
-                data-shortcut="fail"
-                class="metric failure"
-              >
-                <strong id="failed-count">—</strong><span>Failed</span>
-              </button>
-            </div>
-            <p>Public website, reported configuration and access protection.</p>
-          </div>
-          <div class="summary-block monitoring-cadence">
-            <div class="summary-heading"><h2>Automatic monitoring</h2></div>
-            <p class="cadence-value">Every 15 minutes</p>
-            <p>Find daily summaries in the history.</p>
-          </div>
-        </div>
-        <div class="measurement">
-          <span id="proof-caption">Latest measurement</span
-          ><time id="checked-time">Pending</time
-          ><span id="measure-age">Unknown age</span
-          ><span>Source: public observation</span>
-        </div>
-      </section>
-      <div class="tabs" role="tablist" aria-label="Report views">
-        <button
-          type="button"
-          id="tab-service"
-          role="tab"
-          aria-selected="true"
-          aria-controls="panel-service"
-          tabindex="0"
-          data-tab="service"
-        >
-          <img
-            src="assets/icon-pulse.svg"
-            class="ui-icon"
-            alt=""
-            width="24"
-            height="24"
-          />Service</button
-        ><button
-          type="button"
-          id="tab-verification"
-          role="tab"
-          aria-selected="false"
-          aria-controls="panel-verification"
-          tabindex="-1"
-          data-tab="verification"
-        >
-          <img
-            src="assets/icon-shield.svg"
-            class="ui-icon"
-            alt=""
-            width="24"
-            height="24"
-          />Verification</button
-        ><button
-          type="button"
-          id="tab-operations"
-          role="tab"
-          aria-selected="false"
-          aria-controls="panel-operations"
-          tabindex="-1"
-          data-tab="operations"
-        >
-          <img
-            src="assets/icon-wrench.svg"
-            class="ui-icon"
-            alt=""
-            width="24"
-            height="24"
-          />Operations
-        </button>
-      </div>
-      <section
-        id="panel-service"
-        role="tabpanel"
-        aria-labelledby="tab-service"
-        tabindex="0"
-        class="panel"
-      >
-        <section class="monitored-panel" aria-labelledby="monitored-title">
-          <div class="panel-heading">
-            <h2 id="monitored-title">Monitored services</h2>
-            <a href="#verification">View verification</a>
-          </div>
-          <ul class="monitored-services">
-            <li>
-              <div>
-                <h3>Website and public pages</h3>
-                <p>Homepage in four languages and user guides.</p>
-              </div>
-              <span id="service-pages-state" class="badge historical"
-                >Pending</span
-              >
-            </li>
-            <li>
-              <div>
-                <h3>Web services</h3>
-                <p>Published API response, release and configuration.</p>
-              </div>
-              <span id="service-api-state" class="badge historical"
-                >Pending</span
-              >
-            </li>
-            <li>
-              <div>
-                <h3>Access protection</h3>
-                <p>
-                  Rejecting unauthenticated access to documents, dispatches and
-                  assistants.
-                </p>
-              </div>
-              <span id="service-access-state" class="badge historical"
-                >Pending</span
-              >
-            </li>
-          </ul>
-          <p class="section-note">
-            These checks monitor public access. They do not send communications.
-            Track your documents in your workspace.
-          </p>
-        </section>
-        <section class="browser-panel" aria-labelledby="browser-title">
-          <div class="panel-heading">
-            <h2 id="browser-title">Public browser journeys</h2>
-            <span id="e2e-state" class="badge historical">Pending</span>
-          </div>
-          <p class="section-note">
-            Published pages, public interactions and access protection on
-            desktop and in a mobile viewport. These GitHub runs are separate
-            from the availability measurements above.
-          </p>
-          <div class="browser-report-summary" role="status" aria-live="polite">
-            <h3 id="e2e-title">Reading the latest report…</h3>
-            <p id="e2e-detail">Reading browser results.</p>
-          </div>
-          <dl class="browser-report-facts">
-            <div>
-              <dt>Latest run</dt>
-              <dd><time id="e2e-completed">Pending</time></dd>
-            </div>
-            <div>
-              <dt>Tested release</dt>
-              <dd id="e2e-tested-release">Unknown release</dd>
-            </div>
-            <div>
-              <dt>Observed public release</dt>
-              <dd id="e2e-current-release">Unknown release</dd>
-            </div>
-            <div>
-              <dt>Report freshness</dt>
-              <dd id="e2e-freshness">Pending</dd>
-            </div>
-          </dl>
-          <p id="e2e-counts" class="section-note">No result received.</p>
-          <p id="e2e-run" hidden>
-            <a id="e2e-run-link" rel="noopener noreferrer" target="_blank"
-              >Open the GitHub report</a
+          <span class="state-symbol" aria-hidden="true"
+            ><svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
             >
-          </p>
-          <details id="e2e-check-details" class="browser-report-details" hidden>
-            <summary>View report checks</summary>
-            <ul id="e2e-checks" class="browser-report-checks"></ul>
-          </details>
-          <div class="browser-authenticated-scope">
-            <div class="panel-heading">
-              <h3>Authenticated distribution and receipt</h3>
-              <span id="e2e-authenticated" class="badge historical"
-                >Qualification pending</span
-              >
-            </div>
-            <p id="e2e-authenticated-detail">
-              The business lifecycle requires dedicated test accounts and
-              qualified strong authentication. This pending coverage is not a
-              service outage.
+              <path class="symbol-pass" d="m5 12 4 4L19 6" />
+              <path class="symbol-other" d="M12 7v6m0 3v1" /></svg
+          ></span>
+          <div>
+            <h2 id="state-title" data-i18n="Checking availability…">
+              Checking availability…
+            </h2>
+            <p id="state-detail" data-i18n="Reading the latest observation.">
+              Reading the latest observation.
             </p>
           </div>
-          <details
-            id="e2e-history-details"
-            class="browser-report-details"
-            hidden
-          >
-            <summary>Previous runs</summary>
-            <ol id="e2e-history" class="browser-report-history"></ol>
-          </details>
-        </section>
-        <section class="history-panel" aria-labelledby="history-title">
-          <div class="panel-heading">
-            <h2 id="history-title">
-              <img
-                src="assets/icon-chart.svg"
-                class="ui-icon"
-                alt=""
-                width="24"
-                height="24"
-              />Check history
-            </h2>
-            <fieldset class="filters history-periods">
-              <legend class="sr-only">History period</legend>
-              <button type="button" data-days="7" aria-pressed="true">
-                7 days</button
-              ><button type="button" data-days="30" aria-pressed="false">
-                30 days</button
-              ><button type="button" data-days="365" aria-pressed="false">
-                1 year
-              </button>
-            </fieldset>
-          </div>
-          <p
-            id="history-state"
-            class="explanation"
-            role="status"
-            aria-live="polite"
-          >
-            Loading history…
-          </p>
-          <dl class="history-totals">
-            <div>
-              <dt>Successful measurements</dt>
-              <dd id="history-availability">—</dd>
-            </div>
-            <div>
-              <dt>Measurement coverage</dt>
-              <dd id="history-coverage">—</dd>
-            </div>
-            <div>
-              <dt>Observed average latency</dt>
-              <dd id="history-latency">—</dd>
-            </div>
-          </dl>
-          <div
-            id="history-chart"
-            class="history-chart"
-            role="img"
-            aria-label="History awaiting data."
-          ></div>
-          <div class="history-caption">
-            <span id="history-range">Days in UTC</span
-            ><span
-              ><i class="legend-dot success" aria-hidden="true"></i>Success<i
-                class="legend-dot pending"
-                aria-hidden="true"
-              ></i
-              >Failure<i class="legend-dot disabled" aria-hidden="true"></i>No
-              measurement</span
-            >
-          </div>
-          <p id="history-start" class="section-note">
-            History starts when collection is enabled. Earlier days have no
-            data.
-          </p>
-          <details class="history-details">
-            <summary>View daily measurements</summary>
-            <div
-              class="table-scroll"
-              tabindex="0"
-              role="region"
-              aria-label="Daily measurements"
-            >
-              <table>
-                <thead>
-                  <tr>
-                    <th scope="col">UTC date</th>
-                    <th scope="col">Observed success</th>
-                    <th scope="col">Received / expected measurements</th>
-                    <th scope="col">Average latency</th>
-                  </tr>
-                </thead>
-                <tbody id="history-rows"></tbody>
-              </table>
-            </div>
-          </details>
-          <p class="section-note">
-            Availability covers received measurements only. Incompletee coverage
-            leaves unknown periods; average latency is not a service commitment.
-          </p>
-        </section>
-      </section>
-      <section
-        id="panel-verification"
-        role="tabpanel"
-        aria-labelledby="tab-verification"
-        tabindex="0"
-        class="panel"
-        hidden
-      >
-        <div class="panel-heading">
-          <h2>What the evidence establishes</h2>
-          <span class="dated">Technical view</span>
         </div>
-        <p class="explanation">
-          Each result retains its environment and scope. A local test or
-          simulated provider never establishes production success.
+        <p class="measurement">
+          <span data-i18n="Last checked">Last checked</span>
+          <time id="checked-time" data-i18n="Pending">Pending</time>
         </p>
-        <div class="evidence-register">
-          <article class="evidence-row">
-            <div>
-              <h3>Production · public observations</h3>
-              <p>
-                Measurements recorded by the status service, detailed below.
-                These probes perform no business operation.
-              </p>
-            </div>
-            <span id="public-evidence-state" class="badge pending"
+        <ul
+          class="service-list"
+          aria-label="Monitored services"
+          data-i18n-aria="Monitored services"
+        >
+          <li>
+            <span data-i18n="Public website">Public website</span
+            ><span
+              id="service-pages-state"
+              class="service-state unknown"
+              data-i18n="Pending"
               >Pending</span
             >
-          </article>
-          <article class="evidence-row">
-            <div>
-              <h3>Business validation · local environment</h3>
-              <p id="qualification-summary">
-                Reading the local qualification report. No local result will be
-                presented as production success.
-              </p>
-              <p id="qualification-date" class="proof-date">
-                Qualification date unavailable.
-              </p>
-              <details
-                id="qualification-detail"
-                class="qualification-detail"
-                hidden
-              >
-                <summary>Tested workflows and limits</summary>
-                <div id="qualification-scope"></div>
-                <div id="qualification-limits"></div>
-              </details>
-            </div>
-            <span id="qualification-state" class="badge pending">Pending</span>
-          </article>
-          <article class="evidence-row">
-            <div>
-              <h3>Dry run · production</h3>
-              <p>
-                The dry run reads an existing prepared dispatch without
-                consuming or renewing its quote. No result from this production
-                validation is available here.
-              </p>
-            </div>
-            <span class="badge pending">Not executed</span>
-          </article>
-          <article class="evidence-row">
-            <div>
-              <h3>Complete workflows · isolated environment</h3>
-              <p>
-                The local qualification above exercises selected scenarios. Full
-                coverage of queues, analysis engines and all workflows requires
-                separate evidence; this result alone does not establish it.
-              </p>
-            </div>
-            <span class="badge pending">To complete</span>
-          </article>
-        </div>
-        <details class="report-detail">
-          <summary>Why the dry run provides partial evidence</summary>
-          <div class="detail-body">
-            <p>
-              It reads prepared state, absence of attempts, the quote and
-              applicable restrictions. It creates no quote, approval, reserved
-              credit, queued message or provider call. Expiry rules still apply.
-            </p>
-            <p>
-              Atomic acceptance and delivery are explicitly not executed.
-              Current accounts and permissions remain necessary. Technical
-              access counters may change; a real production read also uses
-              infrastructure.
-            </p>
-            <p>
-              This page performs no authenticated test or real dispatch. Public
-              collection is separate from business tests.
-            </p>
-          </div>
-        </details>
-        <div class="panel-heading verification-heading">
-          <h2>Observed public checks</h2>
-          <span id="tab-public-count" class="badge disabled">—</span>
-        </div>
-        <p id="live-explanation" class="explanation">
-          Waiting for a usable measurement.
-        </p>
-        <div class="toolbar">
-          <fieldset class="filters">
-            <legend class="sr-only">Filter checks</legend>
-            <button type="button" data-check-filter="all" aria-pressed="true">
-              All</button
-            ><button
-              type="button"
-              data-check-filter="fail"
-              aria-pressed="false"
+          </li>
+          <li>
+            <span data-i18n="Service response">Service response</span
+            ><span
+              id="service-api-state"
+              class="service-state unknown"
+              data-i18n="Pending"
+              >Pending</span
             >
-              Failed</button
-            ><button
-              type="button"
-              data-check-filter="pass"
-              aria-pressed="false"
+          </li>
+          <li>
+            <span data-i18n="Access protection">Access protection</span
+            ><span
+              id="service-access-state"
+              class="service-state unknown"
+              data-i18n="Pending"
+              >Pending</span
             >
-              Passed
-            </button>
-          </fieldset>
-          <label class="search"
-            ><span class="sr-only">Search checks</span
-            ><input
-              id="check-search"
-              type="search"
-              placeholder="Search checks…"
-              autocomplete="off"
-          /></label>
-        </div>
-        <p id="result-count" class="result-count" aria-live="polite">
-          Waiting for the first measurement.
-        </p>
-        <div id="probes" class="results" data-current="false">
-          <p class="empty">Results will appear when the monitor responds.</p>
-        </div>
-        <p class="section-note">
-          A passing result proves only its stated expectation. HTTP 401 is a
-          success here: anonymous access must be blocked. Individual assertion
-          details are not exported.
-        </p>
-        <section class="coverage-panel" aria-label="Workflow coverage">
-          <div class="panel-heading">
-            <h2>Workflow coverage</h2>
-            <span id="business-total" class="badge disabled">— features</span>
-          </div>
-          <p id="service-explanation" class="explanation">
-            These workflows need checks separate from availability measurements.
-            The details below describe the monitored scope.
-          </p>
-          <fieldset class="filters">
-            <legend class="sr-only">Filter features</legend>
-            <button type="button" data-filter="all" aria-pressed="true">
-              All</button
-            ><button
-              type="button"
-              data-filter="not_checked"
-              aria-pressed="false"
-            >
-              Additional monitoring</button
-            ><button type="button" data-filter="disabled" aria-pressed="false">
-              Not enabled
-            </button>
-          </fieldset>
-          <p id="coverage-count" class="result-count" aria-live="polite">
-            Waiting for data.
-          </p>
-          <div id="coverage" class="results" data-current="false">
-            <p class="empty">No measurement received.</p>
-          </div>
-          <p class="section-note">
-            Local results, production checks and actual deliveries are separate
-            evidence.
-          </p>
-        </section>
+          </li>
+        </ul>
       </section>
-      <section
-        id="panel-operations"
-        role="tabpanel"
-        aria-labelledby="tab-operations"
-        tabindex="0"
-        class="panel"
-        hidden
-      >
-        <div class="panel-heading">
-          <h2>
-            <img
-              src="assets/icon-wrench.svg"
-              class="ui-icon"
-              alt=""
-              width="24"
-              height="24"
-            />Maintenance and on-call monitoring
+      <section class="history-panel" aria-labelledby="history-title">
+        <div class="history-heading">
+          <h2 id="history-title" data-i18n="Availability history">
+            Availability history
           </h2>
-          <span class="dated">Evidence · age · action</span>
+          <fieldset class="history-periods">
+            <legend class="sr-only" data-i18n="History period">
+              History period
+            </legend>
+            <button
+              type="button"
+              data-days="7"
+              aria-pressed="false"
+              data-i18n="7 days"
+            >
+              7 days</button
+            ><button
+              type="button"
+              data-days="30"
+              aria-pressed="true"
+              data-i18n="30 days"
+            >
+              30 days</button
+            ><button
+              type="button"
+              data-days="365"
+              aria-pressed="false"
+              data-i18n="1 year"
+            >
+              1 year
+            </button>
+          </fieldset>
         </div>
-        <p class="explanation">
-          A missing or stale measurement means the current state is unknown.
-          Rows without private evidence still need verification; they do not
-          establish an incident.
+        <p
+          id="history-state"
+          class="history-state"
+          role="status"
+          aria-live="polite"
+          data-i18n="Loading history…"
+        >
+          Loading history…
         </p>
-        <div class="operation-list">
-          <article class="operation">
-            <div class="operation-heading">
-              <h3>Public observation</h3>
-              <span id="operations-measure-state" class="badge pending"
-                >Pending</span
-              >
-            </div>
-            <dl class="operation-facts">
-              <div>
-                <dt>Evidence</dt>
-                <dd id="operations-measure-proof">No measurement received.</dd>
-              </div>
-              <div>
-                <dt>Age</dt>
-                <dd id="operations-measure-age">Unavailable</dd>
-              </div>
-              <div>
-                <dt>Action</dt>
-                <dd>
-                  Read the existing result again. If the measurement is missing
-                  or stale, check the collection process before drawing
-                  conclusions.
-                </dd>
-              </div>
-            </dl>
-          </article>
-          <article class="operation">
-            <div class="operation-heading">
-              <h3>PDF analysis and rendering</h3>
-              <span class="badge pending">Private evidence missing</span>
-            </div>
-            <dl class="operation-facts">
-              <div>
-                <dt>Expected evidence</dt>
-                <dd>
-                  Analysis of a known file, signature freshness, exact bytes and
-                  rendering of every page.
-                </dd>
-              </div>
-              <div>
-                <dt>Age</dt>
-                <dd>Latest success unavailable in this report.</dd>
-              </div>
-              <div>
-                <dt>Action</dt>
-                <dd>
-                  Run and archive the isolated local workflow. Reported
-                  configuration alone does not validate actual processing.
-                </dd>
-              </div>
-            </dl>
-          </article>
-          <article class="operation">
-            <div class="operation-heading">
-              <h3>Queues and background processing</h3>
-              <span class="badge pending">Measurement missing</span>
-            </div>
-            <dl class="operation-facts">
-              <div>
-                <dt>Expected evidence</dt>
-                <dd>
-                  Last completed execution, age of the oldest job and behaviour
-                  after interruption.
-                </dd>
-              </div>
-              <div>
-                <dt>Age</dt>
-                <dd>No queue measurement received here.</dd>
-              </div>
-              <div>
-                <dt>Action</dt>
-                <dd>
-                  Test recovery with local queues and a simulated provider. An
-                  unknown provider outcome must not trigger another dispatch.
-                </dd>
-              </div>
-            </dl>
-          </article>
-          <article class="operation">
-            <div class="operation-heading">
-              <h3>Reception and delivery</h3>
-              <span class="badge pending">Not executed</span>
-            </div>
-            <dl class="operation-facts">
-              <div>
-                <dt>Expected evidence</dt>
-                <dd>
-                  Authenticated event, dispatch reconciliation and consistent
-                  final state.
-                </dd>
-              </div>
-              <div>
-                <dt>Age</dt>
-                <dd>This verification provides no delivery evidence.</dd>
-              </div>
-              <div>
-                <dt>Action</dt>
-                <dd>
-                  Exercise success, rejection, duplicate and timeout scenarios
-                  using simulated events. The strategy without business charges
-                  makes no real delivery call.
-                </dd>
-              </div>
-            </dl>
-          </article>
-          <article class="operation">
-            <div class="operation-heading">
-              <h3>Backup and restoration</h3>
-              <span class="badge pending">Evidence needed</span>
-            </div>
-            <dl class="operation-facts">
-              <div>
-                <dt>Expected evidence</dt>
-                <dd>Isolated restoration and documented consistency checks.</dd>
-              </div>
-              <div>
-                <dt>Age</dt>
-                <dd>No verified restoration date provided here.</dd>
-              </div>
-              <div>
-                <dt>Action</dt>
-                <dd>
-                  Restore a local test database, check relations and retain the
-                  result. Do not alter production data for this test.
-                </dd>
-              </div>
-            </dl>
-          </article>
+        <div
+          id="history-chart"
+          class="history-chart"
+          role="group"
+          aria-label="Availability history"
+          data-i18n-aria="Availability history"
+        ></div>
+        <div class="history-caption">
+          <span id="history-range"></span>
+          <ul
+            class="legend"
+            aria-label="History legend"
+            data-i18n-aria="History legend"
+          >
+            <li>
+              <i class="success" aria-hidden="true"></i
+              ><span data-i18n="Passing">Passing</span>
+            </li>
+            <li>
+              <i class="attention" aria-hidden="true"></i
+              ><span data-i18n="Issue detected">Issue detected</span>
+            </li>
+            <li>
+              <i class="unknown" aria-hidden="true"></i
+              ><span data-i18n="No data">No data</span>
+            </li>
+            <li>
+              <i class="partial" aria-hidden="true"></i
+              ><span data-i18n="Partial data">Partial data</span>
+            </li>
+          </ul>
         </div>
-        <details class="report-detail">
-          <summary>Test strategy without business charges</summary>
-          <div class="detail-body">
-            <ol class="test-policy">
-              <li>
-                Run application code locally with synthetic data, isolated D1
-                databases and R2 objects, queues and the required PDF
-                components.
-              </li>
-              <li>
-                Block external networking and exclude production secrets. The
-                final delivery call uses only a simulated provider; any
-                unexpected network access fails the test.
-              </li>
-              <li>
-                Retain evidence for each scenario: environment, result, date,
-                duration and limitation. A scenario that has not run receives no
-                passing status.
-              </li>
-              <li>
-                Keep production outside this loop. Public collection is bounded
-                and uses infrastructure; its cost cannot be described as zero.
-                Do not include a billable business workflow in this loop.
-              </li>
-            </ol>
-            <p>
-              Goal: no real quote consumed, no business credit reserved and no
-              provider payment. Machine and any CI resources remain separate.
-              Local qualification publishes a dated result under Verification.
-              Uncovered scenarios still need completion.
-            </p>
+        <p
+          id="history-selection"
+          class="history-selection"
+          role="status"
+          aria-live="polite"
+          data-i18n="Choose a day to see its observations."
+        >
+          Choose a day to see its observations.
+        </p>
+        <details class="daily-details">
+          <summary data-i18n="View daily history">View daily history</summary>
+          <div
+            class="table-scroll"
+            tabindex="0"
+            role="region"
+            aria-label="Daily history"
+            data-i18n-aria="Daily history"
+          >
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col" data-i18n="Date (UTC)">Date (UTC)</th>
+                  <th scope="col" data-i18n="Passing checks">Passing checks</th>
+                  <th scope="col" data-i18n="Recorded / expected">
+                    Recorded / expected
+                  </th>
+                </tr>
+              </thead>
+              <tbody id="history-rows"></tbody>
+            </table>
           </div>
         </details>
-        <details class="report-detail">
-          <summary>Alert rules to implement</summary>
-          <div class="detail-body">
-            <p>
-              Report observed failures, stale evidence or missing measurements.
-              Associate each alert with the feature, test environment, time and
-              corresponding evidence.
-            </p>
-            <p>
-              Notify when an issue appears, changes meaningfully or recovers;
-              deduplicate reminders. This page configures no alert channel or
-              on-call service.
-            </p>
-          </div>
-        </details>
+        <p
+          class="history-note"
+          data-i18n="Availability uses recorded checks. Periods without data remain unknown."
+        >
+          Availability uses recorded checks. Periods without data remain
+          unknown.
+        </p>
+        <p id="history-start" class="history-note"></p>
       </section>
+      <p
+        class="scope-note"
+        data-i18n="Automatic checks cover public access every 15 minutes. Track your document deliveries in your workspace."
+      >
+        Automatic checks cover public access every 15 minutes. Track your
+        document deliveries in your workspace.
+      </p>
       <noscript
-        ><p class="notice">
-          JavaScript is required for measurements and interactive views. No
-          measurement can be displayed without JavaScript.
+        ><p>
+          JavaScript is required to display live observations. / JavaScript est
+          nécessaire pour afficher les observations. / JavaScript ist für die
+          Anzeige der Beobachtungen erforderlich. / JavaScript ass néideg, fir
+          d’Observatiounen ze weisen.
         </p></noscript
       >
     </main>
-    <footer class="status-footer">
-      <div class="footer-top wrap">
-        <div>
-          <a class="footer-wordmark" href="https://guteneo.com">guteneo</a>
-          <p>A monitored service with evidence at hand.</p>
+    <footer class="status-footer wrap">
+      <nav id="public-footer-nav" aria-label="Site navigation"></nav>
+      <div class="status-footer-colophon">
+        <figure class="footer-postage" aria-hidden="true">
+          <img
+            class="founding-stamp"
+            src="/assets/gutenberg-guteneo-stamp.webp"
+            alt=""
+            width="640"
+            height="640"
+            loading="lazy"
+            decoding="async"
+          /><svg
+            class="founding-postmark"
+            viewBox="0 0 300 230"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <defs>
+              <path
+                id="status-footer-1k_-top"
+                d="M 25,139 A 62,62 0 0 1 149,139"
+              ></path>
+              <path
+                id="status-footer-1k_-bottom"
+                d="M 21,137 A 66,66 0 0 0 153,137"
+              ></path>
+              <pattern
+                id="status-footer-1k_-grain"
+                width="9"
+                height="11"
+                patternUnits="userSpaceOnUse"
+              >
+                <rect width="9" height="11" fill="white"></rect>
+                <circle cx="2" cy="3" r="0.65" fill="black"></circle>
+                <path d="M6 8h1.2v0.7H6z" fill="black"></path>
+              </pattern>
+              <mask id="status-footer-1k_-ink">
+                <rect
+                  width="300"
+                  height="230"
+                  fill="url(#status-footer-1k_-grain)"
+                ></rect>
+              </mask>
+            </defs>
+            <g mask="url(#status-footer-1k_-ink)">
+              <g fill="none" stroke="currentColor" stroke-width="1.8">
+                <circle cx="87" cy="137" r="73"></circle>
+                <circle cx="87" cy="137" r="69" stroke-width="0.7"></circle>
+                <circle cx="87" cy="137" r="49" stroke-width="1"></circle>
+                <path
+                  d="M159 107c20-14 37 14 57 0s37 14 67 0M161 122c20-14 37 14 57 0s37 14 67 0M161 152c20-14 37 14 57 0s37 14 67 0M159 167c20-14 37 14 57 0s37 14 67 0"
+                ></path>
+              </g>
+              <text class="postmark-place">
+                <textPath
+                  href="#status-footer-1k_-top"
+                  startOffset="50%"
+                  text-anchor="middle"
+                >
+                  LUXEMBOURG
+                </textPath>
+              </text>
+              <text class="postmark-edition">
+                <textPath
+                  href="#status-footer-1k_-bottom"
+                  startOffset="50%"
+                  text-anchor="middle"
+                >
+                  PREMIER JOUR
+                </textPath>
+              </text>
+              <text class="postmark-post" x="87" y="116" text-anchor="middle">
+                POSTES
+              </text>
+              <text class="postmark-date" x="87" y="140" text-anchor="middle">
+                16.09.2026
+              </text>
+              <text
+                class="postmark-signature"
+                x="87"
+                y="160"
+                text-anchor="middle"
+              >
+                guteneo
+              </text>
+            </g>
+          </svg>
+        </figure>
+        <div class="preferences">
+          <label
+            ><span data-i18n="Language">Language</span
+            ><select id="status-language">
+              <option value="auto" data-i18n="Automatic">Automatic</option>
+              <option value="fr">Français</option>
+              <option value="en">English</option>
+              <option value="de">Deutsch</option>
+              <option value="lb">Lëtzebuergesch</option>
+            </select></label
+          ><label
+            ><span data-i18n="Appearance">Appearance</span
+            ><select id="status-theme">
+              <option value="system" data-i18n="System">System</option>
+              <option value="light" data-i18n="Light">Light</option>
+              <option value="dark" data-i18n="Dark">Dark</option>
+            </select></label
+          >
         </div>
-        <label class="status-language" for="status-language"
-          >Language
-          <select id="status-language">
-            <option value="en">English</option>
-            <option value="fr">Français</option>
-          </select>
-        </label>
-        <button
-          type="button"
-          id="motion-toggle"
-          class="button"
-          aria-pressed="false"
-        >
-          Animations: disabled
-        </button>
-      </div>
-      <div class="status-landscape" aria-hidden="true">
-        <img
-          src="assets/luxembourg-blue-panorama.webp"
-          alt=""
-          width="2172"
-          height="724"
-          loading="lazy"
-          decoding="async"
-        /><span class="status-bird bird-one"
-          ><span class="status-wingbeat"></span></span
-        ><span class="status-bird bird-two"
-          ><span class="status-wingbeat"></span></span
-        ><span class="status-bird bird-three"
-          ><span class="status-wingbeat"></span
-        ></span>
-      </div>
-      <div class="footer-bottom wrap">
-        <nav aria-label="Useful links">
-          <a href="https://guteneo.com">Return to guteneo</a
-          ><a href="https://guteneo.com/support/">Support</a
-          ><a href="https://guteneo.com/legal/">Legal notice</a
-          ><a href="https://guteneo.com/privacy/">Privacy</a>
-        </nav>
-        <p>Observed availability, history and verification details.</p>
       </div>
     </footer>
   </body>

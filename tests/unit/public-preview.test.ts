@@ -98,6 +98,42 @@ describe("public browser design preview", () => {
     ).toEqual(initial);
   });
 
+  it("keeps annual fictional activity dated, separate from real credits and entirely in the browser", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-01-01T01:00:00.000Z"));
+    const preview = createPreviewApi();
+    expect(await preview.request("/usage/activity?year=2025")).toMatchObject({
+      year: 2025,
+      currentYear: 2026,
+      availableYears: [2026, 2025],
+      asOf: "2026-01-01T01:00:00.000Z",
+      timeZone: "UTC",
+      currency: "EUR",
+      evidence: "simulation",
+      days: [
+        {
+          date: "2025-12-31",
+          amountMinor: 158,
+          dispatchCount: 3,
+          chargeCount: 3,
+        },
+      ],
+      totals: {
+        amountMinor: 158,
+        dispatchCount: 3,
+        chargeCount: 3,
+        activeDays: 1,
+      },
+    });
+    expect(await preview.request("/usage/activity")).toMatchObject({
+      year: 2026,
+      days: [],
+      totals: { amountMinor: 0, activeDays: 0 },
+    });
+    await expect(
+      preview.request("/usage/activity?year=2026-01"),
+    ).rejects.toMatchObject({ code: "INVALID_INPUT" });
+  });
   it("starts with a fictional session, real fixture PDF bytes, and matching metadata", async () => {
     const preview = createPreviewApi();
     const session = (await preview.request("/session")) as Session;

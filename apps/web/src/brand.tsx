@@ -1,24 +1,33 @@
 import { msg } from "./messages";
+import { useDarkImageMedia } from "./theme-media";
 type BrandVariant = "portrait" | "simple";
 
 export function BrandMark({ variant = "simple" }: { variant?: BrandVariant }) {
+  const darkMedia = useDarkImageMedia();
   const portrait = variant === "portrait";
   const asset = portrait ? "guteneo-portrait" : "guteneo-mark";
   return (
-    <img
-      className="brand-mark"
-      src={`/brand/${asset}-128.webp`}
-      srcSet={
-        portrait
-          ? `/brand/${asset}-128.webp 128w, /brand/${asset}-192.webp 192w`
-          : `/brand/${asset}-128.webp 128w, /brand/${asset}.webp 512w`
-      }
-      sizes="48px"
-      alt=""
-      width="128"
-      height="128"
-      decoding="async"
-    />
+    <picture className="brand-picture">
+      <source
+        data-theme-source="dark"
+        media={darkMedia}
+        srcSet="/brand/guteneo-portrait-128.webp"
+      />
+      <img
+        className="brand-mark"
+        src={`/brand/${asset}-128.webp`}
+        srcSet={
+          portrait
+            ? `/brand/${asset}-128.webp 128w, /brand/${asset}-192.webp 192w`
+            : `/brand/${asset}-128.webp 128w, /brand/${asset}.webp 512w`
+        }
+        sizes="48px"
+        alt=""
+        width="128"
+        height="128"
+        decoding="async"
+      />
+    </picture>
   );
 }
 

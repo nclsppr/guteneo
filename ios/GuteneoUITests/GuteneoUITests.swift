@@ -265,33 +265,45 @@ final class GuteneoUITests: XCTestCase {
     }
 
     private func selectTab(_ label: String, in app: XCUIApplication, file: StaticString = #filePath, line: UInt = #line) {
-        let tab = tabElement(label, in: app, file: file, line: line)
         // Existence alone does not establish that a native tab is interactive.
-        // Wait for its hit target and verify selection before inspecting a page.
-        let ready = XCTNSPredicateExpectation(predicate: NSPredicate(format: "hittable == true AND enabled == true"), object: tab)
-        XCTAssertEqual(XCTWaiter.wait(for: [ready], timeout: 10), .completed,
+        // The hosted runner took 19 seconds to resolve a visible tab after a
+        // large-text launch. Resolve its current AX representation on each poll.
+        let ready = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in
+            let tab = self.tabElement(label, in: app)
+            return tab.exists && tab.isHittable && tab.isEnabled
+        }, object: nil)
+        let readiness = XCTWaiter.wait(for: [ready], timeout: 20)
+        if readiness != .completed {
+            attachScreenshot(app, name: "Tab did not become interactive — \(label)")
+        }
+        XCTAssertEqual(readiness, .completed,
                        "Tab is not interactive: \(label)", file: file, line: line)
-        tab.tap()
-        let selected = XCTNSPredicateExpectation(predicate: NSPredicate(format: "selected == true"), object: tab)
-        XCTAssertEqual(XCTWaiter.wait(for: [selected], timeout: 10), .completed,
+        tabElement(label, in: app).tap()
+        let selected = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in
+            let tab = self.tabElement(label, in: app)
+            return tab.exists && tab.isSelected
+        }, object: nil)
+        let selection = XCTWaiter.wait(for: [selected], timeout: 20)
+        if selection != .completed {
+            attachScreenshot(app, name: "Tab was not selected — \(label)")
+        }
+        XCTAssertEqual(selection, .completed,
                        "Tapping did not select the tab: \(label)", file: file, line: line)
     }
 
-    private func tabElement(_ label: String, in app: XCUIApplication, file: StaticString = #filePath, line: UInt = #line) -> XCUIElement {
+    private func tabElement(_ label: String, in app: XCUIApplication) -> XCUIElement {
         let tabBarButton = app.tabBars.buttons[label]
         if tabBarButton.exists {
             return tabBarButton
         }
         // iPad exposes its floating tab items as cells or other accessible elements.
-        let tabItem = app.descendants(matching: .any).matching(NSPredicate(
+        return app.descendants(matching: .any).matching(NSPredicate(
             format: "label == %@ AND (elementType == %d OR elementType == %d OR elementType == %d)",
             label,
             XCUIElement.ElementType.button.rawValue,
             XCUIElement.ElementType.cell.rawValue,
             XCUIElement.ElementType.other.rawValue
         )).firstMatch
-        XCTAssertTrue(tabItem.waitForExistence(timeout: 5), "Tab was not found: \(label)", file: file, line: line)
-        return tabItem
     }
 
     func testWelcomeLanguageChangesImmediatelyAndKeepsTheChoice() {
@@ -345,29 +357,44 @@ final class GuteneoUITests: XCTestCase {
     }
 
     private func selectAccountLanguage(_ language: String, in app: XCUIApplication, file: StaticString = #filePath, line: UInt = #line) {
-        let picker = app.buttons["accountLanguage"]
-        XCTAssertTrue(picker.waitForExistence(timeout: 10), file: file, line: line)
-        let interactive = NSPredicate(format: "hittable == true AND enabled == true")
-        XCTAssertEqual(XCTWaiter.wait(for: [
-            XCTNSPredicateExpectation(predicate: interactive, object: picker)
-        ], timeout: 5), .completed, "Language picker is not interactive", file: file, line: line)
+        guard let picker = interactiveButton("accountLanguage", in: app, file: file, line: line) else { return }
         picker.tap()
 
-        let option = app.buttons[language]
-        XCTAssertTrue(option.waitForExistence(timeout: 5), file: file, line: line)
-        XCTAssertEqual(XCTWaiter.wait(for: [
-            XCTNSPredicateExpectation(predicate: interactive, object: option)
-        ], timeout: 5), .completed, "Language option is not interactive: \(language)", file: file, line: line)
+        guard let option = interactiveButton(language, in: app, file: file, line: line) else { return }
         option.tap()
 
-        // Locale changes recompose the SwiftUI picker and its native menu.
-        // Observe the displayed selection and closed menu before the next gesture.
-        let selected = NSPredicate(format: "label CONTAINS %@ AND hittable == true AND enabled == true", language)
-        let closed = NSPredicate(format: "exists == false")
-        XCTAssertEqual(XCTWaiter.wait(for: [
-            XCTNSPredicateExpectation(predicate: selected, object: picker),
-            XCTNSPredicateExpectation(predicate: closed, object: option)
-        ], timeout: 5), .completed, "Language choice was not applied or the menu remains open: \(language)", file: file, line: line)
+        // Locale changes recompose the picker and native menu. Observe its
+        // value and menu closure here; hit-testing belongs before a gesture.
+        // UIKit may temporarily lack an activation point for the rebuilt picker.
+        let settled = NSPredicate { _, _ in
+            let picker = app.buttons["accountLanguage"]
+            return picker.exists && picker.label.contains(language) && picker.isEnabled && !app.buttons[language].exists
+        }
+        let result = XCTWaiter.wait(for: [
+            XCTNSPredicateExpectation(predicate: settled, object: nil)
+        ], timeout: 20)
+        if result != .completed {
+            attachScreenshot(app, name: "Language selection did not settle — \(language)")
+        }
+        XCTAssertEqual(result, .completed, "Language choice was not applied or the menu remains open: \(language)", file: file, line: line)
+    }
+
+    private func interactiveButton(_ identifier: String, in app: XCUIApplication, file: StaticString = #filePath, line: UInt = #line) -> XCUIElement? {
+        // Re-resolve controls rebuilt by SwiftUI instead of spending a separate
+        // five-second hit-test budget on an earlier accessibility query.
+        let ready = NSPredicate { _, _ in
+            let button = app.buttons[identifier]
+            return button.exists && button.isEnabled && button.isHittable
+        }
+        let result = XCTWaiter.wait(for: [
+            XCTNSPredicateExpectation(predicate: ready, object: nil)
+        ], timeout: 20)
+        if result != .completed {
+            attachScreenshot(app, name: "Button did not become interactive — \(identifier)")
+        }
+        XCTAssertEqual(result, .completed, "Button is not interactive: \(identifier)", file: file, line: line)
+        guard result == .completed else { return nil }
+        return app.buttons[identifier]
     }
 
     private func launch(arguments: [String]) -> XCUIApplication {

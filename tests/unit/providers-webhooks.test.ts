@@ -77,6 +77,10 @@ beforeAll(async () => {
     }),
   );
   db = (await mf.getD1Database("DB")) as unknown as D1Database;
+  // Cron also expires technical PDF attempts before identity setup is complete.
+  await db
+    .prepare("CREATE TABLE pdf_validations(status TEXT,deadline_at TEXT)")
+    .run();
   await db
     .prepare(
       "CREATE TABLE provider_receipts(provider TEXT NOT NULL,event_id TEXT NOT NULL,payload_json TEXT NOT NULL,status TEXT NOT NULL CHECK(status IN ('pending','projected','unrecognized')),received_at TEXT NOT NULL,PRIMARY KEY(provider,event_id))",

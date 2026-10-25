@@ -10,6 +10,15 @@ import type {
 } from "./api";
 import type { WelcomeCredit } from "./credit-balance";
 import {
+  PDF_VALIDATION_PRICE_MINOR,
+  PDF_VALIDATION_TERMS_VERSION,
+  type PdfValidationPricing,
+} from "../../../packages/contracts/src/pdf-validation";
+import type {
+  UsageActivity,
+  UsageActivityDay,
+} from "../../../packages/contracts/src/usage-activity";
+import {
   DISPATCH_GROUPS,
   isDispatchGroup,
   type DispatchOverview,
@@ -482,26 +491,23 @@ export function createPreviewApi() {
     };
     if (method === "GET") {
       if (route === "/plan")
+        fail(
+          "MONTHLY_PLAN_RETIRED",
+          "Monthly subscriptions are discontinued.",
+          410,
+        );
+      if (route === "/pdf-validation/pricing")
         return {
-          plan: {
-            id: "horizon",
-            name: "guteneo Horizon",
-            priceMinor: 3000,
-            currency: "EUR",
-            interval: "month",
-          },
-          termsVersion: "horizon-2026-10-02-v1",
           enabled: false,
-          status: "inactive",
-          entitled: false,
-          currentPeriodStart: null,
-          currentPeriodEnd: null,
-          cancelAtPeriodEnd: false,
-          billingManagementAllowed: false,
+          priceMinor: PDF_VALIDATION_PRICE_MINOR,
+          currency: "EUR",
+          taxBasis: "excluding_tax",
+          termsVersion: PDF_VALIDATION_TERMS_VERSION,
+          purchaseAllowed: false,
           paymentSource: "account_credits",
           evidence: "simulation",
-          creditAvailableMinor: null,
-        };
+          creditAvailableMinor: previewCredit(state).availableMinor,
+        } satisfies PdfValidationPricing;
       if (route === "/billing")
         return { welcomeCredit: previewCredit(state), topUpAvailable: false };
       if (route === "/documents") return copy(page(state.documents));
@@ -576,8 +582,73 @@ export function createPreviewApi() {
           })),
           deadLetters: [],
         };
+      if (route === "/usage/activity") {
+        const asOf = now();
+        const requestedYear = new URLSearchParams(path.split("?")[1]).get(
+          "year",
+        );
+        if (
+          requestedYear !== null &&
+          (!/^[1-9]\d{3}$/.test(requestedYear) || Number(requestedYear) > 9998)
+        )
+          fail("INVALID_INPUT", "Choose a usage year between 1000 and 9998.");
+        const currentYear = Number(asOf.slice(0, 4));
+        const year = Number(requestedYear ?? currentYear);
+        const recorded = state.dispatches.filter(
+          ({ dispatch }) =>
+            ["submitted", "delivered"].includes(dispatch.status) &&
+            dispatch.updated_at <= asOf,
+        );
+        const grouped = new Map<string, UsageActivityDay>();
+        for (const { dispatch } of recorded) {
+          if (Number(dispatch.updated_at.slice(0, 4)) !== year) continue;
+          const date = dispatch.updated_at.slice(0, 10);
+          const day = grouped.get(date) ?? {
+            date,
+            amountMinor: 0,
+            dispatchCount: 0,
+            chargeCount: 0,
+          };
+          day.amountMinor += dispatch.estimated_minor;
+          day.dispatchCount += 1;
+          day.chargeCount += 1;
+          grouped.set(date, day);
+        }
+        const days = [...grouped.values()].sort((a, b) =>
+          a.date.localeCompare(b.date),
+        );
+        return {
+          year,
+          currentYear,
+          availableYears: [
+            ...new Set([
+              currentYear,
+              ...recorded.map(({ dispatch }) =>
+                Number(dispatch.updated_at.slice(0, 4)),
+              ),
+            ]),
+          ].sort((a, b) => b - a),
+          asOf,
+          timeZone: "UTC",
+          currency: "EUR",
+          evidence: "simulation",
+          days,
+          totals: days.reduce(
+            (total, day) => ({
+              amountMinor: total.amountMinor + day.amountMinor,
+              dispatchCount: total.dispatchCount + day.dispatchCount,
+              chargeCount: total.chargeCount + day.chargeCount,
+              activeDays: total.activeDays + 1,
+            }),
+            { amountMinor: 0, dispatchCount: 0, chargeCount: 0, activeDays: 0 },
+          ),
+        } satisfies UsageActivity;
+      }
       if (route === "/usage")
         return {
+          period: new Date().toISOString().slice(0, 7),
+          currentPeriod: new Date().toISOString().slice(0, 7),
+          availablePeriods: [new Date().toISOString().slice(0, 7)],
           ...page(
             channels.map((channel) => {
               const consumed = state.dispatches.filter(

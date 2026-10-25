@@ -61,7 +61,7 @@ const capabilities = () => ({
     { id: "email", liveSending: true },
     { id: "postal", liveSending: false },
   ],
-  horizon: { available: false },
+  pdfValidation: { available: false },
   billing: { chargingEnabled: false },
   studio: { ai: { configured: false } },
 });
@@ -154,8 +154,12 @@ afterAll(async () => {
 describe("public collector with no business transport", () => {
   it("keeps all manifest checks strict through the Node identity transport", async () => {
     const transport = publicObservationTransport(async (input, init) => {
-      expect(new Headers(init?.headers).get("Accept-Encoding")).toBe("identity");
-      expect(new Headers(init?.headers).get("Cache-Control")).toBe("no-transform");
+      expect(new Headers(init?.headers).get("Accept-Encoding")).toBe(
+        "identity",
+      );
+      expect(new Headers(init?.headers).get("Cache-Control")).toBe(
+        "no-transform",
+      );
       return fixture(String(input));
     });
     const result = await collectPublicSnapshot(transport.fetch, () => NOW);
@@ -163,27 +167,55 @@ describe("public collector with no business transport", () => {
     expect(result.checks.every((check) => check.status === "pass")).toBe(true);
     expect(transport.pages.size).toBe(7);
     expect(transport.expectedPages.size).toBe(7);
-    expect(transport.pages.get("/roles/")?.observedDecodedBytes).toBe(transport.expectedPages.get("/roles/")?.expectedBytes);
-    expect(transport.pages.get("/roles/")?.observedSha256).toBe(transport.expectedPages.get("/roles/")?.expectedSha256);
+    expect(transport.pages.get("/roles/")?.observedDecodedBytes).toBe(
+      transport.expectedPages.get("/roles/")?.expectedBytes,
+    );
+    expect(transport.pages.get("/roles/")?.observedSha256).toBe(
+      transport.expectedPages.get("/roles/")?.expectedSha256,
+    );
   });
 
-  it.each(["length", "hash"])("still fails closed on a CDN %s transformation after requesting identity", async (change) => {
-    const transport = publicObservationTransport(async (input) => {
-      if (String(input) !== "https://guteneo.com/roles/") return fixture(String(input));
-      const response = fixture(String(input));
-      const original = await response.text();
-      // Equal-length changes must fail the hash; neither branch can pass by
-      // trusting Content-Length or a server that ignores Accept-Encoding.
-      return new Response(change === "length" ? original + " " : original.replace("Fixture", "Changed"), {
-        headers: { ...Object.fromEntries(response.headers), "Content-Encoding": "br", "Content-Length": "1" },
+  it.each(["length", "hash"])(
+    "still fails closed on a CDN %s transformation after requesting identity",
+    async (change) => {
+      const transport = publicObservationTransport(async (input) => {
+        if (String(input) !== "https://guteneo.com/roles/")
+          return fixture(String(input));
+        const response = fixture(String(input));
+        const original = await response.text();
+        // Equal-length changes must fail the hash; neither branch can pass by
+        // trusting Content-Length or a server that ignores Accept-Encoding.
+        return new Response(
+          change === "length"
+            ? original + " "
+            : original.replace("Fixture", "Changed"),
+          {
+            headers: {
+              ...Object.fromEntries(response.headers),
+              "Content-Encoding": "br",
+              "Content-Length": "1",
+            },
+          },
+        );
       });
-    });
-    const result = await collectPublicSnapshot(transport.fetch, () => NOW);
-    expect(result.checks.find((check) => check.path === "/roles/")).toMatchObject({ status: "fail",
-      code: change === "length" ? "CONTENT_LENGTH_MISMATCH" : "CONTENT_HASH_MISMATCH" });
-    expect(result.checks.filter((check) => check.status === "pass")).toHaveLength(13);
-    expect(transport.pages.get("/roles/")?.responseContentEncoding).toBe("br");
-  });
+      const result = await collectPublicSnapshot(transport.fetch, () => NOW);
+      expect(
+        result.checks.find((check) => check.path === "/roles/"),
+      ).toMatchObject({
+        status: "fail",
+        code:
+          change === "length"
+            ? "CONTENT_LENGTH_MISMATCH"
+            : "CONTENT_HASH_MISMATCH",
+      });
+      expect(
+        result.checks.filter((check) => check.status === "pass"),
+      ).toHaveLength(13);
+      expect(transport.pages.get("/roles/")?.responseContentEncoding).toBe(
+        "br",
+      );
+    },
+  );
 
   it.each([false, true])(
     "runs default fetch in workerd without following redirects (redirect=%s)",
@@ -291,7 +323,7 @@ describe("public collector with no business transport", () => {
       "Fax",
       "Email",
       "Postal mail",
-      "Horizon / PDF validation",
+      "PDF verification",
       "Stripe payments",
       "AI proposals",
     ]);
@@ -300,6 +332,32 @@ describe("public collector with no business transport", () => {
     ).toHaveLength(7);
     expect(result.categories.map((c) => c.total)).toEqual([7, 3, 4]);
   });
+
+  it.each([false, true, undefined, "false"])(
+    "keeps paid PDF verification capability %j distinct from the unqualified scanning journey",
+    async (available) => {
+      const current: Record<string, unknown> = capabilities();
+      if (available === undefined) delete current.pdfValidation;
+      else current.pdfValidation = { available };
+      const result = await collectPublicSnapshot(
+        async (url) =>
+          url.endsWith("/api/capabilities")
+            ? Response.json(current)
+            : fixture(url),
+        () => NOW,
+      );
+      expect(
+        result.coverage.find((row) => row.feature === "PDF verification"),
+      ).toMatchObject({
+        state: available === false ? "disabled" : "not_checked",
+      });
+      expect(
+        result.coverage.find(
+          (row) => row.feature === "PDF: import, antivirus, rendering",
+        ),
+      ).toMatchObject({ state: "not_checked" });
+    },
+  );
 
   it.each([
     null,

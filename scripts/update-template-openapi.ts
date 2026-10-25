@@ -217,6 +217,12 @@ schemas.GenerationResult = object({
   documentId: nullable(str),
   documentHash: nullable(str),
   documentStatus: nullable(str),
+  documentAnalysis: {
+    ...schemas.DocumentAnalysis,
+    nullable: true,
+    description:
+      "Read-only recovery state for the exact accessible generated document. Null before registration or when its immutable hash does not match. Only processing/wait permits bounded status polling; retryable and blocked require the stated action. Reading never starts a scan or sends a document.",
+  },
   documentUrl: nullable(str),
   errorCode: nullable(str),
 });

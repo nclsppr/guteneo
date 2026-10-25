@@ -1,4 +1,5 @@
 import { useRef, useState, type FormEvent } from "react";
+import { FileInput } from "./file-input";
 import {
   WORKSPACE_ROLES,
   type WorkspaceRole,
@@ -75,6 +76,7 @@ export function TeamInvitations() {
   const [inputIssue, setInputIssue] = useState<Error>();
   const [uncertain, setUncertain] = useState(false);
   const file = useRef<HTMLInputElement>(null);
+  const [fileVersion, setFileVersion] = useState(0);
   const reviewHeading = useRef<HTMLHeadingElement>(null);
   function resetReview() {
     setReview(undefined);
@@ -114,7 +116,7 @@ export function TeamInvitations() {
         });
         setReview(undefined);
         setEmail("");
-        if (file.current) file.current.value = "";
+        setFileVersion((version) => version + 1);
         setMessage(
           msg(
             "The invitations have been processed. Check their status below.",
@@ -199,9 +201,9 @@ export function TeamInvitations() {
               <label htmlFor="invitation-csv">
                 {msg("Members CSV file")}
               </label>
-              <input
+              <FileInput
+                key={fileVersion}
                 id="invitation-csv"
-                type="file"
                 accept=".csv,text/csv"
                 ref={file}
                 required

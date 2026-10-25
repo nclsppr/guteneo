@@ -1,4 +1,5 @@
 import { msg } from "./messages";
+import { FileInput } from "./file-input";
 import { useDashboardAppearance } from "./dashboard-appearance";
 import {
   lazy,
@@ -18,7 +19,6 @@ import type {
 import type { DocxImportResult } from "../../../packages/templates/docx";
 import {
   validateTemplateEnvelope,
-  validateTemplateImage,
   type TemplateEnvelope,
   type BusinessField,
   type TemplateBinding,
@@ -318,9 +318,8 @@ export function TemplateLibrary({
             label={msg("Word file (.docx)")}
             hint={msg("Maximum 5 MB. No data is sent to AI during import.")}
           >
-            <input
+            <FileInput
               ref={file}
-              type="file"
               accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
               required
             />
@@ -416,6 +415,7 @@ function EditorBody({
   );
   const [fieldName, setFieldName] = useState("");
   const [fieldTitle, setFieldTitle] = useState("");
+  const [designerPending, setDesignerPending] = useState(false);
   const [fieldType, setFieldType] = useState<
     "string" | "integer" | "date" | "array"
   >("string");
@@ -453,6 +453,7 @@ function EditorBody({
     setEnvelope(next);
   }
   async function save() {
+    if (designerPending) return;
     await action.run(async () => {
       validateTemplateEnvelope(envelope);
       onSaved(
@@ -464,6 +465,7 @@ function EditorBody({
     });
   }
   async function publish() {
+    if (designerPending) return;
     await action.run(async () => {
       if (dirty)
         throw new Error(msg("Save the draft before publishing this version."));
@@ -626,7 +628,9 @@ function EditorBody({
             key={value}
             className="button small"
             aria-current={tab === value ? "page" : undefined}
-            disabled={value === "share" && (dirty || !canPrepare)}
+            disabled={
+              designerPending || (value === "share" && (dirty || !canPrepare))
+            }
             onClick={() => setTab(value)}
           >
             {label}
@@ -669,7 +673,9 @@ function EditorBody({
             </button>
             <button
               className="button primary"
-              disabled={!editable || !dirty || action.pending}
+              disabled={
+                !editable || !dirty || action.pending || designerPending
+              }
               onClick={() => void save()}
             >
               {msg("Save draft ")}
@@ -678,6 +684,7 @@ function EditorBody({
               className="button"
               disabled={
                 !canPrepare ||
+                designerPending ||
                 !model.permissions.publish ||
                 dirty ||
                 model.state === "archived" ||
@@ -692,11 +699,13 @@ function EditorBody({
             className={dirty ? "studio-unsaved" : "studio-saved"}
             role="status"
           >
-            {dirty
-              ? msg(
-                  "Unsaved changes. Save before publishing or leaving the studio.",
-                )
-              : msg("All changes are saved.")}
+            {designerPending
+              ? msg("Applying the editor changes…")
+              : dirty
+                ? msg(
+                    "Unsaved changes. Save before publishing or leaving the studio.",
+                  )
+                : msg("All changes are saved.")}
           </p>
           <div className="studio-layout studio-editor-layout">
             <div className="studio-main">
@@ -704,6 +713,7 @@ function EditorBody({
                 <Suspense fallback={<Loading />}>
                   <Designer
                     definition={envelope.definition}
+                    onPendingChange={setDesignerPending}
                     onChange={(definition) => {
                       change(reconcileDesignerChange(envelope, definition));
                     }}
@@ -774,49 +784,6 @@ function EditorBody({
                   >
                     {msg("Add to document ")}
                   </button>
-                  <Field
-                    label={msg("Add your logo")}
-                    hint={msg("PNG or JPEG, maximum 250 KB and 4 megapixels.")}
-                  >
-                    <input
-                      type="file"
-                      accept="image/png,image/jpeg"
-                      onChange={(event) => {
-                        const file = event.target.files?.[0];
-                        if (file)
-                          void action.run(async () => {
-                            if (file.size > 250 * 1024)
-                              throw new Error(msg("The logo exceeds 250 KB."));
-                            const content = await new Promise<string>(
-                              (resolve, reject) => {
-                                const reader = new FileReader();
-                                reader.onload = () =>
-                                  resolve(String(reader.result));
-                                reader.onerror = () =>
-                                  reject(
-                                    new Error(
-                                      msg("The file could not be read."),
-                                    ),
-                                  );
-                                reader.readAsDataURL(file);
-                              },
-                            );
-                            validateTemplateImage(content);
-                            const next = structuredClone(envelope);
-                            next.definition.schemas[0].push({
-                              name: `logo_${next.definition.schemas.flat().length}`,
-                              type: "image",
-                              content,
-                              position: { x: 20, y: 25 },
-                              width: 40,
-                              height: 20,
-                              readOnly: true,
-                            });
-                            change(validateTemplateEnvelope(next));
-                          });
-                      }}
-                    />
-                  </Field>
                 </fieldset>
               )}
             </aside>

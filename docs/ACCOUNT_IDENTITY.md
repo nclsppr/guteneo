@@ -97,10 +97,11 @@ identity or reconnection.
 
 ## Journey and authority
 
-Every browser member finds their name, login email and current role in
-navigation, including mobile. This block links to the personal profile;
-Classic also retains its Account entry. The dashboard explains effective
-rights, including the supervisor's independent approval/reporting options.
+Every browser member finds their name and login email in navigation, including
+mobile. This block links to My account, which shows the current workspace role
+and effective rights, including the supervisor's independent approval/reporting
+options. The 25 October correction removes role repetition from the shared
+sidebar and overview; Classic also retains its Account entry.
 Role depends on the active workspace and cannot be edited in the personal
 profile. On tab return, the session is reread to reconcile account/workspace
 changes elsewhere, including saved account language. Since 10 October,
@@ -140,7 +141,9 @@ from CI, publication and actual observed logout after publication.
 ## Personal workspace appearance
 
 The account block sits at the bottom of left navigation on desktop, with
-name, email, role, profile and account switching. In My profile,
+name, email, profile and account switching. Role details remain on My account.
+My documents is a compact navigation link with accessible personal-space context,
+instead of a separate card. In My profile,
 **Workspace version** sits beside language and offers **Classic** or **V2**.
 The choice persists only after **Save changes** and successful existing
 `PATCH /api/account`. Labels exist in French, English, German and
@@ -271,7 +274,7 @@ hosted saving of that preference.
 
 Public sign-in links open Auth0 directly with active language/requested
 destination. `auth-navigation.ts` also serves static rendering: homepage,
-journal, assistant guides, direct preparation and Horizon share URL construction.
+journal, assistant guides, direct preparation and PDF verification share URL construction.
 Auth0 retains its native login/signup/password-recovery forms. No Guteneo
 choice screen precedes authentication. A private route without a session
 automatically continues to Auth0 after initial session checking; startup is

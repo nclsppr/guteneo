@@ -16,8 +16,10 @@ import studioDistribution from "./locales/messages-studio-distribution-settings.
 import roles from "./locales/messages-roles.json";
 import secureDocuments from "./locales/messages-secure-documents.json";
 import identity from "./locales/messages-identity.json";
-import horizon from "./locales/messages-horizon.json";
+import pdfChecks from "./locales/messages-pdf-checks.json";
 import dashboardV2 from "./locales/messages-dashboard-v2.json";
+import usageActivity from "./locales/messages-usage-activity.json";
+import publicSite from "./locales/messages-public-site.json";
 import delivery from "../../../packages/contracts/src/delivery-messages.json" with { type: "json" };
 
 function sourceMessages(
@@ -49,8 +51,10 @@ export const messages: Record<string, readonly string[]> = {
   ...roles,
   ...secureDocuments,
   ...identity,
-  ...horizon,
+  ...pdfChecks,
   ...dashboardV2,
+  ...usageActivity,
+  ...publicSite,
   ...legal,
   ...operations,
   ...assistants,

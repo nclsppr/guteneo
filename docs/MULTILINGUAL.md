@@ -13,9 +13,12 @@ stop previous playback. `AGENTS.md` records this rule. See `HOMEPAGE_FILM.md`
 and `ROLES_FILM.md` for sources/regeneration. Such additions remain local
 candidates until published with corresponding code.
 
-The 22 September 2026 local candidate supports French (`fr`), English (`en`),
-German (`de`) and Luxembourgish (`lb`) on website/iOS. This note proves no
-deployment, remote migration, actual Auth0 login or App Store publication.
+The supported interface languages are French (`fr`), English (`en`), German
+(`de`) and Luxembourgish (`lb`). The current browser contract below reflects the
+25 October 2026 local candidate; it proves no deployment, remote migration,
+actual Auth0 login, native build or App Store publication. Keep the dated
+22 September results below as historical evidence. Appearance follows the
+separate [theme contract](THEMES.md) and does not select a language.
 
 ## Selection and retention
 
@@ -27,9 +30,19 @@ Languages use their own names without flags. Interface language changes
 immediately without reloading or clearing forms. HTML `lang`, accessible
 labels, dates, numbers and amounts follow the choice.
 
-Before login, explicit public `?lang=de` takes precedence, followed by this
-browser's saved selection and browser languages. Regional variants such as
-`de-AT` are recognized. Unsupported languages fall back to French. Unavailable
+File choosers share `apps/web/src/file-input.tsx`: authored choose/empty text
+comes from the resolved frontend locale, while native input behavior and exact
+filenames are preserved. This avoids browser-language labels in a differently
+localized interface, including Safari. Monthly consumption selectors and empty
+states also follow the account language; stored UTC period identifiers remain
+unchanged. See [workspace presentation](DASHBOARD_V2.md) for the related form
+and keyboard-focus contract.
+
+Before login, one valid explicit public `?lang=de` takes precedence, followed by
+this origin's saved `guteneo.locale` selection, the first supported browser
+language and finally French. Regional variants such as `de-AT` are recognized.
+Unsupported, malformed or duplicate `lang` values select no explicit variant;
+client selection continues with saved/browser/French fallback. Unavailable
 browser storage does not block selection. Public explicit selection adds/
 updates `lang` so copied links retain language. Internal public links retain
 it even when local storage is blocked. Private routes keep existing behavior.
@@ -40,11 +53,15 @@ and fragment. Explicitly selecting the displayed language also saves it.
 Touch controls are at least 44 px; Escape closes disclosures/restores button
 focus, and outside click/focus closes them.
 
-After login, authenticated views expose their only selector in account
+After login, authenticated views expose their language selector in account
 configuration. `user.preferredLocale` supplies personal preference on each
 session read. People without one use browser languages without inheriting
-public/other-account choices. Visitor choice stays separate and resumes after
-logout. Public selectors save no account preference.
+public/other-account choices. A public page without a saved account preference
+keeps its visitor language when the session arrives. A saved account preference
+may hydrate public content after session resolution, but must not overwrite a
+visitor selection made while that read was pending. Neither case changes the
+visitor's saved selection or the URL's sharing-language contract. Visitor choice
+resumes after logout; public selectors save no account preference.
 
 Belvédère follows the same French/English/German/Luxembourgish preference
 without another selector. The server injects only a validated locale in private
@@ -59,6 +76,77 @@ an absent preference. Active language changes only after successful saving.
 Preference is shared across the person's organizations, not organization-wide.
 Clients reread it from the account; no real-time cross-device notification
 is claimed.
+
+Personal space applies the same supported values from its authenticated session
+and saves them through `PATCH /api/personal/account`. Its account form can return
+to the automatic/browser choice with `preferredLocale: null`. This is separate
+from the workshop form, which saves a supported value only after an explicit
+language edit. A visitor's storage, URL language or appearance cookie grants no
+account, workspace, Belvédère, review or dispatch authority.
+
+## Public routes, initial HTML and footer
+
+`packages/contracts/src/public-site.json` is the canonical public route registry
+for the build, browser and Worker. Every listed route has complete generic French
+HTML plus all four explicit-language variants; this includes the homepage,
+how-it-works, pricing, getting-started, PDF-check pages, editorial/legal/help pages
+and assistant/developer guides. Add, move or remove a page through that registry
+and its renderer, links, canonical metadata, language alternatives and generated
+sitemap together. The sitemap derives its entries from the registry rather than
+a copied route count. English paths remain identical in all languages.
+
+One bounded supported `lang` selects localized initial HTML, metadata, canonical
+URL and structured data. The Worker serves the matching immutable asset under
+the private `/__public-locales/` namespace; direct public access to that namespace
+is rejected. Missing, invalid or duplicate values use the generic French HTML
+and neutral sharing preview. Server HTML selection does not inspect a visitor's
+storage, account, cookie or browser language. After loading, the client applies
+the selection rules above. These are different stages, not a claim that generic
+HTML already reflects browser or account preferences. See
+[public HTML and crawl boundaries](TECHNICAL_SEO.md) for the technical contract.
+
+`packages/contracts/src/public-footer.json` owns the four-language resource
+catalog: product, resources, help and legal destinations. Public React pages use
+`PublicFooter`; public server error pages and the independent status build consume
+the same catalog. Keep labels and canonical destinations there rather than
+copying link lists. Local public navigation retains explicit language in rendered
+HTML and after client updates, including when storage is blocked. The absolute
+status link includes `?lang=<resolved locale>` in initial HTML and after a locale
+change; the status/error footer renderers likewise add it to their Guteneo/status
+destinations. This explicit parameter transfers language without sharing storage
+or an authenticated preference across origins.
+
+The homepage closing invitation reuses the existing `homepage.footer.title`,
+`italic` and `cta` values in every supported language; the English text is
+“Ideas travel. Ours start here.” with the existing first-dispatch action. Its
+installation destination and canonical footer links do not change with language.
+The same compact footer stamp, two original swallows, fifteen links and colophon
+remain on home as on the other public React routes; home adds its separate large
+closing composition above it. Theme-specific picture selection is separate from locale; artwork, original
+stamp inscriptions and decorative hidden swallows are not translated text.
+
+## Independent status and engineering sites
+
+`status.guteneo.com` uses `apps/status/public/i18n.js` and
+`locales/messages.js` for French, English, German and Luxembourgish. On its own
+origin, the priority is one supported query value, saved `guteneo.locale`, browser
+languages, then French. The control changes visible static/dynamic text, accessible
+names, metadata, formatting and footer links in place, updates the URL and does
+not reload or refetch status data. Automatic removes its local saved selection
+and `lang`. Missing Luxembourgish ICU uses `de-LU` formatting with Luxembourgish
+copy, as on the main web application.
+
+Its storage is not shared with `guteneo.com`; an explicit link parameter can carry
+language across origins. It does not read or save the authenticated account
+preference. Its static initial HTML remains English until its scripts apply the
+chosen language, so do not claim four server-selected status HTML variants or
+localized no-JavaScript status content. Operational status evidence stays owned
+by [the status contract](STATUS_SERVICE.md).
+
+The separately curated `engineering.guteneo.com` site is English-authored
+documentation, with its own Nimbus configuration. The product's four-language
+contract does not claim a translated engineering catalog. Native iOS uses its
+bundled resources and account preference as described below.
 
 ## Contract and migration
 

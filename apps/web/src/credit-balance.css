@@ -52,10 +52,10 @@
   background: var(--line);
 }
 .credit-balance progress::-webkit-progress-value {
-  background: var(--blue);
+  background: var(--action);
 }
 .credit-balance progress::-moz-progress-bar {
-  background: var(--blue);
+  background: var(--action);
 }
 .credit-balance-detail dl {
   margin: 0 0 28px;

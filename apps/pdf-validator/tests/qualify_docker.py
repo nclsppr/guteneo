@@ -16,7 +16,7 @@ REFERENCES = Path(__file__).parent / "references"
 BENCHMARKS = Path(__file__).parent / "benchmark-fixtures"
 parser = argparse.ArgumentParser(description="Offline exact-engine qualification at Cloudflare instance resource limits")
 parser.add_argument("image", nargs="?", default="guteneo-pdf-validator:local")
-parser.add_argument("--instance-type", choices=["lite", "basic", "standard-1", "historical-local"], default="basic")
+parser.add_argument("--instance-type", choices=["lite", "basic", "standard-1", "historical-local"], default="standard-1")
 options = parser.parse_args()
 IMAGE = options.image
 RESOURCES = {

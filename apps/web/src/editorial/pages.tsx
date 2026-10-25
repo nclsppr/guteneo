@@ -1,9 +1,10 @@
 import { formatLocale } from "../locale";
 import { msg } from "../messages";
 import { ArrowLeft, ArrowRight, ArrowUpRight } from "@phosphor-icons/react";
-import { LuxembourgFooter } from "../landing-sections";
+import { PublicFooter } from "../public-chrome";
 import { PublicHeader } from "../public-chrome";
 import { getArticles, articlePath } from "./articles";
+import { ArticlePicture } from "./article-picture";
 import type { EditorialArticle } from "./types";
 import "./editorial.css";
 
@@ -14,32 +15,6 @@ const dateLabel = (date: string) =>
     year: "numeric",
     timeZone: "UTC",
   }).format(new Date(`${date}T12:00:00Z`));
-
-function ArticlePicture({
-  article,
-  eager = false,
-}: {
-  article: EditorialArticle;
-  eager?: boolean;
-}) {
-  return (
-    <img
-      src={article.hero.src}
-      srcSet={`${article.hero.src.replace(".webp", "-small.webp")} 720w, ${article.hero.src} 1536w`}
-      sizes={
-        eager
-          ? "(max-width: 700px) 100vw, 88vw"
-          : "(max-width: 700px) 90vw, 42vw"
-      }
-      alt={article.hero.alt}
-      width={article.hero.width}
-      height={article.hero.height}
-      loading={eager ? "eager" : "lazy"}
-      fetchPriority={eager ? "high" : undefined}
-      decoding="async"
-    />
-  );
-}
 
 function ArticleList() {
   return (
@@ -127,7 +102,7 @@ export function JournalTeaser() {
 
 export function JournalPage() {
   return (
-    <div className="landing editorial-page">
+    <div className="landing public-site editorial-page">
       <a className="skip-link" href="#journal-main">
         {msg("Skip to content")}
       </a>
@@ -159,7 +134,7 @@ export function JournalPage() {
           </span>
         </aside>
       </main>
-      <LuxembourgFooter />
+      <PublicFooter />
     </div>
   );
 }
@@ -168,7 +143,7 @@ export function ArticlePage({ article }: { article: EditorialArticle }) {
   const index = getArticles().findIndex((item) => item.slug === article.slug);
   const next = getArticles().find((item) => item.slug !== article.slug)!;
   return (
-    <div className="landing editorial-page">
+    <div className="landing public-site editorial-page">
       <a className="skip-link" href="#article-main">
         {msg("Skip to content")}
       </a>
@@ -297,12 +272,11 @@ export function ArticlePage({ article }: { article: EditorialArticle }) {
             </h2>
           </div>
           <a className="text-link" href="/journal/">
-            <ArrowLeft size={17} aria-hidden="true" />{" "}
-            {msg(" All issues")}
+            <ArrowLeft size={17} aria-hidden="true" /> {msg(" All issues")}
           </a>
         </aside>
       </main>
-      <LuxembourgFooter />
+      <PublicFooter />
     </div>
   );
 }

@@ -58,7 +58,7 @@ function fixture(change = () => {}) {
       id,
       liveSending: id !== "email",
     })),
-    horizon: { available: false },
+    pdfValidation: { available: false },
     billing: { chargingEnabled: false },
     studio: { ai: { configured: false } },
   };
@@ -148,6 +148,29 @@ test("live evidence is bounded, anonymous and explicitly partial even when all p
     report.coverage.every((c) => ["disabled", "not_checked"].includes(c.state)),
   );
   assert.equal(report.staleAfterSeconds, 120);
+});
+
+test("paid PDF verification coverage uses its current capability and stays distinct from scanning", async () => {
+  for (const available of [false, true, undefined, "false"]) {
+    const { fetcher } = fixture((response, url) => {
+      if (url.pathname !== "/api/capabilities") return;
+      const capabilities = JSON.parse(response.body);
+      if (available === undefined) delete capabilities.pdfValidation;
+      else capabilities.pdfValidation = { available };
+      response.body = JSON.stringify(capabilities);
+    });
+    const report = await productionMonitor(fetcher, sha);
+    assert.equal(
+      report.coverage.find((row) => row.feature === "PDF verification").state,
+      available === false ? "disabled" : "not_checked",
+    );
+    assert.equal(
+      report.coverage.find(
+        (row) => row.feature === "PDF: import, antivirus, rendering",
+      ).state,
+      "not_checked",
+    );
+  }
 });
 
 test("wrong release, corrupted bytes, access regression, missing bindings and malformed public data cannot pass", async () => {

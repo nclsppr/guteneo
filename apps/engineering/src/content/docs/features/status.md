@@ -1,6 +1,6 @@
 ---
 title: "Public service status"
-description: "12 capabilities in the operations branch of Guteneo."
+description: "15 capabilities in the operations branch of Guteneo."
 sidebar:
   order: 22
 ---
@@ -9,9 +9,9 @@ sidebar:
 
 **Access boundary:** Public reading surface.
 
-Public availability, local coverage and version-bound browser reports are separate. Historical deployments and synthetic UI passes do not establish current hosted ingestion or authenticated business qualification.
+The 25 October customer UI is an undeployed candidate with local browser, locale, backend and release-safety checks. Existing public observations and local replay remain separate from candidate publication, exact served-byte proof, browser-report ingestion and authenticated business qualification.
 
-**Surfaces:** Independent public page and read-only GET /api/status, /api/history and /api/e2e-status; bounded GitHub OIDC report ingestion is independent of workspace membership and business REST/MCP authority.
+**Surfaces:** Customer-only public browser page and existing read-only GET /api/status, /api/history and /api/e2e-status; the customer UI reads only availability/history. Bounded GitHub OIDC report ingestion remains separate from workspace membership, business REST/MCP authority and native capabilities.
 
 [Read the engineering guide](/engineering/testing/) · [All features](/features/)
 
@@ -19,15 +19,18 @@ Public availability, local coverage and version-bound browser reports are separa
 
 <ol>
 <li id="feature-6073730fee4e">Independent status.guteneo.com service with fourteen bounded anonymous canonical checks every fifteen minutes and no business bindings/secrets</li>
-<li id="feature-d78842f1496a">D1 7/30/365-day history separates observed success and slot coverage; daily aggregates, unknown missing days and no reconstructed past</li>
-<li id="feature-5452eba9d0af">Public summary covers only recent checks; mismatches stay visible and missing/invalid/unavailable/stale (&gt;30 minutes) measurements make current state unknown; public reads never collect probes</li>
-<li id="feature-d406b94b5312">Service view shows freshness/groups/history; Checks separates detailed observations, local proof and journey coverage; Operations states limits/actions, without customer data or command IDs</li>
-<li id="feature-ac5200ae4c06">Local qualification separately tests the real domain/PDFs with external network denied and final providers simulated; timestamped redacted evidence never becomes delivery proof or a production incident</li>
-<li id="feature-3557f2c261bd">Branded footer and bounded seasonal decoration, optional and respecting reduced motion</li>
-<li id="feature-0b22f8aa38c5">English authored status copy with English/French browser selection and a shared locale catalog; historical French feature labels remain accepted alongside canonical English reports</li>
-<li id="feature-7420209d214c">Dedicated release from clean main with source checks, manifest and status-only D1 migrations</li>
+<li id="feature-73023a9aec7f">Actual 7/30/365-day history defaults to thirty days, separates received success from expected-slot coverage and renders unknown/precollection days without reconstruction; annual calendar-month aggregates retain all 365 daily rows and explicit partial-data counts</li>
+<li id="feature-a4fd73ace852">Only complete fresh and internally consistent public observations show availability; actual failed checks identify their group, while missing, invalid, unreadable, future, stale or contradictory evidence makes current availability unknown and removes earlier green badges</li>
+<li id="feature-075a0f31b171">Customer-only public interface presents observation time, Public website, Service response, Access protection and accessible history; technical probe, provider/engine qualification, local-proof, GitHub-report and Operations tabs are removed without changing backend evidence or business activation</li>
+<li id="feature-d58aebef9cd4">Local qualification still tests production-mode domain/PDF paths with external network denied and final providers simulated; source-bound inclusion and release verification remain intact even though the customer UI no longer fetches or displays the dated report</li>
+<li id="feature-f2878a72311d">System/light/dark appearance uses origin-scoped guteneo.theme, shared preference/resolved datasets and theme-change/storage events, with CSS system fallback when scripts are disabled; status writes no cookie or account preference, retains royal-blue browser chrome and supports contrast, forced colors and reduced motion; seasonal presentation is removed</li>
+<li id="feature-b090a2ef1594">English source catalog provides complete French, English, German and Luxembourgish static/dynamic/ARIA/metadata text; one supported normalized lang parameter wins, then the status origin saved choice, first supported browser language and French fallback; invalid/duplicate explicit parameters select no locale; in-place changes preserve the selected history and canonical localized destinations</li>
+<li id="feature-0a08e19bf9b2">Dedicated status release retains clean-main, status-only migrations and source/asset checks; the shared footer JSON joins the status source fingerprint, the generated four-language footer.js joins the asset manifest, and incomplete footer labels fail the build</li>
 <li id="feature-836c3619f640">Separate public browser reports run on GitHub main every six hours: fourteen desktop/simulated-mobile Chromium journeys and fourteen fixed HTTP contracts, without business operations; the Node driver requests identity/no-transform, preserves strict received-byte/SHA checks without automatic retries and emits bounded public diagnostics outside the signed report; canonical public HTML origin responses also declare no-transform while preserving existing cache directives, bytes, ETag and encoding, without widening private/API policies</li>
 <li id="feature-506c76f457f2">Public GET /api/e2e-status exposes execution, tested/observed commit, eight-hour freshness, twenty-eight checks and history; absent/stale/version-mismatched proof stays neutral without degrading Cron availability</li>
 <li id="feature-a78f8b521002">Bounded report ingestion uses GitHub OIDC bound to body and allowed workflow; sanitized output contains no content, account, screenshot or token, and requires no business secret; failures expose only the allowed stage, HTTP status and response code, never OIDC URLs or free-form upstream errors; direct-job workflow claims must be jointly absent or match the exact canonical main workflow and runner commit, with foreign/partial/empty/null pairs denied; only an actual 401 REPORT_REJECTED permits a bounded six-second boolean diagnostic and one signature verification, without requesting another token, retrying ingestion or changing the original result</li>
-<li id="feature-6f8fa1bce269">Authenticated distribution/receipt stays To qualify until dedicated accounts and the real journey under the active document policy are qualified; public journeys establish no delivery or personal coverage</li>
+<li id="feature-8906748b8434">Authenticated distribution and receipt remain unqualified until dedicated accounts and a real journey under the active document policy are qualified; that separate report scope is not fetched by the customer status page and does not degrade Cron availability</li>
+<li id="feature-b21195d17e6c">The common public footer derives four groups and fifteen canonical destinations from the same four-language public-footer.json as React; the lightweight status build and loopback preview generate one adapter without React or a second checked-in catalog. Its stamp exactly copies the approved transparent-outer-edge derivative, retaining printed white interior and preserving the separate opaque official source; the header retains white paper inside its actual inner blue frame and transparent exterior/perforations with ivory dark lettering, and status includes no city panorama</li>
+<li id="feature-59e79237291c">The customer page makes two initial dynamic reads, /api/status and the selected /api/history window, and no /api/e2e-status or qualification.json read; explicit refresh and visible fifteen-minute follow-up preserve bounded anonymous reads, while language/theme changes require no additional data read</li>
+<li id="feature-1d9408865e9e">The unchanged status API retains bounded business-coverage projection, including explicit false paid-PDF availability separately from antivirus/import/rendering; configuration never proves hosted scanning, engine execution, purchase or provider delivery</li>
 </ol>

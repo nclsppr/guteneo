@@ -1,17 +1,18 @@
 import { handleBelvedereRoute } from "./belvedere";
+import { handleBelvedereHost } from "./belvedere-host";
 import { GUTENEO_VERSION } from "../../../packages/contracts/src/release";
 import { cleanupBelvedereTelemetry } from "./belvedere-telemetry";
 import { handleInvitationRoute } from "./invitations";
 import {
-  handleMonthlyPlanRoute,
-  getHorizonStatus,
-  horizonAvailable,
-  renewHorizonPlans,
-} from "./monthly-plan";
+  handlePdfValidationPricingRoute,
+  pdfValidationAvailable,
+  expirePdfValidations,
+} from "./pdf-validation-pricing";
 import { PdfValidationService } from "./pdf-validation";
 import {
-  pdfValidationInput,
   pdfValidationProfiles,
+  PDF_VALIDATION_PRICE_MINOR,
+  PDF_VALIDATION_TERMS_VERSION,
 } from "../../../packages/contracts/src/pdf-validation";
 import { ensureEmailSender } from "./email-setup";
 import {
@@ -160,18 +161,19 @@ export function getCapabilities(env: Env) {
       configured: billingConfigured(env),
       mode: env.STRIPE_MODE ?? "unconfigured",
       chargingEnabled: false,
-      requiresMonthlyPlan: true,
+      requiresMonthlyPlan: false,
       management: "administrator_browser_only",
     },
-    horizon: {
-      name: "guteneo Horizon",
-      priceMinor: 3000,
+    pdfValidation: {
+      priceMinor: PDF_VALIDATION_PRICE_MINOR,
       currency: "EUR",
-      interval: "month",
+      taxBasis: "excluding_tax",
+      termsVersion: PDF_VALIDATION_TERMS_VERSION,
+      unit: "completed_check",
       paymentSource: "account_credits",
-      available: horizonAvailable(env),
-      subscription: "administrator_browser_only",
-      accountUrl: `${env.APP_ORIGIN}/#/app/plan`,
+      available: pdfValidationAvailable(env),
+      purchase: "administrator_browser_only",
+      accountUrl: `${env.APP_ORIGIN}/#/app/pdf-checks`,
     },
     channels: [
       {
@@ -268,10 +270,11 @@ export function getCapabilities(env: Env) {
       exactBytes: true,
       urlImport: ["production", "staging"].includes(env.ENVIRONMENT),
       validation: {
-        available: horizonAvailable(env),
+        available: pdfValidationAvailable(env),
         profiles: pdfValidationProfiles,
-        requiresMonthlyPlan: true,
-        checksPerCalendarMonth: 100,
+        requiresMonthlyPlan: false,
+        paidPerCheck: true,
+        priceMinor: PDF_VALIDATION_PRICE_MINOR,
         automatedOnly: true,
         certification: false,
         engine: "veraPDF",
@@ -328,6 +331,11 @@ export function getCapabilities(env: Env) {
     },
   };
 }
+app.use("*", async (c, next) => {
+  const response = await handleBelvedereHost(c.req.raw, c.env);
+  if (response) return response;
+  return next();
+});
 app.use("*", async (c, next) => {
   const route = routeCode(c.req.raw);
   // Media capability tokens are path segments. Avoid emitting a log in this invocation
@@ -482,10 +490,6 @@ app.all("/mcp", (c) =>
       ]);
       return {
         ...capabilities,
-        horizon: {
-          ...capabilities.horizon,
-          account: await getHorizonStatus(c.env, identity.context),
-        },
         postal: {
           channel: "postal",
           setup: postalSetup,
@@ -604,8 +608,18 @@ app.use("/api/billing/*", async (c, next) => {
   if (billing) return billing;
   return next();
 });
+app.get(
+  "/api/pdf-validation/pricing",
+  async (c) =>
+    (await handlePdfValidationPricingRoute(c.req.raw, c.env)) ?? c.notFound(),
+);
+app.all(
+  "/api/pdf-validation/pricing",
+  async (c) =>
+    (await handlePdfValidationPricingRoute(c.req.raw, c.env)) ?? c.notFound(),
+);
 app.use("/api/*", async (c, next) => {
-  const plan = await handleMonthlyPlanRoute(c.req.raw, c.env);
+  const plan = await handlePdfValidationPricingRoute(c.req.raw, c.env);
   if (plan) return plan;
   const postalSetup = await handlePostalSetupRoute(c.req.raw, c.env);
   if (postalSetup) return postalSetup;
@@ -1055,9 +1069,9 @@ app.get("/api/documents/:id/validation", async (c) =>
 app.post("/api/documents/:id/validation", async (c) =>
   c.json(
     await new PdfValidationService(c.env, domain(c.env)).validate(
-      await postalAuthority(c.req.raw, c.env, "documents:write"),
+      await postalBrowserAuthority(c.req.raw, c.env, true),
       c.req.param("id"),
-      pdfValidationInput.parse(await c.req.json()),
+      await c.req.json(),
       idempotency(c.req.header("Idempotency-Key")),
     ),
     201,
@@ -1192,7 +1206,12 @@ app.get("/api/senders", async (c) =>
   c.json(await domain(c.env).listSenders(c.get("actor"))),
 );
 app.get("/api/usage", async (c) =>
-  c.json(await domain(c.env).usage(c.get("actor"))),
+  c.json(await domain(c.env).usage(c.get("actor"), c.req.query("period"))),
+);
+app.get("/api/usage/activity", async (c) =>
+  c.json(
+    await domain(c.env).usageActivity(c.get("actor"), c.req.query("year")),
+  ),
 );
 app.get("/api/overview", async (c) => {
   // Workspace summary only: its document count is not a dispatches:read fact.
@@ -1498,6 +1517,10 @@ export default {
       // This bounded projection does not publish an outbox or submit communications.
       stage = "callbacks";
       Object.assign(counts, await reconcileWebhookReceipts(env.DB, service));
+      // Technical check expiry releases only its own approved credit hold.
+      // Identity/provider downtime must not keep a failed check reserved.
+      stage = "documents";
+      await expirePdfValidations(env);
       stage = "identity";
       if (env.ENVIRONMENT !== "local" && !identityConfigured(env)) {
         observation.setCode("IDENTITY_NOT_CONFIGURED");
@@ -1509,7 +1532,6 @@ export default {
       stage = "leases";
       Object.assign(counts, await service.reconcileExpiredLeases());
       stage = "documents";
-      await renewHorizonPlans(env);
       await new DocumentService(env, service).processPendingScans();
       await cleanupProtectedDocuments(env.DB);
       await new TemplateWorkflowService(env, service).processPending();

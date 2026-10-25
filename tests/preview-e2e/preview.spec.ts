@@ -14,7 +14,7 @@ test("public design and every workspace page render without server data or overf
   await page.goto("/");
   await expect(
     page.getByRole("heading", {
-      name: "Votre assistant prépare. Guteneo transmet.",
+      name: "Préparez vos documents. Choisissez leur destination.",
     }),
   ).toBeVisible();
   await expect(
@@ -46,7 +46,7 @@ test("public design and every workspace page render without server data or overf
     "connection",
     "senders",
     "usage",
-    "plan",
+    "pdf-checks",
     "billing",
     "account",
     "admin",
@@ -73,13 +73,13 @@ test("public design and every workspace page render without server data or overf
         scale: "css",
       });
     }
-    if (route === "plan") {
+    if (route === "pdf-checks") {
       await expect(
-        page.getByText("Bientôt disponible", { exact: true }),
+        page.getByText("Les contrôles PDF sont actuellement indisponibles", {
+          exact: true,
+        }),
       ).toBeVisible();
-      await expect(
-        page.getByRole("button", { name: "Souscrire Horizon" }),
-      ).toHaveCount(0);
+      await expect(page.locator(".pdf-check-offer form")).toHaveCount(0);
       await expect(page.getByRole("checkbox")).toHaveCount(0);
     }
     expect(
@@ -138,11 +138,9 @@ test("fixture PDF renders and backend routes refuse remote actions", async ({
     page.getByRole("button", { name: "Télécharger le PDF d’exemple" }),
   ).toBeVisible();
   await expect(page.locator(".pdf-validation")).toContainText(
-    "Cette offre est en préparation",
+    "Les contrôles PDF sont actuellement indisponibles. Les rapports existants restent consultables.",
   );
-  await expect(
-    page.getByRole("button", { name: "Contrôler ce PDF" }),
-  ).toHaveCount(0);
+  await expect(page.locator(".pdf-validation form")).toHaveCount(0);
   for (const path of [
     "/api/dev/login",
     "/api/dispatches",
@@ -160,7 +158,7 @@ test("fixture PDF renders and backend routes refuse remote actions", async ({
     expect(await response.text()).toContain("PREVIEW_ONLY");
   }
   for (const path of [
-    "/api/plan",
+    "/api/pdf-validation/pricing",
     "/api/documents/preview_document/validation",
   ]) {
     const response = await request.get(path);

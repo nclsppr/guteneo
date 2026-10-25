@@ -1,6 +1,7 @@
 import { z } from "zod";
 import type { TemplateEnvelope } from "./templates";
 import type { DatasetFormat, DatasetProfile, MappingPlan } from "./datasets";
+import type { DocumentAnalysis } from "./document-analysis";
 
 export const WORKFLOW_LIMITS = {
   recordsPerJob: 500,
@@ -122,6 +123,7 @@ export type GenerationResultView = {
   documentId: string | null;
   documentHash: string | null;
   documentStatus: string | null;
+  documentAnalysis: DocumentAnalysis | null;
   documentUrl: string | null;
   errorCode: string | null;
 };

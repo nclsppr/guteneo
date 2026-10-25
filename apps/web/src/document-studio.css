@@ -104,21 +104,71 @@
   flex: 1;
   min-width: 180px;
 }
+/* Images are fixed page content, kept beside the visual editor rather than
+   hidden among business variables. */
+.studio-image-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  margin: 0 0 12px;
+}
+.studio-image-toolbar .button {
+  flex-shrink: 0;
+}
+.studio-image-toolbar .field-hint {
+  margin: 0;
+  max-width: 64ch;
+  font-size: 12px;
+}
+.studio-image-notice {
+  margin: 0 0 12px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
 .studio-designer {
   height: 760px;
   min-width: 0;
   border: 1px solid var(--line);
-  background: #e8e8e2;
+  background: var(--surface-hover);
   isolation: isolate;
 }
 .studio-designer :where(button, input, select, textarea) {
-  font-family: Arial, sans-serif;
+  font-family: var(--font-body);
+}
+/* pdfme's property form embeds its own Ant theme boundary. Keep that chrome
+   aligned without applying page colors to the authored PDF canvas. */
+.studio-designer .ant-form .ant-form-item-label > label,
+.studio-designer .ant-form .ant-checkbox-wrapper,
+.studio-designer .ant-form .ant-checkbox-wrapper + span,
+.studio-designer .ant-form .ant-input-number-input,
+.studio-designer .ant-form .ant-select-selection-item,
+.studio-designer .ant-form .ant-input {
+  color: var(--ink);
+}
+.studio-designer
+  .ant-form
+  :is(
+    .ant-input,
+    .ant-input-number,
+    .ant-select-selector,
+    .ant-input-affix-wrapper
+  ) {
+  background: var(--surface);
+  border-color: var(--control-line);
+}
+.studio-designer .ant-form :is(input, textarea)::placeholder {
+  color: var(--placeholder);
+}
+.studio-designer .ant-form :is(.ant-select-arrow, .ant-input-number-handler) {
+  color: var(--muted);
 }
 .studio-designer :where(button, input, select, textarea):focus-visible {
-  outline: 2px solid var(--blue);
+  outline: 2px solid var(--ink);
   outline-offset: 2px;
 }
-.studio-mobile-help {
+.workspace .studio-mobile-help {
   display: none;
 }
 .studio-list {
@@ -160,7 +210,7 @@
   font-size: 13px;
 }
 .studio-saved {
-  color: #276446;
+  color: var(--success);
   font-size: 14px;
 }
 .studio-unsaved {
@@ -270,7 +320,7 @@
   margin: 20px 0;
 }
 .studio-tabs [aria-current="page"] {
-  background: var(--blue);
+  background: var(--action);
   color: white;
 }
 @media (max-width: 1200px) {
@@ -288,7 +338,7 @@
   .studio-designer {
     display: none;
   }
-  .studio-mobile-help {
+  .workspace .studio-mobile-help {
     display: block;
   }
   .business-fields,
@@ -356,7 +406,7 @@
 }
 .studio-table:focus-visible,
 .studio-record-selection:focus-visible {
-  outline: 2px solid var(--blue);
+  outline: 2px solid var(--ink);
   outline-offset: 3px;
 }
 @media (max-width: 767px) {

@@ -1,6 +1,5 @@
 import { msg } from "./messages";
 import { useDashboardAppearance } from "./dashboard-appearance";
-import { DashboardArtwork } from "./dashboard-artwork";
 import { useState, type FormEvent } from "react";
 import {
   ArrowLeft,
@@ -77,9 +76,7 @@ export function OverviewAssistantStart({ session }: { session: Session }) {
               )}
         </p>
         <a className="text-link" href="#/app/connection">
-          {verified
-            ? msg("Manage my assistants")
-            : msg("Finish connecting")}
+          {verified ? msg("Manage my assistants") : msg("Finish connecting")}
           <ArrowRight size={17} aria-hidden="true" />
         </a>
       </aside>
@@ -196,9 +193,7 @@ export function Connection({
         <Loading />
       ) : connections.error ? (
         <p role="status">
-          {msg(
-            "Unable to check your connections. Try again with Refresh.",
-          )}
+          {msg("Unable to check your connections. Try again with Refresh.")}
         </p>
       ) : hasConnections ? (
         <ul className="assistant-connection-list">
@@ -287,20 +282,17 @@ export function Connection({
         </>
       ) : (
         <>
-          <div className="dashboard-editorial-heading dashboard-editorial-heading-horizon">
+          <div className="dashboard-editorial-heading dashboard-editorial-heading-pdf-verification">
             <PageHeading
               title={msg("Your assistants, your correspondence.")}
               intro={msg(
                 "Connect your assistant to Guteneo via MCP, then find your connections here. Each guide walks you through without waiting for a published plugin.",
               )}
             />
-            <DashboardArtwork scene="horizon" />
           </div>
           {assistantId && (
             <p className="notice info">
-              {msg(
-                "This guide does not exist. Choose an assistant below.",
-              )}
+              {msg("This guide does not exist. Choose an assistant below.")}
             </p>
           )}
           {hasConnections && connectionList}

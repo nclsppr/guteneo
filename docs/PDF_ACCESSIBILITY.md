@@ -1,63 +1,67 @@
-# Horizon PDF diagnostics — branch candidate
+# PDF verification
 
-3 October update: this implementation and migrations 0050/0051 are published in
-`main` at `c5cc0dd`. Nicolas now authorizes qualification and activation on existing
-credits, while deferring recharge and commercial completion. Hosted validator
-evidence and opening remain distinct from that authorization. See
-[the opening decision](HORIZON_OPENING_2026_10_03.md); the dated candidate account
-below records the original preparation and its safeguards.
+The 25 October 2026 branch candidate replaces the retired monthly PDF verification
+subscription with an individual purchase for each PDF/profile verification. This
+is source implementation, not proof of a deployed offer or a real account debit.
+The current price, cost assumptions and release qualification are owned by
+[the unit-pricing contract](PDF_VERIFICATION_PRICING.md).
 
-Prepared on 2 October 2026. **guteneo Horizon** costs **EUR30/month**, debited as
-**3000 integer minor units** from available organization credits after explicit
-recurring consent by the authenticated browser administrator. Members and
-assistants cannot subscribe, cancel or manage billing. Insufficient credit
-suspends renewal without debt or spending delivery reservations. Cancellation
-preserves the paid period. Today's lifetime EUR50 promotional credit funds one
-EUR30 period; replenishment remains unavailable. See [MONTHLY_PLAN.md](MONTHLY_PLAN.md).
+New subscriptions and automatic renewals are closed. Existing subscription actions,
+paid periods and financial charges remain immutable historical evidence; they are
+not converted into new purchases or silently refunded. See
+[the retired subscription record](MONTHLY_PLAN.md).
 
-The offer includes 100 diagnostic attempts per UTC calendar month, PDF/UA-1/-2
-automated checks, PDF/A-1b/2b/3b/4 archival checks, document history, JSON export
-and human-review guidance. Existing 10 MiB/100-page limits apply. No extra
-per-check debit occurs. Engine errors consume an attempt without recording a
-conformity verdict. Purchased reports remain readable within their tenant after
-plan expiry.
+## Purchase and authority
 
-| Locale | Offer name |
-| --- | --- |
-| French | Forfait Horizon |
-| English | Horizon plan |
-| German | Horizon-Tarif |
-| Luxembourgish | Horizon-Abonnement |
+The caller reads `GET /api/pdf-validation/pricing` before purchase. The response
+provides the integer EUR price, excluding-tax basis, immutable terms version,
+account-credit payment source, readiness, current purchase authority and evidence.
+Only a current authenticated browser administrator can purchase a new verification,
+after explicitly accepting its price for the exact original PDF and selected
+profile. The browser uses its existing same-origin session and CSRF protections.
+Assistants, native callers and other membership roles cannot create that purchase
+consent. A grant, installation, scope or assistant statement is not approval.
 
-## Web, REST and MCP
+`POST /api/documents/:id/validation` runs the purchased verification against a ready,
+accessible immutable original. Its stable idempotency key binds that purchase and
+recovers an uncertain response without purchasing or running the engine twice.
+A new independent verification needs a new purchase. Reservations protect available
+account credit; insufficient credit refuses the purchase before engine work.
 
-`POST /api/documents/:id/validation` and `validate_pdf` share one service.
-Input is an explicit profile plus stable idempotency key; tenant and original
-bytes come from authenticated membership and private R2. GET on that route and
-`get_pdf_validation` read the last 50 completed reports. MCP requires
-`documents:write` to run and `documents:read` to read. Subscription/cancellation
-and billing are private browser operations, excluded from OAuth OpenAPI/tools.
+The POST body binds `profile` and `purchase` with `confirmed: true`, the exact
+`documentSha256`, integer `priceMinor`, `currency` and current `termsVersion`.
+The server checks those values against its pricing source and ready original;
+a caller cannot submit a different price, currency, terms version or file hash
+and silently purchase a substitute. `Idempotency-Key` remains the operation key.
 
-Migration 0050 installs immutable recurring consent, atomic charges and
-subscriptions, and a separate fictional simulation ledger. It preserves
-dispatch/fractional settlement and hosting charges in the shared balance view.
-0051 installs tenant-scoped attempts, quota/concurrency guards and immutable
-complete reports. Apply the existing migration sequence through 0051; no applied
-migration is edited.
+Additive migration `0060_pdf_validation_per_check.sql` preserves all applied
+migrations and legacy financial journals, closes new recurring debits, and extends
+the shared balance with pending verification holds and completed purchases.
+`apps/api/src/pdf-validation-pricing.ts` owns the unit-purchase price/status API.
 
-The server verifies a ready document and its exact hash. Current browser session
-or OAuth connection, expiry/scopes, membership and paid entitlement are checked
-before validation and again before publication, with credential SQL fences at
-the writes. Reports must match hash/profile, pinned veraPDF 1.30.2 and complete
-rule totals. Time, stream bytes/chunks and findings are bounded. Idempotent
-replay never starts a second engine run. Diagnostics never modify quarantine,
-dispatch approvals or original PDF bytes.
+A complete valid report is billable even when conformance rules fail. An unavailable
+engine, timeout, malformed or incomplete output is an operational failure, not a
+conformance verdict; it does not create a settled verification charge. Production,
+simulation and browser-only preview evidence remain explicitly distinct.
 
-The private CLI service runs without runtime network access on a temporary
-original. Only standard/clause/test identifiers and counters enter reports;
-PDF text, snippets, names and raw engine results do not enter logs or reports.
-[PDF_VALIDATOR.md](PDF_VALIDATOR.md) records the pinned installer, licences,
-exact rule inventory, offline synthetic proof and remaining hosted gates.
+## Reports, privacy and failure recovery
+
+`GET /api/documents/:id/validation` and `get_pdf_validation` retain current document
+access checks for existing reports. Report reads do not require a subscription,
+make a new purchase or inherit another caller's authority. A private generated
+PDF remains private to its owner. Historical reports stay linked to their exact
+original hash and profile; changed bytes require a new immutable document.
+
+The server checks the ready document, original hash, session or OAuth connection,
+scopes, membership and operation authority before execution and before publication.
+Time, stream bytes/chunks and findings remain bounded. Reports must match the
+requested hash/profile, pinned veraPDF 1.30.2 and complete rule totals. Diagnostics
+never modify quarantine, dispatch approvals or original PDF bytes.
+
+The private validator operates on a temporary exact original without runtime
+network access. Reports retain allowed standard/clause/test identifiers and
+counters, excluding PDF text, snippets, names and raw engine output. No content,
+recipient, token or signed URL enters logs. See [the validator contract](PDF_VALIDATOR.md).
 
 ## Scope of the checks and European rules
 
@@ -85,25 +89,25 @@ A Guteneo report is not an EAA, WCAG or EN 301 549 certificate.
 [Directive scope](https://eur-lex.europa.eu/legal-content/en/LSU/?uri=CELEX%3A32016L2102),
 [Commission standards guidance](https://digital-strategy.ec.europa.eu/en/policies/web-accessibility-directive-standards-and-harmonisation).
 
-## Release and publicity
+## Release and historical evidence
 
-The public site prepares a forthcoming offer and sourced FAQ in all four
-languages. [HORIZON_LAUNCH.md](HORIZON_LAUNCH.md) contains announcement drafts.
-Plugin 0.3.2 includes the conditional diagnostic workflow and preserves its
-identity; no marketplace replacement/resubmission is performed.
+`PDF_VALIDATION_ENABLED="true"`, the private `PDF_VALIDATOR` binding
+and required production scanner must all be ready. Missing configuration fails
+closed and cannot produce a conformity verdict or settled charge. Public preview
+has no business bindings and cannot purchase, debit or validate.
 
-`HORIZON_ENABLED` is off/absent by default and `PDF_VALIDATOR` is unbound in the
-application. Both require explicit hosted qualification before availability.
-Production availability also requires `SCANNER`, matching the validator's
-scan prerequisite. If that binding is absent, status/entitlement fail closed,
-new subscriptions are refused and scheduled renewals create no action or debit,
-even when enough credits remain. Cancellation remains available.
-Public preview has no business bindings and cannot subscribe, debit or validate.
-Production activation needs a separately authorized release, private-service
-provisioning/binding, migrations and commercial tax/invoice decisions. No merge,
-production migration/deployment, real charge, communication or marketplace action
-was performed. See [HORIZON_PROOF.md](HORIZON_PROOF.md) for executed checks.
+Release requires the final source checks, migration and private-engine qualification,
+then separately authorized merge and production publication. Public capability
+checks, authenticated purchases, real financial entries and live engine execution
+need distinct evidence. This documentation records no new production debit,
+communication, merge, deployment or marketplace action.
 
-## Public entry integration
+The [2 October proof](PDF_VERIFICATION_PROOF.md),
+[3 October opening decision](PDF_VERIFICATION_OPENING_2026_10_03.md) and
+[archived launch preparation](PDF_VERIFICATION_LAUNCH_ARCHIVE.md) preserve historical
+observations. Their retired monthly terms and previous authorization are not a
+current recurring offer or standing permission to debit accounts.
 
-The public Horizon offer enters through `/app/plan`, served with `no-store` and `noindex, nofollow` and handed to the existing browser route `/#/app/plan`. This keeps the public offer usable without a false in-page fragment target. GET/HEAD privacy rules, forbidden preview mutations, navigation, reload and absence of preview backend requests are covered by the public-assets/preview-worker tests and preview SEO/fragment browser tests. This entry does not enable subscriptions or diagnostics.
+The browser entry is `/app/pdf-checks`; the old `/app/plan` bookmark can resolve
+only through the supported compatibility route. Diagnostics and financial history
+remain private, with no-store responses and the existing document access gates.

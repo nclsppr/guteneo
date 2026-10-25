@@ -1,16 +1,15 @@
 import { msg } from "./messages";
 import { ArrowLeft, ArrowRight, DownloadSimple } from "@phosphor-icons/react";
-import { PublicHeader } from "./public-chrome";
+import { PublicHeader, PublicFooter } from "./public-chrome";
 import { workspaceEntryHref } from "./auth-navigation";
 import { AssistantGuide, AssistantPicker } from "./assistant-guides";
 import { getAssistant } from "./assistant-catalog";
-import { LuxembourgFooter } from "./landing-sections";
 import "./assistant-workspace.css";
 
 export function AssistantsPage({ assistantId }: { assistantId?: string }) {
   const assistant = getAssistant(assistantId);
   return (
-    <div className="landing assistants-public">
+    <div className="landing public-site assistants-public">
       <a className="skip-link" href="#assistants-main">
         {msg("Skip to content")}
       </a>
@@ -28,9 +27,7 @@ export function AssistantsPage({ assistantId }: { assistantId?: string }) {
           <section className="assistants-intro">
             <h1>{msg("This guide does not exist.")}</h1>
             <p>
-              {msg(
-                "Find instructions for your assistant in the catalogue.",
-              )}
+              {msg("Find instructions for your assistant in the catalogue.")}
             </p>
             <a className="button primary" href="/assistants/">
               {msg("Choose my assistant ")}
@@ -103,7 +100,7 @@ export function AssistantsPage({ assistantId }: { assistantId?: string }) {
           </>
         )}
       </main>
-      <LuxembourgFooter />
+      <PublicFooter />
     </div>
   );
 }

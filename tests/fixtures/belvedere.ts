@@ -353,8 +353,8 @@ export function fixtureResponse(url: URL): unknown {
       dispatchCountBasis: "created_dispatch_cohort",
       reservedBasis: "current_dispatch_cohort",
       customerConsumptionMinor: consumption + 3000,
-      horizonConsumptionMinor: 3000,
-      horizonCharges: 1,
+      legacyPlanConsumptionMinor: 3000,
+      legacyPlanCharges: 1,
       reservedMinor: reserved,
       promotionalGrantedMinor: 30000,
       promotionalRemainingMinor: 30000 - consumption - reserved - 3000,
@@ -381,7 +381,7 @@ export function fixtureResponse(url: URL): unknown {
         {
           month: to.slice(0, 7),
           consumptionMinor: consumption + 3000,
-          horizonConsumptionMinor: 3000,
+          legacyPlanConsumptionMinor: 3000,
           dispatches: dispatches.filter((d) => d.customerActualMinor !== null)
             .length,
         },

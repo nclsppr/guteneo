@@ -276,6 +276,56 @@ async function capture(
   });
 }
 
+test("personal documents use one compact navigation row and role details stay on the account page", async ({
+  page,
+  isMobile,
+}, info) => {
+  const data = await fixture(page);
+  for (const appearance of ["classic", "v2"]) {
+    await page.goto(`/?appearance=${appearance}#/app`);
+    await expect(page.locator("aside .workspace-identity")).toContainText(
+      data.session.user.email!,
+    );
+    const navigation = page.locator(".workspace-navigation");
+    if (isMobile) await navigation.locator("summary").click();
+    const personal = navigation.locator('a[href="#/app/my-documents"]');
+    await expect(personal).toHaveCount(1);
+    await expect(personal).toHaveAccessibleName(
+      "Mes documents — Espace personnel",
+    );
+    await expect(personal).toHaveAttribute("title", "Espace personnel");
+    await expect(page.locator(".sidebar > .personal-context-link")).toHaveCount(
+      0,
+    );
+    const personalBox = await personal.boundingBox();
+    const overviewBox = await navigation
+      .locator('a[href="#/app"]')
+      .boundingBox();
+    expect(personalBox).not.toBeNull();
+    expect(overviewBox).not.toBeNull();
+    expect(personalBox!.height).toBeGreaterThan(0);
+    expect(personalBox!.height).toBeLessThanOrEqual(overviewBox!.height + 1);
+    expect(personalBox!.height).toBeLessThanOrEqual(48);
+    expect(
+      await personal.evaluate(
+        (element) => getComputedStyle(element).borderWidth,
+      ),
+    ).toBe("0px");
+    await expect(
+      page.locator(".workspace-role, .dashboard-identity"),
+    ).toHaveCount(0);
+    await expect(page.locator("aside .workspace-identity")).not.toContainText(
+      "Opérateur",
+    );
+    await fits(page);
+    await capture(page, `compact-sidebar-${appearance}`, info.project.name);
+    await page.goto(`/?appearance=${appearance}#/app/account`);
+    await expect(page.locator(".account-identity")).toContainText("Opérateur");
+  }
+  expect(data.writes).toEqual([]);
+  expect(data.unmatched).toEqual([]);
+});
+
 test("identity stays visible, switching names the account action and profile changes persist", async ({
   page,
 }, info) => {
@@ -285,7 +335,7 @@ test("identity stays visible, switching names the account action and profile cha
   await expect(identity).toHaveAttribute("aria-label", "Votre compte");
   await expect(identity).toContainText(data.session.user.name);
   await expect(identity).toContainText(data.session.user.email!);
-  await expect(identity).toContainText("Opérateur");
+  await expect(identity).not.toContainText("Opérateur");
   const switchAccount = identity.getByRole("link", {
     name: "Changer de compte",
     exact: true,
@@ -296,11 +346,7 @@ test("identity stays visible, switching names the account action and profile cha
   expect(target.searchParams.get("intent")).toBe("switch-account");
   expect(target.searchParams.get("locale")).toBe("fr");
   expect(target.searchParams.get("returnTo")).toBe("/#/app");
-  const role = page.getByRole("region", {
-    name: "Votre rôle dans cet atelier",
-    exact: true,
-  });
-  await expect(role).toContainText("une personne habilitée les valide");
+  await expect(page.locator(".dashboard-identity")).toHaveCount(0);
   await expect(page.locator(".workspace-contact-list > li")).toHaveCount(3);
   await capture(page, "dashboard", info.project.name);
   await identity
@@ -311,6 +357,7 @@ test("identity stays visible, switching names the account action and profile cha
     .getByRole("main")
     .getByRole("region", { name: "Votre compte", exact: true });
   await expect(summary).toContainText(data.session.user.email!);
+  await expect(summary).toContainText("Opérateur");
   await expect(
     page.getByRole("textbox", { name: /adresse.*connexion|e-mail/i }),
   ).toHaveCount(0);
@@ -439,13 +486,8 @@ test("returning to a healthy tab reconciles a different account and workshop tog
     })
     .toContain("Noa Compte actuel");
   await expect(identity).toContainText("noa@example.invalid");
-  await expect(identity).toContainText("Observateur");
-  const role = page.getByRole("region", {
-    name: "Votre rôle dans cet atelier",
-    exact: true,
-  });
-  await expect(role).toContainText("Noa Compte actuel");
-  await expect(role).toContainText("lecture seule");
+  await expect(identity).not.toContainText("Observateur");
+  await expect(page.locator(".dashboard-identity")).toHaveCount(0);
   await expect(page.locator(".workspace-contact-list")).toContainText(
     "Responsable du deuxième atelier",
   );
@@ -453,6 +495,11 @@ test("returning to a healthy tab reconciles a different account and workshop tog
     "Samira Validation",
   );
   await expect(identity).not.toContainText("Camille Nom partagé");
+  await page.goto("/#/app/account");
+  await expect(page.locator(".account-identity")).toContainText(
+    "Noa Compte actuel",
+  );
+  await expect(page.locator(".account-identity")).toContainText("Observateur");
   expect(data.writes).toEqual([]);
   expect(data.unmatched).toEqual([]);
 });
@@ -518,19 +565,14 @@ test("the profile is the sole connected language setting and persists after focu
   await page.goto("/#/app");
   await expect(identity).toHaveAttribute("aria-label", "Your account");
   await expect(page.locator('select[name="language"]')).toHaveCount(0);
-  await expect(
-    page.getByRole("region", {
-      name: "Your role in this workshop",
-      exact: true,
-    }),
-  ).toContainText(
-    "You prepare dispatches; an authorized person approves them.",
-  );
+  await expect(identity).not.toContainText("Operator");
+  await expect(page.locator(".dashboard-identity")).toHaveCount(0);
   await page.reload();
   await expect(identity).toHaveAttribute("aria-label", "Your account");
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
   await expect(page.locator('select[name="language"]')).toHaveCount(0);
   await page.goto("/#/app/account");
+  await expect(page.locator(".account-identity")).toContainText("Operator");
   await expect(page.locator('select[name="language"]')).toHaveCount(1);
   await expect(
     page.getByLabel("Preferred language", { exact: true }),

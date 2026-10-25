@@ -23,6 +23,55 @@ async function ready(page: Page) {
   ).toBeVisible();
 }
 
+test("a root-host shell keeps navigation and read-only data on its own origin", async ({
+  page,
+}, info) => {
+  const failures: string[] = [];
+  const reads: string[] = [];
+  page.on("pageerror", (error) => failures.push(error.message));
+  await page.route("http://127.0.0.1:8794/", async (route) => {
+    const response = await route.fetch();
+    const body = (await response.text()).replace(
+      `name="guteneo-belvedere" content="${fixtureBase}"`,
+      'name="guteneo-belvedere" content=""',
+    );
+    await route.fulfill({ response, body });
+  });
+  await page.route("**/api/**", async (route) => {
+    const url = new URL(route.request().url());
+    if (!url.pathname.startsWith("/api/")) return route.continue();
+    reads.push(url.pathname);
+    url.pathname = fixtureBase + url.pathname;
+    const data = fixtureResponse(url);
+    await route.fulfill({ status: data ? 200 : 404, json: data ?? {} });
+  });
+  await page.goto("/");
+  await expect(
+    page.getByRole("heading", { name: "Tout voir, à la bonne hauteur." }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Le monde de guteneo." }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "Retour à guteneo", includeHidden: true }),
+  ).toHaveAttribute("href", "https://guteneo.com/");
+  await navigate(page, "Finances");
+  await expect(
+    page.getByRole("heading", {
+      name: "Des chiffres qui disent ce qu’ils sont.",
+    }),
+  ).toBeVisible();
+  expect(new URL(page.url()).pathname).toBe("/");
+  expect(reads).toContain("/api/overview");
+  expect(reads).toContain("/api/finance");
+  expect(failures).toEqual([]);
+  await mkdir("/tmp/guteneo-belvedere-host", { recursive: true });
+  await page.screenshot({
+    path: `/tmp/guteneo-belvedere-host/root-${info.project.name}.png`,
+    fullPage: true,
+  });
+});
+
 test("overview filters, accessible chart and every navigation destination work", async ({
   page,
 }) => {
@@ -220,20 +269,23 @@ test("empty data remains explicit without invented income or activity", async ({
   await expect(page.getByText("Non configurés", { exact: true })).toBeVisible();
 });
 
-test("finance separates Horizon consumption from delivery channels and counts", async ({
+test("finance separates retained legacy PDF plan consumption from delivery channels and counts", async ({
   page,
 }) => {
   await ready(page);
   await navigate(page, "Finances");
   await expect(
-    page.getByText("Abonnement Horizon", { exact: true }),
+    page.getByRole("term").filter({ hasText: /^Anciens forfaits PDF$/ }),
   ).toBeVisible();
   await expect(page.locator("#belvedere-main")).toContainText(
-    "1 débit d’abonnement comptabilisé sur la période, inclus dans la consommation totale.",
+    "1 débit d’abonnement comptabilisé sur la période, inclus dans la consommation totale. Il n’est pas compté comme un envoi.",
   );
   const monthly = page.getByRole("region", { name: "Consommation mensuelle" });
   await expect(
-    monthly.getByRole("columnheader", { name: "Horizon", exact: true }),
+    monthly.getByRole("columnheader", {
+      name: "Anciens forfaits PDF",
+      exact: true,
+    }),
   ).toBeVisible();
   await expect(
     monthly.getByRole("columnheader", { name: "Envois débités", exact: true }),

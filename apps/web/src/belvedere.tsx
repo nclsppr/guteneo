@@ -58,6 +58,7 @@ import {
 import { BelvedereGlobe } from "./belvedere-globe";
 import { bmsg, bmsgIn } from "./belvedere-i18n";
 import { formatLocale, useLocale } from "./locale";
+import { ThemeSelect } from "./theme-select";
 import "./belvedere.css";
 
 type View =
@@ -111,8 +112,7 @@ const pageCopy: Record<View, { title: string; description: string }> = {
   },
   infrastructure: {
     title: "Inside guteneo.",
-    description:
-      "Service status and available Cloudflare measurements.",
+    description: "Service status and available Cloudflare measurements.",
   },
 };
 function readView(): View {
@@ -301,6 +301,7 @@ export default function Belvedere({ basePath }: { basePath: string }) {
           ))}
         </nav>
         <div className="bv-sidebar-foot">
+          <ThemeSelect compact />
           <div className="bv-private">
             <ShieldCheck size={18} />
             <span>
@@ -308,7 +309,7 @@ export default function Belvedere({ basePath }: { basePath: string }) {
               <span>{bmsg("Read-only")}</span>
             </span>
           </div>
-          <a href="/">
+          <a href={basePath === "" ? "https://guteneo.com/" : "/"}>
             {bmsg("Back to guteneo")}
             <ArrowUpRight size={16} />
           </a>
@@ -327,9 +328,7 @@ export default function Belvedere({ basePath }: { basePath: string }) {
             ref={navButton}
             aria-expanded={mobileNav}
             aria-label={
-              mobileNav
-                ? bmsg("Close navigation")
-                : bmsg("Open navigation")
+              mobileNav ? bmsg("Close navigation") : bmsg("Open navigation")
             }
             onClick={() => setMobileNav(!mobileNav)}
           >
@@ -350,9 +349,7 @@ export default function Belvedere({ basePath }: { basePath: string }) {
         </header>
         {demo && (
           <div className="bv-demo" role="note">
-            {bmsg(
-              "Local demonstration — fictional data, no real services.",
-            )}
+            {bmsg("Local demonstration — fictional data, no real services.")}
           </div>
         )}
         <main id="belvedere-main" ref={main} tabIndex={-1}>
@@ -397,9 +394,7 @@ export default function Belvedere({ basePath }: { basePath: string }) {
                     <option value="7">{bmsg("Last 7 days")}</option>
                     <option value="30">{bmsg("Last 30 days")}</option>
                     <option value="90">{bmsg("Last 90 days")}</option>
-                    <option value="custom">
-                      {bmsg("Custom dates")}
-                    </option>
+                    <option value="custom">{bmsg("Custom dates")}</option>
                   </select>
                 </label>
                 <label>
@@ -506,9 +501,7 @@ export default function Belvedere({ basePath }: { basePath: string }) {
           <footer className="bv-footer">
             <span>{bmsg("Belvédère by guteneo")}</span>
             <span>
-              {bmsg(
-                "Amounts in EUR unless stated · Dates shown in local time",
-              )}
+              {bmsg("Amounts in EUR unless stated · Dates shown in local time")}
             </span>
           </footer>
         </main>
@@ -557,7 +550,9 @@ function Failure({
       </h2>
       <p>
         {expired
-          ? bmsg("Your access to Belvédère has expired or is no longer authorised.")
+          ? bmsg(
+              "Your access to Belvédère has expired or is no longer authorised.",
+            )
           : bmsg("Reading data failed. You can try again.")}
       </p>
       {expired ? (
@@ -736,10 +731,7 @@ function Search({
         onChange={(event) => onChange(event.target.value)}
       />
       {value && (
-        <button
-          onClick={() => onChange("")}
-          aria-label={bmsg("Clear search")}
-        >
+        <button onClick={() => onChange("")} aria-label={bmsg("Clear search")}>
           <X size={15} />
         </button>
       )}
@@ -879,9 +871,7 @@ function Overview(
               <CheckCircle size={32} weight="light" />
               <h3>{bmsg("No dispatches need attention.")}</h3>
               <p>
-                {bmsg(
-                  "The available data shows no incidents in this period.",
-                )}
+                {bmsg("The available data shows no incidents in this period.")}
               </p>
             </div>
           )}
@@ -1150,7 +1140,9 @@ function ActivityChart({ data }: { data: BelvedereOverview["trend"] }) {
                 <tr>
                   <th>{bmsg("Date")}</th>
                   <th className="bv-numeric">{bmsg("Dispatches")}</th>
-                  <th className="bv-numeric">{bmsgIn("belvedere-plural", "Delivered")}</th>
+                  <th className="bv-numeric">
+                    {bmsgIn("belvedere-plural", "Delivered")}
+                  </th>
                   <th className="bv-numeric">{bmsg("Connections")}</th>
                   <th className="bv-numeric">{bmsg("Consumption")}</th>
                 </tr>
@@ -1333,9 +1325,7 @@ function Workshops({
         >
           {search
             ? bmsg("Try a shorter name or clear the search.")
-            : bmsg(
-                "Change the data filter to view other workshops.",
-              )}
+            : bmsg("Change the data filter to view other workshops.")}
         </Empty>
       ) : (
         <DataTable label={bmsg("Workshops and consumption")}>
@@ -1493,9 +1483,7 @@ function WorkshopDetail({
           <div className="bv-detail-grid">
             <section className="bv-panel">
               <SectionHeading title={bmsg("Consumption by channel")}>
-                {bmsg(
-                  "Current amounts for dispatches created in this period",
-                )}
+                {bmsg("Current amounts for dispatches created in this period")}
               </SectionHeading>
               <Channels channels={data.channels} />
             </section>
@@ -1528,9 +1516,7 @@ function WorkshopDetail({
                   ))
                 ) : (
                   <Empty title={bmsg("No members in this view.")}>
-                    {bmsg(
-                      "Members will appear after joining the workshop.",
-                    )}
+                    {bmsg("Members will appear after joining the workshop.")}
                   </Empty>
                 )}
               </div>
@@ -1626,9 +1612,7 @@ function WorkshopDetail({
               </DataTable>
             ) : (
               <Empty title={bmsg("No dispatches in this period.")}>
-                {bmsg(
-                  "Choose another period to view this workshop’s history.",
-                )}
+                {bmsg("Choose another period to view this workshop’s history.")}
               </Empty>
             )}
             <Pagination
@@ -1683,9 +1667,7 @@ function Members({
           />
         }
       >
-        {data
-          ? bmsg("{0} people", number(data.total))
-          : bmsg("All members")}
+        {data ? bmsg("{0} people", number(data.total)) : bmsg("All members")}
         {bmsg(" · Memberships and connections reflect the current state")}
       </SectionHeading>
       {error ? (
@@ -1694,9 +1676,7 @@ function Members({
         <Loading table />
       ) : !data.items.length ? (
         <Empty title={bmsg("No matching members.")}>
-          {bmsg(
-            "Try another name, email address or mode.",
-          )}
+          {bmsg("Try another name, email address or mode.")}
         </Empty>
       ) : (
         <DataTable label={bmsg("Members and access")}>
@@ -1746,9 +1726,7 @@ function Members({
                         {number(member.workshops.length)}
                         {bmsg(" workshops shown out of")}{" "}
                         {number(member.workshopsTotal)}
-                        {bmsg(
-                          ". View other memberships from the workshops.",
-                        )}
+                        {bmsg(". View other memberships from the workshops.")}
                       </small>
                     )}
                   </div>
@@ -1918,9 +1896,7 @@ function Connections({ basePath, filters, revision, refresh }: ViewProps) {
               </DataTable>
             ) : (
               <Empty title={bmsg("No sessions in this view.")}>
-                {bmsg(
-                  "Change the filters or view the connection history.",
-                )}
+                {bmsg("Change the filters or view the connection history.")}
               </Empty>
             )}
             <Pagination
@@ -2008,23 +1984,19 @@ function Finance({ basePath, filters, revision, refresh }: ViewProps) {
           <p>
             {filters.mode === "production"
               ? bmsg(
-                  "Dispatch, hosting and Horizon debits recorded in this period, by ledger date, including dispatches deleted since. These amounts may come from promotional credits.",
+                  "Dispatch, hosting, PDF check and legacy plan debits recorded in this period, by ledger date, including dispatches deleted since. These amounts may come from promotional credits.",
                 )
               : bmsg(
-                  "Simulated dispatch and Horizon consumption by confirmation or ledger date. These are not real receipts.",
+                  "Simulated dispatch, PDF check and legacy plan consumption by confirmation or ledger date. These are not real receipts.",
                 )}
           </p>
           <span className="bv-finance-reserved">
             {money(data.reservedMinor)}
-            {bmsg(
-              " currently reserved for dispatches created in this period",
-            )}
+            {bmsg(" currently reserved for dispatches created in this period")}
           </span>
         </section>
         <section>
-          <span className="bv-finance-label">
-            {bmsg("Verified receipts")}
-          </span>
+          <span className="bv-finance-label">{bmsg("Verified receipts")}</span>
           <div className="bv-finance-cash">
             {data.cashStatus === "unconfigured" ? (
               <strong className="bv-unavailable">
@@ -2099,19 +2071,19 @@ function Finance({ basePath, filters, revision, refresh }: ViewProps) {
         <section className="bv-panel">
           <SectionHeading title={bmsg("Consumption by channel")}>
             {bmsg(
-              "Volumes: dispatches created in this period. Amounts: debits recorded in the period, excluding the Horizon subscription.",
+              "Volumes: dispatches created in this period. Amounts: debits recorded in the period, excluding legacy plan charges.",
             )}
           </SectionHeading>
           <Channels channels={data.channels} />
           <dl className="bv-finance-lines">
             <div>
-              <dt>{bmsg("Horizon subscription")}</dt>
-              <dd>{money(data.horizonConsumptionMinor)}</dd>
+              <dt>{bmsg("Legacy PDF plans")}</dt>
+              <dd>{money(data.legacyPlanConsumptionMinor)}</dd>
             </div>
           </dl>
           <p className="bv-source-note">
-            {number(data.horizonCharges)}{" "}
-            {data.horizonCharges === 1
+            {number(data.legacyPlanCharges)}{" "}
+            {data.legacyPlanCharges === 1
               ? bmsg(
                   "subscription debit recorded in this period, included in total consumption. It is not counted as a dispatch.",
                 )
@@ -2145,14 +2117,12 @@ function Finance({ basePath, filters, revision, refresh }: ViewProps) {
         <SectionHeading title={bmsg("Monthly summary")}>
           {filters.mode === "production"
             ? bmsg(
-                "Debits by ledger month, including Horizon and the history of deleted dispatches.",
+                "Debits by ledger month, including PDF checks, legacy plans and the history of deleted dispatches.",
               )
             : bmsg(
                 "Simulated consumption by confirmation or ledger month.",
               )}{" "}
-          {bmsg(
-            "Months at either end of the period may be incomplete.",
-          )}
+          {bmsg("Months at either end of the period may be incomplete.")}
         </SectionHeading>
         {data.monthly.length ? (
           <DataTable label={bmsg("Monthly consumption")}>
@@ -2161,7 +2131,7 @@ function Finance({ basePath, filters, revision, refresh }: ViewProps) {
                 <th>{bmsg("Month")}</th>
                 <th className="bv-numeric">{bmsg("Debited dispatches")}</th>
                 <th className="bv-numeric">{bmsg("Dispatches and hosting")}</th>
-                <th className="bv-numeric">Horizon</th>
+                <th className="bv-numeric">{bmsg("Legacy PDF plans")}</th>
                 <th className="bv-numeric">{bmsg("Total consumption")}</th>
               </tr>
             </thead>
@@ -2180,11 +2150,11 @@ function Finance({ basePath, filters, revision, refresh }: ViewProps) {
                   <td className="bv-numeric">{number(month.dispatches)}</td>
                   <td className="bv-numeric">
                     {money(
-                      month.consumptionMinor - month.horizonConsumptionMinor,
+                      month.consumptionMinor - month.legacyPlanConsumptionMinor,
                     )}
                   </td>
                   <td className="bv-numeric">
-                    {money(month.horizonConsumptionMinor)}
+                    {money(month.legacyPlanConsumptionMinor)}
                   </td>
                   <td className="bv-numeric bv-emphasis">
                     {money(month.consumptionMinor)}
@@ -2204,9 +2174,7 @@ function Finance({ basePath, filters, revision, refresh }: ViewProps) {
       <p className="bv-freshness">
         {bmsg("Calculated on ")}
         {dateTime(data.generatedAt)}
-        {bmsg(
-          " · Quotes and limits remain available in workshop details.",
-        )}
+        {bmsg(" · Quotes and limits remain available in workshop details.")}
       </p>
     </>
   );
@@ -2414,9 +2382,7 @@ function InfrastructureChart({
   if (!series.length)
     return (
       <Empty title={bmsg("No hourly measurements.")}>
-        {bmsg(
-          "Points will appear when Cloudflare returns measurements.",
-        )}
+        {bmsg("Points will appear when Cloudflare returns measurements.")}
       </Empty>
     );
   const max = Math.max(...series.map((item) => item.requests), 1);
@@ -2425,9 +2391,7 @@ function InfrastructureChart({
       <div
         className="bv-infra-chart"
         role="img"
-        aria-label={bmsg(
-          "Hourly request volume, detailed values below",
-        )}
+        aria-label={bmsg("Hourly request volume, detailed values below")}
       >
         {series.map((item) => (
           <div
@@ -2587,9 +2551,7 @@ function CloudflareBilling({
               ? bmsg(
                   "Cloudflare returned no entries for the current cycle; this does not prove there is no charge.",
                 )
-              : bmsg(
-                  "Refresh after checking the Cloudflare connection.",
-                )}
+              : bmsg("Refresh after checking the Cloudflare connection.")}
         </Empty>
       )}
       <div className="bv-billing-note">
@@ -2919,7 +2881,11 @@ function Jobs({
           </DataTable>
         )}
         {data && (
-          <Pagination data={data} onChange={setPage} label={bmsg("deliveries")} />
+          <Pagination
+            data={data}
+            onChange={setPage}
+            label={bmsg("deliveries")}
+          />
         )}
       </section>
       <p className="bv-source-note">

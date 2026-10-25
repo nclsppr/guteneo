@@ -28,6 +28,10 @@ import {
   type ImportFailureReason,
   type ImportSourceCategory,
 } from "../../../packages/observability/src/index";
+import {
+  MAX_AUTO_ANALYSIS_ATTEMPTS as MAX_AUTO_ATTEMPTS,
+  projectDocumentAnalysis,
+} from "./document-analysis";
 
 export const REVIEW_PDF_MAX_BYTES = 1024 * 1024;
 export interface ExactReviewPdf {
@@ -41,7 +45,6 @@ export interface ExactReviewPages {
 
 type DocumentContext = Parameters<DomainService["registerDocument"]>[0];
 
-const MAX_AUTO_ATTEMPTS = 5;
 const ANALYSIS_WINDOW_MS = 10 * 60_000;
 const SCAN_LEASE_MS = 45_000;
 type ScanCode =
@@ -334,18 +337,9 @@ export class DocumentService {
     document: DocumentRecord,
     row: AnalysisRow | null,
   ): AnalyzedDocument {
-    const expired =
-      row?.state === "processing" &&
-      ((row.attempts > 0 && row.deadline_at <= Date.now()) ||
-        (row.attempts >= MAX_AUTO_ATTEMPTS &&
-          row.next_attempt_at <= Date.now()));
     return {
       ...document,
-      analysis: documentAnalysis(
-        document.status,
-        expired ? "retryable" : row?.state,
-        expired ? "retry_exhausted" : row?.code,
-      ),
+      analysis: projectDocumentAnalysis(document.status, row),
     };
   }
 

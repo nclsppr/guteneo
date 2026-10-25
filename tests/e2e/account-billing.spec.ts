@@ -217,37 +217,44 @@ test("account, members and billing reject a valid assistant bearer and browser w
   expect(unchanged.organization.name).toBe(session.organization.name);
 });
 
-test("billing stays behind the monthly plan and never invents invoices", async ({
+test("administrator billing stays accessible without a subscription and never invents invoices", async ({
   page,
 }) => {
   await login(page);
   const response = await page.request.get("/api/billing");
-  expect(response.status()).toBe(402);
+  expect(response.status()).toBe(200);
   expect(await response.json()).toMatchObject({
-    error: { code: "HORIZON_PLAN_REQUIRED" },
+    status: "configuration_required",
+    portalAvailable: false,
   });
   const requests: string[] = [];
+  const writes: string[] = [];
   page.on("request", (request) => {
     const path = new URL(request.url()).pathname;
-    if (path.startsWith("/api/billing")) requests.push(path);
+    if (path.startsWith("/api/billing")) {
+      requests.push(path);
+      if (request.method() !== "GET") writes.push(path);
+    }
   });
   await page.goto("/#/app/billing");
   await expect(
     page.getByRole("heading", { name: "Facturation", exact: true }),
   ).toBeVisible();
   await expect(
-    page.getByRole("heading", { name: "Forfait Horizon", exact: true }),
+    page.getByText("Aucune facture enregistrée pour cet espace."),
   ).toBeVisible();
   await expect(
-    page.getByText("Bientôt disponible", { exact: true }),
-  ).toBeVisible();
+    page.getByRole("button", { name: /Souscrire|Résilier/ }),
+  ).toHaveCount(0);
   await expect(
     page.getByRole("button", { name: "Créer mon dossier de facturation" }),
   ).toHaveCount(0);
   await expect(
     page.getByRole("button", { name: "Ouvrir le portail de facturation" }),
   ).toHaveCount(0);
-  expect(requests).toEqual([]);
+  expect(requests).toContain("/api/billing");
+  expect(requests).toContain("/api/billing/invoices");
+  expect(writes).toEqual([]);
   await expect
     .poll(() =>
       page.evaluate(

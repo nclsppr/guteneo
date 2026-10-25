@@ -124,11 +124,12 @@ email transport or a fallback around Resend. Historical SNS/host-migration notes
 remain dated evidence. Read current capability/configuration rather than inferring
 activation from an old provider record.
 
-Billing projections also remain bounded: current browser administrator and
-applicable Horizon entitlement guard billing reads/actions; assistant tokens
+Billing projections remain bounded: current browser administrator authority
+guards billing reads/actions; a monthly PDF entitlement is no longer required. Assistant tokens
 cannot open a customer portal. Signed Stripe events are deduplicated and canonical
 objects reread before projection. Promotional credit, sending reservations and
-monthly credit-funded entitlement are distinct from a Stripe invoice or card
+individual PDF-verification purchases and retained legacy subscription charges
+are distinct from a Stripe invoice or card
 charge. There is no automatic purchase/top-up/checkout implied by this module,
 and source tests establish no live commercial account.
 

@@ -54,7 +54,7 @@ export function snapshot() {
       "Fax",
       "Courrier postal",
       "E-mail",
-      "Horizon / validation PDF",
+      "PDF verification",
       "Paiements Stripe",
       "Propositions IA",
     ].map((feature, index) => ({

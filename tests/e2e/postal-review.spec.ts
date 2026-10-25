@@ -323,13 +323,13 @@ test("one explicit review action transfers once and follows the quote automatica
       () => document.documentElement.scrollWidth <= innerWidth + 1,
     ),
   ).toBeTruthy();
-  await mkdir("reports/screenshots/postal-review", { recursive: true });
   await page.screenshot({
-    path: `reports/screenshots/postal-review/${testInfo.project.name}.png`,
+    path: testInfo.outputPath("postal-review.png"),
     fullPage: true,
   });
   await transfer.click();
   await expect(page).toHaveURL(/#\/app\/dispatch\/dispatch-ui$/);
+  await expect(page.locator(".dispatch-reference")).toBeVisible();
   const transfers = fixture.mutations.filter((m) =>
     m.path.endsWith("/transfer"),
   );
@@ -347,6 +347,7 @@ test("one explicit review action transfers once and follows the quote automatica
   expect(quotes[1].key).toBe(quotes[0].key);
   await page.goto("/#/app/postal/postal-ui-fixture");
   await expect(page).toHaveURL(/#\/app\/dispatch\/dispatch-ui$/);
+  await expect(page.locator(".dispatch-reference")).toBeVisible();
   expect(fixture.mutations.at(-1)?.key).toBe(quotes[0].key);
   expect(
     fixture.mutations.some((m) => /send|confirm|approve/.test(m.path)),

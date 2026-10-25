@@ -1,4 +1,5 @@
-import { t } from "./locale";
+import { canonicalPublicLocation } from "../../../packages/contracts/src/public-routes";
+import { t, useLocale } from "./locale";
 import { formatCutoffHour, postalCutoffForCountry } from "./postal-cutoff";
 import "./postal-cutoff-notice.css";
 
@@ -9,6 +10,7 @@ export function PostalCutoffNotice({
   country?: string;
   deliveryProduct?: unknown;
 }) {
+  const locale = useLocale();
   const rule = postalCutoffForCountry(country);
   if (!rule) return null;
   const code = country?.trim().toUpperCase();
@@ -42,7 +44,15 @@ export function PostalCutoffNotice({
         </p>
         {exception && <p>{exception}</p>}
       </div>
-      <a href="/#postal-cutoff-faq" target="_blank" rel="noopener noreferrer">
+      <a
+        href={canonicalPublicLocation(
+          "/support/",
+          `?lang=${locale}`,
+          "#postal-cutoff-faq",
+        )}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
         {copy.details} <span className="sr-only">{copy.newTab}</span>
       </a>
     </aside>

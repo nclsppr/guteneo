@@ -10,6 +10,41 @@ const publicApplication = process.env.GUTENEO_PUBLIC_APP === "1";
 
 const paths = publicSite.paths;
 
+test("public detail HTML remains useful while its interaction chunk is delayed", async ({
+  page,
+}) => {
+  let releaseChunk: () => void = () => {};
+  const heldChunk = new Promise<void>((resolve) => {
+    releaseChunk = resolve;
+  });
+  let requested = false;
+  await page.route("**/assets/public-site-pages-*.js", async (route) => {
+    requested = true;
+    await heldChunk;
+    await route.continue();
+  });
+  try {
+    await page.goto("/pricing/?lang=en", { waitUntil: "domcontentloaded" });
+    await expect.poll(() => requested).toBe(true);
+    await expect(page.locator("main h1")).toHaveText("Pricing");
+    await expect(page.locator(".pricing-table tbody tr")).toHaveCount(3);
+    await expect(page.locator("main")).toContainText(
+      "One recipient, with or without a PDF attachment",
+    );
+    await expect(
+      page
+        .locator("footer")
+        .getByRole("link", { name: "Getting started", exact: true }),
+    ).toHaveAttribute("href", "/getting-started/?lang=en");
+    releaseChunk();
+    await expect(page.locator("main h1")).toHaveText("Pricing");
+    await expect(page.locator(".pricing-table tbody tr")).toHaveCount(3);
+    await expect(page.locator("main")).not.toContainText("Loading");
+  } finally {
+    releaseChunk();
+  }
+});
+
 test("public routes expose complete initial HTML, metadata and true HTTP statuses", async ({
   request,
 }) => {
@@ -160,6 +195,9 @@ test("every public page applies its language selector without preview API calls"
     await selector.selectOption("de");
     await expect(page).toHaveURL(new RegExp(`${path}\\?lang=de$`));
     await expect(page.locator("html")).toHaveAttribute("lang", "de");
+    await expect(
+      page.locator('footer a[href^="https://status.guteneo.com/"]'),
+    ).toHaveAttribute("href", "https://status.guteneo.com/?lang=de");
     await expect(selector).toHaveValue("de");
     expect(
       await page.evaluate(() => localStorage.getItem("guteneo.locale")),
@@ -182,7 +220,12 @@ test("app entry links resolve privately and reach the existing preview router", 
     if (/^\/(api|auth|oauth|mcp)(\/|$)/.test(new URL(request.url()).pathname))
       backendRequests.push(request.url());
   });
-  for (const path of ["/app", "/app/prepare?entry=direct", "/app/plan"]) {
+  for (const path of [
+    "/app",
+    "/app/prepare?entry=direct",
+    "/app/pdf-checks",
+    "/app/plan",
+  ]) {
     for (const method of ["GET", "HEAD"]) {
       const response = await request.fetch(path, { method });
       expect(response.status()).toBe(200);
@@ -197,7 +240,11 @@ test("app entry links resolve privately and reach the existing preview router", 
     });
   }
   await page.goto("/");
-  await page.locator('.footer-colophon a[href="/app"]').click();
+  const menu = page.locator(".public-menu-toggle");
+  if (await menu.isVisible()) {
+    await menu.click();
+    await page.locator('.public-mobile-workspace[href="/app"]').click();
+  } else await page.locator('.public-workspace-link[href="/app"]').click();
   await expect(page).toHaveURL(/\/#\/app$/);
   await expect(
     page.getByRole("heading", { name: "Votre correspondance, au clair." }),
@@ -215,15 +262,15 @@ test("app entry links resolve privately and reach the existing preview router", 
   await page.goto("/app?lang=en");
   await expect(page).toHaveURL(/\/\?lang=en#\/app$/);
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
-  await page.goto("/");
-  await page.locator('a[href="/app/plan"]').click();
-  await expect(page).toHaveURL(/\/#\/app\/plan$/);
+  await page.goto("/pdf-checks/");
+  await page.locator('a[href="/app/pdf-checks"]').click();
+  await expect(page).toHaveURL(/\/#\/app\/pdf-checks$/);
   await expect(
-    page.getByRole("heading", { name: "Horizon plan", level: 1 }),
+    page.getByRole("heading", { name: "PDF checks", level: 1 }),
   ).toBeVisible();
   await page.reload();
   await expect(
-    page.getByRole("heading", { name: "Horizon plan", level: 1 }),
+    page.getByRole("heading", { name: "PDF checks", level: 1 }),
   ).toBeVisible();
   expect(backendRequests).toEqual([]);
   const backend = await request.get("/api/session");
@@ -264,6 +311,9 @@ test("explicit-language pages are translated and shareable without JavaScript", 
         });
         expect(response?.status()).toBe(200);
         await expect(page.locator("html")).toHaveAttribute("lang", locale);
+        await expect(
+          page.locator('footer a[href^="https://status.guteneo.com/"]'),
+        ).toHaveAttribute("href", `https://status.guteneo.com/?lang=${locale}`);
         await expect(page).toHaveTitle(copy.title);
         await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
           "href",

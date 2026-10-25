@@ -18,13 +18,13 @@ For service boundaries, use the [system architecture](/architecture/system/).
 
 ## Choose the right surface
 
-| Surface | Reuse | Preserve |
-| --- | --- | --- |
-| Public website | `public-chrome.tsx`, `public-chrome.css`, `legal-links.tsx`, `brand.tsx` | One header/footer, English canonical routes, visitor language selection |
-| Authenticated web app | Existing application shell and `components.tsx` | Account language, workspace authority, unsaved work and the current route |
-| Belvédère | Existing private shell and `docs/belvedere/DESIGN.md` | Its denser operational layout, read-only data and separate platform access |
-| Engineering site | Nimbus layouts, shared MDX components and its theme | English technical prose, light/dark themes, one layout-owned page heading |
-| Native app | Existing SwiftUI components and bundled string catalog | Platform navigation, dynamic text, native accessibility and account language |
+| Surface               | Reuse                                                                    | Preserve                                                                     |
+| --------------------- | ------------------------------------------------------------------------ | ---------------------------------------------------------------------------- |
+| Public website        | `public-chrome.tsx`, `public-chrome.css`, `legal-links.tsx`, `brand.tsx` | One header/footer, English canonical routes, visitor language selection      |
+| Authenticated web app | Existing application shell and `components.tsx`                          | Account language, workspace authority, unsaved work and the current route    |
+| Belvédère             | Existing private shell and `docs/belvedere/DESIGN.md`                    | Its denser operational layout, read-only data and separate platform access   |
+| Engineering site      | Nimbus layouts, shared MDX components and its theme                      | English technical prose, light/dark themes, one layout-owned page heading    |
+| Native app            | Existing SwiftUI components and bundled string catalog                   | Platform navigation, dynamic text, native accessibility and account language |
 
 Do not copy an entire shell into a new page. Public shell changes belong in the
 shared source; another independent header quickly drifts in wording, language
@@ -37,18 +37,18 @@ failure states.
 The web source tokens live in `apps/web/src/styles.css`. Use token references in
 components rather than another palette of almost-identical values.
 
-| Role | Source token / value | Application |
-| --- | --- | --- |
-| Paper | `--paper`, `#f6f5ef` | Main reading surface |
-| Surface | `--surface`, `#fffefa` | Fields and restrained panels |
-| Ink | `--ink`, `#181b22` | Body, headings and ordinary wordmark |
-| Cobalt | `--blue`, `#2450db` | Actions, focus and approved blue artwork |
-| Display | `--font-display`, EB Garamond | Editorial headings and wordmark |
-| Body | `--font-body`, IBM Plex Sans | Prose, controls and operational data |
-| Code | `--font-code`, IBM Plex Mono | Code and technical identifiers |
-| Shape | `--radius`, `3px` | Ordinary controls and restrained corners |
-| Reading measure | `--content-measure`, `68ch` | Long-form text |
-| Control height | `--control-height`, `44px` | Comfortable interactive targets |
+| Role            | Source token / value          | Application                              |
+| --------------- | ----------------------------- | ---------------------------------------- |
+| Paper           | `--paper`, `#f6f5ef`          | Main reading surface                     |
+| Surface         | `--surface`, `#fffefa`        | Fields and restrained panels             |
+| Ink             | `--ink`, `#181b22`            | Body, headings and ordinary wordmark     |
+| Cobalt          | `--blue`, `#2450db`           | Actions and approved blue artwork        |
+| Display         | `--font-display`, EB Garamond | Editorial headings and wordmark          |
+| Body            | `--font-body`, IBM Plex Sans  | Prose, controls and operational data     |
+| Code            | `--font-code`, IBM Plex Mono  | Code and technical identifiers           |
+| Shape           | `--radius`, `3px`             | Ordinary controls and restrained corners |
+| Reading measure | `--content-measure`, `68ch`   | Long-form text                           |
+| Control height  | `--control-height`, `44px`    | Comfortable interactive targets          |
 
 Use thin separators and spacing to establish hierarchy. Reserve depth for an
 actual overlay or an explanatory spatial figure. Keep numeric comparisons aligned
@@ -61,15 +61,33 @@ either surface does not require replacing its complete theme with raw web tokens
 
 ## Compose a page around one task
 
-Start with one page title, a short introduction only where it adds context, and
-the primary action appropriate to the current actor. The shared `PageHeading`
-accepts `title`, optional `intro` and optional `action`. Reuse `EmptyState`,
+Start with one page title and the primary action appropriate to the current
+actor. Make grouping, spacing and control placement explain the task; apply the
+layout and copy rule in `AGENTS.md` before adding text. The shared `PageHeading`
+owns the title and action. Reuse `EmptyState`,
 `ErrorNotice` and the established forms instead of inventing a parallel vocabulary.
 
 Keep the page's identity out of repeated cards and banners. Move common legal or
 support links into their shared owner. Retain exact cost, recipient, document
 version, options and recovery information at the decision where a person needs
 them. Reducing repetition never removes approval information.
+
+Public pages share one identical footer and a coherent navigation hierarchy. Keep
+its compact stamp, two original swallows, fifteen links and colophon on the
+homepage too; the large home closing stamp and panorama are a separate section
+above it. Use one 1440 px maximum outer frame and matching responsive gutters for
+header, main and footer, with narrower readable prose inside. The public header
+offers an appearance icon at every viewport; the default follows the operating
+system and the head bootstrap handles activation before React is ready. Put detailed
+pricing, setup and support information on their appropriate pages rather than
+requiring visitors to search a long homepage. Keep those pages in the canonical
+public route registry so sitemap and language variants are generated together.
+
+Loading speed is part of page design. Measure first useful content, request
+ordering and the code transferred for the task. Start independent work together,
+load expensive tools only when needed, and retain visible recovery and correct
+account boundaries. Use the current [testing guide](/engineering/testing/) to
+distinguish a controlled local comparison from observed production performance.
 
 On an authenticated page, client visibility is a convenience. The server still
 determines tenant membership, permissions and current authority. An attractive
@@ -80,11 +98,23 @@ disabled button is not an authorization check. Read the
 
 The transparent Gutenberg portrait, the paper stamp and the simple emblem have
 different jobs. Preserve the portrait asset's transparency; the lowercase
-wordmark is ink black in light mode. The approved engineering-header exception
-uses ivory lettering directly on the dark header. Its stamp may sit on a small
-white paper backing confined to the stamp, with no light panel behind the
-wordmark. Decorative stamps likewise retain white paper in both themes: do not
-invert their portraits or make their printed paper dark.
+wordmark is ink black in light mode. The approved web dark-mode identity
+uses ivory lettering directly on the dark surface, across public and application
+branding as well as this engineering header. The stamp retains white paper inside
+its actual inner blue frame in every theme, leaving exterior/perforations
+transparent. Follow each asset's geometry: the main 128 px portrait needs paper
+inside its inner frame, while engineering keeps its existing approved 5%
+`StampPaper`. Never impose that inset on every asset, add a white outer contour or a light panel behind the
+wordmark. Decorative stamps likewise retain their printed white paper: do not
+invert their portraits or make their printed paper dark. Footer postmarks use
+ivory ink in dark mode. Reserve the approved Luxembourg panorama for the public
+homepage; surrounding pages keep the shared navigation without the panorama.
+Keep the original light editorial art; use dedicated ivory dark derivatives
+with transparent backgrounds, without added paper frames. The homepage alone
+retains the user-requested localized closing invitation, first-dispatch action,
+large stamp/postmark and panorama before the common footer. Use approved
+swallows sparingly in clear public margins; authenticated work areas stay free
+of decorative images.
 
 The communication stamp already carries a domain signature. Do not add a second
 wordmark or domain to the same promotional composition. Keep the official source
@@ -139,13 +169,13 @@ phrase has distinct grammatical meanings, and register its explicit context in
 language. Build label-bearing arrays during rendering or through getters so
 switching languages updates existing screens without a reload.
 
-| Translate | Preserve exactly |
-| --- | --- |
-| Labels, descriptions, validation and recovery text | User content, names, addresses and document bytes |
-| Accessible names and state descriptions | Standard ARIA attribute values and machine states |
-| Dates, numbers and displayed amounts through locale formatters | Integer monetary values and quote precision |
-| Video narration, captions, posters and on-screen copy | Stable video identities and provenance |
-| Navigation labels | English paths, fragments, API keys, scopes and error codes |
+| Translate                                                      | Preserve exactly                                           |
+| -------------------------------------------------------------- | ---------------------------------------------------------- |
+| Labels, descriptions, validation and recovery text             | User content, names, addresses and document bytes          |
+| Accessible names and state descriptions                        | Standard ARIA attribute values and machine states          |
+| Dates, numbers and displayed amounts through locale formatters | Integer monetary values and quote precision                |
+| Video narration, captions, posters and on-screen copy          | Stable video identities and provenance                     |
+| Navigation labels                                              | English paths, fragments, API keys, scopes and error codes |
 
 Never pass arbitrary server values or user documents through `msg`. Preserve
 canonical routes with the shared helpers and retain public language parameters.
@@ -162,6 +192,14 @@ Keep focus visible beneath sticky headers. A disclosure reports its expanded
 state; Escape closes an overlay and returns focus to its trigger. Preserve the
 application's existing route-focus and unsaved-work behavior.
 
+Loading a job counter does not make its independently fetched result rows
+interactive. Keep disabled controls outside native tab order until actual
+readiness is established. Later data must preserve the person's current focus;
+never steal it to compensate for an earlier disabled control. Generation reads
+can follow confirmed security processing for a bounded visible interval, but
+terminal or retryable states require their explicit recovery. Refreshing a view
+must not silently retry analysis or imply document readiness.
+
 The shared public mobile menu handles Escape at document level while open.
 WebKit can leave focus on the document body after pointer activation, so a
 header-only key listener misses that input. Both pointer and keyboard opening
@@ -169,6 +207,42 @@ must close with Escape and restore the menu button's focus. Remove the listener
 when the menu closes, and respect an Escape already consumed by another control.
 The focused regression in `tests/preview-e2e/public-menu-escape.spec.ts` covers
 the homepage and developer guide at 320px and 390px in Chromium and WebKit.
+
+Workspace controls use a two-pixel ink focus outline through `:focus-visible`;
+pointer-only controls suppress the browser's default outline without removing
+keyboard feedback. Ink borders and checked states identify selections. Do not
+remove focus visibility to solve a cosmetic pointer issue. A native file input
+under the shared `FileInput` presentation preserves keyboard, required/disabled,
+accept and file-change behavior while its chooser/empty labels follow Guteneo's
+locale rather than the browser language. Keep literal filenames unchanged.
+
+Give native selects an explicit height and an authored arrow: desktop Safari
+may ignore `min-height` on its default face. Retain native appearance in forced
+colors. Hints must have positive space below their control; inspect nested
+sections as well as ordinary fields. Verify both Classic and V2, desktop WebKit
+and phone sizes. My documents shares the compact navigation rhythm; detailed
+role information belongs on My account instead of every shell and overview.
+See the [workspace contract](https://github.com/nclsppr/guteneo/blob/main/docs/DASHBOARD_V2.md)
+and its dated qualification notes for the 25 October correction candidate.
+
+Place the template image action above the canvas, with a visible format/size
+hint and keyboard file chooser. Preserve embedded raster bytes and aspect ratio;
+select the new block so its position and dimensions are discoverable. A debounced
+editor must not expose Save, Publish or tab navigation as ready while visible
+property inputs differ from its accepted model. Track actual authoring fields,
+keep search independent and allow correction or restoration of invalid values.
+Verify original bytes, geometry after immediate save/reload and the image in the
+generated PDF through the existing rendering path; a toolbar screenshot is not
+sufficient evidence.
+
+Dense financial visualizations need an equivalent readable detail. The annual
+consumption calendar uses exact UTC journal dates, amount and count labels,
+one tab stop with arrow navigation and an inline selected-day summary. Keep its
+yearly scroll inside the calendar region on phones. A future day, a zero-activity
+day and a failed read have different meanings. Never derive a daily financial
+value by spreading a monthly total, and keep current reservations distinct from
+posted consumption. The [credit read contract](https://github.com/nclsppr/guteneo/blob/main/docs/WELCOME_CREDIT.md)
+owns the accounting sources and daily API semantics.
 
 Labels remain visible when fields contain values. Put errors beside the relevant
 field and announce important asynchronous outcomes without repeatedly taking

@@ -57,6 +57,10 @@ import {
 } from "./documents";
 import type { Env } from "./env";
 import {
+  projectDocumentAnalysis,
+  type DocumentAnalysisRecovery,
+} from "./document-analysis";
+import {
   postalReviewInputSchema,
   type PostalReviewInput,
   type PostalReview,
@@ -1755,10 +1759,18 @@ export class TemplateWorkflowService {
     await this.jobRow(ctx, id);
     limit = Math.max(1, Math.min(50, limit || 50));
     const rows = await this.env.DB.prepare(
-      "SELECT r.*,d.status AS document_status FROM generation_records r LEFT JOIN documents d ON d.organization_id=r.organization_id AND d.id=r.document_id WHERE r.organization_id=? AND r.job_id=? AND r.record_id>? ORDER BY r.record_id LIMIT ?",
+      "SELECT r.*,d.status AS document_status,a.state AS analysis_state,a.code AS analysis_code,a.attempts AS analysis_attempts,a.deadline_at AS analysis_deadline_at,a.next_attempt_at AS analysis_next_attempt_at FROM generation_records r LEFT JOIN documents d ON d.organization_id=r.organization_id AND d.id=r.document_id AND d.sha256=r.artifact_hash AND (d.access_owner_id IS NULL OR d.access_owner_id=?) LEFT JOIN document_analysis a ON a.organization_id=d.organization_id AND a.document_id=d.id WHERE r.organization_id=? AND r.job_id=? AND r.record_id>? ORDER BY r.record_id LIMIT ?",
     )
-      .bind(ctx.organizationId, id, cursor ?? "", limit + 1)
-      .all<RecordRow>();
+      .bind(ctx.userId, ctx.organizationId, id, cursor ?? "", limit + 1)
+      .all<
+        RecordRow & {
+          analysis_state: DocumentAnalysisRecovery["state"] | null;
+          analysis_code: string | null;
+          analysis_attempts: number | null;
+          analysis_deadline_at: number | null;
+          analysis_next_attempt_at: number | null;
+        }
+      >();
     return {
       items: rows.results.slice(0, limit).map((r) => ({
         recordId: r.record_id,
@@ -1768,6 +1780,20 @@ export class TemplateWorkflowService {
         documentId: r.document_id,
         documentHash: r.artifact_hash,
         documentStatus: r.document_status ?? null,
+        documentAnalysis: r.document_status
+          ? projectDocumentAnalysis(
+              r.document_status,
+              r.analysis_state
+                ? {
+                    state: r.analysis_state,
+                    code: r.analysis_code!,
+                    attempts: r.analysis_attempts!,
+                    deadline_at: r.analysis_deadline_at!,
+                    next_attempt_at: r.analysis_next_attempt_at!,
+                  }
+                : null,
+            )
+          : null,
         documentUrl: r.document_id
           ? `${this.env.APP_ORIGIN}/api/documents/${r.document_id}/content`
           : null,

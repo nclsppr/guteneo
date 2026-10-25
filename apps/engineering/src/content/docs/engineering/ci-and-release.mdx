@@ -20,17 +20,17 @@ and explains how to maintain it when services or dependencies change.
 path filters. Shared contracts, mobile API routes, migrations and npm dependencies
 can affect more than their immediate directory, so they retain complete coverage.
 
-| Job family | Responsibility | Evidence boundary |
-| --- | --- | --- |
-| Private services | Scanner and PDF-validator type/behavior tests | Local service contracts, not hosted engine freshness |
-| Checks | Type/lint, dependency audit, generated docs, language/route standards, MCP annotations, migration equivalence, cost model and narration checks | Repository consistency for that revision |
-| Four Vitest shards | Sequential isolated domain/integration files and restore evidence | Deterministic local database/provider fixtures |
-| Security and renderer | Browser-backed document rendering and Node security guards | Actual local Chromium processing plus controlled refusal paths |
-| Build | Main, live, preview and status builds; Worker dry runs | Buildable artifacts/configuration without publication |
-| Browser matrix | Desktop/mobile Chromium and iPhone WebKit, with applicable preview, Belvédère and status suites | Same-run application artifacts and fictional local data |
-| Distribution profiles | Isolated strong and verified-account lifecycles on desktop/phone | Separate synthetic identity policies, no real Auth0 or delivery |
-| Engineering | Independent dependency install/audit, content checks, static build, browsers and asset-only dry run | Documentation release surface only |
-| Aggregate verification | Required dependencies and current-run reports | Missing, failed, skipped or cancelled required work is not success |
+| Job family             | Responsibility                                                                                                                                 | Evidence boundary                                                  |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| Private services       | Scanner and PDF-validator type/behavior tests                                                                                                  | Local service contracts, not hosted engine freshness               |
+| Checks                 | Type/lint, dependency audit, generated docs, language/route standards, MCP annotations, migration equivalence, cost model and narration checks | Repository consistency for that revision                           |
+| Four Vitest shards     | Sequential isolated domain/integration files and restore evidence                                                                              | Deterministic local database/provider fixtures                     |
+| Security and renderer  | Browser-backed document rendering and Node security guards                                                                                     | Actual local Chromium processing plus controlled refusal paths     |
+| Build                  | Main, live, preview and status builds; Worker dry runs                                                                                         | Buildable artifacts/configuration without publication              |
+| Browser matrix         | Desktop/mobile Chromium and iPhone WebKit, with applicable preview, Belvédère and status suites                                                | Same-run application artifacts and fictional local data            |
+| Distribution profiles  | Isolated strong and verified-account lifecycles on desktop/phone                                                                               | Separate synthetic identity policies, no real Auth0 or delivery    |
+| Engineering            | Independent dependency install/audit, content checks, static build, browsers and asset-only dry run                                            | Documentation release surface only                                 |
+| Aggregate verification | Required dependencies and current-run reports                                                                                                  | Missing, failed, skipped or cancelled required work is not success |
 
 Browser/distribution jobs download the build from the same GitHub revision rather
 than rebuilding assets concurrently. Distribution reports require complete
@@ -74,6 +74,44 @@ every six hours. Its version-bound sanitized report is separate from PR tests,
 business authentication and provider delivery. An absent, stale or mismatched
 report cannot qualify current production; opening the status page launches no
 test. See [testing boundaries](/engineering/testing/).
+
+## Build the customer status surface from its actual inputs
+
+The 25 October interface candidate reduces public status to current public-access
+observations and recorded availability history. It reads the latest status and
+selected history on opening or refresh, then every fifteen minutes while visible.
+Its customer page no longer reads browser reports or local qualification files.
+This removes two initial dynamic reads; it changes no collector, report API,
+ingestion authority or business capability. Missing or stale observations remain
+unknown, and provider qualification remains separate from public access.
+
+The shared public footer is authored once in
+`packages/contracts/src/public-footer.json`. The status build validates all four
+languages and emits a small static `footer.js`; the local preview derives it from
+the same source. Status does not add a React runtime or a second authored catalog.
+The footer JSON participates in the status source fingerprint, and generated
+footer bytes participate in its asset manifest. A footer change therefore needs
+the affected status build and canonical-link/locale checks as well as the main
+website checks. Do not copy generated footer output back into source.
+
+Public artwork is also a real build input. The current candidate uses shared
+native theme-media selection and responsive editorial pictures, dedicated RGBA
+dark derivatives and a transparent-outer-edge footer stamp. Original light art
+and the opaque official stamp remain separate. Preserve the derivative source,
+prompt, alpha/conversion metadata and hashes; they establish provenance, not
+served bytes. Do not reuse earlier framed-artwork or opaque-derivative screenshots
+to qualify the latest source. Main-site and status asset manifests must each
+describe the exact files they publish.
+
+The dedicated status release still requires clean reviewed `main`, its own
+migrations, source and asset checks, and explicit publication authority. The
+source-bound local qualification gate remains active even though the customer
+page no longer displays that report. A passing synthetic status view, an existing
+public history read or a local replay cannot establish publication of new assets.
+After authorized publication, verify served manifest bytes, four-language/theme
+behavior, shared footer destinations, actual history and fresh collection
+independently. Keep the [status recovery contract](/engineering/troubleshooting/)
+and [design system](/engineering/design-system/) synchronized with these surfaces.
 
 ## CI success is a prerequisite, not deployment authority
 

@@ -3,6 +3,7 @@ import { createServer } from "node:http";
 import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { resolve, extname, sep } from "node:path";
+import { statusFooterScript } from "../build-status.mjs";
 const root = fileURLToPath(
   new URL("../../apps/status/public/", import.meta.url),
 );
@@ -32,6 +33,14 @@ const server = createServer(async (request, response) => {
     const path = decodeURIComponent(
       new URL(request.url, "http://127.0.0.1:8799").pathname,
     );
+    if (path === "/footer.js") {
+      const script = await statusFooterScript(
+        fileURLToPath(new URL("../../", import.meta.url)),
+      );
+      response.writeHead(200, { "Content-Type": "text/javascript" });
+      response.end(request.method === "HEAD" ? undefined : script);
+      return;
+    }
     const target = resolve(root, path === "/" ? "index.html" : path.slice(1));
     if (
       !target.startsWith(root.endsWith(sep) ? root : root + sep) ||

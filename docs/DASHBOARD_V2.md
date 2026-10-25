@@ -1,6 +1,6 @@
-# Workspace V2 and personal appearance preference
+# Workspace layout and V2
 
-Candidate status on 14 October 2026: **V2 simplification locally validated;
+Historical candidate status on 14 October 2026: **V2 simplification locally validated;
 exact-commit CI and publication still require qualification, with publication
 authorized after validation**. Results dated 11–13 October below are historical,
 separate from that candidate. V2 is a complete web workspace version, selectable
@@ -17,6 +17,30 @@ in [WORKSPACE_ROLES.md](WORKSPACE_ROLES.md). This page owns V2 presentation,
 appearance-specific behavior and dated evidence rather than duplicating those
 complete contracts.
 
+## Current presentation — 25 October 2026 candidate
+
+The current candidate removes decorative `DashboardArtwork` panels and their
+swallows from overview, empty Documents and the assistant introduction. The
+component is retired; historical artwork/provenance below remains a record of
+its earlier candidate. Official identity, actual document previews, controls,
+metrics, dates, consent and permission-specific recovery remain. No replacement
+illustration, business API, role or activation is introduced.
+
+System/light/dark appearance now follows the shared browser preference in
+[THEMES.md](THEMES.md), with visible keyboard/forced-color states and royal-blue
+browser chrome. That choice is independent of the saved `classic`/`v2` workspace
+version: choosing dark mode neither changes the account's workspace version nor
+writes its profile. The existing account save and temporary version-override
+contracts below remain unchanged.
+
+Personal documents start from their personal session without waiting for a
+workshop bootstrap, and discard obsolete workspace/account results across
+navigation. [FRONTEND_PERFORMANCE.md](FRONTEND_PERFORMANCE.md) owns that lifecycle,
+regression protocol and bounded local timing evidence. These presentation/loading
+changes are local candidates; older illustration measurements and release proof
+are not renewed evidence for them. No provider, domain, migration, paid resource,
+communication or production publication is performed by this change.
+
 ## Scope and entry
 
 V2 uses the signed-in account, current workspace, actual data available to
@@ -25,13 +49,19 @@ a parallel business environment. Session, current membership, resource rights
 and server capabilities remain required.
 
 Presentation covers navigation, overview, documents, dispatch preparation/
-review/tracking, assistants, account, Studio, Horizon, credits, tables and forms.
+review/tracking, assistants, account, Studio, PDF verification, credits, tables and forms.
 Belvédère retains its separate presentation/platform authority. Business
 contracts remain unchanged.
 
-Preserve the official portrait and lowercase ink-black `guteneo` wordmark
-`#181b22`. Blue engravings are limited to overview, empty Documents and
-assistants, not every form/table. For workspaces with dispatch history,
+Preserve the official portrait and lowercase `guteneo` wordmark: ink-black
+`#181b22` on light surfaces and the approved ivory `#f6f5ef` on dark surfaces,
+using the original transparent portrait with white paper confined inside its
+actual inner blue frame. The exterior and perforations remain transparent,
+without an outer white contour or a cartouche behind the wordmark.
+[Brand identity](BRAND_IDENTITY.md) owns the exact shared roles. Small restored
+public-page swallows do not enter authenticated application views.
+The current candidate mounts no decorative DashboardArtwork panel. Historical
+engraving placements and resource measurements below describe the earlier version. For workspaces with dispatch history,
 alerts and recent activity precede the introduction; metrics remain subject
 to reporting rights. Assistants become a compact shortcut. Empty workspaces
 retain the full welcome. Review content precedes approval actions in reading
@@ -41,9 +71,41 @@ and keyboard order.
 
 V2 no longer repeats a section title above the page title or displays an
 application footer. The official logo stays at navigation top; workspace name
-has its own block. Account retains person name/email/role; overview explains
-rights without repeating identity/workspace name. Active navigation and main
+has its own block. Account utilities retain person name/email; the role and
+rights are detailed on My account rather than repeated throughout the shell
+or overview. Active navigation and main
 heading serve distinct purposes and remain.
+
+### Form and navigation corrections — 25 October 2026 candidate
+
+My documents is a compact navigation entry into the personal space, using the
+same link size as the workshop destinations. It keeps its personal-space
+accessible description without a separate oversized card. The account page
+continues to show the current workshop role and permissions; operational access
+and permission-specific recovery messages still follow server authority.
+
+Shared `FileInput` controls author the chooser and empty-state text in the
+resolved interface language, independently of the browser's language. They keep
+the native file input for keyboard access, file restrictions, validation and
+exact original bytes. Literal filenames are never translated. PDF, template,
+dataset, campaign and invitation imports share the control.
+
+Workspace selects use an authored face and explicit control height, including
+desktop Safari. Protected-link explanations sit below the expiry field with
+positive spacing. Pointer activation does not leave a native blue outline;
+keyboard focus uses a visible two-pixel ink outline. Selected dispatch channels
+and checked options retain visible ink states. Forced-colors mode retains the
+native select arrow. These presentation changes grant no authority, prepare no
+dispatch and change no consent or price.
+
+The consumption page offers stored monthly history rather than implying that
+an empty current month means an empty account. Its read contract and accounting
+boundaries are documented in [welcome credit](WELCOME_CREDIT.md).
+
+Local synthetic browser evidence and static checks are recorded in
+[executed verification](TEST_RESULTS.md). Production read-only observation
+confirmed a nonzero balance with an empty current-month view; publication of
+this candidate and authenticated verification after release remain separate.
 
 **Service status** joins **Switch account** in identity utilities, at navigation
 bottom on desktop and accessible with the mobile menu closed. **Times shown:
@@ -66,8 +128,8 @@ entries serve different tasks and remain permission dependent.
 
 These changes target V2; Classic retains its shell. Labels exist in FR/EN/DE/LB.
 No illustration, API, business request, automatic retry, provider resource,
-migration or permission is introduced. Approved engravings, private-document
-access and server guards remain.
+migration or permission is introduced. Private-document access and server guards remain. The later 25 October
+artwork-removal candidate above supersedes the earlier engraving placement.
 
 ### Candidate qualification
 
@@ -265,7 +327,7 @@ channel activation, mandate grant/extension nor server-check bypass. See
 | Workspace switch | Same preference, current membership rights/data | No previous-workspace privilege retained |
 | Account switch | Returned account preference; old override discarded | Old local cache never presented as new account preference |
 | Documents → preparation → review → tracking | Same resources/requests/guards, new presentation | Existing quarantine, quote-expiry, closed-channel, permission and unknown-outcome recovery |
-| Studio/Horizon/credits | Coherent presentation, unchanged authority | No appearance-created subscription/quota/debit/transfer |
+| Studio/PDF verification/credits | Coherent presentation, unchanged authority | No appearance-created subscription/quota/debit/transfer |
 | Assistant → browser review | Same scopes/consent, browser preference | No added tool, mandate or implicit consent |
 
 Journeys/matrix are also maintained in [feature-map.json](feature-map.json).
@@ -273,7 +335,12 @@ Public mockup remains fictional/backend isolated; its settings change no
 server account. It retains simulation banners, as do genuinely simulated
 sessions. Removing real V2's experimental label removes no simulation cue.
 
-## Illustrations and resources
+## Historical illustrations and resources — 11–14 October 2026
+
+These resources describe the earlier illustrated V2. Their source assets and
+provenance are retained, but the 25 October candidate no longer mounts the
+retired DashboardArtwork component or loads its decorative panels for those
+routes. Do not reuse these historical transfer figures as a current benchmark.
 
 Three illustrations were generated with actual `image_gen`, then resized/
 WebP encoded. Masters/prompts/fingerprints: `assets/brand/dashboard-v2/`.
@@ -283,11 +350,11 @@ The official portrait was not regenerated.
 | --- | --- | --- | --- |
 | `apps/web/public/brand/dashboard-v2/atelier.webp` | 1280 × 853 | 158,328 | Original/440 px use inspected |
 | `apps/web/public/brand/dashboard-v2/documents.webp` | 1280 × 960 | 75,294 | Original/320 px use inspected |
-| `apps/web/public/brand/dashboard-v2/horizon.webp` | 1280 × 427 | 105,592 | Original/600 px use inspected |
+| `apps/web/public/brand/dashboard-v2/pdf-verification.webp` | 1280 × 427 | 105,592 | Original/600 px use inspected |
 
 Display evidence: `/tmp/guteneo-v2-qa/artwork/`, outside the repository.
 Decorative images have empty alt text on opaque ivory; no consent/delivery
-information is embedded. Horizon evokes Luxembourg without claiming geographic
+information is embedded. The PDF verification illustration evokes Luxembourg without claiming geographic
 accuracy. Business information/document previews remain separate accessible
 content.
 
@@ -412,16 +479,16 @@ instrumentation, content collection or provider permission activation.
 
 ## Sources and evidence
 
-| Source | Role |
-| --- | --- |
-| `packages/contracts/src/dashboard-appearance.ts` | Shared values/default |
-| `migrations/0053_user_dashboard_appearance.sql` | User column/constraints |
-| `apps/api/src/account.ts`, `auth.ts`, `mobile.ts` | Browser save, account/session reads, native boundary |
-| `apps/web/src/App.tsx`, `dashboard-appearance.tsx`, `account-page.tsx` | Reconciliation, account save and temporary override |
-| `apps/web/src/workspace-identity.tsx` | Identity/account access at navigation bottom |
-| `apps/web/src/dashboard-v2.css`, `dashboard-artwork.tsx` | Consistent style/limited illustrations |
-| `apps/web/src/dispatch-pages.tsx`, `assistant-workspace.tsx` | Daily hierarchy, review, assistants |
-| `apps/web/src/locales/messages-dashboard-v2.json` | FR/EN/DE/LB translations |
+| Source                                                                 | Role                                                                                 |
+| ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| `packages/contracts/src/dashboard-appearance.ts`                       | Shared values/default                                                                |
+| `migrations/0053_user_dashboard_appearance.sql`                        | User column/constraints                                                              |
+| `apps/api/src/account.ts`, `auth.ts`, `mobile.ts`                      | Browser save, account/session reads, native boundary                                 |
+| `apps/web/src/App.tsx`, `dashboard-appearance.tsx`, `account-page.tsx` | Reconciliation, account save and temporary override                                  |
+| `apps/web/src/workspace-identity.tsx`                                  | Identity/account access at navigation bottom                                         |
+| `apps/web/src/dashboard-v2.css`                                        | Current workspace styles and shared theme tokens; `dashboard-artwork.tsx` is retired |
+| `apps/web/src/dispatch-pages.tsx`, `assistant-workspace.tsx`           | Daily hierarchy, review, assistants                                                  |
+| `apps/web/src/locales/messages-dashboard-v2.json`                      | FR/EN/DE/LB translations                                                             |
 
 Earlier evidence is retained without extending it to server preference:
 
@@ -438,7 +505,7 @@ Earlier evidence is retained without extending it to server preference:
 | Bootstrap, temporary URL, unavailable storage/translations | 7/7 `tests/unit/dashboard-appearance.test.ts` passed |
 | Isolated mockup: account control, language proximity, four languages, reading/mobile order | 14/14 passed: 8 V2, 6 baseline; desktop/iPhone WebKit without business backend |
 | Local app: personal save, fresh browser, name-only forced URL, draft, consent, roles/account bottom | 15/15: five scenarios on three browsers; local simulation API/intercepted sessions by scenario |
-| Fifteen workspace routes at 320 px including Studio/Horizon/credits | Included in Classic/V2 app suite; overflow/account access checked, no physical-device qualification |
+| Fifteen workspace routes at 320 px including Studio/PDF verification/credits | Included in Classic/V2 app suite; overflow/account access checked, no physical-device qualification |
 | Narrow navigation, long identity, fax quote/PDF and test-interception closure regressions | 122/122 after fixes: 105 on three browsers, 17 additional iPhone WebKit; quote/PDF captures reviewed |
 | Historical quote migration with new user schema | 16/16; fixture copies four historical-schema columns without changing business assertions |
 | Transient local test-database lock | 18/18 bounded-reset tests, 5/5 Chromium V2 scenarios; only explicit `SQLITE_BUSY` retries idempotent reset, never scenario/business operation |

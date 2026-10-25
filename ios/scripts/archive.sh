@@ -41,7 +41,7 @@ app_path="$archive_path/Products/Applications/Guteneo.app"
   exit 65
 }
 release_strings="$(/usr/bin/strings "$app_path/Guteneo")"
-if [[ "$release_strings" == *'Atelier Horizon'* || "$release_strings" == *'Dossier de souscription'* || "$release_strings" == *'--uitesting-preview'* ]]; then
+if [[ "$release_strings" == *'Atelier Exemple'* || "$release_strings" == *'Dossier de souscription'* || "$release_strings" == *'--uitesting-preview'* ]]; then
   printf '%s\n' 'Invalid Release archive: the binary contains a string reserved for Debug fixtures.' >&2
   exit 65
 fi

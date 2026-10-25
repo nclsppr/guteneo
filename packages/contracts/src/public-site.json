@@ -4,6 +4,10 @@
   "locales": ["fr", "en", "de", "lb"],
   "paths": [
     "/",
+    "/how-it-works/",
+    "/pricing/",
+    "/getting-started/",
+    "/pdf-checks/",
     "/about/",
     "/journal/",
     "/journal/from-gutenberg-to-digital/",

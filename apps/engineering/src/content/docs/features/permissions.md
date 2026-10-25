@@ -18,18 +18,19 @@ There are four human membership roles. A connected assistant is a separate OAuth
 | Cancel prepared/queued dispatch | Yes | Approval option | No | No | Current approval authority + scope; never retries an unknown submission |
 | Aggregate reports | Yes | Reporting option | No | No | Current role + scopes |
 | Manage workshop or members | Browser only | No | No | No | No |
-| Billing or Horizon subscription | Browser only, explicit recurring consent | No | No | No | No |
-| Run a Horizon diagnostic | Active plan + PDF access | Active plan + PDF access | Active plan + PDF access | No | Active plan + PDF access + documents:write |
-| Read/export Horizon history | Current PDF access | Current PDF access | Current PDF access | Current PDF access | Current PDF access + documents:read |
+| Manage billing | Current browser administrator | No | No | No | No |
+| Purchase a PDF verification | Current browser administrator + exact purchase + PDF access | No | No | No | No financial consent; history read only |
+| Read/export PDF verification history | Current PDF access | Current PDF access | Current PDF access | Current PDF access | Current PDF access + documents:read |
 | Edit a shared template | Resource edit right | Resource edit right | Resource edit right | No | Current member + template scope + resource right; AI also requires current transfer consent/revision |
 | Publish/archive a template | Resource publish right | Resource publish right | Resource publish right | No | Current member + templates:publish + resource right |
 | Manage template sharing | Resource share right | Resource share right | Resource share right | No | Current member + templates:share + resource right; revocation disclosed |
 | Remove a template | Owner | Owner | Owner | No | Owner + current role/scopes |
 | Cancel/retry a generation | Batch owner | Batch owner | Batch owner | No | Owner + generations:write; frozen batches cannot retry |
 | Read private generated PDFs | Creator/context access | Creator/context access | Creator/context access | Explicit current document access | Owner/context authority; no general private-library access |
-| Profile, language, own sessions and appearance | Own account in browser | Own account in browser | Own account in browser | Own account in browser | No browser account administration or appearance setter |
+| Profile, language, own sessions and Classic/V2 layout | Own account in browser | Own account in browser | Own account in browser | Own account in browser | No browser account administration or Classic/V2 setter |
 | Read responsible workshop contacts | Authenticated browser | Authenticated browser | Authenticated browser | Authenticated browser | No |
 | Read public pages/errors/status | Public; no privilege acquired | Public; no privilege acquired | Public; no privilege acquired | Public; no privilege acquired | Public read only; no extra tool/authority |
+| Choose system/light/dark browser appearance | Local browser presentation only | Local browser presentation only | Local browser presentation only | Local browser presentation only | No account preference setter, mandate or extra REST/MCP authority |
 | Configure Auth0/DNS/reviewer refresh | No authority from workshop role | No authority from workshop role | No authority from workshop role | No authority from workshop role | No business REST/MCP route; distinct authorised platform operator |
 | Open global Belvédère | No authority from workshop role | No authority from workshop role | No authority from workshop role | No authority from workshop role | No; distinct verified browser Watchkeeper |
 | Apply assistant content exclusions | No additional rights | No additional rights | No additional rights | No additional rights | Announce exclusions, stop known excluded content, request person-redacted copy; no automatic classification or web bypass |
@@ -43,5 +44,6 @@ There are four human membership roles. A connected assistant is a separate OAuth
 | Read/export/delete another person’s personal copy | No, including workspace administrator | No | No | No | No |
 | Keep or export one’s own received document | Personal principal + document policy + share permission | Personal principal + document policy + share permission | Personal principal + document policy + share permission | Personal principal + document policy + share permission | No; personal operation outside workspace OAuth |
 | Read public browser reports | Public access without workspace privilege | Public access without workspace privilege | Public access without workspace privilege | Public access without workspace privilege | Public read only; no ingestion or business authority |
+| Read monthly and daily consumption history | Yes | Reporting option | No | No | Current reporting rights + tenant-scoped REST read; no new MCP billing tool |
 
 Read [authority and tenancy](/architecture/authority-and-tenancy/) for the enforcement model and [MCP](/integrations/mcp/) for assistant constraints.

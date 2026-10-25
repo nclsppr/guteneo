@@ -1,6 +1,6 @@
 ---
 title: "Sensitive distribution and personal documents"
-description: "23 capabilities in the deliver branch of Guteneo."
+description: "25 capabilities in the deliver branch of Guteneo."
 sidebar:
   order: 10
 ---
@@ -41,6 +41,8 @@ Implemented candidate with migrations 0055–0059 and separate deterministic str
 <li id="feature-39937e425995">Workspace preparation explicitly paginates PDF sources and explains that an authorized personal copy can be exported even when the shared original cannot</li>
 <li id="feature-d4704f92cb03">Association attestation binds the displayed account, address and request; changing the candidate requires new independent verification</li>
 <li id="feature-e9322039b01d">Personal-list 401/403 clears loaded metadata and cursors; stale pagination responses cannot restore an old list after refresh</li>
+<li id="feature-45cc544c0188">Direct personal routes start their own small shell and authenticated personal session before the document list without waiting for workshop bootstrap; old workshop reads are aborted and fenced from applying identity/language after navigation, and return rereads current workshop authority</li>
+<li id="feature-3b2aae178e2b">Personal focus/visibility session reconciliation is bounded and cleaned up; changed identity remounts document state, obsolete results are ignored and list retry does not reload a still-valid session; recipient/document-policy/server authorization remains unchanged</li>
 </ol>
 
 ## REST operations

@@ -1,4 +1,4 @@
-import { readFile, readdir } from "node:fs/promises";
+import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
 import {
   afterAll,
   beforeAll,
@@ -45,6 +45,17 @@ const prefix = "/api/mobile/v1";
 const verifier = random();
 const state = random();
 let challenge: string;
+async function saveThemeEvidence(name: string, html: string) {
+  const directory = process.env.GUTENEO_THEME_EVIDENCE_DIRECTORY;
+  if (!directory) return;
+  await mkdir(directory, { recursive: true });
+  // Fictional fixtures only; strip even their hidden security values from artifacts.
+  const sanitized = html.replace(
+    /(<input[^>]+type="hidden"[^>]+value=")[^"]*/g,
+    "$1fixture",
+  );
+  await writeFile(`${directory}/${name}.html`, sanitized);
+}
 
 beforeAll(async () => {
   mf = new Miniflare(
@@ -392,6 +403,35 @@ describe("native mobile boundary on actual D1 and R2", () => {
       expect(redirect.searchParams.get("returnTo")).toContain(
         `locale=${locale}`,
       );
+    }
+  });
+  it("themes native authorization without changing PKCE, state, CSRF or creating a session", async () => {
+    for (const theme of ["light", "dark", "system"]) {
+      const source = authorizeReq(owner);
+      const headers = new Headers(source.headers);
+      headers.set("Cookie", `${owner.cookie}; guteneo_theme=${theme}`);
+      const response = (await handleMobileRoute(
+        new Request(source.url, { headers }),
+        env,
+        domain,
+        caps,
+      ))!;
+      expect(response.status).toBe(200);
+      expect(response.headers.get("Cache-Control")).toBe("no-store");
+      const html = await response.text();
+      expect(html).toContain('<meta name="theme-color" content="#2450db">');
+      await saveThemeEvidence(`native-authorization-${theme}`, html);
+      if (theme !== "system") expect(html).toContain(`data-theme="${theme}"`);
+      expect(html).toContain(`name="csrf" value="${owner.csrf}"`);
+      expect(html).toContain(`name="code_challenge" value="${challenge}"`);
+      expect(html).toContain(`name="state" value="${state}"`);
+      expect(html).not.toContain("<script");
+      expect(
+        (await db
+          .prepare("SELECT count(*) n FROM native_sessions WHERE user_id=?")
+          .bind(owner.userId)
+          .first<{ n: number }>())!.n,
+      ).toBe(0);
     }
   });
 
@@ -871,6 +911,26 @@ describe("native mobile boundary on actual D1 and R2", () => {
     expect(await preferred.text()).toContain('<html lang="de">');
     await call("/account", token, "PATCH", { preferredLocale: "fr" });
     const page = await review(browserRequest());
+    for (const theme of ["light", "dark", "system"]) {
+      const themed = await review(
+        browserRequest(owner, undefined, {
+          Cookie: `${owner.cookie}; guteneo_theme=${theme}`,
+        }),
+      );
+      expect(themed.status).toBe(200);
+      expect(themed.headers.get("Cache-Control")).toBe("no-store");
+      expect(themed.headers.get("Content-Security-Policy")).toContain(
+        "default-src 'none'",
+      );
+      const html = await themed.text();
+      await saveThemeEvidence(`mobile-review-${theme}`, html);
+      if (theme !== "system") expect(html).toContain(`data-theme="${theme}"`);
+      expect(html).toContain(preparation.fingerprint);
+      expect(html).toContain('name="csrf"');
+      expect(html).toContain('name="reviewed"');
+      expect(html).toContain('iframe class="message"');
+      expect(html).not.toContain("<script");
+    }
     const text = await page.text();
     expect(text).toContain("Valider cette version");
     expect(text).not.toMatch(

@@ -1,4 +1,5 @@
 import { msg, msgIn } from "./messages";
+import { FileInput } from "./file-input";
 import { scrollStudioTable } from "./studio-table-keyboard";
 import { useStudioAiPolicy, StudioAiNotice } from "./studio-ai";
 import { useEffect, useRef, useState, type FormEvent } from "react";
@@ -88,9 +89,8 @@ export function DatasetLibrary({ session }: { session: Session }) {
             label={msg("Data file")}
             hint={msg("Maximum 5 MB, 12 sheets, 5,000 rows and 100,000 cells.")}
           >
-            <input
+            <FileInput
               ref={file}
-              type="file"
               accept=".csv,.xlsx,.xml,.json,text/csv,application/xml,text/xml,application/json,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
               required
             />

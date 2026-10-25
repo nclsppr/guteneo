@@ -15,6 +15,11 @@ export const fr = {
   open: "Ouvrir",
   preview: "Aperçu",
   download: "Ouvrir le PDF",
+  fileInput: {
+    choose: "Choisir un fichier",
+    chooseMultiple: "Choisir des fichiers",
+    empty: "Aucun fichier sélectionné",
+  },
   unknown: "Non disponible",
   simulation: "Simulation",
   simulationBody:
@@ -39,7 +44,7 @@ export const fr = {
   actions: "Actions",
   channels: { fax: "Fax", email: "E-mail", postal: "Courrier postal" },
   nav: {
-    horizon: "Forfait Horizon",
+    pdfChecks: "Contrôles PDF",
     overview: "Vue d’ensemble",
     documents: "Documents",
     templates: "Modèles",
@@ -526,6 +531,12 @@ export const fr = {
     title: "Chaque envoi compte.",
     intro:
       "Réservations et consommations de votre organisation. Les crédits de simulation restent séparés.",
+    period: "Mois de consommation",
+    latest: "Dernier mois enregistré",
+    periodHint:
+      "Le dernier mois enregistré s’affiche à l’ouverture. Consultez les autres mois ici ; le solde de crédits reste celui d’aujourd’hui.",
+    monthlyTitle: "Envois et plafonds mensuels",
+    monthEmpty: "Aucun envoi enregistré pour ce mois.",
     reserved: "Réservé",
     consumed: "Confirmé",
     released: "Libéré",

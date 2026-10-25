@@ -1,7 +1,6 @@
 import { msg } from "./messages";
-import { DashboardArtwork } from "./dashboard-artwork";
+import { FileInput } from "./file-input";
 import { useDashboardAppearance } from "./dashboard-appearance";
-import { DashboardIdentity } from "./workspace-identity";
 import { WorkspaceContacts } from "./workspace-contacts";
 import { RolePermissionNotice } from "./role-guide";
 import { formatLocale } from "./locale";
@@ -225,7 +224,6 @@ export function Overview({ session }: { session: Session }) {
       value: counts?.dispatches.total,
     },
   ];
-  const identity = <DashboardIdentity key="identity" session={session} />;
   const contacts = (
     <WorkspaceContacts key="contacts" session={session} compact />
   );
@@ -332,11 +330,9 @@ export function Overview({ session }: { session: Session }) {
         activity,
         assistantStart,
         studioLinks,
-        identity,
         contacts,
       ]
     : [
-        identity,
         contacts,
         attentionNotice,
         assistantStart,
@@ -359,7 +355,6 @@ export function Overview({ session }: { session: Session }) {
             )
           }
         />
-        <DashboardArtwork scene="atelier" />
       </div>
       {regions}
     </>
@@ -553,8 +548,7 @@ export function Documents({ canPrepare = true }: { canPrepare?: boolean }) {
             <form onSubmit={(e) => void upload(e)}>
               <p>{t.documents.uploadBody}</p>
               <Field label={t.documents.file} hint={t.documents.fileHint}>
-                <input
-                  type="file"
+                <FileInput
                   accept="application/pdf,.pdf"
                   required
                   ref={file}
@@ -800,7 +794,6 @@ export function Documents({ canPrepare = true }: { canPrepare?: boolean }) {
         </div>
       ) : (
         <div className="dashboard-document-empty">
-          {resource.data && <DashboardArtwork scene="documents" />}
           <EmptyState
             title={t.documents.emptyTitle}
             text={t.documents.emptyBody}
@@ -1157,8 +1150,7 @@ export function PrepareDispatch({
                 "Your file is checked here, without leaving preparation.",
               )}
             >
-              <input
-                type="file"
+              <FileInput
                 accept="application/pdf,.pdf"
                 onChange={(event) =>
                   void importForDispatch(event.target.files?.[0])

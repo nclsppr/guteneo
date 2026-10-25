@@ -1248,7 +1248,19 @@
         "operationId": "getUsage",
         "tags": ["Account"],
         "summary": "Read credit and limits",
-        "description": "Requires administrator authority or supervisor reporting permission as well as OAuth scope. Promotional welcome credit is separate from monthly channel limits. EUR50 is granted once per production organization created through the supported journey. Read returned amounts: credit does not activate transports. No renewal or top-up. Confirmation reserves the ceiling. Fixed quotes are consumed on provider acceptance; v3 faxes retain their reservation until verified usage reconciliation, even after delivery. For fractional quotes, the cent debit is ceil(accumulated nanoEUR / 10 000 000) minus ceil(previous accumulation / 10 000 000), at organization level; this is not a rounded per-email charge. Unknown outcomes retain reservations. Totals are integer EUR cents, never floats.",
+        "description": "Requires administrator authority or supervisor reporting permission as well as OAuth scope. Monthly history is tenant scoped: omitted period reads the current UTC month, latest selects the latest stored month at or before it, and availablePeriods lists all retained months plus the current month. A valid empty month returns no items and never creates quotas. Promotional welcome credit is always the current lifetime balance, separate from monthly channel limits. EUR50 is granted once per production organization created through the supported journey. Read returned amounts: credit does not activate transports. No renewal or top-up. Confirmation reserves the ceiling. Fixed quotes are consumed on provider acceptance; v3 faxes retain their reservation until verified usage reconciliation, even after delivery. For fractional quotes, the cent debit is ceil(accumulated nanoEUR / 10 000 000) minus ceil(previous accumulation / 10 000 000), at organization level; this is not a rounded per-email charge. Unknown outcomes retain reservations. Totals are integer EUR cents, never floats.",
+        "parameters": [
+          {
+            "name": "period",
+            "in": "query",
+            "required": false,
+            "description": "UTC YYYY-MM month or latest. Omit to read the current UTC month.",
+            "schema": {
+              "type": "string",
+              "pattern": "^(latest|[0-9]{4}-(0[1-9]|1[0-2]))$"
+            }
+          }
+        ],
         "security": [
           {
             "GuteneoOAuth": ["dispatches:read"]
@@ -4724,10 +4736,10 @@
         "operationId": "validatePdf",
         "tags": ["Documents"],
         "summary": "Check PDF/UA or PDF/A with veraPDF",
-        "description": "Requires an active monthly Horizon plan already subscribed by a browser administrator. Diagnostic checks of the exact bytes of a ready PDF. Includes 100 attempts per UTC calendar month in the EUR30/month plan paid from credits. ua1/ua2 check automatic accessibility rules; 1b/2b/3b/4 check archival rules. Success certifies neither accessibility nor legal compliance; human review remains necessary. Changes, approves and sends no PDF. Reuse Idempotency-Key after a lost response. No automatic retry for unknown outcomes. Document visibility remains enforced: private generated PDFs and their reports belong to their creator; another administrator receives no general access.",
+        "description": "Purchase one automatic PDF/UA or PDF/A check for EUR0.10 excluding tax from available workspace credits. Requires a current authenticated browser administrator, CSRF and explicit purchase approval bound to exact document SHA-256, chosen profile, price, currency and version. Assistants and OAuth clients cannot start a new paid check or assert consent. The immutable operation atomically reserves the price; a completed usable report, including a report finding noncompliance, settles once. Technical failure, expired processing or withdrawn authority releases the hold without a charge. Replaying the same exact key returns the existing report without another debit or engine run. A new profile or PDF requires a new explicit purchase. Two concurrent checks are allowed; no recurring subscription or included monthly allowance exists. Automatic checks are not certification or legal assurance; human review remains necessary. Originals, quarantine, visibility and sending approvals remain unchanged.",
         "security": [
           {
-            "GuteneoOAuth": ["documents:write"]
+            "BrowserSession": []
           }
         ],
         "responses": {
@@ -4754,16 +4766,6 @@
           },
           "401": {
             "$ref": "#/components/responses/Error401"
-          },
-          "402": {
-            "description": "Horizon plan missing, expired or unpaid. The plugin cannot subscribe or manage billing.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
           },
           "403": {
             "$ref": "#/components/responses/Error403"
@@ -4802,6 +4804,15 @@
               "type": "string",
               "pattern": "^[A-Za-z0-9_-]{8,128}$"
             }
+          },
+          {
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Current browser session CSRF token; same-origin requests only."
           }
         ],
         "requestBody": {
@@ -4809,7 +4820,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/PdfValidationInput"
+                "$ref": "#/components/schemas/PdfValidationPurchaseInput"
               }
             }
           }
@@ -5232,6 +5243,119 @@
           }
         }
       }
+    },
+    "/api/usage/activity": {
+      "get": {
+        "operationId": "getUsageActivity",
+        "tags": ["Account"],
+        "summary": "Read annual daily credit consumption",
+        "description": "Requires current administrator or supervisor reporting authority, plus dispatches:read for OAuth. Aggregates actual posted ledger debits by UTC day for one year: settled delivery credit entries, protected hosting, retained legacy subscriptions, secure-distribution services and completed per-check PDF purchases. Reservations, grants, preparation dates and monthly quota allocation are excluded. The nanoEUR ledger is not added again; zero-cent settlement entries remain counted as activity. No recipients, document content or dispatch identifiers are returned. Production uses immutable debit journals, including retained entries after dispatch deletion. Simulation uses separately labelled confirmed simulation reservations and service charges, including completed per-check purchases. availableYears lists all retained posted years plus the current UTC year; asOf is the server cutoff and future-posted rows are excluded. At most 366 dated aggregates are returned. Reads never create or settle a charge.",
+        "parameters": [
+          {
+            "name": "year",
+            "in": "query",
+            "required": false,
+            "description": "Four-digit UTC calendar year from 1000 through 9998. Omit for the current UTC year.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1000,
+              "maximum": 9998
+            }
+          }
+        ],
+        "security": [
+          {
+            "GuteneoOAuth": ["dispatches:read"]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "headers": {
+              "X-Correlation-ID": {
+                "description": "Keep this diagnostic identifier with the error code; never attach a token or document content.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UsageActivity"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        }
+      }
+    },
+    "/api/pdf-validation/pricing": {
+      "get": {
+        "operationId": "getPdfValidationPricing",
+        "tags": ["Account"],
+        "summary": "Read the current per-check PDF price",
+        "description": "Browser-only authenticated pricing read. A completed usable report costs 10 integer EUR cents excluding tax. No monthly subscription, renewal, purchase, debit or engine call occurs on this read. Current browser administrators may view available credits and purchase authority; other workshop members see the offer without a balance or permission to buy. The explicit PDF_VALIDATION_ENABLED flag, private validator and production scanner are independent gates. The retired activation flag cannot enable purchases. Pricing remains available while the feature is disabled. OAuth and assistants cannot open this browser billing surface.",
+        "security": [
+          {
+            "BrowserSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current unit offer; no purchase.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PdfValidationPricing"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -5263,6 +5387,12 @@
         "x-pkce-required": true,
         "x-pkce-method": "S256",
         "x-audience": "https://guteneo.com/mcp"
+      },
+      "BrowserSession": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "guteneo_session",
+        "description": "Authenticated human browser session. Paid PDF check purchases require current administrator authority, same-origin CSRF verification and explicit immutable price/content consent. OAuth tokens and assistants cannot assert this purchase approval."
       }
     },
     "parameters": {
@@ -5959,6 +6089,24 @@
       "Usage": {
         "type": "object",
         "properties": {
+          "period": {
+            "type": "string",
+            "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])$",
+            "description": "The resolved UTC month for the returned channel rows."
+          },
+          "currentPeriod": {
+            "type": "string",
+            "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])$"
+          },
+          "availablePeriods": {
+            "type": "array",
+            "description": "All retained tenant months plus currentPeriod, newest first.",
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])$"
+            }
+          },
           "welcomeCredit": {
             "$ref": "#/components/schemas/WelcomeCredit"
           },
@@ -6018,7 +6166,13 @@
             }
           }
         },
-        "required": ["welcomeCredit", "items"]
+        "required": [
+          "period",
+          "currentPeriod",
+          "availablePeriods",
+          "welcomeCredit",
+          "items"
+        ]
       },
       "Recipient": {
         "type": "object",
@@ -9993,6 +10147,51 @@
             "type": "string",
             "nullable": true
           },
+          "documentAnalysis": {
+            "type": "object",
+            "nullable": true,
+            "description": "Read-only recovery state for the exact accessible generated document. Null before registration or when its immutable hash does not match. Only processing/wait permits bounded status polling; retryable and blocked require the stated action. Reading never starts a scan or sends a document.",
+            "additionalProperties": false,
+            "properties": {
+              "state": {
+                "type": "string",
+                "enum": ["processing", "ready", "retryable", "blocked"]
+              },
+              "code": {
+                "type": "string",
+                "description": "Safe category; no raw security-engine output."
+              },
+              "title": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              },
+              "nextAction": {
+                "type": "string",
+                "enum": [
+                  "wait",
+                  "rescan",
+                  "replace_document",
+                  "contact_support",
+                  "continue"
+                ]
+              },
+              "retryAfterSeconds": {
+                "type": "integer",
+                "minimum": 0,
+                "nullable": true
+              }
+            },
+            "required": [
+              "state",
+              "code",
+              "title",
+              "message",
+              "nextAction",
+              "retryAfterSeconds"
+            ]
+          },
           "documentUrl": {
             "type": "string",
             "nullable": true
@@ -10010,6 +10209,7 @@
           "documentId",
           "documentHash",
           "documentStatus",
+          "documentAnalysis",
           "documentUrl",
           "errorCode"
         ],
@@ -11565,6 +11765,215 @@
           "authentication"
         ],
         "additionalProperties": false
+      },
+      "UsageActivityDay": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "amountMinor": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Actual posted EUR credit debit in integer cents, without independently rounding fractional sends."
+          },
+          "dispatchCount": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Delivery settlements recorded on this day; service charges do not count another dispatch."
+          },
+          "chargeCount": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Ledger entries on this day, including zero-cent settlements."
+          }
+        },
+        "required": ["date", "amountMinor", "dispatchCount", "chargeCount"]
+      },
+      "UsageActivity": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "year": {
+            "type": "integer",
+            "minimum": 1000,
+            "maximum": 9998
+          },
+          "currentYear": {
+            "type": "integer"
+          },
+          "availableYears": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "integer"
+            },
+            "description": "All retained posted years for the current organization plus currentYear, newest first."
+          },
+          "asOf": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "timeZone": {
+            "type": "string",
+            "enum": ["UTC"]
+          },
+          "currency": {
+            "type": "string",
+            "enum": ["EUR"]
+          },
+          "evidence": {
+            "type": "string",
+            "enum": ["production", "simulation"]
+          },
+          "days": {
+            "type": "array",
+            "maxItems": 366,
+            "items": {
+              "$ref": "#/components/schemas/UsageActivityDay"
+            },
+            "description": "Sparse chronological daily aggregates. Missing days have no recorded entries; future dates are not forecasts."
+          },
+          "totals": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "amountMinor": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "dispatchCount": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "chargeCount": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "activeDays": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 366
+              }
+            },
+            "required": [
+              "amountMinor",
+              "dispatchCount",
+              "chargeCount",
+              "activeDays"
+            ]
+          }
+        },
+        "required": [
+          "year",
+          "currentYear",
+          "availableYears",
+          "asOf",
+          "timeZone",
+          "currency",
+          "evidence",
+          "days",
+          "totals"
+        ]
+      },
+      "PdfValidationPurchaseInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["profile", "purchase"],
+        "properties": {
+          "profile": {
+            "type": "string",
+            "enum": ["ua1", "ua2", "1b", "2b", "3b", "4"]
+          },
+          "purchase": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "confirmed",
+              "documentSha256",
+              "priceMinor",
+              "currency",
+              "termsVersion"
+            ],
+            "properties": {
+              "confirmed": {
+                "type": "boolean",
+                "enum": [true]
+              },
+              "documentSha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "priceMinor": {
+                "type": "integer",
+                "enum": [10]
+              },
+              "currency": {
+                "type": "string",
+                "enum": ["EUR"]
+              },
+              "termsVersion": {
+                "type": "string",
+                "enum": ["pdf-check-2026-10-25-v1"]
+              }
+            }
+          }
+        }
+      },
+      "PdfValidationPricing": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "enabled",
+          "priceMinor",
+          "currency",
+          "taxBasis",
+          "termsVersion",
+          "paymentSource",
+          "purchaseAllowed",
+          "creditAvailableMinor",
+          "evidence"
+        ],
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "priceMinor": {
+            "type": "integer",
+            "enum": [10]
+          },
+          "currency": {
+            "type": "string",
+            "enum": ["EUR"]
+          },
+          "taxBasis": {
+            "type": "string",
+            "enum": ["excluding_tax"]
+          },
+          "termsVersion": {
+            "type": "string",
+            "enum": ["pdf-check-2026-10-25-v1"]
+          },
+          "paymentSource": {
+            "type": "string",
+            "enum": ["account_credits"]
+          },
+          "purchaseAllowed": {
+            "type": "boolean"
+          },
+          "creditAvailableMinor": {
+            "type": "integer",
+            "minimum": 0,
+            "nullable": true,
+            "description": "Current available credits only for the authenticated browser administrator; null for other actors."
+          },
+          "evidence": {
+            "type": "string",
+            "enum": ["production", "simulation"]
+          }
+        }
       }
     },
     "responses": {
@@ -11770,21 +12179,6 @@
     "description": "Guteneo developer guide",
     "url": "https://guteneo.com/developpeurs/"
   },
-  "x-horizon-plan": {
-    "name": "guteneo Horizon",
-    "priceMinor": 3000,
-    "currency": "EUR",
-    "interval": "month",
-    "paymentSource": "account_credits",
-    "termsVersion": "horizon-2026-10-02-v1",
-    "management": "administrator_browser_only",
-    "privateRoutes": [
-      "GET /api/plan",
-      "POST /api/plan/subscribe",
-      "POST /api/plan/cancel"
-    ],
-    "description": "Preparation is disabled by default. Browser routes require a session, origin/CSRF on mutations and current administrator authority; no OAuth tool subscribes. Guteneo billing is restricted to administrators of accounts with the monthly plan. Historical reports remain readable without an active plan."
-  },
   "x-secure-distribution": {
     "sourceScope": "local_candidate",
     "recipientAccess": "single_guteneo_account_and_fresh_qualified_authentication",
@@ -11797,5 +12191,19 @@
     ],
     "noPersonalOAuthAuthority": true,
     "nonRefundableAfterActivation": true
+  },
+  "x-pdf-validation-purchase": {
+    "priceMinor": 10,
+    "currency": "EUR",
+    "taxBasis": "excluding_tax",
+    "unit": "completed_usable_report_per_profile",
+    "paymentSource": "account_credits",
+    "termsVersion": "pdf-check-2026-10-25-v1",
+    "approval": "current_browser_administrator_only",
+    "featureFlag": "PDF_VALIDATION_ENABLED",
+    "defaultEnabled": false,
+    "monthlySubscriptions": false,
+    "technicalFailureChargeMinor": 0,
+    "historicalJournals": "retained_without_retroactive_charge_or_refund"
   }
 }

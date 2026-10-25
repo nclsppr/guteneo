@@ -147,6 +147,7 @@ beforeAll(async () => {
           "0057_secure_approval_evidence.sql",
           "0058_secure_copy_jobs.sql",
           "0059_document_authentication_policy.sql",
+          "0060_pdf_validation_per_check.sql",
         ].includes(f),
     )
     .sort())
@@ -285,7 +286,12 @@ beforeAll(async () => {
   const secureBefore = await financialSnapshot();
   await sql(secureMigration.slice(secureFinancialStart));
   await sql(readFileSync(new URL("0058_secure_copy_jobs.sql", dir), "utf8"));
-  await sql(readFileSync(new URL("0059_document_authentication_policy.sql", dir), "utf8"));
+  await sql(
+    readFileSync(
+      new URL("0059_document_authentication_policy.sql", dir),
+      "utf8",
+    ),
+  );
   secureUpgradeProof = {
     before: secureBefore,
     after: await financialSnapshot(),
@@ -308,6 +314,9 @@ beforeAll(async () => {
     foreignKeys: (await db.prepare("PRAGMA foreign_key_check").all()).results,
     quickCheck: await db.prepare("PRAGMA quick_check").first(),
   };
+  await sql(
+    readFileSync(new URL("0060_pdf_validation_per_check.sql", dir), "utf8"),
+  );
 });
 afterAll(async () => {
   await mf?.dispose();
@@ -1428,6 +1437,22 @@ describe("live delivery quotes and cumulative EUR credit — isolated D1 only", 
       dispatches: 2,
       consumptionMinor: 1,
       reservedMinor: 0,
+    });
+    expect(await domain.usageActivity(ctx)).toMatchObject({
+      days: [
+        {
+          date: stamp().slice(0, 10),
+          amountMinor: 1,
+          dispatchCount: 2,
+          chargeCount: 2,
+        },
+      ],
+      totals: {
+        amountMinor: 1,
+        dispatchCount: 2,
+        chargeCount: 2,
+        activeDays: 1,
+      },
     });
   });
   it("shares one credit balance across fractional email and whole-cent postal sends", async () => {

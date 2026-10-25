@@ -269,3 +269,33 @@ test("an ignored business source changed during migration prevents publication",
   assert.equal(commands.length, 1);
   assert.ok(commands[0].includes("migrations"));
 });
+
+test("status footer assets bind the shared four-language source catalog", async (t) => {
+  const root = await fixture(t);
+  const file = join(root, "packages/contracts/src/public-footer.json");
+  await mkdir(dirname(file), { recursive: true });
+  const labels = { fr: "Aide", en: "Help", de: "Hilfe", lb: "Hëllef" };
+  const catalog = {
+    navigationLabel: labels,
+    groups: [{ id: "help", labels, links: [{ href: "/support/", labels }] }],
+  };
+  await writeFile(file, JSON.stringify(catalog));
+  await writeFile(
+    join(root, "apps/status/public/index.html"),
+    '<script src="/footer.js" defer></script><h1>Status</h1>',
+  );
+  const first = await buildStatus(root);
+  assert.ok(first.assets.some((asset) => asset.path === "/footer.js"));
+  assert.match(
+    await readFile(join(root, "dist/status/footer.js"), "utf8"),
+    /GUTENEO_PUBLIC_FOOTER/,
+  );
+  catalog.groups[0].labels.en = "Customer help";
+  await writeFile(file, JSON.stringify(catalog));
+  const second = await buildStatus(root);
+  assert.notEqual(second.sourceSnapshotSha256, first.sourceSnapshotSha256);
+  assert.notEqual(second.assetsSha256, first.assetsSha256);
+  delete catalog.groups[0].labels.lb;
+  await writeFile(file, JSON.stringify(catalog));
+  await assert.rejects(buildStatus(root), /STATUS_FOOTER_CATALOG_INVALID/);
+});

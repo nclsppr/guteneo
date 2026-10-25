@@ -174,7 +174,7 @@ test("landing and workspace fit desktop and iPhone widths, keyboard navigation r
   await page.goto("/");
   await expect(
     page.getByRole("heading", {
-      name: "Votre assistant prépare. Guteneo transmet.",
+      name: "Préparez vos documents. Choisissez leur destination.",
     }),
   ).toBeVisible();
   // WebKit on macOS uses Option-Tab for links unless full keyboard navigation is enabled.
@@ -191,7 +191,7 @@ test("landing and workspace fit desktop and iPhone widths, keyboard navigation r
   await expect(page.locator("#landing-main")).toBeFocused();
   await page
     .getByRole("heading", {
-      name: "Votre assistant prépare. Guteneo transmet.",
+      name: "Préparez vos documents. Choisissez leur destination.",
     })
     .click();
   await expect

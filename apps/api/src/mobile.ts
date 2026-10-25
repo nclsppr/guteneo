@@ -1,3 +1,8 @@
+import {
+  standaloneThemeAttributes,
+  standaloneThemeMetadata,
+  standaloneThemeStyles,
+} from "./standalone-theme";
 import { recordConnectionEvent } from "./belvedere-telemetry";
 import { workspacePermissions } from "../../../packages/contracts/src/roles";
 import type { DashboardAppearance } from "../../../packages/contracts/src/dashboard-appearance";
@@ -323,7 +328,7 @@ async function authorize(request: Request, env: Env): Promise<Response> {
         .replaceAll("<", "&lt;")
         .replaceAll(">", "&gt;");
     return new Response(
-      `<!doctype html><html lang="${locale}"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${copy[0]} · guteneo</title><style>body{font-family:system-ui;background:#f6f5ef;color:#181b22;max-width:32rem;margin:12vh auto;padding:24px;line-height:1.5}h1{font-family:Georgia,serif;font-weight:400;font-size:2rem}button{font:inherit;border:0;border-radius:14px;background:#2450db;color:white;padding:16px 22px}a{color:inherit}</style><h1>${copy[1]}</h1><p>${copy[2]}</p><p>${copy[3]} : ${escape(session.organization.name)}</p><form method="post" action="/auth/mobile/authorize"><input type="hidden" name="code_challenge" value="${input.code_challenge}"><input type="hidden" name="code_challenge_method" value="S256"><input type="hidden" name="state" value="${input.state}"><input type="hidden" name="locale" value="${locale}"><input type="hidden" name="csrf" value="${escape(session.csrfToken)}"><button type="submit">${copy[4]}</button></form><p>${copy[5]}</p></html>`,
+      `<!doctype html><html lang="${locale}"${standaloneThemeAttributes(request)}><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">${standaloneThemeMetadata}<title>${copy[0]} · guteneo</title><style>${standaloneThemeStyles}body{font-family:system-ui;background:var(--paper);color:var(--ink);max-width:32rem;margin:12vh auto;padding:24px;line-height:1.5}h1{font-family:Georgia,serif;font-weight:400;font-size:2rem}button{font:inherit;border:0;border-radius:14px;background:#2450db;color:white;padding:16px 22px}a{color:inherit}</style><h1>${copy[1]}</h1><p>${copy[2]}</p><p>${copy[3]} : ${escape(session.organization.name)}</p><form method="post" action="/auth/mobile/authorize"><input type="hidden" name="code_challenge" value="${input.code_challenge}"><input type="hidden" name="code_challenge_method" value="S256"><input type="hidden" name="state" value="${input.state}"><input type="hidden" name="locale" value="${locale}"><input type="hidden" name="csrf" value="${escape(session.csrfToken)}"><button type="submit">${copy[4]}</button></form><p>${copy[5]}</p></html>`,
       {
         headers: {
           "Content-Type": "text/html; charset=utf-8",

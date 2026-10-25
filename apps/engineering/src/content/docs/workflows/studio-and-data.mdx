@@ -71,6 +71,14 @@ options. The private renderer produces independent PDFs that enter the ordinary
 verification path. Each result retains its own status and provenance, so one
 record failure does not erase the successful PDFs or justify guessing its data.
 
+A completed generation does not make a PDF readable while security analysis is
+still processing. Results expose the same current, exact-byte analysis state as
+the document view. The page follows confirmed processing for a bounded visible
+interval, then leaves manual refresh available. Blocked or retryable analysis
+requires its explicit recovery; a read never retries scanning. Selection and
+preview remain disabled until the PDF is ready, and later refreshes preserve the
+person's current keyboard focus.
+
 <GutenbergNote pose="studio" title="One plate, many proofs">
   A published template is fixed, but every generated PDF has its own bytes and
   provenance. Reusing the design never reuses someone else's delivery approval.

@@ -10,17 +10,22 @@ import "@fontsource/eb-garamond/latin-400-italic.css";
 import { applyAccountLocale, initializeLocale, t, useLocale } from "./locale";
 import { api, ApiError, type Session } from "./api";
 import { observePublicLinks } from "./public-sharing";
-import { App } from "./App";
+import { initializeTheme } from "./theme";
+import { App, preloadPublicSitePage } from "./App";
+import { isPublicSitePage } from "./public-site-metadata";
 import "./styles.css";
 import "./login-page.css";
 import "./protected-document.css";
 import "./dashboard-v2.css";
 
+initializeTheme();
+
 // Crawlable entry links hand off to the existing browser router before rendering.
 if (
   window.location.pathname === "/app" ||
   window.location.pathname === "/app/prepare" ||
-  window.location.pathname === "/app/plan"
+  window.location.pathname === "/app/plan" ||
+  window.location.pathname === "/app/pdf-checks"
 ) {
   const entry = new URL(window.location.href);
   entry.hash =
@@ -37,7 +42,7 @@ const belvederePath = document.querySelector<HTMLMetaElement>(
   'meta[name="guteneo-belvedere"]',
 )?.content;
 const isBelvedere =
-  !!belvederePath &&
+  belvederePath !== undefined &&
   window.location.pathname.replace(/\/$/, "") === belvederePath;
 if (isBelvedere) {
   applyAccountLocale(
@@ -142,8 +147,20 @@ function BelvedereEntry({ basePath }: { basePath: string }) {
   );
 }
 
-ReactDOM.createRoot(document.getElementById("root")!).render(
-  <React.StrictMode>
-    {isBelvedere ? <BelvedereEntry basePath={belvederePath} /> : <App />}
-  </React.StrictMode>,
-);
+function renderApplication() {
+  ReactDOM.createRoot(document.getElementById("root")!).render(
+    <React.StrictMode>
+      {isBelvedere ? <BelvedereEntry basePath={belvederePath} /> : <App />}
+    </React.StrictMode>,
+  );
+}
+
+if (!isBelvedere && isPublicSitePage(window.location.pathname)) {
+  // Keep the complete build-time page and native links visible until its
+  // route-only tools are available. A failed chunk leaves useful static HTML.
+  void preloadPublicSitePage()
+    .then(renderApplication)
+    .catch(() => {
+      document.getElementById("root")!.dataset.renderState = "static";
+    });
+} else renderApplication();
