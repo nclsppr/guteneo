@@ -940,14 +940,17 @@
         "Curated Belvédère administration, data-model, release and troubleshooting guides that preserve authority, evidence and recovery boundaries",
         "Maintained GitHub job/artifact/release explanation, fresh dependency boundaries and separate application/native/engineering evidence",
         "Curated Cloudflare/Auth0/transport dependencies, background jobs, tariff maintenance, design/i18n/accessibility, AI contribution and reproducible video/voice production guides",
-        "Origin-scoped system/light/dark selection uses guteneo.theme with pre-paint resolution, cross-tab/system updates and optional migration of a prior ui-mode choice; Nimbus data-mode styling, fixed blue chrome, script-free system fallback and readable ivory dark branding grant no account or operational authority"
+        "Origin-scoped system/light/dark selection uses guteneo.theme with pre-paint resolution, cross-tab/system updates and optional migration of a prior ui-mode choice; Nimbus data-mode styling, fixed blue chrome, script-free system fallback and readable ivory dark branding grant no account or operational authority",
+        "Three isolated browser shards for each desktop/mobile Chromium and iPhone WebKit profile, same-revision build artifacts and independent complete test-ID inventory accounting; no missing/duplicate shard, skipped required job, automatic retry or merged-main publication shortcut"
       ],
       "status": "Implemented documentation candidate; production publication requires an explicitly authorized, independently verified release.",
       "tests": [
         "tests/security/engineering-site.test.mjs",
         "tests/engineering-e2e/site.spec.ts",
         "tests/security/engineering-release.test.mjs",
-        "tests/engineering-e2e/theme.spec.ts"
+        "tests/engineering-e2e/theme.spec.ts",
+        "tests/security/ci-results.test.mjs",
+        "tests/security/ci-browser-results.test.mjs"
       ],
       "surfaces": "Public static engineering documentation with responsive 720/1440-pixel character-scene exports and small explanatory notes; no business API or authentication surface.",
       "id": "engineering-docs",
