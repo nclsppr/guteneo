@@ -26,9 +26,12 @@ every viewport. It follows
 the operating system by default; activating it stores the opposite resolved
 light/dark choice with a localized action name. The head bootstrap owns this
 native-button activation before React loads, and React adopts that state without
-flipping it again. Classic personal navigation retains its identity, document access and
-account routes inside the shared 1440 px frame and responsive gutters. The saved
-V2 layout uses the workshop navigation geometry without requesting its resources.
+flipping it again. Personal navigation retains its identity, document access and
+account routes in both saved layouts. The authenticated personal shell fills the
+available width with responsive gutters, following the
+[application layout contract](DASHBOARD_V2.md#personal-documents-and-account-customization--follow-up);
+the public site's 1440 px outer frame does not constrain it. The saved V2 layout
+uses the workshop navigation geometry without requesting its resources.
 Belvédère adopts the V2 visual shell while keeping its independent platform guard
 and read-only data. Existing
 three-way account settings and independent status/engineering controls remain.

@@ -77,6 +77,13 @@ workshop membership or workshop bootstrap. Both layouts expose the same document
 services, account/security and sign-out routes. The header/page appearance action
 is the shared single light/dark icon; color and layout preferences remain separate.
 
+Both authenticated personal layouts fill the available viewport width, including
+1920 px and 3440 px displays, with no outer maximum-width frame. Retain responsive
+gutters and the V2 sidebar; document lists use the available main area. The public
+site's 1440 px frame remains separate. Narrow internal text, 780 px form fields
+and 950 px document-page previews retain readable measures instead of constraining
+the shell. Small-screen navigation and content must fit at 320 px and 390 px.
+
 Personal account customization reuses the workshop's small preference controls
 for language, system/light/dark color and Classic/V2 layout, with matching identity,
 profile and session panels. It does not import the full workshop account page.
@@ -88,7 +95,13 @@ layout override. No migration, new API or assistant authority is introduced.
 
 Regression sources include `tests/e2e/personal-appearance.spec.ts` and
 `tests/e2e/personal-document-performance.spec.ts`; executed results and hosted
-proof remain separate from the source contract.
+proof remain separate from the source contract. The existing saved-layout
+regression checks full-shell geometry, gutters and overflow in both layouts and
+palettes at 1920/3440/320/390 px; this changes no read, save or authority contract.
+Local production-built synthetic fixtures passed 27/27 personal appearance cases
+on 25 October 2026 across Chromium, mobile Chromium and iPhone WebKit, including
+those sixteen geometry combinations in the existing save/reload regression.
+No page overflow occurred; no authenticated production account was mutated.
 
 ## Navigation and action clarity — 14 October 2026
 

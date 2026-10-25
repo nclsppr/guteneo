@@ -308,7 +308,7 @@ test("an older focus session read cannot overwrite a successful profile save", a
 
 test("personal layout changes persist across reload and a failed save retains the draft", async ({
   page,
-}) => {
+}, testInfo) => {
   const state = await fixture(page);
   await page.goto("/#/app/personal-account");
   const shell = page.locator(".personal-space");
@@ -324,6 +324,63 @@ test("personal layout changes persist across reload and a failed save retains th
     await page.reload();
     await expect(shell).toHaveAttribute("data-appearance", appearance);
     await expect(version).toHaveValue(appearance);
+    await page.setViewportSize({ width: 3440, height: 960 });
+    expect(
+      (await page.locator(".personal-account-profile > .field").boundingBox())
+        ?.width,
+    ).toBeLessThanOrEqual(780);
+    await page.locator('a[href="#/app/my-documents"]').click();
+    await expect(
+      page.getByRole("heading", { name: "Synthetic personal document" }),
+    ).toBeVisible();
+    for (const width of [1920, 3440, 320, 390]) {
+      await page.setViewportSize({ width, height: 960 });
+      for (const theme of ["light", "dark"]) {
+        if ((await page.locator("html").getAttribute("data-theme")) !== theme)
+          await page.locator(".personal-space-header [data-theme-toggle]").click();
+        await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
+        const geometry = await shell.evaluate((element) => {
+          const frame = element.getBoundingClientRect();
+          const main = element.querySelector("main")!.getBoundingClientRect();
+          const mainStyle = getComputedStyle(element.querySelector("main")!);
+          const documents = element
+            .querySelector(".secure-document-list")!
+            .getBoundingClientRect();
+          const style = getComputedStyle(element);
+          return {
+            left: frame.left,
+            width: frame.width,
+            viewport: innerWidth,
+            mainRight: main.right,
+            documentsRight: documents.right,
+            contentRightGutter: Number.parseFloat(mainStyle.paddingRight),
+            rightGutter: Number.parseFloat(style.paddingRight),
+            pageWidth: document.documentElement.scrollWidth,
+          };
+        });
+        expect(geometry.left).toBeCloseTo(0);
+        expect(geometry.width).toBeCloseTo(geometry.viewport);
+        expect(geometry.mainRight).toBeCloseTo(
+          geometry.viewport - geometry.rightGutter,
+        );
+        expect(geometry.pageWidth).toBeLessThanOrEqual(geometry.viewport);
+        expect(geometry.documentsRight).toBeCloseTo(
+          geometry.mainRight - geometry.contentRightGutter,
+        );
+        if (testInfo.project.name === "chromium")
+          await page.screenshot({
+            path: testInfo.outputPath(
+              `personal-full-width-${appearance}-${theme}-${width}.png`,
+            ),
+          });
+      }
+    }
+    await page.locator('a[href="#/app/personal-account"]').click();
+    await expect(version).toHaveValue(appearance);
+    expect(
+      (await page.locator(".personal-account-profile > .field").boundingBox())
+        ?.width,
+    ).toBeLessThanOrEqual(780);
   }
   expect(
     state.writes.map((write) => write.body.preferredDashboardAppearance),

@@ -173,7 +173,7 @@ Open public status from its URL or common footer → read current summary, obser
 
 **Actor:** Authenticated browser member changing their own preference · **Branch:** Operate
 
-Enter personal documents or the workshop → open account customization → choose Classic/V2 beside the shared language and color controls → save successfully through the existing context-specific profile endpoint → apply the saved personal preference → reload, switch identity or enter the other application context → reconcile the current account preference without workshop bootstrap in personal documents.
+Enter personal documents or the workshop → open account customization → choose Classic/V2 beside the shared language and color controls → save successfully through the existing context-specific profile endpoint → apply the saved personal preference in a full-width shell with responsive gutters and readable internal forms → reload, switch identity or enter the other application context → reconcile the current account preference without workshop bootstrap in personal documents.
 
 **Failure and recovery:** Temporary atelier overrides never claim a server save and clear after explicit save/identity change. Old cache cannot override the current person; business authority remains identical. Immediate system/light/dark browser appearance is a separate preference and never claims an account profile save.
 
@@ -269,7 +269,7 @@ Start with the operating-system palette unless a valid local choice exists → u
 
 **Actor:** Authenticated personal account owner, with or without a workspace · **Branch:** Access
 
-Open My documents directly → start the personal shell → validate current personal session → read the authorized list → retry a failed list explicitly. On focus or account change reconcile the session and discard previous identity/document state; returning to a workshop loads its current session and rights.
+Open My documents directly → start the personal shell → validate current personal session → read the authorized list across the available main width with responsive gutters → retry a failed list explicitly. On focus or account change reconcile the session and discard previous identity/document state; returning to a workshop loads its current session and rights.
 
 **Failure and recovery:** Personal policy and recipient bindings are never skipped. Cancelled or late workspace/account results cannot restore earlier identity, language or documents; expired sessions use established recovery. The five-context synthetic timing comparison is bounded local instrumentation, not production latency, real-client access or provider delivery proof.
 

@@ -785,7 +785,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Full real-web Classic/V2 views with the same account, tenant, resources and operations
 - Account at navigation bottom, saved Classic/V2 layout beside language, applied after a successful profile save; mobile identity remains visible with the menu closed; role and detailed permissions live on My account
 - Personal users.preferred_dashboard_appearance, migration 0053, classic default and cross-workshop/session/device reconciliation
-- Personal documents apply the same saved Classic/V2 account layout with lightweight independent navigation; personal and workshop customization reuse small shared language/theme/layout controls, preserving personal-only access and existing guarded PATCH authority
+- Personal documents apply the same saved Classic/V2 account layout in a shell filling the available width with responsive gutters and readable internal form measures, with lightweight independent navigation; personal and workshop customization reuse small shared language/theme/layout controls, preserving personal-only access and existing guarded PATCH authority
 - Strict browser account PATCH with current authority, Origin/CSRF and field-name audit; every role changes only its own preference
 - Temporary appearance=v2/classic override accepts legacy atelier URLs, never persists server-side and clears after explicit appearance save or identity change; local cache is non-authoritative
 - Existing activity/alerts precede introduction, otherwise a complete welcome; content preview precedes approval in reading/tab order
@@ -801,7 +801,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Compact My documents navigation link with personal-space context, without an oversized separate card or repeated role panel
 - Shared native file input with four-language authored chooser/empty text and literal filenames, keyboard validation and exact-byte upload semantics
 - Desktop Safari select height and protected-link hint spacing; visible keyboard focus, selection and forced-colors states remain readable in both palettes
-- Public and personal headers and Belvédère page actions share one localized light/dark action icon at every viewport, defaulting to the operating system; Classic personal header/main/footer use the same 1440 px frame and responsive gutters, while personal V2 follows workshop geometry without changing personal navigation, identity, document access or logout. Browser theme is independent of saved Classic/V2 layout, account language and role; document/PDF/email content retains original light-paper appearance and bytes
+- Public and personal headers and Belvédère page actions share one localized light/dark action icon at every viewport, defaulting to the operating system; authenticated personal Classic/V2 shells fill the available width with responsive gutters, while personal V2 follows workshop geometry without changing personal navigation, identity, document access or logout. Browser theme is independent of saved Classic/V2 layout, account language and role; document/PDF/email content retains original light-paper appearance and bytes
 - Template-designer controls adopt the resolved shared palette in place while original template content, output geometry, bindings and PDF bytes retain their document contract
 
 **Contract:** [DASHBOARD_V2.md](DASHBOARD_V2.md) · **Implementation:** [apps/web/src/account-page.tsx](../apps/web/src/account-page.tsx)
@@ -1163,7 +1163,7 @@ Open public status from its URL or common footer → read current summary, obser
 
 **Actor:** Authenticated browser member changing their own preference. **Branch:** Operate.
 
-Enter personal documents or the workshop → open account customization → choose Classic/V2 beside the shared language and color controls → save successfully through the existing context-specific profile endpoint → apply the saved personal preference → reload, switch identity or enter the other application context → reconcile the current account preference without workshop bootstrap in personal documents.
+Enter personal documents or the workshop → open account customization → choose Classic/V2 beside the shared language and color controls → save successfully through the existing context-specific profile endpoint → apply the saved personal preference in a full-width shell with responsive gutters and readable internal forms → reload, switch identity or enter the other application context → reconcile the current account preference without workshop bootstrap in personal documents.
 
 **Failure/recovery:** Temporary atelier overrides never claim a server save and clear after explicit save/identity change. Old cache cannot override the current person; business authority remains identical. Immediate system/light/dark browser appearance is a separate preference and never claims an account profile save.
 
@@ -1283,7 +1283,7 @@ Start with the operating-system palette unless a valid local choice exists → u
 
 **Actor:** Authenticated personal account owner, with or without a workspace. **Branch:** Access.
 
-Open My documents directly → start the personal shell → validate current personal session → read the authorized list → retry a failed list explicitly. On focus or account change reconcile the session and discard previous identity/document state; returning to a workshop loads its current session and rights.
+Open My documents directly → start the personal shell → validate current personal session → read the authorized list across the available main width with responsive gutters → retry a failed list explicitly. On focus or account change reconcile the session and discard previous identity/document state; returning to a workshop loads its current session and rights.
 
 **Failure/recovery:** Personal policy and recipient bindings are never skipped. Cancelled or late workspace/account results cannot restore earlier identity, language or documents; expired sessions use established recovery. The five-context synthetic timing comparison is bounded local instrumentation, not production latency, real-client access or provider delivery proof.
 
