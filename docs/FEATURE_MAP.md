@@ -1,7 +1,7 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
 # Guteneo feature tree and developer atlas
 
-**23 domains · 298 features · 34 journeys · 76 documented REST operations · 74 MCP tools**
+**23 domains · 301 features · 34 journeys · 76 documented REST operations · 74 MCP tools**
 Updated 2026-10-25.
 
 Repository implementation inventory. Availability depends on current capabilities and authority; implementation, activation and deployed proof are distinct.
@@ -24,13 +24,13 @@ mindmap
     Deliver
       Fax (6)
       Postal mail (8)
-      Email and protected links (7)
+      Email and protected links (9)
       Sensitive distribution and personal documents (25)
       Dispatch dry run (7)
     Operate
       Campaigns and tracking (8)
       Credits and billing (8)
-      Workspace layout and browser appearance (21)
+      Workspace layout and browser appearance (22)
       PDF verification (10)
     Interfaces
       Assistants and API (21)
@@ -60,7 +60,7 @@ mindmap
 
 - [Fax](#fax) — 6 features; capability-gated.
 - [Postal mail](#postal) — 8 features; capability-gated.
-- [Email and protected links](#email) — 7 features; capability-gated.
+- [Email and protected links](#email) — 9 features; capability-gated.
 - [Sensitive distribution and personal documents](#secure-distribution) — 25 features; capability-gated.
 - [Dispatch dry run](#dry-run) — 7 features; read-only.
 
@@ -68,7 +68,7 @@ mindmap
 
 - [Campaigns and tracking](#campaigns) — 8 features; capability-gated.
 - [Credits and billing](#billing) — 8 features; partial.
-- [Workspace layout and browser appearance](#dashboard) — 21 features; browser-session.
+- [Workspace layout and browser appearance](#dashboard) — 22 features; browser-session.
 - [PDF verification](#pdf-verification) — 10 features; capability-gated.
 
 ### Interfaces
@@ -100,6 +100,7 @@ Four human workshop roles are defined by packages/contracts/src/roles.ts. The as
 | Read accessible workshop content | Yes | Yes | Yes | Yes | Current member + consented scopes + document access |
 | Import and prepare | Yes | Yes | Yes | No | Current member + scopes + qualified channel/transport |
 | Reserve/transfer a private original PDF | Own connected OAuth writer + documents:write | Own connected OAuth writer + documents:write | Own connected OAuth writer + documents:write | No | Current writer + documents:write + actual original bytes; capability bound to one operation/connection/expiry, no read/send/approval authority |
+| Reveal protected-link password or revoke hosting | Current browser preparation authority + source access | Current browser preparation authority + source access | Current browser preparation authority + source access | No | No; password and revocation remain CSRF-protected browser operations |
 | Human approval and confirmation | Yes | Approval option | No | No | Cannot assert human consent; standard confirmation requires recorded browser approval |
 | Expert review and acceptance | Browser grants a bounded mandate | No mandate administration | No mandate administration | No | Pre-existing active client-bound mandate + current role/scopes + exact review + host confirmations |
 | Cancel prepared/queued dispatch | Yes | Approval option | No | No | Current approval authority + scope; never retries an unknown submission |
@@ -495,6 +496,8 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Text/HTML email without a file, with a PDF attachment or with a protected link
 - Recipient-request attestation and transactional requirements
 - Explicit quote and per-document hosting charge
+- Protected-link footer and expiration date use the authenticated sender account language (French fallback), with four-language catalog and recipient link locale frozen before fingerprinting; no translation of entered content or rewrite of approved/sent messages
+- Private /share route and unlock/content children bypass Static Assets and public-error rendering; existing links retain hosting and access checks, with no sitemap inclusion or automatic resend
 - Private link, expiry and browser-only password entry
 - Download without a recipient account under access controls
 - Preparation, approval, tracking and provider policy
@@ -502,7 +505,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 
 **Contract:** [PROTECTED_EMAIL.md](PROTECTED_EMAIL.md) · **Implementation:** [apps/api/src/protected-documents.ts](../apps/api/src/protected-documents.ts)
 
-**Tests:** [tests/integration/protected-documents.test.ts](../tests/integration/protected-documents.test.ts)
+**Tests:** [tests/integration/protected-documents.test.ts](../tests/integration/protected-documents.test.ts), [tests/integration/resend-email.test.ts](../tests/integration/resend-email.test.ts), [tests/security/public-assets.test.mjs](../tests/security/public-assets.test.mjs)
 
 
 
@@ -803,6 +806,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Desktop Safari select height and protected-link hint spacing; visible keyboard focus, selection and forced-colors states remain readable in both palettes
 - Public and personal headers and Belvédère page actions share one localized light/dark action icon at every viewport, defaulting to the operating system; authenticated personal Classic/V2 shells fill the available width with responsive gutters, while personal V2 follows workshop geometry without changing personal navigation, identity, document access or logout. Browser theme is independent of saved Classic/V2 layout, account language and role; document/PDF/email content retains original light-paper appearance and bytes
 - Template-designer controls adopt the resolved shared palette in place while original template content, output geometry, bindings and PDF bytes retain their document contract
+- V2 protected-email choice, review summary, email preview and PDF viewer frame share the existing 10 px panel corners; 7 px controls and original square PDF paper retain their distinct roles without extra API reads
 
 **Contract:** [DASHBOARD_V2.md](DASHBOARD_V2.md) · **Implementation:** [apps/web/src/account-page.tsx](../apps/web/src/account-page.tsx)
 
@@ -1003,9 +1007,9 @@ Read postal setup/requirements → collect missing sender/recipient/options → 
 
 **Actor:** Preparer → current approver. **Branch:** Deliver.
 
-Collect recipient, requested message and ceiling → choose no file, ready PDF attachment or protected link → obtain the quote → review final content/options → record recipient-request attestation and browser/existing delegated approval → confirm → track.
+Collect recipient, requested message and ceiling → choose no file, ready PDF attachment or protected link → for protected links, append localized instructions from the sender account language (French fallback) before fingerprinting → obtain the quote → review final content/options → record recipient-request attestation and browser/existing delegated approval → confirm → track.
 
-**Failure/recovery:** Never infer recipient consent. Protected passwords stay in the sender browser and are shared separately. Provider acceptance/delivery/PDF reading are different facts; unknown outcomes require reconciliation.
+**Failure/recovery:** Never infer recipient consent. Protected passwords stay in the sender browser and are shared separately. Provider acceptance/delivery/PDF reading are different facts; unknown outcomes require reconciliation. Later profile changes do not rewrite frozen content or resend existing mail.
 
 [Detailed contract](PROTECTED_EMAIL.md).
 
@@ -1093,9 +1097,9 @@ Read current capability and price → select the ready immutable PDF and PDF/UA 
 
 **Actor:** External recipient. **Branch:** Deliver.
 
-Open the private link → enter the separately supplied password → download the unchanged PDF while access remains valid; no recipient account required.
+Open the private /share link through the protected handler → read the localized page and enter the separately supplied password → download the unchanged PDF while access remains valid; no recipient account required.
 
-**Failure/recovery:** Expiry, revocation, invalid credentials or unavailable storage refuse access. Never reveal passwords through assistant tools/chat or infer PDF reading from email delivery.
+**Failure/recovery:** Expiry, revocation, invalid credentials or unavailable storage refuse access. Never reveal passwords through assistant tools/chat or infer PDF reading from email delivery. A generic site 404 requires route/hosting diagnosis; do not create a replacement send or bypass access checks.
 
 [Detailed contract](PROTECTED_DOCUMENTS.md).
 

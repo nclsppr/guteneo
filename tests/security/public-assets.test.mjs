@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { mkdtemp, readFile, mkdir, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -85,35 +86,110 @@ test("real Static Assets applies primary/fallback crawl policy after _headers, i
       },
     },
   });
-  const mf = new Miniflare(
-    convertV4MiniflareOptions({
-      name: "public-crawl-fixture",
-      modules: true,
-      script: await readFile(join(temp, "compiled/worker.js"), "utf8"),
-      compatibilityDate: "2026-09-16",
-      compatibilityFlags: ["nodejs_compat"],
-      bindings: {
-        ENVIRONMENT: "production",
-        MODE: "production",
-        APP_ORIGIN: PUBLIC_ORIGIN,
+  const runtimeOptions = {
+    name: "public-crawl-fixture",
+    modules: true,
+    script: await readFile(join(temp, "compiled/worker.js"), "utf8"),
+    compatibilityDate: "2026-09-16",
+    compatibilityFlags: ["nodejs_compat"],
+    bindings: {
+      ENVIRONMENT: "production",
+      MODE: "production",
+      APP_ORIGIN: PUBLIC_ORIGIN,
+    },
+    assets: {
+      directory,
+      binding: "ASSETS",
+      run_worker_first: true,
+      routerConfig: {
+        has_user_worker: true,
+        invoke_user_worker_ahead_of_assets: true,
       },
-      assets: {
-        directory,
-        binding: "ASSETS",
-        run_worker_first: true,
-        routerConfig: {
-          has_user_worker: true,
-          invoke_user_worker_ahead_of_assets: true,
-        },
-        assetConfig: {
-          html_handling: "force-trailing-slash",
-          not_found_handling: "none",
-        },
+      assetConfig: {
+        html_handling: "force-trailing-slash",
+        not_found_handling: "none",
+      },
+    },
+  };
+  const mf = new Miniflare(convertV4MiniflareOptions(runtimeOptions));
+  t.after(() => mf.dispose());
+  const fallbackOrigin = "https://guteneo-app.nclsppr.workers.dev";
+  // Minimal routing fixture only: the protected-document integration suite owns
+  // activation, approval, charging, password verification and exact PDF bytes.
+  const recipientMf = new Miniflare(
+    convertV4MiniflareOptions({
+      ...runtimeOptions,
+      name: "protected-recipient-routing-fixture",
+      d1Databases: ["DB"],
+      bindings: {
+        ...runtimeOptions.bindings,
+        AUTH0_DOMAIN: "identity.example.invalid",
+        AUTH0_CLIENT_ID: "routing-fixture",
+        AUTH0_CLIENT_SECRET: "routing-fixture-only",
+        AUTH0_AUDIENCE: "https://api.example.invalid",
       },
     }),
   );
-  t.after(() => mf.dispose());
-  const fallbackOrigin = "https://guteneo-app.nclsppr.workers.dev";
+  t.after(() => recipientMf.dispose());
+  const db = await recipientMf.getD1Database("DB");
+  const token = "t".repeat(43);
+  await db.batch([
+    db.prepare(
+      "CREATE TABLE documents (id TEXT, organization_id TEXT, sha256 TEXT, status TEXT)",
+    ),
+    db.prepare(
+      "CREATE TABLE protected_document_hostings (id TEXT, organization_id TEXT, document_id TEXT, document_sha256 TEXT, token_hash TEXT, status TEXT, expires_at TEXT)",
+    ),
+    db.prepare(
+      "CREATE TABLE secure_distributions (organization_id TEXT, source_id TEXT)",
+    ),
+    db.prepare(
+      "CREATE TABLE protected_hosting_charges (organization_id TEXT, hosting_id TEXT)",
+    ),
+    db.prepare(
+      "INSERT INTO documents VALUES ('document', 'workspace', 'fixture-hash', 'ready')",
+    ),
+    db
+      .prepare(
+        "INSERT INTO protected_document_hostings VALUES ('hosting', 'workspace', 'document', 'fixture-hash', ?, 'active', '2099-01-01T00:00:00.000Z')",
+      )
+      .bind(createHash("sha256").update(token).digest("hex")),
+    db.prepare(
+      "INSERT INTO protected_hosting_charges VALUES ('workspace', 'hosting')",
+    ),
+  ]);
+  const protectedPath = `/share/${token}`;
+  const locked = await recipientMf.dispatchFetch(
+    PUBLIC_ORIGIN + protectedPath + "?lang=fr",
+  );
+  assert.equal(
+    locked.status,
+    200,
+    "production entry must route protected links to the password page",
+  );
+  assert.match(locked.headers.get("Content-Type"), /^text\/html/);
+  assert.match(locked.headers.get("Cache-Control"), /private.*no-store/);
+  assert.match(locked.headers.get("X-Robots-Tag"), /noindex.*noarchive/);
+  assert.equal(locked.headers.get("Referrer-Policy"), "no-referrer");
+  assert.match(await locked.text(), /name="password"/);
+  const protectedBytes = await recipientMf.dispatchFetch(
+    PUBLIC_ORIGIN + protectedPath + "/content",
+  );
+  assert.equal(
+    protectedBytes.status,
+    401,
+    "static routing must never bypass the password gate",
+  );
+  for (const [origin, path] of [
+    [PUBLIC_ORIGIN, "/share/invalid"],
+    [fallbackOrigin, protectedPath],
+  ]) {
+    const unavailable = await recipientMf.dispatchFetch(origin + path);
+    assert.equal(unavailable.status, 404);
+    assert.match(unavailable.headers.get("Content-Type"), /^text\/html/);
+    assert.match(unavailable.headers.get("Cache-Control"), /private.*no-store/);
+    assert.doesNotMatch(await unavailable.text(), /name="password"/);
+  }
   for (const origin of [PUBLIC_ORIGIN, fallbackOrigin]) {
     for (const [path, content] of textAssets) {
       const response = await mf.dispatchFetch(origin + path);

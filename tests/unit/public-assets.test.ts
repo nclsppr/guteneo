@@ -549,6 +549,26 @@ describe("production static crawl boundary", () => {
       ).toBeNull();
     expect(fetch).not.toHaveBeenCalled();
   });
+  it("keeps recipient entry, unlock and content outside static assets", async () => {
+    const { env, fetch } = fixture();
+    for (const path of [
+      "/share",
+      "/share/invalid",
+      `/share/${"t".repeat(43)}`,
+      `/share/${"t".repeat(43)}/content`,
+      `/share/${"t".repeat(43)}/unlock`,
+    ]) {
+      for (const method of ["GET", "HEAD", "POST"]) {
+        expect(
+          await servePublicAssets(
+            new Request(site.origin + path + "?lang=fr", { method }),
+            env,
+          ),
+        ).toBeNull();
+      }
+    }
+    expect(fetch).not.toHaveBeenCalled();
+  });
   it("robots policy cannot leak from the primary origin to fallback or private query", async () => {
     const { env, fetch } = fixture();
     for (const method of ["GET", "HEAD"]) {

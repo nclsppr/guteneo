@@ -3,24 +3,13 @@ import {
   standaloneThemeMetadata,
   standaloneThemeStyles,
 } from "./standalone-theme";
-import delivery from "../../../packages/contracts/src/delivery-messages.json" with { type: "json" };
+import { deliveryText as protectedDocumentText } from "../../../packages/contracts/src/delivery-messages";
 import {
   supportedLocales,
   type SupportedLocale,
 } from "../../../packages/contracts/src/locale";
 
-const englishMessages: Record<string, readonly string[]> = Object.fromEntries(
-  Object.entries(delivery).map(([fr, [en, de, lb]]) => [en, [fr, de, lb]]),
-);
-
-/** Translate only fixed interface copy. Document bytes, passwords and URLs are unchanged. */
-export function protectedDocumentText(
-  source: string,
-  locale: SupportedLocale,
-): string {
-  if (locale === "en") return source;
-  return englishMessages[source]?.[{ fr: 0, de: 1, lb: 2 }[locale]] ?? source;
-}
+export { protectedDocumentText };
 
 function escape(value: string): string {
   return value.replace(

@@ -20,6 +20,34 @@ opaque link belongs to the exact approved content. ChatGPT/Claude use the same
 `protectedDays` of 1, 7 or 30 days (default 7). Review and confirmation permissions
 are unchanged. An assistant cannot enable delegation or reveal the password.
 
+## Language of new protected-link messages
+
+The shared preparation service reads the authenticated sender's saved
+`users.preferred_locale` through current workspace membership. It uses French
+when that preference is absent or unsupported. The protected-link button,
+password instructions and expiration date come from
+`packages/contracts/src/delivery-messages.json` in French, English, German or
+Luxembourgish. No subject, entered message or document is translated.
+
+The server adds the localized footer and a supported `?lang=` to the recipient
+link before the final content is fingerprinted and reviewed. This applies to web,
+REST, MCP and native preparation through the same domain operation. Changing
+account language later, an idempotent replay or provider submission cannot
+rewrite prepared, approved or already sent text. Recipient page language remains
+switchable without granting access or changing the link's hosting term.
+
+The V2 preparation and review panels follow the shared geometry documented in
+[DASHBOARD_V2.md](DASHBOARD_V2.md); the final email/document content retains its
+own presentation. The recipient route and failure contract are owned by
+[protected PDF delivery](PROTECTED_DOCUMENTS.md).
+
+The 25 October correction is a source candidate. Local regression fixtures in
+`tests/integration/resend-email.test.ts` cover four-language preparation, French
+fallback, localized UTC expiration, explicit reader language and frozen provider
+content. The focused local run passed 13 Resend and 10 protected-document cases
+with synthetic local D1/R2 and intercepted transport. Actual publication and a received-message
+journey require separate evidence; no replacement email is automatically sent.
+
 ## Cost and duration
 
 Hosting costs 100 euro cents per document and hosting period. Existing active

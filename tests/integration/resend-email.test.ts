@@ -32,6 +32,7 @@ import {
   type LiveProviderEnv,
 } from "../../apps/api/src/live-providers";
 import {
+  handleProtectedDocumentRoute,
   prepareProtectedDocument,
   revealProtectedDocumentPassword,
   revokeProtectedDocument,
@@ -519,6 +520,10 @@ describe("Resend domain, live bridge and populated migrations — synthetic tran
           Buffer.from(pdfBytes),
         );
       } else expect(body).not.toHaveProperty("attachments");
+      if (mode !== "protected_link") {
+        expect(body.html).toBe(input.html);
+        expect(body.text).toBe(input.text);
+      }
       if (mode === "protected_link") {
         const disclosed = await revealProtectedDocumentPassword(
           env,
@@ -566,6 +571,104 @@ describe("Resend domain, live bridge and populated migrations — synthetic tran
       await domain.processDispatch(row.id, hook);
       expect(fetcher).toHaveBeenCalledTimes(1);
       await expectSettled();
+    },
+  );
+
+  it.each([
+    ["fr", "fr", "Consulter le document protégé", "Demandez le mot de passe"],
+    [
+      "en",
+      "en",
+      "View the protected document",
+      "Ask the sender for the password",
+    ],
+    ["de", "de", "Geschütztes Dokument ansehen", "Bitten Sie den Absender"],
+    ["lb", "lb", "Dat geschützt Dokument kucken", "Frot den Ofsender"],
+    [null, "fr", "Consulter le document protégé", "Demandez le mot de passe"],
+  ] as const)(
+    "freezes the protected email footer in account language %s before approval and provider delivery",
+    async (preference, locale, label, instructions) => {
+      await db
+        .prepare("UPDATE users SET preferred_locale=? WHERE id=?")
+        .bind(preference, ctx.userId)
+        .run();
+      const input = email({
+        documentId: id("doc"),
+        options: { emailDeliveryMode: "protected_link", protectedDays: 7 },
+      });
+      const prepared = await domain.prepareDispatch(
+        ctx,
+        input,
+        "localized_message",
+      );
+      expect(prepared.subject).toBe(input.subject);
+      expect(prepared.html).toContain(input.html);
+      expect(prepared.text).toMatch(/^Exact approved synthetic content\.\n\n/);
+      expect(prepared.html).toContain(`>${label}</a>`);
+      expect(prepared.text).toContain(`${label}: `);
+      expect(prepared.html).toContain(instructions);
+      expect(prepared.text).toContain(instructions);
+      if (locale !== "en") {
+        expect(prepared.text).not.toContain("Ask the sender for the password");
+        expect(prepared.text).not.toContain("View the protected document");
+      }
+      const link = prepared.html!.match(/href="([^"]+)"/)![1];
+      expect(new URL(link).searchParams.get("lang")).toBe(locale);
+      const descriptor = JSON.parse(prepared.options_json).protectedDocument;
+      expect(prepared.text).not.toContain(descriptor.expiresAt.slice(0, 10));
+
+      const nextLocale = locale === "en" ? "fr" : "en";
+      await db
+        .prepare("UPDATE users SET preferred_locale=? WHERE id=?")
+        .bind(nextLocale, ctx.userId)
+        .run();
+      const replay = await domain.prepareDispatch(
+        ctx,
+        input,
+        "localized_message",
+      );
+      expect(replay).toMatchObject({
+        id: prepared.id,
+        html: prepared.html,
+        text: prepared.text,
+        fingerprint: prepared.fingerprint,
+      });
+      await domain.approveDispatch(ctx, prepared.id, prepared.fingerprint, {
+        recipientRequested: true,
+      });
+      await domain.confirmDispatch(ctx, prepared.id, "localized_confirmation");
+      const recipientPage = await handleProtectedDocumentRoute(
+        new Request(link, { headers: { "Accept-Language": nextLocale } }),
+        env,
+        stamp(),
+      );
+      expect(recipientPage!.status).toBe(200);
+      expect(recipientPage!.headers.get("Content-Language")).toBe(locale);
+      const fetcher = vi
+        .fn<Fetcher>()
+        .mockResolvedValue(Response.json({ id: crypto.randomUUID() }));
+      await domain.processDispatch(
+        prepared.id,
+        createLiveProviderHook(env, "email", { fetcher, now: () => clock }),
+      );
+      expect(fetcher).toHaveBeenCalledTimes(1);
+      expect(JSON.parse(String(fetcher.mock.calls[0][1]?.body))).toMatchObject({
+        subject: prepared.subject,
+        html: prepared.html,
+        text: prepared.text,
+      });
+      const later = await domain.prepareDispatch(
+        ctx,
+        input,
+        "new_language_message",
+      );
+      expect(later.fingerprint).not.toBe(prepared.fingerprint);
+      expect(later.html).toContain(`?lang=${nextLocale}`);
+      expect(later.html).toContain(
+        nextLocale === "en"
+          ? "View the protected document"
+          : "Consulter le document protégé",
+      );
     },
   );
 

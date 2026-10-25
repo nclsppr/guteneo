@@ -64,6 +64,15 @@ components rather than another palette of almost-identical values.
 | Reading measure | `--content-measure`, `68ch`   | Long-form text                           |
 | Control height  | `--control-height`, `44px`    | Comfortable interactive targets          |
 
+V2 overrides the ordinary control radius to 7 px and uses 10 px for enclosing
+panels. Email preparation and review apply that existing panel geometry to the
+protected-link choice, delivery summary, email preview and PDF viewer frame. The PDF's actual
+paper and customer-authored content keep their original shape. Consistency means
+using the same radius for the same interface role, rather than rounding document
+content or flattening every control to a single radius. These selectors do not
+add a component, data request or eager dependency; measure the rendered flow when
+qualifying a change.
+
 Use thin separators and spacing to establish hierarchy. Reserve depth for an
 actual overlay or an explanatory spatial figure. Keep numeric comparisons aligned
 with tabular figures. Status colors always accompany a written state; missing
@@ -177,6 +186,16 @@ then supported browser languages are considered. After login, the account's
 inheriting a visitor's or another account's preference. Saving a public choice
 does not save an account preference. Preserve those boundaries when adding a
 frontend or changing its shell.
+
+Recipient-facing transactional interface copy is also localized through its
+declared resource. Protected-email instructions and their reader use
+`packages/contracts/src/delivery-messages.json`. Preparation uses the authenticated
+sender's saved locale, falling back to French, and freezes that copy and link
+language before approval. It never translates user text or changes a prepared
+message after a profile edit. See the
+[email delivery boundary](/workflows/delivery-channels/#email-preserve-the-selected-presentation).
+This exception does not translate API messages, machine identifiers or engineering
+prose.
 
 For web copy, call `msg("English source", ...values)` during render or reuse a
 common `t` entry. Register complete translations in the established locale

@@ -3,6 +3,8 @@ import {
   documentAccessPolicySql,
   documentSessionPolicySql,
 } from "../../contracts/src/document-authentication";
+import { deliveryText } from "../../contracts/src/delivery-messages";
+import { defaultLocale, normalizeLocale } from "../../contracts/src/locale";
 import {
   workspacePermissions,
   type WorkspaceRole,
@@ -1038,9 +1040,31 @@ export class DomainService {
       );
       options.protectedDocument = protection;
       options.protectedDays = protection.durationDays;
-      const safeUrl = url.replace(/&/g, "&amp;").replace(/"/g, "&quot;");
-      html += `<p><a href="${safeUrl}">View the protected document</a></p><p>Ask the sender for the password through another channel. This link expires on ${protection.expiresAt.slice(0, 10)}.</p>`;
-      text += `\n\nView the protected document : ${url}\nAsk the sender for the password through another channel. This link expires on ${protection.expiresAt.slice(0, 10)}.`;
+      const account = await this.db
+        .prepare(
+          "SELECT u.preferred_locale FROM users u JOIN memberships m ON m.user_id=u.id WHERE m.organization_id=? AND u.id=?",
+        )
+        .bind(ctx.organizationId, ctx.userId)
+        .first<{ preferred_locale: string | null }>();
+      const locale =
+        normalizeLocale(account?.preferred_locale) ?? defaultLocale;
+      const recipientUrl = new URL(url);
+      recipientUrl.searchParams.set("lang", locale);
+      const safeUrl = recipientUrl.href
+        .replace(/&/g, "&amp;")
+        .replace(/"/g, "&quot;");
+      const linkLabel = deliveryText("View the protected document", locale);
+      const expiry = new Intl.DateTimeFormat(locale, {
+        dateStyle: "long",
+        timeZone: "UTC",
+      }).format(new Date(protection.expiresAt));
+      const instructions = deliveryText(
+        "Ask the sender for the password through another channel. This link expires on {0}.",
+        locale,
+      ).replace("{0}", expiry);
+      // Freeze the localized footer with the user-authored body before approval.
+      html += `<p><a href="${safeUrl}">${linkLabel}</a></p><p>${instructions}</p>`;
+      text += `\n\n${linkLabel}: ${recipientUrl.href}\n${instructions}`;
     }
     const selectedSenderId = input.senderId ?? defaultEmailSenderId;
     const sender = selectedSenderId

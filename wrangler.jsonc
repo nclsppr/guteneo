@@ -19,6 +19,7 @@
       "/auth/*",
       "/webhooks/*",
       "/media/*",
+      "/share/*",
     ],
   },
   "vars": {

@@ -1,6 +1,6 @@
 ---
 title: "Workspace layout and browser appearance"
-description: "21 capabilities in the operate branch of Guteneo."
+description: "22 capabilities in the operate branch of Guteneo."
 sidebar:
   order: 18
 ---
@@ -39,4 +39,5 @@ Classic/V2 account layout authority is unchanged. The initial 25 October theme i
 <li id="feature-a3ed99ce1fef">Desktop Safari select height and protected-link hint spacing; visible keyboard focus, selection and forced-colors states remain readable in both palettes</li>
 <li id="feature-3c9dc64b011d">Public and personal headers and Belvédère page actions share one localized light/dark action icon at every viewport, defaulting to the operating system; authenticated personal Classic/V2 shells fill the available width with responsive gutters, while personal V2 follows workshop geometry without changing personal navigation, identity, document access or logout. Browser theme is independent of saved Classic/V2 layout, account language and role; document/PDF/email content retains original light-paper appearance and bytes</li>
 <li id="feature-00b001b58242">Template-designer controls adopt the resolved shared palette in place while original template content, output geometry, bindings and PDF bytes retain their document contract</li>
+<li id="feature-dc506efb74ab">V2 protected-email choice, review summary, email preview and PDF viewer frame share the existing 10 px panel corners; 7 px controls and original square PDF paper retain their distinct roles without extra API reads</li>
 </ol>
