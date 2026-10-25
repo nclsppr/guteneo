@@ -171,7 +171,15 @@ test("one appearance icon follows the system and preserves filters without busin
   await ready(page);
   await navigate(page, "Ateliers");
   const search = page.getByLabel("Rechercher un atelier");
+  const searchResponse = page.waitForResponse((response) => {
+    const url = new URL(response.url());
+    return (
+      url.pathname === `${fixtureBase}/api/workshops` &&
+      url.searchParams.get("q") === "Rives"
+    );
+  });
   await search.fill("Rives");
+  expect((await searchResponse).status()).toBe(200);
   await expect(
     page.getByRole("button", { name: "Atelier des Rives", exact: true }),
   ).toBeVisible();
