@@ -87,6 +87,15 @@ browser-test framework's engine. Keep sandbox/dependency setup intact. A downloa
 failure before assertions is setup failure, not product qualification and not a
 reason to silently omit the suite.
 
+Every job that installs Ubuntu packages, including engineering, first runs
+`scripts/ci/ubuntu-mirrors.mjs`. It only lowers the Azure mirror's priority in the
+runner's recognized mirror list; the official HTTPS archives, signed packages,
+suites and Azure fallback remain available. An unexpected mirror configuration
+stops setup rather than silently rewriting repositories. On 25 October the
+engineering job's missing setup left package downloads on Azure for more than
+twelve minutes before any browser assertion. The corrected workflow needs fresh
+exact-source results; neither that delay nor a cancelled run qualifies the site.
+
 The sparse checkout omits immutable historical film archives and screenshots,
 while retaining current source, tests, narration and assets needed to reproduce
 checks. Cache entries accelerate installation; lockfiles and fresh installation
