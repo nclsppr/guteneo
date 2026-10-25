@@ -666,7 +666,9 @@ export function Documents({ canPrepare = true }: { canPrepare?: boolean }) {
               )}
             </div>
           </div>
-          {selected.status === "ready" && <PdfPreview id={selected.id} />}
+          {selected.status === "ready" && (
+            <PdfPreview id={selected.id} stableViewport />
+          )}
           <dl className="document-metadata">
             <Definition label={t.documents.pages}>
               {selected.status === "ready"

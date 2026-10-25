@@ -288,10 +288,10 @@ test("generates an inspectable PDF, approves the frozen email and tracks its sim
   await page.getByRole("radio", { name: "E-mail", exact: true }).check();
   await page.getByLabel("Adresse e-mail").fill("e2e@example.invalid");
   await page
-    .getByLabel("Objet", { exact: true })
+    .getByLabel("Objet (facultatif)", { exact: true })
     .fill("Correspondance de contrôle");
   await page
-    .getByLabel("Message", { exact: true })
+    .getByLabel("Message (facultatif)", { exact: true })
     .fill("Bonjour. Voici le document joint.");
   await page.getByRole("button", { name: "Vérifier et préparer" }).click();
   await expect(

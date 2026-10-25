@@ -26,7 +26,7 @@ The 25 October public hierarchy, four detail routes, shared footer, four-languag
 <li id="feature-2fb09b49584a">Separate saved personal preference and anonymous visitor choice</li>
 <li id="feature-12f40fd1b2eb">Twelve localised films, posters, captions and actual durations</li>
 <li id="feature-cb0b3433aa5c">Every registered main-site public route has generic and French/English/German/Luxembourgish initial HTML, canonical metadata, language alternatives and sitemap entries from one route registry; internal/private paths stay excluded</li>
-<li id="feature-f582030ca078">Fictional public preview isolated from the backend</li>
+<li id="feature-1c67c1f61e59">Fictional public preview isolated from the backend; tab-only email accepts omitted custom HTML, formats plain text locally and uses the shared template/French fallback for fictional PDF message defaults; custom HTML requires supplied plaintext, without real links, hosting, provider calls or production-sanitizer qualification</li>
 <li id="feature-c5475b39f98a">Multilingual social cards and reader sharing controls</li>
 <li id="feature-7d0f587da524">Public error documents retain real HTTP status with 17 dedicated four-language messages and 4xx/5xx fallback; only eligible public failures, no status-selector/demo endpoint</li>
 <li id="feature-628ef6d7e8a1">The homepage restores the existing four-language Ideas travel closing invitation, first-dispatch installation link and large stamp/postmark above its exclusive panorama with three original birds. The identical common PublicFooter remains on every public React route, including home, with its compact stamp/postmark, two original decorative swallows, fifteen links and colophon; no decoration enters the logged-in application</li>

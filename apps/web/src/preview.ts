@@ -27,6 +27,11 @@ import {
   faxNumberProblem,
   normalizeFaxNumber,
 } from "../../../packages/contracts/src/fax-number";
+import {
+  documentEmailDefaults,
+  renderTransactionalEmail,
+  transactionalEmailText,
+} from "../../../packages/contracts/src/email-template";
 
 // This isolated design model has no transport or storage. It is never the
 // authenticated API, the domain simulator, or evidence of provider delivery.
@@ -61,6 +66,10 @@ type Workspace = {
   keys: Map<string, { input: string; result: unknown }>;
 };
 const channels: Channel[] = ["email", "fax", "postal"];
+const workspaceName = (organization: string) =>
+  organization === "atelier"
+    ? "Gutenberg workshop · Demo"
+    : "Paper Studio · Demo";
 const now = () => new Date().toISOString();
 const copy = <T>(value: T): T => structuredClone(value);
 const page = <T>(items: T[]) => ({ items, nextCursor: null });
@@ -450,10 +459,7 @@ export function createPreviewApi() {
       return {
         organization: {
           id: `preview_${organization}`,
-          name:
-            organization === "atelier"
-              ? "Gutenberg workshop · Demo"
-              : "Paper Studio · Demo",
+          name: workspaceName(organization!),
         },
         user: {
           id: `preview_user_${organization}`,
@@ -766,17 +772,49 @@ export function createPreviewApi() {
         );
       if (channel !== "email" && !documentId)
         fail("DOCUMENT_REQUIRED", "Choose one of the fictional PDFs.");
-      if (channel === "email" && (!body.subject || !body.html || !body.text))
-        fail(
-          "EMAIL_REQUIRED",
-          "Complete the subject, HTML content and text version.",
-        );
       if (
         [body.html, body.text].some(
           (value) => typeof value === "string" && value.length > 128 * 1024,
         )
       )
         fail("CONTENT_TOO_LARGE", "Content exceeds the preview limit.");
+      let emailSubject: string | undefined;
+      let emailHtml: string | undefined;
+      let emailText: string | undefined;
+      if (channel === "email") {
+        // Match the draft contract without a server or the production sanitizer.
+        // This fictional account has no saved language, so email defaults use French.
+        const name = workspaceName(organization!);
+        const defaults = documentId
+          ? documentEmailDefaults(name, "attachment", "fr")
+          : undefined;
+        emailSubject =
+          (typeof body.subject === "string" && body.subject.trim()) ||
+          defaults?.subject;
+        const customHtml = typeof body.html === "string" ? body.html : "";
+        // Custom HTML remains a visual example; this model does not run the
+        // production HTML-to-text sanitizer, so its text alternative is required.
+        emailText =
+          (typeof body.text === "string" && body.text.trim()) ||
+          (customHtml.trim() ? undefined : defaults?.text);
+        if (!emailSubject || !emailText)
+          return fail("EMAIL_REQUIRED", "Complete the subject and message.");
+        emailHtml = customHtml.trim()
+          ? customHtml
+          : documentId
+            ? renderTransactionalEmail({
+                text: emailText,
+                workspaceName: name,
+                locale: "fr",
+              })
+            : `<p>${emailText.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll("\n", "<br>")}</p>`;
+        if (documentId && !customHtml.trim())
+          emailText = transactionalEmailText({
+            text: emailText,
+            workspaceName: name,
+            locale: "fr",
+          });
+      }
       const campaignId = body.campaignId ? String(body.campaignId) : undefined;
       if (
         campaignId &&
@@ -800,9 +838,9 @@ export function createPreviewApi() {
         recipient_json: target,
         document_id: documentId,
         campaign_id: campaignId,
-        subject: channel === "email" ? String(body.subject) : undefined,
-        html: channel === "email" ? String(body.html) : undefined,
-        text: channel === "email" ? String(body.text) : undefined,
+        subject: emailSubject,
+        html: emailHtml,
+        text: emailText,
         sender_address:
           channel === "email"
             ? `${organization}@example.invalid`

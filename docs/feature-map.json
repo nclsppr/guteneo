@@ -1,6 +1,6 @@
 {
   "title": "Guteneo feature tree and developer atlas",
-  "updated": "2026-10-25",
+  "updated": "2026-10-26",
   "scope": "Repository implementation inventory. Availability depends on current capabilities and authority; implementation, activation and deployed proof are distinct.",
   "roleNote": "Four human workshop roles are defined by packages/contracts/src/roles.ts. The assistant column describes a connected OAuth actor, never a fifth membership role. Effective membership, independent supervisor permissions, consented scopes and any bounded expert mandate are rechecked by the server. Installing a package or renewing tokens grants no additional authority. Browser-only account/platform controls remain distinct. Assistant content-exclusion instructions are workflow restrictions, not automatic classification or new server guards. Personal account authority is separate from workspace membership. Template/default email copy and link placeholders grant no approval or recipient consent. Sensitive approval and recipient association always require the browser under the active document policy; an expert mandate cannot replace them.",
   "groups": [
@@ -715,7 +715,7 @@
         "Separate saved personal preference and anonymous visitor choice",
         "Twelve localised films, posters, captions and actual durations",
         "Every registered main-site public route has generic and French/English/German/Luxembourgish initial HTML, canonical metadata, language alternatives and sitemap entries from one route registry; internal/private paths stay excluded",
-        "Fictional public preview isolated from the backend",
+        "Fictional public preview isolated from the backend; tab-only email accepts omitted custom HTML, formats plain text locally and uses the shared template/French fallback for fictional PDF message defaults; custom HTML requires supplied plaintext, without real links, hosting, provider calls or production-sanitizer qualification",
         "Multilingual social cards and reader sharing controls",
         "Public error documents retain real HTTP status with 17 dedicated four-language messages and 4xx/5xx fallback; only eligible public failures, no status-selector/demo endpoint",
         "The homepage restores the existing four-language Ideas travel closing invitation, first-dispatch installation link and large stamp/postmark above its exclusive panorama with three original birds. The identical common PublicFooter remains on every public React route, including home, with its compact stamp/postmark, two original decorative swallows, fifteen links and colophon; no decoration enters the logged-in application",
@@ -739,7 +739,10 @@
         "tests/preview-e2e/seo.spec.ts",
         "tests/preview-e2e/theme.spec.ts",
         "tests/unit/standalone-theme.test.ts",
-        "tests/preview-e2e/public-artwork.spec.ts"
+        "tests/preview-e2e/public-artwork.spec.ts",
+        "tests/unit/public-preview.test.ts",
+        "tests/preview-e2e/preview.spec.ts",
+        "tests/preview-e2e/mobile-workspace.spec.ts"
       ],
       "surfaces": "Public browser/static documents and four-language frontend/video catalogues; preview has no business bindings.",
       "id": "public",
@@ -760,7 +763,7 @@
         "Strict browser account PATCH with current authority, Origin/CSRF and field-name audit; every role changes only its own preference",
         "Temporary appearance=v2/classic override accepts legacy atelier URLs, never persists server-side and clears after explicit appearance save or identity change; local cache is non-authoritative",
         "Existing activity/alerts precede introduction, otherwise a complete welcome; content preview precedes approval in reading/tab order",
-        "Stable PDF review frame across loading/render/error, keyboard-accessible internal scrolling and unchanged consent/data authority",
+        "Stable PDF frame above dispatch-review and document-page verification-purchase consent across lazy module loading/render/error, keyboard-accessible internal scrolling and unchanged consent/data authority",
         "Consistent documents, preparation, review, tracking, assistants, account, studio, PDF verification, credits, tables and forms; Belvédère shares the V2 visual vocabulary while retaining distinct platform authority and read-only data",
         "One brand signature, workshop in navigation and no redundant V2 footer; service status near account and browser timezone near dates",
         "One page title, contextual detail back link and task-specific primary action; global New dispatch stays secondary and permission-aware",
@@ -790,7 +793,8 @@
         "tests/preview-e2e/theme.spec.ts",
         "tests/e2e/personal-appearance.spec.ts",
         "tests/e2e/personal-document-performance.spec.ts",
-        "tests/belvedere-e2e/control-tower.spec.ts"
+        "tests/belvedere-e2e/control-tower.spec.ts",
+        "tests/e2e/pdf-validation.spec.ts"
       ],
       "surfaces": "Authenticated web Classic/V2; native reads preference without a setter; no new business API/MCP authority.",
       "id": "dashboard",
@@ -805,7 +809,7 @@
       "source": "apps/api/src/pdf-validation.ts",
       "features": [
         "Individual exact-PDF/profile purchase from available account credits; current integer EUR price and excluding-tax terms come from the authenticated pricing endpoint",
-        "Current browser administrator alone accepts the immutable purchase; assistants, native callers and other members cannot create financial consent",
+        "Current browser administrator alone accepts the immutable purchase; assistants, native callers and other members cannot create financial consent; the document preview reserves its frame through loading/rendering so price consent remains stationary, with no purchase from viewing or scrolling",
         "Atomic reservation and one settled charge for a complete valid report; engine failure releases the reservation without a settled debit",
         "New subscriptions and automatic recurring renewals are retired; immutable legacy actions and charges are retained, and posted charge history remains visible under current reporting authority",
         "Pinned private veraPDF for PDF/UA-1/-2 and PDF/A-1b/2b/3b/4, with official positive/negative corpus, signal-aware bounded cleanup and separate offline/hosted graceful-stop qualification",

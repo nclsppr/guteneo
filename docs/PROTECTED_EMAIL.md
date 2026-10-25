@@ -153,6 +153,40 @@ also rendered at 390 and 760 px in all four languages without overflow or networ
 requests. No actual Gmail/Outlook delivery or rendering is established by these
 checks.
 
+## CI recovery follow-up — 26 October 2026
+
+GitHub run `40242114407` on candidate `8e7058a` did not pass the full browser
+matrix. Desktop shard 3 (`121316222261`) reported `EMAIL_REQUIRED` in the
+fictional preview's email preparation/review/simulation scenario. Desktop shard 1
+(`121316222214`) and mobile shard 1 (`121316222216`) failed the PDF-generation,
+frozen-email approval and simulated-delivery journey at its subject/message
+controls. The recovery aligns the fictional fixture with optional custom HTML
+and document-message defaults, and selects the localized optional labels when a
+PDF is present. Custom preview HTML still requires an explicit plain-text
+alternative; that model does not run the production sanitizer.
+
+The iPhone shard 2 job (`121316222226`) also failed the PDF verification
+uncertain-response scenario. Its trace showed no POST from the first click while
+the PDF became visible. A deterministic regression then reproduced 24.2 px of
+consent-control movement between the lazy-module fallback and mounted viewer,
+before PDF bytes arrived. The document page now uses the existing stable PDF
+viewport, as dispatch review already does. Nine targeted iPhone cases passed
+after that correction across three repetitions, covering Classic/V2 held-pointer
+stability and the existing network/idempotency scenario. These local checks do
+not establish a successful full CI matrix, physical-iPhone behavior or a real
+purchase. The earlier focused 78-case email run also does not replace the failed
+full CI matrix. No successful CI recovery, merge or publication is claimed by
+this entry.
+
+The completed local recovery checks pass 63/63 PDF-verification cases across
+desktop Chromium, mobile Chromium and iPhone WebKit, plus 3/3 PDF-generation,
+frozen-email approval and simulated-delivery journeys. The two affected preview
+specifications pass 13 cases with five intentional desktop skips and no failures;
+12 preview unit cases pass with no fetch calls. The guarded preview build,
+typecheck, changed-file lint, documentation checks and final engineering build
+also pass. These results qualify local synthetic recovery only; a fresh complete
+CI run on the final revision and served-release verification remain separate.
+
 ## Cost and duration
 
 Hosting costs 100 euro cents per document and hosting period. Existing active

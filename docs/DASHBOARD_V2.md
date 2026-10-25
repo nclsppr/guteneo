@@ -273,8 +273,8 @@ qualification.
 On mobile, Classic/V2 review presents PDF before consent. Its preview frame
 retains fixed height while the module loads, pages render or an error displays.
 The document scrolls inside it, including keyboard scrolling. PDF controls
-and download remain available. Only dispatch review uses this frame; other
-previews retain their layout.
+and download remain available. Dispatch review and the document page above paid
+PDF-verification consent use this frame. Other previews retain their layout.
 
 This prevents a PDF loading midgesture from moving the targeted checkbox.
 The issue was reproduced with a local document response held between pointer
