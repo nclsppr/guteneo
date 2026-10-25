@@ -274,7 +274,6 @@ function PersonalDocumentList({
     <div className="secure-document-layout">
       <PageHeading
         title={msg("My documents")}
-        intro={msg("One account for your documents and Guteneo services.")}
         action={<RefreshButton onClick={() => setVersion((n) => n + 1)} />}
       />
       <nav

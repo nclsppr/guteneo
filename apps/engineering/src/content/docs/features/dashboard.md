@@ -9,7 +9,7 @@ sidebar:
 
 **Access boundary:** Authenticated browser session.
 
-Classic/V2 account layout authority is unchanged. The 25 October theme integration and removal of decorative panels are local presentation candidates; no new business authority or publication is implied.
+Classic/V2 account layout authority is unchanged. The initial 25 October theme integration and removal of decorative panels were published from main 03daa4136de8999cc79018f33f2a22038917c621. The personal-header icon/frame follow-up requires its own exact-source release proof and grants no new business authority.
 
 **Surfaces:** Authenticated web Classic/V2; native reads preference without a setter; no new business API/MCP authority.
 
@@ -36,6 +36,6 @@ Classic/V2 account layout authority is unchanged. The 25 October theme integrati
 <li id="feature-3592a7c6fc50">Compact My documents navigation link with personal-space context, without an oversized separate card or repeated role panel</li>
 <li id="feature-95ab56d401ce">Shared native file input with four-language authored chooser/empty text and literal filenames, keyboard validation and exact-byte upload semantics</li>
 <li id="feature-a3ed99ce1fef">Desktop Safari select height and protected-link hint spacing; visible keyboard focus, selection and forced-colors states remain readable in both palettes</li>
-<li id="feature-461a77a6035a">Immediate browser system/light/dark preference is independent of saved Classic/V2 layout, account language and role; document/PDF/email content retains original light-paper appearance and bytes</li>
+<li id="feature-fea8bf8bcfb5">Public and personal headers share one localized light/dark action icon at every viewport, defaulting to the operating system; personal header/main/footer use the same 1440 px frame and responsive gutters without changing personal navigation, identity, document access or logout. Browser theme is independent of saved Classic/V2 layout, account language and role; document/PDF/email content retains original light-paper appearance and bytes</li>
 <li id="feature-00b001b58242">Template-designer controls adopt the resolved shared palette in place while original template content, output geometry, bindings and PDF bytes retain their document contract</li>
 </ol>

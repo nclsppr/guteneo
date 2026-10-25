@@ -228,41 +228,53 @@
   border: 1px solid var(--line);
 }
 .personal-space {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 1440px;
   min-height: 100vh;
+  margin-inline: auto;
+  padding-inline: clamp(22px, 5.7vw, 82px);
 }
 .personal-space-header {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  gap: 20px;
-  padding: 24px max(24px, calc((100vw - 1280px) / 2));
+  justify-content: space-between;
+  flex-wrap: wrap;
+  min-height: 98px;
+  height: auto;
+  gap: clamp(16px, 2vw, 28px);
+  padding-block: 14px;
   border-bottom: 1px solid var(--line);
-  background: var(--surface);
 }
 .personal-space-header > nav {
   display: flex;
-  gap: 24px;
   align-items: center;
-  margin-left: auto;
+  gap: clamp(16px, 2vw, 28px);
+  margin-inline-start: auto;
   flex-wrap: wrap;
+  font-size: 13px;
 }
 .personal-space-header nav a {
-  padding: 10px 0;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
   text-decoration: none;
 }
 .personal-space-header nav a[aria-current="page"] {
-  box-shadow: 0 2px var(--ink);
-  font-weight: 600;
+  color: var(--blue-hover);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 6px;
 }
 .personal-space-main {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 40px 24px 64px;
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  padding-block: 24px 64px;
 }
 .personal-space-footer {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 0 24px 32px;
+  padding-block: 0 32px;
 }
 .personal-space-login > .legal-links {
   margin-top: 32px;
@@ -273,10 +285,9 @@
   align-items: center;
   gap: 16px;
   flex-wrap: wrap;
-  padding-bottom: 20px;
-  margin-bottom: 32px;
-  border-bottom: 1px solid var(--line);
-  font-size: 14px;
+  margin-bottom: 28px;
+  color: var(--muted);
+  font-size: 13px;
 }
 .personal-space-account p {
   margin-bottom: 0;
@@ -314,17 +325,26 @@
     margin-bottom: 0;
   }
 }
-@media (max-width: 767px) {
-  .personal-space-header,
-  .personal-space-main {
-    padding-left: 16px;
-    padding-right: 16px;
+@media (max-width: 900px) {
+  .personal-space-header {
+    gap: 8px 20px;
   }
   .personal-space-header > nav {
-    width: 100%;
-    margin-left: 0;
-    gap: 20px;
-    justify-content: space-between;
+    order: 3;
+    flex-basis: 100%;
+    margin-inline-start: 0;
+    gap: 4px 24px;
+  }
+  .personal-space-header > .theme-toggle {
+    margin-inline-start: auto;
+  }
+}
+@media (max-width: 767px) {
+  .personal-space {
+    padding-inline: 22px;
+  }
+  .personal-space-header > nav {
+    gap: 4px 20px;
   }
   .secure-document-panel,
   .secure-document-pages {
@@ -341,5 +361,18 @@
   .personal-space-login {
     margin: 24px 16px;
     padding: 24px;
+  }
+}
+@media (max-width: 520px) {
+  .personal-space-header .brand {
+    --brand-mark-size: 40px;
+    font-size: 30px;
+  }
+  .personal-space-main {
+    padding-block-end: 48px;
+  }
+  .personal-space-account {
+    gap: 8px 16px;
+    margin-bottom: 24px;
   }
 }

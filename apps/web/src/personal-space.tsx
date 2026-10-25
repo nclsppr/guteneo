@@ -26,7 +26,7 @@ import {
 } from "./components";
 import { LanguageSelect } from "./language-select";
 import { LegalLinks } from "./legal-links";
-import { ThemeSelect } from "./theme-select";
+import { ThemeToggle } from "./theme-toggle";
 import {
   applyAccountLocale,
   getLocale,
@@ -337,7 +337,7 @@ export function PersonalSpace({
             {msg("Account and security")}
           </a>
         </nav>
-        <ThemeSelect compact />
+        <ThemeToggle />
       </header>
       <main
         id="main-content"
@@ -346,11 +346,7 @@ export function PersonalSpace({
         key={session.user.id}
       >
         <div className="personal-space-account">
-          <p>
-            {msg("Signed in as {0}", session.user.email)}
-            <br />
-            <small>{msg("Personal space")}</small>
-          </p>
+          <p>{msg("Signed in as {0}", session.user.email)}</p>
           <button
             type="button"
             className="button small subtle"

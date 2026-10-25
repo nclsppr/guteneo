@@ -737,7 +737,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 <a id="public"></a>
 ### Public pages, languages and appearance
 
-**Availability model:** public. The 25 October public hierarchy, four detail routes, shared footer, four-language static generation and appearance are local candidates. Dated preview evidence, exact-source CI, publication, indexing and provider/financial qualification remain separate.
+**Availability model:** public. The 25 October public hierarchy, four detail routes, shared footer, four-language static generation and appearance were published from main 03daa4136de8999cc79018f33f2a22038917c621. Canonical served assets and four-language public layout/link checks passed. The separate preview retains an isolated provider asset-delivery failure; indexing, provider and real financial qualification remain separate.
 
 **Surfaces:** Public browser/static documents and four-language frontend/video catalogues; preview has no business bindings.
 
@@ -768,7 +768,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 <a id="dashboard"></a>
 ### Workspace layout and browser appearance
 
-**Availability model:** browser-session. Classic/V2 account layout authority is unchanged. The 25 October theme integration and removal of decorative panels are local presentation candidates; no new business authority or publication is implied.
+**Availability model:** browser-session. Classic/V2 account layout authority is unchanged. The initial 25 October theme integration and removal of decorative panels were published from main 03daa4136de8999cc79018f33f2a22038917c621. The personal-header icon/frame follow-up requires its own exact-source release proof and grants no new business authority.
 
 **Surfaces:** Authenticated web Classic/V2; native reads preference without a setter; no new business API/MCP authority.
 
@@ -790,7 +790,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Compact My documents navigation link with personal-space context, without an oversized separate card or repeated role panel
 - Shared native file input with four-language authored chooser/empty text and literal filenames, keyboard validation and exact-byte upload semantics
 - Desktop Safari select height and protected-link hint spacing; visible keyboard focus, selection and forced-colors states remain readable in both palettes
-- Immediate browser system/light/dark preference is independent of saved Classic/V2 layout, account language and role; document/PDF/email content retains original light-paper appearance and bytes
+- Public and personal headers share one localized light/dark action icon at every viewport, defaulting to the operating system; personal header/main/footer use the same 1440 px frame and responsive gutters without changing personal navigation, identity, document access or logout. Browser theme is independent of saved Classic/V2 layout, account language and role; document/PDF/email content retains original light-paper appearance and bytes
 - Template-designer controls adopt the resolved shared palette in place while original template content, output geometry, bindings and PDF bytes retain their document contract
 
 **Contract:** [DASHBOARD_V2.md](DASHBOARD_V2.md) · **Implementation:** [apps/web/src/account-page.tsx](../apps/web/src/account-page.tsx)
@@ -1260,7 +1260,7 @@ Open the engineering site → find a feature in the generated tree → read its 
 
 **Actor:** Anonymous or signed-in browser reader; no role or additional authority required. **Branch:** Interfaces.
 
-Start with the operating-system palette unless a valid local choice exists → use the public header’s localized light/dark action icon at any viewport, even before React is ready, or a three-way selector where that surface exposes one → apply the resolved palette in place → retain the local origin preference when storage is available → follow system or same-origin storage changes. Main-site standalone HTML uses only the host-only enum cookie; status and engineering retain independent origin state. Native public pictures select matching dark art; header/app white paper stays inside each actual inner blue frame with transparent exterior/perforations, while document/PDF/email surfaces keep original content appearance.
+Start with the operating-system palette unless a valid local choice exists → use the shared public/personal header localized light/dark action icon at any viewport, with public activation available before React, or a three-way account setting where that surface exposes one → apply the resolved palette in place → retain the local origin preference when storage is available → follow system or same-origin storage changes. Main-site standalone HTML uses only the host-only enum cookie; status and engineering retain independent origin state. Native public pictures select matching dark art; header/app white paper stays inside each actual inner blue frame with transparent exterior/perforations, while document/PDF/email surfaces keep original content appearance.
 
 **Failure/recovery:** Blocked persistence still permits an in-page choice. Invalid or duplicate cookies fall back to system without interpolation or account lookup. Script-free CSS follows system; language, Classic/V2 layout, identity, drafts, approval and provider gates remain independent. Local browser-engine evidence establishes no physical-device Safari or deployed-host pass.
 
