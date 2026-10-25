@@ -246,7 +246,10 @@ test("explicit sign-out returns to the public site without reopening SSO and kee
   ).toHaveCount(2);
   expect(hosted.authRequests).toEqual([]);
 
-  await page.goto(`${origin}/#/app/connection/chatgpt`);
+  // The simulated Auth0 handoff returns 204 and deliberately opens no document.
+  await page.goto(`${origin}/#/app/connection/chatgpt`, {
+    waitUntil: "commit",
+  });
   await expect.poll(() => hosted.authRequests.length).toBe(1);
   const handoff = new URL(hosted.authRequests[0]);
   expect(handoff.pathname).toBe("/auth/login");
