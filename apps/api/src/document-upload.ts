@@ -157,7 +157,7 @@ export class PrivateDocumentUploadService {
         AND uc.status='active' AND uc.not_before<=? AND uo.authorization_revision=?
         AND um.role=? AND um.role IN ('admin','supervisor','member') AND um.supervisor_can_approve=? AND um.supervisor_can_report=?
         AND ug.mode=? AND ?=? AND ?=? AND (?='verified_email' AND ?=1 OR ?='verified_email_and_mfa' AND (um.role<>'admin' OR ?=1))
-        ${active ? "AND ?>? AND ?>?" : ""})`,
+        ${active ? "AND ?>unixepoch('now') AND ?>strftime('%Y-%m-%dT%H:%M:%fZ','now')" : ""})`,
       values: [
         row.subject,
         row.connection_id_snapshot,
@@ -179,20 +179,26 @@ export class PrivateDocumentUploadService {
         row.verified_account,
         row.authentication_policy,
         row.mfa,
-        ...(active
-          ? [
-              row.token_expires_at,
-              Math.floor(Date.now() / 1000),
-              row.expires_at,
-              iso(),
-            ]
-          : []),
+        ...(active ? [row.token_expires_at, row.expires_at] : []),
       ] as (string | number | null)[],
     };
   }
   private async assertCurrent(row: UploadRow, active = true) {
     if (row.issuer !== auth0Issuer(this.env)) throw deny();
-    verifiedMcpTokenIssuer({ verifiedTokenIssuer: row.token_issuer }, this.env);
+    try {
+      verifiedMcpTokenIssuer(
+        { verifiedTokenIssuer: row.token_issuer },
+        this.env,
+      );
+    } catch {
+      throw deny();
+    }
+    if (
+      active &&
+      (row.token_expires_at * 1000 <= Date.now() ||
+        Date.parse(row.expires_at) <= Date.now())
+    )
+      throw deny();
     const fence = this.fence(row, active);
     if (
       !(await this.env.DB.prepare(`SELECT 1 WHERE ${fence.condition}`)
@@ -617,13 +623,12 @@ export class PrivateDocumentUploadService {
         sql: () => {
           const live = this.fence(activeRow);
           return {
-            condition: `${live.condition} AND EXISTS(SELECT 1 FROM private_document_uploads ul WHERE ul.organization_id=? AND ul.id=? AND ul.state='uploading' AND ul.lease_token=? AND ul.lease_expires_at>?)`,
+            condition: `${live.condition} AND EXISTS(SELECT 1 FROM private_document_uploads ul WHERE ul.organization_id=? AND ul.id=? AND ul.state='uploading' AND ul.lease_token=? AND ul.lease_expires_at>strftime('%Y-%m-%dT%H:%M:%fZ','now'))`,
             values: [
               ...live.values,
               activeRow.organization_id,
               activeRow.id,
               lease,
-              iso(),
             ],
           };
         },

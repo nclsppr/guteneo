@@ -13,10 +13,12 @@ import { Miniflare, convertV4MiniflareOptions } from "miniflare";
 import { exportJWK, generateKeyPair, SignJWT } from "jose";
 import { PDFDocument } from "pdf-lib";
 import {
+  AuthError,
   authenticateMcp,
   hashSecret,
   type McpIdentity,
 } from "../../apps/api/src/auth";
+import * as authentication from "../../apps/api/src/auth";
 import {
   PrivateDocumentUploadService,
   PRIVATE_UPLOAD_HEADER,
@@ -207,6 +209,98 @@ async function usage() {
 }
 
 describe("private original PDF transport with real D1/R2 and document pipeline", () => {
+  it("rejects a prepared final SQL fence executed after the actual token/capability deadline", async () => {
+    const expiry = Math.floor(Date.now() / 1000) + 5;
+    const token = await new SignJWT({
+      sub: `auth0|${identity.context.userId}`,
+      client_id: identity.clientId,
+      scope: identity.scopes.join(" "),
+      amr: ["pwd"],
+      "https://guteneo.com/verified_account": true,
+    })
+      .setProtectedHeader({ alg: "RS256", kid: jwk.kid })
+      .setIssuer(issuer)
+      .setAudience(env.AUTH0_AUDIENCE!)
+      .setIssuedAt()
+      .setExpirationTime(expiry)
+      .sign(keys.privateKey);
+    identity = await authenticateMcp(
+      new Request(`${env.APP_ORIGIN}/mcp`, {
+        headers: { Authorization: `Bearer ${token}` },
+      }),
+      env,
+    );
+    const reservation = await begin();
+    let early: unknown = "not executed",
+      late: unknown = "not executed";
+    vi.spyOn(documents, "upload").mockImplementation(
+      async (_context, _input, _source, registration) => {
+        const fence = registration!.authority.sql();
+        const prepared = db
+          .prepare(`SELECT 1 allowed WHERE ${fence.condition}`)
+          .bind(...fence.values);
+        early = await prepared.first();
+        await new Promise((resolve) =>
+          setTimeout(resolve, Math.max(0, expiry * 1000 - Date.now() + 150)),
+        );
+        late = await prepared.first();
+        throw Error("synthetic prepared SQL executed after expiry");
+      },
+    );
+    expect((await service.receive(put(reservation))).status).toBe(409);
+    expect(early).toEqual({ allowed: 1 });
+    expect(late).toBeNull();
+    expect(await usage()).toBeNull();
+  });
+  it("checks a lease against the database clock even when its SQL was prepared before expiry", async () => {
+    const reservation = await begin();
+    let early: unknown = "not executed",
+      late: unknown = "not executed";
+    vi.spyOn(documents, "upload").mockImplementation(
+      async (_context, _input, _source, registration) => {
+        const deadline = await db
+          .prepare(
+            "UPDATE private_document_uploads SET lease_expires_at=strftime('%Y-%m-%dT%H:%M:%fZ','now','+2 seconds') WHERE organization_id=? AND id=? RETURNING lease_expires_at",
+          )
+          .bind(identity.context.organizationId, reservation.uploadId)
+          .first<{ lease_expires_at: string }>();
+        const fence = registration!.authority.sql();
+        const prepared = db
+          .prepare(`SELECT 1 allowed WHERE ${fence.condition}`)
+          .bind(...fence.values);
+        early = await prepared.first();
+        await new Promise((resolve) =>
+          setTimeout(
+            resolve,
+            Math.max(
+              0,
+              Date.parse(deadline!.lease_expires_at) - Date.now() + 150,
+            ),
+          ),
+        );
+        late = await prepared.first();
+        throw Error("synthetic delayed lease fence");
+      },
+    );
+    expect((await service.receive(put(reservation))).status).toBe(409);
+    expect(early).toEqual({ allowed: 1 });
+    expect(late).toBeNull();
+    expect(await usage()).toBeNull();
+  });
+  it("reports withdrawn token-issuer trust as an upload-only authority refusal", async () => {
+    const reservation = await begin();
+    vi.spyOn(authentication, "verifiedMcpTokenIssuer").mockImplementation(
+      () => {
+        throw new AuthError("TOKEN_INVALID", "Expired or invalid token.");
+      },
+    );
+    const response = await service.receive(put(reservation));
+    expect(response.status).toBe(403);
+    expect(await response.json()).toMatchObject({
+      error: { code: "UPLOAD_AUTHORITY_CHANGED" },
+    });
+    expect(await usage()).toBeNull();
+  });
   it("stores only a capability hash, transfers identical creator-private bytes and keeps unscanned originals quarantined", async () => {
     const reservation = await begin();
     const row = await db

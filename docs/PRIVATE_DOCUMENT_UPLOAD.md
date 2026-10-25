@@ -86,7 +86,9 @@ refused before consuming original bytes.
 
 One conditional claim consumes the capability before stream reads, quota,
 storage or scanning. The body deadline is at most30seconds, clipped to expiry;
-the finalization lease is at most90seconds, also clipped to expiry. Hash/size and
+the finalization lease is at most90seconds, also clipped to expiry. All final
+SQL authority checks compare these deadlines against D1's clock at statement
+execution; JavaScript checks only reject expired requests early. Hash/size and
 PDF magic are checked before the existing document pipeline. The claim prevents
 concurrent requests from reserving quota or scanning twice. Reservation metadata
 is separately bounded to20active and200new reservations per organization/day;

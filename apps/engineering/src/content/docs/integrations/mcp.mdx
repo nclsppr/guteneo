@@ -5,13 +5,19 @@ sidebar:
   order: 2
 ---
 
-<img
-  src="/brand/guteneo-portrait-128.webp"
-  alt="Guteneo"
-  width="64"
-  height="64"
-  decoding="async"
-/>
+import StampPaper from "../../../components/StampPaper.astro";
+
+<span role="img" aria-label="Guteneo">
+  <StampPaper inset="5%">
+    <img
+      src="/brand/guteneo-portrait-128.webp"
+      alt=""
+      width="64"
+      height="64"
+      decoding="async"
+    />
+  </StampPaper>
+</span>
 
 The remote MCP endpoint is `https://guteneo.com/mcp`, using Streamable HTTP and
 resource OAuth discovery. It exposes the same business services as REST. An
