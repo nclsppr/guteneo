@@ -10,9 +10,11 @@ Existing financial journals and reports remain readable historical evidence.
 See [the pricing contract](PDF_VERIFICATION_PRICING.md),
 [the purchase API](PDF_ACCESSIBILITY.md) and [the private engine](PDF_VALIDATOR.md).
 
-The user authorized delivery and activation during this task. Separately confirm
-any required paid-resource provisioning authority before creating a missing
-private container. A successful local test, declared configuration or old release
+The user authorized delivery and activation during this task, and on 25 October
+explicitly approved creation of the described single private Cloudflare service
+under its usage-based cost model. This covers provisioning and qualification of
+the bounded validator; it grants no customer purchase or communication consent.
+A successful local test, declared configuration or old release
 record establishes neither hosted qualification nor an actual account debit.
 Record the exact source, UTC observation time, deployed version and private
 redacted artifact for every completed gate. Never retain PDF contents, session

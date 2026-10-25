@@ -78,6 +78,43 @@ test("OpenAPI is valid, self-contained and never resolves a remote document", as
   );
 });
 
+test("generation results expose bounded exact-document analysis without adding scan authority", () => {
+  const result = spec.components.schemas.GenerationResult;
+  assert.equal(result.additionalProperties, false);
+  assert.ok(result.required.includes("documentAnalysis"));
+  assert.deepEqual(
+    result.properties.documentAnalysis.properties,
+    spec.components.schemas.DocumentAnalysis.properties,
+  );
+  assert.deepEqual(
+    result.properties.documentAnalysis.required,
+    spec.components.schemas.DocumentAnalysis.required,
+  );
+  assert.equal(result.properties.documentAnalysis.additionalProperties, false);
+  assert.equal(result.properties.documentAnalysis.type, "object");
+  assert.equal(result.properties.documentAnalysis.nullable, true);
+  assert.match(
+    result.properties.documentAnalysis.description,
+    /immutable hash/,
+  );
+  assert.match(result.properties.documentAnalysis.description, /bounded/);
+  assert.match(
+    result.properties.documentAnalysis.description,
+    /never starts a scan/,
+  );
+  assert.deepEqual(
+    spec.components.schemas.DocumentAnalysis.properties.state.enum,
+    ["processing", "ready", "retryable", "blocked"],
+  );
+  const read = spec.paths["/api/generation-jobs/{id}/results"].get;
+  assert.equal(read.requestBody, undefined);
+  assert.deepEqual(read.responses["200"].content["application/json"].schema, {
+    $ref: "#/components/schemas/GenerationResultPage",
+  });
+  for (const forbidden of ["organizationId", "requestUserId", "scan", "rescan"])
+    assert.ok(!(forbidden in result.properties));
+});
+
 test("documentation groups use unique English names and every operation refers to a declared group", () => {
   const englishGroups = new Set([
     "Service",

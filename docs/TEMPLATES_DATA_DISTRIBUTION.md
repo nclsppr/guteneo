@@ -32,6 +32,34 @@ and actual browser/API/PDF round trip are in `templates-images.test.ts` and
 `template-images.spec.ts`; final browser-engine and hosted evidence is recorded in
 [TEST_RESULTS.md](TEST_RESULTS.md).
 
+### Generation completion and PDF security analysis
+
+Generation completion and readable PDFs are separate states. Each result exposes
+`documentAnalysis: DocumentAnalysis | null` through the existing REST/MCP result
+view. The projection uses the current authorized document, its exact artifact
+hash and the tenant-bound analysis relation. An unrelated owner, tenant or hash
+cannot supply readiness. The shared document projection distinguishes
+`processing`, `ready`, `retryable` and `blocked`; expired processing and legacy
+quarantine without analysis do not claim that a scan is still running.
+
+The generation page follows confirmed processing every 15 seconds for at most
+two wall-clock minutes and eight followup reads per page/manual refresh, even
+after the job completes. Hidden pages pause scheduling without extending that
+deadline. Terminal, retryable, unavailable or failed reads stop automatic refresh;
+manual refresh remains available and resets the window. Reads never start or
+retry an analysis, render another PDF, reserve credit or create a dispatch.
+Selection, preview and distribution still require an accessible ready PDF.
+Refreshing the job counter does not establish that its independently loaded
+result rows are ready. Native keyboard navigation skips disabled rows and keeps
+its current focus when later data enables a checkbox; no refresh steals focus.
+
+The pure analysis projection, actual generation/read integration and controlled
+slower-result keyboard regression are covered by
+`document-analysis-projection.test.ts`, `template-workflow.test.ts` and
+`generation-analysis.spec.ts`, with keyboard ordering in
+`template-xml-multichannel.spec.ts`. No schema migration, new route or new scope
+is introduced by this additional read projection.
+
 ## AI suggestions — 23 October 2026 version 1.0.0 candidate
 
 Template edit permission, current membership/OAuth connection, revision and AI

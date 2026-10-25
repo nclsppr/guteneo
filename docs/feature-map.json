@@ -267,6 +267,7 @@
         "Single PDF from a business form",
         "PDF batch from a validated mapping",
         "Progress, per-record results and source-cell provenance",
+        "Exact authorized generated-document analysis state distinguishes processing, retryable and blocked results; bounded visible refresh follows pending scans after generation completes without changing readiness, stealing focus or retrying analysis",
         "Generation cancellation and retry of failed records only",
         "PDF selection and separate distribution-plan preparation",
         "The first plan permanently freezes the full batch, including excluded failed records; prepare_distribution declares destructiveHint true",
@@ -279,6 +280,9 @@
       "tests": [
         "tests/e2e/template-distribution.spec.ts",
         "tests/integration/template-workflow.test.ts",
+        "tests/unit/document-analysis-projection.test.ts",
+        "tests/e2e/generation-analysis.spec.ts",
+        "tests/e2e/template-xml-multichannel.spec.ts",
         "tests/unit/mcp-annotation-audit.test.ts",
         "tests/unit/mcp-integrations.test.ts"
       ],
@@ -1015,7 +1019,7 @@
       "steps": "Import CSV/XLSX/XML/JSON → verify/profile the exact original → select sheet/header/record path → define deterministic versioned mappings → validate every row → select published template → generate → inspect results and provenance.",
       "branch": "Create",
       "doc": "TEMPLATES_DATA_DISTRIBUTION.md",
-      "failure": "Resume the same original after transient analysis failure. Resolve mapping/type/join issues explicitly. AI is optional and separately consented; generation creates no dispatch or credit reservation."
+      "failure": "Resume the same original after transient analysis failure. Resolve mapping/type/join issues explicitly. Generation completion does not establish PDF readiness; follow the bounded security-analysis refresh and review retryable or blocked results explicitly. AI is optional and separately consented; generation creates no dispatch or credit reservation."
     },
     {
       "id": "J08",

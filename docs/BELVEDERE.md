@@ -8,6 +8,12 @@ The 25 October 2026 candidate adds `https://belvedere.guteneo.com/` as a dedicat
 protected entry. Source implementation and synthetic tests are separate from
 actual DNS, Auth0 configuration, deployed routing and a verified browser journey.
 
+The exact additional browser callback, root logout return and web origin were
+saved in Auth0 and reread after a full dashboard reload at
+**2026-10-25T08:29Z**, preserving their canonical counterparts. This provider
+configuration is verified separately from application publication, DNS/certificate
+activation and the authenticated journey on the new host.
+
 Since the 10 October contract, language follows saved account preference:
 French, English, German or Luxembourgish. Belvédère adds no selector. Direct
 entry receives the validated preference in private HTML after the normal

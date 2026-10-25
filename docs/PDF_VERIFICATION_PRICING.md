@@ -47,8 +47,9 @@ The configured private validator candidate is bounded to one `standard-1` contai
 0.5 vCPU, 4 GiB memory and 8 GB disk. The Worker deadline is 45 seconds and configured idle
 sleep is five seconds. These are source limits, not a universal measured billed
 duration. A read-only Cloudflare inspection on 25 October found that the private
-validator Worker did not exist; paid runtime provisioning needs explicit
-authorization before hosted qualification and activation.
+validator Worker did not exist. The user subsequently explicitly authorized
+creation of this single private service and completion of the delivery. Actual
+hosted qualification and activation must still be observed separately.
 
 Cloudflare's published overage rates are USD0.000020 per active vCPU-second,
 USD0.0000025 per provisioned GiB-second and USD0.00000007 per provisioned GB-second.

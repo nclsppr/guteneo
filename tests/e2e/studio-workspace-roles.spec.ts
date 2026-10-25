@@ -2,6 +2,7 @@ import { expect, test, type BrowserContext } from "@playwright/test";
 import { createHash } from "node:crypto";
 import { PDFDocument } from "pdf-lib";
 import { letterTemplate } from "../../packages/templates/gallery";
+import { documentAnalysis } from "../../packages/contracts/src/document-analysis";
 import {
   workspacePermissions,
   type WorkspaceRole,
@@ -145,6 +146,7 @@ async function studioFixture(context: BrowserContext, role: WorkspaceRole) {
     documentId: ids.document,
     documentHash: hash,
     documentStatus: "ready",
+    documentAnalysis: documentAnalysis("ready"),
     documentUrl: `/api/documents/${ids.document}/content`,
     errorCode: null,
   };

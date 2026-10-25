@@ -6,9 +6,11 @@ import type {
   DistributionInput,
   DistributionView,
   GenerationJobView,
+  GenerationResultView,
   TemplateView,
 } from "../../packages/contracts/src/template-workflow";
 import { blankTemplate, textBlock } from "../../packages/templates/gallery";
+import { documentAnalysis } from "../../packages/contracts/src/document-analysis";
 
 async function login(page: Page) {
   await page.goto("/#/app");
@@ -229,6 +231,12 @@ test("XML records determine each PDF channel and recipient without sending", asy
   await expect(
     page.getByRole("heading", { name: "2 / 2 PDF générés", exact: true }),
   ).toBeVisible();
+  const firstRecord = page
+    .getByRole("checkbox", { name: /^Sélectionner record-/ })
+    .first();
+  // Progress and results refresh independently. Tab must wait for the result,
+  // rather than skip a checkbox that still belongs to the earlier snapshot.
+  await expect(firstRecord).toBeEnabled();
   await checkKeyboardTable(
     page,
     page.getByRole("region", {
@@ -244,9 +252,6 @@ test("XML records determine each PDF channel and recipient without sending", asy
       ? "Alt+Tab"
       : "Tab",
   );
-  const firstRecord = page
-    .getByRole("checkbox", { name: /^Sélectionner record-/ })
-    .first();
   await expect(firstRecord).toBeFocused();
   await page.keyboard.press("Space");
   await expect(firstRecord).toBeChecked();
@@ -343,6 +348,129 @@ test("XML records determine each PDF channel and recipient without sending", asy
   await expect(
     page.getByRole("heading", { name: "Distribution préparée", exact: true }),
   ).toBeVisible();
+});
+
+test("a slower generation result read preserves focus until selection becomes available", async ({
+  page,
+  browserName,
+}) => {
+  await login(page);
+  const id = "gen_keyboard_focus_fixture";
+  const job: GenerationJobView = {
+    id,
+    templateId: "tpl_keyboard_focus_fixture",
+    templateVersion: 1,
+    datasetId: null,
+    mappingId: null,
+    mappingVersion: null,
+    mode: "generate_only",
+    state: "running",
+    total: 1,
+    generated: 0,
+    failed: 0,
+    pending: 1,
+    cancelled: 0,
+    createdAt: "2026-10-25T10:00:00Z",
+    updatedAt: "2026-10-25T10:00:00Z",
+  };
+  const result: GenerationResultView = {
+    recordId: "record-2",
+    state: "running",
+    attempts: 1,
+    inputHash: "a".repeat(64),
+    documentId: null,
+    documentHash: null,
+    documentStatus: null,
+    documentAnalysis: null,
+    documentUrl: null,
+    errorCode: null,
+  };
+  let jobReads = 0;
+  let resultReads = 0;
+  let release!: () => void;
+  let announceRead!: () => void;
+  const resultsGate = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  const resultsHeld = new Promise<void>((resolve) => {
+    announceRead = resolve;
+  });
+  await page.route(`**/api/generation-jobs/${id}{,/results}`, async (route) => {
+    expect(route.request().method()).toBe("GET");
+    if (!new URL(route.request().url()).pathname.endsWith("/results")) {
+      jobReads += 1;
+      await route.fulfill({
+        json:
+          jobReads === 1
+            ? job
+            : { ...job, state: "completed", generated: 1, pending: 0 },
+      });
+      return;
+    }
+    resultReads += 1;
+    if (resultReads === 1) {
+      await route.fulfill({ json: { items: [result], nextCursor: null } });
+      return;
+    }
+    announceRead();
+    await resultsGate;
+    await route.fulfill({
+      json: {
+        items: [
+          {
+            ...result,
+            state: "generated",
+            documentId: "doc_keyboard_focus_fixture",
+            documentHash: "b".repeat(64),
+            documentStatus: "ready",
+            documentAnalysis: documentAnalysis("ready"),
+          },
+        ],
+        nextCursor: null,
+      },
+    });
+  });
+  try {
+    await page.goto(`/#/app/generation/${id}`);
+    const selection = page.getByRole("checkbox", {
+      name: "Sélectionner record-2",
+      exact: true,
+    });
+    await expect(selection).toBeDisabled();
+    await page
+      .getByRole("button", { name: "Actualiser le suivi", exact: true })
+      .press("Enter");
+    await resultsHeld;
+    await expect(
+      page.getByRole("heading", { name: "1 / 1 PDF générés", exact: true }),
+    ).toBeVisible();
+    await expect(selection).toBeDisabled();
+    const region = page.getByRole("region", {
+      name: "Résultats de cette génération",
+      exact: true,
+    });
+    const tab =
+      browserName === "webkit" && process.platform === "darwin"
+        ? "Alt+Tab"
+        : "Tab";
+    await region.focus();
+    await page.keyboard.press(tab);
+    const provenance = region.getByRole("button", {
+      name: "Voir la provenance",
+      exact: true,
+    });
+    await expect(provenance).toBeFocused();
+    release();
+    await expect(selection).toBeEnabled();
+    await expect(provenance).toBeFocused();
+    await region.focus();
+    await page.keyboard.press(tab);
+    await expect(selection).toBeFocused();
+    await page.keyboard.press("Space");
+    await expect(selection).toBeChecked();
+  } finally {
+    release();
+  }
 });
 
 test("account language changes in another tab preserve the studio title and unsaved edits", async ({

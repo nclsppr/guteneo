@@ -10147,6 +10147,51 @@
             "type": "string",
             "nullable": true
           },
+          "documentAnalysis": {
+            "type": "object",
+            "nullable": true,
+            "description": "Read-only recovery state for the exact accessible generated document. Null before registration or when its immutable hash does not match. Only processing/wait permits bounded status polling; retryable and blocked require the stated action. Reading never starts a scan or sends a document.",
+            "additionalProperties": false,
+            "properties": {
+              "state": {
+                "type": "string",
+                "enum": ["processing", "ready", "retryable", "blocked"]
+              },
+              "code": {
+                "type": "string",
+                "description": "Safe category; no raw security-engine output."
+              },
+              "title": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              },
+              "nextAction": {
+                "type": "string",
+                "enum": [
+                  "wait",
+                  "rescan",
+                  "replace_document",
+                  "contact_support",
+                  "continue"
+                ]
+              },
+              "retryAfterSeconds": {
+                "type": "integer",
+                "minimum": 0,
+                "nullable": true
+              }
+            },
+            "required": [
+              "state",
+              "code",
+              "title",
+              "message",
+              "nextAction",
+              "retryAfterSeconds"
+            ]
+          },
           "documentUrl": {
             "type": "string",
             "nullable": true
@@ -10164,6 +10209,7 @@
           "documentId",
           "documentHash",
           "documentStatus",
+          "documentAnalysis",
           "documentUrl",
           "errorCode"
         ],

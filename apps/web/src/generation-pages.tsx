@@ -9,7 +9,8 @@ import type {
   Page,
 } from "../../../packages/contracts/src/template-workflow";
 import type { SourceCell } from "../../../packages/contracts/src/datasets";
-import { api, date, type Channel, type Sender } from "./api";
+import { api, date, isPublicPreview, type Channel, type Sender } from "./api";
+import { t } from "./locale";
 import {
   ErrorNotice,
   DateTimezone,
@@ -109,9 +110,36 @@ export function GenerationDetail({
     [selected, setSelected] = useState<string[]>([]),
     [distributing, setDistributing] = useState(false),
     [traceRecord, setTraceRecord] = useState<string>();
+  const [verificationPaused, setVerificationPaused] = useState(false);
+  const [followupRevision, setFollowupRevision] = useState(0);
+  const [visible, setVisible] = useState(
+    () => document.visibilityState !== "hidden",
+  );
+  const verificationBudget = useRef<
+    | { id: string; revision: number; expiresAt: number; reads: number }
+    | undefined
+  >(undefined);
   const active = job.data && ["queued", "running"].includes(job.data.state);
+  const verificationPending =
+    results.data?.items.some(
+      (result) =>
+        result.state === "generated" &&
+        result.documentId &&
+        result.documentStatus !== "ready" &&
+        result.documentAnalysis?.state === "processing" &&
+        result.documentAnalysis.nextAction === "wait",
+    ) ?? false;
   const refreshJob = job.refresh,
     refreshResults = results.refresh;
+  useEffect(() => {
+    verificationBudget.current = undefined;
+    setVerificationPaused(false);
+  }, [id]);
+  useEffect(() => {
+    const update = () => setVisible(document.visibilityState !== "hidden");
+    document.addEventListener("visibilitychange", update);
+    return () => document.removeEventListener("visibilitychange", update);
+  }, []);
   useEffect(() => {
     if (!active) return;
     const timer = setInterval(() => {
@@ -120,6 +148,61 @@ export function GenerationDetail({
     }, 4000);
     return () => clearInterval(timer);
   }, [active, refreshJob, refreshResults]);
+  useEffect(() => {
+    if (
+      isPublicPreview ||
+      active ||
+      !verificationPending ||
+      !visible ||
+      job.error ||
+      results.error ||
+      verificationPaused
+    )
+      return;
+    if (
+      verificationBudget.current?.id !== id ||
+      verificationBudget.current.revision !== followupRevision
+    )
+      verificationBudget.current = {
+        id,
+        revision: followupRevision,
+        expiresAt: Date.now() + 2 * 60_000,
+        reads: 0,
+      };
+    const budget = verificationBudget.current;
+    const remaining = budget.expiresAt - Date.now();
+    if (remaining <= 0 || budget.reads >= 8) {
+      setVerificationPaused(true);
+      return;
+    }
+    const deadline = setTimeout(() => setVerificationPaused(true), remaining);
+    const nextRead = results.loading
+      ? undefined
+      : setTimeout(() => {
+          if (document.visibilityState === "hidden") return;
+          if (Date.now() >= budget.expiresAt || budget.reads >= 8) {
+            setVerificationPaused(true);
+            return;
+          }
+          budget.reads += 1;
+          refreshResults();
+        }, 15_000);
+    return () => {
+      clearTimeout(deadline);
+      clearTimeout(nextRead);
+    };
+  }, [
+    id,
+    active,
+    verificationPending,
+    visible,
+    job.error,
+    results.error,
+    results.loading,
+    verificationPaused,
+    followupRevision,
+    refreshResults,
+  ]);
   if (!job.data)
     return (
       <>
@@ -170,6 +253,8 @@ export function GenerationDetail({
           <button
             className="button small"
             onClick={() => {
+              setVerificationPaused(false);
+              setFollowupRevision((revision) => revision + 1);
               job.refresh();
               results.refresh();
             }}
@@ -217,6 +302,13 @@ export function GenerationDetail({
             </button>
           )}
         </div>
+        {verificationPending && (
+          <p role="status" className="field-hint">
+            {verificationPaused || results.error || job.error
+              ? t.documents.followupPaused
+              : msg("PDF verification in progress")}
+          </p>
+        )}
       </section>
       <div
         className="studio-table"
@@ -264,11 +356,19 @@ export function GenerationDetail({
                 </th>
                 <td>
                   {msgIn("generation-state", stateLabel[result.state])}
-                  {result.documentStatus &&
-                    " · " +
-                      (result.documentStatus === "ready"
-                        ? msg("verified")
-                        : result.documentStatus)}
+                  {result.documentStatus === "ready" && " · " + msg("verified")}
+                  {result.documentAnalysis &&
+                    result.documentStatus !== "ready" && (
+                      <div className="studio-meta">
+                        <p>{msg(result.documentAnalysis.title)}</p>
+                        <p>{msg(result.documentAnalysis.message)}</p>
+                      </div>
+                    )}
+                  {!result.documentAnalysis &&
+                    result.documentStatus &&
+                    result.documentStatus !== "ready" && (
+                      <p className="studio-meta">{msg("Needs checking")}</p>
+                    )}
                   {result.errorCode && (
                     <p>
                       <code>{result.errorCode}</code>

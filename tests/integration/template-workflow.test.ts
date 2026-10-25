@@ -3316,6 +3316,246 @@ describe("Persistent template workflow — local D1/R2 with explicitly synthetic
         .run();
     }
   });
+  it("projects bounded scan recovery after generation completes without starting work on reads", async () => {
+    await db
+      .prepare("UPDATE organizations SET mode='production' WHERE id=?")
+      .bind(owner.organizationId)
+      .run();
+    try {
+      const bytes = await pdf("Synthetic deferred verification");
+      const hash = await sha256(bytes);
+      const scan = vi
+        .fn(async () => Response.json({ verdict: "clean", sha256: hash }))
+        .mockResolvedValueOnce(
+          Response.json({ code: "SCANNER_BUSY" }, { status: 503 }),
+        );
+      const renderer = vi.fn(async (request: Request) =>
+        new URL(request.url).pathname === "/validate"
+          ? Response.json({ pages: 1, sha256: hash })
+          : new Response(bytes),
+      );
+      const workflow = new TemplateWorkflowService(
+        {
+          ...env,
+          MODE: "production",
+          ENVIRONMENT: "production",
+          SCANNER: { fetch: scan },
+          DOCUMENT_RENDERER: { fetch: renderer },
+        } as unknown as Env,
+        new DomainService(db, { mode: "production" }),
+      );
+      const template = await workflow.createTemplate(owner, {
+        envelope: envelope(),
+      });
+      await workflow.publishTemplate(owner, template.id, {
+        expectedRevision: template.revision,
+      });
+      const generation = await workflow.createGeneration(
+        owner,
+        {
+          templateId: template.id,
+          mode: "generate_only",
+          records: [{ recordId: "scan", data: { name: "Synthetic" } }],
+        },
+        "deferred-result-analysis",
+      );
+      expect(
+        (await workflow.generationResults(owner, generation.id)).items[0]
+          .documentAnalysis,
+      ).toBeNull();
+      await workflow.processPending(1);
+      expect(await workflow.getGeneration(owner, generation.id)).toMatchObject({
+        state: "completed",
+        generated: 1,
+      });
+      const result = (await workflow.generationResults(owner, generation.id))
+        .items[0];
+      expect(result).toMatchObject({
+        state: "generated",
+        documentHash: hash,
+        documentStatus: "quarantined",
+        documentAnalysis: {
+          state: "processing",
+          code: "scanner_busy",
+          nextAction: "wait",
+          retryAfterSeconds: 15,
+        },
+      });
+      const analysisRow = () =>
+        db
+          .prepare(
+            "SELECT * FROM document_analysis WHERE organization_id=? AND document_id=?",
+          )
+          .bind(owner.organizationId, result.documentId)
+          .first();
+      const beforeRead = await analysisRow();
+      await workflow.generationResults(owner, generation.id);
+      await workflow.generationResults(owner, generation.id);
+      expect(await analysisRow()).toEqual(beforeRead);
+      expect(scan).toHaveBeenCalledTimes(1);
+      expect(renderer).toHaveBeenCalledTimes(1);
+
+      await db
+        .prepare(
+          "UPDATE document_analysis SET attempts=1,deadline_at=? WHERE organization_id=? AND document_id=?",
+        )
+        .bind(Date.now() - 1, owner.organizationId, result.documentId)
+        .run();
+      expect(
+        (await workflow.generationResults(owner, generation.id)).items[0]
+          .documentAnalysis,
+      ).toEqual(
+        (await workflow.documents.get(owner, result.documentId!)).analysis,
+      );
+      expect(
+        (await workflow.generationResults(owner, generation.id)).items[0]
+          .documentAnalysis,
+      ).toMatchObject({
+        state: "retryable",
+        code: "retry_exhausted",
+        nextAction: "rescan",
+        retryAfterSeconds: null,
+      });
+      for (const [state, code, nextAction] of [
+        ["blocked", "security_rejected", "replace_document"],
+        ["retryable", "retry_exhausted", "rescan"],
+      ]) {
+        await db
+          .prepare(
+            "UPDATE document_analysis SET state=?,code=? WHERE organization_id=? AND document_id=?",
+          )
+          .bind(state, code, owner.organizationId, result.documentId)
+          .run();
+        expect(
+          (await workflow.generationResults(owner, generation.id)).items[0]
+            .documentAnalysis,
+        ).toMatchObject({ state, code, nextAction, retryAfterSeconds: null });
+      }
+      await db
+        .prepare(
+          "DELETE FROM document_analysis WHERE organization_id=? AND document_id=?",
+        )
+        .bind(owner.organizationId, result.documentId)
+        .run();
+      expect(
+        (await workflow.generationResults(owner, generation.id)).items[0]
+          .documentAnalysis,
+      ).toMatchObject({
+        state: "retryable",
+        code: "not_started",
+        nextAction: "rescan",
+      });
+      expect(await analysisRow()).toBeNull();
+      expect(scan).toHaveBeenCalledTimes(1);
+
+      await db
+        .prepare(
+          "INSERT INTO document_analysis(organization_id,document_id,request_user_id,request_role,state,code,attempts,deadline_at,next_attempt_at,updated_at) VALUES(?,?,?,'admin','processing','scan_pending',0,?,0,?)",
+        )
+        .bind(
+          owner.organizationId,
+          result.documentId,
+          owner.userId,
+          Date.now() + 60_000,
+          Date.now(),
+        )
+        .run();
+      expect(await workflow.documents.processPendingScans()).toEqual({
+        processed: 1,
+      });
+      expect(
+        (await workflow.generationResults(owner, generation.id)).items[0],
+      ).toMatchObject({
+        documentId: result.documentId,
+        documentHash: hash,
+        documentStatus: "ready",
+        documentAnalysis: {
+          state: "ready",
+          code: "verified",
+          nextAction: "continue",
+          retryAfterSeconds: null,
+        },
+      });
+      expect(scan).toHaveBeenCalledTimes(2);
+      for (const table of ["approvals", "reservations", "outbox", "attempts"])
+        expect(await count(table)).toBe(0);
+    } finally {
+      await db
+        .prepare("UPDATE organizations SET mode='simulation' WHERE id=?")
+        .bind(owner.organizationId)
+        .run();
+    }
+  });
+  it("keeps result analysis bound to the owner, tenant, document ID and immutable hash", async () => {
+    const generation = await job();
+    const hash = "a".repeat(64);
+    const register = (ctx: ActorContext) =>
+      domain.registerDocument(ctx, {
+        id: `doc_${crypto.randomUUID()}`,
+        name: "Synthetic analysis fixture",
+        sha256: hash,
+        size: 100,
+        pages: 0,
+        status: "quarantined",
+        source: "render",
+        storageKey: `${ctx.organizationId}/documents/${hash}/synthetic.pdf`,
+        privateToCreator: true,
+      });
+    const own = await register(owner);
+    const foreign = await register(other);
+    await db
+      .prepare(
+        "INSERT INTO document_analysis(organization_id,document_id,request_user_id,request_role,state,code,attempts,deadline_at,next_attempt_at,updated_at) VALUES(?,?,?,'admin','processing','scanner_busy',0,?,?,?)",
+      )
+      .bind(
+        other.organizationId,
+        foreign.id,
+        other.userId,
+        Date.now() + 60_000,
+        Date.now() + 30_000,
+        Date.now(),
+      )
+      .run();
+    for (const [recordId, artifactHash] of [
+      ["a", hash],
+      ["b", "b".repeat(64)],
+    ])
+      await db
+        .prepare(
+          "UPDATE generation_records SET state='generated',document_id=?,artifact_hash=? WHERE organization_id=? AND job_id=? AND record_id=?",
+        )
+        .bind(
+          own.id,
+          artifactHash,
+          owner.organizationId,
+          generation.id,
+          recordId,
+        )
+        .run();
+    const results = await service.generationResults(owner, generation.id);
+    expect(results.items[0]).toMatchObject({
+      recordId: "a",
+      documentStatus: "quarantined",
+      documentAnalysis: { state: "retryable", code: "not_started" },
+    });
+    expect(results.items[1]).toMatchObject({
+      recordId: "b",
+      documentStatus: null,
+      documentAnalysis: null,
+    });
+    for (const actor of [other, member])
+      await expect(
+        service.generationResults(actor, generation.id),
+      ).rejects.toMatchObject({ code: "GENERATION_NOT_FOUND" });
+    expect(
+      await db
+        .prepare(
+          "SELECT COUNT(*) AS n FROM document_analysis WHERE organization_id=? AND document_id=?",
+        )
+        .bind(owner.organizationId, own.id)
+        .first(),
+    ).toEqual({ n: 0 });
+  });
   it("rechecks revoked current membership before asynchronous rendering", async () => {
     const template = await published(member);
     const generation = await service.createGeneration(

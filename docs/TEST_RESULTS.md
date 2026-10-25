@@ -78,6 +78,17 @@ main baseline, with no missing, additional or changed object. Both queries
 recorded zero writes and read no customer business data. Additive migration0060
 and the production release remain pending the separate activation gates.
 
+Generated results now expose the current authorized exact-byte document analysis
+through a shared pure projection. **121** targeted workflow/recovery/projection
+cases and **13** OpenAPI checks passed; the two added integration scenarios were
+also rechecked after the final fixture correction. The new bounded-analysis
+browser suite passed **21/21** across three projects, and the actual XML workflow
+plus held-response keyboard regression passed **6/6**. These distinguish the job
+counter from loaded ready results and preserve native disabled-control behavior
+without taking focus. The native tab helper's fresh semantic queries passed
+**6/6** local cases, including enlarged text and translated navigation. These
+overlapping local proofs do not replace final combined-head CI.
+
 A read-only private scanner observation at **2026-10-25T02:18:29Z** verified
 ClamAV **1.5.4**, signature database **28163** dated **2026-10-24T06:26:10Z**,
 matching deployed version/build identity and an age below the 48-hour policy.

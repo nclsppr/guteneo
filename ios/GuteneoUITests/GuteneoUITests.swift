@@ -265,33 +265,45 @@ final class GuteneoUITests: XCTestCase {
     }
 
     private func selectTab(_ label: String, in app: XCUIApplication, file: StaticString = #filePath, line: UInt = #line) {
-        let tab = tabElement(label, in: app, file: file, line: line)
         // Existence alone does not establish that a native tab is interactive.
-        // Wait for its hit target and verify selection before inspecting a page.
-        let ready = XCTNSPredicateExpectation(predicate: NSPredicate(format: "hittable == true AND enabled == true"), object: tab)
-        XCTAssertEqual(XCTWaiter.wait(for: [ready], timeout: 10), .completed,
+        // The hosted runner took 19 seconds to resolve a visible tab after a
+        // large-text launch. Resolve its current AX representation on each poll.
+        let ready = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in
+            let tab = self.tabElement(label, in: app)
+            return tab.exists && tab.isHittable && tab.isEnabled
+        }, object: nil)
+        let readiness = XCTWaiter.wait(for: [ready], timeout: 20)
+        if readiness != .completed {
+            attachScreenshot(app, name: "Tab did not become interactive — \(label)")
+        }
+        XCTAssertEqual(readiness, .completed,
                        "Tab is not interactive: \(label)", file: file, line: line)
-        tab.tap()
-        let selected = XCTNSPredicateExpectation(predicate: NSPredicate(format: "selected == true"), object: tab)
-        XCTAssertEqual(XCTWaiter.wait(for: [selected], timeout: 10), .completed,
+        tabElement(label, in: app).tap()
+        let selected = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in
+            let tab = self.tabElement(label, in: app)
+            return tab.exists && tab.isSelected
+        }, object: nil)
+        let selection = XCTWaiter.wait(for: [selected], timeout: 20)
+        if selection != .completed {
+            attachScreenshot(app, name: "Tab was not selected — \(label)")
+        }
+        XCTAssertEqual(selection, .completed,
                        "Tapping did not select the tab: \(label)", file: file, line: line)
     }
 
-    private func tabElement(_ label: String, in app: XCUIApplication, file: StaticString = #filePath, line: UInt = #line) -> XCUIElement {
+    private func tabElement(_ label: String, in app: XCUIApplication) -> XCUIElement {
         let tabBarButton = app.tabBars.buttons[label]
         if tabBarButton.exists {
             return tabBarButton
         }
         // iPad exposes its floating tab items as cells or other accessible elements.
-        let tabItem = app.descendants(matching: .any).matching(NSPredicate(
+        return app.descendants(matching: .any).matching(NSPredicate(
             format: "label == %@ AND (elementType == %d OR elementType == %d OR elementType == %d)",
             label,
             XCUIElement.ElementType.button.rawValue,
             XCUIElement.ElementType.cell.rawValue,
             XCUIElement.ElementType.other.rawValue
         )).firstMatch
-        XCTAssertTrue(tabItem.waitForExistence(timeout: 5), "Tab was not found: \(label)", file: file, line: line)
-        return tabItem
     }
 
     func testWelcomeLanguageChangesImmediatelyAndKeepsTheChoice() {

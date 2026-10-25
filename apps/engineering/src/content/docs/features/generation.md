@@ -1,6 +1,6 @@
 ---
 title: "PDF generation and distribution"
-description: "10 capabilities in the create branch of Guteneo."
+description: "11 capabilities in the create branch of Guteneo."
 sidebar:
   order: 6
 ---
@@ -21,6 +21,7 @@ Implemented; generation, preparation, approval and delivery remain separate.
 <li id="feature-24b0ccee25f9">Single PDF from a business form</li>
 <li id="feature-fcebd62d65fc">PDF batch from a validated mapping</li>
 <li id="feature-b702a35bea77">Progress, per-record results and source-cell provenance</li>
+<li id="feature-af8ac87b8693">Exact authorized generated-document analysis state distinguishes processing, retryable and blocked results; bounded visible refresh follows pending scans after generation completes without changing readiness, stealing focus or retrying analysis</li>
 <li id="feature-446f64517f9f">Generation cancellation and retry of failed records only</li>
 <li id="feature-63934976075c">PDF selection and separate distribution-plan preparation</li>
 <li id="feature-d4d0fd9899d1">The first plan permanently freezes the full batch, including excluded failed records; prepare_distribution declares destructiveHint true</li>

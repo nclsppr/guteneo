@@ -1,7 +1,7 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
 # Guteneo feature tree and developer atlas
 
-**23 domains · 277 features · 31 journeys · 75 documented REST operations · 72 MCP tools**
+**23 domains · 278 features · 31 journeys · 75 documented REST operations · 72 MCP tools**
 Updated 2026-10-25.
 
 Repository implementation inventory. Availability depends on current capabilities and authority; implementation, activation and deployed proof are distinct.
@@ -20,7 +20,7 @@ mindmap
       Documents and protection (8)
       Template studio (14)
       Data and mappings (9)
-      PDF generation and distribution (10)
+      PDF generation and distribution (11)
     Deliver
       Fax (6)
       Postal mail (8)
@@ -54,7 +54,7 @@ mindmap
 - [Documents and protection](#documents) — 8 features; capability-gated.
 - [Template studio](#templates) — 14 features; capability-gated.
 - [Data and mappings](#datasets) — 9 features; capability-gated.
-- [PDF generation and distribution](#generation) — 10 features; capability-gated.
+- [PDF generation and distribution](#generation) — 11 features; capability-gated.
 
 ### Deliver
 
@@ -367,6 +367,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Single PDF from a business form
 - PDF batch from a validated mapping
 - Progress, per-record results and source-cell provenance
+- Exact authorized generated-document analysis state distinguishes processing, retryable and blocked results; bounded visible refresh follows pending scans after generation completes without changing readiness, stealing focus or retrying analysis
 - Generation cancellation and retry of failed records only
 - PDF selection and separate distribution-plan preparation
 - The first plan permanently freezes the full batch, including excluded failed records; prepare_distribution declares destructiveHint true
@@ -377,7 +378,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 
 **Contract:** [TEMPLATES_DATA_DISTRIBUTION.md](TEMPLATES_DATA_DISTRIBUTION.md) · **Implementation:** [apps/api/src/template-workflow-routes.ts](../apps/api/src/template-workflow-routes.ts)
 
-**Tests:** [tests/e2e/template-distribution.spec.ts](../tests/e2e/template-distribution.spec.ts), [tests/integration/template-workflow.test.ts](../tests/integration/template-workflow.test.ts), [tests/unit/mcp-annotation-audit.test.ts](../tests/unit/mcp-annotation-audit.test.ts), [tests/unit/mcp-integrations.test.ts](../tests/unit/mcp-integrations.test.ts)
+**Tests:** [tests/e2e/template-distribution.spec.ts](../tests/e2e/template-distribution.spec.ts), [tests/integration/template-workflow.test.ts](../tests/integration/template-workflow.test.ts), [tests/unit/document-analysis-projection.test.ts](../tests/unit/document-analysis-projection.test.ts), [tests/e2e/generation-analysis.spec.ts](../tests/e2e/generation-analysis.spec.ts), [tests/e2e/template-xml-multichannel.spec.ts](../tests/e2e/template-xml-multichannel.spec.ts), [tests/unit/mcp-annotation-audit.test.ts](../tests/unit/mcp-annotation-audit.test.ts), [tests/unit/mcp-integrations.test.ts](../tests/unit/mcp-integrations.test.ts)
 
 **Documented REST operations**
 
@@ -999,7 +1000,7 @@ Read authoring guide or a synthetic example → create/private-copy or import DO
 
 Import CSV/XLSX/XML/JSON → verify/profile the exact original → select sheet/header/record path → define deterministic versioned mappings → validate every row → select published template → generate → inspect results and provenance.
 
-**Failure/recovery:** Resume the same original after transient analysis failure. Resolve mapping/type/join issues explicitly. AI is optional and separately consented; generation creates no dispatch or credit reservation.
+**Failure/recovery:** Resume the same original after transient analysis failure. Resolve mapping/type/join issues explicitly. Generation completion does not establish PDF readiness; follow the bounded security-analysis refresh and review retryable or blocked results explicitly. AI is optional and separately consented; generation creates no dispatch or credit reservation.
 
 [Detailed contract](TEMPLATES_DATA_DISTRIBUTION.md).
 
