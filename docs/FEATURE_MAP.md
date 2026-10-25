@@ -2,7 +2,7 @@
 # Guteneo feature tree and developer atlas
 
 **23 domains · 299 features · 34 journeys · 76 documented REST operations · 75 MCP tools**
-Updated 2026-10-25.
+Updated 2026-10-26.
 
 Repository implementation inventory. Availability depends on current capabilities and authority; implementation, activation and deployed proof are distinct.
 
@@ -378,7 +378,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 
 - Single PDF from a business form
 - PDF batch from a validated mapping
-- Progress, per-record results and source-cell provenance
+- Progress, per-record results and source-cell provenance; only local simulation emits finite failure phase/category diagnostics through the captured error channel, never raw errors or customer data; terminal failed/partial XML test results stop polling while preserving both expected exact PDFs and zero sending, and a separate macOS pass does not establish the cause of an earlier Linux failure
 - Exact authorized generated-document analysis state distinguishes processing, retryable and blocked results; bounded visible refresh follows pending scans after generation completes without changing readiness, stealing focus or retrying analysis
 - Generation cancellation and retry of failed records only
 - PDF selection and separate distribution-plan preparation

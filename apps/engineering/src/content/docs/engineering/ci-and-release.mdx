@@ -68,6 +68,14 @@ actual wall time depends on test-file balance, available runners and downloads.
 Measure completed exact-source runs before claiming a speedup. Synthetic report
 guards qualify completeness handling, not hosted execution or deployment.
 
+When a generated-record browser case fails, preserve its terminal state and
+transport trace before another execution. Local simulation emits only bounded
+failure phase/category metadata to the captured error channel; production does
+not. A same-source macOS pass cannot explain an earlier Linux partial batch.
+The XML test still requires both original PDFs and zero sending; terminal
+failure stops polling without weakening those assertions. See
+[testing evidence](/engineering/testing/) for the dated unexplained incident.
+
 Maintain `scripts/ci/browser-results.mjs`, the workflow matrix and its security
 tests together. Adding a browser, suite or shard requires the matching inventory,
 report and artifact contract. Keep the final `verify` dependency and protected

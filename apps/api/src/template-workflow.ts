@@ -8,7 +8,10 @@ import {
   type ActorContext,
   type PrepareInput,
 } from "../../../packages/domain/src/index";
-import { validateRecipient } from "../../../packages/contracts/src/content";
+import {
+  ContentError,
+  validateRecipient,
+} from "../../../packages/contracts/src/content";
 import {
   TemplateEnvelopeSchema,
   TemplatePatchSchema,
@@ -167,6 +170,96 @@ function fail(code: string, message: string, status = 409): never {
   throw new DomainError(code, message, status);
 }
 const parseJson = <T>(value: string): T => JSON.parse(value) as T;
+type GenerationPhase =
+  | "authorization"
+  | "template"
+  | "dataset"
+  | "version"
+  | "job_start"
+  | "artifact_read"
+  | "render_budget"
+  | "render_request"
+  | "renderer_fetch"
+  | "renderer_status"
+  | "renderer_body"
+  | "artifact_digest"
+  | "artifact_store"
+  | "artifact_fence"
+  | "artifact_commit"
+  | "document_fence"
+  | "document_upload"
+  | "document_commit";
+type GenerationFailureCategory =
+  | "none"
+  | "sqlite_busy"
+  | "sqlite_constraint"
+  | "sqlite_other"
+  | "d1_error"
+  | "connection_refused"
+  | "connection_reset"
+  | "broken_pipe"
+  | "socket_error"
+  | "abort"
+  | "timeout"
+  | "domain_error"
+  | "content_error"
+  | "type_error"
+  | "syntax_error"
+  | "error"
+  | "unknown";
+function generationFailureCategory(value: unknown): GenerationFailureCategory {
+  if (value == null) return "none";
+  if (typeof value !== "object") return "unknown";
+  const item = value as { code?: unknown; name?: unknown; message?: unknown };
+  const code = typeof item.code === "string" ? item.code : "";
+  // Inspect only bounded text for known technical markers; never emit that text.
+  const message =
+    typeof item.message === "string" ? item.message.slice(0, 4096) : "";
+  if (/\bSQLITE_BUSY(?:_SNAPSHOT)?\b/u.test(message)) return "sqlite_busy";
+  if (/\bSQLITE_CONSTRAINT\b/u.test(message)) return "sqlite_constraint";
+  if (/\bSQLITE_[A-Z_]+\b/u.test(message)) return "sqlite_other";
+  if (/\bD1_ERROR\b/u.test(message)) return "d1_error";
+  if (code === "ECONNREFUSED" || /\bECONNREFUSED\b/u.test(message))
+    return "connection_refused";
+  if (code === "ECONNRESET" || /\bECONNRESET\b/u.test(message))
+    return "connection_reset";
+  if (code === "EPIPE" || /\bbroken pipe\b/iu.test(message))
+    return "broken_pipe";
+  if (code === "UND_ERR_SOCKET") return "socket_error";
+  if (item.name === "AbortError") return "abort";
+  if (item.name === "TimeoutError" || code === "ETIMEDOUT") return "timeout";
+  if (value instanceof DomainError) return "domain_error";
+  if (value instanceof ContentError) return "content_error";
+  if (value instanceof TypeError) return "type_error";
+  if (value instanceof SyntaxError) return "syntax_error";
+  return value instanceof Error ? "error" : "unknown";
+}
+function observeLocalGenerationFailure(
+  env: Env,
+  record: RecordRow,
+  phase: GenerationPhase,
+  error: unknown,
+) {
+  if (env.ENVIRONMENT !== "local" || env.MODE !== "simulation") return;
+  try {
+    console.error(
+      JSON.stringify({
+        schema: 1,
+        component: "template_workflow",
+        event: "generation_record_failure",
+        ordinal: record.ordinal,
+        attempt: record.attempts,
+        phase,
+        category: generationFailureCategory(error),
+        causeCategory: generationFailureCategory(
+          error instanceof Error ? error.cause : undefined,
+        ),
+      }),
+    );
+  } catch {
+    // Diagnostics must not replace the original error or its persisted outcome.
+  }
+}
 const boundedJson = (
   value: unknown,
   limit: number = WORKFLOW_LIMITS.payloadBytes,
@@ -1941,6 +2034,7 @@ export class TemplateWorkflowService {
           }
         : {}),
     };
+    let phase: GenerationPhase = "authorization";
     try {
       if (
         job.request_actor === "mcp" &&
@@ -1953,15 +2047,19 @@ export class TemplateWorkflowService {
           403,
         );
       await this.authorize(ctx, true);
+      phase = "template";
       const template = await this.templateRow(ctx, job.template_id);
       if (template.state === "archived")
         fail("TEMPLATE_ARCHIVED", "The template has been archived.");
+      phase = "dataset";
       if (job.dataset_id) await this.datasetRow(ctx, job.dataset_id);
+      phase = "version";
       const { envelope } = await this.version(
         ctx,
         job.template_id,
         job.template_version,
       );
+      phase = "job_start";
       await this.env.DB.prepare(
         "UPDATE generation_jobs SET state='running',updated_at=? WHERE organization_id=? AND id=? AND state='queued'",
       )
@@ -1971,6 +2069,7 @@ export class TemplateWorkflowService {
         artifactHash = claimed.artifact_hash,
         bytes: Uint8Array;
       if (artifactKey) {
+        phase = "artifact_read";
         const stored = await this.env.DOCUMENTS.get(artifactKey);
         if (!stored)
           fail(
@@ -1984,7 +2083,9 @@ export class TemplateWorkflowService {
             "The retained PDF's integrity is invalid.",
           );
       } else {
+        phase = "render_budget";
         await reserveContentBudget(this.env.DB, ctx.organizationId, 0, true);
+        phase = "render_request";
         const request = new Request(
           "https://documents.internal/render/template",
           {
@@ -1998,6 +2099,7 @@ export class TemplateWorkflowService {
           },
         );
         let response: Response;
+        phase = "renderer_fetch";
         if (this.env.DOCUMENT_RENDERER)
           response = await this.env.DOCUMENT_RENDERER.fetch(request);
         else if (
@@ -2017,17 +2119,23 @@ export class TemplateWorkflowService {
             "The pdfme engine is not connected.",
             503,
           );
+        phase = "renderer_status";
         if (!response!.ok)
           fail("TEMPLATE_RENDER_FAILED", "Document rendering failed.", 422);
+        phase = "renderer_body";
         bytes = await readLimited(response!);
+        phase = "artifact_digest";
         artifactHash = await sha256(bytes);
         artifactKey = `${ctx.organizationId}/workflow/generations/${job.id}/${encodeURIComponent(claimed.record_id)}/${artifactHash}.pdf`;
+        phase = "artifact_store";
         await this.env.DOCUMENTS.put(artifactKey, bytes, {
           onlyIf: { etagDoesNotMatch: "*" },
           customMetadata: { sha256: artifactHash },
           httpMetadata: { contentType: "application/pdf" },
         });
+        phase = "artifact_fence";
         await this.assertClaim(ctx, job.id, claimed.record_id, token);
+        phase = "artifact_commit";
         const saved = await this.env.DB.prepare(
           "UPDATE generation_records SET artifact_key=?,artifact_hash=?,updated_at=? WHERE organization_id=? AND job_id=? AND record_id=? AND lease_token=? AND state='running'",
         )
@@ -2044,7 +2152,9 @@ export class TemplateWorkflowService {
         if (!saved.meta.changes)
           fail("GENERATION_CANCELLED", "Processing was interrupted.");
       }
+      phase = "document_fence";
       await this.assertClaim(ctx, job.id, claimed.record_id, token);
+      phase = "document_upload";
       const document = await this.documents.upload(
         ctx,
         {
@@ -2074,6 +2184,7 @@ export class TemplateWorkflowService {
           },
         },
       );
+      phase = "document_commit";
       await this.assertClaim(ctx, job.id, claimed.record_id, token);
       await this.env.DB.prepare(
         "UPDATE generation_records SET state='generated',document_id=?,error_code=NULL,lease_token=NULL,lease_until=NULL,updated_at=? WHERE organization_id=? AND job_id=? AND record_id=? AND lease_token=? AND state='running'",
@@ -2088,6 +2199,7 @@ export class TemplateWorkflowService {
         )
         .run();
     } catch (error) {
+      observeLocalGenerationFailure(this.env, claimed, phase, error);
       const code =
         error instanceof Error && "code" in error
           ? String(error.code)

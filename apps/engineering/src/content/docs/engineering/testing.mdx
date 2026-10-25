@@ -163,3 +163,17 @@ Use private, untracked artifact destinations for diagnostic logs, screenshots an
 traces. Review sanitized summaries before any public publication. Never collect
 actual documents, recipient addresses, credentials or signed URLs merely to prove
 that instrumentation works.
+
+Generation failures in local simulation now retain a finite phase and exception
+category through the captured error channel. This is diagnostic metadata only:
+no raw exception, content, recipient, URL, SQL value, credential or customer ID.
+Both local environment and simulation mode are required; production emits none.
+Do not change claims, processing, timeouts or retry rules to obtain diagnostics.
+
+The XML regression still requires two exact generated PDFs with their original
+channel/recipient/options and zero sending. A terminal failed/partial batch must
+fail with bounded state/counters rather than consume the remaining polling time.
+The 25 October main run 40241350392 failed one record before its artifact existed;
+an isolated same-source macOS run passed. Linux and preceding shard state were not
+reproduced, so the cause remains unknown. Preserve both results. A new exact-source
+CI pass qualifies that execution, not a claimed repair of the unexplained failure.

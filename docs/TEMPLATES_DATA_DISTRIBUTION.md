@@ -1,5 +1,25 @@
 # Templates, data and distribution
 
+## Synthetic generation diagnostics — 26 October 2026 follow-up
+
+A terminal `failed` or `partial` generation is not pending work. Status reads
+never restart failed records. The XML browser regression retains its two exact
+generated PDFs, routing/options and zero-send assertions, and reports a terminal
+failure immediately with bounded state/counters instead of waiting out 90 seconds.
+
+In local simulation only, an uncoded record failure emits a finite phase and
+exception-category diagnostic through the captured error channel. It includes no
+raw exception, content, recipient, URL, SQL value, credential or customer ID.
+Production and nonlocal/nonsimulation environments emit none of these diagnostics.
+Processing, claims, quotas, API errors, timeouts and retry rules remain unchanged.
+
+Main run 40241350392 had one terminal XML-record failure with `GENERATION_FAILED`
+before its render artifact was retained; the other record completed. An isolated
+macOS reproduction on the same source passed both records at their first attempt.
+That does not reproduce Linux or its preceding shard state and establishes no
+cause. Preserve the failed run and this qualification limit; a later source pass
+must not be described as proof that the historical failure's cause was repaired.
+
 ## Local images and committed editor changes — 25 October 2026 candidate
 
 An editor with current edit authority imports a local PNG/JPEG from the visible
