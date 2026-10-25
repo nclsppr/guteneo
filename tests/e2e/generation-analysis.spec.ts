@@ -51,16 +51,20 @@ async function generationFixture(page: Page) {
   };
   let reads = 0;
   let fail = false;
+  let nextReadGate: Promise<void> | undefined;
   const writes: string[] = [];
   page.on("request", (request) => {
     if (request.method() !== "GET") writes.push(request.url());
   });
-  await page.route(`**/api/generation-jobs/${id}{,/results}`, (route) => {
+  await page.route(`**/api/generation-jobs/${id}{,/results}`, async (route) => {
     expect(route.request().method()).toBe("GET");
     if (!new URL(route.request().url()).pathname.endsWith("/results"))
       return route.fulfill({ json: job });
     reads += 1;
     if (fail) return route.abort("failed");
+    const gate = nextReadGate;
+    nextReadGate = undefined;
+    await gate;
     return route.fulfill({ json: { items: [result], nextCursor: null } });
   });
   return {
@@ -73,6 +77,13 @@ async function generationFixture(page: Page) {
     },
     failRead(value: boolean) {
       fail = value;
+    },
+    holdNextResultRead() {
+      let release!: () => void;
+      nextReadGate = new Promise<void>((resolve) => {
+        release = resolve;
+      });
+      return release;
     },
     async open() {
       await page.goto(`/#/app/generation/${id}`);
@@ -182,13 +193,27 @@ test("verification followup stops after two minutes and an explicit refresh gran
   const pausedReads = fixture.reads;
   await page.clock.fastForward(60_000);
   expect(fixture.reads).toBe(pausedReads);
+  const releaseManualRead = fixture.holdNextResultRead();
   await refresh(page).press("Enter");
   await expect.poll(() => fixture.reads).toBe(pausedReads + 1);
-  // Request arrival precedes React's completed read. Freeze the clock only
-  // after the processing response has committed and armed its next interval.
+  // Hold the response until loading is rendered, so the next assertion cannot
+  // match the table's previous idle state before the refresh has committed.
+  await expect(page.locator(".studio-table")).toHaveAttribute(
+    "aria-busy",
+    "true",
+  );
+  releaseManualRead();
   await expect(page.locator(".studio-table")).toHaveAttribute(
     "aria-busy",
     "false",
+  );
+  // Let this committed render paint and flush its followup effect before
+  // advancing the mocked clock past the newly armed interval.
+  await page.evaluate(
+    () =>
+      new Promise<void>((resolve) => {
+        requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+      }),
   );
   fixture.setResult({
     documentStatus: "ready",
