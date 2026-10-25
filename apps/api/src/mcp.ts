@@ -1,3 +1,4 @@
+import { emailPreparationDescriptions } from "./email-preparation-contract";
 import { ImportSourceError, type DocumentService } from "./documents";
 import { GUTENEO_VERSION } from "../../../packages/contracts/src/release";
 import { XmlRecordPathSchema } from "../../../packages/contracts/src/datasets";
@@ -633,7 +634,7 @@ export const FAX_WORKFLOW = [
 
 export const EMAIL_WORKFLOW = [
   "1. Read get_capabilities: check the email channel and simulation/production mode. Reuse recipient, subject, message and ceiling already supplied. An email without a file needs no document or import. For a PDF attachment, reuse a ready document. For an attached private original, use begin_document_upload/get_document_upload only when exposed and the actual host can read its bytes and make the permitted fixed binary PUT; never publish or reconstruct it, expose its capability or retry an uncertain upload. For a protected link, use that same ready PDF with options.emailDeliveryMode=protected_link and options.protectedDays=1, 7 or 30 (default 7). When studio tools exist in the catalogue, use the template workflow, import_dataset, generate_documents and prepare_distribution for XML, CSV, XLSX or JSON data. This email workflow receives the final PDF; other attachments and recipient accounts remain unavailable.",
-  "2. Call prepare_dispatch once with channel=email, recipient.email, subject, text and/or html, optional documentId, options, ceiling and a stable key. Present the message, delivery mode, expiry and exact quote, including the hosting surcharge per protected document where applicable. Never invent a price or recipient consent. PDFs still require scanning; follow analysis without repeated imports." +
+  '2. Call prepare_dispatch once with channel=email, recipient.email, optional documentId, options, ceiling and a stable key. Message-only email requires subject and text/html. With an accessible ready PDF, omit missing subject/body to use localized defaults naming the authenticated workspace; preserve any supplied message. Document emails without custom HTML use the branded template. Custom HTML may style its own button with safe inline CSS and, for protected_link only, exact href="{{document_url}}"; never invent or supply the actual private URL. Present supplied content, delivery mode, expiry and exact quote, including the hosting surcharge per protected document where applicable. For server-defaulted content, use browser review or already-authorized expert review; standard summaries do not expose final HTML/text and must not be used to invent it. Never invent a price or recipient consent. PDFs still require scanning; follow analysis without repeated imports.' +
     CHATGPT_DOCUMENT_NOTICE,
   "3. Without an active expert mandate covering this connection and email, present approvalUrl for human review and approval, then confirm_dispatch only after recorded approval. With an existing active mandate, use review_dispatch to read the message and every page of any PDF, respect host confirmations, then approve_and_send_dispatch with the exact fingerprint, ceiling and token. recipientRequested requires an actual user declaration. Never activate or extend your own delegation; a review account restricted to preparation cannot send.",
   "4. A protected-link password must never pass through tools, parameters or the conversation. Present emailDelivery.passwordAccessUrl so the sender reads it in their own authenticated browser and shares it separately with the recipient. Never visit that URL with a tool to read the password, ask the person to paste it here or add it to the same email. The recipient opens the link and enters the password without needing an account.",
@@ -2133,7 +2134,7 @@ export function createGuteneoMcpServer(
     {
       title: "Prepare correspondence",
       description:
-        "Prepare one recipient/channel dispatch with final content, quote, ceiling and next action. Email requires subject and text/html: omit documentId for no file, use a ready documentId for the original PDF attachment, or options.emailDeliveryMode=protected_link for a protected link (protectedDays: 1, 7 or 30). The quote includes hosting where applicable. The password stays exclusively in the sender’s authenticated browser through emailDelivery.passwordAccessUrl; never request/transmit it in tools or chat. Submits/approves nothing with the provider. Review-account restrictions remain. Attachments remain PDFs. When studio tools exist in the catalogue, use import_dataset, generate_documents and prepare_distribution with a published template version for XML/CSV/XLSX/JSON data.",
+        "Prepare one recipient/channel dispatch with final content, quote, ceiling and next action. Email without a file requires subject and text/html. With an accessible ready documentId, omitted subject/body use localized defaults naming the authenticated workspace. Document emails without custom HTML use the branded template; custom HTML supports safe inline email styles. For protected_link only, place {{document_url}} as the exact href of a custom anchor button; the server substitutes the private URL before review. Never supply the actual URL or password. Use a ready documentId for the original PDF attachment, or options.emailDeliveryMode=protected_link for a protected link (protectedDays: 1, 7 or 30). The quote includes hosting where applicable. The password stays exclusively in the sender’s authenticated browser through emailDelivery.passwordAccessUrl; never request/transmit it in tools or chat. Submits/approves nothing with the provider. Review-account restrictions remain. Attachments remain PDFs. When studio tools exist in the catalogue, use import_dataset, generate_documents and prepare_distribution with a published template version for XML/CSV/XLSX/JSON data.",
       inputSchema: z
         .object({
           idempotencyKey: key,
@@ -2154,9 +2155,21 @@ export function createGuteneoMcpServer(
           documentId: id.optional(),
           senderId: id.optional(),
           campaignId: id.optional(),
-          subject: z.string().max(250).optional(),
-          html: z.string().max(250_000).optional(),
-          text: z.string().max(250_000).optional(),
+          subject: z
+            .string()
+            .max(250)
+            .optional()
+            .describe(emailPreparationDescriptions.subject),
+          html: z
+            .string()
+            .max(250_000)
+            .optional()
+            .describe(emailPreparationDescriptions.html),
+          text: z
+            .string()
+            .max(250_000)
+            .optional()
+            .describe(emailPreparationDescriptions.text),
           ceilingMinor: z.number().int().nonnegative().safe().optional(),
           options: z
             .object({

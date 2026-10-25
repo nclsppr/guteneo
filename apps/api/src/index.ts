@@ -1,3 +1,7 @@
+import {
+  emailContentCapabilities,
+  emailPreparationDescriptions,
+} from "./email-preparation-contract";
 import { handleBelvedereRoute } from "./belvedere";
 import { handleBelvedereHost } from "./belvedere-host";
 import { GUTENEO_VERSION } from "../../../packages/contracts/src/release";
@@ -194,6 +198,7 @@ export function getCapabilities(env: Env) {
         liveSending: liveSendingEnabled(env, "email"),
         name: "Email",
         deliveryModes: ["none", "attachment", "protected_link"],
+        content: emailContentCapabilities,
         maxAttachmentBytes: 10_000_000,
         protectedDocument: {
           available:
@@ -1116,9 +1121,12 @@ const prepareSchema = z
     channel: z.enum(["fax", "email", "postal"]),
     recipient: z.record(z.string(), z.unknown()),
     documentId: z.string().optional(),
-    subject: z.string().optional(),
-    html: z.string().optional(),
-    text: z.string().optional(),
+    subject: z
+      .string()
+      .optional()
+      .describe(emailPreparationDescriptions.subject),
+    html: z.string().optional().describe(emailPreparationDescriptions.html),
+    text: z.string().optional().describe(emailPreparationDescriptions.text),
     senderId: z.string().optional(),
     options: z.record(z.string(), z.unknown()).optional(),
     campaignId: z.string().optional(),

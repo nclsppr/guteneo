@@ -40,6 +40,35 @@ regression protocol and bounded local timing evidence. The initial presentation/
 The personal-space and Belvédère alignment below is a subsequent source change;
 older illustration measurements and release proof do not qualify it.
 
+## Email preparation geometry — 25 October candidate
+
+V2 keeps its existing 10 px enclosing-panel and 7 px control radii. The protected
+link choice, protected-delivery review summary, email preview and PDF viewer frame
+participate in that same panel rule; they no longer inherit square Classic framing alongside
+rounded V2 panels. The actual PDF page and customer-authored email/document content
+retain their original paper geometry. Classic presentation remains unchanged.
+
+This CSS refinement adds no component, business request or eager dependency. It
+preserves document selection, password actions, exact-cost review, consent,
+keyboard behavior and the four-language form. Measured browser observations
+belong to this candidate; earlier V2 performance or production proof cannot
+qualify these new selectors. The behavior source is `dashboard-v2.css`, with
+protected-email regression coverage in `tests/e2e/protected-email.spec.ts`.
+
+The synthetic Chromium comparison covered 1440, 768 and 390 px widths in light
+and dark themes. Previously square protection/summary/email frames measured
+0 px; the candidate measures 10 px, with no observed horizontal overflow or page
+errors in those six views. A built local Chromium run at 1440 × 1100 px used
+fictional intercepted business responses and measured 50 resource entries,
+1,009,646 transferred bytes and four API GETs (session, capabilities, documents,
+senders) after PDF selection and message entry. Its single first-contentful-paint
+sample was 236 ms. These are candidate observations, not evidence of a speed gain
+or a production-performance qualification; the CSS change introduces no additional
+module or request. Nine existing localized-control and protection-duration/price
+cases passed across desktop Chromium, mobile Chromium and iPhone WebKit. These
+synthetic browser checks establish preserved form behavior, not real sending or
+physical-device qualification.
+
 ## Scope and entry
 
 V2 uses the signed-in account, current workspace, actual data available to
@@ -244,8 +273,8 @@ qualification.
 On mobile, Classic/V2 review presents PDF before consent. Its preview frame
 retains fixed height while the module loads, pages render or an error displays.
 The document scrolls inside it, including keyboard scrolling. PDF controls
-and download remain available. Only dispatch review uses this frame; other
-previews retain their layout.
+and download remain available. Dispatch review and the document page above paid
+PDF-verification consent use this frame. Other previews retain their layout.
 
 This prevents a PDF loading midgesture from moving the targeted checkbox.
 The issue was reproduced with a local document response held between pointer

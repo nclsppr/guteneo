@@ -1,4 +1,4 @@
-# Public design preview — updated 2026-09-17
+# Public design preview — updated 2026-10-26
 
 The user originally requested an immediate Cloudflare deployment to inspect the existing design. The separate preview is now at **https://guteneo-preview.nclsppr.workers.dev**, with its fictional workspace at **https://guteneo-preview.nclsppr.workers.dev/#/app**. Since the controlled switch on 17 September 2026 at 01:11 UTC, **https://guteneo.com** serves the production-mode application, with Auth0 configured and live sending disabled. Do not run the fictional-preview journeys against that canonical application. Only the read-only developer and SEO specs support the explicit `GUTENEO_PUBLIC_APP=1` mode for canonical qualification; never run the fictional workspace journeys there. See [LIVE_RELEASE.md](LIVE_RELEASE.md) for its current release and remaining account qualification.
 
@@ -14,6 +14,25 @@ The preview publication recorded at **03:11:29 UTC** on 17 September used source
 - Sample organizations isolated in one tab's memory. Reloading restores the examples; closing the page retains no application data. No document contents or form data are submitted to a backend.
 
 The public preview is a design model, distinct from the local application's D1/R2/Queue simulator. It does not qualify identity, MCP hosts, document ingestion, provider execution or reliability under real load. File upload and custom PDF rendering are disabled in this public preview. Assistant connection controls explain that the service is not yet connected. All real backend routes and all write methods return `403 PREVIEW_ONLY`; the Worker has only an `ASSETS` binding. No production authentication bypass, public document bucket or shared demo database was introduced.
+
+## Email model parity
+
+The tab-only preparation model accepts a message without custom HTML and formats
+its text as an escaped paragraph with line breaks. Message-only preparation still
+requires a subject and message. With a fictional ready PDF attachment, omitted
+subject/message fields use the shared pure document-email template and the
+selected fictional workspace name. The fictional account has no saved language,
+so these defaults use French. Body defaults apply only when both custom HTML and
+text are absent. Supplied custom HTML requires a supplied plain-text alternative
+and remains unchanged in this isolated model; it does not run the production
+sanitizer or derive text from HTML.
+
+Preparation, review and simulated tracking remain in the tab's memory. No backend
+request, real recipient link, hosting record, password, provider call or purchase
+is created by this presentation parity. Protected-hosting behavior, HTML-to-text
+conversion and authenticated sender identity need their separate application
+checks. Preview form labels follow the same optional-document-message state as
+the shared composer; a working fixture is not publication or inbox evidence.
 
 ## Build, verify and release
 

@@ -274,9 +274,11 @@ test("mobile forms expose native validation, review and errors without a provide
   await page
     .getByLabel("Adresse e-mail", { exact: true })
     .fill("mobile@example.invalid");
-  await page.getByLabel("Objet", { exact: true }).fill("Relecture mobile");
   await page
-    .getByLabel("Message", { exact: true })
+    .getByLabel("Objet (facultatif)", { exact: true })
+    .fill("Relecture mobile");
+  await page
+    .getByLabel("Message (facultatif)", { exact: true })
     .fill("Une correspondance relue sur téléphone.");
   await page.getByRole("button", { name: "Vérifier et préparer" }).click();
   await expect(

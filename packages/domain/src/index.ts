@@ -3,6 +3,20 @@ import {
   documentAccessPolicySql,
   documentSessionPolicySql,
 } from "../../contracts/src/document-authentication";
+import { deliveryText } from "../../contracts/src/delivery-messages";
+import {
+  defaultLocale,
+  normalizeLocale,
+  type SupportedLocale,
+} from "../../contracts/src/locale";
+import {
+  documentEmailDefaults,
+  protectedEmailInstructions,
+  renderProtectedEmailFooter,
+  renderTransactionalEmail,
+  transactionalEmailText,
+  type ProtectedEmailDocument,
+} from "../../contracts/src/email-template";
 import {
   workspacePermissions,
   type WorkspaceRole,
@@ -59,7 +73,9 @@ import {
 export { settleFaxUsage, type OperatorFaxUsageProof } from "./live-fax-usage";
 export { validateLiveFaxQuote, type LiveFaxIdentity } from "./live-fax-quotes";
 import {
-  cleanHtml,
+  cleanEmailHtml,
+  assertNoDocumentUrlPlaceholder,
+  boundedText,
   htmlToText,
   safeHeader,
   validateRecipient,
@@ -424,6 +440,7 @@ export class DomainService {
       )
       .bind(ctx.organizationId, ctx.userId)
       .first<{
+        name: string;
         mode: Mode;
         membership_role: string;
         supervisor_can_approve: number;
@@ -859,7 +876,7 @@ export class DomainService {
     secureDistribution?: SecureDistributionDescriptor,
   ): Promise<Dispatch> {
     writable(ctx);
-    await this.organization(ctx);
+    const organization = await this.organization(ctx);
     key(idempotencyKey);
     if (!["fax", "email", "postal"].includes(input.channel))
       throw new DomainError("INVALID_CHANNEL", "Unknown delivery channel.");
@@ -974,22 +991,57 @@ export class DomainService {
     let html: string | null = null,
       text: string | null = null,
       subject: string | null = null;
+    let emailLocale: SupportedLocale = defaultLocale;
+    const customEmailHtml = Boolean(input.html?.trim());
+    let customDocumentLink = false;
     if (input.channel === "email") {
-      subject = safeHeader(input.subject ?? "");
+      assertNoDocumentUrlPlaceholder(input.subject ?? "");
+      assertNoDocumentUrlPlaceholder(input.text ?? "");
+      if (document) {
+        const account = await this.db
+          .prepare(
+            "SELECT u.preferred_locale FROM users u JOIN memberships m ON m.user_id=u.id WHERE m.organization_id=? AND u.id=?",
+          )
+          .bind(ctx.organizationId, ctx.userId)
+          .first<{ preferred_locale: string | null }>();
+        emailLocale =
+          normalizeLocale(account?.preferred_locale) ?? defaultLocale;
+      }
+      const defaults = document
+        ? documentEmailDefaults(
+            organization.name,
+            options.emailDeliveryMode === "protected_link"
+              ? "protected_link"
+              : "attachment",
+            emailLocale,
+          )
+        : undefined;
+      subject = safeHeader(
+        input.subject?.trim() ? input.subject : (defaults?.subject ?? ""),
+      );
       if (!subject || subject.length > 250)
         throw new DomainError(
           "INVALID_SUBJECT",
           "Enter a subject of 1 to 250 characters.",
         );
-      html = cleanHtml(input.html ?? "");
-      text = input.text?.trim() || htmlToText(html);
+      const sanitized = cleanEmailHtml(input.html ?? "", {
+        allowDocumentUrlPlaceholder:
+          options.emailDeliveryMode === "protected_link",
+      });
+      html = sanitized.html;
+      customDocumentLink = sanitized.hasDocumentUrlPlaceholder;
+      const htmlText = htmlToText(html);
+      if (customEmailHtml && !htmlText)
+        throw new DomainError(
+          "INVALID_EMAIL_CONTENT",
+          "Custom HTML must contain readable message content.",
+        );
+      text = input.text?.trim() || htmlText || defaults?.text || "";
       if (!text || new TextEncoder().encode(text).length > LIMITS.htmlBytes)
         throw new DomainError(
           "INVALID_EMAIL_CONTENT",
           "Text version is empty or too long.",
         );
-      if (!html)
-        html = `<p>${text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, "<br>")}</p>`;
       if (
         await this.db
           .prepare(
@@ -1004,6 +1056,7 @@ export class DomainService {
           409,
         );
     }
+    let protectedEmailDocument: ProtectedEmailDocument | undefined;
     let defaultEmailSenderId: string | undefined;
     if (input.channel === "email") {
       const emailSender = await this.config.ensureEmailSender?.(ctx);
@@ -1038,9 +1091,45 @@ export class DomainService {
       );
       options.protectedDocument = protection;
       options.protectedDays = protection.durationDays;
-      const safeUrl = url.replace(/&/g, "&amp;").replace(/"/g, "&quot;");
-      html += `<p><a href="${safeUrl}">View the protected document</a></p><p>Ask the sender for the password through another channel. This link expires on ${protection.expiresAt.slice(0, 10)}.</p>`;
-      text += `\n\nView the protected document : ${url}\nAsk the sender for the password through another channel. This link expires on ${protection.expiresAt.slice(0, 10)}.`;
+      const recipientUrl = new URL(url);
+      recipientUrl.searchParams.set("lang", emailLocale);
+      protectedEmailDocument = {
+        url: recipientUrl.href,
+        expiresAt: protection.expiresAt,
+      };
+    }
+    if (input.channel === "email") {
+      // Resolve only a parsed anchor href, then freeze the complete safe message.
+      if (customEmailHtml) {
+        html = cleanEmailHtml(input.html!, {
+          documentUrl: protectedEmailDocument?.url,
+        }).html;
+        if (protectedEmailDocument)
+          html += renderProtectedEmailFooter(
+            protectedEmailDocument,
+            emailLocale,
+            !customDocumentLink,
+          );
+      } else if (document) {
+        html = renderTransactionalEmail({
+          text: text!,
+          workspaceName: organization.name,
+          locale: emailLocale,
+          protectedDocument: protectedEmailDocument,
+        });
+        text = transactionalEmailText({
+          text: text!,
+          workspaceName: organization.name,
+          locale: emailLocale,
+        });
+      } else {
+        html = `<p>${text!.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, "<br>")}</p>`;
+      }
+      if (protectedEmailDocument)
+        text += `\n\n${deliveryText("View the protected document", emailLocale)}: ${protectedEmailDocument.url}\n${protectedEmailInstructions(protectedEmailDocument.expiresAt, emailLocale)}`;
+      html = cleanEmailHtml(html).html;
+      boundedText(html, LIMITS.htmlBytes);
+      boundedText(text!, LIMITS.htmlBytes, "INVALID_EMAIL_CONTENT");
     }
     const selectedSenderId = input.senderId ?? defaultEmailSenderId;
     const sender = selectedSenderId

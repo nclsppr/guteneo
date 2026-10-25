@@ -356,6 +356,10 @@ function postalErrorMessage(code?: string): string | undefined {
 export function emailErrorMessage(code?: string): string | undefined {
   if (!code) return undefined;
   const messages: Record<string, string> = {
+    INVALID_DOCUMENT_URL_PLACEHOLDER:
+      "Use {{document_url}} exactly as the link address in your custom HTML.",
+    DOCUMENT_URL_NOT_AVAILABLE:
+      "Select a PDF and enable its protected link to use {{document_url}}.",
     EMAIL_ATTACHMENT_TOO_LARGE:
       "This PDF exceeds the 10 MB email limit. Choose a PDF of at most 10 MB.",
     PROTECTED_DOCUMENTS_NOT_CONFIGURED:
@@ -753,7 +757,7 @@ export function PdfPreview({
   );
 }
 export function EmailPreview({ html }: { html: string }) {
-  const content = `<!doctype html><html><head><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src data:;"><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{font:16px/1.6 Georgia,serif;color:#181b22;padding:24px;overflow-wrap:anywhere}img{max-width:100%}</style></head><body>${html}</body></html>`;
+  const content = `<!doctype html><html><head><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src data:;"><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{font:16px/1.6 Georgia,serif;color:#181b22;margin:0;padding:24px;overflow-wrap:anywhere}body:has(>table[role="presentation"]){padding:0}img{max-width:100%}</style></head><body>${html}</body></html>`;
   return (
     <iframe
       className="email-preview"

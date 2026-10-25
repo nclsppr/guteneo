@@ -445,8 +445,17 @@
 .workspace-v2 .form-panel,
 .workspace-v2 .approval-panel,
 .workspace-v2 .notice,
-.workspace-v2 .preview-empty {
+.workspace-v2 .preview-empty,
+.workspace-v2 .protected-document-choice,
+.workspace-v2 .protected-document-summary,
+.workspace-v2 .email-preview,
+.workspace-v2 .pdf-preview-viewport,
+.workspace-v2 .pdf-preview > .pdf-viewer {
   border-radius: 10px;
+}
+/* Round the viewing surface while keeping the original PDF page geometry. */
+.workspace-v2 .pdf-preview > .pdf-viewer {
+  overflow: hidden;
 }
 .workspace-v2
   :is(
@@ -487,7 +496,8 @@
     .section-title,
     .channel-controls h2,
     .operations-diagnostics > h2,
-    .credit-balance h2
+    .credit-balance h2,
+    .protected-document-summary h2
   ) {
   font-family: var(--font-body);
   font-size: 18px;
@@ -495,6 +505,14 @@
   line-height: 1.4;
   letter-spacing: -0.01em;
   color: var(--ink);
+}
+.workspace-v2 .protected-document-summary h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.workspace-v2 .protected-document-summary h2 svg {
+  flex: 0 0 auto;
 }
 .workspace-v2 :is(.section-toolbar, .studio-toolbar, .studio-list-actions) {
   flex-wrap: wrap;

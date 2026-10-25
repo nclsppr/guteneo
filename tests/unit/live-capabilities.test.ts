@@ -50,6 +50,25 @@ describe("truthful live transport capabilities", () => {
     expect(await response.json()).toMatchObject({ version: release.version });
   });
 
+  it("advertises email defaults and the safe placeholder without enabling delivery", () => {
+    const email = getCapabilities(hosted).channels.find(
+      (channel) => channel.id === "email",
+    );
+    expect(email).toMatchObject({
+      liveSending: false,
+      status: "not_configured",
+      content: {
+        documentDefaults: "localized_authenticated_workspace",
+        messageOnlyRequires: ["subject", "text_or_html"],
+        documentHtmlPresentation: "branded_template_unless_custom_html",
+        customHtml: "safe_inline_email_css",
+        protectedLinkPlaceholder: "{{document_url}}",
+        protectedLinkPlaceholderContext: "exact_anchor_href_only",
+        contentBinding: "final_sanitized_content_before_fingerprint",
+      },
+    });
+  });
+
   it("reports individual PDF-verification readiness consistently with its production gates", () => {
     const validator = {
       fetch: async () => new Response("fixture"),

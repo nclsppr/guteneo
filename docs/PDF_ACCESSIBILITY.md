@@ -22,6 +22,12 @@ profile. The browser uses its existing same-origin session and CSRF protections.
 Assistants, native callers and other membership roles cannot create that purchase
 consent. A grant, installation, scope or assistant statement is not approval.
 
+The document page uses the shared stable PDF viewport above purchase controls in
+Classic and V2. Its height is reserved through module loading, page rendering and
+errors, so the price checkbox does not move during a pointer gesture. Long PDFs
+scroll inside the frame; displaying or scrolling the document creates no purchase
+request. Price consent and the explicit purchase action remain separate.
+
 `POST /api/documents/:id/validation` runs the purchased verification against a ready,
 accessible immutable original. Its stable idempotency key binds that purchase and
 recovers an uncertain response without purchasing or running the engine twice.
