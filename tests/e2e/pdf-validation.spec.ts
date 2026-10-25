@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { readFile } from "node:fs/promises";
 import { PDFDocument } from "pdf-lib";
 import {
   PDF_VALIDATION_PRICE_MINOR,
@@ -279,7 +280,7 @@ test("a changed price revokes the old confirmation and requires a fresh user act
 });
 
 for (const profile of Object.keys(profileRules) as PdfValidationProfile[]) {
-  test(`paid ${profile} report preserves original bytes, manual review and export`, async ({
+  test(`paid ${profile} report preserves original bytes, manual review and keyboard export`, async ({
     page,
   }) => {
     const state = await fixture(page);
@@ -294,11 +295,20 @@ for (const profile of Object.keys(profileRules) as PdfValidationProfile[]) {
     await expect(result).toContainText("Revue humaine à compléter");
     await expect(result).toContainText("ni une certification d’accessibilité");
     const downloaded = page.waitForEvent("download");
+    // Exercise the native button's keyboard activation. Mobile WebKit may
+    // dispatch a coordinate click before its compositor finishes scrolling.
     await result
       .getByRole("button", { name: "Exporter le rapport JSON" })
-      .click();
-    expect((await downloaded).suggestedFilename()).toBe(
+      .press("Enter");
+    const download = await downloaded;
+    expect(download.suggestedFilename()).toBe(
       `guteneo-${profile}-report_${profile}.json`,
+    );
+    expect(await download.failure()).toBeNull();
+    const path = await download.path();
+    expect(path).not.toBeNull();
+    expect(await readFile(path!, "utf8")).toBe(
+      JSON.stringify(report(profile), null, 2),
     );
     expect(state.writes).toHaveLength(1);
   });

@@ -51,6 +51,17 @@ change passed all **9** history cases across three browser projects. Typecheck,
 ESLint, documentation/reference checks, MCP annotation audit and dependency audit
 passed before final combined-head CI; these counts overlap earlier runs.
 
+Hosted run `40162534738` on `8ff662a` passed all four Vitest shards, build,
+checks, security, engineering, scanner, PDF-validator and distribution jobs;
+its separate native run passed tests and archive.
+The browsers exposed an obsolete navigation-order assertion after personal
+documents became a normal link. Mobile WebKit also clicked the report export
+before its compositor finished scrolling. The navigation assertion now checks
+the personal link separately, and export uses native keyboard activation plus
+an exact downloaded-JSON comparison. The previously failing export case passed
+all three local browser projects. Final combined-head CI is tracked on PR79;
+the earlier run is not an all-green release result.
+
 A read-only private scanner observation at **2026-10-25T02:18:29Z** verified
 ClamAV **1.5.4**, signature database **28163** dated **2026-10-24T06:26:10Z**,
 matching deployed version/build identity and an age below the 48-hour policy.

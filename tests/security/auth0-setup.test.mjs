@@ -104,6 +104,14 @@ function fixture(overrides = {}) {
         clients.push(result);
         return result;
       }
+      if (method === "PATCH" && /^clients\/client_\d+$/.test(path)) {
+        const client = clients.find(
+          (item) => `clients/${item.client_id}` === path,
+        );
+        assert.ok(client);
+        Object.assign(client, body);
+        return client;
+      }
       if (method === "POST" && path === "resource-servers")
         return { id: "resource_fixture", ...body };
       if (method === "POST" && path === "connections")
@@ -170,7 +178,27 @@ test("Auth0 default plan makes no external calls or tenant-wide writes and has p
   assert.equal(plan.clients.length, 3);
   assert.deepEqual(plan.clients[0].body.callbacks, [
     "https://guteneo.com/auth/callback",
+    "https://belvedere.guteneo.com/auth/callback",
   ]);
+  assert.deepEqual(plan.clients[0].body.allowed_logout_urls, [
+    "https://guteneo.com/",
+    "https://belvedere.guteneo.com/",
+  ]);
+  assert.deepEqual(plan.clients[0].body.web_origins, [
+    "https://guteneo.com",
+    "https://belvedere.guteneo.com",
+  ]);
+  assert.deepEqual(plan.clients[1].body.callbacks, [
+    "http://localhost:8788/callback",
+  ]);
+  assert.deepEqual(plan.clients[2].body.callbacks, [
+    "http://localhost:8787/callback",
+    "https://www.cursor.com/agents/mcp/oauth/callback",
+  ]);
+  for (const client of plan.clients.slice(1)) {
+    assert.equal(Object.hasOwn(client.body, "allowed_logout_urls"), false);
+    assert.equal(Object.hasOwn(client.body, "web_origins"), false);
+  }
   for (const client of plan.clients)
     assert.deepEqual(client.body.grant_types, ["authorization_code"]);
   assert.equal(plan.clients[1].body.token_endpoint_auth_method, "none");
@@ -193,6 +221,36 @@ test("Auth0 default plan makes no external calls or tenant-wide writes and has p
     }).clients.length,
     4,
   );
+});
+
+test("Auth0 maintenance retains both exact browser hosts when updating the existing registration", async () => {
+  const f = fixture();
+  const browser = setupPlan().clients.find(
+    (client) => client.key === "browser",
+  );
+  f.clients.push({
+    ...browser.body,
+    client_id: "client_1",
+    callbacks: ["https://guteneo.com/auth/callback"],
+    allowed_logout_urls: ["https://guteneo.com/"],
+    web_origins: ["https://guteneo.com"],
+  });
+  await runSetup({ mode: "apply", api: f.api, writer: async () => {} });
+  const update = f.calls.find(
+    (call) => call.method === "PATCH" && call.path === "clients/client_1",
+  );
+  assert.deepEqual(update.body.callbacks, [
+    "https://guteneo.com/auth/callback",
+    "https://belvedere.guteneo.com/auth/callback",
+  ]);
+  assert.deepEqual(update.body.allowed_logout_urls, [
+    "https://guteneo.com/",
+    "https://belvedere.guteneo.com/",
+  ]);
+  assert.deepEqual(update.body.web_origins, [
+    "https://guteneo.com",
+    "https://belvedere.guteneo.com",
+  ]);
 });
 
 test("Auth0 apply refuses missing tenant prerequisites before creating any resource", async () => {

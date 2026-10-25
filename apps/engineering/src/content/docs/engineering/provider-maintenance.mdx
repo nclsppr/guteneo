@@ -177,6 +177,13 @@ client scopes, exact callbacks, token audience/resource and canonical issuer mus
 stay consistent without broadening consent as a recovery tactic. Optional browser
 identity aliases do not silently change the MCP authorization-server namespace.
 
+The [authoritative Auth0 setup catalog](https://github.com/nclsppr/guteneo/blob/main/docs/AUTH0_SETUP.md)
+retains both exact browser hosts: `https://guteneo.com` and
+`https://belvedere.guteneo.com`. Client maintenance must preserve each host's
+`/auth/callback`, root logout return and web origin. Each host keeps its own
+browser session, and Belvédère still checks the current operator identity and
+access policy after login.
+
 Validate signed issuer/subject and primary authentication time before recording
 identity evidence. Under strong document policy, validate the qualified method
 claim as well; an installed Action, enrolled factor or `mfa` flag alone proves no

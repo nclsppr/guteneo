@@ -117,18 +117,19 @@ From the repository root, with the probe still running:
 ```sh
 node --input-type=module <<'NODE'
 import assert from 'node:assert/strict';
-import { createProbeFetch, readProbeCredential } from './apps/pdf-validator/scripts/probe-credentials.mjs';
+import { assertPdfVerificationClosed, createProbeFetch, readProbeCredential } from './apps/pdf-validator/scripts/probe-credentials.mjs';
 const response = await fetch('https://guteneo.com/api/capabilities', {
   redirect: 'error', signal: AbortSignal.timeout(15000),
 });
 assert.equal(response.status, 200);
 const capabilities = await response.json();
-assert.equal(capabilities.mode, 'production');
-assert.equal(capabilities.pdfValidation?.available, false);
+assertPdfVerificationClosed(capabilities);
 const call = createProbeFetch('http://127.0.0.1:8891', readProbeCredential());
 const stopped = await call('/stop', { method: 'POST', signal: AbortSignal.timeout(48000) });
 assert.equal(stopped.status, 200);
-assert.deepEqual(await stopped.json(), { status: 'stopped' });
+await stopped.json();
+// SIGTERM can return before shutdown completes. Only a terminal state below
+// confirms that the private container has physically stopped.
 const deadline = performance.now() + 20000;
 for (;;) {
   const response = await call('/state', { signal: AbortSignal.timeout(5000) });
