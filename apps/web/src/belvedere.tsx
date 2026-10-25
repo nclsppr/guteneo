@@ -56,7 +56,7 @@ import {
   useDebounced,
 } from "./belvedere-data";
 import { BelvedereGlobe } from "./belvedere-globe";
-import { bmsg, bmsgIn } from "./belvedere-i18n";
+import { bmsg, bmsgIn, belvedereNetResultReason } from "./belvedere-i18n";
 import { BrandMark } from "./brand";
 import { formatLocale, useLocale } from "./locale";
 import { ThemeToggle } from "./theme-toggle";
@@ -2058,12 +2058,7 @@ function Finance({ basePath, filters, revision, refresh }: ViewProps) {
         <section className="bv-panel bv-result">
           <SectionHeading title={bmsg("Net profit")} />
           <strong>{bmsg("Cannot be calculated")}</strong>
-          <p>
-            {data.netResultUnavailableReason ||
-              bmsg(
-                "The full costs have not been reconciled yet. Net profit cannot be calculated reliably.",
-              )}
-          </p>
+          <p>{belvedereNetResultReason(data.netResultUnavailableReason)}</p>
           <span className="bv-source-note">
             {bmsg(
               "Receipts, consumption and known costs alone do not establish an accounting result.",

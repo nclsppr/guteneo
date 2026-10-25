@@ -195,7 +195,10 @@ switching languages updates existing screens without a reload.
 Never pass arbitrary server values or user documents through `msg`. Preserve
 canonical routes with the shared helpers and retain public language parameters.
 Native strings live in `ios/Guteneo/Resources/Localizable.xcstrings`; new Swift
-lookup keys are English. Belvédère follows the same account preference. Films
+lookup keys are English. Belvédère follows the same account preference. Translate only exact known
+server-authored interface explanations through their declared catalog; preserve
+unknown explanations and customer names verbatim. Keep distinct financial
+messages distinct when translating. Films
 must select the matching localized asset and stop old playback when the language
 changes; use the [video production guide](/engineering/video-production/).
 

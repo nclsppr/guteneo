@@ -1,6 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 import messages from "../../apps/web/src/locales/messages-belvedere.json" with { type: "json" };
 import type {
+  BelvedereFinance,
   BelvedereOverview,
   BelvederePage,
   BelvedereWorkshop,
@@ -205,7 +206,49 @@ for (const locale of ["fr", "en", "de", "lb"] as const) {
             name: copy(locale, "Usage facturable du compte Cloudflare"),
           }),
         ).toBeVisible();
+      if (name === "Finances")
+        await expect(page.locator(".bv-result p")).toHaveText(
+          copy(
+            locale,
+            "Les coûts fournisseurs, les factures Cloudflare et les encaissements complets ne sont pas disponibles.",
+          ),
+        );
     }
+    const productionReason =
+      "Promotional credits are not revenue. Supplier invoices, refunds, taxes and fixed costs have not all been reconciled.";
+    let reason = productionReason;
+    await page.route(`**${fixtureBase}/api/finance?**`, (route) => {
+      const data = fixtureResponse(
+        new URL(route.request().url()),
+      ) as BelvedereFinance;
+      return route.fulfill({
+        json: { ...data, netResultUnavailableReason: reason },
+      });
+    });
+    await navigate(page, locale, "Finances");
+    await expect(page.locator(".bv-result p")).toHaveText(
+      copy(
+        locale,
+        "Les crédits promotionnels ne sont pas des revenus. Les factures fournisseurs, les remboursements, les taxes et les frais fixes ne sont pas encore tous rapprochés.",
+      ),
+    );
+    // Unknown data that happens to match an interface key stays literal.
+    reason = "Synthèse";
+    await page
+      .getByRole("button", { name: copy(locale, "Actualiser les données") })
+      .click();
+    await expect(page.locator(".bv-result p")).toHaveText("Synthèse");
+    reason = "";
+    await page
+      .getByRole("button", { name: copy(locale, "Actualiser les données") })
+      .click();
+    await expect(page.locator(".bv-result p")).toHaveText(
+      copy(
+        locale,
+        "Les charges complètes ne sont pas encore rapprochées. Le résultat net ne peut pas être calculé de façon fiable.",
+      ),
+    );
+    await page.unroute(`**${fixtureBase}/api/finance?**`);
     await navigate(page, locale, "Ateliers");
     await page.getByRole("button", { name: "Synthèse", exact: true }).click();
     await expect(

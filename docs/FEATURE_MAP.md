@@ -883,7 +883,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Distinct promotional credits, dispatch/hosting/individual PDF purchases and legacy subscription charges, actual receipts and supplier costs
 - Server-side Cloudflare connectors with explicit availability; never invent cost or profit
 - Additive migration 0052 and deterministic loopback-only preview; hosted activation is separate
-- Account-selected four-language UI on direct entry and tab focus; no additional private language selector
+- Account-selected four-language UI on direct entry and tab focus, including exact known source-authored finance explanations with distinct accounting meanings; unknown data remains verbatim and no private language selector is added
 - V2 workshop visual vocabulary with independent platform navigation, shared single system-default light/dark action, readable tables/globe and keyboard mobile drawer; theme changes preserve filters without business reads/writes or layout-preference changes
 
 **Contract:** [BELVEDERE.md](BELVEDERE.md) · **Implementation:** [apps/api/src/belvedere.ts](../apps/api/src/belvedere.ts)

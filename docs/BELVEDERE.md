@@ -21,7 +21,9 @@ French, English, German or Luxembourgish. Belvédère adds no selector. Direct
 entry receives the validated preference in private HTML after the normal
 guard; tab return rereads the session. Without a preference, browser languages
 apply. Labels, accessible messages, numbers, dates and charts follow that
-choice; names, identifiers and business data retain their values. Preference
+choice. Known source-authored finance explanations are localized with their
+original accounting meaning; unknown explanations remain verbatim. Names,
+identifiers and business data retain their values. Preference
 grants no role or access. See [MULTILINGUAL.md](MULTILINGUAL.md).
 
 ## Presentation
