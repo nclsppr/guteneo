@@ -111,10 +111,12 @@
 }
 .developer-copy p {
   margin: 20px 0;
+  max-width: 72ch;
 }
 .developer-copy ul,
 .developer-copy ol {
   padding-left: 22px;
+  max-width: 72ch;
 }
 .developer-copy li {
   padding-left: 4px;
@@ -228,7 +230,7 @@
   color: var(--blue);
 }
 .developer-reference > p {
-  max-width: 750px;
+  max-width: 72ch;
 }
 .developer-reference .developer-reference-status {
   font-size: 12px;

@@ -314,9 +314,13 @@ test("postal timing follows the recipient and opens the FAQ without losing the d
   });
 
   const opened = page.waitForEvent("popup");
+  await expect(timing.getByRole("link")).toHaveAttribute(
+    "href",
+    "/support/?lang=fr#postal-cutoff-faq",
+  );
   await timing.getByRole("link").click();
   const faqPage = await opened;
-  await expect(faqPage).toHaveURL(/#postal-cutoff-faq$/);
+  await expect(faqPage).toHaveURL(/\/support\/\?lang=fr#postal-cutoff-faq$/);
   const faq = faqPage.locator("#postal-cutoff-faq");
   await expect(faq).toHaveAttribute("open", "");
   await expect(faq).toBeFocused();

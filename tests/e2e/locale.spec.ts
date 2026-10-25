@@ -23,7 +23,7 @@ test("the saved account language selects the public film ahead of the browser ch
           : {},
     }),
   );
-  await page.goto("/?lang=en");
+  await page.goto("/how-it-works/?lang=en");
   const film = page.locator('[data-film="introduction"]');
   await expect(film).toHaveAttribute("data-locale", "de");
   await expect(film.locator("video")).toHaveAttribute("lang", "de");
@@ -43,11 +43,19 @@ test("the saved account language selects the public film ahead of the browser ch
 });
 
 test.use({ locale: "en-GB" });
-test("home language is available in navigation, survives reload and works on mobile", async ({
+test("the home language follows navigation to the film, survives reload and works on mobile", async ({
   page,
 }) => {
   await page.goto("/?lang=en");
   let picker = await publicLanguagePicker(page);
+  await expect(picker).toHaveValue("en");
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await page
+    .locator(".public-home-hero")
+    .getByRole("link", { name: "See how it works", exact: true })
+    .click();
+  await expect(page).toHaveURL(/\/how-it-works\/\?lang=en$/);
+  picker = await publicLanguagePicker(page);
   await expect(picker).toHaveValue("en");
   await expect(page.locator(".homepage-film-play")).toContainText(
     "Watch the film",

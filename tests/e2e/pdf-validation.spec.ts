@@ -337,6 +337,8 @@ test("public entry opens the unit-check offer without creating a purchase", asyn
 }) => {
   const state = await fixture(page);
   await page.goto("/#pdf-checks");
+  await page.locator("a#pdf-checks").click();
+  await expect(page).toHaveURL(/\/pdf-checks\/$/);
   await page
     .locator(".pdf-check-public")
     .getByRole("link", { name: "Découvrir les contrôles PDF" })
@@ -407,7 +409,7 @@ for (const [locale, title, priceLabel] of [
     page,
   }, info) => {
     const state = await fixture(page, { locale });
-    await page.goto(`/?lang=${locale}#pdf-checks`);
+    await page.goto(`/pdf-checks/?lang=${locale}`);
     const offer = page.locator(".pdf-check-public");
     await expect(
       offer.getByRole("heading", { name: title, exact: true }),

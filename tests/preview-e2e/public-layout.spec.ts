@@ -132,6 +132,23 @@ for (const width of [1440, 390]) {
             headerBox.width * 0.8,
           );
       }
+      if (path === "/developers/" && width === 1440) {
+        const measures = await page
+          .locator(".developer-copy p, .developer-reference > p")
+          .evaluateAll((paragraphs) =>
+            paragraphs.map((paragraph) => {
+              const context = document
+                .createElement("canvas")
+                .getContext("2d")!;
+              context.font = getComputedStyle(paragraph).font;
+              return (
+                paragraph.getBoundingClientRect().width /
+                context.measureText("0").width
+              );
+            }),
+          );
+        for (const measure of measures) expect(measure).toBeLessThanOrEqual(75);
+      }
       const name =
         path === "/" ? "home" : path.replaceAll("/", "-").replace(/^-|-$/g, "");
       await page.screenshot({
