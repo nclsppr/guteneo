@@ -59,11 +59,19 @@ export function PublicHeader({
       )
         setMenuOpen(false);
     }
+    function closeOnEscape(event: KeyboardEvent) {
+      if (event.key !== "Escape" || event.defaultPrevented) return;
+      event.preventDefault();
+      setMenuOpen(false);
+      menuButton.current?.focus();
+    }
     document.addEventListener("pointerdown", closeOutside);
     document.addEventListener("focusin", closeOutside);
+    document.addEventListener("keydown", closeOnEscape);
     return () => {
       document.removeEventListener("pointerdown", closeOutside);
       document.removeEventListener("focusin", closeOutside);
+      document.removeEventListener("keydown", closeOnEscape);
     };
   }, [menuOpen]);
 
@@ -76,12 +84,6 @@ export function PublicHeader({
     <header
       className="site-header public-header"
       ref={header}
-      onKeyDown={(event) => {
-        if (event.key !== "Escape" || !menuOpen) return;
-        event.preventDefault();
-        setMenuOpen(false);
-        menuButton.current?.focus();
-      }}
     >
       <Brand />
       <nav

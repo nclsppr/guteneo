@@ -47,27 +47,33 @@ describe("English canonical public routes", () => {
         `/?lang=fr${fragment}`,
       );
   });
-  it("redirects the old installation download without indexing it as a public page", async () => {
-    expect(canonicalPublicAssetPath("/guides/installer-guteneo.md")).toBe(
-      "/guides/install-guteneo.md",
-    );
-    expect(site.paths).not.toContain("/guides/install-guteneo.md");
-    const { env, fetch } = assets();
-    const request = new Request(
-      `${site.origin}/guides/installer-guteneo.md?lang=en`,
-    );
-    const response = (await servePublicAssets(request, env))!;
-    expect(response.status).toBe(308);
-    expect(response.headers.get("Location")).toBe(
-      `${site.origin}/guides/install-guteneo.md?lang=en`,
-    );
-    expect(response.headers.get("X-Robots-Tag")).toBe("noindex, nofollow");
-    expect(response.headers.get("Cache-Control")).toBe("no-store");
-    expect(fetch).not.toHaveBeenCalled();
-    expect(
-      (await preview.fetch(request, env as unknown as PreviewEnv)).status,
-    ).toBe(308);
-  });
+  it.each(Object.entries(site.assetAliases))(
+    "redirects the old download %s to %s without requiring an alias file",
+    async (alias, canonical) => {
+      expect(canonicalPublicAssetPath(alias)).toBe(canonical);
+      expect(site.paths).not.toContain(canonical);
+      for (const method of ["GET", "HEAD"]) {
+        const request = new Request(`${site.origin}${alias}?lang=en`, {
+          method,
+        });
+        for (const serve of [
+          (env: Env) => servePublicAssets(request, env),
+          (env: Env) => preview.fetch(request, env as unknown as PreviewEnv),
+        ]) {
+          const { env, fetch } = assets();
+          const response = (await serve(env))!;
+          expect(response.status).toBe(308);
+          expect(response.headers.get("Location")).toBe(
+            `${site.origin}${canonical}?lang=en`,
+          );
+          expect(response.headers.get("X-Robots-Tag")).toBe("noindex, nofollow");
+          expect(response.headers.get("Cache-Control")).toBe("no-store");
+          expect(await response.text()).toBe("");
+          expect(fetch).not.toHaveBeenCalled();
+        }
+      }
+    },
+  );
   it.each(Object.entries(PUBLIC_ROUTE_ALIASES))(
     "keeps every old form of %s as an inbound alias for %s",
     async (alias, canonical) => {
