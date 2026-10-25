@@ -1,7 +1,8 @@
 # Interface languages
 
 Repository source, comments and documentation are authored in English.
-Frontend/video localization is the exception; see
+Frontend/video localization and declared recipient-facing transactional copy are
+the exceptions; see
 [repository standards](REPOSITORY_STANDARDS.md). URL paths, fragments and API
 identifiers remain English regardless of displayed language. This document's
 dated qualification sections are historical evidence, not renewed release
@@ -191,6 +192,20 @@ language alternatives and structured data. The generic link remains initial
 French HTML with neutral logo/domain sharing artwork, then the client applies
 visitor preference. Sitemap variants do not prove indexing. See
 [TECHNICAL_SEO.md](TECHNICAL_SEO.md) for contract/evidence limits.
+
+## Recipient-facing delivery copy
+
+Protected-link email instructions are localized interface copy, authored in the
+shared `packages/contracts/src/delivery-messages.json` resource. Preparation uses
+the current authenticated sender's saved account language, with French fallback;
+it does not infer a language from customer content or browser headers. The
+[protected email contract](PROTECTED_EMAIL.md) owns this precedence, link locale
+and immutable-content boundary. The recipient reader reuses the same catalog.
+Document-email subject/body defaults also use declared localized copy and the
+authenticated workspace name; only missing fields are generated. The server never
+infers identity from HTML or translates supplied message text.
+Ordinary customer-authored subject/body, document bytes and non-protected email
+remain unchanged. API messages and machine identifiers remain English.
 
 ## Maintaining translations
 

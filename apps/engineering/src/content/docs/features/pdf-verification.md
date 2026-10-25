@@ -19,7 +19,7 @@ Individual purchase candidate; no new subscription or recurring renewal. Runtime
 
 <ol>
 <li id="feature-87af61106655">Individual exact-PDF/profile purchase from available account credits; current integer EUR price and excluding-tax terms come from the authenticated pricing endpoint</li>
-<li id="feature-1bdd67171ab5">Current browser administrator alone accepts the immutable purchase; assistants, native callers and other members cannot create financial consent</li>
+<li id="feature-08bd83f34855">Current browser administrator alone accepts the immutable purchase; assistants, native callers and other members cannot create financial consent; the document preview reserves its frame through loading/rendering so price consent remains stationary, with no purchase from viewing or scrolling</li>
 <li id="feature-34a6fe22cc01">Atomic reservation and one settled charge for a complete valid report; engine failure releases the reservation without a settled debit</li>
 <li id="feature-44ece89298b1">New subscriptions and automatic recurring renewals are retired; immutable legacy actions and charges are retained, and posted charge history remains visible under current reporting authority</li>
 <li id="feature-8eacf06733b6">Pinned private veraPDF for PDF/UA-1/-2 and PDF/A-1b/2b/3b/4, with official positive/negative corpus, signal-aware bounded cleanup and separate offline/hosted graceful-stop qualification</li>

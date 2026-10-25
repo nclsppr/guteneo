@@ -3,8 +3,8 @@
 Start with the [repository standards](REPOSITORY_STANDARDS.md) for English-first
 language, canonical English routes, terminology and documentation ownership.
 These rules apply to code, comments and documentation as well as interfaces.
-Frontend internationalization and localized video content are the product-language
-exceptions.
+Frontend internationalization, recipient-facing transactional interface copy and
+localized video content are the product-language exceptions.
 
 The [technical atlas](FEATURE_MAP.md) maps features, role permissions and customer
 journeys to their source and detailed contracts. Open [the visual atlas](FEATURE_MAP.html)
@@ -42,6 +42,7 @@ Run `npm run docs:build` and `npm run docs:check` to synchronize both views.
 | Documents and authoring                             | [Studio workflow](TEMPLATES_DATA_DISTRIBUTION.md), [template engine](TEMPLATE_ENGINE.md), [data import](DATA_IMPORT.md), [private original PDF transport](PRIVATE_DOCUMENT_UPLOAD.md), [verification recovery](DOCUMENT_ANALYSIS_RECOVERY.md)                                                       |
 | PDF verification                                    | [Current contract](PDF_ACCESSIBILITY.md), [unit pricing and release gates](PDF_VERIFICATION_PRICING.md), [validator](PDF_VALIDATOR.md), [dated cost model](PDF_VERIFICATION_COSTS.md)                                                                                                               |
 | Dispatch channels and provider setup                | [Provider contracts](PROVIDERS.md), [live activation](LIVE_ACTIVATION.md), [Telnyx](TELNYX_READINESS.md), [Resend](RESEND_SETUP.md), [SES](SES_SETUP.md), [Pingen](PINGEN_SETUP.md)                                                                                                                 |
+| Document-email templates, defaults and protected links | [Email preparation](PROTECTED_EMAIL.md), [recipient access and recovery](PROTECTED_DOCUMENTS.md) |
 | Postal review, price and transfer                   | [Postal review](POSTAL_REVIEW.md), [streamlined journey](POSTAL_STREAMLINED.md), [preflight](PINGEN_PREFLIGHT.md), [address pages](POSTAL_ADDRESS_PAGE.md)                                                                                                                                          |
 | Approval and assistant authority                    | [Expert approval](EXPERT_APPROVAL.md), [expert journey](EXPERT_CHAT_JOURNEY.md), [assistant installation](LLM_SETUP.md)                                                                                                                                                                             |
 | Assistant packages and host qualification           | [Current client compatibility](MCP_CLIENT_COMPATIBILITY.md), [Claude package](CLAUDE_PLUGIN.md), [Claude qualification](CLAUDE_QUALIFICATION.md), [ChatGPT marketplace](CHATGPT_MARKETPLACE.md), [OpenAI follow-up](OPENAI_RESUBMISSION_TODO.md), [dated platform audit](MCP_PLATFORM_READINESS.md) |

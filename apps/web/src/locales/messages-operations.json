@@ -1710,5 +1710,60 @@
     "Amount in euros, for example 25 or 12.50.",
     "Betrag in Euro, zum Beispiel 25 oder 12,50.",
     "Betrag an Euro, zum Beispill 25 oder 12,50."
+  ],
+  "Objet (facultatif)": [
+    "Subject (optional)",
+    "Betreff (optional)",
+    "Betreff (optional)"
+  ],
+  "Message (facultatif)": [
+    "Message (optional)",
+    "Nachricht (optional)",
+    "Message (optional)"
+  ],
+  "Objet automatique": [
+    "Automatic subject",
+    "Automatischer Betreff",
+    "Automatesche Betreff"
+  ],
+  "Votre atelier et votre document seront présentés automatiquement.": [
+    "Your workspace and document will be introduced automatically.",
+    "Ihr Arbeitsbereich und Ihr Dokument werden automatisch vorgestellt.",
+    "Ären Aarbechtsberäich an Äert Dokument ginn automatesch virgestallt."
+  ],
+  "Laissez vide pour utiliser le modèle d’e-mail Guteneo. Le HTML personnalisé conserve ses styles compatibles.": [
+    "Leave empty to use the Guteneo email template. Custom HTML keeps its supported styles.",
+    "Leer lassen, um die Guteneo-E-Mail-Vorlage zu verwenden. Eigenes HTML behält seine unterstützten Stile.",
+    "Eidel loossen, fir d’Guteneo-E-Mail-Virlag ze benotzen. Personaliséierten HTML behält seng ënnerstëtzte Stiler."
+  ],
+  "Utilisez {{document_url}} comme adresse de lien pour placer votre bouton d’accès au document. Sinon, Guteneo ajoute un bouton.": [
+    "Use {{document_url}} as a link address to position your document button. If omitted, Guteneo adds a button.",
+    "Verwenden Sie {{document_url}} als Linkadresse, um Ihre Dokument-Schaltfläche zu platzieren. Andernfalls fügt Guteneo eine Schaltfläche hinzu.",
+    "Benotzt {{document_url}} als Linkadress, fir Ären Dokument-Knäppchen ze placéieren. Soss setzt Guteneo e Knäppchen derbäi."
+  ],
+  "Insérer un bouton vers le document": [
+    "Insert a document button",
+    "Dokument-Schaltfläche einfügen",
+    "En Dokument-Knäppchen asetzen"
+  ],
+  "Consulter le document": [
+    "View the document",
+    "Dokument ansehen",
+    "Dokument kucken"
+  ],
+  "Utilisez exactement {{document_url}} comme adresse du lien dans votre HTML personnalisé.": [
+    "Use {{document_url}} exactly as the link address in your custom HTML.",
+    "Verwenden Sie genau {{document_url}} als Linkadresse in Ihrem eigenen HTML.",
+    "Benotzt genee {{document_url}} als Linkadress an Ärem personaliséierten HTML."
+  ],
+  "Sélectionnez un PDF et activez son lien protégé pour utiliser {{document_url}}.": [
+    "Select a PDF and enable its protected link to use {{document_url}}.",
+    "Wählen Sie ein PDF aus und aktivieren Sie seinen geschützten Link, um {{document_url}} zu verwenden.",
+    "Wielt e PDF an aktivéiert säi geschützte Link, fir {{document_url}} ze benotzen."
+  ],
+  "Le lien protégé et son expiration apparaîtront dans la vérification finale.": [
+    "The protected link and expiry will appear in the final review.",
+    "Der geschützte Link und sein Ablaufdatum erscheinen in der abschließenden Prüfung.",
+    "De geschützte Link a säin Oflafdatum erschéngen an der definitiver Iwwerpréiwung."
   ]
 }

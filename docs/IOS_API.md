@@ -108,6 +108,21 @@ senderId?, options?, campaignId?, ceilingMinor? }`. The server never accepts a
 tenant or user ID from this payload. Money is integer euro minor units, except
 the existing explicitly named qualified fractional quote fields.
 
+For email with an accessible ready PDF, omitted/blank subject and body independently
+use the shared domain's localized authenticated-workspace defaults. Body defaults
+require both text and custom HTML to be absent; otherwise missing plain text is
+derived from the supplied HTML. Without a file,
+subject and message remain required. Document emails without custom HTML use the
+branded template; custom HTML may use safe inline email styles and the exact
+`<a href="{{document_url}}">…</a>` marker only in protected-link mode. The server
+resolves the private URL before review and never accepts a caller's workspace
+identity, hosting token or password. This extends the existing preparation payload,
+not native approval or password authority. See [the API contract](API_CONTRACT.md)
+for validation/recovery and [protected email](PROTECTED_EMAIL.md) for presentation.
+The current Swift `ComposeView` exposes message-only email; document-email defaults
+and custom-template controls described here are mobile API capabilities, not
+implemented native composer controls.
+
 Recipient forms: fax `{ phone: "+…" }`; email `{ email }`; postal
 `{ name, line1, postalCode, city, country }`. Supported destination countries
 remain FR/LU/DE and the configured live route gates still apply.

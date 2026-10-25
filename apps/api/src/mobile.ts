@@ -1,3 +1,4 @@
+import { emailPreparationDescriptions } from "./email-preparation-contract";
 import {
   standaloneThemeAttributes,
   standaloneThemeMetadata,
@@ -67,9 +68,12 @@ const preparationInput = z
     channel: z.enum(["fax", "email", "postal"]),
     recipient: z.record(z.string(), z.unknown()),
     documentId: z.string().optional(),
-    subject: z.string().optional(),
-    html: z.string().optional(),
-    text: z.string().optional(),
+    subject: z
+      .string()
+      .optional()
+      .describe(emailPreparationDescriptions.subject),
+    html: z.string().optional().describe(emailPreparationDescriptions.html),
+    text: z.string().optional().describe(emailPreparationDescriptions.text),
     senderId: z.string().optional(),
     options: z.record(z.string(), z.unknown()).optional(),
     campaignId: z.string().optional(),
@@ -178,10 +182,7 @@ export async function authenticateNative(
     row.mode !== env.MODE ||
     (row.is_development && !isLocalSimulation(request, env))
   )
-    throw new AuthError(
-      "SESSION_EXPIRED",
-      "Session expired. Sign in again.",
-    );
+    throw new AuthError("SESSION_EXPIRED", "Session expired. Sign in again.");
   if (
     !row.is_development &&
     authenticationPolicy(env) === "verified_email" &&
@@ -606,10 +607,7 @@ export async function handleMobileRoute(
       ),
     ]);
     if (!audit.meta.changes)
-      throw new AuthError(
-        "SESSION_EXPIRED",
-        "Sign in again to continue.",
-      );
+      throw new AuthError("SESSION_EXPIRED", "Sign in again to continue.");
     return json({
       ...publicSession(await authenticateNative(request, env)),
       deletionRequestAvailable: true,
@@ -636,10 +634,7 @@ export async function handleMobileRoute(
       .run();
     const result = await deletionRequest(env, session);
     if (!result)
-      throw new AuthError(
-        "SESSION_EXPIRED",
-        "Sign in again to continue.",
-      );
+      throw new AuthError("SESSION_EXPIRED", "Sign in again to continue.");
     return json(result, 202);
   }
   if (path === "/documents" && request.method === "GET")

@@ -546,6 +546,30 @@ test("private PDF transfer has an upload-only capability without a public PDF or
     assert.equal(contract[field], false);
 });
 
+test("document-email defaults and protected HTML markers keep server identity and access material private", () => {
+  const input = spec.components.schemas.PrepareDispatch;
+  for (const field of ["subject", "text", "html"])
+    assert.ok(!input.required.includes(field));
+  assert.match(input.properties.subject.description, /authenticated workspace/);
+  assert.match(input.properties.subject.description, /without a file requires/);
+  assert.match(input.properties.text.description, /Without a document/);
+  assert.match(
+    input.properties.html.description,
+    /exact anchor href="\{\{document_url\}\}"/,
+  );
+  assert.match(input.properties.html.description, /before fingerprinting/);
+  assert.match(input.properties.html.description, /unsafe CSS/);
+  for (const field of ["workspaceName", "documentUrl", "password", "token"])
+    assert.ok(!(field in input.properties));
+  const content =
+    spec.components.schemas.Capabilities.properties.channels.items.properties
+      .content;
+  assert.deepEqual(content.properties.protectedLinkPlaceholder.enum, [
+    "{{document_url}}",
+  ]);
+  assert.equal(content.additionalProperties, false);
+});
+
 test("wire contracts retain integer prices, JSON strings, quarantine and required idempotency", () => {
   const { schemas } = spec.components;
   assert.equal(schemas.Dispatch.properties.recipient_json.type, "string");

@@ -175,6 +175,12 @@ protected document. Duration is 1, 7 or 30 days. The verified original remains
 immutable. Recipients need a password, not an account. The sender reads the
 password only in their authenticated browser and shares it separately; no MCP
 tool reads or transmits it. Preparation-only review accounts still cannot send.
+For an accessible ready PDF, omitted subject/body use localized defaults naming
+the authenticated workspace. Document emails without custom HTML use the branded
+template. Custom protected-link HTML can place `{{document_url}}` as an anchor
+button's exact `href` with safe inline email styles; clients never supply the
+private access URL or password. Message-only email still requires content, and
+all final text/HTML remains bound to review and approval.
 
 `document-studio` covers editable pdfme templates, DOCX import warnings,
 CSV/XLSX/XML/JSON, versioned mappings, private PDF jobs and separate distribution

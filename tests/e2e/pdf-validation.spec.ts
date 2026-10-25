@@ -67,12 +67,16 @@ async function fixture(
     credit = 5000,
     locale = "fr",
     existing = false,
+    contentReady,
+    pageSize = [300, 400],
   }: {
     role?: WorkspaceRole;
     enabled?: boolean;
     credit?: number;
     locale?: SupportedLocale;
     existing?: boolean;
+    contentReady?: Promise<void>;
+    pageSize?: [number, number];
   } = {},
 ) {
   const writes: { path: string; body: unknown; key?: string }[] = [];
@@ -89,7 +93,7 @@ async function fixture(
     evidence: "simulation",
   };
   const pdf = await PDFDocument.create();
-  pdf.addPage([300, 400]);
+  pdf.addPage(pageSize);
   const bytes = await pdf.save();
   const document = {
     id: "validation_document",
@@ -134,6 +138,7 @@ async function fixture(
       body = { items: [document], nextCursor: null };
     else if (path === `/api/documents/${document.id}`) body = document;
     else if (path === `/api/documents/${document.id}/content`) {
+      await contentReady;
       await route.fulfill({
         contentType: "application/pdf",
         body: Buffer.from(bytes),
@@ -189,6 +194,81 @@ const consentBox = (page: Page) =>
 async function openDocument(page: Page) {
   await page.goto("/#/app/documents?document=validation_document");
   await expect(validation(page)).toBeVisible();
+}
+
+function gate() {
+  let release!: () => void;
+  const ready = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  return { ready, release };
+}
+
+for (const appearance of ["classic", "v2"] as const) {
+  test(`${appearance} document keeps paid consent stationary through PDF loading and a held pointer`, async ({
+    page,
+  }) => {
+    const moduleGate = gate();
+    const contentGate = gate();
+    const state = await fixture(page, {
+      contentReady: contentGate.ready,
+      pageSize: [595, 2000],
+    });
+    await page.route("**/assets/pdf-viewer-*.js", async (route) => {
+      await moduleGate.ready;
+      await route.continue();
+    });
+    try {
+      await page.goto(
+        `/?appearance=${appearance}#/app/documents?document=validation_document`,
+      );
+      await expect(validation(page)).toBeVisible();
+      await expect(
+        page.locator(".pdf-preview").getByRole("status"),
+      ).toBeVisible();
+      await page.evaluate(() => document.fonts.ready);
+      const documentY = () =>
+        consentBox(page).evaluate(
+          (element) => element.getBoundingClientRect().top + window.scrollY,
+        );
+      const initialY = await documentY();
+      moduleGate.release();
+      await expect(
+        page.locator('.pdf-canvas-wrap[aria-busy="true"]'),
+      ).toBeVisible();
+      expect(await documentY()).toBeCloseTo(initialY, 0);
+      await consentBox(page).scrollIntoViewIfNeeded();
+      const target = await consentBox(page).boundingBox();
+      if (!target) throw new Error("Paid consent has no clickable box");
+      await page.mouse.move(
+        target.x + target.width / 2,
+        target.y + target.height / 2,
+      );
+      await page.mouse.down();
+      contentGate.release();
+      await expect(
+        page.locator('.pdf-canvas-wrap[aria-busy="false"]'),
+      ).toBeVisible();
+      await expect(page.locator(".pdf-preview canvas")).toBeVisible();
+      expect(await documentY()).toBeCloseTo(initialY, 0);
+      await page.mouse.up();
+      await expect(consentBox(page)).toBeChecked();
+      await expect(purchaseButton(page)).toBeEnabled();
+      expect(state.writes).toEqual([]);
+
+      const viewport = page.locator(".pdf-preview-viewport");
+      await viewport.focus();
+      await page.keyboard.press("End");
+      await expect
+        .poll(() => viewport.evaluate((element) => element.scrollTop))
+        .toBeGreaterThan(0);
+      expect(await documentY()).toBeCloseTo(initialY, 0);
+      expect(state.writes).toEqual([]);
+    } finally {
+      moduleGate.release();
+      contentGate.release();
+    }
+  });
 }
 
 test("one paid check requires explicit consent bound to its PDF, profile and ten-cent price", async ({
