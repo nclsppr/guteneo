@@ -27,7 +27,10 @@ The shared preparation service reads the authenticated sender's saved
 when that preference is absent or unsupported. The protected-link button,
 password instructions and expiration date come from
 `packages/contracts/src/delivery-messages.json` in French, English, German or
-Luxembourgish. No subject, entered message or document is translated.
+Luxembourgish. `deliveryExpiryDate` formats the hosting calendar date in UTC;
+Luxembourgish uses declared CLDR month names because workerd may lack `lb` Intl
+data and silently format an English date. No subject, entered message or document
+is translated.
 
 The server adds the localized footer and a supported `?lang=` to the recipient
 link before the final content is fingerprinted and reviewed. This applies to web,
@@ -45,7 +48,10 @@ The 25 October correction is a source candidate. Local regression fixtures in
 `tests/integration/resend-email.test.ts` cover four-language preparation, French
 fallback, localized UTC expiration, explicit reader language and frozen provider
 content. The focused local run passed 13 Resend and 10 protected-document cases
-with synthetic local D1/R2 and intercepted transport. Actual publication and a received-message
+with synthetic local D1/R2 and intercepted transport. Twenty cases in
+`tests/unit/delivery-messages.test.ts` cover exact four-language dates, all twelve
+Luxembourgish months without Intl and UTC calendar rollover. A local workerd smoke
+check also verifies the Luxembourgish formatter. Actual publication and a received-message
 journey require separate evidence; no replacement email is automatically sent.
 
 ## Cost and duration

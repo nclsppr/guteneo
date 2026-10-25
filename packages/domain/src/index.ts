@@ -3,7 +3,10 @@ import {
   documentAccessPolicySql,
   documentSessionPolicySql,
 } from "../../contracts/src/document-authentication";
-import { deliveryText } from "../../contracts/src/delivery-messages";
+import {
+  deliveryExpiryDate,
+  deliveryText,
+} from "../../contracts/src/delivery-messages";
 import { defaultLocale, normalizeLocale } from "../../contracts/src/locale";
 import {
   workspacePermissions,
@@ -1054,10 +1057,7 @@ export class DomainService {
         .replace(/&/g, "&amp;")
         .replace(/"/g, "&quot;");
       const linkLabel = deliveryText("View the protected document", locale);
-      const expiry = new Intl.DateTimeFormat(locale, {
-        dateStyle: "long",
-        timeZone: "UTC",
-      }).format(new Date(protection.expiresAt));
+      const expiry = deliveryExpiryDate(protection.expiresAt, locale);
       const instructions = deliveryText(
         "Ask the sender for the password through another channel. This link expires on {0}.",
         locale,

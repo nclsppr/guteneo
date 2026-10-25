@@ -400,7 +400,7 @@
         "Text/HTML email without a file, with a PDF attachment or with a protected link",
         "Recipient-request attestation and transactional requirements",
         "Explicit quote and per-document hosting charge",
-        "Protected-link footer and expiration date use the authenticated sender account language (French fallback), with four-language catalog and recipient link locale frozen before fingerprinting; no translation of entered content or rewrite of approved/sent messages",
+        "Protected-link footer and expiration date use the authenticated sender account language (French fallback), with four-language catalog, UTC date formatting and declared Luxembourgish months independent of runtime Intl support; recipient link locale freezes before fingerprinting; no translation of entered content or rewrite of approved/sent messages",
         "Private /share route and unlock/content children bypass Static Assets and public-error rendering; existing links retain hosting and access checks, with no sitemap inclusion or automatic resend",
         "Private link, expiry and browser-only password entry",
         "Download without a recipient account under access controls",
@@ -411,6 +411,7 @@
       "tests": [
         "tests/integration/protected-documents.test.ts",
         "tests/integration/resend-email.test.ts",
+        "tests/unit/delivery-messages.test.ts",
         "tests/security/public-assets.test.mjs"
       ],
       "surfaces": "Web, REST, MCP and native preparation/tracking; protected password is browser-only.",

@@ -21,7 +21,7 @@ Implemented email candidate; dated operator qualification is separate from deplo
 <li id="feature-ef24144fdff0">Text/HTML email without a file, with a PDF attachment or with a protected link</li>
 <li id="feature-1be24126eeaa">Recipient-request attestation and transactional requirements</li>
 <li id="feature-4184f692aa5c">Explicit quote and per-document hosting charge</li>
-<li id="feature-09a3d7725ba5">Protected-link footer and expiration date use the authenticated sender account language (French fallback), with four-language catalog and recipient link locale frozen before fingerprinting; no translation of entered content or rewrite of approved/sent messages</li>
+<li id="feature-394a796c5588">Protected-link footer and expiration date use the authenticated sender account language (French fallback), with four-language catalog, UTC date formatting and declared Luxembourgish months independent of runtime Intl support; recipient link locale freezes before fingerprinting; no translation of entered content or rewrite of approved/sent messages</li>
 <li id="feature-5379244d1629">Private /share route and unlock/content children bypass Static Assets and public-error rendering; existing links retain hosting and access checks, with no sitemap inclusion or automatic resend</li>
 <li id="feature-4c66fb41a3ae">Private link, expiry and browser-only password entry</li>
 <li id="feature-0300dfeb9845">Download without a recipient account under access controls</li>

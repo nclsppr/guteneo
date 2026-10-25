@@ -57,7 +57,10 @@ French fallback, from the shared delivery-message catalog. Its button, password
 instructions, formatted expiration and recipient `?lang=` are fixed before the
 approval fingerprint. Customer-authored subject/body and PDF bytes remain exact;
 a later profile change or idempotent replay never translates an existing dispatch.
-Web, native, REST and MCP preparation share this boundary.
+Web, native, REST and MCP preparation share this boundary. Expiration dates use
+UTC. The Luxembourgish formatter uses declared CLDR month names instead of
+relying on runtime Intl support, which can silently fall back to English; test
+that path in workerd as well as the Node-based unit suite.
 
 ```mermaid
 flowchart LR

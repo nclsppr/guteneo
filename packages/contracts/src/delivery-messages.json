@@ -1,4 +1,16 @@
 {
+  "janvier": ["January", "Januar", "Januar"],
+  "février": ["February", "Februar", "Februar"],
+  "mars": ["March", "März", "Mäerz"],
+  "avril": ["April", "April", "Abrëll"],
+  "mai": ["May", "Mai", "Mee"],
+  "juin": ["June", "Juni", "Juni"],
+  "juillet": ["July", "Juli", "Juli"],
+  "août": ["August", "August", "August"],
+  "septembre": ["September", "September", "September"],
+  "octobre": ["October", "Oktober", "Oktober"],
+  "novembre": ["November", "November", "November"],
+  "décembre": ["December", "Dezember", "Dezember"],
   "Consulter le document protégé": [
     "View the protected document",
     "Geschütztes Dokument ansehen",

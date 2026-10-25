@@ -496,7 +496,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Text/HTML email without a file, with a PDF attachment or with a protected link
 - Recipient-request attestation and transactional requirements
 - Explicit quote and per-document hosting charge
-- Protected-link footer and expiration date use the authenticated sender account language (French fallback), with four-language catalog and recipient link locale frozen before fingerprinting; no translation of entered content or rewrite of approved/sent messages
+- Protected-link footer and expiration date use the authenticated sender account language (French fallback), with four-language catalog, UTC date formatting and declared Luxembourgish months independent of runtime Intl support; recipient link locale freezes before fingerprinting; no translation of entered content or rewrite of approved/sent messages
 - Private /share route and unlock/content children bypass Static Assets and public-error rendering; existing links retain hosting and access checks, with no sitemap inclusion or automatic resend
 - Private link, expiry and browser-only password entry
 - Download without a recipient account under access controls
@@ -505,7 +505,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 
 **Contract:** [PROTECTED_EMAIL.md](PROTECTED_EMAIL.md) · **Implementation:** [apps/api/src/protected-documents.ts](../apps/api/src/protected-documents.ts)
 
-**Tests:** [tests/integration/protected-documents.test.ts](../tests/integration/protected-documents.test.ts), [tests/integration/resend-email.test.ts](../tests/integration/resend-email.test.ts), [tests/security/public-assets.test.mjs](../tests/security/public-assets.test.mjs)
+**Tests:** [tests/integration/protected-documents.test.ts](../tests/integration/protected-documents.test.ts), [tests/integration/resend-email.test.ts](../tests/integration/resend-email.test.ts), [tests/unit/delivery-messages.test.ts](../tests/unit/delivery-messages.test.ts), [tests/security/public-assets.test.mjs](../tests/security/public-assets.test.mjs)
 
 
 
