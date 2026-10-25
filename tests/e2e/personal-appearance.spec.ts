@@ -451,11 +451,28 @@ for (const locale of ["fr", "en", "de", "lb"] as const) {
     ).toHaveCount(3);
     for (const select of await page
       .locator(".account-display-preferences select")
-      .all())
+      .all()) {
       expect((await select.boundingBox())?.height).toBeGreaterThanOrEqual(44);
+      const style = await select.evaluate((element) => {
+        const computed = getComputedStyle(element);
+        return {
+          appearance: computed.appearance,
+          backgroundImage: computed.backgroundImage,
+          endPadding: Number.parseFloat(computed.paddingInlineEnd),
+        };
+      });
+      expect(style.appearance).toBe("none");
+      expect(style.backgroundImage).not.toBe("none");
+      expect(style.endPadding).toBeGreaterThanOrEqual(40);
+    }
     const theme = page.locator(
       ".account-display-preferences .theme-control select",
     );
+    expect(
+      await theme.evaluate((element) =>
+        Number.parseFloat(getComputedStyle(element).paddingInlineStart),
+      ),
+    ).toBeGreaterThanOrEqual(38);
     await theme.selectOption("dark");
     await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
     expect(
