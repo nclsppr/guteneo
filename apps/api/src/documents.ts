@@ -984,6 +984,7 @@ export class DocumentService {
       ctx.organizationId,
       input.bytes.length,
       false,
+      registration?.authority.sql(),
     );
     const name = safeHeader(input.name).slice(0, 180);
     if (
@@ -1585,16 +1586,17 @@ export async function reserveContentBudget(
   organizationId: string,
   bytes: number,
   render: boolean,
+  authority?: { condition: string; values: (string | number | null)[] },
 ): Promise<void> {
   const day = new Date().toISOString().slice(0, 10);
   const result = await db
     .prepare(
       `INSERT INTO content_usage(organization_id,day,uploads,bytes,renders)
- SELECT ?,?,?,?,? WHERE EXISTS(SELECT 1 FROM content_limits WHERE organization_id=? AND uploads_per_day>=? AND bytes_per_day>=? AND renders_per_day>=?)
+ SELECT ?,?,?,?,? WHERE EXISTS(SELECT 1 FROM content_limits WHERE organization_id=? AND uploads_per_day>=? AND bytes_per_day>=? AND renders_per_day>=?) AND (${authority?.condition ?? "1=1"})
  ON CONFLICT(organization_id,day) DO UPDATE SET uploads=uploads+excluded.uploads,bytes=bytes+excluded.bytes,renders=renders+excluded.renders
  WHERE uploads+excluded.uploads<=(SELECT uploads_per_day FROM content_limits WHERE organization_id=excluded.organization_id)
  AND bytes+excluded.bytes<=(SELECT bytes_per_day FROM content_limits WHERE organization_id=excluded.organization_id)
- AND renders+excluded.renders<=(SELECT renders_per_day FROM content_limits WHERE organization_id=excluded.organization_id)
+ AND renders+excluded.renders<=(SELECT renders_per_day FROM content_limits WHERE organization_id=excluded.organization_id) AND (${authority?.condition ?? "1=1"})
  RETURNING uploads`,
     )
     .bind(
@@ -1607,6 +1609,8 @@ export async function reserveContentBudget(
       render ? 0 : 1,
       bytes,
       render ? 1 : 0,
+      ...(authority?.values ?? []),
+      ...(authority?.values ?? []),
     )
     .first();
   if (!result)

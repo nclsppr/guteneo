@@ -11,7 +11,7 @@ sidebar:
 
 Unified personal account and optional workspace implementation; migrations, aligned document policy, Auth0 configuration and connected production qualification require separate evidence.
 
-**Surfaces:** Personal browser API/session without workspace Bearer authority; workspace browser and native sessions; canonical MCP resource OAuth discovery. Optional custom domain affects browser sign-in only.
+**Surfaces:** Personal browser authority and workspace/native sessions; REST/MCP resource OAuth with explicit same-tenant issuer trust, independently selected discovery and canonical identity/connection/mandate keys.
 
 [Read the engineering guide](/architecture/authority-and-tenancy/) · [All features](/features/)
 
@@ -40,7 +40,7 @@ Unified personal account and optional workspace implementation; migrations, alig
 <li id="feature-6c620ab8178d">Restore explicit visitor language after the initial session check without overwriting current selection or account preference</li>
 <li id="feature-9693e975dcf5">Recovery screen only after an error, with explicit retry and no automatic loop; native Auth0 signup, local demo and public fixture remain distinct</li>
 <li id="feature-57f878e633a8">Reread workshop capabilities for a browser session; anonymous reads support recovery and refresh the shared public offer/FAQ after returning home</li>
-<li id="feature-c784c69cee8c">Optional auth.guteneo.com browser domain for the existing Auth0 tenant; MCP issuer/discovery/tokens remain canonical</li>
+<li id="feature-040ff1c8f0c7">Independent browser domain and bounded same-tenant MCP token trust; explicit custom/canonical MCP discovery preference with rollback that retains existing tokens and canonical identity/connection keys</li>
 <li id="feature-639934edd469">Additive migration 0054 binds authorisation issuer and identity namespace to PKCE; legacy NULL flows stay canonical and rollback never silently switches provider</li>
 <li id="feature-e4042fab26c4">Verified dual-token subject binds to the canonical namespace without email linking or duplicate person/workshop/credits/authority; browser evidence and prepare_only restriction remain</li>
 <li id="feature-1a57b0baee0f">One Guteneo account without an automatic workspace; idempotent initial administrator/workspace creation only on explicit service use</li>

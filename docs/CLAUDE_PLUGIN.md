@@ -10,17 +10,20 @@ simultaneously under the `guteneo` name.
 
 ## Three separate surfaces
 
-| Surface | Deliverable/access | Current evidence |
-| --- | --- | --- |
-| Claude Code plugin | Dedicated ZIP, local directory or `guteneo-plugins` local catalog | Both extracted ZIP formats validated by Claude Code 2.1.309; installation/actual calls unqualified. |
-| Claude.ai custom connector | `https://guteneo.com/mcp`, per-user OAuth | Connection/`get_capabilities` observed only on 17 September; [CLAUDE_QUALIFICATION.md](CLAUDE_QUALIFICATION.md). |
-| Anthropic directory | Separate connector/plugin submission | No submission, listing or approval claimed. Local catalogs publish nothing there. |
+| Surface                    | Deliverable/access                                                | Current evidence                                                                                                 |
+| -------------------------- | ----------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| Claude Code plugin         | Dedicated ZIP, local directory or `guteneo-plugins` local catalog | Both extracted ZIP formats validated by Claude Code 2.1.309; installation/actual calls unqualified.              |
+| Claude.ai custom connector | `https://guteneo.com/mcp`, per-user OAuth                         | Connection/`get_capabilities` observed only on 17 September; [CLAUDE_QUALIFICATION.md](CLAUDE_QUALIFICATION.md). |
+| Anthropic directory        | Separate connector/plugin submission                              | No submission, listing or approval claimed. Local catalogs publish nothing there.                                |
 
 [Claude Code formats](https://code.claude.com/docs/en/plugins-reference) use
 `.claude-plugin/plugin.json` and discover skills/`.mcp.json` in standard
 locations. Name stays `guteneo`, version follows the product, transport retains
-existing scopes. The package contains no secret, script, hook or automatically
-granted permission. Instructions/template guide remain package files.
+existing scopes. The package contains no secret, hook or automatically granted
+permission. The25October candidate adds an explicitly invoked bounded Python
+client for [private original transfer](PRIVATE_DOCUMENT_UPLOAD.md); it grants
+no OAuth or filesystem access. Earlier archive-format checks do not qualify the
+new archive, file transfer or any physical mobile host.
 
 ## Build and validation
 
@@ -95,8 +98,11 @@ reuse of its OAuth client.
 4. Separately qualify expiry, actual renewal and revocation. Rotation code
    or reconnection does not prove refresh exchange.
 5. With an authorized synthetic PDF, verify exact bytes, scan/page reading.
-   The package provides no local transfer or Claude attachment extraction;
-   browser upload remains separate.
+   Qualify the private binary bridge only when the actual host can access the
+   original file and permitted Guteneo egress. Claude iPhone uses its cloud
+   computing environment, not a local extension. The bundled POSIX Python client
+   and server tests are not a physical iPhone/web/Code pass. Browser upload
+   remains a separate alternative chosen by the person.
 6. Qualify preparations separately with exact recipient/cap and applicable
    authority. `review_prepare_only` stops before expert review, provider
    transfer, approval or sending. Plugin-format validation needs no real send.

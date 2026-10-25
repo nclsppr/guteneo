@@ -9,6 +9,7 @@ import {
   authenticateMcp,
   authenticationPolicy,
   auth0Issuer,
+  verifiedMcpTokenIssuer,
   hasMfa,
   hasVerifiedAccount,
   hashSecret,
@@ -190,6 +191,12 @@ export async function postalMcpAuthority(
     });
   } else {
     const issuer = auth0Issuer(env);
+    let tokenIssuer: string;
+    try {
+      tokenIssuer = verifiedMcpTokenIssuer(identity, env);
+    } catch {
+      changed();
+    }
     const payload = decodeJwt(token);
     const issuedAt = payload.iat;
     const expiresAt = payload.exp;
@@ -197,7 +204,7 @@ export async function postalMcpAuthority(
     const tokenClient =
       typeof payload.client_id === "string" ? payload.client_id : payload.azp;
     if (
-      payload.iss !== issuer ||
+      payload.iss !== tokenIssuer ||
       tokenClient !== clientId ||
       typeof subject !== "string" ||
       !subject ||

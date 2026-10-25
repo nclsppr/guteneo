@@ -29,3 +29,14 @@ When the person requests a recipient account, auditable access and defined
 retention, use the separate `secure-distribution` workflow when advertised by
 the server. The legacy password-protected email link is a different mode; never
 switch between these modes without the person’s explicit choice.
+
+## Private original PDF transfer
+
+When begin_document_upload is actually exposed and this host can read the selected
+original file and make the permitted binary PUT, compute its exact size/SHA-256
+and use that tool's bounded client and upload-only grant. Preserve host permissions
+and egress; never expose the capability, publish the PDF or reconstruct it from
+text. Recover get_document_upload on the same ID after uncertainty, without a new
+binary attempt. Source/client code does not qualify an actual host or physical
+iPhone. Keep the native host file-envelope and separately qualified local-adapter
+paths where actually available; a visible attachment name is not remotely readable.

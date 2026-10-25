@@ -38,6 +38,10 @@
     "SES_ACCOUNT_ID": "982055099242",
     "PINGEN_DEFAULT_COUNTRY": "LU",
     "AUTH0_AUTH_POLICY": "verified_email",
+    // Canonical identity keys and existing connections remain on the tenant.
+    "AUTH0_MCP_TRUSTED_DOMAIN": "auth.guteneo.com",
+    // Roll discovery back independently; retain trusted-domain token continuity.
+    "AUTH0_MCP_DISCOVERY": "custom",
     "SECURE_DISTRIBUTION_ENABLED": "true",
     // Publish only after the private validator has passed hosted qualification.
     "PDF_VALIDATION_ENABLED": "true",

@@ -45,8 +45,12 @@ export interface AuthEnv {
   MODE: string;
   APP_ORIGIN: string;
   AUTH0_DOMAIN?: string;
-  /** Browser-only alias; never changes the canonical identity/MCP issuer. */
+  /** Browser-only alias; never enables MCP trust or changes identity keys. */
   AUTH0_BROWSER_DOMAIN?: string;
+  /** Explicit same-tenant MCP alias; independent of browser login selection. */
+  AUTH0_MCP_TRUSTED_DOMAIN?: string;
+  /** Discovery rollback retains the separately configured trusted issuer. */
+  AUTH0_MCP_DISCOVERY?: string;
   AUTH0_CLIENT_ID?: string;
   AUTH0_CLIENT_SECRET?: string;
   AUTH0_AUDIENCE?: string;
@@ -125,6 +129,8 @@ export interface McpIdentity {
   clientId: string;
   expiresAt: number;
   token: string;
+  /** Exact issuer after signature verification, never client-supplied metadata. */
+  verifiedTokenIssuer?: string;
   /** Trusted snapshot from production OAuth authentication, never host metadata. */
   connectionObservation?: {
     connectionId: string;
@@ -338,9 +344,9 @@ export function auth0Issuer(env: AuthEnv): string {
 }
 // The alias belongs to this same Auth0 tenant. Never learn this mapping from a
 // token's unverified `iss`, discovery metadata, a request or an email address.
-const CUSTOM_BROWSER_IDENTITY = {
+const TRUSTED_AUTH0_ALIAS = {
   canonical: "https://pieper.eu.auth0.com/",
-  browser: "https://auth.guteneo.com/",
+  custom: "https://auth.guteneo.com/",
 } as const;
 function invalidIdentityConfiguration(): never {
   throw new AuthError(
@@ -359,11 +365,60 @@ function browserAuth0Issuer(env: AuthEnv): string {
     return invalidIdentityConfiguration();
   }
   if (
-    canonical !== CUSTOM_BROWSER_IDENTITY.canonical ||
-    browser !== CUSTOM_BROWSER_IDENTITY.browser
+    canonical !== TRUSTED_AUTH0_ALIAS.canonical ||
+    browser !== TRUSTED_AUTH0_ALIAS.custom
   )
     invalidIdentityConfiguration();
   return browser;
+}
+function mcpAuth0Configuration(env: AuthEnv) {
+  const identityIssuer = auth0Issuer(env);
+  const preference = env.AUTH0_MCP_DISCOVERY ?? "canonical";
+  if (preference !== "canonical" && preference !== "custom")
+    invalidIdentityConfiguration();
+  let customIssuer: string | undefined;
+  if (env.AUTH0_MCP_TRUSTED_DOMAIN !== undefined) {
+    try {
+      customIssuer = auth0Issuer({
+        ...env,
+        AUTH0_DOMAIN: env.AUTH0_MCP_TRUSTED_DOMAIN,
+      });
+    } catch {
+      return invalidIdentityConfiguration();
+    }
+    if (
+      identityIssuer !== TRUSTED_AUTH0_ALIAS.canonical ||
+      customIssuer !== TRUSTED_AUTH0_ALIAS.custom
+    )
+      invalidIdentityConfiguration();
+  }
+  if (preference === "custom" && !customIssuer) invalidIdentityConfiguration();
+  return {
+    identityIssuer,
+    tokenIssuers: customIssuer
+      ? [identityIssuer, customIssuer]
+      : [identityIssuer],
+    authorizationIssuer:
+      preference === "custom" ? customIssuer! : identityIssuer,
+  };
+}
+
+/** Discovery preference never changes the canonical data namespace or trust set. */
+export function mcpAuthorizationIssuer(env: AuthEnv): string {
+  return mcpAuth0Configuration(env).authorizationIssuer;
+}
+
+/** Downstream fences consume the authentication snapshot and retain canonical
+ * connection keys. A missing snapshot can only match the historical issuer. */
+export function verifiedMcpTokenIssuer(
+  identity: Pick<McpIdentity, "verifiedTokenIssuer">,
+  env: AuthEnv,
+): string {
+  const configuration = mcpAuth0Configuration(env);
+  const issuer = identity.verifiedTokenIssuer ?? configuration.identityIssuer;
+  if (!configuration.tokenIssuers.includes(issuer))
+    throw new AuthError("TOKEN_INVALID", "Expired or invalid token.");
+  return issuer;
 }
 function transactionAuth0Issuer(
   env: AuthEnv,
@@ -384,8 +439,8 @@ function transactionAuth0Issuer(
   if (transaction.authorization_issuer === canonical) return canonical;
   // Keep an already-started alias flow valid when the opt-in is rolled back.
   if (
-    canonical === CUSTOM_BROWSER_IDENTITY.canonical &&
-    transaction.authorization_issuer === CUSTOM_BROWSER_IDENTITY.browser
+    canonical === TRUSTED_AUTH0_ALIAS.canonical &&
+    transaction.authorization_issuer === TRUSTED_AUTH0_ALIAS.custom
   )
     return transaction.authorization_issuer;
   return invalidIdentityConfiguration();
@@ -424,14 +479,15 @@ export async function validateAuth0Token(
     keyOverride,
   );
 }
-/** Only the configured canonical issuer or a checked server-side browser
- * transaction can reach this verifier. The JWT never selects its own JWKS. */
+/** Key discovery is server-owned. MCP's bounded same-tenant aliases use the
+ * canonical key set; the token never chooses a JWKS URL or creates an alias. */
 async function validateAuth0TokenAtIssuer(
   token: string,
   env: AuthEnv,
   kind: "id" | "access",
   issuer: string,
   keyOverride?: JWTVerifyGetKey,
+  acceptedIssuers: string[] = [issuer],
 ): Promise<JWTPayload> {
   const audience = kind === "id" ? env.AUTH0_CLIENT_ID : env.AUTH0_AUDIENCE;
   if (!audience)
@@ -449,7 +505,7 @@ async function validateAuth0TokenAtIssuer(
   }
   try {
     const { payload } = await jwtVerify(token, keyOverride ?? keys, {
-      issuer,
+      issuer: acceptedIssuers,
       audience,
       algorithms: ["RS256"],
       requiredClaims: ["sub", "exp", "iat"],
@@ -1129,10 +1185,18 @@ export async function authenticateMcp(
       token,
     };
   }
-  const payload = await validateAuth0Token(token, env, "access");
+  const configuration = mcpAuth0Configuration(env);
+  const payload = await validateAuth0TokenAtIssuer(
+    token,
+    env,
+    "access",
+    configuration.identityIssuer,
+    undefined,
+    configuration.tokenIssuers,
+  );
   const policy = authenticationPolicy(env);
   if (policy === "verified_email") requireVerifiedAccount(payload);
-  const issuer = auth0Issuer(env);
+  const issuer = configuration.identityIssuer;
   const clientId =
     typeof payload.client_id === "string"
       ? payload.client_id
@@ -1248,6 +1312,7 @@ export async function authenticateMcp(
     clientId,
     expiresAt: payload.exp,
     token,
+    verifiedTokenIssuer: payload.iss!,
     ...(env.MODE === "production" && connection.authorization_revision !== null
       ? {
           connectionObservation: {
@@ -1261,10 +1326,11 @@ export async function authenticateMcp(
 export function protectedResourceMetadata(env: AuthEnv): Response {
   return json({
     resource: `${env.APP_ORIGIN}/mcp`,
-    authorization_servers: [auth0Issuer(env)],
+    authorization_servers: [mcpAuthorizationIssuer(env)],
     scopes_supported: MCP_SCOPES,
     bearer_methods_supported: ["header"],
     resource_name: "Guteneo",
+    resource_documentation: `${env.APP_ORIGIN}/developers/?lang=en`,
   });
 }
 

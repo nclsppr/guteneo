@@ -115,6 +115,7 @@ export async function discoverLocalMcpTools() {
   const services: McpServices = {
     domain: service as unknown as McpServices["domain"],
     documents: service as unknown as McpServices["documents"],
+    documentUploads: service as unknown as McpServices["documentUploads"],
     postal: service as unknown as McpServices["postal"],
     workflow: service as unknown as McpServices["workflow"],
     pdfValidation: service as unknown as McpServices["pdfValidation"],

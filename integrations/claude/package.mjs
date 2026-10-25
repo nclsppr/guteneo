@@ -21,6 +21,7 @@ export const claudePluginFiles = [
   "README.md",
   "assets/guteneo-mark.png",
   "references/claude-host.md",
+  "scripts/upload-private-pdf.py",
   ...claudeSkillNames.map((name) => `skills/${name}/SKILL.md`),
   "skills/document-studio/references/template-authoring.md",
 ];

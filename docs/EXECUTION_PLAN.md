@@ -1,5 +1,25 @@
 # Execution plan and handoff
 
+## MCP domain handoff — 25 October 2026 candidate
+
+The independently configured MCP trusted alias and canonical/custom discovery
+preference preserve canonical identity/connection keys, legacy access tokens,
+existing mandates and current revocation fences. Signed custom tokens carry their
+actual verified issuer through postal/expert guards. The live configuration
+candidate explicitly selects the reviewed custom domain; root release/CI and
+deployment verification are still required. No Auth0 client/grant/DCR/provider
+setting was written by this implementation. Domain metadata/key observations,
+synthetic JWTs and actual host consent/renewal are separate evidence. See the
+[authoritative domain contract](AUTH0_CUSTOM_DOMAIN.md#independent-mcp-trust-and-discovery).
+
+The private file-transfer candidate additionally requires additive migration 0061
+before the new reservation/status tools and upload-only binary route are used.
+It retains creator privacy, exact original size/hash, current connection and
+scanner/quarantine policy, with no new OAuth scope, provider secret or sending
+activation. [Private upload](PRIVATE_DOCUMENT_UPLOAD.md) owns the contract.
+Physical Claude iPhone OAuth/renewal/file-transfer proof is still absent and must
+not be inferred from public metadata or web/Desktop/Code fixtures.
+
 ## Interface and loading handoff — 25 October 2026
 
 Implemented candidate contracts:

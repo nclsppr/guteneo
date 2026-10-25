@@ -17,6 +17,7 @@ export const packageFiles = [
   ".cursor-plugin/plugin.json",
   ".mcp.json",
   "README.md",
+  "scripts/upload-private-pdf.py",
   "assets/guteneo-composer.png",
   "assets/guteneo-mark.png",
   "mcp.json",

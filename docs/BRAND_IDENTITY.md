@@ -228,8 +228,14 @@ remain illustrations.
 
 Auth0 scripts prepare the **transparent portrait** for login and the
 application icon, with the distinct simple favicon. The MCP server advertises
-the simple emblem through the installed SDK's recognized `icons` field;
-host display is host dependent. No undocumented manifest field was added.
+the simple emblem through the installed SDK's recognized `icons` field, with
+title `Guteneo` and an English developer-guide `websiteUrl`. Protected-resource
+metadata uses RFC 9728 `resource_documentation` for that guide; no invented OAuth
+logo field is added. Hosted/portable guides show the existing canonical
+`https://guteneo.com/brand/guteneo-mark.png` and offer that URL for a host's manual
+logo field. The PNG stays unchanged. A client may ignore icons or other display
+metadata, so advertising the image does not prove its appearance in that host's
+connector picker. No package icon or Auth0 provider setting changes here.
 
 The 21 September submission candidate adds a **ChatGPT composer** derivative,
 `apps/web/public/brand/guteneo-composer.png`: preserved portrait and serration,

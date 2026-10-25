@@ -5356,17 +5356,121 @@
           }
         }
       }
+    },
+    "/api/document-uploads/{id}/content": {
+      "put": {
+        "tags": ["Documents"],
+        "operationId": "uploadPrivateDocumentContent",
+        "summary": "Transfer the exact reserved private PDF bytes",
+        "description": "First reserve with MCP begin_document_upload using the selected original filename, actual integer byte size and SHA-256. This endpoint accepts only the returned upload-only capability and exact application/pdf bytes, with no Cookie, Authorization, Origin, Content-Encoding, URL query or redirects. It claims the capability before reading the body, binds the same current actor/connection/membership, verifies size/hash and rechecks authority after waits. The maximum is 10 MiB, with a 30-second body deadline and expiry no later than five minutes or the OAuth token expiry. The existing DocumentService pipeline and scanner/quarantine/100-page gates remain mandatory. The imported document is creator-private. A 202 receipt grants no PDF access, document ID, ready status, approval, delivery or purchase; read get_document_upload through OAuth to recover the same operation and document. Never blindly retry an unknown outcome or publish a temporary PDF URL.",
+        "security": [
+          {
+            "DocumentUploadCapability": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "The uploadId returned by the reservation; never an organization or user selector.",
+            "schema": {
+              "type": "string",
+              "pattern": "^upl_[a-f0-9-]{36}$"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Unmodified original bytes matching the reserved byte size and SHA-256.",
+          "content": {
+            "application/pdf": {
+              "schema": {
+                "type": "string",
+                "format": "binary",
+                "x-max-bytes": 10485760
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Exact bytes received by the existing private document pipeline. Recover the document through get_document_upload; this receipt does not assert ready/scanned/delivered.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "enum": ["no-store"]
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "type": "string",
+                  "enum": ["no-referrer"]
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PrivateDocumentUploadReceived"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Invalid, expired or already used capability, changed authority, or forbidden request headers/origin/query.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Upload already started or uncertain outcome. Read get_document_upload with the same uploadId; do not upload again.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "The binary body exceeded its exact reservation or the 10 MiB limit.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "The original byte count or SHA-256 differs from the reservation; no reconstruction or implicit retry.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
     "securitySchemes": {
       "GuteneoOAuth": {
         "type": "oauth2",
-        "description": "Requires a registered OAuth client. Authorization Code + PKCE S256, audience=https://guteneo.com/mcp. Access tokens only in Authorization: Bearer. Do not use an ID token, provider key or URL token. Use state and the exact registered callback URI; never embed client_secret in a public client. Requires prior Guteneo browser sign-in and active membership. The beta verified_email policy requires the signed https://guteneo.com/verified_account=true claim; MFA is optional. The historical verified_email_and_mfa policy retains administrator MFA requirements. Scopes are explicitly granted; no scope grants human approval.",
+        "description": "Requires a registered OAuth client. Authorization Code + PKCE S256, audience=https://guteneo.com/mcp. Access tokens only in Authorization: Bearer. Do not use an ID token, provider key or URL token. Use state and the exact registered callback URI; never embed client_secret in a public client. Requires prior Guteneo browser sign-in and active membership. The beta verified_email policy requires the signed https://guteneo.com/verified_account=true claim; MFA is optional. The historical verified_email_and_mfa policy retains administrator MFA requirements. Scopes are explicitly granted; no scope grants human approval. Preferred custom-domain discovery requires the separately configured same-tenant MCP trust. Existing canonical issuer tokens and connections remain valid; issuer aliases never create additional scopes or authority.",
         "flows": {
           "authorizationCode": {
-            "authorizationUrl": "https://pieper.eu.auth0.com/authorize",
-            "tokenUrl": "https://pieper.eu.auth0.com/oauth/token",
+            "authorizationUrl": "https://auth.guteneo.com/authorize",
+            "tokenUrl": "https://auth.guteneo.com/oauth/token",
             "scopes": {
               "documents:read": "Lister et lire les PDF de l’organisation associée.",
               "documents:write": "Déposer, générer et réanalyser les documents.",
@@ -5393,6 +5497,12 @@
         "in": "cookie",
         "name": "guteneo_session",
         "description": "Authenticated human browser session. Paid PDF check purchases require current administrator authority, same-origin CSRF verification and explicit immutable price/content consent. OAuth tokens and assistants cannot assert this purchase approval."
+      },
+      "DocumentUploadCapability": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-Guteneo-Upload-Capability",
+        "description": "Upload-only, short-lived capability returned only by MCP begin_document_upload after current OAuth documents:write and writer authority. Not a personal API key or an OAuth token. Bound to one upload, exact bytes/SHA-256, actor, connection revision and expiry. Never put it in a URL, print it, attach cookies/Authorization/Origin, or follow redirects. Cannot read a PDF/document, approve, send or purchase."
       }
     },
     "parameters": {
@@ -11974,6 +12084,21 @@
             "enum": ["production", "simulation"]
           }
         }
+      },
+      "PrivateDocumentUploadReceived": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["uploadId", "status"],
+        "properties": {
+          "uploadId": {
+            "type": "string",
+            "pattern": "^upl_[a-f0-9-]{36}$"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["received"]
+          }
+        }
       }
     },
     "responses": {
@@ -12205,5 +12330,27 @@
     "monthlySubscriptions": false,
     "technicalFailureChargeMinor": 0,
     "historicalJournals": "retained_without_retroactive_charge_or_refund"
+  },
+  "x-private-document-upload": {
+    "initiation": "MCP begin_document_upload; existing documents:write scope and current writer membership",
+    "status": "MCP get_document_upload; same actor and connection; never returns the upload capability",
+    "maxBytes": 10485760,
+    "maxPages": 100,
+    "maxCapabilityTtlSeconds": 300,
+    "boundedByOAuthTokenExpiry": true,
+    "streamDeadlineSeconds": 30,
+    "maxClaimLeaseSeconds": 90,
+    "creatorPrivate": true,
+    "exactOriginalSizeAndSha256": true,
+    "oauthBearerAcceptedOnContentRoute": false,
+    "browserCookiesAcceptedOnContentRoute": false,
+    "capabilityInUrl": false,
+    "automaticRetryAfterUnknownOutcome": false,
+    "sendingApprovalOrPurchaseAuthority": false,
+    "hostQualification": "The host must actually read the selected original and PUT exact binary bytes. A chat attachment, local path, text extraction or tool discovery alone does not qualify that transport.",
+    "clientCodeOnlyInReservation": true,
+    "clientExecutionRequiresOriginalAndAuthorizedNetwork": true,
+    "referenceClientRuntime": "POSIX Python 3.9+",
+    "binaryProtocolHostNeutral": true
   }
 }

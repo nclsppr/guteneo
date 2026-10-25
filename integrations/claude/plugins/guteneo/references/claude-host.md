@@ -36,14 +36,27 @@ Guteneo documents and studio datasets. If these are known to be present, ask the
 user to remove them before sharing; do not fetch, transform or upload them and do
 not suggest web upload as a bypass. A scan is not a sensitive-data assessment.
 
-The remote connection cannot read a local path just because Claude can see it.
-This package does not implement `upload_local_pdf`, extract attachments from
-Claude.ai, or convert an attachment into a public URL. Do not fabricate a file
-identifier, signed URL or original PDF from extracted text. For allowed content,
-reuse a Guteneo `documentId`, or let the user choose authenticated upload in
-[Guteneo Documents](https://guteneo.com/?lang=en#/app/documents), then retrieve the
-exact document. A separately installed, qualified file adapter is a separate
-integration; never assume it exists or call it from memory.
+The remote connection cannot read a path just because Claude can see its name.
+For an allowed private original, prefer `begin_document_upload` when actually
+exposed and the conversation's computing environment can read the original
+bytes and make the permitted fixed Guteneo PUT. Compute its actual size/SHA-256,
+then use the returned exact client source and short upload-only capability.
+`get_document_upload` recovers the same import without another binary attempt.
+The package contains the same explicit Python client, with no hooks or automatic
+permission grant. It requires POSIX Python3.9+; native Windows needs a separately
+qualified compatible runtime/adapter. Never extract an OAuth credential, publish
+the file, invent a URL, or reconstruct it from extracted text. Respect normal
+host network controls. This narrow authorized PUT is part of a successful MCP
+reservation, not a substitute for failed OAuth or another tenant/client.
+
+Claude on iPhone can use its cloud computing environment only when the original
+file and permitted network access are actually available there; no local desktop
+extension is installed on the phone. Source tests prove no physical iPhone,
+web or other host transfer. If the host lacks those capabilities, report the
+specific limit. Reusing a Guteneo document or the person's explicitly chosen
+authenticated upload is a separate alternative, not an automatic attachment
+transfer. This package does not implement `upload_local_pdf`; never assume a
+separate local adapter exists or call it from memory.
 
 For `analysis.state=processing`, follow the returned delay and read the same
 document at most three times per interaction. Do not reimport or request a rescan

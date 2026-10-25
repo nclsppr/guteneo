@@ -267,11 +267,6 @@
     "Starten Sie die Anmeldung für die Website und die iOS-App über Guteneo. Das Identitätsformular verwendet",
     "Fir d’Websäit an d’iOS-App, start d’Umeldung iwwer Guteneo. Den Identitéitsformular benotzt"
   ],
-  ". Les adresses OAuth ci-dessous concernent les clients API et MCP ; leur domaine canonique reste inchangé pour les connexions existantes.": [
-    ". The OAuth addresses below are for API and MCP clients; their canonical domain stays unchanged for existing connections.",
-    ". Die folgenden OAuth-Adressen gelten für API- und MCP-Clients. Ihre kanonische Domain bleibt für bestehende Verbindungen unverändert.",
-    ". D’OAuth-Adressen hei drënner si fir API- a MCP-Clienten; hire kanoneschen Domain bleift fir bestoend Verbindungen onverännert."
-  ],
   "Autorisation API / MCP": [
     "API / MCP authorisation",
     "API- / MCP-Autorisierung",
@@ -1275,5 +1270,10 @@
     "if an administrator has enabled it and authorized this transfer, OpenAI may receive bounded excerpts of the data or template, their structure and your instruction to produce the requested proposal. The request uses store:false; this does not mean the provider retains no data. This assistance is separate from your connected assistant and does not initiate any delivery.",
     "wenn ein Administrator sie aktiviert und diese Übertragung genehmigt hat, kann OpenAI begrenzte Auszüge der Daten oder Vorlage, ihre Struktur und Ihre Anweisung erhalten, um den gewünschten Vorschlag zu erstellen. Die Anfrage verwendet store:false; dies bedeutet nicht, dass der Anbieter keine Daten aufbewahrt. Diese Hilfe ist von Ihrem verbundenen Assistenten getrennt und löst keinen Versand aus.",
     "wann en Administrateur se aktivéiert an dësen Transfert autoriséiert huet, kann OpenAI begrenzten Extraiten vun den Donnéeën oder der Virlag, hir Struktur an Är Instruktioun kréien, fir de gefrote Virschlag ze erstellen. D’Ufro benotzt store:false; dat bedeit net, datt dësen Ubidder keng Donnéeë späichert. Dës Hëllef ass vun Ärem verbonnenen Assistent getrennt a léist keng Sendung aus."
+  ],
+  ". Les adresses OAuth ci-dessous concernent les nouvelles connexions API et MCP. Les connexions existantes continuent de fonctionner avec leur émetteur d’origine.": [
+    ". The OAuth addresses below are for new API and MCP connections. Existing connections keep working with their original issuer.",
+    ". Die folgenden OAuth-Adressen gelten für neue API- und MCP-Verbindungen. Bestehende Verbindungen funktionieren weiterhin mit ihrem bisherigen Aussteller.",
+    ". D’OAuth-Adressen hei drënner gëlle fir nei API- a MCP-Verbindungen. Bestoend Verbindunge funktionéiere weider mat hirem ursprénglechen Aussteller."
   ]
 }
