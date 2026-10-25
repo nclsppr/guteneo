@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 import selectors
 import signal
+import socket
 import subprocess
 import tempfile
 import threading
@@ -334,10 +335,34 @@ class PrivateServer(ThreadingHTTPServer):
     # blocks finish before PID 1 exits. Header reads and writes must be bounded too.
     daemon_threads = False
 
+    def __init__(self, *args, **kwargs):
+        self._connections = set()
+        self._connections_lock = threading.Lock()
+        super().__init__(*args, **kwargs)
+
     def get_request(self):
         connection, address = super().get_request()
         connection.settimeout(BODY_SECONDS)
+        with self._connections_lock:
+            self._connections.add(connection)
         return connection, address
+
+    def shutdown_request(self, request):
+        with self._connections_lock:
+            self._connections.discard(request)
+        super().shutdown_request(request)
+
+    def server_close(self):
+        # A buffered read can keep receiving trickled bytes indefinitely despite
+        # its inactivity timeout. Unblock input before joining non-daemon workers;
+        # leave output open so active validation can return its bounded 503.
+        with self._connections_lock:
+            for connection in self._connections:
+                try:
+                    connection.shutdown(socket.SHUT_RD)
+                except OSError:
+                    pass  # A worker may already have closed its socket.
+        super().server_close()
 
     def handle_error(self, _request, _client_address):
         # The standard implementation emits raw exception details to stderr.

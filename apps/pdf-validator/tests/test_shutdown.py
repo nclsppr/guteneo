@@ -9,6 +9,7 @@ import socket
 import subprocess
 import sys
 import tempfile
+import threading
 import time
 import unittest
 
@@ -32,6 +33,23 @@ class BoundServer(original):
         Path(os.environ['TEST_ACCEPTED']).write_text(str(self.accepted))
         return result
 server.PrivateServer = BoundServer
+original_handler = server.Handler
+class ObservedInput:
+    def __init__(self, stream):
+        self.stream = stream
+    def __getattr__(self, name):
+        return getattr(self.stream, name)
+    def read(self, size):
+        Path(os.environ['TEST_REQUEST_PHASE']).write_text('body')
+        return self.stream.read(size)
+class ObservedHandler(original_handler):
+    def setup(self):
+        super().setup()
+        self.rfile = ObservedInput(self.rfile)
+    def parse_request(self):
+        Path(os.environ['TEST_REQUEST_PHASE']).write_text('headers')
+        return super().parse_request()
+server.Handler = ObservedHandler
 server.main(('127.0.0.1', 0))
 """
 FAKE_CLI = """#!/usr/bin/env python3
@@ -82,6 +100,7 @@ class ShutdownTests(unittest.TestCase):
         self.port_file = self.root / "port"
         self.marker = self.root / "engine"
         self.accepted = self.root / "accepted"
+        self.request_phase = self.root / "request-phase"
         self.process_count = 0
         self.cli = self.root / "fake-verapdf"
         self.cli.write_text(FAKE_CLI)
@@ -96,6 +115,7 @@ class ShutdownTests(unittest.TestCase):
             stdout=subprocess.PIPE, stderr=subprocess.PIPE,
             env={**os.environ, "TEST_SERVER": str(SERVER), "TEST_PORT": str(self.port_file),
                  "TEST_ACCEPTED": str(self.accepted),
+                 "TEST_REQUEST_PHASE": str(self.request_phase),
                  "TEST_ENGINE_MODE": mode, "TEST_ENGINE_MARKER": str(self.marker),
                  "VERAPDF_CLI": str(self.cli), "TMPDIR": str(self.runtime)},
         )
@@ -139,13 +159,13 @@ class ShutdownTests(unittest.TestCase):
         })
         connection.close()
 
-    def stop_cleanly(self, process, number=signal.SIGTERM):
+    def stop_cleanly(self, process, number=signal.SIGTERM, seconds=12):
         started = time.monotonic()
         process.send_signal(number)
-        stdout, stderr = process.communicate(timeout=12)
+        stdout, stderr = process.communicate(timeout=seconds)
         self.assertEqual(process.returncode, 0)
         self.assertEqual((stdout, stderr), (b"", b""))
-        self.assertLess(time.monotonic() - started, 12)
+        self.assertLess(time.monotonic() - started, seconds)
 
     def test_idle_sigterm_exits_cleanly_without_default_signal_termination(self):
         process = self.start()
@@ -193,6 +213,44 @@ class ShutdownTests(unittest.TestCase):
         # A complete health response above proves the real server is serving;
         # this request then deliberately withholds the end of its headers.
         self.stop_cleanly(process)
+
+    def test_trickled_headers_and_body_cannot_extend_sigterm_shutdown(self):
+        for phase in ("headers", "body"):
+            with self.subTest(phase=phase):
+                process = self.start()
+                self.health()
+                self.request_phase.unlink(missing_ok=True)
+                connection = socket.create_connection(("127.0.0.1", self.port()), timeout=2)
+                stop = threading.Event()
+
+                def trickle():
+                    while not stop.wait(0.1):
+                        try:
+                            connection.sendall(b"x")
+                        except OSError:
+                            return
+
+                writer = threading.Thread(target=trickle)
+                try:
+                    if phase == "headers":
+                        connection.sendall(b"GET /health HTTP/1.1\r\nHost: localhost\r\nX-Trickle: ")
+                    else:
+                        connection.sendall(
+                            b"POST /validate?profile=ua1 HTTP/1.1\r\nHost: localhost\r\n"
+                            b"Content-Type: application/pdf\r\nContent-Length: 65536\r\n\r\n%PDF-"
+                        )
+                    writer.start()
+                    wait_until(lambda: self.request_phase.exists() and self.request_phase.read_text() == phase)
+                    # The peer keeps sending more often than the existing 5s
+                    # inactivity timeout throughout SIGTERM and communicate().
+                    self.stop_cleanly(process, seconds=6)
+                    self.assertFalse(self.marker.exists())
+                finally:
+                    stop.set()
+                    connection.close()
+                    if writer.ident is not None:
+                        writer.join(timeout=3)
+                        self.assertFalse(writer.is_alive())
 
 
 @unittest.skipUnless(os.environ.get("PDF_VALIDATOR_PID1_IMAGE"), "Operator-only local Docker PID 1 proof")
