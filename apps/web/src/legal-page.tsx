@@ -5,7 +5,7 @@ import "./legal-page.css";
 
 export function LegalPage() {
   return (
-    <div className="legal-page">
+    <div className="legal-page public-site">
       <a className="skip-link" href="#legal-content">
         {msg("Skip to content")}
       </a>
@@ -21,9 +21,7 @@ export function LegalPage() {
               "Information about Guteneo’s publisher, hosting and use of this website.",
             )}
           </p>
-          <p className="legal-date">
-            {msg("Updated on 21 September 2026")}
-          </p>
+          <p className="legal-date">{msg("Updated on 21 September 2026")}</p>
         </div>
         <div className="legal-layout">
           <nav aria-label={msg("On this page")} className="legal-index">

@@ -1,3 +1,8 @@
+import {
+  standaloneThemeAttributes,
+  standaloneThemeMetadata,
+  standaloneThemeStyles,
+} from "./standalone-theme";
 import { workspacePermissions } from "../../../packages/contracts/src/roles";
 import { AuthError, authenticateBrowser } from "./auth";
 import { mobileText } from "./mobile-locale";
@@ -32,10 +37,15 @@ const statusLabels: Record<string, string> = {
   printed: "Printed",
   handed_to_post: "Handed to the postal network",
 };
-function html(locale: SupportedLocale, content: string, status = 200) {
+function html(
+  locale: SupportedLocale,
+  content: string,
+  status = 200,
+  request?: Request,
+) {
   const t = (key: string) => mobileText(key, locale);
   return new Response(
-    `<!doctype html><html lang="${locale}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${t("Review dispatch")} · guteneo</title><style>body{font-family:system-ui,sans-serif;background:#f6f5ef;color:#181b22;max-width:52rem;margin:0 auto;padding:24px;line-height:1.55}header{font-family:Georgia,serif;font-size:2rem;margin:16px 0 36px}h1,h2{font-family:Georgia,serif;font-weight:400;line-height:1.2}h1{font-size:2.2rem}h2{margin-top:32px}section{border-top:1px solid #d3d7e1;padding-top:12px}dl{display:grid;grid-template-columns:minmax(7rem,1fr) minmax(0,2fr);gap:8px 16px}dt{font-weight:600}dd{margin:0;overflow-wrap:anywhere}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:inherit}iframe{width:100%;height:65vh;border:1px solid #d3d7e1;border-radius:8px;background:#fffefa}.message{height:20rem}button,.button{display:inline-block;font:inherit;font-weight:600;border:0;border-radius:12px;background:#2450db;color:white;padding:14px 20px;min-height:48px;cursor:pointer;text-decoration:none}button.secondary{background:transparent;color:#181b22;border:1px solid #181b22}label{display:block;margin:20px 0}input[type=checkbox]{width:22px;height:22px;vertical-align:middle;margin-right:8px}.notice{padding:16px;border:1px solid #aa6842;border-radius:12px;background:#fff7ea}a{color:inherit;text-underline-offset:3px}code{overflow-wrap:anywhere;font-size:.8rem}footer{margin:36px 0;color:#5d6678}button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #b36d49;outline-offset:4px}@media(max-width:480px){body{padding:20px}dl{grid-template-columns:1fr;gap:3px}dd{margin-bottom:10px}}</style></head><body><header aria-label="Guteneo">guteneo</header><main>${content}</main><footer>${t("This page is only for reviewing this dispatch. Close it to return to the app.")}</footer></body></html>`,
+    `<!doctype html><html lang="${locale}"${standaloneThemeAttributes(request)}><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">${standaloneThemeMetadata}<title>${t("Review dispatch")} · guteneo</title><style>${standaloneThemeStyles}body{font-family:system-ui,sans-serif;background:var(--paper);color:var(--ink);max-width:52rem;margin:0 auto;padding:24px;line-height:1.55}header{font-family:Georgia,serif;font-size:2rem;margin:16px 0 36px}h1,h2{font-family:Georgia,serif;font-weight:400;line-height:1.2}h1{font-size:2.2rem}h2{margin-top:32px}section{border-top:1px solid var(--line);padding-top:12px}dl{display:grid;grid-template-columns:minmax(7rem,1fr) minmax(0,2fr);gap:8px 16px}dt{font-weight:600}dd{margin:0;overflow-wrap:anywhere}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:inherit}iframe{width:100%;height:65vh;border:1px solid var(--line);border-radius:8px;background:#fff;color-scheme:light}.message{height:20rem}button,.button{display:inline-block;font:inherit;font-weight:600;border:0;border-radius:12px;background:#2450db;color:white;padding:14px 20px;min-height:48px;cursor:pointer;text-decoration:none}button.secondary{background:transparent;color:var(--ink);border:1px solid var(--ink)}label{display:block;margin:20px 0}input[type=checkbox]{width:22px;height:22px;vertical-align:middle;margin-right:8px}.notice{padding:16px;border:1px solid var(--warning);border-radius:12px;background:var(--warning-tint)}a{color:inherit;text-underline-offset:3px}code{overflow-wrap:anywhere;font-size:.8rem}footer{margin:36px 0;color:var(--muted)}button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(--focus);outline-offset:4px}@media(max-width:480px){body{padding:20px}dl{grid-template-columns:1fr;gap:3px}dd{margin-bottom:10px}}</style></head><body><header aria-label="Guteneo"><span class="brand">guteneo</span></header><main>${content}</main><footer>${t("This page is only for reviewing this dispatch. Close it to return to the app.")}</footer></body></html>`,
     {
       status,
       headers: {
@@ -99,7 +109,7 @@ export async function handleMobileReview(
     localeFromAcceptLanguage(request.headers.get("Accept-Language"));
   const t = (key: string) => mobileText(key, locale);
   const render = (content: string, status = 200) =>
-    html(locale, content, status);
+    html(locale, content, status, request);
   const match = /^\/auth\/mobile\/review\/(dsp_[a-f0-9-]{36})$/.exec(
     url.pathname,
   );

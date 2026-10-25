@@ -1,3 +1,9 @@
+import footer from "../../../packages/contracts/src/public-footer.json" with { type: "json" };
+import {
+  standaloneThemeAttributes,
+  standaloneThemeMetadata,
+  standaloneThemeStyles,
+} from "./standalone-theme";
 import type { SupportedLocale } from "../../../packages/contracts/src/locale";
 import { requestedPublicLocale } from "../../../packages/contracts/src/public-locales";
 import site from "../../../packages/contracts/src/public-site.json" with { type: "json" };
@@ -424,7 +430,36 @@ export function isPublicDocumentNavigation(
   });
 }
 
-function errorDocument(locale: SupportedLocale, status: number): string {
+function publicErrorFooter(locale: SupportedLocale): string {
+  const escape = (value: string) =>
+    value
+      .replaceAll("&", "&amp;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;");
+  return `<footer><nav class="footer-navigation" aria-label="${escape(footer.navigationLabel[locale])}">${footer.groups
+    .map(
+      (group) =>
+        `<section><h2>${escape(group.labels[locale])}</h2><ul>${group.links
+          .map((link) => {
+            const target = new URL(link.href, site.origin);
+            if (
+              target.origin === site.origin ||
+              target.href === "https://status.guteneo.com/"
+            )
+              target.searchParams.set("lang", locale);
+            return `<li><a href="${escape(target.href)}">${escape(link.labels[locale])}</a></li>`;
+          })
+          .join("")}</ul></section>`,
+    )
+    .join("")}</nav></footer>`;
+}
+
+function errorDocument(
+  locale: SupportedLocale,
+  status: number,
+  request: Request,
+): string {
   const message = messages[locale];
   const [title, description] =
     message.errors[status] ??
@@ -438,15 +473,17 @@ function errorDocument(locale: SupportedLocale, status: number): string {
   // Only checked-in copy, a bounded language and an HTTP status enter the HTML.
   // Never reflect a URL, query, browser header, upstream error or account data.
   return `<!doctype html>
-<html lang="${locale}">
+<html lang="${locale}"${standaloneThemeAttributes(request)}>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
+${standaloneThemeMetadata}
 <title>${title} — guteneo</title>
 <link rel="icon" href="/favicon.ico">
 <style>
-:root{color-scheme:light;font-family:system-ui,sans-serif;color:#181b22;background:#f6f5ef}*{box-sizing:border-box}body{margin:0;min-height:100svh;padding:clamp(24px,5vw,64px);display:flex;flex-direction:column}header,main,footer{width:100%;max-width:1160px;margin-inline:auto}a{color:inherit;text-underline-offset:.25em}a:focus-visible{outline:3px solid #2450db;outline-offset:6px}.brand{display:inline-flex;align-items:center;gap:12px;text-decoration:none;color:#181b22;font-family:"EB Garamond",Georgia,serif;font-size:36px;line-height:1}.brand img{width:48px;height:48px}main{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);align-items:center;gap:clamp(32px,5vw,72px);padding:clamp(48px,8vw,96px) 0}p{line-height:1.65;font-size:17px}.code{font:500 14px ui-monospace,monospace;letter-spacing:.16em;color:#555b68}h1{font:400 clamp(36px,4.6vw,60px)/1.08 "EB Garamond",Georgia,serif;letter-spacing:-.025em;margin:18px 0 24px;overflow-wrap:break-word}.description{max-width:36em}nav{display:flex;align-items:center;flex-wrap:wrap;gap:16px 24px}nav a{min-height:44px;display:inline-flex;align-items:center;font-size:15px}.recovery{margin-top:28px}.home{padding:12px 18px;border:1px solid #181b22;text-decoration:none}.home:hover{background:#eae9e2}.art img{display:block;width:100%;height:auto;aspect-ratio:1;object-fit:contain;mix-blend-mode:multiply}.art{position:relative;margin:0;max-width:420px;width:100%;justify-self:center}.birds{position:absolute;right:4%;top:-12px;display:flex;align-items:center;gap:20px;pointer-events:none}.bird{width:40px;aspect-ratio:1;background:url('/luxembourg-blue-swallow-sheet.webp') 0 0/200% 200% no-repeat}.bird+span{width:25px;transform:translateY(-18px)}footer{border-top:1px solid #c7c8c2;padding:24px 0 8px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px 36px}footer p{font-size:14px;max-width:40em;margin:0}.domain{color:#181b22;font-family:"EB Garamond",Georgia,serif;font-size:21px;margin-top:8px;display:inline-block}footer nav{gap:8px 20px}@media(max-width:760px){main{grid-template-columns:1fr;gap:36px}.art{max-width:420px}h1{font-size:clamp(36px,7vw,52px)}footer{display:block}footer nav{margin-top:12px}}@media(max-width:380px){.brand{font-size:32px}.recovery{align-items:flex-start;flex-direction:column;gap:8px}p{font-size:16px}}
+${standaloneThemeStyles}
+:root{font-family:system-ui,sans-serif;color:var(--ink);background:var(--paper)}*{box-sizing:border-box}body{margin:0;min-height:100svh;padding:clamp(24px,5vw,64px);display:flex;flex-direction:column}header,main,footer{width:100%;max-width:1160px;margin-inline:auto}a{color:inherit;text-underline-offset:.25em}a:focus-visible{outline:2px solid var(--focus);outline-offset:6px}.brand{display:inline-flex;align-items:center;gap:12px;text-decoration:none;color:#181b22;font-family:"EB Garamond",Georgia,serif;font-size:36px;line-height:1}.brand img{width:48px;height:48px}main{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);align-items:center;gap:clamp(32px,5vw,72px);padding:clamp(48px,8vw,96px) 0}p{line-height:1.65;font-size:17px}.code{font:500 14px ui-monospace,monospace;letter-spacing:.16em;color:var(--muted)}h1{font:400 clamp(36px,4.6vw,60px)/1.08 "EB Garamond",Georgia,serif;letter-spacing:-.025em;margin:18px 0 24px;overflow-wrap:break-word}.description{max-width:36em}nav{display:flex;align-items:center;flex-wrap:wrap;gap:16px 24px}nav a{min-height:44px;display:inline-flex;align-items:center;font-size:15px}.recovery{margin-top:28px}.home{padding:12px 18px;border:1px solid var(--ink);text-decoration:none}.home:hover{background:var(--surface)}.art img{display:block;width:100%;height:auto;aspect-ratio:1;object-fit:contain;mix-blend-mode:normal}.art{position:relative;margin:0;max-width:420px;width:100%;justify-self:center}.birds{position:absolute;right:4%;top:-12px;display:flex;align-items:center;gap:20px;pointer-events:none}.bird{width:40px;aspect-ratio:1;background:url('/luxembourg-blue-swallow-sheet.webp') 0 0/200% 200% no-repeat}.bird+span{width:25px;transform:translateY(-18px)}footer{border-top:1px solid var(--line);padding:24px 0 8px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px 36px}footer p{font-size:14px;max-width:40em;margin:0}.domain{color:#181b22;font-family:"EB Garamond",Georgia,serif;font-size:21px;margin-top:8px;display:inline-block}footer nav{gap:8px 20px}.footer-navigation{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:24px;width:100%}.footer-navigation h2{font:600 15px/1.4 system-ui,sans-serif;margin:0 0 12px}.footer-navigation ul{list-style:none;padding:0;margin:0}.footer-navigation a{font-size:14px;overflow-wrap:anywhere}.footer-navigation section{min-width:0}@media(max-width:760px){main{grid-template-columns:1fr;gap:36px}.art{max-width:420px}h1{font-size:clamp(36px,7vw,52px)}footer{display:block}footer nav{margin-top:12px}.footer-navigation{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:380px){.brand{font-size:32px}.recovery{align-items:flex-start;flex-direction:column;gap:8px}p{font-size:16px}}
 </style>
 </head>
 <body>
@@ -455,7 +492,7 @@ function errorDocument(locale: SupportedLocale, status: number): string {
 <div><p class="code">HTTP ${status}</p><h1>${title}</h1><p class="description">${description}</p><nav class="recovery" aria-label="${message.recovery}"><a class="home" href="${site.origin}/?lang=${locale}">${message.home}</a><a href="${site.origin}/support/?lang=${locale}">${message.support}</a></nav></div>
 <figure class="art"><img src="/errors/illustration-${family}-640.webp" srcset="/errors/illustration-${family}-640.webp 640w, /errors/illustration-${family}.webp 960w" sizes="(max-width:468px) calc(100vw - 48px), 420px" width="960" height="960" alt=""><div class="birds" aria-hidden="true"><span class="bird"></span><span class="bird"></span></div></figure>
 </main>
-<footer><div><p>${message.pitch}</p><a class="domain" href="${site.origin}/?lang=${locale}">guteneo.com</a></div><nav aria-label="${message.navigation}"><a href="${site.origin}/assistants/?lang=${locale}">${message.assistants}</a><a href="${site.origin}/developers/?lang=${locale}">${message.developers}</a><a href="https://status.guteneo.com">${message.status}</a></nav></footer>
+${publicErrorFooter(locale)}
 </body>
 </html>`;
 }
@@ -477,7 +514,7 @@ export function publicHttpError(
   const locale =
     requestedPublicLocale(new URL(request.url).searchParams) ?? "fr";
   const body = html
-    ? errorDocument(locale, status)
+    ? errorDocument(locale, status, request)
     : (options.plainMessage ??
       (status === 404 ? "Not found" : "Public content unavailable"));
   const headers = new Headers(publicErrorHeaders);
@@ -494,7 +531,7 @@ export function publicHttpError(
     "Content-Length",
     String(new TextEncoder().encode(body).byteLength),
   );
-  headers.set("Vary", "Accept, Sec-Fetch-Dest, Sec-Fetch-Mode");
+  headers.set("Vary", "Accept, Sec-Fetch-Dest, Sec-Fetch-Mode, Cookie");
   if (html) headers.set("Content-Language", locale);
   return new Response(request.method === "HEAD" ? null : body, {
     status,

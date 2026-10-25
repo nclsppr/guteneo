@@ -1,5 +1,93 @@
 # Execution plan and handoff
 
+## Interface and loading handoff — 25 October 2026
+
+Implemented candidate contracts:
+
+- Concise public homepage plus `/how-it-works/`, `/pricing/`,
+  `/getting-started/` and `/pdf-checks/`; complete FAQ on Support, common official-
+  stamp footer and canonical four-language route/sitemap generation. Existing
+  prices, beta/legal notices, film languages and approval/provider gates remain.
+  The panorama is confined to the homepage; other public routes and status keep
+  shared navigation without city artwork. The existing localized closing
+  invitation, first-dispatch link and large stamp/postmark sit above the home
+  panorama; the identical common footer remains on every public React route,
+  including home, with a compact stamp, two original swallows, fifteen links and
+  colophon.
+  A few original swallows decorate public pages only. Dark lettering follows the
+  ivory brand role. Header/app stamps retain white paper inside each asset's
+  actual inner blue frame, leaving exterior/perforations transparent without an
+  outer white contour. Transparent
+  dark editorial/panorama derivatives add no frame; original light/opaque sources
+  remain.
+- System/light/dark appearance, fixed royal-blue browser chrome and a bounded
+  host-only presentation cookie for standalone script-free HTML. Preference is
+  independent of account language, workspace layout and business authority.
+  The public header exposes only the localized appearance icon at every viewport,
+  defaults to the operating system and accepts activation before React is ready.
+  All main-site public routes share a 1440 px maximum outer frame with matching
+  header/main/footer gutters and narrower readable prose inside.
+- Personal-document bootstrap independent of workshop authentication, obsolete-
+  result fences, identity remount and explicit list retry; unused route engines
+  load on demand. Decorative V2 panels are removed without replacing real content.
+- Customer-only status availability and actual history, shared four-language
+  footer and honest stale/unknown/partial/precollection states; monitoring,
+  browser-report ingestion and source/qualification gates stay separate.
+
+Authoritative details: [public site](HOMEPAGE_REDESIGN.md),
+[appearance](THEMES.md), [languages](MULTILINGUAL.md),
+[frontend loading](FRONTEND_PERFORMANCE.md),
+[workspace presentation](DASHBOARD_V2.md) and [status](STATUS_SERVICE.md).
+
+Local evidence is bounded to its recorded source/workload. The controlled personal
+fixture's first-document median was 1,318 → 704 ms with five contexts per variant
+and a 300 ms delay per synthetic API response; it is not production performance
+or a full historical-release comparison. Public-site, status, locale, cookie and
+backend tests cover their own fixtures and surfaces. Earlier preview builds that
+refused concurrent input changes remain recorded. The 10:38 UTC transparent-
+asset/closing-section preview build, including confined stamp paper, then passed its source guard; its exact
+snapshot and limits are in [the public-site contract](HOMEPAGE_REDESIGN.md).
+Subsequent changes require a matching fresh build; no stale artifact is a release
+result.
+That earlier build predates the final inner-frame paper correction, icon-only
+public header, shared outer frame and identical home footer. The later source/
+browser alpha audit found that copying engineering's 5% inset to the different
+main portrait exposed white through perforations. Paper now follows each asset's
+actual inner blue frame; engineering's approved treatment stays unchanged.
+
+The feature/annotation/engineering projections were regenerated from the stable
+registry, and `docs:check` passed: 23 domains, 289 features, 33 journeys, 75 REST
+operations and 72 MCP tools. Nimbus lint also passed for 28 authored MDX files;
+its 26 generated Markdown pages are checked by the projection generator instead.
+
+Engineering's local appearance follow-up passed nine browser cases, an isolated
+55-page build and six render checks. Status's focused follow-up passed eight
+theme/unknown-state cases, including all four languages; their narrower scopes
+remain separate from the earlier complete matrices.
+
+The complete template image-authoring scenario passed once in desktop Chromium
+and three repeated desktop-WebKit runs, preserving the same focused input,
+pending/invalid edits, theme changes, undo, save/reload and original image/PDF
+bytes. Reports: `/tmp/guteneo-template-theme-sol-chromium-final.json` and
+`/tmp/guteneo-template-theme-sol-webkit.json`. These are local fixtures, not native
+device or hosted application proof.
+
+The broad backend run recorded 2,644 of 2,648 passing, with four obsolete status-
+URL assertions; a later focused 91-case run passed. The security run recorded
+397 of 398 passing, with the source-mutating build-guard scenario still requiring
+a repeat after source freeze. A focused pass does not convert either incomplete
+broad run into a full pass. Final branding/public-artwork follow-ups remain
+separate from the earlier appearance counts.
+
+Remaining handoff is to finish final public-artwork/branding browser checks,
+repeat the outstanding guard check after source freeze, rebuild matching inputs
+and qualify complete exact-source CI. Publication and exact served verification
+remain separately authorized per surface, followed by appropriate authenticated
+journeys and current provider/engine evidence. No local screenshot, public history
+read or faster synthetic fixture establishes a live hostname, provider readiness,
+financial operation or deployment. No real communication, paid provisioning,
+provider mutation or production record change is needed for this interface work.
+
 25 October 2026 branch candidate: PDF verification becomes an individual purchase
 for an exact original and selected profile. New subscriptions and recurring renewals
 are retired; immutable historical consent, charges and reports remain preserved.
@@ -81,7 +169,6 @@ and their status-page ingestion are a separate candidate; authenticated
 production test accounts and the real journey under the selected document policy
 require qualification; public reports cannot qualify either mode.
 
-
 24 October 2026: [repository and interface harmonization](HARMONIZATION.md) records
 the isolated branch, English source/documentation and canonical links, shared
 interface patterns, feature-atlas maintenance rules and bounded local evidence.
@@ -115,8 +202,6 @@ The correction preserves public choices without a preference and makes private
 fixtures use the account preference; two delayed-session regressions cover the
 boundary. The subsequent 93 PDF verification, locale-boundary and studio browser cases
 passed in all three projects, along with 47 locale/access unit cases.
-
-
 
 10 October: publication of the independent status service and a link from
 Guteneo is explicitly authorized. Existing Cloudflare quotas may be used;

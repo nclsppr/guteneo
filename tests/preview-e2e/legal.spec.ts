@@ -93,7 +93,7 @@ test("legal information is public, accurate and returns to the homepage", async 
   await page.locator("header.public-header > .brand").click();
   await expect(
     page.getByRole("heading", {
-      name: "Votre assistant prépare. Guteneo transmet.",
+      name: "Préparez vos documents. Choisissez leur destination.",
     }),
   ).toBeVisible();
 });

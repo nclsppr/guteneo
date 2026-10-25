@@ -184,6 +184,12 @@ test("verification followup stops after two minutes and an explicit refresh gran
   expect(fixture.reads).toBe(pausedReads);
   await refresh(page).press("Enter");
   await expect.poll(() => fixture.reads).toBe(pausedReads + 1);
+  // Request arrival precedes React's completed read. Freeze the clock only
+  // after the processing response has committed and armed its next interval.
+  await expect(page.locator(".studio-table")).toHaveAttribute(
+    "aria-busy",
+    "false",
+  );
   fixture.setResult({
     documentStatus: "ready",
     documentAnalysis: documentAnalysis("ready"),

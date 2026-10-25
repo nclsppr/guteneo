@@ -15,6 +15,7 @@ test("the image tool inserts a movable logo, saves original bytes and renders it
     "Native visual editing is qualified on desktop; the image importer remains available on mobile.",
   );
   test.setTimeout(90000);
+  await page.emulateMedia({ colorScheme: "light" });
   await page.goto("/#/app");
   await page.getByRole("button", { name: "Entrer dans l’Atelier" }).click();
   await expect(page.locator(".workspace")).toBeVisible();
@@ -72,6 +73,11 @@ test("the image tool inserts a movable logo, saves original bytes and renders it
     name: "* Largeur",
     exact: true,
   });
+  const height = designer.getByRole("spinbutton", {
+    name: "* Hauteur",
+    exact: true,
+  });
+  const initialHeight = await height.inputValue();
   // Neither reverting a value nor correcting an invalid number may leave Save
   // locked when pdfme has no model change to emit.
   await width.fill("30");
@@ -96,6 +102,68 @@ test("the image tool inserts a movable logo, saves original bytes and renders it
     await input.fill(value);
     await input.press("Tab");
   }
+  // Changing the system appearance while authoring must preserve the selected
+  // logo, unsaved geometry and invalid input awaiting correction. The native
+  // field must remain mounted and focused, rather than being reconstructed.
+  await expect(width).toHaveValue("30");
+  await expect(saveButton).toBeEnabled();
+  await width.fill("");
+  await expect(saveButton).toBeDisabled();
+  const editingField = await width.elementHandle();
+  await page.emulateMedia({ colorScheme: "dark" });
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  await expect(
+    designer.getByRole("textbox", { name: "* Nom", exact: true }),
+  ).toHaveValue("image");
+  await expect(width).toHaveValue("");
+  await expect(width).toBeFocused();
+  expect(
+    await width.evaluate((field, original) => field === original, editingField),
+  ).toBe(true);
+  await expect(saveButton).toBeDisabled();
+  await expect(width).toHaveCSS("color", "rgb(240, 242, 247)");
+  await expect(designer.getByText("Modifiable", { exact: true })).toHaveCSS(
+    "color",
+    "rgb(240, 242, 247)",
+  );
+  await width.fill("30");
+  await width.press("Tab");
+  await expect(saveButton).toBeEnabled();
+  await page.screenshot({ path: info.outputPath("template-dark.png") });
+  await width.focus();
+  await page.emulateMedia({ colorScheme: "light" });
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+  await expect(width).toHaveValue("30");
+  await expect(width).toBeFocused();
+  expect(
+    await width.evaluate((field, original) => field === original, editingField),
+  ).toBe(true);
+  await expect(width).toHaveCSS("color", "rgb(24, 27, 34)");
+  await editingField?.dispose();
+  // The chrome update must keep native undo/redo history as well as geometry.
+  // Move focus out of the text input before using the editor's document-level
+  // shortcuts; the logo remains selected across both appearance changes.
+  await imageButton.focus();
+  // The native form may record several commits while its validation settles.
+  // Walk those entries to verify the pre-theme geometry is still reachable.
+  await expect
+    .poll(
+      async () => {
+        await page.keyboard.press("Control+z");
+        return height.inputValue();
+      },
+      { intervals: [100], timeout: 3000 },
+    )
+    .toBe(initialHeight);
+  await expect
+    .poll(
+      async () => {
+        await page.keyboard.press("Control+y");
+        return height.inputValue();
+      },
+      { intervals: [100], timeout: 3000 },
+    )
+    .toBe("30");
   await page
     .getByRole("button", { name: "Enregistrer le brouillon", exact: true })
     .click();
@@ -110,6 +178,9 @@ test("the image tool inserts a movable logo, saves original bytes and renders it
   const image = saved.envelope.definition.schemas
     .flat()
     .find((block) => block.type === "image")!;
+  expect(saved.envelope.definition.basePdf).toEqual(
+    envelope.definition.basePdf,
+  );
   const content = `data:image/png;base64,${(await readFile("apps/web/public/brand/guteneo-mark.png")).toString("base64")}`;
   expect(image).toMatchObject({
     name: "image",

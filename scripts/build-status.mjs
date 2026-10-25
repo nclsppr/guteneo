@@ -7,6 +7,7 @@ import { captureSourceSnapshot, sourceInputs } from "./test-offline.mjs";
 
 export const statusScope = Object.freeze([
   "apps/status",
+  "packages/contracts/src/public-footer.json",
   "wrangler.status.jsonc",
   "scripts/build-status.mjs",
   "scripts/deploy-status.mjs",
@@ -16,6 +17,37 @@ export const statusScope = Object.freeze([
   "package.json",
   "package-lock.json",
 ]);
+
+/** One authored footer catalog serves the web client and the static status UI. */
+export async function statusFooterScript(root) {
+  const catalog = JSON.parse(
+    await readFile(
+      join(root, "packages/contracts/src/public-footer.json"),
+      "utf8",
+    ),
+  );
+  const labels = (value) =>
+    ["fr", "en", "de", "lb"].every(
+      (language) =>
+        typeof value?.[language] === "string" &&
+        value[language].trim().length > 0,
+    );
+  if (
+    !labels(catalog.navigationLabel) ||
+    !Array.isArray(catalog.groups) ||
+    !catalog.groups.length ||
+    catalog.groups.some(
+      (group) =>
+        !labels(group.labels) ||
+        !Array.isArray(group.links) ||
+        group.links.some(
+          (link) => typeof link.href !== "string" || !labels(link.labels),
+        ),
+    )
+  )
+    throw new Error("STATUS_FOOTER_CATALOG_INVALID");
+  return `window.GUTENEO_PUBLIC_FOOTER = ${JSON.stringify(catalog)};\n`;
+}
 
 function approvedQualificationInputs(scope) {
   return [false, true]
@@ -81,6 +113,12 @@ export async function buildStatus(
   await rm(output, { recursive: true, force: true });
   await mkdir(output, { recursive: true });
   await cp(join(root, "apps/status/public"), output, { recursive: true });
+  if (
+    (await readFile(join(output, "index.html"), "utf8")).includes(
+      'src="/footer.js"',
+    )
+  )
+    await writeFile(join(output, "footer.js"), await statusFooterScript(root));
   const qualificationSource = await qualifiedSource(root, output);
   const assets = await collectAssets(output, ["/release.json"]);
   const manifest = {

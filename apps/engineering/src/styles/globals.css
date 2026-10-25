@@ -202,6 +202,64 @@
   --nb-shadow-lg: 0 4px 12px oklch(0 0 0 / 0.4), 0 2px 4px oklch(0 0 0 / 0.2);
 }
 
+/* Static reading follows the system when no theme script has run. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]):not([data-mode]) {
+    color-scheme: dark;
+
+    --nb-background: #181d27;
+    --nb-foreground: #eeeee7;
+
+    --nb-card: #202733;
+    --nb-card-foreground: var(--nb-foreground);
+
+    --nb-muted: #202733;
+    --nb-muted-foreground: #b6becb;
+
+    --nb-accent: #2b3449;
+    --nb-accent-foreground: var(--nb-foreground);
+
+    --nb-primary: #a0b5ff;
+    --nb-primary-foreground: #181b22;
+    --nb-primary-hover: #bfccff;
+
+    --nb-brand: #9eb4ff;
+    --nb-brand-wash: #273351;
+
+    --nb-border: #343e4d;
+    --nb-border-strong: #59677b;
+    --nb-selected: #324267;
+    --nb-code-tint: color-mix(in oklch, var(--nb-foreground) 6%, transparent);
+    --nb-ring: #9eb4ff;
+
+    --nb-info: #9eb4ff;
+    --nb-info-foreground: #b7c7ff;
+    --nb-info-muted: #243251;
+
+    --nb-success: oklch(0.905 0.093 164.15);
+    --nb-success-foreground: oklch(0.905 0.093 164.15);
+    --nb-success-muted: oklch(0.393 0.096 152.3 / 0.2);
+
+    --nb-warning: oklch(0.75 0.183 55.934);
+    --nb-warning-foreground: oklch(0.75 0.183 55.934);
+    --nb-warning-muted: oklch(0.353 0.079 65 / 0.37);
+
+    --nb-danger: oklch(0.704 0.191 22.216);
+    --nb-danger-foreground: oklch(0.704 0.191 22.216);
+    --nb-danger-muted: oklch(0.429 0.176 28.7 / 0.17);
+
+    /* API method palette — dark lines; text and tint follow the status tokens. */
+    --nb-m-get-line: oklch(0.765 0.177 163.223 / 0.25);
+    --nb-m-put: var(--nb-warning);
+    --nb-m-put-line: oklch(0.645 0.168 50 / 0.25);
+    --nb-m-delete-line: oklch(0.577 0.245 27.325 / 0.25);
+
+    --nb-shadow-sm: 0 1px 2px oklch(0 0 0 / 0.2);
+    --nb-shadow: 0 1px 3px oklch(0 0 0 / 0.3), 0 1px 2px oklch(0 0 0 / 0.2);
+    --nb-shadow-lg: 0 4px 12px oklch(0 0 0 / 0.4), 0 2px 4px oklch(0 0 0 / 0.2);
+  }
+}
+
 /* ---- Tailwind theme mapping ----
  * These generate Tailwind utility classes:
  *   bg-card, text-foreground, border-border, ring-ring, etc.

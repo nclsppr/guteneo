@@ -1,5 +1,60 @@
 # Architecture
 
+## Frontend presentation and bootstrap — 25 October 2026 candidate
+
+`public-site.json` owns canonical public paths; the public renderer and
+`build-public-pages.mjs` derive complete generic/four-language HTML, metadata,
+localized assets and sitemap from that registry. The four detail routes reuse
+existing pricing, fictional example/film, setup and PDF-offer contracts. Their
+metadata is lightweight; the requested lazy detail module preloads before React
+replaces useful initial HTML. `public-footer.json` owns shared four-language
+navigation. React, status and eligible public error adapters consume the same
+source; status includes it in its source fingerprint and manifests the generated
+footer bytes. [HOMEPAGE_REDESIGN.md](HOMEPAGE_REDESIGN.md) owns this public contract.
+
+`PublicHomeClosing` precedes the homepage's common footer: its existing localized
+invitation, installation link and large stamp appear above the home-only panorama.
+The same `PublicFooter` follows every main-site public route, including home,
+with its compact stamp, two decorative original swallows, fifteen links and
+colophon. The home-only large closing stamp and three panorama birds remain
+above that common footer. `theme-media.ts` supplies native picture media selection for Brand,
+panorama and the shared `editorial/article-picture.tsx`; system follows CSS media
+before scripts, while explicit themes select only the matching asset. Separate
+RGBA dark derivatives preserve original light sources and expose the actual page
+background without CSS filters or added paper framing. Asset provenance does not
+replace source/manifest/served verification.
+Header/app stamps preserve white paper inside each asset's actual inner blue
+frame, with transparent exterior/perforations and no outer contour or wordmark
+cartouche. Engineering's existing `StampPaper` remains unchanged; its geometry
+is not a universal inset rule for the different main/status/API portrait asset.
+
+The shared appearance enum resolves system/light/dark independently of account
+language or Classic/V2 layout. Main-origin bootstrap uses the validated local
+preference and bounded nonsecret host-only cookie. Standalone server HTML accepts
+only the enum, adds no session/database lookup and retains script-free system
+fallback, CSP, cache and route authority. Separate origins retain separate state.
+The palette themes controls around a PDF/template; it never rewrites or filters
+original document content. [THEMES.md](THEMES.md) owns surface-specific behavior
+and final qualification; a theme cookie confers no authentication or approval.
+
+Personal routes mount the small personal shell without workshop-session gating.
+They still require the authenticated personal session before document reads.
+Entering personal navigation clears cached workshop state and invalidates its
+pending bootstrap; aborted or late results cannot reapply an old identity,
+language or redirect. Returning to a workshop rereads current authority. Personal
+content remounts on observed user change, and list retry remains separate from
+session renewal. Unused workshop editors/viewers remain lazy. See
+[FRONTEND_PERFORMANCE.md](FRONTEND_PERFORMANCE.md); its local controlled timings
+are not hosted latency or server CPU proof.
+
+The independent status UI reads availability/history and removes internal report
+presentation. Worker collection, stored observations, sanitized browser-report
+read/ingestion and source-bound qualification remain unchanged. Its neutral
+unknown state and partial history never activate a business capability. These
+presentation changes add no binding, business migration, tenant relation, paid
+service or provider call. Current member, personal-document, immutable approval,
+exact-byte, acceptance/outbox and unknown-provider-outcome invariants remain intact.
+
 25 October 2026 branch candidate: PDF verification becomes an individual purchase
 for an exact original and selected profile. New subscriptions and recurring renewals
 are retired; immutable historical consent, charges and reports remain preserved.

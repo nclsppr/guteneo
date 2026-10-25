@@ -28,6 +28,7 @@ import {
   type SupportedLocale,
 } from "./locale";
 import { LanguageSelect } from "./language-select";
+import { ThemeSelect } from "./theme-select";
 import {
   useDashboardAppearance,
   type DashboardAppearance,
@@ -276,6 +277,7 @@ export function Account({ session, onUpdated }: Props) {
           <section className="form-panel">
             <div className="account-display-preferences">
               <LanguageSelect profile />
+              <ThemeSelect />
               <DashboardAppearanceSelect
                 value={appearance}
                 onChange={setAppearance}
@@ -343,6 +345,7 @@ export function Account({ session, onUpdated }: Props) {
               </small>
             </div>
             <div className="account-display-preferences">
+              <ThemeSelect />
               <LanguageSelect
                 profile
                 value={

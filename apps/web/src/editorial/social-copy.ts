@@ -3,6 +3,7 @@ import editorial from "../locales/messages-editorial.json" with { type: "json" }
 import information from "../locales/messages-information.json" with { type: "json" };
 import roles from "../locales/messages-roles.json" with { type: "json" };
 import shell from "../locales/messages-shell.json" with { type: "json" };
+import publicSite from "../locales/messages-public-site.json" with { type: "json" };
 
 export type PublicSocialLocale = SupportedLocale;
 export type PublicSocialCopy = Readonly<{
@@ -12,7 +13,13 @@ export type PublicSocialCopy = Readonly<{
 type LocalizedCopy = Readonly<Record<PublicSocialLocale, PublicSocialCopy>>;
 
 // Keep metadata independent of the browser's current locale and React state.
-const messages = { ...shell, ...editorial, ...information, ...roles };
+const messages = {
+  ...shell,
+  ...editorial,
+  ...information,
+  ...roles,
+  ...publicSite,
+};
 type Message = keyof typeof messages;
 
 function sourceCopy(title: Message, description: Message): LocalizedCopy {
@@ -57,6 +64,22 @@ export const publicSocialTaglines = {
 
 /** Page-specific SEO copy. A language-neutral sharing fallback belongs to the builder. */
 export const publicSocialCopy = {
+  "/pricing/": sourceCopy(
+    "Tarifs des e-mails, fax, courriers et contrôles PDF",
+    "Tarifs clients, crédit de bienvenue et devis avant validation. Comparez l’e-mail, le fax, le courrier postal et les contrôles PDF à l’unité.",
+  ),
+  "/how-it-works/": sourceCopy(
+    "Préparer, vérifier et suivre un envoi de document",
+    "Suivez un envoi fictif par e-mail, fax ou courrier : préparez la demande, vérifiez ses détails exacts et comprenez les événements de suivi.",
+  ),
+  "/getting-started/": sourceCopy(
+    "Commencer avec Guteneo ou votre assistant",
+    "Commencez avec votre document dans Guteneo ou suivez le guide d’installation de votre assistant. Vérifiez le destinataire, les options et le coût avant validation.",
+  ),
+  "/pdf-checks/": sourceCopy(
+    "Contrôles d’accessibilité et d’archivage PDF",
+    "Comprenez les contrôles PDF/UA et PDF/A à l’unité, leur prix, les limites des fichiers et la vérification humaine encore nécessaire après un rapport automatique.",
+  ),
   "/": {
     fr: {
       title: `Guteneo · ${publicSocialTaglines.fr}`,

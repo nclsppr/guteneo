@@ -313,6 +313,7 @@ export function GenerationDetail({
       <div
         className="studio-table"
         role="region"
+        aria-busy={results.loading}
         onKeyDown={scrollStudioTable}
         tabIndex={0}
         aria-label={msg("Results of this generation")}

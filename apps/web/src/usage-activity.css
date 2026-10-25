@@ -46,7 +46,7 @@
 .usage-activity-year select {
   min-height: var(--control-height);
   min-width: 96px;
-  border: 1px solid #c9cbc3;
+  border: 1px solid var(--control-line);
   border-radius: var(--radius);
   background-color: var(--surface);
   color: var(--ink);
@@ -115,7 +115,7 @@
 .usage-activity-day,
 .usage-activity-key i {
   display: block;
-  border: 1px solid #8b9082;
+  border: 1px solid var(--control-line);
   border-radius: 2px;
   background: var(--activity-0);
 }
@@ -126,19 +126,19 @@
 }
 .usage-activity [data-level="1"] {
   background: var(--activity-1);
-  border-color: #6985c4;
+  border-color: var(--blue-line);
 }
 .usage-activity [data-level="2"] {
   background: var(--activity-2);
-  border-color: #5674b6;
+  border-color: var(--blue-line);
 }
 .usage-activity [data-level="3"] {
   background: var(--activity-3);
-  border-color: #4a69c7;
+  border-color: var(--blue-line);
 }
 .usage-activity [data-level="4"] {
   background: var(--activity-4);
-  border-color: #2046bd;
+  border-color: var(--blue-line);
 }
 .usage-activity-day[data-level="future"] {
   background: transparent;

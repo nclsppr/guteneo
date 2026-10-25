@@ -73,54 +73,76 @@ const resolvedMarkdownUrl =
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#2450db" />
     <link rel="preload" href={readingFont} as="font" type="font/woff2" crossorigin />
     <WebMCP />
 
     <script is:inline>
       (() => {
-        const KEY = "ui-mode";
+        const KEY = "guteneo.theme";
         const media = window.matchMedia("(prefers-color-scheme: dark)");
-        // A choice storage refused, kept until the page unloads.
+        const valid = (value) => value === "system" || value === "light" || value === "dark";
+        // A choice storage refused remains usable until this page unloads.
         let unsaved = null;
-
         const readPref = () => {
           if (unsaved) return unsaved;
           try {
-            const v = localStorage.getItem(KEY);
-            return v === "dark" || v === "light" ? v : null;
-          } catch {
-            return null;
-          }
+            const value = localStorage.getItem(KEY);
+            if (valid(value)) return value;
+            // Preserve the engineering reader's earlier explicit choice once.
+            const legacy = value === null ? localStorage.getItem("ui-mode") : null;
+            if (legacy === "light" || legacy === "dark") {
+              try {
+                localStorage.setItem(KEY, legacy);
+                localStorage.removeItem("ui-mode");
+              } catch { /* A blocked write does not discard a valid older choice. */ }
+              return legacy;
+            }
+          } catch { /* Browser storage is optional. */ }
+          return "system";
         };
-
-        const resolveMode = () => readPref() ?? (media.matches ? "dark" : "light");
-
         const applyTheme = () => {
+          const preference = readPref();
+          const resolved = preference === "system" ? (media.matches ? "dark" : "light") : preference;
           const root = document.documentElement;
-          const mode = resolveMode();
-          if (mode === "dark") root.setAttribute("data-mode", "dark");
+          if (resolved === "dark") root.setAttribute("data-mode", "dark");
           else root.removeAttribute("data-mode");
-          root.style.colorScheme = mode;
-          document.querySelectorAll("[data-nb-theme-toggle]").forEach((b) => {
-            b.setAttribute("data-nb-state", mode);
-            b.setAttribute("aria-pressed", String(mode === "dark"));
+          root.dataset.theme = resolved;
+          root.dataset.themePreference = preference;
+          root.style.colorScheme = resolved;
+          document.querySelectorAll("[data-nb-theme-select]").forEach((select) => {
+            select.value = preference;
           });
+          window.dispatchEvent(new CustomEvent("guteneo-theme-change", { detail: { preference, resolved } }));
         };
-
         applyTheme();
+        document.addEventListener("DOMContentLoaded", applyTheme, { once: true });
         document.addEventListener("astro:after-swap", applyTheme);
         media.addEventListener("change", () => {
-          if (!readPref()) applyTheme();
+          if (readPref() === "system") applyTheme();
         });
-        window.addEventListener("storage", (e) => {
-          if (e.key === KEY) applyTheme();
+        window.addEventListener("storage", (event) => {
+          if (event.key === KEY || event.key === null) {
+            unsaved = null;
+            applyTheme();
+          }
         });
-
-        // The toggle passes a mode only when storage refused it.
-        window.__nbApplyTheme = (mode) => {
-          if (mode === "dark" || mode === "light") unsaved = mode;
+        window.__nbApplyTheme = (preference) => {
+          if (valid(preference)) {
+            unsaved = preference;
+            try {
+              localStorage.setItem(KEY, preference);
+              unsaved = null;
+            } catch { /* Keep the choice in memory when persistence is blocked. */ }
+          }
           applyTheme();
         };
+        // Delegate from the head so the native control works before modules load.
+        document.addEventListener("change", (event) => {
+          const select = event.target;
+          if (select instanceof HTMLSelectElement && select.matches("[data-nb-theme-select]") && valid(select.value))
+            window.__nbApplyTheme(select.value);
+        });
       })();
     </script>
 

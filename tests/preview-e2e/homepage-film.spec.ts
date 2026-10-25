@@ -126,7 +126,9 @@ for (const locale of supportedLocales) {
       page.on("request", (request) => {
         if (request.url().endsWith(".mp4")) requests.push(request.url());
       });
-      await page.goto(`${film === "roles" ? "/roles/" : "/"}?lang=${locale}`);
+      await page.goto(
+        `${film === "roles" ? "/roles/" : "/how-it-works/"}?lang=${locale}`,
+      );
       const section = page.locator(`[data-film="${film}"]`);
       const player = section.locator("video");
       const format =
@@ -245,7 +247,7 @@ for (const locale of supportedLocales) {
     page,
   }) => {
     await mockPlayer(page, "play-error");
-    await page.goto(`/?lang=${locale}`);
+    await page.goto(`/how-it-works/?lang=${locale}`);
     const section = page.locator('[data-film="introduction"]');
     await section.locator(".homepage-film-play").click();
     await expect(section.getByRole("alert")).toBeVisible();
@@ -271,7 +273,9 @@ for (const film of ["introduction", "roles"] as const) {
     page,
   }) => {
     await mockPlayer(page);
-    await page.goto(`${film === "roles" ? "/roles/" : "/"}?lang=en`);
+    await page.goto(
+      `${film === "roles" ? "/roles/" : "/how-it-works/"}?lang=en`,
+    );
     const section = page.locator(`[data-film="${film}"]`);
     await section.locator(".homepage-film-play").click();
     const source = await section.locator("video").getAttribute("src");
@@ -305,7 +309,7 @@ test("a saved browser language selects the matching film and poster", async ({
     window.localStorage.setItem("guteneo.locale", "lb"),
   );
   await mockPlayer(page);
-  await page.goto("/");
+  await page.goto("/how-it-works/");
   const section = page.locator('[data-film="introduction"]');
   await expect(section).toHaveAttribute("data-locale", "lb");
   await expect(section.locator("video")).not.toHaveAttribute("src");
@@ -322,7 +326,7 @@ test("loads no movie before a gesture, chooses the current screen, and keeps it 
   });
   await mockPlayer(page);
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto("/");
+  await page.goto("/how-it-works/");
   const player = page.locator(".homepage-film-video");
   await expect(
     page.getByRole("button", { name: /Découvrir le film/ }),
@@ -363,7 +367,7 @@ test("keeps native controls available when fullscreen is refused", async ({
   page,
 }) => {
   await mockPlayer(page, "refused");
-  await page.goto("/");
+  await page.goto("/how-it-works/");
   await page.getByRole("button", { name: /Découvrir le film/ }).click();
   const player = page.locator(".homepage-film-video");
   await player.dispatchEvent("playing");
@@ -387,7 +391,7 @@ test("a phone opened in landscape still receives the portrait movie and poster",
   test.skip(info.project.name !== "iphone", "Requires a touch phone profile");
   await mockPlayer(page);
   await page.setViewportSize({ width: 844, height: 390 });
-  await page.goto("/");
+  await page.goto("/how-it-works/");
   await expect
     .poll(() =>
       page
@@ -406,7 +410,7 @@ test("retries Safari native fullscreen once playback is ready", async ({
   page,
 }) => {
   await mockPlayer(page, "native-retry");
-  await page.goto("/");
+  await page.goto("/how-it-works/");
   await page.getByRole("button", { name: /Découvrir le film/ }).click();
   await expect
     .poll(() =>
@@ -442,7 +446,7 @@ test("retries Safari native fullscreen once playback is ready", async ({
 
 test("a playback failure is announced and can be retried", async ({ page }) => {
   await mockPlayer(page, "play-error");
-  await page.goto("/");
+  await page.goto("/how-it-works/");
   await page.getByRole("button", { name: /Découvrir le film/ }).click();
   await expect(page.getByRole("alert")).toContainText(
     "Vérifiez votre connexion",
@@ -508,7 +512,9 @@ test.describe("delivered public media", () => {
         page,
         hasTouch,
       }) => {
-        await page.goto(`${film === "roles" ? "/roles/" : "/"}?lang=${locale}`);
+        await page.goto(
+          `${film === "roles" ? "/roles/" : "/how-it-works/"}?lang=${locale}`,
+        );
         const section = page.locator(`[data-film="${film}"]`);
         const portrait =
           film === "introduction" && page.viewportSize()!.width <= 767;

@@ -26,6 +26,7 @@ import {
 } from "./components";
 import { LanguageSelect } from "./language-select";
 import { LegalLinks } from "./legal-links";
+import { ThemeSelect } from "./theme-select";
 import {
   applyAccountLocale,
   getLocale,
@@ -336,6 +337,7 @@ export function PersonalSpace({
             {msg("Account and security")}
           </a>
         </nav>
+        <ThemeSelect compact />
       </header>
       <main
         id="main-content"

@@ -132,7 +132,7 @@
 .developer-code {
   margin: 25px 0;
   border: 1px solid var(--line);
-  background: #fffdf7;
+  background: var(--surface);
   min-width: 0;
 }
 .developer-code figcaption {
@@ -378,4 +378,135 @@
   #swagger-reference .swagger-ui .opblock-summary .copy-to-clipboard {
     display: none;
   }
+}
+
+/* The embedded read-only reference shares the page palette; content and request
+   execution remain owned by Swagger's existing locked configuration. */
+:root[data-theme="dark"] .swagger-ui,
+:root[data-theme="dark"]
+  .swagger-ui
+  :is(
+    .opblock-tag,
+    .opblock-tag small,
+    .parameter__type,
+    .parameter__name,
+    .opblock-section-header > label,
+    .opblock-section-header h4,
+    .opblock-summary-operation-id,
+    .opblock-summary-path,
+    .opblock-summary-path__deprecated,
+    .opblock-summary-description,
+    .tab li,
+    .opblock-description-wrapper,
+    .opblock-external-docs-wrapper,
+    .opblock-title_normal,
+    .opblock-description-wrapper h4,
+    .opblock-description-wrapper p,
+    .opblock-external-docs-wrapper p,
+    .opblock-title_normal p,
+    .responses-inner h4,
+    .responses-inner h5,
+    .response-col_status,
+    .response-col_links,
+    .response-col_description,
+    .btn,
+    select,
+    label,
+    textarea,
+    .model,
+    .model-title,
+    .info h1,
+    .info h2,
+    .info h3,
+    .info h4,
+    .info h5,
+    .info p,
+    .info li,
+    .info table,
+    .info .title,
+    .info .base-url,
+    table thead tr th,
+    table thead tr td,
+    table.headers td,
+    .renderedMarkdown p,
+    .renderedMarkdown li,
+    section h3,
+    .servers > label,
+    .prop-type,
+    .prop-format
+  ) {
+  color: var(--ink);
+}
+:root[data-theme="dark"]
+  .swagger-ui
+  :is(
+    .scheme-container,
+    .opblock .opblock-section-header,
+    .model-box,
+    .models,
+    select,
+    textarea,
+    input[type="text"],
+    input[type="search"],
+    input[type="email"],
+    input[type="password"]
+  ) {
+  background: var(--surface);
+  color: var(--ink);
+  border-color: var(--control-line);
+}
+:root[data-theme="dark"]
+  .swagger-ui
+  :is(
+    .opblock-tag,
+    section.models,
+    section.models.is-open,
+    .responses-table td,
+    .responses-table th
+  ) {
+  border-color: var(--line);
+}
+:root[data-theme="dark"] .swagger-ui :is(a, .info a) {
+  color: var(--blue);
+}
+:root[data-theme="dark"]
+  .swagger-ui
+  .response-control-media-type__accept-message {
+  color: var(--success);
+}
+:root[data-theme="dark"]
+  .swagger-ui
+  :is(
+    .opblock-control-arrow,
+    .expand-operation,
+    .expand-methods,
+    .model-toggle,
+    .copy-to-clipboard
+  )
+  svg {
+  color: var(--ink);
+  fill: var(--ink);
+}
+:root[data-theme="dark"] .swagger-ui :is(.markdown, .renderedMarkdown) pre {
+  color: var(--ink);
+  background: var(--surface-alt);
+}
+.developer-reference .swagger-ui .opblock.opblock-get .opblock-summary-method,
+.developer-reference
+  .swagger-ui
+  .opblock.opblock-patch
+  .opblock-summary-method {
+  background: var(--action);
+}
+.developer-reference .swagger-ui .opblock.opblock-post .opblock-summary-method {
+  background: #28654a;
+}
+.developer-reference .swagger-ui .opblock.opblock-put .opblock-summary-method {
+  background: #754509;
+}
+.developer-reference
+  .swagger-ui
+  .opblock.opblock-delete
+  .opblock-summary-method {
+  background: var(--danger-action);
 }

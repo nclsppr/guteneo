@@ -1,5 +1,42 @@
 # Guteneo product contract
 
+## Interface candidate — 25 October 2026
+
+The public site has a concise homepage and dedicated How it works, Pricing,
+Getting started and PDF checks pages. Full questions move to Support; all public
+pages retain canonical four-language navigation, the common official-stamp footer
+and their existing factual terms. The public route registry generates every page
+and its four language variants in the sitemap. See
+[homepage/navigation](HOMEPAGE_REDESIGN.md) and
+[language rules](MULTILINGUAL.md).
+
+The homepage restores its existing localized closing invitation, first-dispatch
+link and large stamp/postmark above its exclusive panorama, before the common
+footer. That identical common footer remains on home and the other public React
+pages, with its compact stamp, two original swallows, fifteen links and colophon.
+A few original public swallows remain decorative; they do not enter the logged-
+in application. Header/app stamps retain their white paper interior with the
+actual inner blue frame and transparent exterior/perforations, without an outer
+white contour. Dark
+editorial/panorama derivatives add no frame and preserve the original light sources.
+
+System/light/dark presentation is independent of language, account identity and
+the saved Classic/V2 workspace layout. A nonsecret host-only appearance cookie
+supports standalone server HTML without becoming account or approval evidence;
+[THEMES.md](THEMES.md) owns the contract and remaining qualification limits.
+Decorative workspace artwork is removed while real documents, controls, activity
+and rights remain. My documents starts with personal authority instead of waiting
+for workshop bootstrap and discards obsolete account/navigation results; the
+[loading contract and local comparison](FRONTEND_PERFORMANCE.md) qualify only
+synthetic local behavior.
+
+Customer status now presents recent public access and actual 7/30/365-day history,
+with missing/partial/precollection evidence explicit. Technical/browser/local
+qualification records retain their separate APIs and release gates; see
+[status](STATUS_SERVICE.md). These are candidate presentation/loading changes.
+They create no membership, mandate, native/MCP business action, provider activation,
+financial consent, communication or production publication.
+
 25 October 2026 branch candidate: PDF verification becomes an individual purchase
 for an exact original and selected profile. New subscriptions and recurring renewals
 are retired; immutable historical consent, charges and reports remain preserved.

@@ -2,7 +2,6 @@ import { formatLocale } from "./locale";
 import { msg, msgIn } from "./messages";
 import { useId, useRef, useState, type KeyboardEvent } from "react";
 import { ArrowRight, Check, FilePdf } from "@phosphor-icons/react";
-import { scrollToSection } from "./landing-sections";
 import "./landing-example.css";
 
 type ExampleStep = "request" | "review" | "tracking";
@@ -41,9 +40,7 @@ export function GuidedExample() {
   > = {
     fax: {
       label: msg("Fax"),
-      request: msg(
-        "Prepare to fax Correspondence.pdf to Example Company.",
-      ),
+      request: msg("Prepare to fax Correspondence.pdf to Example Company."),
       recipient: msg("Example Company"),
       recipientDetail: msg("Fictional recipient and fax number"),
       costLabel: msg("Example spending limit"),
@@ -63,7 +60,9 @@ export function GuidedExample() {
         },
         {
           title: msg("Technical receipt confirmed"),
-          detail: msg("This receipt does not prove that the document was read."),
+          detail: msg(
+            "This receipt does not prove that the document was read.",
+          ),
           confirmed: true,
         },
       ],
@@ -80,32 +79,24 @@ export function GuidedExample() {
       tracking: [
         {
           title: msg("Accepted for processing"),
-          detail: msg(
-            "The provider accepted the message and its attachment.",
-          ),
+          detail: msg("The provider accepted the message and its attachment."),
           confirmed: true,
         },
         {
           title: msg("Message delivered to server"),
-          detail: msg(
-            "The recipient’s mail server accepted the email.",
-          ),
+          detail: msg("The recipient’s mail server accepted the email."),
           confirmed: true,
         },
         {
           title: msg("Reading not confirmed"),
-          detail: msg(
-            "Technical delivery does not prove opening or reading.",
-          ),
+          detail: msg("Technical delivery does not prove opening or reading."),
           confirmed: false,
         },
       ],
     },
     postal: {
       label: msgIn("mail-channel", "Post"),
-      request: msg(
-        "Prepare to post Correspondence.pdf to Example Company.",
-      ),
+      request: msg("Prepare to post Correspondence.pdf to Example Company."),
       recipient: msg("Example Company · Example City"),
       recipientDetail: msg("Fictional recipient and postal address"),
       costLabel: msg("Example price"),
@@ -189,9 +180,7 @@ export function GuidedExample() {
     >
       <div className="guided-example-intro">
         <h2 id="guided-example-title">
-          {msg("One request.")} <br />
-          {msg("One review.")} <br />
-          <em>{msg("One dispatch.")}</em>
+          {msg("A fictional dispatch, step by step")}
         </h2>
         <p>
           {msg(
@@ -280,7 +269,9 @@ export function GuidedExample() {
                     {msg(
                       "The 2-page PDF is ready. Check the recipient, channel and ",
                     )}
-                    {channel === "fax" ? msg("the spending limit") : msg("the price")}{" "}
+                    {channel === "fax"
+                      ? msg("the spending limit")
+                      : msg("the price")}{" "}
                     {msg(" in Guteneo before giving your approval.")}
                   </p>
                 </li>
@@ -385,11 +376,7 @@ export function GuidedExample() {
         </div>
 
         <div className="guided-example-next">
-          <a
-            className="text-link"
-            href="#installation"
-            onClick={(event) => scrollToSection(event, "installation")}
-          >
+          <a className="text-link" href="/getting-started/">
             {msg("Prepare my first dispatch")}
             <ArrowRight size={17} aria-hidden="true" />
           </a>

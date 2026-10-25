@@ -1,0 +1,270 @@
+:root {
+  color-scheme: light;
+  --paper: #f6f5ef;
+  --surface: #fffefa;
+  --surface-raised: #ffffff;
+  --surface-alt: #eeeee7;
+  --surface-hover: #e9e9e1;
+  --sidebar-surface: #f0efea;
+  --ink: #181b22;
+  --muted: #64666b;
+  --placeholder: #64666b;
+  --heading-ink: #172e5c;
+  --blue: #2450db;
+  --blue-hover: #1b3caa;
+  --action: #2450db;
+  --action-hover: #1b3caa;
+  --line: #deded5;
+  --control-line: #8b9082;
+  --blue-tint: #ebeffc;
+  --blue-line: #c9d4f6;
+  --blue-ink: #2443a0;
+  --selection: #dbe4fb;
+  --success: #345934;
+  --success-tint: #eef4ec;
+  --success-line: #bdcebd;
+  --warning: #754509;
+  --warning-tint: #f7f0e5;
+  --warning-line: #dfd0b8;
+  --error: #a12e27;
+  --error-tint: #faeeeb;
+  --error-line: #e3c5c0;
+  --danger-action: #a12e27;
+  --danger-action-hover: #86241e;
+  --focus: #181b22;
+  --brand-ink: #181b22;
+  --brand-paper: #ffffff;
+  --shadow: #10182926;
+  --select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath d='m4 6 4 4 4-4' fill='none' stroke='%2364666b' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+:root[data-theme="dark"] {
+  --brand-ink: #f6f5ef;
+  color-scheme: dark;
+  --paper: #11151e;
+  --surface: #1a202c;
+  --surface-raised: #242d3c;
+  --surface-alt: #202938;
+  --surface-hover: #2a3342;
+  --sidebar-surface: #171d28;
+  --ink: #f0f2f7;
+  --muted: #b3bdce;
+  --placeholder: #a6b2c6;
+  --heading-ink: #e5ebfa;
+  --blue: #9bb5ff;
+  --blue-hover: #c3d1ff;
+  --line: #384255;
+  --control-line: #6b7891;
+  --blue-tint: #202f55;
+  --blue-line: #506ca7;
+  --blue-ink: #b7caff;
+  --selection: #344e88;
+  --success: #a7d6b1;
+  --success-tint: #20372c;
+  --success-line: #4e7f5b;
+  --warning: #f2c789;
+  --warning-tint: #3a2d1d;
+  --warning-line: #89673d;
+  --error: #ffb4a8;
+  --error-tint: #3d2528;
+  --error-line: #9b625e;
+  --focus: #f0f2f7;
+  --shadow: #00000052;
+  --select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath d='m4 6 4 4 4-4' fill='none' stroke='%23b3bdce' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+/* A useful system default remains available without JavaScript. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --brand-ink: #f6f5ef;
+    color-scheme: dark;
+    --paper: #11151e;
+    --surface: #1a202c;
+    --surface-raised: #242d3c;
+    --surface-alt: #202938;
+    --surface-hover: #2a3342;
+    --sidebar-surface: #171d28;
+    --ink: #f0f2f7;
+    --muted: #b3bdce;
+    --placeholder: #a6b2c6;
+    --heading-ink: #e5ebfa;
+    --blue: #9bb5ff;
+    --blue-hover: #c3d1ff;
+    --line: #384255;
+    --control-line: #6b7891;
+    --blue-tint: #202f55;
+    --blue-line: #506ca7;
+    --blue-ink: #b7caff;
+    --selection: #344e88;
+    --success: #a7d6b1;
+    --success-tint: #20372c;
+    --success-line: #4e7f5b;
+    --warning: #f2c789;
+    --warning-tint: #3a2d1d;
+    --warning-line: #89673d;
+    --error: #ffb4a8;
+    --error-tint: #3d2528;
+    --error-line: #9b625e;
+    --focus: #f0f2f7;
+    --shadow: #00000052;
+    --select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath d='m4 6 4 4 4-4' fill='none' stroke='%23b3bdce' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  }
+  :root:not([data-theme])
+    :is(.brand, .workspace-v2 .sidebar .brand, .bv-identity) {
+    color: var(--brand-ink);
+    background: transparent;
+    border-radius: 0;
+    padding: 0;
+    width: fit-content;
+  }
+  :root:not([data-theme]) .brand-wordmark {
+    color: var(--brand-ink);
+  }
+  :root:not([data-theme]) .bv-identity-name {
+    color: var(--brand-ink);
+  }
+  :root:not([data-theme]) .assistant-brand-mark {
+    background: var(--brand-paper);
+    padding: 5px;
+    border-radius: 2px;
+  }
+}
+
+html {
+  background: var(--paper);
+  color: var(--ink);
+  scrollbar-color: var(--control-line) var(--paper);
+}
+.brand-picture {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  flex-shrink: 0;
+}
+.brand-picture::before {
+  content: "";
+  position: absolute;
+  /* The portrait's inner blue frame starts at 13px in the 128px source.
+     Keep paper inside it, away from the outer perforation notches. */
+  inset: 10.5%;
+  background: #fff;
+  z-index: -1;
+}
+input::placeholder,
+textarea::placeholder {
+  color: var(--placeholder);
+  opacity: 1;
+}
+select option,
+select optgroup {
+  background: var(--surface);
+  color: var(--ink);
+}
+dialog,
+[role="dialog"] {
+  color: var(--ink);
+}
+dialog::backdrop {
+  background: #080c16a3;
+}
+
+.theme-control {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+.theme-control > label {
+  font-size: 14px;
+  color: var(--ink);
+}
+.theme-select-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+.theme-select-wrap > svg {
+  position: absolute;
+  inset-inline-start: 12px;
+  pointer-events: none;
+  color: var(--blue);
+}
+.theme-control select {
+  min-width: 0;
+  width: 100%;
+  min-height: 46px;
+  padding: 10px 28px 10px 38px;
+  font-size: 15px;
+  line-height: 1.4;
+  background: var(--surface);
+  color: var(--ink);
+  border: 1px solid var(--control-line);
+  border-radius: var(--radius, 3px);
+  cursor: pointer;
+}
+.theme-control-compact {
+  display: inline-flex;
+}
+.theme-control-compact select {
+  min-height: 44px;
+  width: auto;
+  max-width: 170px;
+  font-size: 14px;
+}
+
+/* The shared wordmark follows the approved ink/ivory theme. */
+:root[data-theme="dark"]
+  :is(.brand, .workspace-v2 .sidebar .brand, .bv-identity) {
+  color: var(--brand-ink);
+  background: transparent;
+  border-radius: 0;
+  padding: 0;
+  width: fit-content;
+}
+:root[data-theme="dark"] .brand-wordmark {
+  color: var(--brand-ink);
+}
+:root[data-theme="dark"] .bv-identity-name {
+  color: var(--brand-ink);
+}
+:root[data-theme="dark"] .assistant-brand-mark {
+  background: var(--brand-paper);
+  padding: 5px;
+  border-radius: 2px;
+}
+:root[data-theme="dark"]
+  :is(.founding-stamp, .founding-postmark, .luxembourg-panorama) {
+  mix-blend-mode: normal;
+}
+:root[data-theme="dark"] .footer-postage {
+  background: transparent;
+}
+:root[data-theme="dark"] .founding-postmark {
+  color: var(--brand-ink);
+}
+
+/* Original content remains paper: theme only its surrounding controls. */
+:is(
+  .pdf-canvas-wrap canvas,
+  .pdf-preview iframe,
+  .email-preview,
+  .secure-document-page img,
+  .postal-address-crop img
+) {
+  color-scheme: light;
+  background: #ffffff;
+}
+
+@media (max-width: 600px) {
+  .theme-control select {
+    font-size: 16px;
+  }
+  .theme-control-compact select {
+    max-width: 136px;
+  }
+}
+@media (forced-colors: active) {
+  .theme-control select {
+    border-color: ButtonText;
+  }
+}

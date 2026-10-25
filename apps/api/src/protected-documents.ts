@@ -457,7 +457,7 @@ export async function handleProtectedDocumentRoute(
     path: string,
     state: "locked" | "unlocked" | "unavailable",
     error?: string,
-  ) => renderPage(path, state, error, locale);
+  ) => renderPage(path, state, error, locale, request);
   const sensitive =
     /^\/api\/dispatches\/([A-Za-z0-9_-]+)\/protected-document(?:\/(password|revoke))?$/.exec(
       pathname,

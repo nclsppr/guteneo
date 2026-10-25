@@ -1,6 +1,5 @@
 import { msg } from "./messages";
 import { FileInput } from "./file-input";
-import { DashboardArtwork } from "./dashboard-artwork";
 import { useDashboardAppearance } from "./dashboard-appearance";
 import { WorkspaceContacts } from "./workspace-contacts";
 import { RolePermissionNotice } from "./role-guide";
@@ -356,7 +355,6 @@ export function Overview({ session }: { session: Session }) {
             )
           }
         />
-        <DashboardArtwork scene="atelier" />
       </div>
       {regions}
     </>
@@ -796,7 +794,6 @@ export function Documents({ canPrepare = true }: { canPrepare?: boolean }) {
         </div>
       ) : (
         <div className="dashboard-document-empty">
-          {resource.data && <DashboardArtwork scene="documents" />}
           <EmptyState
             title={t.documents.emptyTitle}
             text={t.documents.emptyBody}

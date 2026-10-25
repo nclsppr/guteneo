@@ -20,7 +20,7 @@ Unified personal account and optional workspace implementation; migrations, alig
 <ol>
 <li id="feature-118253ca6bfe">Auth0 sign-in, verified accounts and explicit MFA policy</li>
 <li id="feature-5996e8b92f62">Canonical browser sign-in/callback; retired hosts and preview URLs refuse authentication</li>
-<li id="feature-0485df390661">Personal profile, interface language and saved Classic/V2 appearance</li>
+<li id="feature-3b417c25ebfb">Personal profile, interface language and saved Classic/V2 workspace layout; browser color preference is separate presentation state</li>
 <li id="feature-1b09fee94068">Session listing, revocation and explicit logout</li>
 <li id="feature-258bd6db5347">Successful logout returns to the public home before Login remounts; failures stay visible and never claim a logout</li>
 <li id="feature-0d705f70130f">Workshop switching with current membership rights</li>

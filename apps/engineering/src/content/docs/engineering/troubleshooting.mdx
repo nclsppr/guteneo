@@ -34,14 +34,48 @@ current gates, while the manifest identifies published source. Check the
 [status service](https://status.guteneo.com/) for its separately bounded public
 observations.
 
+## Interpret public status before diagnosing a business operation
+
+The 25 October customer status candidate presents public access, observation time,
+three check groups and actual history. It does not expose provider diagnostics,
+local qualification or browser execution reports. Its available result describes
+the recent anonymous public checks; a failing authenticated or delivery journey
+still needs its own existing-operation evidence.
+
+| Observation                                                   | Interpretation and bounded recovery                                                                                   |
+| ------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| Recent valid checks pass                                      | Public access responded within that scope; this does not qualify sign-in, a scanner, a purchase or recipient delivery |
+| A recent check fails                                          | Keep that dated discrepancy and inspect the affected public group/response; do not infer an unrelated provider outage |
+| No observation, unreadable response or inconsistent result    | Current availability is unknown; Refresh rereads existing status/history and launches no test or business operation   |
+| An observation is old                                         | Its time remains useful as historical evidence; expired green results cannot describe the current service             |
+| Recorded history passes but expected observations are missing | Success is calculated from received records only; partial data and unknown days are not complete coverage             |
+| Dates precede collection                                      | Those days are unknown; no successful past is reconstructed                                                           |
+
+The history defaults to thirty days, with seven-day and annual windows. Annual
+cells aggregate actual daily records by month; the daily table retains all 365
+days. Select a cell or open the daily table for recorded/expected counts instead
+of treating a green month as proof for each day. A history-read failure supplies
+no percentage. Refresh and return-to-visible reads cannot repair collection or
+rewrite old results; investigate through authorized operations access.
+
+Language and appearance are presentation choices. Status supports French,
+English, German and Luxembourgish; explicit supported language takes priority,
+then its origin's saved choice, supported browser preference and French fallback.
+It keeps the chosen history and disclosure when language changes. System/light/
+dark preference uses the same storage enum as the main website, while origin
+isolation keeps status preferences separate from the account and the main host's
+presentation cookie. Blocked storage must not prevent reading the page. Use the
+[design system](/engineering/design-system/) for the shared accessibility and
+appearance rules.
+
 ## Sign-in, access or mutation refused
 
-| Symptom | Safe check | Recovery boundary |
-| --- | --- | --- |
-| `AUTHENTICATION_REQUIRED` or `SESSION_EXPIRED` | Check whether this is a browser session, native session or OAuth call | Reauthenticate through that client's documented flow |
-| `ORIGIN_REJECTED` or `CSRF_REJECTED` | Check the exact browser origin and current session/CSRF pairing | Correct the origin/session; keep the protections enabled |
-| `INSUFFICIENT_SCOPE`, revoked connection or changed membership | Check current scopes, workspace binding, role and resource access | Reconnect or ask the authorized administrator; no client-supplied tenant switch |
-| A private `404` | Check the existing identifier and the account/workspace actually connected | Absence and inaccessible content are intentionally not a global existence oracle |
+| Symptom                                                        | Safe check                                                                 | Recovery boundary                                                                |
+| -------------------------------------------------------------- | -------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| `AUTHENTICATION_REQUIRED` or `SESSION_EXPIRED`                 | Check whether this is a browser session, native session or OAuth call      | Reauthenticate through that client's documented flow                             |
+| `ORIGIN_REJECTED` or `CSRF_REJECTED`                           | Check the exact browser origin and current session/CSRF pairing            | Correct the origin/session; keep the protections enabled                         |
+| `INSUFFICIENT_SCOPE`, revoked connection or changed membership | Check current scopes, workspace binding, role and resource access          | Reconnect or ask the authorized administrator; no client-supplied tenant switch  |
+| A private `404`                                                | Check the existing identifier and the account/workspace actually connected | Absence and inaccessible content are intentionally not a global existence oracle |
 
 For local browser work, use `http://localhost:8787` consistently.
 `127.0.0.1` and `localhost` are different origins. A bearer token is not a browser
@@ -76,13 +110,13 @@ Read the existing document's `analysis` fields. Quarantine means required proof
 has not completed; it is not itself a malware verdict. Follow `nextAction` and
 any returned `retryAfterSeconds` instead of repeatedly importing the same file.
 
-| Analysis result | Appropriate next step |
-| --- | --- |
-| `processing` / `wait` | Wait the returned interval, then read the same document; existing bounded background work needs no new upload |
-| `retryable` / `rescan` | An authorized actor may explicitly restart analysis of that same original under the existing limits |
-| `blocked` / `contact_support` | Keep the original and escalate the stated configuration, freshness, integrity or authority issue |
-| `blocked` / `replace_document` | Obtain a compatible/corrected file as requested; preserve its separate identity and hash |
-| `ready` / `continue` | Continue only with operations allowed for the current actor and document |
+| Analysis result                | Appropriate next step                                                                                         |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------- |
+| `processing` / `wait`          | Wait the returned interval, then read the same document; existing bounded background work needs no new upload |
+| `retryable` / `rescan`         | An authorized actor may explicitly restart analysis of that same original under the existing limits           |
+| `blocked` / `contact_support`  | Keep the original and escalate the stated configuration, freshness, integrity or authority issue              |
+| `blocked` / `replace_document` | Obtain a compatible/corrected file as requested; preserve its separate identity and hash                      |
+| `ready` / `continue`           | Continue only with operations allowed for the current actor and document                                      |
 
 Missing service configuration, stale signatures and integrity failures must not
 be bypassed with a manual ready flag or an approval. A purged document cannot be
@@ -101,14 +135,14 @@ First read the same operation. Keep the exact parameters and idempotency key for
 an idempotent replay under its contract; a new key describes a new intended
 operation and can create a duplicate.
 
-| Existing dispatch state | Safe interpretation and next check |
-| --- | --- |
-| `prepared` | Inspect its exact quote, document and current approval; preparation created no transmission |
-| `queued` | Acceptance/reservation/outbox have committed; inspect the existing work rather than preparing another dispatch |
-| `submitting` | A provider attempt is in progress or awaiting its outcome; do not create a replacement |
-| `submission_unknown` | Stop automatic resubmission; authorized provider-specific reconciliation is required |
-| `accepted` or a later channel state | Read the recorded events; acceptance, delivery, postal handoff and settlement have distinct meanings |
-| `failed` or `cancelled` | Inspect the actual attempt/event and cancellation limits before proposing any new communication |
+| Existing dispatch state             | Safe interpretation and next check                                                                             |
+| ----------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `prepared`                          | Inspect its exact quote, document and current approval; preparation created no transmission                    |
+| `queued`                            | Acceptance/reservation/outbox have committed; inspect the existing work rather than preparing another dispatch |
+| `submitting`                        | A provider attempt is in progress or awaiting its outcome; do not create a replacement                         |
+| `submission_unknown`                | Stop automatic resubmission; authorized provider-specific reconciliation is required                           |
+| `accepted` or a later channel state | Read the recorded events; acceptance, delivery, postal handoff and settlement have distinct meanings           |
+| `failed` or `cancelled`             | Inspect the actual attempt/event and cancellation limits before proposing any new communication                |
 
 An HTTP timeout does not prove that a provider rejected a request. A status refresh,
 page reload, queue redelivery or database restore grants no fresh sending authority.

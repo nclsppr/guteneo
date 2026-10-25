@@ -13,26 +13,70 @@ This is already the site's color: `--ink: #181b22` in
 `.brand-wordmark`. The wordmark retains EB Garamond. Blue belongs to the
 official portrait, illustrations and decorative elements.
 
-Unless the explicit engineering-header exception below applies, this rule
+Unless the explicit web dark-mode exception below applies, this rule
 applies to every new or revised brand template: website and
 application, email, sharing card, social post, video and other promotional
 material. On a dark background, place the black signature on a light paper
 panel using the site's ivory `#f6f5ef`; do not create a white or blue wordmark.
 
-### Engineering-header dark-mode exception (24 October 2026)
+### Web dark-mode identity (expanded 25 October 2026)
 
-The engineering documentation header uses a transparent background in both themes.
-The existing portrait already contains transparency; never flatten it onto paper.
-Keep the lowercase wordmark ink black in light mode. In dark mode, the explicitly
-approved exception uses ivory `#f6f5ef` for the wordmark and its Engineering label,
-without a light cartouche. Preserve the portrait's original blue and EB Garamond
-lettering. This exception is scoped to the engineering documentation header;
-other templates retain their established composition rules.
+The user extended the engineering header treatment to the public website and
+application branding. Keep the lowercase wordmark ink black in light mode. In
+dark mode use ivory `#f6f5ef` lettering directly on the dark surface, without a
+light cartouche behind the wordmark or whole header. White paper always stays
+inside the asset's actual inner blue frame in both themes. Leave the exterior,
+corners and perforations transparent; do not add a white contour around the image.
+Paper placement must follow the source asset's geometry, not one universal inset.
+The current 128 px main portrait's inner blue frame begins around 13 px: a 5%
+backing bleeds through its outer perforations at header size. Main branding uses
+10.5% inset, and status/API center white paper at 79% width/height. Engineering's
+existing 5% `StampPaper` is a separate approved asset treatment and stays unchanged.
+Verify the actual 48 px header appearance in both themes. Preserve the source image, its transparency,
+its original blue and EB Garamond lettering. Engineering keeps its existing
+ivory label. Other promotional templates retain their established composition.
+
+The public-footer postmark uses ivory ink in dark mode. Its official printed
+stamp keeps white printed paper inside and original colors; never invert the
+entire image. Its transparent-edge derivative removes only the exterior white
+margin; retain the unchanged opaque original and extraction provenance.
+The approved Luxembourg city panorama appears only on the public homepage,
+which distinguishes it from the surrounding pages. All public pages retain
+the same footer navigation and language behavior. The homepage alone restores
+the explicitly requested localized invitation “Ideas travel. Ours start here.”
+and first-dispatch action, followed by the large stamp/postmark and panorama,
+before the common footer. Center the invitation and button on one axis. The
+common `PublicFooter` remains identical on every main-site public route, including
+home: compact stamp/postmark, two original decorative swallows, fifteen links and
+maker colophon. Home's large closing stamp and three panorama birds are a separate
+section above it, not a reason to remove or vary the common footer.
+
+All main-site public routes use one 1440 px maximum outer frame and the same
+responsive gutters for header, main and footer. Long prose may narrow inside
+that frame. The public header uses only one appearance icon at every viewport,
+with a localized action name. An unset preference follows the operating system;
+the icon sets the opposite resolved light/dark choice and works through the
+head bootstrap before React is ready.
+
+Editorial images retain their original light-mode assets. Dedicated ivory
+engraving derivatives with true alpha serve dark mode directly on the page,
+without added paper frames, padding or broad inversion filters.
+
+The homepage uses `apps/web/public/luxembourg-blue-panorama.webp` in light mode
+and its dedicated `luxembourg-dark-panorama.webp` derivative in dark mode. The
+25 October derivative was generated with the built-in image tool from the
+original composition, using ivory engraving with true alpha so the site's exact
+deep navy CSS surface appears through its background and exterior edges.
+Its source PNG and adjacent WebP JSON retain the prompt, input, hashes and
+conversion provenance. Keep the approved swallows as separate original overlays;
+the panorama files do not replace them. Load only the selected theme's artwork,
+retain the 3:1 dimensions and keep it below the primary customer content.
 
 ### Engineering stamp paper and editorial character
 
-The engineering header may add white paper only behind its square portrait/stamp
-area in both themes. Preserve the official portrait asset's alpha; never flatten
+The engineering header retains its existing approved 5% `StampPaper` white
+interior in both themes. That treatment belongs to its source asset and does not
+set other assets' paper geometry. Preserve the official portrait asset's alpha; never flatten
 it onto paper or place a light panel behind the wordmark or entire header. The
 lowercase dark-mode wordmark stays ivory without a cartouche. This header rule
 is separate from the choice of editorial artwork.
@@ -101,11 +145,11 @@ interface control; it does not replace the Guteneo logo or video content.
 
 ## Three distinct uses
 
-| Visual | Use | Resources |
-| --- | --- | --- |
-| **Stamp with “guteneo.com”** | Public footer and external communications. Preserve its original stamp, paper background and decorative postmark. | `apps/web/public/brand/gutenberg-guteneo-stamp.webp` (640 px), `guteneo-stamp.png` (512 px) |
-| **Transparent halftone portrait without text** | Website, journal, article, documentation, login and workspace headers. | `apps/web/public/brand/guteneo-portrait-128.webp`, `guteneo-portrait-192.webp`, `guteneo-portrait.png` (512 px) |
-| **Simple flat emblem** | Favicon, shortcuts, MCP icon and small placements. This is the first image in the original request. | `apps/web/public/brand/guteneo-mark[-128].webp`, `guteneo-mark.png` and favicon family |
+| Visual                                         | Use                                                                                                               | Resources                                                                                                       |
+| ---------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| **Stamp with “guteneo.com”**                   | Public footer and external communications. Preserve its original stamp, paper background and decorative postmark. | `apps/web/public/brand/gutenberg-guteneo-stamp.webp` (640 px), `guteneo-stamp.png` (512 px)                     |
+| **Transparent halftone portrait without text** | Website, journal, article, documentation, login and workspace headers.                                            | `apps/web/public/brand/guteneo-portrait-128.webp`, `guteneo-portrait-192.webp`, `guteneo-portrait.png` (512 px) |
+| **Simple flat emblem**                         | Favicon, shortcuts, MCP icon and small placements. This is the first image in the original request.               | `apps/web/public/brand/guteneo-mark[-128].webp`, `guteneo-mark.png` and favicon family                          |
 
 The HTML wordmark beside the portrait remains **guteneo**, with a lowercase
 g, in the existing EB Garamond face. Do not add “guteneo.com” to the header

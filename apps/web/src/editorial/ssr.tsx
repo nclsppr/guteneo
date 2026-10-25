@@ -6,6 +6,11 @@ import { DeveloperPage } from "../developer-page";
 import { getArticles, articlePath } from "./articles";
 import { ArticlePage, JournalPage } from "./pages";
 import { AssistantsPage } from "../assistants-page";
+import { PublicSitePage } from "../public-site-pages";
+import {
+  isPublicSitePage,
+  getPublicSitePageMetadata,
+} from "../public-site-metadata";
 import { getAssistant } from "../assistant-catalog";
 import { getLocale, getLocaleSource, setLocale } from "../locale";
 import { msg } from "../messages";
@@ -68,6 +73,21 @@ function breadcrumbs(items: { name: string; path: string }[]) {
 }
 
 function renderPublicContent(pathname: string) {
+  if (isPublicSitePage(pathname)) {
+    const metadata = getPublicSitePageMetadata(pathname)!;
+    return {
+      html: renderToString(<PublicSitePage path={pathname} />),
+      title: `${metadata.title} | Guteneo`,
+      description: metadata.description,
+      canonical: origin + pathname,
+      structuredData: [
+        breadcrumbs([
+          { name: "Home", path: "/" },
+          { name: metadata.label, path: pathname },
+        ]),
+      ],
+    };
+  }
   const information = getInformationPages()[pathname];
   if (information)
     return {

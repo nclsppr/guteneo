@@ -204,7 +204,8 @@ beforeAll(async () => {
     ASSETS: {
       fetch: async (input: Request) => {
         assetRequests.push(input);
-        return new URL(input.url).pathname.startsWith("/assets/")
+        return new URL(input.url).pathname.startsWith("/assets/") ||
+          new URL(input.url).pathname === "/theme-init.js"
           ? new Response("export {};", {
               headers: { "Content-Type": "application/javascript" },
             })
@@ -486,6 +487,40 @@ describe("isolated Belvedere custom host", () => {
     ))!;
     expect(asset.status).toBe(200);
     expect(assetRequests[0].headers.has("Cookie")).toBe(false);
+    const theme = (await handleBelvedereHost(
+      privateRead("/theme-init.js", {
+        Cookie: `${ownerCookie}; guteneo_theme=dark`,
+      }),
+      env,
+    ))!;
+    expect(theme.status).toBe(200);
+    expect(theme.headers.get("Cache-Control")).toContain("no-store");
+    expect(theme.headers.get("Content-Security-Policy")).toContain(
+      "frame-src 'none'",
+    );
+    expect(assetRequests.at(-1)!.headers.has("Cookie")).toBe(false);
+    for (const path of [
+      "/theme-init.js?token=private",
+      "/theme-other.js",
+      "/public/theme-init.js",
+    ]) {
+      expect((await handleBelvedereHost(privateRead(path), env))?.status).toBe(
+        404,
+      );
+    }
+    const invalidAsset = await handleBelvedereHost(
+      privateRead("/theme-init.js"),
+      {
+        ...env,
+        ASSETS: {
+          fetch: async () =>
+            new Response("<html>untrusted</html>", {
+              headers: { "Content-Type": "text/html" },
+            }),
+        },
+      } as unknown as Env,
+    );
+    expect(invalidAsset?.status).toBe(404);
     expect(
       (
         await handleBelvedereHost(
@@ -504,5 +539,22 @@ describe("isolated Belvedere custom host", () => {
     ).toBe(404);
     const robots = (await handleBelvedereHost(request("/robots.txt"), env))!;
     expect(await robots.text()).toBe("User-agent: *\nDisallow: /\n");
+  });
+  it("themes recovery without exposing the private route or accepting appearance as authority", async () => {
+    const before = await total("browser_sessions");
+    const response = (await handleBelvedereHost(
+      request("/auth/callback?locale=en&state=invalid&code=invalid", {
+        headers: { Cookie: "guteneo_theme=dark" },
+      }),
+      env,
+    ))!;
+    expect(response.status).toBe(403);
+    expect(response.headers.get("Cache-Control")).toContain("no-store");
+    const html = await response.text();
+    expect(html).toContain('data-theme="dark"');
+    expect(html).toContain('<meta name="theme-color" content="#2450db">');
+    expect(html).not.toContain(slug);
+    expect(html).not.toContain("<script");
+    expect(await total("browser_sessions")).toBe(before);
   });
 });

@@ -1,6 +1,6 @@
-# Workspace V2 and personal appearance preference
+# Workspace layout and V2
 
-Candidate status on 14 October 2026: **V2 simplification locally validated;
+Historical candidate status on 14 October 2026: **V2 simplification locally validated;
 exact-commit CI and publication still require qualification, with publication
 authorized after validation**. Results dated 11–13 October below are historical,
 separate from that candidate. V2 is a complete web workspace version, selectable
@@ -17,6 +17,30 @@ in [WORKSPACE_ROLES.md](WORKSPACE_ROLES.md). This page owns V2 presentation,
 appearance-specific behavior and dated evidence rather than duplicating those
 complete contracts.
 
+## Current presentation — 25 October 2026 candidate
+
+The current candidate removes decorative `DashboardArtwork` panels and their
+swallows from overview, empty Documents and the assistant introduction. The
+component is retired; historical artwork/provenance below remains a record of
+its earlier candidate. Official identity, actual document previews, controls,
+metrics, dates, consent and permission-specific recovery remain. No replacement
+illustration, business API, role or activation is introduced.
+
+System/light/dark appearance now follows the shared browser preference in
+[THEMES.md](THEMES.md), with visible keyboard/forced-color states and royal-blue
+browser chrome. That choice is independent of the saved `classic`/`v2` workspace
+version: choosing dark mode neither changes the account's workspace version nor
+writes its profile. The existing account save and temporary version-override
+contracts below remain unchanged.
+
+Personal documents start from their personal session without waiting for a
+workshop bootstrap, and discard obsolete workspace/account results across
+navigation. [FRONTEND_PERFORMANCE.md](FRONTEND_PERFORMANCE.md) owns that lifecycle,
+regression protocol and bounded local timing evidence. These presentation/loading
+changes are local candidates; older illustration measurements and release proof
+are not renewed evidence for them. No provider, domain, migration, paid resource,
+communication or production publication is performed by this change.
+
 ## Scope and entry
 
 V2 uses the signed-in account, current workspace, actual data available to
@@ -29,9 +53,15 @@ review/tracking, assistants, account, Studio, PDF verification, credits, tables 
 Belvédère retains its separate presentation/platform authority. Business
 contracts remain unchanged.
 
-Preserve the official portrait and lowercase ink-black `guteneo` wordmark
-`#181b22`. Blue engravings are limited to overview, empty Documents and
-assistants, not every form/table. For workspaces with dispatch history,
+Preserve the official portrait and lowercase `guteneo` wordmark: ink-black
+`#181b22` on light surfaces and the approved ivory `#f6f5ef` on dark surfaces,
+using the original transparent portrait with white paper confined inside its
+actual inner blue frame. The exterior and perforations remain transparent,
+without an outer white contour or a cartouche behind the wordmark.
+[Brand identity](BRAND_IDENTITY.md) owns the exact shared roles. Small restored
+public-page swallows do not enter authenticated application views.
+The current candidate mounts no decorative DashboardArtwork panel. Historical
+engraving placements and resource measurements below describe the earlier version. For workspaces with dispatch history,
 alerts and recent activity precede the introduction; metrics remain subject
 to reporting rights. Assistants become a compact shortcut. Empty workspaces
 retain the full welcome. Review content precedes approval actions in reading
@@ -98,8 +128,8 @@ entries serve different tasks and remain permission dependent.
 
 These changes target V2; Classic retains its shell. Labels exist in FR/EN/DE/LB.
 No illustration, API, business request, automatic retry, provider resource,
-migration or permission is introduced. Approved engravings, private-document
-access and server guards remain.
+migration or permission is introduced. Private-document access and server guards remain. The later 25 October
+artwork-removal candidate above supersedes the earlier engraving placement.
 
 ### Candidate qualification
 
@@ -305,7 +335,12 @@ Public mockup remains fictional/backend isolated; its settings change no
 server account. It retains simulation banners, as do genuinely simulated
 sessions. Removing real V2's experimental label removes no simulation cue.
 
-## Illustrations and resources
+## Historical illustrations and resources — 11–14 October 2026
+
+These resources describe the earlier illustrated V2. Their source assets and
+provenance are retained, but the 25 October candidate no longer mounts the
+retired DashboardArtwork component or loads its decorative panels for those
+routes. Do not reuse these historical transfer figures as a current benchmark.
 
 Three illustrations were generated with actual `image_gen`, then resized/
 WebP encoded. Masters/prompts/fingerprints: `assets/brand/dashboard-v2/`.
@@ -444,16 +479,16 @@ instrumentation, content collection or provider permission activation.
 
 ## Sources and evidence
 
-| Source | Role |
-| --- | --- |
-| `packages/contracts/src/dashboard-appearance.ts` | Shared values/default |
-| `migrations/0053_user_dashboard_appearance.sql` | User column/constraints |
-| `apps/api/src/account.ts`, `auth.ts`, `mobile.ts` | Browser save, account/session reads, native boundary |
-| `apps/web/src/App.tsx`, `dashboard-appearance.tsx`, `account-page.tsx` | Reconciliation, account save and temporary override |
-| `apps/web/src/workspace-identity.tsx` | Identity/account access at navigation bottom |
-| `apps/web/src/dashboard-v2.css`, `dashboard-artwork.tsx` | Consistent style/limited illustrations |
-| `apps/web/src/dispatch-pages.tsx`, `assistant-workspace.tsx` | Daily hierarchy, review, assistants |
-| `apps/web/src/locales/messages-dashboard-v2.json` | FR/EN/DE/LB translations |
+| Source                                                                 | Role                                                                                 |
+| ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| `packages/contracts/src/dashboard-appearance.ts`                       | Shared values/default                                                                |
+| `migrations/0053_user_dashboard_appearance.sql`                        | User column/constraints                                                              |
+| `apps/api/src/account.ts`, `auth.ts`, `mobile.ts`                      | Browser save, account/session reads, native boundary                                 |
+| `apps/web/src/App.tsx`, `dashboard-appearance.tsx`, `account-page.tsx` | Reconciliation, account save and temporary override                                  |
+| `apps/web/src/workspace-identity.tsx`                                  | Identity/account access at navigation bottom                                         |
+| `apps/web/src/dashboard-v2.css`                                        | Current workspace styles and shared theme tokens; `dashboard-artwork.tsx` is retired |
+| `apps/web/src/dispatch-pages.tsx`, `assistant-workspace.tsx`           | Daily hierarchy, review, assistants                                                  |
+| `apps/web/src/locales/messages-dashboard-v2.json`                      | FR/EN/DE/LB translations                                                             |
 
 Earlier evidence is retained without extending it to server preference:
 

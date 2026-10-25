@@ -14,7 +14,7 @@ test("public design and every workspace page render without server data or overf
   await page.goto("/");
   await expect(
     page.getByRole("heading", {
-      name: "Votre assistant prépare. Guteneo transmet.",
+      name: "Préparez vos documents. Choisissez leur destination.",
     }),
   ).toBeVisible();
   await expect(

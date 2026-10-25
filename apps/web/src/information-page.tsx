@@ -1,6 +1,7 @@
 import { msg, msgIn } from "./messages";
-import type { ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 import { PublicFooter, PublicHeader } from "./public-chrome";
+import { PublicSupportFaq } from "./public-support-faq";
 import "./legal-page.css";
 import { getRoleGuide } from "./role-guide";
 
@@ -9,6 +10,7 @@ type InformationPageContent = {
   updated?: string | null;
   title: ReactNode;
   description: string;
+  faq?: boolean;
   sections: { id: string; label: string; content: ReactNode }[];
 };
 
@@ -256,9 +258,7 @@ export function getInformationPages(): Record<string, InformationPageContent> {
                   "Guteneo’s databases and document storage use Cloudflare’s European jurisdiction options. This does not guarantee that all processing by Cloudflare, Auth0, dispatch providers or the assistant remains within the European Union. Their involvement may include other countries, particularly the United States. To learn about the locations and transfer safeguards applicable to your use and obtain available information about those safeguards, contact ",
                 )}
                 {contact}
-                {msg(
-                  ". No claim of wholly European processing is made.",
-                )}
+                {msg(". No claim of wholly European processing is made.")}
               </p>
             </>
           ),
@@ -403,9 +403,7 @@ export function getInformationPages(): Record<string, InformationPageContent> {
                   "Guteneo is an independent service published by Nicolas Pieper to prepare, authorise and track document dispatches from its workshop or a connected assistant. His contact details appear in the ",
                 )}
                 <a href="/legal/">{msg("legal notice")}</a>
-                {msg(
-                  ". These terms describe the beta currently available.",
-                )}
+                {msg(". These terms describe the beta currently available.")}
               </p>
               <p>
                 {msg(
@@ -533,9 +531,7 @@ export function getInformationPages(): Record<string, InformationPageContent> {
             <>
               <h2>{msg("Support, suspension and closure")}</h2>
               <p>
-                {msg(
-                  "For an incident, dispute or closure request, write to ",
-                )}
+                {msg("For an incident, dispute or closure request, write to ")}
                 {contact}
                 {msg(". The page ")}
                 <a href="/support/">{msg("support page")}</a>{" "}
@@ -559,6 +555,7 @@ export function getInformationPages(): Record<string, InformationPageContent> {
       ],
     },
     "/support/": {
+      faq: true,
       label: msg("Support"),
       title: (
         <>
@@ -577,13 +574,9 @@ export function getInformationPages(): Record<string, InformationPageContent> {
             <>
               <h2>{msg("Write to us")}</h2>
               <p>
-                {msg(
-                  "For a question, incident or account request, write to ",
-                )}
+                {msg("For a question, incident or account request, write to ")}
                 <a href="mailto:guteneo@pieper.fr">guteneo@pieper.fr</a>
-                {msg(
-                  ". Your contact is Nicolas Pieper, Guteneo’s publisher.",
-                )}
+                {msg(". Your contact is Nicolas Pieper, Guteneo’s publisher.")}
               </p>
               <p>
                 {msg(
@@ -674,9 +667,7 @@ export function getInformationPages(): Record<string, InformationPageContent> {
               </p>
               <p>
                 {msgIn("singular-article", "The")}{" "}
-                <a href="/privacy/#rights">
-                  {msg("privacy policy")}
-                </a>{" "}
+                <a href="/privacy/#rights">{msg("privacy policy")}</a>{" "}
                 {msg(
                   "explains the rights, applicable response times and document retention. The",
                 )}{" "}
@@ -698,8 +689,18 @@ export function InformationPage({
 }: {
   content: InformationPageContent;
 }) {
+  useEffect(() => {
+    const id = window.location.hash.slice(1);
+    if (!id || id.startsWith("/")) return;
+    const frame = requestAnimationFrame(() => {
+      const target = document.getElementById(id);
+      target?.focus({ preventScroll: true });
+      target?.scrollIntoView({ behavior: "instant" });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [content.label]);
   return (
-    <div className="legal-page">
+    <div className="legal-page public-site">
       <a className="skip-link" href="#information-content">
         {msg("Skip to content")}
       </a>
@@ -730,6 +731,7 @@ export function InformationPage({
             ))}
           </div>
         </div>
+        {content.faq && <PublicSupportFaq />}
       </main>
       <PublicFooter />
     </div>

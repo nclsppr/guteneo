@@ -1,3 +1,8 @@
+import {
+  standaloneThemeAttributes,
+  standaloneThemeMetadata,
+  standaloneThemeStyles,
+} from "./standalone-theme";
 import { handleAuthRoute, AuthError } from "./auth";
 import {
   authorizeBelvedere,
@@ -45,7 +50,7 @@ function recovery(request: Request): Response {
   const text = (key: "Accès refusé" | "Réessayer") =>
     locale === "fr" ? key : messages[key][index[locale]];
   return new Response(
-    `<!doctype html><html lang="${locale}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Belvédère — guteneo</title></head><body><main><h1>${text("Accès refusé")}</h1><p><a href="/auth/login?fresh=1&amp;locale=${locale}">${text("Réessayer")}</a></p></main></body></html>`,
+    `<!doctype html><html lang="${locale}"${standaloneThemeAttributes(request)}><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">${standaloneThemeMetadata}<title>Belvédère — guteneo</title><style>${standaloneThemeStyles}body{font:17px/1.6 system-ui,sans-serif;max-width:42rem;margin:12vh auto;padding:24px}h1{font:400 2.7rem/1.1 Georgia,serif}a{color:var(--blue);text-underline-offset:4px;display:inline-flex;min-height:44px;align-items:center}</style></head><body><main><h1>${text("Accès refusé")}</h1><p><a href="/auth/login?fresh=1&amp;locale=${locale}">${text("Réessayer")}</a></p></main></body></html>`,
     {
       status: 403,
       headers: {
@@ -96,7 +101,8 @@ export async function handleBelvedereHost(
     read &&
     !url.search &&
     (assets.test(url.pathname) ||
-      url.pathname === "/brand/guteneo-mark-128.webp")
+      url.pathname === "/brand/guteneo-mark-128.webp" ||
+      url.pathname === "/theme-init.js")
   ) {
     try {
       const response = await env.ASSETS.fetch(

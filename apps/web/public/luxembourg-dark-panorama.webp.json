@@ -1,0 +1,18 @@
+{
+  "generator": "OpenAI image_gen built-in imagegen tool",
+  "generatedOn": "2026-10-25",
+  "alpha": true,
+  "references": ["apps/web/public/luxembourg-blue-panorama.webp"],
+  "prompt": "Use case: background-extraction. Exact edit target: existing Guteneo Luxembourg City ivory engraved panorama. Make every navy background area REAL TRANSPARENCY, including sky, outer margin, negative space between engraving lines and below the stippled edges. Keep all warm ivory #F6F5EF ink and its existing fine engraving and halftone stipple. Preserve the exact complete panorama, all buildings, bridge, cliffs, trees, spires, river and precise positions. Preserve the full 2172 by 724, 3:1 composition. No repainting, no photographic lighting, no background color, no gradient, no dark matte, no borders, no text, no checkerboard drawing. The ink drawing must blend seamlessly onto an arbitrary dark webpage through true alpha; do not fill holes with navy. The approved swallows are separate website overlays; do not add birds or any other elements.",
+  "source": "assets/brand/source/luxembourg-dark-panorama.png",
+  "sourceSha256": "87bfd18ebdfe3f86ea291bdc9cfd88c2759e0471971621b91382dbe449bec3f6",
+  "sourceBytes": 3791254,
+  "web": "apps/web/public/luxembourg-dark-panorama.webp",
+  "webSha256": "48631bd7b7f267da7735f6a94a9486b15c945b06b58fe0f183f1866a9b368da4",
+  "webBytes": 742262,
+  "width": 2172,
+  "height": 724,
+  "conversion": "cwebp -q 88 -alpha_q 100 assets/brand/source/luxembourg-dark-panorama.png -o apps/web/public/luxembourg-dark-panorama.webp",
+  "notes": "Second edit extracts the opaque first dark derivative, input SHA-256 e234ae5a405bc0f2f1d79747a8c127a84a6e4875c14cc8e0cbda686450edef73. True alpha lets the current CSS surface show without a baked navy rectangle. Original light panorama remains unchanged; approved blue swallows remain separate overlays.",
+  "initialColorPrompt": "Use case: precise-object-edit. Asset type: Guteneo homepage footer, dedicated dark-mode panorama. Image 1 is the exact edit target. Recolor this exact Luxembourg City engraved panorama only; preserve its complete 3:1 framing, all architecture, roof groups, bridge, cliffs, river, trees, church spires, relative positions and fine stippled linework. Background must be an even flat deep navy #11151E, matching the website dark surface. The existing cobalt ink drawing becomes warm ivory #F6F5EF ink: refined crisp engraving, fine lines and tiny halftone stipple, sparse ivory dots fading naturally into the navy at the outer edges. This is a printed illustration, not a photograph and not a photographic night scene: no lights, gradients, glow, stars, moon, extra buildings, text, logos, borders, labels or vignette. Keep the same sky negative space and panoramic composition. Preserve any existing swallows/birds; do not invent other objects. Original official swallows are placed separately by the website over this image and must remain legible. Change only the two-color palette; absolutely preserve the original scene and silhouettes. Wide image at least 2000 pixels across."
+}

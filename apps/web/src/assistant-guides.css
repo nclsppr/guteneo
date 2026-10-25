@@ -18,7 +18,7 @@
 
 .assistant-picker-link {
   --stamp-paper: var(--surface);
-  --stamp-line: #c9d3f4;
+  --stamp-line: var(--blue-line);
   position: relative;
   isolation: isolate;
   display: flex;
@@ -77,8 +77,8 @@
 
 .assistant-picker-link:hover,
 .assistant-picker-link[aria-current="page"] {
-  --stamp-line: var(--blue);
-  --stamp-paper: #f7f8fd;
+  --stamp-line: var(--blue-line);
+  --stamp-paper: var(--surface);
 }
 
 .assistant-picker-link[aria-current="page"]::after {
@@ -211,7 +211,7 @@
 }
 
 .assistant-guide-version-controls button[aria-pressed="true"] {
-  background: var(--blue);
+  background: var(--action);
   border-color: var(--blue);
   color: white;
 }
@@ -274,14 +274,14 @@
   padding: 11px 15px;
   border: 1px solid var(--blue);
   border-radius: var(--radius);
-  background: var(--blue);
+  background: var(--action);
   color: white;
   text-decoration: none;
   line-height: 1.4;
 }
 
 .assistant-guide-account-link:hover {
-  background: var(--blue-hover);
+  background: var(--action-hover);
   border-color: var(--blue-hover);
 }
 
@@ -445,7 +445,7 @@
 
 .assistant-guide ::selection {
   color: var(--ink);
-  background: #d8e2ff;
+  background: var(--blue-tint);
 }
 
 .assistant-guide-dashboard .assistant-guide-layout {

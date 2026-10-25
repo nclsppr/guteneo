@@ -1,6 +1,5 @@
 import { msg } from "./messages";
 import { useDashboardAppearance } from "./dashboard-appearance";
-import { DashboardArtwork } from "./dashboard-artwork";
 import { useState, type FormEvent } from "react";
 import {
   ArrowLeft,
@@ -290,7 +289,6 @@ export function Connection({
                 "Connect your assistant to Guteneo via MCP, then find your connections here. Each guide walks you through without waiting for a published plugin.",
               )}
             />
-            <DashboardArtwork scene="pdf-verification" />
           </div>
           {assistantId && (
             <p className="notice info">

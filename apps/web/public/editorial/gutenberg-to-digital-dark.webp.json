@@ -1,0 +1,24 @@
+{
+  "generator": "OpenAI image_gen built-in imagegen tool",
+  "generatedOn": "2026-10-25",
+  "alpha": true,
+  "references": ["apps/web/public/editorial/gutenberg-to-digital.webp"],
+  "prompt": "Use case: precise-object-edit. Exact edit target: Guteneo editorial illustration of the old printing press, ribbon of printed pages and envelopes, fax machine and vintage computer. Produce its dedicated dark-interface version. Preserve this exact composition, object positions, proportions and every recognizable object and fine engraved detail. Re-render the blue ink as refined warm ivory #F6F5EF engraving and halftone stipple suited to a deep navy #11151E website. Background and negative space must be REAL TRANSPARENT alpha, so the website's exact background shows through with no rectangular paper edge. Ivory linework, stippled shaded masses and sparse fading dots define the objects; retain the visual weight and elegance. Keep the same full 1536x1024 3:2 framing. No bright ivory rectangle or paper card behind the scene, no border/frame/shadow, no added words/logos, no changed objects, no photographic rendering. Preserve the small envelope symbol on the monitor.",
+  "source": "assets/editorial/source/gutenberg-to-digital-dark.png",
+  "sourceSha256": "be1628b04eeaa39ee218fb46027ee0bf901b135609dd514af04aa80a170905b4",
+  "sourceBytes": 2382758,
+  "web": "apps/web/public/editorial/gutenberg-to-digital-dark.webp",
+  "webSha256": "feff39ab64a25859eb16ab8a03688180991d3f4ef2877553872afa557b5d473e",
+  "webBytes": 358144,
+  "width": 1536,
+  "height": 1024,
+  "conversion": "cwebp -q 88 -alpha_q 100 assets/editorial/source/gutenberg-to-digital-dark.png -o apps/web/public/editorial/gutenberg-to-digital-dark.webp",
+  "notes": "Dedicated dark editorial derivative; original light art retained unchanged. Background alpha integrates directly with the dark page, without an added paper frame.",
+  "responsive": {
+    "path": "apps/web/public/editorial/gutenberg-to-digital-dark-small.webp",
+    "bytes": 91136,
+    "sha256": "2e38a23466511cd3c22f90d8be22ff16161a85b3838bf471b8bc34344a7ebb97",
+    "dimensions": [720, 480],
+    "conversion": "cwebp -q 88 -alpha_q 100 -resize 720 0 assets/editorial/source/gutenberg-to-digital-dark.png -o apps/web/public/editorial/gutenberg-to-digital-dark-small.webp"
+  }
+}

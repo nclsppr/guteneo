@@ -1,8 +1,7 @@
 import { msg } from "./messages";
 import { useRef, useState } from "react";
 import { ArrowDown, ArrowUpRight, Code, FilePdf } from "@phosphor-icons/react";
-import { LuxembourgFooter } from "./landing-sections";
-import { PublicHeader } from "./public-chrome";
+import { PublicHeader, PublicFooter } from "./public-chrome";
 import "./developer.css";
 
 const uploadExample = `curl 'https://guteneo.com/api/documents' \\\n  --header "Authorization: Bearer $GUTENEO_ACCESS_TOKEN" \\\n  --form 'file=@./document.pdf;type=application/pdf'`;
@@ -55,7 +54,7 @@ export function DeveloperPage() {
     }
   }
   return (
-    <div className="landing developer-page">
+    <div className="landing public-site developer-page">
       <a className="skip-link" href="#developer-main">
         {msg("Skip to documentation")}
       </a>
@@ -570,7 +569,7 @@ export function DeveloperPage() {
           />
         </section>
       </main>
-      <LuxembourgFooter />
+      <PublicFooter />
     </div>
   );
 }

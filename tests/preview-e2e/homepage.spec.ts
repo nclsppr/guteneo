@@ -1,97 +1,101 @@
 import { evidencePath } from "./evidence";
 import { test, expect } from "@playwright/test";
+import publicFooter from "../../packages/contracts/src/public-footer.json" with { type: "json" };
 
-const headline = "Votre assistant prépare. Guteneo transmet.";
+const headline = "Préparez vos documents. Choisissez leur destination.";
 
-test("homepage connects the main actions to installation and the guided example", async ({
+test("homepage connects concise product information to complete public pages", async ({
   page,
 }) => {
-  await page.emulateMedia({ reducedMotion: "reduce" });
-  await page.goto("/");
-  await expect(page.getByRole("heading", { name: headline })).toBeVisible();
-  const prepare = page.locator(".hero").getByRole("link", {
-    name: "Préparer mon premier envoi",
-    exact: true,
-  });
-  await expect(prepare).toHaveAttribute("href", /#installation$/);
-  await prepare.click();
-  await expect(page.locator("#installation")).toBeFocused();
-  const example = page.getByRole("link", {
-    name: "Voir un exemple",
-    exact: true,
-  });
-  await expect(example).toHaveAttribute("href", /#how$/);
-  await example.click();
-  await expect(page.locator("#how")).toBeFocused();
-  await page.locator(".guided-example-next").getByRole("link").click();
-  await expect(page.locator("#installation")).toBeFocused();
-  const footerStart = page.locator(".footer-invitation").getByRole("link");
-  await expect(footerStart).toHaveAttribute("href", /#installation$/);
-  await footerStart.click();
-  await expect(page.locator("#installation")).toBeFocused();
-});
-
-test("the journal footer opens and focuses homepage installation", async ({
-  page,
-}) => {
-  await page.emulateMedia({ reducedMotion: "reduce" });
-  await page.goto("/journal/");
-  const start = page.locator(".footer-invitation").getByRole("link", {
-    name: "Préparer mon premier envoi",
-    exact: true,
-  });
-  await expect(start).toHaveAttribute("href", "/#installation");
-  await start.click();
-  await expect(page).toHaveURL(/\/#installation$/);
-  await expect(page.getByRole("heading", { name: headline })).toHaveCount(1);
-  const installation = page.locator("#installation");
-  await expect(installation).toBeFocused();
-  await expect
-    .poll(() =>
-      installation.evaluate((element) =>
-        Math.abs(element.getBoundingClientRect().top),
-      ),
-    )
-    .toBeLessThan(100);
-});
-
-test("homepage offers assistant and direct paths with pricing and Luxembourg provenance", async ({
-  page,
-}, info) => {
-  const calls: string[] = [];
+  const serviceRequests: string[] = [];
+  const mediaRequests: string[] = [];
   const errors: string[] = [];
-  page.on("request", (r) => {
-    if (/^\/(api|mcp|auth)(\/|$)/.test(new URL(r.url()).pathname))
-      calls.push(r.url());
+  page.on("request", (request) => {
+    const path = new URL(request.url()).pathname;
+    if (/^\/(api|mcp|auth|oauth)(\/|$)/.test(path)) serviceRequests.push(path);
+    if (/\.(mp4|webm|pdf)$/.test(path)) mediaRequests.push(path);
   });
   page.on("pageerror", (error) => errors.push(error.message));
   await page.goto("/");
-  const installation = page.locator("#installation");
+  await expect(page.getByRole("heading", { name: headline })).toBeVisible();
+  const hero = page.locator(".public-home-hero");
   await expect(
-    installation.getByRole("link", {
-      name: "Utiliser mon assistant",
-      exact: true,
-    }),
+    hero.getByRole("link", { name: "Commencer", exact: true }),
+  ).toHaveAttribute("href", "/getting-started/");
+  await expect(
+    hero.getByRole("link", { name: "Voir le fonctionnement", exact: true }),
+  ).toHaveAttribute("href", "/how-it-works/");
+  await expect(
+    page
+      .locator("#installation")
+      .getByRole("link", { name: "Utiliser mon assistant", exact: true }),
   ).toHaveAttribute("href", "/assistants/");
   await expect(
-    installation.getByRole("link", {
-      name: "Envoyer depuis Guteneo",
-      exact: true,
-    }),
+    page
+      .locator("#installation")
+      .getByRole("link", { name: "Envoyer depuis Guteneo", exact: true }),
   ).toHaveAttribute("href", "/app/prepare?entry=direct");
-  for (const [id, name] of [
-    ["chatgpt", "ChatGPT"],
-    ["claude", "Claude"],
-    ["grok", "Grok"],
-    ["copilot", "GitHub Copilot"],
-    ["microsoft365", "Microsoft 365 Copilot"],
-    ["cursor", "Cursor"],
+  await expect(page.locator("#pricing")).toContainText("50 €");
+  await expect(page.locator("#pricing")).toContainText("une seule fois");
+  await expect(page.locator("#faq")).toContainText("désactivée par défaut");
+  await expect(page.locator("#faq")).toContainText("date de fin");
+  await expect(page.locator(".public-home-beta")).toContainText(
+    "aucune vente n’est ouverte",
+  );
+  expect(serviceRequests).toEqual([]);
+  expect(mediaRequests).toEqual([]);
+  expect(errors).toEqual([]);
+  await hero.getByRole("link", { name: "Commencer", exact: true }).click();
+  await expect(page).toHaveURL(/\/getting-started\/$/);
+  await expect(page.locator("main h1")).toHaveText("Premiers pas");
+});
+
+test("the same public footer connects product, help, resources and legal information", async ({
+  page,
+}) => {
+  for (const path of [
+    "/",
+    "/pricing/",
+    "/how-it-works/",
+    "/getting-started/",
+    "/pdf-checks/",
+    "/journal/",
+    "/about/",
+    "/support/",
+    "/developers/",
+    "/legal/",
   ]) {
+    await page.goto(path);
+    const footer = page.locator("footer.public-site-footer");
+    await expect(footer).toHaveCount(1);
+    await expect(footer.getByRole("navigation")).toHaveAccessibleName(
+      publicFooter.navigationLabel.fr,
+    );
+    for (const group of publicFooter.groups) {
+      await expect(
+        footer.getByRole("heading", { name: group.labels.fr, exact: true }),
+      ).toHaveCount(1);
+      for (const link of group.links)
+        await expect(
+          footer.getByRole("link", { name: link.labels.fr, exact: true }),
+        ).toHaveAttribute(
+          "href",
+          link.href === "https://status.guteneo.com/"
+            ? `${link.href}?lang=fr`
+            : link.href,
+        );
+    }
     await expect(
-      installation.getByRole("link", { name, exact: true }),
-    ).toHaveAttribute("href", `/assistants/${id}/`);
+      footer.getByRole("link", { name: "Nicolas Pieper", exact: true }),
+    ).toHaveAttribute("href", "https://nicolaspieper.com");
+    await expect(page.locator(".luxembourg-footer")).toHaveCount(0);
   }
-  await expect(installation.locator("#host-setup")).toHaveCount(0);
+});
+
+test("pricing and PDF pages preserve exact rates, credit and purchase conditions", async ({
+  page,
+}) => {
+  await page.goto("/pricing/");
   await expect(page.locator(".welcome-amount")).toHaveText("50€");
   await expect(page.locator(".welcome-copy")).toContainText(
     "Votre organisation reçoit 50 €",
@@ -116,6 +120,7 @@ test("homepage offers assistant and direct paths with pricing and Luxembourg pro
   await expect(page.locator("body")).not.toContainText(
     /deux fois|2\s*[×x]|coût prestataire|marge/i,
   );
+  await page.goto("/pdf-checks/");
   const pdfChecks = page.locator("#pdf-checks");
   await expect(pdfChecks.locator(".pdf-check-price")).toContainText(/0,10\s*€/);
   await expect(pdfChecks.locator(".pdf-check-price")).toContainText(
@@ -127,6 +132,12 @@ test("homepage offers assistant and direct paths with pricing and Luxembourg pro
   await expect(
     pdfChecks.getByRole("link", { name: "Découvrir les contrôles PDF" }),
   ).toHaveAttribute("href", "/app/pdf-checks");
+});
+
+test("support keeps all essential answers and keyboard disclosure", async ({
+  page,
+}) => {
+  await page.goto("/support/#faq");
   const questions = page.locator(".faq-questions details");
   await expect(questions.locator("summary")).toHaveText([
     "Mon PDF original est-il modifié ?",
@@ -150,101 +161,40 @@ test("homepage offers assistant and direct paths with pricing and Luxembourg pro
   await expect(firstQuestion.locator("p")).toBeVisible();
   await page.keyboard.press("Enter");
   await expect(firstQuestion).not.toHaveAttribute("open", "");
-  const author = page.getByRole("link", { name: "Nicolas Pieper" });
-  await expect(author).toHaveAttribute("href", "https://nicolaspieper.com");
-  await expect(
-    page.getByRole("link", { name: "Mentions légales" }),
-  ).toHaveAttribute("href", "/legal/");
-  await page.locator(".luxembourg-footer").scrollIntoViewIfNeeded();
-  await expect
-    .poll(() =>
-      page
-        .locator(".luxembourg-panorama")
-        .evaluate((img) => (img as HTMLImageElement).naturalWidth),
-    )
-    .toBe(2172);
-  const bird = page.locator(".bird-one");
-  expect(
-    await bird.evaluate(
-      (element) => getComputedStyle(element).animationPlayState,
-    ),
-  ).toBe("running");
-  const position = await bird.evaluate(
-    (element) => getComputedStyle(element).transform,
-  );
-  await expect
-    .poll(() => bird.evaluate((element) => getComputedStyle(element).transform))
-    .not.toBe(position);
-  const wings = page.locator(".bird-one .swallow-wingbeat");
-  const wingFrame = await wings.evaluate(
-    (element) => getComputedStyle(element).backgroundPosition,
-  );
-  await expect
-    .poll(() =>
-      wings.evaluate((element) => getComputedStyle(element).backgroundPosition),
-    )
-    .not.toBe(wingFrame);
-  await expect(
-    page.locator(".luxembourg-footer").getByRole("button"),
-  ).toHaveCount(0);
-  expect(
-    await page.evaluate(
-      () => document.documentElement.scrollWidth <= innerWidth,
-    ),
-  ).toBe(true);
-  await page.locator(".luxembourg-footer").scrollIntoViewIfNeeded();
-  await expect
-    .poll(() =>
-      page
-        .locator(".luxembourg-panorama")
-        .evaluate((img) => (img as HTMLImageElement).naturalWidth),
-    )
-    .toBe(2172);
-  await page
-    .locator(".luxembourg-panorama")
-    .evaluate((img) => (img as HTMLImageElement).decode());
-  await page.locator(".luxembourg-footer").screenshot({
-    path: await evidencePath(`homepage/footer-${info.project.name}.png`),
-  });
-  await page.locator(".installation-section").scrollIntoViewIfNeeded();
-  await page
-    .locator(".installation-section img")
-    .evaluateAll(async (images) => {
-      await Promise.all(
-        images.map((image) => (image as HTMLImageElement).decode()),
-      );
-    });
-  await page.locator(".installation-section").screenshot({
-    path: await evidencePath(`homepage/installation-${info.project.name}.png`),
-  });
-  await page.locator(".pricing-section").screenshot({
-    path: await evidencePath(`homepage/pricing-${info.project.name}.png`),
-  });
-  expect(calls).toEqual([]);
-  expect(errors).toEqual([]);
 });
 
-test("assistant choices remain usable from narrow phones to desktop", async ({
+test("getting started keeps all six assistant guides usable from narrow phones to desktop", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/getting-started/");
   await page.evaluate(() => document.fonts.ready);
-  for (const width of [320, 768, 844, 1280]) {
+  for (const width of [320, 768, 844, 1100, 1280]) {
     await page.setViewportSize({ width, height: 900 });
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth),
     ).toBeLessThanOrEqual(width);
-    for (const name of [
-      "ChatGPT",
-      "Claude",
-      "Grok",
-      "GitHub Copilot",
-      "Microsoft 365 Copilot",
-      "Cursor",
+    const choices = await page.locator(".start-choice > div").all();
+    const firstChoice = (await choices[0].boundingBox())!;
+    const secondChoice = (await choices[1].boundingBox())!;
+    if (width >= 768) {
+      expect(Math.abs(firstChoice.y - secondChoice.y)).toBeLessThanOrEqual(1);
+      expect(secondChoice.x).toBeGreaterThan(firstChoice.x + firstChoice.width);
+    } else
+      expect(secondChoice.y).toBeGreaterThanOrEqual(
+        firstChoice.y + firstChoice.height + 28,
+      );
+    for (const [id, name] of [
+      ["chatgpt", "ChatGPT"],
+      ["claude", "Claude"],
+      ["grok", "Grok"],
+      ["copilot", "GitHub Copilot"],
+      ["microsoft365", "Microsoft 365 Copilot"],
+      ["cursor", "Cursor"],
     ]) {
       const link = page
         .locator("#installation")
         .getByRole("link", { name, exact: true });
+      await expect(link).toHaveAttribute("href", `/assistants/${id}/`);
       await expect(link).toBeVisible();
       expect((await link.boundingBox())!.height).toBeGreaterThanOrEqual(44);
     }
@@ -264,7 +214,7 @@ test("the example supports keyboard steps and only simulates validation", async 
       serviceRequests.push(request.url());
   });
   page.on("pageerror", (error) => errors.push(error.message));
-  await page.goto("/");
+  await page.goto("/how-it-works/");
   const example = page.locator("#how");
   const steps = example.getByRole("tablist", {
     name: "Étapes de la démonstration",
@@ -339,6 +289,10 @@ test("mobile menu reaches pricing and assistants, then returns focus on Escape",
   await page.setViewportSize({ width: 390, height: 844 });
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
+  await expect(page.locator(".public-header")).toHaveAttribute(
+    "data-render-state",
+    "interactive",
+  );
   const menu = page.getByRole("button", { name: "Menu", exact: true });
   const navigation = page.getByRole("navigation", {
     name: "Navigation mobile",
@@ -348,7 +302,12 @@ test("mobile menu reaches pricing and assistants, then returns focus on Escape",
   await expect(menu).toHaveAttribute("aria-expanded", "true");
   await expect(navigation).toBeVisible();
   await navigation.getByRole("link", { name: "Tarifs", exact: true }).click();
-  await expect(page.locator("#pricing")).toBeFocused();
+  await expect(page).toHaveURL(/\/pricing\/$/);
+  await expect(page.locator("main h1")).toHaveText("Tarifs");
+  await expect(page.locator(".public-header")).toHaveAttribute(
+    "data-render-state",
+    "interactive",
+  );
   await expect(menu).toHaveAttribute("aria-expanded", "false");
   await expect(navigation).not.toBeVisible();
   await menu.click();
@@ -372,95 +331,191 @@ test("mobile menu reaches pricing and assistants, then returns focus on Escape",
     .toBeLessThanOrEqual(390);
 });
 
-test("decorative birds stop when reduced motion is requested", async ({
+test("legacy homepage fragments remain meaningful and restore focus", async ({
   page,
-  isMobile,
 }) => {
-  await page.emulateMedia({ reducedMotion: "reduce" });
-  await page.goto("/");
-  await page.evaluate(() => document.fonts.ready);
-  if (isMobile)
-    await page.getByRole("link", { name: "Aller au contenu" }).focus();
-  else await page.keyboard.press("Tab");
-  await expect(
-    page.getByRole("link", { name: "Aller au contenu" }),
-  ).toBeFocused();
-  await expect(page.getByRole("link", { name: "Aller au contenu" })).toHaveCSS(
-    "clip-path",
-    "none",
-  );
-  await expect(
-    page.locator(".luxembourg-footer").getByRole("button"),
-  ).toHaveCount(0);
-  expect(
-    await page
-      .locator(".bird-one")
-      .evaluate((element) => getComputedStyle(element).animationName),
-  ).toBe("none");
-  expect(
-    await page
-      .locator(".bird-one .swallow-wingbeat")
-      .evaluate((element) => getComputedStyle(element).animationName),
-  ).toBe("none");
-  await page.locator(".luxembourg-footer").scrollIntoViewIfNeeded();
-  await expect
-    .poll(() =>
-      page
-        .locator(".luxembourg-panorama")
-        .evaluate((element: HTMLImageElement) => element.naturalWidth),
-    )
-    .toBe(2172);
-  await page
-    .locator(".luxembourg-panorama")
-    .evaluate((element: HTMLImageElement) => element.decode());
-  await page.locator(".luxembourg-footer").screenshot({
-    path: await evidencePath(
-      `homepage/footer-reduced-${isMobile ? "iphone" : "desktop"}.png`,
-    ),
-  });
-  await page
-    .locator(".footer-colophon")
-    .getByRole("link", { name: "FAQ", exact: true })
-    .click();
-  await expect(page.locator("#faq")).toBeFocused();
-  await expect
-    .poll(() =>
-      page
-        .locator("#faq")
-        .evaluate((element) => Math.abs(element.getBoundingClientRect().top)),
-    )
-    .toBeLessThan(100);
+  for (const id of [
+    "how",
+    "installation",
+    "pricing",
+    "pdf-checks",
+    "faq",
+    "postal-cutoff-faq",
+  ]) {
+    await page.goto(`/#${id}`);
+    const target = page.locator(`#${id}`);
+    await expect(target).toBeFocused();
+    await expect(target).toBeVisible();
+    const destination = target.getByRole("link").first();
+    if (await destination.count())
+      await expect(destination).toHaveAttribute(
+        "href",
+        /^\/(how-it-works|getting-started|pricing|pdf-checks|support|roles)/,
+      );
+  }
 });
 
-test("Claude guide retains a selectable identifier when clipboard access fails", async ({
+test("homepage product and help links remain in the keyboard sequence", async ({
   page,
+  browserName,
 }) => {
-  await page.addInitScript(() =>
-    Object.defineProperty(navigator, "clipboard", {
-      value: {
-        writeText: async () => {
-          throw new Error("Clipboard unavailable");
-        },
-      },
-    }),
+  await page.goto("/?lang=en");
+  await page.locator(".skip-link").focus();
+  const reached = new Set<string>();
+  for (let step = 0; step < 60; step++) {
+    await page.keyboard.press(
+      browserName === "webkit" && process.platform === "darwin"
+        ? "Alt+Tab"
+        : "Tab",
+    );
+    const id = await page.evaluate(() => document.activeElement?.id ?? "");
+    reached.add(id);
+    if (reached.has("pdf-checks") && reached.has("postal-cutoff-faq")) break;
+  }
+  expect([...reached]).toEqual(
+    expect.arrayContaining(["pdf-checks", "postal-cutoff-faq"]),
   );
-  await page.goto("/assistants/claude/");
-  await page
-    .getByRole("button", { name: "Copier l’identifiant", exact: true })
-    .click();
-  await expect(
-    page
-      .getByRole("status")
-      .filter({ hasText: "La copie automatique est indisponible" }),
-  ).toBeVisible();
-  const client = page.getByLabel("Identifiant public à coller dans Claude");
-  await client.focus();
-  expect(
-    await client.evaluate((input: HTMLInputElement) =>
-      input.value.slice(input.selectionStart ?? 0, input.selectionEnd ?? 0),
-    ),
-  ).toBe("IhJieRsvZBAnl1uJO125X2SPoIHxT8ed");
-  await expect(
-    page.getByRole("button", { name: "Connecter à Claude", exact: true }),
-  ).toBeDisabled();
 });
+
+for (const locale of ["fr", "en", "de", "lb"] as const) {
+  test(`public detail pages retain language, appearance and usable layout in ${locale}`, async ({
+    page,
+  }, info) => {
+    for (const theme of ["light", "dark"] as const) {
+      await page.emulateMedia({ colorScheme: theme, reducedMotion: "reduce" });
+      for (const path of [
+        "/pricing/",
+        "/getting-started/",
+        "/how-it-works/",
+        "/pdf-checks/",
+      ]) {
+        await page.goto(`${path}?lang=${locale}`);
+        await page.evaluate(() => document.fonts.ready);
+        await expect(page.locator("html")).toHaveAttribute("lang", locale);
+        await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
+        await expect(page.locator("main h1")).toHaveCount(1);
+        await expect(page.locator("main h1")).toBeVisible();
+        expect(
+          await page.evaluate(() => document.documentElement.scrollWidth),
+        ).toBeLessThanOrEqual(page.viewportSize()!.width);
+        await expect(
+          page.locator("footer").getByRole("link", {
+            name: publicFooter.groups[0].links[1].labels[locale],
+            exact: true,
+          }),
+        ).toBeVisible();
+        if (
+          (locale === "fr" && theme === "light") ||
+          (locale === "de" && theme === "dark")
+        ) {
+          await page.locator(".public-site-footer").scrollIntoViewIfNeeded();
+          await page
+            .locator(".homepage-film-poster img")
+            .evaluateAll(async (images) => {
+              await Promise.all(
+                images.map((image) => (image as HTMLImageElement).decode()),
+              );
+            });
+          await page.evaluate(() => scrollTo({ top: 0, behavior: "instant" }));
+          await page.screenshot({
+            path: await evidencePath(
+              `public-site/${info.project.name}-${path.split("/")[1]}-${locale}-${theme}.png`,
+            ),
+            fullPage: true,
+          });
+        }
+      }
+    }
+  });
+  for (const theme of ["light", "dark"] as const) {
+    test(`homepage is readable without overflow in ${locale} ${theme}`, async ({
+      page,
+    }, info) => {
+      await page.emulateMedia({ colorScheme: theme, reducedMotion: "reduce" });
+      await page.goto(`/?lang=${locale}`);
+      await page.evaluate(() => document.fonts.ready);
+      await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
+      await expect(page.locator("html")).toHaveAttribute("lang", locale);
+      await expect(page.locator("main h1")).toBeVisible();
+      await expect(page.locator(".public-home-closing h2")).toHaveText(
+        {
+          fr: "Les idées voyagent.Les nôtres partent d’ici.",
+          en: "Ideas travel.Ours start here.",
+          de: "Ideen reisen.Unsere starten hier.",
+          lb: "Iddie reesen.Eis fänken hei un.",
+        }[locale],
+      );
+      const closingCenters = await page
+        .locator(".footer-invitation-copy")
+        .evaluate((copy) => {
+          const center = (element: Element) => {
+            const box = element.getBoundingClientRect();
+            return box.x + box.width / 2;
+          };
+          return [
+            center(copy),
+            center(copy.querySelector("h2")!),
+            center(copy.querySelector("a")!),
+          ];
+        });
+      expect(
+        Math.max(...closingCenters) - Math.min(...closingCenters),
+      ).toBeLessThanOrEqual(1);
+      await expect(page.locator(".public-home-channels li").last()).toHaveText(
+        {
+          fr: "Courrier postal",
+          en: "Postal mail",
+          de: "Briefpost",
+          lb: "Bréifpost",
+        }[locale],
+      );
+      expect(
+        await page.evaluate(() => document.documentElement.scrollWidth),
+      ).toBeLessThanOrEqual(page.viewportSize()!.width);
+      const header = page.locator(".public-header");
+      for (const link of await header.getByRole("link").all()) {
+        if (!(await link.isVisible())) continue;
+        const bounds = await link.boundingBox();
+        expect(bounds!.x).toBeGreaterThanOrEqual(0);
+        expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(
+          page.viewportSize()!.width + 1,
+        );
+      }
+      const footer = page.locator(".public-site-footer");
+      await expect(
+        footer.locator('a[href^="https://status.guteneo.com/"]'),
+      ).toHaveAttribute("href", `https://status.guteneo.com/?lang=${locale}`);
+      for (const group of publicFooter.groups)
+        for (const link of group.links)
+          await expect(
+            footer.getByRole("link", {
+              name: link.labels[locale],
+              exact: true,
+            }),
+          ).toBeVisible();
+      await page.locator(".public-home-journal").scrollIntoViewIfNeeded();
+      await page
+        .locator(".public-home-journal img")
+        .evaluateAll(async (images) => {
+          await Promise.all(
+            images.map((image) => (image as HTMLImageElement).decode()),
+          );
+        });
+      await page.locator(".public-home-closing").scrollIntoViewIfNeeded();
+      await page
+        .locator(".public-home-closing img")
+        .evaluateAll(async (images) => {
+          await Promise.all(
+            images.map((image) => (image as HTMLImageElement).decode()),
+          );
+        });
+      await page.evaluate(() => scrollTo({ top: 0, behavior: "instant" }));
+      await page.screenshot({
+        path: await evidencePath(
+          `public-site/${info.project.name}-${locale}-${theme}.png`,
+        ),
+        fullPage: true,
+      });
+    });
+  }
+}

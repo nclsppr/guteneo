@@ -58,6 +58,7 @@ import {
 import { BelvedereGlobe } from "./belvedere-globe";
 import { bmsg, bmsgIn } from "./belvedere-i18n";
 import { formatLocale, useLocale } from "./locale";
+import { ThemeSelect } from "./theme-select";
 import "./belvedere.css";
 
 type View =
@@ -300,6 +301,7 @@ export default function Belvedere({ basePath }: { basePath: string }) {
           ))}
         </nav>
         <div className="bv-sidebar-foot">
+          <ThemeSelect compact />
           <div className="bv-private">
             <ShieldCheck size={18} />
             <span>

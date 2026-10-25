@@ -19,6 +19,7 @@ import identity from "./locales/messages-identity.json";
 import pdfChecks from "./locales/messages-pdf-checks.json";
 import dashboardV2 from "./locales/messages-dashboard-v2.json";
 import usageActivity from "./locales/messages-usage-activity.json";
+import publicSite from "./locales/messages-public-site.json";
 import delivery from "../../../packages/contracts/src/delivery-messages.json" with { type: "json" };
 
 function sourceMessages(
@@ -53,6 +54,7 @@ export const messages: Record<string, readonly string[]> = {
   ...pdfChecks,
   ...dashboardV2,
   ...usageActivity,
+  ...publicSite,
   ...legal,
   ...operations,
   ...assistants,

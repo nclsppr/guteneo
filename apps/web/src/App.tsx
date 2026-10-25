@@ -35,71 +35,120 @@ import {
   initializeLocale,
   useLocale,
 } from "./locale";
-import {
-  canonicalPublicLocation,
-  canonicalPublicFragment,
-} from "../../../packages/contracts/src/public-routes";
+import { canonicalPublicLocation } from "../../../packages/contracts/src/public-routes";
 import { isSupportedLocale } from "../../../packages/contracts/src/locale";
-import { PublicHeader } from "./public-chrome";
+import { PublicHomepage } from "./public-homepage";
+import {
+  isPublicSitePage,
+  getPublicSitePageMetadata,
+} from "./public-site-metadata";
 import { syncPublicSharing } from "./public-sharing";
 import { Brand } from "./brand";
 import { ErrorNotice, go, Loading, useRoute, useResource } from "./components";
-import {
-  Overview,
-  Documents,
-  PrepareDispatch,
-  DispatchList,
-  DispatchDetailPage,
-} from "./dispatch-pages";
-import {
-  Campaigns,
-  CampaignDetail,
-  Senders,
-  Usage,
-  Admin,
-} from "./workspace-pages";
-import { Billing } from "./billing-page";
 import { PdfCheckPage } from "./pdf-check-offer";
-import {
-  pdfCheckPublicAvailability,
-  type PublicCapabilities,
-} from "./pdf-check-public";
-import { PostalReviewPage } from "./postal-review-page";
-import { Account, TeamAdmin } from "./account-page";
 import { Login } from "./login-page";
+// This small shell starts the private session read on the first render instead
+// of waiting for a second route chunk and an initial Suspense fallback.
+import PersonalArea from "./personal-area";
+import { personalApi } from "./personal-api";
 import { WorkspaceIdentity } from "./workspace-identity";
 import { RolePermissionNotice } from "./role-guide";
-import { TeamInvitations } from "./team-invitations";
 import { InvitationPage } from "./invitation-page";
 import { LegalPage } from "./legal-page";
 import { InformationPage, getInformationPages } from "./information-page";
 import { DeveloperPage } from "./developer-page";
-import { ArticlePage, JournalPage, JournalTeaser } from "./editorial/pages";
+import { ArticlePage, JournalPage } from "./editorial/pages";
 import { getArticles, articlePath } from "./editorial/articles";
-import { GuidedExample } from "./landing-example";
-import { HomepageFilm } from "./homepage-film";
 import { AssistantsPage } from "./assistants-page";
-import { Connection } from "./assistant-workspace";
 import { RememberDirectChoice } from "./assistant-state";
 import { clearPendingDocumentInvitation } from "./document-invitation";
 import {
   DashboardAppearanceProvider,
   useDashboardAppearance,
 } from "./dashboard-appearance";
-import "./homepage.css";
 import "./document-studio.css";
 import "./secure-documents.css";
-import {
-  Installation,
-  WelcomePricing,
-  FrequentlyAsked,
-  LuxembourgFooter,
-  scrollToSection,
-} from "./landing-sections";
 
 const publicPreview = import.meta.env.VITE_PUBLIC_PREVIEW === "true";
+let loadedPublicSitePage:
+  typeof import("./public-site-pages").PublicSitePage | null = null;
+let publicSitePageLoad: Promise<void> | null = null;
+/** Retain useful initial HTML while the requested public-detail chunk loads. */
+export function preloadPublicSitePage(): Promise<void> {
+  return (publicSitePageLoad ??= import("./public-site-pages").then(
+    (module) => {
+      loadedPublicSitePage = module.PublicSitePage;
+    },
+  ));
+}
+const LazyPublicSitePage = lazy(async () => {
+  await preloadPublicSitePage();
+  return { default: loadedPublicSitePage! };
+});
+
+const Overview = lazy(() =>
+  import("./dispatch-pages").then((module) => ({ default: module.Overview })),
+);
+const Documents = lazy(() =>
+  import("./dispatch-pages").then((module) => ({ default: module.Documents })),
+);
+const PrepareDispatch = lazy(() =>
+  import("./dispatch-pages").then((module) => ({
+    default: module.PrepareDispatch,
+  })),
+);
+const DispatchList = lazy(() =>
+  import("./dispatch-pages").then((module) => ({
+    default: module.DispatchList,
+  })),
+);
+const DispatchDetailPage = lazy(() =>
+  import("./dispatch-pages").then((module) => ({
+    default: module.DispatchDetailPage,
+  })),
+);
+const Campaigns = lazy(() =>
+  import("./workspace-pages").then((module) => ({ default: module.Campaigns })),
+);
+const CampaignDetail = lazy(() =>
+  import("./workspace-pages").then((module) => ({
+    default: module.CampaignDetail,
+  })),
+);
+const Senders = lazy(() =>
+  import("./workspace-pages").then((module) => ({ default: module.Senders })),
+);
+const Usage = lazy(() =>
+  import("./workspace-pages").then((module) => ({ default: module.Usage })),
+);
+const Admin = lazy(() =>
+  import("./workspace-pages").then((module) => ({ default: module.Admin })),
+);
+const Billing = lazy(() =>
+  import("./billing-page").then((module) => ({ default: module.Billing })),
+);
+const PostalReviewPage = lazy(() =>
+  import("./postal-review-page").then((module) => ({
+    default: module.PostalReviewPage,
+  })),
+);
+const Account = lazy(() =>
+  import("./account-page").then((module) => ({ default: module.Account })),
+);
+const TeamAdmin = lazy(() =>
+  import("./account-page").then((module) => ({ default: module.TeamAdmin })),
+);
+const TeamInvitations = lazy(() =>
+  import("./team-invitations").then((module) => ({
+    default: module.TeamInvitations,
+  })),
+);
+const Connection = lazy(() =>
+  import("./assistant-workspace").then((module) => ({
+    default: module.Connection,
+  })),
+);
 const DocumentStudio = lazy(() => import("./document-studio"));
-const PersonalArea = lazy(() => import("./personal-area"));
 const SecureDistributionPage = lazy(() =>
   import("./secure-distribution-pages").then((module) => ({
     default: module.SecureDistributionPage,
@@ -111,155 +160,7 @@ const personalPage = (page: string) =>
   );
 
 export function Landing() {
-  // One public read feeds both the offer and FAQ. A new homepage entry gets a
-  // fresh resource; SSR runs no effect and public preview calls no backend.
-  const capabilities = useResource<PublicCapabilities>(
-    publicPreview ? null : "/capabilities",
-  );
-  const pdfChecks = pdfCheckPublicAvailability(
-    capabilities.error ? undefined : capabilities.data,
-    capabilities.loading,
-  );
-  useEffect(() => {
-    const fragment = canonicalPublicFragment(window.location.hash);
-    if (fragment !== window.location.hash)
-      window.history.replaceState(
-        window.history.state,
-        "",
-        window.location.pathname + window.location.search + fragment,
-      );
-    const id = fragment.slice(1);
-    if (
-      ![
-        "how",
-        "installation",
-        "pricing",
-        "pdf-checks",
-        "faq",
-        "postal-cutoff-faq",
-      ].includes(id)
-    )
-      return;
-    // Restore the fragment target after React replaces the static page,
-    // including keyboard focus on WebKit when arriving from the journal.
-    const frame = requestAnimationFrame(() => {
-      const section = document.getElementById(id);
-      section?.focus({ preventScroll: true });
-      section?.scrollIntoView({ behavior: "instant" });
-    });
-    return () => cancelAnimationFrame(frame);
-  }, []);
-  return (
-    <div className="landing homepage">
-      <a
-        className="skip-link"
-        href="#landing-main"
-        onClick={(event) => {
-          event.preventDefault();
-          document.getElementById("landing-main")?.focus();
-          document.getElementById("landing-main")?.scrollIntoView();
-        }}
-      >
-        {t.skip}
-      </a>
-      <PublicHeader home />
-      <main id="landing-main" tabIndex={-1}>
-        <section className="hero">
-          <div className="hero-copy">
-            <h1>
-              {t.landing.title}
-              <br />
-              <em>{t.landing.titleItalic}</em>
-            </h1>
-            <p className="hero-intro">{t.landing.intro}</p>
-            <div className="hero-actions">
-              <a
-                className="button primary"
-                href="#installation"
-                onClick={(event) => scrollToSection(event, "installation")}
-              >
-                {t.landing.cta}
-                <ArrowRight size={19} aria-hidden="true" />
-              </a>
-              <a
-                className="text-link"
-                href="#how"
-                onClick={(event) => scrollToSection(event, "how")}
-              >
-                {t.landing.secondary}
-              </a>
-            </div>
-            <p className="hero-channels">
-              {msg("Fax ")}
-              <span aria-hidden="true">·</span> {msg(" Email")}{" "}
-              <span aria-hidden="true">·</span> {msg(" Post")}
-            </p>
-          </div>
-          <div className="hero-art">
-            <img
-              src="/press-halftone-transparent.webp"
-              srcSet="/press-halftone-transparent-640.webp 640w, /press-halftone-transparent.webp 1200w"
-              sizes="(max-width: 767px) 90vw, 48vw"
-              alt={t.landing.imageAlt}
-              width="1200"
-              height="1200"
-              fetchPriority="high"
-            />
-            <div
-              className="hero-dispatch-note"
-              aria-label={msg("Fictional dispatch slip")}
-            >
-              <p className="dispatch-note-label">
-                {msg("Dispatch slip ")}
-                <span>{msg("Example")}</span>
-              </p>
-              <p className="dispatch-note-document">
-                <FileText size={18} aria-hidden="true" />
-                {msg("Correspondence.pdf ")}
-                <span>{msg("2 pages")}</span>
-              </p>
-              <dl>
-                <div>
-                  <dt>{msg("To")}</dt>
-                  <dd>
-                    {msg("Example Company ")}
-                    <small>{msg("(fictional)")}</small>
-                  </dd>
-                </div>
-                <div>
-                  <dt>{msg("Channel")}</dt>
-                  <dd>{msg("Fax")}</dd>
-                </div>
-                <div>
-                  <dt>{msg("Spending cap")}</dt>
-                  <dd>
-                    0,20 € <small>{msg("(example)")}</small>
-                  </dd>
-                </div>
-              </dl>
-              <p className="dispatch-note-status">
-                <Check size={16} aria-hidden="true" />
-                {msg("Review before sending")}
-              </p>
-            </div>
-          </div>
-        </section>
-        <p className="hero-caption">{t.landing.caption}</p>
-        <HomepageFilm />
-        <GuidedExample />
-        <Installation />
-        <WelcomePricing pdfChecks={pdfChecks} />
-        <FrequentlyAsked pdfChecks={pdfChecks} />
-        <JournalTeaser />
-        {publicPreview && (
-          <p className="homepage-preview-note">
-            {msg("Interactive preview · No sign-up · No real sends")}
-          </p>
-        )}
-      </main>
-      <LuxembourgFooter />
-    </div>
-  );
+  return <PublicHomepage />;
 }
 
 function SessionExpiredNotice({ onReconnect }: { onReconnect: () => void }) {
@@ -328,6 +229,8 @@ export function App() {
 
 function Application() {
   const locale = useLocale();
+  const route = useRoute();
+  const personalRoute = personalPage(route) && !publicPreview;
   const canonicalLocation = canonicalPublicLocation(
     window.location.pathname,
     window.location.search,
@@ -349,9 +252,18 @@ function Application() {
       );
   }, [session, applyAccountAppearance]);
   useEffect(() => {
+    // Personal routes authenticate independently. A workshop session must not
+    // block their first read or survive a later return to another workshop.
+    setReady(false);
+    if (personalRoute) {
+      setSession(null, false);
+      updateSession(null);
+      return;
+    }
     let alive = true;
+    const controller = new AbortController();
     const languageVersion = getLocaleSelectionVersion();
-    api<Session>("/session")
+    api<Session>("/session", { signal: controller.signal })
       .then((s) => {
         if (alive) {
           const enteringWorkspace =
@@ -368,6 +280,7 @@ function Application() {
         }
       })
       .catch(async () => {
+        if (!alive) return;
         // This is still a visitor until a server session is established. Restore
         // their URL/device choice after the guarded private-page bootstrap,
         // without overwriting a language selected while the probe was pending.
@@ -381,8 +294,9 @@ function Application() {
         )
           return;
         try {
-          const { personalApi } = await import("./personal-api");
-          await personalApi("/personal/session");
+          await personalApi("/personal/session", undefined, {
+            signal: controller.signal,
+          });
           if (alive)
             go(
               requested === "/app"
@@ -398,15 +312,18 @@ function Application() {
       });
     return () => {
       alive = false;
+      controller.abort();
     };
-  }, []);
+  }, [personalRoute]);
   useEffect(() => {
     const path = window.location.pathname;
     const information = getInformationPages()[path];
+    const publicSitePage = getPublicSitePageMetadata(path);
     const article = getArticles().find(
       (item) => articlePath(item.slug) === path,
     );
     const label =
+      publicSitePage?.title ??
       information?.label ??
       article?.title ??
       (path.startsWith("/assistants")
@@ -417,10 +334,17 @@ function Application() {
             ? msg("Legal notice")
             : path === "/journal/"
               ? msg("The journal")
-              : `${t.landing.title} ${t.landing.titleItalic}`);
+              : `${msg("Prepare your documents.")} ${msg("Choose how they travel.")}`);
     document.title = `${label} | Guteneo`;
     const description =
-      information?.description ?? article?.description ?? t.landing.intro;
+      publicSitePage?.description ??
+      information?.description ??
+      article?.description ??
+      (path === "/"
+        ? msg(
+            "Email, fax and post. Prepare in Guteneo or with your assistant, review the details, then approve your dispatch.",
+          )
+        : t.landing.intro);
     document
       .querySelector('meta[name="description"]')
       ?.setAttribute("content", description);
@@ -436,8 +360,20 @@ function Application() {
       <AssistantsPage assistantId={publicPath.split("/")[2] || undefined} />
     );
   if (window.location.pathname === "/developers/") return <DeveloperPage />;
+  if (isPublicSitePage(publicPath)) {
+    const InitialPublicSitePage = loadedPublicSitePage;
+    return InitialPublicSitePage ? (
+      <InitialPublicSitePage path={publicPath} />
+    ) : (
+      <Suspense fallback={<Loading />}>
+        <LazyPublicSitePage path={publicPath} />
+      </Suspense>
+    );
+  }
+
   return (
     <WorkspaceApplication
+      route={route}
       session={session}
       updateSession={updateSession}
       ready={ready}
@@ -446,20 +382,27 @@ function Application() {
 }
 
 function WorkspaceApplication({
+  route,
   session,
   updateSession,
   ready,
 }: {
+  route: string;
   session: Session | null;
   updateSession: (session: Session | null) => void;
   ready: boolean;
 }) {
-  const route = useRoute();
   const page = route.split("?")[0] ?? "/";
+  const personalRoute = personalPage(page) && !publicPreview;
   useEffect(() => {
-    if (session && page.startsWith("/app") && !isPublicPreview)
+    if (
+      session &&
+      page.startsWith("/app") &&
+      !isPublicPreview &&
+      !personalRoute
+    )
       setSession(session);
-  }, [page, session]);
+  }, [page, session, personalRoute]);
   const { appearance } = useDashboardAppearance();
   const navigationSummary = useRef<HTMLElement>(null);
   const [navigationOpen, setNavigationOpen] = useState(
@@ -480,6 +423,7 @@ function WorkspaceApplication({
     registration?: { enabled: boolean };
   }>(
     page.startsWith("/app") &&
+      !personalRoute &&
       (session || new URLSearchParams(window.location.search).has("auth"))
       ? "/capabilities"
       : null,
@@ -493,6 +437,7 @@ function WorkspaceApplication({
     return () => window.removeEventListener(SESSION_EXPIRED_EVENT, expire);
   }, []);
   useEffect(() => {
+    if (personalRoute) return;
     if (!session && !sessionExpired) return;
     // Cookies are shared across tabs: reconcile a different account/workshop
     // even while this tab's previous session appeared healthy.
@@ -559,7 +504,7 @@ function WorkspaceApplication({
       window.removeEventListener("focus", recheck);
       document.removeEventListener("visibilitychange", recheck);
     };
-  }, [sessionExpired, session, updateSession, page]);
+  }, [sessionExpired, session, updateSession, page, personalRoute]);
   const pathname = window.location.pathname;
   if (pathname === "/journal/") return <JournalPage />;
   const article = getArticles().find(
@@ -569,17 +514,12 @@ function WorkspaceApplication({
   if (pathname === "/legal/") return <LegalPage />;
   if (page === "/legal") return <LegalPage />;
   if (!page.startsWith("/app")) return <Landing />;
+  if (personalRoute) return <PersonalArea route={route} />;
   if (!ready)
     return (
       <div className="initial-loading">
         <Loading />
       </div>
-    );
-  if (personalPage(page) && !publicPreview)
-    return (
-      <Suspense fallback={<Loading />}>
-        <PersonalArea route={route} />
-      </Suspense>
     );
   if (!session)
     return (
@@ -868,7 +808,6 @@ function WorkspaceApplication({
           <WorkspaceIdentity session={session} />
         </div>
         <div className="sidebar-footer">
-          <p>{t.tagline}</p>
           <button onClick={() => void logout()}>
             <SignOut size={19} />
             {t.login.logout}
@@ -948,7 +887,7 @@ function WorkspaceApplication({
           key={`${session.organization.id}:${session.user.id}`}
         >
           <ErrorNotice error={logoutError} />
-          {content}
+          <Suspense fallback={<Loading />}>{content}</Suspense>
         </main>
         {appearance !== "v2" && (
           <footer className="app-footer">

@@ -1,0 +1,162 @@
+.public-detail-heading {
+  padding: 58px 0 34px;
+  border-bottom: 1px solid var(--line);
+}
+.public-detail-heading h1 {
+  font: 400 clamp(48px, 6vw, 76px)/1.05 var(--font-display);
+  letter-spacing: -0.03em;
+  margin: 0;
+  color: var(--ink);
+}
+.public-detail :is(.installation-section, .pricing-section, .guided-example) {
+  padding: 48px 0 64px;
+}
+.public-detail
+  :is(.installation-heading h2, .pricing-heading h2, .guided-example h2) {
+  font: 400 clamp(32px, 3.5vw, 46px)/1.12 var(--font-display);
+  letter-spacing: -0.02em;
+  margin: 0 0 24px;
+}
+.public-detail .installation-section {
+  display: block;
+}
+.public-detail .installation-heading {
+  max-width: 68ch;
+  margin-bottom: 32px;
+}
+.public-detail .installation-heading > p {
+  font-size: 17px;
+  line-height: 1.65;
+}
+.public-detail .start-choice {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: 48px;
+  padding: 4px 0 32px;
+}
+.public-detail .start-assistant-guides {
+  margin: 12px 0 0;
+}
+.public-detail .start-assistant-guides > p {
+  margin-bottom: 18px;
+}
+@media (max-width: 767px) {
+  .public-detail .start-choice {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
+  }
+}
+.public-detail .pricing-section {
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  gap: 7%;
+}
+.public-detail .pricing-heading p {
+  font-size: 17px;
+  line-height: 1.65;
+}
+.public-detail :is(.price-qualification, .customer-supplement, .welcome-terms) {
+  line-height: 1.6;
+}
+.public-detail .pricing-content > .distribution-roadmap {
+  margin-block: 32px;
+}
+.public-detail .distribution-roadmap .eyebrow {
+  display: none;
+}
+.public-detail .pdf-check-public {
+  margin-top: 0;
+  padding: 38px 0;
+}
+.public-detail-pdf-checks .pdf-check-public {
+  grid-template-columns: 1fr 1.2fr;
+  gap: 7%;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+}
+.public-detail-pdf-checks .pdf-check-public h3 {
+  font: 400 38px/1.12 var(--font-display);
+}
+.public-detail-pdf-faq {
+  padding: 36px 0;
+  max-width: 900px;
+}
+.public-detail-pdf-faq h2 {
+  font: 400 36px/1.15 var(--font-display);
+  margin: 0 0 28px;
+}
+.public-detail-pdf-faq details {
+  border-top: 1px solid var(--line);
+  padding: 16px 0;
+}
+.public-detail-pdf-faq summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  min-height: 44px;
+  cursor: pointer;
+  font-weight: 500;
+  list-style: none;
+}
+.public-detail-pdf-faq summary::-webkit-details-marker {
+  display: none;
+}
+.public-detail-pdf-faq p {
+  font-size: 16px;
+  line-height: 1.7;
+  max-width: 72ch;
+}
+.public-detail-next {
+  padding: 24px 0;
+  border-top: 1px solid var(--line);
+}
+.public-detail-next a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  gap: 10px;
+  text-underline-offset: 5px;
+}
+.public-detail-faq {
+  margin-top: 48px;
+}
+.public-detail-faq .faq-section {
+  display: block;
+  padding: 32px 0;
+  border-top: 1px solid var(--line);
+}
+.public-detail-faq .faq-heading h2 {
+  font: 400 36px/1.12 var(--font-display);
+  margin: 0 0 28px;
+}
+.public-detail-faq .faq-questions h3 {
+  font-family: var(--font-body);
+  font-size: 16px;
+}
+.public-detail-faq .faq-questions summary {
+  min-height: 56px;
+}
+.public-detail-faq .faq-questions p {
+  font-size: 16px;
+  line-height: 1.7;
+}
+@media (max-width: 760px) {
+  .public-detail-heading {
+    padding: 38px 0 26px;
+  }
+  .public-detail .pricing-section,
+  .public-detail-pdf-checks .pdf-check-public {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
+  }
+  .public-detail .pricing-heading {
+    max-width: 65ch;
+  }
+  .public-detail .pricing-heading h2 {
+    margin-bottom: 18px;
+  }
+  .public-detail :is(.installation-section, .pricing-section, .guided-example) {
+    padding: 34px 0 44px;
+  }
+}

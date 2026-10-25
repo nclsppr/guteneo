@@ -198,7 +198,7 @@
   justify-items: center;
   gap: 28px;
   padding: 24px;
-  background: #e5e5de;
+  background: var(--surface-alt);
   border: 1px solid var(--line);
   overflow: hidden;
 }

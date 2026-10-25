@@ -1,5 +1,6 @@
 import { msg } from "./messages";
 import { getLocale, useLocale } from "./locale";
+import { useResolvedTheme } from "./theme";
 import luxembourgishLabels from "./locales/pdfme-lb.json";
 import {
   useCallback,
@@ -11,7 +12,7 @@ import {
 } from "react";
 import { Image as ImageIcon } from "@phosphor-icons/react";
 import { Designer } from "@pdfme/ui";
-import type { Template } from "@pdfme/common";
+import type { Template, UIOptions } from "@pdfme/common";
 import {
   templatePlugins,
   templateFonts,
@@ -27,14 +28,63 @@ import { addDesignerImage } from "../../../packages/templates/designer-images";
 // atelier that collapses the canvas below the toolbar. Its protected render
 // extension keeps the actual container dimensions and retains the stock editor.
 class EmbeddedDesigner extends Designer {
+  private renderedTemplate?: Template;
+
+  override updateOptions(options: UIOptions) {
+    // Native edits already live in TemplateEditor's state. Passing their newer
+    // template object back as a prop makes pdfme reload it asynchronously, which
+    // replaces schema IDs and drops selection, focus and pending form input.
+    // Chrome updates keep the mounted prop identity; getTemplate() still returns
+    // the latest authored model, and explicit updateTemplate() renders normally.
+    const authoredTemplate = this.template;
+    this.template = this.renderedTemplate ?? authoredTemplate;
+    try {
+      super.updateOptions(options);
+    } finally {
+      this.template = authoredTemplate;
+    }
+  }
+
   protected override render() {
     if (this.domContainer)
       this.size = {
         width: this.domContainer.clientWidth,
         height: this.domContainer.clientHeight,
       };
+    this.renderedTemplate = this.template;
     super.render();
   }
+}
+
+function designerTheme(): UIOptions["theme"] {
+  const styles = getComputedStyle(document.documentElement);
+  const color = (name: string) => styles.getPropertyValue(name).trim();
+  return {
+    token: {
+      colorPrimary: color("--action"),
+      colorPrimaryBg: color("--blue-tint"),
+      colorBgBase: color("--paper"),
+      colorBgLayout: color("--surface-alt"),
+      colorBgContainer: color("--surface"),
+      colorBgElevated: color("--surface-raised"),
+      colorTextBase: color("--ink"),
+      colorText: color("--ink"),
+      colorTextSecondary: color("--muted"),
+      colorTextTertiary: color("--muted"),
+      colorTextPlaceholder: color("--placeholder"),
+      colorBorder: color("--control-line"),
+      colorBorderSecondary: color("--line"),
+      colorSplit: color("--line"),
+      colorFillSecondary: color("--surface-hover"),
+      controlItemBgHover: color("--surface-hover"),
+      controlItemBgActive: color("--blue-tint"),
+      colorLink: color("--blue"),
+      // This is the document paper color in pdfme as well as a UI token.
+      colorWhite: "#ffffff",
+      borderRadius: 3,
+      fontFamily: color("--font-body"),
+    },
+  };
 }
 
 function fieldValue(block: Record<string, unknown>, key: string) {
@@ -67,6 +117,7 @@ export default function TemplateDesigner({
   onPendingChange?: (pending: boolean) => void;
 }) {
   const locale = useLocale();
+  const resolvedTheme = useResolvedTheme();
   const imageId = useId();
   const imageInput = useRef<HTMLInputElement>(null);
   const imageSelection = useRef<
@@ -214,7 +265,7 @@ export default function TemplateDesigner({
             getLocale() === "lb" ? "de" : (getLocale() as "fr" | "en" | "de"),
           labels: getLocale() === "lb" ? luxembourgishLabels : {},
           font: templateFonts,
-          theme: { token: { colorPrimary: "#2450db", borderRadius: 3 } },
+          theme: designerTheme(),
         },
       });
       designer.current = instance;
@@ -268,6 +319,10 @@ export default function TemplateDesigner({
       labels: locale === "lb" ? luxembourgishLabels : {},
     });
   }, [locale, desktop]);
+  useEffect(() => {
+    // Update only the editor chrome, preserving the PDF, selection and undo stack.
+    designer.current?.updateOptions({ theme: designerTheme() });
+  }, [resolvedTheme, desktop]);
   useEffect(() => {
     const serialized = JSON.stringify(definition);
     if (designer.current && serialized !== last.current) {
