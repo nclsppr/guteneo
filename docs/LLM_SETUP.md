@@ -167,6 +167,17 @@ Do not publish a CV/PDF to make import possible or claim that a local Claude Cod
 helper runs inside the iPhone application. Host file/code/network capabilities
 and user authorization must be qualified before this transport is offered there.
 
+If the runtime exposes the exact original but cannot reach Guteneo, the separate
+`import_inline_pdf` candidate accepts one original up to 64 KiB through the
+authenticated MCP connection. Compute size/SHA-256 and canonical base64 using
+code; preserve the same key, scanner and readiness/recovery gates. Do not chunk,
+truncate, echo the encoding or assume the 10 MiB binary limit applies. Tool
+arguments consume host context and require explicit original-file permission.
+Claude Free's observed settings expose package-manager egress without a custom-
+domain field; official specific-domain controls belong to Team/Enterprise owners.
+Do not change network policy automatically. Exact host transfer remains a
+separate qualification, including on a physical iPhone.
+
 ### Claude Code
 
 From repository root:

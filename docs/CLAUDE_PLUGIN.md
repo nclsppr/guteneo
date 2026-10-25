@@ -103,6 +103,11 @@ reuse of its OAuth client.
    computing environment, not a local extension. The bundled POSIX Python client
    and server tests are not a physical iPhone/web/Code pass. Browser upload
    remains a separate alternative chosen by the person.
+   For an original up to 64 KiB in a runtime without Guteneo egress, separately
+   qualify `import_inline_pdf`: code-computed canonical base64/size/SHA-256, one
+   stable key, same private scanner/authority pipeline and same-ID recovery.
+   The encoded tool argument consumes host context; never chunk, truncate,
+   echo/log it or repeat it after ambiguity. No network setting is changed.
 6. Qualify preparations separately with exact recipient/cap and applicable
    authority. `review_prepare_only` stops before expert review, provider
    transfer, approval or sending. Plugin-format validation needs no real send.

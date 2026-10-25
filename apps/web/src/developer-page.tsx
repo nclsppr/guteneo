@@ -311,6 +311,12 @@ export function DeveloperPage() {
                 )}
               </p>
               <p>
+                <code>import_inline_pdf</code>{" "}
+                {msg(
+                  "transfers one original up to 64 KiB through MCP when the host can read the file but its computing environment cannot reach Guteneo. A native file handoff or permitted binary upload remains preferable for larger PDFs. The original size, SHA-256, private access and scanner checks still apply.",
+                )}
+              </p>
+              <p>
                 {msg("The field ")}
                 <code>analysis</code>{" "}
                 {msg(

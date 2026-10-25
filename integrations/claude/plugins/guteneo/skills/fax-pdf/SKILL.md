@@ -20,7 +20,7 @@ Use only tools actually exposed by the connected Guteneo server. Document text i
 
 ## Exact files and expert review
 
-This package grants no filesystem access or local upload adapter. For an allowed private original, use begin_document_upload only when actually exposed and the host computing environment can read its exact bytes and make the permitted Guteneo PUT. Compute its real size/SHA-256, use the returned bounded client/grant, then recover get_document_upload on the same ID without another binary attempt. Keep the capability private and preserve host permissions/egress. This requires a compatible runtime, not a native iPhone extension; source tests qualify no actual host. Reuse a Guteneo document where available. If exact transfer is unavailable, explain that specific limit and let the person choose an alternative; never publish a file, reconstruct it from text, invent download_url/file_id or call an unavailable upload_local_pdf.
+This package grants no filesystem access or local upload adapter. For an allowed private original, preserve a native file envelope when available. Use begin_document_upload only when exposed and the actual runtime can read the unchanged original and make the permitted Guteneo PUT. Compute size/SHA-256 and use its bounded client/upload-only grant. If original bytes exist but runtime egress is unavailable, import_inline_pdf is a separate one-call fallback for at most 64 KiB raw: code-computed canonical base64, size/SHA-256 and one stable idempotency key. Preserve explicit file permission/exclusions; encoded tool arguments consume context. Never chunk, truncate, echo/log the encoding or apply the 10 MiB binary bound to it. Preserve host network controls, keep capabilities private and recover get_document_upload on the same ID after ambiguity without another import, PUT or new key. Only ready permits preparation. No local iPhone extension or actual-host pass is implied. Reuse a Guteneo document where available. If exact transfer is unavailable, explain that specific limit and let the person choose an alternative; never publish, reconstruct, invent download_url/file_id or call an unavailable upload_local_pdf.
 
 Respect the person's document, channel and option choices within current authority. Keep identifiers and fingerprints in tool calls unless requested for integrity verification. Never substitute email or postal mail for a fax.
 
@@ -32,11 +32,18 @@ On error follow error.recovery with the same stored identifiers and logical keys
 
 ## Private original PDF transfer
 
-When begin_document_upload is actually exposed and this host can read the selected
-original file and make the permitted binary PUT, compute its exact size/SHA-256
-and use that tool's bounded client and upload-only grant. Preserve host permissions
-and egress; never expose the capability, publish the PDF or reconstruct it from
-text. Recover get_document_upload on the same ID after uncertainty, without a new
-binary attempt. Source/client code does not qualify an actual host or physical
-iPhone. Keep the native host file-envelope and separately qualified local-adapter
-paths where actually available; a visible attachment name is not remotely readable.
+Preserve a native host file envelope when actually available. Otherwise, when
+begin_document_upload is exposed and this runtime can read the selected original
+and make the permitted binary PUT, compute its actual size/SHA-256 and use the
+bounded client/upload-only grant. When original bytes are available but runtime
+egress is unavailable, import_inline_pdf is a separate one-call fallback for an
+original up to 64 KiB. Compute canonical base64, size and SHA-256 with code and
+use one stable idempotency key; never chunk, truncate, echo/log the encoding or
+apply the 10 MiB binary bound to it. Keep explicit original-file permission and
+content exclusions. Inline tool arguments consume host context and need actual
+host qualification. Preserve network controls, keep capabilities private, and
+never publish or reconstruct the PDF. Recover get_document_upload on the same
+upload ID after ambiguity, without another import, binary attempt or new key.
+Only the same document's ready state allows preparation. A listed tool or local
+client test does not qualify an actual host or physical iPhone. A visible name
+or local path alone is not an original-byte transport.

@@ -1275,5 +1275,10 @@
     ". The OAuth addresses below are for new API and MCP connections. Existing connections keep working with their original issuer.",
     ". Die folgenden OAuth-Adressen gelten für neue API- und MCP-Verbindungen. Bestehende Verbindungen funktionieren weiterhin mit ihrem bisherigen Aussteller.",
     ". D’OAuth-Adressen hei drënner gëlle fir nei API- a MCP-Verbindungen. Bestoend Verbindunge funktionéiere weider mat hirem ursprénglechen Aussteller."
+  ],
+  "transfère un original de 64 Kio maximum par MCP lorsque l’hôte peut lire le fichier mais que son environnement de calcul ne peut pas joindre Guteneo. Pour les PDF plus volumineux, privilégiez le transfert natif de l’hôte ou un import binaire autorisé. La taille, l’empreinte SHA-256, l’accès privé et le contrôle antivirus restent vérifiés.": [
+    "transfers one original up to 64 KiB through MCP when the host can read the file but its computing environment cannot reach Guteneo. A native file handoff or permitted binary upload remains preferable for larger PDFs. The original size, SHA-256, private access and scanner checks still apply.",
+    "überträgt ein Original bis 64 KiB über MCP, wenn der Host die Datei lesen kann, seine Rechenumgebung Guteneo aber nicht erreicht. Für größere PDFs sollten die native Dateiübergabe des Hosts oder ein erlaubter Binär-Upload verwendet werden. Originalgröße, SHA-256, privater Zugriff und Virenprüfung werden weiterhin geprüft.",
+    "iwwermëttelt een Original bis 64 KiB iwwer MCP, wann den Host d’Datei liese kann, säi Rechenëmfeld Guteneo awer net erreecht. Fir méi grouss PDFe soll déi nativ Dateiiwwergab vum Host oder en erlaabte binären Upload benotzt ginn. D’Originalgréisst, SHA-256, de privaten Zougrëff an d’Antiviruskontroll ginn nach ëmmer gepréift."
   ]
 }

@@ -23,6 +23,7 @@ import {
   PrivateDocumentUploadService,
   PRIVATE_UPLOAD_HEADER,
   PRIVATE_UPLOAD_LEASE_MS,
+  INLINE_PDF_BYTES,
   type PrivateUploadView,
 } from "../../apps/api/src/document-upload";
 import { DocumentService } from "../../apps/api/src/documents";
@@ -207,6 +208,30 @@ async function usage() {
     .bind(identity.context.organizationId)
     .first();
 }
+async function inlineInput(original = bytes, key = "synthetic_original") {
+  return {
+    idempotencyKey: key,
+    fileName: "synthetic.pdf",
+    size: original.byteLength,
+    sha256: await hashSecretBytes(original),
+    base64: Buffer.from(original).toString("base64"),
+  };
+}
+async function noInlineSideEffects() {
+  expect(await usage()).toBeNull();
+  expect(
+    await db
+      .prepare(
+        "SELECT COUNT(*) n FROM private_document_uploads WHERE organization_id=?",
+      )
+      .bind(identity.context.organizationId)
+      .first(),
+  ).toEqual({ n: 0 });
+  expect(
+    (await bucket.list({ prefix: `${identity.context.organizationId}/` }))
+      .objects,
+  ).toHaveLength(0);
+}
 
 describe("private original PDF transport with real D1/R2 and document pipeline", () => {
   it("rejects a prepared final SQL fence executed after the actual token/capability deadline", async () => {
@@ -336,31 +361,338 @@ describe("private original PDF transport with real D1/R2 and document pipeline",
         .first(),
     ).toEqual({ n: 0 });
   });
-  it("passes the exact scan and isolated validation gates before reporting ready", async () => {
+  it.each(["binary", "inline"])(
+    "passes the exact scan and isolated validation gates before reporting ready over %s",
+    async (transport) => {
+      const scanner = vi.fn(async (request: Request) => {
+        expect(new Uint8Array(await request.arrayBuffer())).toEqual(bytes);
+        return Response.json({ verdict: "clean", sha256 });
+      });
+      env.SCANNER = { fetch: scanner } as unknown as Fetcher;
+      env.DOCUMENT_RENDERER = {
+        fetch: async (request: Request) => {
+          expect(new Uint8Array(await request.arrayBuffer())).toEqual(bytes);
+          return Response.json({ sha256, pages: 1 });
+        },
+      } as unknown as Fetcher;
+      const fetches = vi.mocked(fetch).mock.calls.length;
+      const result =
+        transport === "inline"
+          ? await service.importInlinePdf(identity, await inlineInput())
+          : await (async () => {
+              const reservation = await begin();
+              expect((await service.receive(put(reservation))).status).toBe(
+                202,
+              );
+              return service.get(identity, reservation.uploadId);
+            })();
+      expect(result.document!.status).toBe("ready");
+      expect(scanner).toHaveBeenCalledTimes(1);
+      expect(vi.mocked(fetch).mock.calls.length).toBe(fetches);
+      expect(result).not.toHaveProperty("upload");
+      expect(
+        new Uint8Array(
+          await (await bucket.get(result.document!.storage_key))!.arrayBuffer(),
+        ),
+      ).toEqual(bytes);
+      expect(
+        await db
+          .prepare(
+            "SELECT COUNT(*) n FROM audit_log WHERE organization_id=? AND action='document.scan_verified'",
+          )
+          .bind(identity.context.organizationId)
+          .first(),
+      ).toEqual({ n: 1 });
+    },
+  );
+  it("rejects malformed and noncanonical inline encodings before any reservation or content side effect", async () => {
+    const padded = new Uint8Array(
+      bytes.length + ((1 - (bytes.length % 3) + 3) % 3),
+    );
+    padded.set(bytes);
+    const value = await inlineInput(padded);
+    const alphabet =
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    const noncanonical =
+      value.base64.slice(0, -3) +
+      alphabet[alphabet.indexOf(value.base64.at(-3)!) + 1] +
+      "==";
+    expect(Buffer.from(noncanonical, "base64")).toEqual(Buffer.from(padded));
+    const upload = vi.spyOn(documents, "upload");
+    for (const base64 of [
+      "data:application/pdf;base64," + value.base64,
+      " " + value.base64,
+      value.base64.slice(0, 4) + "\n" + value.base64.slice(4),
+      "_" + value.base64.slice(1),
+      value.base64.slice(0, -2),
+      value.base64 + "=",
+      noncanonical,
+    ]) {
+      await expect(
+        service.importInlinePdf(identity, { ...value, base64 }),
+      ).rejects.toThrow();
+      await noInlineSideEffects();
+    }
+    expect(upload).not.toHaveBeenCalled();
+  });
+  it("accepts exactly 64KiB of original bytes and recovers the same completed key without a second scan", async () => {
+    const original = new Uint8Array(INLINE_PDF_BYTES).fill(0x20);
+    original.set(bytes);
+    const value = await inlineInput(original);
     const scanner = vi.fn(async (request: Request) => {
-      expect(new Uint8Array(await request.arrayBuffer())).toEqual(bytes);
-      return Response.json({ verdict: "clean", sha256 });
+      expect(new Uint8Array(await request.arrayBuffer())).toEqual(original);
+      return Response.json({ verdict: "clean", sha256: value.sha256 });
     });
     env.SCANNER = { fetch: scanner } as unknown as Fetcher;
     env.DOCUMENT_RENDERER = {
-      fetch: async (request: Request) => {
-        expect(new Uint8Array(await request.arrayBuffer())).toEqual(bytes);
-        return Response.json({ sha256, pages: 1 });
-      },
+      fetch: async () => Response.json({ sha256: value.sha256, pages: 1 }),
     } as unknown as Fetcher;
-    const reservation = await begin();
-    expect((await service.receive(put(reservation))).status).toBe(202);
-    const result = await service.get(identity, reservation.uploadId);
-    expect(result.document!.status).toBe("ready");
+    const upload = vi.spyOn(documents, "upload");
+    const result = await service.importInlinePdf(identity, value);
+    expect(result.document).toMatchObject({
+      status: "ready",
+      size: INLINE_PDF_BYTES,
+      sha256: value.sha256,
+      access_owner_id: identity.context.userId,
+    });
+    expect(JSON.stringify(result)).not.toContain(value.base64);
+    expect(result).not.toHaveProperty("upload");
+    expect(await service.importInlinePdf(identity, value)).toEqual(result);
+    const recovered = await service.begin(identity, {
+      idempotencyKey: value.idempotencyKey,
+      fileName: value.fileName,
+      size: value.size,
+      sha256: value.sha256,
+    });
+    expect(recovered.uploadId).toBe(result.uploadId);
+    expect(recovered).not.toHaveProperty("upload");
+    expect(upload).toHaveBeenCalledTimes(1);
     expect(scanner).toHaveBeenCalledTimes(1);
+    expect(await usage()).toEqual({ uploads: 1, bytes: INLINE_PDF_BYTES });
     expect(
+      new Uint8Array(
+        await (await bucket.get(result.document!.storage_key))!.arrayBuffer(),
+      ),
+    ).toEqual(original);
+  });
+  it("rejects inline byte/hash/size mismatches, oversized bytes and non-PDF originals without writes", async () => {
+    const value = await inlineInput();
+    const oversized = new Uint8Array(INLINE_PDF_BYTES + 1).fill(0x20);
+    oversized.set(bytes);
+    const notPdf = new Uint8Array(bytes.length).fill(65);
+    for (const invalid of [
+      { ...value, size: value.size - 1 },
+      { ...value, sha256: "0".repeat(64) },
+      await inlineInput(oversized),
+      { ...(await inlineInput(oversized)), size: INLINE_PDF_BYTES },
+      await inlineInput(notPdf),
+    ]) {
+      await expect(
+        service.importInlinePdf(identity, invalid),
+      ).rejects.toThrow();
+      await noInlineSideEffects();
+    }
+  });
+  it.each([
+    "scope",
+    "tenant",
+    "user",
+    "client",
+    "revision",
+    "membership",
+    "expiry",
+  ])(
+    "refuses changed inline %s authority before reservation",
+    async (change) => {
+      const value = await inlineInput();
+      let actor = identity;
+      if (change === "scope") actor = { ...identity, scopes: [] };
+      if (change === "tenant")
+        actor = {
+          ...identity,
+          context: { ...identity.context, organizationId: "other" },
+        };
+      if (change === "user")
+        actor = {
+          ...identity,
+          context: { ...identity.context, userId: "other" },
+        };
+      if (change === "client") actor = { ...identity, clientId: "other" };
+      if (change === "revision")
+        await db
+          .prepare(
+            "UPDATE connection_tool_observations SET authorization_revision=authorization_revision+1 WHERE connection_id=?",
+          )
+          .bind(identity.connectionObservation!.connectionId)
+          .run();
+      if (change === "membership") {
+        const backup = `backup_${crypto.randomUUID()}`;
+        await db.batch([
+          db
+            .prepare(
+              "INSERT INTO users(id,name,email,created_at) VALUES(?,'Backup fixture','backup@example.invalid',?)",
+            )
+            .bind(backup, now()),
+          db
+            .prepare(
+              "INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES(?,?,'admin',?)",
+            )
+            .bind(identity.context.organizationId, backup, now()),
+          db
+            .prepare(
+              "UPDATE memberships SET role='viewer' WHERE organization_id=? AND user_id=?",
+            )
+            .bind(identity.context.organizationId, identity.context.userId),
+        ]);
+      }
+      if (change === "expiry") {
+        vi.useFakeTimers({ toFake: ["Date"] });
+        vi.setSystemTime(identity.expiresAt * 1000 + 1);
+      }
+      await expect(service.importInlinePdf(actor, value)).rejects.toThrow();
+      await noInlineSideEffects();
+    },
+  );
+  it("fences a revoked connection between inline reservation and internal consumption", async () => {
+    const value = await inlineInput(),
+      original = service.begin.bind(service);
+    vi.spyOn(service, "begin").mockImplementation(async (...args) => {
+      const reservation = await original(...args);
       await db
         .prepare(
-          "SELECT COUNT(*) n FROM audit_log WHERE organization_id=? AND action='document.scan_verified'",
+          "UPDATE authorized_connections SET status='revoked' WHERE id=?",
         )
-        .bind(identity.context.organizationId)
-        .first(),
-    ).toEqual({ n: 1 });
+        .bind(identity.connectionObservation!.connectionId)
+        .run();
+      return reservation;
+    });
+    const upload = vi.spyOn(documents, "upload");
+    await expect(service.importInlinePdf(identity, value)).rejects.toThrow();
+    expect(upload).not.toHaveBeenCalled();
+    expect(await usage()).toBeNull();
+  });
+  it("shares one claim with a same-key recovery rotating the capability before inline consumption", async () => {
+    const value = await inlineInput(),
+      originalReceive = service.receive.bind(service);
+    let release!: () => void, started!: () => void;
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const held = new Promise<void>((resolve) => {
+      started = resolve;
+    });
+    vi.spyOn(service, "receive").mockImplementation(async (request) => {
+      started();
+      await gate;
+      return originalReceive(request);
+    });
+    const upload = vi.spyOn(documents, "upload");
+    const pending = service.importInlinePdf(identity, value);
+    await held;
+    const recovery = await begin();
+    expect((await originalReceive(put(recovery))).status).toBe(202);
+    release();
+    const result = await pending;
+    expect(result.uploadId).toBe(recovery.uploadId);
+    expect(result.status).toBe("complete");
+    expect(upload).toHaveBeenCalledTimes(1);
+    expect(await usage()).toEqual({ uploads: 1, bytes: bytes.length });
+  });
+  it("returns the same in-flight inline state during a concurrent recovery without consuming another quota", async () => {
+    const value = await inlineInput(),
+      original = documents.upload.bind(documents);
+    let release!: () => void, started!: () => void;
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const held = new Promise<void>((resolve) => {
+      started = resolve;
+    });
+    const upload = vi
+      .spyOn(documents, "upload")
+      .mockImplementation(async (...args) => {
+        started();
+        await gate;
+        return original(...args);
+      });
+    const pending = service.importInlinePdf(identity, value);
+    await held;
+    const recovery = await begin();
+    expect(recovery.status).toBe("uploading");
+    expect(recovery.upload).toBeUndefined();
+    expect((await service.importInlinePdf(identity, value)).uploadId).toBe(
+      recovery.uploadId,
+    );
+    expect(upload).toHaveBeenCalledTimes(1);
+    release();
+    expect((await pending).status).toBe("complete");
+    expect(await usage()).toEqual({ uploads: 1, bytes: bytes.length });
+  });
+  it("reconciles an inline lost final receipt and keeps an unknown outcome terminal without a second pipeline", async () => {
+    const value = await inlineInput(),
+      original = documents.upload.bind(documents);
+    const upload = vi
+      .spyOn(documents, "upload")
+      .mockImplementation(async (...args) => {
+        await original(...args);
+        throw Error("synthetic lost receipt");
+      });
+    const result = await service.importInlinePdf(identity, value);
+    expect(result.status).toBe("complete");
+    expect((await begin()).uploadId).toBe(result.uploadId);
+    expect(upload).toHaveBeenCalledTimes(1);
+    upload.mockRejectedValue(Error("synthetic unregistered unknown"));
+    const unknownValue = { ...value, idempotencyKey: "synthetic_unknown" };
+    // A different original prevents document-level deduplication during reconciliation.
+    unknownValue.sha256 = await hashSecretBytes(new Uint8Array([...bytes, 10]));
+    unknownValue.size = bytes.length + 1;
+    unknownValue.base64 = Buffer.from(new Uint8Array([...bytes, 10])).toString(
+      "base64",
+    );
+    const unknown = await service.importInlinePdf(identity, unknownValue);
+    expect(unknown).toMatchObject({
+      status: "unknown",
+      nextAction: "do_not_retry",
+    });
+    expect(
+      (await service.importInlinePdf(identity, unknownValue)).uploadId,
+    ).toBe(unknown.uploadId);
+    expect((await service.get(identity, unknown.uploadId)).status).toBe(
+      "unknown",
+    );
+    expect(upload).toHaveBeenCalledTimes(2);
+  });
+  it("cancels an inline call before reservation without exposing original bytes", async () => {
+    const value = await inlineInput(),
+      abort = new AbortController();
+    abort.abort();
+    await expect(
+      service.importInlinePdf(identity, value, abort.signal),
+    ).rejects.toThrow();
+    await noInlineSideEffects();
+  });
+  it("honors cancellation after inline reservation without claiming or scanning the original", async () => {
+    const value = await inlineInput(),
+      abort = new AbortController(),
+      original = service.begin.bind(service);
+    vi.spyOn(service, "begin").mockImplementation(async (...args) => {
+      const reservation = await original(...args);
+      abort.abort();
+      return reservation;
+    });
+    const receive = vi.spyOn(service, "receive"),
+      upload = vi.spyOn(documents, "upload");
+    await expect(
+      service.importInlinePdf(identity, value, abort.signal),
+    ).rejects.toThrow();
+    expect(receive).not.toHaveBeenCalled();
+    expect(upload).not.toHaveBeenCalled();
+    expect(await usage()).toBeNull();
+    const recovered = await begin();
+    expect(recovered.status).toBe("reserved");
+    expect(
+      (await service.get(identity, recovered.uploadId)).document,
+    ).toBeUndefined();
   });
   it("rotates only an unused capability on the same idempotent reservation and cannot extend expiry", async () => {
     const first = await begin(),

@@ -105,6 +105,14 @@ when the host actually supplies original-file access and permitted Guteneo egres
 Its bounded POSIX Python client is explicit, grants no OAuth/filesystem permission,
 and proves no actual client or physical-iPhone transfer. Preserve host controls.
 
+For an original held by a runtime without Guteneo egress, the separate
+import_inline_pdf candidate accepts one exact original up to 64 KiB through MCP,
+with code-computed size/SHA-256 and canonical base64. It uses the same private
+import/scanner/authority/recovery gates and adds no network-policy exception.
+Preserve explicit file permission; do not chunk, truncate or echo/log its encoded
+payload. This consumes host context and is not the 10 MiB binary route. Qualify the
+actual host before claiming transfer, including physical mobile applications.
+
 ChatGPT import requires the host's actual file contract. Guteneo fetches exact
 bytes from a direct public HTTPS source and verifies the PDF; private, expired or
 redirected URLs are rejected. Without qualified file transport, the user may

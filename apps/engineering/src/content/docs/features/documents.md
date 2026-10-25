@@ -1,6 +1,6 @@
 ---
 title: "Documents and protection"
-description: "13 capabilities in the create branch of Guteneo."
+description: "14 capabilities in the create branch of Guteneo."
 sidebar:
   order: 3
 ---
@@ -11,7 +11,7 @@ sidebar:
 
 Implemented; exact-byte, scanner and owner-access gates apply.
 
-**Surfaces:** Web/native and existing REST/MCP document access; bounded private upload reservation/status through MCP plus one upload-only binary PUT. Actual host original-file/code/network transfer and physical iPhone evidence remain separately qualified.
+**Surfaces:** Web/native and existing REST/MCP document access; private reservation/status through MCP plus one upload-only binary PUT up to 10 MiB, or one bounded inline MCP original up to 64 KiB through the same 0061 pipeline. Actual host original-byte/encoding/egress capability and physical iPhone evidence remain separately qualified.
 
 [Read the engineering guide](/workflows/documents/) · [All features](/features/)
 
@@ -31,6 +31,7 @@ Implemented; exact-byte, scanner and owner-access gates apply.
 <li id="feature-abad6a098d4d">Exact-size/hash private upload feeds the existing antivirus/quarantine/100-page pipeline under the same planned document ID; connection/trust/membership/expiry rechecks and same-ID status recovery refuse blind retries on unknown outcomes</li>
 <li id="feature-733a5cf0d42e">Host file/code/network access and physical Claude iPhone OAuth/file transfer require separate qualification; attachment previews, extracted text, tool discovery and desktop helpers do not prove original-byte transfer</li>
 <li id="feature-2eb40b63af49">Reservation can return deterministic POSIX Python 3.9+ standard-library client code with its SHA-256 for authorized local/cloud execution; status never returns code/capability, and no package install, external script fetch or actual host qualification is implied</li>
+<li id="feature-5e19d8533595">Small-original import_inline_pdf fallback carries one canonical-base64 original of 20–65,536 bytes with actual size/SHA-256 and a stable key through existing OAuth MCP when runtime Guteneo egress is unavailable; validation precedes reservation, internal 0061 claim/expiry/authority/quota/private-ACL/scanner processing is reused without fetch, and encoded context, truncation, same-ID unknown recovery and physical-client qualification remain explicit</li>
 </ol>
 
 ## REST operations
@@ -51,6 +52,7 @@ Read the [REST integration guide](/integrations/rest-api/) for authentication, e
 - `get_document`
 - `get_document_upload`
 - `import_document`
+- `import_inline_pdf`
 - `list_documents`
 - `read_document_pages`
 - `render_pdf`
