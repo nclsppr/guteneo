@@ -76,6 +76,12 @@ The XML test still requires both original PDFs and zero sending; terminal
 failure stops polling without weakening those assertions. See
 [testing evidence](/engineering/testing/) for the dated unexplained incident.
 
+V2 consent qualification also checks one actual input gesture and exact recipient
+retention while real document/sender responses arrive, using trusted touch/keys
+on touch projects and one desktop fill. It never repairs the field by refilling,
+weakens consent, extends timeouts or infers a product-state cause from a failed
+input trace. The [testing guide](/engineering/testing/) keeps the host/timing limits.
+
 Maintain `scripts/ci/browser-results.mjs`, the workflow matrix and its security
 tests together. Adding a browser, suite or shard requires the matching inventory,
 report and artifact contract. Keep the final `verify` dependency and protected

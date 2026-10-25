@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "./fixtures";
-import type { Locator } from "@playwright/test";
+import type { APIResponse, Locator, Route } from "@playwright/test";
 import {
   workspacePermissions,
   type WorkspaceRole,
@@ -333,20 +333,100 @@ test("account language and appearance save together, survive a fresh browser, an
 
 test("V2 prepares through the existing API and requires explicit consent before simulated acceptance", async ({
   page,
+  hasTouch,
 }) => {
   await login(page);
   const settings = await page.context().newPage();
   await settings.goto("/#/app/account");
   await saveProfileAppearance(settings, "v2");
   await returnToWorkspace(page, "v2");
-  await page.goto("/#/app/prepare?channel=email");
-  await page
-    .getByLabel("Adresse e-mail", { exact: true })
-    .fill("v2-consent@example.invalid");
-  await page.getByLabel("Objet", { exact: true }).fill("Revue V2");
-  await page
-    .getByLabel("Message", { exact: true })
-    .fill("Correspondance de simulation V2.");
+  const expectedEmail = "v2-consent@example.invalid";
+  const initialPaths = new Set(["/api/documents", "/api/senders"]);
+  const seen = new Set<string>();
+  const responses = new Map<string, APIResponse>();
+  const pendingRoutes = new Set<Promise<void>>();
+  let release!: () => void;
+  const gate = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  let fetched!: () => void;
+  const bothFetched = new Promise<void>((resolve) => {
+    fetched = resolve;
+  });
+  let delivered!: () => void;
+  const bothDelivered = new Promise<void>((resolve) => {
+    delivered = resolve;
+  });
+  let deliveryCount = 0;
+  const initialData = (url: URL) => initialPaths.has(url.pathname);
+  const holdInitialData = (route: Route) => {
+    const path = new URL(route.request().url()).pathname;
+    if (route.request().method() !== "GET" || seen.has(path))
+      return route.continue();
+    seen.add(path);
+    const task = (async () => {
+      const response = await route.fetch({ maxRetries: 0 });
+      responses.set(path, response);
+      if (responses.size === 2) fetched();
+      await gate;
+      await route.fulfill({ response });
+      if (++deliveryCount === 2) delivered();
+    })();
+    pendingRoutes.add(task);
+    void task.finally(() => pendingRoutes.delete(task)).catch(() => {});
+    return task;
+  };
+  await page.route(initialData, holdInitialData);
+  const recipient = page.getByLabel("Adresse e-mail", { exact: true });
+  try {
+    await page.goto("/#/app/prepare?channel=email");
+    // Exercise one user gesture while both real initial replies remain pending.
+    if (hasTouch) {
+      await recipient.tap();
+      await recipient.pressSequentially(expectedEmail);
+    } else await recipient.fill(expectedEmail);
+    expect(
+      await recipient.evaluate(
+        (input: HTMLInputElement, expected) =>
+          input.value === expected && document.activeElement === input,
+        expectedEmail,
+      ),
+      "The single recipient gesture must leave the exact fixture focused",
+    ).toBe(true);
+    // Do not wait for initial data before typing. Publish its unchanged replies
+    // only after the original entry, then check that loading preserves it.
+    await bothFetched;
+    expect(responses.size).toBe(2);
+    for (const response of responses.values())
+      expect(response.status()).toBe(200);
+    release();
+    await bothDelivered;
+    expect(
+      await recipient.evaluate(
+        (input: HTMLInputElement, expected) => input.value === expected,
+        expectedEmail,
+      ),
+      "Initial data replies must preserve the exact recipient",
+    ).toBe(true);
+    await page.getByLabel("Objet", { exact: true }).fill("Revue V2");
+    await page
+      .getByLabel("Message", { exact: true })
+      .fill("Correspondance de simulation V2.");
+  } finally {
+    release();
+    await page.unroute(initialData, holdInitialData);
+    await Promise.allSettled([...pendingRoutes]);
+    await Promise.allSettled(
+      [...responses.values()].map((response) => response.dispose()),
+    );
+  }
+  expect(
+    await recipient.evaluate(
+      (input: HTMLInputElement, expected) => input.value === expected,
+      expectedEmail,
+    ),
+    "The exact recipient must remain intact before submission",
+  ).toBe(true);
   const writes = observeWrites(page);
   const preparedResponse = page.waitForResponse(
     (response) =>
@@ -389,17 +469,25 @@ test("V2 prepares through the existing API and requires explicit consent before 
   ).toBeVisible();
   expect(writes).toHaveLength(1);
   expect(writes[0].path).toBe("/api/dispatches");
-  expect(writes[0].body).toEqual(
-    expect.objectContaining({
-      channel: "email",
-      recipient: { email: "v2-consent@example.invalid" },
-      subject: "Revue V2",
-      text: "Correspondance de simulation V2.",
-      ceilingMinor: 500,
-    }),
-  );
-  expect(writes[0].body).not.toHaveProperty("appearance");
-  expect(writes[0].body).not.toHaveProperty("atelier");
+  const payload = writes[0].body as Record<string, unknown>;
+  const target = payload.recipient as Record<string, unknown> | null;
+  expect(
+    !!target &&
+      typeof target === "object" &&
+      !Array.isArray(target) &&
+      Object.keys(target).length === 1 &&
+      target.email === expectedEmail,
+    "The preparation payload must contain only the exact original recipient",
+  ).toBe(true);
+  expect(
+    payload.channel === "email" &&
+      payload.subject === "Revue V2" &&
+      payload.text === "Correspondance de simulation V2." &&
+      payload.ceilingMinor === 500,
+    "Preparation must retain the original channel, content and ceiling",
+  ).toBe(true);
+  expect("appearance" in payload).toBe(false);
+  expect("atelier" in payload).toBe(false);
 
   const consent = page.locator(".approval-panel input[type=checkbox]").first();
   const approve = page.getByRole("button", {

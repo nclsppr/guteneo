@@ -47,6 +47,25 @@ retains mouse clicks. No browser APIs are mocked in the delivered-media tests,
 and all clock/decode/seek and same-key/new-key assertions remain required.
 This is qualification of the intended device input, not proof of a WebKit fix.
 
+## Mobile preparation input qualification — 26 October 2026
+
+PR run 40243121283 reached the V2 consent scenario with an empty required email
+field, so native validation prevented any dispatch POST. The field was already
+empty just after `fill`; no source-driven recipient reset or relevant JavaScript
+exception was established. Three isolated macOS experiments passed: one original
+fill, one trusted tap plus sequential keyboard entry, and one fill followed by
+release of the two real held document/sender GET responses. They did not reproduce
+Linux or a response arriving during insertion, and establish no historical cause.
+
+The regression uses one trusted tap plus sequential keyboard entry on touch
+projects and one fill on desktop. It retains the real two GET responses until
+after that single gesture, releases their unchanged bodies, then checks exact
+input retention and the dispatch recipient. No refill, automatic retry, fixed
+sleep, longer timeout or consent/sending assertion is added or removed. Derived
+boolean diagnostics avoid printing recipients. This qualifies a real input path
+and data-arrival retention; it is not a claimed product-state repair. Required
+exact-source PR and merged-main checks remain complete.
+
 ## Checkout optimization — 9 October 2026 candidate
 
 The exact deployed `4ce1bdd467f9aa35f98e525986db888eff3bf977` still passes
