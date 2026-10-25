@@ -161,7 +161,7 @@ test("uncertain or failed sends are surfaced on the overview", async ({
   );
   await page.goto("/#/app/documents");
   await expect(
-    page.getByRole("heading", { name: "Documents", exact: true }),
+    page.getByRole("button", { name: "Importer un PDF", exact: true }),
   ).toBeVisible();
   await page.goto("/#/app");
   const notice = page.getByRole("status").filter({
