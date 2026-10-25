@@ -595,6 +595,9 @@ test("protected custom HTML inserts an editable styled button and preserves its 
     .getByLabel("Pièce jointe PDF (facultative)")
     .selectOption(sampleDocument.id);
   await page.getByRole("checkbox", { name: /Envoyer un lien protégé/ }).check();
+  await page
+    .getByLabel("Message (facultatif)", { exact: true })
+    .fill("Plain-text alternative only.");
   await page.locator(".email-advanced summary").click();
   await page
     .getByLabel("Version HTML", { exact: true })
@@ -608,6 +611,7 @@ test("protected custom HTML inserts an editable styled button and preserves its 
   expect(html).toContain('href="{{document_url}}"');
   expect(html).toContain("background-color: #2450db");
   expect(html).toContain('<h2 style="color: #2450db;">Votre document</h2>');
+  expect(html).not.toContain("Plain-text alternative only.");
   await expect(
     page
       .frameLocator(".email-preview")
@@ -626,7 +630,53 @@ test("protected custom HTML inserts an editable styled button and preserves its 
   ).toBeVisible();
   expect(writes[0]?.body.html).toBe(html);
   expect(writes[0]?.body).not.toHaveProperty("subject");
-  expect(writes[0]?.body).not.toHaveProperty("text");
+  expect(writes[0]?.body.text).toBe("Plain-text alternative only.");
+});
+
+test("inserting the first protected document button preserves the written message in HTML", async ({
+  page,
+}) => {
+  const writes = await fixture(page);
+  const text = "Bonjour <Camille>,\nVotre document & ses pièces.";
+  await page.goto("/?appearance=v2#/app/prepare?channel=email");
+  await page
+    .getByLabel("Pièce jointe PDF (facultative)")
+    .selectOption(sampleDocument.id);
+  await page.getByRole("checkbox", { name: /Envoyer un lien protégé/ }).check();
+  await page.getByLabel("Message (facultatif)", { exact: true }).fill(text);
+  await page.locator(".email-advanced summary").click();
+  await expect(page.getByLabel("Version HTML", { exact: true })).toHaveValue(
+    "",
+  );
+  await page
+    .getByRole("button", { name: "Insérer un bouton vers le document" })
+    .click();
+  const html = await page
+    .getByLabel("Version HTML", { exact: true })
+    .inputValue();
+  expect(html).toContain(
+    "<p>Bonjour &lt;Camille&gt;,<br>Votre document &amp; ses pièces.</p>",
+  );
+  expect(html).toContain('href="{{document_url}}"');
+  await expect(
+    page.frameLocator(".email-preview").locator("body"),
+  ).toContainText("Bonjour <Camille>,");
+  await expect(
+    page.frameLocator(".email-preview").locator("body"),
+  ).toContainText("Votre document & ses pièces.");
+  await expect(
+    page
+      .frameLocator(".email-preview")
+      .getByRole("link", { name: "Consulter le document" }),
+  ).toHaveCount(1);
+  await page
+    .getByLabel("Adresse e-mail", { exact: true })
+    .fill("recipient@example.invalid");
+  await page.getByRole("button", { name: "Vérifier et préparer" }).click();
+  await expect(
+    page.getByRole("heading", { name: "Le bon à envoyer." }),
+  ).toBeVisible();
+  expect(writes[0]?.body).toMatchObject({ text, html });
 });
 
 test("PDF protection is optional, priced before preparation and binds its selected duration", async ({

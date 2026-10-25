@@ -35,8 +35,13 @@ export function EmailComposer({
   const linkHintId = useId();
   const htmlInput = useRef<HTMLTextAreaElement>(null);
   function insertDocumentButton() {
+    const initialHtml = html.trim()
+      ? html
+      : text.trim()
+        ? emailDraftHtml(text, "")
+        : "";
     const button = `<p><a href="{{document_url}}" style="display: inline-block; background-color: #2450db; color: #ffffff; padding: 14px 22px; border-radius: 7px; text-decoration: none; font-weight: 600;">${msg("View the document")}</a></p>`;
-    onHtml(`${html.trim() ? `${html}\n\n` : ""}${button}`);
+    onHtml(`${initialHtml ? `${initialHtml}\n\n` : ""}${button}`);
     htmlInput.current?.focus();
   }
   return (

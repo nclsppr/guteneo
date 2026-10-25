@@ -67,7 +67,10 @@ private URL before fingerprinting and retains password/expiry instructions plus
 the plain-text URL. A valid marker suppresses the duplicate button; markerless
 protected custom HTML gets the styled fallback button. Access instructions remain
 in both cases. Embedded/malformed markers and use in another delivery mode
-are explicit errors, not a request to invent a token or bypass hosting.
+are explicit errors, not a request to invent a token or bypass hosting. If custom
+HTML is empty, the web button helper preserves the plain-text message as escaped
+HTML with line breaks before the button. Otherwise it appends to the existing
+custom HTML without prepending the plain-text alternative.
 
 Web, REST, the mobile API and MCP use this same preparation; capability hints and plugin
 instructions describe it without enabling transport. Standard MCP summary reads

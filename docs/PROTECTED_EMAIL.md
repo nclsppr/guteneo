@@ -97,8 +97,12 @@ than submitting guessed defaults. Their draft preview uses the shared template
 and authenticated workspace plus saved sender language (French fallback), even
 when unsaved browser/interface language differs. The exact substituted link and
 expiration appear only in the prepared server review. Advanced protected HTML exposes the literal
-marker and an editable button example, with localized validation recovery. A
-draft preview contains no invented access URL and never substitutes for review.
+marker and an editable button example, with localized validation recovery. When
+custom HTML is empty, inserting the document button preserves the existing
+plain-text message as escaped HTML with line breaks before the button. Existing
+custom HTML remains authoritative; the helper appends the button without adding
+the plain-text alternative to that HTML.
+A draft preview contains no invented access URL and never substitutes for review.
 The MCP/plugin email workflow describes optional defaults and the marker while
 keeping private URLs/passwords out of standard summary readbacks. Authorized expert
 review still receives the exact final message under its existing policy; password
@@ -111,35 +115,43 @@ inbox delivery or publication. No email is sent by template authoring or review.
 
 ## Local template qualification — 25 October 2026
 
-The expanded template candidate passes 31 email-content unit cases and 23 Resend
-integration cases, plus 89 MCP/capability/package/mobile cases and 14 OpenAPI
-checks. `tests/security/email-content-runtime.test.mjs` separately compiles the
-actual sanitizer/template helpers into local workerd: its one runtime case checks
-safe inline CSS retention, parsed protected-link substitution, unsafe resource
-removal and branded output in all four languages, including the Luxembourgish
-expiration date. Node-only fixtures do not substitute for this runtime check.
-All provider transport in these checks is synthetic or intercepted.
+Before synchronization with upstream MCP authentication/private-upload changes,
+the expanded candidate passed 31 email-content unit cases, 23 Resend integration
+cases, 89 MCP/capability/package/mobile cases and 14 OpenAPI checks.
+`tests/security/email-content-runtime.test.mjs` separately compiles the actual
+sanitizer/template helpers into local workerd: its one runtime case checked safe
+inline CSS retention, parsed protected-link substitution, unsafe resource removal
+and branded output in all four languages, including the Luxembourgish expiration
+date. Node-only fixtures do not substitute for this runtime check. All provider
+transport in these checks is synthetic or intercepted. These targeted counts
+qualify the pre-sync candidate, not a complete post-sync suite.
 
-The complete `protected-email`, `protected-recipient` and
-`email-recipient-attestation` browser specifications pass 75/75 across desktop
-Chromium, mobile Chromium and iPhone WebKit. The final run follows a fresh web
-build with stable assets. Earlier interrupted captures overlapped a separate
-security test that rebuilt the shared output; they do not qualify this candidate.
-These are emulated browsers, not physical-device or inbox-rendering evidence.
+After synchronization and the final button-insertion correction, the complete
+`protected-email`, `protected-recipient` and `email-recipient-attestation` browser
+specifications pass 78/78 in 2.0 minutes across desktop Chromium, mobile Chromium
+and iPhone WebKit. They cover preservation of plain text when custom HTML is empty
+and retention of existing custom HTML as the authored body. This run uses freshly
+built assets in an isolated temporary directory. These are emulated browsers,
+not physical-device or inbox-rendering evidence.
 
-Final local built-app captures in French, English, German and Luxembourgish show
-no page/preview horizontal overflow or JavaScript errors at 390 and 1440 px, with
-a dark workspace and the original light-paper email. The measured draft journey
-loads 48 resources, transfers 689,462 bytes and makes four API GETs: session,
-capabilities, documents and senders. The PDF-viewer module is absent from this
-email draft path. First-contentful-paint samples range from 156 to 228 ms across
-four individual locale contexts; this is bounded local observation, not a claimed
-speed gain or production latency. One separate French sample measured 960.9 ms
-from the document-selection routine through enabled protection and a visible
-branded preview, including automated control waits; it does not measure initial
-network navigation. The separately sanitized full email renders at
-390 and 760 px in all four languages with no overflow or network requests. No
-actual Gmail/Outlook delivery or rendering is established by these checks.
+One fresh French capture of that post-sync build loads 48 resources, transfers
+689,528 bytes and makes four API GETs: session, capabilities, documents and senders.
+Fonts and network idle precede the resource snapshot. The PDF-viewer module is
+absent from this email draft path; the page and preview have no horizontal overflow
+at 390 and 1440 px and no JavaScript errors. First contentful paint is 236 ms.
+The synthetic document-selection routine through enabled protection and a visible
+branded preview takes 495.1 ms, including automated control waits; it does not
+measure initial network navigation. These are individual local samples, not a
+speed comparison or production latency claim.
+
+Earlier pre-sync captures in French, English, German and Luxembourgish showed no
+page/preview overflow or JavaScript errors at 390 and 1440 px, with a dark workspace
+and the original light-paper email. Those captures recorded 48 resources,
+689,462 transferred bytes and first-contentful-paint samples of 156–228 ms; they
+are distinct from the post-sync French sample. The pre-sync sanitized full email
+also rendered at 390 and 760 px in all four languages without overflow or network
+requests. No actual Gmail/Outlook delivery or rendering is established by these
+checks.
 
 ## Cost and duration
 
