@@ -45,7 +45,7 @@ function recovery(request: Request): Response {
   const text = (key: "Accès refusé" | "Réessayer") =>
     locale === "fr" ? key : messages[key][index[locale]];
   return new Response(
-    `<!doctype html><html lang="${locale}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Belvédère — guteneo</title></head><body><main><h1>${text("Accès refusé")}</h1><p><a href="/auth/login?locale=${locale}">${text("Réessayer")}</a></p></main></body></html>`,
+    `<!doctype html><html lang="${locale}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Belvédère — guteneo</title></head><body><main><h1>${text("Accès refusé")}</h1><p><a href="/auth/login?fresh=1&amp;locale=${locale}">${text("Réessayer")}</a></p></main></body></html>`,
     {
       status: 403,
       headers: {

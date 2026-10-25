@@ -101,7 +101,9 @@ normal identity/MFA policy. The fixed callback is
 the host root. Callback processing requires the existing signed allowed identity
 and current membership before creating a session. It cannot create a new user,
 accept a workshop invitation or provision a customer workspace. An invalid
-identity gets a private recovery page with no identity/error details.
+identity gets a private recovery page with no identity/error details. Its explicit
+retry requests a fresh Auth0 login, so the same denied SSO identity cannot trap
+the operator in an automatic retry loop.
 
 The existing `__Host-guteneo_session` cookie remains `Secure`, `HttpOnly`,
 `SameSite=Lax`, `Path=/` and **host-only**. Canonical and dedicated browsers do not

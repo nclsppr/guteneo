@@ -413,13 +413,27 @@ describe("isolated Belvedere custom host", () => {
       const result = await callback(changes);
       expect(result.completed.status).toBe(403);
       expect(result.completed.headers.get("Location")).toBeNull();
-      expect(await result.completed.text()).not.toContain(slug);
+      const recovery = await result.completed.text();
+      expect(recovery).not.toContain(slug);
+      expect(recovery).toContain("/auth/login?fresh=1&amp;locale=");
       expect([
         await total("users"),
         await total("browser_sessions"),
         await total("auth_identities"),
       ]).toEqual(before);
     }
+  });
+  it("can leave a denied SSO identity through an explicit fresh browser login", async () => {
+    const response = (await handleBelvedereHost(
+      request("/auth/login?fresh=1&locale=fr"),
+      env,
+    ))!;
+    const destination = new URL(response.headers.get("Location")!);
+    expect(destination.searchParams.get("prompt")).toBe("login");
+    expect(destination.searchParams.get("max_age")).toBe("0");
+    expect(destination.searchParams.get("redirect_uri")).toBe(
+      `${BELVEDERE_ORIGIN}/auth/callback`,
+    );
   });
   it("requires the host origin and current CSRF to revoke only the selected local session", async () => {
     const before = await total("browser_sessions");

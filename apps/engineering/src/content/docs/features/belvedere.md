@@ -19,7 +19,7 @@ Private platform authority, separate from workshop roles; hosted activation is s
 
 <ol>
 <li id="feature-76f776d9c56a">Private read-only Watchkeeper authority bound to verified browser identity and server-secret address, separate from workshop roles</li>
-<li id="feature-5b6ff9c3d1b4">Dedicated protected platform host at its root with exact Auth0 callback, host-only browser cookies and no customer API/signup/OAuth authority; compatible private entry retained</li>
+<li id="feature-0a8cf4fb49a1">Dedicated protected platform host at its root with exact Auth0 callback, host-only browser cookies and no customer API/signup/OAuth authority; compatible private entry retained and denied-identity recovery requests an explicit fresh login</li>
 <li id="feature-64f6664b8d50">Seven views: overview, workshops, members, dispatches, connections, finances and infrastructure</li>
 <li id="feature-401089aa38b5">Optional country observations with bounded deduplication, new sessions after workshop changes and 90-day retention</li>
 <li id="feature-278a3e9c9a84">Distinct promotional credits, dispatch/hosting/individual PDF purchases and legacy subscription charges, actual receipts and supplier costs</li>

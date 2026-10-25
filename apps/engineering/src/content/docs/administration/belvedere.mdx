@@ -33,6 +33,10 @@ The [authority and tenancy guide](/architecture/authority-and-tenancy/) owns the
 four workspace roles and their permissions. Belvédère adds an explicit reading
 boundary around selected platform projections; it does not replace those roles.
 
+A denied identity receives private recovery with an explicit fresh login. It can
+therefore change the identity-provider session without opening customer signup
+or provisioning authority, and without automatically repeating the denied SSO.
+
 ## The seven views
 
 | View | What it exposes | How to interpret it |
