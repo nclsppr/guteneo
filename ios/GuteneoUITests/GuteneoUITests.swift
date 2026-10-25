@@ -357,26 +357,18 @@ final class GuteneoUITests: XCTestCase {
     }
 
     private func selectAccountLanguage(_ language: String, in app: XCUIApplication, file: StaticString = #filePath, line: UInt = #line) {
-        let picker = app.buttons["accountLanguage"]
-        XCTAssertTrue(picker.waitForExistence(timeout: 10), file: file, line: line)
-        let interactive = NSPredicate(format: "hittable == true AND enabled == true")
-        XCTAssertEqual(XCTWaiter.wait(for: [
-            XCTNSPredicateExpectation(predicate: interactive, object: picker)
-        ], timeout: 5), .completed, "Language picker is not interactive", file: file, line: line)
+        guard let picker = interactiveButton("accountLanguage", in: app, file: file, line: line) else { return }
         picker.tap()
 
-        let option = app.buttons[language]
-        XCTAssertTrue(option.waitForExistence(timeout: 5), file: file, line: line)
-        XCTAssertEqual(XCTWaiter.wait(for: [
-            XCTNSPredicateExpectation(predicate: interactive, object: option)
-        ], timeout: 5), .completed, "Language option is not interactive: \(language)", file: file, line: line)
+        guard let option = interactiveButton(language, in: app, file: file, line: line) else { return }
         option.tap()
 
         // Locale changes recompose the picker and native menu. Observe its
         // value and menu closure here; hit-testing belongs before a gesture.
         // UIKit may temporarily lack an activation point for the rebuilt picker.
         let settled = NSPredicate { _, _ in
-            picker.exists && picker.label.contains(language) && picker.isEnabled && !option.exists
+            let picker = app.buttons["accountLanguage"]
+            return picker.exists && picker.label.contains(language) && picker.isEnabled && !app.buttons[language].exists
         }
         let result = XCTWaiter.wait(for: [
             XCTNSPredicateExpectation(predicate: settled, object: nil)
@@ -385,6 +377,24 @@ final class GuteneoUITests: XCTestCase {
             attachScreenshot(app, name: "Language selection did not settle — \(language)")
         }
         XCTAssertEqual(result, .completed, "Language choice was not applied or the menu remains open: \(language)", file: file, line: line)
+    }
+
+    private func interactiveButton(_ identifier: String, in app: XCUIApplication, file: StaticString = #filePath, line: UInt = #line) -> XCUIElement? {
+        // Re-resolve controls rebuilt by SwiftUI instead of spending a separate
+        // five-second hit-test budget on an earlier accessibility query.
+        let ready = NSPredicate { _, _ in
+            let button = app.buttons[identifier]
+            return button.exists && button.isEnabled && button.isHittable
+        }
+        let result = XCTWaiter.wait(for: [
+            XCTNSPredicateExpectation(predicate: ready, object: nil)
+        ], timeout: 20)
+        if result != .completed {
+            attachScreenshot(app, name: "Button did not become interactive — \(identifier)")
+        }
+        XCTAssertEqual(result, .completed, "Button is not interactive: \(identifier)", file: file, line: line)
+        guard result == .completed else { return nil }
+        return app.buttons[identifier]
     }
 
     private func launch(arguments: [String]) -> XCUIApplication {
