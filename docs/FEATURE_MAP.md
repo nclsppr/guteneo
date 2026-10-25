@@ -810,7 +810,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Current browser administrator alone accepts the immutable purchase; assistants, native callers and other members cannot create financial consent
 - Atomic reservation and one settled charge for a complete valid report; engine failure releases the reservation without a settled debit
 - New subscriptions and automatic recurring renewals are retired; immutable legacy actions and charges are retained, and posted charge history remains visible under current reporting authority
-- Pinned private veraPDF for PDF/UA-1/-2 and PDF/A-1b/2b/3b/4, with official positive/negative corpus and separate offline/hosted qualification
+- Pinned private veraPDF for PDF/UA-1/-2 and PDF/A-1b/2b/3b/4, with official positive/negative corpus, signal-aware bounded cleanup and separate offline/hosted graceful-stop qualification
 - Exact-byte reports, history and JSON export under current PDF access, independent of a monthly entitlement
 - Required human review; a valid report with failed conformance checks is billable, while operational failure is not a conformity verdict
 - One explicit activation flag, private validator and production scanner gates; activation after hosted qualification, never legal certification
@@ -844,8 +844,8 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Private read-only Telnyx operator inspection reports bounded callback status/canonical-match booleans without raw URLs or credential extraction; fresh provider state requires separate proof
 - Reconciliation, bounded recovery and dead-letter queues
 - Ordered D1 migrations, integrity and restore bookmark
-- Private scanner, renderer and validator releases from clean main; loopback qualification bridge with temporary secret, Origin refusal and no secret transfer; deployment wrapper and hosted runner share strict production pdfValidation.available=false on canonical guteneo.com before container qualification
-- Backend/security/browser suites and exhaustive CI; basic validator max 1, 5-second idle, qualified JVM corpus to 100 pages/9.887 MiB; measured local CPU savings do not prove hosted cost
+- Private scanner, renderer and validator releases from clean main; root-Wrangler loopback qualification bridge with temporary secret, Origin refusal and no secret transfer; deployment wrapper and hosted runner share strict production pdfValidation.available=false on canonical guteneo.com before container qualification; explicit private forced-stop recovery never replaces graceful idle proof, and runtime-private helpers cannot return a container stub
+- Backend/security/browser suites and exhaustive CI; standard-1 validator max 1, 5-second idle, qualified JVM corpus to 100 pages/9.887 MiB; measured local CPU savings do not prove hosted cost
 - Release from clean, synchronized, verified main
 - Release manifests contain canonical public assets with exact byte hashes; shared application/preview redirects preserve old page/download links without duplicate alias files; unexpected redirects fail served verification; retired workers.dev/preview closure has separate evidence
 - Local production monitor uses bounded anonymous canonical reads and retired-host refusal checks, page hashes, private-access refusal and 120-second staleness; partial feature proof, no sends or permanent task
@@ -1092,7 +1092,7 @@ Open the private link → enter the separately supplied password → download th
 
 Update feature tree/developer contracts/source/tests together → regenerate and check atlas → check canonical build assets and compatibility redirects → run exact-source checks → review → obtain explicit merge/release authority → publish from clean synchronized main → verify public manifest/assets and separately qualify authenticated/runtime behavior.
 
-**Failure/recovery:** Dirty source, drift, failing checks, missing configuration/scan or absent authority blocks release. Unexpected redirects or changed/missing advertised bytes fail served verification; correct the source and repeat the reviewed release sequence without weakening verification. CI, local fixtures, production HTTP and real provider/client proof remain distinct.
+**Failure/recovery:** Dirty source, drift, failing checks, missing configuration/scan or absent authority blocks release. Private-engine graceful-stop or idle failures keep customer activation closed; explicit force-stop recovery is not qualification. Unexpected redirects or changed/missing advertised bytes fail served verification; correct the source and repeat the reviewed release sequence without weakening verification. CI, local fixtures, production HTTP and real provider/client proof remain distinct.
 
 [Detailed contract](MAIN_RELEASE.md).
 

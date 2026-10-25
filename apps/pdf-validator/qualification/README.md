@@ -49,7 +49,7 @@ In a separate terminal, from the same clean main checkout:
 
 ```sh
 node apps/pdf-validator/scripts/setup-probe.mjs
-apps/pdf-validator/node_modules/.bin/wrangler dev \
+node node_modules/wrangler/bin/wrangler.js dev \
   --config apps/pdf-validator/qualification/wrangler.jsonc \
   --ip 127.0.0.1 --port 8891 --log-level error
 ```
@@ -62,6 +62,12 @@ npm --prefix apps/pdf-validator run qualify:hosted -- \
   --worker-version DEPLOYED_WORKER_UUID \
   --proof /absolute/private/path/pdf-validator-hosted-proof.json
 ```
+
+Run the bridge with the repository-root Wrangler, the same reviewed runtime used
+by the deployment guard. The package-local Wrangler 4.132.0 cannot run this
+configuration's 2 October 2026 compatibility date; root Wrangler 4.149.0 was
+verified during the 25 October hosted attempt. Do not lower the compatibility
+date or change the qualification assertions to accommodate an older local tool.
 
 The private service reports the guarded `SOURCE_COMMIT` variable and actual
 `CF_VERSION_METADATA.id`; both must match the supplied deployment evidence.
@@ -106,6 +112,24 @@ A failed check writes a private `status: failed` proof and exits nonzero. Keep
 that evidence and resolve the cause; do not loosen assertions or enable PDF verification.
 Positive reference machine checks do not replace human accessibility assessment.
 No real customer PDF, subscription or communication is performed by this probe.
+
+The 25 October first hosted run from `1d905ff2729e579cd6dc017ccfb422ba9cf985fe`
+observed cold veraPDF 1.30.2 health in 2960 ms, then failed the unchanged
+twenty-second graceful-stop check before processing any reference PDF. Python
+running as PID 1 ignored the default signal. This failure is not corpus,
+idle-sleep or production-readiness evidence. The lifecycle correction must pass
+fresh graceful stop/start and automatic idle checks before activation.
+
+The Python entrypoint handles SIGTERM/SIGINT explicitly, stops admitting new
+work and lets bounded body/process cancellation and cleanup finish. An explicit
+operator recovery request, `POST /stop?force=true`, asks the temporary private
+RPC to call SDK `destroy()` for a stuck prelaunch instance. It requires the same
+local credential, Origin refusal and enabled qualification gate. Reconfirm the
+canonical feature closed and the exact private release/application/instance
+before using it. Poll a terminal state afterwards; an acknowledgement is not
+physical-stop evidence. Forced recovery never substitutes for the normal
+SIGTERM cold-start or automatic-idle qualification assertions and is never
+exposed by the customer service.
 
 After qualification passes, keep PDF verification closed and physically stop the
 container while the qualification gate is still enabled. This also ensures that
@@ -162,7 +186,7 @@ import { createProbeFetch, readProbeCredential } from './apps/pdf-validator/scri
 const call = createProbeFetch('http://127.0.0.1:8891', readProbeCredential());
 for (const [method, path] of [
   ['GET', '/release'], ['GET', '/state'], ['GET', '/privacy'],
-  ['POST', '/stop'], ['POST', '/process-deadline'],
+  ['POST', '/stop'], ['POST', '/stop?force=true'], ['POST', '/process-deadline'],
 ]) {
   const response = await call(path, { method, signal: AbortSignal.timeout(48000) });
   assert.equal(response.status, 503);

@@ -50,6 +50,25 @@ temporary qualification RPC before customer activation. The authenticated pricin
 API owns the unit purchase price, and the repository cost model owns dated
 resource assumptions; neither a container count nor a local timing is a bill cap.
 
+The first 25 October hosted attempt passed cold engine health in 2960 ms, then
+failed graceful stop before the reference corpus: Python as PID 1 ignored
+SIGTERM. Preserve that failed observation. The corrected entrypoint handles
+SIGTERM/SIGINT and drains bounded work with subprocess/private-file cleanup;
+graceful cold-stop and automatic idle assertions remain unchanged. An explicit
+force-stop option is confined to the temporary account-private qualification RPC
+and authenticated loopback bridge, with the canonical customer feature closed
+and the exact release/application/instance identified. SDK `destroy()` is a
+recovery operation, never evidence that graceful idle works. Poll the actual
+terminal state, then close the temporary RPC, including its force variant,
+before activation. The container helper uses runtime-private `#` syntax so the
+RPC cannot return its underlying stub.
+
+Run the local bridge with the repository-root Wrangler used by the guarded
+deployment (`node node_modules/wrangler/bin/wrangler.js dev` from the root), not
+the older package-local executable. Root 4.149.0 supports the declared 2 October
+compatibility date; package 4.132.0 did not during the hosted attempt. Keep the
+date, source and qualification assertions intact when correcting a local tool.
+
 ## Keep four kinds of evidence separate
 
 | Record                                | Establishes                                                          | Does not establish                                               |
