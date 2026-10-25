@@ -137,6 +137,20 @@ approval. No workspace tool opens a personal vault or confirms recipient/account
 association. The separate browser owner principal handles receipt, personal copies
 and export. See [secure distribution](/workflows/secure-distribution/).
 
+## ChatGPT installation archive
+
+The public and account guides offer the current plugin ZIP first, with a manual
+MCP-server alternative when archive import is unavailable in the host account.
+Keep the ZIP intact, inspect the plugin before import, connect with person-owned
+OAuth and verify capabilities through a read-only request. Downloading or
+importing the archive creates no membership, scope, expert mandate or connection
+proof. A host-managed catalog listing is a separate publication surface.
+
+The static download is generated during application and preview builds. The
+preview package still points to the real Guteneo MCP endpoint; its download does
+not call that endpoint or make the fictional workspace a connected account.
+Actual import, OAuth and tool behavior must be qualified in the selected host.
+
 ## Package instructions have one maintained source
 
 Portable workflow instructions live under `integrations/guteneo/`. Host-specific
@@ -144,6 +158,22 @@ constraints are explicit overlays, including generated Claude copies. Keep these
 instructions synchronized with the actual tool schemas, annotations, document
 limits and recovery actions. Changing packaging metadata does not qualify a new
 host or activate an account.
+
+Every MCP update must update the ChatGPT package and downloadable archive in the
+same release. After reviewing the instructions, regenerate host overlays, increase
+the shared application/plugin release version and run `npm run sync:integrations`.
+The checked-in record binds that version to the package and MCP entrypoint/direct
+local imports. `npm run check:integrations` and package builds fail if the record
+is missing or stale; changing recorded content requires a newer release version.
+Dependencies beyond those direct imports still require semantic review.
+
+Rebuild through the normal package/site commands and compare the served ZIP with
+its release manifest after authorized publication. Never refresh the record to
+hide an unreviewed contract change. CI, reproducible archives and static browser
+downloads establish source consistency; they do not prove a real ChatGPT install,
+current consent, portal update or provider action. Revalidate the combined source
+after reconciliation with current `main`; older package results do not qualify it.
+See [CI and release evidence](/engineering/ci-and-release/).
 
 For lower-level representations, see [REST](/integrations/rest-api/). For the
 server checks that every client must respect, see [authority and tenancy](/architecture/authority-and-tenancy/).

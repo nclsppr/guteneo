@@ -1,8 +1,8 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
 # Guteneo feature tree and developer atlas
 
-**23 domains · 298 features · 34 journeys · 76 documented REST operations · 74 MCP tools**
-Updated 2026-10-25.
+**23 domains · 300 features · 34 journeys · 76 documented REST operations · 74 MCP tools**
+Updated 2026-10-26.
 
 Repository implementation inventory. Availability depends on current capabilities and authority; implementation, activation and deployed proof are distinct.
 
@@ -33,7 +33,7 @@ mindmap
       Workspace layout and browser appearance (21)
       PDF verification (10)
     Interfaces
-      Assistants and API (21)
+      Assistants and API (23)
       iPhone and iPad (9)
       Public pages, languages and appearance (17)
     Operations
@@ -73,7 +73,7 @@ mindmap
 
 ### Interfaces
 
-- [Assistants and API](#assistants) — 21 features; host-qualified.
+- [Assistants and API](#assistants) — 23 features; host-qualified.
 - [iPhone and iPad](#native) — 9 features; local-candidate.
 - [Public pages, languages and appearance](#public) — 17 features; public.
 
@@ -97,6 +97,7 @@ Four human workshop roles are defined by packages/contracts/src/roles.ts. The as
 
 | Capability | Administrator | Supervisor | Operator | Observer | Connected assistant |
 | --- | --- | --- | --- | --- | --- |
+| Download an assistant installation archive | Public access; no membership required | Public access; no membership required | Public access; no membership required | Public access; no membership required | No OAuth consent, membership, mandate or sending authority from the download |
 | Read accessible workshop content | Yes | Yes | Yes | Yes | Current member + consented scopes + document access |
 | Import and prepare | Yes | Yes | Yes | No | Current member + scopes + qualified channel/transport |
 | Reserve/transfer a private original PDF | Own connected OAuth writer + documents:write | Own connected OAuth writer + documents:write | Own connected OAuth writer + documents:write | No | Current writer + documents:write + actual original bytes; capability bound to one operation/connection/expiry, no read/send/approval authority |
@@ -661,7 +662,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 
 **Availability model:** host-qualified. Implemented contracts/packages; actual host compatibility, OAuth and marketplace publication need separate evidence.
 
-**Surfaces:** Web guides, REST/OpenAPI, MCP and host-specific installation packages.
+**Surfaces:** Public/account browser guides and generated static downloads; REST/OpenAPI, MCP and host-specific packages. Archive access creates no OAuth consent, membership, mandate or channel activation; native host installation remains separately qualified.
 
 - Discover actual account capabilities and limits
 - REST/OpenAPI and Streamable HTTP MCP catalogues
@@ -675,6 +676,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Only a browser administrator grants/revokes a mandate
 - Six portable package workflows with English metadata, deterministic archives and inventory checks; portal review/publication remains separately evidenced
 - Manual host-specific installation packages; downloading grants no OAuth consent
+- ChatGPT guide defaults to a generated plugin ZIP with a manual MCP alternative, shared across public/account views in four languages; native download links need no business API request or new authority
 - Exact registered callback/client per host; DCR/CIMD advertising alone never proves installation
 - Explicit MCP annotations disclose overwrites, archival, sharing revocation, generation cancellation, review-token replacement and batch freezing
 - Every advertised tool has four annotation booleans and per-tool evidence, audited through actual tools/list
@@ -684,10 +686,11 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - MCP bodies limited to 2 MiB and 120,000 elements; existing 100,000-cell business limit remains
 - Reproducible standalone Claude Code and relative-source local marketplace archives; six workflows without OpenAI metadata or tool preauthorisation
 - MCP custom-domain discovery and signed issuer snapshot preserve canonical data keys, legacy credentials, current postal/expert fences and unchanged scopes; host consent and refresh remain separately qualified
+- Every MCP change reviews and versions the ChatGPT package in the same release; CI/build compare recorded package and MCP direct-import fingerprints, then regenerate the downloadable archive and exact manifest hash; indirect behavior and actual host installation require separate review
 
 **Contract:** [MCP_CLIENT_COMPATIBILITY.md](MCP_CLIENT_COMPATIBILITY.md) · **Implementation:** [apps/api/src/mcp.ts](../apps/api/src/mcp.ts)
 
-**Tests:** [tests/unit/mcp-integrations.test.ts](../tests/unit/mcp-integrations.test.ts), [tests/unit/mcp-annotation-audit.test.ts](../tests/unit/mcp-annotation-audit.test.ts), [tests/integration/expert-approval.test.ts](../tests/integration/expert-approval.test.ts), [tests/unit/auth.test.ts](../tests/unit/auth.test.ts), [tests/integration/template-workflow.test.ts](../tests/integration/template-workflow.test.ts), [tests/unit/pdf-validation.test.ts](../tests/unit/pdf-validation.test.ts), [tests/security/integration-package.test.mjs](../tests/security/integration-package.test.mjs), [tests/security/claude-plugin.test.mjs](../tests/security/claude-plugin.test.mjs)
+**Tests:** [tests/unit/mcp-integrations.test.ts](../tests/unit/mcp-integrations.test.ts), [tests/unit/mcp-annotation-audit.test.ts](../tests/unit/mcp-annotation-audit.test.ts), [tests/integration/expert-approval.test.ts](../tests/integration/expert-approval.test.ts), [tests/unit/auth.test.ts](../tests/unit/auth.test.ts), [tests/integration/template-workflow.test.ts](../tests/integration/template-workflow.test.ts), [tests/unit/pdf-validation.test.ts](../tests/unit/pdf-validation.test.ts), [tests/security/integration-package.test.mjs](../tests/security/integration-package.test.mjs), [tests/security/claude-plugin.test.mjs](../tests/security/claude-plugin.test.mjs), [tests/security/integration-sync.test.mjs](../tests/security/integration-sync.test.mjs), [tests/security/preview-release-assets.test.mjs](../tests/security/preview-release-assets.test.mjs), [tests/preview-e2e/assistant-hub.spec.ts](../tests/preview-e2e/assistant-hub.spec.ts), [tests/e2e/assistant-hub.spec.ts](../tests/e2e/assistant-hub.spec.ts)
 
 **Documented REST operations**
 
@@ -1053,9 +1056,9 @@ Read accessible documents/dispatches → inspect tracking → use aggregate repo
 
 **Actor:** Existing Guteneo member and a host-supported OAuth client. **Branch:** Interfaces.
 
-Choose the host-specific installation guide → compare package version/hash → consent OAuth under actual host rules → read capabilities/current mandate → use only available file transport/tools → prepare → review through browser or pre-existing bounded delegation → track.
+Choose the host-specific guide → for ChatGPT download/import the plugin ZIP or choose manual MCP when unavailable → compare package version/hash → consent OAuth under actual host rules → verify read-only account capabilities/current mandate → use only available file transport/tools → prepare → review through browser or pre-existing bounded delegation → track.
 
-**Failure/recovery:** Host installation, token refresh and scopes grant no extra role or mandate. Announce excluded-content rules before collection and stop known excluded content. Respect host confirmations and no automatic unknown-outcome retries.
+**Failure/recovery:** Archive download/import creates no connection proof, extra role, scope or mandate. Missing host upload support uses the manual guide; OAuth failures require the actual registered client/callback, never a shared token. Announce excluded-content rules before collection and stop known excluded content. Respect host confirmations and no automatic unknown-outcome retries.
 
 [Detailed contract](LLM_SETUP.md).
 

@@ -112,6 +112,15 @@ Do not maintain an independent feature inventory or hand-edit generated MDX.
 Portable integration instructions are authored under `integrations/guteneo/`;
 generate host overlays through the existing synchronization script.
 
+When changing MCP behavior, include the ChatGPT plugin and downloadable archive
+in the same change. Review the actual schemas, annotations, permissions and
+recovery instructions; preserve current workflows and the existing identity.
+Follow [package maintenance](/integrations/mcp/#package-instructions-have-one-maintained-source)
+for the shared release-version update, host-copy generation, freshness record and
+build verification. A passing fingerprint check does not replace that review or
+authorize a portal update, merge or deployment. After rebasing, rerun relevant
+checks against the combined source; earlier branch evidence remains historical.
+
 Keep detailed operator evidence in the repository or its private evidence store.
 Engineering publishes curated explanations and a reviewed feature projection,
 not raw runbooks, credentials, account identities or test traces. Use one

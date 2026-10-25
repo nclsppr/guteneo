@@ -1,4 +1,4 @@
-# Assistants and direct sending — local candidate, 20 September 2026
+# Assistants and direct sending
 
 The assistant journey extends the isolated homepage candidate. The existing
 Luxembourg footer and homepage identity are retained. This document records
@@ -6,14 +6,56 @@ implementation and local validation; publication evidence is recorded
 separately against the deployed source commit. No external assistant connection,
 permission grant or real communication is performed by these checks.
 
+## ChatGPT archive candidate — 25 October 2026
+
+The ChatGPT guide now opens on **Plugin archive (ZIP)** with the generated
+`/integrations/guteneo-plugin.zip` download, import instructions and a read-only
+connection check. **MCP address** remains an alternative. Public and account
+surfaces reuse the four-language catalog; the archive requires no browser API
+call or additional membership right. Host import and OAuth remain separate user
+actions. The [synchronization contract](LLM_SETUP.md#mandatory-mcp-plugin-and-archive-synchronization)
+owns MCP/plugin versioning, archive freshness and release verification.
+
+The implementation was reconciled with current `main` for release `1.1.1` and
+revalidated locally on **26 October 2026**. The public-preview suite passed
+32/32 cases in 25.8 seconds on desktop Chromium and iPhone WebKit; dashboard UI
+fixtures passed 21/21 in 52.7 seconds across desktop/mobile Chromium and iPhone
+WebKit. Four-language checks compared actual download bytes with the manifest;
+the archive link remained available without JavaScript. The 34 MCP/package tests,
+13 synchronization/schema tests, 26 locale tests and 62 release/asset checks
+passed, as did typecheck, lint and the Worker dry-run. Documentation generation
+and consistency checks passed; the engineering site built all 54 documentation
+pages, its 28 authored MDX pages passed lint and four publication-boundary tests
+passed. These are local fixtures/builds, not hosted ChatGPT or production proof.
+
+The rebuilt `1.1.1` archive SHA-256 is
+`3be169cdabf76de8cc2cd14b01c75f346a46f7b693a877893fa25010f50e7e57`.
+A fresh desktop Chromium context at 1280 × 800 against local Wrangler preview,
+without throttling and with other validation jobs running, measured a 332 ms first
+contentful paint, 26 browser requests (25 resource requests), six script requests,
+415,881 script transfer bytes and 1,133,416 total resource transfer bytes. No
+backend request occurred. This is one environment-specific loading sample, not a
+measured improvement or a production performance claim. Evidence is archived in
+`/Users/nclsppr/.codex/artifacts/guteneo-chatgpt-archive-guide/rebased/`, including
+`guide-performance.json`. No merge, deployment, portal update or actual ChatGPT
+archive upload was performed by this validation.
+
+Earlier local tests of package `0.3.4`
+(28 public-preview cases, 21 dashboard fixtures, 32 package tests, 11 locale tests,
+six sync guards and 62 release/asset checks) ran before that reconciliation.
+Their archive SHA-256 was
+`d0205778a5f7171a29c74163b893b529ece6eaee423a5cc56f285cd4e52f5831`.
+Those reports remain historical at
+`/Users/nclsppr/.codex/artifacts/guteneo-chatgpt-archive-guide`; they do not qualify
+the new source, a real ChatGPT import, OAuth, marketplace publication or
+production deployment. September results below are historical as well.
+
 ## User journeys
 
-- MCP setup is the primary installation journey. It does not depend on a
-  Guteneo plugin being published in a host directory. Each guide separates
-  "Installer par MCP" from the currently unpublished directory plugin.
-  ChatGPT's Plugins menu can create a personal MCP connection; it is not
-  evidence of public directory publication. The advanced ZIP download is
-  explicitly labelled as a package for manual installation.
+- ChatGPT offers archive import first and manual MCP setup as an alternative.
+  Availability depends on the account and workspace policies. Other hosts retain
+  their own instructions. Downloading the generated ZIP grants no connection,
+  permission or expert mandate and implies no public directory publication.
 - `/assistants/` is public. Six guides cover ChatGPT, Claude, Grok, GitHub Copilot,
   Microsoft 365 Copilot and Cursor. GitHub Copilot has distinct VS Code and CLI
   instructions; Microsoft 365 is explicitly an administrator/agent workflow.
@@ -176,7 +218,7 @@ footer at desktop and mobile widths.
 - A verified tool exchange is narrower than PDF attachment transfer, document
   fidelity, approval, provider acceptance or delivery. None is inferred from
   a logo, guide visit, copied prompt or historical connection observation.
-- The guides are French. No complete multilingual guide parity is claimed.
+- September validation predates the four-language catalog. Current archive instructions use French, English, German and Luxembourgish; historical tests do not qualify their current rendering.
 - Prerendered routes and sitemap entries establish publication readiness;
   they do not establish production publication, crawling or indexing.
 - Production release remains a separate authorized operation, including the

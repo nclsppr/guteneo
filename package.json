@@ -1,6 +1,6 @@
 {
   "name": "guteneo",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "private": true,
   "type": "module",
   "engines": {
@@ -58,7 +58,9 @@
     "build:engineering": "node scripts/build-engineering.mjs",
     "check:engineering": "npm --prefix apps/engineering run typecheck && npm --prefix apps/engineering run lint:docs && node --test tests/security/engineering-site.test.mjs",
     "test:engineering": "playwright test --config playwright.engineering.config.ts",
-    "deploy:engineering": "node scripts/deploy-engineering.mjs"
+    "deploy:engineering": "node scripts/deploy-engineering.mjs",
+    "sync:integrations": "node integrations/sync.mjs",
+    "check:integrations": "node integrations/sync.mjs --check"
   },
   "dependencies": {
     "@cloudflare/puppeteer": "^1.4.0",

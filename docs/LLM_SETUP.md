@@ -96,6 +96,37 @@ publishes nothing.
 [Cursor format](https://cursor.com/docs/reference/plugins),
 [Claude Code format](https://code.claude.com/docs/en/plugins-reference).
 
+## Mandatory MCP, plugin and archive synchronization
+
+Every MCP update must update the ChatGPT plugin and its downloadable archive in
+the same change. Review the portable instructions, tool schemas and annotations,
+authentication, permissions, document limits and recovery behavior. Preserve the
+existing plugin identity and all current workflows. Installing the package adds
+no authority and does not activate a channel.
+
+1. Update the affected source instructions under `integrations/guteneo/`, then
+   regenerate Claude workflow copies with `node integrations/sync-claude-workflows.mjs`.
+2. Increase the shared application/plugin release version consistently across
+   root `package.json`, its lockfile entries, the portable/Claude/Cursor manifests
+   and the dedicated Claude manifest. The existing
+   [single-version contract](V1_RELEASE_CANDIDATE.md) still applies.
+3. Run `npm run sync:integrations` to record the reviewed version, package digest
+   and MCP source digests in `integrations/guteneo/mcp-contract.json`, then
+   `npm run check:integrations`. Changed recorded content requires a higher
+   release version. The check also runs in CI and during package builds.
+4. Run the changed contract/package tests and `npm run build:integrations`.
+   Application and preview builds regenerate their downloadable ZIP and manifest
+   from those same sources. Do not copy an old ZIP into a fresh release.
+5. After an authorized publication, follow [release verification](MAIN_RELEASE.md)
+   and compare the ZIP downloaded from the guide with the exact release manifest
+   SHA-256. Retain actual ChatGPT import/OAuth and portal-update proof separately.
+
+The automatic source scope is `apps/api/src/mcp.ts` and every direct local import,
+discovered by `integrations/sync.mjs`. Missing or stale metadata blocks the build.
+Indirect business/provider changes still require review of their MCP effects;
+a fingerprint does not establish semantic correctness. Package generation and
+CI create no marketplace submission, merge, deployment or human consent.
+
 ## Connecting hosts
 
 ### Shared OAuth and separate host qualification
@@ -124,17 +155,34 @@ transport rules. Server/SDK fixtures establish the server contract only.
 
 ### ChatGPT web
 
-1. Open Plugins, then `+` → **Add custom MCP server**.
-2. Name Guteneo, describe its use, enter `https://guteneo.com/mcp`.
-3. Configure OAuth, review permissions/warning, choose **Create as a plugin**.
-4. Check discovered tools, install, start a new conversation/select Guteneo
-   with `@`.
+The [Guteneo guide](https://guteneo.com/assistants/chatgpt/) offers **Plugin archive
+(ZIP)** first and **MCP address** as an alternative. The public guide and account
+reuse the same four-language catalog. Archive import depends on the account and
+workspace policies.
 
-This creates a personal server connection without public publication. Account/
-workspace rules apply. Current official guidance does not require developer
-mode universally. Custom MCP alone does not distribute all six skills;
-test the complete plugin separately through its local source/catalog. After
-server changes, use connection **Refresh**, then a new conversation.
+1. Download [guteneo-plugin.zip](https://guteneo.com/integrations/guteneo-plugin.zip)
+   and keep it zipped.
+2. Open ChatGPT Plugins, choose the archive-upload option when available, select
+   the file and inspect the displayed plugin information.
+3. Connect Guteneo through OAuth and review the requested permissions.
+4. Start a new conversation, select Guteneo and run the guide's read-only
+   capability check. A download or imported package does not prove connection.
+
+If archive upload is unavailable, select **MCP address** in the guide: Plugins →
+`+` → **Add custom MCP server**, name Guteneo, enter `https://guteneo.com/mcp`,
+configure the actual OAuth connection and choose **Create as a plugin**. Current
+host/account rules govern availability; developer mode is not universally
+required. A custom server connection alone does not distribute the bundled
+skills. After server changes, refresh the connection and open a new conversation;
+for package changes, download the current ZIP and use the host's existing-plugin
+update flow when offered. Preserve the existing identity.
+
+The 25 October archive-guide candidate targets release **1.1.1** after
+reconciliation with current `main`; its [26 October local validation](ASSISTANT_HUB.md#chatgpt-archive-candidate--25-october-2026)
+records the current archive and browser/build checks. Earlier local 0.3.4 results
+predate that reconciliation and do not qualify this candidate.
+No actual import, OAuth renewal, portal update or public directory publication is
+established by these instructions.
 [Official ChatGPT journey](https://developers.openai.com/plugins/deploy/connect-chatgpt).
 
 ### Claude web and Desktop

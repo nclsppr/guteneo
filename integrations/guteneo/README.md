@@ -8,7 +8,7 @@ connector picker displays these fields; if a manual logo field is available,
 use [this canonical PNG](https://guteneo.com/brand/guteneo-mark.png). Installing a
 logo or package grants no account access or approval.
 
-This directory prepares candidate **1.1.0**. Package version, application
+This directory prepares candidate **1.1.1**. Package version, application
 capabilities and MCP server identity follow the same source version; the release
 fingerprint identifies actually served code. Building an archive updates neither
 the server nor a directory. The builder also emits the dedicated
@@ -61,7 +61,7 @@ version/hash: the website and main may represent different versions.
 
 | Host                 | Installation and qualification boundary                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
 | -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| ChatGPT              | Plugins → `+` → **Add custom MCP server**; enter the server URL, configure OAuth, review permissions, then **Create as a plugin**. Check tools, install the created plugin and select it with `@` in a new conversation. Account/workspace policy applies; developer mode is not a universal prerequisite. Personal MCP connection alone does not distribute this archive's skills. [OpenAI guide](https://developers.openai.com/plugins/deploy/connect-chatgpt).                                                                                                          |
+| ChatGPT | Download `guteneo-plugin.zip` from the [Guteneo guide](https://guteneo.com/assistants/chatgpt/?lang=en). In ChatGPT’s plugin controls, choose archive upload when available and select the ZIP without extracting it. Connect Guteneo, review permissions and select it in a conversation. If archive upload is unavailable, follow the guide’s custom MCP server setup. Account/workspace policy applies; developer mode is not a universal prerequisite. Import, OAuth, tool access and directory publication remain separate. [OpenAI guide](https://developers.openai.com/plugins/deploy/connect-chatgpt). |
 | Claude web / Desktop | For MCP only, use [Connect to Claude](https://guteneo.com/assistants/claude/) or Customize → Connectors. For the full package: **Customize → Plugins → Add → Upload plugin**, then open **Connectors** in the plugin and connect Guteneo. Loading skills does not complete OAuth. [Claude plugins](https://claude.com/docs/plugins/overview).                                                                                                                                                                                                                              |
 | Claude Code          | From the repository: `claude --plugin-dir ./integrations/guteneo`, or `claude --plugin-url https://guteneo.com/integrations/guteneo-plugin.zip` without cloning. Use the real extracted path when applicable. Loading is session-scoped; open `/mcp` to connect. The dedicated Claude package documents its separate OAuth prerequisites. [Direct loading](https://code.claude.com/docs/en/plugins/create#develop-without-a-marketplace).                                                                                                                                  |
 | Grok web             | [Connectors](https://grok.com/connectors) → **New Connector → Custom**, add the MCP URL and complete authentication. Team policy may require administrator authorization. [Grok connectors](https://docs.x.ai/grok/connectors).                                                                                                                                                                                                                                                                                                                                            |
@@ -195,3 +195,11 @@ not redeclared inside the ZIP, preserving existing portal cases. Reviewer access
 stays in secure portal fields. Package preparation, submission, OpenAI approval
 and directory publication are separate. Current review evidence and open cases:
 [CHATGPT_MARKETPLACE.md](https://github.com/nclsppr/guteneo/blob/main/docs/CHATGPT_MARKETPLACE.md).
+
+## Package maintenance
+
+MCP changes must update the plugin and its downloadable archive in the same
+release. `mcp-contract.json` binds the package to its MCP source and packaged
+files; builds reject a stale record. Follow the versioning, synchronization and
+verification procedure in [LLM_SETUP.md](https://github.com/nclsppr/guteneo/blob/main/docs/LLM_SETUP.md).
+This check proves source consistency, not installation or hosted qualification.

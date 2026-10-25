@@ -86,9 +86,12 @@ export const releaseProfiles = Object.freeze({
     mode: "public-design-preview",
     publicPreview: true,
     scope: Object.freeze([
+      // The downloadable plugin is fingerprinted against MCP implementation sources.
+      "apps/api",
       "apps/web",
       "apps/preview",
       "packages",
+      "integrations",
       "scripts/build-preview.mjs",
       "wrangler.preview.jsonc",
       ...common,

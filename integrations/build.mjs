@@ -2,6 +2,8 @@ import { createHash } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { packageFiles } from "./package-files.mjs";
+import { validateIntegrationSync } from "./sync.mjs";
 import { AjvJsonSchemaValidator } from "@modelcontextprotocol/server/validators/ajv";
 import {
   claudeMarketplaceRoot,
@@ -12,30 +14,7 @@ import {
 } from "./claude/package.mjs";
 
 const root = dirname(fileURLToPath(import.meta.url));
-export const packageFiles = [
-  ".claude-plugin/plugin.json",
-  ".cursor-plugin/plugin.json",
-  ".mcp.json",
-  "README.md",
-  "scripts/upload-private-pdf.py",
-  "assets/guteneo-composer.png",
-  "assets/guteneo-mark.png",
-  "mcp.json",
-  "plugin.json",
-  "skills/email/SKILL.md",
-  "skills/pdf-accessibility/SKILL.md",
-  "skills/pdf-accessibility/agents/openai.yaml",
-  "skills/fax-pdf/SKILL.md",
-  "skills/fax-pdf/agents/openai.yaml",
-  "skills/get-started/SKILL.md",
-  "skills/get-started/agents/openai.yaml",
-  "skills/postal-pdf/SKILL.md",
-  "skills/postal-pdf/agents/openai.yaml",
-  "skills/document-studio/SKILL.md",
-  "skills/document-studio/references/template-authoring.md",
-  "skills/secure-distribution/SKILL.md",
-  "skills/secure-distribution/agents/openai.yaml",
-];
+export { packageFiles } from "./package-files.mjs";
 const configFiles = [
   "cursor-mcp.json",
   "cursor-static-oauth.json",
@@ -160,6 +139,7 @@ export function deterministicZip(entries) {
 export async function buildIntegrationPackage(
   outputDirectory = resolve(root, "../dist/integrations"),
 ) {
+  await validateIntegrationSync();
   await validateIntegrationPackage();
   const entries = await Promise.all(
     packageFiles.map(async (name) => ({
@@ -212,6 +192,9 @@ export async function buildIntegrationPackage(
     name: plugin.name,
     version: plugin.version,
     endpoint: "https://guteneo.com/mcp",
+    mcpSourceSha256: JSON.parse(
+      entries.find((entry) => entry.name === "mcp-contract.json").bytes,
+    ).mcpSourceSha256,
     archive: "guteneo-plugin.zip",
     sha256: createHash("sha256").update(archive).digest("hex"),
     bytes: archive.length,
