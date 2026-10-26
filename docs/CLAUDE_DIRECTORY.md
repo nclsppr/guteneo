@@ -41,12 +41,26 @@ and treat the filled fields as transient. A separate nonsecret JSON copy outside
 the repository preserves the listing answers; it is a reconstruction aid, not
 portal persistence or submission evidence.
 
+## Reviewer-account preparation — 26 October 2026
+
 The publisher explicitly authorized creation of a dedicated Guteneo account for
-Claude reviewers. Creation, seeding and access qualification are still pending; this
-decision is not evidence that an account exists. No reviewer credentials have
-been shared with Anthropic in this work. Keep credentials out of source control
-and listing backups; use the portal's designated private reviewer fields only
-after the account and access are qualified.
+Claude reviewers. Auth0 CLI reauthentication completed, and an authenticated
+`GET tenants/settings` confirmed access to the configured Guteneo tenant before
+the account was created in `Guteneo-Accounts`. Its initial flags were
+`email_verified: false` and `verify_email: false`.
+
+A D1 `prepare_only` restriction was installed for the canonical issuer and exact
+account subject, then read back with a matching count of one. No mandate, channel
+or credit was granted. A subsequent Auth0 `verification_email` job completed,
+and the confirmation email was observed in the publisher-owned review mailbox.
+Address verification is still pending the publisher's confirmation action.
+
+Two synthetic input fixtures are prepared outside the repository but have not
+been uploaded. Workspace setup, sample seeding and actual reviewer access
+qualification remain pending. No reviewer credentials have been shared with
+Anthropic in this work. Keep credentials out of source control and listing
+backups; use the portal's designated private reviewer fields only after the
+account and access are qualified.
 
 ## Public links checked during preparation
 
@@ -79,7 +93,9 @@ acceptance.
    tool set. A local test or candidate archive does not prove that the served
    catalog changed or that the scan passed.
 4. **Qualify isolated reviewer access.** Use a dedicated, populated review account
-   with synthetic data and bounded authority. Record each exposed tool's
+   with synthetic data and bounded authority. Complete the created account's
+   pending address verification, workspace setup and synthetic sample seeding.
+   Record each exposed tool's
    Inspector and Claude result, required setup and recovery. Preserve approval
    and provider gates; do not send a real communication or enable a mandate to
    complete a test checkbox. Historical partial host evidence does not replace
