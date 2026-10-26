@@ -1,5 +1,6 @@
 import { expect, test, type Page } from "./fixtures";
 import type { APIResponse, Locator, Route } from "@playwright/test";
+import { enterInitialText } from "./initial-input";
 import {
   workspacePermissions,
   type WorkspaceRole,
@@ -381,18 +382,7 @@ test("V2 prepares through the existing API and requires explicit consent before 
   try {
     await page.goto("/#/app/prepare?channel=email");
     // Exercise one user gesture while both real initial replies remain pending.
-    if (hasTouch) {
-      await recipient.tap();
-      await recipient.pressSequentially(expectedEmail);
-    } else await recipient.fill(expectedEmail);
-    expect(
-      await recipient.evaluate(
-        (input: HTMLInputElement, expected) =>
-          input.value === expected && document.activeElement === input,
-        expectedEmail,
-      ),
-      "The single recipient gesture must leave the exact fixture focused",
-    ).toBe(true);
+    await enterInitialText(recipient, expectedEmail, hasTouch, "V2 recipient");
     // Do not wait for initial data before typing. Publish its unchanged replies
     // only after the original entry, then check that loading preserves it.
     await bothFetched;

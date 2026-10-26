@@ -1,5 +1,6 @@
 import { test, expect, type Page } from "./fixtures";
 import { PDFDocument } from "pdf-lib";
+import { enterInitialText } from "./initial-input";
 
 const origin = "http://localhost:8787";
 
@@ -261,14 +262,15 @@ test("cancelling a prepared send asks for confirmation first", async ({
 
 test("the send ceiling is typed in euros and fax separators are removed", async ({
   page,
+  hasTouch,
 }) => {
   await login(page);
   const document = await importPdf(page, "ceiling-euros.pdf");
   await page.goto(`/#/app/prepare?document=${document.id}`);
   // "(0)" is the optional trunk prefix: accepted while typing, then dropped.
-  await page
-    .getByLabel("Numéro de fax international")
-    .fill("+33 (0)1 00 00 00 00");
+  const phone = page.getByLabel("Numéro de fax international");
+  const expectedPhone = "+33 (0)1 00 00 00 00";
+  await enterInitialText(phone, expectedPhone, hasTouch, "Fax recipient");
   const ceiling = page.getByLabel("Plafond de cet envoi, en euros", {
     exact: true,
   });
@@ -278,6 +280,13 @@ test("the send ceiling is typed in euros and fax separators are removed", async 
   await ceiling.fill("");
   await ceiling.pressSequentially("1,5");
   await expect(ceiling).toHaveValue("1,5");
+  expect(
+    await phone.evaluate(
+      (input: HTMLInputElement, expected) => input.value === expected,
+      expectedPhone,
+    ),
+    "The original fax recipient must remain exact before submission",
+  ).toBe(true);
   const request = page.waitForRequest(
     (candidate) =>
       candidate.url().endsWith("/api/dispatches") &&
@@ -288,7 +297,10 @@ test("the send ceiling is typed in euros and fax separators are removed", async 
     recipient: { phone: string };
     ceilingMinor: number;
   };
-  expect(body.recipient.phone).toBe("+33100000000");
+  expect(
+    body.recipient.phone === "+33100000000",
+    "The preparation payload must retain the exact normalized fax recipient",
+  ).toBe(true);
   expect(body.ceilingMinor).toBe(150);
 });
 

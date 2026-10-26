@@ -76,11 +76,13 @@ The XML test still requires both original PDFs and zero sending; terminal
 failure stops polling without weakening those assertions. See
 [testing evidence](/engineering/testing/) for the dated unexplained incident.
 
-V2 consent qualification also checks one actual input gesture and exact recipient
-retention while real document/sender responses arrive, using trusted touch/keys
-on touch projects and one desktop fill. It never repairs the field by refilling,
-weakens consent, extends timeouts or infers a product-state cause from a failed
-input trace. The [testing guide](/engineering/testing/) keeps the host/timing limits.
+V2 consent and fax-ceiling qualification share one actual input gesture: trusted
+touch/keys on touch projects and one desktop fill, with exact value/focus checks.
+V2 additionally checks retention after unchanged real document/sender replies;
+fax retains its original timing and exact normalized phone/150-cent assertions.
+Neither refills a missing value, weakens consent, extends timeouts or infers a
+product-state cause from the failed input traces. The
+[testing guide](/engineering/testing/) keeps the distinct incidents and limits.
 
 Maintain `scripts/ci/browser-results.mjs`, the workflow matrix and its security
 tests together. Adding a browser, suite or shard requires the matching inventory,

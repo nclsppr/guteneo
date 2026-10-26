@@ -57,13 +57,21 @@ fill, one trusted tap plus sequential keyboard entry, and one fill followed by
 release of the two real held document/sender GET responses. They did not reproduce
 Linux or a response arriving during insertion, and establish no historical cause.
 
-The regression uses one trusted tap plus sequential keyboard entry on touch
-projects and one fill on desktop. It retains the real two GET responses until
-after that single gesture, releases their unchanged bodies, then checks exact
-input retention and the dispatch recipient. No refill, automatic retry, fixed
-sleep, longer timeout or consent/sending assertion is added or removed. Derived
-boolean diagnostics avoid printing recipients. This qualifies a real input path
-and data-arrival retention; it is not a claimed product-state repair. Required
+Run 40246543758 passed that V2 scenario but failed a different fax-ceiling case:
+the first phone field remained empty after its fill, while the typed decimal
+comma and selected PDF were retained. Native validation again prevented a POST.
+No JavaScript exception or source-driven reset explained the missing input, and
+nearby data replies alone establish no cause. Preserve this separate failure.
+
+The two scenarios share one input helper: one trusted tap plus sequential
+keyboard entry on touch projects, and one fill on desktop. Each checks the exact
+value and focus after entry and the exact value before submission, without
+printing the recipient. Only the V2 scenario holds its two real GET replies until
+after the gesture and releases their unchanged bodies. The fax scenario retains
+its original request timing, literal typed `1,5`, normalized phone and exact
+150-cent POST assertions. No refill, automatic retry, fixed sleep, longer timeout
+or business assertion removal is allowed. This qualifies the intended input
+path, not a claimed product-state repair or paste qualification. Required
 exact-source PR and merged-main checks remain complete.
 
 ## Checkout optimization — 9 October 2026 candidate

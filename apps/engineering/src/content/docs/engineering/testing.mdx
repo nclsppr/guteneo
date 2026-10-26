@@ -178,9 +178,10 @@ an isolated same-source macOS run passed. Linux and preceding shard state were n
 reproduced, so the cause remains unknown. Preserve both results. A new exact-source
 CI pass qualifies that execution, not a claimed repair of the unexplained failure.
 
-The V2 preparation scenario also verifies the actual recipient input before
-submitting. Touch projects use one trusted tap and sequential keyboard entry;
-desktop uses one fill. The two real local document/sender GET responses are held
+The V2 preparation and fax-ceiling scenarios share a test input helper. Touch
+projects use one trusted tap and sequential keyboard entry; desktop uses one
+fill. Both require the exact value and focus after entry and the exact value
+before submitting. In V2 only, the real document/sender GET responses are held
 until after the gesture, then delivered unchanged to check that background data
 does not discard the value. Exact input and dispatch-recipient equality are
 reported as booleans rather than recipient text. There is no refill, automatic
@@ -191,3 +192,12 @@ The original fill, keyboard and controlled-arrival macOS experiments passed, but
 did not reproduce Linux or data arriving during insertion. Keep that limit:
 input-path qualification does not prove the cause was repaired, and no product
 state mutation is justified by the GET timing alone.
+
+Run 40246543758 passed V2 but failed the separate fax-ceiling case: the phone
+field was empty just after its fill, while the typed decimal comma and selected
+PDF remained. No dispatch POST occurred. Neither a nearby data reply nor a
+missing JavaScript exception proves the cause. The fax test adds no data wait or
+interception: its `1,5` keyboard entry, unchanged normalized phone, exact 150-cent
+POST and original timeouts remain required. The shared helper qualifies native
+touch/keyboard input; it does not claim to repair that historical failure or
+qualify clipboard/paste behavior.
