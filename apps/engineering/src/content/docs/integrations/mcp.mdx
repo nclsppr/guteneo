@@ -47,7 +47,7 @@ prove that the host completed OAuth or can transfer an attached PDF.
 | Stage                     | Representative tools                                                            | Required distinction                                                       |
 | ------------------------- | ------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
 | Understand available work | `get_capabilities`, `get_expert_status`                                         | Availability/blockers are read, never activated by the read                |
-| Import or generate        | `import_document`, `begin_document_upload`, `get_document_upload`, `render_pdf` | Original-byte import and creation of a new PDF are different operations    |
+| Import or generate        | `import_document`, `begin_document_upload`, `import_inline_pdf`, `get_document_upload`, `render_pdf` | Original-byte import and creation of a new PDF are different operations    |
 | Inspect readiness/content | `get_document`, `read_document_pages`                                           | Quarantine and complete-page review cannot be replaced by a text summary   |
 | Prepare delivery          | `prepare_fax` and channel-specific workflows                                    | Preparation does not approve or send                                       |
 | Optional delegated review | `review_dispatch`                                                               | Requires existing authority; complete review replaces the prior token      |
@@ -94,7 +94,20 @@ it installs no packages and acquires no OAuth tokens. Its runtime must have
 explicit access to the original and permission to reach Guteneo. Native Windows,
 a mobile filesystem and a browser widget are not implicit helper targets. Other
 uploaders need equivalent qualification under the same binary contract. Never
-extract a host's token cache, reconstruct the PDF or expand it into MCP base64.
+extract a host's token cache or reconstruct the PDF.
+
+Some hosts expose an original file to code while restricting that runtime's
+network separately from MCP. The `import_inline_pdf` candidate provides a small
+fallback: at most 64 KiB of unchanged original bytes, encoded by code as canonical
+base64 with actual size/SHA-256 and one stable idempotency key. The server validates
+before reserving, then uses the same 0061 claim, SQL authority/expiry fences,
+quota, private ACL and scanner pipeline internally without a network fetch. It
+returns no capability or original bytes and grants no approval or sending right.
+The existing 2 MiB MCP request bound remains; binary transfer still has its own
+10 MiB limit. Do not split the original, truncate it, raise bounds or echo/log its
+encoding. Inline tool arguments consume host context and need explicit original-
+file permission and actual-client qualification. Larger files require a different
+qualified transport, and a physical iPhone remains a distinct test surface.
 
 If the response is lost, read the same upload ID to reconcile it. Do not repeat
 the PUT, reserve a second import or infer failure from a timeout. Native host

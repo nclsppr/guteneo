@@ -214,17 +214,79 @@ test("XML records determine each PDF channel and recipient without sending", asy
     .click();
   await expect(page).toHaveURL(/#\/app\/generation\/gen_/);
   const jobId = page.url().split("/generation/")[1];
+  let generation: GenerationJobView | undefined;
   await expect
     .poll(
-      async () =>
-        (
-          (await (
-            await page.request.get(`/api/generation-jobs/${jobId}`)
-          ).json()) as GenerationJobView
-        ).generated,
+      async () => {
+        const response = await page.request.get(
+          `/api/generation-jobs/${jobId}`,
+        );
+        expect(response.status()).toBe(200);
+        generation = (await response.json()) as GenerationJobView;
+        return (
+          generation.generated === 2 ||
+          (generation.pending === 0 &&
+            ["failed", "partial", "cancelled"].includes(generation.state))
+        );
+      },
       { timeout: 90000 },
     )
-    .toBe(2);
+    .toBe(true);
+  if (generation!.generated !== 2) {
+    const results = await page.request.get(
+      `/api/generation-jobs/${jobId}/results?limit=2`,
+    );
+    const errorCodes = new Set([
+      "GENERATION_FAILED",
+      "TEMPLATE_RENDER_FAILED",
+      "CONTENT_QUOTA_EXCEEDED",
+      "GENERATION_CANCELLED",
+      "TEMPLATE_ARCHIVED",
+      "FORBIDDEN",
+      "GENERATION_RETRY_EXHAUSTED",
+      "GENERATION_ARTIFACT_MISSING",
+      "GENERATION_ARTIFACT_INTEGRITY",
+    ]);
+    const states = new Set([
+      "queued",
+      "running",
+      "generated",
+      "failed",
+      "cancelled",
+      "partial",
+      "completed",
+    ]);
+    const boundedCount = (value: number) =>
+      Number.isInteger(value) && value >= 0 && value <= 500 ? value : null;
+    const records = results.ok()
+      ? ((await results.json()) as { items: GenerationResultView[] }).items
+          .slice(0, 2)
+          .map((record, ordinal) => ({
+            ordinal,
+            state: states.has(record.state) ? record.state : "unknown",
+            attempts: boundedCount(record.attempts),
+            errorCode:
+              record.errorCode === null
+                ? null
+                : errorCodes.has(record.errorCode)
+                  ? record.errorCode
+                  : "other",
+          }))
+      : [];
+    const diagnostic = JSON.stringify({
+      state: states.has(generation!.state) ? generation!.state : "unknown",
+      generated: boundedCount(generation!.generated),
+      failed: boundedCount(generation!.failed),
+      pending: boundedCount(generation!.pending),
+      resultsStatus: results.status(),
+      records,
+    });
+    expect(
+      generation!.generated,
+      `Terminal generation outcome: ${diagnostic}`,
+    ).toBe(2);
+  }
+  expect(generation!.generated).toBe(2);
   await page
     .getByRole("button", { name: "Actualiser le suivi", exact: true })
     .click();

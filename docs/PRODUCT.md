@@ -27,6 +27,14 @@ and document policy still apply. Migration 0061 and the bounded
 on iPhone remains independently unqualified; a mobile attachment preview or a
 successful desktop helper does not prove this journey there.
 
+The small-original inline candidate serves a runtime that holds the original but
+cannot reach Guteneo. One `import_inline_pdf` call carries at most64KiB with
+code-computed size/SHA-256 and canonical base64 through current OAuth. The server
+validates before reserving and uses the same 0061 quota, exact-byte, private ACL,
+scanner and recovery gates. It adds no scope, migration, approval or send. The
+2 MiB MCP bound stays unchanged; this is not the 10 MiB binary route. Host context,
+exact payload delivery and physical-iPhone qualification remain independent.
+
 ## Interface candidate — 25 October 2026
 
 The public site has a concise homepage and dedicated How it works, Pricing,

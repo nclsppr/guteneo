@@ -1260,6 +1260,35 @@
       ]
     },
     {
+      "name": "import_inline_pdf",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Validates a bounded original then reserves and consumes the existing creator-private document import. Successful production calls can also update connection activity.",
+        "destructiveHint": "Same-key recovery can remove only this attempt’s unregistered temporary object after its writer is fenced; no registered document, approval or dispatch is deleted.",
+        "openWorldHint": "Original bytes are supplied in the bounded authenticated MCP request and enter the existing Guteneo private document pipeline. No arbitrary network source or destination is accepted.",
+        "idempotentHint": "One key preserves one import/claim, but recovery and connection activity can advance durable state; the complete tool call is not guaranteed to have no additional effects."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"import_inline_pdf\""
+        },
+        {
+          "path": "apps/api/src/document-upload.ts",
+          "symbol": "async importInlinePdf("
+        },
+        {
+          "path": "tests/integration/private-document-upload.test.ts",
+          "symbol": "private original PDF transport with real D1/R2 and document pipeline"
+        }
+      ]
+    },
+    {
       "name": "import_json_dataset",
       "annotations": {
         "readOnlyHint": false,

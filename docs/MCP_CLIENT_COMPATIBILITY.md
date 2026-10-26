@@ -20,8 +20,8 @@ Every client must separately establish:
 
 1. Discovery, exact client registration and normal OAuth consent.
 2. An authenticated low-impact tool call with the intended workspace membership.
-3. Original PDF bytes, either a host-authorized native download source or an
-   explicitly authorized runtime with filesystem access and permitted HTTPS PUT.
+3. Original PDF bytes: a host-authorized native download source, an authorized
+   runtime with permitted binary PUT, or the bounded inline original transport.
 4. Matching original and stored SHA-256/size, followed by ready analysis on the
    same document ID. An attachment summary or regenerated PDF does not qualify.
 5. Correct channel preparation and the existing approval boundary, independently
@@ -43,8 +43,17 @@ runtime that actually holds the original. The private bridge requires no
 download URL. The native envelope path can retain a host-authorized temporary
 URL accessible under the existing direct HTTPS import contract, without custom
 cookies or Authorization headers. Never publish a private PDF to manufacture
-such a URL, reconstruct it from extracted text or place its base64 into large
-MCP arguments.
+such a URL or reconstruct it from extracted text.
+
+When the runtime has the original but cannot reach Guteneo, the separate
+`import_inline_pdf` candidate accepts one exact original of at most 64 KiB through
+MCP. Compute its actual size/SHA-256 and canonical base64 using code, then use one
+stable-key invocation. The server validates before reserving and reuses the same
+private scanner/authority/quota pipeline. It adds no runtime egress exception and
+keeps the 2 MiB MCP body limit unchanged. This route consumes more host context;
+do not chunk, truncate or raise its bound. Larger originals need another qualified
+transport. Neither tool discovery nor a successful local test proves that the
+actual host can carry an encoded payload intact.
 
 The returned reference uploader currently requires **POSIX Python 3.9+**. Linux
 cloud runtimes and macOS are candidates; Windows native, a mobile filesystem and
@@ -83,9 +92,9 @@ when they share account configuration.
 
 | Client                                   | Connection route                                                                                                            | Original-file candidate and remaining check                                                                                                                                                                     |
 | ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Claude on iPhone / iPad                  | Remote connector; mobile use is documented.                                                                                 | Cloud code/file execution is documented on mobile. Confirm the attached original is mounted and that this account permits PUT to Guteneo; qualify on a physical device. No desktop extension on the phone.      |
-| Claude web                               | Custom remote connector with its own OAuth flow.                                                                            | Same cloud-original and egress checks, then exact private transfer. Workspace network restrictions can differ from personal accounts.                                                                           |
-| Claude Desktop / Cowork                  | Remote connector; local extensions are a distinct installation.                                                             | Qualify the selected cloud or explicitly authorized local runtime; a local filename is not remotely readable. Do not reuse a local-extension pass for mobile.                                                   |
+| Claude on iPhone / iPad                  | Remote connector; mobile use is documented.                                                                                 | Cloud file/code access is documented. Qualify the exact original and permitted binary PUT or bounded inline original up to 64 KiB on the physical device. No desktop extension on the phone.      |
+| Claude web                               | Custom remote connector with its own OAuth flow.                                                                            | Qualify the cloud original plus native, permitted binary or bounded inline transfer. Network controls and available settings vary by account; do not assume a custom-domain allowlist on Free.                                                                           |
+| Claude Desktop / Cowork                  | Remote connector; local extensions are a distinct installation.                                                             | A real Free cloud runtime exposed the exact 1,268-byte synthetic original; its Guteneo GET failed DNS before HTTP. Binary/inline transfer and readiness remain separate. Desktop does not qualify mobile.                                                   |
 | Claude Code                              | Remote HTTP MCP and its normal authentication flow.                                                                         | Authorized original in its actual working environment, POSIX helper or independently qualified uploader; inspect host confirmations and file exclusions.                                                        |
 | ChatGPT web                              | Remote MCP-backed plugin and account/workspace permissions.                                                                 | Retain native file-envelope import. Feature-detect widget file APIs when a widget is actually available; otherwise require original-file runtime and allowed egress. Plugin installation alone is insufficient. |
 | ChatGPT on iPhone / iPad                 | The actual mobile app must expose the installed Guteneo connection.                                                         | Test native attachment authorization, exact file handoff and available controls on the physical app. Web, desktop, API and WebKit results do not establish this.                                                |

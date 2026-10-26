@@ -20,6 +20,15 @@ activation. [Private upload](PRIVATE_DOCUMENT_UPLOAD.md) owns the contract.
 Physical Claude iPhone OAuth/renewal/file-transfer proof is still absent and must
 not be inferred from public metadata or web/Desktop/Code fixtures.
 
+A separate small-original candidate adds `import_inline_pdf` for an actual
+runtime with original bytes but no Guteneo egress. Its one MCP invocation is
+bounded to 64 KiB raw, with strict canonical base64/size/SHA validation before
+reservation. It reuses 0061 internally with unchanged claims, SQL authority/time
+fences, quota, scanner and recovery, and needs no migration or new scope. Keep
+the existing 2 MiB MCP and 10 MiB binary bounds separate. Real host encoding/transfer
+and a physical iPhone still require independent proof; source tests and the
+observed original-byte access alone do not establish a completed import.
+
 ## Interface and loading handoff — 25 October 2026
 
 Implemented candidate contracts:

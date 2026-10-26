@@ -163,3 +163,41 @@ Use private, untracked artifact destinations for diagnostic logs, screenshots an
 traces. Review sanitized summaries before any public publication. Never collect
 actual documents, recipient addresses, credentials or signed URLs merely to prove
 that instrumentation works.
+
+Generation failures in local simulation now retain a finite phase and exception
+category through the captured error channel. This is diagnostic metadata only:
+no raw exception, content, recipient, URL, SQL value, credential or customer ID.
+Both local environment and simulation mode are required; production emits none.
+Do not change claims, processing, timeouts or retry rules to obtain diagnostics.
+
+The XML regression still requires two exact generated PDFs with their original
+channel/recipient/options and zero sending. A terminal failed/partial batch must
+fail with bounded state/counters rather than consume the remaining polling time.
+The 25 October main run 40241350392 failed one record before its artifact existed;
+an isolated same-source macOS run passed. Linux and preceding shard state were not
+reproduced, so the cause remains unknown. Preserve both results. A new exact-source
+CI pass qualifies that execution, not a claimed repair of the unexplained failure.
+
+The V2 preparation and fax-ceiling scenarios share a test input helper. Touch
+projects use one trusted tap and sequential keyboard entry; desktop uses one
+fill. Both require the exact value and focus after entry and the exact value
+before submitting. In V2 only, the real document/sender GET responses are held
+until after the gesture, then delivered unchanged to check that background data
+does not discard the value. Exact input and dispatch-recipient equality are
+reported as booleans rather than recipient text. There is no refill, automatic
+retry, fixed sleep, longer timeout or relaxed consent/sending assertion.
+
+This followed an empty required field that blocked any POST in PR run 40243121283.
+The original fill, keyboard and controlled-arrival macOS experiments passed, but
+did not reproduce Linux or data arriving during insertion. Keep that limit:
+input-path qualification does not prove the cause was repaired, and no product
+state mutation is justified by the GET timing alone.
+
+Run 40246543758 passed V2 but failed the separate fax-ceiling case: the phone
+field was empty just after its fill, while the typed decimal comma and selected
+PDF remained. No dispatch POST occurred. Neither a nearby data reply nor a
+missing JavaScript exception proves the cause. The fax test adds no data wait or
+interception: its `1,5` keyboard entry, unchanged normalized phone, exact 150-cent
+POST and original timeouts remain required. The shared helper qualifies native
+touch/keyboard input; it does not claim to repair that historical failure or
+qualify clipboard/paste behavior.

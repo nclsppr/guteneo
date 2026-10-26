@@ -39,6 +39,15 @@ export const privateUploadInput = z
   })
   .strict();
 export type PrivateUploadInput = z.infer<typeof privateUploadInput>;
+export const INLINE_PDF_BYTES = 64 * 1024;
+export const inlinePdfInput = privateUploadInput.extend({
+  size: z.number().int().min(20).max(INLINE_PDF_BYTES),
+  base64: z
+    .string()
+    .min(28)
+    .max(4 * Math.ceil(INLINE_PDF_BYTES / 3)),
+});
+export type InlinePdfInput = z.infer<typeof inlinePdfInput>;
 type UploadRow = {
   id: string;
   organization_id: string;
@@ -89,6 +98,7 @@ export type PrivateUploadView = {
     client: typeof privateUploadClient;
   };
 };
+export type PrivateUploadReceipt = Omit<PrivateUploadView, "upload">;
 const iso = () => new Date().toISOString();
 const deny = () =>
   new AuthError(
@@ -101,6 +111,12 @@ const fail = (code: string, message: string, status = 409) =>
 function secret() {
   return Array.from(crypto.getRandomValues(new Uint8Array(32)), (byte) =>
     byte.toString(16).padStart(2, "0"),
+  ).join("");
+}
+async function digest(bytes: Uint8Array<ArrayBuffer>) {
+  return Array.from(
+    new Uint8Array(await crypto.subtle.digest("SHA-256", bytes)),
+    (byte) => byte.toString(16).padStart(2, "0"),
   ).join("");
 }
 export function privateUploadPath(path: string) {
@@ -380,6 +396,73 @@ export class PrivateDocumentUploadService {
       await this.reconcile(await this.owned(identity, uploadId)),
     );
   }
+  async importInlinePdf(
+    identity: McpIdentity,
+    value: InlinePdfInput,
+    signal?: AbortSignal,
+  ): Promise<PrivateUploadReceipt> {
+    requireScope(identity, "documents:write");
+    signal?.throwIfAborted();
+    const { base64, ...input } = inlinePdfInput.parse(value);
+    if (
+      !/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(
+        base64,
+      )
+    )
+      throw fail(
+        "INLINE_PDF_ENCODING_INVALID",
+        "Use canonical standard base64 of the selected original PDF, without whitespace or a data URI.",
+        422,
+      );
+    const binary = atob(base64);
+    if (btoa(binary) !== base64)
+      throw fail(
+        "INLINE_PDF_ENCODING_INVALID",
+        "The original PDF base64 encoding is not canonical.",
+        422,
+      );
+    const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
+    if (
+      bytes.byteLength !== input.size ||
+      (await digest(bytes)) !== input.sha256
+    )
+      throw fail(
+        "INLINE_PDF_INTEGRITY_MISMATCH",
+        "Compute the byte size and SHA-256 against the selected original PDF. Do not repair, reconstruct or retry it with a new key.",
+        422,
+      );
+    if (binary.slice(0, 5) !== "%PDF-")
+      throw fail(
+        "INLINE_PDF_NOT_PDF",
+        "The selected original is not a PDF.",
+        422,
+      );
+    signal?.throwIfAborted();
+    // Reuse the same durable reservation, claim, quota and exact-byte pipeline.
+    // The upload-only grant remains in server memory, never in this tool's result.
+    const { upload, ...reservation } = await this.begin(identity, input);
+    if (!upload) return reservation;
+    signal?.throwIfAborted();
+    const received = await this.receive(
+      new Request(upload.url, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/pdf",
+          "Content-Length": String(bytes.byteLength),
+          [PRIVATE_UPLOAD_HEADER]: upload.capability,
+        },
+        body: bytes,
+        signal,
+      }),
+    );
+    await received.body?.cancel().catch(() => {});
+    const { upload: unusedGrant, ...receipt } = await this.get(
+      identity,
+      reservation.uploadId,
+    );
+    void unusedGrant;
+    return receipt;
+  }
   private async result(identity: McpIdentity, row: UploadRow) {
     const result = await this.view(row);
     await postalMcpAuthority(identity, this.env, "documents:write");
@@ -599,13 +682,7 @@ export class PrivateDocumentUploadService {
       );
       if (
         bytes.byteLength !== row.expected_size ||
-        (await crypto.subtle
-          .digest("SHA-256", bytes as Uint8Array<ArrayBuffer>)
-          .then((hash) =>
-            Array.from(new Uint8Array(hash), (b) =>
-              b.toString(16).padStart(2, "0"),
-            ).join(""),
-          )) !== row.expected_sha256
+        (await digest(bytes as Uint8Array<ArrayBuffer>)) !== row.expected_sha256
       )
         throw fail(
           "UPLOAD_INTEGRITY_MISMATCH",

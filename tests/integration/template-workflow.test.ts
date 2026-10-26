@@ -3133,6 +3133,164 @@ describe("Persistent template workflow — local D1/R2 with explicitly synthetic
       db.prepare("UPDATE distribution_plans SET manifest_json='[]'").run(),
     ).rejects.toThrow("immutable_distribution_plan");
   });
+  it("reports only a finite local renderer failure category and preserves its failed outcome", async () => {
+    const privateMarker = "private-content-recipient-token-sql-url-client-id";
+    const generation = await job([
+      {
+        recordId: privateMarker,
+        data: {
+          name: privateMarker,
+          email: "private@example.invalid",
+          phone: "+35242123456",
+        },
+      },
+    ]);
+    const transport = vi.fn(async () => {
+      throw new TypeError(privateMarker, {
+        cause: new Error(
+          `D1_ERROR: database is locked: SQLITE_BUSY ${privateMarker}`,
+        ),
+      });
+    });
+    env.DOCUMENT_RENDERER = { fetch: transport } as unknown as Fetcher;
+    const stderr = vi.spyOn(console, "error").mockImplementation(() => {});
+    try {
+      await service.processPending(1);
+      expect(transport).toHaveBeenCalledTimes(1);
+      expect(stderr).toHaveBeenCalledTimes(1);
+      expect(JSON.parse(stderr.mock.calls[0][0] as string)).toEqual({
+        schema: 1,
+        component: "template_workflow",
+        event: "generation_record_failure",
+        ordinal: 0,
+        attempt: 1,
+        phase: "renderer_fetch",
+        category: "type_error",
+        causeCategory: "sqlite_busy",
+      });
+      expect(JSON.stringify(stderr.mock.calls)).not.toContain(privateMarker);
+      expect(await service.getGeneration(owner, generation.id)).toMatchObject({
+        state: "failed",
+        generated: 0,
+        failed: 1,
+        pending: 0,
+      });
+      expect(
+        (await service.generationResults(owner, generation.id)).items[0],
+      ).toMatchObject({
+        state: "failed",
+        attempts: 1,
+        errorCode: "GENERATION_FAILED",
+        documentId: null,
+        documentHash: null,
+      });
+      expect(await count("documents")).toBe(0);
+      expect(await service.processPending(1)).toEqual({ processed: 0 });
+      expect(transport).toHaveBeenCalledTimes(1);
+      expect(stderr).toHaveBeenCalledTimes(1);
+    } finally {
+      stderr.mockRestore();
+    }
+  });
+  it("distinguishes an artifact-store failure without emitting any successful-record event", async () => {
+    const generation = await job();
+    const originalPut = bucket.put.bind(bucket);
+    let stored = false;
+    const storage = {
+      ...env,
+      DOCUMENTS: {
+        put: (...args: Parameters<R2Bucket["put"]>) => {
+          if (!stored) {
+            stored = true;
+            throw new Error("private R2 payload", {
+              cause: { code: "ECONNRESET", message: "private URL" },
+            });
+          }
+          return originalPut(...args);
+        },
+      },
+    } as unknown as Env;
+    // The first record fails before registration; the second keeps the same pipeline.
+    const workflow = new TemplateWorkflowService(storage, domain);
+    const stderr = vi.spyOn(console, "error").mockImplementation(() => {});
+    try {
+      await workflow.processPending(2);
+      expect(stderr).toHaveBeenCalledTimes(1);
+      expect(JSON.parse(stderr.mock.calls[0][0] as string)).toMatchObject({
+        phase: "artifact_store",
+        category: "error",
+        causeCategory: "connection_reset",
+      });
+      expect(await workflow.getGeneration(owner, generation.id)).toMatchObject({
+        state: "partial",
+        generated: 1,
+        failed: 1,
+        pending: 0,
+      });
+      expect(renders).toBe(2);
+    } finally {
+      stderr.mockRestore();
+    }
+  });
+  it.each([
+    { environment: "staging", mode: "simulation" },
+    { environment: "production", mode: "simulation" },
+    { environment: "local", mode: "production" },
+    { environment: "production", mode: "production" },
+  ] as const)(
+    "never emits the local failure event in $environment/$mode",
+    async ({ environment, mode }) => {
+      const generation = await job();
+      const workflow = new TemplateWorkflowService(
+        { ...env, ENVIRONMENT: environment, MODE: mode },
+        domain,
+      );
+      const internals = workflow as unknown as {
+        authorize(ctx: WorkflowActor, write?: boolean): Promise<void>;
+      };
+      const authorization = vi
+        .spyOn(internals, "authorize")
+        .mockRejectedValueOnce(new TypeError("private authorization failure"));
+      const stderr = vi.spyOn(console, "error").mockImplementation(() => {});
+      try {
+        await workflow.processPending(1);
+        expect(stderr).not.toHaveBeenCalled();
+        expect(
+          (await service.generationResults(owner, generation.id)).items[0],
+        ).toMatchObject({
+          state: "failed",
+          errorCode: "GENERATION_FAILED",
+          attempts: 1,
+        });
+      } finally {
+        authorization.mockRestore();
+        stderr.mockRestore();
+      }
+    },
+  );
+  it("persists the original failure even when local diagnostic emission fails", async () => {
+    const generation = await job();
+    const renderer = vi.fn(async () => {
+      throw new TypeError("private transport failure");
+    });
+    env.DOCUMENT_RENDERER = { fetch: renderer } as unknown as Fetcher;
+    const stderr = vi.spyOn(console, "error").mockImplementation(() => {
+      throw new Error("diagnostic sink unavailable");
+    });
+    try {
+      await service.processPending(1);
+      expect(
+        (await service.generationResults(owner, generation.id)).items[0],
+      ).toMatchObject({
+        state: "failed",
+        errorCode: "GENERATION_FAILED",
+        attempts: 1,
+      });
+      expect(renderer).toHaveBeenCalledTimes(1);
+    } finally {
+      stderr.mockRestore();
+    }
+  });
   it("retries only failed records and reuses already rendered exact bytes", async () => {
     const generation = await job([
       {

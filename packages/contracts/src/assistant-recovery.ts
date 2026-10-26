@@ -4,6 +4,7 @@ export const assistantRecoverySchema = z
   .object({
     action: z.enum([
       "check_document",
+      "check_document_upload",
       "check_pdf_validation",
       "check_dispatch",
       "check_mandate",
@@ -19,6 +20,7 @@ export const assistantRecoverySchema = z
     tool: z
       .enum([
         "get_document",
+        "get_document_upload",
         "get_pdf_validation",
         "get_dispatch_status",
         "get_expert_status",
@@ -34,7 +36,45 @@ export const assistantRecoverySchema = z
 export type AssistantRecovery = z.infer<typeof assistantRecoverySchema>;
 
 export type AssistantRecoveryContext =
-  "read_document_pages" | "postal_setup" | "postal_preflight";
+  | "read_document_pages"
+  | "postal_setup"
+  | "postal_preflight"
+  | "private_document_upload";
+
+function recoverPrivateUpload(code: string): AssistantRecovery {
+  if (
+    [
+      "CONNECTION_REVOKED",
+      "INSUFFICIENT_SCOPE",
+      "TOKEN_EXPIRED",
+      "TOKEN_INVALID",
+      "POSTAL_AUTHORITY_CHANGED",
+      "UPLOAD_AUTHORITY_CHANGED",
+    ].includes(code)
+  )
+    return {
+      action: "reconnect",
+      tool: null,
+      retry: "after_change",
+      message:
+        "Restore this connection's current document-write authority before reading the same upload. Keep the original and its existing key/metadata. Do not automatically import again, create another key or prepare a dispatch.",
+    };
+  if (code.startsWith("INLINE_PDF_"))
+    return {
+      action: "check_document_upload",
+      tool: null,
+      retry: "after_change",
+      message:
+        "The inline original was refused before a reservation. Check the selected original's exact bytes, size, SHA-256 and canonical base64 locally with the person, within64KiB. Preserve the original and key; do not repair, reconstruct, split or automatically import it again. This creates no dispatch.",
+    };
+  return {
+    action: "check_document_upload",
+    tool: "get_document_upload",
+    retry: "never_resend",
+    message:
+      "The import outcome may already be recorded. If uploadId is known, read only that same ID through get_document_upload. If no ID was received, call begin_document_upload with strictly the same idempotencyKey, fileName, size and SHA-256 to recover its ID, then get_document_upload. Never put base64 or a capability in recovery arguments, automatically call import_inline_pdf again, resend bytes, rescan, use a new key or create a dispatch. Unknown/rejected requires explanation, not another import.",
+  };
+}
 
 function readSameDocument(): AssistantRecovery {
   return {
@@ -54,6 +94,7 @@ export function assistantRecovery(
   code: string,
   context?: AssistantRecoveryContext,
 ): AssistantRecovery {
+  if (context === "private_document_upload") return recoverPrivateUpload(code);
   if (["PDF_VALIDATION_BUSY", "PDF_VALIDATION_FAILED"].includes(code))
     return {
       action: "check_pdf_validation",

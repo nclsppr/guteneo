@@ -30,11 +30,18 @@ Document emails include recipient controls in their footer. Read `recipientFeedb
 
 ## Private original PDF transfer
 
-When begin_document_upload is actually exposed and this host can read the selected
-original file and make the permitted binary PUT, compute its exact size/SHA-256
-and use that tool's bounded client and upload-only grant. Preserve host permissions
-and egress; never expose the capability, publish the PDF or reconstruct it from
-text. Recover get_document_upload on the same ID after uncertainty, without a new
-binary attempt. Source/client code does not qualify an actual host or physical
-iPhone. Keep the native host file-envelope and separately qualified local-adapter
-paths where actually available; a visible attachment name is not remotely readable.
+Preserve a native host file envelope when actually available. Otherwise, when
+begin_document_upload is exposed and this runtime can read the selected original
+and make the permitted binary PUT, compute its actual size/SHA-256 and use the
+bounded client/upload-only grant. When original bytes are available but runtime
+egress is unavailable, import_inline_pdf is a separate one-call fallback for an
+original up to 64 KiB. Compute canonical base64, size and SHA-256 with code and
+use one stable idempotency key; never chunk, truncate, echo/log the encoding or
+apply the 10 MiB binary bound to it. Keep explicit original-file permission and
+content exclusions. Inline tool arguments consume host context and need actual
+host qualification. Preserve network controls, keep capabilities private, and
+never publish or reconstruct the PDF. Recover get_document_upload on the same
+upload ID after ambiguity, without another import, binary attempt or new key.
+Only the same document's ready state allows preparation. A listed tool or local
+client test does not qualify an actual host or physical iPhone. A visible name
+or local path alone is not an original-byte transport.

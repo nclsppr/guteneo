@@ -7,7 +7,7 @@ sidebar:
 
 <!-- Generated from docs/feature-map.json. Run npm run docs:build; do not edit this view. -->
 
-**23 domains · 306 capabilities · 35 journeys · 76 REST operations · 74 MCP tools.**
+**23 domains · 307 capabilities · 35 journeys · 76 REST operations · 75 MCP tools.**
 
 Follow a branch to find its behavior, access boundary and engineering guide. Use the site search to find a specific capability.
 
@@ -20,7 +20,7 @@ This is an implementation inventory, not a live availability dashboard. Current 
 
 ## Create
 
-- [Documents and protection](/features/documents/) — 13 capabilities
+- [Documents and protection](/features/documents/) — 14 capabilities
 - [Template studio](/features/templates/) — 14 capabilities
 - [Data and mappings](/features/datasets/) — 9 capabilities
 - [PDF generation and distribution](/features/generation/) — 11 capabilities
