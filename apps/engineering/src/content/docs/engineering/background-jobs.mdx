@@ -52,7 +52,7 @@ observable state, timeout and safe recovery before wiring it into the scheduler.
 
 ## Private original staging has its own cleanup fence
 
-The disabled 26 October 2026 MCP App candidate stages fixed original-file parts
+The default-off MCP App transport published in 1.1.6 stages fixed original-file parts
 in private R2 objects with D1 receipts. The existing minute scheduler performs
 this cleanup before identity/provider availability gates: an Auth0 or provider
 outage must not indefinitely retain abandoned bytes. It adds no new scheduled

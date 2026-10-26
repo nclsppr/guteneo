@@ -1,10 +1,14 @@
 # Private original PDF transport
 
-25–26 October 2026 candidates. Source tests do not establish deployment, migration,
-OAuth renewal, transfer from an actual assistant, or customer delivery. No real
-CV, recipient, communication, purchase or mandate is part of this qualification.
-The 26 October MCP Apps original-selection candidate is disabled by default and
-has no actual large-payload or physical-device transfer qualification.
+The original-file transports were developed on 25–26 October 2026. Release 1.1.6
+at source `147ada069959f69440d4f98f968b0f2f5df1f7ba` is published. Its App remains
+off by default: a temporary Claude Desktop window qualified two explicitly
+selected fictional originals, including 10 MiB, through exact private storage and
+ready analysis. The separate registered-ID handoff to the model failed on that
+host and general activation remains pending. The 1.1.7 source follow-up is not
+an actual-host retest. [Dated qualification](CLAUDE_QUALIFICATION.md#claude-desktop-selected-original-app--26-october-2026)
+owns the observations and limits. No real CV, communication, purchase or mandate
+is part of this qualification; no physical-iPhone/web/other-host pass is implied.
 
 ## One original, bounded transport choices
 
@@ -154,7 +158,9 @@ unknown, and recovery may delete only its exact unreferenced owned object, never
 a deduplicated document. No provider communication is retried. An operator may
 investigate unresolved imports; the client must not infer failure from a timeout.
 
-## Selected local originals through MCP Apps — disabled candidate
+<a id="selected-local-originals-through-mcp-apps--disabled-candidate"></a>
+
+## Selected local originals through MCP Apps
 
 This is a separate transport for a host that renders standard MCP Apps and
 carries the reviewed App-only payloads through its official tool bridge. It
@@ -222,9 +228,14 @@ The App-only view contains the session ID, state, expiry, fixed part layout,
 confirmed indexes/received byte count, remaining call budget, next action and
 optional fixed error code. An accepted finish identifies the registered
 creator-private document with a minimal ID/status receipt. It may still be
-processing or quarantined. After that registered receipt, the App passes only
-the document ID/status and its bound original size/SHA-256 as minimal model
-context. No bytes, base64, filename, upload capability, OAuth token or recipient
+processing or quarantined. After that registered receipt, the App publishes only
+the document ID/status and its bound original size/SHA-256 through the SDK's model
+context update. The actual host must qualify delivery of that reference to its
+model: 1.1.6's structured-only attempt did not make the two new IDs available in
+the observed next turn. The 1.1.7 candidate supplies standard text content as well
+as the same structured receipt, with a separate explicit **Use in conversation**
+action described below. Import sends no automatic chat message; actual-host
+receipt handoff still needs retesting. No bytes, base64, filename, upload capability, OAuth token or recipient
 is posted to model context or persisted in browser storage, URLs or logs.
 App-only visibility is a protocol requirement, not a guarantee that the host
 never retains tool arguments. Actual host visibility, confirmations and privacy
@@ -328,8 +339,10 @@ accepts no development authentication. Recheck activation on discovery, resource
 delivery and every transport call, including cached resource URIs. Workshop role,
 a shared public client ID, host label or upload input cannot activate either
 mode. Removing the setting closes new calls; outstanding staging remains
-eligible for fenced cleanup. This candidate is neither deployed nor generally
-activated by its source or package. The no-content
+eligible for fenced cleanup. Release 1.1.6 was published and its selected Desktop
+window has closed with the flag absent. General activation is still pending the
+model-handoff correction and review; neither a source/package change nor the two
+successful private imports activates it for all users. The no-content
 [diagnostic probe](MCP_UI_CAPABILITY_PROBE.md) retains only its bounded JSON mode.
 
 If a client does not render MCP Apps, explain that unsupported flow and retain
@@ -338,19 +351,32 @@ establish file-picker/payload support, grant access to existing conversation
 attachments or qualify every host. The independent host/device evidence below
 still applies.
 
-The [dated Claude checkpoint](CLAUDE_QUALIFICATION.md#claude-desktop-free-mcp-apps-checkpoint--26-october-2026)
-proves a real Desktop widget, one empty bridge acknowledgement and native chooser
-cancellation only. It selected, read and transferred no file. It proves neither
-this protocol's payload size nor confirmation count, retention behavior, resource
-use, normal-size original, physical iPhone, web or another host.
+The earlier [1.1.5 diagnostic checkpoint](CLAUDE_QUALIFICATION.md#claude-desktop-free-mcp-apps-checkpoint--26-october-2026)
+retains its widget/empty-bridge/chooser-cancellation scope. The later
+[1.1.6 Desktop qualification](CLAUDE_QUALIFICATION.md#claude-desktop-selected-original-app--26-october-2026)
+separately proves explicit selection/import of 299,807-byte and 10,485,760-byte
+originals, independent matching private R2 bytes, creator-private ready/verified
+one-page documents and manual same-ID recovery of the latter's registered
+receipt without resend. Its 40 parts/42 base calls completed in 258.644 seconds
+of App-session elapsed time; the later manual status action corresponds to a
+43rd call. The deadline-message cause remains unproven. A scoped SELECT found
+zero associated business effects for both originals; that proves neither a send
+journey nor global account state.
 
-Before a transfer claim, record an explicitly authorized fictional PDF larger
+The next-turn ID-handoff test failed: the model had neither new ID and made no
+`get_document` call. Automatic model-context delivery, automatic conversation-
+attachment handoff, physical iPhone, web, other hosts, comprehensive host retention
+and confirmation behavior, revocation/background recovery and hosted resource/cost
+headroom remain separate qualification work. The App is not a completed end-to-end
+assistant preparation journey merely because the private document is ready.
+
+For another host or a broader transfer claim, record an explicitly authorized fictional PDF larger
 than 64 KiB on the actual intended device/account: independent source size/SHA →
 App-computed size/SHA → stored creator-private original with matching size/SHA →
 clean/ready analysis. Qualify a requested prepare-only email independently and
 verify zero approval, outbox, provider-attempt, sending-quota/credit-reservation
 and charge effects. The upload's own reservation/receipt ledger is expected.
-Then qualify the 10 MiB boundary, cancellation/backgrounding, revocation and
+Qualify that surface's 10 MiB boundary, cancellation/backgrounding, revocation and
 same-ID lost-response recovery on that surface. Neither step authorizes sending,
 a paid `validate_pdf`, a mandate, new consent or directory publication.
 
@@ -376,8 +402,8 @@ cost, physical-device latency, host retention or a performance gain.
 
 ### Local widget measurements — 26 October 2026
 
-The recorded local official-SDK fixture and security run contains 18 checks.
-The reviewed self-contained resource is 496,699 bytes, SHA-256
+The recorded 1.1.6 local official-SDK fixture and security run contains 18 checks.
+That release's self-contained resource is 496,699 bytes, SHA-256
 `a6fa81cb6c5955d97284b91f80e2edd7ca3ac5909b67c1cf43f327a29d0f9b16`;
 local gzip and Brotli sizes are 111,314 and 92,407 bytes. MCP compression remains
 host-dependent. The existing no-content probe remains 481,608 bytes.
@@ -397,6 +423,53 @@ qualification. The private `client-local-recovery-handoff.private.json` and
 `RECOVERY_HANDOFF.md` under `mcp/app-original-client-local-20261026/` in the dated
 evidence folder supersede the earlier widget handoff's measurements and recovery
 gap. Source/package/release and actual device transfer remain separate.
+
+### Receipt resilience follow-up — 1.1.7 source candidate
+
+A confirmed registered receipt remains the document's known state after a late
+SDK bridge error. The interface preserves its accepted ID and ready or processing
+status while disabling unavailable bridge actions. A late transport error cannot
+turn an accepted document into an unregistered one or authorize reimport. This
+source-found error-handler issue is distinct from B's unproven deadline cause.
+The candidate also includes standard text context for the same minimal registered
+receipt, alongside its structured fields, to support a host that consumes text
+context. After registration, the localized **Use in conversation** control also
+lets the person explicitly publish that same four-key JSON receipt through the
+official `App.sendMessage`/`ui/message` bridge. Only that UI gesture requests the
+message; import/context update never automatically sends one or starts a model
+turn. It carries `documentId`, `status`, `size`, `sha256` only, with no filename,
+bytes, instructions, approval or sending assertion.
+
+The App marks the ID/status receipt attempted before calling the bridge and
+permits one in-flight request. Acknowledgement, refusal or uncertain response
+prevents another message attempt for that same receipt state; it never guesses
+that a lost acknowledgement means no message was posted. Message/bridge failure
+keeps the accepted document and its recovery reference; it creates no import, prepare,
+send, paid check or authority change. Causal local SDK fixtures cover late-error
+truth, text-consuming hosts and zero messages before the explicit click followed
+by one exact receipt, pending/refused/uncertain deduplication and preserved
+document truth. The native-host retest must
+qualify automatic context delivery and any explicit-message fallback separately.
+An acknowledged host message response is protocol evidence, not proof that the
+model consumed the document ID; the continuation check must establish that fact.
+
+The frozen 1.1.7 local resource is 498,379 bytes, SHA-256
+`e5e9a70116f08145384c4139e46d4530ce1819052be24facd2174d2f65962e57`.
+The client source SHA-256 is
+`098a7dc7d23d3a7d35883781b8d89bd4afd2425910e16cd30d7aad4e34047c8b`.
+Its official-SDK browser run passed 19 subcases/20 Node tests including the parent
+in 40.313 seconds; three security checks, affected-file typecheck and lint also
+passed locally. The fixtures cover all four languages without overflow, retained
+40-part/42-call bounds, text-only context, late errors after quarantined/ready
+receipts, zero messages before the explicit action, exact four-key message data,
+pending/acknowledged/refused attempt deduplication and preserved receipt truth.
+Suite elapsed time is not actual upload latency, first useful content or Workers
+CPU/memory proof. These results establish no 1.1.7 deployment or native-host pass.
+Private `frontend-handoff.private.json` (SHA-256
+`5af76e1a39e6396a07676612230051bf8998fc7d2a407386e0b246fabc4cbf1d`)
+and `independent-test-receipt.private.json` (SHA-256
+`ec77be1e0aca00ea442baa0cf8c0f0b9227234c2a41c688c9bd7700aec01cd18`)
+retain this bounded source evidence.
 
 ## Protected email and authority
 
@@ -487,7 +560,7 @@ migration can be applied. Do not bypass cleanup, activate the App or widen
 authority to hide the failure. Migration and publication retain their existing
 authorization requirements.
 
-The App candidate also depends on shared metadata in
+The App transport uses shared metadata in
 `packages/contracts/src/private-document-upload.ts`, strict App schemas in
 `packages/contracts/src/mcp-app-upload.ts`, shared bounds in
 `packages/contracts/src/mcp-app-upload-limits.ts`, `apps/api/src/mcp-app-upload.ts` and

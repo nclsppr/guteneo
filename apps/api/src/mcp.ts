@@ -1,3 +1,4 @@
+import mcpDocumentUploadManifest from "../../../packages/contracts/src/mcp-document-upload-resource.json";
 import mcpUiProbeManifest from "../../../packages/contracts/src/mcp-ui-probe-resource.json";
 import { emailPreparationDescriptions } from "./email-preparation-contract";
 import {
@@ -5,7 +6,6 @@ import {
   mcpDocumentUploadEnabled,
   mcpDocumentUploadOpening,
   registerMcpDocumentUploadResource,
-  MCP_DOCUMENT_UPLOAD_URI,
 } from "./mcp-document-upload";
 import {
   mcpAppUploadBeginInput,
@@ -23,7 +23,6 @@ import {
   mcpUiProbeEnabled,
   assertMcpUiProbeCurrent,
   registerMcpUiProbeResource,
-  MCP_UI_PROBE_URI,
   MCP_UI_PROBE_ACK,
   mcpUiProbeResult,
 } from "./mcp-ui-probe";
@@ -1089,7 +1088,7 @@ export function createGuteneoMcpServer(
           _meta: {
             ...oauthMetadata("documents:read"),
             ui: {
-              ...(opens ? { resourceUri: MCP_UI_PROBE_URI } : {}),
+              ...(opens ? { resourceUri: mcpUiProbeManifest.resourceUri } : {}),
               visibility: opens ? ["model"] : ["app"],
             },
           },
@@ -1121,7 +1120,10 @@ export function createGuteneoMcpServer(
         annotations: observedReadAnnotations,
         _meta: {
           ...oauthMetadata("documents:write"),
-          ui: { resourceUri: MCP_DOCUMENT_UPLOAD_URI, visibility: ["model"] },
+          ui: {
+            resourceUri: mcpDocumentUploadManifest.resourceUri,
+            visibility: ["model"],
+          },
         },
       },
       () =>

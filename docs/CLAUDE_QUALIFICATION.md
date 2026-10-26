@@ -1,12 +1,119 @@
 # Claude client qualification
 
+## Claude Desktop selected-original App — 26 October 2026
+
+Release **1.1.6**, source
+`147ada069959f69440d4f98f968b0f2f5df1f7ba`, was published to the application,
+browser preview and engineering site. The following actual-client record covers
+the existing **Claude Desktop** hosted connection during one temporary selected
+App window. Publication, temporary activation, original transfer, document
+analysis and model-context delivery are separate results. It establishes no
+general activation or physical-iPhone/web/other-host pass.
+
+After the normal catalog refresh, the native host exposed 75 ordinary tools, one
+interactive opener and five App-only tools. Two `open_mcp_document_upload` calls
+used **Allow once**, without changing persistent permissions. The person made
+two native local-file selections, reviewed the content exclusion and clicked
+Import once for each approved fictional original. No App-only call was invoked
+directly by the model. This selected-local-original journey does not supply an
+earlier conversation attachment automatically.
+
+| Approved fictional original | Actual result |
+| --- | --- |
+| A: 299,807 bytes | Registered creator-private; independent stored R2 bytes matched source size/SHA; later `ready`, `verified`, one page |
+| A SHA-256 | `fe857152745d3f9af437e52da797eec6a911f801d9465d99bd8168b40b57da05` |
+| B: 10,485,760 bytes | All 40 parts confirmed; registered creator-private after 42 App calls; independent stored bytes matched source size/SHA; later `ready`, `verified`, one page |
+| B SHA-256 | `1a2dc961f12098eea546a50f5f77fccce146606aecedbc79f5cd0a7390b06ad2` |
+
+A's automatic analysis completed at **08:32:33.907 UTC**, after three automatic
+claims. Its individual earlier transient codes were not retained, so the initial
+delay's cause is **unknown**. B's App ledger completed at **08:37:25.884 UTC**,
+258.644 seconds after App-session creation and about forty seconds before its
+original grant expired. That elapsed session time includes host interaction and
+server work; it is not isolated network throughput. Its later processing record
+reported `scanner_not_ready`; one automatic claim completed verification at
+**08:38:39.756 UTC**. This category does not identify the underlying startup
+cause or qualify scanner engine/signature dates independently.
+
+For B, the actual widget showed all original bytes confirmed but also a deadline
+message. A manual status action on the **same upload ID** recovered the registered
+document receipt without resending content. The later ledger count was 43; the
+ledger alone does not identify that additional operation, while the native UI
+observation separately records the manual same-ID status action. The precise
+wire, local deadline or late-packet cause was not captured and remains unproven.
+
+### The registered-ID handoff failed on this host
+
+The next-turn check supplied neither new document ID and explicitly allowed only
+`get_document` using the IDs obtained from the interfaces, without list/search.
+Claude reported that **both new IDs were unavailable** and made **zero
+`get_document` calls**. It mentioned only an older 1,268-byte inline document ID,
+which was not substituted or used. The widgets' accepted receipts, exact stored
+bytes and ready analysis therefore qualify transport and storage, **not automatic
+registered-ID delivery to the model**.
+
+Source 1.1.6 attempted a minimal structured context update. The actual context
+wire content was not captured; attributing the missing IDs specifically to
+structured-only delivery is an inference, not an observed packet failure. The
+1.1.7 source follow-up adds standard text content alongside the same minimal
+structured receipt, a user-gesture-only Use in conversation receipt action, and
+preserves an accepted receipt when a later bridge error arrives. The explicit
+message contains only the same four receipt fields; import itself sends no chat
+message. The late-error correction is a source-found UI defect, not a proven cause of B's
+deadline message. Local causal SDK fixtures and actual-host retesting remain
+distinct; general activation stays pending their review and a successful native
+ID-handoff retest.
+
+### Independent attachment access and business-effect limits
+
+A separate native Claude code step computed A's 299,807-byte size and exact
+SHA-256 from the conversation attachment without receiving the expected digest
+in its prompt. The actual command card and response were observed; no Guteneo
+tool was called. This qualifies that bounded original-byte access observation.
+It establishes neither automatic MCP attachment handoff nor fresh Guteneo network
+egress, and it does not change the App's explicit local-file selection contract.
+
+A subsequent tenant/owner/size/SHA-bound SELECT returned exactly two rows with
+matching ready/verified originals. All 25 business-effect count fields were zero
+for each document: associated dispatches, approvals, outbox, provider operations,
+quota/credit holds and charges, paid PDF verification, secure/protected sharing
+and postal preparation. The final direct query read **147 rows**, wrote **zero**,
+and reported `changed_db:false`, `changes:0`. This is bounded evidence for these
+two originals and their explicit associations, not unrelated workspace traffic,
+global credit balances, supplier invoices or deleted historical associations.
+The earlier file-mode SELECT returned import-summary metadata only and was not
+used to claim those zero counts. No send, paid check, rescan or activation was
+performed by this read-only verification.
+
+The selected window ran from **08:23:49.782 to 08:38:49.782 UTC** and closed on
+expiry. Its cleanup receipt at **08:38:59.785 UTC** confirms the flag absent and
+rollback version `38fff034-bb6f-45b3-856f-1f51f3b49c44`. General `enabled`
+activation was not performed.
+
+Private evidence filenames: `actual-native-app-import-observations.private.json`,
+`actual-native-attachment-byte-access.private.json`,
+`actual-model-context-handoff-gap.private.json`,
+`selected-original-analysis-summary.private.json`,
+`file-a-stored-byte-proof.private.json`, `file-b-stored-byte-proof.private.json`
+and the selected window's `receipt.private.json`. The scoped business receipt is
+`zero-business-effects-proof.private.json`, SHA-256
+`396d931b28c86e6aae63499e009f86157e8226f23aa3eafecfbf52e15c3da7c3`.
+No private filesystem path, account/document identifier, original content,
+recipient, credential or signed URL is reproduced here.
+
+The [transport contract](PRIVATE_DOCUMENT_UPLOAD.md) owns activation and recovery.
+The [compatibility matrix](MCP_CLIENT_COMPATIBILITY.md) retains separate checks
+for model handoff, physical devices, other accounts/hosts, refresh/revocation,
+full payload-confirmation/retention behavior and measured resource/cost headroom.
+No preparation, sending or marketplace qualification follows from these imports.
+
 ## Claude Desktop Free MCP Apps checkpoint — 26 October 2026
 
 This dated checkpoint concerns the existing **Claude Desktop Free** custom
 Guteneo connector, recorded model label `Sonnet5.5Medium`, source
 `8854d0c16379cb3ec5c5845c454067d9625b8bef` and server version `1.1.5`.
 It qualifies the no-content [diagnostic](MCP_UI_CAPABILITY_PROBE.md), not the
-new disabled [selected-original transport](PRIVATE_DOCUMENT_UPLOAD.md#selected-local-originals-through-mcp-apps--disabled-candidate).
+separate [selected-original transport](PRIVATE_DOCUMENT_UPLOAD.md#selected-local-originals-through-mcp-apps).
 
 At **2026-10-26 05:57:20 UTC**, the private reconnect receipt recorded an initial
 Auth0 `invalid_request` stating that a session could not be found. A fresh normal
@@ -49,11 +156,12 @@ Evidence is retained outside the repository under
 No token, private account/document ID, content, recipient or gate configuration
 is reproduced here.
 
-This closes only the Desktop widget/empty-bridge/chooser-cancellation checkpoint.
-No file was selected or transferred. Normal-size and 10 MiB payload handling,
-confirmation counts across parts, host retention, latency/resource/cost limits,
-lost-response recovery, Claude web, a physical iPhone and other hosts remain
-unqualified. A device chooser is a new local selection, not proof of handoff from
+This closed only the Desktop widget/empty-bridge/chooser-cancellation checkpoint.
+No file was selected or transferred in that checkpoint. It qualified no normal-
+size or 10 MiB payload, confirmation count across parts, host retention,
+latency/resource/cost limit, lost-response recovery, Claude web, physical iPhone
+or other host. The later selected-original record above owns its separate result.
+A device chooser is a new local selection, not proof of handoff from
 an earlier conversation attachment. The older inline and preparation observations
 below retain their own exact sources and limits.
 
@@ -116,9 +224,11 @@ remains bound to its recorded original source and account.
 
 That import receipt qualifies only one small inline original and its later
 readiness. The separately dated email-preparation observation below owns the
-next step. The 64 KiB host boundary, larger PDFs, native binary PUT up to 10 MiB,
-other models/accounts, Claude web, Cowork, Claude Code and a physical iPhone
-remain separately unqualified. No approval or send follows from this import.
+next step. That inline observation did not qualify its 64 KiB host boundary,
+larger PDFs or native binary PUT up to 10 MiB. The later selected-original App
+record above separately covers its two files, with a failed model-ID handoff.
+Other models/accounts, Claude web, Cowork, Claude Code and a physical iPhone
+remain separate. No approval or send follows from this inline import.
 
 The same Free runtime exposed the original bytes but its Guteneo GET failed DNS
 before an HTTP response. Its observed settings offered package-manager egress

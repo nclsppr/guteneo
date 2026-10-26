@@ -11,10 +11,11 @@ observations remain separate.
 The [26 October actual Claude Desktop checkpoint](CLAUDE_QUALIFICATION.md#claude-desktop-free-mcp-apps-checkpoint--26-october-2026)
 records a real widget, one empty official bridge call and the native chooser
 opened then cancelled under source `8854`, server `1.1.5`. The temporary gate
-was removed and its rollback recorded. No file was selected, read or transferred;
-web, physical iPhone, large payloads and the separate
-[App original transport](PRIVATE_DOCUMENT_UPLOAD.md#selected-local-originals-through-mcp-apps--disabled-candidate)
-remain unqualified.
+was removed and its rollback recorded. No file was selected, read or transferred
+in that checkpoint. The later
+[Desktop original qualification](CLAUDE_QUALIFICATION.md#claude-desktop-selected-original-app--26-october-2026)
+owns its separate payload/storage/readiness result and failed model-ID handoff;
+the probe itself establishes no file transfer, web or physical-iPhone pass.
 
 The probe is absent by default. A server-owned `MCP_UI_PROBE` setting must
 explicitly select one existing OAuth connection and its current authorization

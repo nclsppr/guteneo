@@ -27,6 +27,12 @@ const titles = {
   de: "Original-PDF importieren",
   lb: "En Original-PDF importéieren",
 };
+const conversationLabels = {
+  en: "Use in conversation",
+  fr: "Utiliser dans la conversation",
+  de: "Im Gespräch verwenden",
+  lb: "Am Gespréich benotzen",
+};
 
 test("official AppBridge preserves a selected original and bounds recovery, cancellation and disclosure", async (t) => {
   const { text: html } = await buildMcpDocumentUploadResource({ check: true });
@@ -36,14 +42,15 @@ test("official AppBridge preserves a selected original and bounds recovery, canc
       contents: `
 import { AppBridge, PostMessageTransport } from '@modelcontextprotocol/ext-apps/app-bridge';
 const settings=new URLSearchParams(location.search),mode=settings.get('mode')??'normal';
-const frame=document.querySelector('iframe');window.calls=[];window.contexts=[];window.overlap=false;window.finished=false;window.appendWaiting=false;
-let begin,parts=new Map(),count=0,inflight=0,lost=false,documentReady=false,pendingPart;
+const frame=document.querySelector('iframe');window.calls=[];window.contexts=[];window.modelTexts=[];window.chatMessages=[];window.messageAcks=0;window.messageRefusals=0;window.messageWaiting=false;window.overlap=false;window.finished=false;window.appendWaiting=false;
+let begin,parts=new Map(),count=0,inflight=0,lost=false,documentReady=false,pendingPart,sameStatusReads=0;
 const uploadId='upl_00000000-0000-4000-8000-000000000001';let expiresAt;
 const hash=async value=>Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',value)),x=>x.toString(16).padStart(2,'0')).join('');
 const view=(status='receiving')=>({uploadId,status,expiresAt,partSize:262144,partCount:Math.ceil(begin.size/262144),confirmedParts:[...parts.keys()],receivedBytes:[...parts.values()].reduce((n,x)=>n+x.length,0),remainingCalls:mode==='budget'?2:64-count,nextAction:status==='complete'?'get_document':status==='receiving'?(parts.size===Math.ceil(begin.size/262144)?'finish':'append_part'):status==='finalizing'?'wait':'stop',...(status==='complete'?{document:{id:'doc-fixture-original',status:documentReady?'ready':'quarantined'}}:{})});
-const bridge=new AppBridge(null,{name:'synthetic-original-host',version:'1'},{serverTools:{},updateModelContext:{structuredContent:{}}},{hostContext:{locale:settings.get('hostLocale')??'en',theme:settings.get('locale')==='fr'?'dark':'light'}});
+const bridge=new AppBridge(null,{name:'synthetic-original-host',version:'1'},{serverTools:{},message:{text:{}},updateModelContext:mode==='textonlycontext'?{text:{}}:{structuredContent:{}}},{hostContext:{locale:settings.get('hostLocale')??'en',theme:settings.get('locale')==='fr'?'dark':'light'}});
 bridge.oninitialized=async()=>{await bridge.sendToolInput({arguments:{}});await bridge.sendToolResult({content:[],structuredContent:{ok:true,data:{surface:'guteneo-private-original-v1',...(settings.get('locale')?{locale:settings.get('locale')}:{ }),limits:{maxBytes:10485760,partBytes:262144,maxParts:40,maxCalls:64,expiresWithinSeconds:300}}}});};
-bridge.onupdatemodelcontext=async params=>{if(mode==='contextfail')throw Error('Synthetic context unavailable');window.contexts.push(params);return {};};
+bridge.onupdatemodelcontext=async params=>{if(mode==='contextfail')throw Error('Synthetic context unavailable');window.contexts.push(params);if(mode==='textonlycontext')window.modelTexts.push(...(params.content??[]).filter(block=>block.type==='text').map(block=>block.text));return {};};
+bridge.onmessage=async params=>{window.chatMessages.push(params);if(mode==='messagepending'){window.messageWaiting=true;await new Promise(resolve=>{window.releaseMessage=resolve;});window.messageWaiting=false;}if(mode==='messagefailure'){window.messageRefusals++;return {isError:true};}window.messageAcks++;return {};};
 bridge.oncalltool=async ({name,arguments:args})=>{
  if(++inflight>1)window.overlap=true;count++;window.calls.push({name,keys:Object.keys(args).sort(),...(name==='append_mcp_document_upload'?{partIndex:args.partIndex,sha256:args.sha256,encodedBytes:args.base64.length}:{})});
  try{
@@ -72,7 +79,7 @@ bridge.oncalltool=async ({name,arguments:args})=>{
     window.positiveObjectChecks=(window.positiveObjectChecks??0)+1;parts.set(0,pendingPart.bytes);pendingPart=undefined;
    }
    if(Date.now()>=Date.parse(expiresAt))return {content:[],structuredContent:{ok:true,data:view('expired')}};
-   if(window.finished)documentReady=true;
+   if(window.finished&&(mode!=='textonlycontext'||sameStatusReads++>0))documentReady=true;
    return {content:[],structuredContent:{ok:true,data:view(window.finished?'complete':'receiving')}};
   }
   if(name==='cancel_mcp_document_upload'){window.cancelled=true;return {content:[],structuredContent:{ok:true,data:view('cancelled')}};}
@@ -85,7 +92,9 @@ bridge.oncalltool=async ({name,arguments:args})=>{
   throw Error('Unexpected tool');
  }finally{inflight--;}
 };
-await bridge.connect(new PostMessageTransport(frame.contentWindow,frame.contentWindow));frame.src='/widget';`,
+const transport=new PostMessageTransport(frame.contentWindow,frame.contentWindow);
+window.sendLateResponse=()=>transport.send({jsonrpc:'2.0',id:'unmatched-late-response',result:{content:[]}});
+await bridge.connect(transport);frame.src='/widget';`,
     },
     bundle: true,
     write: false,
@@ -195,6 +204,12 @@ await bridge.connect(new PostMessageTransport(frame.contentWindow,frame.contentW
         await expect
           .poll(() => f.page.evaluate(() => window.contexts.length))
           .toBe(1);
+        await expect(f.frame.locator("#use-conversation")).toBeVisible();
+        await expect(f.frame.locator("#use-conversation")).toHaveAccessibleName(
+          conversationLabels[locale],
+        );
+        await expect(f.frame.locator("#use-conversation")).toBeEnabled();
+        assert.deepEqual(await f.page.evaluate(() => window.chatMessages), []);
         const initial = await f.page.evaluate(() => ({
           sha: window.finalSha,
           calls: window.calls,
@@ -216,14 +231,16 @@ await bridge.connect(new PostMessageTransport(frame.contentWindow,frame.contentW
             .map((x) => x.encodedBytes),
           [349528, 60100],
         );
+        const receipt = {
+          documentId: "doc-fixture-original",
+          status: "quarantined",
+          size: bytes.length,
+          sha256: expectedSha,
+        };
         assert.deepEqual(initial.contexts, [
           {
-            structuredContent: {
-              documentId: "doc-fixture-original",
-              status: "quarantined",
-              size: bytes.length,
-              sha256: expectedSha,
-            },
+            content: [{ type: "text", text: JSON.stringify(receipt) }],
+            structuredContent: receipt,
           },
         ]);
         await f.frame.locator("#check").click();
@@ -236,6 +253,7 @@ await bridge.connect(new PostMessageTransport(frame.contentWindow,frame.contentW
           ),
           "ready",
         );
+        assert.deepEqual(await f.page.evaluate(() => window.chatMessages), []);
         assert.equal(
           await f.frame.locator("body").evaluate(() => window.contentReads),
           1,
@@ -525,6 +543,390 @@ await bridge.connect(new PostMessageTransport(frame.contentWindow,frame.contentW
             window.calls.filter((x) => x.name === "begin_mcp_document_upload")
               .length,
         ),
+        1,
+      );
+      await close(f);
+    },
+  );
+  for (const documentStatus of ["quarantined", "ready"])
+    await t.test(
+      `a late unmatched SDK response preserves the ${documentStatus} receipt and disables bridge actions`,
+      async () => {
+        const f = await fixture();
+        await select(f);
+        await expect(f.frame.locator("#receipt")).toBeVisible();
+        await expect
+          .poll(() => f.page.evaluate(() => window.contexts.length))
+          .toBe(1);
+        await expect(f.frame.locator("#check")).toBeEnabled();
+        if (documentStatus === "ready") {
+          await f.frame.locator("#check").click();
+          await expect
+            .poll(() => f.page.evaluate(() => window.contexts.length))
+            .toBe(2);
+        }
+        const expectedStatus =
+          documentStatus === "ready"
+            ? "Original registered and ready."
+            : "Original registered. Document checks are still running.";
+        await expect(f.frame.locator("#status")).toHaveText(expectedStatus);
+        await expect(f.frame.locator("main")).toHaveAttribute(
+          "aria-busy",
+          "false",
+        );
+        const before = await f.page.evaluate(() => ({
+          calls: window.calls,
+          contexts: window.contexts,
+        }));
+        assert.equal(before.calls.length, documentStatus === "ready" ? 5 : 4);
+        assert.equal(
+          before.contexts.at(-1).structuredContent.status,
+          documentStatus,
+        );
+        await f.page.evaluate(() => window.sendLateResponse());
+        await expect(f.frame.locator("#check")).toBeDisabled();
+        await expect(f.frame.locator("#receipt")).toBeVisible();
+        await expect(f.frame.locator("#document")).toHaveText(
+          "doc-fixture-original",
+        );
+        await expect(f.frame.locator("#status")).toHaveText(expectedStatus);
+        for (const id of [
+          "choose-file",
+          "import",
+          "resume",
+          "cancel",
+          "use-conversation",
+        ])
+          await expect(f.frame.locator(`#${id}`)).toBeDisabled();
+        assert.deepEqual(
+          await f.page.evaluate(() => ({
+            calls: window.calls,
+            contexts: window.contexts,
+          })),
+          before,
+        );
+        assert.equal(
+          await f.frame.locator("body").evaluate(() => window.contentReads),
+          1,
+        );
+        await close(f);
+      },
+    );
+  await t.test(
+    "a text-only model receives the minimal receipt once per document status",
+    async () => {
+      const f = await fixture("textonlycontext");
+      await select(f);
+      await expect(f.frame.locator("#receipt")).toBeVisible();
+      assert.equal(await f.page.evaluate(() => window.contexts.length), 1);
+      await expect
+        .poll(() => f.page.evaluate(() => window.modelTexts.length))
+        .toBe(1);
+      const expectedReceipt = (status) => ({
+        documentId: "doc-fixture-original",
+        status,
+        size: bytes.length,
+        sha256: expectedSha,
+      });
+      const registered = await f.page.evaluate(() => ({
+        contexts: window.contexts,
+        modelTexts: window.modelTexts,
+      }));
+      assert.deepEqual(
+        JSON.parse(registered.modelTexts[0]),
+        expectedReceipt("quarantined"),
+      );
+      assert.deepEqual(registered.contexts, [
+        {
+          content: [{ type: "text", text: registered.modelTexts[0] }],
+          structuredContent: expectedReceipt("quarantined"),
+        },
+      ]);
+      await f.frame.locator("#check").click();
+      await expect(f.frame.locator("main")).toHaveAttribute(
+        "aria-busy",
+        "false",
+      );
+      await expect(f.frame.locator("#status")).toHaveText(
+        "Original registered. Document checks are still running.",
+      );
+      assert.equal(await f.page.evaluate(() => window.calls.length), 5);
+      assert.deepEqual(
+        await f.page.evaluate(() => ({
+          contexts: window.contexts,
+          modelTexts: window.modelTexts,
+        })),
+        registered,
+      );
+      await expect(f.frame.locator("#check")).toBeEnabled();
+      await f.frame.locator("#check").click();
+      await expect
+        .poll(() => f.page.evaluate(() => window.modelTexts.length))
+        .toBe(2);
+      await expect(f.frame.locator("#status")).toHaveText(
+        "Original registered and ready.",
+      );
+      await expect(f.frame.locator("main")).toHaveAttribute(
+        "aria-busy",
+        "false",
+      );
+      const ready = await f.page.evaluate(() => ({
+        calls: window.calls,
+        contexts: window.contexts,
+        modelTexts: window.modelTexts,
+      }));
+      assert.deepEqual(
+        ready.modelTexts.map((text) => JSON.parse(text)),
+        [expectedReceipt("quarantined"), expectedReceipt("ready")],
+      );
+      assert.deepEqual(ready.contexts, [
+        registered.contexts[0],
+        {
+          content: [{ type: "text", text: ready.modelTexts[1] }],
+          structuredContent: expectedReceipt("ready"),
+        },
+      ]);
+      assert.deepEqual(
+        ready.calls.map((call) => call.name),
+        [
+          "begin_mcp_document_upload",
+          "append_mcp_document_upload",
+          "append_mcp_document_upload",
+          "finish_mcp_document_upload",
+          "get_mcp_document_upload",
+          "get_mcp_document_upload",
+        ],
+      );
+      await expect(f.frame.locator("#check")).toBeEnabled();
+      await f.page.evaluate(() => window.sendLateResponse());
+      await expect(f.frame.locator("#check")).toBeDisabled();
+      await expect(f.frame.locator("#receipt")).toBeVisible();
+      await expect(f.frame.locator("#document")).toHaveText(
+        "doc-fixture-original",
+      );
+      await expect(f.frame.locator("#status")).toHaveText(
+        "Original registered and ready.",
+      );
+      assert.deepEqual(
+        await f.page.evaluate(() => ({
+          calls: window.calls,
+          contexts: window.contexts,
+          modelTexts: window.modelTexts,
+        })),
+        ready,
+      );
+      assert.equal(
+        await f.frame.locator("body").evaluate(() => window.contentReads),
+        1,
+      );
+      await close(f);
+    },
+  );
+  await t.test(
+    "conversation handoff requires a click and accepts one acknowledged message per receipt",
+    async () => {
+      const f = await fixture("messagepending");
+      await select(f);
+      await expect(f.frame.locator("#receipt")).toBeVisible();
+      await expect(f.frame.locator("#use-conversation")).toBeEnabled();
+      const before = await f.page.evaluate(() => ({
+        calls: window.calls,
+        contexts: window.contexts,
+      }));
+      assert.deepEqual(await f.page.evaluate(() => window.chatMessages), []);
+      const expectedMessage = (status) => ({
+        role: "user",
+        content: [
+          {
+            type: "text",
+            text: JSON.stringify({
+              documentId: "doc-fixture-original",
+              status,
+              size: bytes.length,
+              sha256: expectedSha,
+            }),
+          },
+        ],
+      });
+      const forceDuplicateClick = async () => {
+        await f.frame.locator("#use-conversation").evaluate((button) => {
+          button.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+          return new Promise((resolve) =>
+            requestAnimationFrame(() => requestAnimationFrame(resolve)),
+          );
+        });
+      };
+      await f.frame.locator("#use-conversation").click();
+      await expect
+        .poll(() => f.page.evaluate(() => window.messageWaiting))
+        .toBe(true);
+      await expect(f.frame.locator("#use-conversation")).toHaveText(
+        "Sending receipt…",
+      );
+      await expect(f.frame.locator("#use-conversation")).toBeDisabled();
+      await expect(f.frame.locator("#check")).toBeDisabled();
+      await f.frame.locator("#check").evaluate((button) => {
+        button.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      });
+      await forceDuplicateClick();
+      assert.deepEqual(await f.page.evaluate(() => window.chatMessages), [
+        expectedMessage("quarantined"),
+      ]);
+      assert.equal(await f.page.evaluate(() => window.messageAcks), 0);
+      await f.page.evaluate(() => window.releaseMessage());
+      await expect(f.frame.locator("#use-conversation")).toHaveText(
+        "Conversation updated",
+      );
+      await expect(f.frame.locator("#use-conversation")).toBeDisabled();
+      await forceDuplicateClick();
+      assert.deepEqual(
+        await f.page.evaluate(() => ({
+          calls: window.calls,
+          contexts: window.contexts,
+        })),
+        before,
+      );
+      assert.deepEqual(await f.page.evaluate(() => window.chatMessages), [
+        expectedMessage("quarantined"),
+      ]);
+      assert.equal(await f.page.evaluate(() => window.messageAcks), 1);
+      await f.frame.locator("#check").click();
+      await expect(f.frame.locator("#status")).toHaveText(
+        "Original registered and ready.",
+      );
+      await expect(f.frame.locator("#use-conversation")).toHaveText(
+        conversationLabels.en,
+      );
+      await expect(f.frame.locator("#use-conversation")).toBeEnabled();
+      assert.equal(await f.page.evaluate(() => window.chatMessages.length), 1);
+      await f.frame.locator("#use-conversation").click();
+      await expect
+        .poll(() => f.page.evaluate(() => window.messageWaiting))
+        .toBe(true);
+      await forceDuplicateClick();
+      assert.deepEqual(await f.page.evaluate(() => window.chatMessages), [
+        expectedMessage("quarantined"),
+        expectedMessage("ready"),
+      ]);
+      await f.page.evaluate(() => window.releaseMessage());
+      await expect(f.frame.locator("#use-conversation")).toHaveText(
+        "Conversation updated",
+      );
+      await forceDuplicateClick();
+      assert.equal(await f.page.evaluate(() => window.messageAcks), 2);
+      const accepted = await f.page.evaluate(() => ({
+        calls: window.calls,
+        contexts: window.contexts,
+        chatMessages: window.chatMessages,
+        messageAcks: window.messageAcks,
+      }));
+      assert.equal(accepted.calls.length, 5);
+      assert.equal(accepted.contexts.length, 2);
+      assert.deepEqual(
+        accepted.contexts.map((context) => JSON.parse(context.content[0].text)),
+        accepted.chatMessages.map((message) =>
+          JSON.parse(message.content[0].text),
+        ),
+      );
+      await expect(f.frame.locator("#check")).toBeEnabled();
+      await f.page.evaluate(() => window.sendLateResponse());
+      await expect(f.frame.locator("#check")).toBeDisabled();
+      await expect(f.frame.locator("#use-conversation")).toBeDisabled();
+      await expect(f.frame.locator("#receipt")).toBeVisible();
+      await expect(f.frame.locator("#document")).toHaveText(
+        "doc-fixture-original",
+      );
+      await expect(f.frame.locator("#status")).toHaveText(
+        "Original registered and ready.",
+      );
+      assert.deepEqual(
+        await f.page.evaluate(() => ({
+          calls: window.calls,
+          contexts: window.contexts,
+          chatMessages: window.chatMessages,
+          messageAcks: window.messageAcks,
+        })),
+        accepted,
+      );
+      assert.equal(
+        await f.frame.locator("body").evaluate(() => window.contentReads),
+        1,
+      );
+      await close(f);
+    },
+  );
+  await t.test(
+    "a refused conversation handoff preserves registration and never resends the same receipt",
+    async () => {
+      const f = await fixture("messagefailure");
+      await select(f);
+      await expect(f.frame.locator("#receipt")).toBeVisible();
+      await expect(f.frame.locator("#use-conversation")).toBeEnabled();
+      assert.deepEqual(await f.page.evaluate(() => window.chatMessages), []);
+      const before = await f.page.evaluate(() => ({
+        calls: window.calls,
+        contexts: window.contexts,
+      }));
+      await f.frame.locator("#use-conversation").click();
+      await expect(f.frame.locator("#use-conversation")).toHaveText(
+        "Conversation handoff unconfirmed",
+      );
+      await expect(f.frame.locator("#use-conversation")).toBeDisabled();
+      await f.frame.locator("#use-conversation").evaluate((button) => {
+        button.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+        return new Promise((resolve) =>
+          requestAnimationFrame(() => requestAnimationFrame(resolve)),
+        );
+      });
+      const refused = await f.page.evaluate(() => ({
+        calls: window.calls,
+        contexts: window.contexts,
+        chatMessages: window.chatMessages,
+        messageAcks: window.messageAcks,
+        messageRefusals: window.messageRefusals,
+      }));
+      assert.deepEqual(
+        { calls: refused.calls, contexts: refused.contexts },
+        before,
+      );
+      assert.equal(refused.messageAcks, 0);
+      assert.equal(refused.messageRefusals, 1);
+      assert.deepEqual(refused.chatMessages, [
+        {
+          role: "user",
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(before.contexts[0].structuredContent),
+            },
+          ],
+        },
+      ]);
+      await expect(f.frame.locator("#receipt")).toBeVisible();
+      await expect(f.frame.locator("#document")).toHaveText(
+        "doc-fixture-original",
+      );
+      await expect(f.frame.locator("#status")).toHaveText(
+        "Original registered. Document checks are still running.",
+      );
+      await f.page.evaluate(() => window.sendLateResponse());
+      await expect(f.frame.locator("#check")).toBeDisabled();
+      await expect(f.frame.locator("#use-conversation")).toBeDisabled();
+      await expect(f.frame.locator("#status")).toHaveText(
+        "Original registered. Document checks are still running.",
+      );
+      assert.deepEqual(
+        await f.page.evaluate(() => ({
+          calls: window.calls,
+          contexts: window.contexts,
+          chatMessages: window.chatMessages,
+          messageAcks: window.messageAcks,
+          messageRefusals: window.messageRefusals,
+        })),
+        refused,
+      );
+      assert.equal(
+        await f.frame.locator("body").evaluate(() => window.contentReads),
         1,
       );
       await close(f);

@@ -114,7 +114,7 @@ without approval, or a team lead both. None gains members, billing or delegation
 management. Dispatch price/status remains visible to anyone who can read that
 item; reporting gates aggregate summaries/usage rather than every individual amount.
 
-## MCP App original selection — 26 October 2026 disabled candidate
+## MCP App original selection — 26 October 2026
 
 The default-off [MCP App selected-original transport](PRIVATE_DOCUMENT_UPLOAD.md#selected-local-originals-through-mcp-apps--disabled-candidate)
 requires a current administrator, supervisor or operator connection with
@@ -131,6 +131,11 @@ separate database-wide App-finalizer lease is capacity admission, not a new role
 document right or total Worker memory guarantee. Potential cleanup of this
 attempt's unregistered object is disclosed by the five App-only tools' destructive annotation;
 status recovery creates no authority to delete a registered original.
+The post-registration Use in conversation control shares only the current App's
+four-field document receipt after an explicit UI gesture. It creates no role,
+scope, approval or provider communication; importing never sends that chat
+message automatically. Host message availability and model receipt remain
+separately qualified.
 
 ## MCP annotations — 20 October 2026 candidate
 

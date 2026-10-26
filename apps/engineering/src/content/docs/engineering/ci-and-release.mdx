@@ -140,6 +140,16 @@ chooser cancellation establish no normal-size original, host payload privacy or
 physical-device pass. [MCP integration](/integrations/mcp/) explains the distinct
 selection, transfer and readiness checkpoints.
 
+The 1.1.7 source candidate imports the original-picker resource descriptor
+directly into the MCP entrypoint, as already done for the probe descriptor.
+Changed pinned App bytes, digest and resource URI therefore enter the normal
+direct-import MCP fingerprint rather than depending only on an indirect adapter.
+The shared descriptor remains authoritative for opener metadata and resource
+delivery. Integration-sync regression coverage changes its pinned hash, requires
+stale-record and same-version refusal, then exercises the ordinary newer-release
+path. This is release-consistency evidence, not a deployed 1.1.7 or actual-host
+model-context handoff. It changes no API input, scope, TTL or part bound.
+
 ## Shorten the critical path without dropping coverage
 
 The three browser profiles each run in three independent jobs. Application and
