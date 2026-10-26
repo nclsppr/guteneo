@@ -3,6 +3,11 @@ import { msg } from "./messages";
 export function secureAuditLabel(type: string) {
   const labels: Record<string, string> = {
     prepared: msg("Share prepared"),
+    recipient_email_unsubscribed: msg("Unsubscribed"),
+    recipient_email_reported: msg("Email reported"),
+    recipient_verified_email_bound: msg(
+      "Verified address associated with the document",
+    ),
     approved: msg("Share approved"),
     activated: msg("Share activated and term charged"),
     invitation_sent: msg("Invitation submitted to provider"),

@@ -48,5 +48,6 @@
   },
   "assetAliases": {
     "/guides/installer-guteneo.md": "/guides/install-guteneo.md"
-  }
+  },
+  "privateFragments": ["/app", "/email-preferences"]
 }

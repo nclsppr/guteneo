@@ -125,6 +125,8 @@ const emailStyles = {
   "max-width": [emailLength],
   "border-collapse": [/^(?:collapse|separate)$/],
   "border-spacing": [emailSpacing],
+  "overflow-wrap": [/^(?:normal|break-word|anywhere)$/],
+  "word-break": [/^(?:normal|break-word|break-all)$/],
 };
 const markerSyntax =
   /\{+\s*document(?:[^a-z0-9]|$)|\bdocument_[a-z0-9_]*\s*\}+/i;
@@ -218,7 +220,7 @@ export function cleanEmailHtml(
             if (!options.allowDocumentUrlPlaceholder && !options.documentUrl)
               throw new ContentError(
                 "DOCUMENT_URL_NOT_AVAILABLE",
-                "The document URL placeholder requires protected-link email.",
+                "The document URL placeholder requires document-access email.",
               );
             resolved += 1;
             attribs.href = options.documentUrl ?? DOCUMENT_URL_PLACEHOLDER;

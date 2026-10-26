@@ -4955,7 +4955,7 @@
         "operationId": "prepareSecureDistribution",
         "tags": ["Secure distribution"],
         "summary": "Prepare a secure distribution",
-        "description": "Prepares an immutable PDF for one recipient and term. Asynchronous rendering may return preparing: query the same identifier without recreating the command. No sending or approval. The quote separates sharing, any authorized personal copy and notification. Term activation is non-refundable, including if the document is revoked. Read /api/capabilities and the current catalog; scan, service, notification and account gates remain mandatory.",
+        "description": "Prepares an immutable PDF for one recipient and term. The invitation opens My documents after sign-in/signup, without a separate document password. New policies default recipientBinding to verified_email; independent retains workspace confirmation. Optional subject/message/html use localized workspace defaults and the V2 template. A custom HTML anchor href may be exactly {{document_url}}. Asynchronous rendering may return preparing: query the same identifier without recreating the command. No sending or approval. The quote separates sharing, any authorized personal copy and notification. Term activation is non-refundable, including if the document is revoked. Read /api/capabilities and the current catalog; scan, service, notification and account gates remain mandatory.",
         "security": [
           {
             "GuteneoOAuth": ["dispatches:prepare"]
@@ -11112,6 +11112,11 @@
             "minLength": 1,
             "maxLength": 120
           },
+          "senderId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
           "recipient": {
             "type": "object",
             "properties": {
@@ -11171,19 +11176,26 @@
               }
             ]
           },
-          "subject": {
-            "default": "A document is available in Guteneo",
+          "recipientBinding": {
             "type": "string",
-            "minLength": 1,
+            "enum": ["verified_email", "independent"]
+          },
+          "subject": {
+            "description": "Optional; defaults to a localized subject naming the authenticated workspace.",
+            "type": "string",
             "maxLength": 250
           },
           "message": {
-            "default": "A document has been addressed to you in your Guteneo space.",
+            "description": "Optional plain-text message. Without content, Guteneo introduces the authenticated workspace.",
             "type": "string",
             "maxLength": 16000
           },
+          "html": {
+            "description": "Optional custom HTML with safe inline email styles. Use {{document_url}} as an anchor's exact href to place the My documents button. Never supply a private URL. Without HTML, Guteneo uses its V2 email template.",
+            "type": "string",
+            "maxLength": 150000
+          },
           "notificationLocale": {
-            "default": "fr",
             "type": "string",
             "enum": ["fr", "en", "de", "lb"]
           },
@@ -11240,6 +11252,10 @@
                 "enum": [1095]
               }
             ]
+          },
+          "recipientBinding": {
+            "type": "string",
+            "enum": ["verified_email", "independent"]
           }
         },
         "required": [
@@ -11253,6 +11269,11 @@
       "SecureDistribution": {
         "type": "object",
         "properties": {
+          "recipientFeedback": {
+            "nullable": true,
+            "type": "string",
+            "enum": ["unsubscribed", "reported"]
+          },
           "id": {
             "type": "string",
             "minLength": 1,
@@ -11371,6 +11392,10 @@
                     "enum": [1095]
                   }
                 ]
+              },
+              "recipientBinding": {
+                "type": "string",
+                "enum": ["verified_email", "independent"]
               }
             },
             "required": [
@@ -11520,6 +11545,11 @@
             "items": {
               "type": "object",
               "properties": {
+                "recipientFeedback": {
+                  "nullable": true,
+                  "type": "string",
+                  "enum": ["unsubscribed", "reported"]
+                },
                 "id": {
                   "type": "string",
                   "minLength": 1,
@@ -11638,6 +11668,10 @@
                           "enum": [1095]
                         }
                       ]
+                    },
+                    "recipientBinding": {
+                      "type": "string",
+                      "enum": ["verified_email", "independent"]
                     }
                   },
                   "required": [

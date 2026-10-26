@@ -1619,6 +1619,8 @@ ol {
   margin: 0;
 }
 .diagnostics .diagnostics > div {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 6px;
   padding-top: 0;
   margin-bottom: 12px;
 }

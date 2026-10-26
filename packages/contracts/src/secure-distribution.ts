@@ -23,6 +23,8 @@ export const SECURE_DISTRIBUTION_LIMITS = {
   listLimit: 50,
   draftHours: 24,
   auditActivityRetentionDays: 90,
+  messageCharacters: 16000,
+  htmlCharacters: 150000,
 } as const;
 
 export const securePolicySchema = z
@@ -35,6 +37,8 @@ export const securePolicySchema = z
     personalRetentionDays: z
       .union([z.literal(365), z.literal(1095)])
       .default(365),
+    // Missing on historical approvals: those still require independent binding.
+    recipientBinding: z.enum(["verified_email", "independent"]).optional(),
   })
   .strict();
 export type SecureDistributionPolicy = z.infer<typeof securePolicySchema>;
@@ -42,6 +46,7 @@ export type SecureDistributionPolicy = z.infer<typeof securePolicySchema>;
 export const secureDistributionInputSchema = z
   .object({
     documentId: z.string().min(1).max(120),
+    senderId: z.string().min(1).max(200).optional(),
     recipient: z
       .object({
         address: z.email().max(320),
@@ -52,18 +57,29 @@ export const secureDistributionInputSchema = z
     allowOriginalDownload: securePolicySchema.shape.allowOriginalDownload,
     allowVaultDeposit: securePolicySchema.shape.allowVaultDeposit,
     personalRetentionDays: securePolicySchema.shape.personalRetentionDays,
+    recipientBinding: securePolicySchema.shape.recipientBinding,
     subject: z
       .string()
-      .trim()
-      .min(1)
       .max(250)
-      .default("A document is available in Guteneo"),
+      .optional()
+      .describe(
+        "Optional; defaults to a localized subject naming the authenticated workspace.",
+      ),
     message: z
       .string()
-      .trim()
-      .max(16000)
-      .default("A document has been addressed to you in your Guteneo space."),
-    notificationLocale: z.enum(["fr", "en", "de", "lb"]).default("fr"),
+      .max(SECURE_DISTRIBUTION_LIMITS.messageCharacters)
+      .optional()
+      .describe(
+        "Optional plain-text message. Without content, Guteneo introduces the authenticated workspace.",
+      ),
+    html: z
+      .string()
+      .max(SECURE_DISTRIBUTION_LIMITS.htmlCharacters)
+      .optional()
+      .describe(
+        "Optional custom HTML with safe inline email styles. Use {{document_url}} as an anchor's exact href to place the My documents button. Never supply a private URL. Without HTML, Guteneo uses its V2 email template.",
+      ),
+    notificationLocale: z.enum(["fr", "en", "de", "lb"]).optional(),
     costCeilingMinor: z.number().int().min(0).max(1000000).optional(),
   })
   .strict();
@@ -152,13 +168,14 @@ export interface SecureAuditEvent {
   actorName?: string;
 }
 export interface SecureDistributionView {
+  recipientFeedback?: "unsubscribed" | "reported" | null;
   id: string;
   dispatchId: string | null;
   status: SecureDistributionStatus;
   title: string;
   source: { id: string; name: string; pages: number; sha256: string };
   recipient: { address: string; name?: string };
-  invitation: { subject: string; message: string };
+  invitation: { subject: string; message: string; html?: string };
   policy: SecureDistributionPolicy;
   quote: SecureDistributionQuote;
   expiresAt: string | null;

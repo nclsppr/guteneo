@@ -140,6 +140,28 @@ describe("branded document email", () => {
     expect(footer).toContain("Demandez le mot de passe");
   });
 
+  it.each(["fr", "en", "de", "lb"] as const)(
+    "keeps the quoted document title and exact message in both email alternatives for %s",
+    (locale) => {
+      const input = {
+        text: "Exact supplied message\nSecond line",
+        workspaceName: "Atelier",
+        documentTitle: '<Original & "copy">.pdf',
+        locale,
+      };
+      const quoted =
+        locale === "fr"
+          ? `« ${input.documentTitle} »`
+          : `“${input.documentTitle}”`;
+      const text = transactionalEmailText(input);
+      expect(text).toBe(`guteneo · Atelier\n\n${quoted}\n\n${input.text}`);
+      const html = cleanEmailHtml(renderTransactionalEmail(input)).html;
+      expect(html).toContain("<blockquote");
+      expect(html).toContain("&lt;Original &amp;");
+      expect(html).not.toContain(input.documentTitle);
+    },
+  );
+
   it("keeps replacement metacharacters literal in authenticated workspace names", () => {
     const name = "Studio $& $` $'";
     expect(documentEmailDefaults(name, "attachment", "en")).toEqual({

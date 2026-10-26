@@ -1,5 +1,14 @@
 # Architecture
 
+## Document email entry — 26 October 2026 candidate
+
+Individual web and MCP document email now enters the existing account-based
+secure distribution service by default. The recipient opens **My documents**
+with the matching verified account; no separate document password is generated.
+See [email authoring and compatibility](PROTECTED_EMAIL.md) and the current
+[recipient/approval journeys and authority matrix](SECURE_DISTRIBUTION_JOURNEYS.md).
+This source update does not rewrite historical invitations or prove deployment.
+
 ## MCP issuer migration — 25 October 2026 candidate
 
 The explicit trusted MCP alias and independently selected discovery domain are

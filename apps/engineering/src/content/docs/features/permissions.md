@@ -42,7 +42,7 @@ There are four human membership roles. A connected assistant is a separate OAuth
 | Read a sensitive share and its audit | Current workspace approver | All with approval permission; otherwise own creations | Own creations | No | Same resource access + dispatches:read; no other recipient documents |
 | Approve sensitive distribution | Browser + recent document session | Approval permission + browser + recent document session | No | No | No; expert mandate is insufficient |
 | Confirm sensitive distribution after human approval | Current browser evidence | Approval permission + current browser evidence | No | No | Approver role + dispatches:send + existing sensitive browser evidence + host confirmation |
-| Associate recipient with a stable account | Browser + document policy + independent verification | Approval permission + browser + document policy + independent verification | No | No | No |
+| Independently confirm recipient association when required by policy | Browser + document policy + independent verification | Approval permission + browser + document policy + independent verification | No | No | No |
 | Revoke shared access without refund | Current authority | Approval permission | No | No | Approver role + dispatches:send; acquired personal copy retained |
 | Read/export/delete another person’s personal copy | No, including workspace administrator | No | No | No | No |
 | Keep or export one’s own received document | Personal principal + document policy + share permission | Personal principal + document policy + share permission | Personal principal + document policy + share permission | Personal principal + document policy + share permission | No; personal operation outside workspace OAuth |

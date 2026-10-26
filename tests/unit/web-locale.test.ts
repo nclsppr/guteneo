@@ -19,6 +19,7 @@ import { nanoMoney, money, setSession } from "../../apps/web/src/api";
 import { getCustomerPricing } from "../../apps/web/src/customer-pricing";
 import { getPublicSocialCopy } from "../../apps/web/src/editorial/social-copy";
 import publicSite from "../../packages/contracts/src/public-site.json";
+import secureDocumentMessages from "../../apps/web/src/locales/messages-secure-documents.json";
 
 vi.mock("react", async (importOriginal) => {
   const react = await importOriginal<typeof React>();
@@ -42,6 +43,18 @@ afterEach(() => {
   setLocale("fr", false);
 });
 describe("complete product language catalogs", () => {
+  it.each(["fr", "en", "de", "lb"] as const)(
+    "retains the shared original-download label after merging email copy in %s",
+    (locale) => {
+      setLocale(locale, false);
+      const source = "Autoriser le téléchargement du PDF original";
+      expect(msg("Allow download of the original PDF")).toBe(
+        locale === "fr"
+          ? source
+          : secureDocumentMessages[source][["en", "de", "lb"].indexOf(locale)],
+      );
+    },
+  );
   for (const locale of ["en", "de", "lb"] as const) {
     it(`${locale} covers every French catalog leaf including array content`, () => {
       const source = leaves(catalogs.fr);

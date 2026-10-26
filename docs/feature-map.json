@@ -399,18 +399,20 @@
       "doc": "PROTECTED_EMAIL.md",
       "source": "apps/api/src/protected-documents.ts",
       "features": [
+        "Individual web/MCP PDF email defaults to My documents: one verified recipient account, no separate password; optional subject/body, localized workspace V2 template and custom HTML href={{document_url}}; final message is frozen before browser approval; account text/HTML limits are exposed in capabilities and preparation descriptions with field-specific overflow errors before rendering",
         "Text/HTML email without a file, with a PDF attachment or with a protected link",
         "Recipient-request attestation and transactional requirements",
         "Explicit quote and per-document hosting charge",
         "Protected-link footer and expiration date use the authenticated sender account language (French fallback), with four-language catalog, UTC date formatting and declared Luxembourgish months independent of runtime Intl support; recipient link locale freezes before fingerprinting; no translation of entered content or rewrite of approved/sent messages",
         "Private /share route and unlock/content children bypass Static Assets and public-error rendering; existing links retain hosting and access checks, with no sitemap inclusion or automatic resend",
         "Accessible ready document emails can omit subject/body independently for localized authenticated-workspace defaults (body only when both text and HTML are absent; HTML otherwise derives text); message-only email still requires content and caller HTML cannot select workspace identity",
-        "Web individual/campaign forms omit blank document-message fields, expose a protected-button marker helper and show a shared-template draft preview without invented access URLs; exact final link/expiry stays in prepared review",
-        "Branded default document-email template or custom HTML with safe inline email styles; exact protected-only anchor href={{document_url}} resolves server-side without a duplicate CTA; markerless custom HTML gets a styled fallback and both retain access instructions before quote/fingerprint, with malformed/unsupported markers rejected and private URL/password summary masking retained",
+        "Web individual/campaign forms omit blank document-message fields; individual account-button helpers use the notification locale and preserve authored HTML; the shared draft preview retains directly loaded or uploaded document titles outside the first list page without invented access URLs",
+        "Branded default document-email template or custom HTML with safe inline email styles; exact account-invitation or explicit legacy protected-link anchor href={{document_url}} resolves server-side without a duplicate CTA; markerless custom HTML gets a styled fallback and both retain access instructions before quote/fingerprint, with malformed/unsupported markers rejected and private URL/password summary masking retained",
         "Private link, expiry and browser-only password entry",
         "Download without a recipient account under access controls",
         "Preparation, approval, tracking and provider policy",
-        "Resend/SES availability is gated separately from activation; public price references and operator account limits have dated qualification, while account-wide quota policy, webhook/secret and delivery require independent installation and verification"
+        "Resend/SES availability is gated separately from activation; public price references and operator account limits have dated qualification, while account-wide quota policy, webhook/secret and delivery require independent installation and verification",
+        "Default email quotes the frozen document title in HTML and plain text and includes Discover guteneo plus explicit unsubscribe/report controls; hashed mailbox capabilities suppress only their originating workspace through transaction-time eligibility fences, with separate recipientFeedback status, idempotent lifecycle receipts and stable satisfied-replay timestamps"
       ],
       "status": "Implemented email candidate; dated operator qualification is separate from deployment, global D1 quota policy, signed webhooks and actual delivery.",
       "tests": [
@@ -426,9 +428,12 @@
         "tests/security/public-assets.test.mjs",
         "tests/e2e/protected-email.spec.ts",
         "tests/e2e/protected-recipient.spec.ts",
-        "tests/e2e/email-recipient-attestation.spec.ts"
+        "tests/e2e/email-recipient-attestation.spec.ts",
+        "tests/e2e/email-preferences.spec.ts",
+        "tests/unit/secure-distribution-core.test.ts",
+        "tests/unit/mcp-secure-distribution.test.ts"
       ],
-      "surfaces": "Web, REST, MCP and mobile API preparation/tracking; current Swift composer offers message-only email, not document/template controls; protected password is browser-only.",
+      "surfaces": "Individual web and MCP default to secure account delivery; REST uses /api/secure-distributions. Explicit attachments and legacy password links, campaigns and native message-only wire contracts remain compatible. Recipient access stays in the personal browser.",
       "id": "email",
       "category": "Deliver",
       "availability": "capability-gated",
@@ -451,7 +456,7 @@
         "Review final pages/text, recipient, message, permissions and quote before browser approval under the active policy; email-request attestation remains separate",
         "Atomic activation and outbox insertion require sensitive browser evidence even through REST/MCP confirmation; expert delegation cannot approve this flow",
         "Opaque invitation moves through same-tab handoff and a POST exchange, never authentication returnTo, logs, MCP responses or public captures",
-        "Individual association requires a verified address, stable-account request and independent workspace confirmation; pending association exposes no sensitive title",
+        "New immutable verified_email policy binds the matching verified address and stable account at claim under fresh-session checks; independent or missing historical policy still requires workspace confirmation",
         "My documents separates Shared with me and Saved copies, with bounded server filtering/search and pagination over authorized documents",
         "Private pages and text load on demand; document policy, recent session and current grant are rechecked before each delivery",
         "Paginated workspace audit distinguishes server/browser provenance and actor account without claiming physical identity; detailed access events retain ninety days, immutable receipts remain separate, visible refresh is bounded and no full reading, disk save or screenshot is proven",
@@ -772,7 +777,7 @@
         "Temporary appearance=v2/classic override accepts legacy atelier URLs, never persists server-side and clears after explicit appearance save or identity change; local cache is non-authoritative",
         "Existing activity/alerts precede introduction, otherwise a complete welcome; content preview precedes approval in reading/tab order",
         "Stable PDF frame above dispatch-review and document-page verification-purchase consent across lazy module loading/render/error, keyboard-accessible internal scrolling and unchanged consent/data authority",
-        "Consistent documents, preparation, review, tracking, assistants, account, studio, PDF verification, credits, tables and forms; Belvédère shares the V2 visual vocabulary while retaining distinct platform authority and read-only data",
+        "Consistent documents, preparation, review, tracking, assistants, account, studio, PDF verification, credits, tables and forms; Belvédère shares the V2 visual vocabulary while retaining distinct platform authority and read-only data; recursive diagnostics keep outer key/value columns and stack nested fields without zero-width values or page overflow",
         "One brand signature, workshop in navigation and no redundant V2 footer; service status near account and browser timezone near dates",
         "One page title, contextual detail back link and task-specific primary action; global New dispatch stays secondary and permission-aware",
         "Generation introduction focuses on finding PDFs and makes clear that generation sends nothing",
@@ -1048,10 +1053,10 @@
       "id": "J05",
       "title": "Prepare an email",
       "actor": "Preparer → current approver",
-      "steps": "Collect recipient, requested message and ceiling → choose no file, ready PDF attachment or protected link → optionally use trusted workspace subject/body defaults for an accessible ready PDF and choose branded or custom HTML → for protected links, resolve a safe custom button marker and append localized access instructions before fingerprinting → obtain the quote → review final content/options → record recipient-request attestation and browser/existing delegated approval → confirm → track.",
+      "steps": "Collect recipient and ready PDF → default to My documents, with an explicit attachment alternative → optionally supply subject/message/custom HTML with {{document_url}}, otherwise use localized workspace V2 defaults → prepare secure distribution → follow rendering on the same ID → browser review exact email, PDF, policy and quote → attest the email request → approve and confirm → track. Message-only and explicit legacy modes retain ordinary dispatch approval. → recipient may explicitly unsubscribe/report through the footer; track the response separately from delivery and access.",
       "branch": "Deliver",
       "doc": "PROTECTED_EMAIL.md",
-      "failure": "Never infer recipient consent. Protected passwords stay in the sender browser and are shared separately. Provider acceptance/delivery/PDF reading are different facts; unknown outcomes require reconciliation. Later workspace/profile changes do not rewrite frozen content or resend existing mail. Missing/invalid documents do not permit defaults; malformed or wrong-mode button markers require corrected preparation."
+      "failure": "Never infer recipient consent. Protected passwords stay in the sender browser and are shared separately. Provider acceptance/delivery/PDF reading are different facts; unknown outcomes require reconciliation. Later workspace/profile changes do not rewrite frozen content or resend existing mail. Missing/invalid documents do not permit defaults; malformed or wrong-mode button markers require corrected preparation. Account content overflow identifies the field and limit before rendering; generated buttons follow the notification locale even when interface and account language differ."
     },
     {
       "id": "J06",
@@ -1236,8 +1241,8 @@
     {
       "id": "J26",
       "title": "Receive a sensitive document with one Guteneo account",
-      "actor": "Personal recipient, with or without a workspace; sender’s current approver confirms association",
-      "steps": "Open the invitation → capture/remove its fragment token before any HTTP login URL → same-tab ten-minute handoff → Auth0 sign-in/registration and secret-free return → request association with verified account/address and a recent session under the active policy → await independent workspace confirmation → read authorized pages/text and find the share in My documents. Receipt creates no workspace, purchase or marketing consent.",
+      "actor": "Personal recipient with matching verified address and current-policy session; workspace approver only for independent policies",
+      "steps": "Open the invitation → capture/remove its fragment token before any HTTP login URL → same-tab ten-minute handoff → Auth0 sign-in/registration and secret-free return → open the document with verified account/address and a recent session → atomically bind the stable account for verified_email, or await workspace confirmation only for independent/historical policies → read authorized pages/text and find the share in My documents. Receipt creates no workspace, purchase or marketing consent.",
       "branch": "Active individual invitation, personal principal and current document policy; association confirmed before content",
       "doc": "SECURE_DISTRIBUTION_JOURNEYS.md",
       "failure": "Wrong account, expired token, revoked access or insufficient policy evidence exposes no sensitive title/original. Explicitly switch account or reopen the link; if storage is blocked, sign in then reopen without a secret returnTo. A 401 offers explicit recovery without loops. No physical identity or complete reading is promised. A changed association candidate requires fresh attestation. Personal-list 401/403 clears metadata/cursors and ignores late obsolete responses."
@@ -1246,7 +1251,7 @@
       "id": "J27",
       "title": "Prepare and activate sensitive distribution",
       "actor": "Authorized preparer → browser approver under the active document policy → authorized confirmer",
-      "steps": "Open Secure distribution after Documents, keeping Overview/Assistants first and the active entry coherent → select an accessible ready PDF up to 100 pages/10 MiB → one recipient → 7/30/90/365 days → optional original export/personal copy → subject/message/language → idempotent preparation → follow preparing under the same ID → review final pages/text, recipient, rights, message and tax-exclusive total including transport → separately attest the email request → browser approve → confirm/activate → inspect paginated provenance/actor audit with ninety-day detailed access and separate immutable receipts. Revocation blocks future access without refund. Explicit source pagination reaches older PDFs; permitted personal copies remain exportable even when the shared original is not.",
+      "steps": "Open Secure distribution after Documents, keeping Overview/Assistants first and the active entry coherent → select an accessible ready PDF up to 100 pages/10 MiB → one recipient → 7/30/90/365 days → optional original export/personal copy → optional subject/message/custom HTML or localized workspace V2 defaults, plus approved binding policy → idempotent preparation → follow preparing under the same ID → review final pages/text, recipient, rights, message and tax-exclusive total including transport → separately attest the email request → browser approve → confirm/activate → inspect paginated provenance/actor audit with ninety-day detailed access and separate immutable receipts. Revocation blocks future access without refund. Explicit source pagination reaches older PDFs; permitted personal copies remain exportable even when the shared original is not.",
       "branch": "Web/REST/MCP/packages prepare and follow; sensitive approval is browser-only",
       "doc": "SECURE_DISTRIBUTION_JOURNEYS.md",
       "failure": "Unqualified source, integrity, scan, rendering, authority, price, credit or configuration closes the flow. Revoke unexpired legacy draft/active hosting first. A prior postal derivation, legacy send, postal preflight or provider draft requires a dedicated source even after cancellation/failure. Sensitive reference permanently excludes ordinary email/fax/postal attachments, legacy transforms, cropping, analysis and password reads; only the dedicated sourceless invitation remains eligible. Bidirectional service/SQL guards close concurrent legacy writes and provider-transfer races. No original/legacy-link fallback. Expert mandates and assistant-asserted consent cannot approve. Unknown outcomes reread the same ID without new orders or blind provider retry. Check my access voluntarily opens /auth/login?fresh=1 and returns to the distribution list without sensitive IDs/invitations; it grants no preparation/approval or implicit old SSO. Dated Resend qualification/local email flags establish no installed global D1 quotas, webhook/secret or delivery."
@@ -1313,6 +1318,15 @@
       "branch": "Documents",
       "doc": "PRIVATE_DOCUMENT_UPLOAD.md",
       "failure": "Reject invalid/noncanonical base64, inline overflow, original size/hash mismatch, unknown/used/expired capability, binary cookies/Authorization/Origin/query/encoding, changed issuer trust/client/connection/revision/membership, overflow and timeout. Validate inline bytes before creating a reservation; the existing 2 MiB MCP request limit is unchanged and does not imply a 10 MiB inline route. Never publish, chunk, truncate or reconstruct a private PDF. Recovery retains the same key/upload/document and never blindly retries an unknown outcome or logs original bytes/capabilities. No sending, purchase or human/delegated approval is created. Web/Desktop/Code evidence does not qualify Claude on iPhone."
+    },
+    {
+      "id": "J35",
+      "title": "Decline or report document email",
+      "actor": "Holder of the recipient preference capability; sender reads only their authorized delivery status",
+      "steps": "Open the email footer preference link → capture and remove fragment token without sign-in or API reads → explicitly unsubscribe or report → same-origin bounded POST → atomic originating-workspace suppression and lifecycle receipt → show Unsubscribed or Email reported separately from delivery and existing document rights.",
+      "branch": "Recipient-only browser action; scoped REST/MCP readback, no assistant preference tool",
+      "doc": "EMAIL_RECIPIENT_FEEDBACK.md",
+      "failure": "Invalid/draft/cancelled capabilities reveal no address or title. GET/scanners do not write. Reopen or retry the same link after failure. Other workspaces and already received documents remain unaffected; reports cannot be downgraded and unknown provider outcomes never auto-retry. A cancellation between capability lookup and commit fails the transaction-time eligibility fences without a preference write; satisfied replays preserve the update timestamp."
     }
   ],
   "roles": [
@@ -1558,7 +1572,7 @@
       "Approver role + dispatches:send + existing sensitive browser evidence + host confirmation"
     ],
     [
-      "Associate recipient with a stable account",
+      "Independently confirm recipient association when required by policy",
       "Browser + document policy + independent verification",
       "Approval permission + browser + document policy + independent verification",
       "No",

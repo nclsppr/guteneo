@@ -98,3 +98,22 @@ The [testing guide](/engineering/testing/) separates local regression evidence,
 isolated-engine qualification, exact-source CI, hosted observations and real
 delivery. Public [status](https://status.guteneo.com/) reports bounded health; it
 does not certify every account, host, provider or security control.
+
+## Verified-address invitation binding
+
+The 26 October 2026 candidate connects individual email to the existing personal
+document service. New approved policies default to `recipientBinding=verified_email`.
+The claim transaction checks the private invitation, matching verified email,
+stable authenticated identity, active share and fresh current-policy session,
+then binds that account once and records a server event. This proves address
+control, not physical identity, and grants no workspace membership. Historical
+policies without the field and explicit `independent` policies retain human
+workspace confirmation. Never rewrite an approved policy to repair a delivery.
+
+The dependency chain is the existing identity/session service, D1 transaction,
+private renderer/storage and email outbox. Missing service configuration, stale
+authentication, wrong address, expired or revoked access fail closed. Recover on
+the same preparation and use explicit fresh login when requested. No new Auth0
+configuration or credential is introduced. `docs/SECURE_DISTRIBUTION_JOURNEYS.md`
+owns authority and recovery; `docs/PROTECTED_EMAIL.md` owns email compatibility.
+Local tests are distinct from live signup, delivery and publication proof.

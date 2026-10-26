@@ -1,3 +1,4 @@
+import { handleEmailRecipientFeedback } from "../../apps/api/src/email-recipient-feedback";
 import { readFile, readdir } from "node:fs/promises";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { Miniflare, convertV4MiniflareOptions } from "miniflare";
@@ -8,6 +9,7 @@ import {
   secureDistributionInputSchema,
   secureDistributionQuote,
   type SecureDistributionPolicy,
+  type SecureDistributionInput,
 } from "../../packages/contracts/src/secure-distribution";
 import {
   authenticateBrowser,
@@ -332,6 +334,7 @@ async function fixture(
 }
 type Fixture = Awaited<ReturnType<typeof fixture>>;
 const policy: SecureDistributionPolicy = {
+  recipientBinding: "independent",
   retentionDays: 7,
   allowOriginalDownload: false,
   allowVaultDeposit: true,
@@ -340,12 +343,14 @@ const policy: SecureDistributionPolicy = {
 async function prepared(
   f: Fixture,
   options: Partial<SecureDistributionPolicy> = {},
+  invitation: Partial<SecureDistributionInput> = {},
 ) {
   const input = secureDistributionInputSchema.parse({
     documentId: f.source.id,
     recipient: { address: f.recipient.email! },
     ...policy,
     ...options,
+    ...invitation,
   });
   const key = id("prepare");
   const initial = await f.service.prepare(f.ctx, input, key);
@@ -1424,5 +1429,424 @@ describe("personal copies — independent ownership and final authorization", ()
         .bind(p.view.id)
         .first(),
     ).toEqual({ n: 1 });
+  });
+});
+
+describe("account document invitations", () => {
+  it.each(["stale", "expired", "unverified", "revoked"] as const)(
+    "refuses automatic binding when the persisted personal session is %s",
+    async (change) => {
+      const f = await fixture("simulation", 1, "verified_account");
+      const share = await accepted(f, { recipientBinding: "verified_email" });
+      const token = await openSecureSecret(
+        f.env,
+        `${f.organizationId}:${share.view.id}`,
+        share.row.sealed_token,
+      );
+      const statement =
+        change === "stale"
+          ? "UPDATE personal_sessions SET authenticated_at=1 WHERE token_hash=?"
+          : change === "expired"
+            ? "UPDATE personal_sessions SET expires_at='2000-01-01T00:00:00.000Z' WHERE token_hash=?"
+            : change === "unverified"
+              ? "UPDATE personal_sessions SET verified_email=NULL,verified_account=0 WHERE token_hash=?"
+              : "DELETE FROM personal_sessions WHERE token_hash=?";
+      await db.prepare(statement).bind(f.recipient.tokenHash).run();
+      await expect(f.personal.claim(f.recipient, token)).rejects.toThrow();
+      expect(
+        await db
+          .prepare(
+            "SELECT recipient_user_id,bound_at FROM secure_distributions WHERE id=?",
+          )
+          .bind(share.view.id)
+          .first(),
+      ).toEqual({ recipient_user_id: null, bound_at: null });
+    },
+  );
+  it("adds one styled account button to custom HTML without a marker and preserves supplied subject and text", async () => {
+    const f = await fixture();
+    const p = await prepared(
+      f,
+      { recipientBinding: undefined },
+      {
+        subject: "Exact user subject",
+        message: "Exact alternative text",
+        html: '<h2 style="color:#2450db">Custom content</h2>',
+        notificationLocale: "en",
+      },
+    );
+    const d = (await f.domain.getDispatch(f.ctx, p.view.dispatchId!)).dispatch;
+    expect(d.subject).toBe("Exact user subject");
+    expect(d.text).toContain("Exact alternative text");
+    expect(d.html).toContain('<h2 style="color:#2450db">Custom content</h2>');
+    expect(d.html?.match(/href="[^"]*#\/app\/my-documents/g)).toHaveLength(1);
+    expect(d.html).toContain("Open in My documents");
+    expect(d.html).toContain("border-radius:7px");
+    expect(d.html).not.toContain("Your document is ready.");
+  });
+
+  it("opens the approved document for the matching verified account without independent confirmation", async () => {
+    const f = await fixture("simulation", 1, "verified_account");
+    const share = await accepted(f, {
+      recipientBinding: "verified_email",
+      allowOriginalDownload: true,
+    });
+    const token = await openSecureSecret(
+      f.env,
+      `${f.organizationId}:${share.view.id}`,
+      share.row.sealed_token,
+    );
+    await expect(f.personal.claim(f.owner, token)).rejects.toThrow();
+    expect(await f.personal.claim(f.recipient, token)).toMatchObject({
+      id: share.view.id,
+      status: "active",
+      recipientBinding: "confirmed",
+    });
+    expect(await f.personal.claim(f.recipient, token)).toMatchObject({
+      status: "active",
+    });
+    const result = await f.personal.get(f.recipient, share.view.id);
+    expect(result.pages).toHaveLength(1);
+    expect(result.status).toBe("active");
+    expect(await memberships(f.env, f.recipient.userId)).toEqual([]);
+    expect(
+      await db
+        .prepare(
+          "SELECT binding_method,binding_by FROM secure_distributions WHERE id=?",
+        )
+        .bind(share.view.id)
+        .first(),
+    ).toEqual({
+      binding_method: "verified_email",
+      binding_by: f.recipient.userId,
+    });
+    expect(
+      await db
+        .prepare(
+          "SELECT count(*) n FROM secure_document_events WHERE distribution_id=? AND type='recipient_verified_email_bound'",
+        )
+        .bind(share.view.id)
+        .first(),
+    ).toEqual({ n: 1 });
+    await f.service.revoke(f.ctx, share.view.id);
+    await expect(f.personal.claim(f.recipient, token)).rejects.toThrow();
+    expect((await f.personal.get(f.recipient, share.view.id)).pages).toEqual(
+      [],
+    );
+  });
+  it("freezes localized workspace defaults and resolves a styled HTML marker before review", async () => {
+    const f = await fixture();
+    await db
+      .prepare("UPDATE organizations SET name='Atelier Exemple' WHERE id=?")
+      .bind(f.organizationId)
+      .run();
+    await db
+      .prepare("UPDATE users SET preferred_locale='fr' WHERE id=?")
+      .bind(f.ctx.userId)
+      .run();
+    const p = await prepared(
+      f,
+      { recipientBinding: undefined },
+      {
+        html: '<p>Votre message.</p><a href="{{document_url}}" style="background-color:#2450db;color:#ffffff;padding:14px 24px;border-radius:7px">Consulter</a>',
+      },
+    );
+    expect(p.view.policy.recipientBinding).toBe("verified_email");
+    const original = (await f.domain.getDispatch(f.ctx, p.view.dispatchId!))
+      .dispatch;
+    expect(original.subject).toContain("Atelier Exemple");
+    expect(original.html).toContain("#/app/my-documents?invitation=");
+    expect(original.html).toContain("background-color:#2450db");
+    expect(original.html).toContain("créez votre compte Guteneo");
+    expect(original.html).not.toContain("{{document_url}}");
+    expect(original.html).not.toContain("mot de passe");
+    expect(
+      original.html?.match(/href="[^"]*#\/app\/my-documents/g),
+    ).toHaveLength(1);
+    expect(original.text).toContain("#/app/my-documents?invitation=");
+    expect(original.document_id).toBeNull();
+    await db
+      .prepare("UPDATE organizations SET name='Changed workspace' WHERE id=?")
+      .bind(f.organizationId)
+      .run();
+    await db
+      .prepare("UPDATE users SET preferred_locale='de' WHERE id=?")
+      .bind(f.ctx.userId)
+      .run();
+    await f.service.prepare(f.ctx, p.input, p.key);
+    const replay = (await f.domain.getDispatch(f.ctx, p.view.dispatchId!))
+      .dispatch;
+    expect(replay.fingerprint).toBe(original.fingerprint);
+    expect(replay.html).toBe(original.html);
+  });
+  it.each(["fr", "en", "de", "lb"] as const)(
+    "uses the V2 template and one account button in %s without custom content",
+    async (locale) => {
+      const f = await fixture();
+      const p = await prepared(
+        f,
+        { recipientBinding: undefined },
+        { notificationLocale: locale },
+      );
+      const d = (await f.domain.getDispatch(f.ctx, p.view.dispatchId!))
+        .dispatch;
+      expect(d.html).toContain("border-radius:10px");
+      expect(d.html).toContain("font-family:Georgia,serif");
+      expect(d.html).toContain(`?lang=${locale}#/app/my-documents`);
+      expect(d.html?.match(/href="[^"]*#\/app\/my-documents/g)).toHaveLength(1);
+      expect(d.text).toContain(
+        locale === "fr" ? `« ${p.view.title} »` : `“${p.view.title}”`,
+      );
+      expect(d.html).not.toContain("/share/");
+      expect(d.html).not.toContain("password");
+    },
+  );
+  it("rejects misplaced placeholders before rendering or inserting a preparation", async () => {
+    const f = await fixture();
+    await expect(
+      f.service.prepare(
+        f.ctx,
+        secureDistributionInputSchema.parse({
+          documentId: f.source.id,
+          recipient: { address: f.recipient.email! },
+          html: "<p>{{document_url}}</p>",
+        }),
+        id("bad-html"),
+      ),
+    ).rejects.toMatchObject({ code: "INVALID_DOCUMENT_URL_PLACEHOLDER" });
+    expect(
+      await db
+        .prepare(
+          "SELECT count(*) n FROM secure_distributions WHERE organization_id=?",
+        )
+        .bind(f.organizationId)
+        .first(),
+    ).toEqual({ n: 0 });
+    expect(f.renderer).not.toHaveBeenCalled();
+  });
+});
+
+describe("recipient feedback belongs to the document delivery lifecycle", () => {
+  async function request(
+    f: Fixture,
+    token: string,
+    action: "unsubscribe" | "report",
+    originHeader = origin,
+  ) {
+    return handleEmailRecipientFeedback(
+      new Request(`${origin}/api/email-preferences`, {
+        method: "POST",
+        headers: { Origin: originHeader, "Content-Type": "application/json" },
+        body: JSON.stringify({ token, action }),
+      }),
+      f.env,
+    );
+  }
+  async function feedbackToken(f: Fixture, dispatchId: string) {
+    const d = (await f.domain.getDispatch(f.ctx, dispatchId)).dispatch;
+    const token = d.text?.match(/email-preferences\?token=([a-f0-9]{64})/)?.[1];
+    if (!token) throw new Error("Synthetic feedback capability is missing.");
+    return token;
+  }
+  it("records unsubscribe and report once, preserves document access and blocks only the originating workspace", async () => {
+    const f = await fixture("simulation", 1, "verified_account");
+    const share = await accepted(f, { recipientBinding: "verified_email" });
+    const token = await feedbackToken(f, share.view.dispatchId!);
+    const before = await f.domain.prepareDispatch(
+      f.ctx,
+      {
+        channel: "email",
+        recipient: { email: f.recipient.email! },
+        subject: "Pending",
+        text: "Synthetic pending message",
+      },
+      id("pending"),
+    );
+    await f.domain.approveDispatch(f.ctx, before.id, before.fingerprint, {
+      recipientRequested: true,
+    });
+    for (const action of [
+      "unsubscribe",
+      "unsubscribe",
+      "report",
+      "unsubscribe",
+    ] as const) {
+      const response = await request(f, token, action);
+      expect(response?.status).toBe(200);
+    }
+    const view = await f.service.get(f.ctx, share.view.id);
+    expect(view.recipientFeedback).toBe("reported");
+    expect(view.status).toBe("active");
+    expect(
+      view.audit.filter(
+        (event) => event.type === "recipient_email_unsubscribed",
+      ),
+    ).toHaveLength(1);
+    expect(
+      view.audit.filter((event) => event.type === "recipient_email_reported"),
+    ).toHaveLength(1);
+    expect(
+      await db
+        .prepare(
+          "SELECT reason FROM suppressions WHERE organization_id=? AND email=?",
+        )
+        .bind(f.organizationId, f.recipient.email!)
+        .first(),
+    ).toEqual({ reason: "complaint" });
+    await expect(
+      f.domain.prepareDispatch(
+        f.ctx,
+        {
+          channel: "email",
+          recipient: { email: f.recipient.email! },
+          subject: "Blocked",
+          text: "Blocked",
+        },
+        id("blocked"),
+      ),
+    ).rejects.toMatchObject({ code: "RECIPIENT_SUPPRESSED" });
+    await expect(
+      f.domain.confirmDispatch(f.ctx, before.id, id("blocked-confirm")),
+    ).rejects.toMatchObject({ code: "RECIPIENT_SUPPRESSED" });
+    const renders = f.renderer.mock.calls.length;
+    await expect(
+      f.service.prepare(f.ctx, share.input, id("blocked-share")),
+    ).rejects.toMatchObject({ code: "RECIPIENT_SUPPRESSED" });
+    expect(f.renderer.mock.calls.length).toBe(renders);
+    const invitation = await openSecureSecret(
+      f.env,
+      `${f.organizationId}:${share.view.id}`,
+      share.row.sealed_token,
+    );
+    expect(await f.personal.claim(f.recipient, invitation)).toMatchObject({
+      status: "active",
+    });
+    expect(
+      (await f.personal.get(f.recipient, share.view.id)).pages,
+    ).toHaveLength(1);
+    const other = await fixture();
+    await expect(
+      other.domain.prepareDispatch(
+        other.ctx,
+        {
+          channel: "email",
+          recipient: { email: f.recipient.email! },
+          subject: "Other workspace",
+          text: "Separate authority",
+        },
+        id("other-workspace"),
+      ),
+    ).resolves.toMatchObject({ status: "prepared" });
+  });
+  it("rejects cancellation between capability lookup and the atomic feedback writes", async () => {
+    const f = await fixture();
+    const share = await accepted(f);
+    const token = await feedbackToken(f, share.view.dispatchId!);
+    const batch = vi.fn(async (statements: D1PreparedStatement[]) => {
+      expect(
+        (await f.domain.cancelDispatch(f.ctx, share.view.dispatchId!)).status,
+      ).toBe("cancelled");
+      return db.batch(statements);
+    });
+    const racingDb = new Proxy(db, {
+      get(target, key) {
+        if (key === "batch") return batch;
+        const value = Reflect.get(target, key);
+        return typeof value === "function" ? value.bind(target) : value;
+      },
+    });
+    const response = await request(
+      { ...f, env: { ...f.env, DB: racingDb } },
+      token,
+      "report",
+    );
+    expect(batch).toHaveBeenCalledOnce();
+    expect(response?.status).toBe(404);
+    expect(
+      await db
+        .prepare(
+          "SELECT status,recipient_feedback FROM dispatches WHERE organization_id=? AND id=?",
+        )
+        .bind(f.organizationId, share.view.dispatchId!)
+        .first(),
+    ).toEqual({ status: "cancelled", recipient_feedback: null });
+    expect(
+      await db
+        .prepare("SELECT count(*) n FROM suppressions WHERE organization_id=?")
+        .bind(f.organizationId)
+        .first(),
+    ).toEqual({ n: 0 });
+    expect(
+      await db
+        .prepare(
+          "SELECT count(*) n FROM secure_document_events WHERE organization_id=? AND distribution_id=? AND type LIKE 'recipient_email_%'",
+        )
+        .bind(f.organizationId, share.view.id)
+        .first(),
+    ).toEqual({ n: 0 });
+    expect(
+      await db
+        .prepare(
+          "SELECT count(*) n FROM audit_log WHERE organization_id=? AND resource_id=? AND action LIKE 'recipient.email_%'",
+        )
+        .bind(f.organizationId, share.view.dispatchId!)
+        .first(),
+    ).toEqual({ n: 0 });
+  });
+  it.each(["unsubscribe", "report"] as const)(
+    "preserves the lifecycle timestamp when replaying %s",
+    async (action) => {
+      const f = await fixture();
+      const share = await accepted(f);
+      const token = await feedbackToken(f, share.view.dispatchId!);
+      expect((await request(f, token, action))?.status).toBe(200);
+      const earlierResponseAt = new Date(Date.now() - 60000).toISOString();
+      await db
+        .prepare(
+          "UPDATE dispatches SET updated_at=? WHERE organization_id=? AND id=?",
+        )
+        .bind(earlierResponseAt, f.organizationId, share.view.dispatchId!)
+        .run();
+      for (const replay of [action, "unsubscribe"] as const) {
+        const response = await request(f, token, replay);
+        expect(response?.status).toBe(200);
+        expect(await response?.json()).toEqual({
+          feedback: action === "report" ? "reported" : "unsubscribed",
+          scope: "workspace",
+        });
+        expect(
+          await db
+            .prepare(
+              "SELECT updated_at FROM dispatches WHERE organization_id=? AND id=?",
+            )
+            .bind(f.organizationId, share.view.dispatchId!)
+            .first(),
+        ).toEqual({ updated_at: earlierResponseAt });
+      }
+    },
+  );
+  it("rejects GET, cross-origin requests, invalid capabilities and draft previews without a preference change", async () => {
+    const f = await fixture();
+    const draft = await prepared(f);
+    const token = await feedbackToken(f, draft.view.dispatchId!);
+    expect(
+      (
+        await handleEmailRecipientFeedback(
+          new Request(`${origin}/api/email-preferences`),
+          f.env,
+        )
+      )?.status,
+    ).toBe(405);
+    expect(
+      (await request(f, token, "unsubscribe", "https://other.invalid"))?.status,
+    ).toBe(403);
+    expect((await request(f, "0".repeat(64), "report"))?.status).toBe(404);
+    expect((await request(f, token, "unsubscribe"))?.status).toBe(404);
+    expect(
+      await db
+        .prepare("SELECT count(*) n FROM suppressions WHERE organization_id=?")
+        .bind(f.organizationId)
+        .first(),
+    ).toEqual({ n: 0 });
   });
 });

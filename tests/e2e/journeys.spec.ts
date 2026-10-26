@@ -286,6 +286,9 @@ test("generates an inspectable PDF, approves the frozen email and tracks its sim
   await screenshot(page, `document-${testInfo.project.name}`);
   await page.getByRole("link", { name: "Utiliser pour un envoi" }).click();
   await page.getByRole("radio", { name: "E-mail", exact: true }).check();
+  await page
+    .getByLabel("Accès au document", { exact: true })
+    .selectOption("attachment");
   await page.getByLabel("Adresse e-mail").fill("e2e@example.invalid");
   await page
     .getByLabel("Objet (facultatif)", { exact: true })

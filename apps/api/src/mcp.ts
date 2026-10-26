@@ -67,10 +67,11 @@ import {
   type PostalReviewInput,
   type PostalReview,
 } from "../../../packages/contracts/src/postal-review";
-import type {
-  DomainService,
-  Dispatch,
-  DocumentRecord,
+import {
+  DomainError,
+  type DomainService,
+  type Dispatch,
+  type DocumentRecord,
 } from "../../../packages/domain/src/index";
 import {
   AuthError,
@@ -88,6 +89,7 @@ import {
   type PrivateUploadView,
 } from "./document-upload";
 import {
+  SECURE_DISTRIBUTION_LIMITS,
   secureDistributionInputSchema,
   securePolicySchema,
   type SecureDistributionInput,
@@ -322,6 +324,10 @@ const faxPricingSchema = z
   .strict();
 const dispatchSchema = z
   .object({
+    recipientFeedback: z
+      .enum(["unsubscribed", "reported"])
+      .nullable()
+      .optional(),
     id: z.string(),
     channel: z.enum(["fax", "email", "postal"]),
     status: z.string(),
@@ -388,6 +394,10 @@ const id = z.string().min(1).max(200);
 const key = z.string().min(1).max(200);
 export const secureDistributionSchema = z
   .object({
+    recipientFeedback: z
+      .enum(["unsubscribed", "reported"])
+      .nullable()
+      .optional(),
     id,
     dispatchId: id.nullable(),
     status: z.enum([
@@ -452,6 +462,7 @@ export function secureDistributionSummary(view: SecureDistributionView) {
   return {
     id: view.id,
     dispatchId: view.dispatchId,
+    recipientFeedback: view.recipientFeedback ?? null,
     status: view.status,
     title: view.title,
     source: {
@@ -473,6 +484,9 @@ export function secureDistributionSummary(view: SecureDistributionView) {
       allowOriginalDownload: view.policy.allowOriginalDownload,
       allowVaultDeposit: view.policy.allowVaultDeposit,
       personalRetentionDays: view.policy.personalRetentionDays,
+      ...(view.policy.recipientBinding
+        ? { recipientBinding: view.policy.recipientBinding }
+        : {}),
     },
     quote: {
       sharedMinor: view.quote.sharedMinor,
@@ -638,12 +652,14 @@ export const FAX_WORKFLOW = [
 ].join("\n");
 
 export const EMAIL_WORKFLOW = [
-  "1. Read get_capabilities: check the email channel and simulation/production mode. Reuse recipient, subject, message and ceiling already supplied. An email without a file needs no document or import. For a PDF attachment, reuse a ready document. For an attached private original, preserve a native file envelope when available, or use begin_document_upload/get_document_upload when the actual runtime has its bytes and permitted binary PUT. If it can read those original bytes but cannot reach Guteneo, import_inline_pdf is a separate one-call fallback for at most 64 KiB raw: code-computed canonical base64, size/SHA-256 and one stable idempotency key. Do not chunk, truncate, echo/log the encoding or use the 10 MiB binary bound inline. Never publish or reconstruct the original, expose its capability or repeat an uncertain import. Recover get_document_upload on the same ID; if none arrived, use begin_document_upload with strictly the same key/metadata to recover it before status, never a new key or automatic second inline import. For a protected link, use that same ready PDF with options.emailDeliveryMode=protected_link and options.protectedDays=1, 7 or 30 (default 7). When studio tools exist in the catalogue, use the template workflow, import_dataset, generate_documents and prepare_distribution for XML, CSV, XLSX or JSON data. This email workflow receives the final PDF; other attachments and recipient accounts remain unavailable.",
-  '2. Call prepare_dispatch once with channel=email, recipient.email, optional documentId, options, ceiling and a stable key. Message-only email requires subject and text/html. With an accessible ready PDF, omit missing subject/body to use localized defaults naming the authenticated workspace; preserve any supplied message. Document emails without custom HTML use the branded template. Custom HTML may style its own button with safe inline CSS and, for protected_link only, exact href="{{document_url}}"; never invent or supply the actual private URL. Present supplied content, delivery mode, expiry and exact quote, including the hosting surcharge per protected document where applicable. For server-defaulted content, use browser review or already-authorized expert review; standard summaries do not expose final HTML/text and must not be used to invent it. Never invent a price or recipient consent. PDFs still require scanning; follow analysis without repeated imports.' +
+  "1. Read get_capabilities and reuse the supplied recipient, document, message and ceiling. An email with a ready PDF defaults to My documents: the recipient signs in or creates the one Guteneo account with the matching verified email, without a separate document password. Use options.emailDeliveryMode=attachment only for an explicitly requested original attachment. protected_link remains an explicit legacy compatibility choice. Never substitute either when account delivery is unavailable. Reuse the verified original; follow processing on the same document at most three times, without reimporting or looping on rescans.",
+  "1b. For a new private original, preserve a native file envelope when available, or use begin_document_upload/get_document_upload when the actual runtime has its bytes and permitted binary PUT. If it can read those original bytes but cannot reach Guteneo, import_inline_pdf is a separate one-call fallback for at most 64 KiB raw: code-computed canonical base64, size/SHA-256 and one stable idempotency key. Do not chunk, truncate, echo/log the encoding or use the 10 MiB binary bound inline. Never publish or reconstruct the original, expose its capability or repeat an uncertain import. Recover get_document_upload on the same ID; if none arrived, use begin_document_upload with strictly the same key/metadata to recover it before status, never a new key or automatic second inline import. When studio tools exist in the catalogue, use the template workflow, import_dataset, generate_documents and prepare_distribution for XML, CSV, XLSX or JSON data. This email workflow receives the final PDF.",
+  '2. Call prepare_dispatch with channel=email, documentId, recipient.email and a stable idempotency key, or prepare_secure_distribution for the dedicated policy controls. Omit missing subject/body to use localized defaults naming the authenticated workspace. Without custom HTML, Guteneo uses its V2 email template. Custom HTML may style an anchor with exact href="{{document_url}}"; the server resolves the account invitation before review and adds one fallback button only if the marker is absent. Never invent or expose the private URL. Supplied content remains authoritative. Message-only email still requires subject and text/html.' +
     CHATGPT_DOCUMENT_NOTICE,
-  "3. Without an active expert mandate covering this connection and email, present approvalUrl for human review and approval, then confirm_dispatch only after recorded approval. With an existing active mandate, use review_dispatch to read the message and every page of any PDF, respect host confirmations, then approve_and_send_dispatch with the exact fingerprint, ceiling and token. recipientRequested requires an actual user declaration. Never activate or extend your own delegation; a review account restricted to preparation cannot send.",
-  "4. A protected-link password must never pass through tools, parameters or the conversation. Present emailDelivery.passwordAccessUrl so the sender reads it in their own authenticated browser and shares it separately with the recipient. Never visit that URL with a tool to read the password, ask the person to paste it here or add it to the same email. The recipient opens the link and enters the password without needing an account.",
-  "5. Read get_dispatch_status for the same dispatch and follow nextActions. accepted is not delivered; delivered means delivery to the recipient mail server, not reading the PDF. submission_unknown requires operator reconciliation: no new dispatch or changed key. For an expired quote, inspect the dispatch; never renew it with prepare_fax.",
+  "3. Account delivery returns a secure distribution, possibly preparing. Read get_secure_distribution using its id until prepared; never create a second operation. Present the recipient, PDF, access policy, retention and exact quote including email transport. Account retention defaults to 7 days; 7/30/90/365 days are available. The recipientBinding policy defaults to verified_email; independent confirmation is an explicit dedicated-tool choice. Original download and personal-copy rights are separate. Standard MCP summaries exclude final HTML and private URLs; the exact rendered email is reviewed in the browser.",
+  "4. For account delivery, open approvalUrl for authenticated browser review of the exact email, PDF, recipient, policy and non-refundable cost, with separate recipient-request attestation. Neither chat consent nor an expert mandate replaces this approval. After recorded approval, call confirm_secure_distribution with its id and stable key. Use get_secure_distribution for follow-up and revoke_secure_distribution only when requested. Preparation-only accounts cannot send. Never claim recipient consent or enable your own mandate.",
+  "5. Message-only email, explicitly requested attachments and legacy protected_link retain their ordinary dispatch flow: browser approval then confirm_dispatch, or an existing authorized expert mandate with review_dispatch and approve_and_send_dispatch. Read get_dispatch_status. A legacy protected-link password stays exclusively in the sender's authenticated browser via emailDelivery.passwordAccessUrl; never retrieve it with tools, request it in chat or put it in the email. The sender shares it separately. New My documents invitations have no such password.",
+  "6. Preserve the same id and key after uncertainty. accepted is not delivered; email delivery does not prove document reading or saving. Unknown provider outcomes require reconciliation, never automatic resend. Account access respects verified identity, fresh authentication, expiry and revocation. Receipt creates no workspace membership, purchase or marketing consent. Workspace tools cannot list, claim, export or bind the recipient's personal documents.",
 ].join("\n");
 
 export const POSTAL_WORKFLOW = [
@@ -715,6 +731,7 @@ export function dispatchSummary(
     id: dispatch.id,
     channel: dispatch.channel,
     status: dispatch.status,
+    recipientFeedback: dispatch.recipient_feedback ?? null,
     mode: dispatch.mode,
     recipient: JSON.parse(dispatch.recipient_json) as Record<string, unknown>,
     documentId: dispatch.document_id,
@@ -996,7 +1013,7 @@ export function createGuteneoMcpServer(
       {
         title: "Prepare a secure distribution",
         description:
-          "Prepares delivery of a PDF to a recipient through their Guteneo account and a secure page reader, without DRM. Returns preparing during asynchronous rendering, then a quote per PDF/recipient, term and optionally authorized personal retention. Preparation sends nothing and approves nothing. Retention becomes non-refundable on activation, including if the workspace later revokes access. Notification pricing is calculated separately in the total quote. The original is downloadable only if policy permits it. Delivery of a personal copy requires explicit workspace authorization followed by recipient action. Always have the person open approvalUrl for browser approval under the active document authentication policy; no expert mandate replaces it. Never request a sign-in code, identify a person, confirm their relationship or access their personal area through a tool.",
+          'Prepares a PDF invitation that opens My documents after sign-in or account creation. By default, the recipient claims it with the matching verified email and current document-policy authentication; no separate document password or manual workspace confirmation is required. recipientBinding=independent explicitly retains the stricter confirmation flow. Omitted subject/message use localized defaults naming the authenticated workspace. Without html, Guteneo uses its V2 template; custom html keeps safe inline styles and places its button with an exact href="{{document_url}}". No private URL is returned to the assistant. Returns preparing during asynchronous rendering, then a quote per PDF/recipient and term. Preparation sends and approves nothing. Retention is non-refundable on activation. Original download and personal retention require their respective permissions. Open approvalUrl for human browser approval; an expert mandate cannot replace it. Never request sign-in secrets, confirm an identity or access the personal area through a tool.',
         inputSchema: secureDistributionInputSchema.extend({
           idempotencyKey: key,
         }),
@@ -2179,7 +2196,7 @@ export function createGuteneoMcpServer(
     {
       title: "Prepare correspondence",
       description:
-        "Prepare one recipient/channel dispatch with final content, quote, ceiling and next action. Email without a file requires subject and text/html. With an accessible ready documentId, omitted subject/body use localized defaults naming the authenticated workspace. Document emails without custom HTML use the branded template; custom HTML supports safe inline email styles. For protected_link only, place {{document_url}} as the exact href of a custom anchor button; the server substitutes the private URL before review. Never supply the actual URL or password. Use a ready documentId for the original PDF attachment, or options.emailDeliveryMode=protected_link for a protected link (protectedDays: 1, 7 or 30). The quote includes hosting where applicable. The password stays exclusively in the sender’s authenticated browser through emailDelivery.passwordAccessUrl; never request/transmit it in tools or chat. Submits/approves nothing with the provider. Review-account restrictions remain. Attachments remain PDFs. When studio tools exist in the catalogue, use import_dataset, generate_documents and prepare_distribution with a published template version for XML/CSV/XLSX/JSON data.",
+        'Prepare one recipient/channel operation without approval or sending. Email with documentId defaults to my_documents: a PDF invitation opening the recipient\'s Guteneo account after sign-in/signup, with matching verified email and no separate document password. This returns a secure distribution (possibly preparing); follow get_secure_distribution and browser approvalUrl, then confirm_secure_distribution. Use options.emailDeliveryMode=attachment only when an original attachment was requested; protected_link is a legacy explicit compatibility mode. Account invitations accept optional subject/text/html, localized defaults naming the authenticated workspace and the V2 template. Custom HTML may style an anchor with href="{{document_url}}"; the server resolves it before approval without exposing the capability through MCP. Account retention defaults to 7 days; the exact quote includes retention and email transport. Message-only email requires subject and text/html. Other channels retain their existing preparation and approval flow.',
       inputSchema: z
         .object({
           idempotencyKey: key,
@@ -2220,8 +2237,17 @@ export function createGuteneoMcpServer(
             .object({
               kind: z.enum(["transactional", "marketing"]).optional(),
               emailDeliveryMode: z
-                .enum(["attachment", "protected_link"])
+                .enum(["my_documents", "attachment", "protected_link"])
                 .optional(),
+              retentionDays: z
+                .union([
+                  z.literal(7),
+                  z.literal(30),
+                  z.literal(90),
+                  z.literal(365),
+                ])
+                .optional(),
+              allowOriginalDownload: z.boolean().optional(),
               protectedDays: z
                 .union([z.literal(1), z.literal(7), z.literal(30)])
                 .optional(),
@@ -2232,21 +2258,75 @@ export function createGuteneoMcpServer(
             .optional(),
         })
         .strict(),
-      outputSchema: output(dispatchSchema),
+      outputSchema: output(z.union([dispatchSchema, secureDistributionSchema])),
       annotations: writeAnnotations,
       _meta: oauthMetadata("dispatches:prepare"),
     },
     ({ idempotencyKey, ...input }) =>
-      run("dispatches:prepare", async () =>
-        dispatchSummary(
+      run("dispatches:prepare", async () => {
+        if (
+          input.channel === "email" &&
+          (input.options?.emailDeliveryMode === "my_documents" ||
+            (input.documentId && !input.options?.emailDeliveryMode))
+        ) {
+          if (!services.secureDistribution)
+            throw new DomainError(
+              "SECURE_DISTRIBUTION_NOT_CONFIGURED",
+              "Account document delivery is unavailable.",
+              409,
+            );
+          if (!input.documentId || !("email" in input.recipient))
+            throw new DomainError(
+              "INVALID_INPUT",
+              "Account delivery requires a PDF and one email recipient.",
+            );
+          if (
+            input.campaignId ||
+            input.options?.kind === "marketing" ||
+            input.options?.protectedDays !== undefined
+          )
+            throw new DomainError(
+              "INVALID_INPUT",
+              "Use an individual transactional invitation and retentionDays for account delivery.",
+            );
+          for (const [field, limit] of [
+            ["text", SECURE_DISTRIBUTION_LIMITS.messageCharacters],
+            ["html", SECURE_DISTRIBUTION_LIMITS.htmlCharacters],
+          ] as const) {
+            if ((input[field]?.length ?? 0) > limit)
+              throw new DomainError(
+                "EMAIL_CONTENT_TOO_LONG",
+                `Account document email ${field} must not exceed ${limit} characters.`,
+              );
+          }
+          return secureDistributionSummary(
+            await services.secureDistribution.prepare(
+              identity,
+              secureDistributionInputSchema.parse({
+                documentId: input.documentId,
+                senderId: input.senderId,
+                recipient: { address: input.recipient.email },
+                subject: input.subject,
+                message: input.text,
+                html: input.html,
+                retentionDays: input.options?.retentionDays,
+                allowOriginalDownload:
+                  input.options?.allowOriginalDownload ?? true,
+                costCeilingMinor: input.ceilingMinor,
+              }),
+              idempotencyKey,
+            ),
+          );
+        }
+        return dispatchSummary(
           await services.domain.prepareDispatch(
             identity.context,
             input,
             idempotencyKey,
           ),
           env.APP_ORIGIN,
-        ),
-      ),
+        );
+      }),
   );
   registerTool(
     "read_document_pages",

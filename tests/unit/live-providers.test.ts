@@ -127,6 +127,7 @@ beforeEach(async () => {
     "approvals",
     "idempotency_keys",
     "audit_log",
+    "email_recipient_feedback_tokens",
     "dispatches",
     "trusted_fax_supplier_costs",
     "trusted_delivery_costs",
@@ -900,10 +901,13 @@ describe("Live provider bridge — real D1/R2, intercepted external fetch only",
     expect(payload.Destination).toEqual({
       ToAddresses: ["recipient@example.invalid"],
     });
-    expect(payload.Content.Simple.Body).toEqual({
-      Html: { Charset: "UTF-8", Data: "<p>Approved HTML.</p>" },
-      Text: { Charset: "UTF-8", Data: "Approved text." },
-    });
+    expect(payload.Content.Simple.Body.Html.Charset).toBe("UTF-8");
+    expect(payload.Content.Simple.Body.Text.Charset).toBe("UTF-8");
+    // Compare the approved snapshot without printing its private footer URL.
+    expect(payload.Content.Simple.Body.Html.Data === row.html).toBe(true);
+    expect(payload.Content.Simple.Body.Text.Data === row.text).toBe(true);
+    expect(row.html?.startsWith("<p>Approved HTML.</p>")).toBe(true);
+    expect(row.text?.startsWith("Approved text.")).toBe(true);
     expect(payload.Content.Simple.Attachments).toHaveLength(1);
     expect(
       Uint8Array.from(
@@ -1239,9 +1243,11 @@ describe("Resend durable transport", () => {
       from: "documents@guteneo.com",
       to: ["recipient@example.invalid"],
       subject: "Fixture subject",
-      html: "<p>Approved HTML.</p>",
-      text: "Approved text.",
     });
+    expect(body.html === row.html).toBe(true);
+    expect(body.text === row.text).toBe(true);
+    expect(row.html?.startsWith("<p>Approved HTML.</p>")).toBe(true);
+    expect(row.text?.startsWith("Approved text.")).toBe(true);
     expect(Buffer.from(body.attachments[0].content, "base64")).toEqual(
       Buffer.from(pdfBytes),
     );

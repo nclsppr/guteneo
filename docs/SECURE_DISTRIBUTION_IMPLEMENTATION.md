@@ -2,11 +2,31 @@
 
 24 October 2026 candidate. This record describes local code and the requested publication configuration; it establishes no remote migration, plugin publication or production deployment. The user authorizes publication with the `verified_account` document policy. Earlier decisions and studies are dated in the [unified account plan](UNIFIED_ACCOUNT_AND_VAULT_PLAN.md); their mandatory-strong-authentication assumption does not supersede the explicit decision below.
 
+## Account invitation update — 26 October 2026
+
+The [email contract](PROTECTED_EMAIL.md) owns template/default/marker behavior;
+[recipient journeys](SECURE_DISTRIBUTION_JOURNEYS.md) own the authority matrix.
+New immutable policy JSON includes `recipientBinding=verified_email` unless
+`independent` is explicitly requested. Missing historical fields remain independent.
+Claim checks the opaque invitation, normalized verified address, stable Auth0-bound
+personal identity, freshness and current access mode. One D1 batch binds the user,
+records `binding_method=verified_email` and an idempotent
+`recipient_verified_email_bound` event under the session fence. It creates no
+membership. Expiry, revocation, changed identity and stale sessions remain closed.
+No migration or reinterpretation of existing approvals is required.
+
+`SecureDistributionService.prepare` freezes sanitized input, workspace name and
+locale before asynchronous rendering; `ensureDispatch` inserts the account URL
+before domain fingerprint/approval. Browser review may read final HTML; OAuth/MCP
+summaries strip that capability. The legacy request hash remains replayable for
+historical rows only. Source compatibility guards and browser-only approval stay
+unchanged. Local evidence does not establish live activation or provider delivery.
+
 ## Account and authority
 
 One Guteneo identity receives documents, manages its personal area, uses services and participates in workspaces. Personal registration creates no workspace, credit or quota. Entering services allows explicit, idempotent initial workspace creation. A document invitation creates no membership in the sender's workspace.
 
-Identity binding preserves `(issuer, subject)`. Equal email addresses do not merge accounts. A recipient must own the expected address, satisfy current document policy, request association and then receive confirmation from a workspace approver using a known relationship, independent channel or qualified identity. Pending association exposes no sensitive title or page.
+Identity binding preserves `(issuer, subject)`. Equal email addresses do not merge accounts. A recipient must own the expected address and satisfy current document policy. The frozen binding policy determines automatic verified-address claim or independent workspace confirmation, as defined above. Pending independent association exposes no sensitive title or page.
 
 `SENSITIVE_DOCUMENT_AUTHENTICATION` selects `strong` by default when absent, or explicitly `verified_account`. Unknown values deny access. The requested live configuration selects `verified_account`: verified account/email and an Auth0 session bound to `auth_identities`, with genuinely signed recent primary `auth_time`. The server retains expiry, revocation, identity and rights checks; browser fields never supply this evidence. Account/address control proves neither a second factor nor physical identity.
 
