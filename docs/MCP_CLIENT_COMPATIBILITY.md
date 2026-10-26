@@ -27,9 +27,11 @@ Every client must separately establish:
    the separately gated App transport after its own actual-host qualification.
 4. Matching original and stored SHA-256/size, followed by ready analysis on the
    same document ID. An attachment summary or regenerated PDF does not qualify.
-5. Correct channel preparation and the existing approval boundary, independently
+5. Delivery of the registered document ID to the model before it continues. A
+   visible widget receipt or successful storage does not establish that handoff.
+6. Correct channel preparation and the existing approval boundary, independently
    of upload. Host execution confirmation does not grant business sending rights.
-6. Expiry, refresh when supported, disconnect/revocation and lost-response recovery.
+7. Expiry, refresh when supported, disconnect/revocation and lost-response recovery.
 
 MCP tools use structured JSON input; a remote server cannot read a client path.
 Resources and roots are not a client-to-server binary upload transport. See the
@@ -58,15 +60,26 @@ do not chunk, truncate or raise its bound. Larger originals need another qualifi
 transport. Neither tool discovery nor a successful local test proves that the
 actual host can carry an encoded payload intact.
 
-The default-off [App transport candidate](PRIVATE_DOCUMENT_UPLOAD.md#selected-local-originals-through-mcp-apps--disabled-candidate)
+The default-off [App transport](PRIVATE_DOCUMENT_UPLOAD.md#selected-local-originals-through-mcp-apps)
 opens a device-file chooser and requires an explicit Import action. It uses new
 App-only staging tools through the official bridge, not informal splitting of
 `import_inline_pdf`, direct browser fetch or a relaxed network/Origin policy.
 It provides a selected local original, not automatic access to the conversation's
-existing attachment. The Desktop diagnostic observed a widget, empty bridge and
-cancelled native chooser; it selected no file and establishes no payload pass.
-All larger-original, confirmation-count, retention and device checks remain
-separate gates. The ordinary tool-only workflows remain available.
+existing attachment. The earlier diagnostic remains limited to widget/empty
+bridge/chooser cancellation. The [deployed 1.1.6 Desktop record](CLAUDE_QUALIFICATION.md#claude-desktop-selected-original-app--26-october-2026)
+separately qualifies explicit imports of 299,807-byte and 10 MiB originals,
+independent exact private R2 bytes and ready/verified analysis. Manual same-ID
+status recovered the larger file's registered receipt without resend.
+
+The next-turn registered-ID handoff **failed**: Claude had neither new ID and
+made no `get_document` call. General activation remains pending. The 1.1.8 source
+follow-up adds standard text context alongside minimal structured receipt data,
+an explicit Use in conversation action for that same receipt, and accepted
+receipt truth after a late bridge error. Import sends no automatic chat message.
+Automatic context and the explicit-message fallback need separate native tests. Local fixture proof
+does not establish the native-host retest or prove the observed deadline cause.
+Comprehensive confirmation/retention, revocation, device/resource and other-host
+checks remain separate gates; ordinary tool-only workflows remain available.
 
 The returned reference uploader currently requires **POSIX Python 3.9+**. Linux
 cloud runtimes and macOS are candidates; Windows native, a mobile filesystem and
@@ -99,9 +112,9 @@ evidence; visible artwork after installation needs an actual host check.
 
 The entries below describe documented connection routes and the next required
 evidence. The [dated Claude record](CLAUDE_QUALIFICATION.md#claude-desktop-free-inline-original--26-october-2026)
-owns the bounded inline result, the later no-content Desktop App checkpoint and
-their remaining limits. Native binary and App original transfer still have no
-actual-client pass in those records. Local API/client tests, a browser
+owns the bounded inline result, no-content checkpoint and later selected-original
+App transfer, as well as the failed registered-ID handoff. Native binary PUT still
+has no actual-client pass in those records. Local API/client tests, a browser
 emulator and an earlier native import are separate evidence; none qualifies a new
 row. Mobile and web remain separate rows even when they share account configuration.
 
@@ -109,7 +122,7 @@ row. Mobile and web remain separate rows even when they share account configurat
 | ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Claude on iPhone / iPad                  | Remote connector; mobile use is documented.                                                                                 | Cloud file/code access is documented. Qualify the exact original and permitted binary PUT or bounded inline original up to 64 KiB on the physical device. No desktop extension on the phone.      |
 | Claude web                               | Custom remote connector with its own OAuth flow.                                                                            | Qualify the cloud original plus native, permitted binary or bounded inline transfer. Network controls and available settings vary by account; do not assume a custom-domain allowlist on Free.                                                                           |
-| Claude Desktop / Cowork                  | Remote connector; local extensions are a distinct installation.                                                             | The dated [inline result](CLAUDE_QUALIFICATION.md#claude-desktop-free-inline-original--26-october-2026) and [App checkpoint](CLAUDE_QUALIFICATION.md#claude-desktop-free-mcp-apps-checkpoint--26-october-2026) cover Desktop Free separately. The latter observed widget/empty bridge/native chooser cancellation only; no selected file, App payload or binary pass. Neither result qualifies Cowork or mobile. |
+| Claude Desktop / Cowork                  | Remote connector; local extensions are a distinct installation.                                                             | The dated [1.1.6 Desktop App record](CLAUDE_QUALIFICATION.md#claude-desktop-selected-original-app--26-october-2026) qualifies selected 299,807-byte/10 MiB originals through exact private storage and ready analysis, plus manual same-ID receipt recovery. Registered-ID delivery to the model failed; general activation and the 1.1.8 native retest remain pending. Binary PUT, Cowork and mobile remain separate. |
 | Claude Code                              | Remote HTTP MCP and its normal authentication flow.                                                                         | Authorized original in its actual working environment, POSIX helper or independently qualified uploader; inspect host confirmations and file exclusions.                                                        |
 | ChatGPT web                              | Remote MCP-backed plugin and account/workspace permissions.                                                                 | Retain native file-envelope import. Feature-detect widget file APIs when a widget is actually available; otherwise require original-file runtime and allowed egress. Plugin installation alone is insufficient. |
 | ChatGPT on iPhone / iPad                 | The actual mobile app must expose the installed Guteneo connection.                                                         | Test native attachment authorization, exact file handoff and available controls on the physical app. Web, desktop, API and WebKit results do not establish this.                                                |

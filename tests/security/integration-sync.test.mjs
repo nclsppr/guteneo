@@ -139,3 +139,37 @@ test("a missing synchronization record fails validation", async (t) => {
   const root = await fixture(t);
   await assert.rejects(validateIntegrationSync(root), /record is missing/);
 });
+
+test("pinned App resource metadata changes require a synchronized newer package", async (t) => {
+  const root = await fixture(t);
+  const path = "packages/contracts/src/app-resource.json";
+  await put(
+    root,
+    path,
+    JSON.stringify({
+      resourceUri: "ui://fixture/upload",
+      sha256: "a".repeat(64),
+    }),
+  );
+  await put(
+    root,
+    "apps/api/src/mcp.ts",
+    'import manifest from "../../../packages/contracts/src/app-resource.json";\nexport const uri = manifest.resourceUri;\n',
+  );
+  const before = await syncIntegrationPackage(root);
+  assert.ok(before.sources[path]);
+  await put(
+    root,
+    path,
+    JSON.stringify({
+      resourceUri: "ui://fixture/upload",
+      sha256: "b".repeat(64),
+    }),
+  );
+  await assert.rejects(validateIntegrationSync(root), /plugin is stale/);
+  await assert.rejects(syncIntegrationPackage(root), /higher plugin version/);
+  await version(root, "0.3.5");
+  const after = await syncIntegrationPackage(root);
+  assert.notEqual(after.mcpSourceSha256, before.mcpSourceSha256);
+  assert.deepEqual(await validateIntegrationSync(root), after);
+});

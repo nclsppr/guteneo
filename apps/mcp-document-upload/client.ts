@@ -27,6 +27,7 @@ const buttons = {
   check: node<HTMLButtonElement>("check"),
   cancel: node<HTMLButtonElement>("cancel"),
   clear: node<HTMLButtonElement>("clear"),
+  conversation: node<HTMLButtonElement>("use-conversation"),
 };
 let locale: Locale = "en",
   preferredLocale: Locale | undefined;
@@ -51,6 +52,16 @@ let calls = 0,
   recoveryVerified = false;
 let reported = "",
   contextFailed = false;
+let conversationReceipt:
+  | { documentId: string; status: string; size: number; sha256: string }
+  | undefined;
+let handoffPending = false,
+  handoffAttempted = "",
+  handoffAcknowledged = "";
+const receiptFingerprint = () =>
+  conversationReceipt
+    ? conversationReceipt.documentId + ":" + conversationReceipt.status
+    : "";
 const record = (value: unknown): value is Record<string, unknown> =>
   value !== null && typeof value === "object" && !Array.isArray(value);
 const integer = (value: unknown, min: number, max: number) =>
@@ -85,7 +96,7 @@ function localize(value?: string) {
 }
 function render() {
   const copy = messages[locale],
-    busy = operating || requestPending;
+    busy = operating || requestPending || handoffPending;
   node("status").textContent = phase === "choose" ? "" : copy[phase];
   node("selection").textContent = selectionName
     ? `${selectionName} · ${new Intl.NumberFormat(locale, { maximumFractionDigits: 2 }).format(originalSize / 1024 / 1024)} ${copy.unit}`
@@ -137,6 +148,17 @@ function render() {
   node("receipt").hidden = !view?.document;
   node("document").textContent = view?.document?.id ?? "";
   node("context").hidden = !contextFailed;
+  const fingerprint = receiptFingerprint();
+  buttons.conversation.hidden = !conversationReceipt;
+  buttons.conversation.disabled =
+    busy || !connected || disposed || handoffAttempted === fingerprint;
+  buttons.conversation.textContent = handoffPending
+    ? copy.conversationSending
+    : handoffAcknowledged === fingerprint && fingerprint
+      ? copy.conversationSent
+      : handoffAttempted === fingerprint && fingerprint
+        ? copy.conversationUnconfirmed
+        : copy.useConversation;
   document.querySelector("main")?.setAttribute("aria-busy", String(busy));
 }
 function validateView(value: unknown): McpAppUploadView {
@@ -270,16 +292,19 @@ async function acceptReceipt(next: McpAppUploadView) {
             ? "purged"
             : "registered";
     const fingerprint = next.document.id + ":" + next.document.status;
+    const receipt = {
+      documentId: next.document.id,
+      status: next.document.status,
+      size: originalSize,
+      sha256: originalSha,
+    };
+    conversationReceipt = receipt;
     if (reported !== fingerprint) {
       try {
         await app.updateModelContext(
           {
-            structuredContent: {
-              documentId: next.document.id,
-              status: next.document.status,
-              size: originalSize,
-              sha256: originalSha,
-            },
+            content: [{ type: "text", text: JSON.stringify(receipt) }],
+            structuredContent: receipt,
           },
           { timeout: 5_000 },
         );
@@ -526,11 +551,45 @@ buttons.import.onclick = async () => {
 buttons.resume.onclick = () => {
   if (recoveryVerified) void transfer();
 };
+buttons.conversation.onclick = async () => {
+  const receipt = conversationReceipt,
+    fingerprint = receiptFingerprint();
+  if (
+    !receipt ||
+    !connected ||
+    disposed ||
+    operating ||
+    requestPending ||
+    handoffPending ||
+    handoffAttempted === fingerprint
+  )
+    return;
+  // An uncertain host message must never be sent again for the same receipt.
+  handoffAttempted = fingerprint;
+  handoffPending = true;
+  render();
+  try {
+    const result = await app.sendMessage(
+      {
+        role: "user",
+        content: [{ type: "text", text: JSON.stringify(receipt) }],
+      },
+      { timeout: 5_000 },
+    );
+    if (!result.isError) handoffAcknowledged = fingerprint;
+  } catch {
+    // The registered receipt remains available after a refused or unknown handoff.
+  } finally {
+    handoffPending = false;
+    render();
+  }
+};
 buttons.check.onclick = async () => {
   if (
     (!view && (!beginInput || expired())) ||
     operating ||
     requestPending ||
+    handoffPending ||
     Date.now() < nextCheckAt ||
     disposed
   )
@@ -608,7 +667,8 @@ app.onhostcontextchanged = hostContext;
 app.onerror = () => {
   connected = false;
   recoveryVerified = false;
-  phase = attemptedBegin ? "uncertain" : "unavailable";
+  // A late bridge error cannot revoke an already accepted document receipt.
+  if (!view?.document) phase = attemptedBegin ? "uncertain" : "unavailable";
   render();
 };
 app.onteardown = async () => {

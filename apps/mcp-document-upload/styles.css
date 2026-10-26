@@ -73,7 +73,8 @@ input:focus-visible {
   outline-offset: 3px;
 }
 #import,
-#resume {
+#resume,
+#use-conversation {
   font-weight: 600;
 }
 output,

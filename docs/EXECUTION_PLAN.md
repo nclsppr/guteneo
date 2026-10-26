@@ -1,41 +1,37 @@
 # Execution plan and handoff
 
-## MCP Apps original transport — 26 October 2026 candidate
+## MCP Apps original transport — 26 October 2026
 
-The [actual Claude Desktop checkpoint](CLAUDE_QUALIFICATION.md#claude-desktop-free-mcp-apps-checkpoint--26-october-2026)
-on source `8854`, server `1.1.5`, completed the existing connection's normal
-branded-domain reconnect and observed a real widget, empty official bridge call
-and native chooser opened then cancelled. No file was selected, read or
-transferred. The temporary diagnostic setting was removed and its rollback
-recorded. This does not close the normal-size original/iPhone journey.
+Release 1.1.6 at source `147ada069959f69440d4f98f968b0f2f5df1f7ba` is published
+across the application, browser preview and engineering site. The
+[latest Claude Desktop record](CLAUDE_QUALIFICATION.md#claude-desktop-selected-original-app--26-october-2026)
+qualifies two selected fictional originals through exact private R2 bytes and
+ready/verified analysis, including 40 parts/42 base calls for 10 MiB and later
+manual same-ID receipt recovery without resend. A read-only query found all 25
+associated business-effect counters zero for both originals, with no rows written.
 
-The additive default-off [selected-original candidate](PRIVATE_DOCUMENT_UPLOAD.md#selected-local-originals-through-mcp-apps--disabled-candidate)
-uses explicit device Files selection and Import, five App-only staging tools and
-one shared whole-original pipeline. It requires migration 0063 before code publication and a
-separate exact-connection/revision qualification window. A distinct explicit
-general rollout mode is available only after reviewed actual qualification and
-authorized delivery; the candidate activates neither mode. Root release/package
-synchronization, exact-source CI, authorized migration/publication and served
-verification remain separate from actual-host transfer. Local source is not an
-activation or payload pass.
+The output handoff failed: without supplied IDs or list/search, the next model
+turn had neither new document ID and made no document call. A separate native
+code step computed the smaller conversation attachment's exact size/SHA without
+its expected digest, which establishes neither automatic MCP attachment handoff
+nor fresh runtime egress. The selected window has closed with the flag absent;
+general activation remains pending.
 
-Local source evidence now includes 70 focused backend assertions and 18 Node
-client/security checks. The corrected App retains volatile bytes only for
-recoverable part uncertainty inside the fixed deadline/budget/current authority,
-and resumes only after positive same-ID receipt evidence plus an explicit action.
-App-specific error recovery no longer suggests binary tools. The
-[transport contract](PRIVATE_DOCUMENT_UPLOAD.md#local-widget-measurements--26-october-2026)
-records local resource/loading measurements and their fixture limits. No actual
-normal-size or physical-device upload follows from these results.
+The 1.1.8 source follow-up preserves accepted receipts after late bridge errors,
+adds standard text alongside structured context and provides an explicit Use in
+conversation action for the same four-key receipt. Import sends no automatic
+message or model turn. The late-error source defect is not a proven cause of the
+earlier large-file deadline message. Local official-SDK fixtures cover the
+candidate behavior; actual context and explicit-message native retests remain
+required before claiming a usable model continuation. No API/TTL/part/scope
+change is included. Root owns normal package/version/CI/publication gates.
 
-Next actual-host proof must use an explicitly approved fictional original larger
-than 64 KiB, match independent/App/stored size/SHA, reach creator-private
-clean/ready analysis, and separately qualify requested prepare-only email with
-zero approval/sending-reservation/send/charge effects. Record payload confirmations/privacy and
-resource/request/row/object counts; qualify 10 MiB, ambiguity/cancel/revocation and
-each physical target separately. Automatic conversation-attachment handoff is
-still a distinct missing contract; a new device-file selection must be labelled
-accurately. Existing binary/inline limits and recovery are unchanged.
+The [private transport contract](PRIVATE_DOCUMENT_UPLOAD.md#selected-local-originals-through-mcp-apps)
+owns migration-before-code ordering, activation, same-original recovery and
+measured local limits. Other hosts, web, physical iPhone, revocation/background,
+comprehensive retention/confirmations and runtime/cost headroom remain separate.
+The 1.1.5 no-content checkpoint and older inline/preparation evidence remain dated
+history rather than proof of these later actions.
 
 ## MCP domain handoff — 25 October 2026 candidate
 

@@ -190,7 +190,7 @@ inside a bounded server-owned window. They read no file metadata or bytes and
 establish neither an original-file transfer nor physical-device compatibility.
 No actual import, OAuth renewal, portal update or public directory publication is
 established by these instructions.
-The subsequent **1.1.6** candidate adds the separately default-off
+Release **1.1.6** published the separately default-off
 [selected-original MCP App](PRIVATE_DOCUMENT_UPLOAD.md#selected-local-originals-through-mcp-apps--disabled-candidate),
 with a strict empty opener and five App-only staging tools. Current writer
 membership, `documents:write`, migration 0063 and explicit server activation are
@@ -199,8 +199,16 @@ rollout has a distinct reviewed activation after actual qualification and
 authorized delivery. Device Files selection then Import is
 a new local selection, not automatic handoff of a conversation attachment.
 The [1.1.5 Desktop diagnostic observation](CLAUDE_QUALIFICATION.md#claude-desktop-free-mcp-apps-checkpoint--26-october-2026)
-qualifies only widget/empty bridge/native chooser cancellation. Larger payloads,
-privacy/confirmations, physical iPhone and other hosts remain independent gates;
+retains only widget/empty bridge/native chooser cancellation. The later
+[1.1.6 Desktop record](CLAUDE_QUALIFICATION.md#claude-desktop-selected-original-app--26-october-2026)
+qualifies two selected originals, including 10 MiB, through exact private bytes
+and ready analysis; registered-ID delivery to the model failed. Its window is
+closed and general activation remains pending. The **1.1.8 source candidate**
+adds text plus structured receipt context, preserves accepted receipts after
+late bridge errors and offers explicit Use in conversation for the same four
+fields. Import never sends that chat message automatically. Local SDK fixtures
+do not qualify the actual automatic or explicit-message native handoff retest.
+Privacy/confirmations, physical iPhone and other hosts remain independent gates;
 package generation creates no activation or transfer proof.
 The full synthetic source-review inventory is 83 tools: 75 ordinary, two gated
 probe tools and six gated original-picker tools. The five App-only upload tools

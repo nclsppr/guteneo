@@ -1,24 +1,25 @@
 # Guteneo product contract
 
-## Selected-original MCP App — 26 October 2026 disabled candidate
+## Selected-original MCP App — 26 October 2026
 
-A compatible host can present a separately gated App in which the person chooses
-one local original and explicitly imports it. The App hashes and transfers those
-same bytes through App-only tools before the existing creator-private scanner
-pipeline. This uses current writer membership and `documents:write`; it creates
-no approval, paid check, mandate or sending authority. The
-[private upload contract](PRIVATE_DOCUMENT_UPLOAD.md#selected-local-originals-through-mcp-apps--disabled-candidate)
-owns the bounds, activation and recovery. Migration 0063 precedes use.
+Release 1.1.6 is published. In a temporary Claude Desktop window, two explicitly
+selected fictional originals (299,807 bytes and 10 MiB) reached exact
+creator-private storage and ready analysis. A scoped read found zero associated
+business effects. The next-turn registered-ID handoff failed: the model had
+neither new ID. The window is closed, its flag is absent and general activation
+remains pending. [Dated Claude qualification](CLAUDE_QUALIFICATION.md#claude-desktop-selected-original-app--26-october-2026)
+owns the evidence; physical devices, other hosts, automatic attachment handoff
+and full retention/resource qualification remain separate.
 
-This is a new selection from device Files, not automatic retrieval of an earlier
-conversation attachment. The dated [Desktop checkpoint](CLAUDE_QUALIFICATION.md#claude-desktop-free-mcp-apps-checkpoint--26-october-2026)
-observed only a widget, empty bridge and cancelled native chooser. Actual
-normal-size/10 MiB transfer, host privacy/confirmation limits, web and physical
-iPhone remain unqualified. The option is absent by default. A temporary exact
-connection/revision window supports qualification; a separately explicit general
-rollout mode supports current eligible writers after reviewed qualification and
-authorized delivery. Neither source/package availability nor one Desktop
-diagnostic activates or qualifies it for all customers.
+The 1.1.8 source candidate preserves accepted receipts after late bridge errors
+and publishes minimal text plus structured context. A separate localized Use in
+conversation action posts only that same four-field receipt after an explicit UI
+gesture; import sends no automatic chat message or model turn. These actions add
+no approval, paid check, mandate, membership or provider sending right. Actual
+context and explicit-message delivery need native retests. The
+[private transport contract](PRIVATE_DOCUMENT_UPLOAD.md#selected-local-originals-through-mcp-apps)
+owns bounds, recovery and migration-before-code ordering. The feature remains off
+by default; code publication does not enable general rollout.
 
 ## Document email entry — 26 October 2026 candidate
 

@@ -89,7 +89,6 @@ test("the client has only the standard App bridge and volatile original state", 
     /caches\./,
     /console\./,
     /sendLog\(/,
-    /sendMessage\(/,
     /innerHTML\s*=/,
     /createObjectURL/,
   ])
@@ -97,9 +96,43 @@ test("the client has only the standard App bridge and volatile original state", 
   assert.match(source, /app\.callServerTool/);
   assert.match(source, /timeout: 15_000/);
   assert.match(source, /original\?\.fill\(0\)/);
+  const receipt = source.match(/const receipt = (\{[\s\S]*?\n\s*\});/);
+  assert.ok(receipt, "One minimal receipt must supply both context modalities");
+  assert.match(
+    receipt[1],
+    /^\{\s*documentId:\s*next\.document\.id,\s*status:\s*next\.document\.status,\s*size:\s*originalSize,\s*sha256:\s*originalSha,?\s*\}$/,
+  );
+  assert.doesNotMatch(
+    receipt[1],
+    /\b(?:fileName|base64|bytes|token|capability)\b/,
+  );
   assert.match(
     source,
-    /structuredContent:\s*\{\s*documentId:\s*next\.document\.id,\s*status:\s*next\.document\.status,\s*size:\s*originalSize,\s*sha256:\s*originalSha,?\s*\}/,
+    /app\.updateModelContext\(\s*\{\s*content:\s*\[\{\s*type:\s*"text",\s*text:\s*JSON\.stringify\(receipt\)\s*\}\],\s*structuredContent:\s*receipt,?\s*\}/,
   );
-  assert.doesNotMatch(source, /content:\s*\[|role:\s*["'](?:user|assistant)/);
+  assert.equal((source.match(/app\.updateModelContext\(/g) ?? []).length, 1);
+  assert.equal((source.match(/content:\s*\[/g) ?? []).length, 2);
+  const handoff = source.match(
+    /buttons\.conversation\.onclick = async \(\) => \{([\s\S]*?)\n\};/,
+  );
+  assert.ok(
+    handoff,
+    "Conversation messages require the explicit button handler",
+  );
+  assert.match(handoff[1], /const receipt = conversationReceipt/);
+  assert.match(
+    handoff[1],
+    /handoffPending \|\|\s*handoffAttempted === fingerprint/,
+  );
+  assert.match(
+    handoff[1],
+    /handoffAttempted = fingerprint;[\s\S]*app\.sendMessage\(\s*\{\s*role:\s*"user",\s*content:\s*\[\{\s*type:\s*"text",\s*text:\s*JSON\.stringify\(receipt\)\s*\}\],?\s*\}/,
+  );
+  assert.match(
+    handoff[1],
+    /if \(!result\.isError\) handoffAcknowledged = fingerprint/,
+  );
+  assert.equal((source.match(/app\.sendMessage\(/g) ?? []).length, 1);
+  assert.equal((source.match(/role:\s*"user"/g) ?? []).length, 1);
+  assert.doesNotMatch(source, /role:\s*["']assistant/);
 });

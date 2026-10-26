@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "pluginVersion": "1.1.7",
-  "mcpSourceSha256": "093e87b24ece66e588b612ecc2d0a63ed828272f9f99cf8d94f7b99ba75a1455",
-  "packageSha256": "319624c434f2b6241b841e5b435c8f198d7cc77b5f80681a0dc44a46d0caa22b",
+  "pluginVersion": "1.1.8",
+  "mcpSourceSha256": "5695b45cc1ccbc4cc6f3128cfed71c7421fc277d3658980debef72798104ea1b",
+  "packageSha256": "304bb17b4ea599b4280758c36aaf2d581a2e67bbd893d135bc3447594eeef83a",
   "sources": {
     "apps/api/src/auth.ts": "659861e3f3dff69298616f4866b7c5ebb57597669861def4fe2a694fa8e6548e",
     "apps/api/src/connection-observations.ts": "40278b9fab339e05949a04c2d2718348236e9362e944f95a4d2a3466c186fa24",
@@ -14,7 +14,7 @@
     "apps/api/src/expert-status.ts": "eb3a32798ac614e7a91839ca18ff752700408146323945da9089f81db74d3f7f",
     "apps/api/src/mcp-document-upload.ts": "02522866f3802c9aebb9894110936d3e45950b664a5192e02409191a6e022373",
     "apps/api/src/mcp-ui-probe.ts": "ec64e9c872b38bbe10a9729a6edb7629330432f0adf54c5fd9eec1210fcaa3fa",
-    "apps/api/src/mcp.ts": "48beaf1cc4a3bd051c06b945cca4ce0ad7196147050427a8e49271e7db3cc9d8",
+    "apps/api/src/mcp.ts": "686218840b3e8113b3b8392384d788c4b7d1defd0f179e2a71118ced3b507a63",
     "apps/api/src/postal-address-page.ts": "a8eeaf6dac0f81433f3a39ccd9a3e9bcf6f9202c8502631e85e7bd7b851dc25d",
     "apps/api/src/postal-authority.ts": "69dc7155a56311b7927416b90acf3577417b30f0ca410e3f815530c1b29b7e98",
     "apps/api/src/template-workflow.ts": "c742ed65d429aba2d481d24fb496dbd354264ffd1d7265c74df784cb70255ca7",
@@ -26,6 +26,7 @@
     "packages/contracts/src/document-analysis.ts": "5984742fa3108c2328c6d446f95d79bf86d38792a7c3dcdd0c9916f552dd16ea",
     "packages/contracts/src/fax-pricing.ts": "f4dcf7b83810b0c08aeb77b7cd56dd5b9a497acc14b540324094a13e984528ef",
     "packages/contracts/src/mcp-app-upload.ts": "5781719e8b47d1dd9177cb8bdd78d51e2f673e7a6d919b37ff6621b33f578859",
+    "packages/contracts/src/mcp-document-upload-resource.json": "bf6f3dd2361925ad0c929d2f234281eb9c94aef4cc450684c8b338e0a3e76f42",
     "packages/contracts/src/mcp-ui-probe-resource.json": "eafa886cc44f196aaff1c9be67fa010f6f8b82633c0d3189a9d8b2d71b08763a",
     "packages/contracts/src/pdf-validation.ts": "c40c6246c4352eec2b98001edca6a7b3a8dcc5de9bb5823c63add887273bbc30",
     "packages/contracts/src/postal-address-page.ts": "090a6733b2a228da305bbc5601f817d43fa9ef0ebfacd7b71dc0d273a0ccb1a6",

@@ -1,8 +1,8 @@
 # Architecture
 
-## Selected-original MCP App — 26 October 2026 disabled candidate
+## Selected-original MCP App — 26 October 2026
 
-The App-only transport adds private R2 staging and tenant-scoped D1 part receipts
+The App-only transport, published in 1.1.6, adds private R2 staging and tenant-scoped D1 part receipts
 through migration 0063. The official App bridge carries verified fixed parts;
 one finalization claim assembles and validates the immutable full original before
 the same quota, private document-registration, scanner and validation pipeline as
