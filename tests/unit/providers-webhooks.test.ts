@@ -1,5 +1,6 @@
 import { createSign } from "node:crypto";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
+import { unstable_splitSqlQuery } from "wrangler";
 import {
   afterAll,
   afterEach,
@@ -77,15 +78,17 @@ beforeAll(async () => {
     }),
   );
   db = (await mf.getD1Database("DB")) as unknown as D1Database;
-  // Cron also expires technical PDF attempts before identity setup is complete.
-  await db
-    .prepare("CREATE TABLE pdf_validations(status TEXT,deadline_at TEXT)")
-    .run();
-  await db
-    .prepare(
-      "CREATE TABLE provider_receipts(provider TEXT NOT NULL,event_id TEXT NOT NULL,payload_json TEXT NOT NULL,status TEXT NOT NULL CHECK(status IN ('pending','projected','unrecognized')),received_at TEXT NOT NULL,PRIMARY KEY(provider,event_id))",
-    )
-    .run();
+  // The actual scheduler runs independent cleanup before identity/provider gates.
+  // Keep this fixture on the canonical schema instead of copying selected tables.
+  const migrations = new URL("../../migrations/", import.meta.url);
+  for (const name of readdirSync(migrations)
+    .filter((name) => /^\d{4}_[a-z0-9_]+\.sql$/.test(name))
+    .sort()) {
+    const source = readFileSync(new URL(name, migrations), "utf8");
+    await db.batch(
+      unstable_splitSqlQuery(source).map((sql) => db.prepare(sql)),
+    );
+  }
 });
 afterAll(async () => {
   await mf?.dispose();
