@@ -444,6 +444,7 @@ app.get("/media/:token", (c) =>
 );
 app.all("/mcp", (c) =>
   handleMcp(c.req.raw, c.env, {
+    probeAssets: c.env.ASSETS,
     domain: domain(c.env),
     documents: new DocumentService(c.env, domain(c.env)),
     documentUploads: new PrivateDocumentUploadService(c.env, domain(c.env)),

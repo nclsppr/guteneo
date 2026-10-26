@@ -51,11 +51,11 @@ recipient, token or signed URL are copied into this record.
 
 ### Limits of this result
 
-Only that one small inline original and its later readiness are qualified. The
-64 KiB host boundary, larger PDFs, native binary PUT up to 10 MiB, email preparation
-from the original, other models/accounts, Claude web, Cowork, Claude Code and a
-physical iPhone remain separately unqualified. No approval or send follows from
-this import.
+That import receipt qualifies only one small inline original and its later
+readiness. The separately dated email-preparation observation below owns the
+next step. The 64 KiB host boundary, larger PDFs, native binary PUT up to 10 MiB,
+other models/accounts, Claude web, Cowork, Claude Code and a physical iPhone
+remain separately unqualified. No approval or send follows from this import.
 
 The same Free runtime exposed the original bytes but its Guteneo GET failed DNS
 before an HTTP response. Its observed settings offered package-manager egress
@@ -63,6 +63,35 @@ without a custom-domain field; the underlying failure cause was not established.
 The inline success does not qualify runtime binary egress. Above the inline bound,
 that runtime still needs another permitted original-byte transport; no network
 policy change, reconstruction, public source URL or informal chunking is implied.
+
+## Claude Desktop original email preparation — 26 October 2026
+
+The private record
+`real-clients/claude-desktop-original-prepare-only-proof.private.json`, observed at
+**2026-10-26 02:16:02 UTC**, matches the authorized actual Claude Desktop
+preparation to an authoritative D1 read. The application source was
+`f94664ff77c532c0c6b352109f565f6768091c2b`.
+
+This preparation reused the same already-ready fictional original identified
+above: 1,268 bytes, the same SHA-256 and one page. The row created at
+**2026-10-26 02:11:31.397 UTC** was `prepared`, channel `email`, delivery mode
+`attachment`, with a **one-euro-cent estimated quote**. That is this recorded
+quote, not a general tariff or a current sending authorization.
+
+The read-only database receipt reports four rows read and zero rows written.
+Approval, quota-reservation, outbox, provider-attempt, credit-reservation,
+credit-entry, delivery-charge and protected-hosting-charge counts were all zero;
+no provider identifier existed. No new import, manual rescan, paid check, approval
+or communication was performed. No recipient, message, document identifier,
+password, signed URL or token is reproduced here.
+
+This extends the bounded Desktop journey through preparation from the same
+stored original. It qualifies neither delivery nor the optional MCP Apps probe,
+another original/host, larger-file transport, automatic OAuth refresh or a
+physical iPhone. The record remains in the same private evidence folder as the
+import receipt; [host compatibility](MCP_CLIENT_COMPATIBILITY.md) and the
+[diagnostic-probe contract](MCP_UI_CAPABILITY_PROBE.md) retain their separate
+boundaries.
 
 ## Historical Claude.ai browser qualification — 17 September 2026
 

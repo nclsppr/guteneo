@@ -5,14 +5,29 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
 import site from "../../packages/contracts/src/public-site.json" with { type: "json" };
+import mcpUiProbeManifest from "../../packages/contracts/src/mcp-ui-probe-resource.json" with { type: "json" };
 import { collectAssets, sha256 } from "../../scripts/release-source.mjs";
 
 const root = fileURLToPath(new URL("../../", import.meta.url));
 
 async function assertCanonicalPublicAssets(output, release) {
   const paths = new Set(release.assets.map(({ path }) => path));
+  const diagnostic = await readFile(join(output, mcpUiProbeManifest.path));
+  assert.deepEqual(
+    release.assets.find(({ path }) => path === mcpUiProbeManifest.path),
+    {
+      path: mcpUiProbeManifest.path,
+      bytes: mcpUiProbeManifest.bytes,
+      sha256: mcpUiProbeManifest.sha256,
+    },
+  );
+  assert.equal(diagnostic.length, mcpUiProbeManifest.bytes);
+  assert.equal(sha256(diagnostic), mcpUiProbeManifest.sha256);
   for (const [alias, canonical] of Object.entries(site.assetAliases)) {
-    assert.ok(!paths.has(alias), `Manifest advertises redirected asset ${alias}`);
+    assert.ok(
+      !paths.has(alias),
+      `Manifest advertises redirected asset ${alias}`,
+    );
     await assert.rejects(access(join(output, alias)), { code: "ENOENT" });
     const source = await readFile(join(root, "apps/web/public", canonical));
     assert.deepEqual(await readFile(join(output, canonical)), source);
@@ -31,7 +46,10 @@ async function assertCanonicalPublicAssets(output, release) {
         `${prefix}${alias.slice(0, -1)}.html`,
         `${prefix}${alias}index.html`,
       ]) {
-        assert.ok(!paths.has(path), `Manifest advertises redirected page ${path}`);
+        assert.ok(
+          !paths.has(path),
+          `Manifest advertises redirected page ${path}`,
+        );
         await assert.rejects(access(join(output, path)), { code: "ENOENT" });
       }
       assert.ok(

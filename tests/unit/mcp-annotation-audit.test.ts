@@ -174,10 +174,27 @@ describe("MCP annotation audit", () => {
     ).toEqual(["empty_catalogue", "invalid_matrix"]);
   });
 
-  it("discovers all optional surfaces through the MCP transport and matches the maintained matrix", async () => {
-    const tools = await discoverLocalMcpTools();
+  it("preserves ordinary discovery while reviewing every synthetic opt-in surface without handlers", async () => {
+    const ordinary = await discoverLocalMcpTools();
+    const tools = await discoverLocalMcpTools("reviewed");
+    const diagnosticNames = ["check_mcp_ui_probe_bridge", "open_mcp_ui_probe"];
+    expect(ordinary).toHaveLength(75);
+    expect(tools).toHaveLength(77);
+    for (const name of diagnosticNames)
+      expect(ordinary.map((tool) => tool.name)).not.toContain(name);
+    for (const name of diagnosticNames)
+      expect(tools.find((tool) => tool.name === name)?.annotations).toEqual({
+        readOnlyHint: false,
+        destructiveHint: false,
+        openWorldHint: false,
+        idempotentHint: false,
+      });
+    expect(
+      tools.filter((tool) => !diagnosticNames.includes(tool.name)),
+    ).toEqual(ordinary);
     expect(tools.map((tool) => tool.name)).toEqual(
       expect.arrayContaining([
+        ...diagnosticNames,
         "get_postal_setup",
         "configure_postal_sender",
         "create_postal_address_page",
@@ -210,5 +227,12 @@ describe("MCP annotation audit", () => {
     expect(result.passed).toBe(true);
     expect(result.documentedToolCount).toBe(tools.length);
     expect(result.explicitBooleanCount).toBe(tools.length * 4);
+    expect(auditMcpAnnotations(ordinary, matrix).issues).toEqual(
+      diagnosticNames.map((name) => ({
+        code: "stale_matrix_tool",
+        location: name,
+        message: "Matrix entry is absent from MCP tools/list.",
+      })),
+    );
   });
 });

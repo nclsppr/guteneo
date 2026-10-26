@@ -11,6 +11,8 @@ export interface Env {
   ENVIRONMENT: "local" | "staging" | "production";
   MODE: "simulation" | "production";
   APP_ORIGIN: string;
+  /** Server-owned, expiring MCP Apps diagnostic; absent by default. */
+  MCP_UI_PROBE?: string;
   DOCUMENT_RENDERER_URL?: string;
   SCANNER?: Fetcher;
   PDF_VALIDATOR?: Fetcher;

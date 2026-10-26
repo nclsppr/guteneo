@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import site from "../packages/contracts/src/public-site.json" with { type: "json" };
+import mcpUiProbeManifest from "../packages/contracts/src/mcp-ui-probe-resource.json" with { type: "json" };
 
 /** Verify internal localized bytes through their only public URL. */
 function publicAssetPath(path) {
@@ -108,9 +109,19 @@ export async function verifyRelease(originArgument, local, fetcher = fetch) {
         // Verify the same document bytes at the canonical route without following
         // arbitrary redirects from a release manifest.
         const publicPath = publicAssetPath(entry.path);
-        const bytes = new Uint8Array(
-          await (await fetchPublic(publicPath)).arrayBuffer(),
-        );
+        const response = await fetchPublic(publicPath);
+        if (
+          entry.path === mcpUiProbeManifest.path &&
+          (response.headers
+            .get("content-type")
+            ?.split(";")[0]
+            .trim()
+            .toLowerCase() !== "text/plain" ||
+            response.headers.get("x-content-type-options") !== "nosniff" ||
+            !response.headers.get("x-robots-tag")?.includes("noindex"))
+        )
+          throw new Error("Diagnostic source must remain inert public text.");
+        const bytes = new Uint8Array(await response.arrayBuffer());
         const digest = createHash("sha256").update(bytes).digest("hex");
         if (digest !== entry.sha256 || bytes.length !== entry.bytes)
           throw new Error(`Served bytes differ: ${entry.path}`);

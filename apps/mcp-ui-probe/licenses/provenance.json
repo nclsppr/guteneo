@@ -1,0 +1,221 @@
+{
+  "schemaVersion": 1,
+  "reviewedOn": "2026-10-26",
+  "sdk": {
+    "name": "@modelcontextprotocol/ext-apps",
+    "version": "2.0.3",
+    "path": "node_modules/@modelcontextprotocol/ext-apps/dist/src/app-with-deps.js",
+    "bytes": 418465,
+    "sha256": "fb56376b7583ecafb4820bdebc150abee18feb6258ff84b83c2c944ebd9c3602",
+    "publishedSourceMap": false,
+    "staticOrDynamicImports": 0,
+    "upstreamGitHead": "82221c0c8ce7661efa6771c9d461511b1650495f",
+    "upstreamLock": "https://raw.githubusercontent.com/modelcontextprotocol/ext-apps/82221c0c8ce7661efa6771c9d461511b1650495f/package-lock.json"
+  },
+  "runtimeInputs": [
+    "node_modules/@modelcontextprotocol/ext-apps/dist/src/app-with-deps.js"
+  ],
+  "notices": [
+    {
+      "file": "modelcontextprotocol.LICENSE.txt",
+      "label": "@modelcontextprotocol/ext-apps 2.0.3; bundled @modelcontextprotocol/client 2.0.0 and @modelcontextprotocol/core 2.0.0 (identical complete notice)",
+      "bytes": 12227,
+      "sha256": "0382b0057770ca05e9c350a50aa3b1c1fea84da0bc81d723bf00b9aa841be58a"
+    },
+    {
+      "file": "zod-4.3.5.LICENSE.txt",
+      "label": "Zod 4.3.5",
+      "bytes": 1072,
+      "sha256": "3f1189b28e3866e0d979968d466b78f813f76827cfdca1fbb124cc0a5c8841f8"
+    },
+    {
+      "file": "content-type-1.0.5.LICENSE.txt",
+      "label": "content-type 1.0.5",
+      "bytes": 1089,
+      "sha256": "257aed98914108e91a337912727b6a802eef218248507f74b76faffaff517a38"
+    },
+    {
+      "file": "cfworker-4.1.1.LICENSE.txt",
+      "label": "@cfworker/json-schema 4.1.1",
+      "bytes": 1070,
+      "sha256": "376944252ab78ca6b41aee44ddea8894927ee67891e77e61eb9d59af63e35094"
+    },
+    {
+      "file": "ajv-v6.12.6.LICENSE.txt",
+      "label": "Ajv-derived JSON Schema formats",
+      "bytes": 1090,
+      "sha256": "e85e131fa4ed25538ff1f4962ced1fb6f68b079bd9164a790597a0f30b8fd030"
+    },
+    {
+      "file": "schemasafe-cf781264.LICENSE.txt",
+      "label": "schemasafe-derived formats (including Mathias Buus attribution)",
+      "bytes": 1114,
+      "sha256": "f85a906d6345cbb780cda7a1ab1288d0a2431fd19f0111b7d73a50318dfe93e7"
+    },
+    {
+      "file": "diego-perini.LICENSE-notice.txt",
+      "label": "Diego Perini URL validation regular expression",
+      "bytes": 1285,
+      "sha256": "d7d06ac4023598c42cd19b10aba9fdf44a5ecbb6e0ada158bb00752aa1084386"
+    }
+  ],
+  "packageNotices": [
+    {
+      "name": "@modelcontextprotocol/ext-apps",
+      "version": "2.0.3",
+      "noticeFile": "modelcontextprotocol.LICENSE.txt",
+      "metadataUrl": "https://registry.npmjs.org/@modelcontextprotocol/ext-apps/2.0.3",
+      "tarball": "https://registry.npmjs.org/@modelcontextprotocol/ext-apps/-/ext-apps-2.0.3.tgz",
+      "archiveIntegrity": "sha512-Tn+4+cyhO4f4cQSDxNyLiIfEE+qlTTuIbWBJB8JTinEXOhDYgCT4wDTQplxD9MBYZH5pCYGC59GaxiwIT4bu8w==",
+      "licenseEntry": "package/LICENSE",
+      "noticeSha256": "0382b0057770ca05e9c350a50aa3b1c1fea84da0bc81d723bf00b9aa841be58a",
+      "noticeBytes": 12227,
+      "gitHead": "82221c0c8ce7661efa6771c9d461511b1650495f"
+    },
+    {
+      "name": "@modelcontextprotocol/client",
+      "version": "2.0.0",
+      "noticeFile": "modelcontextprotocol.LICENSE.txt",
+      "metadataUrl": "https://registry.npmjs.org/@modelcontextprotocol/client/2.0.0",
+      "tarball": "https://registry.npmjs.org/@modelcontextprotocol/client/-/client-2.0.0.tgz",
+      "archiveIntegrity": "sha512-8f1OghQ2rjzIOfqgUCP+8GiUWqRs89njoWLNqAe8kWmDePv3s1fZXseej+QXemssEuuOvLLmLO/kqM3IQHtISw==",
+      "licenseEntry": "package/LICENSE",
+      "noticeSha256": "0382b0057770ca05e9c350a50aa3b1c1fea84da0bc81d723bf00b9aa841be58a",
+      "noticeBytes": 12227
+    },
+    {
+      "name": "@modelcontextprotocol/core",
+      "version": "2.0.0",
+      "noticeFile": "modelcontextprotocol.LICENSE.txt",
+      "metadataUrl": "https://registry.npmjs.org/@modelcontextprotocol/core/2.0.0",
+      "tarball": "https://registry.npmjs.org/@modelcontextprotocol/core/-/core-2.0.0.tgz",
+      "archiveIntegrity": "sha512-pJCEwGG7Lfr/+PQp9ZTwKXNeO5wzbfKL7H3MYpCorM4oFBoQrdjnBgEoqG+RjhsvS1FKrDbKux+M1HhlnGWqcA==",
+      "licenseEntry": "package/LICENSE",
+      "noticeSha256": "0382b0057770ca05e9c350a50aa3b1c1fea84da0bc81d723bf00b9aa841be58a",
+      "noticeBytes": 12227
+    },
+    {
+      "name": "zod",
+      "version": "4.3.5",
+      "noticeFile": "zod-4.3.5.LICENSE.txt",
+      "metadataUrl": "https://registry.npmjs.org/zod/4.3.5",
+      "tarball": "https://registry.npmjs.org/zod/-/zod-4.3.5.tgz",
+      "archiveIntegrity": "sha512-k7Nwx6vuWx1IJ9Bjuf4Zt1PEllcwe7cls3VNzm4CQ1/hgtFUK2bRNG3rvnpPUhFjmqJKAKtjV576KnUkHocg/g==",
+      "licenseEntry": "package/LICENSE",
+      "noticeSha256": "3f1189b28e3866e0d979968d466b78f813f76827cfdca1fbb124cc0a5c8841f8",
+      "noticeBytes": 1072,
+      "gitHead": "0cdc0b8597999fd9ca99767b912c1e82c1ff2d6c"
+    },
+    {
+      "name": "content-type",
+      "version": "1.0.5",
+      "noticeFile": "content-type-1.0.5.LICENSE.txt",
+      "metadataUrl": "https://registry.npmjs.org/content-type/1.0.5",
+      "tarball": "https://registry.npmjs.org/content-type/-/content-type-1.0.5.tgz",
+      "archiveIntegrity": "sha512-nTjqfcBFEipKdXCv4YDQWCfmcLZKm81ldF0pAopTvyrFGVbcR6P/VAAd5G7N+0tTr8QqiU0tFadD6FK4NtJwOA==",
+      "licenseEntry": "package/LICENSE",
+      "noticeSha256": "257aed98914108e91a337912727b6a802eef218248507f74b76faffaff517a38",
+      "noticeBytes": 1089,
+      "gitHead": "6115a4064e4dfd9845241c3f89c233ee2423deeb"
+    }
+  ],
+  "sourceArtifacts": [
+    {
+      "name": "cfworker-4.1.1.LICENSE.txt",
+      "url": "https://raw.githubusercontent.com/cfworker/cfworker/5409fdc2bd144f68e8b28c61c71fcb16600000a6/LICENSE.md",
+      "bytes": 1070,
+      "sha256": "376944252ab78ca6b41aee44ddea8894927ee67891e77e61eb9d59af63e35094"
+    },
+    {
+      "name": "cfworker-4.1.1-format.ts",
+      "url": "https://raw.githubusercontent.com/cfworker/cfworker/5409fdc2bd144f68e8b28c61c71fcb16600000a6/packages/json-schema/src/format.ts",
+      "bytes": 10313,
+      "sha256": "d7c889795bd8f69b4bafbfbd510550628b199e2d1ce1acbe52b6dafda317e5a5"
+    },
+    {
+      "name": "ajv-v6.12.6.LICENSE.txt",
+      "url": "https://raw.githubusercontent.com/ajv-validator/ajv/fe591439f34e24030f69df9eb8d91e6d037a3af7/LICENSE",
+      "bytes": 1090,
+      "sha256": "e85e131fa4ed25538ff1f4962ced1fb6f68b079bd9164a790597a0f30b8fd030"
+    },
+    {
+      "name": "ajv-v6.12.6-formats.js",
+      "url": "https://raw.githubusercontent.com/ajv-validator/ajv/fe591439f34e24030f69df9eb8d91e6d037a3af7/lib/compile/formats.js",
+      "bytes": 12081,
+      "sha256": "ba0cde9da30782c10d237df4e3e92d32da9c3bc2d278d89b4355e4a6f540ccf7"
+    },
+    {
+      "name": "schemasafe-cf781264.LICENSE.txt",
+      "url": "https://raw.githubusercontent.com/ExodusMovement/schemasafe/cf781264b62c2641ef0f058a78d0914805331b47/LICENSE",
+      "bytes": 1114,
+      "sha256": "f85a906d6345cbb780cda7a1ab1288d0a2431fd19f0111b7d73a50318dfe93e7"
+    },
+    {
+      "name": "schemasafe-cf781264-formats.js",
+      "url": "https://raw.githubusercontent.com/ExodusMovement/schemasafe/cf781264b62c2641ef0f058a78d0914805331b47/src/formats.js",
+      "bytes": 12210,
+      "sha256": "b864418285fa26bef33bb46c6db195059808ea7d655b4a82e487656cf5ec8257"
+    },
+    {
+      "name": "diego-perini-2792946-regex-weburl.js",
+      "url": "https://gist.githubusercontent.com/dperini/729294/raw/2792946bae13907d67b0f8179b2e45c4bf554d00/regex-weburl.js",
+      "bytes": 4800,
+      "sha256": "672af6a89e71a40a5d3844d576694ccfd37efcd235b66558c2c71dd6669c0958"
+    }
+  ],
+  "periniNotice": {
+    "path": "diego-perini.LICENSE-notice.txt",
+    "sha256": "d7d06ac4023598c42cd19b10aba9fdf44a5ecbb6e0ada158bb00752aa1084386",
+    "bytes": 1285,
+    "extraction": "Exact leading bytes from pinned source, stopping immediately before the next non-license commentary marker; comment prefixes preserved."
+  },
+  "runtimeFamilies": [
+    "@modelcontextprotocol/ext-apps 2.0.3",
+    "@modelcontextprotocol/client 2.0.0",
+    "@modelcontextprotocol/core 2.0.0",
+    "Zod 4.3.5",
+    "content-type 1.0.5",
+    "@cfworker/json-schema 4.1.1"
+  ],
+  "copiedCodeNotices": [
+    "Ajv-derived formats",
+    "Diego Perini URL regular expression",
+    "schemasafe-derived email/duration formats"
+  ],
+  "excluded": {
+    "full Ajv provider and its graph": "The browser client shim selects cfworker; copied Ajv-derived format code is separately attributed, not represented as the full Ajv compiler/runtime.",
+    "@standard-schema/spec 1.1.0": "Official pinned src/standard-schema.ts imports it with import type; installed runtime dist/index.js is empty. No substantial runtime implementation copied from that package."
+  },
+  "esbuildVisibility": "The prebuilt app-with-deps has no runtime imports or source map. Downstream esbuild treats it as one opaque input, so a downstream metafile alone cannot enumerate vendored dependency notices.",
+  "vendorSourceMaps": {
+    "package": "@modelcontextprotocol/client",
+    "version": "2.0.0",
+    "metadataUrl": "https://registry.npmjs.org/@modelcontextprotocol/client/2.0.0",
+    "tarball": "https://registry.npmjs.org/@modelcontextprotocol/client/-/client-2.0.0.tgz",
+    "archiveIntegrity": "sha512-8f1OghQ2rjzIOfqgUCP+8GiUWqRs89njoWLNqAe8kWmDePv3s1fZXseej+QXemssEuuOvLLmLO/kqM3IQHtISw==",
+    "maps": [
+      {
+        "archiveEntry": "package/dist/cfWorkerProvider-BylNJ1R5.mjs.map",
+        "bytes": 77314,
+        "sha256": "0d86b1b2e74af05389035a9724e22ec559bb758f5618f7afd5eb5ad154d14883",
+        "vendorSources": [
+          "../../../node_modules/.pnpm/@cfworker+json-schema@4.1.1/node_modules/@cfworker/json-schema/dist/esm/deep-compare-strict.js",
+          "../../../node_modules/.pnpm/@cfworker+json-schema@4.1.1/node_modules/@cfworker/json-schema/dist/esm/pointer.js",
+          "../../../node_modules/.pnpm/@cfworker+json-schema@4.1.1/node_modules/@cfworker/json-schema/dist/esm/dereference.js",
+          "../../../node_modules/.pnpm/@cfworker+json-schema@4.1.1/node_modules/@cfworker/json-schema/dist/esm/format.js",
+          "../../../node_modules/.pnpm/@cfworker+json-schema@4.1.1/node_modules/@cfworker/json-schema/dist/esm/ucs2-length.js",
+          "../../../node_modules/.pnpm/@cfworker+json-schema@4.1.1/node_modules/@cfworker/json-schema/dist/esm/validate.js",
+          "../../../node_modules/.pnpm/@cfworker+json-schema@4.1.1/node_modules/@cfworker/json-schema/dist/esm/validator.js"
+        ]
+      },
+      {
+        "archiveEntry": "package/dist/src-D_zzAWoS.mjs.map",
+        "bytes": 685127,
+        "sha256": "3be37dca6269ef4f9ca284d4de532de5db3570844552bfa83e9262ac193520bf",
+        "vendorSources": [
+          "../../../node_modules/.pnpm/content-type@1.0.5/node_modules/content-type/index.js"
+        ]
+      }
+    ]
+  }
+}

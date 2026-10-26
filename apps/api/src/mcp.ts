@@ -1,4 +1,13 @@
+import mcpUiProbeManifest from "../../../packages/contracts/src/mcp-ui-probe-resource.json";
 import { emailPreparationDescriptions } from "./email-preparation-contract";
+import {
+  mcpUiProbeEnabled,
+  assertMcpUiProbeCurrent,
+  registerMcpUiProbeResource,
+  MCP_UI_PROBE_URI,
+  MCP_UI_PROBE_ACK,
+  mcpUiProbeResult,
+} from "./mcp-ui-probe";
 import { ImportSourceError, type DocumentService } from "./documents";
 import { GUTENEO_VERSION } from "../../../packages/contracts/src/release";
 import { XmlRecordPathSchema } from "../../../packages/contracts/src/datasets";
@@ -115,6 +124,7 @@ export interface McpDocuments {
   ): Promise<DocumentRecord>;
 }
 export interface McpServices {
+  probeAssets?: Pick<Fetcher, "fetch">;
   domain: DomainService;
   documents: McpDocuments;
   documentUploads?: Pick<
@@ -989,6 +999,46 @@ export function createGuteneoMcpServer(
       return result;
     }
   };
+  if (mcpUiProbeEnabled(env, identity)) {
+    registerMcpUiProbeResource(
+      server,
+      env,
+      identity,
+      mcpUiProbeManifest,
+      services.probeAssets,
+    );
+    for (const name of [
+      "open_mcp_ui_probe",
+      "check_mcp_ui_probe_bridge",
+    ] as const) {
+      const opens = name === "open_mcp_ui_probe";
+      registerTool(
+        name,
+        {
+          title: opens
+            ? "Open the host diagnostic"
+            : "Check the diagnostic bridge",
+          description:
+            "A temporary, connection-bound MCP Apps diagnostic. Checks only rendering and the standard host bridge. Reads no file or business content and creates no upload, grant, preparation, charge or send. API presence and a requested picker do not establish original-file access or transfer. Unavailable outside its server-owned activation window.",
+          inputSchema: z.object({}).strict(),
+          outputSchema: output(mcpUiProbeResult),
+          annotations: observedReadAnnotations,
+          _meta: {
+            ...oauthMetadata("documents:read"),
+            ui: {
+              ...(opens ? { resourceUri: MCP_UI_PROBE_URI } : {}),
+              visibility: opens ? ["model"] : ["app"],
+            },
+          },
+        },
+        () =>
+          run("documents:read", async () => {
+            await assertMcpUiProbeCurrent(env, identity);
+            return MCP_UI_PROBE_ACK;
+          }),
+      );
+    }
+  }
   if (services.secureDistribution) {
     const distribution = services.secureDistribution;
     registerTool(

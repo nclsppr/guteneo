@@ -48,6 +48,7 @@ export type AnnotationAuditReport = {
   issues: AnnotationAuditIssue[];
 };
 type EvidenceReader = (relativePath: string) => string;
+export type McpDiscoveryProfile = "ordinary" | "reviewed";
 
 const repositoryRoot = fileURLToPath(new URL("../", import.meta.url));
 const defaultMatrixPath = path.join(
@@ -83,10 +84,13 @@ function readRepositoryEvidence(relativePath: string): string {
 
 /**
  * Inspect the actual serialized MCP catalogue, without invoking a business tool.
- * Optional services are present so this includes every conditional registration.
+ * Optional services are present. The ordinary profile retains default-off gates;
+ * the reviewed profile adds an explicit synthetic diagnostic activation only.
  * Fail-fast stubs ensure discovery cannot accidentally perform business work.
  */
-export async function discoverLocalMcpTools() {
+export async function discoverLocalMcpTools(
+  profile: McpDiscoveryProfile = "ordinary",
+) {
   const forbidden = () => {
     throw new Error(
       "The annotation audit must not invoke business operations.",
@@ -95,6 +99,8 @@ export async function discoverLocalMcpTools() {
   const service = new Proxy(Object.create(null) as Record<string, unknown>, {
     get: (_target, property) => (property === "then" ? undefined : forbidden),
   });
+  const now = Date.now();
+  const reviewed = profile === "reviewed";
   const identity: McpIdentity = {
     context: {
       organizationId: "annotation-audit",
@@ -102,15 +108,36 @@ export async function discoverLocalMcpTools() {
       role: "admin",
       actor: "mcp",
     },
-    scopes: [],
+    scopes: reviewed ? ["documents:read"] : [],
     clientId: "annotation-audit",
     token: "synthetic-not-a-credential",
-    expiresAt: 0,
+    expiresAt: reviewed ? Math.floor(now / 1000) + 3600 : 0,
+    ...(reviewed
+      ? {
+          verifiedTokenIssuer: "https://annotation-audit.auth0.invalid/",
+          connectionObservation: {
+            connectionId: "annotation_audit_probe",
+            authorizationRevision: 0,
+          },
+        }
+      : {}),
   };
   const env = {
-    APP_ORIGIN: "http://localhost",
-    ENVIRONMENT: "local",
-    MODE: "simulation",
+    APP_ORIGIN: reviewed ? "https://guteneo.com" : "http://localhost",
+    ENVIRONMENT: reviewed ? "production" : "local",
+    MODE: reviewed ? "production" : "simulation",
+    DB: service as unknown as AuthEnv["DB"],
+    ...(reviewed
+      ? {
+          MCP_UI_PROBE: JSON.stringify({
+            enabled: true,
+            connectionId: "annotation_audit_probe",
+            authorizationRevision: 0,
+            startsAt: new Date(now - 1000).toISOString(),
+            expiresAt: new Date(now + 5 * 60_000).toISOString(),
+          }),
+        }
+      : {}),
   } as AuthEnv;
   const services: McpServices = {
     domain: service as unknown as McpServices["domain"],
@@ -382,7 +409,7 @@ async function main(args: string[]) {
     else outputDir = value;
   }
   const matrix: unknown = JSON.parse(await readFile(matrixPath, "utf8"));
-  const tools = await discoverLocalMcpTools();
+  const tools = await discoverLocalMcpTools("reviewed");
   const report = auditMcpAnnotations(tools, matrix);
   if (outputDir) {
     await mkdir(outputDir, { recursive: true });

@@ -53,6 +53,9 @@ export async function liveReleaseSending(root) {
 }
 
 const common = [
+  "apps/mcp-ui-probe",
+  "scripts/build-mcp-ui-probe.mjs",
+  "scripts/build-mcp-ui-probe.d.mts",
   "scripts/release-source.mjs",
   "scripts/deploy-public.mjs",
   "scripts/build-public-pages.mjs",
