@@ -315,6 +315,7 @@ afterAll(async () => {
 });
 beforeEach(async () => {
   for (const table of [
+    "email_recipient_feedback_tokens",
     "protected_document_sessions",
     "protected_document_hostings",
     "distribution_postal_reviews",
