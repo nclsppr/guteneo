@@ -1,3 +1,4 @@
+import { handleEmailRecipientFeedback } from "./email-recipient-feedback";
 import {
   emailContentCapabilities,
   emailPreparationDescriptions,
@@ -589,6 +590,8 @@ app.all("/mcp", (c) =>
   }),
 );
 app.use("*", async (c, next) => {
+  const feedback = await handleEmailRecipientFeedback(c.req.raw, c.env);
+  if (feedback) return feedback;
   const protectedDocument = await handleProtectedDocumentRoute(
     c.req.raw,
     c.env,
@@ -708,6 +711,7 @@ app.use("/api/*", async (c, next) => {
 const domain = (env: Env) =>
   new DomainService(env.DB, {
     mode: env.MODE,
+    appOrigin: env.APP_ORIGIN,
     sensitiveDocumentAuthentication: env.SENSITIVE_DOCUMENT_AUTHENTICATION,
     ...createLiveDeliveryQuoteConfig(env),
     ensureEmailSender: (ctx) => ensureEmailSender(env, ctx),
@@ -804,7 +808,11 @@ app.get("/api/secure-distributions", async (c) => {
 });
 app.post("/api/secure-distributions", async (c) => {
   const actor = c.get("actor"),
-    input = await secureJson(c.req.raw, secureDistributionInputSchema);
+    input = await secureJson(
+      c.req.raw,
+      secureDistributionInputSchema,
+      200 * 1024,
+    );
   return c.json(
     secureResult(
       actor,

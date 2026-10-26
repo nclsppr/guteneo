@@ -396,7 +396,7 @@ export function Campaigns({
                   onHtml={setHtml}
                   disabled={locked}
                   documentEmail={!!documentId}
-                  protectedLink={!!documentId && protectedLink}
+                  documentLink={!!documentId && protectedLink}
                 />
               </>
             )}

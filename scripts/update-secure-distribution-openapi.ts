@@ -148,7 +148,7 @@ spec.paths["/api/secure-distributions"] = {
     ...operation(
       "prepareSecureDistribution",
       "Prepare a secure distribution",
-      "Prepares an immutable PDF for one recipient and term. Asynchronous rendering may return preparing: query the same identifier without recreating the command. No sending or approval. The quote separates sharing, any authorized personal copy and notification. Term activation is non-refundable, including if the document is revoked. Read /api/capabilities and the current catalog; scan, service, notification and account gates remain mandatory.",
+      "Prepares an immutable PDF for one recipient and term. The invitation opens My documents after sign-in/signup, without a separate document password. New policies default recipientBinding to verified_email; independent retains workspace confirmation. Optional subject/message/html use localized workspace defaults and the V2 template. A custom HTML anchor href may be exactly {{document_url}}. Asynchronous rendering may return preparing: query the same identifier without recreating the command. No sending or approval. The quote separates sharing, any authorized personal copy and notification. Term activation is non-refundable, including if the document is revoked. Read /api/capabilities and the current catalog; scan, service, notification and account gates remain mandatory.",
       "dispatches:prepare",
       "SecureDistribution",
       [key],

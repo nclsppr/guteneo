@@ -13,6 +13,7 @@ import {
   documentEmailDefaults,
   protectedEmailInstructions,
   renderProtectedEmailFooter,
+  renderEmailServiceFooter,
   renderTransactionalEmail,
   transactionalEmailText,
   type ProtectedEmailDocument,
@@ -130,6 +131,7 @@ export type DispatchStatus =
   | "printed"
   | "handed_to_post";
 export type Dispatch = {
+  recipient_feedback?: "unsubscribed" | "reported" | null;
   faxPricing?: FaxPricing;
   quote_fingerprint?: string | null;
   quote_expires_at?: string | null;
@@ -414,6 +416,7 @@ export class DomainService {
     public readonly config: {
       mode: Mode;
       sensitiveDocumentAuthentication?: string;
+      appOrigin?: string;
       now?: () => number;
       liveFaxIdentity?: LiveFaxIdentity;
       liveDeliveryIdentity?: LiveDeliveryIdentities;
@@ -737,6 +740,7 @@ export class DomainService {
     input: PrepareInput,
     idempotencyKey: string,
     descriptor: SecureDistributionDescriptor,
+    notificationLocale: SupportedLocale = defaultLocale,
   ): Promise<Dispatch> {
     const recipient = validateRecipient("email", input.recipient);
     if (
@@ -761,6 +765,7 @@ export class DomainService {
       idempotencyKey,
       undefined,
       descriptor,
+      notificationLocale,
     );
   }
   async renewFaxQuote(
@@ -874,6 +879,7 @@ export class DomainService {
     idempotencyKey: string,
     renewal?: Dispatch,
     secureDistribution?: SecureDistributionDescriptor,
+    notificationLocale?: SupportedLocale,
   ): Promise<Dispatch> {
     writable(ctx);
     const organization = await this.organization(ctx);
@@ -988,10 +994,13 @@ export class DomainService {
         "DOCUMENT_REQUIRED",
         "A verified PDF is required for this channel.",
       );
+    const id = uid("dsp"),
+      now = this.time();
+    let feedbackTokenHash: string | null = null;
     let html: string | null = null,
       text: string | null = null,
       subject: string | null = null;
-    let emailLocale: SupportedLocale = defaultLocale;
+    let emailLocale: SupportedLocale = notificationLocale ?? defaultLocale;
     const customEmailHtml = Boolean(input.html?.trim());
     let customDocumentLink = false;
     if (input.channel === "email") {
@@ -1116,17 +1125,28 @@ export class DomainService {
           workspaceName: organization.name,
           locale: emailLocale,
           protectedDocument: protectedEmailDocument,
+          documentTitle: document.name,
         });
         text = transactionalEmailText({
           text: text!,
           workspaceName: organization.name,
           locale: emailLocale,
+          documentTitle: document.name,
         });
       } else {
         html = `<p>${text!.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, "<br>")}</p>`;
       }
       if (protectedEmailDocument)
         text += `\n\n${deliveryText("View the protected document", emailLocale)}: ${protectedEmailDocument.url}\n${protectedEmailInstructions(protectedEmailDocument.expiresAt, emailLocale)}`;
+      if (document || secureDistribution) {
+        const feedbackToken = [...crypto.getRandomValues(new Uint8Array(32))]
+          .map((byte) => byte.toString(16).padStart(2, "0"))
+          .join("");
+        feedbackTokenHash = await sha256(feedbackToken);
+        const preferencesUrl = `${this.config.appOrigin ?? "https://guteneo.com"}/?lang=${emailLocale}#/email-preferences?token=${feedbackToken}`;
+        html += renderEmailServiceFooter(emailLocale, preferencesUrl);
+        text += `\n\n${deliveryText("Discover guteneo", emailLocale)}: https://guteneo.com/?lang=${emailLocale}\n${deliveryText("Unsubscribe or report this email", emailLocale)}: ${preferencesUrl}`;
+      }
       html = cleanEmailHtml(html).html;
       boundedText(html, LIMITS.htmlBytes);
       boundedText(text!, LIMITS.htmlBytes, "INVALID_EMAIL_CONTENT");
@@ -1267,8 +1287,6 @@ export class DomainService {
       mode: this.config.mode,
       ...deliveryPriceDisclosure(deliveryPrice),
     };
-    const id = uid("dsp"),
-      now = this.time();
     const quote = tariff
       ? await makeFaxQuote(id, ctx.organizationId, frozen, tariff, now)
       : deliveryPrice
@@ -1344,6 +1362,22 @@ export class DomainService {
       await this.db.batch([
         ...renewalFence,
         insert,
+        ...(feedbackTokenHash
+          ? [
+              this.db
+                .prepare(
+                  "INSERT INTO email_recipient_feedback_tokens(token_hash,organization_id,dispatch_id,created_at) SELECT ?,?,?,? WHERE EXISTS(SELECT 1 FROM dispatches WHERE organization_id=? AND id=?)",
+                )
+                .bind(
+                  feedbackTokenHash,
+                  ctx.organizationId,
+                  id,
+                  now,
+                  ctx.organizationId,
+                  id,
+                ),
+            ]
+          : []),
         ...(quote
           ? [
               "policy_id" in quote

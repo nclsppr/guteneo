@@ -3,115 +3,88 @@
 21 September 2026 candidate. [RESEND_PROOF.md](RESEND_PROOF.md) records publication
 and real tests; local tests do not prove actual delivery.
 
-## Journey
+## Document email contract — 26 October 2026 candidate
 
-Email supports no document, the exact PDF as an attachment, or a protected link.
-Direct import in the form waits for PDF analysis. Before approval and sending,
-the sender checks recipient, message, document, expiration and cost. Message text
-is sufficient; HTML is optional. Guteneo supplies the sending domain and the
-author's verified address supplies Reply-To. Automatic configuration never
-reverses an administrator's channel shutdown.
+The individual web email composer and MCP `prepare_dispatch` with a PDF now default
+to **My documents**. The invitation opens the recipient's one Guteneo account,
+with sign-in/registration and matching verified address before document access.
+There is no separate document password. The recipient journey and authority matrix
+are owned by [secure distribution journeys](SECURE_DISTRIBUTION_JOURNEYS.md).
 
-The link opens a Guteneo page without a recipient account. Its generated password
-is revealed only to an authorized member in their browser and is shared separately
-by the sender. It never appears in email, options, MCP responses or logs. The
-opaque link belongs to the exact approved content. ChatGPT/Claude use the same
-`prepare_dispatch` with `options.emailDeliveryMode=protected_link` and
-`protectedDays` of 1, 7 or 30 days (default 7). Review and confirmation permissions
-are unchanged. An assistant cannot enable delegation or reveal the password.
+Web preparation calls `POST /api/secure-distributions`. MCP also offers
+`prepare_secure_distribution`; generic `prepare_dispatch` returns the secure
+view when a PDF has no explicit mode, or `options.emailDeliveryMode=my_documents`.
+Follow its ID using `get_secure_distribution`, review the final browser
+`approvalUrl`, then `confirm_secure_distribution` after recorded approval.
+Rendering may initially return `preparing`. An expert mandate does not replace
+this specific browser approval. Exact costs include retention and email transport;
+preparation itself sends nothing. Revocation uses the existing secure service.
 
-## Language of new protected-link messages
+An original attachment remains an explicit web/MCP choice. Historical password
+links and explicit MCP `protected_link` remain compatible; their passwords stay
+exclusively in the sender browser and are shared separately. Generic REST
+`POST /api/dispatches`, campaign preparation and the current native message-only
+composer retain their existing wire contracts. REST clients use the dedicated
+secure endpoint for this account journey. An unavailable account service or
+incompatible source never falls back to an attachment/password link. Existing
+sent emails are not rewritten, migrated or resent.
 
-The shared preparation service reads the authenticated sender's saved
-`users.preferred_locale` through current workspace membership. It uses French
-when that preference is absent or unsupported. The protected-link button,
-password instructions and expiration date come from
-`packages/contracts/src/delivery-messages.json` in French, English, German or
-Luxembourgish. `deliveryExpiryDate` formats the hosting calendar date in UTC;
-Luxembourgish uses declared CLDR month names because workerd may lack `lb` Intl
-data and silently format an English date. No subject, entered message or document
-is translated.
+## V2 default and custom HTML
 
-The server adds the localized footer and a supported `?lang=` to the recipient
-link before the final content is fingerprinted and reviewed. This applies to web,
-REST, MCP and mobile API preparation through the same domain operation. Changing
-account language later, an idempotent replay or provider submission cannot
-rewrite prepared, approved or already sent text. Recipient page language remains
-switchable without granting access or changing the link's hosting term.
+Subject and body are independently optional for an accessible ready PDF. Blank
+values count as absent. The server derives the authenticated workspace name and
+sender's saved locale (French fallback); an explicit supported notification locale
+is allowed by the dedicated contract. A supplied subject/message is preserved.
+Custom HTML supplies derived plain text when no message alternative is provided.
 
-The V2 preparation and review panels follow the shared geometry documented in
-[DASHBOARD_V2.md](DASHBOARD_V2.md); the final email/document content retains its
-own presentation. The recipient route and failure contract are owned by
-[protected PDF delivery](PROTECTED_DOCUMENTS.md).
+Without custom HTML, `packages/contracts/src/email-template.ts` renders warm
+ivory paper, an ink-black lowercase wordmark, a serif document heading, a white
+10 px panel and a blue 7 px access button. Email-safe Georgia/Arial fallbacks and
+inline table layout need no remote fonts, images or tracking resources. All four
+languages come from `delivery-messages.json`. The button opens **My documents**;
+copy explains sign-in/signup with the receiving address and the funded term. The frozen document name is displayed as a quotation. Small service links explain guteneo and open [recipient feedback controls](EMAIL_RECIPIENT_FEEDBACK.md), whose confirmation and lifecycle contract is maintained separately.
 
-The 25 October correction is a source candidate. Local regression fixtures in
-`tests/integration/resend-email.test.ts` cover four-language preparation, French
-fallback, localized UTC expiration, explicit reader language and frozen provider
-content. The initial routing/localization run passed 13 Resend and 10 protected-document cases
-with synthetic local D1/R2 and intercepted transport. Twenty cases in
-`tests/unit/delivery-messages.test.ts` cover exact four-language dates, all twelve
-Luxembourgish months without Intl and UTC calendar rollover. A local workerd smoke
-check also verifies the Luxembourgish formatter. Actual publication and a received-message
-journey require separate evidence; no replacement email is automatically sent.
+For custom HTML, use an anchor such as:
 
-## Default document messages and custom buttons
+```html
+<a href="{{document_url}}" style="background-color:#2450db;color:#ffffff;padding:14px 24px;border-radius:7px;text-decoration:none">Open document</a>
+```
 
-An email with an accessible ready document may omit its subject, body or both.
-Blank values count as omitted. A body default is generated only when both text and
-custom HTML are absent; supplied custom HTML provides derived plain text when
-no explicit text alternative is given. Defaults identify the authenticated workspace,
-using its database name and the sender's saved language with French fallback;
-client input cannot select that identity. Supplied subject/body are preserved
-subject to their existing validation and sanitization. Message-only email still
-requires subject and content; an inaccessible or unready PDF does not unlock
-this convenience.
+Safe inline styles survive the email-specific sanitizer. Scripts, images, remote
+resources, CSS URLs/imports and unsafe effects are removed. HTML must retain
+readable content; an empty sanitized body is refused. The marker must be the
+entire anchor href; text, styles and nested URLs are invalid. It is supported for
+account invitations and explicit legacy protected links, never attachments or
+message-only email. A valid marker prevents a duplicate button. Without one,
+custom HTML receives one styled fallback button. Localized account/term or legacy
+password/expiry instructions remain, including in the plain-text alternative.
+Never place a real capability or password in template input.
 
-For document emails without custom HTML, Guteneo renders the supplied/default
-message in its branded email template. Message-only presentation is unchanged.
-A custom HTML template retains safe inline typography, colors,
-spacing, borders and table layout through a separate email sanitizer. Scripts,
-images, remote resources, CSS URLs/imports and unsafe layout/effect properties
-are excluded; this does not loosen the PDF-rendering sanitizer. Custom HTML must
-retain readable message text after sanitization; an empty result is rejected with
-`INVALID_EMAIL_CONTENT` rather than replaced by a default message.
+Defaults and sanitized input freeze at preparation, before bounded rendering.
+The final link, HTML, text, policy, recipient and quote are fingerprinted before
+approval. Same-key recovery and later workspace/profile changes cannot alter
+approved content. Historical policies and request hashes remain compatible.
+The browser shows the final rendered invitation; standard MCP/REST summaries
+exclude private HTML/URLs. Draft previews contain only a harmless `#` href.
+The HTML editor can insert a styled marker button while preserving supplied text
+and markup. It reuses the final email's shared button renderer. Its generated
+label uses the notification language, including
+the French fallback when the account has no saved language, independently of the
+interface language. A directly selected or uploaded document keeps its quoted
+title in the draft even when it is absent from the first list page. The default
+plain-text alternative quotes the same document title and preserves the supplied
+message. Preview is never approval or provider-rendering evidence.
 
-For a protected link, an author can style an anchor button and place the exact
-`href="{{document_url}}"` marker in it. The server substitutes its own private
-access URL, includes localized password/expiry instructions and always retains
-the URL/instructions in plain text. A valid marker prevents a duplicate access
-button; protected custom HTML without the marker receives the styled fallback
-button. Both retain the password/expiry instructions. Do not place the marker
-inside text, CSS,
-another URL or an attachment-only message. Invalid markers are rejected with
-`INVALID_DOCUMENT_URL_PLACEHOLDER`; using the marker without protected delivery
-returns `DOCUMENT_URL_NOT_AVAILABLE`. No actual token, password or client-supplied
-hosting identifier belongs in template input.
+Account invitations accept at most 16,000 characters of supplied message/text
+and 150,000 characters of supplied HTML. The shared secure-distribution limits
+own these bounds; MCP capability metadata and preparation descriptions expose
+them. Generic MCP account preparation returns `EMAIL_CONTENT_TOO_LONG` naming
+the field and bound before rendering. Other delivery modes retain their existing
+limits, and final sanitized messages still pass the dispatch byte-size guard.
 
-Defaults, branded/custom HTML and link substitution are finalized before quoting,
-fingerprinting and approval. Idempotent replays retain stored content despite
-later workspace/profile edits. Changed content needs new preparation and review;
-no template preview is approval. REST, the mobile API and MCP reuse this behavior;
-current roles, recipient-request attestation and browser/expert gates remain.
-The web individual and campaign forms omit blank document-message fields rather
-than submitting guessed defaults. Their draft preview uses the shared template
-and authenticated workspace plus saved sender language (French fallback), even
-when unsaved browser/interface language differs. The exact substituted link and
-expiration appear only in the prepared server review. Advanced protected HTML exposes the literal
-marker and an editable button example, with localized validation recovery. When
-custom HTML is empty, inserting the document button preserves the existing
-plain-text message as escaped HTML with line breaks before the button. Existing
-custom HTML remains authoritative; the helper appends the button without adding
-the plain-text alternative to that HTML.
-A draft preview contains no invented access URL and never substitutes for review.
-The MCP/plugin email workflow describes optional defaults and the marker while
-keeping private URLs/passwords out of standard summary readbacks. Authorized expert
-review still receives the exact final message under its existing policy; password
-retrieval remains exclusively in the authenticated browser. The current native
-composer exposes message-only email, not document/template controls.
-
-The presentation extension is a source candidate; deterministic contract tests,
-packaged instructions and screenshots do not prove provider rendering, actual
-inbox delivery or publication. No email is sent by template authoring or review.
+The source candidate requires current unit, browser, runtime and documentation
+checks. Publication, Auth0 signup/callback and actual received-email rendering
+remain separate qualification; no real message is authorized by this change.
 
 ## Local template qualification — 25 October 2026
 

@@ -178,6 +178,11 @@ The combined 26 October archive-guide candidate targets release **1.1.3** after
 reconciliation with current `main`; its [26 October local validation](ASSISTANT_HUB.md#chatgpt-archive-candidate--25-october-2026)
 records the current archive and browser/build checks. Earlier local 0.3.4 results
 predate that reconciliation and do not qualify this candidate.
+The subsequent document-email candidate targets **1.1.4**: account invitations,
+V2 defaults, custom document-button markers and recipient-feedback readback are
+reflected in both listing languages and the packaged workflow. Its content bounds
+are exposed before preparation. The MCP/package record and downloadable archive
+must be rebuilt from that combined source using the maintenance flow above.
 No actual import, OAuth renewal, portal update or public directory publication is
 established by these instructions.
 [Official ChatGPT journey](https://developers.openai.com/plugins/deploy/connect-chatgpt).

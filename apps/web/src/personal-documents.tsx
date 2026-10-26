@@ -147,16 +147,11 @@ function ClaimDocumentInvitation({
       <PageHeading
         title={msg("A document has been sent to you")}
         intro={msg(
-          "Check the signed-in account before requesting access. This invitation grants no permissions in the sender’s workspace.",
+          "Use the account matching the address that received this email.",
         )}
       />
       <section className="secure-document-panel">
         <h2>{msg("Signed in as {0}", session.user.email)}</h2>
-        <p>
-          {msg(
-            "The workspace may need to confirm the association with your account before granting access to the content.",
-          )}
-        </p>
         {!(session.documentAccessAllowed ?? session.strongAuthentication) ? (
           <PersonalSecurityNotice mode={session.documentAccessMode} />
         ) : pending ? (
@@ -172,9 +167,7 @@ function ClaimDocumentInvitation({
             disabled={action.pending}
             onClick={() => void claim()}
           >
-            {action.pending
-              ? msg("Verifying…")
-              : msg("Request access to the document")}
+            {action.pending ? msg("Verifying…") : msg("Open my document")}
             <ArrowRight size={18} aria-hidden="true" />
           </button>
         )}

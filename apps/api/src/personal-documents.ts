@@ -108,19 +108,32 @@ export class PersonalDocumentsService {
     )
       throw unavailable();
     const fence = sessionFence(principal, 900, this.env);
+    const automatic =
+      JSON.parse(row.policy_json).recipientBinding === "verified_email";
     const results = await this.env.DB.batch([
       this.env.DB.prepare(
-        `UPDATE secure_distributions SET recipient_user_id=?,claimed_at=COALESCE(claimed_at,?)
+        `UPDATE secure_distributions SET recipient_user_id=?,claimed_at=COALESCE(claimed_at,?),
+      bound_at=CASE WHEN ?=1 THEN COALESCE(bound_at,?) ELSE bound_at END,
+      binding_method=CASE WHEN ?=1 AND bound_at IS NULL THEN 'verified_email' ELSE binding_method END,
+      binding_by=CASE WHEN ?=1 AND bound_at IS NULL THEN ? ELSE binding_by END
       WHERE organization_id=? AND id=? AND status='active' AND expires_at>? AND recipient_address=?
-      AND (recipient_user_id IS NULL OR recipient_user_id=?) AND ${fence.condition} RETURNING id`,
+      AND (recipient_user_id IS NULL OR recipient_user_id=?)
+      AND (?=0 OR json_extract(policy_json,'$.recipientBinding')='verified_email')
+      AND ${fence.condition} RETURNING id,bound_at`,
       ).bind(
         principal.userId,
         now(),
+        automatic ? 1 : 0,
+        now(),
+        automatic ? 1 : 0,
+        automatic ? 1 : 0,
+        principal.userId,
         row.organization_id,
         row.id,
         now(),
         principal.email!.toLowerCase(),
         principal.userId,
+        automatic ? 1 : 0,
         ...fence.values,
       ),
       this.env.DB.prepare(
@@ -139,12 +152,31 @@ export class PersonalDocumentsService {
         now(),
         ...fence.values,
       ),
+      this.env.DB.prepare(
+        `INSERT OR IGNORE INTO secure_document_events(id,organization_id,distribution_id,user_id,session_hash,type,provenance,created_at)
+        SELECT ?,?,?,?,?,'recipient_verified_email_bound','server',? WHERE EXISTS(SELECT 1 FROM secure_distributions WHERE organization_id=? AND id=? AND recipient_user_id=? AND binding_by=? AND binding_method='verified_email' AND bound_at IS NOT NULL AND status='active' AND expires_at>?) AND ${fence.condition}`,
+      ).bind(
+        `secure_verified_claim_${row.id}_${principal.userId}`,
+        row.organization_id,
+        row.id,
+        principal.userId,
+        principal.tokenHash,
+        now(),
+        row.organization_id,
+        row.id,
+        principal.userId,
+        principal.userId,
+        now(),
+        ...fence.values,
+      ),
     ]);
-    if (!results[0].results.length) throw unavailable();
+    const claimed = results[0].results[0] as
+      { id: string; bound_at: string | null } | undefined;
+    if (!claimed) throw unavailable();
     return {
       id: row.id,
-      status: row.bound_at ? "active" : "pending",
-      recipientBinding: row.bound_at ? "confirmed" : "pending",
+      status: claimed.bound_at ? "active" : "pending",
+      recipientBinding: claimed.bound_at ? "confirmed" : "pending",
     };
   }
   private async shared(

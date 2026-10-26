@@ -660,3 +660,49 @@ then authenticated human journey/account persistence. Publication does not
 enable V2 by default. Saving **Classic** in My account restores the old
 presentation durably; `?appearance=classic#/app` returns temporarily without
 changing server preference. Appearance reversal deletes no data or dispatch.
+
+## Document email presentation — 26 October 2026 candidate
+
+New individual PDF emails default to account access in My documents. The shared
+control uses existing V2 panel/control geometry; the attachment remains an
+explicit choice. The review freezes the final HTML, access policy, recipient and
+quote. Custom HTML may place its own styled `{{document_url}}` anchor; default
+content uses the workshop name and the actual document title as a quotation.
+
+The email uses ivory paper, an ink lowercase wordmark, a white 10 px panel,
+serif heading/quotation and a blue 7 px action. Small underlined footer links
+explain Guteneo and open recipient controls. Four-language sanitized templates
+were checked at desktop and 320 px width without overflow or remote resources.
+The preference page reuses the shared public header and complete footer. Email
+client CSS support remains separate from local Chromium/WebKit rendering.
+
+Local fixtures passed 90 email/UI scenarios and 12 preference scenarios across
+Chromium, mobile Chromium and iPhone WebKit emulation, including two successive
+recipient links in one tab. Screenshots and reports are outside Git in
+`/Users/nclsppr/Documents/Codex/Reports/guteneo-account-email-2026-10-26/`.
+See [measured loading](FRONTEND_PERFORMANCE.md) and the authoritative
+[recipient feedback lifecycle](EMAIL_RECIPIENT_FEEDBACK.md). This is source and
+local fixture evidence, not production deployment or real email delivery.
+
+## Nested capability diagnostics — 26 October 2026 candidate
+
+The account-email content-limit metadata adds a deeper object to the current
+administrator's `/admin` diagnostics. The prior recursive two-column grid imposed
+a 90 px label minimum plus gap at every level. CI on `e805b10` exposed page width
+1,316 px at a 1,280 px viewport; a local Classic reproduction reached 1,307 px.
+The exact path was `capabilities.channels[].content.accountDelivery.contentLimits`:
+its leaf DD values had zero width and their spans escaped the viewport. This is
+a layout observation, not a new diagnostic-data or permission failure.
+
+The shared stylesheet preserves outer key/value columns and stacks nested rows.
+Every current authorized key/value remains visible and wraps within its parent.
+Classic and V2 retain the same scoped read-only administration data, normal
+loading/retry, keyboard navigation and account access. No API request, native/MCP
+authority, migration, provider action or activation gate is added.
+
+Sources: `apps/web/src/styles.css` and the existing `Diagnostics` renderer in
+`workspace-pages.tsx`. The unchanged all-routes responsive test in
+`tests/e2e/dashboard-v2.spec.ts` covers each appearance at its native width and
+320 px; request/transfer/useful-content observations are recorded in
+[frontend performance](FRONTEND_PERFORMANCE.md). The failed CI artifact remains
+in the external evidence directory; local repair and final CI are separate proof.

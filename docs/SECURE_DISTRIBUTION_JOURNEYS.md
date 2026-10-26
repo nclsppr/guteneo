@@ -1,6 +1,6 @@
 # Sensitive distribution and personal documents
 
-Contract and journeys for the local 24 October 2026 candidate. This describes current implementation/limits, not publication, activation or real delivery. One account spans Guteneo; workspaces are optional memberships and personal documents do not form an artificial workspace.
+Contract and journeys, updated for the 26 October 2026 source candidate. This describes current implementation/limits, not publication, activation or real delivery. One account spans Guteneo; workspaces are optional memberships and personal documents do not form an artificial workspace.
 
 ## Authority and entry conditions
 
@@ -8,7 +8,7 @@ Contract and journeys for the local 24 October 2026 candidate. This describes cu
 | --- | --- | --- |
 | Preparer | Current membership, preparation permission, accessible verified source | Own preparation, exact source and frozen quote |
 | Approver | Administrator or supervisor with approval permission; browser and current-policy session | Workspace review, approval and recipient association |
-| Recipient | Personal principal, verified address, recent session and confirmed association | Own shared access and personal copies |
+| Recipient | Personal principal, verified address, recent session and policy-bound association | Own shared access and personal copies |
 | Assistant / OAuth API client | Intersection of role, scopes and current connection | Workspace preparation/follow-up; confirmation after browser evidence, no recipient identity or personal vault |
 | Platform operator | Separate configuration/publication authorization | Service activation; no authority derived from workspace role |
 
@@ -20,9 +20,9 @@ In the workspace, document-policy, strong-authentication, freshness or approval 
 
 ## Prepare, review and activate sharing
 
-1. Open **Secure distribution → New share**, or the same REST/MCP operation through an authorized client. Workspace navigation puts this after **Documents**, with **Overview → Assistants** first. Details retain that active entry.
-2. Select a `ready` PDF up to 100 pages/10 MiB; choose one individual address and 7/30/90/365 days of shared access. Original download defaults off. Optional personal copies retain independently for 365/1,095 days. Explicitly load source-selector pages for older documents. Copy permission explains that personal copies remain exportable even when the shared original is not.
-3. Prepare an invitation subject/message without confidential content. Notification language is frozen in the input; the server adds individual link/login instructions.
+1. Open the individual **Email** composer with a PDF (default **My documents**), **Secure distribution → New share**, or the same REST/MCP operation through an authorized client. Workspace navigation puts this after **Documents**, with **Overview → Assistants** first. Details retain that active entry.
+2. Select a `ready` PDF up to 100 pages/10 MiB; choose one individual address and 7/30/90/365 days of shared access. Original download defaults off in the dedicated share form and on in the individual email form, where it remains an explicit editable choice. Optional personal copies retain independently for 365/1,095 days. Explicitly load source-selector pages for older documents. Copy permission explains that personal copies remain exportable even when the shared original is not.
+3. Subject/message/HTML are optional. The [document email contract](PROTECTED_EMAIL.md) defines localized workspace defaults, the V2 template and `{{document_url}}`. New invitations default to matching verified-address access; independent workspace confirmation remains an explicit policy choice.
 4. Keep the identifier/idempotency key. Rendering uses bounded durable jobs. `preparing` means neither activation nor sending; follow-up reads do not recreate preparation. Accessible pages/text derive from the verified immutable version; recipients receive no original-PDF fallback.
 5. Approvers inspect final pages or text, recipient, permissions, message and complete tax-exclusive price. Retention/invitation transport appear separately. Two explicit choices cover review and the recipient's prior email request.
 6. Approve in the browser under current document policy, then confirm activation. Assistants may confirm the exactly approved preparation under scopes and host confirmations, but never supply sensitive approval, including with expert mandates.
@@ -48,8 +48,8 @@ This deliberate V1 incompatibility never converts an operation exposed to legacy
 
 1. The link opens **My documents**. Its invitation leaves the fragment before HTTP login navigation and stays at most ten minutes in that tab's `sessionStorage`. Auth0 gets a token-free personal return; association resumes after callback. Blocked storage offers explicit reopening after sign-in. No purchase/workspace activation is required.
 2. Sign in or create the one Guteneo account. Expected-address verification and recent policy-compliant session precede association request.
-3. The request remains pending until the workspace confirms the stable-account/intended-recipient link. Sensitive title, pages and file remain unavailable.
-4. Approvers see only their own share's request. Verify a known relationship, independent channel or qualified identity, then explicitly confirm association; a self-entered name alone is not independent proof. Attestation binds displayed account/request; refresh with another candidate requires new attestation.
+3. With the new `recipientBinding=verified_email` policy, opening the document atomically binds the matching verified address to the stable account under the current session fence. No separate password or workspace confirmation is required. This authorizes address possession, not physical identity.
+4. An explicit `independent` policy, or a historical policy with no binding field, remains pending until the workspace confirms the stable-account/intended-recipient link. Sensitive content stays unavailable. Approvers see only their own share's request. Verify a known relationship, independent channel or qualified identity, then explicitly confirm association; a self-entered name alone is not independent proof. Attestation binds displayed account/request; refresh with another candidate requires new attestation.
 5. Recipients read prepared pages, accessible text and expiry. Each delivery rechecks authority/session. Revocation prevents future deliveries without erasing received pixels.
 
 Wrong accounts/unavailable invitations reveal no other-account existence. Recovery is explicit; document 401 does not trigger automatic login loops. Personal routes remain separate from workspace API and reject workspace Bearer authority for personal content.
@@ -103,3 +103,7 @@ Migrations: `0055_personal_accounts.sql`, `0056_secure_distributions.sql`, `0057
 Sources: `apps/api/src/auth.ts`, `personal-auth.ts`, `secure-distributions.ts`, `personal-documents.ts`, `secure-distribution-routes.ts`, `secure-storage.ts`; shared `packages/contracts/src/secure-distribution.ts`; web `apps/web/src/personal-*` and `secure-*`. Targeted tests: `tests/unit/personal-auth.test.ts`, `tests/unit/mcp-secure-distribution.test.ts`, `tests/integration/secure-approval-boundary.test.ts`, `tests/distribution-e2e/*.e2e.ts`. Commands, reports and framework limits are in the [e2e guide](../tests/distribution-e2e/README.md).
 
 Test presence claims neither passing execution, exact-commit CI, service activation nor real assistant-host qualification. Local `verified_account` run `01a16ef7-4017-783f-80e7-80426686b572` on 24 October passes two desktop/phone results with ordinary synthetic sessions and no strong evidence; no real Auth0 login or communication. [Implementation](SECURE_DISTRIBUTION_IMPLEMENTATION.md) dates detailed evidence/limits. Local `strong` rerun `01a16efd-d3c7-7c1e-b6db-7d1c647da7f1` passes 14/14; final build and thirteen UI tests also pass. Exact CI/remote qualification remain separate.
+
+## Recipient email response
+
+The [recipient feedback lifecycle](EMAIL_RECIPIENT_FEEDBACK.md) adds unsubscribe/report receipts and a separate response status. An email refusal does not revoke the share, delete a copy or alter provider delivery evidence.

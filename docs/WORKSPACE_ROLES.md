@@ -1,6 +1,6 @@
 # Workspace roles and permissions
 
-## Unified account and sensitive distribution — 24 October 2026 candidate
+## Unified account and sensitive distribution — 26 October 2026 candidate
 
 A Guteneo account may belong to no workspace. Receiving a document and acquiring
 a personal copy use personal authority independent of the four roles below.
@@ -14,8 +14,8 @@ with a real profile update in each local context.
 
 Document policy is independent of role: `strong` by default, `verified_account`
 only by explicit selection. The requested live profile uses a verified account
-and email, an identity-linked recent Auth0 session, independent recipient
-confirmation and human review. It claims neither MFA nor strong assurance.
+and email, an identity-linked recent Auth0 session, policy-bound recipient
+association and human review. It claims neither MFA nor strong assurance.
 Reading, association and approval require fifteen-minute freshness; export,
 deposit and deletion require five minutes. `SENSITIVE_DOCUMENT_AUTHENTICATION`
 must match `secure_document_authentication_policy(id=1, mode)` created by 0059.
@@ -36,9 +36,16 @@ receive no sensitive content through general read access.
 | Inspect final review pages | Browser and recent document session | Same requirement, with approval permission or own creation | Own creation, browser and recent document session | No | No recipient-page or personal-principal access |
 | Give sensitive approval | Browser and recent document session | Approval permission, browser and recent document session | No | No | No; an expert mandate cannot replace approval |
 | Activate an already approved distribution | Yes, with current evidence | Approval permission and current evidence | No | No | Approver role, `dispatches:send`, existing sensitive browser evidence and host confirmation |
-| Confirm a recipient/account association | Browser, independent verification and recent document session | Same requirement and approval permission | No | No | No |
+| Confirm an independent recipient/account association | Browser, independent verification and recent document session | Same requirement and approval permission | No | No | No |
+| Read a delivery’s recipient response | Own/current authorized delivery | Own/current authorized delivery | Own creation | No | Current resource rights; cannot exercise recipient preference or restore permission |
 | Revoke shared access without refund | Yes | Approval permission | No | No | Approver role and `dispatches:send`; acquired personal copies remain |
 | Read, export or delete another person's personal copy | No | No | No | No | No |
+
+New `verified_email` invitations bind the matching verified address to the stable
+personal account at claim; this is recipient authority, not a workspace-role
+permission. Explicit `independent` and historical missing-field policies retain
+the confirmation row above. The [recipient journey](SECURE_DISTRIBUTION_JOURNEYS.md)
+owns entry, recovery and privacy conditions.
 
 Any account owner, with or without a workspace role, can read their own documents
 under the active document policy, then download or retain only what the sharing
@@ -315,3 +322,5 @@ Direct-job OIDC can carry `job_workflow_ref` and `job_workflow_sha`; the server
 accepts only their joint legacy absence or exact equality with the canonical
 main workflow and runner commit. This adds no authorized workflow, branch, role
 or assistant. It requires status publication and separate ingestion evidence.
+
+Mailbox-link unsubscribe/report authority is scoped separately in [recipient feedback](EMAIL_RECIPIENT_FEEDBACK.md); it creates no role or document-access right.
