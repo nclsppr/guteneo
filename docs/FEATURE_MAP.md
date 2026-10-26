@@ -803,7 +803,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Temporary appearance=v2/classic override accepts legacy atelier URLs, never persists server-side and clears after explicit appearance save or identity change; local cache is non-authoritative
 - Existing activity/alerts precede introduction, otherwise a complete welcome; content preview precedes approval in reading/tab order
 - Stable PDF frame above dispatch-review and document-page verification-purchase consent across lazy module loading/render/error, keyboard-accessible internal scrolling and unchanged consent/data authority
-- Consistent documents, preparation, review, tracking, assistants, account, studio, PDF verification, credits, tables and forms; Belvédère shares the V2 visual vocabulary while retaining distinct platform authority and read-only data
+- Consistent documents, preparation, review, tracking, assistants, account, studio, PDF verification, credits, tables and forms; Belvédère shares the V2 visual vocabulary while retaining distinct platform authority and read-only data; recursive diagnostics keep outer key/value columns and stack nested fields without zero-width values or page overflow
 - One brand signature, workshop in navigation and no redundant V2 footer; service status near account and browser timezone near dates
 - One page title, contextual detail back link and task-specific primary action; global New dispatch stays secondary and permission-aware
 - Generation introduction focuses on finding PDFs and makes clear that generation sends nothing

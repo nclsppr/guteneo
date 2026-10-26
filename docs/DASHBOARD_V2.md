@@ -683,3 +683,26 @@ recipient links in one tab. Screenshots and reports are outside Git in
 See [measured loading](FRONTEND_PERFORMANCE.md) and the authoritative
 [recipient feedback lifecycle](EMAIL_RECIPIENT_FEEDBACK.md). This is source and
 local fixture evidence, not production deployment or real email delivery.
+
+## Nested capability diagnostics — 26 October 2026 candidate
+
+The account-email content-limit metadata adds a deeper object to the current
+administrator's `/admin` diagnostics. The prior recursive two-column grid imposed
+a 90 px label minimum plus gap at every level. CI on `e805b10` exposed page width
+1,316 px at a 1,280 px viewport; a local Classic reproduction reached 1,307 px.
+The exact path was `capabilities.channels[].content.accountDelivery.contentLimits`:
+its leaf DD values had zero width and their spans escaped the viewport. This is
+a layout observation, not a new diagnostic-data or permission failure.
+
+The shared stylesheet preserves outer key/value columns and stacks nested rows.
+Every current authorized key/value remains visible and wraps within its parent.
+Classic and V2 retain the same scoped read-only administration data, normal
+loading/retry, keyboard navigation and account access. No API request, native/MCP
+authority, migration, provider action or activation gate is added.
+
+Sources: `apps/web/src/styles.css` and the existing `Diagnostics` renderer in
+`workspace-pages.tsx`. The unchanged all-routes responsive test in
+`tests/e2e/dashboard-v2.spec.ts` covers each appearance at its native width and
+320 px; request/transfer/useful-content observations are recorded in
+[frontend performance](FRONTEND_PERFORMANCE.md). The failed CI artifact remains
+in the external evidence directory; local repair and final CI are separate proof.

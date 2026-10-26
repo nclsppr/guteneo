@@ -206,3 +206,33 @@ separate from the full CI and any authorized production release.
 Evidence: `/Users/nclsppr/Documents/Codex/Reports/guteneo-email-refresh-2026-10-26/`
 contains the final browser report, extracted metrics, three screenshots and
 package-integrity verification. Source: `tests/e2e/protected-email.spec.ts`.
+
+## Recursive capability diagnostics — 26 October 2026
+
+The added account-email content limits exposed a recursive diagnostic grid that
+could collapse leaf values to zero width. The nested selector now stacks each
+key above its value, while the outer list retains its key/value columns. The
+original responsive test passes on all three engines; its twelve administration
+contexts (Classic/V2 × native/320 px) have document width equal to viewport.
+The Chromium reproduction before the fix measured 1,307 px at a 1,280 px viewport;
+CI on `e805b10` measured 1,316 px. No content was hidden to pass the check.
+
+One additional Chromium run measured warm hash navigation to `/admin` in the
+existing all-routes sequence. Vite production assets run on local Wrangler with
+synthetic local account/data, no throttling. Resource deltas below belong to
+that navigation. The heading marker follows its visible-heading assertion; it is
+not a standardized paint metric. Document FCP is cumulative document evidence,
+not a paint measurement for the hash route. No before/after speed gain is claimed.
+
+| Appearance / width | Route resources | Route transferred bytes | Route JavaScript bytes | Heading observed after navigation (ms) | Document FCP (ms) |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Classic / 1280 | 5 | 8,421 | 3,669 | 815.6 | 88 |
+| V2 / 1280 | 5 | 5,052 | 300 | 813.6 | 60 |
+| Classic / 320 | 5 | 5,052 | 300 | 814.2 | 68 |
+| V2 / 320 | 5 | 5,052 | 300 | 811.0 | 68 |
+
+The CSS adds no API read, authority or polling path. CPU, memory, production
+latency and billed cost were not measured. Raw reports, geometry samples and
+screenshots are retained alongside the email evidence in
+`/Users/nclsppr/Documents/Codex/Reports/guteneo-email-refresh-2026-10-26/`, with
+`diagnostics-fixed-performance.json` and `diagnostics-route-performance.json`.
