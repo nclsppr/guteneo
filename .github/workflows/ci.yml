@@ -309,6 +309,9 @@ jobs:
           path: dist
       - name: Remove historical screenshot evidence from this fresh runner
         run: rm -rf reports/screenshots
+      - name: Verify the four-language MCP Apps SDK fixture
+        if: ${{ matrix.project == 'chromium' && matrix.shardIndex == 1 }}
+        run: node --test tests/browser/mcp-ui-probe.test.mjs
       # Each shard has its own runner, D1/R2 state and fixed local server ports.
       - run: npx playwright test --project=${{ matrix.project }} --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
         env:
@@ -343,6 +346,7 @@ jobs:
             test-results/belvedere/
             test-results/status/
             reports/screenshots/
+            reports/mcp-ui-probe/
           if-no-files-found: error
           retention-days: 14
 

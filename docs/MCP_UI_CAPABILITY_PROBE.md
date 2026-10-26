@@ -98,6 +98,8 @@ SDK host fixture qualifies the implementation contract only. Record its requests
 transferred bytes and first useful content with its environment; it cannot prove
 actual Claude rendering, chooser behavior or a physical device. Keep local
 measurements and actual-host observations separate from production release proof.
+CI executes the four-language SDK fixture once in the first Chromium shard and
+retains its report with that required job's evidence; failure blocks the job.
 
 ### Local measurement — 26 October 2026
 
@@ -106,20 +108,20 @@ The official `@modelcontextprotocol/ext-apps/app-with-deps` client is pinned at
 with gzip and 87,885 with Brotli in the local Node build. These are bundle
 compression measurements; MCP transport compression is host-dependent. An
 isolated Vite build verified the exact emitted resource and found no diagnostic
-client or SDK module in any of its 46 ordinary JavaScript chunks.
+client or SDK module in any of its 51 ordinary JavaScript chunks.
 
 Four fresh local Chromium contexts at a 430 px viewport, using the official SDK
 AppBridge fixture, rendered English, French, German and Luxembourgish without
 horizontal overflow or external requests. The heading and enabled bridge control
-were observed at 101.7–123.9 ms on the document clock, including test-driver
+were observed at 86.5–110.4 ms on the document clock, including test-driver
 observation overhead. Each context requested the resource once and made one
 empty bridge call. The fixture used a synthetic selection event without creating
 or choosing a file; this establishes neither native chooser behavior nor an
 actual Claude or physical-device result.
 
 A matched local esbuild comparison against source
-`6d4e776e4321007ec983582612cd77836ad26228` measured a 3,998-byte Worker increase
-(1,486 bytes with gzip; 1,740 with Brotli). The Worker includes the official server
+`f123868dbc25e6198ee17b45546c7dd7dc935797` measured a 3,999-byte Worker increase
+(1,379 bytes with gzip; 994 with Brotli). The Worker includes the official server
 helper and small manifest, with no client SDK or HTML literal. This is a local
 bundle measurement. Actual workerd startup, CPU, memory and billed requests remain
 unqualified; no production performance or cost reduction is claimed.

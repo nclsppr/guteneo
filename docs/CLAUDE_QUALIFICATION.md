@@ -51,6 +51,12 @@ recipient, token or signed URL are copied into this record.
 
 ### Limits of this result
 
+The local probe candidate subsequently incorporated main
+`f123868dbc25e6198ee17b45546c7dd7dc935797` on 26 October 2026. That merge supplies
+no new deployed, App-host or physical-device observation and does not extend the
+dated preparation proof to the changed email implementation. The evidence below
+remains bound to its recorded original source and account.
+
 That import receipt qualifies only one small inline original and its later
 readiness. The separately dated email-preparation observation below owns the
 next step. The 64 KiB host boundary, larger PDFs, native binary PUT up to 10 MiB,

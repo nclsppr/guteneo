@@ -92,6 +92,14 @@ owns that delivery boundary, temporary activation, permissions, maintenance and
 actual-host checkpoint. A build, local SDK fixture or public text-asset check
 establishes no Claude rendering, original attachment handoff or file transfer.
 
+The first Chromium shard also runs the standalone four-language official-SDK
+fixture in `tests/browser/mcp-ui-probe.test.mjs`, after browser installation.
+Its single Node test checks four localized contexts, one empty bridge call per
+context and no external requests or file access. Failure fails that required
+browser job without retry; the generated measurements and screenshots accompany
+its evidence artifact. This SDK fixture is separate from the Playwright project
+inventory and does not qualify an actual hosted connector or physical device.
+
 ## Shorten the critical path without dropping coverage
 
 The three browser profiles each run in three independent jobs. Application and

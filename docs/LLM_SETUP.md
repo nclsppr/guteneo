@@ -183,6 +183,11 @@ V2 defaults, custom document-button markers and recipient-feedback readback are
 reflected in both listing languages and the packaged workflow. Its content bounds
 are exposed before preparation. The MCP/package record and downloadable archive
 must be rebuilt from that combined source using the maintenance flow above.
+The subsequent **1.1.5** candidate retains that email contract and adds the
+default-off [MCP Apps capability probe](MCP_UI_CAPABILITY_PROBE.md). Its two
+diagnostic tools appear only for one explicitly selected current connection
+inside a bounded server-owned window. They read no file metadata or bytes and
+establish neither an original-file transfer nor physical-device compatibility.
 No actual import, OAuth renewal, portal update or public directory publication is
 established by these instructions.
 [Official ChatGPT journey](https://developers.openai.com/plugins/deploy/connect-chatgpt).
