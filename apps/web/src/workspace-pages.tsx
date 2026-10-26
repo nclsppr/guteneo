@@ -27,11 +27,7 @@ import {
 } from "./api";
 import { formatLocale, t } from "./locale";
 import { ProtectedDocumentChoice } from "./protected-document";
-import {
-  DistributionRoadmap,
-  EmailComposer,
-  emailHtml,
-} from "./email-composer";
+import { DistributionRoadmap, EmailComposer } from "./email-composer";
 import { CreditBalance, type WelcomeCredit } from "./credit-balance";
 import { UsageActivityCalendar } from "./usage-activity";
 import type { PostalSetup } from "../../../packages/contracts/src/postal-setup";
@@ -139,9 +135,10 @@ export function Campaigns({
             channel: row.channel,
             recipient: row.recipient,
             documentId: documentId || undefined,
-            subject: row.channel === "email" ? subject : undefined,
-            html: row.channel === "email" ? emailHtml(plain, html) : undefined,
-            text: row.channel === "email" ? plain : undefined,
+            subject:
+              row.channel === "email" && subject.trim() ? subject : undefined,
+            html: row.channel === "email" && html.trim() ? html : undefined,
+            text: row.channel === "email" && plain.trim() ? plain : undefined,
             options:
               row.channel === "email" && documentId && protectedLink
                 ? { emailDeliveryMode: "protected_link", protectedDays }
@@ -375,11 +372,20 @@ export function Campaigns({
               )}
             {hasEmail && (
               <>
-                <Field label={t.campaigns.emailSubject}>
+                <Field
+                  label={
+                    documentId
+                      ? msg("Subject (optional)")
+                      : t.campaigns.emailSubject
+                  }
+                >
                   <input
                     value={subject}
                     onChange={(e) => setSubject(e.target.value)}
-                    required
+                    required={!documentId}
+                    placeholder={
+                      documentId ? msg("Automatic subject") : undefined
+                    }
                     disabled={locked}
                   />
                 </Field>
@@ -389,6 +395,8 @@ export function Campaigns({
                   onText={setPlain}
                   onHtml={setHtml}
                   disabled={locked}
+                  documentEmail={!!documentId}
+                  protectedLink={!!documentId && protectedLink}
                 />
               </>
             )}

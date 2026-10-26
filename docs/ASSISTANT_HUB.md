@@ -6,6 +6,20 @@ implementation and local validation; publication evidence is recorded
 separately against the deployed source commit. No external assistant connection,
 permission grant or real communication is performed by these checks.
 
+## Combined archive handoff — 26 October 2026
+
+The PR 84 archive is being reconciled with `main` at `c81ea94`, including all
+75 MCP tools and the current private-original, inline-PDF and email review
+contracts. The shared application/plugin version advances to `1.1.3`: the
+previous synchronization record already named `1.1.1`, so changed fingerprints
+must use a strictly newer version through the normal generator. Do not edit or
+remove the saved record to bypass that guard.
+
+The dated archive hashes and browser counts below belong to the earlier
+`1.1.1` candidate. The combined candidate requires its own generated contract,
+archive bytes, source-bound checks and release proof. An archive download still
+does not qualify a real ChatGPT import, OAuth renewal or marketplace publication.
+
 ## ChatGPT archive candidate — 25 October 2026
 
 The ChatGPT guide now opens on **Plugin archive (ZIP)** with the generated

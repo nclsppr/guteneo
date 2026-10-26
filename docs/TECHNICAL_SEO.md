@@ -24,6 +24,12 @@ The two article illustrations were generated specifically for Guteneo using the 
 
 Primary references checked 17 September 2026: [Google JavaScript SEO](https://developers.google.com/search/docs/crawling-indexing/javascript/javascript-seo-basics), [robots metadata and X-Robots-Tag](https://developers.google.com/search/docs/crawling-indexing/robots-meta-tag), [sitemaps](https://developers.google.com/search/docs/crawling-indexing/sitemaps/build-sitemap), [Article structured data](https://developers.google.com/search/docs/appearance/structured-data/article), [Cloudflare HTML handling](https://developers.cloudflare.com/workers/static-assets/routing/advanced/html-handling/), [Worker-first asset routing](https://developers.cloudflare.com/workers/static-assets/routing/worker-script/), [static headers and Worker response precedence](https://developers.cloudflare.com/workers/static-assets/headers/) and [Vite SSR](https://vite.dev/guide/ssr.html).
 
+Protected recipient URLs under `/share` are private application routes in the
+shared registry, including their unlock/content children. They bypass Static
+Assets and the generic public-error renderer, remain outside every sitemap and
+are disallowed by robots. The protected handler owns access checks, unavailable
+responses and private headers; see [protected PDF delivery](PROTECTED_DOCUMENTS.md).
+
 ## Multilingual link previews — 3 October 2026 candidate
 
 The generic public URLs have a language-neutral Open Graph/Twitter preview: `guteneo`, `guteneo.com`, and an ivory/cobalt card containing the approved blue portrait, three website swallows and one lowercase `guteneo.com` signature in the website’s black ink. This applies to all 18 public routes. Their ordinary SEO title, description and initial page content remain French; browser preferences may change the visible interface after loading.

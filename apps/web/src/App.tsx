@@ -575,6 +575,8 @@ function WorkspaceApplication({
         )}
         <PrepareDispatch
           simulation={session.simulation}
+          workspaceName={session.organization.name}
+          emailLocale={session.user.preferredLocale ?? "fr"}
           initialDocument={
             new URLSearchParams(route.split("?")[1]).get("document") ?? ""
           }

@@ -8,6 +8,36 @@ The service uses private R2 storage. Only an authenticated browser member with w
 
 The public page needs no Guteneo account or payment. A GET from an email scanner does not consume the link. A correct password creates a 15-minute HttpOnly, Secure, SameSite=Strict session restricted to the link path; each download checks the active paid hosting, document status, scan proof, exact size and hash. Inline viewing uses the same checks and a sandboxed PDF response. Responses use no-store, no-referrer and noindex headers. Guess limits apply to each link and hashed IP window. Revocation invalidates existing sessions. Expiration clears the encrypted recovery material; public access also checks the deadline immediately, independently of scheduled cleanup. Active hosting terms prevent the existing document purge from deleting their PDF.
 
+## Recipient route and recovery
+
+`/share/{token}`, `/share/{token}/unlock` and `/share/{token}/content` belong to
+the protected-document handler. The shared private-prefix registry excludes
+`/share` from Static Assets and public-error rendering; production routes these
+requests through the application Worker first, and local Wrangler includes the
+same prefix in its worker-first routes. A valid existing link therefore retains
+its original URL and hosting record when routing is corrected. It is never a
+public asset, sitemap entry or an authentication redirect.
+
+The handler owns missing, expired and revoked states as well as unlock, session,
+origin and content checks. Invalid access stays unavailable with private headers;
+a routing fix does not relax password or exact-byte verification. A recipient
+can select a page language, but that choice does not establish identity, create
+workspace membership or change authorization. New invitation language is
+specified by the [email preparation contract](PROTECTED_EMAIL.md).
+
+Administrator, Supervisor and Operator members with current preparation authority
+and source access may reveal the password or revoke through the authenticated,
+CSRF-protected browser. Observers and connected assistants cannot use these
+controls. Existing native, REST and MCP preparation/tracking do not acquire a
+password endpoint; recipients only use the bounded link/password session.
+
+For a generic site 404 on an otherwise valid link, check the production Worker
+and private route registry before creating or sending another dispatch. Preserve
+the original hosting and send state; do not retry an uncertain provider outcome.
+`tests/security/public-assets.test.mjs` exercises the actual production entry
+with Static Assets, alongside the protected-document integration tests. Local
+routing evidence does not establish a successful hosted unlock or PDF download.
+
 ## Prepare-only reviewer accounts
 
 Migration `0041_prepare_only_accounts.sql` adds an operator-controlled identity restriction. It is matched by the exact OIDC issuer and subject, independent of display names, email addresses, OAuth client IDs, tenant names or membership roles. The identity can be restricted before its first login; the later `auth_identities` binding makes the restriction effective. The public API, browser dashboard and MCP expose no operation that creates, removes or relaxes it.

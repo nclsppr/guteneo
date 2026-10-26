@@ -2,7 +2,7 @@
   "title": "Guteneo feature tree and developer atlas",
   "updated": "2026-10-26",
   "scope": "Repository implementation inventory. Availability depends on current capabilities and authority; implementation, activation and deployed proof are distinct.",
-  "roleNote": "Four human workshop roles are defined by packages/contracts/src/roles.ts. The assistant column describes a connected OAuth actor, never a fifth membership role. Effective membership, independent supervisor permissions, consented scopes and any bounded expert mandate are rechecked by the server. Installing a package or renewing tokens grants no additional authority. Browser-only account/platform controls remain distinct. Assistant content-exclusion instructions are workflow restrictions, not automatic classification or new server guards. Personal account authority is separate from workspace membership. Sensitive approval and recipient association always require the browser under the active document policy; an expert mandate cannot replace them.",
+  "roleNote": "Four human workshop roles are defined by packages/contracts/src/roles.ts. The assistant column describes a connected OAuth actor, never a fifth membership role. Effective membership, independent supervisor permissions, consented scopes and any bounded expert mandate are rechecked by the server. Installing a package or renewing tokens grants no additional authority. Browser-only account/platform controls remain distinct. Assistant content-exclusion instructions are workflow restrictions, not automatic classification or new server guards. Personal account authority is separate from workspace membership. Template/default email copy and link placeholders grant no approval or recipient consent. Sensitive approval and recipient association always require the browser under the active document policy; an expert mandate cannot replace them.",
   "groups": [
     {
       "title": "Access and identity",
@@ -115,7 +115,8 @@
         "Upload-only 256-bit capability is returned only by reservation, hashed at rest, limited to five minutes/token expiry and claimed before a 30-second bounded binary PUT; no OAuth token, public PDF link, browser cookie or provider upload authority",
         "Exact-size/hash private upload feeds the existing antivirus/quarantine/100-page pipeline under the same planned document ID; connection/trust/membership/expiry rechecks and same-ID status recovery refuse blind retries on unknown outcomes",
         "Host file/code/network access and physical Claude iPhone OAuth/file transfer require separate qualification; attachment previews, extracted text, tool discovery and desktop helpers do not prove original-byte transfer",
-        "Reservation can return deterministic POSIX Python 3.9+ standard-library client code with its SHA-256 for authorized local/cloud execution; status never returns code/capability, and no package install, external script fetch or actual host qualification is implied"
+        "Reservation can return deterministic POSIX Python 3.9+ standard-library client code with its SHA-256 for authorized local/cloud execution; status never returns code/capability, and no package install, external script fetch or actual host qualification is implied",
+        "Small-original import_inline_pdf fallback carries one canonical-base64 original of 20–65,536 bytes with actual size/SHA-256 and a stable key through existing OAuth MCP when runtime Guteneo egress is unavailable; validation precedes reservation, internal 0061 claim/expiry/authority/quota/private-ACL/scanner processing is reused without fetch, and encoded context, truncation, same-ID unknown recovery and physical-client qualification remain explicit"
       ],
       "status": "Implemented; exact-byte, scanner and owner-access gates apply.",
       "tests": [
@@ -125,7 +126,7 @@
         "tests/unit/private-document-upload-mcp.test.ts",
         "tests/security/private-pdf-client.test.mjs"
       ],
-      "surfaces": "Web/native and existing REST/MCP document access; bounded private upload reservation/status through MCP plus one upload-only binary PUT. Actual host original-file/code/network transfer and physical iPhone evidence remain separately qualified.",
+      "surfaces": "Web/native and existing REST/MCP document access; private reservation/status through MCP plus one upload-only binary PUT up to 10 MiB, or one bounded inline MCP original up to 64 KiB through the same 0061 pipeline. Actual host original-byte/encoding/egress capability and physical iPhone evidence remain separately qualified.",
       "id": "documents",
       "category": "Create",
       "availability": "capability-gated",
@@ -134,6 +135,7 @@
         "get_document",
         "get_document_upload",
         "import_document",
+        "import_inline_pdf",
         "list_documents",
         "read_document_pages",
         "render_pdf",
@@ -280,7 +282,7 @@
       "features": [
         "Single PDF from a business form",
         "PDF batch from a validated mapping",
-        "Progress, per-record results and source-cell provenance",
+        "Progress, per-record results and source-cell provenance; only local simulation emits finite failure phase/category diagnostics through the captured error channel, never raw errors or customer data; terminal failed/partial XML test results stop polling while preserving both expected exact PDFs and zero sending, and a separate macOS pass does not establish the cause of an earlier Linux failure",
         "Exact authorized generated-document analysis state distinguishes processing, retryable and blocked results; bounded visible refresh follows pending scans after generation completes without changing readiness, stealing focus or retrying analysis",
         "Generation cancellation and retry of failed records only",
         "PDF selection and separate distribution-plan preparation",
@@ -400,14 +402,33 @@
         "Text/HTML email without a file, with a PDF attachment or with a protected link",
         "Recipient-request attestation and transactional requirements",
         "Explicit quote and per-document hosting charge",
+        "Protected-link footer and expiration date use the authenticated sender account language (French fallback), with four-language catalog, UTC date formatting and declared Luxembourgish months independent of runtime Intl support; recipient link locale freezes before fingerprinting; no translation of entered content or rewrite of approved/sent messages",
+        "Private /share route and unlock/content children bypass Static Assets and public-error rendering; existing links retain hosting and access checks, with no sitemap inclusion or automatic resend",
+        "Accessible ready document emails can omit subject/body independently for localized authenticated-workspace defaults (body only when both text and HTML are absent; HTML otherwise derives text); message-only email still requires content and caller HTML cannot select workspace identity",
+        "Web individual/campaign forms omit blank document-message fields, expose a protected-button marker helper and show a shared-template draft preview without invented access URLs; exact final link/expiry stays in prepared review",
+        "Branded default document-email template or custom HTML with safe inline email styles; exact protected-only anchor href={{document_url}} resolves server-side without a duplicate CTA; markerless custom HTML gets a styled fallback and both retain access instructions before quote/fingerprint, with malformed/unsupported markers rejected and private URL/password summary masking retained",
         "Private link, expiry and browser-only password entry",
         "Download without a recipient account under access controls",
         "Preparation, approval, tracking and provider policy",
         "Resend/SES availability is gated separately from activation; public price references and operator account limits have dated qualification, while account-wide quota policy, webhook/secret and delivery require independent installation and verification"
       ],
       "status": "Implemented email candidate; dated operator qualification is separate from deployment, global D1 quota policy, signed webhooks and actual delivery.",
-      "tests": ["tests/integration/protected-documents.test.ts"],
-      "surfaces": "Web, REST, MCP and native preparation/tracking; protected password is browser-only.",
+      "tests": [
+        "tests/integration/protected-documents.test.ts",
+        "tests/integration/resend-email.test.ts",
+        "tests/unit/delivery-messages.test.ts",
+        "tests/unit/email-content.test.ts",
+        "tests/security/email-content-runtime.test.mjs",
+        "tests/unit/mcp-email.test.ts",
+        "tests/unit/live-capabilities.test.ts",
+        "tests/integration/mobile.test.ts",
+        "tests/security/openapi.test.mjs",
+        "tests/security/public-assets.test.mjs",
+        "tests/e2e/protected-email.spec.ts",
+        "tests/e2e/protected-recipient.spec.ts",
+        "tests/e2e/email-recipient-attestation.spec.ts"
+      ],
+      "surfaces": "Web, REST, MCP and mobile API preparation/tracking; current Swift composer offers message-only email, not document/template controls; protected password is browser-only.",
       "id": "email",
       "category": "Deliver",
       "availability": "capability-gated",
@@ -702,7 +723,7 @@
         "Separate saved personal preference and anonymous visitor choice",
         "Twelve localised films, posters, captions and actual durations",
         "Every registered main-site public route has generic and French/English/German/Luxembourgish initial HTML, canonical metadata, language alternatives and sitemap entries from one route registry; internal/private paths stay excluded",
-        "Fictional public preview isolated from the backend",
+        "Fictional public preview isolated from the backend; tab-only email accepts omitted custom HTML, formats plain text locally and uses the shared template/French fallback for fictional PDF message defaults; custom HTML requires supplied plaintext, without real links, hosting, provider calls or production-sanitizer qualification",
         "Multilingual social cards and reader sharing controls",
         "Public error documents retain real HTTP status with 17 dedicated four-language messages and 4xx/5xx fallback; only eligible public failures, no status-selector/demo endpoint",
         "The homepage restores the existing four-language Ideas travel closing invitation, first-dispatch installation link and large stamp/postmark above its exclusive panorama with three original birds. The identical common PublicFooter remains on every public React route, including home, with its compact stamp/postmark, two original decorative swallows, fifteen links and colophon; no decoration enters the logged-in application",
@@ -726,7 +747,10 @@
         "tests/preview-e2e/seo.spec.ts",
         "tests/preview-e2e/theme.spec.ts",
         "tests/unit/standalone-theme.test.ts",
-        "tests/preview-e2e/public-artwork.spec.ts"
+        "tests/preview-e2e/public-artwork.spec.ts",
+        "tests/unit/public-preview.test.ts",
+        "tests/preview-e2e/preview.spec.ts",
+        "tests/preview-e2e/mobile-workspace.spec.ts"
       ],
       "surfaces": "Public browser/static documents and four-language frontend/video catalogues; preview has no business bindings.",
       "id": "public",
@@ -747,7 +771,7 @@
         "Strict browser account PATCH with current authority, Origin/CSRF and field-name audit; every role changes only its own preference",
         "Temporary appearance=v2/classic override accepts legacy atelier URLs, never persists server-side and clears after explicit appearance save or identity change; local cache is non-authoritative",
         "Existing activity/alerts precede introduction, otherwise a complete welcome; content preview precedes approval in reading/tab order",
-        "Stable PDF review frame across loading/render/error, keyboard-accessible internal scrolling and unchanged consent/data authority",
+        "Stable PDF frame above dispatch-review and document-page verification-purchase consent across lazy module loading/render/error, keyboard-accessible internal scrolling and unchanged consent/data authority",
         "Consistent documents, preparation, review, tracking, assistants, account, studio, PDF verification, credits, tables and forms; Belvédère shares the V2 visual vocabulary while retaining distinct platform authority and read-only data",
         "One brand signature, workshop in navigation and no redundant V2 footer; service status near account and browser timezone near dates",
         "One page title, contextual detail back link and task-specific primary action; global New dispatch stays secondary and permission-aware",
@@ -760,7 +784,8 @@
         "Shared native file input with four-language authored chooser/empty text and literal filenames, keyboard validation and exact-byte upload semantics",
         "Desktop Safari select height and protected-link hint spacing; visible keyboard focus, selection and forced-colors states remain readable in both palettes",
         "Public and personal headers and Belvédère page actions share one localized light/dark action icon at every viewport, defaulting to the operating system; authenticated personal Classic/V2 shells fill the available width with responsive gutters, while personal V2 follows workshop geometry without changing personal navigation, identity, document access or logout. Browser theme is independent of saved Classic/V2 layout, account language and role; document/PDF/email content retains original light-paper appearance and bytes",
-        "Template-designer controls adopt the resolved shared palette in place while original template content, output geometry, bindings and PDF bytes retain their document contract"
+        "Template-designer controls adopt the resolved shared palette in place while original template content, output geometry, bindings and PDF bytes retain their document contract",
+        "V2 protected-email choice, review summary, email preview and PDF viewer frame share the existing 10 px panel corners; 7 px controls and original square PDF paper retain their distinct roles without extra API reads"
       ],
       "status": "Classic/V2 account layout authority is unchanged. The initial 25 October theme integration and removal of decorative panels were published from main 03daa4136de8999cc79018f33f2a22038917c621. The personal Classic/V2 account and Belvédère visual follow-up requires its own exact-source release proof and grants no new business authority.",
       "tests": [
@@ -776,7 +801,8 @@
         "tests/preview-e2e/theme.spec.ts",
         "tests/e2e/personal-appearance.spec.ts",
         "tests/e2e/personal-document-performance.spec.ts",
-        "tests/belvedere-e2e/control-tower.spec.ts"
+        "tests/belvedere-e2e/control-tower.spec.ts",
+        "tests/e2e/pdf-validation.spec.ts"
       ],
       "surfaces": "Authenticated web Classic/V2; native reads preference without a setter; no new business API/MCP authority.",
       "id": "dashboard",
@@ -791,7 +817,7 @@
       "source": "apps/api/src/pdf-validation.ts",
       "features": [
         "Individual exact-PDF/profile purchase from available account credits; current integer EUR price and excluding-tax terms come from the authenticated pricing endpoint",
-        "Current browser administrator alone accepts the immutable purchase; assistants, native callers and other members cannot create financial consent",
+        "Current browser administrator alone accepts the immutable purchase; assistants, native callers and other members cannot create financial consent; the document preview reserves its frame through loading/rendering so price consent remains stationary, with no purchase from viewing or scrolling",
         "Atomic reservation and one settled charge for a complete valid report; engine failure releases the reservation without a settled debit",
         "New subscriptions and automatic recurring renewals are retired; immutable legacy actions and charges are retained, and posted charge history remains visible under current reporting authority",
         "Pinned private veraPDF for PDF/UA-1/-2 and PDF/A-1b/2b/3b/4, with official positive/negative corpus, signal-aware bounded cleanup and separate offline/hosted graceful-stop qualification",
@@ -962,7 +988,7 @@
         "Maintained GitHub job/artifact/release explanation, fresh dependency boundaries and separate application/native/engineering evidence; every Ubuntu package installation, including engineering browsers, first prefers the runner's recognized official HTTPS archives while retaining signed package verification and the Azure fallback, and an unexpected mirror configuration fails closed",
         "Curated Cloudflare/Auth0/transport dependencies, background jobs, tariff maintenance, design/i18n/accessibility, AI contribution and reproducible video/voice production guides",
         "Origin-scoped system/light/dark selection uses guteneo.theme with pre-paint resolution, cross-tab/system updates and optional migration of a prior ui-mode choice; Nimbus data-mode styling, fixed blue chrome, script-free system fallback and readable ivory dark branding grant no account or operational authority",
-        "Three isolated browser shards for each desktop/mobile Chromium and iPhone WebKit profile, same-revision build artifacts and independent complete test-ID inventory accounting; no missing/duplicate shard, skipped required job, automatic retry or merged-main publication shortcut"
+        "Three isolated browser shards for each desktop/mobile Chromium and iPhone WebKit profile, same-revision build artifacts and independent complete test-ID inventory accounting; no missing/duplicate shard, skipped required job, automatic retry or merged-main publication shortcut; V2 consent and fax-ceiling first fields share one trusted touch/keyboard or desktop fill with exact value/focus and pre-submit checks; V2 retains unchanged real GET responses and exact dispatch recipient, while fax preserves its original timing, typed decimal comma, normalized phone and 150-cent POST without refilling, logging recipients or claiming either unexplained historical Linux input loss was repaired"
       ],
       "status": "Implemented documentation candidate; production publication requires an explicitly authorized, independently verified release.",
       "tests": [
@@ -1022,10 +1048,10 @@
       "id": "J05",
       "title": "Prepare an email",
       "actor": "Preparer → current approver",
-      "steps": "Collect recipient, requested message and ceiling → choose no file, ready PDF attachment or protected link → obtain the quote → review final content/options → record recipient-request attestation and browser/existing delegated approval → confirm → track.",
+      "steps": "Collect recipient, requested message and ceiling → choose no file, ready PDF attachment or protected link → optionally use trusted workspace subject/body defaults for an accessible ready PDF and choose branded or custom HTML → for protected links, resolve a safe custom button marker and append localized access instructions before fingerprinting → obtain the quote → review final content/options → record recipient-request attestation and browser/existing delegated approval → confirm → track.",
       "branch": "Deliver",
       "doc": "PROTECTED_EMAIL.md",
-      "failure": "Never infer recipient consent. Protected passwords stay in the sender browser and are shared separately. Provider acceptance/delivery/PDF reading are different facts; unknown outcomes require reconciliation."
+      "failure": "Never infer recipient consent. Protected passwords stay in the sender browser and are shared separately. Provider acceptance/delivery/PDF reading are different facts; unknown outcomes require reconciliation. Later workspace/profile changes do not rewrite frozen content or resend existing mail. Missing/invalid documents do not permit defaults; malformed or wrong-mode button markers require corrected preparation."
     },
     {
       "id": "J06",
@@ -1103,10 +1129,10 @@
       "id": "J14",
       "title": "Receive a protected PDF",
       "actor": "External recipient",
-      "steps": "Open the private link → enter the separately supplied password → download the unchanged PDF while access remains valid; no recipient account required.",
+      "steps": "Open the private /share link through the protected handler → read the localized page and enter the separately supplied password → download the unchanged PDF while access remains valid; no recipient account required.",
       "branch": "Deliver",
       "doc": "PROTECTED_DOCUMENTS.md",
-      "failure": "Expiry, revocation, invalid credentials or unavailable storage refuse access. Never reveal passwords through assistant tools/chat or infer PDF reading from email delivery."
+      "failure": "Expiry, revocation, invalid credentials or unavailable storage refuse access. Never reveal passwords through assistant tools/chat or infer PDF reading from email delivery. A generic site 404 requires route/hosting diagnosis; do not create a replacement send or bypass access checks."
     },
     {
       "id": "J15",
@@ -1283,10 +1309,10 @@
       "id": "J34",
       "title": "Upload a private original through a connected assistant",
       "actor": "Current OAuth writer (administrator, supervisor or operator) with documents:write and explicit original-file handling authorization; actual host byte-transfer capability required",
-      "steps": "Qualify the actual host’s access to the selected original and network → compute original filename, exact byte count and SHA-256 with code → reserve through begin_document_upload using the same idempotency key → PUT those original bytes to the returned canonical fixed endpoint with only the upload capability → read get_document_upload under current OAuth authority → inspect the same creator-private document after ordinary scanner/quarantine processing. Any later preparation, approval or sending follows its separate journey.",
+      "steps": "Qualify actual host access to the selected original and its native, permitted binary or bounded inline transport → compute actual original filename, byte count and SHA-256 with code → preserve an available native file envelope, otherwise reserve through begin_document_upload and make one permitted fixed binary PUT, or use one import_inline_pdf invocation with canonical original base64 up to 64 KiB when runtime egress is unavailable → read get_document_upload on the same upload ID under current OAuth authority → inspect the same creator-private document after ordinary scanner/quarantine processing. If a lost inline response contains no ID, recover the strict same key/metadata through begin_document_upload before status; never automatically repeat the encoded import. Later preparation, approval and sending follow separate journeys.",
       "branch": "Documents",
       "doc": "PRIVATE_DOCUMENT_UPLOAD.md",
-      "failure": "Reject unknown/used/expired capability, cookies/Authorization/Origin/query/encoding, changed issuer trust/client/connection/revision/membership, size/hash mismatch, overflow and timeout. Never publish a private PDF or reconstruct it from extracted text. Recovery keeps the same upload/document ID and does not blindly retry an unknown outcome. No PDF or document ID is exposed by the capability; no sending, purchase or human/delegated approval is created. Web/Desktop/Code evidence does not qualify Claude on iPhone."
+      "failure": "Reject invalid/noncanonical base64, inline overflow, original size/hash mismatch, unknown/used/expired capability, binary cookies/Authorization/Origin/query/encoding, changed issuer trust/client/connection/revision/membership, overflow and timeout. Validate inline bytes before creating a reservation; the existing 2 MiB MCP request limit is unchanged and does not imply a 10 MiB inline route. Never publish, chunk, truncate or reconstruct a private PDF. Recovery retains the same key/upload/document and never blindly retries an unknown outcome or logs original bytes/capabilities. No sending, purchase or human/delegated approval is created. Web/Desktop/Code evidence does not qualify Claude on iPhone."
     }
   ],
   "roles": [
@@ -1327,7 +1353,15 @@
       "Own connected OAuth writer + documents:write",
       "Own connected OAuth writer + documents:write",
       "No",
-      "Current writer + documents:write + actual original bytes; capability bound to one operation/connection/expiry, no read/send/approval authority"
+      "Current writer + documents:write + explicit original-file permission and exact bytes; binary capability bound to one operation/connection/expiry or one inline original up to 64 KiB through the same 0061 fences; no read/send/approval authority"
+    ],
+    [
+      "Reveal protected-link password or revoke hosting",
+      "Current browser preparation authority + source access",
+      "Current browser preparation authority + source access",
+      "Current browser preparation authority + source access",
+      "No",
+      "No; password and revocation remain CSRF-protected browser operations"
     ],
     [
       "Human approval and confirmation",

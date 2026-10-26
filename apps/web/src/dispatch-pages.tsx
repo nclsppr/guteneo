@@ -4,6 +4,11 @@ import { useDashboardAppearance } from "./dashboard-appearance";
 import { WorkspaceContacts } from "./workspace-contacts";
 import { RolePermissionNotice } from "./role-guide";
 import { formatLocale } from "./locale";
+import type { SupportedLocale } from "../../../packages/contracts/src/locale";
+import {
+  documentEmailDefaults,
+  renderTransactionalEmail,
+} from "../../../packages/contracts/src/email-template";
 import { FAX_OPERATOR_TEST_NOTICE } from "../../../packages/contracts/src/fax-pricing";
 import {
   Fragment,
@@ -58,7 +63,7 @@ import {
   ProtectedDocumentSummary,
   protectedDelivery,
 } from "./protected-document";
-import { EmailComposer, emailHtml } from "./email-composer";
+import { EmailComposer, emailDraftHtml } from "./email-composer";
 import { OverviewAssistantStart } from "./assistant-workspace";
 import { t } from "./locale";
 import type { PostalReview } from "../../../packages/contracts/src/postal-review";
@@ -661,7 +666,9 @@ export function Documents({ canPrepare = true }: { canPrepare?: boolean }) {
               )}
             </div>
           </div>
-          {selected.status === "ready" && <PdfPreview id={selected.id} />}
+          {selected.status === "ready" && (
+            <PdfPreview id={selected.id} stableViewport />
+          )}
           <dl className="document-metadata">
             <Definition label={t.documents.pages}>
               {selected.status === "ready"
@@ -812,9 +819,13 @@ export function Documents({ canPrepare = true }: { canPrepare?: boolean }) {
 export function PrepareDispatch({
   initialDocument,
   simulation,
+  workspaceName,
+  emailLocale,
 }: {
   initialDocument: string;
   simulation: boolean;
+  workspaceName: string;
+  emailLocale: SupportedLocale;
 }) {
   const documents = useResource<Page<DocumentRecord>>("/documents");
   const initial = useResource<DocumentRecord>(
@@ -1007,9 +1018,9 @@ export function PrepareDispatch({
           recipient: target,
           documentId: documentId || undefined,
           senderId: selectedSender,
-          subject: channel === "email" ? subject : undefined,
-          html: channel === "email" ? emailHtml(text, html) : undefined,
-          text: channel === "email" ? text : undefined,
+          subject: channel === "email" && subject.trim() ? subject : undefined,
+          html: channel === "email" && html.trim() ? html : undefined,
+          text: channel === "email" && text.trim() ? text : undefined,
           options:
             channel === "email" && documentId && protectedLink
               ? { emailDeliveryMode: "protected_link", protectedDays }
@@ -1269,11 +1280,18 @@ export function PrepareDispatch({
                   required
                 />
               </Field>
-              <Field label={t.dispatch.subject}>
+              <Field
+                label={
+                  documentId ? msg("Subject (optional)") : t.dispatch.subject
+                }
+              >
                 <input
                   value={subject}
                   onChange={(e) => setSubject(e.target.value)}
-                  required
+                  required={!documentId}
+                  placeholder={
+                    documentId ? msg("Automatic subject") : undefined
+                  }
                   maxLength={200}
                 />
               </Field>
@@ -1281,7 +1299,12 @@ export function PrepareDispatch({
                 text={text}
                 html={html}
                 onText={setText}
-                onHtml={setHtml}
+                onHtml={(value) => {
+                  setHtml(value);
+                  changed();
+                }}
+                documentEmail={!!documentId}
+                protectedLink={!!documentId && protectedLink}
               />
             </>
           ) : (
@@ -1569,10 +1592,31 @@ export function PrepareDispatch({
                 </p>
               </div>
             )
-          ) : channel === "email" && (text || html) ? (
+          ) : channel === "email" && (documentId || text || html) ? (
             <>
               <h2>{t.dispatch.htmlPreview}</h2>
-              <EmailPreview html={emailHtml(text, html)} />
+              <EmailPreview
+                html={
+                  documentId && !html.trim()
+                    ? renderTransactionalEmail({
+                        text: text.trim()
+                          ? text
+                          : documentEmailDefaults(
+                              workspaceName,
+                              protectedLink ? "protected_link" : "attachment",
+                              emailLocale,
+                            ).text,
+                        workspaceName,
+                        locale: emailLocale,
+                      })
+                    : emailDraftHtml(text, html)
+                }
+              />
+              {!!documentId && protectedLink && (
+                <p className="field-hint">
+                  {msg("The protected link and expiry will appear in the final review.")}
+                </p>
+              )}
             </>
           ) : documentId && !documentUnavailable ? (
             <PdfPreview id={documentId} />

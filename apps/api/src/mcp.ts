@@ -1,3 +1,4 @@
+import { emailPreparationDescriptions } from "./email-preparation-contract";
 import { ImportSourceError, type DocumentService } from "./documents";
 import { GUTENEO_VERSION } from "../../../packages/contracts/src/release";
 import { XmlRecordPathSchema } from "../../../packages/contracts/src/datasets";
@@ -56,6 +57,7 @@ import {
   type CallToolResult,
   type ToolAnnotations,
   type ToolCallback,
+  type ServerContext,
 } from "@modelcontextprotocol/server";
 import { recordSuccessfulConnectionTool } from "./connection-observations";
 import { z } from "zod";
@@ -81,6 +83,7 @@ import {
 import { postalMcpAuthority } from "./postal-authority";
 import {
   privateUploadInput,
+  inlinePdfInput,
   type PrivateDocumentUploadService,
   type PrivateUploadView,
 } from "./document-upload";
@@ -114,7 +117,10 @@ export interface McpDocuments {
 export interface McpServices {
   domain: DomainService;
   documents: McpDocuments;
-  documentUploads?: Pick<PrivateDocumentUploadService, "begin" | "get">;
+  documentUploads?: Pick<
+    PrivateDocumentUploadService,
+    "begin" | "get" | "importInlinePdf"
+  >;
   workflow?: TemplateWorkflowService;
   afterGeneration?: () => void;
   capabilities: (identity: McpIdentity) => unknown;
@@ -621,7 +627,7 @@ const CHATGPT_DOCUMENT_NOTICE =
 
 export const FAX_WORKFLOW = [
   "1. Call get_capabilities and explicitly state simulation or production mode and any blockers. Read approval.expert.connection or get_expert_status for this connection’s mandate, channels, ceilings and expiry. expert.available describes only the general feature. Do not start an expert workflow if canUseExpert=false; explain the precise action required without claiming to activate or renew the mandate.",
-  "2. Reuse a Guteneo document through get_document/list_documents. For a private attached original, use begin_document_upload when actually exposed and the host can read the original file and make its permitted binary PUT; compute its exact size/SHA-256, execute only the returned bounded client with that grant, then recover get_document_upload on the same ID. Keep the capability private; neither code availability nor reservation proves real host transfer. Preserve the native import_document path when the host actually supplies its direct HTTPS file envelope, or upload_local_pdf when a qualified local adapter is installed. If the required host file/network capability is missing, explain it and let the person choose an alternative; do not silently publish, reconstruct, invent a URL or pass a local path to the remote server." +
+  "2. Reuse a Guteneo document through get_document/list_documents. For a private original, compute its actual size/SHA-256 with code and preserve an available native file envelope. Use begin_document_upload plus one permitted binary PUT when the actual runtime has those bytes and Guteneo egress. If it has the bytes but no egress, import_inline_pdf is a separate one-call fallback for at most 64 KiB raw, with canonical base64 computed from that original and one stable idempotency key. Never chunk, truncate or echo/log its encoding; the 10 MiB binary bound does not apply inline. After ambiguity read get_document_upload on the same ID; if no ID arrived, recover it with begin_document_upload using strictly the same key/metadata, without a second encoded import or new key. Keep the capability private; neither code availability nor reservation proves real host transfer. Preserve the native import_document path when the host actually supplies its direct HTTPS file envelope, or upload_local_pdf when a qualified local adapter is installed. If the required host file/network capability is missing, explain it and let the person choose an alternative; do not silently publish, reconstruct, invent a URL or pass a local path to the remote server." +
     CHATGPT_DOCUMENT_NOTICE,
   "3. Read analysis and explain its title/message in plain language: quarantined does not mean failure or infection. Give a concrete next action; keep internal IDs and fingerprints in tool calls unless the user asks for them. If analysis.state=processing, the PDF is retained and Guteneo continues verification automatically. Wait retryAfterSeconds before get_document, without starting another analysis, with at most three reads in this interaction; never loop on rescan_document or reimport. If the wait outlasts the interaction, offer to resume the dispatch here using the same PDF, keeping its ID and supplied parameters without asking the person to copy them again. documentUrl is an optional view, not a required step; show it only if the user wants the website. Promise neither notifications nor automatic sending. If nextAction=rescan, offer one retry on the same document; if blocked, explain the message and proposed action. Only ready allows prepare_fax. Confirm the international E.164 number and ceiling in EUR cents with the user; never invent a recipient, rate or credit.",
   "4. Call prepare_fax with documentId, phone, ceilingMinor and an idempotency key stable for this preparation. If the response contains faxPricing.executionScope=review_prepare_only, show the review notice and reference quote without debit and stop before steps 5 and 6: no approval, confirmation, expert delegation or transmission is allowed. Present the PDF, recipient and cost in the conversation; approvalUrl depends on the authorised path in the next step. When faxPricing is present, show faxPricing.display.estimate.label and creditLabel, then display.ceiling and display.explanation. Credits are a balance in euros. estimatedMinor is only the upper bound rounded up to the next cent, never a fixed price or debit. Exact amounts remain available in display.estimate.lowEur/highEur and nanoEUR. If routeQualification=operator_authorized_test, show routeNotice: the test is authorised but provider capability remains unconfirmed. Never invent additional fees or treat an absent field as zero.",
@@ -632,8 +638,8 @@ export const FAX_WORKFLOW = [
 ].join("\n");
 
 export const EMAIL_WORKFLOW = [
-  "1. Read get_capabilities: check the email channel and simulation/production mode. Reuse recipient, subject, message and ceiling already supplied. An email without a file needs no document or import. For a PDF attachment, reuse a ready document. For an attached private original, use begin_document_upload/get_document_upload only when exposed and the actual host can read its bytes and make the permitted fixed binary PUT; never publish or reconstruct it, expose its capability or retry an uncertain upload. For a protected link, use that same ready PDF with options.emailDeliveryMode=protected_link and options.protectedDays=1, 7 or 30 (default 7). When studio tools exist in the catalogue, use the template workflow, import_dataset, generate_documents and prepare_distribution for XML, CSV, XLSX or JSON data. This email workflow receives the final PDF; other attachments and recipient accounts remain unavailable.",
-  "2. Call prepare_dispatch once with channel=email, recipient.email, subject, text and/or html, optional documentId, options, ceiling and a stable key. Present the message, delivery mode, expiry and exact quote, including the hosting surcharge per protected document where applicable. Never invent a price or recipient consent. PDFs still require scanning; follow analysis without repeated imports." +
+  "1. Read get_capabilities: check the email channel and simulation/production mode. Reuse recipient, subject, message and ceiling already supplied. An email without a file needs no document or import. For a PDF attachment, reuse a ready document. For an attached private original, preserve a native file envelope when available, or use begin_document_upload/get_document_upload when the actual runtime has its bytes and permitted binary PUT. If it can read those original bytes but cannot reach Guteneo, import_inline_pdf is a separate one-call fallback for at most 64 KiB raw: code-computed canonical base64, size/SHA-256 and one stable idempotency key. Do not chunk, truncate, echo/log the encoding or use the 10 MiB binary bound inline. Never publish or reconstruct the original, expose its capability or repeat an uncertain import. Recover get_document_upload on the same ID; if none arrived, use begin_document_upload with strictly the same key/metadata to recover it before status, never a new key or automatic second inline import. For a protected link, use that same ready PDF with options.emailDeliveryMode=protected_link and options.protectedDays=1, 7 or 30 (default 7). When studio tools exist in the catalogue, use the template workflow, import_dataset, generate_documents and prepare_distribution for XML, CSV, XLSX or JSON data. This email workflow receives the final PDF; other attachments and recipient accounts remain unavailable.",
+  '2. Call prepare_dispatch once with channel=email, recipient.email, optional documentId, options, ceiling and a stable key. Message-only email requires subject and text/html. With an accessible ready PDF, omit missing subject/body to use localized defaults naming the authenticated workspace; preserve any supplied message. Document emails without custom HTML use the branded template. Custom HTML may style its own button with safe inline CSS and, for protected_link only, exact href="{{document_url}}"; never invent or supply the actual private URL. Present supplied content, delivery mode, expiry and exact quote, including the hosting surcharge per protected document where applicable. For server-defaulted content, use browser review or already-authorized expert review; standard summaries do not expose final HTML/text and must not be used to invent it. Never invent a price or recipient consent. PDFs still require scanning; follow analysis without repeated imports.' +
     CHATGPT_DOCUMENT_NOTICE,
   "3. Without an active expert mandate covering this connection and email, present approvalUrl for human review and approval, then confirm_dispatch only after recorded approval. With an existing active mandate, use review_dispatch to read the message and every page of any PDF, respect host confirmations, then approve_and_send_dispatch with the exact fingerprint, ceiling and token. recipientRequested requires an actual user declaration. Never activate or extend your own delegation; a review account restricted to preparation cannot send.",
   "4. A protected-link password must never pass through tools, parameters or the conversation. Present emailDelivery.passwordAccessUrl so the sender reads it in their own authenticated browser and shares it separately with the recipient. Never visit that URL with a tool to read the password, ask the person to paste it here or add it to the same email. The recipient opens the link and enters the password without needing an account.",
@@ -643,7 +649,7 @@ export const EMAIL_WORKFLOW = [
 export const POSTAL_WORKFLOW = [
   "Present this workflow as the Guteneo postal service. Provider names, versions, codes and links returned by tools are technical provenance data: do not copy them into ordinary replies. Clearly explain transfer of the PDF and address to the printing provider; provider identity remains available in Guteneo legal information.",
   "1. For “send this PDF by post”, retain the postal channel. Call get_capabilities and get_postal_setup to distinguish service availability, the account sender and this connection’s rights. An expert mandate is not needed to import, configure the sender or prepare postal preflight. Never substitute fax or email. If a tool is missing from the host’s actual catalogue, explain that limit without inventing a call or claiming a mandate would add it.",
-  "2. Reuse get_document/list_documents. For a private original, prefer begin_document_upload/get_document_upload when exposed and the actual host can read its bytes and make the permitted fixed binary PUT. Keep the capability private and recover the same ID without another binary attempt. Preserve import_document when the host actually supplies its exact HTTPS file envelope. Import is shared across channels; no postal reimport is needed. Never reconstruct the original from its text, invent a URL or publish the PDF to bypass a host limit. If the host cannot transfer bytes, explain this and offer authenticated upload as an alternative chosen by the person." +
+  "2. Reuse get_document/list_documents. For a private original, preserve an available native file envelope or use begin_document_upload/get_document_upload when the actual host has its bytes and permitted binary PUT. If that runtime has the original but no Guteneo egress, import_inline_pdf is a separate one-call fallback for at most 64 KiB raw with code-computed canonical base64, size/SHA-256 and one stable key. Never chunk, truncate, echo/log its encoding or infer a 10 MiB inline bound. Keep the capability private and recover the same upload ID without another import or binary attempt; if no ID arrived, recover it through begin_document_upload with strictly the same key/metadata before get_document_upload, never a new key. Preserve import_document when the host actually supplies its exact HTTPS file envelope. Import is shared across channels; no postal reimport is needed. Never reconstruct the original from its text, invent a URL or publish the PDF to bypass a host limit. If the host cannot transfer bytes, explain this and offer authenticated upload as an alternative chosen by the person." +
     CHATGPT_DOCUMENT_NOTICE,
   "3. Present analysis.title/message. If processing, retain documentId and wait retryAfterSeconds before get_document, with at most three reads in this interaction; never reimport or loop on rescan_document. Then offer to resume here with the same PDF. Only ready allows continuation. documentUrl remains optional, without a setup redirect.",
   "4. Read the sender returned by get_postal_setup and collect only missing fields in the conversation: sender name and full postal address; recipient (name, line1, postalCode, city, country FR/LU/DE); simplex/duplex and grayscale/color printing; cheap/fast product; and EUR ceiling. Never invent an address, select an ambiguous sender or infer authority from an address in the PDF. If the sender is missing, ask the person for the name/address they want to register and their authority to use it; if canManage=true and available=true, call configure_postal_sender({name,address}) with only these values. This records an OAuth administrator submission, not human proof or physical address verification. Reuse the returned sender.id; do not send the person to Senders for this collection. Never replace an existing sender or bypass a suspension.",
@@ -854,7 +860,9 @@ function failure(
       : {
           code: "INTERNAL_ERROR",
           message:
-            "The operation did not complete. Resume from the recorded state.",
+            recoveryContext === "private_document_upload"
+              ? "The import outcome is not confirmed. Recover the same upload state."
+              : "The operation did not complete. Resume from the recorded state.",
         };
   const safe = {
     ...detail,
@@ -902,10 +910,16 @@ export function createGuteneoMcpServer(
       annotations: ExplicitToolAnnotations;
       _meta?: Record<string, unknown>;
     },
-    callback: (args: z.output<Input>) => Promise<CallToolResult>,
+    callback: (
+      args: z.output<Input>,
+      extra: ServerContext,
+    ) => Promise<CallToolResult>,
   ) {
-    const observed = async (args: z.output<Input>): Promise<CallToolResult> => {
-      const result = await callback(args);
+    const observed = async (
+      args: z.output<Input>,
+      extra: ServerContext,
+    ): Promise<CallToolResult> => {
+      const result = await callback(args, extra);
       if (
         !result.isError &&
         result.structuredContent !== null &&
@@ -1839,6 +1853,32 @@ export function createGuteneoMcpServer(
         : {}),
     });
     registerTool(
+      "import_inline_pdf",
+      {
+        title: "Import a small original PDF through MCP",
+        description:
+          "Import one explicitly selected original PDF of at most 64 KiB through this single MCP invocation when the host can read its exact bytes but cannot make an external upload. Compute size and lowercase SHA-256 using code against that original, then supply canonical standard base64 without whitespace, data URI, chunks or reconstructed content. The strict limit is 65536 original bytes, not 64 KiB of base64; the ordinary 2 MiB MCP request limit is unchanged. Keep the original bytes out of chat explanations and logs. Host authorization and current documents:write scope remain required; network policy is not bypassed. The server validates encoding, size, hash and PDF header before reservation, then uses the same creator-private quota, scanner, quarantine and validation pipeline. Returns only an upload state and sanitized document receipt, never PDF bytes or an upload capability. A received document may still be processing or quarantined: read the same document until ready; import grants no approval, purchase or sending right. After a lost or uncertain response, use get_document_upload on the returned uploadId. If no ID was received, call begin_document_upload with strictly the same idempotencyKey, filename, size and SHA-256 to recover its ID, then get_document_upload. Never automatically call import_inline_pdf again, rescan, reconstruct, use a new key or split an oversized file into chunks. Unknown/rejected means do not retry the content pipeline. State reconciliation may remove only this attempt's unregistered temporary object, never a registered document. Actual Free, mobile and web transfer each need their own qualification.",
+        inputSchema: inlinePdfInput,
+        outputSchema: output(z.unknown()),
+        annotations: { ...writeAnnotations, destructiveHint: true },
+        _meta: oauthMetadata("documents:write"),
+      },
+      (input, extra) =>
+        run(
+          "documents:write",
+          async () =>
+            summary(
+              await uploads.importInlinePdf(
+                identity,
+                input,
+                extra.mcpReq.signal,
+              ),
+            ),
+          success,
+          "private_document_upload",
+        ),
+    );
+    registerTool(
       "begin_document_upload",
       {
         title: "Import a private original PDF",
@@ -1850,8 +1890,11 @@ export function createGuteneoMcpServer(
         _meta: oauthMetadata("documents:write"),
       },
       (input) =>
-        run("documents:write", async () =>
-          summary(await uploads.begin(identity, input)),
+        run(
+          "documents:write",
+          async () => summary(await uploads.begin(identity, input)),
+          success,
+          "private_document_upload",
         ),
     );
     registerTool(
@@ -1868,8 +1911,11 @@ export function createGuteneoMcpServer(
         _meta: oauthMetadata("documents:write"),
       },
       ({ uploadId }) =>
-        run("documents:write", async () =>
-          summary(await uploads.get(identity, uploadId)),
+        run(
+          "documents:write",
+          async () => summary(await uploads.get(identity, uploadId)),
+          success,
+          "private_document_upload",
         ),
     );
   }
@@ -2133,7 +2179,7 @@ export function createGuteneoMcpServer(
     {
       title: "Prepare correspondence",
       description:
-        "Prepare one recipient/channel dispatch with final content, quote, ceiling and next action. Email requires subject and text/html: omit documentId for no file, use a ready documentId for the original PDF attachment, or options.emailDeliveryMode=protected_link for a protected link (protectedDays: 1, 7 or 30). The quote includes hosting where applicable. The password stays exclusively in the sender’s authenticated browser through emailDelivery.passwordAccessUrl; never request/transmit it in tools or chat. Submits/approves nothing with the provider. Review-account restrictions remain. Attachments remain PDFs. When studio tools exist in the catalogue, use import_dataset, generate_documents and prepare_distribution with a published template version for XML/CSV/XLSX/JSON data.",
+        "Prepare one recipient/channel dispatch with final content, quote, ceiling and next action. Email without a file requires subject and text/html. With an accessible ready documentId, omitted subject/body use localized defaults naming the authenticated workspace. Document emails without custom HTML use the branded template; custom HTML supports safe inline email styles. For protected_link only, place {{document_url}} as the exact href of a custom anchor button; the server substitutes the private URL before review. Never supply the actual URL or password. Use a ready documentId for the original PDF attachment, or options.emailDeliveryMode=protected_link for a protected link (protectedDays: 1, 7 or 30). The quote includes hosting where applicable. The password stays exclusively in the sender’s authenticated browser through emailDelivery.passwordAccessUrl; never request/transmit it in tools or chat. Submits/approves nothing with the provider. Review-account restrictions remain. Attachments remain PDFs. When studio tools exist in the catalogue, use import_dataset, generate_documents and prepare_distribution with a published template version for XML/CSV/XLSX/JSON data.",
       inputSchema: z
         .object({
           idempotencyKey: key,
@@ -2154,9 +2200,21 @@ export function createGuteneoMcpServer(
           documentId: id.optional(),
           senderId: id.optional(),
           campaignId: id.optional(),
-          subject: z.string().max(250).optional(),
-          html: z.string().max(250_000).optional(),
-          text: z.string().max(250_000).optional(),
+          subject: z
+            .string()
+            .max(250)
+            .optional()
+            .describe(emailPreparationDescriptions.subject),
+          html: z
+            .string()
+            .max(250_000)
+            .optional()
+            .describe(emailPreparationDescriptions.html),
+          text: z
+            .string()
+            .max(250_000)
+            .optional()
+            .describe(emailPreparationDescriptions.text),
           ceilingMinor: z.number().int().nonnegative().safe().optional(),
           options: z
             .object({

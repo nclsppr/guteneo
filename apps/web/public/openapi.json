@@ -602,7 +602,7 @@
         "operationId": "prepareDispatch",
         "tags": ["Dispatches"],
         "summary": "Prepare an immutable dispatch",
-        "description": "Sends nothing. Fax/postal require a ready documentId. Email requires recipient.email, subject and nonempty text (supplied or derived from HTML). Without documentId: no file. With ready documentId: attaches the original PDF by default. The same PDF with options.emailDeliveryMode=protected_link creates a password-protected link; options.protectedDays accepts 1, 7 or 30 (default 7). Before fingerprinting and review, the server adds the recipient link to final content, preserves the duration and quotes the EUR1 hosting surcharge per document where applicable. The server generates the password and reveals it only to the sender in their browser account; it must be shared separately with the recipient. Clients never supply protectedDocument, hostingId, link tokens or passwords. Multi-format recipient lists, Excel/other attachments and recipient accounts are planned, unavailable features. Fax uses recipient.phone; postal uses name, line1, postalCode, city and country with no nonempty line2. Requires a verified sender for the correct channel/mode (first available if senderId is absent). In production, every channel requires qualified private pricing and a valid quote: provider account, sender, options, source, tax, currency/FX and dates must match. Postal also requires an exact local provider draft and its price calculation; email includes billable data and qualified FX. Client-supplied provider amounts are rejected. A ceiling is not a tariff. Returns a raw Dispatch without approvalUrl: open https://guteneo.com/#/app/dispatch/{id} in the authenticated browser. A campaign must remain draft. For a new production letter, use /api/postal/preflights, open reviewUrl for consent, then /api/postal/preflights/{id}/quote; never fabricate preparedLetterId or review evidence. Fax v3 exposes a range excluding tax and a firm approved ceiling in faxPricing; confirmation reserves the ceiling and settlement awaits verified usage without requiring final cost before transmission.",
+        "description": "Sends nothing. Fax/postal require a ready documentId. Email requires recipient.email. Message-only email requires subject and nonempty text (supplied or derived from HTML). With an accessible ready documentId, omitted/blank subject and body independently use localized defaults naming the authenticated workspace; caller-supplied workspace names are not accepted. Document emails without custom HTML use the branded template. Custom HTML keeps safe inline email styles and may use exact anchor href=\"{{document_url}}\" only for protected_link; the server substitutes the private URL before review. Without documentId: no file. With ready documentId: attaches the original PDF by default. The same PDF with options.emailDeliveryMode=protected_link creates a password-protected link; options.protectedDays accepts 1, 7 or 30 (default 7). Before fingerprinting and review, the server resolves the recipient link in final content and adds password/expiry instructions, preserves the duration and quotes the EUR1 hosting surcharge per document where applicable. The server generates the password and reveals it only to the sender in their browser account; it must be shared separately with the recipient. Clients never supply protectedDocument, hostingId, link tokens or passwords. Multi-format recipient lists, Excel/other attachments and recipient accounts are planned, unavailable features. Fax uses recipient.phone; postal uses name, line1, postalCode, city and country with no nonempty line2. Requires a verified sender for the correct channel/mode (first available if senderId is absent). In production, every channel requires qualified private pricing and a valid quote: provider account, sender, options, source, tax, currency/FX and dates must match. Postal also requires an exact local provider draft and its price calculation; email includes billable data and qualified FX. Client-supplied provider amounts are rejected. A ceiling is not a tariff. Returns a raw Dispatch without approvalUrl: open https://guteneo.com/#/app/dispatch/{id} in the authenticated browser. A campaign must remain draft. For a new production letter, use /api/postal/preflights, open reviewUrl for consent, then /api/postal/preflights/{id}/quote; never fabricate preparedLetterId or review evidence. Fax v3 exposes a range excluding tax and a firm approved ceiling in faxPricing; confirmation reserves the ceiling and settlement awaits verified usage without requiring final cost before transmission.",
         "security": [
           {
             "GuteneoOAuth": ["dispatches:prepare"]
@@ -6336,15 +6336,17 @@
           },
           "subject": {
             "type": "string",
-            "maxLength": 250
+            "maxLength": 250,
+            "description": "Email without a file requires a subject. With an accessible ready documentId, omitted or blank subject uses localized copy naming the authenticated workspace. A supplied subject is preserved subject to header validation."
           },
           "html": {
             "type": "string",
-            "description": "Sanitized HTML, maximum 128 KiB UTF-8. Scripts, client CSS and external resources are removed."
+            "description": "Optional custom email HTML, maximum 128 KiB UTF-8 after final construction. Safe inline colors, typography, spacing, borders and table layout are retained; scripts, images, remote resources and unsafe CSS are removed. Custom HTML must retain readable text after sanitization; an empty result is rejected. Document emails without custom HTML use the branded template around supplied/default text; message-only presentation is unchanged. Only in protected_link mode, an exact anchor href=\"{{document_url}}\" is replaced with the server-generated private URL before fingerprinting. With a valid marker, no duplicate access button is appended; without one, protected custom HTML receives a styled fallback button. Password/expiry instructions remain mandatory. Malformed/embedded markers or use outside protected_link are rejected. Clients never provide the private token or password.",
+            "example": "<p>Your document is ready.</p><a href=\"{{document_url}}\" style=\"display:inline-block;background-color:#2450db;color:#ffffff;padding:12px 20px;border-radius:6px;text-decoration:none\">Open document</a>"
           },
           "text": {
             "type": "string",
-            "description": "Nonempty email text, maximum 128 KiB UTF-8; derived from HTML when absent."
+            "description": "Email text, maximum 128 KiB UTF-8 after final construction; derived from custom HTML when absent. With an accessible ready documentId, omitted/blank text and HTML together use localized copy naming the authenticated workspace. Supplied HTML produces derived text, not a replacement default message. Without a document, nonempty text or HTML remains required. Protected-link plain text always includes the generated URL and access instructions."
           },
           "options": {
             "type": "object",
@@ -6537,6 +6539,44 @@
                 "status": {
                   "type": "string",
                   "enum": ["configured_not_live_validated", "not_configured"]
+                },
+                "content": {
+                  "type": "object",
+                  "description": "Email preparation hints only; availability and authority remain separate channel/domain gates.",
+                  "properties": {
+                    "documentDefaults": {
+                      "type": "string",
+                      "enum": ["localized_authenticated_workspace"]
+                    },
+                    "messageOnlyRequires": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "enum": ["subject", "text_or_html"]
+                      }
+                    },
+                    "documentHtmlPresentation": {
+                      "type": "string",
+                      "enum": ["branded_template_unless_custom_html"]
+                    },
+                    "customHtml": {
+                      "type": "string",
+                      "enum": ["safe_inline_email_css"]
+                    },
+                    "protectedLinkPlaceholder": {
+                      "type": "string",
+                      "enum": ["{{document_url}}"]
+                    },
+                    "protectedLinkPlaceholderContext": {
+                      "type": "string",
+                      "enum": ["exact_anchor_href_only"]
+                    },
+                    "contentBinding": {
+                      "type": "string",
+                      "enum": ["final_sanitized_content_before_fingerprint"]
+                    }
+                  },
+                  "additionalProperties": false
                 }
               },
               "required": ["id", "name", "provider", "status"]

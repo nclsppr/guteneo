@@ -47,6 +47,33 @@ retains mouse clicks. No browser APIs are mocked in the delivered-media tests,
 and all clock/decode/seek and same-key/new-key assertions remain required.
 This is qualification of the intended device input, not proof of a WebKit fix.
 
+## Mobile preparation input qualification — 26 October 2026
+
+PR run 40243121283 reached the V2 consent scenario with an empty required email
+field, so native validation prevented any dispatch POST. The field was already
+empty just after `fill`; no source-driven recipient reset or relevant JavaScript
+exception was established. Three isolated macOS experiments passed: one original
+fill, one trusted tap plus sequential keyboard entry, and one fill followed by
+release of the two real held document/sender GET responses. They did not reproduce
+Linux or a response arriving during insertion, and establish no historical cause.
+
+Run 40246543758 passed that V2 scenario but failed a different fax-ceiling case:
+the first phone field remained empty after its fill, while the typed decimal
+comma and selected PDF were retained. Native validation again prevented a POST.
+No JavaScript exception or source-driven reset explained the missing input, and
+nearby data replies alone establish no cause. Preserve this separate failure.
+
+The two scenarios share one input helper: one trusted tap plus sequential
+keyboard entry on touch projects, and one fill on desktop. Each checks the exact
+value and focus after entry and the exact value before submission, without
+printing the recipient. Only the V2 scenario holds its two real GET replies until
+after the gesture and releases their unchanged bodies. The fax scenario retains
+its original request timing, literal typed `1,5`, normalized phone and exact
+150-cent POST assertions. No refill, automatic retry, fixed sleep, longer timeout
+or business assertion removal is allowed. This qualifies the intended input
+path, not a claimed product-state repair or paste qualification. Required
+exact-source PR and merged-main checks remain complete.
+
 ## Checkout optimization — 9 October 2026 candidate
 
 The exact deployed `4ce1bdd467f9aa35f98e525986db888eff3bf977` still passes

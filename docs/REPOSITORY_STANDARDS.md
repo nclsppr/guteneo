@@ -15,14 +15,16 @@ quotations and third-party license text retain their original spelling. Explain
 any quotation in English. Never translate a stored identifier or evidence value
 merely to make its spelling English.
 
-The only product-language exceptions are frontend internationalization and
-localized video content. Keep French, English, German and Luxembourgish user
-interface strings in the appropriate locale catalogs or explicitly localized
-frontend resources. Video scripts, captions, narration and on-screen text may
+The product-language exceptions are frontend internationalization, recipient-facing
+transactional interface copy and localized video content. Keep French, English,
+German and Luxembourgish user interface strings in the appropriate locale catalogs
+or explicitly localized frontend resources. Video scripts, captions, narration and on-screen text may
 use their declared language; production instructions and provenance descriptions
 remain English. Localized App Store listing text belongs to frontend
-internationalization. User-provided documents, addresses, names and content keep
-their exact bytes; this policy is not a content translation service.
+internationalization. Recipient-facing transactional copy belongs in its declared
+locale catalog; API messages, error codes and provider contracts remain English.
+User-provided documents, addresses, names and content keep their exact bytes; this policy is not
+a content translation service.
 
 Do not put French prose in an English code comment, README, API explanation,
 example prompt or integration skill. An assistant follows the user's language at

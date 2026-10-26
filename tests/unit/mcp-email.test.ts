@@ -183,6 +183,61 @@ describe("email assistant contract", () => {
     },
   );
 
+  it.each(["attachment", "protected_link"] as const)(
+    "forwards omitted document-email content in %s without exposing a private URL",
+    async (mode) => {
+      await connected(emailDispatch(mode), async (client, prepare, confirm) => {
+        const input = {
+          channel: "email",
+          recipient: { email: "recipient@example.invalid" },
+          documentId: "document_fixture",
+          options: { emailDeliveryMode: mode },
+        };
+        const result = await client.callTool({
+          name: "prepare_dispatch",
+          arguments: { ...input, idempotencyKey: "document_defaults_fixture" },
+        });
+        expect(result.isError).not.toBe(true);
+        expect(prepare).toHaveBeenCalledExactlyOnceWith(
+          identity.context,
+          input,
+          "document_defaults_fixture",
+        );
+        for (const value of Object.values(privateValues))
+          expect(JSON.stringify(result)).not.toContain(value);
+        expect(confirm).not.toHaveBeenCalled();
+      });
+    },
+  );
+
+  it("passes the exact custom button marker to domain validation while keeping access material out of readbacks", async () => {
+    await connected(
+      emailDispatch("protected_link"),
+      async (client, prepare, confirm) => {
+        const input = {
+          channel: "email",
+          recipient: { email: "recipient@example.invalid" },
+          documentId: "document_fixture",
+          html: '<p>Requested message</p><a href="{{document_url}}" style="background-color:#2450db;color:#ffffff;padding:12px 20px">Open document</a>',
+          options: { emailDeliveryMode: "protected_link" },
+        };
+        const result = await client.callTool({
+          name: "prepare_dispatch",
+          arguments: { ...input, idempotencyKey: "custom_button_fixture" },
+        });
+        expect(result.isError).not.toBe(true);
+        expect(prepare).toHaveBeenCalledExactlyOnceWith(
+          identity.context,
+          input,
+          "custom_button_fixture",
+        );
+        for (const value of Object.values(privateValues))
+          expect(JSON.stringify(result)).not.toContain(value);
+        expect(confirm).not.toHaveBeenCalled();
+      },
+    );
+  });
+
   it.each([
     { password: "forbidden_fixture" },
     { protectedDocument: { hostingId: "forged_fixture" } },
@@ -232,17 +287,24 @@ describe("email assistant contract", () => {
           ),
         ).toBe(false);
         expect(tool.inputSchema.required).not.toContain("documentId");
+        for (const field of ["subject", "html", "text"])
+          expect(tool.inputSchema.required).not.toContain(field);
+        expect(tool.description).toContain("authenticated workspace");
+        expect(tool.description).toContain("{{document_url}}");
+        expect(JSON.stringify(tool.inputSchema.properties?.html)).toContain(
+          "exact anchor",
+        );
         const prompt = JSON.stringify(
           await client.getPrompt({ name: "email" }),
         );
         expect(prompt).toContain("Without an active expert mandate");
+        expect(prompt).toContain("Message-only email requires subject");
+        expect(prompt).toContain("{{document_url}}");
         expect(prompt).toContain("Never visit that URL with a tool");
         expect(prompt).toContain(
           "review account restricted to preparation cannot send",
         );
-        expect(prompt).toContain(
-          "When studio tools exist in the catalogue",
-        );
+        expect(prompt).toContain("When studio tools exist in the catalogue");
         expect(prompt).toContain(
           "import_dataset, generate_documents and prepare_distribution",
         );
@@ -264,9 +326,7 @@ describe("email assistant contract", () => {
       origin,
       0,
     );
-    expect(expired.nextActions.join(" ")).toContain(
-      "read get_dispatch_status",
-    );
+    expect(expired.nextActions.join(" ")).toContain("read get_dispatch_status");
     expect(expired.nextActions.join(" ")).not.toContain(
       "renew through prepare_fax",
     );

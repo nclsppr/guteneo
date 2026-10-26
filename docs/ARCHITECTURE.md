@@ -21,6 +21,16 @@ document/scanner pipeline; status remains OAuth protected. It grants no read,
 approval, purchase or sending authority. [Private upload](PRIVATE_DOCUMENT_UPLOAD.md)
 owns its limits, same-ID recovery and actual-host/iPhone qualification boundary.
 
+The bounded `import_inline_pdf` candidate admits one original up to 64 KiB through
+MCP when runtime HTTP egress is unavailable. It strictly validates canonical
+base64, actual size and SHA-256 before side effects, then internally reuses 0061
+reservation/receipt processing under the current OAuth identity without a fetch.
+The same conditional claim, SQL time/authority fences, quota, private document
+registration and scanner/quarantine pipeline apply. No new migration, scope or
+send authority is added; MCP input remains bounded to 2 MiB. The host must relay
+the original encoding intact; context/truncation and real-client qualification
+are explicit boundaries rather than an implied10MiB inline capability.
+
 ## Frontend presentation and bootstrap — 25 October 2026 candidate
 
 `public-site.json` owns canonical public paths; the public renderer and

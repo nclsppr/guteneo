@@ -76,6 +76,15 @@ neither client code nor capability. Host confirmation rules remain mandatory.
 Other authorized hosts can implement the same binary PUT protocol natively; the
 reference client's runtime requirements do not qualify another environment.
 
+The separate MCP `import_inline_pdf` candidate accepts one original up to 64 KiB
+when the runtime holds the file but cannot reach Guteneo. Its strict inputs are
+`idempotencyKey`, `fileName`, `size`, lowercase `sha256` and canonical standard
+`base64` computed from the actual original. It validates before reserving and
+uses the same 0061 processing internally without a fetch or new REST route.
+Scope, quota, private ACL, scan, current-authority/expiry and recovery gates remain.
+Do not chunk, truncate, echo/log encoded bytes or repeat an ambiguous import.
+The 2 MiB MCP limit stays unchanged; this is not a 10 MiB inline capability.
+
 The [private upload contract](PRIVATE_DOCUMENT_UPLOAD.md) owns exact limits,
 binding, expiry and recovery. A host must actually access and transfer original
 bytes. Claude on iPhone is independently unqualified: a web/Desktop/Code test,

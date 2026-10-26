@@ -114,6 +114,9 @@ test("email can be prepared, reviewed and simulated in the tab only", async ({
   await expect(
     page.getByRole("heading", { name: "Le bon à envoyer." }),
   ).toBeVisible();
+  await expect(
+    page.frameLocator("iframe.email-preview").locator("body"),
+  ).toHaveText("Bonjour depuis l’atelier.");
   await page.getByRole("checkbox").check();
   await page
     .getByRole("button", { name: "Approuver et simuler l’envoi" })
@@ -125,6 +128,49 @@ test("email can be prepared, reviewed and simulated in the tab only", async ({
     /Remis|Transmis|Livré|Accepté|livré|remis/,
   );
   expect(outbound).toEqual([]);
+});
+
+test("document email defaults are reviewed in the tab without custom HTML", async ({
+  page,
+}) => {
+  const backendRequests: string[] = [];
+  page.on("request", (request) => {
+    if (
+      /^\/(api|auth|mcp)(\/|$)/.test(new URL(request.url()).pathname) ||
+      request.method() !== "GET"
+    )
+      backendRequests.push(request.url());
+  });
+  await page.goto("/#/app/prepare");
+  await page.getByRole("radio", { name: "E-mail", exact: true }).check();
+  await page
+    .getByLabel("Pièce jointe PDF (facultative)", { exact: true })
+    .selectOption({ index: 1 });
+  await page
+    .getByLabel("Adresse e-mail", { exact: true })
+    .fill("document@example.invalid");
+  await expect(
+    page.getByLabel("Objet (facultatif)", { exact: true }),
+  ).toBeEmpty();
+  await expect(
+    page.getByLabel("Message (facultatif)", { exact: true }),
+  ).toBeEmpty();
+  await page.getByRole("button", { name: "Vérifier et préparer" }).click();
+  await expect(
+    page.getByRole("heading", { name: "Le bon à envoyer." }),
+  ).toBeVisible();
+  await expect(page.locator("#main-content")).toContainText(
+    "Document envoyé par Gutenberg workshop · Demo",
+  );
+  const email = page.frameLocator("iframe.email-preview");
+  await expect(
+    email.locator('table[role="presentation"]').first(),
+  ).toBeVisible();
+  await expect(email.locator("body")).toContainText(
+    "Gutenberg workshop · Demo vous a envoyé un document.",
+  );
+  await expect(email.locator("body")).toContainText("pièce jointe");
+  expect(backendRequests).toEqual([]);
 });
 
 test("fixture PDF renders and backend routes refuse remote actions", async ({

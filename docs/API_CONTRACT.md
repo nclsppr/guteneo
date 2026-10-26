@@ -147,13 +147,49 @@ Preparation is strict at the top level:
 | Channel | Recipient/content |
 | --- | --- |
 | `fax` | International `{phone}`: remove spaces including nonbreaking, dots, parentheses/hyphens; remove `(0)` after country code. Allowed `+33`, `+352`, `+49`; remaining national 0 after code returns `INVALID_PHONE`. Ready `documentId` required; no real destination prefilled. |
-| `email` | Lowercase-normalized `{email}`; subject/final sanitized HTML and explicit or derived text; optional ready PDF `documentId`; one recipient per dispatch. |
+| `email` | Lowercase-normalized `{email}`; final sanitized HTML and text; one recipient per dispatch. Message-only email requires subject/body. An accessible ready PDF `documentId` enables independent localized defaults for omitted subject/body. |
 | `postal` | `{name,line1,postalCode,city,country}`, `FR|LU|DE`, ready PDF. One persisted street line; nonempty `line2` returns `ADDRESS_LINE_UNSUPPORTED`, never silent deletion. |
 
 Sender must be verified for organization/channel/mode; omission selects an
 existing verified profile. `options.kind:"marketing"` returns `MARKETING_NOT_ENABLED`
 until unsubscribe integration is qualified. Simulated print options prove no
 actual Pingen format qualification.
+
+### Document-email defaults and custom HTML
+
+For email with an accessible ready PDF, omitted or whitespace-only `subject` and
+body independently use server-authored copy naming the current authenticated
+workspace in the sender's saved language (French fallback). A body default requires
+both text and custom HTML to be absent; supplied HTML provides derived plain text
+when no explicit alternative is given. A missing/foreign or
+unready document never qualifies for defaults. Without a document, subject and
+nonempty text or HTML remain required. Caller-provided `workspaceName`, private
+link tokens and passwords are not input fields.
+
+For document emails without custom HTML, supplied/default text is rendered in
+the branded email template. Message-only presentation is unchanged. Custom HTML uses the email-specific sanitizer: safe inline typography,
+colors, spacing, borders and table layout survive; scripts, images, remote
+resources and unsafe CSS do not. Custom HTML must retain readable text after sanitization; an empty result is
+rejected instead of replaced with a default. PDF rendering retains its separate
+sanitizer.
+For `options.emailDeliveryMode: "protected_link"` only, an anchor may use the
+exact `href="{{document_url}}"` marker to place a custom button. The server
+substitutes the private URL and includes password/expiry instructions before the
+quote, final fingerprint and review. The text alternative retains the URL and
+instructions. A valid marker suppresses the duplicate access button; markerless
+protected custom HTML receives the styled fallback button. Password/expiry
+instructions remain in both cases. Markers embedded in text/style/other URLs are invalid; using the
+marker outside protected-link mode is rejected. The marker itself grants no
+access and never accepts a client-selected hosting record or password.
+
+`GET /api/capabilities` exposes these presentation rules under the email channel's
+`content` object; these hints enable no channel or authority. REST, native and MCP
+all use the same domain preparation. MCP preparation/status/list summaries retain
+private-link masking, and neither standard nor expert authority gains a password
+read. Correct custom HTML through a new preparation and exact review; do not mutate
+approved content, reuse changed input under an old idempotency key or retry an
+unknown provider submission. The [protected email contract](PROTECTED_EMAIL.md)
+owns the presentation and qualification details.
 
 REST `Dispatch` includes `id`, `organization_id`, `campaign_id`, `channel`,
 `recipient_json`, `document_id`, `sender_id`, `sender_address`, `subject`, `html`,

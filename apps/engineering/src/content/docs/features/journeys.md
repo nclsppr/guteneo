@@ -45,9 +45,9 @@ Read postal setup/requirements → collect missing sender/recipient/options → 
 
 **Actor:** Preparer → current approver · **Branch:** Deliver
 
-Collect recipient, requested message and ceiling → choose no file, ready PDF attachment or protected link → obtain the quote → review final content/options → record recipient-request attestation and browser/existing delegated approval → confirm → track.
+Collect recipient, requested message and ceiling → choose no file, ready PDF attachment or protected link → optionally use trusted workspace subject/body defaults for an accessible ready PDF and choose branded or custom HTML → for protected links, resolve a safe custom button marker and append localized access instructions before fingerprinting → obtain the quote → review final content/options → record recipient-request attestation and browser/existing delegated approval → confirm → track.
 
-**Failure and recovery:** Never infer recipient consent. Protected passwords stay in the sender browser and are shared separately. Provider acceptance/delivery/PDF reading are different facts; unknown outcomes require reconciliation.
+**Failure and recovery:** Never infer recipient consent. Protected passwords stay in the sender browser and are shared separately. Provider acceptance/delivery/PDF reading are different facts; unknown outcomes require reconciliation. Later workspace/profile changes do not rewrite frozen content or resend existing mail. Missing/invalid documents do not permit defaults; malformed or wrong-mode button markers require corrected preparation.
 
 ## J06: Create a reusable template
 
@@ -117,9 +117,9 @@ Read current capability and price → select the ready immutable PDF and PDF/UA 
 
 **Actor:** External recipient · **Branch:** Deliver
 
-Open the private link → enter the separately supplied password → download the unchanged PDF while access remains valid; no recipient account required.
+Open the private /share link through the protected handler → read the localized page and enter the separately supplied password → download the unchanged PDF while access remains valid; no recipient account required.
 
-**Failure and recovery:** Expiry, revocation, invalid credentials or unavailable storage refuse access. Never reveal passwords through assistant tools/chat or infer PDF reading from email delivery.
+**Failure and recovery:** Expiry, revocation, invalid credentials or unavailable storage refuse access. Never reveal passwords through assistant tools/chat or infer PDF reading from email delivery. A generic site 404 requires route/hosting diagnosis; do not create a replacement send or bypass access checks.
 
 ## J15: Release a change
 
@@ -277,6 +277,6 @@ Open My documents directly → start the personal shell → validate current per
 
 **Actor:** Current OAuth writer (administrator, supervisor or operator) with documents:write and explicit original-file handling authorization; actual host byte-transfer capability required · **Branch:** Documents
 
-Qualify the actual host’s access to the selected original and network → compute original filename, exact byte count and SHA-256 with code → reserve through begin_document_upload using the same idempotency key → PUT those original bytes to the returned canonical fixed endpoint with only the upload capability → read get_document_upload under current OAuth authority → inspect the same creator-private document after ordinary scanner/quarantine processing. Any later preparation, approval or sending follows its separate journey.
+Qualify actual host access to the selected original and its native, permitted binary or bounded inline transport → compute actual original filename, byte count and SHA-256 with code → preserve an available native file envelope, otherwise reserve through begin_document_upload and make one permitted fixed binary PUT, or use one import_inline_pdf invocation with canonical original base64 up to 64 KiB when runtime egress is unavailable → read get_document_upload on the same upload ID under current OAuth authority → inspect the same creator-private document after ordinary scanner/quarantine processing. If a lost inline response contains no ID, recover the strict same key/metadata through begin_document_upload before status; never automatically repeat the encoded import. Later preparation, approval and sending follow separate journeys.
 
-**Failure and recovery:** Reject unknown/used/expired capability, cookies/Authorization/Origin/query/encoding, changed issuer trust/client/connection/revision/membership, size/hash mismatch, overflow and timeout. Never publish a private PDF or reconstruct it from extracted text. Recovery keeps the same upload/document ID and does not blindly retry an unknown outcome. No PDF or document ID is exposed by the capability; no sending, purchase or human/delegated approval is created. Web/Desktop/Code evidence does not qualify Claude on iPhone.
+**Failure and recovery:** Reject invalid/noncanonical base64, inline overflow, original size/hash mismatch, unknown/used/expired capability, binary cookies/Authorization/Origin/query/encoding, changed issuer trust/client/connection/revision/membership, overflow and timeout. Validate inline bytes before creating a reservation; the existing 2 MiB MCP request limit is unchanged and does not imply a 10 MiB inline route. Never publish, chunk, truncate or reconstruct a private PDF. Recovery retains the same key/upload/document and never blindly retries an unknown outcome or logs original bytes/capabilities. No sending, purchase or human/delegated approval is created. Web/Desktop/Code evidence does not qualify Claude on iPhone.

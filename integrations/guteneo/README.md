@@ -8,7 +8,7 @@ connector picker displays these fields; if a manual logo field is available,
 use [this canonical PNG](https://guteneo.com/brand/guteneo-mark.png). Installing a
 logo or package grants no account access or approval.
 
-This directory prepares candidate **1.1.1**. Package version, application
+This directory prepares candidate **1.1.3**. Package version, application
 capabilities and MCP server identity follow the same source version; the release
 fingerprint identifies actually served code. Building an archive updates neither
 the server nor a directory. The builder also emits the dedicated
@@ -105,6 +105,14 @@ when the host actually supplies original-file access and permitted Guteneo egres
 Its bounded POSIX Python client is explicit, grants no OAuth/filesystem permission,
 and proves no actual client or physical-iPhone transfer. Preserve host controls.
 
+For an original held by a runtime without Guteneo egress, the separate
+import_inline_pdf candidate accepts one exact original up to 64 KiB through MCP,
+with code-computed size/SHA-256 and canonical base64. It uses the same private
+import/scanner/authority/recovery gates and adds no network-policy exception.
+Preserve explicit file permission; do not chunk, truncate or echo/log its encoded
+payload. This consumes host context and is not the 10 MiB binary route. Qualify the
+actual host before claiming transfer, including physical mobile applications.
+
 ChatGPT import requires the host's actual file contract. Guteneo fetches exact
 bytes from a direct public HTTPS source and verifies the PDF; private, expired or
 redirected URLs are rejected. Without qualified file transport, the user may
@@ -167,6 +175,12 @@ protected document. Duration is 1, 7 or 30 days. The verified original remains
 immutable. Recipients need a password, not an account. The sender reads the
 password only in their authenticated browser and shares it separately; no MCP
 tool reads or transmits it. Preparation-only review accounts still cannot send.
+For an accessible ready PDF, omitted subject/body use localized defaults naming
+the authenticated workspace. Document emails without custom HTML use the branded
+template. Custom protected-link HTML can place `{{document_url}}` as an anchor
+button's exact `href` with safe inline email styles; clients never supply the
+private access URL or password. Message-only email still requires content, and
+all final text/HTML remains bound to review and approval.
 
 `document-studio` covers editable pdfme templates, DOCX import warnings,
 CSV/XLSX/XML/JSON, versioned mappings, private PDF jobs and separate distribution

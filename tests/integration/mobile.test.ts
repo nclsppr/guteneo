@@ -774,6 +774,80 @@ describe("native mobile boundary on actual D1 and R2", () => {
     expect(detail.dispatch.html).toBe(html);
     expect(detail.dispatch.text).toBe(text);
   }, 60_000);
+  it("forwards document defaults and a custom protected button to the shared domain without native approval", async () => {
+    const { token } = await connect();
+    const identity = await authenticateNative(
+      req(prefix + "/session", token),
+      env,
+    );
+    const fixture = await domain.prepareDispatch(
+      identity.context,
+      {
+        channel: "email",
+        recipient: { email: "fixture@example.invalid" },
+        subject: "Native fixture",
+        text: "Fictional route fixture",
+      },
+      `native-content:${crypto.randomUUID()}`,
+    );
+    const prepare = vi
+      .spyOn(domain, "prepareDispatch")
+      .mockResolvedValue(fixture);
+    try {
+      for (const content of [
+        {},
+        {
+          html: '<a href="{{document_url}}" style="background-color:#2450db;padding:12px">Open document</a>',
+        },
+      ]) {
+        const input = {
+          channel: "email",
+          recipient: { email: "fixture@example.invalid" },
+          documentId: "document_route_fixture",
+          options: { emailDeliveryMode: "protected_link" },
+          ...content,
+        };
+        const key = `native-defaults:${crypto.randomUUID()}`;
+        const response = await call("/dispatches", token, "POST", input, {
+          "Idempotency-Key": key,
+        });
+        expect(response.status).toBe(201);
+        expect(prepare).toHaveBeenLastCalledWith(identity.context, input, key);
+        expect(await response.json()).toMatchObject({
+          id: fixture.id,
+          approvalUrl: `${env.APP_ORIGIN}/auth/mobile/review/${fixture.id}`,
+        });
+      }
+    } finally {
+      prepare.mockRestore();
+    }
+    await expect(
+      call(
+        "/dispatches",
+        token,
+        "POST",
+        {
+          channel: "email",
+          recipient: { email: "fixture@example.invalid" },
+        },
+        { "Idempotency-Key": `native-empty:${crypto.randomUUID()}` },
+      ),
+    ).rejects.toMatchObject({ code: "INVALID_HEADER" });
+    await expect(
+      call(
+        "/dispatches",
+        token,
+        "POST",
+        {
+          channel: "email",
+          recipient: { email: "fixture@example.invalid" },
+          documentId: "unknown_document",
+        },
+        { "Idempotency-Key": `native-document:${crypto.randomUUID()}` },
+      ),
+    ).rejects.toMatchObject({ code: "NOT_FOUND" });
+  });
+
   it("prepares idempotently, returns exact browser review, and denies approve/send/expert/billing", async () => {
     const { token } = await connect();
     const input = {
