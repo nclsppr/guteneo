@@ -81,13 +81,16 @@ without treating a skipped required job as success. Browser assertions, sandbox
 setup and the WebKit media pipeline remain intact; there is no automatic retry,
 path filter or publication shortcut.
 
-On the observed pre-sharding main run of 25 October, the complete workflow took
-about 26 minutes. Its iPhone job spent nearly 12 minutes on the application and
-more than seven on the preview, in sequence after setup. This justified splitting
-that work. Parallel execution repeats setup and may use more runner minutes;
-actual wall time depends on test-file balance, available runners and downloads.
-Measure completed exact-source runs before claiming a speedup. Synthetic report
-guards qualify completeness handling, not hosted execution or deployment.
+The observed pre-sharding main run spent most of its browser critical path on
+sequential application and preview tests in the iPhone job. The completed
+[26 October main run](https://github.com/nclsppr/guteneo/actions/runs/40254684422)
+qualifies the nine-job partition with its full independent inventory and all
+required jobs passing on one attempt. The repository's CI guide owns the dated
+baseline, wall-time comparison and measurement limits. Parallel execution repeats
+setup and may use more runner minutes; available runners, downloads and test-file
+balance still affect later runs. Compare complete exact-source runs before
+claiming further gains. Synthetic report guards qualify completeness handling,
+not hosted execution, authentication or deployment.
 
 When a generated-record browser case fails, preserve its terminal state and
 transport trace before another execution. Local simulation emits only bounded

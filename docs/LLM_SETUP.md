@@ -31,12 +31,9 @@ the full current package, every model/destination nor OAuth renewal/revocation.
 The [ChatGPT submission dossier](CHATGPT_MARKETPLACE.md) retains artifacts/
 prerequisites; reread current portal state before publication.
 
-Claude.ai consent, OAuth return, 21-tool discovery and one actual
-`get_capabilities` call were observed in Safari on 17 September 2026 at
-17:55 UTC, mode `production`, `simulation:false`. Other reads, PDF, writes,
-sends, expiry/revocation remain unqualified there; see
-[Claude.ai qualification](CLAUDE_QUALIFICATION.md). **Connect to Claude**
-provides a prefilled form/public ID to copy, not connection evidence.
+The [Claude qualification record](CLAUDE_QUALIFICATION.md) owns the dated browser
+and Desktop observations and their exact limits. **Connect to Claude** provides
+a prefilled form/public ID to copy, not connection evidence.
 [Renewal notes](CLAUDE_RENEWAL.md) describe prepared rotation and limits;
 old connection success does not prove expired-token renewal.
 
@@ -220,16 +217,16 @@ Do not publish a CV/PDF to make import possible or claim that a local Claude Cod
 helper runs inside the iPhone application. Host file/code/network capabilities
 and user authorization must be qualified before this transport is offered there.
 
-If the runtime exposes the exact original but cannot reach Guteneo, the separate
-`import_inline_pdf` candidate accepts one original up to 64 KiB through the
+If the runtime exposes the exact original but cannot reach Guteneo, the
+`import_inline_pdf` tool accepts one original up to 64 KiB through the
 authenticated MCP connection. Compute size/SHA-256 and canonical base64 using
 code; preserve the same key, scanner and readiness/recovery gates. Do not chunk,
 truncate, echo the encoding or assume the 10 MiB binary limit applies. Tool
 arguments consume host context and require explicit original-file permission.
-Claude Free's observed settings expose package-manager egress without a custom-
-domain field; official specific-domain controls belong to Team/Enterprise owners.
-Do not change network policy automatically. Exact host transfer remains a
-separate qualification, including on a physical iPhone.
+The [dated Desktop qualification](CLAUDE_QUALIFICATION.md#claude-desktop-free-inline-original--26-october-2026)
+owns its observed transport/network result; it does not establish iPhone file
+access or egress. Exact host transfer remains separately qualified. Do not change
+network policy automatically.
 
 ### Claude Code
 

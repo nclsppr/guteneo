@@ -105,7 +105,7 @@ uploaders need equivalent qualification under the same binary contract. Never
 extract a host's token cache or reconstruct the PDF.
 
 Some hosts expose an original file to code while restricting that runtime's
-network separately from MCP. The `import_inline_pdf` candidate provides a small
+network separately from MCP. The `import_inline_pdf` tool provides a small
 fallback: at most 64 KiB of unchanged original bytes, encoded by code as canonical
 base64 with actual size/SHA-256 and one stable idempotency key. The server validates
 before reserving, then uses the same 0061 claim, SQL authority/expiry fences,
@@ -120,7 +120,8 @@ qualified transport, and a physical iPhone remains a distinct test surface.
 If the response is lost, read the same upload ID to reconcile it. Do not repeat
 the PUT, reserve a second import or infer failure from a timeout. Native host
 attachment support, exact original transfer and resulting `ready` state are
-separate qualification steps.
+separate qualification steps. An inline pass does not qualify binary PUT, its
+10 MiB bound, email preparation or another client surface.
 
 ## Qualify each client surface
 
@@ -141,9 +142,19 @@ remote OAuth MCP; do not substitute a shared token to claim compatibility.
 For each host, verify discovery, consent, an authenticated read, original/stored
 hash and size, readiness, preparation, recovery, expiry and revocation separately.
 Local contract tests are evidence for the server; real client transfer and
-directory publication remain distinct. Current source references:
+directory publication remain distinct. Dated client records own the exact
+observations; the repository compatibility matrix links them without converting
+one result into general host support. Keep private evidence out of published
+guides.
+
+Before building an optional file-picker UI, establish that the actual target
+account/surface can render it and exposes the required native file-selection
+capability for the original attachment. If that capability is unobservable,
+the next separately authorized step is a minimal capability probe, not a claimed
+file-transfer pass. A widget's native file API does not supply another host's
+missing runtime egress. Current source references:
 [Claude mobile connectors](https://support.claude.com/en/articles/11176164-use-connectors-to-extend-claude-s-capabilities),
-[OpenAI file APIs](https://developers.openai.com/plugins/reference#capabilities),
+[OpenAI file APIs](https://developers.openai.com/plugins/reference#file-apis),
 [Cursor cloud MCP](https://cursor.com/docs/cloud-agent/capabilities),
 [Grok custom connectors](https://docs.x.ai/grok/connectors),
 [GitHub cloud limitations](https://docs.github.com/en/copilot/how-tos/copilot-on-github/customize-copilot/configure-mcp-servers).

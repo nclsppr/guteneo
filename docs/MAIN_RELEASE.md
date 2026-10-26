@@ -140,16 +140,11 @@ and merged main revision, with no path-based coverage reduction, automatic retry
 or production deployment. The complete current application workflow has 22 jobs;
 required `verify` and `scanner` protections remain unchanged.
 
-Baseline main run [40226465628](https://github.com/nclsppr/guteneo/actions/runs/40226465628)
-completed all 16 previous jobs in about 25 minutes 49 seconds. Its iPhone browser
-job spent 3 minutes 15 seconds in setup, then ran application tests for 11 minutes
-48 seconds, preview tests for 7 minutes 12 seconds and Belvédère for 53 seconds
-sequentially. This identifies the browser critical path; dependency installation
-was not its main cost in that observed run. More parallel jobs trade repeated
-setup/runner minutes for shorter wall time. File balance, runner availability and
-network setup still affect actual results. Local guard/partition tests establish
-no hosted speedup; compare the next complete exact-source PR and main runs before
-claiming an improvement.
+The earlier sequential iPhone job identified the browser critical path. The
+[dated hosted timing comparison](CI.md#hosted-timing-qualification--26-october-2026)
+records the completed baseline and qualified main runs, their coverage and
+measurement limits. More parallel jobs trade repeated setup and runner minutes
+for shorter wall time; local guard tests alone establish no hosted speedup.
 
 `Guteneo iOS` runs XCTest/archive for PRs or `main` pushes changing `ios/**` or
 `.github/workflows/ios.yml`. Swift, tests, translations, assets, Xcode project and
