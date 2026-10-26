@@ -641,7 +641,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 <a id="billing"></a>
 ### Credits and billing
 
-**Availability model:** partial. Credits, ledger and selectable consumption history implemented; commercial top-up and this candidate publication remain unqualified.
+**Availability model:** partial. Credits, ledger, monthly history and annual activity are published. Dated 25 October authenticated evidence restored the known September history without changing its visible balance; a fresh f946 account read and universal historical no-loss audit are not claimed. Commercial top-up remains unqualified; see WELCOME_CREDIT.md.
 
 **Surfaces:** Browser administration; shared backend ledger. No assistant billing administration.
 
@@ -668,7 +668,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 <a id="assistants"></a>
 ### Assistants and API
 
-**Availability model:** host-qualified. Implemented contracts/packages; actual host compatibility, OAuth and marketplace publication need separate evidence.
+**Availability model:** host-qualified. Implemented contracts/packages with one dated actual Claude Desktop Free inline-original result documented in CLAUDE_QUALIFICATION.md; broader host compatibility, OAuth refresh, archive installation and marketplace publication need separate evidence.
 
 **Surfaces:** Public/account browser guides and generated static downloads; REST/OpenAPI, MCP and host-specific packages. Archive access creates no OAuth consent, membership, mandate or channel activation; native host installation remains separately qualified.
 
@@ -676,7 +676,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - REST/OpenAPI and Streamable HTTP MCP catalogues
 - Standard MCP server title, developer websiteUrl and unchanged PNG512 icons; RFC9728 resource_documentation and visible guide logo, with host-controlled display and a manual canonical image URL
 - Current host-specific OAuth and original-file transport compatibility matrix for Claude and ChatGPT web/iPhone, Cursor desktop/cloud, Grok, Copilot, Gemini and other clients; installation/catalog presence never establishes a pass
-- Import through the file transport actually supported by the host
+- Import through the file transport actually supported by the host; docs/CLAUDE_QUALIFICATION.md owns the dated actual Claude Desktop Free inline-original qualification (1,268 bytes on c81, backend unchanged at f946, ready/verified after automatic continuation without reimport/rescan). Binary 10 MiB, inline originals above 64 KiB without public egress, email preparation, web/iPhone and other hosts retain separate unqualified limits
 - Document, template, dataset, generation and preparation tools
 - Browser review before sending; scopes never elevate membership rights
 - Optional bounded expert delegation for one OAuth client
@@ -825,7 +825,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 <a id="pdf-verification"></a>
 ### PDF verification
 
-**Availability model:** capability-gated. Individual purchase candidate; no new subscription or recurring renewal. Runtime capability, private validator, scanner and final release qualification remain separate.
+**Availability model:** capability-gated. Individual-purchase capability enabled in the 25 October release and observed on f946 main at 26 October 01:47 UTC; private hosted corpus, scanner, application configuration and actual customer purchase remain separate evidence. No new subscription or recurring renewal. See PDF_ACCESSIBILITY.md and PDF_VERIFICATION_PRICING.md.
 
 **Surfaces:** Web browser administrator purchases; REST and MCP retain current document-scoped history reads and cannot create assistant financial consent.
 
@@ -868,7 +868,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Reconciliation, bounded recovery and dead-letter queues
 - Ordered D1 migrations, integrity and restore bookmark
 - Private scanner, renderer and validator releases from clean main; root-Wrangler loopback qualification bridge with temporary secret, Origin refusal and no secret transfer; deployment wrapper and hosted runner share strict production pdfValidation.available=false on canonical guteneo.com before container qualification; explicit private forced-stop recovery never replaces graceful idle proof, and runtime-private helpers cannot return a container stub
-- Backend/security/browser suites and exhaustive CI; standard-1 validator max 1, 5-second idle, qualified JVM corpus to 100 pages/9.887 MiB; measured local CPU savings do not prove hosted cost
+- Backend/security/browser suites and exhaustive CI. Dated 26 October main run 40254684422 on f94664ff77c532c0c6b352109f565f6768091c2b passed 22 jobs: 1,131 discovered browser identities, 1,112 passed and 19 declared skips, plus 2,802 unit/integration assertions; this establishes source/fixture qualification, not authenticated clients or business delivery. CI.md owns current execution and qualification limits. The standard-1 validator remains max 1 with 5-second idle; its separately dated hosted corpus covers 100 pages/9.887 MiB and does not establish an infrastructure bill
 - Release from clean, synchronized, verified main
 - Release manifests contain canonical public assets with exact byte hashes; shared application/preview redirects preserve old page/download links without duplicate alias files; unexpected redirects fail served verification; retired workers.dev/preview closure has separate evidence
 - Local production monitor uses bounded anonymous canonical reads and retired-host refusal checks, page hashes, private-access refusal and 120-second staleness; partial feature proof, no sends or permanent task
@@ -881,7 +881,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Separate secure render/deposit queue work, bounded lease reconciliation and shared/personal retention cleanup; revocation, erasure, acquisition and immutable evidence remain distinct
 - Documented provider/tariff maintenance separates official price, private account observation, immutable quote and actual outcome; expiry blocks new work without rewriting approved commitments
 
-**Contract:** [PRODUCTION_REVIEW_2026_10_09.md](PRODUCTION_REVIEW_2026_10_09.md) · **Implementation:** [scripts/deploy-public.mjs](../scripts/deploy-public.mjs)
+**Contract:** [CI.md](CI.md) · **Implementation:** [scripts/deploy-public.mjs](../scripts/deploy-public.mjs)
 
 **Tests:** [tests/security/main-only-release.test.mjs](../tests/security/main-only-release.test.mjs), [tests/security/pdf-validator-release.test.mjs](../tests/security/pdf-validator-release.test.mjs), [apps/pdf-validator/tests/probe-credentials.test.mjs](../apps/pdf-validator/tests/probe-credentials.test.mjs), [tests/security/production-monitor.test.mjs](../tests/security/production-monitor.test.mjs), [tests/security/observability.test.mjs](../tests/security/observability.test.mjs), [tests/integration/documents.test.ts](../tests/integration/documents.test.ts), [tests/unit/telnyx-readiness.test.ts](../tests/unit/telnyx-readiness.test.ts), [apps/scanner/tests/maintenance-status.test.mjs](../apps/scanner/tests/maintenance-status.test.mjs), [apps/scanner/tests/qualification-artifact.test.mjs](../apps/scanner/tests/qualification-artifact.test.mjs), [tests/security/verify-release.test.mjs](../tests/security/verify-release.test.mjs), [tests/security/preview-release-assets.test.mjs](../tests/security/preview-release-assets.test.mjs), [tests/unit/public-routes.test.ts](../tests/unit/public-routes.test.ts)
 
@@ -894,7 +894,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 <a id="belvedere"></a>
 ### Belvédère platform oversight
 
-**Availability model:** operator-gated. Initial dedicated-host release and authenticated overview verified from main 03daa4136de8999cc79018f33f2a22038917c621; subsequent V2 visual alignment requires its own exact-source release proof. Private read-only authority remains separate from workshop roles.
+**Availability model:** operator-gated. Dedicated-host release and authenticated overview verified on 25 October from 03daa4136de8999cc79018f33f2a22038917c621; later 06d92 V2 publication and seven-section native Safari navigation are dated proof. Public routing/refusals were observed on f946 at 26 October 01:47 UTC; an authenticated journey on that newer source is not claimed. Private read-only authority remains separate from workshop roles.
 
 **Surfaces:** Private verified Watchkeeper browser only; no workshop/native/OAuth/MCP authority.
 
@@ -917,7 +917,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 <a id="status"></a>
 ### Public service status
 
-**Availability model:** public. The 25 October customer UI is an undeployed candidate with local browser, locale, backend and release-safety checks. Existing public observations and local replay remain separate from candidate publication, exact served-byte proof, browser-report ingestion and authenticated business qualification.
+**Availability model:** public. Customer UI independently published from 03daa4136de8999cc79018f33f2a22038917c621 on 25 October; all thirteen served assets and retained 7/30/365-day history were verified again at 26 October 01:57 UTC. Runtime/source asset continuity is distinct from the latest natural 01:45 observation of application c81ea94; no f946 collector observation or status redeployment is claimed. Local checks, browser-report ingestion and authenticated business qualification remain separate; see STATUS_SERVICE.md.
 
 **Surfaces:** Customer-only public browser page and existing read-only GET /api/status, /api/history and /api/e2e-status; the customer UI reads only availability/history. Bounded GitHub OIDC report ingestion remains separate from workspace membership, business REST/MCP authority and native capabilities.
 
@@ -935,7 +935,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Authenticated distribution and receipt remain unqualified until dedicated accounts and a real journey under the active document policy are qualified; that separate report scope is not fetched by the customer status page and does not degrade Cron availability
 - The common public footer derives four groups and fifteen canonical destinations from the same four-language public-footer.json as React; the lightweight status build and loopback preview generate one adapter without React or a second checked-in catalog. Its stamp exactly copies the approved transparent-outer-edge derivative, retaining printed white interior and preserving the separate opaque official source; the header retains white paper inside its actual inner blue frame and transparent exterior/perforations with ivory dark lettering, and status includes no city panorama
 - The customer page makes two initial dynamic reads, /api/status and the selected /api/history window, and no /api/e2e-status or qualification.json read; explicit refresh and visible fifteen-minute follow-up preserve bounded anonymous reads, while language/theme changes require no additional data read
-- The unchanged status API retains bounded business-coverage projection, including explicit false paid-PDF availability separately from antivirus/import/rendering; configuration never proves hosted scanning, engine execution, purchase or provider delivery
+- The unchanged status API retains bounded business-coverage projection and distinguishes configured, disabled and untested paid-PDF capability separately from antivirus/import/rendering; configuration never proves hosted scanning, engine execution, purchase or provider delivery
 
 **Contract:** [STATUS_SERVICE.md](STATUS_SERVICE.md) · **Implementation:** [apps/status/worker.ts](../apps/status/worker.ts)
 
@@ -1025,9 +1025,9 @@ Collect recipient, requested message and ceiling → choose no file, ready PDF a
 
 **Actor:** Preparer with current resource rights. **Branch:** Create.
 
-Read authoring guide or a synthetic example → create/private-copy or import DOCX content → edit schema/layout → inspect warnings/exact PDF preview → review optional AI proposal → publish an immutable version → configure independent sharing rights.
+Read authoring guide or a synthetic example → create/private-copy or import DOCX content → edit schema/layout and optionally embed a local PNG/JPEG logo or image on the selected page → save committed native property edits → inspect warnings/exact PDF preview → review optional AI proposal → publish an immutable version → configure independent sharing rights.
 
-**Failure/recovery:** DOCX is content import, not faithful Word layout reproduction. expectedRevision fences concurrent edits. AI requires configured consent and current authority before transfer/return; stale proposals do not apply. Known assistant-excluded content stops processing.
+**Failure/recovery:** DOCX is content import, not faithful Word layout reproduction. Invalid/unsupported images preserve the template and permit another choice; pending invalid property edits block saving until corrected. expectedRevision fences concurrent edits. AI requires configured consent and current authority before transfer/return; stale proposals do not apply. Known assistant-excluded content stops processing.
 
 [Detailed contract](TEMPLATES_DATA_DISTRIBUTION.md).
 
@@ -1135,7 +1135,7 @@ Read visible name/login email → open account profile for role → inspect effe
 
 **Actor:** Explicitly authorised browser Watchkeeper with verified identity. **Branch:** Operations.
 
-Open the server-secret platform address → inspect read-only overview/workshops/members/dispatches/connections/finances/infrastructure → read available provider measurements and their limits.
+Open the dedicated protected Belvédère host root, or compatible server-secret entry → complete normal Auth0 sign-in and current platform guard → inspect read-only overview/workshops/members/dispatches/connections/finances/infrastructure → read available provider measurements and their limits.
 
 **Failure/recovery:** Workshop administrator/OAuth/assistant roles grant no platform authority. Unknown costs/profit stay unavailable. Preview fixtures and hosted observations are separate.
 

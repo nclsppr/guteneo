@@ -9,7 +9,7 @@ sidebar:
 
 **Access boundary:** Current capability and authority required.
 
-Individual purchase candidate; no new subscription or recurring renewal. Runtime capability, private validator, scanner and final release qualification remain separate.
+Individual-purchase capability enabled in the 25 October release and observed on f946 main at 26 October 01:47 UTC; private hosted corpus, scanner, application configuration and actual customer purchase remain separate evidence. No new subscription or recurring renewal. See PDF_ACCESSIBILITY.md and PDF_VERIFICATION_PRICING.md.
 
 **Surfaces:** Web browser administrator purchases; REST and MCP retain current document-scoped history reads and cannot create assistant financial consent.
 

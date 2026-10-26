@@ -9,7 +9,7 @@ The required checks remain **verify** and **scanner**. This workflow builds and 
 - `vitest`: four native Vitest shards on separate runners. Files remain sequential inside each shard; process isolation, D1/R2 fixtures and all transaction/race assertions are unchanged. Only the Chromium PDF integration is excluded here and run in `security`.
 - `security`: the exact-PDF Chromium integration and **every** Node security test, including Chromium and WebKit setup-form tests. The renderer's existing narrow AppArmor allowance was moved unchanged into `scripts/ci/chromium-sandbox.mjs`; no browser sandbox is disabled.
 - `build`: builds local application, live and fictional preview assets once each, plus both existing Wrangler dry runs. Their distinct compilation flags and release manifests are retained. TypeScript runs in `checks` rather than again through `npm run build`. The two browser asset directories are passed to browser jobs as a same-run, SHA-named artifact; these are test artifacts, not approved deployment bundles.
-- `browser`: three isolated runners for desktop Chromium, mobile Chromium and iPhone WebKit. Each migrates/seeds its own D1 and retains one Playwright worker. Desktop and iPhone also exercise their corresponding public-preview project. WebKit's job installs Chromium too, because the local PDF renderer needs it. CI's explicit `GUTENEO_E2E_PREBUILT=true` starts the existing local server without rebuilding the supplied application artifact; normal local commands continue to build as before.
+- `browser`: nine isolated runners: three shards for each of desktop Chromium, mobile Chromium and iPhone WebKit. Each migrates/seeds its own D1 and retains one Playwright worker. Desktop and iPhone also partition their corresponding public-preview project across the same three shards. Belvédère runs on the first shard of each supported profile; status runs on desktop shard one. WebKit jobs install Chromium too, because the local PDF renderer needs it. CI's explicit `GUTENEO_E2E_PREBUILT=true` starts the existing local server without rebuilding the supplied application artifact; normal local commands continue to build as before.
 - `distribution-e2e`: isolated TesterArmy profiles run fourteen `strong` and two `verified_account` account, pricing and secure-distribution results against isolated local D1/R2 and the real local PDF renderer. Identity assurance is an explicit simulation fixture. Model calls, telemetry and browser traces are disabled. The strict gate requires every expected case, zero skips/flakes/model calls and a current privacy marker; artifact upload also scans the captured console output for actual fixture invitations. See [the suite guide](../tests/distribution-e2e/README.md).
 - `engineering`: installs root and its own locked dependencies, audits the independent package, checks generated content, builds the static site, runs its Chromium/WebKit browsers and verifies asset-only deployment by dry run. These checks provide no business credentials or publication authority. See the [curated pipeline guide](../apps/engineering/src/content/docs/engineering/ci-and-release.mdx).
 - `pdf-validator`: retains its separate locked dependency installation, typecheck and complete validator suite.
@@ -17,7 +17,37 @@ The required checks remain **verify** and **scanner**. This workflow builds and 
 
 `verify` uses `always()` and depends on every job above. Failed, cancelled or skipped dependencies cannot produce a successful final gate. It merges the five native Vitest blob reports without rerunning tests, checks every assertion succeeded and compares the resulting file list with all current `tests/unit/**/*.test.ts` and `tests/integration/**/*.test.ts`. Missing, duplicated and unexpected files fail. There is no fixed assertion total to update when tests are added. The matrix uses `fail-fast: false` so a failure in one shard preserves the other shards' evidence.
 
-The separate `production-e2e.yml` candidate schedules twenty-eight fixed anonymous production checks every six hours. It publishes a sanitized report to the independent status service using GitHub OIDC bound to the report hash. This is distinct from pull-request CI and the fifteen-minute HTTP monitor. It does not receive Guteneo credentials, approve a document, send a message or deploy the application. Missing, stale or version-mismatched reports remain unknown. Real authenticated production qualification is explicitly unavailable until dedicated accounts, genuine Auth0 login under the selected document policy and human-approved synthetic fixtures have been qualified; see [the monitor](PRODUCTION_BROWSER_MONITOR.md) and [account procedure](PRODUCTION_TEST_ACCOUNTS.md).
+The separate `production-e2e.yml` schedules twenty-eight fixed anonymous production checks every six hours. It publishes a sanitized report to the independent status service using GitHub OIDC bound to the report hash. This is distinct from pull-request CI and the fifteen-minute HTTP monitor. It does not receive Guteneo credentials, approve a document, send a message or deploy the application. Missing, stale or version-mismatched reports remain unknown. Real authenticated production qualification is explicitly unavailable until dedicated accounts, genuine Auth0 login under the selected document policy and human-approved synthetic fixtures have been qualified; see [the monitor](PRODUCTION_BROWSER_MONITOR.md) and [account procedure](PRODUCTION_TEST_ACCOUNTS.md).
+
+## Hosted timing qualification — 26 October 2026
+
+The earlier delay combined an oversized sequential browser job, Ubuntu package
+download latency in the engineering job, and failures that required corrected
+source to pass fresh PR and merged-main checks. Publishing the application and
+documentation is a separate, shorter step after those checks. The timing below
+measures complete GitHub runs from creation to their final completed job; it does
+not include local implementation, human authentication, merge waiting or public
+verification.
+
+| Completed main run | Source | Jobs passed | Wall time |
+| --- | --- | --- | --- |
+| [Pre-sharding baseline, 25 October](https://github.com/nclsppr/guteneo/actions/runs/40226465628) | `03daa4136de8999cc79018f33f2a22038917c621` | 16 | 25 min 49 s |
+| [Current qualification, 26 October](https://github.com/nclsppr/guteneo/actions/runs/40254684422) | `f94664ff77c532c0c6b352109f565f6768091c2b` | 22 | 12 min 22 s |
+
+The qualified main run used one attempt. Its independent inventory accounted for
+all 1,131 current browser IDs across nine matrix rows and eight suite/profile
+inventories: 1,112 passed and 19 retained their declared skip conditions, with
+zero retries, missing IDs or duplicates. Vitest covered 135 files and 2,802 passed
+assertions. These are dated observations, not fixed coverage thresholds; the
+verifiers derive future coverage from the then-current sources.
+
+The observed workflow wall time fell by about 52%. This comparison does not
+isolate runner availability, caches or network variability, and it establishes
+neither an SLA nor lower aggregate runner cost. Parallel jobs repeat setup.
+Continue comparing complete exact-source runs and retain failed-run evidence;
+never remove assertions, merge protections or report verification to meet a time
+target. An authorized delivery still checks the PR and the actual merged main
+revision before deploying, then verifies the served release independently.
 
 ## Evidence and caches
 

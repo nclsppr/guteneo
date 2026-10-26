@@ -7,8 +7,18 @@ The [visual system](belvedere/DESIGN.md) documents the implemented interface.
 The initial 25 October 2026 release from
 `03daa4136de8999cc79018f33f2a22038917c621` added `https://belvedere.guteneo.com/` as a dedicated
 protected entry. DNS/TLS, normal Auth0 sign-in and the authenticated overview were verified
-separately after publication. The subsequent V2 visual alignment is a source
-follow-up and requires its own exact-source release proof.
+separately after publication. The V2 visual alignment was then published from
+`06d92bd345c955254f71e4707d8a90d0de1a9c87`; exact public assets and configuration
+passed at **2026-10-25T22:01Z**. Native Safari subsequently traversed all seven
+sections at **22:14Z**, with normal SSO, one theme action, no layout menu and no
+business write or persistent preference change.
+
+The **26 October 01:47Z** public check on source
+`f94664ff77c532c0c6b352109f565f6768091c2b` retained the dedicated-host login
+redirect and customer/MCP/bearer refusals. It did not repeat an authenticated
+callback or section journey on that newer source. Dated browser navigation,
+provider configuration and public routing remain separate evidence; no physical
+iPhone or provider-delivery qualification follows from them.
 
 The exact additional browser callback, root logout return and web origin were
 saved in Auth0 and reread after a full dashboard reload at

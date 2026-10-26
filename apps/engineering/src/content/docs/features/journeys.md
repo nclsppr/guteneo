@@ -53,9 +53,9 @@ Collect recipient, requested message and ceiling → choose no file, ready PDF a
 
 **Actor:** Preparer with current resource rights · **Branch:** Create
 
-Read authoring guide or a synthetic example → create/private-copy or import DOCX content → edit schema/layout → inspect warnings/exact PDF preview → review optional AI proposal → publish an immutable version → configure independent sharing rights.
+Read authoring guide or a synthetic example → create/private-copy or import DOCX content → edit schema/layout and optionally embed a local PNG/JPEG logo or image on the selected page → save committed native property edits → inspect warnings/exact PDF preview → review optional AI proposal → publish an immutable version → configure independent sharing rights.
 
-**Failure and recovery:** DOCX is content import, not faithful Word layout reproduction. expectedRevision fences concurrent edits. AI requires configured consent and current authority before transfer/return; stale proposals do not apply. Known assistant-excluded content stops processing.
+**Failure and recovery:** DOCX is content import, not faithful Word layout reproduction. Invalid/unsupported images preserve the template and permit another choice; pending invalid property edits block saving until corrected. expectedRevision fences concurrent edits. AI requires configured consent and current authority before transfer/return; stale proposals do not apply. Known assistant-excluded content stops processing.
 
 ## J07: Turn data into PDFs
 
@@ -141,7 +141,7 @@ Read visible name/login email → open account profile for role → inspect effe
 
 **Actor:** Explicitly authorised browser Watchkeeper with verified identity · **Branch:** Operations
 
-Open the server-secret platform address → inspect read-only overview/workshops/members/dispatches/connections/finances/infrastructure → read available provider measurements and their limits.
+Open the dedicated protected Belvédère host root, or compatible server-secret entry → complete normal Auth0 sign-in and current platform guard → inspect read-only overview/workshops/members/dispatches/connections/finances/infrastructure → read available provider measurements and their limits.
 
 **Failure and recovery:** Workshop administrator/OAuth/assistant roles grant no platform authority. Unknown costs/profit stay unavailable. Preview fixtures and hosted observations are separate.
 

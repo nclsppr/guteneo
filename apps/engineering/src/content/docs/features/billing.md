@@ -9,7 +9,7 @@ sidebar:
 
 **Access boundary:** Partial implementation; check the stated limits.
 
-Credits, ledger and selectable consumption history implemented; commercial top-up and this candidate publication remain unqualified.
+Credits, ledger, monthly history and annual activity are published. Dated 25 October authenticated evidence restored the known September history without changing its visible balance; a fresh f946 account read and universal historical no-loss audit are not claimed. Commercial top-up remains unqualified; see WELCOME_CREDIT.md.
 
 **Surfaces:** Browser administration; shared backend ledger. No assistant billing administration.
 
