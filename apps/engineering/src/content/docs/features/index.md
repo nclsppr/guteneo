@@ -7,7 +7,7 @@ sidebar:
 
 <!-- Generated from docs/feature-map.json. Run npm run docs:build; do not edit this view. -->
 
-**23 domains · 310 capabilities · 35 journeys · 76 REST operations · 75 MCP tools.**
+**23 domains · 312 capabilities · 36 journeys · 76 REST operations · 77 MCP tools.**
 
 Follow a branch to find its behavior, access boundary and engineering guide. Use the site search to find a specific capability.
 
@@ -42,7 +42,7 @@ This is an implementation inventory, not a live availability dashboard. Current 
 
 ## Interfaces
 
-- [Assistants and API](/features/assistants/) — 23 capabilities
+- [Assistants and API](/features/assistants/) — 25 capabilities
 - [iPhone and iPad](/features/native/) — 9 capabilities
 - [Public pages, languages and appearance](/features/public/) — 17 capabilities
 

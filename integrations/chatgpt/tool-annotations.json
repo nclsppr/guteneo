@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "reviewedOn": "2026-10-25",
+  "reviewedOn": "2026-10-26",
   "sourceScope": "local_candidate",
   "policySources": [
     {
@@ -192,6 +192,35 @@
         {
           "path": "apps/api/src/template-workflow.ts",
           "symbol": "async cancelGeneration("
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "check_mcp_ui_probe_bridge",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Returns only a fixed diagnostic acknowledgement after rechecking the exact temporary activation, current OAuth membership/scope and connection revision. Normal authentication/rate accounting remains, and validated success attempts to persist this production connection's visible last-successful-use timestamp.",
+        "destructiveHint": "Creates, overwrites, transfers and deletes no document, upload grant, quota reservation, dispatch, approval, charge, outbox or provider operation. It does not change diagnostic activation.",
+        "openWorldHint": "The empty-input call is confined to the exact server-selected authenticated connection and bounded diagnostic window. It accepts no file, arbitrary address, URL or destination and initiates no document/provider request; normal fixed authentication dependencies remain.",
+        "idempotentHint": "The acknowledgement is fixed, but another successful production call may advance the persisted connection-activity timestamp and consumes ordinary HTTP rate accounting; the complete operation is not guaranteed to have no additional effect."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"check_mcp_ui_probe_bridge\""
+        },
+        {
+          "path": "apps/api/src/mcp-ui-probe.ts",
+          "symbol": "assertMcpUiProbeCurrent"
         },
         {
           "path": "apps/api/src/connection-observations.ts",
@@ -1546,6 +1575,35 @@
         {
           "path": "apps/api/src/template-workflow.ts",
           "symbol": "async listTemplates("
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "open_mcp_ui_probe",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Presents a default-off diagnostic resource after rechecking the exact temporary activation, current OAuth membership/scope and connection revision. Normal authentication/rate accounting remains, and validated success attempts to persist this production connection's visible last-successful-use timestamp.",
+        "destructiveHint": "Opens a no-content diagnostic without reading file metadata/bytes, granting upload capability or creating, replacing, approving, charging, queueing or sending business work. Picker API presence or a chooser request creates no content or business authority.",
+        "openWorldHint": "The diagnostic is restricted to one server-selected authenticated connection and bounded window. Its self-contained UI has no external dependencies or direct browser network requests and accepts no arbitrary URL or destination; normal fixed authentication and asset-binding reads remain.",
+        "idempotentHint": "Repeated opening returns the same diagnostic contract, but a validated successful production call may advance the persisted connection-activity timestamp and consumes ordinary HTTP rate accounting; the complete operation is not guaranteed to have no additional effect."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"open_mcp_ui_probe\""
+        },
+        {
+          "path": "apps/api/src/mcp-ui-probe.ts",
+          "symbol": "assertMcpUiProbeCurrent"
         },
         {
           "path": "apps/api/src/connection-observations.ts",

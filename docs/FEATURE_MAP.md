@@ -1,7 +1,7 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
 # Guteneo feature tree and developer atlas
 
-**23 domains · 310 features · 35 journeys · 76 documented REST operations · 75 MCP tools**
+**23 domains · 312 features · 36 journeys · 76 documented REST operations · 77 MCP tools**
 Updated 2026-10-26.
 
 Repository implementation inventory. Availability depends on current capabilities and authority; implementation, activation and deployed proof are distinct.
@@ -33,7 +33,7 @@ mindmap
       Workspace layout and browser appearance (22)
       PDF verification (10)
     Interfaces
-      Assistants and API (23)
+      Assistants and API (25)
       iPhone and iPad (9)
       Public pages, languages and appearance (17)
     Operations
@@ -73,7 +73,7 @@ mindmap
 
 ### Interfaces
 
-- [Assistants and API](#assistants) — 23 features; host-qualified.
+- [Assistants and API](#assistants) — 25 features; host-qualified.
 - [iPhone and iPad](#native) — 9 features; local-candidate.
 - [Public pages, languages and appearance](#public) — 17 features; public.
 
@@ -98,6 +98,8 @@ Four human workshop roles are defined by packages/contracts/src/roles.ts. The as
 | Capability | Administrator | Supervisor | Operator | Observer | Connected assistant |
 | --- | --- | --- | --- | --- | --- |
 | Download an assistant installation archive | Public access; no membership required | Public access; no membership required | Public access; no membership required | Public access; no membership required | No OAuth consent, membership, mandate or sending authority from the download |
+| Use the gated MCP Apps diagnostic | Own eligible OAuth connection only | Own eligible OAuth connection only | Own eligible OAuth connection only | Own eligible OAuth connection only | Current production OAuth + documents:read + exact server-selected connection/revision/window; no content or business authority, with normal authentication/rate/activity accounting |
+| Activate the MCP Apps diagnostic | No authority from workshop role | No authority from workshop role | No authority from workshop role | No authority from workshop role | No; distinct authorized operator controls a bounded server setting, never an assistant tool or mandate |
 | Read accessible workshop content | Yes | Yes | Yes | Yes | Current member + consented scopes + document access |
 | Import and prepare | Yes | Yes | Yes | No | Current member + scopes + qualified channel/transport |
 | Reserve/transfer a private original PDF | Own connected OAuth writer + documents:write | Own connected OAuth writer + documents:write | Own connected OAuth writer + documents:write | No | Current writer + documents:write + explicit original-file permission and exact bytes; binary capability bound to one operation/connection/expiry or one inline original up to 64 KiB through the same 0061 fences; no read/send/approval authority |
@@ -670,15 +672,17 @@ Supervisor approval/reporting options are independent and off by default. Resour
 <a id="assistants"></a>
 ### Assistants and API
 
-**Availability model:** host-qualified. Implemented contracts/packages with one dated actual Claude Desktop Free inline-original result documented in CLAUDE_QUALIFICATION.md; broader host compatibility, OAuth refresh, archive installation and marketplace publication need separate evidence.
+**Availability model:** host-qualified. Implemented contracts/packages with bounded dated Claude Desktop observations owned by CLAUDE_QUALIFICATION.md; the no-content MCP Apps probe is a default-off diagnostic candidate, not a new file transport. Broader host compatibility, OAuth refresh, archive installation and marketplace publication need separate evidence.
 
-**Surfaces:** Public/account browser guides and generated static downloads; REST/OpenAPI, MCP and host-specific packages. Archive access creates no OAuth consent, membership, mandate or channel activation; native host installation remains separately qualified.
+**Surfaces:** Public/account browser guides and generated static downloads; REST/OpenAPI, MCP and host-specific packages. The gated MCP Apps resource/tool bridge adds only a diagnostic inside a compatible host, with no file/upload/import/provider path. Archive or diagnostic access creates no OAuth consent, membership, mandate or channel activation; native host installation remains separately qualified.
 
 - Discover actual account capabilities and limits
 - REST/OpenAPI and Streamable HTTP MCP catalogues
 - Standard MCP server title, developer websiteUrl and unchanged PNG512 icons; RFC9728 resource_documentation and visible guide logo, with host-controlled display and a manual canonical image URL
 - Current host-specific OAuth and original-file transport compatibility matrix for Claude and ChatGPT web/iPhone, Cursor desktop/cloud, Grok, Copilot, Gemini and other clients; installation/catalog presence never establishes a pass
-- Import through the file transport actually supported by the host; docs/CLAUDE_QUALIFICATION.md owns the dated actual Claude Desktop Free inline-original qualification (1,268 bytes on c81, backend unchanged at f946, ready/verified after automatic continuation without reimport/rescan). Binary 10 MiB, inline originals above 64 KiB without public egress, email preparation, web/iPhone and other hosts retain separate unqualified limits
+- Import through the file transport actually supported by the host; docs/CLAUDE_QUALIFICATION.md owns the dated actual Claude Desktop Free inline-original qualification (1,268 bytes on c81, backend unchanged at f946, ready/verified after automatic continuation without reimport/rescan) and its separate same-original prepare-only follow-up. Binary 10 MiB, inline originals above 64 KiB without permitted egress, other email preparations, web/iPhone and other hosts retain separate unqualified limits
+- Optional no-content MCP Apps diagnostic is absent by default; MCP_UI_CAPABILITY_PROBE.md owns its exact-connection/revision and at-most-one-hour activation contract, current production OAuth/documents:read, versioned UI resource, strict empty bridge acknowledgement, zero external dependencies/permissions and unchanged authentication/rate/activity accounting
+- Diagnostic UI reports finite local secure-context and picker-API states using the standard bundled MCP Apps App client; a user-gesture chooser request reads no file content or metadata and proves neither existing-attachment access nor original transfer, while activation, actual host rendering and physical-device evidence remain separate
 - Document, template, dataset, generation and preparation tools
 - Browser review before sending; scopes never elevate membership rights
 - Optional bounded expert delegation for one OAuth client
@@ -700,7 +704,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 
 **Contract:** [MCP_CLIENT_COMPATIBILITY.md](MCP_CLIENT_COMPATIBILITY.md) · **Implementation:** [apps/api/src/mcp.ts](../apps/api/src/mcp.ts)
 
-**Tests:** [tests/unit/mcp-integrations.test.ts](../tests/unit/mcp-integrations.test.ts), [tests/unit/mcp-annotation-audit.test.ts](../tests/unit/mcp-annotation-audit.test.ts), [tests/integration/expert-approval.test.ts](../tests/integration/expert-approval.test.ts), [tests/unit/auth.test.ts](../tests/unit/auth.test.ts), [tests/integration/template-workflow.test.ts](../tests/integration/template-workflow.test.ts), [tests/unit/pdf-validation.test.ts](../tests/unit/pdf-validation.test.ts), [tests/security/integration-package.test.mjs](../tests/security/integration-package.test.mjs), [tests/security/claude-plugin.test.mjs](../tests/security/claude-plugin.test.mjs), [tests/security/integration-sync.test.mjs](../tests/security/integration-sync.test.mjs), [tests/security/preview-release-assets.test.mjs](../tests/security/preview-release-assets.test.mjs), [tests/preview-e2e/assistant-hub.spec.ts](../tests/preview-e2e/assistant-hub.spec.ts), [tests/e2e/assistant-hub.spec.ts](../tests/e2e/assistant-hub.spec.ts)
+**Tests:** [tests/unit/mcp-integrations.test.ts](../tests/unit/mcp-integrations.test.ts), [tests/unit/mcp-annotation-audit.test.ts](../tests/unit/mcp-annotation-audit.test.ts), [tests/unit/mcp-ui-probe.test.ts](../tests/unit/mcp-ui-probe.test.ts), [tests/security/mcp-ui-probe.test.mjs](../tests/security/mcp-ui-probe.test.mjs), [tests/integration/expert-approval.test.ts](../tests/integration/expert-approval.test.ts), [tests/unit/auth.test.ts](../tests/unit/auth.test.ts), [tests/integration/template-workflow.test.ts](../tests/integration/template-workflow.test.ts), [tests/unit/pdf-validation.test.ts](../tests/unit/pdf-validation.test.ts), [tests/security/integration-package.test.mjs](../tests/security/integration-package.test.mjs), [tests/security/claude-plugin.test.mjs](../tests/security/claude-plugin.test.mjs), [tests/security/integration-sync.test.mjs](../tests/security/integration-sync.test.mjs), [tests/security/preview-release-assets.test.mjs](../tests/security/preview-release-assets.test.mjs), [tests/preview-e2e/assistant-hub.spec.ts](../tests/preview-e2e/assistant-hub.spec.ts), [tests/e2e/assistant-hub.spec.ts](../tests/e2e/assistant-hub.spec.ts)
 
 **Documented REST operations**
 
@@ -710,6 +714,8 @@ Supervisor approval/reporting options are independent and off by default. Resour
 
 - `get_capabilities`
 - `get_expert_status`
+- `open_mcp_ui_probe`
+- `check_mcp_ui_probe_bridge`
 
 <a id="reviewer-oauth"></a>
 ### Reviewer OAuth qualification
@@ -1323,6 +1329,16 @@ Open the email footer preference link → capture and remove fragment token with
 **Failure/recovery:** Invalid/draft/cancelled capabilities reveal no address or title. GET/scanners do not write. Reopen or retry the same link after failure. Other workspaces and already received documents remain unaffected; reports cannot be downgraded and unknown provider outcomes never auto-retry. A cancellation between capability lookup and commit fails the transaction-time eligibility fences without a preference write; satisfied replays preserve the update timestamp.
 
 [Detailed contract](EMAIL_RECIPIENT_FEEDBACK.md).
+
+### J36 · Check an assistant host's MCP Apps capabilities
+
+**Actor:** Authorized operator for temporary diagnostic activation; owner of that exact existing OAuth connection, with current membership and documents:read, for the host interaction. **Branch:** Interfaces.
+
+Review the diagnostic source/package and explicit target/window → operator selects one current connection and authorization revision for at most one hour → person opens open_mcp_ui_probe in the actual host → inspect finite local render/secure-context/picker-API states → request the fixed acknowledgement through check_mcp_ui_probe_bridge → optionally request the native chooser from a user gesture and cancel without selecting a file → retain the actual visible result separately → remove activation or let the window expire.
+
+**Failure/recovery:** Absent, malformed, early, expired or mismatched activation makes tools and the resource unavailable; current OAuth, scope, membership and connection revision remain mandatory, including for a cached URI. The probe sends no host context, file metadata or file bytes and creates no document, import/upload grant, quote, approval, charge, outbox or provider operation. Existing authentication/rate/activity accounting remains. Unsupported rendering/bridge/picker is an explicit diagnostic limit, not permission to widen access or relax network/Origin policy. API presence or a chooser request proves no existing-attachment access, larger-file transfer or physical-iPhone pass.
+
+[Detailed contract](MCP_UI_CAPABILITY_PROBE.md).
 
 ## Required maintenance
 

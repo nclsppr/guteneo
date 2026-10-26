@@ -44,6 +44,8 @@ export interface AuthEnv {
   ENVIRONMENT: string;
   MODE: string;
   APP_ORIGIN: string;
+  /** Disabled unless an exact connection/revision has a bounded diagnostic window. */
+  MCP_UI_PROBE?: string;
   AUTH0_DOMAIN?: string;
   /** Browser-only alias; never enables MCP trust or changes identity keys. */
   AUTH0_BROWSER_DOMAIN?: string;

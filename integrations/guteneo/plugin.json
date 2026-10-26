@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "app-6ab05fbae9a881918dc6ee4e2f235d93",
-  "version": "1.1.4",
+  "version": "1.1.5",
   "description": "Prepare PDFs, dispatches and account-protected PDF distribution when enabled for your Guteneo account.",
   "author": {
     "name": "NICOLAS PATRICK HENRI FRANK PIEPER"
@@ -44,7 +44,7 @@
         "demo_recording_url": "https://guteneo.com/review/guteneo-chatgpt-demo-20260921.mp4"
       },
       "publication": {
-        "release_notes": "Package 1.1.4 adds individual document email through My documents with localized V2 defaults, custom {{document_url}} buttons and scoped recipient-feedback status. It retains the 75-tool MCP contract, private original-PDF import, synchronized archive guidance, browser approval, current permissions and provider gates. Local package validation establishes no hosted installation, marketplace approval or publication.",
+        "release_notes": "Package 1.1.5 adds a default-off, connection-bound MCP Apps diagnostic for host rendering, an empty tool-bridge acknowledgement and file-picker API presence. It reads no file metadata or bytes and establishes no original-PDF transfer. The ordinary 75-tool contract, individual document email through My documents, custom {{document_url}} buttons, recipient-feedback status, private import, browser approval, permissions and provider gates are retained. Local package validation establishes no actual-host qualification, marketplace approval or publication.",
         "translations": {
           "fr-FR": {
             "subtitle": "PDF, devis et suivi des envois",

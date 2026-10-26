@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 import test from "node:test";
 import { verifyRelease } from "../../scripts/verify-release.mjs";
 import site from "../../packages/contracts/src/public-site.json" with { type: "json" };
+import mcpUiProbeManifest from "../../packages/contracts/src/mcp-ui-probe-resource.json" with { type: "json" };
 
 const primary = "https://guteneo.com";
 const fallback = "https://guteneo-app.nclsppr.workers.dev";
@@ -77,6 +78,53 @@ function fixture(origin, overrides = {}) {
     },
   };
 }
+
+test("release proof requires inert diagnostic headers and still verifies every diagnostic byte", async () => {
+  const text = "<!doctype html><h1>Synthetic source text</h1>";
+  const local = {
+    ...manifest,
+    assets: [...manifest.assets, asset(mcpUiProbeManifest.path, text)],
+  };
+  const variants = [
+    {
+      type: "text/plain; charset=utf-8",
+      nosniff: "nosniff",
+      robots: "noindex, nofollow",
+      text,
+      passes: true,
+    },
+    { type: "text/html", nosniff: "nosniff", robots: "noindex", text },
+    { type: "text/plain", nosniff: "", robots: "noindex", text },
+    { type: "text/plain", nosniff: "nosniff", robots: "", text },
+    {
+      type: "text/plain",
+      nosniff: "nosniff",
+      robots: "noindex",
+      text: text + "changed",
+    },
+  ];
+  for (const value of variants) {
+    const base = fixture(primary, { remote: local });
+    const fetcher = (url, options) =>
+      url.pathname === mcpUiProbeManifest.path
+        ? Promise.resolve(
+            new Response(value.text, {
+              headers: {
+                "Content-Type": value.type,
+                "X-Content-Type-Options": value.nosniff,
+                "X-Robots-Tag": value.robots,
+              },
+            }),
+          )
+        : base.fetcher(url, options);
+    if (value.passes)
+      assert.equal(
+        (await verifyRelease(primary, local, fetcher)).publicAssetsVerified,
+        3,
+      );
+    else await assert.rejects(verifyRelease(primary, local, fetcher));
+  }
+});
 
 for (const origin of [primary, fallback]) {
   test(`release proof verifies the complete robots policy and static hashes on ${origin}`, async () => {

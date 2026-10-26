@@ -1,3 +1,4 @@
+import mcpUiProbeManifest from "../../../packages/contracts/src/mcp-ui-probe-resource.json";
 import site from "../../../packages/contracts/src/public-site.json" with { type: "json" };
 import {
   canonicalPublicAssetPath,
@@ -192,6 +193,9 @@ export async function servePublicAssets(
     });
   }
   const headers = new Headers(response.headers);
+  // The diagnostic shell is public source text; only gated MCP reads execute it.
+  if (pathname === mcpUiProbeManifest.path)
+    headers.set("Content-Type", "text/plain; charset=utf-8");
   for (const [name, value] of Object.entries(securityHeaders))
     headers.set(name, value);
   const indexable =

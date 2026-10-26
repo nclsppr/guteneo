@@ -8,7 +8,7 @@ connector picker displays these fields; if a manual logo field is available,
 use [this canonical PNG](https://guteneo.com/brand/guteneo-mark.png). Installing a
 logo or package grants no account access or approval.
 
-This directory prepares candidate **1.1.4**. Package version, application
+This directory prepares candidate **1.1.5**. Package version, application
 capabilities and MCP server identity follow the same source version; the release
 fingerprint identifies actually served code. Building an archive updates neither
 the server nor a directory. The builder also emits the dedicated
@@ -112,6 +112,13 @@ import/scanner/authority/recovery gates and adds no network-policy exception.
 Preserve explicit file permission; do not chunk, truncate or echo/log its encoded
 payload. This consumes host context and is not the 10 MiB binary route. Qualify the
 actual host before claiming transfer, including physical mobile applications.
+
+If `open_mcp_ui_probe` and `check_mcp_ui_probe_bridge` are actually exposed to this
+connection, use them only for the temporary no-content host diagnostic. Ask the
+person to cancel the picker without selecting a file. The probe reads no file
+metadata or bytes, qualifies no original attachment handoff or transfer, and
+grants no new authority. See the
+[diagnostic boundary](https://engineering.guteneo.com/integrations/mcp/#a-diagnostic-widget-is-a-separate-qualification-step).
 
 ChatGPT import requires the host's actual file contract. Guteneo fetches exact
 bytes from a direct public HTTPS source and verifies the PDF; private, expired or
