@@ -11,9 +11,10 @@ contract lives in [private PDF transport](PRIVATE_DOCUMENT_UPLOAD.md).
 ## One service, independent client capabilities
 
 Use `https://guteneo.com/mcp` with Streamable HTTP and the authorization server
-returned by protected-resource discovery. The custom-domain candidate advertises
-`https://auth.guteneo.com/`; deployment and a real authorization-code flow must
-confirm that change. Do not hardcode tenant-domain login URLs, copy another
+returned by protected-resource discovery. The [domain contract](AUTH0_CUSTOM_DOMAIN.md#independent-mcp-trust-and-discovery)
+owns issuer configuration; the observed custom-domain authorization flow is in the
+[dated Claude qualification](CLAUDE_QUALIFICATION.md#claude-desktop-free-inline-original--26-october-2026).
+Do not hardcode tenant-domain login URLs, copy another
 client's callback, extract its credentials or replace OAuth with a shared key.
 
 Every client must separately establish:
@@ -45,8 +46,8 @@ URL accessible under the existing direct HTTPS import contract, without custom
 cookies or Authorization headers. Never publish a private PDF to manufacture
 such a URL or reconstruct it from extracted text.
 
-When the runtime has the original but cannot reach Guteneo, the separate
-`import_inline_pdf` candidate accepts one exact original of at most 64 KiB through
+When the runtime has the original but cannot reach Guteneo, the
+`import_inline_pdf` tool accepts one exact original of at most 64 KiB through
 MCP. Compute its actual size/SHA-256 and canonical base64 using code, then use one
 stable-key invocation. The server validates before reserving and reuses the same
 private scanner/authority/quota pipeline. It adds no runtime egress exception and
@@ -85,16 +86,17 @@ evidence; visible artwork after installation needs an actual host check.
 ## Target matrix
 
 The entries below describe documented connection routes and the next required
-evidence. **The new private bridge has no real-client qualification yet.** Local
-API/client tests, a browser emulator and an earlier native import are separate
-evidence; none qualifies a new row. Mobile and web remain separate rows even
-when they share account configuration.
+evidence. The [dated Claude record](CLAUDE_QUALIFICATION.md#claude-desktop-free-inline-original--26-october-2026)
+owns the bounded inline result and its remaining limits. Native binary transfer
+still has no actual-client pass in that record. Local API/client tests, a browser
+emulator and an earlier native import are separate evidence; none qualifies a new
+row. Mobile and web remain separate rows even when they share account configuration.
 
 | Client                                   | Connection route                                                                                                            | Original-file candidate and remaining check                                                                                                                                                                     |
 | ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Claude on iPhone / iPad                  | Remote connector; mobile use is documented.                                                                                 | Cloud file/code access is documented. Qualify the exact original and permitted binary PUT or bounded inline original up to 64 KiB on the physical device. No desktop extension on the phone.      |
 | Claude web                               | Custom remote connector with its own OAuth flow.                                                                            | Qualify the cloud original plus native, permitted binary or bounded inline transfer. Network controls and available settings vary by account; do not assume a custom-domain allowlist on Free.                                                                           |
-| Claude Desktop / Cowork                  | Remote connector; local extensions are a distinct installation.                                                             | A real Free cloud runtime exposed the exact 1,268-byte synthetic original; its Guteneo GET failed DNS before HTTP. Binary/inline transfer and readiness remain separate. Desktop does not qualify mobile.                                                   |
+| Claude Desktop / Cowork                  | Remote connector; local extensions are a distinct installation.                                                             | See the [dated Desktop inline qualification and limits](CLAUDE_QUALIFICATION.md#claude-desktop-free-inline-original--26-october-2026). It qualifies neither Cowork nor binary upload; Desktop does not qualify mobile. |
 | Claude Code                              | Remote HTTP MCP and its normal authentication flow.                                                                         | Authorized original in its actual working environment, POSIX helper or independently qualified uploader; inspect host confirmations and file exclusions.                                                        |
 | ChatGPT web                              | Remote MCP-backed plugin and account/workspace permissions.                                                                 | Retain native file-envelope import. Feature-detect widget file APIs when a widget is actually available; otherwise require original-file runtime and allowed egress. Plugin installation alone is insufficient. |
 | ChatGPT on iPhone / iPad                 | The actual mobile app must expose the installed Guteneo connection.                                                         | Test native attachment authorization, exact file handoff and available controls on the physical app. Web, desktop, API and WebKit results do not establish this.                                                |
@@ -112,6 +114,17 @@ when they share account configuration.
 | Mistral Work                             | Custom HTTPS MCP with OAuth 2.1 and DCR.                                                                                    | Qualify usable client registration and original-file egress. Tool calls must work without resources or automatic prompt templates, which the host does not currently support.                                   |
 | Windsurf / Devin Desktop                 | Product-specific remote HTTP OAuth configuration; legacy Cascade and Devin Local differ.                                    | Qualify actual agent/runtime, selected tools and authorized original. A marketplace entry or a different agent configuration is insufficient.                                                                   |
 | Other MCP clients / API integrations     | Streamable HTTP, current OAuth discovery and per-client authorization.                                                      | Integrators provide a permitted original-file transport. API file IDs and runtime policies belong to that API; consumer app behavior cannot be inferred.                                                        |
+
+### Current Codex connection check — 26 October 2026
+
+The single read-only `get_capabilities` check returned `UNAUTHORIZED` with
+reauthentication required. No fresh cause or automatic-refresh behavior was
+established. The private record is
+`completion-audit-20261026/mcp/requirements-audit.private.json` in the
+`guteneo-mcp-private-transfer-20261025` evidence folder. This host result does not
+establish an Auth0 source defect or qualify an original-file transport. Resume
+through the existing host's normal authentication flow; no broader permission,
+new client, credential-store access or replacement shared token is implied.
 
 ## Primary host references
 

@@ -9,7 +9,7 @@ sidebar:
 
 **Access boundary:** Public reading surface.
 
-The 25 October customer UI is an undeployed candidate with local browser, locale, backend and release-safety checks. Existing public observations and local replay remain separate from candidate publication, exact served-byte proof, browser-report ingestion and authenticated business qualification.
+Customer UI independently published from 03daa4136de8999cc79018f33f2a22038917c621 on 25 October; all thirteen served assets and retained 7/30/365-day history were verified again at 26 October 01:57 UTC. Runtime/source asset continuity is distinct from the latest natural 01:45 observation of application c81ea94; no f946 collector observation or status redeployment is claimed. Local checks, browser-report ingestion and authenticated business qualification remain separate; see STATUS_SERVICE.md.
 
 **Surfaces:** Customer-only public browser page and existing read-only GET /api/status, /api/history and /api/e2e-status; the customer UI reads only availability/history. Bounded GitHub OIDC report ingestion remains separate from workspace membership, business REST/MCP authority and native capabilities.
 
@@ -32,5 +32,5 @@ The 25 October customer UI is an undeployed candidate with local browser, locale
 <li id="feature-8906748b8434">Authenticated distribution and receipt remain unqualified until dedicated accounts and a real journey under the active document policy are qualified; that separate report scope is not fetched by the customer status page and does not degrade Cron availability</li>
 <li id="feature-b21195d17e6c">The common public footer derives four groups and fifteen canonical destinations from the same four-language public-footer.json as React; the lightweight status build and loopback preview generate one adapter without React or a second checked-in catalog. Its stamp exactly copies the approved transparent-outer-edge derivative, retaining printed white interior and preserving the separate opaque official source; the header retains white paper inside its actual inner blue frame and transparent exterior/perforations with ivory dark lettering, and status includes no city panorama</li>
 <li id="feature-59e79237291c">The customer page makes two initial dynamic reads, /api/status and the selected /api/history window, and no /api/e2e-status or qualification.json read; explicit refresh and visible fifteen-minute follow-up preserve bounded anonymous reads, while language/theme changes require no additional data read</li>
-<li id="feature-1d9408865e9e">The unchanged status API retains bounded business-coverage projection, including explicit false paid-PDF availability separately from antivirus/import/rendering; configuration never proves hosted scanning, engine execution, purchase or provider delivery</li>
+<li id="feature-4f2cecfda22c">The unchanged status API retains bounded business-coverage projection and distinguishes configured, disabled and untested paid-PDF capability separately from antivirus/import/rendering; configuration never proves hosted scanning, engine execution, purchase or provider delivery</li>
 </ol>

@@ -9,7 +9,7 @@ sidebar:
 
 **Access boundary:** Restricted operator authority required.
 
-Initial dedicated-host release and authenticated overview verified from main 03daa4136de8999cc79018f33f2a22038917c621; subsequent V2 visual alignment requires its own exact-source release proof. Private read-only authority remains separate from workshop roles.
+Dedicated-host release and authenticated overview verified on 25 October from 03daa4136de8999cc79018f33f2a22038917c621; later 06d92 V2 publication and seven-section native Safari navigation are dated proof. Public routing/refusals were observed on f946 at 26 October 01:47 UTC; an authenticated journey on that newer source is not claimed. Private read-only authority remains separate from workshop roles.
 
 **Surfaces:** Private verified Watchkeeper browser only; no workshop/native/OAuth/MCP authority.
 

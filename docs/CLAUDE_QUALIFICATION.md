@@ -1,4 +1,70 @@
-# Claude.ai qualification — 17 September 2026
+# Claude client qualification
+
+## Claude Desktop Free inline original — 26 October 2026
+
+This is the authoritative dated record for the observed Claude Desktop original
+transfer. Other client surfaces use the [compatibility matrix](MCP_CLIENT_COMPATIBILITY.md);
+the [private upload contract](PRIVATE_DOCUMENT_UPLOAD.md) owns transport limits
+and recovery rules. The September browser evidence below remains historical.
+
+The private receipt `real-clients/claude-a923-custom-domain-reconnect.private.json`
+was recorded at **2026-10-26 00:10:08 UTC**. The existing Claude Desktop Free
+connector first reported an expired connection, then completed normal
+reauthentication through `https://auth.guteneo.com/u/consent` and the existing
+Claude callback. This proves that reconnect, not automatic refresh. No persistent
+tool permission, credential, network setting or expert mandate changed.
+
+The later receipt
+`real-clients/claude-desktop-inline-original-ready-proof.private.json`, recorded
+at **2026-10-26 01:02:30 UTC**, covers **Claude Desktop Free**, recorded model
+label `Sonnet5.5Medium`, with the existing remote Guteneo connector and 75 visible
+tools:
+
+| Observation | Recorded result |
+| --- | --- |
+| Selected original | One explicitly approved fictional PDF, 1,268 bytes |
+| Original SHA-256 | `7d09f8571d0ef054d42e74289bdd4ff604aa2051c569b0cf6e5ca193074d3c1c` |
+| Actual transport | One `import_inline_pdf` invocation, with **Allow once** |
+| Initial analysis | `processing`, `scanner_not_ready`; three status reads |
+| Later analysis | One additional read of the same document: `ready`, `analysis.ready`, `verified`, one page, `nextAction=continue` |
+| Stored original | Same 1,268-byte size and SHA-256 |
+| Additional effects | No second import, manual rescan, PDF-check purchase, dispatch preparation or communication |
+
+The expanded final `get_document` result was opened in the native client UI;
+`real-clients/claude-desktop-inline-final-tool-visible.private.txt` retains that
+observation. The structured size/hash fields were reported in the native UI;
+the actual status input and independent server ready text were inspected. The
+audit performed no second server download of the original. The later same-document
+read closes the initial processing state and demonstrates automatic continuation.
+The precise scanner startup duration and initial readiness cause were not measured.
+
+This test used source `c81ea94a1f60fab8776a130a7fc9d446abc72911`.
+Comparison with published source `f94664ff77c532c0c6b352109f565f6768091c2b`
+found no changes under `apps/api`, `packages/contracts` or `packages/domain`.
+That source continuity carries the bounded result forward; it is not a repeated
+host test of the later publication or a new package-installation pass.
+
+These records and `claude-inline-scanner-c81-readonly/RESULT.md` remain outside
+the repository in the private `guteneo-mcp-private-transfer-20261025` evidence
+folder. No original bytes, encoding, document/upload identifiers, capabilities,
+recipient, token or signed URL are copied into this record.
+
+### Limits of this result
+
+Only that one small inline original and its later readiness are qualified. The
+64 KiB host boundary, larger PDFs, native binary PUT up to 10 MiB, email preparation
+from the original, other models/accounts, Claude web, Cowork, Claude Code and a
+physical iPhone remain separately unqualified. No approval or send follows from
+this import.
+
+The same Free runtime exposed the original bytes but its Guteneo GET failed DNS
+before an HTTP response. Its observed settings offered package-manager egress
+without a custom-domain field; the underlying failure cause was not established.
+The inline success does not qualify runtime binary egress. Above the inline bound,
+that runtime still needs another permitted original-byte transport; no network
+policy change, reconstruction, public source URL or informal chunking is implied.
+
+## Historical Claude.ai browser qualification — 17 September 2026
 
 For the 23 October Claude Code 1.0.0 candidate, see
 [CLAUDE_PLUGIN.md](CLAUDE_PLUGIN.md). Evidence below remains historical and
@@ -15,7 +81,7 @@ The 18 September installation-button/rotating-renewal follow-up is prepared
 in [CLAUDE_RENEWAL.md](CLAUDE_RENEWAL.md). Local validation changes no remote
 state below; renewal activation/actual qualification remain pending.
 
-## Verified Auth0 configuration
+### Verified Auth0 configuration
 
 Client created/reread on **17 September 2026 at 17:48:15.683 UTC**.
 
@@ -43,7 +109,7 @@ This local check produces no signed JWT. It explains audience coverage for
 the new client without Action changes and remains separate from actual
 Claude.ai evidence below.
 
-## Observed Claude.ai installation
+### Observed Claude.ai installation
 
 In Safari with Claude.ai signed in, a **Guteneo** custom connector was added:
 
@@ -60,7 +126,7 @@ mandate.
 Auth0 return succeeded: Claude.ai displays **Disconnect** and 21 tools,
 nine read/twelve write. All **Needs approval** settings were preserved.
 
-## Actual read-only call
+### Actual read-only call
 
 A new **Sonnet 5, High** conversation received this request (English translation):
 
@@ -88,12 +154,13 @@ and that one production capability call. No `list_documents`/`list_dispatches`
 call occurred; no existing document/dispatch was read. Returned app version
 is not evidence of a new Worker deployment.
 
-## Remaining qualification
+### Qualification remaining after the September observation
 
 1. Qualify other reads/writes separately; listed tools prove no execution.
 2. Qualify expiry/reconnection/revocation. Registered client allows only
    `authorization_code`; refresh tokens remain disabled. Expiry requires
-   reconnection, not demonstrated in this qualification.
+   reconnection, not demonstrated in that September qualification. The dated
+   Desktop reconnect above does not establish automatic refresh or revocation.
 3. Qualify exact import/SHA-256 before claiming native transfer of a Claude
    PDF attachment. Authenticated Guteneo upload followed by
    `list_documents`/`get_document` remains documented but untested here.
@@ -101,8 +168,8 @@ is not evidence of a new Worker deployment.
    their own authorization. Capability success qualifies no send/file transfer.
 
 No import, render, preparation, send approval, communication or expert-mandate
-activation occurred. This note retains no token, OAuth code, code-bearing
-return URL, email address or user content. Private connector installation
+activation occurred in that September observation. This note retains no token,
+OAuth code, code-bearing return URL, email address or user content. Private connector installation
 remains separate from directory publication/skill-package installation.
 
 General setup/host limits: [LLM_SETUP.md](LLM_SETUP.md).

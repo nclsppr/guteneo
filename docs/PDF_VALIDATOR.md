@@ -1,4 +1,4 @@
-# Private PDF validator candidate
+# Private PDF validator
 
 3 October opening preparation: Nicolas authorizes private deployment and hosted
 qualification before PDF verification activation on existing credits. The updated local
@@ -10,10 +10,11 @@ is local evidence, not a hosted observation. The original synthetic proof below
 remains historical. Publication and authenticated local-only hosted probe
 commands are in [the qualification guide](../apps/pdf-validator/qualification/README.md)
 and [the current individual-purchase release contract](PDF_VERIFICATION_PRICING.md).
-The [older activation record](PDF_VERIFICATION_ACTIVATION_RUNBOOK.md) is historical;
-its retired monthly-subscription steps must not be executed.
+The [activation checklist](PDF_VERIFICATION_ACTIVATION_RUNBOOK.md) covers the
+current individual-purchase release. Retired monthly-subscription records remain
+historical and must not be executed as an activation procedure.
 
-The current candidate uses `standard-1` (0.5 vCPU / 4 GiB / 8 GB), one instance
+The deployed service uses `standard-1` (0.5 vCPU / 4 GiB / 8 GB), one instance
 and idle sleep after five seconds. The fresh 25 October native arm64 Docker run
 passed all twelve official references and all six profiles of the 100-page
 near-limit fixture. Cold health took 16.345 seconds; large-file checks took
@@ -25,9 +26,9 @@ JVM startup tuning preserves the pinned binary, rules, 384 MiB heap and all
 20/40/45-second version/process/request deadlines. The [3 October resource
 comparison](../apps/pdf-validator/tests/benchmark-fixtures/local-resource-proof.json)
 remains historical; its earlier `basic` selection does not override the fresh
-failure. [The cost model](PDF_VERIFICATION_COSTS.md) records the current candidate
-and dated assumptions separately. Actual Cloudflare x86 cold requests and
-five-second stop/wake still require the hosted run.
+failure. [The cost model](PDF_VERIFICATION_COSTS.md) records the allocation and
+dated assumptions separately. Local measurements do not replace the hosted
+qualification below or establish actual billing.
 
 The new `apps/pdf-validator/` package wraps the unmodified veraPDF Greenfield CLI
 **1.30.2**. It is independent of the antivirus and document renderer. A PDF/UA
@@ -39,8 +40,40 @@ The first hosted attempt on 25 October 2026 created the explicitly authorized
 private service. Cold engine health passed in 2960 ms, but the unchanged
 twenty-second stop check failed before any reference PDF was processed: Python
 as PID 1 ignored SIGTERM. That failed attempt does not qualify the hosted corpus
-or idle behavior. The lifecycle correction and fresh hosted suite remain release
-gates. Customer verification stays closed; no customer PDF or purchase was used.
+or idle behavior. The customer capability stayed closed during that attempt;
+no customer PDF or purchase was used.
+
+## Hosted qualification and activation — 25–26 October 2026
+
+The later hosted suite passed on source
+`03daa4136de8999cc79018f33f2a22038917c621`, qualification Worker
+`cd24ab4e-b5e4-4502-9e97-2d39ac4c6f00`, completing at
+**2026-10-25T20:03:01Z**. It processed all twelve official positive/negative
+references and six profiles of the 100-page near-limit synthetic PDF. Cold health
+took 3,818 ms, cold reference validation 13,389 ms and cold large-PDF validation
+14,125 ms. Concurrency refusal, malformed-input rejection, bounded process
+deadline and temporary-file cleanup passed. Automatic idle stop was observed at
+5,603 ms; the subsequent wake returned ready in 10,702 ms. These are observations
+of that hosted workload, not general latency or invoice guarantees.
+
+Normal deployment then closed the temporary qualification RPC. Read-only provider
+inventory at **2026-10-25T20:03:53Z** confirmed Worker
+`6a2c1017-3d6f-4629-b179-477162d486e8` at 100% traffic,
+`QUALIFICATION_ENABLED="false"`, 0.5 vCPU, 4,096 MiB memory, 8,000 MB disk and
+maximum one EU instance, with no public route, custom domain, workers.dev or
+preview endpoint. Runtime internet disablement and the five-second idle policy
+remain exact-source controls; management inventory does not expose those
+per-instance settings. Hosted stop/wake proof is separate from that inventory.
+
+The guarded application release subsequently enabled individual checks after
+migration 0060. The later **26 October 01:47Z** application observation on source
+`f94664ff77c532c0c6b352109f565f6768091c2b` retained the enabled capability and
+private bindings. Validator implementation and qualification sources are unchanged
+between these application commits. This follow-up did not rerun the engine,
+purchase a customer check or debit an account. See the
+[unit-pricing release record](PDF_VERIFICATION_PRICING.md) for the application
+configuration boundary. Preserve the earlier failed hosted attempt alongside the
+successful suite; neither result promises future readiness or full accessibility.
 
 ## Supported checks and limits
 

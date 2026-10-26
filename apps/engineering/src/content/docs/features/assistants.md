@@ -9,7 +9,7 @@ sidebar:
 
 **Access boundary:** Qualified assistant host required.
 
-Implemented contracts/packages; actual host compatibility, OAuth and marketplace publication need separate evidence.
+Implemented contracts/packages with one dated actual Claude Desktop Free inline-original result documented in CLAUDE_QUALIFICATION.md; broader host compatibility, OAuth refresh, archive installation and marketplace publication need separate evidence.
 
 **Surfaces:** Public/account browser guides and generated static downloads; REST/OpenAPI, MCP and host-specific packages. Archive access creates no OAuth consent, membership, mandate or channel activation; native host installation remains separately qualified.
 
@@ -22,7 +22,7 @@ Implemented contracts/packages; actual host compatibility, OAuth and marketplace
 <li id="feature-f379fb2177b6">REST/OpenAPI and Streamable HTTP MCP catalogues</li>
 <li id="feature-300957045488">Standard MCP server title, developer websiteUrl and unchanged PNG512 icons; RFC9728 resource_documentation and visible guide logo, with host-controlled display and a manual canonical image URL</li>
 <li id="feature-0cfb709ce060">Current host-specific OAuth and original-file transport compatibility matrix for Claude and ChatGPT web/iPhone, Cursor desktop/cloud, Grok, Copilot, Gemini and other clients; installation/catalog presence never establishes a pass</li>
-<li id="feature-a1c80dd6ef8b">Import through the file transport actually supported by the host</li>
+<li id="feature-ffd9272eecbb">Import through the file transport actually supported by the host; docs/CLAUDE_QUALIFICATION.md owns the dated actual Claude Desktop Free inline-original qualification (1,268 bytes on c81, backend unchanged at f946, ready/verified after automatic continuation without reimport/rescan). Binary 10 MiB, inline originals above 64 KiB without public egress, email preparation, web/iPhone and other hosts retain separate unqualified limits</li>
 <li id="feature-232fd93af26c">Document, template, dataset, generation and preparation tools</li>
 <li id="feature-f09d41d8e258">Browser review before sending; scopes never elevate membership rights</li>
 <li id="feature-418d10cba34a">Optional bounded expert delegation for one OAuth client</li>

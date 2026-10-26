@@ -32,24 +32,33 @@ journal, report and exact-byte relation are retained. Simulation evidence and
 credits remain separate from production.
 
 The explicit `PDF_VALIDATION_ENABLED` gate fails closed when absent or false.
-The reviewed live configuration requests activation only after hosted
-qualification; it has not yet been deployed. Migration
-`0060_pdf_validation_per_check.sql`, qualified private validation, current scanner
-readiness and a coordinated application release are prerequisites to activation.
-The user has authorized production activation during this delivery; successful
-local tests alone do not establish the hosted outcome. Follow
-[the activation runbook](PDF_VERIFICATION_ACTIVATION_RUNBOOK.md) and record the
-exact source, deployed versions, remote migration and non-sending proof.
+The authorized 25 October release applied and verified additive migration
+`0060_pdf_validation_per_check.sql`, qualified the private engine, closed its
+temporary qualification RPC and enabled the application capability. The migration
+is already applied; never replay it to refresh qualification. The
+[validator contract](PDF_VALIDATOR.md) records the dated hosted engine outcome.
+
+At **2026-10-26T01:47Z**, application source
+`f94664ff77c532c0c6b352109f565f6768091c2b`, Worker
+`379a946c-287a-4fb9-8c40-b94514270540` at 100% traffic, reported matching enabled
+individual-purchase and document-validation capabilities, the current price and
+browser-administrator purchase authority. Read-only provider inspection confirmed
+the activation flag and private validator/scanner bindings. These are deployment
+and configuration observations, not a fresh engine execution, authenticated
+customer purchase, account debit or communication. The
+[activation runbook](PDF_VERIFICATION_ACTIVATION_RUNBOOK.md) remains the procedure
+for a future authorized change; its checks do not grant purchase consent.
 
 ## Infrastructure model — prices checked 25 October 2026
 
-The configured private validator candidate is bounded to one `standard-1` container:
+The deployed private validator is bounded to one `standard-1` container:
 0.5 vCPU, 4 GiB memory and 8 GB disk. The Worker deadline is 45 seconds and configured idle
 sleep is five seconds. These are source limits, not a universal measured billed
 duration. A read-only Cloudflare inspection on 25 October found that the private
 validator Worker did not exist. The user subsequently explicitly authorized
-creation of this single private service and completion of the delivery. Actual
-hosted qualification and activation must still be observed separately.
+creation of this single private service. Later hosted qualification and normal
+deployment are recorded in [the validator contract](PDF_VALIDATOR.md); the earlier
+absence remains historical evidence, not the current service state.
 
 Cloudflare's published overage rates are USD0.000020 per active vCPU-second,
 USD0.0000025 per provisioned GiB-second and USD0.00000007 per provisioned GB-second.
@@ -70,8 +79,8 @@ The 25 October native arm64 full-corpus run passed on `standard-1`: all twelve
 official references and the 100-page near-limit PDF across all six profiles,
 with cold health at 16.345 seconds and large-PDF checks at 13.191–13.922 seconds.
 The fresh `basic` run failed a large-PDF engine deadline. These local observations
-select the candidate; actual Cloudflare x86 execution, cold requests and idle
-stop/wake still require hosted qualification. Earlier dated `basic` measurements
+selected the resource allocation. Later Cloudflare execution, cold requests and
+idle stop/wake have their own dated [hosted proof](PDF_VALIDATOR.md). Earlier `basic` measurements
 remain historical and do not override the fresh failure.
 
 This subtotal excludes Durable Objects, Workers, D1, R2, network transfer,

@@ -5,9 +5,9 @@ Its independent Worker and European D1 have no business bindings, credentials,
 documents, accounts or provider access. Both Guteneo and status still depend on
 Cloudflare. Anonymous reading grants no workshop or platform authority.
 
-## Customer interface — 25 October 2026 candidate
+## Customer interface — 25 October 2026 release
 
-The candidate replaces the Service/Verification/Operations report interface with
+The release replaces the Service/Verification/Operations report interface with
 one availability surface: a recent public-access summary, its observation time,
 three service groups and actual availability history. Public website, service
 response and access protection describe the fourteen anonymous checks below;
@@ -216,10 +216,41 @@ No customer content, recipient, dispatch identifier, token, signed URL or raw
 provider error is added to the public page. Browser preferences affect display
 only and grant no new approval, payment or sending authority.
 
-## Qualification evidence — 25 October 2026
+## Publication and qualification evidence — 25–26 October 2026
 
-This is an **undeployed local candidate**. The initial forty synthetic status
-browser checks passed across French/English/German/Luxembourgish, light/dark and
+The customer interface was independently published from source
+`03daa4136de8999cc79018f33f2a22038917c621` as status Worker
+`3d415d9e-f670-4ed3-ac8c-e91e3afd97e5` at 100% traffic. Read-only verification at
+**2026-10-25T20:16Z** matched all thirteen public asset bodies, security headers
+and unknown-route refusal. The natural collector observation at **20:15:47Z**
+passed fourteen anonymous checks; it was not forced by publication or page reads.
+The 7/30/365-day APIs retained exactly those daily windows, collection start
+`2026-10-10T02:45:05.570Z`, received/expected counts and explicit precollection
+days. Four languages, all three periods and fifteen footer destinations per
+language were verified separately from business qualification.
+
+A **26 October** source audit on application main
+`f94664ff77c532c0c6b352109f565f6768091c2b` found the status runtime, shared footer,
+configuration and status build/deploy scripts unchanged from that publication;
+all fourteen manifest entries, including generated footer and header
+configuration, matched current source bytes and hashes. The broad source scope
+also includes package/release tooling changed for the application preview, so
+its complete source fingerprint is not claimed unchanged. This source comparison
+does not by itself establish a served-status observation or new deployment.
+
+Separate public reads at **2026-10-26T01:57:49Z** confirmed the entire historical
+manifest was still served: thirteen public assets, 350,684 bytes and matching
+SHA-256/security headers. The static service still identified source `03daa413`;
+it was not redeployed as `f94664ff`. The 7/30/365-day histories retained their
+exact bucket counts and original collection start. The latest natural
+observation was fresh and `public_checks_passed`, checked at **01:45:45Z** against
+application source `c81ea94a1f60fab8776a130a7fc9d446abc72911`, before the later
+application publication. It does not claim a collector observation of `f94664ff`
+or authenticated business qualification. The application release does not
+independently publish status, and a page read does not force collection.
+
+The initial local candidate's forty synthetic status browser checks passed
+across French/English/German/Luxembourgish, light/dark and
 1440/390/320 px. They covered keyboard/touch sizing, stale/unknown/error states,
 partial history, language retention, theme synchronization and contrast.
 Three locale/shared-footer unit

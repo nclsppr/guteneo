@@ -167,8 +167,10 @@ The server contract is host neutral. The authoritative [client compatibility
 matrix](MCP_CLIENT_COMPATIBILITY.md) separates Claude iPhone/web, ChatGPT
 iPhone/web, Cursor, Grok consumer/Build/API and other clients, including native
 file envelopes, computing/filesystem access, network policy and actual evidence.
-OAuth support alone establishes no file transfer. No new private-bridge or
-physical-iPhone pass is claimed here. The supplied client requires POSIX
+OAuth support alone establishes no file transfer. The
+[dated Claude qualification](CLAUDE_QUALIFICATION.md#claude-desktop-free-inline-original--26-october-2026)
+owns the observed inline result and its limits; it does not qualify native binary
+upload or a physical iPhone. The supplied client requires POSIX
 Python 3.9+ on Linux/macOS; it deliberately refuses native Windows before reading
 or transferring data. The binary server contract can be consumed by another
 properly qualified runtime without changing the endpoint, capability or guards.
@@ -183,19 +185,16 @@ are server-to-client; roots describe paths, do not transfer bytes and are
 deprecated for new implementations. No file URI grants a remote Worker access
 to an iPhone, conversation container or local disk.
 
-On 25 October a real Claude Desktop Free conversation exposed the authorized
-synthetic original with matching 1,268-byte size and SHA-256. A subsequent public
-GET from that runtime failed name resolution before any HTTP response. Its
-Capabilities screen showed network egress enabled for common package managers
-and no custom-domain field. This is separate from its successful MCP capability
-read. The failed request alone does not establish its underlying cause.
-Anthropic documents specific-domain configuration for Team/Enterprise owners;
-do not assume that setting exists on Free or change network policy automatically.
-The inline candidate still requires an actual transfer/readiness trace before
-claiming a successful original import, and physical iPhone proof remains separate.
+The dated Claude record also owns the observed runtime network limitation.
+Do not infer permitted Guteneo egress from working MCP tools or package-manager
+access. Anthropic documents specific-domain configuration for Team/Enterprise
+owners; do not assume that setting exists on Free or change network policy
+automatically. An original above the inline bound still requires another
+permitted and qualified transport.
 
-Use a new synthetic PDF with a recorded random marker, original SHA and size in
-the real intended client. Attach it there; request exact private import without
+For a separately authorized new qualification, use a synthetic PDF with a recorded
+random marker, original SHA and size in the real intended client. Attach it there;
+request exact private import without
 reconstruction, public URL or manual Guteneo upload. Retain the actual host/tool
 trace for the actual transport (permitted binary PUT or bounded inline MCP
 invocation), matching stored bytes, the same document ID through analysis and
