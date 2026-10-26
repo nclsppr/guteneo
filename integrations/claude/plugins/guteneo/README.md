@@ -1,4 +1,4 @@
-# Guteneo for Claude Code — 1.1.3 candidate
+# Guteneo for Claude Code — 1.1.4 candidate
 
 Seven skills guide PDF diagnostics, document creation, secure distribution, email, fax and postal
 preparation through the existing Guteneo service. The package connects to

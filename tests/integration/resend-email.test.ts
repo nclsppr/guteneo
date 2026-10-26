@@ -742,8 +742,10 @@ describe("Resend domain, live bridge and populated migrations — synthetic tran
           expect(row.html).not.toContain("/share/");
           expect(row.text).not.toContain("/share/");
         }
-        expect((await domain.getDocument(ctx, row.document_id!)).sha256).toBe(
-          documentSha,
+        const source = await domain.getDocument(ctx, row.document_id!);
+        expect(source.sha256).toBe(documentSha);
+        expect(row.text).toContain(
+          locale === "fr" ? `« ${source.name} »` : `“${source.name}”`,
         );
       }
     },

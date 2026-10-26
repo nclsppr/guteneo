@@ -1039,7 +1039,7 @@ export class SecureDistributionService {
           accountDocument,
           documentTitle: row.source_name,
         });
-    const text = `${transactionalEmailText({ text: input.message, workspaceName: input.workspaceName ?? "", locale })}\n\n${deliveryText("Open in My documents", locale)}: ${invitation}\n${accountEmailInstructions(descriptor.policy.retentionDays, locale)}`;
+    const text = `${transactionalEmailText({ text: input.message, workspaceName: input.workspaceName ?? "", locale, documentTitle: row.source_name })}\n\n${deliveryText("Open in My documents", locale)}: ${invitation}\n${accountEmailInstructions(descriptor.policy.retentionDays, locale)}`;
     const dispatch = await this.domain.prepareSecureDistributionDispatch(
       ctx,
       {

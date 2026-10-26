@@ -23,8 +23,12 @@ The account invitation and preference link are distinct capabilities.
    immutable token mapping. The browser cannot select another recipient or scope.
 4. The transaction updates the existing workspace suppression, records the
    delivery's recipient response and appends idempotent lifecycle/audit events.
-   Reporting also blocks further email from that workspace. A later unsubscribe
-   replay cannot downgrade a recorded complaint.
+   Reporting also blocks further email from that workspace. Every mutation and
+   the final state read recheck the same token, tenant, recipient and eligible
+   dispatch inside that transaction; cancellation between lookup and commit
+   produces no suppression or receipt. A later unsubscribe replay cannot
+   downgrade a recorded complaint. Repeating an already satisfied response
+   preserves the dispatch's update timestamp.
 5. The sender sees **Unsubscribed** or **Email reported** separately from provider
    delivery and document access. Existing received documents/copies remain
    accessible under their original rights; no refund, deletion or revocation is

@@ -399,6 +399,50 @@ describe("secure distribution through the shared MCP transport", () => {
 });
 
 describe("document email defaults to My documents", () => {
+  it.each([
+    ["text", 16000],
+    ["html", 150000],
+  ] as const)(
+    "publishes the account %s limit and rejects overflow before preparing",
+    async (field, limit) => {
+      await connected(async (client, service) => {
+        const tools = (await client.listTools()).tools;
+        const tool = tools.find((item) => item.name === "prepare_dispatch")!;
+        const properties = tool.inputSchema.properties as Record<
+          string,
+          { description?: string }
+        >;
+        expect(properties[field].description).toContain(String(limit));
+        const request = {
+          channel: "email",
+          recipient: { email: "recipient@example.test" },
+          documentId: "doc_fixture",
+          idempotencyKey: "bounded-account-content",
+          [field]: "x".repeat(limit),
+        };
+        const accepted = await client.callTool({
+          name: "prepare_dispatch",
+          arguments: request,
+        });
+        expect(accepted.isError).not.toBe(true);
+        expect(service.prepare).toHaveBeenCalledOnce();
+        service.prepare.mockClear();
+        const rejected = await client.callTool({
+          name: "prepare_dispatch",
+          arguments: { ...request, [field]: "x".repeat(limit + 1) },
+        });
+        expect(rejected.isError).toBe(true);
+        expect(rejected.structuredContent).toMatchObject({
+          error: {
+            code: "EMAIL_CONTENT_TOO_LONG",
+            message: `Account document email ${field} must not exceed ${limit} characters.`,
+          },
+        });
+        expect(service.prepare).not.toHaveBeenCalled();
+      });
+    },
+  );
+
   it("routes generic document email into the account invitation with the exact custom HTML and no legacy preparation", async () => {
     await connected(async (client, service, after, legacyConfirm) => {
       const html =

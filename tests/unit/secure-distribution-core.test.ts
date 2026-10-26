@@ -1594,6 +1594,9 @@ describe("account document invitations", () => {
       expect(d.html).toContain("font-family:Georgia,serif");
       expect(d.html).toContain(`?lang=${locale}#/app/my-documents`);
       expect(d.html?.match(/href="[^"]*#\/app\/my-documents/g)).toHaveLength(1);
+      expect(d.text).toContain(
+        locale === "fr" ? `« ${p.view.title} »` : `“${p.view.title}”`,
+      );
       expect(d.html).not.toContain("/share/");
       expect(d.html).not.toContain("password");
     },
@@ -1735,6 +1738,93 @@ describe("recipient feedback belongs to the document delivery lifecycle", () => 
       ),
     ).resolves.toMatchObject({ status: "prepared" });
   });
+  it("rejects cancellation between capability lookup and the atomic feedback writes", async () => {
+    const f = await fixture();
+    const share = await accepted(f);
+    const token = await feedbackToken(f, share.view.dispatchId!);
+    const batch = vi.fn(async (statements: D1PreparedStatement[]) => {
+      expect(
+        (await f.domain.cancelDispatch(f.ctx, share.view.dispatchId!)).status,
+      ).toBe("cancelled");
+      return db.batch(statements);
+    });
+    const racingDb = new Proxy(db, {
+      get(target, key) {
+        if (key === "batch") return batch;
+        const value = Reflect.get(target, key);
+        return typeof value === "function" ? value.bind(target) : value;
+      },
+    });
+    const response = await request(
+      { ...f, env: { ...f.env, DB: racingDb } },
+      token,
+      "report",
+    );
+    expect(batch).toHaveBeenCalledOnce();
+    expect(response?.status).toBe(404);
+    expect(
+      await db
+        .prepare(
+          "SELECT status,recipient_feedback FROM dispatches WHERE organization_id=? AND id=?",
+        )
+        .bind(f.organizationId, share.view.dispatchId!)
+        .first(),
+    ).toEqual({ status: "cancelled", recipient_feedback: null });
+    expect(
+      await db
+        .prepare("SELECT count(*) n FROM suppressions WHERE organization_id=?")
+        .bind(f.organizationId)
+        .first(),
+    ).toEqual({ n: 0 });
+    expect(
+      await db
+        .prepare(
+          "SELECT count(*) n FROM secure_document_events WHERE organization_id=? AND distribution_id=? AND type LIKE 'recipient_email_%'",
+        )
+        .bind(f.organizationId, share.view.id)
+        .first(),
+    ).toEqual({ n: 0 });
+    expect(
+      await db
+        .prepare(
+          "SELECT count(*) n FROM audit_log WHERE organization_id=? AND resource_id=? AND action LIKE 'recipient.email_%'",
+        )
+        .bind(f.organizationId, share.view.dispatchId!)
+        .first(),
+    ).toEqual({ n: 0 });
+  });
+  it.each(["unsubscribe", "report"] as const)(
+    "preserves the lifecycle timestamp when replaying %s",
+    async (action) => {
+      const f = await fixture();
+      const share = await accepted(f);
+      const token = await feedbackToken(f, share.view.dispatchId!);
+      expect((await request(f, token, action))?.status).toBe(200);
+      const earlierResponseAt = new Date(Date.now() - 60000).toISOString();
+      await db
+        .prepare(
+          "UPDATE dispatches SET updated_at=? WHERE organization_id=? AND id=?",
+        )
+        .bind(earlierResponseAt, f.organizationId, share.view.dispatchId!)
+        .run();
+      for (const replay of [action, "unsubscribe"] as const) {
+        const response = await request(f, token, replay);
+        expect(response?.status).toBe(200);
+        expect(await response?.json()).toEqual({
+          feedback: action === "report" ? "reported" : "unsubscribed",
+          scope: "workspace",
+        });
+        expect(
+          await db
+            .prepare(
+              "SELECT updated_at FROM dispatches WHERE organization_id=? AND id=?",
+            )
+            .bind(f.organizationId, share.view.dispatchId!)
+            .first(),
+        ).toEqual({ updated_at: earlierResponseAt });
+      }
+    },
+  );
   it("rejects GET, cross-origin requests, invalid capabilities and draft previews without a preference change", async () => {
     const f = await fixture();
     const draft = await prepared(f);

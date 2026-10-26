@@ -174,3 +174,35 @@ Evidence outside Git:
 and `performance-browser-9.json`. Sources: `email-preferences.spec.ts` and
 `protected-email.spec.ts`; final behavior is defined in
 [recipient feedback](EMAIL_RECIPIENT_FEEDBACK.md).
+
+## Email reconciliation with main — 26 October 2026
+
+Candidate 1.1.4 incorporates main `f94664f`. The composer now inserts its recipient
+button using the shared final-email renderer and notification locale. Resolving a
+selected source through the existing candidate map keeps directly loaded/uploaded
+titles without an added request or an eager PDF-viewer import. No loading route,
+account authorization, recovery, polling or infrastructure configuration changes.
+
+The final focused run passes 18/18 scenarios: both composers with English UI and
+no saved account language (French notification fallback), initial selection outside
+page one, preserved custom HTML/text, and title quotation after inline upload.
+Fresh contexts use prebuilt Vite production assets on local Wrangler, intercepted
+synthetic APIs, no CPU/network throttling and browser-reported transfer sizes.
+The sample below is taken from one normal-email scenario per browser after the
+generated button is visible; the first-composer marker is an awaited field check.
+Other offline checks may run concurrently. It is not a before/after comparison.
+
+| Browser | Resources | Total transferred bytes | JavaScript bytes | FCP (ms) | First composer observed (ms) |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Desktop Chromium | 54 | 711,754 | 521,041 | 172 | 528.8000000119209 |
+| Pixel 7 Chromium emulation | 54 | 711,754 | 521,041 | 132 | 468.59999999403954 |
+| iPhone 13 WebKit emulation | 55 | 731,094 | 522,822 | 187 | 566 |
+
+No physical phone, inbox, hosted latency, CPU/memory or billed-cost qualification
+is inferred. The shared renderer retains system-font/inline-style email rendering
+without remote resources. Type/lint, source contracts and browser behavior are
+separate from the full CI and any authorized production release.
+
+Evidence: `/Users/nclsppr/Documents/Codex/Reports/guteneo-email-refresh-2026-10-26/`
+contains the final browser report, extracted metrics, three screenshots and
+package-integrity verification. Source: `tests/e2e/protected-email.spec.ts`.

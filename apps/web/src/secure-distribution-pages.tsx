@@ -444,6 +444,7 @@ function SecureDistributionComposer({ session }: { session: Session }) {
                 }}
                 documentEmail
                 documentLink
+                notificationLocale={emailLocale}
                 textLimit={16000}
               />
               <Field label={msg("Document access")}>

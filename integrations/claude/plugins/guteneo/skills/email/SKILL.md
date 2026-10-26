@@ -26,6 +26,8 @@ The marker must occupy the entire anchor href. Text, CSS, nested URLs and attach
 
 Data imports, templates and campaigns use the document-studio workflow only when exposed. This individual account invitation does not silently convert an existing campaign or a source already used by legacy dispatches. Explain source/configuration refusals without bypassing them. Installation enables no channel, credit, mandate or marketplace publication.
 
+Account invitations accept at most 16,000 characters of supplied text and 150,000 characters of supplied HTML. Read the current account-delivery content limits in get_capabilities and the tool field descriptions. An EMAIL_CONTENT_TOO_LONG response identifies the field and bound before preparation; ask for a shorter version without silently truncating the supplied content. Other delivery modes retain their existing bounds.
+
 Document emails include recipient controls in their footer. Read `recipientFeedback` (`unsubscribed` or `reported`) separately from delivery status. These link-holder responses block future email from the originating workspace; they do not revoke document access or prove identity. Do not exercise recipient controls, expose their URLs or lift a suppression through assistant tools.
 
 ## Private original PDF transfer

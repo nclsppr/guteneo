@@ -58,21 +58,29 @@ coverage. Do not infer that every host/model exposes every tool in every session
 
 ## Document-email composition
 
-`prepare_dispatch` accepts an accessible ready PDF without requiring invented
-subject/body text: the shared domain supplies missing document-message fields from
-the authenticated workspace and sender locale. Message-only email keeps its required
-content. The email capability's `content` hints and the packaged `email` workflow
-explain document defaults, branded rendering and the protected-link
-`{{document_url}}` anchor marker; the [delivery guide](/workflows/delivery-channels/)
-owns that technical contract. A marker is authoring syntax, not an access secret.
+`prepare_dispatch` with an accessible ready PDF defaults to **My documents** and
+returns a secure distribution. Reuse its ID through rendering, open the browser
+approval URL, then call `confirm_secure_distribution` only after recorded approval.
+This invitation requires browser approval even when the connection has an expert
+mandate. The recipient uses the matching verified account without a separate
+document password. Explicit attachments, message-only email and historical
+password-link modes retain their ordinary dispatch approval paths.
+
+Missing document-message fields use the authenticated workspace and sender locale.
+The email capability's `content.accountDelivery.contentLimits` and field descriptions
+expose the supplied text/HTML bounds. `EMAIL_CONTENT_TOO_LONG` identifies overflow
+before preparation; do not silently truncate the author's content. Message-only
+email keeps its required content. The packaged `email` workflow explains V2
+defaults and the `{{document_url}}` anchor marker; the
+[delivery guide](/workflows/delivery-channels/) owns the technical contract.
+A marker is authoring syntax, not an access secret.
 
 Preparation/status/list summaries exclude final HTML and private hosting values.
-Use the browser review or an already-authorized expert review for exact final
-content, including server defaults; do not reconstruct it from a workspace name.
-Existing expert review reads final HTML/text under its own authority. None of these
-paths reveals the password through MCP, creates consent, activates a mandate or
-resends an uncertain operation. Keep portable instructions and generated host
-copies aligned when extending this contract.
+Review the exact invitation in the authenticated browser; do not reconstruct it
+from a workspace name. Existing expert review remains available for its authorized
+legacy dispatch paths. No tool reveals a legacy password, creates recipient
+consent, activates a mandate or resends an uncertain operation. Keep portable
+instructions, listing copy, generated host copies and the versioned archive aligned.
 
 ## Files must actually reach the service
 

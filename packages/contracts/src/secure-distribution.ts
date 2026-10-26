@@ -23,6 +23,8 @@ export const SECURE_DISTRIBUTION_LIMITS = {
   listLimit: 50,
   draftHours: 24,
   auditActivityRetentionDays: 90,
+  messageCharacters: 16000,
+  htmlCharacters: 150000,
 } as const;
 
 export const securePolicySchema = z
@@ -65,14 +67,14 @@ export const secureDistributionInputSchema = z
       ),
     message: z
       .string()
-      .max(16000)
+      .max(SECURE_DISTRIBUTION_LIMITS.messageCharacters)
       .optional()
       .describe(
         "Optional plain-text message. Without content, Guteneo introduces the authenticated workspace.",
       ),
     html: z
       .string()
-      .max(150000)
+      .max(SECURE_DISTRIBUTION_LIMITS.htmlCharacters)
       .optional()
       .describe(
         "Optional custom HTML with safe inline email styles. Use {{document_url}} as an anchor's exact href to place the My documents button. Never supply a private URL. Without HTML, Guteneo uses its V2 email template.",

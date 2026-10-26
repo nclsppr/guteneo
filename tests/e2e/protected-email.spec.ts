@@ -5,7 +5,10 @@ import {
   documentEmailDefaults,
   renderTransactionalEmail,
 } from "../../packages/contracts/src/email-template";
-import { secureDistributionQuote } from "../../packages/contracts/src/secure-distribution";
+import {
+  secureDistributionCatalog,
+  secureDistributionQuote,
+} from "../../packages/contracts/src/secure-distribution";
 
 const sampleDocument = {
   id: "document_protected_ui",
@@ -55,6 +58,7 @@ async function fixture(
     secondPage?: boolean;
     unavailable?: boolean;
     preferredLocale?: "fr" | "en" | "de" | "lb";
+    omitDocumentFromList?: boolean;
   } = {},
 ) {
   const writes: { path: string; body: Record<string, unknown> }[] = [];
@@ -78,6 +82,19 @@ async function fixture(
     }
     if (request.method() !== "GET") {
       writes.push({ path, body: request.postDataJSON() });
+    }
+    if (path === "/api/secure-distributions/catalog") {
+      await route.fulfill({
+        json: secureDistributionCatalog("verified_account"),
+      });
+      return;
+    }
+    if (
+      path === `/api/documents/${sampleDocument.id}` &&
+      request.method() === "GET"
+    ) {
+      await route.fulfill({ json: sampleDocument });
+      return;
     }
     if (path.startsWith("/api/secure-distributions")) {
       const policy = {
@@ -130,7 +147,10 @@ async function fixture(
         : path === "/api/capabilities"
           ? {}
           : path === "/api/documents"
-            ? { items: [sampleDocument], nextCursor: null }
+            ? {
+                items: pdfOptions.omitDocumentFromList ? [] : [sampleDocument],
+                nextCursor: null,
+              }
             : path === "/api/senders"
               ? {
                   items: [
@@ -154,7 +174,12 @@ async function fixture(
                     ? { revoked: true }
                     : path === "/api/dispatches"
                       ? dispatch
-                      : { dispatch, attempts: [], events: [], approval: null };
+                      : {
+                          dispatch,
+                          attempts: [],
+                          events: [],
+                          approval: null,
+                        };
     await route.fulfill({
       contentType: "application/json",
       body: JSON.stringify(body),
@@ -611,25 +636,131 @@ for (const locale of ["fr", "en", "de", "lb"] as const) {
 
 test.describe("unsaved account language", () => {
   test.use({ locale: "en-GB" });
-  test("document draft copy follows the server French fallback when account language is unset", async ({
-    page,
-  }) => {
-    await fixture(page);
-    await page.goto("/?appearance=v2&lang=en#/app/prepare?channel=email");
-    await expect(page.locator("html")).toHaveAttribute("lang", "en");
-    await page
-      .locator(".prepare-fields > .field select")
-      .first()
-      .selectOption(sampleDocument.id);
-    await expect(
-      page.getByLabel("Subject (optional)", { exact: true }),
-    ).toBeVisible();
-    await expect(
-      page.frameLocator(".email-preview").locator("body"),
-    ).toContainText(
-      "Atelier de contrôle vous a adressé un document dans Guteneo.",
-    );
+  for (const composer of ["email", "secure-share"] as const) {
+    test(`${composer} draft and generated button follow the French fallback without changing the English UI`, async ({
+      page,
+    }, testInfo) => {
+      const writes = await fixture(page);
+      await page.goto(
+        `/?appearance=v2&lang=en#${composer === "email" ? "/app/prepare?channel=email" : "/app/secure-distributions/new"}`,
+      );
+      await expect(page.locator("html")).toHaveAttribute("lang", "en");
+      const documentSelect = page.getByLabel(
+        composer === "email" ? "PDF attachment (optional)" : "Verified PDF",
+        { exact: true },
+      );
+      await expect(documentSelect).toBeVisible();
+      const firstVisibleComposerMs = await page.evaluate(() =>
+        performance.now(),
+      );
+      await documentSelect.selectOption(sampleDocument.id);
+      await expect(
+        page.getByLabel("Subject (optional)", { exact: true }),
+      ).toBeVisible();
+      await expect(
+        page.frameLocator(".email-preview").locator("body"),
+      ).toContainText(
+        "Atelier de contrôle vous a adressé un document dans Guteneo.",
+      );
+      await page.locator(".email-advanced summary").click();
+      if (composer === "email")
+        await page
+          .getByLabel("HTML version", { exact: true })
+          .fill(`<blockquote>« ${sampleDocument.name} »</blockquote>`);
+      await page
+        .getByRole("button", { name: "Insert a document button", exact: true })
+        .click();
+      const customHtml = await page
+        .getByLabel("HTML version", { exact: true })
+        .inputValue();
+      expect(customHtml).toContain(">Ouvrir dans Mes documents</a>");
+      expect(customHtml).toContain('href="{{document_url}}"');
+      expect(customHtml).not.toContain("Open in My documents");
+      await expect(
+        page.frameLocator(".email-preview").getByRole("link", {
+          name: "Ouvrir dans Mes documents",
+          exact: true,
+        }),
+      ).toHaveAttribute("href", "#");
+      await expect(page.locator("html")).toHaveAttribute("lang", "en");
+      if (composer === "email") {
+        await expect(
+          page.frameLocator(".email-preview").locator("blockquote"),
+        ).toHaveText(`« ${sampleDocument.name} »`);
+        const metrics = await page.evaluate(async () => {
+          await document.fonts.ready;
+          const resources = performance.getEntriesByType(
+            "resource",
+          ) as PerformanceResourceTiming[];
+          return {
+            resourceCount: resources.length,
+            transferredBytes: resources.reduce(
+              (sum, entry) => sum + entry.transferSize,
+              0,
+            ),
+            javascriptTransferredBytes: resources
+              .filter((entry) => new URL(entry.name).pathname.endsWith(".js"))
+              .reduce((sum, entry) => sum + entry.transferSize, 0),
+            firstContentfulPaintMs:
+              performance.getEntriesByName("first-contentful-paint")[0]
+                ?.startTime ?? null,
+          };
+        });
+        await testInfo.attach("localized-account-email-performance", {
+          body: JSON.stringify({ ...metrics, firstVisibleComposerMs }, null, 2),
+          contentType: "application/json",
+        });
+        const screenshot = testInfo.outputPath("localized-account-button.png");
+        await page.screenshot({ path: screenshot, fullPage: true });
+        await testInfo.attach("localized-account-button", {
+          path: screenshot,
+          contentType: "image/png",
+        });
+      }
+      await page
+        .getByLabel(
+          composer === "email" ? "Email address" : "Recipient email address",
+          { exact: true },
+        )
+        .fill("recipient@example.invalid");
+      await page
+        .getByRole("button", {
+          name:
+            composer === "email"
+              ? "Check and prepare"
+              : "Prepare and review share",
+          exact: true,
+        })
+        .click();
+      await expect(
+        page.getByRole("heading", { name: sampleDocument.name }),
+      ).toBeVisible();
+      expect(writes[0]?.path).toBe("/api/secure-distributions");
+      expect(writes[0]?.body).toMatchObject({
+        html: customHtml,
+        notificationLocale: "fr",
+      });
+    });
+  }
+});
+
+test("the draft quotes an initial document outside the first list page", async ({
+  page,
+}) => {
+  const writes = await fixture(page, {
+    omitDocumentFromList: true,
+    preferredLocale: "fr",
   });
+  await page.goto(
+    `/?appearance=v2&lang=fr#/app/prepare?channel=email&document=${sampleDocument.id}`,
+  );
+  await expect(
+    page.getByLabel("Pièce jointe PDF (facultative)", { exact: true }),
+  ).toHaveValue(sampleDocument.id);
+  await expect(
+    page.frameLocator(".email-preview").locator("blockquote"),
+  ).toHaveText(`« ${sampleDocument.name} »`);
+  expect(writes).toEqual([]);
 });
 
 test("account custom HTML inserts an editable styled button and preserves its submitted markup", async ({
@@ -654,13 +785,13 @@ test("account custom HTML inserts an editable styled button and preserves its su
     .getByLabel("Version HTML", { exact: true })
     .inputValue();
   expect(html).toContain('href="{{document_url}}"');
-  expect(html).toContain("background-color: #2450db");
+  expect(html).toMatch(/background-color:\s*#2450db/);
   expect(html).toContain('<h2 style="color: #2450db;">Votre document</h2>');
   expect(html).not.toContain("Plain-text alternative only.");
   await expect(
     page
       .frameLocator(".email-preview")
-      .getByRole("link", { name: "Consulter le document" }),
+      .getByRole("link", { name: "Ouvrir dans Mes documents" }),
   ).toHaveAttribute("href", "#");
   await expect(page.getByLabel("Version HTML", { exact: true })).toBeFocused();
   await expect(
@@ -711,7 +842,7 @@ test("inserting the first document button preserves the written message in HTML"
   await expect(
     page
       .frameLocator(".email-preview")
-      .getByRole("link", { name: "Consulter le document" }),
+      .getByRole("link", { name: "Ouvrir dans Mes documents" }),
   ).toHaveCount(1);
   await page
     .getByLabel("Adresse e-mail", { exact: true })
@@ -738,7 +869,9 @@ test("account delivery is the default and binds its priced access period", async
   ).toHaveValue("my_documents");
   await expect(page.getByLabel("Durée d’accès")).toHaveValue("7");
   await page.getByLabel("Durée d’accès").selectOption("30");
-  await expect(page.getByText(/Aucun mot de passe de document à transmettre/)).toBeVisible();
+  await expect(
+    page.getByText(/Aucun mot de passe de document à transmettre/),
+  ).toBeVisible();
   const metrics = await page.evaluate(async () => {
     await document.fonts.ready;
     const resources = performance.getEntriesByType(
@@ -863,6 +996,9 @@ test("inline PDF import stays in the email workflow and waits for verification",
   await expect(page.getByLabel("Pièce jointe PDF (facultative)")).toHaveValue(
     sampleDocument.id,
   );
+  await expect(
+    page.frameLocator(".email-preview").locator("blockquote"),
+  ).toHaveText(`« ${sampleDocument.name} »`);
   await expect(page).toHaveURL(/#\/app\/prepare\?channel=email$/);
 });
 

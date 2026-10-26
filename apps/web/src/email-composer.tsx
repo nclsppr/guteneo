@@ -1,6 +1,12 @@
 import { msg, msgIn } from "./messages";
 import { Field } from "./components";
 import { useId, useRef } from "react";
+import { deliveryText } from "../../../packages/contracts/src/delivery-messages";
+import { renderDocumentEmailButton } from "../../../packages/contracts/src/email-template";
+import {
+  defaultLocale,
+  type SupportedLocale,
+} from "../../../packages/contracts/src/locale";
 
 export function emailDraftHtml(text: string, customHtml: string) {
   // The real document URL exists only after server preparation. Keep this
@@ -23,6 +29,7 @@ export function EmailComposer({
   disabled,
   documentEmail = false,
   documentLink = false,
+  notificationLocale = defaultLocale,
   textLimit = 150000,
 }: {
   text: string;
@@ -32,6 +39,7 @@ export function EmailComposer({
   disabled?: boolean;
   documentEmail?: boolean;
   documentLink?: boolean;
+  notificationLocale?: SupportedLocale;
   textLimit?: number;
 }) {
   const linkHintId = useId();
@@ -42,7 +50,10 @@ export function EmailComposer({
       : text.trim()
         ? emailDraftHtml(text, "")
         : "";
-    const button = `<p><a href="{{document_url}}" style="display: inline-block; background-color: #2450db; color: #ffffff; padding: 14px 22px; border-radius: 7px; text-decoration: none; font-weight: 600;">${msg("View the document")}</a></p>`;
+    const button = renderDocumentEmailButton(
+      "{{document_url}}",
+      deliveryText("Open in My documents", notificationLocale),
+    );
     onHtml(`${initialHtml ? `${initialHtml}\n\n` : ""}${button}`);
     htmlInput.current?.focus();
   }

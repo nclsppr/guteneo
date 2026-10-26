@@ -1337,6 +1337,7 @@ export function PrepareDispatch({
                 documentLink={
                   !!documentId && emailDeliveryMode === "my_documents"
                 }
+                notificationLocale={emailLocale}
               />
             </>
           ) : (
@@ -1639,9 +1640,7 @@ export function PrepareDispatch({
                               emailLocale,
                             ).text,
                         workspaceName,
-                        documentTitle: documents.data?.items.find(
-                          (item) => item.id === documentId,
-                        )?.name,
+                        documentTitle: candidates.get(documentId)?.name,
                         preferencesUrl: "#",
                         locale: emailLocale,
                         ...(emailDeliveryMode === "my_documents"

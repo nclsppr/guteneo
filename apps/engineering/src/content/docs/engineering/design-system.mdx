@@ -361,4 +361,13 @@ The design detector records file-scoped `overused-font` exceptions for Arial in
 Reassess those exceptions if either renderer gains a different font-loading
 contract. A source scan or local preview does not establish mailbox compatibility.
 
+Generated recipient buttons reuse the final template's shared button renderer,
+including its explicit email-safe font, spacing and corner geometry. Their labels
+follow the notification locale rather than the current interface language;
+authored HTML is preserved. Resolve the selected
+document from the full candidate set, including a directly loaded or uploaded PDF,
+so pagination cannot remove the title quotation from its draft preview. The plain-
+text alternative includes the same frozen title. Exercise the unsaved-language
+fallback and a source outside the first list page when changing this editor.
+
 Document titles use an escaped semantic quotation. The footer uses two small underlined service links; the preference page reuses public chrome and shows an explicit action before any write. Account/document status remains separate from a recipient email response. The fragment capability is never copied into public navigation.

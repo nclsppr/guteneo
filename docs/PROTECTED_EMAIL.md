@@ -67,7 +67,20 @@ approved content. Historical policies and request hashes remain compatible.
 The browser shows the final rendered invitation; standard MCP/REST summaries
 exclude private HTML/URLs. Draft previews contain only a harmless `#` href.
 The HTML editor can insert a styled marker button while preserving supplied text
-and markup. Preview is never approval or provider-rendering evidence.
+and markup. It reuses the final email's shared button renderer. Its generated
+label uses the notification language, including
+the French fallback when the account has no saved language, independently of the
+interface language. A directly selected or uploaded document keeps its quoted
+title in the draft even when it is absent from the first list page. The default
+plain-text alternative quotes the same document title and preserves the supplied
+message. Preview is never approval or provider-rendering evidence.
+
+Account invitations accept at most 16,000 characters of supplied message/text
+and 150,000 characters of supplied HTML. The shared secure-distribution limits
+own these bounds; MCP capability metadata and preparation descriptions expose
+them. Generic MCP account preparation returns `EMAIL_CONTENT_TOO_LONG` naming
+the field and bound before rendering. Other delivery modes retain their existing
+limits, and final sanitized messages still pass the dispatch byte-size guard.
 
 The source candidate requires current unit, browser, runtime and documentation
 checks. Publication, Auth0 signup/callback and actual received-email rendering

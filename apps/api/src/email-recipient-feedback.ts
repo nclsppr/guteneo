@@ -72,42 +72,78 @@ export async function handleEmailRecipientFeedback(
   const feedback = input.action === "report" ? "reported" : "unsubscribed";
   const reason = input.action === "report" ? "complaint" : "unsubscribe";
   const now = new Date().toISOString();
-  await env.DB.batch([
+  const eligible = `EXISTS(
+    SELECT 1 FROM email_recipient_feedback_tokens t
+    JOIN dispatches d ON d.organization_id=t.organization_id AND d.id=t.dispatch_id
+    WHERE t.token_hash=? AND d.organization_id=? AND d.id=?
+    AND json_extract(d.recipient_json,'$.email')=?
+    AND d.channel='email' AND d.status NOT IN ('prepared','cancelled')
+  )`;
+  const eligibilityValues = [
+    tokenHash,
+    source.organization_id,
+    source.id,
+    source.email,
+  ];
+  const results = await env.DB.batch([
     env.DB.prepare(
-      `INSERT INTO suppressions(organization_id,email,reason,created_at) VALUES(?,?,?,?)
-      ON CONFLICT(organization_id,email) DO UPDATE SET reason=CASE WHEN suppressions.reason='complaint' THEN 'complaint' ELSE excluded.reason END`,
-    ).bind(source.organization_id, source.email, reason, now),
+      `INSERT INTO suppressions(organization_id,email,reason,created_at)
+      SELECT ?,?,?,? WHERE ${eligible}
+      ON CONFLICT(organization_id,email) DO UPDATE SET reason=excluded.reason
+      WHERE suppressions.reason<>'complaint' AND suppressions.reason<>excluded.reason`,
+    ).bind(
+      source.organization_id,
+      source.email,
+      reason,
+      now,
+      ...eligibilityValues,
+    ),
     env.DB.prepare(
-      "UPDATE dispatches SET recipient_feedback=CASE WHEN recipient_feedback='reported' THEN 'reported' ELSE ? END,updated_at=? WHERE organization_id=? AND id=?",
-    ).bind(feedback, now, source.organization_id, source.id),
+      `UPDATE dispatches SET recipient_feedback=?,updated_at=?
+      WHERE organization_id=? AND id=? AND ${eligible}
+      AND (recipient_feedback IS NULL OR (recipient_feedback='unsubscribed' AND ?='reported'))`,
+    ).bind(
+      feedback,
+      now,
+      source.organization_id,
+      source.id,
+      ...eligibilityValues,
+      feedback,
+    ),
     env.DB.prepare(
       `INSERT OR IGNORE INTO secure_document_events(id,organization_id,distribution_id,type,provenance,created_at)
-      SELECT ?,organization_id,id,?,'server',? FROM secure_distributions WHERE organization_id=? AND dispatch_id=?`,
+      SELECT ?,organization_id,id,?,'server',? FROM secure_distributions
+      WHERE organization_id=? AND dispatch_id=? AND ${eligible}`,
     ).bind(
       `email_feedback_${source.id}_${feedback}`,
       `recipient_email_${feedback}`,
       now,
       source.organization_id,
       source.id,
+      ...eligibilityValues,
     ),
     env.DB.prepare(
       `INSERT OR IGNORE INTO audit_log(id,organization_id,user_id,action,resource_id,details_json,created_at)
-      VALUES(?,?,NULL,?,?,'{"source":"recipient_email_link"}',?)`,
+      SELECT ?,?,NULL,?,?,'{"source":"recipient_email_link"}',? WHERE ${eligible}`,
     ).bind(
       `email_feedback_${source.id}_${feedback}`,
       source.organization_id,
       `recipient.email_${feedback}`,
       source.id,
       now,
+      ...eligibilityValues,
     ),
+    env.DB.prepare(
+      `SELECT recipient_feedback feedback FROM dispatches
+      WHERE organization_id=? AND id=? AND ${eligible}`,
+    ).bind(source.organization_id, source.id, ...eligibilityValues),
   ]);
-  const current = await env.DB.prepare(
-    "SELECT recipient_feedback feedback FROM dispatches WHERE organization_id=? AND id=?",
-  )
-    .bind(source.organization_id, source.id)
-    .first<{ feedback: string }>();
+  const current = results[4].results[0] as
+    | { feedback: "unsubscribed" | "reported" }
+    | undefined;
+  if (!current) return fail(404, "EMAIL_PREFERENCE_UNAVAILABLE");
   return Response.json(
-    { feedback: current?.feedback ?? feedback, scope: "workspace" },
+    { feedback: current.feedback, scope: "workspace" },
     { headers },
   );
 }

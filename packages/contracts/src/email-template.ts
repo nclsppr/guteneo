@@ -58,8 +58,15 @@ export function transactionalEmailText(input: {
   text: string;
   workspaceName: string;
   locale: SupportedLocale;
+  documentTitle?: string;
 }): string {
-  return `guteneo · ${workspaceLabel(input.workspaceName, input.locale)}\n\n${input.text}`;
+  const title = input.documentTitle?.trim()
+    ? `${documentQuotation(input.documentTitle, input.locale)}\n\n`
+    : "";
+  return `guteneo · ${workspaceLabel(input.workspaceName, input.locale)}\n\n${title}${input.text}`;
+}
+function documentQuotation(title: string, locale: SupportedLocale): string {
+  return locale === "fr" ? `« ${title} »` : `“${title}”`;
 }
 export function protectedEmailInstructions(
   expiresAt: string,
@@ -76,9 +83,9 @@ export function renderProtectedEmailFooter(
   locale: SupportedLocale,
   includeLink = true,
 ): string {
-  return `${includeLink ? documentButton(document.url, deliveryText("View the protected document", locale)) : ""}<p style="margin:20px 0 0;color:#555963;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.6">${escape(protectedEmailInstructions(document.expiresAt, locale))}</p>`;
+  return `${includeLink ? renderDocumentEmailButton(document.url, deliveryText("View the protected document", locale)) : ""}<p style="margin:20px 0 0;color:#555963;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.6">${escape(protectedEmailInstructions(document.expiresAt, locale))}</p>`;
 }
-function documentButton(url: string, label: string): string {
+export function renderDocumentEmailButton(url: string, label: string): string {
   return `<p style="margin:28px 0"><a href="${escape(url)}" style="display:inline-block;background-color:#2450db;color:#ffffff;font-family:Arial,Helvetica,sans-serif;font-size:16px;font-weight:600;line-height:1.5;text-decoration:none;padding:14px 24px;border:1px solid #2450db;border-radius:7px">${escape(label)}</a></p>`;
 }
 export function accountEmailInstructions(
@@ -92,7 +99,7 @@ export function renderAccountEmailFooter(
   locale: SupportedLocale,
   includeLink = true,
 ): string {
-  return `${includeLink ? documentButton(document.url, deliveryText("Open in My documents", locale)) : ""}<p style="margin:24px 0 0;color:#555963;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.6">${escape(accountEmailInstructions(document.retentionDays, locale)).replace(/\n/g, "<br>")}</p>`;
+  return `${includeLink ? renderDocumentEmailButton(document.url, deliveryText("Open in My documents", locale)) : ""}<p style="margin:24px 0 0;color:#555963;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.6">${escape(accountEmailInstructions(document.retentionDays, locale)).replace(/\n/g, "<br>")}</p>`;
 }
 export function renderEmailServiceFooter(
   locale: SupportedLocale,
@@ -123,7 +130,7 @@ export function renderTransactionalEmail(input: {
       ? renderProtectedEmailFooter(input.protectedDocument, input.locale)
       : "";
   const title = input.documentTitle?.trim()
-    ? `<blockquote style="margin:0 0 24px;padding:12px 18px;border-left:3px solid #2450db;color:#181b22;font-family:Georgia,serif;font-size:23px;line-height:1.4;overflow-wrap:anywhere">${escape(input.locale === "fr" ? `« ${input.documentTitle} »` : `“${input.documentTitle}”`)}</blockquote>`
+    ? `<blockquote style="margin:0 0 24px;padding:12px 18px;border-left:3px solid #2450db;color:#181b22;font-family:Georgia,serif;font-size:23px;line-height:1.4;overflow-wrap:anywhere">${escape(documentQuotation(input.documentTitle, input.locale))}</blockquote>`
     : "";
   const sender = workspaceLabel(input.workspaceName, input.locale);
   const signature = input.text.includes(sender)

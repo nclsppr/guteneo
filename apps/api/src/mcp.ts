@@ -89,6 +89,7 @@ import {
   type PrivateUploadView,
 } from "./document-upload";
 import {
+  SECURE_DISTRIBUTION_LIMITS,
   secureDistributionInputSchema,
   securePolicySchema,
   type SecureDistributionInput,
@@ -2288,6 +2289,16 @@ export function createGuteneoMcpServer(
               "INVALID_INPUT",
               "Use an individual transactional invitation and retentionDays for account delivery.",
             );
+          for (const [field, limit] of [
+            ["text", SECURE_DISTRIBUTION_LIMITS.messageCharacters],
+            ["html", SECURE_DISTRIBUTION_LIMITS.htmlCharacters],
+          ] as const) {
+            if ((input[field]?.length ?? 0) > limit)
+              throw new DomainError(
+                "EMAIL_CONTENT_TOO_LONG",
+                `Account document email ${field} must not exceed ${limit} characters.`,
+              );
+          }
           return secureDistributionSummary(
             await services.secureDistribution.prepare(
               identity,

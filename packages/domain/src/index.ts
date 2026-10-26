@@ -1131,6 +1131,7 @@ export class DomainService {
           text: text!,
           workspaceName: organization.name,
           locale: emailLocale,
+          documentTitle: document.name,
         });
       } else {
         html = `<p>${text!.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, "<br>")}</p>`;
