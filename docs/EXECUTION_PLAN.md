@@ -17,7 +17,7 @@ its expected digest, which establishes neither automatic MCP attachment handoff
 nor fresh runtime egress. The selected window has closed with the flag absent;
 general activation remains pending.
 
-The 1.1.7 source follow-up preserves accepted receipts after late bridge errors,
+The 1.1.8 source follow-up preserves accepted receipts after late bridge errors,
 adds standard text alongside structured context and provides an explicit Use in
 conversation action for the same four-key receipt. Import sends no automatic
 message or model turn. The late-error source defect is not a proven cause of the

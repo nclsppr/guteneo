@@ -171,6 +171,58 @@ async function call(
 }
 
 describe("distributable LLM integrations", () => {
+  it("describes both existing JSON dataset root shapes without rewriting their original data", async () => {
+    const importDataset = vi.fn(async () => {
+      throw new DomainError(
+        "SYNTHETIC_REACHED",
+        "Synthetic validation boundary",
+      );
+    });
+    const inputs = [
+      [{ customer: { name: "Example" }, count: 2, enabled: true, note: null }],
+      { Customers: [{ customer: "Example" }], Items: [{ amount: "1.25" }] },
+    ];
+    await connected(
+      async (client) => {
+        const tool = (await client.listTools()).tools.find(
+          (item) => item.name === "import_json_dataset",
+        )!;
+        expect(tool.inputSchema.properties?.data).toEqual({
+          type: ["array", "object"],
+          items: { type: "object" },
+          additionalProperties: {
+            type: "array",
+            items: { type: "object" },
+          },
+        });
+        for (const data of inputs) {
+          const result = await call(client, "import_json_dataset", {
+            name: "Synthetic records",
+            data,
+          });
+          expect(result.structuredContent?.error?.code).toBe(
+            "SYNTHETIC_REACHED",
+          );
+          expect(importDataset).toHaveBeenLastCalledWith(
+            expect.objectContaining({
+              organizationId: identity.context.organizationId,
+            }),
+            {
+              name: "Synthetic records",
+              format: "json",
+              bytes: new TextEncoder().encode(JSON.stringify(data)),
+            },
+          );
+        }
+      },
+      identity,
+      {},
+      undefined,
+      undefined,
+      { importDataset } as unknown as McpServices["workflow"],
+    );
+  });
+
   it("preserves the supported 100,000-cell JSON dataset before domain validation", async () => {
     const importDataset = vi.fn(async () => {
       throw new DomainError(
@@ -893,6 +945,7 @@ describe("distributable LLM integrations", () => {
           const [readOnlyHint, destructiveHint, idempotentHint, openWorldHint] =
             expected[tool.name];
           expect(tool.annotations, tool.name).toEqual({
+            title: tool.title,
             readOnlyHint,
             destructiveHint,
             idempotentHint,

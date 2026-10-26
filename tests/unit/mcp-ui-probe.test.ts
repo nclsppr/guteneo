@@ -251,6 +251,7 @@ describe("temporary MCP Apps diagnostic", () => {
           additionalProperties: false,
         });
         expect(tool.annotations).toEqual({
+          title: tool.title,
           readOnlyHint: false,
           destructiveHint: false,
           openWorldHint: false,

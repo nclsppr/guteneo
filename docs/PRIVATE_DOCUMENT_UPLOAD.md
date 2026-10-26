@@ -5,7 +5,7 @@ at source `147ada069959f69440d4f98f968b0f2f5df1f7ba` is published. Its App remai
 off by default: a temporary Claude Desktop window qualified two explicitly
 selected fictional originals, including 10 MiB, through exact private storage and
 ready analysis. The separate registered-ID handoff to the model failed on that
-host and general activation remains pending. The 1.1.7 source follow-up is not
+host and general activation remains pending. The 1.1.8 source follow-up is not
 an actual-host retest. [Dated qualification](CLAUDE_QUALIFICATION.md#claude-desktop-selected-original-app--26-october-2026)
 owns the observations and limits. No real CV, communication, purchase or mandate
 is part of this qualification; no physical-iPhone/web/other-host pass is implied.
@@ -232,7 +232,7 @@ processing or quarantined. After that registered receipt, the App publishes only
 the document ID/status and its bound original size/SHA-256 through the SDK's model
 context update. The actual host must qualify delivery of that reference to its
 model: 1.1.6's structured-only attempt did not make the two new IDs available in
-the observed next turn. The 1.1.7 candidate supplies standard text content as well
+the observed next turn. The 1.1.8 candidate supplies standard text content as well
 as the same structured receipt, with a separate explicit **Use in conversation**
 action described below. Import sends no automatic chat message; actual-host
 receipt handoff still needs retesting. No bytes, base64, filename, upload capability, OAuth token or recipient
@@ -424,7 +424,7 @@ qualification. The private `client-local-recovery-handoff.private.json` and
 evidence folder supersede the earlier widget handoff's measurements and recovery
 gap. Source/package/release and actual device transfer remain separate.
 
-### Receipt resilience follow-up — 1.1.7 source candidate
+### Receipt resilience follow-up — 1.1.8 source candidate
 
 A confirmed registered receipt remains the document's known state after a late
 SDK bridge error. The interface preserves its accepted ID and ready or processing
@@ -453,7 +453,7 @@ qualify automatic context delivery and any explicit-message fallback separately.
 An acknowledged host message response is protocol evidence, not proof that the
 model consumed the document ID; the continuation check must establish that fact.
 
-The frozen 1.1.7 local resource is 498,379 bytes, SHA-256
+The frozen 1.1.8 local resource is 498,379 bytes, SHA-256
 `e5e9a70116f08145384c4139e46d4530ce1819052be24facd2174d2f65962e57`.
 The client source SHA-256 is
 `098a7dc7d23d3a7d35883781b8d89bd4afd2425910e16cd30d7aad4e34047c8b`.
@@ -464,7 +464,9 @@ passed locally. The fixtures cover all four languages without overflow, retained
 receipts, zero messages before the explicit action, exact four-key message data,
 pending/acknowledged/refused attempt deduplication and preserved receipt truth.
 Suite elapsed time is not actual upload latency, first useful content or Workers
-CPU/memory proof. These results establish no 1.1.7 deployment or native-host pass.
+CPU/memory proof. These results establish no 1.1.8 deployment or native-host pass. The client/resource
+hashes preserve the local UI evidence across reconciliation with the directory
+release; the earlier fixture run does not substitute for merged-source CI.
 Private `frontend-handoff.private.json` (SHA-256
 `5af76e1a39e6396a07676612230051bf8998fc7d2a407386e0b246fabc4cbf1d`)
 and `independent-test-receipt.private.json` (SHA-256

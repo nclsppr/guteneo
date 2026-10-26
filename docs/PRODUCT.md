@@ -11,7 +11,7 @@ remains pending. [Dated Claude qualification](CLAUDE_QUALIFICATION.md#claude-des
 owns the evidence; physical devices, other hosts, automatic attachment handoff
 and full retention/resource qualification remain separate.
 
-The 1.1.7 source candidate preserves accepted receipts after late bridge errors
+The 1.1.8 source candidate preserves accepted receipts after late bridge errors
 and publishes minimal text plus structured context. A separate localized Use in
 conversation action posts only that same four-field receipt after an explicit UI
 gesture; import sends no automatic chat message or model turn. These actions add

@@ -1,7 +1,7 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
 # Guteneo feature tree and developer atlas
 
-**23 domains · 322 features · 37 journeys · 76 documented REST operations · 83 MCP tools**
+**23 domains · 325 features · 37 journeys · 76 documented REST operations · 83 MCP tools**
 Updated 2026-10-26.
 
 Repository implementation inventory. Availability depends on current capabilities and authority; implementation, activation and deployed proof are distinct.
@@ -19,7 +19,7 @@ mindmap
     Create
       Documents and protection (20)
       Template studio (14)
-      Data and mappings (9)
+      Data and mappings (10)
       PDF generation and distribution (11)
     Deliver
       Fax (6)
@@ -33,7 +33,7 @@ mindmap
       Workspace layout and browser appearance (22)
       PDF verification (10)
     Interfaces
-      Assistants and API (29)
+      Assistants and API (31)
       iPhone and iPad (9)
       Public pages, languages and appearance (17)
     Operations
@@ -53,7 +53,7 @@ mindmap
 
 - [Documents and protection](#documents) — 20 features; capability-gated.
 - [Template studio](#templates) — 14 features; capability-gated.
-- [Data and mappings](#datasets) — 9 features; capability-gated.
+- [Data and mappings](#datasets) — 10 features; capability-gated.
 - [PDF generation and distribution](#generation) — 11 features; capability-gated.
 
 ### Deliver
@@ -73,7 +73,7 @@ mindmap
 
 ### Interfaces
 
-- [Assistants and API](#assistants) — 29 features; host-qualified.
+- [Assistants and API](#assistants) — 31 features; host-qualified.
 - [iPhone and iPad](#native) — 9 features; local-candidate.
 - [Public pages, languages and appearance](#public) — 17 features; public.
 
@@ -97,7 +97,7 @@ Four human workshop roles are defined by packages/contracts/src/roles.ts. The as
 
 | Capability | Administrator | Supervisor | Operator | Observer | Connected assistant |
 | --- | --- | --- | --- | --- | --- |
-| Download an assistant installation archive | Public access; no membership required | Public access; no membership required | Public access; no membership required | Public access; no membership required | No OAuth consent, membership, mandate or sending authority from the download |
+| Download an assistant installation archive | Public access; no membership required | Public access; no membership required | Public access; no membership required | Public access; no membership required | No OAuth consent, membership, mandate or sending authority from a download, displayed tool title, schema compatibility or directory listing |
 | Use the gated MCP Apps diagnostic | Own eligible OAuth connection only | Own eligible OAuth connection only | Own eligible OAuth connection only | Own eligible OAuth connection only | Current production OAuth + documents:read + exact server-selected connection/revision/window; no content or business authority, with normal authentication/rate/activity accounting |
 | Activate the MCP Apps diagnostic | No authority from workshop role | No authority from workshop role | No authority from workshop role | No authority from workshop role | No; distinct authorized operator controls a bounded server setting, never an assistant tool or mandate |
 | Read accessible workshop content | Yes | Yes | Yes | Yes | Current member + consented scopes + document access |
@@ -216,7 +216,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 <a id="documents"></a>
 ### Documents and protection
 
-**Availability model:** capability-gated. Private App transport is published in 1.1.6 at source 147ada, with two actual Claude Desktop selected-original imports, independent exact private R2 bytes, ready/verified one-page analysis and scoped zero associated business effects. The selected window closed with its flag absent. Registered-ID model handoff failed, so general activation and the 1.1.7 native-host correction retest remain pending. Migration 0063 precedes code publication even while the flag is off; other hosts/devices, full retention/confirmation and runtime headroom remain separately qualified.
+**Availability model:** capability-gated. Private App transport is published in 1.1.6 at source 147ada, with two actual Claude Desktop selected-original imports, independent exact private R2 bytes, ready/verified one-page analysis and scoped zero associated business effects. The selected window closed with its flag absent. Registered-ID model handoff failed, so general activation and the 1.1.8 native-host correction retest remain pending. Migration 0063 precedes code publication even while the flag is off; other hosts/devices, full retention/confirmation and runtime headroom remain separately qualified.
 
 **Surfaces:** Web/native and existing REST/MCP document access remain unchanged. MCP supports private binary upload up to 10 MiB and inline originals up to 64 KiB; the separately gated App transport published in 1.1.6 selects a new local original and stages it through App-only tools before the same private pipeline. It adds no public REST/browser upload adapter or native-app feature. Actual transport, attachment handoff and physical iPhone require independent qualification.
 
@@ -238,7 +238,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Private immutable R2 staging and tenant-scoped D1 part receipts bound App transport to 256 KiB raw parts, 40 parts/10 MiB, 64 App calls/session, five minutes/original-token expiry, one active session per user within the current workspace, 20 pending/200 MiB reserved staging debt per organization and 200 daily reservations; inline and binary limits remain unchanged
 - App part replay, current-authority/expiry fences and same-key/status recovery preserve the original: pre-put denial is APP_PART_NOT_ACCEPTED, uncertain attempted writes retain debt as APP_PART_UNCONFIRMED and recover only through positive immutable-object size/hash evidence, then explicit Resume; final pipeline unknown stays status-only without another import
 - A database-wide single App-finalizer lease bounds App assembly only; existing minute cron prioritizes expired leases, fences the original writer first and releases logical capacity without rerunning the pipeline. Cleanup remains at most two sessions/80 parts, waits for original expiry plus 90 seconds, retains unresolved debt/tombstones and never deletes registered/deduplicated originals; total Worker memory is not qualified by this admission limit
-- Authenticated documents.originalFilePicker exposes explicit_local_original and conversationAttachmentAccess:false; SDK context updates contain only registered document ID/status and bound original size/SHA, never content/base64/filename/token. Actual 1.1.6 Desktop registered-ID delivery to the model failed; the 1.1.7 source candidate adds standard text alongside structured context plus explicit Use in conversation for the same four-key receipt, with native retests pending and no automatic chat message on import
+- Authenticated documents.originalFilePicker exposes explicit_local_original and conversationAttachmentAccess:false; SDK context updates contain only registered document ID/status and bound original size/SHA, never content/base64/filename/token. Actual 1.1.6 Desktop registered-ID delivery to the model failed; the 1.1.8 source candidate adds standard text alongside structured context plus explicit Use in conversation for the same four-key receipt, with native retests pending and no automatic chat message on import
 - MCP_DOCUMENT_UPLOAD_APP is off by default: strict existing-connection/revision JSON supports at most one hour of qualification, while explicit enabled mode supports a separately reviewed general production rollout after actual qualification and authorized delivery; both retain current writer/OAuth guards, observer denial and no browser fetch, Origin/network permission, new scope, approval, paid check, mandate or infrastructure
 
 **Contract:** [SCANNER_RESCAN.md](SCANNER_RESCAN.md) · **Implementation:** [apps/api/src/documents.ts](../apps/api/src/documents.ts)
@@ -347,6 +347,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 **Surfaces:** Web, REST and MCP; private source/mapping ownership.
 
 - CSV, XLSX, XML and JSON imports with a private original
+- MCP JSON dataset metadata declares arrays of objects or named arrays of objects to match existing parsing; nested values, runtime errors/recovery, request/cell bounds and private ownership remain unchanged, without new host-file or AI-transfer authority
 - Sheet/header selection and XML record paths
 - English generated Data sheet names, with provenance-bound legacy aliases; uploaded XLSX and explicitly named JSON tables require exact mapping and join names
 - Profiling, anomalies and paginated inspection
@@ -687,7 +688,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 <a id="assistants"></a>
 ### Assistants and API
 
-**Availability model:** host-qualified. Contracts/packages and 1.1.6 publication have bounded actual Claude Desktop selected-original storage/readiness proof, owned by CLAUDE_QUALIFICATION.md. Registered-ID delivery to the model failed; the 1.1.7 source candidate adds text context and receipt resilience with actual-host retest pending. The selected window is closed and general activation remains pending. Other hosts/devices, OAuth refresh, archive installation and marketplace publication retain separate evidence requirements.
+**Availability model:** host-qualified. Contracts/packages and 1.1.6 publication have bounded actual Claude Desktop selected-original storage/readiness proof, owned by CLAUDE_QUALIFICATION.md. Registered-ID delivery to the model failed; the 1.1.8 source candidate adds text context and receipt resilience with actual-host retest pending. The selected window is closed and general activation remains pending. Other hosts/devices, OAuth refresh, archive installation and marketplace publication retain separate evidence requirements.
 
 **Surfaces:** Public/account browser guides and generated static downloads; REST/OpenAPI, MCP and host-specific packages. Compatible-host MCP Apps have separately gated no-content diagnostic and selected-local-original transport resources; tool-only workflows remain useful. Archive/App access creates no OAuth consent, membership, mandate or channel activation; native host installation, file payloads and attachment handoff remain separately qualified.
 
@@ -713,6 +714,8 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Exact registered callback/client per host; DCR/CIMD advertising alone never proves installation
 - Explicit MCP annotations disclose overwrites, archival, sharing revocation, generation cancellation, review-token replacement and batch freezing
 - Every advertised tool has four annotation booleans and per-tool evidence, audited through actual tools/list
+- Every registered tool exposes its existing display title through annotations.title, including conditional tools; directory-compatible JSON dataset metadata preserves current business gates, while actual portal scan, each-tool host qualification, submission and public listing require separate evidence
+- Declarative tool descriptions state the operation, inputs/results, side effects, risks and factual prerequisites without assistant behavior instructions, cross-tool orchestration or external behavioral rules; package skills and MCP prompts retain workflow guidance, with unchanged runtime guards, scopes and annotation booleans
 - readOnlyHint/idempotentHint remain false where successful production calls persist visible connection activity; the side effect is disclosed centrally
 - Assistant restrictions cover files, text, templates, datasets, records, existing PDFs/reports; person-redacted recovery adds no automatic classification or new server guard
 - Single source version synchronises application, serverInfo and release/package manifests; builds reject version/connection drift
@@ -1093,9 +1096,9 @@ Read accessible documents/dispatches → inspect tracking → use aggregate repo
 
 **Actor:** Existing Guteneo member and a host-supported OAuth client. **Branch:** Interfaces.
 
-Choose the host-specific guide → for ChatGPT download/import the plugin ZIP or choose manual MCP when unavailable → compare package version/hash → consent OAuth under actual host rules → verify read-only account capabilities/current mandate → use only available file transport/tools → prepare → review through browser or pre-existing bounded delegation → track.
+Choose the host-specific guide → for ChatGPT download/import the plugin ZIP or choose manual MCP when unavailable → compare package version/hash and actual tool titles/schemas/descriptions → follow the maintained workflow skills/prompts under actual host rules and consent OAuth → verify read-only account capabilities/current mandate → use only available file transport/tools → prepare → review through browser or pre-existing bounded delegation → track.
 
-**Failure/recovery:** Archive download/import creates no connection proof, extra role, scope or mandate. Missing host upload support uses the manual guide; OAuth failures require the actual registered client/callback, never a shared token. Announce excluded-content rules before collection and stop known excluded content. Respect host confirmations and no automatic unknown-outcome retries.
+**Failure/recovery:** Archive download/import, directory metadata or a portal scan creates no connection proof, extra role, scope or mandate. Directory publication and every-tool test attestation need separate evidence. Missing host upload support uses the manual guide; OAuth failures require the actual registered client/callback, never a shared token. Announce excluded-content rules before collection and stop known excluded content. Respect host confirmations and no automatic unknown-outcome retries.
 
 [Detailed contract](LLM_SETUP.md).
 
@@ -1365,7 +1368,7 @@ Review the diagnostic source/package and explicit target/window → operator sel
 
 Review source/package and actual host checkpoint → apply migration 0063 before code publication even with the App flag off → activate an exact connection/revision window of at most one hour for qualification, or a separately explicit general rollout after reviewed actual qualification and authorized delivery → open open_mcp_document_upload with empty input → person chooses one allowed local PDF from device Files, reviews content exclusions and explicitly clicks Import → App computes actual size/SHA over the same bounded buffer → begin_mcp_document_upload freezes metadata/authority/layout → serialized append_mcp_document_upload calls stage verified fixed parts through the official App bridge → finish_mcp_document_upload verifies the assembled original once and enters the shared private scanner/quarantine pipeline → retain the same creator-private document and publish only its ID/status/size/SHA through text/structured SDK context; only an explicit Use in conversation UI gesture can also post that same minimal JSON receipt through the official App message bridge → verify the actual model receives the registered ID, rather than inferring handoff from the widget receipt → follow existing same-document analysis; prepare only when ready, requested and the exact ID is available. Remove temporary qualification activation afterwards. This is a new local selection, not automatic handoff of a conversation attachment.
 
-**Failure/recovery:** Absent/invalid activation, mismatched/expired qualification, observer role, missing scope, changed connection/revision/issuer/membership, token/session expiry, quota/debt/call limits, noncanonical or conflicting parts and full-size/hash/PDF mismatch fail closed. General mode retains current production OAuth/writer guards; without MCP Apps explain the unsupported flow and retain ordinary tools. Bounds remain 256 KiB/part, 40 parts/10 MiB, 64 App calls, five minutes/original token expiry, one active session per user within the current workspace, 20 pending/200 MiB organization debt and 200 daily reservations. APP_PART_NOT_ACCEPTED is a settled pre-put refusal. APP_PART_UNCONFIRMED allows only manual same-ID status with volatile buffer retained inside fixed expiry/budget/current authority; only positive immutable-object length/hash evidence can enable explicit Resume. Missing objects never authorize replay. Final pipeline uncertainty is status-only and clears bytes; no new key, transport switch or reimport. The App-specific recovery has tool:null rather than instructing model/binary calls. Cancel/expiry/revocation fence writers; bounded cron also reclaims expired global App-finalizer capacity without deleting an original, while staging waits for original expiry plus 90 seconds and unresolved puts retain debt/tombstones. No direct browser fetch, egress/Origin/CSP exception, public PDF, bytes/base64/token in model context/storage/logs, paid check, approval, send or mandate. Release 1.1.6 has bounded actual Claude Desktop selected-original 299,807-byte/10 MiB storage/readiness and manual same-ID receipt recovery without resend, plus zero associated business effects for those two originals. The model then had neither new ID and made zero get_document calls: registered-ID handoff failed and general activation stays pending. The 1.1.7 source fixes preserve accepted receipts after late bridge errors and add text-plus-structured context plus a user-gesture-only minimal-receipt message with local fixtures; import sends no automatic chat message, repeated pending/acknowledged/refused/uncertain attempts are deduplicated for the same ID/status and message failure retains the document; the actual retest remains required, and neither fix proves the earlier deadline cause. Web/iPhone/other hosts, automatic attachment handoff, full retention/confirmation and runtime headroom remain separately unqualified.
+**Failure/recovery:** Absent/invalid activation, mismatched/expired qualification, observer role, missing scope, changed connection/revision/issuer/membership, token/session expiry, quota/debt/call limits, noncanonical or conflicting parts and full-size/hash/PDF mismatch fail closed. General mode retains current production OAuth/writer guards; without MCP Apps explain the unsupported flow and retain ordinary tools. Bounds remain 256 KiB/part, 40 parts/10 MiB, 64 App calls, five minutes/original token expiry, one active session per user within the current workspace, 20 pending/200 MiB organization debt and 200 daily reservations. APP_PART_NOT_ACCEPTED is a settled pre-put refusal. APP_PART_UNCONFIRMED allows only manual same-ID status with volatile buffer retained inside fixed expiry/budget/current authority; only positive immutable-object length/hash evidence can enable explicit Resume. Missing objects never authorize replay. Final pipeline uncertainty is status-only and clears bytes; no new key, transport switch or reimport. The App-specific recovery has tool:null rather than instructing model/binary calls. Cancel/expiry/revocation fence writers; bounded cron also reclaims expired global App-finalizer capacity without deleting an original, while staging waits for original expiry plus 90 seconds and unresolved puts retain debt/tombstones. No direct browser fetch, egress/Origin/CSP exception, public PDF, bytes/base64/token in model context/storage/logs, paid check, approval, send or mandate. Release 1.1.6 has bounded actual Claude Desktop selected-original 299,807-byte/10 MiB storage/readiness and manual same-ID receipt recovery without resend, plus zero associated business effects for those two originals. The model then had neither new ID and made zero get_document calls: registered-ID handoff failed and general activation stays pending. The 1.1.8 source fixes preserve accepted receipts after late bridge errors and add text-plus-structured context plus a user-gesture-only minimal-receipt message with local fixtures; import sends no automatic chat message, repeated pending/acknowledged/refused/uncertain attempts are deduplicated for the same ID/status and message failure retains the document; the actual retest remains required, and neither fix proves the earlier deadline cause. Web/iPhone/other hosts, automatic attachment handoff, full retention/confirmation and runtime headroom remain separately unqualified.
 
 [Detailed contract](PRIVATE_DOCUMENT_UPLOAD.md).
 

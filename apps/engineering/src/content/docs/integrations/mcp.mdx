@@ -44,14 +44,14 @@ prove that the host completed OAuth or can transfer an attached PDF.
 
 ## Build the journey from actual capabilities
 
-| Stage                     | Representative tools                                                            | Required distinction                                                       |
-| ------------------------- | ------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
-| Understand available work | `get_capabilities`, `get_expert_status`                                         | Availability/blockers are read, never activated by the read                |
+| Stage                     | Representative tools                                                                                 | Required distinction                                                       |
+| ------------------------- | ---------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| Understand available work | `get_capabilities`, `get_expert_status`                                                              | Availability/blockers are read, never activated by the read                |
 | Import or generate        | `import_document`, `begin_document_upload`, `import_inline_pdf`, `get_document_upload`, `render_pdf` | Original-byte import and creation of a new PDF are different operations    |
-| Inspect readiness/content | `get_document`, `read_document_pages`                                           | Quarantine and complete-page review cannot be replaced by a text summary   |
-| Prepare delivery          | `prepare_fax` and channel-specific workflows                                    | Preparation does not approve or send                                       |
-| Optional delegated review | `review_dispatch`                                                               | Requires existing authority; complete review replaces the prior token      |
-| Authorized acceptance     | `approve_and_send_dispatch` or the documented confirmation path                 | No invented human consent; exact fingerprint, bounds and current authority |
+| Inspect readiness/content | `get_document`, `read_document_pages`                                                                | Quarantine and complete-page review cannot be replaced by a text summary   |
+| Prepare delivery          | `prepare_fax` and channel-specific workflows                                                         | Preparation does not approve or send                                       |
+| Optional delegated review | `review_dispatch`                                                                                    | Requires existing authority; complete review replaces the prior token      |
+| Authorized acceptance     | `approve_and_send_dispatch` or the documented confirmation path                                      | No invented human consent; exact fingerprint, bounds and current authority |
 
 The generated [feature atlas](/features/) and current tool catalog own complete
 coverage. Do not infer that every host/model exposes every tool in every session.
@@ -220,7 +220,7 @@ receipt without a resend. The observed deadline-message cause remains unproven.
 
 That host's next-turn registered-ID handoff failed: without supplied IDs or
 list/search, the model had neither new ID and made no document call. This is
-independent of successful private transport and analysis. The 1.1.7 source
+independent of successful private transport and analysis. The 1.1.8 source
 candidate adds standard text context alongside the minimal structured receipt
 and preserves confirmed receipt status after a late bridge error. Its localized
 post-registration Use in conversation control can send the same four-key JSON
@@ -334,6 +334,43 @@ Honor the host's execution permissions. Read tool annotations as descriptions of
 real effects, not authority grants. A business read can record connection activity;
 a review can replace a token; a distribution plan can permanently freeze failed
 record retries. Those effects must be represented honestly in the catalog.
+
+### Maintain directory-compatible tool metadata
+
+Keep the existing display title and `annotations.title` aligned for every
+registered tool, including conditionally available Studio, postal and diagnostic
+tools. A human-readable title changes no permission or business effect. Retain
+the four accurate effect booleans rather than changing them to obtain a less
+restrictive host prompt. Successful production calls can still record visible
+connection activity under the documented contract.
+
+Give dataset input metadata explicit JSON root types. In particular,
+`import_json_dataset.data` advertises an array of objects or an object of named
+arrays of objects, matching the existing dataset parser. Nested values, runtime
+parsing, error recovery, request/cell bounds and private ownership stay unchanged.
+Schema compatibility grants no access to a host attachment and authorizes no AI
+transfer.
+
+Write tool descriptions as factual contracts: the operation, accepted input,
+returned result, side effects and current prerequisites. Keep material risks and
+limits visible, including exact-content consent, current authority, price/provider
+gates and recovery from an unknown outcome. Do not turn a tool description into
+instructions for the assistant, name other tools to direct execution, or ask it
+to retrieve and obey behavioral rules. The maintained skills and MCP prompts own
+multi-step orchestration. Description edits preserve runtime guards, scopes and
+annotation booleans; review the resulting catalog for factual completeness as
+well as instruction patterns.
+
+The 26 October 2026 directory scan exposed missing annotation titles and the
+untyped dataset root. Source review also addressed imperative orchestration in
+tool descriptions. These corrections remain candidates until
+the normal synchronized package/release gates pass and a fresh portal scan
+observes the released server. Then qualify tools individually with the intended
+account before attesting that the whole catalog was tested. Record local tests,
+served contract, actual host calls, submission and public listing separately;
+this documentation establishes none of the later steps. Recover from a stale
+scan by reconnecting and inspecting the actual catalog, without bypassing OAuth
+or changing an existing connection's authority.
 
 Standard human browser review remains the default. A bounded expert mandate can
 be granted only by a browser administrator to one connection; the assistant cannot

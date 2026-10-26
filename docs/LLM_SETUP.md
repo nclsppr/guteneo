@@ -203,7 +203,7 @@ retains only widget/empty bridge/native chooser cancellation. The later
 [1.1.6 Desktop record](CLAUDE_QUALIFICATION.md#claude-desktop-selected-original-app--26-october-2026)
 qualifies two selected originals, including 10 MiB, through exact private bytes
 and ready analysis; registered-ID delivery to the model failed. Its window is
-closed and general activation remains pending. The **1.1.7 source candidate**
+closed and general activation remains pending. The **1.1.8 source candidate**
 adds text plus structured receipt context, preserves accepted receipts after
 late bridge errors and offers explicit Use in conversation for the same four
 fields. Import never sends that chat message automatically. Local SDK fixtures
@@ -220,6 +220,56 @@ grant no role, scope, activation, approval or sending right.
 [Official ChatGPT journey](https://developers.openai.com/plugins/deploy/connect-chatgpt).
 
 ### Claude web and Desktop
+
+#### Directory compatibility candidate — 26 October 2026
+
+The [directory resumption record](CLAUDE_DIRECTORY.md) owns the current portal
+observation, transient-draft limit and ordered publication checklist.
+
+The Claude developer portal's tools scan identified one schema issue and 75
+title suggestions on 26 October 2026: `import_json_dataset.data` had no declared
+JSON type, and the advertised tools lacked `annotations.title`. This is a dated
+portal observation, not proof that a submission was sent or published.
+
+The compatibility candidate puts each tool's existing display title in its
+standard `annotations.title`, including conditional tools. It preserves the four
+effect booleans and their actual side effects; a display title changes no scope,
+membership, host permission or server approval. JSON dataset metadata declares
+an array of objects or an object of named arrays of objects, matching the existing
+dataset parser. Runtime parsing, nested values, error recovery, request/cell
+bounds and ownership checks remain unchanged. This creates no file access or
+implicit AI-transfer permission.
+
+The same source review makes tool descriptions declarative: each describes its
+operation, accepted inputs, result, actual side effects and factual prerequisites.
+Descriptions retain consent, authority, provider, cost, content and recovery
+limits without instructing the assistant to call another tool, follow returned
+behavioral rules or override the host's behavior. Multi-step orchestration belongs
+in the maintained package skills and MCP prompts. This wording correction changes
+no runtime check, scope, effect boolean or available business action; it does not
+establish that the portal accepted the descriptions.
+
+The same review updates the portable [Studio workflow](../integrations/guteneo/skills/document-studio/SKILL.md)
+and [PDF-check workflow](../integrations/guteneo/skills/pdf-accessibility/SKILL.md),
+then regenerates their Claude copies. Those sources own the detailed generation,
+quota, irreversible batch and browser-purchase guidance; a description cleanup
+must not drop their existing restrictions or grant new MCP authority.
+
+After the combined source is reviewed, versioned and released through the normal
+MCP/package process, reconnect the exact server in the portal and inspect its
+fresh tools scan. Exercise every advertised tool under an appropriate account
+and record its result before making the portal's test-completion attestation.
+Historical read/import/preparation observations do not qualify the complete
+catalog. A local schema test, rebuilt archive or successful scan establishes
+neither current production behavior nor submission, approval or publication.
+
+The current [directory submission guide](https://claude.com/docs/connectors/building/submission)
+accepts a remote MCP URL through the developer portal; paid personal plans can
+submit from their own account. Review the current policy and actual portal
+acknowledgments before submitting. Private connector installation and a public
+directory listing remain separate operations.
+
+#### Private installation
 
 For the connector alone, use **Connect to Claude** in the
 [Guteneo guide](https://guteneo.com/assistants/claude/), or Customize → Connectors

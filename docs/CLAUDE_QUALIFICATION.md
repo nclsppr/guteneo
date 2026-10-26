@@ -55,7 +55,7 @@ registered-ID delivery to the model**.
 Source 1.1.6 attempted a minimal structured context update. The actual context
 wire content was not captured; attributing the missing IDs specifically to
 structured-only delivery is an inference, not an observed packet failure. The
-1.1.7 source follow-up adds standard text content alongside the same minimal
+1.1.8 source follow-up adds standard text content alongside the same minimal
 structured receipt, a user-gesture-only Use in conversation receipt action, and
 preserves an accepted receipt when a later bridge error arrives. The explicit
 message contains only the same four receipt fields; import itself sends no chat

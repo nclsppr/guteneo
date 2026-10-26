@@ -11,7 +11,7 @@ There are four human membership roles. A connected assistant is a separate OAuth
 
 | Capability | Administrator | Supervisor | Operator | Observer | Connected assistant |
 | --- | --- | --- | --- | --- | --- |
-| Download an assistant installation archive | Public access; no membership required | Public access; no membership required | Public access; no membership required | Public access; no membership required | No OAuth consent, membership, mandate or sending authority from the download |
+| Download an assistant installation archive | Public access; no membership required | Public access; no membership required | Public access; no membership required | Public access; no membership required | No OAuth consent, membership, mandate or sending authority from a download, displayed tool title, schema compatibility or directory listing |
 | Use the gated MCP Apps diagnostic | Own eligible OAuth connection only | Own eligible OAuth connection only | Own eligible OAuth connection only | Own eligible OAuth connection only | Current production OAuth + documents:read + exact server-selected connection/revision/window; no content or business authority, with normal authentication/rate/activity accounting |
 | Activate the MCP Apps diagnostic | No authority from workshop role | No authority from workshop role | No authority from workshop role | No authority from workshop role | No; distinct authorized operator controls a bounded server setting, never an assistant tool or mandate |
 | Read accessible workshop content | Yes | Yes | Yes | Yes | Current member + consented scopes + document access |
