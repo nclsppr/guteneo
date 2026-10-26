@@ -365,10 +365,11 @@ describe("private operational observations", () => {
     const db = {
       batch: async () => [],
       prepare: () => ({
-        bind: () => ({
-          all: async () => ({ results: [] }),
-          run: async () => ({ success: true }),
-        }),
+        bind() {
+          return this;
+        },
+        all: async () => ({ results: [] }),
+        run: async () => ({ success: true }),
       }),
     } as unknown as D1Database;
     vi.spyOn(DomainService.prototype, "publishOutbox").mockResolvedValue({

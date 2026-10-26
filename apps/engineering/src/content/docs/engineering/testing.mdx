@@ -211,3 +211,8 @@ cleanup to accommodate an obsolete fixture. The signed provider-callback test
 uses the current schema while retaining its recovery and no-outbox/no-lease
 assertions. A failed fixture is evidence to investigate, not a reason to add a
 retry or suppress the independently required job.
+
+Observability-only D1 doubles must preserve the actual statement interface:
+parameterless reads can call `all()` directly, while `bind()` returns a statement
+with those same operations. Keep heartbeat, privacy and aggregate assertions
+when extending these doubles; do not mock away the scheduler’s cleanup stage.
