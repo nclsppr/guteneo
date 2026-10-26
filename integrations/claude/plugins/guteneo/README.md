@@ -63,13 +63,14 @@ separate static configuration template; that template is not a ready credential.
 - `/guteneo:pdf-accessibility` — explain an automated PDF diagnostic and its limits.
 - `/guteneo:secure-distribution` — prepare account-protected PDF access with a quoted retention term, optional download and authorized personal copy.
 
-Use synthetic data for qualification. The remote package cannot read local PDF
-paths or extract a Claude attachment. Where file transfer is unavailable, the
-user may upload permitted content in their authenticated Guteneo browser, then
-reuse the resulting document. This does not bypass the workflows' sensitive-data
-restrictions. Read the [host contract](references/claude-host.md) before using a
-workflow. Standard sending requires authenticated browser approval; expert
-authority must already exist, and a preparation-only account cannot send.
+Use synthetic data for qualification. The remote package cannot extract a
+conversation attachment from its filename or local path. Follow the shared
+[private original PDF transfer contract](skills/get-started/references/original-pdf-transfer.md),
+including the optional App’s new explicit device-file selection when available.
+Read the [host contract](references/claude-host.md) before using a workflow. Keep
+content restrictions and host confirmations. Standard sending requires
+authenticated browser approval; expert authority must already exist, and a
+preparation-only account cannot send.
 
 ## Qualification boundary
 

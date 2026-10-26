@@ -4,6 +4,7 @@ import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import site from "../packages/contracts/src/public-site.json" with { type: "json" };
 import mcpUiProbeManifest from "../packages/contracts/src/mcp-ui-probe-resource.json" with { type: "json" };
+import mcpDocumentUploadManifest from "../packages/contracts/src/mcp-document-upload-resource.json" with { type: "json" };
 
 /** Verify internal localized bytes through their only public URL. */
 function publicAssetPath(path) {
@@ -111,7 +112,9 @@ export async function verifyRelease(originArgument, local, fetcher = fetch) {
         const publicPath = publicAssetPath(entry.path);
         const response = await fetchPublic(publicPath);
         if (
-          entry.path === mcpUiProbeManifest.path &&
+          [mcpUiProbeManifest.path, mcpDocumentUploadManifest.path].includes(
+            entry.path,
+          ) &&
           (response.headers
             .get("content-type")
             ?.split(";")[0]

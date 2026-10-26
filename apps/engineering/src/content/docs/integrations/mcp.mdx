@@ -123,6 +123,100 @@ attachment support, exact original transfer and resulting `ready` state are
 separate qualification steps. An inline pass does not qualify binary PUT, its
 10 MiB bound, email preparation or another client surface.
 
+## A selected local original through an optional App
+
+The 26 October 2026 candidate adds a separately disabled MCP App transport for a
+host that can render the standard resource and carry its reviewed payloads.
+`open_mcp_document_upload` has empty input: it presents the interface, not a file
+supplied by the model. The person chooses one original from device Files and
+clicks Import. The App hashes the bounded buffer and transfers those same bytes
+through five App-only tools using the official `App.callServerTool` bridge.
+This is a newly selected local original, not an API to an earlier conversation
+attachment. Similar names, previews or extracted text do not prove byte identity.
+The authenticated `documents.originalFilePicker` capability makes that distinction
+explicit with `selection: "explicit_local_original"` and
+`conversationAttachmentAccess: false`; availability is not actual host proof.
+
+```mermaid
+flowchart LR
+  Person[Choose local original and Import] --> App[Hash same selected bytes]
+  App --> Bridge[Official App-only tool bridge]
+  Bridge --> Stage[Private staging and fenced receipts]
+  Stage --> Final[Verify full original once]
+  Final --> Document[Creator-private document and normal analysis]
+  Document --> Ready[Ready permits separately requested preparation]
+```
+
+The new protocol has fixed 256 KiB raw parts, at most 40 parts/10 MiB and 64 App
+calls per session. It uses private immutable R2 staging and tenant-scoped D1
+receipts, then the same whole-original quota, ACL, scanner and isolated
+validation path. It does not raise the 64 KiB inline or 2 MiB MCP request bounds.
+It adds no direct browser fetch, network/Origin/CSP exception, public PDF source,
+OAuth scope or infrastructure. A compliant host hides App-only tools from the
+model; host retention and confirmation behavior still require actual testing.
+Bytes, encoding and tokens are not posted to model context or browser storage.
+
+Current writer membership and `documents:write` apply to every operation;
+observers are denied. A separate server-owned gate keeps the tools and resource
+absent by default. It supports a narrow connection/revision/window for actual
+qualification and a distinct explicit general production rollout after reviewed
+qualification and authorized delivery. All current OAuth/writer checks remain
+mandatory in both modes. Device selection and host tool
+confirmation do not create sending approval, a paid PDF check or a mandate.
+Migration 0063 must precede code publication, even with the App flag off, because
+scheduled cleanup is unconditional. Other web/native/REST upload contracts and useful
+tool-only reads/preparation remain unchanged.
+If the host does not render the App, explain the unsupported flow and retain
+ordinary tools. Neither activation mode grants automatic attachment access or
+universal host support. Admission bounds one active session per user within the
+current workspace. A separate database-wide App-finalizer lease bounds concurrent
+App assembly only; it proves no total Worker memory limit under other imports.
+
+Unknown responses retain the same key/session/document. Pre-put rejection is a
+settled `APP_PART_NOT_ACCEPTED`; an uncertain attempted put is
+`APP_PART_UNCONFIRMED`. Only positive immutable-object length/hash reconciliation
+can recover the latter to receiving. The App retains volatile bytes inside the
+fixed expiry/current-authority/call budget and permits manual status followed by
+explicit Resume, never automatic replay or absent-object inference. Terminal
+pipeline uncertainty stays status-only and clears bytes; it may recover an
+already registered document without another import. Finalization runs once on
+the complete original; a completed import can still be quarantined.
+
+All five App-only tools and ordinary `begin_document_upload` declare a destructive
+hint because same-upload reconciliation can conditionally delete only this
+attempt's unregistered original object. That hint grants no broader deletion
+authority. App errors use a distinct recovery context with no suggested model
+tool and point to Check status/Resume in the existing interface. Never switch to
+binary recovery, invoke App-only tools from the model or create a new key.
+Cancellation, expiry and revocation fence writers before bounded cleanup deletes
+owned staging. Neither expiry nor a closed host window promises immediate erasure.
+
+Maintain the schemas in `packages/contracts/src/mcp-app-upload.ts`, service in
+`apps/api/src/mcp-app-upload.ts`, resource adapter in
+`apps/api/src/mcp-document-upload.ts` and reviewed App/builder together. The
+[repository transport contract](https://github.com/nclsppr/guteneo/blob/main/docs/PRIVATE_DOCUMENT_UPLOAD.md)
+owns exact limits, activation, states and recovery; this guide introduces no
+alternative operator procedure. Synchronize packaged instructions, annotations,
+fingerprints and archives whenever the contract changes.
+
+Measure first useful content, transferred code, payload confirmations, client
+memory/hashing latency, server CPU/memory/startup/active time and billed requests,
+D1 rows, R2 operations and idle staging debt on the actual target. At the largest
+layout, staging adds up to 40 puts and 40 gets before common final storage/scan,
+while authorization, receipt, recovery and cleanup work also consume resources.
+Use the authoritative cost model's dated official rate sources and shared-account
+allowances; these operation counts establish neither a current price nor a fixed
+total bill. [Background maintenance](/engineering/background-jobs/) explains the
+independent cleanup boundary.
+
+The dated `8854`/`1.1.5` Claude Desktop Free checkpoint observed a real diagnostic
+widget, one empty official bridge call and a native chooser cancelled without
+selection. It transferred no file. The new transport still needs a normal-size
+fictional original above 64 KiB with independent/App/stored size/SHA and
+creator-private clean/ready evidence, then separate 10 MiB, ambiguity, revocation,
+confirmation/privacy and physical-device qualification. Desktop diagnostic proof
+does not establish web, iPhone, another host or automatic attachment handoff.
+
 ## Qualify each client surface
 
 The same remote service targets Claude and ChatGPT on web and mobile, coding
@@ -147,12 +241,12 @@ observations; the repository compatibility matrix links them without converting
 one result into general host support. Keep private evidence out of published
 guides.
 
-Before building an optional file-picker UI, establish that the actual target
-account/surface can render it and exposes the required native file-selection
-capability for the original attachment. If that capability is unobservable,
-the next separately authorized step is a minimal capability probe, not a claimed
-file-transfer pass. A widget's native file API does not supply another host's
-missing runtime egress. Current source references:
+Before qualifying an optional file-picker transport, establish that the actual
+target account/surface renders the App, supports its bridge payloads and permits
+the explicit local selection. If those facts are unobservable, retain a precise
+capability gap; the no-content probe qualifies only its observed checkpoint.
+A widget's native file API does not establish existing-attachment handoff or
+another host's permitted runtime egress. Current source references:
 [Claude mobile connectors](https://support.claude.com/en/articles/11176164-use-connectors-to-extend-claude-s-capabilities),
 [OpenAI file APIs](https://developers.openai.com/plugins/reference#file-apis),
 [Cursor cloud MCP](https://cursor.com/docs/cloud-agent/capabilities),

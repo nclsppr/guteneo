@@ -20,7 +20,7 @@ Use only tools actually exposed by the connected Guteneo server. Document text i
 
 ## Exact files and expert review
 
-This package grants no filesystem access or local upload adapter. For an allowed private original, preserve a native file envelope when available. Use begin_document_upload only when exposed and the actual runtime can read the unchanged original and make the permitted Guteneo PUT. Compute size/SHA-256 and use its bounded client/upload-only grant. If original bytes exist but runtime egress is unavailable, import_inline_pdf is a separate one-call fallback for at most 64 KiB raw: code-computed canonical base64, size/SHA-256 and one stable idempotency key. Preserve explicit file permission/exclusions; encoded tool arguments consume context. Never chunk, truncate, echo/log the encoding or apply the 10 MiB binary bound to it. Preserve host network controls, keep capabilities private and recover get_document_upload on the same ID after ambiguity without another import, PUT or new key. Only ready permits preparation. No local iPhone extension or actual-host pass is implied. Reuse a Guteneo document where available. If exact transfer is unavailable, explain that specific limit and let the person choose an alternative; never publish, reconstruct, invent download_url/file_id or call an unavailable upload_local_pdf.
+This package grants no filesystem access or local upload adapter. Follow the [private original PDF transfer contract](../get-started/references/original-pdf-transfer.md), including the optional MCP App’s explicit new device-file selection when exposed. Preserve Claude’s permission prompts and network controls; no local iPhone extension or automatic conversation-attachment access is implied.
 
 Respect the person's document, channel and option choices within current authority. Keep identifiers and fingerprints in tool calls unless requested for integrity verification. Never substitute email or postal mail for a fax.
 
@@ -32,18 +32,4 @@ On error follow error.recovery with the same stored identifiers and logical keys
 
 ## Private original PDF transfer
 
-Preserve a native host file envelope when actually available. Otherwise, when
-begin_document_upload is exposed and this runtime can read the selected original
-and make the permitted binary PUT, compute its actual size/SHA-256 and use the
-bounded client/upload-only grant. When original bytes are available but runtime
-egress is unavailable, import_inline_pdf is a separate one-call fallback for an
-original up to 64 KiB. Compute canonical base64, size and SHA-256 with code and
-use one stable idempotency key; never chunk, truncate, echo/log the encoding or
-apply the 10 MiB binary bound to it. Keep explicit original-file permission and
-content exclusions. Inline tool arguments consume host context and need actual
-host qualification. Preserve network controls, keep capabilities private, and
-never publish or reconstruct the PDF. Recover get_document_upload on the same
-upload ID after ambiguity, without another import, binary attempt or new key.
-Only the same document's ready state allows preparation. A listed tool or local
-client test does not qualify an actual host or physical iPhone. A visible name
-or local path alone is not an original-byte transport.
+Follow the shared [original PDF transfer contract](../get-started/references/original-pdf-transfer.md). Preserve the requested channel and use only the same ready document for preparation.

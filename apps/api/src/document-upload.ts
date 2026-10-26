@@ -1,6 +1,18 @@
 import { decodeJwt } from "jose";
-import { z } from "zod";
-import { ContentError, LIMITS } from "../../../packages/contracts/src/content";
+import { ContentError } from "../../../packages/contracts/src/content";
+import {
+  privateUploadInput,
+  inlinePdfInput,
+  type PrivateUploadInput,
+  type InlinePdfInput,
+} from "../../../packages/contracts/src/private-document-upload";
+export {
+  privateUploadInput,
+  inlinePdfInput,
+  INLINE_PDF_BYTES,
+  type PrivateUploadInput,
+  type InlinePdfInput,
+} from "../../../packages/contracts/src/private-document-upload";
 import type {
   ActorContext,
   DomainService,
@@ -26,30 +38,9 @@ export const PRIVATE_UPLOAD_TTL_MS = 5 * 60_000;
 export const PRIVATE_UPLOAD_BODY_MS = 30_000;
 export const PRIVATE_UPLOAD_LEASE_MS = 90_000;
 export const PRIVATE_UPLOAD_HEADER = "X-Guteneo-Upload-Capability";
-export const privateUploadInput = z
-  .object({
-    idempotencyKey: z.string().regex(/^[A-Za-z0-9_-]{8,128}$/),
-    fileName: z
-      .string()
-      .min(1)
-      .max(180)
-      .regex(/^[^/\\\x00-\x1f\x7f]+\.pdf$/i),
-    size: z.number().int().min(20).max(LIMITS.pdfBytes),
-    sha256: z.string().regex(/^[a-f0-9]{64}$/),
-  })
-  .strict();
-export type PrivateUploadInput = z.infer<typeof privateUploadInput>;
-export const INLINE_PDF_BYTES = 64 * 1024;
-export const inlinePdfInput = privateUploadInput.extend({
-  size: z.number().int().min(20).max(INLINE_PDF_BYTES),
-  base64: z
-    .string()
-    .min(28)
-    .max(4 * Math.ceil(INLINE_PDF_BYTES / 3)),
-});
-export type InlinePdfInput = z.infer<typeof inlinePdfInput>;
-type UploadRow = {
+export type UploadRow = {
   id: string;
+  transport: "binary" | "app";
   organization_id: string;
   user_id: string;
   client_id: string;
@@ -253,6 +244,34 @@ export class PrivateDocumentUploadService {
     identity: McpIdentity,
     value: PrivateUploadInput,
   ): Promise<PrivateUploadView> {
+    return this.beginTransport(identity, value, "binary");
+  }
+  /** Internal adapter seam; never returns a binary grant to an App caller. */
+  async reserveApp(
+    identity: McpIdentity,
+    value: PrivateUploadInput,
+  ): Promise<UploadRow> {
+    const view = await this.beginTransport(identity, value, "app");
+    return this.owned(identity, view.uploadId);
+  }
+  async appOwned(identity: McpIdentity, uploadId: string, active = true) {
+    const row = await this.owned(identity, uploadId);
+    if (row.transport !== "app") throw deny();
+    await this.assertCurrent(row, active);
+    return row;
+  }
+  appAuthority(row: UploadRow, active = true) {
+    if (row.transport !== "app") throw deny();
+    return {
+      sql: () => this.fence(row, active),
+      assertCurrent: () => this.assertCurrent(row, active),
+    };
+  }
+  private async beginTransport(
+    identity: McpIdentity,
+    value: PrivateUploadInput,
+    transport: "binary" | "app",
+  ): Promise<PrivateUploadView> {
     const input = privateUploadInput.parse(value);
     const origin = this.origin();
     if (
@@ -279,6 +298,7 @@ export class PrivateDocumentUploadService {
     const capability = secret();
     const row: UploadRow = {
       id: `upl_${crypto.randomUUID()}`,
+      transport,
       organization_id: identity.context.organizationId,
       user_id: identity.context.userId,
       client_id: identity.clientId,
@@ -345,6 +365,7 @@ export class PrivateDocumentUploadService {
         429,
       );
     if (
+      existing.transport !== transport ||
       existing.user_id !== row.user_id ||
       existing.client_id !== row.client_id ||
       existing.connection_id_snapshot !== row.connection_id_snapshot ||
@@ -378,6 +399,7 @@ export class PrivateDocumentUploadService {
         identity,
         await this.reconcile(await this.owned(identity, existing.id)),
       );
+    if (transport === "app") return this.view(renewed);
     return {
       ...(await this.view(renewed)),
       upload: {
@@ -391,10 +413,19 @@ export class PrivateDocumentUploadService {
     };
   }
   async get(identity: McpIdentity, uploadId: string) {
-    return this.result(
-      identity,
-      await this.reconcile(await this.owned(identity, uploadId)),
-    );
+    return this.getTransport(identity, uploadId, "binary");
+  }
+  async appGet(identity: McpIdentity, uploadId: string) {
+    return this.getTransport(identity, uploadId, "app");
+  }
+  private async getTransport(
+    identity: McpIdentity,
+    uploadId: string,
+    transport: UploadRow["transport"],
+  ) {
+    const row = await this.owned(identity, uploadId);
+    if (row.transport !== transport) throw deny();
+    return this.result(identity, await this.reconcile(row));
   }
   async importInlinePdf(
     identity: McpIdentity,
@@ -605,12 +636,12 @@ export class PrivateDocumentUploadService {
       );
     }
     const uploadId = url.pathname.split("/")[3];
-    let row = await this.env.DB.prepare(
+    const row = await this.env.DB.prepare(
       "SELECT * FROM private_document_uploads WHERE id=? AND capability_hash=? AND state='reserved'",
     )
       .bind(uploadId, await hashSecret(capability))
       .first<UploadRow>();
-    if (!row) {
+    if (!row || row.transport !== "binary") {
       void request.body?.cancel().catch(() => {});
       return Response.json(
         {
@@ -623,13 +654,54 @@ export class PrivateDocumentUploadService {
         { status: 403, headers },
       );
     }
+    return this.acceptReserved(
+      row,
+      (signal) =>
+        readLimited(new Response(request.body), row.expected_size, signal),
+      request.signal,
+      request.headers.get("content-length"),
+      headers,
+    );
+  }
+  async acceptApp(
+    identity: McpIdentity,
+    uploadId: string,
+    consume: (signal: AbortSignal) => Promise<Uint8Array>,
+    signal: AbortSignal,
+    assertTransportCurrent: () => Promise<void>,
+  ): Promise<Response> {
+    const row = await this.appOwned(identity, uploadId);
+    return this.acceptReserved(
+      row,
+      consume,
+      signal,
+      String(row.expected_size),
+      {
+        "Cache-Control": "no-store",
+        "X-Content-Type-Options": "nosniff",
+        "X-Robots-Tag": "noindex, nofollow",
+        "Referrer-Policy": "no-referrer",
+      },
+      assertTransportCurrent,
+    );
+  }
+  private async acceptReserved(
+    row: UploadRow,
+    consume: (signal: AbortSignal) => Promise<Uint8Array>,
+    requestSignal: AbortSignal,
+    contentLength: string | null,
+    headers: Record<string, string>,
+    assertTransportCurrent?: () => Promise<void>,
+  ): Promise<Response> {
+    const uploadId = row.id;
     let pipelineStarted = false;
     let ownedLease: string | undefined;
     try {
+      await assertTransportCurrent?.();
       await this.assertCurrent(row);
       const fence = this.fence(row);
       const lease = secret();
-      row = await this.env.DB.prepare(
+      const claimed = await this.env.DB.prepare(
         `UPDATE private_document_uploads SET state='uploading',capability_hash=NULL,lease_token=?,lease_expires_at=?,updated_at=? WHERE organization_id=? AND id=? AND state='reserved' AND capability_hash=? AND ${fence.condition} RETURNING *`,
       )
         .bind(
@@ -647,13 +719,14 @@ export class PrivateDocumentUploadService {
           ...fence.values,
         )
         .first<UploadRow>();
-      if (!row)
+      if (!claimed)
         throw fail(
           "UPLOAD_ALREADY_STARTED",
           "Read the same upload through MCP; do not repeat the binary request.",
         );
+      row = claimed;
       ownedLease = lease;
-      const length = request.headers.get("content-length");
+      const length = contentLength;
       if (
         length !== null &&
         (!/^\d+$/.test(length) || Number(length) !== row.expected_size)
@@ -664,7 +737,7 @@ export class PrivateDocumentUploadService {
           422,
         );
       const signal = AbortSignal.any([
-        request.signal,
+        requestSignal,
         AbortSignal.timeout(
           Math.max(
             1,
@@ -675,11 +748,7 @@ export class PrivateDocumentUploadService {
           ),
         ),
       ]);
-      const bytes = await readLimited(
-        new Response(request.body),
-        row.expected_size,
-        signal,
-      );
+      const bytes = await consume(signal);
       if (
         bytes.byteLength !== row.expected_size ||
         (await digest(bytes as Uint8Array<ArrayBuffer>)) !== row.expected_sha256
@@ -710,7 +779,8 @@ export class PrivateDocumentUploadService {
           };
         },
         assertCurrent: async () => {
-          if (request.signal.aborted) throw deny();
+          await assertTransportCurrent?.();
+          if (requestSignal.aborted) throw deny();
           const condition = authority.sql();
           if (
             !(await this.env.DB.prepare(`SELECT 1 WHERE ${condition.condition}`)
@@ -765,7 +835,6 @@ export class PrivateDocumentUploadService {
           )
           .run();
       }
-      void request.body?.cancel().catch(() => {});
       const known =
         !pipelineStarted &&
         (error instanceof ContentError || error instanceof AuthError);

@@ -1,5 +1,25 @@
 # Guteneo product contract
 
+## Selected-original MCP App — 26 October 2026 disabled candidate
+
+A compatible host can present a separately gated App in which the person chooses
+one local original and explicitly imports it. The App hashes and transfers those
+same bytes through App-only tools before the existing creator-private scanner
+pipeline. This uses current writer membership and `documents:write`; it creates
+no approval, paid check, mandate or sending authority. The
+[private upload contract](PRIVATE_DOCUMENT_UPLOAD.md#selected-local-originals-through-mcp-apps--disabled-candidate)
+owns the bounds, activation and recovery. Migration 0063 precedes use.
+
+This is a new selection from device Files, not automatic retrieval of an earlier
+conversation attachment. The dated [Desktop checkpoint](CLAUDE_QUALIFICATION.md#claude-desktop-free-mcp-apps-checkpoint--26-october-2026)
+observed only a widget, empty bridge and cancelled native chooser. Actual
+normal-size/10 MiB transfer, host privacy/confirmation limits, web and physical
+iPhone remain unqualified. The option is absent by default. A temporary exact
+connection/revision window supports qualification; a separately explicit general
+rollout mode supports current eligible writers after reviewed qualification and
+authorized delivery. Neither source/package availability nor one Desktop
+diagnostic activates or qualifies it for all customers.
+
 ## Document email entry — 26 October 2026 candidate
 
 Individual web and MCP document email now enters the existing account-based

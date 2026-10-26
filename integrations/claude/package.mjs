@@ -24,6 +24,7 @@ export const claudePluginFiles = [
   "scripts/upload-private-pdf.py",
   ...claudeSkillNames.map((name) => `skills/${name}/SKILL.md`),
   "skills/document-studio/references/template-authoring.md",
+  "skills/get-started/references/original-pdf-transfer.md",
 ];
 export const claudeMarketplaceFiles = [
   ".claude-plugin/marketplace.json",

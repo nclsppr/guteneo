@@ -201,3 +201,18 @@ interception: its `1,5` keyboard entry, unchanged normalized phone, exact 150-ce
 POST and original timeouts remain required. The shared helper qualifies native
 touch/keyboard input; it does not claim to repair that historical failure or
 qualify clipboard/paste behavior.
+
+## Scheduler fixtures use the current persistence contract
+
+A fixture that invokes the actual scheduler must apply the canonical migrations,
+including cleanup dependencies that run before identity and provider checks.
+Do not copy only the tables needed by the visible assertion or skip production
+cleanup to accommodate an obsolete fixture. The signed provider-callback test
+uses the current schema while retaining its recovery and no-outbox/no-lease
+assertions. A failed fixture is evidence to investigate, not a reason to add a
+retry or suppress the independently required job.
+
+Observability-only D1 doubles must preserve the actual statement interface:
+parameterless reads can call `all()` directly, while `bind()` returns a statement
+with those same operations. Keep heartbeat, privacy and aggregate assertions
+when extending these doubles; do not mock away the scheduler’s cleanup stage.

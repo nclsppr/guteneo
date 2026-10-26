@@ -190,6 +190,25 @@ inside a bounded server-owned window. They read no file metadata or bytes and
 establish neither an original-file transfer nor physical-device compatibility.
 No actual import, OAuth renewal, portal update or public directory publication is
 established by these instructions.
+The subsequent **1.1.6** candidate adds the separately default-off
+[selected-original MCP App](PRIVATE_DOCUMENT_UPLOAD.md#selected-local-originals-through-mcp-apps--disabled-candidate),
+with a strict empty opener and five App-only staging tools. Current writer
+membership, `documents:write`, migration 0063 and explicit server activation are
+required. The narrow connection/revision/window is for qualification; general
+rollout has a distinct reviewed activation after actual qualification and
+authorized delivery. Device Files selection then Import is
+a new local selection, not automatic handoff of a conversation attachment.
+The [1.1.5 Desktop diagnostic observation](CLAUDE_QUALIFICATION.md#claude-desktop-free-mcp-apps-checkpoint--26-october-2026)
+qualifies only widget/empty bridge/native chooser cancellation. Larger payloads,
+privacy/confirmations, physical iPhone and other hosts remain independent gates;
+package generation creates no activation or transfer proof.
+The full synthetic source-review inventory is 83 tools: 75 ordinary, two gated
+probe tools and six gated original-picker tools. The five App-only upload tools
+and ordinary `begin_document_upload` disclose potential exact unregistered-object
+cleanup through `destructiveHint:true`. App errors point to its existing Check
+status/explicit Resume controls with no suggested model tool; do not switch to
+binary recovery or call App-only tools from the model. These catalog effects
+grant no role, scope, activation, approval or sending right.
 [Official ChatGPT journey](https://developers.openai.com/plugins/deploy/connect-chatgpt).
 
 ### Claude web and Desktop

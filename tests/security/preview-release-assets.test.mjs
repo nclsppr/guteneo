@@ -6,23 +6,26 @@ import { fileURLToPath } from "node:url";
 import test from "node:test";
 import site from "../../packages/contracts/src/public-site.json" with { type: "json" };
 import mcpUiProbeManifest from "../../packages/contracts/src/mcp-ui-probe-resource.json" with { type: "json" };
+import mcpDocumentUploadManifest from "../../packages/contracts/src/mcp-document-upload-resource.json" with { type: "json" };
 import { collectAssets, sha256 } from "../../scripts/release-source.mjs";
 
 const root = fileURLToPath(new URL("../../", import.meta.url));
 
 async function assertCanonicalPublicAssets(output, release) {
   const paths = new Set(release.assets.map(({ path }) => path));
-  const diagnostic = await readFile(join(output, mcpUiProbeManifest.path));
-  assert.deepEqual(
-    release.assets.find(({ path }) => path === mcpUiProbeManifest.path),
-    {
-      path: mcpUiProbeManifest.path,
-      bytes: mcpUiProbeManifest.bytes,
-      sha256: mcpUiProbeManifest.sha256,
-    },
-  );
-  assert.equal(diagnostic.length, mcpUiProbeManifest.bytes);
-  assert.equal(sha256(diagnostic), mcpUiProbeManifest.sha256);
+  for (const appManifest of [mcpUiProbeManifest, mcpDocumentUploadManifest]) {
+    const resource = await readFile(join(output, appManifest.path));
+    assert.deepEqual(
+      release.assets.find(({ path }) => path === appManifest.path),
+      {
+        path: appManifest.path,
+        bytes: appManifest.bytes,
+        sha256: appManifest.sha256,
+      },
+    );
+    assert.equal(resource.length, appManifest.bytes);
+    assert.equal(sha256(resource), appManifest.sha256);
+  }
   for (const [alias, canonical] of Object.entries(site.assetAliases)) {
     assert.ok(
       !paths.has(alias),

@@ -178,9 +178,18 @@ describe("MCP annotation audit", () => {
     const ordinary = await discoverLocalMcpTools();
     const tools = await discoverLocalMcpTools("reviewed");
     const diagnosticNames = ["check_mcp_ui_probe_bridge", "open_mcp_ui_probe"];
+    const appNames = [
+      "open_mcp_document_upload",
+      "begin_mcp_document_upload",
+      "append_mcp_document_upload",
+      "get_mcp_document_upload",
+      "finish_mcp_document_upload",
+      "cancel_mcp_document_upload",
+    ];
+    const optInNames = [...diagnosticNames, ...appNames];
     expect(ordinary).toHaveLength(75);
-    expect(tools).toHaveLength(77);
-    for (const name of diagnosticNames)
+    expect(tools).toHaveLength(ordinary.length + optInNames.length);
+    for (const name of optInNames)
       expect(ordinary.map((tool) => tool.name)).not.toContain(name);
     for (const name of diagnosticNames)
       expect(tools.find((tool) => tool.name === name)?.annotations).toEqual({
@@ -189,12 +198,12 @@ describe("MCP annotation audit", () => {
         openWorldHint: false,
         idempotentHint: false,
       });
-    expect(
-      tools.filter((tool) => !diagnosticNames.includes(tool.name)),
-    ).toEqual(ordinary);
+    expect(tools.filter((tool) => !optInNames.includes(tool.name))).toEqual(
+      ordinary,
+    );
     expect(tools.map((tool) => tool.name)).toEqual(
       expect.arrayContaining([
-        ...diagnosticNames,
+        ...optInNames,
         "get_postal_setup",
         "configure_postal_sender",
         "create_postal_address_page",
@@ -228,7 +237,7 @@ describe("MCP annotation audit", () => {
     expect(result.documentedToolCount).toBe(tools.length);
     expect(result.explicitBooleanCount).toBe(tools.length * 4);
     expect(auditMcpAnnotations(ordinary, matrix).issues).toEqual(
-      diagnosticNames.map((name) => ({
+      [...optInNames].sort().map((name) => ({
         code: "stale_matrix_tool",
         location: name,
         message: "Matrix entry is absent from MCP tools/list.",

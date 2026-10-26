@@ -110,7 +110,7 @@ describe("private upload MCP contract", () => {
         const tool = tools.find((item) => item.name === name)!;
         expect(tool.annotations).toEqual({
           readOnlyHint: false,
-          destructiveHint: name !== "begin_document_upload",
+          destructiveHint: true,
           idempotentHint: false,
           openWorldHint: false,
         });

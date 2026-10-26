@@ -51,6 +51,31 @@
       ]
     },
     {
+      "name": "append_mcp_document_upload",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Claims and persists one immutable part and receipt under the current writer, size, time and call limits; confirmed replay preserves bytes but advances call accounting. A validated success can also persist current connection activity.",
+        "destructiveHint": "Reconciliation may remove only this attempt's exact unregistered temporary object after fencing its writer. Registered originals are preserved.",
+        "openWorldHint": "Uses the current authenticated private Guteneo account, its fixed internal storage/scanner pipeline and the standard host App bridge; it accepts no arbitrary URL, browser network permission or external recipient.",
+        "idempotentHint": "Same-key and part receipts protect content operations from duplication, but bounded call accounting, reconciliation and successful connection activity can change on repeated calls."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "append_mcp_document_upload"
+        },
+        {
+          "path": "apps/api/src/mcp-app-upload.ts",
+          "symbol": "async append("
+        }
+      ]
+    },
+    {
       "name": "approve_and_send_dispatch",
       "annotations": {
         "readOnlyHint": false,
@@ -116,13 +141,13 @@
       "name": "begin_document_upload",
       "annotations": {
         "readOnlyHint": false,
-        "destructiveHint": false,
+        "destructiveHint": true,
         "openWorldHint": false,
         "idempotentHint": false
       },
       "justification": {
         "readOnlyHint": "Persists an exact private upload reservation or reconciles its durable state. Validated successful production calls can also update connection activity.",
-        "destructiveHint": "Creates an upload-only reservation and may replace its unused short capability; it replaces no document, approval, dispatch or long-lived permission.",
+        "destructiveHint": "Same-key recovery can reconcile an uncertain attempt and delete only its exact unregistered temporary object after fencing its writer; it never deletes a registered document or changes an approval or dispatch.",
         "openWorldHint": "Confined to the authenticated Guteneo organization and fixed canonical private binary endpoint. No arbitrary outbound source or destination is accepted.",
         "idempotentHint": "Business recovery reuses one key and upload ID, but a repeated unused reservation can rotate its capability and successful calls can advance connection activity."
       },
@@ -138,6 +163,31 @@
         {
           "path": "tests/integration/private-document-upload.test.ts",
           "symbol": "private original PDF transport with real D1/R2 and document pipeline"
+        }
+      ]
+    },
+    {
+      "name": "begin_mcp_document_upload",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Reserves immutable original metadata, current authority, a bounded upload slot and staging debt; same-key status recovery may reconcile the existing attempt. A validated success can also persist current connection activity.",
+        "destructiveHint": "Reconciliation may remove only this attempt's exact unregistered temporary object after fencing its writer. Registered originals are preserved.",
+        "openWorldHint": "Uses the current authenticated private Guteneo account, its fixed internal storage/scanner pipeline and the standard host App bridge; it accepts no arbitrary URL, browser network permission or external recipient.",
+        "idempotentHint": "Same-key and part receipts protect content operations from duplication, but bounded call accounting, reconciliation and successful connection activity can change on repeated calls."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "begin_mcp_document_upload"
+        },
+        {
+          "path": "apps/api/src/mcp-app-upload.ts",
+          "symbol": "async begin("
         }
       ]
     },
@@ -196,6 +246,31 @@
         {
           "path": "apps/api/src/connection-observations.ts",
           "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "cancel_mcp_document_upload",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Fences the owned unfinished writer and records cancellation before bounded staging cleanup; it may reconcile an already committed result instead. A validated success can also persist current connection activity.",
+        "destructiveHint": "Cancels only the owned unfinished upload and makes its private staging eligible for bounded deletion; committed or uncertain registered originals are never deleted.",
+        "openWorldHint": "Uses the current authenticated private Guteneo account, its fixed internal storage/scanner pipeline and the standard host App bridge; it accepts no arbitrary URL, browser network permission or external recipient.",
+        "idempotentHint": "Same-key and part receipts protect content operations from duplication, but bounded call accounting, reconciliation and successful connection activity can change on repeated calls."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "appUploads[method]"
+        },
+        {
+          "path": "apps/api/src/mcp-app-upload.ts",
+          "symbol": "async cancel("
         }
       ]
     },
@@ -523,6 +598,31 @@
         {
           "path": "apps/api/src/connection-observations.ts",
           "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "finish_mcp_document_upload",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Claims one complete original, assembles and verifies its exact bytes, then enters the existing private quota/scanner/registration pipeline once. A validated success can also persist current connection activity.",
+        "destructiveHint": "Reconciliation may remove only this attempt's exact unregistered temporary object after fencing its writer. Registered originals are preserved.",
+        "openWorldHint": "Uses the current authenticated private Guteneo account, its fixed internal storage/scanner pipeline and the standard host App bridge; it accepts no arbitrary URL, browser network permission or external recipient.",
+        "idempotentHint": "Same-key and part receipts protect content operations from duplication, but bounded call accounting, reconciliation and successful connection activity can change on repeated calls."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "appUploads[method]"
+        },
+        {
+          "path": "apps/api/src/mcp-app-upload.ts",
+          "symbol": "async finish("
         }
       ]
     },
@@ -908,6 +1008,31 @@
         {
           "path": "apps/api/src/connection-observations.ts",
           "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "get_mcp_document_upload",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Counts an App recovery call and reconciles pending part, finalizer or original receipts, potentially changing the owned upload state. A validated success can also persist current connection activity.",
+        "destructiveHint": "Reconciliation may remove only this attempt's exact unregistered temporary object after fencing its writer. Registered originals are preserved.",
+        "openWorldHint": "Uses the current authenticated private Guteneo account, its fixed internal storage/scanner pipeline and the standard host App bridge; it accepts no arbitrary URL, browser network permission or external recipient.",
+        "idempotentHint": "Same-key and part receipts protect content operations from duplication, but bounded call accounting, reconciliation and successful connection activity can change on repeated calls."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "appUploads[method]"
+        },
+        {
+          "path": "apps/api/src/mcp-app-upload.ts",
+          "symbol": "async get("
         }
       ]
     },
@@ -1579,6 +1704,31 @@
         {
           "path": "apps/api/src/connection-observations.ts",
           "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "open_mcp_document_upload",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Opening presents an App without a file operation, while it reads the current account language and retains ordinary connection activity. A validated success can also persist current connection activity.",
+        "destructiveHint": "Presents the pinned private-picker resource and reads the current account language without selecting, reading or uploading any file or changing a document.",
+        "openWorldHint": "Uses the current authenticated private Guteneo account, its fixed internal storage/scanner pipeline and the standard host App bridge; it accepts no arbitrary URL, browser network permission or external recipient.",
+        "idempotentHint": "Repeated successful presentation can advance the persisted connection-activity timestamp."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "open_mcp_document_upload"
+        },
+        {
+          "path": "apps/api/src/mcp-document-upload.ts",
+          "symbol": "mcpDocumentUploadOpening"
         }
       ]
     },

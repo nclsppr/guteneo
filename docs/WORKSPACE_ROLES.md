@@ -114,6 +114,24 @@ without approval, or a team lead both. None gains members, billing or delegation
 management. Dispatch price/status remains visible to anyone who can read that
 item; reporting gates aggregate summaries/usage rather than every individual amount.
 
+## MCP App original selection — 26 October 2026 disabled candidate
+
+The default-off [MCP App selected-original transport](PRIVATE_DOCUMENT_UPLOAD.md#selected-local-originals-through-mcp-apps--disabled-candidate)
+requires a current administrator, supervisor or operator connection with
+`documents:write` for the opener and every App-only operation. Observers are
+denied. Explicit device-file selection and Import grant only that bounded
+creator-private import; they create no human send approval or mandate. The
+activation setting (bounded qualification or reviewed general rollout) belongs
+to a separately authorized operator, not to any
+workshop role or assistant. Web/native/REST upload permissions remain unchanged,
+and a chooser grants no access to an earlier conversation attachment.
+One active App session is bounded per user within the current workspace;
+switching workspace creates no cross-workspace document or session access. The
+separate database-wide App-finalizer lease is capacity admission, not a new role,
+document right or total Worker memory guarantee. Potential cleanup of this
+attempt's unregistered object is disclosed by the five App-only tools' destructive annotation;
+status recovery creates no authority to delete a registered original.
+
 ## MCP annotations — 20 October 2026 candidate
 
 [Annotation remediation](MCP_ANNOTATION_REMEDIATION.md) preserves roles/scopes/resource

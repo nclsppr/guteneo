@@ -318,9 +318,9 @@ jobs:
           merge-multiple: true
       - name: Remove historical screenshot evidence from this fresh runner
         run: rm -rf reports/screenshots
-      - name: Verify the four-language MCP Apps SDK fixture
+      - name: Verify the four-language MCP Apps SDK fixtures
         if: ${{ matrix.project == 'chromium' && matrix.shardIndex == 1 }}
-        run: node --test tests/browser/mcp-ui-probe.test.mjs
+        run: node --test tests/browser/mcp-ui-probe.test.mjs tests/browser/mcp-document-upload.test.mjs
       # Each shard has its own runner, D1/R2 state and fixed local server ports.
       - run: npx playwright test --project=${{ matrix.project }} --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
         env:
@@ -356,6 +356,7 @@ jobs:
             test-results/status/
             reports/screenshots/
             reports/mcp-ui-probe/
+            reports/mcp-document-upload/
           if-no-files-found: error
           retention-days: 14
 
