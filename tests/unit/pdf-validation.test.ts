@@ -996,9 +996,9 @@ describe("immutable PDF diagnostics and explicit per-check purchases", () => {
       const names = tools.map((tool) => tool.name);
       // Business replay remains keyed, but the shared MCP wrapper also persists
       // successful connection activity; the complete tool is not idempotent.
-      expect(
-        tools.find((tool) => tool.name === "validate_pdf")?.annotations,
-      ).toEqual({
+      const validationTool = tools.find((tool) => tool.name === "validate_pdf")!;
+      expect(validationTool.annotations).toEqual({
+        title: validationTool.title,
         readOnlyHint: false,
         destructiveHint: false,
         idempotentHint: false,

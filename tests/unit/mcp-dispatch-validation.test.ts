@@ -68,6 +68,7 @@ describe("non-consuming MCP dispatch validation", () => {
         (t) => t.name === "dry_run_dispatch",
       )!;
       expect(tool.annotations).toEqual({
+        title: tool.title,
         readOnlyHint: false,
         destructiveHint: false,
         idempotentHint: false,
