@@ -108,7 +108,7 @@ export async function discoverLocalMcpTools(
       role: "admin",
       actor: "mcp",
     },
-    scopes: reviewed ? ["documents:read"] : [],
+    scopes: reviewed ? ["documents:read", "documents:write"] : [],
     clientId: "annotation-audit",
     token: "synthetic-not-a-credential",
     expiresAt: reviewed ? Math.floor(now / 1000) + 3600 : 0,
@@ -129,6 +129,7 @@ export async function discoverLocalMcpTools(
     DB: service as unknown as AuthEnv["DB"],
     ...(reviewed
       ? {
+          MCP_DOCUMENT_UPLOAD_APP: "enabled",
           MCP_UI_PROBE: JSON.stringify({
             enabled: true,
             connectionId: "annotation_audit_probe",
@@ -143,6 +144,7 @@ export async function discoverLocalMcpTools(
     domain: service as unknown as McpServices["domain"],
     documents: service as unknown as McpServices["documents"],
     documentUploads: service as unknown as McpServices["documentUploads"],
+    appDocumentUploads: service as unknown as McpServices["appDocumentUploads"],
     postal: service as unknown as McpServices["postal"],
     workflow: service as unknown as McpServices["workflow"],
     pdfValidation: service as unknown as McpServices["pdfValidation"],

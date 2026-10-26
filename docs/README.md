@@ -26,6 +26,10 @@ and brand-aligned diagrams. `docs.guteneo.com` is reserved for customer document
 Run `npm run docs:build` and `npm run docs:check` to synchronize both views.
 
 The [document email contract](PROTECTED_EMAIL.md) links the account invitation, V2 template and [recipient feedback lifecycle](EMAIL_RECIPIENT_FEEDBACK.md).
+The [private original transport](PRIVATE_DOCUMENT_UPLOAD.md) owns binary, bounded
+inline and the disabled App selected-original candidate; the
+[dated Claude checkpoint](CLAUDE_QUALIFICATION.md) separates the observed Desktop
+widget/empty-bridge/chooser cancellation from actual large-file and mobile proof.
 
 ## Current sources of truth
 

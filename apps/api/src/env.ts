@@ -13,6 +13,8 @@ export interface Env {
   APP_ORIGIN: string;
   /** Server-owned, expiring MCP Apps diagnostic; absent by default. */
   MCP_UI_PROBE?: string;
+  /** Default-off original-file App; bounded qualification or authorized rollout. */
+  MCP_DOCUMENT_UPLOAD_APP?: string;
   DOCUMENT_RENDERER_URL?: string;
   SCANNER?: Fetcher;
   PDF_VALIDATOR?: Fetcher;

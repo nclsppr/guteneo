@@ -39,7 +39,24 @@ export type AssistantRecoveryContext =
   | "read_document_pages"
   | "postal_setup"
   | "postal_preflight"
-  | "private_document_upload";
+  | "private_document_upload"
+  | "mcp_app_document_upload";
+
+function recoverMcpAppUpload(code: string): AssistantRecovery {
+  if (["MCP_DOCUMENT_UPLOAD_UNAVAILABLE", "APP_UPLOAD_DISABLED", "UPLOAD_AUTHORITY_CHANGED", "CONNECTION_REVOKED", "INSUFFICIENT_SCOPE", "TOKEN_EXPIRED", "TOKEN_INVALID"].includes(code))
+    return {
+      action: "check_document_upload",
+      tool: null,
+      retry: "after_change",
+      message: "Restore current document-write authority and availability before returning to the existing Guteneo PDF App. Keep the same upload and original metadata; this does not activate a mandate or authorize a new import. Use its Check status control after recovery, not a binary-upload tool.",
+    };
+  return {
+    action: "check_document_upload",
+    tool: null,
+    retry: "read_only",
+    message: "Use Check status in the existing Guteneo PDF App for the same upload. If the begin reply contained no ID, that control recovers only the same frozen key, filename, size and SHA-256. Resume content only after conclusive App status explicitly permits it and the person requests Resume. Never invoke App-only tools from the model, expose file bytes, use a new key, switch transport, reconstruct the PDF or create a dispatch. An unknown final pipeline remains status-only.",
+  };
+}
 
 function recoverPrivateUpload(code: string): AssistantRecovery {
   if (
@@ -94,6 +111,7 @@ export function assistantRecovery(
   code: string,
   context?: AssistantRecoveryContext,
 ): AssistantRecovery {
+  if (context === "mcp_app_document_upload") return recoverMcpAppUpload(code);
   if (context === "private_document_upload") return recoverPrivateUpload(code);
   if (["PDF_VALIDATION_BUSY", "PDF_VALIDATION_FAILED"].includes(code))
     return {

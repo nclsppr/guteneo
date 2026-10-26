@@ -50,6 +50,49 @@ full-tenant scan. When adding
 a job, define its authority snapshot, lease, idempotency key, maximum batch,
 observable state, timeout and safe recovery before wiring it into the scheduler.
 
+## Private original staging has its own cleanup fence
+
+The disabled 26 October 2026 MCP App candidate stages fixed original-file parts
+in private R2 objects with D1 receipts. The existing minute scheduler performs
+this cleanup before identity/provider availability gates: an Auth0 or provider
+outage must not indefinitely retain abandoned bytes. It adds no new scheduled
+resource. Migration 0063 must precede publication of the code because this call
+runs even with the App flag absent. The batch is at most two sessions and 80 parts
+per tick.
+
+A database-wide lease admits one App assembly at a time; it does not bound all
+ordinary binary/inline requests or prove total isolate memory use. The same
+bounded scheduler prioritizes an expired App-finalizer lease, fences its original
+writer first, derives App state from the current original ledger and releases
+logical capacity. Recovery may find an already registered document but never
+reruns the content pipeline. Capacity recovery does not authorize early staging
+or original deletion.
+
+Cancel, expiry and revocation first fence writers. Cleanup may then remove only
+the session's owned staging keys after checking writer/receipt state. A registered
+or deduplicated original follows ordinary document policy and is never deleted as
+staging. Retain the tombstone and key references needed to reconcile a late or
+unknown write; neither a missing receipt nor a storage listing proves there was
+no object write. D1/R2 separation makes uncertainty explicit.
+Staging deletion waits for the original reservation expiry plus ninety seconds.
+Pre-put refusal is settled and can release debt after cleanup; a missing object
+for an actually uncertain put retains debt and immutable tombstone/key references
+until settlement is established. It cannot authorize replay or inferred erasure.
+Settled staging proven absent is excluded from future object maintenance; retained
+metadata does not cause recurring R2 reads/deletes. Partial uncleaned/due and
+state-leading finalizer indexes avoid rescanning settled history.
+
+Monitor reserved staging debt and oldest unresolved age alongside actual
+request/row/object/CPU/memory counts. Healthy cleanup is eventual; session expiry
+is not an immediate deletion guarantee during outages. Do not resolve unknown
+state by starting another upload, repeating the whole original or widening
+retention/authority. The
+[private original contract](https://github.com/nclsppr/guteneo/blob/main/docs/PRIVATE_DOCUMENT_UPLOAD.md)
+owns exact bounds, migration, writer fencing and same-ID recovery, while
+[MCP integration](/integrations/mcp/) explains the selected-local-original journey.
+Local cleanup fixtures establish their controlled state transitions, not hosted
+deletion latency, billing or real-client transfer.
+
 ## Retention is a graph of references
 
 Ordinary PDF maintenance considers the existing ninety-day retention policy

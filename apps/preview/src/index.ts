@@ -1,5 +1,6 @@
 import site from "../../../packages/contracts/src/public-site.json" with { type: "json" };
 import mcpUiProbeManifest from "../../../packages/contracts/src/mcp-ui-probe-resource.json";
+import mcpDocumentUploadManifest from "../../../packages/contracts/src/mcp-document-upload-resource.json";
 import {
   canonicalPublicAssetPath,
   canonicalPublicPath,
@@ -120,7 +121,11 @@ export default {
       await env.ASSETS.fetch(assetRequest),
     );
     const headers = new Headers(response.headers);
-    if (pathname === mcpUiProbeManifest.path)
+    if (
+      [mcpUiProbeManifest.path, mcpDocumentUploadManifest.path].includes(
+        pathname,
+      )
+    )
       headers.set("Content-Type", "text/plain; charset=utf-8");
     for (const [key, value] of Object.entries(securityHeaders))
       headers.set(key, value);

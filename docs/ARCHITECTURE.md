@@ -1,5 +1,37 @@
 # Architecture
 
+## Selected-original MCP App — 26 October 2026 disabled candidate
+
+The App-only transport adds private R2 staging and tenant-scoped D1 part receipts
+through migration 0063. The official App bridge carries verified fixed parts;
+one finalization claim assembles and validates the immutable full original before
+the same quota, private document-registration, scanner and validation pipeline as
+binary/inline upload. PDF bytes never enter SQL. D1 receipts, R2 writes, quota,
+registration and completion remain separate operations with explicit uncertainty
+recovery; they are not a distributed transaction. Current authority and expiry
+fences apply across waits and final registration. See the
+[authoritative transport contract](PRIVATE_DOCUMENT_UPLOAD.md#selected-local-originals-through-mcp-apps--disabled-candidate).
+
+The default-off resource/tool gate supports an exact current connection/revision
+qualification window or a separately explicit general production rollout after
+review and actual qualification. Both retain current writer/OAuth authority; the
+candidate activates neither mode by itself. It adds no direct browser networking, Origin exception, public
+file source, OAuth scope, provider or infrastructure. Cleanup runs in the existing
+minute scheduler before identity/provider availability gates so those outages do
+not indefinitely retain abandoned staging. Cancellation/expiry fences writers
+before deletion of only owned staging; registered/deduplicated originals retain
+their existing policy. Exact host payload/privacy behavior and concurrent
+resource headroom require independent qualification.
+
+One active App session is scoped to the user within the current workspace. A
+separate database-wide finalizer lease bounds App assembly; minute cron reclaims
+expired capacity after fencing the original writer, without replaying its
+pipeline or deleting an original. That lease does not bound concurrent ordinary
+imports or prove total isolate memory. Recoverable part uncertainty and terminal
+pipeline uncertainty have distinct App behavior, with
+[same-original recovery](PRIVATE_DOCUMENT_UPLOAD.md#staging-limits-and-unknown-outcomes)
+and no automatic retry or transport switch.
+
 ## Document email entry — 26 October 2026 candidate
 
 Individual web and MCP document email now enters the existing account-based

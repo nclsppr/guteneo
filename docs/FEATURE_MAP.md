@@ -1,7 +1,7 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
 # Guteneo feature tree and developer atlas
 
-**23 domains · 312 features · 36 journeys · 76 documented REST operations · 77 MCP tools**
+**23 domains · 321 features · 37 journeys · 76 documented REST operations · 83 MCP tools**
 Updated 2026-10-26.
 
 Repository implementation inventory. Availability depends on current capabilities and authority; implementation, activation and deployed proof are distinct.
@@ -17,7 +17,7 @@ mindmap
       Access and identity (31)
       Team and responsibilities (10)
     Create
-      Documents and protection (14)
+      Documents and protection (20)
       Template studio (14)
       Data and mappings (9)
       PDF generation and distribution (11)
@@ -33,7 +33,7 @@ mindmap
       Workspace layout and browser appearance (22)
       PDF verification (10)
     Interfaces
-      Assistants and API (25)
+      Assistants and API (28)
       iPhone and iPad (9)
       Public pages, languages and appearance (17)
     Operations
@@ -51,7 +51,7 @@ mindmap
 
 ### Create
 
-- [Documents and protection](#documents) — 14 features; capability-gated.
+- [Documents and protection](#documents) — 20 features; capability-gated.
 - [Template studio](#templates) — 14 features; capability-gated.
 - [Data and mappings](#datasets) — 9 features; capability-gated.
 - [PDF generation and distribution](#generation) — 11 features; capability-gated.
@@ -73,7 +73,7 @@ mindmap
 
 ### Interfaces
 
-- [Assistants and API](#assistants) — 25 features; host-qualified.
+- [Assistants and API](#assistants) — 28 features; host-qualified.
 - [iPhone and iPad](#native) — 9 features; local-candidate.
 - [Public pages, languages and appearance](#public) — 17 features; public.
 
@@ -103,6 +103,8 @@ Four human workshop roles are defined by packages/contracts/src/roles.ts. The as
 | Read accessible workshop content | Yes | Yes | Yes | Yes | Current member + consented scopes + document access |
 | Import and prepare | Yes | Yes | Yes | No | Current member + scopes + qualified channel/transport |
 | Reserve/transfer a private original PDF | Own connected OAuth writer + documents:write | Own connected OAuth writer + documents:write | Own connected OAuth writer + documents:write | No | Current writer + documents:write + explicit original-file permission and exact bytes; binary capability bound to one operation/connection/expiry or one inline original up to 64 KiB through the same 0061 fences; no read/send/approval authority |
+| Select/import a local original through the gated MCP App | Own eligible current OAuth writer connection only | Own eligible current OAuth writer connection only | Own eligible current OAuth writer connection only | No | Current writer + documents:write + explicit server qualification/general-rollout activation + device selection/Import; both modes retain current production OAuth authority, and App-only staging adds no send/approval/mandate right or access to an earlier conversation attachment |
+| Activate the MCP Apps original transport | No authority from workshop role | No authority from workshop role | No authority from workshop role | No authority from workshop role | No; distinct authorized operator selects bounded qualification or reviewed general rollout, never an assistant tool, permission or mandate |
 | Reveal protected-link password or revoke hosting | Current browser preparation authority + source access | Current browser preparation authority + source access | Current browser preparation authority + source access | No | No; password and revocation remain CSRF-protected browser operations |
 | Human approval and confirmation | Yes | Approval option | No | No | Cannot assert human consent; standard confirmation requires recorded browser approval |
 | Expert review and acceptance | Browser grants a bounded mandate | No mandate administration | No mandate administration | No | Pre-existing active client-bound mandate + current role/scopes + exact review + host confirmations |
@@ -213,9 +215,9 @@ Supervisor approval/reporting options are independent and off by default. Resour
 <a id="documents"></a>
 ### Documents and protection
 
-**Availability model:** capability-gated. Implemented; exact-byte, scanner and owner-access gates apply.
+**Availability model:** capability-gated. Existing document contracts implemented; exact-byte, scanner and owner-access gates apply. The additive MCP Apps selected-original candidate is disabled by default and requires migration 0063 before code publication, even with the App flag off because scheduled cleanup is unconditional. Temporary exact-connection qualification and reviewed general rollout are separate activation modes; source/package availability activates neither. Actual normal-size App transfer, host privacy/confirmation limits and physical iPhone remain unqualified.
 
-**Surfaces:** Web/native and existing REST/MCP document access; private reservation/status through MCP plus one upload-only binary PUT up to 10 MiB, or one bounded inline MCP original up to 64 KiB through the same 0061 pipeline. Actual host original-byte/encoding/egress capability and physical iPhone evidence remain separately qualified.
+**Surfaces:** Web/native and existing REST/MCP document access remain unchanged. MCP supports private binary upload up to 10 MiB and inline originals up to 64 KiB; a separately gated compatible-host App candidate selects a new local original and stages it through App-only tools before the same private pipeline. It adds no public REST/browser upload adapter or native-app feature. Actual transport, attachment handoff and physical iPhone require independent qualification.
 
 - Bounded PDF upload and remote import with English API diagnostics and only a sanitized public source hostname
 - Search, paginated listing, metadata and page reading
@@ -231,10 +233,16 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Host file/code/network access and physical Claude iPhone OAuth/file transfer require separate qualification; attachment previews, extracted text, tool discovery and desktop helpers do not prove original-byte transfer
 - Reservation can return deterministic POSIX Python 3.9+ standard-library client code with its SHA-256 for authorized local/cloud execution; status never returns code/capability, and no package install, external script fetch or actual host qualification is implied
 - Small-original import_inline_pdf fallback carries one canonical-base64 original of 20–65,536 bytes with actual size/SHA-256 and a stable key through existing OAuth MCP when runtime Guteneo egress is unavailable; validation precedes reservation, internal 0061 claim/expiry/authority/quota/private-ACL/scanner processing is reused without fetch, and encoded context, truncation, same-ID unknown recovery and physical-client qualification remain explicit
+- Default-off MCP Apps original-selection transport uses a strict empty opener, explicit device Files selection then Import, local size/SHA over the same selected bytes, and five App-only tools through the official bridge; this is a selected local original, not automatic conversation-attachment handoff
+- Private immutable R2 staging and tenant-scoped D1 part receipts bound App transport to 256 KiB raw parts, 40 parts/10 MiB, 64 App calls/session, five minutes/original-token expiry, one active session per user within the current workspace, 20 pending/200 MiB reserved staging debt per organization and 200 daily reservations; inline and binary limits remain unchanged
+- App part replay, current-authority/expiry fences and same-key/status recovery preserve the original: pre-put denial is APP_PART_NOT_ACCEPTED, uncertain attempted writes retain debt as APP_PART_UNCONFIRMED and recover only through positive immutable-object size/hash evidence, then explicit Resume; final pipeline unknown stays status-only without another import
+- A database-wide single App-finalizer lease bounds App assembly only; existing minute cron prioritizes expired leases, fences the original writer first and releases logical capacity without rerunning the pipeline. Cleanup remains at most two sessions/80 parts, waits for original expiry plus 90 seconds, retains unresolved debt/tombstones and never deletes registered/deduplicated originals; total Worker memory is not qualified by this admission limit
+- Authenticated documents.originalFilePicker exposes explicit_local_original and conversationAttachmentAccess:false; App model context receives only registered document ID/status and bound original size/SHA, never content/base64/filename/token, and explicit selection is independent of conversation attachment handoff
+- MCP_DOCUMENT_UPLOAD_APP is off by default: strict existing-connection/revision JSON supports at most one hour of qualification, while explicit enabled mode supports a separately reviewed general production rollout after actual qualification and authorized delivery; both retain current writer/OAuth guards, observer denial and no browser fetch, Origin/network permission, new scope, approval, paid check, mandate or infrastructure
 
 **Contract:** [SCANNER_RESCAN.md](SCANNER_RESCAN.md) · **Implementation:** [apps/api/src/documents.ts](../apps/api/src/documents.ts)
 
-**Tests:** [tests/integration/documents.test.ts](../tests/integration/documents.test.ts), [tests/unit/mcp-integrations.test.ts](../tests/unit/mcp-integrations.test.ts), [tests/integration/private-document-upload.test.ts](../tests/integration/private-document-upload.test.ts), [tests/unit/private-document-upload-mcp.test.ts](../tests/unit/private-document-upload-mcp.test.ts), [tests/security/private-pdf-client.test.mjs](../tests/security/private-pdf-client.test.mjs)
+**Tests:** [tests/integration/documents.test.ts](../tests/integration/documents.test.ts), [tests/unit/mcp-integrations.test.ts](../tests/unit/mcp-integrations.test.ts), [tests/integration/private-document-upload.test.ts](../tests/integration/private-document-upload.test.ts), [tests/unit/private-document-upload-mcp.test.ts](../tests/unit/private-document-upload-mcp.test.ts), [tests/security/private-pdf-client.test.mjs](../tests/security/private-pdf-client.test.mjs), [tests/integration/mcp-app-document-upload.test.ts](../tests/integration/mcp-app-document-upload.test.ts), [tests/unit/mcp-app-upload-contracts.test.ts](../tests/unit/mcp-app-upload-contracts.test.ts), [tests/unit/mcp-app-upload.test.ts](../tests/unit/mcp-app-upload.test.ts), [tests/browser/mcp-document-upload.test.mjs](../tests/browser/mcp-document-upload.test.mjs), [tests/security/mcp-document-upload.test.mjs](../tests/security/mcp-document-upload.test.mjs)
 
 **Documented REST operations**
 
@@ -248,12 +256,18 @@ Supervisor approval/reporting options are independent and off by default. Resour
 
 **MCP tools**
 
+- `append_mcp_document_upload`
 - `begin_document_upload`
+- `begin_mcp_document_upload`
+- `cancel_mcp_document_upload`
+- `finish_mcp_document_upload`
 - `get_document`
 - `get_document_upload`
+- `get_mcp_document_upload`
 - `import_document`
 - `import_inline_pdf`
 - `list_documents`
+- `open_mcp_document_upload`
 - `read_document_pages`
 - `render_pdf`
 - `rescan_document`
@@ -672,9 +686,9 @@ Supervisor approval/reporting options are independent and off by default. Resour
 <a id="assistants"></a>
 ### Assistants and API
 
-**Availability model:** host-qualified. Implemented contracts/packages with bounded dated Claude Desktop observations owned by CLAUDE_QUALIFICATION.md; the no-content MCP Apps probe is a default-off diagnostic candidate, not a new file transport. Broader host compatibility, OAuth refresh, archive installation and marketplace publication need separate evidence.
+**Availability model:** host-qualified. Implemented contracts/packages with bounded dated Claude Desktop observations owned by CLAUDE_QUALIFICATION.md. The no-content probe and new selected-original App transport have separate default-off gates; the latter has no actual normal-size transfer pass. Broader host compatibility, OAuth refresh, archive installation and marketplace publication need separate evidence.
 
-**Surfaces:** Public/account browser guides and generated static downloads; REST/OpenAPI, MCP and host-specific packages. The gated MCP Apps resource/tool bridge adds only a diagnostic inside a compatible host, with no file/upload/import/provider path. Archive or diagnostic access creates no OAuth consent, membership, mandate or channel activation; native host installation remains separately qualified.
+**Surfaces:** Public/account browser guides and generated static downloads; REST/OpenAPI, MCP and host-specific packages. Compatible-host MCP Apps have separately gated no-content diagnostic and selected-local-original transport resources; tool-only workflows remain useful. Archive/App access creates no OAuth consent, membership, mandate or channel activation; native host installation, file payloads and attachment handoff remain separately qualified.
 
 - Discover actual account capabilities and limits
 - REST/OpenAPI and Streamable HTTP MCP catalogues
@@ -682,7 +696,10 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Current host-specific OAuth and original-file transport compatibility matrix for Claude and ChatGPT web/iPhone, Cursor desktop/cloud, Grok, Copilot, Gemini and other clients; installation/catalog presence never establishes a pass
 - Import through the file transport actually supported by the host; docs/CLAUDE_QUALIFICATION.md owns the dated actual Claude Desktop Free inline-original qualification (1,268 bytes on c81, backend unchanged at f946, ready/verified after automatic continuation without reimport/rescan) and its separate same-original prepare-only follow-up. Binary 10 MiB, inline originals above 64 KiB without permitted egress, other email preparations, web/iPhone and other hosts retain separate unqualified limits
 - Optional no-content MCP Apps diagnostic is absent by default; MCP_UI_CAPABILITY_PROBE.md owns its exact-connection/revision and at-most-one-hour activation contract, current production OAuth/documents:read, versioned UI resource, strict empty bridge acknowledgement, zero external dependencies/permissions and unchanged authentication/rate/activity accounting
-- Diagnostic UI reports finite local secure-context and picker-API states using the standard bundled MCP Apps App client; a user-gesture chooser request reads no file content or metadata and proves neither existing-attachment access nor original transfer, while activation, actual host rendering and physical-device evidence remain separate
+- Diagnostic UI reports finite local secure-context and picker-API states using the standard bundled MCP Apps App client; the dated 8854/1.1.5 Claude Desktop Free observation covers a rendered widget, empty bridge call and actual native chooser cancelled without file selection/read/upload, with the temporary gate removed; it proves no large-payload transfer, existing-attachment access, web or physical-device pass
+- A separate default-off selected-original App candidate uses current documents:write and writer authority, explicit device-file selection/Import and five App-only staging tools; PRIVATE_DOCUMENT_UPLOAD.md owns bounds, recovery, maintenance and activation, separately from the no-content probe
+- Source inventory includes 75 ordinary tools, two optional no-content probe tools and six optional original-picker tools: 83 reviewed tools on full synthetic activation, not 83 tools universally visible to real clients
+- All five App-only upload tools and ordinary begin_document_upload declare destructiveHint:true for potential same-upload reconciliation that deletes only this attempt's unregistered object; App error recovery has tool:null and uses the existing App Check status/explicit Resume, never model invocation of App-only tools or binary switching
 - Document, template, dataset, generation and preparation tools
 - Browser review before sending; scopes never elevate membership rights
 - Optional bounded expert delegation for one OAuth client
@@ -704,7 +721,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 
 **Contract:** [MCP_CLIENT_COMPATIBILITY.md](MCP_CLIENT_COMPATIBILITY.md) · **Implementation:** [apps/api/src/mcp.ts](../apps/api/src/mcp.ts)
 
-**Tests:** [tests/unit/mcp-integrations.test.ts](../tests/unit/mcp-integrations.test.ts), [tests/unit/mcp-annotation-audit.test.ts](../tests/unit/mcp-annotation-audit.test.ts), [tests/unit/mcp-ui-probe.test.ts](../tests/unit/mcp-ui-probe.test.ts), [tests/security/mcp-ui-probe.test.mjs](../tests/security/mcp-ui-probe.test.mjs), [tests/integration/expert-approval.test.ts](../tests/integration/expert-approval.test.ts), [tests/unit/auth.test.ts](../tests/unit/auth.test.ts), [tests/integration/template-workflow.test.ts](../tests/integration/template-workflow.test.ts), [tests/unit/pdf-validation.test.ts](../tests/unit/pdf-validation.test.ts), [tests/security/integration-package.test.mjs](../tests/security/integration-package.test.mjs), [tests/security/claude-plugin.test.mjs](../tests/security/claude-plugin.test.mjs), [tests/security/integration-sync.test.mjs](../tests/security/integration-sync.test.mjs), [tests/security/preview-release-assets.test.mjs](../tests/security/preview-release-assets.test.mjs), [tests/preview-e2e/assistant-hub.spec.ts](../tests/preview-e2e/assistant-hub.spec.ts), [tests/e2e/assistant-hub.spec.ts](../tests/e2e/assistant-hub.spec.ts)
+**Tests:** [tests/unit/mcp-integrations.test.ts](../tests/unit/mcp-integrations.test.ts), [tests/unit/mcp-annotation-audit.test.ts](../tests/unit/mcp-annotation-audit.test.ts), [tests/unit/mcp-ui-probe.test.ts](../tests/unit/mcp-ui-probe.test.ts), [tests/unit/mcp-app-upload.test.ts](../tests/unit/mcp-app-upload.test.ts), [tests/unit/mcp-app-upload-contracts.test.ts](../tests/unit/mcp-app-upload-contracts.test.ts), [tests/browser/mcp-document-upload.test.mjs](../tests/browser/mcp-document-upload.test.mjs), [tests/security/mcp-document-upload.test.mjs](../tests/security/mcp-document-upload.test.mjs), [tests/security/mcp-ui-probe.test.mjs](../tests/security/mcp-ui-probe.test.mjs), [tests/integration/expert-approval.test.ts](../tests/integration/expert-approval.test.ts), [tests/unit/auth.test.ts](../tests/unit/auth.test.ts), [tests/integration/template-workflow.test.ts](../tests/integration/template-workflow.test.ts), [tests/unit/pdf-validation.test.ts](../tests/unit/pdf-validation.test.ts), [tests/security/integration-package.test.mjs](../tests/security/integration-package.test.mjs), [tests/security/claude-plugin.test.mjs](../tests/security/claude-plugin.test.mjs), [tests/security/integration-sync.test.mjs](../tests/security/integration-sync.test.mjs), [tests/security/preview-release-assets.test.mjs](../tests/security/preview-release-assets.test.mjs), [tests/preview-e2e/assistant-hub.spec.ts](../tests/preview-e2e/assistant-hub.spec.ts), [tests/e2e/assistant-hub.spec.ts](../tests/e2e/assistant-hub.spec.ts)
 
 **Documented REST operations**
 
@@ -1316,7 +1333,7 @@ Open My documents directly → start the personal shell → validate current per
 
 Qualify actual host access to the selected original and its native, permitted binary or bounded inline transport → compute actual original filename, byte count and SHA-256 with code → preserve an available native file envelope, otherwise reserve through begin_document_upload and make one permitted fixed binary PUT, or use one import_inline_pdf invocation with canonical original base64 up to 64 KiB when runtime egress is unavailable → read get_document_upload on the same upload ID under current OAuth authority → inspect the same creator-private document after ordinary scanner/quarantine processing. If a lost inline response contains no ID, recover the strict same key/metadata through begin_document_upload before status; never automatically repeat the encoded import. Later preparation, approval and sending follow separate journeys.
 
-**Failure/recovery:** Reject invalid/noncanonical base64, inline overflow, original size/hash mismatch, unknown/used/expired capability, binary cookies/Authorization/Origin/query/encoding, changed issuer trust/client/connection/revision/membership, overflow and timeout. Validate inline bytes before creating a reservation; the existing 2 MiB MCP request limit is unchanged and does not imply a 10 MiB inline route. Never publish, chunk, truncate or reconstruct a private PDF. Recovery retains the same key/upload/document and never blindly retries an unknown outcome or logs original bytes/capabilities. No sending, purchase or human/delegated approval is created. Web/Desktop/Code evidence does not qualify Claude on iPhone.
+**Failure/recovery:** Reject invalid/noncanonical base64, inline overflow, original size/hash mismatch, unknown/used/expired capability, binary cookies/Authorization/Origin/query/encoding, changed issuer trust/client/connection/revision/membership, overflow and timeout. Validate inline bytes before creating a reservation; the existing 2 MiB MCP request limit is unchanged and does not imply a 10 MiB inline route. Never publish, split inline calls, truncate or reconstruct a private PDF; J37 owns the distinct App-only staging protocol. Recovery retains the same key/upload/document and never blindly retries an unknown outcome or logs original bytes/capabilities. No sending, purchase or human/delegated approval is created. Web/Desktop/Code evidence does not qualify Claude on iPhone.
 
 [Detailed contract](PRIVATE_DOCUMENT_UPLOAD.md).
 
@@ -1336,9 +1353,19 @@ Open the email footer preference link → capture and remove fragment token with
 
 Review the diagnostic source/package and explicit target/window → operator selects one current connection and authorization revision for at most one hour → person opens open_mcp_ui_probe in the actual host → inspect finite local render/secure-context/picker-API states → request the fixed acknowledgement through check_mcp_ui_probe_bridge → optionally request the native chooser from a user gesture and cancel without selecting a file → retain the actual visible result separately → remove activation or let the window expire.
 
-**Failure/recovery:** Absent, malformed, early, expired or mismatched activation makes tools and the resource unavailable; current OAuth, scope, membership and connection revision remain mandatory, including for a cached URI. The probe sends no host context, file metadata or file bytes and creates no document, import/upload grant, quote, approval, charge, outbox or provider operation. Existing authentication/rate/activity accounting remains. Unsupported rendering/bridge/picker is an explicit diagnostic limit, not permission to widen access or relax network/Origin policy. API presence or a chooser request proves no existing-attachment access, larger-file transfer or physical-iPhone pass.
+**Failure/recovery:** Absent, malformed, early, expired or mismatched activation makes tools and the resource unavailable; current OAuth, scope, membership and connection revision remain mandatory, including for a cached URI. The probe sends no host context, file metadata or file bytes and creates no document, import/upload grant, quote, approval, charge, outbox or provider operation. Existing authentication/rate/activity accounting remains. Unsupported rendering/bridge/picker is an explicit diagnostic limit, not permission to widen access or relax network/Origin policy. The dated Desktop widget/empty-bridge/native-chooser-cancellation observation proves no selected original, existing-attachment access, larger-file transfer, web or physical-iPhone pass.
 
 [Detailed contract](MCP_UI_CAPABILITY_PROBE.md).
+
+### J37 · Import a selected local original through an MCP App
+
+**Actor:** Person using a compatible host and their eligible OAuth connection; current administrator, supervisor or operator with documents:write and explicit original-file permission; distinct authorized operator controls bounded qualification or reviewed general activation. **Branch:** Documents; gated MCP App only, existing web/native/REST upload contracts unchanged.
+
+Review source/package and actual host checkpoint → apply migration 0063 before code publication even with the App flag off → activate an exact connection/revision window of at most one hour for qualification, or a separately explicit general rollout after reviewed actual qualification and authorized delivery → open open_mcp_document_upload with empty input → person chooses one allowed local PDF from device Files, reviews content exclusions and explicitly clicks Import → App computes actual size/SHA over the same bounded buffer → begin_mcp_document_upload freezes metadata/authority/layout → serialized append_mcp_document_upload calls stage verified fixed parts through the official App bridge → finish_mcp_document_upload verifies the assembled original once and enters the shared private scanner/quarantine pipeline → retain the same creator-private document and pass only its ID/status/size/SHA to model context → follow existing same-document analysis; prepare only when ready and requested. Remove temporary qualification activation afterwards. This is a new local selection, not automatic handoff of a conversation attachment.
+
+**Failure/recovery:** Absent/invalid activation, mismatched/expired qualification, observer role, missing scope, changed connection/revision/issuer/membership, token/session expiry, quota/debt/call limits, noncanonical or conflicting parts and full-size/hash/PDF mismatch fail closed. General mode retains current production OAuth/writer guards; without MCP Apps explain the unsupported flow and retain ordinary tools. Bounds remain 256 KiB/part, 40 parts/10 MiB, 64 App calls, five minutes/original token expiry, one active session per user within the current workspace, 20 pending/200 MiB organization debt and 200 daily reservations. APP_PART_NOT_ACCEPTED is a settled pre-put refusal. APP_PART_UNCONFIRMED allows only manual same-ID status with volatile buffer retained inside fixed expiry/budget/current authority; only positive immutable-object length/hash evidence can enable explicit Resume. Missing objects never authorize replay. Final pipeline uncertainty is status-only and clears bytes; no new key, transport switch or reimport. The App-specific recovery has tool:null rather than instructing model/binary calls. Cancel/expiry/revocation fence writers; bounded cron also reclaims expired global App-finalizer capacity without deleting an original, while staging waits for original expiry plus 90 seconds and unresolved puts retain debt/tombstones. No direct browser fetch, egress/Origin/CSP exception, public PDF, bytes/base64/token in model context/storage/logs, paid check, approval, send or mandate. Local 70 backend and 18 Node client/security checks remain fixture evidence; actual large payload, host retention/confirmations, normal-size original, web/iPhone and attachment handoff remain unqualified.
+
+[Detailed contract](PRIVATE_DOCUMENT_UPLOAD.md).
 
 ## Required maintenance
 

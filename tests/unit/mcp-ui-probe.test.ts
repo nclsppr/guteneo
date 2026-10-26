@@ -74,7 +74,7 @@ async function connected(
     { get: (_target, key) => (key === "then" ? undefined : forbidden) },
   );
   const services = {
-    probeAssets: {
+    appAssets: {
       fetch: assets,
     },
     domain: service,

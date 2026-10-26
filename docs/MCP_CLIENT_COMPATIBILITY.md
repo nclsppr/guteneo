@@ -2,7 +2,8 @@
 
 <img src="https://guteneo.com/brand/guteneo-mark.png" alt="Guteneo" width="64" height="64" />
 
-Checked against primary product documentation on 25 October 2026. This is the
+Checked against primary product documentation on 25 October 2026, with dated
+actual Desktop observations added on 26 October. This is the
 current qualification plan, not a claim that every client has passed. The dated
 [platform audit](MCP_PLATFORM_READINESS.md) retains its historical observations.
 Installation instructions live in [assistant setup](LLM_SETUP.md); the binary
@@ -22,7 +23,8 @@ Every client must separately establish:
 1. Discovery, exact client registration and normal OAuth consent.
 2. An authenticated low-impact tool call with the intended workspace membership.
 3. Original PDF bytes: a host-authorized native download source, an authorized
-   runtime with permitted binary PUT, or the bounded inline original transport.
+   runtime with permitted binary PUT, the bounded inline original transport, or
+   the separately gated App transport after its own actual-host qualification.
 4. Matching original and stored SHA-256/size, followed by ready analysis on the
    same document ID. An attachment summary or regenerated PDF does not qualify.
 5. Correct channel preparation and the existing approval boundary, independently
@@ -56,6 +58,16 @@ do not chunk, truncate or raise its bound. Larger originals need another qualifi
 transport. Neither tool discovery nor a successful local test proves that the
 actual host can carry an encoded payload intact.
 
+The default-off [App transport candidate](PRIVATE_DOCUMENT_UPLOAD.md#selected-local-originals-through-mcp-apps--disabled-candidate)
+opens a device-file chooser and requires an explicit Import action. It uses new
+App-only staging tools through the official bridge, not informal splitting of
+`import_inline_pdf`, direct browser fetch or a relaxed network/Origin policy.
+It provides a selected local original, not automatic access to the conversation's
+existing attachment. The Desktop diagnostic observed a widget, empty bridge and
+cancelled native chooser; it selected no file and establishes no payload pass.
+All larger-original, confirmation-count, retention and device checks remain
+separate gates. The ordinary tool-only workflows remain available.
+
 The returned reference uploader currently requires **POSIX Python 3.9+**. Linux
 cloud runtimes and macOS are candidates; Windows native, a mobile filesystem and
 a browser widget are not implicitly supported by that helper. The binary server
@@ -87,8 +99,9 @@ evidence; visible artwork after installation needs an actual host check.
 
 The entries below describe documented connection routes and the next required
 evidence. The [dated Claude record](CLAUDE_QUALIFICATION.md#claude-desktop-free-inline-original--26-october-2026)
-owns the bounded inline result and its remaining limits. Native binary transfer
-still has no actual-client pass in that record. Local API/client tests, a browser
+owns the bounded inline result, the later no-content Desktop App checkpoint and
+their remaining limits. Native binary and App original transfer still have no
+actual-client pass in those records. Local API/client tests, a browser
 emulator and an earlier native import are separate evidence; none qualifies a new
 row. Mobile and web remain separate rows even when they share account configuration.
 
@@ -96,7 +109,7 @@ row. Mobile and web remain separate rows even when they share account configurat
 | ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Claude on iPhone / iPad                  | Remote connector; mobile use is documented.                                                                                 | Cloud file/code access is documented. Qualify the exact original and permitted binary PUT or bounded inline original up to 64 KiB on the physical device. No desktop extension on the phone.      |
 | Claude web                               | Custom remote connector with its own OAuth flow.                                                                            | Qualify the cloud original plus native, permitted binary or bounded inline transfer. Network controls and available settings vary by account; do not assume a custom-domain allowlist on Free.                                                                           |
-| Claude Desktop / Cowork                  | Remote connector; local extensions are a distinct installation.                                                             | See the [dated Desktop inline qualification and limits](CLAUDE_QUALIFICATION.md#claude-desktop-free-inline-original--26-october-2026). It qualifies neither Cowork nor binary upload; Desktop does not qualify mobile. |
+| Claude Desktop / Cowork                  | Remote connector; local extensions are a distinct installation.                                                             | The dated [inline result](CLAUDE_QUALIFICATION.md#claude-desktop-free-inline-original--26-october-2026) and [App checkpoint](CLAUDE_QUALIFICATION.md#claude-desktop-free-mcp-apps-checkpoint--26-october-2026) cover Desktop Free separately. The latter observed widget/empty bridge/native chooser cancellation only; no selected file, App payload or binary pass. Neither result qualifies Cowork or mobile. |
 | Claude Code                              | Remote HTTP MCP and its normal authentication flow.                                                                         | Authorized original in its actual working environment, POSIX helper or independently qualified uploader; inspect host confirmations and file exclusions.                                                        |
 | ChatGPT web                              | Remote MCP-backed plugin and account/workspace permissions.                                                                 | Retain native file-envelope import. Feature-detect widget file APIs when a widget is actually available; otherwise require original-file runtime and allowed egress. Plugin installation alone is insufficient. |
 | ChatGPT on iPhone / iPad                 | The actual mobile app must expose the installed Guteneo connection.                                                         | Test native attachment authorization, exact file handoff and available controls on the physical app. Web, desktop, API and WebKit results do not establish this.                                                |
@@ -152,7 +165,9 @@ page before changing a callback, eligibility rule or distribution claim.
 
 ## Qualification record
 
-Use a new small synthetic PDF with a random marker. Record the source revision,
+Use a new synthetic PDF with a random marker and the size appropriate to the
+transport being claimed. An App transfer qualification starts above 64 KiB, then
+qualifies its 10 MiB boundary separately. Record the source revision,
 server release, client product/version, surface, OS, account eligibility, runtime,
 time, original size/hash and resulting document ID. Keep confidential evidence
 outside the repository; do not log file content, capabilities, signed URLs,

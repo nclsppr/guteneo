@@ -1,6 +1,6 @@
 ---
 title: "Assistants and API"
-description: "25 capabilities in the interfaces branch of Guteneo."
+description: "28 capabilities in the interfaces branch of Guteneo."
 sidebar:
   order: 14
 ---
@@ -9,9 +9,9 @@ sidebar:
 
 **Access boundary:** Qualified assistant host required.
 
-Implemented contracts/packages with bounded dated Claude Desktop observations owned by CLAUDE_QUALIFICATION.md; the no-content MCP Apps probe is a default-off diagnostic candidate, not a new file transport. Broader host compatibility, OAuth refresh, archive installation and marketplace publication need separate evidence.
+Implemented contracts/packages with bounded dated Claude Desktop observations owned by CLAUDE_QUALIFICATION.md. The no-content probe and new selected-original App transport have separate default-off gates; the latter has no actual normal-size transfer pass. Broader host compatibility, OAuth refresh, archive installation and marketplace publication need separate evidence.
 
-**Surfaces:** Public/account browser guides and generated static downloads; REST/OpenAPI, MCP and host-specific packages. The gated MCP Apps resource/tool bridge adds only a diagnostic inside a compatible host, with no file/upload/import/provider path. Archive or diagnostic access creates no OAuth consent, membership, mandate or channel activation; native host installation remains separately qualified.
+**Surfaces:** Public/account browser guides and generated static downloads; REST/OpenAPI, MCP and host-specific packages. Compatible-host MCP Apps have separately gated no-content diagnostic and selected-local-original transport resources; tool-only workflows remain useful. Archive/App access creates no OAuth consent, membership, mandate or channel activation; native host installation, file payloads and attachment handoff remain separately qualified.
 
 [Read the engineering guide](/integrations/mcp/) · [All features](/features/)
 
@@ -24,7 +24,10 @@ Implemented contracts/packages with bounded dated Claude Desktop observations ow
 <li id="feature-0cfb709ce060">Current host-specific OAuth and original-file transport compatibility matrix for Claude and ChatGPT web/iPhone, Cursor desktop/cloud, Grok, Copilot, Gemini and other clients; installation/catalog presence never establishes a pass</li>
 <li id="feature-23f939de4224">Import through the file transport actually supported by the host; docs/CLAUDE_QUALIFICATION.md owns the dated actual Claude Desktop Free inline-original qualification (1,268 bytes on c81, backend unchanged at f946, ready/verified after automatic continuation without reimport/rescan) and its separate same-original prepare-only follow-up. Binary 10 MiB, inline originals above 64 KiB without permitted egress, other email preparations, web/iPhone and other hosts retain separate unqualified limits</li>
 <li id="feature-246278432795">Optional no-content MCP Apps diagnostic is absent by default; MCP_UI_CAPABILITY_PROBE.md owns its exact-connection/revision and at-most-one-hour activation contract, current production OAuth/documents:read, versioned UI resource, strict empty bridge acknowledgement, zero external dependencies/permissions and unchanged authentication/rate/activity accounting</li>
-<li id="feature-a43f2a7c8334">Diagnostic UI reports finite local secure-context and picker-API states using the standard bundled MCP Apps App client; a user-gesture chooser request reads no file content or metadata and proves neither existing-attachment access nor original transfer, while activation, actual host rendering and physical-device evidence remain separate</li>
+<li id="feature-ffeb0ec82f48">Diagnostic UI reports finite local secure-context and picker-API states using the standard bundled MCP Apps App client; the dated 8854/1.1.5 Claude Desktop Free observation covers a rendered widget, empty bridge call and actual native chooser cancelled without file selection/read/upload, with the temporary gate removed; it proves no large-payload transfer, existing-attachment access, web or physical-device pass</li>
+<li id="feature-9d97d17cb1c3">A separate default-off selected-original App candidate uses current documents:write and writer authority, explicit device-file selection/Import and five App-only staging tools; PRIVATE_DOCUMENT_UPLOAD.md owns bounds, recovery, maintenance and activation, separately from the no-content probe</li>
+<li id="feature-5828b42723c9">Source inventory includes 75 ordinary tools, two optional no-content probe tools and six optional original-picker tools: 83 reviewed tools on full synthetic activation, not 83 tools universally visible to real clients</li>
+<li id="feature-34ea10aeda20">All five App-only upload tools and ordinary begin_document_upload declare destructiveHint:true for potential same-upload reconciliation that deletes only this attempt's unregistered object; App error recovery has tool:null and uses the existing App Check status/explicit Resume, never model invocation of App-only tools or binary switching</li>
 <li id="feature-232fd93af26c">Document, template, dataset, generation and preparation tools</li>
 <li id="feature-f09d41d8e258">Browser review before sending; scopes never elevate membership rights</li>
 <li id="feature-418d10cba34a">Optional bounded expert delegation for one OAuth client</li>

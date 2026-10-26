@@ -45,6 +45,16 @@ import {
 import { assertBaseConfiguration, assertConfiguration, type Env } from "./env";
 import { DocumentService } from "./documents";
 import {
+  McpAppDocumentUploadService,
+  cleanupMcpAppDocumentUploads,
+} from "./mcp-app-upload";
+import {
+  assertMcpDocumentUploadEnabled,
+  mcpDocumentUploadEnabled,
+} from "./mcp-document-upload";
+import { MCP_APP_UPLOAD_MAX_BYTES } from "../../../packages/contracts/src/mcp-app-upload-limits";
+
+import {
   PrivateDocumentUploadService,
   privateUploadPath,
 } from "./document-upload";
@@ -445,10 +455,18 @@ app.get("/media/:token", (c) =>
 );
 app.all("/mcp", (c) =>
   handleMcp(c.req.raw, c.env, {
-    probeAssets: c.env.ASSETS,
+    appAssets: c.env.ASSETS,
     domain: domain(c.env),
     documents: new DocumentService(c.env, domain(c.env)),
     documentUploads: new PrivateDocumentUploadService(c.env, domain(c.env)),
+    appDocumentUploads: c.env.MCP_DOCUMENT_UPLOAD_APP
+      ? new McpAppDocumentUploadService(
+          c.env,
+          domain(c.env),
+          async (identity) => assertMcpDocumentUploadEnabled(c.env, identity),
+        )
+      : undefined,
+
     workflow: new TemplateWorkflowService(c.env, domain(c.env)),
     secureDistribution: {
       prepare: async (identity, input, key) =>
@@ -509,6 +527,20 @@ app.all("/mcp", (c) =>
       ]);
       return {
         ...capabilities,
+        documents: {
+          ...capabilities.documents,
+          originalFilePicker: {
+            available: mcpDocumentUploadEnabled(c.env, identity),
+            tool: mcpDocumentUploadEnabled(c.env, identity)
+              ? "open_mcp_document_upload"
+              : null,
+            requiredScope: "documents:write",
+            requiresMcpApps: true,
+            selection: "explicit_local_original",
+            conversationAttachmentAccess: false,
+            maxBytes: MCP_APP_UPLOAD_MAX_BYTES,
+          },
+        },
         postal: {
           channel: "postal",
           setup: postalSetup,
@@ -1550,6 +1582,7 @@ export default {
       // Identity/provider downtime must not keep a failed check reserved.
       stage = "documents";
       await expirePdfValidations(env);
+      await cleanupMcpAppDocumentUploads(env);
       stage = "identity";
       if (env.ENVIRONMENT !== "local" && !identityConfigured(env)) {
         observation.setCode("IDENTITY_NOT_CONFIGURED");

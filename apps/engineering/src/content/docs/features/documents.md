@@ -1,6 +1,6 @@
 ---
 title: "Documents and protection"
-description: "14 capabilities in the create branch of Guteneo."
+description: "20 capabilities in the create branch of Guteneo."
 sidebar:
   order: 3
 ---
@@ -9,9 +9,9 @@ sidebar:
 
 **Access boundary:** Current capability and authority required.
 
-Implemented; exact-byte, scanner and owner-access gates apply.
+Existing document contracts implemented; exact-byte, scanner and owner-access gates apply. The additive MCP Apps selected-original candidate is disabled by default and requires migration 0063 before code publication, even with the App flag off because scheduled cleanup is unconditional. Temporary exact-connection qualification and reviewed general rollout are separate activation modes; source/package availability activates neither. Actual normal-size App transfer, host privacy/confirmation limits and physical iPhone remain unqualified.
 
-**Surfaces:** Web/native and existing REST/MCP document access; private reservation/status through MCP plus one upload-only binary PUT up to 10 MiB, or one bounded inline MCP original up to 64 KiB through the same 0061 pipeline. Actual host original-byte/encoding/egress capability and physical iPhone evidence remain separately qualified.
+**Surfaces:** Web/native and existing REST/MCP document access remain unchanged. MCP supports private binary upload up to 10 MiB and inline originals up to 64 KiB; a separately gated compatible-host App candidate selects a new local original and stages it through App-only tools before the same private pipeline. It adds no public REST/browser upload adapter or native-app feature. Actual transport, attachment handoff and physical iPhone require independent qualification.
 
 [Read the engineering guide](/workflows/documents/) · [All features](/features/)
 
@@ -32,6 +32,12 @@ Implemented; exact-byte, scanner and owner-access gates apply.
 <li id="feature-733a5cf0d42e">Host file/code/network access and physical Claude iPhone OAuth/file transfer require separate qualification; attachment previews, extracted text, tool discovery and desktop helpers do not prove original-byte transfer</li>
 <li id="feature-2eb40b63af49">Reservation can return deterministic POSIX Python 3.9+ standard-library client code with its SHA-256 for authorized local/cloud execution; status never returns code/capability, and no package install, external script fetch or actual host qualification is implied</li>
 <li id="feature-5e19d8533595">Small-original import_inline_pdf fallback carries one canonical-base64 original of 20–65,536 bytes with actual size/SHA-256 and a stable key through existing OAuth MCP when runtime Guteneo egress is unavailable; validation precedes reservation, internal 0061 claim/expiry/authority/quota/private-ACL/scanner processing is reused without fetch, and encoded context, truncation, same-ID unknown recovery and physical-client qualification remain explicit</li>
+<li id="feature-828181af3255">Default-off MCP Apps original-selection transport uses a strict empty opener, explicit device Files selection then Import, local size/SHA over the same selected bytes, and five App-only tools through the official bridge; this is a selected local original, not automatic conversation-attachment handoff</li>
+<li id="feature-055dbab911e9">Private immutable R2 staging and tenant-scoped D1 part receipts bound App transport to 256 KiB raw parts, 40 parts/10 MiB, 64 App calls/session, five minutes/original-token expiry, one active session per user within the current workspace, 20 pending/200 MiB reserved staging debt per organization and 200 daily reservations; inline and binary limits remain unchanged</li>
+<li id="feature-649a17a63df1">App part replay, current-authority/expiry fences and same-key/status recovery preserve the original: pre-put denial is APP_PART_NOT_ACCEPTED, uncertain attempted writes retain debt as APP_PART_UNCONFIRMED and recover only through positive immutable-object size/hash evidence, then explicit Resume; final pipeline unknown stays status-only without another import</li>
+<li id="feature-0718ee8e054c">A database-wide single App-finalizer lease bounds App assembly only; existing minute cron prioritizes expired leases, fences the original writer first and releases logical capacity without rerunning the pipeline. Cleanup remains at most two sessions/80 parts, waits for original expiry plus 90 seconds, retains unresolved debt/tombstones and never deletes registered/deduplicated originals; total Worker memory is not qualified by this admission limit</li>
+<li id="feature-fee28d30b4b0">Authenticated documents.originalFilePicker exposes explicit_local_original and conversationAttachmentAccess:false; App model context receives only registered document ID/status and bound original size/SHA, never content/base64/filename/token, and explicit selection is independent of conversation attachment handoff</li>
+<li id="feature-b5349f7299ec">MCP_DOCUMENT_UPLOAD_APP is off by default: strict existing-connection/revision JSON supports at most one hour of qualification, while explicit enabled mode supports a separately reviewed general production rollout after actual qualification and authorized delivery; both retain current writer/OAuth guards, observer denial and no browser fetch, Origin/network permission, new scope, approval, paid check, mandate or infrastructure</li>
 </ol>
 
 ## REST operations
@@ -48,12 +54,18 @@ Read the [REST integration guide](/integrations/rest-api/) for authentication, e
 
 ## MCP tools
 
+- `append_mcp_document_upload`
 - `begin_document_upload`
+- `begin_mcp_document_upload`
+- `cancel_mcp_document_upload`
+- `finish_mcp_document_upload`
 - `get_document`
 - `get_document_upload`
+- `get_mcp_document_upload`
 - `import_document`
 - `import_inline_pdf`
 - `list_documents`
+- `open_mcp_document_upload`
 - `read_document_pages`
 - `render_pdf`
 - `rescan_document`

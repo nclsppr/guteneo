@@ -1,5 +1,42 @@
 # Execution plan and handoff
 
+## MCP Apps original transport — 26 October 2026 candidate
+
+The [actual Claude Desktop checkpoint](CLAUDE_QUALIFICATION.md#claude-desktop-free-mcp-apps-checkpoint--26-october-2026)
+on source `8854`, server `1.1.5`, completed the existing connection's normal
+branded-domain reconnect and observed a real widget, empty official bridge call
+and native chooser opened then cancelled. No file was selected, read or
+transferred. The temporary diagnostic setting was removed and its rollback
+recorded. This does not close the normal-size original/iPhone journey.
+
+The additive default-off [selected-original candidate](PRIVATE_DOCUMENT_UPLOAD.md#selected-local-originals-through-mcp-apps--disabled-candidate)
+uses explicit device Files selection and Import, five App-only staging tools and
+one shared whole-original pipeline. It requires migration 0063 before code publication and a
+separate exact-connection/revision qualification window. A distinct explicit
+general rollout mode is available only after reviewed actual qualification and
+authorized delivery; the candidate activates neither mode. Root release/package
+synchronization, exact-source CI, authorized migration/publication and served
+verification remain separate from actual-host transfer. Local source is not an
+activation or payload pass.
+
+Local source evidence now includes 70 focused backend assertions and 18 Node
+client/security checks. The corrected App retains volatile bytes only for
+recoverable part uncertainty inside the fixed deadline/budget/current authority,
+and resumes only after positive same-ID receipt evidence plus an explicit action.
+App-specific error recovery no longer suggests binary tools. The
+[transport contract](PRIVATE_DOCUMENT_UPLOAD.md#local-widget-measurements--26-october-2026)
+records local resource/loading measurements and their fixture limits. No actual
+normal-size or physical-device upload follows from these results.
+
+Next actual-host proof must use an explicitly approved fictional original larger
+than 64 KiB, match independent/App/stored size/SHA, reach creator-private
+clean/ready analysis, and separately qualify requested prepare-only email with
+zero approval/sending-reservation/send/charge effects. Record payload confirmations/privacy and
+resource/request/row/object counts; qualify 10 MiB, ambiguity/cancel/revocation and
+each physical target separately. Automatic conversation-attachment handoff is
+still a distinct missing contract; a new device-file selection must be labelled
+accurately. Existing binary/inline limits and recovery are unchanged.
+
 ## MCP domain handoff — 25 October 2026 candidate
 
 The independently configured MCP trusted alias and canonical/custom discovery

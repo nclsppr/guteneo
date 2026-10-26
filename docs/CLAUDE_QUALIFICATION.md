@@ -1,5 +1,62 @@
 # Claude client qualification
 
+## Claude Desktop Free MCP Apps checkpoint — 26 October 2026
+
+This dated checkpoint concerns the existing **Claude Desktop Free** custom
+Guteneo connector, recorded model label `Sonnet5.5Medium`, source
+`8854d0c16379cb3ec5c5845c454067d9625b8bef` and server version `1.1.5`.
+It qualifies the no-content [diagnostic](MCP_UI_CAPABILITY_PROBE.md), not the
+new disabled [selected-original transport](PRIVATE_DOCUMENT_UPLOAD.md#selected-local-originals-through-mcp-apps--disabled-candidate).
+
+At **2026-10-26 05:57:20 UTC**, the private reconnect receipt recorded an initial
+Auth0 `invalid_request` stating that a session could not be found. A fresh normal
+application transaction then completed consent through `https://auth.guteneo.com`
+with the same 13 scopes and the existing Claude callback. The host's application
+open permission remained **Allow once**; persistent permissions were unchanged.
+The actual `get_capabilities` card was observed and Claude's visible result
+reported production, `simulation:false` and `1.1.5`. The raw response container
+was not exposed to accessibility inspection; this observation is bounded to the
+native tool card and visible result. A separate `get_expert_status` card and
+read-only database check identified the current active existing connection and
+inactive expert authority. No mandate or broader permission was created. This
+is a successful reconnect, not automatic-refresh or revocation proof, and the
+initial expired transaction does not establish a new Auth0 configuration defect.
+
+An explicitly authorized fifteen-minute diagnostic window began at
+**06:01:55 UTC** for that one connection and authorization revision. A normal
+tool refresh exposed one interactive opener and one App-only bridge tool in
+addition to the 75 ordinary tools, without a persistent-permission change.
+At **06:06:27 UTC**, native accessibility and screenshot inspection established:
+
+| Actual observation | Bounded result |
+| --- | --- |
+| `open_mcp_ui_probe` | One `{}` invocation with **Allow once** |
+| App rendering | Real widget visible; secure context and file/picker API states available |
+| Standard App-only bridge | Connected after one UI click and an empty acknowledgement call |
+| Device chooser | Native Open sheet actually observed, then cancelled |
+| File/content effects | No selection, metadata read, byte read, encoding, upload or import |
+| Business effects | No preparation, paid check, approval, communication or mandate activation |
+
+The window controller closed the setting at **06:06:37 UTC** on its finish
+marker. The retained cleanup receipt confirms the activation setting absent and
+rollback Worker version `e73920e7-00a2-4fc8-a5eb-b7adc1d1023c`, with source `8854`
+unchanged. The connection selection and configuration values remain private.
+
+Evidence is retained outside the repository under
+`completion-audit-20261026/mcp/actual-claude-8854/` in the
+`guteneo-mcp-private-transfer-20261025` folder: `reconnect-and-selection.private.json`,
+`actual-host-widget-bridge-picker.private.json` and the dated window receipt.
+No token, private account/document ID, content, recipient or gate configuration
+is reproduced here.
+
+This closes only the Desktop widget/empty-bridge/chooser-cancellation checkpoint.
+No file was selected or transferred. Normal-size and 10 MiB payload handling,
+confirmation counts across parts, host retention, latency/resource/cost limits,
+lost-response recovery, Claude web, a physical iPhone and other hosts remain
+unqualified. A device chooser is a new local selection, not proof of handoff from
+an earlier conversation attachment. The older inline and preparation observations
+below retain their own exact sources and limits.
+
 ## Claude Desktop Free inline original — 26 October 2026
 
 This is the authoritative dated record for the observed Claude Desktop original

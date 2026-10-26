@@ -9,3 +9,4 @@ test-results/
 reports/*.json
 reports/*.log
 *.tsbuildinfo
+reports/mcp-document-upload/

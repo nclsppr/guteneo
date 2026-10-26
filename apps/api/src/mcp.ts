@@ -1,6 +1,25 @@
 import mcpUiProbeManifest from "../../../packages/contracts/src/mcp-ui-probe-resource.json";
 import { emailPreparationDescriptions } from "./email-preparation-contract";
 import {
+  assertMcpDocumentUploadCurrent,
+  mcpDocumentUploadEnabled,
+  mcpDocumentUploadOpening,
+  registerMcpDocumentUploadResource,
+  MCP_DOCUMENT_UPLOAD_URI,
+} from "./mcp-document-upload";
+import {
+  mcpAppUploadBeginInput,
+  mcpAppUploadAppendInput,
+  mcpAppUploadIdInput,
+  mcpAppUploadView,
+  mcpAppUploadOpenerData,
+  type McpAppUploadBeginInput,
+  type McpAppUploadAppendInput,
+  type McpAppUploadIdInput,
+  type McpAppUploadView,
+} from "../../../packages/contracts/src/mcp-app-upload";
+
+import {
   mcpUiProbeEnabled,
   assertMcpUiProbeCurrent,
   registerMcpUiProbeResource,
@@ -126,13 +145,40 @@ export interface McpDocuments {
   ): Promise<DocumentRecord>;
 }
 export interface McpServices {
-  probeAssets?: Pick<Fetcher, "fetch">;
+  appAssets?: Pick<Fetcher, "fetch">;
   domain: DomainService;
   documents: McpDocuments;
   documentUploads?: Pick<
     PrivateDocumentUploadService,
     "begin" | "get" | "importInlinePdf"
   >;
+  appDocumentUploads?: {
+    begin(
+      identity: McpIdentity,
+      input: McpAppUploadBeginInput,
+      signal?: AbortSignal,
+    ): Promise<McpAppUploadView>;
+    append(
+      identity: McpIdentity,
+      input: McpAppUploadAppendInput,
+      signal?: AbortSignal,
+    ): Promise<McpAppUploadView>;
+    get(
+      identity: McpIdentity,
+      input: McpAppUploadIdInput,
+      signal?: AbortSignal,
+    ): Promise<McpAppUploadView>;
+    finish(
+      identity: McpIdentity,
+      input: McpAppUploadIdInput,
+      signal?: AbortSignal,
+    ): Promise<McpAppUploadView>;
+    cancel(
+      identity: McpIdentity,
+      input: McpAppUploadIdInput,
+      signal?: AbortSignal,
+    ): Promise<McpAppUploadView>;
+  };
   workflow?: TemplateWorkflowService;
   afterGeneration?: () => void;
   capabilities: (identity: McpIdentity) => unknown;
@@ -1022,7 +1068,7 @@ export function createGuteneoMcpServer(
       env,
       identity,
       mcpUiProbeManifest,
-      services.probeAssets,
+      services.appAssets,
     );
     for (const name of [
       "open_mcp_ui_probe",
@@ -1053,6 +1099,114 @@ export function createGuteneoMcpServer(
             await assertMcpUiProbeCurrent(env, identity);
             return MCP_UI_PROBE_ACK;
           }),
+      );
+    }
+  }
+  const appUploads = services.appDocumentUploads;
+  if (appUploads && mcpDocumentUploadEnabled(env, identity)) {
+    registerMcpDocumentUploadResource(
+      server,
+      env,
+      identity,
+      services.appAssets,
+    );
+    registerTool(
+      "open_mcp_document_upload",
+      {
+        title: "Import an original PDF",
+        description:
+          "Open Guteneo's private original-PDF picker inside a host that supports MCP Apps. The person selects a local original of at most 10 MiB and confirms Import in that interface; opening it imports nothing. This is a new local selection, not access to an earlier conversation attachment. Never reconstruct the PDF, publish it, put base64 in conversation, or split calls to import_inline_pdf. If the host does not render the interface, explain that host limitation without claiming a transfer. Only the App transfers exact original bytes through its dedicated bounded protocol and returns the registered document ID/status; scanning and readiness remain separate. No approval, paid check, expert mandate or sending authority is created.",
+        inputSchema: z.object({}).strict(),
+        outputSchema: output(mcpAppUploadOpenerData),
+        annotations: observedReadAnnotations,
+        _meta: {
+          ...oauthMetadata("documents:write"),
+          ui: { resourceUri: MCP_DOCUMENT_UPLOAD_URI, visibility: ["model"] },
+        },
+      },
+      () =>
+        run("documents:write", () => mcpDocumentUploadOpening(env, identity)),
+    );
+    const appMetadata = {
+      ...oauthMetadata("documents:write"),
+      ui: { visibility: ["app"] },
+    };
+    registerTool(
+      "begin_mcp_document_upload",
+      {
+        title: "Reserve the selected original PDF",
+        description:
+          "App-only: freeze the selected original metadata and authority in a bounded private upload. Same-key recovery returns the same upload without extending its original deadline; never create a replacement key for an unknown outcome. This does not upload bytes, approve, purchase or send.",
+        inputSchema: mcpAppUploadBeginInput,
+        outputSchema: output(mcpAppUploadView),
+        annotations: { ...writeAnnotations, destructiveHint: true },
+        _meta: appMetadata,
+      },
+      (input, extra) =>
+        run(
+          "documents:write",
+          async () => {
+            await assertMcpDocumentUploadCurrent(env, identity);
+            return appUploads.begin(identity, input, extra.mcpReq.signal);
+          },
+          success,
+          "mcp_app_document_upload",
+        ),
+    );
+    registerTool(
+      "append_mcp_document_upload",
+      {
+        title: "Transfer one original PDF part",
+        description:
+          "App-only: transfer one fixed-layout original part to the same upload with canonical base64 and exact part SHA-256. Confirmed identical replay returns its receipt; conflicting or uncertain writes require same-upload status recovery. Part bytes never belong in model messages or logs. No new upload, document, approval, purchase or send.",
+        inputSchema: mcpAppUploadAppendInput,
+        outputSchema: output(mcpAppUploadView),
+        annotations: { ...writeAnnotations, destructiveHint: true },
+        _meta: appMetadata,
+      },
+      (input, extra) =>
+        run(
+          "documents:write",
+          async () => {
+            await assertMcpDocumentUploadCurrent(env, identity);
+            return appUploads.append(identity, input, extra.mcpReq.signal);
+          },
+          success,
+          "mcp_app_document_upload",
+        ),
+    );
+    for (const method of ["get", "finish", "cancel"] as const) {
+      const description = {
+        get: "App-only: read the same owned upload and conclusive part receipts under current authority. Do not infer success, retry an uncertain part or allocate a new key from a lost response. No content or upload capability is returned.",
+        finish:
+          "App-only: claim one complete fixed-layout upload, assemble and verify the exact original once, and enter the existing creator-private quota/scanner pipeline. A registered document can still be quarantined; no approval, paid check, mandate or sending is created. Unknown outcomes retain the same upload/document.",
+        cancel:
+          "App-only: fence this unfinished upload and clean only its owned private staging parts. Never deletes a registered original or changes a dispatch, approval, charge or send. Cancellation cannot undo an already registered document.",
+      }[method];
+      registerTool(
+        `${method}_mcp_document_upload`,
+        {
+          title: {
+            get: "Read original upload status",
+            finish: "Register the original PDF",
+            cancel: "Cancel the unfinished original upload",
+          }[method],
+          description,
+          inputSchema: mcpAppUploadIdInput,
+          outputSchema: output(mcpAppUploadView),
+          annotations: { ...writeAnnotations, destructiveHint: true },
+          _meta: appMetadata,
+        },
+        (input, extra) =>
+          run(
+            "documents:write",
+            async () => {
+              await assertMcpDocumentUploadCurrent(env, identity);
+              return appUploads[method](identity, input, extra.mcpReq.signal);
+            },
+            success,
+            "mcp_app_document_upload",
+          ),
       );
     }
   }
@@ -1953,7 +2107,7 @@ export function createGuteneoMcpServer(
           "Reserve a private exact-byte PDF import with its actual filename, byte size and SHA-256 computed by code against the selected original. Requires a host whose computing environment can read that original and PUT binary bytes to Guteneo. Check actual original-file and network capabilities separately on mobile, web and local clients; no host is implicitly qualified. The response includes a reference client for POSIX Python 3.9+ on Linux/macOS, with its source and SHA-256; native Windows needs another qualified runtime or uploader. Preserve an actually available native file-envelope transport. For the reference client: write that exact source to the computing environment, verify its hash, then invoke upload with the explicitly allowed folder and relative original path, passing this reservation on standard input. This client needs no package install, OAuth token, local iPhone extension or external script fetch. Preserve host confirmations and network egress policy. The returned short-lived capability can upload only the reserved bytes; it is not an OAuth token or a public PDF link. Use its exact method, URL and capability header without cookies, Authorization, Origin or redirects. Never print the capability, publish the file or reconstruct it from text. At most 10 MiB and 100 pages; scanning/quarantine still apply. Reuse idempotencyKey and read get_document_upload after any uncertain response. A repeated reservation can replace an unused capability on the same ID without extending its original expiry. Sends, approves and purchases nothing. Host transfer is not qualified by discovery or this reservation alone.",
         inputSchema: privateUploadInput,
         outputSchema: output(z.unknown()),
-        annotations: writeAnnotations,
+        annotations: { ...writeAnnotations, destructiveHint: true },
         _meta: oauthMetadata("documents:write"),
       },
       (input) =>

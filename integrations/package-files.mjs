@@ -15,6 +15,7 @@ export const packageFiles = [
   "skills/fax-pdf/SKILL.md",
   "skills/fax-pdf/agents/openai.yaml",
   "skills/get-started/SKILL.md",
+  "skills/get-started/references/original-pdf-transfer.md",
   "skills/get-started/agents/openai.yaml",
   "skills/postal-pdf/SKILL.md",
   "skills/postal-pdf/agents/openai.yaml",
