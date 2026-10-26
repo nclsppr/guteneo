@@ -50,6 +50,14 @@ provider transactional email is separate; this decision activates no business se
 
 ## Publication gates and sequence
 
+An MCP change must include the updated ChatGPT plugin and downloadable archive in
+the same release. Follow the [MCP/plugin synchronization contract](LLM_SETUP.md#mandatory-mcp-plugin-and-archive-synchronization)
+before review and CI. Package builders reject a stale source/package record and
+regenerate the archive from the checked sources. After authorized publication,
+verify the guide download and compare its bytes with the release's
+`integrations/manifest.json` SHA-256 as part of the served-asset verification below.
+An OpenAI portal update and real host qualification remain separate operations.
+
 `npm run deploy:live` and `npm run deploy:preview` require local branch `main`,
 a completely clean Git tree (tracked and nonignored untracked files), and `HEAD`
 exactly equal to `origin/main` after a fresh explicit fetch. Fetch failure blocks

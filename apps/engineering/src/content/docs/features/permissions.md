@@ -11,6 +11,7 @@ There are four human membership roles. A connected assistant is a separate OAuth
 
 | Capability | Administrator | Supervisor | Operator | Observer | Connected assistant |
 | --- | --- | --- | --- | --- | --- |
+| Download an assistant installation archive | Public access; no membership required | Public access; no membership required | Public access; no membership required | Public access; no membership required | No OAuth consent, membership, mandate or sending authority from the download |
 | Read accessible workshop content | Yes | Yes | Yes | Yes | Current member + consented scopes + document access |
 | Import and prepare | Yes | Yes | Yes | No | Current member + scopes + qualified channel/transport |
 | Reserve/transfer a private original PDF | Own connected OAuth writer + documents:write | Own connected OAuth writer + documents:write | Own connected OAuth writer + documents:write | No | Current writer + documents:write + explicit original-file permission and exact bytes; binary capability bound to one operation/connection/expiry or one inline original up to 64 KiB through the same 0061 fences; no read/send/approval authority |

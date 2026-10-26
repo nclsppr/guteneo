@@ -627,6 +627,17 @@ describe("distributable LLM integrations", () => {
         ),
       );
       expect(manifest.version).toBe(GUTENEO_VERSION);
+      expect(manifest.mcpSourceSha256).toMatch(/^[a-f0-9]{64}$/);
+      expect(manifest.files).toContain("mcp-contract.json");
+      const contract = JSON.parse(
+        execFileSync(
+          "unzip",
+          ["-p", path.join(first, "guteneo-plugin.zip"), "mcp-contract.json"],
+          { encoding: "utf8" },
+        ),
+      );
+      expect(contract.pluginVersion).toBe(manifest.version);
+      expect(contract.mcpSourceSha256).toBe(manifest.mcpSourceSha256);
       expect(manifest.version).toBe(plugin.version);
       expect(plugin.name).toBe("app-6ab05fbae9a881918dc6ee4e2f235d93");
       expect(manifest.hostQualification).toBe("pending");

@@ -193,11 +193,14 @@ function GuideArticle({
 
       {assistant.variants.length > 1 && (
         <div className="assistant-guide-versions">
-          <p>{msg("Which version do you use?")}</p>
+          <p>{assistant.variantPrompt ?? msg("Which version do you use?")}</p>
           <div
             className="assistant-guide-version-controls"
             role="group"
-            aria-label={msg("Choose the version of {0}", assistant.name)}
+            aria-label={
+              assistant.variantPrompt ??
+              msg("Choose the version of {0}", assistant.name)
+            }
           >
             {assistant.variants.map((item) => (
               <button
@@ -261,7 +264,8 @@ function GuideArticle({
           aria-label={msg("Installation in {0}", variant.label)}
         >
           <SectionHeading>
-            {msg("Installation in {0}", variant.label)}
+            {variant.installationTitle ??
+              msg("Installation in {0}", variant.label)}
           </SectionHeading>
           {assistant.id === "claude" && variant.id !== "code" && (
             <ClaudeConnect />
@@ -327,10 +331,14 @@ function GuideArticle({
               {msg("Catalogue plugin")}
             </SectionHeading>
             <p>
-              {msg(
-                "No Guteneo plugin is published in the {0} directory yet. Follow the manual setup described in this guide.",
-                assistant.name,
-              )}
+              {assistant.id === "chatgpt"
+                ? msg(
+                    "The methods in this guide let you add Guteneo directly to ChatGPT without going through its plugin directory.",
+                  )
+                : msg(
+                    "No Guteneo plugin is published in the {0} directory yet. Follow the manual setup described in this guide.",
+                    assistant.name,
+                  )}
             </p>
             {["claude", "cursor", "grok"].includes(assistant.id) && (
               <GuideLink
@@ -392,9 +400,13 @@ function GuideArticle({
               ))}
             </ul>
             <p>
-              {msg(
-                "Documentation checked on 13 October 2026. Menus and access options may vary depending on your account.",
-              )}
+              {assistant.id === "chatgpt"
+                ? msg(
+                    "Menus and access options may vary depending on your account.",
+                  )
+                : msg(
+                    "Documentation checked on 13 October 2026. Menus and access options may vary depending on your account.",
+                  )}
             </p>
           </footer>
         </section>
