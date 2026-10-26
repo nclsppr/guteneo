@@ -25,7 +25,11 @@ test("workerd preserves safe email buttons and localized document templates with
         const defaults = documentEmailDefaults("Fixture & Workspace", "protected_link", locale);
         return [locale, cleanEmailHtml(renderTransactionalEmail({ text: defaults.text, workspaceName: "Fixture & Workspace", locale, protectedDocument: document })).html];
       }));
-      return Response.json({ custom, templates });
+      const accountTemplates = Object.fromEntries(["fr", "en", "de", "lb"].map(locale => {
+        const defaults = documentEmailDefaults("Fixture & Workspace", "my_documents", locale);
+        return [locale, cleanEmailHtml(renderTransactionalEmail({ text: defaults.text, workspaceName: "Fixture & Workspace", locale, accountDocument: { url: "https://guteneo.example/?lang=" + locale + "#/app/my-documents?invitation=synthetic", retentionDays: 7 } })).html];
+      }));
+      return Response.json({ custom, templates, accountTemplates });
     }};
   `,
   );
@@ -54,7 +58,7 @@ test("workerd preserves safe email buttons and localized document templates with
   t.after(() => mf.dispose());
   const response = await mf.dispatchFetch("https://runtime.example.invalid/");
   assert.equal(response.status, 200);
-  const { custom, templates } = await response.json();
+  const { custom, templates, accountTemplates } = await response.json();
   assert.match(
     custom,
     /href="https:\/\/guteneo\.example\/share\/synthetic\?lang=fr"/,
@@ -70,10 +74,21 @@ test("workerd preserves safe email buttons and localized document templates with
     de: "1. April 2026",
     lb: "1. Abrëll 2026",
   })) {
+    assert.match(
+      accountTemplates[locale],
+      /#\/app\/my-documents\?invitation=synthetic/,
+    );
+    assert.match(accountTemplates[locale], /border-radius:10px/);
+    assert.match(accountTemplates[locale], /background-color:#2450db/);
+    assert.equal((accountTemplates[locale].match(/<a /g) ?? []).length, 1);
+    assert.doesNotMatch(
+      accountTemplates[locale],
+      /<img|<script|<style|<iframe|password|\/share\//,
+    );
     assert.ok(templates[locale].includes(expiry), locale);
     assert.match(templates[locale], /Fixture &amp; Workspace/);
     assert.match(templates[locale], />guteneo<\/p>/);
-    assert.match(templates[locale], /background-color:#181b22/);
+    assert.match(templates[locale], /background-color:#2450db/);
     assert.equal((templates[locale].match(/<a /g) ?? []).length, 1);
     assert.doesNotMatch(templates[locale], /<img|<script|<style|<iframe/);
   }

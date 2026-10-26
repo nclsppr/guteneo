@@ -3,7 +3,7 @@ export const emailPreparationDescriptions = {
   subject:
     "Email subject. Required without a document; omitted or blank uses a localized subject naming the authenticated workspace only for an accessible ready PDF.",
   text: "Email body. Required without a document unless derived from HTML. When both text and custom HTML are omitted or blank, an accessible ready PDF uses a localized workspace message. Supplied custom HTML provides the derived text when text is absent. Document emails without custom HTML render the text in the branded template; message-only presentation is unchanged.",
-  html: 'Optional custom email HTML with safe inline typography, colors, spacing, borders and table layout. Scripts, remote resources and unsafe CSS are removed. In protected_link mode only, an exact anchor href="{{document_url}}" places the server-generated private link in the custom button. Without that marker, protected delivery appends a styled button; a marker avoids a duplicate button while retaining access instructions. Never supply an actual link token or password. Final sanitized content is frozen before review.',
+  html: 'Optional custom email HTML with safe inline typography, colors, spacing, borders and table layout. Scripts, remote resources and unsafe CSS are removed. Account invitations and legacy protected_link email accept an exact anchor href="{{document_url}}" to place the server-generated document link in the custom button. Without that marker, document-access delivery appends a styled button; a marker avoids a duplicate button while retaining access instructions. Never supply an actual link token or password. Final sanitized content is frozen before review.',
 } as const;
 
 export const emailContentCapabilities = {
@@ -14,4 +14,13 @@ export const emailContentCapabilities = {
   protectedLinkPlaceholder: "{{document_url}}",
   protectedLinkPlaceholderContext: "exact_anchor_href_only",
   contentBinding: "final_sanitized_content_before_fingerprint",
+  accountDelivery: {
+    destination: "my_documents",
+    authentication: "recipient_account_with_matching_verified_email",
+    separateDocumentPassword: false,
+    defaultFor: ["web_document_email", "mcp_document_email"],
+    restPreparation: "/api/secure-distributions",
+    mcpPreparation: "prepare_secure_distribution",
+    htmlTemplate: "guteneo_v2",
+  },
 } as const;

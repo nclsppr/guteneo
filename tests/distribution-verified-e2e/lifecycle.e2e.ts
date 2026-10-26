@@ -17,7 +17,7 @@ test.beforeEach(async ({ localOnly }) => {
   await resetRecipientWorkspaceFixture();
 });
 
-test("verified accounts with no strong proof complete sharing, association and an independent personal copy", { timeout: 180000 }, async ({ app, screen, browser }) => {
+test("verified accounts with no strong proof complete sharing, automatic verified-address access and an independent personal copy", { timeout: 180000 }, async ({ app, screen, browser }) => {
   await app.open("/#/app");
   await normalIdentity(browser, app, "atelier");
   const source = await uploadSyntheticPdf(app, screen, browser, 2);
@@ -64,27 +64,16 @@ test("verified accounts with no strong proof complete sharing, association and a
   }, publication.dispatchId!);
   expect(invitationStored).toBe(true);
   await normalIdentity(browser, app, "recipient");
-  await expect(screen.getByRole("button", "Demander l’accès au document")).toBeVisible();
+  await expect(screen.getByRole("button", "Ouvrir mon document")).toBeVisible();
   const [claimResponse] = await Promise.all([
     browser.waitForResponse("**/api/personal/documents/claim"),
-    screen.getByRole("button", "Demander l’accès au document").tap(),
+    screen.getByRole("button", "Ouvrir mon document").tap(),
   ]);
   expect(claimResponse.status).toBe(200);
   const claim = await claimResponse.json<{ id: string; status: string }>();
   expect(claim.id).toBe(prepared.id);
-  expect(claim.status).toBe("pending");
-  expect((await localApi(browser, `/api/personal/documents/${prepared.id}/pages/1`)).status).toBe(404);
-  await expect(screen.getByText("Votre demande d’accès attend la confirmation de l’atelier.")).toBeVisible();
-
-  await normalIdentity(browser, app, "atelier");
-  await app.open(`/#/app/secure-distribution/${prepared.id}`);
-  await expect(screen.getByRole("button", "Confirmer l’association")).toBeDisabled();
-  await screen.getByRole("checkbox", "J’ai vérifié que ce compte appartient au destinataire prévu.").check();
-  await screen.getByLabel("Méthode de vérification").selectOption({ value: "known_relationship" });
-  await screen.getByRole("button", "Confirmer l’association").tap();
-  await expect.poll(async () => (await localApi<Publication>(browser, path)).body.recipientBinding).toBe("confirmed");
-
-  await normalIdentity(browser, app, "recipient");
+  expect(claim.status).toBe("active");
+  await expect(screen.getByText("Votre demande d’accès attend la confirmation de l’atelier.")).toHaveCount(0);
   await app.open(`/#/app/my-documents/${prepared.id}`);
   await browser.locator(".secure-document-pages > figure:first-child").scrollIntoView();
   await expect(screen.getByRole("img", /^Page 1\./u)).toBeVisible();

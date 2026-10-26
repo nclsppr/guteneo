@@ -59,11 +59,15 @@ import {
   type Session,
 } from "./api";
 import {
-  ProtectedDocumentChoice,
   ProtectedDocumentSummary,
   protectedDelivery,
 } from "./protected-document";
 import { EmailComposer, emailDraftHtml } from "./email-composer";
+import {
+  DocumentDeliveryChoice,
+  type DocumentEmailMode,
+} from "./document-delivery-choice";
+import type { SecureDistributionView } from "../../../packages/contracts/src/secure-distribution";
 import { OverviewAssistantStart } from "./assistant-workspace";
 import { t } from "./locale";
 import type { PostalReview } from "../../../packages/contracts/src/postal-review";
@@ -330,20 +334,8 @@ export function Overview({ session }: { session: Session }) {
   // workshops lead with their work; classic and empty workshops retain the
   // full introductory order (docs/ASSISTANT_HUB.md).
   const regions = dailyOverview
-    ? [
-        attentionNotice,
-        activity,
-        assistantStart,
-        studioLinks,
-        contacts,
-      ]
-    : [
-        contacts,
-        attentionNotice,
-        assistantStart,
-        studioLinks,
-        activity,
-      ];
+    ? [attentionNotice, activity, assistantStart, studioLinks, contacts]
+    : [contacts, attentionNotice, assistantStart, studioLinks, activity];
   return (
     <>
       <div className="dashboard-editorial-heading">
@@ -553,11 +545,7 @@ export function Documents({ canPrepare = true }: { canPrepare?: boolean }) {
             <form onSubmit={(e) => void upload(e)}>
               <p>{t.documents.uploadBody}</p>
               <Field label={t.documents.file} hint={t.documents.fileHint}>
-                <FileInput
-                  accept="application/pdf,.pdf"
-                  required
-                  ref={file}
-                />
+                <FileInput accept="application/pdf,.pdf" required ref={file} />
               </Field>
               <button className="button primary" disabled={action.pending}>
                 {action.pending ? t.loading : t.documents.upload}
@@ -845,8 +833,11 @@ export function PrepareDispatch({
       : "fax",
   );
   const [documentId, setDocumentId] = useState(initialDocument);
-  const [protectedLink, setProtectedLink] = useState(false);
-  const [protectedDays, setProtectedDays] = useState<1 | 7 | 30>(7);
+  const [emailDeliveryMode, setEmailDeliveryMode] = useState<DocumentEmailMode>(
+    isPublicPreview ? "attachment" : "my_documents",
+  );
+  const [retentionDays, setRetentionDays] = useState<7 | 30 | 90 | 365>(7);
+  const [allowOriginalDownload, setAllowOriginalDownload] = useState(true);
   const [uploaded, setUploaded] = useState<DocumentRecord>();
   const uploadFollowup = useDocumentFollowup(uploaded?.id ?? null);
   const uploadedDocument = uploadFollowup.document ?? uploaded;
@@ -1010,6 +1001,34 @@ export function PrepareDispatch({
         go(`/app/postal/${encodeURIComponent(review.id)}`);
         return;
       }
+      if (
+        channel === "email" &&
+        documentId &&
+        emailDeliveryMode === "my_documents"
+      ) {
+        const distribution = await api<SecureDistributionView>(
+          "/secure-distributions",
+          {
+            method: "POST",
+            key: key.current,
+            body: {
+              documentId,
+              senderId: selectedSender,
+              recipient: { address: recipient.email },
+              retentionDays,
+              allowOriginalDownload,
+              recipientBinding: "verified_email",
+              ...(subject.trim() ? { subject } : {}),
+              ...(text.trim() ? { message: text } : {}),
+              ...(html.trim() ? { html } : {}),
+              notificationLocale: emailLocale,
+              costCeilingMinor: ceilingMinor,
+            },
+          },
+        );
+        go(`/app/secure-distribution/${encodeURIComponent(distribution.id)}`);
+        return;
+      }
       const dispatch = await api<Dispatch>("/dispatches", {
         method: "POST",
         key: key.current,
@@ -1022,8 +1041,8 @@ export function PrepareDispatch({
           html: channel === "email" && html.trim() ? html : undefined,
           text: channel === "email" && text.trim() ? text : undefined,
           options:
-            channel === "email" && documentId && protectedLink
-              ? { emailDeliveryMode: "protected_link", protectedDays }
+            channel === "email" && documentId
+              ? { emailDeliveryMode: "attachment" }
               : undefined,
           ceilingMinor,
         },
@@ -1059,9 +1078,7 @@ export function PrepareDispatch({
     <>
       <PageHeading
         title={
-          channel === "postal"
-            ? msg("Prepare your letter.")
-            : t.dispatch.title
+          channel === "postal" ? msg("Prepare your letter.") : t.dispatch.title
         }
         intro={
           channel === "postal"
@@ -1198,18 +1215,26 @@ export function PrepareDispatch({
               <a href="#/app/documents">{t.documents.import}</a>
             </p>
           )}
-          {channel === "email" &&
-            documentId &&
-            !documentUnavailable &&
-            !simulation &&
-            !isPublicPreview && (
-              <ProtectedDocumentChoice
-                enabled={protectedLink}
-                days={protectedDays}
-                onEnabled={setProtectedLink}
-                onDays={setProtectedDays}
-              />
-            )}
+          {channel === "email" && documentId && !documentUnavailable && (
+            <DocumentDeliveryChoice
+              mode={emailDeliveryMode}
+              days={retentionDays}
+              allowDownload={allowOriginalDownload}
+              onMode={(value) => {
+                setEmailDeliveryMode(value);
+                changed();
+              }}
+              onDays={(value) => {
+                setRetentionDays(value);
+                changed();
+              }}
+              onDownload={(value) => {
+                setAllowOriginalDownload(value);
+                changed();
+              }}
+              preview={isPublicPreview}
+            />
+          )}
           <Field label={t.dispatch.sender}>
             <select
               value={selectedSender ?? ""}
@@ -1304,7 +1329,14 @@ export function PrepareDispatch({
                   changed();
                 }}
                 documentEmail={!!documentId}
-                protectedLink={!!documentId && protectedLink}
+                textLimit={
+                  documentId && emailDeliveryMode === "my_documents"
+                    ? 16000
+                    : 150000
+                }
+                documentLink={
+                  !!documentId && emailDeliveryMode === "my_documents"
+                }
               />
             </>
           ) : (
@@ -1603,18 +1635,27 @@ export function PrepareDispatch({
                           ? text
                           : documentEmailDefaults(
                               workspaceName,
-                              protectedLink ? "protected_link" : "attachment",
+                              emailDeliveryMode,
                               emailLocale,
                             ).text,
                         workspaceName,
+                        documentTitle: documents.data?.items.find(
+                          (item) => item.id === documentId,
+                        )?.name,
+                        preferencesUrl: "#",
                         locale: emailLocale,
+                        ...(emailDeliveryMode === "my_documents"
+                          ? { accountDocument: { url: "#", retentionDays } }
+                          : {}),
                       })
                     : emailDraftHtml(text, html)
                 }
               />
-              {!!documentId && protectedLink && (
+              {!!documentId && emailDeliveryMode === "my_documents" && (
                 <p className="field-hint">
-                  {msg("The protected link and expiry will appear in the final review.")}
+                  {msg(
+                    "The final button will open My documents for the recipient’s account.",
+                  )}
                 </p>
               )}
             </>
@@ -2107,6 +2148,16 @@ export function DispatchDetailPage({
           <span className="simulation-stamp">{t.simulation}</span>
         )}
       </div>
+      {d.recipient_feedback && (
+        <p className="notice info">
+          {msg("Recipient response")}:{" "}
+          {msg(
+            d.recipient_feedback === "reported"
+              ? "Email reported"
+              : "Unsubscribed",
+          )}
+        </p>
+      )}
       <p className="field-hint">{t.dispatch.channelNotes[d.channel]}</p>
       <ErrorNotice error={action.error ?? resource.error} />
       {(quoteBlocked || expiringSoon) && (
@@ -2146,9 +2197,7 @@ export function DispatchDetailPage({
                 disabled={action.pending || resource.loading}
                 onClick={() => void renewQuote()}
               >
-                {action.pending
-                  ? msg("Renewing quote…")
-                  : msg("Renew quote")}
+                {action.pending ? msg("Renewing quote…") : msg("Renew quote")}
               </button>
             )}
             {canPrepare && quoteBlocked && d.channel === "postal" && (
@@ -2186,9 +2235,7 @@ export function DispatchDetailPage({
             disabled={action.pending}
             onClick={() => void checkPostalOutcome()}
           >
-            {action.pending
-              ? msg("Checking status…")
-              : msg("Check status")}
+            {action.pending ? msg("Checking status…") : msg("Check status")}
           </button>
         </section>
       )}

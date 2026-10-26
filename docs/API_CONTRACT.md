@@ -7,6 +7,19 @@ candidate requires D1 migration `0053` before code and is no remote-availability
 The current [OpenAPI document](../apps/web/public/openapi.json), shared contracts
 and topic references own later additive operations.
 
+## Account document email — 26 October 2026 candidate
+
+Use `POST /api/secure-distributions` for an email that opens **My documents**.
+`subject`, `message` and `html` are optional; `html` can contain the exact anchor
+href `{{document_url}}`. New `recipientBinding` defaults to `verified_email`;
+`independent` is explicit and missing historical policy fields retain that older
+requirement. The [email contract](PROTECTED_EMAIL.md) owns presentation, defaults,
+compatibility and recovery. Generic `POST /api/dispatches` retains its wire mode.
+MCP `prepare_dispatch` with a PDF defaults to the secure view (a union result),
+then uses `get_secure_distribution`/`confirm_secure_distribution`; exact HTML and
+private invitations remain excluded from standard client summaries. API clients
+cannot claim a recipient's personal documents or supply browser approval.
+
 ## Conventions and access
 
 Base URL is `APP_ORIGIN`, for example `http://localhost:8787` locally. Business
@@ -466,3 +479,5 @@ edit/publish/share grants cannot confer it. Success returns `{id,deleted:true}`.
 The model then disappears for all users, and its direct template reads return
 404. Existing PDF and generation-history access rules are preserved. This is
 library removal, not erasure of historical documents. Migration 0049 is required.
+
+The anonymous recipient-only `POST /api/email-preferences` capability is intentionally outside the workspace OAuth catalogue. See [recipient feedback](EMAIL_RECIPIENT_FEEDBACK.md) for scope, origin/body guards, confirmation and status semantics. Standard dispatch/secure summaries expose nullable `recipientFeedback`; no feedback capability appears in MCP output.

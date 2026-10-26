@@ -65,6 +65,7 @@ test(
     const source = await uploadSyntheticPdf(app, screen, browser, 4);
     await app.open("/#/app/secure-distributions/new");
     await screen.getByLabel("PDF vérifié").selectOption({ value: source.id });
+    await screen.getByLabel("Accès au document").selectOption({ value: "independent" });
     await screen
       .getByLabel("Nom du destinataire")
       .fill("Destinataire de simulation");
@@ -196,10 +197,10 @@ test(
     }));
     expect(returned).toEqual({ hashClean: true, noPrivateQuery: true, pending: true });
     await localIdentity(browser, app, "recipient");
-    await expect(screen.getByRole("button", "Demander l’accès au document")).toBeVisible();
+    await expect(screen.getByRole("button", "Ouvrir mon document")).toBeVisible();
     const [claimResponse] = await Promise.all([
       browser.waitForResponse("**/api/personal/documents/claim"),
-      screen.getByRole("button", "Demander l’accès au document").tap(),
+      screen.getByRole("button", "Ouvrir mon document").tap(),
     ]);
     expect(claimResponse.status).toBe(200);
     const claim = await claimResponse.json<{ id: string; status: string }>();

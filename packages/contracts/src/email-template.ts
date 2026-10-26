@@ -2,6 +2,7 @@ import { deliveryExpiryDate, deliveryText } from "./delivery-messages";
 import type { SupportedLocale } from "./locale";
 
 export type ProtectedEmailDocument = { url: string; expiresAt: string };
+export type AccountEmailDocument = { url: string; retentionDays: number };
 function escape(value: string): string {
   return value.replace(
     /[&<>"']/g,
@@ -24,7 +25,7 @@ function workspaceLabel(name: string, locale: SupportedLocale): string {
 /** Only generated copy is normalized. A supplied subject/body is never rewritten here. */
 export function documentEmailDefaults(
   workspaceName: string,
-  mode: "attachment" | "protected_link",
+  mode: "attachment" | "protected_link" | "my_documents",
   locale: SupportedLocale,
 ): { subject: string; text: string } {
   const name = workspaceLabel(workspaceName, locale);
@@ -44,9 +45,11 @@ export function documentEmailDefaults(
   return {
     subject: boundedSubject,
     text: deliveryText(
-      mode === "protected_link"
-        ? "{0} has shared a protected document with you."
-        : "{0} has sent you a document. You will find it attached to this email.",
+      mode === "my_documents"
+        ? "{0} has sent you a document in Guteneo."
+        : mode === "protected_link"
+          ? "{0} has shared a protected document with you."
+          : "{0} has sent you a document. You will find it attached to this email.",
       locale,
     ).replace("{0}", () => name),
   };
@@ -73,7 +76,29 @@ export function renderProtectedEmailFooter(
   locale: SupportedLocale,
   includeLink = true,
 ): string {
-  return `${includeLink ? `<p style="margin:24px 0"><a href="${escape(document.url)}" style="display:inline-block;background-color:#181b22;color:#ffffff;font-family:Arial,Helvetica,sans-serif;font-size:16px;font-weight:700;line-height:1.5;text-decoration:none;padding:12px 20px;border-radius:4px">${escape(deliveryText("View the protected document", locale))}</a></p>` : ""}<p style="margin:20px 0 0;color:#555963;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.6">${escape(protectedEmailInstructions(document.expiresAt, locale))}</p>`;
+  return `${includeLink ? documentButton(document.url, deliveryText("View the protected document", locale)) : ""}<p style="margin:20px 0 0;color:#555963;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.6">${escape(protectedEmailInstructions(document.expiresAt, locale))}</p>`;
+}
+function documentButton(url: string, label: string): string {
+  return `<p style="margin:28px 0"><a href="${escape(url)}" style="display:inline-block;background-color:#2450db;color:#ffffff;font-family:Arial,Helvetica,sans-serif;font-size:16px;font-weight:600;line-height:1.5;text-decoration:none;padding:14px 24px;border:1px solid #2450db;border-radius:7px">${escape(label)}</a></p>`;
+}
+export function accountEmailInstructions(
+  retentionDays: number,
+  locale: SupportedLocale,
+): string {
+  return `${deliveryText("Sign in or create your Guteneo account with the address that received this email.", locale)}\n${deliveryText("Access for {0} days from sending.", locale).replace("{0}", String(retentionDays))}`;
+}
+export function renderAccountEmailFooter(
+  document: AccountEmailDocument,
+  locale: SupportedLocale,
+  includeLink = true,
+): string {
+  return `${includeLink ? documentButton(document.url, deliveryText("Open in My documents", locale)) : ""}<p style="margin:24px 0 0;color:#555963;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.6">${escape(accountEmailInstructions(document.retentionDays, locale)).replace(/\n/g, "<br>")}</p>`;
+}
+export function renderEmailServiceFooter(
+  locale: SupportedLocale,
+  preferencesUrl: string,
+): string {
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;background-color:#f6f5ef;border-collapse:collapse"><tbody><tr><td align="center" style="padding:0 16px 32px;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.8;color:#555963"><a href="https://guteneo.com/?lang=${locale}" style="color:#555963;text-decoration:underline">${escape(deliveryText("Discover guteneo", locale))}</a><br><a href="${escape(preferencesUrl)}" style="color:#555963;text-decoration:underline">${escape(deliveryText("Unsubscribe or report this email", locale))}</a></td></tr></tbody></table>`;
 }
 /** Shared draft/final presentation. Callers never pass arbitrary markup to this renderer. */
 export function renderTransactionalEmail(input: {
@@ -81,13 +106,31 @@ export function renderTransactionalEmail(input: {
   workspaceName: string;
   locale: SupportedLocale;
   protectedDocument?: ProtectedEmailDocument;
+  accountDocument?: AccountEmailDocument;
+  documentTitle?: string;
+  preferencesUrl?: string;
 }): string {
   const paragraphs = input.text
     .split(/\n\s*\n/)
     .map(
       (paragraph) =>
-        `<p style="margin:0 0 20px">${escape(paragraph).replace(/\n/g, "<br>")}</p>`,
+        `<p style="margin:0 0 18px">${escape(paragraph).replace(/\n/g, "<br>")}</p>`,
     )
     .join("");
-  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;background-color:#f6f5ef"><tbody><tr><td align="center" style="padding:32px 16px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:620px;border-collapse:collapse;background-color:#ffffff;border:1px solid #d8d5ca;border-top:3px solid #2450db"><tbody><tr><td style="padding:24px 28px;border-bottom:1px solid #d8d5ca"><p style="margin:0 0 12px;color:#181b22;font-family:Georgia,serif;font-size:32px;line-height:1.2">guteneo</p><p style="margin:0;color:#181b22;font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:700;line-height:1.5">${escape(workspaceLabel(input.workspaceName, input.locale))}</p></td></tr><tr><td style="padding:28px;color:#181b22;font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:1.6">${paragraphs}${input.protectedDocument ? renderProtectedEmailFooter(input.protectedDocument, input.locale) : ""}</td></tr></tbody></table></td></tr></tbody></table>`;
+  const footer = input.accountDocument
+    ? renderAccountEmailFooter(input.accountDocument, input.locale)
+    : input.protectedDocument
+      ? renderProtectedEmailFooter(input.protectedDocument, input.locale)
+      : "";
+  const title = input.documentTitle?.trim()
+    ? `<blockquote style="margin:0 0 24px;padding:12px 18px;border-left:3px solid #2450db;color:#181b22;font-family:Georgia,serif;font-size:23px;line-height:1.4;overflow-wrap:anywhere">${escape(input.locale === "fr" ? `« ${input.documentTitle} »` : `“${input.documentTitle}”`)}</blockquote>`
+    : "";
+  const sender = workspaceLabel(input.workspaceName, input.locale);
+  const signature = input.text.includes(sender)
+    ? ""
+    : `<p style="margin:28px 0 0;color:#555963;font-family:Arial,Helvetica,sans-serif;font-size:13px">${escape(sender)}</p>`;
+  const serviceFooter = input.preferencesUrl
+    ? renderEmailServiceFooter(input.locale, input.preferencesUrl)
+    : "";
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;background-color:#f6f5ef"><tbody><tr><td align="center" style="padding:36px 16px 24px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:600px;border-collapse:separate;border-spacing:0"><tbody><tr><td style="padding:0 8px 24px"><p style="margin:0;color:#181b22;font-family:Georgia,serif;font-size:34px;font-weight:500;line-height:1.2">guteneo</p></td></tr><tr><td style="padding:32px 28px;background-color:#ffffff;border:1px solid #deddd7;border-radius:10px;color:#181b22;font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:1.65"><h1 style="margin:0 0 24px;color:#181b22;font-family:Georgia,serif;font-size:36px;font-weight:400;line-height:1.15">${escape(deliveryText("Your document is ready.", input.locale))}</h1>${title}${paragraphs}${footer}${signature}</td></tr></tbody></table></td></tr></tbody></table>${serviceFooter}`;
 }

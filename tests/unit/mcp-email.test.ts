@@ -125,7 +125,9 @@ describe("email assistant contract", () => {
           ...(mode === "none" ? {} : { documentId: "document_fixture" }),
           ...(mode === "protected_link"
             ? { options: { emailDeliveryMode: mode, protectedDays: 7 } }
-            : {}),
+            : mode === "attachment"
+              ? { options: { emailDeliveryMode: mode } }
+              : {}),
         };
         for (const [name, args] of [
           ["prepare_dispatch", { ...input, idempotencyKey: "stable_fixture" }],
@@ -297,22 +299,19 @@ describe("email assistant contract", () => {
         const prompt = JSON.stringify(
           await client.getPrompt({ name: "email" }),
         );
-        expect(prompt).toContain("Without an active expert mandate");
-        expect(prompt).toContain("Message-only email requires subject");
-        expect(prompt).toContain("{{document_url}}");
-        expect(prompt).toContain("Never visit that URL with a tool");
-        expect(prompt).toContain(
-          "review account restricted to preparation cannot send",
-        );
-        expect(prompt).toContain("When studio tools exist in the catalogue");
-        expect(prompt).toContain(
-          "import_dataset, generate_documents and prepare_distribution",
-        );
-        expect(prompt).toContain("XML, CSV, XLSX or JSON");
-        expect(prompt).toContain("This email workflow receives the final PDF");
-        expect(prompt).toContain(
-          "other attachments and recipient accounts remain unavailable",
-        );
+        for (const instruction of [
+          "My documents",
+          "matching verified email",
+          "without a separate document password",
+          "{{document_url}}",
+          "confirm_secure_distribution",
+          "Neither chat consent nor an expert mandate",
+          "never retrieve it with tools",
+          "Preparation-only accounts cannot send",
+          "Unknown provider outcomes require reconciliation",
+        ])
+          expect(prompt).toContain(instruction);
+        expect(prompt).not.toContain("recipient accounts remain unavailable");
         expect(prepare).not.toHaveBeenCalled();
         expect(confirm).not.toHaveBeenCalled();
       },

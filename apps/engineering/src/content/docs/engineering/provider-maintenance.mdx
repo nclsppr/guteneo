@@ -256,3 +256,28 @@ See [system architecture](/architecture/system/) for the dependency boundaries,
 [background jobs](/engineering/background-jobs/) for ongoing work, and
 [security/reliability](/engineering/security-and-reliability/) for fail-closed
 operation when a dependency loses qualification.
+
+## Recipient feedback on document notifications
+
+The 26 October 2026 candidate adds a mailbox preference capability to document
+email before its immutable approval. The same domain transaction inserts a hashed
+capability mapping with the dispatch. Explicit browser confirmation applies the
+existing workspace suppression and projects a separate recipient response; a GET
+or email scanner has no effect. Provider delivery is neither overwritten nor
+interpreted as consent. No provider configuration, alert email or paid service is
+introduced. The dependency is migration 0062 plus the existing suppression guards.
+
+Maintain the flow in `docs/EMAIL_RECIPIENT_FEEDBACK.md`: bounded same-origin POST,
+workspace-derived scope, idempotent audit and preserved document access. Diagnose
+blocked sends through the suppression and recipient-feedback receipt; do not
+restore permission on a sender's assertion or retry an uncertain submission.
+Local intercepted transport proves content preservation, not production delivery.
+
+```mermaid
+flowchart LR
+  Email[Approved document email] --> Page[Preference page: read only]
+  Page --> Confirm[Explicit recipient action]
+  Confirm --> Transaction[Workspace suppression and response receipt]
+  Transaction --> Future[Future email blocked]
+  Transaction --> Tracking[Separate lifecycle status]
+```

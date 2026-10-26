@@ -36,6 +36,32 @@ import {
 } from "./personal-auth";
 import { personalSessionFence } from "./sensitive-session";
 import type { PostalAuthority } from "./postal-authority";
+import {
+  assertNoDocumentUrlPlaceholder,
+  cleanEmailHtml,
+  htmlToText,
+  safeHeader,
+} from "../../../packages/contracts/src/content";
+import {
+  defaultLocale,
+  normalizeLocale,
+  type SupportedLocale,
+} from "../../../packages/contracts/src/locale";
+import {
+  accountEmailInstructions,
+  documentEmailDefaults,
+  renderAccountEmailFooter,
+  renderTransactionalEmail,
+  transactionalEmailText,
+} from "../../../packages/contracts/src/email-template";
+import { deliveryText } from "../../../packages/contracts/src/delivery-messages";
+
+type StoredInvitation = SecureDistributionInput & {
+  subject: string;
+  message: string;
+  notificationLocale: SupportedLocale;
+  workspaceName: string;
+};
 
 export type SecurePreparationAuthority =
   | {
@@ -276,6 +302,7 @@ export class SecureDistributionService {
     return {
       id: row.id,
       dispatchId: row.dispatch_id,
+      recipientFeedback: dispatch?.dispatch.recipient_feedback ?? null,
       status: expired
         ? "expired"
         : row.status === "prepared" && !row.dispatch_id
@@ -293,10 +320,11 @@ export class SecureDistributionService {
         ...(row.recipient_name ? { name: row.recipient_name } : {}),
       },
       invitation: {
-        subject: (JSON.parse(row.input_json) as SecureDistributionInput)
-          .subject,
-        message: (JSON.parse(row.input_json) as SecureDistributionInput)
-          .message,
+        subject: (JSON.parse(row.input_json) as StoredInvitation).subject,
+        message: (JSON.parse(row.input_json) as StoredInvitation).message,
+        ...(includeAudit && ctx.actor === "browser" && dispatch?.dispatch.html
+          ? { html: dispatch.dispatch.html }
+          : {}),
       },
       policy: JSON.parse(row.policy_json),
       quote: JSON.parse(row.quote_json),
@@ -484,12 +512,31 @@ export class SecureDistributionService {
     input.recipient.address = input.recipient.address.toLowerCase();
     const requestHash = await secureSha256(canonicalJson(input));
     const existing = await this.env.DB.prepare(
-      "SELECT id,request_hash FROM secure_distributions WHERE organization_id=? AND request_key=?",
+      "SELECT id,request_hash,policy_json FROM secure_distributions WHERE organization_id=? AND request_key=?",
     )
       .bind(ctx.organizationId, key)
-      .first<{ id: string; request_hash: string }>();
+      .first<{ id: string; request_hash: string; policy_json: string }>();
     if (existing) {
-      if (existing.request_hash !== requestHash)
+      const legacyHash =
+        !JSON.parse(existing.policy_json).recipientBinding &&
+        !input.recipientBinding &&
+        input.html === undefined
+          ? await secureSha256(
+              canonicalJson({
+                ...input,
+                subject:
+                  input.subject?.trim() ?? "A document is available in Guteneo",
+                message:
+                  input.message?.trim() ??
+                  "A document has been addressed to you in your Guteneo space.",
+                notificationLocale: input.notificationLocale ?? "fr",
+              }),
+            )
+          : null;
+      if (
+        existing.request_hash !== requestHash &&
+        existing.request_hash !== legacyHash
+      )
         throw new DomainError(
           "IDEMPOTENCY_CONFLICT",
           "This key belongs to another distribution.",
@@ -497,6 +544,53 @@ export class SecureDistributionService {
         );
       return this.get(ctx, existing.id);
     }
+    assertNoDocumentUrlPlaceholder(input.subject ?? "");
+    assertNoDocumentUrlPlaceholder(input.message ?? "");
+    const customHtml = input.html?.trim()
+      ? cleanEmailHtml(input.html, { allowDocumentUrlPlaceholder: true }).html
+      : undefined;
+    if (customHtml !== undefined && !htmlToText(customHtml).trim())
+      throw new DomainError(
+        "INVALID_EMAIL_CONTENT",
+        "Custom HTML must contain readable message content.",
+      );
+    const sender = await this.env.DB.prepare(
+      "SELECT o.name,u.preferred_locale FROM organizations o JOIN memberships m ON m.organization_id=o.id JOIN users u ON u.id=m.user_id WHERE o.id=? AND u.id=?",
+    )
+      .bind(ctx.organizationId, ctx.userId)
+      .first<{ name: string; preferred_locale: string | null }>();
+    if (!sender) throw unavailable();
+    const locale =
+      input.notificationLocale ??
+      normalizeLocale(sender.preferred_locale) ??
+      defaultLocale;
+    const defaults = documentEmailDefaults(sender.name, "my_documents", locale);
+    const invitation: StoredInvitation = {
+      ...input,
+      subject: safeHeader(
+        input.subject?.trim() ? input.subject : defaults.subject,
+      ),
+      message: input.message?.trim()
+        ? input.message
+        : customHtml
+          ? htmlToText(customHtml)
+          : defaults.text,
+      ...(customHtml ? { html: customHtml } : {}),
+      notificationLocale: locale,
+      workspaceName: sender.name,
+    };
+    if (
+      await this.env.DB.prepare(
+        "SELECT 1 FROM suppressions WHERE organization_id=? AND email=?",
+      )
+        .bind(ctx.organizationId, input.recipient.address)
+        .first()
+    )
+      throw new DomainError(
+        "RECIPIENT_SUPPRESSED",
+        "This recipient is blocked for this organisation.",
+        409,
+      );
     const source = await this.domain.getDocument(ctx, input.documentId);
     if (
       source.status !== "ready" ||
@@ -515,6 +609,7 @@ export class SecureDistributionService {
       allowOriginalDownload: input.allowOriginalDownload,
       allowVaultDeposit: input.allowVaultDeposit,
       personalRetentionDays: input.personalRetentionDays,
+      recipientBinding: input.recipientBinding ?? "verified_email",
     });
     const quote = secureDistributionQuote(policy);
     if (
@@ -573,7 +668,7 @@ export class SecureDistributionService {
           ),
           canonicalJson(policy),
           JSON.stringify(quote),
-          JSON.stringify(input),
+          JSON.stringify(invitation),
           quote.sharedMinor + quote.personalMinor,
           SECURE_DISTRIBUTION_PRICE_VERSION,
           createdAt,
@@ -905,7 +1000,7 @@ export class SecureDistributionService {
       supervisorCanApprove: Boolean(member.supervisor_can_approve),
       supervisorCanReport: Boolean(member.supervisor_can_report),
     };
-    const input: SecureDistributionInput = JSON.parse(row.input_json);
+    const input: StoredInvitation = JSON.parse(row.input_json);
     const descriptor: SecureDistributionDescriptor = {
       distributionId: row.id,
       sourceId: row.source_id,
@@ -921,22 +1016,44 @@ export class SecureDistributionService {
       `${row.organization_id}:${row.id}`,
       row.sealed_token,
     );
-    const invitation = `${this.env.APP_ORIGIN}/#/app/my-documents?invitation=${token}`;
-    const notice = [
-      "Open your document in Guteneo",
-      "An account and authentication under the active document policy are required.",
-    ];
+    const locale = input.notificationLocale ?? defaultLocale;
+    const invitation = `${this.env.APP_ORIGIN}/?lang=${locale}#/app/my-documents?invitation=${token}`;
+    const accountDocument = {
+      url: invitation,
+      retentionDays: descriptor.policy.retentionDays,
+    };
+    const customHtml = input.html?.trim()
+      ? cleanEmailHtml(input.html, { documentUrl: invitation })
+      : null;
+    const html = customHtml
+      ? customHtml.html +
+        renderAccountEmailFooter(
+          accountDocument,
+          locale,
+          !customHtml.hasDocumentUrlPlaceholder,
+        )
+      : renderTransactionalEmail({
+          text: input.message,
+          workspaceName: input.workspaceName ?? "",
+          locale,
+          accountDocument,
+          documentTitle: row.source_name,
+        });
+    const text = `${transactionalEmailText({ text: input.message, workspaceName: input.workspaceName ?? "", locale })}\n\n${deliveryText("Open in My documents", locale)}: ${invitation}\n${accountEmailInstructions(descriptor.policy.retentionDays, locale)}`;
     const dispatch = await this.domain.prepareSecureDistributionDispatch(
       ctx,
       {
         channel: "email",
         recipient: { email: row.recipient_address },
         subject: input.subject,
-        text: `${input.message}\n\n${notice[0]} : ${invitation}\n${notice[1]}`,
+        senderId: input.senderId,
+        text,
+        html,
         ceilingMinor: input.costCeilingMinor,
       },
       `secure_${row.id}`,
       descriptor,
+      locale,
     );
     const quote = secureDistributionQuote(
       descriptor.policy,

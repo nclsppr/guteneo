@@ -1,7 +1,7 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
 # Guteneo feature tree and developer atlas
 
-**23 domains · 304 features · 34 journeys · 76 documented REST operations · 74 MCP tools**
+**23 domains · 306 features · 35 journeys · 76 documented REST operations · 74 MCP tools**
 Updated 2026-10-26.
 
 Repository implementation inventory. Availability depends on current capabilities and authority; implementation, activation and deployed proof are distinct.
@@ -24,7 +24,7 @@ mindmap
     Deliver
       Fax (6)
       Postal mail (8)
-      Email and protected links (12)
+      Email and protected links (14)
       Sensitive distribution and personal documents (25)
       Dispatch dry run (7)
     Operate
@@ -60,7 +60,7 @@ mindmap
 
 - [Fax](#fax) — 6 features; capability-gated.
 - [Postal mail](#postal) — 8 features; capability-gated.
-- [Email and protected links](#email) — 12 features; capability-gated.
+- [Email and protected links](#email) — 14 features; capability-gated.
 - [Sensitive distribution and personal documents](#secure-distribution) — 25 features; capability-gated.
 - [Dispatch dry run](#dry-run) — 7 features; read-only.
 
@@ -127,7 +127,7 @@ Four human workshop roles are defined by packages/contracts/src/roles.ts. The as
 | Read a sensitive share and its audit | Current workspace approver | All with approval permission; otherwise own creations | Own creations | No | Same resource access + dispatches:read; no other recipient documents |
 | Approve sensitive distribution | Browser + recent document session | Approval permission + browser + recent document session | No | No | No; expert mandate is insufficient |
 | Confirm sensitive distribution after human approval | Current browser evidence | Approval permission + current browser evidence | No | No | Approver role + dispatches:send + existing sensitive browser evidence + host confirmation |
-| Associate recipient with a stable account | Browser + document policy + independent verification | Approval permission + browser + document policy + independent verification | No | No | No |
+| Independently confirm recipient association when required by policy | Browser + document policy + independent verification | Approval permission + browser + document policy + independent verification | No | No | No |
 | Revoke shared access without refund | Current authority | Approval permission | No | No | Approver role + dispatches:send; acquired personal copy retained |
 | Read/export/delete another person’s personal copy | No, including workspace administrator | No | No | No | No |
 | Keep or export one’s own received document | Personal principal + document policy + share permission | Personal principal + document policy + share permission | Personal principal + document policy + share permission | Personal principal + document policy + share permission | No; personal operation outside workspace OAuth |
@@ -491,8 +491,9 @@ Supervisor approval/reporting options are independent and off by default. Resour
 
 **Availability model:** capability-gated. Implemented email candidate; dated operator qualification is separate from deployment, global D1 quota policy, signed webhooks and actual delivery.
 
-**Surfaces:** Web, REST, MCP and mobile API preparation/tracking; current Swift composer offers message-only email, not document/template controls; protected password is browser-only.
+**Surfaces:** Individual web and MCP default to secure account delivery; REST uses /api/secure-distributions. Explicit attachments and legacy password links, campaigns and native message-only wire contracts remain compatible. Recipient access stays in the personal browser.
 
+- Individual web/MCP PDF email defaults to My documents: one verified recipient account, no separate password; optional subject/body, localized workspace V2 template and custom HTML href={{document_url}}; final message is frozen before browser approval
 - Text/HTML email without a file, with a PDF attachment or with a protected link
 - Recipient-request attestation and transactional requirements
 - Explicit quote and per-document hosting charge
@@ -505,10 +506,11 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Download without a recipient account under access controls
 - Preparation, approval, tracking and provider policy
 - Resend/SES availability is gated separately from activation; public price references and operator account limits have dated qualification, while account-wide quota policy, webhook/secret and delivery require independent installation and verification
+- Default email quotes the frozen document title and includes Discover guteneo plus explicit unsubscribe/report controls; the hashed mailbox capability can suppress only its originating workspace, with a separate recipientFeedback status and idempotent document lifecycle receipt
 
 **Contract:** [PROTECTED_EMAIL.md](PROTECTED_EMAIL.md) · **Implementation:** [apps/api/src/protected-documents.ts](../apps/api/src/protected-documents.ts)
 
-**Tests:** [tests/integration/protected-documents.test.ts](../tests/integration/protected-documents.test.ts), [tests/integration/resend-email.test.ts](../tests/integration/resend-email.test.ts), [tests/unit/delivery-messages.test.ts](../tests/unit/delivery-messages.test.ts), [tests/unit/email-content.test.ts](../tests/unit/email-content.test.ts), [tests/security/email-content-runtime.test.mjs](../tests/security/email-content-runtime.test.mjs), [tests/unit/mcp-email.test.ts](../tests/unit/mcp-email.test.ts), [tests/unit/live-capabilities.test.ts](../tests/unit/live-capabilities.test.ts), [tests/integration/mobile.test.ts](../tests/integration/mobile.test.ts), [tests/security/openapi.test.mjs](../tests/security/openapi.test.mjs), [tests/security/public-assets.test.mjs](../tests/security/public-assets.test.mjs), [tests/e2e/protected-email.spec.ts](../tests/e2e/protected-email.spec.ts), [tests/e2e/protected-recipient.spec.ts](../tests/e2e/protected-recipient.spec.ts), [tests/e2e/email-recipient-attestation.spec.ts](../tests/e2e/email-recipient-attestation.spec.ts)
+**Tests:** [tests/integration/protected-documents.test.ts](../tests/integration/protected-documents.test.ts), [tests/integration/resend-email.test.ts](../tests/integration/resend-email.test.ts), [tests/unit/delivery-messages.test.ts](../tests/unit/delivery-messages.test.ts), [tests/unit/email-content.test.ts](../tests/unit/email-content.test.ts), [tests/security/email-content-runtime.test.mjs](../tests/security/email-content-runtime.test.mjs), [tests/unit/mcp-email.test.ts](../tests/unit/mcp-email.test.ts), [tests/unit/live-capabilities.test.ts](../tests/unit/live-capabilities.test.ts), [tests/integration/mobile.test.ts](../tests/integration/mobile.test.ts), [tests/security/openapi.test.mjs](../tests/security/openapi.test.mjs), [tests/security/public-assets.test.mjs](../tests/security/public-assets.test.mjs), [tests/e2e/protected-email.spec.ts](../tests/e2e/protected-email.spec.ts), [tests/e2e/protected-recipient.spec.ts](../tests/e2e/protected-recipient.spec.ts), [tests/e2e/email-recipient-attestation.spec.ts](../tests/e2e/email-recipient-attestation.spec.ts), [tests/e2e/email-preferences.spec.ts](../tests/e2e/email-preferences.spec.ts), [tests/unit/secure-distribution-core.test.ts](../tests/unit/secure-distribution-core.test.ts)
 
 
 
@@ -527,7 +529,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Review final pages/text, recipient, message, permissions and quote before browser approval under the active policy; email-request attestation remains separate
 - Atomic activation and outbox insertion require sensitive browser evidence even through REST/MCP confirmation; expert delegation cannot approve this flow
 - Opaque invitation moves through same-tab handoff and a POST exchange, never authentication returnTo, logs, MCP responses or public captures
-- Individual association requires a verified address, stable-account request and independent workspace confirmation; pending association exposes no sensitive title
+- New immutable verified_email policy binds the matching verified address and stable account at claim under fresh-session checks; independent or missing historical policy still requires workspace confirmation
 - My documents separates Shared with me and Saved copies, with bounded server filtering/search and pagination over authorized documents
 - Private pages and text load on demand; document policy, recent session and current grant are rechecked before each delivery
 - Paginated workspace audit distinguishes server/browser provenance and actor account without claiming physical identity; detailed access events retain ninety days, immutable receipts remain separate, visible refresh is bounded and no full reading, disk save or screenshot is proven
@@ -1010,7 +1012,7 @@ Read postal setup/requirements → collect missing sender/recipient/options → 
 
 **Actor:** Preparer → current approver. **Branch:** Deliver.
 
-Collect recipient, requested message and ceiling → choose no file, ready PDF attachment or protected link → optionally use trusted workspace subject/body defaults for an accessible ready PDF and choose branded or custom HTML → for protected links, resolve a safe custom button marker and append localized access instructions before fingerprinting → obtain the quote → review final content/options → record recipient-request attestation and browser/existing delegated approval → confirm → track.
+Collect recipient and ready PDF → default to My documents, with an explicit attachment alternative → optionally supply subject/message/custom HTML with {{document_url}}, otherwise use localized workspace V2 defaults → prepare secure distribution → follow rendering on the same ID → browser review exact email, PDF, policy and quote → attest the email request → approve and confirm → track. Message-only and explicit legacy modes retain ordinary dispatch approval. → recipient may explicitly unsubscribe/report through the footer; track the response separately from delivery and access.
 
 **Failure/recovery:** Never infer recipient consent. Protected passwords stay in the sender browser and are shared separately. Provider acceptance/delivery/PDF reading are different facts; unknown outcomes require reconciliation. Later workspace/profile changes do not rewrite frozen content or resend existing mail. Missing/invalid documents do not permit defaults; malformed or wrong-mode button markers require corrected preparation.
 
@@ -1218,9 +1220,9 @@ Request an eligible public HTML document → retain real error status → show l
 
 ### J26 · Receive a sensitive document with one Guteneo account
 
-**Actor:** Personal recipient, with or without a workspace; sender’s current approver confirms association. **Branch:** Active individual invitation, personal principal and current document policy; association confirmed before content.
+**Actor:** Personal recipient with matching verified address and current-policy session; workspace approver only for independent policies. **Branch:** Active individual invitation, personal principal and current document policy; association confirmed before content.
 
-Open the invitation → capture/remove its fragment token before any HTTP login URL → same-tab ten-minute handoff → Auth0 sign-in/registration and secret-free return → request association with verified account/address and a recent session under the active policy → await independent workspace confirmation → read authorized pages/text and find the share in My documents. Receipt creates no workspace, purchase or marketing consent.
+Open the invitation → capture/remove its fragment token before any HTTP login URL → same-tab ten-minute handoff → Auth0 sign-in/registration and secret-free return → open the document with verified account/address and a recent session → atomically bind the stable account for verified_email, or await workspace confirmation only for independent/historical policies → read authorized pages/text and find the share in My documents. Receipt creates no workspace, purchase or marketing consent.
 
 **Failure/recovery:** Wrong account, expired token, revoked access or insufficient policy evidence exposes no sensitive title/original. Explicitly switch account or reopen the link; if storage is blocked, sign in then reopen without a secret returnTo. A 401 offers explicit recovery without loops. No physical identity or complete reading is promised. A changed association candidate requires fresh attestation. Personal-list 401/403 clears metadata/cursors and ignores late obsolete responses.
 
@@ -1230,7 +1232,7 @@ Open the invitation → capture/remove its fragment token before any HTTP login 
 
 **Actor:** Authorized preparer → browser approver under the active document policy → authorized confirmer. **Branch:** Web/REST/MCP/packages prepare and follow; sensitive approval is browser-only.
 
-Open Secure distribution after Documents, keeping Overview/Assistants first and the active entry coherent → select an accessible ready PDF up to 100 pages/10 MiB → one recipient → 7/30/90/365 days → optional original export/personal copy → subject/message/language → idempotent preparation → follow preparing under the same ID → review final pages/text, recipient, rights, message and tax-exclusive total including transport → separately attest the email request → browser approve → confirm/activate → inspect paginated provenance/actor audit with ninety-day detailed access and separate immutable receipts. Revocation blocks future access without refund. Explicit source pagination reaches older PDFs; permitted personal copies remain exportable even when the shared original is not.
+Open Secure distribution after Documents, keeping Overview/Assistants first and the active entry coherent → select an accessible ready PDF up to 100 pages/10 MiB → one recipient → 7/30/90/365 days → optional original export/personal copy → optional subject/message/custom HTML or localized workspace V2 defaults, plus approved binding policy → idempotent preparation → follow preparing under the same ID → review final pages/text, recipient, rights, message and tax-exclusive total including transport → separately attest the email request → browser approve → confirm/activate → inspect paginated provenance/actor audit with ninety-day detailed access and separate immutable receipts. Revocation blocks future access without refund. Explicit source pagination reaches older PDFs; permitted personal copies remain exportable even when the shared original is not.
 
 **Failure/recovery:** Unqualified source, integrity, scan, rendering, authority, price, credit or configuration closes the flow. Revoke unexpired legacy draft/active hosting first. A prior postal derivation, legacy send, postal preflight or provider draft requires a dedicated source even after cancellation/failure. Sensitive reference permanently excludes ordinary email/fax/postal attachments, legacy transforms, cropping, analysis and password reads; only the dedicated sourceless invitation remains eligible. Bidirectional service/SQL guards close concurrent legacy writes and provider-transfer races. No original/legacy-link fallback. Expert mandates and assistant-asserted consent cannot approve. Unknown outcomes reread the same ID without new orders or blind provider retry. Check my access voluntarily opens /auth/login?fresh=1 and returns to the distribution list without sensitive IDs/invitations; it grants no preparation/approval or implicit old SSO. Dated Resend qualification/local email flags establish no installed global D1 quotas, webhook/secret or delivery.
 
@@ -1305,6 +1307,16 @@ Qualify the actual host’s access to the selected original and network → comp
 **Failure/recovery:** Reject unknown/used/expired capability, cookies/Authorization/Origin/query/encoding, changed issuer trust/client/connection/revision/membership, size/hash mismatch, overflow and timeout. Never publish a private PDF or reconstruct it from extracted text. Recovery keeps the same upload/document ID and does not blindly retry an unknown outcome. No PDF or document ID is exposed by the capability; no sending, purchase or human/delegated approval is created. Web/Desktop/Code evidence does not qualify Claude on iPhone.
 
 [Detailed contract](PRIVATE_DOCUMENT_UPLOAD.md).
+
+### J35 · Decline or report document email
+
+**Actor:** Holder of the recipient preference capability; sender reads only their authorized delivery status. **Branch:** Recipient-only browser action; scoped REST/MCP readback, no assistant preference tool.
+
+Open the email footer preference link → capture and remove fragment token without sign-in or API reads → explicitly unsubscribe or report → same-origin bounded POST → atomic originating-workspace suppression and lifecycle receipt → show Unsubscribed or Email reported separately from delivery and existing document rights.
+
+**Failure/recovery:** Invalid/draft/cancelled capabilities reveal no address or title. GET/scanners do not write. Reopen or retry the same link after failure. Other workspaces and already received documents remain unaffected; reports cannot be downgraded and unknown provider outcomes never auto-retry.
+
+[Detailed contract](EMAIL_RECIPIENT_FEEDBACK.md).
 
 ## Required maintenance
 

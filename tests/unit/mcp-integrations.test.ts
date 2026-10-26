@@ -709,13 +709,13 @@ describe("distributable LLM integrations", () => {
         { encoding: "utf8" },
       );
       expect(emailSkill).toContain("prepare_dispatch");
-      expect(emailSkill).toContain("supply no documentId");
-      expect(emailSkill).toContain("options.emailDeliveryMode=protected_link");
-      expect(emailSkill).toContain("Never open this page with a tool");
+      expect(emailSkill).toContain("My documents");
+      expect(emailSkill).toContain("protected_link remains an explicit legacy");
+      expect(emailSkill).toContain("never retrieve it with tools");
+      expect(emailSkill).toContain("Preparation-only accounts cannot send");
       expect(emailSkill).toContain(
-        "Preparation-only review accounts cannot send",
+        "Unknown provider outcomes require reconciliation",
       );
-      expect(emailSkill).toContain("submission_unknown");
       expect(manifest.files).toContain("skills/document-studio/SKILL.md");
       const authoringPath =
         "skills/document-studio/references/template-authoring.md";

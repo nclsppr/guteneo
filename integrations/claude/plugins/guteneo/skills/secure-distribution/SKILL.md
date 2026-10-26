@@ -23,7 +23,7 @@ personal vault or claims to have verified their identity.
    optional original-download permission, then any authorization for a personal
    copy and its term. Explain that a delivered personal copy is independent of
    later revocation of the share.
-4. Call `prepare_secure_distribution` with a stable key. Preparation sends
+4. Call `prepare_secure_distribution` with a stable key. Subject, message and HTML are optional: omitted content uses the V2 template and authenticated workspace name. A custom HTML anchor may use `href="{{document_url}}"` to position its own button. `recipientBinding` defaults to `verified_email`; choose `independent` only when separate workspace confirmation is intended. Preparation sends
    nothing. For `preparing`, query `get_secure_distribution` with the same
    identifier; never create a second preparation. Present the exact EUR quote
    excluding tax: shared retention, any personal retention, notification and
@@ -41,14 +41,16 @@ personal vault or claims to have verified their identity.
 7. Use `list_secure_distributions` or `get_secure_distribution` for tracking.
    Distinguish browser-reported display, requested download and started
    transmission. Do not claim complete reading, a file saved to disk, printing
-   or detected screenshot capture.
+   or detected screenshot capture. `recipientFeedback` records unsubscribe/report
+   separately from delivery and access; it blocks future email from that workspace
+   without revoking existing document rights. Never exercise mailbox controls or
+   expose their URLs through tools.
 8. If the person requests revocation, explain its effect and call
    `revoke_secure_distribution` in the current workspace. It blocks future
    share access; it neither recovers an exported copy, deletes a personal copy
    already delivered nor refunds funded retention.
 
-Initial recipient binding and confirmation of an independent channel remain
-in the workspace browser. Never request a passkey, password, email code or
+The invitation opens **My documents**, with sign-in or signup when needed. Under `verified_email`, the server binds the matching verified address to the stable authenticated account at claim, without a separate document password. Historical policies without this field and explicit `independent` policies retain workspace-browser confirmation. This is verified address possession, never proof of physical identity. Never request a passkey, password, email code or
 account recovery in chat. Never list, claim, export or associate personal
 documents through workspace tools. Installation grants no extra permission,
 purchase, subscription or mandate.

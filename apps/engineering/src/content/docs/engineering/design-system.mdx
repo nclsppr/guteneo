@@ -339,3 +339,17 @@ Useful focused checks include `tests/unit/web-locale.test.ts`,
 or Belvédère suite for the actual surface. Inspect the new interaction manually
 with keyboard and assistive technology as well; catalog parity alone cannot
 prove good wording, reading order or usable error recovery.
+
+## Document email presentation
+
+The 26 October 2026 candidate reuses the V2 paper/ink/action palette in the shared
+`email-template.ts`: a 10 px paper panel, 7 px blue action and email-safe serif/sans
+fallbacks. No remote font/image request is needed. The default shows the workshop
+name and one **My documents** action; custom HTML can own that action with
+`{{document_url}}`. The email sanitizer retains supported inline styles, resolves
+the marker before immutable approval and adds only a missing fallback button.
+`docs/PROTECTED_EMAIL.md` owns this contract. Test sanitized output at narrow and
+wide widths in all four languages; local browser rendering does not qualify inbox
+clients. Keep template edits and recipient instructions in the same review.
+
+Document titles use an escaped semantic quotation. The footer uses two small underlined service links; the preference page reuses public chrome and shows an explicit action before any write. Account/document status remains separate from a recipient email response. The fragment capability is never copied into public navigation.

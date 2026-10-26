@@ -3,7 +3,7 @@ import { Field } from "./components";
 import { useId, useRef } from "react";
 
 export function emailDraftHtml(text: string, customHtml: string) {
-  // The real protected URL exists only after server preparation. Keep this
+  // The real document URL exists only after server preparation. Keep this
   // authoring preview local without changing the markup submitted for review.
   if (customHtml.trim()) return customHtml.replaceAll("{{document_url}}", "#");
   return `<p>${text
@@ -22,7 +22,8 @@ export function EmailComposer({
   onHtml,
   disabled,
   documentEmail = false,
-  protectedLink = false,
+  documentLink = false,
+  textLimit = 150000,
 }: {
   text: string;
   html: string;
@@ -30,7 +31,8 @@ export function EmailComposer({
   onHtml: (value: string) => void;
   disabled?: boolean;
   documentEmail?: boolean;
-  protectedLink?: boolean;
+  documentLink?: boolean;
+  textLimit?: number;
 }) {
   const linkHintId = useId();
   const htmlInput = useRef<HTMLTextAreaElement>(null);
@@ -51,7 +53,7 @@ export function EmailComposer({
           rows={6}
           value={text}
           onChange={(event) => onText(event.target.value)}
-          maxLength={150000}
+          maxLength={textLimit}
           required={!documentEmail}
           placeholder={
             documentEmail
@@ -85,10 +87,10 @@ export function EmailComposer({
             onChange={(event) => onHtml(event.target.value)}
             maxLength={150000}
             disabled={disabled}
-            aria-describedby={protectedLink ? linkHintId : undefined}
+            aria-describedby={documentLink ? linkHintId : undefined}
           />
         </Field>
-        {protectedLink && (
+        {documentLink && (
           <div className="email-document-link">
             <p className="field-hint" id={linkHintId}>
               {msg(
@@ -118,11 +120,6 @@ export function DistributionRoadmap() {
       <p>
         {msg(
           "Importing recipient lists in all formats and distributing PDFs, Excel files and other documents are planned. These features are not yet available.",
-        )}
-      </p>
-      <p>
-        {msg(
-          "Later, each recipient will be able to find their documents in their own password-protected account.",
         )}
       </p>
     </div>

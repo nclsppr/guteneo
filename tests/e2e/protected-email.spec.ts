@@ -1,5 +1,11 @@
 import { expect, test, type Page } from "@playwright/test";
 import { PDFDocument } from "pdf-lib";
+import { cleanEmailHtml } from "../../packages/contracts/src/content";
+import {
+  documentEmailDefaults,
+  renderTransactionalEmail,
+} from "../../packages/contracts/src/email-template";
+import { secureDistributionQuote } from "../../packages/contracts/src/secure-distribution";
 
 const sampleDocument = {
   id: "document_protected_ui",
@@ -72,6 +78,41 @@ async function fixture(
     }
     if (request.method() !== "GET") {
       writes.push({ path, body: request.postDataJSON() });
+    }
+    if (path.startsWith("/api/secure-distributions")) {
+      const policy = {
+        retentionDays: 30 as const,
+        allowOriginalDownload: true,
+        allowVaultDeposit: false,
+        personalRetentionDays: 365 as const,
+        recipientBinding: "verified_email" as const,
+      };
+      await route.fulfill({
+        json: {
+          id: "sd_ui",
+          status: "prepared",
+          dispatchId: dispatch.id,
+          title: sampleDocument.name,
+          source: sampleDocument,
+          recipient: { address: "recipient@example.invalid" },
+          invitation: {
+            subject: dispatch.subject,
+            message: dispatch.text,
+            html: dispatch.html,
+          },
+          policy,
+          quote: secureDistributionQuote(policy, 1),
+          approved: false,
+          approval: null,
+          approvalUrl: null,
+          recipientBinding: "unclaimed",
+          pendingClaim: null,
+          recipientUserId: null,
+          expiresAt: null,
+          audit: [],
+        },
+      });
+      return;
     }
     const body =
       path === "/api/session"
@@ -379,11 +420,7 @@ test.describe("localized preparation controls", () => {
           (element: HTMLInputElement) => element.files?.length,
         ),
       ).toBe(1);
-      const protection = page.getByRole("checkbox", {
-        name: /Envoyer un lien protégé/,
-      });
-      await protection.check();
-      const expiry = page.getByLabel("Expiration du lien");
+      const expiry = page.getByLabel("Durée d’accès");
       await expiry.selectOption("30");
       await expect(expiry).toHaveValue("30");
       const choice = page.locator(".protected-document-choice");
@@ -475,8 +512,8 @@ test("email without attachment requires its message and leaves automatic HTML to
   expect(writes[0]?.body).not.toHaveProperty("options");
 });
 
-for (const protectedLink of [false, true]) {
-  test(`document email omits default content for ${protectedLink ? "protected link" : "attachment"}`, async ({
+for (const accountDelivery of [false, true]) {
+  test(`document email omits default content for ${accountDelivery ? "My documents" : "attachment"}`, async ({
     page,
   }) => {
     const writes = await fixture(page);
@@ -484,10 +521,10 @@ for (const protectedLink of [false, true]) {
     await page
       .getByLabel("Pièce jointe PDF (facultative)")
       .selectOption(sampleDocument.id);
-    if (protectedLink)
+    if (!accountDelivery)
       await page
-        .getByRole("checkbox", { name: /Envoyer un lien protégé/ })
-        .check();
+        .getByLabel("Accès au document", { exact: true })
+        .selectOption("attachment");
     await expect(
       page.getByLabel("Objet (facultatif)", { exact: true }),
     ).not.toHaveAttribute("required", "");
@@ -499,22 +536,32 @@ for (const protectedLink of [false, true]) {
       .fill("recipient@example.invalid");
     await page.getByRole("button", { name: "Vérifier et préparer" }).click();
     await expect(
-      page.getByRole("heading", { name: "Le bon à envoyer." }),
+      page.getByRole("heading", {
+        name: accountDelivery ? sampleDocument.name : "Le bon à envoyer.",
+      }),
     ).toBeVisible();
     expect(writes[0]?.body.documentId).toBe(sampleDocument.id);
     for (const key of ["subject", "text", "html"])
       expect(writes[0]?.body).not.toHaveProperty(key);
-    if (protectedLink)
-      expect(writes[0]?.body.options).toEqual({
-        emailDeliveryMode: "protected_link",
-        protectedDays: 7,
+    if (accountDelivery) {
+      expect(writes[0]?.path).toBe("/api/secure-distributions");
+      expect(writes[0]?.body).toMatchObject({
+        retentionDays: 7,
+        recipientBinding: "verified_email",
       });
-    else expect(writes[0]?.body).not.toHaveProperty("options");
+    } else
+      expect(writes[0]?.body.options).toEqual({
+        emailDeliveryMode: "attachment",
+      });
     await expect(
       page.frameLocator(".email-preview").locator("body"),
     ).toContainText("Votre document demandé.");
     await expect(
-      page.getByRole("checkbox", { name: /J’ai vérifié le contenu/ }),
+      page.getByRole("checkbox", {
+        name: accountDelivery
+          ? /J’ai vérifié le document/
+          : /J’ai vérifié le contenu/,
+      }),
     ).not.toBeChecked();
   });
 }
@@ -546,10 +593,7 @@ for (const locale of ["fr", "en", "de", "lb"] as const) {
       page.getByLabel(messageLabel, { exact: true }),
     ).not.toHaveAttribute("required", "");
     await page.locator(".email-advanced summary").click();
-    await expect(page.locator(".email-document-link")).toHaveCount(0);
-    await page
-      .locator(".protected-document-choice input[type=checkbox]")
-      .check();
+
     await expect(page.locator(".email-document-link")).toContainText(
       "{{document_url}}",
     );
@@ -582,11 +626,13 @@ test.describe("unsaved account language", () => {
     ).toBeVisible();
     await expect(
       page.frameLocator(".email-preview").locator("body"),
-    ).toContainText("Atelier de contrôle vous a envoyé un document.");
+    ).toContainText(
+      "Atelier de contrôle vous a adressé un document dans Guteneo.",
+    );
   });
 });
 
-test("protected custom HTML inserts an editable styled button and preserves its submitted markup", async ({
+test("account custom HTML inserts an editable styled button and preserves its submitted markup", async ({
   page,
 }) => {
   const writes = await fixture(page);
@@ -594,7 +640,6 @@ test("protected custom HTML inserts an editable styled button and preserves its 
   await page
     .getByLabel("Pièce jointe PDF (facultative)")
     .selectOption(sampleDocument.id);
-  await page.getByRole("checkbox", { name: /Envoyer un lien protégé/ }).check();
   await page
     .getByLabel("Message (facultatif)", { exact: true })
     .fill("Plain-text alternative only.");
@@ -626,14 +671,14 @@ test("protected custom HTML inserts an editable styled button and preserves its 
     .fill("recipient@example.invalid");
   await page.getByRole("button", { name: "Vérifier et préparer" }).click();
   await expect(
-    page.getByRole("heading", { name: "Le bon à envoyer." }),
+    page.getByRole("heading", { name: sampleDocument.name }),
   ).toBeVisible();
   expect(writes[0]?.body.html).toBe(html);
   expect(writes[0]?.body).not.toHaveProperty("subject");
-  expect(writes[0]?.body.text).toBe("Plain-text alternative only.");
+  expect(writes[0]?.body.message).toBe("Plain-text alternative only.");
 });
 
-test("inserting the first protected document button preserves the written message in HTML", async ({
+test("inserting the first document button preserves the written message in HTML", async ({
   page,
 }) => {
   const writes = await fixture(page);
@@ -642,7 +687,6 @@ test("inserting the first protected document button preserves the written messag
   await page
     .getByLabel("Pièce jointe PDF (facultative)")
     .selectOption(sampleDocument.id);
-  await page.getByRole("checkbox", { name: /Envoyer un lien protégé/ }).check();
   await page.getByLabel("Message (facultatif)", { exact: true }).fill(text);
   await page.locator(".email-advanced summary").click();
   await expect(page.getByLabel("Version HTML", { exact: true })).toHaveValue(
@@ -674,47 +718,72 @@ test("inserting the first protected document button preserves the written messag
     .fill("recipient@example.invalid");
   await page.getByRole("button", { name: "Vérifier et préparer" }).click();
   await expect(
-    page.getByRole("heading", { name: "Le bon à envoyer." }),
+    page.getByRole("heading", { name: sampleDocument.name }),
   ).toBeVisible();
-  expect(writes[0]?.body).toMatchObject({ text, html });
+  expect(writes[0]?.body).toMatchObject({ message: text, html });
 });
 
-test("PDF protection is optional, priced before preparation and binds its selected duration", async ({
+test("account delivery is the default and binds its priced access period", async ({
   page,
 }, testInfo) => {
   const writes = await fixture(page);
-  await page.goto("/#/app/prepare?channel=email");
+  await page.goto("/?appearance=v2#/app/prepare?channel=email");
+  await expect(page.getByLabel("Pièce jointe PDF (facultative)")).toBeVisible();
+  const firstUsefulContentMs = await page.evaluate(() => performance.now());
   await page
     .getByLabel("Pièce jointe PDF (facultative)")
     .selectOption(sampleDocument.id);
-  const protection = page.getByRole("checkbox", {
-    name: /Envoyer un lien protégé/,
-  });
-  await expect(protection).not.toBeChecked();
-  await expect(page.getByText(/1 € par document hébergé/)).toBeVisible();
-  await protection.check();
-  await expect(page.getByLabel("Expiration du lien")).toHaveValue("7");
-  await page.getByLabel("Expiration du lien").selectOption("30");
   await expect(
-    page.getByText(/ce n’est pas un chiffrement de bout en bout/),
-  ).toBeVisible();
+    page.getByLabel("Accès au document", { exact: true }),
+  ).toHaveValue("my_documents");
+  await expect(page.getByLabel("Durée d’accès")).toHaveValue("7");
+  await page.getByLabel("Durée d’accès").selectOption("30");
+  await expect(page.getByText(/Aucun mot de passe de document à transmettre/)).toBeVisible();
+  const metrics = await page.evaluate(async () => {
+    await document.fonts.ready;
+    const resources = performance.getEntriesByType(
+      "resource",
+    ) as PerformanceResourceTiming[];
+    return {
+      resources: resources.length,
+      transferredBytes: resources.reduce(
+        (sum, entry) => sum + entry.transferSize,
+        0,
+      ),
+      javascriptTransferredBytes: resources
+        .filter((entry) => new URL(entry.name).pathname.endsWith(".js"))
+        .reduce((sum, entry) => sum + entry.transferSize, 0),
+      firstContentfulPaintMs:
+        performance.getEntriesByName("first-contentful-paint")[0]?.startTime ??
+        null,
+      apiRequests: resources
+        .filter((entry) => new URL(entry.name).pathname.startsWith("/api/"))
+        .map((entry) => new URL(entry.name).pathname),
+      pdfViewerLoaded: resources.some((entry) =>
+        /pdf-viewer.*\.js/.test(entry.name),
+      ),
+    };
+  });
+  await testInfo.attach("preparation-performance", {
+    body: JSON.stringify({ ...metrics, firstUsefulContentMs }, null, 2),
+    contentType: "application/json",
+  });
   await fillMessage(page);
   await page.screenshot({
-    path: testInfo.outputPath("protected-email-preparation.png"),
+    path: testInfo.outputPath("account-email-preparation.png"),
     fullPage: true,
   });
   await page.getByRole("button", { name: "Vérifier et préparer" }).click();
   await expect(
-    page.getByRole("heading", { name: "Le bon à envoyer." }),
+    page.getByRole("heading", { name: sampleDocument.name }),
   ).toBeVisible();
+  expect(writes[0]?.path).toBe("/api/secure-distributions");
   expect(writes[0]?.body).toMatchObject({
     documentId: sampleDocument.id,
-    options: { emailDeliveryMode: "protected_link", protectedDays: 30 },
+    retentionDays: 30,
+    recipientBinding: "verified_email",
+    allowOriginalDownload: true,
   });
-  await expect(page.locator(".protected-document-summary")).toContainText(
-    "1,00",
-  );
-  await expect(page.getByText("1,00156 €", { exact: true })).toBeVisible();
 });
 
 test("custom HTML remains optional and uses the message as its accessible text version", async ({
@@ -951,5 +1020,52 @@ for (const mode of ["message", "attachment", "protected_link"] as const) {
       { action: "confirm", key: "web-confirm:dispatch_protected_ui" },
       { action: "confirm", key: "web-confirm:dispatch_protected_ui" },
     ]);
+  });
+}
+
+for (const locale of ["fr", "en", "de", "lb"] as const) {
+  test(`V2 account email renders without remote resources or overflow in ${locale}`, async ({
+    page,
+    isMobile,
+  }, testInfo) => {
+    if (isMobile) await page.setViewportSize({ width: 320, height: 812 });
+    const workspaceName = "Atelier de contrôle";
+    const url = `https://guteneo.example/?lang=${locale}#/app/my-documents?invitation=synthetic`;
+    const html = cleanEmailHtml(
+      renderTransactionalEmail({
+        text: documentEmailDefaults(workspaceName, "my_documents", locale).text,
+        workspaceName,
+        locale,
+        accountDocument: { url, retentionDays: 7 },
+        documentTitle: "Attestation — Atelier de contrôle.pdf",
+        preferencesUrl:
+          "https://guteneo.example/?lang=fr#/email-preferences?token=synthetic",
+      }),
+    ).html;
+    const requests: string[] = [];
+    page.on("request", (request) => requests.push(request.url()));
+    await page.setContent(
+      `<!doctype html><html lang="${locale}"><meta name="viewport" content="width=device-width,initial-scale=1"><body style="margin:0;background:#f6f5ef">${html}</body></html>`,
+    );
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+    await expect(page.getByRole("link")).toHaveCount(3);
+    await expect(page.locator('a[href*="/app/my-documents"]')).toHaveAttribute(
+      "href",
+      url,
+    );
+    await expect(page.locator("blockquote")).toContainText(
+      "Attestation — Atelier de contrôle.pdf",
+    );
+    expect(requests).toEqual([]);
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth,
+      ),
+    ).toBe(true);
+    if (locale === "fr")
+      await page.screenshot({
+        path: testInfo.outputPath("account-email-v2.png"),
+        fullPage: true,
+      });
   });
 }

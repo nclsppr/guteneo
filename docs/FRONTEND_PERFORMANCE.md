@@ -135,3 +135,42 @@ checks remain separate.
 | `apps/web/src/main.tsx`, `public-site-metadata.ts`             | Public detail preloading while initial HTML remains useful                                                   |
 | `apps/web/src/theme-media.ts`, `editorial/article-picture.tsx` | Native theme/size source selection and responsive public editorial exports                                   |
 | `tests/e2e/personal-document-performance.spec.ts`              | Bounded loading and account-transition regressions                                                           |
+
+## Document email and recipient controls — 26 October 2026
+
+The new fragment preference page is lazy loaded and bypasses workshop/personal
+bootstrap. Loading the link makes **zero business API calls**; confirmation makes
+one POST. It reuses public chrome. Account email preparation retains the four
+existing reads (`session`, `capabilities`, `documents`, `senders`), without loading
+the PDF viewer before review. The email itself uses table markup, system font
+fallbacks and no remote image, stylesheet, font or script request.
+
+Local Vite production assets served by Wrangler on localhost, intercepted
+synthetic APIs, FR locale, fresh Playwright contexts, no network/CPU throttling;
+other offline validation was running concurrently. Measurements below are one
+preparation sample and two recipient-control samples per browser, not a baseline
+comparison or production latency claim. Resource bytes are browser-reported
+`transferSize` including headers; resource completion can vary at measurement.
+
+| Surface / browser | Requests | Total transferred bytes | JavaScript bytes | FCP (ms) | First useful control/heading observed (ms) |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Preparation / desktop Chromium | 55 | 709,765 | 519,052 | 172 | 507 |
+| Preparation / mobile Chromium | 55 | 709,765 | 519,052 | 352 | 772 |
+| Preparation / iPhone WebKit emulation | 56 | 729,117 | 520,851 | 332 | 890 |
+| Recipient controls / desktop Chromium | 39–40 | 849,419–922,059 | 478,491 | 164–176 | 475–500 |
+| Recipient controls / mobile Chromium | 40 | 922,055–922,059 | 478,491 | 248–588 | 575–1,113 |
+| Recipient controls / iPhone WebKit emulation | 41 | 942,434–942,486 | 480,026–480,060 | 312–1,146 | 663–1,061 |
+
+The useful-content marker follows an awaited visible field/heading; it is test
+instrumentation rather than a standardized paint metric. Preference-page totals
+include the explicit confirmation and shared footer assets. These observations
+qualify neither a physical phone, inbox client nor hosted CPU, memory or billing.
+No worker, cron, polling or provider operation was added for preferences; a token
+hash/mapping joins preparation, and explicit feedback uses one database batch.
+Cloud CPU and billed cost remain unmeasured; existing tariff sources are unchanged.
+
+Evidence outside Git:
+`/Users/nclsppr/Documents/Codex/Reports/guteneo-account-email-2026-10-26/browser-performance-final.json`
+and `performance-browser-9.json`. Sources: `email-preferences.spec.ts` and
+`protected-email.spec.ts`; final behavior is defined in
+[recipient feedback](EMAIL_RECIPIENT_FEEDBACK.md).

@@ -520,9 +520,12 @@ describe("Resend domain, live bridge and populated migrations — synthetic tran
           Buffer.from(pdfBytes),
         );
       } else expect(body).not.toHaveProperty("attachments");
-      if (mode !== "protected_link") {
+      if (mode === "none") {
         expect(body.html).toBe(input.html);
         expect(body.text).toBe(input.text);
+      } else if (mode === "attachment") {
+        expect(body.html.startsWith(input.html!)).toBe(true);
+        expect(body.text.startsWith(input.text!)).toBe(true);
       }
       if (mode === "protected_link") {
         const disclosed = await revealProtectedDocumentPassword(
@@ -732,7 +735,9 @@ describe("Resend domain, live bridge and populated migrations — synthetic tran
         expect(row.html).not.toMatch(/<img|<script|<style/);
         if (mode === "protected_link") {
           expect(row.text).toContain(`?lang=${locale}`);
-          expect(row.html!.match(/<a /g) ?? []).toHaveLength(1);
+          expect(row.html!.match(/href="[^"]*\/share\//g) ?? []).toHaveLength(
+            1,
+          );
         } else {
           expect(row.html).not.toContain("/share/");
           expect(row.text).not.toContain("/share/");
@@ -777,10 +782,12 @@ describe("Resend domain, live bridge and populated migrations — synthetic tran
       "custom_body",
     );
     expect(custom.subject).toBe("Document envoyé par Isolated fixture");
-    expect(custom.text).toBe("Customer-authored body");
-    expect(custom.html).toBe(
+    expect(custom.text).toContain("Customer-authored body");
+    expect(custom.text).toContain("email-preferences?token=");
+    expect(custom.html).toContain(
       '<h1 style="color:#2450db">Customer-authored body</h1>',
     );
+    expect(custom.html).not.toContain(">guteneo</p>");
   });
 
   it.each(["attachment", "protected_link"] as const)(
@@ -866,7 +873,7 @@ describe("Resend domain, live bridge and populated migrations — synthetic tran
     expect(prepared.html).not.toContain("{{document_url}}");
     expect(prepared.html).not.toContain(">guteneo</p>");
     expect(prepared.html).not.toContain("Consulter le document protégé</a>");
-    expect(prepared.html!.match(/<a /g) ?? []).toHaveLength(1);
+    expect(prepared.html!.match(/href="[^"]*\/share\//g) ?? []).toHaveLength(1);
     expect(prepared.html).toContain("background-color:#2450db");
     expect(prepared.html).toContain("Read my document</a>");
     expect(prepared.html).toContain("Demandez le mot de passe");

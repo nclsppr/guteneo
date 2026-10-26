@@ -61,6 +61,7 @@ export type DocumentRecord = {
   analysis?: DocumentAnalysis;
 };
 export type Dispatch = {
+  recipient_feedback?: "unsubscribed" | "reported" | null;
   id: string;
   channel: Channel;
   recipient_json: string | Record<string, string>;

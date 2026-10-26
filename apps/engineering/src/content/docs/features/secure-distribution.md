@@ -26,7 +26,7 @@ Implemented candidate with migrations 0055–0059 and separate deterministic str
 <li id="feature-487e28d5ff1d">Review final pages/text, recipient, message, permissions and quote before browser approval under the active policy; email-request attestation remains separate</li>
 <li id="feature-7ff1331958f2">Atomic activation and outbox insertion require sensitive browser evidence even through REST/MCP confirmation; expert delegation cannot approve this flow</li>
 <li id="feature-b69ca8c6b602">Opaque invitation moves through same-tab handoff and a POST exchange, never authentication returnTo, logs, MCP responses or public captures</li>
-<li id="feature-194466e8da69">Individual association requires a verified address, stable-account request and independent workspace confirmation; pending association exposes no sensitive title</li>
+<li id="feature-bf8752bea5f4">New immutable verified_email policy binds the matching verified address and stable account at claim under fresh-session checks; independent or missing historical policy still requires workspace confirmation</li>
 <li id="feature-93a71ed7892d">My documents separates Shared with me and Saved copies, with bounded server filtering/search and pagination over authorized documents</li>
 <li id="feature-39ab543ebaa8">Private pages and text load on demand; document policy, recent session and current grant are rechecked before each delivery</li>
 <li id="feature-c60fb15ec6e5">Paginated workspace audit distinguishes server/browser provenance and actor account without claiming physical identity; detailed access events retain ninety days, immutable receipts remain separate, visible refresh is bounded and no full reading, disk save or screenshot is proven</li>

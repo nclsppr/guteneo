@@ -25,6 +25,8 @@ publication at `engineering.guteneo.com`: readable guides, generated feature pag
 and brand-aligned diagrams. `docs.guteneo.com` is reserved for customer documentation.
 Run `npm run docs:build` and `npm run docs:check` to synchronize both views.
 
+The [document email contract](PROTECTED_EMAIL.md) links the account invitation, V2 template and [recipient feedback lifecycle](EMAIL_RECIPIENT_FEEDBACK.md).
+
 ## Current sources of truth
 
 | Need                                                | Start here                                                                                                                                                                                                                                                                                          |

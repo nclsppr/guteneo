@@ -19,6 +19,7 @@ import {
   ConfirmAction,
   Definition,
   EmptyState,
+  EmailPreview,
   ErrorNotice,
   Field,
   go,
@@ -31,11 +32,19 @@ import {
 } from "./components";
 import { RolePermissionNotice } from "./role-guide";
 import { msg, msgIn } from "./messages";
-import { getLocale } from "./locale";
+import {
+  defaultLocale,
+  normalizeLocale,
+} from "../../../packages/contracts/src/locale";
 import "./secure-documents.css";
 import { SecureAuditHistory } from "./secure-audit-history";
 import type { SecureDistributionView } from "../../../packages/contracts/src/secure-distribution";
 import { personalApi, personalBlob } from "./personal-api";
+import { emailDraftHtml, EmailComposer } from "./email-composer";
+import {
+  documentEmailDefaults,
+  renderTransactionalEmail,
+} from "../../../packages/contracts/src/email-template";
 
 type RetentionOption = { days: number; priceMinor: number };
 export type SecureCatalog = {
@@ -57,7 +66,7 @@ export function SecureDistributionPage({
   const permissions = permissionsFor(session);
   if (page === "/app/secure-distributions/new")
     return permissions.prepareDispatches ? (
-      <SecureDistributionComposer />
+      <SecureDistributionComposer session={session} />
     ) : (
       <RolePermissionNotice />
     );
@@ -169,7 +178,9 @@ function SecureDistributionList({ canPrepare }: { canPrepare: boolean }) {
   );
 }
 
-function SecureDistributionComposer() {
+function SecureDistributionComposer({ session }: { session: Session }) {
+  const emailLocale =
+    normalizeLocale(session.user.preferredLocale) ?? defaultLocale;
   const catalog = useResource<SecureCatalog>("/secure-distributions/catalog");
   const documents = useResource<Page<DocumentRecord>>("/documents");
   const [documentId, setDocumentId] = useState("");
@@ -179,12 +190,12 @@ function SecureDistributionComposer() {
   const [allowOriginalDownload, setAllowOriginalDownload] = useState(false);
   const [allowVaultDeposit, setAllowVaultDeposit] = useState(false);
   const [personalRetentionDays, setPersonalRetentionDays] = useState(365);
-  const [subject, setSubject] = useState(() =>
-    msg("A document is available in Guteneo"),
-  );
-  const [message, setMessage] = useState(() =>
-    msg("A document has been sent to you in your Guteneo space."),
-  );
+  const [subject, setSubject] = useState("");
+  const [message, setMessage] = useState("");
+  const [html, setHtml] = useState("");
+  const [recipientBinding, setRecipientBinding] = useState<
+    "verified_email" | "independent"
+  >("verified_email");
   const [idempotencyKey, setIdempotencyKey] = useState(() =>
     crypto.randomUUID(),
   );
@@ -225,9 +236,11 @@ function SecureDistributionComposer() {
           allowOriginalDownload,
           allowVaultDeposit,
           personalRetentionDays,
+          recipientBinding,
           ...(subject.trim() ? { subject: subject.trim() } : {}),
-          message: message.trim(),
-          notificationLocale: getLocale(),
+          ...(message.trim() ? { message } : {}),
+          ...(html.trim() ? { html } : {}),
+          notificationLocale: emailLocale,
         },
       });
       go(`/app/secure-distribution/${encodeURIComponent(prepared.id)}`);
@@ -306,12 +319,7 @@ function SecureDistributionComposer() {
                   }}
                 />
               </Field>
-              <Field
-                label={msg("Recipient email address")}
-                hint={msg(
-                  "Choose an individual address. Association with the correct account must be confirmed before access.",
-                )}
-              >
+              <Field label={msg("Recipient email address")}>
                 <input
                   type="email"
                   value={recipientAddress}
@@ -412,32 +420,70 @@ function SecureDistributionComposer() {
             </section>
             <section className="secure-document-panel">
               <h2>{msg("Invitation message")}</h2>
-              <Field label={msg("Subject")}>
+              <Field label={msg("Subject (optional)")}>
                 <input
                   value={subject}
-                  maxLength={160}
+                  maxLength={250}
+                  placeholder={msg("Automatic subject")}
                   onChange={(event) => {
                     setSubject(event.target.value);
                     changed();
                   }}
                 />
               </Field>
-              <Field
-                label={msg("Message")}
-                hint={msg(
-                  "Keep confidential information out of the email invitation.",
-                )}
-              >
-                <textarea
-                  value={message}
-                  rows={4}
-                  maxLength={4000}
+              <EmailComposer
+                text={message}
+                html={html}
+                onText={(value) => {
+                  setMessage(value);
+                  changed();
+                }}
+                onHtml={(value) => {
+                  setHtml(value);
+                  changed();
+                }}
+                documentEmail
+                documentLink
+                textLimit={16000}
+              />
+              <Field label={msg("Document access")}>
+                <select
+                  value={recipientBinding}
                   onChange={(event) => {
-                    setMessage(event.target.value);
+                    setRecipientBinding(
+                      event.target.value as "verified_email" | "independent",
+                    );
                     changed();
                   }}
-                />
+                >
+                  <option value="verified_email">
+                    {msg("Access with the recipient’s verified address")}
+                  </option>
+                  <option value="independent">
+                    {msg("Independent confirmation by the workspace")}
+                  </option>
+                </select>
               </Field>
+              <EmailPreview
+                html={
+                  html.trim()
+                    ? emailDraftHtml(message, html)
+                    : renderTransactionalEmail({
+                        text: message.trim()
+                          ? message
+                          : documentEmailDefaults(
+                              session.organization.name,
+                              "my_documents",
+                              emailLocale,
+                            ).text,
+                        workspaceName: session.organization.name,
+                        documentTitle: selectedDocument?.name,
+                        preferencesUrl: "#",
+                        locale: emailLocale,
+                        accountDocument: { url: "#", retentionDays },
+                      })
+                }
+              />
             </section>
             <div className="secure-document-price">
               <strong>
@@ -670,15 +716,28 @@ function SecureDistributionDetail({
                 <Definition label={msg("Subject")}>
                   {publication.invitation.subject}
                 </Definition>
-              </dl>
-              <p className="secure-document-invitation-message">
-                {publication.invitation.message}
-              </p>
-              <p className="field-hint">
-                {msg(
-                  "The individual link and sign-in instructions will be added to this invitation.",
+                {publication.recipientFeedback && (
+                  <Definition label={msg("Recipient response")}>
+                    {msg(
+                      publication.recipientFeedback === "reported"
+                        ? "Email reported"
+                        : "Unsubscribed",
+                    )}
+                  </Definition>
                 )}
-              </p>
+                <Definition label={msg("Document access")}>
+                  {publication.policy.recipientBinding === "verified_email"
+                    ? msg("Access with the recipient’s verified address")
+                    : msg("Independent confirmation by the workspace")}
+                </Definition>
+              </dl>
+              {publication.invitation.html ? (
+                <EmailPreview html={publication.invitation.html} />
+              ) : (
+                <p className="secure-document-invitation-message">
+                  {publication.invitation.message}
+                </p>
+              )}
             </section>
             {publication.status === "preparing" && (
               <section className="secure-document-panel" role="status">

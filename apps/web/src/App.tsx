@@ -86,6 +86,8 @@ const LazyPublicSitePage = lazy(async () => {
   return { default: loadedPublicSitePage! };
 });
 
+const EmailPreferencesPage = lazy(() => import("./email-preferences"));
+
 const Overview = lazy(() =>
   import("./dispatch-pages").then((module) => ({ default: module.Overview })),
 );
@@ -231,6 +233,7 @@ function Application() {
   const locale = useLocale();
   const route = useRoute();
   const personalRoute = personalPage(route) && !publicPreview;
+  const emailPreferencesRoute = route.split("?")[0] === "/email-preferences";
   const canonicalLocation = canonicalPublicLocation(
     window.location.pathname,
     window.location.search,
@@ -255,7 +258,7 @@ function Application() {
     // Personal routes authenticate independently. A workshop session must not
     // block their first read or survive a later return to another workshop.
     setReady(false);
-    if (personalRoute) {
+    if (personalRoute || emailPreferencesRoute) {
       setSession(null, false);
       updateSession(null);
       return;
@@ -314,7 +317,7 @@ function Application() {
       alive = false;
       controller.abort();
     };
-  }, [personalRoute]);
+  }, [personalRoute, emailPreferencesRoute]);
   useEffect(() => {
     const path = window.location.pathname;
     const information = getInformationPages()[path];
@@ -335,7 +338,7 @@ function Application() {
             : path === "/journal/"
               ? msg("The journal")
               : `${msg("Prepare your documents.")} ${msg("Choose how they travel.")}`);
-    document.title = `${label} | Guteneo`;
+    document.title = `${emailPreferencesRoute ? msg("Email preferences") : label} | guteneo`;
     const description =
       publicSitePage?.description ??
       information?.description ??
@@ -349,7 +352,13 @@ function Application() {
       .querySelector('meta[name="description"]')
       ?.setAttribute("content", description);
     syncPublicSharing();
-  }, [locale]);
+  }, [locale, emailPreferencesRoute]);
+  if (emailPreferencesRoute)
+    return (
+      <Suspense fallback={<Loading />}>
+        <EmailPreferencesPage key={route} route={route} />
+      </Suspense>
+    );
   const publicPath = window.location.pathname;
   if (publicPath === "/invitation" || publicPath === "/invitation/")
     return <InvitationPage />;

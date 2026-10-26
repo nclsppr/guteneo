@@ -27,7 +27,7 @@ test("an expired invitation handoff cannot survive a same-tab reload", async ({ 
       bounded: Boolean(pending?.expiresAt && pending.expiresAt > Date.now() && pending.expiresAt <= Date.now() + 600000) };
   });
   expect(handoff).toEqual({ clean: true, stored: true, bounded: true });
-  await expect(screen.getByRole("button", "Demander l’accès au document")).toBeVisible();
+  await expect(screen.getByRole("button", "Ouvrir mon document")).toBeVisible();
   await browser.evaluate(() => {
     const key = "guteneo.pending-document-invitation.v1";
     const pending = JSON.parse(sessionStorage.getItem(key)!);
@@ -37,7 +37,7 @@ test("an expired invitation handoff cannot survive a same-tab reload", async ({ 
   });
   await browser.reload();
   await expect(screen.getByRole("heading", "Mes documents")).toBeVisible();
-  await expect(screen.getByRole("button", "Demander l’accès au document")).toHaveCount(0);
+  await expect(screen.getByRole("button", "Ouvrir mon document")).toHaveCount(0);
   expect(await browser.evaluate(() => sessionStorage.getItem("guteneo.pending-document-invitation.v1") === null)).toBe(true);
 });
 

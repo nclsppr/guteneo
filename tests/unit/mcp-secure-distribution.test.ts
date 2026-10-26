@@ -255,7 +255,7 @@ describe("secure distribution through the shared MCP transport", () => {
         if (method === "prepare")
           expect(service.prepare).toHaveBeenCalledWith(
             identity,
-            { ...input, notificationLocale: "fr" },
+            input,
             "prepare_fixture",
           );
         if (method === "list")
@@ -396,4 +396,91 @@ describe("secure distribution through the shared MCP transport", () => {
       });
     },
   );
+});
+
+describe("document email defaults to My documents", () => {
+  it("routes generic document email into the account invitation with the exact custom HTML and no legacy preparation", async () => {
+    await connected(async (client, service, after, legacyConfirm) => {
+      const html =
+        '<p>Requested content</p><a href="{{document_url}}" style="border-radius:7px">Open</a>';
+      const response = await client.callTool({
+        name: "prepare_dispatch",
+        arguments: {
+          channel: "email",
+          recipient: { email: "recipient@example.test" },
+          documentId: "doc_fixture",
+          html,
+          idempotencyKey: "account-email",
+          ceilingMinor: 500,
+        },
+      });
+      expect(response.isError).not.toBe(true);
+      expect(service.prepare).toHaveBeenCalledExactlyOnceWith(
+        identity,
+        expect.objectContaining({
+          documentId: "doc_fixture",
+          recipient: { address: "recipient@example.test" },
+          html,
+          allowOriginalDownload: true,
+          retentionDays: 7,
+          costCeilingMinor: 500,
+        }),
+        "account-email",
+      );
+      expect(response.structuredContent).toMatchObject({
+        ok: true,
+        data: {
+          id: view.id,
+          dispatchId: view.dispatchId,
+          approvalUrl: view.approvalUrl,
+        },
+      });
+      expect(after).not.toHaveBeenCalled();
+      expect(legacyConfirm).not.toHaveBeenCalled();
+      expect(JSON.stringify(response)).not.toContain(
+        "private_recipient_account",
+      );
+    });
+  });
+  it("accepts custom HTML on the dedicated tool and never projects the rendered invitation URL", async () => {
+    await connected(async (client, service) => {
+      service.prepare.mockResolvedValue({
+        ...view,
+        invitation: {
+          ...view.invitation,
+          html: '<a href="https://guteneo.invalid/#/app/my-documents?invitation=PRIVATE_CAPABILITY">Open</a>',
+        },
+      });
+      const html = '<p>Message</p><a href="{{document_url}}">Read</a>';
+      const response = await client.callTool({
+        name: "prepare_secure_distribution",
+        arguments: { ...input, html, idempotencyKey: "custom-invitation" },
+      });
+      expect(response.isError).not.toBe(true);
+      expect(service.prepare.mock.calls[0]).toBeDefined();
+      expect(JSON.stringify(response)).not.toContain("PRIVATE_CAPABILITY");
+      expect(JSON.stringify(response)).not.toContain("invitation=");
+    });
+  });
+  it("refuses account delivery when unavailable instead of substituting an attachment or password link", async () => {
+    await connected(
+      async (client) => {
+        const result = await client.callTool({
+          name: "prepare_dispatch",
+          arguments: {
+            channel: "email",
+            recipient: { email: "recipient@example.test" },
+            documentId: "doc_fixture",
+            idempotencyKey: "missing-account-service",
+          },
+        });
+        expect(result.isError).toBe(true);
+        expect(result.structuredContent).toMatchObject({
+          ok: false,
+          error: { code: "SECURE_DISTRIBUTION_NOT_CONFIGURED" },
+        });
+      },
+      { enabled: false },
+    );
+  });
 });
