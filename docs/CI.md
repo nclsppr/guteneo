@@ -53,6 +53,39 @@ revision before deploying, then verifies the served release independently.
 
 `guteneo-verification` contains the complete merged `reports/vitest.json`, original per-job reports/logs, browser HTML/JSON reports, newly generated visual-proof screenshots and failure traces/screenshots, the current restoration proof, and the cost model. Intermediate evidence artifacts are retained for 14 days, including when a job fails; the reusable browser builds expire after one day. Downloaded evidence keeps separate artifact directories to avoid report filename collisions. The historical tracked restoration report is copied only by the shard that actually passed the restoration test. Browser runners remove historical screenshot fixtures before testing so their artifacts contain only images generated in that run.
 
+### Manual reruns and artifact identity
+
+A manual job rerun can leave several immutable artifacts with the same name in
+one workflow run. Select the newest creation timestamp for each logical name
+before downloading its exact artifact ID; artifact IDs and API listing order do
+not establish chronology. The bounded selector reads every current-run metadata
+page through `scripts/ci/select-artifacts.mjs`, checks the run/repository/head
+identity, and refuses ambiguous timestamps,
+expired or malformed latest artifacts. It never falls back to an older passing
+artifact. The downloaded browser reports still require the exact execution SHA,
+run ID, valid attempt, original digests and complete independent test inventory.
+For a pull request, GitHub's run head can differ from its synthetic merge SHA;
+metadata provenance and executed-source identity are checked separately.
+
+Only the browser, distribution and aggregate jobs receive `actions:read` for
+current-run metadata. Downloads retain the existing action and report formats;
+there is no artifact deletion, automatic test retry, production credential or
+new release permission. A metadata/read failure blocks the job. Preserve failed
+attempts and inspect them before an explicit rerun; a newer failed report must
+still fail the unchanged result gate.
+
+On 26 October, merged run `40261598557` passed all 21 prerequisite jobs on its second
+attempt, but aggregate verification read the older failed WebKit report from a
+same-name directory collision. The selector correction needs its own full PR
+and merged-main qualification. This observation proves no production change or
+repair of the independently documented Linux media stall.
+
+`node --test tests/security/ci-artifacts.test.mjs` covers the metadata selector
+with synthetic pagination, chronology and refusal cases. A read-only local
+execution against the affected run's actual metadata selected its second-attempt
+WebKit artifact while preserving both observations; this is not hosted workflow
+or production qualification.
+
 Every job uses lockfile-keyed `setup-node` npm download caching and still runs `npm ci`; `node_modules`, Miniflare databases and browser session state are not reused. Browser binaries are installed only in jobs that require them. No new browser cache is added: Playwright documents comparable download/restore costs and the need to install Linux system libraries anyway. A measured later change can revisit this choice; it is not assumed to save time.
 
 All jobs that install Ubuntu packages, including `engineering`, run the existing
