@@ -65,7 +65,7 @@ export function DocumentDeliveryChoice({
               checked={allowDownload}
               onChange={(event) => onDownload(event.target.checked)}
             />
-            {msg("Allow original PDF download")}
+            {msg("Allow download of the original PDF")}
           </label>
           <p className="field-hint">
             {msg(
