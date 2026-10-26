@@ -352,4 +352,13 @@ the marker before immutable approval and adds only a missing fallback button.
 wide widths in all four languages; local browser rendering does not qualify inbox
 clients. Keep template edits and recipient instructions in the same review.
 
+The default email deliberately pairs Georgia headings with an
+Arial/Helvetica/sans-serif body stack. The printable document wrapper also keeps
+its existing system-font fallback under a `default-src 'none'` resource policy.
+These are resource-free document surfaces, not changes to application typography.
+The design detector records file-scoped `overused-font` exceptions for Arial in
+`email-template.ts` and `content.ts`; keep all other font and design checks active.
+Reassess those exceptions if either renderer gains a different font-loading
+contract. A source scan or local preview does not establish mailbox compatibility.
+
 Document titles use an escaped semantic quotation. The footer uses two small underlined service links; the preference page reuses public chrome and shows an explicit action before any write. Account/document status remains separate from a recipient email response. The fragment capability is never copied into public navigation.
