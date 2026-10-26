@@ -8,7 +8,7 @@ connector picker displays these fields; if a manual logo field is available,
 use [this canonical PNG](https://guteneo.com/brand/guteneo-mark.png). Installing a
 logo or package grants no account access or approval.
 
-This directory prepares candidate **1.1.5**. Package version, application
+This directory prepares candidate **1.1.7**. Package version, application
 capabilities and MCP server identity follow the same source version; the release
 fingerprint identifies actually served code. Building an archive updates neither
 the server nor a directory. The builder also emits the dedicated
@@ -41,11 +41,14 @@ establish their absence. A `review_prepare_only` quote stops at preparation,
 without approval, expert review or sending. Business email requires qualified operational controls and current
 account/channel gates; package installation does not enable it.
 
-PDF/UA/PDF/A checks require existing account entitlement and an available
-veraPDF service. Reports bind exact original bytes and certify neither complete
-accessibility nor legal compliance. The plugin never subscribes, renews/cancels
-a plan, buys credit or manages billing. Existing account authority and balance
-explain availability; they are not a plugin sales flow.
+Each new PDF/UA or PDF/A check requires an available veraPDF service and a single
+purchase approved by an authenticated browser administrator for the exact PDF,
+profile and current price. The plugin reads existing reports or recovers the
+same approved request; it cannot purchase a new check. Reports bind exact
+original bytes and certify neither complete accessibility nor legal compliance.
+The plugin never subscribes, renews/cancels a plan, buys credit or manages
+billing. Existing account authority and balance explain availability; they are
+not a plugin sales flow.
 
 ## Manual installation
 

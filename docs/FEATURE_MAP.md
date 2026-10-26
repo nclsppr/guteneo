@@ -1,7 +1,7 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
 # Guteneo feature tree and developer atlas
 
-**23 domains · 321 features · 37 journeys · 76 documented REST operations · 83 MCP tools**
+**23 domains · 324 features · 37 journeys · 76 documented REST operations · 83 MCP tools**
 Updated 2026-10-26.
 
 Repository implementation inventory. Availability depends on current capabilities and authority; implementation, activation and deployed proof are distinct.
@@ -19,7 +19,7 @@ mindmap
     Create
       Documents and protection (20)
       Template studio (14)
-      Data and mappings (9)
+      Data and mappings (10)
       PDF generation and distribution (11)
     Deliver
       Fax (6)
@@ -33,7 +33,7 @@ mindmap
       Workspace layout and browser appearance (22)
       PDF verification (10)
     Interfaces
-      Assistants and API (28)
+      Assistants and API (30)
       iPhone and iPad (9)
       Public pages, languages and appearance (17)
     Operations
@@ -53,7 +53,7 @@ mindmap
 
 - [Documents and protection](#documents) — 20 features; capability-gated.
 - [Template studio](#templates) — 14 features; capability-gated.
-- [Data and mappings](#datasets) — 9 features; capability-gated.
+- [Data and mappings](#datasets) — 10 features; capability-gated.
 - [PDF generation and distribution](#generation) — 11 features; capability-gated.
 
 ### Deliver
@@ -73,7 +73,7 @@ mindmap
 
 ### Interfaces
 
-- [Assistants and API](#assistants) — 28 features; host-qualified.
+- [Assistants and API](#assistants) — 30 features; host-qualified.
 - [iPhone and iPad](#native) — 9 features; local-candidate.
 - [Public pages, languages and appearance](#public) — 17 features; public.
 
@@ -97,7 +97,7 @@ Four human workshop roles are defined by packages/contracts/src/roles.ts. The as
 
 | Capability | Administrator | Supervisor | Operator | Observer | Connected assistant |
 | --- | --- | --- | --- | --- | --- |
-| Download an assistant installation archive | Public access; no membership required | Public access; no membership required | Public access; no membership required | Public access; no membership required | No OAuth consent, membership, mandate or sending authority from the download |
+| Download an assistant installation archive | Public access; no membership required | Public access; no membership required | Public access; no membership required | Public access; no membership required | No OAuth consent, membership, mandate or sending authority from a download, displayed tool title, schema compatibility or directory listing |
 | Use the gated MCP Apps diagnostic | Own eligible OAuth connection only | Own eligible OAuth connection only | Own eligible OAuth connection only | Own eligible OAuth connection only | Current production OAuth + documents:read + exact server-selected connection/revision/window; no content or business authority, with normal authentication/rate/activity accounting |
 | Activate the MCP Apps diagnostic | No authority from workshop role | No authority from workshop role | No authority from workshop role | No authority from workshop role | No; distinct authorized operator controls a bounded server setting, never an assistant tool or mandate |
 | Read accessible workshop content | Yes | Yes | Yes | Yes | Current member + consented scopes + document access |
@@ -346,6 +346,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 **Surfaces:** Web, REST and MCP; private source/mapping ownership.
 
 - CSV, XLSX, XML and JSON imports with a private original
+- MCP JSON dataset metadata declares arrays of objects or named arrays of objects to match existing parsing; nested values, runtime errors/recovery, request/cell bounds and private ownership remain unchanged, without new host-file or AI-transfer authority
 - Sheet/header selection and XML record paths
 - English generated Data sheet names, with provenance-bound legacy aliases; uploaded XLSX and explicitly named JSON tables require exact mapping and join names
 - Profiling, anomalies and paginated inspection
@@ -711,6 +712,8 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Exact registered callback/client per host; DCR/CIMD advertising alone never proves installation
 - Explicit MCP annotations disclose overwrites, archival, sharing revocation, generation cancellation, review-token replacement and batch freezing
 - Every advertised tool has four annotation booleans and per-tool evidence, audited through actual tools/list
+- Every registered tool exposes its existing display title through annotations.title, including conditional tools; directory-compatible JSON dataset metadata preserves current business gates, while actual portal scan, each-tool host qualification, submission and public listing require separate evidence
+- Declarative tool descriptions state the operation, inputs/results, side effects, risks and factual prerequisites without assistant behavior instructions, cross-tool orchestration or external behavioral rules; package skills and MCP prompts retain workflow guidance, with unchanged runtime guards, scopes and annotation booleans
 - readOnlyHint/idempotentHint remain false where successful production calls persist visible connection activity; the side effect is disclosed centrally
 - Assistant restrictions cover files, text, templates, datasets, records, existing PDFs/reports; person-redacted recovery adds no automatic classification or new server guard
 - Single source version synchronises application, serverInfo and release/package manifests; builds reject version/connection drift
@@ -1091,9 +1094,9 @@ Read accessible documents/dispatches → inspect tracking → use aggregate repo
 
 **Actor:** Existing Guteneo member and a host-supported OAuth client. **Branch:** Interfaces.
 
-Choose the host-specific guide → for ChatGPT download/import the plugin ZIP or choose manual MCP when unavailable → compare package version/hash → consent OAuth under actual host rules → verify read-only account capabilities/current mandate → use only available file transport/tools → prepare → review through browser or pre-existing bounded delegation → track.
+Choose the host-specific guide → for ChatGPT download/import the plugin ZIP or choose manual MCP when unavailable → compare package version/hash and actual tool titles/schemas/descriptions → follow the maintained workflow skills/prompts under actual host rules and consent OAuth → verify read-only account capabilities/current mandate → use only available file transport/tools → prepare → review through browser or pre-existing bounded delegation → track.
 
-**Failure/recovery:** Archive download/import creates no connection proof, extra role, scope or mandate. Missing host upload support uses the manual guide; OAuth failures require the actual registered client/callback, never a shared token. Announce excluded-content rules before collection and stop known excluded content. Respect host confirmations and no automatic unknown-outcome retries.
+**Failure/recovery:** Archive download/import, directory metadata or a portal scan creates no connection proof, extra role, scope or mandate. Directory publication and every-tool test attestation need separate evidence. Missing host upload support uses the manual guide; OAuth failures require the actual registered client/callback, never a shared token. Announce excluded-content rules before collection and stop known excluded content. Respect host confirmations and no automatic unknown-outcome retries.
 
 [Detailed contract](LLM_SETUP.md).
 

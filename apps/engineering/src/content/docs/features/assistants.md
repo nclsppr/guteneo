@@ -1,6 +1,6 @@
 ---
 title: "Assistants and API"
-description: "28 capabilities in the interfaces branch of Guteneo."
+description: "30 capabilities in the interfaces branch of Guteneo."
 sidebar:
   order: 14
 ---
@@ -39,6 +39,8 @@ Implemented contracts/packages with bounded dated Claude Desktop observations ow
 <li id="feature-92524d02b874">Exact registered callback/client per host; DCR/CIMD advertising alone never proves installation</li>
 <li id="feature-3bfae1148be0">Explicit MCP annotations disclose overwrites, archival, sharing revocation, generation cancellation, review-token replacement and batch freezing</li>
 <li id="feature-475d99fe8372">Every advertised tool has four annotation booleans and per-tool evidence, audited through actual tools/list</li>
+<li id="feature-7f8f1928e4ff">Every registered tool exposes its existing display title through annotations.title, including conditional tools; directory-compatible JSON dataset metadata preserves current business gates, while actual portal scan, each-tool host qualification, submission and public listing require separate evidence</li>
+<li id="feature-c832bbe184bc">Declarative tool descriptions state the operation, inputs/results, side effects, risks and factual prerequisites without assistant behavior instructions, cross-tool orchestration or external behavioral rules; package skills and MCP prompts retain workflow guidance, with unchanged runtime guards, scopes and annotation booleans</li>
 <li id="feature-832d1568e2f6">readOnlyHint/idempotentHint remain false where successful production calls persist visible connection activity; the side effect is disclosed centrally</li>
 <li id="feature-1378c2afdfe0">Assistant restrictions cover files, text, templates, datasets, records, existing PDFs/reports; person-redacted recovery adds no automatic classification or new server guard</li>
 <li id="feature-da0fda410e52">Single source version synchronises application, serverInfo and release/package manifests; builds reject version/connection drift</li>

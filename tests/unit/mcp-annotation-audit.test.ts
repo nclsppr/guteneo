@@ -193,11 +193,28 @@ describe("MCP annotation audit", () => {
       expect(ordinary.map((tool) => tool.name)).not.toContain(name);
     for (const name of diagnosticNames)
       expect(tools.find((tool) => tool.name === name)?.annotations).toEqual({
+        title: tools.find((tool) => tool.name === name)?.title,
         readOnlyHint: false,
         destructiveHint: false,
         openWorldHint: false,
         idempotentHint: false,
       });
+    for (const tool of tools) {
+      expect(tool.title, tool.name).toEqual(expect.any(String));
+      expect(tool.title!.trim().length, tool.name).toBeGreaterThan(0);
+      expect(tool.annotations?.title, tool.name).toBe(tool.title);
+      expect(tool.description, tool.name).toContain(
+        "Supported ChatGPT and Codex content excludes",
+      );
+      expect(tool.description, tool.name).not.toContain(
+        "before requesting content, explain",
+      );
+      expect(tool.description, tool.name).not.toMatch(/https?:\/\//);
+      for (const other of tools)
+        expect(tool.description, `${tool.name}: ${other.name}`).not.toMatch(
+          new RegExp(`\\b${other.name}\\b`),
+        );
+    }
     expect(tools.filter((tool) => !optInNames.includes(tool.name))).toEqual(
       ordinary,
     );

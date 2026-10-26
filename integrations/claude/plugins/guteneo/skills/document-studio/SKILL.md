@@ -37,6 +37,8 @@ malware scan does not prove their absence. See the
    move blocks, change text or add columns. Reload after revision conflicts;
    never overwrite concurrent edits. `preview_template` produces an actual
    checked PDF; `publish_template` freezes a version without send approval.
+   Before changing sharing rights, confirm that example data is synthetic or
+   explicitly authorised; sharing grants neither dataset nor PDF access.
 3. Original CSV/XLSX/XML/JSON and DOCX use only the exact file transport actually
    available through `import_dataset`/`import_docx_template`. Never reconstruct
    an original from an excerpt, request a public URL for display or emit huge
@@ -48,11 +50,19 @@ malware scan does not prove their absence. See the
    collections, ask for `xmlRecordPath`; explicitly bind `__xml_record_id` and
    `__xml_parent_id` for repeated items. `validate_mapping` checks every row.
    Directly authored mappings need no additional internal AI call.
+   AI proposals require existing organisation configuration and browser-recorded
+   transfer consent. Explain that each request reserves one AI quota call before
+   inference and provider failure does not refund that counter. A `needs_review`
+   proposal saves no template or mapping and grants no publishing or sending
+   authority.
 5. `generate_documents` accepts `input` with `mode:generate_only`, `templateId`,
    `templateVersion` and `records:[{recordId,data}]`, or its dataset/mapping
    alternative, plus `idempotencyKey`. Each record produces one logical document.
    Reuse the key after uncertain responses. Read `get_generation_job` and paged
    results; distinguish generated, checked and ready.
+   Retrying failed records is explicit, bounded to three attempts and unavailable
+   after they belong to an existing distribution manifest. Preserve any existing
+   rendered artifact rather than recreating it.
 6. Prepare distribution only on request. Supply explicit associations to
    `prepare_distribution`; one common recipient still produces separate
    dispatches. `recipientFields` resolve against the record's frozen data.
@@ -60,7 +70,10 @@ malware scan does not prove their absence. See the
    `recipientFieldsByChannel` and, when needed,
    `senderIdsByChannel`/`optionsByChannel`. Never guess missing values or
    substitute another channel after refusal. Multiple channels require an
-   explicit request. Present the manifest, errors and existing quotes.
+   explicit request. Before preparing, explain that this permanently freezes the
+   generation batch: failed records cannot be retried in that batch, including
+   records excluded from the manifest. A new batch is required for them. Respect
+   host confirmations. Present the manifest, errors and existing quotes.
 7. Preparation grants no approval, sending or reservation. Reuse established
    approval journeys and bounded mandates; never assert human consent. An
    unknown provider outcome never authorizes a retry.
