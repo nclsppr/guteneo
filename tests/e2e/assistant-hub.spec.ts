@@ -181,6 +181,13 @@ test("copying a guide leaves an active authorization unverified", async ({
   await expect(
     connections.getByText(activeMessage, { exact: true }),
   ).toBeVisible();
+  await expect(
+    page.getByRole("link", {
+      name: "Télécharger le plugin Guteneo (ZIP)",
+      exact: true,
+    }),
+  ).toHaveAttribute("href", "/integrations/guteneo-plugin.zip");
+  await page.getByRole("button", { name: "Adresse MCP", exact: true }).click();
   await page
     .getByRole("button", { name: "Copier l’adresse", exact: true })
     .click();

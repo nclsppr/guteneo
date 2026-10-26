@@ -69,6 +69,7 @@ jobs:
           node-version: "24"
           cache: npm
       - run: npm ci
+      - run: npm run check:integrations
       - run: npm run typecheck
       - run: npm run lint
       - name: Reject known high and critical dependency advisories

@@ -4,7 +4,7 @@ The required checks remain **verify** and **scanner**. This workflow builds and 
 
 ## Independent work
 
-- `checks`: TypeScript, ESLint, exact local migration transport/schema verification and the existing cost-model report.
+- `checks`: TypeScript, ESLint, exact local migration transport/schema verification and the existing cost-model report. `npm run check:integrations` also rejects a stale MCP/plugin synchronization record before the remaining checks; see the [maintained package procedure](LLM_SETUP.md#mandatory-mcp-plugin-and-archive-synchronization).
 - Developer documentation: `node docs/build-feature-map.mjs --check` requires synchronized Markdown/HTML views, valid code/contract/test references and complete role/journey fields. Review also checks that every feature change updates the registry; generated-byte validation alone cannot discover undocumented behavior.
 - `vitest`: four native Vitest shards on separate runners. Files remain sequential inside each shard; process isolation, D1/R2 fixtures and all transaction/race assertions are unchanged. Only the Chromium PDF integration is excluded here and run in `security`.
 - `security`: the exact-PDF Chromium integration and **every** Node security test, including Chromium and WebKit setup-form tests. The renderer's existing narrow AppArmor allowance was moved unchanged into `scripts/ci/chromium-sandbox.mjs`; no browser sandbox is disabled.

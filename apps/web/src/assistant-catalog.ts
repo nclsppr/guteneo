@@ -27,6 +27,7 @@ export type AssistantGuideStep = {
 export type AssistantGuideVariant = {
   id: string;
   label: string;
+  installationTitle?: string;
   intro?: string;
   prerequisites: readonly string[];
   steps: readonly AssistantGuideStep[];
@@ -40,6 +41,7 @@ export type AssistantDefinition = {
   logo: string | null;
   description: string;
   audience: string;
+  variantPrompt?: string;
   variants: readonly AssistantGuideVariant[];
 };
 
@@ -55,10 +57,82 @@ export function getAssistantCatalog(): readonly AssistantDefinition[] {
         "Add Guteneo to the tools in a conversation in ChatGPT on the web.",
       ),
       audience: msg("Web conversation"),
+      variantPrompt: msg("How would you like to add Guteneo?"),
       variants: [
         {
+          id: "archive",
+          label: msg("Plugin archive (ZIP)"),
+          installationTitle: msg("Install the plugin"),
+          intro: msg(
+            "Add the Guteneo plugin to ChatGPT using its ZIP archive. It contains the connection to the Guteneo server and instructions for the assistant.",
+          ),
+          prerequisites: [
+            msg(
+              "A ChatGPT account that allows adding plugins from an archive.",
+            ),
+            msg(
+              "In a professional workspace, administrator authorisation may be required.",
+            ),
+          ],
+          steps: [
+            {
+              title: msg("Download the Guteneo plugin"),
+              text: msg(
+                "Save guteneo-plugin.zip. Keep the ZIP archive without extracting it so you can import it into ChatGPT.",
+              ),
+              link: {
+                label: msg("Download the Guteneo plugin (ZIP)"),
+                href: "/integrations/guteneo-plugin.zip",
+                download: true,
+              },
+            },
+            {
+              title: msg("Import the archive into ChatGPT"),
+              text: msg(
+                "Open Plugins, then the option to add a plugin from an archive. Select guteneo-plugin.zip and review the displayed information before adding the plugin.",
+              ),
+              link: {
+                label: msg("Open ChatGPT plugins"),
+                href: "https://chatgpt.com/plugins",
+              },
+            },
+            {
+              title: msg("Connect your Guteneo account"),
+              text: msg(
+                "Follow the authentication flow and review the permissions before granting them. Then return to ChatGPT.",
+              ),
+            },
+            {
+              title: msg("Select Guteneo in a conversation"),
+              text: msg(
+                "Open a new conversation, then its tools menu, and select the Guteneo connection you just added. Use the verification prompt below.",
+              ),
+            },
+          ],
+          documentation: [
+            {
+              label: msg("Official ChatGPT guide"),
+              href: "https://developers.openai.com/plugins/deploy/connect-chatgpt",
+            },
+          ],
+          troubleshooting: [
+            {
+              question: msg("I cannot see the option to add an archive"),
+              answer: msg(
+                "Check your account’s features and your ChatGPT workspace rules. If adding an archive is unavailable, select “MCP address” in this guide to see the other method.",
+              ),
+            },
+            {
+              question: msg("How do I update the plugin?"),
+              answer: msg(
+                "Download the archive again from this guide, then use the update option provided by ChatGPT for the Guteneo plugin. Check the connection in a new conversation afterwards.",
+              ),
+            },
+          ],
+        },
+        {
           id: "web",
-          label: msg("ChatGPT web"),
+          label: msg("MCP address"),
           intro: msg(
             "In ChatGPT, the Plugins menu also lets you create your own MCP connection. Add Guteneo yourself using its address, without a published plugin from the catalogue.",
           ),

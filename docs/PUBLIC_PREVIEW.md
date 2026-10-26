@@ -6,6 +6,14 @@ The separate `guteneo-preview` Worker serves the React application built with `V
 
 The preview publication recorded at **03:11:29 UTC** on 17 September used source `118ce087c3fe5a1ad63bd4c562adb8e26aa8af21`, Worker version `2a63dad6-f48c-4f0e-acef-18a5e4026392`, with **100% traffic** verified. All 51 public asset hashes, robots policy and security headers matched the clean local build, snapshot `90b8a7cc9527c7a60042e2f30b2ce2da3087858ef973695f1f56eaec6ab323b0`; evidence: `reports/preview-118ce087-release-proof.json`. That published preview passed **30 browser cases with four intentional desktop skips** in 12 seconds (`reports/published-preview-118ce087.json`). This is dated fictional preview evidence, separate from the canonical application’s eight read-only public checks and its `/api/health` endpoint. Read the public `/release.json` for the currently served source.
 
+## ChatGPT archive download — local candidate, 25 October 2026
+
+This candidate has been reconciled with `main` at `c81ea94` for release `1.1.3`; [26 October local validation](ASSISTANT_HUB.md#chatgpt-archive-candidate--25-october-2026) records the current archive and preview checks. Earlier archive-build evidence is historical.
+
+The preview build generates the same static `/integrations/guteneo-plugin.zip` and `integrations/manifest.json` as the application build, using the synchronized plugin sources. The ChatGPT guide can therefore offer a real downloadable archive. The archive and manifest are covered by the preview release asset hashes; an outdated MCP/package fingerprint stops the build. See the [mandatory synchronization procedure](LLM_SETUP.md#mandatory-mcp-plugin-and-archive-synchronization).
+
+Opening the guide or downloading the archive makes no backend call. The package contains the production endpoint `https://guteneo.com/mcp`; importing it into ChatGPT is a separate user action requiring the real Guteneo authentication and permissions. The preview does not provide a fictional MCP endpoint or activate a connection. Its browser-only fixture model and `ASSETS`-only Worker remain unchanged. Building or downloading the ZIP does not qualify installation, OAuth, a tool call or marketplace publication, and this candidate has not been deployed by this work.
+
 ## What is interactive
 
 - Landing and responsive dashboard, documents, sends, campaigns, sender profiles, usage, account settings, billing state and administration.

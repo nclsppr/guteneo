@@ -81,6 +81,17 @@ test(
     );
     await assertCanonicalPublicAssets(preview, release);
     await assertCanonicalPublicAssets(live, liveRelease);
+    const archivePath = "integrations/guteneo-plugin.zip";
+    const archive = await readFile(join(live, archivePath));
+    assert.deepEqual(await readFile(join(preview, archivePath)), archive);
+    for (const output of [live, preview]) {
+      const manifest = JSON.parse(
+        await readFile(join(output, "integrations/manifest.json"), "utf8"),
+      );
+      assert.equal(manifest.bytes, archive.length);
+      assert.equal(manifest.sha256, sha256(archive));
+    }
+    assert.ok(assets.some(({ path }) => path === `/${archivePath}`));
     assert.deepEqual(
       liveRelease.assets.find(({ path }) => path === challengePath),
       {

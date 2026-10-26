@@ -1,4 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
+import { createHash } from "node:crypto";
+import { readFile } from "node:fs/promises";
 import { evidencePath } from "./evidence";
 
 const assistants = [
@@ -9,6 +11,72 @@ const assistants = [
   ["microsoft365", "Microsoft 365 Copilot"],
   ["cursor", "Cursor"],
 ] as const;
+
+for (const [locale, label] of [
+  ["fr", "Télécharger le plugin Guteneo (ZIP)"],
+  ["en", "Download the Guteneo plugin (ZIP)"],
+  ["de", "Guteneo-Plugin herunterladen (ZIP)"],
+  ["lb", "De Guteneo-Plugin eroflueden (ZIP)"],
+] as const) {
+  test(`ChatGPT archive downloads the release package in ${locale}`, async ({
+    page,
+  }, info) => {
+    const calls = observeServiceCalls(page);
+    await page.goto(`/assistants/chatgpt/?lang=${locale}`);
+    const link = page.getByRole("link", { name: label, exact: true });
+    await expect(link).toBeVisible();
+    await expect(link).toHaveAttribute("download", "");
+    const downloadEvent = page.waitForEvent("download");
+    await link.click();
+    const download = await downloadEvent;
+    expect(download.suggestedFilename()).toBe("guteneo-plugin.zip");
+    expect(await download.failure()).toBeNull();
+    const bytes = await readFile((await download.path())!);
+    expect([bytes[0], bytes[1], bytes[2], bytes[3]]).toEqual([
+      0x50, 0x4b, 0x03, 0x04,
+    ]);
+    const manifestResponse = await page.request.get(
+      "/integrations/manifest.json",
+    );
+    expect(manifestResponse.ok()).toBe(true);
+    const manifest = await manifestResponse.json();
+    expect(bytes.length).toBe(manifest.bytes);
+    expect(createHash("sha256").update(bytes).digest("hex")).toBe(
+      manifest.sha256,
+    );
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth),
+    ).toBeLessThanOrEqual(page.viewportSize()!.width);
+    expect(calls).toEqual([]);
+    if (locale === "fr")
+      await capturePublicPage(
+        page,
+        `assistants/chatgpt-archive-${info.project.name}.png`,
+      );
+  });
+}
+
+test("the ChatGPT archive link is available without JavaScript", async ({
+  browser,
+  baseURL,
+}) => {
+  const context = await browser.newContext({
+    javaScriptEnabled: false,
+    baseURL,
+  });
+  try {
+    const page = await context.newPage();
+    await page.goto("/assistants/chatgpt/?lang=fr");
+    await expect(
+      page.getByRole("link", {
+        name: "Télécharger le plugin Guteneo (ZIP)",
+        exact: true,
+      }),
+    ).toHaveAttribute("href", "/integrations/guteneo-plugin.zip");
+  } finally {
+    await context.close();
+  }
+});
 
 function observeServiceCalls(page: Page) {
   const calls: string[] = [];
@@ -157,6 +225,10 @@ for (const [id, name] of assistants) {
         page.getByRole("heading", { name: heading, exact: true }),
       ).toBeVisible();
     }
+    if (id === "chatgpt")
+      await page
+        .getByRole("button", { name: "Adresse MCP", exact: true })
+        .click();
     await page
       .getByRole("button", { name: "Copier l’adresse", exact: true })
       .click();

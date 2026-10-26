@@ -621,6 +621,7 @@
         "Only a browser administrator grants/revokes a mandate",
         "Six portable package workflows with English metadata, deterministic archives and inventory checks; portal review/publication remains separately evidenced",
         "Manual host-specific installation packages; downloading grants no OAuth consent",
+        "ChatGPT guide defaults to a generated plugin ZIP with a manual MCP alternative, shared across public/account views in four languages; native download links need no business API request or new authority",
         "Exact registered callback/client per host; DCR/CIMD advertising alone never proves installation",
         "Explicit MCP annotations disclose overwrites, archival, sharing revocation, generation cancellation, review-token replacement and batch freezing",
         "Every advertised tool has four annotation booleans and per-tool evidence, audited through actual tools/list",
@@ -629,7 +630,8 @@
         "Single source version synchronises application, serverInfo and release/package manifests; builds reject version/connection drift",
         "MCP bodies limited to 2 MiB and 120,000 elements; existing 100,000-cell business limit remains",
         "Reproducible standalone Claude Code and relative-source local marketplace archives; six workflows without OpenAI metadata or tool preauthorisation",
-        "MCP custom-domain discovery and signed issuer snapshot preserve canonical data keys, legacy credentials, current postal/expert fences and unchanged scopes; host consent and refresh remain separately qualified"
+        "MCP custom-domain discovery and signed issuer snapshot preserve canonical data keys, legacy credentials, current postal/expert fences and unchanged scopes; host consent and refresh remain separately qualified",
+        "Every MCP change reviews and versions the ChatGPT package in the same release; CI/build compare recorded package and MCP direct-import fingerprints, then regenerate the downloadable archive and exact manifest hash; indirect behavior and actual host installation require separate review"
       ],
       "status": "Implemented contracts/packages; actual host compatibility, OAuth and marketplace publication need separate evidence.",
       "tests": [
@@ -640,9 +642,13 @@
         "tests/integration/template-workflow.test.ts",
         "tests/unit/pdf-validation.test.ts",
         "tests/security/integration-package.test.mjs",
-        "tests/security/claude-plugin.test.mjs"
+        "tests/security/claude-plugin.test.mjs",
+        "tests/security/integration-sync.test.mjs",
+        "tests/security/preview-release-assets.test.mjs",
+        "tests/preview-e2e/assistant-hub.spec.ts",
+        "tests/e2e/assistant-hub.spec.ts"
       ],
-      "surfaces": "Web guides, REST/OpenAPI, MCP and host-specific installation packages.",
+      "surfaces": "Public/account browser guides and generated static downloads; REST/OpenAPI, MCP and host-specific packages. Archive access creates no OAuth consent, membership, mandate or channel activation; native host installation remains separately qualified.",
       "id": "assistants",
       "category": "Interfaces",
       "availability": "host-qualified",
@@ -1087,10 +1093,10 @@
       "id": "J10",
       "title": "Work with an assistant",
       "actor": "Existing Guteneo member and a host-supported OAuth client",
-      "steps": "Choose the host-specific installation guide → compare package version/hash → consent OAuth under actual host rules → read capabilities/current mandate → use only available file transport/tools → prepare → review through browser or pre-existing bounded delegation → track.",
+      "steps": "Choose the host-specific guide → for ChatGPT download/import the plugin ZIP or choose manual MCP when unavailable → compare package version/hash → consent OAuth under actual host rules → verify read-only account capabilities/current mandate → use only available file transport/tools → prepare → review through browser or pre-existing bounded delegation → track.",
       "branch": "Interfaces",
       "doc": "LLM_SETUP.md",
-      "failure": "Host installation, token refresh and scopes grant no extra role or mandate. Announce excluded-content rules before collection and stop known excluded content. Respect host confirmations and no automatic unknown-outcome retries."
+      "failure": "Archive download/import creates no connection proof, extra role, scope or mandate. Missing host upload support uses the manual guide; OAuth failures require the actual registered client/callback, never a shared token. Announce excluded-content rules before collection and stop known excluded content. Respect host confirmations and no automatic unknown-outcome retries."
     },
     {
       "id": "J11",
@@ -1317,6 +1323,14 @@
     "Connected assistant"
   ],
   "permissions": [
+    [
+      "Download an assistant installation archive",
+      "Public access; no membership required",
+      "Public access; no membership required",
+      "Public access; no membership required",
+      "Public access; no membership required",
+      "No OAuth consent, membership, mandate or sending authority from the download"
+    ],
     [
       "Read accessible workshop content",
       "Yes",

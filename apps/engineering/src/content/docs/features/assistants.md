@@ -1,6 +1,6 @@
 ---
 title: "Assistants and API"
-description: "21 capabilities in the interfaces branch of Guteneo."
+description: "23 capabilities in the interfaces branch of Guteneo."
 sidebar:
   order: 14
 ---
@@ -11,7 +11,7 @@ sidebar:
 
 Implemented contracts/packages; actual host compatibility, OAuth and marketplace publication need separate evidence.
 
-**Surfaces:** Web guides, REST/OpenAPI, MCP and host-specific installation packages.
+**Surfaces:** Public/account browser guides and generated static downloads; REST/OpenAPI, MCP and host-specific packages. Archive access creates no OAuth consent, membership, mandate or channel activation; native host installation remains separately qualified.
 
 [Read the engineering guide](/integrations/mcp/) · [All features](/features/)
 
@@ -30,6 +30,7 @@ Implemented contracts/packages; actual host compatibility, OAuth and marketplace
 <li id="feature-d4b14eec2b6d">Only a browser administrator grants/revokes a mandate</li>
 <li id="feature-ea5265e7fea1">Six portable package workflows with English metadata, deterministic archives and inventory checks; portal review/publication remains separately evidenced</li>
 <li id="feature-a829c79594e7">Manual host-specific installation packages; downloading grants no OAuth consent</li>
+<li id="feature-bfb7c51de350">ChatGPT guide defaults to a generated plugin ZIP with a manual MCP alternative, shared across public/account views in four languages; native download links need no business API request or new authority</li>
 <li id="feature-92524d02b874">Exact registered callback/client per host; DCR/CIMD advertising alone never proves installation</li>
 <li id="feature-3bfae1148be0">Explicit MCP annotations disclose overwrites, archival, sharing revocation, generation cancellation, review-token replacement and batch freezing</li>
 <li id="feature-475d99fe8372">Every advertised tool has four annotation booleans and per-tool evidence, audited through actual tools/list</li>
@@ -39,6 +40,7 @@ Implemented contracts/packages; actual host compatibility, OAuth and marketplace
 <li id="feature-29008e5fe906">MCP bodies limited to 2 MiB and 120,000 elements; existing 100,000-cell business limit remains</li>
 <li id="feature-bf0d4dc9dfef">Reproducible standalone Claude Code and relative-source local marketplace archives; six workflows without OpenAI metadata or tool preauthorisation</li>
 <li id="feature-f085985ee39b">MCP custom-domain discovery and signed issuer snapshot preserve canonical data keys, legacy credentials, current postal/expert fences and unchanged scopes; host consent and refresh remain separately qualified</li>
+<li id="feature-f0341c481d44">Every MCP change reviews and versions the ChatGPT package in the same release; CI/build compare recorded package and MCP direct-import fingerprints, then regenerate the downloadable archive and exact manifest hash; indirect behavior and actual host installation require separate review</li>
 </ol>
 
 ## REST operations
