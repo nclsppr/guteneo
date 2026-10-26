@@ -324,3 +324,11 @@ main workflow and runner commit. This adds no authorized workflow, branch, role
 or assistant. It requires status publication and separate ingestion evidence.
 
 Mailbox-link unsubscribe/report authority is scoped separately in [recipient feedback](EMAIL_RECIPIENT_FEEDBACK.md); it creates no role or document-access right.
+
+## CI evidence authority
+
+Current-run artifact metadata is read by the scoped GitHub jobs described in
+[the CI contract](CI.md#manual-reruns-and-artifact-identity). A manual rerun grants
+no workspace role, personal-document access, assistant scope or release authority.
+Web/native/REST/MCP permissions remain unchanged; publication still requires the
+explicitly authorized operator and complete exact-source checks in journey J15.

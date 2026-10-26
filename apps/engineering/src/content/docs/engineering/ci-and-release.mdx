@@ -43,6 +43,23 @@ expected counts. A future matrix change must update both, its tests and this
 explanation together. A configured job is not proof that its latest execution
 succeeded.
 
+## Retain the right evidence after a manual rerun
+
+GitHub may retain several immutable artifacts with the same logical name after a
+job is manually rerun. The workflow resolves current-run metadata first, then
+passes exact IDs to the existing download action. It retains every remote
+attempt and does not retry tests automatically. Report digests, execution identity
+and the independent inventory remain mandatory; a newer failing report cannot
+be replaced with an older passing one.
+
+The [repository CI contract](https://github.com/nclsppr/guteneo/blob/main/docs/CI.md#manual-reruns-and-artifact-identity)
+owns timestamp selection, pagination, provenance, scoped read permissions and
+failure handling. An inaccessible, ambiguous, expired or invalid latest artifact
+blocks qualification. Inspect and preserve the failed run before recovery; do
+not delete artifacts or bypass the aggregate gate. Metadata selection tests are
+local contract evidence; the corrected PR and merged revision still require full
+hosted checks before an authorized release.
+
 ## Keep the downloadable plugin synchronized
 
 The existing `checks` job runs `npm run check:integrations` after dependency
