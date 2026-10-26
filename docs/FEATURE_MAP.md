@@ -1,7 +1,7 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
 # Guteneo feature tree and developer atlas
 
-**23 domains · 304 features · 34 journeys · 76 documented REST operations · 74 MCP tools**
+**23 domains · 305 features · 34 journeys · 76 documented REST operations · 75 MCP tools**
 Updated 2026-10-26.
 
 Repository implementation inventory. Availability depends on current capabilities and authority; implementation, activation and deployed proof are distinct.
@@ -17,7 +17,7 @@ mindmap
       Access and identity (31)
       Team and responsibilities (10)
     Create
-      Documents and protection (13)
+      Documents and protection (14)
       Template studio (14)
       Data and mappings (9)
       PDF generation and distribution (11)
@@ -51,7 +51,7 @@ mindmap
 
 ### Create
 
-- [Documents and protection](#documents) — 13 features; capability-gated.
+- [Documents and protection](#documents) — 14 features; capability-gated.
 - [Template studio](#templates) — 14 features; capability-gated.
 - [Data and mappings](#datasets) — 9 features; capability-gated.
 - [PDF generation and distribution](#generation) — 11 features; capability-gated.
@@ -99,7 +99,7 @@ Four human workshop roles are defined by packages/contracts/src/roles.ts. The as
 | --- | --- | --- | --- | --- | --- |
 | Read accessible workshop content | Yes | Yes | Yes | Yes | Current member + consented scopes + document access |
 | Import and prepare | Yes | Yes | Yes | No | Current member + scopes + qualified channel/transport |
-| Reserve/transfer a private original PDF | Own connected OAuth writer + documents:write | Own connected OAuth writer + documents:write | Own connected OAuth writer + documents:write | No | Current writer + documents:write + actual original bytes; capability bound to one operation/connection/expiry, no read/send/approval authority |
+| Reserve/transfer a private original PDF | Own connected OAuth writer + documents:write | Own connected OAuth writer + documents:write | Own connected OAuth writer + documents:write | No | Current writer + documents:write + explicit original-file permission and exact bytes; binary capability bound to one operation/connection/expiry or one inline original up to 64 KiB through the same 0061 fences; no read/send/approval authority |
 | Reveal protected-link password or revoke hosting | Current browser preparation authority + source access | Current browser preparation authority + source access | Current browser preparation authority + source access | No | No; password and revocation remain CSRF-protected browser operations |
 | Human approval and confirmation | Yes | Approval option | No | No | Cannot assert human consent; standard confirmation requires recorded browser approval |
 | Expert review and acceptance | Browser grants a bounded mandate | No mandate administration | No mandate administration | No | Pre-existing active client-bound mandate + current role/scopes + exact review + host confirmations |
@@ -212,7 +212,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 
 **Availability model:** capability-gated. Implemented; exact-byte, scanner and owner-access gates apply.
 
-**Surfaces:** Web/native and existing REST/MCP document access; bounded private upload reservation/status through MCP plus one upload-only binary PUT. Actual host original-file/code/network transfer and physical iPhone evidence remain separately qualified.
+**Surfaces:** Web/native and existing REST/MCP document access; private reservation/status through MCP plus one upload-only binary PUT up to 10 MiB, or one bounded inline MCP original up to 64 KiB through the same 0061 pipeline. Actual host original-byte/encoding/egress capability and physical iPhone evidence remain separately qualified.
 
 - Bounded PDF upload and remote import with English API diagnostics and only a sanitized public source hostname
 - Search, paginated listing, metadata and page reading
@@ -227,6 +227,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Exact-size/hash private upload feeds the existing antivirus/quarantine/100-page pipeline under the same planned document ID; connection/trust/membership/expiry rechecks and same-ID status recovery refuse blind retries on unknown outcomes
 - Host file/code/network access and physical Claude iPhone OAuth/file transfer require separate qualification; attachment previews, extracted text, tool discovery and desktop helpers do not prove original-byte transfer
 - Reservation can return deterministic POSIX Python 3.9+ standard-library client code with its SHA-256 for authorized local/cloud execution; status never returns code/capability, and no package install, external script fetch or actual host qualification is implied
+- Small-original import_inline_pdf fallback carries one canonical-base64 original of 20–65,536 bytes with actual size/SHA-256 and a stable key through existing OAuth MCP when runtime Guteneo egress is unavailable; validation precedes reservation, internal 0061 claim/expiry/authority/quota/private-ACL/scanner processing is reused without fetch, and encoded context, truncation, same-ID unknown recovery and physical-client qualification remain explicit
 
 **Contract:** [SCANNER_RESCAN.md](SCANNER_RESCAN.md) · **Implementation:** [apps/api/src/documents.ts](../apps/api/src/documents.ts)
 
@@ -248,6 +249,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - `get_document`
 - `get_document_upload`
 - `import_document`
+- `import_inline_pdf`
 - `list_documents`
 - `read_document_pages`
 - `render_pdf`
@@ -377,7 +379,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 
 - Single PDF from a business form
 - PDF batch from a validated mapping
-- Progress, per-record results and source-cell provenance
+- Progress, per-record results and source-cell provenance; only local simulation emits finite failure phase/category diagnostics through the captured error channel, never raw errors or customer data; terminal failed/partial XML test results stop polling while preserving both expected exact PDFs and zero sending, and a separate macOS pass does not establish the cause of an earlier Linux failure
 - Exact authorized generated-document analysis state distinguishes processing, retryable and blocked results; bounded visible refresh follows pending scans after generation completes without changing readiness, stealing focus or retrying analysis
 - Generation cancellation and retry of failed records only
 - PDF selection and separate distribution-plan preparation
@@ -956,7 +958,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Maintained GitHub job/artifact/release explanation, fresh dependency boundaries and separate application/native/engineering evidence; every Ubuntu package installation, including engineering browsers, first prefers the runner's recognized official HTTPS archives while retaining signed package verification and the Azure fallback, and an unexpected mirror configuration fails closed
 - Curated Cloudflare/Auth0/transport dependencies, background jobs, tariff maintenance, design/i18n/accessibility, AI contribution and reproducible video/voice production guides
 - Origin-scoped system/light/dark selection uses guteneo.theme with pre-paint resolution, cross-tab/system updates and optional migration of a prior ui-mode choice; Nimbus data-mode styling, fixed blue chrome, script-free system fallback and readable ivory dark branding grant no account or operational authority
-- Three isolated browser shards for each desktop/mobile Chromium and iPhone WebKit profile, same-revision build artifacts and independent complete test-ID inventory accounting; no missing/duplicate shard, skipped required job, automatic retry or merged-main publication shortcut
+- Three isolated browser shards for each desktop/mobile Chromium and iPhone WebKit profile, same-revision build artifacts and independent complete test-ID inventory accounting; no missing/duplicate shard, skipped required job, automatic retry or merged-main publication shortcut; V2 consent and fax-ceiling first fields share one trusted touch/keyboard or desktop fill with exact value/focus and pre-submit checks; V2 retains unchanged real GET responses and exact dispatch recipient, while fax preserves its original timing, typed decimal comma, normalized phone and 150-cent POST without refilling, logging recipients or claiming either unexplained historical Linux input loss was repaired
 
 **Contract:** [ENGINEERING_SITE.md](ENGINEERING_SITE.md) · **Implementation:** [apps/engineering/astro.config.ts](../apps/engineering/astro.config.ts)
 
@@ -1300,9 +1302,9 @@ Open My documents directly → start the personal shell → validate current per
 
 **Actor:** Current OAuth writer (administrator, supervisor or operator) with documents:write and explicit original-file handling authorization; actual host byte-transfer capability required. **Branch:** Documents.
 
-Qualify the actual host’s access to the selected original and network → compute original filename, exact byte count and SHA-256 with code → reserve through begin_document_upload using the same idempotency key → PUT those original bytes to the returned canonical fixed endpoint with only the upload capability → read get_document_upload under current OAuth authority → inspect the same creator-private document after ordinary scanner/quarantine processing. Any later preparation, approval or sending follows its separate journey.
+Qualify actual host access to the selected original and its native, permitted binary or bounded inline transport → compute actual original filename, byte count and SHA-256 with code → preserve an available native file envelope, otherwise reserve through begin_document_upload and make one permitted fixed binary PUT, or use one import_inline_pdf invocation with canonical original base64 up to 64 KiB when runtime egress is unavailable → read get_document_upload on the same upload ID under current OAuth authority → inspect the same creator-private document after ordinary scanner/quarantine processing. If a lost inline response contains no ID, recover the strict same key/metadata through begin_document_upload before status; never automatically repeat the encoded import. Later preparation, approval and sending follow separate journeys.
 
-**Failure/recovery:** Reject unknown/used/expired capability, cookies/Authorization/Origin/query/encoding, changed issuer trust/client/connection/revision/membership, size/hash mismatch, overflow and timeout. Never publish a private PDF or reconstruct it from extracted text. Recovery keeps the same upload/document ID and does not blindly retry an unknown outcome. No PDF or document ID is exposed by the capability; no sending, purchase or human/delegated approval is created. Web/Desktop/Code evidence does not qualify Claude on iPhone.
+**Failure/recovery:** Reject invalid/noncanonical base64, inline overflow, original size/hash mismatch, unknown/used/expired capability, binary cookies/Authorization/Origin/query/encoding, changed issuer trust/client/connection/revision/membership, overflow and timeout. Validate inline bytes before creating a reservation; the existing 2 MiB MCP request limit is unchanged and does not imply a 10 MiB inline route. Never publish, chunk, truncate or reconstruct a private PDF. Recovery retains the same key/upload/document and never blindly retries an unknown outcome or logs original bytes/capabilities. No sending, purchase or human/delegated approval is created. Web/Desktop/Code evidence does not qualify Claude on iPhone.
 
 [Detailed contract](PRIVATE_DOCUMENT_UPLOAD.md).
 

@@ -20,7 +20,7 @@ Implemented; generation, preparation, approval and delivery remain separate.
 <ol>
 <li id="feature-24b0ccee25f9">Single PDF from a business form</li>
 <li id="feature-fcebd62d65fc">PDF batch from a validated mapping</li>
-<li id="feature-b702a35bea77">Progress, per-record results and source-cell provenance</li>
+<li id="feature-c31b120306da">Progress, per-record results and source-cell provenance; only local simulation emits finite failure phase/category diagnostics through the captured error channel, never raw errors or customer data; terminal failed/partial XML test results stop polling while preserving both expected exact PDFs and zero sending, and a separate macOS pass does not establish the cause of an earlier Linux failure</li>
 <li id="feature-af8ac87b8693">Exact authorized generated-document analysis state distinguishes processing, retryable and blocked results; bounded visible refresh follows pending scans after generation completes without changing readiness, stealing focus or retrying analysis</li>
 <li id="feature-446f64517f9f">Generation cancellation and retry of failed records only</li>
 <li id="feature-63934976075c">PDF selection and separate distribution-plan preparation</li>

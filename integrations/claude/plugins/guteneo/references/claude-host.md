@@ -49,8 +49,19 @@ the file, invent a URL, or reconstruct it from extracted text. Respect normal
 host network controls. This narrow authorized PUT is part of a successful MCP
 reservation, not a substitute for failed OAuth or another tenant/client.
 
+If that runtime holds the exact original but cannot reach Guteneo, use
+`import_inline_pdf` only when actually exposed, for one original no larger than
+64 KiB. Compute its actual size, SHA-256 and canonical base64 with code, then call
+the tool once with one stable idempotency key. Its response uses the same private
+upload/document IDs and scanner/readiness gates. The server creates and consumes
+its reservation internally; there is no capability to print and no runtime HTTP
+request. Preserve explicit original-file permission and exclusions. Encoded bytes
+pass through host tool arguments and consume context; never echo/log them, chunk,
+truncate or reconstruct them. The 10 MiB binary bound does not apply. An uncertain
+response requires same-ID recovery rather than another encoded import or new key.
+
 Claude on iPhone can use its cloud computing environment only when the original
-file and permitted network access are actually available there; no local desktop
+file and a qualified binary or bounded inline transport are available; no local desktop
 extension is installed on the phone. Source tests prove no physical iPhone,
 web or other host transfer. If the host lacks those capabilities, report the
 specific limit. Reusing a Guteneo document or the person's explicitly chosen
