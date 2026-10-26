@@ -1,7 +1,7 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
 # Guteneo feature tree and developer atlas
 
-**23 domains · 309 features · 35 journeys · 76 documented REST operations · 75 MCP tools**
+**23 domains · 310 features · 35 journeys · 76 documented REST operations · 75 MCP tools**
 Updated 2026-10-26.
 
 Repository implementation inventory. Availability depends on current capabilities and authority; implementation, activation and deployed proof are distinct.
@@ -38,7 +38,7 @@ mindmap
       Public pages, languages and appearance (17)
     Operations
       Reviewer OAuth qualification (9)
-      Operations and reliability (18)
+      Operations and reliability (19)
       Belvédère platform oversight (9)
       Public service status (15)
       Engineering documentation (12)
@@ -80,7 +80,7 @@ mindmap
 ### Operations
 
 - [Reviewer OAuth qualification](#reviewer-oauth) — 9 features; operator-gated.
-- [Operations and reliability](#operations) — 18 features; operator-gated.
+- [Operations and reliability](#operations) — 19 features; operator-gated.
 - [Belvédère platform oversight](#belvedere) — 9 features; operator-gated.
 - [Public service status](#status) — 15 features; public.
 - [Engineering documentation](#engineering-docs) — 12 features; public.
@@ -871,6 +871,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Ordered D1 migrations, integrity and restore bookmark
 - Private scanner, renderer and validator releases from clean main; root-Wrangler loopback qualification bridge with temporary secret, Origin refusal and no secret transfer; deployment wrapper and hosted runner share strict production pdfValidation.available=false on canonical guteneo.com before container qualification; explicit private forced-stop recovery never replaces graceful idle proof, and runtime-private helpers cannot return a container stub
 - Backend/security/browser suites and exhaustive CI. Dated 26 October main run 40254684422 on f94664ff77c532c0c6b352109f565f6768091c2b passed 22 jobs: 1,131 discovered browser identities, 1,112 passed and 19 declared skips, plus 2,802 unit/integration assertions; this establishes source/fixture qualification, not authenticated clients or business delivery. CI.md owns current execution and qualification limits. The standard-1 validator remains max 1 with 5-second idle; its separately dated hosted corpus covers 100 pages/9.887 MiB and does not establish an infrastructure bill
+- Manual CI reruns retain all immutable artifacts; deterministic current-run metadata selection downloads the latest logical artifact by exact ID, with scoped read permission and unchanged complete-result gates; CI.md owns provenance, refusal and recovery
 - Release from clean, synchronized, verified main
 - Release manifests contain canonical public assets with exact byte hashes; shared application/preview redirects preserve old page/download links without duplicate alias files; unexpected redirects fail served verification; retired workers.dev/preview closure has separate evidence
 - Local production monitor uses bounded anonymous canonical reads and retired-host refusal checks, page hashes, private-access refusal and 120-second staleness; partial feature proof, no sends or permanent task
@@ -885,7 +886,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 
 **Contract:** [CI.md](CI.md) · **Implementation:** [scripts/deploy-public.mjs](../scripts/deploy-public.mjs)
 
-**Tests:** [tests/security/main-only-release.test.mjs](../tests/security/main-only-release.test.mjs), [tests/security/pdf-validator-release.test.mjs](../tests/security/pdf-validator-release.test.mjs), [apps/pdf-validator/tests/probe-credentials.test.mjs](../apps/pdf-validator/tests/probe-credentials.test.mjs), [tests/security/production-monitor.test.mjs](../tests/security/production-monitor.test.mjs), [tests/security/observability.test.mjs](../tests/security/observability.test.mjs), [tests/integration/documents.test.ts](../tests/integration/documents.test.ts), [tests/unit/telnyx-readiness.test.ts](../tests/unit/telnyx-readiness.test.ts), [apps/scanner/tests/maintenance-status.test.mjs](../apps/scanner/tests/maintenance-status.test.mjs), [apps/scanner/tests/qualification-artifact.test.mjs](../apps/scanner/tests/qualification-artifact.test.mjs), [tests/security/verify-release.test.mjs](../tests/security/verify-release.test.mjs), [tests/security/preview-release-assets.test.mjs](../tests/security/preview-release-assets.test.mjs), [tests/unit/public-routes.test.ts](../tests/unit/public-routes.test.ts)
+**Tests:** [tests/security/ci-artifacts.test.mjs](../tests/security/ci-artifacts.test.mjs), [tests/security/ci-results.test.mjs](../tests/security/ci-results.test.mjs), [tests/security/ci-browser-results.test.mjs](../tests/security/ci-browser-results.test.mjs), [tests/security/main-only-release.test.mjs](../tests/security/main-only-release.test.mjs), [tests/security/pdf-validator-release.test.mjs](../tests/security/pdf-validator-release.test.mjs), [apps/pdf-validator/tests/probe-credentials.test.mjs](../apps/pdf-validator/tests/probe-credentials.test.mjs), [tests/security/production-monitor.test.mjs](../tests/security/production-monitor.test.mjs), [tests/security/observability.test.mjs](../tests/security/observability.test.mjs), [tests/integration/documents.test.ts](../tests/integration/documents.test.ts), [tests/unit/telnyx-readiness.test.ts](../tests/unit/telnyx-readiness.test.ts), [apps/scanner/tests/maintenance-status.test.mjs](../apps/scanner/tests/maintenance-status.test.mjs), [apps/scanner/tests/qualification-artifact.test.mjs](../apps/scanner/tests/qualification-artifact.test.mjs), [tests/security/verify-release.test.mjs](../tests/security/verify-release.test.mjs), [tests/security/preview-release-assets.test.mjs](../tests/security/preview-release-assets.test.mjs), [tests/unit/public-routes.test.ts](../tests/unit/public-routes.test.ts)
 
 **Documented REST operations**
 
@@ -967,7 +968,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 
 **Contract:** [ENGINEERING_SITE.md](ENGINEERING_SITE.md) · **Implementation:** [apps/engineering/astro.config.ts](../apps/engineering/astro.config.ts)
 
-**Tests:** [tests/security/engineering-site.test.mjs](../tests/security/engineering-site.test.mjs), [tests/engineering-e2e/site.spec.ts](../tests/engineering-e2e/site.spec.ts), [tests/security/engineering-release.test.mjs](../tests/security/engineering-release.test.mjs), [tests/engineering-e2e/theme.spec.ts](../tests/engineering-e2e/theme.spec.ts), [tests/security/ci-results.test.mjs](../tests/security/ci-results.test.mjs), [tests/security/ci-browser-results.test.mjs](../tests/security/ci-browser-results.test.mjs)
+**Tests:** [tests/security/engineering-site.test.mjs](../tests/security/engineering-site.test.mjs), [tests/engineering-e2e/site.spec.ts](../tests/engineering-e2e/site.spec.ts), [tests/security/engineering-release.test.mjs](../tests/security/engineering-release.test.mjs), [tests/engineering-e2e/theme.spec.ts](../tests/engineering-e2e/theme.spec.ts), [tests/security/ci-artifacts.test.mjs](../tests/security/ci-artifacts.test.mjs), [tests/security/ci-results.test.mjs](../tests/security/ci-results.test.mjs), [tests/security/ci-browser-results.test.mjs](../tests/security/ci-browser-results.test.mjs)
 
 
 
@@ -1119,7 +1120,7 @@ Open the private /share link through the protected handler → read the localize
 
 Update feature tree/developer contracts/source/tests together → regenerate and check atlas → check canonical build assets and compatibility redirects → run exact-source checks → review → obtain explicit merge/release authority → publish from clean synchronized main → verify public manifest/assets and separately qualify authenticated/runtime behavior.
 
-**Failure/recovery:** Dirty source, drift, failing checks, missing configuration/scan or absent authority blocks release. Private-engine graceful-stop or idle failures keep customer activation closed; explicit force-stop recovery is not qualification. Unexpected redirects or changed/missing advertised bytes fail served verification; correct the source and repeat the reviewed release sequence without weakening verification. CI, local fixtures, production HTTP and real provider/client proof remain distinct.
+**Failure/recovery:** Dirty source, drift, failing checks, missing configuration/scan or absent authority blocks release. Manual reruns must select the latest same-run evidence deterministically without deleting failed attempts, falling back to older passing reports or bypassing complete-result verification. Private-engine graceful-stop or idle failures keep customer activation closed; explicit force-stop recovery is not qualification. Unexpected redirects or changed/missing advertised bytes fail served verification; correct the source and repeat the reviewed release sequence without weakening verification. CI, local fixtures, production HTTP and real provider/client proof remain distinct.
 
 [Detailed contract](MAIN_RELEASE.md).
 

@@ -127,7 +127,7 @@ Open the private /share link through the protected handler → read the localize
 
 Update feature tree/developer contracts/source/tests together → regenerate and check atlas → check canonical build assets and compatibility redirects → run exact-source checks → review → obtain explicit merge/release authority → publish from clean synchronized main → verify public manifest/assets and separately qualify authenticated/runtime behavior.
 
-**Failure and recovery:** Dirty source, drift, failing checks, missing configuration/scan or absent authority blocks release. Private-engine graceful-stop or idle failures keep customer activation closed; explicit force-stop recovery is not qualification. Unexpected redirects or changed/missing advertised bytes fail served verification; correct the source and repeat the reviewed release sequence without weakening verification. CI, local fixtures, production HTTP and real provider/client proof remain distinct.
+**Failure and recovery:** Dirty source, drift, failing checks, missing configuration/scan or absent authority blocks release. Manual reruns must select the latest same-run evidence deterministically without deleting failed attempts, falling back to older passing reports or bypassing complete-result verification. Private-engine graceful-stop or idle failures keep customer activation closed; explicit force-stop recovery is not qualification. Unexpected redirects or changed/missing advertised bytes fail served verification; correct the source and repeat the reviewed release sequence without weakening verification. CI, local fixtures, production HTTP and real provider/client proof remain distinct.
 
 ## J16: Verify identity and find a responsible contact
 

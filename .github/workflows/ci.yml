@@ -270,6 +270,9 @@ jobs:
   browser:
     needs: build
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
     # Each project is split across isolated runners, never concurrent local DBs.
     # Keep setup budgets and every browser/media assertion unchanged.
     timeout-minutes: 30
@@ -303,10 +306,16 @@ jobs:
       - run: npx playwright install --with-deps ${{ matrix.browsers }}
       - name: Preserve the Chromium sandbox
         run: node scripts/ci/chromium-sandbox.mjs
+      - name: Select the current run's latest immutable build artifact
+        id: artifacts
+        run: node scripts/ci/select-artifacts.mjs build
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
       - uses: actions/download-artifact@v8
         with:
-          name: guteneo-browser-builds-${{ github.sha }}
+          artifact-ids: ${{ steps.artifacts.outputs.buildArtifactIds }}
           path: dist
+          merge-multiple: true
       - name: Remove historical screenshot evidence from this fresh runner
         run: rm -rf reports/screenshots
       # Each shard has its own runner, D1/R2 state and fixed local server ports.
@@ -392,6 +401,9 @@ jobs:
   distribution-e2e:
     needs: build
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
     timeout-minutes: 15
     strategy:
       fail-fast: false
@@ -432,10 +444,16 @@ jobs:
         run: npx --no-install e2e-web install chromium --with-deps
       - name: Preserve the renderer Chromium sandbox
         run: node scripts/ci/chromium-sandbox.mjs
+      - name: Select the current run's latest immutable build artifact
+        id: artifacts
+        run: node scripts/ci/select-artifacts.mjs build
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
       - uses: actions/download-artifact@v8
         with:
-          name: guteneo-browser-builds-${{ github.sha }}
+          artifact-ids: ${{ steps.artifacts.outputs.buildArtifactIds }}
           path: dist
+          merge-multiple: true
       - name: Exercise secure distribution and the unified account with fictional data
         run: |
           mkdir -p test-results/ci
@@ -487,6 +505,7 @@ jobs:
             test-results/distribution-e2e-state.json
             test-results/distribution-e2e-sanitized.json
             test-results/ci/distribution.log
+            test-results/ci/artifact-selection-build.json
           if-no-files-found: error
           retention-days: 14
 
@@ -495,6 +514,9 @@ jobs:
   # Native XCTest/archive have their own source-filtered workflow, not a web gate.
   verify:
     if: always()
+    permissions:
+      contents: read
+      actions: read
     needs:
       [
         pdf-validator,
@@ -538,14 +560,19 @@ jobs:
           node-version: "24"
           cache: npm
       - run: npm ci
+      - name: Select latest reports per immutable current-run artifact
+        id: artifacts
+        run: node scripts/ci/select-artifacts.mjs verify
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
       - uses: actions/download-artifact@v8
         with:
-          pattern: ci-vitest-*
+          artifact-ids: ${{ steps.artifacts.outputs.vitestArtifactIds }}
           path: test-results/ci/blobs
           merge-multiple: true
       - uses: actions/download-artifact@v8
         with:
-          pattern: ci-evidence-*
+          artifact-ids: ${{ steps.artifacts.outputs.evidenceArtifactIds }}
           path: test-results/ci/evidence
       - name: Merge all Vitest results without rerunning tests
         run: |

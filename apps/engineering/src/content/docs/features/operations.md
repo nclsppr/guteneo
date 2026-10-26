@@ -1,6 +1,6 @@
 ---
 title: "Operations and reliability"
-description: "18 capabilities in the operations branch of Guteneo."
+description: "19 capabilities in the operations branch of Guteneo."
 sidebar:
   order: 20
 ---
@@ -25,6 +25,7 @@ Implemented operational tooling; changes require explicit authority and exact-so
 <li id="feature-dacebda8c3c8">Ordered D1 migrations, integrity and restore bookmark</li>
 <li id="feature-87f993395bed">Private scanner, renderer and validator releases from clean main; root-Wrangler loopback qualification bridge with temporary secret, Origin refusal and no secret transfer; deployment wrapper and hosted runner share strict production pdfValidation.available=false on canonical guteneo.com before container qualification; explicit private forced-stop recovery never replaces graceful idle proof, and runtime-private helpers cannot return a container stub</li>
 <li id="feature-65604bd01772">Backend/security/browser suites and exhaustive CI. Dated 26 October main run 40254684422 on f94664ff77c532c0c6b352109f565f6768091c2b passed 22 jobs: 1,131 discovered browser identities, 1,112 passed and 19 declared skips, plus 2,802 unit/integration assertions; this establishes source/fixture qualification, not authenticated clients or business delivery. CI.md owns current execution and qualification limits. The standard-1 validator remains max 1 with 5-second idle; its separately dated hosted corpus covers 100 pages/9.887 MiB and does not establish an infrastructure bill</li>
+<li id="feature-f6e751d0b366">Manual CI reruns retain all immutable artifacts; deterministic current-run metadata selection downloads the latest logical artifact by exact ID, with scoped read permission and unchanged complete-result gates; CI.md owns provenance, refusal and recovery</li>
 <li id="feature-0860eb993dd2">Release from clean, synchronized, verified main</li>
 <li id="feature-d35cb15a18d3">Release manifests contain canonical public assets with exact byte hashes; shared application/preview redirects preserve old page/download links without duplicate alias files; unexpected redirects fail served verification; retired workers.dev/preview closure has separate evidence</li>
 <li id="feature-3ebafa0151f6">Local production monitor uses bounded anonymous canonical reads and retired-host refusal checks, page hashes, private-access refusal and 120-second staleness; partial feature proof, no sends or permanent task</li>
