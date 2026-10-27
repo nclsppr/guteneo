@@ -17,6 +17,16 @@ The required checks remain **verify** and **scanner**. This workflow builds and 
 
 `verify` uses `always()` and depends on every job above. Failed, cancelled or skipped dependencies cannot produce a successful final gate. It merges the five native Vitest blob reports without rerunning tests, checks every assertion succeeded and compares the resulting file list with all current `tests/unit/**/*.test.ts` and `tests/integration/**/*.test.ts`. Missing, duplicated and unexpected files fail. There is no fixed assertion total to update when tests are added. The matrix uses `fail-fast: false` so a failure in one shard preserves the other shards' evidence.
 
+The browser skip registry binds each exception to an exact suite, project, file,
+title and reason. Renaming or splitting a test requires checking the independent
+inventory against every declaration. The Classic/V2 mobile navigation scenarios
+now execute on both desktop Chromium and iPhone WebKit; their former desktop
+exception is removed, leaving the other eighteen project-specific skips intact.
+The gate still rejects obsolete declarations, unexpected skips and incomplete
+execution. Validate registry maintenance with `verifyBrowserEvidence` against
+the original current-run reports and fresh inventories, not just `--list` or
+synthetic fixtures. This local replay does not replace the next hosted CI run.
+
 The separate `production-e2e.yml` schedules twenty-eight fixed anonymous production checks every six hours. It publishes a sanitized report to the independent status service using GitHub OIDC bound to the report hash. This is distinct from pull-request CI and the fifteen-minute HTTP monitor. It does not receive Guteneo credentials, approve a document, send a message or deploy the application. Missing, stale or version-mismatched reports remain unknown. Real authenticated production qualification is explicitly unavailable until dedicated accounts, genuine Auth0 login under the selected document policy and human-approved synthetic fixtures have been qualified; see [the monitor](PRODUCTION_BROWSER_MONITOR.md) and [account procedure](PRODUCTION_TEST_ACCOUNTS.md).
 
 ## Hosted timing qualification — 26 October 2026

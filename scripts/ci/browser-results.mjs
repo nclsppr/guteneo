@@ -126,13 +126,6 @@ export const declaredBrowserSkips = [
     "preview",
     ["desktop"],
     "mobile-workspace.spec.ts",
-    "mobile navigation exposes every destination and returns focus to the opened page",
-    "iPhone WebKit interaction coverage",
-  ],
-  [
-    "preview",
-    ["desktop"],
-    "mobile-workspace.spec.ts",
     "mobile navigation preserves restored summary focus after deferred route frames",
     "iPhone WebKit keyboard and route-focus ordering coverage",
   ],
