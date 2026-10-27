@@ -161,7 +161,9 @@ workspace policies.
    and keep it zipped.
 2. Open ChatGPT Plugins, choose the archive-upload option when available, select
    the file and inspect the displayed plugin information.
-3. Connect Guteneo through OAuth and review the requested permissions.
+3. The archive preconfigures the registered public ChatGPT OAuth client. Connect
+   at `auth.guteneo.com` and review the requested permissions. No client secret
+   is required.
 4. Start a new conversation, select Guteneo and run the guide's read-only
    capability check. A download or imported package does not prove connection.
 
@@ -173,6 +175,38 @@ required. A custom server connection alone does not distribute the bundled
 skills. After server changes, refresh the connection and open a new conversation;
 for package changes, download the current ZIP and use the host's existing-plugin
 update flow when offered. Preserve the existing identity.
+
+### ChatGPT OAuth configuration — 27 October 2026
+
+The package's `mcp.json` is the single source for the public ChatGPT client ID,
+custom-domain endpoints and supported scopes. Its OpenAI extension selects a
+**provided** public client with token endpoint authentication `none`. The public
+and account guides read the same ID for the manual MCP alternative. This ID is
+public client metadata, not a credential or a user's authorization.
+
+For URL-only installation, choose OAuth and a registered client, copy the ID
+shown in the guide and leave the secret empty. Do not select DCR: the current
+Auth0 discovery does not advertise dynamic registration or CIMD. Adding an
+invented registration endpoint or a client ID to protected-resource metadata
+would not implement either protocol.
+
+A portable import uses ChatGPT's stable callback only when the authorization
+server advertises issuer identification and returns the exact issuer in every
+success/error response. The registered client's callback allowlist must retain
+its existing specific callback and include the stable ChatGPT callback. Configure
+these provider prerequisites before publishing the preconfigured archive. Do not
+alter the separate reviewer client or existing connections. See the
+[Auth0 custom-domain contract](AUTH0_CUSTOM_DOMAIN.md).
+
+If an existing import still asks for credentials, update it from the current ZIP
+and check the saved OAuth settings. If its callback remains incompatible, retain
+the exact callback displayed by ChatGPT for support; never collect a password,
+access token or client secret. Imported settings, public metadata and a no-session
+issuer-response check do not establish actual human consent, token exchange,
+refresh or a successful host tool call. Those remain separate qualification steps.
+
+Official contracts: [OpenAI OAuth](https://developers.openai.com/plugins/build/auth)
+and [package authentication](https://developers.openai.com/plugins/build/plugins).
 
 The combined 26 October archive-guide candidate targets release **1.1.3** after
 reconciliation with current `main`; its [26 October local validation](ASSISTANT_HUB.md#chatgpt-archive-candidate--25-october-2026)
@@ -210,7 +244,7 @@ fields. Import never sends that chat message automatically. Local SDK fixtures
 do not qualify the actual automatic or explicit-message native handoff retest.
 Privacy/confirmations, physical iPhone and other hosts remain independent gates;
 package generation creates no activation or transfer proof.
-The **1.1.9 source candidate**, dated 27 October, synchronizes application,
+The **1.1.11 source candidate**, dated 27 October, synchronizes application,
 ChatGPT/Claude packages and the downloadable archive for
 [secure invitation recovery](SECURE_DISTRIBUTION_JOURNEYS.md#recover-an-expired-invitation-quote).
 Its portable workflow directs an expired quote to the browser's explicit

@@ -133,6 +133,20 @@ Recipients may export then delete their copy. Deletion removes personal access, 
 
 **Use Guteneo** remains in the same session. Recipients can prepare sends/share documents, choose an existing membership or request an initial workspace. The server explicitly creates required business structures with real channels closed and administrator role for the creator. Creation/selection reloads the chosen preparation document and workspace session; identity, rights and CSRF all come from the new server session without retaining old workspace context. Failures stay visible in the personal area. Selecting the sender's workspace without membership is denied. Receipt implies no new login identity, mandatory subscription or marketing consent.
 
+Ordinary application entry (`/#/app`) by a verified account without a workshop
+now opens **Use Guteneo** with the workspace form before service cards. Choose
+**Create my workspace**, supply its name, and confirm; or choose **Join an existing
+workspace** and paste the personal Guteneo invitation link. The browser accepts
+only the current origin's `/invitation/#token=…` form, preserving the secret in the
+fragment. The existing invitation preview, exact verified-email match and atomic
+acceptance decide membership and role; this form cannot search or join an
+arbitrary workspace. Invalid links preserve the form and show recovery. Creation
+uses the existing idempotent personal endpoint, rotating the workshop session only
+after success. No additional API read or bundle is introduced by the choice.
+Explicit **My documents** entries still open received documents directly, with no
+forced workspace. New accounts use V2 while existing layout choices remain saved.
+See [layout defaults](DASHBOARD_V2.md#new-account-default--27-october-2026-candidate).
+
 Service promotion is generic/voluntary. Titles, contents, senders and reading actions do not personalize offers. Promised document access never depends on commercial conversion.
 
 ## Audit and information for people

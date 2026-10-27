@@ -19,7 +19,8 @@ share path and locale, drops query/fragment values and replays no mutation.
 Local behavior checks do not qualify actual hosted Auth0 recovery, communication,
 exact-source CI or publication; retain those observations separately.
 
-Final local qualification on 27 October:
+Local qualification on 27 October for the recovery source committed as
+`adc8f5343927`, before reconciliation with the 1.1.10 main release:
 
 - Backend renewal and approval-boundary suites pass 77/77 cases: 60 secure-core
   and 17 approval-boundary checks, including nine new recovery cases.
@@ -142,3 +143,5 @@ Candidate `d942fa9` passes full regression: 119 Vitest files, 2,305 cases and 35
 Reconciliation on `ac795d0` preserves explicit logout/public HTTP errors: 148 affected unit cases and twelve desktop browser cases pass. [PR 74](https://github.com/nclsppr/guteneo/pull/74) records final isolated e2e and exact-commit GitHub checks. Two local e2e restarts interrupted by concurrent asset rebuild remain failures, not relabeled successes. CI uses an isolated distribution job.
 
 An actual anonymous observation passed 28 public checks without uploading a GitHub report. [Test accounts](PRODUCTION_TEST_ACCOUNTS.md) and their two proposed Auth0 Actions describe an earlier strong-mode study and remain inactive. Inspected Actions issued no strong document evidence. Passkeys remain deferred; selected `verified_account` does not depend on these Actions, but dedicated accounts/connected production journey remain unqualified. Pre-0059 results do not prove the new policy; its local 2/2 run is separately identified above. CI configures separate profiles, fourteen `strong` and two `verified_account` results, without concurrent builds; configuration does not claim GitHub success. Public observation, simulation and connected current-policy journeys remain distinct evidence.
+
+The 1.1.11 reconciliation with `26867c8` separately passes 96 UI/authentication/MCP/personal-policy cases, 24 package checks and the same 18 browser cases across all three engines. Typecheck and documentation checks pass. These local results qualify the combined candidate; production and hosted identity remain separate.

@@ -271,7 +271,7 @@ function SecureDistributionComposer({ session }: { session: Session }) {
       ) : (
         catalog.data && (
           <form
-            className="secure-document-form"
+            className="secure-document-form secure-distribution-composer"
             aria-busy={action.pending}
             onSubmit={(event) => void prepare(event)}
           >

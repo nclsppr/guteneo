@@ -537,18 +537,18 @@
   color: var(--ink);
   overflow-wrap: anywhere;
 }
-:is(.workspace-v2, .personal-space-v2) .secure-document-form {
+:is(.workspace-v2, .personal-space-v2) .secure-distribution-composer {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   max-width: none;
   align-items: start;
   gap: 24px;
 }
 :is(.workspace-v2, .personal-space-v2)
-  .secure-document-form
+  .secure-distribution-composer
   > :is(.secure-document-invitation, .secure-document-price, .notice) {
   grid-column: 1 / -1;
 }
-:is(.workspace-v2, .personal-space-v2) .secure-document-form > .button {
+:is(.workspace-v2, .personal-space-v2) .secure-distribution-composer > .button {
   justify-self: start;
 }
 :is(.workspace-v2, .personal-space-v2) .secure-document-check {
@@ -647,7 +647,7 @@
   font-weight: 500;
 }
 @media (max-width: 1100px) {
-  :is(.workspace-v2, .personal-space-v2) .secure-document-form {
+  :is(.workspace-v2, .personal-space-v2) .secure-distribution-composer {
     grid-template-columns: minmax(0, 1fr);
   }
 }
@@ -661,7 +661,7 @@
   :is(.workspace-v2, .personal-space-v2) .secure-document-reader-toolbar {
     padding: 12px;
   }
-  :is(.workspace-v2, .personal-space-v2) .secure-document-form > .button {
+  :is(.workspace-v2, .personal-space-v2) .secure-distribution-composer > .button {
     width: 100%;
   }
 }

@@ -259,6 +259,16 @@ describe("one personal identity without implicit workshop authority", () => {
         .first(),
     ).toEqual({ n: 0 });
   });
+  it("starts new accounts in V2 and preserves an existing saved Classic choice", async () => {
+    const sub = `auth0|appearance-${crypto.randomUUID()}`;
+    const first = await login({ sub }, "/auth/signup");
+    expect(first.principal.preferredDashboardAppearance).toBe("v2");
+    await db.prepare("UPDATE users SET preferred_dashboard_appearance='classic' WHERE id=?")
+      .bind(first.principal.userId).run();
+    const returning = await login({ sub }, "/auth/login");
+    expect(returning.principal.userId).toBe(first.principal.userId);
+    expect(returning.principal.preferredDashboardAppearance).toBe("classic");
+  });
   it("requires verified email even if a strong authentication assertion is present", async () => {
     await expect(login({ email_verified: false })).rejects.toMatchObject({
       code: "EMAIL_VERIFICATION_REQUIRED",

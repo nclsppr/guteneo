@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { isWorkspaceInvitationToken } from "../../../packages/contracts/src/workspace-invitation-token";
 import {
   invitationEmail,
   workspaceInvitationInput,
@@ -191,7 +192,7 @@ export async function getInvitationPreview(
   env: Pick<AuthEnv, "DB" | "MODE">,
   rawToken: string,
 ) {
-  if (!/^[A-Za-z0-9_-]{43}$/.test(rawToken))
+  if (!isWorkspaceInvitationToken(rawToken))
     fail("INVITATION_UNAVAILABLE", "Invitation unavailable.", 404);
   const row = await inviteForHash(env, await hashSecret(rawToken));
   const [local, domain] = row.email.split("@");
@@ -398,7 +399,9 @@ export async function handleInvitationRoute(
         405,
       );
     const input = parse(
-      z.object({ token: z.string().regex(/^[A-Za-z0-9_-]{43}$/) }).strict(),
+      z
+        .object({ token: z.string().refine(isWorkspaceInvitationToken) })
+        .strict(),
       await body(request),
     );
     return json(await getInvitationPreview(env, input.token));

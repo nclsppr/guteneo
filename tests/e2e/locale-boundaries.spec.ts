@@ -366,35 +366,44 @@ test("the connected account language never replaces the saved anonymous language
   expect(writes).toEqual(["POST /api/logout"]);
 });
 
-test("translated public and account navigation keep the literal ARIA page value", async ({
-  page,
-}) => {
-  await mockAccount(page, { name: "Camille", preferredLocale: null });
-  await page.goto("/assistants/");
-  const publicLink = page.locator(
-    'header .public-desktop-navigation a[href^="/assistants/"]',
-  );
-  for (const locale of ["en", "de", "lb"]) {
-    await (await publicLanguagePicker(page)).selectOption(locale);
-    await expect(publicLink).toHaveCount(1);
-    await expect(publicLink).toHaveAttribute(
-      "href",
-      `/assistants/?lang=${locale}`,
+for (const appearance of ["classic", "v2"] as const) {
+  test(`translated public and ${appearance} account navigation keep the literal ARIA page value`, async ({
+    page,
+  }) => {
+    await mockAccount(page, { name: "Camille", preferredLocale: null });
+    await page.goto("/assistants/");
+    const publicLink = page.locator(
+      'header .public-desktop-navigation a[href^="/assistants/"]',
     );
-    await expect(publicLink).toHaveAttribute("aria-current", "page");
-  }
-  await page.goto("/#/app/account");
-  await expect(page.locator("#account-name")).toHaveValue("Camille");
-  const accountLink = page.locator(
-    '.workspace-navigation nav a[href="#/app/account"]',
-  );
-  for (const locale of ["en", "de", "lb"]) {
-    await page.locator(".language-preference select").selectOption(locale);
-    await page.locator('form.form-panel button[type="submit"]').click();
-    await expect(page.locator("html")).toHaveAttribute("lang", locale);
-    await expect(accountLink).toHaveAttribute("aria-current", "page");
-  }
-});
+    for (const locale of ["en", "de", "lb"]) {
+      await (await publicLanguagePicker(page)).selectOption(locale);
+      await expect(publicLink).toHaveCount(1);
+      await expect(publicLink).toHaveAttribute(
+        "href",
+        `/assistants/?lang=${locale}`,
+      );
+      await expect(publicLink).toHaveAttribute("aria-current", "page");
+    }
+    await page.goto(`/?appearance=${appearance}#/app/account`);
+    await expect(page.locator(".workspace")).toHaveAttribute(
+      "data-appearance",
+      appearance,
+    );
+    await expect(page.locator("#account-name")).toHaveValue("Camille");
+    const accountLink = page.locator(
+      appearance === "classic"
+        ? '.workspace-navigation nav a[href="#/app/account"]'
+        : '.sidebar-account a.workspace-identity-profile[href="#/app/account"]',
+    );
+    await expect(accountLink).toHaveCount(1);
+    for (const locale of ["en", "de", "lb"]) {
+      await page.locator(".language-preference select").selectOption(locale);
+      await page.locator('form.form-panel button[type="submit"]').click();
+      await expect(page.locator("html")).toHaveAttribute("lang", locale);
+      await expect(accountLink).toHaveAttribute("aria-current", "page");
+    }
+  });
+}
 
 test("saved account language hydrates every standalone public route without replacing the guest choice", async ({
   page,

@@ -18,3 +18,15 @@ For distribution through a recipient account with a retention term, use
 `secure-distribution` when its tools are available. It requires browser approval
 under the active document authentication policy even with an expert mandate.
 Never implicitly replace it with the legacy password-protected email link.
+
+For ChatGPT setup, the current ZIP declares Guteneo's public OAuth client in
+`mcp.json`; use the host's Connect action and let the person sign in at
+`auth.guteneo.com`. Do not ask the person to create an Auth0 application or supply
+a secret. If a manually added MCP server or an older saved connection asks for a
+client ID, direct them to the public ID and copy control in the
+[ChatGPT guide](https://guteneo.com/assistants/chatgpt/?lang=en). The secret stays
+empty. Updating a tool catalogue does not guarantee replacement of an older
+connection's OAuth configuration. Do not claim open dynamic registration or
+successful connection until the host completes OAuth and a read-only capability
+call succeeds. A callback mismatch requires support with the exact displayed
+callback, never a wildcard or another application's credentials.

@@ -74,6 +74,24 @@ components rather than another palette of almost-identical values.
 | Reading measure | `--content-measure`, `68ch`   | Long-form text                           |
 | Control height  | `--control-height`, `44px`    | Comfortable interactive targets          |
 
+New accounts persist V2 when created; existing saved Classic/V2 preferences are
+preserved. Keep the browser fallback and account forms on the shared
+`defaultDashboardAppearance` contract. Never rewrite a saved Classic choice during
+sign-in. Ordinary application entry without a workshop opens the existing personal
+Services form first: create a workspace or use the invitation acceptance flow.
+Direct received-document links retain personal access without workshop creation.
+The choice adds no API read or eager dependency; exercise successful creation,
+invalid invitation recovery and existing-account persistence with synthetic data.
+Publication and authenticated hosted signup remain separate proof.
+
+Workspace invitation links carry a raw 43-character base64url secret in the
+fragment; the stored 64-character SHA-256 hash is a different value. Use the
+dependency-free shared token validator for entry and preview. Keep the exact
+same-origin `/invitation/` path, fragment clearing and explicit acceptance flow.
+Exercise a server-generated link through the parser and API handoff in integration
+tests, in addition to rendered fixtures; handwritten tokens alone cannot prove
+the producer and consumer agree. The join handoff adds no eager schema dependency.
+
 V2 overrides the ordinary control radius to 7 px and uses 10 px for enclosing
 panels. Email preparation and review apply that existing panel geometry to the
 protected-link choice, delivery summary, email preview and PDF viewer frame. The PDF's actual
@@ -260,6 +278,13 @@ Keep focus visible beneath sticky headers. A disclosure reports its expanded
 state; Escape closes an overlay and returns focus to its trigger. Preserve the
 application's existing route-focus and unsaved-work behavior.
 
+The workshop's native `<details>` menu opens before its queued `toggle` event
+updates React. Escape therefore closes the DOM property and the saved component
+state synchronously before returning focus to the summary. A state-only close can
+be ignored when React still holds `false`. Preserve native activation and cover
+this event ordering with the same-task Classic/V2 regression in
+`tests/preview-e2e/mobile-workspace.spec.ts`; do not hide it with delays or retries.
+
 Loading a job counter does not make its independently fetched result rows
 interactive. Keep disabled controls outside native tab order until actual
 readiness is established. Later data must preserve the person's current focus;
@@ -399,3 +424,8 @@ text alternative includes the same frozen title. Exercise the unsaved-language
 fallback and a source outside the first list page when changing this editor.
 
 Document titles use an escaped semantic quotation. The footer uses two small underlined service links; the preference page reuses public chrome and shows an explicit action before any write. Account/document status remains separate from a recipient email response. The fragment capability is never copied into public navigation.
+
+The mobile V2 profile link retains a 44 px minimum touch target in the compact
+identity row. Test its account destination, focus and active-page semantics
+alongside the Classic and V2 menu links; moving a destination does not remove it
+from navigation coverage. Desktop profile geometry is unchanged.

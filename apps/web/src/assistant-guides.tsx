@@ -287,6 +287,12 @@ function GuideArticle({
                       <code>{step.code}</code>
                     </pre>
                   )}
+                  {step.oauthClientId && (
+                    <CopyText
+                      value={step.oauthClientId}
+                      label={msg("Copy client ID")}
+                    />
+                  )}
                   {step.endpoint && (
                     <CopyText
                       value={assistantEndpoint}

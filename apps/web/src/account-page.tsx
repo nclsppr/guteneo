@@ -1,3 +1,4 @@
+import { defaultDashboardAppearance } from "../../../packages/contracts/src/dashboard-appearance";
 import { msg, msgIn } from "./messages";
 import { useState, type FormEvent } from "react";
 import {
@@ -142,11 +143,13 @@ export function Account({ session, onUpdated }: Props) {
   const [draftAppearance, setDraftAppearance] =
     useState<DashboardAppearance | null>(null);
   const selectedAppearance =
-    draftAppearance ?? session.user.preferredDashboardAppearance ?? "classic";
+    draftAppearance ??
+    session.user.preferredDashboardAppearance ??
+    defaultDashboardAppearance;
   const appearanceChanged =
     draftAppearance !== null &&
     selectedAppearance !==
-      (session.user.preferredDashboardAppearance ?? "classic");
+      (session.user.preferredDashboardAppearance ?? defaultDashboardAppearance);
   const [userName, setUserName] = useState(session.user.name);
   const [organizationName, setOrganizationName] = useState(
     session.organization.name,

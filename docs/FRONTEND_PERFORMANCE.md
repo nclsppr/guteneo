@@ -21,7 +21,9 @@ Wrangler with intercepted synthetic APIs, French locale and no network/CPU
 throttling. The browser contexts were fresh per test; each of the three routes
 used a full navigation through `about:blank`, within that test's browser context.
 The table reports light/dark ranges from two samples per route/browser. It is
-not a baseline comparison.
+not a baseline comparison. These samples precede reconciliation with the 1.1.10
+main release and qualify the recovery source committed as `adc8f5343927`; merged-
+source CI and hosted publication remain separate.
 
 | Surface / browser | Completed resource entries | Transferred bytes | Reported decoded JavaScript bytes | First useful panel observed (ms) |
 | --- | ---: | ---: | ---: | ---: |

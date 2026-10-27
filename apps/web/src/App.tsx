@@ -1,3 +1,4 @@
+import { defaultDashboardAppearance } from "../../../packages/contracts/src/dashboard-appearance";
 import { msg } from "./messages";
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import {
@@ -250,7 +251,7 @@ function Application() {
   useEffect(() => {
     if (session && !isPublicPreview)
       applyAccountAppearance(
-        session.user.preferredDashboardAppearance ?? "classic",
+        session.user.preferredDashboardAppearance ?? defaultDashboardAppearance,
         session.user.id,
       );
   }, [session, applyAccountAppearance]);
@@ -303,7 +304,7 @@ function Application() {
           if (alive)
             go(
               requested === "/app"
-                ? "/app/my-documents"
+                ? "/app/services?next=%2Fapp"
                 : `/app/services?next=${encodeURIComponent(requested)}`,
             );
         } catch {
@@ -716,6 +717,9 @@ function WorkspaceApplication({
               window.matchMedia("(max-width: 1024px)").matches
             ) {
               event.preventDefault();
+              // Native details opens before its queued toggle updates React.
+              // Close the DOM too when the state is still already false.
+              event.currentTarget.open = false;
               setNavigationOpen(false);
               navigationSummary.current?.focus();
             }

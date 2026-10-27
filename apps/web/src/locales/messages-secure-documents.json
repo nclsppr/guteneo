@@ -1303,5 +1303,40 @@
     "This share has changed or submission has started. Refresh its status before continuing.",
     "Diese Freigabe hat sich geändert oder der Versand hat begonnen. Aktualisieren Sie den Status, bevor Sie fortfahren.",
     "Dëst Deelen huet sech geännert oder den Envoi huet ugefaangen. Aktualiséiert de Status, ier Dir weiderfuert."
+  ],
+  "Créer ou rejoindre un atelier": [
+    "Create or join a workspace",
+    "Arbeitsbereich erstellen oder beitreten",
+    "En Atelier erstellen oder bäitrieden"
+  ],
+  "Choix de l’atelier": [
+    "Workspace setup",
+    "Arbeitsbereich einrichten",
+    "Atelier ariichten"
+  ],
+  "Rejoindre un atelier existant": [
+    "Join an existing workspace",
+    "Einem bestehenden Arbeitsbereich beitreten",
+    "Engem bestoenden Atelier bäitrieden"
+  ],
+  "Lien d’invitation à l’atelier": [
+    "Workspace invitation link",
+    "Einladungslink zum Arbeitsbereich",
+    "Invitatiounslink fir den Atelier"
+  ],
+  "Demandez à l’administrateur de l’atelier une invitation pour {0}, puis collez le lien reçu.": [
+    "Ask the workspace administrator for an invitation to {0}, then paste the received link.",
+    "Bitten Sie die Administration des Arbeitsbereichs um eine Einladung an {0} und fügen Sie den erhaltenen Link ein.",
+    "Frot den Administrateur vum Atelier ëm eng Invitatioun fir {0} a setzt de kritt Link an."
+  ],
+  "Examiner l’invitation": [
+    "Review invitation",
+    "Einladung prüfen",
+    "Invitatioun iwwerpréiwen"
+  ],
+  "Collez le lien complet d’invitation à l’atelier Guteneo.": [
+    "Paste the complete Guteneo workspace invitation link.",
+    "Fügen Sie den vollständigen Einladungslink zum Guteneo-Arbeitsbereich ein.",
+    "Setzt de kompletten Invitatiounslink fir de Guteneo-Atelier an."
   ]
 }

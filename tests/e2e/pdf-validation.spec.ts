@@ -419,10 +419,12 @@ test("public entry opens the unit-check offer without creating a purchase", asyn
   await page.goto("/#pdf-checks");
   await page.locator("a#pdf-checks").click();
   await expect(page).toHaveURL(/\/pdf-checks\/$/);
-  await page
+  const entry = page
     .locator(".pdf-check-public")
-    .getByRole("link", { name: "Découvrir les contrôles PDF" })
-    .click();
+    .getByRole("link", { name: "Découvrir les contrôles PDF" });
+  await expect(entry).toHaveAttribute("href", "/app/pdf-checks");
+  await entry.click();
+  await expect(page).toHaveURL(/\/#\/app\/pdf-checks$/);
   await expect(
     page.getByRole("heading", { name: "Contrôles PDF", exact: true }),
   ).toBeVisible();

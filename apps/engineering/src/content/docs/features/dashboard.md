@@ -19,8 +19,8 @@ Classic/V2 account layout authority is unchanged. The initial 25 October theme i
 
 <ol>
 <li id="feature-7a4ccbd0bd61">Full real-web Classic/V2 views with the same account, tenant, resources and operations</li>
-<li id="feature-0d2f2c9fb14f">Account at navigation bottom, saved Classic/V2 layout beside language, applied after a successful profile save; mobile identity remains visible with the menu closed; role and detailed permissions live on My account</li>
-<li id="feature-b12540ec6864">Personal users.preferred_dashboard_appearance, migration 0053, classic default and cross-workshop/session/device reconciliation</li>
+<li id="feature-710246fc5db2">Account at navigation bottom, saved Classic/V2 layout beside language, applied after a successful profile save; mobile identity remains visible with the menu closed and its V2 profile link retains a 44 px touch target; role and detailed permissions live on My account; native mobile details closes synchronously on Escape before a queued toggle reaches React, preserving summary focus and keyboard activation</li>
+<li id="feature-381a3c15fb47">Personal users.preferred_dashboard_appearance, migration 0053, V2 persisted for new accounts and used by browser fallbacks; existing saved Classic/V2 choices and cross-workshop/session/device reconciliation preserved</li>
 <li id="feature-b0052b732cc5">Personal documents apply the same saved Classic/V2 account layout in a shell filling the available width with responsive gutters and readable internal form measures, with lightweight independent navigation; personal and workshop customization reuse small shared language/theme/layout controls, preserving personal-only access and existing guarded PATCH authority</li>
 <li id="feature-55247ef6b5a3">Strict browser account PATCH with current authority, Origin/CSRF and field-name audit; every role changes only its own preference</li>
 <li id="feature-f9b64da75268">Temporary appearance=v2/classic override accepts legacy atelier URLs, never persists server-side and clears after explicit appearance save or identity change; local cache is non-authoritative</li>
