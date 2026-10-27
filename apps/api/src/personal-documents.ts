@@ -87,7 +87,10 @@ export class PersonalDocumentsService {
       .first<{ count: number }>();
     if (!count)
       throw new DomainError(
-        "DOCUMENT_AUTHENTICATION_REQUIRED",
+        documentAccessMode(this.env.SENSITIVE_DOCUMENT_AUTHENTICATION) ===
+          "verified_account"
+          ? "DOCUMENT_AUTHENTICATION_REQUIRED"
+          : "STRONG_AUTHENTICATION_REQUIRED",
         "Sign in again to access your documents.",
         403,
       );

@@ -1226,9 +1226,39 @@ describe("personal copies — independent ownership and final authorization", ()
         .bind(accessMode === "strong" ? "verified_account" : "strong")
         .run();
       await expect(f.personal.list(f.recipient)).rejects.toMatchObject({
-        code: "DOCUMENT_AUTHENTICATION_REQUIRED",
+        code:
+          accessMode === "verified_account"
+            ? "DOCUMENT_AUTHENTICATION_REQUIRED"
+            : "STRONG_AUTHENTICATION_REQUIRED",
         status: 403,
       });
+    },
+  );
+
+  it.each(["strong", "verified_account"] as const)(
+    "keeps %s recovery when the current session is revoked after authentication",
+    async (accessMode) => {
+      const f = await fixture("simulation", 1, accessMode);
+      await db
+        .prepare("DELETE FROM personal_sessions WHERE token_hash=?")
+        .bind(f.recipient.tokenHash)
+        .run();
+      await expect(f.personal.list(f.recipient)).rejects.toMatchObject({
+        code:
+          accessMode === "verified_account"
+            ? "DOCUMENT_AUTHENTICATION_REQUIRED"
+            : "STRONG_AUTHENTICATION_REQUIRED",
+        status: 403,
+      });
+      expect(
+        await db
+          .prepare(
+            "SELECT count(*) n FROM secure_document_rate_limits WHERE scope_hash=?",
+          )
+          .bind(await secureSha256(`personal-documents:${f.recipient.userId}`))
+          .first(),
+      ).toEqual({ n: 0 });
+      expect(f.queue).not.toHaveBeenCalled();
     },
   );
 

@@ -131,6 +131,16 @@ one-hour authentication age matching the normal application session, rather than
 forcing immediate reauthentication on entry to personal documents. Session
 lifetimes, revocation and tenant permissions remain unchanged.
 
+Recovery must follow the same policy. A verified-account personal recovery link
+and the corresponding workshop document-authentication error use ordinary bounded
+SSO, rather than always adding `fresh=1`. Strong and explicit freshness recovery
+still request fresh authentication. A legacy cookie can have a verified address
+and linked identity but no signed authentication time; obtain a real new
+authorization response instead of reconstructing that time from session creation.
+Auth0 can still require primary sign-in when its ordinary SSO age is exceeded.
+Recovery preserves safe destinations and locale, strips invitation/private input
+and never replays a write. No tenant configuration or migration is needed.
+
 Migration 0065 updates the approval evidence view and immutable approval guards
 together. Approval expires within its normal fifteen-minute review window and
 the actual session/quote expiry. A single priced browser action records approval

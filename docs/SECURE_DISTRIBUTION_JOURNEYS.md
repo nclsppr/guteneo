@@ -20,11 +20,13 @@ Passkey choice remains deferred by product request. `verified_account` changes n
 In the workspace, a document-authentication or freshness refusal uses a localized
 **Verify your sign-in** notice and **Sign in again** action. Recognized recovery
 codes, including `STRONG_BROWSER_APPROVAL_REQUIRED`, are not displayed as raw
-English API text. An expired, revoked or otherwise invalid session still offers explicit recovery through
-`/auth/login?fresh=1` and preserves the supported interface locale and bounded
-current application route, including an existing share identifier. Query values and secondary fragments
-are stripped; external or invalid destinations fall back to the application. No automatic redirect reuses
-old SSO; returned identity and current permissions are checked again. No private
+English API text. An expired, revoked or otherwise invalid session still offers
+explicit hosted recovery under the [policy-specific recovery contract](#final-action-recovery-and-initial-sign-in).
+It preserves the supported interface locale and bounded current application
+route, including an existing share identifier. Query values and secondary
+fragments are stripped; external or invalid destinations fall back to the
+application. SSO reuse follows the ordinary bound only after the person chooses
+recovery; returned identity and current permissions are checked again. No private
 form fields are persisted for recovery, and sign-in replays no write, approval or
 activation. Recipient invitation secrets retain the separate handoff below.
 
@@ -197,6 +199,23 @@ This permits SSO within that normal interval without a forced `max_age=0`
 ceremony on personal entry. Explicit fresh login/account switching and the strong
 profile retain their existing behavior. Local signed-token tests do not establish
 an actual Auth0 SSO callback; qualify that separately before release.
+
+Personal recovery under `verified_account`, and workshop recovery for
+`DOCUMENT_AUTHENTICATION_REQUIRED`, use that ordinary hosted login without
+`fresh=1`. Strong, missing/unknown personal policy and explicit freshness or
+browser-approval errors retain forced freshness. The server derives the policy;
+an error label or browser field grants no access. Recovery keeps the current safe
+application path and locale, strips private queries/invitation secrets and never
+replays approval or sending. Existing roles, recipient bindings and MCP authority
+remain unchanged.
+
+An older browser cookie can still lack signed `auth_time` despite a verified
+address and linked identity. It must obtain actual signed evidence through the
+normal authorization flow; never backfill authentication time from session
+creation or operator data. Auth0 may require primary sign-in when no suitable SSO
+session exists within the normal one-hour bound. A successful return allows the
+same valid document session to be reused afterwards. This recovery change needs
+no database migration or Auth0 tenant configuration.
 
 Migration 0065 preserves historical approval rows and updates the policy view and
 immutable approval guards together. Verified approval lifetime remains bounded by

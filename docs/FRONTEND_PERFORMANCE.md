@@ -305,3 +305,28 @@ explicit read before any same-key mutation. All four locales reuse existing
 labels and the brand/layout remains unchanged. Desktop/mobile screenshots and
 24 Playwright cases were inspected; actual local verified-account lifecycles
 separately qualify both viewports with a 30-minute-old active session.
+
+## Policy-aware authentication recovery — 27 October 2026 candidate
+
+Recovery changes the existing hosted-login URL only. It adds no dependency,
+initial API request, polling, automatic navigation or write replay. A user gesture
+still starts the existing OAuth redirect/callback path; verified-account recovery
+can reuse eligible SSO instead of unconditionally requesting a new ceremony.
+Primary authentication may still be required by Auth0. Local link tests cover all
+four locales, safe return paths and strong-policy fallback. The live Safari
+observation reached Auth0 with a legacy cookie missing signed authentication time;
+no callback timing or first-content improvement is claimed from that incomplete
+journey. Build byte comparisons and executed checks are recorded in
+[the test evidence](TEST_RESULTS.md).
+
+On macOS with Node 24.18.0, comparing the existing 1.1.15 live-build files with
+the freshly built 1.1.16 local application gives 51 JavaScript assets in each.
+The three core chunks below add 96 raw bytes, or 38 bytes using the same local
+`gzipSync` defaults. This is a file-size comparison, not measured HTTP transfer,
+first-content timing, production compression or an Auth0 latency improvement.
+
+| Core chunk | 1.1.15 bytes / local gzip | 1.1.16 bytes / local gzip |
+| --- | ---: | ---: |
+| Application entry | 475,450 / 136,948 | 475,470 / 136,962 |
+| Shared components | 29,730 / 9,726 | 29,792 / 9,741 |
+| Authentication navigation | 663 / 412 | 677 / 421 |

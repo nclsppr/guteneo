@@ -13,8 +13,8 @@ function workspaceReturnTo(path: string): string {
     : "/#/app";
 }
 
-/** A fresh browser sign-in returns to the current share without resuming a write. */
-export function freshWorkspaceAuthenticationHref(): string {
+/** Browser recovery returns to the current share without resuming a write. */
+export function workspaceAuthenticationRecoveryHref(fresh = true): string {
   const path =
     typeof window === "undefined"
       ? "/app"
@@ -23,10 +23,14 @@ export function freshWorkspaceAuthenticationHref(): string {
   // secondary fragment values may contain invitation secrets or private input.
   const route = path.replace(/^#/, "").split(/[?#]/)[0] ?? "/app";
   return `/auth/login?${new URLSearchParams({
-    fresh: "1",
+    ...(fresh ? { fresh: "1" } : {}),
     locale: getLocale(),
     returnTo: workspaceReturnTo(route),
   })}`;
+}
+
+export function freshWorkspaceAuthenticationHref(): string {
+  return workspaceAuthenticationRecoveryHref();
 }
 
 /** Public entry points go straight to the hosted sign-in, including in SSR. */

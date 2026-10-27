@@ -1,5 +1,46 @@
 # Executed verification
 
+## Policy-aware recovery follow-up — 27 October 2026 candidate 1.1.16
+
+The preceding 1.1.15 release was merged as
+`7ff007a39694f1387cba53bf6b0fdc0761ca43e4` and published after final PR/main CI
+passed 22/22 each. Migration 0065 matched the reviewed schema, integrity was `ok`
+and foreign-key violations were zero. Guarded publication verified 352 public
+assets. Fresh public production reports passed 14/14 status and 28/28 browser
+checks for that exact commit. Those are dated 1.1.15 observations, not publication
+proof for this follow-up.
+
+Manual Safari then reproduced an authenticated workshop with personal access
+blocked. A read-only, content-free aggregate found one unexpired production
+review session with verified address, linked identity and no signed
+`authenticated_at`. Denying document access was correct. Its recovery link still
+forced `fresh=1`; ordinary bounded Auth0 entry instead reached the expected hosted
+login form. No password, successful callback or customer-document access was
+qualified by that screen.
+
+The follow-up uses ordinary SSO recovery for the verified-account personal notice
+and `DOCUMENT_AUTHENTICATION_REQUIRED`, while preserving strong/explicit freshness
+and browser-approval errors. The personal rate-limit fence now returns its
+policy-specific error after a race. All four document-authentication emitters
+were reviewed. No authentication timestamp is reconstructed, no session is
+extended, and no migration or Auth0 tenant change is introduced.
+
+Focused unit checks pass **144/144** across authentication navigation, secure web,
+secure core and personal authentication. Built-app Chromium recovery passes
+**2/2**: ordinary/strong recovery links preserve the safe path, omit private
+queries/fragments, and return to unchecked review with one failed approval and
+zero activation calls. The browser API/Auth0 handoff is intercepted; this does
+not prove live SSO or provider delivery. A transient packaging failure during
+concurrent version metadata edits preceded these browser checks; the runner used
+the freshly built candidate frontend after package synchronization, rather than
+claiming that interrupted full build passed.
+
+The synchronized 1.1.16 archive builds with the same 83 tool contracts. Local core
+JavaScript comparison is recorded in [FRONTEND_PERFORMANCE.md](FRONTEND_PERFORMANCE.md).
+Exact final-head/main CI, publication, real Auth0 callback and actual document
+delivery remain separate qualification steps. No business communication or retry
+was performed during this follow-up.
+
 ## Secure delivery, session reuse and native alerts — 27 October 2026 candidate
 
 Read-only production aggregates proved two secure Resend invitations failed with
