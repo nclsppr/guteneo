@@ -28,6 +28,12 @@ claim, a production signup or physical-device qualification. The form reuses
 existing personal session/workspace endpoints and adds no business request.
 Reports are outside Git under `/tmp/guteneo-onboarding-browser*`.
 
+V2 keeps the account destination in its dedicated identity block outside the
+collapsible navigation. At mobile widths that profile link now has a minimum
+44 px height, matching navigation touch targets; the desktop geometry is unchanged.
+The preview regression checks exact destinations in Classic and V2, 44 px targets,
+account navigation and page focus, and the existing menu keyboard/focus behavior.
+This CSS-only correction adds no resource request, account mutation or authority.
 
 This document and the feature map are repository-only. Never import, copy,
 publish or link them in the official website. Source, tests and illustrations

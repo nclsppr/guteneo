@@ -653,6 +653,7 @@
   }
   .workspace-v2 .workspace-identity-profile {
     grid-template-columns: 32px minmax(0, 1fr);
+    min-height: 44px;
   }
   .workspace-v2 .workspace-identity-avatar {
     width: 32px;

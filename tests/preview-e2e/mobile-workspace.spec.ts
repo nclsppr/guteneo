@@ -14,38 +14,74 @@ async function fits(page: Page) {
   }
 }
 
-test("mobile navigation exposes every destination and returns focus to the opened page", async ({
-  page,
-}, info) => {
-  test.skip(
-    info.project.name !== "iphone",
-    "iPhone WebKit interaction coverage",
-  );
-  await page.goto("/#/app");
-  const menu = page.locator(".workspace-navigation");
-  const toggle = menu.locator("summary");
-  const nav = page.getByRole("navigation", { name: "Navigation de l’atelier" });
-  await expect(nav).toBeHidden();
-  await toggle.click();
-  await expect(nav).toBeVisible();
-  const links = nav.getByRole("link");
-  await expect(links).toHaveCount(11);
-  for (const link of await links.all()) {
-    expect((await link.boundingBox())?.height).toBeGreaterThanOrEqual(44);
-    expect((await link.boundingBox())?.width).toBeGreaterThanOrEqual(44);
-  }
-  await nav.getByRole("link", { name: "Facturation", exact: true }).click();
-  await expect(page.locator("main h1")).toHaveText("Facturation");
-  await expect(nav).toBeHidden();
-  await expect(page.locator("main")).toBeFocused();
-  await toggle.focus();
-  await page.keyboard.press("Enter");
-  await expect(nav).toBeVisible();
-  await nav.getByRole("link", { name: "Documents", exact: true }).focus();
-  await page.keyboard.press("Escape");
-  await expect(nav).toBeHidden();
-  await expect(toggle).toBeFocused();
-});
+for (const appearance of ["classic", "v2"] as const) {
+  test(`mobile ${appearance} navigation exposes every destination and returns focus to the opened page`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(`/?appearance=${appearance}#/app`);
+    await expect(page.locator(".workspace")).toHaveAttribute(
+      "data-appearance",
+      appearance,
+    );
+    const menu = page.locator(".workspace-navigation");
+    const toggle = menu.locator("summary");
+    const nav = page.getByRole("navigation", {
+      name: "Navigation de l’atelier",
+    });
+    await expect(nav).toBeHidden();
+    await toggle.click();
+    await expect(nav).toBeVisible();
+    const links = nav.getByRole("link");
+    const destinations = [
+      "#/app",
+      "#/app/connection",
+      "#/app/documents",
+      "#/app/dispatches",
+      "#/app/campaigns",
+      "#/app/senders",
+      "#/app/usage",
+      "#/app/pdf-checks",
+      "#/app/billing",
+      ...(appearance === "classic" ? ["#/app/account"] : []),
+      "#/app/admin",
+    ];
+    await expect(links).toHaveCount(destinations.length);
+    expect(
+      await links.evaluateAll((elements) =>
+        elements.map((element) => element.getAttribute("href")),
+      ),
+    ).toEqual(destinations);
+    for (const link of await links.all()) {
+      expect((await link.boundingBox())?.height).toBeGreaterThanOrEqual(44);
+      expect((await link.boundingBox())?.width).toBeGreaterThanOrEqual(44);
+    }
+    await nav.getByRole("link", { name: "Facturation", exact: true }).click();
+    await expect(page.locator("main h1")).toHaveText("Facturation");
+    await expect(nav).toBeHidden();
+    await expect(page.locator("main")).toBeFocused();
+    await toggle.focus();
+    await page.keyboard.press("Enter");
+    await expect(nav).toBeVisible();
+    await nav.getByRole("link", { name: "Documents", exact: true }).focus();
+    await page.keyboard.press("Escape");
+    await expect(nav).toBeHidden();
+    await expect(toggle).toBeFocused();
+    const account = page.locator(
+      '.sidebar-account a.workspace-identity-profile[href="#/app/account"]',
+    );
+    await expect(account).toHaveCount(1);
+    await expect(account).toBeVisible();
+    expect((await account.boundingBox())?.height).toBeGreaterThanOrEqual(44);
+    expect((await account.boundingBox())?.width).toBeGreaterThanOrEqual(44);
+    await account.click();
+    await expect(page).toHaveURL(/#\/app\/account$/);
+    await expect(page.locator("main h1")).toBeVisible();
+    await expect(page.locator("main")).toBeFocused();
+    await expect(account).toHaveAttribute("aria-current", "page");
+    await expect(nav).toBeHidden();
+  });
+}
 
 test("mobile navigation preserves restored summary focus after deferred route frames", async ({
   page,
