@@ -554,7 +554,7 @@ describe("non-sending reviewer fax quotations", () => {
       }),
     ).rejects.toThrow();
   });
-  it("keeps the historical live operator pilot bounded to September24", async () => {
+  it("keeps live pilot extensions bounded and historical rows expired", async () => {
     await expect(
       insertRecord(db, "trusted_fax_usage_tariffs", {
         ...tariff,
@@ -563,6 +563,8 @@ describe("non-sending reviewer fax quotations", () => {
         execution_scope: "live",
         review_authority_id: null,
         evidence_observed_at: null,
+        valid_from: "2026-11-03T00:00:00.000Z",
+        expires_at: "2026-11-04T00:00:00.000Z",
       }),
     ).rejects.toThrow();
     const old = {

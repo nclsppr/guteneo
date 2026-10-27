@@ -204,7 +204,10 @@ function operatorRouteTest(t: FaxUsageTariff): boolean {
         Date.parse(t.expires_at) - Date.parse(t.evidence_observed_at) <=
           168 * 3600_000 &&
         t.max_pages <= 7
-      : t.expires_at <= "2026-09-24T09:00:01.620Z") &&
+      : t.expires_at <=
+        (t.destination_prefix === "+3524"
+          ? "2026-11-03T23:59:59.999Z"
+          : "2026-09-24T09:00:01.620Z")) &&
     Date.parse(t.expires_at) - Date.parse(t.valid_from) <= 7 * 86400_000
   );
 }

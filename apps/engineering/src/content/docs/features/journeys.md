@@ -31,7 +31,7 @@ Open members → invite individually or preview CSV → select role and supervis
 
 Import/reuse the exact ready PDF → collect E.164 recipient/sender/ceiling → obtain the actual quote → show estimate and separate ceiling → human browser approval or existing expert review → confirm → track delivery and usage settlement separately.
 
-**Failure and recovery:** Keep reviewer quotes unsendable. Renew only an eligible prepared unattempted quote with exact original parameters and stable key, then obtain fresh approval. Unknown submissions require reconciliation, never resend.
+**Failure and recovery:** Keep reviewer quotes unsendable. Expired operator tariffs require a separately authorized scoped replacement after matching runtime/SQL support; old price evidence stays dated and no mandate is renewed. Renew only an eligible prepared unattempted quote with exact original parameters and stable key, then obtain fresh approval. Unknown submissions require reconciliation, never resend.
 
 ## J04: Prepare and send postal mail
 
