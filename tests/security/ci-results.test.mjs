@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
-import { mkdtemp, mkdir, writeFile, rm } from "node:fs/promises";
+import { mkdtemp, mkdir, readFile, writeFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import test from "node:test";
 import {
   discoverTests,
@@ -101,4 +102,56 @@ test("a green partial/duplicate shard report cannot satisfy the complete gate", 
   totals.numTotalTests++;
   totals.numPassedTests++;
   assert.throws(() => requireTestResults(totals, files, "/fixture"));
+});
+
+test("actual Chromium integration tests run exactly once in the browser-equipped job", async () => {
+  const root = new URL("../../", import.meta.url);
+  const workflow = await readFile(
+    new URL(".github/workflows/ci.yml", root),
+    "utf8",
+  );
+  const shards = workflow.match(/^  vitest:\n([\s\S]*?)(?=^  [a-z])/m)?.[1];
+  const security = workflow.match(/^  security:\n([\s\S]*?)(?=^  [a-z])/m)?.[1];
+  assert.ok(shards);
+  assert.ok(security);
+  const excluded = [
+    ...shards.matchAll(/--exclude=(tests\/\S+\.test\.ts)/g),
+  ].map((match) => match[1]);
+  const renderer = security
+    .match(/npx vitest run ([^\n]+)/)?.[1]
+    .trim()
+    .split(/\s+/);
+  assert.ok(renderer?.length);
+  assert.deepEqual(
+    [...excluded].sort(),
+    [...renderer].sort(),
+    "Every excluded file must retain one browser-equipped execution.",
+  );
+  assert.equal(new Set(renderer).size, renderer.length);
+  const installation = security.indexOf(
+    "npx playwright install --with-deps chromium",
+  );
+  assert.ok(
+    installation >= 0 && installation < security.indexOf("npx vitest run"),
+  );
+  const files = await discoverTests(fileURLToPath(root));
+  let actualRenderers = 0;
+  for (const file of files.filter((file) =>
+    file.startsWith("tests/integration/"),
+  )) {
+    const source = await readFile(new URL(file, root), "utf8");
+    if (!/(?:chromium\.executablePath|puppeteer\.launch)\s*\(/u.test(source))
+      continue;
+    actualRenderers++;
+    assert.ok(
+      excluded.includes(file),
+      `${file} needs the installed Chromium instead of an ordinary Vitest shard.`,
+    );
+    assert.equal(
+      renderer.filter((entry) => entry === file).length,
+      1,
+      `${file} must execute once in the renderer job.`,
+    );
+  }
+  assert.ok(actualRenderers > 0);
 });

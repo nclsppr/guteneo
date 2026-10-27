@@ -1,7 +1,7 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
 # Guteneo feature tree and developer atlas
 
-**23 domains · 339 features · 37 journeys · 76 documented REST operations · 83 MCP tools**
+**23 domains · 340 features · 37 journeys · 76 documented REST operations · 83 MCP tools**
 Updated 2026-10-27.
 
 Repository implementation inventory. Availability depends on current capabilities and authority; implementation, activation and deployed proof are distinct.
@@ -38,7 +38,7 @@ mindmap
       Public pages, languages and appearance (17)
     Operations
       Reviewer OAuth qualification (9)
-      Operations and reliability (24)
+      Operations and reliability (25)
       Belvédère platform oversight (9)
       Public service status (15)
       Engineering documentation (12)
@@ -80,7 +80,7 @@ mindmap
 ### Operations
 
 - [Reviewer OAuth qualification](#reviewer-oauth) — 9 features; operator-gated.
-- [Operations and reliability](#operations) — 24 features; operator-gated.
+- [Operations and reliability](#operations) — 25 features; operator-gated.
 - [Belvédère platform oversight](#belvedere) — 9 features; operator-gated.
 - [Public service status](#status) — 15 features; public.
 - [Engineering documentation](#engineering-docs) — 12 features; public.
@@ -926,6 +926,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Signed negative Resend/SES/Telnyx/Pingen receipts emit one fixed failure signal after the durable projection claim, including recovery after prior event application; receipt HTTP 200 does not hide the operational signal
 - Native Cloudflare failure and missing-cron Monitors were configured and reread on 27 October 2026 with an owner-designated email destination; configured delivery and actual receipt remain separate evidence
 - Prepared separate operator-only direct MCP Events incident schema and agent instructions define signed delivery, durable deduplication and bounded autonomous diagnosis/tests/draftPRs; no operator bridge, subscription, new permission or agent run is activated
+- Chromium-dependent secure Resend journey runs once in the existing browser-equipped security job, outside ordinary Vitest shards; dependency-driven routing checks and aggregate inventory preserve complete coverage
 
 **Contract:** [CI.md](CI.md) · **Implementation:** [scripts/deploy-public.mjs](../scripts/deploy-public.mjs)
 

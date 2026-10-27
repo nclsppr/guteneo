@@ -6,8 +6,8 @@ The required checks remain **verify** and **scanner**. This workflow builds and 
 
 - `checks`: TypeScript, ESLint, exact local migration transport/schema verification and the existing cost-model report. `npm run check:integrations` also rejects a stale MCP/plugin synchronization record before the remaining checks; see the [maintained package procedure](LLM_SETUP.md#mandatory-mcp-plugin-and-archive-synchronization).
 - Developer documentation: `node docs/build-feature-map.mjs --check` requires synchronized Markdown/HTML views, valid code/contract/test references and complete role/journey fields. Review also checks that every feature change updates the registry; generated-byte validation alone cannot discover undocumented behavior.
-- `vitest`: four native Vitest shards on separate runners. Files remain sequential inside each shard; process isolation, D1/R2 fixtures and all transaction/race assertions are unchanged. Only the Chromium PDF integration is excluded here and run in `security`.
-- `security`: the exact-PDF Chromium integration and **every** Node security test, including Chromium and WebKit setup-form tests. The renderer's existing narrow AppArmor allowance was moved unchanged into `scripts/ci/chromium-sandbox.mjs`; no browser sandbox is disabled.
+- `vitest`: four native Vitest shards on separate runners. Files remain sequential inside each shard; process isolation, D1/R2 fixtures and all transaction/race assertions are unchanged. Browser-backed integration files, including `secure-resend-journey.test.ts`, are excluded here and run once in `security`.
+- `security`: the exact-PDF Chromium integrations, the secure-distribution/Resend journey and **every** Node security test, including Chromium and WebKit setup-form tests. Chromium is installed before those integration files execute. The renderer's existing narrow AppArmor allowance was moved unchanged into `scripts/ci/chromium-sandbox.mjs`; no browser sandbox is disabled.
 - `build`: builds local application, live and fictional preview assets once each, plus both existing Wrangler dry runs. Their distinct compilation flags and release manifests are retained. TypeScript runs in `checks` rather than again through `npm run build`. The two browser asset directories are passed to browser jobs as a same-run, SHA-named artifact; these are test artifacts, not approved deployment bundles.
 - `browser`: nine isolated runners: three shards for each of desktop Chromium, mobile Chromium and iPhone WebKit. Each migrates/seeds its own D1 and retains one Playwright worker. Desktop and iPhone also partition their corresponding public-preview project across the same three shards. Belvédère runs on the first shard of each supported profile; status runs on desktop shard one. WebKit jobs install Chromium too, because the local PDF renderer needs it. CI's explicit `GUTENEO_E2E_PREBUILT=true` starts the existing local server without rebuilding the supplied application artifact; normal local commands continue to build as before.
 - `distribution-e2e`: isolated TesterArmy profiles run fourteen `strong` and two `verified_account` account, pricing and secure-distribution results against isolated local D1/R2 and the real local PDF renderer. Identity assurance is an explicit simulation fixture. Model calls, telemetry and browser traces are disabled. The strict gate requires every expected case, zero skips/flakes/model calls and a current privacy marker; artifact upload also scans the captured console output for actual fixture invitations. See [the suite guide](../tests/distribution-e2e/README.md).
@@ -16,6 +16,15 @@ The required checks remain **verify** and **scanner**. This workflow builds and 
 - `scanner`: retains its separate dependency installation, typecheck and complete scanner test suite.
 
 `verify` uses `always()` and depends on every job above. Failed, cancelled or skipped dependencies cannot produce a successful final gate. It merges the five native Vitest blob reports without rerunning tests, checks every assertion succeeded and compares the resulting file list with all current `tests/unit/**/*.test.ts` and `tests/integration/**/*.test.ts`. Missing, duplicated and unexpected files fail. There is no fixed assertion total to update when tests are added. The matrix uses `fail-fast: false` so a failure in one shard preserves the other shards' evidence.
+
+When adding an integration that launches actual Chromium, route it to the existing
+browser-equipped `security` job and exclude it from the ordinary Vitest shards.
+The routing regression in `tests/security/ci-results.test.mjs` discovers browser
+launches, checks that every excluded file executes once in that job and requires
+browser installation before execution. The 27 October 2026 secure-invitation
+addition exposed this dependency gap during release review; local browser success
+does not prove a clean hosted runner has the executable. Keep failed exact-source
+CI evidence and qualify the corrected PR and merged revision before publication.
 
 The browser skip registry binds each exception to an exact suite, project, file,
 title and reason. Renaming or splitting a test requires checking the independent

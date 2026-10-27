@@ -43,6 +43,20 @@ expected counts. A future matrix change must update both, its tests and this
 explanation together. A configured job is not proof that its latest execution
 succeeded.
 
+An integration that launches actual Chromium belongs in the browser-equipped
+`security` job. Install Chromium there before execution, exclude the same file
+from the four ordinary Vitest shards and retain its one native blob result in
+aggregate verification. The secure-distribution/Resend journey follows this path:
+its actual PDF renderer needs the executable even though Resend HTTP is
+intercepted. A local browser cache cannot qualify a clean hosted runner.
+
+The CI routing regression discovers integration files with browser launches and
+checks both execution placement and the complete exclusion/execution partition.
+When moving a suite, preserve its assertions and the final discovered-file
+inventory. On setup failure, retain the failed revision and logs, repair the
+declared dependency and run the corrected revision; skipping the suite or treating
+an installed browser as delivery proof does not recover the gate.
+
 ## Retain the right evidence after a manual rerun
 
 GitHub may retain several immutable artifacts with the same logical name after a
