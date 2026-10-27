@@ -898,6 +898,52 @@ describe("secure distribution — explicit quote recovery", () => {
         .first(),
     ).toEqual({ n: 1 });
   });
+  it("reuses a completed concurrent renewal after source verification resumes", async () => {
+    const { f, p } = await expiredPreparation();
+    const verifier = f.service as unknown as {
+      exactSource(row: SecureDistributionRow): Promise<unknown>;
+    };
+    const original = verifier.exactSource.bind(f.service);
+    let reached!: () => void, release!: () => void;
+    const paused = new Promise<void>((resolve) => {
+      reached = resolve;
+    });
+    const resumed = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const check = vi
+      .spyOn(verifier, "exactSource")
+      .mockImplementationOnce(async (row) => {
+        reached();
+        await resumed;
+        return original(row);
+      });
+    const first = f.service.renew(f.ctx, p.view.id, f.owner);
+    try {
+      await paused;
+      const second = await f.service.renew(f.ctx, p.view.id, f.owner);
+      release();
+      expect((await first).id).toBe(second.id);
+      expect(
+        await db
+          .prepare(
+            "SELECT count(*) n FROM secure_distributions WHERE organization_id=?",
+          )
+          .bind(f.organizationId)
+          .first(),
+      ).toEqual({ n: 2 });
+      expect(await financialEffects(f.organizationId)).toEqual({
+        approvals: 0,
+        reservations: 0,
+        outbox: 0,
+        charges: 0,
+        attempts: 0,
+      });
+    } finally {
+      release();
+      check.mockRestore();
+    }
+  });
   it("preserves old approval evidence without transferring it after a policy revision", async () => {
     const f = await fixture("production", 1, "verified_account");
     const p = await prepared(f);

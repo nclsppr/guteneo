@@ -244,7 +244,7 @@ fields. Import never sends that chat message automatically. Local SDK fixtures
 do not qualify the actual automatic or explicit-message native handoff retest.
 Privacy/confirmations, physical iPhone and other hosts remain independent gates;
 package generation creates no activation or transfer proof.
-The **1.1.11 source candidate**, dated 27 October, synchronizes application,
+The **1.1.12 source candidate**, dated 27 October, synchronizes application,
 ChatGPT/Claude packages and the downloadable archive for
 [secure invitation recovery](SECURE_DISTRIBUTION_JOURNEYS.md#recover-an-expired-invitation-quote).
 Its portable workflow directs an expired quote to the browser's explicit

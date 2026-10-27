@@ -1220,6 +1220,25 @@ export class SecureDistributionService {
     const key = `secure-renew:${row.id}`;
     const { dispatch } = await this.domain.getDispatch(ctx, row.dispatch_id);
     const marker = `secure_quote_renewal_${row.id}`;
+    const fence = this.permissionFence(ctx, "approveDispatches"),
+      session = personalSessionFence(principal, 900, this.env);
+    const currentCancellation = () =>
+      this.env.DB.prepare(
+        `SELECT 1 FROM dispatches d JOIN secure_distributions s ON s.organization_id=d.organization_id AND s.dispatch_id=d.id
+         JOIN secure_document_events e ON e.organization_id=s.organization_id AND e.distribution_id=s.id AND e.id=? AND e.type='quote_renewal_started'
+         WHERE d.organization_id=? AND d.id=? AND d.status='cancelled' AND s.status='prepared'
+         AND d.provider IS NULL AND d.provider_id IS NULL AND d.active_attempt_id IS NULL
+         AND NOT EXISTS(SELECT 1 FROM attempts WHERE organization_id=d.organization_id AND dispatch_id=d.id)
+         AND ${fence.condition} AND ${session.condition}`,
+      )
+        .bind(
+          marker,
+          ctx.organizationId,
+          dispatch.id,
+          ...fence.values,
+          ...session.values,
+        )
+        .first();
     const started = await this.env.DB.prepare(
       "SELECT 1 FROM secure_document_events WHERE organization_id=? AND distribution_id=? AND id=? AND type='quote_renewal_started'",
     )
@@ -1243,7 +1262,8 @@ export class SecureDistributionService {
             check.id === "quote" &&
             check.status === "blocked" &&
             check.code === "LIVE_QUOTE_INVALID",
-        )
+        ) &&
+        !(await currentCancellation())
       )
         throw new DomainError(
           "QUOTE_STILL_VALID",
@@ -1262,20 +1282,22 @@ export class SecureDistributionService {
       .bind(ctx.organizationId, key)
       .first<{ id: string; request_hash: string }>();
     if (existing) {
-      if (
-        !started ||
-        dispatch.status !== "cancelled" ||
-        existing.request_hash !== (await secureSha256(canonicalJson(input)))
-      )
+      if (existing.request_hash !== (await secureSha256(canonicalJson(input))))
         throw new DomainError(
           "IDEMPOTENCY_CONFLICT",
           "This key belongs to another distribution.",
           409,
         );
+      // Another request may have completed while source verification awaited.
+      // Reuse only its current guarded cancellation, never the earlier snapshot.
+      if (!(await currentCancellation()))
+        throw new DomainError(
+          "SECURE_QUOTE_RENEWAL_UNSAFE",
+          "The preparation or your access changed. Read its current status before continuing.",
+          409,
+        );
       return this.get(ctx, existing.id);
     }
-    const fence = this.permissionFence(ctx, "approveDispatches"),
-      session = personalSessionFence(principal, 900, this.env);
     // The cancellation and its resume marker are one transaction. A racing
     // acceptance wins or loses this guard; accepted/attempted work never renews.
     await this.env.DB.batch([
@@ -1306,22 +1328,7 @@ export class SecureDistributionService {
         principal.tokenHash,
       ),
     ]);
-    const safe = await this.env.DB.prepare(
-      `SELECT 1 FROM dispatches d JOIN secure_distributions s ON s.organization_id=d.organization_id AND s.dispatch_id=d.id
-       JOIN secure_document_events e ON e.organization_id=s.organization_id AND e.distribution_id=s.id AND e.id=? AND e.type='quote_renewal_started'
-       WHERE d.organization_id=? AND d.id=? AND d.status='cancelled' AND s.status='prepared'
-       AND d.provider IS NULL AND d.provider_id IS NULL AND d.active_attempt_id IS NULL
-       AND NOT EXISTS(SELECT 1 FROM attempts WHERE organization_id=d.organization_id AND dispatch_id=d.id)
-       AND ${fence.condition} AND ${session.condition}`,
-    )
-      .bind(
-        marker,
-        ctx.organizationId,
-        dispatch.id,
-        ...fence.values,
-        ...session.values,
-      )
-      .first();
+    const safe = await currentCancellation();
     if (!safe)
       throw new DomainError(
         "SECURE_QUOTE_RENEWAL_UNSAFE",
