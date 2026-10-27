@@ -564,7 +564,9 @@ describe("fax v3 — real local D1, synthetic provider and operator evidence", (
       .bind(other, stamp())
       .run();
     await db
-      .prepare("INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES(?,?,'admin',?)")
+      .prepare(
+        "INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES(?,?,'admin',?)",
+      )
       .bind(f.ctx.organizationId, other, stamp())
       .run();
     await db
@@ -895,9 +897,10 @@ describe("Luxembourg operator-authorized route test — synthetic D1 only", () =
     }
   });
   it("allows the exact pilot expiry and stops preparing at that boundary", async () => {
-    const deadline = "2026-09-24T09:00:01.620Z";
+    const deadline = "2026-11-03T23:59:59.999Z";
     f = await createFaxUsageFixture(db, () => clock, {
       ...operatorTest,
+      valid_from: "2026-10-28T00:00:00.000Z",
       expires_at: deadline,
     });
     f.input.recipient.phone = "+35240000000";
@@ -927,10 +930,13 @@ describe("Luxembourg operator-authorized route test — synthetic D1 only", () =
     { destination_category: "special" },
     { origin_class: "eea" },
     { destination_country_code: "FR", destination_prefix: "+334" },
-    { expires_at: "2026-09-24T09:00:01.621Z" },
     {
-      valid_from: "2026-09-30T09:00:00.000Z",
-      expires_at: "2026-10-01T09:00:00.000Z",
+      valid_from: "2026-11-03T00:00:00.000Z",
+      expires_at: "2026-11-04T00:00:00.000Z",
+    },
+    {
+      valid_from: "2026-11-04T09:00:00.000Z",
+      expires_at: "2026-11-05T09:00:00.000Z",
     },
   ] as Partial<FaxUsageTariff>[])(
     "rejects an unbounded or false test policy %#",

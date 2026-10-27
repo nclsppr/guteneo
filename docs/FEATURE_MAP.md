@@ -1,7 +1,7 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
 # Guteneo feature tree and developer atlas
 
-**23 domains · 327 features · 37 journeys · 76 documented REST operations · 83 MCP tools**
+**23 domains · 328 features · 37 journeys · 76 documented REST operations · 83 MCP tools**
 Updated 2026-10-27.
 
 Repository implementation inventory. Availability depends on current capabilities and authority; implementation, activation and deployed proof are distinct.
@@ -22,7 +22,7 @@ mindmap
       Data and mappings (10)
       PDF generation and distribution (11)
     Deliver
-      Fax (6)
+      Fax (7)
       Postal mail (8)
       Email and protected links (14)
       Sensitive distribution and personal documents (25)
@@ -58,7 +58,7 @@ mindmap
 
 ### Deliver
 
-- [Fax](#fax) — 6 features; capability-gated.
+- [Fax](#fax) — 7 features; capability-gated.
 - [Postal mail](#postal) — 8 features; capability-gated.
 - [Email and protected links](#email) — 14 features; capability-gated.
 - [Sensitive distribution and personal documents](#secure-distribution) — 25 features; capability-gated.
@@ -451,6 +451,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 
 - Exact PDF, recipient number and qualified sender
 - Dated provider quote with bounded renewal
+- Candidate scoped +3524 operator-tariff renewal preserves prices, source dates, seven-day validity and EUR2 cap; migration 0064, matching runtime and separate installation required
 - Estimated range, approved ceiling and credit balance in euros
 - Preparation, human review, approval and confirmation
 - Tracking, receipts, usage settlement and unknown outcomes
@@ -1030,7 +1031,7 @@ Open members → invite individually or preview CSV → select role and supervis
 
 Import/reuse the exact ready PDF → collect E.164 recipient/sender/ceiling → obtain the actual quote → show estimate and separate ceiling → human browser approval or existing expert review → confirm → track delivery and usage settlement separately.
 
-**Failure/recovery:** Keep reviewer quotes unsendable. Renew only an eligible prepared unattempted quote with exact original parameters and stable key, then obtain fresh approval. Unknown submissions require reconciliation, never resend.
+**Failure/recovery:** Keep reviewer quotes unsendable. Expired operator tariffs require a separately authorized scoped replacement after matching runtime/SQL support; old price evidence stays dated and no mandate is renewed. Renew only an eligible prepared unattempted quote with exact original parameters and stable key, then obtain fresh approval. Unknown submissions require reconciliation, never resend.
 
 [Detailed contract](LIVE_FAX_QUOTES.md).
 
