@@ -1,20 +1,20 @@
 {
   "schemaVersion": 1,
-  "pluginVersion": "1.1.12",
-  "mcpSourceSha256": "edddff6c5ff072e4f40f48c322d3be0cf30a7c45a952118a6676a39e1c94c081",
-  "packageSha256": "aecfb15c190c3b83fe20d48565dd3bce889c1bb04c022ea4eb45f6a4dcab44b4",
+  "pluginVersion": "1.1.15",
+  "mcpSourceSha256": "0b8bb4bb26d1e4cb1b14b85338a8a3efa07e7ab910d68d534d0bb8c586b3eccb",
+  "packageSha256": "a496d483e6b5da347d4ad55ecb50c552404798b1cdc322fcd8102f70d1971f90",
   "sources": {
-    "apps/api/src/auth.ts": "6eed0c0fc9922d21777df4d975c6d3280717ba97453629e8e957060863c9bba0",
+    "apps/api/src/auth.ts": "194a7120f886ecd42e1df366181046c955a9be7a636d2aee56d6e7ca3cb2adba",
     "apps/api/src/connection-observations.ts": "40278b9fab339e05949a04c2d2718348236e9362e944f95a4d2a3466c186fa24",
     "apps/api/src/document-upload.ts": "6bb308c9823d9418efada8d1e9962246490d12d7dfaee07e19cb2800facac99c",
-    "apps/api/src/documents.ts": "d4229f82c7722211352116c010bbd533aa5bfd5e7608c7e5960d67d887cde6d3",
+    "apps/api/src/documents.ts": "3ef3ab6f31a821b9203ac6602ba87a1aaafec0991e7834bf89b060ccf2b6aa07",
     "apps/api/src/email-preparation-contract.ts": "a4525081132e03d1b4961dae4eb15aab73637e0ca10843fdda5e0d7b9be9c213",
     "apps/api/src/expert-approval.ts": "4724c723429dc91638994242a66188d2977803bb58f403f25a670615d5ecb124",
     "apps/api/src/expert-review-pages.ts": "7c25d31d26835a559d9c11f27dcc171f87a9be3a8601bbed2d2c786e8374bd75",
     "apps/api/src/expert-status.ts": "eb3a32798ac614e7a91839ca18ff752700408146323945da9089f81db74d3f7f",
     "apps/api/src/mcp-document-upload.ts": "02522866f3802c9aebb9894110936d3e45950b664a5192e02409191a6e022373",
     "apps/api/src/mcp-ui-probe.ts": "ec64e9c872b38bbe10a9729a6edb7629330432f0adf54c5fd9eec1210fcaa3fa",
-    "apps/api/src/mcp.ts": "686218840b3e8113b3b8392384d788c4b7d1defd0f179e2a71118ced3b507a63",
+    "apps/api/src/mcp.ts": "005cbb0f1cbcface59f63ec08196952d53e65ee8a2e170995e702eaf41397d4e",
     "apps/api/src/postal-address-page.ts": "a8eeaf6dac0f81433f3a39ccd9a3e9bcf6f9202c8502631e85e7bd7b851dc25d",
     "apps/api/src/postal-authority.ts": "69dc7155a56311b7927416b90acf3577417b30f0ca410e3f815530c1b29b7e98",
     "apps/api/src/template-workflow.ts": "c742ed65d429aba2d481d24fb496dbd354264ffd1d7265c74df784cb70255ca7",
@@ -33,9 +33,9 @@
     "packages/contracts/src/postal-review.ts": "1964c732de140ec4ae1449ca527488414269840bcb831838eff8dbe79c34869b",
     "packages/contracts/src/postal-setup.ts": "93076fb653e44b25e9cbc36eecc7514bf8b35ffa2ba3720965c7ef80962de2fc",
     "packages/contracts/src/release.ts": "4edd274e1c5e5bbb97e8004ca81b9bf87ff81f0ba8bab4315f9c2b583ef323c1",
-    "packages/contracts/src/secure-distribution.ts": "883c61998161cef8ed819d8c1ae8e55fcdedf6add66f85334156eb76268fe7dd",
+    "packages/contracts/src/secure-distribution.ts": "5393fb5c0813c8346a0def96e0c0016d931d3bcb22407fac86b7d92ed5f4e64e",
     "packages/contracts/src/template-workflow.ts": "1b7814220766d35b0463cd4cabc424ec6b721e96587b66c700c59dde0a966a74",
-    "packages/domain/src/index.ts": "774820fc87756cfb17587817ca9c4458f4062ec71bf2894f1cd7210a4af50913",
-    "packages/observability/src/index.ts": "be569f18327e5db3bcb143682acf94f300d52b1985904c777a524877ee7034db"
+    "packages/domain/src/index.ts": "12af38122b307b26dd1f6a6d695a0c347893672843472f094890ec0a4cbbaeee",
+    "packages/observability/src/index.ts": "a7ab0849bbdfc45c39b421204a172ed03db8354030b274c176a668328142775c"
   }
 }

@@ -316,3 +316,22 @@ private service or provider contract:
 source/evidence discipline to tariff expiry, callbacks and external contracts.
 [Background jobs](/engineering/background-jobs/) explains why successful queue
 processing never grants approval or permission to retry uncertain sends.
+
+## Verify the served application before completing publication
+
+The live wrapper follows a successful Wrangler deployment with the existing
+anonymous release verifier, fixed to the canonical application and its locally
+validated release manifest. Source, asset bytes/hashes, robots policy and security
+headers must match. If verification fails, the process reports
+`RELEASE_VERIFICATION_FAILED`; the deployment already occurred and remains
+unverified. Do not treat the failure as permission for automatic rollback or a
+second deployment. Preview publication retains its separate fixture contract.
+
+This adds no credentials or provider transaction. The secure invitation
+integration suite exercises the actual local renderer, durable approval/outbox,
+live bridge and signed callback projection using intercepted Resend HTTP. It
+previously reproduced a retention-versus-transport reservation mismatch that
+isolated adapter tests missed. Such a passing source test does not establish
+actual Auth0 SSO, mailbox receipt, fax delivery or postal fulfillment. Real
+canaries require separately authorized dedicated identities, destinations,
+limits and signed/reconciled outcomes.

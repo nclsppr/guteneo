@@ -109,7 +109,7 @@ export function secureDistributionCatalog(mode: DocumentAccessMode = "strong") {
     limits: SECURE_DISTRIBUTION_LIMITS,
     authentication:
       mode === "verified_account"
-        ? ("verified_account_and_fresh_authentication" as const)
+        ? ("verified_account_session" as const)
         : ("account_and_fresh_strong_authentication" as const),
   };
 }

@@ -2,6 +2,7 @@ import {
   documentAccessMode,
   documentAccessPolicySql,
   documentSessionPolicySql,
+  documentSessionTimeSql,
 } from "../../../packages/contracts/src/document-authentication";
 import type { AuthEnv } from "./auth";
 import type { PersonalPrincipal } from "./personal-auth";
@@ -22,7 +23,7 @@ export function personalSessionFence(
   env?: PolicyEnv,
 ) {
   return {
-    condition: `EXISTS(SELECT 1 FROM personal_sessions ps WHERE ps.token_hash=? AND ps.user_id=? AND ps.expires_at>strftime('%Y-%m-%dT%H:%M:%fZ','now') AND ${sensitiveSessionPolicy(env)} AND ps.authenticated_at BETWEEN CAST(strftime('%s','now') AS INTEGER)-? AND CAST(strftime('%s','now') AS INTEGER)+5 AND ps.verified_email=?)`,
-    values: [principal.tokenHash, principal.userId, maxAge, principal.email],
+    condition: `EXISTS(SELECT 1 FROM personal_sessions ps WHERE ps.token_hash=? AND ps.user_id=? AND ps.expires_at>strftime('%Y-%m-%dT%H:%M:%fZ','now') AND ${sensitiveSessionPolicy(env)} AND ${documentSessionTimeSql("ps", documentAccessMode(env?.SENSITIVE_DOCUMENT_AUTHENTICATION), maxAge)} AND ps.verified_email=?)`,
+    values: [principal.tokenHash, principal.userId, principal.email],
   };
 }

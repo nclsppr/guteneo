@@ -230,6 +230,36 @@ describe("secure distribution browser choices", () => {
     expect(html).toContain("0,99");
   });
   for (const locale of ["fr", "en", "de", "lb"] as const) {
+    it.each([false, true])(
+      `uses one priced send control in ${locale} with approved=%s`,
+      (approved) => {
+        setLocale(locale, false);
+        const view = {
+          ...publication(),
+          status: "prepared" as const,
+          approved,
+        };
+        resources.set(`/secure-distributions/${view.id}`, view);
+        const html = render(`/app/secure-distribution/${view.id}`, {
+          ...session,
+          simulation: false,
+        });
+        expect(html).toContain(msg("Send for"));
+        expect(html).toContain(msg(" excl. tax"));
+        expect(html).toContain(msg("Shared document preview"));
+        expect(html).not.toContain(msg("Approve this share"));
+        expect(html).not.toContain(msg("Confirm activation"));
+        expect(html).not.toContain(
+          msg(
+            "Review the PDF, recipient, permissions and price. Approval and activation are separate steps.",
+          ),
+        );
+        expect((html.match(/type="checkbox"/g) ?? []).length).toBe(
+          approved ? 0 : 2,
+        );
+        if (locale !== "en") expect(msg("Send for")).not.toBe("Send for");
+      },
+    );
     it(`explains in ${locale} that a personal copy is exportable despite the original download restriction`, () => {
       setLocale(locale, false);
       const view = publication();
@@ -257,6 +287,7 @@ describe("secure distribution browser choices", () => {
     });
     expect(html).not.toContain(msg("Approve this share"));
     expect(html).not.toContain(msg("Confirm activation"));
+    expect(html).not.toContain(msg("Simulate sending for"));
     expect(html).not.toContain('type="checkbox"');
   });
 });

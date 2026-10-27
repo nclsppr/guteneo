@@ -154,6 +154,21 @@ export async function deployPublic(
     ],
     { cwd: root, stdio: "inherit" },
   );
+  if (target === "live") {
+    try {
+      await execute(
+        process.execPath,
+        [
+          join(root, "scripts/verify-release.mjs"),
+          "https://guteneo.com",
+          join(root, profile.output, "release.json"),
+        ],
+        { cwd: root, stdio: "inherit" },
+      );
+    } catch {
+      fail("RELEASE_VERIFICATION_FAILED");
+    }
+  }
   return { target, sourceCommit };
 }
 

@@ -1,5 +1,55 @@
 # Executed verification
 
+## Secure delivery, session reuse and native alerts — 27 October 2026 candidate
+
+Read-only production aggregates proved two secure Resend invitations failed with
+`ACTIVE_APPROVED_ATTEMPT_REQUIRED` before provider HTTP: the final guard expected
+the complete ceiling after retention had already been committed. The cross-service
+regression reproduced this on the original source; its final six cases pass with
+the corrected transport reservation. These use actual local PDF rendering,
+isolated D1/R2, signed synthetic OAuth/JWKS, real MCP SDK/authority/domain paths,
+intercepted Resend HTTP and signed callback fixtures, not a production send.
+
+Final focused migration/pricing, plugin/archive, callback and secure/MCP journey
+checks pass 90cases in four files. Authentication/personal/approval checks pass 151
+cases; these overlap with broader verification and must not be summed. The local
+migration transport proves 65 migrations/443 equivalent schema objects, integrity
+OK and zero foreign-key violations. No migration was applied remotely.
+
+The broad three-shard backend observation passed 1,131/1,131 and 964/964 in two
+shards; the remaining shard had 837 passes, one stale package assertion and 31 cases
+blocked by an outdated migration-order fixture. Both issues were corrected and
+the affected suites pass in the focused 90-case run. This combined evidence is
+not a fresh single all-green full invocation. A separate full Node security run
+passed 450/451: the unchanged PDF-validator Python process test raised macOS
+`PermissionError` while killing a process group under concurrent load. Its
+independent 13-case recheck passed. Preserve that failure; hosted CI and Linux
+validator qualification remain separate gates.
+
+Web unit checks pass 37/37 and desktop/mobile Playwright pass 24/24, including
+single-action sending, ambiguous approval/activation recovery and legacy approval.
+Actual local verified-account lifecycles pass separately on both viewports using
+30-minute-old active identity-linked sessions. The complete strict browser run
+passed 13/14; one fixed 15-second local Wrangler credit-read failed before sending.
+Its focused phone rerun passes, and earlier failed evidence remains retained.
+No retry budget or assertion was weakened. Local frontend measurements are in
+[FRONTEND_PERFORMANCE.md](FRONTEND_PERFORMANCE.md).
+
+Typecheck, lint, application dry-run build, documentation generation/checks and
+engineering build/checks have passed during preparation. Final combined-source
+CI and actual Auth0 SSO, customer recipient journey, inbox receipt and production
+delivery require their own evidence. The rebuilt 1.1.15 plugin archive and MCP
+fingerprints are synchronized, without marketplace submission.
+
+Native Cloudflare failure/heartbeat monitors are enabled with the explicitly
+authorized email destination; their saved configuration was reread. One built-in sample email
+was also received at the authorized address at 18:37 CET. This is
+separate from the undeployed application signals and the prepared direct MCP
+Events operator contract. No business communication, production deployment,
+merge, refund, new paid service or autonomous repair was performed. See
+[OPERATIONS.md](OPERATIONS.md) for live monitor identities and receipt limits.
+
+
 ## UI, retained usage and individual PDF checks — candidate, 25 October 2026
 
 This candidate localizes file upload controls, gives native selects a stable

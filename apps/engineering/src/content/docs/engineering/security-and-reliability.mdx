@@ -120,3 +120,21 @@ freshness refusals, including the browser-approval fence, without new Auth0
 configuration or credentials. `docs/SECURE_DISTRIBUTION_JOURNEYS.md`
 owns authority and recovery; `docs/PROTECTED_EMAIL.md` owns email compatibility.
 Local tests are distinct from live signup, delivery and publication proof.
+
+## Reuse the verified session without replacing human review
+
+The verified-account document policy uses the existing unexpired, unrevoked
+identity-linked session and verified address. It still requires a positive,
+nonfuture signed authentication time; the strong policy additionally retains its
+existing short authentication-age windows. Browser login requests the documented
+one-hour authentication age matching the normal application session, rather than
+forcing immediate reauthentication on entry to personal documents. Session
+lifetimes, revocation and tenant permissions remain unchanged.
+
+Migration 0065 updates the approval evidence view and immutable approval guards
+together. Approval expires within its normal fifteen-minute review window and
+the actual session/quote expiry. A single priced browser action records approval
+then activation; no page load or status refresh sends. MCP status readback after
+that action goes directly to tracking. Assistants never acquire human consent or
+permission to enable a mandate. Qualify actual Auth0 SSO callbacks separately from
+signed synthetic tokens and local database tests before publication.

@@ -1,0 +1,164 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Guteneo sanitized operator incident event",
+  "description": "Prepared MCP Events envelope for a separate authenticated platform-operator integration. This schema implements no endpoint, subscription or delivery.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "eventId",
+    "name",
+    "timestamp",
+    "data",
+    "cursor"
+  ],
+  "properties": {
+    "eventId": {
+      "type": "string",
+      "pattern": "^evt_[a-f0-9]{32}$",
+      "description": "Bridge-generated event identifier, stable across delivery retries. Never a provider or customer resource identifier."
+    },
+    "name": {
+      "const": "guteneo.operation.incident"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "data": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "incidentId",
+        "revision",
+        "phase",
+        "source",
+        "service",
+        "environment",
+        "severity",
+        "signal",
+        "channel",
+        "provider",
+        "observedAt",
+        "windowSeconds",
+        "count"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "const": 1
+        },
+        "incidentId": {
+          "type": "string",
+          "pattern": "^incident:[a-f0-9]{64}$",
+          "description": "Bridge-owned incident key for a normalized monitor and observation window, independent of business identifiers."
+        },
+        "revision": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000000
+        },
+        "phase": {
+          "enum": [
+            "opened",
+            "updated",
+            "resolved"
+          ]
+        },
+        "source": {
+          "const": "cloudflare_monitor"
+        },
+        "service": {
+          "enum": [
+            "guteneo-app",
+            "guteneo-documents",
+            "guteneo-scanner",
+            "guteneo-pdf-validator",
+            "guteneo-status"
+          ]
+        },
+        "environment": {
+          "const": "production"
+        },
+        "severity": {
+          "enum": [
+            "warning",
+            "critical"
+          ]
+        },
+        "signal": {
+          "enum": [
+            "SECURE_PREPARATION_FAILED",
+            "DISPATCH_FAILED",
+            "SUBMISSION_UNKNOWN",
+            "QUEUE_DEAD_LETTER",
+            "QUEUE_FAILED",
+            "CRON_FAILED",
+            "CRON_COMPLETION_MISSING",
+            "HTTP_SERVER_ERROR",
+            "CONFIGURATION_INVALID",
+            "OUTBOX_DELAYED",
+            "CALLBACK_PENDING",
+            "INTERNAL_ERROR",
+            "OUTBOX_DEFERRED"
+          ]
+        },
+        "channel": {
+          "enum": [
+            "fax",
+            "email",
+            "postal",
+            "platform"
+          ]
+        },
+        "provider": {
+          "enum": [
+            "resend",
+            "ses",
+            "telnyx",
+            "pingen",
+            "auth0",
+            "cloudflare",
+            "stripe",
+            "openai",
+            "unavailable"
+          ]
+        },
+        "observedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "windowSeconds": {
+          "type": "integer",
+          "minimum": 60,
+          "maximum": 86400
+        },
+        "count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000000000
+        },
+        "sourceCommit": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{40}$"
+        },
+        "workerVersion": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "correlationId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Optional application-generated observation UUID, never a business/provider identifier or an inbound caller correlation header."
+        }
+      }
+    },
+    "cursor": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^ic_[a-f0-9]{32}$",
+      "description": "Opaque bridge outbox position, or null when replay is unavailable. Never a customer/provider cursor."
+    }
+  }
+}

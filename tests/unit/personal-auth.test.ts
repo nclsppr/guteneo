@@ -177,7 +177,7 @@ afterAll(async () => {
 
 describe("document access policy does not fabricate stronger authentication", () => {
   it("allows a real signed verified Auth0 session in the explicit normal mode", async () => {
-    const ordinary = await login({ amr: ["pwd"], "https://guteneo.com/document_authentication": null });
+    const ordinary = await login({ amr: ["pwd"], auth_time: now() - 3600, "https://guteneo.com/document_authentication": null });
     const normal = { ...env, SENSITIVE_DOCUMENT_AUTHENTICATION: "verified_account" };
     await db.prepare("UPDATE secure_document_authentication_policy SET mode='verified_account' WHERE id=1").run();
     expect(ordinary.principal).toMatchObject({ identityVerified: true, verifiedAccount: true, strongAuthentication: false, mfa: false, authenticationPolicyVersion: null });
@@ -189,24 +189,37 @@ describe("document access policy does not fabricate stronger authentication", ()
     expect(() => requirePersonalDocumentAuthentication(ordinary.principal, env)).toThrow();
     expect(() => requirePersonalDocumentAuthentication(ordinary.principal, { SENSITIVE_DOCUMENT_AUTHENTICATION: "typo" })).toThrow("INVALID_SENSITIVE_DOCUMENT_AUTHENTICATION");
   });
-  it("requires actual verified identity, email and fresh auth_time for normal access", async () => {
+  it("requires actual verified identity and email without a second authentication for an active session", async () => {
     const ordinary = await login({ amr: ["pwd"], "https://guteneo.com/document_authentication": null });
     const normal = { ...env, SENSITIVE_DOCUMENT_AUTHENTICATION: "verified_account" };
     await db.prepare("UPDATE secure_document_authentication_policy SET mode='verified_account' WHERE id=1").run();
-    for (const change of [{ verifiedAccount: false }, { verifiedEmail: false }, { identityVerified: false }, { authenticatedAt: null }, { authenticatedAt: now() - 901 }, { authenticatedAt: now() + 6 }, { development: true, simulation: false }])
+    for (const change of [{ verifiedAccount: false }, { verifiedEmail: false }, { identityVerified: false }, { authenticatedAt: null }, { authenticatedAt: 0 }, { authenticatedAt: now() + 6 }, { development: true, simulation: false }])
       expect(() => requirePersonalDocumentAuthentication({ ...ordinary.principal, ...change }, normal)).toThrow();
-    expect(() => requirePersonalDocumentAuthentication({ ...ordinary.principal, authenticatedAt: now() - 301 }, normal, { maxAgeSeconds: 300 })).toThrow();
+    expect(() => requirePersonalDocumentAuthentication({ ...ordinary.principal, authenticatedAt: now() - 3600 }, normal)).not.toThrow();
+    expect(() => requirePersonalDocumentAuthentication({ ...ordinary.principal, authenticatedAt: now() - 3600 }, normal, { maxAgeSeconds: 300 })).not.toThrow();
     await db.prepare("DELETE FROM auth_identities WHERE user_id=?").bind(ordinary.principal.userId).run();
     const revokedIdentity = await authenticatePersonalBrowser(request("/api/personal/session", "GET", undefined, { Cookie: ordinary.cookie }), normal);
     expect((await publicPersonalSession(normal, revokedIdentity)).documentAccessAllowed).toBe(false);
   });
-  it("requests fresh identity without forcing an MFA ACR in normal mode", async () => {
+  it("reuses identity-provider SSO without a forced second authentication in normal mode", async () => {
     const result = await handleAuthRoute(request("/auth/login?context=personal"), { ...env, SENSITIVE_DOCUMENT_AUTHENTICATION: "verified_account" });
     const destination = new URL(result!.headers.get("Location")!);
-    expect(destination.searchParams.get("max_age")).toBe("0");
+    expect(destination.searchParams.get("max_age")).toBe("3600");
+    expect(destination.searchParams.has("prompt")).toBe(false);
+    expect(destination.searchParams.has("claims")).toBe(false);
     expect(destination.searchParams.has("acr_values")).toBe(false);
+    const workshop = await handleAuthRoute(request("/auth/login"), { ...env, SENSITIVE_DOCUMENT_AUTHENTICATION: "verified_account" });
+    const workshopDestination = new URL(workshop!.headers.get("Location")!);
+    expect(workshopDestination.searchParams.get("max_age")).toBe("3600");
+    expect(workshopDestination.searchParams.has("prompt")).toBe(false);
+    expect(workshopDestination.searchParams.has("acr_values")).toBe(false);
     const strict = await handleAuthRoute(request("/auth/login?context=personal"), env);
     expect(new URL(strict!.headers.get("Location")!).searchParams.get("acr_values")).toContain("multi-factor");
+    expect(new URL(strict!.headers.get("Location")!).searchParams.get("max_age")).toBe("0");
+    const fresh = await handleAuthRoute(request("/auth/login?context=personal&fresh=1"), { ...env, SENSITIVE_DOCUMENT_AUTHENTICATION: "verified_account" });
+    const freshDestination = new URL(fresh!.headers.get("Location")!);
+    expect(freshDestination.searchParams.get("prompt")).toBe("login");
+    expect(freshDestination.searchParams.get("max_age")).toBe("0");
   });
 });
 

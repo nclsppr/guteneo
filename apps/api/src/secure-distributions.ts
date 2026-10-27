@@ -56,6 +56,7 @@ import {
   transactionalEmailText,
 } from "../../../packages/contracts/src/email-template";
 import { deliveryText } from "../../../packages/contracts/src/delivery-messages";
+import { startObservation } from "../../../packages/observability/src/index";
 
 type StoredInvitation = SecureDistributionInput & {
   subject: string;
@@ -931,11 +932,12 @@ export class SecureDistributionService {
     } catch (error) {
       const code =
         error instanceof DomainError ? error.code : "SECURE_PREPARATION_FAILED";
-      await this.env.DB.prepare(
+      const failed = await this.env.DB.prepare(
         "UPDATE secure_distributions SET status='failed',error_code=?,lease_token=NULL,lease_expires_at=NULL WHERE organization_id=? AND id=? AND (status='preparing' OR (status='prepared' AND dispatch_id IS NULL)) AND (lease_token=? OR lease_token IS NULL)",
       )
         .bind(code, row.organization_id, row.id, lease)
         .run();
+      if (failed.meta.changes === 1) this.observePreparationFailure();
       await secureEvent(this.env.DB, {
         organizationId: row.organization_id,
         distributionId: row.id,
@@ -1130,11 +1132,22 @@ export class SecureDistributionService {
     });
   }
   async failRender(distributionId: string) {
-    await this.env.DB.prepare(
+    const failed = await this.env.DB.prepare(
       "UPDATE secure_distributions SET status='failed',error_code='SECURE_RENDER_RETRY_EXHAUSTED',lease_token=NULL,lease_expires_at=NULL WHERE id=? AND (status='preparing' OR (status='prepared' AND dispatch_id IS NULL))",
     )
       .bind(distributionId)
       .run();
+    if (failed.meta.changes === 1) this.observePreparationFailure();
+  }
+  private observePreparationFailure() {
+    const observation = startObservation(
+      this.env,
+      "app",
+      "queue",
+      "distribution",
+    );
+    observation.setCode("SECURE_PREPARATION_FAILED");
+    observation.finish(undefined, { failed: 1 });
   }
   private async assertPreparationAuthority(row: SecureDistributionRow) {
     const snapshot: SecurePreparationAuthority | null =

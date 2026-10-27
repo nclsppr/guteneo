@@ -50,6 +50,10 @@ function fixture(origin, overrides = {}) {
       );
       assert.equal(options.redirect, "error");
       assert.equal(options.headers["Cache-Control"], "no-cache");
+      assert.ok(options.method === undefined || options.method === "GET");
+      assert.equal(options.body, undefined);
+      assert.equal(new Headers(options.headers).has("Authorization"), false);
+      assert.equal(new Headers(options.headers).has("Cookie"), false);
       if (url.pathname === "/release.json")
         return Response.json(overrides.remote ?? manifest);
       const headers = new Headers({

@@ -21,7 +21,7 @@ describe("truthful live transport capabilities", () => {
   it.each([
     [undefined, "account_and_fresh_strong_authentication"],
     ["strong", "account_and_fresh_strong_authentication"],
-    ["verified_account", "verified_account_and_fresh_authentication"],
+    ["verified_account", "verified_account_session"],
   ] as const)(
     "reports the selected document authentication policy %s",
     (mode, authentication) => {

@@ -406,3 +406,15 @@ retain their existing organization visibility. Dispatch/campaign/postal reads
 also enforce that private document authority. Generation is separate from
 approval, sending quota and provider attempts. Optional configured OpenAI calls
 produce reviewable proposals only. See [the implementation report](TEMPLATES_DATA_DISTRIBUTION.md).
+
+## Secure sending session and final action — 27 October 2026 candidate
+
+The current [secure journey contract](SECURE_DISTRIBUTION_JOURNEYS.md) reuses a
+valid verified account session and combines browser review approval/activation
+in one explicit priced action. The strong policy retains its separate freshness
+requirements. Migration 0065 aligns the persisted approval view/immutable guards
+with the server policy; it changes no historical receipt, session expiry or
+assistant authority. The live bridge validates the remaining transport reservation
+after committed hosting. Unknown outcomes still require same-ID reconciliation.
+Local source and signed synthetic tests do not establish migration publication,
+actual Auth0 SSO, recipient login or Resend delivery.

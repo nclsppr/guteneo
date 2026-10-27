@@ -402,6 +402,40 @@ describe("secure dispatch approvals cannot escape through legacy paths", () => {
     expect((await normal.confirmDispatch(mcp(b.ctx),f.dispatch.id,"normal_once",undefined,allow)).status).toBe("queued");
     expect(await counts(f.dispatch.id)).toEqual({approvals:1,evidence:1,reservations:1,outbox:1,charges:1});
   });
+  it("reuses an older verified session for browser approval and MCP acceptance without losing revocation", async () => {
+    const normal = new DomainService(db, {
+      mode: "simulation",
+      sensitiveDocumentAuthentication: "verified_account",
+    });
+    await db.prepare("UPDATE secure_document_authentication_policy SET mode='verified_account' WHERE id=1").run();
+    await db.prepare("INSERT OR IGNORE INTO auth_identities(issuer,subject,user_id,created_at) VALUES('https://fixture.invalid/',?,?,?)").bind(base.userId, base.userId, iso()).run();
+    for (const invalidate of [false, true]) {
+      const f = await preparation(), b = await browser();
+      const originalAuthentication = Math.floor(Date.now() / 1000) - 3600;
+      await db.batch([
+        db.prepare("UPDATE personal_sessions SET is_development=0,strong_authentication=0,authentication_policy_version=NULL,mfa=0,amr_json='[]',verified_account=1,identity_issuer='https://fixture.invalid/',identity_subject=?,authenticated_at=? WHERE token_hash=?").bind(base.userId, originalAuthentication, b.session.tokenHash),
+        db.prepare("UPDATE browser_sessions SET is_development=0 WHERE token_hash=?").bind(b.session.tokenHash),
+      ]);
+      const approved = await normal.approveDispatch(b.ctx, f.dispatch.id, f.dispatch.fingerprint);
+      const receipt = await db.prepare("SELECT authenticated_at,authentication_mode FROM secure_approval_evidence WHERE dispatch_id=?").bind(f.dispatch.id).first();
+      expect(receipt).toEqual({ authenticated_at: originalAuthentication, authentication_mode: "verified_account" });
+      const proof = (await normal.getDispatch(b.ctx, approved.id)).approval;
+      expect(proof).not.toBeNull();
+      expect(Date.parse(proof!.expires_at)).toBeGreaterThan(Date.now());
+      expect(Date.parse(proof!.expires_at)).toBeLessThanOrEqual(Date.now() + 900_000);
+      await expect(db.prepare("UPDATE approvals SET expires_at=? WHERE organization_id=? AND dispatch_id=?").bind(new Date(Date.now() + 3_600_000).toISOString(), base.organizationId, f.dispatch.id).run()).rejects.toThrow(/secure_browser_approval_required/);
+      if (invalidate) {
+        await db.prepare("DELETE FROM browser_sessions WHERE token_hash=?").bind(b.session.tokenHash).run();
+        await expect(normal.confirmDispatch(mcp(b.ctx), f.dispatch.id, "revoked_old_verified_session", undefined, allow)).rejects.toMatchObject({ code: "APPROVAL_REQUIRED" });
+        await expect(db.prepare("UPDATE dispatches SET status='queued' WHERE organization_id=? AND id=?").bind(base.organizationId, f.dispatch.id).run()).rejects.toThrow(/secure_browser_approval_required/);
+        expect(await counts(f.dispatch.id)).toEqual({ approvals: 1, evidence: 1, reservations: 0, outbox: 0, charges: 0 });
+      } else {
+        expect((await normal.confirmDispatch(mcp(b.ctx), f.dispatch.id, "old_verified_session_once", undefined, allow)).status).toBe("queued");
+        expect((await normal.confirmDispatch(mcp(b.ctx), f.dispatch.id, "old_verified_session_once", undefined, allow)).status).toBe("queued");
+        expect(await counts(f.dispatch.id)).toEqual({ approvals: 1, evidence: 1, reservations: 1, outbox: 1, charges: 1 });
+      }
+    }
+  });
   it("requires verified real identity and a current session for normal-mode browser receipts", async () => {
     const normal=new DomainService(db,{mode:"simulation",sensitiveDocumentAuthentication:"verified_account"});
     await db.prepare("UPDATE secure_document_authentication_policy SET mode='verified_account' WHERE id=1").run();

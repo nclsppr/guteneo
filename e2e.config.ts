@@ -1,10 +1,11 @@
 import type { E2EConfig } from "e2e";
 import { distributionWeb } from "./scripts/distribution-e2e-engine";
+import { distributionOrigin } from "./scripts/test-distribution-origin.mjs";
 
 // These are deterministic browser tests. No model or hosted browser is configured.
 // The command wrapper also disables the framework's telemetry before it loads.
 const app = {
-  url: "http://localhost:8787",
+  url: distributionOrigin,
   command: {
     executable: process.execPath,
     args: ["scripts/test-distribution-server.mjs"],
@@ -15,7 +16,12 @@ const app = {
       WRANGLER_WRITE_LOGS: "false",
       LIVE_SENDS_ENABLED: "false",
     },
-    inheritEnv: ["GUTENEO_E2E_PREBUILT", "GUTENEO_DISTRIBUTION_E2E_STATE"],
+    inheritEnv: [
+      "GUTENEO_E2E_PREBUILT",
+      "GUTENEO_DISTRIBUTION_E2E_STATE",
+      "GUTENEO_DISTRIBUTION_E2E_PORT",
+      "GUTENEO_LOCAL_RENDERER_PORT",
+    ],
     startupTimeout: 180_000,
     shutdownTimeout: 15_000,
     log: "test-results/distribution-e2e-server.log",

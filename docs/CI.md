@@ -287,3 +287,21 @@ must update both the source feature tree and affected developer documentation in
 the same pull request. The [repository standards](REPOSITORY_STANDARDS.md) own the
 language, routing, deduplication and exception policy; language checks are bounded
 regression heuristics rather than linguistic or semantic proof.
+
+## Automatic served verification after live deployment
+
+The live publishing wrapper now runs `scripts/verify-release.mjs` after Wrangler
+returns successfully, using the fixed canonical origin and the already validated
+local `dist/web/release.json`. Completion requires matching source, public asset
+bytes/hashes, robots policy and security headers. A failed verification reports
+`RELEASE_VERIFICATION_FAILED`: publication has happened, but the release remains
+unverified. The wrapper performs no automatic rollback, redeployment or retry.
+Preview publication retains its existing independent contract.
+
+This anonymous GET-only check sends no document and establishes no Auth0,
+recipient, signed provider callback or inbox success. The local secure/Resend
+cross-service regression runs in the existing application suite. Real canaries
+need dedicated accounts/recipients, separate authorization, bounded costs and
+observable signed outcomes; fax/postal production tests must never run implicitly
+on every deployment. See [operations](OPERATIONS.md) and the
+[engineering release guide](../apps/engineering/src/content/docs/engineering/ci-and-release.mdx).

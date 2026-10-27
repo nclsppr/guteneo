@@ -1,6 +1,11 @@
 import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { mkdir } from "node:fs/promises";
+import {
+  distributionOrigin,
+  distributionPort,
+  distributionRendererPort,
+} from "./test-distribution-origin.mjs";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const wrangler = fileURLToPath(
@@ -10,7 +15,8 @@ const vite = fileURLToPath(
   new URL("../node_modules/vite/bin/vite.js", import.meta.url),
 );
 const state = process.env.GUTENEO_DISTRIBUTION_E2E_STATE;
-const authentication = process.env.GUTENEO_DISTRIBUTION_E2E_AUTHENTICATION ?? "strong";
+const authentication =
+  process.env.GUTENEO_DISTRIBUTION_E2E_AUTHENTICATION ?? "strong";
 if (!["strong", "verified_account"].includes(authentication))
   throw new Error("Unknown local distribution authentication policy.");
 if (!state || !/^\.wrangler\/distribution-e2e-[a-f0-9-]{36}$/u.test(state))
@@ -112,11 +118,13 @@ try {
         "--var",
         `AUTH0_AUTH_POLICY:${authentication === "verified_account" ? "verified_email" : "verified_email_and_mfa"}`,
         "--var",
-        "APP_ORIGIN:http://localhost:8787",
+        `APP_ORIGIN:${distributionOrigin}`,
+        "--var",
+        `DOCUMENT_RENDERER_URL:http://127.0.0.1:${distributionRendererPort}`,
         "--persist-to",
         state,
         "--port",
-        "8787",
+        String(distributionPort),
         "--ip",
         "127.0.0.1",
         "--inspector-port",
