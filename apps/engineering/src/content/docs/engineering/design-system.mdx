@@ -260,6 +260,13 @@ Keep focus visible beneath sticky headers. A disclosure reports its expanded
 state; Escape closes an overlay and returns focus to its trigger. Preserve the
 application's existing route-focus and unsaved-work behavior.
 
+The workshop's native `<details>` menu opens before its queued `toggle` event
+updates React. Escape therefore closes the DOM property and the saved component
+state synchronously before returning focus to the summary. A state-only close can
+be ignored when React still holds `false`. Preserve native activation and cover
+this event ordering with the same-task Classic/V2 regression in
+`tests/preview-e2e/mobile-workspace.spec.ts`; do not hide it with delays or retries.
+
 Loading a job counter does not make its independently fetched result rows
 interactive. Keep disabled controls outside native tab order until actual
 readiness is established. Later data must preserve the person's current focus;

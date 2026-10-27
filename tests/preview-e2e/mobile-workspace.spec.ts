@@ -81,6 +81,59 @@ for (const appearance of ["classic", "v2"] as const) {
     await expect(account).toHaveAttribute("aria-current", "page");
     await expect(nav).toBeHidden();
   });
+
+  test(`mobile ${appearance} Escape closes native details before its queued toggle reaches React`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(`/?appearance=${appearance}#/app`);
+    const menu = page.locator(".workspace-navigation");
+    const summary = menu.locator("summary");
+    const nav = menu.locator("nav");
+    await expect(page.locator(".workspace")).toHaveAttribute(
+      "data-appearance",
+      appearance,
+    );
+    await expect(nav).toBeHidden();
+    const immediate = await menu.evaluate((element: HTMLDetailsElement) => {
+      // Native activation changes open synchronously; its toggle event is a
+      // later task. Keep Escape in this task to reproduce that exact ordering.
+      const toggle = element.querySelector("summary")!;
+      toggle.click();
+      const opened = element.open;
+      const destination = element.querySelector<HTMLAnchorElement>(
+        'a[href="#/app/documents"]',
+      )!;
+      destination.focus();
+      destination.dispatchEvent(
+        new KeyboardEvent("keydown", {
+          key: "Escape",
+          bubbles: true,
+          cancelable: true,
+        }),
+      );
+      return {
+        opened,
+        closed: !element.open,
+        summaryFocused: document.activeElement === toggle,
+      };
+    });
+    expect(immediate).toEqual({
+      opened: true,
+      closed: true,
+      summaryFocused: true,
+    });
+    await expect(nav).toBeHidden();
+    await expect(summary).toBeFocused();
+    // The coalesced native toggle must not restore the previous open state.
+    await summary.press("Enter");
+    await expect(nav).toBeVisible();
+    await nav
+      .getByRole("link", { name: "Documents", exact: true })
+      .press("Escape");
+    await expect(nav).toBeHidden();
+    await expect(summary).toBeFocused();
+  });
 }
 
 test("mobile navigation preserves restored summary focus after deferred route frames", async ({

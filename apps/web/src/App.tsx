@@ -717,6 +717,9 @@ function WorkspaceApplication({
               window.matchMedia("(max-width: 1024px)").matches
             ) {
               event.preventDefault();
+              // Native details opens before its queued toggle updates React.
+              // Close the DOM too when the state is still already false.
+              event.currentTarget.open = false;
               setNavigationOpen(false);
               navigationSummary.current?.focus();
             }

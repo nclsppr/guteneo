@@ -35,6 +35,15 @@ The preview regression checks exact destinations in Classic and V2, 44 px target
 account navigation and page focus, and the existing menu keyboard/focus behavior.
 This CSS-only correction adds no resource request, account mutation or authority.
 
+The mobile navigation keeps native `<details>` keyboard behavior. Escape closes
+its DOM `open` property synchronously as well as the React state, then returns
+focus to the summary. A native summary activation changes the DOM before its
+queued `toggle` event reaches React; during that interval React may still hold
+`false`, making a state-only close a no-op. A deterministic same-task regression
+reproduced the open menu after Escape in both layouts on Chromium and WebKit.
+The fix preserves route focus, menu destinations and touch targets, with no timer,
+extra request or authority change. Source/local proof does not replace final CI.
+
 This document and the feature map are repository-only. Never import, copy,
 publish or link them in the official website. Source, tests and illustrations
 prove neither remote migration, deployment nor authenticated hosted usage.
