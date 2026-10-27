@@ -2,6 +2,43 @@
 
 24 October 2026 candidate. This record describes local code and the requested publication configuration; it establishes no remote migration, plugin publication or production deployment. The user authorizes publication with the `verified_account` document policy. Earlier decisions and studies are dated in the [unified account plan](UNIFIED_ACCOUNT_AND_VAULT_PLAN.md); their mandatory-strong-authentication assumption does not supersede the explicit decision below.
 
+## Quote and sign-in recovery — 27 October 2026 candidate
+
+The [recovery contract](SECURE_DISTRIBUTION_JOURNEYS.md#recover-an-expired-invitation-quote)
+owns the browser-only renewal lifecycle, authority matrix and failure handling.
+Immutable distributions and invitation quotes are never edited to extend validity.
+An explicit eligible renewal cancels the unsubmitted original under transaction
+fences and prepares one deterministic replacement, which requires new human
+review. Current source, pricing, rendering and approval gates remain mandatory.
+No migration, provider setting, Auth0 configuration, mandate or automatic sending
+is introduced.
+
+Shared sign-in errors now include the sensitive browser-approval freshness fence
+in all four interface languages. Explicit fresh login preserves the safe existing
+share path and locale, drops query/fragment values and replays no mutation.
+Local behavior checks do not qualify actual hosted Auth0 recovery, communication,
+exact-source CI or publication; retain those observations separately.
+
+Final local qualification on 27 October:
+
+- Backend renewal and approval-boundary suites pass 77/77 cases: 60 secure-core
+  and 17 approval-boundary checks, including nine new recovery cases.
+- UI/authentication and MCP suites pass 65/65 cases: 40 localized UI/return-path
+  checks and 25 MCP compatibility cases. Package checks pass 13/13.
+- TypeScript and scoped ESLint pass. Documentation generation/checks, engineering
+  build and engineering checks pass independently.
+- The final three-browser recovery/V2 suite passes 18/18 in 28.954 seconds,
+  starting at `2026-10-27T16:04:05.433Z`, with no skips, flaky results or
+  unexpected failures. It covers Classic/V2 quote recovery, expiry at approval,
+  existing-replacement navigation and light/dark V2 list/composer/review.
+  [Loading measurements](FRONTEND_PERFORMANCE.md#secure-distribution-recovery-and-v2--27-october-2026)
+  record the local synthetic environment and separate observation boundaries.
+
+These checks establish neither hosted Auth0 recovery, real recipient access,
+physical-device behavior, exact-source CI, production publication nor sending.
+A terminal renderer failure remains failed under its existing lifecycle; renewal
+resumes a known interrupted replacement and never blindly retries provider work.
+
 ## Account invitation update — 26 October 2026
 
 The [email contract](PROTECTED_EMAIL.md) owns template/default/marker behavior;

@@ -16,6 +16,7 @@ import { ErrorNotice } from "../../apps/web/src/components";
 import { setLocale, t } from "../../apps/web/src/locale";
 import { msg } from "../../apps/web/src/messages";
 import { PersonalSecurityNotice } from "../../apps/web/src/personal-space";
+import { SecureAuditHistory } from "../../apps/web/src/secure-audit-history";
 
 const resources = vi.hoisted(() => new Map<string, unknown>());
 vi.mock("../../apps/web/src/components", async (importOriginal) => {
@@ -94,7 +95,54 @@ afterEach(() => {
 });
 
 describe("secure distribution browser choices", () => {
-  it("offers an explicit fresh workshop login after document authentication expires", () => {
+  for (const locale of ["fr", "en", "de", "lb"] as const) {
+    it(`labels quote recovery and its audit event in ${locale} without technical codes`, () => {
+      setLocale(locale, false);
+      const event = {
+        id: "event_fixture",
+        type: "quote_renewal_started",
+        createdAt: "2026-10-27T12:00:00.000Z",
+        provenance: "browser" as const,
+      };
+      const html = renderToStaticMarkup(
+        createElement(SecureAuditHistory, {
+          events: [event],
+          getOlder: async () => ({ items: [], nextCursor: null }),
+        }),
+      );
+      expect(html).toContain(msg("Quote refresh requested"));
+      expect(html).not.toContain(event.type);
+      if (locale !== "en")
+        expect(msg("Quote refresh requested")).not.toBe(
+          "Quote refresh requested",
+        );
+      for (const [code, copy] of [
+        [
+          "QUOTE_STILL_VALID",
+          "This quote is still valid. Review the document and price before approving.",
+        ],
+        [
+          "SECURE_QUOTE_RENEWAL_UNSAFE",
+          "This share has changed or submission has started. Refresh its status before continuing.",
+        ],
+      ]) {
+        const notice = renderToStaticMarkup(
+          createElement(ErrorNotice, {
+            error: new ApiError(code, "Technical response", 409),
+          }),
+        );
+        expect(notice).toContain(msg(copy));
+        expect(notice).not.toContain(code);
+        expect(notice).not.toContain("Technical response");
+        if (locale !== "en") expect(msg(copy)).not.toBe(copy);
+      }
+    });
+  }
+
+  it("returns to the exact share after document authentication expires", () => {
+    vi.stubGlobal("window", {
+      location: { hash: "#/app/secure-distribution/sd_fixture?view=approval" },
+    });
     const html = renderToStaticMarkup(
       createElement(ErrorNotice, {
         error: new ApiError(
@@ -105,11 +153,40 @@ describe("secure distribution browser choices", () => {
       }),
     );
     expect(html).toContain(
-      "/auth/login?fresh=1&amp;returnTo=%2F%23%2Fapp%2Fsecure-distributions",
+      "/auth/login?fresh=1&amp;locale=fr&amp;returnTo=%2F%23%2Fapp%2Fsecure-distribution%2Fsd_fixture",
     );
-    expect(html).toContain(msg("Verify my access"));
+    expect(html).toContain(t.sessionExpired.action);
+    expect(html).toContain(msg("Verify your sign-in"));
+    expect(html).not.toContain("DOCUMENT_AUTHENTICATION_REQUIRED");
     expect(html).not.toContain(msg("Stronger sign-in required"));
   });
+  for (const code of [
+    "STRONG_BROWSER_APPROVAL_REQUIRED",
+    "FRESH_AUTHENTICATION_REQUIRED",
+    "AUTHENTICATION_FRESHNESS_REQUIRED",
+  ]) {
+    for (const locale of ["fr", "en", "de", "lb"] as const) {
+      it(`provides localized ${code} recovery in ${locale} without exposing technical details`, () => {
+        setLocale(locale, false);
+        vi.stubGlobal("window", {
+          location: { hash: "#/app/secure-distribution/sd_fixture" },
+        });
+        const html = renderToStaticMarkup(
+          createElement(ErrorNotice, {
+            error: new ApiError(code, "Technical provider response", 403),
+          }),
+        );
+        const copy =
+          "Sign in again to verify your access. You will return to this page.";
+        expect(html).toContain(msg(copy));
+        expect(html).toContain(t.sessionExpired.action);
+        expect(html).toContain(`locale=${locale}`);
+        expect(html).not.toContain(code);
+        expect(html).not.toContain("Technical provider response");
+        if (locale !== "en") expect(msg(copy)).not.toBe(copy);
+      });
+    }
+  }
   for (const locale of ["fr", "en", "de", "lb"] as const) {
     it(`uses the verified-account recovery wording in ${locale} without requiring stronger sign-in`, () => {
       vi.stubGlobal("window", { location: { hash: "#/app/my-documents" } });

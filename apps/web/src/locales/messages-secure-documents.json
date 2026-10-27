@@ -1273,5 +1273,35 @@
     "{0} days",
     "{0} Tage",
     "{0} Deeg"
+  ],
+  "Reconnectez-vous pour vérifier votre accès. Vous reviendrez sur cette page.": [
+    "Sign in again to verify your access. You will return to this page.",
+    "Melden Sie sich erneut an, um Ihren Zugriff zu überprüfen. Anschließend kehren Sie zu dieser Seite zurück.",
+    "Mellt Iech nees un, fir Ären Zougang ze kontrolléieren. Duerno kommt Dir op dës Säit zeréck."
+  ],
+  "Ce devis a expiré ou a changé. Actualisez-le, puis vérifiez à nouveau le document et le prix.": [
+    "This quote has expired or changed. Refresh it, then review the document and price again.",
+    "Dieses Angebot ist abgelaufen oder hat sich geändert. Aktualisieren Sie es und prüfen Sie dann das Dokument und den Preis erneut.",
+    "Dësen Devis ass ofgelaf oder huet sech geännert. Aktualiséiert en a kontrolléiert duerno d’Dokument an de Präis nach eng Kéier."
+  ],
+  "Actualiser le devis": [
+    "Refresh quote",
+    "Angebot aktualisieren",
+    "Devis aktualiséieren"
+  ],
+  "Actualisation du devis demandée": [
+    "Quote refresh requested",
+    "Aktualisierung des Angebots angefordert",
+    "Aktualiséierung vum Devis ugefrot"
+  ],
+  "Ce devis est encore valable. Vérifiez le document et le prix avant d’approuver.": [
+    "This quote is still valid. Review the document and price before approving.",
+    "Dieses Angebot ist noch gültig. Prüfen Sie das Dokument und den Preis vor der Genehmigung.",
+    "Dësen Devis ass nach gëlteg. Kontrolléiert d’Dokument an de Präis, ier Dir zoustëmmt."
+  ],
+  "Ce partage a changé ou l’envoi a commencé. Actualisez son état avant de continuer.": [
+    "This share has changed or submission has started. Refresh its status before continuing.",
+    "Diese Freigabe hat sich geändert oder der Versand hat begonnen. Aktualisieren Sie den Status, bevor Sie fortfahren.",
+    "Dëst Deelen huet sech geännert oder den Envoi huet ugefaangen. Aktualiséiert de Status, ier Dir weiderfuert."
   ]
 }

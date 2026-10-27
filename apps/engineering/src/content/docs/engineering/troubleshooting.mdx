@@ -77,6 +77,12 @@ appearance rules.
 | `INSUFFICIENT_SCOPE`, revoked connection or changed membership | Check current scopes, workspace binding, role and resource access          | Reconnect or ask the authorized administrator; no client-supplied tenant switch  |
 | A private `404`                                                | Check the existing identifier and the account/workspace actually connected | Absence and inaccessible content are intentionally not a global existence oracle |
 
+Document-authentication and approval-freshness refusals use localized browser
+recovery instead of raw English API errors. **Sign in again** requests fresh
+login and returns to the valid existing application path with its locale; query
+and secondary-fragment values are excluded. Reauthentication never renews the
+quote, replays the approval or reduces the session-age requirement.
+
 For local browser work, use `http://localhost:8787` consistently.
 `127.0.0.1` and `localhost` are different origins. A bearer token is not a browser
 session and cannot be used to impersonate human approval.
@@ -153,7 +159,13 @@ An expired quote also needs an explicit contract, not a guessed deadline. The
 linked fax-renewal path is eligible only when the returned state is `prepared`
 and `attemptCount` is explicitly zero. A missing count is not zero. Preserve the
 same document, recipient and ceiling; follow the returned renewal path and obtain
-fresh review/approval for its new version. This does not generalize to email,
+fresh review/approval for its new version. Sensitive account invitations have a
+separate browser-only **Refresh quote** contract: a current approver can replace
+only an eligible unsubmitted distribution, preserving its stored inputs and
+ceiling, with new human review. A lost response reuses that original's renewal
+instead of creating another preparation. Read the
+[secure distribution workflow](/workflows/secure-distribution/#renew-an-unsubmitted-invitation-quote)
+for its authority and failure boundaries. Neither path applies to ordinary email,
 postal transfer or an uncertain provider attempt.
 
 ## Configuration, quota or service capability is closed

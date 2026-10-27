@@ -1,6 +1,6 @@
 ---
 title: "Access and identity"
-description: "31 capabilities in the access branch of Guteneo."
+description: "32 capabilities in the access branch of Guteneo."
 sidebar:
   order: 1
 ---
@@ -49,4 +49,5 @@ Unified personal account and optional workspace implementation; migrations, alig
 <li id="feature-fd09f6d08c28">Document policy defaults to strong or explicitly selects verified_account: verified account/address and signed recent auth_time; fifteen minutes for reading/association/approval and five for export/deposit/deletion; documentAccessAllowed/documentAccessMode do not imply MFA or strongAuthentication; D1 defaults strong and environment disagreement fails closed</li>
 <li id="feature-f9f5d7df1035">Document invitation handoff lasts at most ten minutes in the same tab, then is deleted; capture before Auth0 with secret-free returnTo and no arbitrary private query</li>
 <li id="feature-455cf75df968">Document-service 401 offers explicit recovery without session-bootstrap loops; Auth0 recovery reconciles language and returned identity</li>
+<li id="feature-e3c45a318ca0">Document-authentication and browser-approval freshness refusals use localized sign-in recovery in all four languages; explicit fresh login preserves the valid current application route and locale without replaying mutations or weakening session-age checks</li>
 </ol>

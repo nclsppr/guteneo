@@ -22,6 +22,7 @@ import {
   type ActorContext,
   type DomainService,
   type DocumentRecord,
+  type Dispatch,
 } from "../../../packages/domain/src/index";
 import type { Env } from "./env";
 import {
@@ -126,6 +127,27 @@ const plus = (date: string, days: number) =>
   new Date(Date.parse(date) + days * 86400000).toISOString();
 const unavailable = () =>
   new DomainError("NOT_FOUND", "Document unavailable.", 404);
+function renewalInput(
+  row: SecureDistributionRow,
+  dispatch: Pick<Dispatch, "sender_id" | "ceiling_minor">,
+) {
+  const { workspaceName: _workspaceName, ...stored } = JSON.parse(
+    row.input_json,
+  ) as StoredInvitation;
+  const policy = securePolicySchema.parse(JSON.parse(row.policy_json));
+  return secureDistributionInputSchema.parse({
+    ...stored,
+    ...policy,
+    recipientBinding: policy.recipientBinding ?? "independent",
+    documentId: row.source_id,
+    recipient: {
+      address: row.recipient_address,
+      ...(row.recipient_name ? { name: row.recipient_name } : {}),
+    },
+    senderId: dispatch.sender_id ?? undefined,
+    costCeilingMinor: dispatch.ceiling_minor,
+  });
+}
 export function secureDistributionAvailable(env: Env) {
   return (
     (env.ENVIRONMENT === "local" && env.MODE === "simulation") ||
@@ -296,9 +318,30 @@ export class SecureDistributionService {
             .first<{ name: string; email: string }>()
         : null;
     const expired = row.status === "active" && row.expires_at! <= now();
-    const audit = includeAudit
-      ? await this.events(ctx, row.id, { limit: 100 })
-      : { items: [], nextCursor: null };
+    const [renewal, audit] = await Promise.all([
+      includeAudit &&
+      ctx.actor === "browser" &&
+      row.status === "prepared" &&
+      dispatch
+        ? this.env.DB.prepare(
+            "SELECT (SELECT id FROM secure_distributions WHERE organization_id=? AND request_key=? AND request_hash=?) AS replacement_id,EXISTS(SELECT 1 FROM secure_document_events WHERE organization_id=? AND distribution_id=? AND id=? AND type='quote_renewal_started') AS started",
+          )
+            .bind(
+              ctx.organizationId,
+              `secure-renew:${row.id}`,
+              await secureSha256(
+                canonicalJson(renewalInput(row, dispatch.dispatch)),
+              ),
+              ctx.organizationId,
+              row.id,
+              `secure_quote_renewal_${row.id}`,
+            )
+            .first<{ replacement_id: string | null; started: number }>()
+        : null,
+      includeAudit
+        ? this.events(ctx, row.id, { limit: 100 })
+        : { items: [], nextCursor: null },
+    ]);
     return {
       id: row.id,
       dispatchId: row.dispatch_id,
@@ -335,6 +378,19 @@ export class SecureDistributionService {
       recipientUserId: row.recipient_user_id,
       recipientBinding: row.bound_at ? "confirmed" : "pending",
       approved: Boolean(dispatch?.approval),
+      ...(renewal && dispatch
+        ? {
+            renewal: {
+              expiresAt: dispatch.dispatch.quote_expires_at ?? null,
+              replacementId: renewal.started ? renewal.replacement_id : null,
+              available:
+                actorPermissions(ctx).approveDispatches &&
+                (dispatch.dispatch.status === "prepared" ||
+                  (dispatch.dispatch.status === "cancelled" &&
+                    Boolean(renewal.started))),
+            },
+          }
+        : {}),
       approval: dispatch?.approval
         ? {
             fingerprint: dispatch.approval.fingerprint,
@@ -1139,6 +1195,142 @@ export class SecureDistributionService {
     )
       .bind(now())
       .run();
+  }
+  /** Replace an unsubmitted quote without rewriting its immutable preparation. */
+  async renew(
+    ctx: ActorContext,
+    distributionId: string,
+    principal: PersonalPrincipal,
+  ): Promise<SecureDistributionView> {
+    requirePersonalDocumentAuthentication(principal, this.env);
+    if (ctx.actor !== "browser" || principal.userId !== ctx.userId)
+      throw new DomainError(
+        "BROWSER_REQUIRED",
+        "Renew this preparation in Guteneo.",
+        403,
+      );
+    await this.member(ctx, "approveDispatches");
+    const row = await this.row(ctx, distributionId);
+    if (!row.dispatch_id || row.status !== "prepared")
+      throw new DomainError(
+        "SECURE_QUOTE_RENEWAL_UNSAFE",
+        "Only an unsubmitted preparation can be renewed.",
+        409,
+      );
+    const key = `secure-renew:${row.id}`;
+    const { dispatch } = await this.domain.getDispatch(ctx, row.dispatch_id);
+    const marker = `secure_quote_renewal_${row.id}`;
+    const started = await this.env.DB.prepare(
+      "SELECT 1 FROM secure_document_events WHERE organization_id=? AND distribution_id=? AND id=? AND type='quote_renewal_started'",
+    )
+      .bind(ctx.organizationId, row.id, marker)
+      .first();
+    if (
+      dispatch.status !== "prepared" &&
+      !(dispatch.status === "cancelled" && started)
+    )
+      throw new DomainError(
+        "SECURE_QUOTE_RENEWAL_UNSAFE",
+        "Submission has started or this preparation is no longer renewable.",
+        409,
+      );
+    if (dispatch.status === "prepared") {
+      const validation = await this.domain.validateDispatch(ctx, dispatch.id);
+      if (
+        row.prepared_expires_at > now() &&
+        !validation.checks.some(
+          (check) =>
+            check.id === "quote" &&
+            check.status === "blocked" &&
+            check.code === "LIVE_QUOTE_INVALID",
+        )
+      )
+        throw new DomainError(
+          "QUOTE_STILL_VALID",
+          "This quote is still valid. Review it before approval.",
+          409,
+        );
+    }
+    // Check ordinary source access before superseding the old preparation.
+    // Renewal never elevates a reviewer into the source owner's authority.
+    await this.domain.getDocument(ctx, row.source_id);
+    await this.exactSource(row);
+    const input = renewalInput(row, dispatch);
+    const existing = await this.env.DB.prepare(
+      "SELECT id,request_hash FROM secure_distributions WHERE organization_id=? AND request_key=?",
+    )
+      .bind(ctx.organizationId, key)
+      .first<{ id: string; request_hash: string }>();
+    if (existing) {
+      if (
+        !started ||
+        dispatch.status !== "cancelled" ||
+        existing.request_hash !== (await secureSha256(canonicalJson(input)))
+      )
+        throw new DomainError(
+          "IDEMPOTENCY_CONFLICT",
+          "This key belongs to another distribution.",
+          409,
+        );
+      return this.get(ctx, existing.id);
+    }
+    const fence = this.permissionFence(ctx, "approveDispatches"),
+      session = personalSessionFence(principal, 900, this.env);
+    // The cancellation and its resume marker are one transaction. A racing
+    // acceptance wins or loses this guard; accepted/attempted work never renews.
+    await this.env.DB.batch([
+      this.env.DB.prepare(
+        `UPDATE dispatches SET status='cancelled',updated_at=strftime('%Y-%m-%dT%H:%M:%fZ','now')
+         WHERE organization_id=? AND id=? AND status='prepared'
+         AND provider IS NULL AND provider_id IS NULL AND active_attempt_id IS NULL
+         AND NOT EXISTS(SELECT 1 FROM attempts WHERE organization_id=dispatches.organization_id AND dispatch_id=dispatches.id)
+         AND NOT EXISTS(SELECT 1 FROM reservations WHERE organization_id=dispatches.organization_id AND dispatch_id=dispatches.id)
+         AND NOT EXISTS(SELECT 1 FROM welcome_credit_reservations WHERE organization_id=dispatches.organization_id AND dispatch_id=dispatches.id)
+         AND NOT EXISTS(SELECT 1 FROM outbox WHERE organization_id=dispatches.organization_id AND dispatch_id=dispatches.id)
+         AND EXISTS(SELECT 1 FROM secure_distributions s WHERE s.organization_id=dispatches.organization_id AND s.id=? AND s.dispatch_id=dispatches.id AND s.status='prepared')
+         AND ${fence.condition} AND ${session.condition}`,
+      ).bind(
+        ctx.organizationId,
+        dispatch.id,
+        row.id,
+        ...fence.values,
+        ...session.values,
+      ),
+      this.env.DB.prepare(
+        "INSERT INTO secure_document_events(id,organization_id,distribution_id,user_id,session_hash,type,provenance,created_at) SELECT ?,?,?,?,?,'quote_renewal_started','browser',strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE changes()=1",
+      ).bind(
+        marker,
+        ctx.organizationId,
+        row.id,
+        ctx.userId,
+        principal.tokenHash,
+      ),
+    ]);
+    const safe = await this.env.DB.prepare(
+      `SELECT 1 FROM dispatches d JOIN secure_distributions s ON s.organization_id=d.organization_id AND s.dispatch_id=d.id
+       JOIN secure_document_events e ON e.organization_id=s.organization_id AND e.distribution_id=s.id AND e.id=? AND e.type='quote_renewal_started'
+       WHERE d.organization_id=? AND d.id=? AND d.status='cancelled' AND s.status='prepared'
+       AND d.provider IS NULL AND d.provider_id IS NULL AND d.active_attempt_id IS NULL
+       AND NOT EXISTS(SELECT 1 FROM attempts WHERE organization_id=d.organization_id AND dispatch_id=d.id)
+       AND ${fence.condition} AND ${session.condition}`,
+    )
+      .bind(
+        marker,
+        ctx.organizationId,
+        dispatch.id,
+        ...fence.values,
+        ...session.values,
+      )
+      .first();
+    if (!safe)
+      throw new DomainError(
+        "SECURE_QUOTE_RENEWAL_UNSAFE",
+        "The preparation or your access changed. Read its current status before continuing.",
+        409,
+      );
+    // A later failure is resumable with this same source/key. No approval,
+    // reservation or provider work is transferred to the replacement.
+    return this.prepare(ctx, input, key);
   }
   async approve(
     ctx: ActorContext,

@@ -39,6 +39,16 @@ account customization against the shared components before changing any of them.
 Keep authority and loading independent: visual consistency never justifies
 importing another space's session bootstrap or granting its permissions.
 
+The 27 October secure-distribution candidate applies the same secure-document
+primitives beneath the workshop and personal V2 shells. List, composer, review
+and reader surfaces reuse the existing rounded panels and rows, body-font section
+headings, controls, facts, price presentation and responsive spacing. Classic
+retains its saved layout. These selectors do not add a new session bootstrap or
+change document policy, membership or approval. The
+[frontend loading contract](https://github.com/nclsppr/guteneo/blob/main/docs/FRONTEND_PERFORMANCE.md)
+owns environment-specific measurements; matching styles alone proves no latency
+improvement or physical-device qualification.
+
 Authenticated personal documents fill the available width in both Classic and V2,
 as the workshop does. Apply responsive gutters to the shell and narrow readable
 measures to internal prose, form fields and document previews. Do not apply the
@@ -301,6 +311,14 @@ day and a failed read have different meanings. Never derive a daily financial
 value by spreading a monthly total, and keep current reservations distinct from
 posted consumption. The [credit read contract](https://github.com/nclsppr/guteneo/blob/main/docs/WELCOME_CREDIT.md)
 owns the accounting sources and daily API semantics.
+
+Shared authentication recovery uses localized copy and the concrete **Sign in
+again** action in every interface language. Recognized document-authentication
+codes remain API contracts rather than user-facing English error text. A valid
+return destination preserves the current share; recovery never implies that
+sign-in approved it. Quote recovery remains a separate explicit action with a
+new price review. The [secure distribution workflow](/workflows/secure-distribution/)
+owns these action boundaries.
 
 Labels remain visible when fields contain values. Put errors beside the relevant
 field and announce important asynchronous outcomes without repeatedly taking

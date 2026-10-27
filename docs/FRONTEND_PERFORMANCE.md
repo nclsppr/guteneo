@@ -4,6 +4,59 @@
 its bounded local measurements. It establishes no production latency, server CPU,
 provider readiness, price, deployment or physical-device qualification.
 
+## Secure-distribution recovery and V2 — 27 October 2026
+
+The list, composer, detail and reader share the existing workspace/personal V2
+primitives; Classic keeps its saved presentation. Recovery stays within the
+current route module. Sign-in links require no discovery request, renewal metadata
+travels in the existing detail response, and only an explicit **Refresh quote**
+performs the renewal mutation. Detail metadata and audit reads run in parallel;
+list and MCP reads add no renewal query. Existing visibility polling, document
+authorization and fresh human approval remain unchanged.
+
+The final `tests/e2e/secure-distribution-recovery.spec.ts` run started at
+`2026-10-27T16:04:05.433Z` and passed 18/18 cases in 28.954 seconds, with no
+skips, flaky results or unexpected failures. Vite production assets ran on local
+Wrangler with intercepted synthetic APIs, French locale and no network/CPU
+throttling. The browser contexts were fresh per test; each of the three routes
+used a full navigation through `about:blank`, within that test's browser context.
+The table reports light/dark ranges from two samples per route/browser. It is
+not a baseline comparison.
+
+| Surface / browser | Completed resource entries | Transferred bytes | Reported decoded JavaScript bytes | First useful panel observed (ms) |
+| --- | ---: | ---: | ---: | ---: |
+| List / Desktop Chromium | 40 | 662,141 | 1,527,726 | 171.7–181.1 |
+| Composer / Desktop Chromium | 42 | 677,208 | 1,527,726 | 454.5–923.1 |
+| Review and reader / Desktop Chromium | 41 | 671,228 | 1,527,726 | 415.4–423.7 |
+| List / Pixel 7 Chromium emulation | 40 | 662,141 | 1,527,726 | 177.3–188.5 |
+| Composer / Pixel 7 Chromium emulation | 42 | 677,208 | 1,527,726 | 939.8–943.2 |
+| Review and reader / Pixel 7 Chromium emulation | 41 | 671,228 | 1,527,726 | 929.2–937.5 |
+| List / iPhone 13 WebKit emulation | 41–42 | 680,782–696,138 | 1,527,726 | 194.0–467.0 |
+| Composer / iPhone 13 WebKit emulation | 43–44 | 342,927–711,127 | 476,739–1,527,726 | 185.0–197.0 |
+| Review and reader / iPhone 13 WebKit emulation | 42–43 | 343,287–680,782 | 476,739–1,527,726 | 139.0–446.0 |
+
+The first-useful marker is `performance.now()` after the primary panel/list is
+visible and its loading indicator is gone; it is not a standardized paint metric.
+Resource totals are collected later, after preview/image assertions, so they have
+a different completion boundary. Counts cover completed Resource Timing entries,
+not the navigation document. Transfer sizes include reported headers; decoded
+JavaScript sums each script's reported `decodedBodySize`. Cached WebKit resources
+can report zero sizes, explaining the lower composer/detail totals without proving
+a smaller application bundle. Resource completion and test load also vary.
+
+Observed API reads were session/capabilities plus the list; session/capabilities
+plus catalog/documents for the composer; and session/capabilities plus detail and
+one page preview for review. The change adds no eager heavyweight dependency,
+background timer or duplicate browser read for recovery. No speed improvement,
+physical iPhone result, hosted Auth0/recipient journey, production latency, CPU,
+memory or billed-cost qualification is inferred. Local screenshots and the
+light/dark loading JSON attachments accompany the final Playwright evidence in
+`/tmp/guteneo-secure-recovery-evidence/`.
+
+See the [recovery contract](SECURE_DISTRIBUTION_JOURNEYS.md#recover-an-expired-invitation-quote)
+for lifecycle boundaries and [dated implementation checks](SECURE_DISTRIBUTION_IMPLEMENTATION.md#quote-and-sign-in-recovery--27-october-2026-candidate)
+for backend, package and UI validation.
+
 ## Personal documents start with personal authority
 
 A direct personal route starts the small `PersonalArea` shell with the first

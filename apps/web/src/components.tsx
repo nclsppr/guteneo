@@ -32,6 +32,7 @@ import {
 import { t } from "./locale";
 import { pdfCheckErrorMessage } from "./pdf-check-errors";
 import { useDashboardAppearance } from "./dashboard-appearance";
+import { freshWorkspaceAuthenticationHref } from "./auth-navigation";
 
 export const BEFORE_WORKSPACE_NAVIGATION =
   "guteneo:before-workspace-navigation";
@@ -253,11 +254,25 @@ export function ErrorNotice({
     if (error && focusOnError) notice.current?.focus();
   }, [error, focusOnError]);
   if (!error) return null;
+  const authenticationRecovery =
+    error instanceof ApiError &&
+    [
+      "DOCUMENT_AUTHENTICATION_REQUIRED",
+      "STRONG_AUTHENTICATION_REQUIRED",
+      "STRONG_BROWSER_APPROVAL_REQUIRED",
+      "FRESH_AUTHENTICATION_REQUIRED",
+      "AUTHENTICATION_FRESHNESS_REQUIRED",
+    ].includes(error.code);
+  const quoteRecovery =
+    error instanceof ApiError &&
+    ["QUOTE_STILL_VALID", "SECURE_QUOTE_RENEWAL_UNSAFE"].includes(error.code);
   return (
     <div className="notice error" role="alert" tabIndex={-1} ref={notice}>
       <WarningCircle size={22} aria-hidden="true" />
       <div>
-        <strong>{t.errorTitle}</strong>
+        <strong>
+          {authenticationRecovery ? msg("Verify your sign-in") : t.errorTitle}
+        </strong>
         <p>
           {error instanceof ApiError
             ? (pdfCheckErrorMessage(error.code) ??
@@ -267,24 +282,17 @@ export function ErrorNotice({
               msg(error.message))
             : msg(error.message)}
         </p>
-        {error instanceof ApiError && (
-          <small className="mono">{error.code}</small>
-        )}
         {error instanceof ApiError &&
-          [
-            "DOCUMENT_AUTHENTICATION_REQUIRED",
-            "STRONG_AUTHENTICATION_REQUIRED",
-            "STRONG_BROWSER_APPROVAL_REQUIRED",
-            "FRESH_AUTHENTICATION_REQUIRED",
-            "AUTHENTICATION_FRESHNESS_REQUIRED",
-          ].includes(error.code) && (
-            <a
-              className="button primary"
-              href="/auth/login?fresh=1&returnTo=%2F%23%2Fapp%2Fsecure-distributions"
-            >
-              {msg("Verify my access")}
-            </a>
-          )}
+          !authenticationRecovery &&
+          !quoteRecovery && <small className="mono">{error.code}</small>}
+        {authenticationRecovery && (
+          <a
+            className="button primary"
+            href={freshWorkspaceAuthenticationHref()}
+          >
+            {t.sessionExpired.action}
+          </a>
+        )}
         {retry && (
           <button className="text-button" onClick={retry}>
             {t.retry}
@@ -913,8 +921,23 @@ function generalErrorMessage(code: string): string | undefined {
     DOCUMENT_AUTHENTICATION_REQUIRED: msg(
       "Sign in again to your verified account to access your documents.",
     ),
+    STRONG_BROWSER_APPROVAL_REQUIRED: msg(
+      "Sign in again to verify your access. You will return to this page.",
+    ),
+    FRESH_AUTHENTICATION_REQUIRED: msg(
+      "Sign in again to verify your access. You will return to this page.",
+    ),
+    AUTHENTICATION_FRESHNESS_REQUIRED: msg(
+      "Sign in again to verify your access. You will return to this page.",
+    ),
     SECURE_DISTRIBUTION_NOT_CONFIGURED: msg(
       "Secure distribution is not enabled.",
+    ),
+    QUOTE_STILL_VALID: msg(
+      "This quote is still valid. Review the document and price before approving.",
+    ),
+    SECURE_QUOTE_RENEWAL_UNSAFE: msg(
+      "This share has changed or submission has started. Refresh its status before continuing.",
     ),
     SECURE_STORAGE_NOT_CONFIGURED: msg(
       "The document is temporarily unavailable.",

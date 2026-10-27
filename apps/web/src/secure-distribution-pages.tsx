@@ -8,6 +8,7 @@ import {
 } from "@phosphor-icons/react";
 import {
   api,
+  ApiError,
   date,
   money,
   permissionsFor,
@@ -418,7 +419,7 @@ function SecureDistributionComposer({ session }: { session: Session }) {
                 </Field>
               )}
             </section>
-            <section className="secure-document-panel">
+            <section className="secure-document-panel secure-document-invitation">
               <h2>{msg("Invitation message")}</h2>
               <Field label={msg("Subject (optional)")}>
                 <input
@@ -534,6 +535,7 @@ function SecureDistributionDetail({
   const action = useAction();
   const [reviewed, setReviewed] = useState(false);
   const [recipientRequested, setRecipientRequested] = useState(false);
+  const [quoteRejected, setQuoteRejected] = useState(false);
   const [auditVersion, setAuditVersion] = useState(0);
   const [reviewedClaim, setReviewedClaim] = useState<string | null>(null);
   const [verificationMethod, setVerificationMethod] = useState(
@@ -541,6 +543,14 @@ function SecureDistributionDetail({
   );
   const permissions = permissionsFor(session);
   const publication = resource.data;
+  const needsQuoteRefresh =
+    quoteRejected ||
+    (publication?.status === "prepared" &&
+      Boolean(
+        publication.renewal?.replacementId ||
+        (publication.renewal?.expiresAt &&
+          Date.parse(publication.renewal.expiresAt) <= Date.now()),
+      ));
   const claimKey = publication?.pendingClaim
     ? JSON.stringify([
         publication.pendingClaim.recipientUserId,
@@ -574,18 +584,36 @@ function SecureDistributionDetail({
   }, [shouldPoll, refresh, pollingDelay]);
   async function mutate(operation: "approve" | "activate" | "revoke") {
     await action.run(async () => {
-      await api(
-        `/secure-distributions/${encodeURIComponent(id)}/${operation}`,
-        {
-          method: "POST",
-          key: `${id}:${operation}`,
-          body:
-            operation === "approve"
-              ? { reviewed: true, recipientRequested }
-              : {},
-        },
-      );
+      try {
+        await api(
+          `/secure-distributions/${encodeURIComponent(id)}/${operation}`,
+          {
+            method: "POST",
+            key: `${id}:${operation}`,
+            body:
+              operation === "approve"
+                ? { reviewed: true, recipientRequested }
+                : {},
+          },
+        );
+      } catch (error) {
+        if (error instanceof ApiError && error.code === "LIVE_QUOTE_INVALID") {
+          setQuoteRejected(true);
+          setReviewed(false);
+          setRecipientRequested(false);
+        }
+        throw error;
+      }
       resource.refresh();
+    });
+  }
+  async function renewQuote() {
+    await action.run(async () => {
+      const renewed = await api<SecurePublication>(
+        `/secure-distributions/${encodeURIComponent(id)}/renew`,
+        { method: "POST", key: `${id}:renew`, body: {} },
+      );
+      go(`/app/secure-distribution/${encodeURIComponent(renewed.id)}`);
     });
   }
   async function bindRecipient() {
@@ -711,7 +739,7 @@ function SecureDistributionDetail({
                 </p>
               </div>
             </section>
-            <section className="secure-document-panel">
+            <section className="secure-document-panel secure-document-invitation">
               <h2>{msg("Invitation message")}</h2>
               <dl className="secure-document-facts">
                 <Definition label={msg("Subject")}>
@@ -769,6 +797,7 @@ function SecureDistributionDetail({
                         <input
                           type="checkbox"
                           checked={reviewed}
+                          disabled={needsQuoteRefresh || action.pending}
                           onChange={(event) =>
                             setReviewed(event.target.checked)
                           }
@@ -783,6 +812,7 @@ function SecureDistributionDetail({
                         <input
                           type="checkbox"
                           checked={recipientRequested}
+                          disabled={needsQuoteRefresh || action.pending}
                           onChange={(event) =>
                             setRecipientRequested(event.target.checked)
                           }
@@ -797,7 +827,10 @@ function SecureDistributionDetail({
                         className="button primary"
                         type="button"
                         disabled={
-                          !reviewed || !recipientRequested || action.pending
+                          !reviewed ||
+                          !recipientRequested ||
+                          needsQuoteRefresh ||
+                          action.pending
                         }
                         onClick={() => void mutate("approve")}
                       >
@@ -829,7 +862,7 @@ function SecureDistributionDetail({
                       money(publication.quote.totalMinor),
                     )}
                     confirmLabel={msg("Confirm activation")}
-                    disabled={action.pending}
+                    disabled={action.pending || needsQuoteRefresh}
                     onConfirm={() => void mutate("activate")}
                   />
                 </section>
@@ -914,7 +947,50 @@ function SecureDistributionDetail({
                   />
                 </section>
               )}
-            <ErrorNotice error={action.error} />
+            {needsQuoteRefresh && (
+              <section className="secure-document-panel">
+                <ErrorNotice
+                  error={
+                    new Error(
+                      msg(
+                        "This quote has expired or changed. Refresh it, then review the document and price again.",
+                      ),
+                    )
+                  }
+                  focusOnError={
+                    action.error instanceof ApiError &&
+                    action.error.code === "LIVE_QUOTE_INVALID"
+                  }
+                />
+                {permissions.approveDispatches &&
+                  publication.renewal?.available !== false &&
+                  (publication.renewal?.replacementId ? (
+                    <a
+                      className="button primary"
+                      href={`#/app/secure-distribution/${encodeURIComponent(publication.renewal.replacementId)}`}
+                    >
+                      {msg("Review secure share")}
+                    </a>
+                  ) : (
+                    <button
+                      type="button"
+                      className="button primary"
+                      disabled={action.pending}
+                      onClick={() => void renewQuote()}
+                    >
+                      {msg("Refresh quote")}
+                    </button>
+                  ))}
+              </section>
+            )}
+            <ErrorNotice
+              error={
+                action.error instanceof ApiError &&
+                action.error.code === "LIVE_QUOTE_INVALID"
+                  ? undefined
+                  : action.error
+              }
+            />
             <section className="secure-document-panel">
               <h2>{msg("Workspace log")}</h2>
               {publication.status === "active" && (
@@ -996,7 +1072,10 @@ function PreparedDistributionPreview({
     };
   }, [publication.id, page, session, textMode]);
   return (
-    <section aria-label={msg("Shared document preview")}>
+    <section
+      className="secure-document-reader"
+      aria-label={msg("Shared document preview")}
+    >
       <div className="secure-document-reader-toolbar">
         <button
           type="button"
@@ -1006,23 +1085,29 @@ function PreparedDistributionPreview({
         >
           {textMode ? msg("Show pages") : msg("Show accessible text")}
         </button>
-        <button
-          type="button"
-          className="button small"
-          disabled={page <= 1}
-          onClick={() => setPage((current) => current - 1)}
-        >
-          {msg("Previous page")}
-        </button>
-        <span>{msg("Page {0} of {1}", page, publication.source.pages)}</span>
-        <button
-          type="button"
-          className="button small"
-          disabled={page >= publication.source.pages}
-          onClick={() => setPage((current) => current + 1)}
-        >
-          {msg("Next page")}
-        </button>
+        <div className="secure-document-pagination">
+          <button
+            type="button"
+            className="button small"
+            aria-label={msg("Previous page")}
+            disabled={page <= 1}
+            onClick={() => setPage((current) => current - 1)}
+          >
+            <ArrowLeft size={18} aria-hidden="true" />
+            <span>{msg("Previous page")}</span>
+          </button>
+          <span>{msg("Page {0} of {1}", page, publication.source.pages)}</span>
+          <button
+            type="button"
+            className="button small"
+            aria-label={msg("Next page")}
+            disabled={page >= publication.source.pages}
+            onClick={() => setPage((current) => current + 1)}
+          >
+            <ArrowRight size={18} aria-hidden="true" />
+            <span>{msg("Next page")}</span>
+          </button>
+        </div>
       </div>
       <div className="secure-document-pages">
         {error ? (

@@ -865,6 +865,17 @@ app.get("/api/secure-distributions/:id", async (c) =>
     ),
   ),
 );
+app.post("/api/secure-distributions/:id/renew", async (c) => {
+  await secureJson(c.req.raw, z.object({}).strict());
+  const principal = await authenticatePersonalBrowser(c.req.raw, c.env, true);
+  return c.json(
+    await secureService(c.env).renew(
+      c.get("actor"),
+      c.req.param("id"),
+      principal,
+    ),
+  );
+});
 app.post("/api/secure-distributions/:id/approve", async (c) => {
   const input = await secureJson(
     c.req.raw,

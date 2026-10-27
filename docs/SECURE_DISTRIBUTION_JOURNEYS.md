@@ -1,22 +1,32 @@
 # Sensitive distribution and personal documents
 
-Contract and journeys, updated for the 26 October 2026 source candidate. This describes current implementation/limits, not publication, activation or real delivery. One account spans Guteneo; workspaces are optional memberships and personal documents do not form an artificial workspace.
+Contract and journeys, updated for the 27 October 2026 source candidate. This describes current implementation/limits, not publication, activation or real delivery. One account spans Guteneo; workspaces are optional memberships and personal documents do not form an artificial workspace.
 
 ## Authority and entry conditions
 
-| Actor | Required authority | Scope |
-| --- | --- | --- |
-| Preparer | Current membership, preparation permission, accessible verified source | Own preparation, exact source and frozen quote |
-| Approver | Administrator or supervisor with approval permission; browser and current-policy session | Workspace review, approval and recipient association |
-| Recipient | Personal principal, verified address, recent session and policy-bound association | Own shared access and personal copies |
-| Assistant / OAuth API client | Intersection of role, scopes and current connection | Workspace preparation/follow-up; confirmation after browser evidence, no recipient identity or personal vault |
-| Platform operator | Separate configuration/publication authorization | Service activation; no authority derived from workspace role |
+| Actor                        | Required authority                                                                       | Scope                                                                                                         |
+| ---------------------------- | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| Preparer                     | Current membership, preparation permission, accessible verified source                   | Own preparation, exact source and frozen quote                                                                |
+| Approver                     | Administrator or supervisor with approval permission; browser and current-policy session | Workspace review, approval and recipient association                                                          |
+| Renewing approver            | Same browser, current approval permission, source access and recent document session     | Replace only an eligible unsubmitted preparation; obtain new human review                                     |
+| Recipient                    | Personal principal, verified address, recent session and policy-bound association        | Own shared access and personal copies                                                                         |
+| Assistant / OAuth API client | Intersection of role, scopes and current connection                                      | Workspace preparation/follow-up; confirmation after browser evidence, no recipient identity or personal vault |
+| Platform operator            | Separate configuration/publication authorization                                         | Service activation; no authority derived from workspace role                                                  |
 
 Account, language and sign-in are shared. Receipt creates no sender membership; plugin installation or possession of a document address creates no rights. Verified email does not establish physical identity. The server controls document policy, never a browser field. `strong` is default; `verified_account` is the explicitly requested live choice, requiring verified account/email, linked Auth0 identity and signed recent `auth_time`, without claiming MFA or certified physical identity. Unknown values or environment/D1 disagreement close access. Reading, association and approval require authentication at most fifteen minutes old; export, deposit and deletion require five minutes.
 
 Passkey choice remains deferred by product request. `verified_account` changes no Auth0 setting and fabricates no strong proof; `strong` retains its qualified-method requirement. Session fields `documentAccessMode`/`documentAccessAllowed` explain browser access; every operation is rechecked server-side. Activation and connected journey remain separately qualified.
 
-In the workspace, document-policy, strong-authentication, freshness or approval refusal offers **Check my access**. This voluntarily requests fresh login through `/auth/login?fresh=1`, returning to **Secure distribution** without document/invitation identifiers. No automatic redirect reuses old SSO. Find the same preparation and resume review under current rights; reauthentication approves/activates nothing.
+In the workspace, a document-authentication or freshness refusal uses a localized
+**Verify your sign-in** notice and **Sign in again** action. Recognized recovery
+codes, including `STRONG_BROWSER_APPROVAL_REQUIRED`, are not displayed as raw
+English API text. The explicit action requests fresh login through
+`/auth/login?fresh=1` and preserves the supported interface locale and bounded
+current application route, including an existing share identifier. Query values and secondary fragments
+are stripped; external or invalid destinations fall back to the application. No automatic redirect reuses
+old SSO; returned identity and current permissions are checked again. No private
+form fields are persisted for recovery, and sign-in replays no write, approval or
+activation. Recipient invitation secrets retain the separate handoff below.
 
 ## Prepare, review and activate sharing
 
@@ -29,6 +39,56 @@ In the workspace, document-policy, strong-authentication, freshness or approval 
 7. Activation atomically records commitments, consumption and outbox under domain guards. Live providers, scanner, billing and current capabilities remain mandatory in production.
 
 Price is per PDF/recipient. Activated terms are fully due; disabling/revoking refunds neither retention nor the funded personal option. The versioned shared contract supplies the quote, never an assistant-calculated amount. Unknown provider outcomes require reconciliation, never blind retry or automatic new preparation.
+
+The list, composer, review and reader use shared secure-document primitives in
+both the workshop V2 and personal V2 shells. The saved Classic layout remains
+available. Presentation changes keep the separate authority/loading paths and
+four-language behavior; [frontend measurements](FRONTEND_PERFORMANCE.md) qualify
+only their recorded environment.
+
+## Recover an expired invitation quote
+
+The invitation has its own immutable provider quote, which can expire while the
+person reads the PDF or signs in again. `LIVE_QUOTE_INVALID` keeps approval and
+activation closed. The browser translates this into an explanation and explicit
+**Refresh quote** action; refreshing the page or signing in does not renew a quote.
+
+`POST /api/secure-distributions/:id/renew` is a browser-only, CSRF-protected
+operation for a current administrator or supervisor with approval permission,
+accessible source and fresh document-policy session. It accepts no replacement
+recipient, document, policy, price or ceiling from the caller. It uses the stored
+source, recipient, permissions, term, notification content/language, sender and
+original monetary ceiling. Current pricing and normal preparation gates apply.
+A higher resulting price cannot silently expand that ceiling.
+
+The original distribution must remain `prepared`, with a completed invitation
+dispatch. An unexpired, otherwise valid quote returns `QUOTE_STILL_VALID`.
+Accepted, queued, attempted or uncertain work is not eligible. Cancellation is
+conditional on the original still being unsubmitted, with no provider reference,
+attempt, reservation or outbox. Cancellation and a durable renewal marker commit
+together under current permission/session fences; a racing acceptance prevents
+replacement. Immutable original content, quote and historical evidence remain.
+
+The replacement is a new distribution with a deterministic key derived from the
+original. A lost response or failure after cancellation resumes through the same
+original and reuses an already-created replacement; do not invent another key.
+The browser follows the replacement's rendering and clears its review choices.
+It transfers no approval, reservation, charge or provider attempt. The person must
+review its final PDF, recipient, policy and current price, attest the email request
+again, then separately approve and activate. If that replacement later expires,
+its own identifier starts a distinct explicit renewal.
+
+Browser detail reads expose bounded renewal metadata, including quote expiry and
+an existing replacement reference. Readback creates no replacement. OAuth/MCP and
+native clients do not acquire a renewal operation; they retain their existing
+preparation/read/confirmation contracts and must use the browser for this recovery.
+No tariff is refreshed, provider qualification extended or expert mandate renewed.
+An unavailable price, changed source/access, failed rendering or unsafe original
+stays visible; unknown provider outcomes require reconciliation.
+
+This 27 October 2026 source candidate requires no schema or Auth0 configuration
+change. Behavior tests and release evidence are qualified separately; the
+[implementation record](SECURE_DISTRIBUTION_IMPLEMENTATION.md) owns dated proof.
 
 ## Source compatibility with legacy flows
 
@@ -56,10 +116,10 @@ Wrong accounts/unavailable invitations reveal no other-account existence. Recove
 
 ## Two categories and distinct operations
 
-| Category | Promise and operations |
-| --- | --- |
-| Shared with me | Individual, workspace-revocable, term-limited access; original only if permitted; confirmed association required |
-| Saved copies | Independently delivered authorized copy, own term, personal export/deletion; workspace departure/revocation cannot remove it |
+| Category       | Promise and operations                                                                                                       |
+| -------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| Shared with me | Individual, workspace-revocable, term-limited access; original only if permitted; confirmed association required             |
+| Saved copies   | Independently delivered authorized copy, own term, personal export/deletion; workspace departure/revocation cannot remove it |
 
 **Download original PDF** is separate, explicit and requires current-policy authentication at most five minutes old. Audit distinguishes request from started transfer. Network success never proves disk saving. Later openings/copies/screenshots/printing are outside Guteneo's observation.
 
@@ -87,14 +147,14 @@ Opaque invitations, tokens, private URLs and content never enter logs. Sensitive
 
 ## Surfaces, errors and activation
 
-| Surface | Current contract |
-| --- | --- |
-| Workspace web | `/app/secure-distributions`: preparation, final review, approval, activation, association and revocation under current rights |
-| Personal web | `/app/my-documents`, `/app/services`, `/app/personal-account`: image/text reader, permitted export/copy |
-| Workspace REST | `/api/secure-distributions`: bounded operations, authenticated tenant, OAuth scopes/current permissions |
-| Personal REST | `/api/personal/*`: browser owner principal; no implicit personal access through workspace OAuth |
-| MCP/assistant packages | Catalog, prepare, list, detail, confirmation after browser approval, revoke; no association, sensitive-approval or personal-vault-reading tool |
-| Native | Existing native contract/browser opening retained; local integration/package qualifies neither real clients nor physical devices |
+| Surface                | Current contract                                                                                                                                       |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Workspace web          | `/app/secure-distributions`: preparation, explicit quote recovery, final review, approval, activation, association and revocation under current rights |
+| Personal web           | `/app/my-documents`, `/app/services`, `/app/personal-account`: image/text reader, permitted export/copy                                                |
+| Workspace REST         | `/api/secure-distributions`: bounded operations, authenticated tenant, OAuth scopes/current permissions                                                |
+| Personal REST          | `/api/personal/*`: browser owner principal; no implicit personal access through workspace OAuth                                                        |
+| MCP/assistant packages | Catalog, prepare, list, detail, confirmation after browser approval, revoke; no association, sensitive-approval or personal-vault-reading tool         |
+| Native                 | Existing native contract/browser opening retained; local integration/package qualifies neither real clients nor physical devices                       |
 
 Scan, integrity, rendering, oversized text, funding, authorization, freshness and configuration errors close the flow. `failed` never becomes success; inspect the same identifier before deciding on a new preparation. Legacy password URLs remain a separate historical contract and gain no retroactive sensitive-flow security.
 

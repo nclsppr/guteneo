@@ -1,6 +1,6 @@
 ---
 title: "Sensitive distribution and personal documents"
-description: "25 capabilities in the deliver branch of Guteneo."
+description: "27 capabilities in the deliver branch of Guteneo."
 sidebar:
   order: 10
 ---
@@ -11,7 +11,7 @@ sidebar:
 
 Implemented candidate with migrations 0055–0059 and separate deterministic strong/verified_account qualification. Default strong, explicitly selected verified_account, aligned environment/D1 policy and human approval remain mandatory; real Auth0, provider delivery, publication and external-client proof are separate.
 
-**Surfaces:** Workspace and personal web UI in FR/EN/DE/LB; workspace REST/MCP and assistant packages under scopes. Recipient access and sensitive approval are browser-only; workspace Bearer tokens cannot open the personal vault. Native and real host support need surface-specific qualification.
+**Surfaces:** Workspace and personal web UI in FR/EN/DE/LB with shared V2 primitives and preserved Classic layout; workspace REST/MCP and assistant packages under scopes. Recipient access, sensitive approval and explicit quote renewal are browser-only; workspace Bearer tokens cannot open the personal vault. Native and real host support need surface-specific qualification.
 
 [Read the engineering guide](/workflows/secure-distribution/) · [All features](/features/)
 
@@ -25,6 +25,7 @@ Implemented candidate with migrations 0055–0059 and separate deterministic str
 <li id="feature-5ffc6245e7d3">Versioned prices and separate invitation transport; activated retention commitments are nonrefundable even after revocation</li>
 <li id="feature-487e28d5ff1d">Review final pages/text, recipient, message, permissions and quote before browser approval under the active policy; email-request attestation remains separate</li>
 <li id="feature-7ff1331958f2">Atomic activation and outbox insertion require sensitive browser evidence even through REST/MCP confirmation; expert delegation cannot approve this flow</li>
+<li id="feature-b42e8921b2a8">Browser-only explicit quote recovery replaces an eligible unsubmitted distribution from its exact stored source, recipient, policy, notification and ceiling; guarded cancellation and a durable marker retain history, deterministic replay returns the same replacement, and new human review is required before activation</li>
 <li id="feature-b69ca8c6b602">Opaque invitation moves through same-tab handoff and a POST exchange, never authentication returnTo, logs, MCP responses or public captures</li>
 <li id="feature-bf8752bea5f4">New immutable verified_email policy binds the matching verified address and stable account at claim under fresh-session checks; independent or missing historical policy still requires workspace confirmation</li>
 <li id="feature-93a71ed7892d">My documents separates Shared with me and Saved copies, with bounded server filtering/search and pagination over authorized documents</li>
@@ -37,12 +38,13 @@ Implemented candidate with migrations 0055–0059 and separate deterministic str
 <li id="feature-56cb9ba5118c">Existing REST/MCP and assistant packages expose catalog, preparation, listing, detail, confirmation after browser evidence and revocation under current rights/scopes</li>
 <li id="feature-5018586579a1">Workspace tools expose neither personal principal, recipient association nor personal-vault content</li>
 <li id="feature-2c169d9f944f">Activation fails closed until keys, renderer, scanner, provider and aligned document policy are qualified; V1 excludes ordinary attachments, legacy postal transformations, cropping, analysis and password access after sensitive reference, even after failure/revocation; only a dedicated invitation without source attachment is eligible, with bidirectional service/SQL race guards; local email flags and dated provider qualification prove no installed quota policy, signed webhook or delivery</li>
-<li id="feature-05a17e551e69">Secure distribution navigation follows Documents while Overview and Assistants lead; list/preparation/detail retain a coherent title and active entry; document-policy, assurance, freshness or approval refusal offers voluntary Check my access for fresh sign-in and a secret-free list return, without SSO loops or automatic approval</li>
+<li id="feature-b3390b87e4cb">Secure distribution navigation follows Documents while Overview and Assistants lead; list/preparation/detail retain a coherent title and active entry; document-authentication and approval-freshness refusals offer localized explicit fresh sign-in returning to the valid existing share route, without SSO loops, private form storage or automatic approval</li>
 <li id="feature-39937e425995">Workspace preparation explicitly paginates PDF sources and explains that an authorized personal copy can be exported even when the shared original cannot</li>
 <li id="feature-d4704f92cb03">Association attestation binds the displayed account, address and request; changing the candidate requires new independent verification</li>
 <li id="feature-e9322039b01d">Personal-list 401/403 clears loaded metadata and cursors; stale pagination responses cannot restore an old list after refresh</li>
 <li id="feature-45cc544c0188">Direct personal routes start their own small shell and authenticated personal session before the document list without waiting for workshop bootstrap; old workshop reads are aborted and fenced from applying identity/language after navigation, and return rereads current workshop authority</li>
 <li id="feature-3b2aae178e2b">Personal focus/visibility session reconciliation is bounded and cleaned up; changed identity remounts document state, obsolete results are ignored and list retry does not reload a still-valid session; recipient/document-policy/server authorization remains unchanged</li>
+<li id="feature-818812db2d75">Secure distribution list, composer, detail and reader reuse the shared V2 workspace/personal surfaces, typography, controls, facts and responsive spacing; the saved Classic layout and each authorization boundary remain unchanged</li>
 </ol>
 
 ## REST operations

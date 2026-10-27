@@ -20,6 +20,18 @@ then uses `get_secure_distribution`/`confirm_secure_distribution`; exact HTML an
 private invitations remain excluded from standard client summaries. API clients
 cannot claim a recipient's personal documents or supply browser approval.
 
+## Secure quote recovery — 27 October 2026 candidate
+
+`POST /api/secure-distributions/:id/renew` is a browser-only operation under
+current approval permission, source access, Origin/CSRF and recent document
+session. It creates or returns the same immutable replacement from the original
+stored inputs, without accepting replacement content or approving it. Browser
+detail responses expose renewal expiry, availability and replacement reference;
+these hints do not authorize the operation. OAuth/MCP and native callers receive
+no new renewal or sensitive-approval authority. See the
+[recovery contract](SECURE_DISTRIBUTION_JOURNEYS.md#recover-an-expired-invitation-quote)
+for eligibility, concurrency, idempotency and errors.
+
 ## Conventions and access
 
 Base URL is `APP_ORIGIN`, for example `http://localhost:8787` locally. Business

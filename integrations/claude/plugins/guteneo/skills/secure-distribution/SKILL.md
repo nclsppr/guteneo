@@ -32,7 +32,11 @@ personal vault or claims to have verified their identity.
    the workspace disables sharing before expiry. Have the person open
    `approvalUrl` to review content, recipient, rights and price in the Guteneo
    browser under the active document authentication policy. Neither chat consent
-   nor an expert mandate replaces this specific approval.
+   nor an expert mandate replaces this specific approval. If the quote expires,
+   direct the person to Refresh quote in that same browser review. Guteneo
+   supersedes only an unsubmitted preparation and opens a replacement for fresh
+   human review; use the replacement identifier afterwards. Never extend a quote,
+   infer approval or recreate an uncertain or already accepted distribution.
 6. After recorded browser approval, call `confirm_secure_distribution` with
    the identifier and a stable key, subject to host confirmations. After a lost
    or uncertain outcome, query the same identifier without a new command or
