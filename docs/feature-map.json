@@ -40,6 +40,7 @@
         "Document policy defaults to strong or explicitly selects verified_account: verified account/address and signed recent auth_time; fifteen minutes for reading/association/approval and five for export/deposit/deletion; documentAccessAllowed/documentAccessMode do not imply MFA or strongAuthentication; D1 defaults strong and environment disagreement fails closed",
         "Document invitation handoff lasts at most ten minutes in the same tab, then is deleted; capture before Auth0 with secret-free returnTo and no arbitrary private query",
         "Document-service 401 offers explicit recovery without session-bootstrap loops; Auth0 recovery reconciles language and returned identity",
+        "Document-authentication and browser-approval freshness refusals use localized sign-in recovery in all four languages; explicit fresh login preserves the valid current application route and locale without replaying mutations or weakening session-age checks",
         "Ordinary application entry without workshop membership offers workspace creation or joining through an existing canonical same-origin invitation with the shared raw 43-character base64url token contract, fragment clearing and explicit acceptance; server-generated invitation integration covers the entry, preview and auth handoff, while the stored SHA-256 hash never enters the link; explicit personal document entry remains independent, with no public workspace enumeration",
         "Production browser configuration selects auth.guteneo.com; the tenant-wide custom-domain email flag and exact authorization-response issuer identification were applied and reread on 27 October, without sending verification mail or qualifying human login"
       ],
@@ -487,6 +488,7 @@
         "Versioned prices and separate invitation transport; activated retention commitments are nonrefundable even after revocation",
         "Review final pages/text, recipient, message, permissions and quote before browser approval under the active policy; email-request attestation remains separate",
         "Atomic activation and outbox insertion require sensitive browser evidence even through REST/MCP confirmation; expert delegation cannot approve this flow",
+        "Browser-only explicit quote recovery replaces an eligible unsubmitted distribution from its exact stored source, recipient, policy, notification and ceiling; guarded cancellation and a durable marker retain history, deterministic replay returns the same replacement, and new human review is required before activation",
         "Opaque invitation moves through same-tab handoff and a POST exchange, never authentication returnTo, logs, MCP responses or public captures",
         "New immutable verified_email policy binds the matching verified address and stable account at claim under fresh-session checks; independent or missing historical policy still requires workspace confirmation",
         "My documents separates Shared with me and Saved copies, with bounded server filtering/search and pagination over authorized documents",
@@ -499,15 +501,16 @@
         "Existing REST/MCP and assistant packages expose catalog, preparation, listing, detail, confirmation after browser evidence and revocation under current rights/scopes",
         "Workspace tools expose neither personal principal, recipient association nor personal-vault content",
         "Activation fails closed until keys, renderer, scanner, provider and aligned document policy are qualified; V1 excludes ordinary attachments, legacy postal transformations, cropping, analysis and password access after sensitive reference, even after failure/revocation; only a dedicated invitation without source attachment is eligible, with bidirectional service/SQL race guards; local email flags and dated provider qualification prove no installed quota policy, signed webhook or delivery",
-        "Secure distribution navigation follows Documents while Overview and Assistants lead; list/preparation/detail retain a coherent title and active entry; document-policy, assurance, freshness or approval refusal offers voluntary Check my access for fresh sign-in and a secret-free list return, without SSO loops or automatic approval",
+        "Secure distribution navigation follows Documents while Overview and Assistants lead; list/preparation/detail retain a coherent title and active entry; document-authentication and approval-freshness refusals offer localized explicit fresh sign-in returning to the valid existing share route, without SSO loops, private form storage or automatic approval",
         "Workspace preparation explicitly paginates PDF sources and explains that an authorized personal copy can be exported even when the shared original cannot",
         "Association attestation binds the displayed account, address and request; changing the candidate requires new independent verification",
         "Personal-list 401/403 clears loaded metadata and cursors; stale pagination responses cannot restore an old list after refresh",
         "Direct personal routes start their own small shell and authenticated personal session before the document list without waiting for workshop bootstrap; old workshop reads are aborted and fenced from applying identity/language after navigation, and return rereads current workshop authority",
-        "Personal focus/visibility session reconciliation is bounded and cleaned up; changed identity remounts document state, obsolete results are ignored and list retry does not reload a still-valid session; recipient/document-policy/server authorization remains unchanged"
+        "Personal focus/visibility session reconciliation is bounded and cleaned up; changed identity remounts document state, obsolete results are ignored and list retry does not reload a still-valid session; recipient/document-policy/server authorization remains unchanged",
+        "Secure distribution list, composer, detail and reader reuse the shared V2 workspace/personal surfaces, typography, controls, facts and responsive spacing; the saved Classic layout and each authorization boundary remain unchanged"
       ],
       "status": "Implemented candidate with migrations 0055–0059 and separate deterministic strong/verified_account qualification. Default strong, explicitly selected verified_account, aligned environment/D1 policy and human approval remain mandatory; real Auth0, provider delivery, publication and external-client proof are separate.",
-      "surfaces": "Workspace and personal web UI in FR/EN/DE/LB; workspace REST/MCP and assistant packages under scopes. Recipient access and sensitive approval are browser-only; workspace Bearer tokens cannot open the personal vault. Native and real host support need surface-specific qualification.",
+      "surfaces": "Workspace and personal web UI in FR/EN/DE/LB with shared V2 primitives and preserved Classic layout; workspace REST/MCP and assistant packages under scopes. Recipient access, sensitive approval and explicit quote renewal are browser-only; workspace Bearer tokens cannot open the personal vault. Native and real host support need surface-specific qualification.",
       "tests": [
         "tests/unit/personal-auth.test.ts",
         "tests/unit/document-invitation.test.ts",
@@ -519,7 +522,10 @@
         "tests/e2e/assistant-hub.spec.ts",
         "tests/unit/secure-distribution-web.test.ts",
         "tests/distribution-verified-e2e/lifecycle.e2e.ts",
-        "tests/e2e/personal-document-performance.spec.ts"
+        "tests/e2e/personal-document-performance.spec.ts",
+        "tests/unit/secure-distribution-core.test.ts",
+        "tests/unit/auth-navigation-recovery.test.ts",
+        "tests/e2e/secure-distribution-recovery.spec.ts"
       ],
       "tools": [
         "confirm_secure_distribution",
@@ -1126,7 +1132,7 @@
       "steps": "Collect recipient and ready PDF → default to My documents, with an explicit attachment alternative → optionally supply subject/message/custom HTML with {{document_url}}, otherwise use localized workspace V2 defaults → prepare secure distribution → follow rendering on the same ID → browser review exact email, PDF, policy and quote → attest the email request → approve and confirm → track. Message-only and explicit legacy modes retain ordinary dispatch approval. → recipient may explicitly unsubscribe/report through the footer; track the response separately from delivery and access.",
       "branch": "Deliver",
       "doc": "PROTECTED_EMAIL.md",
-      "failure": "Never infer recipient consent. Protected passwords stay in the sender browser and are shared separately. Provider acceptance/delivery/PDF reading are different facts; unknown outcomes require reconciliation. Later workspace/profile changes do not rewrite frozen content or resend existing mail. Missing/invalid documents do not permit defaults; malformed or wrong-mode button markers require corrected preparation. Account content overflow identifies the field and limit before rendering; generated buttons follow the notification locale even when interface and account language differ."
+      "failure": "Never infer recipient consent. Protected passwords stay in the sender browser and are shared separately. Provider acceptance/delivery/PDF reading are different facts; unknown outcomes require reconciliation. Later workspace/profile changes do not rewrite frozen content or resend existing mail. Missing/invalid documents do not permit defaults; malformed or wrong-mode button markers require corrected preparation. Account content overflow identifies the field and limit before rendering; generated buttons follow the notification locale even when interface and account language differ. For secure account invitations only, use explicit browser quote recovery from the original eligible unsubmitted share; review the replacement price again. Fresh sign-in preserves the existing safe share path and grants no approval."
     },
     {
       "id": "J06",
@@ -1322,9 +1328,9 @@
       "title": "Prepare and activate sensitive distribution",
       "actor": "Authorized preparer → browser approver under the active document policy → authorized confirmer",
       "steps": "Open Secure distribution after Documents, keeping Overview/Assistants first and the active entry coherent → select an accessible ready PDF up to 100 pages/10 MiB → one recipient → 7/30/90/365 days → optional original export/personal copy → optional subject/message/custom HTML or localized workspace V2 defaults, plus approved binding policy → idempotent preparation → follow preparing under the same ID → review final pages/text, recipient, rights, message and tax-exclusive total including transport → separately attest the email request → browser approve → confirm/activate → inspect paginated provenance/actor audit with ninety-day detailed access and separate immutable receipts. Revocation blocks future access without refund. Explicit source pagination reaches older PDFs; permitted personal copies remain exportable even when the shared original is not.",
-      "branch": "Web/REST/MCP/packages prepare and follow; sensitive approval is browser-only",
+      "branch": "Web/REST/MCP/packages prepare and follow; sensitive approval and quote renewal are browser-only",
       "doc": "SECURE_DISTRIBUTION_JOURNEYS.md",
-      "failure": "Unqualified source, integrity, scan, rendering, authority, price, credit or configuration closes the flow. Revoke unexpired legacy draft/active hosting first. A prior postal derivation, legacy send, postal preflight or provider draft requires a dedicated source even after cancellation/failure. Sensitive reference permanently excludes ordinary email/fax/postal attachments, legacy transforms, cropping, analysis and password reads; only the dedicated sourceless invitation remains eligible. Bidirectional service/SQL guards close concurrent legacy writes and provider-transfer races. No original/legacy-link fallback. Expert mandates and assistant-asserted consent cannot approve. Unknown outcomes reread the same ID without new orders or blind provider retry. Check my access voluntarily opens /auth/login?fresh=1 and returns to the distribution list without sensitive IDs/invitations; it grants no preparation/approval or implicit old SSO. Dated Resend qualification/local email flags establish no installed global D1 quotas, webhook/secret or delivery."
+      "failure": "Unqualified source, integrity, scan, rendering, authority, price, credit or configuration closes the flow. Revoke unexpired legacy draft/active hosting first. A prior postal derivation, legacy send, postal preflight or provider draft requires a dedicated source even after cancellation/failure. Sensitive reference permanently excludes ordinary email/fax/postal attachments, legacy transforms, cropping, analysis and password reads; only the dedicated sourceless invitation remains eligible. Bidirectional service/SQL guards close concurrent legacy writes and provider-transfer races. No original/legacy-link fallback. An expired or changed invitation quote offers explicit browser renewal only for an eligible unsubmitted original; preserve stored inputs and ceiling, resume the same deterministic replacement after failure, then review and approve again. Accepted/attempted work never renews. Expert mandates and assistant-asserted consent cannot approve. Unknown outcomes reread the same ID without new orders or blind provider retry. Localized Sign in again voluntarily opens /auth/login?fresh=1 and preserves the valid existing share path and locale while stripping query/secondary fragments, with no private form storage, automatic write replay or weaker session checks. Recipient invitation secrets stay outside returnTo. Dated Resend qualification/local email flags establish no installed global D1 quotas, webhook/secret or delivery."
     },
     {
       "id": "J28",
@@ -1704,6 +1710,14 @@
       "No",
       "No",
       "No; expert mandate is insufficient"
+    ],
+    [
+      "Renew an unsubmitted sensitive invitation quote",
+      "Browser + source access + recent document session",
+      "Approval permission + browser + source access + recent document session",
+      "No",
+      "No",
+      "No; browser-only replacement with fresh human review and no approval transfer"
     ],
     [
       "Confirm sensitive distribution after human approval",

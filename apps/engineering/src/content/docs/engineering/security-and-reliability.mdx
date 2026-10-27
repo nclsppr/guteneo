@@ -112,8 +112,11 @@ workspace confirmation. Never rewrite an approved policy to repair a delivery.
 
 The dependency chain is the existing identity/session service, D1 transaction,
 private renderer/storage and email outbox. Missing service configuration, stale
-authentication, wrong address, expired or revoked access fail closed. Recover on
-the same preparation and use explicit fresh login when requested. No new Auth0
-configuration or credential is introduced. `docs/SECURE_DISTRIBUTION_JOURNEYS.md`
+authentication, wrong address, expired or revoked access fail closed. Explicit
+fresh login preserves the valid application destination and locale, then checks
+the returned identity and current rights. It never replays approval or extends
+session-age limits. The 27 October recovery candidate localizes recognized
+freshness refusals, including the browser-approval fence, without new Auth0
+configuration or credentials. `docs/SECURE_DISTRIBUTION_JOURNEYS.md`
 owns authority and recovery; `docs/PROTECTED_EMAIL.md` owns email compatibility.
 Local tests are distinct from live signup, delivery and publication proof.

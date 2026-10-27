@@ -114,6 +114,7 @@ async function fixture(
   mode: "simulation" | "production" = "simulation",
   pageCount = 1,
   accessMode: "strong" | "verified_account" = "strong",
+  quoteClock?: { value: number },
 ) {
   await db
     .prepare(
@@ -242,7 +243,9 @@ async function fixture(
         components.byte_numerator,
         components.rate_denominator,
         "b".repeat(64),
-        createdAt,
+        quoteClock
+          ? new Date(quoteClock.value - 60000).toISOString()
+          : createdAt,
         new Date(Date.now() + 3600000).toISOString(),
         createdAt,
       )
@@ -299,6 +302,7 @@ async function fixture(
   const domain = new DomainService(db, {
     mode,
     sensitiveDocumentAuthentication: accessMode,
+    ...(quoteClock ? { now: () => quoteClock.value } : {}),
     ...(mode === "production"
       ? { liveDeliveryIdentity: { email: identity } }
       : {}),
@@ -784,6 +788,363 @@ describe("secure distribution — asynchronous preparation and paid acceptance",
           .bind(f.organizationId)
           .run(),
       ).rejects.toThrow("secure_charge_immutable");
+    },
+  );
+});
+
+describe("secure distribution — explicit quote recovery", () => {
+  async function expiredPreparation() {
+    const clock = { value: Date.now() - 16 * 60000 };
+    const f = await fixture("production", 1, "verified_account", clock);
+    const p = await prepared(f, {}, { costCeilingMinor: 300 });
+    clock.value = Date.now();
+    expect(p.view.status).toBe("prepared");
+    expect(Date.parse(p.view.renewal!.expiresAt!)).toBeLessThan(Date.now());
+    return { f, p };
+  }
+  async function financialEffects(organizationId: string) {
+    return db
+      .prepare(
+        `SELECT (SELECT count(*) FROM approvals WHERE organization_id=?) approvals,
+       (SELECT count(*) FROM reservations WHERE organization_id=?) reservations,
+       (SELECT count(*) FROM outbox WHERE organization_id=?) outbox,
+       (SELECT count(*) FROM secure_distribution_charges WHERE organization_id=?) charges,
+       (SELECT count(*) FROM attempts WHERE organization_id=?) attempts`,
+      )
+      .bind(...Array(5).fill(organizationId))
+      .first();
+  }
+  it("replaces an expired notification quote with the same source, recipient, policy, sender and cap, requiring new approval", async () => {
+    const { f, p } = await expiredPreparation();
+    const old = (await f.domain.getDispatch(f.ctx, p.view.dispatchId!))
+      .dispatch;
+    const snapshot = await db
+      .prepare(
+        "SELECT quote_json,input_json,dispatch_id,manifest_sha256 FROM secure_distributions WHERE id=?",
+      )
+      .bind(p.view.id)
+      .first();
+    await expect(
+      f.service.approve(f.ctx, p.view.id, f.owner, true, true),
+    ).rejects.toMatchObject({ code: "LIVE_QUOTE_INVALID" });
+    const renewed = await f.service.renew(f.ctx, p.view.id, f.owner);
+    expect(renewed.id).not.toBe(p.view.id);
+    expect(renewed.status).toBe("preparing");
+    await f.service.processRender(renewed.id);
+    const ready = await f.service.get(f.ctx, renewed.id);
+    const replacement = (await f.domain.getDispatch(f.ctx, ready.dispatchId!))
+      .dispatch;
+    expect(ready.status).toBe("prepared");
+    expect(ready.source).toEqual(p.view.source);
+    expect(ready.recipient).toEqual(p.view.recipient);
+    expect(ready.policy).toEqual(p.view.policy);
+    expect(ready.quote).toEqual(p.view.quote);
+    expect(ready.approved).toBe(false);
+    expect(replacement.sender_id).toBe(old.sender_id);
+    expect(replacement.ceiling_minor).toBe(old.ceiling_minor);
+    expect(Date.parse(replacement.quote_expires_at!)).toBeGreaterThan(
+      Date.now(),
+    );
+    expect((await f.domain.getDispatch(f.ctx, old.id)).dispatch.status).toBe(
+      "cancelled",
+    );
+    expect(
+      await db
+        .prepare(
+          "SELECT quote_json,input_json,dispatch_id,manifest_sha256 FROM secure_distributions WHERE id=?",
+        )
+        .bind(p.view.id)
+        .first(),
+    ).toEqual(snapshot);
+    expect((await f.service.get(f.ctx, p.view.id)).renewal).toMatchObject({
+      available: true,
+      replacementId: renewed.id,
+    });
+    expect(await financialEffects(f.organizationId)).toEqual({
+      approvals: 0,
+      reservations: 0,
+      outbox: 0,
+      charges: 0,
+      attempts: 0,
+    });
+    await expect(
+      f.service.confirm(f.ctx, ready.id, id("confirm")),
+    ).rejects.toMatchObject({ code: "HUMAN_APPROVAL_REQUIRED" });
+  });
+  it("deduplicates concurrent renewal and reuses its replacement after a lost response", async () => {
+    const { f, p } = await expiredPreparation();
+    const [first, second] = await Promise.all([
+      f.service.renew(f.ctx, p.view.id, f.owner),
+      f.service.renew(f.ctx, p.view.id, f.owner),
+    ]);
+    expect(second.id).toBe(first.id);
+    expect((await f.service.renew(f.ctx, p.view.id, f.owner)).id).toBe(
+      first.id,
+    );
+    expect(
+      await db
+        .prepare(
+          "SELECT count(*) n FROM secure_distributions WHERE organization_id=?",
+        )
+        .bind(f.organizationId)
+        .first(),
+    ).toEqual({ n: 2 });
+    expect(
+      await db
+        .prepare(
+          "SELECT count(*) n FROM secure_document_events WHERE distribution_id=? AND type='quote_renewal_started'",
+        )
+        .bind(p.view.id)
+        .first(),
+    ).toEqual({ n: 1 });
+  });
+  it("reuses a completed concurrent renewal after source verification resumes", async () => {
+    const { f, p } = await expiredPreparation();
+    const verifier = f.service as unknown as {
+      exactSource(row: SecureDistributionRow): Promise<unknown>;
+    };
+    const original = verifier.exactSource.bind(f.service);
+    let reached!: () => void, release!: () => void;
+    const paused = new Promise<void>((resolve) => {
+      reached = resolve;
+    });
+    const resumed = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const check = vi
+      .spyOn(verifier, "exactSource")
+      .mockImplementationOnce(async (row) => {
+        reached();
+        await resumed;
+        return original(row);
+      });
+    const first = f.service.renew(f.ctx, p.view.id, f.owner);
+    try {
+      await paused;
+      const second = await f.service.renew(f.ctx, p.view.id, f.owner);
+      release();
+      expect((await first).id).toBe(second.id);
+      expect(
+        await db
+          .prepare(
+            "SELECT count(*) n FROM secure_distributions WHERE organization_id=?",
+          )
+          .bind(f.organizationId)
+          .first(),
+      ).toEqual({ n: 2 });
+      expect(await financialEffects(f.organizationId)).toEqual({
+        approvals: 0,
+        reservations: 0,
+        outbox: 0,
+        charges: 0,
+        attempts: 0,
+      });
+    } finally {
+      release();
+      check.mockRestore();
+    }
+  });
+  it("preserves old approval evidence without transferring it after a policy revision", async () => {
+    const f = await fixture("production", 1, "verified_account");
+    const p = await prepared(f);
+    await f.service.approve(f.ctx, p.view.id, f.owner, true, true);
+    const before = await db
+      .prepare("SELECT * FROM approvals WHERE organization_id=?")
+      .bind(f.organizationId)
+      .all();
+    await db
+      .prepare(
+        "UPDATE trusted_delivery_costs SET status='revoked' WHERE organization_id=?",
+      )
+      .bind(f.organizationId)
+      .run();
+    const fields = (
+      await db
+        .prepare("PRAGMA table_info(trusted_delivery_costs)")
+        .all<{ name: string }>()
+    ).results.map((field) => field.name);
+    await db
+      .prepare(
+        `INSERT INTO trusted_delivery_costs(${fields.join(",")}) SELECT ${fields.map((name) => (name === "id" ? "?" : name === "status" ? "'qualified'" : name)).join(",")} FROM trusted_delivery_costs WHERE organization_id=?`,
+      )
+      .bind(id("cost"), f.organizationId)
+      .run();
+    const renewed = await f.service.renew(f.ctx, p.view.id, f.owner);
+    await f.service.processRender(renewed.id);
+    expect((await f.service.get(f.ctx, renewed.id)).approved).toBe(false);
+    expect(
+      (
+        await db
+          .prepare("SELECT * FROM approvals WHERE organization_id=?")
+          .bind(f.organizationId)
+          .all()
+      ).results,
+    ).toEqual(before.results);
+    expect(await financialEffects(f.organizationId)).toEqual({
+      approvals: 1,
+      reservations: 0,
+      outbox: 0,
+      charges: 0,
+      attempts: 0,
+    });
+  });
+  it("resumes a failure after guarded cancellation without reusing approval or sending", async () => {
+    const { f, p } = await expiredPreparation();
+    const preparation = vi
+      .spyOn(f.service, "prepare")
+      .mockRejectedValueOnce(new Error("Synthetic preparation interruption"));
+    await expect(f.service.renew(f.ctx, p.view.id, f.owner)).rejects.toThrow(
+      "Synthetic preparation interruption",
+    );
+    expect((await f.service.get(f.ctx, p.view.id)).renewal).toMatchObject({
+      available: true,
+      replacementId: null,
+    });
+    const renewed = await f.service.renew(f.ctx, p.view.id, f.owner);
+    expect(renewed.status).toBe("preparing");
+    expect(preparation).toHaveBeenCalledTimes(2);
+    expect(await financialEffects(f.organizationId)).toEqual({
+      approvals: 0,
+      reservations: 0,
+      outbox: 0,
+      charges: 0,
+      attempts: 0,
+    });
+    preparation.mockRestore();
+  });
+  it("refuses valid, active, manually cancelled and attempted preparations", async () => {
+    const valid = await fixture("production", 1, "verified_account");
+    const current = await prepared(valid);
+    await expect(
+      valid.service.renew(valid.ctx, current.view.id, valid.owner),
+    ).rejects.toMatchObject({ code: "QUOTE_STILL_VALID" });
+    const active = await accepted(valid);
+    await expect(
+      valid.service.renew(valid.ctx, active.view.id, valid.owner),
+    ).rejects.toMatchObject({ code: "SECURE_QUOTE_RENEWAL_UNSAFE" });
+    const cancelled = await expiredPreparation();
+    await cancelled.f.domain.cancelDispatch(
+      cancelled.f.ctx,
+      cancelled.p.view.dispatchId!,
+    );
+    await expect(
+      cancelled.f.service.renew(
+        cancelled.f.ctx,
+        cancelled.p.view.id,
+        cancelled.f.owner,
+      ),
+    ).rejects.toMatchObject({ code: "SECURE_QUOTE_RENEWAL_UNSAFE" });
+    const attempted = await expiredPreparation();
+    await db
+      .prepare(
+        "INSERT INTO attempts(id,dispatch_id,organization_id,provider,status,created_at,updated_at) VALUES(?,?,?,'resend','unknown',?,?)",
+      )
+      .bind(
+        id("attempt"),
+        attempted.p.view.dispatchId,
+        attempted.f.organizationId,
+        stamp(),
+        stamp(),
+      )
+      .run();
+    await expect(
+      attempted.f.service.renew(
+        attempted.f.ctx,
+        attempted.p.view.id,
+        attempted.f.owner,
+      ),
+    ).rejects.toMatchObject({ code: "SECURE_QUOTE_RENEWAL_UNSAFE" });
+    expect(
+      (
+        await attempted.f.domain.getDispatch(
+          attempted.f.ctx,
+          attempted.p.view.dispatchId!,
+        )
+      ).dispatch.status,
+    ).toBe("prepared");
+  });
+  it("requires current browser approver authority and isolates tenants", async () => {
+    const { f, p } = await expiredPreparation();
+    await expect(
+      f.service.renew({ ...f.ctx, actor: "mcp" }, p.view.id, f.owner),
+    ).rejects.toMatchObject({ code: "BROWSER_REQUIRED" });
+    await expect(
+      f.service.renew({ ...f.ctx, role: "member" }, p.view.id, f.owner),
+    ).rejects.toMatchObject({ code: "FORBIDDEN" });
+    const other = await fixture("production", 1, "verified_account");
+    await expect(
+      other.service.renew(other.ctx, p.view.id, other.owner),
+    ).rejects.toMatchObject({ code: "NOT_FOUND" });
+    await db
+      .prepare("DELETE FROM personal_sessions WHERE token_hash=?")
+      .bind(f.owner.tokenHash)
+      .run();
+    await expect(
+      f.service.renew(f.ctx, p.view.id, f.owner),
+    ).rejects.toMatchObject({ code: "SECURE_QUOTE_RENEWAL_UNSAFE" });
+    expect(
+      (await f.domain.getDispatch(f.ctx, p.view.dispatchId!)).dispatch.status,
+    ).toBe("prepared");
+  });
+  it.each(["cancellation", "membership", "session"] as const)(
+    "refuses a racing %s change at its guarded update",
+    async (change) => {
+      const { f, p } = await expiredPreparation();
+      const original = f.env.DB;
+      if (change === "membership")
+        await original
+          .prepare(
+            "INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES(?,?,'admin',?)",
+          )
+          .bind(f.organizationId, f.recipient.userId, stamp())
+          .run();
+      let intercepted = false;
+      f.env.DB = new Proxy(original, {
+        get(target, property) {
+          if (property === "batch")
+            return async (statements: D1PreparedStatement[]) => {
+              if (!intercepted) {
+                intercepted = true;
+                if (change === "cancellation")
+                  await f.domain.cancelDispatch(f.ctx, p.view.dispatchId!);
+                else if (change === "membership")
+                  await original
+                    .prepare(
+                      "UPDATE memberships SET role='member' WHERE organization_id=? AND user_id=?",
+                    )
+                    .bind(f.organizationId, f.ctx.userId)
+                    .run();
+                else
+                  await original
+                    .prepare("DELETE FROM personal_sessions WHERE token_hash=?")
+                    .bind(f.owner.tokenHash)
+                    .run();
+              }
+              return target.batch(statements);
+            };
+          const value = Reflect.get(target, property);
+          return typeof value === "function" ? value.bind(target) : value;
+        },
+      });
+      await expect(
+        f.service.renew(f.ctx, p.view.id, f.owner),
+      ).rejects.toMatchObject({ code: "SECURE_QUOTE_RENEWAL_UNSAFE" });
+      expect(
+        await db
+          .prepare(
+            "SELECT count(*) n FROM secure_document_events WHERE distribution_id=? AND type='quote_renewal_started'",
+          )
+          .bind(p.view.id)
+          .first(),
+      ).toEqual({ n: 0 });
+      expect(
+        await db
+          .prepare(
+            "SELECT count(*) n FROM secure_distributions WHERE organization_id=?",
+          )
+          .bind(f.organizationId)
+          .first(),
+      ).toEqual({ n: 1 });
     },
   );
 });

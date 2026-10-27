@@ -244,6 +244,16 @@ fields. Import never sends that chat message automatically. Local SDK fixtures
 do not qualify the actual automatic or explicit-message native handoff retest.
 Privacy/confirmations, physical iPhone and other hosts remain independent gates;
 package generation creates no activation or transfer proof.
+The **1.1.12 source candidate**, dated 27 October, synchronizes application,
+ChatGPT/Claude packages and the downloadable archive for
+[secure invitation recovery](SECURE_DISTRIBUTION_JOURNEYS.md#recover-an-expired-invitation-quote).
+Its portable workflow directs an expired quote to the browser's explicit
+**Refresh quote** action, then follows the returned replacement and new human
+review. MCP tool schemas, annotations and scopes remain unchanged; standard
+summaries expose no browser renewal metadata and no tool gains renewal or approval
+authority. Rebuild/fingerprint the archive from the exact source; package parity
+is not an actual host import, marketplace submission or production publication.
+
 The full synthetic source-review inventory is 83 tools: 75 ordinary, two gated
 probe tools and six gated original-picker tools. The five App-only upload tools
 and ordinary `begin_document_upload` disclose potential exact unregistered-object

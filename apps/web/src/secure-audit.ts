@@ -21,6 +21,7 @@ export function secureAuditLabel(type: string) {
     personal_copy_deposited: msg("Personal copy delivered"),
     revoked: msg("Shared access revoked"),
     preparation_started: msg("Preparation in progress"),
+    quote_renewal_started: msg("Quote refresh requested"),
     preparation_completed: msg("Share prepared"),
     preparation_failed: msg("Preparation failed"),
     recipient_association_requested: msg("Recipient association pending"),

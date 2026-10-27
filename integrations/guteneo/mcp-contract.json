@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "pluginVersion": "1.1.10",
-  "mcpSourceSha256": "cb1f4d2c3b781b69c3875ea2ccecacecf3aa48f617ca29b7128161a371251634",
-  "packageSha256": "76ce7ea0060823c395cc0b002d5006079ea5d40ab4d3234823db505c6aaa82ed",
+  "pluginVersion": "1.1.12",
+  "mcpSourceSha256": "edddff6c5ff072e4f40f48c322d3be0cf30a7c45a952118a6676a39e1c94c081",
+  "packageSha256": "aecfb15c190c3b83fe20d48565dd3bce889c1bb04c022ea4eb45f6a4dcab44b4",
   "sources": {
     "apps/api/src/auth.ts": "6eed0c0fc9922d21777df4d975c6d3280717ba97453629e8e957060863c9bba0",
     "apps/api/src/connection-observations.ts": "40278b9fab339e05949a04c2d2718348236e9362e944f95a4d2a3466c186fa24",
@@ -33,7 +33,7 @@
     "packages/contracts/src/postal-review.ts": "1964c732de140ec4ae1449ca527488414269840bcb831838eff8dbe79c34869b",
     "packages/contracts/src/postal-setup.ts": "93076fb653e44b25e9cbc36eecc7514bf8b35ffa2ba3720965c7ef80962de2fc",
     "packages/contracts/src/release.ts": "4edd274e1c5e5bbb97e8004ca81b9bf87ff81f0ba8bab4315f9c2b583ef323c1",
-    "packages/contracts/src/secure-distribution.ts": "153065d9f7cf13c331b72585af06d9561f030c6b53581f7b1d16dd4c6345e900",
+    "packages/contracts/src/secure-distribution.ts": "883c61998161cef8ed819d8c1ae8e55fcdedf6add66f85334156eb76268fe7dd",
     "packages/contracts/src/template-workflow.ts": "1b7814220766d35b0463cd4cabc424ec6b721e96587b66c700c59dde0a966a74",
     "packages/domain/src/index.ts": "774820fc87756cfb17587817ca9c4458f4062ec71bf2894f1cd7210a4af50913",
     "packages/observability/src/index.ts": "be569f18327e5db3bcb143682acf94f300d52b1985904c777a524877ee7034db"

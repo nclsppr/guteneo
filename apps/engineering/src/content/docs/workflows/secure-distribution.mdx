@@ -37,12 +37,12 @@ the original PDF; failed rendering cannot fall back to the original.
 
 The sharing contract distinguishes:
 
-| Choice | Effect |
-| --- | --- |
-| Shared access for 7/30/90/365 days | Revocable access until the displayed expiry |
-| Original download permission | Separate explicit export of the source |
+| Choice                                  | Effect                                                   |
+| --------------------------------------- | -------------------------------------------------------- |
+| Shared access for 7/30/90/365 days      | Revocable access until the displayed expiry              |
+| Original download permission            | Separate explicit export of the source                   |
 | Personal-copy option for 365/1,095 days | Independent exportable retention, starting when acquired |
-| Invitation transport | Separate provider operation and quote component |
+| Invitation transport                    | Separate provider operation and quote component          |
 
 The server catalog owns versioned prices. A retention term and any personal-copy
 option are funded at activation, even if the recipient never requests a copy.
@@ -56,10 +56,34 @@ policy. An expert mandate cannot replace it. REST/MCP can prepare, inspect and
 confirm an exactly approved distribution under current rights/scopes and host
 confirmation; it cannot supply sensitive approval or associate the recipient.
 
-<GutenbergNote pose="review" title="A proof and a delivery are separate commitments">
+<GutenbergNote
+  pose="review"
+  title="A proof and a delivery are separate commitments"
+>
   Approving exact pages does not identify the recipient's account. Independent
   association is checked separately before any sensitive title or page is shown.
 </GutenbergNote>
+
+## Renew an unsubmitted invitation quote
+
+A sign-in interruption can outlast the invitation's provider quote. When approval
+reports expiry or changed quote configuration, **Refresh quote** is an explicit
+browser action for a current approver with source access and recent document
+authentication. It preserves the original source, recipient, rights, content and
+ceiling, and prepares a separate immutable distribution at the current qualified
+price. It does not extend an old quote or transfer its approval.
+
+The original must still be unsubmitted. Guarded cancellation and a durable marker
+prevent a racing acceptance from also producing a replacement. A lost response
+resumes the same renewal and returns its existing replacement. Accepted, attempted
+or uncertain sending requires reconciliation, never this action. Follow the new
+preparation, review the final pages and price again, then separately approve and
+activate. No charge or provider attempt is created by renewal.
+
+This recovery is browser-only; assistants retain their existing read and
+confirmation contracts. The 27 October candidate changes no tariff, provider
+qualification, authentication policy or mandate. Local tests and source presence
+remain distinct from hosted recovery, production publication and delivery proof.
 
 ## The active document policy remains explicit
 
@@ -77,10 +101,13 @@ must agree or access fails closed. Session access hints explain the UI but do
 not grant server authority. Returning to strong mode cannot relabel an ordinary
 approval as strong evidence.
 
-A policy/freshness refusal offers **Check my access** for voluntary fresh login
-and a secret-free return to the distribution list. Reauthentication creates no
-approval, new preparation or activation. Passkey selection is a separate product
-and deployment decision.
+A document-authentication or freshness refusal shows a localized sign-in notice
+with an explicit **Sign in again** action. Fresh login returns to the existing
+share when its bounded application destination is valid; query and secondary
+fragment values are dropped. It preserves no private
+form fields, replays no mutation and grants no approval or activation. Recipient
+invitation secrets follow the separate handoff below. Passkey selection remains
+a separate product and deployment decision.
 
 ## Invitation possession is insufficient
 

@@ -1,6 +1,6 @@
 ---
 title: "Access and identity"
-description: "33 capabilities in the access branch of Guteneo."
+description: "34 capabilities in the access branch of Guteneo."
 sidebar:
   order: 1
 ---
@@ -49,6 +49,7 @@ Unified personal account and optional workspace implementation; migrations, alig
 <li id="feature-fd09f6d08c28">Document policy defaults to strong or explicitly selects verified_account: verified account/address and signed recent auth_time; fifteen minutes for reading/association/approval and five for export/deposit/deletion; documentAccessAllowed/documentAccessMode do not imply MFA or strongAuthentication; D1 defaults strong and environment disagreement fails closed</li>
 <li id="feature-f9f5d7df1035">Document invitation handoff lasts at most ten minutes in the same tab, then is deleted; capture before Auth0 with secret-free returnTo and no arbitrary private query</li>
 <li id="feature-455cf75df968">Document-service 401 offers explicit recovery without session-bootstrap loops; Auth0 recovery reconciles language and returned identity</li>
+<li id="feature-e3c45a318ca0">Document-authentication and browser-approval freshness refusals use localized sign-in recovery in all four languages; explicit fresh login preserves the valid current application route and locale without replaying mutations or weakening session-age checks</li>
 <li id="feature-d6bb64f893db">Ordinary application entry without workshop membership offers workspace creation or joining through an existing canonical same-origin invitation with the shared raw 43-character base64url token contract, fragment clearing and explicit acceptance; server-generated invitation integration covers the entry, preview and auth handoff, while the stored SHA-256 hash never enters the link; explicit personal document entry remains independent, with no public workspace enumeration</li>
 <li id="feature-f86a9c83e39e">Production browser configuration selects auth.guteneo.com; the tenant-wide custom-domain email flag and exact authorization-response issuer identification were applied and reread on 27 October, without sending verification mail or qualifying human login</li>
 </ol>

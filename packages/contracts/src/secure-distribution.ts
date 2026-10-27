@@ -184,6 +184,12 @@ export interface SecureDistributionView {
   recipientBinding: "pending" | "confirmed";
   approved: boolean;
   approval: { fingerprint: string; expiresAt: string } | null;
+  /** Browser recovery metadata; it grants no approval or sending authority. */
+  renewal?: {
+    expiresAt: string | null;
+    replacementId: string | null;
+    available: boolean;
+  };
   pendingClaim: {
     recipientUserId: string;
     name: string;

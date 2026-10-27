@@ -193,6 +193,12 @@
   border: 1px solid var(--line);
   background: var(--surface);
 }
+.secure-document-pagination {
+  display: contents;
+}
+.secure-document-pagination button > svg {
+  display: none;
+}
 .secure-document-pages {
   display: grid;
   justify-items: center;
@@ -476,16 +482,188 @@
   font-size: 15px;
   line-height: 1.6;
 }
-.personal-space-v2 :is(.secure-document-panel, .form-panel, .notice) {
+.personal-space-v2 :is(.form-panel, .notice) {
   border-radius: 10px;
 }
-.personal-space-v2 :is(.secure-document-panel, .form-panel) > h2 {
+.personal-space-v2 .form-panel > h2 {
   font-family: var(--font-body);
   font-size: 18px;
   font-weight: 500;
   line-height: 1.4;
   letter-spacing: -0.01em;
   color: var(--ink);
+}
+/* Secure document controls share the workshop and personal V2 vocabulary.
+   The Classic layout and original document page geometry remain independent. */
+:is(.workspace-v2, .personal-space-v2) .secure-document-layout {
+  min-width: 0;
+  gap: 24px;
+}
+:is(.workspace-v2, .personal-space-v2) .secure-document-layout > .page-heading {
+  margin-bottom: 0;
+}
+:is(.workspace-v2, .personal-space-v2)
+  .secure-document-layout
+  > .section-toolbar {
+  margin: 0;
+}
+:is(.workspace-v2, .personal-space-v2)
+  .secure-document-layout
+  > .section-toolbar
+  p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+  max-width: 64ch;
+}
+:is(.workspace-v2, .personal-space-v2)
+  :is(
+    .secure-document-panel,
+    .secure-document-reader-toolbar,
+    .secure-document-pages,
+    .secure-document-accessible-text
+  ) {
+  min-width: 0;
+  border-radius: 10px;
+}
+:is(.workspace-v2, .personal-space-v2) .secure-document-panel > h2,
+:is(.workspace-v2, .personal-space-v2) .secure-document-form legend {
+  font-family: var(--font-body);
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+:is(.workspace-v2, .personal-space-v2) .secure-distribution-composer {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  max-width: none;
+  align-items: start;
+  gap: 24px;
+}
+:is(.workspace-v2, .personal-space-v2)
+  .secure-distribution-composer
+  > :is(.secure-document-invitation, .secure-document-price, .notice) {
+  grid-column: 1 / -1;
+}
+:is(.workspace-v2, .personal-space-v2) .secure-distribution-composer > .button {
+  justify-self: start;
+}
+:is(.workspace-v2, .personal-space-v2) .secure-document-check {
+  font-size: 14px;
+  line-height: 1.6;
+}
+:is(.workspace-v2, .personal-space-v2) .secure-document-check > span {
+  min-width: 0;
+}
+:is(.workspace-v2, .personal-space-v2) .secure-document-facts {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
+  gap: 20px 24px;
+}
+:is(.workspace-v2, .personal-space-v2) .secure-document-facts dd {
+  font-size: 14px;
+  line-height: 1.6;
+}
+:is(.workspace-v2, .personal-space-v2) .secure-document-price {
+  border-radius: 7px;
+  background: var(--surface-alt);
+  padding: 20px;
+}
+:is(.workspace-v2, .personal-space-v2) .secure-document-price > strong {
+  font-family: var(--font-body);
+  font-size: 24px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--heading-ink);
+}
+:is(.workspace-v2, .personal-space-v2) .secure-document-price > :last-child {
+  margin-bottom: 0;
+}
+:is(.workspace-v2, .personal-space-v2) .secure-document-list {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  overflow: hidden;
+}
+:is(.workspace-v2, .personal-space-v2) .secure-document-list > li {
+  padding: 16px 20px;
+  min-width: 0;
+}
+:is(.workspace-v2, .personal-space-v2) .secure-document-list > li:last-child {
+  border-bottom: 0;
+}
+:is(.workspace-v2, .personal-space-v2) .secure-document-list > li > div {
+  min-width: 0;
+  flex: 1;
+}
+:is(.workspace-v2, .personal-space-v2) .secure-document-list :is(h2, h3) {
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--ink);
+}
+:is(.workspace-v2, .personal-space-v2) .secure-document-tag {
+  border-radius: 7px;
+  line-height: 1.4;
+  white-space: normal;
+}
+:is(.workspace-v2, .personal-space-v2) .secure-document-reader {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+:is(.workspace-v2, .personal-space-v2) .secure-document-reader-toolbar {
+  padding: 12px 16px;
+  gap: 12px;
+}
+:is(.workspace-v2, .personal-space-v2) .secure-document-pagination {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+:is(.workspace-v2, .personal-space-v2)
+  .secure-document-pagination
+  button
+  > svg {
+  display: block;
+}
+:is(.workspace-v2, .personal-space-v2)
+  .secure-document-pagination
+  button
+  > span {
+  display: none;
+}
+:is(.workspace-v2, .personal-space-v2) .secure-document-pages > .notice {
+  width: 100%;
+  max-width: 720px;
+}
+:is(.workspace-v2, .personal-space-v2) .secure-document-accessible-text {
+  width: 100%;
+  overflow-wrap: anywhere;
+}
+:is(.workspace-v2, .personal-space-v2) .secure-document-audit strong {
+  font-weight: 500;
+}
+@media (max-width: 1100px) {
+  :is(.workspace-v2, .personal-space-v2) .secure-distribution-composer {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 767px) {
+  :is(.workspace-v2, .personal-space-v2) .secure-document-layout {
+    gap: 20px;
+  }
+  :is(.workspace-v2, .personal-space-v2) .secure-document-price {
+    padding: 16px;
+  }
+  :is(.workspace-v2, .personal-space-v2) .secure-document-reader-toolbar {
+    padding: 12px;
+  }
+  :is(.workspace-v2, .personal-space-v2) .secure-distribution-composer > .button {
+    width: 100%;
+  }
 }
 .sidebar nav .personal-context-link {
   margin-bottom: 8px;
