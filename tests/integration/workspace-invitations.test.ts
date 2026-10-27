@@ -10,7 +10,8 @@ import {
   vi,
 } from "vitest";
 import { Miniflare, convertV4MiniflareOptions } from "miniflare";
-import { hashSecret } from "../../apps/api/src/auth";
+import { handleAuthRoute, hashSecret } from "../../apps/api/src/auth";
+import { workspaceInvitationPath } from "../../apps/web/src/workspace-entry";
 import {
   acceptWorkspaceInvitation,
   getInvitationPreview,
@@ -249,6 +250,37 @@ describe("workspace invitations — actual D1, synthetic delivery only", () => {
         deliveryStatus: "simulated",
       });
       expect(token(invitation)).toMatch(/^[A-Za-z0-9_-]{43}$/);
+      const path = workspaceInvitationPath(
+        invitation.previewUrl!,
+        env.APP_ORIGIN,
+      );
+      expect(path).toBe(`/invitation/#token=${token(invitation)}`);
+      const rawToken = new URLSearchParams(
+        new URL(path!, env.APP_ORIGIN).hash.slice(1),
+      ).get("token");
+      const preview = await handleInvitationRoute(
+        request("/api/invitations/preview", admin, "POST", { token: rawToken }),
+        env,
+      );
+      expect(preview!.status).toBe(200);
+      expect(await preview!.json()).toMatchObject({
+        organization: { name: "Atelier fictif" },
+        status: "pending",
+      });
+      const memberships = await count("memberships");
+      const handoff = await handleAuthRoute(
+        request("/auth/invitation", admin, "POST", { token: rawToken }),
+        env,
+      );
+      expect(handoff!.status).toBe(200);
+      expect(await handoff!.json()).toEqual({
+        loginUrl: "/auth/login?fresh=1",
+      });
+      expect(handoff!.headers.get("Set-Cookie")).toContain(
+        `guteneo_invitation=${rawToken}`,
+      );
+      expect(handoff!.headers.get("Set-Cookie")).toContain("HttpOnly");
+      expect(await count("memberships")).toBe(memberships);
       const row = await db
         .prepare(
           "SELECT token_hash,email FROM workspace_invitations WHERE id=?",

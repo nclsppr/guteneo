@@ -19,7 +19,7 @@ test("the account appearance control sits beside language and persists for this 
   await page.goto("/?lang=fr#/app/account");
   await expect(page.locator(".workspace")).toHaveAttribute(
     "data-appearance",
-    "classic",
+    "v2",
   );
   await expect(page.locator(".sidebar #dashboard-appearance")).toHaveCount(0);
   const preferences = page.locator(".account-display-preferences");
@@ -27,7 +27,7 @@ test("the account appearance control sits beside language and persists for this 
   await expect(preferences.locator("#dashboard-appearance")).toBeVisible();
   const originalHash = new URL(page.url()).hash;
 
-  for (const appearance of ["v2", "classic", "v2"]) {
+  for (const appearance of ["classic", "v2"]) {
     await page.locator("#dashboard-appearance").selectOption(appearance);
     await expect(page.locator(".workspace")).toHaveAttribute(
       "data-appearance",

@@ -9,6 +9,7 @@ import {
   type ReactNode,
 } from "react";
 import {
+  defaultDashboardAppearance,
   isDashboardAppearance,
   type DashboardAppearance,
 } from "../../../packages/contracts/src/dashboard-appearance";
@@ -31,7 +32,7 @@ type AppearanceContext = {
 };
 
 const DashboardAppearanceContext = createContext<AppearanceContext>({
-  appearance: "classic",
+  appearance: defaultDashboardAppearance,
   setAppearance: () => undefined,
   applyAccountAppearance: () => undefined,
   saveAccountAppearance: () => undefined,
@@ -75,7 +76,7 @@ export function initialDashboardAppearance(
   } catch {
     // A blocked or unavailable store falls back to the current presentation.
   }
-  return "classic";
+  return defaultDashboardAppearance;
 }
 
 export function dashboardAppearanceUrl(

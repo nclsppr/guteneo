@@ -5,9 +5,10 @@ import {
 } from "./belvedere-policy";
 import { accountEmail } from "../../../packages/contracts/src/account-identity";
 import { documentAccessMode } from "../../../packages/contracts/src/document-authentication";
-import type { DashboardAppearance } from "../../../packages/contracts/src/dashboard-appearance";
+import { defaultDashboardAppearance, type DashboardAppearance } from "../../../packages/contracts/src/dashboard-appearance";
 import { isDispatchGroup } from "../../../packages/contracts/src/dispatch-groups";
 import { acceptWorkspaceInvitation, getInvitationPreview } from "./invitations";
+import { isWorkspaceInvitationToken } from "../../../packages/contracts/src/workspace-invitation-token";
 import {
   workspacePermissions,
   type WorkspaceRole,
@@ -1408,8 +1409,7 @@ async function handleAuthRouteOperation(
       typeof input !== "object" ||
       Object.keys(input).length !== 1 ||
       !("token" in input) ||
-      typeof input.token !== "string" ||
-      !/^[A-Za-z0-9_-]{43}$/.test(input.token)
+      !isWorkspaceInvitationToken(input.token)
     )
       throw new AuthError("INVALID_INPUT", "Invalid invitation.", 400);
     const preview = await getInvitationPreview(env, input.token);
@@ -1464,10 +1464,9 @@ async function handleAuthRouteOperation(
       .replaceAll("/", "_")
       .replaceAll("=", "");
     const invitationToken = readCookie(request, cookieName(env, "invitation"));
-    const invitationHash =
-      invitationToken && /^[A-Za-z0-9_-]{43}$/.test(invitationToken)
-        ? await hashSecret(invitationToken)
-        : null;
+    const invitationHash = isWorkspaceInvitationToken(invitationToken)
+      ? await hashSecret(invitationToken)
+      : null;
     await env.DB.prepare(
       "INSERT INTO auth_transactions(state_hash,browser_hash,code_verifier,nonce,return_to,expires_at,preferred_locale,invitation_token_hash,authorization_issuer,identity_issuer,account_context) VALUES(?,?,?,?,?,?,?,?,?,?,?)",
     )
@@ -1684,7 +1683,7 @@ async function handleAuthRouteOperation(
         ? []
         : [
             env.DB.prepare(
-              "INSERT INTO users(id,name,email,created_at,preferred_locale) VALUES(?,?,?,?,?)",
+              "INSERT INTO users(id,name,email,created_at,preferred_locale,preferred_dashboard_appearance) VALUES(?,?,?,?,?,?)",
             ).bind(
               userId,
               typeof claims.name === "string"
@@ -1693,6 +1692,7 @@ async function handleAuthRouteOperation(
               claims.email,
               createdAt,
               transaction.preferred_locale,
+              defaultDashboardAppearance,
             ),
             env.DB.prepare(
               "INSERT INTO auth_identities(issuer,subject,user_id,created_at) VALUES(?,?,?,?)",
@@ -1724,7 +1724,7 @@ async function handleAuthRouteOperation(
       try {
         await env.DB.batch([
           env.DB.prepare(
-            "INSERT INTO users(id,name,email,created_at,preferred_locale) VALUES(?,?,?,?,?)",
+            "INSERT INTO users(id,name,email,created_at,preferred_locale,preferred_dashboard_appearance) VALUES(?,?,?,?,?,?)",
           ).bind(
             userId,
             typeof claims.name === "string"
@@ -1733,6 +1733,7 @@ async function handleAuthRouteOperation(
             claims.email.trim().toLowerCase(),
             createdAt,
             transaction.preferred_locale,
+            defaultDashboardAppearance,
           ),
           env.DB.prepare(
             "INSERT INTO auth_identities(issuer,subject,user_id,created_at) VALUES(?,?,?,?)",

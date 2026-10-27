@@ -1614,5 +1614,50 @@
     "Menus and access options may vary depending on your account.",
     "Menüs und Zugriffsmöglichkeiten können je nach Konto variieren.",
     "D’Menüen an d’Zougangsméiglechkeete kënne jee no Kont variéieren."
+  ],
+  "L’archive contient l’identifiant OAuth public de Guteneo. Connectez-vous sur auth.guteneo.com, vérifiez les autorisations, puis revenez dans ChatGPT. Aucun secret client n’est nécessaire.": [
+    "The archive includes Guteneo’s public OAuth client ID. Sign in at auth.guteneo.com, review the permissions, then return to ChatGPT. No client secret is needed.",
+    "Das Archiv enthält die öffentliche OAuth-Client-ID von Guteneo. Melden Sie sich auf auth.guteneo.com an, prüfen Sie die Berechtigungen und kehren Sie zu ChatGPT zurück. Ein Client-Geheimnis ist nicht erforderlich.",
+    "Den Archiv enthält déi ëffentlech OAuth-Client-ID vu Guteneo. Mellt Iech op auth.guteneo.com un, kontrolléiert d’Autorisatiounen a gitt zeréck op ChatGPT. Kee Client-Geheimnis ass néideg."
+  ],
+  "ChatGPT demande un identifiant client OAuth": [
+    "ChatGPT asks for an OAuth client ID",
+    "ChatGPT fragt nach einer OAuth-Client-ID",
+    "ChatGPT freet no enger OAuth-Client-ID"
+  ],
+  "Téléchargez le dernier ZIP et mettez le plugin à jour. Si ChatGPT le demande encore, sélectionnez « Adresse MCP » ici et copiez l’identifiant client public fourni. Laissez le secret client vide.": [
+    "Download the latest ZIP and update the plugin. If ChatGPT still asks, select “MCP address” here and copy the supplied public client ID. Leave the client secret empty.",
+    "Laden Sie das neueste ZIP herunter und aktualisieren Sie das Plugin. Falls ChatGPT weiterhin danach fragt, wählen Sie hier „MCP-Adresse“ und kopieren Sie die angegebene öffentliche Client-ID. Lassen Sie das Client-Geheimnis leer.",
+    "Luet déi neiste ZIP-Datei erof an aktualiséiert de Plugin. Wann ChatGPT nach ëmmer freet, wielt hei „MCP-Adress“ a kopéiert déi uginn ëffentlech Client-ID. Loosst d’Client-Geheimnis eidel."
+  ],
+  "Utilisez le client OAuth enregistré de Guteneo": [
+    "Use Guteneo’s registered OAuth client",
+    "Verwenden Sie den registrierten OAuth-Client von Guteneo",
+    "Benotzt de registréierten OAuth-Client vu Guteneo"
+  ],
+  "Choisissez un client enregistré et copiez cet identifiant client public. Si demandé, sélectionnez aucune authentification du client (none) et laissez le secret client vide. Ne choisissez pas l’enregistrement dynamique.": [
+    "Choose a registered client and copy this public client ID. Select no client authentication (none) if asked, and leave the client secret empty. Do not choose dynamic registration.",
+    "Wählen Sie einen registrierten Client und kopieren Sie diese öffentliche Client-ID. Wählen Sie bei Bedarf keine Client-Authentifizierung (none) und lassen Sie das Client-Geheimnis leer. Wählen Sie keine dynamische Registrierung.",
+    "Wielt e registréierte Client a kopéiert dës ëffentlech Client-ID. Wielt op Ufro keng Client-Authentifikatioun (none) a loosst d’Client-Geheimnis eidel. Wielt keng dynamesch Registréierung."
+  ],
+  "Connectez-vous sur auth.guteneo.com, vérifiez les autorisations et choisissez Create as a plugin. Vérifiez les outils disponibles, puis installez votre plugin personnel.": [
+    "Sign in at auth.guteneo.com, review the permissions and choose Create as a plugin. Check the available tools, then install your personal plugin.",
+    "Melden Sie sich auf auth.guteneo.com an, prüfen Sie die Berechtigungen und wählen Sie Create as a plugin. Prüfen Sie die verfügbaren Werkzeuge und installieren Sie dann Ihr persönliches Plugin.",
+    "Mellt Iech op auth.guteneo.com un, kontrolléiert d’Autorisatiounen a wielt Create as a plugin. Kontrolléiert déi disponibel Wierkzeugen an installéiert dann Äre perséinleche Plugin."
+  ],
+  "ChatGPT refuse l’adresse de retour OAuth": [
+    "ChatGPT rejects the OAuth redirect address",
+    "ChatGPT lehnt die OAuth-Weiterleitungsadresse ab",
+    "ChatGPT refuséiert d’OAuth-Retouradress"
+  ],
+  "Mettez la connexion existante à jour avec la dernière archive. Si l’erreur persiste, contactez l’assistance Guteneo avec l’adresse de retour exacte affichée par ChatGPT. Ne partagez jamais de mot de passe, de jeton ou de secret client.": [
+    "Update the existing connection with the latest archive. If the error remains, contact Guteneo support with the exact redirect address shown by ChatGPT. Never share a password, token or client secret.",
+    "Aktualisieren Sie die bestehende Verbindung mit dem neuesten Archiv. Falls der Fehler bleibt, kontaktieren Sie den Guteneo-Support mit der genauen Weiterleitungsadresse aus ChatGPT. Geben Sie niemals ein Passwort, Token oder Client-Geheimnis weiter.",
+    "Aktualiséiert déi bestoend Verbindung mam neisten Archiv. Wann de Feeler bleift, kontaktéiert de Guteneo-Support mat der exakter Retouradress aus ChatGPT. Deelt ni e Passwuert, Token oder Client-Geheimnis."
+  ],
+  "Copier l’identifiant client": [
+    "Copy client ID",
+    "Client-ID kopieren",
+    "Client-ID kopéieren"
   ]
 }

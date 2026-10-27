@@ -78,6 +78,23 @@ proof. Replace `REPLACE_WITH_REGISTERED_PUBLIC_CLIENT_ID` or
 the host's exact callback. Claude.ai's hosted client is not a Claude Code loopback
 client. Discovery of a registration URL proves neither DCR nor CIMD compatibility.
 
+The ChatGPT ZIP includes Guteneo's registered public OAuth client, branded
+authorization/token endpoints and the existing MCP scope list in `mcp.json`.
+ChatGPT reads `extensions["com.openai"].auth`; no client secret belongs in the
+archive or conversation. After importing this version, use **Connect** and finish
+the personal login and permission review. Account access is not granted by the
+public client identifier. The existing browser client and private reviewer
+connection are separate and must not be substituted.
+
+For a manually added MCP address, copy the public client ID from the
+[ChatGPT guide](https://guteneo.com/assistants/chatgpt/?lang=en), select OAuth and
+leave the client-secret field empty. If an older installed connection still asks
+for an ID, update its saved configuration or import the current ZIP; refreshing
+the tool list alone need not replace saved OAuth settings. Guteneo does not
+advertise open dynamic registration. A callback mismatch requires comparing the
+exact ChatGPT redirect URI with the registered callback list; never invent an ID,
+use the browser application's credentials or authorize wildcard callbacks.
+
 For OAuth rejection, compare the advertised issuer exactly, including its
 trailing slash. Reconnect after token expiry or new scope grants, then check
 `get_capabilities`. ChatGPT **Refresh** updates metadata and proves no token

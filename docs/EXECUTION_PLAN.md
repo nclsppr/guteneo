@@ -1,5 +1,28 @@
 # Execution plan and handoff
 
+## Assistant setup and new accounts — 27 October 2026 candidate
+
+Release 1.1.9 preconfigures the existing public ChatGPT client in the downloadable
+plugin, supplies the same ID in the four-language manual guide and selects
+`auth.guteneo.com` for browser entry. Auth0 issuer-response identification,
+the additional stable ChatGPT callback and the tenant-wide custom-domain email
+flag were applied and reread on 27 October. Four unauthenticated authorization
+probes returned the exact issuer; no verification email, human OAuth consent,
+code exchange or new host tool call was performed. DCR remains disabled.
+[OAuth configuration](LLM_SETUP.md#chatgpt-oauth-configuration--27-october-2026)
+and [domain evidence](AUTH0_CUSTOM_DOMAIN.md) own the contracts and limits.
+
+New accounts explicitly persist V2; existing saved Classic/V2 preferences remain.
+Ordinary application entry without membership opens the existing Services area
+with create/join choices. Joining reuses the invitation and verified-email
+acceptance boundary; personal-document entry remains independent. No migration,
+workshop enumeration, provider activation or communication is added. See
+[account identity](ACCOUNT_IDENTITY.md) and [layout](DASHBOARD_V2.md).
+
+Publication still requires complete exact-source CI, clean merged main and served
+release/archive verification. Provider configuration, local fixtures, publication
+and actual ChatGPT installation remain separate evidence.
+
 ## MCP Apps original transport — 26 October 2026
 
 Release 1.1.6 at source `147ada069959f69440d4f98f968b0f2f5df1f7ba` is published

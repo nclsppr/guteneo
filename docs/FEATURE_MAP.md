@@ -1,8 +1,8 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
 # Guteneo feature tree and developer atlas
 
-**23 domains · 326 features · 37 journeys · 76 documented REST operations · 83 MCP tools**
-Updated 2026-10-26.
+**23 domains · 328 features · 37 journeys · 76 documented REST operations · 83 MCP tools**
+Updated 2026-10-27.
 
 Repository implementation inventory. Availability depends on current capabilities and authority; implementation, activation and deployed proof are distinct.
 
@@ -14,7 +14,7 @@ Start here to find a feature, its authority and its technical owner. Read [repos
 mindmap
   root((Guteneo))
     Access
-      Access and identity (31)
+      Access and identity (33)
       Team and responsibilities (10)
     Create
       Documents and protection (20)
@@ -46,7 +46,7 @@ mindmap
 
 ### Access
 
-- [Access and identity](#identity) — 31 features; browser-session.
+- [Access and identity](#identity) — 33 features; browser-session.
 - [Team and responsibilities](#team) — 10 features; browser-session.
 
 ### Create
@@ -182,10 +182,12 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Document policy defaults to strong or explicitly selects verified_account: verified account/address and signed recent auth_time; fifteen minutes for reading/association/approval and five for export/deposit/deletion; documentAccessAllowed/documentAccessMode do not imply MFA or strongAuthentication; D1 defaults strong and environment disagreement fails closed
 - Document invitation handoff lasts at most ten minutes in the same tab, then is deleted; capture before Auth0 with secret-free returnTo and no arbitrary private query
 - Document-service 401 offers explicit recovery without session-bootstrap loops; Auth0 recovery reconciles language and returned identity
+- Ordinary application entry without workshop membership offers workspace creation or joining through an existing canonical same-origin invitation with the shared raw 43-character base64url token contract, fragment clearing and explicit acceptance; server-generated invitation integration covers the entry, preview and auth handoff, while the stored SHA-256 hash never enters the link; explicit personal document entry remains independent, with no public workspace enumeration
+- Production browser configuration selects auth.guteneo.com; the tenant-wide custom-domain email flag and exact authorization-response issuer identification were applied and reread on 27 October, without sending verification mail or qualifying human login
 
 **Contract:** [ACCOUNT_IDENTITY.md](ACCOUNT_IDENTITY.md) · **Implementation:** [apps/api/src/auth.ts](../apps/api/src/auth.ts)
 
-**Tests:** [tests/unit/auth.test.ts](../tests/unit/auth.test.ts), [tests/unit/account.test.ts](../tests/unit/account.test.ts), [tests/e2e/account-identity.spec.ts](../tests/e2e/account-identity.spec.ts), [tests/e2e/resource-navigation.spec.ts](../tests/e2e/resource-navigation.spec.ts), [tests/unit/web-api-cancellation.test.ts](../tests/unit/web-api-cancellation.test.ts), [tests/e2e/login-entry.spec.ts](../tests/e2e/login-entry.spec.ts), [tests/security/auth0-branding.test.mjs](../tests/security/auth0-branding.test.mjs), [tests/e2e/pdf-validation.spec.ts](../tests/e2e/pdf-validation.spec.ts), [tests/e2e/dashboard.spec.ts](../tests/e2e/dashboard.spec.ts), [tests/e2e/locale-boundaries.spec.ts](../tests/e2e/locale-boundaries.spec.ts), [tests/unit/personal-auth.test.ts](../tests/unit/personal-auth.test.ts), [tests/unit/document-invitation.test.ts](../tests/unit/document-invitation.test.ts), [tests/distribution-e2e/personal-account.e2e.ts](../tests/distribution-e2e/personal-account.e2e.ts), [tests/unit/mcp-auth0-domain.test.ts](../tests/unit/mcp-auth0-domain.test.ts), [tests/unit/postal-authority.test.ts](../tests/unit/postal-authority.test.ts), [tests/integration/expert-status.test.ts](../tests/integration/expert-status.test.ts)
+**Tests:** [tests/unit/auth.test.ts](../tests/unit/auth.test.ts), [tests/unit/account.test.ts](../tests/unit/account.test.ts), [tests/e2e/account-identity.spec.ts](../tests/e2e/account-identity.spec.ts), [tests/e2e/resource-navigation.spec.ts](../tests/e2e/resource-navigation.spec.ts), [tests/unit/web-api-cancellation.test.ts](../tests/unit/web-api-cancellation.test.ts), [tests/e2e/login-entry.spec.ts](../tests/e2e/login-entry.spec.ts), [tests/security/auth0-branding.test.mjs](../tests/security/auth0-branding.test.mjs), [tests/e2e/pdf-validation.spec.ts](../tests/e2e/pdf-validation.spec.ts), [tests/e2e/dashboard.spec.ts](../tests/e2e/dashboard.spec.ts), [tests/e2e/locale-boundaries.spec.ts](../tests/e2e/locale-boundaries.spec.ts), [tests/unit/personal-auth.test.ts](../tests/unit/personal-auth.test.ts), [tests/unit/document-invitation.test.ts](../tests/unit/document-invitation.test.ts), [tests/distribution-e2e/personal-account.e2e.ts](../tests/distribution-e2e/personal-account.e2e.ts), [tests/unit/mcp-auth0-domain.test.ts](../tests/unit/mcp-auth0-domain.test.ts), [tests/unit/postal-authority.test.ts](../tests/unit/postal-authority.test.ts), [tests/integration/expert-status.test.ts](../tests/integration/expert-status.test.ts), [tests/unit/workspace-entry.test.ts](../tests/unit/workspace-entry.test.ts), [tests/integration/workspace-invitations.test.ts](../tests/integration/workspace-invitations.test.ts), [tests/e2e/personal-appearance.spec.ts](../tests/e2e/personal-appearance.spec.ts)
 
 
 
@@ -712,7 +714,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Six portable package workflows with English metadata, deterministic archives and inventory checks; portal review/publication remains separately evidenced
 - Manual host-specific installation packages; downloading grants no OAuth consent
 - ChatGPT guide defaults to a generated plugin ZIP with a manual MCP alternative, shared across public/account views in four languages; native download links need no business API request or new authority
-- Exact registered callback/client per host; DCR/CIMD advertising alone never proves installation
+- ChatGPT archive preconfigures its registered public OAuth client with no secret, custom-domain endpoints and existing scopes; the manual guide reads the same ID; stable callback requires exact issuer identification, while DCR/CIMD and actual host consent remain separately qualified
 - Explicit MCP annotations disclose overwrites, archival, sharing revocation, generation cancellation, review-token replacement and batch freezing
 - Every advertised tool has four annotation booleans and per-tool evidence, audited through actual tools/list
 - Every registered tool exposes its existing display title through annotations.title, including conditional tools; directory-compatible JSON dataset metadata preserves current business gates, while actual portal scan, each-tool host qualification, submission and public listing require separate evidence
@@ -825,8 +827,8 @@ Supervisor approval/reporting options are independent and off by default. Resour
 **Surfaces:** Authenticated web Classic/V2; native reads preference without a setter; no new business API/MCP authority.
 
 - Full real-web Classic/V2 views with the same account, tenant, resources and operations
-- Account at navigation bottom, saved Classic/V2 layout beside language, applied after a successful profile save; mobile identity remains visible with the menu closed; role and detailed permissions live on My account
-- Personal users.preferred_dashboard_appearance, migration 0053, classic default and cross-workshop/session/device reconciliation
+- Account at navigation bottom, saved Classic/V2 layout beside language, applied after a successful profile save; mobile identity remains visible with the menu closed and its V2 profile link retains a 44 px touch target; role and detailed permissions live on My account; native mobile details closes synchronously on Escape before a queued toggle reaches React, preserving summary focus and keyboard activation
+- Personal users.preferred_dashboard_appearance, migration 0053, V2 persisted for new accounts and used by browser fallbacks; existing saved Classic/V2 choices and cross-workshop/session/device reconciliation preserved
 - Personal documents apply the same saved Classic/V2 account layout in a shell filling the available width with responsive gutters and readable internal form measures, with lightweight independent navigation; personal and workshop customization reuse small shared language/theme/layout controls, preserving personal-only access and existing guarded PATCH authority
 - Strict browser account PATCH with current authority, Origin/CSRF and field-name audit; every role changes only its own preference
 - Temporary appearance=v2/classic override accepts legacy atelier URLs, never persists server-side and clears after explicit appearance save or identity change; local cache is non-authoritative
@@ -993,7 +995,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Maintained GitHub job/artifact/release explanation, fresh dependency boundaries and separate application/native/engineering evidence; every Ubuntu package installation, including engineering browsers, first prefers the runner's recognized official HTTPS archives while retaining signed package verification and the Azure fallback, and an unexpected mirror configuration fails closed
 - Curated Cloudflare/Auth0/transport dependencies, background jobs, tariff maintenance, design/i18n/accessibility, AI contribution and reproducible video/voice production guides
 - Origin-scoped system/light/dark selection uses guteneo.theme with pre-paint resolution, cross-tab/system updates and optional migration of a prior ui-mode choice; Nimbus data-mode styling, fixed blue chrome, script-free system fallback and readable ivory dark branding grant no account or operational authority
-- Three isolated browser shards for each desktop/mobile Chromium and iPhone WebKit profile, same-revision build artifacts and independent complete test-ID inventory accounting; no missing/duplicate shard, skipped required job, automatic retry or merged-main publication shortcut; V2 consent and fax-ceiling first fields share one trusted touch/keyboard or desktop fill with exact value/focus and pre-submit checks; V2 retains unchanged real GET responses and exact dispatch recipient, while fax preserves its original timing, typed decimal comma, normalized phone and 150-cent POST without refilling, logging recipients or claiming either unexplained historical Linux input loss was repaired
+- Three isolated browser shards for each desktop/mobile Chromium and iPhone WebKit profile, same-revision build artifacts and independent complete test-ID inventory accounting; exact skip declarations must remain in the discovered inventory and obsolete desktop exceptions are removed when Classic/V2 navigation runs on both profiles; no missing/duplicate shard, skipped required job, automatic retry or merged-main publication shortcut; V2 consent and fax-ceiling first fields share one trusted touch/keyboard or desktop fill with exact value/focus and pre-submit checks; V2 retains unchanged real GET responses and exact dispatch recipient, while fax preserves its original timing, typed decimal comma, normalized phone and 150-cent POST without refilling, logging recipients or claiming either unexplained historical Linux input loss was repaired
 
 **Contract:** [ENGINEERING_SITE.md](ENGINEERING_SITE.md) · **Implementation:** [apps/engineering/astro.config.ts](../apps/engineering/astro.config.ts)
 
@@ -1007,7 +1009,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 
 **Actor:** Visitor → verified account owner, with optional workspace membership. **Branch:** Access.
 
-Open the concise public homepage → choose visitor language or the header appearance icon → read How it works, Getting started, Pricing or PDF checks and the complete Support FAQ through canonical shared navigation → use the existing localized closing invitation and first-dispatch link above the home-only panorama → enter canonical Auth0 → register one personal account without an automatic workspace → receive documents or voluntarily choose/create a workspace for service use → verify current identity and rights. Return to the valid destination. Explicit logout opens the public home.
+Open the concise public homepage → choose visitor language or the header appearance icon → read How it works, Getting started, Pricing or PDF checks and the complete Support FAQ through canonical shared navigation → use the existing localized closing invitation and first-dispatch link above the home-only panorama → enter canonical Auth0 → register one personal account with V2 appearance → ordinary /app entry without membership opens Services with create/join workspace choice; explicit personal-document entry stays personal → create a workspace or review and accept an administrator invitation → verify current identity and rights. Return to the valid destination. Explicit logout opens the public home.
 
 **Failure/recovery:** Refuse invalid callback state, unknown issuer/subject or expired invitation. Recovery retries are explicit. Package download, optional Auth0 branding/domain and actual host sign-in each need separate proof. Public route presentation, a localized status link and the fictional example grant no approval or provider activation; failed detail loading retains complete static information.
 
@@ -1097,9 +1099,9 @@ Read accessible documents/dispatches → inspect tracking → use aggregate repo
 
 **Actor:** Existing Guteneo member and a host-supported OAuth client. **Branch:** Interfaces.
 
-Choose the host-specific guide → for ChatGPT download/import the plugin ZIP or choose manual MCP when unavailable → compare package version/hash and actual tool titles/schemas/descriptions → follow the maintained workflow skills/prompts under actual host rules and consent OAuth → verify read-only account capabilities/current mandate → use only available file transport/tools → prepare → review through browser or pre-existing bounded delegation → track.
+Choose the host-specific guide → for ChatGPT download/import the plugin ZIP or choose manual MCP with the supplied public client ID and empty secret when unavailable → compare package version/hash and actual tool titles/schemas/descriptions → follow the maintained workflow skills/prompts under actual host rules and consent OAuth → verify read-only account capabilities/current mandate → use only available file transport/tools → prepare → review through browser or pre-existing bounded delegation → track.
 
-**Failure/recovery:** Archive download/import, directory metadata or a portal scan creates no connection proof, extra role, scope or mandate. Directory publication and every-tool test attestation need separate evidence. Missing host upload support uses the manual guide; OAuth failures require the actual registered client/callback, never a shared token. Announce excluded-content rules before collection and stop known excluded content. Respect host confirmations and no automatic unknown-outcome retries.
+**Failure/recovery:** Archive download/import, directory metadata or a portal scan creates no connection proof, extra role, scope or mandate. Directory publication and every-tool test attestation need separate evidence. Missing host upload support uses the manual guide; OAuth failures require the actual registered client/callback and exact issuer response; update stale imports and preserve reviewer identity, never use a shared token or advertise unavailable DCR. Announce excluded-content rules before collection and stop known excluded content. Respect host confirmations and no automatic unknown-outcome retries.
 
 [Detailed contract](LLM_SETUP.md).
 

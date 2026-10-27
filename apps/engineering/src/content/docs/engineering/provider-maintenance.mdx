@@ -248,6 +248,26 @@ fixtures and public metadata/key checks establish their bounded contracts, not
 connected-host or production proof. The repository's Auth0 custom-domain contract
 owns exact activation/rollback settings and dated qualification evidence.
 
+The 27 October configuration correction explicitly selects the verified custom
+domain for new browser/native authorization requests as well as MCP discovery.
+Keep canonical identity keys and the issuer bound to each pending transaction;
+removing the browser preference must not break a callback already in flight.
+Auth0's separate tenant-wide `enable_custom_domain_in_emails` flag selects the
+custom domain for newly generated identity-email links. Read the ready primary
+domain first, patch only that flag, and reread it while checking other flags were
+preserved. Keep the template's generated, escaped verification URL intact. An
+email flag affects every application on that tenant; it is not a template-local
+option. Permission errors or uncertain writes require inspection before retry.
+
+The existing public ChatGPT client now retains both its prior callback and the
+exact stable OpenAI callback. Auth0 issuer identification is enabled through
+`authorization_response_iss_parameter_supported`; discovery and authorization
+responses must agree on the issuer including its trailing slash. Fresh provider
+readback and anonymous error-redirect checks passed on 27 October. Those checks
+sent no email and exchanged no authorization code: actual email receipt, browser
+login and ChatGPT authorization still require their own evidence. Preserve the
+separate reviewer client, scopes, grant types and consent/approval boundaries.
+
 The [authoritative Auth0 setup catalog](https://github.com/nclsppr/guteneo/blob/main/docs/AUTH0_SETUP.md)
 retains both exact browser hosts: `https://guteneo.com` and
 `https://belvedere.guteneo.com`. Client maintenance must preserve each host's

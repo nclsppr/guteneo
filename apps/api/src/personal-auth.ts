@@ -1,6 +1,9 @@
 import { z } from "zod";
 import { supportedLocales } from "../../../packages/contracts/src/locale";
-import { dashboardAppearances } from "../../../packages/contracts/src/dashboard-appearance";
+import {
+  dashboardAppearances,
+  defaultDashboardAppearance,
+} from "../../../packages/contracts/src/dashboard-appearance";
 import { documentAccessMode } from "../../../packages/contracts/src/document-authentication";
 import {
   AuthError,
@@ -143,7 +146,7 @@ export async function handlePersonalAccountRoute(
       body.identity === "recipient" ? "user_recipient" : "user_other_recipient";
     const email = `${body.identity}@example.test`;
     await env.DB.prepare(
-      "INSERT OR IGNORE INTO users(id,name,email,created_at) VALUES(?,?,?,?)",
+      "INSERT OR IGNORE INTO users(id,name,email,created_at,preferred_dashboard_appearance) VALUES(?,?,?,?,?)",
     )
       .bind(
         userId,
@@ -152,6 +155,7 @@ export async function handlePersonalAccountRoute(
           : "Another simulation recipient",
         email,
         now(),
+        defaultDashboardAppearance,
       )
       .run();
     const created = await createPersonalBrowserSession(env, {

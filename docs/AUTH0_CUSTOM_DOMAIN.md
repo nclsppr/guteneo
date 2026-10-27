@@ -1,6 +1,6 @@
 # Auth0 browser and MCP custom domain
 
-This candidate lets the existing browser login use `auth.guteneo.com` while
+The browser login can use `auth.guteneo.com` while
 preserving the Auth0 tenant, Guteneo accounts, workspaces, account restrictions,
 assistant connections and canonical identity namespace. It introduces no new account,
 OAuth client, scope, role, approval authority or delivery activation.
@@ -60,17 +60,64 @@ clients remain compatible. The native application enters through the server-owne
 Management scripts, canonical identity records and historical evidence must not
 undergo a global hostname replacement. Auth0 email
 and phone-notification domain selection is a separate provider setting; it is
-not changed by this browser opt-in.
+not changed by this browser opt-in. Its separately applied configuration and
+qualification are recorded below.
+
+## Browser and email activation — 27 October 2026
+
+The production release configuration now explicitly sets
+`AUTH0_BROWSER_DOMAIN=auth.guteneo.com`. The missing browser setting explained why
+new browser sign-ins still selected the canonical tenant even though MCP
+discovery already used the custom domain. Keep `AUTH0_DOMAIN` unchanged: the
+existing issuer-bound transactions, canonical identities and legacy MCP tokens
+retain the contract above. This source setting takes effect only through the
+normal reviewed production release.
+
+The authorized Auth0 maintenance separately set
+`flags.enable_custom_domain_in_emails=true` after a fresh Management API read
+confirmed that `auth.guteneo.com` was the ready, primary, Auth0-managed domain.
+The API readback confirmed the flag and preservation of all previous tenant
+flags. This is a **tenant-wide email-link setting**, not a per-template rewrite:
+it also affects other applications still using this tenant. Existing verification
+email templates retain Auth0's generated `{{ url | escape }}` value; never replace
+its hostname manually or reconstruct its signed ticket. No template, sender,
+provider credential or real email was changed or sent by this operation.
+
+For maintenance, inspect `GET custom-domains` and `GET tenants/settings` through
+the authenticated Auth0 CLI for `pieper.eu.auth0.com`; never infer live access
+from the saved tenant name. The minimal email patch is
+`{"flags":{"enable_custom_domain_in_emails":true}}`. Reread the setting and
+domain after a write. A missing/unready primary domain, permission refusal or
+uncertain response stops further changes; inspect before retrying. Reverting
+the email flag is separate from browser/MCP discovery rollback and does not
+rewrite already-issued email links.
+
+The same maintenance enabled the Auth0 top-level
+`authorization_response_iss_parameter_supported` property and added the exact
+stable OpenAI callback to the existing public ChatGPT client, preserving its
+previous callback, grant types and authentication method. Both custom and
+canonical OIDC discovery documents then advertised issuer identification.
+Anonymous `prompt=none` probes to both registered ChatGPT callbacks on both
+domains returned `login_required` and the exact matching `iss`, without an
+authorization code. The [assistant setup contract](LLM_SETUP.md) owns the
+preconfigured plugin client and installation behavior.
+
+The Google social connection was not enabled for the Guteneo browser or ChatGPT
+clients at inspection; its developer-key configuration therefore does not qualify
+Google sign-in and was left unchanged. Auth0 configuration readback and anonymous
+redirects are provider evidence only. Receipt of a newly issued verification
+email, successful browser callback and a real ChatGPT token exchange remain
+separate qualification steps; no such success is implied by these checks.
 
 ## Independent MCP trust and discovery
 
 The 25 October MCP migration uses two server settings. They are not browser
 parameters, OAuth scopes, tenant-admin changes or client-registration controls.
 
-| Setting | Default | Accepted configuration |
-| --- | --- | --- |
+| Setting                    | Default                       | Accepted configuration                                                     |
+| -------------------------- | ----------------------------- | -------------------------------------------------------------------------- |
 | `AUTH0_MCP_TRUSTED_DOMAIN` | Absent: canonical tokens only | `auth.guteneo.com`, only with canonical `AUTH0_DOMAIN=pieper.eu.auth0.com` |
-| `AUTH0_MCP_DISCOVERY` | `canonical` | `canonical` or `custom`; `custom` requires the valid trusted domain |
+| `AUTH0_MCP_DISCOVERY`      | `canonical`                   | `canonical` or `custom`; `custom` requires the valid trusted domain        |
 
 An unknown choice, malformed URL, foreign tenant/domain or missing trusted alias
 with custom discovery fails closed before discovery or production token

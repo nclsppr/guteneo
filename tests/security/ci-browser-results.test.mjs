@@ -128,7 +128,7 @@ test("complete browser evidence matches independently discovered IDs across conf
   const result = requireBrowserResults(inventories, rows, identity);
   assert.equal(result.rows, 9);
   assert.equal(result.suites, 8);
-  assert.equal(result.declaredSkipped, 19);
+  assert.equal(result.declaredSkipped, 18);
   assert.equal(result.discovered, result.passed + result.declaredSkipped);
 });
 

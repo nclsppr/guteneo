@@ -1,6 +1,6 @@
 {
   "title": "Guteneo feature tree and developer atlas",
-  "updated": "2026-10-26",
+  "updated": "2026-10-27",
   "scope": "Repository implementation inventory. Availability depends on current capabilities and authority; implementation, activation and deployed proof are distinct.",
   "roleNote": "Four human workshop roles are defined by packages/contracts/src/roles.ts. The assistant column describes a connected OAuth actor, never a fifth membership role. Effective membership, independent supervisor permissions, consented scopes and any bounded expert mandate are rechecked by the server. Installing a package or renewing tokens grants no additional authority. Browser-only account/platform controls remain distinct. Assistant content-exclusion instructions are workflow restrictions, not automatic classification or new server guards. Personal account authority is separate from workspace membership. Template/default email copy and link placeholders grant no approval or recipient consent. Sensitive approval and recipient association always require the browser under the active document policy; an expert mandate cannot replace them.",
   "groups": [
@@ -39,7 +39,9 @@
         "My documents, Use Guteneo and Account and security share one sign-in; voluntary workspace choice/creation reloads the chosen destination and bootstraps that workspace’s current session, rights and CSRF",
         "Document policy defaults to strong or explicitly selects verified_account: verified account/address and signed recent auth_time; fifteen minutes for reading/association/approval and five for export/deposit/deletion; documentAccessAllowed/documentAccessMode do not imply MFA or strongAuthentication; D1 defaults strong and environment disagreement fails closed",
         "Document invitation handoff lasts at most ten minutes in the same tab, then is deleted; capture before Auth0 with secret-free returnTo and no arbitrary private query",
-        "Document-service 401 offers explicit recovery without session-bootstrap loops; Auth0 recovery reconciles language and returned identity"
+        "Document-service 401 offers explicit recovery without session-bootstrap loops; Auth0 recovery reconciles language and returned identity",
+        "Ordinary application entry without workshop membership offers workspace creation or joining through an existing canonical same-origin invitation with the shared raw 43-character base64url token contract, fragment clearing and explicit acceptance; server-generated invitation integration covers the entry, preview and auth handoff, while the stored SHA-256 hash never enters the link; explicit personal document entry remains independent, with no public workspace enumeration",
+        "Production browser configuration selects auth.guteneo.com; the tenant-wide custom-domain email flag and exact authorization-response issuer identification were applied and reread on 27 October, without sending verification mail or qualifying human login"
       ],
       "status": "Unified personal account and optional workspace implementation; migrations, aligned document policy, Auth0 configuration and connected production qualification require separate evidence.",
       "tests": [
@@ -58,7 +60,10 @@
         "tests/distribution-e2e/personal-account.e2e.ts",
         "tests/unit/mcp-auth0-domain.test.ts",
         "tests/unit/postal-authority.test.ts",
-        "tests/integration/expert-status.test.ts"
+        "tests/integration/expert-status.test.ts",
+        "tests/unit/workspace-entry.test.ts",
+        "tests/integration/workspace-invitations.test.ts",
+        "tests/e2e/personal-appearance.spec.ts"
       ],
       "surfaces": "Personal browser authority and workspace/native sessions; REST/MCP resource OAuth with explicit same-tenant issuer trust, independently selected discovery and canonical identity/connection/mandate keys.",
       "id": "identity",
@@ -365,13 +370,19 @@
         "Unsendable reviewer mode stops before approval"
       ],
       "status": "Implemented; live tariff, sender, approval, credits and provider gates apply.",
-      "tests": ["tests/e2e/fax-pricing.spec.ts"],
+      "tests": [
+        "tests/e2e/fax-pricing.spec.ts"
+      ],
       "surfaces": "Web, REST, MCP and native preparation/tracking; browser or existing delegated approval.",
       "id": "fax",
       "category": "Deliver",
       "availability": "capability-gated",
-      "tools": ["prepare_fax"],
-      "rest": ["POST /api/dispatches/{id}/renew-quote"]
+      "tools": [
+        "prepare_fax"
+      ],
+      "rest": [
+        "POST /api/dispatches/{id}/renew-quote"
+      ]
     },
     {
       "title": "Postal mail",
@@ -388,7 +399,9 @@
         "Status projection and reconciliation of unknown outcomes"
       ],
       "status": "Implemented; qualified profile, distinct transfer authority, quote and final approval are mandatory.",
-      "tests": ["tests/e2e/postal-final-send.spec.ts"],
+      "tests": [
+        "tests/e2e/postal-final-send.spec.ts"
+      ],
       "surfaces": "Web, REST and MCP with separate postal transfer authority.",
       "id": "postal",
       "category": "Deliver",
@@ -547,8 +560,12 @@
       "id": "dry-run",
       "category": "Deliver",
       "availability": "read-only",
-      "tools": ["dry_run_dispatch"],
-      "rest": ["GET /api/dispatches/{id}/dry-run"]
+      "tools": [
+        "dry_run_dispatch"
+      ],
+      "rest": [
+        "GET /api/dispatches/{id}/dry-run"
+      ]
     },
     {
       "title": "Campaigns and tracking",
@@ -626,7 +643,10 @@
       "category": "Operate",
       "availability": "partial",
       "tools": [],
-      "rest": ["GET /api/usage", "GET /api/usage/activity"]
+      "rest": [
+        "GET /api/usage",
+        "GET /api/usage/activity"
+      ]
     },
     {
       "title": "Assistants and API",
@@ -652,7 +672,7 @@
         "Six portable package workflows with English metadata, deterministic archives and inventory checks; portal review/publication remains separately evidenced",
         "Manual host-specific installation packages; downloading grants no OAuth consent",
         "ChatGPT guide defaults to a generated plugin ZIP with a manual MCP alternative, shared across public/account views in four languages; native download links need no business API request or new authority",
-        "Exact registered callback/client per host; DCR/CIMD advertising alone never proves installation",
+        "ChatGPT archive preconfigures its registered public OAuth client with no secret, custom-domain endpoints and existing scopes; the manual guide reads the same ID; stable callback requires exact issuer identification, while DCR/CIMD and actual host consent remain separately qualified",
         "Explicit MCP annotations disclose overwrites, archival, sharing revocation, generation cancellation, review-token replacement and batch freezing",
         "Every advertised tool has four annotation booleans and per-tool evidence, audited through actual tools/list",
         "Every registered tool exposes its existing display title through annotations.title, including conditional tools; directory-compatible JSON dataset metadata preserves current business gates, while actual portal scan, each-tool host qualification, submission and public listing require separate evidence",
@@ -696,7 +716,9 @@
         "open_mcp_ui_probe",
         "check_mcp_ui_probe_bridge"
       ],
-      "rest": ["GET /api/capabilities"]
+      "rest": [
+        "GET /api/capabilities"
+      ]
     },
     {
       "title": "Reviewer OAuth qualification",
@@ -808,8 +830,8 @@
       "source": "apps/web/src/account-page.tsx",
       "features": [
         "Full real-web Classic/V2 views with the same account, tenant, resources and operations",
-        "Account at navigation bottom, saved Classic/V2 layout beside language, applied after a successful profile save; mobile identity remains visible with the menu closed; role and detailed permissions live on My account",
-        "Personal users.preferred_dashboard_appearance, migration 0053, classic default and cross-workshop/session/device reconciliation",
+        "Account at navigation bottom, saved Classic/V2 layout beside language, applied after a successful profile save; mobile identity remains visible with the menu closed and its V2 profile link retains a 44 px touch target; role and detailed permissions live on My account; native mobile details closes synchronously on Escape before a queued toggle reaches React, preserving summary focus and keyboard activation",
+        "Personal users.preferred_dashboard_appearance, migration 0053, V2 persisted for new accounts and used by browser fallbacks; existing saved Classic/V2 choices and cross-workshop/session/device reconciliation preserved",
         "Personal documents apply the same saved Classic/V2 account layout in a shell filling the available width with responsive gutters and readable internal form measures, with lightweight independent navigation; personal and workshop customization reuse small shared language/theme/layout controls, preserving personal-only access and existing guarded PATCH authority",
         "Strict browser account PATCH with current authority, Origin/CSRF and field-name audit; every role changes only its own preference",
         "Temporary appearance=v2/classic override accepts legacy atelier URLs, never persists server-side and clears after explicit appearance save or identity change; local cache is non-authoritative",
@@ -888,7 +910,10 @@
       "id": "pdf-verification",
       "category": "Operate",
       "availability": "capability-gated",
-      "tools": ["get_pdf_validation", "validate_pdf"],
+      "tools": [
+        "get_pdf_validation",
+        "validate_pdf"
+      ],
       "rest": [
         "GET /api/pdf-validation/pricing",
         "GET /api/documents/{id}/validation",
@@ -943,7 +968,9 @@
       "category": "Operations",
       "availability": "operator-gated",
       "tools": [],
-      "rest": ["GET /api/health"]
+      "rest": [
+        "GET /api/health"
+      ]
     },
     {
       "title": "Belvédère platform oversight",
@@ -1035,7 +1062,7 @@
         "Maintained GitHub job/artifact/release explanation, fresh dependency boundaries and separate application/native/engineering evidence; every Ubuntu package installation, including engineering browsers, first prefers the runner's recognized official HTTPS archives while retaining signed package verification and the Azure fallback, and an unexpected mirror configuration fails closed",
         "Curated Cloudflare/Auth0/transport dependencies, background jobs, tariff maintenance, design/i18n/accessibility, AI contribution and reproducible video/voice production guides",
         "Origin-scoped system/light/dark selection uses guteneo.theme with pre-paint resolution, cross-tab/system updates and optional migration of a prior ui-mode choice; Nimbus data-mode styling, fixed blue chrome, script-free system fallback and readable ivory dark branding grant no account or operational authority",
-        "Three isolated browser shards for each desktop/mobile Chromium and iPhone WebKit profile, same-revision build artifacts and independent complete test-ID inventory accounting; no missing/duplicate shard, skipped required job, automatic retry or merged-main publication shortcut; V2 consent and fax-ceiling first fields share one trusted touch/keyboard or desktop fill with exact value/focus and pre-submit checks; V2 retains unchanged real GET responses and exact dispatch recipient, while fax preserves its original timing, typed decimal comma, normalized phone and 150-cent POST without refilling, logging recipients or claiming either unexplained historical Linux input loss was repaired"
+        "Three isolated browser shards for each desktop/mobile Chromium and iPhone WebKit profile, same-revision build artifacts and independent complete test-ID inventory accounting; exact skip declarations must remain in the discovered inventory and obsolete desktop exceptions are removed when Classic/V2 navigation runs on both profiles; no missing/duplicate shard, skipped required job, automatic retry or merged-main publication shortcut; V2 consent and fax-ceiling first fields share one trusted touch/keyboard or desktop fill with exact value/focus and pre-submit checks; V2 retains unchanged real GET responses and exact dispatch recipient, while fax preserves its original timing, typed decimal comma, normalized phone and 150-cent POST without refilling, logging recipients or claiming either unexplained historical Linux input loss was repaired"
       ],
       "status": "Implemented documentation candidate; production publication requires an explicitly authorized, independently verified release.",
       "tests": [
@@ -1060,7 +1087,7 @@
       "id": "J01",
       "title": "Discover and sign in",
       "actor": "Visitor → verified account owner, with optional workspace membership",
-      "steps": "Open the concise public homepage → choose visitor language or the header appearance icon → read How it works, Getting started, Pricing or PDF checks and the complete Support FAQ through canonical shared navigation → use the existing localized closing invitation and first-dispatch link above the home-only panorama → enter canonical Auth0 → register one personal account without an automatic workspace → receive documents or voluntarily choose/create a workspace for service use → verify current identity and rights. Return to the valid destination. Explicit logout opens the public home.",
+      "steps": "Open the concise public homepage → choose visitor language or the header appearance icon → read How it works, Getting started, Pricing or PDF checks and the complete Support FAQ through canonical shared navigation → use the existing localized closing invitation and first-dispatch link above the home-only panorama → enter canonical Auth0 → register one personal account with V2 appearance → ordinary /app entry without membership opens Services with create/join workspace choice; explicit personal-document entry stays personal → create a workspace or review and accept an administrator invitation → verify current identity and rights. Return to the valid destination. Explicit logout opens the public home.",
       "branch": "Access",
       "doc": "ACCOUNT_IDENTITY.md",
       "failure": "Refuse invalid callback state, unknown issuer/subject or expired invitation. Recovery retries are explicit. Package download, optional Auth0 branding/domain and actual host sign-in each need separate proof. Public route presentation, a localized status link and the fictional example grant no approval or provider activation; failed detail loading retains complete static information."
@@ -1141,10 +1168,10 @@
       "id": "J10",
       "title": "Work with an assistant",
       "actor": "Existing Guteneo member and a host-supported OAuth client",
-      "steps": "Choose the host-specific guide → for ChatGPT download/import the plugin ZIP or choose manual MCP when unavailable → compare package version/hash and actual tool titles/schemas/descriptions → follow the maintained workflow skills/prompts under actual host rules and consent OAuth → verify read-only account capabilities/current mandate → use only available file transport/tools → prepare → review through browser or pre-existing bounded delegation → track.",
+      "steps": "Choose the host-specific guide → for ChatGPT download/import the plugin ZIP or choose manual MCP with the supplied public client ID and empty secret when unavailable → compare package version/hash and actual tool titles/schemas/descriptions → follow the maintained workflow skills/prompts under actual host rules and consent OAuth → verify read-only account capabilities/current mandate → use only available file transport/tools → prepare → review through browser or pre-existing bounded delegation → track.",
       "branch": "Interfaces",
       "doc": "LLM_SETUP.md",
-      "failure": "Archive download/import, directory metadata or a portal scan creates no connection proof, extra role, scope or mandate. Directory publication and every-tool test attestation need separate evidence. Missing host upload support uses the manual guide; OAuth failures require the actual registered client/callback, never a shared token. Announce excluded-content rules before collection and stop known excluded content. Respect host confirmations and no automatic unknown-outcome retries."
+      "failure": "Archive download/import, directory metadata or a portal scan creates no connection proof, extra role, scope or mandate. Directory publication and every-tool test attestation need separate evidence. Missing host upload support uses the manual guide; OAuth failures require the actual registered client/callback and exact issuer response; update stale imports and preserve reviewer identity, never use a shared token or advertise unavailable DCR. Announce excluded-content rules before collection and stop known excluded content. Respect host confirmations and no automatic unknown-outcome retries."
     },
     {
       "id": "J11",
@@ -1510,8 +1537,22 @@
       "No",
       "Current role + scopes"
     ],
-    ["Manage workshop or members", "Browser only", "No", "No", "No", "No"],
-    ["Manage billing", "Current browser administrator", "No", "No", "No", "No"],
+    [
+      "Manage workshop or members",
+      "Browser only",
+      "No",
+      "No",
+      "No",
+      "No"
+    ],
+    [
+      "Manage billing",
+      "Current browser administrator",
+      "No",
+      "No",
+      "No",
+      "No"
+    ],
     [
       "Purchase a PDF verification",
       "Current browser administrator + exact purchase + PDF access",

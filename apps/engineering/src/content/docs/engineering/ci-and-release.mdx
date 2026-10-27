@@ -167,6 +167,15 @@ without treating a skipped required job as success. Browser assertions, sandbox
 setup and the WebKit media pipeline remain intact; there is no automatic retry,
 path filter or publication shortcut.
 
+Skip declarations match the exact suite, project, file, title and reason. When a
+scenario is renamed or split, compare every declaration with fresh independent
+inventories and replay the verifier against the original current-run reports.
+The Classic/V2 mobile navigation scenarios now run in desktop Chromium and iPhone
+WebKit, so their former desktop exception is removed. The remaining explicit
+exceptions and the rejection of obsolete declarations stay enforced; do not add
+a waiver for a scenario that now executes on both profiles. A local evidence
+replay qualifies the registry correction, not a new hosted CI run or release.
+
 The observed pre-sharding main run spent most of its browser critical path on
 sequential application and preview tests in the iPhone job. The completed
 [26 October main run](https://github.com/nclsppr/guteneo/actions/runs/40254684422)
