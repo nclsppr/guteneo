@@ -358,6 +358,7 @@
       "features": [
         "Exact PDF, recipient number and qualified sender",
         "Dated provider quote with bounded renewal",
+        "Candidate scoped +3524 operator-tariff renewal preserves prices, source dates, seven-day validity and EUR2 cap; migration 0064, matching runtime and separate installation required",
         "Estimated range, approved ceiling and credit balance in euros",
         "Preparation, human review, approval and confirmation",
         "Tracking, receipts, usage settlement and unknown outcomes",
@@ -1080,7 +1081,7 @@
       "steps": "Import/reuse the exact ready PDF → collect E.164 recipient/sender/ceiling → obtain the actual quote → show estimate and separate ceiling → human browser approval or existing expert review → confirm → track delivery and usage settlement separately.",
       "branch": "Deliver",
       "doc": "LIVE_FAX_QUOTES.md",
-      "failure": "Keep reviewer quotes unsendable. Renew only an eligible prepared unattempted quote with exact original parameters and stable key, then obtain fresh approval. Unknown submissions require reconciliation, never resend."
+      "failure": "Keep reviewer quotes unsendable. Expired operator tariffs require a separately authorized scoped replacement after matching runtime/SQL support; old price evidence stays dated and no mandate is renewed. Renew only an eligible prepared unattempted quote with exact original parameters and stable key, then obtain fresh approval. Unknown submissions require reconciliation, never resend."
     },
     {
       "id": "J04",

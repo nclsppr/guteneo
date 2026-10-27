@@ -10,6 +10,16 @@ The server derives a stable renewal key from the original dispatch ID. Concurren
 
 MCP summaries include nullable `quoteExpiresAt` copied directly from the stored quote, including in the tenant-scoped batch projection for `list_dispatches`; clients must never infer it from creation time. `get_dispatch_status` also supplies `attemptCount`. After expiry or `LIVE_QUOTE_INVALID`, the assistant must reread that status and may offer `prepare_fax` with `renewalOf` only for `status=prepared` and explicit `attemptCount=0`; an absent count is unknown, not zero. Repeat the exact `documentId`, E.164 `phone` (including its country code) and integer `ceilingMinor`. The server rejects changed values and retains the original sender/options. Display the returned range, cap and exact new expiry, then obtain fresh approval. Queued, submitting, uncertain, accepted, delivered, failed or attempted dispatches are never recreated through this renewal flow. The backend checks outbox and reservations independently because zero attempts alone does not imply an unsubmitted command.
 
+## Scoped operator-tariff renewal
+
+The [27 October pilot renewal](TELNYX_READINESS.md#scoped-pilot-renewal--27-october-2026-candidate)
+keeps the existing `+3524` pricing and dated source evidence under a new bounded
+operator authorization. Migration 0064 and the matching runtime change are
+required before a replacement revision can be installed. This does not refresh
+provider qualification or extend a quote, approval or assistant mandate. All
+web, native, REST and MCP preparations retain the same shared server checks and
+fresh approval requirements. Other Luxembourg pilot routes are unchanged.
+
 ## Published fax v3 implementation: range, firm cap and verified usage
 
 Published on 17 September 2026 from clean source `118ce087c3fe5a1ad63bd4c562adb8e26aa8af21`, **with live sending still disabled and no active fax v3 tariff**. Migration `0023_fax_usage_pricing.sql` was applied before deployment and adds immutable `trusted_fax_usage_tariffs`, `live_fax_quotes_v3` and `fax_usage_settlements`; all three tables were empty at verification. All 23 migrations are recorded remotely. Exact runtime, CI and public proof are in [LIVE_RELEASE.md](LIVE_RELEASE.md). This implementation replaces the requirement to know a future final Telnyx cost before preparing a v3 fax. Existing v2 quotations, prices and history retain their own contract.
