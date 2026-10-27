@@ -86,8 +86,8 @@ No tariff is refreshed, provider qualification extended or expert mandate renewe
 An unavailable price, changed source/access, failed rendering or unsafe original
 stays visible; unknown provider outcomes require reconciliation.
 
-This 27 October 2026 source candidate requires no schema or Auth0 configuration
-change. Behavior tests and release evidence are qualified separately; the
+Localized recovery alone requires no schema or Auth0 configuration change.
+The session-policy change separately requires migration 0065. Behavior tests and release evidence are qualified separately; the
 [implementation record](SECURE_DISTRIBUTION_IMPLEMENTATION.md) owns dated proof.
 
 ## Source compatibility with legacy flows
