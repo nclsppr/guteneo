@@ -9,7 +9,9 @@ type Mode =
   | "approved"
   | "approval_lost"
   | "activation_lost"
-  | "activation_uncommitted";
+  | "activation_uncommitted"
+  | "DOCUMENT_AUTHENTICATION_REQUIRED"
+  | "STRONG_BROWSER_APPROVAL_REQUIRED";
 async function fixture(page: Page, mode: Mode = "normal", simulation = false) {
   const preview = await readFile(
     new URL("../fixtures/secure-review.png", import.meta.url),
@@ -82,6 +84,16 @@ async function fixture(page: Page, mode: Mode = "normal", simulation = false) {
         body: request.postDataJSON(),
       });
       if (operation === "approve") {
+        if (
+          mode === "DOCUMENT_AUTHENTICATION_REQUIRED" ||
+          mode === "STRONG_BROWSER_APPROVAL_REQUIRED"
+        ) {
+          await route.fulfill({
+            status: 403,
+            json: { error: { code: mode, message: "Sign-in evidence missing" } },
+          });
+          return;
+        }
         approved = true;
         if (mode === "approval_lost" && writes.length === 1) {
           await route.abort("failed");
@@ -145,6 +157,51 @@ async function review(page: Page) {
   await expect(send(page)).toBeDisabled();
   await checkboxes.nth(1).check();
   await expect(send(page)).toBeEnabled();
+}
+
+for (const code of [
+  "DOCUMENT_AUTHENTICATION_REQUIRED",
+  "STRONG_BROWSER_APPROVAL_REQUIRED",
+] as const) {
+  test(`${code} recovery returns to review without approving or sending automatically`, async ({
+    page,
+  }) => {
+    const f = await fixture(page, code);
+    await page.route("**/auth/login?**", async (route) => {
+      const destination = new URL(route.request().url());
+      expect(destination.searchParams.get("fresh")).toBe(
+        code === "DOCUMENT_AUTHENTICATION_REQUIRED" ? null : "1",
+      );
+      expect(destination.searchParams.get("locale")).toBe("fr");
+      const returnTo = "/#/app/secure-distribution/sd_single_action";
+      expect(destination.searchParams.get("returnTo")).toBe(returnTo);
+      expect(destination.href).not.toMatch(/private-fixture/u);
+      await route.fulfill({
+        status: 200,
+        contentType: "text/html",
+        body: `<!doctype html><meta charset="utf-8"><title>Synthetic authentication return</title><script>location.replace(${JSON.stringify(returnTo)})</script>`,
+      });
+    });
+    await page.goto(
+      "/?appearance=v2#/app/secure-distribution/sd_single_action?view=approval&invitation=private-fixture#private-fixture-fragment",
+    );
+    await review(page);
+    await send(page).click();
+    const recovery = page.locator('.notice.error a[href^="/auth/login?"]');
+    await expect(recovery).toBeVisible();
+    expect(f.writes.map((write) => write.operation)).toEqual(["approve"]);
+    await recovery.click();
+    await expect(page).toHaveURL(
+      /\/#\/app\/secure-distribution\/sd_single_action$/u,
+    );
+    const checkboxes = page.getByRole("checkbox");
+    await expect(checkboxes).toHaveCount(2);
+    await expect(checkboxes.nth(0)).not.toBeChecked();
+    await expect(checkboxes.nth(1)).not.toBeChecked();
+    await expect(send(page)).toBeDisabled();
+    expect(f.reads()).toBe(2);
+    expect(f.writes.map((write) => write.operation)).toEqual(["approve"]);
+  });
 }
 
 test("one priced action records review and sends without an intermediate refresh or modal", async ({

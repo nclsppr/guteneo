@@ -1,6 +1,6 @@
 ---
 title: "Access and identity"
-description: "35 capabilities in the access branch of Guteneo."
+description: "36 capabilities in the access branch of Guteneo."
 sidebar:
   order: 1
 ---
@@ -53,4 +53,5 @@ Unified personal account and optional workspace implementation; migrations, alig
 <li id="feature-d6bb64f893db">Ordinary application entry without workshop membership offers workspace creation or joining through an existing canonical same-origin invitation with the shared raw 43-character base64url token contract, fragment clearing and explicit acceptance; server-generated invitation integration covers the entry, preview and auth handoff, while the stored SHA-256 hash never enters the link; explicit personal document entry remains independent, with no public workspace enumeration</li>
 <li id="feature-f86a9c83e39e">Production browser configuration selects auth.guteneo.com; the tenant-wide custom-domain email flag and exact authorization-response issuer identification were applied and reread on 27 October, without sending verification mail or qualifying human login</li>
 <li id="feature-164854ca8126">Normal verified-account browser entry reuses Auth0 SSO within the existing one-hour session bound; signed authentication time is requested without forcing personal-entry max_age=0, and explicit fresh/account-switch behavior remains</li>
+<li id="feature-7785137dbdd5">Verified-account personal and document-authentication recovery use ordinary bounded Auth0 SSO without fresh=1; strong and explicit freshness recovery retain forced authentication. Legacy sessions missing signed auth_time require a real new authorization response, never a timestamp reconstructed from session creation; safe return paths, locale, tenant rights and human approval remain unchanged</li>
 </ol>

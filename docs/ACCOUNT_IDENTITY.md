@@ -350,3 +350,13 @@ merely because the destination is personal documents. Missing signed evidence,
 expired/revoked sessions and identity changes still close access. This candidate
 changes no Auth0 tenant setting or session lifetime and requires actual hosted
 SSO qualification separately from local signed-token tests.
+
+The [current recovery contract](SECURE_DISTRIBUTION_JOURNEYS.md#final-action-recovery-and-initial-sign-in)
+also distinguishes ordinary verified-account recovery from strong or explicit
+freshness recovery. Legacy cookies without signed authentication time must obtain
+a new signed authorization response; a verified address alone never supplies
+that missing evidence. The 27 October live Safari reproduction found an
+unexpired, verified, identity-linked review session with no authentication time:
+the workshop loaded, while personal document access correctly remained closed.
+Ordinary recovery reached the expected Auth0 login form; no password, callback,
+document access or sending success is inferred from that screen.
