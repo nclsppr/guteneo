@@ -1,6 +1,6 @@
 ---
 title: "Operations and reliability"
-description: "25 capabilities in the operations branch of Guteneo."
+description: "26 capabilities in the operations branch of Guteneo."
 sidebar:
   order: 20
 ---
@@ -43,6 +43,7 @@ Implemented operational tooling; changes require explicit authority and exact-so
 <li id="feature-3fed11c3ffea">Native Cloudflare failure and missing-cron Monitors were configured and reread on 27 October 2026 with an owner-designated email destination; configured delivery and actual receipt remain separate evidence</li>
 <li id="feature-d6c63d9ceb1d">Prepared separate operator-only direct MCP Events incident schema and agent instructions define signed delivery, durable deduplication and bounded autonomous diagnosis/tests/draftPRs; no operator bridge, subscription, new permission or agent run is activated</li>
 <li id="feature-157d08734bea">Chromium-dependent secure Resend journey runs once in the existing browser-equipped security job, outside ordinary Vitest shards; dependency-driven routing checks and aggregate inventory preserve complete coverage</li>
+<li id="feature-df7dcc38bd55">CI builds the final non-preview frontend once before unchanged Worker dry runs, executes documentation guards once through docs:check and places the once-only MCP Apps SDK fixtures on desktop Chromium shard three; complete suites, immutable evidence and required main/PR gates remain unchanged, with hosted timing qualification separate</li>
 </ol>
 
 ## REST operations

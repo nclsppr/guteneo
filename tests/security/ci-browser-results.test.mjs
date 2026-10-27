@@ -265,6 +265,25 @@ test("workflow uses the same generated matrix, unique evidence and independent d
     /matrix\.project == 'chromium' && matrix\.shardIndex == 1/,
   );
   assert.match(source, /WEBKIT_GST_USE_PLAYBIN3: "1"/);
+  const sdkStep = source.match(
+    /- name: Verify the four-language MCP Apps SDK fixtures\n\s+if: ([^\n]+)\n\s+run: ([^\n]+)/,
+  );
+  assert.ok(sdkStep);
+  assert.match(
+    sdkStep[1],
+    /matrix\.project == 'chromium' && matrix\.shardIndex == 3/,
+  );
+  assert.equal(
+    (sdkStep[2].match(/tests\/browser\/mcp-ui-probe\.test\.mjs/g) ?? []).length,
+    1,
+  );
+  assert.equal(
+    (sdkStep[2].match(/tests\/browser\/mcp-document-upload\.test\.mjs/g) ?? [])
+      .length,
+    1,
+  );
+  assert.match(source, /reports\/mcp-ui-probe\//);
+  assert.match(source, /reports\/mcp-document-upload\//);
   for (const path of [
     "tests/e2e",
     "tests/preview-e2e",

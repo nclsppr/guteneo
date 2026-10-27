@@ -1,7 +1,7 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
 # Guteneo feature tree and developer atlas
 
-**23 domains · 340 features · 37 journeys · 76 documented REST operations · 83 MCP tools**
+**23 domains · 341 features · 37 journeys · 76 documented REST operations · 83 MCP tools**
 Updated 2026-10-27.
 
 Repository implementation inventory. Availability depends on current capabilities and authority; implementation, activation and deployed proof are distinct.
@@ -38,7 +38,7 @@ mindmap
       Public pages, languages and appearance (17)
     Operations
       Reviewer OAuth qualification (9)
-      Operations and reliability (25)
+      Operations and reliability (26)
       Belvédère platform oversight (9)
       Public service status (15)
       Engineering documentation (12)
@@ -80,7 +80,7 @@ mindmap
 ### Operations
 
 - [Reviewer OAuth qualification](#reviewer-oauth) — 9 features; operator-gated.
-- [Operations and reliability](#operations) — 25 features; operator-gated.
+- [Operations and reliability](#operations) — 26 features; operator-gated.
 - [Belvédère platform oversight](#belvedere) — 9 features; operator-gated.
 - [Public service status](#status) — 15 features; public.
 - [Engineering documentation](#engineering-docs) — 12 features; public.
@@ -927,6 +927,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Native Cloudflare failure and missing-cron Monitors were configured and reread on 27 October 2026 with an owner-designated email destination; configured delivery and actual receipt remain separate evidence
 - Prepared separate operator-only direct MCP Events incident schema and agent instructions define signed delivery, durable deduplication and bounded autonomous diagnosis/tests/draftPRs; no operator bridge, subscription, new permission or agent run is activated
 - Chromium-dependent secure Resend journey runs once in the existing browser-equipped security job, outside ordinary Vitest shards; dependency-driven routing checks and aggregate inventory preserve complete coverage
+- CI builds the final non-preview frontend once before unchanged Worker dry runs, executes documentation guards once through docs:check and places the once-only MCP Apps SDK fixtures on desktop Chromium shard three; complete suites, immutable evidence and required main/PR gates remain unchanged, with hosted timing qualification separate
 
 **Contract:** [CI.md](CI.md) · **Implementation:** [scripts/deploy-public.mjs](../scripts/deploy-public.mjs)
 
