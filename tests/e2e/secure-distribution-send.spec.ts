@@ -173,14 +173,13 @@ for (const code of [
         code === "DOCUMENT_AUTHENTICATION_REQUIRED" ? null : "1",
       );
       expect(destination.searchParams.get("locale")).toBe("fr");
-      expect(destination.searchParams.get("returnTo")).toBe(
-        "/#/app/secure-distribution/sd_single_action",
-      );
+      const returnTo = "/#/app/secure-distribution/sd_single_action";
+      expect(destination.searchParams.get("returnTo")).toBe(returnTo);
       expect(destination.href).not.toMatch(/private-fixture/u);
       await route.fulfill({
-        status: 302,
-        headers: { location: destination.searchParams.get("returnTo")! },
-        body: "",
+        status: 200,
+        contentType: "text/html",
+        body: `<!doctype html><meta charset="utf-8"><title>Synthetic authentication return</title><script>location.replace(${JSON.stringify(returnTo)})</script>`,
       });
     });
     await page.goto(

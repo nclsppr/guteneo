@@ -26,11 +26,20 @@ were reviewed. No authentication timestamp is reconstructed, no session is
 extended, and no migration or Auth0 tenant change is introduced.
 
 Focused unit checks pass **144/144** across authentication navigation, secure web,
-secure core and personal authentication. Built-app Chromium recovery passes
-**2/2**: ordinary/strong recovery links preserve the safe path, omit private
+secure core and personal authentication. Built-app recovery passes **6/6** across
+Chromium, mobile Chromium and iPhone WebKit, with zero skips or flaky outcomes:
+ordinary/strong recovery links preserve the safe path, omit private
 queries/fragments, and return to unchecked review with one failed approval and
 zero activation calls. The browser API/Auth0 handoff is intercepted; this does
-not prove live SSO or provider delivery. A transient packaging failure during
+not prove live SSO or provider delivery. The first hosted run
+[40568759855](https://github.com/nclsppr/guteneo/actions/runs/40568759855) failed
+both new WebKit cases because its intercepted HTTP 302 completion was unsupported
+by that engine. The fixture now returns a synthetic HTML page that navigates to
+the already-asserted safe return path. Actual link clicks and every privacy,
+review-reset and no-activation assertion remain unchanged. The six-case local
+recheck reuses the same fresh frontend without rebuilding or retrying a failed
+case. The failed hosted evidence remains retained; a new exact-head run must
+qualify the corrected fixture. A transient packaging failure during
 concurrent version metadata edits preceded these browser checks; the runner used
 the freshly built candidate frontend after package synchronization, rather than
 claiming that interrupted full build passed.

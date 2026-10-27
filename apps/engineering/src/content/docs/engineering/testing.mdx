@@ -226,3 +226,14 @@ only localhost, and fixture cookies, navigation and egress fencing use that
 exact origin. Never reuse or stop another task's server to obtain a passing
 result. Preserve a failed local CLI/read observation separately from a later
 focused browser pass; a fresh successful run does not relabel earlier evidence.
+
+## Authentication-return browser fixtures
+
+An intercepted Auth0 completion tests browser recovery, not the identity provider.
+Run changed navigation fixtures on Chromium and WebKit: WebKit rejects an
+intercepted 302 response through `route.fulfill`. Use a real local callback route
+or a synthetic HTML navigation to the exact previously asserted safe destination.
+Keep the real recovery-link click, locale, private-query exclusion, full page
+return, unchecked attestations and zero automatic activation assertions. Such a
+fixture establishes neither a signed callback nor successful live SSO. Retain
+the failed hosted observation separately from the corrected cross-engine result.
