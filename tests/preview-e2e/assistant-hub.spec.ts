@@ -2,7 +2,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { evidencePath } from "./evidence";
-import pluginMcp from "../../integrations/guteneo/mcp.json" with { type: "json" };
+import { strFromU8, unzipSync } from "fflate";
 
 const assistants = [
   ["chatgpt", "ChatGPT"],
@@ -48,6 +48,12 @@ for (const [locale, label] of [
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth),
     ).toBeLessThanOrEqual(page.viewportSize()!.width);
+    const archive = unzipSync(bytes);
+    const mcpPath = Object.keys(archive).find(
+      (path) => path === "mcp.json" || path.endsWith("/mcp.json"),
+    );
+    expect(mcpPath).toBeDefined();
+    const pluginMcp = JSON.parse(strFromU8(archive[mcpPath!]));
     await expect(page.getByText(/auth\.guteneo\.com/)).toBeVisible();
     await page.locator(".assistant-guide-version-controls button").nth(1).click();
     await expect(
