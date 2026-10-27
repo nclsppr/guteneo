@@ -4,6 +4,21 @@ import { publicLanguagePicker } from "../public-language";
 test.use({ locale: "en-GB" });
 
 async function preferGerman(page: Page) {
+  // Context locale can override extra headers on navigation. Keep the actual
+  // HTTP language list coherent with the navigator fixture below.
+  await page.route("**/*", (route) => {
+    const request = route.request();
+    return route.continue(
+      request.isNavigationRequest()
+        ? {
+            headers: {
+              ...request.headers(),
+              "accept-language": "es-ES,de-AT;q=0.9,en-GB;q=0.8",
+            },
+          }
+        : {},
+    );
+  });
   await page.addInitScript(() => {
     Object.defineProperty(navigator, "languages", {
       configurable: true,
@@ -131,9 +146,7 @@ test("narrow public headers keep one row and navigation yields to language selec
 
     await toggle.click();
     await expect(toggle).toHaveAttribute("aria-expanded", "true");
-    const mobileLinks = header.locator(
-      ".public-mobile-navigation > a:visible",
-    );
+    const mobileLinks = header.locator(".public-mobile-navigation > a:visible");
     await expect(mobileLinks).toHaveCount(9);
     expect(
       await mobileLinks.evaluateAll((links) =>

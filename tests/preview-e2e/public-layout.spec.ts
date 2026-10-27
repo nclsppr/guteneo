@@ -112,7 +112,7 @@ for (const width of [1440, 390]) {
         Math.abs(footerBox.height - reference.footerHeight),
         `${path} common footer height`,
       ).toBeLessThanOrEqual(1);
-      await expect(footer.locator("nav a")).toHaveCount(15);
+      await expect(footer.locator("nav a")).toHaveCount(16);
       await expect(footer.locator(".founding-stamp")).toHaveCount(1);
       await expect(footer.locator(".public-margin-swallow")).toHaveCount(2);
       await expect(page.locator(".public-theme-toggle")).toHaveCount(1);

@@ -69,7 +69,7 @@ and its four language variants in the sitemap. See
 The homepage restores its existing localized closing invitation, first-dispatch
 link and large stamp/postmark above its exclusive panorama, before the common
 footer. That identical common footer remains on home and the other public React
-pages, with its compact stamp, two original swallows, fifteen links and colophon.
+pages, with its compact stamp, two original swallows, sixteen links and colophon.
 A few original public swallows remain decorative; they do not enter the logged-
 in application. Header/app stamps retain their white paper interior with the
 actual inner blue frame and transparent exterior/perforations, without an outer

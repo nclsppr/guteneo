@@ -9,7 +9,7 @@ sidebar:
 
 **Access boundary:** Authenticated browser session.
 
-Classic/V2 account layout authority is unchanged. The initial 25 October theme integration and removal of decorative panels were published from main 03daa4136de8999cc79018f33f2a22038917c621. The personal Classic/V2 account and Belvédère visual follow-up requires its own exact-source release proof and grants no new business authority.
+Classic/V2 account layout authority is unchanged. The initial 25 October theme integration and removal of decorative panels were published from main 03daa4136de8999cc79018f33f2a22038917c621. The personal Classic/V2 account and Belvédère visual follow-up requires its own exact-source release proof and grants no new business authority. The shared outlined personal-context navigation refinement is a local source candidate requiring its own rendered and publication evidence.
 
 **Surfaces:** Authenticated web Classic/V2; native reads preference without a setter; no new business API/MCP authority.
 
@@ -34,7 +34,7 @@ Classic/V2 account layout authority is unchanged. The initial 25 October theme i
 <li id="feature-4d010bc7a846">Four-language labels; simulation notices only for simulated sessions</li>
 <li id="feature-40f2190fa707">Same four roles, supervisor options, private access and consents; no new mandate, channel or business API/MCP tool</li>
 <li id="feature-6a0d97700a37">Native account/session reads include appearance without a setter; existing name/language browser PATCH and native language PATCH remain compatible</li>
-<li id="feature-3592a7c6fc50">Compact My documents navigation link with personal-space context, without an oversized separate card or repeated role panel</li>
+<li id="feature-0818c3fd9041">Shared compact My documents personal-context link across Classic/V2 desktop/mobile navigation: one-pixel blue outline, ink label, existing blue icon and minimum 44 px target, retaining its personal-space description, exact destination and independent authentication without an oversized separate card, repeated role panel, new request or authority</li>
 <li id="feature-95ab56d401ce">Shared native file input with four-language authored chooser/empty text and literal filenames, keyboard validation and exact-byte upload semantics</li>
 <li id="feature-a3ed99ce1fef">Desktop Safari select height and protected-link hint spacing; visible keyboard focus, selection and forced-colors states remain readable in both palettes</li>
 <li id="feature-3c9dc64b011d">Public and personal headers and Belvédère page actions share one localized light/dark action icon at every viewport, defaulting to the operating system; authenticated personal Classic/V2 shells fill the available width with responsive gutters, while personal V2 follows workshop geometry without changing personal navigation, identity, document access or logout. Browser theme is independent of saved Classic/V2 layout, account language and role; document/PDF/email content retains original light-paper appearance and bytes</li>

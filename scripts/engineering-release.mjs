@@ -3,9 +3,12 @@ import { readdir, readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import ts from "typescript";
 import { sha256, sourceSnapshot } from "./release-source.mjs";
+import { brandIconSourcePaths } from "./brand-icons.mjs";
 
 export const engineeringSourceScope = Object.freeze([
   "apps/engineering",
+  ...brandIconSourcePaths,
+  "scripts/brand-icons.mjs",
   "docs/feature-map.json",
   "packages/contracts",
   "scripts/build-engineering.mjs",

@@ -4,9 +4,13 @@ import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { collectAssets, sha256, sourceSnapshot } from "./release-source.mjs";
 import { captureSourceSnapshot, sourceInputs } from "./test-offline.mjs";
+import { brandIconSourcePaths, copyBrandIcons } from "./brand-icons.mjs";
 
 export const statusScope = Object.freeze([
   "apps/status",
+  ...brandIconSourcePaths,
+  "scripts/brand-icons.mjs",
+  "packages/contracts/src/brand-icons.json",
   "packages/contracts/src/public-footer.json",
   "wrangler.status.jsonc",
   "scripts/build-status.mjs",
@@ -113,6 +117,7 @@ export async function buildStatus(
   await rm(output, { recursive: true, force: true });
   await mkdir(output, { recursive: true });
   await cp(join(root, "apps/status/public"), output, { recursive: true });
+  await copyBrandIcons(root, output);
   if (
     (await readFile(join(output, "index.html"), "utf8")).includes(
       'src="/footer.js"',

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { publicHttpError } from "../../apps/api/src/public-http-error";
 import { servePublicAssets } from "../../apps/api/src/public-assets";
 import type { Env } from "../../apps/api/src/env";
+import publicFooter from "../../packages/contracts/src/public-footer.json" with { type: "json" };
 
 const origin = "https://guteneo.com";
 const navigation = {
@@ -86,6 +87,13 @@ describe("bounded public HTTP error documents", () => {
         expect(html).toContain(
           `href="https://status.guteneo.com/?lang=${locale}"`,
         );
+        const engineering = publicFooter.groups
+          .flatMap((group) => group.links)
+          .find((link) => link.href === "https://engineering.guteneo.com/")!;
+        expect(html).toContain(
+          `href="https://engineering.guteneo.com/">${engineering.labels[locale]}</a>`,
+        );
+        expect(html).not.toContain("https://engineering.guteneo.com/?");
         expect(html).toContain(`/pdf-checks/?lang=${locale}`);
         expect(html).not.toContain("<script");
         const family = [401, 403].includes(status)

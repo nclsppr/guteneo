@@ -181,8 +181,13 @@ heading serve distinct purposes and remain.
 ### Form and navigation corrections — 25 October 2026 candidate
 
 My documents is a compact navigation entry into the personal space, using the
-same link size as the workshop destinations. It keeps its personal-space
-accessible description without a separate oversized card. The account page
+shared `.personal-context-link` in Classic and V2. The 27 October source candidate
+uses a one-pixel blue outline, ink label, existing blue icon and minimum 44 px
+target on desktop and inside the mobile navigation. It keeps its personal-space
+accessible description and existing destination without a separate oversized
+card. The rule adds no asset, request, route, session read or authority; it keeps
+the independently authenticated personal entry. Rendered checks and publication
+remain separate from this source contract. The account page
 continues to show the current workshop role and permissions; operational access
 and permission-specific recovery messages still follow server authority.
 

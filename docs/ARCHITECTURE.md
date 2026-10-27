@@ -87,7 +87,7 @@ footer bytes. [HOMEPAGE_REDESIGN.md](HOMEPAGE_REDESIGN.md) owns this public cont
 `PublicHomeClosing` precedes the homepage's common footer: its existing localized
 invitation, installation link and large stamp appear above the home-only panorama.
 The same `PublicFooter` follows every main-site public route, including home,
-with its compact stamp, two decorative original swallows, fifteen links and
+with its compact stamp, two decorative original swallows, sixteen links and
 colophon. The home-only large closing stamp and three panorama birds remain
 above that common footer. `theme-media.ts` supplies native picture media selection for Brand,
 panorama and the shared `editorial/article-picture.tsx`; system follows CSS media

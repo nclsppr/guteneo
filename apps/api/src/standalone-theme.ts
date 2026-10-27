@@ -9,7 +9,7 @@ export function standaloneThemeAttributes(request?: Request): string {
 }
 
 export const standaloneThemeMetadata =
-  '<meta name="theme-color" content="#2450db"><meta name="color-scheme" content="light dark">';
+  '<meta name="theme-color" content="#2450db"><meta name="color-scheme" content="light dark"><link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48"><link rel="icon" type="image/svg+xml" sizes="any" href="/favicon.svg?brand=20260917"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">';
 
 const darkTokens = `color-scheme:dark;--paper:#11151e;--surface:#1a202c;--ink:#f0f2f7;--muted:#b3bdce;--line:#384255;--control-line:#6b7891;--blue:#9bb5ff;--warning:#f2c789;--warning-tint:#3a2d1d;--error:#ffb4a8;--focus:#f0f2f7`;
 const darkBrand = `:is(.brand,.domain){color:#f6f5ef;background:transparent}`;

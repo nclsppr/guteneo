@@ -43,6 +43,25 @@ expected counts. A future matrix change must update both, its tests and this
 explanation together. A configured job is not proof that its latest execution
 succeeded.
 
+## Keep browser icons bound to their source
+
+`packages/contracts/src/brand-icons.json` defines the approved browser-icon
+family and canonical URL. `scripts/brand-icons.mjs` copies or compares the five
+source files in `apps/web/public`. The status build copies those exact bytes
+after its ordinary public assets; its release source scope includes the contract,
+helper and product files.
+The engineering builder checks its public copies before compilation and built
+copies afterward. Missing or different bytes fail the build. Its source snapshot
+also includes the helper and product icon paths, while each output manifest
+records the resulting files normally.
+
+When the approved icon family changes, update engineering's public copies from
+the source, run the independent builds and preserve both source and output
+checks. Do not suppress a mismatch or regenerate different artwork. After an
+authorized publication, compare the served icon bytes and inspect browser
+behavior separately; a local equality check cannot prove deployment or clear a
+browser cache. These static assets add no backend binding or provider authority.
+
 ## Retain the right evidence after a manual rerun
 
 GitHub may retain several immutable artifacts with the same logical name after a

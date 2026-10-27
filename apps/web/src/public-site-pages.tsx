@@ -14,7 +14,6 @@ import {
 } from "./pdf-check-public";
 import { msg } from "./messages";
 import { t } from "./locale";
-import "./public-site-pages.css";
 
 import {
   getPublicSitePageMetadata,

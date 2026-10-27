@@ -8,6 +8,38 @@ export default defineConfig({
   root: fileURLToPath(new URL(".", import.meta.url)),
   plugins: [
     {
+      name: "guteneo-critical-fonts",
+      apply: "build",
+      transformIndexHtml: {
+        order: "post",
+        handler(_html, context) {
+          const fonts = [
+            "ibm-plex-sans-latin-400-normal.woff2",
+            "eb-garamond-latin-400-normal.woff2",
+            "eb-garamond-latin-500-normal.woff2",
+          ];
+          return fonts.map((font) => {
+            const asset = Object.values(context.bundle ?? {}).find(
+              (output) =>
+                output.type === "asset" && output.names.includes(font),
+            );
+            if (!asset) throw new Error(`Missing critical font asset: ${font}`);
+            return {
+              tag: "link",
+              attrs: {
+                rel: "preload",
+                as: "font",
+                type: "font/woff2",
+                crossorigin: "",
+                href: `/${asset.fileName}`,
+              },
+              injectTo: "head-prepend" as const,
+            };
+          });
+        },
+      },
+    },
+    {
       name: "guteneo-mcp-app-resources-check",
       apply: "build",
       async generateBundle() {

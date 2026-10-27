@@ -36,6 +36,7 @@ import {
 } from "./dashboard-appearance";
 import {
   applyAccountLocale,
+  initializeLocale,
   getLocale,
   languageCopy,
   type SupportedLocale,
@@ -236,6 +237,7 @@ export function PersonalSpace({
   const onSessionInvalid = useCallback(() => {
     sessionReadRevision.current += 1;
     setPersonalSession(null);
+    initializeLocale(true);
   }, []);
   useEffect(() => {
     if (session) {
@@ -280,9 +282,10 @@ export function PersonalSpace({
           revision !== sessionReadRevision.current
         )
           return;
-        if (cause instanceof ApiError && [401, 403].includes(cause.status))
+        if (cause instanceof ApiError && [401, 403].includes(cause.status)) {
           setPersonalSession(null);
-        else setError(cause as Error);
+          initializeLocale(true);
+        } else setError(cause as Error);
       } finally {
         pending = false;
         if (!controller.signal.aborted) setLoading(false);
@@ -325,6 +328,7 @@ export function PersonalSpace({
         body: {},
       });
       clearPendingDocumentInvitation();
+      initializeLocale(true);
       sessionReadRevision.current += 1;
       setPersonalSession(null);
       // Leave the private route and discard workshop state before another

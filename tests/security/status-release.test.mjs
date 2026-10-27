@@ -6,6 +6,7 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import test from "node:test";
 import { buildStatus } from "../../scripts/build-status.mjs";
+import { brandIconFiles } from "../../scripts/brand-icons.mjs";
 import { deployStatus } from "../../scripts/deploy-status.mjs";
 import {
   captureSourceSnapshot,
@@ -16,6 +17,9 @@ async function fixture(t, branch = "main") {
   const root = await mkdtemp(join(tmpdir(), "guteneo-status-release-"));
   t.after(() => rm(root, { recursive: true, force: true }));
   await mkdir(join(root, "apps/status/public"), { recursive: true });
+  await mkdir(join(root, "apps/web/public"), { recursive: true });
+  for (const name of brandIconFiles)
+    await writeFile(join(root, "apps/web/public", name), `Canonical ${name}`);
   await writeFile(
     join(root, "apps/status/public/index.html"),
     "<h1>Status</h1>",
@@ -99,7 +103,12 @@ test("status release binds the actual assets and source, preserving dirty eviden
   const root = await fixture(t);
   const clean = await buildStatus(root);
   assert.equal(clean.sourceDirty, false);
-  assert.equal(clean.assets.length, 1);
+  assert.equal(clean.assets.length, 1 + brandIconFiles.length);
+  for (const name of brandIconFiles)
+    assert.equal(
+      await readFile(join(root, "dist/status", name), "utf8"),
+      `Canonical ${name}`,
+    );
   assert.match(clean.sourceCommit, /^[a-f0-9]{40}$/);
   assert.deepEqual(
     JSON.parse(await readFile(join(root, "dist/status/release.json"), "utf8")),

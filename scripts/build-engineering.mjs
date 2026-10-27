@@ -1,6 +1,7 @@
 import { execFileSync } from "node:child_process";
 import { writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
+import { assertBrandIcons } from "./brand-icons.mjs";
 import {
   createEngineeringRelease,
   engineeringSourceSnapshot,
@@ -10,6 +11,7 @@ import {
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const app = fileURLToPath(new URL("../apps/engineering/", import.meta.url));
+await assertBrandIcons(root, `${app}public`);
 const commit = execFileSync("git", ["rev-parse", "HEAD"], {
   cwd: root,
   encoding: "utf8",
@@ -18,6 +20,7 @@ const snapshot = await engineeringSourceSnapshot(root);
 validateEngineeringConfig(await readEngineeringConfig(`${app}wrangler.jsonc`));
 execFileSync("npm", ["run", "typecheck"], { cwd: app, stdio: "inherit" });
 execFileSync("npm", ["run", "build"], { cwd: app, stdio: "inherit" });
+await assertBrandIcons(root, `${app}dist`);
 execFileSync("npm", ["run", "lint:docs"], { cwd: app, stdio: "inherit" });
 execFileSync("npm", ["run", "check", "--", "--json"], {
   cwd: app,

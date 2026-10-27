@@ -6,9 +6,11 @@ import {
   canonicalPublicPath,
 } from "../../../packages/contracts/src/public-routes";
 import {
+  applyPublicLocaleHeaders,
   isPublicLocaleAssetPath,
   localizedPublicPath,
   requestedPublicLocale,
+  resolvePublicRequestLocale,
 } from "../../../packages/contracts/src/public-locales";
 import { assertBaseConfiguration, type Env } from "./env";
 import {
@@ -132,10 +134,11 @@ export async function servePublicAssets(
     });
   }
   let response: Response;
+  const localeSelection = resolvePublicRequestLocale(url, request.headers);
   try {
     const localizedPath = localizedPublicPath(
       url.pathname,
-      requestedPublicLocale(url.searchParams),
+      localeSelection?.locale ?? null,
     );
     const assetUrl = new URL(url);
     if (localizedPath) assetUrl.pathname = localizedPath;
@@ -242,14 +245,12 @@ export async function servePublicAssets(
     )
   )
     headers.set("Cache-Control", "no-store");
-  if (
-    canonical &&
-    publicPages.has(url.pathname) &&
-    !protocolError &&
-    ((response.status === 200 && representationType === "text/html") ||
-      (response.status === 304 &&
-        ["", "text/html"].includes(representationType)))
-  ) {
+  const publicHtml = applyPublicLocaleHeaders(headers, localeSelection, {
+    status: response.status,
+    protocolError,
+    privateQuery,
+  });
+  if (canonical && publicHtml) {
     // Cloudflare's automatic HTML injection must not change the bytes bound
     // to our release manifest. no-transform must be sent by the origin, not
     // requested by the monitor. Keep the existing cache directives and any

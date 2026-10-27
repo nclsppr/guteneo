@@ -17,6 +17,22 @@ activation. [Channel adapters](/workflows/delivery-channels/) describes transpor
 
 <ServiceRelease />
 
+## Hosted-login browser icon
+
+The branding setup script reads the canonical product favicon URL from
+`scripts/brand-icons.mjs`. Inspect the current provider branding before changing
+it. When the configured `favicon_url` already matches, retain it without a
+provider write; local icon consistency does not justify an unrelated branding
+update, permission change or authentication modification.
+
+A 27 October read-only inspection confirmed the existing URL already matched
+the product SVG URL, so no remote configuration change was needed. This records
+that bounded configuration observation, not rendered-login or browser-cache
+qualification. A future mismatch must follow the existing reviewed setup flow
+and applicable operator authority, then verify the configuration and actual
+hosted result separately. Keep tenant identifiers and credentials out of this
+public guide.
+
 ## Private PDF validator qualification
 
 Temporary qualification may stop the private validator and therefore requires

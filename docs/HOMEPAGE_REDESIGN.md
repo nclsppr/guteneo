@@ -65,17 +65,17 @@ bootstrap owns its activation before React is ready, so an early click is retain
 through hydration. Escape and outside interaction preserve the shared
 menu/focus contract. `PublicFooter` is the common navigable footer for public
 React pages. `packages/contracts/src/public-footer.json` owns four groups and
-fifteen canonical links with four-language labels; status and public HTTP-error
+sixteen canonical links with four-language labels; status and public HTTP-error
 adapters consume the same source without adding a React dependency.
 
 The homepage closes its main content with the existing localized “Ideas travel.
 Ours start here.” invitation, first-dispatch call to action and large founding
 stamp/postmark. The call to action retains the meaningful `/#installation`
 destination and focus behavior; it prepares no dispatch. This invitation and stamp
-sit above the homepage-only Luxembourg panorama, followed by the common fifteen-
+sit above the homepage-only Luxembourg panorama, followed by the common sixteen-
 link footer. That same `PublicFooter` remains unchanged on home and every other
 main-site public React route: compact stamp/postmark, two original swallows,
-fifteen links and maker colophon. The large home closing composition is additional
+sixteen links and maker colophon. The large home closing composition is additional
 content above it, not a special footer variant. Status includes no city artwork.
 
 Three original blue swallows overlay the home panorama; the identical common

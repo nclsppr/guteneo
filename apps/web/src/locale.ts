@@ -11,7 +11,12 @@ import { en } from "./locales/en";
 import { de } from "./locales/de";
 import { lb } from "./locales/lb";
 import site from "../../../packages/contracts/src/public-site.json";
-import { requestedPublicLocale } from "../../../packages/contracts/src/public-locales";
+import {
+  parsePublicLocaleCookie,
+  publicLocaleCookieMaxAge,
+  publicLocaleCookieName,
+  requestedPublicLocale,
+} from "../../../packages/contracts/src/public-locales";
 import { syncPublicSharing } from "./public-sharing";
 
 export {
@@ -134,12 +139,25 @@ function syncPublicLocaleUrl(locale: SupportedLocale) {
 export function useLocaleSource() {
   return useSyncExternalStore(subscribe, getLocaleSource, getLocaleSource);
 }
+/** Nonsecret presentation hint only; authentication never trusts this cookie. */
+function syncLocaleCookie(locale: SupportedLocale, source: LocaleSource) {
+  if (typeof document === "undefined" || typeof window === "undefined") return;
+  try {
+    document.cookie =
+      `${publicLocaleCookieName}=${source === "browser" ? "" : `${source}.${locale}`}; Path=/; Max-Age=${source === "browser" ? 0 : publicLocaleCookieMaxAge}; SameSite=Lax` +
+      (window.location.protocol === "https:" ? "; Secure" : "");
+  } catch {
+    /* Cookie blocking never prevents an in-page language choice. */
+  }
+}
 export function setLocale(
   locale: SupportedLocale,
   persist = true,
   source: LocaleSource = persist ? "selection" : "account",
+  rememberPresentation = true,
 ) {
   if (!isSupportedLocale(locale)) return;
+  if (rememberPresentation) syncLocaleCookie(locale, source);
   if (persist) selectionVersion += 1;
   if (persist && typeof window !== "undefined") {
     syncPublicLocaleUrl(locale);
@@ -165,11 +183,15 @@ function browserLocale() {
   return resolveLocale(languages);
 }
 /** Account settings never inherit a visitor's stored or URL language choice. */
-export function applyAccountLocale(preferredLocale: unknown) {
+export function applyAccountLocale(
+  preferredLocale: unknown,
+  rememberPresentation = true,
+) {
   setLocale(
     isSupportedLocale(preferredLocale) ? preferredLocale : browserLocale(),
     false,
     "account",
+    rememberPresentation,
   );
 }
 /** Reset this browser's choice without changing the account preference. */
@@ -192,7 +214,7 @@ export function setAutomaticLocale() {
   setLocale(browserLocale(), false, "browser");
 }
 /** Run before first render. Account preference is applied after authentication. */
-export function initializeLocale() {
+export function initializeLocale(restoreVisitor = false) {
   let stored: SupportedLocale | null = null;
   try {
     stored = normalizeLocale(window.localStorage.getItem(storageKey));
@@ -202,14 +224,35 @@ export function initializeLocale() {
   const requested = requestedPublicLocale(
     new URLSearchParams(window.location.search),
   );
+  // Logout restores the separate visitor choice, never a previous account hint.
+  let hint = null;
+  try {
+    if (!restoreVisitor) hint = parsePublicLocaleCookie(document.cookie);
+  } catch {
+    /* Cookie access is optional, just like local storage. */
+  }
+  // The HTTP language decision is already visible. Retain it even if navigator
+  // and Accept-Language differ. Legacy device-only choices migrate in the head.
+  const initial = restoreVisitor
+    ? null
+    : normalizeLocale(
+        typeof document === "undefined" ||
+          document.documentElement.dataset?.publicPath !==
+            window.location.pathname
+          ? null
+          : document.documentElement.dataset?.publicLocale,
+      );
+  const source = requested
+    ? "selection"
+    : (hint?.source ?? (stored ? "selection" : "browser"));
   setLocale(
-    requested ?? stored ?? browserLocale(),
+    requested ?? hint?.locale ?? stored ?? initial ?? browserLocale(),
     !!requested,
-    requested || stored ? "selection" : "browser",
+    source,
   );
   // A saved explicit choice also survives ordinary navigation between public pages.
-  if (!requested && stored) {
-    syncPublicLocaleUrl(stored);
+  if (!requested && source === "selection") {
+    syncPublicLocaleUrl(getLocale());
     syncPublicSharing();
   }
 }

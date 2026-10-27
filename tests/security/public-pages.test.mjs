@@ -161,7 +161,12 @@ test("explicit languages have matching canonical, social locale, copy and locali
       true,
       locale,
     );
-    assert.match(html, new RegExp(`<html lang="${locale}">`));
+    assert.match(
+      html,
+      new RegExp(
+        `<html lang="${locale}" data-public-locale="${locale}" data-public-path="/support/">`,
+      ),
+    );
     assert.ok(html.includes(`rel="canonical" href="${current.canonical}"`));
     assert.deepEqual(metadata(html, "og:url"), [current.canonical]);
     assert.deepEqual(metadata(html, "og:locale"), [tags[locale]]);
@@ -303,7 +308,12 @@ test("all public pages and their four language variants are generated with canon
         ),
         "utf8",
       );
-      assert.match(localized, new RegExp(`<html lang="${locale}">`));
+      assert.match(
+        localized,
+        new RegExp(
+          `<html lang="${locale}" data-public-locale="${locale}" data-public-path="${pathname}">`,
+        ),
+      );
       assert.ok(
         localized.includes(
           `rel="canonical" href="${PUBLIC_ORIGIN}${pathname}?lang=${locale}"`,

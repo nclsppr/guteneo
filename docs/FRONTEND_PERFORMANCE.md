@@ -1,8 +1,116 @@
 # Frontend loading and personal bootstrap
 
-25 October 2026 local candidate. This contract owns route-loading behavior and
+27 October 2026 local candidate. This contract owns route-loading behavior and
 its bounded local measurements. It establishes no production latency, server CPU,
 provider readiness, price, deployment or physical-device qualification.
+
+## Stable public rendering — 27 October 2026 candidate
+
+Public HTML is no longer a temporary French page awaiting a session-language
+response. The Worker selects one existing immutable document from the explicit
+URL, bounded presentation hint or browser negotiation before returning it.
+The client uses bundled synchronous catalogs and makes no `/api/session` read
+on a public route. Independent public capability reads remain available where
+the page needs them. Authenticated workshop and personal routes still resolve
+their own sessions before showing useful private content. The
+[multilingual contract](MULTILINGUAL.md#selection-and-retention) owns precedence,
+cookie limits, visitor/account separation and the small legacy-storage head
+migration; it adds no account lookup, timer or polling to public rendering.
+
+Public detail JavaScript remains lazy, and slow or failed loading retains complete
+static content. Required layout styles belong to the entry CSS graph. The build
+inspection found that public detail/header styles were already in the initial
+stylesheet links through the eager support component; moving their import to the
+entry makes that dependency explicit. The guided example's `landing-example.css`
+was actually deferred with its route chunk and is now in the initial graph.
+This removes the late CSS request and its unstyled example layout on
+`/how-it-works/`. The change does not replace the existing React mounting API.
+
+The comparison below used `npm run build:web` in the isolated current-main
+worktree on macOS, with the same installed dependencies, before and after those
+CSS import changes. It sums the CSS files linked by generated `dist/web/index.html`;
+gzip sizes use Node's `gzipSync` independently per file. It is a build-graph
+comparison, not observed browser transfer, FCP, CLS or production latency.
+
+| Initial stylesheet graph | Before | Candidate |
+| --- | ---: | ---: |
+| Linked stylesheet requests | 5 | 5 |
+| Total stylesheet bytes | 159,270 | 166,218 |
+| Sum of gzip stylesheet bytes | 31,798 | 32,890 |
+| Guided example styled before route JavaScript | No | Yes |
+
+The entry graph adds 1,092 compressed bytes while avoiding one later stylesheet
+request. No general speed percentage, final-source first-paint timing, hosted
+CPU/memory, billed-cost or physical-device claim follows from that measurement.
+Browser regressions must hold route JavaScript and authentication responses,
+compare the initial heading and example geometry with the interactive result,
+exercise four languages and verify that an explicit public language cannot be
+replaced by a conflicting account preference. Final check results remain separate
+from this implementation contract and from authorized publication.
+
+## Cold webfonts — 27 October 2026 candidate
+
+The shared `apps/web/src/fonts.css` retains the packaged IBM Plex Sans, IBM Plex
+Mono and EB Garamond faces with `font-display: optional`. A font available during
+the browser's brief initial period uses the approved typography. If it arrives
+later, visible text keeps its fallback for that document instead of rewrapping.
+A later cached navigation can use the packaged face immediately. This preserves
+stable readable content without hiding the page behind a font-loading gate.
+
+The Vite HTML hook preloads IBM Plex Sans 400 and EB Garamond 400/500 WOFF2 files,
+totaling 71,672 bytes. It derives each hashed URL from the emitted asset metadata
+and supplies the matching anonymous font request attributes. Those faces were
+already requested by the measured home/pricing pages; preloading starts the
+existing requests earlier rather than introducing another font family. Other
+weights and italic/code faces remain CSS-driven. WOFF2 is supported by the
+application's Chromium/WebKit browser targets. The build retains the original
+font bytes and their package provenance.
+
+The baseline isolated font loading after the language/CSS correction: fresh
+French Chromium contexts at 1440 × 1000 and 390 × 844, reduced motion, local
+Wrangler assets, no CPU/network throttling, and all font requests explicitly held.
+The public header was interactive and above-fold images complete before measuring
+fallback text; then only the held font requests were released. Six requested files
+totaled 135,952 decoded bytes. Their original `swap` declarations produced these
+observations:
+
+| Surface / viewport | Baseline pricing heading height change | Baseline pricing paragraph top change | Baseline layout-shift sum after font release | Candidate sum |
+| --- | ---: | ---: | ---: | ---: |
+| Home / desktop | Not applicable | Not applicable | 0.01413 | 0 |
+| Pricing / desktop | 103.031 → 51.516 px | −51.516 px | 0.00860 | 0 |
+| Home / mobile | Not applicable | Not applicable | 0.00985 | 0 |
+| Pricing / mobile | 71.656 → 35.828 px | −35.828 px | 0.03574 | 0 |
+
+Pricing's first section heading changed from two lines to one. The homepage's
+main heading height stayed fixed, but its desktop intro grew 44.203 px wider and
+the full document height changed by +31 px desktop and −107 px mobile. These are
+controlled font-release observations, not field Core Web Vitals or a physical
+phone result. The entry-CSS comparison in the preceding section predates this
+font-source change and must not be presented as the final combined asset total.
+
+Repeating the same held-font diagnostic against the combined candidate produced
+zero change in every sampled title, body, button and footer rectangle, and zero
+layout-shift entries after font release, at both widths on both pages. The same
+six font files totaled 135,952 decoded bytes. Separate ordinary local pricing
+navigation with no request interception retained the branded heading's single
+line on both a fresh context and a cached reload: 51.516 px desktop and 35.828 px
+mobile. Those local observations do not guarantee font arrival on a slow network;
+that case intentionally keeps its stable fallback for the document.
+
+`tests/preview-e2e/font-render-stability.spec.ts` passes 4/4 cases across desktop
+Chromium and iPhone WebKit emulation on the final combined Vite/static-HTML build,
+served by the local production-wrapper Worker with intercepted synthetic APIs.
+It holds fonts beyond the optional period, then releases them, waits for network
+completion and compares every main heading/paragraph rectangle and literal text.
+It also checks the three emitted font preloads. WebKit may mark optional faces
+unavailable before their network request completes; the regression verifies that
+no custom face was loaded during the held period instead of assuming a shared
+FontFaceSet status across engines.
+
+The diagnostic script, raw measurements and before/after screenshots remain in
+`/tmp/guteneo-font-swap-2026-10-27/`, including the `candidate/` measurements and
+`font-tests-final.json`. No hosted, physical-device, CPU, memory or cost
+qualification is inferred.
 
 ## Secure-distribution recovery and V2 — 27 October 2026
 
@@ -110,10 +218,11 @@ bundle boundaries are checked by `tests/e2e/personal-appearance.spec.ts`; they d
 not establish a production timing improvement.
 
 Public detail pages use a separate lazy chunk. Their lightweight path/metadata
-module lets the entry point preload that chunk before React replaces complete
-initial HTML. Slow or failed chunk loading must preserve the useful static page;
-this is separate from private authenticated loading. The public-route contract
-is in [homepage and navigation](HOMEPAGE_REDESIGN.md).
+module lets the entry point preload that chunk while complete, correctly styled
+initial HTML remains visible. Slow or failed chunk loading preserves the useful
+static page. The stable-language contract above is separate from private
+authenticated loading. The public-route contract is in
+[homepage and navigation](HOMEPAGE_REDESIGN.md).
 
 Brand, panorama and editorial pictures share `apps/web/src/theme-media.ts`;
 `editorial/article-picture.tsx` supplies responsive dark/light sources for public

@@ -4,6 +4,34 @@ The user clarified these rules on 17 September 2026 and subsequently explicitly
 authorized publication. This note describes local candidate validation;
 publication evidence is recorded separately after delivery.
 
+## Browser icons — 27 October 2026 candidate
+
+The existing simple emblem from `apps/web/public` is the authoritative browser
+icon family: `favicon.svg`, `favicon.ico`, `favicon-16.png`, `favicon-32.png`
+and `apple-touch-icon.png`. Reuse those exact bytes across product, status and
+engineering surfaces; do not derive a new icon from the portrait or stamp.
+`packages/contracts/src/brand-icons.json` owns the file list and existing
+canonical hosted-login favicon URL; `scripts/brand-icons.mjs` owns the
+copy/equality helpers. Status copies the family into its build;
+engineering checks both its checked-in public family and built output against
+the product source. Both independent release snapshots include the source icon
+paths, shared contract and helper, so a source change invalidates the
+corresponding build proof.
+
+Main, status and engineering heads declare the family. Shared standalone HTML
+metadata declares ICO, SVG and Apple touch icons for authentication handoff,
+Belvédère, protected documents and public error pages. Browser-icon identity is
+separate from the approved header portrait and printed footer stamp.
+The isolated platform host allows only this fixed icon family through GET/HEAD,
+with no query except the approved SVG brand query. These static assets change
+no authenticated access, origin, method or customer-data gate.
+
+A read-only hosted-login branding inspection on 27 October confirmed its current
+favicon URL already matched the canonical product SVG URL; no provider setting
+was changed. This is configuration evidence only. Source equality, built assets,
+deployed bytes and the icon rendered by a hosted login or browser cache remain
+separate checks. This cross-surface source candidate claims no new deployment.
+
 ## Composition rules clarified on 3 October 2026
 
 The brand lettering **guteneo**, and **guteneo.com** when used as a graphic
@@ -47,7 +75,7 @@ the explicitly requested localized invitation “Ideas travel. Ours start here.�
 and first-dispatch action, followed by the large stamp/postmark and panorama,
 before the common footer. Center the invitation and button on one axis. The
 common `PublicFooter` remains identical on every main-site public route, including
-home: compact stamp/postmark, two original decorative swallows, fifteen links and
+home: compact stamp/postmark, two original decorative swallows, sixteen links and
 maker colophon. Home's large closing stamp and three panorama birds are a separate
 section above it, not a reason to remove or vary the common footer.
 

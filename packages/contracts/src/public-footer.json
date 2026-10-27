@@ -81,6 +81,15 @@
           }
         },
         {
+          "href": "https://engineering.guteneo.com/",
+          "labels": {
+            "fr": "Documentation technique",
+            "en": "Engineering documentation",
+            "de": "Technische Dokumentation",
+            "lb": "Technesch Dokumentatioun"
+          }
+        },
+        {
           "href": "/journal/",
           "labels": {
             "fr": "Le journal",

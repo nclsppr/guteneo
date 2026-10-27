@@ -30,14 +30,8 @@ import {
   setSession,
   type Session,
 } from "./api";
-import {
-  t,
-  getLocaleSelectionVersion,
-  initializeLocale,
-  useLocale,
-} from "./locale";
+import { t, initializeLocale, useLocale } from "./locale";
 import { canonicalPublicLocation } from "../../../packages/contracts/src/public-routes";
-import { isSupportedLocale } from "../../../packages/contracts/src/locale";
 import { PublicHomepage } from "./public-homepage";
 import {
   isPublicSitePage,
@@ -235,6 +229,7 @@ function Application() {
   const route = useRoute();
   const personalRoute = personalPage(route) && !publicPreview;
   const emailPreferencesRoute = route.split("?")[0] === "/email-preferences";
+  const workspaceRoute = route.startsWith("/app") && !personalRoute;
   const canonicalLocation = canonicalPublicLocation(
     window.location.pathname,
     window.location.search,
@@ -264,32 +259,27 @@ function Application() {
       updateSession(null);
       return;
     }
+    // Public HTML already has its language. No authenticated read may translate
+    // an already visible page; private entry resolves its own session below.
+    if (!workspaceRoute) {
+      setSession(null, false);
+      updateSession(null);
+      setReady(true);
+      return;
+    }
     let alive = true;
     const controller = new AbortController();
-    const languageVersion = getLocaleSelectionVersion();
     api<Session>("/session", { signal: controller.signal })
       .then((s) => {
         if (alive) {
-          const enteringWorkspace =
-            window.location.pathname.startsWith("/app") ||
-            window.location.hash.startsWith("#/app");
-          setSession(
-            s,
-            !isPublicPreview &&
-              (enteringWorkspace ||
-                (isSupportedLocale(s.user.preferredLocale) &&
-                  languageVersion === getLocaleSelectionVersion())),
-          );
+          setSession(s, !isPublicPreview);
           updateSession(s);
         }
       })
       .catch(async () => {
         if (!alive) return;
-        // This is still a visitor until a server session is established. Restore
-        // their URL/device choice after the guarded private-page bootstrap,
-        // without overwriting a language selected while the probe was pending.
-        if (alive && languageVersion === getLocaleSelectionVersion())
-          initializeLocale();
+        // Authentication failed: discard the non-authoritative account hint.
+        initializeLocale(true);
         const requested = window.location.hash.slice(1);
         if (
           isPublicPreview ||
@@ -318,7 +308,7 @@ function Application() {
       alive = false;
       controller.abort();
     };
-  }, [personalRoute, emailPreferencesRoute]);
+  }, [personalRoute, emailPreferencesRoute, workspaceRoute]);
   useEffect(() => {
     const path = window.location.pathname;
     const information = getInformationPages()[path];

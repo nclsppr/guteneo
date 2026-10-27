@@ -89,9 +89,13 @@ absence never becomes a successful measurement.
 ### Shared public footer and generated assets
 
 `packages/contracts/src/public-footer.json` owns the four navigation groups and
-fifteen canonical destinations, including labels in all four languages. React
+sixteen canonical destinations, including labels in all four languages. React
 and status consume that same source. Status adds no React runtime and keeps no
 second checked-in footer catalog.
+Resources includes Engineering documentation after Developers. Its localized
+label always opens `https://engineering.guteneo.com/` without a language
+parameter because the separate engineering site is English-authored. The shared
+catalog change is a local candidate until each consuming site is released.
 The founding stamp and postmark provide the footer signature; the current stamp
 is an exact copy of the approved transparent-outer-edge web derivative, retaining
 its printed white interior. The opaque official source remains unchanged.
@@ -108,6 +112,16 @@ The shared JSON belongs to `statusScope`: changing it changes the source
 fingerprint, while generated footer bytes belong to the asset manifest. A missing
 or incomplete required catalog fails the build. Existing qualification-source,
 clean-main, migration and served-asset checks remain in force.
+
+The browser icon family is generated from the exact five approved product
+files listed in `packages/contracts/src/brand-icons.json`, using
+`scripts/brand-icons.mjs` after copying the status public directory.
+The status head declares the same SVG, ICO, PNG and Apple touch choices as the
+main site. The shared contract, helper and five product source paths belong to
+`statusScope`; changing an icon invalidates the status source fingerprint and
+the resulting output is covered by its asset manifest. Keep icon identity
+separate from the status stamp and header portrait. These are local source/build
+contracts; a status publication and served-byte verification remain separate.
 
 ## Observation scope, state and read cadence
 

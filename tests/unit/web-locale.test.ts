@@ -368,6 +368,33 @@ describe("language precedence and resilient preference storage", () => {
     expect(getLocale()).toBe("en");
     expect(getLocaleSource()).toBe("browser");
   });
+  it("retains the server language when the browser's two language APIs differ", () => {
+    browser(null, ["en-GB"]);
+    Object.defineProperty(document.documentElement, "dataset", {
+      value: { publicLocale: "de", publicPath: "/" },
+    });
+    initializeLocale();
+    expect(getLocale()).toBe("de");
+    expect(getLocaleSource()).toBe("browser");
+  });
+  it("uses a known account presentation hint without overwriting the visitor choice", () => {
+    const write = browser("lb", ["en-GB"]);
+    document.cookie = "guteneo_locale=account.de";
+    initializeLocale();
+    expect(getLocale()).toBe("de");
+    expect(getLocaleSource()).toBe("account");
+    expect(write).not.toHaveBeenCalled();
+    initializeLocale(true);
+    expect(getLocale()).toBe("lb");
+    expect(document.cookie).toContain("guteneo_locale=selection.lb");
+  });
+  it("does not persist a temporary private-entry language before authentication", () => {
+    browser("lb", ["en-GB"]);
+    document.cookie = "guteneo_locale=selection.lb";
+    applyAccountLocale(null, false);
+    expect(getLocale()).toBe("en");
+    expect(document.cookie).toBe("guteneo_locale=selection.lb");
+  });
   it("notifies language-source consumers even when the language stays the same", () => {
     browser("fr", ["fr-FR"]);
     initializeLocale();

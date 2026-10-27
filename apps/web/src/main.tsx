@@ -1,12 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import "@fontsource/ibm-plex-sans/latin-400.css";
-import "@fontsource/ibm-plex-sans/latin-500.css";
-import "@fontsource/ibm-plex-sans/latin-600.css";
-import "@fontsource/ibm-plex-mono/latin-400.css";
-import "@fontsource/eb-garamond/latin-400.css";
-import "@fontsource/eb-garamond/latin-500.css";
-import "@fontsource/eb-garamond/latin-400-italic.css";
+import "./fonts.css";
 import { applyAccountLocale, initializeLocale, t, useLocale } from "./locale";
 import { api, ApiError, type Session } from "./api";
 import { observePublicLinks } from "./public-sharing";
@@ -17,6 +11,8 @@ import "./styles.css";
 import "./login-page.css";
 import "./protected-document.css";
 import "./dashboard-v2.css";
+import "./landing-example.css";
+import "./public-site-pages.css";
 
 initializeTheme();
 
@@ -54,7 +50,7 @@ if (isBelvedere) {
   import.meta.env.VITE_PUBLIC_PREVIEW !== "true" &&
   window.location.hash.startsWith("#/app")
 ) {
-  applyAccountLocale(null);
+  applyAccountLocale(null, false);
 } else {
   initializeLocale();
 }

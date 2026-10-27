@@ -67,7 +67,19 @@ for (const language of ["fr", "en", "de", "lb"] as const) {
         await expect(
           page.locator("#public-footer-nav .footer-group"),
         ).toHaveCount(4);
-        await expect(page.locator("#public-footer-nav a")).toHaveCount(15);
+        await expect(page.locator("#public-footer-nav a")).toHaveCount(16);
+        await expect(
+          page.locator(
+            '#public-footer-nav a[href="https://engineering.guteneo.com/"]',
+          ),
+        ).toHaveText(
+          {
+            fr: "Documentation technique",
+            en: "Engineering documentation",
+            de: "Technische Dokumentation",
+            lb: "Technesch Dokumentatioun",
+          }[language],
+        );
         const stamp = page.locator(".status-footer .founding-stamp");
         await expect(stamp).toHaveAttribute(
           "src",

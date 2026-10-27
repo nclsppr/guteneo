@@ -154,7 +154,10 @@ export function publicPageDocument(
       "",
     );
   return html
-    .replace(/<html\b[^>]*>/i, `<html lang="${locale ?? "fr"}">`)
+    .replace(
+      /<html\b[^>]*>/i,
+      `<html lang="${locale ?? "fr"}" data-public-locale="${locale ?? "fr"}" data-public-path="${pathname}">`,
+    )
     .replace(
       root,
       () => `<div id="root">${localizeLinks(page.html, locale)}</div>`,
