@@ -5,7 +5,10 @@ import {
 } from "./belvedere-policy";
 import { accountEmail } from "../../../packages/contracts/src/account-identity";
 import { documentAccessMode } from "../../../packages/contracts/src/document-authentication";
-import { defaultDashboardAppearance, type DashboardAppearance } from "../../../packages/contracts/src/dashboard-appearance";
+import {
+  defaultDashboardAppearance,
+  type DashboardAppearance,
+} from "../../../packages/contracts/src/dashboard-appearance";
 import { isDispatchGroup } from "../../../packages/contracts/src/dispatch-groups";
 import { acceptWorkspaceInvitation, getInvitationPreview } from "./invitations";
 import { isWorkspaceInvitationToken } from "../../../packages/contracts/src/workspace-invitation-token";
@@ -933,12 +936,11 @@ export function requirePersonalDocumentAuthentication(
     !Number.isSafeInteger(principal.authenticatedAt) ||
     principal.authenticatedAt === null ||
     principal.authenticatedAt <= 0 ||
-    principal.authenticatedAt > now + 5 ||
-    now - principal.authenticatedAt > (options.maxAgeSeconds ?? 900)
+    principal.authenticatedAt > now + 5
   )
     throw new AuthError(
       "DOCUMENT_AUTHENTICATION_REQUIRED",
-      "Sign in again with your verified account to access this document.",
+      "Sign in with your verified account to access this document.",
       403,
     );
   if (principal.development && !principal.simulation)
@@ -1503,15 +1505,25 @@ async function handleAuthRouteOperation(
     }).toString();
     if (url.pathname === "/auth/signup")
       destination.searchParams.set("screen_hint", "signup");
+    if (
+      documentAccessMode(env.SENSITIVE_DOCUMENT_AUTHENTICATION) ===
+      "verified_account"
+    ) {
+      // Match the ordinary application session lifetime, reusing current SSO
+      // when entering from MCP while requiring signed primary auth_time in the
+      // initial workshop/personal login rather than a later second ceremony.
+      destination.searchParams.set("max_age", String(HOUR / 1000));
+    }
     if (url.searchParams.get("context") === "personal") {
       if (
         documentAccessMode(env.SENSITIVE_DOCUMENT_AUTHENTICATION) === "strong"
-      )
+      ) {
         destination.searchParams.set(
           "acr_values",
           "http://schemas.openid.net/pape/policies/2007/06/multi-factor",
         );
-      destination.searchParams.set("max_age", "0");
+        destination.searchParams.set("max_age", "0");
+      }
     }
     // A fresh login allows a newly verified email or MFA enrolment to be reflected
     // in signed claims rather than reusing an old identity-provider session.

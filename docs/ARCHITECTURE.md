@@ -144,9 +144,12 @@ browser approval under the current document policy at SQL acceptance, and retain
 restartable private copy jobs. `SENSITIVE_DOCUMENT_AUTHENTICATION` defaults to
 `strong`; the requested live profile explicitly selects `verified_account`.
 Unknown values fail closed. The selected profile requires a verified account
-and email, an identity-linked Auth0 session and signed primary `auth_time` within
-15 minutes, or five minutes for export, deposit and deletion. It does not create
-MFA evidence. Migration 0059 records `secure_approval_evidence.authentication_mode`
+and email, an identity-linked Auth0 session and signed primary `auth_time`.
+The 27 October 2026 candidate reuses the current valid session for
+`verified_account`; the explicit `strong` policy retains its shorter freshness
+windows. The [current account-policy contract](SECURE_DISTRIBUTION_JOURNEYS.md#authority-and-entry-conditions)
+owns those requirements. This does not create MFA evidence.
+Migration 0059 records `secure_approval_evidence.authentication_mode`
 and creates the singleton `secure_document_authentication_policy(id=1, mode)`,
 defaulting to `strong`. The operator sets its mode explicitly; the Worker never
 writes this policy. Environment/D1 disagreement denies access. SQL acceptance
@@ -162,9 +165,9 @@ retrying an unknown external communication. Read
 [the secure distribution contract](SECURE_DISTRIBUTION_IMPLEMENTATION.md)
 before changing these invariants. Runtime key ownership, provider configuration
 and the hosted account journey remain separately qualified deployment gates.
-The session's `documentAccessMode` and `documentAccessAllowed` describe the current
-15-minute access window for the UI; the server rechecks each action and its
-shorter window. `strongAuthentication` remains factual and may be false while
+The session's `documentAccessMode` and `documentAccessAllowed` describe current
+policy eligibility for the UI; the server rechecks each action and its applicable
+session requirements. `strongAuthentication` remains factual and may be false while
 the explicitly selected verified-account policy permits access.
 
 23 October 2026: [candidate 1.0.0](V1_RELEASE_CANDIDATE.md) uses the root package
@@ -406,3 +409,15 @@ retain their existing organization visibility. Dispatch/campaign/postal reads
 also enforce that private document authority. Generation is separate from
 approval, sending quota and provider attempts. Optional configured OpenAI calls
 produce reviewable proposals only. See [the implementation report](TEMPLATES_DATA_DISTRIBUTION.md).
+
+## Secure sending session and final action — 27 October 2026 candidate
+
+The current [secure journey contract](SECURE_DISTRIBUTION_JOURNEYS.md) reuses a
+valid verified account session and combines browser review approval/activation
+in one explicit priced action. The strong policy retains its separate freshness
+requirements. Migration 0065 aligns the persisted approval view/immutable guards
+with the server policy; it changes no historical receipt, session expiry or
+assistant authority. The live bridge validates the remaining transport reservation
+after committed hosting. Unknown outcomes still require same-ID reconciliation.
+Local source and signed synthetic tests do not establish migration publication,
+actual Auth0 SSO, recipient login or Resend delivery.

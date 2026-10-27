@@ -287,11 +287,13 @@ async function checkActiveDispatch(
   provider: string,
 ): Promise<Dispatch> {
   if (input.mode !== "production") blocked("LIVE_MODE_MISMATCH");
+  // Hosting is committed at acceptance; only the remaining transport ceiling
+  // stays reserved for the provider, for both protected links and secure shares.
   const row = await env.DB.prepare(
     `SELECT d.* FROM dispatches d
     JOIN attempts a ON a.id=d.active_attempt_id AND a.dispatch_id=d.id AND a.organization_id=d.organization_id
     JOIN approvals p ON p.organization_id=d.organization_id AND p.dispatch_id=d.id AND p.fingerprint=d.fingerprint
-    JOIN reservations r ON r.organization_id=d.organization_id AND r.dispatch_id=d.id AND r.status='reserved' AND r.amount_minor=d.ceiling_minor-COALESCE(json_extract(d.options_json,'$.protectedDocument.hostingFeeMinor'),0)
+    JOIN reservations r ON r.organization_id=d.organization_id AND r.dispatch_id=d.id AND r.status='reserved' AND r.amount_minor=d.ceiling_minor-COALESCE(json_extract(d.options_json,'$.protectedDocument.hostingFeeMinor'),0)-COALESCE(json_extract(d.options_json,'$.secureDistribution.serviceFeeMinor'),0)
     JOIN channel_controls c ON c.organization_id=d.organization_id AND c.channel=d.channel AND c.enabled=1
     JOIN senders s ON s.organization_id=d.organization_id AND s.id=d.sender_id AND s.address=d.sender_address AND s.channel=d.channel AND s.status='verified' AND s.mode='production'
     WHERE d.organization_id=? AND d.id=? AND d.status='submitting' AND d.mode='production' AND d.provider=? AND a.provider=? AND a.status='started'`,

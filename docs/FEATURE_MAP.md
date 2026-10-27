@@ -1,7 +1,7 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
 # Guteneo feature tree and developer atlas
 
-**23 domains · 331 features · 37 journeys · 76 documented REST operations · 83 MCP tools**
+**23 domains · 341 features · 37 journeys · 76 documented REST operations · 83 MCP tools**
 Updated 2026-10-27.
 
 Repository implementation inventory. Availability depends on current capabilities and authority; implementation, activation and deployed proof are distinct.
@@ -14,7 +14,7 @@ Start here to find a feature, its authority and its technical owner. Read [repos
 mindmap
   root((Guteneo))
     Access
-      Access and identity (34)
+      Access and identity (35)
       Team and responsibilities (10)
     Create
       Documents and protection (20)
@@ -25,7 +25,7 @@ mindmap
       Fax (7)
       Postal mail (8)
       Email and protected links (14)
-      Sensitive distribution and personal documents (27)
+      Sensitive distribution and personal documents (29)
       Dispatch dry run (7)
     Operate
       Campaigns and tracking (8)
@@ -38,7 +38,7 @@ mindmap
       Public pages, languages and appearance (17)
     Operations
       Reviewer OAuth qualification (9)
-      Operations and reliability (19)
+      Operations and reliability (26)
       Belvédère platform oversight (9)
       Public service status (15)
       Engineering documentation (12)
@@ -46,7 +46,7 @@ mindmap
 
 ### Access
 
-- [Access and identity](#identity) — 34 features; browser-session.
+- [Access and identity](#identity) — 35 features; browser-session.
 - [Team and responsibilities](#team) — 10 features; browser-session.
 
 ### Create
@@ -61,7 +61,7 @@ mindmap
 - [Fax](#fax) — 7 features; capability-gated.
 - [Postal mail](#postal) — 8 features; capability-gated.
 - [Email and protected links](#email) — 14 features; capability-gated.
-- [Sensitive distribution and personal documents](#secure-distribution) — 27 features; capability-gated.
+- [Sensitive distribution and personal documents](#secure-distribution) — 29 features; capability-gated.
 - [Dispatch dry run](#dry-run) — 7 features; read-only.
 
 ### Operate
@@ -80,7 +80,7 @@ mindmap
 ### Operations
 
 - [Reviewer OAuth qualification](#reviewer-oauth) — 9 features; operator-gated.
-- [Operations and reliability](#operations) — 19 features; operator-gated.
+- [Operations and reliability](#operations) — 26 features; operator-gated.
 - [Belvédère platform oversight](#belvedere) — 9 features; operator-gated.
 - [Public service status](#status) — 15 features; public.
 - [Engineering documentation](#engineering-docs) — 12 features; public.
@@ -180,12 +180,13 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - One Guteneo account without an automatic workspace; idempotent initial administrator/workspace creation only on explicit service use
 - Personal browser principal and session without membership, separate from workspace API authority; shared profile name/language and no email-based identity merging
 - My documents, Use Guteneo and Account and security share one sign-in; voluntary workspace choice/creation reloads the chosen destination and bootstraps that workspace’s current session, rights and CSRF
-- Document policy defaults to strong or explicitly selects verified_account: verified account/address and signed recent auth_time; fifteen minutes for reading/association/approval and five for export/deposit/deletion; documentAccessAllowed/documentAccessMode do not imply MFA or strongAuthentication; D1 defaults strong and environment disagreement fails closed
+- Document policy defaults to strong or explicitly selects verified_account: verified account/address and signed auth_time in an unexpired, unrevoked identity-linked session; no separate document sign-in for verified_account, while strong retains fifteen minutes for reading/association/approval and five for export/deposit/deletion; documentAccessAllowed/documentAccessMode do not imply MFA or strongAuthentication; D1 defaults strong and environment disagreement fails closed
 - Document invitation handoff lasts at most ten minutes in the same tab, then is deleted; capture before Auth0 with secret-free returnTo and no arbitrary private query
 - Document-service 401 offers explicit recovery without session-bootstrap loops; Auth0 recovery reconciles language and returned identity
 - Document-authentication and browser-approval freshness refusals use localized sign-in recovery in all four languages; explicit fresh login preserves the valid current application route and locale without replaying mutations or weakening session-age checks
 - Ordinary application entry without workshop membership offers workspace creation or joining through an existing canonical same-origin invitation with the shared raw 43-character base64url token contract, fragment clearing and explicit acceptance; server-generated invitation integration covers the entry, preview and auth handoff, while the stored SHA-256 hash never enters the link; explicit personal document entry remains independent, with no public workspace enumeration
 - Production browser configuration selects auth.guteneo.com; the tenant-wide custom-domain email flag and exact authorization-response issuer identification were applied and reread on 27 October, without sending verification mail or qualifying human login
+- Normal verified-account browser entry reuses Auth0 SSO within the existing one-hour session bound; signed authentication time is requested without forcing personal-entry max_age=0, and explicit fresh/account-switch behavior remains
 
 **Contract:** [ACCOUNT_IDENTITY.md](ACCOUNT_IDENTITY.md) · **Implementation:** [apps/api/src/auth.ts](../apps/api/src/auth.ts)
 
@@ -574,10 +575,12 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Direct personal routes start their own small shell and authenticated personal session before the document list without waiting for workshop bootstrap; old workshop reads are aborted and fenced from applying identity/language after navigation, and return rereads current workshop authority
 - Personal focus/visibility session reconciliation is bounded and cleaned up; changed identity remounts document state, obsolete results are ignored and list retry does not reload a still-valid session; recipient/document-policy/server authorization remains unchanged
 - Secure distribution list, composer, detail and reader reuse the shared V2 workspace/personal surfaces, typography, controls, facts and responsive spacing; the saved Classic layout and each authorization boundary remain unchanged
+- Provider preflight validates the transport reservation after deducting already committed secure retention/personal-copy charges from the immutable total ceiling; it retains all active attempt, approval, sender and tenant checks
+- One explicit priced browser Send action records approval then activation after two attestations; a failed response requires read-only Check status before same-key recovery, without effect-driven writes or another MCP confirmation after active readback
 
 **Contract:** [SECURE_DISTRIBUTION_JOURNEYS.md](SECURE_DISTRIBUTION_JOURNEYS.md) · **Implementation:** [apps/api/src/secure-distributions.ts](../apps/api/src/secure-distributions.ts)
 
-**Tests:** [tests/unit/personal-auth.test.ts](../tests/unit/personal-auth.test.ts), [tests/unit/document-invitation.test.ts](../tests/unit/document-invitation.test.ts), [tests/unit/mcp-secure-distribution.test.ts](../tests/unit/mcp-secure-distribution.test.ts), [tests/integration/secure-approval-boundary.test.ts](../tests/integration/secure-approval-boundary.test.ts), [tests/distribution-e2e/personal-account.e2e.ts](../tests/distribution-e2e/personal-account.e2e.ts), [tests/distribution-e2e/distribution-pricing.e2e.ts](../tests/distribution-e2e/distribution-pricing.e2e.ts), [tests/distribution-e2e/distribution-lifecycle.e2e.ts](../tests/distribution-e2e/distribution-lifecycle.e2e.ts), [tests/e2e/assistant-hub.spec.ts](../tests/e2e/assistant-hub.spec.ts), [tests/unit/secure-distribution-web.test.ts](../tests/unit/secure-distribution-web.test.ts), [tests/distribution-verified-e2e/lifecycle.e2e.ts](../tests/distribution-verified-e2e/lifecycle.e2e.ts), [tests/e2e/personal-document-performance.spec.ts](../tests/e2e/personal-document-performance.spec.ts), [tests/unit/secure-distribution-core.test.ts](../tests/unit/secure-distribution-core.test.ts), [tests/unit/auth-navigation-recovery.test.ts](../tests/unit/auth-navigation-recovery.test.ts), [tests/e2e/secure-distribution-recovery.spec.ts](../tests/e2e/secure-distribution-recovery.spec.ts)
+**Tests:** [tests/unit/personal-auth.test.ts](../tests/unit/personal-auth.test.ts), [tests/unit/document-invitation.test.ts](../tests/unit/document-invitation.test.ts), [tests/unit/mcp-secure-distribution.test.ts](../tests/unit/mcp-secure-distribution.test.ts), [tests/integration/secure-approval-boundary.test.ts](../tests/integration/secure-approval-boundary.test.ts), [tests/distribution-e2e/personal-account.e2e.ts](../tests/distribution-e2e/personal-account.e2e.ts), [tests/distribution-e2e/distribution-pricing.e2e.ts](../tests/distribution-e2e/distribution-pricing.e2e.ts), [tests/distribution-e2e/distribution-lifecycle.e2e.ts](../tests/distribution-e2e/distribution-lifecycle.e2e.ts), [tests/e2e/assistant-hub.spec.ts](../tests/e2e/assistant-hub.spec.ts), [tests/unit/secure-distribution-web.test.ts](../tests/unit/secure-distribution-web.test.ts), [tests/distribution-verified-e2e/lifecycle.e2e.ts](../tests/distribution-verified-e2e/lifecycle.e2e.ts), [tests/e2e/personal-document-performance.spec.ts](../tests/e2e/personal-document-performance.spec.ts), [tests/unit/secure-distribution-core.test.ts](../tests/unit/secure-distribution-core.test.ts), [tests/unit/auth-navigation-recovery.test.ts](../tests/unit/auth-navigation-recovery.test.ts), [tests/e2e/secure-distribution-recovery.spec.ts](../tests/e2e/secure-distribution-recovery.spec.ts), [tests/integration/secure-resend-journey.test.ts](../tests/integration/secure-resend-journey.test.ts), [tests/e2e/secure-distribution-send.spec.ts](../tests/e2e/secure-distribution-send.spec.ts)
 
 **Documented REST operations**
 
@@ -918,10 +921,17 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Repository standards and automated checks require English authored sources, valid English routes and synchronized feature/developer documentation
 - Separate secure render/deposit queue work, bounded lease reconciliation and shared/personal retention cleanup; revocation, erasure, acquisition and immutable evidence remain distinct
 - Documented provider/tariff maintenance separates official price, private account observation, immutable quote and actual outcome; expiry blocks new work without rewriting approved commitments
+- Live deployment completes only after anonymous exact-release verification; a post-deploy verification failure remains a failed release without automatic redeploy or rollback
+- Fixed secure-distribution and private page-render route labels plus one SECURE_PREPARATION_FAILED signal per durable preparation failure, including exhausted jobs; no content, recipients, business IDs or raw errors enter logs
+- Signed negative Resend/SES/Telnyx/Pingen receipts emit one fixed failure signal after the durable projection claim, including recovery after prior event application; receipt HTTP 200 does not hide the operational signal
+- Native Cloudflare failure and missing-cron Monitors were configured and reread on 27 October 2026 with an owner-designated email destination; configured delivery and actual receipt remain separate evidence
+- Prepared separate operator-only direct MCP Events incident schema and agent instructions define signed delivery, durable deduplication and bounded autonomous diagnosis/tests/draftPRs; no operator bridge, subscription, new permission or agent run is activated
+- Chromium-dependent secure Resend journey runs once in the existing browser-equipped security job, outside ordinary Vitest shards; dependency-driven routing checks and aggregate inventory preserve complete coverage
+- CI builds the final non-preview frontend once before unchanged Worker dry runs, executes documentation guards once through docs:check and places the once-only MCP Apps SDK fixtures on desktop Chromium shard three; complete suites, immutable evidence and required main/PR gates remain unchanged, with hosted timing qualification separate
 
 **Contract:** [CI.md](CI.md) · **Implementation:** [scripts/deploy-public.mjs](../scripts/deploy-public.mjs)
 
-**Tests:** [tests/security/ci-artifacts.test.mjs](../tests/security/ci-artifacts.test.mjs), [tests/security/ci-results.test.mjs](../tests/security/ci-results.test.mjs), [tests/security/ci-browser-results.test.mjs](../tests/security/ci-browser-results.test.mjs), [tests/security/main-only-release.test.mjs](../tests/security/main-only-release.test.mjs), [tests/security/pdf-validator-release.test.mjs](../tests/security/pdf-validator-release.test.mjs), [apps/pdf-validator/tests/probe-credentials.test.mjs](../apps/pdf-validator/tests/probe-credentials.test.mjs), [tests/security/production-monitor.test.mjs](../tests/security/production-monitor.test.mjs), [tests/security/observability.test.mjs](../tests/security/observability.test.mjs), [tests/integration/documents.test.ts](../tests/integration/documents.test.ts), [tests/unit/telnyx-readiness.test.ts](../tests/unit/telnyx-readiness.test.ts), [apps/scanner/tests/maintenance-status.test.mjs](../apps/scanner/tests/maintenance-status.test.mjs), [apps/scanner/tests/qualification-artifact.test.mjs](../apps/scanner/tests/qualification-artifact.test.mjs), [tests/security/verify-release.test.mjs](../tests/security/verify-release.test.mjs), [tests/security/preview-release-assets.test.mjs](../tests/security/preview-release-assets.test.mjs), [tests/unit/public-routes.test.ts](../tests/unit/public-routes.test.ts)
+**Tests:** [tests/security/ci-artifacts.test.mjs](../tests/security/ci-artifacts.test.mjs), [tests/security/ci-results.test.mjs](../tests/security/ci-results.test.mjs), [tests/security/ci-browser-results.test.mjs](../tests/security/ci-browser-results.test.mjs), [tests/security/main-only-release.test.mjs](../tests/security/main-only-release.test.mjs), [tests/security/pdf-validator-release.test.mjs](../tests/security/pdf-validator-release.test.mjs), [apps/pdf-validator/tests/probe-credentials.test.mjs](../apps/pdf-validator/tests/probe-credentials.test.mjs), [tests/security/production-monitor.test.mjs](../tests/security/production-monitor.test.mjs), [tests/security/observability.test.mjs](../tests/security/observability.test.mjs), [tests/integration/documents.test.ts](../tests/integration/documents.test.ts), [tests/unit/telnyx-readiness.test.ts](../tests/unit/telnyx-readiness.test.ts), [apps/scanner/tests/maintenance-status.test.mjs](../apps/scanner/tests/maintenance-status.test.mjs), [apps/scanner/tests/qualification-artifact.test.mjs](../apps/scanner/tests/qualification-artifact.test.mjs), [tests/security/verify-release.test.mjs](../tests/security/verify-release.test.mjs), [tests/security/preview-release-assets.test.mjs](../tests/security/preview-release-assets.test.mjs), [tests/unit/public-routes.test.ts](../tests/unit/public-routes.test.ts), [tests/integration/secure-resend-journey.test.ts](../tests/integration/secure-resend-journey.test.ts), [tests/unit/providers-webhooks.test.ts](../tests/unit/providers-webhooks.test.ts)
 
 **Documented REST operations**
 
@@ -1273,9 +1283,9 @@ Open the invitation → capture/remove its fragment token before any HTTP login 
 
 **Actor:** Authorized preparer → browser approver under the active document policy → authorized confirmer. **Branch:** Web/REST/MCP/packages prepare and follow; sensitive approval and quote renewal are browser-only.
 
-Open Secure distribution after Documents, keeping Overview/Assistants first and the active entry coherent → select an accessible ready PDF up to 100 pages/10 MiB → one recipient → 7/30/90/365 days → optional original export/personal copy → optional subject/message/custom HTML or localized workspace V2 defaults, plus approved binding policy → idempotent preparation → follow preparing under the same ID → review final pages/text, recipient, rights, message and tax-exclusive total including transport → separately attest the email request → browser approve → confirm/activate → inspect paginated provenance/actor audit with ninety-day detailed access and separate immutable receipts. Revocation blocks future access without refund. Explicit source pagination reaches older PDFs; permitted personal copies remain exportable even when the shared original is not.
+Open Secure distribution after Documents, keeping Overview/Assistants first and the active entry coherent → select an accessible ready PDF up to 100 pages/10 MiB → one recipient → 7/30/90/365 days → optional original export/personal copy → optional subject/message/custom HTML or localized workspace V2 defaults, plus approved binding policy → idempotent preparation → follow preparing under the same ID → review final pages/text, recipient, rights, message and tax-exclusive total including transport → separately attest the email request → one priced browser Send action records approval then activation with the existing verified session; MCP reads active state and tracks without another confirmation → inspect paginated provenance/actor audit with ninety-day detailed access and separate immutable receipts. Revocation blocks future access without refund. Explicit source pagination reaches older PDFs; permitted personal copies remain exportable even when the shared original is not. Provider submission retains only transport in its reservation after committing retention fees; signed outcomes update invitation tracking separately from shared access.
 
-**Failure/recovery:** Unqualified source, integrity, scan, rendering, authority, price, credit or configuration closes the flow. Revoke unexpired legacy draft/active hosting first. A prior postal derivation, legacy send, postal preflight or provider draft requires a dedicated source even after cancellation/failure. Sensitive reference permanently excludes ordinary email/fax/postal attachments, legacy transforms, cropping, analysis and password reads; only the dedicated sourceless invitation remains eligible. Bidirectional service/SQL guards close concurrent legacy writes and provider-transfer races. No original/legacy-link fallback. An expired or changed invitation quote offers explicit browser renewal only for an eligible unsubmitted original; preserve stored inputs and ceiling, resume the same deterministic replacement after failure, then review and approve again. Accepted/attempted work never renews. Expert mandates and assistant-asserted consent cannot approve. Unknown outcomes reread the same ID without new orders or blind provider retry. Localized Sign in again voluntarily opens /auth/login?fresh=1 and preserves the valid existing share path and locale while stripping query/secondary fragments, with no private form storage, automatic write replay or weaker session checks. Recipient invitation secrets stay outside returnTo. Dated Resend qualification/local email flags establish no installed global D1 quotas, webhook/secret or delivery.
+**Failure/recovery:** Unqualified source, integrity, scan, rendering, authority, price, credit or configuration closes the flow. Revoke unexpired legacy draft/active hosting first. A prior postal derivation, legacy send, postal preflight or provider draft requires a dedicated source even after cancellation/failure. Sensitive reference permanently excludes ordinary email/fax/postal attachments, legacy transforms, cropping, analysis and password reads; only the dedicated sourceless invitation remains eligible. Bidirectional service/SQL guards close concurrent legacy writes and provider-transfer races. No original/legacy-link fallback. An expired or changed invitation quote offers explicit browser renewal only for an eligible unsubmitted original; preserve stored inputs and ceiling, resume the same deterministic replacement after failure, then review and approve again. Accepted/attempted work never renews. Expert mandates and assistant-asserted consent cannot approve. Unknown outcomes reread the same ID without new orders or blind provider retry. Localized Sign in again voluntarily opens /auth/login?fresh=1 and preserves the valid existing share path and locale while stripping query/secondary fragments, with no private form storage, automatic write replay or weaker session checks. Recipient invitation secrets stay outside returnTo. Dated Resend qualification/local email flags establish no installed global D1 quotas, webhook/secret or delivery. Secure preparation failures emit a fixed operational signal once; delivery failures and unknown results require inspecting the existing invitation dispatch, without resending or refunding committed hosting. Expired/revoked sessions require ordinary login; verified_account has no separate 15/5-minute authentication gate, while strong retains its existing windows. After a failed browser final action, explicitly check the same status before same-key recovery; status refresh sends nothing.
 
 [Detailed contract](SECURE_DISTRIBUTION_JOURNEYS.md).
 

@@ -1,5 +1,6 @@
 import {
   documentAccessMode,
+  documentSessionTimeSql,
   documentAccessPolicySql,
   documentSessionPolicySql,
 } from "../../contracts/src/document-authentication";
@@ -294,7 +295,7 @@ function browserDocumentApprovalFence(
     AND ${documentAccessPolicySql(documentAccessMode(requiredAuthentication))}
     AND secure_personal.verified_email IS NOT NULL AND length(trim(secure_personal.verified_email))>0
     AND secure_personal.expires_at>strftime('%Y-%m-%dT%H:%M:%fZ','now') AND secure_browser.expires_at>strftime('%Y-%m-%dT%H:%M:%fZ','now')
-    AND secure_personal.authenticated_at BETWEEN CAST(strftime('%s','now') AS INTEGER)-900 AND CAST(strftime('%s','now') AS INTEGER)+5
+    AND ${documentSessionTimeSql("secure_personal", documentAccessMode(requiredAuthentication))}
     AND (?='simulation' OR (secure_personal.is_development=0 AND secure_browser.is_development=0)))`,
     values: [ctx.documentSessionHash, ctx.organizationId, ctx.userId, mode],
   };
@@ -1621,7 +1622,9 @@ export class DomainService {
         review ? Date.parse(review.expires_at) : Infinity,
         this.now() + 15 * 60_000,
         quote ? Date.parse(quote.expires_at) : Infinity,
-        secureEvidence
+        secureEvidence &&
+          documentAccessMode(this.config.sensitiveDocumentAuthentication) ===
+            "strong"
           ? (secureEvidence.authenticatedAt + 900) * 1000
           : Infinity,
         secureEvidence ? Date.parse(secureEvidence.expiresAt) : Infinity,

@@ -291,3 +291,17 @@ latency and billed cost were not measured. Raw reports, geometry samples and
 screenshots are retained alongside the email evidence in
 `/Users/nclsppr/Documents/Codex/Reports/guteneo-email-refresh-2026-10-26/`, with
 `diagnostics-fixed-performance.json` and `diagnostics-route-performance.json`.
+
+## Single-action secure sending — 27 October 2026 local candidate
+
+The built local browser with intercepted API measured first useful content at
+220ms on desktop and 183ms on mobile. Both observations transferred 677,302 bytes
+across 43 resources. These are synthetic local timings, without a measured prior
+latency baseline or production claim. The final action uses one detail GET,
+then two dependent mutations (approval, activation), with no intermediate detail
+read. It replaces three successive final controls with one priced Send button;
+review and recipient attestations remain explicit. Failure recovery adds only an
+explicit read before any same-key mutation. All four locales reuse existing
+labels and the brand/layout remains unchanged. Desktop/mobile screenshots and
+24 Playwright cases were inspected; actual local verified-account lifecycles
+separately qualify both viewports with a 30-minute-old active session.

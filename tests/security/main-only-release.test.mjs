@@ -107,7 +107,11 @@ async function buildFixture(root, target) {
     );
   return release;
 }
-function executor(root, target, { afterBuild, build = true } = {}) {
+function executor(
+  root,
+  target,
+  { afterBuild, afterDeploy, verify, build = true } = {},
+) {
   const calls = [];
   return {
     calls,
@@ -119,13 +123,23 @@ function executor(root, target, { afterBuild, build = true } = {}) {
         assert.deepEqual(args, [join(root, releaseProfiles[target].build)]);
         if (build) await buildFixture(root, target);
         await afterBuild?.();
-      } else {
+      } else if (calls.length === 2) {
         assert.deepEqual(args, [
           join(root, "node_modules/wrangler/bin/wrangler.js"),
           "deploy",
           "--config",
           releaseProfiles[target].config,
         ]);
+        await afterDeploy?.();
+      } else {
+        assert.equal(target, "live");
+        assert.equal(calls.length, 3);
+        assert.deepEqual(args, [
+          join(root, "scripts/verify-release.mjs"),
+          "https://guteneo.com",
+          join(root, "dist/web/release.json"),
+        ]);
+        await verify?.();
       }
     },
   };
@@ -155,13 +169,72 @@ for (const target of ["live", "preview"]) {
       await deployPublic(target, { root: f.root, execute: runner.execute }),
       { target, sourceCommit: f.initial },
     );
-    assert.equal(runner.calls.length, 2);
+    assert.equal(runner.calls.length, target === "live" ? 3 : 2);
     assert.equal(
       git(f.root, "rev-parse", "refs/remotes/origin/main"),
       f.initial,
     );
   });
 }
+
+test("live publication waits for full verification of the exact published manifest", async (t) => {
+  const f = await fixture(t);
+  let published = false;
+  let checked = false;
+  const runner = executor(f.root, "live", {
+    afterDeploy() {
+      published = true;
+    },
+    async verify() {
+      assert.equal(published, true);
+      const manifest = JSON.parse(
+        await readFile(join(f.root, "dist/web/release.json"), "utf8"),
+      );
+      assert.equal(manifest.sourceCommit, f.initial);
+      assert.equal(manifest.sourceDirty, false);
+      checked = true;
+    },
+  });
+  await deployPublic("live", { root: f.root, execute: runner.execute });
+  assert.equal(checked, true);
+  assert.equal(runner.calls.length, 3);
+});
+
+test("post-deployment verification failure fails the release without redeploying", async (t) => {
+  const f = await fixture(t);
+  let published = false;
+  const runner = executor(f.root, "live", {
+    afterDeploy() {
+      published = true;
+    },
+    verify() {
+      throw new Error("Synthetic served-asset mismatch");
+    },
+  });
+  await assert.rejects(
+    deployPublic("live", { root: f.root, execute: runner.execute }),
+    /RELEASE_VERIFICATION_FAILED/,
+  );
+  assert.equal(published, true);
+  assert.equal(runner.calls.length, 3);
+});
+
+test("a failed deployment never reaches public verification", async (t) => {
+  const f = await fixture(t);
+  const runner = executor(f.root, "live", {
+    afterDeploy() {
+      throw new Error("Synthetic deployment failure");
+    },
+    verify() {
+      assert.fail("A failed deployment must not qualify a previous release.");
+    },
+  });
+  await assert.rejects(
+    deployPublic("live", { root: f.root, execute: runner.execute }),
+    /Synthetic deployment failure/,
+  );
+  assert.equal(runner.calls.length, 2);
+});
 
 async function configureSending(f, channels, enabled = true) {
   await writeFile(
@@ -186,7 +259,7 @@ for (const channels of ["fax,postal", "fax", "postal", "postal,fax"]) {
     await configureSending(f, channels);
     const runner = executor(f.root, "live");
     await deployPublic("live", { root: f.root, execute: runner.execute });
-    assert.equal(runner.calls.length, 2);
+    assert.equal(runner.calls.length, 3);
     const manifest = JSON.parse(
       await readFile(join(f.root, "dist/web/release.json"), "utf8"),
     );
@@ -248,7 +321,7 @@ test("disabling reviewed transport publishes an empty active channel list", asyn
   await configureSending(f, "fax,postal", false);
   const runner = executor(f.root, "live");
   await deployPublic("live", { root: f.root, execute: runner.execute });
-  assert.equal(runner.calls.length, 2);
+  assert.equal(runner.calls.length, 3);
   const manifest = JSON.parse(
     await readFile(join(f.root, "dist/web/release.json"), "utf8"),
   );

@@ -66,11 +66,11 @@ One Guteneo identity receives documents, manages its personal area, uses service
 
 Identity binding preserves `(issuer, subject)`. Equal email addresses do not merge accounts. A recipient must own the expected address and satisfy current document policy. The frozen binding policy determines automatic verified-address claim or independent workspace confirmation, as defined above. Pending independent association exposes no sensitive title or page.
 
-`SENSITIVE_DOCUMENT_AUTHENTICATION` selects `strong` by default when absent, or explicitly `verified_account`. Unknown values deny access. The requested live configuration selects `verified_account`: verified account/email and an Auth0 session bound to `auth_identities`, with genuinely signed recent primary `auth_time`. The server retains expiry, revocation, identity and rights checks; browser fields never supply this evidence. Account/address control proves neither a second factor nor physical identity.
+`SENSITIVE_DOCUMENT_AUTHENTICATION` selects `strong` by default when absent, or explicitly `verified_account`. Unknown values deny access. The requested live configuration selects `verified_account`: verified account/email and a current Auth0 session bound to `auth_identities`, with genuinely signed primary `auth_time`. The server retains expiry, revocation, identity and rights checks; browser fields never supply this evidence. Account/address control proves neither a second factor nor physical identity.
 
-Maximum freshness remains fifteen minutes for reading, association and approval, and five minutes for original export, personal deposit and personal deletion; future tolerance is five seconds. `strong` additionally requires signed evidence of the method actually used: claim `https://guteneo.com/document_authentication`, family `guteneo-sensitive-v1`, method `webauthn_uv` or `qualified_federation`, and ceremony time bounded by signed `auth_time` and `iat`. An old MFA boolean or merely registered passkey is insufficient. Method qualification is separate and is not a subscription prerequisite for the chosen `verified_account` profile.
+The [current account-policy contract](SECURE_DISTRIBUTION_JOURNEYS.md#authority-and-entry-conditions) owns session reuse and the distinct strong-policy freshness windows. The 27 October candidate reuses a valid verified-account session without a second document sign-in. `strong` additionally requires signed evidence of the method actually used: claim `https://guteneo.com/document_authentication`, family `guteneo-sensitive-v1`, method `webauthn_uv` or `qualified_federation`, and ceremony time bounded by signed `auth_time` and `iat`. An old MFA boolean or merely registered passkey is insufficient. Method qualification is separate and is not a subscription prerequisite for the chosen `verified_account` profile.
 
-Personal sessions expose `documentAccessMode` and `documentAccessAllowed`, calculated for the fifteen-minute window, to explain policy in the UI. Sensitive actions retain their five-minute server check. `strongAuthentication` and `mfa` remain factual evidence: ordinary sessions permitted under `verified_account` do not turn them `true`, and `authentication_policy_version` may remain null.
+Personal sessions expose `documentAccessMode` and `documentAccessAllowed`, calculated under the selected policy, to explain access in the UI. Every action rechecks its applicable session requirements. `strongAuthentication` and `mfa` remain factual evidence: ordinary sessions permitted under `verified_account` do not turn them `true`, and `authentication_policy_version` may remain null.
 
 24 October continuation: passkey selection/integration remains explicitly deferred. Selecting document policy changes neither Auth0 nor roles and fabricates no strong evidence. Content/approval guards remain mandatory; local journeys use only synthetic identities in isolated simulation.
 
@@ -147,3 +147,31 @@ An actual anonymous observation passed 28 public checks without uploading a GitH
 The 1.1.11 reconciliation with `26867c8` separately passes 96 UI/authentication/MCP/personal-policy cases, 24 package checks and the same 18 browser cases across all three engines. Typecheck and documentation checks pass. These local results qualify the combined candidate; production and hosted identity remain separate.
 
 The 1.1.12 concurrency regression pauses one renewal during exact-source verification while another completes. Recovery re-reads the current cancellation marker, authority and session before reusing the matching replacement, rather than rejecting it from earlier snapshots. Both calls return one replacement without approvals, reservations, outbox entries, charges or attempts.
+
+## Resend reservation incident — 27 October 2026 candidate
+
+Read-only production aggregates on release `6f5e05d3177451d9573583ba7bfcbf467d918216`
+identified two secure invitation attempts rejected locally with
+`ACTIVE_APPROVED_ATTEMPT_REQUIRED`. Both non-secure Resend attempts were delivered;
+no failed secure rendering was present. These reads changed no record and exposed
+no recipient, content, token or invitation URL.
+
+The live bridge compared the remaining transport reservation with the complete
+approved ceiling. Atomic secure acceptance had already committed the retention
+fee, so the equality failed before any Resend request. The bridge now deducts
+that committed fee, as it already did for legacy protected-document hosting.
+Active-attempt, tenant, sender, approval, immutable-content and monetary checks
+remain mandatory. This fixes future eligible sends; it neither retries failed
+orders nor changes/refunds already committed hosting.
+
+`tests/integration/secure-resend-journey.test.ts` reproduced the pre-fix rejection
+with a real local Chromium/PDF.js renderer and actual production-mode bridge over
+isolated D1/R2. Intercepted HTTP and signed callback fixtures cover delivered,
+failed and uncertain results, exact-once commitments and malformed reservation
+refusal. This is synthetic integration evidence, not a production send/inbox test.
+
+Preparation failures now emit one fixed `SECURE_PREPARATION_FAILED` operational
+signal after a durable state change, including exhausted render jobs. Replays do
+not emit another failure or restart preparation. See [operations](OPERATIONS.md)
+for alerting and [journeys](SECURE_DISTRIBUTION_JOURNEYS.md) for the current session
+and final-action contract. Publication and migration qualification remain separate.

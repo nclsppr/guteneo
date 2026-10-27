@@ -1558,7 +1558,8 @@ export default {
               : createLiveProviderHook(env, row.channel),
           );
           if (result.status === "submission_unknown") counts.unknown++;
-          if (result.status === "failed") counts.failed++;
+          if (["failed", "bounced", "complained"].includes(result.status))
+            counts.failed++;
           message.ack();
           counts.acked++;
         } catch {
@@ -1588,7 +1589,10 @@ export default {
       // Already verified receipts must recover even during identity-provider setup.
       // This bounded projection does not publish an outbox or submit communications.
       stage = "callbacks";
-      Object.assign(counts, await reconcileWebhookReceipts(env.DB, service));
+      Object.assign(
+        counts,
+        await reconcileWebhookReceipts(env.DB, service, 100, env),
+      );
       // Technical check expiry releases only its own approved credit hold.
       // Identity/provider downtime must not keep a failed check reserved.
       stage = "documents";

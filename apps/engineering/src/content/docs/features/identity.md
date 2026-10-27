@@ -1,6 +1,6 @@
 ---
 title: "Access and identity"
-description: "34 capabilities in the access branch of Guteneo."
+description: "35 capabilities in the access branch of Guteneo."
 sidebar:
   order: 1
 ---
@@ -46,10 +46,11 @@ Unified personal account and optional workspace implementation; migrations, alig
 <li id="feature-1a57b0baee0f">One Guteneo account without an automatic workspace; idempotent initial administrator/workspace creation only on explicit service use</li>
 <li id="feature-32b756cf5246">Personal browser principal and session without membership, separate from workspace API authority; shared profile name/language and no email-based identity merging</li>
 <li id="feature-ca1439eebfa1">My documents, Use Guteneo and Account and security share one sign-in; voluntary workspace choice/creation reloads the chosen destination and bootstraps that workspace’s current session, rights and CSRF</li>
-<li id="feature-fd09f6d08c28">Document policy defaults to strong or explicitly selects verified_account: verified account/address and signed recent auth_time; fifteen minutes for reading/association/approval and five for export/deposit/deletion; documentAccessAllowed/documentAccessMode do not imply MFA or strongAuthentication; D1 defaults strong and environment disagreement fails closed</li>
+<li id="feature-60f129aa16b0">Document policy defaults to strong or explicitly selects verified_account: verified account/address and signed auth_time in an unexpired, unrevoked identity-linked session; no separate document sign-in for verified_account, while strong retains fifteen minutes for reading/association/approval and five for export/deposit/deletion; documentAccessAllowed/documentAccessMode do not imply MFA or strongAuthentication; D1 defaults strong and environment disagreement fails closed</li>
 <li id="feature-f9f5d7df1035">Document invitation handoff lasts at most ten minutes in the same tab, then is deleted; capture before Auth0 with secret-free returnTo and no arbitrary private query</li>
 <li id="feature-455cf75df968">Document-service 401 offers explicit recovery without session-bootstrap loops; Auth0 recovery reconciles language and returned identity</li>
 <li id="feature-e3c45a318ca0">Document-authentication and browser-approval freshness refusals use localized sign-in recovery in all four languages; explicit fresh login preserves the valid current application route and locale without replaying mutations or weakening session-age checks</li>
 <li id="feature-d6bb64f893db">Ordinary application entry without workshop membership offers workspace creation or joining through an existing canonical same-origin invitation with the shared raw 43-character base64url token contract, fragment clearing and explicit acceptance; server-generated invitation integration covers the entry, preview and auth handoff, while the stored SHA-256 hash never enters the link; explicit personal document entry remains independent, with no public workspace enumeration</li>
 <li id="feature-f86a9c83e39e">Production browser configuration selects auth.guteneo.com; the tenant-wide custom-domain email flag and exact authorization-response issuer identification were applied and reread on 27 October, without sending verification mail or qualifying human login</li>
+<li id="feature-164854ca8126">Normal verified-account browser entry reuses Auth0 SSO within the existing one-hour session bound; signed authentication time is requested without forcing personal-entry max_age=0, and explicit fresh/account-switch behavior remains</li>
 </ol>

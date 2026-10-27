@@ -543,6 +543,65 @@ describe("signed Telnyx callbacks during identity setup", () => {
 });
 
 describe("webhook HTTP boundary with actual local D1", () => {
+  it.each([
+    ["resend", "bounced"],
+    ["ses", "complained"],
+    ["telnyx", "failed"],
+    ["pingen", "failed"],
+  ] as const)(
+    "observes a recovered negative %s receipt once without exporting callback data",
+    async (provider, kind) => {
+      const marker =
+        "private-recipient@example.test private-provider-id signed-token";
+      await db
+        .prepare(
+          "INSERT INTO provider_receipts(provider,event_id,payload_json,status,received_at) VALUES(?,?,?,'pending',?)",
+        )
+        .bind(
+          provider,
+          marker,
+          JSON.stringify({
+            event: {
+              provider,
+              kind,
+              eventId: marker,
+              providerId: marker,
+              occurredAt: new Date().toISOString(),
+              payload: { content: marker },
+            },
+          }),
+          new Date().toISOString(),
+        )
+        .run();
+      const warn = vi
+        .spyOn(console, "warn")
+        .mockImplementation(() => undefined);
+      try {
+        const recovered = sink(
+          vi
+            .fn<DomainService["ingestEvent"]>()
+            .mockResolvedValue({ applied: true, duplicate: true }),
+        );
+        expect(await reconcileWebhookReceipts(db, recovered)).toEqual({
+          projected: 1,
+          pending: 0,
+        });
+        expect(await reconcileWebhookReceipts(db, sink())).toEqual({
+          projected: 0,
+          pending: 0,
+        });
+        expect(warn).toHaveBeenCalledTimes(1);
+        expect(warn.mock.calls[0][0]).toMatchObject({
+          code: "DISPATCH_FAILED",
+          route: `webhook_${provider}`,
+          failed: 1,
+        });
+        expect(JSON.stringify(warn.mock.calls)).not.toContain(marker);
+      } finally {
+        warn.mockRestore();
+      }
+    },
+  );
   it("accepts and deduplicates a signed Pingen callback through the Worker without Auth0", async () => {
     const env = {
       ...configured(),

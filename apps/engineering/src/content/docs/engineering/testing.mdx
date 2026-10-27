@@ -216,3 +216,13 @@ Observability-only D1 doubles must preserve the actual statement interface:
 parameterless reads can call `all()` directly, while `bind()` returns a statement
 with those same operations. Keep heartbeat, privacy and aggregate assertions
 when extending these doubles; do not mock away the scheduler’s cleanup stage.
+
+## Concurrent local secure-browser runs
+
+The distribution harness can select separate integer localhost ports with
+`GUTENEO_DISTRIBUTION_E2E_PORT` and `GUTENEO_LOCAL_RENDERER_PORT`. Both are bounded
+to 1024–65535 and must differ; default 8787/8788 remains. The shared helper derives
+only localhost, and fixture cookies, navigation and egress fencing use that
+exact origin. Never reuse or stop another task's server to obtain a passing
+result. Preserve a failed local CLI/read observation separately from a later
+focused browser pass; a fresh successful run does not relabel earlier evidence.

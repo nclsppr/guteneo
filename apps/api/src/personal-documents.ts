@@ -1,4 +1,8 @@
 import {
+  documentAccessMode,
+  documentSessionTimeSql,
+} from "../../../packages/contracts/src/document-authentication";
+import {
   type PersonalDocumentItem,
   type PersonalDocumentView,
   type SecureAuditEvent,
@@ -715,7 +719,7 @@ export class PersonalDocumentsService {
     if (!operation) return;
     // A job resumes from authoritative session evidence, never a serialized token.
     const session = await this.env.DB.prepare(
-      `SELECT ps.*,u.email,EXISTS(SELECT 1 FROM auth_identities ai WHERE ai.user_id=ps.user_id AND ai.issuer=ps.identity_issuer AND ai.subject=ps.identity_subject) identity_verified FROM personal_sessions ps JOIN users u ON u.id=ps.user_id WHERE ps.token_hash=? AND ps.user_id=? AND ps.expires_at>strftime('%Y-%m-%dT%H:%M:%fZ','now') AND ${sensitiveSessionPolicy(this.env)} AND ps.authenticated_at BETWEEN CAST(strftime('%s','now') AS INTEGER)-300 AND CAST(strftime('%s','now') AS INTEGER)+5 AND ps.verified_email=u.email`,
+      `SELECT ps.*,u.email,EXISTS(SELECT 1 FROM auth_identities ai WHERE ai.user_id=ps.user_id AND ai.issuer=ps.identity_issuer AND ai.subject=ps.identity_subject) identity_verified FROM personal_sessions ps JOIN users u ON u.id=ps.user_id WHERE ps.token_hash=? AND ps.user_id=? AND ps.expires_at>strftime('%Y-%m-%dT%H:%M:%fZ','now') AND ${sensitiveSessionPolicy(this.env)} AND ${documentSessionTimeSql("ps", documentAccessMode(this.env.SENSITIVE_DOCUMENT_AUTHENTICATION), 300)} AND ps.verified_email=u.email`,
     )
       .bind(operation.auth_session_hash, operation.user_id)
       .first<{
@@ -1010,7 +1014,7 @@ export class PersonalDocumentsService {
   async recoverPending() {
     const rows = await this.env.DB.prepare(
       `SELECT op.id FROM secure_deposit_operations op JOIN personal_sessions ps ON ps.token_hash=op.auth_session_hash AND ps.user_id=op.user_id JOIN secure_distributions s ON s.organization_id=op.organization_id AND s.id=op.distribution_id
-      WHERE op.status='preparing' AND op.lease_expires_at<? AND s.status='active' AND s.expires_at>? AND ps.expires_at>strftime('%Y-%m-%dT%H:%M:%fZ','now') AND ${sensitiveSessionPolicy(this.env)} AND ps.authenticated_at BETWEEN CAST(strftime('%s','now') AS INTEGER)-300 AND CAST(strftime('%s','now') AS INTEGER)+5 ORDER BY op.created_at LIMIT 10`,
+      WHERE op.status='preparing' AND op.lease_expires_at<? AND s.status='active' AND s.expires_at>? AND ps.expires_at>strftime('%Y-%m-%dT%H:%M:%fZ','now') AND ${sensitiveSessionPolicy(this.env)} AND ${documentSessionTimeSql("ps", documentAccessMode(this.env.SENSITIVE_DOCUMENT_AUTHENTICATION), 300)} ORDER BY op.created_at LIMIT 10`,
     )
       .bind(now(), now())
       .all<{ id: string }>();

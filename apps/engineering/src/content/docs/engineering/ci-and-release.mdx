@@ -38,10 +38,33 @@ execution on both targets without skips, flaky results or model calls; a separat
 privacy guard checks every upload path before evidence is archived. Do not weaken
 these assertions to make a partial run green.
 
+The build job creates its final non-preview frontend once with `build:live`
+before the local, private-document and live Worker dry runs. This reuses the
+same Vite and integration-package validation while retaining the release
+snapshot, canonical pages and manifest that already supplied the final artifact.
+The separate preview and status builds and all four Worker dry runs remain.
+Documentation checks execute through `docs:check`; its feature-atlas and MCP
+annotation checks are not repeated as separate steps. Removing a duplicate
+invocation never removes its underlying guard.
+
 The source workflows and result verifier own exact job names, matrix entries and
 expected counts. A future matrix change must update both, its tests and this
 explanation together. A configured job is not proof that its latest execution
 succeeded.
+
+An integration that launches actual Chromium belongs in the browser-equipped
+`security` job. Install Chromium there before execution, exclude the same file
+from the four ordinary Vitest shards and retain its one native blob result in
+aggregate verification. The secure-distribution/Resend journey follows this path:
+its actual PDF renderer needs the executable even though Resend HTTP is
+intercepted. A local browser cache cannot qualify a clean hosted runner.
+
+The CI routing regression discovers integration files with browser launches and
+checks both execution placement and the complete exclusion/execution partition.
+When moving a suite, preserve its assertions and the final discovered-file
+inventory. On setup failure, retain the failed revision and logs, repair the
+declared dependency and run the corrected revision; skipping the suite or treating
+an installed browser as delivery proof does not recover the gate.
 
 ## Retain the right evidence after a manual rerun
 
@@ -109,13 +132,17 @@ owns that delivery boundary, temporary activation, permissions, maintenance and
 actual-host checkpoint. A build, local SDK fixture or public text-asset check
 establishes no Claude rendering, original attachment handoff or file transfer.
 
-The first Chromium shard also runs the standalone four-language official-SDK
+The third Chromium shard also runs the standalone four-language official-SDK
 fixture in `tests/browser/mcp-ui-probe.test.mjs`, after browser installation.
 Its single Node test checks four localized contexts, one empty bridge call per
 context and no external requests or file access. Failure fails that required
 browser job without retry; the generated measurements and screenshots accompany
 its evidence artifact. This SDK fixture is separate from the Playwright project
 inventory and does not qualify an actual hosted connector or physical device.
+Both App SDK fixture files retain one execution and the same report directories
+in that shard's immutable artifact. This moves 47 seconds observed in the
+baseline first-shard critical path, or 43 seconds in the next successful PR run,
+onto a less loaded row; a new complete run must qualify any wall-time effect.
 
 The subsequent selected-original App is a separate default-off resource and
 transport. Apply and verify additive migration 0063 **before publishing the new
@@ -316,3 +343,22 @@ private service or provider contract:
 source/evidence discipline to tariff expiry, callbacks and external contracts.
 [Background jobs](/engineering/background-jobs/) explains why successful queue
 processing never grants approval or permission to retry uncertain sends.
+
+## Verify the served application before completing publication
+
+The live wrapper follows a successful Wrangler deployment with the existing
+anonymous release verifier, fixed to the canonical application and its locally
+validated release manifest. Source, asset bytes/hashes, robots policy and security
+headers must match. If verification fails, the process reports
+`RELEASE_VERIFICATION_FAILED`; the deployment already occurred and remains
+unverified. Do not treat the failure as permission for automatic rollback or a
+second deployment. Preview publication retains its separate fixture contract.
+
+This adds no credentials or provider transaction. The secure invitation
+integration suite exercises the actual local renderer, durable approval/outbox,
+live bridge and signed callback projection using intercepted Resend HTTP. It
+previously reproduced a retention-versus-transport reservation mismatch that
+isolated adapter tests missed. Such a passing source test does not establish
+actual Auth0 SSO, mailbox receipt, fax delivery or postal fulfillment. Real
+canaries require separately authorized dedicated identities, destinations,
+limits and signed/reconciled outcomes.

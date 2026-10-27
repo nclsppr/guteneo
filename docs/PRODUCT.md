@@ -297,3 +297,13 @@ Optional OpenAI proposals require explicit organization policy and configuration
 This candidate has no production deployment or new provider activation. See
 [TEMPLATES_DATA_DISTRIBUTION.md](TEMPLATES_DATA_DISTRIBUTION.md) for the interface
 matrix, exact local proof and remaining qualification.
+
+## Secure sending simplification — 27 October 2026 candidate
+
+The current [secure journey](SECURE_DISTRIBUTION_JOURNEYS.md) uses the existing
+valid verified account session, one final priced Send action after review and
+recipient attestation, then tracking. The web records approval and activation
+separately under the same immutable content and cost guards. MCP prepares once,
+polls the same identifier and opens that human review; after browser activation,
+it reads status without another confirmation. Expired/revoked sessions still need
+normal sign-in; assistants cannot replace human review or enable a mandate.

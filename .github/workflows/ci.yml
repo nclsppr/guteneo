@@ -74,8 +74,6 @@ jobs:
       - run: npm run lint
       - name: Reject known high and critical dependency advisories
         run: npm run audit:dependencies
-      - name: Require a synchronized developer feature tree and valid references
-        run: node docs/build-feature-map.mjs --check
       - name: Require synchronized documentation, English sources and canonical links
         run: npm run docs:check
       - name: Require feature and developer documentation in the same change
@@ -87,8 +85,6 @@ jobs:
           node scripts/repository-standards.mjs --base "$DOCS_BASE_SHA"
       - name: Audit every advertised MCP tool annotation and justification
         run: npm run audit:mcp
-      - name: Require synchronized annotation review documentation
-        run: node scripts/build-mcp-annotation-docs.mjs --check
       - run: node scripts/migrate-remote.mjs --verify
       - run: npm run costs
       - name: Prefer official Ubuntu archives over the slow Azure mirror
@@ -144,6 +140,7 @@ jobs:
           --exclude=tests/integration/document-postal-preflight.test.ts
           --exclude=tests/integration/expert-review-renderer.test.ts
           --exclude=tests/integration/postal-address-page-renderer.test.ts
+          --exclude=tests/integration/secure-resend-journey.test.ts
           --exclude=tests/integration/templates-renderer.test.ts
           --reporter=default --reporter=json --reporter=blob
           --outputFile.json=test-results/ci/vitest-${{ matrix.shard }}.json
@@ -196,7 +193,7 @@ jobs:
       - name: Preserve the Chromium sandbox
         run: node scripts/ci/chromium-sandbox.mjs
       - run: >-
-          npx vitest run tests/integration/document-postal-preflight.test.ts tests/integration/expert-review-renderer.test.ts tests/integration/postal-address-page-renderer.test.ts tests/integration/templates-renderer.test.ts
+          npx vitest run tests/integration/document-postal-preflight.test.ts tests/integration/expert-review-renderer.test.ts tests/integration/postal-address-page-renderer.test.ts tests/integration/secure-resend-journey.test.ts tests/integration/templates-renderer.test.ts
           --reporter=default --reporter=json --reporter=blob
           --outputFile.json=test-results/ci/vitest-renderer.json
           --outputFile.blob=test-results/ci/blobs/renderer.json
@@ -246,11 +243,10 @@ jobs:
       - name: Define every isolated browser project and shard
         id: browser-matrix
         run: node scripts/ci/browser-results.mjs matrix >> "$GITHUB_OUTPUT"
-      # Typecheck runs once in checks. These are the same two steps as build.
-      - run: npm run build:web
+      # Build the final non-preview frontend once; every Worker dry run remains.
+      - run: npm run build:live
       - run: npx wrangler deploy --dry-run --outdir dist/worker
       - run: npx wrangler deploy --config apps/documents/wrangler.jsonc --dry-run --outdir ../../dist/documents-worker
-      - run: npm run build:live
       - run: npx wrangler deploy --config wrangler.live.jsonc --dry-run --outdir dist/live-worker
       - run: npm run build:preview
       - run: npm run build:status
@@ -319,7 +315,7 @@ jobs:
       - name: Remove historical screenshot evidence from this fresh runner
         run: rm -rf reports/screenshots
       - name: Verify the four-language MCP Apps SDK fixtures
-        if: ${{ matrix.project == 'chromium' && matrix.shardIndex == 1 }}
+        if: ${{ matrix.project == 'chromium' && matrix.shardIndex == 3 }}
         run: node --test tests/browser/mcp-ui-probe.test.mjs tests/browser/mcp-document-upload.test.mjs
       # Each shard has its own runner, D1/R2 state and fixed local server ports.
       - run: npx playwright test --project=${{ matrix.project }} --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}

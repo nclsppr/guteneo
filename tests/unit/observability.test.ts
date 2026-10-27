@@ -125,6 +125,25 @@ describe("private operational observations", () => {
     });
   });
 
+  it("records a fixed secure preparation failure without exporting error details", () => {
+    const observation = startObservation(
+      environment(),
+      "app",
+      "queue",
+      "distribution",
+    );
+    observation.setCode("SECURE_PREPARATION_FAILED");
+    observation.finish(undefined, { failed: 1, error: sentinel } as never);
+    expect(records).toHaveLength(1);
+    expect(records[0]).toMatchObject({
+      event: "queue",
+      route: "distribution",
+      code: "SECURE_PREPARATION_FAILED",
+      failed: 1,
+    });
+    expect(JSON.stringify(records)).not.toContain(sentinel);
+  });
+
   it("never includes the OAuth code, state, cookie, path identifier, request body or client correlation header", async () => {
     const response = await worker.fetch(
       new Request(
@@ -161,11 +180,17 @@ describe("private operational observations", () => {
     ).toBe("documents");
     expect(
       routeCode(
-        new Request(`https://guteneo.com/api/documents/doc_${version}/validation`),
+        new Request(
+          `https://guteneo.com/api/documents/doc_${version}/validation`,
+        ),
       ),
     ).toBe("documents");
     expect(
-      routeCode(new Request(`https://guteneo.com/api/plan/subscribe?private=${sentinel}`)),
+      routeCode(
+        new Request(
+          `https://guteneo.com/api/plan/subscribe?private=${sentinel}`,
+        ),
+      ),
     ).toBe("billing");
   });
 
@@ -196,6 +221,69 @@ describe("private operational observations", () => {
         ),
       ),
     ).toBe("unknown");
+  });
+
+  it("observes secure distribution routes while rejecting arbitrary identifiers and actions", async () => {
+    const distributionId = `sd_${"a".repeat(32)}`;
+    for (const path of [
+      "/api/secure-distributions",
+      "/api/secure-distributions/catalog",
+      ...[
+        "",
+        "/renew",
+        "/approve",
+        "/activate",
+        "/confirm",
+        "/revoke",
+        "/bind",
+        "/events",
+        "/preview/1",
+        "/preview/100/text",
+      ].map((suffix) => `/api/secure-distributions/${distributionId}${suffix}`),
+    ])
+      expect(routeCode(new Request(`https://guteneo.com${path}`))).toBe(
+        "distribution",
+      );
+    for (const suffix of [
+      "/confirm/extra",
+      "/download",
+      "/preview/0",
+      "/preview/101",
+      "/preview/1/text/extra",
+      `/${sentinel}`,
+    ])
+      expect(
+        routeCode(
+          new Request(
+            `https://guteneo.com/api/secure-distributions/${distributionId}${suffix}`,
+          ),
+        ),
+      ).toBe("unknown");
+    expect(
+      routeCode(
+        new Request(
+          `https://guteneo.com/api/secure-distributions/${sentinel}/confirm`,
+        ),
+      ),
+    ).toBe("unknown");
+    const response = await worker.fetch(
+      new Request(
+        `https://guteneo.com/api/secure-distributions/${distributionId}/confirm?token=${sentinel}`,
+        { method: "POST", body: sentinel },
+      ),
+      environment(),
+      {} as ExecutionContext,
+    );
+    expect(response.status).toBe(401);
+    expect(records).toHaveLength(1);
+    expect(records[0]).toMatchObject({
+      route: "distribution",
+      method: "POST",
+      code: "AUTH_REJECTED",
+      status: 401,
+    });
+    expect(JSON.stringify(records)).not.toContain(distributionId);
+    expect(JSON.stringify(records)).not.toContain(sentinel);
   });
 
   it("captures configuration failures that used to return before the request logger", async () => {
@@ -279,33 +367,79 @@ describe("private operational observations", () => {
     expect(JSON.stringify(records)).not.toContain(sentinel);
   });
 
-  it("preserves uncertainty acknowledgment and only counts outcomes, never message bodies or IDs", async () => {
-    const { message, batch: input } = batch();
-    const process = vi
-      .spyOn(DomainService.prototype, "processDispatch")
-      .mockResolvedValue({ processed: true, status: "submission_unknown" });
-    const db = {
-      prepare: () => ({
-        bind: () => ({ first: async () => ({ channel: "email" }) }),
-      }),
-    } as unknown as D1Database;
-    await worker.queue(
-      input,
-      environment({ ENVIRONMENT: "local", MODE: "simulation", DB: db }),
-    );
-    expect(process).toHaveBeenCalledOnce();
-    expect(message.ack).toHaveBeenCalledOnce();
-    expect(message.retry).not.toHaveBeenCalled();
-    expect(records).toHaveLength(1);
-    expect(records[0]).toMatchObject({
-      event: "queue",
-      code: "SUBMISSION_UNKNOWN",
-      unknown: 1,
-      acked: 1,
-      retried: 0,
-    });
+  it("observes fixed private page-rendering paths without exposing source hashes or watermark values", async () => {
+    for (const path of ["/review-pages", "/secure-pages"]) {
+      const request = new Request(
+        `https://private.invalid${path}?token=${sentinel}`,
+        {
+          method: "POST",
+          headers: {
+            "X-Guteneo-Source-Sha256": sentinel,
+            "X-Guteneo-Watermark": sentinel,
+          },
+          body: sentinel,
+        },
+      );
+      expect(routeCode(request, "documents")).toBe("render");
+      const response = await observePrivateFetch(
+        request,
+        environment(),
+        "documents",
+        async () => {
+          throw new Error(sentinel);
+        },
+      );
+      expect(response.status).toBe(500);
+      expect(records.at(-1)).toMatchObject({
+        component: "documents",
+        route: "render",
+        code: "INTERNAL_ERROR",
+      });
+      expect(
+        routeCode(
+          new Request(`https://private.invalid${path}/${sentinel}`),
+          "documents",
+        ),
+      ).toBe("unknown");
+    }
+    expect(records).toHaveLength(2);
     expect(JSON.stringify(records)).not.toContain(sentinel);
   });
+
+  it.each(["submission_unknown", "failed", "bounced", "complained"] as const)(
+    "acknowledges %s and observes its outcome without exporting message bodies or IDs",
+    async (status) => {
+      const { message, batch: input } = batch();
+      const process = vi
+        .spyOn(DomainService.prototype, "processDispatch")
+        .mockResolvedValue({ processed: true, status });
+      const db = {
+        prepare: () => ({
+          bind: () => ({ first: async () => ({ channel: "email" }) }),
+        }),
+      } as unknown as D1Database;
+      await worker.queue(
+        input,
+        environment({ ENVIRONMENT: "local", MODE: "simulation", DB: db }),
+      );
+      expect(process).toHaveBeenCalledOnce();
+      expect(message.ack).toHaveBeenCalledOnce();
+      expect(message.retry).not.toHaveBeenCalled();
+      expect(records).toHaveLength(1);
+      expect(records[0]).toMatchObject({
+        event: "queue",
+        code:
+          status === "submission_unknown"
+            ? "SUBMISSION_UNKNOWN"
+            : "DISPATCH_FAILED",
+        unknown: Number(status === "submission_unknown"),
+        failed: Number(status !== "submission_unknown"),
+        acked: 1,
+        retried: 0,
+      });
+      expect(JSON.stringify(records)).not.toContain(sentinel);
+    },
+  );
 
   it("retains delayed retries and emits a single batch summary on an unexpected database failure", async () => {
     const { message, batch: input } = batch();

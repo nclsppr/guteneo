@@ -1,5 +1,9 @@
 import { sensitiveSessionPolicy } from "./sensitive-session";
 import {
+  documentAccessMode,
+  documentSessionTimeSql,
+} from "../../../packages/contracts/src/document-authentication";
+import {
   documentAnalysis,
   type DocumentAnalysis,
 } from "../../../packages/contracts/src/document-analysis";
@@ -1223,7 +1227,7 @@ export class DocumentService {
       ctx.actor === "browser" &&
       ctx.documentSessionHash &&
       (await this.env.DB.prepare(
-        `SELECT 1 FROM personal_sessions ps JOIN browser_sessions bs ON bs.token_hash=ps.token_hash AND bs.user_id=ps.user_id WHERE ps.token_hash=? AND ps.user_id=? AND bs.organization_id=? AND ps.expires_at>strftime('%Y-%m-%dT%H:%M:%fZ','now') AND bs.expires_at>strftime('%Y-%m-%dT%H:%M:%fZ','now') AND ${sensitiveSessionPolicy(this.env)} AND ps.authenticated_at BETWEEN CAST(strftime('%s','now') AS INTEGER)-900 AND CAST(strftime('%s','now') AS INTEGER)+5`,
+        `SELECT 1 FROM personal_sessions ps JOIN browser_sessions bs ON bs.token_hash=ps.token_hash AND bs.user_id=ps.user_id WHERE ps.token_hash=? AND ps.user_id=? AND bs.organization_id=? AND ps.expires_at>strftime('%Y-%m-%dT%H:%M:%fZ','now') AND bs.expires_at>strftime('%Y-%m-%dT%H:%M:%fZ','now') AND ${sensitiveSessionPolicy(this.env)} AND ${documentSessionTimeSql("ps", documentAccessMode(this.env.SENSITIVE_DOCUMENT_AUTHENTICATION))}`,
       )
         .bind(ctx.documentSessionHash, ctx.userId, ctx.organizationId)
         .first());

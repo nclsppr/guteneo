@@ -107,7 +107,7 @@ test(
       browser.locator('.workspace-navigation a[href="#/app/secure-distributions"]'),
     ).toHaveAttribute("aria-current", "page");
     await expect(
-      screen.getByRole("button", "Approuver ce partage"),
+      screen.getByRole("button", /^Simuler l’envoi pour /u),
     ).toBeDisabled();
     await screen
       .getByRole(
@@ -121,9 +121,7 @@ test(
         "Je confirme que ce destinataire a demandé cet e-mail et son document. Cet envoi ne constitue pas une prospection.",
       )
       .check();
-    await screen.getByRole("button", "Approuver ce partage").tap();
-    await screen.getByRole("button", "Activer le partage").tap();
-    await screen.getByRole("button", "Confirmer l’activation").tap();
+    await screen.getByRole("button", /^Simuler l’envoi pour /u).tap();
     await expect
       .poll(
         async () => (await localApi<Publication>(browser, path)).body.status,
