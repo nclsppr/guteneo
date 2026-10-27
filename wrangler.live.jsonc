@@ -38,6 +38,8 @@
     "SES_ACCOUNT_ID": "982055099242",
     "PINGEN_DEFAULT_COUNTRY": "LU",
     "AUTH0_AUTH_POLICY": "verified_email",
+    // New browser/native login uses the verified alias; identity keys stay canonical.
+    "AUTH0_BROWSER_DOMAIN": "auth.guteneo.com",
     // Canonical identity keys and existing connections remain on the tenant.
     "AUTH0_MCP_TRUSTED_DOMAIN": "auth.guteneo.com",
     // Roll discovery back independently; retain trusted-domain token continuity.

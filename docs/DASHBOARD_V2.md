@@ -4,8 +4,30 @@ Historical candidate status on 14 October 2026: **V2 simplification locally vali
 exact-commit CI and publication still require qualification, with publication
 authorized after validation**. Results dated 11–13 October below are historical,
 separate from that candidate. V2 is a complete web workspace version, selectable
-beside language in the account. It has no trial label. Existing/new accounts
-retain `classic` by default; V2 remains a personal choice.
+beside language in the account. It has no trial label.
+
+## New-account default — 27 October 2026 candidate
+
+New verified accounts, including invitation signups, persist `v2` when the user
+row is created. The browser fallback also uses V2. Existing saved Classic/V2
+choices remain unchanged; the original migration default is historical and no
+existing row is rewritten. Both layouts remain selectable in account settings.
+The server account preference overrides the browser cache after authentication.
+Local regression tests cover first registration, returning Classic accounts and
+blocked/invalid browser storage; exact-source publication remains separate.
+
+Local validation on 27 October: 206 unit/integration cases passed across personal
+identity, authentication, account preferences and invitations. Fifteen new browser
+cases passed on desktop/mobile Chromium and iPhone WebKit emulation, covering
+ordinary application entry, the create/join choice and invalid-link recovery in
+all four languages. The built local page used synthetic intercepted API responses;
+its desktop entry measured 37 resource entries, 629,766 transferred bytes and a
+188 ms first contentful paint. Mobile Chromium measured 37/629,766/132 ms and WebKit
+38/647,873/203 ms. These are single local observations, not a before/after speed
+claim, a production signup or physical-device qualification. The form reuses
+existing personal session/workspace endpoints and adds no business request.
+Reports are outside Git under `/tmp/guteneo-onboarding-browser*`.
+
 
 This document and the feature map are repository-only. Never import, copy,
 publish or link them in the official website. Source, tests and illustrations
@@ -335,7 +357,7 @@ and route remain.
 | --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
 | Values                | `classic`/`v2`, `packages/contracts/src/dashboard-appearance.ts`                                                                             |
 | Durable storage       | Personal `users.preferred_dashboard_appearance`, not organization preference                                                                 |
-| Migration             | `0053_user_dashboard_appearance.sql`; `TEXT NOT NULL DEFAULT 'classic'`, `CHECK` on both values                                              |
+| Migration             | `0053_user_dashboard_appearance.sql`; historical SQL default `classic`, `CHECK` on both values; new account inserts explicitly persist `v2`                                              |
 | Browser reads         | `user.preferredDashboardAppearance` in `GET /api/session` and `GET /api/account`                                                             |
 | Write                 | Optional `preferredDashboardAppearance` in existing strict `PATCH /api/account` body                                                         |
 | Authority             | Current browser session, Origin/CSRF; every role can change its own preference                                                               |
@@ -656,8 +678,8 @@ and application preview URLs remain closed; parallel publication there does
 not replace the canonical journey.
 
 Separately verify D1 migration, CI, manifest/served assets on `guteneo.com`,
-then authenticated human journey/account persistence. Publication does not
-enable V2 by default. Saving **Classic** in My account restores the old
+then authenticated human journey/account persistence. That historical publication did not
+enable V2 by default; the 27 October candidate above changes new-account creation. Saving **Classic** in My account restores the old
 presentation durably; `?appearance=classic#/app` returns temporarily without
 changing server preference. Appearance reversal deletes no data or dispatch.
 

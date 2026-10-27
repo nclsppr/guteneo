@@ -27,6 +27,12 @@ export async function validateIntegrationPackage(
   packageDirectory = join(root, "guteneo"),
 ) {
   const validator = new AjvJsonSchemaValidator();
+  const extensionSchema = JSON.parse(
+    await readFile(
+      join(root, "schemas/openai-mcp-extension.schema.json"),
+      "utf8",
+    ),
+  );
   const values = {};
   for (const name of ["plugin", "mcp"]) {
     const schema = JSON.parse(
@@ -35,7 +41,22 @@ export async function validateIntegrationPackage(
     const value = JSON.parse(
       await readFile(join(packageDirectory, `${name}.json`), "utf8"),
     );
-    const result = validator.getValidator(schema)(value);
+    const portable = structuredClone(value);
+    if (name === "mcp") {
+      for (const server of Object.values(portable.mcpServers ?? {})) {
+        const extensionResult = validator.getValidator(extensionSchema)(
+          server.extensions,
+        );
+        if (!extensionResult.valid)
+          throw new Error(
+            `Invalid OpenAI MCP authentication: ${extensionResult.errorMessage}`,
+          );
+        // The unchanged Agent Plugins 1.0.0 schema predates this documented
+        // OpenAI server extension. Validate both contracts independently.
+        delete server.extensions;
+      }
+    }
+    const result = validator.getValidator(schema)(portable);
     if (!result.valid)
       throw new Error(`Invalid ${name}.json: ${result.errorMessage}`);
     values[name] = value;
@@ -74,6 +95,17 @@ export async function validateIntegrationPackage(
     )
   )
     throw new Error("Portable and compatibility MCP connections differ");
+  for (const name of serverNames) {
+    const scopes =
+      values.mcp.mcpServers[name].extensions["com.openai"].auth.baseScopes;
+    const compatibilityScopes = compatibility.mcpServers[name].oauth?.scopes;
+    if (
+      typeof compatibilityScopes !== "string" ||
+      JSON.stringify([...scopes].sort()) !==
+        JSON.stringify(compatibilityScopes.split(" ").sort())
+    )
+      throw new Error("OpenAI and compatibility OAuth scopes differ");
+  }
 }
 
 function crc32(bytes) {

@@ -13,7 +13,7 @@ These journeys are generated from the same inventory as the [feature tree](/feat
 
 **Actor:** Visitor → verified account owner, with optional workspace membership · **Branch:** Access
 
-Open the concise public homepage → choose visitor language or the header appearance icon → read How it works, Getting started, Pricing or PDF checks and the complete Support FAQ through canonical shared navigation → use the existing localized closing invitation and first-dispatch link above the home-only panorama → enter canonical Auth0 → register one personal account without an automatic workspace → receive documents or voluntarily choose/create a workspace for service use → verify current identity and rights. Return to the valid destination. Explicit logout opens the public home.
+Open the concise public homepage → choose visitor language or the header appearance icon → read How it works, Getting started, Pricing or PDF checks and the complete Support FAQ through canonical shared navigation → use the existing localized closing invitation and first-dispatch link above the home-only panorama → enter canonical Auth0 → register one personal account with V2 appearance → ordinary /app entry without membership opens Services with create/join workspace choice; explicit personal-document entry stays personal → create a workspace or review and accept an administrator invitation → verify current identity and rights. Return to the valid destination. Explicit logout opens the public home.
 
 **Failure and recovery:** Refuse invalid callback state, unknown issuer/subject or expired invitation. Recovery retries are explicit. Package download, optional Auth0 branding/domain and actual host sign-in each need separate proof. Public route presentation, a localized status link and the fictional example grant no approval or provider activation; failed detail loading retains complete static information.
 
@@ -85,9 +85,9 @@ Read accessible documents/dispatches → inspect tracking → use aggregate repo
 
 **Actor:** Existing Guteneo member and a host-supported OAuth client · **Branch:** Interfaces
 
-Choose the host-specific guide → for ChatGPT download/import the plugin ZIP or choose manual MCP when unavailable → compare package version/hash and actual tool titles/schemas/descriptions → follow the maintained workflow skills/prompts under actual host rules and consent OAuth → verify read-only account capabilities/current mandate → use only available file transport/tools → prepare → review through browser or pre-existing bounded delegation → track.
+Choose the host-specific guide → for ChatGPT download/import the plugin ZIP or choose manual MCP with the supplied public client ID and empty secret when unavailable → compare package version/hash and actual tool titles/schemas/descriptions → follow the maintained workflow skills/prompts under actual host rules and consent OAuth → verify read-only account capabilities/current mandate → use only available file transport/tools → prepare → review through browser or pre-existing bounded delegation → track.
 
-**Failure and recovery:** Archive download/import, directory metadata or a portal scan creates no connection proof, extra role, scope or mandate. Directory publication and every-tool test attestation need separate evidence. Missing host upload support uses the manual guide; OAuth failures require the actual registered client/callback, never a shared token. Announce excluded-content rules before collection and stop known excluded content. Respect host confirmations and no automatic unknown-outcome retries.
+**Failure and recovery:** Archive download/import, directory metadata or a portal scan creates no connection proof, extra role, scope or mandate. Directory publication and every-tool test attestation need separate evidence. Missing host upload support uses the manual guide; OAuth failures require the actual registered client/callback and exact issuer response; update stale imports and preserve reviewer identity, never use a shared token or advertise unavailable DCR. Announce excluded-content rules before collection and stop known excluded content. Respect host confirmations and no automatic unknown-outcome retries.
 
 ## J11: Use iPhone or iPad
 
@@ -117,7 +117,7 @@ Read current capability and price → select the ready immutable PDF and PDF/UA 
 
 **Actor:** External recipient · **Branch:** Deliver
 
-Open the private /share link through the protected handler → read the localized page and enter the separately supplied password → download the unchanged PDF while access remains valid; no recipient account required.
+Open the private /share link through the protected handler → read the localized page and enter the separately supplied password → download the unchanged PDF while access remains valid; no recipient account required. The create/join form precedes service cards; joining validates a same-origin /invitation/#token=64hex link and reuses verified-email invitation acceptance.
 
 **Failure and recovery:** Expiry, revocation, invalid credentials or unavailable storage refuse access. Never reveal passwords through assistant tools/chat or infer PDF reading from email delivery. A generic site 404 requires route/hosting diagnosis; do not create a replacement send or bypass access checks.
 

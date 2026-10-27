@@ -3,7 +3,43 @@
   "mcpServers": {
     "guteneo": {
       "type": "streamable-http",
-      "url": "https://guteneo.com/mcp"
+      "url": "https://guteneo.com/mcp",
+      "extensions": {
+        "com.openai": {
+          "auth": {
+            "type": "oauth",
+            "client": {
+              "mode": "provided",
+              "clientId": "BQKAoIP92KVj7E47io4QUxj9mY7puduZ",
+              "tokenEndpointAuthMethod": "none"
+            },
+            "authorizationServerBase": "https://auth.guteneo.com/",
+            "authorizationUrl": "https://auth.guteneo.com/authorize",
+            "tokenUrl": "https://auth.guteneo.com/oauth/token",
+            "resource": "https://guteneo.com/mcp",
+            "baseScopes": [
+              "documents:read",
+              "documents:write",
+              "dispatches:prepare",
+              "dispatches:send",
+              "dispatches:read",
+              "templates:read",
+              "templates:write",
+              "templates:publish",
+              "templates:share",
+              "datasets:read",
+              "datasets:write",
+              "generations:read",
+              "generations:write"
+            ],
+            "defaultScopes": ["openid", "email", "profile"],
+            "oidcEnabled": true,
+            "oidcConfigurationUrl": "https://auth.guteneo.com/.well-known/openid-configuration",
+            "oidcUserinfoEndpoint": "https://auth.guteneo.com/userinfo",
+            "oidcScopesSupported": ["openid", "email", "profile"]
+          }
+        }
+      }
     }
   }
 }

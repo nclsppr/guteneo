@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "pluginVersion": "1.1.8",
-  "mcpSourceSha256": "5695b45cc1ccbc4cc6f3128cfed71c7421fc277d3658980debef72798104ea1b",
-  "packageSha256": "304bb17b4ea599b4280758c36aaf2d581a2e67bbd893d135bc3447594eeef83a",
+  "pluginVersion": "1.1.9",
+  "mcpSourceSha256": "3823df57092e63c5b3d0598b069ed656d3627cddb1abd6d55856368dd95be0b7",
+  "packageSha256": "61869e393b3f5019ae1a6de74748cfb7ef5b376fad318899493fb06afdf599b2",
   "sources": {
-    "apps/api/src/auth.ts": "659861e3f3dff69298616f4866b7c5ebb57597669861def4fe2a694fa8e6548e",
+    "apps/api/src/auth.ts": "0b41dec1165ca7d796dc748939ac2fb972e8d153235b039eca9f0e3abeb9b8e1",
     "apps/api/src/connection-observations.ts": "40278b9fab339e05949a04c2d2718348236e9362e944f95a4d2a3466c186fa24",
     "apps/api/src/document-upload.ts": "6bb308c9823d9418efada8d1e9962246490d12d7dfaee07e19cb2800facac99c",
     "apps/api/src/documents.ts": "d4229f82c7722211352116c010bbd533aa5bfd5e7608c7e5960d67d887cde6d3",

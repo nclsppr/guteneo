@@ -162,8 +162,9 @@ contacts, role nor profile saving, and add no business read.
 Strict optional `preferredDashboardAppearance: "classic" | "v2"` is personal.
 Every browser role can edit its own preference without changing rights or
 another member's settings. It is stored in `users.preferred_dashboard_appearance`,
-added by migration `0053` with default `classic`, `NOT NULL` and `CHECK`
-constraints. After session reread it follows the same person across sessions,
+added by migration `0053` with historical default `classic`, `NOT NULL` and `CHECK`
+constraints. New verified/invited accounts explicitly persist the shared V2 default;
+returning accounts retain their saved value. See [new-account layout](DASHBOARD_V2.md#new-account-default--27-october-2026-candidate). After session reread it follows the same person across sessions,
 devices and memberships. It does not belong to the workspace; business content
 and authority remain subject to the current workspace.
 

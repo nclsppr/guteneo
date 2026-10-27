@@ -121,6 +121,116 @@ async function fixture(
   };
 }
 
+test("ordinary application entry offers workspace setup before service cards", async ({
+  page,
+}, info) => {
+  const state = await fixture(page);
+  await page.goto("/#/app");
+  await expect(page).toHaveURL(/#\/app\/services\?next=%2Fapp$/);
+  const heading = page.getByRole("heading", {
+    name: "Create or join a workspace",
+  });
+  await expect(heading).toBeVisible();
+  await expect(page.locator(".personal-space")).toHaveAttribute(
+    "data-appearance",
+    "v2",
+  );
+  await expect(page.getByLabel("Your workspace name")).toBeVisible();
+  expect(
+    await page
+      .locator(".secure-document-form")
+      .evaluate((form) =>
+        Boolean(
+          form.compareDocumentPosition(
+            document.querySelector(".personal-space-service-grid")!,
+          ) & Node.DOCUMENT_POSITION_FOLLOWING,
+        ),
+      ),
+  ).toBe(true);
+  expect(state.writes).toEqual([]);
+  expect(state.reads).not.toContain("/api/personal/documents");
+  await info.attach("workspace-entry-loading", {
+    contentType: "application/json",
+    body: JSON.stringify(
+      await page.evaluate(() => ({
+        resources: performance.getEntriesByType("resource").length,
+        transferredBytes: performance
+          .getEntriesByType("resource")
+          .reduce(
+            (sum, entry) =>
+              sum + (entry as PerformanceResourceTiming).transferSize,
+            0,
+          ),
+        firstContentfulPaintMs:
+          performance.getEntriesByName("first-contentful-paint")[0]
+            ?.startTime ?? null,
+      })),
+    ),
+  });
+});
+
+for (const [locale, setup, invitationLabel, review, error] of [
+  [
+    "en",
+    "Workspace setup",
+    "Workspace invitation link",
+    "Review invitation",
+    "Paste the complete Guteneo workspace invitation link.",
+  ],
+  [
+    "fr",
+    "Choix de l’atelier",
+    "Lien d’invitation à l’atelier",
+    "Examiner l’invitation",
+    "Collez le lien complet d’invitation à l’atelier Guteneo.",
+  ],
+  [
+    "de",
+    "Arbeitsbereich einrichten",
+    "Einladungslink zum Arbeitsbereich",
+    "Einladung prüfen",
+    "Fügen Sie den vollständigen Einladungslink zum Guteneo-Arbeitsbereich ein.",
+  ],
+  [
+    "lb",
+    "Atelier ariichten",
+    "Invitatiounslink fir den Atelier",
+    "Invitatioun iwwerpréiwen",
+    "Setzt de kompletten Invitatiounslink fir de Guteneo-Atelier an.",
+  ],
+] as const) {
+  test(`workspace join validates the invitation and retains recovery in ${locale}`, async ({
+    page,
+  }) => {
+    const state = await fixture(page, "v2", locale);
+    await page.goto("/#/app/services");
+    await page.getByLabel(setup).selectOption("join");
+    const input = page.getByLabel(invitationLabel);
+    const token = "b".repeat(64);
+    await input.fill(`https://other.example/invitation/#token=${token}`);
+    await page.getByRole("button", { name: review, exact: true }).click();
+    await expect(page.getByText(error, { exact: true })).toBeVisible();
+    await expect(input).toHaveValue(
+      `https://other.example/invitation/#token=${token}`,
+    );
+    expect(state.writes).toEqual([]);
+    await page.route("**/invitation/", (route) =>
+      route.fulfill({
+        contentType: "text/html",
+        body: "<main>Invitation destination fixture</main>",
+      }),
+    );
+    const destination = `${new URL(page.url()).origin}/invitation/#token=${token}`;
+    await input.fill(destination);
+    await page.getByRole("button", { name: review, exact: true }).click();
+    await expect(page).toHaveURL(destination);
+    await expect(
+      page.getByText("Invitation destination fixture"),
+    ).toBeVisible();
+    expect(state.writes).toEqual([]);
+  });
+}
+
 test("a personal account selects its saved layout without workshop reads or account bundles", async ({
   page,
 }) => {
@@ -337,7 +447,9 @@ test("personal layout changes persist across reload and a failed save retains th
       await page.setViewportSize({ width, height: 960 });
       for (const theme of ["light", "dark"]) {
         if ((await page.locator("html").getAttribute("data-theme")) !== theme)
-          await page.locator(".personal-space-header [data-theme-toggle]").click();
+          await page
+            .locator(".personal-space-header [data-theme-toggle]")
+            .click();
         await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
         const geometry = await shell.evaluate((element) => {
           const frame = element.getBoundingClientRect();

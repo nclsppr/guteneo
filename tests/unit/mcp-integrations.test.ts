@@ -691,6 +691,27 @@ describe("distributable LLM integrations", () => {
       expect(contract.pluginVersion).toBe(manifest.version);
       expect(contract.mcpSourceSha256).toBe(manifest.mcpSourceSha256);
       expect(manifest.version).toBe(plugin.version);
+      const mcp = JSON.parse(
+        execFileSync(
+          "unzip",
+          ["-p", path.join(first, "guteneo-plugin.zip"), "mcp.json"],
+          { encoding: "utf8" },
+        ),
+      );
+      const oauth = mcp.mcpServers.guteneo.extensions["com.openai"].auth;
+      expect(oauth.client).toEqual({
+        mode: "provided",
+        clientId: "BQKAoIP92KVj7E47io4QUxj9mY7puduZ",
+        tokenEndpointAuthMethod: "none",
+      });
+      expect([...oauth.baseScopes].sort()).toEqual([...MCP_SCOPES].sort());
+      expect(oauth.defaultScopes).toEqual(["openid", "email", "profile"]);
+      expect(oauth.authorizationServerBase).toBe("https://auth.guteneo.com/");
+      expect(oauth.authorizationUrl).toBe("https://auth.guteneo.com/authorize");
+      expect(oauth.tokenUrl).toBe("https://auth.guteneo.com/oauth/token");
+      expect(oauth.resource).toBe("https://guteneo.com/mcp");
+      expect(oauth).not.toHaveProperty("clientSecret");
+      expect(oauth.client).not.toHaveProperty("clientSecret");
       expect(plugin.name).toBe("app-6ab05fbae9a881918dc6ee4e2f235d93");
       expect(manifest.hostQualification).toBe("pending");
       expect(manifest.publishedToDirectories).toBe(false);

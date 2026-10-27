@@ -17,11 +17,11 @@ function storage(initial?: string) {
 }
 
 describe("dashboard appearance browser fallback", () => {
-  it("keeps the current interface by default and ignores unknown values", () => {
-    expect(initialDashboardAppearance("")).toBe("classic");
+  it("defaults to V2 and ignores unknown values", () => {
+    expect(initialDashboardAppearance("")).toBe("v2");
     expect(
       initialDashboardAppearance("?appearance=other", storage("corrupt")),
-    ).toBe("classic");
+    ).toBe("v2");
   });
 
   it("remembers an explicit V2 choice before sign-in and restores it on return", () => {
@@ -55,7 +55,7 @@ describe("dashboard appearance browser fallback", () => {
         throw new Error("Storage full");
       },
     };
-    expect(initialDashboardAppearance("", blocked)).toBe("classic");
+    expect(initialDashboardAppearance("", blocked)).toBe("v2");
     expect(initialDashboardAppearance("?appearance=v2", blocked)).toBe("v2");
     expect(initialDashboardAppearance("?appearance=v2")).toBe("v2");
   });
@@ -82,11 +82,11 @@ describe("dashboard appearance browser fallback", () => {
       "classic",
     );
     expect(initialDashboardAppearance("?atelier=v2&appearance=invalid")).toBe(
-      "classic",
+      "v2",
     );
     expect(
       initialDashboardAppearance("?appearance=v2&appearance=classic"),
-    ).toBe("classic");
+    ).toBe("v2");
     expect(
       dashboardAppearanceUrl(
         "https://guteneo.com/?atelier=v2&lang=de#/app",

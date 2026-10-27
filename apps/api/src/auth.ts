@@ -5,7 +5,7 @@ import {
 } from "./belvedere-policy";
 import { accountEmail } from "../../../packages/contracts/src/account-identity";
 import { documentAccessMode } from "../../../packages/contracts/src/document-authentication";
-import type { DashboardAppearance } from "../../../packages/contracts/src/dashboard-appearance";
+import { defaultDashboardAppearance, type DashboardAppearance } from "../../../packages/contracts/src/dashboard-appearance";
 import { isDispatchGroup } from "../../../packages/contracts/src/dispatch-groups";
 import { acceptWorkspaceInvitation, getInvitationPreview } from "./invitations";
 import {
@@ -1684,7 +1684,7 @@ async function handleAuthRouteOperation(
         ? []
         : [
             env.DB.prepare(
-              "INSERT INTO users(id,name,email,created_at,preferred_locale) VALUES(?,?,?,?,?)",
+              "INSERT INTO users(id,name,email,created_at,preferred_locale,preferred_dashboard_appearance) VALUES(?,?,?,?,?,?)",
             ).bind(
               userId,
               typeof claims.name === "string"
@@ -1693,6 +1693,7 @@ async function handleAuthRouteOperation(
               claims.email,
               createdAt,
               transaction.preferred_locale,
+              defaultDashboardAppearance,
             ),
             env.DB.prepare(
               "INSERT INTO auth_identities(issuer,subject,user_id,created_at) VALUES(?,?,?,?)",
@@ -1724,7 +1725,7 @@ async function handleAuthRouteOperation(
       try {
         await env.DB.batch([
           env.DB.prepare(
-            "INSERT INTO users(id,name,email,created_at,preferred_locale) VALUES(?,?,?,?,?)",
+            "INSERT INTO users(id,name,email,created_at,preferred_locale,preferred_dashboard_appearance) VALUES(?,?,?,?,?,?)",
           ).bind(
             userId,
             typeof claims.name === "string"
@@ -1733,6 +1734,7 @@ async function handleAuthRouteOperation(
             claims.email.trim().toLowerCase(),
             createdAt,
             transaction.preferred_locale,
+            defaultDashboardAppearance,
           ),
           env.DB.prepare(
             "INSERT INTO auth_identities(issuer,subject,user_id,created_at) VALUES(?,?,?,?)",

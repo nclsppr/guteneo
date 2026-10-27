@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Guteneo OpenAI MCP authentication extension",
+  "description": "Reviewed subset of the OpenAI plugin authentication contract. This is a Guteneo policy schema, not an upstream Agent Plugins schema.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["com.openai"],
+  "properties": {
+    "com.openai": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["auth"],
+      "properties": {
+        "auth": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "client",
+            "authorizationServerBase",
+            "authorizationUrl",
+            "tokenUrl",
+            "resource",
+            "baseScopes",
+            "defaultScopes",
+            "oidcEnabled",
+            "oidcConfigurationUrl",
+            "oidcUserinfoEndpoint",
+            "oidcScopesSupported"
+          ],
+          "properties": {
+            "type": { "const": "oauth" },
+            "client": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["mode", "clientId", "tokenEndpointAuthMethod"],
+              "properties": {
+                "mode": { "const": "provided" },
+                "clientId": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z0-9]{32}$"
+                },
+                "tokenEndpointAuthMethod": { "const": "none" }
+              }
+            },
+            "authorizationServerBase": { "const": "https://auth.guteneo.com/" },
+            "authorizationUrl": {
+              "const": "https://auth.guteneo.com/authorize"
+            },
+            "tokenUrl": { "const": "https://auth.guteneo.com/oauth/token" },
+            "resource": { "const": "https://guteneo.com/mcp" },
+            "baseScopes": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": { "type": "string", "pattern": "^[a-z]+:[a-z]+$" }
+            },
+            "defaultScopes": { "const": ["openid", "email", "profile"] },
+            "oidcEnabled": { "const": true },
+            "oidcConfigurationUrl": {
+              "const": "https://auth.guteneo.com/.well-known/openid-configuration"
+            },
+            "oidcUserinfoEndpoint": {
+              "const": "https://auth.guteneo.com/userinfo"
+            },
+            "oidcScopesSupported": { "const": ["openid", "email", "profile"] }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,4 +1,9 @@
 import { msg , msgIn } from "./messages";
+import pluginMcp from "../../../integrations/guteneo/mcp.json";
+
+const chatgptOAuthClientId =
+  pluginMcp.mcpServers.guteneo.extensions["com.openai"].auth.client.clientId;
+
 export const assistantEndpoint = "https://guteneo.com/mcp";
 
 export function getAssistantReadOnlyPrompt() {
@@ -20,6 +25,7 @@ export type AssistantGuideStep = {
   title: string;
   text: string;
   endpoint?: boolean;
+  oauthClientId?: string;
   code?: string;
   link?: AssistantGuideLink;
 };
@@ -46,7 +52,7 @@ export type AssistantDefinition = {
 };
 
 // These describe documented host setup, never a Guteneo connection status.
-// Official source pages were checked on 13 October 2026.
+// ChatGPT OAuth/package sources were checked on 27 October 2026.
 export function getAssistantCatalog(): readonly AssistantDefinition[] {
   return [
     {
@@ -99,7 +105,7 @@ export function getAssistantCatalog(): readonly AssistantDefinition[] {
             {
               title: msg("Connect your Guteneo account"),
               text: msg(
-                "Follow the authentication flow and review the permissions before granting them. Then return to ChatGPT.",
+                "The archive includes Guteneo’s public OAuth client ID. Sign in at auth.guteneo.com, review the permissions, then return to ChatGPT. No client secret is needed.",
               ),
             },
             {
@@ -120,6 +126,12 @@ export function getAssistantCatalog(): readonly AssistantDefinition[] {
               question: msg("I cannot see the option to add an archive"),
               answer: msg(
                 "Check your account’s features and your ChatGPT workspace rules. If adding an archive is unavailable, select “MCP address” in this guide to see the other method.",
+              ),
+            },
+            {
+              question: msg("ChatGPT asks for an OAuth client ID"),
+              answer: msg(
+                "Download the latest ZIP and update the plugin. If ChatGPT still asks, select “MCP address” here and copy the supplied public client ID. Leave the client secret empty.",
               ),
             },
             {
@@ -161,9 +173,16 @@ export function getAssistantCatalog(): readonly AssistantDefinition[] {
               endpoint: true,
             },
             {
+              title: msg("Use Guteneo’s registered OAuth client"),
+              text: msg(
+                "Choose a registered client and copy this public client ID. Select no client authentication (none) if asked, and leave the client secret empty. Do not choose dynamic registration.",
+              ),
+              oauthClientId: chatgptOAuthClientId,
+            },
+            {
               title: msg("Connect your Guteneo account"),
               text: msg(
-                "Complete Guteneo authentication, review the permissions and choose Create as a plugin. Check the available tools, then install your personal plugin.",
+                "Sign in at auth.guteneo.com, review the permissions and choose Create as a plugin. Check the available tools, then install your personal plugin.",
               ),
             },
             {
@@ -180,6 +199,12 @@ export function getAssistantCatalog(): readonly AssistantDefinition[] {
             },
           ],
           troubleshooting: [
+            {
+              question: msg("ChatGPT rejects the OAuth redirect address"),
+              answer: msg(
+                "Update the existing connection with the latest archive. If the error remains, contact Guteneo support with the exact redirect address shown by ChatGPT. Never share a password, token or client secret.",
+              ),
+            },
             {
               question: msg("I cannot see Plugins or the custom add option"),
               answer: msg(

@@ -37,7 +37,7 @@ Contracts/packages and 1.1.6 publication have bounded actual Claude Desktop sele
 <li id="feature-ea5265e7fea1">Six portable package workflows with English metadata, deterministic archives and inventory checks; portal review/publication remains separately evidenced</li>
 <li id="feature-a829c79594e7">Manual host-specific installation packages; downloading grants no OAuth consent</li>
 <li id="feature-bfb7c51de350">ChatGPT guide defaults to a generated plugin ZIP with a manual MCP alternative, shared across public/account views in four languages; native download links need no business API request or new authority</li>
-<li id="feature-92524d02b874">Exact registered callback/client per host; DCR/CIMD advertising alone never proves installation</li>
+<li id="feature-f91330f47999">ChatGPT archive preconfigures its registered public OAuth client with no secret, custom-domain endpoints and existing scopes; the manual guide reads the same ID; stable callback requires exact issuer identification, while DCR/CIMD and actual host consent remain separately qualified</li>
 <li id="feature-3bfae1148be0">Explicit MCP annotations disclose overwrites, archival, sharing revocation, generation cancellation, review-token replacement and batch freezing</li>
 <li id="feature-475d99fe8372">Every advertised tool has four annotation booleans and per-tool evidence, audited through actual tools/list</li>
 <li id="feature-7f8f1928e4ff">Every registered tool exposes its existing display title through annotations.title, including conditional tools; directory-compatible JSON dataset metadata preserves current business gates, while actual portal scan, each-tool host qualification, submission and public listing require separate evidence</li>

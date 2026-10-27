@@ -19,7 +19,7 @@ test("the account appearance control sits beside language and persists for this 
   await page.goto("/?lang=fr#/app/account");
   await expect(page.locator(".workspace")).toHaveAttribute(
     "data-appearance",
-    "classic",
+    "v2",
   );
   await expect(page.locator(".sidebar #dashboard-appearance")).toHaveCount(0);
   const preferences = page.locator(".account-display-preferences");

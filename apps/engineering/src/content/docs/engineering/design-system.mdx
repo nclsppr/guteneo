@@ -64,6 +64,16 @@ components rather than another palette of almost-identical values.
 | Reading measure | `--content-measure`, `68ch`   | Long-form text                           |
 | Control height  | `--control-height`, `44px`    | Comfortable interactive targets          |
 
+New accounts persist V2 when created; existing saved Classic/V2 preferences are
+preserved. Keep the browser fallback and account forms on the shared
+`defaultDashboardAppearance` contract. Never rewrite a saved Classic choice during
+sign-in. Ordinary application entry without a workshop opens the existing personal
+Services form first: create a workspace or use the invitation acceptance flow.
+Direct received-document links retain personal access without workshop creation.
+The choice adds no API read or eager dependency; exercise successful creation,
+invalid invitation recovery and existing-account persistence with synthetic data.
+Publication and authenticated hosted signup remain separate proof.
+
 V2 overrides the ordinary control radius to 7 px and uses 10 px for enclosing
 panels. Email preparation and review apply that existing panel geometry to the
 protected-link choice, delivery summary, email preview and PDF viewer frame. The PDF's actual

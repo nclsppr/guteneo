@@ -1,3 +1,4 @@
+import { defaultDashboardAppearance } from "../../../packages/contracts/src/dashboard-appearance";
 import {
   useCallback,
   useEffect,
@@ -41,6 +42,7 @@ import {
 } from "./locale";
 import { msg } from "./messages";
 import { personalApi, type PersonalSession } from "./personal-api";
+import { workspaceInvitationPath } from "./workspace-entry";
 import {
   clearPendingDocumentInvitation,
   personalAuthenticationReturnTo,
@@ -239,7 +241,7 @@ export function PersonalSpace({
     if (session) {
       applyAccountLocale(session.user.preferredLocale);
       applyAccountAppearance(
-        session.user.preferredDashboardAppearance ?? "classic",
+        session.user.preferredDashboardAppearance ?? defaultDashboardAppearance,
         session.user.id,
       );
     }
@@ -455,8 +457,10 @@ function PersonalServices({
       "",
   );
   const [name, setName] = useState("");
+  const [entry, setEntry] = useState<"create" | "join">("create");
+  const [invitation, setInvitation] = useState("");
   const [requestedPath, setRequestedPath] = useState(
-    next && /^\/app\/(prepare|secure-distributions\/new)(\?|$)/.test(next)
+    next && /^\/app(?:$|\/(prepare|secure-distributions\/new)(\?|$))/.test(next)
       ? next
       : "/app/prepare",
   );
@@ -464,6 +468,18 @@ function PersonalServices({
   async function enter(event: FormEvent) {
     event.preventDefault();
     await action.run(async () => {
+      if (!workspaceId && entry === "join") {
+        const destination = workspaceInvitationPath(
+          invitation,
+          window.location.origin,
+        );
+        if (!destination)
+          throw new Error(
+            msg("Paste the complete Guteneo workspace invitation link."),
+          );
+        window.location.assign(destination);
+        return;
+      }
       await personalApi<{
         organization: { id: string; name: string };
         session: Session;
@@ -494,6 +510,104 @@ function PersonalServices({
           "Your received documents remain accessible without purchasing a service.",
         )}
       </p>
+      <form
+        className="secure-document-panel secure-document-form"
+        aria-busy={action.pending}
+        onSubmit={(event) => void enter(event)}
+      >
+        <h2 id="personal-workspace-entry" tabIndex={-1}>
+          {session.workspaces.length
+            ? msg("Choose a workspace")
+            : msg("Create or join a workspace")}
+        </h2>
+        {session.workspaces.length ? (
+          <Field label={msg("Active workspace")}>
+            <select
+              value={workspaceId}
+              onChange={(event) => setWorkspaceId(event.target.value)}
+            >
+              {session.workspaces.map((workspace) => (
+                <option key={workspace.id} value={workspace.id}>
+                  {workspace.name}
+                </option>
+              ))}
+              <option value="">{msg("Create my workspace")}</option>
+            </select>
+          </Field>
+        ) : null}
+        {!workspaceId && (
+          <Field label={msg("Workspace setup")}>
+            <select
+              value={entry}
+              disabled={action.pending}
+              onChange={(event) =>
+                setEntry(event.target.value as "create" | "join")
+              }
+            >
+              <option value="create">{msg("Create my workspace")}</option>
+              <option value="join">{msg("Join an existing workspace")}</option>
+            </select>
+          </Field>
+        )}
+        {!workspaceId && entry === "create" && (
+          <Field
+            label={msg("Your workspace name")}
+            hint={msg(
+              "Your sending workspace is created only when you request it, using the same account.",
+            )}
+          >
+            <input
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+              required
+              minLength={2}
+              maxLength={100}
+              autoComplete="organization"
+            />
+          </Field>
+        )}
+        {!workspaceId && entry === "join" && (
+          <Field
+            label={msg("Workspace invitation link")}
+            hint={msg(
+              "Ask the workspace administrator for an invitation to {0}, then paste the received link.",
+              session.user.email,
+            )}
+          >
+            <input
+              type="url"
+              value={invitation}
+              required
+              maxLength={2048}
+              autoComplete="off"
+              spellCheck={false}
+              disabled={action.pending}
+              onChange={(event) => setInvitation(event.target.value)}
+            />
+          </Field>
+        )}
+        <button
+          type="submit"
+          className="button primary"
+          disabled={
+            action.pending ||
+            (!workspaceId &&
+              (entry === "create"
+                ? name.trim().length < 2
+                : !invitation.trim()))
+          }
+        >
+          {action.pending
+            ? msg("Loading…")
+            : workspaceId
+              ? msg("Open my workspace")
+              : entry === "join"
+                ? msg("Review invitation")
+                : msg("Create my workspace")}
+          <ArrowRight size={18} aria-hidden="true" />
+        </button>
+        <ErrorNotice error={action.error} />
+      </form>
       <div className="personal-space-service-grid">
         <article className="secure-document-panel">
           <PaperPlaneTilt size={28} aria-hidden="true" />
@@ -534,62 +648,6 @@ function PersonalServices({
           </button>
         </article>
       </div>
-      <form
-        className="secure-document-panel secure-document-form"
-        aria-busy={action.pending}
-        onSubmit={(event) => void enter(event)}
-      >
-        <h2 id="personal-workspace-entry" tabIndex={-1}>
-          {session.workspaces.length
-            ? msg("Choose a workspace")
-            : msg("Create my workspace")}
-        </h2>
-        {session.workspaces.length ? (
-          <Field label={msg("Active workspace")}>
-            <select
-              value={workspaceId}
-              onChange={(event) => setWorkspaceId(event.target.value)}
-            >
-              {session.workspaces.map((workspace) => (
-                <option key={workspace.id} value={workspace.id}>
-                  {workspace.name}
-                </option>
-              ))}
-              <option value="">{msg("Create my workspace")}</option>
-            </select>
-          </Field>
-        ) : null}
-        {!workspaceId && (
-          <Field
-            label={msg("Your workspace name")}
-            hint={msg(
-              "Your sending workspace is created only when you request it, using the same account.",
-            )}
-          >
-            <input
-              value={name}
-              onChange={(event) => setName(event.target.value)}
-              required
-              minLength={2}
-              maxLength={100}
-              autoComplete="organization"
-            />
-          </Field>
-        )}
-        <button
-          type="submit"
-          className="button primary"
-          disabled={action.pending || (!workspaceId && name.trim().length < 2)}
-        >
-          {action.pending
-            ? msg("Loading…")
-            : workspaceId
-              ? msg("Open my workspace")
-              : msg("Create my workspace")}
-          <ArrowRight size={18} aria-hidden="true" />
-        </button>
-        <ErrorNotice error={action.error} />
-      </form>
       <a className="text-link" href="/#pricing">
         {msg("View pricing")}
       </a>
@@ -621,7 +679,9 @@ function PersonalAccount({
     useState<DashboardAppearance | null>(null);
   const { saveAccountAppearance } = useDashboardAppearance();
   const selectedAppearance =
-    draftAppearance ?? session.user.preferredDashboardAppearance ?? "classic";
+    draftAppearance ??
+    session.user.preferredDashboardAppearance ??
+    defaultDashboardAppearance;
   const [sessions, setSessions] = useState<PersonalSessionItem[]>();
   const [sessionsError, setSessionsError] = useState<Error>();
   const [version, setVersion] = useState(0);
@@ -668,7 +728,8 @@ function PersonalAccount({
       if (current.user.id !== session.user.id) return;
       if (draftAppearance !== null)
         saveAccountAppearance(
-          current.user.preferredDashboardAppearance ?? "classic",
+          current.user.preferredDashboardAppearance ??
+            defaultDashboardAppearance,
           current.user.id,
         );
       onUpdated(current);
