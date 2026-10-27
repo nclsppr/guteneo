@@ -206,7 +206,7 @@ for (const [locale, setup, invitationLabel, review, error] of [
     await page.goto("/#/app/services");
     await page.getByLabel(setup).selectOption("join");
     const input = page.getByLabel(invitationLabel);
-    const token = "b".repeat(64);
+    const token = Buffer.alloc(32, 0xfb).toString("base64url");
     await input.fill(`https://other.example/invitation/#token=${token}`);
     await page.getByRole("button", { name: review, exact: true }).click();
     await expect(page.getByText(error, { exact: true })).toBeVisible();
@@ -214,20 +214,46 @@ for (const [locale, setup, invitationLabel, review, error] of [
       `https://other.example/invitation/#token=${token}`,
     );
     expect(state.writes).toEqual([]);
-    await page.route("**/invitation/", (route) =>
+    const previews: unknown[] = [];
+    const accepts: unknown[] = [];
+    await page.route("**/api/invitations/preview", (route) => {
+      previews.push(route.request().postDataJSON());
+      return route.fulfill({
+        json: {
+          organization: { name: "Synthetic invited workshop" },
+          role: "member",
+          supervisorCanApprove: false,
+          supervisorCanReport: false,
+          maskedEmail: "p***@example.invalid",
+          status: "pending",
+          expiresAt: "2026-12-01T00:00:00.000Z",
+        },
+      });
+    });
+    await page.route("**/auth/invitation", (route) => {
+      accepts.push(route.request().postDataJSON());
+      return route.fulfill({ json: { loginUrl: "/auth/login?fresh=1" } });
+    });
+    await page.route("**/auth/login?fresh=1", (route) =>
       route.fulfill({
         contentType: "text/html",
-        body: "<main>Invitation destination fixture</main>",
+        body: "<main>Synthetic sign-in</main>",
       }),
     );
     const destination = `${new URL(page.url()).origin}/invitation/#token=${token}`;
     await input.fill(destination);
     await page.getByRole("button", { name: review, exact: true }).click();
-    await expect(page).toHaveURL(destination);
+    await expect(page).toHaveURL(new URL("/invitation/", destination).href);
     await expect(
-      page.getByText("Invitation destination fixture"),
+      page.getByRole("heading", { name: "Synthetic invited workshop" }),
     ).toBeVisible();
+    expect(previews).toEqual([{ token }]);
+    expect(accepts).toEqual([]);
     expect(state.writes).toEqual([]);
+    await page.locator(".invitation-page").getByRole("button").click();
+    await expect(page.getByText("Synthetic sign-in")).toBeVisible();
+    expect(accepts).toEqual([{ token }]);
+    await expect(page).toHaveURL(/\/auth\/login\?fresh=1$/);
   });
 }
 

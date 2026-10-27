@@ -15,6 +15,20 @@ creating a workspace occurs during explicit service use. Initial creation is
 idempotent for the person; entry rechecks membership and rotates the session.
 Creating a workspace activates no live channel.
 
+Ordinary `/app` entry without membership opens Services with a create/join choice.
+Joining accepts the server's complete same-origin `/invitation/#token=…` URL,
+with one raw 43-character base64url token generated from 32 random bytes. The
+dependency-free `workspace-invitation-token` contract is shared by the entry
+parser, invitation preview API and authentication handoff. The 64-character hexadecimal SHA-256 value is
+only the stored hash, never the secret in the link. Foreign origins, credentials,
+query parameters, other paths and extra fragment fields are refused locally.
+The invitation page clears the fragment, previews the proposed role and requires
+explicit acceptance before the existing verified-email authentication flow joins
+the invited workspace. That flow returns to `/app`; it does not preserve a Services
+deep link. Direct personal-document entry requires no workspace. A D1 integration
+test passes an actual server-generated link through entry, preview and the auth
+handoff; browser fixtures cover recovery and explicit acceptance in four languages.
+
 `GET /api/personal/session` exposes the personal principal, preferences and
 accessible workspaces. It does not replace `GET /api/session`, whose workspace
 requirement remains. Personal routes have their own guard, browser cookie and

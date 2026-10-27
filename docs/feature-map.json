@@ -40,7 +40,7 @@
         "Document policy defaults to strong or explicitly selects verified_account: verified account/address and signed recent auth_time; fifteen minutes for reading/association/approval and five for export/deposit/deletion; documentAccessAllowed/documentAccessMode do not imply MFA or strongAuthentication; D1 defaults strong and environment disagreement fails closed",
         "Document invitation handoff lasts at most ten minutes in the same tab, then is deleted; capture before Auth0 with secret-free returnTo and no arbitrary private query",
         "Document-service 401 offers explicit recovery without session-bootstrap loops; Auth0 recovery reconciles language and returned identity",
-        "Ordinary application entry without workshop membership offers workspace creation or joining through an existing canonical invitation; explicit personal document entry remains independent, with no public workspace enumeration",
+        "Ordinary application entry without workshop membership offers workspace creation or joining through an existing canonical same-origin invitation with the shared raw 43-character base64url token contract, fragment clearing and explicit acceptance; server-generated invitation integration covers the entry, preview and auth handoff, while the stored SHA-256 hash never enters the link; explicit personal document entry remains independent, with no public workspace enumeration",
         "Production browser configuration selects auth.guteneo.com; the tenant-wide custom-domain email flag and exact authorization-response issuer identification were applied and reread on 27 October, without sending verification mail or qualifying human login"
       ],
       "status": "Unified personal account and optional workspace implementation; migrations, aligned document policy, Auth0 configuration and connected production qualification require separate evidence.",
@@ -61,7 +61,9 @@
         "tests/unit/mcp-auth0-domain.test.ts",
         "tests/unit/postal-authority.test.ts",
         "tests/integration/expert-status.test.ts",
-        "tests/unit/workspace-entry.test.ts"
+        "tests/unit/workspace-entry.test.ts",
+        "tests/integration/workspace-invitations.test.ts",
+        "tests/e2e/personal-appearance.spec.ts"
       ],
       "surfaces": "Personal browser authority and workspace/native sessions; REST/MCP resource OAuth with explicit same-tenant issuer trust, independently selected discovery and canonical identity/connection/mandate keys.",
       "id": "identity",

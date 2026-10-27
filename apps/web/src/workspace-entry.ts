@@ -1,3 +1,5 @@
+import { isWorkspaceInvitationToken } from "../../../packages/contracts/src/workspace-invitation-token";
+
 /** Keep invitation secrets in the fragment and reuse the existing acceptance page. */
 export function workspaceInvitationPath(
   value: string,
@@ -15,11 +17,7 @@ export function workspaceInvitationPath(
       return null;
     const fragment = new URLSearchParams(url.hash.slice(1));
     const token = fragment.get("token");
-    if (
-      [...fragment.keys()].length !== 1 ||
-      !token ||
-      !/^[a-f0-9]{64}$/.test(token)
-    )
+    if ([...fragment.keys()].length !== 1 || !isWorkspaceInvitationToken(token))
       return null;
     return `/invitation/#token=${token}`;
   } catch {

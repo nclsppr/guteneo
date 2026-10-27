@@ -74,6 +74,14 @@ The choice adds no API read or eager dependency; exercise successful creation,
 invalid invitation recovery and existing-account persistence with synthetic data.
 Publication and authenticated hosted signup remain separate proof.
 
+Workspace invitation links carry a raw 43-character base64url secret in the
+fragment; the stored 64-character SHA-256 hash is a different value. Use the
+dependency-free shared token validator for entry and preview. Keep the exact
+same-origin `/invitation/` path, fragment clearing and explicit acceptance flow.
+Exercise a server-generated link through the parser and API handoff in integration
+tests, in addition to rendered fixtures; handwritten tokens alone cannot prove
+the producer and consumer agree. The join handoff adds no eager schema dependency.
+
 V2 overrides the ordinary control radius to 7 px and uses 10 px for enclosing
 panels. Email preparation and review apply that existing panel geometry to the
 protected-link choice, delivery summary, email preview and PDF viewer frame. The PDF's actual

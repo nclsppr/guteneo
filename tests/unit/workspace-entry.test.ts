@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { workspaceInvitationPath } from "../../apps/web/src/workspace-entry";
 
 const origin = "https://guteneo.com";
-const token = "a".repeat(64);
+const token = Buffer.alloc(32, 0xfb).toString("base64url");
 
 describe("workspace invitation entry", () => {
   it("keeps a valid invitation token only in the local fragment", () => {
@@ -20,6 +20,12 @@ describe("workspace invitation entry", () => {
     `${origin}/invitation/#token=${token}&token=${token}`,
     `${origin}/invitation/#token=${token}&other=value`,
     `${origin}/invitation/#token=invalid`,
+    `${origin}/invitation/#token=${"a".repeat(64)}`,
+    `${origin}/invitation/#token=${token.slice(1)}`,
+    `${origin}/invitation/#token=${token}a`,
+    `${origin}/invitation/#token=${token}=`,
+    `${origin}/invitation/#token=${"+".repeat(43)}`,
+    `${origin}/invitation#token=${token}`,
     `${origin}/share/#token=${token}`,
     `/invitation/#token=${token}`,
     "javascript:alert(1)",

@@ -163,7 +163,7 @@ test("invalid CSV prevents review and sending", async ({ page }) => {
 test("invitation preview clears the secret fragment and acceptance requires an explicit action", async ({
   page,
 }) => {
-  const token = "fictional-invitation-token-for-ui-only";
+  const token = Buffer.alloc(32, 0xfb).toString("base64url");
   const accepts: unknown[] = [];
   const previews: unknown[] = [];
   await page.route("**/api/**", async (route) => {
