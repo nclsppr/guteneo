@@ -438,6 +438,13 @@ or Belvédère suite for the actual surface. Inspect the new interaction manuall
 with keyboard and assistive technology as well; catalog parity alone cannot
 prove good wording, reading order or usable error recovery.
 
+Check computed spacing before acting on markup-only detector findings. The status
+service list keeps 17 px of top/bottom row padding in its external stylesheet;
+browser inspection confirmed 17/18 px between text and separator edges. Its
+file-scoped `cramped-padding` exception covers this false positive without changing
+the layout or disabling other checks. Reassess it if the list markup or spacing
+changes.
+
 ## Nested diagnostic data
 
 The shared diagnostic list uses key/value columns at its outer level and stacks
