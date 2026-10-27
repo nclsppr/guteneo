@@ -1139,7 +1139,7 @@ Read current capability and price → select the ready immutable PDF and PDF/UA 
 
 **Actor:** External recipient. **Branch:** Deliver.
 
-Open the private /share link through the protected handler → read the localized page and enter the separately supplied password → download the unchanged PDF while access remains valid; no recipient account required. The create/join form precedes service cards; joining validates a same-origin /invitation/#token=64hex link and reuses verified-email invitation acceptance.
+Open the private /share link through the protected handler → read the localized page and enter the separately supplied password → download the unchanged PDF while access remains valid; no recipient account required.
 
 **Failure/recovery:** Expiry, revocation, invalid credentials or unavailable storage refuse access. Never reveal passwords through assistant tools/chat or infer PDF reading from email delivery. A generic site 404 requires route/hosting diagnosis; do not create a replacement send or bypass access checks.
 

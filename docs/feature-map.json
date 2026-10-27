@@ -1202,7 +1202,7 @@
       "id": "J14",
       "title": "Receive a protected PDF",
       "actor": "External recipient",
-      "steps": "Open the private /share link through the protected handler → read the localized page and enter the separately supplied password → download the unchanged PDF while access remains valid; no recipient account required. The create/join form precedes service cards; joining validates a same-origin /invitation/#token=64hex link and reuses verified-email invitation acceptance.",
+      "steps": "Open the private /share link through the protected handler → read the localized page and enter the separately supplied password → download the unchanged PDF while access remains valid; no recipient account required.",
       "branch": "Deliver",
       "doc": "PROTECTED_DOCUMENTS.md",
       "failure": "Expiry, revocation, invalid credentials or unavailable storage refuse access. Never reveal passwords through assistant tools/chat or infer PDF reading from email delivery. A generic site 404 requires route/hosting diagnosis; do not create a replacement send or bypass access checks."
