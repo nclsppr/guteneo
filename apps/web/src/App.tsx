@@ -33,11 +33,13 @@ import {
 import { t, initializeLocale, useLocale } from "./locale";
 import { canonicalPublicLocation } from "../../../packages/contracts/src/public-routes";
 import { PublicHomepage } from "./public-homepage";
+import { PublicSitePage } from "./public-site-pages";
 import {
   isPublicSitePage,
   getPublicSitePageMetadata,
 } from "./public-site-metadata";
 import { syncPublicSharing } from "./public-sharing";
+import { usePublicLocation } from "./public-navigation";
 import { Brand } from "./brand";
 import { ErrorNotice, go, Loading, useRoute, useResource } from "./components";
 import { PdfCheckPage } from "./pdf-check-offer";
@@ -54,6 +56,7 @@ import { InformationPage, getInformationPages } from "./information-page";
 import { DeveloperPage } from "./developer-page";
 import { ArticlePage, JournalPage } from "./editorial/pages";
 import { getArticles, articlePath } from "./editorial/articles";
+import { getPublicSocialCopy } from "./editorial/social-copy";
 import { AssistantsPage } from "./assistants-page";
 import { RememberDirectChoice } from "./assistant-state";
 import { clearPendingDocumentInvitation } from "./document-invitation";
@@ -65,22 +68,6 @@ import "./document-studio.css";
 import "./secure-documents.css";
 
 const publicPreview = import.meta.env.VITE_PUBLIC_PREVIEW === "true";
-let loadedPublicSitePage:
-  typeof import("./public-site-pages").PublicSitePage | null = null;
-let publicSitePageLoad: Promise<void> | null = null;
-/** Retain useful initial HTML while the requested public-detail chunk loads. */
-export function preloadPublicSitePage(): Promise<void> {
-  return (publicSitePageLoad ??= import("./public-site-pages").then(
-    (module) => {
-      loadedPublicSitePage = module.PublicSitePage;
-    },
-  ));
-}
-const LazyPublicSitePage = lazy(async () => {
-  await preloadPublicSitePage();
-  return { default: loadedPublicSitePage! };
-});
-
 const EmailPreferencesPage = lazy(() => import("./email-preferences"));
 
 const Overview = lazy(() =>
@@ -225,6 +212,7 @@ export function App() {
 }
 
 function Application() {
+  const publicLocation = usePublicLocation();
   const locale = useLocale();
   const route = useRoute();
   const personalRoute = personalPage(route) && !publicPreview;
@@ -311,6 +299,9 @@ function Application() {
   }, [personalRoute, emailPreferencesRoute, workspaceRoute]);
   useEffect(() => {
     const path = window.location.pathname;
+    const publicCopy = window.location.hash.startsWith("#/")
+      ? null
+      : getPublicSocialCopy(path, locale);
     const information = getInformationPages()[path];
     const publicSitePage = getPublicSitePageMetadata(path);
     const article = getArticles().find(
@@ -329,8 +320,11 @@ function Application() {
             : path === "/journal/"
               ? msg("The journal")
               : `${msg("Prepare your documents.")} ${msg("Choose how they travel.")}`);
-    document.title = `${emailPreferencesRoute ? msg("Email preferences") : label} | guteneo`;
+    document.title =
+      publicCopy?.title ??
+      `${emailPreferencesRoute ? msg("Email preferences") : label} | guteneo`;
     const description =
+      publicCopy?.description ??
       publicSitePage?.description ??
       information?.description ??
       article?.description ??
@@ -343,7 +337,7 @@ function Application() {
       .querySelector('meta[name="description"]')
       ?.setAttribute("content", description);
     syncPublicSharing();
-  }, [locale, emailPreferencesRoute]);
+  }, [locale, emailPreferencesRoute, publicLocation]);
   if (emailPreferencesRoute)
     return (
       <Suspense fallback={<Loading />}>
@@ -354,25 +348,22 @@ function Application() {
   if (publicPath === "/invitation" || publicPath === "/invitation/")
     return <InvitationPage />;
   const information = getInformationPages()[publicPath];
-  if (information) return <InformationPage content={information} />;
+  if (information)
+    return <InformationPage key={publicPath} content={information} />;
   if (publicPath === "/assistants" || publicPath.startsWith("/assistants/"))
     return (
-      <AssistantsPage assistantId={publicPath.split("/")[2] || undefined} />
+      <AssistantsPage
+        key={publicPath}
+        assistantId={publicPath.split("/")[2] || undefined}
+      />
     );
   if (window.location.pathname === "/developers/") return <DeveloperPage />;
-  if (isPublicSitePage(publicPath)) {
-    const InitialPublicSitePage = loadedPublicSitePage;
-    return InitialPublicSitePage ? (
-      <InitialPublicSitePage path={publicPath} />
-    ) : (
-      <Suspense fallback={<Loading />}>
-        <LazyPublicSitePage path={publicPath} />
-      </Suspense>
-    );
-  }
+  if (isPublicSitePage(publicPath))
+    return <PublicSitePage key={publicPath} path={publicPath} />;
 
   return (
     <WorkspaceApplication
+      key={publicPath}
       route={route}
       session={session}
       updateSession={updateSession}

@@ -213,8 +213,13 @@ export function setAutomaticLocale() {
   }
   setLocale(browserLocale(), false, "browser");
 }
-/** Run before first render. Account preference is applied after authentication. */
-export function initializeLocale(restoreVisitor = false) {
+/** Only the initial document may supply a server-rendered language hint. */
+export function initializeLocale(
+  restoreVisitor = false,
+  {
+    useInitialDocumentLocale = true,
+  }: { useInitialDocumentLocale?: boolean } = {},
+) {
   let stored: SupportedLocale | null = null;
   try {
     stored = normalizeLocale(window.localStorage.getItem(storageKey));
@@ -232,16 +237,21 @@ export function initializeLocale(restoreVisitor = false) {
     /* Cookie access is optional, just like local storage. */
   }
   // The HTTP language decision is already visible. Retain it even if navigator
-  // and Accept-Language differ. Legacy device-only choices migrate in the head.
+  // and Accept-Language differ. Enhanced navigation keeps the active automatic
+  // choice; only the initial render may reuse the document's bootstrap hint.
   const initial = restoreVisitor
     ? null
-    : normalizeLocale(
-        typeof document === "undefined" ||
-          document.documentElement.dataset?.publicPath !==
-            window.location.pathname
-          ? null
-          : document.documentElement.dataset?.publicLocale,
-      );
+    : !useInitialDocumentLocale
+      ? currentSource === "browser"
+        ? current
+        : null
+      : normalizeLocale(
+          typeof document === "undefined" ||
+            document.documentElement.dataset?.publicPath !==
+              window.location.pathname
+            ? null
+            : document.documentElement.dataset?.publicLocale,
+        );
   const source = requested
     ? "selection"
     : (hint?.source ?? (stored ? "selection" : "browser"));

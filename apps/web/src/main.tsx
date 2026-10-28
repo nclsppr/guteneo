@@ -3,10 +3,14 @@ import ReactDOM from "react-dom/client";
 import "./fonts.css";
 import { applyAccountLocale, initializeLocale, t, useLocale } from "./locale";
 import { api, ApiError, type Session } from "./api";
-import { observePublicLinks } from "./public-sharing";
+import {
+  observePublicLinks,
+  registerPublicPageMetadata,
+} from "./public-sharing";
+import { getPublicPageMetadata } from "./public-page-metadata";
 import { initializeTheme } from "./theme";
-import { App, preloadPublicSitePage } from "./App";
-import { isPublicSitePage } from "./public-site-metadata";
+import { App } from "./App";
+import { installPublicNavigation } from "./public-navigation";
 import "./styles.css";
 import "./login-page.css";
 import "./protected-document.css";
@@ -15,6 +19,7 @@ import "./landing-example.css";
 import "./public-site-pages.css";
 
 initializeTheme();
+registerPublicPageMetadata(getPublicPageMetadata);
 
 // Crawlable entry links hand off to the existing browser router before rendering.
 if (
@@ -149,14 +154,8 @@ function renderApplication() {
       {isBelvedere ? <BelvedereEntry basePath={belvederePath} /> : <App />}
     </React.StrictMode>,
   );
+  if (!isBelvedere) installPublicNavigation();
 }
 
-if (!isBelvedere && isPublicSitePage(window.location.pathname)) {
-  // Keep the complete build-time page and native links visible until its
-  // route-only tools are available. A failed chunk leaves useful static HTML.
-  void preloadPublicSitePage()
-    .then(renderApplication)
-    .catch(() => {
-      document.getElementById("root")!.dataset.renderState = "static";
-    });
-} else renderApplication();
+// Every public route is ready together; native SSR links work before this mount.
+renderApplication();

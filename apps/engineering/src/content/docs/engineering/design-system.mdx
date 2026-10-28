@@ -11,6 +11,19 @@ interface: warm paper, precise ink, cobalt illustrations and readable controls.
 A new frontend should feel like another room in that workshop. Start with shared
 components and real product states, then add a small amount of illustration.
 
+Keep navigation within the current application when the destination is a
+registered public page. Its small page components belong to the initial code
+graph, so the shared enhancement changes browser history without another HTML
+or route-code request. Ordinary links remain usable for reloads, new tabs and
+unavailable initial JavaScript. Preserve destination language, metadata,
+anchors, focus and browser Back/Forward behavior. Navigation must never start a
+speculative private read or business operation. Personal routes likewise keep
+their authenticated shell mounted between sections, capturing a new invitation
+before rendering it; initial session checks, account-change isolation and
+visible-tab revalidation remain mandatory. The
+[frontend loading contract](https://github.com/nclsppr/guteneo/blob/main/docs/FRONTEND_PERFORMANCE.md#navigation-without-restarting-the-page--28-october-2026-candidate)
+owns the measured environment and qualification limits.
+
 This guide is the implementation companion to `docs/BRAND_IDENTITY.md`,
 `docs/MULTILINGUAL.md` and `docs/REPOSITORY_STANDARDS.md`. Those files own their
 respective rules. Change them and this guide together when the rules evolve.
@@ -266,10 +279,11 @@ Public selection does not save an account preference. The blocking head script
 only migrates an older localStorage-only mismatch before public content paints;
 it never fetches a session or handles private application/recovery URLs.
 
-Keep styles needed by pre-rendered content in the initial CSS graph even when
-interactive route JavaScript is lazy. The 27 October candidate moves guided-example
+Keep styles needed by pre-rendered content in the initial CSS graph. The
+27 October candidate moves guided-example
 styles there; shared public detail styles were already eager and now have explicit
-entry ownership. Verify cold initial content and a held route chunk, then compare
+entry ownership. Public page components now join the initial code graph for
+immediate interactive links. Verify cold initial content with entry code held, then compare
 heading text, line wrapping and example geometry after interactivity. Also hold a
 conflicting session response and assert that public navigation requests no session.
 Do not use an opacity delay to disguise a changed layout. The

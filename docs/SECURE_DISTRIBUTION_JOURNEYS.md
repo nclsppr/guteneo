@@ -114,6 +114,15 @@ This deliberate V1 incompatibility never converts an operation exposed to legacy
 
 Wrong accounts/unavailable invitations reveal no other-account existence. Recovery is explicit; document 401 does not trigger automatic login loops. Personal routes remain separate from workspace API and reject workspace Bearer authority for personal content.
 
+Navigation between My documents, Services and Account preserves the mounted
+personal shell and its current identity instead of restarting authentication
+for every link. Each route first captures and removes a new invitation before
+its children render. Initial authentication, visible-tab revalidation, identity
+changes and server authorization on each data read retain their existing
+boundaries. The [loading contract](FRONTEND_PERFORMANCE.md#navigation-without-restarting-the-page--28-october-2026-candidate)
+owns the implementation and bounded measurements; no additional membership or
+recipient authority follows from retaining the shell.
+
 ## Two categories and distinct operations
 
 | Category       | Promise and operations                                                                                                       |

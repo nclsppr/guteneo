@@ -96,10 +96,12 @@ native pictures, normal blending and no CSS inversion/filter, added paper frame,
 padding or background. Exact source assets, derivative provenance and brand roles
 remain in [BRAND_IDENTITY.md](BRAND_IDENTITY.md).
 
-Public detail UI is a lazy route chunk, while lightweight metadata remains
-available at entry. `main.tsx` preloads the requested detail module before
-replacing complete initial HTML. A delayed or failed module must not erase useful
-static content. Dynamic capability reads are limited to the existing pricing/PDF
+Small public page components belong to the initial application graph. Registered
+same-origin links change pages through browser history without another HTML or
+route-code request. Static generation and client navigation share page metadata;
+language, section anchors, focus and Back/Forward stay coherent. A delayed or
+unavailable entry script must not erase useful static content or native links.
+Dynamic capability reads are limited to the existing pricing/PDF
 views and their current closed/unknown behavior; the homepage diagram performs
 no business operation. See [FRONTEND_PERFORMANCE.md](FRONTEND_PERFORMANCE.md) for
 loading boundaries and measurements.

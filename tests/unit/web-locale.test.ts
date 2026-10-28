@@ -377,6 +377,52 @@ describe("language precedence and resilient preference storage", () => {
     expect(getLocale()).toBe("de");
     expect(getLocaleSource()).toBe("browser");
   });
+  it("retains the active automatic language across enhanced navigation when browser APIs differ", () => {
+    browser(null, ["en-GB"]);
+    Object.defineProperty(document.documentElement, "dataset", {
+      value: { publicLocale: "de", publicPath: "/" },
+    });
+    initializeLocale();
+    expect(getLocale()).toBe("de");
+    for (const path of ["/pricing/", "/"]) {
+      window.location.pathname = path;
+      initializeLocale(false, { useInitialDocumentLocale: false });
+      expect(getLocale()).toBe("de");
+      expect(getLocaleSource()).toBe("browser");
+    }
+  });
+  it("keeps automatic language after enhanced navigation returns to the initial document path", () => {
+    browser(null, ["fr-FR"], "?lang=en");
+    Object.defineProperty(document.documentElement, "dataset", {
+      value: { publicLocale: "en", publicPath: "/" },
+    });
+    initializeLocale();
+    expect(getLocale()).toBe("en");
+    setAutomaticLocale();
+    expect(getLocale()).toBe("fr");
+    expect(window.location.search).toBe("");
+    for (const path of ["/pricing/", "/"]) {
+      window.location.pathname = path;
+      initializeLocale(false, { useInitialDocumentLocale: false });
+      expect(getLocale()).toBe("fr");
+      expect(getLocaleSource()).toBe("browser");
+      expect(window.location.search).toBe("");
+    }
+  });
+  it("preserves explicit and account preferences when enhanced navigation ignores the old document hint", () => {
+    browser(null, ["fr-FR"], "?lang=de");
+    Object.defineProperty(document.documentElement, "dataset", {
+      value: { publicLocale: "en", publicPath: "/" },
+    });
+    initializeLocale(false, { useInitialDocumentLocale: false });
+    expect(getLocale()).toBe("de");
+    expect(getLocaleSource()).toBe("selection");
+    window.location.search = "";
+    document.cookie = "guteneo_locale=account.lb";
+    initializeLocale(false, { useInitialDocumentLocale: false });
+    expect(getLocale()).toBe("lb");
+    expect(getLocaleSource()).toBe("account");
+  });
   it("uses a known account presentation hint without overwriting the visitor choice", () => {
     const write = browser("lb", ["en-GB"]);
     document.cookie = "guteneo_locale=account.de";

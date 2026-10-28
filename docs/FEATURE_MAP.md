@@ -1,8 +1,8 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
 # Guteneo feature tree and developer atlas
 
-**23 domains · 335 features · 37 journeys · 76 documented REST operations · 83 MCP tools**
-Updated 2026-10-27.
+**23 domains · 337 features · 37 journeys · 76 documented REST operations · 83 MCP tools**
+Updated 2026-10-28.
 
 Repository implementation inventory. Availability depends on current capabilities and authority; implementation, activation and deployed proof are distinct.
 
@@ -25,7 +25,7 @@ mindmap
       Fax (7)
       Postal mail (8)
       Email and protected links (14)
-      Sensitive distribution and personal documents (27)
+      Sensitive distribution and personal documents (28)
       Dispatch dry run (7)
     Operate
       Campaigns and tracking (8)
@@ -35,7 +35,7 @@ mindmap
     Interfaces
       Assistants and API (31)
       iPhone and iPad (9)
-      Public pages, languages and appearance (21)
+      Public pages, languages and appearance (22)
     Operations
       Reviewer OAuth qualification (9)
       Operations and reliability (19)
@@ -61,7 +61,7 @@ mindmap
 - [Fax](#fax) — 7 features; capability-gated.
 - [Postal mail](#postal) — 8 features; capability-gated.
 - [Email and protected links](#email) — 14 features; capability-gated.
-- [Sensitive distribution and personal documents](#secure-distribution) — 27 features; capability-gated.
+- [Sensitive distribution and personal documents](#secure-distribution) — 28 features; capability-gated.
 - [Dispatch dry run](#dry-run) — 7 features; read-only.
 
 ### Operate
@@ -75,7 +75,7 @@ mindmap
 
 - [Assistants and API](#assistants) — 31 features; host-qualified.
 - [iPhone and iPad](#native) — 9 features; local-candidate.
-- [Public pages, languages and appearance](#public) — 21 features; public.
+- [Public pages, languages and appearance](#public) — 22 features; public.
 
 ### Operations
 
@@ -575,6 +575,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Direct personal routes start their own small shell and authenticated personal session before the document list without waiting for workshop bootstrap; old workshop reads are aborted and fenced from applying identity/language after navigation, and return rereads current workshop authority
 - Personal focus/visibility session reconciliation is bounded and cleaned up; changed identity remounts document state, obsolete results are ignored and list retry does not reload a still-valid session; recipient/document-policy/server authorization remains unchanged
 - Secure distribution list, composer, detail and reader reuse the shared V2 workspace/personal surfaces, typography, controls, facts and responsive spacing; the saved Classic layout and each authorization boundary remain unchanged
+- Personal section changes retain the mounted authenticated shell while capturing and removing each new invitation before children render; no redundant personal-session bootstrap precedes the next page. Initial entry, bounded visible-tab revalidation, identity-change remounts and current server authorization remain required
 
 **Contract:** [SECURE_DISTRIBUTION_JOURNEYS.md](SECURE_DISTRIBUTION_JOURNEYS.md) · **Implementation:** [apps/api/src/secure-distributions.ts](../apps/api/src/secure-distributions.ts)
 
@@ -796,7 +797,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 <a id="public"></a>
 ### Public pages, languages and appearance
 
-**Availability model:** public. The 25 October public hierarchy, four detail routes, shared footer, four-language static generation and appearance were published from main 03daa4136de8999cc79018f33f2a22038917c621. Canonical served assets and four-language public layout/link checks passed. The 27 October stable-language, public-session removal and initial-example-CSS correction is a local candidate; its measured build graph adds 1092 gzip CSS bytes without another initial stylesheet request. Current-source browser checks, CI and publication remain separately evidenced. The separate preview retains an isolated provider asset-delivery failure; indexing, provider and real financial qualification remain separate.
+**Availability model:** public. The 25 October public hierarchy, four detail routes, shared footer, four-language static generation and appearance were published from main 03daa4136de8999cc79018f33f2a22038917c621. Canonical served assets and four-language public layout/link checks passed. The 27 October stable-language, public-session removal and initial-example-CSS correction is a local candidate; its measured build graph adds 1092 gzip CSS bytes without another initial stylesheet request. Current-source browser checks, CI and publication remain separately evidenced. The separate preview retains an isolated provider asset-delivery failure; indexing, provider and real financial qualification remain separate. The 28 October navigation candidate removes repeated document/app startup between public pages; local measurements, CI and publication remain separate.
 
 **Surfaces:** Public browser/static documents and four-language frontend/video catalogues; request-language negotiation adds no REST/MCP operation or native capability. Preview has no business bindings. Authenticated account language, membership and approval remain separately guarded.
 
@@ -814,17 +815,18 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Multilingual social cards and reader sharing controls
 - Public error documents retain real HTTP status with 17 dedicated four-language messages and 4xx/5xx fallback; only eligible public failures, no status-selector/demo endpoint
 - The homepage restores the existing four-language Ideas travel closing invitation, first-dispatch installation link and large stamp/postmark above its exclusive panorama with three original birds. The identical common PublicFooter remains on every public React route, including home, with its compact stamp/postmark, two original decorative swallows, sixteen links and colophon; no decoration enters the logged-in application
-- Shared public navigation uses one 1440 px maximum outer frame with matching responsive header/main/footer gutters and narrower readable prose inside. The four-group/sixteen-link catalog supplies canonical four-language links for React, status and public HTTP errors; keyboard/Escape/focus behavior and explicit language across origins remain Resources places localized Engineering documentation after Developers; all footer consumers retain https://engineering.guteneo.com/ without a language query because its guides are English-authored
+- Shared public navigation uses one 1440 px maximum outer frame with matching responsive header/main/footer gutters and narrower readable prose inside. The four-group/sixteen-link catalog supplies canonical four-language links for React, status and public HTTP errors; keyboard/Escape/focus behavior and explicit language across origins remain. Resources places localized Engineering documentation after Developers; all footer consumers retain https://engineering.guteneo.com/ without a language query because its guides are English-authored
 - English source copy with context-aware translations; shared app primitives and one authoritative documentation/feature tree
 - Six legacy homepage fragments keep meaningful destinations, focus and next links; Support retains all eight FAQ answers including postal-processing and PDF limitations
-- Public details load as a lazy route chunk while complete initial HTML remains visible; required public/detail and guided-example styles belong to the initial CSS graph, delayed or failed JavaScript preserves the static page, and the fictional diagram/example creates no business request or approval
+- Public details join the initial application code graph to avoid a first-tap waterfall while complete initial HTML remains visible; required public/detail and guided-example styles belong to the initial CSS graph, delayed or failed JavaScript preserves the static page, and the fictional diagram/example creates no business request or approval
 - The public header exposes only a localized light/dark action icon at every viewport, defaults to the operating system and supports activation before React through the head bootstrap. Shared origin preference and fixed royal-blue chrome remain; standalone HTML reads only a bounded host-only nonsecret enum cookie with script-free system fallback. Native theme-media and ArticlePicture select original transparent dark portrait and responsive RGBA art. White paper stays inside each asset’s actual inner blue frame with transparent exterior/perforations, without a universal inset rule or outer white contour; original light art and opaque stamp remain unchanged
 - One approved simple browser-icon family from apps/web/public serves product, status, engineering and standalone authentication/Belvedere/protected/error HTML; the shared exact-byte helper binds independent build source scopes and retains the existing canonical hosted-login favicon URL; read-only provider inspection found that URL already aligned, with no remote mutation or deployment claim
 - Self-hosted interface fonts use optional display and three emitted-asset preloads, preserving the approved type when ready while keeping already-visible text geometry stable when font delivery is slow; delayed-font tests qualify desktop and mobile browsers separately
+- Ordinary same-origin links between registered public pages retain one browser document and loaded application; all small public page components are available on the first interactive click without HTML, route-code, session or private-data prefetch. Canonical English URLs, four-language presentation, static direct entries, history, anchors, focus and destination metadata remain coherent; unavailable initial JavaScript retains the complete static page
 
 **Contract:** [MULTILINGUAL.md](MULTILINGUAL.md) · **Implementation:** [packages/contracts/src/public-site.json](../packages/contracts/src/public-site.json)
 
-**Tests:** [tests/e2e/locale-boundaries.spec.ts](../tests/e2e/locale-boundaries.spec.ts), [tests/preview-e2e/public-render-stability.spec.ts](../tests/preview-e2e/public-render-stability.spec.ts), [tests/unit/locale-bootstrap.test.ts](../tests/unit/locale-bootstrap.test.ts), [tests/unit/public-locale-negotiation.test.ts](../tests/unit/public-locale-negotiation.test.ts), [tests/preview-e2e/language-navigation.spec.ts](../tests/preview-e2e/language-navigation.spec.ts), [tests/preview-e2e/assistant-hub.spec.ts](../tests/preview-e2e/assistant-hub.spec.ts), [tests/preview-e2e/public-menu-escape.spec.ts](../tests/preview-e2e/public-menu-escape.spec.ts), [tests/unit/public-assets.test.ts](../tests/unit/public-assets.test.ts), [tests/security/public-assets.test.mjs](../tests/security/public-assets.test.mjs), [tests/unit/public-http-error.test.ts](../tests/unit/public-http-error.test.ts), [tests/preview-e2e/homepage.spec.ts](../tests/preview-e2e/homepage.spec.ts), [tests/preview-e2e/homepage-film.spec.ts](../tests/preview-e2e/homepage-film.spec.ts), [tests/preview-e2e/seo.spec.ts](../tests/preview-e2e/seo.spec.ts), [tests/preview-e2e/theme.spec.ts](../tests/preview-e2e/theme.spec.ts), [tests/unit/standalone-theme.test.ts](../tests/unit/standalone-theme.test.ts), [tests/preview-e2e/public-artwork.spec.ts](../tests/preview-e2e/public-artwork.spec.ts), [tests/unit/public-preview.test.ts](../tests/unit/public-preview.test.ts), [tests/preview-e2e/preview.spec.ts](../tests/preview-e2e/preview.spec.ts), [tests/preview-e2e/mobile-workspace.spec.ts](../tests/preview-e2e/mobile-workspace.spec.ts), [tests/unit/public-footer.test.ts](../tests/unit/public-footer.test.ts), [tests/security/brand-icons.test.mjs](../tests/security/brand-icons.test.mjs), [tests/preview-e2e/font-render-stability.spec.ts](../tests/preview-e2e/font-render-stability.spec.ts)
+**Tests:** [tests/e2e/locale-boundaries.spec.ts](../tests/e2e/locale-boundaries.spec.ts), [tests/preview-e2e/public-render-stability.spec.ts](../tests/preview-e2e/public-render-stability.spec.ts), [tests/unit/locale-bootstrap.test.ts](../tests/unit/locale-bootstrap.test.ts), [tests/unit/public-locale-negotiation.test.ts](../tests/unit/public-locale-negotiation.test.ts), [tests/preview-e2e/language-navigation.spec.ts](../tests/preview-e2e/language-navigation.spec.ts), [tests/preview-e2e/assistant-hub.spec.ts](../tests/preview-e2e/assistant-hub.spec.ts), [tests/preview-e2e/public-menu-escape.spec.ts](../tests/preview-e2e/public-menu-escape.spec.ts), [tests/unit/public-assets.test.ts](../tests/unit/public-assets.test.ts), [tests/security/public-assets.test.mjs](../tests/security/public-assets.test.mjs), [tests/unit/public-http-error.test.ts](../tests/unit/public-http-error.test.ts), [tests/preview-e2e/homepage.spec.ts](../tests/preview-e2e/homepage.spec.ts), [tests/preview-e2e/homepage-film.spec.ts](../tests/preview-e2e/homepage-film.spec.ts), [tests/preview-e2e/seo.spec.ts](../tests/preview-e2e/seo.spec.ts), [tests/preview-e2e/theme.spec.ts](../tests/preview-e2e/theme.spec.ts), [tests/unit/standalone-theme.test.ts](../tests/unit/standalone-theme.test.ts), [tests/preview-e2e/public-artwork.spec.ts](../tests/preview-e2e/public-artwork.spec.ts), [tests/unit/public-preview.test.ts](../tests/unit/public-preview.test.ts), [tests/preview-e2e/preview.spec.ts](../tests/preview-e2e/preview.spec.ts), [tests/preview-e2e/mobile-workspace.spec.ts](../tests/preview-e2e/mobile-workspace.spec.ts), [tests/unit/public-footer.test.ts](../tests/unit/public-footer.test.ts), [tests/security/brand-icons.test.mjs](../tests/security/brand-icons.test.mjs), [tests/preview-e2e/font-render-stability.spec.ts](../tests/preview-e2e/font-render-stability.spec.ts), [tests/unit/public-navigation.test.ts](../tests/unit/public-navigation.test.ts), [tests/preview-e2e/public-navigation.spec.ts](../tests/preview-e2e/public-navigation.spec.ts)
 
 
 
@@ -1018,9 +1020,9 @@ Supervisor approval/reporting options are independent and off by default. Resour
 
 **Actor:** Visitor → verified account owner, with optional workspace membership. **Branch:** Access.
 
-Open the concise public homepage with its approved browser icon in its preselected URL/cookie/browser language, without a session probe or late translation → choose visitor language or the header appearance icon → read How it works, Getting started, Pricing or PDF checks and the complete Support FAQ through canonical shared navigation with initial styles → open Engineering documentation from the shared Resources footer for English technical guides → use the existing localized closing invitation and first-dispatch link above the home-only panorama → enter canonical Auth0 → register one personal account with V2 appearance → ordinary /app entry without membership opens Services with create/join workspace choice; explicit personal-document entry stays personal → create a workspace or review and accept an administrator invitation → verify current identity, saved account language and rights before useful private content. Return to the valid destination. Explicit logout opens the public home and restores the separate visitor choice.
+Open the concise public homepage with its approved browser icon in its preselected URL/cookie/browser language, without a session probe or late translation → choose visitor language or the header appearance icon → read How it works, Getting started, Pricing or PDF checks and the complete Support FAQ through canonical shared navigation with initial styles and same-document page changes preserving language, metadata, focus and browser history → open Engineering documentation from the shared Resources footer for English technical guides → use the existing localized closing invitation and first-dispatch link above the home-only panorama → enter canonical Auth0 → register one personal account with V2 appearance → ordinary /app entry without membership opens Services with create/join workspace choice; explicit personal-document entry stays personal → create a workspace or review and accept an administrator invitation → verify current identity, saved account language and rights before useful private content. Return to the valid destination. Explicit logout opens the public home and restores the separate visitor choice.
 
-**Failure/recovery:** Refuse invalid callback state, unknown issuer/subject or expired invitation. Recovery retries are explicit. Invalid/duplicate presentation hints fall back safely and grant no identity; explicit public language cannot be replaced by a conflicting late account read. Legacy storage migration excludes private/recovery URLs. Package download, optional Auth0 branding/domain and actual host sign-in each need separate proof. Public route presentation, a localized status link and the fictional example grant no approval or provider activation; failed detail loading retains complete styled static information.
+**Failure/recovery:** Refuse invalid callback state, unknown issuer/subject or expired invitation. Recovery retries are explicit. Invalid/duplicate presentation hints fall back safely and grant no identity; explicit public language cannot be replaced by a conflicting late account read. Legacy storage migration excludes private/recovery URLs. Package download, optional Auth0 branding/domain and actual host sign-in each need separate proof. Public route presentation, a localized status link and the fictional example grant no approval or provider activation; failed detail loading retains complete styled static information. Modified/external/private/download links retain native behavior; unavailable initial JavaScript retains complete static HTML and native links without a blank loading page.
 
 [Detailed contract](ACCOUNT_IDENTITY.md).
 
@@ -1268,7 +1270,7 @@ Request an eligible public HTML document → retain real error status → show l
 
 **Actor:** Personal recipient with matching verified address and current-policy session; workspace approver only for independent policies. **Branch:** Active individual invitation, personal principal and current document policy; association confirmed before content.
 
-Open the invitation → capture/remove its fragment token before any HTTP login URL → same-tab ten-minute handoff → Auth0 sign-in/registration and secret-free return → open the document with verified account/address and a recent session → atomically bind the stable account for verified_email, or await workspace confirmation only for independent/historical policies → read authorized pages/text and find the share in My documents. Receipt creates no workspace, purchase or marketing consent.
+Open the invitation → capture/remove its fragment token before any HTTP login URL → same-tab ten-minute handoff → Auth0 sign-in/registration and secret-free return → open the document with verified account/address and a recent session → atomically bind the stable account for verified_email, or await workspace confirmation only for independent/historical policies → read authorized pages/text and find the share in My documents. Receipt creates no workspace, purchase or marketing consent. Personal section navigation retains the authenticated shell; a new invitation is captured and removed before its route renders, and every data delivery still checks current authority.
 
 **Failure/recovery:** Wrong account, expired token, revoked access or insufficient policy evidence exposes no sensitive title/original. Explicitly switch account or reopen the link; if storage is blocked, sign in then reopen without a secret returnTo. A 401 offers explicit recovery without loops. No physical identity or complete reading is promised. A changed association candidate requires fresh attestation. Personal-list 401/403 clears metadata/cursors and ignores late obsolete responses.
 

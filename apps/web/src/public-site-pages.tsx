@@ -14,6 +14,7 @@ import {
 } from "./pdf-check-public";
 import { msg } from "./messages";
 import { t } from "./locale";
+import { isPublicNavigationManaged } from "./public-navigation";
 
 import {
   getPublicSitePageMetadata,
@@ -38,6 +39,7 @@ export function PublicSitePage({ path }: { path: PublicSitePath }) {
     capabilities.loading,
   );
   useEffect(() => {
+    if (isPublicNavigationManaged()) return;
     const id = window.location.hash.slice(1);
     if (!id || id.startsWith("/")) return;
     const frame = requestAnimationFrame(() => {

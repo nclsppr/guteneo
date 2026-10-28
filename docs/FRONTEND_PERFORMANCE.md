@@ -1,8 +1,124 @@
 # Frontend loading and personal bootstrap
 
-27 October 2026 local candidate. This contract owns route-loading behavior and
+28 October 2026 local candidate. This contract owns route-loading behavior and
 its bounded local measurements. It establishes no production latency, server CPU,
 provider readiness, price, deployment or physical-device qualification.
+
+## Navigation without restarting the page — 28 October 2026 candidate
+
+Public page links previously started a new HTML document and React application
+on every click, even when the browser already held the requested code. The
+client now enhances ordinary links between exact registered public routes on
+the same origin. All public page components belong to the initial application
+graph, so an interactive click changes the URL through browser history and
+renders the destination without another HTML or route-code request. This avoids
+a first-tap code waterfall as well as repeated application startup. Navigation
+does not prefetch HTML, private data, a session or a provider.
+
+The route registry still owns the canonical English paths and static HTML.
+Direct entry, reload, disabled or unavailable JavaScript retain
+ordinary document navigation. Downloads, external origins, new-tab/modifier
+clicks, private application hashes and authentication/recovery query values
+keep their existing browser behavior. Supported visitor language remains in the
+URL and synchronous catalog. History, section anchors, keyboard focus, page
+metadata and route-specific effects must follow the visible destination. No
+authorization or customer document is stored in public navigation history.
+
+Personal navigation had a different repeated-work defect: `PersonalArea`
+replaced its authenticated shell with a loading fallback whenever its route
+changed. Returning the shell immediately afterwards remounted `PersonalSpace`
+and repeated `GET /api/personal/session` before the requested page could load.
+The shell now remains mounted while a layout effect captures and removes any
+new invitation. Children receive only the captured route, so secret removal
+still precedes route rendering. Initial entry and focus/visibility revalidation
+retain the authenticated personal-session read. Account identity changes still
+remount user-bound state; every personal data endpoint checks current authority.
+This changes neither human roles nor REST/MCP/native permissions, activation
+gates, approval or sending behavior.
+
+Regression sources are `tests/preview-e2e/public-navigation.spec.ts` and
+`tests/e2e/personal-document-performance.spec.ts`. The public suite passes 33
+cases across desktop Chromium, Pixel 7 Chromium and iPhone 13 WebKit emulation,
+covering all 22 registered pages in four languages, metadata/schema parity,
+keyboard focus, menus, history positions, Automatic language and native links
+before unavailable/delayed entry JavaScript. A first-click regression blocks new
+HTML and script requests after home becomes interactive; public navigation still
+works without either request type. Existing public capability reads and newly
+visible images are independent resources, not proof of a failed navigation.
+The existing locale, initial-layout, static metadata/sitemap and JavaScript-free
+browser regressions pass 40 cases on desktop Chromium and iPhone WebKit; four
+preview-only fixture cases are intentionally skipped on the production build.
+The focused unit suite passes 258 tests, and the three static-asset/release
+security checks pass. Typecheck, lint, documentation checks and the engineering
+build also pass. These are local checks; no merged-source CI or release follows.
+
+The unthrottled comparison uses production Vite/static HTML on local Wrangler
+with actual public-asset middleware, reduced motion, English and five fresh
+contexts per browser. Each context opens home, then activates pricing, support
+and home links. The first-useful marker samples the expected visible main
+heading in `requestAnimationFrame`; the next-frame marker is one frame later.
+These are probe measurements, not standardized paint metrics or physical devices.
+Ranges below are the three route medians, each from five samples.
+
+| Browser profile | Before: useful heading (ms) | Candidate: useful heading (ms) | Candidate: next frame (ms) |
+| --- | ---: | ---: | ---: |
+| Desktop Chromium | 46.4–49.7 | 9.6–15.8 | 22.4–28.3 |
+| Pixel 7 Chromium emulation | 47.3–48.0 | 10.1–15.8 | 19.3–29.1 |
+| iPhone 13 WebKit emulation | 50–53 | 12–16 | 24–27 |
+
+All 45 candidate transitions retain their document and issue no new HTML or
+script request. All 45 baseline transitions create a new document, producing
+40–44 browser request events per click; those include cache hits and must not
+be counted as billed or transferred network requests. The first pricing entry
+previously loaded 21,626 decoded script bytes; the candidate loads none during
+navigation. Desktop pricing still performs its public capability read (370
+reported transferred resource bytes); mobile pricing can also fetch the newly
+visible footer stamp. Support and home report zero completed new resources in
+these samples. Resource accounting ends when the destination header is
+interactive, separately from the useful-heading marker, and excludes the
+navigation document itself.
+
+A second comparison isolates the navigation mechanism on the same final build:
+the native-link opt-out versus enhanced links, with five fresh contexts per
+Chromium profile, CDP latency 150 ms, download 200,000 B/s, upload 93,750 B/s
+and 4× CPU slowdown. It uses the same link activation and animation-frame
+markers, without other browser suites running concurrently.
+
+| Profile | Pricing: native → enhanced (ms) | Support: native → enhanced (ms) | Home: native → enhanced (ms) |
+| --- | ---: | ---: | ---: |
+| Desktop Chromium | 528.3 → 65.1 | 506.2 → 32.2 | 522.5 → 27.9 |
+| Pixel 7 Chromium emulation | 521.9 → 66.2 | 517.6 → 32.9 | 530.7 → 30.7 |
+
+All 30 enhanced controlled transitions issue no document or script request;
+all 30 native transitions issue one document and 30–31 browser request events.
+Pricing retains its public capability read, which can still be in flight at
+the resource-accounting boundary. Zero completed resource bytes at that boundary
+therefore do not prove zero network traffic. These are local simulated-network
+and CPU observations, not deployed or physical-phone measurements.
+
+Including the small public detail UI in the repaired navigation candidate's
+initial graph increases it by 18,099 decoded bytes and 2,649 independently
+computed gzip bytes. The graph changes from 24 to 19 linked JavaScript entries;
+its final total is 1,539,314 decoded bytes / 483,734 computed gzip bytes. This
+isolated eager-versus-lazy build comparison includes the final locale/history
+guards and is not the original-branch or HTTP-wire comparison. It makes no
+cold-entry JavaScript reduction claim. Server CPU, memory and billed savings
+were not measured; no provider/configuration or activation change is introduced.
+
+Raw browser reports, the reproducible probe and the initial-graph inventories
+remain in `/Users/nclsppr/.codex/artifacts/guteneo-navigation-2026-10-28/`.
+Local fixtures establish neither deployed latency nor a real account journey.
+
+The personal-shell comparison uses Vite production assets on local Wrangler,
+desktop Chromium, synthetic read-only APIs and a fixed 600 ms delay only on
+`/api/personal/session`, without CPU throttling. Services changed from 857 to
+80 ms, Account from 810 to 46 ms and Documents from 807 to 65 ms, measured until
+the useful destination was observed by the probe. Each transition removes one
+redundant session read: completed API resource counts are 1/2/2 before and 0/1/1
+after. The required account/document reads remain, with no route JavaScript
+added. The focused browser suite passes 63 cases across desktop Chromium,
+Pixel 7 Chromium and iPhone 13 WebKit emulation. These synthetic session-delay
+figures do not describe public page navigation or deployed account latency.
 
 ## Stable public rendering — 27 October 2026 candidate
 
@@ -17,8 +133,10 @@ their own sessions before showing useful private content. The
 cookie limits, visitor/account separation and the small legacy-storage head
 migration; it adds no account lookup, timer or polling to public rendering.
 
-Public detail JavaScript remains lazy, and slow or failed loading retains complete
-static content. Required layout styles belong to the entry CSS graph. The build
+The 27 October candidate kept public detail JavaScript lazy; the 28 October
+navigation correction above includes it in the initial graph to remove the
+first-tap waterfall. Slow or failed initial JavaScript retains complete static
+content. Required layout styles belong to the entry CSS graph. The build
 inspection found that public detail/header styles were already in the initial
 stylesheet links through the eager support component; moving their import to the
 entry makes that dependency explicit. The guided example's `landing-example.css`
@@ -217,10 +335,11 @@ cannot replace a newly observed identity, language or layout. These request and
 bundle boundaries are checked by `tests/e2e/personal-appearance.spec.ts`; they do
 not establish a production timing improvement.
 
-Public detail pages use a separate lazy chunk. Their lightweight path/metadata
-module lets the entry point preload that chunk while complete, correctly styled
-initial HTML remains visible. Slow or failed chunk loading preserves the useful
-static page. The stable-language contract above is separate from private
+Public page components belong to the initial application graph so the first
+interactive link needs no route-code request. Complete, correctly styled initial
+HTML remains useful before the entry JavaScript is available. Same-origin public
+navigation reuses that application; private task engines remain deferred. The
+stable-language contract above is separate from private
 authenticated loading. The public-route contract is in
 [homepage and navigation](HOMEPAGE_REDESIGN.md).
 
@@ -296,7 +415,7 @@ checks remain separate.
 | `apps/web/src/personal-area.tsx`                               | Immediate personal shell and invitation handoff                                                              |
 | `apps/web/src/personal-space.tsx`                              | Personal session lifecycle, identity remount, focus recovery and explicit logout                             |
 | `apps/web/src/personal-documents.tsx`, `personal-api.ts`       | Account-bound document reads, list retry, aborted-read refusal and unchanged credential/privacy behavior     |
-| `apps/web/src/main.tsx`, `public-site-metadata.ts`             | Public detail preloading while initial HTML remains useful                                                   |
+| `apps/web/src/main.tsx`, `public-navigation.ts`, `public-page-metadata.ts` | Eager public page graph, same-document navigation and metadata shared with static generation                 |
 | `apps/web/src/theme-media.ts`, `editorial/article-picture.tsx` | Native theme/size source selection and responsive public editorial exports                                   |
 | `tests/e2e/personal-document-performance.spec.ts`              | Bounded loading and account-transition regressions                                                           |
 

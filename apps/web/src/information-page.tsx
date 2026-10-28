@@ -4,6 +4,7 @@ import { PublicFooter, PublicHeader } from "./public-chrome";
 import { PublicSupportFaq } from "./public-support-faq";
 import "./legal-page.css";
 import { getRoleGuide } from "./role-guide";
+import { isPublicNavigationManaged } from "./public-navigation";
 
 type InformationPageContent = {
   label: string;
@@ -690,6 +691,7 @@ export function InformationPage({
   content: InformationPageContent;
 }) {
   useEffect(() => {
+    if (isPublicNavigationManaged()) return;
     const id = window.location.hash.slice(1);
     if (!id || id.startsWith("/")) return;
     const frame = requestAnimationFrame(() => {

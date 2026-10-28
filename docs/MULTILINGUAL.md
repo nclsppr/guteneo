@@ -146,6 +146,17 @@ change; the status/error footer renderers likewise add it to their Guteneo/statu
 destinations. This explicit parameter transfers language without sharing storage
 or an authenticated preference across origins.
 
+Ordinary registered public links now change pages within the current document.
+The destination URL selects the bundled language before its content renders;
+canonical/social metadata, language alternatives and structured data are rebuilt
+from the same page metadata as static generation. Back/Forward retains that
+presentation contract. A server document's initial language hint applies only
+to its initial bootstrap; enhanced navigation and history ignore that old hint,
+so returning home cannot undo a later Automatic language choice.
+Authentication/private queries and external origins keep
+native document navigation. The [loading contract](FRONTEND_PERFORMANCE.md#navigation-without-restarting-the-page--28-october-2026-candidate)
+owns the progressive enhancement, failure recovery and measurements.
+
 Resources places Engineering documentation immediately after Developers. Its
 label is localized in the shared catalog, while all three footer renderers retain
 the exact `https://engineering.guteneo.com/` destination without a `lang`

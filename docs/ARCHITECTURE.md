@@ -78,8 +78,10 @@ are explicit boundaries rather than an implied10MiB inline capability.
 `build-public-pages.mjs` derive complete generic/four-language HTML, metadata,
 localized assets and sitemap from that registry. The four detail routes reuse
 existing pricing, fictional example/film, setup and PDF-offer contracts. Their
-metadata is lightweight; the requested lazy detail module preloads before React
-replaces useful initial HTML. `public-footer.json` owns shared four-language
+metadata is shared by static generation and client navigation. Small public page
+components join the initial application graph; ordinary registered same-origin
+links change browser history without reloading HTML or route code. Complete
+static HTML remains useful before entry JavaScript is ready. `public-footer.json` owns shared four-language
 navigation. React, status and eligible public error adapters consume the same
 source; status includes it in its source fingerprint and manifests the generated
 footer bytes. [HOMEPAGE_REDESIGN.md](HOMEPAGE_REDESIGN.md) owns this public contract.
