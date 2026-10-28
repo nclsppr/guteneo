@@ -343,3 +343,43 @@ flowchart LR
   Transaction --> Future[Future email blocked]
   Transaction --> Tracking[Separate lifecycle status]
 ```
+
+## Secure invitations keep hosting and transport separate
+
+Atomic acceptance commits the approved shared/personal retention fee and retains
+only the remaining transport amount in the provider reservation. The live bridge
+must compare that remainder, rather than the total approved ceiling, while
+retaining current tenant, sender, approval, fingerprint and active-attempt checks.
+A mismatch is a local refusal before provider submission; it is not evidence
+that Resend rejected an email. Reconciliation never retries an uncertain result
+or refunds committed hosting.
+
+The local cross-service secure/Resend test uses the actual PDF renderer, isolated
+D1/R2, persisted authentication and approval, intercepted provider HTTP and signed
+outcome fixtures. Check both exact-ceiling and larger-ceiling reservations, a
+negative callback, a lost response, duplicate callbacks and changed monetary
+inputs. Keeping adapter tests alone cannot cover a mismatch between the
+acceptance ledger and the final transport guard. Source, hosted configuration,
+actual sending and inbox receipt require distinct evidence.
+
+## Native monitors for business failures
+
+Cloudflare's native Monitors can query structured Workers Logs and notify by
+email/webhook without adding a separate Worker or monitoring subscription.
+Monitor failure counters and fixed codes, including signed negative callback
+facts whose HTTP receipt is 200. The private
+[operations runbook](https://github.com/nclsppr/guteneo/blob/main/docs/OPERATIONS.md)
+owns the SQL, measured account inventory, dated official prices and activation
+evidence. On 27 October 2026, two owner-authorized failure and missing-cron
+monitors were configured and reread; one native sample reached the designated
+email destination. This proves notification delivery, not real provider delivery
+or an active ChatGPT incident subscription. Existing sampling or missing logs
+limits coverage.
+
+Keep approval, quota, outbox, unknown submission and callback reconciliation
+separate. A missing cron-completion signal needs its own rule; a transient
+publication deferral is not a measured persistent backlog. Use bounded windows,
+fixed routes and counts, and keep raw provider errors, content, recipients and
+URLs out of notifications. Configure a destination only with explicit authority,
+then qualify a synthetic notification and its receipt separately from real
+provider delivery.

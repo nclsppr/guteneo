@@ -5,17 +5,37 @@ The required checks remain **verify** and **scanner**. This workflow builds and 
 ## Independent work
 
 - `checks`: TypeScript, ESLint, exact local migration transport/schema verification and the existing cost-model report. `npm run check:integrations` also rejects a stale MCP/plugin synchronization record before the remaining checks; see the [maintained package procedure](LLM_SETUP.md#mandatory-mcp-plugin-and-archive-synchronization).
-- Developer documentation: `node docs/build-feature-map.mjs --check` requires synchronized Markdown/HTML views, valid code/contract/test references and complete role/journey fields. Review also checks that every feature change updates the registry; generated-byte validation alone cannot discover undocumented behavior.
-- `vitest`: four native Vitest shards on separate runners. Files remain sequential inside each shard; process isolation, D1/R2 fixtures and all transaction/race assertions are unchanged. Only the Chromium PDF integration is excluded here and run in `security`.
-- `security`: the exact-PDF Chromium integration and **every** Node security test, including Chromium and WebKit setup-form tests. The renderer's existing narrow AppArmor allowance was moved unchanged into `scripts/ci/chromium-sandbox.mjs`; no browser sandbox is disabled.
-- `build`: builds local application, live and fictional preview assets once each, plus both existing Wrangler dry runs. Their distinct compilation flags and release manifests are retained. TypeScript runs in `checks` rather than again through `npm run build`. The two browser asset directories are passed to browser jobs as a same-run, SHA-named artifact; these are test artifacts, not approved deployment bundles.
+- Developer documentation: `npm run docs:check` includes the feature-atlas and MCP annotation-document checks once, alongside the other documentation guards. The atlas requires synchronized Markdown/HTML views, valid code/contract/test references and complete role/journey fields. Review also checks that every feature change updates the registry; generated-byte validation alone cannot discover undocumented behavior.
+- `vitest`: four native Vitest shards on separate runners. Files remain sequential inside each shard; process isolation, D1/R2 fixtures and all transaction/race assertions are unchanged. Browser-backed integration files, including `secure-resend-journey.test.ts`, are excluded here and run once in `security`.
+- `security`: the exact-PDF Chromium integrations, the secure-distribution/Resend journey and **every** Node security test, including Chromium and WebKit setup-form tests. Chromium is installed before those integration files execute. The renderer's existing narrow AppArmor allowance was moved unchanged into `scripts/ci/chromium-sandbox.mjs`; no browser sandbox is disabled.
+- `build`: builds the final live frontend once before the unchanged local, private-document and live Worker dry runs, then builds the separate fictional preview and status assets and dry-runs the status Worker. `build:live` uses the same non-preview Vite configuration and integration-package checks as the former initial `build:web`, adding the release snapshot, canonical public pages and manifest. The final artifact already used this live frontend before deduplication. Preview compilation flags and manifests remain separate. TypeScript runs in `checks` rather than again through `npm run build`. The two browser asset directories are passed to browser jobs as a same-run, SHA-named artifact; these are test artifacts, not approved deployment bundles.
 - `browser`: nine isolated runners: three shards for each of desktop Chromium, mobile Chromium and iPhone WebKit. Each migrates/seeds its own D1 and retains one Playwright worker. Desktop and iPhone also partition their corresponding public-preview project across the same three shards. Belvédère runs on the first shard of each supported profile; status runs on desktop shard one. WebKit jobs install Chromium too, because the local PDF renderer needs it. CI's explicit `GUTENEO_E2E_PREBUILT=true` starts the existing local server without rebuilding the supplied application artifact; normal local commands continue to build as before.
 - `distribution-e2e`: isolated TesterArmy profiles run fourteen `strong` and two `verified_account` account, pricing and secure-distribution results against isolated local D1/R2 and the real local PDF renderer. Identity assurance is an explicit simulation fixture. Model calls, telemetry and browser traces are disabled. The strict gate requires every expected case, zero skips/flakes/model calls and a current privacy marker; artifact upload also scans the captured console output for actual fixture invitations. See [the suite guide](../tests/distribution-e2e/README.md).
 - `engineering`: installs root and its own locked dependencies, audits the independent package, checks generated content, builds the static site, runs its Chromium/WebKit browsers and verifies asset-only deployment by dry run. These checks provide no business credentials or publication authority. See the [curated pipeline guide](../apps/engineering/src/content/docs/engineering/ci-and-release.mdx).
 - `pdf-validator`: retains its separate locked dependency installation, typecheck and complete validator suite.
 - `scanner`: retains its separate dependency installation, typecheck and complete scanner test suite.
 
+The standalone four-language MCP Apps SDK fixtures run once on desktop Chromium
+shard three, with the same report paths and immutable evidence selection. They
+remain outside the Playwright inventory. The successful 27 October baseline
+[40543944920](https://github.com/nclsppr/guteneo/actions/runs/40543944920)
+spent 47 seconds on this step in its critical first desktop shard; the next
+successful [PR run](https://github.com/nclsppr/guteneo/actions/runs/40553851575)
+spent 43 seconds. Moving the step, removing duplicate documentation invocations
+already covered by `docs:check`, and avoiding the overwritten frontend build
+preserve every assertion. These are measured placement/duplication findings,
+not a qualified wall-time improvement; runner queues and artifact transfer vary.
+
 `verify` uses `always()` and depends on every job above. Failed, cancelled or skipped dependencies cannot produce a successful final gate. It merges the five native Vitest blob reports without rerunning tests, checks every assertion succeeded and compares the resulting file list with all current `tests/unit/**/*.test.ts` and `tests/integration/**/*.test.ts`. Missing, duplicated and unexpected files fail. There is no fixed assertion total to update when tests are added. The matrix uses `fail-fast: false` so a failure in one shard preserves the other shards' evidence.
+
+When adding an integration that launches actual Chromium, route it to the existing
+browser-equipped `security` job and exclude it from the ordinary Vitest shards.
+The routing regression in `tests/security/ci-results.test.mjs` discovers browser
+launches, checks that every excluded file executes once in that job and requires
+browser installation before execution. The 27 October 2026 secure-invitation
+addition exposed this dependency gap during release review; local browser success
+does not prove a clean hosted runner has the executable. Keep failed exact-source
+CI evidence and qualify the corrected PR and merged revision before publication.
 
 The browser skip registry binds each exception to an exact suite, project, file,
 title and reason. Renaming or splitting a test requires checking the independent
@@ -287,3 +307,21 @@ must update both the source feature tree and affected developer documentation in
 the same pull request. The [repository standards](REPOSITORY_STANDARDS.md) own the
 language, routing, deduplication and exception policy; language checks are bounded
 regression heuristics rather than linguistic or semantic proof.
+
+## Automatic served verification after live deployment
+
+The live publishing wrapper now runs `scripts/verify-release.mjs` after Wrangler
+returns successfully, using the fixed canonical origin and the already validated
+local `dist/web/release.json`. Completion requires matching source, public asset
+bytes/hashes, robots policy and security headers. A failed verification reports
+`RELEASE_VERIFICATION_FAILED`: publication has happened, but the release remains
+unverified. The wrapper performs no automatic rollback, redeployment or retry.
+Preview publication retains its existing independent contract.
+
+This anonymous GET-only check sends no document and establishes no Auth0,
+recipient, signed provider callback or inbox success. The local secure/Resend
+cross-service regression runs in the existing application suite. Real canaries
+need dedicated accounts/recipients, separate authorization, bounded costs and
+observable signed outcomes; fax/postal production tests must never run implicitly
+on every deployment. See [operations](OPERATIONS.md) and the
+[engineering release guide](../apps/engineering/src/content/docs/engineering/ci-and-release.mdx).

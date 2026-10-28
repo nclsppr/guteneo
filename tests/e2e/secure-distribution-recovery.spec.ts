@@ -146,7 +146,7 @@ async function fixture(
 }
 
 const approve = (page: Page) =>
-  page.getByRole("button", { name: "Approuver ce partage", exact: true });
+  page.getByRole("button", { name: /^Envoyer pour /u });
 const refreshQuote = (page: Page) =>
   page.getByRole("button", { name: "Actualiser le devis", exact: true });
 

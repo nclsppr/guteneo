@@ -27,3 +27,16 @@ export function documentSessionPolicySql(
       : `${p}.verified_account=1 AND ((${realIdentity})${allowDevelopment ? ` OR ${p}.is_development=1` : ""})`;
   return `(${authentication}) AND ${p}.verified_email IS NOT NULL AND length(trim(${p}.verified_email))>0${allowDevelopment ? "" : ` AND ${p}.is_development=0`}`;
 }
+
+/** Verified accounts use their current session; strong policy retains step-up age. */
+export function documentSessionTimeSql(
+  alias: string,
+  mode: DocumentAccessMode,
+  maxAgeSeconds = 900,
+): string {
+  if (!/^[a-z_]+$/.test(alias)) throw new Error("INVALID_SESSION_ALIAS");
+  if (!Number.isSafeInteger(maxAgeSeconds) || maxAgeSeconds <= 0)
+    throw new Error("INVALID_DOCUMENT_AUTHENTICATION_AGE");
+  const current = `CAST(strftime('%s','now') AS INTEGER)`;
+  return `${alias}.authenticated_at>0 AND ${alias}.authenticated_at<=${current}+5${mode === "strong" ? ` AND ${alias}.authenticated_at>=${current}-${maxAgeSeconds}` : ""}`;
+}

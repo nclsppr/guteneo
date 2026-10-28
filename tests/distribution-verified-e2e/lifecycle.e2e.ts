@@ -19,7 +19,7 @@ test.beforeEach(async ({ localOnly }) => {
 
 test("verified accounts with no strong proof complete sharing, automatic verified-address access and an independent personal copy", { timeout: 180000 }, async ({ app, screen, browser }) => {
   await app.open("/#/app");
-  await normalIdentity(browser, app, "atelier");
+  await normalIdentity(browser, app, "atelier", 30 * 60);
   const source = await uploadSyntheticPdf(app, screen, browser, 2);
   await app.open("/#/app/secure-distributions/new");
   await screen.getByLabel("PDF vérifié").selectOption({ value: source.id });
@@ -37,12 +37,10 @@ test("verified accounts with no strong proof complete sharing, automatic verifie
   await expect.poll(async () => (await localApi<Publication>(browser, path)).body.status, { timeout: 45000, interval: 1500 }).toBe("prepared");
   expect(await readSecureCharge(prepared.id)).toEqual([]);
   await browser.reload();
-  await expect(screen.getByRole("button", "Approuver ce partage")).toBeDisabled();
+  await expect(screen.getByRole("button", /^Simuler l’envoi pour /u)).toBeDisabled();
   await screen.getByRole("checkbox", "J’ai vérifié le document, le destinataire, les droits et le prix.").check();
   await screen.getByRole("checkbox", "Je confirme que ce destinataire a demandé cet e-mail et son document. Cet envoi ne constitue pas une prospection.").check();
-  await screen.getByRole("button", "Approuver ce partage").tap();
-  await screen.getByRole("button", "Activer le partage").tap();
-  await screen.getByRole("button", "Confirmer l’activation").tap();
+  await screen.getByRole("button", /^Simuler l’envoi pour /u).tap();
   await expect.poll(async () => (await localApi<Publication>(browser, path)).body.status).toBe("active");
   const publication = (await localApi<Publication>(browser, path)).body;
   const charge = await readSecureCharge(prepared.id);

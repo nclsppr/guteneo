@@ -1,5 +1,105 @@
 # Executed verification
 
+## Policy-aware recovery follow-up — 27 October 2026 candidate 1.1.16
+
+The preceding 1.1.15 release was merged as
+`7ff007a39694f1387cba53bf6b0fdc0761ca43e4` and published after final PR/main CI
+passed 22/22 each. Migration 0065 matched the reviewed schema, integrity was `ok`
+and foreign-key violations were zero. Guarded publication verified 352 public
+assets. Fresh public production reports passed 14/14 status and 28/28 browser
+checks for that exact commit. Those are dated 1.1.15 observations, not publication
+proof for this follow-up.
+
+Manual Safari then reproduced an authenticated workshop with personal access
+blocked. A read-only, content-free aggregate found one unexpired production
+review session with verified address, linked identity and no signed
+`authenticated_at`. Denying document access was correct. Its recovery link still
+forced `fresh=1`; ordinary bounded Auth0 entry instead reached the expected hosted
+login form. No password, successful callback or customer-document access was
+qualified by that screen.
+
+The follow-up uses ordinary SSO recovery for the verified-account personal notice
+and `DOCUMENT_AUTHENTICATION_REQUIRED`, while preserving strong/explicit freshness
+and browser-approval errors. The personal rate-limit fence now returns its
+policy-specific error after a race. All four document-authentication emitters
+were reviewed. No authentication timestamp is reconstructed, no session is
+extended, and no migration or Auth0 tenant change is introduced.
+
+Focused unit checks pass **144/144** across authentication navigation, secure web,
+secure core and personal authentication. Built-app recovery passes **6/6** across
+Chromium, mobile Chromium and iPhone WebKit, with zero skips or flaky outcomes:
+ordinary/strong recovery links preserve the safe path, omit private
+queries/fragments, and return to unchecked review with one failed approval and
+zero activation calls. The browser API/Auth0 handoff is intercepted; this does
+not prove live SSO or provider delivery. The first hosted run
+[40568759855](https://github.com/nclsppr/guteneo/actions/runs/40568759855) failed
+both new WebKit cases because its intercepted HTTP 302 completion was unsupported
+by that engine. The fixture now returns a synthetic HTML page that navigates to
+the already-asserted safe return path. Actual link clicks and every privacy,
+review-reset and no-activation assertion remain unchanged. The six-case local
+recheck reuses the same fresh frontend without rebuilding or retrying a failed
+case. The failed hosted evidence remains retained; a new exact-head run must
+qualify the corrected fixture. A transient packaging failure during
+concurrent version metadata edits preceded these browser checks; the runner used
+the freshly built candidate frontend after package synchronization, rather than
+claiming that interrupted full build passed.
+
+The synchronized 1.1.16 archive builds with the same 83 tool contracts. Local core
+JavaScript comparison is recorded in [FRONTEND_PERFORMANCE.md](FRONTEND_PERFORMANCE.md).
+Exact final-head/main CI, publication, real Auth0 callback and actual document
+delivery remain separate qualification steps. No business communication or retry
+was performed during this follow-up.
+
+## Secure delivery, session reuse and native alerts — 27 October 2026 candidate
+
+Read-only production aggregates proved two secure Resend invitations failed with
+`ACTIVE_APPROVED_ATTEMPT_REQUIRED` before provider HTTP: the final guard expected
+the complete ceiling after retention had already been committed. The cross-service
+regression reproduced this on the original source; its final six cases pass with
+the corrected transport reservation. These use actual local PDF rendering,
+isolated D1/R2, signed synthetic OAuth/JWKS, real MCP SDK/authority/domain paths,
+intercepted Resend HTTP and signed callback fixtures, not a production send.
+
+Final focused migration/pricing, plugin/archive, callback and secure/MCP journey
+checks pass 90cases in four files. Authentication/personal/approval checks pass 151
+cases; these overlap with broader verification and must not be summed. The local
+migration transport proves 65 migrations/443 equivalent schema objects, integrity
+OK and zero foreign-key violations. No migration was applied remotely.
+
+The broad three-shard backend observation passed 1,131/1,131 and 964/964 in two
+shards; the remaining shard had 837 passes, one stale package assertion and 31 cases
+blocked by an outdated migration-order fixture. Both issues were corrected and
+the affected suites pass in the focused 90-case run. This combined evidence is
+not a fresh single all-green full invocation. A separate full Node security run
+passed 450/451: the unchanged PDF-validator Python process test raised macOS
+`PermissionError` while killing a process group under concurrent load. Its
+independent 13-case recheck passed. Preserve that failure; hosted CI and Linux
+validator qualification remain separate gates.
+
+Web unit checks pass 37/37 and desktop/mobile Playwright pass 24/24, including
+single-action sending, ambiguous approval/activation recovery and legacy approval.
+Actual local verified-account lifecycles pass separately on both viewports using
+30-minute-old active identity-linked sessions. The complete strict browser run
+passed 13/14; one fixed 15-second local Wrangler credit-read failed before sending.
+Its focused phone rerun passes, and earlier failed evidence remains retained.
+No retry budget or assertion was weakened. Local frontend measurements are in
+[FRONTEND_PERFORMANCE.md](FRONTEND_PERFORMANCE.md).
+
+Typecheck, lint, application dry-run build, documentation generation/checks and
+engineering build/checks have passed during preparation. Final combined-source
+CI and actual Auth0 SSO, customer recipient journey, inbox receipt and production
+delivery require their own evidence. The rebuilt 1.1.15 plugin archive and MCP
+fingerprints are synchronized, without marketplace submission.
+
+Native Cloudflare failure/heartbeat monitors are enabled with the explicitly
+authorized email destination; their saved configuration was reread. One built-in sample email
+was also received at the authorized address at 18:37 CET. This is
+separate from the undeployed application signals and the prepared direct MCP
+Events operator contract. No business communication, production deployment,
+merge, refund, new paid service or autonomous repair was performed. See
+[OPERATIONS.md](OPERATIONS.md) for live monitor identities and receipt limits.
+
+
 ## UI, retained usage and individual PDF checks — candidate, 25 October 2026
 
 This candidate localizes file upload controls, gives native selects a stable

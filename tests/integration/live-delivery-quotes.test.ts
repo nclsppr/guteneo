@@ -148,6 +148,7 @@ beforeAll(async () => {
           "0058_secure_copy_jobs.sql",
           "0059_document_authentication_policy.sql",
           "0060_pdf_validation_per_check.sql",
+          "0065_verified_account_session_policy.sql",
         ].includes(f),
     )
     .sort())
@@ -316,6 +317,12 @@ beforeAll(async () => {
   };
   await sql(
     readFileSync(new URL("0060_pdf_validation_per_check.sql", dir), "utf8"),
+  );
+  await sql(
+    readFileSync(
+      new URL("0065_verified_account_session_policy.sql", dir),
+      "utf8",
+    ),
   );
 });
 afterAll(async () => {

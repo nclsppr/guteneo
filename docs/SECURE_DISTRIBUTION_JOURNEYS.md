@@ -9,22 +9,24 @@ Contract and journeys, updated for the 27 October 2026 source candidate. This de
 | Preparer                     | Current membership, preparation permission, accessible verified source                   | Own preparation, exact source and frozen quote                                                                |
 | Approver                     | Administrator or supervisor with approval permission; browser and current-policy session | Workspace review, approval and recipient association                                                          |
 | Renewing approver            | Same browser, current approval permission, source access and recent document session     | Replace only an eligible unsubmitted preparation; obtain new human review                                     |
-| Recipient                    | Personal principal, verified address, recent session and policy-bound association        | Own shared access and personal copies                                                                         |
+| Recipient                    | Personal principal, verified address, current-policy session and policy-bound association        | Own shared access and personal copies                                                                         |
 | Assistant / OAuth API client | Intersection of role, scopes and current connection                                      | Workspace preparation/follow-up; confirmation after browser evidence, no recipient identity or personal vault |
 | Platform operator            | Separate configuration/publication authorization                                         | Service activation; no authority derived from workspace role                                                  |
 
-Account, language and sign-in are shared. Receipt creates no sender membership; plugin installation or possession of a document address creates no rights. Verified email does not establish physical identity. The server controls document policy, never a browser field. `strong` is default; `verified_account` is the explicitly requested live choice, requiring verified account/email, linked Auth0 identity and signed recent `auth_time`, without claiming MFA or certified physical identity. Unknown values or environment/D1 disagreement close access. Reading, association and approval require authentication at most fifteen minutes old; export, deposit and deletion require five minutes.
+Account, language and sign-in are shared. Receipt creates no sender membership; plugin installation or possession of a document address creates no rights. Verified email does not establish physical identity. The server controls document policy, never a browser field. `strong` is default; `verified_account` is the explicitly requested live choice, requiring verified account/email, linked Auth0 identity and signed `auth_time` in a current session, without claiming MFA or certified physical identity. Unknown values or environment/D1 disagreement close access. With `verified_account`, a valid, unexpired and unrevoked session covers reading, association, approval, export, deposit and deletion without another document sign-in. Positive, nonfuture authentication time, verified address and exact linked identity remain mandatory. The explicit `strong` policy retains fifteen-minute authentication for reading/association/approval and five minutes for export/deposit/deletion.
 
 Passkey choice remains deferred by product request. `verified_account` changes no Auth0 setting and fabricates no strong proof; `strong` retains its qualified-method requirement. Session fields `documentAccessMode`/`documentAccessAllowed` explain browser access; every operation is rechecked server-side. Activation and connected journey remain separately qualified.
 
 In the workspace, a document-authentication or freshness refusal uses a localized
 **Verify your sign-in** notice and **Sign in again** action. Recognized recovery
 codes, including `STRONG_BROWSER_APPROVAL_REQUIRED`, are not displayed as raw
-English API text. The explicit action requests fresh login through
-`/auth/login?fresh=1` and preserves the supported interface locale and bounded
-current application route, including an existing share identifier. Query values and secondary fragments
-are stripped; external or invalid destinations fall back to the application. No automatic redirect reuses
-old SSO; returned identity and current permissions are checked again. No private
+English API text. An expired, revoked or otherwise invalid session still offers
+explicit hosted recovery under the [policy-specific recovery contract](#final-action-recovery-and-initial-sign-in).
+It preserves the supported interface locale and bounded current application
+route, including an existing share identifier. Query values and secondary
+fragments are stripped; external or invalid destinations fall back to the
+application. SSO reuse follows the ordinary bound only after the person chooses
+recovery; returned identity and current permissions are checked again. No private
 form fields are persisted for recovery, and sign-in replays no write, approval or
 activation. Recipient invitation secrets retain the separate handoff below.
 
@@ -35,7 +37,7 @@ activation. Recipient invitation secrets retain the separate handoff below.
 3. Subject/message/HTML are optional. The [document email contract](PROTECTED_EMAIL.md) defines localized workspace defaults, the V2 template and `{{document_url}}`. New invitations default to matching verified-address access; independent workspace confirmation remains an explicit policy choice.
 4. Keep the identifier/idempotency key. Rendering uses bounded durable jobs. `preparing` means neither activation nor sending; follow-up reads do not recreate preparation. Accessible pages/text derive from the verified immutable version; recipients receive no original-PDF fallback.
 5. Approvers inspect final pages or text, recipient, permissions, message and complete tax-exclusive price. Retention/invitation transport appear separately. Two explicit choices cover review and the recipient's prior email request.
-6. Approve in the browser under current document policy, then confirm activation. Assistants may confirm the exactly approved preparation under scopes and host confirmations, but never supply sensitive approval, including with expert mandates.
+6. Select the single priced **Send** action after the two review/recipient attestations. It records browser approval, then activates that immutable preparation with its stable confirmation key. There is no second activation button or confirmation dialog. A valid verified session is reused. Assistants still cannot supply sensitive approval, including with expert mandates. After returning to MCP, read the same identifier: an `active` share goes directly to tracking. Compatibility confirmation remains available only for an already approved, still-prepared invitation under current scopes/host confirmations.
 7. Activation atomically records commitments, consumption and outbox under domain guards. Live providers, scanner, billing and current capabilities remain mandatory in production.
 
 Price is per PDF/recipient. Activated terms are fully due; disabling/revoking refunds neither retention nor the funded personal option. The versioned shared contract supplies the quote, never an assistant-calculated amount. Unknown provider outcomes require reconciliation, never blind retry or automatic new preparation.
@@ -55,7 +57,7 @@ activation closed. The browser translates this into an explanation and explicit
 
 `POST /api/secure-distributions/:id/renew` is a browser-only, CSRF-protected
 operation for a current administrator or supervisor with approval permission,
-accessible source and fresh document-policy session. It accepts no replacement
+accessible source and valid document-policy session. It accepts no replacement
 recipient, document, policy, price or ceiling from the caller. It uses the stored
 source, recipient, permissions, term, notification content/language, sender and
 original monetary ceiling. Current pricing and normal preparation gates apply.
@@ -75,7 +77,7 @@ original and reuses an already-created replacement; do not invent another key.
 The browser follows the replacement's rendering and clears its review choices.
 It transfers no approval, reservation, charge or provider attempt. The person must
 review its final PDF, recipient, policy and current price, attest the email request
-again, then separately approve and activate. If that replacement later expires,
+again, then explicitly send. If that replacement later expires,
 its own identifier starts a distinct explicit renewal.
 
 Browser detail reads expose bounded renewal metadata, including quote expiry and
@@ -86,8 +88,8 @@ No tariff is refreshed, provider qualification extended or expert mandate renewe
 An unavailable price, changed source/access, failed rendering or unsafe original
 stays visible; unknown provider outcomes require reconciliation.
 
-This 27 October 2026 source candidate requires no schema or Auth0 configuration
-change. Behavior tests and release evidence are qualified separately; the
+Localized recovery alone requires no schema or Auth0 configuration change.
+The session-policy change separately requires migration 0065. Behavior tests and release evidence are qualified separately; the
 [implementation record](SECURE_DISTRIBUTION_IMPLEMENTATION.md) owns dated proof.
 
 ## Source compatibility with legacy flows
@@ -107,7 +109,7 @@ This deliberate V1 incompatibility never converts an operation exposed to legacy
 ## Receive with one account
 
 1. The link opens **My documents**. Its invitation leaves the fragment before HTTP login navigation and stays at most ten minutes in that tab's `sessionStorage`. Auth0 gets a token-free personal return; association resumes after callback. Blocked storage offers explicit reopening after sign-in. No purchase/workspace activation is required.
-2. Sign in or create the one Guteneo account. Expected-address verification and recent policy-compliant session precede association request.
+2. Sign in or create the one Guteneo account. Expected-address verification and current policy-compliant session precede association request.
 3. With the new `recipientBinding=verified_email` policy, opening the document atomically binds the matching verified address to the stable account under the current session fence. No separate password or workspace confirmation is required. This authorizes address possession, not physical identity.
 4. An explicit `independent` policy, or a historical policy with no binding field, remains pending until the workspace confirms the stable-account/intended-recipient link. Sensitive content stays unavailable. Approvers see only their own share's request. Verify a known relationship, independent channel or qualified identity, then explicitly confirm association; a self-entered name alone is not independent proof. Attestation binds displayed account/request; refresh with another candidate requires new attestation.
 5. Recipients read prepared pages, accessible text and expiry. Each delivery rechecks authority/session. Revocation prevents future deliveries without erasing received pixels.
@@ -130,7 +132,7 @@ recipient authority follows from retaining the shell.
 | Shared with me | Individual, workspace-revocable, term-limited access; original only if permitted; confirmed association required             |
 | Saved copies   | Independently delivered authorized copy, own term, personal export/deletion; workspace departure/revocation cannot remove it |
 
-**Download original PDF** is separate, explicit and requires current-policy authentication at most five minutes old. Audit distinguishes request from started transfer. Network success never proves disk saving. Later openings/copies/screenshots/printing are outside Guteneo's observation.
+**Download original PDF** is separate, explicit and requires the current-policy session, with the five-minute step-up retained only under `strong`. Audit distinguishes request from started transfer. Network success never proves disk saving. Later openings/copies/screenshots/printing are outside Guteneo's observation.
 
 **Keep a copy** explains independent retention and the workspace's inability to recall an acquired copy. Deposit is one durable operation per source/owner. Small deposits can finish in-request; others progress through bounded jobs. UI follows the same share until an activated copy identifier appears. Closing the tab cannot cancel accepted work; returning/resuming creates no second copy/charge. No success appears before durable activation. Revocation before delivery prevents acquisition; afterwards the copy remains personal.
 
@@ -190,3 +192,43 @@ Test presence claims neither passing execution, exact-commit CI, service activat
 ## Recipient email response
 
 The [recipient feedback lifecycle](EMAIL_RECIPIENT_FEEDBACK.md) adds unsubscribe/report receipts and a separate response status. An email refusal does not revoke the share, delete a copy or alter provider delivery evidence.
+
+## Final-action recovery and initial sign-in
+
+The browser never sends from rendering, refresh, focus, a failed request or an
+effect. A failed approval/activation response first requires explicit **Check
+status**. It reloads the same share without writing. Retrying the priced action
+uses the same activation key and skips a recorded approval; active state leads
+to tracking, never another send. Submitted or uncertain invitations remain
+ineligible for quote renewal or a replacement order.
+
+New verified-account browser login requests signed `auth_time` using Auth0's
+normal one-hour `max_age`, matching the unchanged application session lifetime.
+This permits SSO within that normal interval without a forced `max_age=0`
+ceremony on personal entry. Explicit fresh login/account switching and the strong
+profile retain their existing behavior. Local signed-token tests do not establish
+an actual Auth0 SSO callback; qualify that separately before release.
+
+Personal recovery under `verified_account`, and workshop recovery for
+`DOCUMENT_AUTHENTICATION_REQUIRED`, use that ordinary hosted login without
+`fresh=1`. Strong, missing/unknown personal policy and explicit freshness or
+browser-approval errors retain forced freshness. The server derives the policy;
+an error label or browser field grants no access. Recovery keeps the current safe
+application path and locale, strips private queries/invitation secrets and never
+replays approval or sending. Existing roles, recipient bindings and MCP authority
+remain unchanged.
+
+An older browser cookie can still lack signed `auth_time` despite a verified
+address and linked identity. It must obtain actual signed evidence through the
+normal authorization flow; never backfill authentication time from session
+creation or operator data. Auth0 may require primary sign-in when no suitable SSO
+session exists within the normal one-hour bound. A successful return allows the
+same valid document session to be reused afterwards. This recovery change needs
+no database migration or Auth0 tenant configuration.
+
+Migration 0065 preserves historical approval rows and updates the policy view and
+immutable approval guards together. Verified approval lifetime remains bounded by
+fifteen minutes from approval, actual browser/personal session expiry and quote
+expiry. Revocation, changed identity, missing verification, tenant permissions and
+configuration disagreement still close access; the policy never extends a session,
+creates assistant approval or changes an expert mandate.

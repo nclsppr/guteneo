@@ -47,3 +47,12 @@ npm run test:distribution -- --config e2e.verified-account.config.ts
 It starts only the isolated local Worker with `SENSITIVE_DOCUMENT_AUTHENTICATION=verified_account` and `AUTH0_AUTH_POLICY=verified_email`. The fixture explicitly sets the isolated `secure_document_authentication_policy` singleton to the same mode; application code never changes that operator policy automatically. A Node-side fixture persists fictional Auth0 identities and normal sessions with current authentication timestamps, verified accounts and emails, `amr=["pwd"]`, `mfa=0`, `strong_authentication=0`, `authentication_policy_version=NULL` and `is_development=0`. It installs genuine HttpOnly browser cookies. No application test endpoint, intercepted authorization response or client-side boolean supplies access; the browser exercises the normal session, identity, membership, CSRF and final SQL guards. Cookie/CSRF fixture secrets stay in a private `0600` ledger under the isolated state directory; the wrapper independently refuses publication if they appear in reports or the server log.
 
 This scenario covers browser preparation/review/activation, the invitation claim remaining unreadable until independent workshop association, page viewing, refusal of the shared original, permitted copy and exact-byte export, a different account's refusal, workshop revocation and continued ownership of the acquired copy without another charge. These are synthetic persisted session fixtures: signed Auth0 callback parsing has separate unit coverage, and no live Auth0 enrollment, authentication or production delivery is claimed.
+
+## Isolate concurrent local runs
+
+Optional `GUTENEO_DISTRIBUTION_E2E_PORT` and `GUTENEO_LOCAL_RENDERER_PORT` select
+distinct integer ports 1024–65535; defaults remain 8787/8788. The shared test helper
+always derives an HTTP localhost origin, and local-only egress checks/cookies
+use that exact origin. It accepts no hostname, URL, credential or production
+configuration. This permits separate test checkouts without reusing or stopping
+another task's server. Use an independent persisted fixture directory as usual.

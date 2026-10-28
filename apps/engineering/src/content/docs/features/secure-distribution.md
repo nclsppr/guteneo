@@ -1,6 +1,6 @@
 ---
 title: "Sensitive distribution and personal documents"
-description: "28 capabilities in the deliver branch of Guteneo."
+description: "30 capabilities in the deliver branch of Guteneo."
 sidebar:
   order: 10
 ---
@@ -46,6 +46,8 @@ Implemented candidate with migrations 0055–0059 and separate deterministic str
 <li id="feature-3b2aae178e2b">Personal focus/visibility session reconciliation is bounded and cleaned up; changed identity remounts document state, obsolete results are ignored and list retry does not reload a still-valid session; recipient/document-policy/server authorization remains unchanged</li>
 <li id="feature-818812db2d75">Secure distribution list, composer, detail and reader reuse the shared V2 workspace/personal surfaces, typography, controls, facts and responsive spacing; the saved Classic layout and each authorization boundary remain unchanged</li>
 <li id="feature-58b495c5faae">Personal section changes retain the mounted authenticated shell while capturing and removing each new invitation before children render; no redundant personal-session bootstrap precedes the next page. Initial entry, bounded visible-tab revalidation, identity-change remounts and current server authorization remain required</li>
+<li id="feature-a57a041d1487">Provider preflight validates the transport reservation after deducting already committed secure retention/personal-copy charges from the immutable total ceiling; it retains all active attempt, approval, sender and tenant checks</li>
+<li id="feature-8a4676396a87">One explicit priced browser Send action records approval then activation after two attestations; a failed response requires read-only Check status before same-key recovery, without effect-driven writes or another MCP confirmation after active readback</li>
 </ol>
 
 ## REST operations

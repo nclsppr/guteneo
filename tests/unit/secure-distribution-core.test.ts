@@ -722,6 +722,70 @@ describe("secure distribution — asynchronous preparation and paid acceptance",
         .first(),
     ).toEqual({ n: 0 });
   });
+  it("observes a durable preparation failure once without exporting private error details", async () => {
+    const f = await fixture();
+    const marker = "private-recipient@example.test signed-url secret-document";
+    f.renderer.mockRejectedValueOnce(new Error(marker));
+    const p = await f.service.prepare(
+      f.ctx,
+      secureDistributionInputSchema.parse({
+        documentId: f.source.id,
+        recipient: { address: f.recipient.email! },
+      }),
+      id("failed-render-observation"),
+    );
+    const log = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    try {
+      await f.service.processRender(p.id);
+      await f.service.processRender(p.id);
+      expect(log).toHaveBeenCalledTimes(1);
+      expect(log.mock.calls[0][0]).toMatchObject({
+        component: "app",
+        event: "queue",
+        route: "distribution",
+        code: "SECURE_PREPARATION_FAILED",
+        failed: 1,
+      });
+      const output = JSON.stringify(log.mock.calls);
+      for (const value of [marker, p.id, f.organizationId, f.recipient.email!])
+        expect(output).not.toContain(value);
+      expect(await f.service.get(f.ctx, p.id)).toMatchObject({
+        status: "failed",
+        dispatchId: null,
+      });
+    } finally {
+      log.mockRestore();
+    }
+  });
+  it("observes exhausted secure-render jobs once without retrying preparation", async () => {
+    const f = await fixture();
+    const p = await f.service.prepare(
+      f.ctx,
+      secureDistributionInputSchema.parse({
+        documentId: f.source.id,
+        recipient: { address: f.recipient.email! },
+      }),
+      id("exhausted-render-observation"),
+    );
+    const log = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    try {
+      await f.service.failRender(p.id);
+      await f.service.failRender(p.id);
+      await f.service.processRender(p.id);
+      expect(log).toHaveBeenCalledTimes(1);
+      expect(log.mock.calls[0][0]).toMatchObject({
+        code: "SECURE_PREPARATION_FAILED",
+        failed: 1,
+      });
+      expect(f.renderer).not.toHaveBeenCalled();
+      expect(await f.service.get(f.ctx, p.id)).toMatchObject({
+        status: "failed",
+        dispatchId: null,
+      });
+    } finally {
+      log.mockRestore();
+    }
+  });
   it.each(["simulation", "production"] as const)(
     "charges a %s term once, separates transport and never refunds revocation",
     async (mode) => {
@@ -1162,9 +1226,39 @@ describe("personal copies — independent ownership and final authorization", ()
         .bind(accessMode === "strong" ? "verified_account" : "strong")
         .run();
       await expect(f.personal.list(f.recipient)).rejects.toMatchObject({
-        code: "DOCUMENT_AUTHENTICATION_REQUIRED",
+        code:
+          accessMode === "verified_account"
+            ? "DOCUMENT_AUTHENTICATION_REQUIRED"
+            : "STRONG_AUTHENTICATION_REQUIRED",
         status: 403,
       });
+    },
+  );
+
+  it.each(["strong", "verified_account"] as const)(
+    "keeps %s recovery when the current session is revoked after authentication",
+    async (accessMode) => {
+      const f = await fixture("simulation", 1, accessMode);
+      await db
+        .prepare("DELETE FROM personal_sessions WHERE token_hash=?")
+        .bind(f.recipient.tokenHash)
+        .run();
+      await expect(f.personal.list(f.recipient)).rejects.toMatchObject({
+        code:
+          accessMode === "verified_account"
+            ? "DOCUMENT_AUTHENTICATION_REQUIRED"
+            : "STRONG_AUTHENTICATION_REQUIRED",
+        status: 403,
+      });
+      expect(
+        await db
+          .prepare(
+            "SELECT count(*) n FROM secure_document_rate_limits WHERE scope_hash=?",
+          )
+          .bind(await secureSha256(`personal-documents:${f.recipient.userId}`))
+          .first(),
+      ).toEqual({ n: 0 });
+      expect(f.queue).not.toHaveBeenCalled();
     },
   );
 
@@ -1324,10 +1418,9 @@ describe("personal copies — independent ownership and final authorization", ()
   });
   it.each(
     (["strong", "verified_account"] as const).flatMap((accessMode) =>
-      (["stale", "expired", "revoked"] as const).map((failure) => ({
-        accessMode,
-        failure,
-      })),
+      (["stale", "expired", "revoked"] as const)
+        .filter((failure) => accessMode === "strong" || failure !== "stale")
+        .map((failure) => ({ accessMode, failure })),
     ),
   )(
     "resumes the same paid copy in $accessMode after $failure during final R2 awaits",
@@ -1592,9 +1685,9 @@ describe("personal copies — independent ownership and final authorization", ()
   );
   it.each(
     (["strong", "verified_account"] as const).flatMap((accessMode) =>
-      (["expired", "revoked", "stale", "share_revoked"] as const).map(
-        (change) => ({ accessMode, change }),
-      ),
+      (["expired", "revoked", "stale", "share_revoked"] as const)
+        .filter((change) => accessMode === "strong" || change !== "stale")
+        .map((change) => ({ accessMode, change })),
     ),
   )(
     "withholds decrypted page bytes in $accessMode when $change wins before authorization",
@@ -1652,9 +1745,18 @@ describe("personal copies — independent ownership and final authorization", ()
       ).toEqual({ n: 0 });
     },
   );
-  it("runs the verified-account lifecycle with no invented strong evidence, preserving account boundaries and fees", async () => {
-    const f = await fixture("production", 1, "verified_account"),
-      share = await bound(f);
+  it("uses the existing two-hour-old verified session through approval, reading and personal-copy operations", async () => {
+    const f = await fixture("production", 1, "verified_account");
+    const authenticatedAt = Math.floor(Date.now() / 1000) - 7200;
+    await db
+      .prepare(
+        "UPDATE personal_sessions SET authenticated_at=? WHERE token_hash IN (?,?)",
+      )
+      .bind(authenticatedAt, f.owner.tokenHash, f.recipient.tokenHash)
+      .run();
+    f.owner.authenticatedAt = authenticatedAt;
+    f.recipient.authenticatedAt = authenticatedAt;
+    const share = await bound(f);
     expect(f.owner).toMatchObject({
       identityVerified: true,
       mfa: false,
@@ -1718,7 +1820,12 @@ describe("personal copies — independent ownership and final authorization", ()
         };
       }) as R2Bucket["list"],
     });
-    await maintainDocuments({ ...f.env, DOCUMENTS: aged });
+    // Maintenance visits one bounded page; shared fixtures may span several.
+    const objectCount = (await bucket.list({ limit: 1000 })).objects.length;
+    for (let page = 0; page <= Math.ceil(objectCount / 50); page++) {
+      await maintainDocuments({ ...f.env, DOCUMENTS: aged });
+      if (!(await bucket.head(orphan))) break;
+    }
     expect(await bucket.head(orphan)).toBeNull();
     expect(await bucket.head(personalKey)).not.toBeNull();
     expect(await bucket.head(p.row.original_key!)).not.toBeNull();
@@ -1794,7 +1901,7 @@ describe("personal copies — independent ownership and final authorization", ()
 });
 
 describe("account document invitations", () => {
-  it.each(["stale", "expired", "unverified", "revoked"] as const)(
+  it.each(["expired", "unverified", "revoked"] as const)(
     "refuses automatic binding when the persisted personal session is %s",
     async (change) => {
       const f = await fixture("simulation", 1, "verified_account");
@@ -1805,13 +1912,11 @@ describe("account document invitations", () => {
         share.row.sealed_token,
       );
       const statement =
-        change === "stale"
-          ? "UPDATE personal_sessions SET authenticated_at=1 WHERE token_hash=?"
-          : change === "expired"
-            ? "UPDATE personal_sessions SET expires_at='2000-01-01T00:00:00.000Z' WHERE token_hash=?"
-            : change === "unverified"
-              ? "UPDATE personal_sessions SET verified_email=NULL,verified_account=0 WHERE token_hash=?"
-              : "DELETE FROM personal_sessions WHERE token_hash=?";
+        change === "expired"
+          ? "UPDATE personal_sessions SET expires_at='2000-01-01T00:00:00.000Z' WHERE token_hash=?"
+          : change === "unverified"
+            ? "UPDATE personal_sessions SET verified_email=NULL,verified_account=0 WHERE token_hash=?"
+            : "DELETE FROM personal_sessions WHERE token_hash=?";
       await db.prepare(statement).bind(f.recipient.tokenHash).run();
       await expect(f.personal.claim(f.recipient, token)).rejects.toThrow();
       expect(

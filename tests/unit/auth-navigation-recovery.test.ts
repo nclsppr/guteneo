@@ -1,5 +1,8 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { freshWorkspaceAuthenticationHref } from "../../apps/web/src/auth-navigation";
+import {
+  freshWorkspaceAuthenticationHref,
+  workspaceAuthenticationRecoveryHref,
+} from "../../apps/web/src/auth-navigation";
 import { setLocale } from "../../apps/web/src/locale";
 
 afterEach(() => {
@@ -48,6 +51,28 @@ describe("fresh browser authentication navigation", () => {
     );
   });
 
+  it("uses the same sanitized hosted recovery without forcing a fresh login", () => {
+    vi.stubGlobal("window", {
+      location: {
+        hostname: "localhost",
+        hash: "#/app/secure-distribution/sd_fixture?invitation=secret&message=private#password",
+      },
+    });
+    const href = new URL(
+      workspaceAuthenticationRecoveryHref(false),
+      "https://guteneo.invalid",
+    );
+    expect(href.pathname).toBe("/auth/login");
+    expect(href.searchParams.get("returnTo")).toBe(
+      "/#/app/secure-distribution/sd_fixture",
+    );
+    expect([...href.searchParams.keys()]).toEqual(["locale", "returnTo"]);
+    expect(href.href).not.toMatch(/secret|private|password|fresh/u);
+    expect(workspaceAuthenticationRecoveryHref()).toBe(
+      freshWorkspaceAuthenticationHref(),
+    );
+  });
+
   for (const path of [
     "#https://example.invalid/app",
     "#//example.invalid/app",
@@ -60,6 +85,12 @@ describe("fresh browser authentication navigation", () => {
   ]) {
     it(`rejects a non-application or invalid return target ${path.slice(0, 50)}`, () => {
       expect(returnTo(path)).toBe("/#/app");
+      expect(
+        new URL(
+          workspaceAuthenticationRecoveryHref(false),
+          "https://guteneo.invalid",
+        ).searchParams.get("returnTo"),
+      ).toBe("/#/app");
     });
   }
 });

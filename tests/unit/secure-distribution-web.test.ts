@@ -139,28 +139,44 @@ describe("secure distribution browser choices", () => {
     });
   }
 
-  it("returns to the exact share after document authentication expires", () => {
-    vi.stubGlobal("window", {
-      location: { hash: "#/app/secure-distribution/sd_fixture?view=approval" },
+  for (const locale of ["fr", "en", "de", "lb"] as const) {
+    it(`returns to the exact share through ordinary document authentication in ${locale}`, () => {
+      setLocale(locale, false);
+      vi.stubGlobal("window", {
+        location: {
+          hash: "#/app/secure-distribution/sd_fixture?view=approval&invitation=private-invitation#private-fragment",
+          hostname: "localhost",
+        },
+      });
+      const html = renderToStaticMarkup(
+        createElement(ErrorNotice, {
+          error: new ApiError(
+            "DOCUMENT_AUTHENTICATION_REQUIRED",
+            "Session expired",
+            403,
+          ),
+        }),
+      );
+      const href = html.match(/href="([^"]+)"/u)![1].replaceAll("&amp;", "&");
+      const destination = new URL(href, "https://guteneo.example.test");
+      expect(destination.pathname).toBe("/auth/login");
+      expect(destination.searchParams.get("locale")).toBe(locale);
+      expect(destination.searchParams.get("returnTo")).toBe(
+        "/#/app/secure-distribution/sd_fixture",
+      );
+      expect([...destination.searchParams.keys()]).toEqual([
+        "locale",
+        "returnTo",
+      ]);
+      expect(href).not.toMatch(/private|approval|fresh/u);
+      expect(html).toContain(t.sessionExpired.action);
+      expect(html).toContain(msg("Verify your sign-in"));
+      expect(html).not.toContain("DOCUMENT_AUTHENTICATION_REQUIRED");
+      expect(html).not.toContain(msg("Stronger sign-in required"));
     });
-    const html = renderToStaticMarkup(
-      createElement(ErrorNotice, {
-        error: new ApiError(
-          "DOCUMENT_AUTHENTICATION_REQUIRED",
-          "Session expired",
-          403,
-        ),
-      }),
-    );
-    expect(html).toContain(
-      "/auth/login?fresh=1&amp;locale=fr&amp;returnTo=%2F%23%2Fapp%2Fsecure-distribution%2Fsd_fixture",
-    );
-    expect(html).toContain(t.sessionExpired.action);
-    expect(html).toContain(msg("Verify your sign-in"));
-    expect(html).not.toContain("DOCUMENT_AUTHENTICATION_REQUIRED");
-    expect(html).not.toContain(msg("Stronger sign-in required"));
-  });
+  }
   for (const code of [
+    "STRONG_AUTHENTICATION_REQUIRED",
     "STRONG_BROWSER_APPROVAL_REQUIRED",
     "FRESH_AUTHENTICATION_REQUIRED",
     "AUTHENTICATION_FRESHNESS_REQUIRED",
@@ -177,10 +193,13 @@ describe("secure distribution browser choices", () => {
           }),
         );
         const copy =
-          "Sign in again to verify your access. You will return to this page.";
+          code === "STRONG_AUTHENTICATION_REQUIRED"
+            ? "Sign in again using the required security method to access your documents."
+            : "Sign in again to verify your access. You will return to this page.";
         expect(html).toContain(msg(copy));
         expect(html).toContain(t.sessionExpired.action);
         expect(html).toContain(`locale=${locale}`);
+        expect(html).toContain("fresh=1");
         expect(html).not.toContain(code);
         expect(html).not.toContain("Technical provider response");
         if (locale !== "en") expect(msg(copy)).not.toBe(copy);
@@ -189,7 +208,12 @@ describe("secure distribution browser choices", () => {
   }
   for (const locale of ["fr", "en", "de", "lb"] as const) {
     it(`uses the verified-account recovery wording in ${locale} without requiring stronger sign-in`, () => {
-      vi.stubGlobal("window", { location: { hash: "#/app/my-documents" } });
+      const invitation = "a".repeat(64);
+      vi.stubGlobal("window", {
+        location: {
+          hash: `#/app/my-documents?kind=personal&invitation=${invitation}&q=private-fixture-search`,
+        },
+      });
       setLocale(locale, false);
       const html = renderToStaticMarkup(
         createElement(PersonalSecurityNotice, { mode: "verified_account" }),
@@ -199,10 +223,36 @@ describe("secure distribution browser choices", () => {
         msg("Sign in again to your verified account to access your documents."),
       );
       expect(html).not.toContain(msg("Stronger sign-in required"));
+      const href = html.match(/href="([^"]+)"/u)![1].replaceAll("&amp;", "&");
+      const destination = new URL(href, "https://guteneo.example.test");
+      expect(destination.pathname).toBe("/auth/login");
+      expect(destination.searchParams.get("context")).toBe("personal");
+      expect(destination.searchParams.get("locale")).toBe(locale);
+      expect(destination.searchParams.get("returnTo")).toBe(
+        "/#/app/my-documents?kind=personal",
+      );
+      expect(destination.searchParams.has("fresh")).toBe(false);
+      expect(href).not.toContain(invitation);
+      expect(href).not.toContain("private-fixture-search");
       if (locale !== "en")
         expect(msg("Verify your sign-in")).not.toBe("Verify your sign-in");
     });
   }
+  it.each(["strong", undefined, "unknown"])(
+    "retains fresh authentication for personal recovery with mode=%s",
+    (mode) => {
+      vi.stubGlobal("window", { location: { hash: "#/app/my-documents" } });
+      const html = renderToStaticMarkup(
+        createElement(PersonalSecurityNotice, { mode: mode as never }),
+      );
+      const href = html.match(/href="([^"]+)"/u)![1].replaceAll("&amp;", "&");
+      const destination = new URL(href, "https://guteneo.example.test");
+      expect(destination.pathname).toBe("/auth/login");
+      expect(destination.searchParams.get("context")).toBe("personal");
+      expect(destination.searchParams.get("fresh")).toBe("1");
+      expect(html).toContain(msg("Stronger sign-in required"));
+    },
+  );
   it("offers explicit pagination when the first document page has no verified PDF", () => {
     resources.set("/secure-distributions/catalog", secureDistributionCatalog());
     resources.set("/documents", {
@@ -230,6 +280,36 @@ describe("secure distribution browser choices", () => {
     expect(html).toContain("0,99");
   });
   for (const locale of ["fr", "en", "de", "lb"] as const) {
+    it.each([false, true])(
+      `uses one priced send control in ${locale} with approved=%s`,
+      (approved) => {
+        setLocale(locale, false);
+        const view = {
+          ...publication(),
+          status: "prepared" as const,
+          approved,
+        };
+        resources.set(`/secure-distributions/${view.id}`, view);
+        const html = render(`/app/secure-distribution/${view.id}`, {
+          ...session,
+          simulation: false,
+        });
+        expect(html).toContain(msg("Send for"));
+        expect(html).toContain(msg(" excl. tax"));
+        expect(html).toContain(msg("Shared document preview"));
+        expect(html).not.toContain(msg("Approve this share"));
+        expect(html).not.toContain(msg("Confirm activation"));
+        expect(html).not.toContain(
+          msg(
+            "Review the PDF, recipient, permissions and price. Approval and activation are separate steps.",
+          ),
+        );
+        expect((html.match(/type="checkbox"/g) ?? []).length).toBe(
+          approved ? 0 : 2,
+        );
+        if (locale !== "en") expect(msg("Send for")).not.toBe("Send for");
+      },
+    );
     it(`explains in ${locale} that a personal copy is exportable despite the original download restriction`, () => {
       setLocale(locale, false);
       const view = publication();
@@ -257,6 +337,7 @@ describe("secure distribution browser choices", () => {
     });
     expect(html).not.toContain(msg("Approve this share"));
     expect(html).not.toContain(msg("Confirm activation"));
+    expect(html).not.toContain(msg("Simulate sending for"));
     expect(html).not.toContain('type="checkbox"');
   });
 });

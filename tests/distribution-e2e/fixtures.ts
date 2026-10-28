@@ -7,6 +7,7 @@ import { promisify } from "node:util";
 import { resetLocalFixtures } from "../e2e/local-fixture-reset";
 import { mkdir, writeFile } from "node:fs/promises";
 import { PDFDocument } from "pdf-lib";
+import { distributionOrigin } from "../../scripts/test-distribution-origin.mjs";
 
 export { expect } from "e2e";
 export { readSecureCharge } from "./secure-charge-read";
@@ -88,7 +89,7 @@ export const test = base.extend<{ localOnly: void }>({
   localOnly: async ({ browser }, use) => {
     await browser.route("**/*", async (route) => {
       const url = new URL(route.request.url);
-      if (url.origin === "http://localhost:8787") await route.continue();
+      if (url.origin === distributionOrigin) await route.continue();
       else await route.abort();
     });
     await use();

@@ -5,6 +5,7 @@ import {
   setRecipientStudioMembershipFixture,
   test,
 } from "./fixtures";
+import { distributionOrigin } from "../../scripts/test-distribution-origin.mjs";
 
 test.beforeEach(async () => {
   await resetRecipientWorkspaceFixture();
@@ -100,7 +101,7 @@ test("a recipient has one account, no automatic workshop, and voluntary access t
     screen.getByRole("button", "Se déconnecter").tap(),
   ]);
   expect(signedOut.status).toBe(200);
-  await expect(browser).toHaveURL("http://localhost:8787/");
+  await expect(browser).toHaveURL(`${distributionOrigin}/`);
   await expect(browser.locator("main")).toBeVisible();
   const publicAfterLogout = await browser.evaluate(async () => {
     const status = (await fetch("/api/personal/session")).status;
@@ -189,7 +190,7 @@ test("creating and selecting a workshop reloads its session without changing the
       screen.getByRole("button", "Ouvrir mon atelier").tap(),
     ]);
     expect(selectedResponse.status).toBe(200);
-    await expect(browser).toHaveURL("http://localhost:8787/#/app/secure-distributions/new");
+    await expect(browser).toHaveURL(`${distributionOrigin}/#/app/secure-distributions/new`);
     await expect(screen.getByRole("heading", "Nouveau partage sécurisé")).toBeVisible();
     const selected = await localApi<{
       user: { id: string; role: string };

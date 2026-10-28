@@ -103,7 +103,7 @@ test(
       .toMatchObject({ status: "prepared", dispatchId: expect.any(String) });
     await browser.reload();
     await expect(
-      screen.getByRole("button", "Approuver ce partage"),
+      screen.getByRole("button", /^Simuler l’envoi pour /u),
     ).toBeDisabled();
   },
 );

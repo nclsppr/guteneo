@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import {
   ArrowLeft,
   ArrowRight,
@@ -535,6 +535,8 @@ function SecureDistributionDetail({
   const action = useAction();
   const [reviewed, setReviewed] = useState(false);
   const [recipientRequested, setRecipientRequested] = useState(false);
+  const [needsStatusCheck, setNeedsStatusCheck] = useState(false);
+  const sending = useRef(false);
   const [quoteRejected, setQuoteRejected] = useState(false);
   const [auditVersion, setAuditVersion] = useState(0);
   const [reviewedClaim, setReviewedClaim] = useState<string | null>(null);
@@ -582,28 +584,77 @@ function SecureDistributionDetail({
       document.removeEventListener("visibilitychange", onVisible);
     };
   }, [shouldPoll, refresh, pollingDelay]);
-  async function mutate(operation: "approve" | "activate" | "revoke") {
+  async function send() {
+    if (
+      !publication ||
+      sending.current ||
+      action.pending ||
+      resource.loading ||
+      resource.error ||
+      needsQuoteRefresh ||
+      needsStatusCheck ||
+      (!publication.approved && (!reviewed || !recipientRequested))
+    )
+      return;
+    sending.current = true;
     await action.run(async () => {
       try {
-        await api(
-          `/secure-distributions/${encodeURIComponent(id)}/${operation}`,
-          {
-            method: "POST",
-            key: `${id}:${operation}`,
-            body:
-              operation === "approve"
-                ? { reviewed: true, recipientRequested }
-                : {},
-          },
-        );
+        let current = publication;
+        if (!current.approved) {
+          current = await api<SecurePublication>(
+            `/secure-distributions/${encodeURIComponent(id)}/approve`,
+            {
+              method: "POST",
+              key: `${id}:approve`,
+              body: { reviewed: true, recipientRequested },
+            },
+          );
+          resource.setData(current);
+        }
+        if (current.status === "prepared") {
+          const activated = await api<SecurePublication>(
+            `/secure-distributions/${encodeURIComponent(id)}/activate`,
+            {
+              method: "POST",
+              key: `${id}:activate`,
+              body: {},
+            },
+          );
+          resource.setData(activated);
+        }
+        setAuditVersion((value) => value + 1);
       } catch (error) {
         if (error instanceof ApiError && error.code === "LIVE_QUOTE_INVALID") {
           setQuoteRejected(true);
           setReviewed(false);
           setRecipientRequested(false);
+        } else {
+          // Approval or acceptance may have committed despite a lost reply.
+          // Only an explicit status read can reopen the existing action.
+          setNeedsStatusCheck(true);
         }
         throw error;
+      } finally {
+        sending.current = false;
       }
+    });
+  }
+  async function checkStatus() {
+    await action.run(async () => {
+      const current = await api<SecurePublication>(
+        `/secure-distributions/${encodeURIComponent(id)}`,
+      );
+      resource.setData(current);
+      setNeedsStatusCheck(false);
+    });
+  }
+  async function revoke() {
+    await action.run(async () => {
+      await api(`/secure-distributions/${encodeURIComponent(id)}/revoke`, {
+        method: "POST",
+        key: `${id}:revoke`,
+        body: {},
+      });
       resource.refresh();
     });
   }
@@ -778,7 +829,7 @@ function SecureDistributionDetail({
                 </p>
               </section>
             )}
-            {publication.status === "prepared" && !publication.approved && (
+            {publication.status === "prepared" && (
               <>
                 <PreparedDistributionPreview
                   publication={publication}
@@ -786,56 +837,70 @@ function SecureDistributionDetail({
                 />
                 <section className="secure-document-panel">
                   <h2>{msg("Share approval")}</h2>
-                  <p>
-                    {msg(
-                      "Review the PDF, recipient, permissions and price. Approval and activation are separate steps.",
-                    )}
-                  </p>
                   {permissions.approveDispatches ? (
                     <>
-                      <label className="secure-document-check">
-                        <input
-                          type="checkbox"
-                          checked={reviewed}
-                          disabled={needsQuoteRefresh || action.pending}
-                          onChange={(event) =>
-                            setReviewed(event.target.checked)
-                          }
-                        />
-                        <span>
-                          {msg(
-                            "I have reviewed the document, recipient, permissions and price.",
-                          )}
-                        </span>
-                      </label>
-                      <label className="secure-document-check">
-                        <input
-                          type="checkbox"
-                          checked={recipientRequested}
-                          disabled={needsQuoteRefresh || action.pending}
-                          onChange={(event) =>
-                            setRecipientRequested(event.target.checked)
-                          }
-                        />
-                        <span>
-                          {msg(
-                            "I confirm that this recipient requested this email and its document. This delivery is not marketing outreach.",
-                          )}
-                        </span>
-                      </label>
+                      {!publication.approved && (
+                        <>
+                          <label className="secure-document-check">
+                            <input
+                              type="checkbox"
+                              checked={reviewed}
+                              disabled={
+                                needsQuoteRefresh ||
+                                action.pending ||
+                                needsStatusCheck
+                              }
+                              onChange={(event) =>
+                                setReviewed(event.target.checked)
+                              }
+                            />
+                            <span>
+                              {msg(
+                                "I have reviewed the document, recipient, permissions and price.",
+                              )}
+                            </span>
+                          </label>
+                          <label className="secure-document-check">
+                            <input
+                              type="checkbox"
+                              checked={recipientRequested}
+                              disabled={
+                                needsQuoteRefresh ||
+                                action.pending ||
+                                needsStatusCheck
+                              }
+                              onChange={(event) =>
+                                setRecipientRequested(event.target.checked)
+                              }
+                            />
+                            <span>
+                              {msg(
+                                "I confirm that this recipient requested this email and its document. This delivery is not marketing outreach.",
+                              )}
+                            </span>
+                          </label>
+                        </>
+                      )}
                       <button
                         className="button primary"
                         type="button"
                         disabled={
-                          !reviewed ||
-                          !recipientRequested ||
+                          (!publication.approved &&
+                            (!reviewed || !recipientRequested)) ||
                           needsQuoteRefresh ||
+                          needsStatusCheck ||
+                          resource.loading ||
+                          Boolean(resource.error) ||
                           action.pending
                         }
-                        onClick={() => void mutate("approve")}
+                        onClick={() => void send()}
                       >
                         <ShieldCheck size={18} aria-hidden="true" />
-                        {msg("Approve this share")}
+                        {action.pending &&
+                        !needsStatusCheck &&
+                        !needsQuoteRefresh
+                          ? msg("Sending…")
+                          : `${session.simulation ? msg("Simulate sending for") : msg("Send for")} ${money(publication.quote.totalMinor)}${msg(" excl. tax")}`}
                       </button>
                     </>
                   ) : (
@@ -844,29 +909,6 @@ function SecureDistributionDetail({
                 </section>
               </>
             )}
-            {publication.status === "prepared" &&
-              publication.approved &&
-              permissions.approveDispatches && (
-                <section className="secure-document-panel">
-                  <h2>{msg("Activate share")}</h2>
-                  <p>
-                    {msg(
-                      "This activates the paid term and prepares the invitation. The price remains payable if you later revoke the share.",
-                    )}
-                  </p>
-                  <ConfirmAction
-                    className="button primary"
-                    label={msg("Activate share")}
-                    question={msg(
-                      "Activate this share for {0} excluding tax?",
-                      money(publication.quote.totalMinor),
-                    )}
-                    confirmLabel={msg("Confirm activation")}
-                    disabled={action.pending || needsQuoteRefresh}
-                    onConfirm={() => void mutate("activate")}
-                  />
-                </section>
-              )}
             {publication.status === "active" &&
               publication.pendingClaim &&
               permissions.approveDispatches && (
@@ -943,7 +985,7 @@ function SecureDistributionDetail({
                     question={msg("Block new access without a refund?")}
                     confirmLabel={msg("Revoke access")}
                     disabled={action.pending}
-                    onConfirm={() => void mutate("revoke")}
+                    onConfirm={() => void revoke()}
                   />
                 </section>
               )}
@@ -991,6 +1033,16 @@ function SecureDistributionDetail({
                   : action.error
               }
             />
+            {needsStatusCheck && (
+              <button
+                className="button"
+                type="button"
+                disabled={action.pending}
+                onClick={() => void checkStatus()}
+              >
+                {action.pending ? msg("Checking status…") : msg("Check status")}
+              </button>
+            )}
             <section className="secure-document-panel">
               <h2>{msg("Workspace log")}</h2>
               {publication.status === "active" && (

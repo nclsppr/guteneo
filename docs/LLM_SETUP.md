@@ -606,3 +606,34 @@ For every directory reread current portal state; distinguish submission,
 review, approval and publication. MCP Inspector/local tests establish neither
 installation nor directory publication. Each host/additional journey needs
 its own qualification.
+
+## Secure sending through the existing review — 1.1.15 candidate
+
+The assistant prepares a ready PDF once, reads the same identifier while rendering
+and presents its actual quote/approvalUrl. The browser now offers one priced Send
+action that records approval and activates the invitation. With verified-account
+policy it reuses the valid session, with no separate document sign-in. Returning
+to MCP requires a status read: active state goes directly to tracking. Only a
+still-prepared invitation with recorded approval needs compatibility confirmation.
+Unknown responses never authorize a new order or resend. The explicit strong
+policy, human review, OAuth scopes and host confirmations retain their authority.
+
+The synchronized portable/Claude/Cursor instructions and rebuilt ZIP carry this
+flow together. Source/SDK fixtures do not qualify an actual ChatGPT/Claude login,
+OAuth reconnection, file handoff or inbox delivery. Keep the current plugin
+identity/history; packaging does not authorize submission or publication.
+
+## Browser recovery compatibility — 1.1.16 candidate
+
+The [document recovery contract](SECURE_DISTRIBUTION_JOURNEYS.md#final-action-recovery-and-initial-sign-in)
+allows bounded ordinary SSO for verified-account recovery. Strong and explicit
+freshness refusals still require the existing fresh path. Missing signed
+authentication time in an older cookie is never manufactured. An assistant
+follows the actual browser result, reads the same preparation afterwards and
+never treats recovery as human approval or replays a sending command.
+
+This patch retains the existing tool schemas, annotations, permissions and host
+confirmations. The application/package manifests and portable/Claude/Cursor
+versions are synchronized at 1.1.16, with a rebuilt and validated downloadable
+archive. Packaging proves neither installation in the current host nor OAuth
+reconnection, callback success or actual document delivery.

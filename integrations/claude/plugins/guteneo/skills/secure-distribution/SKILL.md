@@ -31,14 +31,20 @@ personal vault or claims to have verified their identity.
 5. Before activation, explain that the funded term is non-refundable even if
    the workspace disables sharing before expiry. Have the person open
    `approvalUrl` to review content, recipient, rights and price in the Guteneo
-   browser under the active document authentication policy. Neither chat consent
+   browser. Under `verified_account`, the current verified session is reused; no
+   separate document authentication is required while it remains valid. The
+   explicit `strong` policy retains its step-up requirements. Neither chat consent
    nor an expert mandate replaces this specific approval. If the quote expires,
    direct the person to Refresh quote in that same browser review. Guteneo
    supersedes only an unsubmitted preparation and opens a replacement for fresh
    human review; use the replacement identifier afterwards. Never extend a quote,
    infer approval or recreate an uncertain or already accepted distribution.
-6. After recorded browser approval, call `confirm_secure_distribution` with
-   the identifier and a stable key, subject to host confirmations. After a lost
+6. The browser final **Send** action records human approval and activation.
+   Query `get_secure_distribution` afterwards: if `active`, continue directly to
+   tracking, without requesting another chat confirmation or sending command.
+   Only if it remains `prepared` with recorded approval, use the compatibility
+   `confirm_secure_distribution` operation with the identifier and a stable key,
+   subject to host confirmations. After a lost
    or uncertain outcome, query the same identifier without a new command or
    automatic new sending. Preparation-only review accounts retain their
    restrictions.

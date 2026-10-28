@@ -184,9 +184,17 @@ published work unmistakably separate.
 
 The 26 October 2026 candidate makes a PDF email prepared through `prepare_dispatch`
 use the same account invitation as `prepare_secure_distribution`. Inspect the
-returned secure-distribution state, retain its ID while rendering, then use its
-browser approval and `confirm_secure_distribution`. Expert mandates do not replace
-this approval. Omitted content uses the authenticated workshop's localized V2
+returned secure-distribution state and retain its ID while rendering. The browser's
+single priced Send action records human approval and activates the invitation,
+reusing the valid verified-account session. Read `get_secure_distribution` after
+that action: an `active` share goes directly to tracking, without another chat
+confirmation or sending command. Use compatibility `confirm_secure_distribution`
+only for a still-`prepared` invitation with recorded approval, a stable key and
+the required host confirmation. An uncertain response requires readback of that
+same identifier, never a replacement order or automatic resend. Expert mandates
+do not replace browser approval. The explicit strong policy retains its existing
+authentication requirements; the current [security contract](/engineering/security-and-reliability/)
+owns that distinction. Omitted content uses the authenticated workshop's localized V2
 template; custom HTML may position `{{document_url}}`, which remains server-owned.
 Standard summaries never expose its final private capability. Explicit original
 attachment and historical password-link choices retain the legacy dispatch flow.

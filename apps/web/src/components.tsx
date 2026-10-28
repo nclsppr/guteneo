@@ -32,7 +32,7 @@ import {
 import { t } from "./locale";
 import { pdfCheckErrorMessage } from "./pdf-check-errors";
 import { useDashboardAppearance } from "./dashboard-appearance";
-import { freshWorkspaceAuthenticationHref } from "./auth-navigation";
+import { workspaceAuthenticationRecoveryHref } from "./auth-navigation";
 
 export const BEFORE_WORKSPACE_NAVIGATION =
   "guteneo:before-workspace-navigation";
@@ -288,7 +288,10 @@ export function ErrorNotice({
         {authenticationRecovery && (
           <a
             className="button primary"
-            href={freshWorkspaceAuthenticationHref()}
+            href={workspaceAuthenticationRecoveryHref(
+              !(error instanceof ApiError) ||
+                error.code !== "DOCUMENT_AUTHENTICATION_REQUIRED",
+            )}
           >
             {t.sessionExpired.action}
           </a>

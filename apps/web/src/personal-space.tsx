@@ -206,7 +206,10 @@ export function PersonalSecurityNotice({
               "Sign in again using the required security method to access your documents.",
             )}
       </p>
-      <a className="button primary" href={authHref("login", true)}>
+      <a
+        className="button primary"
+        href={authHref("login", mode !== "verified_account")}
+      >
         <ShieldCheck size={18} aria-hidden="true" />
         {msg("Verify my access")}
       </a>
