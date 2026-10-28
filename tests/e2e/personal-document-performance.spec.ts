@@ -231,6 +231,111 @@ test("a failed personal list can be retried without reloading the account", asyn
   expect(state.writes).toEqual([]);
 });
 
+test("personal navigation retains the verified session and shell without another authentication waterfall", async ({
+  page,
+}, info) => {
+  const state = await fixture(page);
+  await page.goto("/#/app/my-documents");
+  await expect(
+    page.getByRole("heading", {
+      name: "Document for personal-performance-a",
+      exact: true,
+    }),
+  ).toBeVisible();
+  await page.locator(".personal-space").evaluate((element) => {
+    element.setAttribute("data-navigation-proof", "retained");
+  });
+  let repeatedSessionReads = 0;
+  let releaseRead!: () => void;
+  const heldRead = new Promise<void>((resolve) => {
+    releaseRead = resolve;
+  });
+  await page.route("**/api/personal/session", async (route) => {
+    repeatedSessionReads += 1;
+    await heldRead;
+    await route.fulfill({ json: personalSession() });
+  });
+  const measurements: { path: string; usefulContentMs: number }[] = [];
+  try {
+    for (const [path, heading] of [
+      ["/app/services", "Create or join a workspace"],
+      ["/app/personal-account", "Account and security"],
+      ["/app/my-documents", "Document for personal-performance-a"],
+    ]) {
+      const start = await page.evaluate(() => performance.now());
+      await page
+        .locator(`.personal-space-header nav a[href="#${path}"]`)
+        .click();
+      await expect(
+        page.getByRole("heading", { name: heading, exact: true }),
+      ).toBeVisible();
+      measurements.push({
+        path,
+        usefulContentMs: (await page.evaluate(() => performance.now())) - start,
+      });
+      await expect(page.locator(".personal-space")).toHaveAttribute(
+        "data-navigation-proof",
+        "retained",
+      );
+    }
+    await page.goBack();
+    await expect(
+      page.getByRole("heading", { name: "Account and security", exact: true }),
+    ).toBeVisible();
+    await page.goForward();
+    await expect(
+      page.getByRole("heading", {
+        name: "Document for personal-performance-a",
+        exact: true,
+      }),
+    ).toBeVisible();
+    expect(repeatedSessionReads).toBe(0);
+    expect(
+      state.reads.filter((path) => path === "/api/personal/session"),
+    ).toHaveLength(1);
+    expect(state.writes).toEqual([]);
+    await info.attach("personal-navigation", {
+      contentType: "application/json",
+      body: JSON.stringify(measurements),
+    });
+  } finally {
+    releaseRead();
+  }
+});
+
+test("an invitation arriving during personal navigation is captured before its new screen without restarting the session", async ({
+  page,
+}) => {
+  const state = await fixture(page);
+  await page.goto("/#/app/my-documents");
+  await expect(
+    page.getByRole("heading", {
+      name: "Document for personal-performance-a",
+      exact: true,
+    }),
+  ).toBeVisible();
+  const token = "ab".repeat(32);
+  await page.evaluate((invitation) => {
+    location.hash = `/app/my-documents?invitation=${invitation}`;
+  }, token);
+  await expect(
+    page.getByRole("heading", {
+      name: "A document has been sent to you",
+      exact: true,
+    }),
+  ).toBeVisible();
+  await expect(page).toHaveURL(/#\/app\/my-documents$/);
+  expect(
+    await page.evaluate(() =>
+      sessionStorage.getItem("guteneo.pending-document-invitation.v1"),
+    ),
+  ).toContain(token);
+  expect(
+    state.reads.filter((path) => path === "/api/personal/session"),
+  ).toHaveLength(1);
+  expect(state.writes).toEqual([]);
+});
+
 test("focus revalidation replaces the personal account without reusing its documents", async ({
   page,
 }) => {

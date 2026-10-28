@@ -70,6 +70,11 @@ let latestHistory = null,
 let historyDays = 30,
   historyRequest = 0,
   historyBusy = false;
+let historyController = null,
+  activeHistoryDays = null,
+  dailyBuckets = null;
+const historyCache = new Map();
+const refreshInterval = 900000;
 const put = (id, text) => {
   if ($(id).textContent !== text) $(id).textContent = text;
 };
@@ -181,12 +186,12 @@ function renderStatus() {
     );
   }
 }
-async function readJson(url, limit = 500000, allow503 = false) {
+async function readJson(url, limit = 500000, allow503 = false, signal) {
   const response = await fetch(url, {
     credentials: "omit",
     redirect: "error",
     cache: "no-store",
-    signal: AbortSignal.timeout(6000),
+    signal: signal ?? AbortSignal.timeout(6000),
   });
   if (!response.ok && !(allow503 && response.status === 503))
     throw new Error("unavailable");
@@ -389,9 +394,16 @@ function renderHistory(data) {
     (bucket) => bucket.date === selectedHistoryDate,
   );
   select(retained >= 0 ? retained : periods.length - 1);
+  dailyBuckets = buckets;
+  $("history-rows").replaceChildren();
+  if (document.querySelector(".daily-details").open) renderDailyHistory();
+}
+function renderDailyHistory() {
+  if (!dailyBuckets) return;
   const body = $("history-rows");
   body.replaceChildren();
-  for (const bucket of [...buckets].reverse()) {
+  const rows = document.createDocumentFragment();
+  for (const bucket of [...dailyBuckets].reverse()) {
     const row = node("tr");
     const label = node("th", dateLabel(bucket.date));
     label.scope = "row";
@@ -408,9 +420,13 @@ function renderHistory(data) {
         count(bucket.observedSamples) + " / " + count(bucket.expectedSamples),
       ),
     );
-    body.append(row);
+    rows.append(row);
   }
+  body.append(rows);
 }
+document.querySelector(".daily-details").addEventListener("toggle", (event) => {
+  if (event.currentTarget.open) renderDailyHistory();
+});
 function renderHistoryError() {
   put(
     "history-state",
@@ -419,20 +435,59 @@ function renderHistoryError() {
   for (const id of ["history-selection", "history-start", "history-range"])
     put(id, "");
 }
-async function loadHistory() {
+async function loadHistory(force = false) {
+  const days = historyDays;
+  if (historyBusy && activeHistoryDays === days) return;
+  const cached = historyCache.get(days);
+  const now = Date.now();
+  const age = cached ? now - cached.readAt : Infinity;
+  if (
+    !force &&
+    cached &&
+    age >= 0 &&
+    age < refreshInterval &&
+    cached.utcDay === new Date(now).toISOString().slice(0, 10)
+  ) {
+    historyController?.abort();
+    historyController = null;
+    historyRequest += 1;
+    historyBusy = false;
+    activeHistoryDays = null;
+    $("history-chart").removeAttribute("aria-busy");
+    if (latestHistory !== cached.data || historyError)
+      renderHistory(cached.data);
+    updateRefresh();
+    return;
+  }
+  historyController?.abort();
+  const controller = new AbortController();
+  historyController = controller;
   const request = ++historyRequest,
-    days = historyDays;
+    timer = setTimeout(() => controller.abort(), 6000);
+  activeHistoryDays = days;
   historyBusy = true;
   updateRefresh();
   put("history-state", statusText("Loading history…"));
   $("history-chart").setAttribute("aria-busy", "true");
   try {
-    const data = await readJson("/api/history?days=" + days);
+    const data = await readJson(
+      "/api/history?days=" + days,
+      500000,
+      false,
+      controller.signal,
+    );
     if (request !== historyRequest) return;
     if (!validHistory(data, days)) throw new Error("invalid");
+    historyCache.set(days, {
+      data,
+      readAt: Date.now(),
+      utcDay: new Date().toISOString().slice(0, 10),
+    });
     renderHistory(data);
   } catch {
     if (request !== historyRequest) return;
+    historyCache.delete(days);
+    dailyBuckets = null;
     historyError = true;
     renderHistoryError();
     $("history-chart").replaceChildren(
@@ -446,8 +501,11 @@ async function loadHistory() {
     for (const id of ["history-selection", "history-start", "history-range"])
       put(id, "");
   } finally {
+    clearTimeout(timer);
     if (request === historyRequest) {
       historyBusy = false;
+      activeHistoryDays = null;
+      historyController = null;
       $("history-chart").removeAttribute("aria-busy");
       updateRefresh();
     }
@@ -462,18 +520,19 @@ for (const button of document.querySelectorAll("[data-days]"))
   });
 function refreshAll() {
   refreshStatus();
-  loadHistory();
+  loadHistory(true);
 }
 $("refresh").addEventListener("click", refreshAll);
 document.addEventListener("visibilitychange", () => {
-  if (!document.hidden && Date.now() - lastReadAt >= 900000) refreshAll();
+  if (!document.hidden && Date.now() - lastReadAt >= refreshInterval)
+    refreshAll();
 });
 setInterval(() => {
   if (!document.hidden) renderStatus();
 }, 30000);
 setInterval(() => {
   if (!document.hidden) refreshAll();
-}, 900000);
+}, refreshInterval);
 if (["localhost", "127.0.0.1"].includes(location.hostname))
   $("preview-banner").hidden = false;
 refreshAll();

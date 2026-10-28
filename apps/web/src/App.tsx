@@ -30,29 +30,37 @@ import {
   setSession,
   type Session,
 } from "./api";
-import {
-  t,
-  getLocaleSelectionVersion,
-  initializeLocale,
-  useLocale,
-} from "./locale";
+import { t, initializeLocale, useLocale } from "./locale";
 import { canonicalPublicLocation } from "../../../packages/contracts/src/public-routes";
-import { isSupportedLocale } from "../../../packages/contracts/src/locale";
 import { PublicHomepage } from "./public-homepage";
+import { PublicSitePage } from "./public-site-pages";
 import {
   isPublicSitePage,
   getPublicSitePageMetadata,
 } from "./public-site-metadata";
 import { syncPublicSharing } from "./public-sharing";
+import { usePublicLocation } from "./public-navigation";
 import { Brand } from "./brand";
-import { ErrorNotice, go, Loading, useRoute, useResource } from "./components";
+import {
+  ErrorNotice,
+  go,
+  Loading,
+  useRouteState,
+  useResource,
+  WorkspaceRouteProvider,
+} from "./components";
 import { PdfCheckPage } from "./pdf-check-offer";
 import { Login } from "./login-page";
 // This small shell starts the private session read on the first render instead
 // of waiting for a second route chunk and an initial Suspense fallback.
 import PersonalArea from "./personal-area";
 import { personalApi } from "./personal-api";
+import {
+  preloadWorkspaceRoute,
+  workspaceRouteModules,
+} from "./workspace-route-loader";
 import { WorkspaceIdentity } from "./workspace-identity";
+import { WorkspaceRouteBoundary } from "./workspace-route-boundary";
 import { RolePermissionNotice } from "./role-guide";
 import { InvitationPage } from "./invitation-page";
 import { LegalPage } from "./legal-page";
@@ -60,6 +68,7 @@ import { InformationPage, getInformationPages } from "./information-page";
 import { DeveloperPage } from "./developer-page";
 import { ArticlePage, JournalPage } from "./editorial/pages";
 import { getArticles, articlePath } from "./editorial/articles";
+import { getPublicSocialCopy } from "./editorial/social-copy";
 import { AssistantsPage } from "./assistants-page";
 import { RememberDirectChoice } from "./assistant-state";
 import { clearPendingDocumentInvitation } from "./document-invitation";
@@ -71,89 +80,91 @@ import "./document-studio.css";
 import "./secure-documents.css";
 
 const publicPreview = import.meta.env.VITE_PUBLIC_PREVIEW === "true";
-let loadedPublicSitePage:
-  typeof import("./public-site-pages").PublicSitePage | null = null;
-let publicSitePageLoad: Promise<void> | null = null;
-/** Retain useful initial HTML while the requested public-detail chunk loads. */
-export function preloadPublicSitePage(): Promise<void> {
-  return (publicSitePageLoad ??= import("./public-site-pages").then(
-    (module) => {
-      loadedPublicSitePage = module.PublicSitePage;
-    },
-  ));
-}
-const LazyPublicSitePage = lazy(async () => {
-  await preloadPublicSitePage();
-  return { default: loadedPublicSitePage! };
-});
-
 const EmailPreferencesPage = lazy(() => import("./email-preferences"));
 
 const Overview = lazy(() =>
-  import("./dispatch-pages").then((module) => ({ default: module.Overview })),
+  workspaceRouteModules
+    .dispatch()
+    .then((module) => ({ default: module.Overview })),
 );
 const Documents = lazy(() =>
-  import("./dispatch-pages").then((module) => ({ default: module.Documents })),
+  workspaceRouteModules
+    .dispatch()
+    .then((module) => ({ default: module.Documents })),
 );
 const PrepareDispatch = lazy(() =>
-  import("./dispatch-pages").then((module) => ({
+  workspaceRouteModules.dispatch().then((module) => ({
     default: module.PrepareDispatch,
   })),
 );
 const DispatchList = lazy(() =>
-  import("./dispatch-pages").then((module) => ({
+  workspaceRouteModules.dispatch().then((module) => ({
     default: module.DispatchList,
   })),
 );
 const DispatchDetailPage = lazy(() =>
-  import("./dispatch-pages").then((module) => ({
+  workspaceRouteModules.dispatch().then((module) => ({
     default: module.DispatchDetailPage,
   })),
 );
 const Campaigns = lazy(() =>
-  import("./workspace-pages").then((module) => ({ default: module.Campaigns })),
+  workspaceRouteModules
+    .workspace()
+    .then((module) => ({ default: module.Campaigns })),
 );
 const CampaignDetail = lazy(() =>
-  import("./workspace-pages").then((module) => ({
+  workspaceRouteModules.workspace().then((module) => ({
     default: module.CampaignDetail,
   })),
 );
 const Senders = lazy(() =>
-  import("./workspace-pages").then((module) => ({ default: module.Senders })),
+  workspaceRouteModules
+    .workspace()
+    .then((module) => ({ default: module.Senders })),
 );
 const Usage = lazy(() =>
-  import("./workspace-pages").then((module) => ({ default: module.Usage })),
+  workspaceRouteModules
+    .workspace()
+    .then((module) => ({ default: module.Usage })),
 );
 const Admin = lazy(() =>
-  import("./workspace-pages").then((module) => ({ default: module.Admin })),
+  workspaceRouteModules
+    .workspace()
+    .then((module) => ({ default: module.Admin })),
 );
 const Billing = lazy(() =>
-  import("./billing-page").then((module) => ({ default: module.Billing })),
+  workspaceRouteModules
+    .billing()
+    .then((module) => ({ default: module.Billing })),
 );
 const PostalReviewPage = lazy(() =>
-  import("./postal-review-page").then((module) => ({
+  workspaceRouteModules.postal().then((module) => ({
     default: module.PostalReviewPage,
   })),
 );
 const Account = lazy(() =>
-  import("./account-page").then((module) => ({ default: module.Account })),
+  workspaceRouteModules
+    .account()
+    .then((module) => ({ default: module.Account })),
 );
 const TeamAdmin = lazy(() =>
-  import("./account-page").then((module) => ({ default: module.TeamAdmin })),
+  workspaceRouteModules
+    .account()
+    .then((module) => ({ default: module.TeamAdmin })),
 );
 const TeamInvitations = lazy(() =>
-  import("./team-invitations").then((module) => ({
+  workspaceRouteModules.invitations().then((module) => ({
     default: module.TeamInvitations,
   })),
 );
 const Connection = lazy(() =>
-  import("./assistant-workspace").then((module) => ({
+  workspaceRouteModules.connection().then((module) => ({
     default: module.Connection,
   })),
 );
-const DocumentStudio = lazy(() => import("./document-studio"));
+const DocumentStudio = lazy(() => workspaceRouteModules.studio());
 const SecureDistributionPage = lazy(() =>
-  import("./secure-distribution-pages").then((module) => ({
+  workspaceRouteModules.secureDistribution().then((module) => ({
     default: module.SecureDistributionPage,
   })),
 );
@@ -231,10 +242,12 @@ export function App() {
 }
 
 function Application() {
+  const publicLocation = usePublicLocation();
   const locale = useLocale();
-  const route = useRoute();
+  const { route, pending: routePending } = useRouteState();
   const personalRoute = personalPage(route) && !publicPreview;
   const emailPreferencesRoute = route.split("?")[0] === "/email-preferences";
+  const workspaceRoute = route.startsWith("/app") && !personalRoute;
   const canonicalLocation = canonicalPublicLocation(
     window.location.pathname,
     window.location.search,
@@ -246,7 +259,10 @@ function Application() {
   )
     window.history.replaceState(window.history.state, "", canonicalLocation);
   const [session, updateSession] = useState<Session | null>(null);
-  const [ready, setReady] = useState(false);
+  const [readyContext, setReadyContext] = useState<
+    "public" | "workspace" | null
+  >(null);
+  const ready = readyContext === (workspaceRoute ? "workspace" : "public");
   const { applyAccountAppearance } = useDashboardAppearance();
   useEffect(() => {
     if (session && !isPublicPreview)
@@ -258,38 +274,38 @@ function Application() {
   useEffect(() => {
     // Personal routes authenticate independently. A workshop session must not
     // block their first read or survive a later return to another workshop.
-    setReady(false);
+    setReadyContext(null);
     if (personalRoute || emailPreferencesRoute) {
       setSession(null, false);
       updateSession(null);
       return;
     }
+    // Public HTML already has its language. No authenticated read may translate
+    // an already visible page; private entry resolves its own session below.
+    if (!workspaceRoute) {
+      setSession(null, false);
+      updateSession(null);
+      setReadyContext("public");
+      return;
+    }
+    // Route code and authority are independent; private reads still wait for
+    // the verified session before the requested screen can mount.
+    void preloadWorkspaceRoute(window.location.hash.slice(1) || "/app").catch(
+      () => undefined,
+    );
     let alive = true;
     const controller = new AbortController();
-    const languageVersion = getLocaleSelectionVersion();
     api<Session>("/session", { signal: controller.signal })
       .then((s) => {
         if (alive) {
-          const enteringWorkspace =
-            window.location.pathname.startsWith("/app") ||
-            window.location.hash.startsWith("#/app");
-          setSession(
-            s,
-            !isPublicPreview &&
-              (enteringWorkspace ||
-                (isSupportedLocale(s.user.preferredLocale) &&
-                  languageVersion === getLocaleSelectionVersion())),
-          );
+          setSession(s, !isPublicPreview);
           updateSession(s);
         }
       })
       .catch(async () => {
         if (!alive) return;
-        // This is still a visitor until a server session is established. Restore
-        // their URL/device choice after the guarded private-page bootstrap,
-        // without overwriting a language selected while the probe was pending.
-        if (alive && languageVersion === getLocaleSelectionVersion())
-          initializeLocale();
+        // Authentication failed: discard the non-authoritative account hint.
+        initializeLocale(true);
         const requested = window.location.hash.slice(1);
         if (
           isPublicPreview ||
@@ -312,15 +328,18 @@ function Application() {
         }
       })
       .finally(() => {
-        if (alive) setReady(true);
+        if (alive) setReadyContext("workspace");
       });
     return () => {
       alive = false;
       controller.abort();
     };
-  }, [personalRoute, emailPreferencesRoute]);
+  }, [personalRoute, emailPreferencesRoute, workspaceRoute]);
   useEffect(() => {
     const path = window.location.pathname;
+    const publicCopy = window.location.hash.startsWith("#/")
+      ? null
+      : getPublicSocialCopy(path, locale);
     const information = getInformationPages()[path];
     const publicSitePage = getPublicSitePageMetadata(path);
     const article = getArticles().find(
@@ -339,8 +358,11 @@ function Application() {
             : path === "/journal/"
               ? msg("The journal")
               : `${msg("Prepare your documents.")} ${msg("Choose how they travel.")}`);
-    document.title = `${emailPreferencesRoute ? msg("Email preferences") : label} | guteneo`;
+    document.title =
+      publicCopy?.title ??
+      `${emailPreferencesRoute ? msg("Email preferences") : label} | guteneo`;
     const description =
+      publicCopy?.description ??
       publicSitePage?.description ??
       information?.description ??
       article?.description ??
@@ -353,7 +375,7 @@ function Application() {
       .querySelector('meta[name="description"]')
       ?.setAttribute("content", description);
     syncPublicSharing();
-  }, [locale, emailPreferencesRoute]);
+  }, [locale, emailPreferencesRoute, publicLocation]);
   if (emailPreferencesRoute)
     return (
       <Suspense fallback={<Loading />}>
@@ -364,40 +386,42 @@ function Application() {
   if (publicPath === "/invitation" || publicPath === "/invitation/")
     return <InvitationPage />;
   const information = getInformationPages()[publicPath];
-  if (information) return <InformationPage content={information} />;
+  if (information)
+    return <InformationPage key={publicPath} content={information} />;
   if (publicPath === "/assistants" || publicPath.startsWith("/assistants/"))
     return (
-      <AssistantsPage assistantId={publicPath.split("/")[2] || undefined} />
+      <AssistantsPage
+        key={publicPath}
+        assistantId={publicPath.split("/")[2] || undefined}
+      />
     );
   if (window.location.pathname === "/developers/") return <DeveloperPage />;
-  if (isPublicSitePage(publicPath)) {
-    const InitialPublicSitePage = loadedPublicSitePage;
-    return InitialPublicSitePage ? (
-      <InitialPublicSitePage path={publicPath} />
-    ) : (
-      <Suspense fallback={<Loading />}>
-        <LazyPublicSitePage path={publicPath} />
-      </Suspense>
-    );
-  }
+  if (isPublicSitePage(publicPath))
+    return <PublicSitePage key={publicPath} path={publicPath} />;
 
   return (
-    <WorkspaceApplication
-      route={route}
-      session={session}
-      updateSession={updateSession}
-      ready={ready}
-    />
+    <WorkspaceRouteProvider route={route}>
+      <WorkspaceApplication
+        key={publicPath}
+        route={route}
+        routePending={routePending}
+        session={session}
+        updateSession={updateSession}
+        ready={ready}
+      />
+    </WorkspaceRouteProvider>
   );
 }
 
 function WorkspaceApplication({
   route,
+  routePending,
   session,
   updateSession,
   ready,
 }: {
   route: string;
+  routePending: boolean;
   session: Session | null;
   updateSession: (session: Session | null) => void;
   ready: boolean;
@@ -899,10 +923,14 @@ function WorkspaceApplication({
         <main
           id="main-content"
           tabIndex={-1}
+          inert={routePending}
+          aria-busy={routePending || undefined}
           key={`${session.organization.id}:${session.user.id}`}
         >
           <ErrorNotice error={logoutError} />
-          <Suspense fallback={<Loading />}>{content}</Suspense>
+          <WorkspaceRouteBoundary route={route}>
+            <Suspense fallback={<Loading />}>{content}</Suspense>
+          </WorkspaceRouteBoundary>
         </main>
         {appearance !== "v2" && (
           <footer className="app-footer">

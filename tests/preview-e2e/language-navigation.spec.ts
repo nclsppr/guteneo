@@ -4,6 +4,21 @@ import { publicLanguagePicker } from "../public-language";
 test.use({ locale: "en-GB" });
 
 async function preferGerman(page: Page) {
+  // Context locale can override extra headers on navigation. Keep the actual
+  // HTTP language list coherent with the navigator fixture below.
+  await page.route("**/*", (route) => {
+    const request = route.request();
+    return route.continue(
+      request.isNavigationRequest()
+        ? {
+            headers: {
+              ...request.headers(),
+              "accept-language": "es-ES,de-AT;q=0.9,en-GB;q=0.8",
+            },
+          }
+        : {},
+    );
+  });
   await page.addInitScript(() => {
     Object.defineProperty(navigator, "languages", {
       configurable: true,
@@ -131,9 +146,7 @@ test("narrow public headers keep one row and navigation yields to language selec
 
     await toggle.click();
     await expect(toggle).toHaveAttribute("aria-expanded", "true");
-    const mobileLinks = header.locator(
-      ".public-mobile-navigation > a:visible",
-    );
+    const mobileLinks = header.locator(".public-mobile-navigation > a:visible");
     await expect(mobileLinks).toHaveCount(9);
     expect(
       await mobileLinks.evaluateAll((links) =>
@@ -239,6 +252,43 @@ test("public subpage language panels remain fully inside narrow phone viewports"
           expect(bounds.x + bounds.width).toBeLessThanOrEqual(width);
           await expectNoHorizontalOverflow(page);
         }
+      });
+    }
+  }
+});
+
+test("public editorial titles remain inside narrow viewports when web fonts are unavailable", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 320, height: 932 });
+  await page.route("**/*.woff2", (route) => route.abort());
+  for (const path of ["/journal/", "/legal/"]) {
+    for (const locale of ["fr", "en", "de", "lb"]) {
+      await test.step(`${path} in ${locale} with fallback fonts`, async () => {
+        await page.goto(`${path}?lang=${locale}`);
+        await expect(page.locator("html")).toHaveAttribute("lang", locale);
+        await expect(page.locator(".public-site main h1")).toBeVisible();
+        await page.evaluate(() => document.fonts.ready);
+        const header = page.locator("header.public-header");
+        const wordmark = (await header
+          .locator(".brand-wordmark")
+          .boundingBox())!;
+        const actions = (await header
+          .locator(".public-header-actions")
+          .boundingBox())!;
+        expect(wordmark.x + wordmark.width).toBeLessThanOrEqual(actions.x);
+        for (const selector of [
+          ".theme-toggle",
+          ".language-menu > summary",
+          ".public-menu-toggle",
+        ]) {
+          const control = (await header.locator(selector).boundingBox())!;
+          expect(control.width).toBeGreaterThanOrEqual(44);
+          expect(control.height).toBeGreaterThanOrEqual(44);
+          expect(control.x).toBeGreaterThanOrEqual(0);
+          expect(control.x + control.width).toBeLessThanOrEqual(320);
+        }
+        await expectNoHorizontalOverflow(page);
       });
     }
   }

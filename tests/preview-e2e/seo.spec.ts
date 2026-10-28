@@ -10,21 +10,21 @@ const publicApplication = process.env.GUTENEO_PUBLIC_APP === "1";
 
 const paths = publicSite.paths;
 
-test("public detail HTML remains useful while its interaction chunk is delayed", async ({
+test("public detail HTML remains useful while initial interaction code is delayed", async ({
   page,
 }) => {
-  let releaseChunk: () => void = () => {};
-  const heldChunk = new Promise<void>((resolve) => {
-    releaseChunk = resolve;
+  let releaseEntry: () => void = () => {};
+  const heldEntry = new Promise<void>((resolve) => {
+    releaseEntry = resolve;
   });
   let requested = false;
-  await page.route("**/assets/public-site-pages-*.js", async (route) => {
+  await page.route("**/assets/index-*.js", async (route) => {
     requested = true;
-    await heldChunk;
+    await heldEntry;
     await route.continue();
   });
   try {
-    await page.goto("/pricing/?lang=en", { waitUntil: "domcontentloaded" });
+    await page.goto("/pricing/?lang=en", { waitUntil: "commit" });
     await expect.poll(() => requested).toBe(true);
     await expect(page.locator("main h1")).toHaveText("Pricing");
     await expect(page.locator(".pricing-table tbody tr")).toHaveCount(3);
@@ -36,12 +36,15 @@ test("public detail HTML remains useful while its interaction chunk is delayed",
         .locator("footer")
         .getByRole("link", { name: "Getting started", exact: true }),
     ).toHaveAttribute("href", "/getting-started/?lang=en");
-    releaseChunk();
+    releaseEntry();
+    await expect(
+      page.locator('header[data-render-state="interactive"]'),
+    ).toBeVisible();
     await expect(page.locator("main h1")).toHaveText("Pricing");
     await expect(page.locator(".pricing-table tbody tr")).toHaveCount(3);
     await expect(page.locator("main")).not.toContainText("Loading");
   } finally {
-    releaseChunk();
+    releaseEntry();
   }
 });
 
@@ -377,7 +380,7 @@ test("a selection on a generic link is preserved in the URL and the crawler resp
   });
   expect(crawler.status()).toBe(200);
   const html = await crawler.text();
-  expect(html).toContain('<html lang="de">');
+  expect(html).toMatch(/<html\b[^>]*\slang="de"(?:\s[^>]*)?>/);
   expect(html).toContain(`property="og:title" content="${copy.title}"`);
   expect(html).toContain(
     `property="og:image" content="https://guteneo.com${cards.de.src}"`,

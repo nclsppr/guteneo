@@ -1,5 +1,6 @@
 import { evidencePath } from "./evidence";
 import { expect, test, type Page } from "@playwright/test";
+import { deferAnimationFrames } from "../fixtures/deferred-animation-frames";
 
 async function fits(page: Page) {
   expect(
@@ -149,99 +150,24 @@ test("mobile navigation preserves restored summary focus after deferred route fr
   await toggle.click();
   await expect(nav).toBeVisible();
 
-  type DeferredFrames = {
-    settleEffects(): Promise<void>;
-    runFirst(): boolean;
-    runRemaining(): void;
-    restore(): void;
-  };
-  await page.evaluate(() => {
-    const host = window as Window & {
-      guteneoDeferredFocusFrames?: DeferredFrames;
-    };
-    const nativeRequest = window.requestAnimationFrame.bind(window);
-    const nativeCancel = window.cancelAnimationFrame.bind(window);
-    const pending = new Map<number, FrameRequestCallback>();
-    let nextId = -1;
-    window.requestAnimationFrame = (callback) => {
-      const id = nextId--;
-      pending.set(id, callback);
-      return id;
-    };
-    window.cancelAnimationFrame = (id) => {
-      if (!pending.delete(id)) nativeCancel(id);
-    };
-    const runFirst = () => {
-      const first = pending.entries().next();
-      if (first.done) return false;
-      const [id, callback] = first.value;
-      pending.delete(id);
-      callback(performance.now());
-      return true;
-    };
-    host.guteneoDeferredFocusFrames = {
-      // Real frames let React commit and schedule passive effects while only
-      // application callbacks remain deferred. No elapsed-time assumption.
-      settleEffects: () =>
-        new Promise<void>((resolve) => {
-          nativeRequest(() => nativeRequest(() => resolve()));
-        }),
-      runFirst,
-      runRemaining: () => {
-        for (const id of [...pending.keys()]) {
-          const callback = pending.get(id);
-          pending.delete(id);
-          callback?.(performance.now());
-        }
-      },
-      restore: () => {
-        window.requestAnimationFrame = nativeRequest;
-        window.cancelAnimationFrame = nativeCancel;
-        delete host.guteneoDeferredFocusFrames;
-      },
-    };
-  });
+  const frames = await deferAnimationFrames(page);
   try {
     await nav.getByRole("link", { name: "Facturation", exact: true }).click();
     await expect(page.locator("main h1")).toHaveText("Facturation");
     await expect(nav).toBeHidden();
-    await page.evaluate(() =>
-      (
-        window as Window & {
-          guteneoDeferredFocusFrames?: DeferredFrames;
-        }
-      ).guteneoDeferredFocusFrames!.settleEffects(),
-    );
-    expect(
-      await page.evaluate(() =>
-        (
-          window as Window & {
-            guteneoDeferredFocusFrames?: DeferredFrames;
-          }
-        ).guteneoDeferredFocusFrames!.runFirst(),
-      ),
-    ).toBe(true);
+    await frames.settle();
     await expect(page.locator("main")).toBeFocused();
     await toggle.focus();
     await expect(toggle).toBeFocused();
-    await page.evaluate(() =>
-      (
-        window as Window & {
-          guteneoDeferredFocusFrames?: DeferredFrames;
-        }
-      ).guteneoDeferredFocusFrames!.runRemaining(),
-    );
+    const resumed = await frames.resume();
+    expect(resumed.executed).toBeGreaterThanOrEqual(2);
+    expect(resumed.probes).toBe(2);
+    expect(resumed.pending).toBe(0);
     await expect(toggle).toBeFocused();
     await page.keyboard.press("Enter");
     await expect(nav).toBeVisible();
   } finally {
-    await page.evaluate(() =>
-      (
-        window as Window & {
-          guteneoDeferredFocusFrames?: DeferredFrames;
-        }
-      ).guteneoDeferredFocusFrames?.restore(),
-    );
+    await frames.restore();
   }
 
   // Selecting the already-open destination still closes the menu and moves

@@ -97,7 +97,7 @@ Implemented candidate contracts:
   shared navigation without city artwork. The existing localized closing
   invitation, first-dispatch link and large stamp/postmark sit above the home
   panorama; the identical common footer remains on every public React route,
-  including home, with a compact stamp, two original swallows, fifteen links and
+  including home, with a compact stamp, two original swallows, sixteen links and
   colophon.
   A few original swallows decorate public pages only. Dark lettering follows the
   ivory brand role. Header/app stamps retain white paper inside each asset's

@@ -30,6 +30,24 @@ describe("customer status localization", () => {
       for (const link of group.links)
         if (link.href.startsWith("/")) expect(site.paths).toContain(link.href);
     }
+    expect(
+      footer.groups.flatMap((group: { links: unknown[] }) => group.links),
+    ).toHaveLength(16);
+    const resources = footer.groups.find(
+      (group: { id: string }) => group.id === "resources",
+    );
+    const developers = resources.links.findIndex(
+      (link: { href: string }) => link.href === "/developers/",
+    );
+    expect(resources.links[developers + 1]).toEqual({
+      href: "https://engineering.guteneo.com/",
+      labels: {
+        fr: "Documentation technique",
+        en: "Engineering documentation",
+        de: "Technische Dokumentation",
+        lb: "Technesch Dokumentatioun",
+      },
+    });
   });
   it("provides complete French, German and Luxembourgish values with source placeholders", () => {
     expect(Object.keys(messages).length).toBeGreaterThan(50);

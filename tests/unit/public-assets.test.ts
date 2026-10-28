@@ -74,7 +74,12 @@ describe("production static crawl boundary", () => {
     async (requested, locale) => {
       const { env, fetch } = fixture();
       const response = (await servePublicAssets(
-        new Request(`${site.origin}/journal/?lang=${requested}`),
+        new Request(`${site.origin}/journal/?lang=${requested}`, {
+          headers: {
+            Cookie: "guteneo_locale=account.lb",
+            "Accept-Language": "de-DE",
+          },
+        }),
         env,
       ))!;
       const forwarded = (fetch.mock.calls[0] as unknown as [Request])[0];
@@ -84,11 +89,16 @@ describe("production static crawl boundary", () => {
       expect(await response.text()).toBe("exact public bytes");
       expect(response.headers.get("X-Robots-Tag")).toBeNull();
       expect(response.headers.get("ETag")).toBe('"asset-sha"');
+      expect(response.headers.get("Content-Language")).toBe(locale);
+      expect(response.headers.get("Vary")).toBeNull();
+      expect(response.headers.get("Cache-Control")).toBe(
+        "public, max-age=0, must-revalidate, no-transform",
+      );
     },
   );
 
   it.each(["", "?lang=es", "?lang=", "?lang=en&lang=de", "?lang=en&lang=en"])(
-    "keeps ambiguous or absent language %s generic regardless of identity or browser",
+    "negotiates an ambiguous or absent language %s from the browser",
     async (query) => {
       const { env, fetch } = fixture();
       await servePublicAssets(
@@ -98,9 +108,220 @@ describe("production static crawl boundary", () => {
         env,
       );
       const forwarded = (fetch.mock.calls[0] as unknown as [Request])[0];
-      expect(new URL(forwarded.url).pathname).toBe("/");
+      expect(new URL(forwarded.url).pathname).toBe(
+        `${site.localizedPrefix}/de/`,
+      );
     },
   );
+
+  it.each([
+    ["guteneo_locale=selection.en", "en"],
+    ["guteneo_locale=account.lb", "lb"],
+    ["guteneo_locale=selection.fr", "fr"],
+  ])(
+    "uses the presentation hint %s before the browser",
+    async (cookie, locale) => {
+      const { env, fetch } = fixture();
+      const response = (await servePublicAssets(
+        new Request(`${site.origin}/pricing/?lang=invalid`, {
+          headers: { Cookie: cookie, "Accept-Language": "de-DE" },
+        }),
+        env,
+      ))!;
+      const forwarded = (fetch.mock.calls[0] as unknown as [Request])[0];
+      expect(new URL(forwarded.url).pathname).toBe(
+        `${site.localizedPrefix}/${locale}/pricing/`,
+      );
+      expect(response.headers.get("Content-Language")).toBe(locale);
+      expect(response.headers.get("Vary")).toBe("Cookie, Accept-Language");
+      expect(response.headers.get("Cache-Control")).toBe(
+        "private, max-age=0, must-revalidate, no-transform",
+      );
+      expect(await response.text()).toBe("exact public bytes");
+    },
+  );
+
+  it.each([
+    [null, "/", "fr"],
+    ["fr-FR,fr;q=0.8", "/", "fr"],
+    ["es-ES,zh;q=0.8", "/", "fr"],
+    ["en;q=0,de-DE;q=0.9,lb;q=0.8", `${site.localizedPrefix}/de/`, "de"],
+    ["en;q=0,lb;q=0.9,de;q=0.8", `${site.localizedPrefix}/lb/`, "lb"],
+  ])(
+    "negotiates the bounded browser list %s",
+    async (language, path, locale) => {
+      const { env, fetch } = fixture();
+      const response = (await servePublicAssets(
+        new Request(site.origin + "/", {
+          headers: language === null ? {} : { "Accept-Language": language },
+        }),
+        env,
+      ))!;
+      const forwarded = (fetch.mock.calls[0] as unknown as [Request])[0];
+      expect(new URL(forwarded.url).pathname).toBe(path);
+      expect(response.headers.get("Content-Language")).toBe(locale);
+      expect(response.headers.get("Vary")).toBe("Cookie, Accept-Language");
+    },
+  );
+
+  it("ignores duplicate, malformed and oversized hints before browser negotiation", async () => {
+    for (const cookie of [
+      "guteneo_locale=selection.en; guteneo_locale=account.lb",
+      "guteneo_locale=account.en; guteneo_locale",
+      "guteneo_locale=administrator.en",
+      "guteneo_locale=account.en%3Bsession%3Didentity",
+      "guteneo_locale=account.es",
+      `other=${"x".repeat(8192)}; guteneo_locale=account.en`,
+    ]) {
+      const { env, fetch } = fixture();
+      await servePublicAssets(
+        new Request(site.origin + "/", {
+          headers: { Cookie: cookie, "Accept-Language": "de-DE" },
+        }),
+        env,
+      );
+      const forwarded = (fetch.mock.calls[0] as unknown as [Request])[0];
+      expect(new URL(forwarded.url).pathname).toBe(
+        `${site.localizedPrefix}/de/`,
+      );
+    }
+  });
+
+  it("keeps negotiated GET, HEAD and 304 representations private with their exact framing", async () => {
+    for (const method of ["GET", "HEAD"]) {
+      for (const status of [200, 304]) {
+        const bytes =
+          '<html lang="lb"><body>Immutable localized bytes</body></html>';
+        const { env, fetch } = fixture(
+          new Response(status === 304 ? null : bytes, {
+            status,
+            headers: {
+              "Content-Type": "text/html; charset=utf-8",
+              "Content-Length": String(
+                new TextEncoder().encode(bytes).byteLength,
+              ),
+              "Cache-Control": "public, max-age=3600",
+              Vary: "Accept-Encoding, cookie",
+              ETag: '"localized-lb"',
+            },
+          }),
+        );
+        const response = (await servePublicAssets(
+          new Request(site.origin + "/journal/", {
+            method,
+            headers: {
+              Cookie: "guteneo_locale=account.lb",
+              "Accept-Language": "en-GB",
+              "If-None-Match": '"localized-lb"',
+            },
+          }),
+          env,
+        ))!;
+        const forwarded = (fetch.mock.calls[0] as unknown as [Request])[0];
+        expect(new URL(forwarded.url).pathname).toBe(
+          `${site.localizedPrefix}/lb/journal/`,
+        );
+        expect(forwarded.method).toBe(method);
+        expect(forwarded.headers.get("If-None-Match")).toBe('"localized-lb"');
+        expect(response.status).toBe(status);
+        expect(response.headers.get("ETag")).toBe('"localized-lb"');
+        expect(response.headers.get("Content-Length")).toBe(
+          String(new TextEncoder().encode(bytes).byteLength),
+        );
+        expect(response.headers.get("Content-Language")).toBe("lb");
+        expect(response.headers.get("Cache-Control")).toBe(
+          "private, max-age=0, must-revalidate, no-transform",
+        );
+        expect(response.headers.get("Vary")).toBe(
+          "Accept-Encoding, cookie, Accept-Language",
+        );
+        expect(await response.text()).toBe(
+          method === "HEAD" || status === 304 ? "" : bytes,
+        );
+      }
+    }
+  });
+
+  it("retains wildcard variation and stricter no-store for negotiated HTML", async () => {
+    const { env } = fixture(
+      new Response("exact", {
+        headers: {
+          "Content-Type": "text/html",
+          "Cache-Control": "no-store",
+          Vary: "*",
+        },
+      }),
+    );
+    const response = (await servePublicAssets(
+      new Request(site.origin + "/", {
+        headers: { Cookie: "guteneo_locale=selection.en" },
+      }),
+      env,
+    ))!;
+    expect(response.headers.get("Vary")).toBe("*");
+    expect(response.headers.get("Cache-Control")).toBe(
+      "no-store, no-transform",
+    );
+    expect(await response.text()).toBe("exact");
+  });
+
+  it("keeps negotiated private-query documents no-store and non-indexable", async () => {
+    const { env, fetch } = fixture();
+    const response = (await servePublicAssets(
+      new Request(`${site.origin}/pricing/?token=fixture`, {
+        headers: { Cookie: "guteneo_locale=selection.en" },
+      }),
+      env,
+    ))!;
+    const forwarded = (fetch.mock.calls[0] as unknown as [Request])[0];
+    expect(new URL(forwarded.url).pathname).toBe(
+      `${site.localizedPrefix}/en/pricing/`,
+    );
+    expect(response.headers.get("Cache-Control")).toBe("no-store");
+    expect(response.headers.get("X-Robots-Tag")).toBe("noindex, nofollow");
+    expect(response.headers.get("Vary")).toBe("Cookie, Accept-Language");
+    expect(await response.text()).toBe("exact public bytes");
+  });
+
+  it("keeps negotiated partial responses and attachments private without altering their framing", async () => {
+    for (const [status, requestHeaders, responseHeaders] of [
+      [206, { Range: "bytes=0-4" }, { "Content-Range": "bytes 0-4/10" }],
+      [416, { Range: "bytes=20-30" }, { "Content-Range": "bytes */10" }],
+      [200, {}, { "Content-Disposition": "attachment; filename=fixture.html" }],
+    ] as const) {
+      const { env } = fixture(
+        new Response("exact", {
+          status,
+          headers: {
+            "Content-Type": "text/html",
+            "Cache-Control": "public, max-age=3600",
+            "Content-Length": "5",
+            ETag: '"fixture"',
+            ...responseHeaders,
+          },
+        }),
+      );
+      const response = (await servePublicAssets(
+        new Request(site.origin + "/", {
+          headers: { Cookie: "guteneo_locale=selection.en", ...requestHeaders },
+        }),
+        env,
+      ))!;
+      expect(response.status).toBe(status);
+      expect(response.headers.get("Cache-Control")).toBe(
+        status >= 400
+          ? "no-store, no-transform"
+          : "private, max-age=0, must-revalidate, no-transform",
+      );
+      expect(response.headers.get("Vary")).toBe("Cookie, Accept-Language");
+      expect(response.headers.get("Content-Language")).toBeNull();
+      expect(response.headers.get("ETag")).toBe('"fixture"');
+      expect(response.headers.get("Content-Length")).toBe("5");
+      for (const [name, value] of Object.entries(responseHeaders))
+        expect(response.headers.get(name)).toBe(value);
+      expect(await response.text()).toBe("exact");
+    }
+  });
 
   it("keeps localized private queries and fallback hosts private without changing selected bytes", async () => {
     for (const url of [
@@ -351,7 +572,7 @@ describe("production static crawl boundary", () => {
       expect(response.headers.get("X-Robots-Tag")).toBeNull();
       expect(response.headers.get("ETag")).toBe('"asset-sha"');
       expect(response.headers.get("Cache-Control")).toBe(
-        "public, max-age=0, must-revalidate, no-transform",
+        "private, max-age=0, must-revalidate, no-transform",
       );
       expect(response.headers.get("Content-Security-Policy")).toContain(
         "frame-ancestors 'none'",
@@ -418,39 +639,91 @@ describe("production static crawl boundary", () => {
       expect(response.status).toBe(304);
       expect(response.headers.get("X-Robots-Tag")).toBeNull();
       expect(response.headers.get("ETag")).toBe('"same"');
-      expect(response.headers.get("Cache-Control")).toBe("no-transform");
+      expect(response.headers.get("Cache-Control")).toBe(
+        "private, max-age=0, must-revalidate, no-transform",
+      );
       expect(await response.text()).toBe("");
     }
   });
-  it.each(site.locales)("protects exact public HTML from transformation in %s for GET and HEAD", async (locale) => {
-    for (const method of ["GET", "HEAD"]) {
-      const bytes = new TextEncoder().encode(`<html lang="${locale}"><body>Épreuve €</body></html>`);
-      const { env } = fixture(new Response(bytes, { headers: {
-        "Content-Type": "text/html; charset=utf-8", "Cache-Control": "public, max-age=0, must-revalidate",
-        ETag: '"exact-localized"', "Content-Length": String(bytes.byteLength),
-      } }));
-      const response = (await servePublicAssets(new Request(`${site.origin}/?lang=${locale}`, { method }), env))!;
-      expect(response.headers.get("Cache-Control")).toBe("public, max-age=0, must-revalidate, no-transform");
-      expect(response.headers.get("Content-Length")).toBe(String(bytes.byteLength));
-      expect(response.headers.get("ETag")).toBe('"exact-localized"');
-      expect(new Uint8Array(await response.arrayBuffer())).toEqual(method === "HEAD" ? new Uint8Array() : bytes);
-    }
-  });
-  it.each(["no-store", "public, max-age=30, no-transform", "public, NO-TRANSFORM, must-revalidate"])(
-    "retains the existing public HTML cache policy %s without duplicate directives", async (policy) => {
-      const { env } = fixture(new Response("exact", { headers: { "Content-Type": "text/html", "Cache-Control": policy } }));
-      const response = (await servePublicAssets(new Request(site.origin + "/"), env))!;
-      expect(response.headers.get("Cache-Control")).toBe(policy === "no-store" ? "no-store, no-transform" : policy);
+  it.each(site.locales)(
+    "protects exact public HTML from transformation in %s for GET and HEAD",
+    async (locale) => {
+      for (const method of ["GET", "HEAD"]) {
+        const bytes = new TextEncoder().encode(
+          `<html lang="${locale}"><body>Épreuve €</body></html>`,
+        );
+        const { env } = fixture(
+          new Response(bytes, {
+            headers: {
+              "Content-Type": "text/html; charset=utf-8",
+              "Cache-Control": "public, max-age=0, must-revalidate",
+              ETag: '"exact-localized"',
+              "Content-Length": String(bytes.byteLength),
+            },
+          }),
+        );
+        const response = (await servePublicAssets(
+          new Request(`${site.origin}/?lang=${locale}`, { method }),
+          env,
+        ))!;
+        expect(response.headers.get("Cache-Control")).toBe(
+          "public, max-age=0, must-revalidate, no-transform",
+        );
+        expect(response.headers.get("Content-Length")).toBe(
+          String(bytes.byteLength),
+        );
+        expect(response.headers.get("ETag")).toBe('"exact-localized"');
+        expect(new Uint8Array(await response.arrayBuffer())).toEqual(
+          method === "HEAD" ? new Uint8Array() : bytes,
+        );
+      }
+    },
+  );
+  it.each([
+    "no-store",
+    "public, max-age=30, no-transform",
+    "public, NO-TRANSFORM, must-revalidate",
+  ])(
+    "retains the existing public HTML cache policy %s without duplicate directives",
+    async (policy) => {
+      const { env } = fixture(
+        new Response("exact", {
+          headers: { "Content-Type": "text/html", "Cache-Control": policy },
+        }),
+      );
+      const response = (await servePublicAssets(
+        new Request(site.origin + "/?lang=fr"),
+        env,
+      ))!;
+      expect(response.headers.get("Cache-Control")).toBe(
+        policy === "no-store" ? "no-store, no-transform" : policy,
+      );
       expect(await response.text()).toBe("exact");
     },
   );
   it("preserves an already compressed public representation and its framing", async () => {
-    const bytes = new Uint8Array(gzipSync('<html lang="fr"><body>Épreuve €</body></html>'));
-    const { env } = fixture(new Response(bytes, { headers: { "Content-Type": "text/html", "Content-Encoding": "gzip",
-      "Content-Length": String(bytes.byteLength), "Cache-Control": "public, max-age=0, must-revalidate", ETag: '"compressed"' } }));
-    const response = (await servePublicAssets(new Request(site.origin + "/"), env))!;
+    const bytes = new Uint8Array(
+      gzipSync('<html lang="fr"><body>Épreuve €</body></html>'),
+    );
+    const { env } = fixture(
+      new Response(bytes, {
+        headers: {
+          "Content-Type": "text/html",
+          "Content-Encoding": "gzip",
+          "Content-Length": String(bytes.byteLength),
+          "Cache-Control": "public, max-age=0, must-revalidate",
+          ETag: '"compressed"',
+        },
+      }),
+    );
+    const response = (await servePublicAssets(
+      new Request(site.origin + "/"),
+      env,
+    ))!;
     expect(response.headers.get("Content-Encoding")).toBe("gzip");
-    expect(response.headers.get("Content-Length")).toBe(String(bytes.byteLength));
+    expect(response.headers.get("Content-Length")).toBe(
+      String(bytes.byteLength),
+    );
     expect(response.headers.get("ETag")).toBe('"compressed"');
     expect(new Uint8Array(await response.arrayBuffer())).toEqual(bytes);
   });
@@ -459,15 +732,26 @@ describe("production static crawl boundary", () => {
     [site.origin + "/art.svg", "image/svg+xml"],
     [site.origin + "/videos/fixture.mp4", "video/mp4"],
     [site.origin + "/other/", "text/html"],
-    ["https://fallback.invalid/", "text/html"],
-    [site.origin + "/", "application/json"],
-  ])("keeps cache/representation unchanged outside public canonical HTML: %s", async (url, type) => {
-    const { env } = fixture(new Response("exact", { headers: { "Content-Type": type, "Cache-Control": "public, max-age=300", ETag: '"same"' } }));
-    const response = (await servePublicAssets(new Request(url), env))!;
-    expect(response.headers.get("Cache-Control")).toBe("public, max-age=300");
-    expect(response.headers.get("ETag")).toBe('"same"');
-    expect(await response.text()).toBe("exact");
-  });
+    ["https://fallback.invalid/?lang=fr", "text/html"],
+    [site.origin + "/?lang=fr", "application/json"],
+  ])(
+    "keeps cache/representation unchanged outside public canonical HTML: %s",
+    async (url, type) => {
+      const { env } = fixture(
+        new Response("exact", {
+          headers: {
+            "Content-Type": type,
+            "Cache-Control": "public, max-age=300",
+            ETag: '"same"',
+          },
+        }),
+      );
+      const response = (await servePublicAssets(new Request(url), env))!;
+      expect(response.headers.get("Cache-Control")).toBe("public, max-age=300");
+      expect(response.headers.get("ETag")).toBe('"same"');
+      expect(await response.text()).toBe("exact");
+    },
+  );
   it("keeps unknown HTML, missing assets, JSON and failed public documents noindex", async () => {
     for (const [path, status, type] of [
       ["/other/", 200, "text/html"],

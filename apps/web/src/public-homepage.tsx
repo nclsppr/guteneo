@@ -17,9 +17,11 @@ import { t } from "./locale";
 import { getArticles, articlePath } from "./editorial/articles";
 import { ArticlePicture } from "./editorial/article-picture";
 import "./public-homepage.css";
+import { isPublicNavigationManaged } from "./public-navigation";
 
 function usePublicFragment() {
   useEffect(() => {
+    if (isPublicNavigationManaged()) return;
     const fragment = canonicalPublicFragment(window.location.hash);
     if (fragment !== window.location.hash)
       window.history.replaceState(

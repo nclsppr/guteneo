@@ -8,6 +8,10 @@ import {
   cloneElement,
   lazy,
   Suspense,
+  useTransition,
+  createContext,
+  useContext,
+  useLayoutEffect,
   type ReactNode,
   type ReactElement,
   type SetStateAction,
@@ -81,8 +85,23 @@ function readRoute() {
     (window.location.pathname.startsWith("/app") ? "/app" : "/")
   );
 }
-export function useRoute() {
+const WorkspaceRouteContext = createContext<string | null>(null);
+export function WorkspaceRouteProvider({
+  route,
+  children,
+}: {
+  route: string;
+  children: ReactNode;
+}) {
+  return (
+    <WorkspaceRouteContext.Provider value={route}>
+      {children}
+    </WorkspaceRouteContext.Provider>
+  );
+}
+export function useRouteState() {
   const [route, setRoute] = useState(readRoute);
+  const [pending, startTransition] = useTransition();
   useEffect(() => {
     let acceptedHash = window.location.hash;
     let acceptedRoute = readRoute();
@@ -103,31 +122,31 @@ export function useRoute() {
       }
       acceptedHash = window.location.hash;
       acceptedRoute = nextRoute;
-      setRoute(nextRoute);
-      // Public document fragments already scroll natively. Only workspace
-      // navigation replaces the page and needs its scroll position reset.
-      if (nextRoute.startsWith("/app")) window.scrollTo(0, 0);
+      startTransition(() => setRoute(nextRoute));
     };
     window.addEventListener("hashchange", update);
     // A fragment may change after the first render but before this effect.
     // Catch up after subscribing without changing the initial scroll position.
     setRoute(readRoute());
     return () => window.removeEventListener("hashchange", update);
-  }, []);
-  useEffect(() => {
+  }, [startTransition]);
+  useLayoutEffect(() => {
     if (!route.startsWith("/app")) return;
+    // Wait for the requested screen to commit before scrolling its content.
+    window.scrollTo(0, 0);
     // Route changes replace the content without a browser navigation. Keep
     // keyboard and screen-reader users at the newly opened workspace page.
-    const frame = requestAnimationFrame(() => {
-      if (document.activeElement?.closest('[role="alert"]')) return;
-      const content = document.getElementById("main-content");
-      // A fast interaction can focus the new page before this frame runs.
-      // Preserve it instead of interrupting typing, especially on WebKit.
-      if (!content?.contains(document.activeElement))
-        content?.focus({ preventScroll: true });
-    });
-    return () => cancelAnimationFrame(frame);
+    if (document.activeElement?.closest('[role="alert"]')) return;
+    const content = document.getElementById("main-content");
+    if (!content?.contains(document.activeElement))
+      content?.focus({ preventScroll: true });
   }, [route]);
+  return { route, pending };
+}
+export function useRoute() {
+  const route = useContext(WorkspaceRouteContext);
+  if (route === null)
+    throw new Error("Workspace routes require WorkspaceRouteProvider.");
   return route;
 }
 export function useResource<T>(path: string | null) {

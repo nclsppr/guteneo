@@ -54,7 +54,7 @@ function html(
         "Referrer-Policy": "no-referrer",
         "X-Robots-Tag": "noindex, nofollow",
         "Content-Security-Policy":
-          "default-src 'none'; style-src 'unsafe-inline'; frame-src 'self'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'",
+          "default-src 'none'; style-src 'unsafe-inline'; img-src 'self'; frame-src 'self'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'",
       },
     },
   );

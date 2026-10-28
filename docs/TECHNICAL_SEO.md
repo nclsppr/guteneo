@@ -1,6 +1,6 @@
 # Public HTML and crawl boundaries
 
-The public site builds complete HTML documents for every route in `packages/contracts/src/public-site.json`. Their source is the same React content supplied by `apps/web/src/editorial/ssr.tsx`; the build uses Vite `ssrLoadModule` and injects the rendered markup into the built document. CSS and the application entry come from the ordinary hashed production build. Every public page retains the entry to apply the visitor's language or saved account preference and operate its language selector. Journal and legal content remains readable without JavaScript.
+The public site builds complete HTML documents for every route in `packages/contracts/src/public-site.json`. Their source is the same React content supplied by `apps/web/src/editorial/ssr.tsx`; the build uses Vite `ssrLoadModule` and injects the rendered markup into the built document. CSS and the application entry come from the ordinary hashed production build. Every public page retains the entry to operate its language selector and page interactions; the initial document already has the resolved language. Journal and legal content remain readable without JavaScript. The [multilingual contract](MULTILINGUAL.md) owns selection and retention.
 
 Each page has its own title, description, absolute canonical URL, Open Graph/Twitter metadata and the structured data supplied by the editorial module. Structured JSON escapes HTML delimiters before insertion. Article and breadcrumb facts must match visible content; the builder does not invent dates, authors, ratings or FAQ claims. Missing content or a mismatched canonical fails the build.
 
@@ -30,7 +30,38 @@ Assets and the generic public-error renderer, remain outside every sitemap and
 are disallowed by robots. The protected handler owns access checks, unavailable
 responses and private headers; see [protected PDF delivery](PROTECTED_DOCUMENTS.md).
 
-## Multilingual link previews — 3 October 2026 candidate
+## Initial language and cache selection — 27 October 2026 candidate
+
+The Worker chooses an existing static language document before returning public
+HTML. One supported explicit `lang` wins; without one, the bounded nonsecret
+presentation cookie precedes `Accept-Language`, then the generic French fallback.
+The complete precedence, legacy-device migration and account/visitor separation
+are owned by [the multilingual contract](MULTILINGUAL.md#selection-and-retention).
+No session or account lookup occurs on this path. Public pages no longer probe
+`/api/session` to replace already visible language. This is a local implementation
+candidate; publication and hosted behavior require independent qualification.
+
+Responses without an explicit supported `lang` retain upstream `Vary` dimensions
+and add `Cookie, Accept-Language`. Successful HTML GET/HEAD and 304 responses use
+private revalidation caching with `no-transform`; sensitive queries keep
+`no-store`. Explicit language URLs retain their existing static cache policy.
+`Content-Language` names the actual selected language. The response reuses exact
+static bytes, ETag and encoding, without injecting identity or rewriting HTML.
+Shared caches must never reuse a negotiated response for a different visitor.
+
+Selected language variants carry their matching metadata, canonical explicit
+language URL and structured data even when requested through a generic URL.
+The generic French fallback retains the neutral sharing card. The sitemap still
+derives generic and four-language URLs from the shared route registry, and the
+private locale asset namespace remains inaccessible directly. Crawl eligibility
+and local source validation do not establish indexing, cached sharing previews
+or a release result.
+
+## Multilingual link previews — historical 3 October 2026 candidate
+
+The selection rules below describe the 3 October candidate. The preceding
+27 October section supersedes its request-language and post-load behavior;
+the original artwork, metadata and dated qualification remain historical facts.
 
 The generic public URLs have a language-neutral Open Graph/Twitter preview: `guteneo`, `guteneo.com`, and an ivory/cobalt card containing the approved blue portrait, three website swallows and one lowercase `guteneo.com` signature in the website’s black ink. This applies to all 18 public routes. Their ordinary SEO title, description and initial page content remain French; browser preferences may change the visible interface after loading.
 

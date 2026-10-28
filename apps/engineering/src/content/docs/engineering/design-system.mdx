@@ -11,6 +11,19 @@ interface: warm paper, precise ink, cobalt illustrations and readable controls.
 A new frontend should feel like another room in that workshop. Start with shared
 components and real product states, then add a small amount of illustration.
 
+Keep navigation within the current application when the destination is a
+registered public page. Its small page components belong to the initial code
+graph, so the shared enhancement changes browser history without another HTML
+or route-code request. Ordinary links remain usable for reloads, new tabs and
+unavailable initial JavaScript. Preserve destination language, metadata,
+anchors, focus and browser Back/Forward behavior. Navigation must never start a
+speculative private read or business operation. Personal routes likewise keep
+their authenticated shell mounted between sections, capturing a new invitation
+before rendering it; initial session checks, account-change isolation and
+visible-tab revalidation remain mandatory. The
+[frontend loading contract](https://github.com/nclsppr/guteneo/blob/main/docs/FRONTEND_PERFORMANCE.md#navigation-without-restarting-the-page--28-october-2026-candidate)
+owns the measured environment and qualification limits.
+
 This guide is the implementation companion to `docs/BRAND_IDENTITY.md`,
 `docs/MULTILINGUAL.md` and `docs/REPOSITORY_STANDARDS.md`. Those files own their
 respective rules. Change them and this guide together when the rules evolve.
@@ -39,6 +52,31 @@ account customization against the shared components before changing any of them.
 Keep authority and loading independent: visual consistency never justifies
 importing another space's session bootstrap or granting its permissions.
 
+The workshop's My documents entry uses the shared `.personal-context-link` in
+Classic and V2: one-pixel blue outline, ink label, existing blue icon and a
+minimum 44 px target on desktop and in the mobile menu. Keep its existing
+personal-space destination and accessible description. Its visual emphasis
+creates no new session read, route or document-access authority.
+
+Start the requested workshop screen's code alongside its initial session read.
+Keep private data and useful content behind the authenticated authority gate;
+downloading a static UI module grants no access. Do not import speculative
+screens on hover or focus: a failed browser module can remain failed for that
+document. An unavailable requested module keeps the current identity and sidebar
+available with an explicit localized page reload, without retry loops or replay
+of business writes. The loading contract below owns measured request ordering.
+Accepted transitions keep the previous screen visible, with its main content
+temporarily inert and busy so a clean editor cannot receive edits after the
+departure check. Keep the sidebar usable and move focus/scroll only on commit.
+Pass committed route state to account deep-link selection; reading the live hash
+during a pending render can consume a notice's focus effect beneath the inert
+fence. Foreign or malformed selections still reveal no record or authority.
+Use the shared committed workspace route context in child pages; do not install
+another hash listener or generic focus routine. Restore a closed document's
+connected trigger after commit, preserving focused errors and page unmounts.
+Readiness belongs to the public or workshop context; public readiness must not
+trigger a private sign-in before the required session result.
+
 The 27 October secure-distribution candidate applies the same secure-document
 primitives beneath the workshop and personal V2 shells. List, composer, review
 and reader surfaces reuse the existing rounded panels and rows, body-font section
@@ -48,6 +86,10 @@ change document policy, membership or approval. The
 [frontend loading contract](https://github.com/nclsppr/guteneo/blob/main/docs/FRONTEND_PERFORMANCE.md)
 owns environment-specific measurements; matching styles alone proves no latency
 improvement or physical-device qualification.
+
+Secure-document price panels use a one-pixel cobalt side rule in both saved
+layouts. Retain the existing padding, price, conditions and approval controls;
+the fine rule distinguishes the amount without a thick decorative side tab.
 
 Authenticated personal documents fill the available width in both Classic and V2,
 as the workshop does. Apply responsive gutters to the shell and narrow readable
@@ -60,6 +102,16 @@ the existing personal appearance regression covers those dimensions.
 
 The web source tokens live in `apps/web/src/styles.css`. Use token references in
 components rather than another palette of almost-identical values.
+
+Browser icons use the approved simple emblem, separately from the header
+portrait and printed footer stamp. The five files in `apps/web/public` are the
+source for every site. `packages/contracts/src/brand-icons.json` owns their list
+and canonical URL; `scripts/brand-icons.mjs` owns copy and exact-byte checks.
+Status copies them into its build and engineering verifies its public
+copies and final output. Keep SVG, ICO, PNG and Apple touch declarations aligned;
+standalone authentication handoff, Belvédère, protected-document and error HTML
+reuse the shared icon metadata. Source checks establish consistency, while
+publication and rendered hosted-login behavior require their own evidence.
 
 | Role            | Source token / value          | Application                              |
 | --------------- | ----------------------------- | ---------------------------------------- |
@@ -135,10 +187,13 @@ version, options and recovery information at the decision where a person needs
 them. Reducing repetition never removes approval information.
 
 Public pages share one identical footer and a coherent navigation hierarchy. Keep
-its compact stamp, two original swallows, fifteen links and colophon on the
+its compact stamp, two original swallows, sixteen links and colophon on the
 homepage too; the large home closing stamp and panorama are a separate section
 above it. Use one 1440 px maximum outer frame and matching responsive gutters for
-header, main and footer, with narrower readable prose inside. The public header
+header, main and footer, with narrower readable prose inside. Resources places
+the localized Engineering documentation link after Developers; retain the exact
+`https://engineering.guteneo.com/` destination because the engineering site is
+English-authored. The public header
 offers an appearance icon at every viewport; the default follows the operating
 system and the head bootstrap handles activation before React is ready. The
 personal header and Belvédère page actions use the same small control; three-way
@@ -154,6 +209,25 @@ ordering and the code transferred for the task. Start independent work together,
 load expensive tools only when needed, and retain visible recovery and correct
 account boundaries. Use the current [testing guide](/engineering/testing/) to
 distinguish a controlled local comparison from observed production performance.
+
+Keep visible text stable when a cold font is slow. The shared `fonts.css` uses
+the packaged IBM Plex and EB Garamond faces with `font-display: optional`; the
+Vite HTML hook preloads body 400 and display 400/500 through emitted asset URLs.
+Fast or cached fonts retain the approved design. A font that misses the brief
+initial period leaves fallback text stationary for that document, rather than
+changing line wrapping after content is visible. Preserve the three font preloads
+and their anonymous WOFF2 attributes when changing the build. Compare heading
+and paragraph geometry while font requests are held and after release; do not
+make text invisible or block application data on a font promise. The
+[frontend loading contract](https://github.com/nclsppr/guteneo/blob/main/docs/FRONTEND_PERFORMANCE.md#cold-webfonts--27-october-2026-candidate)
+owns the bounded before/after measurements and browser qualification.
+
+Keep public headings within narrow frames with the shared `.public-site h1`
+emergency word wrapping. Check translated titles with WOFF2 unavailable as well
+as with the approved fonts; fallback metrics must not force horizontal scrolling.
+Reserve the public header's 44 px actions and adapt the wordmark at the smallest
+widths while retaining the portrait. Check that fallback text neither overlaps
+the actions nor pushes the menu outside the frame.
 
 On an authenticated page, client visibility is a convenience. The server still
 determines tenant membership, permissions and current authority. An attractive
@@ -215,12 +289,37 @@ The product supports French, English, German and Luxembourgish (`fr`, `en`, `de`
 are authored in English. English source does **not** change the product's locale
 resolution or its French fallback for unsupported visitor languages.
 
-Before login, explicit public `?lang=` wins over this browser's saved selection,
-then supported browser languages are considered. After login, the account's
-`preferredLocale` applies; an account without it uses browser language, without
-inheriting a visitor's or another account's preference. Saving a public choice
-does not save an account preference. Preserve those boundaries when adding a
-frontend or changing its shell.
+Resolve public language before showing content. Explicit supported `?lang=` wins;
+the Worker otherwise selects an existing immutable document using the bounded
+`guteneo_locale` presentation hint and `Accept-Language`, with French fallback.
+The URL, content and metadata must agree when React starts. Public routes make
+no `/api/session` read and cannot switch an already visible page to an account
+language after authentication resolves. Keep negotiated responses out of shared
+caches, varying on cookie and browser language, while preserving exact asset
+bytes and explicit-language caching. The source contract and header bounds live
+in `docs/MULTILINGUAL.md` and `public-locales.ts`.
+
+An explicit public selection mirrors its locale to the nonsecret cookie while
+retaining the separate visitor localStorage choice. A confirmed private account
+preference may update the hint for a later public entry; it grants no authority
+and cannot override an explicit language URL. Logout restores the visitor choice.
+Private pages apply their authenticated `preferredLocale` before useful content;
+accounts without one use browser language without inheriting visitor preferences.
+Public selection does not save an account preference. The blocking head script
+only migrates an older localStorage-only mismatch before public content paints;
+it never fetches a session or handles private application/recovery URLs.
+
+Keep styles needed by pre-rendered content in the initial CSS graph. The
+27 October candidate moves guided-example
+styles there; shared public detail styles were already eager and now have explicit
+entry ownership. Public page components now join the initial code graph for
+immediate interactive links. Verify cold initial content with entry code held, then compare
+heading text, line wrapping and example geometry after interactivity. Also hold a
+conflicting session response and assert that public navigation requests no session.
+Do not use an opacity delay to disguise a changed layout. The
+[frontend loading contract](https://github.com/nclsppr/guteneo/blob/main/docs/FRONTEND_PERFORMANCE.md#stable-public-rendering--27-october-2026-candidate)
+records the measured CSS scope and qualification limits; this candidate changes
+neither the React mounting API nor authenticated authority.
 
 Recipient-facing transactional interface copy is also localized through its
 declared resource. Protected-email instructions and their reader use
@@ -382,6 +481,13 @@ Useful focused checks include `tests/unit/web-locale.test.ts`,
 or Belvédère suite for the actual surface. Inspect the new interaction manually
 with keyboard and assistive technology as well; catalog parity alone cannot
 prove good wording, reading order or usable error recovery.
+
+Check computed spacing before acting on markup-only detector findings. The status
+service list keeps 17 px of top/bottom row padding in its external stylesheet;
+browser inspection confirmed 17/18 px between text and separator edges. Its
+file-scoped `cramped-padding` exception covers this false positive without changing
+the layout or disabling other checks. Reassess it if the list markup or spacing
+changes.
 
 ## Nested diagnostic data
 

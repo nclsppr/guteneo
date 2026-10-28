@@ -194,7 +194,7 @@ export function setSession(session: Session | null, applyPreference = true) {
     sessionUserId !== (session?.user.id ?? null) &&
     typeof window !== "undefined"
   )
-    initializeLocale();
+    initializeLocale(true);
   sessionUserId = session?.user.id ?? null;
 }
 export class ApiError extends Error {

@@ -2,7 +2,6 @@ import { formatLocale } from "./locale";
 import { msg, msgIn } from "./messages";
 import { useId, useRef, useState, type KeyboardEvent } from "react";
 import { ArrowRight, Check, FilePdf } from "@phosphor-icons/react";
-import "./landing-example.css";
 
 type ExampleStep = "request" | "review" | "tracking";
 type ExampleChannel = "fax" | "email" | "postal";

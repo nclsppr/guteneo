@@ -78,8 +78,10 @@ are explicit boundaries rather than an implied10MiB inline capability.
 `build-public-pages.mjs` derive complete generic/four-language HTML, metadata,
 localized assets and sitemap from that registry. The four detail routes reuse
 existing pricing, fictional example/film, setup and PDF-offer contracts. Their
-metadata is lightweight; the requested lazy detail module preloads before React
-replaces useful initial HTML. `public-footer.json` owns shared four-language
+metadata is shared by static generation and client navigation. Small public page
+components join the initial application graph; ordinary registered same-origin
+links change browser history without reloading HTML or route code. Complete
+static HTML remains useful before entry JavaScript is ready. `public-footer.json` owns shared four-language
 navigation. React, status and eligible public error adapters consume the same
 source; status includes it in its source fingerprint and manifests the generated
 footer bytes. [HOMEPAGE_REDESIGN.md](HOMEPAGE_REDESIGN.md) owns this public contract.
@@ -87,7 +89,7 @@ footer bytes. [HOMEPAGE_REDESIGN.md](HOMEPAGE_REDESIGN.md) owns this public cont
 `PublicHomeClosing` precedes the homepage's common footer: its existing localized
 invitation, installation link and large stamp appear above the home-only panorama.
 The same `PublicFooter` follows every main-site public route, including home,
-with its compact stamp, two decorative original swallows, fifteen links and
+with its compact stamp, two decorative original swallows, sixteen links and
 colophon. The home-only large closing stamp and three panorama birds remain
 above that common footer. `theme-media.ts` supplies native picture media selection for Brand,
 panorama and the shared `editorial/article-picture.tsx`; system follows CSS media
@@ -118,6 +120,12 @@ content remounts on observed user change, and list retry remains separate from
 session renewal. Unused workshop editors/viewers remain lazy. See
 [FRONTEND_PERFORMANCE.md](FRONTEND_PERFORMANCE.md); its local controlled timings
 are not hosted latency or server CPU proof.
+
+Workshop entry starts the requested static route module alongside session
+verification, while private data and useful content remain authority-gated.
+Accepted route transitions retain the current screen until code is ready, with
+existing unsaved-work vetoes and identity/resource fences. No speculative
+private-data read or business action is added.
 
 The independent status UI reads availability/history and removes internal report
 presentation. Worker collection, stored observations, sanitized browser-report

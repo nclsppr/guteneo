@@ -149,7 +149,7 @@ test("the home panorama follows the selected theme while other pages keep the co
     await page.goto(path);
     await expect(page.locator(".public-site-footer")).toHaveCount(1);
     await expect(page.locator(".public-footer-panorama")).toHaveCount(0);
-    await expect(page.locator("footer nav a")).toHaveCount(15);
+    await expect(page.locator("footer nav a")).toHaveCount(16);
     await expect(page.locator(".public-margin-swallow")).toHaveCount(2);
     await expect(page.locator(".public-page-swallows")).toHaveAttribute(
       "aria-hidden",
@@ -279,7 +279,7 @@ test("native artwork sources follow the system dark theme without JavaScript", a
         art.evaluate((image) => (image as HTMLImageElement).currentSrc),
       )
       .toContain("gutenberg-to-digital-dark");
-    await expect(page.locator("footer nav a")).toHaveCount(15);
+    await expect(page.locator("footer nav a")).toHaveCount(16);
     await expect(page.locator(".public-footer-panorama")).toHaveCount(0);
   } finally {
     await context.close();

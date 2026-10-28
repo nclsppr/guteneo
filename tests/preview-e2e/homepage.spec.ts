@@ -485,6 +485,9 @@ for (const locale of ["fr", "en", "de", "lb"] as const) {
       await expect(
         footer.locator('a[href^="https://status.guteneo.com/"]'),
       ).toHaveAttribute("href", `https://status.guteneo.com/?lang=${locale}`);
+      await expect(
+        footer.locator('a[href^="https://engineering.guteneo.com/"]'),
+      ).toHaveAttribute("href", "https://engineering.guteneo.com/");
       for (const group of publicFooter.groups)
         for (const link of group.links)
           await expect(

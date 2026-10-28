@@ -6,6 +6,15 @@ import { getPublicSocialCopy } from "./editorial/social-copy";
 import editorial from "./locales/messages-editorial.json";
 import shell from "./locales/messages-shell.json";
 import { englishMessages, translateMessage } from "./message-catalog";
+import type { getPublicPageMetadata } from "./public-page-metadata";
+
+let resolvePageMetadata: typeof getPublicPageMetadata | undefined;
+/** Register after catalogs initialize; the locale bootstrap must stay acyclic. */
+export function registerPublicPageMetadata(
+  resolver: typeof getPublicPageMetadata,
+) {
+  resolvePageMetadata = resolver;
+}
 
 const sharingMessages = { ...editorial, ...shell };
 const sharingEnglish = englishMessages(sharingMessages);
@@ -195,9 +204,41 @@ export function syncPublicSharing() {
   for (const key of ["width", "height", "type", "alt"] as const)
     meta(`og:image:${key}`, String(image[key]));
   meta("twitter:image:alt", image.alt);
+  const page = resolvePageMetadata?.(url.pathname);
+  const sourceSchemas = () =>
+    Array.from(
+      document.head.querySelectorAll('script[type="application/ld+json"]'),
+      (node) => {
+        try {
+          return JSON.parse(node.textContent ?? "null") as Record<
+            string,
+            unknown
+          >;
+        } catch {
+          return null;
+        }
+      },
+    ).filter((item): item is Record<string, unknown> => item !== null);
+  const structuredData = resolvePageMetadata
+    ? page && "structuredData" in page
+      ? (page.structuredData ?? [])
+      : []
+    : sourceSchemas();
+  meta(
+    "og:type",
+    structuredData.some((item) => item["@type"] === "Article")
+      ? "article"
+      : "website",
+  );
   document.head
     .querySelector<HTMLLinkElement>('link[rel="canonical"]')
     ?.setAttribute("href", canonical);
+  for (const alternate of document.head.querySelectorAll<HTMLLinkElement>(
+    'link[rel="alternate"][hreflang]',
+  )) {
+    const code = alternate.hreflang;
+    alternate.href = `${site.origin}${url.pathname}${code === "x-default" ? "" : `?lang=${code}`}`;
+  }
   for (const node of document.head.querySelectorAll(
     'meta[property="og:locale:alternate"]',
   ))
@@ -212,20 +253,18 @@ export function syncPublicSharing() {
   {
     for (const node of document.head.querySelectorAll(
       'script[type="application/ld+json"]',
-    )) {
-      try {
-        const schema = localizePublicSchema(
-          JSON.parse(node.textContent ?? "null"),
-          url.pathname,
-          locale,
-        );
-        node.textContent = JSON.stringify(schema)
-          .replaceAll("<", "\\u003c")
-          .replaceAll(">", "\\u003e")
-          .replaceAll("&", "\\u0026");
-      } catch {
-        /* A malformed unrelated schema never blocks language selection. */
-      }
+    ))
+      node.remove();
+    for (const item of structuredData) {
+      const node = document.createElement("script");
+      node.type = "application/ld+json";
+      node.textContent = JSON.stringify(
+        localizePublicSchema(item, url.pathname, locale),
+      )
+        .replaceAll("<", "\\u003c")
+        .replaceAll(">", "\\u003e")
+        .replaceAll("&", "\\u0026");
+      document.head.appendChild(node);
     }
   }
 }

@@ -59,7 +59,7 @@ describe("presentation-only standalone theme", () => {
       const html = await response.text();
       expect(response.status).toBe(200);
       expect(response.headers.get("Content-Security-Policy")).toBe(
-        "default-src 'none'; style-src 'unsafe-inline'; form-action 'self'; frame-ancestors 'none'; base-uri 'none'",
+        "default-src 'none'; style-src 'unsafe-inline'; img-src 'self'; form-action 'self'; frame-ancestors 'none'; base-uri 'none'",
       );
       expect(response.headers.get("Cache-Control")).toBe(
         "private, no-store, max-age=0",
@@ -69,7 +69,16 @@ describe("presentation-only standalone theme", () => {
       expect(html).toContain('method="post"');
       expect(html).toContain('name="password"');
       expect(html).not.toContain("/content?");
-      expect(html).not.toMatch(/<script|<link|<img|https:\/\//);
+      expect(html).not.toMatch(/<script|<img|https:\/\//);
+      expect(
+        [...html.matchAll(/<link\b[^>]*href="([^"]+)"/g)].map(
+          (match) => match[1],
+        ),
+      ).toEqual([
+        "/favicon.ico",
+        "/favicon.svg?brand=20260917",
+        "/apple-touch-icon.png",
+      ]);
     }
   });
 

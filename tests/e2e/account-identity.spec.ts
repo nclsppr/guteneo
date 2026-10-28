@@ -303,14 +303,21 @@ test("personal documents use one compact navigation row and role details stay on
       .boundingBox();
     expect(personalBox).not.toBeNull();
     expect(overviewBox).not.toBeNull();
-    expect(personalBox!.height).toBeGreaterThan(0);
-    expect(personalBox!.height).toBeLessThanOrEqual(overviewBox!.height + 1);
+    expect(personalBox!.height).toBeGreaterThanOrEqual(44);
     expect(personalBox!.height).toBeLessThanOrEqual(48);
-    expect(
-      await personal.evaluate(
-        (element) => getComputedStyle(element).borderWidth,
-      ),
-    ).toBe("0px");
+    const brandBlue = await personal.evaluate((element) =>
+      getComputedStyle(element).getPropertyValue("--blue").trim(),
+    );
+    expect(["#2450db", "#9bb5ff"]).toContain(brandBlue);
+    const blueChannels = brandBlue
+      .slice(1)
+      .match(/.{2}/g)!
+      .map((channel) => Number.parseInt(channel, 16));
+    const borderColor = `rgb(${blueChannels.join(", ")})`;
+    for (const side of ["top", "right", "bottom", "left"]) {
+      await expect(personal).toHaveCSS(`border-${side}-width`, "1px");
+      await expect(personal).toHaveCSS(`border-${side}-color`, borderColor);
+    }
     await expect(
       page.locator(".workspace-role, .dashboard-identity"),
     ).toHaveCount(0);

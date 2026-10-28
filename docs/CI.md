@@ -204,6 +204,13 @@ covered by their existing byte, decode, progression and locale checks.
 | PDF validator | 1,067,248 | Complete package and root files |
 | Final verification | 2,690,037 | Complete unit/integration test inventory, CI scripts and root configuration |
 
+Shared browser harnesses belong under the retained `tests/fixtures/` scope.
+The final verifier loads their imports while discovering every expected test;
+a helper available in full browser jobs but absent from the verification
+checkout must fail discovery. Before moving or adding shared helpers, reproduce
+the verifier's exact sparse patterns and run every `suitePlans()` inventory.
+Never waive an import failure or substitute an older inventory.
+
 `actions/checkout@v7` automatically fetches with `blob:none` when sparse checkout
 is requested. The binary-heavy browser-build artifact uses compression level 0
 so an already-compressed MP4/WebP bundle is not compressed again. The same

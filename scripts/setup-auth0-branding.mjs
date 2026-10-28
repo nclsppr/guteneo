@@ -1,6 +1,7 @@
 import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { resolve } from "node:path";
+import { publicFaviconUrl } from "./brand-icons.mjs";
 
 export const BRANDING_TENANT = "pieper.eu.auth0.com";
 // Universal Login supports French, English and German, but not Luxembourgish.
@@ -12,11 +13,10 @@ export const LOCALE_FALLBACKS = { lb: "de" };
 // standalone wordmark asset to reuse in Auth0's image-only logo field, so retain
 // the official transparent portrait rather than substituting a different mark.
 const LOGO = "https://guteneo.com/brand/guteneo-portrait.png";
-const FAVICON = "https://guteneo.com/favicon.svg?brand=20260917";
 export const BRANDING = {
   colors: { primary: "#2450db", page_background: "#f6f5ef" },
   logo_url: LOGO,
-  favicon_url: FAVICON,
+  favicon_url: publicFaviconUrl,
 };
 export const THEME = {
   displayName: "Guteneo — connexion",

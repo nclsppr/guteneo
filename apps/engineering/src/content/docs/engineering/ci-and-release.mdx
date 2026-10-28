@@ -66,6 +66,42 @@ inventory. On setup failure, retain the failed revision and logs, repair the
 declared dependency and run the corrected revision; skipping the suite or treating
 an installed browser as delivery proof does not recover the gate.
 
+## Keep browser icons bound to their source
+
+`packages/contracts/src/brand-icons.json` defines the approved browser-icon
+family and canonical URL. `scripts/brand-icons.mjs` copies or compares the five
+source files in `apps/web/public`. The status build copies those exact bytes
+after its ordinary public assets; its release source scope includes the contract,
+helper and product files.
+The engineering builder checks its public copies before compilation and built
+copies afterward. Missing or different bytes fail the build. Its source snapshot
+also includes the helper and product icon paths, while each output manifest
+records the resulting files normally.
+
+When the approved icon family changes, update engineering's public copies from
+the source, run the independent builds and preserve both source and output
+checks. Do not suppress a mismatch or regenerate different artwork. After an
+authorized publication, compare the served icon bytes and inspect browser
+behavior separately; a local equality check cannot prove deployment or clear a
+browser cache. These static assets add no backend binding or provider authority.
+
+## Build the status browser runtime from its sources
+
+`scripts/build-status.mjs` generates `app.bundle.js` from the status message
+catalog, shared footer catalog, localization runtime and application, in that
+order. The existing locked esbuild dependency minifies this one deferred browser
+script. The loopback preview uses the same helper; do not maintain a separate
+runtime or edit the generated bundle. Original script assets remain available
+for documents opened before a publication.
+
+The status source fingerprint includes the builder and root package/lockfile;
+the release manifest records the generated bundle's exact bytes. Early script
+and font resource hints change request ordering only. The build adds no Worker
+binding, database migration or collection schedule. Rebuild after a catalog or
+runtime edit and verify the manifest plus served bytes after authorized
+publication. The [status loading contract](https://github.com/nclsppr/guteneo/blob/main/docs/STATUS_SERVICE.md)
+owns request caching, history freshness, deferred tables and measured limits.
+
 ## Retain the right evidence after a manual rerun
 
 GitHub may retain several immutable artifacts with the same logical name after a
@@ -262,6 +298,13 @@ The sparse checkout omits immutable historical film archives and screenshots,
 while retaining current source, tests, narration and assets needed to reproduce
 checks. Cache entries accelerate installation; lockfiles and fresh installation
 remain authoritative.
+
+Shared browser harnesses are retained under `tests/fixtures/`, including the
+deferred-frame fixture used by account and mobile focus tests. The final job
+discovers tests again from its narrower checkout before comparing evidence;
+passing browser jobs cannot compensate for a missing source import. The
+[CI source contract](https://github.com/nclsppr/guteneo/blob/main/docs/CI.md)
+owns the exact sparse-inventory maintenance check.
 
 ## Native and public monitoring are separate workflows
 

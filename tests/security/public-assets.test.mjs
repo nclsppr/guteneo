@@ -329,8 +329,23 @@ test("real Static Assets applies primary/fallback crawl policy after _headers, i
     const fallback = await mf.dispatchFetch(fallbackOrigin + path);
     assert.equal(fallback.status, 200);
     assert.equal(fallback.headers.get("X-Robots-Tag"), "noindex, nofollow");
-    assert.doesNotMatch(fallback.headers.get("Cache-Control") ?? "", /no-transform/);
+    assert.equal(fallback.headers.get("Cache-Control"), "private, max-age=0, must-revalidate, no-transform");
+    assert.match(fallback.headers.get("Vary") ?? "", /Cookie/);
+    assert.match(fallback.headers.get("Vary") ?? "", /Accept-Language/);
     assert.equal(await fallback.text(), expected);
+    for (const [method, headers, status] of [
+      ["HEAD", {}, 200],
+      ["GET", { "If-None-Match": etag }, 304],
+    ]) {
+      const conditionalFallback = await mf.dispatchFetch(fallbackOrigin + path, { method, headers });
+      assert.equal(conditionalFallback.status, status);
+      assert.equal(conditionalFallback.headers.get("X-Robots-Tag"), "noindex, nofollow");
+      assert.equal(conditionalFallback.headers.get("Cache-Control"), "private, max-age=0, must-revalidate, no-transform");
+      assert.match(conditionalFallback.headers.get("Vary") ?? "", /Cookie/);
+      assert.match(conditionalFallback.headers.get("Vary") ?? "", /Accept-Language/);
+      assert.equal(conditionalFallback.headers.get("ETag"), etag);
+      assert.equal(await conditionalFallback.text(), "");
+    }
     const primaryAgain = await mf.dispatchFetch(PUBLIC_ORIGIN + path);
     assert.equal(primaryAgain.headers.get("X-Robots-Tag"), null);
     for (const alias of path === "/"
@@ -416,12 +431,17 @@ test("real Static Assets applies primary/fallback crawl policy after _headers, i
         assert.equal(privateVariant.headers.get("Cache-Control"), "no-store");
       }
     }
-    const neutral = await readFile(join(directory, "index.html"), "utf8");
+    const negotiatedGerman = await readFile(
+      join(directory, site.localizedPrefix, "de", "index.html"),
+      "utf8",
+    );
     for (const query of ["?lang=es", "?lang=en&lang=de", "?lang=en&lang=en"]) {
       const response = await mf.dispatchFetch(`${origin}/${query}`, {
         headers: { "Accept-Language": "de-DE", Cookie: "guteneo.locale=en" },
       });
-      assert.equal(await response.text(), neutral);
+      assert.equal(await response.text(), negotiatedGerman);
+      assert.equal(response.headers.get("Content-Language"), "de");
+      assert.equal(response.headers.get("Cache-Control"), "private, max-age=0, must-revalidate, no-transform");
     }
     const missing = await mf.dispatchFetch(`${origin}/support/?lang=lb`);
     assert.equal(missing.status, 404);

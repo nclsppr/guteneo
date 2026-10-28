@@ -6,9 +6,10 @@ import {
   canonicalPublicPath,
 } from "../../../packages/contracts/src/public-routes";
 import {
+  applyPublicLocaleHeaders,
   isPublicLocaleAssetPath,
   localizedPublicPath,
-  requestedPublicLocale,
+  resolvePublicRequestLocale,
 } from "../../../packages/contracts/src/public-locales";
 import { withPublicVideoRange } from "../../api/src/public-video-range";
 
@@ -110,9 +111,10 @@ export default {
       );
     const assetUrl = new URL(url);
     if (pathname === "/health") assetUrl.pathname = "/health.json";
+    const localeSelection = resolvePublicRequestLocale(url, request.headers);
     const localizedPath = localizedPublicPath(
       url.pathname,
-      requestedPublicLocale(url.searchParams),
+      localeSelection?.locale ?? null,
     );
     if (localizedPath) assetUrl.pathname = localizedPath;
     const assetRequest = new Request(assetUrl, request);
@@ -149,6 +151,20 @@ export default {
       ["/release.json", "/health", "/health.json"].includes(pathname)
     )
       headers.set("Cache-Control", "no-store");
+    const dispositionType = (headers.get("Content-Disposition") ?? "")
+      .split(";")[0]
+      .trim()
+      .toLowerCase();
+    applyPublicLocaleHeaders(headers, localeSelection, {
+      status: response.status,
+      protocolError:
+        request.headers.has("Range") ||
+        request.headers.has("If-Range") ||
+        response.status === 416 ||
+        headers.has("Content-Range") ||
+        (dispositionType !== "" && dispositionType !== "inline"),
+      privateQuery,
+    });
     return new Response(request.method === "HEAD" ? null : response.body, {
       status: response.status,
       statusText: response.statusText,

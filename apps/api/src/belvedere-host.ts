@@ -16,6 +16,7 @@ import {
   normalizeLocale,
 } from "../../../packages/contracts/src/locale";
 import messages from "../../web/src/locales/messages-belvedere.json" with { type: "json" };
+import icons from "../../../packages/contracts/src/brand-icons.json" with { type: "json" };
 
 const privateHeaders = {
   "Cache-Control": "no-store, private",
@@ -30,6 +31,8 @@ const absent = () =>
   new Response("Not found", { status: 404, headers: privateHeaders });
 const assets =
   /^\/assets\/[A-Za-z0-9][A-Za-z0-9._-]*\.(?:js|css|woff2?|ttf|webp|png|svg)$/;
+const iconPaths = new Set(icons.files.map((name) => `/${name}`));
+const favicon = new URL(icons.faviconUrl);
 
 function protect(response: Response, head = false): Response {
   const headers = new Headers(response.headers);
@@ -97,14 +100,20 @@ export async function handleBelvedereHost(
         "Content-Type": "text/plain; charset=utf-8",
       },
     });
+  const icon =
+    iconPaths.has(url.pathname) &&
+    (!url.search ||
+      (url.pathname === favicon.pathname && url.search === favicon.search));
   if (
     read &&
-    !url.search &&
-    (assets.test(url.pathname) ||
-      url.pathname === "/brand/guteneo-mark-128.webp" ||
-      url.pathname === "/brand/guteneo-portrait-128.webp" ||
-      url.pathname === "/brand/guteneo-portrait-192.webp" ||
-      url.pathname === "/theme-init.js")
+    (icon ||
+      (!url.search &&
+        (assets.test(url.pathname) ||
+          url.pathname === "/brand/guteneo-mark-128.webp" ||
+          url.pathname === "/brand/guteneo-portrait-128.webp" ||
+          url.pathname === "/brand/guteneo-portrait-192.webp" ||
+          url.pathname === "/theme-init.js" ||
+          url.pathname === "/locale-init.js")))
   ) {
     try {
       const response = await env.ASSETS.fetch(

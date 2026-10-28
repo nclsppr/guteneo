@@ -16,6 +16,7 @@ import { handleBelvedereHost } from "../../apps/api/src/belvedere-host";
 import { BELVEDERE_ORIGIN } from "../../apps/api/src/belvedere-policy";
 import { createSession } from "../../apps/api/src/auth";
 import type { Env } from "../../apps/api/src/env";
+import icons from "../../packages/contracts/src/brand-icons.json" with { type: "json" };
 
 const canonical = "https://guteneo.com";
 const slug = "fixture-platform-private-path-abcdefghijklmnopqrstuvwxyz";
@@ -205,7 +206,9 @@ beforeAll(async () => {
       fetch: async (input: Request) => {
         assetRequests.push(input);
         return new URL(input.url).pathname.startsWith("/assets/") ||
-          new URL(input.url).pathname === "/theme-init.js"
+          ["/theme-init.js", "/locale-init.js"].includes(
+            new URL(input.url).pathname,
+          )
           ? new Response("export {};", {
               headers: { "Content-Type": "application/javascript" },
             })
@@ -499,6 +502,13 @@ describe("isolated Belvedere custom host", () => {
       "frame-src 'none'",
     );
     expect(assetRequests.at(-1)!.headers.has("Cookie")).toBe(false);
+    const locale = (await handleBelvedereHost(
+      privateRead("/locale-init.js"),
+      env,
+    ))!;
+    expect(locale.status).toBe(200);
+    expect(locale.headers.get("Content-Type")).toBe("application/javascript");
+    expect(assetRequests.at(-1)!.headers.has("Cookie")).toBe(false);
     const portraitEnv = {
       ...env,
       ASSETS: {
@@ -538,6 +548,7 @@ describe("isolated Belvedere custom host", () => {
     }
     for (const path of [
       "/theme-init.js?token=private",
+      "/locale-init.js?token=private",
       "/theme-other.js",
       "/public/theme-init.js",
     ]) {
@@ -576,6 +587,99 @@ describe("isolated Belvedere custom host", () => {
     ).toBe(404);
     const robots = (await handleBelvedereHost(request("/robots.txt"), env))!;
     expect(await robots.text()).toBe("User-agent: *\nDisallow: /\n");
+  });
+  it("serves the exact approved browser icons for GET and HEAD without forwarding identity", async () => {
+    const bytes = new Map<string, Uint8Array<ArrayBuffer>>(
+      await Promise.all(
+        icons.files.map(
+          async (name) =>
+            [
+              `/${name}`,
+              new Uint8Array(
+                await readFile(
+                  new URL(`../../apps/web/public/${name}`, import.meta.url),
+                ),
+              ),
+            ] as const,
+        ),
+      ),
+    );
+    const iconEnv = {
+      ...env,
+      ASSETS: {
+        fetch: async (input: Request) => {
+          assetRequests.push(input);
+          const path = new URL(input.url).pathname;
+          const content = bytes.get(path)!;
+          return new Response(content, {
+            headers: {
+              "Content-Type": path.endsWith(".svg")
+                ? "image/svg+xml"
+                : path.endsWith(".ico")
+                  ? "image/x-icon"
+                  : "image/png",
+              "Content-Length": String(content.byteLength),
+              ETag: '"approved-icon"',
+            },
+          });
+        },
+      },
+    } as unknown as Env;
+    const favicon = new URL(icons.faviconUrl);
+    const paths = [...bytes.keys(), favicon.pathname + favicon.search];
+    for (const method of ["GET", "HEAD"]) {
+      for (const path of paths) {
+        const response = (await handleBelvedereHost(
+          request(path, {
+            method,
+            headers: { Cookie: ownerCookie, "Sec-Fetch-Site": "same-origin" },
+          }),
+          iconEnv,
+        ))!;
+        const canonicalPath = new URL(path, BELVEDERE_ORIGIN).pathname;
+        expect(response.status).toBe(200);
+        expect(response.headers.get("Cache-Control")).toBe("no-store, private");
+        expect(response.headers.get("X-Robots-Tag")).toBe("noindex, nofollow");
+        expect(response.headers.get("Content-Security-Policy")).toContain(
+          "img-src 'self'",
+        );
+        expect(response.headers.get("ETag")).toBe('"approved-icon"');
+        expect(new Uint8Array(await response.arrayBuffer())).toEqual(
+          method === "HEAD" ? new Uint8Array() : bytes.get(canonicalPath),
+        );
+        const forwarded = assetRequests.at(-1)!;
+        expect(forwarded.url).toBe(BELVEDERE_ORIGIN + canonicalPath);
+        expect(forwarded.method).toBe(method);
+        expect(forwarded.headers.has("Cookie")).toBe(false);
+        expect(forwarded.headers.has("Authorization")).toBe(false);
+      }
+    }
+    const before = assetRequests.length;
+    for (const path of [
+      "/favicon.svg?brand=other",
+      "/favicon.svg?brand=20260917&brand=20260917",
+      "/favicon.svg?brand=20260917&token=private",
+      "/favicon.ico?brand=20260917",
+      "/favicon-32.png?token=private",
+      "/favicon-other.svg",
+      "/favicon.svg/other",
+      "/public/favicon.svg",
+    ])
+      expect((await handleBelvedereHost(request(path), iconEnv))?.status).toBe(
+        404,
+      );
+    const rejected: RequestInit[] = [
+      { method: "POST" },
+      { headers: { Authorization: "Bearer synthetic" } },
+      { headers: { Origin: canonical } },
+      { headers: { "Sec-Fetch-Site": "cross-site" } },
+    ];
+    for (const init of rejected)
+      expect(
+        (await handleBelvedereHost(request("/favicon.svg", init), iconEnv))
+          ?.status,
+      ).toBe(404);
+    expect(assetRequests).toHaveLength(before);
   });
   it("themes recovery without exposing the private route or accepting appearance as authority", async () => {
     const before = await total("browser_sessions");

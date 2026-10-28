@@ -12,14 +12,17 @@ export default function PersonalArea({ route }: { route: string }) {
   useLayoutEffect(() => {
     setCaptured({ route, ...captureDocumentInvitation() });
   }, [route]);
-  if (captured?.route !== route) return <Loading />;
+  if (!captured) return <Loading />;
+  // Capture and remove a new invitation before its route reaches the children.
+  // Keep the verified personal shell mounted while that layout effect runs;
+  // replacing it with a fallback would restart authentication on every link.
   return (
     <PersonalSpace
-      route={route}
+      route={captured.route}
       invitationStorageBlocked={captured.storageBlocked}
       documents={(session, onSessionInvalid) => (
         <PersonalDocuments
-          route={route}
+          route={captured.route}
           session={session}
           onSessionInvalid={onSessionInvalid}
         />

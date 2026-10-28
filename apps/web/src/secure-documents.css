@@ -116,7 +116,7 @@
 .secure-document-price {
   padding: 18px;
   background: var(--paper);
-  border-left: 3px solid var(--blue);
+  border-left: 1px solid var(--blue);
 }
 .secure-document-price strong {
   display: block;
@@ -661,15 +661,24 @@
   :is(.workspace-v2, .personal-space-v2) .secure-document-reader-toolbar {
     padding: 12px;
   }
-  :is(.workspace-v2, .personal-space-v2) .secure-distribution-composer > .button {
+  :is(.workspace-v2, .personal-space-v2)
+    .secure-distribution-composer
+    > .button {
     width: 100%;
   }
 }
-.sidebar nav .personal-context-link {
+.workspace .sidebar nav a.personal-context-link {
+  min-height: 44px;
   margin-bottom: 8px;
+  border: 1px solid var(--blue);
+  color: var(--ink);
+}
+.workspace .sidebar nav a.personal-context-link > svg {
+  flex-shrink: 0;
+  color: var(--blue);
 }
 @media (max-width: 1024px) {
-  .sidebar nav .personal-context-link {
+  .workspace .sidebar nav a.personal-context-link {
     margin-bottom: 0;
   }
 }

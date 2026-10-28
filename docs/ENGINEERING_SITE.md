@@ -8,6 +8,14 @@ It is distinct from the future `docs.guteneo.com` customer help site. Describe
 implementation and contracts clearly without turning a local candidate, capability
 flag or successful HTTP response into a claim of verified live operation.
 
+The shared public footer exposes Engineering documentation in Resources,
+immediately after Developers. Its four-language label comes from
+`packages/contracts/src/public-footer.json`; React, status and public HTTP error
+pages all retain `https://engineering.guteneo.com/` without a `lang` parameter.
+The destination remains this English-authored site. Adding the link is a local
+candidate, with each site's publication and served-link verification recorded
+separately.
+
 Curated engineering publication is an explicit exception to the repository-only
 technical atlas rule. The repository atlas, private operational records and
 historical proof do not become public by default. The
@@ -224,6 +232,18 @@ aggregate hash, the current source snapshot and the original build manifest. A
 replaced manifest is rejected even if it is internally consistent with replaced
 files. None of these checks is bypassed by a CLI option; local regression tests
 inject command execution against temporary Git remotes without publishing.
+
+The five approved browser-icon files in `apps/web/public`, their shared
+`packages/contracts/src/brand-icons.json` contract and `scripts/brand-icons.mjs`
+belong to the engineering source scope. Before compiling,
+the engineering builder checks that its `public/` copies exactly match that
+product source; after compiling, it checks the same bytes in `dist/`. Missing or
+different icons fail the build before a release manifest is accepted. Update the
+engineering copies from the approved source when changing that family, then
+rebuild and inspect the resulting icon declarations and bytes. Nimbus retains
+the existing matching SVG, with ICO, PNG and Apple touch fallbacks declared by
+the layout. This prevents source drift; it does not prove a new hosted release
+or override a browser's cached favicon.
 
 Static response headers include `Cache-Control: no-transform` to preserve the
 reviewed HTML/artwork representations. The hash-named `/_astro/*` block retains
