@@ -299,6 +299,13 @@ while retaining current source, tests, narration and assets needed to reproduce
 checks. Cache entries accelerate installation; lockfiles and fresh installation
 remain authoritative.
 
+Shared browser harnesses are retained under `tests/fixtures/`, including the
+deferred-frame fixture used by account and mobile focus tests. The final job
+discovers tests again from its narrower checkout before comparing evidence;
+passing browser jobs cannot compensate for a missing source import. The
+[CI source contract](https://github.com/nclsppr/guteneo/blob/main/docs/CI.md)
+owns the exact sparse-inventory maintenance check.
+
 ## Native and public monitoring are separate workflows
 
 `Guteneo iOS` runs native XCTest/archive for changes under `ios/**` or its workflow,

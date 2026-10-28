@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "./fixtures";
 import type { Session } from "../../apps/web/src/api";
-import { deferAnimationFrames } from "../deferred-animation-frames";
+import { deferAnimationFrames } from "../fixtures/deferred-animation-frames";
 
 const origin = "http://localhost:8787";
 

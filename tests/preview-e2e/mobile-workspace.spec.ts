@@ -1,6 +1,6 @@
 import { evidencePath } from "./evidence";
 import { expect, test, type Page } from "@playwright/test";
-import { deferAnimationFrames } from "../deferred-animation-frames";
+import { deferAnimationFrames } from "../fixtures/deferred-animation-frames";
 
 async function fits(page: Page) {
   expect(
