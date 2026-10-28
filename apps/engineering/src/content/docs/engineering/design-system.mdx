@@ -65,6 +65,11 @@ screens on hover or focus: a failed browser module can remain failed for that
 document. An unavailable requested module keeps the current identity and sidebar
 available with an explicit localized page reload, without retry loops or replay
 of business writes. The loading contract below owns measured request ordering.
+Accepted transitions keep the previous screen visible, with its main content
+temporarily inert and busy so a clean editor cannot receive edits after the
+departure check. Keep the sidebar usable and move focus/scroll only on commit.
+Readiness belongs to the public or workshop context; public readiness must not
+trigger a private sign-in before the required session result.
 
 The 27 October secure-distribution candidate applies the same secure-document
 primitives beneath the workshop and personal V2 shells. List, composer, review

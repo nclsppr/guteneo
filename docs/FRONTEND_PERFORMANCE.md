@@ -329,13 +329,22 @@ was rejected during qualification.
 Accepted hash-route changes use a React transition. The current page remains
 available while the requested module loads, instead of entering a short loading
 fallback and waiting for React's reveal window. Existing unsaved-work vetoes run
-before accepting the transition. Scroll and focus follow the committed page;
+before accepting the transition. While it is pending, native `inert` and
+`aria-busy` fence the retained main content; the sidebar remains available. A
+previously clean editor cannot receive new edits after its departure check and
+silently discard them on commit. Scroll and focus follow the committed page;
 the existing user/workspace key and resource-path fences still discard old
 identity or resource state. `workspace-route-boundary.tsx` keeps the identity
 and navigation visible after a route-code failure and offers a fixed localized
 explicit reload. It exposes no raw exception and automatically replays no read
 or business write. A reload is a new document attempt, not a guarantee that a
 browser has discarded every failed network-cache entry.
+
+Bootstrap readiness is bound to the public/workshop context. A public document's
+ready state cannot briefly mount private sign-in before its session read starts,
+then mount it again after a refusal. A public-to-workshop hash entry performs its
+normal authority checks before one hosted sign-in handoff. This changes neither
+Auth0 configuration nor the bounded personal-session fallback.
 
 Local production-asset measurements used fresh desktop Chromium contexts,
 synthetic read-only APIs and no real account/provider operation. With 600 ms

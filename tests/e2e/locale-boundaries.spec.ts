@@ -297,7 +297,11 @@ test("entering the account applies its preference after a late session while pre
     await page.goto("/");
     const picker = await publicLanguagePicker(page);
     await expect(picker).toHaveValue("auto");
-    await expect(page.locator("html")).toHaveAttribute("lang", "en");
+    const serverLocale = await page
+      .locator("html")
+      .getAttribute("data-public-locale");
+    expect(publicSite.locales).toContain(serverLocale);
+    await expect(page.locator("html")).toHaveAttribute("lang", serverLocale!);
     expect(sessionRequests).toBe(0);
     await picker.selectOption("de");
     await expect(page.locator("html")).toHaveAttribute("lang", "de");

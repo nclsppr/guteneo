@@ -2,6 +2,8 @@ import { expect, test, type Page } from "@playwright/test";
 import site from "../../packages/contracts/src/public-site.json" with { type: "json" };
 import { publicLanguagePicker } from "../public-language";
 
+const publicApplication = process.env.GUTENEO_PUBLIC_APP === "1";
+
 type PublicHead = {
   title: string;
   canonical: string | null;
@@ -81,10 +83,10 @@ for (const [locale, pricing] of [
   }, info) => {
     test.setTimeout(90000);
     await page.emulateMedia({ reducedMotion: "reduce" });
-    const businessRequests: string[] = [];
+    const apiRequests: string[] = [];
     await page.route("**/api/**", (route) => {
       const request = route.request();
-      businessRequests.push(
+      apiRequests.push(
         `${request.method()} ${new URL(request.url()).pathname}`,
       );
       return route.fulfill({ status: 401, json: { error: "No session" } });
@@ -166,10 +168,11 @@ for (const [locale, pricing] of [
       samples.push({ path, ...sample });
     }
     expect(documentRequests).toEqual([]);
-    expect(businessRequests).toEqual([
-      "GET /api/capabilities",
-      "GET /api/capabilities",
-    ]);
+    expect(apiRequests).toEqual(
+      publicApplication
+        ? ["GET /api/capabilities", "GET /api/capabilities"]
+        : [],
+    );
     await info.attach("public-navigation-resources", {
       body: JSON.stringify(samples),
       contentType: "application/json",

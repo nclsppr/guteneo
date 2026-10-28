@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 for (const system of ["light", "dark"] as const) {
-  test(`the public theme button works before a route chunk loads with a ${system} system theme`, async ({
+  test(`the public theme button works before initial application code loads with a ${system} system theme`, async ({
     page,
     context,
   }) => {
@@ -16,15 +16,17 @@ for (const system of ["light", "dark"] as const) {
       );
     });
     let release!: () => void;
-    const chunkReady = new Promise<void>((resolve) => {
+    const entryReady = new Promise<void>((resolve) => {
       release = resolve;
     });
-    await page.route("**/assets/public-site-pages-*.js", async (route) => {
-      await chunkReady;
+    let heldEntries = 0;
+    await page.route(/\/assets\/index-[^/]+\.js$/, async (route) => {
+      heldEntries += 1;
+      await entryReady;
       await route.continue();
     });
     try {
-      await page.goto("/pricing/?lang=en", { waitUntil: "domcontentloaded" });
+      await page.goto("/pricing/?lang=en", { waitUntil: "commit" });
       const root = page.locator("html");
       const header = page.locator(".public-header");
       const button = page.locator("button[data-theme-toggle]");
@@ -33,6 +35,7 @@ for (const system of ["light", "dark"] as const) {
         .first();
       await expect(button).toHaveCount(1);
       await expect(button).toBeVisible();
+      await expect.poll(() => heldEntries).toBeGreaterThan(0);
       await expect(header).not.toHaveAttribute(
         "data-render-state",
         "interactive",

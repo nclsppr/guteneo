@@ -8,7 +8,7 @@ import {
   cloneElement,
   lazy,
   Suspense,
-  startTransition,
+  useTransition,
   type ReactNode,
   type ReactElement,
   type SetStateAction,
@@ -82,8 +82,9 @@ function readRoute() {
     (window.location.pathname.startsWith("/app") ? "/app" : "/")
   );
 }
-export function useRoute() {
+export function useRouteState() {
   const [route, setRoute] = useState(readRoute);
+  const [pending, startTransition] = useTransition();
   useEffect(() => {
     let acceptedHash = window.location.hash;
     let acceptedRoute = readRoute();
@@ -111,7 +112,7 @@ export function useRoute() {
     // Catch up after subscribing without changing the initial scroll position.
     setRoute(readRoute());
     return () => window.removeEventListener("hashchange", update);
-  }, []);
+  }, [startTransition]);
   useEffect(() => {
     if (!route.startsWith("/app")) return;
     // Wait for the requested screen to commit before scrolling its content.
@@ -128,7 +129,10 @@ export function useRoute() {
     });
     return () => cancelAnimationFrame(frame);
   }, [route]);
-  return route;
+  return { route, pending };
+}
+export function useRoute() {
+  return useRouteState().route;
 }
 export function useResource<T>(path: string | null) {
   const [state, setState] = useState<{

@@ -41,7 +41,13 @@ import {
 import { syncPublicSharing } from "./public-sharing";
 import { usePublicLocation } from "./public-navigation";
 import { Brand } from "./brand";
-import { ErrorNotice, go, Loading, useRoute, useResource } from "./components";
+import {
+  ErrorNotice,
+  go,
+  Loading,
+  useRouteState,
+  useResource,
+} from "./components";
 import { PdfCheckPage } from "./pdf-check-offer";
 import { Login } from "./login-page";
 // This small shell starts the private session read on the first render instead
@@ -237,7 +243,7 @@ export function App() {
 function Application() {
   const publicLocation = usePublicLocation();
   const locale = useLocale();
-  const route = useRoute();
+  const { route, pending: routePending } = useRouteState();
   const personalRoute = personalPage(route) && !publicPreview;
   const emailPreferencesRoute = route.split("?")[0] === "/email-preferences";
   const workspaceRoute = route.startsWith("/app") && !personalRoute;
@@ -252,7 +258,11 @@ function Application() {
   )
     window.history.replaceState(window.history.state, "", canonicalLocation);
   const [session, updateSession] = useState<Session | null>(null);
-  const [ready, setReady] = useState(false);
+  const [readyContext, setReadyContext] = useState<
+    "public" | "workspace" | null
+  >(null);
+  const ready =
+    readyContext === (workspaceRoute ? "workspace" : "public");
   const { applyAccountAppearance } = useDashboardAppearance();
   useEffect(() => {
     if (session && !isPublicPreview)
@@ -264,7 +274,7 @@ function Application() {
   useEffect(() => {
     // Personal routes authenticate independently. A workshop session must not
     // block their first read or survive a later return to another workshop.
-    setReady(false);
+    setReadyContext(null);
     if (personalRoute || emailPreferencesRoute) {
       setSession(null, false);
       updateSession(null);
@@ -275,7 +285,7 @@ function Application() {
     if (!workspaceRoute) {
       setSession(null, false);
       updateSession(null);
-      setReady(true);
+      setReadyContext("public");
       return;
     }
     // Route code and authority are independent; private reads still wait for
@@ -318,7 +328,7 @@ function Application() {
         }
       })
       .finally(() => {
-        if (alive) setReady(true);
+        if (alive) setReadyContext("workspace");
       });
     return () => {
       alive = false;
@@ -393,6 +403,7 @@ function Application() {
     <WorkspaceApplication
       key={publicPath}
       route={route}
+      routePending={routePending}
       session={session}
       updateSession={updateSession}
       ready={ready}
@@ -402,11 +413,13 @@ function Application() {
 
 function WorkspaceApplication({
   route,
+  routePending,
   session,
   updateSession,
   ready,
 }: {
   route: string;
+  routePending: boolean;
   session: Session | null;
   updateSession: (session: Session | null) => void;
   ready: boolean;
@@ -908,6 +921,8 @@ function WorkspaceApplication({
         <main
           id="main-content"
           tabIndex={-1}
+          inert={routePending}
+          aria-busy={routePending || undefined}
           key={`${session.organization.id}:${session.user.id}`}
         >
           <ErrorNotice error={logoutError} />

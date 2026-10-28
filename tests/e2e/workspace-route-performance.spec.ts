@@ -1,4 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
+import { blankTemplate } from "../../packages/templates/gallery";
+import type { TemplateView } from "../../packages/contracts/src/template-workflow";
 
 const accountChunk = /\/assets\/account-page-[^/]+\.js$/;
 const accountLink = '.sidebar nav a[href="#/app/account"]';
@@ -149,10 +151,19 @@ test("cold navigation keeps the current useful content until code is ready and s
     await expect(page.locator(".workspace main h1")).toHaveText(
       originalHeading!,
     );
+    await expect(page.locator("#main-content")).not.toHaveAttribute(
+      "inert",
+      "",
+    );
     expect(requested).toBe(0);
     await target.focus();
     await target.press("Enter");
     await expect.poll(() => requested).toBe(1);
+    await expect(page.locator("#main-content")).toHaveAttribute("inert", "");
+    await expect(page.locator("#main-content")).toHaveAttribute(
+      "aria-busy",
+      "true",
+    );
     await expect(page.locator(".workspace main h1")).toHaveText(
       originalHeading!,
     );
@@ -163,6 +174,110 @@ test("cold navigation keeps the current useful content until code is ready and s
     await expect(
       page.getByRole("heading", { name: "My account", exact: true }),
     ).toBeVisible();
+    await expect(page.locator("#main-content")).not.toHaveAttribute(
+      "inert",
+      "",
+    );
+    expect(state.writes).toEqual([]);
+  } finally {
+    releaseCode();
+  }
+});
+
+test("template edits remain protected before and during a cold route transition", async ({
+  page,
+}) => {
+  const state = await fixture(page);
+  const envelope = blankTemplate();
+  // Exercise the real metadata editor and navigation guard independently of pdfme.
+  await page.route(/\/assets\/template-designer-[^/]+\.js$/, (route) =>
+    route.fulfill({
+      contentType: "text/javascript",
+      body: "export default function SyntheticDesigner() { return null; }",
+    }),
+  );
+  const model: TemplateView = {
+    id: "transition-template",
+    name: envelope.name,
+    ownerId: "route-user",
+    state: "draft",
+    visibility: "private",
+    revision: 1,
+    currentVersion: null,
+    permissions: { use: true, edit: true, publish: true, share: true },
+    canDelete: true,
+    envelope,
+    createdAt: "2026-10-28T00:00:00.000Z",
+    updatedAt: "2026-10-28T00:00:00.000Z",
+  };
+  await page.route("**/api/templates/transition-template", (route) => {
+    if (route.request().method() === "GET")
+      state.reads.push("/api/templates/transition-template");
+    else state.writes.push("/api/templates/transition-template");
+    return route.fulfill({ json: model });
+  });
+  let requested = false;
+  let releaseCode!: () => void;
+  const code = new Promise<void>((resolve) => {
+    releaseCode = resolve;
+  });
+  await page.route(accountChunk, async (route) => {
+    requested = true;
+    await code;
+    await route.continue();
+  });
+  try {
+    await page.goto("/#/app/template/transition-template");
+    const field = page.getByLabel("Template name", { exact: true });
+    const save = page.getByRole("button", { name: "Save draft", exact: true });
+    await expect(field).toHaveValue(model.name);
+    await expect(save).toBeDisabled();
+    const target = page.locator(".sidebar-account .workspace-identity-profile");
+    await field.fill("Unsaved synthetic edit");
+    await expect(save).toBeEnabled();
+    await page.evaluate(
+      () =>
+        new Promise<void>((resolve) => requestAnimationFrame(() => resolve())),
+    );
+    const dialog = page.waitForEvent("dialog").then(async (confirmation) => {
+      expect(confirmation.message()).toContain("unsaved changes");
+      await confirmation.dismiss();
+    });
+    await target.click();
+    await dialog;
+    await expect(page).toHaveURL(/#\/app\/template\/transition-template$/);
+    await expect(field).toHaveValue("Unsaved synthetic edit");
+    expect(requested).toBe(false);
+    await field.fill(model.name);
+    await expect(save).toBeDisabled();
+    await page.evaluate(
+      () =>
+        new Promise<void>((resolve) => requestAnimationFrame(() => resolve())),
+    );
+    await target.click();
+    await expect.poll(() => requested).toBe(true);
+    const main = page.locator("#main-content");
+    await expect(main).toHaveAttribute("inert", "");
+    await expect(main).toHaveAttribute("aria-busy", "true");
+    await expect(field).toHaveValue(model.name);
+    const rectangle = await field.boundingBox();
+    expect(rectangle).not.toBeNull();
+    await page.mouse.click(
+      rectangle!.x + rectangle!.width / 2,
+      rectangle!.y + rectangle!.height / 2,
+    );
+    await page.keyboard.type("Late synthetic edit");
+    await expect(field).toHaveValue(model.name);
+    expect(
+      await field.evaluate((element) => document.activeElement === element),
+    ).toBe(false);
+    expect(state.writes).toEqual([]);
+    releaseCode();
+    await expect(
+      page.getByRole("heading", { name: "My account", exact: true }),
+    ).toBeVisible();
+    await expect(main).not.toHaveAttribute("inert", "");
+    await expect(main).not.toHaveAttribute("aria-busy", "true");
     expect(state.writes).toEqual([]);
   } finally {
     releaseCode();
