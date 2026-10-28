@@ -31,7 +31,7 @@ Contracts/packages and 1.1.6 publication have bounded actual Claude Desktop sele
 <li id="feature-ff33e056aff2">Confirmed App document receipts retain their accepted ID/status after a late bridge error, with unavailable bridge actions disabled and no reimport; standard text/structured context and a localized explicit Use in conversation message carry only documentId/status/size/sha256, with one in-flight request, same-ID/status attempt deduplication including refused/uncertain results and failure preserving truth; pinned App descriptor bytes/hash/resource URI are direct MCP fingerprint inputs under the normal synchronized-version guard</li>
 <li id="feature-232fd93af26c">Document, template, dataset, generation and preparation tools</li>
 <li id="feature-f09d41d8e258">Browser review before sending; scopes never elevate membership rights</li>
-<li id="feature-418d10cba34a">Optional bounded expert delegation for one OAuth client</li>
+<li id="feature-aab059f7399a">Optional bounded expert delegation for one OAuth client; browser deep links use committed route selection and focus unavailable notices after navigation without disclosing foreign records or mutating authority</li>
 <li id="feature-53a874c4c708">Complete review replaces the previous token for this dispatch/connection; review_dispatch declares destructiveHint true</li>
 <li id="feature-d4b14eec2b6d">Only a browser administrator grants/revokes a mandate</li>
 <li id="feature-ea5265e7fea1">Six portable package workflows with English metadata, deterministic archives and inventory checks; portal review/publication remains separately evidenced</li>

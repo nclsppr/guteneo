@@ -256,3 +256,21 @@ test("public subpage language panels remain fully inside narrow phone viewports"
     }
   }
 });
+
+test("public editorial titles remain inside narrow viewports when web fonts are unavailable", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 320, height: 932 });
+  await page.route("**/*.woff2", (route) => route.abort());
+  for (const path of ["/journal/", "/legal/"]) {
+    for (const locale of ["fr", "en", "de", "lb"]) {
+      await test.step(`${path} in ${locale} with fallback fonts`, async () => {
+        await page.goto(`${path}?lang=${locale}`);
+        await expect(page.locator("html")).toHaveAttribute("lang", locale);
+        await expect(page.locator(".public-site main h1")).toBeVisible();
+        await page.evaluate(() => document.fonts.ready);
+        await expectNoHorizontalOverflow(page);
+      });
+    }
+  }
+});

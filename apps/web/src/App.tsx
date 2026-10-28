@@ -47,6 +47,7 @@ import {
   Loading,
   useRouteState,
   useResource,
+  WorkspaceRouteProvider,
 } from "./components";
 import { PdfCheckPage } from "./pdf-check-offer";
 import { Login } from "./login-page";
@@ -261,8 +262,7 @@ function Application() {
   const [readyContext, setReadyContext] = useState<
     "public" | "workspace" | null
   >(null);
-  const ready =
-    readyContext === (workspaceRoute ? "workspace" : "public");
+  const ready = readyContext === (workspaceRoute ? "workspace" : "public");
   const { applyAccountAppearance } = useDashboardAppearance();
   useEffect(() => {
     if (session && !isPublicPreview)
@@ -400,14 +400,16 @@ function Application() {
     return <PublicSitePage key={publicPath} path={publicPath} />;
 
   return (
-    <WorkspaceApplication
-      key={publicPath}
-      route={route}
-      routePending={routePending}
-      session={session}
-      updateSession={updateSession}
-      ready={ready}
-    />
+    <WorkspaceRouteProvider route={route}>
+      <WorkspaceApplication
+        key={publicPath}
+        route={route}
+        routePending={routePending}
+        session={session}
+        updateSession={updateSession}
+        ready={ready}
+      />
+    </WorkspaceRouteProvider>
   );
 }
 

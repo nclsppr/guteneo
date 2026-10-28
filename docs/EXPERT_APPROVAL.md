@@ -88,6 +88,13 @@ the person to return to ChatGPT and resume sending. Active mandates need no rout
 site return; a claim of no website visit at all, including initial authority,
 would exceed this contract.
 
+The browser account page selects a connection from the application's committed
+route. While navigation is pending, the retained view keeps its current selection
+and cannot accept edits; the next view's unavailable-connection notice receives
+focus after commit. Foreign or malformed connection IDs disclose no record and
+trigger no mutation. `tests/e2e/expert-onboarding.spec.ts` covers this behavior
+alongside explicit grant, renewal and current-role restrictions.
+
 ## PDF pages in conversation
 
 `read_document_pages` gives the same business read before preparation, including

@@ -393,10 +393,21 @@ export function Documents({ canPrepare = true }: { canPrepare?: boolean }) {
   const file = useRef<HTMLInputElement>(null);
   const documentHeading = useRef<HTMLHeadingElement>(null);
   const documentTrigger = useRef<HTMLButtonElement | null>(null);
+  const previousSelection = useRef(selectedId);
   const loadedDocumentId = selected?.id;
   useEffect(() => {
     if (loadedDocumentId) documentHeading.current?.focus();
   }, [loadedDocumentId]);
+  useEffect(() => {
+    const closed = previousSelection.current && !selectedId;
+    previousSelection.current = selectedId;
+    if (
+      closed &&
+      documentTrigger.current?.isConnected &&
+      !document.activeElement?.closest('[role="alert"]')
+    )
+      documentTrigger.current.focus();
+  }, [selectedId]);
   useEffect(() => {
     if (tab === "import") file.current?.focus();
   }, [tab]);
@@ -593,7 +604,6 @@ export function Documents({ canPrepare = true }: { canPrepare?: boolean }) {
               onClick={() => {
                 go("/app/documents");
                 action.clear();
-                documentTrigger.current?.focus();
               }}
             >
               {t.close}

@@ -68,6 +68,12 @@ of business writes. The loading contract below owns measured request ordering.
 Accepted transitions keep the previous screen visible, with its main content
 temporarily inert and busy so a clean editor cannot receive edits after the
 departure check. Keep the sidebar usable and move focus/scroll only on commit.
+Pass committed route state to account deep-link selection; reading the live hash
+during a pending render can consume a notice's focus effect beneath the inert
+fence. Foreign or malformed selections still reveal no record or authority.
+Use the shared committed workspace route context in child pages; do not install
+another hash listener or generic focus routine. Restore a closed document's
+connected trigger after commit, preserving focused errors and page unmounts.
 Readiness belongs to the public or workshop context; public readiness must not
 trigger a private sign-in before the required session result.
 
@@ -215,6 +221,10 @@ and paragraph geometry while font requests are held and after release; do not
 make text invisible or block application data on a font promise. The
 [frontend loading contract](https://github.com/nclsppr/guteneo/blob/main/docs/FRONTEND_PERFORMANCE.md#cold-webfonts--27-october-2026-candidate)
 owns the bounded before/after measurements and browser qualification.
+
+Keep public headings within narrow frames with the shared `.public-site h1`
+emergency word wrapping. Check translated titles with WOFF2 unavailable as well
+as with the approved fonts; fallback metrics must not force horizontal scrolling.
 
 On an authenticated page, client visibility is a convenience. The server still
 determines tenant membership, permissions and current authority. An attractive

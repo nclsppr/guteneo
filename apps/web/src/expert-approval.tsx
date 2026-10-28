@@ -19,6 +19,7 @@ import {
   RefreshButton,
   useAction,
   useResource,
+  useRoute,
 } from "./components";
 import "./expert-approval.css";
 
@@ -519,9 +520,10 @@ function ConnectionSettings({
 }
 
 export function ExpertApproval() {
-  const selectedConnection = new URLSearchParams(
-    window.location.hash.split("?")[1] ?? "",
-  ).get("connection");
+  const route = useRoute();
+  const selectedConnection = new URLSearchParams(route.split("?")[1] ?? "").get(
+    "connection",
+  );
   const resource = useResource<ExpertApprovalSettings>(
     isPublicPreview ? null : "/account/expert-approval",
   );

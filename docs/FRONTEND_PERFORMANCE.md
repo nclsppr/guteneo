@@ -175,6 +175,12 @@ later, visible text keeps its fallback for that document instead of rewrapping.
 A later cached navigation can use the packaged face immediately. This preserves
 stable readable content without hiding the page behind a font-loading gate.
 
+Public titles share `overflow-wrap: anywhere` under `.public-site h1`, so long
+translated words also fit when an unavailable font leaves a wider system face.
+The narrow-viewport regression blocks WOFF2 and checks journal/legal headings in
+all four languages at 320 px. This preserves the text and private typography;
+it neither hides overflow nor waits for a font before showing useful content.
+
 The Vite HTML hook preloads IBM Plex Sans 400 and EB Garamond 400/500 WOFF2 files,
 totaling 71,672 bytes. It derives each hashed URL from the emitted asset metadata
 and supplies the matching anonymous font request attributes. Those faces were
@@ -340,6 +346,20 @@ explicit reload. It exposes no raw exception and automatically replays no read
 or business write. A reload is a new document attempt, not a guarantee that a
 browser has discarded every failed network-cache entry.
 
+Account deep-link selection uses the committed route passed by the application,
+not the browser hash during an urgent pending render. The retained account view
+keeps its current connection selection until commit; unavailable-connection
+notices receive focus only after the inert fence clears. The unchanged expert
+onboarding tests cover valid, foreign and malformed connection links without
+granting or mutating authority.
+
+The application owns the only workspace hash subscription, transition and
+departure veto. Child `useRoute` readers share that committed route through
+context. Generic focus runs during commit, before specific page effects, so no
+later animation frame steals a fresh keyboard interaction. Closing a document
+restores its connected list trigger after selection clears; unmounted pages
+cannot restore an old trigger, and focused alerts retain priority.
+
 Bootstrap readiness is bound to the public/workshop context. A public document's
 ready state cannot briefly mount private sign-in before its session read starts,
 then mount it again after a refusal. A public-to-workshop hash entry performs its
@@ -349,14 +369,20 @@ Auth0 configuration nor the bounded personal-session fallback.
 Local production-asset measurements used fresh desktop Chromium contexts,
 synthetic read-only APIs and no real account/provider operation. With 600 ms
 added separately to the session and account-module requests, direct Account
-entry changed from 1,457 to 949 ms because the requests overlap; private API
-counts are unchanged. That controlled delay does not describe deployed latency.
+entry changed from 1,456.9 to 942.6 ms because the requests overlap; all 45
+resources and six API reads remain. Final JavaScript totals are 499,560 reported
+transferred bytes versus 498,796 (+764), and 1,570,716 decoded bytes versus
+1,569,179 (+1,537). That controlled delay does not describe deployed latency.
 In a separate unthrottled cold Account hash-navigation probe, the first useful
 heading was sampled on an animation frame: three samples changed from
-319.6/327.3/327.5 ms to 25.9/60.6/43.5 ms, a median of 327.3 → 43.5 ms. This
+319.6/327.3/327.5 ms to 23.5/23.6/34.9 ms, a median of 327.3 → 23.6 ms. The
+final route loads two JS/CSS resources: 28,317 decoded and 8,623 transferred
+bytes. This
 isolates the route reveal behavior; it is not a standardized paint or physical
 device metric. Raw reports remain beside the public-navigation evidence in
-`/Users/nclsppr/.codex/artifacts/guteneo-navigation-2026-10-28/app/`.
+`/Users/nclsppr/.codex/artifacts/guteneo-navigation-2026-10-28/app/`; the final
+context/focus probes are `router-paint-final.json` and
+`router-bootstrap-final.json` in the adjacent `guteneo-perf-release-2026-10-28/`.
 
 Workshop dispatch, membership, billing, account and Studio screens are lazy
 route imports. The personal shell is small and available immediately. PDF viewing,

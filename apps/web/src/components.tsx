@@ -9,6 +9,9 @@ import {
   lazy,
   Suspense,
   useTransition,
+  createContext,
+  useContext,
+  useLayoutEffect,
   type ReactNode,
   type ReactElement,
   type SetStateAction,
@@ -82,6 +85,20 @@ function readRoute() {
     (window.location.pathname.startsWith("/app") ? "/app" : "/")
   );
 }
+const WorkspaceRouteContext = createContext<string | null>(null);
+export function WorkspaceRouteProvider({
+  route,
+  children,
+}: {
+  route: string;
+  children: ReactNode;
+}) {
+  return (
+    <WorkspaceRouteContext.Provider value={route}>
+      {children}
+    </WorkspaceRouteContext.Provider>
+  );
+}
 export function useRouteState() {
   const [route, setRoute] = useState(readRoute);
   const [pending, startTransition] = useTransition();
@@ -113,26 +130,24 @@ export function useRouteState() {
     setRoute(readRoute());
     return () => window.removeEventListener("hashchange", update);
   }, [startTransition]);
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!route.startsWith("/app")) return;
     // Wait for the requested screen to commit before scrolling its content.
     window.scrollTo(0, 0);
     // Route changes replace the content without a browser navigation. Keep
     // keyboard and screen-reader users at the newly opened workspace page.
-    const frame = requestAnimationFrame(() => {
-      if (document.activeElement?.closest('[role="alert"]')) return;
-      const content = document.getElementById("main-content");
-      // A fast interaction can focus the new page before this frame runs.
-      // Preserve it instead of interrupting typing, especially on WebKit.
-      if (!content?.contains(document.activeElement))
-        content?.focus({ preventScroll: true });
-    });
-    return () => cancelAnimationFrame(frame);
+    if (document.activeElement?.closest('[role="alert"]')) return;
+    const content = document.getElementById("main-content");
+    if (!content?.contains(document.activeElement))
+      content?.focus({ preventScroll: true });
   }, [route]);
   return { route, pending };
 }
 export function useRoute() {
-  return useRouteState().route;
+  const route = useContext(WorkspaceRouteContext);
+  if (route === null)
+    throw new Error("Workspace routes require WorkspaceRouteProvider.");
+  return route;
 }
 export function useResource<T>(path: string | null) {
   const [state, setState] = useState<{
