@@ -4,6 +4,7 @@ import { createServer } from "node:http";
 import { readFile } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
 import { productionStatus } from "./production-status.mjs";
+import { publicHtmlLanguage } from "../packages/contracts/src/public-html-language.ts";
 
 const origins = ["https://guteneo.com"];
 // The owner retired this hostname on 9 October 2026. Reopening it is a regression.
@@ -219,7 +220,7 @@ export async function productionMonitor(
           typeof entry.sha256 === "string" &&
           r.body?.length === entry.bytes &&
           digest(r.body) === entry.sha256 &&
-          r.text?.includes(`<html lang="${locale}">`) &&
+          publicHtmlLanguage(r.text) === locale &&
           r.headers?.get("content-type")?.includes("text/html") &&
           r.headers?.get("x-content-type-options") === "nosniff" &&
           r.headers

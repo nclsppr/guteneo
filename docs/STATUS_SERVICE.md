@@ -133,6 +133,14 @@ Only the latest fresh, valid and internally consistent complete result can show
 public access as available. A fresh failed check identifies an observed issue in
 its group; it does not invent a provider outage.
 
+Public HTML language is read from the actual opening `html` element by
+`packages/contracts/src/public-html-language.ts`, shared with the Node monitor.
+Additional presentation attributes and attribute order do not change language.
+Missing, duplicate, malformed or incorrect language still fails the check. This
+semantic check follows the existing exact received-byte and SHA verification;
+it relaxes no content, header, freshness or access-control requirement. The
+shared parser is included in the status release source fingerprint.
+
 No observation, unavailable storage/network, malformed or contradictory data,
 a server-reported unknown/stale result, a measurement past its freshness limit,
 or an implausibly future time makes the current summary and service rows unknown.

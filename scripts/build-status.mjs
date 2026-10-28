@@ -13,6 +13,7 @@ export const statusScope = Object.freeze([
   "scripts/brand-icons.mjs",
   "packages/contracts/src/brand-icons.json",
   "packages/contracts/src/public-footer.json",
+  "packages/contracts/src/public-html-language.ts",
   "wrangler.status.jsonc",
   "scripts/build-status.mjs",
   "scripts/deploy-status.mjs",

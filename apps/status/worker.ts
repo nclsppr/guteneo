@@ -1,4 +1,5 @@
 import { PUBLIC_ROUTE_ALIASES } from "../../packages/contracts/src/public-routes";
+import { publicHtmlLanguage } from "../../packages/contracts/src/public-html-language";
 import {
   ingestProductionReport,
   readProductionE2EStatus,
@@ -394,7 +395,7 @@ export async function collectPublicSnapshot(
             .map((n) => n.toString(16).padStart(2, "0"))
             .join("");
           if (digest !== asset.sha256) code = "CONTENT_HASH_MISMATCH";
-          else if (!p.text.includes(`<html lang="${locale}">`))
+          else if (publicHtmlLanguage(p.text) !== locale)
             code = "LANGUAGE_MISMATCH";
           else if (
             !p.headers.get("content-type")?.includes("text/html") ||

@@ -32,7 +32,7 @@ const pages = new Map(
     `<html lang="${new URL(path, "https://guteneo.com").searchParams.get("lang") ?? "fr"}"><body>Fixture</body></html>`,
   ]),
 );
-const manifest = () => ({
+const manifest = (publicPages: ReadonlyMap<string, string> = pages) => ({
   mode: "production",
   publicPreview: false,
   sourceDirty: false,
@@ -41,7 +41,7 @@ const manifest = () => ({
   assetsSha256: "c".repeat(64),
   liveSendsEnabled: true,
   liveSendChannels: ["fax", "email"],
-  assets: [...pages].map(([path, html]) => {
+  assets: [...publicPages].map(([path, html]) => {
     const url = new URL(path, "https://guteneo.com");
     return {
       path: `${url.searchParams.has("lang") ? `/__public-locales/${url.searchParams.get("lang")}` : ""}${url.pathname}index.html`,
@@ -65,20 +65,23 @@ const capabilities = () => ({
   billing: { chargingEnabled: false },
   studio: { ai: { configured: false } },
 });
-function fixture(url: string): Response {
+function fixture(
+  url: string,
+  publicPages: ReadonlyMap<string, string> = pages,
+): Response {
   const parsed = new URL(url),
     path = parsed.pathname + parsed.search;
   if (parsed.origin !== "https://guteneo.com")
     throw new Error("Unexpected destination");
-  if (pages.has(path))
-    return new Response(pages.get(path), {
+  if (publicPages.has(path))
+    return new Response(publicPages.get(path), {
       headers: {
         "Content-Type": "text/html",
         "X-Content-Type-Options": "nosniff",
         "Content-Security-Policy": "frame-ancestors 'none'",
       },
     });
-  if (path === "/release.json") return Response.json(manifest());
+  if (path === "/release.json") return Response.json(manifest(publicPages));
   if (path === "/api/health")
     return Response.json({
       status: "ok",
@@ -152,6 +155,65 @@ afterAll(async () => {
 });
 
 describe("public collector with no business transport", () => {
+  it.each(["first", "last"])(
+    "accepts generated public HTML metadata when the root lang attribute is %s",
+    async (position) => {
+      const generatedPages = new Map(
+        PUBLIC_PATHS.map((path) => {
+          const url = new URL(path, "https://guteneo.com");
+          const locale = url.searchParams.get("lang") ?? "fr";
+          const metadata = `data-public-locale="${locale}" data-public-path="${url.pathname}"`;
+          const attributes =
+            position === "first"
+              ? `lang="${locale}" ${metadata}`
+              : `${metadata} lang="${locale}"`;
+          return [
+            path,
+            `<!DOCTYPE html>\n<html ${attributes}><head><meta charset="utf-8"></head><body>Fixture</body></html>`,
+          ];
+        }),
+      );
+      const result = await collectPublicSnapshot(
+        async (url) => fixture(url, generatedPages),
+        () => NOW,
+      );
+      expect(result.checks).toHaveLength(14);
+      expect(result.checks.every((check) => check.status === "pass")).toBe(
+        true,
+      );
+      expect(
+        result.categories.find((category) => category.id === "pages"),
+      ).toMatchObject({ passed: 7, total: 7 });
+    },
+  );
+
+  it.each([
+    ["wrong", 'lang="fr"'],
+    ["regional", 'lang="en-GB"'],
+    ["missing", 'data-lang="en"'],
+    ["duplicate matching", 'lang="en" lang="en"'],
+    ["duplicate conflicting", 'lang="en" lang="fr"'],
+  ])(
+    "rejects %s root language even when the exact bytes match the manifest",
+    async (_label, attributes) => {
+      const generatedPages = new Map(pages);
+      generatedPages.set(
+        "/?lang=en",
+        `<!DOCTYPE html><html data-public-locale="en" data-public-path="/" ${attributes}><head></head><body><main lang="en">Fixture</main></body></html>`,
+      );
+      const result = await collectPublicSnapshot(
+        async (url) => fixture(url, generatedPages),
+        () => NOW,
+      );
+      expect(
+        result.checks.find((check) => check.path === "/?lang=en"),
+      ).toMatchObject({ status: "fail", code: "LANGUAGE_MISMATCH" });
+      expect(
+        result.checks.filter((check) => check.status === "pass"),
+      ).toHaveLength(13);
+    },
+  );
+
   it("keeps all manifest checks strict through the Node identity transport", async () => {
     const transport = publicObservationTransport(async (input, init) => {
       expect(new Headers(init?.headers).get("Accept-Encoding")).toBe(
