@@ -18,12 +18,16 @@ const paths = [
   "/developers/",
   "/assistants/chatgpt/",
 ];
-function fixture(change = () => {}) {
+function fixture(
+  change = () => {},
+  renderPage = (lang) =>
+    `<html lang="${lang}"><title>Guteneo</title><p>Public</p></html>`,
+) {
   const pages = new Map(
     paths.map((path) => {
       const url = new URL(path, "https://guteneo.com");
       const lang = url.searchParams.get("lang") ?? "fr";
-      const body = `<html lang="${lang}"><title>Guteneo</title><p>Public</p></html>`;
+      const body = renderPage(lang);
       return [
         path,
         {
@@ -148,6 +152,51 @@ test("live evidence is bounded, anonymous and explicitly partial even when all p
     report.coverage.every((c) => ["disabled", "not_checked"].includes(c.state)),
   );
   assert.equal(report.staleAfterSeconds, 120);
+});
+
+test("public language checks accept exact release bytes with additional or reordered root attributes", async () => {
+  for (const renderPage of [
+    (lang) =>
+      `<!doctype html><html lang="${lang}" data-public-locale="${lang}" data-public-path="/"><title>Guteneo</title></html>`,
+    (lang) =>
+      `<!doctype html><html data-public-path='/' data-note='fake lang="es" >' lang='${lang}'><title>Guteneo</title></html>`,
+    (lang) =>
+      `<!-- <html lang=es> --><HTML data-public-path=/ LANG=${lang}><title>Guteneo</title></HTML>`,
+  ]) {
+    const report = await productionMonitor(
+      fixture(undefined, renderPage).fetcher,
+      sha,
+    );
+    assert.equal(report.status, "public_checks_passed");
+    const pages = report.checks.filter((check) => check.kind === "public_page");
+    assert.equal(pages.length, paths.length);
+    assert.ok(pages.every((check) => check.status === "pass"));
+  }
+});
+
+test("matching byte hashes cannot hide wrong, missing or duplicate root language", async () => {
+  for (const renderPage of [
+    () => '<html lang="es"><title>Wrong language</title></html>',
+    (lang) =>
+      `<html lang="${lang}-XX"><title>Wrong language tag</title></html>`,
+    (lang) =>
+      `<html data-note='lang="${lang}"'><title>Missing language</title></html>`,
+    (lang) =>
+      `<html lang="${lang}" LANG="${lang}"><title>Duplicate language</title></html>`,
+    (lang) =>
+      `<html lang="${lang}" lang="es"><title>Conflicting language</title></html>`,
+    (lang) =>
+      `<!-- <html lang="${lang}"> --><html lang="es"><title>Wrong actual language</title></html>`,
+  ]) {
+    const report = await productionMonitor(
+      fixture(undefined, renderPage).fetcher,
+      sha,
+    );
+    assert.equal(report.status, "attention");
+    const pages = report.checks.filter((check) => check.kind === "public_page");
+    assert.equal(pages.length, paths.length);
+    assert.ok(pages.every((check) => check.status === "fail"));
+  }
 });
 
 test("paid PDF verification coverage uses its current capability and stays distinct from scanning", async () => {

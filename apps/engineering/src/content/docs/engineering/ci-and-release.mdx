@@ -102,6 +102,17 @@ runtime edit and verify the manifest plus served bytes after authorized
 publication. The [status loading contract](https://github.com/nclsppr/guteneo/blob/main/docs/STATUS_SERVICE.md)
 owns request caching, history freshness, deferred tables and measured limits.
 
+The status collector and Node monitor share the bounded opening-element language
+parser in `packages/contracts/src/public-html-language.ts`. Compare the actual
+language value after exact byte/hash verification; never require a literal
+`<html lang="fr">` string, because valid presentation attributes can follow it.
+Wrong or ambiguous language remains a failure. The parser joins the status
+source fingerprint and has regressions for current generated HTML. On 28 October
+the published pages passed all fourteen browser journeys but this old literal
+check rejected seven HTTP observations; the parser correction is a separate
+source candidate until its CI and served publication are verified. No collector
+schedule, permission, provider operation or report-ingestion gate changes.
+
 ## Retain the right evidence after a manual rerun
 
 GitHub may retain several immutable artifacts with the same logical name after a

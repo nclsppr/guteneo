@@ -1,8 +1,42 @@
 # Frontend loading and personal bootstrap
 
-28 October 2026 local candidate. This contract owns route-loading behavior and
-its bounded local measurements. It establishes no production latency, server CPU,
-provider readiness, price, deployment or physical-device qualification.
+28 October 2026. This contract owns route-loading behavior and separates bounded
+local measurements from anonymous production observations. Neither establishes
+server CPU, provider readiness, price or physical-device qualification.
+
+## Anonymous production observation — 28 October 2026
+
+The published `a93e7334f603b818a689385f73c33757cdfeea38` release was compared
+with application `f3ba8d0` and status `03daa413` using the same frozen probe,
+Chromium 153.0.8010.12, Node 24.18.0 and macOS arm64. Twelve fresh anonymous
+contexts cover three samples per desktop/Pixel 7 profile and public/status
+surface, with French, light appearance, reduced motion and no CPU/network
+throttling. Normal HTTP cache remains enabled within each public journey. Only
+GET requests occurred; no authentication, refresh, collection or business write
+was initiated. The [dated measurement](evidence/frontend-loading-2026-10-28.json)
+records environment, source identities, probe digest, samples and resource counts.
+
+| First useful destination, median | Before | Published |
+| --- | ---: | ---: |
+| Desktop → Pricing | 424 ms | 24 ms |
+| Desktop → Support | 412 ms | 23 ms |
+| Pixel 7 emulation → Pricing | 560 ms | 28 ms |
+| Pixel 7 emulation → Support | 95 ms | 23 ms |
+
+Each enhanced transition requests zero new HTML documents and zero scripts;
+the baseline starts one document and requests 24–26 scripts, including browser
+cache reuse. Initial JavaScript network bytes increase by about one percent.
+Status goes from five to two scripts, about 14.8 to 10.2 KB reported JavaScript
+network bytes and 33,182 to 24,672 decoded body bytes. Status useful-content
+medians are 453 → 353 ms on desktop and 380 → 365 ms on mobile; the mobile ranges
+overlap, so this is no general latency promise. These three-sample observations
+are separate from private-account, physical-device, Worker CPU and billing proof.
+
+All fourteen production browser journeys passed. The same report exposed seven
+false HTTP language failures because the collector required an exact opening tag
+without the new presentation attributes. The shared parser correction follows
+the [status observation contract](STATUS_SERVICE.md#observation-scope-state-and-read-cadence)
+and requires its own publication; these measurements do not waive that failure.
 
 ## Navigation without restarting the page — 28 October 2026 candidate
 
@@ -50,7 +84,8 @@ browser regressions pass 40 cases on desktop Chromium and iPhone WebKit; four
 preview-only fixture cases are intentionally skipped on the production build.
 The focused unit suite passes 258 tests, and the three static-asset/release
 security checks pass. Typecheck, lint, documentation checks and the engineering
-build also pass. These are local checks; no merged-source CI or release follows.
+build also pass. These local checks alone establish neither merged-source CI nor
+publication; the separate production observation above records the later release.
 
 The unthrottled comparison uses production Vite/static HTML on local Wrangler
 with actual public-asset middleware, reduced motion, English and five fresh
