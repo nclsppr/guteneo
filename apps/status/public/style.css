@@ -2,19 +2,19 @@
   font-family: Plex;
   src: url("/assets/plex.woff2") format("woff2");
   font-weight: 400;
-  font-display: swap;
+  font-display: optional;
 }
 @font-face {
   font-family: Plex;
   src: url("/assets/plex-semibold.woff2") format("woff2");
   font-weight: 600 700;
-  font-display: swap;
+  font-display: optional;
 }
 @font-face {
   font-family: Garamond;
   src: url("/assets/garamond-medium.woff2") format("woff2");
   font-weight: 500;
-  font-display: swap;
+  font-display: optional;
 }
 :root {
   color-scheme: light;

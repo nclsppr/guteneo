@@ -121,6 +121,7 @@ test("7/30/365 use actual samples, monthly year summaries and complete daily det
 }) => {
   await fixtures(page, { history: (days) => history(days, true) });
   await page.goto("/?lang=en");
+  await page.locator(".daily-details summary").click();
   for (const days of [7, 30, 365]) {
     await page.locator(`[data-days="${days}"]`).click();
     await expect(page.locator("#history-chart")).not.toHaveAttribute(
@@ -449,8 +450,9 @@ test("changing language preserves the current history, disclosure and page witho
   await fixtures(page, { history: (days) => history(days, true) });
   await page.goto("/?lang=en#content");
   await page.locator('[data-days="365"]').click();
-  await expect(page.locator("#history-rows tr")).toHaveCount(365);
+  await expect(page.locator("#history-rows tr")).toHaveCount(0);
   await page.locator(".daily-details summary").click();
+  await expect(page.locator("#history-rows tr")).toHaveCount(365);
   await page.locator("#history-chart button").first().click();
   const before = reads.length;
   const loadedAt = await page.evaluate(() => performance.timeOrigin);

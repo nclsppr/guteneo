@@ -1,5 +1,12 @@
 # Workspace layout and V2
 
+The 28 October loading refinement applies to both saved layouts. Requested
+screen code starts alongside session verification; accepted route transitions
+retain the current page until ready, preserve unsaved-work vetoes and move
+scroll/focus on commit. Private reads still require current authority. Secure
+document prices retain their existing padding and consent with a one-pixel
+cobalt side rule. See the [loading contract and measured environment](FRONTEND_PERFORMANCE.md#route-dependencies-follow-the-requested-task).
+
 Historical candidate status on 14 October 2026: **V2 simplification locally validated;
 exact-commit CI and publication still require qualification, with publication
 authorized after validation**. Results dated 11–13 October below are historical,

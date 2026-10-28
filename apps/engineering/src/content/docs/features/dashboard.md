@@ -1,6 +1,6 @@
 ---
 title: "Workspace layout and browser appearance"
-description: "22 capabilities in the operate branch of Guteneo."
+description: "23 capabilities in the operate branch of Guteneo."
 sidebar:
   order: 18
 ---
@@ -26,7 +26,7 @@ Classic/V2 account layout authority is unchanged. The initial 25 October theme i
 <li id="feature-f9b64da75268">Temporary appearance=v2/classic override accepts legacy atelier URLs, never persists server-side and clears after explicit appearance save or identity change; local cache is non-authoritative</li>
 <li id="feature-0d9480f7a3c4">Existing activity/alerts precede introduction, otherwise a complete welcome; content preview precedes approval in reading/tab order</li>
 <li id="feature-f782ed0bec1e">Stable PDF frame above dispatch-review and document-page verification-purchase consent across lazy module loading/render/error, keyboard-accessible internal scrolling and unchanged consent/data authority</li>
-<li id="feature-b7d75dda5b8f">Consistent documents, preparation, review, tracking, assistants, account, studio, PDF verification, credits, tables and forms; Belvédère shares the V2 visual vocabulary while retaining distinct platform authority and read-only data; recursive diagnostics keep outer key/value columns and stack nested fields without zero-width values or page overflow</li>
+<li id="feature-43c670d1e2f2">Consistent documents, preparation, review, tracking, assistants, account, studio, PDF verification, credits, tables and forms; secure-document price panels retain their padding and consent with a fine one-pixel cobalt side rule; Belvédère shares the V2 visual vocabulary while retaining distinct platform authority and read-only data; recursive diagnostics keep outer key/value columns and stack nested fields without zero-width values or page overflow</li>
 <li id="feature-f6ae6cdc6735">One brand signature, workshop in navigation and no redundant V2 footer; service status near account and browser timezone near dates</li>
 <li id="feature-c3aa6a7a246e">One page title, contextual detail back link and task-specific primary action; global New dispatch stays secondary and permission-aware</li>
 <li id="feature-ee17fdbe452e">Generation introduction focuses on finding PDFs and makes clear that generation sends nothing</li>
@@ -40,4 +40,5 @@ Classic/V2 account layout authority is unchanged. The initial 25 October theme i
 <li id="feature-3c9dc64b011d">Public and personal headers and Belvédère page actions share one localized light/dark action icon at every viewport, defaulting to the operating system; authenticated personal Classic/V2 shells fill the available width with responsive gutters, while personal V2 follows workshop geometry without changing personal navigation, identity, document access or logout. Browser theme is independent of saved Classic/V2 layout, account language and role; document/PDF/email content retains original light-paper appearance and bytes</li>
 <li id="feature-00b001b58242">Template-designer controls adopt the resolved shared palette in place while original template content, output geometry, bindings and PDF bytes retain their document contract</li>
 <li id="feature-dc506efb74ab">V2 protected-email choice, review summary, email preview and PDF viewer frame share the existing 10 px panel corners; 7 px controls and original square PDF paper retain their distinct roles without extra API reads</li>
+<li id="feature-47e61003d888">Requested workshop route code loads in parallel with its initial authenticated session, without speculative hover/focus imports or private-data reads; failed route code preserves navigation and current identity with a localized explicit reload, while late imports cannot replace a newer route</li>
 </ol>

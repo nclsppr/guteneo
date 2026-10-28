@@ -1,6 +1,6 @@
 ---
 title: "Public service status"
-description: "15 capabilities in the operations branch of Guteneo."
+description: "16 capabilities in the operations branch of Guteneo."
 sidebar:
   order: 22
 ---
@@ -9,7 +9,7 @@ sidebar:
 
 **Access boundary:** Public reading surface.
 
-Customer UI independently published from 03daa4136de8999cc79018f33f2a22038917c621 on 25 October; all thirteen served assets and retained 7/30/365-day history were verified again at 26 October 01:57 UTC. Runtime/source asset continuity is distinct from the latest natural 01:45 observation of application c81ea94; no f946 collector observation or status redeployment is claimed. Local checks, browser-report ingestion and authenticated business qualification remain separate; see STATUS_SERVICE.md. The shared-footer engineering entry is a local candidate requiring a separate status release.
+Customer UI independently published from 03daa4136de8999cc79018f33f2a22038917c621 on 25 October; all thirteen served assets and retained 7/30/365-day history were verified again at 26 October 01:57 UTC. Runtime/source asset continuity is distinct from the latest natural 01:45 observation of application c81ea94; no f946 collector observation or status redeployment is claimed. Local checks, browser-report ingestion and authenticated business qualification remain separate; see STATUS_SERVICE.md. The shared-footer engineering entry is a local candidate requiring a separate status release. The 28 October loading/runtime and period-cache candidate has separate local measurements and requires exact-source publication proof.
 
 **Surfaces:** Customer-only public browser page and existing read-only GET /api/status, /api/history and /api/e2e-status; the customer UI reads only availability/history. Bounded GitHub OIDC report ingestion remains separate from workspace membership, business REST/MCP authority and native capabilities.
 
@@ -33,4 +33,5 @@ Customer UI independently published from 03daa4136de8999cc79018f33f2a22038917c62
 <li id="feature-a669cc9ad282">The common public footer derives four groups and sixteen canonical destinations from the same four-language public-footer.json as React; the lightweight status build and loopback preview generate one adapter without React or a second checked-in catalog. Its stamp exactly copies the approved transparent-outer-edge derivative, retaining printed white interior and preserving the separate opaque official source; the header retains white paper inside its actual inner blue frame and transparent exterior/perforations with ivory dark lettering, and status includes no city panorama</li>
 <li id="feature-59e79237291c">The customer page makes two initial dynamic reads, /api/status and the selected /api/history window, and no /api/e2e-status or qualification.json read; explicit refresh and visible fifteen-minute follow-up preserve bounded anonymous reads, while language/theme changes require no additional data read</li>
 <li id="feature-4f2cecfda22c">The unchanged status API retains bounded business-coverage projection and distinguishes configured, disabled and untested paid-PDF capability separately from antivirus/import/rendering; configuration never proves hosted scanning, engine execution, purchase or provider delivery</li>
+<li id="feature-89c0c4a05f2d">One minified deferred browser bundle reuses the authored message, shared-footer, localization and application sources with early script/font hints and optional font display. A bounded three-window fifteen-minute same-UTC-day history cache deduplicates period reads, explicit and automatic refresh bypass it, obsolete requests are aborted, and annual daily rows are built only when opened without changing coverage or unknown/stale semantics</li>
 </ol>

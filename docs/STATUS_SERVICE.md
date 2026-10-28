@@ -148,13 +148,80 @@ Opening and explicit Refresh read `/api/status` and `/api/history?days=30`
 concurrently; later refreshes use the selected period. These are **two dynamic
 JSON reads**, not two total asset requests. The customer page no longer reads
 `/api/e2e-status` or `/qualification.json`. Changing a history period reads that
-history only; changing language or theme reads neither endpoint.
+history only when its bounded browser snapshot is unavailable; changing language
+or theme reads neither endpoint.
 
 Visible pages refresh availability and history every fifteen minutes. Returning
 from a hidden page refreshes once the last successful status read is at least
 fifteen minutes old. A thirty-second local age check downgrades expired evidence
 without collecting a probe. Browser reads omit credentials, reject redirects and
 are bounded by timeout/body limits. They never launch tests or write results.
+
+### Browser loading and period reuse — 28 October 2026 candidate
+
+The production head loads one deferred `/app.bundle.js`, with an early script
+preload. `statusApplicationScript` in `scripts/build-status.mjs` compiles the
+authored messages, generated shared footer, localization adapter and application
+in that order with the repository's pinned esbuild. No framework runtime or new
+dependency is introduced. The loopback fixture host generates the same script at
+startup. The source files remain authoritative; the generated bundle belongs only
+in the build output and its release asset manifest. Existing raw script assets
+remain available for already opened older documents. A syntax error or incomplete
+footer catalog fails generation rather than publishing a partial bundle.
+
+The same three approved WOFF2 files are preloaded before stylesheet discovery.
+Their faces use `font-display: optional`: an early font can paint immediately,
+while a late font does not replace an already painted fallback in that document.
+The source font bytes and brand images are unchanged. This prevents a late font
+response from moving the service summary and history controls.
+
+The browser retains at most the three supported history windows. A snapshot can
+be reused only for less than fifteen minutes and within the same UTC date on
+which it was read. Re-selecting a loaded or currently loading period creates no
+duplicate request. Selecting a different uncached period cancels the obsolete
+history request, and an older result cannot overwrite the current selection.
+Explicit Refresh, the existing fifteen-minute visible refresh and a qualifying
+return to the tab request the current period from the server; they do not extend
+a cached snapshot's age without a successful read. A failed or invalid selected
+history refresh clears its cache entry and unusable chart/table as before.
+Cancellation reduces obsolete browser work; it does not prove cancellation of a
+database query which the server has already accepted.
+
+Daily rows are constructed when the native daily-history disclosure is opened.
+The 365-day response and monthly chart remain complete before opening it. While
+the table is open, period and language changes rebuild all relevant rows from the
+same validated records. This changes when hidden DOM is created, not the recorded
+observations, percentages, unknown periods or disclosure semantics.
+
+Local Chromium measurements used immutable built status fixtures, synthetic JSON,
+150 ms added delay per request, a fourfold CPU slowdown, and 850 ms font delay.
+Three desktop and three mobile cold contexts were measured before and after:
+
+| Measure                                                    | Before  | Candidate |
+| ---------------------------------------------------------- | ------- | --------- |
+| Desktop median first useful availability and history       | 764 ms  | 638 ms    |
+| Mobile median first useful availability and history        | 748 ms  | 635 ms    |
+| Mobile late-font movement of the history panel             | -26 px  | 0 px      |
+| Mobile observed layout-shift sum                           | 0.01881 | 0         |
+| History reads for `30 → 365 → 365 → 7 → 365 → 30 → 365`    | 7       | 3         |
+| Daily rows constructed while annual disclosure is unopened | 365     | 0         |
+
+Bundling alone removed three script requests but produced no material useful-state
+timing improvement in this environment. The final timings include the early
+script/font hints and optional fonts. The first uncached annual selection remained
+network-bound at 183–187 ms against 189–191 ms before; no substantial improvement
+is claimed for that operation. These are local browser comparisons, not production
+latency, Worker CPU, billed-request or provider evidence. Remote release and served
+asset verification remain separate.
+
+The candidate passed fifty Chromium status browser cases, five focused iPhone
+WebKit performance cases, 112 status locale/service/report-ingestion checks and
+eleven release-safety checks. The browser additions cover reused periods, forced
+refresh, fifteen-minute expiry, UTC rollover, cancelled obsolete reads, deferred
+daily rows and late-font geometry. Source locations are
+`tests/status-e2e/performance.spec.ts`, `tests/status-e2e/status.spec.ts` and
+`tests/security/status-release.test.mjs`. They qualify local fixtures and source
+contracts, not a hosted release or an authenticated business journey.
 
 ## History and interpretation
 

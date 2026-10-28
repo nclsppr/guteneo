@@ -48,7 +48,12 @@ import { Login } from "./login-page";
 // of waiting for a second route chunk and an initial Suspense fallback.
 import PersonalArea from "./personal-area";
 import { personalApi } from "./personal-api";
+import {
+  preloadWorkspaceRoute,
+  workspaceRouteModules,
+} from "./workspace-route-loader";
 import { WorkspaceIdentity } from "./workspace-identity";
+import { WorkspaceRouteBoundary } from "./workspace-route-boundary";
 import { RolePermissionNotice } from "./role-guide";
 import { InvitationPage } from "./invitation-page";
 import { LegalPage } from "./legal-page";
@@ -71,70 +76,88 @@ const publicPreview = import.meta.env.VITE_PUBLIC_PREVIEW === "true";
 const EmailPreferencesPage = lazy(() => import("./email-preferences"));
 
 const Overview = lazy(() =>
-  import("./dispatch-pages").then((module) => ({ default: module.Overview })),
+  workspaceRouteModules
+    .dispatch()
+    .then((module) => ({ default: module.Overview })),
 );
 const Documents = lazy(() =>
-  import("./dispatch-pages").then((module) => ({ default: module.Documents })),
+  workspaceRouteModules
+    .dispatch()
+    .then((module) => ({ default: module.Documents })),
 );
 const PrepareDispatch = lazy(() =>
-  import("./dispatch-pages").then((module) => ({
+  workspaceRouteModules.dispatch().then((module) => ({
     default: module.PrepareDispatch,
   })),
 );
 const DispatchList = lazy(() =>
-  import("./dispatch-pages").then((module) => ({
+  workspaceRouteModules.dispatch().then((module) => ({
     default: module.DispatchList,
   })),
 );
 const DispatchDetailPage = lazy(() =>
-  import("./dispatch-pages").then((module) => ({
+  workspaceRouteModules.dispatch().then((module) => ({
     default: module.DispatchDetailPage,
   })),
 );
 const Campaigns = lazy(() =>
-  import("./workspace-pages").then((module) => ({ default: module.Campaigns })),
+  workspaceRouteModules
+    .workspace()
+    .then((module) => ({ default: module.Campaigns })),
 );
 const CampaignDetail = lazy(() =>
-  import("./workspace-pages").then((module) => ({
+  workspaceRouteModules.workspace().then((module) => ({
     default: module.CampaignDetail,
   })),
 );
 const Senders = lazy(() =>
-  import("./workspace-pages").then((module) => ({ default: module.Senders })),
+  workspaceRouteModules
+    .workspace()
+    .then((module) => ({ default: module.Senders })),
 );
 const Usage = lazy(() =>
-  import("./workspace-pages").then((module) => ({ default: module.Usage })),
+  workspaceRouteModules
+    .workspace()
+    .then((module) => ({ default: module.Usage })),
 );
 const Admin = lazy(() =>
-  import("./workspace-pages").then((module) => ({ default: module.Admin })),
+  workspaceRouteModules
+    .workspace()
+    .then((module) => ({ default: module.Admin })),
 );
 const Billing = lazy(() =>
-  import("./billing-page").then((module) => ({ default: module.Billing })),
+  workspaceRouteModules
+    .billing()
+    .then((module) => ({ default: module.Billing })),
 );
 const PostalReviewPage = lazy(() =>
-  import("./postal-review-page").then((module) => ({
+  workspaceRouteModules.postal().then((module) => ({
     default: module.PostalReviewPage,
   })),
 );
 const Account = lazy(() =>
-  import("./account-page").then((module) => ({ default: module.Account })),
+  workspaceRouteModules
+    .account()
+    .then((module) => ({ default: module.Account })),
 );
 const TeamAdmin = lazy(() =>
-  import("./account-page").then((module) => ({ default: module.TeamAdmin })),
+  workspaceRouteModules
+    .account()
+    .then((module) => ({ default: module.TeamAdmin })),
 );
 const TeamInvitations = lazy(() =>
-  import("./team-invitations").then((module) => ({
+  workspaceRouteModules.invitations().then((module) => ({
     default: module.TeamInvitations,
   })),
 );
 const Connection = lazy(() =>
-  import("./assistant-workspace").then((module) => ({
+  workspaceRouteModules.connection().then((module) => ({
     default: module.Connection,
   })),
 );
-const DocumentStudio = lazy(() => import("./document-studio"));
+const DocumentStudio = lazy(() => workspaceRouteModules.studio());
 const SecureDistributionPage = lazy(() =>
-  import("./secure-distribution-pages").then((module) => ({
+  workspaceRouteModules.secureDistribution().then((module) => ({
     default: module.SecureDistributionPage,
   })),
 );
@@ -255,6 +278,11 @@ function Application() {
       setReady(true);
       return;
     }
+    // Route code and authority are independent; private reads still wait for
+    // the verified session before the requested screen can mount.
+    void preloadWorkspaceRoute(window.location.hash.slice(1) || "/app").catch(
+      () => undefined,
+    );
     let alive = true;
     const controller = new AbortController();
     api<Session>("/session", { signal: controller.signal })
@@ -883,7 +911,9 @@ function WorkspaceApplication({
           key={`${session.organization.id}:${session.user.id}`}
         >
           <ErrorNotice error={logoutError} />
-          <Suspense fallback={<Loading />}>{content}</Suspense>
+          <WorkspaceRouteBoundary route={route}>
+            <Suspense fallback={<Loading />}>{content}</Suspense>
+          </WorkspaceRouteBoundary>
         </main>
         {appearance !== "v2" && (
           <footer className="app-footer">

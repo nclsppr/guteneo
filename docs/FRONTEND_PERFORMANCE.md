@@ -317,6 +317,38 @@ fictional documents.
 
 ## Route dependencies follow the requested task
 
+The 28 October workshop follow-up starts only the requested screen's static
+module alongside the initial `/api/session` read. `workspace-route-loader.ts`
+shares that import with the actual route component. The screen and its private
+reads still mount only after session verification; module bytes contain no
+account data or additional authority. PDF workers and template-design engines
+remain deferred. No hover/focus import or private-data prefetch is introduced:
+browsers can retain a failed speculative module for the document, so that path
+was rejected during qualification.
+
+Accepted hash-route changes use a React transition. The current page remains
+available while the requested module loads, instead of entering a short loading
+fallback and waiting for React's reveal window. Existing unsaved-work vetoes run
+before accepting the transition. Scroll and focus follow the committed page;
+the existing user/workspace key and resource-path fences still discard old
+identity or resource state. `workspace-route-boundary.tsx` keeps the identity
+and navigation visible after a route-code failure and offers a fixed localized
+explicit reload. It exposes no raw exception and automatically replays no read
+or business write. A reload is a new document attempt, not a guarantee that a
+browser has discarded every failed network-cache entry.
+
+Local production-asset measurements used fresh desktop Chromium contexts,
+synthetic read-only APIs and no real account/provider operation. With 600 ms
+added separately to the session and account-module requests, direct Account
+entry changed from 1,457 to 949 ms because the requests overlap; private API
+counts are unchanged. That controlled delay does not describe deployed latency.
+In a separate unthrottled cold Account hash-navigation probe, the first useful
+heading was sampled on an animation frame: three samples changed from
+319.6/327.3/327.5 ms to 25.9/60.6/43.5 ms, a median of 327.3 → 43.5 ms. This
+isolates the route reveal behavior; it is not a standardized paint or physical
+device metric. Raw reports remain beside the public-navigation evidence in
+`/Users/nclsppr/.codex/artifacts/guteneo-navigation-2026-10-28/app/`.
+
 Workshop dispatch, membership, billing, account and Studio screens are lazy
 route imports. The personal shell is small and available immediately. PDF viewing,
 PDF workers, template design and Swagger remain deferred until their actual

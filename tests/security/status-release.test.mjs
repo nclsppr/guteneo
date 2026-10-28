@@ -5,6 +5,7 @@ import { mkdtemp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import test from "node:test";
+import { runInNewContext } from "node:vm";
 import { buildStatus } from "../../scripts/build-status.mjs";
 import { brandIconFiles } from "../../scripts/brand-icons.mjs";
 import { deployStatus } from "../../scripts/deploy-status.mjs";
@@ -307,4 +308,54 @@ test("status footer assets bind the shared four-language source catalog", async 
   delete catalog.groups[0].labels.lb;
   await writeFile(file, JSON.stringify(catalog));
   await assert.rejects(buildStatus(root), /STATUS_FOOTER_CATALOG_INVALID/);
+});
+
+test("status application bundles the authored sources in order and binds their bytes", async (t) => {
+  const root = await fixture(t);
+  const catalogPath = join(root, "packages/contracts/src/public-footer.json");
+  await mkdir(dirname(catalogPath), { recursive: true });
+  const labels = { fr: "Aide", en: "Help", de: "Hilfe", lb: "Hëllef" };
+  await writeFile(
+    catalogPath,
+    JSON.stringify({
+      navigationLabel: labels,
+      groups: [{ id: "help", labels, links: [{ href: "/support/", labels }] }],
+    }),
+  );
+  await mkdir(join(root, "apps/status/public/locales"), { recursive: true });
+  await writeFile(
+    join(root, "apps/status/public/index.html"),
+    '<script src="/app.bundle.js" defer></script>',
+  );
+  await writeFile(
+    join(root, "apps/status/public/locales/messages.js"),
+    "window.STATUS_MESSAGES = { ready: true };",
+  );
+  await writeFile(
+    join(root, "apps/status/public/i18n.js"),
+    "window.statusI18n = { ready: window.STATUS_MESSAGES.ready && !!window.GUTENEO_PUBLIC_FOOTER.groups };",
+  );
+  const appPath = join(root, "apps/status/public/app.js");
+  await writeFile(
+    appPath,
+    "window.statusApplicationReady = window.statusI18n.ready;",
+  );
+  const first = await buildStatus(root);
+  const bundle = await readFile(
+    join(root, "dist/status/app.bundle.js"),
+    "utf8",
+  );
+  const context = { window: {} };
+  runInNewContext(bundle, context);
+  assert.equal(context.window.statusApplicationReady, true);
+  assert.ok(first.assets.some((asset) => asset.path === "/app.bundle.js"));
+  await writeFile(
+    appPath,
+    "window.statusApplicationReady = window.statusI18n.ready; window.revision = 2;",
+  );
+  const second = await buildStatus(root);
+  assert.notEqual(second.sourceSnapshotSha256, first.sourceSnapshotSha256);
+  assert.notEqual(second.assetsSha256, first.assetsSha256);
+  await writeFile(appPath, "const invalid = ;");
+  await assert.rejects(buildStatus(root), /Transform failed/);
 });

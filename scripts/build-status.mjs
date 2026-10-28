@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 import { collectAssets, sha256, sourceSnapshot } from "./release-source.mjs";
 import { captureSourceSnapshot, sourceInputs } from "./test-offline.mjs";
 import { brandIconSourcePaths, copyBrandIcons } from "./brand-icons.mjs";
+import { transform } from "esbuild";
 
 export const statusScope = Object.freeze([
   "apps/status",
@@ -51,6 +52,21 @@ export async function statusFooterScript(root) {
   )
     throw new Error("STATUS_FOOTER_CATALOG_INVALID");
   return `window.GUTENEO_PUBLIC_FOOTER = ${JSON.stringify(catalog)};\n`;
+}
+
+/** One small deferred browser script retains the authored catalogs and runtime. */
+export async function statusApplicationScript(root) {
+  const [messages, footer, localization, application] = await Promise.all([
+    readFile(join(root, "apps/status/public/locales/messages.js"), "utf8"),
+    statusFooterScript(root),
+    readFile(join(root, "apps/status/public/i18n.js"), "utf8"),
+    readFile(join(root, "apps/status/public/app.js"), "utf8"),
+  ]);
+  const { code } = await transform(
+    [messages, footer, localization, application].join("\n;\n"),
+    { loader: "js", format: "iife", target: "es2022", minify: true },
+  );
+  return code;
 }
 
 function approvedQualificationInputs(scope) {
@@ -118,10 +134,15 @@ export async function buildStatus(
   await mkdir(output, { recursive: true });
   await cp(join(root, "apps/status/public"), output, { recursive: true });
   await copyBrandIcons(root, output);
+  const html = await readFile(join(output, "index.html"), "utf8");
+  if (html.includes('src="/app.bundle.js"'))
+    await writeFile(
+      join(output, "app.bundle.js"),
+      await statusApplicationScript(root),
+    );
   if (
-    (await readFile(join(output, "index.html"), "utf8")).includes(
-      'src="/footer.js"',
-    )
+    html.includes('src="/footer.js"') ||
+    html.includes('src="/app.bundle.js"')
   )
     await writeFile(join(output, "footer.js"), await statusFooterScript(root));
   const qualificationSource = await qualifiedSource(root, output);

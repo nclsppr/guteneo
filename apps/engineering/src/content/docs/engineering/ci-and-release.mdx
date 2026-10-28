@@ -85,6 +85,23 @@ authorized publication, compare the served icon bytes and inspect browser
 behavior separately; a local equality check cannot prove deployment or clear a
 browser cache. These static assets add no backend binding or provider authority.
 
+## Build the status browser runtime from its sources
+
+`scripts/build-status.mjs` generates `app.bundle.js` from the status message
+catalog, shared footer catalog, localization runtime and application, in that
+order. The existing locked esbuild dependency minifies this one deferred browser
+script. The loopback preview uses the same helper; do not maintain a separate
+runtime or edit the generated bundle. Original script assets remain available
+for documents opened before a publication.
+
+The status source fingerprint includes the builder and root package/lockfile;
+the release manifest records the generated bundle's exact bytes. Early script
+and font resource hints change request ordering only. The build adds no Worker
+binding, database migration or collection schedule. Rebuild after a catalog or
+runtime edit and verify the manifest plus served bytes after authorized
+publication. The [status loading contract](https://github.com/nclsppr/guteneo/blob/main/docs/STATUS_SERVICE.md)
+owns request caching, history freshness, deferred tables and measured limits.
+
 ## Retain the right evidence after a manual rerun
 
 GitHub may retain several immutable artifacts with the same logical name after a

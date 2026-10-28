@@ -121,6 +121,12 @@ session renewal. Unused workshop editors/viewers remain lazy. See
 [FRONTEND_PERFORMANCE.md](FRONTEND_PERFORMANCE.md); its local controlled timings
 are not hosted latency or server CPU proof.
 
+Workshop entry starts the requested static route module alongside session
+verification, while private data and useful content remain authority-gated.
+Accepted route transitions retain the current screen until code is ready, with
+existing unsaved-work vetoes and identity/resource fences. No speculative
+private-data read or business action is added.
+
 The independent status UI reads availability/history and removes internal report
 presentation. Worker collection, stored observations, sanitized browser-report
 read/ingestion and source-bound qualification remain unchanged. Its neutral

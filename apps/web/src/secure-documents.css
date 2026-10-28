@@ -116,7 +116,7 @@
 .secure-document-price {
   padding: 18px;
   background: var(--paper);
-  border-left: 3px solid var(--blue);
+  border-left: 1px solid var(--blue);
 }
 .secure-document-price strong {
   display: block;

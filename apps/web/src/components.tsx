@@ -8,6 +8,7 @@ import {
   cloneElement,
   lazy,
   Suspense,
+  startTransition,
   type ReactNode,
   type ReactElement,
   type SetStateAction,
@@ -103,10 +104,7 @@ export function useRoute() {
       }
       acceptedHash = window.location.hash;
       acceptedRoute = nextRoute;
-      setRoute(nextRoute);
-      // Public document fragments already scroll natively. Only workspace
-      // navigation replaces the page and needs its scroll position reset.
-      if (nextRoute.startsWith("/app")) window.scrollTo(0, 0);
+      startTransition(() => setRoute(nextRoute));
     };
     window.addEventListener("hashchange", update);
     // A fragment may change after the first render but before this effect.
@@ -116,6 +114,8 @@ export function useRoute() {
   }, []);
   useEffect(() => {
     if (!route.startsWith("/app")) return;
+    // Wait for the requested screen to commit before scrolling its content.
+    window.scrollTo(0, 0);
     // Route changes replace the content without a browser navigation. Keep
     // keyboard and screen-reader users at the newly opened workspace page.
     const frame = requestAnimationFrame(() => {
