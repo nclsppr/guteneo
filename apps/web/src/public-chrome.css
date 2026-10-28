@@ -54,6 +54,7 @@
 .public-header-actions {
   display: flex;
   align-items: center;
+  flex-shrink: 0;
   gap: 12px;
 }
 .public-resource-menu {
@@ -378,8 +379,14 @@
   }
 }
 @media (max-width: 360px) {
-  .public-header.site-header {
+  .public-site .public-header.site-header {
     gap: 4px;
+  }
+  .public-site .public-header .brand {
+    min-width: 0;
+    flex-shrink: 1;
+    gap: 6px;
+    font-size: clamp(23px, calc(17.5vw - 33px), 30px);
   }
   .public-header-actions {
     gap: 0;

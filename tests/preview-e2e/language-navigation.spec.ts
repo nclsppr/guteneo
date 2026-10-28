@@ -269,6 +269,25 @@ test("public editorial titles remain inside narrow viewports when web fonts are 
         await expect(page.locator("html")).toHaveAttribute("lang", locale);
         await expect(page.locator(".public-site main h1")).toBeVisible();
         await page.evaluate(() => document.fonts.ready);
+        const header = page.locator("header.public-header");
+        const wordmark = (await header
+          .locator(".brand-wordmark")
+          .boundingBox())!;
+        const actions = (await header
+          .locator(".public-header-actions")
+          .boundingBox())!;
+        expect(wordmark.x + wordmark.width).toBeLessThanOrEqual(actions.x);
+        for (const selector of [
+          ".theme-toggle",
+          ".language-menu > summary",
+          ".public-menu-toggle",
+        ]) {
+          const control = (await header.locator(selector).boundingBox())!;
+          expect(control.width).toBeGreaterThanOrEqual(44);
+          expect(control.height).toBeGreaterThanOrEqual(44);
+          expect(control.x).toBeGreaterThanOrEqual(0);
+          expect(control.x + control.width).toBeLessThanOrEqual(320);
+        }
         await expectNoHorizontalOverflow(page);
       });
     }

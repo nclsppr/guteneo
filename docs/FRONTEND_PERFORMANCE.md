@@ -180,6 +180,9 @@ translated words also fit when an unavailable font leaves a wider system face.
 The narrow-viewport regression blocks WOFF2 and checks journal/legal headings in
 all four languages at 320 px. This preserves the text and private typography;
 it neither hides overflow nor waits for a font before showing useful content.
+The narrow public header reserves its three 44 px actions and scales only the
+wordmark at the smallest widths. The portrait and action targets remain intact;
+fallback tests check their rectangles as well as document overflow.
 
 The Vite HTML hook preloads IBM Plex Sans 400 and EB Garamond 400/500 WOFF2 files,
 totaling 71,672 bytes. It derives each hashed URL from the emitted asset metadata
