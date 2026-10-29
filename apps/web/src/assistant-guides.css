@@ -163,7 +163,7 @@
 
 .assistant-guide-heading :is(h1, h2) {
   margin: 0 0 12px;
-  font-family: "EB Garamond", serif;
+  font-family: var(--font-display);
   font-size: clamp(32px, 4vw, 52px);
   font-weight: 400;
   line-height: 1.08;
@@ -302,7 +302,7 @@
 .assistant-guide-step-number {
   padding-top: 2px;
   color: var(--blue);
-  font-family: "IBM Plex Mono", monospace;
+  font-family: var(--font-code);
   font-size: 16px;
   font-variant-numeric: tabular-nums;
 }

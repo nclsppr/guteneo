@@ -498,7 +498,7 @@
   stroke-dasharray: 3 4;
 }
 .bv-chart-label {
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: var(--font-body);
   fill: var(--muted);
   font-size: 14px;
 }
@@ -1046,7 +1046,7 @@
 }
 .bv-telemetry h2 {
   font-size: 20px;
-  font-family: "EB Garamond", serif;
+  font-family: var(--font-display);
   font-weight: 400;
   margin-bottom: 10px;
 }
@@ -1363,7 +1363,7 @@
   margin-bottom: 21px;
 }
 .bv-infra-empty h2 {
-  font-family: "EB Garamond", serif;
+  font-family: var(--font-display);
   font-size: 29px;
   letter-spacing: -0.02em;
   margin-bottom: 14px;

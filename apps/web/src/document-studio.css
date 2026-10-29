@@ -20,7 +20,7 @@
 }
 .studio-guide li::before {
   content: counter(steps, decimal-leading-zero) " ";
-  font-family: "IBM Plex Mono", monospace;
+  font-family: var(--font-code);
   color: var(--blue);
 }
 .studio-guide li + li::before {
@@ -45,7 +45,7 @@
   align-items: flex-start;
 }
 .studio-gallery h3 {
-  font-family: "EB Garamond", serif;
+  font-family: var(--font-display);
   font-size: 28px;
   margin: 18px 0 8px;
 }
@@ -90,7 +90,7 @@
   padding: 22px;
 }
 .studio-side h2 {
-  font-family: "EB Garamond", serif;
+  font-family: var(--font-display);
   font-size: 28px;
 }
 .studio-toolbar {
@@ -224,7 +224,7 @@
   margin: 24px 0;
 }
 .studio-section h2 {
-  font-family: "EB Garamond", serif;
+  font-family: var(--font-display);
   font-size: 30px;
 }
 .studio-mapping-grid {
