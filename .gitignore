@@ -9,3 +9,6 @@ test-results/
 reports/*.json
 reports/*.log
 *.tsbuildinfo
+*.log
+.DS_Store
+__pycache__/
