@@ -443,10 +443,8 @@ test("discarded workspace reads cannot overwrite personal state and returning re
     page.getByRole("heading", { name: "The raw material.", exact: true }),
   ).toBeVisible();
   await expect(
-    page
-      .locator(".organization")
-      .getByText("Current synthetic workspace", { exact: true }),
-  ).toBeVisible();
+    page.locator(".workspace-switcher .space-switcher-trigger"),
+  ).toHaveAccessibleName("Workspace: Current synthetic workspace");
   expect(workspaceReads).toBe(2);
   expect(state.writes).toEqual([]);
 });

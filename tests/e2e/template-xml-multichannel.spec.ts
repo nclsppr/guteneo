@@ -326,6 +326,10 @@ test("XML records determine each PDF channel and recipient without sending", asy
   await page
     .getByRole("button", { name: "Préparer une distribution (2)", exact: true })
     .click();
+  // Several PDFs: the destination's documents are chosen explicitly.
+  await page
+    .getByLabel("Documents pour la destination 1", { exact: true })
+    .selectOption("all");
   await page.getByLabel("Canal 1", { exact: true }).selectOption("data");
   await expect(page.getByLabel("Champ du canal", { exact: true })).toHaveValue(
     "delivery.channel",
