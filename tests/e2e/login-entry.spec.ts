@@ -208,18 +208,12 @@ test("explicit sign-out returns to the public site without reopening SSO and kee
   hosted.logoutStatus = 503;
   await page.goto(`${origin}/?lang=en#/app/account`);
   await expect(page.locator("#account-name")).toHaveValue("Hosted account");
-  const navigation = page.locator(".workspace-navigation");
-  const openNavigation = async () => {
-    const summary = navigation.locator("summary");
-    if (await summary.isVisible()) {
-      await summary.click();
-      return navigation.getByRole("button", { name: "Sign out", exact: true });
-    }
-    return page
-      .locator(".sidebar-footer")
-      .getByRole("button", { name: "Sign out", exact: true });
-  };
-  const logout = await openNavigation();
+  // V2 keeps sign-out in the account menu at every viewport.
+  const account = page.locator(".workspace-identity-trigger");
+  const logout = page
+    .locator(".workspace-identity-menu")
+    .getByRole("button", { name: "Sign out", exact: true });
+  await account.click();
   await logout.click();
   await expect(page.getByRole("alert")).toContainText("Sign-out unavailable.");
   await expect(page.locator("#account-name")).toHaveValue("Hosted account");
@@ -228,6 +222,10 @@ test("explicit sign-out returns to the public site without reopening SSO and kee
   expect(hosted.logoutRequests).toBe(1);
 
   hosted.logoutStatus = 200;
+  // The focused error closes the menu when focus was inside it.
+  await expect(page.getByRole("alert")).toBeFocused();
+  if ((await account.getAttribute("aria-expanded")) !== "true")
+    await account.click();
   await logout.click();
   // The explicit English choice survives sign-out. The bare public URL is only
   // a navigation intermediate before locale initialization canonicalizes it.

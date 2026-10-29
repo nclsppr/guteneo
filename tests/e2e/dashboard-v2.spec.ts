@@ -77,15 +77,22 @@ async function expectClearV2Shell(page: Page) {
   await expect(page.locator(".sidebar > .personal-context-link")).toHaveCount(
     0,
   );
+  // One account row; its closed menu holds profile, status and sign-out.
+  const account = page.locator(".sidebar-account .workspace-identity-trigger");
+  await expect(account).toBeVisible();
+  await expect(account).toHaveAttribute("aria-expanded", "false");
   await expect(
     page.locator('.sidebar-account a[href="#/app/account"]'),
-  ).toBeVisible();
+  ).toHaveCount(1);
   await expect(
     page.locator('.sidebar-account a[href="https://status.guteneo.com/"]'),
-  ).toBeVisible();
+  ).toHaveCount(1);
   await expect(
     page.locator('a[href="https://status.guteneo.com/"]'),
   ).toHaveCount(1);
+  await expect(page.locator(".sidebar-footer, .navigation-logout")).toHaveCount(
+    0,
+  );
 }
 
 async function expectProminentAction(action: Locator, touch: boolean) {
@@ -167,15 +174,27 @@ test("V2 gives each creation page one prominent action and keeps account utiliti
     await expectClearV2Shell(page);
     const primary = main.locator(".button.primary");
     await expect(primary).toHaveCount(1);
+    await expect(primary).toHaveText(destination.action);
+    // The global shortcut stays in place on every page without the filled style.
+    const shortcut = page.locator(".workspace-create");
+    await expect(shortcut).toHaveCount(1);
+    await expect(shortcut).not.toHaveClass(/\bprimary\b/);
+    if (isMobile) await expect(shortcut).toBeHidden();
+    if (destination.path === "dispatches" && !isMobile) {
+      // The heading repeats the shortcut only where navigation is collapsed.
+      await expect(primary).toBeHidden();
+      await expect(shortcut).toBeVisible();
+      continue;
+    }
     await expect(primary).toHaveAccessibleName(destination.action);
     await expectProminentAction(primary, isMobile);
-    if (destination.path !== "dispatches") {
-      await expect(page.locator(".workspace-create")).not.toHaveClass(
-        /\bprimary\b/,
+    if (!isMobile)
+      await expect(shortcut).not.toHaveCSS(
+        "background-color",
+        await primary.evaluate(
+          (element) => getComputedStyle(element).backgroundColor,
+        ),
       );
-      if (isMobile)
-        await expect(page.locator(".workspace-create")).toBeHidden();
-    } else await expect(page.locator(".workspace-create")).toHaveCount(0);
   }
 
   await page.goto("/?appearance=v2#/app/templates");
@@ -213,7 +232,8 @@ test("V2 gives each creation page one prominent action and keeps account utiliti
     .click();
   await expectProminentAction(importPdf, isMobile);
 
-  // The utility link remains directly reachable when the compact navigation is closed.
+  // The account menu remains reachable when the compact navigation is closed.
+  await page.locator(".sidebar-account .workspace-identity-trigger").click();
   await page.locator('.sidebar-account a[href="#/app/account"]').click();
   await expect(page.locator("#dashboard-appearance")).toBeVisible();
   await expectClearV2Shell(page);
@@ -226,12 +246,70 @@ test("V2 gives each creation page one prominent action and keeps account utiliti
   }
   const globalAction = page.locator(".workspace-create");
   await expect(globalAction).toBeVisible();
+  const place = await globalAction.boundingBox();
   await globalAction.focus();
   await page.keyboard.press("Enter");
   await expect(page).toHaveURL(/#\/app\/prepare$/);
   await expect(main.locator("form.prepare-layout")).toBeVisible();
-  await expect(page.locator(".workspace-create")).toHaveCount(0);
+  await expect(globalAction).toHaveCount(1);
+  if (!isMobile) expect(await globalAction.boundingBox()).toEqual(place);
   expect(writes).toEqual([]);
+});
+
+test("V2 keeps every destination in view and in place on common desktop screens", async ({
+  page,
+  isMobile,
+}) => {
+  test.skip(
+    isMobile,
+    "Desktop sidebar geometry; phones use the collapsed navigation.",
+  );
+  await login(page, "v2");
+  const navigation = page.locator(".workspace-navigation");
+  for (const size of [
+    { width: 1440, height: 900 },
+    { width: 1536, height: 864 },
+  ]) {
+    await page.setViewportSize(size);
+    let places: number[] | undefined;
+    for (const route of [
+      "",
+      "/documents",
+      "/prepare",
+      "/dispatches",
+      "/admin",
+    ]) {
+      await page.goto(`/?appearance=v2#/app${route}`);
+      await expect(page.locator("#main-content h1")).toBeVisible();
+      const layout = await navigation.evaluate((element) => ({
+        scrolls: element.scrollHeight > element.clientHeight,
+        bottom: element.getBoundingClientRect().bottom,
+        links: [...element.querySelectorAll("nav a")].map((link) =>
+          link.getBoundingClientRect(),
+        ),
+      }));
+      expect(layout.scrolls, `${route || "/app"} at ${size.height}px`).toBe(
+        false,
+      );
+      for (const link of layout.links)
+        expect(link.bottom).toBeLessThanOrEqual(layout.bottom);
+      const tops = layout.links.map((link) => Math.round(link.top));
+      if (places) expect(tops, route || "/app").toEqual(places);
+      else places = tops;
+    }
+  }
+  // Shorter screens scroll the list and fade the cut-off entry.
+  await page.setViewportSize({ width: 1280, height: 720 });
+  expect(
+    await navigation.evaluate(
+      (element) => element.scrollHeight > element.clientHeight,
+    ),
+  ).toBe(true);
+  expect(
+    await navigation
+      .locator("nav")
+      .evaluate((element) => getComputedStyle(element, "::after").position),
+  ).toBe("sticky");
 });
 
 test("account language and appearance save together, survive a fresh browser, and retain another tab's draft", async ({
@@ -777,9 +855,7 @@ test("V2 keeps the account reachable below scrollable navigation and both appear
     await expect(
       page.locator('.workspace-navigation a[href="#/app/account"]'),
     ).toHaveCount(0);
-    await expect(
-      account.locator('a[href="#/app/account"]').first(),
-    ).toBeVisible();
+    await expect(account.locator(".workspace-identity-trigger")).toBeVisible();
   }
   for (const dimensions of [viewport!, { width: 320, height: 812 }]) {
     await page.setViewportSize(dimensions);
