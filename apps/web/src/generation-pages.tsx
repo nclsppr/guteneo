@@ -1,3 +1,4 @@
+import type { GenerationRecordContext } from "../../../packages/contracts/src/generation-context";
 import { msg, msgIn } from "./messages";
 import { studioRoutes } from "./app-routes";
 import { scrollStudioTable } from "./studio-table-keyboard";
@@ -104,6 +105,35 @@ export function GenerationDetail({
   const job = useResource<GenerationJobView>("/generation-jobs/" + id);
   const results = useResource<Page<GenerationResultView>>(
     "/generation-jobs/" + id + "/results",
+  );
+  const [contextCursor, setContextCursor] = useState<string>();
+  const context = useResource<{ items: GenerationRecordContext[] }>(
+    `/generation-jobs/${id}/record-context${contextCursor ? "?" + new URLSearchParams({ cursor: contextCursor }) : ""}`,
+  );
+  const [contexts, setContexts] = useState<{
+    id: string;
+    records: Record<string, GenerationRecordContext>;
+  }>({ id, records: {} });
+  useEffect(() => {
+    if (context.data)
+      setContexts((previous) => ({
+        id,
+        records: {
+          ...(previous.id === id ? previous.records : {}),
+          ...Object.fromEntries(
+            context.data!.items.map((record) => [record.recordId, record]),
+          ),
+        },
+      }));
+  }, [id, context.data]);
+  const recordContexts = contexts.id === id ? contexts.records : {};
+  const recordLabels = Object.fromEntries(
+    Object.values(recordContexts).map((record) => [
+      record.recordId,
+      [record.name, record.subject, record.reference]
+        .filter(Boolean)
+        .join(" · ") || record.recordId,
+    ]),
   );
   const action = useAction(),
     [previewId, setPreviewId] = useState<string>(),
@@ -226,13 +256,41 @@ export function GenerationDetail({
           msg("Template v") +
           current.templateVersion +
           " · " +
-          date(current.createdAt) +
-          msg(
-            ". Documents are linked to their recordId, regardless of completion order.",
-          )
+          date(current.createdAt)
         }
       />
       <ErrorNotice error={action.error ?? job.error ?? results.error} />
+      <ErrorNotice error={context.error} focusOnError={false} />
+      {canPrepare && (
+        <div className="button-group">
+          <a
+            className="button"
+            href={`#${studioRoutes.template(current.templateId)}?generation=${encodeURIComponent(id)}`}
+          >
+            {msg("Correct and create a new version")}
+          </a>
+          {current.datasetId && (
+            <a
+              className="button"
+              href={`#${studioRoutes.dataset(current.datasetId)}?${new URLSearchParams(
+                {
+                  template: current.templateId,
+                  version: String(current.templateVersion),
+                  ...(current.mappingId
+                    ? {
+                        mapping: current.mappingId,
+                        mappingVersion: String(current.mappingVersion),
+                      }
+                    : {}),
+                  generation: id,
+                },
+              )}`}
+            >
+              {msg("Correct source data")}
+            </a>
+          )}
+        </div>
+      )}
       <DateTimezone />
       <section className="studio-section">
         <h2>
@@ -311,7 +369,7 @@ export function GenerationDetail({
         )}
       </section>
       <div
-        className="studio-table"
+        className="studio-table studio-generation-results"
         role="region"
         aria-busy={results.loading}
         onKeyDown={scrollStudioTable}
@@ -323,7 +381,7 @@ export function GenerationDetail({
           <thead>
             <tr>
               <th>{msg("Selection")}</th>
-              <th>{msg("Record")}</th>
+              <th>{msg("Document")}</th>
               <th>{msg("Status")}</th>
               <th>{msg("Exact PDF")}</th>
               <th>{msg("Action")}</th>
@@ -335,7 +393,14 @@ export function GenerationDetail({
                 <td>
                   <input
                     type="checkbox"
-                    aria-label={msg("Select ") + result.recordId}
+                    aria-label={
+                      msg("Select ") +
+                      result.recordId +
+                      (recordLabels[result.recordId] &&
+                      recordLabels[result.recordId] !== result.recordId
+                        ? " · " + recordLabels[result.recordId]
+                        : "")
+                    }
                     checked={selected.includes(result.recordId)}
                     disabled={
                       !canPrepare ||
@@ -353,7 +418,17 @@ export function GenerationDetail({
                   />
                 </td>
                 <th scope="row">
-                  <code>{result.recordId}</code>
+                  <strong>
+                    {recordContexts[result.recordId]?.name ?? result.recordId}
+                  </strong>
+                  {recordContexts[result.recordId]?.subject && (
+                    <div>{recordContexts[result.recordId].subject}</div>
+                  )}
+                  {recordContexts[result.recordId]?.reference && (
+                    <div className="studio-meta">
+                      {recordContexts[result.recordId].reference}
+                    </div>
+                  )}
                 </th>
                 <td>
                   {msgIn("generation-state", stateLabel[result.state])}
@@ -394,20 +469,30 @@ export function GenerationDetail({
                   )}
                 </td>
                 <td>
-                  <button
-                    className="text-button"
-                    onClick={() => setTraceRecord(result.recordId)}
-                  >
-                    {msg("View provenance ")}
-                  </button>
-                  {result.documentId && result.documentStatus === "ready" && (
+                  <div className="studio-generation-actions">
                     <button
-                      className="button small"
-                      onClick={() => setPreviewId(result.documentId!)}
+                      className="text-button"
+                      onClick={() => setTraceRecord(result.recordId)}
                     >
-                      {msg("View PDF ")}
+                      {msg("View provenance ")}
                     </button>
-                  )}
+                    {result.documentId && result.documentStatus === "ready" && (
+                      <button
+                        className="button small"
+                        onClick={() => setPreviewId(result.documentId!)}
+                      >
+                        {msg("View PDF ")}
+                      </button>
+                    )}
+                    {canPrepare && (
+                      <a
+                        className="text-link"
+                        href={`#${studioRoutes.template(current.templateId)}?${new URLSearchParams({ generation: id, record: result.recordId })}`}
+                      >
+                        {msg("Correct data")}
+                      </a>
+                    )}
+                  </div>
                 </td>
               </tr>
             ))}
@@ -424,7 +509,10 @@ export function GenerationDetail({
       <LoadMore
         path={"/generation-jobs/" + id + "/results"}
         data={results.data}
-        onLoaded={results.setData}
+        onLoaded={(page) => {
+          setContextCursor(results.data?.items.at(-1)?.recordId);
+          results.setData(page);
+        }}
       />
       {previewId && (
         <section className="studio-section">
@@ -472,6 +560,7 @@ export function GenerationDetail({
           recordDocuments={Object.fromEntries(
             ready.map((result) => [result.recordId, result.documentId!]),
           )}
+          recordLabels={recordLabels}
           onClose={() => setDistributing(false)}
         />
       )}
@@ -543,11 +632,13 @@ function DistributionForm({
   jobId,
   recordIds,
   recordDocuments,
+  recordLabels,
   onClose,
 }: {
   jobId: string;
   recordIds: string[];
   recordDocuments: Record<string, string>;
+  recordLabels: Record<string, string>;
   onClose: () => void;
 }) {
   const [destinations, setDestinations] = useState<Destination[]>([
@@ -800,7 +891,11 @@ function DistributionForm({
                       })
                     }
                   />
-                  {recordId}
+                  {recordLabels[recordId] ?? recordId}
+                  {recordLabels[recordId] &&
+                    recordLabels[recordId] !== recordId && (
+                      <span className="studio-meta"> · {recordId}</span>
+                    )}
                 </label>
               ))}
             </div>
@@ -1160,7 +1255,9 @@ function DistributionForm({
                     .map(channelLabel)
                     .join(", ") || "—",
                   documents.length
-                    ? documents.join(", ")
+                    ? documents
+                        .map((recordId) => recordLabels[recordId] ?? recordId)
+                        .join(", ")
                     : msg("no document chosen"),
                 )}
               </li>

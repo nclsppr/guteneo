@@ -93,7 +93,7 @@ test("web distribution assigns channels to selected records without a Cartesian 
     name: "Documents concernés par la destination 1",
     exact: true,
   });
-  await group1.getByRole("checkbox", { name: "client-a", exact: true }).check();
+  await group1.getByRole("checkbox", { name: /client-a/ }).check();
   const destination1 = page.getByRole("group", {
     name: "Destination 1",
     exact: true,
@@ -109,7 +109,7 @@ test("web distribution assigns channels to selected records without a Cartesian 
       name: "Documents concernés par la destination 2",
       exact: true,
     })
-    .getByRole("checkbox", { name: "client-b", exact: true })
+    .getByRole("checkbox", { name: /client-b/ })
     .check();
   await page.getByLabel("Canal 2", { exact: true }).selectOption("email");
   const destination2 = page.getByRole("group", {
@@ -136,7 +136,7 @@ test("web distribution assigns channels to selected records without a Cartesian 
       name: "Documents concernés par la destination 3",
       exact: true,
     })
-    .getByRole("checkbox", { name: "client-b", exact: true })
+    .getByRole("checkbox", { name: /client-b/ })
     .check();
   await page
     .getByRole("group", { name: "Destination 3", exact: true })
@@ -153,9 +153,9 @@ test("web distribution assigns channels to selected records without a Cartesian 
     exact: true,
   });
   await expect(summary.getByRole("listitem")).toHaveText([
-    /^Destination 1 · Fax : client-a$/,
-    /^Destination 2 · .+ : client-b$/,
-    /^Destination 3 · Fax : client-b$/,
+    /^Destination 1 · Fax : .*Document A$/,
+    /^Destination 2 · .+ : .*Document B$/,
+    /^Destination 3 · Fax : .*Document B$/,
   ]);
   await expect(summary).toContainText("fige tout ce lot de génération");
   const responsePromise = page.waitForResponse(
@@ -216,6 +216,9 @@ test("multichannel intent remains available when two records reuse the same PDF 
   // Explicit UI fixture for an exact-byte deduplication outcome. No generation,
   // approval or distribution mutation is made by this scenario.
   const jobId = "synthetic-shared-artifact";
+  await page.route(`**/api/generation-jobs/${jobId}/record-context`, (route) =>
+    route.fulfill({ json: { items: [] } }),
+  );
   await page.route(`**/api/generation-jobs/${jobId}`, (route) =>
     route.fulfill({
       json: {

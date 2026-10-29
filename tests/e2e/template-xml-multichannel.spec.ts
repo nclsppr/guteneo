@@ -463,6 +463,9 @@ test("a slower generation result read preserves focus until selection becomes av
   const resultsHeld = new Promise<void>((resolve) => {
     announceRead = resolve;
   });
+  await page.route(`**/api/generation-jobs/${id}/record-context`, (route) =>
+    route.fulfill({ json: { items: [] } }),
+  );
   await page.route(`**/api/generation-jobs/${id}{,/results}`, async (route) => {
     expect(route.request().method()).toBe("GET");
     if (!new URL(route.request().url()).pathname.endsWith("/results")) {
@@ -501,7 +504,7 @@ test("a slower generation result read preserves focus until selection becomes av
   try {
     await page.goto(`/#/app/studio/generation/${id}`);
     const selection = page.getByRole("checkbox", {
-      name: "Sélectionner record-2",
+      name: /^Sélectionner record-2(?: ·|$)/,
       exact: true,
     });
     await expect(selection).toBeDisabled();

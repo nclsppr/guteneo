@@ -13,6 +13,7 @@ import type {
   MappingValidation,
 } from "../../../packages/contracts/src/datasets";
 import { resolveDatasetSheet } from "../../../packages/contracts/src/datasets";
+import { retainUnchangedRowExclusions } from "../../../packages/data/replacement";
 import type { BusinessField } from "../../../packages/contracts/src/templates";
 import type { DatasetSchemaSuggestion } from "../../../packages/data/schema-ai";
 import type {
@@ -35,9 +36,32 @@ import {
   PageHeading,
   useAction,
   useResource,
+  useRoute,
 } from "./components";
 
+function datasetContext(route: string) {
+  const source = new URLSearchParams(route.split("?")[1]);
+  const context = new URLSearchParams();
+  for (const key of [
+    "template",
+    "version",
+    "mapping",
+    "mappingVersion",
+    "generation",
+    "encoding",
+    "delimiter",
+    "xmlRecordPath",
+    "reviewRows",
+  ])
+    if (source.get(key)) context.set(key, source.get(key)!);
+  return context;
+}
+function withDatasetContext(path: string, context: URLSearchParams) {
+  return path + (context.size ? "?" + context.toString() : "");
+}
+
 export function DatasetLibrary({ session }: { session: Session }) {
+  const context = datasetContext(useRoute());
   const canPrepare = permissionsFor(session).prepareDispatches;
   const resource = useResource<Page<DatasetView>>("/datasets");
   const action = useAction();
@@ -57,15 +81,22 @@ export function DatasetLibrary({ session }: { session: Session }) {
       form.set("file", selected);
       if (selected.name.toLowerCase().endsWith(".csv")) {
         form.set("encoding", encoding);
+        context.set("encoding", encoding);
+        context.set("delimiter", delimiter);
         if (delimiter) form.set("delimiter", delimiter);
       }
-      if (selected.name.toLowerCase().endsWith(".xml") && xmlRecordPath.trim())
+      if (
+        selected.name.toLowerCase().endsWith(".xml") &&
+        xmlRecordPath.trim()
+      ) {
         form.set("xmlRecordPath", xmlRecordPath.trim());
+        context.set("xmlRecordPath", xmlRecordPath.trim());
+      }
       const dataset = await api<DatasetView>("/datasets", {
         method: "POST",
         body: form,
       });
-      go(studioRoutes.dataset(dataset.id));
+      go(withDatasetContext(studioRoutes.dataset(dataset.id), context));
     });
   }
   return (
@@ -160,7 +191,14 @@ export function DatasetLibrary({ session }: { session: Session }) {
             <article key={item.id} className="studio-list-row">
               <div>
                 <h3>
-                  <a href={"#" + studioRoutes.dataset(item.id)}>{item.name}</a>
+                  <a
+                    href={
+                      "#" +
+                      withDatasetContext(studioRoutes.dataset(item.id), context)
+                    }
+                  >
+                    {item.name}
+                  </a>
                 </h3>
                 <p>
                   {item.format.toUpperCase()} · {bytes(item.size)} ·{" "}
@@ -176,7 +214,10 @@ export function DatasetLibrary({ session }: { session: Session }) {
               </div>
               <a
                 className="button small"
-                href={"#" + studioRoutes.dataset(item.id)}
+                href={
+                  "#" +
+                  withDatasetContext(studioRoutes.dataset(item.id), context)
+                }
               >
                 {canPrepare ? msg("Map data ") : msg("Open ")}
                 <ArrowRight size={16} />
@@ -667,11 +708,30 @@ type ValidationResult = {
 function MappingEditor({ value }: { value: PagedProfileView }) {
   const aiPolicy = useStudioAiPolicy();
   const { dataset, profile } = value;
+  const context = datasetContext(useRoute());
   const templates = useResource<Page<TemplateView>>("/templates"),
     mappings = useResource<Page<MappingView>>("/mappings"),
     action = useAction();
-  const [templateId, setTemplateId] = useState(""),
+  const [templateId, setTemplateId] = useState(context.get("template") ?? ""),
     [plan, setPlan] = useState<MappingPlan>(defaultPlan(profile));
+  const [templateVersion, setTemplateVersion] = useState<number | undefined>(
+    Number(context.get("version")) || undefined,
+  );
+  const chosenTemplate = useResource<TemplateView>(
+    templateId
+      ? `/templates/${encodeURIComponent(templateId)}${templateVersion ? "?version=" + templateVersion : ""}`
+      : null,
+  );
+  const previousMapping = useResource<MappingView>(
+    context.get("mapping")
+      ? `/mappings/${encodeURIComponent(context.get("mapping")!)}${context.get("mappingVersion") ? "?version=" + context.get("mappingVersion") : ""}`
+      : null,
+  );
+  const initialized = useRef(false);
+  const [rowsReviewed, setRowsReviewed] = useState(
+    context.get("reviewRows") !== "1",
+  );
+  const replacement = useRef<HTMLInputElement>(null);
   const [saved, setSaved] = useState<MappingView>(),
     [validation, setValidation] = useState<ValidationResult>();
   const [arrayPath, setArrayPath] = useState(""),
@@ -689,9 +749,23 @@ function MappingEditor({ value }: { value: PagedProfileView }) {
     mapping?: MappingView;
     template?: TemplateView;
   }>({});
-  const template = templates.data?.items.find((t) => t.id === templateId);
+  const template = chosenTemplate.data;
   const headerRows = useMappingHeaders(dataset.id, profile, plan);
   const headers = headerRows.headers(plan.sourceSheet, plan.headerRow);
+  function sourceIdentity(
+    source: MappingValidation["issues"][number]["source"],
+  ) {
+    if (!source) return "";
+    const sheet = resolveDatasetSheet(profile, source.sheet);
+    const row = sheet?.rows.find((entry) => entry.rowNumber === source.row);
+    if (!row) return "";
+    const header = headerRows.headers(source.sheet, plan.headerRow);
+    const name = plan.fields.find((field) =>
+      /(?:^|\.)(name|fullName|nom|address)$/.test(field.target),
+    );
+    const index = name ? header.indexOf(name.source) : -1;
+    return index >= 0 ? (row.cells[index]?.raw?.split(/\r?\n/)[0] ?? "") : "";
+  }
   const array = template
     ? fieldPaths(template.envelope.inputSchema).find(
         (f) => f.path === arrayPath && f.schema.type === "array",
@@ -735,6 +809,39 @@ function MappingEditor({ value }: { value: PagedProfileView }) {
       })()
     : [];
   const generationKey = useRef(crypto.randomUUID());
+  useEffect(() => {
+    if (initialized.current || (templateId && !chosenTemplate.data)) return;
+    if (context.get("mapping") && !previousMapping.data) return;
+    initialized.current = true;
+    if (previousMapping.data) {
+      const previous = previousMapping.data;
+      setSaved(previous);
+      setReuseId(previous.id);
+      setPlan(structuredClone(previous.plan));
+      setExcludeRowsText(previous.plan.excludeRows.join(", "));
+      setArrayPath(
+        previous.plan.group?.itemPath ?? previous.plan.joins[0]?.target ?? "",
+      );
+      setArraySource(previous.plan.joins[0]?.sheet ?? "same");
+    } else if (chosenTemplate.data) {
+      const selected = chosenTemplate.data;
+      setPlan((current) => ({
+        ...current,
+        fields: fieldPaths(selected.envelope.inputSchema)
+          .filter((field) => field.schema.type !== "array")
+          .map((field) => ({
+            source: suggestColumn(
+              sheetHeaders(profile.sheets[0], current.headerRow),
+              field.path,
+              field.schema.title,
+            ),
+            target: field.path,
+            type: fieldType(field.schema),
+            required: true,
+          })),
+      }));
+    }
+  }, [chosenTemplate.data, previousMapping.data, templateId, profile, context]);
   function edit(next: MappingPlan) {
     if (next.excludeRows !== plan.excludeRows) {
       setExcludeRowsText(next.excludeRows.join(", "));
@@ -744,9 +851,18 @@ function MappingEditor({ value }: { value: PagedProfileView }) {
     setValidation(undefined);
     generationKey.current = crypto.randomUUID();
   }
+  function mappingRevision() {
+    // A generation's mapping snapshot is immutable history. Corrections fork
+    // it instead of competing with a newer version of that reusable mapping.
+    return saved &&
+      !(context.get("mappingVersion") && context.get("mapping") === saved.id)
+      ? { mappingId: saved.id, expectedVersion: saved.version }
+      : {};
+  }
   function selectTemplate(id: string) {
     setTemplateId(id);
     const selected = templates.data?.items.find((t) => t.id === id);
+    setTemplateVersion(selected?.currentVersion ?? undefined);
     if (!selected) return;
     edit({
       ...plan,
@@ -807,6 +923,12 @@ function MappingEditor({ value }: { value: PagedProfileView }) {
   async function validate(event: FormEvent) {
     event.preventDefault();
     await action.run(async () => {
+      if (!rowsReviewed)
+        throw new Error(
+          msg(
+            "Row exclusions could not be matched to this file. Review them before validating.",
+          ),
+        );
       if (!template)
         throw new Error(msg("Choose the template these data will populate."));
       if (headerRows.pending || headerRows.error)
@@ -832,9 +954,7 @@ function MappingEditor({ value }: { value: PagedProfileView }) {
             expectedHeaders: headerRows.headers(join.sheet, join.headerRow),
           })),
         },
-        ...(saved
-          ? { mappingId: saved.id, expectedVersion: saved.version }
-          : {}),
+        ...mappingRevision(),
       };
       const mapping = await api<MappingView>("/mappings", {
         method: "POST",
@@ -850,6 +970,79 @@ function MappingEditor({ value }: { value: PagedProfileView }) {
       mappings.refresh();
     });
   }
+  async function replaceFile() {
+    await action.run(async () => {
+      const file = replacement.current?.files?.[0];
+      if (!file) throw new Error(msg("Choose a CSV, XLSX, XML or JSON file."));
+      if (file.size > 5 * 1024 * 1024)
+        throw new Error(msg("The file exceeds 5 MB."));
+      const excludeRows = parseExcludedRows(excludeRowsText);
+      const form = new FormData();
+      form.set("file", file);
+      if (file.name.toLowerCase().endsWith(".csv")) {
+        form.set("encoding", context.get("encoding") ?? "utf-8");
+        if (context.get("delimiter"))
+          form.set("delimiter", context.get("delimiter")!);
+      }
+      if (
+        file.name.toLowerCase().endsWith(".xml") &&
+        context.get("xmlRecordPath")
+      )
+        form.set("xmlRecordPath", context.get("xmlRecordPath")!);
+      const next = await api<DatasetView>("/datasets", {
+        method: "POST",
+        body: form,
+      });
+      const replacementProfile = await api<PagedProfileView>(
+        `/datasets/${next.id}/profile`,
+      );
+      const keepRows = (sheetName: string, rows: number[]) =>
+        retainUnchangedRowExclusions({
+          before: resolveDatasetSheet(profile, sheetName),
+          after: resolveDatasetSheet(replacementProfile.profile, sheetName),
+          rows,
+          structureUnchanged: Boolean(
+            dataset.structureHash &&
+            dataset.structureHash === next.structureHash,
+          ),
+          rowCountUnchanged:
+            value.pagination.sheet === sheetName &&
+            replacementProfile.pagination.sheet === sheetName &&
+            value.pagination.totalRows ===
+              replacementProfile.pagination.totalRows,
+          previewCellLimit: value.pagination.sampleValuesTruncatedAt,
+        });
+      const nextRows = keepRows(plan.sourceSheet, excludeRows);
+      const nextJoins = plan.joins.map((join) => ({
+        ...join,
+        excludeRows: keepRows(join.sheet, join.excludeRows ?? []),
+      }));
+      const needsReview =
+        nextRows.length !== excludeRows.length ||
+        nextJoins.some(
+          (join, index) =>
+            join.excludeRows.length !==
+            (plan.joins[index].excludeRows?.length ?? 0),
+        );
+      const mapping = await api<MappingView>("/mappings", {
+        method: "POST",
+        body: {
+          datasetId: next.id,
+          plan: { ...plan, excludeRows: nextRows, joins: nextJoins },
+          ...mappingRevision(),
+        },
+      });
+      const nextContext = new URLSearchParams(context);
+      if (needsReview) nextContext.set("reviewRows", "1");
+      else nextContext.delete("reviewRows");
+      if (templateId) nextContext.set("template", templateId);
+      if (template?.currentVersion)
+        nextContext.set("version", String(template.currentVersion));
+      nextContext.set("mapping", mapping.id);
+      nextContext.set("mappingVersion", String(mapping.version));
+      go(withDatasetContext(studioRoutes.dataset(next.id), nextContext));
+    });
+  }
   return (
     <>
       <a className="back-link" href={`#${studioRoutes.datasets}`}>
@@ -863,7 +1056,12 @@ function MappingEditor({ value }: { value: PagedProfileView }) {
       />
       <ErrorNotice
         error={
-          action.error ?? templates.error ?? mappings.error ?? headerRows.error
+          action.error ??
+          chosenTemplate.error ??
+          previousMapping.error ??
+          templates.error ??
+          mappings.error ??
+          headerRows.error
         }
       />
       <p className="studio-meta">
@@ -872,6 +1070,20 @@ function MappingEditor({ value }: { value: PagedProfileView }) {
         {date(dataset.expiresAt)} · {profile.sheets.length} {msg("sheet(s) ")}
       </p>
       <DateTimezone />
+      <details className="studio-section">
+        <summary>{msg("Replace the data file")}</summary>
+        <Field label={msg("Corrected data file")}>
+          <FileInput ref={replacement} accept=".csv,.xlsx,.xml,.json" />
+        </Field>
+        <button
+          type="button"
+          className="button"
+          disabled={action.pending}
+          onClick={() => void replaceFile()}
+        >
+          {msg("Import and keep my mapping")}
+        </button>
+      </details>
       {!!profile.issues.length && (
         <details className="studio-section" open>
           <summary>
@@ -1005,6 +1217,24 @@ function MappingEditor({ value }: { value: PagedProfileView }) {
               {excludeRowsError}
             </p>
           )}
+          {context.get("reviewRows") === "1" && (
+            <div className="notice warning">
+              <p>
+                {msg(
+                  "Row exclusions could not be matched to this file. Review them before validating.",
+                )}
+              </p>
+              <label className="check-field">
+                <input
+                  type="checkbox"
+                  required
+                  checked={rowsReviewed}
+                  onChange={(event) => setRowsReviewed(event.target.checked)}
+                />
+                {msg("I reviewed the row exclusions for this file.")}
+              </label>
+            </div>
+          )}
           <label className="check-field">
             <input
               type="checkbox"
@@ -1046,9 +1276,20 @@ function MappingEditor({ value }: { value: PagedProfileView }) {
                 .map((t) => (
                   <option key={t.id} value={t.id}>
                     {t.name} {msg("· v")}
-                    {t.currentVersion}
+                    {t.id === templateId
+                      ? (template?.currentVersion ?? t.currentVersion)
+                      : t.currentVersion}
                   </option>
                 ))}
+              {template &&
+                !templates.data?.items.some(
+                  (item) => item.id === template.id,
+                ) && (
+                  <option value={template.id}>
+                    {template.name} {msg("· v")}
+                    {template.currentVersion}
+                  </option>
+                )}
             </select>
           </Field>
           {templates.data?.nextCursor && (
@@ -1277,6 +1518,7 @@ function MappingEditor({ value }: { value: PagedProfileView }) {
             className="button primary"
             disabled={
               action.pending ||
+              !rowsReviewed ||
               !templateId ||
               headerRows.pending ||
               !!headerRows.error ||
@@ -1538,6 +1780,9 @@ function MappingEditor({ value }: { value: PagedProfileView }) {
             <ul className="studio-warning-list">
               {validation.issues.slice(0, 100).map((issue, i) => (
                 <li key={i}>
+                  {sourceIdentity(issue.source) && (
+                    <strong>{sourceIdentity(issue.source)} · </strong>
+                  )}
                   {issue.source &&
                     issue.source.sheet + " " + issue.source.address + " → "}
                   {issue.target && issue.target + " : "}

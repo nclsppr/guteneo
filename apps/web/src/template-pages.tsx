@@ -1,3 +1,4 @@
+import type { GenerationCorrectionInput } from "../../../packages/contracts/src/generation-context";
 import { msg } from "./messages";
 import { studioRoutes } from "./app-routes";
 import { FileInput } from "./file-input";
@@ -44,6 +45,7 @@ import {
   PdfPreview,
   useAction,
   useResource,
+  useRoute,
 } from "./components";
 import { BusinessDataForm } from "./template-data-form";
 import { reconcileDesignerChange } from "../../../packages/templates/designer";
@@ -362,26 +364,186 @@ export function TemplateEditor({
   id: string;
   session: Session;
 }) {
-  const resource = useResource<TemplateView>(`/templates/${id}`);
-  if (!resource.data)
+  const query = new URLSearchParams(useRoute().split("?")[1]);
+  const generationId = query.get("generation");
+  const recordId = query.get("record");
+  const correctionRequested = Boolean(generationId && recordId);
+  const sourceGeneration = useResource<GenerationJobView>(
+    generationId
+      ? `/generation-jobs/${encodeURIComponent(generationId)}`
+      : null,
+  );
+  const correction = useResource<GenerationCorrectionInput>(
+    generationId && recordId
+      ? `/generation-jobs/${encodeURIComponent(generationId)}/record-context?${new URLSearchParams({ recordId })}`
+      : null,
+  );
+  const resource = useResource<TemplateView>(
+    correctionRequested ? null : `/templates/${id}`,
+  );
+  const sourceTemplate = useResource<TemplateView>(
+    recordId && sourceGeneration.data
+      ? `/templates/${encodeURIComponent(sourceGeneration.data.templateId)}?version=${sourceGeneration.data.templateVersion}`
+      : null,
+  );
+  const generationScope = JSON.stringify([id, generationId, recordId]);
+  const [generationData, setGenerationData] = useState<{
+    scope: string;
+    data: Record<string, unknown>;
+  }>();
+  if (
+    (!correctionRequested && !resource.data) ||
+    (generationId && !sourceGeneration.data) ||
+    (correctionRequested && (!correction.data || !sourceTemplate.data))
+  )
     return (
       <>
-        <ErrorNotice error={resource.error} />
+        <ErrorNotice
+          error={
+            resource.error ??
+            sourceGeneration.error ??
+            correction.error ??
+            sourceTemplate.error
+          }
+        />
         {resource.error && (
           <a className="back-link" href={`#${studioRoutes.templates}`}>
             {msg("← Templates ")}
           </a>
         )}
-        {resource.loading && <Loading />}
+        {(resource.loading ||
+          sourceGeneration.loading ||
+          correction.loading ||
+          sourceTemplate.loading) && <Loading />}
       </>
     );
+  if (correction.data && sourceGeneration.data && sourceTemplate.data)
+    return (
+      <GenerationDataCorrection
+        key={generationScope}
+        source={sourceGeneration.data}
+        template={sourceTemplate.data}
+        record={correction.data}
+        canPrepare={permissionsFor(session).prepareDispatches}
+      />
+    );
+  if (!resource.data) return <Loading />;
   return (
     <EditorBody
-      key={`${id}:${resource.data.revision}`}
+      key={`${generationScope}:${resource.data.revision}`}
       model={resource.data}
+      sourceGeneration={sourceGeneration.data}
+      correctionError={sourceGeneration.error ?? correction.error}
+      generationData={
+        generationData?.scope === generationScope
+          ? generationData.data
+          : undefined
+      }
+      onGenerationData={(data) =>
+        setGenerationData({ scope: generationScope, data })
+      }
       session={session}
       onSaved={(next) => resource.setData(next)}
     />
+  );
+}
+
+function GenerationDataCorrection({
+  source,
+  template,
+  record,
+  canPrepare,
+}: {
+  source: GenerationJobView;
+  template: TemplateView;
+  record: GenerationCorrectionInput;
+  canPrepare: boolean;
+}) {
+  const [data, setData] = useState(() => structuredClone(record.data));
+  const key = useRef(crypto.randomUUID());
+  const previousInput = useRef("");
+  const generated = useRef(false);
+  const action = useAction();
+  const dirty = JSON.stringify(data) !== JSON.stringify(record.data);
+  useEffect(() => {
+    if (!dirty) return;
+    const warn = (event: BeforeUnloadEvent) => {
+      if (generated.current) return;
+      event.preventDefault();
+      event.returnValue = "";
+    };
+    const guard = (event: Event) => {
+      if (
+        !generated.current &&
+        !window.confirm(msg("Leave this correction and lose unsaved changes?"))
+      )
+        event.preventDefault();
+    };
+    window.addEventListener("beforeunload", warn);
+    window.addEventListener(BEFORE_WORKSPACE_NAVIGATION, guard);
+    return () => {
+      window.removeEventListener("beforeunload", warn);
+      window.removeEventListener(BEFORE_WORKSPACE_NAVIGATION, guard);
+    };
+  }, [dirty]);
+  return (
+    <>
+      <a className="back-link" href={`#${studioRoutes.generation(source.id)}`}>
+        {msg("← Original generation")}
+      </a>
+      <PageHeading
+        title={msg("Correct data")}
+        intro={`${template.name} · ${msg("Template v")}${source.templateVersion}`}
+      />
+      <ErrorNotice error={action.error} />
+      <form
+        className="studio-section"
+        onSubmit={(event) => {
+          event.preventDefault();
+          void action.run(async () => {
+            const body = {
+              templateId: source.templateId,
+              templateVersion: source.templateVersion,
+              mode: "generate_only",
+              records: [{ recordId: record.recordId, data }],
+            };
+            const serialized = JSON.stringify(body);
+            if (previousInput.current && previousInput.current !== serialized)
+              key.current = crypto.randomUUID();
+            previousInput.current = serialized;
+            const generation = await api<GenerationJobView>(
+              "/generation-jobs",
+              { method: "POST", key: key.current, body },
+            );
+            generated.current = true;
+            go(studioRoutes.generation(generation.id));
+          });
+        }}
+      >
+        <BusinessDataForm
+          schema={template.envelope.inputSchema}
+          disabled={!canPrepare || action.pending}
+          value={data}
+          onChange={(next) => setData(next as Record<string, unknown>)}
+        />
+        <div className="button-group">
+          <button
+            className="button primary"
+            disabled={
+              !canPrepare || !template.permissions.use || action.pending
+            }
+          >
+            {msg("Generate PDF without sending ")}
+          </button>
+          <a
+            className="button"
+            href={`#${studioRoutes.template(source.templateId)}?generation=${encodeURIComponent(source.id)}`}
+          >
+            {msg("Correct and create a new version")}
+          </a>
+        </div>
+      </form>
+    </>
   );
 }
 
@@ -399,10 +561,18 @@ function EditorBody({
   model,
   session,
   onSaved,
+  sourceGeneration,
+  correctionError,
+  generationData,
+  onGenerationData,
 }: {
   model: TemplateView;
   session: Session;
   onSaved: (value: TemplateView) => void;
+  sourceGeneration?: GenerationJobView;
+  correctionError?: Error;
+  generationData?: Record<string, unknown>;
+  onGenerationData: (data: Record<string, unknown>) => void;
 }) {
   const [envelope, setEnvelope] = useState<TemplateEnvelope>(
     structuredClone(model.envelope),
@@ -411,7 +581,7 @@ function EditorBody({
   const [future, setFuture] = useState<TemplateEnvelope[]>([]);
   const [tab, setTab] = useState<"design" | "data" | "share">("design");
   const [data, setData] = useState<Record<string, unknown>>(
-    structuredClone(model.envelope.sampleData),
+    structuredClone(generationData ?? model.envelope.sampleData),
   );
   const [fieldName, setFieldName] = useState("");
   const [fieldTitle, setFieldTitle] = useState("");
@@ -595,7 +765,9 @@ function EditorBody({
         });
       }
       change(validateTemplateEnvelope(next));
-      setData({ ...data, [fieldName]: next.sampleData[fieldName] });
+      const nextData = { ...data, [fieldName]: next.sampleData[fieldName] };
+      setData(nextData);
+      onGenerationData(nextData);
       setFieldName("");
       setFieldTitle("");
     });
@@ -615,7 +787,39 @@ function EditorBody({
             : msg("No published version"),
         )}
       />
-      <ErrorNotice error={action.error} />
+      <ErrorNotice error={action.error ?? correctionError} />
+      {sourceGeneration && (
+        <div className="button-group">
+          <a
+            className="back-link"
+            href={`#${studioRoutes.generation(sourceGeneration.id)}`}
+          >
+            {msg("← Original generation")}
+          </a>
+          {sourceGeneration.datasetId && (
+            <a
+              className="button"
+              href={`#${studioRoutes.dataset(sourceGeneration.datasetId)}?${new URLSearchParams(
+                {
+                  template: model.id,
+                  ...(model.currentVersion
+                    ? { version: String(model.currentVersion) }
+                    : {}),
+                  ...(sourceGeneration.mappingId
+                    ? {
+                        mapping: sourceGeneration.mappingId,
+                        mappingVersion: String(sourceGeneration.mappingVersion),
+                      }
+                    : {}),
+                  generation: sourceGeneration.id,
+                },
+              )}`}
+            >
+              {msg("Use this version with the same data")}
+            </a>
+          )}
+        </div>
+      )}
       <nav className="studio-tabs" aria-label={msg("Template sections")}>
         {(
           [
@@ -818,7 +1022,11 @@ function EditorBody({
             schema={envelope.inputSchema}
             disabled={!canPrepare}
             value={data}
-            onChange={(value) => setData(value as Record<string, unknown>)}
+            onChange={(value) => {
+              const nextData = value as Record<string, unknown>;
+              setData(nextData);
+              onGenerationData(nextData);
+            }}
           />
           <p className="field-hint">
             {msg(
@@ -864,7 +1072,10 @@ function EditorBody({
             >
               {msg("Generate PDF without sending ")}
             </button>
-            <a className="button" href={`#${studioRoutes.datasets}`}>
+            <a
+              className="button"
+              href={`#${studioRoutes.datasets}?${new URLSearchParams({ template: model.id, ...(model.currentVersion ? { version: String(model.currentVersion) } : {}) })}`}
+            >
               {msg("Use a data file ")}
             </a>
           </div>

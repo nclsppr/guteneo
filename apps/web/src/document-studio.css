@@ -243,6 +243,22 @@
   max-width: 320px;
   overflow-wrap: anywhere;
 }
+.studio-generation-results table {
+  min-width: 800px;
+}
+.studio-generation-results th:first-child {
+  white-space: nowrap;
+}
+.studio-generation-results th[scope="row"] {
+  min-width: 180px;
+}
+.studio-generation-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 8px 12px;
+  min-width: 160px;
+}
 .studio-warning-list {
   padding-left: 22px;
   font-size: 14px;

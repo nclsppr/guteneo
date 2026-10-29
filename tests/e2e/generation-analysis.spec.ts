@@ -55,6 +55,9 @@ async function generationFixture(page: Page) {
   let fail = false;
   let nextReadGate: Promise<void> | undefined;
   const writes: string[] = [];
+  await page.route(`**/api/generation-jobs/${id}/record-context`, (route) =>
+    route.fulfill({ json: { items: [] } }),
+  );
   page.on("request", (request) => {
     if (request.method() !== "GET") writes.push(request.url());
   });

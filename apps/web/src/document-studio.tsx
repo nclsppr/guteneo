@@ -31,7 +31,7 @@ export default function DocumentStudio({
   if (path.startsWith(studioRoutes.template("")))
     return (
       <TemplateEditor
-        key={path}
+        key={route}
         id={path.slice(studioRoutes.template("").length)}
         session={session}
       />
@@ -39,7 +39,7 @@ export default function DocumentStudio({
   if (path.startsWith(studioRoutes.dataset("")))
     return (
       <DatasetMapper
-        key={path}
+        key={route}
         id={path.slice(studioRoutes.dataset("").length)}
         canPrepare={permissions.prepareDispatches}
       />
