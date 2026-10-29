@@ -260,7 +260,10 @@ test("V2 keeps every destination in view and in place on common desktop screens"
   page,
   isMobile,
 }) => {
-  test.skip(isMobile, "Desktop sidebar geometry");
+  test.skip(
+    isMobile,
+    "Desktop sidebar geometry; phones use the collapsed navigation.",
+  );
   await login(page, "v2");
   const navigation = page.locator(".workspace-navigation");
   for (const size of [

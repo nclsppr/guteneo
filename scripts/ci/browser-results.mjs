@@ -96,6 +96,13 @@ export const declaredBrowserSkips = [
   ],
   [
     "application",
+    mobileProjects,
+    "dashboard-v2.spec.ts",
+    "V2 keeps every destination in view and in place on common desktop screens",
+    "Desktop sidebar geometry; phones use the collapsed navigation.",
+  ],
+  [
+    "application",
     ["chromium"],
     "mobile-account.spec.ts",
     "mobile private account links errors to fields and keeps every session and member action visible",

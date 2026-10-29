@@ -46,6 +46,8 @@ title and reason. Renaming or splitting a test requires checking the independent
 inventory against every declaration. The Classic/V2 mobile navigation scenarios
 now execute on both desktop Chromium and iPhone WebKit; their former desktop
 exception is removed, leaving the other eighteen project-specific skips intact.
+The 29 October V2 sidebar geometry case is desktop-only: its two declared
+mobile-project skips bring the registry to twenty project-specific exceptions.
 The gate still rejects obsolete declarations, unexpected skips and incomplete
 execution. Validate registry maintenance with `verifyBrowserEvidence` against
 the original current-run reports and fresh inventories, not just `--list` or
