@@ -1,6 +1,6 @@
 ---
 title: "Access and identity"
-description: "36 capabilities in the access branch of Guteneo."
+description: "37 capabilities in the access branch of Guteneo."
 sidebar:
   order: 1
 ---
@@ -54,4 +54,5 @@ Unified personal account and optional workspace implementation; migrations, alig
 <li id="feature-f86a9c83e39e">Production browser configuration selects auth.guteneo.com; the tenant-wide custom-domain email flag and exact authorization-response issuer identification were applied and reread on 27 October, without sending verification mail or qualifying human login</li>
 <li id="feature-164854ca8126">Normal verified-account browser entry reuses Auth0 SSO within the existing one-hour session bound; signed authentication time is requested without forcing personal-entry max_age=0, and explicit fresh/account-switch behavior remains</li>
 <li id="feature-7785137dbdd5">Verified-account personal and document-authentication recovery use ordinary bounded Auth0 SSO without fresh=1; strong and explicit freshness recovery retain forced authentication. Legacy sessions missing signed auth_time require a real new authorization response, never a timestamp reconstructed from session creation; safe return paths, locale, tenant rights and human approval remain unchanged</li>
+<li id="feature-34f94846ae01">Workspace and personal browser sessions project only canAccessBelvedere for navigation; signed privileged browser evidence and current membership remain mandatory, with no authority derived from mutable profile email or workspace role</li>
 </ol>

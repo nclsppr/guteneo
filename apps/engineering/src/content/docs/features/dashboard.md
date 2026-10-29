@@ -1,6 +1,6 @@
 ---
 title: "Workspace layout and browser appearance"
-description: "26 capabilities in the operate branch of Guteneo."
+description: "30 capabilities in the operate branch of Guteneo."
 sidebar:
   order: 18
 ---
@@ -44,4 +44,8 @@ The 29 October 2026 Studio space, the application/workspace switchers and the fo
 <li id="feature-00b001b58242">Template-designer controls adopt the resolved shared palette in place while original template content, output geometry, bindings and PDF bytes retain their document contract</li>
 <li id="feature-dc506efb74ab">V2 protected-email choice, review summary, email preview and PDF viewer frame share the existing 10 px panel corners; 7 px controls and original square PDF paper retain their distinct roles without extra API reads</li>
 <li id="feature-8d8aac554a69">Requested workshop route code loads in parallel with its initial authenticated session, without speculative hover/focus imports or private-data reads; failed route code preserves navigation and current identity with a localized explicit reload, while late imports cannot replace a newer route; transitions temporarily fence retained main content with inert/busy while navigation remains available, preserving existing vetoes and preventing post-check edits; child route readers share one committed context and subscription, account deep-link notices receive focus after the fence clears, and document-close focus returns only to a connected trigger after commit; pointer-focused containers have no page-sized outline, keyboard-focused main titles use a brand-blue underline, and interactive-control focus indicators remain unchanged</li>
+<li id="feature-f0adad919ec6">My documents loads as its own application chunk while a visit-scoped personal session starts in parallel; hidden/obsolete entry results are discarded and current identity/cancellation fences remain</li>
+<li id="feature-cae8df40cec9">WorkspaceIdentity shares profile/theme/account-switch/status/logout controls with My documents and canonical Belvedere; personal account switching sanitizes private return queries, Escape restores focus and navigation/identity replacement close menus</li>
+<li id="feature-86382128e81a">Exact complete-label revisions unify workspace terminology in French, English, German and Luxembourgish while preserving legacy lookup keys, explicit contexts, names and interpolated content</li>
+<li id="feature-a35d3a6550bd">All four application import exceptions are removed: personal lazy entry, correspondence preference helper, shared entry-link style and locale-change event replace the former eager/cross-layer dependencies</li>
 </ol>

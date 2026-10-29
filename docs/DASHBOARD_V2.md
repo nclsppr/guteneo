@@ -1,6 +1,6 @@
 # Workspace layout and V2
 
-The 28 October loading refinement applies to both saved layouts. Requested
+The 28 October loading refinement is retained in the single V2 layout. Requested
 screen code starts alongside session verification; accepted route transitions
 retain the current page until ready, preserve unsaved-work vetoes and move
 scroll/focus on commit. Private reads still require current authority. Secure
@@ -9,13 +9,15 @@ cobalt side rule. See the [loading contract and measured environment](FRONTEND_P
 
 ## Studio space and space switcher — 29 October 2026 candidate
 
-The first implementation step of the [Studio space plan](STUDIO_SPACE_PLAN.md)
+The [Studio reprise](STUDIO_SPACE_REPRISE.md), extending the dated
+[design plan](STUDIO_SPACE_PLAN.md),
 splits authoring from sending inside the same workspace session:
 
 - **Application and workspace switchers.** Two separate controls replace the
   workshop block at the top of the sidebar. The application switcher lists
   **Studio**, **Correspondence** (the workshop's application name; ids and routes
-  are unchanged) and **My documents**; without a current workspace, Studio and
+  are unchanged) and **My documents**, with **Belvédère** only when the server projects its
+  separate capability; without a current workspace, Studio and
   Correspondence lead to `#/app/services` to choose or create one. Below it, in
   Studio and Correspondence only, the workspace switcher shows the current
   workspace, the person's other memberships and **Create or join a workspace**.
@@ -43,15 +45,18 @@ splits authoring from sending inside the same workspace session:
 - **Personal documents.** Use Guteneo stays in personal navigation only for an
   account without a workspace; the application switcher reaches Studio and
   Correspondence in the current workspace. Personal documents never show a
-  workspace switcher.
+  workspace switcher. The shared account menu opens personal profile/security,
+  theme, account switching, service status and logout; it needs no extra read.
 
 `apps/web/src/app-routes.ts` owns spaces, Studio addresses, aliases, the current
 navigation entry and preloading; `space-switcher.tsx` and `space-switcher.css`
 own the control. Local evidence: 4 route-table unit tests and the new
 `tests/e2e/studio-space.spec.ts` on desktop/mobile Chromium and iPhone WebKit
 against a local simulation server with synthetic responses. CI, publication and
-an authenticated hosted check remain to be qualified. Belvédère, the Studio to
-Workshop handoff form and the workshop page grouping follow in later steps.
+an authenticated hosted check remain separate qualification. Canonical Belvédère
+and Studio correction/handoff are implemented by the local reprise; its acceptance
+record owns their final checks. Broader workspace page grouping is outside this
+continuity change.
 
 ## Classic retirement — 29 October 2026 candidate
 
@@ -82,6 +87,10 @@ REST, MCP and native contracts are unchanged. CI, publication and an
 authenticated hosted check remain to be qualified for this candidate.
 
 ## Compact sidebar and account menu — 29 October 2026 candidate
+
+This dated measurement predates the final reprise. References to Classic in
+this measurement describe its historical comparison; the current layout and
+shared personal/platform menus follow the reprise and retirement above.
 
 A UI review measured the V2 sidebar on `b2e454c` (local simulation, Chromium,
 French, administrator). At 1440 × 900 Senders, Usage, PDF checks, Billing and

@@ -1,5 +1,17 @@
 # Sensitive distribution and personal documents
 
+## Local boundary regression — 29 October 2026
+
+The reprise adds real transient D1/R2 integration cases for revocation across
+metadata, page images, accessible text, permitted original export and personal
+deposit, including revocation/session races during decryption. Concurrent deposit
+and duplicate worker delivery converge on one durable copy, exact bytes and one
+receipt per event; an acquired copy retains its independent lifetime after share
+revocation. Approved content/options/cost changes require a new approval.
+Existing unknown-outcome cases retain the reservation and make no automatic
+second provider call. These are local synthetic identities/renderer/provider
+checks, not evidence of real delivery or authenticated recipient qualification.
+
 Contract and journeys, updated for the 27 October 2026 source candidate. This describes current implementation/limits, not publication, activation or real delivery. One account spans Guteneo; workspaces are optional memberships and personal documents do not form an artificial workspace.
 
 ## Authority and entry conditions
@@ -43,8 +55,9 @@ activation. Recipient invitation secrets retain the separate handoff below.
 Price is per PDF/recipient. Activated terms are fully due; disabling/revoking refunds neither retention nor the funded personal option. The versioned shared contract supplies the quote, never an assistant-calculated amount. Unknown provider outcomes require reconciliation, never blind retry or automatic new preparation.
 
 The list, composer, review and reader use shared secure-document primitives in
-both the workshop V2 and personal V2 shells. The saved Classic layout remains
-available. Presentation changes keep the separate authority/loading paths and
+both the workspace V2 and personal V2 shells. Classic was retired on 29 October
+2026; its stored preference remains accepted but does not select a layout.
+Presentation changes keep the separate authority/loading paths and
 four-language behavior; [frontend measurements](FRONTEND_PERFORMANCE.md) qualify
 only their recorded environment.
 

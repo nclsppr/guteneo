@@ -1,5 +1,10 @@
 # Studio space and space switcher plan
 
+The consolidated 29 October reprise separates application and workspace selection.
+[Current implementation and acceptance](STUDIO_SPACE_REPRISE.md) supersede the
+earlier combined-switcher mockups and incomplete implementation table below;
+[WEB_APPLICATIONS.md](WEB_APPLICATIONS.md) owns the four-application boundary.
+
 Design plan dated **29 October 2026**. It records interface design and decisions only: no
 application code, migration, communication or publication. The French working draft used for
 the decision stayed outside Git.

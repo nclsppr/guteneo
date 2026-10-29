@@ -1,6 +1,6 @@
 ---
 title: "PDF generation and distribution"
-description: "11 capabilities in the create branch of Guteneo."
+description: "14 capabilities in the create branch of Guteneo."
 sidebar:
   order: 6
 ---
@@ -11,7 +11,7 @@ sidebar:
 
 Implemented; generation, preparation, approval and delivery remain separate.
 
-**Surfaces:** Web Studio space under /app/studio/…, REST and MCP; generation is separate from distribution and delivery.
+**Surfaces:** Web Studio space under /app/studio/…, REST and MCP; generation is separate from distribution and delivery. Browser-only owner-authorized record-context supplies correction inputs and is excluded from the OAuth OpenAPI paths.
 
 [Read the engineering guide](/workflows/studio-and-data/) · [All features](/features/)
 
@@ -29,6 +29,9 @@ Implemented; generation, preparation, approval and delivery remain separate.
 <li id="feature-8d3448a860b7">Resume remaining entries without duplication</li>
 <li id="feature-95d7b0497306">Entry-linked postal preflight with separate review and sending</li>
 <li id="feature-b7f28cbf0e72">Known assistant-excluded content is never generated, previewed, shared or distributed; request a person-redacted version and never treat scanning as proof of absence</li>
+<li id="feature-104e3c6ee4e1">Browser results show bounded name/subject/reference labels without changing record identifiers; the browser-only owner-authorized record-context read supplies labels or one explicit correction input, with current tenant/creator guards and no MCP/native authority</li>
+<li id="feature-5b165c326795">Import/replacement retain the selected template/version and compatible field mapping/record exclusions; correcting data or a template creates a new generation/version while prior PDFs and prepared manifests retain their exact hashes</li>
+<li id="feature-ec2c4d4f35fc">Every destination explicitly selects documents; the pre-preparation summary lists exact associations and explains that the first plan freezes the full generation, including excluded failed records</li>
 </ol>
 
 ## REST operations

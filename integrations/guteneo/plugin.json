@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "app-6ab05fbae9a881918dc6ee4e2f235d93",
-  "version": "1.1.17",
+  "version": "1.1.18",
   "description": "Prepare PDFs, dispatches and account-protected PDF distribution when enabled for your Guteneo account.",
   "author": {
     "name": "NICOLAS PATRICK HENRI FRANK PIEPER"
@@ -50,7 +50,7 @@
         "demo_recording_url": "https://guteneo.com/review/guteneo-chatgpt-demo-20260921.mp4"
       },
       "publication": {
-        "release_notes": "Package 1.1.7 adds human-readable MCP annotations.title, explicit array/object JSON Schema metadata for import_json_dataset.data and declarative tool descriptions limited to each tool's function, inputs, effects and constraints. Workflow orchestration and safety instructions remain in explicit prompts and the seven packaged skills; PDF diagnostics describe individual browser-approved purchases and studio distribution explains irreversible batch freezing. The existing private original-PDF transfer contract, including explicit device-file selection through the optional MCP App, is retained. Runtime parsing, quotas, scopes, permissions, document privacy, approval, sending and provider gates are unchanged. Local validation establishes no execution of every tool in Claude, marketplace submission, approval or public listing.",
+        "release_notes": "Package 1.1.18 synchronizes browser-only application continuity and canonical-session platform navigation with their shared authentication and observability sources. Existing MCP tools, schemas, annotations, scopes, workflows, approval and provider gates are unchanged. Studio browser corrections preserve immutable prior documents; private correction input and Belvedere remain browser-only. Local package validation does not establish marketplace import, publication, hosted identity or provider delivery.",
         "translations": {
           "fr-FR": {
             "subtitle": "PDF, devis et suivi des envois",

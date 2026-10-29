@@ -1,5 +1,28 @@
 # Templates, data and distribution
 
+## Correction and explicit preparation — 29 October 2026 local candidate
+
+Each destination explicitly selects its PDFs. Adding a destination selects no
+piece automatically. The preparation summary shows the exact associations and
+warns that the first preparation permanently freezes the entire generation,
+including excluded/failed rows. Navigation alone creates no plan or dispatch.
+
+Studio preserves the selected template/version through compatible data import,
+replacement and field mapping. Row exclusions survive replacement only when
+row identity/structure can be verified; reordered, inserted, changed or
+unverifiable rows require explicit exclusion review before validation. Corrections create a new version/generation;
+previous documents and prepared manifests keep their immutable bytes and hashes.
+Generation results use bounded business labels (name, subject and reference)
+without changing record identifiers. A browser-only owner-authorized
+`GET /api/generation-jobs/:id/record-context` supplies presentation labels in
+pages of 50 with the result-record cursor;
+`?recordId=…` supplies one record for explicit correction. The current membership,
+tenant and creator gates are rechecked; shared-template or review access grants
+no access to private source inputs. This adds no MCP tool or native permission.
+
+[Local acceptance](STUDIO_SPACE_REPRISE.md) records the actual V1/V2 and missing-
+data checks separately from browser fixtures and deployed/provider qualification.
+
 ## Studio space — 29 October 2026 candidate
 
 Templates, Data and Generations form the web **Studio** space under

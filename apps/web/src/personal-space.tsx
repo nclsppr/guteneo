@@ -386,6 +386,7 @@ export function PersonalSpace({
         <ApplicationSwitcher
           application="personal"
           hasWorkspace={currentWorkspace !== null}
+          canAccessBelvedere={session.canAccessBelvedere === true}
         />
         <nav aria-label={msg("Personal navigation")}>
           <a

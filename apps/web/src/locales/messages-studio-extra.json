@@ -154,11 +154,6 @@
     "Quelldaten korrigieren",
     "Quelldate korrigéieren"
   ],
-  "Corriger les données de ce document": [
-    "Correct this document’s data",
-    "Daten dieses Dokuments korrigieren",
-    "D’Date vun dësem Dokument korrigéieren"
-  ],
   "← Génération d’origine": [
     "← Original generation",
     "← Ursprüngliche Generierung",
@@ -173,5 +168,25 @@
     "Import and keep my mapping",
     "Importieren und meine Zuordnung beibehalten",
     "Datefichier importéieren a meng Zouuerdnung behalen"
+  ],
+  "Corriger les données": [
+    "Correct data",
+    "Daten korrigieren",
+    "Date korrigéieren"
+  ],
+  "Quitter cette correction et perdre les modifications non enregistrées ?": [
+    "Leave this correction and lose unsaved changes?",
+    "Diese Korrektur verlassen und ungespeicherte Änderungen verwerfen?",
+    "Dës Korrektur verloossen an net gespäichert Ännerunge verléieren?"
+  ],
+  "Les lignes exclues n’ont pas pu être retrouvées dans ce fichier. Vérifiez-les avant de valider.": [
+    "Row exclusions could not be matched to this file. Review them before validating.",
+    "Die ausgeschlossenen Zeilen konnten dieser Datei nicht zugeordnet werden. Prüfen Sie sie vor der Validierung.",
+    "Déi ausgeschlosse Reie konnten dësem Fichier net zougeuerdent ginn. Iwwerpréift se virun der Validatioun."
+  ],
+  "J’ai vérifié les lignes exclues de ce fichier.": [
+    "I reviewed the row exclusions for this file.",
+    "Ich habe die ausgeschlossenen Zeilen für diese Datei geprüft.",
+    "Ech hunn déi ausgeschlosse Reie fir dëse Fichier iwwerpréift."
   ]
 }

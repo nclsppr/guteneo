@@ -391,3 +391,13 @@ locator. This addresses the null bounding box observed during initial iPhone
 WebKit header mount in documentation PR #47 CI. It retains exact closed-height
 comparison, both 320/430 px widths, all five public subpages and panel/overflow
 assertions; it changes no product behavior and excludes no browser.
+
+## Workspace terminology — 29 October 2026 local candidate
+
+Tenant context uses Espace de travail / Workspace / Arbeitsbereich /
+Aarbechtsberäich; Correspondence names the sending application independently.
+`locales/workspace-terminology.json` contains only reviewed complete-label
+revisions. The message resolver retains stable English and legacy keys, preserves
+explicit context precedence and applies revisions before interpolation. It never
+rewrites customer names, PDF/source content or historical printing prose.
+[Local acceptance](STUDIO_SPACE_REPRISE.md) owns executed language checks.

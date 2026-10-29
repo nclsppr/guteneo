@@ -57,7 +57,8 @@ Keep authority and loading independent: visual consistency never justifies
 importing another space's session bootstrap or granting its permissions.
 
 Two separate switchers open the shared frame. The application switcher lists
-Studio, Correspondence and My documents; without a workspace, Studio and
+Studio, Correspondence and My documents, plus Belvédère only when its server
+capability permits; without a workspace, Studio and
 Correspondence lead to choosing or creating one first. Below it, in Studio and
 Correspondence only, the workspace switcher shows the current workspace, the
 person's other memberships and "Create or join a workspace". The account menu at
@@ -75,7 +76,8 @@ list, the sticky bottom fade must show that entries remain; draw keyboard focus
 inside rows that a scroll container clips. Give each destination its own icon
 in the shared navigation list. **New dispatch** keeps one outlined place on every
 page so entries never move, and the page keeps the single filled primary action.
-The account row opens a disclosure menu for profile, the shared labelled
+The same account row in workspace, personal documents and canonical Belvédère
+opens a disclosure menu for profile, the shared labelled
 `ThemeToggle`, account switching, service status and sign-out; Escape returns
 focus to the row. Check the menu's longest labels in all four languages. The
 [workspace contract](https://github.com/nclsppr/guteneo/blob/main/docs/DASHBOARD_V2.md#compact-sidebar-and-account-menu--29-october-2026-candidate)
@@ -217,7 +219,8 @@ the localized Engineering documentation link after Developers; retain the exact
 English-authored. The public header
 offers an appearance icon at every viewport; the default follows the operating
 system and the head bootstrap handles activation before React is ready. The
-personal header and Belvédère page actions use the same small control; three-way
+personal and canonical Belvédère account menus use its labelled form; the
+dedicated Belvédère host keeps the small page-action control. Three-way
 System/Light/Dark selection belongs in account customization. Put detailed
 pricing, setup and support information on their appropriate pages rather than
 requiring visitors to search a long homepage. Keep those pages in the canonical
@@ -561,3 +564,18 @@ The mobile V2 account row and its menu items retain a 44 px minimum touch
 target. Test the profile destination, focus and active-page semantics alongside
 the menu links; moving a destination into the account menu does not remove it
 from navigation coverage.
+
+## Independent applications and text revisions
+
+Application code loads on demand. My documents starts its personal session in
+parallel with the route module and invalidates entry results on visibility,
+identity or navigation changes. The shared account menu uses no speculative
+profile/workspace read. Component geometry belongs in `workspace-identity.css`,
+not a particular application's stylesheet. The locale layer announces changes;
+the public sharing adapter observes them rather than being imported by shared
+authenticated code.
+
+Use Workspace / Espace de travail / Arbeitsbereich / Aarbechtsberäich for the
+current tenant. The application name Correspondence is separate. Exact reviewed
+label revisions preserve existing catalog keys and apply before interpolation;
+never replace terms inside customer names, source documents or historical prose.

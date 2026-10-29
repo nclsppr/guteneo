@@ -799,6 +799,7 @@ function WorkspaceApplication({
           <ApplicationSwitcher
             application={space === "studio" ? "studio" : "workshop"}
             hasWorkspace
+            canAccessBelvedere={session.canAccessBelvedere === true}
             preview={publicPreview}
           />
           <WorkspaceSwitcher

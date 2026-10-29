@@ -1,6 +1,6 @@
 ---
 title: "Data and mappings"
-description: "10 capabilities in the create branch of Guteneo."
+description: "11 capabilities in the create branch of Guteneo."
 sidebar:
   order: 5
 ---
@@ -28,6 +28,7 @@ Implemented; private-source and optional AI-transfer gates apply.
 <li id="feature-46faf4660e81">Mapping validation before generation</li>
 <li id="feature-70426d795853">Optional AI analysis under browser-administrator policy and transfer consent</li>
 <li id="feature-40ccaa008315">Document-studio exclusions also cover datasets, direct records and AI functions; stop reading/profiling/mapping/generation on known excluded content without collecting its values</li>
+<li id="feature-c9d57cd7c922">Compatible replacement imports retain the current template/version, field correspondence and valid record selection; cell/person/field errors remain actionable without mutating prior generated content</li>
 </ol>
 
 ## REST operations

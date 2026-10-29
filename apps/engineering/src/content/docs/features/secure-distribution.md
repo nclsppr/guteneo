@@ -1,6 +1,6 @@
 ---
 title: "Sensitive distribution and personal documents"
-description: "30 capabilities in the deliver branch of Guteneo."
+description: "31 capabilities in the deliver branch of Guteneo."
 sidebar:
   order: 10
 ---
@@ -48,6 +48,7 @@ Implemented candidate with migrations 0055–0059 and separate deterministic str
 <li id="feature-58b495c5faae">Personal section changes retain the mounted authenticated shell while capturing and removing each new invitation before children render; no redundant personal-session bootstrap precedes the next page. Initial entry, bounded visible-tab revalidation, identity-change remounts and current server authorization remain required</li>
 <li id="feature-a57a041d1487">Provider preflight validates the transport reservation after deducting already committed secure retention/personal-copy charges from the immutable total ceiling; it retains all active attempt, approval, sender and tenant checks</li>
 <li id="feature-8a4676396a87">One explicit priced browser Send action records approval then activation after two attestations; a failed response requires read-only Check status before same-key recovery, without effect-driven writes or another MCP confirmation after active readback</li>
+<li id="feature-7a62af39f473">Local D1/R2 regressions cover revocation of metadata/images/text/permitted-original/deposit, decryption races, concurrent deposit and duplicate-copy workers; durable copies converge on exact bytes and single receipts without reviving revoked shared access</li>
 </ol>
 
 ## REST operations

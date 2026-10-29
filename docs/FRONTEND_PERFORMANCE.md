@@ -1,5 +1,29 @@
 # Frontend loading and personal bootstrap
 
+## Independent application code — 29 October 2026 local candidate
+
+The host loads My documents with `import()` just like the other applications.
+`PersonalEntry` starts its one personal-session read alongside the code request;
+`PersonalSpace` consumes that visit-scoped result and retains its normal focus
+revalidation, cancellation and identity fences. Leaving aborts the entry read.
+Neither authority nor the result is cached across visits or account identities.
+Personal navigation keeps the same shell/session; document reads still wait for
+personal authority. Opening the shared account menu adds no request.
+
+The direct-preparation preference helper now loads with Correspondence. Studio
+styles load with Studio; its reused entry-link rule belongs to shared styles.
+Locale changes emit a shared event that the public sharing adapter observes,
+removing the shared locale module's dependency on public-site code. The four
+import exceptions in `applications.json` are removed rather than expanded.
+
+A before/after build with the same local dependencies measured the entry chunk
+at 659.78 → 634.67 kB raw and 190.44 → 186.68 kB gzip; My documents became a
+31.87 kB raw / 8.92 kB gzip route chunk. This intermediate comparison isolates
+loading/menu changes before terminology and Belvédère integration; it is not a
+final-release size, a network-transfer measurement or a latency guarantee.
+Final exact-source checks and measurements belong to the
+[local acceptance record](STUDIO_SPACE_REPRISE.md).
+
 28 October 2026. This contract owns route-loading behavior and separates bounded
 local measurements from anonymous production observations. Neither establishes
 server CPU, provider readiness, price or physical-device qualification.

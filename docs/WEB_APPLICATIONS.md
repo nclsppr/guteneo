@@ -67,11 +67,12 @@ when an exception grows, when a count falls below its allowance (lower it), and
 when an exception no longer occurs (remove it). Never add an exception to make a
 new feature pass; fix the boundary instead.
 
-Current exceptions (29 October 2026): My documents is bundled with the host for
-its first paint, the host loads one correspondence helper, the
-Studio stylesheet also serves one correspondence rule, `locale.ts` refreshes
-public sharing metadata, and a few chart colors, shadows and V2 radius overrides
-remain in Belvédère, the film frame, the language menu and the protected reader.
+The 29 October reprise removes all four import exceptions: My documents and
+its session start in parallel, the preference helper belongs to Correspondence,
+the entry-link rule belongs to shared styles and locale presentation uses an
+event observed by public sharing. A few dated chart-color, shadow and V2-radius
+design exceptions remain in Belvédère, the film frame, the language menu and the
+protected reader; the manifest records their exact remaining allowances.
 
 ## Checking
 
