@@ -115,6 +115,32 @@ test("feature changes require both registry and developer contract updates", () 
   assert.deepEqual(documentationDrift(["tests/unit/documents.test.ts"]), []);
 });
 
+test("dependency manifests do not invent product documentation changes", () => {
+  const manifests = [
+    "package.json",
+    "package-lock.json",
+    "apps/engineering/package.json",
+    "apps/engineering/package-lock.json",
+    "apps/pdf-validator/package.json",
+    "apps/scanner/package-lock.json",
+    "packages/example/package.json",
+  ];
+  assert.deepEqual(documentationDrift(manifests), []);
+  assert.equal(
+    documentationDrift([...manifests, "apps/web/src/Page.tsx"]).length,
+    2,
+  );
+  assert.equal(
+    documentationDrift([...manifests, "packages/example/package.json.ts"])
+      .length,
+    2,
+  );
+  assert.match(
+    documentationDrift([...manifests, ".github/workflows/ci.yml"]).join("\n"),
+    /authored engineering guide/,
+  );
+});
+
 test("native, script and static shell prose follow the same English rule", () => {
   for (const file of [
     "ios/Guteneo/Example.swift",

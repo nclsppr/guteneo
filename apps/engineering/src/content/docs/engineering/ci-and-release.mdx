@@ -5,8 +5,9 @@ sidebar:
   order: 7
 ---
 
-GitHub CI checks proposed source and then checks `main` again. It does not deploy
-Guteneo automatically. The reviewed revision, required job results, clean build,
+GitHub CI checks proposed source and then checks `main` again. A separate,
+credential-gated workflow can publish an eligible merged dependency update after
+the complete current-main checks succeed. The reviewed revision, required job results, clean build,
 authorized publication and served bytes form a chain of evidence with distinct
 owners and failure states.
 
@@ -22,6 +23,7 @@ can affect more than their immediate directory, so they retain complete coverage
 
 | Job family             | Responsibility                                                                                                                                 | Evidence boundary                                                  |
 | ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| Dependency preflight   | Locked installation, supported MCP peers/template engine/transport and high-severity audit before root matrices                                | Unsupported graphs fail before costly jobs; all suites remain required |
 | Private services       | Scanner and PDF-validator type/behavior tests                                                                                                  | Local service contracts, not hosted engine freshness               |
 | Checks                 | Type/lint, dependency audit, generated docs, language/route standards, MCP/package freshness, MCP annotations, migration equivalence, cost model and narration checks | Repository consistency for that revision                           |
 | Four Vitest shards     | Sequential isolated domain/integration files and restore evidence                                                                              | Deterministic local database/provider fixtures                     |
@@ -65,6 +67,31 @@ When moving a suite, preserve its assertions and the final discovered-file
 inventory. On setup failure, retain the failed revision and logs, repair the
 declared dependency and run the corrected revision; skipping the suite or treating
 an installed browser as delivery proof does not recover the gate.
+
+## Dependency compatibility and application redelivery
+
+Routine npm version updates remain minor/patch with a seven-day cooldown.
+Security updates have separate coupled-family groups and no cooldown; they may cross a
+major version, but exact MCP peer and PDFme engine holds also affect automatic
+security proposals and require reviewed migrations. Coupled families stay grouped;
+the dependency check compares the actual lockfile with Agents peers, the declared
+template engine and patched Miniflare transport. Package/lock-only changes keep
+full CI without inventing new product features or documentation changes.
+
+The separate dependency-release workflow verifies successful complete CI for the
+exact current `main` push, a genuinely merged Dependabot PR and dependency-only
+files. Only root npm changes qualify for application publication. Service-only
+and workflow-action changes retain their separate release scope. A dedicated
+application release token is mandatory; the scanner credential is insufficient.
+No application token was configured at the 29 October inspection, so this remains
+an inactive candidate until the credential and hosted path are qualified.
+
+Publication is serialized, rechecks current `main` and calls the existing clean
+main release command. Exact anonymous served-byte verification follows publication;
+the scheduled public browser monitor remains separate. Failure remains failure; no automatic merge, schema
+migration, provider send or retry is introduced. The
+[maintenance contract](https://github.com/nclsppr/guteneo/blob/main/docs/DEPENDENCY_UPDATES.md)
+owns the observed failures, compatibility holds, activation and recovery steps.
 
 ## Keep browser icons bound to their source
 

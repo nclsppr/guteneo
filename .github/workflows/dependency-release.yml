@@ -1,0 +1,90 @@
+name: Release tested application dependencies
+
+on:
+  workflow_run:
+    workflows: [Guteneo checks]
+    branches: [main]
+    types: [completed]
+
+permissions:
+  contents: read
+  actions: read
+  pull-requests: read
+
+# A started publication must finish; a later revision is checked again in queue.
+concurrency:
+  group: guteneo-production-application
+  cancel-in-progress: false
+  queue: max
+
+jobs:
+  release:
+    if: >-
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_branch == 'main' &&
+      github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      DEPENDENCY_RELEASE_EVIDENCE: ${{ runner.temp }}/dependency-release.json
+    steps:
+      # Always execute reviewed main, never the source or artifacts of a PR run.
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: npm
+      - name: Require the exact successful main and genuine dependency-only merge
+        id: qualification
+        run: node scripts/ci/dependency-release.mjs
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - name: Check the dedicated application-release credential
+        if: steps.qualification.outputs.eligible == 'true'
+        id: activation
+        env:
+          CLOUDFLARE_APP_RELEASE_API_TOKEN: ${{ secrets.CLOUDFLARE_APP_RELEASE_API_TOKEN }}
+        run: |
+          if test -z "$CLOUDFLARE_APP_RELEASE_API_TOKEN"; then
+            echo 'enabled=false' >> "$GITHUB_OUTPUT"
+            echo 'Automatic application releases are prepared but inactive: the dedicated CLOUDFLARE_APP_RELEASE_API_TOKEN has not been configured.' >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          echo 'enabled=true' >> "$GITHUB_OUTPUT"
+      - name: Install the tested locked dependencies
+        if: steps.activation.outputs.enabled == 'true'
+        run: npm ci
+      - name: Recheck qualification immediately before guarded publication
+        if: steps.activation.outputs.enabled == 'true'
+        id: recheck
+        run: node scripts/ci/dependency-release.mjs
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - name: Rebuild, publish and verify the exact tested application
+        if: steps.activation.outputs.enabled == 'true' && steps.recheck.outputs.eligible == 'true'
+        shell: bash
+        run: |
+          set -o pipefail
+          npm run deploy:live 2>&1 | tee "$RUNNER_TEMP/dependency-release.log"
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_APP_RELEASE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: "39ac9fada6cba44d9ecf09d467609e69"
+          WRANGLER_SEND_METRICS: "false"
+          CI: "true"
+      - uses: actions/upload-artifact@v7
+        if: always() && steps.qualification.outputs.eligible == 'true'
+        with:
+          name: dependency-release-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/dependency-release.json
+            ${{ runner.temp }}/dependency-release.log
+            dist/web/release.json
+          if-no-files-found: error
+          retention-days: 30
+      - name: Explain an incomplete publication
+        if: failure()
+        run: |
+          echo 'Application dependency publication did not complete verification. Inspect the failed step and current public release before a manual rerun; do not assume the previous version remained active.' >> "$GITHUB_STEP_SUMMARY"

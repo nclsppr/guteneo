@@ -196,10 +196,16 @@ export function interfaceSourceFindings(
 export function documentationDrift(files, presentFiles = files) {
   const present = new Set(presentFiles);
   const updated = files.filter((file) => present.has(file));
-  const featureChange = files.some((f) =>
-    /^(apps\/(?:api|web|documents|status|engineering)\/|packages\/|ios\/Guteneo\/)/.test(
-      f,
-    ),
+  // A dependency update retains full CI, but does not add a product feature.
+  // Keep this path exception exact: source changes alongside it still need docs.
+  const dependencyManifest = (file) =>
+    /(?:^|\/)package(?:-lock)?\.json$/.test(file);
+  const featureChange = files.some(
+    (f) =>
+      !dependencyManifest(f) &&
+      /^(apps\/(?:api|web|documents|status|engineering)\/|packages\/|ios\/Guteneo\/)/.test(
+        f,
+      ),
   );
   const missing = [];
   if (featureChange && !updated.includes("docs/feature-map.json"))
@@ -327,13 +333,16 @@ async function main() {
   }
   if (findings.length) {
     const groups = Object.groupBy(findings, (f) => f.file);
-    for (const [file, items] of Object.entries(groups))
+    for (const [file, items] of Object.entries(groups)) {
       console.error(
         `${file}: ${items.length} issue(s); lines ${items
           .slice(0, 8)
           .map((f) => f.line)
           .join(", ")}`,
       );
+      for (const item of items.slice(0, 8))
+        console.error(`  ${item.line}: ${item.kind}`);
+    }
     throw Error(
       `${findings.length} repository convention violations. Move UI/video translations to declared i18n resources; keep authored source/docs in English.`,
     );
