@@ -130,7 +130,7 @@ test("the sole admin cannot demote themselves and disconnecting their access ref
   expect(unchanged.user.role).toBe("admin");
   await team
     .getByRole("button", {
-      name: `Déconnecter ${session.user.name} de cet atelier`,
+      name: `Déconnecter ${session.user.name} de cet espace de travail`,
     })
     .click();
   await team.getByRole("button", { name: "Oui, déconnecter" }).click();

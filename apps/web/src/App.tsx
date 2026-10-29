@@ -92,7 +92,6 @@ import "./secure-documents.css";
 
 const publicPreview = import.meta.env.VITE_PUBLIC_PREVIEW === "true";
 const EmailPreferencesPage = lazy(() => import("./email-preferences"));
-const PersonalArea = lazy(() => workspaceRouteModules.personal());
 const RememberDirectChoice = lazy(() =>
   workspaceRouteModules.dispatch().then((module) => ({
     default: module.RememberDirectChoice,
@@ -102,9 +101,23 @@ const RememberDirectChoice = lazy(() =>
 /** Load personal code and personal authority together, scoped to this visit. */
 function PersonalEntry({ route }: { route: string }) {
   const [initialSession, setInitialSession] = useState<PersonalSessionRead>();
+  const [area, setArea] = useState<{
+    Component: Awaited<
+      ReturnType<typeof workspaceRouteModules.personal>
+    >["default"];
+  }>();
+  const [codeError, setCodeError] = useState<Error>();
   useEffect(() => {
     const controller = new AbortController();
-    void workspaceRouteModules.personal().catch(() => undefined);
+    let alive = true;
+    void workspaceRouteModules.personal().then(
+      (module) => {
+        if (alive) setArea({ Component: module.default });
+      },
+      (error: Error) => {
+        if (alive) setCodeError(error);
+      },
+    );
     const invalidate = () => controller.abort();
     // A hidden entry waits for the personal shell's normal visible read.
     const read: PersonalSessionRead = {
@@ -135,19 +148,19 @@ function PersonalEntry({ route }: { route: string }) {
     document.addEventListener("visibilitychange", invalidate);
     setInitialSession(read);
     return () => {
+      alive = false;
       invalidate();
       window.removeEventListener("focus", invalidate);
       document.removeEventListener("visibilitychange", invalidate);
     };
   }, []);
-  return (
-    <Suspense fallback={<Loading />}>
-      {initialSession ? (
-        <PersonalArea route={route} initialSession={initialSession} />
-      ) : (
-        <Loading />
-      )}
-    </Suspense>
+  if (codeError) throw codeError;
+  // Render resolved code directly: an initial lazy retry can hold Suspense's
+  // fallback for another 300 ms after code and identity are already available.
+  return area && initialSession ? (
+    <area.Component route={route} initialSession={initialSession} />
+  ) : (
+    <Loading />
   );
 }
 
@@ -609,7 +622,12 @@ function WorkspaceApplication({
   if (pathname === "/legal/") return <LegalPage />;
   if (page === "/legal") return <LegalPage />;
   if (!page.startsWith("/app")) return <Landing />;
-  if (personalRoute) return <PersonalEntry route={route} />;
+  if (personalRoute)
+    return (
+      <WorkspaceRouteBoundary route={route}>
+        <PersonalEntry route={route} />
+      </WorkspaceRouteBoundary>
+    );
   if (!ready)
     return (
       <div className="initial-loading">

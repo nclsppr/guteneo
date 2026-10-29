@@ -229,3 +229,29 @@ test("personal account switching drops private search and invitation parameters 
   expect(state.reads).toEqual(reads);
   expectPersonalOnly(state);
 });
+
+test("a failed personal code request offers explicit recovery without private reads or writes", async ({
+  page,
+}) => {
+  const state = await fixture(page);
+  const chunk = "**/assets/personal-area-*.js";
+  await page.route(chunk, (route) => route.abort("failed"));
+  await page.goto("/#/app/my-documents");
+  await expect(page.getByRole("alert")).toContainText(
+    "Cette page n’a pas pu être chargée.",
+  );
+  expect(state.reads).not.toContain("/api/personal/documents");
+  expect(state.reads).not.toContain("/api/session");
+  expect(state.writes).toEqual([]);
+  await page.unroute(chunk);
+  await page
+    .getByRole("button", { name: "Recharger la page", exact: true })
+    .click();
+  await expect(
+    page.getByRole("heading", {
+      name: "Document for entry-reader-a",
+      exact: true,
+    }),
+  ).toBeVisible();
+  expect(state.writes).toEqual([]);
+});
