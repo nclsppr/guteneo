@@ -381,13 +381,13 @@ test("an older focus session read cannot overwrite a successful profile save", a
   await fixture(page, "classic");
   await page.addInitScript(() => {
     const original = fetch.bind(window);
-    let sessionReads = 0;
     window.fetch = async (input, init) => {
       if (
         new URL(String(input), location.href).pathname ===
           "/api/personal/session" &&
-        ++sessionReads === 2
+        Reflect.get(window, "holdNextPersonalFocusRead")
       ) {
+        Reflect.set(window, "holdNextPersonalFocusRead", false);
         const response = await original(input, { ...init, signal: undefined });
         await new Promise<void>((resolve) => {
           Reflect.set(window, "releasePreviousPersonalRead", resolve);
@@ -398,6 +398,14 @@ test("an older focus session read cannot overwrite a successful profile save", a
     };
   });
   await page.goto("/#/app/personal-account");
+  await expect(
+    page.getByRole("textbox", { name: "Your name", exact: true }),
+  ).toBeVisible();
+  // Hold an actual background revalidation, after the initial profile is ready.
+  // A code/session race may legitimately replace an entry read before that.
+  await page.evaluate(() => {
+    Reflect.set(window, "holdNextPersonalFocusRead", true);
+  });
   await expect(async () => {
     await page.evaluate(() => window.dispatchEvent(new Event("focus")));
     await expect
