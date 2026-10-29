@@ -58,6 +58,25 @@ URL and synchronous catalog. History, section anchors, keyboard focus, page
 metadata and route-specific effects must follow the visible destination. No
 authorization or customer document is stored in public navigation history.
 
+The 29 October route-focus candidate keeps public and workshop page changes
+focused on the new `main` with
+`tabindex="-1"`. Safari can mark this script focus as `:focus-visible` after a
+pointer click, drawing a ring around the whole page. The early
+`installInputModality` listener records pointer and non-modifier keyboard input
+in `document.documentElement.dataset.input`; modifier keys alone leave the
+previous modality unchanged.
+
+Pointer navigation suppresses the outline of script-focused containers.
+Keyboard navigation underlines the focused main's page title in the brand blue
+instead of framing the page. Other keyboard-focused containers and interactive
+controls retain their existing focus indicators. This changes presentation only;
+route focus, scroll, authorization and navigation behavior remain unchanged.
+
+Regression sources are `tests/unit/input-modality.test.ts` and the pointer and
+keyboard route-focus case in `tests/preview-e2e/public-navigation.spec.ts`.
+Playwright Chromium and WebKit evidence remains separate from physical Safari
+and assistive-technology qualification; no production publication is claimed.
+
 Personal navigation had a different repeated-work defect: `PersonalArea`
 replaced its authenticated shell with a loading fallback whenever its route
 changed. Returning the shell immediately afterwards remounted `PersonalSpace`
