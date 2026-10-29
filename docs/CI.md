@@ -79,6 +79,8 @@ never remove assertions, merge protections or report verification to meet a time
 target. An authorized delivery still checks the PR and the actual merged main
 revision before deploying, then verifies the served release independently.
 
+`.github/dependabot.yml` proposes weekly grouped updates for the root, scanner, PDF validator and engineering packages and for workflow actions. `agents` moves with the `@modelcontextprotocol/*` packages because it pins exact MCP peers, and `wrangler` moves with `miniflare`. Each update still goes through the full pipeline and `npm run audit:dependencies`.
+
 ## Evidence and caches
 
 `guteneo-verification` contains the complete merged `reports/vitest.json`, original per-job reports/logs, browser HTML/JSON reports, newly generated visual-proof screenshots and failure traces/screenshots, the current restoration proof, and the cost model. Intermediate evidence artifacts are retained for 14 days, including when a job fails; the reusable browser builds expire after one day. Downloaded evidence keeps separate artifact directories to avoid report filename collisions. The historical tracked restoration report is copied only by the shard that actually passed the restoration test. Browser runners remove historical screenshot fixtures before testing so their artifacts contain only images generated in that run.
