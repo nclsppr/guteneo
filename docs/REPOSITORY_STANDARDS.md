@@ -115,7 +115,8 @@ When adding, changing or removing a feature, update both its feature-map node
 and the affected developer documentation in the same pull request, including
 the role matrix and customer journeys. Regenerate the Markdown/HTML atlas
 and verify it with `node docs/build-feature-map.mjs --check`. Exact `package.json`
-and `package-lock.json` changes alone are dependency maintenance, not new product
+and `package-lock.json` changes in the four maintained npm projects alone are
+dependency maintenance, not new product
 features; they retain full CI without invented feature documentation. Any source
 or workflow edits alongside those files retain their normal documentation gates.
 Generated documents

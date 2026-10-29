@@ -6,6 +6,7 @@ import {
   qualifyDependencyRelease,
   requestJson,
   requireApplicationDependencyFiles,
+  requireDependencyManifestChange,
   requireMainRun,
   requireSuccessfulJobs,
 } from "../../scripts/ci/dependency-release.mjs";
@@ -38,14 +39,41 @@ const pull = {
   merged: true,
   merge_commit_sha: sourceCommit,
   user: { login: "dependabot[bot]", type: "Bot" },
-  head: { ref: "dependabot/npm_and_yarn/example", repo: repository },
-  base: { ref: "main", repo: repository },
+  head: {
+    ref: "dependabot/npm_and_yarn/example",
+    repo: repository,
+    sha: "b".repeat(40),
+  },
+  base: { ref: "main", repo: repository, sha: "c".repeat(40) },
   changed_files: 2,
 };
 const files = ["package.json", "package-lock.json"].map((filename) => ({
   filename,
   status: "modified",
 }));
+const originalManifest = {
+  name: "guteneo",
+  version: "1.1.17",
+  scripts: { "deploy:live": "node scripts/deploy-public.mjs live" },
+  engines: { node: "^22.22.3 || >=24.8.0" },
+  overrides: { miniflare: { undici: "7.30.1" } },
+  dependencies: { example: "1.0.0" },
+  devDependencies: { testing: "^4.1.12" },
+};
+const updatedManifest = {
+  ...originalManifest,
+  dependencies: { example: "1.0.1" },
+};
+const manifestResponse = (manifest, path = "package.json") => {
+  const bytes = Buffer.from(JSON.stringify(manifest));
+  return {
+    type: "file",
+    path,
+    encoding: "base64",
+    content: bytes.toString("base64"),
+    size: bytes.length,
+  };
+};
 const jobs = ["verify", "scanner", "checks", "build"].map((name, index) => ({
   id: index + 1,
   run_id: run.id,
@@ -71,6 +99,20 @@ function fixture(overrides = {}) {
     if (path.endsWith(`/pulls/${pull.number}`)) return overrides.pull ?? pull;
     if (path.includes(`/pulls/${pull.number}/files?`))
       return overrides.files ?? files;
+    if (path.includes(`/contents/`)) {
+      const url = new URL(`https://api.github.com${path}`);
+      const filename = url.pathname.split("/contents/")[1];
+      const initial = url.searchParams.get("ref") === pull.base.sha;
+      return (
+        overrides.manifestResponse ??
+        manifestResponse(
+          initial
+            ? (overrides.originalManifest ?? originalManifest)
+            : (overrides.updatedManifest ?? updatedManifest),
+          filename,
+        )
+      );
+    }
     if (path.includes(`/actions/runs/${run.id}/jobs?filter=latest`)) {
       const page = new URL(`https://api.github.com${path}`).searchParams.get(
         "page",
@@ -118,6 +160,9 @@ test("the final merge must be an original bot PR from this repository", () => {
     { head: { ...pull.head, ref: "human-dependency-update" } },
     { head: { ...pull.head, repo: { id: 999 } } },
     { base: { ...pull.base, ref: "staging" } },
+    { base: { ...pull.base, sha: context.sourceCommit } },
+    { base: { ...pull.base, sha: undefined } },
+    { head: { ...pull.head, sha: undefined } },
   ])
     assert.equal(isDependabotMerge({ ...pull, ...fields }, context), false);
 });
@@ -346,6 +391,88 @@ test("API reads are bounded to GitHub and never follow credential redirects", as
   );
 });
 
+test("dependency-only manifest changes preserve every executable and configuration field", () => {
+  requireDependencyManifestChange(originalManifest, updatedManifest);
+  requireDependencyManifestChange(originalManifest, {
+    ...originalManifest,
+    devDependencies: { testing: "^5.0.5" },
+  });
+  for (const altered of [
+    { ...updatedManifest, scripts: { "deploy:live": "echo changed" } },
+    {
+      ...updatedManifest,
+      scripts: { ...updatedManifest.scripts, preinstall: "echo changed" },
+    },
+    { ...updatedManifest, engines: { node: ">=18" } },
+    { ...updatedManifest, overrides: {} },
+    { ...updatedManifest, name: "changed" },
+    { ...updatedManifest, version: "2.0.0" },
+    { ...updatedManifest, bin: "changed.js" },
+  ])
+    assert.throws(
+      () => requireDependencyManifestChange(originalManifest, altered),
+      /MANIFEST_CONFIGURATION_CHANGED/,
+    );
+  for (const dependencies of [{}, { example: "1.0.1", injected: "1.0.0" }])
+    assert.throws(
+      () =>
+        requireDependencyManifestChange(originalManifest, {
+          ...updatedManifest,
+          dependencies,
+        }),
+      /MANIFEST_DEPENDENCY_SET_CHANGED/,
+    );
+  for (const example of [
+    "file:../../private",
+    "https://example.invalid/package.tgz",
+    "github:example/injected",
+    "npm:other@1.0.0",
+  ])
+    assert.throws(
+      () =>
+        requireDependencyManifestChange(originalManifest, {
+          ...updatedManifest,
+          dependencies: { example },
+        }),
+      /MANIFEST_VERSION_INVALID/,
+    );
+});
+
+test("qualification reads SHA-pinned base and merged manifests and rejects manual script edits", async () => {
+  const { calls, request } = fixture();
+  assert.equal(
+    (await qualifyDependencyRelease(context, request)).eligible,
+    true,
+  );
+  for (const revision of [pull.base.sha, context.sourceCommit])
+    assert.ok(
+      calls.includes(
+        `/repos/nclsppr/guteneo/contents/package.json?ref=${revision}`,
+      ),
+    );
+  for (const updatedManifest of [
+    { ...originalManifest, scripts: { "deploy:live": "echo changed" } },
+    { ...originalManifest, engines: { node: ">=18" } },
+    { ...originalManifest, overrides: {} },
+  ])
+    await assert.rejects(
+      qualifyDependencyRelease(context, fixture({ updatedManifest }).request),
+      /MANIFEST_CONFIGURATION_CHANGED/,
+    );
+  await assert.rejects(
+    qualifyDependencyRelease(
+      context,
+      fixture({
+        manifestResponse: {
+          ...manifestResponse(originalManifest),
+          path: "wrong.json",
+        },
+      }).request,
+    ),
+    /MANIFEST_CONTENT_INVALID/,
+  );
+});
+
 test("workflow serializes releases, gives CI no production secret and reuses the release guard", async () => {
   const workflow = await readFile(
     new URL("../../.github/workflows/dependency-release.yml", import.meta.url),
@@ -362,6 +489,14 @@ test("workflow serializes releases, gives CI no production secret and reuses the
   assert.match(workflow, /dependency-release\.log/);
   assert.match(workflow, /secrets.CLOUDFLARE_APP_RELEASE_API_TOKEN/);
   assert.match(workflow, /ref: main/);
+  assert.doesNotMatch(
+    workflow,
+    /^    env:\n\s+DEPENDENCY_RELEASE_EVIDENCE:.*runner\.temp/m,
+  );
+  assert.match(
+    workflow,
+    /DEPENDENCY_RELEASE_EVIDENCE=\$RUNNER_TEMP\/dependency-release\.json.*GITHUB_ENV/,
+  );
   assert.equal(workflow.includes("CLOUDFLARE_SCANNER_API_TOKEN"), false);
   assert.equal(workflow.includes("pull_request_target"), false);
   assert.equal(workflow.includes("actions/download-artifact"), false);

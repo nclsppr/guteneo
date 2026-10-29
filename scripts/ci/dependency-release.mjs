@@ -2,6 +2,7 @@ import { execFileSync } from "node:child_process";
 import { appendFile, readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { isDeepStrictEqual } from "node:util";
 
 const repository = "nclsppr/guteneo";
 const sha = /^[a-f0-9]{40}$/;
@@ -74,7 +75,10 @@ export function isDependabotMerge(pull, context) {
     pull.user.type === "Bot" &&
     pull.head?.ref?.startsWith("dependabot/") &&
     pull.head.repo?.id === context.repositoryId &&
+    sha.test(pull.head.sha ?? "") &&
     pull.base?.ref === "main" &&
+    sha.test(pull.base.sha ?? "") &&
+    pull.base.sha !== context.sourceCommit &&
     pull.base.repo?.id === context.repositoryId,
   );
 }
@@ -104,6 +108,94 @@ export function requireApplicationDependencyFiles(files, changedFiles) {
     "DEPENDENCY_FILES_REQUIRED",
   );
   return true;
+}
+
+const dependencySections = new Set([
+  "dependencies",
+  "devDependencies",
+  "optionalDependencies",
+  "peerDependencies",
+]);
+const versionSpecifier =
+  /^[~^]?\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$/;
+const record = (value) =>
+  value !== null && typeof value === "object" && !Array.isArray(value);
+
+/** Bot authorship is insufficient: manual script/configuration edits stay manual. */
+export function requireDependencyManifestChange(before, after) {
+  demand(record(before) && record(after), "MANIFEST_INVALID");
+  const configuration = (manifest) =>
+    Object.fromEntries(
+      Object.entries(manifest).filter(
+        ([name]) => !dependencySections.has(name),
+      ),
+    );
+  demand(
+    isDeepStrictEqual(configuration(before), configuration(after)),
+    "MANIFEST_CONFIGURATION_CHANGED",
+  );
+  for (const section of dependencySections) {
+    demand(
+      Object.hasOwn(before, section) === Object.hasOwn(after, section),
+      "MANIFEST_DEPENDENCY_SET_CHANGED",
+    );
+    if (!Object.hasOwn(before, section)) continue;
+    const initial = before[section],
+      final = after[section];
+    demand(
+      record(initial) &&
+        record(final) &&
+        isDeepStrictEqual(
+          Object.keys(initial).sort(),
+          Object.keys(final).sort(),
+        ),
+      "MANIFEST_DEPENDENCY_SET_CHANGED",
+    );
+    for (const name of Object.keys(initial)) {
+      demand(
+        typeof initial[name] === "string" && typeof final[name] === "string",
+        "MANIFEST_VERSION_INVALID",
+      );
+      if (initial[name] !== final[name])
+        demand(
+          versionSpecifier.test(initial[name]) &&
+            versionSpecifier.test(final[name]),
+          "MANIFEST_VERSION_INVALID",
+        );
+    }
+  }
+}
+
+async function readManifest(request, path, revision) {
+  demand(
+    manifestPaths.has(path) && path.endsWith("package.json"),
+    "MANIFEST_PATH_INVALID",
+  );
+  demand(sha.test(revision ?? ""), "MANIFEST_REVISION_INVALID");
+  const result = await request(
+    `/repos/${repository}/contents/${path}?ref=${revision}`,
+  );
+  demand(
+    result?.type === "file" &&
+      result.path === path &&
+      result.encoding === "base64" &&
+      typeof result.content === "string" &&
+      Number.isSafeInteger(result.size) &&
+      result.size > 0 &&
+      result.size <= 262144,
+    "MANIFEST_CONTENT_INVALID",
+  );
+  const content = result.content.replace(/\n/g, "");
+  const bytes = Buffer.from(content, "base64");
+  demand(
+    bytes.length === result.size && bytes.toString("base64") === content,
+    "MANIFEST_CONTENT_INVALID",
+  );
+  try {
+    return JSON.parse(bytes.toString("utf8"));
+  } catch {
+    throw new Error("DEPENDENCY_RELEASE_MANIFEST_INVALID");
+  }
 }
 
 export async function requestJson(path, token, fetcher = fetch) {
@@ -192,6 +284,17 @@ export async function qualifyDependencyRelease(context, request) {
       reason: "application-dependencies-unchanged",
       sourceCommit: context.sourceCommit,
     };
+  for (const file of files.filter(({ filename }) =>
+    filename.endsWith("package.json"),
+  )) {
+    const before = await readManifest(request, file.filename, pull.base.sha);
+    const after = await readManifest(
+      request,
+      file.filename,
+      context.sourceCommit,
+    );
+    requireDependencyManifestChange(before, after);
+  }
   const jobs = await listPages(
     request,
     `${base}/actions/runs/${run.id}/jobs?filter=latest`,

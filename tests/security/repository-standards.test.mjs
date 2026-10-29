@@ -123,7 +123,6 @@ test("dependency manifests do not invent product documentation changes", () => {
     "apps/engineering/package-lock.json",
     "apps/pdf-validator/package.json",
     "apps/scanner/package-lock.json",
-    "packages/example/package.json",
   ];
   assert.deepEqual(documentationDrift(manifests), []);
   assert.equal(
@@ -139,6 +138,11 @@ test("dependency manifests do not invent product documentation changes", () => {
     documentationDrift([...manifests, ".github/workflows/ci.yml"]).join("\n"),
     /authored engineering guide/,
   );
+  for (const file of [
+    "packages/new-runtime/package.json",
+    "apps/api/src/package.json",
+  ])
+    assert.equal(documentationDrift([...manifests, file]).length, 2);
 });
 
 test("native, script and static shell prose follow the same English rule", () => {

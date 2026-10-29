@@ -10,6 +10,7 @@ type LockedPackage = {
 };
 type Manifest = {
   dependencies?: Record<string, string>;
+  devDependencies?: Record<string, string>;
   overrides?: Record<string, unknown>;
 };
 type Lockfile = { packages: Record<string, LockedPackage> };
@@ -58,10 +59,23 @@ export function requireDependencyCompatibility(
   assert.equal(packages["node_modules/@pdfme/pdf-lib"]?.version, pdfLib);
 
   const agents = packages["node_modules/agents"];
+  assert.ok(
+    agents?.version && agents.peerDependencies,
+    "The locked agents package and its MCP peer metadata are required for compatibility evidence",
+  );
+  assert.equal(
+    manifest.dependencies?.agents,
+    agents.version,
+    "The direct agents dependency must match its locked version",
+  );
   for (const name of ["client", "server", "sdk"]) {
     const dependency = `@modelcontextprotocol/${name}`;
-    const peer = agents?.peerDependencies?.[dependency];
-    if (!peer || !/^\d+\.\d+\.\d+$/.test(peer)) continue;
+    const peer: string | undefined = agents.peerDependencies[dependency];
+    assert.match(
+      peer ?? "",
+      /^\d+\.\d+\.\d+$/,
+      `${dependency} requires complete exact agents peer metadata; qualify a changed peer contract before automatic updates`,
+    );
     assert.equal(
       manifest.dependencies?.[dependency],
       peer,
@@ -75,9 +89,21 @@ export function requireDependencyCompatibility(
     { undici: "7.30.1" },
     "The undici security override must cover every Miniflare version, including the next Wrangler dependency",
   );
-  for (const path of Object.keys(packages).filter((path) =>
+  const miniflarePaths = Object.keys(packages).filter((path) =>
     /(?:^|\/)node_modules\/miniflare$/.test(path),
-  )) {
+  );
+  assert.ok(
+    miniflarePaths.includes("node_modules/miniflare") &&
+      packages["node_modules/miniflare"]?.version &&
+      manifest.devDependencies?.miniflare,
+    "The direct locked Miniflare package is required for patched transport compatibility evidence",
+  );
+  assert.equal(
+    packages["node_modules/miniflare"].version,
+    manifest.devDependencies.miniflare,
+    "The direct Miniflare dependency must match its locked version",
+  );
+  for (const path of miniflarePaths) {
     assert.equal(
       resolvedDependency(packages, path, "undici")?.version,
       "7.30.1",

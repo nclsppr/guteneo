@@ -10,7 +10,7 @@ updates:
       default-days: 7
     # Routine majors require a reviewed migration. Security updates remain eligible.
     allow:
-      - dependency-type: direct
+      - dependency-name: "*"
         update-types: [version-update:semver-minor, version-update:semver-patch]
     ignore:
       # agents pins both peers exactly; lift together after its peer contract moves.
@@ -67,7 +67,7 @@ updates:
     cooldown:
       default-days: 7
     allow:
-      - dependency-type: direct
+      - dependency-name: "*"
         update-types: [version-update:semver-minor, version-update:semver-patch]
     groups:
       minor-and-patch:

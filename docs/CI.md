@@ -89,8 +89,8 @@ MCP peer and PDFme engine compatibility holds. Each update retains the full
 pipeline, supported-dependency graph check and high/critical audit. Manifest-only
 updates do not invent product documentation requirements. The separate
 credential-gated dependency release workflow can publish a merged root npm update
-only after full successful exact-current-main CI. No application release token was
-configured at the 29 October inspection. The [maintenance contract](DEPENDENCY_UPDATES.md)
+only after full successful exact-current-main CI. The dedicated application release secret was installed on 29 October; merged
+workflow activation and its first hosted publication remain to be qualified. The [maintenance contract](DEPENDENCY_UPDATES.md)
 owns observed failures, security implications of holds and hosted activation.
 
 ## Evidence and caches

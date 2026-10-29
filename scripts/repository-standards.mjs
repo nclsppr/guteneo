@@ -198,11 +198,17 @@ export function documentationDrift(files, presentFiles = files) {
   const updated = files.filter((file) => present.has(file));
   // A dependency update retains full CI, but does not add a product feature.
   // Keep this path exception exact: source changes alongside it still need docs.
-  const dependencyManifest = (file) =>
-    /(?:^|\/)package(?:-lock)?\.json$/.test(file);
+  const dependencyManifests = new Set(
+    ["", "apps/scanner/", "apps/pdf-validator/", "apps/engineering/"].flatMap(
+      (directory) => [
+        `${directory}package.json`,
+        `${directory}package-lock.json`,
+      ],
+    ),
+  );
   const featureChange = files.some(
     (f) =>
-      !dependencyManifest(f) &&
+      !dependencyManifests.has(f) &&
       /^(apps\/(?:api|web|documents|status|engineering)\/|packages\/|ios\/Guteneo\/)/.test(
         f,
       ),

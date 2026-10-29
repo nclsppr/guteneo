@@ -40,6 +40,49 @@ describe("Dependency compatibility across automatic updates", () => {
     );
   });
 
+  it("refuses absent or changed agents peer evidence instead of skipping validation", async () => {
+    const { manifest, lockfile } = await actualDependencies();
+    for (const mutate of [
+      (packages: typeof lockfile.packages) => {
+        delete packages["node_modules/agents"];
+      },
+      (packages: typeof lockfile.packages) => {
+        delete packages["node_modules/agents"].peerDependencies;
+      },
+      (packages: typeof lockfile.packages) => {
+        delete packages["node_modules/agents"].peerDependencies[
+          "@modelcontextprotocol/server"
+        ];
+      },
+      (packages: typeof lockfile.packages) => {
+        packages["node_modules/agents"].peerDependencies[
+          "@modelcontextprotocol/client"
+        ] = "^2.0.0";
+      },
+    ]) {
+      const altered = structuredClone(lockfile);
+      mutate(altered.packages);
+      expect(() => requireDependencyCompatibility(manifest, altered)).toThrow(
+        /agents.*peer|peer.*agents/,
+      );
+    }
+  });
+
+  it("requires the direct locked Miniflare even when nested evidence remains", async () => {
+    const { manifest, lockfile } = await actualDependencies();
+    delete lockfile.packages["node_modules/miniflare"];
+    lockfile.packages["node_modules/wrangler/node_modules/miniflare"] = {
+      version: "5.20261019.2-beta",
+    };
+    expect(() => requireDependencyCompatibility(manifest, lockfile)).toThrow(
+      "direct locked Miniflare package is required",
+    );
+    delete lockfile.packages["node_modules/wrangler/node_modules/miniflare"];
+    expect(() => requireDependencyCompatibility(manifest, lockfile)).toThrow(
+      "direct locked Miniflare package is required",
+    );
+  });
+
   it("keeps a future Wrangler's nested Miniflare under the same undici security override", async () => {
     const { manifest, lockfile } = await actualDependencies();
     lockfile.packages["node_modules/wrangler/node_modules/miniflare"] = {

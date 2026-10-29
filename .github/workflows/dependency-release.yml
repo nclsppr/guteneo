@@ -25,9 +25,9 @@ jobs:
       github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 40
-    env:
-      DEPENDENCY_RELEASE_EVIDENCE: ${{ runner.temp }}/dependency-release.json
     steps:
+      - name: Set the release evidence location
+        run: echo "DEPENDENCY_RELEASE_EVIDENCE=$RUNNER_TEMP/dependency-release.json" >> "$GITHUB_ENV"
       # Always execute reviewed main, never the source or artifacts of a PR run.
       - uses: actions/checkout@v7
         with:

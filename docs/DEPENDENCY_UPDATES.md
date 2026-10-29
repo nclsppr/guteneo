@@ -48,7 +48,9 @@ The separate `dependency-release.yml` workflow listens for completed
 `Guteneo checks` runs. It qualifies only successful `push` runs on current `main`,
 with all required jobs successful, including aggregate evidence verification and
 scanner tests. It verifies a genuinely merged Dependabot PR and restricts its
-files to dependency manifests. A root package change makes application release
+files to the four maintained projects' dependency manifests. SHA-pinned manifest
+comparison permits only existing dependency version changes; scripts, engines,
+overrides, package identity and other configuration must remain unchanged. A root package change makes application release
 eligible. Service-only and workflow-action updates do not publish the application;
 service releases retain separate qualification procedures. No pull-request source
 executes with production release credentials.
@@ -57,9 +59,14 @@ Only `CLOUDFLARE_APP_RELEASE_API_TOKEN` authorizes application publication.
 Use a dedicated least-privilege token for the existing application and asset
 upload; never reuse the scanner-maintenance token or a personal OAuth session.
 Missing credentials leave release visibly inactive. Creating or installing that
-credential is a separate operator step. Inspection on 29 October found no
-application release token in GitHub; this candidate therefore does not claim
-activated hosted redelivery.
+credential is a separate operator step. On 29 October, after explicit operator
+authorization, `guteneo-app-release-github` was created with Workers Scripts Edit
+for the selected account and Workers Routes Edit plus Zone Read for `guteneo.com`
+only. It expires on 27 January 2027. GitHub confirmed the dedicated Actions secret
+at `2026-10-29T03:15:18Z`; no secret value was logged or committed. This verifies
+creation and storage, not successful hosted publication with that credential.
+Renew before expiry; authentication failure must stop redelivery. The scanner
+credential remains separate.
 
 Eligible releases are serialized without cancelling a publication already in
 progress. The workflow rechecks current-main provenance, then calls existing
@@ -81,6 +88,11 @@ for test inventory and immutable artifact verification.
 Local regression tests use synthetic GitHub metadata and intercepted release
 operations. They prove eligibility/refusal behavior, not GitHub credentials,
 Cloudflare publication, real Auth0 login or business delivery. The correction
-still needs full exact-source PR CI, authorized merge, merged-main CI, dedicated
-credential installation and the first verified hosted dependency release before
+still needs full exact-source PR CI, authorized merge, merged-main CI and the
+first verified hosted dependency release before
 it can be described as operational automatic redelivery.
+
+Local qualification on 29 October: 149 Vitest files with 3,161 passed assertions
+and 474 Node security tests passed. Subsequent hardening passed its focused
+regressions separately. Typecheck, lint, generated documentation, actual Chromium
+rendering and build/dry-run evidence remain local; hosted PR CI is separate.
