@@ -12,19 +12,24 @@ cobalt side rule. See the [loading contract and measured environment](FRONTEND_P
 The first implementation step of the [Studio space plan](STUDIO_SPACE_PLAN.md)
 splits authoring from sending inside the same workspace session:
 
-- **Space switcher.** One 44 px control replaces the workshop block at the top
-  of the sidebar, in the workshop and in personal documents. Its panel offers the
-  current workspace's **Workshop** and **Studio**, **My documents**, other
-  workspaces and **Create or join a workspace**. It reads
-  `GET /api/account/workspaces` only on first opening; personal documents reuse
-  the workspaces of the personal session. Switching workspace dispatches the
-  existing cancelable navigation event first, so an unsaved template can refuse,
-  then calls `POST /api/account/workspace` and lands at the root of the same
-  space. From personal documents, another workspace still uses
-  `POST /api/personal/workspace/select` and the existing reload. Escape, an outside
-  pointer and a route change close the panel; the current space carries
-  `aria-current="true"`. Identity actions stay in the account menu, and the
-  account page no longer has its own workspace form.
+- **Application and workspace switchers.** Two separate controls replace the
+  workshop block at the top of the sidebar. The application switcher lists
+  **Studio**, **Correspondence** (the workshop's application name; ids and routes
+  are unchanged) and **My documents**; without a current workspace, Studio and
+  Correspondence lead to `#/app/services` to choose or create one. Below it, in
+  Studio and Correspondence only, the workspace switcher shows the current
+  workspace, the person's other memberships and **Create or join a workspace**.
+  It reads `GET /api/account/workspaces` when its panel opens for an identity
+  (account, workspace and authority): the current workspace comes from the
+  session, a list read for another identity is never shown, a late answer is
+  discarded and a refused membership is read again. Switching workspace
+  dispatches the existing cancelable navigation event first, so an unsaved
+  template can refuse, then calls `POST /api/account/workspace` and lands at the
+  root of the same application. Escape, an outside pointer and any navigation
+  close both panels, and returning to a page keeps them closed. Triggers are
+  40 px (application) and 36 px (workspace) for desktop pointers and 44 px on
+  touch screens. Identity actions stay in the account menu, and the account page
+  no longer has its own workspace form.
 - **Studio navigation.** Templates, Data (formerly My data) and Generations live
   under `/app/studio/…`; earlier `/app/templates`, `/app/template/<id>`,
   `/app/datasets`, `/app/dataset/<id>`, `/app/generations` and
@@ -36,7 +41,9 @@ splits authoring from sending inside the same workspace session:
   requires. At 1280 × 720 an administrator's eleven entries and New dispatch fit
   without scrolling.
 - **Personal documents.** Use Guteneo stays in personal navigation only for an
-  account without a workspace; otherwise the switcher reaches workspaces.
+  account without a workspace; the application switcher reaches Studio and
+  Correspondence in the current workspace. Personal documents never show a
+  workspace switcher.
 
 `apps/web/src/app-routes.ts` owns spaces, Studio addresses, aliases, the current
 navigation entry and preloading; `space-switcher.tsx` and `space-switcher.css`

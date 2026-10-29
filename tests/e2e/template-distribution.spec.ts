@@ -87,16 +87,11 @@ test("web distribution assigns channels to selected records without a Cartesian 
   await page
     .getByRole("button", { name: "Préparer une distribution (2)" })
     .click();
-  await page
-    .getByLabel("Documents pour la destination 1", { exact: true })
-    .selectOption("selection");
   const group1 = page.getByRole("group", {
     name: "Documents concernés par la destination 1",
     exact: true,
   });
-  await group1
-    .getByRole("checkbox", { name: "client-b", exact: true })
-    .uncheck();
+  await group1.getByRole("checkbox", { name: "client-a", exact: true }).check();
   const destination1 = page.getByRole("group", {
     name: "Destination 1",
     exact: true,
@@ -108,15 +103,12 @@ test("web distribution assigns channels to selected records without a Cartesian 
     .getByRole("button", { name: "Ajouter une destination ou un canal" })
     .click();
   await page
-    .getByLabel("Documents pour la destination 2", { exact: true })
-    .selectOption("selection");
-  await page
     .getByRole("group", {
       name: "Documents concernés par la destination 2",
       exact: true,
     })
-    .getByRole("checkbox", { name: "client-a", exact: true })
-    .uncheck();
+    .getByRole("checkbox", { name: "client-b", exact: true })
+    .check();
   await page.getByLabel("Canal 2", { exact: true }).selectOption("email");
   const destination2 = page.getByRole("group", {
     name: "Destination 2",
@@ -138,15 +130,12 @@ test("web distribution assigns channels to selected records without a Cartesian 
     .getByRole("button", { name: "Ajouter une destination ou un canal" })
     .click();
   await page
-    .getByLabel("Documents pour la destination 3", { exact: true })
-    .selectOption("selection");
-  await page
     .getByRole("group", {
       name: "Documents concernés par la destination 3",
       exact: true,
     })
-    .getByRole("checkbox", { name: "client-a", exact: true })
-    .uncheck();
+    .getByRole("checkbox", { name: "client-b", exact: true })
+    .check();
   await page
     .getByRole("group", { name: "Destination 3", exact: true })
     .getByLabel("Numéro international", { exact: true })
@@ -156,6 +145,17 @@ test("web distribution assigns channels to selected records without a Cartesian 
   });
   await expect(multichannel).toHaveAccessibleName(/pour 1 PDF/);
   await multichannel.check();
+  // The exact pairs and the batch freeze are shown before anything is prepared.
+  const summary = page.getByRole("region", {
+    name: "Ce qui sera préparé",
+    exact: true,
+  });
+  await expect(summary.getByRole("listitem")).toHaveText([
+    /^Destination 1 · Fax : client-a$/,
+    /^Destination 2 · .+ : client-b$/,
+    /^Destination 3 · Fax : client-b$/,
+  ]);
+  await expect(summary).toContainText("fige tout ce lot de génération");
   const responsePromise = page.waitForResponse(
     (response) =>
       response.url().endsWith("/api/distribution-plans") &&
@@ -259,29 +259,23 @@ test("multichannel intent remains available when two records reuse the same PDF 
     .getByRole("button", { name: "Préparer une distribution (2)" })
     .click();
   await page
-    .getByLabel("Documents pour la destination 1", { exact: true })
-    .selectOption("selection");
-  await page
     .getByRole("group", {
       name: "Documents concernés par la destination 1",
       exact: true,
     })
-    .getByRole("checkbox", { name: "same-b", exact: true })
-    .uncheck();
+    .getByRole("checkbox", { name: "same-a", exact: true })
+    .check();
   await page
     .getByRole("button", { name: "Ajouter une destination ou un canal" })
     .click();
   await page.getByLabel("Canal 2", { exact: true }).selectOption("email");
   await page
-    .getByLabel("Documents pour la destination 2", { exact: true })
-    .selectOption("selection");
-  await page
     .getByRole("group", {
       name: "Documents concernés par la destination 2",
       exact: true,
     })
-    .getByRole("checkbox", { name: "same-a", exact: true })
-    .uncheck();
+    .getByRole("checkbox", { name: "same-b", exact: true })
+    .check();
   const confirmation = page.getByRole("checkbox", {
     name: /Je demande explicitement/,
   });

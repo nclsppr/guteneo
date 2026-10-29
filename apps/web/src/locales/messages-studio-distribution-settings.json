@@ -716,5 +716,25 @@
     "Association pending preparation.",
     "Zuordnung wartet auf Vorbereitung.",
     "D’Zouuerdnung waart op d’Virbereedung."
+  ],
+  "Ce qui sera préparé": [
+    "What will be prepared",
+    "Was vorbereitet wird",
+    "Wat preparéiert gëtt"
+  ],
+  "Destination {0} · {1} : {2}": [
+    "Destination {0} · {1}: {2}",
+    "Ziel {0} · {1}: {2}",
+    "Destinatioun {0} · {1}: {2}"
+  ],
+  "aucun document choisi": [
+    "no document chosen",
+    "kein Dokument ausgewählt",
+    "keen Dokument gewielt"
+  ],
+  "La préparation fige tout ce lot de génération, y compris les PDF non sélectionnés ici : leurs échecs ne pourront plus y être relancés. Relancez-les d’abord, ou corrigez-les dans une nouvelle génération.": [
+    "Preparing freezes this whole generation batch, including PDFs not selected here: their failures can no longer be retried in it. Retry them first, or correct them in a new generation.",
+    "Die Vorbereitung friert diesen gesamten Generierungslauf ein, auch die hier nicht ausgewählten PDFs: Ihre Fehler können darin nicht mehr wiederholt werden. Wiederholen Sie sie zuerst oder korrigieren Sie sie in einer neuen Generierung.",
+    "D’Virbereedung fréiert dëse ganze Generéierungslaf an, och d’PDFen, déi hei net ausgewielt sinn: hir Feeler kënnen do net méi nei probéiert ginn. Probéiert se fir d’éischt nei, oder korrigéiert se an enger neier Generéierung."
   ]
 }

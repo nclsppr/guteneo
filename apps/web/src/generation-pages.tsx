@@ -1,7 +1,7 @@
 import { msg, msgIn } from "./messages";
 import { studioRoutes } from "./app-routes";
 import { scrollStudioTable } from "./studio-table-keyboard";
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import type {
   GenerationJobView,
   GenerationResultView,
@@ -518,10 +518,11 @@ function postalOptions(destination: Destination) {
     deliveryProduct: destination.deliveryProduct,
   };
 }
-function newDestination(): Destination {
+/** With several PDFs, a new destination starts with none: each one is chosen. */
+function newDestination(recordIds: string[]): Destination {
   return {
     id: crypto.randomUUID(),
-    records: "all",
+    records: recordIds.length === 1 ? "all" : [],
     channel: "fax",
     channelField: "delivery.channel",
     dataChannels: [],
@@ -550,13 +551,14 @@ function DistributionForm({
   onClose: () => void;
 }) {
   const [destinations, setDestinations] = useState<Destination[]>([
-    newDestination(),
+    newDestination(recordIds),
   ]);
   const [multi, setMulti] = useState(false),
     action = useAction(),
     senders = useResource<{ items: Sender[] }>("/senders");
   const key = useRef(crypto.randomUUID()),
-    last = useRef("");
+    last = useRef(""),
+    summaryId = useId();
   const applies = (destination: Destination, recordId: string) =>
     destination.records === "all" || destination.records.includes(recordId);
   const associationCount = destinations.reduce(
@@ -753,7 +755,7 @@ function DistributionForm({
               value={destination.records === "all" ? "all" : "selection"}
               onChange={(e) =>
                 update(destination.id, {
-                  records: e.target.value === "all" ? "all" : [...recordIds],
+                  records: e.target.value === "all" ? "all" : [],
                 })
               }
             >
@@ -1121,7 +1123,9 @@ function DistributionForm({
         type="button"
         className="button small"
         disabled={destinations.length >= 500 || action.pending}
-        onClick={() => setDestinations([...destinations, newDestination()])}
+        onClick={() =>
+          setDestinations([...destinations, newDestination(recordIds)])
+        }
       >
         {msg("Add a destination or channel ")}
       </button>
@@ -1137,6 +1141,38 @@ function DistributionForm({
           {multichannelDocuments} {msg("PDFs. ")}
         </label>
       )}
+      <section className="distribution-summary" aria-labelledby={summaryId}>
+        <h3 id={summaryId}>{msg("What will be prepared")}</h3>
+        <ul>
+          {destinations.map((destination, index) => {
+            const documents = recordIds.filter((recordId) =>
+              applies(destination, recordId),
+            );
+            return (
+              <li key={destination.id}>
+                {msg(
+                  "Destination {0} · {1}: {2}",
+                  index + 1,
+                  (destination.channel === "data"
+                    ? destination.dataChannels
+                    : [destination.channel]
+                  )
+                    .map(channelLabel)
+                    .join(", ") || "—",
+                  documents.length
+                    ? documents.join(", ")
+                    : msg("no document chosen"),
+                )}
+              </li>
+            );
+          })}
+        </ul>
+        <p className="notice warning">
+          {msg(
+            "Preparing freezes this whole generation batch, including PDFs not selected here: their failures can no longer be retried in it. Retry them first, or correct them in a new generation.",
+          )}
+        </p>
+      </section>
       <p className="field-hint">
         {msg(
           "Preparing the distribution lets authorized approvers in this workspace view the selected PDFs to review these requests. It does not send anything.",

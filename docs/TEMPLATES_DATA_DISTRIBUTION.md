@@ -317,7 +317,9 @@ Distribution freezes record → document/version/hash → channel/recipient.
 `recipientFields` resolves frozen record data, not reparsed files. Multiple
 recipients remain separate dispatches; multiple channels require
 `explicitMultichannel:true`. Web destinations apply to all selected records or a
-named subset. Identical bytes shared by different records still receive common
+named subset; with several selected PDFs a new destination starts with none, so
+every association is chosen, and the form lists the exact destination/channel/PDF
+pairs and the batch freeze below before preparing. Identical bytes shared by different records still receive common
 multichannel checks. Plans create no approval, provider attempt or credit reservation.
 Postal preparation referencing a qualified draft may read provider pricing without
 submitting. Entry errors stay visible. First plan freezes the entire batch,
