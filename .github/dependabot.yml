@@ -13,12 +13,14 @@ updates:
       - dependency-name: "*"
         update-types: [version-update:semver-minor, version-update:semver-patch]
     ignore:
-      # agents pins both peers exactly; lift together after its peer contract moves.
+      # agents pins all three SDK peers exactly; lift after its peer contract moves.
       # These explicit compatibility holds also affect security update proposals.
       - dependency-name: "@modelcontextprotocol/client"
         versions: [">2.3.1"]
       - dependency-name: "@modelcontextprotocol/server"
         versions: [">2.3.1"]
+      - dependency-name: "@modelcontextprotocol/sdk"
+        versions: [">1.32.1"]
       # Stored template envelopes declare this engine version. Upgrade with migration.
       - dependency-name: "@pdfme/common"
         versions: [">6.1.13"]

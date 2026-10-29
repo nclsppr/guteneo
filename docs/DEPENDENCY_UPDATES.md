@@ -7,7 +7,7 @@ production releases. Keep the original runs and qualify each corrected revision.
 
 | Pull request | Observed failure | Correction |
 | --- | --- | --- |
-| [103](https://github.com/nclsppr/guteneo/pull/103) | Installation rejects MCP client/server 2.4.0 because Agents 0.30.1 requires exact 2.3.1 peers. | Hold unsupported SDK versions until a reviewed Agents/SDK train supports them. Grouping cannot override peer constraints. |
+| [103](https://github.com/nclsppr/guteneo/pull/103) | Installation rejects MCP client/server 2.4.0 and legacy SDK 1.32.2 because Agents 0.30.1 requires exact peers 2.3.1 and 1.32.1. | Hold all three unsupported SDK versions until a reviewed Agents/SDK train supports them. Grouping cannot override peer constraints. |
 | [104](https://github.com/nclsppr/guteneo/pull/104) | New Miniflare no longer matches the old version-qualified override and reintroduces vulnerable Undici. The high-severity audit correctly fails. | Keep patched Undici effective for supported Miniflare updates; retain the audit. |
 | [105](https://github.com/nclsppr/guteneo/pull/105) | Nested manifests are treated as feature changes requiring product documentation. | Exclude exact package/lock filenames from feature classification. Source/workflow edits retain normal documentation requirements. Print actual findings in CI. |
 | [109](https://github.com/nclsppr/guteneo/pull/109) | PDFme schemas 6.2.8 imports `parseFont`, absent from the retained transitive PDF library. | Make the existing PDF library explicit; group the family. Hold engine upgrades for compatibility review because stored templates declare engine 6.1.13. |
@@ -36,7 +36,7 @@ hold; the hold is not evidence that the old version is safe. Never use
 `--force`, `--legacy-peer-deps`, skipped suites or weaker audit thresholds to make
 an unsupported update appear successful.
 
-Update Agents exact peers and both SDK pins together. For PDFme, review stored
+Update Agents and all three exact SDK peer pins together. For PDFme, review stored
 envelope compatibility, the declared engine version and all family packages
 before removing holds. For TypeScript, qualify the compiler, linter and each
 independently locked application together. No configuration can promise that
