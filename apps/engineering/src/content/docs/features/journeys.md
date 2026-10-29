@@ -133,7 +133,7 @@ Update feature tree/developer contracts/source/tests together → regenerate and
 
 **Actor:** Browser member in the current workshop · **Branch:** Access
 
-Read visible name/login email → open account profile for role → inspect effective permissions and workshop responsible contacts → edit own name/language or explicitly switch account.
+Read visible name/login email (in V2, open the account menu) → open account profile for role → inspect effective permissions and workshop responsible contacts → edit own name/language or explicitly switch account.
 
 **Failure and recovery:** Provider login email is read-only identity data. Missing address/contact errors stay explicit. Reconcile identity after tab focus and ignore cancelled stale reads without interrupting editing.
 
@@ -261,7 +261,7 @@ Open the engineering site → find a feature in the generated tree → read its 
 
 **Actor:** Anonymous or signed-in browser reader; no role or additional authority required · **Branch:** Interfaces
 
-Start with the operating-system palette unless a valid local choice exists → use the shared public/personal header or Belvédère page-action localized light/dark action icon at any viewport, with public activation available before React, or a three-way account setting where that surface exposes one → apply the resolved palette in place → retain the local origin preference when storage is available → follow system or same-origin storage changes. Main-site standalone HTML uses only the host-only enum cookie; status and engineering retain independent origin state. Native public pictures select matching dark art; header/app white paper stays inside each actual inner blue frame with transparent exterior/perforations. Public/workshop assistant marks have no added white backing; monochrome marks invert in explicit/system dark mode while colored sources stay unchanged. Document/PDF/email surfaces keep original content appearance.
+Start with the operating-system palette unless a valid local choice exists → use the shared public/personal header or Belvédère page-action localized light/dark action icon at any viewport, or its labelled form in the V2 workshop account menu, with public activation available before React, or a three-way account setting where that surface exposes one → apply the resolved palette in place → retain the local origin preference when storage is available → follow system or same-origin storage changes. Main-site standalone HTML uses only the host-only enum cookie; status and engineering retain independent origin state. Native public pictures select matching dark art; header/app white paper stays inside each actual inner blue frame with transparent exterior/perforations. Public/workshop assistant marks have no added white backing; monochrome marks invert in explicit/system dark mode while colored sources stay unchanged. Document/PDF/email surfaces keep original content appearance.
 
 **Failure and recovery:** Blocked persistence still permits an in-page choice. Invalid or duplicate cookies fall back to system without interpolation or account lookup. Script-free CSS follows system; language, Classic/V2 layout, identity, drafts, approval and provider gates remain independent. Local browser-engine evidence establishes no physical-device Safari or deployed-host pass.
 

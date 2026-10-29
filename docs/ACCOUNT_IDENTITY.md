@@ -112,7 +112,9 @@ identity or reconnection.
 ## Journey and authority
 
 Every browser member finds their name and login email in navigation, including
-mobile. This block links to My account, which shows the current workspace role
+mobile: Classic shows the email beside the name, while V2 shows the name in one
+account row whose menu starts with the name and email. This block links to My
+account, which shows the current workspace role
 and effective rights, including the supervisor's independent approval/reporting
 options. The 25 October correction removes role repetition from the shared
 sidebar and overview; Classic also retains its Account entry.
@@ -168,7 +170,11 @@ In the 14 October V2 candidate, workspace name stays in navigation and
 personal identity in the account block; the dashboard keeps effective rights
 without repeating either identity. The redundant footer is removed and
 public **Service status** joins **Switch account** in identity utilities.
-That block/link remains accessible with the mobile menu closed. Browser
+That block/link remains accessible with the mobile menu closed. Since the
+29 October candidate, V2 places profile, light/dark appearance, **Switch
+account**, **Service status** and **Sign out** in the account row's disclosure
+menu; Classic keeps its block, footer sign-out and mobile navigation sign-out.
+The [workspace layout contract](DASHBOARD_V2.md) owns that presentation. Browser
 timezone accompanies relevant dates without a new profile setting or formatting
 change. Classic retains its shell. These moves change neither login email,
 contacts, role nor profile saving, and add no business read.

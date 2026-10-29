@@ -335,19 +335,12 @@ test("the connected account language never replaces the saved anonymous language
   expect(
     await page.evaluate(() => localStorage.getItem("guteneo.locale")),
   ).toBe("lb");
-  const navigation = page.locator(".workspace-navigation");
-  const summary = navigation.locator("summary");
-  if (await summary.isVisible()) {
-    await summary.click();
-    await navigation
-      .getByRole("button", { name: "Sign out", exact: true })
-      .click();
-  } else {
-    await page
-      .locator(".sidebar-footer")
-      .getByRole("button", { name: "Sign out", exact: true })
-      .click();
-  }
+  // V2 signs out from the account menu at every viewport.
+  await page.locator(".workspace-identity-trigger").click();
+  await page
+    .locator(".workspace-identity-menu")
+    .getByRole("button", { name: "Sign out", exact: true })
+    .click();
   await expect(page).toHaveURL("/");
   await expect(page.locator("html")).toHaveAttribute("lang", "lb");
   expect(

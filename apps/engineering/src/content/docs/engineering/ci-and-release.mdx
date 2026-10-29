@@ -310,7 +310,9 @@ product-state cause from the failed input traces. The
 
 Maintain `scripts/ci/browser-results.mjs`, the workflow matrix and its security
 tests together. Adding a browser, suite or shard requires the matching inventory,
-report and artifact contract. Keep the final `verify` dependency and protected
+report and artifact contract. A new `test.skip` for a project needs its own
+registry entry whose reason matches the skip description exactly; otherwise
+`verify` rejects the run even when every browser job passed. Keep the final `verify` dependency and protected
 `scanner` check, and retain merged-main CI before an authorized publication.
 
 ## Install the dependency tree actually used by each job

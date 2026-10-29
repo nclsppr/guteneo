@@ -7,6 +7,68 @@ scroll/focus on commit. Private reads still require current authority. Secure
 document prices retain their existing padding and consent with a one-pixel
 cobalt side rule. See the [loading contract and measured environment](FRONTEND_PERFORMANCE.md#route-dependencies-follow-the-requested-task).
 
+## Compact sidebar and account menu — 29 October 2026 candidate
+
+A UI review measured the V2 sidebar on `b2e454c` (local simulation, Chromium,
+French, administrator). At 1440 × 900 Senders, Usage, PDF checks, Billing and
+Administration sat below the visible list with no cue; even 1920 × 1080 hid
+Administration. **New dispatch** disappeared on Overview, Prepare dispatch and
+Dispatches, moving every entry by 61 px. Documents and Templates showed two filled
+blue buttons, three icons were reused and the identity block took 135 px.
+
+The candidate keeps the same destinations, order, permissions and Classic layout:
+
+- Desktop rows (≥ 1025 px) are 34 px with 2 px gaps and a more compact brand
+  and workshop block. My documents and **New dispatch** keep 44 px; touch layouts
+  keep 44 px rows. While entries remain below, a sticky fade covers the cut-off
+  row; it disappears at the end of the list and in forced colors. Keyboard focus
+  is drawn inside each row, as in Belvédère, because the scrolling list clips
+  an outer ring.
+- **New dispatch** stays in the sidebar on every page for members who can
+  prepare, with the shared secondary outline. The page's own primary action
+  remains the only filled button. Overview and Dispatches keep their heading copy
+  only below 1025 px, where the sidebar shortcut is inside the collapsed menu.
+- Each destination has one icon: Documents `FilePdf`, Secure distribution
+  `FileLock`, My data `Table`, Generations `Printer`; My documents keeps `Files`
+  as in the personal space. The icon list is shared, so Classic shows the same
+  glyphs; its layout and actions are unchanged.
+- The V2 account block is one row (initials and name) opening a disclosure
+  menu: name and login email, **My profile and permissions**, the shared
+  `ThemeToggle` with its visible action, **Switch account** (not in the preview),
+  **Service status** and **Sign out**. The trigger reports its expanded state;
+  Escape closes the menu and returns focus to it, and an outside pointer, focus
+  leaving the area or a committed route change closes it. It opens upward on
+  desktop, may overhang the page for long translations, and opens downward
+  with 44 px items below 1025 px. V2 no longer renders the sidebar footer or the
+  mobile navigation sign-out; Classic keeps both.
+
+Measured after the change on the same fixture and browser (fr, light and dark):
+the first entry stays at 234 px on Overview, Documents, Templates, Prepare
+dispatch, Dispatches and Administration at 1280 × 720, 1440 × 900, 1536 × 864 and
+1920 × 1080; no entry is hidden at the last three sizes; at 1280 × 720 the list
+scrolls with the fade over Usage. The account row is 51 px high on desktop and
+53 px on phones. Each measured screen has at most one filled action. In all four
+languages every menu item fits on one line: the menu is 233–256 px wide on
+desktop and 358 px at 390 px, with 36 px items on desktop and 44 px on phones.
+Desktop WebKit reproduces the same entry positions, hidden entries and fade.
+Captures and metrics stay outside Git with the session evidence.
+
+Against `649ac8d`, built with the same locked dependencies, the 19 JS/CSS files
+that `index.html` loads grow from 1,700,747 to 1,717,478 raw bytes and from
+512,579 to 516,055 gzip bytes (level 9): +3,476, mostly the seven new Phosphor
+icons. File and request counts are unchanged; no speed gain is claimed.
+
+Local checks on the candidate: typecheck, lint and documentation checks pass.
+Six application e2e files (`dashboard-v2`, `account-identity`, `locale-boundaries`,
+`login-entry`, `workspace-route-performance`, `dashboard`) pass 181 cases on
+Chromium, mobile Chromium and iPhone WebKit, with 2 project skips; the public
+language case that needs prerendered public pages fails only on the `build:web`
+development bundle and passes 3/3 on the CI-equivalent `build:live` bundle. The
+preview `mobile-workspace` and `dashboard-v2` files pass 22 cases with 4 project
+skips. The change adds no request, route, API field, role or authority; logout,
+account switching and theme preference keep their existing contracts. CI,
+publication and physical devices remain unqualified.
+
 Historical candidate status on 14 October 2026: **V2 simplification locally validated;
 exact-commit CI and publication still require qualification, with publication
 authorized after validation**. Results dated 11–13 October below are historical,
@@ -36,11 +98,12 @@ existing personal session/workspace endpoints and adds no business request.
 Reports are outside Git under `/tmp/guteneo-onboarding-browser*`.
 
 V2 keeps the account destination in its dedicated identity block outside the
-collapsible navigation. At mobile widths that profile link now has a minimum
-44 px height, matching navigation touch targets; the desktop geometry is unchanged.
-The preview regression checks exact destinations in Classic and V2, 44 px targets,
-account navigation and page focus, and the existing menu keyboard/focus behavior.
-This CSS-only correction adds no resource request, account mutation or authority.
+collapsible navigation. At mobile widths its account row and, since 29 October,
+the menu's profile link have a minimum 44 px height, matching navigation touch
+targets. The preview regression checks exact destinations in Classic and V2,
+44 px targets, account navigation and page focus, the account menu's Escape and
+outside-pointer closing, and the existing menu keyboard/focus behavior. These
+presentation changes add no resource request, account mutation or authority.
 
 The mobile navigation keeps native `<details>` keyboard behavior. Escape closes
 its DOM `open` property synchronously as well as the React state, then returns
@@ -222,18 +285,19 @@ confirmed a nonzero balance with an empty current-month view; publication of
 this candidate and authenticated verification after release remain separate.
 
 **Service status** joins **Switch account** in identity utilities, at navigation
-bottom on desktop and accessible with the mobile menu closed. **Times shown:
+bottom on desktop and accessible with the mobile menu closed; since 29 October
+both sit in the V2 account menu. **Times shown:
 …** announces browser timezone near dated lists/sections instead of a distant
 footer. It uses the existing display timezone, changing neither stored times
 nor account preference.
 
 Details retain contextual back links. Global **New dispatch** is secondary
-navigation and is not repeated on overview, Prepare dispatch or Dispatches,
-where the task already has an entry. V2 overview therefore presents it as
-the local primary action for authorized members. On mobile the global shortcut
-opens with the menu. Primary action belongs to the current page/step and differs
-from back/read/global shortcuts. Summaries, explicit consent and rights remain;
-button styling creates no authority.
+navigation. Since 29 October it keeps one outlined place on every V2 page, so
+the entries below never move; Overview and Dispatches repeat it in their heading
+only below 1025 px, where the shortcut opens with the collapsed menu. Primary
+action belongs to the current page/step and differs from back/read/global
+shortcuts. Summaries, explicit consent and rights remain; button styling creates
+no authority.
 
 On **Generations**, **Create a document** remains primary. The introduction
 explains finding generated PDFs and that generation sends nothing. Exact PDF
@@ -352,7 +416,8 @@ candidate, not the fix; they still do not measure hosted Worker CPU.
 The desktop account block sits at left-navigation bottom and remains accessible
 on mobile, retaining actual identity, current role, profile and account switching.
 
-1. Open **My account** from the block; Classic also retains Account navigation.
+1. Open **My account** from the block (in V2, open the account menu first);
+   Classic also retains Account navigation.
 2. In **My profile**, choose **Classic** or **V2** under **Interface version**,
    beside language.
 3. Select **Save changes**.
@@ -599,7 +664,7 @@ instrumentation, content collection or provider permission activation.
 | `migrations/0053_user_dashboard_appearance.sql`                        | User column/constraints                                                              |
 | `apps/api/src/account.ts`, `auth.ts`, `mobile.ts`                      | Browser save, account/session reads, native boundary                                 |
 | `apps/web/src/App.tsx`, `dashboard-appearance.tsx`, `account-page.tsx` | Reconciliation, account save and temporary override                                  |
-| `apps/web/src/workspace-identity.tsx`                                  | Identity/account access at navigation bottom                                         |
+| `apps/web/src/workspace-identity.tsx`, `theme-toggle.tsx`              | Classic identity block and V2 account menu at navigation bottom                      |
 | `apps/web/src/dashboard-v2.css`                                        | Current workspace styles and shared theme tokens; `dashboard-artwork.tsx` is retired |
 | `apps/web/src/dispatch-pages.tsx`, `assistant-workspace.tsx`           | Daily hierarchy, review, assistants                                                  |
 | `apps/web/src/locales/messages-dashboard-v2.json`                      | FR/EN/DE/LB translations                                                             |
