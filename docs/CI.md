@@ -4,6 +4,10 @@ The required checks remain **verify** and **scanner**. This workflow builds and 
 
 ## Independent work
 
+- `dependencies`: locked install, supported MCP peers/template engine/transport
+  checks and high/critical audit before the costly root build, rendering and test
+  matrix. Failed preparation blocks downstream work and aggregate success; the
+  independent scanner/PDF-validator checks retain their own locked packages.
 - `checks`: TypeScript, ESLint, exact local migration transport/schema verification and the existing cost-model report. `npm run check:integrations` also rejects a stale MCP/plugin synchronization record before the remaining checks; see the [maintained package procedure](LLM_SETUP.md#mandatory-mcp-plugin-and-archive-synchronization).
 - Developer documentation: `npm run docs:check` includes the feature-atlas and MCP annotation-document checks once, alongside the other documentation guards. The atlas requires synchronized Markdown/HTML views, valid code/contract/test references and complete role/journey fields. Review also checks that every feature change updates the registry; generated-byte validation alone cannot discover undocumented behavior.
 - `vitest`: four native Vitest shards on separate runners. Files remain sequential inside each shard; process isolation, D1/R2 fixtures and all transaction/race assertions are unchanged. Browser-backed integration files, including `secure-resend-journey.test.ts`, are excluded here and run once in `security`.
@@ -79,7 +83,15 @@ never remove assertions, merge protections or report verification to meet a time
 target. An authorized delivery still checks the PR and the actual merged main
 revision before deploying, then verifies the served release independently.
 
-`.github/dependabot.yml` proposes weekly grouped updates for the root, scanner, PDF validator and engineering packages and for workflow actions. `agents` moves with the `@modelcontextprotocol/*` packages because it pins exact MCP peers, and `wrangler` moves with `miniflare`. Each update still goes through the full pipeline and `npm run audit:dependencies`.
+`.github/dependabot.yml` proposes weekly grouped updates for all four npm packages
+and workflow actions. Routine version updates remain minor/patch, with explicit
+MCP peer and PDFme engine compatibility holds. Each update retains the full
+pipeline, supported-dependency graph check and high/critical audit. Manifest-only
+updates do not invent product documentation requirements. The separate
+credential-gated dependency release workflow can publish a merged root npm update
+only after full successful exact-current-main CI. The dedicated application release secret was installed on 29 October; merged
+workflow activation and its first hosted publication remain to be qualified. The [maintenance contract](DEPENDENCY_UPDATES.md)
+owns observed failures, security implications of holds and hosted activation.
 
 ## Evidence and caches
 

@@ -60,7 +60,8 @@
     "test:engineering": "playwright test --config playwright.engineering.config.ts",
     "deploy:engineering": "node scripts/deploy-engineering.mjs",
     "sync:integrations": "node integrations/sync.mjs",
-    "check:integrations": "node integrations/sync.mjs --check"
+    "check:integrations": "node integrations/sync.mjs --check",
+    "check:dependencies": "node --import tsx scripts/ci/check-dependencies.ts"
   },
   "dependencies": {
     "@cloudflare/puppeteer": "^1.4.0",
@@ -73,6 +74,7 @@
     "@modelcontextprotocol/server": "2.3.1",
     "@pdfme/common": "6.1.13",
     "@pdfme/generator": "6.1.13",
+    "@pdfme/pdf-lib": "6.2.2",
     "@pdfme/schemas": "6.1.13",
     "@pdfme/ui": "6.1.13",
     "@phosphor-icons/react": "^2.1.10",
@@ -124,7 +126,7 @@
     "@cloudflare/puppeteer": {
       "@puppeteer/browsers": "3.2.2"
     },
-    "miniflare@5.20261006.1-alpha": {
+    "miniflare": {
       "undici": "7.30.1"
     }
   }

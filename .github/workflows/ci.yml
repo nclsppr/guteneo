@@ -12,6 +12,27 @@ concurrency:
   group: checks-${{ github.ref }}
   cancel-in-progress: true
 jobs:
+  # Refuse unsupported dependency graphs before starting builds or browser setup.
+  dependencies:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            scripts/ci
+            packages/contracts
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: npm
+      - run: npm ci
+      - name: Require supported dependency peers, template engine and patched transport
+        run: npm run check:dependencies
+      - name: Reject known high and critical dependency advisories
+        run: npm run audit:dependencies
+
   pdf-validator:
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -49,6 +70,7 @@ jobs:
       - run: npm --prefix apps/scanner test
 
   checks:
+    needs: dependencies
     runs-on: ubuntu-latest
     # Include fresh FFmpeg package installation and every narration assertion.
     timeout-minutes: 20
@@ -72,8 +94,6 @@ jobs:
       - run: npm run check:integrations
       - run: npm run typecheck
       - run: npm run lint
-      - name: Reject known high and critical dependency advisories
-        run: npm run audit:dependencies
       - name: Require synchronized documentation, English sources and canonical links
         run: npm run docs:check
       - name: Require feature and developer documentation in the same change
@@ -109,6 +129,7 @@ jobs:
           retention-days: 14
 
   vitest:
+    needs: dependencies
     runs-on: ubuntu-latest
     # Shards stay sequential; allow setup time without cutting test coverage.
     timeout-minutes: 20
@@ -166,6 +187,7 @@ jobs:
           retention-days: 14
 
   security:
+    needs: dependencies
     runs-on: ubuntu-latest
     # The same WebKit dependency mirrors precede the renderer/security tests.
     timeout-minutes: 20
@@ -219,6 +241,7 @@ jobs:
           retention-days: 14
 
   build:
+    needs: dependencies
     runs-on: ubuntu-latest
     timeout-minutes: 10
     outputs:
@@ -357,6 +380,7 @@ jobs:
           retention-days: 14
 
   engineering:
+    needs: dependencies
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -520,6 +544,7 @@ jobs:
       actions: read
     needs:
       [
+        dependencies,
         pdf-validator,
         scanner,
         checks,

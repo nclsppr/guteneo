@@ -5,6 +5,33 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    # Let upstream fixes settle; security updates are exempt from this delay.
+    cooldown:
+      default-days: 7
+    # Routine majors require a reviewed migration. Security updates remain eligible.
+    allow:
+      - dependency-name: "*"
+        update-types: [version-update:semver-minor, version-update:semver-patch]
+    ignore:
+      # agents pins all three SDK peers exactly; lift after its peer contract moves.
+      # These explicit compatibility holds also affect security update proposals.
+      - dependency-name: "@modelcontextprotocol/client"
+        versions: [">2.3.1"]
+      - dependency-name: "@modelcontextprotocol/server"
+        versions: [">2.3.1"]
+      - dependency-name: "@modelcontextprotocol/sdk"
+        versions: [">1.32.1"]
+      # Stored template envelopes declare this engine version. Upgrade with migration.
+      - dependency-name: "@pdfme/common"
+        versions: [">6.1.13"]
+      - dependency-name: "@pdfme/generator"
+        versions: [">6.1.13"]
+      - dependency-name: "@pdfme/schemas"
+        versions: [">6.1.13"]
+      - dependency-name: "@pdfme/ui"
+        versions: [">6.1.13"]
+      - dependency-name: "@pdfme/pdf-lib"
+        versions: [">6.2.2"]
     groups:
       # agents pins exact MCP SDK peers: they must move together or npm ci fails.
       mcp:
@@ -12,6 +39,17 @@ updates:
       # wrangler bundles its own miniflare; the direct dependency must match it.
       cloudflare:
         patterns: ["wrangler", "miniflare", "@cloudflare/*"]
+      pdfme:
+        patterns: ["@pdfme/*"]
+      mcp-security:
+        applies-to: security-updates
+        patterns: ["agents", "@modelcontextprotocol/*"]
+      cloudflare-security:
+        applies-to: security-updates
+        patterns: ["wrangler", "miniflare", "@cloudflare/*"]
+      pdfme-security:
+        applies-to: security-updates
+        patterns: ["@pdfme/*"]
       minor-and-patch:
         update-types: [minor, patch]
         exclude-patterns:
@@ -21,12 +59,18 @@ updates:
             "wrangler",
             "miniflare",
             "@cloudflare/*",
+            "@pdfme/*",
           ]
   - package-ecosystem: npm
     directories: [/apps/scanner, /apps/pdf-validator, /apps/engineering]
     schedule:
       interval: weekly
     open-pull-requests-limit: 3
+    cooldown:
+      default-days: 7
+    allow:
+      - dependency-name: "*"
+        update-types: [version-update:semver-minor, version-update:semver-patch]
     groups:
       minor-and-patch:
         update-types: [minor, patch]
