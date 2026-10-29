@@ -36,7 +36,7 @@
     "@tailwindcss/vite": "4.3.3",
     "pagefind": "1.5.2",
     "tailwindcss": "4.3.3",
-    "typescript": "5.9.3",
+    "typescript": "7.0.2",
     "wrangler": "4.152.0"
   },
   "description": "Guteneo engineering documentation, built with Cloudflare Nimbus.",
