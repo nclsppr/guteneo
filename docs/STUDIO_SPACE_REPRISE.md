@@ -12,7 +12,7 @@ provider activation, a real communication or deployment.
 | --- | --- | --- |
 | 1 | Current workspace comes from the active session; identity-bound membership lists, stale-response fences and draft navigation veto remain | [Layout](DASHBOARD_V2.md) |
 | 2 | Separate application/workspace switchers; shared account utilities also in My documents; personal authority needs no membership | [Account](ACCOUNT_IDENTITY.md), [applications](WEB_APPLICATIONS.md) |
-| 3 | Explicit document/destination associations and freeze summary; business labels, compatible import/replacement and source-preserving corrections | [Templates and distribution](TEMPLATES_DATA_DISTRIBUTION.md) |
+| 3 | Studio preserves source/version and business labels; Correspondence owns explicit document/destination associations, the freeze summary and immutable plan tracking | [Templates and distribution](TEMPLATES_DATA_DISTRIBUTION.md) |
 | 4 | Expanded immutable-approval, unknown-outcome, revocation and concurrent durable-copy regressions | [Sensitive journeys](SECURE_DISTRIBUTION_JOURNEYS.md) |
 | 5 | Canonical-session protected Belvédère, minimal navigation hint, seven views and interactive globe; protected compatibility entry remains | [Belvédère](BELVEDERE.md) |
 | 6 | Four-language workspace terminology, independent route loading, documentation and exact-source acceptance | [Languages](MULTILINGUAL.md), [loading](FRONTEND_PERFORMANCE.md) |
@@ -24,20 +24,74 @@ Classic's accepted stored preference no longer selects a web layout.
 
 ## Verification and evidence
 
-Acceptance is in progress while the implementation is assembled. Final counts,
-tested source, commands, environments and remaining failures must be recorded
-here before the local handoff is called complete.
+Local implementation is complete on `claude/studio-space-reprise`, package
+**1.1.19**. Runtime source is `06edca59c11f66fe1951e6ebce9122185420cb29`.
+Later changes affect the login test harness and documentation only; runtime
+source and built assets remain unchanged. Hosted CI has not been run.
 
-Executed intermediate checks:
+Verified checks and focused evidence:
 
-- Lot 4: 106/106 focused tests using real transient local D1/R2 with synthetic
-  identity, renderer and provider transport; no backend change was required.
-- Terminology: 109/109 focused tests, including stable English/legacy keys,
-  exact label revisions and preservation of interpolated proper names.
-- Personal menu/loading: 66/66 Chromium desktop, Pixel 7 and iPhone WebKit
-  browser-fixture scenarios against static assets, without a business database.
-  Independent review then identified private return-query and hidden-entry
-  prefetch races; those receive explicit regression tests in final acceptance.
+- Complete `npm test` on the consolidated candidate: 153 Vitest files,
+  349 suites and 3,218 passing tests, followed by 479 passing security tests
+  across 44 files. Exit 0; no failures, skips, cancellations or todos.
+  Reports and rendered unit artifacts are retained separately from the earlier
+  successful `d47d8027` run.
+- The complete application run executed 1,005 cases: 987 passed, 17 intentionally
+  skipped and one login-harness resource relay failed. The corrected login file
+  passed all 39 cases over the same three profiles, including three new resource
+  and drain regressions. By file, this covers 991 passing cases plus 17 skips
+  (1,008 current cases) with no unresolved failure. This is complete-suite
+  evidence plus a corrected-file rerun, not a claim that the full command was
+  rerun after the test-only harness correction. The original failed report stays
+  intact. Desktop-specific graphical editing remains qualified on desktop;
+  viewport-specific tests explain their skips in the raw report.
+- Lot 4: 106/106 focused tests using transient local D1/R2 with synthetic
+  identity, renderer and provider transport. A later full run exposed a genuine
+  approval-expiry calculation error across clock ticks; a one-line domain fix
+  preserves the unchanged SQL cap and all stricter authority limits, with a
+  deterministic insertion/reapproval regression and 202 passing focused tests.
+- Terminology: 109/109 focused tests cover stable English/legacy keys,
+  exact label revisions and interpolated proper names.
+- Consolidated Correspondence handoff: 70 passed, two desktop-only cases skipped
+  on mobile. This includes 42 new cases over desktop Chromium, Pixel 7 and
+  iPhone WebKit, six role cases and 22 executed workspace cases. Browser Back,
+  repeated/coalesced A → B → A, late preparation/postal responses, records on
+  later result pages, valid special record ids and a one-PDF destination are
+  explicit regressions. Static browser fixtures create no real communication.
+- Long personal identities and short-screen menus: 12/12 browser cases; a further
+  18/18 combined click/layout/canonical-Belvédère cases verify the account panel
+  no longer blocks workspace selection. Red and green artifacts are retained.
+- Full public preview on the candidate: 281 passed, five intentionally skipped,
+  zero failures or flaky cases. This includes the actual pre-bootstrap film
+  click regression. Full Belvédère: 46 passed, no skips, failures or flaky cases.
+- Corrected targeted fixtures: locale boundaries 30/30, personal appearance 42/42,
+  route-code failure/recovery 18/18. HTTP refusal recovers across all three
+  profiles; an intercepted WebKit abort with no failed resource-timing entry
+  retains the usable error boundary after one explicit reload. That fixture
+  limit is not a physical Safari qualification.
+- Public code recovery has 17 focused unit tests and six navigation regressions;
+  personal entry has 12 targeted cases. Refresh is limited to failed public
+  same-origin code, omits credentials/referrers, forbids redirects and aborts
+  when a visit ends. No private read or business write is replayed.
+
+The earlier full application run at `1c0fe9a5` is retained separately. Its stale
+fixtures and mobile stacking failure motivated the corrections above; a failed
+or partial historical run is never reported as a successful final run.
+
+Durable raw evidence, source hashes, screenshots and reproduction helpers live
+in the local handoff directory `guteneo-demo-2026-10-29`: `CODEX-FINAL`,
+`CODEX-RECOVERY`, `CODEX-LOT5`, `CODEX-PERFORMANCE` and `codex-lot3-proof`.
+The checked-in [loading evidence](evidence/studio-space-loading-2026-10-29.json)
+retains sanitized before/after request and byte measurements. Its source revision
+must be read literally; entry splitting is not a universal size or latency gain.
+
+The actual Studio workflow records three distinct generated PDFs, exactly two
+prepared associations and the third PDF excluded. A model correction appears in
+new PDF bytes and rendered pages; the data correction changes Metz to Nancy
+while retaining its historical template version. Original bytes/hashes and the
+prepared plan are re-read unchanged. PDF.js renders the saved pdfme bytes into
+page PNGs; direct inspection confirms readable, consistent output and both
+corrections. Approvals and sending attempts remain zero.
 
 The original demo database is never the target of resettable browser fixtures.
 Full application acceptance uses an isolated checkout, its own local D1/R2 state,
