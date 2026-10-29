@@ -83,43 +83,70 @@ test("initial workshop route code loads alongside authority without mounting pri
   }
 });
 
-test("a failed requested route retains navigation and offers an explicit page reload", async ({
-  page,
-}) => {
-  const state = await fixture(page);
-  let chunkRequests = 0;
-  let recoveryRequests = 0;
-  let unavailable = true;
-  await page.route(accountChunk, (route) => {
-    chunkRequests += 1;
-    if (route.request().resourceType() === "fetch") recoveryRequests += 1;
-    return unavailable ? route.abort("failed") : route.continue();
+for (const failure of ["HTTP refusal", "simulated network abort"] as const) {
+  test(`route code ${failure} retains navigation and offers an explicit page reload`, async ({
+    page,
+  }, info) => {
+    const state = await fixture(page);
+    let chunkRequests = 0;
+    let recoveryRequests = 0;
+    let unavailable = true;
+    await page.route(accountChunk, (route) => {
+      chunkRequests += 1;
+      if (route.request().resourceType() === "fetch") recoveryRequests += 1;
+      if (!unavailable) return route.continue();
+      return failure === "simulated network abort"
+        ? route.abort("failed")
+        : route.fulfill({
+            status: 503,
+            contentType: "text/javascript",
+            headers: { "Cache-Control": "no-store" },
+            body: "/* Synthetic unavailable route module. */",
+          });
+    });
+    await page.goto("/#/app/account");
+    await expect(page.getByRole("alert")).toContainText(
+      "This page could not be loaded.",
+    );
+    await expect(page.locator(".sidebar")).toBeVisible();
+    expect(state.writes).toEqual([]);
+    const failures = chunkRequests;
+    const interceptedWebKitAbort =
+      failure === "simulated network abort" &&
+      info.project.name === "iphone-webkit";
+    const previousDocument = await page.evaluate(() => performance.timeOrigin);
+    unavailable = false;
+    await page
+      .getByRole("button", { name: "Reload the page", exact: true })
+      .click();
+    await expect
+      .poll(() => page.evaluate(() => performance.timeOrigin))
+      .not.toBe(previousDocument);
+    if (interceptedWebKitAbort) {
+      // This intercepted abort remains cached by this WebKit build. A real HTTP
+      // refusal recovers in the adjacent case; this case must retain a usable
+      // boundary without repeated reloads or substitute private content.
+      await expect(page.getByRole("alert")).toContainText(
+        "This page could not be loaded.",
+      );
+      await expect(page.locator(".sidebar")).toBeVisible();
+      // This interception exposes no failed Resource Timing entry. Do not
+      // invent an asset URL to refresh; the native module cache retains it.
+      expect(recoveryRequests).toBe(0);
+      expect(chunkRequests).toBe(failures);
+    } else {
+      await expect(
+        page.getByRole("heading", { name: "My account", exact: true }),
+      ).toBeVisible();
+      // One explicit public-code refresh precedes the new document. Its module
+      // request may reuse that response; neither path permits a reload loop.
+      expect(recoveryRequests).toBe(1);
+      expect(chunkRequests).toBeGreaterThanOrEqual(failures + 1);
+      expect(chunkRequests).toBeLessThanOrEqual(failures + 2);
+    }
+    expect(state.writes).toEqual([]);
   });
-  await page.goto("/#/app/account");
-  await expect(page.getByRole("alert")).toContainText(
-    "This page could not be loaded.",
-  );
-  await expect(page.locator(".sidebar")).toBeVisible();
-  expect(state.writes).toEqual([]);
-  const failures = chunkRequests;
-  const previousDocument = await page.evaluate(() => performance.timeOrigin);
-  unavailable = false;
-  await page
-    .getByRole("button", { name: "Reload the page", exact: true })
-    .click();
-  await expect
-    .poll(() => page.evaluate(() => performance.timeOrigin))
-    .not.toBe(previousDocument);
-  await expect(
-    page.getByRole("heading", { name: "My account", exact: true }),
-  ).toBeVisible();
-  // One explicit public-code refresh precedes the new document. Its module
-  // request may reuse that response; neither path permits a reload loop.
-  expect(recoveryRequests).toBe(1);
-  expect(chunkRequests).toBeGreaterThanOrEqual(failures + 1);
-  expect(chunkRequests).toBeLessThanOrEqual(failures + 2);
-  expect(state.writes).toEqual([]);
-});
+}
 
 test("cold navigation keeps the current useful content until code is ready and still honors the existing veto", async ({
   page,
