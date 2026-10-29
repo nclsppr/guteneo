@@ -24,10 +24,25 @@ Classic's accepted stored preference no longer selects a web layout.
 
 ## Verification and evidence
 
-Local implementation is complete on `claude/studio-space-reprise`, package
-**1.1.19**. Runtime source is `06edca59c11f66fe1951e6ebce9122185420cb29`.
-Later changes affect the login test harness and documentation only; runtime
-source and built assets remain unchanged. Hosted CI has not been run.
+Local acceptance completed on `claude/studio-space-reprise`, package **1.1.19**,
+at runtime source `06edca59c11f66fe1951e6ebce9122185420cb29`. The subsequent login
+harness and documentation corrections left those runtime bytes unchanged.
+
+[PR #120](https://github.com/nclsppr/guteneo/pull/120) includes the complete
+Classic-retirement history from #118. Integration commit `915db399` also retains
+the current `main` assistant-logo appearance correction from #119. That merge
+changes theme CSS; the earlier byte-equivalence measurements below apply to
+their recorded revisions, not to the integrated build. Hosted CI runs the full
+integrated matrix. Its first run exposed outdated distribution-suite selectors
+for the renamed Correspondence labels and account-menu navigation; their
+corrections retain the existing privacy, authority and lifecycle assertions.
+Both corrected distribution profiles passed locally on desktop and phone
+(14 strict and two verified-account cases), with their artifact privacy guards.
+The complete account-language file passed 30 cases against prerendered production
+pages after making its public starting language explicit; its delayed-session
+and saved-private-preference assertions remain unchanged.
+GitHub owns current check and merge status; publication requires separate
+clean-main release evidence.
 
 Verified checks and focused evidence:
 

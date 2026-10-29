@@ -240,7 +240,7 @@ test(
     ).toBe(true);
     await expect(
       screen.getByText(
-        "Votre demande d’accès attend la confirmation de l’atelier.",
+        "Votre demande d’accès attend la confirmation de l’espace de travail.",
       ),
     ).toBeVisible();
     const pendingImage = await browser.evaluate(
@@ -392,7 +392,7 @@ test(
     await app.open(`/#/app/my-documents/${copy.id}`);
     await expect(
       screen.getByText(
-        "Vos consultations de cette copie personnelle ne sont pas communiquées à l’atelier expéditeur.",
+        "Vos consultations de cette copie personnelle ne sont pas communiquées à l’espace de travail expéditeur.",
       ),
     ).toBeVisible();
     await screen.getByText("Page 1").scrollIntoView();

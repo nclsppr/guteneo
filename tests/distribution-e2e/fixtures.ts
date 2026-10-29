@@ -106,7 +106,7 @@ export async function loginWorkshop(
     .getByRole(
       "button",
       workshop === "atelier"
-        ? /Entrer dans l’Atelier$/u
+        ? /Entrer dans l’espace de travail$/u
         : /Entrer dans le Studio$/u,
     )
     .tap();

@@ -294,11 +294,12 @@ test("entering the account applies its preference after a late session while pre
     },
   );
   try {
-    await page.goto("/");
+    await page.goto("/?lang=en");
     const picker = await publicLanguagePicker(page);
-    await expect(picker).toHaveValue("auto");
-    // The application bundle has no SSR locale marker. This context starts in
-    // en-GB; SSR language selection is covered by the public preview suite.
+    await expect(picker).toHaveValue("en");
+    // An explicit public choice is stable with both the local application build
+    // and CI's prerendered production pages. Automatic SSR selection has its
+    // own public-preview coverage.
     await expect(page.locator("html")).toHaveAttribute("lang", "en");
     expect(sessionRequests).toBe(0);
     await picker.selectOption("de");
