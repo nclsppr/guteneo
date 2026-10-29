@@ -84,6 +84,23 @@ summary:focus-visible {
 :is(a, button, input, select, textarea, summary):focus:not(:focus-visible) {
   outline: none;
 }
+/* Page changes focus their new container (main, a section, a result heading).
+   input-modality.ts records the last input because Safari treats that script
+   focus as visible after a click: pointer navigation draws no ring around the
+   page, and keyboard navigation underlines the page title like the current
+   navigation link instead of framing the whole page. */
+:root:not([data-input="keyboard"])
+  [tabindex="-1"]:not(a, button, input, select, textarea, summary):focus {
+  outline: none;
+}
+:root[data-input="keyboard"] main[tabindex="-1"]:focus:has(h1) {
+  outline: none;
+}
+:root[data-input="keyboard"] main[tabindex="-1"]:focus h1:first-of-type {
+  text-decoration: underline var(--blue);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.14em;
+}
 h1,
 h2,
 h3,

@@ -377,6 +377,14 @@ Keep focus visible beneath sticky headers. A disclosure reports its expanded
 state; Escape closes an overlay and returns focus to its trigger. Preserve the
 application's existing route-focus and unsaved-work behavior.
 
+Route focus moves to the new `main` (`tabindex="-1"`). Safari reports that
+script focus as `:focus-visible` even after a click, so styles read the last
+input from `data-input` on the root element (`apps/web/src/input-modality.ts`)
+instead. Pointer navigation draws no ring around script-focused containers;
+keyboard navigation underlines the new page title in the brand blue, like the
+current navigation link. Never frame a whole page with a focus ring: interactive
+controls keep their own `:focus-visible` rings.
+
 The workshop's native `<details>` menu opens before its queued `toggle` event
 updates React. Escape therefore closes the DOM property and the saved component
 state synchronously before returning focus to the summary. A state-only close can
