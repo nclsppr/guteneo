@@ -44,11 +44,15 @@ function usePanel() {
       setOpenOn(undefined);
       trigger.current?.focus();
     };
+    // Two quick address changes may render once; the event still closes it.
+    const navigate = () => setOpenOn(undefined);
     document.addEventListener("pointerdown", dismiss);
     document.addEventListener("keydown", escape);
+    window.addEventListener("hashchange", navigate);
     return () => {
       document.removeEventListener("pointerdown", dismiss);
       document.removeEventListener("keydown", escape);
+      window.removeEventListener("hashchange", navigate);
     };
   }, [open]);
   return {

@@ -53,8 +53,14 @@ export function WorkspaceIdentity({
     const dismiss = (event: PointerEvent) => {
       if (!area.current?.contains(event.target as Node)) setOpenOn(undefined);
     };
+    // Two quick address changes may render once; the event still closes it.
+    const navigate = () => setOpenOn(undefined);
     document.addEventListener("pointerdown", dismiss);
-    return () => document.removeEventListener("pointerdown", dismiss);
+    window.addEventListener("hashchange", navigate);
+    return () => {
+      document.removeEventListener("pointerdown", dismiss);
+      window.removeEventListener("hashchange", navigate);
+    };
   }, [open]);
   return (
     <section
