@@ -107,6 +107,15 @@
   flex: 0 0 44px;
 }
 
+/* Keep monochrome marks legible without a paper tile; preserve color artwork. */
+.assistant-brand-mark:is(
+  [src$="chatgpt.svg"],
+  [src$="copilot.svg"],
+  [src$="cursor.svg"]
+) {
+  filter: var(--assistant-monochrome-filter, none);
+}
+
 .assistant-brand-mark[src$="copilot.svg"] {
   width: 132px;
   max-width: 100%;
