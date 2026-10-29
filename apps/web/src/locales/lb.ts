@@ -2,7 +2,7 @@ import type { Copy } from "../i18n";
 
 export const lb: Copy = {
   skip: "Bei den Inhalt sprangen",
-  atelier: "DEN ATELIER",
+  atelier: "KORRESPONDENZ",
   yes: "Jo",
   no: "Nee",
   brand: "guteneo",
@@ -133,7 +133,7 @@ export const lb: Copy = {
       created: "Erstallt vum",
       nav: "Linken um Enn vun der Säit",
       installation: "Installatioun",
-      atelier: "Den Atelier",
+      atelier: "Korrespondenz",
       legal: "Impressum",
     },
     film: {
@@ -176,10 +176,10 @@ export const lb: Copy = {
     newTab: "(neien Tab)",
   },
   login: {
-    title: "Wëllkomm am Atelier.",
+    title: "Wëllkomm an Ärem Aarbechtsberäich.",
     body: "Entdeckt en isoléierten Demonstratiounsberäich. Dokumenter a Sendunge gehéieren zur ausgewielter Organisatioun.",
     local: "Lokal Demonstratioun",
-    atelier: "An den Atelier agoen",
+    atelier: "Den Aarbechtsberäich opmaachen",
     studio: "An de Studio agoen",
     separator: "Guteneo-Kont",
     managed: "Aloggen",
@@ -202,12 +202,12 @@ export const lb: Copy = {
     emptyTitle: "Är éischt Sendung fänkt hei un.",
     emptyBody:
       "Importéiert eng PDF-Datei oder verfaasst e Bréif. Dir kënnt en virun all Bestätegung noliesen.",
-    connectionTitle: "Ären Assistent, Ären Atelier.",
+    connectionTitle: "Ären Assistent, Ären Aarbechtsberäich.",
     connectionBody:
       "Bereet Är Sendungen am Gespréich vir a fannt hei déiselwecht Dokumenter a Kennungen erëm.",
     connect: "D’Verbindung ariichten",
     attention: "Fir ze kontrolléieren",
-    statsLabel: "Iwwersiicht vum Atelier",
+    statsLabel: "Iwwersiicht vum Aarbechtsberäich",
     attentionTitle: "Verschidde Sendunge brauchen Är Opmierksamkeet.",
     attentionBody:
       "Hiert Resultat ass ongewëss oder negativ. Kuckt hire Suivi, ier Dir eng nei Sendung virbereet.",
@@ -434,7 +434,7 @@ export const lb: Copy = {
   connection: {
     title: "D’Gespréich geet hei weider.",
     intro:
-      "Een Atelier, zougänglech iwwer Ären Assistent, d’API an dëse Beräich.",
+      "Een Aarbechtsberäich, zougänglech iwwer Ären Assistent, d’API an de Browser.",
     endpoint: "Adress vum MCP-Server",
     copy: "D’Adress kopéieren",
     copied: "Adress kopéiert",
@@ -509,7 +509,7 @@ export const lb: Copy = {
       "Dës Aktivéierung iwwerdréit keen Dokument a verschéckt kee Bréif. Dir kontrolléiert d’PDF-Datei, den Empfänger an d’Devis virum Versand.",
     ready: "Äre Postofsender ass prett",
     readyBody:
-      "Dir kënnt Är PDF-Datei importéieren an duerno e Bréif am Atelier virbereeden.",
+      "Dir kënnt Är PDF-Datei importéieren an duerno e Bréif a Korrespondenz virbereeden.",
     prepare: "E Bréif virbereeden",
     declared: "Vum Administrateur deklaréiert",
     submittedInChat: "Am Gespréich uginn",
@@ -551,7 +551,7 @@ export const lb: Copy = {
     note: "Bei enger ongewësser Iwwerdroung bleift d’Reservatioun bestoen, bis de Fall gekläert ass. Déi tatsächlech Käschten hänke vum Ubidder of a si keng Clientspräisser.",
   },
   admin: {
-    title: "Den Atelier am Bléck.",
+    title: "Den Aarbechtsberäich am Bléck.",
     intro:
       "Verstitt d’Virfäll, ier Dir handelt. Ongewëss Iwwerdrounge ginn ni ouni Kontroll widderholl.",
     refresh: "D’Diagnos aktualiséieren",
@@ -560,7 +560,8 @@ export const lb: Copy = {
     failed: "Feeler, déi ze préiwe sinn",
     outbox: "Ausstoend Publikatiounen",
     health: "Konnektoren",
-    noIncidents: "Keng Sendung fir ze kontrolléieren an dësem Atelier.",
+    noIncidents:
+      "Keng Sendung fir ze kontrolléieren an dësem Aarbechtsberäich.",
     note: "Fir eng méiglecherweis ugeholl Sendung erëm opzehuelen, ass en Ofgläich mam Ubidder néideg.",
     restricted: "Dësen Ecran erfuerdert eng Administrateursroll.",
     deadLetters: "Messagen an der Feelerwarteschlaang",
@@ -576,7 +577,7 @@ export const lb: Copy = {
     controlsHelp:
       "D’Pauséiere blockéiert déi nächst Iwwerdrounge vun Ärer Organisatioun. Sendungen, déi scho vun engem Ubidder ugeholl goufen, mussen nach ofgeglach ginn.",
     pauseQuestion:
-      "Dëse Kanal pauséieren? Nei Iwwermëttlunge vun dësem Atelier gi blockéiert, bis en erëm aktivéiert gëtt.",
+      "Dëse Kanal pauséieren? Nei Iwwermëttlunge vun dësem Aarbechtsberäich gi blockéiert, bis en erëm aktivéiert gëtt.",
     pauseConfirm: "Jo, pauséieren",
   },
   statuses: {

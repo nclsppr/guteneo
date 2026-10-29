@@ -133,5 +133,45 @@
     "Leave this template and lose unsaved changes?",
     "Diese Vorlage verlassen und ungespeicherte Änderungen verwerfen?",
     "Dës Virlag verloossen an net gespäichert Ännerunge verléieren?"
+  ],
+  "Remplacer le fichier de données": [
+    "Replace the data file",
+    "Datendatei ersetzen",
+    "Datefichier ersetzen"
+  ],
+  "Fichier de données corrigé": [
+    "Corrected data file",
+    "Korrigierte Datendatei",
+    "Korrigéierten Datefichier"
+  ],
+  "Corriger et créer une nouvelle version": [
+    "Correct and create a new version",
+    "Korrigieren und eine neue Version erstellen",
+    "Korrigéieren an eng nei Versioun erstellen"
+  ],
+  "Corriger les données source": [
+    "Correct source data",
+    "Quelldaten korrigieren",
+    "Quelldate korrigéieren"
+  ],
+  "Corriger les données de ce document": [
+    "Correct this document’s data",
+    "Daten dieses Dokuments korrigieren",
+    "D’Date vun dësem Dokument korrigéieren"
+  ],
+  "← Génération d’origine": [
+    "← Original generation",
+    "← Ursprüngliche Generierung",
+    "← Ursprénglech Generéierung"
+  ],
+  "Utiliser cette version avec les mêmes données": [
+    "Use this version with the same data",
+    "Diese Version mit denselben Daten verwenden",
+    "Dës Versioun mat de selwechten Date benotzen"
+  ],
+  "Importer et conserver les correspondances de champs": [
+    "Import and keep my mapping",
+    "Importieren und meine Zuordnung beibehalten",
+    "Datefichier importéieren a meng Zouuerdnung behalen"
   ]
 }
