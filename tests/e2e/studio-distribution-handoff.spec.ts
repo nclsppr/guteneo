@@ -547,16 +547,20 @@ test("an old response stays obsolete after leaving and returning to the same pre
     });
     await submit.click();
     await expect.poll(() => state.writes.length).toBe(1);
-    page.once("dialog", (dialog) => dialog.accept());
-    await page.getByRole("button", { name: "Fermer", exact: true }).click();
+    await Promise.all([
+      page.waitForEvent("dialog").then((dialog) => dialog.accept()),
+      page.getByRole("button", { name: "Fermer", exact: true }).click(),
+    ]);
     await expect(page).toHaveURL(/#\/app\/studio\/generation\//);
-    page.once("dialog", (dialog) => dialog.accept());
-    await page.evaluate(
-      (url) => {
-        window.location.hash = url.split("#")[1];
-      },
-      preparationUrl([1]),
-    );
+    await Promise.all([
+      page.waitForEvent("dialog").then((dialog) => dialog.accept()),
+      page.evaluate(
+        (url) => {
+          window.location.hash = url.split("#")[1];
+        },
+        preparationUrl([1]),
+      ),
+    ]);
     await expect(page).toHaveURL(/#\/app\/distribution\/new\?/);
     releasePost();
     await expect(submit).toBeEnabled();
