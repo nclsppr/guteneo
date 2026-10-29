@@ -1,4 +1,8 @@
 import { z } from "zod";
+import {
+  BELVEDERE_WATCHER_EMAIL,
+  canAccessBelvedereSession,
+} from "./belvedere-policy";
 import { supportedLocales } from "../../../packages/contracts/src/locale";
 import {
   dashboardAppearances,
@@ -12,7 +16,7 @@ import {
   enterWorkspaceFromPersonal,
   isLocalSimulation,
   memberships,
-  publicSession,
+  publicBrowserSession,
   requireSameOrigin,
   requirePersonalDocumentAuthentication,
   type AuthEnv,
@@ -95,6 +99,13 @@ export async function publicPersonalSession(
     },
     csrfToken: principal.csrfToken,
     simulation: principal.simulation,
+    canAccessBelvedere:
+      principal.email === BELVEDERE_WATCHER_EMAIL &&
+      (await canAccessBelvedereSession(
+        env,
+        principal.tokenHash,
+        principal.userId,
+      )),
     mfa: principal.mfa,
     verifiedAccount: principal.verifiedAccount,
     authenticatedAt: principal.authenticatedAt,
@@ -388,7 +399,7 @@ export async function handlePersonalAccountRoute(
     return json(
       {
         organization: entered.session.organization,
-        session: publicSession(entered.session),
+        session: await publicBrowserSession(env, entered.session),
       },
       200,
       { "Set-Cookie": entered.cookie },
@@ -407,7 +418,7 @@ export async function handlePersonalAccountRoute(
     return json(
       {
         organization: entered.session.organization,
-        session: publicSession(entered.session),
+        session: await publicBrowserSession(env, entered.session),
       },
       200,
       { "Set-Cookie": entered.cookie },

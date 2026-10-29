@@ -14,7 +14,13 @@ import { SignJWT, exportJWK, generateKeyPair } from "jose";
 import application from "../../apps/api/src/index";
 import { handleBelvedereHost } from "../../apps/api/src/belvedere-host";
 import { BELVEDERE_ORIGIN } from "../../apps/api/src/belvedere-policy";
-import { createSession } from "../../apps/api/src/auth";
+import {
+  createSession,
+  createPersonalBrowserSession,
+  handleAuthRoute,
+} from "../../apps/api/src/auth";
+import { handlePersonalAccountRoute } from "../../apps/api/src/personal-auth";
+import { handleBelvedereRoute } from "../../apps/api/src/belvedere";
 import type { Env } from "../../apps/api/src/env";
 import icons from "../../packages/contracts/src/brand-icons.json" with { type: "json" };
 
@@ -258,6 +264,232 @@ beforeEach(async () => {
 afterEach(() => vi.restoreAllMocks());
 afterAll(async () => {
   await mf.dispose();
+});
+
+describe("canonical Belvedere application session", () => {
+  const canonicalRead = (path: string, headers: Record<string, string> = {}) =>
+    new Request(`${canonical}${path}`, {
+      headers: { Cookie: ownerCookie, ...headers },
+    });
+
+  it("opens the stable protected entry with the existing canonical cookie and no login", async () => {
+    const response = (await handleBelvedereRoute(
+      canonicalRead("/belvedere"),
+      env,
+    ))!;
+    expect(response.status).toBe(200);
+    expect(response.headers.has("Set-Cookie")).toBe(false);
+    expect(response.headers.has("Location")).toBe(false);
+    expect(await response.text()).toContain(
+      'name="guteneo-belvedere" content="/belvedere"',
+    );
+    expect(assetRequests).toHaveLength(1);
+    expect(assetRequests[0].headers.has("Cookie")).toBe(false);
+    const compatible = await handleBelvedereRoute(
+      canonicalRead(`/belvedere/${slug}`),
+      env,
+    );
+    expect(compatible?.status).toBe(200);
+    expect(await compatible!.text()).toContain(`content="/belvedere/${slug}"`);
+  });
+
+  it("projects only a boolean from signed proof in both session surfaces", async () => {
+    for (const path of ["/api/session", "/api/personal/session"]) {
+      const response =
+        path === "/api/session"
+          ? await handleAuthRoute(canonicalRead(path), env)
+          : await handlePersonalAccountRoute(canonicalRead(path), env);
+      expect(response?.status).toBe(200);
+      const text = await response!.text();
+      expect(JSON.parse(text)).toMatchObject({ canAccessBelvedere: true });
+      expect(text).not.toContain(slug);
+      expect(text).not.toContain(issuer);
+      expect(text).not.toContain("auth0|platform-owner");
+    }
+  });
+
+  it("keeps platform authority separate from operational administrator permissions", async () => {
+    await db
+      .prepare(
+        "INSERT OR IGNORE INTO users(id,name,email,created_at) VALUES('ordinary-admin','Ordinary admin','ordinary@example.test',?)",
+      )
+      .bind(new Date().toISOString())
+      .run();
+    await db
+      .prepare(
+        "INSERT OR IGNORE INTO memberships(organization_id,user_id,role,created_at) VALUES('platform-workspace','ordinary-admin','admin',?)",
+      )
+      .bind(new Date().toISOString())
+      .run();
+    await db
+      .prepare(
+        "UPDATE memberships SET role='viewer' WHERE user_id='platform-owner'",
+      )
+      .run();
+    try {
+      const response = (await handleAuthRoute(
+        canonicalRead("/api/session"),
+        env,
+      ))!;
+      expect(await response.json()).toMatchObject({
+        canAccessBelvedere: true,
+        user: { role: "viewer" },
+        permissions: { prepareDispatches: false, approveDispatches: false },
+      });
+      expect(
+        (
+          await handleBelvedereRoute(
+            canonicalRead("/belvedere/api/overview"),
+            env,
+          )
+        )?.status,
+      ).toBe(200);
+    } finally {
+      await db
+        .prepare(
+          "UPDATE memberships SET role='admin' WHERE user_id='platform-owner'",
+        )
+        .run();
+      await db
+        .prepare("DELETE FROM memberships WHERE user_id='ordinary-admin'")
+        .run();
+      await db.prepare("DELETE FROM users WHERE id='ordinary-admin'").run();
+    }
+  });
+
+  it("removes the capability and denies every read after signed proof is revoked", async () => {
+    await db.prepare("DELETE FROM browser_identity_evidence").run();
+    for (const path of ["/api/session", "/api/personal/session"]) {
+      const response =
+        path === "/api/session"
+          ? await handleAuthRoute(canonicalRead(path), env)
+          : await handlePersonalAccountRoute(canonicalRead(path), env);
+      expect(await response!.json()).toMatchObject({
+        canAccessBelvedere: false,
+      });
+    }
+    for (const path of [
+      "/belvedere",
+      "/belvedere/api/overview",
+      `/belvedere/${slug}`,
+    ])
+      expect(
+        (await handleBelvedereRoute(canonicalRead(path), env))?.status,
+      ).toBe(404);
+  });
+
+  it("retains personal entry but removes platform access when the current membership is withdrawn", async () => {
+    const stamp = new Date().toISOString();
+    const personalSession = await createPersonalBrowserSession(env, {
+      userId: "platform-owner",
+      verifiedEmail: "nicolas@pieper.fr",
+      verifiedAccount: true,
+      mfa: false,
+      development: false,
+      authenticatedAt: Math.floor(Date.now() / 1000),
+      identityIssuer: issuer,
+      identitySubject: "auth0|platform-owner",
+    });
+    await db
+      .prepare(
+        "INSERT OR IGNORE INTO users(id,name,email,created_at) VALUES('remaining-admin','Remaining admin','remaining@example.test',?)",
+      )
+      .bind(stamp)
+      .run();
+    await db
+      .prepare(
+        "INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES('platform-workspace','remaining-admin','admin',?)",
+      )
+      .bind(stamp)
+      .run();
+    await db
+      .prepare("DELETE FROM browser_sessions WHERE user_id='platform-owner'")
+      .run();
+    await db
+      .prepare("DELETE FROM memberships WHERE user_id='platform-owner'")
+      .run();
+    try {
+      const personal = await handlePersonalAccountRoute(
+        canonicalRead("/api/personal/session", {
+          Cookie: personalSession.cookie.split(";")[0],
+        }),
+        env,
+      );
+      expect(personal?.status).toBe(200);
+      expect(await personal!.json()).toMatchObject({
+        canAccessBelvedere: false,
+        workspaces: [],
+      });
+      expect(
+        (
+          await handleBelvedereRoute(
+            canonicalRead("/belvedere/api/overview"),
+            env,
+          )
+        )?.status,
+      ).toBe(404);
+    } finally {
+      await db
+        .prepare(
+          "INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES('platform-workspace','platform-owner','admin',?)",
+        )
+        .bind(stamp)
+        .run();
+      await db
+        .prepare("DELETE FROM memberships WHERE user_id='remaining-admin'")
+        .run();
+      await db.prepare("DELETE FROM users WHERE id='remaining-admin'").run();
+    }
+  });
+
+  it("refuses ordinary administrators, bearer callers, cross-origin reads and expired sessions", async () => {
+    for (const Authorization of ["Bearer synthetic", "GuteneoNative synthetic"])
+      expect(
+        (
+          await handleBelvedereRoute(
+            canonicalRead("/belvedere/api/overview", { Authorization }),
+            env,
+          )
+        )?.status,
+      ).toBe(404);
+    expect(
+      (
+        await handleBelvedereRoute(
+          canonicalRead("/belvedere", { Origin: "https://other.example" }),
+          env,
+        )
+      )?.status,
+    ).toBe(404);
+    await db
+      .prepare(
+        "UPDATE browser_identity_evidence SET verified_email='ordinary@example.test'",
+      )
+      .run();
+    expect(
+      (await handleBelvedereRoute(canonicalRead("/belvedere"), env))?.status,
+    ).toBe(404);
+    expect(
+      await (await handleAuthRoute(canonicalRead("/api/session"), env))!.json(),
+    ).toMatchObject({ canAccessBelvedere: false });
+    await db
+      .prepare(
+        "UPDATE browser_sessions SET expires_at='2000-01-01T00:00:00.000Z'",
+      )
+      .run();
+    expect(
+      (
+        await handleBelvedereRoute(
+          canonicalRead("/belvedere/api/overview"),
+          env,
+        )
+      )?.status,
+    ).toBe(404);
+    const entry = await handleBelvedereRoute(canonicalRead("/belvedere"), env);
+    expect(entry?.status).toBe(302);
+    expect(entry?.headers.get("Location")).toBe(
+      `${canonical}/auth/login?returnTo=%2Fbelvedere`,
+    );
+  });
 });
 
 describe("isolated Belvedere custom host", () => {

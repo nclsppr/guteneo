@@ -33,6 +33,7 @@ export type Session = {
   simulation: boolean;
   verifiedAccount?: boolean;
   permissions?: WorkspacePermissions;
+  canAccessBelvedere?: boolean;
 };
 export function permissionsFor(
   session: Pick<Session, "user" | "permissions">,

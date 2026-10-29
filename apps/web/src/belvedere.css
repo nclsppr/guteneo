@@ -71,6 +71,9 @@
   z-index: 12;
   overflow: hidden;
 }
+.belvedere-integrated .bv-sidebar {
+  overflow: visible;
+}
 .bv-identity {
   --brand-mark-size: 42px;
   display: flex;

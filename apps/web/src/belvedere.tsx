@@ -1,4 +1,6 @@
 import {
+  lazy,
+  Suspense,
   useCallback,
   useEffect,
   useRef,
@@ -55,12 +57,21 @@ import {
   useBelvedereResource,
   useDebounced,
 } from "./belvedere-data";
-import { BelvedereGlobe } from "./belvedere-globe";
 import { bmsg, bmsgIn, belvedereNetResultReason } from "./belvedere-i18n";
 import { BrandMark } from "./brand";
 import { formatLocale, useLocale } from "./locale";
 import { ThemeToggle } from "./theme-toggle";
+import { ApplicationSwitcher } from "./space-switcher";
+import { WorkspaceIdentity } from "./workspace-identity";
+import { api, setSession, type Session } from "./api";
+import { WorkspaceRouteProvider } from "./components";
 import "./belvedere.css";
+
+const BelvedereGlobe = lazy(() =>
+  import("./belvedere-globe").then((module) => ({
+    default: module.BelvedereGlobe,
+  })),
+);
 
 type View =
   | "overview"
@@ -133,7 +144,15 @@ function readWorkshop() {
   }
 }
 
-export default function Belvedere({ basePath }: { basePath: string }) {
+export default function Belvedere({
+  basePath,
+  session,
+  sessionExpired = false,
+}: {
+  basePath: string;
+  session?: Session | null;
+  sessionExpired?: boolean;
+}) {
   useLocale();
   const [view, setView] = useState<View>(readView);
   const [hash, setHash] = useState(window.location.hash);
@@ -141,6 +160,9 @@ export default function Belvedere({ basePath }: { basePath: string }) {
   const [period, setPeriod] = useState("30");
   const [revision, setRevision] = useState(0);
   const [accessError, setAccessError] = useState<BelvedereError | null>(null);
+  const [logoutError, setLogoutError] = useState<Error | null>(null);
+  const [loggingOut, setLoggingOut] = useState(false);
+  const integrated = basePath === "/belvedere";
   const [workshop, setWorkshop] = useState<{ id: string; name: string } | null>(
     readWorkshop,
   );
@@ -256,261 +278,309 @@ export default function Belvedere({ basePath }: { basePath: string }) {
     (Date.parse(filters.to) - Date.parse(filters.from)) / 86_400_000 + 1;
   const validDates = filters.from <= filters.to && rangeDays <= 366;
   return (
-    <div className="belvedere">
-      <a
-        className="skip-link"
-        href="#belvedere-main"
-        onClick={(event) => {
-          event.preventDefault();
-          main.current?.focus();
-        }}
-      >
-        {bmsg("Skip to content")}
-      </a>
-      <aside
-        ref={sidebar}
-        className={`bv-sidebar${mobileNav ? " is-open" : ""}`}
-        onKeyDown={(event) => {
-          if (event.key === "Escape") {
-            setMobileNav(false);
-            navButton.current?.focus();
-          }
-        }}
-      >
+    <WorkspaceRouteProvider route={hash}>
+      <div className={`belvedere${integrated ? " belvedere-integrated" : ""}`}>
         <a
-          href="#overview"
-          className="bv-identity"
-          onClick={() => navigate("overview")}
-          aria-label={bmsg("Belvédère, overview")}
+          className="skip-link"
+          href="#belvedere-main"
+          onClick={(event) => {
+            event.preventDefault();
+            main.current?.focus();
+          }}
         >
-          <BrandMark variant="portrait" />
-          <span className="brand-wordmark">guteneo</span>
+          {bmsg("Skip to content")}
         </a>
-        <div className="bv-context">
-          <ShieldCheck size={20} aria-hidden="true" />
-          <div>
-            <strong>Belvédère</strong>
-            <span>
-              {bmsg("Private area")} · {bmsg("Read-only")}
-            </span>
-          </div>
-        </div>
-        <nav
-          id="belvedere-navigation"
-          aria-label={bmsg("Belvédère navigation")}
-        >
-          {navigation.map(({ id, label, icon: Icon }) => (
-            <a
-              key={id}
-              href={`#${id}`}
-              aria-current={view === id ? "page" : undefined}
-              onClick={() => navigate(id)}
-            >
-              <Icon size={21} aria-hidden="true" />
-              <span>{bmsg(label)}</span>
-            </a>
-          ))}
-        </nav>
-        <div className="bv-sidebar-foot">
-          <div className="bv-account">
-            <span className="bv-avatar">NP</span>
-            <span>Nicolas Pieper</span>
-          </div>
-          <a href={basePath === "" ? "https://guteneo.com/" : "/"}>
-            {bmsg("Back to guteneo")}
-            <ArrowUpRight size={16} aria-hidden="true" />
-          </a>
-        </div>
-      </aside>
-      <div className="bv-workspace">
-        <header className="bv-topbar">
-          <button
-            className="bv-mobile-toggle"
-            ref={navButton}
-            type="button"
-            aria-controls="belvedere-navigation"
-            aria-expanded={mobileNav}
-            aria-label={
-              mobileNav ? bmsg("Close navigation") : bmsg("Open navigation")
+        <aside
+          ref={sidebar}
+          className={`bv-sidebar${mobileNav ? " is-open" : ""}`}
+          onKeyDown={(event) => {
+            if (event.key === "Escape" && !event.defaultPrevented) {
+              setMobileNav(false);
+              navButton.current?.focus();
             }
-            onClick={() => setMobileNav(!mobileNav)}
+          }}
+        >
+          <a
+            href="#overview"
+            className="bv-identity"
+            onClick={() => navigate("overview")}
+            aria-label={bmsg("Belvédère, overview")}
           >
-            {mobileNav ? (
-              <X size={20} aria-hidden="true" />
-            ) : (
-              <List size={20} aria-hidden="true" />
-            )}
-            <span>Belvédère</span>
-          </button>
-          <span className="bv-topbar-access">
-            <ShieldCheck size={15} aria-hidden="true" />
-            {bmsg("Personal access")}
-          </span>
-        </header>
-        {demo && (
-          <div className="bv-demo" role="note">
-            {bmsg("Local demonstration — fictional data, no real services.")}
-          </div>
-        )}
-        <main id="belvedere-main" ref={main} tabIndex={-1}>
-          <div className="bv-heading">
-            <div>
-              <h1>
-                {workshop
-                  ? workshop.name || bmsg("Workshop details")
-                  : bmsg(pageCopy[view].title)}
-              </h1>
-              <p>
-                {workshop
-                  ? bmsg(
-                      "Activity, members and operation details for this workshop.",
-                    )
-                  : bmsg(pageCopy[view].description)}
-              </p>
-            </div>
-            <div className="bv-heading-actions">
-              <ThemeToggle />
-              <button
-                className="bv-button bv-refresh"
-                type="button"
-                onClick={refresh}
-                aria-label={bmsg("Refresh data")}
-              >
-                <ArrowClockwise size={18} aria-hidden="true" />
-                <span>{bmsg("Refresh")}</span>
-              </button>
-            </div>
-          </div>
-          {view !== "infrastructure" && (
-            <div className="bv-filterbar">
-              <div className="bv-filter-fields">
-                <label>
-                  <span>{bmsg("Period")}</span>
-                  <select
-                    value={period}
-                    onChange={(event) => {
-                      const value = event.target.value;
-                      setPeriod(value);
-                      if (value !== "custom")
-                        setFilters(periodFilters(Number(value), filters.mode));
-                    }}
-                  >
-                    <option value="7">{bmsg("Last 7 days")}</option>
-                    <option value="30">{bmsg("Last 30 days")}</option>
-                    <option value="90">{bmsg("Last 90 days")}</option>
-                    <option value="custom">{bmsg("Custom dates")}</option>
-                  </select>
-                </label>
-                <label>
-                  <span>{bmsg("Data")}</span>
-                  <select
-                    value={filters.mode}
-                    onChange={(event) =>
-                      setFilters({
-                        ...filters,
-                        mode: event.target.value as BelvedereFilters["mode"],
-                      })
-                    }
-                  >
-                    <option value="production">{bmsg("Production")}</option>
-                    <option value="simulation">{bmsg("Simulation")}</option>
-                  </select>
-                </label>
-              </div>
-              <span className={`bv-evidence bv-evidence-${filters.mode}`}>
-                <span aria-hidden="true" />
-                {filters.mode === "production"
-                  ? bmsg("Production activity")
-                  : bmsg("Simulation only")}
-              </span>
-            </div>
-          )}
-          {view !== "infrastructure" && period === "custom" && (
-            <div className="bv-custom-dates">
-              <label>
-                {bmsg("From")}
-                <input
-                  type="date"
-                  value={filters.from}
-                  max={filters.to}
-                  onChange={(event) => {
-                    if (event.target.value)
-                      setFilters({ ...filters, from: event.target.value });
-                  }}
-                />
-              </label>
-              <label>
-                {bmsg("To")}
-                <input
-                  type="date"
-                  value={filters.to}
-                  min={filters.from}
-                  max={new Date().toISOString().slice(0, 10)}
-                  onChange={(event) => {
-                    if (event.target.value)
-                      setFilters({ ...filters, to: event.target.value });
-                  }}
-                />
-              </label>
-              <span>{bmsg("Inclusive dates, in UTC.")}</span>
-            </div>
-          )}
-          {accessError ? (
-            <Failure error={accessError} retry={refresh} basePath={basePath} />
-          ) : !validDates && view !== "infrastructure" ? (
-            <Notice tone="warning">
-              {bmsg(
-                "Dates must be in chronological order and span no more than 366 days.",
-              )}
-            </Notice>
+            <BrandMark variant="portrait" />
+            <span className="brand-wordmark">guteneo</span>
+          </a>
+          {integrated ? (
+            <ApplicationSwitcher
+              application="belvedere"
+              hasWorkspace={!!session}
+              canAccessBelvedere={!sessionExpired}
+            />
           ) : (
-            <div
-              className="bv-view"
-              key={`${view}:${filters.from}:${filters.to}:${filters.mode}`}
-            >
-              {view === "overview" && (
-                <Overview
-                  {...props}
-                  navigate={navigate}
-                  openJobs={openJobs}
-                  openWorkshop={openWorkshop}
-                />
-              )}
-              {view === "workshops" && (
-                <>
-                  <div hidden={!!workshop}>
-                    <Workshops {...props} openWorkshop={openWorkshop} />
-                  </div>
-                  {workshop && (
-                    <WorkshopDetail
-                      {...props}
-                      workshopId={workshop.id}
-                      back={() => navigate("workshops")}
-                      onName={updateWorkshop}
-                    />
-                  )}
-                </>
-              )}
-              {view === "jobs" && (
-                <Jobs key={hash} {...props} openWorkshop={openWorkshop} />
-              )}
-              {view === "members" && (
-                <Members {...props} openWorkshop={openWorkshop} />
-              )}
-              {view === "connections" && <Connections {...props} />}
-              {view === "finance" && <Finance {...props} />}
-              {view === "infrastructure" && <Infrastructure {...props} />}
+            <div className="bv-context">
+              <ShieldCheck size={20} aria-hidden="true" />
+              <div>
+                <strong>Belvédère</strong>
+                <span>
+                  {bmsg("Private area")} · {bmsg("Read-only")}
+                </span>
+              </div>
             </div>
           )}
-          <footer className="bv-footer">
-            <span>{bmsg("Belvédère by guteneo")}</span>
-            <span>
-              {bmsg("Amounts in EUR unless stated · Dates shown in local time")}
+          <nav
+            id="belvedere-navigation"
+            aria-label={bmsg("Belvédère navigation")}
+          >
+            {navigation.map(({ id, label, icon: Icon }) => (
+              <a
+                key={id}
+                href={`#${id}`}
+                aria-current={view === id ? "page" : undefined}
+                onClick={() => navigate(id)}
+              >
+                <Icon size={21} aria-hidden="true" />
+                <span>{bmsg(label)}</span>
+              </a>
+            ))}
+          </nav>
+          <div className="bv-sidebar-foot">
+            {integrated ? (
+              session && (
+                <WorkspaceIdentity
+                  session={session}
+                  profileHref="/#/app/account"
+                  returnTo="/belvedere"
+                  logoutPending={loggingOut}
+                  onLogout={async () => {
+                    setLogoutError(null);
+                    setLoggingOut(true);
+                    try {
+                      await api("/logout", { method: "POST", body: {} });
+                      setSession(null);
+                      window.location.replace("/");
+                    } catch (error) {
+                      setLoggingOut(false);
+                      setLogoutError(
+                        error instanceof Error
+                          ? error
+                          : new Error(String(error)),
+                      );
+                    }
+                  }}
+                />
+              )
+            ) : (
+              <>
+                <div className="bv-account">
+                  <span className="bv-avatar">NP</span>
+                  <span>Nicolas Pieper</span>
+                </div>
+                <a href={basePath === "" ? "https://guteneo.com/" : "/"}>
+                  {bmsg("Back to guteneo")}
+                  <ArrowUpRight size={16} aria-hidden="true" />
+                </a>
+              </>
+            )}
+            {logoutError && <p role="alert">{logoutError.message}</p>}
+          </div>
+        </aside>
+        <div className="bv-workspace">
+          <header className="bv-topbar">
+            <button
+              className="bv-mobile-toggle"
+              ref={navButton}
+              type="button"
+              aria-controls="belvedere-navigation"
+              aria-expanded={mobileNav}
+              aria-label={
+                mobileNav ? bmsg("Close navigation") : bmsg("Open navigation")
+              }
+              onClick={() => setMobileNav(!mobileNav)}
+            >
+              {mobileNav ? (
+                <X size={20} aria-hidden="true" />
+              ) : (
+                <List size={20} aria-hidden="true" />
+              )}
+              <span>Belvédère</span>
+            </button>
+            <span className="bv-topbar-access">
+              <ShieldCheck size={15} aria-hidden="true" />
+              {bmsg("Personal access")}
             </span>
-          </footer>
-        </main>
+          </header>
+          {demo && (
+            <div className="bv-demo" role="note">
+              {bmsg("Local demonstration — fictional data, no real services.")}
+            </div>
+          )}
+          <main id="belvedere-main" ref={main} tabIndex={-1}>
+            <div className="bv-heading">
+              <div>
+                <h1>
+                  {workshop
+                    ? workshop.name || bmsg("Workshop details")
+                    : bmsg(pageCopy[view].title)}
+                </h1>
+                <p>
+                  {workshop
+                    ? bmsg(
+                        "Activity, members and operation details for this workshop.",
+                      )
+                    : bmsg(pageCopy[view].description)}
+                </p>
+              </div>
+              <div className="bv-heading-actions">
+                {!integrated && <ThemeToggle />}
+                <button
+                  className="bv-button bv-refresh"
+                  type="button"
+                  onClick={refresh}
+                  aria-label={bmsg("Refresh data")}
+                >
+                  <ArrowClockwise size={18} aria-hidden="true" />
+                  <span>{bmsg("Refresh")}</span>
+                </button>
+              </div>
+            </div>
+            {view !== "infrastructure" && (
+              <div className="bv-filterbar">
+                <div className="bv-filter-fields">
+                  <label>
+                    <span>{bmsg("Period")}</span>
+                    <select
+                      value={period}
+                      onChange={(event) => {
+                        const value = event.target.value;
+                        setPeriod(value);
+                        if (value !== "custom")
+                          setFilters(
+                            periodFilters(Number(value), filters.mode),
+                          );
+                      }}
+                    >
+                      <option value="7">{bmsg("Last 7 days")}</option>
+                      <option value="30">{bmsg("Last 30 days")}</option>
+                      <option value="90">{bmsg("Last 90 days")}</option>
+                      <option value="custom">{bmsg("Custom dates")}</option>
+                    </select>
+                  </label>
+                  <label>
+                    <span>{bmsg("Data")}</span>
+                    <select
+                      value={filters.mode}
+                      onChange={(event) =>
+                        setFilters({
+                          ...filters,
+                          mode: event.target.value as BelvedereFilters["mode"],
+                        })
+                      }
+                    >
+                      <option value="production">{bmsg("Production")}</option>
+                      <option value="simulation">{bmsg("Simulation")}</option>
+                    </select>
+                  </label>
+                </div>
+                <span className={`bv-evidence bv-evidence-${filters.mode}`}>
+                  <span aria-hidden="true" />
+                  {filters.mode === "production"
+                    ? bmsg("Production activity")
+                    : bmsg("Simulation only")}
+                </span>
+              </div>
+            )}
+            {view !== "infrastructure" && period === "custom" && (
+              <div className="bv-custom-dates">
+                <label>
+                  {bmsg("From")}
+                  <input
+                    type="date"
+                    value={filters.from}
+                    max={filters.to}
+                    onChange={(event) => {
+                      if (event.target.value)
+                        setFilters({ ...filters, from: event.target.value });
+                    }}
+                  />
+                </label>
+                <label>
+                  {bmsg("To")}
+                  <input
+                    type="date"
+                    value={filters.to}
+                    min={filters.from}
+                    max={new Date().toISOString().slice(0, 10)}
+                    onChange={(event) => {
+                      if (event.target.value)
+                        setFilters({ ...filters, to: event.target.value });
+                    }}
+                  />
+                </label>
+                <span>{bmsg("Inclusive dates, in UTC.")}</span>
+              </div>
+            )}
+            {accessError || sessionExpired ? (
+              <Failure
+                error={accessError ?? new BelvedereError(403)}
+                retry={refresh}
+                basePath={basePath}
+              />
+            ) : !validDates && view !== "infrastructure" ? (
+              <Notice tone="warning">
+                {bmsg(
+                  "Dates must be in chronological order and span no more than 366 days.",
+                )}
+              </Notice>
+            ) : (
+              <div
+                className="bv-view"
+                key={`${view}:${filters.from}:${filters.to}:${filters.mode}`}
+              >
+                {view === "overview" && (
+                  <Overview
+                    {...props}
+                    navigate={navigate}
+                    openJobs={openJobs}
+                    openWorkshop={openWorkshop}
+                  />
+                )}
+                {view === "workshops" && (
+                  <>
+                    <div hidden={!!workshop}>
+                      <Workshops {...props} openWorkshop={openWorkshop} />
+                    </div>
+                    {workshop && (
+                      <WorkshopDetail
+                        {...props}
+                        workshopId={workshop.id}
+                        back={() => navigate("workshops")}
+                        onName={updateWorkshop}
+                      />
+                    )}
+                  </>
+                )}
+                {view === "jobs" && (
+                  <Jobs key={hash} {...props} openWorkshop={openWorkshop} />
+                )}
+                {view === "members" && (
+                  <Members {...props} openWorkshop={openWorkshop} />
+                )}
+                {view === "connections" && <Connections {...props} />}
+                {view === "finance" && <Finance {...props} />}
+                {view === "infrastructure" && <Infrastructure {...props} />}
+              </div>
+            )}
+            <footer className="bv-footer">
+              <span>{bmsg("Belvédère by guteneo")}</span>
+              <span>
+                {bmsg(
+                  "Amounts in EUR unless stated · Dates shown in local time",
+                )}
+              </span>
+            </footer>
+          </main>
+        </div>
       </div>
-    </div>
+    </WorkspaceRouteProvider>
   );
 }
 
@@ -808,13 +878,15 @@ function Overview(
           {bmsg("Unexpired sessions and active authorisations")}
         </Stat>
       </div>
-      <BelvedereGlobe
-        connections={data.countries}
-        distribution={data.distributionCountries}
-        onDistributionCountry={(country) =>
-          openJobs({ country: country || "unknown" })
-        }
-      />
+      <Suspense fallback={<Loading />}>
+        <BelvedereGlobe
+          connections={data.countries}
+          distribution={data.distributionCountries}
+          onDistributionCountry={(country) =>
+            openJobs({ country: country || "unknown" })
+          }
+        />
+      </Suspense>
       <div className="bv-overview-grid">
         <section className="bv-panel bv-activity">
           <SectionHeading title={bmsg("The pace of activity")}>

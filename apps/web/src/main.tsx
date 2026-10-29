@@ -2,7 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import "./fonts.css";
 import { applyAccountLocale, initializeLocale, t, useLocale } from "./locale";
-import { api, ApiError, type Session } from "./api";
+import { api, ApiError, setSession, type Session } from "./api";
 import {
   observePublicLinks,
   registerPublicPageMetadata,
@@ -66,6 +66,9 @@ const Belvedere = React.lazy(() => import("./belvedere"));
 
 function BelvedereEntry({ basePath }: { basePath: string }) {
   useLocale();
+  const integrated = basePath === "/belvedere";
+  const [session, updateSession] = React.useState<Session | null>(null);
+  const [sessionExpired, expireSession] = React.useState(false);
   React.useEffect(() => {
     let alive = true;
     let pending = false;
@@ -98,8 +101,14 @@ function BelvedereEntry({ basePath }: { basePath: string }) {
       const currentRevision = revision;
       api<Session>("/session", { signal: controller.signal })
         .then((session) => {
-          if (alive && currentRevision === revision)
+          if (alive && currentRevision === revision) {
             applyAccountLocale(session.user.preferredLocale);
+            if (integrated) {
+              setSession(session);
+              updateSession(session);
+              expireSession(session.canAccessBelvedere !== true);
+            }
+          }
         })
         .catch((error: unknown) => {
           if (
@@ -107,8 +116,14 @@ function BelvedereEntry({ basePath }: { basePath: string }) {
             currentRevision === revision &&
             error instanceof ApiError &&
             [401, 403].includes(error.status)
-          )
+          ) {
             applyAccountLocale(null);
+            if (integrated) {
+              setSession(null);
+              updateSession(null);
+              expireSession(true);
+            }
+          }
         })
         .finally(() => {
           pending = false;
@@ -128,6 +143,9 @@ function BelvedereEntry({ basePath }: { basePath: string }) {
     window.addEventListener("focus", refresh);
     window.addEventListener("pageshow", restore);
     document.addEventListener("visibilitychange", refresh);
+    // The private shell proves entry. Read identity/CSRF alongside the first
+    // view, without making any business read depend on this account request.
+    if (integrated) read();
     return () => {
       alive = false;
       controller.abort();
@@ -136,7 +154,7 @@ function BelvedereEntry({ basePath }: { basePath: string }) {
       window.removeEventListener("pageshow", restore);
       document.removeEventListener("visibilitychange", refresh);
     };
-  }, []);
+  }, [integrated]);
   return (
     <React.Suspense
       fallback={
@@ -145,7 +163,11 @@ function BelvedereEntry({ basePath }: { basePath: string }) {
         </main>
       }
     >
-      <Belvedere basePath={basePath} />
+      <Belvedere
+        basePath={basePath}
+        session={session}
+        sessionExpired={sessionExpired}
+      />
     </React.Suspense>
   );
 }

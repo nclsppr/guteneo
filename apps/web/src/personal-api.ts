@@ -14,6 +14,7 @@ export type PersonalSession = {
   };
   csrfToken: string;
   simulation: boolean;
+  canAccessBelvedere?: boolean;
   mfa: boolean;
   strongAuthentication: boolean;
   documentAccessAllowed?: boolean;

@@ -5,6 +5,7 @@ import {
   Files,
   PenNib,
   Plus,
+  ShieldCheck,
   type Icon,
 } from "@phosphor-icons/react";
 import { useEffect, useId, useRef, useState } from "react";
@@ -47,11 +48,11 @@ function usePanel() {
     // Two quick address changes may render once; the event still closes it.
     const navigate = () => setOpenOn(undefined);
     document.addEventListener("pointerdown", dismiss);
-    document.addEventListener("keydown", escape);
+    document.addEventListener("keydown", escape, true);
     window.addEventListener("hashchange", navigate);
     return () => {
       document.removeEventListener("pointerdown", dismiss);
-      document.removeEventListener("keydown", escape);
+      document.removeEventListener("keydown", escape, true);
       window.removeEventListener("hashchange", navigate);
     };
   }, [open]);
@@ -74,7 +75,7 @@ function usePanel() {
 }
 
 const applications: {
-  id: ApplicationSpace;
+  id: ApplicationSpace | "belvedere";
   Icon: Icon;
   name: () => string;
   needsWorkspace: boolean;
@@ -97,6 +98,12 @@ const applications: {
     name: () => msg("My documents"),
     needsWorkspace: false,
   },
+  {
+    id: "belvedere",
+    Icon: ShieldCheck,
+    name: () => "Belvédère",
+    needsWorkspace: false,
+  },
 ];
 
 /**
@@ -106,10 +113,13 @@ const applications: {
 export function ApplicationSwitcher({
   application,
   hasWorkspace,
+  canAccessBelvedere = false,
   preview = false,
 }: {
-  application: ApplicationSpace;
+  application: ApplicationSpace | "belvedere";
   hasWorkspace: boolean;
+  /** Server-projected hint only; the protected route checks authority again. */
+  canAccessBelvedere?: boolean;
   /** The fictional public preview offers no other application. */
   preview?: boolean;
 }) {
@@ -160,25 +170,27 @@ export function ApplicationSwitcher({
         hidden={!panel.open}
       >
         <ul>
-          {applications.map((item) => (
-            <li key={item.id}>
-              <a
-                href={`#${
-                  item.needsWorkspace && !hasWorkspace
-                    ? "/app/services"
-                    : spaceHome[item.id]
-                }`}
-                aria-current={item.id === application ? "true" : undefined}
-                onClick={panel.close}
-              >
-                <item.Icon size={18} aria-hidden="true" />
-                {item.name()}
-                {item.id === application && (
-                  <Check size={16} aria-hidden="true" />
-                )}
-              </a>
-            </li>
-          ))}
+          {applications
+            .filter((item) => item.id !== "belvedere" || canAccessBelvedere)
+            .map((item) => (
+              <li key={item.id}>
+                <a
+                  href={
+                    item.id === "belvedere"
+                      ? "/belvedere"
+                      : `${application === "belvedere" ? "/" : ""}#${item.needsWorkspace && !hasWorkspace ? "/app/services" : spaceHome[item.id]}`
+                  }
+                  aria-current={item.id === application ? "true" : undefined}
+                  onClick={panel.close}
+                >
+                  <item.Icon size={18} aria-hidden="true" />
+                  {item.name()}
+                  {item.id === application && (
+                    <Check size={16} aria-hidden="true" />
+                  )}
+                </a>
+              </li>
+            ))}
         </ul>
       </div>
     </div>
