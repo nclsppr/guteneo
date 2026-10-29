@@ -297,11 +297,9 @@ test("entering the account applies its preference after a late session while pre
     await page.goto("/");
     const picker = await publicLanguagePicker(page);
     await expect(picker).toHaveValue("auto");
-    const serverLocale = await page
-      .locator("html")
-      .getAttribute("data-public-locale");
-    expect(publicSite.locales).toContain(serverLocale);
-    await expect(page.locator("html")).toHaveAttribute("lang", serverLocale!);
+    // The application bundle has no SSR locale marker. This context starts in
+    // en-GB; SSR language selection is covered by the public preview suite.
+    await expect(page.locator("html")).toHaveAttribute("lang", "en");
     expect(sessionRequests).toBe(0);
     await picker.selectOption("de");
     await expect(page.locator("html")).toHaveAttribute("lang", "de");
