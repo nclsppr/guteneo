@@ -397,8 +397,11 @@ test("Assistants is the second workspace destination and every private guide sur
   });
   await expect(personal).toHaveCount(1);
   await expect(personal).toHaveAttribute("href", "#/app/my-documents");
+  // The V2 New dispatch shortcut is an action, not a destination.
   const labels = (
-    await nav.locator('a:not([href="#/app/my-documents"])').allTextContents()
+    await nav
+      .locator('a:not([href="#/app/my-documents"]):not(.workspace-create)')
+      .allTextContents()
   ).map((text) => text.trim());
   expect(labels.slice(0, 2)).toEqual(["Vue d’ensemble", "Assistants"]);
   expect(labels.slice(2, 4)).toEqual(["Documents", "Distribution sécurisée"]);

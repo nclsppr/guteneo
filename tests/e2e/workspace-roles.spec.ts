@@ -188,8 +188,9 @@ test("operator can prepare while approval and report interfaces stay restricted"
   expect(state.requested).not.toContain("/overview");
   await expect(page.locator(".overview-stats")).toHaveCount(0);
   await page.goto("/#/app/dispatches");
+  // V2 offers it from the sidebar on desktop and from the heading on phones.
   await expect(
-    page.locator('main a[href="#/app/prepare"]').first(),
+    page.locator('a[href="#/app/prepare"]:visible').first(),
   ).toBeVisible();
   await page.goto("/#/app/dispatch/request");
   await expect(
