@@ -125,6 +125,19 @@ standalone authentication handoff, Belvédère, protected-document and error HTM
 reuse the shared icon metadata. Source checks establish consistency, while
 publication and rendered hosted-login behavior require their own evidence.
 
+Assistant choices and guide headings share the existing image component. Follow
+the [appearance contract](https://github.com/nclsppr/guteneo/blob/main/docs/THEMES.md#public-identity-and-image-selection):
+keep transparent exteriors in both themes, invert only the monochrome ChatGPT,
+GitHub Copilot and Cursor display in dark mode, and retain the colored Claude,
+Microsoft 365 and Grok artwork. Apply the same CSS token to explicit dark mode
+and the system fallback; preserve source bytes, proportions, clear space and
+visible product names. Forced colors select the monochrome filter from the
+system's light/dark high-contrast palette instead of the stored page preference.
+Check public and workshop placements at phone and desktop widths while switching
+themes, including a script-free system preference and forced colors. This
+presentation change adds no JavaScript or asset request; rendered checks and
+deployed-source verification remain distinct.
+
 | Role            | Source token / value          | Application                              |
 | --------------- | ----------------------------- | ---------------------------------------- |
 | Paper           | `--paper`, `#f6f5ef`          | Main reading surface                     |
