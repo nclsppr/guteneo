@@ -285,20 +285,28 @@ test("personal documents sit in the space switcher and role details stay on the 
   await expect(page.locator("aside .workspace-identity")).toContainText(
     data.session.user.email!,
   );
-  // My documents is a space in the switcher, reachable with the menu closed.
-  const switcher = page.locator(".sidebar .space-switcher-trigger");
+  // My documents is an application in the switcher, reachable with the menu closed.
+  const switcher = page.locator(
+    ".sidebar .application-switcher .space-switcher-trigger",
+  );
   await expect(switcher).toBeVisible();
-  expect((await switcher.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+  // Touch screens keep 44 px; desktop pointers use 40 px so every entry fits.
+  expect((await switcher.boundingBox())!.height).toBeGreaterThanOrEqual(
+    isMobile ? 44 : 40,
+  );
   await switcher.click();
   await expect(switcher).toHaveAttribute("aria-expanded", "true");
-  const spaces = page.getByRole("navigation", { name: "Espaces", exact: true });
+  const spaces = page.getByRole("navigation", {
+    name: "Applications",
+    exact: true,
+  });
   const personal = spaces.getByRole("link", {
     name: "Mes documents",
     exact: true,
   });
   await expect(personal).toHaveAttribute("href", "#/app/my-documents");
   await expect(
-    spaces.getByRole("link", { name: "Atelier", exact: true }),
+    spaces.getByRole("link", { name: "Correspondance", exact: true }),
   ).toHaveAttribute("aria-current", "true");
   await page.keyboard.press("Escape");
   await expect(switcher).toHaveAttribute("aria-expanded", "false");
@@ -674,11 +682,13 @@ test("contact failure is recoverable and switching workshops removes the previou
   await expect(
     contacts.getByRole("link", { name: /validation@example.invalid/ }),
   ).toBeVisible();
-  // The space switcher replaces the former account-page form.
+  // The workspace switcher replaces the former account-page form.
   const readsBeforeSwitch = data.state.contactReads;
-  await page.locator(".sidebar .space-switcher-trigger").click();
   await page
-    .getByRole("navigation", { name: "Espaces", exact: true })
+    .locator(".sidebar .workspace-switcher .space-switcher-trigger")
+    .click();
+  await page
+    .getByRole("navigation", { name: "Espaces de travail", exact: true })
     .getByRole("button", { name: "Deuxième atelier", exact: true })
     .click();
   await expect(page).toHaveURL(/#\/app$/);

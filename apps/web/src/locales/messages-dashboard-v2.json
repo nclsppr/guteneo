@@ -21,20 +21,31 @@
     "Ugewisen Zäiten: {0}"
   ],
   "Studio": ["Studio", "Studio", "Studio"],
-  "Espaces": ["Spaces", "Bereiche", "Beräicher"],
-  "Changer d’espace : {0}, {1}": [
-    "Switch space: {0}, {1}",
-    "Bereich wechseln: {0}, {1}",
-    "Beräich wiesselen: {0}, {1}"
-  ],
-  "Autres ateliers": [
-    "Other workspaces",
-    "Andere Arbeitsbereiche",
-    "Aner Atelieren"
-  ],
   "Navigation du Studio": [
     "Studio navigation",
     "Studio-Navigation",
     "Navigatioun vum Studio"
+  ],
+  "Autres espaces de travail": [
+    "Other workspaces",
+    "Andere Arbeitsbereiche",
+    "Aner Aarbechtsberäicher"
+  ],
+  "Application : {0}": [
+    "Application: {0}",
+    "Anwendung: {0}",
+    "Applikatioun: {0}"
+  ],
+  "Applications": ["Applications", "Anwendungen", "Applikatiounen"],
+  "Espace de travail : {0}": [
+    "Workspace: {0}",
+    "Arbeitsbereich: {0}",
+    "Aarbechtsberäich: {0}"
+  ],
+  "Espaces de travail": ["Workspaces", "Arbeitsbereiche", "Aarbechtsberäicher"],
+  "Navigation de la correspondance": [
+    "Correspondence navigation",
+    "Korrespondenz-Navigation",
+    "Navigatioun vun der Korrespondenz"
   ]
 }

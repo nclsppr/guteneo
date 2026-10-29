@@ -56,10 +56,15 @@ account customization against the shared components before changing any of them.
 Keep authority and loading independent: visual consistency never justifies
 importing another space's session bootstrap or granting its permissions.
 
-The space switcher at the top of the workshop and personal sidebars says where
-the person works: the current workspace's Workshop and Studio, My documents and
-other workspaces. The account menu at the bottom says who they are. Keep that
-split, a 44 px trigger and touch rows, and the panel's lazy workspace read. Use
+Two separate switchers open the shared frame. The application switcher lists
+Studio, Correspondence and My documents; without a workspace, Studio and
+Correspondence lead to choosing or creating one first. Below it, in Studio and
+Correspondence only, the workspace switcher shows the current workspace, the
+person's other memberships and "Create or join a workspace". The account menu at
+the bottom says who they are. Keep that split: an application never lists
+workspaces, the workspace list is read only when its panel opens, triggers are
+40 px (application) and 36 px (workspace) for desktop pointers and 44 px on
+touch screens. Use
 `apps/web/src/app-routes.ts` for spaces, Studio addresses, aliases and the
 current entry instead of new route expressions. Switching never creates a new
 session read on page load or document-access authority.

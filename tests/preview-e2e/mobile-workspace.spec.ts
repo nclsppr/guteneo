@@ -23,7 +23,7 @@ test(`mobile navigation exposes every destination and returns focus to the opene
   const menu = page.locator(".workspace-navigation");
   const toggle = menu.locator("summary");
   const nav = page.getByRole("navigation", {
-    name: "Navigation de l’atelier",
+    name: "Navigation de la correspondance",
   });
   await expect(nav).toBeHidden();
   await toggle.click();
@@ -184,7 +184,9 @@ test("mobile navigation preserves restored summary focus after deferred route fr
   );
   await page.goto("/#/app");
   const toggle = page.locator(".workspace-navigation summary");
-  const nav = page.getByRole("navigation", { name: "Navigation de l’atelier" });
+  const nav = page.getByRole("navigation", {
+    name: "Navigation de la correspondance",
+  });
   await toggle.click();
   await expect(nav).toBeVisible();
 

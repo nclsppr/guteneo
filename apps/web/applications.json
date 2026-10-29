@@ -4,6 +4,7 @@
   "designSystem": ["theme.css", "styles.css", "fonts.css", "dashboard-v2.css"],
   "shellSelectors": [
     "sidebar",
+    "sidebar-context",
     "space-switcher",
     "application-switcher",
     "workspace-navigation",

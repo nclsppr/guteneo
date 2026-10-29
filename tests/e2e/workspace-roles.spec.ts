@@ -382,10 +382,12 @@ test("switching workspace refreshes its name and permissions without carrying ov
   await expect(
     page.getByLabel("Nom de l’atelier", { exact: true }),
   ).toHaveValue("Atelier de préparation");
-  const switcher = page.locator(".sidebar .space-switcher-trigger");
+  const switcher = page.locator(
+    ".sidebar .workspace-switcher .space-switcher-trigger",
+  );
   await switcher.click();
   await page
-    .getByRole("navigation", { name: "Espaces", exact: true })
+    .getByRole("navigation", { name: "Espaces de travail", exact: true })
     .getByRole("button", { name: "Atelier de consultation", exact: true })
     .click();
   // A new workspace starts at the root of the same space.
@@ -424,10 +426,17 @@ test("an invalid optional workspace response leaves the account form usable", as
     page.locator(".workspace-contacts").getByRole("alert"),
   ).toHaveCount(0);
   // The switcher reads workspaces only when opened and tolerates the response.
-  await page.locator(".sidebar .space-switcher-trigger").click();
-  const spaces = page.getByRole("navigation", { name: "Espaces", exact: true });
+  await page
+    .locator(".sidebar .workspace-switcher .space-switcher-trigger")
+    .click();
+  const spaces = page.getByRole("navigation", {
+    name: "Espaces de travail",
+    exact: true,
+  });
   await expect(
-    spaces.getByRole("link", { name: "Mes documents", exact: true }),
+    spaces.getByRole("link", {
+      name: "Créer ou rejoindre un espace de travail",
+    }),
   ).toBeVisible();
   await expect(spaces.getByRole("alert")).toHaveCount(0);
 });

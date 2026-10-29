@@ -38,8 +38,7 @@ import {
 } from "./locale";
 import { msg } from "./messages";
 import { personalApi, type PersonalSession } from "./personal-api";
-import { spaceHome } from "./app-routes";
-import { SpaceSwitcher } from "./space-switcher";
+import { ApplicationSwitcher } from "./space-switcher";
 import { workspaceInvitationPath } from "./workspace-entry";
 import {
   clearPendingDocumentInvitation,
@@ -362,29 +361,9 @@ export function PersonalSpace({
       </a>
       <header className="personal-space-header">
         <Brand />
-        <SpaceSwitcher
-          key={session.user.id}
-          space="personal"
-          workspace={currentWorkspace}
-          identity={[
-            session.user.id,
-            ...session.workspaces.map(
-              (workspace) =>
-                `${workspace.id}/${workspace.role}/${workspace.current}`,
-            ),
-          ].join(":")}
-          // Refreshed with the personal session on every return to the tab.
-          loadWorkspaces={async () => session.workspaces}
-          enterWorkspace={async (id, target) => {
-            await personalApi("/personal/workspace/select", session, {
-              method: "POST",
-              body: { organizationId: id },
-            });
-            // The workshop cookie has rotated. Remount Application so its
-            // session, tenant and CSRF token all come from the new session.
-            window.history.replaceState(null, "", `/#${spaceHome[target]}`);
-            window.location.reload();
-          }}
+        <ApplicationSwitcher
+          application="personal"
+          hasWorkspace={currentWorkspace !== null}
         />
         <nav aria-label={msg("Personal navigation")}>
           <a

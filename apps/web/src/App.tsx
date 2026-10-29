@@ -51,7 +51,11 @@ import {
   type StudioEntry,
   type WorkshopEntry,
 } from "./app-routes";
-import { SpaceSwitcher, type SwitcherWorkspace } from "./space-switcher";
+import {
+  ApplicationSwitcher,
+  WorkspaceSwitcher,
+  type SwitcherWorkspace,
+} from "./space-switcher";
 import {
   BEFORE_WORKSPACE_NAVIGATION,
   ErrorNotice,
@@ -685,7 +689,7 @@ function WorkspaceApplication({
   const navigation: readonly NavigationItem<WorkshopEntry | StudioEntry>[] =
     space === "studio" ? studioNavigation : workshopNavigation;
   const navigationName =
-    space === "studio" ? msg("Studio navigation") : msg("Workspace navigation");
+    space === "studio" ? msg("Studio navigation") : msg("Correspondence navigation");
   const enterWorkspace = async (id: string, target: "workshop" | "studio") => {
     // Let a screen with unsaved work refuse before the session changes.
     if (
@@ -732,27 +736,34 @@ function WorkspaceApplication({
         <div className="sidebar-brand">
           <Brand app />
         </div>
-        <SpaceSwitcher
-          key={session.user.id}
-          space={space === "studio" ? "studio" : "workshop"}
-          workspace={session.organization}
-          identity={[
-            session.user.id,
-            session.organization.id,
-            session.user.role,
-            permissions.approveDispatches,
-            permissions.viewReports,
-          ].join(":")}
-          preview={publicPreview}
-          loadWorkspaces={async (signal) => {
-            const { items } = await api<{ items?: SwitcherWorkspace[] }>(
-              "/account/workspaces",
-              { signal },
-            );
-            return Array.isArray(items) ? items : [];
-          }}
-          enterWorkspace={enterWorkspace}
-        />
+        <div className="sidebar-context">
+          <ApplicationSwitcher
+            application={space === "studio" ? "studio" : "workshop"}
+            hasWorkspace
+            preview={publicPreview}
+          />
+          <WorkspaceSwitcher
+            key={session.user.id}
+            application={space === "studio" ? "studio" : "workshop"}
+            workspace={session.organization}
+            identity={[
+              session.user.id,
+              session.organization.id,
+              session.user.role,
+              permissions.approveDispatches,
+              permissions.viewReports,
+            ].join(":")}
+            preview={publicPreview}
+            loadWorkspaces={async (signal) => {
+              const { items } = await api<{ items?: SwitcherWorkspace[] }>(
+                "/account/workspaces",
+                { signal },
+              );
+              return Array.isArray(items) ? items : [];
+            }}
+            enterWorkspace={enterWorkspace}
+          />
+        </div>
         <details
           className="workspace-navigation"
           open={navigationOpen}

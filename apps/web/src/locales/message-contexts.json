@@ -4,16 +4,8 @@
     "Briefpost aktivieren",
     "Bréifpost aktivéieren"
   ],
-  "document-source\u0004Source": [
-    "Source",
-    "Quelle",
-    "Quell"
-  ],
-  "invoice\u0004Cancelled": [
-    "Annulée",
-    "Storniert",
-    "Annuléiert"
-  ],
+  "document-source\u0004Source": ["Source", "Quelle", "Quell"],
+  "invoice\u0004Cancelled": ["Annulée", "Storniert", "Annuléiert"],
   "table-settings\u0004Column {0} title": [
     "Titre de la colonne {0}",
     "Titel der Spalte {0}",
@@ -29,21 +21,13 @@
     "E-Mail-Betreff",
     "E-Mail-Betreff"
   ],
-  "account-action\u0004Sign out": [
-    "Me déconnecter",
-    "Abmelden",
-    "Ofmellen"
-  ],
+  "account-action\u0004Sign out": ["Me déconnecter", "Abmelden", "Ofmellen"],
   "workspace-account\u0004Switch workspace": [
     "Changer d’atelier",
     "Arbeitsbereich wechseln",
     "Atelier wiesselen"
   ],
-  "access\u0004Available": [
-    "Accessibles",
-    "Zugänglich",
-    "Zougänglech"
-  ],
+  "access\u0004Available": ["Accessibles", "Zugänglich", "Zougänglech"],
   "access\u0004Unavailable": [
     "Non accessibles",
     "Nicht zugänglich",
@@ -54,11 +38,7 @@
     "Prüfung läuft…",
     "Kontroll leeft…"
   ],
-  "payment\u0004Paid": [
-    "Réglé",
-    "Bezahlt",
-    "Bezuelt"
-  ],
+  "payment\u0004Paid": ["Réglé", "Bezahlt", "Bezuelt"],
   "payment\u0004Updated on": [
     "Actualisé le",
     "Aktualisiert am",
@@ -79,36 +59,16 @@
     "An die Post übergeben",
     "Un d’Post iwwerreecht"
   ],
-  "mail-channel\u0004Post": [
-    "Courrier",
-    "Briefpost",
-    "Bréifpost"
-  ],
-  "singular-article\u0004The": [
-    "La",
-    "Die",
-    "Dës"
-  ],
-  "short-status\u0004Coming soon": [
-    "Bientôt",
-    "Demnächst",
-    "Geschwënn"
-  ],
-  "belvedere-plural\u0004Delivered": [
-    "Livrés",
-    "Zugestellt",
-    "Zougestallt"
-  ],
+  "mail-channel\u0004Post": ["Courrier", "Briefpost", "Bréifpost"],
+  "singular-article\u0004The": ["La", "Die", "Dës"],
+  "short-status\u0004Coming soon": ["Bientôt", "Demnächst", "Geschwënn"],
+  "belvedere-plural\u0004Delivered": ["Livrés", "Zugestellt", "Zougestallt"],
   "belvedere-plural\u0004Not configured": [
     "Non configurés",
     "Nicht konfiguriert",
     "Net konfiguréiert"
   ],
-  "generation-state\u0004Cancelled": [
-    "Annulée",
-    "Storniert",
-    "Annuléiert"
-  ],
+  "generation-state\u0004Cancelled": ["Annulée", "Storniert", "Annuléiert"],
   "secure-distribution\u0004Active access": [
     "Accès actif",
     "Aktiver Zugriff",
@@ -119,19 +79,11 @@
     "Wird vorbereitet…",
     "Gëtt virbereet…"
   ],
-  "secure-distribution\u0004Expiry": [
-    "Échéance",
-    "Ablauf",
-    "Oflaf"
-  ],
-  "space\u0004Workshop": [
-    "Atelier",
-    "Werkstatt",
-    "Atelier"
-  ],
-  "space\u0004Studio": [
-    "Studio",
-    "Studio",
-    "Studio"
+  "secure-distribution\u0004Expiry": ["Échéance", "Ablauf", "Oflaf"],
+  "application\u0004Studio": ["Studio", "Studio", "Studio"],
+  "application\u0004Correspondence": [
+    "Correspondance",
+    "Korrespondenz",
+    "Korrespondenz"
   ]
 }

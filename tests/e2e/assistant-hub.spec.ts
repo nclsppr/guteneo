@@ -383,7 +383,7 @@ test("Assistants is the second workspace destination and every private guide sur
   const state = await fixture(page);
   await page.goto("/#/app");
   const nav = page.getByRole("navigation", {
-    name: "Navigation de l’atelier",
+    name: "Navigation de la correspondance",
     exact: true,
   });
   // The session response mounts the navigation after the initial page load.

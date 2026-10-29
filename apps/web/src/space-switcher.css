@@ -154,3 +154,41 @@ button.space-switcher-trigger:hover,
     margin-inline-start: 0;
   }
 }
+/* The application, then the workspace it works in: two choices in one block. */
+.sidebar-context {
+  display: grid;
+  margin: 0 0 6px;
+}
+.sidebar-context > .space-switcher {
+  margin: 0;
+}
+/* Pointer sizes on desktop keep every entry of an administrator in view at 720 px. */
+.application-switcher .space-switcher-trigger {
+  min-height: 40px;
+}
+.workspace-switcher .space-switcher-trigger {
+  min-height: 36px;
+}
+.workspace-switcher .space-switcher-trigger .space-switcher-mark {
+  width: 24px;
+  height: 24px;
+  font-size: 15px;
+}
+@media (max-width: 1024px) {
+  .sidebar-context {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: 8px;
+  }
+  .sidebar-context > .space-switcher {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+  .sidebar-context .space-switcher-trigger {
+    min-height: 44px;
+  }
+  .application-switcher .space-switcher-panel {
+    right: auto;
+    left: 0;
+  }
+}

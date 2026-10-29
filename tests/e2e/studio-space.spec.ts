@@ -113,46 +113,66 @@ async function fixture(
 }
 
 const spaces = (page: Page) =>
-  page.getByRole("navigation", { name: "Espaces", exact: true });
+  page.getByRole("navigation", { name: "Espaces de travail", exact: true });
+const applications = (page: Page) =>
+  page.getByRole("navigation", { name: "Applications", exact: true });
+const applicationTrigger = (page: Page) =>
+  page.locator(".sidebar .application-switcher .space-switcher-trigger");
+const workspaceTrigger = (page: Page) =>
+  page.locator(".sidebar .workspace-switcher .space-switcher-trigger");
 
-test("the space switcher reads workspaces only when opened and moves between spaces", async ({
+test("the application and workspace switchers stay separate and read workspaces only when opened", async ({
   page,
   isMobile,
 }) => {
   const state = await fixture(page);
   await page.goto("/#/app/documents");
-  const trigger = page.locator(".sidebar .space-switcher-trigger");
-  await expect(trigger).toHaveAccessibleName(
-    "Changer d’espace : Atelier, Atelier de démonstration",
+  const application = applicationTrigger(page);
+  const workspace = workspaceTrigger(page);
+  await expect(application).toHaveAccessibleName(
+    "Application : Correspondance",
+  );
+  await expect(workspace).toHaveAccessibleName(
+    "Espace de travail : Atelier de démonstration",
   );
   expect(state.reads).not.toContain("/account/workspaces");
-  await trigger.focus();
+  await application.focus();
   await page.keyboard.press("Enter");
-  await expect(trigger).toHaveAttribute("aria-expanded", "true");
-  const panel = spaces(page);
+  await expect(application).toHaveAttribute("aria-expanded", "true");
+  const apps = applications(page);
   await expect(
-    panel.getByRole("link", { name: "Atelier", exact: true }),
+    apps.getByRole("link", { name: "Correspondance", exact: true }),
   ).toHaveAttribute("aria-current", "true");
   await expect(
-    panel.getByRole("link", { name: "Studio", exact: true }),
+    apps.getByRole("link", { name: "Studio", exact: true }),
   ).toHaveAttribute("href", "#/app/studio/templates");
   await expect(
-    panel.getByRole("link", { name: "Mes documents", exact: true }),
+    apps.getByRole("link", { name: "Mes documents", exact: true }),
   ).toHaveAttribute("href", "#/app/my-documents");
+  // Applications never list workspaces, and opening them reads none.
+  await expect(apps.getByRole("button")).toHaveCount(0);
+  expect(state.reads).not.toContain("/account/workspaces");
+  await page.keyboard.press("Escape");
+  await expect(application).toHaveAttribute("aria-expanded", "false");
+  await expect(application).toBeFocused();
+  await workspace.click();
+  const panel = spaces(page);
   await expect(
     panel.getByRole("button", { name: "Second atelier", exact: true }),
   ).toBeVisible();
   await expect(
-    panel.getByRole("link", { name: "Créer ou rejoindre un atelier" }),
+    panel.getByRole("link", {
+      name: "Créer ou rejoindre un espace de travail",
+    }),
   ).toHaveAttribute("href", "#/app/services");
   await page.keyboard.press("Escape");
-  await expect(trigger).toHaveAttribute("aria-expanded", "false");
-  await expect(trigger).toBeFocused();
-  await trigger.click();
-  await panel.getByRole("link", { name: "Studio", exact: true }).click();
+  await expect(workspace).toBeFocused();
+  await application.click();
+  await apps.getByRole("link", { name: "Studio", exact: true }).click();
   await expect(page).toHaveURL(/#\/app\/studio\/templates$/);
-  await expect(trigger).toHaveAttribute("aria-expanded", "false");
-  await expect(trigger).toContainText("Studio");
+  await expect(application).toHaveAttribute("aria-expanded", "false");
+  await expect(application).toContainText("Studio");
+  await expect(workspace).toContainText("Atelier de démonstration");
   const studio = page.getByRole("navigation", {
     name: "Navigation du Studio",
     exact: true,
@@ -177,9 +197,7 @@ test("earlier Studio links keep their query and prepared batches stay with dispa
   const state = await fixture(page);
   await page.goto("/#/app/templates?new=blank");
   await expect(page).toHaveURL(/#\/app\/studio\/templates\?new=blank$/);
-  await expect(page.locator(".sidebar .space-switcher-trigger")).toContainText(
-    "Studio",
-  );
+  await expect(applicationTrigger(page)).toContainText("Studio");
   await page.goto("/#/app/generation/job_fixture");
   await expect(page).toHaveURL(/#\/app\/studio\/generation\/job_fixture$/);
   await expect(
@@ -187,9 +205,7 @@ test("earlier Studio links keep their query and prepared batches stay with dispa
   ).toHaveAttribute("href", "#/app/studio/generations");
   await page.goto("/#/app/distribution/plan_fixture");
   await expect(page).toHaveURL(/#\/app\/distribution\/plan_fixture$/);
-  await expect(page.locator(".sidebar .space-switcher-trigger")).toContainText(
-    "Atelier",
-  );
+  await expect(applicationTrigger(page)).toContainText("Correspondance");
   await expect(
     page.locator('.workspace-navigation a[aria-current="page"]'),
   ).toHaveAttribute("href", "#/app/dispatches");
@@ -201,7 +217,7 @@ test("switching workspace honours a refusal and lands at the root of the current
 }) => {
   const state = await fixture(page);
   await page.goto("/#/app/studio/datasets");
-  const trigger = page.locator(".sidebar .space-switcher-trigger");
+  const trigger = workspaceTrigger(page);
   await expect(trigger).toContainText("Atelier de démonstration");
   // A screen with unsaved work refuses through the existing navigation veto.
   await page.evaluate(() => {
@@ -224,7 +240,7 @@ test("switching workspace honours a refusal and lands at the root of the current
     .click();
   await expect(page).toHaveURL(/#\/app\/studio\/templates$/);
   await expect(trigger).toContainText("Second atelier");
-  await expect(trigger).toContainText("Studio");
+  await expect(applicationTrigger(page)).toContainText("Studio");
   expect(state.writes).toEqual([
     { path: "/account/workspace", body: { organizationId: "second" } },
   ]);
@@ -264,7 +280,7 @@ test("A to B to A always offers the other workspace and shows its own documents"
 }) => {
   const state = await fixture(page);
   await page.goto("/#/app/documents");
-  const trigger = page.locator(".sidebar .space-switcher-trigger");
+  const trigger = workspaceTrigger(page);
   const main = page.locator("#main-content");
   await expect(main.getByText("Courrier first.pdf")).toBeVisible();
   await trigger.click();
@@ -302,7 +318,7 @@ test("a withdrawn membership is refused, keeps the current workspace and leaves 
 }) => {
   const state = await fixture(page, { revoked: true });
   await page.goto("/#/app/documents");
-  const trigger = page.locator(".sidebar .space-switcher-trigger");
+  const trigger = workspaceTrigger(page);
   await trigger.click();
   await spaces(page)
     .getByRole("button", { name: "Atelier retiré", exact: true })
@@ -330,7 +346,7 @@ test("a late workspace list for the previous workspace is never shown", async ({
 }) => {
   const state = await fixture(page, { holdLists: true });
   await page.goto("/#/app/documents");
-  const trigger = page.locator(".sidebar .space-switcher-trigger");
+  const trigger = workspaceTrigger(page);
   await trigger.click();
   await expect.poll(() => state.heldCount()).toBe(1);
   state.release();

@@ -1,4 +1,12 @@
-import { CaretDown, Check, Files, Plus } from "@phosphor-icons/react";
+import {
+  CaretDown,
+  Check,
+  EnvelopeSimple,
+  Files,
+  PenNib,
+  Plus,
+  type Icon,
+} from "@phosphor-icons/react";
 import { useEffect, useId, useRef, useState } from "react";
 import { spaceHome, type ApplicationSpace } from "./app-routes";
 import { ErrorNotice, useAction, useRoute } from "./components";
@@ -12,38 +20,193 @@ function initial(name: string) {
   return Array.from(name.trim())[0]?.toLocaleUpperCase() ?? "";
 }
 
-/**
- * Where the person works: the current workspace's Workshop and Studio, personal
- * documents and other workspaces. Identity actions stay in the account menu.
- */
-export function SpaceSwitcher({
-  space,
-  workspace,
-  identity,
-  preview = false,
-  loadWorkspaces,
-  enterWorkspace,
-}: {
-  space: ApplicationSpace;
-  /** The current workspace, whose Workshop and Studio the panel offers. */
-  workspace: { id: string; name: string } | null;
-  /**
-   * Changes with the account, the workspace or its authority. A list read for
-   * an earlier identity is never shown, and its late answer is discarded.
-   */
-  identity: string;
-  /** The fictional public preview offers no other space. */
-  preview?: boolean;
-  /** Read when the panel opens for an identity; never on page load. */
-  loadWorkspaces: (signal: AbortSignal) => Promise<SwitcherWorkspace[]>;
-  enterWorkspace: (id: string, space: "workshop" | "studio") => Promise<void>;
-}) {
+/** Open state shared by both switchers: any navigation, Escape or outside press closes. */
+function usePanel() {
   const route = useRoute();
   // Opening records the committed route, so navigating away closes the panel.
   const [openOn, setOpenOn] = useState<string>();
   // Forget it on navigation, so returning to the same address keeps it closed.
   if (openOn !== undefined && openOn !== route) setOpenOn(undefined);
   const open = openOn === route;
+  const area = useRef<HTMLDivElement>(null);
+  const trigger = useRef<HTMLButtonElement>(null);
+  const id = useId();
+  const close = () => setOpenOn(undefined);
+  useEffect(() => {
+    if (!open) return;
+    const dismiss = (event: PointerEvent) => {
+      if (!area.current?.contains(event.target as Node)) setOpenOn(undefined);
+    };
+    // Safari does not focus a clicked button, so Escape may reach the document.
+    const escape = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      event.preventDefault();
+      setOpenOn(undefined);
+      trigger.current?.focus();
+    };
+    document.addEventListener("pointerdown", dismiss);
+    document.addEventListener("keydown", escape);
+    return () => {
+      document.removeEventListener("pointerdown", dismiss);
+      document.removeEventListener("keydown", escape);
+    };
+  }, [open]);
+  return {
+    open,
+    area,
+    trigger,
+    id,
+    close,
+    toggle: () => (open ? close() : setOpenOn(route)),
+    // Safari blurs without a target when a pointer selects an item.
+    onBlur: (event: React.FocusEvent<HTMLDivElement>) => {
+      if (
+        event.relatedTarget &&
+        !event.currentTarget.contains(event.relatedTarget)
+      )
+        close();
+    },
+  };
+}
+
+const applications: {
+  id: ApplicationSpace;
+  Icon: Icon;
+  name: () => string;
+  needsWorkspace: boolean;
+}[] = [
+  {
+    id: "studio",
+    Icon: PenNib,
+    name: () => msgIn("application", "Studio"),
+    needsWorkspace: true,
+  },
+  {
+    id: "workshop",
+    Icon: EnvelopeSimple,
+    name: () => msgIn("application", "Correspondence"),
+    needsWorkspace: true,
+  },
+  {
+    id: "personal",
+    Icon: Files,
+    name: () => msg("My documents"),
+    needsWorkspace: false,
+  },
+];
+
+/**
+ * Which application the person uses. Studio and Correspondence work in the
+ * current workspace; without one they lead to choosing or creating it first.
+ */
+export function ApplicationSwitcher({
+  application,
+  hasWorkspace,
+  preview = false,
+}: {
+  application: ApplicationSpace;
+  hasWorkspace: boolean;
+  /** The fictional public preview offers no other application. */
+  preview?: boolean;
+}) {
+  const panel = usePanel();
+  const current = applications.find((item) => item.id === application)!;
+  const label = (
+    <>
+      <span className="space-switcher-mark" aria-hidden="true">
+        <current.Icon size={18} />
+      </span>
+      <span className="space-switcher-label">
+        <strong>{current.name()}</strong>
+      </span>
+    </>
+  );
+  if (preview)
+    return (
+      <div className="space-switcher application-switcher">
+        <div className="space-switcher-trigger space-switcher-static">
+          {label}
+        </div>
+      </div>
+    );
+  return (
+    <div
+      ref={panel.area}
+      className="space-switcher application-switcher"
+      onBlur={panel.onBlur}
+    >
+      <button
+        ref={panel.trigger}
+        type="button"
+        className="space-switcher-trigger"
+        aria-expanded={panel.open}
+        aria-controls={panel.id}
+        aria-label={msg("Application: {0}", current.name())}
+        onClick={panel.toggle}
+      >
+        {label}
+        <CaretDown size={16} aria-hidden="true" />
+      </button>
+      {/* Not a nav element: sidebar navigation styles must not apply here. */}
+      <div
+        id={panel.id}
+        role="navigation"
+        className="space-switcher-panel"
+        aria-label={msg("Applications")}
+        hidden={!panel.open}
+      >
+        <ul>
+          {applications.map((item) => (
+            <li key={item.id}>
+              <a
+                href={`#${
+                  item.needsWorkspace && !hasWorkspace
+                    ? "/app/services"
+                    : spaceHome[item.id]
+                }`}
+                aria-current={item.id === application ? "true" : undefined}
+                onClick={panel.close}
+              >
+                <item.Icon size={18} aria-hidden="true" />
+                {item.name()}
+                {item.id === application && (
+                  <Check size={16} aria-hidden="true" />
+                )}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * The workspace Studio and Correspondence work in, and the person's other
+ * memberships. Personal documents never depend on it.
+ */
+export function WorkspaceSwitcher({
+  application,
+  workspace,
+  identity,
+  preview = false,
+  loadWorkspaces,
+  enterWorkspace,
+}: {
+  application: "workshop" | "studio";
+  workspace: SwitcherWorkspace;
+  /**
+   * Changes with the account, the workspace or its authority. A list read for
+   * an earlier identity is never shown, and its late answer is discarded.
+   */
+  identity: string;
+  /** The fictional public preview offers no other workspace. */
+  preview?: boolean;
+  /** Read when the panel opens for an identity; never on page load. */
+  loadWorkspaces: (signal: AbortSignal) => Promise<SwitcherWorkspace[]>;
+  enterWorkspace: (id: string, space: "workshop" | "studio") => Promise<void>;
+}) {
+  const panel = usePanel();
   const [listing, setListing] = useState<{
     identity: string;
     items: SwitcherWorkspace[];
@@ -52,11 +215,7 @@ export function SpaceSwitcher({
   const reading = useRef<AbortController | null>(null);
   const load = useAction();
   const enter = useAction();
-  const area = useRef<HTMLDivElement>(null);
-  const trigger = useRef<HTMLButtonElement>(null);
-  const panelId = useId();
   const groupId = useId();
-  const close = () => setOpenOn(undefined);
   // A new identity abandons the read started for the previous one.
   useEffect(
     () => () => {
@@ -79,136 +238,56 @@ export function SpaceSwitcher({
       }
     });
   };
-  useEffect(() => {
-    if (!open) return;
-    const dismiss = (event: PointerEvent) => {
-      if (!area.current?.contains(event.target as Node)) setOpenOn(undefined);
-    };
-    // Safari does not focus a clicked button, so Escape may reach the document.
-    const escape = (event: KeyboardEvent) => {
-      if (event.key !== "Escape") return;
-      event.preventDefault();
-      setOpenOn(undefined);
-      trigger.current?.focus();
-    };
-    document.addEventListener("pointerdown", dismiss);
-    document.addEventListener("keydown", escape);
-    return () => {
-      document.removeEventListener("pointerdown", dismiss);
-      document.removeEventListener("keydown", escape);
-    };
-  }, [open]);
-  const spaceName =
-    space === "personal"
-      ? msg("My documents")
-      : space === "studio"
-        ? msgIn("space", "Studio")
-        : msgIn("space", "Workshop");
-  const context =
-    space === "personal" || !workspace ? msg("Personal space") : workspace.name;
-  const mark =
-    space === "personal" || !workspace ? (
-      <Files size={18} aria-hidden="true" />
-    ) : (
-      initial(workspace.name)
-    );
+  const label = (
+    <>
+      <span className="space-switcher-mark" aria-hidden="true">
+        {initial(workspace.name)}
+      </span>
+      <span className="space-switcher-label">
+        <strong>{workspace.name}</strong>
+      </span>
+    </>
+  );
   if (preview)
     return (
-      <div className="space-switcher">
+      <div className="space-switcher workspace-switcher">
         <div className="space-switcher-trigger space-switcher-static">
-          <span className="space-switcher-mark" aria-hidden="true">
-            {mark}
-          </span>
-          <span className="space-switcher-label">
-            <strong>{spaceName}</strong>
-            <small>{context}</small>
-          </span>
+          {label}
         </div>
       </div>
     );
-  const others = (workspaces ?? []).filter((item) => item.id !== workspace?.id);
-  const target = space === "studio" ? "studio" : "workshop";
+  const others = (workspaces ?? []).filter((item) => item.id !== workspace.id);
   return (
     <div
-      ref={area}
-      className="space-switcher"
-      onBlur={(event) => {
-        // Safari blurs without a target when a pointer selects an item.
-        if (
-          event.relatedTarget &&
-          !event.currentTarget.contains(event.relatedTarget)
-        )
-          close();
-      }}
+      ref={panel.area}
+      className="space-switcher workspace-switcher"
+      onBlur={panel.onBlur}
     >
       <button
-        ref={trigger}
+        ref={panel.trigger}
         type="button"
         className="space-switcher-trigger"
-        aria-expanded={open}
-        aria-controls={panelId}
-        aria-label={msg("Switch space: {0}, {1}", spaceName, context)}
+        aria-expanded={panel.open}
+        aria-controls={panel.id}
+        aria-label={msg("Workspace: {0}", workspace.name)}
         onClick={() => {
-          if (open) return close();
-          setOpenOn(route);
-          if (!workspaces && !reading.current) read();
+          if (!panel.open && !workspaces && !reading.current) read();
+          panel.toggle();
         }}
       >
-        <span className="space-switcher-mark" aria-hidden="true">
-          {mark}
-        </span>
-        <span className="space-switcher-label">
-          <strong>{spaceName}</strong>
-          <small>{context}</small>
-        </span>
+        {label}
         <CaretDown size={16} aria-hidden="true" />
       </button>
-      {/* Not a nav element: sidebar navigation styles must not apply here. */}
       <div
-        id={panelId}
+        id={panel.id}
         role="navigation"
         className="space-switcher-panel"
-        aria-label={msg("Spaces")}
-        hidden={!open}
+        aria-label={msg("Workspaces")}
+        hidden={!panel.open}
       >
-        {workspace && (
+        {others.length > 0 && (
           <section aria-labelledby={groupId}>
             <p id={groupId} className="space-switcher-group">
-              {workspace.name}
-            </p>
-            <ul>
-              {(["workshop", "studio"] as const).map((item) => (
-                <li key={item}>
-                  <a
-                    href={`#${spaceHome[item]}`}
-                    aria-current={space === item ? "true" : undefined}
-                    onClick={close}
-                  >
-                    {item === "studio"
-                      ? msgIn("space", "Studio")
-                      : msgIn("space", "Workshop")}
-                    {space === item && <Check size={16} aria-hidden="true" />}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </section>
-        )}
-        <ul>
-          <li>
-            <a
-              href={`#${spaceHome.personal}`}
-              aria-current={space === "personal" ? "true" : undefined}
-              onClick={close}
-            >
-              {msg("My documents")}
-              {space === "personal" && <Check size={16} aria-hidden="true" />}
-            </a>
-          </li>
-        </ul>
-        {others.length > 0 && (
-          <section aria-labelledby={`${groupId}-others`}>
-            <p id={`${groupId}-others`} className="space-switcher-group">
               {msg("Other workspaces")}
             </p>
             <ul>
@@ -220,7 +299,7 @@ export function SpaceSwitcher({
                     onClick={() =>
                       void enter.run(async () => {
                         try {
-                          await enterWorkspace(item.id, target);
+                          await enterWorkspace(item.id, application);
                         } catch (error) {
                           // A refused membership is read again before it is offered.
                           setListing(undefined);
@@ -241,7 +320,7 @@ export function SpaceSwitcher({
         )}
         <ul>
           <li>
-            <a href="#/app/services" onClick={close}>
+            <a href="#/app/services" onClick={panel.close}>
               <Plus size={16} aria-hidden="true" />
               {msg("Create or join a workspace")}
             </a>
