@@ -19,7 +19,7 @@ The 25 October public hierarchy, four detail routes, shared footer, four-languag
 
 <ol>
 <li id="feature-9c98ab9a21dc">Concise homepage introduces document preparation, explicit review and channel choice; durable How it works, Getting started, Pricing and PDF checks routes retain the full existing offer, examples, guides and conditions</li>
-<li id="feature-6bb5198db68c">Four-language assistant hub and manual installation guides; OAuth, workflows and publication have separate qualification</li>
+<li id="feature-7709d0f5fcc0">Four-language assistant hub and manual installation guides; shared public/workshop marks retain transparent exteriors in both themes, with CSS inversion only for monochrome ChatGPT, GitHub Copilot and Cursor in explicit/system dark mode, unchanged color artwork and source bytes, and no added JavaScript or image request; OAuth, workflows and publication have separate qualification</li>
 <li id="feature-f4f755e13298">Package download and version/SHA-256 manifest; compare published and local candidate versions; download grants no consent</li>
 <li id="feature-f65f4c5ad4a6">Journal, articles, legal notices and privacy</li>
 <li id="feature-0df48bf22de1">French, English, German and Luxembourgish frontend/video localisation</li>

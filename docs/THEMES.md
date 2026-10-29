@@ -148,6 +148,28 @@ opaque official stamp remain separate and unchanged; derivative source/provenanc
 records do not qualify publication. [Brand identity](BRAND_IDENTITY.md) owns those
 assets and approvals.
 
+Assistant choices and guide headings use transparent image exteriors without
+added white backgrounds or padding in either theme. The shared CSS inverts only
+the monochrome ChatGPT, GitHub Copilot and Cursor marks for dark surfaces;
+Claude's clay color, Microsoft 365's gradients and Grok's supplied dark icon keep
+their source colors. The same token applies to explicit dark mode and the
+script-free system fallback. In forced colors, it follows the system's light/dark
+high-contrast palette rather than the stored page preference. Neither path adds
+JavaScript or an image request. SVG source bytes, aspect ratios, clear space,
+labels and links remain unchanged. See the
+[assistant asset inventory](ASSISTANT_BRAND_ASSETS.md) for provenance. This
+29 October source correction requires its own rendered checks and publication
+evidence.
+
+Local browser-only fixture checks on 29 October passed 46 existing theme/guide
+tests and 18 additional desktop Chromium/iPhone WebKit scenarios, covering
+transparent marks, theme switching, script-free system dark mode and crossed
+forced-color/page preferences. Public and workshop fixture routes made no
+business-service request. One local desktop Chromium directory load measured
+72 ms first contentful paint, 25 resources and 928,831 encoded resource bytes,
+including the existing six logo requests. This single local sample is not a
+production performance measurement or physical-device qualification.
+
 ## Verification boundary
 
 Relevant regression sources are `tests/preview-e2e/theme.spec.ts`,
