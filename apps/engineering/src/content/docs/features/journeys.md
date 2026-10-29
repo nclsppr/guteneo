@@ -237,7 +237,7 @@ In an active share allowing deposit, read independent retention/export terms →
 
 **Actor:** Guteneo account owner with zero or more memberships · **Branch:** Personal-to-workspace navigation, without another registration or separate sender account
 
-Start in My documents → choose a workspace's Workshop or Studio in the space switcher, or open Use Guteneo when no workspace exists → choose Prepare a dispatch or New share → select a current membership or request the initial workspace → idempotent creation, initial administrator and closed channels → reload the chosen destination and reread server session/workspace/rights/CSRF → continue normal preparation using the same name/language/identity. Local browser regression creates an administrator workspace then selects another as operator, with real screen/profile changes in both contexts.
+Start in My documents → choose Studio or Correspondence in the application switcher, or open Use Guteneo when no workspace exists → choose Prepare a dispatch or New share → select a current membership or request the initial workspace → idempotent creation, initial administrator and closed channels → reload the chosen destination and reread server session/workspace/rights/CSRF → continue normal preparation using the same name/language/identity. Local browser regression creates an administrator workspace then selects another as operator, with real screen/profile changes in both contexts.
 
 **Failure and recovery:** Receipt never permits entry into the sender’s workspace; an organizationId without membership is denied. Creation/selection failure stays visible in the personal area without false navigation. Success retains no previous workspace session/authority. Registration implies no purchase, subscription, confidential-content targeting or marketing email; promised document access remains independent of conversion. An obsolete workspace bootstrap cannot overwrite a personal route, and returning to service use reads fresh workspace authority.
 
@@ -269,7 +269,7 @@ Start with the operating-system palette unless a valid local choice exists → u
 
 **Actor:** Authenticated personal account owner, with or without a workspace · **Branch:** Access
 
-Open My documents directly or choose My documents in the space switcher → start the personal shell → validate current personal session → read the authorized list across the available main width with responsive gutters → retry a failed list explicitly. On focus or account change reconcile the session and discard previous identity/document state; returning to a workshop loads its current session and rights.
+Open My documents directly or choose My documents in the application switcher → start the personal shell → validate current personal session → read the authorized list across the available main width with responsive gutters → retry a failed list explicitly. On focus or account change reconcile the session and discard previous identity/document state; returning to a workshop loads its current session and rights.
 
 **Failure and recovery:** Personal policy and recipient bindings are never skipped. Cancelled or late workspace/account results cannot restore earlier identity, language or documents; expired sessions use established recovery. The five-context synthetic timing comparison is bounded local instrumentation, not production latency, real-client access or provider delivery proof.
 
