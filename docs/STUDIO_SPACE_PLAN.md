@@ -343,22 +343,41 @@ API addition considered is the Belvédère indicator in session responses (D8).
    `docs/feature-map.json`, `DASHBOARD_V2.md`, `TEMPLATES_DATA_DISTRIBUTION.md`,
    `ACCOUNT_IDENTITY.md`, `WORKSPACE_ROLES.md`, `DEMO.md` and the design-system guide.
 
+## Implementation status
+
+On 29 October 2026 the user asked to merge what was ready and continue with this
+plan, so the recommendations below are applied unless a row says otherwise.
+
+| Step | State |
+| --- | --- |
+| 0. V2 sidebar | Merged in #116 |
+| 0. Classic retirement | Pull request #118 |
+| 1–2. Route table, space switcher, Studio space, Data rename, aliases | Pull request stacked on #118; the switcher keeps its workspace list per identity, so a list read for another account, workspace or authority is never shown |
+| 2. Handoffs | Pending: Send these PDFs still opens the plan form inside the generation; Open in Studio is not built |
+| 3. Workshop grouping | Pending |
+| 4. Belvédère entry and demonstration rename | Pending |
+
+One deviation from the mockups: the workshop keeps its current order, with
+Assistants immediately after Overview, because [the assistant hub](ASSISTANT_HUB.md)
+requires it. Without the Studio entries, an administrator's eleven entries and New
+dispatch still fit at 1280 × 720.
+
 ## Decisions
 
 | # | Decision | Status |
 | --- | --- | --- |
 | D1 | Classic future | **Decided 29 October 2026: retire it in an earlier pull request** |
-| D2 | Switcher form: one menu, or visible Workshop · Studio tabs in addition (would now fit at 720 px, but adds a second control) | Recommended: one menu |
-| D3 | Batch-dispatch preparation (`/app/distribution/…`) in Workshop or Studio | Recommended: Workshop |
+| D2 | Switcher form: one menu, or visible Workshop · Studio tabs in addition (would now fit at 720 px, but adds a second control) | Applied: one menu |
+| D3 | Batch-dispatch preparation (`/app/distribution/…`) in Workshop or Studio | Workshop: plans already highlight Dispatches; moving the form is pending |
 | D4 | Location of this plan | **Decided 29 October 2026: English in `docs/`** |
-| D5 | `/app/studio/…` URLs with aliases | Recommended: yes |
+| D5 | `/app/studio/…` URLs with aliases | Applied |
 | D6 | Row height | Aligned with `b78b1d4`: 34 px above 1,024 px, 44 px below |
 | D7 | Usage label with a Billing tab | Recommended: yes |
 | D8 | Belvédère in the switcher through a server indicator | Recommended: yes |
-| D9 | Use Guteneo only without a workspace | Recommended: yes |
+| D9 | Use Guteneo only without a workspace | Applied |
 | D10 | Awaiting-approval badge on Dispatches | Recommended: phase 2, after measuring its read cost |
 | D11 | Papeterie Moselle demo name | Recommended: yes |
 | D12 | Universal Open in Studio (API, MCP and plugin) | Recommended: phase 2 |
 | D13 | Remember the last space and screen | Recommended: phase 2 |
 
-Recommendations stay open until the user confirms them.
+Rows still marked recommended are applied when their step is built.
