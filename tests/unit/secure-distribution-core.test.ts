@@ -621,6 +621,52 @@ describe("secure distribution — encrypted objects and immutable prices", () =>
 });
 
 describe("secure distribution — asynchronous preparation and paid acceptance", () => {
+  it("bounds browser approval expiry by its recorded creation time across clock ticks", async () => {
+    const startedAt = Date.now();
+    let advancing = false;
+    let tick = 0;
+    const clock = {
+      get value() {
+        return startedAt + (advancing ? tick++ * 1000 : 0);
+      },
+    };
+    const f = await fixture("simulation", 1, "verified_account", clock);
+    const preparation = await prepared(f);
+    const dispatchId = preparation.view.dispatchId!;
+    const { dispatch } = await f.domain.getDispatch(f.ctx, dispatchId);
+    // Cross second boundaries during approval without sleeping or changing
+    // session, identity, membership or any database authorization fence.
+    advancing = true;
+    const approve = async () => {
+      await f.domain.approveDispatch(f.ctx, dispatchId, dispatch.fingerprint, {
+        recipientRequested: true,
+      });
+      const record = await db
+        .prepare(
+          "SELECT id,created_at,expires_at,approval_kind FROM approvals WHERE organization_id=? AND dispatch_id=?",
+        )
+        .bind(f.organizationId, dispatchId)
+        .first<{
+          id: string;
+          created_at: string;
+          expires_at: string;
+          approval_kind: string;
+        }>();
+      expect(record).toMatchObject({ approval_kind: "browser" });
+      expect(
+        Date.parse(record!.expires_at) - Date.parse(record!.created_at),
+      ).toBe(15 * 60_000);
+      expect((await f.service.get(f.ctx, preparation.view.id)).approved).toBe(
+        true,
+      );
+      return record!;
+    };
+    const inserted = await approve();
+    // Reapproval exercises the SQL update trigger with the same invariant.
+    const updated = await approve();
+    expect(updated.id).toBe(inserted.id);
+    expect(updated.created_at).not.toBe(inserted.created_at);
+  });
   it("renders bounded batches, preserves immutable consent and replays a preparation without new storage or fees", async () => {
     const f = await fixture("simulation", 4),
       p = await prepared(f);
