@@ -55,6 +55,11 @@ server/browser resolution is outside their assertion; assuming a bare Vite
 document can make a locally passing fixture fail against the canonical build.
 Public-preview tests retain separate automatic-language coverage.
 
+Freeze time-based browser fixtures at a deliberate UTC instant. Status-cache
+expiry tests use midday so their fifteen-minute advance cannot accidentally
+exercise the separate midnight invalidation rule. Keep a distinct boundary case
+for each clock-dependent condition and preserve the exact request-count checks.
+
 The build job creates its final non-preview frontend once with `build:live`
 before the local, private-document and live Worker dry runs. This reuses the
 same Vite and integration-package validation while retaining the release

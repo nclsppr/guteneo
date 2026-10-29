@@ -41,6 +41,10 @@ Both corrected distribution profiles passed locally on desktop and phone
 The complete account-language file passed 30 cases against prerendered production
 pages after making its public starting language explicit; its delayed-session
 and saved-private-preference assertions remain unchanged.
+The next hosted run exposed a status-cache fixture that began just before UTC
+midnight: its fourteen-minute advance correctly invalidated the previous day.
+The TTL test now starts at fixed UTC midday; the separate midnight regression
+and all request-count expectations are unchanged.
 GitHub owns current check and merge status; publication requires separate
 clean-main release evidence.
 
