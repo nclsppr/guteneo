@@ -91,6 +91,7 @@ describe("explicit public route-code recovery", () => {
       `${origin}/assets/page.js`,
       expect.objectContaining({
         cache: "reload",
+        redirect: "error",
         credentials: "omit",
         referrerPolicy: "no-referrer",
         signal: expect.any(AbortSignal),

@@ -55,6 +55,7 @@ export async function recoverRouteAssets() {
       urls.map(async (url) => {
         const response = await fetch(url, {
           cache: "reload",
+          redirect: "error",
           credentials: "omit",
           referrerPolicy: "no-referrer",
           signal: controller.signal,

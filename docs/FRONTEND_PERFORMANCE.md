@@ -753,7 +753,7 @@ refreshes failed or zero-size/unknown-status same-origin `/assets/*.js|css`
 resources, consuming each successful response before navigation.
 
 The recovery allowlist rejects private paths, queries, fragments, credentials,
-foreign origins and non-code files. It sends no cookies or referrer, requests at
+foreign origins, redirects and non-code files. It sends no cookies or referrer, requests at
 most eight assets, reads at most eight MiB per response and stops after five
 seconds. It runs only after the person's reload gesture and never retries an
 API, provider operation or authorization action. Navigating elsewhere cancels
