@@ -1,7 +1,37 @@
-import { mkdir } from "node:fs/promises";
+import { mkdir, readFile, realpath } from "node:fs/promises";
+import { extname, resolve, sep } from "node:path";
+import { fileURLToPath } from "node:url";
 import { expect, test as base, type Page } from "@playwright/test";
 
 const origin = "https://login-ui.example.test";
+const buildDirectory = fileURLToPath(
+  new URL("../../dist/web/", import.meta.url),
+);
+const assetTypes: Record<string, string> = {
+  ".js": "text/javascript; charset=utf-8",
+  ".mjs": "text/javascript; charset=utf-8",
+  ".css": "text/css; charset=utf-8",
+  ".wasm": "application/wasm",
+  ".woff2": "font/woff2",
+};
+
+async function builtAsset(url: URL) {
+  if (
+    url.search ||
+    url.hash ||
+    !/^\/assets\/[A-Za-z0-9._-]+$/.test(url.pathname)
+  )
+    throw new Error("Invalid built asset path.");
+  const contentType = assetTypes[extname(url.pathname)];
+  if (!contentType) throw new Error("Unsupported built asset type.");
+  const directory = await realpath(buildDirectory);
+  const file = await realpath(resolve(directory, "." + url.pathname));
+  // Validate the physical path too: a symlink must not escape the build assets.
+  if (!file.startsWith(directory + sep + "assets" + sep))
+    throw new Error("Built asset is outside dist/web/assets.");
+  return { contentType, body: await readFile(file) };
+}
+
 type HostedEntry = {
   requestOrigin: string;
   authRequests: string[];
@@ -65,7 +95,8 @@ const test = base.extend<{ hosted: HostedEntry }>({
     const unexpected: string[] = [];
     // A reserved origin exercises the hosted sign-in surface. Every browser
     // request is intercepted, including any attempted third-party navigation.
-    // Static assets alone are fetched from the local application server.
+    // Hashed assets use the frozen build; other public resources retain the
+    // local server's document and response-header behavior.
     await page.route("**/*", async (route) => {
       const request = route.request();
       const url = new URL(request.url());
@@ -173,12 +204,27 @@ const test = base.extend<{ hosted: HostedEntry }>({
         });
       } else {
         const proxy = (async () => {
-          const response = await route.fetch({
-            url: new URL(url.pathname + url.search, baseURL).href,
-            maxRedirects: 0,
-            timeout: 5000,
-          });
-          await route.fulfill({ response });
+          try {
+            if (url.pathname.startsWith("/assets/")) {
+              await route.fulfill({ status: 200, ...(await builtAsset(url)) });
+            } else {
+              const response = await route.fetch({
+                url: new URL(url.pathname + url.search, baseURL).href,
+                maxRedirects: 0,
+                timeout: 5000,
+              });
+              await route.fulfill({ response });
+            }
+          } catch {
+            // Do not leave a failed route to resolve the reserved fixture host.
+            // Paths, queries and underlying transport errors may carry secrets.
+            await route.abort("failed").catch(() => undefined);
+            throw new Error(
+              url.pathname.startsWith("/assets/")
+                ? "Hosted entry fixture could not deliver an asset from dist/web/assets."
+                : "Hosted entry fixture local static proxy failed before fulfillment.",
+            );
+          }
         })();
         staticProxies.add(proxy);
         try {
