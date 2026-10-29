@@ -143,17 +143,6 @@ button.space-switcher-trigger:hover,
     border: 1px solid CanvasText;
   }
 }
-.personal-space-v2 .personal-space-header > .space-switcher {
-  margin: 0;
-}
-@media (max-width: 1024px) {
-  .personal-space-v2 .personal-space-header > .space-switcher {
-    margin-inline-start: auto;
-  }
-  .personal-space-v2 .personal-space-header > .space-switcher ~ .theme-toggle {
-    margin-inline-start: 0;
-  }
-}
 /* The application, then the workspace it works in: two choices in one block. */
 .sidebar-context {
   display: grid;
@@ -175,8 +164,10 @@ button.space-switcher-trigger:hover,
   font-size: 15px;
 }
 @media (max-width: 1024px) {
+  /* Its own row in every application header, grid or wrapping flex. */
   .sidebar-context {
     grid-column: 1 / -1;
+    flex-basis: 100%;
     display: flex;
     gap: 8px;
   }

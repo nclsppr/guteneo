@@ -383,11 +383,13 @@ export function PersonalSpace({
       </a>
       <header className="personal-space-header">
         <Brand />
-        <ApplicationSwitcher
-          application="personal"
-          hasWorkspace={currentWorkspace !== null}
-          canAccessBelvedere={session.canAccessBelvedere === true}
-        />
+        <div className="sidebar-context">
+          <ApplicationSwitcher
+            application="personal"
+            hasWorkspace={currentWorkspace !== null}
+            canAccessBelvedere={session.canAccessBelvedere === true}
+          />
+        </div>
         <nav aria-label={msg("Personal navigation")}>
           <a
             href="#/app/my-documents"
