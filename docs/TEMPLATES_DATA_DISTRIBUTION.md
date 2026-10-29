@@ -29,8 +29,15 @@ Templates, Data and Generations form the web **Studio** space under
 `/app/studio/templates`, `/app/studio/datasets` and `/app/studio/generations`,
 with detail pages at `/app/studio/template/<id>`, `/app/studio/dataset/<id>` and
 `/app/studio/generation/<id>`. Earlier addresses resolve to these routes in the
-browser and keep their query. Prepared distribution plans keep
-`/app/distribution/<id>` and belong to the workshop's Dispatches. The Studio uses
+browser and keep their query. Selected PDFs pass by identifiers to
+`/app/distribution/new?generation=<id>&selected=<recordId>…`; Correspondence
+revalidates all selected ready results before displaying its preparation form,
+including selections spanning multiple 50-record pages. Navigation makes no write.
+Every new destination starts with zero documents, even for one selected PDF.
+Back/Forward, reload and explicit return preserve Studio selection; unsaved
+preparation changes may veto departure. Prepared distribution plans keep
+`/app/distribution/<id>` and their form, detail and styles belong to Correspondence,
+under Dispatches. The Studio uses
 the same workspace session, roles and private-resource rules; REST paths, MCP
 tools and scopes are unchanged. The [workspace layout contract](DASHBOARD_V2.md)
 owns the switcher and navigation.

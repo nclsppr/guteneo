@@ -69,9 +69,9 @@ Choose a published template → import CSV/XLSX/XML/JSON while preserving that c
 
 **Actor:** Preparer → current approver · **Branch:** Deliver
 
-Select generated PDFs by their business labels → explicitly choose each document for each destination, with no automatic all-piece selection → inspect exact associations and full-generation freeze consequence → prepare the immutable manifest → resume remaining entries → complete linked postal preflight where needed → review/approve each exact dispatch. Navigation alone creates no plan or dispatch.
+Select generated PDFs by their business labels in Studio → open Correspondence /app/distribution/new with generation and selected record IDs → revalidate every selected ready result in bounded 50-record pages → explicitly choose each document for each new destination, starting with zero documents even for one selected PDF → inspect exact associations and full-generation freeze consequence → prepare the immutable manifest at /app/distribution/:id → resume remaining entries → complete linked postal preflight where needed → review/approve each exact dispatch. Back/Forward/reload preserve the selected IDs, unsaved changes can veto departure, and navigation alone creates no plan or dispatch.
 
-**Failure and recovery:** A frozen batch cannot retry even excluded failed records; create a new generation batch when needed. Multiple channels require explicitMultichannel. No manifest operation implies consent, transfer or sending.
+**Failure and recovery:** An unavailable or inaccessible selected record blocks preparation rather than dropping part of the selection. A response from an obsolete visit cannot navigate after departure or a workspace/account change, including a return to the same URL. A frozen batch cannot retry even excluded failed records; create a new generation batch when needed. Multiple channels require explicitMultichannel. No manifest operation implies consent, transfer or sending.
 
 ## J09: Supervise or observe work
 

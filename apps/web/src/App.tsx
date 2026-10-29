@@ -245,6 +245,7 @@ const Connection = lazy(() =>
   })),
 );
 const DocumentStudio = lazy(() => workspaceRouteModules.studio());
+const DistributionPage = lazy(() => workspaceRouteModules.distribution());
 const SecureDistributionPage = lazy(() =>
   workspaceRouteModules.secureDistribution().then((module) => ({
     default: module.SecureDistributionPage,
@@ -666,7 +667,17 @@ function WorkspaceApplication({
         <SecureDistributionPage route={route} session={session} />
       </Suspense>
     );
-  else if (/^\/app\/(studio|distribution)(\/|$)/.test(page))
+  else if (/^\/app\/distribution(\/|$)/.test(page))
+    content = (
+      <Suspense fallback={<Loading />}>
+        <DistributionPage
+          key={`${session.organization.id}:${session.user.id}:${route}`}
+          route={route}
+          session={session}
+        />
+      </Suspense>
+    );
+  else if (/^\/app\/studio(\/|$)/.test(page))
     content = (
       <Suspense fallback={<Loading />}>
         <DocumentStudio route={route} session={session} />

@@ -41,6 +41,26 @@ Consequences:
   ship in its own chunks and one application's growth does not slow another.
 - A new source file must be added to the manifest; an unowned file fails the check.
 
+## From Studio to Correspondence
+
+Studio selects verified generated PDFs, then opens
+`/app/distribution/new?generation=<id>&selected=<recordId>…` in Correspondence.
+The query contains identifiers only. Correspondence owns the single preparation
+form and the existing `/app/distribution/<id>` frozen-plan detail, including their
+styles; its direct entry loads no Studio module or stylesheet. Shared table
+keyboard behavior belongs to `table-keyboard.ts`.
+
+Navigation performs no preparation write. Arrival rechecks the job and every
+selected ready document through authorized reads, in pages of 50 (up to the
+existing 500-record bound), stopping when the selection is resolved. Missing,
+blocked or inaccessible selections cannot expose the form. The Studio history
+entry retains the selected IDs, so Back, Forward, reload and the explicit return
+link preserve the context. Each new destination starts with zero documents,
+including a selection of one PDF. Unsaved changes may veto departure. Preparation
+and postal-check replies cannot navigate an obsolete visit, including a return
+to the same URL while another route's module is still pending. These browser
+navigation changes add no backend or MCP authority.
+
 ## Design rules
 
 The shared frame and the design system are the only places that define how the

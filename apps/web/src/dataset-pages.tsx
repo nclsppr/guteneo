@@ -1,7 +1,7 @@
 import { msg, msgIn } from "./messages";
 import { studioRoutes } from "./app-routes";
 import { FileInput } from "./file-input";
-import { scrollStudioTable } from "./studio-table-keyboard";
+import { scrollTable } from "./table-keyboard";
 import { useStudioAiPolicy, StudioAiNotice } from "./studio-ai";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { ArrowRight, UploadSimple } from "@phosphor-icons/react";
@@ -445,7 +445,7 @@ function DatasetPreview({
             <div
               className="studio-table"
               role="region"
-              onKeyDown={scrollStudioTable}
+              onKeyDown={scrollTable}
               tabIndex={0}
               aria-label={msg("Original preview — ") + sheet}
               aria-busy={resource.loading}
@@ -1647,7 +1647,7 @@ function MappingEditor({ value }: { value: PagedProfileView }) {
             <div
               className="studio-table"
               role="region"
-              onKeyDown={scrollStudioTable}
+              onKeyDown={scrollTable}
               tabIndex={0}
               aria-label={msg("Proposed fields and source columns")}
             >

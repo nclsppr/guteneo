@@ -1,7 +1,7 @@
 import type { KeyboardEvent } from "react";
 
 /** iOS WebKit can focus an overflow region without scrolling it on arrow keys. */
-export function scrollStudioTable(event: KeyboardEvent<HTMLDivElement>) {
+export function scrollTable(event: KeyboardEvent<HTMLDivElement>) {
   if (
     event.target !== event.currentTarget ||
     event.altKey ||

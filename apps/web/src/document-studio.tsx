@@ -3,11 +3,7 @@ import type { Session } from "./api";
 import { isPublicPreview, permissionsFor } from "./api";
 import { TemplateLibrary, TemplateEditor } from "./template-pages";
 import { DatasetLibrary, DatasetMapper } from "./dataset-pages";
-import {
-  GenerationList,
-  GenerationDetail,
-  DistributionDetail,
-} from "./generation-pages";
+import { GenerationList, GenerationDetail } from "./generation-pages";
 import { studioRoutes } from "./app-routes";
 import "./document-studio.css";
 
@@ -47,18 +43,9 @@ export default function DocumentStudio({
   if (path.startsWith(studioRoutes.generation("")))
     return (
       <GenerationDetail
-        key={path}
+        key={route}
         id={path.slice(studioRoutes.generation("").length)}
         canPrepare={permissions.prepareDispatches}
-      />
-    );
-  if (path.startsWith("/app/distribution/"))
-    return (
-      <DistributionDetail
-        key={path}
-        id={path.slice("/app/distribution/".length)}
-        canPrepare={permissions.prepareDispatches}
-        canApprove={permissions.approveDispatches}
       />
     );
   if (path === studioRoutes.datasets)

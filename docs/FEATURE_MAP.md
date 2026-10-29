@@ -404,14 +404,14 @@ Supervisor approval/reporting options are independent and off by default. Resour
 
 **Availability model:** capability-gated. Implemented; generation, preparation, approval and delivery remain separate.
 
-**Surfaces:** Web Studio space under /app/studio/…, REST and MCP; generation is separate from distribution and delivery. Browser-only owner-authorized record-context supplies correction inputs and is excluded from the OAuth OpenAPI paths.
+**Surfaces:** Web Studio under /app/studio/… and Correspondence preparation /app/distribution/new plus frozen detail /app/distribution/:id, REST and MCP; generation is separate from distribution and delivery. Browser-only owner-authorized record-context supplies correction inputs and is excluded from the OAuth OpenAPI paths.
 
 - Single PDF from a business form
 - PDF batch from a validated mapping
 - Progress, per-record results and source-cell provenance; only local simulation emits finite failure phase/category diagnostics through the captured error channel, never raw errors or customer data; terminal failed/partial XML test results stop polling while preserving both expected exact PDFs and zero sending, and a separate macOS pass does not establish the cause of an earlier Linux failure
 - Exact authorized generated-document analysis state distinguishes processing, retryable and blocked results; bounded visible refresh follows pending scans after generation completes without changing readiness, stealing focus or retrying analysis
 - Generation cancellation and retry of failed records only
-- PDF selection and separate distribution-plan preparation
+- PDF selection in Studio opens the single Correspondence-owned preparation form with bounded record IDs; arrival revalidates every selected ready result in 50-record pages, performs no navigation write, and Back/Forward/reload preserve the selection
 - The first plan permanently freezes the full batch, including excluded failed records; prepare_distribution declares destructiveHint true
 - Common recipient or frozen columns with an explicit channel per record
 - Resume remaining entries without duplication
@@ -419,11 +419,11 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Known assistant-excluded content is never generated, previewed, shared or distributed; request a person-redacted version and never treat scanning as proof of absence
 - Browser results show bounded name/subject/reference labels without changing record identifiers; the browser-only owner-authorized record-context read supplies labels or one explicit correction input, with current tenant/creator guards and no MCP/native authority
 - Import/replacement retain the selected template/version and compatible field mapping/record exclusions; correcting data or a template creates a new generation/version while prior PDFs and prepared manifests retain their exact hashes
-- Every destination explicitly selects documents; the pre-preparation summary lists exact associations and explains that the first plan freezes the full generation, including excluded failed records
+- Every new destination starts with zero documents even for one PDF; unsaved preparation may veto departure and late preparation/postal replies cannot navigate obsolete visits; the pre-preparation summary lists exact associations and explains that the first plan freezes the full generation, including excluded failed records
 
 **Contract:** [TEMPLATES_DATA_DISTRIBUTION.md](TEMPLATES_DATA_DISTRIBUTION.md) · **Implementation:** [apps/api/src/template-workflow-routes.ts](../apps/api/src/template-workflow-routes.ts)
 
-**Tests:** [tests/e2e/template-distribution.spec.ts](../tests/e2e/template-distribution.spec.ts), [tests/integration/template-workflow.test.ts](../tests/integration/template-workflow.test.ts), [tests/unit/document-analysis-projection.test.ts](../tests/unit/document-analysis-projection.test.ts), [tests/e2e/generation-analysis.spec.ts](../tests/e2e/generation-analysis.spec.ts), [tests/e2e/template-xml-multichannel.spec.ts](../tests/e2e/template-xml-multichannel.spec.ts), [tests/unit/mcp-annotation-audit.test.ts](../tests/unit/mcp-annotation-audit.test.ts), [tests/unit/mcp-integrations.test.ts](../tests/unit/mcp-integrations.test.ts), [tests/e2e/studio-continuity.spec.ts](../tests/e2e/studio-continuity.spec.ts)
+**Tests:** [tests/e2e/template-distribution.spec.ts](../tests/e2e/template-distribution.spec.ts), [tests/integration/template-workflow.test.ts](../tests/integration/template-workflow.test.ts), [tests/unit/document-analysis-projection.test.ts](../tests/unit/document-analysis-projection.test.ts), [tests/e2e/generation-analysis.spec.ts](../tests/e2e/generation-analysis.spec.ts), [tests/e2e/template-xml-multichannel.spec.ts](../tests/e2e/template-xml-multichannel.spec.ts), [tests/unit/mcp-annotation-audit.test.ts](../tests/unit/mcp-annotation-audit.test.ts), [tests/unit/mcp-integrations.test.ts](../tests/unit/mcp-integrations.test.ts), [tests/e2e/studio-continuity.spec.ts](../tests/e2e/studio-continuity.spec.ts), [tests/e2e/studio-distribution-handoff.spec.ts](../tests/e2e/studio-distribution-handoff.spec.ts)
 
 **Documented REST operations**
 
@@ -1123,9 +1123,9 @@ Choose a published template → import CSV/XLSX/XML/JSON while preserving that c
 
 **Actor:** Preparer → current approver. **Branch:** Deliver.
 
-Select generated PDFs by their business labels → explicitly choose each document for each destination, with no automatic all-piece selection → inspect exact associations and full-generation freeze consequence → prepare the immutable manifest → resume remaining entries → complete linked postal preflight where needed → review/approve each exact dispatch. Navigation alone creates no plan or dispatch.
+Select generated PDFs by their business labels in Studio → open Correspondence /app/distribution/new with generation and selected record IDs → revalidate every selected ready result in bounded 50-record pages → explicitly choose each document for each new destination, starting with zero documents even for one selected PDF → inspect exact associations and full-generation freeze consequence → prepare the immutable manifest at /app/distribution/:id → resume remaining entries → complete linked postal preflight where needed → review/approve each exact dispatch. Back/Forward/reload preserve the selected IDs, unsaved changes can veto departure, and navigation alone creates no plan or dispatch.
 
-**Failure/recovery:** A frozen batch cannot retry even excluded failed records; create a new generation batch when needed. Multiple channels require explicitMultichannel. No manifest operation implies consent, transfer or sending.
+**Failure/recovery:** An unavailable or inaccessible selected record blocks preparation rather than dropping part of the selection. A response from an obsolete visit cannot navigate after departure or a workspace/account change, including a return to the same URL. A frozen batch cannot retry even excluded failed records; create a new generation batch when needed. Multiple channels require explicitMultichannel. No manifest operation implies consent, transfer or sending.
 
 [Detailed contract](TEMPLATES_DATA_DISTRIBUTION.md).
 

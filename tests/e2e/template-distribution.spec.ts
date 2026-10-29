@@ -216,8 +216,9 @@ test("multichannel intent remains available when two records reuse the same PDF 
   // Explicit UI fixture for an exact-byte deduplication outcome. No generation,
   // approval or distribution mutation is made by this scenario.
   const jobId = "synthetic-shared-artifact";
-  await page.route(`**/api/generation-jobs/${jobId}/record-context`, (route) =>
-    route.fulfill({ json: { items: [] } }),
+  await page.route(
+    `**/api/generation-jobs/${jobId}/record-context{,?*}`,
+    (route) => route.fulfill({ json: { items: [] } }),
   );
   await page.route(`**/api/generation-jobs/${jobId}`, (route) =>
     route.fulfill({
@@ -240,7 +241,7 @@ test("multichannel intent remains available when two records reuse the same PDF 
       },
     }),
   );
-  await page.route(`**/api/generation-jobs/${jobId}/results`, (route) =>
+  await page.route(`**/api/generation-jobs/${jobId}/results{,?*}`, (route) =>
     route.fulfill({
       json: {
         items: ["same-a", "same-b"].map((recordId) => ({

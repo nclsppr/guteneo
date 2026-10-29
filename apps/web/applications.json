@@ -83,7 +83,8 @@
         "claude-connect.tsx",
         "document-invitation.ts",
         "postal-cutoff.ts",
-        "route-code-recovery.ts"
+        "route-code-recovery.ts",
+        "table-keyboard.ts"
       ]
     },
     "public": {
@@ -135,8 +136,7 @@
         "template-data-form.tsx",
         "dataset-pages.tsx",
         "generation-pages.tsx",
-        "studio-ai.tsx",
-        "studio-table-keyboard.ts"
+        "studio-ai.tsx"
       ]
     },
     "correspondence": {
@@ -165,7 +165,9 @@
         "team-invitations.tsx",
         "invitation-csv.ts",
         "assistant-workspace.tsx",
-        "assistant-state.ts"
+        "assistant-state.ts",
+        "distribution-pages.tsx",
+        "distribution-pages.css"
       ]
     },
     "personal": {

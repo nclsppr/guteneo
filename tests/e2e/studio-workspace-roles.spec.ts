@@ -239,7 +239,28 @@ async function studioFixture(context: BrowserContext, role: WorkspaceRole) {
     else if (path === `/generation-jobs/${ids.job}`) body = job;
     else if (path === `/generation-jobs/${ids.job}/results`)
       body = { items: [result], nextCursor: null };
-    else if (path === "/senders") body = { items: [], nextCursor: null };
+    else if (path === `/generation-jobs/${ids.job}/record-context`) {
+      // The historical operator still owns this generation after a downgrade;
+      // a dispatch approver never acquires its private source context.
+      if (state.role === "supervisor") {
+        await route.fulfill({
+          status: 404,
+          json: { error: { code: "GENERATION_NOT_FOUND" } },
+        });
+        return;
+      }
+      body = {
+        items: [
+          {
+            recordId: ids.record,
+            name: null,
+            subject: null,
+            reference: "DEMO-001",
+          },
+        ],
+        nextCursor: null,
+      };
+    } else if (path === "/senders") body = { items: [], nextCursor: null };
     else if (
       path === `/distribution-plans/${ids.distribution}` &&
       state.prepared
@@ -415,8 +436,7 @@ test("observer consults studio routes while all preparation controls stay unavai
   ).toContainText(ids.record);
   await expect(
     page.getByRole("checkbox", {
-      name: `Sélectionner ${ids.record}`,
-      exact: true,
+      name: new RegExp(`^Sélectionner ${ids.record}(?: ·|$)`),
     }),
   ).toBeDisabled();
   await expect(
@@ -460,11 +480,20 @@ test("operator discloses review access before preparation and approver opens the
   const { state, hash } = await studioFixture(context, "member");
   await page.goto(`/#/app/studio/generation/${ids.job}`);
   await page
-    .getByRole("checkbox", { name: `Sélectionner ${ids.record}`, exact: true })
+    .getByRole("checkbox", {
+      name: new RegExp(`^Sélectionner ${ids.record}(?: ·|$)`),
+    })
     .check();
   await page
     .getByRole("button", { name: "Préparer une distribution (1)", exact: true })
     .click();
+  await page
+    .getByRole("group", {
+      name: "Documents concernés par la destination 1",
+      exact: true,
+    })
+    .getByRole("checkbox", { name: new RegExp(ids.record) })
+    .check();
   const submit = page.getByRole("button", {
     name: "Préparer les associations et les devis",
     exact: true,

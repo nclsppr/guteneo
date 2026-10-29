@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
   canonicalApplicationRoute,
+  distributionPreparationRoute,
+  generationSelectionRoute,
+  readGenerationSelection,
   navigationEntryFor,
   spaceHome,
   spaceOf,
@@ -50,6 +53,37 @@ describe("application routes", () => {
       "/",
     ])
       expect(canonicalApplicationRoute(route)).toBe(route);
+  });
+
+  it("carries only bounded record IDs through preparation and return URLs", () => {
+    const ids = ["record-1", "business & 2", "__proto__"];
+    const route = distributionPreparationRoute("job-1", ids);
+    expect(route).toBe(
+      "/app/distribution/new?generation=job-1&selected=record-1&selected=business+%26+2&selected=__proto__",
+    );
+    expect(readGenerationSelection(route)).toEqual({
+      recordIds: ids,
+      valid: true,
+    });
+    expect(
+      readGenerationSelection(generationSelectionRoute("job-1", ids)),
+    ).toEqual({ recordIds: ids, valid: true });
+    expect(spaceOf(route)).toBe("workshop");
+    expect(navigationEntryFor(route)).toBe("dispatches");
+    expect(generationSelectionRoute("job-1", [])).toBe(
+      "/app/studio/generation/job-1",
+    );
+    expect(
+      readGenerationSelection(route + "&selected=record-1").recordIds,
+    ).toEqual(ids);
+    for (const query of [
+      "selected=",
+      `selected=${"x".repeat(201)}`,
+      Array(501).fill("selected=r").join("&"),
+    ])
+      expect(readGenerationSelection("/app/distribution/new?" + query)).toEqual(
+        { recordIds: [], valid: false },
+      );
   });
 
   it("assigns every page to one space", () => {

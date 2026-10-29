@@ -31,6 +31,34 @@ export const studioRoutes = {
   generation: (id: string) => `/app/studio/generation/${id}`,
 } as const;
 
+/** Selection is navigation context only; arrival rechecks every private record. */
+export function readGenerationSelection(route: string): {
+  recordIds: string[];
+  valid: boolean;
+} {
+  const values = new URLSearchParams(route.split("?")[1]).getAll("selected");
+  const valid =
+    values.length <= 500 &&
+    values.every((value) => value.length > 0 && value.length <= 200);
+  return { recordIds: valid ? [...new Set(values)] : [], valid };
+}
+function selectedGenerationQuery(jobId: string, recordIds: string[]) {
+  const query = new URLSearchParams({ generation: jobId });
+  for (const recordId of recordIds) query.append("selected", recordId);
+  return query;
+}
+export function distributionPreparationRoute(
+  jobId: string,
+  recordIds: string[],
+) {
+  return `/app/distribution/new?${selectedGenerationQuery(jobId, recordIds)}`;
+}
+export function generationSelectionRoute(jobId: string, recordIds: string[]) {
+  const query = selectedGenerationQuery(jobId, recordIds);
+  query.delete("generation");
+  return studioRoutes.generation(jobId) + (query.size ? "?" + query : "");
+}
+
 /** The first page of each space. */
 export const spaceHome: Record<ApplicationSpace, string> = {
   workshop: "/app",
