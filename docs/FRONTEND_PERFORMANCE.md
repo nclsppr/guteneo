@@ -19,11 +19,19 @@ Batch distribution preparation and frozen-plan tracking now belong to a separate
 Correspondence module and stylesheet; entering Studio does not load them.
 
 The [final loading record](evidence/studio-space-loading-2026-10-29.json)
-compares `1e013dbc` with the consolidated runtime candidate `64b857e4`. Eighteen fresh
-Chromium contexts (three per route/variant, interleaved) use local uncompressed
-static HTTP, a 1440 × 900 viewport and read-only synthetic APIs delayed by 40 ms.
-Complete unit, end-to-end, preview and Belvédère suites run concurrently on the same machine;
-neither CPU isolation nor a timing improvement is claimed.
+compares `1e013dbc` with the version 1.1.19 candidate `06edca59` through explicit
+frontend artifact equivalence. The entry HTML and all 74 generated assets match
+`64b857e4` byte for byte. All 43 distinct JS/CSS resources observed in the original
+18 fresh Chromium contexts also match. The record retains their original
+sampling time and adds a separate verification time; no browser run or latency
+observation was repeated for `06edca59`. The backend approval-lifetime correction
+and integration archives require their separate functional qualification.
+
+The original contexts (three per route/variant, interleaved) used local
+uncompressed static HTTP, a 1440 × 900 viewport and read-only synthetic APIs
+delayed by 40 ms. Complete unit, end-to-end, preview and Belvédère suites ran
+concurrently on the same machine; neither CPU isolation nor a timing improvement
+is claimed.
 
 | Route          | JS / CSS requests | API reads | JS body-byte delta | CSS body-byte delta | JS+CSS transfer-byte delta |
 | -------------- | ----------------: | --------: | -----------------: | ------------------: | -------------------------: |
@@ -48,9 +56,10 @@ incremental bundled network cost.
 At the preserved `de6a3420` checkpoint, the extraction added 1,876 JavaScript body
 bytes and 207 CSS bytes to My documents, and 1,884 JavaScript bytes and 207 CSS bytes
 to Correspondence, compared with `125ed8fe`. Studio removed 13,932 JavaScript bytes
-and 13 CSS bytes but added one JavaScript request. The current shared-event panel
-correction adds 422 JavaScript bytes to My documents, 400 to Correspondence and
-411 to Studio over `de6a3420`, with unchanged CSS and JS/CSS/API request counts.
+and 13 CSS bytes but added one JavaScript request. The shared-event panel
+correction at `64b857e4` added 422 JavaScript bytes to My documents, 400 to
+Correspondence and 411 to Studio over `de6a3420`, with unchanged CSS and JS/CSS/API
+request counts. The current frontend retains those exact bytes and resource references.
 These normal-entry bytes do not qualify panel interaction. Both distribution
 assets exist in the build but are not requested by these three entries; opening
 that workflow has separate functional evidence.

@@ -1,8 +1,8 @@
 {
   "measuredAt": "2026-10-29T21:31:11.702Z",
   "baseline": "1e013dbc129dd73fb953b36898f59dad379d5aaa",
-  "candidate": "64b857e4b48096a9e352639b6378c820a0137f1e",
-  "version": "1.1.18",
+  "candidate": "06edca59c11f66fe1951e6ebce9122185420cb29",
+  "version": "1.1.19",
   "environment": {
     "node": "v24.18.0",
     "browser": "153.0.8010.12",
@@ -29,10 +29,10 @@
     "baselineIndexSha256": "2b598a8203296a10bec24c1deb13b249cd9b8566fd02d16997b73f4e3eff41a7",
     "candidateIndexSha256": "01edf402aced807e37e5698d92b9292a2e094036a24b93b78e62402b859a1473",
     "probeSha256": "357b3d3b2b1d545a134006891c06beaa4f2904a2d8f842f4944a5d2895113b44",
-    "runtimePatchParent": "de6a34203fadcf562c7c9c66ea5410be5253c163",
-    "runtimePatchSha256": "6d8a25ba7f54898b04759259370905b6f5d47fb0f1bd857d16e766b9d90e1e95",
-    "candidatePackageLockSha256": "33c463c544a3a6773e3f99caa1546ac8d09af8791468524a5af754910cbde570",
-    "dependencyComparison": "The lockfile differs from the baseline only in the root package version 1.1.17→1.1.18; dependency versions and installed runtime are unchanged.",
+    "runtimePatchParent": "64b857e4b48096a9e352639b6378c820a0137f1e",
+    "runtimePatchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "candidatePackageLockSha256": "25389b8da7da33d306e1fd7c76a7c8a853a15e2d8fc1bfa94f16455c06606762",
+    "dependencyComparison": "The lockfile differs from the baseline only in the root package version 1.1.17→1.1.19; dependency versions and installed runtime are unchanged.",
     "implementationMarkerPositiveControls": {
       "before": {
         "globe": ["/assets/belvedere-lb2Jj7X8.js"],
@@ -535,21 +535,28 @@
       "candidate": "de6a34203fadcf562c7c9c66ea5410be5253c163",
       "measuredAt": "2026-10-29T20:57:43.636Z",
       "result": "Independent distribution preparation/tracking and layout consolidation before shared-event panel exclusivity; preserved in the dated de6a3420 artifacts."
+    },
+    {
+      "candidate": "64b857e4b48096a9e352639b6378c820a0137f1e",
+      "measuredAt": "2026-10-29T21:31:11.702Z",
+      "result": "The original 18-context observation includes shared-event panel exclusivity. Entry HTML, all 74 generated assets and all 43 distinct observed JS/CSS resources are byte-identical in 06edca59; the observation is retained without a new browser run."
     }
   ],
   "rawArtifactBundle": {
     "directory": "CODEX-PERFORMANCE in the dated local handover folder",
     "measurementsSha256": "b947aa0cb5ec176deeca933a91213668ebd13258d53fe9073b1ae16aa26f3338",
-    "sourcesSha256": "b732854b1d8eecdd9559714d96a5396e61f1ee07d024249b2c8bb3b59f24b6f6",
+    "sourcesSha256": "4a634ecb53f6978521855522e4680e76be9feb72897f99daeae76eb681782f03",
     "retainedCheckpoints": [
       "1ceb29ff",
       "08df95d5",
       "d47d8027",
       "125ed8fe",
-      "de6a3420"
-    ]
+      "de6a3420",
+      "64b857e4"
+    ],
+    "equivalenceSha256": "ce3cec5ba03bb869d9ab78296928e463f61e3bc0f83e1c6485a815e0e7d8962b"
   },
-  "scope": "Local uncompressed static assets with synthetic read-only API responses and fresh Chromium contexts. No database, real identity, provider, hosted latency, physical device, CI or deployment qualification. Concurrent local suites prevent attributing timing differences to the candidate; this normal-success harness does not qualify error recovery or film gestures.",
+  "scope": "Local uncompressed static assets with synthetic read-only API responses and fresh Chromium contexts. No database, real identity, provider, hosted latency, physical device, CI or deployment qualification. Concurrent local suites prevent attributing timing differences to the candidate; this normal-success harness does not qualify error recovery or film gestures. The 1.1.19 frontend qualification reuses 64b observations through explicit artifact equivalence; it adds no backend TTL, integration archive or new latency qualification.",
   "changeFrom125ed8fe": [
     {
       "route": "my-documents",
@@ -615,5 +622,21 @@
       "apiRequests": 0,
       "sumStandaloneGzipAssetsBytes": 111
     }
-  ]
+  ],
+  "verifiedAt": "2026-10-29T22:24:24.539Z",
+  "observationCandidate": "64b857e4b48096a9e352639b6378c820a0137f1e",
+  "artifactEquivalence": {
+    "verifiedAt": "2026-10-29T22:24:24.539Z",
+    "observationCandidate": "64b857e4b48096a9e352639b6378c820a0137f1e",
+    "observationMeasuredAt": "2026-10-29T21:31:11.702Z",
+    "verifiedCandidate": "06edca59c11f66fe1951e6ebce9122185420cb29",
+    "method": "Byte-for-byte comparison of entry HTML and all generated assets, with separate validation of every distinct JS/CSS resource in the original 18 contexts. No new browser run or latency observation.",
+    "indexSha256": "01edf402aced807e37e5698d92b9292a2e094036a24b93b78e62402b859a1473",
+    "indexBytes": 3139,
+    "assetCount": 74,
+    "loadedAssetCount": 43,
+    "assetManifestSha256": "3da8e6816a75f811ca97de2bbeea6b983f9e3a2f35d5fbd1cac0a3963c919a80",
+    "limits": "Entry HTML and frontend assets are identical. Other public files, integration archives, package metadata, backend approval TTL and version 1.1.19 behavior are outside these synthetic frontend-loading observations.",
+    "manifestFile": "equivalence-06edca59.json"
+  }
 }
