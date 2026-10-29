@@ -123,4 +123,53 @@ describe("explicit public route-code recovery", () => {
     await recoverRouteAssets();
     expect(cancel).toHaveBeenCalledOnce();
   });
+
+  it("cancels an unsuccessful response body without consuming it", async () => {
+    const cancel = vi.fn();
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(
+        async () =>
+          new Response(new ReadableStream({ cancel }), { status: 503 }),
+      ),
+    );
+    vi.stubGlobal("performance", {
+      getEntriesByType: () => [failed(`${origin}/assets/page.js`, 503)],
+    });
+    vi.stubGlobal("window", { location: { origin }, setTimeout, clearTimeout });
+    await recoverRouteAssets();
+    expect(cancel).toHaveBeenCalledOnce();
+  });
+
+  it("aborts an in-flight recovery when its visit ends", async () => {
+    let requestSignal: AbortSignal | undefined;
+    const fetcher = vi.fn((_url, options: RequestInit) => {
+      requestSignal = options.signal as AbortSignal;
+      return new Promise<Response>((_resolve, reject) => {
+        requestSignal?.addEventListener("abort", () =>
+          reject(new Error("Aborted")),
+        );
+      });
+    });
+    vi.stubGlobal("fetch", fetcher);
+    vi.stubGlobal("performance", {
+      getEntriesByType: () => [failed(`${origin}/assets/page.js`, 503)],
+    });
+    vi.stubGlobal("window", { location: { origin }, setTimeout, clearTimeout });
+    const visit = new AbortController();
+    const recovery = recoverRouteAssets(visit.signal);
+    expect(fetcher).toHaveBeenCalledOnce();
+    visit.abort();
+    await recovery;
+    expect(requestSignal?.aborted).toBe(true);
+  });
+
+  it("does not start recovery for an already ended visit", async () => {
+    const fetcher = vi.fn();
+    vi.stubGlobal("fetch", fetcher);
+    const visit = new AbortController();
+    visit.abort();
+    await recoverRouteAssets(visit.signal);
+    expect(fetcher).not.toHaveBeenCalled();
+  });
 });

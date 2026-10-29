@@ -42,13 +42,16 @@ export function failedRouteAssets(
 }
 
 /** A user-requested reload may need to refresh a failed module-preload resource. */
-export async function recoverRouteAssets() {
+export async function recoverRouteAssets(signal?: AbortSignal) {
+  if (signal?.aborted) return;
   const urls = failedRouteAssets(
     performance.getEntriesByType("resource") as PerformanceResourceTiming[],
     window.location.origin,
   );
   if (!urls.length) return;
   const controller = new AbortController();
+  const abort = () => controller.abort();
+  signal?.addEventListener("abort", abort, { once: true });
   const timer = window.setTimeout(() => controller.abort(), 5000);
   try {
     await Promise.allSettled(
@@ -60,7 +63,11 @@ export async function recoverRouteAssets() {
           referrerPolicy: "no-referrer",
           signal: controller.signal,
         });
-        if (!response.ok || !response.body) return;
+        if (!response.ok) {
+          await response.body?.cancel();
+          return;
+        }
+        if (!response.body) return;
         const reader = response.body.getReader();
         let bytes = 0;
         try {
@@ -80,5 +87,6 @@ export async function recoverRouteAssets() {
     );
   } finally {
     window.clearTimeout(timer);
+    signal?.removeEventListener("abort", abort);
   }
 }

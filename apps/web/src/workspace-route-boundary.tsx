@@ -9,6 +9,34 @@ export class WorkspaceRouteBoundary extends Component<
   { failed: boolean; route: string; recovering: boolean }
 > {
   state = { failed: false, route: this.props.route, recovering: false };
+  private mounted = false;
+  private recoveryRevision = 0;
+  private recovery: AbortController | undefined;
+
+  componentDidMount() {
+    this.mounted = true;
+    window.addEventListener("hashchange", this.cancelRecovery);
+    window.addEventListener("popstate", this.cancelRecovery);
+  }
+
+  componentDidUpdate(previous: { route: string }) {
+    if (previous.route !== this.props.route) this.cancelRecovery();
+  }
+
+  componentWillUnmount() {
+    this.mounted = false;
+    window.removeEventListener("hashchange", this.cancelRecovery);
+    window.removeEventListener("popstate", this.cancelRecovery);
+    this.cancelRecovery();
+  }
+
+  private cancelRecovery = () => {
+    this.recoveryRevision += 1;
+    this.recovery?.abort();
+    this.recovery = undefined;
+    if (this.mounted && this.state.recovering)
+      this.setState({ recovering: false });
+  };
 
   static getDerivedStateFromProps(
     props: { route: string },
@@ -24,12 +52,24 @@ export class WorkspaceRouteBoundary extends Component<
   }
 
   async reload() {
+    if (!this.mounted || this.state.recovering) return;
     const route = this.props.route;
     const href = window.location.href;
+    const revision = ++this.recoveryRevision;
+    const recovery = new AbortController();
+    this.recovery = recovery;
     this.setState({ recovering: true });
-    await recoverRouteAssets().catch(() => undefined);
-    if (this.props.route === route && window.location.href === href)
+    await recoverRouteAssets(recovery.signal).catch(() => undefined);
+    if (
+      this.mounted &&
+      revision === this.recoveryRevision &&
+      !recovery.signal.aborted &&
+      this.props.route === route &&
+      window.location.href === href
+    ) {
+      this.recovery = undefined;
       window.location.reload();
+    }
   }
 
   render() {
