@@ -5,7 +5,8 @@ import { ErrorNotice, useAction, useRoute } from "./components";
 import { msg, msgIn } from "./messages";
 import "./space-switcher.css";
 
-export type SwitcherWorkspace = { id: string; name: string; current: boolean };
+/** A membership; the current workspace always comes from the active session. */
+export type SwitcherWorkspace = { id: string; name: string };
 
 function initial(name: string) {
   return Array.from(name.trim())[0]?.toLocaleUpperCase() ?? "";
@@ -18,6 +19,7 @@ function initial(name: string) {
 export function SpaceSwitcher({
   space,
   workspace,
+  identity,
   preview = false,
   loadWorkspaces,
   enterWorkspace,
@@ -25,17 +27,29 @@ export function SpaceSwitcher({
   space: ApplicationSpace;
   /** The current workspace, whose Workshop and Studio the panel offers. */
   workspace: { id: string; name: string } | null;
+  /**
+   * Changes with the account, the workspace or its authority. A list read for
+   * an earlier identity is never shown, and its late answer is discarded.
+   */
+  identity: string;
   /** The fictional public preview offers no other space. */
   preview?: boolean;
-  /** Read only when the panel first opens; never on page load. */
-  loadWorkspaces: () => Promise<SwitcherWorkspace[]>;
+  /** Read when the panel opens for an identity; never on page load. */
+  loadWorkspaces: (signal: AbortSignal) => Promise<SwitcherWorkspace[]>;
   enterWorkspace: (id: string, space: "workshop" | "studio") => Promise<void>;
 }) {
   const route = useRoute();
   // Opening records the committed route, so navigating away closes the panel.
   const [openOn, setOpenOn] = useState<string>();
+  // Forget it on navigation, so returning to the same address keeps it closed.
+  if (openOn !== undefined && openOn !== route) setOpenOn(undefined);
   const open = openOn === route;
-  const [workspaces, setWorkspaces] = useState<SwitcherWorkspace[]>();
+  const [listing, setListing] = useState<{
+    identity: string;
+    items: SwitcherWorkspace[];
+  }>();
+  const workspaces = listing?.identity === identity ? listing.items : undefined;
+  const reading = useRef<AbortController | null>(null);
   const load = useAction();
   const enter = useAction();
   const area = useRef<HTMLDivElement>(null);
@@ -43,6 +57,28 @@ export function SpaceSwitcher({
   const panelId = useId();
   const groupId = useId();
   const close = () => setOpenOn(undefined);
+  // A new identity abandons the read started for the previous one.
+  useEffect(
+    () => () => {
+      reading.current?.abort();
+      reading.current = null;
+    },
+    [identity],
+  );
+  const read = () => {
+    const controller = new AbortController();
+    reading.current = controller;
+    void load.run(async () => {
+      try {
+        const items = await loadWorkspaces(controller.signal);
+        if (!controller.signal.aborted) setListing({ identity, items });
+      } catch (error) {
+        if (!controller.signal.aborted) throw error;
+      } finally {
+        if (reading.current === controller) reading.current = null;
+      }
+    });
+  };
   useEffect(() => {
     if (!open) return;
     const dismiss = (event: PointerEvent) => {
@@ -90,9 +126,7 @@ export function SpaceSwitcher({
         </div>
       </div>
     );
-  const others = (workspaces ?? []).filter(
-    (item) => !item.current && item.id !== workspace?.id,
-  );
+  const others = (workspaces ?? []).filter((item) => item.id !== workspace?.id);
   const target = space === "studio" ? "studio" : "workshop";
   return (
     <div
@@ -117,8 +151,7 @@ export function SpaceSwitcher({
         onClick={() => {
           if (open) return close();
           setOpenOn(route);
-          if (!workspaces && !load.pending)
-            void load.run(async () => setWorkspaces(await loadWorkspaces()));
+          if (!workspaces && !reading.current) read();
         }}
       >
         <span className="space-switcher-mark" aria-hidden="true">
@@ -185,7 +218,15 @@ export function SpaceSwitcher({
                     type="button"
                     disabled={enter.pending}
                     onClick={() =>
-                      void enter.run(() => enterWorkspace(item.id, target))
+                      void enter.run(async () => {
+                        try {
+                          await enterWorkspace(item.id, target);
+                        } catch (error) {
+                          // A refused membership is read again before it is offered.
+                          setListing(undefined);
+                          throw error;
+                        }
+                      })
                     }
                   >
                     <span className="space-switcher-mark" aria-hidden="true">

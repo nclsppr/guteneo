@@ -1,12 +1,23 @@
 import { expect, test, type Page } from "@playwright/test";
 
 // Synthetic responses only: no account, document or workspace is written.
-async function fixture(page: Page) {
+async function fixture(
+  page: Page,
+  options: {
+    /** Listed but no longer a membership: the server refuses to enter it. */
+    revoked?: boolean;
+    /** Holds each workspace list until the test releases it. */
+    holdLists?: boolean;
+  } = {},
+) {
   const workspaces = [
     { id: "first", name: "Atelier de démonstration" },
     { id: "second", name: "Second atelier" },
+    ...(options.revoked ? [{ id: "third", name: "Atelier retiré" }] : []),
   ];
   let active = "first";
+  let revokedRead = false;
+  const held: (() => void)[] = [];
   const reads: string[] = [];
   const writes: { path: string; body: unknown }[] = [];
   const session = () => {
@@ -31,17 +42,46 @@ async function fixture(page: Page) {
     else writes.push({ path, body: request.postDataJSON() });
     let body: unknown = { items: [], nextCursor: null };
     if (path === "/session") body = session();
-    else if (path === "/account/workspaces")
-      body = {
-        items: workspaces.map((item) => ({
-          ...item,
-          current: item.id === active,
-        })),
-      };
-    else if (path === "/account/workspace" && request.method() === "POST") {
-      active = request.postDataJSON().organizationId;
+    else if (path === "/account/workspaces") {
+      // The list as it stands when the request arrives, answered later if held.
+      const items = workspaces
+        .filter((item) => item.id !== "third" || !revokedRead)
+        .map((item) => ({ ...item, current: item.id === active }));
+      if (options.revoked)
+        revokedRead = items.some((item) => item.id === "third");
+      if (options.holdLists) await new Promise<void>((go) => held.push(go));
+      body = { items };
+    } else if (path === "/account/workspace" && request.method() === "POST") {
+      const { organizationId } = request.postDataJSON();
+      if (organizationId === "third")
+        return route.fulfill({
+          status: 403,
+          json: {
+            error: {
+              code: "MEMBERSHIP_REQUIRED",
+              message: "You are not a member of this workspace.",
+            },
+          },
+        });
+      active = organizationId;
       body = session();
-    } else if (path === "/capabilities")
+    } else if (path === "/documents")
+      body = {
+        items: [
+          {
+            id: `document_${active}`,
+            name: `Courrier ${active}.pdf`,
+            sha256: "0".repeat(64),
+            size: 1024,
+            pages: 1,
+            status: "verified",
+            source: "upload",
+            created_at: "2026-10-29T08:00:00.000Z",
+          },
+        ],
+        nextCursor: null,
+      };
+    else if (path === "/capabilities")
       body = { scanner: "disabled_in_local_simulation" };
     else if (path === "/overview")
       body = {
@@ -64,7 +104,12 @@ async function fixture(page: Page) {
       };
     await route.fulfill({ json: body });
   });
-  return { reads, writes };
+  return {
+    reads,
+    writes,
+    release: () => held.splice(0).forEach((go) => go()),
+    heldCount: () => held.length,
+  };
 }
 
 const spaces = (page: Page) =>
@@ -212,4 +257,101 @@ test("every workshop entry of an administrator stays in view at 1280 by 720", as
     for (const bottom of layout.links)
       expect(bottom).toBeLessThanOrEqual(layout.bottom);
   }
+});
+
+test("A to B to A always offers the other workspace and shows its own documents", async ({
+  page,
+}) => {
+  const state = await fixture(page);
+  await page.goto("/#/app/documents");
+  const trigger = page.locator(".sidebar .space-switcher-trigger");
+  const main = page.locator("#main-content");
+  await expect(main.getByText("Courrier first.pdf")).toBeVisible();
+  await trigger.click();
+  await spaces(page)
+    .getByRole("button", { name: "Second atelier", exact: true })
+    .click();
+  await expect(trigger).toContainText("Second atelier");
+  await page.goto("/#/app/documents");
+  await expect(main.getByText("Courrier second.pdf")).toBeVisible();
+  await expect(main.getByText("Courrier first.pdf")).toHaveCount(0);
+  // The list read for the first workspace marked it current; it is not reused.
+  await trigger.click();
+  const panel = spaces(page);
+  await expect(
+    panel.getByRole("button", { name: "Second atelier", exact: true }),
+  ).toHaveCount(0);
+  await panel
+    .getByRole("button", { name: "Atelier de démonstration", exact: true })
+    .click();
+  await expect(trigger).toContainText("Atelier de démonstration");
+  await page.goto("/#/app/documents");
+  await expect(main.getByText("Courrier first.pdf")).toBeVisible();
+  await expect(main.getByText("Courrier second.pdf")).toHaveCount(0);
+  expect(state.writes).toEqual([
+    { path: "/account/workspace", body: { organizationId: "second" } },
+    { path: "/account/workspace", body: { organizationId: "first" } },
+  ]);
+  expect(
+    state.reads.filter((path) => path === "/account/workspaces"),
+  ).toHaveLength(2);
+});
+
+test("a withdrawn membership is refused, keeps the current workspace and leaves the list", async ({
+  page,
+}) => {
+  const state = await fixture(page, { revoked: true });
+  await page.goto("/#/app/documents");
+  const trigger = page.locator(".sidebar .space-switcher-trigger");
+  await trigger.click();
+  await spaces(page)
+    .getByRole("button", { name: "Atelier retiré", exact: true })
+    .click();
+  await expect(
+    spaces(page).getByText("You are not a member of this workspace."),
+  ).toBeVisible();
+  await expect(trigger).toContainText("Atelier de démonstration");
+  await expect(page).toHaveURL(/#\/app\/documents$/);
+  await page.keyboard.press("Escape");
+  await trigger.click();
+  await expect(
+    spaces(page).getByRole("button", { name: "Second atelier", exact: true }),
+  ).toBeVisible();
+  await expect(
+    spaces(page).getByRole("button", { name: "Atelier retiré", exact: true }),
+  ).toHaveCount(0);
+  expect(
+    state.reads.filter((path) => path === "/account/workspaces"),
+  ).toHaveLength(2);
+});
+
+test("a late workspace list for the previous workspace is never shown", async ({
+  page,
+}) => {
+  const state = await fixture(page, { holdLists: true });
+  await page.goto("/#/app/documents");
+  const trigger = page.locator(".sidebar .space-switcher-trigger");
+  await trigger.click();
+  await expect.poll(() => state.heldCount()).toBe(1);
+  state.release();
+  await spaces(page)
+    .getByRole("button", { name: "Second atelier", exact: true })
+    .click();
+  await expect(trigger).toContainText("Second atelier");
+  // The read for the second workspace waits; nothing from the first appears.
+  await trigger.click();
+  await expect.poll(() => state.heldCount()).toBe(1);
+  await expect(
+    spaces(page).getByRole("button", { name: "Atelier de démonstration" }),
+  ).toHaveCount(0);
+  await expect(
+    spaces(page).getByRole("button", { name: "Second atelier" }),
+  ).toHaveCount(0);
+  state.release();
+  await expect(
+    spaces(page).getByRole("button", {
+      name: "Atelier de démonstration",
+      exact: true,
+    }),
+  ).toBeVisible();
 });

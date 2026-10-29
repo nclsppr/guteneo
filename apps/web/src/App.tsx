@@ -733,12 +733,21 @@ function WorkspaceApplication({
           <Brand app />
         </div>
         <SpaceSwitcher
+          key={session.user.id}
           space={space === "studio" ? "studio" : "workshop"}
           workspace={session.organization}
+          identity={[
+            session.user.id,
+            session.organization.id,
+            session.user.role,
+            permissions.approveDispatches,
+            permissions.viewReports,
+          ].join(":")}
           preview={publicPreview}
-          loadWorkspaces={async () => {
+          loadWorkspaces={async (signal) => {
             const { items } = await api<{ items?: SwitcherWorkspace[] }>(
               "/account/workspaces",
+              { signal },
             );
             return Array.isArray(items) ? items : [];
           }}

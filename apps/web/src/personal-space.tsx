@@ -346,6 +346,8 @@ export function PersonalSpace({
       </button>
     </div>
   );
+  const currentWorkspace =
+    session.workspaces.find((workspace) => workspace.current) ?? null;
   return (
     <div className="personal-space personal-space-v2">
       <a
@@ -361,10 +363,17 @@ export function PersonalSpace({
       <header className="personal-space-header">
         <Brand />
         <SpaceSwitcher
+          key={session.user.id}
           space="personal"
-          workspace={
-            session.workspaces.find((workspace) => workspace.current) ?? null
-          }
+          workspace={currentWorkspace}
+          identity={[
+            session.user.id,
+            ...session.workspaces.map(
+              (workspace) =>
+                `${workspace.id}/${workspace.role}/${workspace.current}`,
+            ),
+          ].join(":")}
+          // Refreshed with the personal session on every return to the tab.
           loadWorkspaces={async () => session.workspaces}
           enterWorkspace={async (id, target) => {
             await personalApi("/personal/workspace/select", session, {
