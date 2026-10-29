@@ -85,12 +85,14 @@ test("initial workshop route code loads alongside authority without mounting pri
 
 test("a failed requested route retains navigation and offers an explicit page reload", async ({
   page,
-}, info) => {
+}) => {
   const state = await fixture(page);
   let chunkRequests = 0;
+  let recoveryRequests = 0;
   let unavailable = true;
   await page.route(accountChunk, (route) => {
     chunkRequests += 1;
+    if (route.request().resourceType() === "fetch") recoveryRequests += 1;
     return unavailable ? route.abort("failed") : route.continue();
   });
   await page.goto("/#/app/account");
@@ -108,19 +110,14 @@ test("a failed requested route retains navigation and offers an explicit page re
   await expect
     .poll(() => page.evaluate(() => performance.timeOrigin))
     .not.toBe(previousDocument);
-  if (info.project.name === "iphone-webkit") {
-    // WebKit retains the simulated aborted module-preload failure across reload.
-    // The action reloads once; it never loops or substitutes private content.
-    await expect(page.getByRole("alert")).toContainText(
-      "This page could not be loaded.",
-    );
-    await expect(page.locator(".sidebar")).toBeVisible();
-  } else {
-    await expect(
-      page.getByRole("heading", { name: "My account", exact: true }),
-    ).toBeVisible();
-    expect(chunkRequests).toBe(failures + 1);
-  }
+  await expect(
+    page.getByRole("heading", { name: "My account", exact: true }),
+  ).toBeVisible();
+  // One explicit public-code refresh precedes the new document. Its module
+  // request may reuse that response; neither path permits a reload loop.
+  expect(recoveryRequests).toBe(1);
+  expect(chunkRequests).toBeGreaterThanOrEqual(failures + 1);
+  expect(chunkRequests).toBeLessThanOrEqual(failures + 2);
   expect(state.writes).toEqual([]);
 });
 
