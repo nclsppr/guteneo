@@ -1,6 +1,6 @@
 ---
 title: "Workspace layout and browser appearance"
-description: "30 capabilities in the operate branch of Guteneo."
+description: "31 capabilities in the operate branch of Guteneo."
 sidebar:
   order: 18
 ---
@@ -48,4 +48,5 @@ The 29 October 2026 Studio space, the application/workspace switchers and the fo
 <li id="feature-cae8df40cec9">WorkspaceIdentity shares profile/theme/account-switch/status/logout controls with My documents and canonical Belvedere; personal account switching sanitizes private return queries, Escape restores focus and navigation/identity replacement close menus</li>
 <li id="feature-86382128e81a">Exact complete-label revisions unify workspace terminology in French, English, German and Luxembourgish while preserving legacy lookup keys, explicit contexts, names and interpolated content</li>
 <li id="feature-a35d3a6550bd">All four application import exceptions are removed: personal lazy entry, correspondence preference helper, shared entry-link style and locale-change event replace the former eager/cross-layer dependencies</li>
+<li id="feature-d39de70928dd">Explicit route-code recovery refreshes only failed same-origin public JS/CSS assets before reloading, with no credentials/referrer/private query, at most eight requests, an eight-MiB per-response read bound and five-second timeout; no background retry or business endpoint is added</li>
 </ol>

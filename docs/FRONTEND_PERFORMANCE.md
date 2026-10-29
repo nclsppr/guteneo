@@ -16,17 +16,36 @@ Locale changes emit a shared event that the public sharing adapter observes,
 removing the shared locale module's dependency on public-site code. The four
 import exceptions in `applications.json` are removed rather than expanded.
 
-A before/after build with the same local dependencies measured the entry chunk
-at 659.78 → 634.67 kB raw and 190.44 → 186.68 kB gzip; My documents became a
-31.87 kB raw / 8.92 kB gzip route chunk. This intermediate comparison isolates
-loading/menu changes before terminology and Belvédère integration; it is not a
-final-release size, a network-transfer measurement or a latency guarantee.
-Final exact-source checks and measurements belong to the
-[local acceptance record](STUDIO_SPACE_REPRISE.md).
+The [final loading record](evidence/studio-space-loading-2026-10-29.json)
+compares `1e013dbc` with the resolved-module candidate `08df95d5`. Eighteen fresh
+Chromium contexts (three per route/variant, interleaved) use local uncompressed
+static HTTP, a 1440 × 900 viewport and read-only synthetic APIs delayed by 40 ms.
+The complete backend suite runs concurrently; no CPU isolation is claimed.
 
-28 October 2026. This contract owns route-loading behavior and separates bounded
-local measurements from anonymous production observations. Neither establishes
-server CPU, provider readiness, price or physical-device qualification.
+| Route | First useful median | JS requests | API reads | JS body-byte delta | CSS body-byte delta |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| my-documents | 173 → 173 ms | 19 → 25 | 2 → 2 | +44,529 | -8,948 |
+| correspondence | 173 → 176 ms | 28 → 30 | 6 → 6 | +6,358 | -8,948 |
+| studio | 139 → 136 ms | 22 → 23 | 3 → 3 | +12,610 | -1,843 |
+
+First useful means an available document title, correspondence row or visible
+built-in template title followed by a rendering opportunity; the below-fold
+private Studio row has its separate DOM-readiness field. The figures are
+DOM/rAF observations, not physical first-paint or server/provider latency.
+No viewer, PDF worker, designer or globe implementation is requested by these
+three entry scenarios; writes, unexpected APIs, external requests and errors are
+zero. Independent application chunks add requests and some code; this is not a
+general loading reduction. The exact terminology table alone is 42,330 source
+bytes / 11,854 gzip bytes when minified and compressed separately, not its
+incremental bundled network cost.
+
+The initial `1ceb29ff` experiment exposed a consistent personal delay around
+300 ms despite code/session readiness. Rendering the resolved imported component
+directly removes the first `React.lazy` retry; the final median is 173 ms, matching
+the 173 ms baseline within the observed ranges. Identity prefetch remains
+visit-scoped, visibility-invalidated and independent of workspace bootstrap.
+A failed code request uses the shared explicit reload boundary. Final exact-source
+functional acceptance belongs to [the reprise record](STUDIO_SPACE_REPRISE.md).
 
 ## Space switcher and Studio routes — 29 October 2026 candidate
 
@@ -723,3 +742,20 @@ first-content timing, production compression or an Auth0 latency improvement.
 | Application entry | 475,450 / 136,948 | 475,470 / 136,962 |
 | Shared components | 29,730 / 9,726 | 29,792 / 9,741 |
 | Authentication navigation | 663 / 412 | 677 / 421 |
+
+## Explicit module-preload recovery
+
+The tested iPhone WebKit runtime retains a failed module-preload resource after
+an ordinary page reload. A minimal HTML/Node HTTP reproduction outside React
+and outside request interception confirms this for a non-cacheable HTTP 503;
+physical Safari remains separately unqualified. The explicit reload action first
+refreshes failed or zero-size/unknown-status same-origin `/assets/*.js|css`
+resources, consuming each successful response before navigation.
+
+The recovery allowlist rejects private paths, queries, fragments, credentials,
+foreign origins and non-code files. It sends no cookies or referrer, requests at
+most eight assets, reads at most eight MiB per response and stops after five
+seconds. It runs only after the person's reload gesture and never retries an
+API, provider operation or authorization action. Navigating elsewhere cancels
+the pending page reload. Fourteen unit cases cover its privacy/bounds; twelve
+entry/recovery browser cases pass on Chromium, mobile Chromium and iPhone WebKit.

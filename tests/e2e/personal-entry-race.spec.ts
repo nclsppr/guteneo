@@ -235,7 +235,14 @@ test("a failed personal code request offers explicit recovery without private re
 }) => {
   const state = await fixture(page);
   const chunk = "**/assets/personal-area-*.js";
-  await page.route(chunk, (route) => route.abort("failed"));
+  await page.route(chunk, (route) =>
+    route.fulfill({
+      status: 503,
+      contentType: "text/javascript",
+      headers: { "Cache-Control": "no-store" },
+      body: "/* Synthetic temporarily unavailable module. */",
+    }),
+  );
   await page.goto("/#/app/my-documents");
   await expect(page.getByRole("alert")).toContainText(
     "Cette page n’a pas pu être chargée.",

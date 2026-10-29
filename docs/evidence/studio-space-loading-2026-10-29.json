@@ -1,0 +1,410 @@
+{
+  "measuredAt": "2026-10-29T19:45:03.294Z",
+  "baseline": "1e013dbc129dd73fb953b36898f59dad379d5aaa",
+  "candidate": "08df95d5c4313e942ede50ec43be6b335304e377",
+  "version": "1.1.18",
+  "environment": {
+    "node": "v24.18.0",
+    "browser": "153.0.8010.12",
+    "engine": "Chromium",
+    "viewport": "1440x900",
+    "locale": "en-GB",
+    "theme": "light",
+    "reducedMotion": "reduce",
+    "browserCache": "new browser context per sample",
+    "server": "Node HTTP loopback; no compression; Cache-Control no-store",
+    "api": "all intercepted read-only synthetic responses; 40ms fixed delay per request",
+    "database": "none",
+    "realProviderRequests": "none; external origins blocked",
+    "usefulDefinition": "My documents: synthetic personal-document title; Correspondence: synthetic dispatch-recipient row; Studio: first built-in template gallery title after verified workspace session. Non-zero-size DOM element followed by next requestAnimationFrame opportunity, viewport inclusion recorded. Studio private-library row readiness recorded separately because it is below the fold.",
+    "implementationMarkers": {
+      "pdfjs": "PDFDocumentLoadingTask",
+      "designer": "pdfme-internal-link-cache",
+      "globe": "bv-globe-stage"
+    },
+    "sampling": "3 fresh contexts per variant/route, interleaved before/after; no CPU/network emulation; OS file cache not reset",
+    "concurrentWork": "The complete backend suite continued on the same machine; root paused the complete browser suite for the loading correction. No CPU isolation is claimed."
+  },
+  "summaries": [
+    {
+      "route": "my-documents",
+      "before": {
+        "samples": 3,
+        "firstUsefulMs": {
+          "median": 173.29999999981374,
+          "minimum": 156.39999999990687,
+          "maximum": 185.60000000009313
+        },
+        "firstUsefulInViewport": true,
+        "privateLibraryDomMs": null,
+        "privateLibraryInViewport": null,
+        "jsRequests": {
+          "median": 19,
+          "minimum": 19,
+          "maximum": 19
+        },
+        "cssRequests": {
+          "median": 2,
+          "minimum": 2,
+          "maximum": 2
+        },
+        "jsBodyBytes": {
+          "median": 1562500,
+          "minimum": 1562500,
+          "maximum": 1562500
+        },
+        "cssBodyBytes": {
+          "median": 168734,
+          "minimum": 168734,
+          "maximum": 168734
+        },
+        "jsCssTransferBytes": {
+          "median": 1737534,
+          "minimum": 1737534,
+          "maximum": 1737534
+        },
+        "jsCssGzipFileBytesSum": {
+          "median": 521610,
+          "minimum": 521610,
+          "maximum": 521610
+        },
+        "apiRequests": {
+          "median": 2,
+          "minimum": 2,
+          "maximum": 2
+        },
+        "apiPaths": [
+          "/api/personal/session",
+          "/api/personal/documents?kind=shared"
+        ],
+        "unexpectedApis": [],
+        "heavyModuleRequests": [],
+        "heavyImplementationMarkers": [],
+        "writes": [],
+        "externalRequests": [],
+        "errors": [],
+        "failures": []
+      },
+      "after": {
+        "samples": 3,
+        "firstUsefulMs": {
+          "median": 172.70000000018626,
+          "minimum": 163.70000000018626,
+          "maximum": 174
+        },
+        "firstUsefulInViewport": true,
+        "privateLibraryDomMs": null,
+        "privateLibraryInViewport": null,
+        "jsRequests": {
+          "median": 25,
+          "minimum": 25,
+          "maximum": 25
+        },
+        "cssRequests": {
+          "median": 2,
+          "minimum": 2,
+          "maximum": 2
+        },
+        "jsBodyBytes": {
+          "median": 1607029,
+          "minimum": 1607029,
+          "maximum": 1607029
+        },
+        "cssBodyBytes": {
+          "median": 159786,
+          "minimum": 159786,
+          "maximum": 159786
+        },
+        "jsCssTransferBytes": {
+          "median": 1774915,
+          "minimum": 1774915,
+          "maximum": 1774915
+        },
+        "jsCssGzipFileBytesSum": {
+          "median": 537225,
+          "minimum": 537225,
+          "maximum": 537225
+        },
+        "apiRequests": {
+          "median": 2,
+          "minimum": 2,
+          "maximum": 2
+        },
+        "apiPaths": [
+          "/api/personal/session",
+          "/api/personal/documents?kind=shared"
+        ],
+        "unexpectedApis": [],
+        "heavyModuleRequests": [],
+        "heavyImplementationMarkers": [],
+        "writes": [],
+        "externalRequests": [],
+        "errors": [],
+        "failures": []
+      },
+      "change": {
+        "jsBodyBytes": 44529,
+        "cssBodyBytes": -8948,
+        "jsCssTransferBytes": 37381,
+        "firstUsefulMs": -0.599999999627471
+      }
+    },
+    {
+      "route": "correspondence",
+      "before": {
+        "samples": 3,
+        "firstUsefulMs": {
+          "median": 173.10000000009313,
+          "minimum": 172.79999999981374,
+          "maximum": 177.10000000009313
+        },
+        "firstUsefulInViewport": true,
+        "privateLibraryDomMs": null,
+        "privateLibraryInViewport": null,
+        "jsRequests": {
+          "median": 28,
+          "minimum": 28,
+          "maximum": 28
+        },
+        "cssRequests": {
+          "median": 6,
+          "minimum": 6,
+          "maximum": 6
+        },
+        "jsBodyBytes": {
+          "median": 1682989,
+          "minimum": 1682989,
+          "maximum": 1682989
+        },
+        "cssBodyBytes": {
+          "median": 178145,
+          "minimum": 178145,
+          "maximum": 178145
+        },
+        "jsCssTransferBytes": {
+          "median": 1871334,
+          "minimum": 1871334,
+          "maximum": 1871334
+        },
+        "jsCssGzipFileBytesSum": {
+          "median": 560014,
+          "minimum": 560014,
+          "maximum": 560014
+        },
+        "apiRequests": {
+          "median": 6,
+          "minimum": 6,
+          "maximum": 6
+        },
+        "apiPaths": [
+          "/api/session",
+          "/api/capabilities",
+          "/api/account/contacts",
+          "/api/connections",
+          "/api/overview",
+          "/api/dispatches?limit=6"
+        ],
+        "unexpectedApis": [],
+        "heavyModuleRequests": [],
+        "heavyImplementationMarkers": [],
+        "writes": [],
+        "externalRequests": [],
+        "errors": [],
+        "failures": []
+      },
+      "after": {
+        "samples": 3,
+        "firstUsefulMs": {
+          "median": 175.79999999981374,
+          "minimum": 172.29999999981374,
+          "maximum": 176.5
+        },
+        "firstUsefulInViewport": true,
+        "privateLibraryDomMs": null,
+        "privateLibraryInViewport": null,
+        "jsRequests": {
+          "median": 30,
+          "minimum": 30,
+          "maximum": 30
+        },
+        "cssRequests": {
+          "median": 6,
+          "minimum": 6,
+          "maximum": 6
+        },
+        "jsBodyBytes": {
+          "median": 1689347,
+          "minimum": 1689347,
+          "maximum": 1689347
+        },
+        "cssBodyBytes": {
+          "median": 169197,
+          "minimum": 169197,
+          "maximum": 169197
+        },
+        "jsCssTransferBytes": {
+          "median": 1869344,
+          "minimum": 1869344,
+          "maximum": 1869344
+        },
+        "jsCssGzipFileBytesSum": {
+          "median": 564221,
+          "minimum": 564221,
+          "maximum": 564221
+        },
+        "apiRequests": {
+          "median": 6,
+          "minimum": 6,
+          "maximum": 6
+        },
+        "apiPaths": [
+          "/api/session",
+          "/api/capabilities",
+          "/api/account/contacts",
+          "/api/connections",
+          "/api/overview",
+          "/api/dispatches?limit=6"
+        ],
+        "unexpectedApis": [],
+        "heavyModuleRequests": [],
+        "heavyImplementationMarkers": [],
+        "writes": [],
+        "externalRequests": [],
+        "errors": [],
+        "failures": []
+      },
+      "change": {
+        "jsBodyBytes": 6358,
+        "cssBodyBytes": -8948,
+        "jsCssTransferBytes": -1990,
+        "firstUsefulMs": 2.6999999997206032
+      }
+    },
+    {
+      "route": "studio",
+      "before": {
+        "samples": 3,
+        "firstUsefulMs": {
+          "median": 138.6999999997206,
+          "minimum": 137.39999999990687,
+          "maximum": 138.89999999990687
+        },
+        "firstUsefulInViewport": true,
+        "privateLibraryDomMs": {
+          "median": 192.39999999990687,
+          "minimum": 191.60000000009313,
+          "maximum": 193.79999999981374
+        },
+        "privateLibraryInViewport": false,
+        "jsRequests": {
+          "median": 22,
+          "minimum": 22,
+          "maximum": 22
+        },
+        "cssRequests": {
+          "median": 2,
+          "minimum": 2,
+          "maximum": 2
+        },
+        "jsBodyBytes": {
+          "median": 1695600,
+          "minimum": 1695600,
+          "maximum": 1695600
+        },
+        "cssBodyBytes": {
+          "median": 168734,
+          "minimum": 168734,
+          "maximum": 168734
+        },
+        "jsCssTransferBytes": {
+          "median": 1871534,
+          "minimum": 1871534,
+          "maximum": 1871534
+        },
+        "jsCssGzipFileBytesSum": {
+          "median": 558355,
+          "minimum": 558355,
+          "maximum": 558355
+        },
+        "apiRequests": {
+          "median": 3,
+          "minimum": 3,
+          "maximum": 3
+        },
+        "apiPaths": ["/api/session", "/api/capabilities", "/api/templates"],
+        "unexpectedApis": [],
+        "heavyModuleRequests": [],
+        "heavyImplementationMarkers": [],
+        "writes": [],
+        "externalRequests": [],
+        "errors": [],
+        "failures": []
+      },
+      "after": {
+        "samples": 3,
+        "firstUsefulMs": {
+          "median": 136.39999999990687,
+          "minimum": 134.10000000009313,
+          "maximum": 140.79999999981374
+        },
+        "firstUsefulInViewport": true,
+        "privateLibraryDomMs": {
+          "median": 190.60000000009313,
+          "minimum": 186.20000000018626,
+          "maximum": 194.10000000009313
+        },
+        "privateLibraryInViewport": false,
+        "jsRequests": {
+          "median": 23,
+          "minimum": 23,
+          "maximum": 23
+        },
+        "cssRequests": {
+          "median": 3,
+          "minimum": 3,
+          "maximum": 3
+        },
+        "jsBodyBytes": {
+          "median": 1708210,
+          "minimum": 1708210,
+          "maximum": 1708210
+        },
+        "cssBodyBytes": {
+          "median": 166891,
+          "minimum": 166891,
+          "maximum": 166891
+        },
+        "jsCssTransferBytes": {
+          "median": 1882901,
+          "minimum": 1882901,
+          "maximum": 1882901
+        },
+        "jsCssGzipFileBytesSum": {
+          "median": 565729,
+          "minimum": 565729,
+          "maximum": 565729
+        },
+        "apiRequests": {
+          "median": 3,
+          "minimum": 3,
+          "maximum": 3
+        },
+        "apiPaths": ["/api/session", "/api/capabilities", "/api/templates"],
+        "unexpectedApis": [],
+        "heavyModuleRequests": [],
+        "heavyImplementationMarkers": [],
+        "writes": [],
+        "externalRequests": [],
+        "errors": [],
+        "failures": []
+      },
+      "change": {
+        "jsBodyBytes": 12610,
+        "cssBodyBytes": -1843,
+        "jsCssTransferBytes": 11367,
+        "firstUsefulMs": -2.2999999998137355
+      }
+    }
+  ],
+  "scope": "Local static assets with synthetic read-only API responses. No business database, real identity, provider, CI or deployment qualification. A prior 1ceb29ff checkpoint exposed an approximately 300ms personal Suspense retry delay; the resolved-module renderer removes it."
+}

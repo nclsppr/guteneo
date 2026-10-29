@@ -82,7 +82,8 @@
         "assistant-workspace.css",
         "claude-connect.tsx",
         "document-invitation.ts",
-        "postal-cutoff.ts"
+        "postal-cutoff.ts",
+        "route-code-recovery.ts"
       ]
     },
     "public": {
