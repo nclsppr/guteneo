@@ -90,7 +90,9 @@ async function fixture(page: Page, mode: Mode = "normal", simulation = false) {
         ) {
           await route.fulfill({
             status: 403,
-            json: { error: { code: mode, message: "Sign-in evidence missing" } },
+            json: {
+              error: { code: mode, message: "Sign-in evidence missing" },
+            },
           });
           return;
         }
@@ -183,7 +185,7 @@ for (const code of [
       });
     });
     await page.goto(
-      "/?appearance=v2#/app/secure-distribution/sd_single_action?view=approval&invitation=private-fixture#private-fixture-fragment",
+      "/#/app/secure-distribution/sd_single_action?view=approval&invitation=private-fixture#private-fixture-fragment",
     );
     await review(page);
     await send(page).click();
@@ -208,7 +210,7 @@ test("one priced action records review and sends without an intermediate refresh
   page,
 }, testInfo) => {
   const f = await fixture(page);
-  await page.goto("/?appearance=v2#/app/secure-distribution/sd_single_action");
+  await page.goto("/#/app/secure-distribution/sd_single_action");
   await expect(send(page)).toHaveText(/Envoyer pour 1,00\s*€ HT/u);
   await expect(page.locator(".secure-document-page img")).toBeVisible();
   await expect(page.getByRole("dialog")).toHaveCount(0);
@@ -264,9 +266,7 @@ test("a legacy browser-approved preparation retains its PDF review and sends in 
   page,
 }) => {
   const f = await fixture(page, "approved");
-  await page.goto(
-    "/?appearance=classic#/app/secure-distribution/sd_single_action",
-  );
+  await page.goto("/#/app/secure-distribution/sd_single_action");
   await expect(page.locator(".secure-document-page img")).toBeVisible();
   await expect(page.getByRole("checkbox")).toHaveCount(0);
   await expect(send(page)).toBeEnabled();
@@ -281,7 +281,7 @@ test("an uncertain approval requires a status read and never records approval tw
   page,
 }) => {
   const f = await fixture(page, "approval_lost");
-  await page.goto("/?appearance=v2#/app/secure-distribution/sd_single_action");
+  await page.goto("/#/app/secure-distribution/sd_single_action");
   await review(page);
   await send(page).click();
   await expect(checkStatus(page)).toBeVisible();
@@ -304,7 +304,7 @@ test("an accepted activation with a lost reply is recovered by reading status wi
   page,
 }) => {
   const f = await fixture(page, "activation_lost");
-  await page.goto("/?appearance=v2#/app/secure-distribution/sd_single_action");
+  await page.goto("/#/app/secure-distribution/sd_single_action");
   await review(page);
   await send(page).click();
   await expect(checkStatus(page)).toBeVisible();
@@ -326,7 +326,7 @@ test("an uncommitted activation resumes explicitly with the same idempotency key
   page,
 }) => {
   const f = await fixture(page, "activation_uncommitted");
-  await page.goto("/?appearance=v2#/app/secure-distribution/sd_single_action");
+  await page.goto("/#/app/secure-distribution/sd_single_action");
   await review(page);
   await send(page).click();
   await expect(checkStatus(page)).toBeVisible();
@@ -351,7 +351,7 @@ test("the simulation action stays explicitly labelled and never submits on page 
   page,
 }) => {
   const f = await fixture(page, "normal", true);
-  await page.goto("/?appearance=v2#/app/secure-distribution/sd_single_action");
+  await page.goto("/#/app/secure-distribution/sd_single_action");
   await expect(
     page.getByRole("button", { name: /^Simuler l’envoi pour /u }),
   ).toBeDisabled();

@@ -1,5 +1,4 @@
 import {
-  ArrowRight,
   ArrowUpRight,
   CaretUpDown,
   Pulse,
@@ -12,7 +11,6 @@ import { isPublicPreview, type Session } from "./api";
 import { useRoute } from "./components";
 import { getLocale, t } from "./locale";
 import { msg } from "./messages";
-import { useDashboardAppearance } from "./dashboard-appearance";
 import { ThemeToggle } from "./theme-toggle";
 import "./workspace-identity.css";
 
@@ -32,54 +30,8 @@ function switchAccountHref() {
   return `/auth/login?intent=switch-account&locale=${getLocale()}&returnTo=${returnTo}`;
 }
 
+/** One identity row; its disclosure holds the account utilities. */
 export function WorkspaceIdentity({
-  session,
-  onLogout,
-}: {
-  session: Session;
-  onLogout: () => Promise<void>;
-}) {
-  const { appearance } = useDashboardAppearance();
-  return appearance === "v2" ? (
-    <AccountMenu session={session} onLogout={onLogout} />
-  ) : (
-    <section className="workspace-identity" aria-label={msg("Your account")}>
-      <a
-        className="workspace-identity-profile"
-        href="#/app/account"
-        aria-current={
-          window.location.hash.split("?")[0] === "#/app/account"
-            ? "page"
-            : undefined
-        }
-      >
-        <span className="workspace-identity-avatar" aria-hidden="true">
-          {initials(session.user.name)}
-        </span>
-        <span className="workspace-identity-label">{msg("Signed in as")}</span>
-        <strong>{session.user.name}</strong>
-        <span className="workspace-identity-email">
-          {session.user.email || msg("Sign-in email unavailable")}
-        </span>
-        <span className="workspace-identity-action">
-          <UserCircle size={17} aria-hidden="true" />
-          {msg("My profile and permissions")}
-          <ArrowRight size={15} aria-hidden="true" />
-        </span>
-      </a>
-      <div className="workspace-account-utilities">
-        {!isPublicPreview && (
-          <a className="workspace-switch-account" href={switchAccountHref()}>
-            {msg("Switch account")}
-          </a>
-        )}
-      </div>
-    </section>
-  );
-}
-
-/** V2 keeps one identity row; its disclosure holds the account utilities. */
-function AccountMenu({
   session,
   onLogout,
 }: {

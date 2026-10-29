@@ -20,7 +20,7 @@ Unified personal account and optional workspace implementation; migrations, alig
 <ol>
 <li id="feature-118253ca6bfe">Auth0 sign-in, verified accounts and explicit MFA policy</li>
 <li id="feature-5996e8b92f62">Canonical browser sign-in/callback; retired hosts and preview URLs refuse authentication</li>
-<li id="feature-3b417c25ebfb">Personal profile, interface language and saved Classic/V2 workspace layout; browser color preference is separate presentation state</li>
+<li id="feature-5d20c4df9bed">Personal profile and interface language; browser color preference is separate presentation state; the retired Classic layout value stays accepted but no longer changes the web layout</li>
 <li id="feature-1b09fee94068">Session listing, revocation and explicit logout</li>
 <li id="feature-258bd6db5347">Successful logout returns to the public home before Login remounts; failures stay visible and never claim a logout</li>
 <li id="feature-0d705f70130f">Workshop switching with current membership rights</li>
@@ -31,7 +31,7 @@ Unified personal account and optional workspace implementation; migrations, alig
 <li id="feature-a27bec3f16f6">Explicit Auth0 account switching without disabling ordinary SSO</li>
 <li id="feature-91f1d79cca79">Tab-focus reconciliation of identity, workshop and saved language</li>
 <li id="feature-1422d346be7e">One authenticated language control in the account; visitor choice stays separate</li>
-<li id="feature-db7acc719ea5">Account Classic/V2 preference, migration 0053 and reconciliation after identity changes</li>
+<li id="feature-d387a5ae42a3">Stored Classic/V2 preference (migration 0053) stays readable and accepted for compatibility; the web renders V2 for every account, and identity changes still reconcile language</li>
 <li id="feature-5fb66b6b5b44">Late contact-directory errors provide accessible recovery without interrupting profile editing</li>
 <li id="feature-9f0ca97174ac">Path-scoped browser reads: hide previous resources, preserve same-path refresh and ignore cancelled late responses/401s</li>
 <li id="feature-27ec8cd628c9">Direct Auth0 entry from public links and unauthenticated private routes, preserving locale and exact destination</li>

@@ -76,8 +76,8 @@ actual inner blue frame and transparent exterior/perforations, without an outer
 white contour. Dark
 editorial/panorama derivatives add no frame and preserve the original light sources.
 
-System/light/dark presentation is independent of language, account identity and
-the saved Classic/V2 workspace layout. A nonsecret host-only appearance cookie
+System/light/dark presentation is independent of language and account identity.
+Every account uses the V2 workspace layout; Classic was retired on 29 October 2026. A nonsecret host-only appearance cookie
 supports standalone server HTML without becoming account or approval evidence;
 [THEMES.md](THEMES.md) owns the contract and remaining qualification limits.
 Decorative workspace artwork is removed while real documents, controls, activity

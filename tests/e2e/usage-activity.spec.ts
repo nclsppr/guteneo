@@ -143,84 +143,76 @@ async function fixture(page: Page, locale: "fr" | "de" = "fr") {
   };
 }
 
-for (const appearance of ["classic", "v2"] as const) {
-  test(`${appearance}: annual activity shows actual amounts, zero-cent operations and selected day detail`, async ({
-    page,
-    isMobile,
-  }, testInfo) => {
-    const state = await fixture(page);
-    await page.goto(`/?appearance=${appearance}#/app/usage`);
-    await expect(page.locator(".workspace")).toHaveAttribute(
-      "data-appearance",
-      appearance,
-    );
-    const activity = page.locator(".usage-activity");
-    const grid = activity.getByRole("grid", {
-      name: "Consommation quotidienne en 2026",
-    });
-    await expect(grid).toBeVisible();
-    if (!isMobile) {
-      expect(
-        await activity
-          .locator(".usage-activity-scroll")
-          .evaluate((node) => node.scrollWidth <= node.clientWidth),
-      ).toBe(true);
-    }
-    await expect(grid.locator("button")).toHaveCount(365);
-    await expect(grid.locator('button[tabindex="0"]')).toHaveCount(1);
-    await expect(activity.locator(".usage-activity-summary")).toContainText(
-      "9,00",
-    );
-    await expect(activity.locator(".usage-activity-summary")).toContainText(
-      "6 opérations comptabilisées",
-    );
-    const day = grid.locator('[data-date="2026-01-02"]');
-    await expect(day).toHaveAttribute(
-      "aria-label",
-      /vendredi 2 janvier 2026.*2,00.*2 opérations comptabilisées/,
-    );
-    await expect(day).toHaveAttribute("data-level", "2");
-    await expect(grid.locator('[data-date="2026-01-03"]')).toHaveAttribute(
-      "data-level",
-      "4",
-    );
-    await expect(grid.locator('[data-date="2026-10-10"]')).toHaveAttribute(
-      "data-level",
-      "1",
-    );
-    await expect(grid.locator('[data-date="2026-01-01"]')).toHaveAttribute(
-      "data-level",
-      "0",
-    );
-    await expect(grid.locator('[data-date="2026-10-26"]')).toBeDisabled();
-    await expect(grid.locator('[data-date="2026-10-25"]')).toBeEnabled();
-    await day.click();
-    const detail = activity.locator(".usage-activity-detail");
-    await expect(detail).toContainText("vendredi 2 janvier 2026");
-    await expect(detail).toContainText("2,00");
-    await expect(detail.locator("dd")).toHaveText([/2,00/, "2", "1"]);
-    await grid.locator('[data-date="2026-01-01"]').click();
-    await expect(detail).toContainText(
-      "Aucune consommation enregistrée pour ce jour.",
-    );
-    await expect(detail.locator("dd")).toHaveText([/0,00/, "0", "0"]);
-    await expect(activity).toContainText("par jour UTC");
-    await expect(
-      page.getByLabel("Mois de consommation", { exact: true }),
-    ).toHaveValue("2026-09");
-    await expect(page.locator(".usage-ledger")).toContainText("9,00");
-    await expect(page.locator(".credit-balance")).toContainText("40,00");
-    expect(state.writes).toEqual([]);
-    await day.click();
-    await expect(detail.locator("dd")).toHaveText([/2,00/, "2", "1"]);
-    await page.screenshot({
-      path: testInfo.outputPath(
-        appearance === "v2" ? "annual-activity-v2.png" : "annual-activity.png",
-      ),
-      fullPage: true,
-    });
+test(`annual activity shows actual amounts, zero-cent operations and selected day detail`, async ({
+  page,
+  isMobile,
+}, testInfo) => {
+  const state = await fixture(page);
+  await page.goto("/#/app/usage");
+  const activity = page.locator(".usage-activity");
+  const grid = activity.getByRole("grid", {
+    name: "Consommation quotidienne en 2026",
   });
-}
+  await expect(grid).toBeVisible();
+  if (!isMobile) {
+    expect(
+      await activity
+        .locator(".usage-activity-scroll")
+        .evaluate((node) => node.scrollWidth <= node.clientWidth),
+    ).toBe(true);
+  }
+  await expect(grid.locator("button")).toHaveCount(365);
+  await expect(grid.locator('button[tabindex="0"]')).toHaveCount(1);
+  await expect(activity.locator(".usage-activity-summary")).toContainText(
+    "9,00",
+  );
+  await expect(activity.locator(".usage-activity-summary")).toContainText(
+    "6 opérations comptabilisées",
+  );
+  const day = grid.locator('[data-date="2026-01-02"]');
+  await expect(day).toHaveAttribute(
+    "aria-label",
+    /vendredi 2 janvier 2026.*2,00.*2 opérations comptabilisées/,
+  );
+  await expect(day).toHaveAttribute("data-level", "2");
+  await expect(grid.locator('[data-date="2026-01-03"]')).toHaveAttribute(
+    "data-level",
+    "4",
+  );
+  await expect(grid.locator('[data-date="2026-10-10"]')).toHaveAttribute(
+    "data-level",
+    "1",
+  );
+  await expect(grid.locator('[data-date="2026-01-01"]')).toHaveAttribute(
+    "data-level",
+    "0",
+  );
+  await expect(grid.locator('[data-date="2026-10-26"]')).toBeDisabled();
+  await expect(grid.locator('[data-date="2026-10-25"]')).toBeEnabled();
+  await day.click();
+  const detail = activity.locator(".usage-activity-detail");
+  await expect(detail).toContainText("vendredi 2 janvier 2026");
+  await expect(detail).toContainText("2,00");
+  await expect(detail.locator("dd")).toHaveText([/2,00/, "2", "1"]);
+  await grid.locator('[data-date="2026-01-01"]').click();
+  await expect(detail).toContainText(
+    "Aucune consommation enregistrée pour ce jour.",
+  );
+  await expect(detail.locator("dd")).toHaveText([/0,00/, "0", "0"]);
+  await expect(activity).toContainText("par jour UTC");
+  await expect(
+    page.getByLabel("Mois de consommation", { exact: true }),
+  ).toHaveValue("2026-09");
+  await expect(page.locator(".usage-ledger")).toContainText("9,00");
+  await expect(page.locator(".credit-balance")).toContainText("40,00");
+  expect(state.writes).toEqual([]);
+  await day.click();
+  await expect(detail.locator("dd")).toHaveText([/2,00/, "2", "1"]);
+  await page.screenshot({
+    path: testInfo.outputPath("annual-activity.png"),
+    fullPage: true,
+  });
+});
 
 test("calendar supports leap years, roving keyboard focus and contained mobile scrolling", async ({
   page,

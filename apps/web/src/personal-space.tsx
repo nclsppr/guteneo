@@ -1,4 +1,3 @@
-import { defaultDashboardAppearance } from "../../../packages/contracts/src/dashboard-appearance";
 import {
   useCallback,
   useEffect,
@@ -30,10 +29,6 @@ import { LanguageSelect } from "./language-select";
 import { LegalLinks } from "./legal-links";
 import { ThemeToggle } from "./theme-toggle";
 import { AppearancePreferences } from "./appearance-preferences";
-import {
-  useDashboardAppearance,
-  type DashboardAppearance,
-} from "./dashboard-appearance";
 import {
   applyAccountLocale,
   initializeLocale,
@@ -234,7 +229,6 @@ export function PersonalSpace({
   const [error, setError] = useState<Error>();
   const [version, setVersion] = useState(0);
   const sessionReadRevision = useRef(0);
-  const { appearance, applyAccountAppearance } = useDashboardAppearance();
   const action = useAction();
   const page = route.split("?")[0] ?? "/app/my-documents";
   const onSessionInvalid = useCallback(() => {
@@ -243,14 +237,8 @@ export function PersonalSpace({
     initializeLocale(true);
   }, []);
   useEffect(() => {
-    if (session) {
-      applyAccountLocale(session.user.preferredLocale);
-      applyAccountAppearance(
-        session.user.preferredDashboardAppearance ?? defaultDashboardAppearance,
-        session.user.id,
-      );
-    }
-  }, [session, applyAccountAppearance]);
+    if (session) applyAccountLocale(session.user.preferredLocale);
+  }, [session]);
   useEffect(() => {
     const controller = new AbortController();
     let pending = false;
@@ -342,7 +330,7 @@ export function PersonalSpace({
   const accountUtility = (
     <div className="personal-space-account">
       <p>
-        {appearance === "v2" && <strong>{session.user.name}</strong>}
+        <strong>{session.user.name}</strong>
         {msg("Signed in as {0}", session.user.email)}
       </p>
       <button
@@ -357,10 +345,7 @@ export function PersonalSpace({
     </div>
   );
   return (
-    <div
-      className={`personal-space${appearance === "v2" ? " personal-space-v2" : ""}`}
-      data-appearance={appearance}
-    >
+    <div className="personal-space personal-space-v2">
       <a
         className="skip-link"
         href="#main-content"
@@ -399,7 +384,7 @@ export function PersonalSpace({
           </a>
         </nav>
         <ThemeToggle />
-        {appearance === "v2" && accountUtility}
+        {accountUtility}
       </header>
       <main
         id="main-content"
@@ -407,7 +392,6 @@ export function PersonalSpace({
         className="personal-space-main"
         key={session.user.id}
       >
-        {appearance !== "v2" && accountUtility}
         {session.simulation && (
           <div className="notice info" role="note">
             <p>
@@ -682,13 +666,6 @@ function PersonalAccount({
     session.user.preferredLocale ?? "",
   );
   const [saved, setSaved] = useState(false);
-  const [draftAppearance, setDraftAppearance] =
-    useState<DashboardAppearance | null>(null);
-  const { saveAccountAppearance } = useDashboardAppearance();
-  const selectedAppearance =
-    draftAppearance ??
-    session.user.preferredDashboardAppearance ??
-    defaultDashboardAppearance;
   const [sessions, setSessions] = useState<PersonalSessionItem[]>();
   const [sessionsError, setSessionsError] = useState<Error>();
   const [version, setVersion] = useState(0);
@@ -726,21 +703,11 @@ function PersonalAccount({
           body: {
             name: name.trim(),
             preferredLocale: locale || null,
-            ...(draftAppearance !== null
-              ? { preferredDashboardAppearance: selectedAppearance }
-              : {}),
           },
         },
       );
       if (current.user.id !== session.user.id) return;
-      if (draftAppearance !== null)
-        saveAccountAppearance(
-          current.user.preferredDashboardAppearance ??
-            defaultDashboardAppearance,
-          current.user.id,
-        );
       onUpdated(current);
-      setDraftAppearance(null);
       setSaved(true);
     });
   }
@@ -794,13 +761,6 @@ function PersonalAccount({
           />
         </Field>
         <AppearancePreferences
-          appearance={selectedAppearance}
-          disabled={action.pending}
-          onAppearanceChange={(next) => {
-            setDraftAppearance(next);
-            setSaved(false);
-            action.clear();
-          }}
           language={
             <Field label={languageCopy().preference}>
               <select

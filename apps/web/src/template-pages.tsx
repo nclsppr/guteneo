@@ -1,6 +1,5 @@
 import { msg } from "./messages";
 import { FileInput } from "./file-input";
-import { useDashboardAppearance } from "./dashboard-appearance";
 import {
   lazy,
   Suspense,
@@ -104,7 +103,6 @@ export function TemplateLibrary({
   startBlank: boolean;
   canPrepare: boolean;
 }) {
-  const { appearance } = useDashboardAppearance();
   const templates = useResource<Page<TemplateView>>("/templates");
   const action = useAction();
   const [name, setName] = useState(msg("My document"));
@@ -173,9 +171,7 @@ export function TemplateLibrary({
         action={
           canPrepare && (
             <button
-              className={
-                appearance === "v2" && showBlank ? "button" : "button primary"
-              }
+              className={showBlank ? "button" : "button primary"}
               aria-expanded={showBlank}
               aria-controls={showBlank ? "blank-template-form" : undefined}
               onClick={() => setShowBlank(!showBlank)}

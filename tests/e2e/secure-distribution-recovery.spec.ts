@@ -150,37 +150,33 @@ const approve = (page: Page) =>
 const refreshQuote = (page: Page) =>
   page.getByRole("button", { name: "Actualiser le devis", exact: true });
 
-for (const appearance of ["classic", "v2"] as const) {
-  test(`${appearance} expired secure quote resumes with fresh unchecked approval`, async ({
-    page,
-  }) => {
-    const writes = await fixture(page);
-    await page.goto(
-      `/?appearance=${appearance}#/app/secure-distribution/sd_original`,
-    );
-    await expect(refreshQuote(page)).toBeVisible();
-    await expect(approve(page)).toBeDisabled();
-    await expect(
-      page.getByText("LIVE_QUOTE_INVALID", { exact: true }),
-    ).toHaveCount(0);
-    await refreshQuote(page).click();
-    await expect(page).toHaveURL(/#\/app\/secure-distribution\/sd_renewed$/);
-    await expect(page.getByRole("checkbox")).toHaveCount(2);
-    for (const checkbox of await page.getByRole("checkbox").all())
-      await expect(checkbox).not.toBeChecked();
-    await expect(approve(page)).toBeDisabled();
-    await expect(refreshQuote(page)).toHaveCount(0);
-    expect(writes).toEqual([
-      { path: "/api/secure-distributions/sd_original/renew", body: {} },
-    ]);
-  });
-}
+test(`expired secure quote resumes with fresh unchecked approval`, async ({
+  page,
+}) => {
+  const writes = await fixture(page);
+  await page.goto(`/#/app/secure-distribution/sd_original`);
+  await expect(refreshQuote(page)).toBeVisible();
+  await expect(approve(page)).toBeDisabled();
+  await expect(
+    page.getByText("LIVE_QUOTE_INVALID", { exact: true }),
+  ).toHaveCount(0);
+  await refreshQuote(page).click();
+  await expect(page).toHaveURL(/#\/app\/secure-distribution\/sd_renewed$/);
+  await expect(page.getByRole("checkbox")).toHaveCount(2);
+  for (const checkbox of await page.getByRole("checkbox").all())
+    await expect(checkbox).not.toBeChecked();
+  await expect(approve(page)).toBeDisabled();
+  await expect(refreshQuote(page)).toHaveCount(0);
+  expect(writes).toEqual([
+    { path: "/api/secure-distributions/sd_original/renew", body: {} },
+  ]);
+});
 
 test("secure quote expiry during approval permits a failed renewal to be retried without sending", async ({
   page,
 }) => {
   const writes = await fixture(page, "race");
-  await page.goto("/?appearance=v2#/app/secure-distribution/sd_original");
+  await page.goto("/#/app/secure-distribution/sd_original");
   await expect(page.getByRole("checkbox")).toHaveCount(2);
   for (const checkbox of await page.getByRole("checkbox").all())
     await checkbox.check();
@@ -211,7 +207,7 @@ test("an existing replacement resumes its review with no new write", async ({
   page,
 }) => {
   const writes = await fixture(page, "replacement");
-  await page.goto("/?appearance=v2#/app/secure-distribution/sd_original");
+  await page.goto("/#/app/secure-distribution/sd_original");
   const resume = page.locator('a[href="#/app/secure-distribution/sd_renewed"]');
   await expect(resume).toBeVisible();
   await resume.click();
@@ -231,7 +227,7 @@ for (const theme of ["light", "dark"] as const) {
       "secure-distribution/sd_original",
     ]) {
       await page.goto("about:blank");
-      await page.goto(`/?appearance=v2#${"/app/" + route}`);
+      await page.goto(`/#${"/app/" + route}`);
       await expect(
         page.locator(".workspace-v2 .secure-document-layout"),
       ).toBeVisible();

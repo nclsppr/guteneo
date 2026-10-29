@@ -504,13 +504,7 @@ export function Campaigns({
   );
 }
 
-export function CampaignDetail({
-  id,
-  canPrepare = true,
-}: {
-  id: string;
-  canPrepare?: boolean;
-}) {
+export function CampaignDetail({ id }: { id: string }) {
   const resource = useResource<{ campaign: Campaign; dispatches: Dispatch[] }>(
     `/campaigns/${encodeURIComponent(id)}`,
   );
@@ -539,10 +533,7 @@ export function CampaignDetail({
                 {t.campaigns.total.toLowerCase()}
               </span>
             </div>
-            <DispatchTable
-              items={resource.data.dispatches}
-              canPrepare={canPrepare}
-            />
+            <DispatchTable items={resource.data.dispatches} />
           </>
         )
       )}

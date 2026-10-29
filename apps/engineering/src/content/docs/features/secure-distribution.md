@@ -11,7 +11,7 @@ sidebar:
 
 Implemented candidate with migrations 0055–0059 and separate deterministic strong/verified_account qualification. Default strong, explicitly selected verified_account, aligned environment/D1 policy and human approval remain mandatory; real Auth0, provider delivery, publication and external-client proof are separate.
 
-**Surfaces:** Workspace and personal web UI in FR/EN/DE/LB with shared V2 primitives and preserved Classic layout; workspace REST/MCP and assistant packages under scopes. Recipient access, sensitive approval and explicit quote renewal are browser-only; workspace Bearer tokens cannot open the personal vault. Native and real host support need surface-specific qualification.
+**Surfaces:** Workspace and personal web UI in FR/EN/DE/LB with shared V2 primitives; workspace REST/MCP and assistant packages under scopes. Recipient access, sensitive approval and explicit quote renewal are browser-only; workspace Bearer tokens cannot open the personal vault. Native and real host support need surface-specific qualification.
 
 [Read the engineering guide](/workflows/secure-distribution/) · [All features](/features/)
 
@@ -44,7 +44,7 @@ Implemented candidate with migrations 0055–0059 and separate deterministic str
 <li id="feature-e9322039b01d">Personal-list 401/403 clears loaded metadata and cursors; stale pagination responses cannot restore an old list after refresh</li>
 <li id="feature-45cc544c0188">Direct personal routes start their own small shell and authenticated personal session before the document list without waiting for workshop bootstrap; old workshop reads are aborted and fenced from applying identity/language after navigation, and return rereads current workshop authority</li>
 <li id="feature-3b2aae178e2b">Personal focus/visibility session reconciliation is bounded and cleaned up; changed identity remounts document state, obsolete results are ignored and list retry does not reload a still-valid session; recipient/document-policy/server authorization remains unchanged</li>
-<li id="feature-818812db2d75">Secure distribution list, composer, detail and reader reuse the shared V2 workspace/personal surfaces, typography, controls, facts and responsive spacing; the saved Classic layout and each authorization boundary remain unchanged</li>
+<li id="feature-84e65dce0e3a">Secure distribution list, composer, detail and reader reuse the shared V2 workspace/personal surfaces, typography, controls, facts and responsive spacing; each authorization boundary remains unchanged</li>
 <li id="feature-58b495c5faae">Personal section changes retain the mounted authenticated shell while capturing and removing each new invitation before children render; no redundant personal-session bootstrap precedes the next page. Initial entry, bounded visible-tab revalidation, identity-change remounts and current server authorization remain required</li>
 <li id="feature-a57a041d1487">Provider preflight validates the transport reservation after deducting already committed secure retention/personal-copy charges from the immutable total ceiling; it retains all active attempt, approval, sender and tenant checks</li>
 <li id="feature-8a4676396a87">One explicit priced browser Send action records approval then activation after two attestations; a failed response requires read-only Check status before same-key recovery, without effect-driven writes or another MCP confirmation after active readback</li>

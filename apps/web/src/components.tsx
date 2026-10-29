@@ -35,7 +35,6 @@ import {
 } from "./api";
 import { t } from "./locale";
 import { pdfCheckErrorMessage } from "./pdf-check-errors";
-import { useDashboardAppearance } from "./dashboard-appearance";
 import { workspaceAuthenticationRecoveryHref } from "./auth-navigation";
 
 export const BEFORE_WORKSPACE_NAVIGATION =
@@ -522,8 +521,6 @@ export function Loading() {
 }
 /** Local timestamps use the browser timezone; keep its context beside dates. */
 export function DateTimezone() {
-  const { appearance } = useDashboardAppearance();
-  if (appearance !== "v2") return null;
   return (
     <p className="timestamp-context">
       {msg(
@@ -608,29 +605,8 @@ export function RefreshButton({
     </button>
   );
 }
-export function DispatchTable({
-  items,
-  canPrepare = true,
-}: {
-  items: Dispatch[];
-  canPrepare?: boolean;
-}) {
-  const { appearance } = useDashboardAppearance();
-  if (!items.length)
-    return (
-      <EmptyState
-        title={t.dispatch.countEmpty}
-        action={
-          canPrepare &&
-          appearance !== "v2" && (
-            <a className="button primary" href="#/app/prepare">
-              {t.dispatch.new}
-              <ArrowRight size={17} />
-            </a>
-          )
-        }
-      />
-    );
+export function DispatchTable({ items }: { items: Dispatch[] }) {
+  if (!items.length) return <EmptyState title={t.dispatch.countEmpty} />;
   return (
     <>
       <DateTimezone />

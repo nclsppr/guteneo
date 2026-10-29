@@ -281,54 +281,50 @@ test("personal documents use one compact navigation row and role details stay on
   isMobile,
 }, info) => {
   const data = await fixture(page);
-  for (const appearance of ["classic", "v2"]) {
-    await page.goto(`/?appearance=${appearance}#/app`);
-    await expect(page.locator("aside .workspace-identity")).toContainText(
-      data.session.user.email!,
-    );
-    const navigation = page.locator(".workspace-navigation");
-    if (isMobile) await navigation.locator("summary").click();
-    const personal = navigation.locator('a[href="#/app/my-documents"]');
-    await expect(personal).toHaveCount(1);
-    await expect(personal).toHaveAccessibleName(
-      "Mes documents — Espace personnel",
-    );
-    await expect(personal).toHaveAttribute("title", "Espace personnel");
-    await expect(page.locator(".sidebar > .personal-context-link")).toHaveCount(
-      0,
-    );
-    const personalBox = await personal.boundingBox();
-    const overviewBox = await navigation
-      .locator('a[href="#/app"]')
-      .boundingBox();
-    expect(personalBox).not.toBeNull();
-    expect(overviewBox).not.toBeNull();
-    expect(personalBox!.height).toBeGreaterThanOrEqual(44);
-    expect(personalBox!.height).toBeLessThanOrEqual(48);
-    const brandBlue = await personal.evaluate((element) =>
-      getComputedStyle(element).getPropertyValue("--blue").trim(),
-    );
-    expect(["#2450db", "#9bb5ff"]).toContain(brandBlue);
-    const blueChannels = brandBlue
-      .slice(1)
-      .match(/.{2}/g)!
-      .map((channel) => Number.parseInt(channel, 16));
-    const borderColor = `rgb(${blueChannels.join(", ")})`;
-    for (const side of ["top", "right", "bottom", "left"]) {
-      await expect(personal).toHaveCSS(`border-${side}-width`, "1px");
-      await expect(personal).toHaveCSS(`border-${side}-color`, borderColor);
-    }
-    await expect(
-      page.locator(".workspace-role, .dashboard-identity"),
-    ).toHaveCount(0);
-    await expect(page.locator("aside .workspace-identity")).not.toContainText(
-      "Opérateur",
-    );
-    await fits(page);
-    await capture(page, `compact-sidebar-${appearance}`, info.project.name);
-    await page.goto(`/?appearance=${appearance}#/app/account`);
-    await expect(page.locator(".account-identity")).toContainText("Opérateur");
+  await page.goto(`/#/app`);
+  await expect(page.locator("aside .workspace-identity")).toContainText(
+    data.session.user.email!,
+  );
+  const navigation = page.locator(".workspace-navigation");
+  if (isMobile) await navigation.locator("summary").click();
+  const personal = navigation.locator('a[href="#/app/my-documents"]');
+  await expect(personal).toHaveCount(1);
+  await expect(personal).toHaveAccessibleName(
+    "Mes documents — Espace personnel",
+  );
+  await expect(personal).toHaveAttribute("title", "Espace personnel");
+  await expect(page.locator(".sidebar > .personal-context-link")).toHaveCount(
+    0,
+  );
+  const personalBox = await personal.boundingBox();
+  const overviewBox = await navigation.locator('a[href="#/app"]').boundingBox();
+  expect(personalBox).not.toBeNull();
+  expect(overviewBox).not.toBeNull();
+  expect(personalBox!.height).toBeGreaterThanOrEqual(44);
+  expect(personalBox!.height).toBeLessThanOrEqual(48);
+  const brandBlue = await personal.evaluate((element) =>
+    getComputedStyle(element).getPropertyValue("--blue").trim(),
+  );
+  expect(["#2450db", "#9bb5ff"]).toContain(brandBlue);
+  const blueChannels = brandBlue
+    .slice(1)
+    .match(/.{2}/g)!
+    .map((channel) => Number.parseInt(channel, 16));
+  const borderColor = `rgb(${blueChannels.join(", ")})`;
+  for (const side of ["top", "right", "bottom", "left"]) {
+    await expect(personal).toHaveCSS(`border-${side}-width`, "1px");
+    await expect(personal).toHaveCSS(`border-${side}-color`, borderColor);
   }
+  await expect(
+    page.locator(".workspace-role, .dashboard-identity"),
+  ).toHaveCount(0);
+  await expect(page.locator("aside .workspace-identity")).not.toContainText(
+    "Opérateur",
+  );
+  await fits(page);
+  await capture(page, `compact-sidebar`, info.project.name);
+  await page.goto(`/#/app/account`);
+  await expect(page.locator(".account-identity")).toContainText("Opérateur");
   expect(data.writes).toEqual([]);
   expect(data.unmatched).toEqual([]);
 });
@@ -712,72 +708,70 @@ test("contact failure is recoverable and switching workshops removes the previou
   expect(data.unmatched).toEqual([]);
 });
 
-for (const appearance of ["classic", "v2"] as const) {
-  for (const failure of ["network", "malformed"] as const) {
-    test(`${appearance} profile keeps typing focus when delayed contacts are ${failure}`, async ({
-      page,
-    }) => {
-      const data = await fixture(page);
-      data.state.failContacts = failure === "network";
-      data.state.malformedContacts =
-        failure === "malformed" ? "missing-items" : null;
-      let release!: () => void;
-      let requested!: () => void;
-      const gate = new Promise<void>((resolve) => {
-        release = resolve;
-      });
-      const ready = new Promise<void>((resolve) => {
-        requested = resolve;
-      });
-      data.state.holdNextContacts = { ready: requested, gate };
-      try {
-        await page.goto(`/?appearance=${appearance}#/app/account`);
-        await ready;
-        const name = page.getByLabel("Votre nom", { exact: true });
-        const contacts = page.getByRole("region", {
-          name: "Qui contacter dans cet atelier ?",
-          exact: true,
-        });
-        const save = page.getByRole("button", {
-          name: "Enregistrer les modifications",
-          exact: true,
-        });
-        await name.fill("Camille en cours");
-        await expect(name).toBeFocused();
-        await expect(save).toBeEnabled();
-        release();
-        await expect(contacts.getByRole("alert")).toContainText(
-          failure === "network"
-            ? "contacts sont temporairement indisponibles"
-            : "Impossible de vérifier les contacts",
-        );
-        await expect(name).toBeFocused();
-        // Use the current keyboard target: refocusing the locator would hide stolen focus.
-        await page.keyboard.insertText(" de saisie");
-        await expect(name).toHaveValue("Camille en cours de saisie");
-        await expect(name).toBeFocused();
-        await expect(save).toBeEnabled();
-        expect(data.writes).toEqual([]);
-        data.state.failContacts = false;
-        data.state.malformedContacts = null;
-        await contacts
-          .getByRole("button", { name: "Réessayer", exact: true })
-          .click();
-        await expect(
-          contacts.getByRole("link", { name: /validation@example.invalid/ }),
-        ).toBeVisible();
-        await expect(contacts.getByRole("alert")).toHaveCount(0);
-        await expect(name).toHaveValue("Camille en cours de saisie");
-        await expect(save).toBeEnabled();
-        expect(data.state.contactReads).toBe(2);
-        expect(data.writes).toEqual([]);
-        expect(data.unmatched).toEqual([]);
-      } finally {
-        release();
-        await page.unrouteAll({ behavior: "wait" });
-      }
+for (const failure of ["network", "malformed"] as const) {
+  test(`profile keeps typing focus when delayed contacts are ${failure}`, async ({
+    page,
+  }) => {
+    const data = await fixture(page);
+    data.state.failContacts = failure === "network";
+    data.state.malformedContacts =
+      failure === "malformed" ? "missing-items" : null;
+    let release!: () => void;
+    let requested!: () => void;
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
     });
-  }
+    const ready = new Promise<void>((resolve) => {
+      requested = resolve;
+    });
+    data.state.holdNextContacts = { ready: requested, gate };
+    try {
+      await page.goto(`/#/app/account`);
+      await ready;
+      const name = page.getByLabel("Votre nom", { exact: true });
+      const contacts = page.getByRole("region", {
+        name: "Qui contacter dans cet atelier ?",
+        exact: true,
+      });
+      const save = page.getByRole("button", {
+        name: "Enregistrer les modifications",
+        exact: true,
+      });
+      await name.fill("Camille en cours");
+      await expect(name).toBeFocused();
+      await expect(save).toBeEnabled();
+      release();
+      await expect(contacts.getByRole("alert")).toContainText(
+        failure === "network"
+          ? "contacts sont temporairement indisponibles"
+          : "Impossible de vérifier les contacts",
+      );
+      await expect(name).toBeFocused();
+      // Use the current keyboard target: refocusing the locator would hide stolen focus.
+      await page.keyboard.insertText(" de saisie");
+      await expect(name).toHaveValue("Camille en cours de saisie");
+      await expect(name).toBeFocused();
+      await expect(save).toBeEnabled();
+      expect(data.writes).toEqual([]);
+      data.state.failContacts = false;
+      data.state.malformedContacts = null;
+      await contacts
+        .getByRole("button", { name: "Réessayer", exact: true })
+        .click();
+      await expect(
+        contacts.getByRole("link", { name: /validation@example.invalid/ }),
+      ).toBeVisible();
+      await expect(contacts.getByRole("alert")).toHaveCount(0);
+      await expect(name).toHaveValue("Camille en cours de saisie");
+      await expect(save).toBeEnabled();
+      expect(data.state.contactReads).toBe(2);
+      expect(data.writes).toEqual([]);
+      expect(data.unmatched).toEqual([]);
+    } finally {
+      release();
+      await page.unrouteAll({ behavior: "wait" });
+    }
+  });
 }
 
 test("malformed contacts leave the profile usable and support an explicit retry", async ({

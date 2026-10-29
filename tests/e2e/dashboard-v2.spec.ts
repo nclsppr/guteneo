@@ -6,8 +6,8 @@ import {
   type WorkspaceRole,
 } from "../../packages/contracts/src/roles";
 
-async function login(page: Page, appearance?: "v2") {
-  await page.goto(appearance ? "/?appearance=v2#/app" : "/#/app");
+async function login(page: Page) {
+  await page.goto("/#/app");
   await page.getByRole("button", { name: "Entrer dans l’Atelier" }).click();
   // The sign-in screen already has an h1. Wait for the authenticated shell
   // before a caller can navigate and cancel the pending login request.
@@ -29,9 +29,11 @@ function observeWrites(page: Page) {
   return writes;
 }
 
-async function saveProfileAppearance(page: Page, appearance: "classic" | "v2") {
+async function saveProfileLanguage(page: Page) {
   await page.bringToFront();
-  await page.locator("#dashboard-appearance").selectOption(appearance);
+  await page
+    .locator('.account-display-preferences select[name="language"]')
+    .selectOption("fr");
   const saved = page.waitForResponse(
     (response) =>
       new URL(response.url()).pathname === "/api/account" &&
@@ -47,20 +49,16 @@ async function saveProfileAppearance(page: Page, appearance: "classic" | "v2") {
       .getByRole("status")
       .filter({ hasText: "Votre profil a été enregistré." }),
   ).toBeVisible();
-  await expect(page.locator(".workspace")).toHaveAttribute(
-    "data-appearance",
-    appearance,
-  );
 }
 
-async function returnToWorkspace(page: Page, appearance: "classic" | "v2") {
+async function returnToWorkspace(page: Page) {
   await page.bringToFront();
+  const reread = page.waitForResponse(
+    (response) => new URL(response.url()).pathname === "/api/session",
+  );
   // Headless WebKit does not consistently dispatch the native focus event.
   await page.evaluate(() => window.dispatchEvent(new Event("focus")));
-  await expect(page.locator(".workspace")).toHaveAttribute(
-    "data-appearance",
-    appearance,
-  );
+  expect((await reread).ok()).toBe(true);
 }
 
 async function expectClearV2Shell(page: Page) {
@@ -145,7 +143,7 @@ test("V2 gives each creation page one prominent action and keeps account utiliti
   await page.route("**/api/dispatches", (route) =>
     route.fulfill({ json: { items: [], nextCursor: null } }),
   );
-  await login(page, "v2");
+  await login(page);
   const writes = observeWrites(page);
   const main = page.locator("#main-content");
   for (const destination of [
@@ -163,7 +161,7 @@ test("V2 gives each creation page one prominent action and keeps account utiliti
     { path: "generations", title: "Générations", action: "Créer un document" },
     { path: "dispatches", title: "Le fil des envois.", action: "Nouvel envoi" },
   ]) {
-    await page.goto(`/?appearance=v2#/app/${destination.path}`);
+    await page.goto(`/#/app/${destination.path}`);
     await expect(
       main.getByRole("heading", {
         level: 1,
@@ -197,7 +195,7 @@ test("V2 gives each creation page one prominent action and keeps account utiliti
       );
   }
 
-  await page.goto("/?appearance=v2#/app/templates");
+  await page.goto("/#/app/templates");
   const create = main.getByRole("button", {
     name: "Créer un document",
     exact: true,
@@ -214,7 +212,7 @@ test("V2 gives each creation page one prominent action and keeps account utiliti
   await expect(create).toHaveAttribute("aria-expanded", "false");
   await expectProminentAction(create, isMobile);
 
-  await page.goto("/?appearance=v2#/app/documents");
+  await page.goto("/#/app/documents");
   const importPdf = main.getByRole("button", {
     name: "Importer un PDF",
     exact: true,
@@ -235,7 +233,7 @@ test("V2 gives each creation page one prominent action and keeps account utiliti
   // The account menu remains reachable when the compact navigation is closed.
   await page.locator(".sidebar-account .workspace-identity-trigger").click();
   await page.locator('.sidebar-account a[href="#/app/account"]').click();
-  await expect(page.locator("#dashboard-appearance")).toBeVisible();
+  await expect(page.locator(".account-display-preferences")).toBeVisible();
   await expectClearV2Shell(page);
   if (isMobile) {
     await expect(page.locator(".workspace-navigation")).not.toHaveAttribute(
@@ -264,7 +262,7 @@ test("V2 keeps every destination in view and in place on common desktop screens"
     isMobile,
     "Desktop sidebar geometry; phones use the collapsed navigation.",
   );
-  await login(page, "v2");
+  await login(page);
   const navigation = page.locator(".workspace-navigation");
   for (const size of [
     { width: 1440, height: 900 },
@@ -279,7 +277,7 @@ test("V2 keeps every destination in view and in place on common desktop screens"
       "/dispatches",
       "/admin",
     ]) {
-      await page.goto(`/?appearance=v2#/app${route}`);
+      await page.goto(`/#/app${route}`);
       await expect(page.locator("#main-content h1")).toBeVisible();
       const layout = await navigation.evaluate((element) => ({
         scrolls: element.scrollHeight > element.clientHeight,
@@ -312,45 +310,25 @@ test("V2 keeps every destination in view and in place on common desktop screens"
   ).toBe("sticky");
 });
 
-test("account language and appearance save together, survive a fresh browser, and retain another tab's draft", async ({
+test("account language saves alone, survives a fresh browser, and retains another tab's draft", async ({
   page,
   browser,
   context,
   baseURL,
 }) => {
   await login(page);
-  await expect(page.locator(".workspace")).toHaveAttribute(
-    "data-appearance",
-    "classic",
-  );
   await page.goto("/?lang=fr#/app/account");
   const preferences = page.locator(".account-display-preferences");
   await expect(preferences.locator('select[name="language"]')).toBeVisible();
-  await expect(preferences.locator("#dashboard-appearance")).toBeVisible();
-  await expect(page.locator(".sidebar #dashboard-appearance")).toHaveCount(0);
+  await expect(page.locator("#dashboard-appearance")).toHaveCount(0);
   const writes = observeWrites(page);
-  await preferences.locator('select[name="language"]').selectOption("fr");
-  await preferences.locator("#dashboard-appearance").selectOption("v2");
-  await expect(page.locator(".workspace")).toHaveAttribute(
-    "data-appearance",
-    "classic",
-  );
-  expect(writes).toEqual([]);
-  await saveProfileAppearance(page, "v2");
+  await saveProfileLanguage(page);
   expect(writes).toHaveLength(1);
   expect(writes[0].path).toBe("/api/account");
   expect(writes[0].body).toEqual(
-    expect.objectContaining({
-      preferredLocale: "fr",
-      preferredDashboardAppearance: "v2",
-    }),
+    expect.objectContaining({ preferredLocale: "fr" }),
   );
-  expect(new URL(page.url()).searchParams.has("appearance")).toBe(false);
-  await page.reload();
-  await expect(page.locator(".workspace")).toHaveAttribute(
-    "data-appearance",
-    "v2",
-  );
+  expect(writes[0].body).not.toHaveProperty("preferredDashboardAppearance");
 
   const fresh = await browser.newContext({
     baseURL,
@@ -359,11 +337,10 @@ test("account language and appearance save together, survive a fresh browser, an
   try {
     const freshPage = await fresh.newPage();
     await freshPage.goto("/#/app/account");
-    await expect(freshPage.locator(".workspace")).toHaveAttribute(
-      "data-appearance",
-      "v2",
-    );
-    await expect(freshPage.locator("#dashboard-appearance")).toHaveValue("v2");
+    await expect(
+      freshPage.locator('.account-display-preferences select[name="language"]'),
+    ).toHaveValue("fr");
+    await expect(freshPage.locator(".workspace")).toHaveClass(/workspace-v2/);
   } finally {
     await fresh.close();
   }
@@ -379,35 +356,19 @@ test("account language and appearance save together, survive a fresh browser, an
   const settings = await context.newPage();
   await settings.goto("/#/app/account");
   const settingsWrites = observeWrites(settings);
-  for (const appearance of ["classic", "v2"] as const) {
-    await saveProfileAppearance(settings, appearance);
-    await returnToWorkspace(page, appearance);
-    await expect(page.getByLabel("Objet", { exact: true })).toHaveValue(
-      "Brouillon conservé",
-    );
-    await expect(page.getByLabel("Message", { exact: true })).toHaveValue(
-      "Sans préparation ni envoi.",
-    );
-    expect(new URL(page.url()).hash).toBe("#/app/prepare?channel=email");
-    expect(new URL(page.url()).searchParams.get("lang")).toBe("fr");
-  }
+  await saveProfileLanguage(settings);
+  await returnToWorkspace(page);
+  await expect(page.getByLabel("Objet", { exact: true })).toHaveValue(
+    "Brouillon conservé",
+  );
+  await expect(page.getByLabel("Message", { exact: true })).toHaveValue(
+    "Sans préparation ni envoi.",
+  );
+  expect(new URL(page.url()).hash).toBe("#/app/prepare?channel=email");
+  expect(new URL(page.url()).searchParams.get("lang")).toBe("fr");
   expect(writes.map((write) => write.path)).toEqual(["/api/account"]);
-  expect(settingsWrites.map((write) => write.path)).toEqual([
-    "/api/account",
-    "/api/account",
-  ]);
+  expect(settingsWrites.map((write) => write.path)).toEqual(["/api/account"]);
   await settings.close();
-  await page.goto("/#/app/documents");
-  await expect(page.locator(".workspace")).toHaveAttribute(
-    "data-appearance",
-    "v2",
-  );
-  await page.reload();
-  await expect(page.locator(".workspace")).toHaveAttribute(
-    "data-appearance",
-    "v2",
-  );
-  expect(writes).toHaveLength(1);
 });
 
 test("V2 prepares through the existing API and requires explicit consent before simulated acceptance", async ({
@@ -417,8 +378,6 @@ test("V2 prepares through the existing API and requires explicit consent before 
   await login(page);
   const settings = await page.context().newPage();
   await settings.goto("/#/app/account");
-  await saveProfileAppearance(settings, "v2");
-  await returnToWorkspace(page, "v2");
   const expectedEmail = "v2-consent@example.invalid";
   const initialPaths = new Set(["/api/documents", "/api/senders"]);
   const seen = new Set<string>();
@@ -564,30 +523,25 @@ test("V2 prepares through the existing API and requires explicit consent before 
   });
   await expect(consent).not.toBeChecked();
   await expect(approve).toBeDisabled();
-  for (const appearance of ["classic", "v2"] as const) {
-    await saveProfileAppearance(settings, appearance);
-    await returnToWorkspace(page, appearance);
-    expect(
-      await page.locator(".content-preview").evaluate((content) => {
-        const approval = document.querySelector(".approval-panel");
-        return !!(
-          approval &&
-          content.compareDocumentPosition(approval) &
-            Node.DOCUMENT_POSITION_FOLLOWING
-        );
-      }),
-    ).toBe(true);
-    await expect(consent).not.toBeChecked();
-    await expect(approve).toBeDisabled();
-  }
+  await saveProfileLanguage(settings);
+  await returnToWorkspace(page);
+  expect(
+    await page.locator(".content-preview").evaluate((content) => {
+      const approval = document.querySelector(".approval-panel");
+      return !!(
+        approval &&
+        content.compareDocumentPosition(approval) &
+          Node.DOCUMENT_POSITION_FOLLOWING
+      );
+    }),
+  ).toBe(true);
+  await expect(consent).not.toBeChecked();
+  await expect(approve).toBeDisabled();
   expect(writes).toHaveLength(1);
   await consent.focus();
   await page.keyboard.press("Space");
-  await saveProfileAppearance(settings, "classic");
-  await returnToWorkspace(page, "classic");
-  await expect(consent).toBeChecked();
-  await saveProfileAppearance(settings, "v2");
-  await returnToWorkspace(page, "v2");
+  await saveProfileLanguage(settings);
+  await returnToWorkspace(page);
   await expect(consent).toBeChecked();
   expect(writes).toHaveLength(1);
   await settings.close();
@@ -727,14 +681,8 @@ test("V2 does not add reporting, preparation or approval rights to restricted ro
     reads.length = 0;
     // The session is read when the application mounts. A hash-only navigation
     // intentionally retains its current actor, so each fixture needs a new page.
-    await page.goto(
-      `/?appearance=v2&role-fixture=${role}-${approval}-${reporting}#/app`,
-    );
+    await page.goto(`/?role-fixture=${role}-${approval}-${reporting}#/app`);
     await expect(page.locator("#main-content h1")).toBeVisible();
-    await expect(page.locator(".workspace")).toHaveAttribute(
-      "data-appearance",
-      "v2",
-    );
     await expect(page.locator(".overview-stats")).toHaveCount(
       reporting ? 1 : 0,
     );
@@ -742,7 +690,7 @@ test("V2 does not add reporting, preparation or approval rights to restricted ro
     await expect(page.getByRole("alert")).toHaveCount(0);
     if (!scenario.preparation)
       await expect(page.locator('a[href="#/app/prepare"]')).toHaveCount(0);
-    await page.goto("/?appearance=v2#/app/generations");
+    await page.goto("/#/app/generations");
     await expect(
       page.getByRole("heading", { level: 1, name: "Générations" }),
     ).toBeVisible();
@@ -752,7 +700,7 @@ test("V2 does not add reporting, preparation or approval rights to restricted ro
     await expect(page.locator(".workspace-create")).toHaveCount(
       scenario.preparation ? 1 : 0,
     );
-    await page.goto("/?appearance=v2#/app/dispatch/v2-review");
+    await page.goto("/#/app/dispatch/v2-review");
     await expect(
       page.getByRole("heading", { name: "Le bon à envoyer." }),
     ).toBeVisible();
@@ -760,7 +708,7 @@ test("V2 does not add reporting, preparation or approval rights to restricted ro
     if (approval)
       await expect(page.locator(".approval-panel button")).toBeDisabled();
     if (!scenario.preparation) {
-      await page.goto("/?appearance=v2#/app/prepare");
+      await page.goto("/#/app/prepare");
       await expect(
         page.getByText("Votre rôle ne permet pas cette action.", {
           exact: false,
@@ -771,68 +719,44 @@ test("V2 does not add reporting, preparation or approval rights to restricted ro
   // This session is a fully intercepted projection of the live UI. It performs
   // no business request and must not carry the simulation or former trial badge.
   simulation = false;
-  await page.goto("/?appearance=v2&role-fixture=real-projection#/app");
+  await page.goto("/?role-fixture=real-projection#/app");
   await expect(page.locator("#main-content h1")).toBeVisible();
   await expect(page.locator(".simulation-banner")).toHaveCount(0);
   await expect(page.locator(".dashboard-v2-notice")).toHaveCount(0);
   expect(writes).toEqual([]);
 });
 
-test("saving a name from a temporary V2 link leaves the account appearance unchanged", async ({
+test("a stored Classic preference and old appearance links still open the only workspace layout", async ({
   page,
 }) => {
+  // The shared fixture stores `classic` on the demonstration accounts.
   await login(page);
-  await page.goto("/?appearance=v2&lang=fr#/app/account");
-  await expect(page.locator(".workspace")).toHaveAttribute(
-    "data-appearance",
-    "v2",
-  );
-  await expect(page.locator("#dashboard-appearance")).toHaveValue("classic");
-  const originalName = await page.locator("#account-name").inputValue();
+  await expectClearV2Shell(page);
   const writes = observeWrites(page);
-  await page.locator("#account-name").fill(`${originalName} V2`);
-  const saved = page.waitForResponse(
-    (response) =>
-      new URL(response.url()).pathname === "/api/account" &&
-      response.request().method() === "PATCH",
-  );
-  await page
-    .getByRole("button", { name: "Enregistrer les modifications", exact: true })
-    .click();
-  expect((await saved).status()).toBe(200);
-  expect(writes).toHaveLength(1);
-  expect(writes[0].body).not.toHaveProperty("preferredDashboardAppearance");
+  for (const link of [
+    "/?appearance=classic#/app/account",
+    "/?atelier=classic#/app/account",
+  ]) {
+    await page.goto(link);
+    await expect(page.locator("#main-content h1")).toBeVisible();
+    await expect(page.locator(".workspace")).toHaveClass(/workspace-v2/);
+    await expectClearV2Shell(page);
+    await expect(page.locator("#dashboard-appearance")).toHaveCount(0);
+  }
+  // The stored value stays readable for older clients; nothing rewrites it.
   expect(
     (await (await page.request.get("/api/session")).json()).user
       .preferredDashboardAppearance,
   ).toBe("classic");
-  expect(new URL(page.url()).searchParams.get("appearance")).toBe("v2");
-  await page.reload();
-  await expect(page.locator(".workspace")).toHaveAttribute(
-    "data-appearance",
-    "v2",
-  );
-  await expect(page.locator("#dashboard-appearance")).toHaveValue("classic");
-  await page.locator("#account-name").fill(originalName);
-  await saveProfileAppearance(page, "v2");
-  expect(writes).toHaveLength(2);
-  expect(writes[1].body).toEqual(
-    expect.objectContaining({ preferredDashboardAppearance: "v2" }),
-  );
-  expect(new URL(page.url()).searchParams.has("appearance")).toBe(false);
-  expect(new URL(page.url()).searchParams.get("lang")).toBe("fr");
-  expect(
-    (await (await page.request.get("/api/session")).json()).user
-      .preferredDashboardAppearance,
-  ).toBe("v2");
+  expect(writes).toEqual([]);
 });
 
-test("V2 keeps the account reachable below scrollable navigation and both appearances support every workspace at the native viewport and 320 pixels", async ({
+test("V2 keeps the account reachable below scrollable navigation and supports every workspace at the native viewport and 320 pixels", async ({
   page,
 }) => {
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
-  await login(page, "v2");
+  await login(page);
   const writes = observeWrites(page);
   const viewport = page.viewportSize();
   if (viewport && viewport.width >= 1025) {
@@ -859,40 +783,31 @@ test("V2 keeps the account reachable below scrollable navigation and both appear
   }
   for (const dimensions of [viewport!, { width: 320, height: 812 }]) {
     await page.setViewportSize(dimensions);
-    for (const appearance of ["classic", "v2"]) {
-      for (const route of [
-        "",
-        "/documents",
-        "/templates",
-        "/datasets",
-        "/generations",
-        "/dispatches",
-        "/campaigns",
-        "/connection",
-        "/senders",
-        "/usage",
-        "/plan",
-        "/billing",
-        "/account",
-        "/admin",
-        "/prepare",
-      ]) {
-        await page.goto(`/?appearance=${appearance}#/app${route}`);
-        await expect(page.locator("#main-content h1")).toBeVisible();
-        await expect(page.locator(".workspace")).toHaveAttribute(
-          "data-appearance",
-          appearance,
-        );
-        if (appearance === "v2") await expectClearV2Shell(page);
-        await expect
-          .poll(
-            () => page.evaluate(() => document.documentElement.scrollWidth),
-            {
-              message: `${appearance} horizontal overflow at ${route || "/app"} (${dimensions.width}px)`,
-            },
-          )
-          .toBeLessThanOrEqual(dimensions.width);
-      }
+    for (const route of [
+      "",
+      "/documents",
+      "/templates",
+      "/datasets",
+      "/generations",
+      "/dispatches",
+      "/campaigns",
+      "/connection",
+      "/senders",
+      "/usage",
+      "/plan",
+      "/billing",
+      "/account",
+      "/admin",
+      "/prepare",
+    ]) {
+      await page.goto(`/#/app${route}`);
+      await expect(page.locator("#main-content h1")).toBeVisible();
+      await expectClearV2Shell(page);
+      await expect
+        .poll(() => page.evaluate(() => document.documentElement.scrollWidth), {
+          message: `Horizontal overflow at ${route || "/app"} (${dimensions.width}px)`,
+        })
+        .toBeLessThanOrEqual(dimensions.width);
     }
   }
   expect(errors).toEqual([]);

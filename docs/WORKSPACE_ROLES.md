@@ -101,7 +101,7 @@ Four roles separate preparation, approval and administration:
 | Manage workspace, members, permissions | Yes | No | No | No |
 | Manage billing, senders, channels | Yes | No | No | No |
 | Grant/renew assistant delegation | Yes, browser only | No | No | No |
-| Set own language and Classic/V2 appearance | Personal browser setting | Personal browser setting | Personal browser setting | Personal browser setting |
+| Set own language | Personal browser setting | Personal browser setting | Personal browser setting | Personal browser setting |
 
 Administrators own workspace access; at least one must remain. Supervisors prepare
 and independently receive approval/reporting options, both initially off unless
@@ -164,7 +164,8 @@ Visual emphasis bypasses no server guard. All roles retain account/role access
 with mobile menu closed. Service status near account adds no authority. Home
 explains effective rights without repeating personal/workspace identity. Removing
 redundant V2 section headings/footer removes no consent summary, detail return or
-date timezone. Classic/native/REST/MCP contracts remain unchanged; [V2 evidence](DASHBOARD_V2.md)
+date timezone. Native/REST/MCP contracts remain unchanged; Classic was retired on
+29 October 2026 without changing any role; [V2 evidence](DASHBOARD_V2.md)
 is separate from hosted use/publication.
 
 ## Assigning access

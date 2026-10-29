@@ -131,9 +131,8 @@ test("ordinary application entry offers workspace setup before service cards", a
     name: "Create or join a workspace",
   });
   await expect(heading).toBeVisible();
-  await expect(page.locator(".personal-space")).toHaveAttribute(
-    "data-appearance",
-    "v2",
+  await expect(page.locator(".personal-space")).toHaveClass(
+    /personal-space-v2/,
   );
   await expect(page.getByLabel("Your workspace name")).toBeVisible();
   expect(
@@ -257,7 +256,7 @@ for (const [locale, setup, invitationLabel, review, error] of [
   });
 }
 
-test("a personal account selects its saved layout without workshop reads or account bundles", async ({
+test("a personal account opens the only layout without workshop reads or account bundles", async ({
   page,
 }) => {
   const state = await fixture(page);
@@ -265,9 +264,8 @@ test("a personal account selects its saved layout without workshop reads or acco
     localStorage.setItem("guteneo.dashboard.appearance", "classic");
   });
   await page.goto("/#/app/my-documents");
-  await expect(page.locator(".personal-space")).toHaveAttribute(
-    "data-appearance",
-    "v2",
+  await expect(page.locator(".personal-space")).toHaveClass(
+    /personal-space-v2/,
   );
   await expect(
     page.getByRole("heading", { name: "Synthetic personal document" }),
@@ -291,12 +289,14 @@ test("a personal account selects its saved layout without workshop reads or acco
   state.switchAccount();
   await expect(async () => {
     await page.evaluate(() => window.dispatchEvent(new Event("focus")));
-    await expect(page.locator(".personal-space")).toHaveAttribute(
-      "data-appearance",
-      "classic",
-      { timeout: 250 },
-    );
+    await expect(
+      page.getByText("personal-appearance-b@example.invalid", { exact: false }),
+    ).toBeVisible({ timeout: 250 });
   }).toPass();
+  // The second account stores `classic`; the only layout still applies.
+  await expect(page.locator(".personal-space")).toHaveClass(
+    /personal-space-v2/,
+  );
   await expect(
     page.getByText("personal-appearance-a@example.invalid", { exact: false }),
   ).toHaveCount(0);
@@ -328,7 +328,6 @@ test("a late profile save cannot restore a previous personal account or its pref
     };
   });
   await page.goto("/#/app/personal-account");
-  await page.locator("#dashboard-appearance").selectOption("v2");
   await page
     .locator(".personal-account-profile select")
     .nth(1)
@@ -354,10 +353,6 @@ test("a late profile save cannot restore a previous personal account or its pref
       new Promise<void>((resolve) =>
         requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
       ),
-  );
-  await expect(page.locator(".personal-space")).toHaveAttribute(
-    "data-appearance",
-    "classic",
   );
   await expect(page.locator("html")).toHaveAttribute("lang", "de");
   await expect(
@@ -391,10 +386,6 @@ test("an older focus session read cannot overwrite a successful profile save", a
     };
   });
   await page.goto("/#/app/personal-account");
-  await expect(page.locator(".personal-space")).toHaveAttribute(
-    "data-appearance",
-    "classic",
-  );
   await expect(async () => {
     await page.evaluate(() => window.dispatchEvent(new Event("focus")));
     await expect
@@ -410,7 +401,6 @@ test("an older focus session read cannot overwrite a successful profile save", a
   await page
     .getByRole("textbox", { name: "Your name", exact: true })
     .fill("Updated synthetic reader");
-  await page.locator("#dashboard-appearance").selectOption("v2");
   await page
     .locator(".personal-account-profile select")
     .nth(1)
@@ -418,10 +408,6 @@ test("an older focus session read cannot overwrite a successful profile save", a
   await page
     .getByRole("button", { name: "Save preferences", exact: true })
     .click();
-  await expect(page.locator(".personal-space")).toHaveAttribute(
-    "data-appearance",
-    "v2",
-  );
   await expect(page.locator("html")).toHaveAttribute("lang", "fr");
   await page.evaluate(() => {
     Reflect.get(window, "releasePreviousPersonalRead")();
@@ -432,107 +418,97 @@ test("an older focus session read cannot overwrite a successful profile save", a
         requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
       ),
   );
-  await expect(page.locator(".personal-space")).toHaveAttribute(
-    "data-appearance",
-    "v2",
-  );
   await expect(page.locator("html")).toHaveAttribute("lang", "fr");
   await expect(
     page.locator(".personal-account-identity-details"),
   ).toContainText("Updated synthetic reader");
 });
 
-test("personal layout changes persist across reload and a failed save retains the draft", async ({
+test("personal preferences persist across reload, the layout fills the width and a failed save retains the draft", async ({
   page,
 }, testInfo) => {
   const state = await fixture(page);
   await page.goto("/#/app/personal-account");
   const shell = page.locator(".personal-space");
-  const version = page.locator("#dashboard-appearance");
-  await expect(shell).toHaveAttribute("data-appearance", "v2");
-  for (const appearance of ["classic", "v2"] as const) {
-    await version.selectOption(appearance);
-    await page
-      .getByRole("button", { name: "Save preferences", exact: true })
-      .click();
-    await expect(page.getByRole("status")).toContainText("Preferences saved.");
-    await expect(shell).toHaveAttribute("data-appearance", appearance);
-    await page.reload();
-    await expect(shell).toHaveAttribute("data-appearance", appearance);
-    await expect(version).toHaveValue(appearance);
-    await page.setViewportSize({ width: 3440, height: 960 });
-    expect(
-      (await page.locator(".personal-account-profile > .field").boundingBox())
-        ?.width,
-    ).toBeLessThanOrEqual(780);
-    await page.locator('a[href="#/app/my-documents"]').click();
-    await expect(
-      page.getByRole("heading", { name: "Synthetic personal document" }),
-    ).toBeVisible();
-    for (const width of [1920, 3440, 320, 390]) {
-      await page.setViewportSize({ width, height: 960 });
-      for (const theme of ["light", "dark"]) {
-        if ((await page.locator("html").getAttribute("data-theme")) !== theme)
-          await page
-            .locator(".personal-space-header [data-theme-toggle]")
-            .click();
-        await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
-        const geometry = await shell.evaluate((element) => {
-          const frame = element.getBoundingClientRect();
-          const main = element.querySelector("main")!.getBoundingClientRect();
-          const mainStyle = getComputedStyle(element.querySelector("main")!);
-          const documents = element
-            .querySelector(".secure-document-list")!
-            .getBoundingClientRect();
-          const style = getComputedStyle(element);
-          return {
-            left: frame.left,
-            width: frame.width,
-            viewport: innerWidth,
-            mainRight: main.right,
-            documentsRight: documents.right,
-            contentRightGutter: Number.parseFloat(mainStyle.paddingRight),
-            rightGutter: Number.parseFloat(style.paddingRight),
-            pageWidth: document.documentElement.scrollWidth,
-          };
-        });
-        expect(geometry.left).toBeCloseTo(0);
-        expect(geometry.width).toBeCloseTo(geometry.viewport);
-        expect(geometry.mainRight).toBeCloseTo(
-          geometry.viewport - geometry.rightGutter,
-        );
-        expect(geometry.pageWidth).toBeLessThanOrEqual(geometry.viewport);
-        expect(geometry.documentsRight).toBeCloseTo(
-          geometry.mainRight - geometry.contentRightGutter,
-        );
-        if (testInfo.project.name === "chromium")
-          await page.screenshot({
-            path: testInfo.outputPath(
-              `personal-full-width-${appearance}-${theme}-${width}.png`,
-            ),
-          });
-      }
-    }
-    await page.locator('a[href="#/app/personal-account"]').click();
-    await expect(version).toHaveValue(appearance);
-    expect(
-      (await page.locator(".personal-account-profile > .field").boundingBox())
-        ?.width,
-    ).toBeLessThanOrEqual(780);
-  }
+  const name = page.getByRole("textbox", { name: "Your name", exact: true });
+  await expect(shell).toHaveClass(/personal-space-v2/);
+  await name.fill("Updated synthetic reader");
+  await page
+    .getByRole("button", { name: "Save preferences", exact: true })
+    .click();
+  await expect(page.getByRole("status")).toContainText("Preferences saved.");
+  await page.reload();
+  await expect(name).toHaveValue("Updated synthetic reader");
+  await page.setViewportSize({ width: 3440, height: 960 });
   expect(
-    state.writes.map((write) => write.body.preferredDashboardAppearance),
-  ).toEqual(["classic", "v2"]);
+    (await page.locator(".personal-account-profile > .field").boundingBox())
+      ?.width,
+  ).toBeLessThanOrEqual(780);
+  await page.locator('a[href="#/app/my-documents"]').click();
+  await expect(
+    page.getByRole("heading", { name: "Synthetic personal document" }),
+  ).toBeVisible();
+  for (const width of [1920, 3440, 320, 390]) {
+    await page.setViewportSize({ width, height: 960 });
+    for (const theme of ["light", "dark"]) {
+      if ((await page.locator("html").getAttribute("data-theme")) !== theme)
+        await page
+          .locator(".personal-space-header [data-theme-toggle]")
+          .click();
+      await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
+      const geometry = await shell.evaluate((element) => {
+        const frame = element.getBoundingClientRect();
+        const main = element.querySelector("main")!.getBoundingClientRect();
+        const mainStyle = getComputedStyle(element.querySelector("main")!);
+        const documents = element
+          .querySelector(".secure-document-list")!
+          .getBoundingClientRect();
+        const style = getComputedStyle(element);
+        return {
+          left: frame.left,
+          width: frame.width,
+          viewport: innerWidth,
+          mainRight: main.right,
+          documentsRight: documents.right,
+          contentRightGutter: Number.parseFloat(mainStyle.paddingRight),
+          rightGutter: Number.parseFloat(style.paddingRight),
+          pageWidth: document.documentElement.scrollWidth,
+        };
+      });
+      expect(geometry.left).toBeCloseTo(0);
+      expect(geometry.width).toBeCloseTo(geometry.viewport);
+      expect(geometry.mainRight).toBeCloseTo(
+        geometry.viewport - geometry.rightGutter,
+      );
+      expect(geometry.pageWidth).toBeLessThanOrEqual(geometry.viewport);
+      expect(geometry.documentsRight).toBeCloseTo(
+        geometry.mainRight - geometry.contentRightGutter,
+      );
+      if (testInfo.project.name === "chromium")
+        await page.screenshot({
+          path: testInfo.outputPath(
+            `personal-full-width-${theme}-${width}.png`,
+          ),
+        });
+    }
+  }
+  await page.locator('a[href="#/app/personal-account"]').click();
+  expect(
+    (await page.locator(".personal-account-profile > .field").boundingBox())
+      ?.width,
+  ).toBeLessThanOrEqual(780);
+  expect(state.writes.map((write) => write.body)).toEqual([
+    { name: "Updated synthetic reader", preferredLocale: "en" },
+  ]);
   state.rejectSave(true);
-  await version.selectOption("classic");
+  await name.fill("Unsaved synthetic reader");
   await page
     .getByRole("button", { name: "Save preferences", exact: true })
     .click();
   await expect(page.getByRole("alert")).toContainText(
     "Synthetic profile service unavailable",
   );
-  await expect(shell).toHaveAttribute("data-appearance", "v2");
-  await expect(version).toHaveValue("classic");
+  await expect(name).toHaveValue("Unsaved synthetic reader");
   expect(state.reads.every((path) => path.startsWith("/api/personal/"))).toBe(
     true,
   );
@@ -541,64 +517,44 @@ test("personal layout changes persist across reload and a failed save retains th
   ).toBe(true);
 });
 
-test("saving name and language does not persist a temporary layout link", async ({
+test("a stored Classic preference and old layout links still open the personal V2 layout", async ({
   page,
 }) => {
   const state = await fixture(page, "classic");
-  await page.goto("/?appearance=v2#/app/personal-account");
-  const shell = page.locator(".personal-space");
-  await expect(shell).toHaveAttribute("data-appearance", "v2");
-  await expect(page.locator("#dashboard-appearance")).toHaveValue("classic");
-  await page
-    .getByRole("textbox", { name: "Your name", exact: true })
-    .fill("Updated synthetic reader");
-  await page
-    .getByRole("button", { name: "Save preferences", exact: true })
-    .click();
-  await expect(page.getByRole("status")).toContainText("Preferences saved.");
-  expect(state.writes[0].body).not.toHaveProperty(
-    "preferredDashboardAppearance",
-  );
-  await expect(shell).toHaveAttribute("data-appearance", "v2");
-  await page
-    .locator(".personal-account-profile select")
-    .nth(1)
-    .selectOption("de");
-  await page
-    .getByRole("button", { name: "Save preferences", exact: true })
-    .click();
-  await expect(page.locator("html")).toHaveAttribute("lang", "de");
-  expect(state.writes[1].body).toEqual({
-    name: "Updated synthetic reader",
-    preferredLocale: "de",
+  await page.addInitScript(() => {
+    localStorage.setItem("guteneo.dashboard.appearance", "classic");
   });
-  await page.locator("#dashboard-appearance").selectOption("classic");
-  await page.locator(".personal-account-profile button[type=submit]").click();
-  await expect(shell).toHaveAttribute("data-appearance", "classic");
-  expect(new URL(page.url()).searchParams.has("appearance")).toBe(false);
-  await page.reload();
-  await expect(shell).toHaveAttribute("data-appearance", "classic");
+  for (const link of [
+    "/?atelier=classic#/app/my-documents",
+    "/?appearance=classic#/app/personal-account",
+  ]) {
+    await page.goto(link);
+    await expect(page.locator(".personal-space")).toHaveClass(
+      /personal-space-v2/,
+    );
+    await expect(
+      page.locator(".personal-space-header [data-theme-toggle]"),
+    ).toHaveCount(1);
+  }
+  await expect(page.locator("#dashboard-appearance")).toHaveCount(0);
+  expect(state.writes).toEqual([]);
 });
 
 const titles = {
   fr: {
     account: "Compte et sécurité",
-    version: "Version de l’interface",
     documents: "Mes documents",
   },
   en: {
     account: "Account and security",
-    version: "Interface version",
     documents: "My documents",
   },
   de: {
     account: "Konto und Sicherheit",
-    version: "Version der Oberfläche",
     documents: "Meine Dokumente",
   },
   lb: {
     account: "Kont a Sécherheet",
-    version: "Versioun vun der Uewerfläch",
     documents: "Meng Dokumenter",
   },
 };
@@ -615,9 +571,8 @@ for (const locale of ["fr", "en", "de", "lb"] as const) {
         exact: true,
       }),
     ).toBeVisible();
-    await expect(page.locator(".personal-space")).toHaveAttribute(
-      "data-appearance",
-      "v2",
+    await expect(page.locator(".personal-space")).toHaveClass(
+      /personal-space-v2/,
     );
     await expect(
       page.getByRole("heading", { name: "Synthetic personal document" }),
@@ -636,14 +591,11 @@ for (const locale of ["fr", "en", "de", "lb"] as const) {
       page.getByRole("heading", { name: titles[locale].account, exact: true }),
     ).toBeVisible();
     await expect(
-      page.getByLabel(titles[locale].version, { exact: true }),
-    ).toHaveValue("v2");
-    await expect(
       page.locator(".personal-account-identity-details"),
     ).toContainText("personal-appearance-a@example.invalid");
     await expect(
       page.locator(".account-display-preferences select"),
-    ).toHaveCount(3);
+    ).toHaveCount(2);
     for (const select of await page
       .locator(".account-display-preferences select")
       .all()) {

@@ -1,6 +1,5 @@
 import { msg } from "./messages";
 import { FileInput } from "./file-input";
-import { useDashboardAppearance } from "./dashboard-appearance";
 import { WorkspaceContacts } from "./workspace-contacts";
 import { RolePermissionNotice } from "./role-guide";
 import { formatLocale } from "./locale";
@@ -191,7 +190,6 @@ function useDocumentFollowup(id: string | null, preview?: DocumentRecord) {
 }
 
 export function Overview({ session }: { session: Session }) {
-  const { appearance } = useDashboardAppearance();
   const permissions = permissionsFor(session);
   const overview = useResource<DispatchOverview>(
     permissions.viewReports ? "/overview" : null,
@@ -207,9 +205,8 @@ export function Overview({ session }: { session: Session }) {
   const counts = overview.data;
   const attention = counts?.dispatches.attention ?? 0;
   const dailyOverview =
-    appearance === "v2" &&
-    ((counts?.dispatches.total ?? 0) > 0 ||
-      (dispatches.data?.items.length ?? 0) > 0);
+    (counts?.dispatches.total ?? 0) > 0 ||
+    (dispatches.data?.items.length ?? 0) > 0;
   const stats = [
     {
       href: "#/app/documents",
@@ -317,10 +314,7 @@ export function Overview({ session }: { session: Session }) {
           text={t.overview.emptyBody}
           action={
             permissions.prepareDispatches && (
-              <a
-                className={appearance === "v2" ? "button" : "button primary"}
-                href="#/app/documents"
-              >
+              <a className="button" href="#/app/documents">
                 {t.documents.import}
                 <ArrowRight size={18} aria-hidden="true" />
               </a>
@@ -343,7 +337,6 @@ export function Overview({ session }: { session: Session }) {
           title={t.overview.title}
           intro={t.overview.intro}
           action={
-            appearance === "v2" &&
             permissions.prepareDispatches && (
               <a
                 className="button primary heading-new-dispatch"
@@ -362,7 +355,6 @@ export function Overview({ session }: { session: Session }) {
 }
 
 export function Documents({ canPrepare = true }: { canPrepare?: boolean }) {
-  const { appearance } = useDashboardAppearance();
   const resource = useResource<Page<DocumentRecord>>("/documents");
   const action = useAction();
   const route = useRoute();
@@ -491,11 +483,7 @@ export function Documents({ canPrepare = true }: { canPrepare?: boolean }) {
                 {t.documents.render}
               </button>
               <button
-                className={
-                  appearance === "v2" && (tab || selected)
-                    ? "button"
-                    : "button primary"
-                }
+                className={tab || selected ? "button" : "button primary"}
                 disabled={isPublicPreview}
                 onClick={() => {
                   setTab("import");
@@ -695,7 +683,7 @@ export function Documents({ canPrepare = true }: { canPrepare?: boolean }) {
           />
           {canPrepare && (
             <a
-              className={`button ${appearance === "v2" && tab ? "" : "primary"} ${selected.status !== "ready" ? "disabled-link" : ""}`}
+              className={`button ${tab ? "" : "primary"} ${selected.status !== "ready" ? "disabled-link" : ""}`}
               href={
                 selected.status !== "ready"
                   ? undefined
@@ -1712,12 +1700,7 @@ export function DispatchList({ canPrepare = true }: { canPrepare?: boolean }) {
         }
       />
       {/* A new key per filter: never show the previous selection's rows. */}
-      <DispatchListResults
-        key={path}
-        path={path}
-        filtered={!!group}
-        canPrepare={canPrepare}
-      >
+      <DispatchListResults key={path} path={path} filtered={!!group}>
         <nav className="dispatch-filter" aria-label={t.dispatch.filterLabel}>
           {([undefined, ...dispatchGroupNames] as const).map((item) => (
             <a
@@ -1737,14 +1720,12 @@ export function DispatchList({ canPrepare = true }: { canPrepare?: boolean }) {
 }
 
 function DispatchListResults({
-  canPrepare,
   path,
   filtered,
   children,
 }: {
   path: string;
   filtered: boolean;
-  canPrepare: boolean;
   children: ReactNode;
 }) {
   const resource = useResource<Page<Dispatch>>(path);
@@ -1771,7 +1752,7 @@ function DispatchListResults({
         (filtered && !resource.data.items.length ? (
           <p className="empty-inline">{t.dispatch.groupEmpty}</p>
         ) : (
-          <DispatchTable items={resource.data.items} canPrepare={canPrepare} />
+          <DispatchTable items={resource.data.items} />
         ))
       )}
       <LoadMore

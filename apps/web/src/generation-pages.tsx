@@ -1,5 +1,4 @@
 import { msg, msgIn } from "./messages";
-import { useDashboardAppearance } from "./dashboard-appearance";
 import { scrollStudioTable } from "./studio-table-keyboard";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import type {
@@ -34,16 +33,13 @@ const stateLabel: Record<string, string> = {
   generated: "PDF generated",
 };
 export function GenerationList({ canPrepare }: { canPrepare: boolean }) {
-  const { appearance } = useDashboardAppearance();
   const resource = useResource<Page<GenerationJobView>>("/generation-jobs");
   return (
     <>
       <PageHeading
         title={msg("Generations")}
         intro={msg(
-          appearance === "v2"
-            ? "Find your generated PDFs here. Generating a PDF does not send it."
-            : "Each result retains its identifier, template version and exact PDF. Generation does not send anything.",
+          "Find your generated PDFs here. Generating a PDF does not send it.",
         )}
         action={
           canPrepare && (
@@ -1163,17 +1159,14 @@ export function DistributionDetail({
   canPrepare: boolean;
   canApprove: boolean;
 }) {
-  const { appearance } = useDashboardAppearance();
   const resource = useResource<DistributionView>("/distribution-plans/" + id);
   const action = useAction();
   const keys = useRef<Record<string, string>>({});
   return (
     <>
-      {appearance === "v2" && (
-        <a className="back-link" href="#/app/generations">
-          {msg("← Generations ")}
-        </a>
-      )}
+      <a className="back-link" href="#/app/generations">
+        {msg("← Generations ")}
+      </a>
       <PageHeading
         title={msg("Distribution prepared")}
         intro={msg(

@@ -1,4 +1,3 @@
-import { defaultDashboardAppearance } from "../../../packages/contracts/src/dashboard-appearance";
 import { msg, msgIn } from "./messages";
 import { useState, type FormEvent } from "react";
 import {
@@ -30,10 +29,6 @@ import {
 } from "./locale";
 import { LanguageSelect } from "./language-select";
 import { AppearancePreferences } from "./appearance-preferences";
-import {
-  useDashboardAppearance,
-  type DashboardAppearance,
-} from "./dashboard-appearance";
 import { ExpertApproval } from "./expert-approval";
 import {
   WORKSPACE_ROLES,
@@ -138,18 +133,6 @@ function WorkspaceSwitcher({ session, onUpdated }: Props) {
 
 export function Account({ session, onUpdated }: Props) {
   const permissions = permissionsFor(session);
-  const { appearance, setAppearance, saveAccountAppearance } =
-    useDashboardAppearance();
-  const [draftAppearance, setDraftAppearance] =
-    useState<DashboardAppearance | null>(null);
-  const selectedAppearance =
-    draftAppearance ??
-    session.user.preferredDashboardAppearance ??
-    defaultDashboardAppearance;
-  const appearanceChanged =
-    draftAppearance !== null &&
-    selectedAppearance !==
-      (session.user.preferredDashboardAppearance ?? defaultDashboardAppearance);
   const [userName, setUserName] = useState(session.user.name);
   const [organizationName, setOrganizationName] = useState(
     session.organization.name,
@@ -168,8 +151,6 @@ export function Account({ session, onUpdated }: Props) {
   );
   const isAdmin = canAdminister(session);
   const changed =
-    appearanceChanged ||
-    (draftAppearance !== null && selectedAppearance !== appearance) ||
     (languageEdited && preferredLocale !== "") ||
     userName.trim() !== session.user.name ||
     (isAdmin && organizationName.trim() !== session.organization.name);
@@ -182,19 +163,13 @@ export function Account({ session, onUpdated }: Props) {
         body: {
           userName,
           ...(languageEdited && preferredLocale ? { preferredLocale } : {}),
-          ...(appearanceChanged
-            ? { preferredDashboardAppearance: selectedAppearance }
-            : {}),
           ...(isAdmin ? { organizationName } : {}),
         },
       });
       if (languageEdited && preferredLocale)
         applyAccountLocale(preferredLocale);
-      if (draftAppearance !== null)
-        saveAccountAppearance(selectedAppearance, session.user.id);
       await onUpdated();
       setLanguageEdited(false);
-      setDraftAppearance(null);
       setSaved(true);
     });
   }
@@ -250,11 +225,7 @@ export function Account({ session, onUpdated }: Props) {
         <>
           <PreviewNotice />
           <section className="form-panel">
-            <AppearancePreferences
-              language={<LanguageSelect profile />}
-              appearance={appearance}
-              onAppearanceChange={setAppearance}
-            />
+            <AppearancePreferences language={<LanguageSelect profile />} />
             <p className="field-hint">{languageCopy().browser}</p>
           </section>
         </>
@@ -334,13 +305,6 @@ export function Account({ session, onUpdated }: Props) {
                   }}
                 />
               }
-              appearance={selectedAppearance}
-              disabled={action.pending}
-              onAppearanceChange={(next) => {
-                setDraftAppearance(next);
-                setSaved(false);
-                action.clear();
-              }}
             />
             <button
               className="button primary"

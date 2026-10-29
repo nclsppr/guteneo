@@ -377,23 +377,16 @@ test("assistants read filtered lists but not the workspace summary", async ({
     expect(["prepared", "draft"]).toContain(item.status);
 });
 
-test("sign-out returns to the public site from the desktop footer or mobile navigation", async ({
+test("sign-out returns to the public site from the account menu", async ({
   page,
-}, testInfo) => {
+}) => {
   await login(page);
-  const topbar = page.locator(".app-topbar");
-  await expect(
-    topbar.getByRole("button", { name: "Se déconnecter" }),
-  ).toHaveCount(0);
-  if (testInfo.project.name === "chromium") {
-    await page
-      .locator(".sidebar-footer")
-      .getByRole("button", { name: "Se déconnecter", exact: true })
-      .click();
-  } else {
-    await page.getByText("Navigation de l’atelier").click();
-    await page.getByRole("button", { name: "Se déconnecter" }).click();
-  }
+  // The account menu sits outside the navigation, including on phones.
+  const account = page.locator(".sidebar-account");
+  await account.locator(".workspace-identity-trigger").click();
+  await account
+    .getByRole("button", { name: "Se déconnecter", exact: true })
+    .click();
   await expect(page).toHaveURL(`${origin}/`);
   await expect(page.locator(".landing")).toBeVisible();
   await expect(page.locator('.site-header a[href="/app"]')).toHaveCount(2);

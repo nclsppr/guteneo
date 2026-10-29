@@ -3,7 +3,8 @@
 This document owns the browser appearance contract. [Brand identity](BRAND_IDENTITY.md)
 owns the artwork and lettering rules; [multilingual behavior](MULTILINGUAL.md) owns
 language selection. Appearance is presentation state, independent of language,
-account identity, workspace membership and the account's Classic/V2 layout choice.
+account identity and workspace membership. The former Classic/V2 layout choice
+was retired on 29 October 2026; every account uses the V2 layout.
 
 The initial 25 October 2026 theme and public-site release was published from
 `03daa4136de8999cc79018f33f2a22038917c621`. The personal-space and Belvédère alignment below
@@ -80,15 +81,15 @@ Local storage is scoped to an origin; the cookie is scoped to its host. Neither
 mechanism shares a choice automatically between `guteneo.com`, Belvédère's host,
 `status.guteneo.com`, `engineering.guteneo.com` or a preview host. No account
 color-preference synchronization or cross-origin theme transfer is claimed. The
-separate Classic/V2 layout is an existing saved account preference; both personal
-and workshop sessions reconcile it for the authenticated identity.
+stored Classic/V2 value stays readable for older clients but no longer changes the
+web layout.
 
 ## Surface ownership
 
 | Surface                                                                                                                      | Entry and current behavior                                                                                                                                                                                             |
 | ---------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Public homepage, product pages, journal, legal, support and assistant/developer guides                                       | Shared head bootstrap and tokens; `PublicHeader` exposes only the localized light/dark action icon at every viewport, with system as the default and activation available before React.                                |
-| Personal space                                                                                                               | Shared `ThemeToggle` icon, runtime and tokens; saved Classic/V2 layout and shared account preference controls retain independent personal document authority.                                                          |
+| Personal space                                                                                                               | Shared `ThemeToggle` icon, runtime and tokens; shared account language and color controls retain independent personal document authority.                                                                              |
 | Workshop, including account, documents, dispatches, Studio and PDF controls                                                  | Shared runtime and tokens; account configuration exposes `ThemeSelect`, and the V2 account menu shows the shared `ThemeToggle` with its visible action. Classic/V2 is a separate account layout setting.               |
 | Belvédère                                                                                                                    | Shared `ThemeToggle` in page actions, V2 navigation geometry and shared tokens. Platform guard, read-only data and injected account locale remain independent.                                                         |
 | Server-rendered public HTTP errors, protected-document forms, native browser authorization/review and denied Belvédère entry | `standalone-theme.ts` supplies fixed blue metadata, bounded cookie selection and CSS-only system fallback without adding scripts or asset requests. These pages do not expose a new appearance selector.               |

@@ -7,6 +7,34 @@ scroll/focus on commit. Private reads still require current authority. Secure
 document prices retain their existing padding and consent with a one-pixel
 cobalt side rule. See the [loading contract and measured environment](FRONTEND_PERFORMANCE.md#route-dependencies-follow-the-requested-task).
 
+## Classic retirement — 29 October 2026 candidate
+
+On 29 October 2026 the product owner decided to retire the Classic layout before
+the Studio space and space-switcher work. Every account now sees V2 in the
+workshop and in personal documents:
+
+- The workshop and personal shells render V2 whatever the stored
+  `preferredDashboardAppearance`. My account and Account and security offer
+  language and color only; the **Interface version** selector is gone.
+- The stored value and the API field stay accepted for compatibility: no
+  migration, no row rewrite, and the native client keeps reading it. Profile
+  saves from the web omit the field, so an earlier choice remains data only.
+- `?appearance=classic`, `?appearance=v2` and legacy `atelier` links still open
+  the application and change nothing. The web no longer reads or writes the
+  `guteneo.dashboard.appearance` browser cache.
+- Classic-only presentation is removed: the top bar, application footer,
+  sidebar footer and navigation sign-out, the **My account** navigation entry
+  and their CSS. The V2 account menu keeps profile, color, account switching,
+  service status and sign-out.
+- Accounts saved as Classic, the default before 27 October, see V2 on their next
+  load. No communication is sent.
+
+Browser regressions cover the retirement: the shared fixture stores `classic` on
+the demonstration accounts, and dedicated cases open old links and a stored
+`classic` value in the workshop and in personal documents. Rights, consent,
+REST, MCP and native contracts are unchanged. CI, publication and an
+authenticated hosted check remain to be qualified for this candidate.
+
 ## Compact sidebar and account menu — 29 October 2026 candidate
 
 A UI review measured the V2 sidebar on `b2e454c` (local simulation, Chromium,
@@ -204,6 +232,10 @@ retain the full welcome. Review content precedes approval actions in reading
 and keyboard order.
 
 ## Personal documents and account customization — follow-up
+
+Superseded on 29 October 2026 by the Classic retirement: personal documents now
+always use V2, and account customization offers language and color only. The
+earlier contract follows.
 
 The personal documents application applies the same authenticated account's
 saved `preferredDashboardAppearance`: Classic keeps its compact top navigation,
@@ -411,7 +443,11 @@ This presentation fix adds no illustration, request, endpoint, polling, binding
 or hosted resource. Cost figures below remain dated measures of their stated
 candidate, not the fix; they still do not measure hosted Worker CPU.
 
-## Selecting the version in account settings
+## Selecting the version in account settings (historical)
+
+Superseded on 29 October 2026 by the Classic retirement: the selector and the
+temporary override below no longer exist. This section records the earlier
+contract.
 
 The desktop account block sits at left-navigation bottom and remains accessible
 on mobile, retaining actual identity, current role, profile and account switching.
@@ -452,19 +488,19 @@ and route remain.
 | Migration             | `0053_user_dashboard_appearance.sql`; historical SQL default `classic`, `CHECK` on both values; new account inserts explicitly persist `v2`                                              |
 | Browser reads         | `user.preferredDashboardAppearance` in `GET /api/session` and `GET /api/account`                                                             |
 | Write                 | Optional `preferredDashboardAppearance` in existing strict `PATCH /api/account` body                                                         |
-| Authority             | Current browser session, Origin/CSRF; every role can change its own preference                                                               |
+| Authority             | Current browser session, Origin/CSRF; older clients may still change their own value, the web no longer offers it                            |
 | Target                | Session identity/workspace; no body `userId`/`organizationId` targeting                                                                      |
 | Omitted field         | Preserves preference, including older name/language clients                                                                                  |
 | Audit                 | `account.updated`, changed field names without values/document data                                                                          |
 | Refusal               | Invalid value/unknown field: `INVALID_INPUT`; invalid CSRF: `CSRF_REJECTED`; revoked authority: `ACCESS_CHANGED`, no partial update          |
 | Authenticated account | Session rereads preference; same user retained across workspace switching, different identity reconciled                                     |
-| URL                   | Valid `appearance=v2`/`appearance=classic` temporarily wins for that entry without persistence; legacy `atelier` accepted inbound            |
-| Browser cache         | `guteneo.dashboard.appearance` in `localStorage`, best-effort bootstrap/cache; authenticated session authoritative outside explicit override |
-| Unavailable cache     | Guarded reads/writes; account preference works after session read                                                                            |
-| Unavailable history   | `history.replaceState` restrictions do not block applying saved preference                                                                   |
+| URL                   | Ignored since the Classic retirement; old `appearance` and `atelier` links open V2 without persistence                                       |
+| Browser cache         | No longer read or written; old `guteneo.dashboard.appearance` entries are ignored                                                            |
+| Unavailable cache     | Not applicable since the Classic retirement                                                                                                  |
+| Unavailable history   | Not applicable since the Classic retirement                                                                                                  |
 
-Cache contains appearance only: no content, recipient, token or signed URL.
-Old browser values cannot replace authenticated preference. Existing session
+Before the retirement, the cache contained appearance only: no content,
+recipient, token or signed URL. Existing session
 reads are reused; no polling/real-time cross-tab synchronization. Remote
 changes appear on a new session read, including tab return. Account responses
 remain private `Cache-Control: no-store`; preference crosses same-person
@@ -663,8 +699,8 @@ instrumentation, content collection or provider permission activation.
 | `packages/contracts/src/dashboard-appearance.ts`                       | Shared values/default                                                                |
 | `migrations/0053_user_dashboard_appearance.sql`                        | User column/constraints                                                              |
 | `apps/api/src/account.ts`, `auth.ts`, `mobile.ts`                      | Browser save, account/session reads, native boundary                                 |
-| `apps/web/src/App.tsx`, `dashboard-appearance.tsx`, `account-page.tsx` | Reconciliation, account save and temporary override                                  |
-| `apps/web/src/workspace-identity.tsx`, `theme-toggle.tsx`              | Classic identity block and V2 account menu at navigation bottom                      |
+| `apps/web/src/App.tsx`, `account-page.tsx`, `personal-space.tsx`       | V2 shells; account saves without a layout field                                      |
+| `apps/web/src/workspace-identity.tsx`, `theme-toggle.tsx`              | Account menu at navigation bottom                                                    |
 | `apps/web/src/dashboard-v2.css`                                        | Current workspace styles and shared theme tokens; `dashboard-artwork.tsx` is retired |
 | `apps/web/src/dispatch-pages.tsx`, `assistant-workspace.tsx`           | Daily hierarchy, review, assistants                                                  |
 | `apps/web/src/locales/messages-dashboard-v2.json`                      | FR/EN/DE/LB translations                                                             |
