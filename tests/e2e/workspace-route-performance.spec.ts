@@ -3,7 +3,14 @@ import { blankTemplate } from "../../packages/templates/gallery";
 import type { TemplateView } from "../../packages/contracts/src/template-workflow";
 
 const accountChunk = /\/assets\/account-page-[^/]+\.js$/;
-const accountLink = '.sidebar nav a[href="#/app/account"]';
+const accountMenu = ".sidebar-account .workspace-identity-trigger";
+const accountLink = ".sidebar-account .workspace-identity-profile";
+
+// The profile link lives in the closed account menu; each use opens it first.
+async function profileLink(page: Page) {
+  await page.locator(accountMenu).click();
+  return page.locator(accountLink);
+}
 
 // Only synthetic browser responses are used; no account or document is written.
 async function fixture(page: Page, waitForSession?: Promise<void>) {
@@ -137,7 +144,6 @@ test("cold navigation keeps the current useful content until code is ready and s
     const originalHeading = await page
       .locator(".workspace main h1")
       .textContent();
-    const target = page.locator(".sidebar-account .workspace-identity-profile");
     await page.evaluate(() => {
       window.addEventListener(
         "guteneo:before-workspace-navigation",
@@ -145,6 +151,7 @@ test("cold navigation keeps the current useful content until code is ready and s
         { once: true },
       );
     });
+    let target = await profileLink(page);
     await target.focus();
     await page.keyboard.press("Enter");
     await expect(page).toHaveURL(/#\/app\/documents$/);
@@ -156,6 +163,7 @@ test("cold navigation keeps the current useful content until code is ready and s
       "",
     );
     expect(requested).toBe(0);
+    target = await profileLink(page);
     await target.focus();
     await target.press("Enter");
     await expect.poll(() => requested).toBe(1);
@@ -232,7 +240,6 @@ test("template edits remain protected before and during a cold route transition"
     const save = page.getByRole("button", { name: "Save draft", exact: true });
     await expect(field).toHaveValue(model.name);
     await expect(save).toBeDisabled();
-    const target = page.locator(".sidebar-account .workspace-identity-profile");
     await field.fill("Unsaved synthetic edit");
     await expect(save).toBeEnabled();
     await page.evaluate(
@@ -243,7 +250,7 @@ test("template edits remain protected before and during a cold route transition"
       expect(confirmation.message()).toContain("unsaved changes");
       await confirmation.dismiss();
     });
-    await target.click();
+    await (await profileLink(page)).click();
     await dialog;
     await expect(page).toHaveURL(/#\/app\/template\/transition-template$/);
     await expect(field).toHaveValue("Unsaved synthetic edit");
@@ -254,7 +261,7 @@ test("template edits remain protected before and during a cold route transition"
       () =>
         new Promise<void>((resolve) => requestAnimationFrame(() => resolve())),
     );
-    await target.click();
+    await (await profileLink(page)).click();
     await expect.poll(() => requested).toBe(true);
     const main = page.locator("#main-content");
     await expect(main).toHaveAttribute("inert", "");
@@ -303,7 +310,7 @@ test("an obsolete route import never replaces the destination selected afterward
     await expect.poll(() => requested).toBe(true);
     const menu = page.locator(".workspace-navigation summary");
     if (await menu.isVisible()) await menu.click();
-    await expect(page.locator(accountLink)).toBeVisible();
+    await expect(page.locator(accountMenu)).toBeVisible();
     await page.locator('.sidebar nav a[href="#/app/documents"]').click();
     await expect(page.locator(".workspace main h1")).toBeVisible();
     const heading = await page.locator(".workspace main h1").textContent();
