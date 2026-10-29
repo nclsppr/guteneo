@@ -759,3 +759,15 @@ seconds. It runs only after the person's reload gesture and never retries an
 API, provider operation or authorization action. Navigating elsewhere cancels
 the pending page reload. Fourteen unit cases cover its privacy/bounds; twelve
 entry/recovery browser cases pass on Chromium, mobile Chromium and iPhone WebKit.
+
+## Public film readiness before the first gesture
+
+Static HTML can appear before the entry module installs React handlers. The
+public film's visible play button remains disabled during that interval and
+becomes enabled only after mounting; resolving code never starts playback. A
+deterministic browser regression holds the actual entry module, checks the
+server-rendered disabled state in Luxembourgish, releases code and then proves
+that the first enabled gesture calls play/fullscreen synchronously. Both
+introduction and role films retain their actual media, language, captions and
+format/rotation contracts. The four new browser cases and existing playback
+suite run on Chromium and iPhone WebKit; physical-device behavior is separate.

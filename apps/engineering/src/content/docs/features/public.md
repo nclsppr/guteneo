@@ -1,6 +1,6 @@
 ---
 title: "Public pages, languages and appearance"
-description: "22 capabilities in the interfaces branch of Guteneo."
+description: "23 capabilities in the interfaces branch of Guteneo."
 sidebar:
   order: 17
 ---
@@ -40,4 +40,5 @@ The 25 October public hierarchy, four detail routes, shared footer, four-languag
 <li id="feature-4b55aed69d9d">One approved simple browser-icon family from apps/web/public serves product, status, engineering and standalone authentication/Belvedere/protected/error HTML; the shared exact-byte helper binds independent build source scopes and retains the existing canonical hosted-login favicon URL; read-only provider inspection found that URL already aligned, with no remote mutation or deployment claim</li>
 <li id="feature-ce53d99e7510">Self-hosted interface fonts use optional display and three emitted-asset preloads, preserving the approved type when ready while keeping already-visible text geometry stable when font delivery is slow; delayed-font tests qualify desktop and mobile browsers separately, and shared public heading wrapping and responsive wordmark/action bounds preserve narrow layouts with unavailable-font metrics</li>
 <li id="feature-6c3d77073e86">Ordinary same-origin links between registered public pages retain one browser document and loaded application; all small public page components are available on the first interactive click without HTML, route-code, session or private-data prefetch. Canonical English URLs, four-language presentation, static direct entries, history, anchors, focus and destination metadata remain coherent; unavailable initial JavaScript retains the complete static page. Pointer route focus does not frame script-focused containers; keyboard route focus underlines the new main title in the brand blue while interactive controls retain their focus indicators</li>
+<li id="feature-b9b7e6e5ee5d">Public film play controls are disabled in server HTML until the client handler mounts; releasing route code starts no movie, and the first enabled click keeps playback/fullscreen in the native gesture with the resolved locale</li>
 </ol>

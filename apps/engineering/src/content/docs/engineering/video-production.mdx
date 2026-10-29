@@ -71,6 +71,12 @@ may use their declared language. Localize all three media companions together:
 film, poster and captions. The player resolves UI/account language and must never
 silently substitute another language's voice.
 
+The public play control is disabled in server HTML until its client handler is
+ready. Finishing bootstrap never starts media; the first enabled gesture keeps
+playback and fullscreen synchronous for native activation. This loading rule
+changes no approved movie, poster, caption or narration bytes. Browser readiness
+and exact media/voice qualification remain separate evidence.
+
 ## Produce new narration only when authorized
 
 Existing approved speech should be reused. For a new authorized narration batch,

@@ -591,7 +591,7 @@ test("local entry retains the isolated demonstration without an Auth0 redirect",
     "Explorez la démonstration",
   );
   await expect(
-    page.getByRole("button", { name: /Entrer dans l’Atelier$/ }),
+    page.getByRole("button", { name: /Entrer dans l’espace de travail$/ }),
   ).toBeVisible();
   await expect(
     page.getByRole("button", { name: /Entrer dans le Studio$/ }),

@@ -1,7 +1,7 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
 # Guteneo feature tree and developer atlas
 
-**23 domains · 368 features · 37 journeys · 76 documented REST operations · 83 MCP tools**
+**23 domains · 369 features · 37 journeys · 76 documented REST operations · 83 MCP tools**
 Updated 2026-10-29.
 
 Repository implementation inventory. Availability depends on current capabilities and authority; implementation, activation and deployed proof are distinct.
@@ -35,7 +35,7 @@ mindmap
     Interfaces
       Assistants and API (31)
       iPhone and iPad (9)
-      Public pages, languages and appearance (22)
+      Public pages, languages and appearance (23)
     Operations
       Reviewer OAuth qualification (9)
       Operations and reliability (27)
@@ -75,7 +75,7 @@ mindmap
 
 - [Assistants and API](#assistants) — 31 features; host-qualified.
 - [iPhone and iPad](#native) — 9 features; local-candidate.
-- [Public pages, languages and appearance](#public) — 22 features; public.
+- [Public pages, languages and appearance](#public) — 23 features; public.
 
 ### Operations
 
@@ -834,6 +834,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - One approved simple browser-icon family from apps/web/public serves product, status, engineering and standalone authentication/Belvedere/protected/error HTML; the shared exact-byte helper binds independent build source scopes and retains the existing canonical hosted-login favicon URL; read-only provider inspection found that URL already aligned, with no remote mutation or deployment claim
 - Self-hosted interface fonts use optional display and three emitted-asset preloads, preserving the approved type when ready while keeping already-visible text geometry stable when font delivery is slow; delayed-font tests qualify desktop and mobile browsers separately, and shared public heading wrapping and responsive wordmark/action bounds preserve narrow layouts with unavailable-font metrics
 - Ordinary same-origin links between registered public pages retain one browser document and loaded application; all small public page components are available on the first interactive click without HTML, route-code, session or private-data prefetch. Canonical English URLs, four-language presentation, static direct entries, history, anchors, focus and destination metadata remain coherent; unavailable initial JavaScript retains the complete static page. Pointer route focus does not frame script-focused containers; keyboard route focus underlines the new main title in the brand blue while interactive controls retain their focus indicators
+- Public film play controls are disabled in server HTML until the client handler mounts; releasing route code starts no movie, and the first enabled click keeps playback/fullscreen in the native gesture with the resolved locale
 
 **Contract:** [MULTILINGUAL.md](MULTILINGUAL.md) · **Implementation:** [packages/contracts/src/public-site.json](../packages/contracts/src/public-site.json)
 

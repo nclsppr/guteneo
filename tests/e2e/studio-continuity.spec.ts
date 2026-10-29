@@ -83,7 +83,9 @@ test("keeps template and mapping through source correction, then creates exact V
   test.setTimeout(180_000);
   page.setDefaultTimeout(15_000);
   await page.goto("/#/app");
-  await page.getByRole("button", { name: "Entrer dans l’Atelier" }).click();
+  await page
+    .getByRole("button", { name: "Entrer dans l’espace de travail" })
+    .click();
   await expect(
     page.getByRole("heading", { name: "Votre correspondance, au clair." }),
   ).toBeVisible();
@@ -471,13 +473,11 @@ test("keeps template and mapping through source correction, then creates exact V
   const beforeReorder = page.url();
   const reordered =
     "name,subject,reference,city\nAlex Example,Subject B,REF-B,Metz\nCamille Example,Subject A,REF-A,Paris\nMorgan Example,Subject C,REF-C,Lyon\n";
-  await fileDetails
-    .locator('input[type="file"]')
-    .setInputFiles({
-      name: "reordered.csv",
-      mimeType: "text/csv",
-      buffer: Buffer.from(reordered),
-    });
+  await fileDetails.locator('input[type="file"]').setInputFiles({
+    name: "reordered.csv",
+    mimeType: "text/csv",
+    buffer: Buffer.from(reordered),
+  });
   await fileDetails.locator("button").click();
   await expect(page).not.toHaveURL(beforeReorder);
   await expect(

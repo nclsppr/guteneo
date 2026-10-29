@@ -123,7 +123,7 @@ async function login(
   await page.goto("/#/app");
   await page
     .getByRole("button", {
-      name: `Entrer dans ${organization === "Atelier" ? "l’Atelier" : "le Studio"}`,
+      name: `Entrer dans ${organization === "Atelier" ? "l’espace de travail" : "le Studio"}`,
     })
     .click();
   await expect(
