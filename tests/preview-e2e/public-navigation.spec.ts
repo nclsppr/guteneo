@@ -220,6 +220,35 @@ test("mobile page navigation dismisses its menu and leaves the new main focused"
   expect(await page.evaluate(() => performance.timeOrigin)).toBe(origin);
 });
 
+test("page changes focus the new main without framing the page after a click", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto("/?lang=en");
+  await interactive(page);
+  const main = page.locator("main");
+  const headerLink = (path: string) =>
+    page
+      .locator(`.public-header nav a[href^="${path}"]`)
+      .filter({ visible: true });
+  // Safari reports this script focus as :focus-visible even after a click.
+  await headerLink("/pricing/").click();
+  await expect(main.locator("h1")).toHaveText("Pricing");
+  await expect(main).toBeFocused();
+  await expect(main).toHaveCSS("outline-style", "none");
+  await expect(main.locator("h1")).toHaveCSS("text-decoration-line", "none");
+  // Keyboard users keep a visible landmark: the new page title.
+  await headerLink("/how-it-works/").focus();
+  await page.keyboard.press("Enter");
+  await expect(main.locator("h1")).toHaveText("How it works");
+  await expect(main).toBeFocused();
+  await expect(main).toHaveCSS("outline-style", "none");
+  await expect(main.locator("h1")).toHaveCSS(
+    "text-decoration-line",
+    "underline",
+  );
+});
+
 test("the first public page change works while subsequent code and document requests are blocked", async ({
   page,
 }) => {

@@ -11,6 +11,7 @@ import { getPublicPageMetadata } from "./public-page-metadata";
 import { initializeTheme } from "./theme";
 import { App } from "./App";
 import { installPublicNavigation } from "./public-navigation";
+import { installInputModality } from "./input-modality";
 import "./styles.css";
 import "./login-page.css";
 import "./protected-document.css";
@@ -19,6 +20,7 @@ import "./landing-example.css";
 import "./public-site-pages.css";
 
 initializeTheme();
+installInputModality();
 registerPublicPageMetadata(getPublicPageMetadata);
 
 // Crawlable entry links hand off to the existing browser router before rendering.
