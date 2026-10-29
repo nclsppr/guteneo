@@ -15,19 +15,21 @@ styles load with Studio; its reused entry-link rule belongs to shared styles.
 Locale changes emit a shared event that the public sharing adapter observes,
 removing the shared locale module's dependency on public-site code. The four
 import exceptions in `applications.json` are removed rather than expanded.
+Batch distribution preparation and frozen-plan tracking now belong to a separate
+Correspondence module and stylesheet; entering Studio does not load them.
 
 The [final loading record](evidence/studio-space-loading-2026-10-29.json)
-compares `1e013dbc` with the final runtime candidate `125ed8fe`. Eighteen fresh
+compares `1e013dbc` with the consolidated runtime candidate `de6a3420`. Eighteen fresh
 Chromium contexts (three per route/variant, interleaved) use local uncompressed
 static HTTP, a 1440 × 900 viewport and read-only synthetic APIs delayed by 40 ms.
-Browser and backend/security suites run concurrently on the same machine;
+Complete unit and end-to-end suites run concurrently on the same machine;
 neither CPU isolation nor a timing improvement is claimed.
 
 | Route          | JS / CSS requests | API reads | JS body-byte delta | CSS body-byte delta | JS+CSS transfer-byte delta |
 | -------------- | ----------------: | --------: | -----------------: | ------------------: | -------------------------: |
-| my-documents   |   19 → 25 / 2 → 2 |     2 → 2 |            +46,768 |              -8,948 |                    +39,620 |
-| correspondence |   28 → 30 / 6 → 6 |     6 → 6 |             +8,597 |              -8,948 |                       +249 |
-| studio         |   22 → 23 / 2 → 3 |     3 → 3 |            +14,849 |              -1,843 |                    +13,606 |
+| my-documents   |   19 → 25 / 2 → 2 |     2 → 2 |            +48,644 |              -8,741 |                    +41,703 |
+| correspondence |   28 → 30 / 6 → 6 |     6 → 6 |            +10,481 |              -8,741 |                     +2,340 |
+| studio         |   22 → 24 / 2 → 3 |     3 → 3 |               +917 |              -1,856 |                        -39 |
 
 First useful means an available document title, correspondence row or visible
 built-in template title followed by a rendering opportunity; the below-fold
@@ -43,14 +45,20 @@ general loading reduction. The exact terminology table alone is 42,330 source
 bytes / 11,854 gzip bytes when minified and compressed separately, not its
 incremental bundled network cost.
 
+Against the preserved `125ed8fe` checkpoint, the consolidation adds 1,876 JavaScript
+body bytes and 207 CSS bytes to My documents, and 1,884 JavaScript bytes and 207 CSS
+bytes to Correspondence. Studio removes 13,932 JavaScript bytes and 13 CSS bytes
+but adds one JavaScript request. API counts are unchanged. Both distribution
+assets exist in the build but are not requested by these three entries; opening
+that workflow has separate functional evidence.
+
 The initial `1ceb29ff` experiment exposed a personal delay around 300 ms despite
 code/session readiness. After the resolved-module renderer change, the
 `08df95d5` observation no longer showed that delay; its medians were 173 → 173 ms.
 This supports the first `React.lazy` retry explanation locally, rather than
 establishing a production cause. The intermediate `d47d8027` recovery candidate
-and both earlier comparisons remain dated evidence. The current runtime adds
-1,037 JavaScript body bytes per route over `d47d8027`, with unchanged JS, CSS and
-API request counts. Identity prefetch remains visit-scoped, visibility-invalidated and
+and `125ed8fe` readiness/recovery checkpoint remain dated evidence alongside both
+earlier comparisons. Identity prefetch remains visit-scoped, visibility-invalidated and
 independent of workspace bootstrap. A failed code request uses the shared
 explicit reload boundary. This normal-success measurement does not qualify its
 error recovery, redirect rejection, visit cancellation or native film gestures;
