@@ -444,7 +444,9 @@ test("personal preferences persist across reload, the layout fills the width and
     (await page.locator(".personal-account-profile > .field").boundingBox())
       ?.width,
   ).toBeLessThanOrEqual(780);
-  await page.locator('a[href="#/app/my-documents"]').click();
+  await page
+    .locator('.personal-space-header nav a[href="#/app/my-documents"]')
+    .click();
   await expect(
     page.getByRole("heading", { name: "Synthetic personal document" }),
   ).toBeVisible();

@@ -268,7 +268,9 @@ Reports and artifact names include the project and shard. The final gate lists
 the complete unsharded inventory independently and compares it with the union
 of reported test IDs. A missing, duplicated or unexpected test, missing shard or
 invalid report blocks success. Existing intentional test skips are accounted for
-without treating a skipped required job as success. Browser assertions, sandbox
+without treating a skipped required job as success. Each skip is declared in
+`scripts/ci/browser-results.mjs` with its exact suite, projects, file, title and
+reason; a new desktop-only check needs its own entry. Browser assertions, sandbox
 setup and the WebKit media pipeline remain intact; there is no automatic retry,
 path filter or publication shortcut.
 

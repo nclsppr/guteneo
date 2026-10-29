@@ -48,7 +48,7 @@ export const fr = {
     overview: "Vue d’ensemble",
     documents: "Documents",
     templates: "Modèles",
-    datasets: "Mes données",
+    datasets: "Données",
     generations: "Générations",
     dispatches: "Envois",
     campaigns: "Campagnes",

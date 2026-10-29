@@ -123,5 +123,15 @@
     "Échéance",
     "Ablauf",
     "Oflaf"
+  ],
+  "space\u0004Workshop": [
+    "Atelier",
+    "Werkstatt",
+    "Atelier"
+  ],
+  "space\u0004Studio": [
+    "Studio",
+    "Studio",
+    "Studio"
   ]
 }

@@ -276,7 +276,7 @@ async function capture(
   });
 }
 
-test("personal documents use one compact navigation row and role details stay on the account page", async ({
+test("personal documents sit in the space switcher and role details stay on the account page", async ({
   page,
   isMobile,
 }, info) => {
@@ -285,36 +285,28 @@ test("personal documents use one compact navigation row and role details stay on
   await expect(page.locator("aside .workspace-identity")).toContainText(
     data.session.user.email!,
   );
-  const navigation = page.locator(".workspace-navigation");
-  if (isMobile) await navigation.locator("summary").click();
-  const personal = navigation.locator('a[href="#/app/my-documents"]');
-  await expect(personal).toHaveCount(1);
-  await expect(personal).toHaveAccessibleName(
-    "Mes documents — Espace personnel",
-  );
-  await expect(personal).toHaveAttribute("title", "Espace personnel");
+  // My documents is a space in the switcher, reachable with the menu closed.
+  const switcher = page.locator(".sidebar .space-switcher-trigger");
+  await expect(switcher).toBeVisible();
+  expect((await switcher.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+  await switcher.click();
+  await expect(switcher).toHaveAttribute("aria-expanded", "true");
+  const spaces = page.getByRole("navigation", { name: "Espaces", exact: true });
+  const personal = spaces.getByRole("link", {
+    name: "Mes documents",
+    exact: true,
+  });
+  await expect(personal).toHaveAttribute("href", "#/app/my-documents");
+  await expect(
+    spaces.getByRole("link", { name: "Atelier", exact: true }),
+  ).toHaveAttribute("aria-current", "true");
+  await page.keyboard.press("Escape");
+  await expect(switcher).toHaveAttribute("aria-expanded", "false");
+  await expect(switcher).toBeFocused();
   await expect(page.locator(".sidebar > .personal-context-link")).toHaveCount(
     0,
   );
-  const personalBox = await personal.boundingBox();
-  const overviewBox = await navigation.locator('a[href="#/app"]').boundingBox();
-  expect(personalBox).not.toBeNull();
-  expect(overviewBox).not.toBeNull();
-  expect(personalBox!.height).toBeGreaterThanOrEqual(44);
-  expect(personalBox!.height).toBeLessThanOrEqual(48);
-  const brandBlue = await personal.evaluate((element) =>
-    getComputedStyle(element).getPropertyValue("--blue").trim(),
-  );
-  expect(["#2450db", "#9bb5ff"]).toContain(brandBlue);
-  const blueChannels = brandBlue
-    .slice(1)
-    .match(/.{2}/g)!
-    .map((channel) => Number.parseInt(channel, 16));
-  const borderColor = `rgb(${blueChannels.join(", ")})`;
-  for (const side of ["top", "right", "bottom", "left"]) {
-    await expect(personal).toHaveCSS(`border-${side}-width`, "1px");
-    await expect(personal).toHaveCSS(`border-${side}-color`, borderColor);
-  }
+  if (isMobile) await page.locator(".workspace-navigation summary").click();
   await expect(
     page.locator(".workspace-role, .dashboard-identity"),
   ).toHaveCount(0);
@@ -682,12 +674,17 @@ test("contact failure is recoverable and switching workshops removes the previou
   await expect(
     contacts.getByRole("link", { name: /validation@example.invalid/ }),
   ).toBeVisible();
+  // The space switcher replaces the former account-page form.
+  const readsBeforeSwitch = data.state.contactReads;
+  await page.locator(".sidebar .space-switcher-trigger").click();
   await page
-    .getByLabel("Atelier actif", { exact: true })
-    .selectOption("other-workshop");
-  await page
-    .getByRole("button", { name: "Ouvrir cet atelier", exact: true })
+    .getByRole("navigation", { name: "Espaces", exact: true })
+    .getByRole("button", { name: "Deuxième atelier", exact: true })
     .click();
+  await expect(page).toHaveURL(/#\/app$/);
+  await page.evaluate(() => {
+    location.hash = "#/app/account";
+  });
   await expect(
     contacts.getByRole("link", { name: /autre.atelier@example.invalid/ }),
   ).toBeVisible();
@@ -697,7 +694,8 @@ test("contact failure is recoverable and switching workshops removes the previou
   await expect(page.locator("#account-organization")).toHaveValue(
     "Deuxième atelier",
   );
-  expect(data.state.contactReads).toBe(3);
+  // The new workspace reads its own contacts; the old ones never reappear.
+  expect(data.state.contactReads).toBeGreaterThan(readsBeforeSwitch);
   expect(data.writes).toEqual([
     {
       method: "POST",

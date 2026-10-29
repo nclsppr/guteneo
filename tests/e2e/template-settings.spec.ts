@@ -35,7 +35,7 @@ test("web table column creates an optional money field and renders missing value
     { headers, data: { expectedRevision: model.revision } },
   );
   expect(publication.status(), await publication.text()).toBe(200);
-  await page.goto(`/#/app/template/${model.id}`);
+  await page.goto(`/#/app/studio/template/${model.id}`);
   await page
     .getByText("Langue, en-tête, pied de page et nouvelles colonnes", {
       exact: true,

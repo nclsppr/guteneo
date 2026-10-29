@@ -19,5 +19,22 @@
     "Times shown in: {0}",
     "Angezeigte Zeiten: {0}",
     "Ugewisen Zäiten: {0}"
+  ],
+  "Studio": ["Studio", "Studio", "Studio"],
+  "Espaces": ["Spaces", "Bereiche", "Beräicher"],
+  "Changer d’espace : {0}, {1}": [
+    "Switch space: {0}, {1}",
+    "Bereich wechseln: {0}, {1}",
+    "Beräich wiesselen: {0}, {1}"
+  ],
+  "Autres ateliers": [
+    "Other workspaces",
+    "Andere Arbeitsbereiche",
+    "Aner Atelieren"
+  ],
+  "Navigation du Studio": [
+    "Studio navigation",
+    "Studio-Navigation",
+    "Navigatioun vum Studio"
   ]
 }

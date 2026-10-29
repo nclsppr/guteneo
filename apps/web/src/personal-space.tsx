@@ -38,6 +38,8 @@ import {
 } from "./locale";
 import { msg } from "./messages";
 import { personalApi, type PersonalSession } from "./personal-api";
+import { spaceHome } from "./app-routes";
+import { SpaceSwitcher } from "./space-switcher";
 import { workspaceInvitationPath } from "./workspace-entry";
 import {
   clearPendingDocumentInvitation,
@@ -358,6 +360,23 @@ export function PersonalSpace({
       </a>
       <header className="personal-space-header">
         <Brand />
+        <SpaceSwitcher
+          space="personal"
+          workspace={
+            session.workspaces.find((workspace) => workspace.current) ?? null
+          }
+          loadWorkspaces={async () => session.workspaces}
+          enterWorkspace={async (id, target) => {
+            await personalApi("/personal/workspace/select", session, {
+              method: "POST",
+              body: { organizationId: id },
+            });
+            // The workshop cookie has rotated. Remount Application so its
+            // session, tenant and CSRF token all come from the new session.
+            window.history.replaceState(null, "", `/#${spaceHome[target]}`);
+            window.location.reload();
+          }}
+        />
         <nav aria-label={msg("Personal navigation")}>
           <a
             href="#/app/my-documents"
@@ -368,13 +387,16 @@ export function PersonalSpace({
             <Files size={20} aria-hidden="true" />
             {msg("My documents")}
           </a>
-          <a
-            href="#/app/services"
-            aria-current={page === "/app/services" ? "page" : undefined}
-          >
-            <PaperPlaneTilt size={20} aria-hidden="true" />
-            {msg("Use Guteneo")}
-          </a>
+          {/* Without a workspace; the space switcher reaches services otherwise. */}
+          {!session.workspaces.length && (
+            <a
+              href="#/app/services"
+              aria-current={page === "/app/services" ? "page" : undefined}
+            >
+              <PaperPlaneTilt size={20} aria-hidden="true" />
+              {msg("Use Guteneo")}
+            </a>
+          )}
           <a
             href="#/app/personal-account"
             aria-current={page === "/app/personal-account" ? "page" : undefined}

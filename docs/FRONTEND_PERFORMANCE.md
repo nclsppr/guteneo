@@ -4,6 +4,23 @@
 local measurements from anonymous production observations. Neither establishes
 server CPU, provider readiness, price or physical-device qualification.
 
+## Space switcher and Studio routes — 29 October 2026 candidate
+
+The space switcher adds no request when a page loads. A local check of `/app`
+read the same six API resources as before (session, capabilities, contacts,
+connections, overview, dispatches); the first switcher opening read
+`/api/account/workspaces` once and a second opening read nothing. Earlier Studio
+links are rewritten in the browser with `history.replaceState`, without a
+request, and Studio route code keeps its own lazy chunk.
+
+Production builds of the candidate and of its base (`claude/retire-classic`,
+same locked dependencies) compare as follows: main JavaScript 651,468 → 654,726
+bytes raw, 186,445 → 187,301 gzip (+856); main CSS 163,304 → 165,787 raw,
+30,431 → 30,875 gzip (+444); Studio chunk 35,231 → 35,248 gzip. Environment:
+macOS arm64, Node 24, local Vite build and a local Wrangler simulation server in
+Chromium. These are single local observations, not a latency or production
+measurement.
+
 ## Anonymous production observation — 28 October 2026
 
 The published `a93e7334f603b818a689385f73c33757cdfeea38` release was compared

@@ -157,8 +157,9 @@ from CI, publication and actual observed logout after publication.
 
 The account block sits at the bottom of left navigation on desktop, with
 name, email, profile and account switching. Role details remain on My account.
-My documents is a compact navigation link with accessible personal-space context,
-instead of a separate card. Classic was retired on 29 October 2026: My profile
+Since the 29 October Studio candidate, the space switcher at the top of the
+sidebar reaches My documents, the current workspace's Studio and other
+workspaces; My account no longer has its own workspace form. Classic was retired on 29 October 2026: My profile
 offers language and color beside each other, with no workspace-version choice,
 and every account uses V2. Simulated sessions retain their simulation banner.
 

@@ -47,7 +47,7 @@ export const lb: Copy = {
     overview: "Iwwersiicht",
     documents: "Dokumenter",
     templates: "Virlagen",
-    datasets: "Meng Donnéeën",
+    datasets: "Donnéeën",
     generations: "Generatiounen",
     dispatches: "Sendungen",
     campaigns: "Campagnen",

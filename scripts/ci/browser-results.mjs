@@ -62,6 +62,13 @@ export const declaredBrowserSkips = [
   [
     "application",
     mobileProjects,
+    "studio-space.spec.ts",
+    "every workshop entry of an administrator stays in view at 1280 by 720",
+    "Desktop sidebar geometry; phones use the collapsed navigation.",
+  ],
+  [
+    "application",
+    mobileProjects,
     "template-data.spec.ts",
     "API gallery template remains editable in the desktop studio and reusable by API",
     "Graphical editing is qualified on desktop; mobile consultation has its own scenario.",

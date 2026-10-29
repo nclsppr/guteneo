@@ -11,7 +11,7 @@ sidebar:
 
 Implemented; generation, preparation, approval and delivery remain separate.
 
-**Surfaces:** Web, REST and MCP; generation is separate from distribution and delivery.
+**Surfaces:** Web Studio space under /app/studio/…, REST and MCP; generation is separate from distribution and delivery.
 
 [Read the engineering guide](/workflows/studio-and-data/) · [All features](/features/)
 

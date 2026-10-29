@@ -47,7 +47,7 @@ export const de: Copy = {
     overview: "Übersicht",
     documents: "Dokumente",
     templates: "Vorlagen",
-    datasets: "Meine Daten",
+    datasets: "Daten",
     generations: "Generierungen",
     dispatches: "Sendungen",
     campaigns: "Kampagnen",

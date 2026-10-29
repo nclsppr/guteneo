@@ -382,13 +382,22 @@ test("switching workspace refreshes its name and permissions without carrying ov
   await expect(
     page.getByLabel("Nom de l’atelier", { exact: true }),
   ).toHaveValue("Atelier de préparation");
-  await page.getByLabel("Atelier actif").selectOption("second");
-  await page.getByRole("button", { name: "Ouvrir cet atelier" }).click();
+  const switcher = page.locator(".sidebar .space-switcher-trigger");
+  await switcher.click();
+  await page
+    .getByRole("navigation", { name: "Espaces", exact: true })
+    .getByRole("button", { name: "Atelier de consultation", exact: true })
+    .click();
+  // A new workspace starts at the root of the same space.
+  await expect(page).toHaveURL(/#\/app$/);
+  await expect(switcher).toContainText("Atelier de consultation");
+  await expect(page.locator('a[href="#/app/prepare"]')).toHaveCount(0);
+  await page.evaluate(() => {
+    location.hash = "#/app/account";
+  });
   await expect(
     page.getByLabel("Nom de l’atelier", { exact: true }),
   ).toHaveValue("Atelier de consultation");
-  await expect(page.getByLabel("Atelier actif")).toHaveValue("second");
-  await expect(page.locator('a[href="#/app/prepare"]')).toHaveCount(0);
   expect(switches).toEqual([{ organizationId: "second" }]);
 });
 
@@ -414,4 +423,11 @@ test("an invalid optional workspace response leaves the account form usable", as
   await expect(
     page.locator(".workspace-contacts").getByRole("alert"),
   ).toHaveCount(0);
+  // The switcher reads workspaces only when opened and tolerates the response.
+  await page.locator(".sidebar .space-switcher-trigger").click();
+  const spaces = page.getByRole("navigation", { name: "Espaces", exact: true });
+  await expect(
+    spaces.getByRole("link", { name: "Mes documents", exact: true }),
+  ).toBeVisible();
+  await expect(spaces.getByRole("alert")).toHaveCount(0);
 });

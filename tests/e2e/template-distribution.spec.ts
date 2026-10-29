@@ -80,7 +80,7 @@ test("web distribution assigns channels to selected records without a Cartesian 
   expect(new Set(results.items.map((result) => result.documentHash)).size).toBe(
     2,
   );
-  await page.goto(`/#/app/generation/${job.id}`);
+  await page.goto(`/#/app/studio/generation/${job.id}`);
   await page
     .getByRole("button", { name: "Sélectionner les PDF vérifiés affichés" })
     .click();
@@ -251,7 +251,7 @@ test("multichannel intent remains available when two records reuse the same PDF 
       },
     }),
   );
-  await page.goto(`/#/app/generation/${jobId}`);
+  await page.goto(`/#/app/studio/generation/${jobId}`);
   await page
     .getByRole("button", { name: "Sélectionner les PDF vérifiés affichés" })
     .click();

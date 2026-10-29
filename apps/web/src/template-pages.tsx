@@ -1,4 +1,5 @@
 import { msg } from "./messages";
+import { studioRoutes } from "./app-routes";
 import { FileInput } from "./file-input";
 import {
   lazy,
@@ -120,7 +121,7 @@ export function TemplateLibrary({
         method: "POST",
         body: { envelope },
       });
-      go(`/app/template/${result.id}`);
+      go(studioRoutes.template(result.id));
     });
   }
   async function remove(model: TemplateView) {
@@ -158,7 +159,7 @@ export function TemplateLibrary({
       setImportWarnings(result.warnings);
       setImportedTemplateId(result.template.id);
       if (result.warnings.length) templates.refresh();
-      else go(`/app/template/${result.template.id}`);
+      else go(studioRoutes.template(result.template.id));
     });
   }
   return (
@@ -203,7 +204,7 @@ export function TemplateLibrary({
             />
           </Field>
           <button className="button primary" disabled={action.pending}>
-            {msg("Open the studio ")}
+            {msg("Create the template ")}
           </button>
         </form>
       )}
@@ -243,8 +244,8 @@ export function TemplateLibrary({
         <h2 ref={libraryHeading} tabIndex={-1}>
           {msg("Your templates")}
         </h2>
-        <a href="#/app/datasets" className="text-link">
-          {canPrepare ? msg("Import my data ") : msg("My data ")}
+        <a href={`#${studioRoutes.datasets}`} className="text-link">
+          {canPrepare ? msg("Import my data ") : msg("Data ")}
           <ArrowRight size={17} />
         </a>
       </div>
@@ -267,7 +268,7 @@ export function TemplateLibrary({
             <article className="studio-list-row" key={item.id}>
               <div>
                 <h3>
-                  <a href={`#/app/template/${item.id}`}>{item.name}</a>
+                  <a href={`#${studioRoutes.template(item.id)}`}>{item.name}</a>
                 </h3>
                 <p>
                   {msg(stateLabel[item.state])} ·{" "}
@@ -282,7 +283,10 @@ export function TemplateLibrary({
                 </p>
               </div>
               <div className="studio-list-actions">
-                <a className="button small" href={`#/app/template/${item.id}`}>
+                <a
+                  className="button small"
+                  href={`#${studioRoutes.template(item.id)}`}
+                >
                   {msg("Open ")}
                 </a>
                 {canPrepare && (
@@ -323,7 +327,7 @@ export function TemplateLibrary({
           <button className="button" disabled={action.pending}>
             {msg("Import Word ")}
           </button>
-          {!!importWarnings.length && (
+          {!!importWarnings.length && importedTemplateId && (
             <div role="status">
               <p>
                 {msg(
@@ -339,7 +343,7 @@ export function TemplateLibrary({
               </ul>
               <a
                 className="button"
-                href={"#/app/template/" + importedTemplateId}
+                href={"#" + studioRoutes.template(importedTemplateId)}
               >
                 {msg("Open the imported Word template ")}
               </a>
@@ -364,7 +368,7 @@ export function TemplateEditor({
       <>
         <ErrorNotice error={resource.error} />
         {resource.error && (
-          <a className="back-link" href="#/app/templates">
+          <a className="back-link" href={`#${studioRoutes.templates}`}>
             {msg("← Templates ")}
           </a>
         )}
@@ -433,7 +437,7 @@ function EditorBody({
     };
     const guardNavigation = (event: Event) => {
       if (deletionComplete.current) return;
-      if (!window.confirm(msg("Leave the studio and lose unsaved changes?")))
+      if (!window.confirm(msg("Leave this template and lose unsaved changes?")))
         event.preventDefault();
     };
     window.addEventListener("beforeunload", warn);
@@ -495,7 +499,7 @@ function EditorBody({
         key: generationKey.current,
         body: payload,
       });
-      go(`/app/generation/${job.id}`);
+      go(studioRoutes.generation(job.id));
     });
   }
   function addField() {
@@ -598,7 +602,7 @@ function EditorBody({
   }
   return (
     <>
-      <a className="back-link" href="#/app/templates">
+      <a className="back-link" href={`#${studioRoutes.templates}`}>
         {msg("← Templates ")}
       </a>
       <PageHeading
@@ -612,7 +616,7 @@ function EditorBody({
         )}
       />
       <ErrorNotice error={action.error} />
-      <nav className="studio-tabs" aria-label={msg("Document studio")}>
+      <nav className="studio-tabs" aria-label={msg("Template sections")}>
         {(
           [
             ["design", msg("Template")],
@@ -860,7 +864,7 @@ function EditorBody({
             >
               {msg("Generate PDF without sending ")}
             </button>
-            <a className="button" href="#/app/datasets">
+            <a className="button" href={`#${studioRoutes.datasets}`}>
               {msg("Use a data file ")}
             </a>
           </div>
@@ -886,7 +890,7 @@ function EditorBody({
                 `/templates/${model.id}/duplicate`,
                 { method: "POST", body: {} },
               );
-              go(`/app/template/${copy.id}`);
+              go(studioRoutes.template(copy.id));
             })
           }
         >
@@ -929,7 +933,7 @@ function EditorBody({
                   },
                 );
                 deletionComplete.current = true;
-                go("/app/templates");
+                go(studioRoutes.templates);
               })
             }
           />

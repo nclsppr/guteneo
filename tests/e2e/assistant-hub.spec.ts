@@ -391,12 +391,11 @@ test("Assistants is the second workspace destination and every private guide sur
   if (!(await nav.isVisible()))
     await page.locator(".workspace-navigation summary").click();
   await expect(nav).toBeVisible();
-  const personal = nav.getByRole("link", {
-    name: "Mes documents — Espace personnel",
-    exact: true,
-  });
-  await expect(personal).toHaveCount(1);
-  await expect(personal).toHaveAttribute("href", "#/app/my-documents");
+  // My documents is a space in the switcher, outside the workshop navigation.
+  await expect(nav.locator('a[href="#/app/my-documents"]')).toHaveCount(0);
+  await expect(
+    page.locator('.sidebar .space-switcher-panel a[href="#/app/my-documents"]'),
+  ).toHaveCount(1);
   // The V2 New dispatch shortcut is an action, not a destination.
   const labels = (
     await nav

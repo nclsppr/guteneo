@@ -63,7 +63,7 @@ test("business rules edited in the studio persist and govern real PDF totals, de
     },
   );
   expect(publication.status(), await publication.text()).toBe(200);
-  await page.goto(`/#/app/template/${model.id}`);
+  await page.goto(`/#/app/studio/template/${model.id}`);
 
   await page
     .getByText("Champs requis et valeurs par défaut", { exact: true })

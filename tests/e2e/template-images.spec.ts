@@ -33,7 +33,7 @@ test("the image tool inserts a movable logo, saves original bytes and renders it
   });
   expect(created.status(), await created.text()).toBe(201);
   const model = (await created.json()) as TemplateView;
-  await page.goto(`/#/app/template/${model.id}`);
+  await page.goto(`/#/app/studio/template/${model.id}`);
   const imageButton = page.getByRole("button", {
     name: "Ajouter une image",
     exact: true,

@@ -1,5 +1,17 @@
 # Templates, data and distribution
 
+## Studio space — 29 October 2026 candidate
+
+Templates, Data and Generations form the web **Studio** space under
+`/app/studio/templates`, `/app/studio/datasets` and `/app/studio/generations`,
+with detail pages at `/app/studio/template/<id>`, `/app/studio/dataset/<id>` and
+`/app/studio/generation/<id>`. Earlier addresses resolve to these routes in the
+browser and keep their query. Prepared distribution plans keep
+`/app/distribution/<id>` and belong to the workshop's Dispatches. The Studio uses
+the same workspace session, roles and private-resource rules; REST paths, MCP
+tools and scopes are unchanged. The [workspace layout contract](DASHBOARD_V2.md)
+owns the switcher and navigation.
+
 ## Synthetic generation diagnostics — 26 October 2026 follow-up
 
 A terminal `failed` or `partial` generation is not pending work. Status reads

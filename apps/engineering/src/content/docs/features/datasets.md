@@ -11,7 +11,7 @@ sidebar:
 
 Implemented; private-source and optional AI-transfer gates apply.
 
-**Surfaces:** Web, REST and MCP; private source/mapping ownership.
+**Surfaces:** Web Studio space under /app/studio/…, REST and MCP; private source/mapping ownership.
 
 [Read the engineering guide](/workflows/studio-and-data/) · [All features](/features/)
 

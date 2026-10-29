@@ -7,6 +7,45 @@ scroll/focus on commit. Private reads still require current authority. Secure
 document prices retain their existing padding and consent with a one-pixel
 cobalt side rule. See the [loading contract and measured environment](FRONTEND_PERFORMANCE.md#route-dependencies-follow-the-requested-task).
 
+## Studio space and space switcher — 29 October 2026 candidate
+
+The first implementation step of the [Studio space plan](STUDIO_SPACE_PLAN.md)
+splits authoring from sending inside the same workspace session:
+
+- **Space switcher.** One 44 px control replaces the workshop block at the top
+  of the sidebar, in the workshop and in personal documents. Its panel offers the
+  current workspace's **Workshop** and **Studio**, **My documents**, other
+  workspaces and **Create or join a workspace**. It reads
+  `GET /api/account/workspaces` only on first opening; personal documents reuse
+  the workspaces of the personal session. Switching workspace dispatches the
+  existing cancelable navigation event first, so an unsaved template can refuse,
+  then calls `POST /api/account/workspace` and lands at the root of the same
+  space. From personal documents, another workspace still uses
+  `POST /api/personal/workspace/select` and the existing reload. Escape, an outside
+  pointer and a route change close the panel; the current space carries
+  `aria-current="true"`. Identity actions stay in the account menu, and the
+  account page no longer has its own workspace form.
+- **Studio navigation.** Templates, Data (formerly My data) and Generations live
+  under `/app/studio/…`; earlier `/app/templates`, `/app/template/<id>`,
+  `/app/datasets`, `/app/dataset/<id>`, `/app/generations` and
+  `/app/generation/<id>` links resolve there without a request and keep their
+  query. Prepared batches keep `/app/distribution/<id>` and highlight Dispatches.
+  New dispatch appears only in the workshop.
+- **Workshop navigation.** It keeps its order without the Studio entries, with
+  Assistants immediately after Overview as [the assistant hub](ASSISTANT_HUB.md)
+  requires. At 1280 × 720 an administrator's eleven entries and New dispatch fit
+  without scrolling.
+- **Personal documents.** Use Guteneo stays in personal navigation only for an
+  account without a workspace; otherwise the switcher reaches workspaces.
+
+`apps/web/src/app-routes.ts` owns spaces, Studio addresses, aliases, the current
+navigation entry and preloading; `space-switcher.tsx` and `space-switcher.css`
+own the control. Local evidence: 4 route-table unit tests and the new
+`tests/e2e/studio-space.spec.ts` on desktop/mobile Chromium and iPhone WebKit
+against a local simulation server with synthetic responses. CI, publication and
+an authenticated hosted check remain to be qualified. Belvédère, the Studio to
+Workshop handoff form and the workshop page grouping follow in later steps.
+
 ## Classic retirement — 29 October 2026 candidate
 
 On 29 October 2026 the product owner decided to retire the Classic layout before

@@ -1,6 +1,6 @@
 ---
 title: "Workspace layout and browser appearance"
-description: "24 capabilities in the operate branch of Guteneo."
+description: "26 capabilities in the operate branch of Guteneo."
 sidebar:
   order: 18
 ---
@@ -9,7 +9,7 @@ sidebar:
 
 **Access boundary:** Authenticated browser session.
 
-The 29 October 2026 Classic retirement is a local source candidate requiring CI and publication evidence: every account sees V2, and the stored preference stays accepted without changing the web layout. The initial 25 October theme integration and removal of decorative panels were published from main 03daa4136de8999cc79018f33f2a22038917c621. The personal Classic/V2 account and Belvédère visual follow-up requires its own exact-source release proof and grants no new business authority. The shared outlined personal-context navigation refinement is a local source candidate requiring its own rendered and publication evidence. The 29 October compact V2 navigation and account-menu refinement is a local source candidate requiring CI and publication evidence.
+The 29 October 2026 Studio space and space switcher are a local source candidate requiring CI and publication evidence. The 29 October 2026 Classic retirement is a local source candidate requiring CI and publication evidence: every account sees V2, and the stored preference stays accepted without changing the web layout. The initial 25 October theme integration and removal of decorative panels were published from main 03daa4136de8999cc79018f33f2a22038917c621. The personal Classic/V2 account and Belvédère visual follow-up requires its own exact-source release proof and grants no new business authority. The shared outlined personal-context navigation refinement is a local source candidate requiring its own rendered and publication evidence. The 29 October compact V2 navigation and account-menu refinement is a local source candidate requiring CI and publication evidence.
 
 **Surfaces:** Authenticated web V2 only; native reads the stored preference without a setter; no new business API/MCP authority.
 
@@ -35,7 +35,9 @@ The 29 October 2026 Classic retirement is a local source candidate requiring CI 
 <li id="feature-4d010bc7a846">Four-language labels; simulation notices only for simulated sessions</li>
 <li id="feature-40f2190fa707">Same four roles, supervisor options, private access and consents; no new mandate, channel or business API/MCP tool</li>
 <li id="feature-6a0d97700a37">Native account/session reads include appearance without a setter; existing name/language browser PATCH and native language PATCH remain compatible</li>
-<li id="feature-f49c7bc78b34">Shared compact My documents personal-context link across desktop/mobile navigation: one-pixel blue outline, ink label, existing blue icon and minimum 44 px target, retaining its personal-space description, exact destination and independent authentication without an oversized separate card, repeated role panel, new request or authority</li>
+<li id="feature-6d370404ab4e">One space switcher at the top of the shared V2 sidebar, in the workshop and in personal documents, offers the current workspace's Workshop and Studio, My documents, other workspaces and workspace creation or joining; it reads workspaces only when first opened, honours the existing unsaved-work veto before switching, closes on Escape (including after a Safari pointer click), an outside pointer or a route change, and keeps 44 px touch targets; identity actions stay in the account menu</li>
+<li id="feature-3f0decd0925d">Studio space in the same workspace session: Templates, Data and Generations live under /app/studio/… with permanent client aliases for earlier Studio links that keep the query; prepared batches (/app/distribution/…) stay with Dispatches; the workshop navigation keeps Assistants immediately after Overview and shows New dispatch only in the workshop</li>
+<li id="feature-1dbd4a510238">One application route table (apps/web/src/app-routes.ts) owns spaces, Studio addresses, aliases, the current navigation entry and route-code preloading</li>
 <li id="feature-95ab56d401ce">Shared native file input with four-language authored chooser/empty text and literal filenames, keyboard validation and exact-byte upload semantics</li>
 <li id="feature-a3ed99ce1fef">Desktop Safari select height and protected-link hint spacing; visible keyboard focus, selection and forced-colors states remain readable in both palettes</li>
 <li id="feature-7b592af1b019">Public and personal headers and Belvédère page actions share one localized light/dark action icon at every viewport, defaulting to the operating system; the authenticated personal V2 shell fills the available width with responsive gutters and follows workshop geometry without changing personal navigation, identity, document access or logout. Browser theme is independent of account language and role; document/PDF/email content retains original light-paper appearance and bytes</li>

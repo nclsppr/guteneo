@@ -1,4 +1,5 @@
 import { msg, msgIn } from "./messages";
+import { studioRoutes } from "./app-routes";
 import { scrollStudioTable } from "./studio-table-keyboard";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import type {
@@ -43,7 +44,7 @@ export function GenerationList({ canPrepare }: { canPrepare: boolean }) {
         )}
         action={
           canPrepare && (
-            <a className="button primary" href="#/app/templates">
+            <a className="button primary" href={`#${studioRoutes.templates}`}>
               {msg("Create a document ")}
             </a>
           )
@@ -64,7 +65,7 @@ export function GenerationList({ canPrepare }: { canPrepare: boolean }) {
             <article className="studio-list-row" key={job.id}>
               <div>
                 <h3>
-                  <a href={"#/app/generation/" + job.id}>
+                  <a href={"#" + studioRoutes.generation(job.id)}>
                     {msgIn("generation-state", stateLabel[job.state])} ·{" "}
                     {job.generated} / {job.total} {msg("PDF ")}
                   </a>
@@ -74,7 +75,10 @@ export function GenerationList({ canPrepare }: { canPrepare: boolean }) {
                   {job.templateVersion} · {job.failed} {msg("error(s) ")}
                 </p>
               </div>
-              <a className="button small" href={"#/app/generation/" + job.id}>
+              <a
+                className="button small"
+                href={"#" + studioRoutes.generation(job.id)}
+              >
                 {msg("Track ")}
               </a>
             </article>
@@ -213,7 +217,7 @@ export function GenerationDetail({
     ) ?? [];
   return (
     <>
-      <a className="back-link" href="#/app/generations">
+      <a className="back-link" href={`#${studioRoutes.generations}`}>
         {msg("← Generations ")}
       </a>
       <PageHeading
@@ -1164,7 +1168,7 @@ export function DistributionDetail({
   const keys = useRef<Record<string, string>>({});
   return (
     <>
-      <a className="back-link" href="#/app/generations">
+      <a className="back-link" href={`#${studioRoutes.generations}`}>
         {msg("← Generations ")}
       </a>
       <PageHeading
@@ -1350,7 +1354,7 @@ export function DistributionDetail({
           </div>
           <a
             className="button"
-            href={"#/app/generation/" + resource.data.jobId}
+            href={"#" + studioRoutes.generation(resource.data.jobId)}
           >
             {msg("Back to PDFs ")}
           </a>

@@ -42,10 +42,10 @@
     "Für ein personalisiertes PDF pro Kunde",
     "Fir e personaliséierte PDF pro Client"
   ],
-  "importez vos données dans le studio documentaire": [
-    "import your data into the document studio",
-    "importieren Sie Ihre Daten in das Dokumentenstudio",
-    "importéiert Är Donnéeën an den Dokumentestudio"
+  "importez vos données dans le Studio": [
+    "import your data into the Studio",
+    "importieren Sie Ihre Daten in das Studio",
+    "importéiert Är Donnéeën an de Studio"
   ],
   "Brouillon": ["Draft", "Entwurf", "Entworf"],
   "Publié": ["Published", "Veröffentlicht", "Verëffentlecht"],
@@ -129,9 +129,9 @@
     "Eine mehrseitige Tabelle mit nach Empfänger gruppierten Zeilen.",
     "Eng Tabell iwwer méi Säite mat Reien no Empfänger gruppéiert."
   ],
-  "Quitter le studio et perdre les modifications non enregistrées ?": [
-    "Leave the studio and lose unsaved changes?",
-    "Studio verlassen und ungespeicherte Änderungen verwerfen?",
-    "De Studio verloossen an net gespäichert Ännerunge verléieren?"
+  "Quitter ce modèle et perdre les modifications non enregistrées ?": [
+    "Leave this template and lose unsaved changes?",
+    "Diese Vorlage verlassen und ungespeicherte Änderungen verwerfen?",
+    "Dës Virlag verloossen an net gespäichert Ännerunge verléieren?"
   ]
 }

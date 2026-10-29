@@ -1,4 +1,5 @@
 import { msg } from "./messages";
+import { studioRoutes } from "./app-routes";
 import { FileInput } from "./file-input";
 import { WorkspaceContacts } from "./workspace-contacts";
 import { RolePermissionNotice } from "./role-guide";
@@ -268,13 +269,13 @@ export function Overview({ session }: { session: Session }) {
       className="studio-entry-links"
       aria-label={msg("Create personalised documents")}
     >
-      <a className="button" href="#/app/templates?new=blank">
+      <a className="button" href={`#${studioRoutes.templates}?new=blank`}>
         {msg("Create a document")} <ArrowRight size={17} />
       </a>
-      <a className="button" href="#/app/templates">
+      <a className="button" href={`#${studioRoutes.templates}`}>
         {msg("Use a template")} <ArrowRight size={17} />
       </a>
-      <a className="button" href="#/app/datasets">
+      <a className="button" href={`#${studioRoutes.datasets}`}>
         {msg("Import my data")} <ArrowRight size={17} />
       </a>
     </nav>
@@ -467,7 +468,7 @@ export function Documents({ canPrepare = true }: { canPrepare?: boolean }) {
           canPrepare && (
             <div className="button-group">
               {!isPublicPreview && (
-                <a className="button" href="#/app/templates">
+                <a className="button" href={`#${studioRoutes.templates}`}>
                   {msg("Use a template")}
                 </a>
               )}

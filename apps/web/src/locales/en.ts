@@ -47,7 +47,7 @@ export const en: Copy = {
     overview: "Overview",
     documents: "Documents",
     templates: "Templates",
-    datasets: "My data",
+    datasets: "Data",
     generations: "Generations",
     dispatches: "Dispatches",
     campaigns: "Campaigns",

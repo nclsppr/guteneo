@@ -526,9 +526,6 @@ ol {
   background: var(--blue-tint);
   font-weight: 500;
 }
-.sidebar nav a[href="#/app/templates"] {
-  margin-top: 24px;
-}
 
 .workspace-main {
   min-width: 0;
@@ -1869,9 +1866,6 @@ ol {
   .sidebar nav a svg {
     height: 16px;
     width: 16px;
-  }
-  .sidebar nav a[href="#/app/templates"] {
-    margin-top: 0;
   }
 
   .simulation-banner {
@@ -3408,9 +3402,6 @@ ol {
     padding: 0 0 14px;
   }
 
-  .workspace .sidebar nav a[href="#/app/templates"] {
-    margin-top: 0;
-  }
   .workspace main {
     padding-inline: 28px;
   }

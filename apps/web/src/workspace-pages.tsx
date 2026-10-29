@@ -1,4 +1,5 @@
 import { msg } from "./messages";
+import { studioRoutes } from "./app-routes";
 import { FileInput } from "./file-input";
 import {
   useEffect,
@@ -160,8 +161,8 @@ export function Campaigns({
       {!isPublicPreview && canPrepare && (
         <p className="notice info">
           {msg("For a personalised PDF per customer,")}{" "}
-          <a href="#/app/datasets">
-            {msg("import your data into the document studio")}
+          <a href={`#${studioRoutes.datasets}`}>
+            {msg("import your data into the Studio")}
           </a>
           .
         </p>

@@ -1,4 +1,5 @@
 import { msg } from "./messages";
+import { canonicalApplicationRoute } from "./app-routes";
 import {
   useCallback,
   useEffect,
@@ -79,10 +80,17 @@ export function LoadMore<T>({
   );
 }
 function readRoute() {
-  return (
+  const route =
     window.location.hash.slice(1) ||
-    (window.location.pathname.startsWith("/app") ? "/app" : "/")
-  );
+    (window.location.pathname.startsWith("/app") ? "/app" : "/");
+  // Earlier Studio links resolve to their Studio address without a request.
+  const canonical = canonicalApplicationRoute(route);
+  if (canonical !== route) {
+    const url = new URL(window.location.href);
+    url.hash = canonical;
+    window.history.replaceState(window.history.state, "", url);
+  }
+  return canonical;
 }
 const WorkspaceRouteContext = createContext<string | null>(null);
 export function WorkspaceRouteProvider({

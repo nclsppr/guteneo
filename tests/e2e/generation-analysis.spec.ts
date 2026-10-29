@@ -86,7 +86,7 @@ async function generationFixture(page: Page) {
       return release;
     },
     async open() {
-      await page.goto(`/#/app/generation/${id}`);
+      await page.goto(`/#/app/studio/generation/${id}`);
       await expect(selection(page)).toBeDisabled();
     },
   };

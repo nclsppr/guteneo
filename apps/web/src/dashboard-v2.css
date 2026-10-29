@@ -160,10 +160,7 @@
     padding-top: 6px;
     border-top: 1px solid var(--line);
   }
-  .workspace-v2
-    .sidebar
-    nav
-    a:is([href="#/app/templates"], [href="#/app/senders"]) {
+  .workspace-v2 .sidebar nav a[href="#/app/senders"] {
     margin-top: 10px;
   }
 }

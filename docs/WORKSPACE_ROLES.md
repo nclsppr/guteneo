@@ -253,8 +253,11 @@ contract: `packages/contracts/src/roles.ts`.
 Only current authenticated workspace administrators can mutate members. Options
 cannot be enabled for other roles. Session/account `permissions` drive UI; server
 checks remain authoritative and recheck in D1 transactions.
-`GET /api/account/workspaces` lists current memberships; CSRF-protected browser
-`POST /api/account/workspace` selects one. An ID alone proves no access.
+`GET /api/account/workspaces` lists current memberships when the space switcher
+first opens; CSRF-protected browser `POST /api/account/workspace` selects one. An
+ID alone proves no access. The Studio space adds no role or permission: its
+creation controls keep the preparation permission, and observers read according
+to sharing.
 
 Additive `0042_workspace_roles.sql` rebuilds membership with supervisor and
 `supervisor_can_approve`/`supervisor_can_report`, preserving members/relations,

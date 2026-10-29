@@ -235,7 +235,7 @@ test("template edits remain protected before and during a cold route transition"
     await route.continue();
   });
   try {
-    await page.goto("/#/app/template/transition-template");
+    await page.goto("/#/app/studio/template/transition-template");
     const field = page.getByLabel("Template name", { exact: true });
     const save = page.getByRole("button", { name: "Save draft", exact: true });
     await expect(field).toHaveValue(model.name);
@@ -252,7 +252,9 @@ test("template edits remain protected before and during a cold route transition"
     });
     await (await profileLink(page)).click();
     await dialog;
-    await expect(page).toHaveURL(/#\/app\/template\/transition-template$/);
+    await expect(page).toHaveURL(
+      /#\/app\/studio\/template\/transition-template$/,
+    );
     await expect(field).toHaveValue("Unsaved synthetic edit");
     expect(requested).toBe(false);
     await field.fill(model.name);

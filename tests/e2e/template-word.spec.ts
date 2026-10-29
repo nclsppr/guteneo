@@ -21,7 +21,7 @@ test("Word import exposes conversion warnings, supports native visual editing an
     await page.request.get("/api/session")
   ).json()) as Session;
   expect(session.simulation).toBe(true);
-  await page.goto("/#/app/templates");
+  await page.goto("/#/app/studio/templates");
   const sourceBytes = Buffer.from(syntheticDocxFixture());
   expect(sourceBytes.subarray(0, 2).toString()).toBe("PK");
   await page.getByLabel("Fichier Word (.docx)", { exact: true }).setInputFiles({

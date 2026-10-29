@@ -308,7 +308,7 @@ test("observer consults studio routes while all preparation controls stay unavai
   context,
 }) => {
   const { state } = await studioFixture(context, "viewer");
-  await page.goto("/#/app/templates?new=blank");
+  await page.goto("/#/app/studio/templates?new=blank");
   await expect(
     page.getByRole("heading", {
       name: "Modèles de démonstration",
@@ -332,7 +332,7 @@ test("observer consults studio routes while all preparation controls stay unavai
   await expect(copies).toHaveCount(5);
   for (const button of await copies.all()) await expect(button).toBeDisabled();
 
-  await page.goto(`/#/app/template/${ids.template}`);
+  await page.goto(`/#/app/studio/template/${ids.template}`);
   await expect(
     page.getByRole("heading", {
       name: "Modèle consultable du studio",
@@ -373,9 +373,9 @@ test("observer consults studio routes while all preparation controls stay unavai
     .all())
     await expect(input).toBeDisabled();
 
-  await page.goto("/#/app/datasets");
+  await page.goto("/#/app/studio/datasets");
   await expect(
-    page.getByRole("heading", { name: "Mes données", exact: true }),
+    page.getByRole("heading", { name: "Données", exact: true }),
   ).toBeVisible();
   await expect(
     page.getByRole("link", {
@@ -385,7 +385,7 @@ test("observer consults studio routes while all preparation controls stay unavai
   ).toBeVisible();
   await expect(page.locator('main input[type="file"]')).toHaveCount(0);
   await expect(page.getByRole("button", { name: /Importer/ })).toHaveCount(0);
-  await page.goto(`/#/app/dataset/${ids.dataset}`);
+  await page.goto(`/#/app/studio/dataset/${ids.dataset}`);
   await expect(
     page.getByRole("region", {
       name: "Aperçu original — Données",
@@ -399,14 +399,14 @@ test("observer consults studio routes while all preparation controls stay unavai
   ).toHaveCount(0);
   await expect(page.locator("main form")).toHaveCount(0);
 
-  await page.goto("/#/app/generations");
+  await page.goto("/#/app/studio/generations");
   await expect(
     page.getByRole("heading", { name: "Générations", exact: true }),
   ).toBeVisible();
   await expect(
     page.getByRole("link", { name: "Créer un document", exact: true }),
   ).toHaveCount(0);
-  await page.goto(`/#/app/generation/${ids.job}`);
+  await page.goto(`/#/app/studio/generation/${ids.job}`);
   await expect(
     page.getByRole("region", {
       name: "Résultats de cette génération",
@@ -458,7 +458,7 @@ test("operator discloses review access before preparation and approver opens the
   context,
 }) => {
   const { state, hash } = await studioFixture(context, "member");
-  await page.goto(`/#/app/generation/${ids.job}`);
+  await page.goto(`/#/app/studio/generation/${ids.job}`);
   await page
     .getByRole("checkbox", { name: `Sélectionner ${ids.record}`, exact: true })
     .check();

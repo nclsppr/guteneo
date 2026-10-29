@@ -65,12 +65,12 @@ async function expectClearV2Shell(page: Page) {
   await expect(page.locator(".workspace .brand")).toHaveCount(1);
   await expect(page.locator(".app-footer")).toHaveCount(0);
   await expect(page.locator(".app-topbar")).toHaveCount(0);
-  await expect(page.locator(".sidebar .organization")).toBeVisible();
+  await expect(page.locator(".sidebar .space-switcher-trigger")).toBeVisible();
   await expect(
     page.locator(".workspace-role, .dashboard-identity"),
   ).toHaveCount(0);
   await expect(
-    page.locator('.sidebar nav a[href="#/app/my-documents"]'),
+    page.locator('.sidebar .space-switcher-panel a[href="#/app/my-documents"]'),
   ).toHaveCount(1);
   await expect(page.locator(".sidebar > .personal-context-link")).toHaveCount(
     0,
@@ -152,13 +152,21 @@ test("V2 gives each creation page one prominent action and keeps account utiliti
       title: "La matière première.",
       action: "Importer un PDF",
     },
-    { path: "templates", title: "Modèles", action: "Créer un document" },
     {
-      path: "datasets",
-      title: "Mes données",
+      path: "studio/templates",
+      title: "Modèles",
+      action: "Créer un document",
+    },
+    {
+      path: "studio/datasets",
+      title: "Données",
       action: "Importer et reconnaître les données",
     },
-    { path: "generations", title: "Générations", action: "Créer un document" },
+    {
+      path: "studio/generations",
+      title: "Générations",
+      action: "Créer un document",
+    },
     { path: "dispatches", title: "Le fil des envois.", action: "Nouvel envoi" },
   ]) {
     await page.goto(`/#/app/${destination.path}`);
@@ -173,8 +181,15 @@ test("V2 gives each creation page one prominent action and keeps account utiliti
     const primary = main.locator(".button.primary");
     await expect(primary).toHaveCount(1);
     await expect(primary).toHaveText(destination.action);
-    // The global shortcut stays in place on every page without the filled style.
+    // The global shortcut stays in place on every workshop page without the
+    // filled style; the Studio creates documents and sends nothing.
     const shortcut = page.locator(".workspace-create");
+    if (destination.path.startsWith("studio/")) {
+      await expect(shortcut).toHaveCount(0);
+      await expect(primary).toHaveAccessibleName(destination.action);
+      await expectProminentAction(primary, isMobile);
+      continue;
+    }
     await expect(shortcut).toHaveCount(1);
     await expect(shortcut).not.toHaveClass(/\bprimary\b/);
     if (isMobile) await expect(shortcut).toBeHidden();
@@ -195,7 +210,7 @@ test("V2 gives each creation page one prominent action and keeps account utiliti
       );
   }
 
-  await page.goto("/#/app/templates");
+  await page.goto("/#/app/studio/templates");
   const create = main.getByRole("button", {
     name: "Créer un document",
     exact: true,
@@ -205,7 +220,7 @@ test("V2 gives each creation page one prominent action and keeps account utiliti
   await expect(create).not.toHaveClass(/\bprimary\b/);
   await expect(main.locator(".button.primary")).toHaveCount(1);
   await expectProminentAction(
-    main.getByRole("button", { name: "Ouvrir le studio", exact: true }),
+    main.getByRole("button", { name: "Créer le modèle", exact: true }),
     isMobile,
   );
   await create.click();
@@ -265,6 +280,7 @@ test("V2 keeps every destination in view and in place on common desktop screens"
   await login(page);
   const navigation = page.locator(".workspace-navigation");
   for (const size of [
+    { width: 1280, height: 720 },
     { width: 1440, height: 900 },
     { width: 1536, height: 864 },
   ]) {
@@ -296,13 +312,7 @@ test("V2 keeps every destination in view and in place on common desktop screens"
       else places = tops;
     }
   }
-  // Shorter screens scroll the list and fade the cut-off entry.
-  await page.setViewportSize({ width: 1280, height: 720 });
-  expect(
-    await navigation.evaluate(
-      (element) => element.scrollHeight > element.clientHeight,
-    ),
-  ).toBe(true);
+  // A shorter screen still scrolls the list and fades the cut-off entry.
   expect(
     await navigation
       .locator("nav")
@@ -690,7 +700,7 @@ test("V2 does not add reporting, preparation or approval rights to restricted ro
     await expect(page.getByRole("alert")).toHaveCount(0);
     if (!scenario.preparation)
       await expect(page.locator('a[href="#/app/prepare"]')).toHaveCount(0);
-    await page.goto("/#/app/generations");
+    await page.goto("/#/app/studio/generations");
     await expect(
       page.getByRole("heading", { level: 1, name: "Générations" }),
     ).toBeVisible();
@@ -751,7 +761,7 @@ test("a stored Classic preference and old appearance links still open the only w
   expect(writes).toEqual([]);
 });
 
-test("V2 keeps the account reachable below scrollable navigation and supports every workspace at the native viewport and 320 pixels", async ({
+test("V2 keeps the account reachable below the navigation and supports every workspace at the native viewport and 320 pixels", async ({
   page,
 }) => {
   const errors: string[] = [];
@@ -771,11 +781,6 @@ test("V2 keeps the account reachable below scrollable navigation and supports ev
       viewport.height,
     );
     expect(navBox!.y + navBox!.height).toBeLessThanOrEqual(accountBox!.y + 1);
-    expect(
-      await page
-        .locator(".workspace-navigation")
-        .evaluate((nav) => nav.scrollHeight > nav.clientHeight),
-    ).toBe(true);
     await expect(
       page.locator('.workspace-navigation a[href="#/app/account"]'),
     ).toHaveCount(0);
@@ -786,9 +791,9 @@ test("V2 keeps the account reachable below scrollable navigation and supports ev
     for (const route of [
       "",
       "/documents",
-      "/templates",
-      "/datasets",
-      "/generations",
+      "/studio/templates",
+      "/studio/datasets",
+      "/studio/generations",
       "/dispatches",
       "/campaigns",
       "/connection",

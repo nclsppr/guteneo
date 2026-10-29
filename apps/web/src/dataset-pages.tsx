@@ -1,4 +1,5 @@
 import { msg, msgIn } from "./messages";
+import { studioRoutes } from "./app-routes";
 import { FileInput } from "./file-input";
 import { scrollStudioTable } from "./studio-table-keyboard";
 import { useStudioAiPolicy, StudioAiNotice } from "./studio-ai";
@@ -64,13 +65,13 @@ export function DatasetLibrary({ session }: { session: Session }) {
         method: "POST",
         body: form,
       });
-      go("/app/dataset/" + dataset.id);
+      go(studioRoutes.dataset(dataset.id));
     });
   }
   return (
     <>
       <PageHeading
-        title={msg("My data")}
+        title={msg("Data")}
         intro={msg(
           "Import your file as it is. Choose sheets, columns and groups before generating your documents.",
         )}
@@ -159,7 +160,7 @@ export function DatasetLibrary({ session }: { session: Session }) {
             <article key={item.id} className="studio-list-row">
               <div>
                 <h3>
-                  <a href={"#/app/dataset/" + item.id}>{item.name}</a>
+                  <a href={"#" + studioRoutes.dataset(item.id)}>{item.name}</a>
                 </h3>
                 <p>
                   {item.format.toUpperCase()} · {bytes(item.size)} ·{" "}
@@ -173,7 +174,10 @@ export function DatasetLibrary({ session }: { session: Session }) {
                   · {date(item.createdAt)}
                 </p>
               </div>
-              <a className="button small" href={"#/app/dataset/" + item.id}>
+              <a
+                className="button small"
+                href={"#" + studioRoutes.dataset(item.id)}
+              >
                 {canPrepare ? msg("Map data ") : msg("Open ")}
                 <ArrowRight size={16} />
               </a>
@@ -546,8 +550,8 @@ export function DatasetMapper({
   if (!canPrepare)
     return (
       <>
-        <a className="back-link" href="#/app/datasets">
-          {msg("← My data ")}
+        <a className="back-link" href={`#${studioRoutes.datasets}`}>
+          {msg("← Data ")}
         </a>
         <PageHeading title={resource.data.dataset.name} />
         <RolePermissionNotice />
@@ -639,8 +643,8 @@ function DatasetRecovery({
             >
               {msg("Refresh status ")}
             </button>
-            <a className="text-link" href="#/app/datasets">
-              {canPrepare ? msg("Import a corrected file ") : msg("My data ")}
+            <a className="text-link" href={`#${studioRoutes.datasets}`}>
+              {canPrepare ? msg("Import a corrected file ") : msg("Data ")}
             </a>
           </div>
         </>
@@ -848,8 +852,8 @@ function MappingEditor({ value }: { value: PagedProfileView }) {
   }
   return (
     <>
-      <a className="back-link" href="#/app/datasets">
-        {msg("← My data ")}
+      <a className="back-link" href={`#${studioRoutes.datasets}`}>
+        {msg("← Data ")}
       </a>
       <PageHeading
         title={dataset.name}
@@ -1502,7 +1506,7 @@ function MappingEditor({ value }: { value: PagedProfileView }) {
                       },
                     },
                   );
-                  go("/app/template/" + schemaAdoption.current.template.id);
+                  go(studioRoutes.template(schemaAdoption.current.template.id));
                 })
               }
             >
@@ -1592,7 +1596,7 @@ function MappingEditor({ value }: { value: PagedProfileView }) {
                     mappingVersion: validation.mapping.version,
                   },
                 });
-                go("/app/generation/" + job.id);
+                go(studioRoutes.generation(job.id));
               })
             }
           >

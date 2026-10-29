@@ -1,7 +1,7 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
 # Guteneo feature tree and developer atlas
 
-**23 domains · 352 features · 37 journeys · 76 documented REST operations · 83 MCP tools**
+**23 domains · 354 features · 37 journeys · 76 documented REST operations · 83 MCP tools**
 Updated 2026-10-29.
 
 Repository implementation inventory. Availability depends on current capabilities and authority; implementation, activation and deployed proof are distinct.
@@ -30,7 +30,7 @@ mindmap
     Operate
       Campaigns and tracking (8)
       Credits and billing (8)
-      Workspace layout and browser appearance (24)
+      Workspace layout and browser appearance (26)
       PDF verification (10)
     Interfaces
       Assistants and API (31)
@@ -68,7 +68,7 @@ mindmap
 
 - [Campaigns and tracking](#campaigns) — 8 features; capability-gated.
 - [Credits and billing](#billing) — 8 features; partial.
-- [Workspace layout and browser appearance](#dashboard) — 24 features; browser-session.
+- [Workspace layout and browser appearance](#dashboard) — 26 features; browser-session.
 - [PDF verification](#pdf-verification) — 10 features; capability-gated.
 
 ### Interfaces
@@ -180,7 +180,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Verified dual-token subject binds to the canonical namespace without email linking or duplicate person/workshop/credits/authority; browser evidence and prepare_only restriction remain
 - One Guteneo account without an automatic workspace; idempotent initial administrator/workspace creation only on explicit service use
 - Personal browser principal and session without membership, separate from workspace API authority; shared profile name/language and no email-based identity merging
-- My documents, Use Guteneo and Account and security share one sign-in; voluntary workspace choice/creation reloads the chosen destination and bootstraps that workspace’s current session, rights and CSRF
+- My documents, Use Guteneo and Account and security share one sign-in; voluntary workspace choice/creation reloads the chosen destination and bootstraps that workspace’s current session, rights and CSRF; the space switcher opens a current or other workspace directly, and Use Guteneo appears in personal navigation only without a workspace
 - Document policy defaults to strong or explicitly selects verified_account: verified account/address and signed auth_time in an unexpired, unrevoked identity-linked session; no separate document sign-in for verified_account, while strong retains fifteen minutes for reading/association/approval and five for export/deposit/deletion; documentAccessAllowed/documentAccessMode do not imply MFA or strongAuthentication; D1 defaults strong and environment disagreement fails closed
 - Document invitation handoff lasts at most ten minutes in the same tab, then is deleted; capture before Auth0 with secret-free returnTo and no arbitrary private query
 - Document-service 401 offers explicit recovery without session-bootstrap loops; Auth0 recovery reconciles language and returned identity
@@ -285,7 +285,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 
 **Availability model:** capability-gated. Implemented; AI suggestions require configuration and organisation consent.
 
-**Surfaces:** Web, REST and MCP; optional configured AI proposal service.
+**Surfaces:** Web Studio space under /app/studio/…, REST and MCP; optional configured AI proposal service.
 
 - Private, shared and organisation template libraries
 - Five synthetic examples: letter, invoice, statement, quote and delivery note
@@ -351,7 +351,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 
 **Availability model:** capability-gated. Implemented; private-source and optional AI-transfer gates apply.
 
-**Surfaces:** Web, REST and MCP; private source/mapping ownership.
+**Surfaces:** Web Studio space under /app/studio/…, REST and MCP; private source/mapping ownership.
 
 - CSV, XLSX, XML and JSON imports with a private original
 - MCP JSON dataset metadata declares arrays of objects or named arrays of objects to match existing parsing; nested values, runtime errors/recovery, request/cell bounds and private ownership remain unchanged, without new host-file or AI-transfer authority
@@ -401,7 +401,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 
 **Availability model:** capability-gated. Implemented; generation, preparation, approval and delivery remain separate.
 
-**Surfaces:** Web, REST and MCP; generation is separate from distribution and delivery.
+**Surfaces:** Web Studio space under /app/studio/…, REST and MCP; generation is separate from distribution and delivery.
 
 - Single PDF from a business form
 - PDF batch from a validated mapping
@@ -837,7 +837,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 <a id="dashboard"></a>
 ### Workspace layout and browser appearance
 
-**Availability model:** browser-session. The 29 October 2026 Classic retirement is a local source candidate requiring CI and publication evidence: every account sees V2, and the stored preference stays accepted without changing the web layout. The initial 25 October theme integration and removal of decorative panels were published from main 03daa4136de8999cc79018f33f2a22038917c621. The personal Classic/V2 account and Belvédère visual follow-up requires its own exact-source release proof and grants no new business authority. The shared outlined personal-context navigation refinement is a local source candidate requiring its own rendered and publication evidence. The 29 October compact V2 navigation and account-menu refinement is a local source candidate requiring CI and publication evidence.
+**Availability model:** browser-session. The 29 October 2026 Studio space and space switcher are a local source candidate requiring CI and publication evidence. The 29 October 2026 Classic retirement is a local source candidate requiring CI and publication evidence: every account sees V2, and the stored preference stays accepted without changing the web layout. The initial 25 October theme integration and removal of decorative panels were published from main 03daa4136de8999cc79018f33f2a22038917c621. The personal Classic/V2 account and Belvédère visual follow-up requires its own exact-source release proof and grants no new business authority. The shared outlined personal-context navigation refinement is a local source candidate requiring its own rendered and publication evidence. The 29 October compact V2 navigation and account-menu refinement is a local source candidate requiring CI and publication evidence.
 
 **Surfaces:** Authenticated web V2 only; native reads the stored preference without a setter; no new business API/MCP authority.
 
@@ -858,7 +858,9 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Four-language labels; simulation notices only for simulated sessions
 - Same four roles, supervisor options, private access and consents; no new mandate, channel or business API/MCP tool
 - Native account/session reads include appearance without a setter; existing name/language browser PATCH and native language PATCH remain compatible
-- Shared compact My documents personal-context link across desktop/mobile navigation: one-pixel blue outline, ink label, existing blue icon and minimum 44 px target, retaining its personal-space description, exact destination and independent authentication without an oversized separate card, repeated role panel, new request or authority
+- One space switcher at the top of the shared V2 sidebar, in the workshop and in personal documents, offers the current workspace's Workshop and Studio, My documents, other workspaces and workspace creation or joining; it reads workspaces only when first opened, honours the existing unsaved-work veto before switching, closes on Escape (including after a Safari pointer click), an outside pointer or a route change, and keeps 44 px touch targets; identity actions stay in the account menu
+- Studio space in the same workspace session: Templates, Data and Generations live under /app/studio/… with permanent client aliases for earlier Studio links that keep the query; prepared batches (/app/distribution/…) stay with Dispatches; the workshop navigation keeps Assistants immediately after Overview and shows New dispatch only in the workshop
+- One application route table (apps/web/src/app-routes.ts) owns spaces, Studio addresses, aliases, the current navigation entry and route-code preloading
 - Shared native file input with four-language authored chooser/empty text and literal filenames, keyboard validation and exact-byte upload semantics
 - Desktop Safari select height and protected-link hint spacing; visible keyboard focus, selection and forced-colors states remain readable in both palettes
 - Public and personal headers and Belvédère page actions share one localized light/dark action icon at every viewport, defaulting to the operating system; the authenticated personal V2 shell fills the available width with responsive gutters and follows workshop geometry without changing personal navigation, identity, document access or logout. Browser theme is independent of account language and role; document/PDF/email content retains original light-paper appearance and bytes
@@ -868,7 +870,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 
 **Contract:** [DASHBOARD_V2.md](DASHBOARD_V2.md) · **Implementation:** [apps/web/src/account-page.tsx](../apps/web/src/account-page.tsx)
 
-**Tests:** [tests/unit/account.test.ts](../tests/unit/account.test.ts), [tests/integration/mobile.test.ts](../tests/integration/mobile.test.ts), [tests/preview-e2e/dashboard-v2.spec.ts](../tests/preview-e2e/dashboard-v2.spec.ts), [tests/e2e/dashboard-v2.spec.ts](../tests/e2e/dashboard-v2.spec.ts), [tests/e2e/protected-email.spec.ts](../tests/e2e/protected-email.spec.ts), [tests/e2e/account-identity.spec.ts](../tests/e2e/account-identity.spec.ts), [tests/e2e/team-invitations.spec.ts](../tests/e2e/team-invitations.spec.ts), [tests/e2e/template-images.spec.ts](../tests/e2e/template-images.spec.ts), [tests/preview-e2e/theme.spec.ts](../tests/preview-e2e/theme.spec.ts), [tests/e2e/personal-appearance.spec.ts](../tests/e2e/personal-appearance.spec.ts), [tests/e2e/personal-document-performance.spec.ts](../tests/e2e/personal-document-performance.spec.ts), [tests/belvedere-e2e/control-tower.spec.ts](../tests/belvedere-e2e/control-tower.spec.ts), [tests/e2e/pdf-validation.spec.ts](../tests/e2e/pdf-validation.spec.ts), [tests/e2e/workspace-route-performance.spec.ts](../tests/e2e/workspace-route-performance.spec.ts), [tests/preview-e2e/mobile-workspace.spec.ts](../tests/preview-e2e/mobile-workspace.spec.ts), [tests/e2e/locale-boundaries.spec.ts](../tests/e2e/locale-boundaries.spec.ts), [tests/e2e/login-entry.spec.ts](../tests/e2e/login-entry.spec.ts)
+**Tests:** [tests/unit/account.test.ts](../tests/unit/account.test.ts), [tests/integration/mobile.test.ts](../tests/integration/mobile.test.ts), [tests/preview-e2e/dashboard-v2.spec.ts](../tests/preview-e2e/dashboard-v2.spec.ts), [tests/e2e/dashboard-v2.spec.ts](../tests/e2e/dashboard-v2.spec.ts), [tests/e2e/protected-email.spec.ts](../tests/e2e/protected-email.spec.ts), [tests/e2e/account-identity.spec.ts](../tests/e2e/account-identity.spec.ts), [tests/e2e/team-invitations.spec.ts](../tests/e2e/team-invitations.spec.ts), [tests/e2e/template-images.spec.ts](../tests/e2e/template-images.spec.ts), [tests/preview-e2e/theme.spec.ts](../tests/preview-e2e/theme.spec.ts), [tests/e2e/personal-appearance.spec.ts](../tests/e2e/personal-appearance.spec.ts), [tests/e2e/personal-document-performance.spec.ts](../tests/e2e/personal-document-performance.spec.ts), [tests/belvedere-e2e/control-tower.spec.ts](../tests/belvedere-e2e/control-tower.spec.ts), [tests/e2e/pdf-validation.spec.ts](../tests/e2e/pdf-validation.spec.ts), [tests/e2e/workspace-route-performance.spec.ts](../tests/e2e/workspace-route-performance.spec.ts), [tests/preview-e2e/mobile-workspace.spec.ts](../tests/preview-e2e/mobile-workspace.spec.ts), [tests/e2e/locale-boundaries.spec.ts](../tests/e2e/locale-boundaries.spec.ts), [tests/e2e/login-entry.spec.ts](../tests/e2e/login-entry.spec.ts), [tests/e2e/studio-space.spec.ts](../tests/e2e/studio-space.spec.ts), [tests/unit/app-routes.test.ts](../tests/unit/app-routes.test.ts)
 
 
 
@@ -1315,7 +1317,7 @@ In an active share allowing deposit, read independent retention/export terms →
 
 **Actor:** Guteneo account owner with zero or more memberships. **Branch:** Personal-to-workspace navigation, without another registration or separate sender account.
 
-Start in My documents → voluntarily open Use Guteneo → choose Prepare a dispatch or New share → select a current membership or request the initial workspace → idempotent creation, initial administrator and closed channels → reload the chosen destination and reread server session/workspace/rights/CSRF → continue normal preparation using the same name/language/identity. Local browser regression creates an administrator workspace then selects another as operator, with real screen/profile changes in both contexts.
+Start in My documents → choose a workspace's Workshop or Studio in the space switcher, or open Use Guteneo when no workspace exists → choose Prepare a dispatch or New share → select a current membership or request the initial workspace → idempotent creation, initial administrator and closed channels → reload the chosen destination and reread server session/workspace/rights/CSRF → continue normal preparation using the same name/language/identity. Local browser regression creates an administrator workspace then selects another as operator, with real screen/profile changes in both contexts.
 
 **Failure/recovery:** Receipt never permits entry into the sender’s workspace; an organizationId without membership is denied. Creation/selection failure stays visible in the personal area without false navigation. Success retains no previous workspace session/authority. Registration implies no purchase, subscription, confidential-content targeting or marketing email; promised document access remains independent of conversion. An obsolete workspace bootstrap cannot overwrite a personal route, and returning to service use reads fresh workspace authority.
 
@@ -1355,7 +1357,7 @@ Start with the operating-system palette unless a valid local choice exists → u
 
 **Actor:** Authenticated personal account owner, with or without a workspace. **Branch:** Access.
 
-Open My documents directly or use the shared blue-outlined personal-context entry in desktop/mobile navigation → start the personal shell → validate current personal session → read the authorized list across the available main width with responsive gutters → retry a failed list explicitly. On focus or account change reconcile the session and discard previous identity/document state; returning to a workshop loads its current session and rights.
+Open My documents directly or choose My documents in the space switcher → start the personal shell → validate current personal session → read the authorized list across the available main width with responsive gutters → retry a failed list explicitly. On focus or account change reconcile the session and discard previous identity/document state; returning to a workshop loads its current session and rights.
 
 **Failure/recovery:** Personal policy and recipient bindings are never skipped. Cancelled or late workspace/account results cannot restore earlier identity, language or documents; expired sessions use established recovery. The five-context synthetic timing comparison is bounded local instrumentation, not production latency, real-client access or provider delivery proof.
 

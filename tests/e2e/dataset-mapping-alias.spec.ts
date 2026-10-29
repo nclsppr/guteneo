@@ -161,7 +161,7 @@ test("reused XML joins display the resolved sheet and keep main-sheet grouping s
     );
   });
 
-  await page.goto(`/#/app/dataset/${value.dataset.id}`);
+  await page.goto(`/#/app/studio/dataset/${value.dataset.id}`);
   await page
     .getByLabel("Template to populate", { exact: true })
     .selectOption(template.id);

@@ -42,11 +42,7 @@ export async function preloadWorkspaceRoute(route: string): Promise<void> {
     await workspaceRouteModules.postal();
   else if (/^\/app\/connection(\/|$)/.test(path))
     await workspaceRouteModules.connection();
-  else if (
-    /^\/app\/(templates|template|datasets|dataset|generations|generation|distribution)(\/|$)/.test(
-      path,
-    )
-  )
+  else if (/^\/app\/(studio|distribution)(\/|$)/.test(path))
     await workspaceRouteModules.studio();
   else if (/^\/app\/secure-distributions?(\/|$)/.test(path))
     await workspaceRouteModules.secureDistribution();

@@ -1,5 +1,6 @@
 import { msg } from "./messages";
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
+import { flushSync } from "react-dom";
 import {
   ArrowRight,
   Check,
@@ -9,7 +10,6 @@ import {
   PaperPlaneTilt,
   Printer,
   SquaresFour,
-  Files,
   Stack,
   Table,
   PlugsConnected,
@@ -20,6 +20,7 @@ import {
   List,
   AddressBook,
   WarningCircle,
+  type Icon,
 } from "@phosphor-icons/react";
 import {
   api,
@@ -43,6 +44,16 @@ import { syncPublicSharing } from "./public-sharing";
 import { usePublicLocation } from "./public-navigation";
 import { Brand } from "./brand";
 import {
+  navigationEntryFor,
+  spaceHome,
+  spaceOf,
+  studioRoutes,
+  type StudioEntry,
+  type WorkshopEntry,
+} from "./app-routes";
+import { SpaceSwitcher, type SwitcherWorkspace } from "./space-switcher";
+import {
+  BEFORE_WORKSPACE_NAVIGATION,
   ErrorNotice,
   go,
   Loading,
@@ -208,9 +219,11 @@ function SessionExpiredNotice({ onReconnect }: { onReconnect: () => void }) {
   );
 }
 
-// One glyph per destination. Files stays with My documents, as in the
-// personal space; workshop documents are the PDF library.
-const navigation = [
+// One glyph per destination; workshop documents are the PDF library. Studio
+// authoring has its own space and navigation in the same workspace session.
+type NavigationItem<Entry> = { id: Entry; path: string; Icon: Icon };
+const workshopNavigation: readonly NavigationItem<WorkshopEntry>[] = [
+  // Assistants stay immediately after Overview (see ASSISTANT_HUB.md).
   { id: "overview", path: "/app", Icon: SquaresFour },
   { id: "connection", path: "/app/connection", Icon: PlugsConnected },
   { id: "documents", path: "/app/documents", Icon: FilePdf },
@@ -219,9 +232,6 @@ const navigation = [
     path: "/app/secure-distributions",
     Icon: FileLock,
   },
-  { id: "templates", path: "/app/templates", Icon: FileText },
-  { id: "datasets", path: "/app/datasets", Icon: Table },
-  { id: "generations", path: "/app/generations", Icon: Printer },
   { id: "dispatches", path: "/app/dispatches", Icon: PaperPlaneTilt },
   { id: "campaigns", path: "/app/campaigns", Icon: Stack },
   { id: "senders", path: "/app/senders", Icon: AddressBook },
@@ -229,7 +239,12 @@ const navigation = [
   { id: "pdfChecks", path: "/app/pdf-checks", Icon: Check },
   { id: "billing", path: "/app/billing", Icon: Receipt },
   { id: "admin", path: "/app/admin", Icon: Wrench },
-] as const;
+];
+const studioNavigation: readonly NavigationItem<StudioEntry>[] = [
+  { id: "templates", path: studioRoutes.templates, Icon: FileText },
+  { id: "datasets", path: studioRoutes.datasets, Icon: Table },
+  { id: "generations", path: studioRoutes.generations, Icon: Printer },
+];
 
 export function App() {
   return <Application />;
@@ -492,7 +507,7 @@ function WorkspaceApplication({
             current.user.id !== session?.user.id ||
             current.organization.id !== session?.organization.id
           )
-            go("/app");
+            go(spaceHome[spaceOf(page)]);
           setSession(current, !isPublicPreview && page.startsWith("/app"));
           updateSession(current);
           setSessionExpired(false);
@@ -572,11 +587,7 @@ function WorkspaceApplication({
         <SecureDistributionPage route={route} session={session} />
       </Suspense>
     );
-  else if (
-    /^\/app\/(templates|template|datasets|dataset|generations|generation|distribution)(\/|$)/.test(
-      page,
-    )
-  )
+  else if (/^\/app\/(studio|distribution)(\/|$)/.test(page))
     content = (
       <Suspense fallback={<Loading />}>
         <DocumentStudio route={route} session={session} />
@@ -668,8 +679,31 @@ function WorkspaceApplication({
       </Admin>
     );
   else content = <Overview session={session} />;
-  const navigationLabel = (id: (typeof navigation)[number]["id"]) =>
+  const navigationLabel = (id: WorkshopEntry | StudioEntry) =>
     id === "secure-distributions" ? msg("Secure distribution") : t.nav[id];
+  const space = spaceOf(page);
+  const navigation: readonly NavigationItem<WorkshopEntry | StudioEntry>[] =
+    space === "studio" ? studioNavigation : workshopNavigation;
+  const navigationName =
+    space === "studio" ? msg("Studio navigation") : msg("Workspace navigation");
+  const enterWorkspace = async (id: string, target: "workshop" | "studio") => {
+    // Let a screen with unsaved work refuse before the session changes.
+    if (
+      !window.dispatchEvent(
+        new Event(BEFORE_WORKSPACE_NAVIGATION, { cancelable: true }),
+      )
+    )
+      return;
+    const next = await api<Session>("/account/workspace", {
+      method: "POST",
+      body: { organizationId: id },
+    });
+    setSession(next, !isPublicPreview);
+    // Remount the page for the new workspace before routing, so the previous
+    // screen cannot ask a second time.
+    flushSync(() => updateSession(next));
+    go(spaceHome[target]);
+  };
   const logout = async () => {
     setLogoutError(undefined);
     try {
@@ -698,15 +732,18 @@ function WorkspaceApplication({
         <div className="sidebar-brand">
           <Brand app />
         </div>
-        <div className="organization">
-          <span className="organization-initial">
-            {session.organization.name.slice(0, 1)}
-          </span>
-          <div>
-            <strong>{session.organization.name}</strong>
-            <small>{msg("Workshop")}</small>
-          </div>
-        </div>
+        <SpaceSwitcher
+          space={space === "studio" ? "studio" : "workshop"}
+          workspace={session.organization}
+          preview={publicPreview}
+          loadWorkspaces={async () => {
+            const { items } = await api<{ items?: SwitcherWorkspace[] }>(
+              "/account/workspaces",
+            );
+            return Array.isArray(items) ? items : [];
+          }}
+          enterWorkspace={enterWorkspace}
+        />
         <details
           className="workspace-navigation"
           open={navigationOpen}
@@ -727,24 +764,11 @@ function WorkspaceApplication({
         >
           <summary ref={navigationSummary}>
             <List size={21} aria-hidden="true" />
-            {msg("Workspace navigation")}
+            {navigationName}
           </summary>
-          <nav aria-label={msg("Workspace navigation")}>
-            {!publicPreview && (
-              <a
-                className="personal-context-link"
-                href="#/app/my-documents"
-                title={msg("Personal space")}
-              >
-                <Files size={21} aria-hidden="true" />
-                <span>
-                  {msg("My documents")}
-                  <span className="sr-only"> — {msg("Personal space")}</span>
-                </span>
-              </a>
-            )}
-            {/* Present on every page so the entries below never move. */}
-            {permissions.prepareDispatches && (
+          <nav aria-label={navigationName}>
+            {/* Present on every workshop page so the entries never move. */}
+            {space === "workshop" && permissions.prepareDispatches && (
               <a className="button workspace-create" href="#/app/prepare">
                 <Plus size={19} aria-hidden="true" />
                 {t.dispatch.new}
@@ -785,22 +809,7 @@ function WorkspaceApplication({
                     }
                   }}
                   aria-current={
-                    page === path ||
-                    (id === "secure-distributions" &&
-                      /^\/app\/secure-distributions?(\/|$)/.test(page)) ||
-                    (id === "templates" && page.startsWith("/app/template/")) ||
-                    (id === "datasets" && page.startsWith("/app/dataset/")) ||
-                    (id === "generations" &&
-                      (page.startsWith("/app/generation/") ||
-                        page.startsWith("/app/distribution/"))) ||
-                    (id === "connection" &&
-                      page.startsWith("/app/connection/")) ||
-                    (id === "dispatches" &&
-                      (page.startsWith("/app/dispatch/") ||
-                        page === "/app/prepare" ||
-                        page.startsWith("/app/postal/")))
-                      ? "page"
-                      : undefined
+                    navigationEntryFor(page) === id ? "page" : undefined
                   }
                 >
                   <Icon size={21} aria-hidden="true" />
