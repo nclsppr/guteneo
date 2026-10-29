@@ -17,21 +17,25 @@ removing the shared locale module's dependency on public-site code. The four
 import exceptions in `applications.json` are removed rather than expanded.
 
 The [final loading record](evidence/studio-space-loading-2026-10-29.json)
-compares `1e013dbc` with the resolved-module candidate `08df95d5`. Eighteen fresh
+compares `1e013dbc` with the final runtime candidate `125ed8fe`. Eighteen fresh
 Chromium contexts (three per route/variant, interleaved) use local uncompressed
 static HTTP, a 1440 × 900 viewport and read-only synthetic APIs delayed by 40 ms.
-The complete backend suite runs concurrently; no CPU isolation is claimed.
+Browser and backend/security suites run concurrently on the same machine;
+neither CPU isolation nor a timing improvement is claimed.
 
-| Route | First useful median | JS requests | API reads | JS body-byte delta | CSS body-byte delta |
-| --- | ---: | ---: | ---: | ---: | ---: |
-| my-documents | 173 → 173 ms | 19 → 25 | 2 → 2 | +44,529 | -8,948 |
-| correspondence | 173 → 176 ms | 28 → 30 | 6 → 6 | +6,358 | -8,948 |
-| studio | 139 → 136 ms | 22 → 23 | 3 → 3 | +12,610 | -1,843 |
+| Route          | JS / CSS requests | API reads | JS body-byte delta | CSS body-byte delta | JS+CSS transfer-byte delta |
+| -------------- | ----------------: | --------: | -----------------: | ------------------: | -------------------------: |
+| my-documents   |   19 → 25 / 2 → 2 |     2 → 2 |            +46,768 |              -8,948 |                    +39,620 |
+| correspondence |   28 → 30 / 6 → 6 |     6 → 6 |             +8,597 |              -8,948 |                       +249 |
+| studio         |   22 → 23 / 2 → 3 |     3 → 3 |            +14,849 |              -1,843 |                    +13,606 |
 
 First useful means an available document title, correspondence row or visible
 built-in template title followed by a rendering opportunity; the below-fold
 private Studio row has its separate DOM-readiness field. The figures are
-DOM/rAF observations, not physical first-paint or server/provider latency.
+DOM/rAF observations, not physical first-paint or server/provider latency. Exact
+timing medians and ranges remain in the JSON; concurrent suites prevent
+attributing those differences to the code. Transfer bytes are browser Resource
+Timing values including reported response overhead on this local server.
 No viewer, PDF worker, designer or globe implementation is requested by these
 three entry scenarios; writes, unexpected APIs, external requests and errors are
 zero. Independent application chunks add requests and some code; this is not a
@@ -39,13 +43,19 @@ general loading reduction. The exact terminology table alone is 42,330 source
 bytes / 11,854 gzip bytes when minified and compressed separately, not its
 incremental bundled network cost.
 
-The initial `1ceb29ff` experiment exposed a consistent personal delay around
-300 ms despite code/session readiness. Rendering the resolved imported component
-directly removes the first `React.lazy` retry; the final median is 173 ms, matching
-the 173 ms baseline within the observed ranges. Identity prefetch remains
-visit-scoped, visibility-invalidated and independent of workspace bootstrap.
-A failed code request uses the shared explicit reload boundary. Final exact-source
-functional acceptance belongs to [the reprise record](STUDIO_SPACE_REPRISE.md).
+The initial `1ceb29ff` experiment exposed a personal delay around 300 ms despite
+code/session readiness. After the resolved-module renderer change, the
+`08df95d5` observation no longer showed that delay; its medians were 173 → 173 ms.
+This supports the first `React.lazy` retry explanation locally, rather than
+establishing a production cause. The intermediate `d47d8027` recovery candidate
+and both earlier comparisons remain dated evidence. The current runtime adds
+1,037 JavaScript body bytes per route over `d47d8027`, with unchanged JS, CSS and
+API request counts. Identity prefetch remains visit-scoped, visibility-invalidated and
+independent of workspace bootstrap. A failed code request uses the shared
+explicit reload boundary. This normal-success measurement does not qualify its
+error recovery, redirect rejection, visit cancellation or native film gestures;
+their separate functional acceptance belongs to
+[the reprise record](STUDIO_SPACE_REPRISE.md).
 
 ## Space switcher and Studio routes — 29 October 2026 candidate
 

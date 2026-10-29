@@ -1,7 +1,7 @@
 {
-  "measuredAt": "2026-10-29T19:45:03.294Z",
+  "measuredAt": "2026-10-29T20:27:38.782Z",
   "baseline": "1e013dbc129dd73fb953b36898f59dad379d5aaa",
-  "candidate": "08df95d5c4313e942ede50ec43be6b335304e377",
+  "candidate": "125ed8fec2143729884dadb94385b8cbbdf213cc",
   "version": "1.1.18",
   "environment": {
     "node": "v24.18.0",
@@ -23,7 +23,26 @@
       "globe": "bv-globe-stage"
     },
     "sampling": "3 fresh contexts per variant/route, interleaved before/after; no CPU/network emulation; OS file cache not reset",
-    "concurrentWork": "The complete backend suite continued on the same machine; root paused the complete browser suite for the loading correction. No CPU isolation is claimed."
+    "concurrentWork": "Root reported complete browser and backend/security suites running concurrently on the same machine. The sampling process and host CPU workload were not isolated; timing differences are not attributed to the candidate."
+  },
+  "sourceFingerprints": {
+    "baselineIndexSha256": "2b598a8203296a10bec24c1deb13b249cd9b8566fd02d16997b73f4e3eff41a7",
+    "candidateIndexSha256": "01987116b6abaa9ae0e5548a1d3529004a7bfc259b1a7d9a615737feb1349a3c",
+    "probeSha256": "357b3d3b2b1d545a134006891c06beaa4f2904a2d8f842f4944a5d2895113b44",
+    "runtimePatchParent": "d47d8027f1a10e23051508047f464de1e5c9f331",
+    "runtimePatchSha256": "cfcb1a588ff20219a78dc992253a254139f29bbfeef7b5546ff26415037d0b2d",
+    "implementationMarkerPositiveControls": {
+      "before": {
+        "globe": ["/assets/belvedere-lb2Jj7X8.js"],
+        "pdfjs": ["/assets/pdf-viewer-CTUeu8WP.js"],
+        "designer": ["/assets/template-designer-BdNOSMxN.js"]
+      },
+      "after": {
+        "globe": ["/assets/belvedere-globe-CRc6WzvS.js"],
+        "pdfjs": ["/assets/pdf-viewer-C-JDk3qy.js"],
+        "designer": ["/assets/template-designer-C2mVkqt9.js"]
+      }
+    }
   },
   "summaries": [
     {
@@ -31,9 +50,9 @@
       "before": {
         "samples": 3,
         "firstUsefulMs": {
-          "median": 173.29999999981374,
-          "minimum": 156.39999999990687,
-          "maximum": 185.60000000009313
+          "median": 172.90000000037253,
+          "minimum": 172.79999999981374,
+          "maximum": 183.79999999981374
         },
         "firstUsefulInViewport": true,
         "privateLibraryDomMs": null,
@@ -88,9 +107,9 @@
       "after": {
         "samples": 3,
         "firstUsefulMs": {
-          "median": 172.70000000018626,
-          "minimum": 163.70000000018626,
-          "maximum": 174
+          "median": 172.59999999962747,
+          "minimum": 164.3999999994412,
+          "maximum": 173.5
         },
         "firstUsefulInViewport": true,
         "privateLibraryDomMs": null,
@@ -106,9 +125,9 @@
           "maximum": 2
         },
         "jsBodyBytes": {
-          "median": 1607029,
-          "minimum": 1607029,
-          "maximum": 1607029
+          "median": 1609268,
+          "minimum": 1609268,
+          "maximum": 1609268
         },
         "cssBodyBytes": {
           "median": 159786,
@@ -116,14 +135,14 @@
           "maximum": 159786
         },
         "jsCssTransferBytes": {
-          "median": 1774915,
-          "minimum": 1774915,
-          "maximum": 1774915
+          "median": 1777154,
+          "minimum": 1777154,
+          "maximum": 1777154
         },
         "jsCssGzipFileBytesSum": {
-          "median": 537225,
-          "minimum": 537225,
-          "maximum": 537225
+          "median": 537985,
+          "minimum": 537985,
+          "maximum": 537985
         },
         "apiRequests": {
           "median": 2,
@@ -143,10 +162,10 @@
         "failures": []
       },
       "change": {
-        "jsBodyBytes": 44529,
+        "jsBodyBytes": 46768,
         "cssBodyBytes": -8948,
-        "jsCssTransferBytes": 37381,
-        "firstUsefulMs": -0.599999999627471
+        "jsCssTransferBytes": 39620,
+        "firstUsefulMs": -0.30000000074505806
       }
     },
     {
@@ -154,9 +173,9 @@
       "before": {
         "samples": 3,
         "firstUsefulMs": {
-          "median": 173.10000000009313,
-          "minimum": 172.79999999981374,
-          "maximum": 177.10000000009313
+          "median": 174.30000000074506,
+          "minimum": 173.80000000074506,
+          "maximum": 179.70000000018626
         },
         "firstUsefulInViewport": true,
         "privateLibraryDomMs": null,
@@ -215,9 +234,9 @@
       "after": {
         "samples": 3,
         "firstUsefulMs": {
-          "median": 175.79999999981374,
-          "minimum": 172.29999999981374,
-          "maximum": 176.5
+          "median": 174,
+          "minimum": 173.79999999981374,
+          "maximum": 195
         },
         "firstUsefulInViewport": true,
         "privateLibraryDomMs": null,
@@ -233,9 +252,9 @@
           "maximum": 6
         },
         "jsBodyBytes": {
-          "median": 1689347,
-          "minimum": 1689347,
-          "maximum": 1689347
+          "median": 1691586,
+          "minimum": 1691586,
+          "maximum": 1691586
         },
         "cssBodyBytes": {
           "median": 169197,
@@ -243,14 +262,14 @@
           "maximum": 169197
         },
         "jsCssTransferBytes": {
-          "median": 1869344,
-          "minimum": 1869344,
-          "maximum": 1869344
+          "median": 1871583,
+          "minimum": 1871583,
+          "maximum": 1871583
         },
         "jsCssGzipFileBytesSum": {
-          "median": 564221,
-          "minimum": 564221,
-          "maximum": 564221
+          "median": 564986,
+          "minimum": 564986,
+          "maximum": 564986
         },
         "apiRequests": {
           "median": 6,
@@ -274,10 +293,10 @@
         "failures": []
       },
       "change": {
-        "jsBodyBytes": 6358,
+        "jsBodyBytes": 8597,
         "cssBodyBytes": -8948,
-        "jsCssTransferBytes": -1990,
-        "firstUsefulMs": 2.6999999997206032
+        "jsCssTransferBytes": 249,
+        "firstUsefulMs": -0.30000000074505806
       }
     },
     {
@@ -285,15 +304,15 @@
       "before": {
         "samples": 3,
         "firstUsefulMs": {
-          "median": 138.6999999997206,
-          "minimum": 137.39999999990687,
-          "maximum": 138.89999999990687
+          "median": 168.3999999994412,
+          "minimum": 156.79999999981374,
+          "maximum": 218.59999999962747
         },
         "firstUsefulInViewport": true,
         "privateLibraryDomMs": {
-          "median": 192.39999999990687,
-          "minimum": 191.60000000009313,
-          "maximum": 193.79999999981374
+          "median": 230.59999999962747,
+          "minimum": 213,
+          "maximum": 283.29999999981374
         },
         "privateLibraryInViewport": false,
         "jsRequests": {
@@ -343,15 +362,15 @@
       "after": {
         "samples": 3,
         "firstUsefulMs": {
-          "median": 136.39999999990687,
-          "minimum": 134.10000000009313,
-          "maximum": 140.79999999981374
+          "median": 176.20000000018626,
+          "minimum": 138.79999999981374,
+          "maximum": 194.20000000018626
         },
         "firstUsefulInViewport": true,
         "privateLibraryDomMs": {
-          "median": 190.60000000009313,
-          "minimum": 186.20000000018626,
-          "maximum": 194.10000000009313
+          "median": 240.6000000005588,
+          "minimum": 194.29999999981374,
+          "maximum": 247.40000000037253
         },
         "privateLibraryInViewport": false,
         "jsRequests": {
@@ -365,9 +384,9 @@
           "maximum": 3
         },
         "jsBodyBytes": {
-          "median": 1708210,
-          "minimum": 1708210,
-          "maximum": 1708210
+          "median": 1710449,
+          "minimum": 1710449,
+          "maximum": 1710449
         },
         "cssBodyBytes": {
           "median": 166891,
@@ -375,14 +394,14 @@
           "maximum": 166891
         },
         "jsCssTransferBytes": {
-          "median": 1882901,
-          "minimum": 1882901,
-          "maximum": 1882901
+          "median": 1885140,
+          "minimum": 1885140,
+          "maximum": 1885140
         },
         "jsCssGzipFileBytesSum": {
-          "median": 565729,
-          "minimum": 565729,
-          "maximum": 565729
+          "median": 566484,
+          "minimum": 566484,
+          "maximum": 566484
         },
         "apiRequests": {
           "median": 3,
@@ -399,12 +418,118 @@
         "failures": []
       },
       "change": {
-        "jsBodyBytes": 12610,
+        "jsBodyBytes": 14849,
         "cssBodyBytes": -1843,
-        "jsCssTransferBytes": 11367,
-        "firstUsefulMs": -2.2999999998137355
+        "jsCssTransferBytes": 13606,
+        "firstUsefulMs": 7.800000000745058
       }
     }
   ],
-  "scope": "Local static assets with synthetic read-only API responses. No business database, real identity, provider, CI or deployment qualification. A prior 1ceb29ff checkpoint exposed an approximately 300ms personal Suspense retry delay; the resolved-module renderer removes it."
+  "terminology": {
+    "file": "apps/web/src/locales/workspace-terminology.json",
+    "sourceBytes": 42330,
+    "minifiedBytes": 39425,
+    "standaloneMinifiedGzipBytes": 11854,
+    "sha256": "dbd4a9dd9cb48781143f967f4dfd6a70d4eb679aa2ecb4e3dbc27d1d840920d2",
+    "reviewedLabels": 131
+  },
+  "changeFromD47d8027": [
+    {
+      "route": "my-documents",
+      "uncompressedJavaScriptBodyBytes": 1037,
+      "cssBodyBytes": 0,
+      "javaScriptRequests": 0,
+      "cssRequests": 0,
+      "apiRequests": 0,
+      "sumStandaloneGzipAssetsBytes": 286
+    },
+    {
+      "route": "correspondence",
+      "uncompressedJavaScriptBodyBytes": 1037,
+      "cssBodyBytes": 0,
+      "javaScriptRequests": 0,
+      "cssRequests": 0,
+      "apiRequests": 0,
+      "sumStandaloneGzipAssetsBytes": 291
+    },
+    {
+      "route": "studio",
+      "uncompressedJavaScriptBodyBytes": 1037,
+      "cssBodyBytes": 0,
+      "javaScriptRequests": 0,
+      "cssRequests": 0,
+      "apiRequests": 0,
+      "sumStandaloneGzipAssetsBytes": 287
+    }
+  ],
+  "changeFrom08df95d5": [
+    {
+      "route": "my-documents",
+      "uncompressedJavaScriptBodyBytes": 2239,
+      "cssBodyBytes": 0,
+      "javaScriptRequests": 0,
+      "cssRequests": 0,
+      "apiRequests": 0,
+      "sumStandaloneGzipAssetsBytes": 760
+    },
+    {
+      "route": "correspondence",
+      "uncompressedJavaScriptBodyBytes": 2239,
+      "cssBodyBytes": 0,
+      "javaScriptRequests": 0,
+      "cssRequests": 0,
+      "apiRequests": 0,
+      "sumStandaloneGzipAssetsBytes": 765
+    },
+    {
+      "route": "studio",
+      "uncompressedJavaScriptBodyBytes": 2239,
+      "cssBodyBytes": 0,
+      "javaScriptRequests": 0,
+      "cssRequests": 0,
+      "apiRequests": 0,
+      "sumStandaloneGzipAssetsBytes": 755
+    }
+  ],
+  "historicalComparisons": [
+    {
+      "candidate": "1ceb29ff",
+      "result": "The initial integrated checkpoint had an observed personal-entry median of 175→443ms and 315–317ms between session and list request starts; later resolved-module rendering removed this local delay.",
+      "qualification": "The first React.lazy retry explanation was an inference supported by the renderer change and subsequent observations; no production cause is claimed."
+    },
+    {
+      "candidate": "08df95d5c4313e942ede50ec43be6b335304e377",
+      "measuredAt": "2026-10-29T19:45:03.294Z",
+      "firstUsefulMedians": [
+        {
+          "route": "my-documents",
+          "before": 173.29999999981374,
+          "after": 172.70000000018626
+        },
+        {
+          "route": "correspondence",
+          "before": 173.10000000009313,
+          "after": 175.79999999981374
+        },
+        {
+          "route": "studio",
+          "before": 138.6999999997206,
+          "after": 136.39999999990687
+        }
+      ],
+      "result": "Resolved-module checkpoint before explicit public-code recovery; preserved in the dated 08df95d5 artifacts."
+    },
+    {
+      "candidate": "d47d8027f1a10e23051508047f464de1e5c9f331",
+      "measuredAt": "2026-10-29T19:59:56.705Z",
+      "result": "Bounded public-code recovery before SSR film readiness, redirect rejection and visit cancellation; preserved in the dated d47d8027 artifacts."
+    }
+  ],
+  "rawArtifactBundle": {
+    "directory": "CODEX-PERFORMANCE in the dated local handover folder",
+    "measurementsSha256": "b1c0be3ab357ea27a882dc10569b2466a6a2f639f38c2c0a2b403eae37c97c86",
+    "sourcesSha256": "c5018939af856e164e8a744c2074a31ab1d3462d408afaec200d30c0f0d18d97",
+    "retainedCheckpoints": ["1ceb29ff", "08df95d5", "d47d8027"]
+  },
+  "scope": "Local uncompressed static assets with synthetic read-only API responses and fresh Chromium contexts. No database, real identity, provider, hosted latency, physical device, CI or deployment qualification. Concurrent local suites prevent attributing timing differences to the candidate; this normal-success harness does not qualify error recovery or film gestures."
 }
