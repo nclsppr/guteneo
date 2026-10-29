@@ -168,7 +168,9 @@ test("mobile v2 account menu keeps 44 pixel items and closes on Escape or outsid
   await trigger.click();
   await expect(menu).toBeVisible();
   // The open menu covers the page heading; select an uncovered area instead.
-  await page.locator(".sidebar .organization").click();
+  await page
+    .locator(".sidebar .workspace-switcher .space-switcher-static")
+    .click();
   await expect(menu).toBeHidden();
   expect(
     await page.evaluate(() => document.documentElement.scrollWidth),
@@ -229,21 +231,23 @@ test("mobile tables retain all fields without horizontal scrolling at 320px and 
     { width: 844, height: 390 },
   ]) {
     await page.setViewportSize(viewport);
-    for (const route of [
-      "",
-      "/documents",
-      "/dispatches",
-      "/campaigns",
-      "/connection",
-      "/senders",
-      "/usage",
-      "/billing",
-      "/account",
-      "/admin",
-      "/prepare",
+    for (const [route, title] of [
+      ["", "Votre correspondance, au clair."],
+      ["/documents", "La matière première."],
+      ["/dispatches", "Le fil des envois."],
+      ["/campaigns", "Une lettre. Plusieurs destinations."],
+      ["/connection", "Vos assistants, votre correspondance."],
+      ["/senders", "Qui prend la plume ?"],
+      ["/usage", "Chaque envoi compte."],
+      ["/billing", "Facturation"],
+      ["/account", "Mon compte"],
+      ["/admin", "L’espace de travail sous surveillance."],
+      ["/prepare", "Préparer une correspondance."],
     ]) {
       await page.goto(`/#/app${route}`);
-      await expect(page.locator("main h1")).toBeVisible();
+      // Route modules may retain the previous page while loading. Measure
+      // controls only after the requested destination replaces that page.
+      await expect(page.locator("main h1")).toHaveText(title);
       await fits(page);
       for (const row of await page
         .locator(".responsive-table tbody tr")
