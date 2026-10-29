@@ -371,3 +371,22 @@ test("a late workspace list for the previous workspace is never shown", async ({
     }),
   ).toBeVisible();
 });
+
+test("menus opened on a page stay closed when the person returns to it", async ({
+  page,
+}) => {
+  await fixture(page);
+  await page.goto("/#/app/documents");
+  const workspace = workspaceTrigger(page);
+  const account = page.locator(".workspace-identity-trigger");
+  await workspace.click();
+  await expect(workspace).toHaveAttribute("aria-expanded", "true");
+  await page.goto("/#/app");
+  await page.goto("/#/app/documents");
+  await expect(workspace).toHaveAttribute("aria-expanded", "false");
+  await account.click();
+  await expect(account).toHaveAttribute("aria-expanded", "true");
+  await page.goto("/#/app");
+  await page.goto("/#/app/documents");
+  await expect(account).toHaveAttribute("aria-expanded", "false");
+});

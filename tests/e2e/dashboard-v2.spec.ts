@@ -65,7 +65,12 @@ async function expectClearV2Shell(page: Page) {
   await expect(page.locator(".workspace .brand")).toHaveCount(1);
   await expect(page.locator(".app-footer")).toHaveCount(0);
   await expect(page.locator(".app-topbar")).toHaveCount(0);
-  await expect(page.locator(".sidebar .space-switcher-trigger")).toBeVisible();
+  await expect(
+    page.locator(".sidebar .application-switcher .space-switcher-trigger"),
+  ).toBeVisible();
+  await expect(
+    page.locator(".sidebar .workspace-switcher .space-switcher-trigger"),
+  ).toBeVisible();
   await expect(
     page.locator(".workspace-role, .dashboard-identity"),
   ).toHaveCount(0);
@@ -707,9 +712,8 @@ test("V2 does not add reporting, preparation or approval rights to restricted ro
     await expect(page.locator("#main-content .button.primary")).toHaveCount(
       scenario.preparation ? 1 : 0,
     );
-    await expect(page.locator(".workspace-create")).toHaveCount(
-      scenario.preparation ? 1 : 0,
-    );
+    // New dispatch belongs to Correspondence; Studio pages never show it.
+    await expect(page.locator(".workspace-create")).toHaveCount(0);
     await page.goto("/#/app/dispatch/v2-review");
     await expect(
       page.getByRole("heading", { name: "Le bon à envoyer." }),

@@ -180,7 +180,11 @@ button.space-switcher-trigger:hover,
     display: flex;
     gap: 8px;
   }
-  .sidebar-context > .space-switcher {
+  /* The application name stays whole; a long workspace name shortens. */
+  .sidebar-context > .application-switcher {
+    flex: 0 0 auto;
+  }
+  .sidebar-context > .workspace-switcher {
     flex: 1 1 0;
     min-width: 0;
   }
@@ -191,4 +195,17 @@ button.space-switcher-trigger:hover,
     right: auto;
     left: 0;
   }
+}
+.space-switcher-current {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 36px;
+  padding: 6px 10px;
+  color: var(--blue);
+  font-size: 14px;
+  font-weight: 500;
+}
+.space-switcher-current > svg {
+  margin-left: auto;
 }

@@ -41,6 +41,8 @@ export function WorkspaceIdentity({
   const route = useRoute();
   // Opening records the committed route, so navigating away closes the menu.
   const [openOn, setOpenOn] = useState<string>();
+  // Forget it on navigation, so returning to the same address keeps it closed.
+  if (openOn !== undefined && openOn !== route) setOpenOn(undefined);
   const open = openOn === route;
   const area = useRef<HTMLElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);

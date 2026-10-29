@@ -391,7 +391,7 @@ test("Assistants is the second workspace destination and every private guide sur
   if (!(await nav.isVisible()))
     await page.locator(".workspace-navigation summary").click();
   await expect(nav).toBeVisible();
-  // My documents is a space in the switcher, outside the workshop navigation.
+  // My documents is an application in the switcher, outside the navigation.
   await expect(nav.locator('a[href="#/app/my-documents"]')).toHaveCount(0);
   await expect(
     page.locator('.sidebar .space-switcher-panel a[href="#/app/my-documents"]'),

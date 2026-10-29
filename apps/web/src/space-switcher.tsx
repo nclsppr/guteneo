@@ -270,6 +270,7 @@ export function WorkspaceSwitcher({
         aria-expanded={panel.open}
         aria-controls={panel.id}
         aria-label={msg("Workspace: {0}", workspace.name)}
+        title={workspace.name}
         onClick={() => {
           if (!panel.open && !workspaces && !reading.current) read();
           panel.toggle();
@@ -285,6 +286,15 @@ export function WorkspaceSwitcher({
         aria-label={msg("Workspaces")}
         hidden={!panel.open}
       >
+        <ul>
+          <li className="space-switcher-current" aria-current="true">
+            <span className="space-switcher-mark" aria-hidden="true">
+              {initial(workspace.name)}
+            </span>
+            {workspace.name}
+            <Check size={16} aria-hidden="true" />
+          </li>
+        </ul>
         {others.length > 0 && (
           <section aria-labelledby={groupId}>
             <p id={groupId} className="space-switcher-group">
