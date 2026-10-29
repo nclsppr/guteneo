@@ -10,7 +10,12 @@ import {
 } from "@phosphor-icons/react";
 import { useEffect, useId, useRef, useState } from "react";
 import { spaceHome, type ApplicationSpace } from "./app-routes";
-import { ErrorNotice, useAction, useRoute } from "./components";
+import {
+  ErrorNotice,
+  NAVIGATION_PANEL_OPEN,
+  useAction,
+  useRoute,
+} from "./components";
 import { msg, msgIn } from "./messages";
 import "./space-switcher.css";
 
@@ -47,22 +52,35 @@ function usePanel() {
     };
     // Two quick address changes may render once; the event still closes it.
     const navigate = () => setOpenOn(undefined);
+    const anotherPanel = (event: Event) => {
+      if ((event as CustomEvent<string>).detail !== id) setOpenOn(undefined);
+    };
     document.addEventListener("pointerdown", dismiss);
     document.addEventListener("keydown", escape, true);
+    document.addEventListener(NAVIGATION_PANEL_OPEN, anotherPanel);
     window.addEventListener("hashchange", navigate);
     return () => {
       document.removeEventListener("pointerdown", dismiss);
       document.removeEventListener("keydown", escape, true);
+      document.removeEventListener(NAVIGATION_PANEL_OPEN, anotherPanel);
       window.removeEventListener("hashchange", navigate);
     };
-  }, [open]);
+  }, [open, id]);
   return {
     open,
     area,
     trigger,
     id,
     close,
-    toggle: () => (open ? close() : setOpenOn(route)),
+    toggle: () => {
+      if (open) close();
+      else {
+        document.dispatchEvent(
+          new CustomEvent(NAVIGATION_PANEL_OPEN, { detail: id }),
+        );
+        setOpenOn(route);
+      }
+    },
     // Safari blurs without a target when a pointer selects an item.
     onBlur: (event: React.FocusEvent<HTMLDivElement>) => {
       if (

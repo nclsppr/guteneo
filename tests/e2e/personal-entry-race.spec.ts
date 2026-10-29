@@ -223,7 +223,10 @@ test("personal account switching drops private search and invitation parameters 
   await applicationTrigger.click();
   await expect(account).toBeHidden();
   await expect(applications).toBeVisible();
-  await trigger.click();
+  // This row may be underneath the open panel. Keyboard activation must close
+  // the other panel even when a pointer did not focus its trigger in WebKit.
+  await trigger.focus();
+  await page.keyboard.press("Enter");
   await expect(applications).toBeHidden();
   await expect(account).toBeVisible();
   expect(state.reads).toEqual(reads);

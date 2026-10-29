@@ -500,7 +500,12 @@ test("personal account utilities share the menu, dismiss accessibly and follow t
   await trigger.click();
   await page.locator(".application-switcher .space-switcher-trigger").click();
   await expect(menu).toBeHidden();
-  await trigger.click();
+  // The open application panel can cover this row on a narrow screen. Moving
+  // focus outside dismisses it; activation then follows the keyboard path.
+  await trigger.focus();
+  await expect(trigger).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(menu).toBeVisible();
   await expect(
     page.locator(".application-switcher .space-switcher-panel"),
   ).toBeHidden();

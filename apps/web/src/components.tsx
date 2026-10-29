@@ -40,6 +40,7 @@ import { workspaceAuthenticationRecoveryHref } from "./auth-navigation";
 
 export const BEFORE_WORKSPACE_NAVIGATION =
   "guteneo:before-workspace-navigation";
+export const NAVIGATION_PANEL_OPEN = "guteneo:navigation-panel-open";
 
 export function go(path: string) {
   window.location.hash = path;

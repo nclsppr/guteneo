@@ -8,7 +8,7 @@ import {
 } from "@phosphor-icons/react";
 import { useEffect, useId, useRef, useState } from "react";
 import { isPublicPreview, type Session } from "./api";
-import { useRoute } from "./components";
+import { NAVIGATION_PANEL_OPEN, useRoute } from "./components";
 import { getLocale, t } from "./locale";
 import { msg } from "./messages";
 import { ThemeToggle } from "./theme-toggle";
@@ -74,15 +74,21 @@ export function WorkspaceIdentity({
       setOpenOn(undefined);
       trigger.current?.focus();
     };
+    const anotherPanel = (event: Event) => {
+      if ((event as CustomEvent<string>).detail !== menuId)
+        setOpenOn(undefined);
+    };
     document.addEventListener("pointerdown", dismiss);
     document.addEventListener("keydown", escape);
+    document.addEventListener(NAVIGATION_PANEL_OPEN, anotherPanel);
     window.addEventListener("hashchange", navigate);
     return () => {
       document.removeEventListener("pointerdown", dismiss);
       document.removeEventListener("keydown", escape);
+      document.removeEventListener(NAVIGATION_PANEL_OPEN, anotherPanel);
       window.removeEventListener("hashchange", navigate);
     };
-  }, [open]);
+  }, [open, menuId]);
   return (
     <section
       ref={area}
@@ -109,7 +115,15 @@ export function WorkspaceIdentity({
         className="workspace-identity-trigger"
         aria-expanded={open}
         aria-controls={menuId}
-        onClick={() => (open ? close() : setOpenOn(context))}
+        onClick={() => {
+          if (open) close();
+          else {
+            document.dispatchEvent(
+              new CustomEvent(NAVIGATION_PANEL_OPEN, { detail: menuId }),
+            );
+            setOpenOn(context);
+          }
+        }}
       >
         <span className="workspace-identity-avatar" aria-hidden="true">
           {initials(session.user.name)}
