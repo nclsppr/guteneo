@@ -1,7 +1,7 @@
 {
-  "measuredAt": "2026-10-29T20:57:43.636Z",
+  "measuredAt": "2026-10-29T21:31:11.702Z",
   "baseline": "1e013dbc129dd73fb953b36898f59dad379d5aaa",
-  "candidate": "de6a34203fadcf562c7c9c66ea5410be5253c163",
+  "candidate": "64b857e4b48096a9e352639b6378c820a0137f1e",
   "version": "1.1.18",
   "environment": {
     "node": "v24.18.0",
@@ -23,14 +23,14 @@
       "globe": "bv-globe-stage"
     },
     "sampling": "3 fresh contexts per variant/route, interleaved before/after; no CPU/network emulation; OS file cache not reset",
-    "concurrentWork": "Root reported complete unit and end-to-end suites running concurrently on the same machine. The sampling process and host CPU workload were not isolated; timing differences are not attributed to the candidate."
+    "concurrentWork": "Root reported complete unit, end-to-end, preview and Belvedere acceptance suites running concurrently on the same machine. The sampling process and host CPU workload were not isolated; timing differences are not attributed to the candidate."
   },
   "sourceFingerprints": {
     "baselineIndexSha256": "2b598a8203296a10bec24c1deb13b249cd9b8566fd02d16997b73f4e3eff41a7",
-    "candidateIndexSha256": "02e111af247a7a867cef4d9ef250a10f8b85c2c4b25d2f9a851bc397fcc99bfb",
+    "candidateIndexSha256": "01edf402aced807e37e5698d92b9292a2e094036a24b93b78e62402b859a1473",
     "probeSha256": "357b3d3b2b1d545a134006891c06beaa4f2904a2d8f842f4944a5d2895113b44",
-    "runtimePatchParent": "125ed8fec2143729884dadb94385b8cbbdf213cc",
-    "runtimePatchSha256": "28201d435f0a4201ef40521b7d7393f1bebd4e017b7ef923edf457317d079ce6",
+    "runtimePatchParent": "de6a34203fadcf562c7c9c66ea5410be5253c163",
+    "runtimePatchSha256": "6d8a25ba7f54898b04759259370905b6f5d47fb0f1bd857d16e766b9d90e1e95",
     "candidatePackageLockSha256": "33c463c544a3a6773e3f99caa1546ac8d09af8791468524a5af754910cbde570",
     "dependencyComparison": "The lockfile differs from the baseline only in the root package version 1.1.17→1.1.18; dependency versions and installed runtime are unchanged.",
     "implementationMarkerPositiveControls": {
@@ -40,9 +40,9 @@
         "designer": ["/assets/template-designer-BdNOSMxN.js"]
       },
       "after": {
-        "globe": ["/assets/belvedere-globe-DW0PY1UM.js"],
-        "pdfjs": ["/assets/pdf-viewer-BoHA26Jd.js"],
-        "designer": ["/assets/template-designer-MkTt0e92.js"]
+        "globe": ["/assets/belvedere-globe-DS-a_adF.js"],
+        "pdfjs": ["/assets/pdf-viewer-BIBmZgrl.js"],
+        "designer": ["/assets/template-designer-BGjqBNI6.js"]
       }
     }
   },
@@ -52,9 +52,9 @@
       "before": {
         "samples": 3,
         "firstUsefulMs": {
-          "median": 193.79999999981374,
-          "minimum": 175.29999999981374,
-          "maximum": 281.90000000037253
+          "median": 196.40000000037253,
+          "minimum": 196.09999999962747,
+          "maximum": 236.59999999962747
         },
         "firstUsefulInViewport": true,
         "privateLibraryDomMs": null,
@@ -109,9 +109,9 @@
       "after": {
         "samples": 3,
         "firstUsefulMs": {
-          "median": 191.59999999962747,
-          "minimum": 172.20000000018626,
-          "maximum": 195.79999999981374
+          "median": 265.90000000037253,
+          "minimum": 192.90000000037253,
+          "maximum": 282.30000000074506
         },
         "firstUsefulInViewport": true,
         "privateLibraryDomMs": null,
@@ -127,9 +127,9 @@
           "maximum": 2
         },
         "jsBodyBytes": {
-          "median": 1611144,
-          "minimum": 1611144,
-          "maximum": 1611144
+          "median": 1611566,
+          "minimum": 1611566,
+          "maximum": 1611566
         },
         "cssBodyBytes": {
           "median": 159993,
@@ -137,14 +137,14 @@
           "maximum": 159993
         },
         "jsCssTransferBytes": {
-          "median": 1779237,
-          "minimum": 1779237,
-          "maximum": 1779237
+          "median": 1779659,
+          "minimum": 1779659,
+          "maximum": 1779659
         },
         "jsCssGzipFileBytesSum": {
-          "median": 538563,
-          "minimum": 538563,
-          "maximum": 538563
+          "median": 538685,
+          "minimum": 538685,
+          "maximum": 538685
         },
         "apiRequests": {
           "median": 2,
@@ -164,10 +164,10 @@
         "failures": []
       },
       "change": {
-        "jsBodyBytes": 48644,
+        "jsBodyBytes": 49066,
         "cssBodyBytes": -8741,
-        "jsCssTransferBytes": 41703,
-        "firstUsefulMs": -2.2000000001862645
+        "jsCssTransferBytes": 42125,
+        "firstUsefulMs": 69.5
       }
     },
     {
@@ -175,9 +175,9 @@
       "before": {
         "samples": 3,
         "firstUsefulMs": {
-          "median": 202.40000000037253,
-          "minimum": 194.20000000018626,
-          "maximum": 202.8999999994412
+          "median": 267.69999999925494,
+          "minimum": 243.59999999962747,
+          "maximum": 302.5
         },
         "firstUsefulInViewport": true,
         "privateLibraryDomMs": null,
@@ -236,9 +236,9 @@
       "after": {
         "samples": 3,
         "firstUsefulMs": {
-          "median": 197.20000000018626,
-          "minimum": 193,
-          "maximum": 200.1000000005588
+          "median": 262.09999999962747,
+          "minimum": 252.5,
+          "maximum": 292.5
         },
         "firstUsefulInViewport": true,
         "privateLibraryDomMs": null,
@@ -254,9 +254,9 @@
           "maximum": 6
         },
         "jsBodyBytes": {
-          "median": 1693470,
-          "minimum": 1693470,
-          "maximum": 1693470
+          "median": 1693870,
+          "minimum": 1693870,
+          "maximum": 1693870
         },
         "cssBodyBytes": {
           "median": 169404,
@@ -264,14 +264,14 @@
           "maximum": 169404
         },
         "jsCssTransferBytes": {
-          "median": 1873674,
-          "minimum": 1873674,
-          "maximum": 1873674
+          "median": 1874074,
+          "minimum": 1874074,
+          "maximum": 1874074
         },
         "jsCssGzipFileBytesSum": {
-          "median": 565573,
-          "minimum": 565573,
-          "maximum": 565573
+          "median": 565689,
+          "minimum": 565689,
+          "maximum": 565689
         },
         "apiRequests": {
           "median": 6,
@@ -295,10 +295,10 @@
         "failures": []
       },
       "change": {
-        "jsBodyBytes": 10481,
+        "jsBodyBytes": 10881,
         "cssBodyBytes": -8741,
-        "jsCssTransferBytes": 2340,
-        "firstUsefulMs": -5.2000000001862645
+        "jsCssTransferBytes": 2740,
+        "firstUsefulMs": -5.599999999627471
       }
     },
     {
@@ -306,15 +306,15 @@
       "before": {
         "samples": 3,
         "firstUsefulMs": {
-          "median": 153.29999999981374,
-          "minimum": 145,
-          "maximum": 162.20000000018626
+          "median": 187.09999999962747,
+          "minimum": 164.59999999962747,
+          "maximum": 202.19999999925494
         },
         "firstUsefulInViewport": true,
         "privateLibraryDomMs": {
-          "median": 209.70000000018626,
-          "minimum": 201,
-          "maximum": 218.79999999981374
+          "median": 245.09999999962747,
+          "minimum": 222.39999999850988,
+          "maximum": 264
         },
         "privateLibraryInViewport": false,
         "jsRequests": {
@@ -364,15 +364,15 @@
       "after": {
         "samples": 3,
         "firstUsefulMs": {
-          "median": 147.8999999994412,
-          "minimum": 145.70000000018626,
-          "maximum": 157.79999999981374
+          "median": 193.59999999962747,
+          "minimum": 185,
+          "maximum": 203.5
         },
         "firstUsefulInViewport": true,
         "privateLibraryDomMs": {
-          "median": 202.70000000018626,
-          "minimum": 202.59999999962747,
-          "maximum": 216.79999999981374
+          "median": 262.19999999925494,
+          "minimum": 241.30000000074506,
+          "maximum": 270.7000000011176
         },
         "privateLibraryInViewport": false,
         "jsRequests": {
@@ -386,9 +386,9 @@
           "maximum": 3
         },
         "jsBodyBytes": {
-          "median": 1696517,
-          "minimum": 1696517,
-          "maximum": 1696517
+          "median": 1696928,
+          "minimum": 1696928,
+          "maximum": 1696928
         },
         "cssBodyBytes": {
           "median": 166878,
@@ -396,14 +396,14 @@
           "maximum": 166878
         },
         "jsCssTransferBytes": {
-          "median": 1871495,
-          "minimum": 1871495,
-          "maximum": 1871495
+          "median": 1871906,
+          "minimum": 1871906,
+          "maximum": 1871906
         },
         "jsCssGzipFileBytesSum": {
-          "median": 563488,
-          "minimum": 563488,
-          "maximum": 563488
+          "median": 563599,
+          "minimum": 563599,
+          "maximum": 563599
         },
         "apiRequests": {
           "median": 3,
@@ -420,10 +420,10 @@
         "failures": []
       },
       "change": {
-        "jsBodyBytes": 917,
+        "jsBodyBytes": 1328,
         "cssBodyBytes": -1856,
-        "jsCssTransferBytes": -39,
-        "firstUsefulMs": -5.400000000372529
+        "jsCssTransferBytes": 372,
+        "firstUsefulMs": 6.5
       }
     }
   ],
@@ -438,59 +438,59 @@
   "changeFromD47d8027": [
     {
       "route": "my-documents",
-      "uncompressedJavaScriptBodyBytes": 2913,
+      "uncompressedJavaScriptBodyBytes": 3335,
       "cssBodyBytes": 207,
       "javaScriptRequests": 0,
       "cssRequests": 0,
       "apiRequests": 0,
-      "sumStandaloneGzipAssetsBytes": 864
+      "sumStandaloneGzipAssetsBytes": 986
     },
     {
       "route": "correspondence",
-      "uncompressedJavaScriptBodyBytes": 2921,
+      "uncompressedJavaScriptBodyBytes": 3321,
       "cssBodyBytes": 207,
       "javaScriptRequests": 0,
       "cssRequests": 0,
       "apiRequests": 0,
-      "sumStandaloneGzipAssetsBytes": 878
+      "sumStandaloneGzipAssetsBytes": 994
     },
     {
       "route": "studio",
-      "uncompressedJavaScriptBodyBytes": -12895,
+      "uncompressedJavaScriptBodyBytes": -12484,
       "cssBodyBytes": -13,
       "javaScriptRequests": 1,
       "cssRequests": 0,
       "apiRequests": 0,
-      "sumStandaloneGzipAssetsBytes": -2709
+      "sumStandaloneGzipAssetsBytes": -2598
     }
   ],
   "changeFrom08df95d5": [
     {
       "route": "my-documents",
-      "uncompressedJavaScriptBodyBytes": 4115,
+      "uncompressedJavaScriptBodyBytes": 4537,
       "cssBodyBytes": 207,
       "javaScriptRequests": 0,
       "cssRequests": 0,
       "apiRequests": 0,
-      "sumStandaloneGzipAssetsBytes": 1338
+      "sumStandaloneGzipAssetsBytes": 1460
     },
     {
       "route": "correspondence",
-      "uncompressedJavaScriptBodyBytes": 4123,
+      "uncompressedJavaScriptBodyBytes": 4523,
       "cssBodyBytes": 207,
       "javaScriptRequests": 0,
       "cssRequests": 0,
       "apiRequests": 0,
-      "sumStandaloneGzipAssetsBytes": 1352
+      "sumStandaloneGzipAssetsBytes": 1468
     },
     {
       "route": "studio",
-      "uncompressedJavaScriptBodyBytes": -11693,
+      "uncompressedJavaScriptBodyBytes": -11282,
       "cssBodyBytes": -13,
       "javaScriptRequests": 1,
       "cssRequests": 0,
       "apiRequests": 0,
-      "sumStandaloneGzipAssetsBytes": -2241
+      "sumStandaloneGzipAssetsBytes": -2130
     }
   ],
   "historicalComparisons": [
@@ -530,50 +530,90 @@
       "candidate": "125ed8fec2143729884dadb94385b8cbbdf213cc",
       "measuredAt": "2026-10-29T20:27:38.782Z",
       "result": "Explicit recovery, redirect rejection, visit cancellation and SSR film readiness before the independent distribution extraction; preserved in the dated 125ed8fe artifacts."
+    },
+    {
+      "candidate": "de6a34203fadcf562c7c9c66ea5410be5253c163",
+      "measuredAt": "2026-10-29T20:57:43.636Z",
+      "result": "Independent distribution preparation/tracking and layout consolidation before shared-event panel exclusivity; preserved in the dated de6a3420 artifacts."
     }
   ],
   "rawArtifactBundle": {
     "directory": "CODEX-PERFORMANCE in the dated local handover folder",
-    "measurementsSha256": "e12ebcd0b43bb2d5ec772047bdc08bcc9ed50ae6ad4c8d4b44213da6697e5c86",
-    "sourcesSha256": "91df02854de2704002f7fffcb7ed7c2012e965d20baec2744ede70f79c2da61a",
-    "retainedCheckpoints": ["1ceb29ff", "08df95d5", "d47d8027", "125ed8fe"]
+    "measurementsSha256": "b947aa0cb5ec176deeca933a91213668ebd13258d53fe9073b1ae16aa26f3338",
+    "sourcesSha256": "b732854b1d8eecdd9559714d96a5396e61f1ee07d024249b2c8bb3b59f24b6f6",
+    "retainedCheckpoints": [
+      "1ceb29ff",
+      "08df95d5",
+      "d47d8027",
+      "125ed8fe",
+      "de6a3420"
+    ]
   },
   "scope": "Local uncompressed static assets with synthetic read-only API responses and fresh Chromium contexts. No database, real identity, provider, hosted latency, physical device, CI or deployment qualification. Concurrent local suites prevent attributing timing differences to the candidate; this normal-success harness does not qualify error recovery or film gestures.",
   "changeFrom125ed8fe": [
     {
       "route": "my-documents",
-      "uncompressedJavaScriptBodyBytes": 1876,
+      "uncompressedJavaScriptBodyBytes": 2298,
       "cssBodyBytes": 207,
       "javaScriptRequests": 0,
       "cssRequests": 0,
       "apiRequests": 0,
-      "sumStandaloneGzipAssetsBytes": 578
+      "sumStandaloneGzipAssetsBytes": 700
     },
     {
       "route": "correspondence",
-      "uncompressedJavaScriptBodyBytes": 1884,
+      "uncompressedJavaScriptBodyBytes": 2284,
       "cssBodyBytes": 207,
       "javaScriptRequests": 0,
       "cssRequests": 0,
       "apiRequests": 0,
-      "sumStandaloneGzipAssetsBytes": 587
+      "sumStandaloneGzipAssetsBytes": 703
     },
     {
       "route": "studio",
-      "uncompressedJavaScriptBodyBytes": -13932,
+      "uncompressedJavaScriptBodyBytes": -13521,
       "cssBodyBytes": -13,
       "javaScriptRequests": 1,
       "cssRequests": 0,
       "apiRequests": 0,
-      "sumStandaloneGzipAssetsBytes": -2996
+      "sumStandaloneGzipAssetsBytes": -2885
     }
   ],
   "distributionLoading": {
     "dedicatedAssets": [
       "/assets/distribution-pages-Cx-2SDuj.css",
-      "/assets/distribution-pages-DQr2_JLN.js"
+      "/assets/distribution-pages-DGoQapJT.js"
     ],
     "entryRequests": [],
     "scope": "The separate Correspondence distribution code and CSS are present in the build but not requested by the three measured entry routes. Opening distribution has its separate functional proof; this harness does not measure that destination."
-  }
+  },
+  "changeFromDe6a3420": [
+    {
+      "route": "my-documents",
+      "uncompressedJavaScriptBodyBytes": 422,
+      "cssBodyBytes": 0,
+      "javaScriptRequests": 0,
+      "cssRequests": 0,
+      "apiRequests": 0,
+      "sumStandaloneGzipAssetsBytes": 122
+    },
+    {
+      "route": "correspondence",
+      "uncompressedJavaScriptBodyBytes": 400,
+      "cssBodyBytes": 0,
+      "javaScriptRequests": 0,
+      "cssRequests": 0,
+      "apiRequests": 0,
+      "sumStandaloneGzipAssetsBytes": 116
+    },
+    {
+      "route": "studio",
+      "uncompressedJavaScriptBodyBytes": 411,
+      "cssBodyBytes": 0,
+      "javaScriptRequests": 0,
+      "cssRequests": 0,
+      "apiRequests": 0,
+      "sumStandaloneGzipAssetsBytes": 111
+    }
+  ]
 }

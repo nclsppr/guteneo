@@ -19,17 +19,17 @@ Batch distribution preparation and frozen-plan tracking now belong to a separate
 Correspondence module and stylesheet; entering Studio does not load them.
 
 The [final loading record](evidence/studio-space-loading-2026-10-29.json)
-compares `1e013dbc` with the consolidated runtime candidate `de6a3420`. Eighteen fresh
+compares `1e013dbc` with the consolidated runtime candidate `64b857e4`. Eighteen fresh
 Chromium contexts (three per route/variant, interleaved) use local uncompressed
 static HTTP, a 1440 × 900 viewport and read-only synthetic APIs delayed by 40 ms.
-Complete unit and end-to-end suites run concurrently on the same machine;
+Complete unit, end-to-end, preview and Belvédère suites run concurrently on the same machine;
 neither CPU isolation nor a timing improvement is claimed.
 
 | Route          | JS / CSS requests | API reads | JS body-byte delta | CSS body-byte delta | JS+CSS transfer-byte delta |
 | -------------- | ----------------: | --------: | -----------------: | ------------------: | -------------------------: |
-| my-documents   |   19 → 25 / 2 → 2 |     2 → 2 |            +48,644 |              -8,741 |                    +41,703 |
-| correspondence |   28 → 30 / 6 → 6 |     6 → 6 |            +10,481 |              -8,741 |                     +2,340 |
-| studio         |   22 → 24 / 2 → 3 |     3 → 3 |               +917 |              -1,856 |                        -39 |
+| my-documents   |   19 → 25 / 2 → 2 |     2 → 2 |            +49,066 |              -8,741 |                    +42,125 |
+| correspondence |   28 → 30 / 6 → 6 |     6 → 6 |            +10,881 |              -8,741 |                     +2,740 |
+| studio         |   22 → 24 / 2 → 3 |     3 → 3 |             +1,328 |              -1,856 |                       +372 |
 
 First useful means an available document title, correspondence row or visible
 built-in template title followed by a rendering opportunity; the below-fold
@@ -45,10 +45,13 @@ general loading reduction. The exact terminology table alone is 42,330 source
 bytes / 11,854 gzip bytes when minified and compressed separately, not its
 incremental bundled network cost.
 
-Against the preserved `125ed8fe` checkpoint, the consolidation adds 1,876 JavaScript
-body bytes and 207 CSS bytes to My documents, and 1,884 JavaScript bytes and 207 CSS
-bytes to Correspondence. Studio removes 13,932 JavaScript bytes and 13 CSS bytes
-but adds one JavaScript request. API counts are unchanged. Both distribution
+At the preserved `de6a3420` checkpoint, the extraction added 1,876 JavaScript body
+bytes and 207 CSS bytes to My documents, and 1,884 JavaScript bytes and 207 CSS bytes
+to Correspondence, compared with `125ed8fe`. Studio removed 13,932 JavaScript bytes
+and 13 CSS bytes but added one JavaScript request. The current shared-event panel
+correction adds 422 JavaScript bytes to My documents, 400 to Correspondence and
+411 to Studio over `de6a3420`, with unchanged CSS and JS/CSS/API request counts.
+These normal-entry bytes do not qualify panel interaction. Both distribution
 assets exist in the build but are not requested by these three entries; opening
 that workflow has separate functional evidence.
 
