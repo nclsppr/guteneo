@@ -3,6 +3,17 @@ import type { PersonalSession } from "../../apps/web/src/personal-api";
 import type { DashboardAppearance } from "../../packages/contracts/src/dashboard-appearance";
 import type { SupportedLocale } from "../../packages/contracts/src/locale";
 
+async function openAccountMenu(page: Page) {
+  const trigger = page.locator(
+    ".personal-space-header .workspace-identity-trigger",
+  );
+  if ((await trigger.getAttribute("aria-expanded")) !== "true")
+    await trigger.click();
+  await expect(
+    page.locator(".personal-space-header .workspace-identity-menu"),
+  ).toBeVisible();
+}
+
 // Account writes and document reads stay inside these synthetic browser fixtures.
 async function fixture(
   page: Page,
@@ -289,9 +300,10 @@ test("a personal account opens the only layout without workshop reads or account
   state.switchAccount();
   await expect(async () => {
     await page.evaluate(() => window.dispatchEvent(new Event("focus")));
-    await expect(
-      page.getByText("personal-appearance-b@example.invalid", { exact: false }),
-    ).toBeVisible({ timeout: 250 });
+    await expect(page.locator(".workspace-identity-email")).toHaveText(
+      "personal-appearance-b@example.invalid",
+      { timeout: 250 },
+    );
   }).toPass();
   // The second account stores `classic`; the only layout still applies.
   await expect(page.locator(".personal-space")).toHaveClass(
@@ -453,10 +465,13 @@ test("personal preferences persist across reload, the layout fills the width and
   for (const width of [1920, 3440, 320, 390]) {
     await page.setViewportSize({ width, height: 960 });
     for (const theme of ["light", "dark"]) {
-      if ((await page.locator("html").getAttribute("data-theme")) !== theme)
+      if ((await page.locator("html").getAttribute("data-theme")) !== theme) {
+        await openAccountMenu(page);
         await page
           .locator(".personal-space-header [data-theme-toggle]")
           .click();
+        await page.keyboard.press("Escape");
+      }
       await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
       const geometry = await shell.evaluate((element) => {
         const frame = element.getBoundingClientRect();
@@ -494,6 +509,7 @@ test("personal preferences persist across reload, the layout fills the width and
         });
     }
   }
+  await openAccountMenu(page);
   await page.locator('a[href="#/app/personal-account"]').click();
   expect(
     (await page.locator(".personal-account-profile > .field").boundingBox())
@@ -588,6 +604,7 @@ for (const locale of ["fr", "en", "de", "lb"] as const) {
       path: testInfo.outputPath(`personal-v2-documents-${locale}.png`),
       fullPage: true,
     });
+    await openAccountMenu(page);
     await page.locator('a[href="#/app/personal-account"]').click();
     await expect(
       page.getByRole("heading", { name: titles[locale].account, exact: true }),

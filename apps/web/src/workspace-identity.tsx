@@ -25,25 +25,38 @@ function initials(name: string) {
     .toLocaleUpperCase();
 }
 
-function switchAccountHref() {
-  const returnTo = encodeURIComponent("/" + (window.location.hash || "#/app"));
-  return `/auth/login?intent=switch-account&locale=${getLocale()}&returnTo=${returnTo}`;
+function switchAccountHref(returnPath?: string, personal = false) {
+  const returnTo = encodeURIComponent(
+    returnPath ?? "/" + (window.location.hash || "#/app"),
+  );
+  return `/auth/login?intent=switch-account&locale=${getLocale()}&returnTo=${returnTo}${personal ? "&context=personal" : ""}`;
 }
 
 /** One identity row; its disclosure holds the account utilities. */
 export function WorkspaceIdentity({
   session,
   onLogout,
+  profileHref = "#/app/account",
+  profileLabel,
+  authenticationContext,
+  returnTo,
+  logoutPending = false,
 }: {
-  session: Session;
+  session: { user: Pick<Session["user"], "id" | "name" | "email"> };
   onLogout: () => Promise<void>;
+  profileHref?: string;
+  profileLabel?: string;
+  authenticationContext?: "personal";
+  returnTo?: string;
+  logoutPending?: boolean;
 }) {
   const route = useRoute();
+  const context = `${session.user.id}:${route}`;
   // Opening records the committed route, so navigating away closes the menu.
   const [openOn, setOpenOn] = useState<string>();
   // Forget it on navigation, so returning to the same address keeps it closed.
-  if (openOn !== undefined && openOn !== route) setOpenOn(undefined);
-  const open = openOn === route;
+  if (openOn !== undefined && openOn !== context) setOpenOn(undefined);
+  const open = openOn === context;
   const area = useRef<HTMLElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
   const menuId = useId();
@@ -55,10 +68,18 @@ export function WorkspaceIdentity({
     };
     // Two quick address changes may render once; the event still closes it.
     const navigate = () => setOpenOn(undefined);
+    const escape = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      event.preventDefault();
+      setOpenOn(undefined);
+      trigger.current?.focus();
+    };
     document.addEventListener("pointerdown", dismiss);
+    document.addEventListener("keydown", escape);
     window.addEventListener("hashchange", navigate);
     return () => {
       document.removeEventListener("pointerdown", dismiss);
+      document.removeEventListener("keydown", escape);
       window.removeEventListener("hashchange", navigate);
     };
   }, [open]);
@@ -88,7 +109,7 @@ export function WorkspaceIdentity({
         className="workspace-identity-trigger"
         aria-expanded={open}
         aria-controls={menuId}
-        onClick={() => (open ? close() : setOpenOn(route))}
+        onClick={() => (open ? close() : setOpenOn(context))}
       >
         <span className="workspace-identity-avatar" aria-hidden="true">
           {initials(session.user.name)}
@@ -107,14 +128,16 @@ export function WorkspaceIdentity({
           <li>
             <a
               className="workspace-identity-profile"
-              href="#/app/account"
+              href={profileHref}
               aria-current={
-                route.split("?")[0] === "/app/account" ? "page" : undefined
+                route.split("?")[0] === profileHref.split("#")[1]?.split("?")[0]
+                  ? "page"
+                  : undefined
               }
               onClick={close}
             >
               <UserCircle size={20} aria-hidden="true" />
-              {msg("My profile and permissions")}
+              {profileLabel ?? msg("My profile and permissions")}
             </a>
           </li>
           <li>
@@ -124,7 +147,10 @@ export function WorkspaceIdentity({
             <li>
               <a
                 className="workspace-switch-account"
-                href={switchAccountHref()}
+                href={switchAccountHref(
+                  returnTo,
+                  authenticationContext === "personal",
+                )}
               >
                 <UserSwitch size={20} aria-hidden="true" />
                 {msg("Switch account")}
@@ -145,6 +171,7 @@ export function WorkspaceIdentity({
             <button
               type="button"
               className="workspace-sign-out"
+              disabled={logoutPending}
               onClick={() => void onLogout()}
             >
               <SignOut size={20} aria-hidden="true" />

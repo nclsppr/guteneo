@@ -1,4 +1,5 @@
 import { msg } from "./messages";
+export { RememberDirectChoice } from "./assistant-state";
 import { studioRoutes } from "./app-routes";
 import { FileInput } from "./file-input";
 import { WorkspaceContacts } from "./workspace-contacts";

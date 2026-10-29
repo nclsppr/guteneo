@@ -26,6 +26,15 @@ export type PersonalSession = {
   workspaces: { id: string; name: string; role: string; current: boolean }[];
 };
 
+/** A single entry read; never cached across personal-area visits or identities. */
+export type PersonalSessionRead = {
+  result: Promise<
+    | { session: PersonalSession; error?: never }
+    | { error: Error; session?: never }
+  >;
+  signal: AbortSignal;
+};
+
 export async function personalApi<T>(
   path: string,
   session?: Pick<PersonalSession, "csrfToken">,

@@ -188,28 +188,7 @@
       ]
     }
   },
-  "importExceptions": [
-    {
-      "from": "locale.ts",
-      "to": "public-sharing.ts",
-      "reason": "A language change refreshes the public sharing metadata; invert through a locale-change event."
-    },
-    {
-      "from": "App.tsx",
-      "to": "personal-area.tsx",
-      "reason": "My documents is bundled with the host for its first paint; measure before loading it with import()."
-    },
-    {
-      "from": "App.tsx",
-      "to": "assistant-state.ts",
-      "reason": "The direct-entry reminder of the preparation page; move it into the correspondence route loader."
-    },
-    {
-      "from": "App.tsx",
-      "to": "document-studio.css",
-      "reason": "The correspondence preparation page also uses .studio-entry-links; move that rule to the shared layer, then load Studio styles with Studio only."
-    }
-  ],
+  "importExceptions": [],
   "designExceptions": [
     {
       "file": "assistant-guides.css",

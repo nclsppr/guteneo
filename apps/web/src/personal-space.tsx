@@ -11,8 +11,6 @@ import {
   Files,
   PaperPlaneTilt,
   ShieldCheck,
-  SignOut,
-  UserCircle,
 } from "@phosphor-icons/react";
 import { Brand } from "./brand";
 import { ApiError, date, type Session } from "./api";
@@ -27,7 +25,7 @@ import {
 } from "./components";
 import { LanguageSelect } from "./language-select";
 import { LegalLinks } from "./legal-links";
-import { ThemeToggle } from "./theme-toggle";
+import { WorkspaceIdentity } from "./workspace-identity";
 import { AppearancePreferences } from "./appearance-preferences";
 import {
   applyAccountLocale,
@@ -37,7 +35,11 @@ import {
   type SupportedLocale,
 } from "./locale";
 import { msg } from "./messages";
-import { personalApi, type PersonalSession } from "./personal-api";
+import {
+  personalApi,
+  type PersonalSession,
+  type PersonalSessionRead,
+} from "./personal-api";
 import { ApplicationSwitcher } from "./space-switcher";
 import { workspaceInvitationPath } from "./workspace-entry";
 import {
@@ -48,6 +50,10 @@ import "./secure-documents.css";
 
 export function isPersonalRoute(page: string) {
   return /^\/app\/(my-documents|services|personal-account)(\/|$)/.test(page);
+}
+
+function isPageHidden() {
+  return document.visibilityState === "hidden";
 }
 
 function authHref(kind: "login" | "signup", fresh = false) {
@@ -217,6 +223,7 @@ export function PersonalSpace({
   route,
   documents,
   invitationStorageBlocked = false,
+  initialSession,
 }: {
   route: string;
   documents: (
@@ -224,12 +231,14 @@ export function PersonalSpace({
     onSessionInvalid: () => void,
   ) => ReactNode;
   invitationStorageBlocked?: boolean;
+  initialSession?: PersonalSessionRead;
 }) {
   const [session, setPersonalSession] = useState<PersonalSession | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error>();
   const [version, setVersion] = useState(0);
   const sessionReadRevision = useRef(0);
+  const entryReadConsumed = useRef(false);
   const action = useAction();
   const page = route.split("?")[0] ?? "/app/my-documents";
   const onSessionInvalid = useCallback(() => {
@@ -243,23 +252,41 @@ export function PersonalSpace({
   useEffect(() => {
     const controller = new AbortController();
     let pending = false;
+    let revalidateAfterRead = false;
     let lastRead = 0;
     const read = async () => {
-      if (
-        pending ||
-        document.visibilityState === "hidden" ||
-        Date.now() - lastRead < 1000
-      )
-        return;
+      if (pending || isPageHidden() || Date.now() - lastRead < 1000) return;
       pending = true;
       lastRead = Date.now();
       const revision = sessionReadRevision.current;
       try {
-        const current = await personalApi<PersonalSession>(
-          "/personal/session",
-          undefined,
-          { signal: controller.signal },
-        );
+        let current: PersonalSession;
+        if (
+          initialSession &&
+          !entryReadConsumed.current &&
+          !initialSession.signal.aborted
+        ) {
+          entryReadConsumed.current = true;
+          const result = await initialSession.result;
+          if (initialSession.signal.aborted) {
+            lastRead = 0;
+            if (isPageHidden()) return;
+            current = await personalApi<PersonalSession>(
+              "/personal/session",
+              undefined,
+              { signal: controller.signal },
+            );
+          } else {
+            if (result.error) throw result.error;
+            current = result.session;
+          }
+        } else {
+          current = await personalApi<PersonalSession>(
+            "/personal/session",
+            undefined,
+            { signal: controller.signal },
+          );
+        }
         if (
           controller.signal.aborted ||
           revision !== sessionReadRevision.current
@@ -280,10 +307,22 @@ export function PersonalSpace({
         } else setError(cause as Error);
       } finally {
         pending = false;
-        if (!controller.signal.aborted) setLoading(false);
+        if (!controller.signal.aborted && revalidateAfterRead) {
+          revalidateAfterRead = false;
+          lastRead = 0;
+          void read();
+        } else if (!controller.signal.aborted && !isPageHidden())
+          setLoading(false);
       }
     };
-    const onFocus = () => void read();
+    const onFocus = () => {
+      if (isPageHidden()) {
+        lastRead = 0;
+        return;
+      }
+      if (pending) revalidateAfterRead = true;
+      else void read();
+    };
     void read();
     window.addEventListener("focus", onFocus);
     document.addEventListener("visibilitychange", onFocus);
@@ -292,7 +331,7 @@ export function PersonalSpace({
       window.removeEventListener("focus", onFocus);
       document.removeEventListener("visibilitychange", onFocus);
     };
-  }, [version]);
+  }, [version, initialSession]);
   if (loading)
     return (
       <div className="initial-loading">
@@ -328,23 +367,6 @@ export function PersonalSpace({
       window.location.replace("/");
     });
   }
-  const accountUtility = (
-    <div className="personal-space-account">
-      <p>
-        <strong>{session.user.name}</strong>
-        {msg("Signed in as {0}", session.user.email)}
-      </p>
-      <button
-        type="button"
-        className="button small subtle"
-        disabled={action.pending}
-        onClick={() => void logout()}
-      >
-        <SignOut size={18} aria-hidden="true" />
-        {msg("Sign out")}
-      </button>
-    </div>
-  );
   const currentWorkspace =
     session.workspaces.find((workspace) => workspace.current) ?? null;
   return (
@@ -385,16 +407,18 @@ export function PersonalSpace({
               {msg("Use Guteneo")}
             </a>
           )}
-          <a
-            href="#/app/personal-account"
-            aria-current={page === "/app/personal-account" ? "page" : undefined}
-          >
-            <UserCircle size={20} aria-hidden="true" />
-            {msg("Account and security")}
-          </a>
         </nav>
-        <ThemeToggle />
-        {accountUtility}
+        <div className="sidebar-account">
+          <WorkspaceIdentity
+            session={session}
+            profileHref="#/app/personal-account"
+            profileLabel={msg("Account and security")}
+            authenticationContext="personal"
+            returnTo={personalAuthenticationReturnTo()}
+            onLogout={logout}
+            logoutPending={action.pending}
+          />
+        </div>
       </header>
       <main
         id="main-content"

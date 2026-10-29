@@ -46,9 +46,6 @@
 .account-display-preferences .field {
   margin-bottom: 0;
 }
-.workspace-identity-avatar {
-  display: none;
-}
 .sidebar-account {
   min-width: 0;
 }
@@ -185,139 +182,7 @@
     display: none;
   }
 }
-.workspace-v2 .workspace-identity {
-  position: relative;
-  padding: 0;
-  margin: 0;
-  border: 0;
-}
-.workspace-v2 .workspace-identity-trigger {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-  min-height: 44px;
-  padding: 6px 8px;
-  border: 0;
-  border-radius: var(--radius);
-  background: transparent;
-  color: var(--ink);
-  font: inherit;
-  font-size: 13px;
-  font-weight: 500;
-  text-align: left;
-}
-.workspace-v2 .workspace-identity-trigger:hover,
-.workspace-v2 .workspace-identity-trigger[aria-expanded="true"] {
-  background: var(--surface-hover);
-}
-.workspace-v2 .workspace-identity-trigger > svg {
-  flex-shrink: 0;
-  margin-left: auto;
-  color: var(--muted);
-}
-.workspace-v2 .workspace-identity-avatar {
-  display: flex;
-  flex-shrink: 0;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: var(--blue-tint);
-  color: var(--blue-ink);
-  font-size: 12px;
-  font-weight: 500;
-}
-.workspace-v2 .workspace-identity-name {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.workspace-v2 .workspace-identity-menu {
-  position: absolute;
-  bottom: calc(100% + 6px);
-  left: 0;
-  min-width: 100%;
-  width: max-content;
-  max-width: min(320px, calc(100vw - 32px));
-  padding: 4px;
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  background: var(--surface-raised);
-  box-shadow: 0 12px 32px var(--shadow);
-}
-.workspace-v2 .workspace-identity-menu[hidden] {
-  display: none;
-}
-.workspace-v2 .workspace-identity-summary {
-  display: grid;
-  gap: 2px;
-  margin: 0;
-  padding: 8px 10px 10px;
-  border-bottom: 1px solid var(--line);
-  overflow-wrap: anywhere;
-}
-.workspace-v2 .workspace-identity-summary strong {
-  font-size: 13px;
-  font-weight: 500;
-}
-.workspace-v2 .workspace-identity-email {
-  font-size: 12px;
-  color: var(--muted);
-}
-.workspace-v2 .workspace-identity-menu ul {
-  display: grid;
-  gap: 2px;
-  margin: 4px 0 0;
-  padding: 0;
-  list-style: none;
-}
-.workspace-v2 .workspace-identity-menu li:last-child {
-  margin-top: 2px;
-  padding-top: 4px;
-  border-top: 1px solid var(--line);
-}
-.workspace-v2 .workspace-identity-menu :is(a, button) {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 10px;
-  width: 100%;
-  min-height: 36px;
-  padding: 7px 10px;
-  border: 0;
-  border-radius: var(--radius);
-  background: transparent;
-  color: var(--ink);
-  font: inherit;
-  font-size: 13px;
-  line-height: 1.4;
-  text-align: left;
-  text-decoration: none;
-}
-.workspace-v2 .workspace-identity-menu :is(a, button):hover {
-  background: var(--surface-hover);
-}
-.workspace-v2 .workspace-identity-menu :is(a, button) > svg {
-  flex-shrink: 0;
-  color: var(--muted);
-}
-.workspace-v2 .workspace-identity-menu .theme-toggle > svg {
-  width: 20px;
-  height: 20px;
-}
-.workspace-v2 .workspace-identity-menu a[aria-current="page"] {
-  color: var(--blue);
-}
-.workspace-v2 .workspace-identity-menu a[aria-current="page"] > svg {
-  color: currentColor;
-}
-.workspace-v2 .workspace-service-status > svg:last-child {
-  margin-left: auto;
-}
+
 .workspace-v2 .timestamp-context {
   color: var(--muted);
   font-size: 12px;
@@ -691,18 +556,6 @@
     margin-top: 8px;
     padding-top: 8px;
     border-top: 1px solid var(--line);
-  }
-  .workspace-v2 .workspace-identity-trigger {
-    padding-inline: 0;
-  }
-  /* The account row sits in the page header here: open downwards. */
-  .workspace-v2 .workspace-identity-menu {
-    top: calc(100% + 6px);
-    bottom: auto;
-  }
-  .workspace-v2 .workspace-identity-menu :is(a, button) {
-    min-height: 44px;
-    font-size: 14px;
   }
   .workspace-v2 .sidebar nav a.workspace-create {
     grid-column: 1 / -1;

@@ -67,10 +67,11 @@ import {
 } from "./components";
 import { PdfCheckPage } from "./pdf-check-offer";
 import { Login } from "./login-page";
-// This small shell starts the private session read on the first render instead
-// of waiting for a second route chunk and an initial Suspense fallback.
-import PersonalArea from "./personal-area";
-import { personalApi } from "./personal-api";
+import {
+  personalApi,
+  type PersonalSession,
+  type PersonalSessionRead,
+} from "./personal-api";
 import {
   preloadWorkspaceRoute,
   workspaceRouteModules,
@@ -86,13 +87,69 @@ import { ArticlePage, JournalPage } from "./editorial/pages";
 import { getArticles, articlePath } from "./editorial/articles";
 import { getPublicSocialCopy } from "./editorial/social-copy";
 import { AssistantsPage } from "./assistants-page";
-import { RememberDirectChoice } from "./assistant-state";
 import { clearPendingDocumentInvitation } from "./document-invitation";
-import "./document-studio.css";
 import "./secure-documents.css";
 
 const publicPreview = import.meta.env.VITE_PUBLIC_PREVIEW === "true";
 const EmailPreferencesPage = lazy(() => import("./email-preferences"));
+const PersonalArea = lazy(() => workspaceRouteModules.personal());
+const RememberDirectChoice = lazy(() =>
+  workspaceRouteModules.dispatch().then((module) => ({
+    default: module.RememberDirectChoice,
+  })),
+);
+
+/** Load personal code and personal authority together, scoped to this visit. */
+function PersonalEntry({ route }: { route: string }) {
+  const [initialSession, setInitialSession] = useState<PersonalSessionRead>();
+  useEffect(() => {
+    const controller = new AbortController();
+    void workspaceRouteModules.personal().catch(() => undefined);
+    const invalidate = () => controller.abort();
+    // A hidden entry waits for the personal shell's normal visible read.
+    const read: PersonalSessionRead = {
+      signal: controller.signal,
+      result: new Promise((resolve) => {
+        if (document.visibilityState === "hidden") {
+          controller.abort();
+          resolve({ error: new DOMException("Entry hidden", "AbortError") });
+          return;
+        }
+        controller.signal.addEventListener(
+          "abort",
+          () =>
+            resolve({
+              error: new DOMException("Entry obsolete", "AbortError"),
+            }),
+          { once: true },
+        );
+        void personalApi<PersonalSession>("/personal/session", undefined, {
+          signal: controller.signal,
+        }).then(
+          (session) => resolve({ session }),
+          (error: Error) => resolve({ error }),
+        );
+      }),
+    };
+    window.addEventListener("focus", invalidate);
+    document.addEventListener("visibilitychange", invalidate);
+    setInitialSession(read);
+    return () => {
+      invalidate();
+      window.removeEventListener("focus", invalidate);
+      document.removeEventListener("visibilitychange", invalidate);
+    };
+  }, []);
+  return (
+    <Suspense fallback={<Loading />}>
+      {initialSession ? (
+        <PersonalArea route={route} initialSession={initialSession} />
+      ) : (
+        <Loading />
+      )}
+    </Suspense>
+  );
+}
 
 const Overview = lazy(() =>
   workspaceRouteModules
@@ -552,7 +609,7 @@ function WorkspaceApplication({
   if (pathname === "/legal/") return <LegalPage />;
   if (page === "/legal") return <LegalPage />;
   if (!page.startsWith("/app")) return <Landing />;
-  if (personalRoute) return <PersonalArea route={route} />;
+  if (personalRoute) return <PersonalEntry route={route} />;
   if (!ready)
     return (
       <div className="initial-loading">
@@ -689,7 +746,9 @@ function WorkspaceApplication({
   const navigation: readonly NavigationItem<WorkshopEntry | StudioEntry>[] =
     space === "studio" ? studioNavigation : workshopNavigation;
   const navigationName =
-    space === "studio" ? msg("Studio navigation") : msg("Correspondence navigation");
+    space === "studio"
+      ? msg("Studio navigation")
+      : msg("Correspondence navigation");
   const enterWorkspace = async (id: string, target: "workshop" | "studio") => {
     // Let a screen with unsaved work refuse before the session changes.
     if (

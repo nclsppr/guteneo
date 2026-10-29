@@ -134,7 +134,7 @@ test("my documents opens independently of workspace authentication and unused ed
   }
 });
 
-test("the personal header follows the system and switches with one icon without reloading documents", async ({
+test("the shared account menu follows the system and switches theme without reloading documents", async ({
   page,
 }) => {
   const state = await fixture(page);
@@ -160,6 +160,8 @@ test("the personal header follows the system and switches with one icon without 
   const header = page.locator(".personal-space-header");
   const button = header.locator("button[data-theme-toggle]");
   await expect(button).toHaveCount(1);
+  await expect(button).toBeHidden();
+  await header.locator(".workspace-identity-trigger").click();
   await expect(button).toBeVisible();
   await expect(header.locator("select")).toHaveCount(0);
   await expect(root).toHaveAttribute("data-theme-preference", "system");
@@ -167,7 +169,10 @@ test("the personal header follows the system and switches with one icon without 
   await expect(button).toHaveAccessibleName("Switch to light mode");
   const size = await button.boundingBox();
   expect(size?.width).toBeGreaterThanOrEqual(44);
-  expect(size?.height).toBeGreaterThanOrEqual(44);
+  const touch = await page.evaluate(
+    () => matchMedia("(pointer: coarse)").matches,
+  );
+  expect(size?.height).toBeGreaterThanOrEqual(touch ? 44 : 36);
   const readsBeforeAppearance = [...state.reads];
   const changesBefore = await page.evaluate(() =>
     Number(Reflect.get(window, "personalThemeChanges")),
@@ -263,8 +268,16 @@ test("personal navigation retains the verified session and shell without another
       ["/app/my-documents", "Document for personal-performance-a"],
     ]) {
       const start = await page.evaluate(() => performance.now());
+      if (path === "/app/personal-account")
+        await page
+          .locator(".personal-space-header .workspace-identity-trigger")
+          .click();
       await page
-        .locator(`.personal-space-header nav a[href="#${path}"]`)
+        .locator(
+          path === "/app/personal-account"
+            ? `.personal-space-header .workspace-identity-menu a[href="#${path}"]`
+            : `.personal-space-header > nav a[href="#${path}"]`,
+        )
         .click();
       await expect(
         page.getByRole("heading", { name: heading, exact: true }),
@@ -446,5 +459,72 @@ test("discarded workspace reads cannot overwrite personal state and returning re
     page.locator(".workspace-switcher .space-switcher-trigger"),
   ).toHaveAccessibleName("Workspace: Current synthetic workspace");
   expect(workspaceReads).toBe(2);
+  expect(state.writes).toEqual([]);
+});
+
+test("personal account utilities share the menu, dismiss accessibly and follow the current identity", async ({
+  page,
+}, info) => {
+  const state = await fixture(page);
+  await page.goto("/#/app/my-documents");
+  await expect(
+    page.getByRole("heading", {
+      name: "Document for personal-performance-a",
+      exact: true,
+    }),
+  ).toBeVisible();
+  const trigger = page.locator(
+    ".personal-space-header .workspace-identity-trigger",
+  );
+  const menu = page.locator(".personal-space-header .workspace-identity-menu");
+  const reads = [...state.reads];
+  await trigger.click();
+  await expect(menu).toBeVisible();
+  await expect(
+    menu.getByRole("link", { name: "Account and security", exact: true }),
+  ).toBeVisible();
+  await expect(
+    menu.getByRole("link", { name: "Service status", exact: true }),
+  ).toBeVisible();
+  const switchLink = new URL(
+    (await menu
+      .getByRole("link", { name: "Switch account", exact: true })
+      .getAttribute("href")) ?? "",
+    page.url(),
+  );
+  expect(switchLink.searchParams.get("context")).toBe("personal");
+  expect(switchLink.searchParams.get("returnTo")).toBe("/#/app/my-documents");
+  await page.keyboard.press("Escape");
+  await expect(menu).toBeHidden();
+  await expect(trigger).toBeFocused();
+  await trigger.click();
+  await page.locator(".application-switcher .space-switcher-trigger").click();
+  await expect(menu).toBeHidden();
+  await trigger.click();
+  await expect(
+    page.locator(".application-switcher .space-switcher-panel"),
+  ).toBeHidden();
+  expect(state.reads).toEqual(reads);
+  expect(state.writes).toEqual([]);
+  await info.attach("personal-account-menu", {
+    body: await page.screenshot(),
+    contentType: "image/png",
+  });
+  state.switchAccount();
+  await expect(async () => {
+    await refreshSession(page);
+    await expect(page.locator(".workspace-identity-email")).toHaveText(
+      "personal-performance-b@example.invalid",
+      { timeout: 250 },
+    );
+  }).toPass();
+  await expect(menu).toBeHidden();
+  await trigger.click();
+  await menu
+    .getByRole("link", { name: "Account and security", exact: true })
+    .click();
+  await expect(menu).toBeHidden();
+  await page.goBack();
+  await expect(menu).toBeHidden();
   expect(state.writes).toEqual([]);
 });

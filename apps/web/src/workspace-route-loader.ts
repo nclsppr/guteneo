@@ -9,6 +9,7 @@ function routeModule<T>(load: () => Promise<T>) {
 
 // Imports contain UI code only. Components retain their authenticated reads.
 export const workspaceRouteModules = {
+  personal: routeModule(() => import("./personal-area")),
   dispatch: routeModule(() => import("./dispatch-pages")),
   workspace: routeModule(() => import("./workspace-pages")),
   billing: routeModule(() => import("./billing-page")),

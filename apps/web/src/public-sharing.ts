@@ -7,6 +7,10 @@ import editorial from "./locales/messages-editorial.json";
 import shell from "./locales/messages-shell.json";
 import { englishMessages, translateMessage } from "./message-catalog";
 import type { getPublicPageMetadata } from "./public-page-metadata";
+import { LOCALE_CHANGE_EVENT } from "./locale";
+
+if (typeof window !== "undefined")
+  window.addEventListener(LOCALE_CHANGE_EVENT, syncPublicSharing);
 
 let resolvePageMetadata: typeof getPublicPageMetadata | undefined;
 /** Register after catalogs initialize; the locale bootstrap must stay acyclic. */
