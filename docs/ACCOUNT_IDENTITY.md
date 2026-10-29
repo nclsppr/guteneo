@@ -8,6 +8,9 @@ opens **Account and security** through this menu; it does not acquire workspace
 permissions. The personal account-change link retains `context=personal` and the
 current safe destination. Opening utilities reads no additional resource.
 Escape restores trigger focus; navigation and identity replacement close the menu.
+Opening an application, workspace or account panel explicitly closes the other
+panels, including keyboard activation after a pointer did not focus its trigger.
+This presentation event changes no session, authority, route or business data.
 Personal logout retains its existing linked-session revocation and public return.
 [Frontend loading](FRONTEND_PERFORMANCE.md) owns parallel personal bootstrap;
 [Belvédère](BELVEDERE.md) owns the independent platform access hint and guard.

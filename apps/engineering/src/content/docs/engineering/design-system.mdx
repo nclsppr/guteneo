@@ -84,6 +84,9 @@ closed identity trigger must not block another panel through an elevated stackin
 context; only the open account panel needs that priority. Constrain long identity
 text within the sidebar and bound a short mobile personal menu to the viewport,
 with internally scrollable actions and intact touch targets. The
+shared application, workspace and account panels announce their opening so peers
+close without moving focus. Keep this independent of pointer-focus behavior and
+the cancelable workspace-navigation event. The
 [workspace contract](https://github.com/nclsppr/guteneo/blob/main/docs/DASHBOARD_V2.md#compact-sidebar-and-account-menu--29-october-2026-candidate)
 records the measurements.
 

@@ -56,6 +56,8 @@ splits authoring from sending inside the same workspace session:
   bounds the personal menu to the viewport and scrolls its actions. The closed
   account trigger has no elevated stacking layer that can block the application
   or workspace panels; only the open account panel owns that priority.
+  An explicit shared panel-open event closes peer panels without moving focus;
+  mutual exclusion also works when a pointer leaves DOM focus elsewhere.
 
 `apps/web/src/app-routes.ts` owns spaces, Studio addresses, aliases, the current
 navigation entry and preloading; `space-switcher.tsx` and `space-switcher.css`

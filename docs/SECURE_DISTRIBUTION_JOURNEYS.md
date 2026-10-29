@@ -245,3 +245,10 @@ fifteen minutes from approval, actual browser/personal session expiry and quote
 expiry. Revocation, changed identity, missing verification, tenant permissions and
 configuration disagreement still close access; the policy never extends a session,
 creates assistant approval or changes an expert mandate.
+
+Approval creation and its fifteen-minute cap use the same recorded instant across
+asynchronous validation. Crossing a second during validation cannot produce an
+expiry beyond `created_at + 900 seconds` and cause the unchanged SQL guard to
+refuse an otherwise valid approval. A controlled-clock regression covers both
+insertion and reapproval; quote, session, strong-authentication and expert-review
+limits can still shorten the approval.

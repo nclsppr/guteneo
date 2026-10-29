@@ -38,6 +38,11 @@ A valid approval must still match the fingerprint, current permissions, document
 readiness, quote and other gates when acceptance is requested. Merely opening a
 review link or receiving a quote creates no approval.
 
+The fifteen-minute approval cap starts at its recorded creation time. Validation
+may await storage or quote checks, but uses that same instant for the cap;
+session, quote, strong-authentication or expert-review limits can expire sooner.
+The SQL creation/update guards remain authoritative.
+
 <GutenbergNote pose="review" title="Proof first, stamp second">
   An approval seals one exact proof. Change its pages, destination or price and
   it needs another review; the old stamp cannot authorize the new version.

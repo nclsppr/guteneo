@@ -238,7 +238,8 @@ not writable through public routes.
 
 Standard flow: prepare → inspect final content → human approval → confirm.
 [Expert approval](EXPERT_APPROVAL.md) separately uses server review and delegated
-acceptance. Standard approval binds fingerprint for at most 15 minutes; expert
+acceptance. Standard approval binds fingerprint for at most 15 minutes from its
+recorded creation time; asynchronous validation does not restart that cap. Expert
 review lasts five minutes within its mandate. `GET /api/dispatches/:id` returns
 `approval:{fingerprint,expires_at}` only when current/unexpired, otherwise null.
 Approval leaves `prepared`: never infer consent from local state or status alone.

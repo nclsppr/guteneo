@@ -7,6 +7,11 @@ piece automatically. The preparation summary shows the exact associations and
 warns that the first preparation permanently freezes the entire generation,
 including excluded/failed rows. Navigation alone creates no plan or dispatch.
 
+One template id has a current published version and immutable earlier versions.
+Publishing a correction advances that current version; existing generations and
+preparations retain their original version and exact PDFs. Later publications
+continue the same history with automatically assigned version numbers.
+
 Studio preserves the selected template/version through compatible data import,
 replacement and field mapping. Row exclusions survive replacement only when
 row identity/structure can be verified; reordered, inserted, changed or

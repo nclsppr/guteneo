@@ -8,7 +8,7 @@ connector picker displays these fields; if a manual logo field is available,
 use [this canonical PNG](https://guteneo.com/brand/guteneo-mark.png). Installing a
 logo or package grants no account access or approval.
 
-This directory prepares candidate **1.1.18**. Package version, application
+This directory prepares candidate **1.1.19**. Package version, application
 capabilities and MCP server identity follow the same source version; the release
 fingerprint identifies actually served code. Building an archive updates neither
 the server nor a directory. The builder also emits the dedicated

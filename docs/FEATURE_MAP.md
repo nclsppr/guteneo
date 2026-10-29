@@ -561,7 +561,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Bounded durable private rendering serves authorized page images and accessible text; the reader never delivers the original PDF
 - Shared terms of 7/30/90/365 days and personal-copy terms of 365/1095 days; personal-copy options are funded at activation even when unused
 - Versioned prices and separate invitation transport; activated retention commitments are nonrefundable even after revocation
-- Review final pages/text, recipient, message, permissions and quote before browser approval under the active policy; email-request attestation remains separate
+- Review final pages/text, recipient, message, permissions and quote before browser approval under the active policy; email-request attestation remains separate; the fifteen-minute expiry cap uses the recorded approval creation time across asynchronous validation, with all stricter session/quote/review limits retained
 - Atomic activation and outbox insertion require sensitive browser evidence even through REST/MCP confirmation; expert delegation cannot approve this flow
 - Browser-only explicit quote recovery replaces an eligible unsubmitted distribution from its exact stored source, recipient, policy, notification and ceiling; guarded cancellation and a durable marker retain history, deterministic replay returns the same replacement, and new human review is required before activation
 - Opaque invitation moves through same-tab handoff and a POST exchange, never authentication returnTo, logs, MCP responses or public captures

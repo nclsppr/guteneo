@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "app-6ab05fbae9a881918dc6ee4e2f235d93",
-  "version": "1.1.18",
+  "version": "1.1.19",
   "description": "Prepare PDFs, dispatches and account-protected PDF distribution when enabled for your Guteneo account.",
   "author": {
     "name": "NICOLAS PATRICK HENRI FRANK PIEPER"
@@ -50,7 +50,7 @@
         "demo_recording_url": "https://guteneo.com/review/guteneo-chatgpt-demo-20260921.mp4"
       },
       "publication": {
-        "release_notes": "Package 1.1.18 synchronizes browser-only application continuity and canonical-session platform navigation with their shared authentication and observability sources. Existing MCP tools, schemas, annotations, scopes, workflows, approval and provider gates are unchanged. Studio browser corrections preserve immutable prior documents; private correction input and Belvedere remain browser-only. Local package validation does not establish marketplace import, publication, hosted identity or provider delivery.",
+        "release_notes": "Package 1.1.19 aligns the existing fifteen-minute approval expiry cap with its recorded creation time across asynchronous validation. Quote, session, strong-authentication and expert-review limits remain in force. It includes browser application continuity, private correction and canonical-session platform navigation. MCP tools, schemas, annotations, scopes, workflows, consent and provider gates are unchanged. Local package validation establishes no marketplace import, publication, hosted identity or provider delivery.",
         "translations": {
           "fr-FR": {
             "subtitle": "PDF, devis et suivi des envois",
