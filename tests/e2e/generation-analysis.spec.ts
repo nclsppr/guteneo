@@ -8,7 +8,9 @@ import { documentAnalysis } from "../../packages/contracts/src/document-analysis
 
 async function generationFixture(page: Page) {
   await page.goto("/#/app");
-  await page.getByRole("button", { name: "Entrer dans l’Atelier" }).click();
+  await page
+    .getByRole("button", { name: "Entrer dans l’espace de travail" })
+    .click();
   await expect(page.locator(".workspace")).toBeVisible();
   const session = (await (
     await page.request.get("/api/session")

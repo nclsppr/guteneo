@@ -17,7 +17,9 @@ test("the image tool inserts a movable logo, saves original bytes and renders it
   test.setTimeout(90000);
   await page.emulateMedia({ colorScheme: "light" });
   await page.goto("/#/app");
-  await page.getByRole("button", { name: "Entrer dans l’Atelier" }).click();
+  await page
+    .getByRole("button", { name: "Entrer dans l’espace de travail" })
+    .click();
   await expect(page.locator(".workspace")).toBeVisible();
   const session = (await (
     await page.request.get("/api/session")

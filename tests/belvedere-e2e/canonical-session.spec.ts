@@ -123,7 +123,7 @@ test("canonical entry keeps every view, the globe and the shared application/acc
   });
 
   for (const name of [
-    "Ateliers",
+    "Espaces de travail",
     "Envois",
     "Membres",
     "Connexions",

@@ -13,7 +13,9 @@ test("Word import exposes conversion warnings, supports native visual editing an
   test.skip(isMobile, "Native graphical editing is qualified on desktop.");
   test.setTimeout(120000);
   await page.goto("/#/app");
-  await page.getByRole("button", { name: "Entrer dans l’Atelier" }).click();
+  await page
+    .getByRole("button", { name: "Entrer dans l’espace de travail" })
+    .click();
   await expect(
     page.getByRole("heading", { name: "Votre correspondance, au clair." }),
   ).toBeVisible();

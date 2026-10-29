@@ -397,10 +397,25 @@ test("identity stays visible, switching names the account action and profile cha
 });
 
 for (const [locale, heading, roleLabel, contactsHeading] of [
-  ["fr", "Mon profil", "Superviseur", "Qui contacter dans cet atelier ?"],
-  ["en", "My profile", "Supervisor", "Who can help in this workshop?"],
-  ["de", "Mein Profil", "Supervisor", "Wer kann in dieser Werkstatt helfen?"],
-  ["lb", "Mäi Profil", "Supervisor", "Wien kann an dësem Atelier hëllefen?"],
+  [
+    "fr",
+    "Mon profil",
+    "Superviseur",
+    "Qui contacter dans cet espace de travail ?",
+  ],
+  ["en", "My profile", "Supervisor", "Who can help in this workspace?"],
+  [
+    "de",
+    "Mein Profil",
+    "Supervisor",
+    "Wer kann in diesem Arbeitsbereich helfen?",
+  ],
+  [
+    "lb",
+    "Mäi Profil",
+    "Supervisor",
+    "Wien kann an dësem Aarbechtsberäich hëllefen?",
+  ],
 ] as const) {
   test(`account identity and contacts fit long names and addresses in ${locale}`, async ({
     page,
@@ -433,7 +448,7 @@ for (const [locale, heading, roleLabel, contactsHeading] of [
     await capture(page, "profile", info.project.name, locale);
     if (locale === "fr") {
       const rights = page.getByRole("region", {
-        name: "Vos droits dans cet atelier",
+        name: "Vos droits dans cet espace de travail",
         exact: true,
       });
       await expect(
@@ -444,7 +459,7 @@ for (const [locale, heading, roleLabel, contactsHeading] of [
       await expect(
         rights
           .locator(".account-permissions > div")
-          .filter({ hasText: "Rapports de l’atelier" }),
+          .filter({ hasText: "Rapports de l’espace de travail" }),
       ).toContainText("Accessibles");
       const reportContact = contacts
         .locator(".workspace-contact-list > li")
@@ -666,7 +681,7 @@ test("contact failure is recoverable and switching workshops removes the previou
   data.state.failContacts = true;
   await page.goto("/#/app/account");
   const contacts = page.getByRole("region", {
-    name: "Qui contacter dans cet atelier ?",
+    name: "Qui contacter dans cet espace de travail ?",
     exact: true,
   });
   await expect(contacts.getByRole("alert")).toContainText(
@@ -738,7 +753,7 @@ for (const failure of ["network", "malformed"] as const) {
       await ready;
       const name = page.getByLabel("Votre nom", { exact: true });
       const contacts = page.getByRole("region", {
-        name: "Qui contacter dans cet atelier ?",
+        name: "Qui contacter dans cet espace de travail ?",
         exact: true,
       });
       const save = page.getByRole("button", {
@@ -789,7 +804,7 @@ test("malformed contacts leave the profile usable and support an explicit retry"
   data.state.malformedContacts = "missing-items";
   await page.goto("/#/app/account");
   const contacts = page.getByRole("region", {
-    name: "Qui contacter dans cet atelier ?",
+    name: "Qui contacter dans cet espace de travail ?",
     exact: true,
   });
   await expect(contacts.getByRole("alert")).toContainText(
@@ -801,7 +816,7 @@ test("malformed contacts leave the profile usable and support an explicit retry"
   await page.locator("#account-name").fill("Nom personnel toujours modifiable");
   await expect(
     contacts.getByText(
-      "Aucun autre administrateur ou superviseur dans cet atelier.",
+      "Aucun autre administrateur ou superviseur dans cet espace de travail.",
       { exact: true },
     ),
   ).toHaveCount(0);
@@ -836,7 +851,7 @@ test("member emails distinguish identical names and role controls target the sel
   const data = await fixture(page, { role: "admin" });
   await page.goto("/#/app/admin");
   const team = page.getByRole("region", {
-    name: "Membres de l’atelier",
+    name: "Membres de l’espace de travail",
     exact: true,
   });
   await expect(team.getByRole("rowheader")).toHaveCount(2);

@@ -183,6 +183,7 @@ describe("language precedence and resilient preference storage", () => {
     const location = new URL(path, "https://guteneo.com");
     location.search = search;
     vi.stubGlobal("window", {
+      dispatchEvent: vi.fn(),
       location,
       history: {
         state: null,
@@ -339,6 +340,7 @@ describe("language precedence and resilient preference storage", () => {
       stored = null;
     });
     vi.stubGlobal("window", {
+      dispatchEvent: vi.fn(),
       location: url,
       history: { state, replaceState },
       localStorage: { getItem: () => stored, setItem, removeItem },
@@ -361,6 +363,7 @@ describe("language precedence and resilient preference storage", () => {
     const replacement = new URL(String(replaceState.mock.calls[0][2]));
     expect(replacement.href).toBe("https://guteneo.com/?example=1#pricing");
     vi.stubGlobal("window", {
+      dispatchEvent: vi.fn(),
       location: replacement,
       localStorage: { getItem: () => stored, setItem, removeItem },
     });
@@ -511,6 +514,7 @@ describe("language precedence and resilient preference storage", () => {
   it("keeps language selection working when browser storage is unavailable", () => {
     browser(null, ["lb-LU"]);
     vi.stubGlobal("window", {
+      dispatchEvent: vi.fn(),
       location: { search: "" },
       localStorage: {
         getItem: () => {

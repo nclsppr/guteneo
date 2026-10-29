@@ -122,7 +122,9 @@ test("administrator assigns a supervisor and independently saves approval and re
 }, testInfo) => {
   const state = await fixture(page, "admin");
   await page.goto("/#/app/admin");
-  const team = page.getByRole("region", { name: "Membres de l’atelier" });
+  const team = page.getByRole("region", {
+    name: "Membres de l’espace de travail",
+  });
   const role = team.getByLabel("Rôle de Alex Responsable de correspondance", {
     exact: true,
   });
@@ -227,7 +229,7 @@ test("observer sees documents and tracking without preparation controls", async 
   ).toBeVisible();
   await page.goto("/#/app/admin");
   await expect(
-    page.getByRole("heading", { name: "Membres de l’atelier" }),
+    page.getByRole("heading", { name: "Membres de l’espace de travail" }),
   ).toHaveCount(0);
   await expect(
     page.getByText("Votre rôle ne permet pas cette action.", { exact: false }),
@@ -380,7 +382,7 @@ test("switching workspace refreshes its name and permissions without carrying ov
   });
   await page.goto("/#/app/account");
   await expect(
-    page.getByLabel("Nom de l’atelier", { exact: true }),
+    page.getByLabel("Nom de l’espace de travail", { exact: true }),
   ).toHaveValue("Atelier de préparation");
   const switcher = page.locator(
     ".sidebar .workspace-switcher .space-switcher-trigger",
@@ -398,7 +400,7 @@ test("switching workspace refreshes its name and permissions without carrying ov
     location.hash = "#/app/account";
   });
   await expect(
-    page.getByLabel("Nom de l’atelier", { exact: true }),
+    page.getByLabel("Nom de l’espace de travail", { exact: true }),
   ).toHaveValue("Atelier de consultation");
   expect(switches).toEqual([{ organizationId: "second" }]);
 });
@@ -421,7 +423,7 @@ test("an invalid optional workspace response leaves the account form usable", as
   await expect(
     page.getByRole("button", { name: "Enregistrer les modifications" }),
   ).toBeEnabled();
-  await expect(page.getByLabel("Atelier actif")).toHaveCount(0);
+  await expect(page.getByLabel("Espace de travail actif")).toHaveCount(0);
   await expect(
     page.locator(".workspace-contacts").getByRole("alert"),
   ).toHaveCount(0);

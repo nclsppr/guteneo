@@ -189,10 +189,10 @@ for (const [locale, setup, invitationLabel, review, error] of [
   ],
   [
     "fr",
-    "Choix de l’atelier",
-    "Lien d’invitation à l’atelier",
+    "Choix de l’espace de travail",
+    "Lien d’invitation à l’espace de travail",
     "Examiner l’invitation",
-    "Collez le lien complet d’invitation à l’atelier Guteneo.",
+    "Collez le lien complet d’invitation à l’espace de travail Guteneo.",
   ],
   [
     "de",
@@ -203,10 +203,10 @@ for (const [locale, setup, invitationLabel, review, error] of [
   ],
   [
     "lb",
-    "Atelier ariichten",
-    "Invitatiounslink fir den Atelier",
+    "Aarbechtsberäich ariichten",
+    "Invitatiounslink fir den Aarbechtsberäich",
     "Invitatioun iwwerpréiwen",
-    "Setzt de kompletten Invitatiounslink fir de Guteneo-Atelier an.",
+    "Setzt de kompletten Invitatiounslink fir de Guteneo-Aarbechtsberäich an.",
   ],
 ] as const) {
   test(`workspace join validates the invitation and retains recovery in ${locale}`, async ({

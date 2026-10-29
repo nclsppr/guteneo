@@ -98,7 +98,7 @@ test("overview filters, accessible chart and every navigation destination work",
     page.getByRole("heading", { name: "Le monde de guteneo." }),
   ).toBeVisible();
   for (const [name, heading] of [
-    ["Ateliers", "Ateliers"],
+    ["Espaces de travail", "Espaces de travail"],
     ["Envois", "Envois"],
     ["Membres", "Membres"],
     ["Connexions", "Connexions"],
@@ -120,8 +120,8 @@ test("workshop search, detail and paginated consumption keep recipient content p
   page,
 }) => {
   await ready(page);
-  await navigate(page, "Ateliers");
-  await page.getByLabel("Rechercher un atelier").fill("Rives");
+  await navigate(page, "Espaces de travail");
+  await page.getByLabel("Rechercher un espace de travail").fill("Rives");
   await expect(
     page.getByRole("button", { name: "Atelier des Rives", exact: true }),
   ).toBeVisible();
@@ -132,7 +132,7 @@ test("workshop search, detail and paginated consumption keep recipient content p
     page.getByRole("heading", { name: "Atelier des Rives", exact: true }),
   ).toBeVisible();
   await expect(
-    page.getByRole("region", { name: "Envois de l’atelier" }),
+    page.getByRole("region", { name: "Envois de l’espace de travail" }),
   ).toBeVisible();
   await expect(
     page.getByText("Non vérifié", { exact: true }).first(),
@@ -169,8 +169,8 @@ test("one appearance icon follows the system and preserves filters without busin
     });
   });
   await ready(page);
-  await navigate(page, "Ateliers");
-  const search = page.getByLabel("Rechercher un atelier");
+  await navigate(page, "Espaces de travail");
+  const search = page.getByLabel("Rechercher un espace de travail");
   const searchResponse = page.waitForResponse((response) => {
     const url = new URL(response.url());
     return (
@@ -220,7 +220,7 @@ test("one appearance icon follows the system and preserves filters without busin
   await expect(root).toHaveAttribute("data-theme", "light");
   await page.reload();
   await expect(
-    page.getByRole("heading", { name: "Ateliers", exact: true }),
+    page.getByRole("heading", { name: "Espaces de travail", exact: true }),
   ).toBeVisible();
   await expect(root).toHaveAttribute("data-theme-preference", "light");
   await expect(root).toHaveAttribute("data-theme", "light");
@@ -389,7 +389,7 @@ test("capture design evidence across the operational views without page overflow
   await mkdir(dir, { recursive: true });
   for (const [name, id] of [
     ["Synthèse", "overview"],
-    ["Ateliers", "workshops"],
+    ["Espaces de travail", "workspaces"],
     ["Envois", "jobs"],
     ["Membres", "members"],
     ["Connexions", "connections"],

@@ -75,7 +75,7 @@ describe("reviewed workspace terminology compatibility", () => {
         "Import and keep my mapping",
         "Correct and create a new version",
         "Correct source data",
-        "Correct this document’s data",
+        "Correct data",
         "← Original generation",
         "Use this version with the same data",
       ]) {

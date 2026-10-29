@@ -30,7 +30,7 @@ const ids = {
   dispatch: "studio-role-dispatch",
 };
 const reviewNotice =
-  "La préparation rend les PDF sélectionnés consultables par les approbateurs de cet atelier pour examiner ces demandes. Elle ne déclenche aucun envoi.";
+  "La préparation rend les PDF sélectionnés consultables par les approbateurs de cet espace de travail pour examiner ces demandes. Elle ne déclenche aucun envoi.";
 
 async function studioFixture(context: BrowserContext, role: WorkspaceRole) {
   const pdf = await PDFDocument.create();

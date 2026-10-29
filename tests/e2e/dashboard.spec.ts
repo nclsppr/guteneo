@@ -6,7 +6,9 @@ const origin = "http://localhost:8787";
 
 async function login(page: Page) {
   await page.goto("/#/app");
-  await page.getByRole("button", { name: "Entrer dans l’Atelier" }).click();
+  await page
+    .getByRole("button", { name: "Entrer dans l’espace de travail" })
+    .click();
   await expect(
     page.getByRole("heading", { name: "Votre correspondance, au clair." }),
   ).toBeVisible();
@@ -107,7 +109,9 @@ test("overview counters cover the whole organization and open filtered lists", a
 
   // Counters were read at login; reload to show the rows created through the API.
   await page.reload();
-  const stats = page.getByRole("list", { name: "Synthèse de l’atelier" });
+  const stats = page.getByRole("list", {
+    name: "Synthèse de l’espace de travail",
+  });
   await expect(stats.getByRole("link", { name: /^Envois/ })).toContainText(
     String(overview.dispatches.total),
   );
@@ -171,7 +175,7 @@ test("uncertain or failed sends are surfaced on the overview", async ({
   await expect(notice).toBeVisible();
   await expect(
     page
-      .getByRole("list", { name: "Synthèse de l’atelier" })
+      .getByRole("list", { name: "Synthèse de l’espace de travail" })
       .getByRole("link", { name: /^À vérifier/ }),
   ).toContainText("4");
   await notice
@@ -196,7 +200,9 @@ test("an expired session offers a reconnection back to the same page", async ({
     .filter({ hasText: "Votre session a expiré." });
   await expect(expired).toBeVisible();
   await expired.getByRole("button", { name: "Se reconnecter" }).click();
-  await page.getByRole("button", { name: "Entrer dans l’Atelier" }).click();
+  await page
+    .getByRole("button", { name: "Entrer dans l’espace de travail" })
+    .click();
   await expect(page).toHaveURL(/#\/app\/dispatches\?group=approval$/);
   await expect(
     page.getByRole("navigation", { name: "Afficher" }),
@@ -391,7 +397,7 @@ test("sign-out returns to the public site from the account menu", async ({
   await expect(page.locator(".landing")).toBeVisible();
   await expect(page.locator('.site-header a[href="/app"]')).toHaveCount(2);
   await expect(
-    page.getByRole("button", { name: "Entrer dans l’Atelier" }),
+    page.getByRole("button", { name: "Entrer dans l’espace de travail" }),
   ).toHaveCount(0);
   expect((await page.request.get("/api/session")).status()).toBe(401);
 });
@@ -424,7 +430,7 @@ test("dashboard filters, confirmations and expiry copy follow the saved account 
     },
     {
       locale: "lb",
-      summary: "Iwwersiicht vum Atelier",
+      summary: "Iwwersiicht vum Aarbechtsberäich",
       approval: "Fir ze approuvéieren",
       filter: "Uweisen",
       cancel: "Annulatioun ufroen",

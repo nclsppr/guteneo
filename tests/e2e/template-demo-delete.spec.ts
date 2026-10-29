@@ -5,7 +5,9 @@ import type { TemplateView } from "../../packages/contracts/src/template-workflo
 
 async function login(page: Page) {
   await page.goto("/#/app");
-  await page.getByRole("button", { name: "Entrer dans l’Atelier" }).click();
+  await page
+    .getByRole("button", { name: "Entrer dans l’espace de travail" })
+    .click();
   await expect(
     page.getByRole("heading", { name: "Votre correspondance, au clair." }),
   ).toBeVisible();
@@ -264,7 +266,7 @@ test("owner deletes a shared demo with unsaved edits in one named confirmation",
     name: new RegExp(`Supprimer « ${model.name} »`),
   });
   await expect(group).toContainText(
-    "Ce modèle partagé sera retiré pour tous les membres de l’atelier.",
+    "Ce modèle partagé sera retiré pour tous les membres de l’espace de travail.",
   );
   await expect(group).toContainText(
     "Les modifications non enregistrées seront aussi abandonnées.",
