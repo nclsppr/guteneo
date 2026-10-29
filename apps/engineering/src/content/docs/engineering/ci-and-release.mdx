@@ -81,7 +81,10 @@ full CI without inventing new product features or documentation changes.
 The separate dependency-release workflow verifies successful complete CI for the
 exact current `main` push, a genuinely merged Dependabot PR and dependency-only
 files. Only root npm changes qualify for application publication. Service-only
-and workflow-action changes retain their separate release scope. A dedicated
+and workflow-action changes retain their separate release scope. MCP dependency
+changes, including lockfile-only upgrades, also require the
+existing synchronized application/plugin/archive release procedure; it is reported
+as requiring synchronization before publication. A dedicated
 application release token is mandatory; the scanner credential is insufficient.
 The dedicated credential was installed on 29 October. The workflow remains a
 source candidate until authorized merge, current-main checks and its first hosted

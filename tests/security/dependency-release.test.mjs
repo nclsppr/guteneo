@@ -9,6 +9,7 @@ import {
   requireDependencyManifestChange,
   requireMainRun,
   requireSuccessfulJobs,
+  requiresMcpPackageSynchronization,
 } from "../../scripts/ci/dependency-release.mjs";
 
 const sourceCommit = "a".repeat(40);
@@ -64,6 +65,20 @@ const updatedManifest = {
   ...originalManifest,
   dependencies: { example: "1.0.1" },
 };
+const originalLock = {
+  lockfileVersion: 3,
+  packages: {
+    "": originalManifest,
+    "node_modules/example": { version: "1.0.0" },
+  },
+};
+const updatedLock = {
+  lockfileVersion: 3,
+  packages: {
+    "": updatedManifest,
+    "node_modules/example": { version: "1.0.1" },
+  },
+};
 const manifestResponse = (manifest, path = "package.json") => {
   const bytes = Buffer.from(JSON.stringify(manifest));
   return {
@@ -103,6 +118,16 @@ function fixture(overrides = {}) {
       const url = new URL(`https://api.github.com${path}`);
       const filename = url.pathname.split("/contents/")[1];
       const initial = url.searchParams.get("ref") === pull.base.sha;
+      if (filename === "package-lock.json")
+        return (
+          overrides.lockResponse ??
+          manifestResponse(
+            initial
+              ? (overrides.originalLock ?? originalLock)
+              : (overrides.updatedLock ?? updatedLock),
+            filename,
+          )
+        );
       return (
         overrides.manifestResponse ??
         manifestResponse(
@@ -470,6 +495,116 @@ test("qualification reads SHA-pinned base and merged manifests and rejects manua
       }).request,
     ),
     /MANIFEST_CONTENT_INVALID/,
+  );
+});
+
+test("genuine bot MCP manifest changes require synchronized plugin publication", async () => {
+  for (const name of [
+    "agents",
+    "@modelcontextprotocol/client",
+    "@modelcontextprotocol/ext-apps",
+  ]) {
+    const before = {
+      ...originalManifest,
+      dependencies: { ...originalManifest.dependencies, [name]: "2.3.1" },
+    };
+    const after = {
+      ...before,
+      dependencies: { ...before.dependencies, [name]: "2.4.0" },
+    };
+    const { calls, request } = fixture({
+      originalManifest: before,
+      updatedManifest: after,
+    });
+    const result = await qualifyDependencyRelease(context, request);
+    assert.equal(result.eligible, false);
+    assert.equal(result.reason, "mcp-package-synchronization-required");
+    assert.equal(
+      calls.some((path) => path.includes("/jobs?")),
+      false,
+    );
+  }
+});
+
+test("lockfile-only MCP upgrades include nested package entries and require plugin synchronization", async () => {
+  for (const path of [
+    "node_modules/agents",
+    "node_modules/@modelcontextprotocol/sdk",
+    "node_modules/example/node_modules/agents",
+    "node_modules/example/node_modules/@modelcontextprotocol/server",
+  ]) {
+    const initial = {
+      ...originalLock,
+      packages: {
+        ...originalLock.packages,
+        [path]: { version: "2.3.1", integrity: "fixture" },
+      },
+    };
+    const final = {
+      ...initial,
+      packages: {
+        ...initial.packages,
+        [path]: { version: "2.4.0", integrity: "updated-fixture" },
+      },
+    };
+    const { calls, request } = fixture({
+      pull: { ...pull, changed_files: 1 },
+      files: [{ filename: "package-lock.json", status: "modified" }],
+      originalLock: initial,
+      updatedLock: final,
+    });
+    const result = await qualifyDependencyRelease(context, request);
+    assert.equal(result.eligible, false);
+    assert.equal(result.reason, "mcp-package-synchronization-required");
+    for (const revision of [pull.base.sha, context.sourceCommit])
+      assert.ok(
+        calls.includes(
+          `/repos/nclsppr/guteneo/contents/package-lock.json?ref=${revision}`,
+        ),
+      );
+  }
+  const rootMetadataChanged = {
+    ...originalLock,
+    packages: {
+      ...originalLock.packages,
+      "": { dependencies: { "@modelcontextprotocol/sdk": "2.4.0" } },
+    },
+  };
+  assert.equal(
+    requiresMcpPackageSynchronization(
+      originalManifest,
+      originalManifest,
+      originalLock,
+      rootMetadataChanged,
+    ),
+    true,
+  );
+});
+
+test("unchanged MCP packages preserve automatic release for unrelated dependency updates", async () => {
+  const mcpEntry = { version: "2.3.1", integrity: "fixture" };
+  const initial = {
+    ...originalLock,
+    packages: {
+      ...originalLock.packages,
+      "node_modules/@modelcontextprotocol/client": mcpEntry,
+    },
+  };
+  const final = {
+    ...updatedLock,
+    packages: {
+      ...updatedLock.packages,
+      "node_modules/@modelcontextprotocol/client": { ...mcpEntry },
+    },
+  };
+  assert.equal(
+    (
+      await qualifyDependencyRelease(
+        context,
+        fixture({ originalLock: initial, updatedLock: final }).request,
+      )
+    ).eligible,
+    true,
   );
 });
 

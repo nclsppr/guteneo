@@ -55,6 +55,14 @@ eligible. Service-only and workflow-action updates do not publish the applicatio
 service releases retain separate qualification procedures. No pull-request source
 executes with production release credentials.
 
+MCP dependency changes in `agents` or `@modelcontextprotocol/*`, including
+lockfile-only changes, return an explicit synchronization-required result instead
+of automatic publication. They require the reviewed shared application/plugin
+version and rebuilt archive under [LLM_SETUP.md](LLM_SETUP.md#mandatory-mcp-plugin-and-archive-synchronization).
+The current integration fingerprint checks local MCP sources and shared version;
+it does not itself detect external SDK dependency changes. Full green CI alone
+therefore cannot authorize the ordinary dependency-release path for this family.
+
 Only `CLOUDFLARE_APP_RELEASE_API_TOKEN` authorizes application publication.
 Use a dedicated least-privilege token for the existing application and asset
 upload; never reuse the scanner-maintenance token or a personal OAuth session.

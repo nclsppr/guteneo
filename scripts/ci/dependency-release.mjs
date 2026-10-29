@@ -166,11 +166,55 @@ export function requireDependencyManifestChange(before, after) {
   }
 }
 
-async function readManifest(request, path, revision) {
-  demand(
-    manifestPaths.has(path) && path.endsWith("package.json"),
-    "MANIFEST_PATH_INVALID",
+const mcpDependency = (name) =>
+  name === "agents" || name.startsWith("@modelcontextprotocol/");
+const mcpLockPath =
+  /(?:^|\/)node_modules\/(?:agents|@modelcontextprotocol\/[^/]+)$/;
+function mcpManifestDependencies(manifest) {
+  return Object.fromEntries(
+    [...dependencySections].map((section) => [
+      section,
+      Object.fromEntries(
+        Object.entries(manifest[section] ?? {}).filter(([name]) =>
+          mcpDependency(name),
+        ),
+      ),
+    ]),
   );
+}
+function mcpLockedPackages(lockfile) {
+  demand(record(lockfile?.packages), "LOCKFILE_PACKAGES_INVALID");
+  return {
+    root: mcpManifestDependencies(lockfile.packages[""] ?? {}),
+    packages: Object.fromEntries(
+      Object.entries(lockfile.packages).filter(([path]) =>
+        mcpLockPath.test(path),
+      ),
+    ),
+  };
+}
+
+/** MCP package updates require the separately reviewed plugin/version/archive path. */
+export function requiresMcpPackageSynchronization(
+  beforeManifest,
+  afterManifest,
+  beforeLock,
+  afterLock,
+) {
+  return (
+    !isDeepStrictEqual(
+      mcpManifestDependencies(beforeManifest),
+      mcpManifestDependencies(afterManifest),
+    ) ||
+    !isDeepStrictEqual(
+      mcpLockedPackages(beforeLock),
+      mcpLockedPackages(afterLock),
+    )
+  );
+}
+
+async function readManifest(request, path, revision) {
+  demand(manifestPaths.has(path), "MANIFEST_PATH_INVALID");
   demand(sha.test(revision ?? ""), "MANIFEST_REVISION_INVALID");
   const result = await request(
     `/repos/${repository}/contents/${path}?ref=${revision}`,
@@ -182,7 +226,7 @@ async function readManifest(request, path, revision) {
       typeof result.content === "string" &&
       Number.isSafeInteger(result.size) &&
       result.size > 0 &&
-      result.size <= 262144,
+      result.size <= (path.endsWith("package-lock.json") ? 1048576 : 262144),
     "MANIFEST_CONTENT_INVALID",
   );
   const content = result.content.replace(/\n/g, "");
@@ -284,8 +328,43 @@ export async function qualifyDependencyRelease(context, request) {
       reason: "application-dependencies-unchanged",
       sourceCommit: context.sourceCommit,
     };
-  for (const file of files.filter(({ filename }) =>
-    filename.endsWith("package.json"),
+  const beforeManifest = await readManifest(
+    request,
+    "package.json",
+    pull.base.sha,
+  );
+  const afterManifest = await readManifest(
+    request,
+    "package.json",
+    context.sourceCommit,
+  );
+  requireDependencyManifestChange(beforeManifest, afterManifest);
+  const beforeLock = await readManifest(
+    request,
+    "package-lock.json",
+    pull.base.sha,
+  );
+  const afterLock = await readManifest(
+    request,
+    "package-lock.json",
+    context.sourceCommit,
+  );
+  if (
+    requiresMcpPackageSynchronization(
+      beforeManifest,
+      afterManifest,
+      beforeLock,
+      afterLock,
+    )
+  )
+    return {
+      eligible: false,
+      reason: "mcp-package-synchronization-required",
+      sourceCommit: context.sourceCommit,
+    };
+  for (const file of files.filter(
+    ({ filename }) =>
+      filename !== "package.json" && filename.endsWith("package.json"),
   )) {
     const before = await readManifest(request, file.filename, pull.base.sha);
     const after = await readManifest(
