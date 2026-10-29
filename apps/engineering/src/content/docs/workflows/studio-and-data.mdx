@@ -86,9 +86,19 @@ person's current keyboard focus.
 
 ## Distribution freezes a deliberate selection
 
+Studio hands the selected record ids to Correspondence at
+`/app/distribution/new`. Correspondence rechecks the current private generation,
+each selected ready document and its business label before mounting the form.
+It loads its own code and styles; opening a route makes no preparation request.
+Browser Back and the return link preserve the selected ids, while an unsaved
+preparation can veto departure. A late preparation or postal-preflight response
+cannot navigate a later visit or another account/workspace.
+
 Preparing distribution creates ordinary dispatch preparations from generated
 results. It preserves exact destinations and channels; repeated values do not
-authorize merging, deduplicating or switching a recipient's channel.
+authorize merging, deduplicating or switching a recipient's channel. Every new
+destination starts without an assigned PDF, including a selection of one PDF.
+Prepared plans retain `/app/distribution/<id>` and their immutable contents.
 
 The first distribution plan freezes its generation batch and prevents failed-record
 retries, including records outside the selected subset. Finish desired retries

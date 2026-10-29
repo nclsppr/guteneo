@@ -36,8 +36,13 @@ splits authoring from sending inside the same workspace session:
   under `/app/studio/…`; earlier `/app/templates`, `/app/template/<id>`,
   `/app/datasets`, `/app/dataset/<id>`, `/app/generations` and
   `/app/generation/<id>` links resolve there without a request and keep their
-  query. Prepared batches keep `/app/distribution/<id>` and highlight Dispatches.
-  New dispatch appears only in the workshop.
+  query. A selected generation opens `/app/distribution/new` in Correspondence;
+  record ids travel as navigation context and are revalidated before the form
+  appears. The Studio history entry retains the selection for browser Back.
+  Opening the form creates no plan. Prepared batches keep
+  `/app/distribution/<id>` and highlight Dispatches. Both preparation and plan
+  details load Correspondence's own code and styles. New dispatch appears only
+  in the workshop.
 - **Workshop navigation.** It keeps its order without the Studio entries, with
   Assistants immediately after Overview as [the assistant hub](ASSISTANT_HUB.md)
   requires. At 1280 × 720 an administrator's eleven entries and New dispatch fit
@@ -47,6 +52,10 @@ splits authoring from sending inside the same workspace session:
   Correspondence in the current workspace. Personal documents never show a
   workspace switcher. The shared account menu opens personal profile/security,
   theme, account switching, service status and logout; it needs no extra read.
+  Long identities cannot widen the sidebar or viewport. A short mobile screen
+  bounds the personal menu to the viewport and scrolls its actions. The closed
+  account trigger has no elevated stacking layer that can block the application
+  or workspace panels; only the open account panel owns that priority.
 
 `apps/web/src/app-routes.ts` owns spaces, Studio addresses, aliases, the current
 navigation entry and preloading; `space-switcher.tsx` and `space-switcher.css`
