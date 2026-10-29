@@ -2,7 +2,8 @@ import { Moon, Sun } from "@phosphor-icons/react";
 import { msg } from "./messages";
 import { useResolvedTheme } from "./theme";
 
-export function ThemeToggle() {
+/** A labelled instance also shows its action, for use inside a menu. */
+export function ThemeToggle({ labelled = false }: { labelled?: boolean }) {
   const theme = useResolvedTheme();
   const lightAction = msg("Switch to light mode");
   const darkAction = msg("Switch to dark mode");
@@ -10,7 +11,11 @@ export function ThemeToggle() {
 
   return (
     <button
-      className="theme-toggle public-theme-toggle"
+      className={
+        labelled
+          ? "theme-toggle theme-toggle-labelled"
+          : "theme-toggle public-theme-toggle"
+      }
       type="button"
       data-theme-toggle="true"
       data-theme-label-light={lightAction}
@@ -20,6 +25,7 @@ export function ThemeToggle() {
     >
       <Sun size={21} data-theme-icon="light" aria-hidden="true" />
       <Moon size={21} data-theme-icon="dark" aria-hidden="true" />
+      {labelled && <span>{action}</span>}
     </button>
   );
 }

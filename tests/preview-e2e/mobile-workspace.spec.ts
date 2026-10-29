@@ -35,6 +35,8 @@ for (const appearance of ["classic", "v2"] as const) {
     await expect(nav).toBeVisible();
     const links = nav.getByRole("link");
     const destinations = [
+      // V2 keeps its New dispatch shortcut on every page.
+      ...(appearance === "v2" ? ["#/app/prepare"] : []),
       "#/app",
       "#/app/connection",
       "#/app/documents",
@@ -72,6 +74,16 @@ for (const appearance of ["classic", "v2"] as const) {
       '.sidebar-account a.workspace-identity-profile[href="#/app/account"]',
     );
     await expect(account).toHaveCount(1);
+    if (appearance === "v2") {
+      // One account row outside the navigation opens the profile link.
+      const trigger = page.locator(
+        ".sidebar-account .workspace-identity-trigger",
+      );
+      await expect(trigger).toBeVisible();
+      expect((await trigger.boundingBox())?.height).toBeGreaterThanOrEqual(44);
+      await trigger.click();
+      await expect(trigger).toHaveAttribute("aria-expanded", "true");
+    }
     await expect(account).toBeVisible();
     expect((await account.boundingBox())?.height).toBeGreaterThanOrEqual(44);
     expect((await account.boundingBox())?.width).toBeGreaterThanOrEqual(44);
@@ -136,6 +148,47 @@ for (const appearance of ["classic", "v2"] as const) {
     await expect(summary).toBeFocused();
   });
 }
+
+test("mobile v2 account menu keeps 44 pixel items and closes on Escape or outside", async ({
+  page,
+  browserName,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/?appearance=v2#/app");
+  const trigger = page.locator(".sidebar-account .workspace-identity-trigger");
+  const menu = page.locator(".workspace-identity-menu");
+  await expect(menu).toBeHidden();
+  await trigger.focus();
+  await page.keyboard.press("Enter");
+  await expect(trigger).toHaveAttribute("aria-expanded", "true");
+  const items = menu.locator("li > :is(a, button)");
+  await expect(items).toHaveCount(4);
+  for (const item of await items.all())
+    expect((await item.boundingBox())?.height).toBeGreaterThanOrEqual(44);
+  // The preview has no account switching; theme and sign-out stay available.
+  await expect(menu.locator(".theme-toggle")).toBeVisible();
+  await expect(
+    menu.getByRole("button", { name: "Se déconnecter", exact: true }),
+  ).toBeVisible();
+  // WebKit's native Tab skips links and buttons: focus the first item there.
+  if (browserName === "webkit") await items.first().focus();
+  else await page.keyboard.press("Tab");
+  expect(
+    await menu.evaluate((element) => element.contains(document.activeElement)),
+  ).toBe(true);
+  await page.keyboard.press("Escape");
+  await expect(menu).toBeHidden();
+  await expect(trigger).toBeFocused();
+  await expect(trigger).toHaveAttribute("aria-expanded", "false");
+  await trigger.click();
+  await expect(menu).toBeVisible();
+  // The open menu covers the page heading; select an uncovered area instead.
+  await page.locator(".sidebar .organization").click();
+  await expect(menu).toBeHidden();
+  expect(
+    await page.evaluate(() => document.documentElement.scrollWidth),
+  ).toBeLessThanOrEqual(390);
+});
 
 test("mobile navigation preserves restored summary focus after deferred route frames", async ({
   page,

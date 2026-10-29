@@ -343,6 +343,11 @@ test("identity stays visible, switching names the account action and profile cha
   await expect(identity).toContainText(data.session.user.name);
   await expect(identity).toContainText(data.session.user.email!);
   await expect(identity).not.toContainText("Opérateur");
+  // V2 shows one account row; its menu names the account actions.
+  const trigger = identity.locator(".workspace-identity-trigger");
+  await expect(trigger).toHaveAccessibleName(data.session.user.name);
+  await trigger.click();
+  await expect(trigger).toHaveAttribute("aria-expanded", "true");
   const switchAccount = identity.getByRole("link", {
     name: "Changer de compte",
     exact: true,
@@ -520,6 +525,7 @@ test("the profile is the sole connected language setting and persists after focu
   await expect(identity).toHaveAttribute("aria-label", "Votre compte");
   await expect(page.locator(".workspace-contact-list > li")).toHaveCount(3);
   await expect(page.locator('select[name="language"]')).toHaveCount(0);
+  await identity.locator(".workspace-identity-trigger").click();
   await identity
     .getByRole("link", { name: /Mon profil et mes droits/ })
     .click();

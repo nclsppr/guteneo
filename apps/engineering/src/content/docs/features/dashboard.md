@@ -1,6 +1,6 @@
 ---
 title: "Workspace layout and browser appearance"
-description: "23 capabilities in the operate branch of Guteneo."
+description: "24 capabilities in the operate branch of Guteneo."
 sidebar:
   order: 18
 ---
@@ -9,7 +9,7 @@ sidebar:
 
 **Access boundary:** Authenticated browser session.
 
-Classic/V2 account layout authority is unchanged. The initial 25 October theme integration and removal of decorative panels were published from main 03daa4136de8999cc79018f33f2a22038917c621. The personal Classic/V2 account and Belvédère visual follow-up requires its own exact-source release proof and grants no new business authority. The shared outlined personal-context navigation refinement is a local source candidate requiring its own rendered and publication evidence.
+Classic/V2 account layout authority is unchanged. The initial 25 October theme integration and removal of decorative panels were published from main 03daa4136de8999cc79018f33f2a22038917c621. The personal Classic/V2 account and Belvédère visual follow-up requires its own exact-source release proof and grants no new business authority. The shared outlined personal-context navigation refinement is a local source candidate requiring its own rendered and publication evidence. The 29 October compact V2 navigation and account-menu refinement is a local source candidate requiring CI and publication evidence.
 
 **Surfaces:** Authenticated web Classic/V2; native reads preference without a setter; no new business API/MCP authority.
 
@@ -19,7 +19,7 @@ Classic/V2 account layout authority is unchanged. The initial 25 October theme i
 
 <ol>
 <li id="feature-7a4ccbd0bd61">Full real-web Classic/V2 views with the same account, tenant, resources and operations</li>
-<li id="feature-710246fc5db2">Account at navigation bottom, saved Classic/V2 layout beside language, applied after a successful profile save; mobile identity remains visible with the menu closed and its V2 profile link retains a 44 px touch target; role and detailed permissions live on My account; native mobile details closes synchronously on Escape before a queued toggle reaches React, preserving summary focus and keyboard activation</li>
+<li id="feature-5e0b4c44d25a">Account at navigation bottom, saved Classic/V2 layout beside language, applied after a successful profile save; mobile identity remains visible with the menu closed; the V2 account row opens a disclosure menu with name/email, profile, the shared labelled light/dark action, account switching, service status and sign-out, closing on Escape with focus returned and keeping 44 px touch targets; role and detailed permissions live on My account; native mobile details closes synchronously on Escape before a queued toggle reaches React, preserving summary focus and keyboard activation</li>
 <li id="feature-381a3c15fb47">Personal users.preferred_dashboard_appearance, migration 0053, V2 persisted for new accounts and used by browser fallbacks; existing saved Classic/V2 choices and cross-workshop/session/device reconciliation preserved</li>
 <li id="feature-b0052b732cc5">Personal documents apply the same saved Classic/V2 account layout in a shell filling the available width with responsive gutters and readable internal form measures, with lightweight independent navigation; personal and workshop customization reuse small shared language/theme/layout controls, preserving personal-only access and existing guarded PATCH authority</li>
 <li id="feature-55247ef6b5a3">Strict browser account PATCH with current authority, Origin/CSRF and field-name audit; every role changes only its own preference</li>
@@ -27,8 +27,9 @@ Classic/V2 account layout authority is unchanged. The initial 25 October theme i
 <li id="feature-0d9480f7a3c4">Existing activity/alerts precede introduction, otherwise a complete welcome; content preview precedes approval in reading/tab order</li>
 <li id="feature-f782ed0bec1e">Stable PDF frame above dispatch-review and document-page verification-purchase consent across lazy module loading/render/error, keyboard-accessible internal scrolling and unchanged consent/data authority</li>
 <li id="feature-43c670d1e2f2">Consistent documents, preparation, review, tracking, assistants, account, studio, PDF verification, credits, tables and forms; secure-document price panels retain their padding and consent with a fine one-pixel cobalt side rule; Belvédère shares the V2 visual vocabulary while retaining distinct platform authority and read-only data; recursive diagnostics keep outer key/value columns and stack nested fields without zero-width values or page overflow</li>
-<li id="feature-f6ae6cdc6735">One brand signature, workshop in navigation and no redundant V2 footer; service status near account and browser timezone near dates</li>
-<li id="feature-c3aa6a7a246e">One page title, contextual detail back link and task-specific primary action; global New dispatch stays secondary and permission-aware</li>
+<li id="feature-95a169d16b0e">One brand signature, workshop in navigation and no redundant V2 footer; service status in the account menu and browser timezone near dates</li>
+<li id="feature-5b4b0c9f4ed0">One page title, contextual detail back link and task-specific primary action as the screen's only filled button; global New dispatch keeps one secondary, permission-aware place on every V2 page and is repeated in the Overview/Dispatches heading only on narrow screens</li>
+<li id="feature-8399de16fb2b">Compact V2 desktop navigation keeps every destination in view from 864 px high with 34 px pointer rows, fades a cut-off entry while the list still scrolls, draws keyboard focus inside clipped rows and gives each destination one icon shared with Classic; touch layouts keep 44 px targets</li>
 <li id="feature-ee17fdbe452e">Generation introduction focuses on finding PDFs and makes clear that generation sends nothing</li>
 <li id="feature-c05a54a82392">Official identity and real documents, metrics and controls remain; decorative DashboardArtwork panels and swallow styling are retired from overview, empty Documents and assistant introduction, without replacement illustrations</li>
 <li id="feature-4d010bc7a846">Four-language labels; simulation notices only for simulated sessions</li>

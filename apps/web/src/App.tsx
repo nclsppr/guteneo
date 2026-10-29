@@ -4,11 +4,15 @@ import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import {
   ArrowRight,
   Check,
+  FileLock,
+  FilePdf,
   FileText,
   PaperPlaneTilt,
+  Printer,
   SquaresFour,
   Files,
   Stack,
+  Table,
   PlugsConnected,
   UserCircle,
   ChartBar,
@@ -211,18 +215,20 @@ function SessionExpiredNotice({ onReconnect }: { onReconnect: () => void }) {
   );
 }
 
+// One glyph per destination. Files stays with My documents, as in the
+// personal space; workshop documents are the PDF library.
 const navigation = [
   { id: "overview", path: "/app", Icon: SquaresFour },
   { id: "connection", path: "/app/connection", Icon: PlugsConnected },
-  { id: "documents", path: "/app/documents", Icon: Files },
+  { id: "documents", path: "/app/documents", Icon: FilePdf },
   {
     id: "secure-distributions",
     path: "/app/secure-distributions",
-    Icon: Files,
+    Icon: FileLock,
   },
   { id: "templates", path: "/app/templates", Icon: FileText },
-  { id: "datasets", path: "/app/datasets", Icon: Stack },
-  { id: "generations", path: "/app/generations", Icon: SquaresFour },
+  { id: "datasets", path: "/app/datasets", Icon: Table },
+  { id: "generations", path: "/app/generations", Icon: Printer },
   { id: "dispatches", path: "/app/dispatches", Icon: PaperPlaneTilt },
   { id: "campaigns", path: "/app/campaigns", Icon: Stack },
   { id: "senders", path: "/app/senders", Icon: AddressBook },
@@ -767,14 +773,13 @@ function WorkspaceApplication({
                 </span>
               </a>
             )}
-            {appearance === "v2" &&
-              permissions.prepareDispatches &&
-              !["/app", "/app/prepare", "/app/dispatches"].includes(page) && (
-                <a className="button workspace-create" href="#/app/prepare">
-                  <Plus size={19} aria-hidden="true" />
-                  {t.dispatch.new}
-                </a>
-              )}
+            {/* Present on every page so the entries below never move. */}
+            {appearance === "v2" && permissions.prepareDispatches && (
+              <a className="button workspace-create" href="#/app/prepare">
+                <Plus size={19} aria-hidden="true" />
+                {t.dispatch.new}
+              </a>
+            )}
             {navigation
               .filter((n) => appearance !== "v2" || n.id !== "account")
               .filter(
@@ -834,24 +839,29 @@ function WorkspaceApplication({
                 </a>
               ))}
           </nav>
-          <button
-            type="button"
-            className="navigation-logout"
-            onClick={() => void logout()}
-          >
-            <SignOut size={21} aria-hidden="true" />
-            {t.login.logout}
-          </button>
+          {/* V2 signs out from the account menu, outside the navigation. */}
+          {appearance !== "v2" && (
+            <button
+              type="button"
+              className="navigation-logout"
+              onClick={() => void logout()}
+            >
+              <SignOut size={21} aria-hidden="true" />
+              {t.login.logout}
+            </button>
+          )}
         </details>
         <div className="sidebar-account">
-          <WorkspaceIdentity session={session} />
+          <WorkspaceIdentity session={session} onLogout={logout} />
         </div>
-        <div className="sidebar-footer">
-          <button onClick={() => void logout()}>
-            <SignOut size={19} />
-            {t.login.logout}
-          </button>
-        </div>
+        {appearance !== "v2" && (
+          <div className="sidebar-footer">
+            <button onClick={() => void logout()}>
+              <SignOut size={19} />
+              {t.login.logout}
+            </button>
+          </div>
+        )}
       </aside>
       <div className="workspace-main">
         {session.simulation && (

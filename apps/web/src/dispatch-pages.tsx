@@ -345,7 +345,10 @@ export function Overview({ session }: { session: Session }) {
           action={
             appearance === "v2" &&
             permissions.prepareDispatches && (
-              <a className="button primary" href="#/app/prepare">
+              <a
+                className="button primary heading-new-dispatch"
+                href="#/app/prepare"
+              >
                 <Plus size={18} aria-hidden="true" />
                 {t.dispatch.new}
               </a>
@@ -1698,7 +1701,10 @@ export function DispatchList({ canPrepare = true }: { canPrepare?: boolean }) {
         intro={t.dispatch.listIntro}
         action={
           canPrepare && (
-            <a className="button primary" href="#/app/prepare">
+            <a
+              className="button primary heading-new-dispatch"
+              href="#/app/prepare"
+            >
               <Plus size={18} aria-hidden="true" />
               {t.dispatch.new}
             </a>
