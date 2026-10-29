@@ -1,3 +1,4 @@
+import { readdirSync, readFileSync } from "node:fs";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   catalogs,
@@ -49,6 +50,21 @@ describe("complete product language catalogs", () => {
         );
       }
     }
+  });
+  it("translates every literal API protocol error the web may display", () => {
+    const directory = new URL("../../apps/api/src/", import.meta.url);
+    const literals = readdirSync(directory)
+      .filter((file) => file.endsWith(".ts"))
+      .flatMap((file) =>
+        [
+          ...readFileSync(new URL(file, directory), "utf8").matchAll(
+            /message: "([^"]+)"/g,
+          ),
+        ].map((match) => match[1]),
+      );
+    expect(literals.length).toBeGreaterThan(0);
+    for (const literal of new Set(literals))
+      expect(messages[literal], literal).toBeDefined();
   });
   it("updates previously imported catalog bindings and render-time pricing", () => {
     const initial = t.landing.title;

@@ -8,7 +8,7 @@ An independent, MCP-first correspondence product: exact PDF → fax or physical 
 
 ## Run locally
 
-Requires Node22.16+ and npm. Use localhost exactly (Origin/CSRF are checked).
+Requires Node 24+ (see `.nvmrc`) and npm. Use localhost exactly (Origin/CSRF are checked).
 
 ```sh
 npm ci

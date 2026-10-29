@@ -4,14 +4,16 @@ The required checks remain **verify** and **scanner**. This workflow builds and 
 
 ## Independent work
 
-- `checks`: TypeScript, ESLint, exact local migration transport/schema verification and the existing cost-model report.
+- `checks`: a blocking `npm audit --omit=dev --audit-level=high`, TypeScript, ESLint, exact local migration transport/schema verification and the existing cost-model report.
 - `vitest`: four native Vitest shards on separate runners. Files remain sequential inside each shard; process isolation, D1/R2 fixtures and all transaction/race assertions are unchanged. Only the Chromium PDF integration is excluded here and run in `security`.
 - `security`: the exact-PDF Chromium integration and **every** Node security test, including Chromium and WebKit setup-form tests. The renderer's existing narrow AppArmor allowance was moved unchanged into `scripts/ci/chromium-sandbox.mjs`; no browser sandbox is disabled.
 - `build`: builds local application, live and fictional preview assets once each, plus both existing Wrangler dry runs. Their distinct compilation flags and release manifests are retained. TypeScript runs in `checks` rather than again through `npm run build`. The two browser asset directories are passed to browser jobs as a same-run, SHA-named artifact; these are test artifacts, not approved deployment bundles.
 - `browser`: three isolated runners for desktop Chromium, mobile Chromium and iPhone WebKit. Each migrates/seeds its own D1 and retains one Playwright worker. Desktop and iPhone also exercise their corresponding public-preview project. WebKit's job installs Chromium too, because the local PDF renderer needs it. CI's explicit `GUTENEO_E2E_PREBUILT=true` starts the existing local server without rebuilding the supplied application artifact; normal local commands continue to build as before.
-- `scanner`: retains its separate dependency installation, typecheck and complete scanner test suite.
+- `scanner`: retains its separate dependency installation, the same production audit, typecheck and complete scanner test suite.
 
 `verify` uses `always()` and depends on every job above. Failed, cancelled or skipped dependencies cannot produce a successful final gate. It merges the five native Vitest blob reports without rerunning tests, checks every assertion succeeded and compares the resulting file list with all current `tests/unit/**/*.test.ts` and `tests/integration/**/*.test.ts`. Missing, duplicated and unexpected files fail. There is no fixed assertion total to update when tests are added. The matrix uses `fail-fast: false` so a failure in one shard preserves the other shards' evidence.
+
+Node is taken from `.nvmrc` in every job. `.github/dependabot.yml` proposes weekly grouped updates; `agents` and the `@modelcontextprotocol/*` packages move in one group because `agents` pins exact MCP peers, and `wrangler` moves with `miniflare` because it bundles its own copy.
 
 ## Evidence and caches
 

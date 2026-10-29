@@ -37,6 +37,7 @@ import {
 import { recordSuccessfulConnectionTool } from "./connection-observations";
 import { z } from "zod";
 import { ContentError, LIMITS } from "../../../packages/contracts/src/content";
+import { GUTENEO_VERSION } from "../../../packages/contracts/src/version";
 import {
   postalReviewInputSchema,
   type PostalReviewInput,
@@ -594,7 +595,7 @@ export function createGuteneoMcpServer(
 ): McpServer {
   const server = new McpServer({
     name: "guteneo",
-    version: "0.3.0",
+    version: GUTENEO_VERSION,
     icons: [
       {
         src: `${env.APP_ORIGIN}/brand/guteneo-mark.png`,

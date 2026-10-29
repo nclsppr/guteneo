@@ -407,5 +407,50 @@
     "Updated on 22 September 2026",
     "Aktualisiert am 22. September 2026",
     "Aktualiséiert den 22. September 2026"
+  ],
+  "Trop de requêtes. Réessayez dans une minute.": [
+    "Too many requests. Try again in a minute.",
+    "Zu viele Anfragen. Versuchen Sie es in einer Minute erneut.",
+    "Ze vill Ufroen. Probéiert et an enger Minutt nach eng Kéier."
+  ],
+  "Méthode non autorisée.": [
+    "Method not allowed.",
+    "Methode nicht zulässig.",
+    "Method net erlaabt."
+  ],
+  "Méthode indisponible.": [
+    "Method unavailable.",
+    "Methode nicht verfügbar.",
+    "Method net verfügbar."
+  ],
+  "Route introuvable.": [
+    "Route not found.",
+    "Route nicht gefunden.",
+    "Route net fonnt."
+  ],
+  "Route de facturation introuvable.": [
+    "Billing route not found.",
+    "Abrechnungsroute nicht gefunden.",
+    "Ofrechnungsroute net fonnt."
+  ],
+  "Requête trop volumineuse.": [
+    "Request too large.",
+    "Anfrage zu groß.",
+    "Ufro ze grouss."
+  ],
+  "Données invalides.": [
+    "Invalid data.",
+    "Ungültige Daten.",
+    "Ongëlteg Donnéeën."
+  ],
+  "Configuration du service invalide.": [
+    "Invalid service configuration.",
+    "Ungültige Dienstkonfiguration.",
+    "Ongëlteg Servicekonfiguratioun."
+  ],
+  "Cette opération n’est pas disponible dans l’application iOS.": [
+    "This operation is not available in the iOS app.",
+    "Dieser Vorgang ist in der iOS-App nicht verfügbar.",
+    "Dës Operatioun ass an der iOS-App net verfügbar."
   ]
 }

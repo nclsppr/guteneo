@@ -19,10 +19,11 @@ jobs:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
         with:
-          node-version: "24"
+          node-version-file: .nvmrc
           cache: npm
           cache-dependency-path: apps/scanner/package-lock.json
       - run: npm ci --prefix apps/scanner
+      - run: npm audit --prefix apps/scanner --omit=dev --audit-level=high
       - run: npm --prefix apps/scanner run typecheck
       - run: npm --prefix apps/scanner test
 
@@ -33,9 +34,10 @@ jobs:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
         with:
-          node-version: "24"
+          node-version-file: .nvmrc
           cache: npm
       - run: npm ci
+      - run: npm audit --omit=dev --audit-level=high
       - run: npm run typecheck
       - run: npm run lint
       - run: node scripts/migrate-remote.mjs --verify
@@ -59,7 +61,7 @@ jobs:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
         with:
-          node-version: "24"
+          node-version-file: .nvmrc
           cache: npm
       - run: npm ci
       # Every shard retains sequential files and isolated Miniflare databases.
@@ -99,7 +101,7 @@ jobs:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
         with:
-          node-version: "24"
+          node-version-file: .nvmrc
           cache: npm
       - run: npm ci
       # Security setup forms exercise both engines, not just Chromium.
@@ -139,7 +141,7 @@ jobs:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
         with:
-          node-version: "24"
+          node-version-file: .nvmrc
           cache: npm
       - run: npm ci
       # Typecheck runs once in checks. These are the same two steps as build.
@@ -180,7 +182,7 @@ jobs:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
         with:
-          node-version: "24"
+          node-version-file: .nvmrc
           cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps ${{ matrix.browsers }}
@@ -224,7 +226,7 @@ jobs:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
         with:
-          node-version: "24"
+          node-version-file: .nvmrc
           cache: npm
       - run: npm ci
       - uses: actions/download-artifact@v8

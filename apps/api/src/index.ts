@@ -59,6 +59,7 @@ import { postalBrowserAuthority, postalMcpAuthority } from "./postal-authority";
 import { expertPostalAuthority } from "./expert-approval";
 import { getExpertStatus } from "./expert-status";
 import { postalReviewInputSchema } from "../../../packages/contracts/src/postal-review";
+import { GUTENEO_VERSION } from "../../../packages/contracts/src/version";
 
 import {
   startObservation,
@@ -82,7 +83,7 @@ function identityConfigured(env: Env) {
 export function getCapabilities(env: Env) {
   return {
     name: "Guteneo",
-    version: "0.2.2",
+    version: GUTENEO_VERSION,
     mode: env.MODE,
     simulation: env.MODE === "simulation",
     humanApproval: "authenticated_browser",

@@ -1,0 +1,39 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      # agents pins exact MCP SDK peers: they must move together or npm ci fails.
+      mcp:
+        patterns: ["agents", "@modelcontextprotocol/*"]
+      # wrangler bundles its own miniflare; the direct dependency must match it.
+      cloudflare:
+        patterns: ["wrangler", "miniflare", "@cloudflare/*"]
+      minor-and-patch:
+        update-types: [minor, patch]
+        exclude-patterns:
+          [
+            "agents",
+            "@modelcontextprotocol/*",
+            "wrangler",
+            "miniflare",
+            "@cloudflare/*",
+          ]
+  - package-ecosystem: npm
+    directory: /apps/scanner
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 3
+    groups:
+      minor-and-patch:
+        update-types: [minor, patch]
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      actions:
+        patterns: ["*"]
