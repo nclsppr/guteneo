@@ -485,7 +485,7 @@ test("direct authentication and recovery preserve the requested guide or sending
     } else if (url.pathname === "/api/capabilities") {
       await route.fulfill({ json: { registration: { enabled: true } } });
     } else if (["/auth/login", "/auth/signup"].includes(url.pathname)) {
-      await route.fulfill({ status: 204 });
+      await route.abort("aborted");
       authRequests.push(url.href);
     } else if (/^\/(api|auth|oauth|mcp)(\/|$)/.test(url.pathname)) {
       unexpected.push(`${request.method()} ${url.pathname}`);
@@ -508,7 +508,7 @@ test("direct authentication and recovery preserve the requested guide or sending
     ]) {
       const priorRequests = authRequests.length;
       // The auto handoff can replace the entry before its load event. The
-      // fulfilled auth request below is the evidence that entry completed.
+      // intercepted auth request below is the evidence that entry completed.
       await page.goto("about:blank");
       await page.goto(`${testOrigin}${destination}`, { waitUntil: "commit" });
       await expect.poll(() => authRequests.length).toBe(priorRequests + 1);
