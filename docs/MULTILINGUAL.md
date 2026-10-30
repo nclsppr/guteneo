@@ -272,6 +272,13 @@ identical across languages. Never call `msg` on identifiers, form values,
 names or user content. Construct label-bearing arrays at render or through a
 getter so language changes need no reload.
 
+API error messages stay English and the web translates them through `msg`.
+`tests/unit/server-message-translations.test.ts` fails when a message thrown in
+`apps/api/src`, `packages/contracts/src` or `packages/domain/src` has no French,
+German or Luxembourgish entry. Files whose messages reach another audience
+(Belvédère's own catalog, MCP, the native app, operator checks) are listed there
+with the reason.
+
 `tests/unit/web-locale.test.ts` checks catalog parity/parameters. Browser
 `locale.spec.ts` and `locale-boundaries.spec.ts` check visitor/account selection.
 Native translations are bundled in

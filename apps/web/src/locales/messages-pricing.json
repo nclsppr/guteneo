@@ -57,5 +57,120 @@
     "Indicativ Beträg ouni Steieren, kontrolléiert de 17. September 2026. Dollarpräisser ëmgewandelt mam EZB-Cours vum 16. September: 1 € = 1,1537 US-Dollar. De gëltege Präis an d’Optioune stinn am Devis virun der Validatioun. Bréifpost ass no der Ariichtung an Ärem ageloggten Aarbechtsberäich disponibel; d’Virschau bleift eng Demonstratioun ouni richteg Sendungen."
   ],
   "≈ 0,28 €": ["≈ €0.28", "≈ 0,28 €", "≈ 0,28 €"],
-  "≈ 0,05–0,17 €": ["≈ €0.05–0.17", "≈ 0,05–0,17 €", "≈ 0,05–0,17 €"]
+  "≈ 0,05–0,17 €": ["≈ €0.05–0.17", "≈ 0,05–0,17 €", "≈ 0,05–0,17 €"],
+  "La facturation Stripe doit être connectée avant cette opération.": [
+    "Stripe billing must be connected before this operation.",
+    "Die Stripe-Abrechnung muss vor diesem Vorgang verbunden sein.",
+    "D’Stripe-Ofrechnung muss virun dëser Operatioun verbonne sinn."
+  ],
+  "Stripe est temporairement indisponible.": [
+    "Stripe is temporarily unavailable.",
+    "Stripe ist vorübergehend nicht verfügbar.",
+    "Stripe ass temporär net disponibel."
+  ],
+  "Stripe n’a pas confirmé cette opération.": [
+    "Stripe has not confirmed this operation.",
+    "Stripe hat diesen Vorgang nicht bestätigt.",
+    "Stripe huet dës Operatioun net bestätegt."
+  ],
+  "La réponse de Stripe n’est pas valide.": [
+    "The Stripe response is invalid.",
+    "Die Antwort von Stripe ist ungültig.",
+    "D’Äntwert vu Stripe ass ongëlteg."
+  ],
+  "La facturation est réservée aux administrateurs de l’espace de travail.": [
+    "Billing is restricted to workspace administrators.",
+    "Die Abrechnung ist den Administratoren des Arbeitsbereichs vorbehalten.",
+    "D’Ofrechnung ass fir d’Administrateure vum Aarbechtsberäich reservéiert."
+  ],
+  "Page de facturation introuvable.": [
+    "Billing page not found.",
+    "Abrechnungsseite nicht gefunden.",
+    "Ofrechnungssäit net fonnt."
+  ],
+  "Un espace de travail de simulation ne peut pas utiliser la facturation réelle.": [
+    "A simulation workspace cannot use live billing.",
+    "Ein Simulationsarbeitsbereich kann keine echte Abrechnung verwenden.",
+    "En Simulatiounsaarbechtsberäich kann keng richteg Ofrechnung benotzen."
+  ],
+  "Un opérateur doit vérifier le rattachement du compte Stripe.": [
+    "An operator must verify the Stripe account binding.",
+    "Ein Betreiber muss die Verknüpfung des Stripe-Kontos überprüfen.",
+    "En Operateur muss d’Verknëppung vum Stripe-Kont iwwerpréiwen."
+  ],
+  "Le compte Stripe renvoyé ne correspond pas à cet espace de travail.": [
+    "The returned Stripe account does not match this workspace.",
+    "Das zurückgegebene Stripe-Konto passt nicht zu diesem Arbeitsbereich.",
+    "De zréckginnene Stripe-Kont passt net zu dësem Aarbechtsberäich."
+  ],
+  "Un en-tête Idempotency-Key de 8 à 128 caractères est requis.": [
+    "An Idempotency-Key of 8 to 128 characters is required.",
+    "Ein Idempotency-Key mit 8 bis 128 Zeichen ist erforderlich.",
+    "En Idempotency-Key vun 8 bis 128 Zeechen ass néideg."
+  ],
+  "Connectez d’abord cet espace de travail à Stripe.": [
+    "Connect this workspace to Stripe first.",
+    "Verbinden Sie diesen Arbeitsbereich zuerst mit Stripe.",
+    "Verbannt dësen Aarbechtsberäich fir d’éischt mat Stripe."
+  ],
+  "Le portail Stripe renvoyé n’est pas valide.": [
+    "The returned Stripe portal is invalid.",
+    "Das zurückgegebene Stripe-Portal ist ungültig.",
+    "De zréckginnene Stripe-Portal ass ongëlteg."
+  ],
+  "Ouvrez la facturation dans votre navigateur.": [
+    "Open billing in your browser.",
+    "Öffnen Sie die Abrechnung in Ihrem Browser.",
+    "Maacht d’Ofrechnung an Ärem Browser op."
+  ],
+  "Données non valides.": [
+    "Invalid data.",
+    "Ungültige Daten.",
+    "Ongëlteg Donnéeën."
+  ],
+  "La session de facturation a changé.": [
+    "The billing session has changed.",
+    "Die Abrechnungssitzung hat sich geändert.",
+    "D’Ofrechnungssessioun huet sech geännert."
+  ],
+  "La session de facturation a changé. Réessayez depuis votre espace de travail.": [
+    "The billing session has changed. Try again from your workspace.",
+    "Die Abrechnungssitzung hat sich geändert. Versuchen Sie es erneut aus Ihrem Arbeitsbereich.",
+    "D’Ofrechnungssessioun huet sech geännert. Probéiert et nach eng Kéier vun Ärem Aarbechtsberäich aus."
+  ],
+  "Signature Stripe non valide.": [
+    "Invalid Stripe signature.",
+    "Ungültige Stripe-Signatur.",
+    "Ongëlteg Stripe-Ënnerschrëft."
+  ],
+  "L’événement Stripe est trop volumineux.": [
+    "Stripe event is too large.",
+    "Das Stripe-Ereignis ist zu groß.",
+    "D’Stripe-Evenement ass ze grouss."
+  ],
+  "Événement Stripe non valide.": [
+    "Invalid Stripe event.",
+    "Ungültiges Stripe-Ereignis.",
+    "Ongëltegt Stripe-Evenement."
+  ],
+  "Ce webhook Stripe ne correspond pas à ce service.": [
+    "This Stripe webhook does not match this service.",
+    "Dieser Stripe-Webhook passt nicht zu diesem Dienst.",
+    "Dëse Stripe-Webhook passt net zu dësem Déngscht."
+  ],
+  "Synchronisation en cours. Relancez cet événement.": [
+    "Synchronization is in progress. Retry this event.",
+    "Synchronisierung läuft. Wiederholen Sie dieses Ereignis.",
+    "Synchronisatioun amgaang. Probéiert dëst Evenement nach eng Kéier."
+  ],
+  "L’objet Stripe ne correspond pas au compte attendu.": [
+    "The Stripe object does not match the expected account.",
+    "Das Stripe-Objekt passt nicht zum erwarteten Konto.",
+    "D’Stripe-Objet passt net zum erwaarte Kont."
+  ],
+  "La synchronisation a expiré. Relancez cet événement.": [
+    "Synchronization expired. Retry this event.",
+    "Die Synchronisierung ist abgelaufen. Wiederholen Sie dieses Ereignis.",
+    "D’Synchronisatioun ass ofgelaf. Probéiert dëst Evenement nach eng Kéier."
+  ]
 }

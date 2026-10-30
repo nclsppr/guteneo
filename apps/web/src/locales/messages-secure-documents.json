@@ -1230,5 +1230,40 @@
     "Paste the complete Guteneo workspace invitation link.",
     "Fügen Sie den vollständigen Einladungslink zum Guteneo-Arbeitsbereich ein.",
     "Setzt de kompletten Invitatiounslink fir de Guteneo-Atelier an."
+  ],
+  "Requête non valide.": [
+    "Invalid request.",
+    "Ungültige Anfrage.",
+    "Ongëlteg Ufro."
+  ],
+  "La requête est trop longue.": [
+    "The request is too long.",
+    "Die Anfrage ist zu lang.",
+    "D’Ufro ass ze laang."
+  ],
+  "Vérifiez les informations du compte.": [
+    "Check the account information.",
+    "Prüfen Sie die Kontoangaben.",
+    "Kontrolléiert d’Informatioune vum Kont."
+  ],
+  "Vérifiez votre adresse e-mail.": [
+    "Verify your email address.",
+    "Bestätigen Sie Ihre E-Mail-Adresse.",
+    "Verifizéiert Är E-Mail-Adress."
+  ],
+  "Curseur non valide.": [
+    "Invalid cursor.",
+    "Ungültiger Cursor.",
+    "Ongëltege Cursor."
+  ],
+  "Le téléchargement du PDF d’origine n’est pas autorisé.": [
+    "Downloading the original PDF is not authorized.",
+    "Das Herunterladen des Original-PDFs ist nicht erlaubt.",
+    "D’Eroflueden vum Original-PDF ass net erlaabt."
+  ],
+  "L’espace de travail n’a pas autorisé de copie personnelle.": [
+    "The workspace has not authorized a personal copy.",
+    "Der Arbeitsbereich hat keine persönliche Kopie erlaubt.",
+    "Den Aarbechtsberäich huet keng perséinlech Kopie erlaabt."
   ]
 }
