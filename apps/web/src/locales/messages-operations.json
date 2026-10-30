@@ -1765,5 +1765,296 @@
     "The protected link and expiry will appear in the final review.",
     "Der geschützte Link und sein Ablaufdatum erscheinen in der abschließenden Prüfung.",
     "De geschützte Link a säin Oflafdatum erschéngen an der definitiver Iwwerpréiwung."
+  ],
+  "Limite quotidienne d’analyses atteinte. Réessayez demain.": [
+    "Daily analysis limit reached. Try again tomorrow.",
+    "Tägliches Analyselimit erreicht. Versuchen Sie es morgen erneut.",
+    "Deeglech Limitt fir Analysen erreecht. Probéiert et muer nach eng Kéier."
+  ],
+  "Le fichier source est inaccessible.": [
+    "The source file is inaccessible.",
+    "Die Quelldatei ist nicht zugänglich.",
+    "De Quell-Fichier ass net zougänglech."
+  ],
+  "Le fichier est trop volumineux.": [
+    "File is too large.",
+    "Die Datei ist zu groß.",
+    "De Fichier ass ze grouss."
+  ],
+  "Fichier vide.": ["Empty file.", "Leere Datei.", "Eidele Fichier."],
+  "L’original de ce document est indisponible.": [
+    "The original of this document is unavailable.",
+    "Das Original dieses Dokuments ist nicht verfügbar.",
+    "Den Original vun dësem Dokument ass net disponibel."
+  ],
+  "L’intégrité du fichier d’origine n’a pas pu être vérifiée.": [
+    "The original file's integrity could not be verified.",
+    "Die Integrität der Originaldatei konnte nicht überprüft werden.",
+    "D’Integritéit vum Original-Fichier konnt net iwwerpréift ginn."
+  ],
+  "Cette analyse a expiré. Vous pouvez réessayer.": [
+    "This analysis has expired. You can try again.",
+    "Diese Analyse ist abgelaufen. Sie können es erneut versuchen.",
+    "Dës Analys ass ofgelaf. Dir kënnt et nach eng Kéier probéieren."
+  ],
+  "Ce document ne peut pas être analysé de nouveau.": [
+    "This document cannot be analyzed again.",
+    "Dieses Dokument kann nicht erneut analysiert werden.",
+    "Dëst Dokument kann net nach eng Kéier analyséiert ginn."
+  ],
+  "Le service d’analyse doit être connecté avant de réessayer.": [
+    "The analysis service must be connected before trying again.",
+    "Der Analysedienst muss verbunden sein, bevor Sie es erneut versuchen.",
+    "Den Analysedéngscht muss verbonne sinn, ier Dir et nach eng Kéier probéiert."
+  ],
+  "Seul un administrateur peut préparer le service d’analyse dans son navigateur.": [
+    "Only an administrator can prepare the analysis service in their browser.",
+    "Nur ein Administrator kann den Analysedienst in seinem Browser einrichten.",
+    "Just en Administrateur kann den Analysedéngscht a sengem Browser preparéieren."
+  ],
+  "Le service d’analyse n’est pas connecté.": [
+    "The analysis service is not connected.",
+    "Der Analysedienst ist nicht verbunden.",
+    "Den Analysedéngscht ass net verbonnen."
+  ],
+  "Document immuable incompatible.": [
+    "Incompatible immutable document.",
+    "Unveränderliches Dokument nicht kompatibel.",
+    "Onverännerlecht Dokument net kompatibel."
+  ],
+  "Le PDF manque ou est trop volumineux.": [
+    "PDF is missing or too large.",
+    "Das PDF fehlt oder ist zu groß.",
+    "D’PDF feelt oder ass ze grouss."
+  ],
+  "La vérification finale du PDF n’est pas terminée. Relancez la même préparation dans quelques instants.": [
+    "The final PDF verification is incomplete. Retry the same preparation in a few moments.",
+    "Die abschließende PDF-Prüfung ist nicht abgeschlossen. Wiederholen Sie dieselbe Vorbereitung in einigen Augenblicken.",
+    "Déi lescht PDF-Iwwerpréiwung ass net fäerdeg. Probéiert déiselwecht Virbereedung an e puer Momenter nach eng Kéier."
+  ],
+  "Seuls les PDF sont acceptés.": [
+    "Only PDFs are accepted.",
+    "Nur PDFs werden akzeptiert.",
+    "Just PDFen ginn akzeptéiert."
+  ],
+  "Le moteur local doit utiliser l’adresse de bouclage.": [
+    "The local engine must use loopback.",
+    "Die lokale Engine muss Loopback verwenden.",
+    "De lokale Motor muss Loopback benotzen."
+  ],
+  "Le moteur PDF n’est pas connecté.": [
+    "The PDF engine is not connected.",
+    "Die PDF-Engine ist nicht verbunden.",
+    "De PDF-Motor ass net verbonnen."
+  ],
+  "Le PDF n’est pas prêt pour la revue.": [
+    "PDF is not ready for review.",
+    "Das PDF ist nicht bereit für die Prüfung.",
+    "D’PDF ass net prett fir d’Iwwerpréiwung."
+  ],
+  "Le PDF d’origine ne peut pas être vérifié.": [
+    "The original PDF cannot be verified.",
+    "Das Original-PDF kann nicht überprüft werden.",
+    "D’Original-PDF kann net iwwerpréift ginn."
+  ],
+  "La preuve du PDF exact est indisponible.": [
+    "Exact PDF evidence is unavailable.",
+    "Der Nachweis des exakten PDFs ist nicht verfügbar.",
+    "De Beweis vum exakte PDF ass net disponibel."
+  ],
+  "PDF d’origine indisponible.": [
+    "Original PDF unavailable.",
+    "Original-PDF nicht verfügbar.",
+    "Original-PDF net disponibel."
+  ],
+  "La taille du PDF a changé.": [
+    "The PDF size has changed.",
+    "Die Größe des PDFs hat sich geändert.",
+    "D’Gréisst vum PDF huet sech geännert."
+  ],
+  "Le PDF dépasse la taille autorisée ; aucun extrait n’a été renvoyé.": [
+    "The PDF exceeds the allowed size; no excerpt was returned.",
+    "Das PDF überschreitet die erlaubte Größe; es wurde kein Auszug zurückgegeben.",
+    "D’PDF ass méi grouss wéi erlaabt; et gouf keen Auszuch zréckginn."
+  ],
+  "Le PDF n’a pas pu être lu.": [
+    "The PDF could not be read.",
+    "Das PDF konnte nicht gelesen werden.",
+    "D’PDF konnt net gelies ginn."
+  ],
+  "L’intégrité du PDF exact n’a pas pu être vérifiée.": [
+    "The exact PDF's integrity could not be verified.",
+    "Die Integrität des exakten PDFs konnte nicht überprüft werden.",
+    "D’Integritéit vum exakte PDF konnt net iwwerpréift ginn."
+  ],
+  "Cette page n’existe pas dans le PDF.": [
+    "This page does not exist in the PDF.",
+    "Diese Seite gibt es im PDF nicht.",
+    "Dës Säit gëtt et am PDF net."
+  ],
+  "Le lecteur PDF local est indisponible.": [
+    "The local PDF reader is unavailable.",
+    "Der lokale PDF-Leser ist nicht verfügbar.",
+    "De lokale PDF-Lieser ass net disponibel."
+  ],
+  "La lecture des pages du PDF est temporairement indisponible. Le document reste enregistré.": [
+    "PDF page reading is temporarily unavailable. The document remains saved.",
+    "Das Lesen der PDF-Seiten ist vorübergehend nicht verfügbar. Das Dokument bleibt gespeichert.",
+    "D’Liese vun de PDF-Säiten ass temporär net disponibel. D’Dokument bleift gespäichert."
+  ],
+  "Ces pages dépassent la capacité du lecteur de conversation.": [
+    "These pages exceed the conversation reader's budget.",
+    "Diese Seiten überschreiten das Budget des Gesprächslesers.",
+    "Dës Säite gi méi wäit wéi de Budget vum Gespréichslieser."
+  ],
+  "La reproduction fidèle de ces pages n’a pas pu être vérifiée.": [
+    "Faithful reproduction of these pages could not be verified.",
+    "Die getreue Wiedergabe dieser Seiten konnte nicht überprüft werden.",
+    "Déi trei Reproduktioun vun dëse Säite konnt net iwwerpréift ginn."
+  ],
+  "Le PDF a changé pendant sa lecture.": [
+    "The PDF changed while it was being read.",
+    "Das PDF hat sich während des Lesens geändert.",
+    "D’PDF huet sech während dem Liese geännert."
+  ],
+  "Document en quarantaine : l’aperçu et l’envoi sont bloqués.": [
+    "Document quarantined: preview and sending are blocked.",
+    "Dokument in Quarantäne: Vorschau und Versand sind gesperrt.",
+    "Dokument a Quarantän: Virschau a Versand si gespaart."
+  ],
+  "Limite de documents atteinte ou crédits de documents non accordés.": [
+    "Document limit reached or document credits have not been granted.",
+    "Dokumentenlimit erreicht oder Dokumentguthaben nicht gewährt.",
+    "Dokumentelimitt erreecht oder Dokumentekreditter net accordéiert."
+  ],
+  "Une adresse appartient déjà à un membre de cet espace de travail.": [
+    "One address already belongs to a member of this workspace.",
+    "Eine Adresse gehört bereits zu einem Mitglied dieses Arbeitsbereichs.",
+    "Eng Adress gehéiert schonn zu engem Member vun dësem Aarbechtsberäich."
+  ],
+  "La limite quotidienne de 500 invitations est atteinte.": [
+    "The daily limit of 500 invitations has been reached.",
+    "Das tägliche Limit von 500 Einladungen ist erreicht.",
+    "Déi deeglech Limitt vu 500 Invitatiounen ass erreecht."
+  ],
+  "Une invitation est déjà en attente pour une adresse.": [
+    "An invitation is already pending for one address.",
+    "Für eine Adresse ist bereits eine Einladung ausstehend.",
+    "Fir eng Adress ass schonn eng Invitatioun am Gaang."
+  ],
+  "Vos droits d’administration ont changé.": [
+    "Your administration permissions have changed.",
+    "Ihre Administrationsrechte haben sich geändert.",
+    "Är Administratiounsrechter hu sech geännert."
+  ],
+  "Cette invitation a expiré, a été révoquée ou a déjà été utilisée.": [
+    "This invitation has expired, been revoked or already been used.",
+    "Diese Einladung ist abgelaufen, wurde widerrufen oder bereits verwendet.",
+    "Dës Invitatioun ass ofgelaf, gouf zréckgezunn oder schonn benotzt."
+  ],
+  "Une requête JSON est requise.": [
+    "A JSON request is required.",
+    "Eine JSON-Anfrage ist erforderlich.",
+    "Eng JSON-Ufro ass néideg."
+  ],
+  "La requête JSON est absente.": [
+    "The JSON request is missing.",
+    "Die JSON-Anfrage fehlt.",
+    "D’JSON-Ufro feelt."
+  ],
+  "La requête est trop volumineuse.": [
+    "The request is too large.",
+    "Die Anfrage ist zu groß.",
+    "D’Ufro ass ze grouss."
+  ],
+  "La requête JSON n’est pas valide.": [
+    "The JSON request is invalid.",
+    "Die JSON-Anfrage ist ungültig.",
+    "D’JSON-Ufro ass net valabel."
+  ],
+  "Vérifiez les adresses, le rôle et les droits de chaque invitation.": [
+    "Check the addresses, role and permissions for every invitation.",
+    "Prüfen Sie Adressen, Rolle und Rechte jeder Einladung.",
+    "Kontrolléiert d’Adressen, d’Roll an d’Rechter vun all Invitatioun."
+  ],
+  "Invitation indisponible.": [
+    "Invitation unavailable.",
+    "Einladung nicht verfügbar.",
+    "Invitatioun net disponibel."
+  ],
+  "Connectez-vous avec l’adresse e-mail vérifiée du destinataire de l’invitation.": [
+    "Sign in with the invitation recipient's verified email address.",
+    "Melden Sie sich mit der verifizierten E-Mail-Adresse des Einladungsempfängers an.",
+    "Mellt Iech mat der verifizéierter E-Mail-Adress vum Empfänger vun der Invitatioun un."
+  ],
+  "Vos droits ont changé.": [
+    "Your permissions have changed.",
+    "Ihre Rechte haben sich geändert.",
+    "Är Rechter hu sech geännert."
+  ],
+  "Ouvrez Guteneo dans votre navigateur.": [
+    "Open Guteneo in your browser.",
+    "Öffnen Sie Guteneo in Ihrem Browser.",
+    "Maacht Guteneo an Ärem Browser op."
+  ],
+  "Seul un administrateur peut inviter des collaborateurs.": [
+    "Only an administrator can invite collaborators.",
+    "Nur ein Administrator kann Mitwirkende einladen.",
+    "Just en Administrateur kann Mataarbechter invitéieren."
+  ],
+  "Cette invitation n’est plus en attente ou vos droits ont changé.": [
+    "This invitation is no longer pending or your permissions have changed.",
+    "Diese Einladung ist nicht mehr ausstehend oder Ihre Rechte haben sich geändert.",
+    "Dës Invitatioun ass net méi am Gaang oder Är Rechter hu sech geännert."
+  ],
+  "L’envoi des e-mails d’invitation n’est pas encore activé dans cet environnement.": [
+    "Invitation email delivery is not yet enabled for this environment.",
+    "Der Versand von Einladungs-E-Mails ist in dieser Umgebung noch nicht aktiviert.",
+    "De Versand vun Invitatiouns-E-Mailen ass an dësem Ëmfeld nach net aktivéiert."
+  ],
+  "Vos droits ont changé. Actualisez la page.": [
+    "Your permissions have changed. Refresh the page.",
+    "Ihre Rechte haben sich geändert. Aktualisieren Sie die Seite.",
+    "Är Rechter hu sech geännert. Aktualiséiert d’Säit."
+  ],
+  "Seul un administrateur de l’espace de travail peut effectuer cette action.": [
+    "Only a workspace administrator can perform this action.",
+    "Nur ein Administrator des Arbeitsbereichs kann diese Aktion ausführen.",
+    "Just en Administrateur vum Aarbechtsberäich kann dës Aktioun ausféieren."
+  ],
+  "Vos droits ou la ressource ont changé. Actualisez la page.": [
+    "Your permissions or the resource have changed. Refresh the page.",
+    "Ihre Rechte oder die Ressource haben sich geändert. Aktualisieren Sie die Seite.",
+    "Är Rechter oder d’Ressource hu sech geännert. Aktualiséiert d’Säit."
+  ],
+  "Ouvrez Guteneo dans votre navigateur pour gérer votre compte.": [
+    "Open Guteneo in your browser to manage your account.",
+    "Öffnen Sie Guteneo in Ihrem Browser, um Ihr Konto zu verwalten.",
+    "Maacht Guteneo an Ärem Browser op, fir Äre Kont ze geréieren."
+  ],
+  "Vérifiez les limites et choisissez une échéance dans les 30 prochains jours.": [
+    "Check the limits and choose an expiry within the next 30 days.",
+    "Prüfen Sie die Limits und wählen Sie einen Ablauf innerhalb der nächsten 30 Tage.",
+    "Kontrolléiert d’Limitten a wielt en Oflaf an den nächsten 30 Deeg."
+  ],
+  "Connexion introuvable.": [
+    "Connection not found.",
+    "Verbindung nicht gefunden.",
+    "Verbindung net fonnt."
+  ],
+  "Reconnectez cet assistant avant de lui déléguer une autorité.": [
+    "Reconnect this assistant before delegating authority to it.",
+    "Verbinden Sie diesen Assistenten erneut, bevor Sie ihm Befugnisse übertragen.",
+    "Verbannt dësen Assistent nei, ier Dir him Autoritéit delegéiert."
+  ],
+  "Session introuvable.": [
+    "Session not found.",
+    "Sitzung nicht gefunden.",
+    "Sessioun net fonnt."
+  ],
+  "Membre introuvable dans cet espace de travail.": [
+    "Member not found in this workspace.",
+    "Mitglied in diesem Arbeitsbereich nicht gefunden.",
+    "Member an dësem Aarbechtsberäich net fonnt."
   ]
 }
