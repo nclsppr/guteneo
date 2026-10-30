@@ -4,6 +4,8 @@ export type FaxPricing = {
   currency: "EUR";
   basis: "qualified_usage_ex_tax";
   executionScope?: "review_prepare_only";
+  /** Historical review reference; never a claim about current provider prices. */
+  referenceBasis?: "archived_review_reference";
   /** Explicit test authorization, not Telnyx Local Calling qualification. */
   routeQualification?: "operator_authorized_test";
   routeNotice?: string;
@@ -80,7 +82,9 @@ function faxPricingDisplay(pricing: FaxPricing): FaxPricingDisplay {
     },
     explanation:
       pricing.executionScope === "review_prepare_only"
-        ? FAX_REVIEW_PREPARATION_NOTICE
+        ? pricing.referenceBasis === "archived_review_reference"
+          ? FAX_CONTINUOUS_REVIEW_NOTICE
+          : FAX_REVIEW_PREPARATION_NOTICE
         : "The estimate covers this entire fax, including transmission, and varies with the actual duration, which is not guaranteed. It is neither a fixed per-page price nor a charge. The ceiling is reserved on confirmation; final consumption is determined after verified usage and remains bounded by that ceiling. Fractions of a cent accumulate before the balance is debited. The settlement status indicates whether the reservation is active, settled or released.",
     legacyEstimatedMinorMeaning: "rounded_up_estimated_high_centimes",
   };
@@ -88,6 +92,9 @@ function faxPricingDisplay(pricing: FaxPricing): FaxPricingDisplay {
 
 export const FAX_REVIEW_PREPARATION_NOTICE =
   "Preparation for review only. This reference range excluding tax uses real rates and assumed durations; it excludes unqualified conditional adjustments. This fax cannot be approved or sent, including in expert mode. No credit is reserved or deducted. Local Calling capability remains unconfirmed.";
+
+export const FAX_CONTINUOUS_REVIEW_NOTICE =
+  "Preparation for review only, using an archived rate and FX reference with assumed durations. This is not a current provider price or a sendable quote. This fax cannot be approved or sent, including in expert mode. No credit is reserved or deducted. Local Calling capability remains unconfirmed.";
 
 export const FAX_OPERATOR_TEST_NOTICE =
   "Luxembourg test authorised by the operator. Local Calling capability is unconfirmed; the provider may reject transmission.";
@@ -101,14 +108,21 @@ export function customerFaxPricing(
     currency: pricing.currency,
     basis: pricing.basis,
     ...(pricing.executionScope === "review_prepare_only"
-      ? { executionScope: "review_prepare_only" as const }
+      ? {
+          executionScope: "review_prepare_only" as const,
+          ...(pricing.referenceBasis === "archived_review_reference"
+            ? { referenceBasis: "archived_review_reference" as const }
+            : {}),
+        }
       : {}),
     ...(pricing.routeQualification === "operator_authorized_test"
       ? {
           routeQualification: "operator_authorized_test" as const,
           routeNotice:
             pricing.executionScope === "review_prepare_only"
-              ? FAX_REVIEW_PREPARATION_NOTICE
+              ? pricing.referenceBasis === "archived_review_reference"
+                ? FAX_CONTINUOUS_REVIEW_NOTICE
+                : FAX_REVIEW_PREPARATION_NOTICE
               : FAX_OPERATOR_TEST_NOTICE,
         }
       : {}),

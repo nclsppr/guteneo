@@ -7521,6 +7521,11 @@
             "enum": ["review_prepare_only"],
             "description": "View-only review quote; no sending, approval or credit operations allowed."
           },
+          "referenceBasis": {
+            "type": "string",
+            "enum": ["archived_review_reference"],
+            "description": "Historical rate and FX reference for continuous unsendable reviewer preparation; never a current supplier price. Quote expiry remains separate from reference access."
+          },
           "routeQualification": {
             "type": "string",
             "enum": ["operator_authorized_test"],

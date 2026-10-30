@@ -1,6 +1,6 @@
 ---
 title: "Fax"
-description: "7 capabilities in the deliver branch of Guteneo."
+description: "9 capabilities in the deliver branch of Guteneo."
 sidebar:
   order: 7
 ---
@@ -9,7 +9,7 @@ sidebar:
 
 **Access boundary:** Current capability and authority required.
 
-Implemented; live tariff, sender, approval, credits and provider gates apply.
+Implemented fax contracts; continuous reviewer access and automatic commercial-reference maintenance are source candidates requiring additive migrations, explicit registration and independent hosted qualification. Live sender, tariff, approval, credits and provider gates apply.
 
 **Surfaces:** Web, REST, MCP and native preparation/tracking; browser or existing delegated approval.
 
@@ -25,6 +25,8 @@ Implemented; live tariff, sender, approval, credits and provider gates apply.
 <li id="feature-32927ed70105">Preparation, human review, approval and confirmation</li>
 <li id="feature-c07652a7bf1f">Tracking, receipts, usage settlement and unknown outcomes</li>
 <li id="feature-e322e320b56e">Unsendable reviewer mode stops before approval</li>
+<li id="feature-d201405f7b7f">Explicit continuous access removes periodic reviewer-reference renewal for the exact restricted single-member account; archived pricing stays labelled, quotes retain their 900-second lifetime and approval/sending remain prohibited</li>
+<li id="feature-8a942d3218f3">Registered live commercial references refresh from actual official sources and provider-ownership reads through the existing scheduler; bounded leases/backoff and active-quote deferral preserve immutable approved prices</li>
 </ol>
 
 ## REST operations

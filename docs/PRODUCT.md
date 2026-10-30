@@ -1,5 +1,23 @@
 # Guteneo product contract
 
+## Maintained fax preparation — 30 October 2026 candidate
+
+The dedicated restricted reviewer can keep preparing its exact non-sendable test
+fax throughout a multi-week review after one explicit continuous-access setup.
+Archived rates remain labelled as review references, with no weekly or thirty-day
+reference revalidation; each exact quote retains its short expiry and can be
+renewed explicitly without sending. Revocation and current account/tenant guards
+still close access. See [continuous review preparation](REVIEW_FAX_PREPARATION.md).
+
+Registered sendable fax routes separately refresh their public commercial
+references through genuine scheduled source and provider-ownership reads, with
+new immutable price revisions. Customers do not perform a recurring manual
+reference-revalidation task. Source failure still closes expired pricing, and
+route authorization, channel, credit and human/delegated approval remain separate.
+See [automatic tariff maintenance](FAX_TARIFF_MAINTENANCE.md). Both mechanisms
+remain source candidates until their schema, release and explicit registrations
+are separately qualified in production.
+
 ## Strict registration tooling — 30 October 2026 candidate
 
 The [strict MCP registration operator candidate](MCP_REGISTRATION.md) prepares native Auth0 configuration only. Registration grants no account access, membership, human approval or expert mandate; provider activation and each real host journey remain separately qualified.
@@ -232,13 +250,14 @@ separately from a browser declaration and does not claim physical verification.
 The standard document review and final send approval remain in Guteneo. See
 [MCP_POSTAL_JOURNEY.md](MCP_POSTAL_JOURNEY.md) for the workflow and proof boundary.
 
-Candidate, 21 September 2026: marketplace review may use real reference fax quotes
+Historical bounded path, 21 September 2026: marketplace review may use real reference fax quotes
 with immutable `review_prepare_only` purpose. An explicit operator authority
 binds one tenant, sender and exact recipient for at most 30 days; actual reference
 revisions expire within 168 hours. Approval, expert acceptance, reservations and
 all provider paths reject these quotes. The live Luxembourg pilot and its
 24 September deadline are unchanged. No automatic refresh or production setup
-is performed by the migration. See [REVIEW_FAX_PREPARATION.md](REVIEW_FAX_PREPARATION.md).
+is performed by that historical migration. The current continuous-access overlay
+is documented in [REVIEW_FAX_PREPARATION.md](REVIEW_FAX_PREPARATION.md).
 
 Candidate, 20 September: an explicit optional postal address page creates a separate immutable PDF while preserving the source. Simplex adds one page; duplex adds a cover and blank verso to preserve original page pairs. The final document is scanned and reviewed again, and its exact pages feed the existing quote/approval flow. This candidate is not deployed; see [POSTAL_ADDRESS_PAGE.md](POSTAL_ADDRESS_PAGE.md).
 

@@ -99,6 +99,11 @@
     "Nur zur Prüfungsvorbereitung. Diese Referenzspanne ohne Steuern nutzt echte Tarife und angenommene Dauern; nicht qualifizierte bedingte Anpassungen sind ausgeschlossen. Dieses Fax kann auch im Expertenmodus weder freigegeben noch gesendet werden. Es wird kein Guthaben reserviert oder abgebucht. Die Local-Calling-Fähigkeit bleibt unbestätigt.",
     "Nëmme fir d'Virbereedung vun enger Iwwerpréiwung. Dëse Referenzberäich ouni Steiere benotzt reell Tariffer an ugeholl Daueren; net qualifizéiert bedéngt Upassunge sinn ausgeschloss. Dëse Fax kann och am Expertmodus weder geneemegt nach verschéckt ginn. Kee Kredit gëtt reservéiert oder ofgebucht. D'Local-Calling-Fäegkeet bleift net bestätegt."
   ],
+  "Préparation de revue uniquement, avec une référence archivée de tarifs et de change et des hypothèses de durée. Ce n’est ni un tarif fournisseur actuel ni un devis permettant un envoi. Ce fax ne peut être ni approuvé ni envoyé, y compris en mode expert. Aucun crédit n’est réservé ou débité. La capacité Local Calling reste non confirmée.": [
+    "Preparation for review only, using an archived rate and FX reference with assumed durations. This is not a current provider price or a sendable quote. This fax cannot be approved or sent, including in expert mode. No credit is reserved or deducted. Local Calling capability remains unconfirmed.",
+    "Nur zur Prüfungsvorbereitung, mit archivierten Tarif- und Wechselkursreferenzen und angenommenen Dauern. Dies ist weder ein aktueller Anbieterpreis noch ein versandfähiges Angebot. Dieses Fax kann auch im Expertenmodus weder freigegeben noch gesendet werden. Es wird kein Guthaben reserviert oder abgebucht. Die Local-Calling-Fähigkeit bleibt unbestätigt.",
+    "Nëmme fir d'Virbereedung vun enger Iwwerpréiwung, mat archivéierten Tarif- a Wiesselcoursreferenzen an ugeholl Daueren. Dëst ass weder en aktuelle Fournisseurspräis nach en Devis, mat deem ee verschécke kann. Dëse Fax kann och am Expertmodus weder geneemegt nach verschéckt ginn. Kee Kredit gëtt reservéiert oder ofgebucht. D'Local-Calling-Fäegkeet bleift net bestätegt."
+  ],
   "Les factures et paiements de {0}.": [
     "Invoices and payments for {0}.",
     "Rechnungen und Zahlungen für {0}.",

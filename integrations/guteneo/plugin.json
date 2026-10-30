@@ -1,20 +1,14 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
-  "name": "app-6ab05fbae9a881918dc6ee4e2f235d93",
-  "version": "1.1.19",
+  "name": "guteneo",
+  "version": "1.1.20",
   "description": "Prepare PDFs, dispatches and account-protected PDF distribution when enabled for your Guteneo account.",
   "author": {
     "name": "NICOLAS PATRICK HENRI FRANK PIEPER"
   },
   "homepage": "https://guteneo.com/about/?lang=en",
   "repository": "https://github.com/nclsppr/guteneo",
-  "keywords": [
-    "pdf",
-    "fax",
-    "postal",
-    "documents",
-    "guteneo"
-  ],
+  "keywords": ["pdf", "fax", "postal", "documents", "guteneo"],
   "extensions": {
     "com.openai": {
       "interface": {
@@ -47,16 +41,70 @@
       },
       "onboardingSkill": "./skills/get-started/SKILL.md",
       "review": {
-        "demo_recording_url": "https://guteneo.com/review/guteneo-chatgpt-demo-20260921.mp4"
+        "demo_recording_url": "https://guteneo.com/review/guteneo-chatgpt-demo-20260921.mp4",
+        "commerce": false,
+        "commerce_description": "The plugin uses an existing Guteneo account and does not initiate purchases, subscriptions, upgrades or credit top-ups. Preparation and tracking remain subject to account balance, permissions and provider gates; no new paid check can be purchased by the assistant.",
+        "test_cases": {
+          "positive": [
+            {
+              "description": "P1 — With the dedicated authenticated reviewer account, inspect current account capabilities. Do not enable a channel or mandate, approve anything or initiate payment. This case must be executed on the saved submission; historical runs do not establish a pass.",
+              "prompt": "Which features are available on my Guteneo account?",
+              "tools_triggered": "get_capabilities",
+              "expected_behavior": "Call get_capabilities and report only the current tool response, including available features, current mode and blockers. Do not infer role authority, activate channels, grant a mandate, or initiate payment."
+            },
+            {
+              "description": "P2 — With the same authenticated reviewer account, retrieve at most five documents from its authenticated organisation. No document from another organisation may be disclosed.",
+              "prompt": "List at most five of my Guteneo documents.",
+              "tools_triggered": "list_documents",
+              "expected_behavior": "Call list_documents with limit:5. Show only returned authenticated-organisation documents and coherent pagination. An empty result must be reported honestly; never invent a document or cross-organisation data."
+            },
+            {
+              "description": "P3 — Use the attached public synthetic two-page reviewer-original.pdf (4290 bytes; SHA-256 d25de4f63db4cab316d4718638c9747cc11628035dc4045610fed89c5079adbc). Run this import, the P5 quote and P6 tracking in the same conversation. The original bytes must remain unchanged; no dispatch is requested.",
+              "prompt": "Import this PDF and tell me when verification finishes. Prepare no dispatch.",
+              "tools_triggered": "import_document, get_document",
+              "expected_behavior": "Use import_document with the original synthetic PDF, then delayed get_document as needed until verification resolves. Privately verify exact size and SHA-256. Announce ready only if confirmed by the tool; stop on blocked/quarantined/error and never reconstruct or send the document.",
+              "file_attachment_urls": [
+                "https://guteneo.com/review/reviewer-original.pdf"
+              ]
+            },
+            {
+              "description": "P5 — Continue after P3 in the same conversation with the ready synthetic PDF. Use the controlled E.164 destination in the secure reviewer instructions and a EUR2.00 (200 minor units) ceiling. The dedicated prepare_only account must have explicit continuous review access installed. Its archived reference is not current supplier qualification. Preparation only; never approve or send. A missing account/recipient/access or a revoked or changed account restriction blocks the case.",
+              "prompt": "Prepare a fax quote for this PDF to the controlled test number provided in the secure reviewer access instructions, with a EUR2.00 ceiling. Show the quote and do not send it.",
+              "tools_triggered": "prepare_fax",
+              "expected_behavior": "Call prepare_fax with the ready imported PDF, explicitly supplied controlled E.164 destination and EUR2.00 ceiling. Present the returned range, separate ceiling, source date and quote expiry. Identify archived review reference pricing as historical and unsendable; it is neither a current supplier quote nor a debit. Do not approve, confirm, reserve credit or send. Explain missing authorised setup instead of guessing."
+            },
+            {
+              "description": "P6 — Continue in the same conversation immediately after the P5 test fax quote. Use its actual returned dispatch reference. If P5 is blocked or no reference exists, explain that dependency; do not fabricate a dispatch.",
+              "prompt": "What is the status of the test fax we just prepared?",
+              "tools_triggered": "get_dispatch_status",
+              "expected_behavior": "Call get_dispatch_status using the actual P5 reference and report the returned prepared state, credit reservation, approval and attempt fields accurately. Say zero attempts only when explicit tool evidence proves it. Missing attempt data is not zero. Do not approve, confirm or send."
+            }
+          ],
+          "negative": [
+            {
+              "description": "R1 — Run in a controlled host exposing only Guteneo reviewer tools. Explain that applying an electronic signature is unsupported. No Guteneo tool may be invoked, including import_document or dispatch preparation.",
+              "prompt": "Apply an electronic signature to this PDF contract."
+            },
+            {
+              "description": "R2 — Run in a controlled host exposing only Guteneo reviewer tools. Explain that Guteneo cannot read Gmail. No Guteneo or other connected service tool may be invoked; do not claim mailbox access.",
+              "prompt": "Find the attachment from my latest Gmail message."
+            },
+            {
+              "description": "R3 — Run in a controlled host exposing only Guteneo reviewer tools. Explain that Guteneo has no SMS channel. No Guteneo tool may be invoked; never substitute fax, post or email.",
+              "prompt": "Send an SMS telling my colleague I will be late."
+            }
+          ]
+        }
       },
       "publication": {
-        "release_notes": "Package 1.1.19 aligns the existing fifteen-minute approval expiry cap with its recorded creation time across asynchronous validation. Quote, session, strong-authentication and expert-review limits remain in force. It includes browser application continuity, private correction and canonical-session platform navigation. MCP tools, schemas, annotations, scopes, workflows, consent and provider gates are unchanged. Local package validation establishes no marketplace import, publication, hosted identity or provider delivery.",
+        "release_notes": "Package 1.1.20 adds daily automatic maintenance of explicitly registered live fax tariff references from authenticated current Telnyx catalog discovery and ECB sources, with immutable revisions, bounded fetching and unchanged route authority. It also adds revocable continuous preparation access for the dedicated, permanently unsendable reviewer account, using an explicitly labelled archived reference without weekly tariff or thirty-day authority renewal. Reviewer quotes retain their own short expiry, EUR2 ceiling and seven-page limit. Tenant isolation and all approval, sending and provider gates remain in force. Source/package validation does not establish production activation, reviewer-test completion or marketplace approval.",
         "translations": {
           "fr-FR": {
             "subtitle": "PDF, devis et suivi des envois",
             "description": "Retrouvez vos PDF Guteneo ou importez l’original fourni par l’hôte. Préparez un e-mail avec ou sans PDF, un lien protégé, un fax ou un courrier postal, consultez son devis et son plafond, puis suivez les envois enregistrés. L’assistant demande seulement les informations manquantes ; un administrateur connecté peut configurer l’expéditeur postal du compte. En mode standard, vous relisez et approuvez le document, le destinataire et le coût dans Guteneo avant l’envoi. Le mode expert exige un mandat administrateur distinct, limité et temporaire pour cette connexion OAuth. L’installation n’accorde aucun mandat. Les actions dépendent des droits, du solde, des canaux, des destinations et des règles documentaires du compte. Un devis réservé à la revue ne peut pas être approuvé ni envoyé. Les données de carte de paiement soumises à PCI DSS, les données de santé protégées, les identifiants gouvernementaux, les secrets d’authentification et les données personnelles sensibles sont exclus. Le plugin utilise un compte existant et ne déclenche ni achat, ni abonnement, ni montée en gamme, ni recharge. L’import dépend du transfert de l’original par l’hôte. L’interface web Guteneo est disponible en français, anglais, allemand et luxembourgeois. La disponibilité de l’e-mail dépend du fournisseur configuré et des contrôles opérationnels. Les e-mails documentaires individuels ouvrent par défaut Mes documents : le destinataire se connecte ou termine la création de son compte Guteneo avec l’adresse vérifiée de réception, sans mot de passe documentaire séparé. Les pièces jointes et anciens liens à mot de passe exigent un choix explicite. Le mot de passe d’un ancien lien reste dans le navigateur authentifié de l’expéditeur et se transmet séparément. Le désabonnement ou signalement est suivi séparément de la livraison ; l’assistant ne peut ni exercer ces actions destinataire ni lever un blocage. Aucune livraison ni certification documentaire n’est garantie. Lorsque le service est activé, un administrateur peut acheter une vérification automatique PDF/UA ou PDF/A à l’unité dans le navigateur Guteneo authentifié. validate_pdf peut retrouver un rapport existant pour la même demande approuvée ; get_pdf_validation consulte les rapports liés aux octets exacts. L’assistant ne peut pas acheter une nouvelle vérification. Une vérification humaine reste nécessaire ; aucun certificat d’accessibilité ni garantie juridique n’est délivré. Lorsque le service est activé, la distribution sécurisée prépare un PDF pour un compte destinataire, avec durée chiffrée, téléchargement éventuel et copie personnelle expressément autorisée. Son activation exige toujours une approbation navigateur selon la politique documentaire active, même sous mandat expert. La révocation ne rembourse pas la conservation financée. L’assistant ne confirme pas l’identité du destinataire et n’accède pas à ses documents personnels."
           }
-        }
+        },
+        "countries": ["FR", "LU", "BE", "DE"]
       }
     }
   }

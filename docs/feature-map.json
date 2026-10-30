@@ -378,22 +378,23 @@
         "Estimated range, approved ceiling and credit balance in euros",
         "Preparation, human review, approval and confirmation",
         "Tracking, receipts, usage settlement and unknown outcomes",
-        "Unsendable reviewer mode stops before approval"
+        "Unsendable reviewer mode stops before approval",
+        "Explicit continuous access removes periodic reviewer-reference renewal for the exact restricted single-member account; archived pricing stays labelled, quotes retain their 900-second lifetime and approval/sending remain prohibited",
+        "Registered live commercial references refresh from actual official sources and provider-ownership reads through the existing scheduler; bounded leases/backoff and active-quote deferral preserve immutable approved prices"
       ],
-      "status": "Implemented; live tariff, sender, approval, credits and provider gates apply.",
+      "status": "Implemented fax contracts; continuous reviewer access and automatic commercial-reference maintenance are source candidates requiring additive migrations, explicit registration and independent hosted qualification. Live sender, tariff, approval, credits and provider gates apply.",
       "tests": [
-        "tests/e2e/fax-pricing.spec.ts"
+        "tests/e2e/fax-pricing.spec.ts",
+        "tests/integration/continuous-review-preparation.test.ts",
+        "tests/integration/fax-tariff-refresh.test.ts",
+        "tests/unit/fax-tariff-sources.test.ts"
       ],
       "surfaces": "Web, REST, MCP and native preparation/tracking; browser or existing delegated approval.",
       "id": "fax",
       "category": "Deliver",
       "availability": "capability-gated",
-      "tools": [
-        "prepare_fax"
-      ],
-      "rest": [
-        "POST /api/dispatches/{id}/renew-quote"
-      ]
+      "tools": ["prepare_fax"],
+      "rest": ["POST /api/dispatches/{id}/renew-quote"]
     },
     {
       "title": "Postal mail",
@@ -410,9 +411,7 @@
         "Status projection and reconciliation of unknown outcomes"
       ],
       "status": "Implemented; qualified profile, distinct transfer authority, quote and final approval are mandatory.",
-      "tests": [
-        "tests/e2e/postal-final-send.spec.ts"
-      ],
+      "tests": ["tests/e2e/postal-final-send.spec.ts"],
       "surfaces": "Web, REST and MCP with separate postal transfer authority.",
       "id": "postal",
       "category": "Deliver",
@@ -582,12 +581,8 @@
       "id": "dry-run",
       "category": "Deliver",
       "availability": "read-only",
-      "tools": [
-        "dry_run_dispatch"
-      ],
-      "rest": [
-        "GET /api/dispatches/{id}/dry-run"
-      ]
+      "tools": ["dry_run_dispatch"],
+      "rest": ["GET /api/dispatches/{id}/dry-run"]
     },
     {
       "title": "Campaigns and tracking",
@@ -665,10 +660,7 @@
       "category": "Operate",
       "availability": "partial",
       "tools": [],
-      "rest": [
-        "GET /api/usage",
-        "GET /api/usage/activity"
-      ]
+      "rest": ["GET /api/usage", "GET /api/usage/activity"]
     },
     {
       "title": "Assistants and API",
@@ -738,9 +730,7 @@
         "open_mcp_ui_probe",
         "check_mcp_ui_probe_bridge"
       ],
-      "rest": [
-        "GET /api/capabilities"
-      ]
+      "rest": ["GET /api/capabilities"]
     },
     {
       "title": "Reviewer OAuth qualification",
@@ -964,10 +954,7 @@
       "id": "pdf-verification",
       "category": "Operate",
       "availability": "capability-gated",
-      "tools": [
-        "get_pdf_validation",
-        "validate_pdf"
-      ],
+      "tools": ["get_pdf_validation", "validate_pdf"],
       "rest": [
         "GET /api/pdf-validation/pricing",
         "GET /api/documents/{id}/validation",
@@ -1041,9 +1028,7 @@
       "category": "Operations",
       "availability": "operator-gated",
       "tools": [],
-      "rest": [
-        "GET /api/health"
-      ]
+      "rest": ["GET /api/health"]
     },
     {
       "title": "Belvédère platform oversight",
@@ -1179,10 +1164,58 @@
         "Bootstrap and diagnostics grant no expert mandate, communication approval, paid provisioning, billing activation, production mutation or deployment; web, native, REST and MCP product contracts are unchanged"
       ],
       "status": "Development helper implementation. Provider/setup observations are dated 4 October 2026; fresh-task restoration and current provider access remain separately unqualified.",
-      "tests": [
-        "tests/security/codex-cloud-check.test.mjs"
-      ],
+      "tests": ["tests/security/codex-cloud-check.test.mjs"],
       "surfaces": "Repository CLI and development runtime only; no new product browser, native, REST or MCP surface.",
+      "tools": [],
+      "rest": []
+    },
+    {
+      "title": "Continuous reviewer preparation",
+      "doc": "REVIEW_FAX_PREPARATION.md",
+      "source": "scripts/enable-continuous-review.mjs",
+      "features": [
+        "One-time explicit operator registration binds the exact restricted reviewer, sole current administrator membership, archived review tariff and original authority without periodic expiry",
+        "Current database views recheck exact tenant/identity/sender/recipient, qualified source relationships, disabled fax channel and absence of expert policy",
+        "New immutable quotes bind review_access_id, retain the 900-second lifetime, seven-page limit and EUR2 ceiling, and explicitly identify archived_review_reference pricing",
+        "Irreversible revocation or guard drift closes preparation and quote validation without temporary-authority fallback; historical rows and fingerprints remain unchanged",
+        "No approval, acceptance, sending, reservation, provider attempt, outbox, media grant or financial settlement is available; the independent prepare_only account restriction remains in force",
+        "Read-only private planning precedes explicitly authorized digest-bound atomic application; no account/password/Auth0 change, periodic provider refresh or public API is added"
+      ],
+      "status": "Source candidate with isolated tests; migration, explicit access installation and actual saved-submission host cases remain separate qualification.",
+      "tests": [
+        "tests/integration/continuous-review-preparation.test.ts",
+        "tests/unit/continuous-review-operator.test.ts"
+      ],
+      "surfaces": "Authorized private operator setup; existing web, REST, MCP and native preparation/tracking retain their current account and document guards.",
+      "id": "continuous-review",
+      "category": "Operations",
+      "availability": "operator-gated",
+      "tools": [],
+      "rest": []
+    },
+    {
+      "title": "Automatic fax tariff maintenance",
+      "doc": "FAX_TARIFF_MAINTENANCE.md",
+      "source": "apps/api/src/fax-tariff-refresh.ts",
+      "features": [
+        "Current candidate covers only the existing local Luxembourg fixed +3524 operator-test route with canonical empty options, at most seven pages and EUR2; source refresh never extends its independent 3 November 2026 pilot deadline",
+        "Explicit registration binds an exact tenant, sender, provider account/application/profile, destination prefix and options to an authorized global-conversational public commercial catalog",
+        "Daily authenticated current-catalog discovery plus bounded official fax-page, selected allowlisted CSV and dated ECB reads and current provider ownership inspection create new immutable revisions with at most 168-hour validity",
+        "Public commercial references do not claim negotiated supplier prices or a freshly observed provider UI association; original source and association dates retain their meaning",
+        "Existing scheduled maintenance considers one route per execution with a lease, retry backoff and daily refresh target; active quotes defer replacement to preserve approved commitments",
+        "Atomic exact-predecessor replacement refuses source ambiguity, identity/registration drift or lost leases; failure never fabricates freshness, extends pilot authority or enables a channel",
+        "Coarse refreshed/failed/deferred results exclude content, recipients, credentials and private source bodies; a bounded same-account private RPC qualifies current catalog access without registering or writing a price",
+        "Registration configuration and plans are absolute private 0600 files under a 0700 directory outside Git; read-only planning and reviewed-digest application remain distinct"
+      ],
+      "status": "Source candidate for the bounded local +3524 pilot only; schema, actual server-key catalog discovery, explicit route registration and successful scheduled maintenance require independent qualification. No historical CSV fallback is allowed.",
+      "tests": [
+        "tests/integration/fax-tariff-refresh.test.ts",
+        "tests/unit/fax-tariff-sources.test.ts"
+      ],
+      "surfaces": "Authorized private operator CLI/service-binding qualification and registration, and existing scheduled backend maintenance; no public browser, REST or MCP registration authority.",
+      "id": "fax-tariff-maintenance",
+      "category": "Operations",
+      "availability": "operator-gated",
       "tools": [],
       "rest": []
     }
@@ -1213,7 +1246,7 @@
       "steps": "Import/reuse the exact ready PDF → collect E.164 recipient/sender/ceiling → obtain the actual quote → show estimate and separate ceiling → human browser approval or existing expert review → confirm → track delivery and usage settlement separately.",
       "branch": "Deliver",
       "doc": "LIVE_FAX_QUOTES.md",
-      "failure": "Keep reviewer quotes unsendable. Expired operator tariffs require a separately authorized scoped replacement after matching runtime/SQL support; old price evidence stays dated and no mandate is renewed. Renew only an eligible prepared unattempted quote with exact original parameters and stable key, then obtain fresh approval. Unknown submissions require reconciliation, never resend."
+      "failure": "Registered sendable references refresh automatically only after genuine source/ownership reads; source failure keeps expired pricing closed and does not extend route authority. Continuous reviewer access uses its exact restricted account and labelled archived reference, never sending. Renew only an eligible prepared unattempted quote with exact original parameters and stable key, then obtain fresh approval where sending is permitted. Unknown submissions require reconciliation, never resend."
     },
     {
       "id": "J04",
@@ -1538,6 +1571,24 @@
       "branch": "Operations → CI qualification and publication; no product-role authority",
       "doc": "CI.md",
       "failure": "Missing, stale, foreign, changed, incomplete or inaccessible evidence selects full tests. Drift after reuse selection fails final verification. Artifact corruption or path escapes refuse reconstruction. Dated hosted full-run timings and transfer measurements remain separate from an observed successful reused main promotion. No automatic retry, production credential, merge, send, provider activation or claim of human approval."
+    },
+    {
+      "id": "J40",
+      "title": "Keep reviewer preparation available",
+      "actor": "Explicitly authorized platform operator for setup; exact restricted reviewer for preparation",
+      "steps": "Inspect the existing archived review tariff, original authority and exact restricted sole-member account → review a private continuous-access plan → explicitly install its digest-bound access once → authenticate the intended account/client → import a synthetic exact PDF → prepare and track the review fax → explicitly renew an eligible expired quote when needed.",
+      "branch": "Operations",
+      "doc": "REVIEW_FAX_PREPARATION.md",
+      "failure": "No periodic tariff/authority revalidation after continuous setup. Revocation, membership/identity/sender/recipient drift, enabled fax or expert policy and a missing scan close access without legacy fallback. Quotes remain unsendable and short-lived; do not treat an archive as a current supplier price or reuse another client’s OAuth qualification."
+    },
+    {
+      "id": "J41",
+      "title": "Maintain live fax references automatically",
+      "actor": "Explicitly authorized platform operator for registration; scheduled backend for bounded refresh",
+      "steps": "Review the supported local Luxembourg fixed +3524 operator-test route, empty options, seven-page/EUR2 limits and independent pilot deadline → qualify actual server-key catalog access through the bounded private service binding → register its exact global-conversational public commercial catalog binding once using private files → scheduler claims one due route → resolve the current CSV link with the fixed Telnyx API endpoint → reread genuine official source bytes and current provider ownership → validate route/FX and current registration → defer if a quote remains active → atomically insert a new immutable revision and retire only its exact predecessor → record coarse maintenance results.",
+      "branch": "Operations",
+      "doc": "FAX_TARIFF_MAINTENANCE.md",
+      "failure": "Reject ambiguous/stale sources, identity drift, expired independent operator authority, lost leases and concurrent predecessor changes. Preserve historical quotes and source dates. Back off on failure; existing valid pricing may continue only under its original bounds, while expired pricing fails closed. No sending, mandate, consent or paid infrastructure is created."
     }
   ],
   "roles": [
@@ -1660,22 +1711,8 @@
       "No",
       "Current role + scopes"
     ],
-    [
-      "Manage workshop or members",
-      "Browser only",
-      "No",
-      "No",
-      "No",
-      "No"
-    ],
-    [
-      "Manage billing",
-      "Current browser administrator",
-      "No",
-      "No",
-      "No",
-      "No"
-    ],
+    ["Manage workshop or members", "Browser only", "No", "No", "No", "No"],
+    ["Manage billing", "Current browser administrator", "No", "No", "No", "No"],
     [
       "Purchase a PDF verification",
       "Current browser administrator + exact purchase + PDF access",
@@ -1923,6 +1960,30 @@
       "No product-role grant; separate repository authority",
       "No product-role grant; separate repository authority",
       "Product OAuth grants no GitHub/CI or publication authority; repository agents follow explicit review/merge/deploy authorization"
+    ],
+    [
+      "Install or revoke continuous reviewer reference access",
+      "No authority from workspace role",
+      "No authority from workspace role",
+      "No authority from workspace role",
+      "No authority from workspace role",
+      "No business REST/MCP authority; distinct explicitly authorized platform operator, exact restricted sole-member reviewer and immutable archived binding"
+    ],
+    [
+      "Prepare using continuous reviewer reference access",
+      "Only the exact restricted sole-member reviewer after operator setup",
+      "No authority from this role",
+      "No authority from this role",
+      "No",
+      "Current authenticated exact reviewer + preparation scope + ready synthetic original + active access and current no-send guards; never approval, provider execution or credit reservation"
+    ],
+    [
+      "Register automatic fax commercial-reference maintenance",
+      "No authority from workspace role",
+      "No authority from workspace role",
+      "No authority from workspace role",
+      "No authority from workspace role",
+      "No; distinct authorized platform operator registers an exact source/route once; bounded scheduler refreshes do not grant consent, route authority or sending rights"
     ]
   ],
   "schemaVersion": 2

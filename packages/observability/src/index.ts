@@ -110,6 +110,7 @@ const stages = [
   "outbox",
   "leases",
   "documents",
+  "tariffs",
   "postal",
   "http_limits",
   "complete",
@@ -128,6 +129,9 @@ const metrics = [
   "uncertain",
   "purged",
   "orphans",
+  "tariffsRefreshed",
+  "tariffRefreshFailed",
+  "tariffRefreshDeferred",
 ] as const;
 export type Metrics = Partial<Record<(typeof metrics)[number], number>>;
 const uuid =

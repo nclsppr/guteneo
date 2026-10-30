@@ -1,5 +1,30 @@
 # Architecture
 
+## Durable review access and tariff maintenance — 30 October 2026 candidate
+
+Additive migration 0066 stores a revocable continuous reviewer-access overlay; it
+does not rewrite archived tariff/authority rows or their historical fingerprints.
+Current SQL views require the exact sole restricted reviewer, membership, sender,
+recipient and no-send configuration. New quote hashes bind `review_access_id`;
+legacy quotes retain their original material. The continuous path uses archived
+reference dates while retaining the quote's own 900-second limit and all durable
+execution exclusions. Revocation or guard drift closes validation with no legacy
+fallback. [The reviewer contract](REVIEW_FAX_PREPARATION.md) owns this boundary.
+
+Additive migration 0067 independently registers exact live commercial-source
+bindings. The existing scheduler resolves the current selected Telnyx catalog
+link before bounded source and ownership reads, uses a lease/backoff and defers
+replacement while a quote remains active. The original CSV is never a fallback
+when authenticated current discovery fails.
+The existing private provider-inspection service binding can qualify this fixed
+catalog GET before registration, with no database write or new public endpoint.
+An atomic guarded replacement inserts a new immutable tariff instead of changing
+its predecessor's dates. This grants no channel, consent, mandate or provider
+execution; failure preserves old history and expired pricing fails closed.
+[Automatic tariff maintenance](FAX_TARIFF_MAINTENANCE.md) owns source meaning,
+registration and operational gates. Neither migration installs an access or
+registration row; local fixtures do not establish production activation.
+
 ## Strict registration tooling — 30 October 2026 candidate
 
 The operator-only strict MCP registration candidate is documented in [MCP_REGISTRATION.md](MCP_REGISTRATION.md). It changes no Worker, token-validation, tenant, consent or sending contract. Provider activation remains separate and disabled by this source update.
@@ -321,13 +346,14 @@ Reads do not renew pricing; explicit renewal retains the existing sender,
 profile and revocation guards. Send approvals and expert mandates are unchanged.
 See [MCP_POSTAL_JOURNEY.md](MCP_POSTAL_JOURNEY.md).
 
-Candidate, 21 September 2026: marketplace review may use real reference fax quotes
+Historical bounded path, 21 September 2026: marketplace review may use real reference fax quotes
 with immutable `review_prepare_only` purpose. An explicit operator authority
 binds one tenant, sender and exact recipient for at most 30 days; actual reference
 revisions expire within 168 hours. Approval, expert acceptance, reservations and
 all provider paths reject these quotes. The live Luxembourg pilot and its
 24 September deadline are unchanged. No automatic refresh or production setup
-is performed by the migration. See [REVIEW_FAX_PREPARATION.md](REVIEW_FAX_PREPARATION.md).
+is performed by that historical migration. The current continuous-access overlay
+is documented in [REVIEW_FAX_PREPARATION.md](REVIEW_FAX_PREPARATION.md).
 
 Candidate, 20 September: an explicit optional postal address page creates a separate immutable PDF while preserving the source. Simplex adds one page; duplex adds a cover and blank verso to preserve original page pairs. The final document is scanned and reviewed again, and its exact pages feed the existing quote/approval flow. This candidate is not deployed; see [POSTAL_ADDRESS_PAGE.md](POSTAL_ADDRESS_PAGE.md).
 
