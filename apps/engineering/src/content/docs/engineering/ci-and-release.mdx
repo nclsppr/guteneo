@@ -20,17 +20,17 @@ and explains how to maintain it when services or dependencies change.
 path filters. Shared contracts, mobile API routes, migrations and npm dependencies
 can affect more than their immediate directory, so they retain complete coverage.
 
-| Job family             | Responsibility                                                                                                                                 | Evidence boundary                                                  |
-| ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
-| Private services       | Scanner and PDF-validator type/behavior tests                                                                                                  | Local service contracts, not hosted engine freshness               |
+| Job family             | Responsibility                                                                                                                                                        | Evidence boundary                                                  |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| Private services       | Scanner and PDF-validator type/behavior tests                                                                                                                         | Local service contracts, not hosted engine freshness               |
 | Checks                 | Type/lint, dependency audit, generated docs, language/route standards, MCP/package freshness, MCP annotations, migration equivalence, cost model and narration checks | Repository consistency for that revision                           |
-| Four Vitest shards     | Sequential isolated domain/integration files and restore evidence                                                                              | Deterministic local database/provider fixtures                     |
-| Security and renderer  | Browser-backed document rendering and Node security guards                                                                                     | Actual local Chromium processing plus controlled refusal paths     |
-| Build                  | Main, live, preview and status builds; Worker dry runs                                                                                         | Buildable artifacts/configuration without publication              |
-| Browser matrix         | Three isolated shards per desktop/mobile Chromium and iPhone WebKit profile; applicable preview, Belvédère and status suites                   | Same-run application artifacts and fictional local data            |
-| Distribution profiles  | Isolated strong and verified-account lifecycles on desktop/phone                                                                               | Separate synthetic identity policies, no real Auth0 or delivery    |
-| Engineering            | Independent dependency install/audit, content checks, static build, browsers and asset-only dry run                                            | Documentation release surface only                                 |
-| Aggregate verification | Required dependencies and current-run reports                                                                                                  | Missing, failed, skipped or cancelled required work is not success |
+| Four Vitest shards     | Sequential isolated domain/integration files and restore evidence                                                                                                     | Deterministic local database/provider fixtures                     |
+| Security and renderer  | Browser-backed document rendering and Node security guards                                                                                                            | Actual local Chromium processing plus controlled refusal paths     |
+| Build                  | Main, live, preview and status builds; Worker dry runs                                                                                                                | Buildable artifacts/configuration without publication              |
+| Browser matrix         | Three isolated shards per desktop/mobile Chromium and iPhone WebKit profile; applicable preview, Belvédère and status suites                                          | Same-run application artifacts and fictional local data            |
+| Distribution profiles  | Isolated strong and verified-account lifecycles on desktop/phone                                                                                                      | Separate synthetic identity policies, no real Auth0 or delivery    |
+| Engineering            | Independent dependency install/audit, content checks, static build, browsers and asset-only dry run                                                                   | Documentation release surface only                                 |
+| Aggregate verification | Required dependencies and current-run reports                                                                                                                         | Missing, failed, skipped or cancelled required work is not success |
 
 Browser/distribution jobs download the build from the same GitHub revision rather
 than rebuilding assets concurrently. Distribution reports require complete
@@ -289,6 +289,13 @@ have their own package/lockfile boundaries. The engineering job installs both
 root dependencies and `apps/engineering` dependencies; it cannot rely on a
 previous developer checkout. CI currently uses Node 24. Engineering requires
 Node 22.23.4+ or a supported Node 24+ version.
+
+The private PDF-validator package typechecks with TypeScript 7. Its Node
+behavior suites strip type syntax with the supported Node runtime and parse
+Wrangler JSONC with a pinned package-local parser; they retain every original
+Worker contract assertion. A compiler major update must qualify both the CLI
+and any compiler API used by tests. Passing `tsc` alone cannot qualify a removed
+JavaScript compiler API or an incompatible Astro checker peer dependency.
 
 Browser-backed jobs install their required engines and Linux dependencies.
 Installing Chromium for a renderer is distinct from installing an independent
