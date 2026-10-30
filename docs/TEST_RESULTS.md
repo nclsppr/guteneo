@@ -34,6 +34,17 @@ passes **14/14**. The final 70-migration empty local D1 installation passes with
 maintenance authority. Typecheck, lint, synchronized integration/archive checks
 and generated-document checks pass. These are deterministic local observations.
 
+The first hosted PR run completed 20/24 jobs successfully. The remaining jobs
+identified an outdated three-diagram assertion and Linux workerd's SQLite VDBE
+budget during the global integrity check (including two historical D1 tests and
+their dependent final gate). The four-diagram assertion now passes 3/3 browsers.
+A narrowly scoped official workerd engine update preserves the global verifier
+and every migration constraint: clean installation, zero-advisory audit, full
+70-migration equivalence/integrity and both affected D1 suites (5/5 tests) pass
+locally. The new exact-head Linux run must qualify this temporary runtime
+exception; see [D1 migration proof](D1_MIGRATION.md). Neither a partial table check
+nor a test skip is used.
+
 The Engineering build passes, including its content and publication checks.
 Keyboard steps, textual alternatives, SVG downloads and reduced-motion reading
 pass **6/6** across desktop Chromium, mobile Chromium and WebKit. Actual local

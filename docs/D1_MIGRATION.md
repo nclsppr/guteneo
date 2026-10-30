@@ -1,5 +1,36 @@
 # Remote D1 migration proof
 
+## Global integrity verification — 30 October 2026 candidate
+
+The first 1.1.21 CI run failed while compiling a database-wide `PRAGMA quick_check`
+for the complete seventy-migration schema. The Linux workerd engine returned
+`SQLITE_NOMEM` because its SQLite VDBE instruction budget was 25,000; this was
+not evidence of damaged data or a measured shortage of physical memory.
+
+Cloudflare's [upstream fix](https://github.com/cloudflare/workerd/pull/7790)
+raises that budget to 250,000 and adds a regression for a global integrity check
+on a large schema. The first corrected published engine is `1.20261029.1`.
+Until a matching published Miniflare tuple includes it, the root development
+Miniflare has a narrow override from `workerd@1.20261006.1` to that engine. This
+is a temporary development-runtime exception requiring full qualification, not
+an upstream compatibility guarantee. The CLI's nested Wrangler runtime and the existing
+Undici security override remain unchanged. Remove the exception when a matching
+official tuple is available; requalify the complete graph and Linux CI.
+
+The verifier retains its **database-wide** `quick_check`, global
+`foreign_key_check`, complete schema comparison and true/false/NULL trigger
+proof. A loop over partial table checks is not equivalent: SQLite documents
+that partial checks do not detect unused pages or pages shared between tables.
+See the [SQLite integrity-check contract](https://www.sqlite.org/pragma.html#pragma_integrity_check).
+No source migration or integrity assertion was weakened to make the CI pass.
+
+Local/CI runtime qualification does not establish which engine serves hosted D1.
+Actual production integrity, schema readback and provider behavior still require
+their separate authorized release checks. This candidate applies no remote
+migration, creates no infrastructure and sends no communication.
+
+## Initial remote migration — 16 September 2026
+
 Verified 2026-09-16 at 20:52–20:56 UTC on `guteneo-production`. The initial 11 migrations through `0011_account.sql` were applied in that window; subsequent migrations 0012 and 0013 are recorded below. The database was empty of application data before migration; no fixture users, organizations, documents or dispatches were seeded remotely.
 
 ## Failure and exact workaround

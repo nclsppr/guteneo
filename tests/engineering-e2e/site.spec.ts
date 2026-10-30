@@ -153,7 +153,7 @@ test("Mermaid diagrams and administration are discoverable; engineering referenc
   await page.goto("/");
   await page.locator('main a[href="/architecture/diagrams/"]').first().click();
   await expect(page.locator("h1")).toContainText("Mermaid");
-  await expect(page.locator(".mermaid-figure")).toHaveCount(3);
+  await expect(page.locator(".mermaid-figure")).toHaveCount(4);
   for (const chart of await page.locator(".mermaid-figure img").all()) {
     await chart.scrollIntoViewIfNeeded();
     await expect.poll(() => chart.evaluate((element) => (element as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
