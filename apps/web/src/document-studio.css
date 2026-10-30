@@ -450,4 +450,8 @@
     position: sticky;
     top: 24px;
   }
+  /* Beside the preview, the form reads in one column. */
+  .correction-layout .business-fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
