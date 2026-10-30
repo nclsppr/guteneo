@@ -65,8 +65,8 @@ and authority dates, quote TTL and renewal, irreversible revocation, account and
 tenant drift, unchanged historical fingerprints and refusal of every sending
 path without provider or financial effects. Source and local tests do not prove
 production migration, installed access, an authenticated host conversation or
-OpenAI review. Apply migration before the runtime that reads its views, then
-review/install the exact private plan and verify its current guards separately.
+OpenAI review. Follow the [compatible runtime-first rollout](REVIEW_FAX_OPERATOR.md#safe-runtime-and-schema-rollout),
+then review/install the exact private plan and verify its current guards separately.
 
 Real sendable tariff maintenance is a different contract: registered commercial
 references can be [refreshed automatically](FAX_TARIFF_MAINTENANCE.md). Continuous

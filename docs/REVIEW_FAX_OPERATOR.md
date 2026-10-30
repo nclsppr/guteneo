@@ -8,12 +8,36 @@ preparation must remain available throughout a multi-week review. The
 quote limits and sending exclusions. The earlier weekly qualification procedure
 below remains historical and applies only to the legacy bounded path.
 
-Apply migration `0066_continuous_review_preparation.sql` before publishing code
-that reads its views. Migration and deployment create no access record, tariff,
+Complete the [safe runtime and schema rollout](#safe-runtime-and-schema-rollout)
+before installing an access record. Migration and deployment create no access record, tariff,
 account, balance, channel, mandate or communication. After explicit operator
 authorization, the utility binds the existing archived review tariff and
 original authority to the exact restricted reviewer. It does not fetch provider
 credentials, change their policies or rewrite historical evidence dates.
+
+### Safe runtime and schema rollout
+
+Fully deploy the compatible runtime first, verify its exact version and let prior
+in-flight work drain before applying migrations 0066 and 0067. The compatible
+runtime reads the old bounded review view without requiring the new optional
+columns, and omits a null access pointer from legacy quote hash material. Until
+the schema and explicit records exist, bounded legacy expiry still applies;
+continuous access and automatic maintenance are not active.
+
+Do not apply 0066 while the previous runtime can still read quotes: that runtime
+hashes every selected quote column, so the newly added null pointer would change
+its historical hash material. After the compatible rollout, the migration adds
+that column without changing legacy hashes under the deployed reader. Verify
+schema/integrity and current guards before applying either private plan. The new
+maintenance stage may report a missing-schema failure before 0067 is installed;
+it catches that failure and performs no refresh or business write.
+
+After 0066, any rollback build must retain the compatible quote reader and hash
+material. Do not roll back to 1.1.19: revoking new access records does not remove
+the nullable database column. Disable the opt-ins if necessary and keep a
+compatible runtime; restoring a database is a separate consequential operation.
+
+### Private access plan
 
 Keep the input and plan outside every Git working tree in a `0700` directory,
 with regular `0600` files. Never publish the identity, account identifiers,

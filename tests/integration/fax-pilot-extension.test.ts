@@ -54,25 +54,6 @@ const operator: Partial<FaxUsageTariff> = {
 async function sql(source: string) {
   return db.batch(unstable_splitSqlQuery(source).map((s) => db.prepare(s)));
 }
-// This fixture deliberately creates a bounded review on the pre-0064 schema.
-// Project absent continuous-access columns as null only for that historical
-// read; the real runtime still requires its complete current migration set.
-function historicalReviewProjection(database: D1Database): D1Database {
-  return new Proxy(database, {
-    get(target, property) {
-      if (property === "prepare")
-        return (source: string) =>
-          target.prepare(
-            source.replace(
-              "SELECT continuous_review_access_id,continuous_review_access_created_at FROM valid_review_fax_usage_tariffs",
-              "SELECT NULL AS continuous_review_access_id,NULL AS continuous_review_access_created_at FROM valid_review_fax_usage_tariffs",
-            ),
-          );
-      const value = Reflect.get(target, property);
-      return typeof value === "function" ? value.bind(target) : value;
-    },
-  });
-}
 async function snapshot() {
   const rows: Record<string, unknown> = {};
   for (const table of tables)
@@ -127,10 +108,7 @@ beforeAll(async () => {
   // A retained review quote can legitimately reference a subsequently revoked
   // authority. Restoring rows must not re-run the new-insertion authority guard.
   const reviewAt = "2026-10-01T12:00:00.000Z";
-  const review = await createFaxUsageFixture(
-    historicalReviewProjection(db),
-    () => Date.parse(reviewAt),
-  );
+  const review = await createFaxUsageFixture(db, () => Date.parse(reviewAt));
   await db
     .prepare(
       "UPDATE channel_controls SET enabled=0 WHERE organization_id=? AND channel='fax'",

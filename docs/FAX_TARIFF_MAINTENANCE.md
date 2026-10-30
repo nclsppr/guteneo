@@ -136,7 +136,8 @@ obtain the necessary production authority before applying that reviewed digest.
 Application rechecks the complete current binding atomically. Repeating the same
 successful plan is idempotent; a revoked or changed source is never reactivated.
 
-1. Review and apply the additive schema before the runtime that reads it.
+1. Follow the [compatible runtime-first rollout](REVIEW_FAX_OPERATOR.md#safe-runtime-and-schema-rollout),
+   drain prior in-flight work, then apply both additive migrations before registration.
 2. Qualify the fixed catalog endpoint with the actual server key, current selected
    link, bounded CSV and provider ownership without installing a price or sending.
    After the authorized runtime release, run

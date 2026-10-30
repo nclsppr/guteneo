@@ -15,7 +15,8 @@ remain intact. Current contracts: [review preparation](REVIEW_FAX_PREPARATION.md
 
 Qualify the fixed current-catalog endpoint with the actual server API key before
 activation; the old versioned CSV and an anonymous 401 do not prove that access.
-Complete exact-source checks, migration-before-runtime ordering, explicit private
+Complete exact-source checks, the compatible runtime-first rollout and drained
+prior work before the additive schema, then explicit private
 plans/registrations and hosted verification before reporting activation. No
 production migration, operator installation, Auth0 change, real communication,
 merge or deployment is established by these edits. The
@@ -27,6 +28,8 @@ equivalence, 459 schema objects, unchanged guard outcomes, successful quick chec
 and zero foreign-key violations. The new review view uses the equivalent SQLite
 `iif` expression accepted by the existing D1 transport parser. Continuous-review
 and historical pilot regressions also pass; this installs no production schema.
+The runtime-first sequence prevents the previous reader from hashing the newly
+added null quote pointer; see [the rollout contract](REVIEW_FAX_OPERATOR.md#safe-runtime-and-schema-rollout).
 
 ## Strict registration tooling — 30 October 2026 candidate
 

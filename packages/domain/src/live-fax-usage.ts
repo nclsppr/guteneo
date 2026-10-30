@@ -259,12 +259,12 @@ export async function resolveFaxUsageTariff(
     t?.execution_scope === "review_prepare_only"
       ? await db
           .prepare(
-            "SELECT continuous_review_access_id,continuous_review_access_created_at FROM valid_review_fax_usage_tariffs WHERE organization_id=? AND id=? AND review_recipient_phone=?",
+            "SELECT * FROM valid_review_fax_usage_tariffs WHERE organization_id=? AND id=? AND review_recipient_phone=?",
           )
           .bind(organizationId, t.id, number)
           .first<{
-            continuous_review_access_id: string | null;
-            continuous_review_access_created_at: string | null;
+            continuous_review_access_id?: string | null;
+            continuous_review_access_created_at?: string | null;
           }>()
       : null;
   const continuous = !!reviewAccess?.continuous_review_access_id;
@@ -309,7 +309,14 @@ export async function resolveFaxUsageTariff(
     throw unavailable();
   return {
     ...t,
-    ...(continuous ? reviewAccess : {}),
+    ...(continuous
+      ? {
+          continuous_review_access_id:
+            reviewAccess!.continuous_review_access_id,
+          continuous_review_access_created_at:
+            reviewAccess!.continuous_review_access_created_at,
+        }
+      : {}),
     pricing_version: 3,
     ...faxUsageEstimate(t, pages),
   };

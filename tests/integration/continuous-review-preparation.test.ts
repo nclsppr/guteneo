@@ -16,8 +16,10 @@ import {
 } from "../helpers/fax-usage-fixture";
 import {
   validateFaxUsageQuote,
+  resolveFaxUsageTariff,
   type FaxUsageTariff,
 } from "../../packages/domain/src/live-fax-usage";
+import { canonicalJson, sha256 } from "../../packages/domain/src/index";
 import {
   createLiveProviderHook,
   type LiveProviderEnv,
@@ -32,6 +34,105 @@ const stamp = () => new Date(clock).toISOString();
 const phone = "+35220000000"; // Isolated synthetic recipient; never transmitted.
 const expired = { code: "LIVE_PRICING_REQUIRED" };
 const reviewOnly = { code: "FAX_REVIEW_PREPARATION_ONLY" };
+
+async function isolatedBoundedReview() {
+  const isolated = new Miniflare(
+    convertV4MiniflareOptions({
+      modules: true,
+      script:
+        'export default {fetch(){return new Response("upgrade fixture")}}',
+      compatibilityDate: "2026-09-16",
+      d1Databases: ["DB"],
+    }),
+  );
+  try {
+    const database = (await isolated.getD1Database(
+      "DB",
+    )) as unknown as D1Database;
+    const directory = new URL("../../migrations/", import.meta.url);
+    const migrations = readdirSync(directory)
+      .filter((name) => name.endsWith(".sql"))
+      .sort();
+    const apply = async (file: string) =>
+      database.batch(
+        unstable_splitSqlQuery(
+          readFileSync(new URL(file, directory), "utf8"),
+        ).map((sql) => database.prepare(sql)),
+      );
+    for (const file of migrations.filter((name) => name < "0066"))
+      await apply(file);
+    const time = { value: Date.parse("2026-10-01T10:00:00.000Z") };
+    const f = await createFaxUsageFixture(database, () => time.value);
+    await database
+      .prepare(
+        "UPDATE channel_controls SET enabled=0 WHERE organization_id=? AND channel='fax'",
+      )
+      .bind(f.ctx.organizationId)
+      .run();
+    const authorityId = crypto.randomUUID();
+    await insertRecord(database, "fax_review_preparation_authorities", {
+      id: authorityId,
+      organization_id: f.ctx.organizationId,
+      sender_id: f.tariff.sender_id,
+      account_id: f.tariff.account_id,
+      connection_id: f.tariff.connection_id,
+      outbound_profile_id: f.tariff.outbound_profile_id,
+      recipient_phone: phone,
+      valid_from: "2026-10-01T10:00:00.000Z",
+      expires_at: "2026-10-31T10:00:00.000Z",
+      status: "active",
+      authorization_reference: "ISOLATED HISTORICAL BOUNDED AUTHORITY",
+      source_sha256: "c".repeat(64),
+      created_at: "2026-10-01T10:00:00.000Z",
+    });
+    const reference: FaxUsageTariff = {
+      ...f.tariff,
+      id: crypto.randomUUID(),
+      destination_prefix: "+35220",
+      destination_country_code: "LU",
+      origin_class: "local",
+      destination_category: "ngn",
+      route_qualification: "operator_test",
+      operator_authorization_reference: "ISOLATED HISTORICAL REFERENCE",
+      operator_test_ceiling_minor: 200,
+      execution_scope: "review_prepare_only",
+      review_authority_id: authorityId,
+      evidence_observed_at: "2026-10-01T10:00:00.000Z",
+      max_pages: 7,
+      quote_ttl_seconds: 900,
+      expires_at: "2026-10-08T10:00:00.000Z",
+    };
+    await insertRecord(database, "trusted_fax_usage_tariffs", reference);
+    const input = { ...f.input, recipient: { phone }, ceilingMinor: 200 };
+    const dispatch = await f.domain.prepareDispatch(
+      f.ctx,
+      input,
+      crypto.randomUUID(),
+    );
+    const saved = (await database
+      .prepare(
+        "SELECT * FROM live_fax_quotes_v3 WHERE organization_id=? AND dispatch_id=?",
+      )
+      .bind(f.ctx.organizationId, dispatch.id)
+      .first<Record<string, unknown>>())!;
+    return {
+      isolated,
+      database,
+      f,
+      time,
+      input,
+      dispatch,
+      saved,
+      upgrade: async () => {
+        for (const file of migrations.filter((name) => name >= "0066"))
+          await apply(file);
+      },
+    };
+  } catch (error) {
+    await isolated.dispose();
+    throw error;
+  }
+}
 
 beforeAll(async () => {
   mf = new Miniflare(
@@ -166,6 +267,88 @@ async function noExecution() {
 }
 
 describe("continuous unsendable reviewer access", () => {
+  it("runs the compatible worker against the pre-0066 bounded schema without granting continuous access", async () => {
+    const legacy = await isolatedBoundedReview();
+    try {
+      expect(legacy.saved).not.toHaveProperty("review_access_id");
+      const material = { ...legacy.saved };
+      delete material.fingerprint;
+      delete material.dispatch_fingerprint;
+      expect(await sha256(canonicalJson(material))).toBe(
+        legacy.saved.fingerprint,
+      );
+      const quote = await validateFaxUsageQuote(
+        legacy.database,
+        legacy.dispatch,
+        legacy.f.identity,
+        "2026-10-01T10:00:00.000Z",
+      );
+      expect(quote?.fingerprint).toBe(legacy.saved.fingerprint);
+      expect(legacy.dispatch.faxPricing).not.toHaveProperty("referenceBasis");
+      legacy.time.value = Date.parse("2026-11-15T10:00:00.000Z");
+      await expect(
+        legacy.f.domain.prepareDispatch(
+          legacy.f.ctx,
+          legacy.input,
+          crypto.randomUUID(),
+        ),
+      ).rejects.toMatchObject(expired);
+    } finally {
+      await legacy.isolated.dispose();
+    }
+  });
+
+  it("preserves the exact old quote hash when migrations add a null access pointer after the compatible worker", async () => {
+    const legacy = await isolatedBoundedReview();
+    try {
+      await legacy.upgrade();
+      expect(
+        await legacy.database
+          .prepare(
+            "SELECT * FROM live_fax_quotes_v3 WHERE organization_id=? AND dispatch_id=?",
+          )
+          .bind(legacy.f.ctx.organizationId, legacy.dispatch.id)
+          .first(),
+      ).toEqual({ ...legacy.saved, review_access_id: null });
+      const quote = await validateFaxUsageQuote(
+        legacy.database,
+        legacy.dispatch,
+        legacy.f.identity,
+        "2026-10-01T10:00:00.000Z",
+      );
+      expect(quote?.fingerprint).toBe(legacy.saved.fingerprint);
+      expect(quote?.review_access_id).toBeNull();
+      const reference = await resolveFaxUsageTariff(
+        legacy.database,
+        legacy.f.ctx.organizationId,
+        legacy.f.tariff.sender_id,
+        phone,
+        "{}",
+        2,
+        legacy.f.identity,
+        "2026-10-01T10:00:00.000Z",
+      );
+      expect(reference).not.toHaveProperty("continuous_review_access_id");
+      expect(reference).not.toHaveProperty("review_recipient_phone");
+      expect(reference).not.toHaveProperty("authority_expires_at");
+      for (const table of [
+        "fax_review_preparation_access",
+        "fax_tariff_refresh_sources",
+      ])
+        expect(
+          await legacy.database
+            .prepare(`SELECT COUNT(*) AS count FROM ${table}`)
+            .first(),
+        ).toEqual({ count: 0 });
+      expect(
+        (await legacy.database.prepare("PRAGMA foreign_key_check").all())
+          .results,
+      ).toEqual([]);
+    } finally {
+      await legacy.isolated.dispose();
+    }
+  });
+
   it("keeps expired review and ordinary provider pricing closed without opt-in", async () => {
     clock = Date.parse("2027-02-01T10:00:00.000Z");
     await expect(prepare()).rejects.toMatchObject(expired);

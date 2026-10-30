@@ -10,6 +10,9 @@ legacy quotes retain their original material. The continuous path uses archived
 reference dates while retaining the quote's own 900-second limit and all durable
 execution exclusions. Revocation or guard drift closes validation with no legacy
 fallback. [The reviewer contract](REVIEW_FAX_PREPARATION.md) owns this boundary.
+The compatible reader must be fully deployed before adding the nullable quote
+pointer; bounded old-schema reads and null-omitting historical hashes make that
+[staged rollout](REVIEW_FAX_OPERATOR.md#safe-runtime-and-schema-rollout) possible.
 
 Additive migration 0067 independently registers exact live commercial-source
 bindings. The existing scheduler resolves the current selected Telnyx catalog

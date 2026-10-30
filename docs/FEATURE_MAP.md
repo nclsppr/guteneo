@@ -1099,7 +1099,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - New immutable quotes bind review_access_id, retain the 900-second lifetime, seven-page limit and EUR2 ceiling, and explicitly identify archived_review_reference pricing
 - Irreversible revocation or guard drift closes preparation and quote validation without temporary-authority fallback; historical rows and fingerprints remain unchanged
 - No approval, acceptance, sending, reservation, provider attempt, outbox, media grant or financial settlement is available; the independent prepare_only account restriction remains in force
-- Read-only private planning precedes explicitly authorized digest-bound atomic application; no account/password/Auth0 change, periodic provider refresh or public API is added
+- Compatible bounded old-schema reads and null-omitting historical hashes permit a runtime-first rollout before schema; private planning and digest-bound atomic application grant no account/password/Auth0 change or public API
 
 **Contract:** [REVIEW_FAX_PREPARATION.md](REVIEW_FAX_PREPARATION.md) · **Implementation:** [scripts/enable-continuous-review.mjs](../scripts/enable-continuous-review.mjs)
 
@@ -1525,7 +1525,7 @@ Run the complete PR pipeline → independently account for all current test iden
 
 **Actor:** Explicitly authorized platform operator for setup; exact restricted reviewer for preparation. **Branch:** Operations.
 
-Inspect the existing archived review tariff, original authority and exact restricted sole-member account → review a private continuous-access plan → explicitly install its digest-bound access once → authenticate the intended account/client → import a synthetic exact PDF → prepare and track the review fax → explicitly renew an eligible expired quote when needed.
+Inspect the existing archived review tariff, original authority and exact restricted sole-member account → fully roll out the compatible reader and drain prior work before applying the schema → review a private continuous-access plan → explicitly install its digest-bound access once → authenticate the intended account/client → import a synthetic exact PDF → prepare and track the review fax → explicitly renew an eligible expired quote when needed.
 
 **Failure/recovery:** No periodic tariff/authority revalidation after continuous setup. Revocation, membership/identity/sender/recipient drift, enabled fax or expert policy and a missing scan close access without legacy fallback. Quotes remain unsendable and short-lived; do not treat an archive as a current supplier price or reuse another client’s OAuth qualification.
 
@@ -1535,7 +1535,7 @@ Inspect the existing archived review tariff, original authority and exact restri
 
 **Actor:** Explicitly authorized platform operator for registration; scheduled backend for bounded refresh. **Branch:** Operations.
 
-Review the supported local Luxembourg fixed +3524 operator-test route, empty options, seven-page/EUR2 limits and independent pilot deadline → qualify actual server-key catalog access through the bounded private service binding → register its exact global-conversational public commercial catalog binding once using private files → scheduler claims one due route → resolve the current CSV link with the fixed Telnyx API endpoint → reread genuine official source bytes and current provider ownership → validate route/FX and current registration → defer if a quote remains active → atomically insert a new immutable revision and retire only its exact predecessor → record coarse maintenance results.
+Review the supported local Luxembourg fixed +3524 operator-test route, empty options, seven-page/EUR2 limits and independent pilot deadline → fully roll out the compatible reader and drain prior work before schema installation → qualify actual server-key catalog access through the bounded private service binding → register its exact global-conversational public commercial catalog binding once using private files → scheduler claims one due route → resolve the current CSV link with the fixed Telnyx API endpoint → reread genuine official source bytes and current provider ownership → validate route/FX and current registration → defer if a quote remains active → atomically insert a new immutable revision and retire only its exact predecessor → record coarse maintenance results.
 
 **Failure/recovery:** Reject ambiguous/stale sources, identity drift, expired independent operator authority, lost leases and concurrent predecessor changes. Preserve historical quotes and source dates. Back off on failure; existing valid pricing may continue only under its original bounds, while expired pricing fails closed. No sending, mandate, consent or paid infrastructure is created.
 
