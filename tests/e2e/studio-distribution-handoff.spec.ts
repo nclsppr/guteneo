@@ -433,7 +433,7 @@ for (const denied of ["foreign", "unavailable", "viewer"] as const) {
       );
     else
       await expect(page.getByRole("alert")).toContainText(
-        "Private batch not found.",
+        "Lot privé introuvable.",
       );
     expect(state.writes).toEqual([]);
     expect(state.unexpected).toEqual([]);

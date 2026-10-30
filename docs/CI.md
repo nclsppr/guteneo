@@ -1,5 +1,11 @@
 # GitHub verification pipeline
 
+French browser fixtures assert the actual translated refusal shown by the
+interface while their simulated API responses retain the English contract.
+Restoring a catalog entry must update the corresponding visible-text assertion,
+not weaken the tenant, membership, hidden-form or zero-write checks. A translated
+refusal remains a refusal; fixture expectations must follow the selected locale.
+
 The required checks remain **verify** and **scanner**. This workflow builds and tests local fixtures only; it does not deploy or receive production secrets. Every pull request runs the full pipeline, and `main` runs it again after merge. Feature-branch push runs have been removed so an open PR no longer starts two copies. No path filters or conditional test selection skip checks on documentation-only changes.
 
 Private scanner and PDF-validator package locks retain the patched Undici

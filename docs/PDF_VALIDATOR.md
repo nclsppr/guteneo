@@ -280,3 +280,7 @@ binding to the application (`PDF_VALIDATOR` → `guteneo-pdf-validator`). Missin
 binding must keep the feature unavailable. The public design preview never
 receives this binding. Scanner refresh, production migrations and native-client
 qualification remain separate workflows.
+
+The root security suite also imports the validator Worker behavior tests. Both
+root and service manifests therefore declare the exact JSONC parser dependency;
+a service-local install cannot qualify the root-only CI installation.

@@ -1,7 +1,7 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
 # Guteneo feature tree and developer atlas
 
-**24 domains · 379 features · 38 journeys · 76 documented REST operations · 83 MCP tools**
+**24 domains · 380 features · 38 journeys · 76 documented REST operations · 83 MCP tools**
 Updated 2026-10-30.
 
 Repository implementation inventory. Availability depends on current capabilities and authority; implementation, activation and deployed proof are distinct.
@@ -38,7 +38,7 @@ mindmap
       Public pages, languages and appearance (23)
     Operations
       Reviewer OAuth qualification (9)
-      Operations and reliability (28)
+      Operations and reliability (29)
       Belvédère platform oversight (12)
       Public service status (16)
       Engineering documentation (12)
@@ -81,7 +81,7 @@ mindmap
 ### Operations
 
 - [Reviewer OAuth qualification](#reviewer-oauth) — 9 features; operator-gated.
-- [Operations and reliability](#operations) — 28 features; operator-gated.
+- [Operations and reliability](#operations) — 29 features; operator-gated.
 - [Belvédère platform oversight](#belvedere) — 12 features; operator-gated.
 - [Public service status](#status) — 16 features; public.
 - [Engineering documentation](#engineering-docs) — 12 features; public.
@@ -959,6 +959,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - CI builds the final non-preview frontend once before unchanged Worker dry runs, executes documentation guards once through docs:check and places the once-only MCP Apps SDK fixtures on desktop Chromium shard three; complete suites, immutable evidence and required main/PR gates remain unchanged, with hosted timing qualification separate
 - Prepared dependency redelivery qualifies a genuine merged Dependabot root npm update only after complete exact-current-main CI, serialized clean-main publication and canonical served-byte verification; a dedicated application token was installed on 29 October with expiry on 27 January 2027; hosted release activation still requires merged workflow and exact-source proof; MCP dependencies require synchronized reviewed plugin publication, unsupported MCP/PDFme versions remain held and routine major toolchain migrations require review
 - Operator-only native strict Auth0 MCP registration controller defaults to sanitized GET inspection and requires an exact fresh fingerprint for separately authorized changes; preserves static clients, account connection, explicit scopes, current membership, consent and approval. Legacy-extension inspection, capacity, OIDC interoperability and real host qualification remain fail-closed activation gates; application deployment does not activate DCR.
+- TypeScript 7 validator behavior tests use native Node type stripping and an exact JSONC parser declared in both root and service manifests; independent root-only and service-only installs preserve complete shared security assertions.
 
 **Contract:** [CI.md](CI.md) · **Implementation:** [scripts/deploy-public.mjs](../scripts/deploy-public.mjs)
 

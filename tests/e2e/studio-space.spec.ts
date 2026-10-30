@@ -324,7 +324,7 @@ test("a withdrawn membership is refused, keeps the current workspace and leaves 
     .getByRole("button", { name: "Atelier retiré", exact: true })
     .click();
   await expect(
-    spaces(page).getByText("You are not a member of this workspace."),
+    spaces(page).getByText("Vous n’êtes pas membre de cet espace de travail."),
   ).toBeVisible();
   await expect(trigger).toContainText("Atelier de démonstration");
   await expect(page).toHaveURL(/#\/app\/documents$/);

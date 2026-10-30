@@ -368,7 +368,9 @@ checks; root dependency-preflight success cannot replace those service checks.
 
 The private PDF-validator package typechecks with TypeScript 7. Its Node
 behavior suites strip type syntax with the supported Node runtime and parse
-Wrangler JSONC with a pinned package-local parser; they retain every original
+Wrangler JSONC with an exact parser dependency in both the service package and
+root package, because the root security suite imports those service tests. Each
+install must resolve this test dependency independently; the suites retain every original
 Worker contract assertion. A compiler major update must qualify both the CLI
 and any compiler API used by tests. Passing `tsc` alone cannot qualify a removed
 JavaScript compiler API or an incompatible Astro checker peer dependency.
