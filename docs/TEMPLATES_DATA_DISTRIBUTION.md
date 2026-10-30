@@ -26,7 +26,11 @@ correction, shown beside the form on wide screens; when a destination takes its
 recipients from the data, the same read of the first selected record offers its
 field names as suggestions. The current membership,
 tenant and creator gates are rechecked; shared-template or review access grants
-no access to private source inputs. This adds no MCP tool or native permission.
+no access to private source inputs. The optional current template name also
+requires current template read permission; revoking sharing hides that metadata
+while the creator retains their own generation and record labels. A local D1/R2
+regression covers sharing, revocation and a later private rename. This adds no MCP
+tool or native permission.
 
 [Local acceptance](STUDIO_SPACE_REPRISE.md) records the actual V1/V2 and missing-
 data checks separately from browser fixtures and deployed/provider qualification.

@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { ContentError } from "../../../packages/contracts/src/content";
 import { getTemplateValue } from "../../../packages/contracts/src/templates";
+import { workspacePermissions } from "../../../packages/contracts/src/roles";
 import type {
   GenerationContextPage,
   GenerationRecordContext,
@@ -119,11 +120,20 @@ export async function generationRecordContext(
       documentId: contexts[0].documentId,
     };
   }
-  // The owner's own template name, so pages need no second, dependent read.
+  // Generation ownership does not retain access to current template metadata.
   const template = await env.DB.prepare(
-    "SELECT t.name FROM generation_jobs j JOIN document_templates t ON t.organization_id=j.organization_id AND t.id=j.template_id AND t.deleted_at IS NULL WHERE j.organization_id=? AND j.id=? AND j.owner_id=?",
+    "SELECT t.name FROM generation_jobs j JOIN document_templates t ON t.organization_id=j.organization_id AND t.id=j.template_id AND t.deleted_at IS NULL LEFT JOIN template_permissions p ON p.organization_id=t.organization_id AND p.template_id=t.id AND p.user_id=j.owner_id JOIN memberships m ON m.organization_id=j.organization_id AND m.user_id=j.owner_id AND m.role=? AND (m.role<>'supervisor' OR (m.supervisor_can_approve=? AND m.supervisor_can_report=?)) JOIN organizations o ON o.id=m.organization_id AND o.mode=? WHERE j.organization_id=? AND j.id=? AND j.owner_id=? AND (t.owner_id=j.owner_id OR t.visibility='organization' OR (t.visibility<>'private' AND (p.can_use=1 OR (?=1 AND (p.can_edit=1 OR p.can_publish=1 OR p.can_share=1)))))",
   )
-    .bind(ctx.organizationId, id, ctx.userId)
+    .bind(
+      ctx.role,
+      Number(Boolean(ctx.supervisorCanApprove)),
+      Number(Boolean(ctx.supervisorCanReport)),
+      env.MODE,
+      ctx.organizationId,
+      id,
+      ctx.userId,
+      Number(workspacePermissions(ctx.role).prepareDispatches),
+    )
     .first<{ name: string }>();
   return {
     items: contexts.map(({ context }) => context),
