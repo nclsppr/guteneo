@@ -226,40 +226,6 @@
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 14px;
 }
-.studio-table {
-  width: 100%;
-  overflow: auto;
-  border: 1px solid var(--line);
-  margin: 16px 0;
-}
-.studio-table table {
-  min-width: 640px;
-  margin: 0;
-}
-.studio-table th,
-.studio-table td {
-  vertical-align: top;
-  white-space: normal;
-  max-width: 320px;
-  overflow-wrap: anywhere;
-}
-.studio-generation-results table {
-  min-width: 800px;
-}
-.studio-generation-results th:first-child {
-  white-space: nowrap;
-}
-.studio-generation-results th[scope="row"] {
-  min-width: 180px;
-}
-/* The person's name leads; subject and reference follow in plain text. */
-.studio-generation-results th[scope="row"] div {
-  font-weight: 400;
-}
-.studio-generation-results th[scope="row"] .studio-meta {
-  color: var(--muted);
-  font-size: 13px;
-}
 .studio-generation-actions {
   display: flex;
   flex-wrap: wrap;
@@ -422,7 +388,6 @@
 .studio-gallery :where(h3, p) {
   overflow-wrap: anywhere;
 }
-.studio-table:focus-visible,
 .studio-record-selection:focus-visible {
   outline: 2px solid var(--ink);
   outline-offset: 3px;

@@ -1,0 +1,67 @@
+{
+  "Rechercher dans {0}": ["Search in {0}", "In {0} suchen", "An {0} sichen"],
+  "Rechercher dans les lignes chargées": [
+    "Search loaded rows",
+    "Geladene Zeilen durchsuchen",
+    "An de geluedenen Zeile sichen"
+  ],
+  "{0} : tous": ["{0}: all", "{0}: alle", "{0}: all"],
+  "Effacer les filtres": [
+    "Clear filters",
+    "Filter zurücksetzen",
+    "Filter zerécksetzen"
+  ],
+  "Trier par colonne": [
+    "Sort by column",
+    "Nach Spalte sortieren",
+    "No Kolonn sortéieren"
+  ],
+  "Trier par ordre décroissant": [
+    "Sort descending",
+    "Absteigend sortieren",
+    "Ofsteigend sortéieren"
+  ],
+  "Trier par ordre croissant": [
+    "Sort ascending",
+    "Aufsteigend sortieren",
+    "Opsteigend sortéieren"
+  ],
+  "Aucune ligne correspondante": [
+    "No matching rows",
+    "Keine passenden Zeilen",
+    "Keng passend Zeilen"
+  ],
+  "Aucune ligne à afficher": [
+    "No rows to display",
+    "Keine Zeilen vorhanden",
+    "Keng Zeile fir unzeweisen"
+  ],
+  "{0}–{1} sur {2} lignes chargées": [
+    "{0}–{1} of {2} loaded rows",
+    "{0}–{1} von {2} geladenen Zeilen",
+    "{0}–{1} vun {2} geluedenen Zeilen"
+  ],
+  "{0} lignes sur cette page": [
+    "{0} rows on this page",
+    "{0} Zeilen auf dieser Seite",
+    "{0} Zeilen op dëser Säit"
+  ],
+  "{0} avant filtrage": [
+    "{0} before filtering",
+    "{0} vor dem Filtern",
+    "{0} virum Filteren"
+  ],
+  "Lignes par page": ["Rows per page", "Zeilen pro Seite", "Zeile pro Säit"],
+  "Pagination de {0}": [
+    "Pagination for {0}",
+    "Seitennavigation für {0}",
+    "Säitennavigatioun fir {0}"
+  ],
+  "Page précédente": ["Previous page", "Vorherige Seite", "Vireg Säit"],
+  "Page suivante": ["Next page", "Nächste Seite", "Nächst Säit"],
+  "Page {0} sur {1}": [
+    "Page {0} of {1}",
+    "Seite {0} von {1}",
+    "Säit {0} vun {1}"
+  ]
+}

@@ -1,3 +1,4 @@
+import { DataTable, tableTimestamp } from "./data-table";
 import { msg } from "./messages";
 import { studioRoutes } from "./app-routes";
 import { FileInput } from "./file-input";
@@ -249,61 +250,44 @@ export function Campaigns({
                   </Definition>
                 </dl>
                 {validated.rows.length > 0 && (
-                  <div className="table-scroll csv-preview">
-                    <table className="responsive-table" role="table">
-                      <thead role="rowgroup">
-                        <tr role="row">
-                          <th role="columnheader" scope="col">
-                            {t.campaigns.row}
-                          </th>
-                          <th role="columnheader" scope="col">
-                            {t.channel}
-                          </th>
-                          <th role="columnheader" scope="col">
-                            {t.recipient}
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody role="rowgroup">
-                        {validated.rows.slice(0, 25).map((row) => (
-                          <tr role="row" key={row.line}>
-                            <td role="cell">
-                              <span
-                                className="mobile-cell-label"
-                                aria-hidden="true"
-                              >
-                                {t.campaigns.row}
-                              </span>
-                              {row.line}
-                            </td>
-                            <td role="cell">
-                              <span
-                                className="mobile-cell-label"
-                                aria-hidden="true"
-                              >
-                                {t.channel}
-                              </span>
-                              {t.channels[row.channel]}
-                            </td>
-                            <td role="cell">
-                              <span
-                                className="mobile-cell-label"
-                                aria-hidden="true"
-                              >
-                                {t.recipient}
-                              </span>
-                              {Object.values(row.recipient)
-                                .filter(Boolean)
-                                .join(", ")}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-                {validated.rows.length > 25 && (
-                  <p className="field-hint">{t.campaigns.previewLimited}</p>
+                  <DataTable
+                    label={t.campaigns.validationTitle}
+                    items={validated.rows}
+                    getRowKey={(row) => row.line}
+                    columns={[
+                      {
+                        id: "line",
+                        label: t.campaigns.row,
+                        value: (row) => row.line,
+                      },
+                      {
+                        id: "channel",
+                        label: t.channel,
+                        value: (row) => t.channels[row.channel],
+                      },
+                      {
+                        id: "recipient",
+                        label: t.recipient,
+                        value: (row) =>
+                          Object.values(row.recipient)
+                            .filter(Boolean)
+                            .join(", "),
+                      },
+                    ]}
+                    filters={[
+                      {
+                        id: "channel",
+                        label: t.channel,
+                        value: (row) => row.channel,
+                        options: [
+                          ...new Set(validated.rows.map((row) => row.channel)),
+                        ].map((channel) => ({
+                          value: channel,
+                          label: t.channels[channel],
+                        })),
+                      },
+                    ]}
+                  />
                 )}
                 {validated.errors.length > 0 && (
                   <ul className="validation-errors">
@@ -433,68 +417,69 @@ export function Campaigns({
       ) : !campaigns.data?.items.length ? (
         <EmptyState title={t.campaigns.empty} />
       ) : (
-        <div className="table-scroll">
-          <table className="responsive-table" role="table">
-            <thead role="rowgroup">
-              <tr role="row">
-                <th role="columnheader" scope="col">
-                  {t.campaigns.name}
-                </th>
-                <th role="columnheader" scope="col">
-                  {t.status}
-                </th>
-                <th role="columnheader" scope="col">
-                  {t.created}
-                </th>
-                <th role="columnheader" scope="col">
-                  <span className="sr-only">{t.open}</span>
-                </th>
-              </tr>
-            </thead>
-            <tbody role="rowgroup">
-              {campaigns.data.items.map((campaign) => (
-                <tr role="row" key={campaign.id}>
-                  <td role="cell">
-                    <span className="mobile-cell-label" aria-hidden="true">
-                      {t.campaigns.name}
-                    </span>
-                    <a
-                      className="row-link"
-                      href={`#/app/campaign/${campaign.id}`}
-                    >
-                      {campaign.name}
-                      <span className="reference mono">{campaign.id}</span>
-                    </a>
-                  </td>
-                  <td role="cell">
-                    <span className="mobile-cell-label" aria-hidden="true">
-                      {t.status}
-                    </span>
-                    <Status status={campaign.status} />
-                  </td>
-                  <td role="cell" className="date-cell">
-                    <span className="mobile-cell-label" aria-hidden="true">
-                      {t.created}
-                    </span>
-                    {date(campaign.created_at)}
-                  </td>
-                  <td role="cell">
-                    <span className="mobile-cell-label" aria-hidden="true">
-                      {t.open}
-                    </span>
-                    <a
-                      className="icon-link"
-                      href={`#/app/campaign/${campaign.id}`}
-                      aria-label={`${t.open} ${campaign.name}`}
-                    >
-                      <ArrowRight size={19} />
-                    </a>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <DataTable
+          label={t.campaigns.list}
+          items={campaigns.data.items}
+          getRowKey={(campaign) => campaign.id}
+          columns={[
+            {
+              id: "name",
+              label: t.campaigns.name,
+              value: (campaign) => `${campaign.name} ${campaign.id}`,
+              render: (campaign) => (
+                <a className="row-link" href={`#/app/campaign/${campaign.id}`}>
+                  {campaign.name}
+                  <span className="reference mono">{campaign.id}</span>
+                </a>
+              ),
+            },
+            {
+              id: "status",
+              label: t.status,
+              value: (campaign) =>
+                t.statuses[campaign.status] ?? campaign.status,
+              render: (campaign) => <Status status={campaign.status} />,
+            },
+            {
+              id: "created",
+              label: t.created,
+              value: (campaign) => tableTimestamp(campaign.created_at),
+              searchValue: (campaign) => date(campaign.created_at),
+              render: (campaign) => date(campaign.created_at),
+              className: "date-cell",
+            },
+            {
+              id: "actions",
+              label: t.open,
+              value: () => "",
+              sortable: false,
+              render: (campaign) => (
+                <a
+                  className="icon-link"
+                  href={`#/app/campaign/${campaign.id}`}
+                  aria-label={`${t.open} ${campaign.name}`}
+                >
+                  <ArrowRight size={19} />
+                </a>
+              ),
+            },
+          ]}
+          filters={[
+            {
+              id: "status",
+              label: t.status,
+              value: (campaign) => campaign.status,
+              options: [
+                ...new Set(
+                  campaigns.data.items.map((campaign) => campaign.status),
+                ),
+              ].map((status) => ({
+                value: status,
+                label: t.statuses[status] ?? status,
+              })),
+            },
+          ]}
+        />
       )}
       <LoadMore
         path="/campaigns"
@@ -623,79 +608,85 @@ export function Senders({
       ) : !resource.data?.items.length ? (
         !postalSetup?.available && <EmptyState title={t.senders.empty} />
       ) : (
-        <div className="table-scroll">
-          <table className="responsive-table" role="table">
-            <thead role="rowgroup">
-              <tr role="row">
-                <th role="columnheader" scope="col">
-                  {t.senders.profile}
-                </th>
-                <th role="columnheader" scope="col">
-                  {t.channel}
-                </th>
-                <th role="columnheader" scope="col">
-                  {t.senders.address}
-                </th>
-                <th role="columnheader" scope="col">
-                  {t.status}
-                </th>
-              </tr>
-            </thead>
-            <tbody role="rowgroup">
-              {resource.data.items.map((sender) => (
-                <tr role="row" key={sender.id}>
-                  <td role="cell">
-                    <span className="mobile-cell-label" aria-hidden="true">
-                      {t.senders.profile}
+        <DataTable
+          label={t.senders.title}
+          items={resource.data.items}
+          getRowKey={(sender) => sender.id}
+          columns={[
+            {
+              id: "profile",
+              label: t.senders.profile,
+              value: (sender) => `${sender.name ?? ""} ${sender.id}`,
+              render: (sender) => (
+                <>
+                  <strong>{sender.name ?? sender.id}</strong>
+                  <span className="reference mono">{sender.id}</span>
+                </>
+              ),
+            },
+            {
+              id: "channel",
+              label: t.channel,
+              value: (sender) => t.channels[sender.channel],
+              render: (sender) => <ChannelLabel channel={sender.channel} />,
+            },
+            {
+              id: "address",
+              label: t.senders.address,
+              value: (sender) =>
+                sender.address ??
+                sender.email ??
+                sender.phone ??
+                t.senders.unavailable,
+            },
+            {
+              id: "status",
+              label: t.status,
+              value: (sender) =>
+                t.statuses[
+                  sender.status ?? (sender.verified ? "ready" : "pending")
+                ] ??
+                sender.status ??
+                "",
+              render: (sender) => (
+                <>
+                  {sender.id === postalSetup?.sender?.id &&
+                  postalSetup.senderVerification !== null &&
+                  sender.status === "verified" ? (
+                    <span className="status">
+                      {postalSetup.senderVerification ===
+                      "oauth_administrator_submission"
+                        ? t.postalSetup.submittedInChat
+                        : t.postalSetup.declared}
                     </span>
-                    <strong>{sender.name ?? sender.id}</strong>
-                    <span className="reference mono">{sender.id}</span>
-                  </td>
-                  <td role="cell">
-                    <span className="mobile-cell-label" aria-hidden="true">
-                      {t.channel}
-                    </span>
-                    <ChannelLabel channel={sender.channel} />
-                  </td>
-                  <td role="cell">
-                    <span className="mobile-cell-label" aria-hidden="true">
-                      {t.senders.address}
-                    </span>
-                    {sender.address ??
-                      sender.email ??
-                      sender.phone ??
-                      t.senders.unavailable}
-                  </td>
-                  <td role="cell">
-                    <span className="mobile-cell-label" aria-hidden="true">
-                      {t.status}
-                    </span>
-                    {sender.id === postalSetup?.sender?.id &&
-                    postalSetup.senderVerification !== null &&
-                    sender.status === "verified" ? (
-                      <span className="status">
-                        {postalSetup.senderVerification ===
-                        "oauth_administrator_submission"
-                          ? t.postalSetup.submittedInChat
-                          : t.postalSetup.declared}
-                      </span>
-                    ) : (
-                      <Status
-                        status={
-                          sender.status ??
-                          (sender.verified ? "ready" : "pending")
-                        }
-                      />
-                    )}
-                    {sender.mode === "simulation" && (
-                      <small className="sub-label">{t.simulation}</small>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                  ) : (
+                    <Status
+                      status={
+                        sender.status ?? (sender.verified ? "ready" : "pending")
+                      }
+                    />
+                  )}
+                  {sender.mode === "simulation" && (
+                    <small className="sub-label">{t.simulation}</small>
+                  )}
+                </>
+              ),
+            },
+          ]}
+          filters={[
+            {
+              id: "channel",
+              label: t.channel,
+              value: (sender) => sender.channel,
+              options: [
+                ...new Set(resource.data.items.map((sender) => sender.channel)),
+              ].map((channel) => ({
+                value: channel,
+                label: t.channels[channel],
+              })),
+            },
+          ]}
+        />
       )}
     </>
   );
@@ -955,62 +946,48 @@ export function Admin({ children }: { children?: ReactNode }) {
         <h2 className="section-title">{t.admin.deadLetters}</h2>
         {!!diagnostics.data?.deadLetters?.length && <DateTimezone />}
         {diagnostics.data?.deadLetters?.length ? (
-          <div className="table-scroll">
-            <table className="responsive-table" role="table">
-              <thead role="rowgroup">
-                <tr role="row">
-                  <th role="columnheader" scope="col">
-                    {t.identifier}
-                  </th>
-                  <th role="columnheader" scope="col">
-                    {t.admin.queue}
-                  </th>
-                  <th role="columnheader" scope="col">
-                    {t.created}
-                  </th>
-                  <th role="columnheader" scope="col">
-                    {t.actions}
-                  </th>
-                </tr>
-              </thead>
-              <tbody role="rowgroup">
-                {diagnostics.data.deadLetters.map((receipt) => (
-                  <tr role="row" key={receipt.id}>
-                    <td role="cell">
-                      <span className="mobile-cell-label" aria-hidden="true">
-                        {t.identifier}
-                      </span>
-                      <code>{receipt.id}</code>
-                    </td>
-                    <td role="cell">
-                      <span className="mobile-cell-label" aria-hidden="true">
-                        {t.admin.queue}
-                      </span>
-                      <code>{receipt.queue}</code>
-                    </td>
-                    <td role="cell" className="date-cell">
-                      <span className="mobile-cell-label" aria-hidden="true">
-                        {t.created}
-                      </span>
-                      {date(receipt.received_at)}
-                    </td>
-                    <td role="cell">
-                      <span className="mobile-cell-label" aria-hidden="true">
-                        {t.actions}
-                      </span>
-                      <a
-                        className="text-link"
-                        href={`#/app/dispatch/${receipt.dispatch_id}`}
-                      >
-                        {t.admin.inspectJob}
-                        <ArrowRight size={17} />
-                      </a>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <DataTable
+            label={t.admin.deadLetters}
+            items={diagnostics.data.deadLetters}
+            getRowKey={(receipt) => receipt.id}
+            columns={[
+              {
+                id: "id",
+                label: t.identifier,
+                value: (receipt) => receipt.id,
+                render: (receipt) => <code>{receipt.id}</code>,
+              },
+              {
+                id: "queue",
+                label: t.admin.queue,
+                value: (receipt) => receipt.queue,
+                render: (receipt) => <code>{receipt.queue}</code>,
+              },
+              {
+                id: "created",
+                label: t.created,
+                value: (receipt) => tableTimestamp(receipt.received_at),
+                searchValue: (receipt) => date(receipt.received_at),
+                render: (receipt) => date(receipt.received_at),
+                className: "date-cell",
+              },
+              {
+                id: "actions",
+                label: t.actions,
+                value: () => "",
+                sortable: false,
+                render: (receipt) => (
+                  <a
+                    className="text-link"
+                    href={`#/app/dispatch/${receipt.dispatch_id}`}
+                  >
+                    {t.admin.inspectJob}
+                    <ArrowRight size={17} />
+                  </a>
+                ),
+              },
+            ]}
+          />
         ) : (
           diagnostics.data && (
             <p className="empty-inline">{t.admin.noDeadLetters}</p>

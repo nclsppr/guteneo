@@ -1,0 +1,99 @@
+{
+  "qualification": "Local synthetic browser and simulator fixtures; not physical devices, hosted CI, authenticated providers or production publication.",
+  "stage": "Complete regressions before the final optional exact-decimal sorting correction; affected final-source checks are recorded separately.",
+  "bundles": {
+    "web": "ae32b83414f83174347538885d66fa189927294d624bc3021c24d31d26995ab8",
+    "preview": "7b6528fa11355ba096718242230345b55461434d21abcf636a99b87e3741e358"
+  },
+  "suites": [
+    {
+      "suite": "Application: Chromium and iPhone WebKit",
+      "stats": {
+        "startTime": "2026-10-30T15:26:10.506Z",
+        "duration": 67304.75899999999,
+        "expected": 54,
+        "skipped": 2,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "reportSha256": "69a7fe17d13827e2230d597cb71901e8a2335d12f03249f4baf6093ca65e4e62"
+    },
+    {
+      "suite": "Belvedere: Chromium and iPhone WebKit",
+      "stats": {
+        "startTime": "2026-10-30T15:22:51.623Z",
+        "duration": 90188.72099999999,
+        "expected": 48,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "reportSha256": "c7125dd88699d8d1bc2ef9ff7289ec231bf3f9fe7ea9b067d63af3171677c65f"
+    }
+  ],
+  "finalAffectedChecks": {
+    "decimalProviderColumns": {
+      "suite": "Exact provider decimal ordering: desktop Chromium and iPhone WebKit",
+      "stats": {
+        "startTime": "2026-10-30T15:31:56.620Z",
+        "duration": 5254.189,
+        "expected": 2,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "reportSha256": "db8d862d16f60b2d491c0a53062f46a9c695a13c56bb83afc121f8f3ffb13a03",
+      "sourceManifestSha256": "6540d976d8429231661ddf8160a843aae2571fb734d4ac3539975a79398d4be1"
+    },
+    "completePreview": {
+      "suite": "Final browser-only preview: Chromium and iPhone WebKit",
+      "stats": {
+        "startTime": "2026-10-30T15:35:04.594Z",
+        "duration": 41905.93,
+        "expected": 42,
+        "skipped": 4,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "reportSha256": "afd98606ec3cf3443b089775a35449baba407c90328c04ab19ce82f05044423b"
+    }
+  },
+  "unitIntegrationSecurity": {
+    "command": "npm test",
+    "testFilesPassed": 162,
+    "unitAndIntegrationPassed": 3334,
+    "unitAndIntegrationFailed": 0,
+    "securityPassed": 622,
+    "securityFailed": 0,
+    "vitestReportSha256": "170e5e6460b3293a687fa5e59d69e620047fc5f8543d86da937999a7e2208a8d",
+    "completeCommandLogSha256": "ba0624b1bb81b6ffd4a6daf757d7b5cbebe1e52530103cb5bcfbcd338bf443a4",
+    "localOnly": true
+  },
+  "finalFrontendFingerprints": {
+    "gitBase": "13d5553f8e9b93cf0f8d6e296943c65c0155ec66",
+    "dirty": true,
+    "indexSha256": "ce155c5a9a0fe16bd7ebafb1f35f0b8dbed2da46d6cebcfd3920ba3d446e30a1",
+    "sourceFingerprints": {
+      "apps/web/src/data-table.tsx": "07f4b022c9f873c5401b41814710470ee22c42b2e8095f80b2199717ecdd4a3d",
+      "apps/web/src/data-table.css": "231ee2f2ec0da5d0240ee733fce507e275da5c9c04b241f345c7c4e3a7a6a0bb",
+      "apps/web/src/data-table-model.ts": "05e87c153d541fc9b87ed8feeca2664a7c924a2c0707c82b4600762876eb79f5",
+      "apps/web/src/account-page.tsx": "fdb493ce9bf754a1ce903672f6135361418887f7e3c55532f32da454275ae87d",
+      "apps/web/src/components.tsx": "026ba536dd7229fc916157aef43ea1b6a22736145def28a450a37c44e07235ae",
+      "apps/web/src/dispatch-pages.tsx": "ebd738be3ab18592ef34fd4d0f733e1e3d5b31d0b2f5a77b91262d28828fe4d2",
+      "apps/web/src/dashboard-v2.css": "7d19c159045126e3d3406d222d24af07aef30c3db57734d9066a07e75e730623"
+    },
+    "probeSha256": "c0f5c9410d8f8cca722d33d6ced569ba858706aa38f02746e1f562cc36f20749"
+  },
+  "finalBundles": {
+    "web": "75294691846f4d4fb8e7050ca09d137bcd8c2e8a0a207a7dda6df94d065b9a84",
+    "preview": "e5b0c2c42017dabb82e66e21f83d256a6b016d05c7c293d1ed7d343623c1f346"
+  },
+  "finalDecimalSourceFingerprints": {
+    "apps/web/src/data-table-model.ts": "05e87c153d541fc9b87ed8feeca2664a7c924a2c0707c82b4600762876eb79f5",
+    "apps/web/src/data-table.tsx": "07f4b022c9f873c5401b41814710470ee22c42b2e8095f80b2199717ecdd4a3d",
+    "apps/web/src/dataset-pages.tsx": "9e50c2d8f89d68e4c4dd38f943e637cf38e4b6de849090d23443a0ae852f9011",
+    "apps/web/src/belvedere.tsx": "66fa7d0321360f03f3448ce8280146ffd1b7a7e9cc0d4d61aeea20b033285eb0",
+    "tests/unit/data-table-model.test.ts": "da2f7f1521073497d88ef86c481b8e5fd70e09684c1814aa4fd08bf177d0d3cc",
+    "tests/belvedere-e2e/control-tower.spec.ts": "37c75901a7e130e3cb9051484beb3db2e69491385fbbd92a79ab6e11a6379705"
+  }
+}

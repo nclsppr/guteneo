@@ -6,7 +6,11 @@ async function fits(page: Page) {
   expect(
     await page.evaluate(() => document.documentElement.scrollWidth),
   ).toBeLessThanOrEqual((page.viewportSize()?.width ?? 0) + 1);
-  for (const table of await page.locator("main .table-scroll").all()) {
+  for (const table of await page
+    .locator(
+      'main .table-scroll, main .data-table[data-layout="cards"] .data-table__scroll',
+    )
+    .all()) {
     expect(
       await table.evaluate(
         (element) => element.scrollWidth - element.clientWidth,
@@ -250,17 +254,36 @@ test("mobile tables retain all fields without horizontal scrolling at 320px and 
       // controls only after the requested destination replaces that page.
       await expect(page.locator("main h1")).toHaveText(title);
       await fits(page);
-      for (const row of await page
-        .locator(".responsive-table tbody tr")
+      for (const table of await page
+        .locator(".responsive-table, .data-table__grid")
         .all()) {
-        for (const cell of await row
-          .locator(":scope > td, :scope > th")
-          .all()) {
-          await expect(cell).toBeVisible();
-          await expect(cell.locator(".mobile-cell-label")).toBeVisible();
+        const cards = await table.evaluate(
+          (element) => getComputedStyle(element).display === "block",
+        );
+        for (const row of await table.locator("tbody tr").all()) {
+          const cells = row.locator(":scope > td, :scope > th");
+          expect(await cells.count()).toBeGreaterThan(0);
+          for (const cell of await cells.all()) {
+            await expect(cell).toBeVisible();
+            if (cards) {
+              if ((await cell.getAttribute("data-column")) === "actions") {
+                await expect(
+                  cell.getByRole("link").or(cell.getByRole("button")).first(),
+                ).toBeVisible();
+              } else {
+                await expect(
+                  cell.locator(".mobile-cell-label, .data-table__cell-label"),
+                ).toBeVisible();
+              }
+            }
+          }
+        }
+        if (!cards) {
+          for (const header of await table.getByRole("columnheader").all())
+            await expect(header).toBeVisible();
         }
       }
-      for (const select of await page.locator("main select").all()) {
+      for (const select of await page.locator("main select:visible").all()) {
         expect((await select.boundingBox())?.height).toBeGreaterThanOrEqual(44);
       }
     }

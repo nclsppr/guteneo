@@ -1,0 +1,1136 @@
+{
+  "measuredAt": "2026-10-30T15:32:04.188Z",
+  "qualification": "local synthetic browser interception; not authenticated or production evidence",
+  "source": {
+    "gitBase": "13d5553f8e9b93cf0f8d6e296943c65c0155ec66",
+    "dirty": true,
+    "indexSha256": "ce155c5a9a0fe16bd7ebafb1f35f0b8dbed2da46d6cebcfd3920ba3d446e30a1",
+    "sourceFingerprints": {
+      "apps/web/src/data-table.tsx": "07f4b022c9f873c5401b41814710470ee22c42b2e8095f80b2199717ecdd4a3d",
+      "apps/web/src/data-table.css": "231ee2f2ec0da5d0240ee733fce507e275da5c9c04b241f345c7c4e3a7a6a0bb",
+      "apps/web/src/data-table-model.ts": "05e87c153d541fc9b87ed8feeca2664a7c924a2c0707c82b4600762876eb79f5",
+      "apps/web/src/account-page.tsx": "fdb493ce9bf754a1ce903672f6135361418887f7e3c55532f32da454275ae87d",
+      "apps/web/src/components.tsx": "026ba536dd7229fc916157aef43ea1b6a22736145def28a450a37c44e07235ae",
+      "apps/web/src/dispatch-pages.tsx": "ebd738be3ab18592ef34fd4d0f733e1e3d5b31d0b2f5a77b91262d28828fe4d2",
+      "apps/web/src/dashboard-v2.css": "7d19c159045126e3d3406d222d24af07aef30c3db57734d9066a07e75e730623"
+    },
+    "probeSha256": "c0f5c9410d8f8cca722d33d6ced569ba858706aa38f02746e1f562cc36f20749"
+  },
+  "environment": {
+    "node": "v24.18.0",
+    "browser": "156.0.8078.4",
+    "engine": "Chromium headless",
+    "platform": "darwin",
+    "architecture": "arm64",
+    "viewport": {
+      "width": 1440,
+      "height": 1000
+    },
+    "locale": "en-GB",
+    "timezone": "Europe/Paris",
+    "theme": "light",
+    "reducedMotion": "reduce",
+    "server": "Existing localhost:8787 application build; same-origin static assets only",
+    "api": "All API calls fulfilled with synthetic data in browser interception, fixed40ms delay; no backend or provider call",
+    "cache": "Fresh isolated browser context per route; Playwright route interception disables HTTP cache; OS file cache not reset",
+    "sampling": "One sample per route, three cold contexts total; no baseline comparison",
+    "throttling": "No CPU or network throttle; host workload not isolated",
+    "firstUsefulDefinition": "First nonzero-size shared table body row followed by next requestAnimationFrame opportunity, viewport inclusion recorded independently",
+    "resourceTiming": "JS/CSS Resource Timing encodedBodySize/decodedBodySize/transferSize at networkidle; includes bootstrap scripts and modulepreloads",
+    "limitations": [
+      "Synthetic API timing is not real backend latency.",
+      "One local sample per route does not establish a performance improvement.",
+      "No authenticated session, private document, provider delivery, production deployment or physical device is qualified."
+    ]
+  },
+  "samples": [
+    {
+      "route": "/app",
+      "samples": 1,
+      "syntheticLoadedRows": 6,
+      "firstUseful": {
+        "milliseconds": 339.20000000298023,
+        "nonzeroSize": true,
+        "inViewport": true
+      },
+      "observedAtMs": 825.5,
+      "js": {
+        "requests": 30,
+        "encodedBodySize": 570609,
+        "decodedBodySize": 1822690,
+        "transferSize": 579609
+      },
+      "css": {
+        "requests": 7,
+        "encodedBodySize": 35049,
+        "decodedBodySize": 177534,
+        "transferSize": 37149
+      },
+      "assets": [
+        {
+          "path": "/theme-init.js",
+          "type": "js",
+          "encodedBodySize": 1542,
+          "decodedBodySize": 4519,
+          "transferSize": 1842,
+          "startTime": 28.599999994039536,
+          "responseEnd": 71.70000000298023
+        },
+        {
+          "path": "/locale-init.js",
+          "type": "js",
+          "encodedBodySize": 1112,
+          "decodedBodySize": 2345,
+          "transferSize": 1412,
+          "startTime": 28.700000002980232,
+          "responseEnd": 72.09999999403954
+        },
+        {
+          "path": "/assets/index-CtXQtPG0.js",
+          "type": "js",
+          "encodedBodySize": 185964,
+          "decodedBodySize": 637248,
+          "transferSize": 186264,
+          "startTime": 28.700000002980232,
+          "responseEnd": 135.09999999403954
+        },
+        {
+          "path": "/assets/rolldown-runtime-XKyaHtl9.js",
+          "type": "js",
+          "encodedBodySize": 429,
+          "decodedBodySize": 726,
+          "transferSize": 729,
+          "startTime": 28.799999997019768,
+          "responseEnd": 95.40000000596046
+        },
+        {
+          "path": "/assets/preload-helper-BLdHbfdN.js",
+          "type": "js",
+          "encodedBodySize": 797,
+          "decodedBodySize": 1519,
+          "transferSize": 1097,
+          "startTime": 28.799999997019768,
+          "responseEnd": 108.59999999403954
+        },
+        {
+          "path": "/assets/jsx-runtime-DkucFTfG.js",
+          "type": "js",
+          "encodedBodySize": 52513,
+          "decodedBodySize": 163819,
+          "transferSize": 52813,
+          "startTime": 28.799999997019768,
+          "responseEnd": 117.79999999701977
+        },
+        {
+          "path": "/assets/api-D8PNOAn7.js",
+          "type": "js",
+          "encodedBodySize": 265173,
+          "decodedBodySize": 810304,
+          "transferSize": 265473,
+          "startTime": 28.799999997019768,
+          "responseEnd": 161.90000000596046
+        },
+        {
+          "path": "/assets/CaretRight.es-D-okood6.js",
+          "type": "js",
+          "encodedBodySize": 804,
+          "decodedBodySize": 2666,
+          "transferSize": 1104,
+          "startTime": 28.900000005960464,
+          "responseEnd": 122.5
+        },
+        {
+          "path": "/assets/WarningCircle.es-DHRGVcWH.js",
+          "type": "js",
+          "encodedBodySize": 679,
+          "decodedBodySize": 1902,
+          "transferSize": 979,
+          "startTime": 28.900000005960464,
+          "responseEnd": 130.70000000298023
+        },
+        {
+          "path": "/assets/auth-navigation-BQ_Ad_-H.js",
+          "type": "js",
+          "encodedBodySize": 1020,
+          "decodedBodySize": 2607,
+          "transferSize": 1320,
+          "startTime": 28.900000005960464,
+          "responseEnd": 130.79999999701977
+        },
+        {
+          "path": "/assets/components-BgRwPuZC.js",
+          "type": "js",
+          "encodedBodySize": 14475,
+          "decodedBodySize": 46279,
+          "transferSize": 14775,
+          "startTime": 28.900000005960464,
+          "responseEnd": 135.09999999403954
+        },
+        {
+          "path": "/assets/ArrowUpRight.es--_zpcmkU.js",
+          "type": "js",
+          "encodedBodySize": 634,
+          "decodedBodySize": 1535,
+          "transferSize": 934,
+          "startTime": 28.900000005960464,
+          "responseEnd": 135.90000000596046
+        },
+        {
+          "path": "/assets/Check.es-B8CvK7eS.js",
+          "type": "js",
+          "encodedBodySize": 601,
+          "decodedBodySize": 1590,
+          "transferSize": 901,
+          "startTime": 29,
+          "responseEnd": 145.70000000298023
+        },
+        {
+          "path": "/assets/Sun.es-CAENYvra.js",
+          "type": "js",
+          "encodedBodySize": 2062,
+          "decodedBodySize": 8081,
+          "transferSize": 2362,
+          "startTime": 29,
+          "responseEnd": 145.90000000596046
+        },
+        {
+          "path": "/assets/Copy.es-ude4NMq7.js",
+          "type": "js",
+          "encodedBodySize": 626,
+          "decodedBodySize": 1844,
+          "transferSize": 926,
+          "startTime": 29,
+          "responseEnd": 154.5
+        },
+        {
+          "path": "/assets/DownloadSimple.es-Dbt3AjG6.js",
+          "type": "js",
+          "encodedBodySize": 705,
+          "decodedBodySize": 2067,
+          "transferSize": 1005,
+          "startTime": 29,
+          "responseEnd": 156.90000000596046
+        },
+        {
+          "path": "/assets/language-select-CjyFLmsb.js",
+          "type": "js",
+          "encodedBodySize": 2523,
+          "decodedBodySize": 7383,
+          "transferSize": 2823,
+          "startTime": 29.099999994039536,
+          "responseEnd": 157
+        },
+        {
+          "path": "/assets/List.es-Bt8v815F.js",
+          "type": "js",
+          "encodedBodySize": 565,
+          "decodedBodySize": 1756,
+          "transferSize": 865,
+          "startTime": 29.099999994039536,
+          "responseEnd": 160.79999999701977
+        },
+        {
+          "path": "/assets/theme-BYRIOx62.js",
+          "type": "js",
+          "encodedBodySize": 1018,
+          "decodedBodySize": 2352,
+          "transferSize": 1318,
+          "startTime": 29.099999994039536,
+          "responseEnd": 160.90000000596046
+        },
+        {
+          "path": "/assets/theme-toggle-BTDsrIal.js",
+          "type": "js",
+          "encodedBodySize": 749,
+          "decodedBodySize": 1644,
+          "transferSize": 1049,
+          "startTime": 29.099999994039536,
+          "responseEnd": 162
+        },
+        {
+          "path": "/assets/components-G5QNLehj.css",
+          "type": "css",
+          "encodedBodySize": 1604,
+          "decodedBodySize": 6564,
+          "transferSize": 1904,
+          "startTime": 29.200000002980232,
+          "responseEnd": 81.59999999403954
+        },
+        {
+          "path": "/assets/language-select-SbAVVthq.css",
+          "type": "css",
+          "encodedBodySize": 722,
+          "decodedBodySize": 1956,
+          "transferSize": 1022,
+          "startTime": 29.200000002980232,
+          "responseEnd": 86.40000000596046
+        },
+        {
+          "path": "/assets/index-DCH2Uth-.css",
+          "type": "css",
+          "encodedBodySize": 29705,
+          "decodedBodySize": 159603,
+          "transferSize": 30005,
+          "startTime": 29.200000002980232,
+          "responseEnd": 108.29999999701977
+        },
+        {
+          "path": "/assets/dispatch-pages-Cvpya_8L.js",
+          "type": "js",
+          "encodedBodySize": 17611,
+          "decodedBodySize": 61346,
+          "transferSize": 17911,
+          "startTime": 198.5,
+          "responseEnd": 211.70000000298023
+        },
+        {
+          "path": "/assets/UploadSimple.es-hKsQKLqK.js",
+          "type": "js",
+          "encodedBodySize": 696,
+          "decodedBodySize": 2098,
+          "transferSize": 996,
+          "startTime": 198.70000000298023,
+          "responseEnd": 212
+        },
+        {
+          "path": "/assets/workspace-contacts-qCNCFY74.js",
+          "type": "js",
+          "encodedBodySize": 1381,
+          "decodedBodySize": 3291,
+          "transferSize": 1681,
+          "startTime": 198.70000000298023,
+          "responseEnd": 219.40000000596046
+        },
+        {
+          "path": "/assets/workspace-contacts-9Kms2A_j.css",
+          "type": "css",
+          "encodedBodySize": 613,
+          "decodedBodySize": 1813,
+          "transferSize": 913,
+          "startTime": 198.79999999701977,
+          "responseEnd": 219.59999999403954
+        },
+        {
+          "path": "/assets/file-input-NzLN3ECT.js",
+          "type": "js",
+          "encodedBodySize": 594,
+          "decodedBodySize": 1126,
+          "transferSize": 894,
+          "startTime": 198.90000000596046,
+          "responseEnd": 218.90000000596046
+        },
+        {
+          "path": "/assets/workspace-pages-D0T8o3yv.js",
+          "type": "js",
+          "encodedBodySize": 9169,
+          "decodedBodySize": 32241,
+          "transferSize": 9469,
+          "startTime": 199,
+          "responseEnd": 219.20000000298023
+        },
+        {
+          "path": "/assets/LockKey.es-CwUjBzCg.js",
+          "type": "js",
+          "encodedBodySize": 910,
+          "decodedBodySize": 2636,
+          "transferSize": 1210,
+          "startTime": 199,
+          "responseEnd": 229
+        },
+        {
+          "path": "/assets/credit-balance-z-JgeZZ1.css",
+          "type": "css",
+          "encodedBodySize": 604,
+          "decodedBodySize": 1718,
+          "transferSize": 904,
+          "startTime": 199.09999999403954,
+          "responseEnd": 224.09999999403954
+        },
+        {
+          "path": "/assets/workspace-pages-C98x3RRI.css",
+          "type": "css",
+          "encodedBodySize": 1303,
+          "decodedBodySize": 4707,
+          "transferSize": 1603,
+          "startTime": 199.09999999403954,
+          "responseEnd": 224.40000000596046
+        },
+        {
+          "path": "/assets/credit-balance-DCYx440z.js",
+          "type": "js",
+          "encodedBodySize": 1014,
+          "decodedBodySize": 2530,
+          "transferSize": 1314,
+          "startTime": 199.09999999403954,
+          "responseEnd": 231
+        },
+        {
+          "path": "/assets/assistant-workspace-q_X8FC4D.js",
+          "type": "js",
+          "encodedBodySize": 2986,
+          "decodedBodySize": 9310,
+          "transferSize": 3286,
+          "startTime": 199.20000000298023,
+          "responseEnd": 231.09999999403954
+        },
+        {
+          "path": "/assets/CheckCircle.es-BKmlrq6f.js",
+          "type": "js",
+          "encodedBodySize": 743,
+          "decodedBodySize": 2140,
+          "transferSize": 1043,
+          "startTime": 199.29999999701977,
+          "responseEnd": 235
+        },
+        {
+          "path": "/assets/postal-cutoff-notice-DZuhu4A3.js",
+          "type": "js",
+          "encodedBodySize": 1514,
+          "decodedBodySize": 3786,
+          "transferSize": 1814,
+          "startTime": 199.29999999701977,
+          "responseEnd": 235
+        },
+        {
+          "path": "/assets/postal-cutoff-notice-BdjWtc-D.css",
+          "type": "css",
+          "encodedBodySize": 498,
+          "decodedBodySize": 1173,
+          "transferSize": 798,
+          "startTime": 199.40000000596046,
+          "responseEnd": 224.90000000596046
+        }
+      ],
+      "apiReads": [
+        "/api/session",
+        "/api/capabilities",
+        "/api/account/contacts",
+        "/api/connections",
+        "/api/overview",
+        "/api/dispatches"
+      ],
+      "apiWrites": [],
+      "externalRequestsBlocked": [],
+      "pageErrors": [],
+      "localControls": {
+        "search": true,
+        "sortBothDirections": true,
+        "paginationAdvanced": false,
+        "pageSizeChanged": true,
+        "newApiReads": 0,
+        "newApiWrites": 0,
+        "newResourceEntries": 0
+      },
+      "heavyModules": {
+        "pdfViewer": [],
+        "templateDesigner": [],
+        "belvedere": []
+      },
+      "heavyImplementationMarkers": {
+        "pdfjs": [],
+        "designer": [],
+        "globe": []
+      }
+    },
+    {
+      "route": "/app/documents",
+      "samples": 1,
+      "syntheticLoadedRows": 31,
+      "firstUseful": {
+        "milliseconds": 265,
+        "nonzeroSize": true,
+        "inViewport": true
+      },
+      "observedAtMs": 751.7000000029802,
+      "js": {
+        "requests": 30,
+        "encodedBodySize": 570609,
+        "decodedBodySize": 1822690,
+        "transferSize": 579609
+      },
+      "css": {
+        "requests": 7,
+        "encodedBodySize": 35049,
+        "decodedBodySize": 177534,
+        "transferSize": 37149
+      },
+      "assets": [
+        {
+          "path": "/locale-init.js",
+          "type": "js",
+          "encodedBodySize": 1112,
+          "decodedBodySize": 2345,
+          "transferSize": 1412,
+          "startTime": 10.099999994039536,
+          "responseEnd": 37.20000000298023
+        },
+        {
+          "path": "/theme-init.js",
+          "type": "js",
+          "encodedBodySize": 1542,
+          "decodedBodySize": 4519,
+          "transferSize": 1842,
+          "startTime": 10.099999994039536,
+          "responseEnd": 38
+        },
+        {
+          "path": "/assets/rolldown-runtime-XKyaHtl9.js",
+          "type": "js",
+          "encodedBodySize": 429,
+          "decodedBodySize": 726,
+          "transferSize": 729,
+          "startTime": 10.099999994039536,
+          "responseEnd": 55.70000000298023
+        },
+        {
+          "path": "/assets/jsx-runtime-DkucFTfG.js",
+          "type": "js",
+          "encodedBodySize": 52513,
+          "decodedBodySize": 163819,
+          "transferSize": 52813,
+          "startTime": 10.099999994039536,
+          "responseEnd": 66
+        },
+        {
+          "path": "/assets/index-CtXQtPG0.js",
+          "type": "js",
+          "encodedBodySize": 185964,
+          "decodedBodySize": 637248,
+          "transferSize": 186264,
+          "startTime": 10.099999994039536,
+          "responseEnd": 86.59999999403954
+        },
+        {
+          "path": "/assets/preload-helper-BLdHbfdN.js",
+          "type": "js",
+          "encodedBodySize": 797,
+          "decodedBodySize": 1519,
+          "transferSize": 1097,
+          "startTime": 10.200000002980232,
+          "responseEnd": 67.3999999910593
+        },
+        {
+          "path": "/assets/CaretRight.es-D-okood6.js",
+          "type": "js",
+          "encodedBodySize": 804,
+          "decodedBodySize": 2666,
+          "transferSize": 1104,
+          "startTime": 10.200000002980232,
+          "responseEnd": 68.8999999910593
+        },
+        {
+          "path": "/assets/WarningCircle.es-DHRGVcWH.js",
+          "type": "js",
+          "encodedBodySize": 679,
+          "decodedBodySize": 1902,
+          "transferSize": 979,
+          "startTime": 10.200000002980232,
+          "responseEnd": 79.59999999403954
+        },
+        {
+          "path": "/assets/api-D8PNOAn7.js",
+          "type": "js",
+          "encodedBodySize": 265173,
+          "decodedBodySize": 810304,
+          "transferSize": 265473,
+          "startTime": 10.200000002980232,
+          "responseEnd": 106.70000000298023
+        },
+        {
+          "path": "/assets/auth-navigation-BQ_Ad_-H.js",
+          "type": "js",
+          "encodedBodySize": 1020,
+          "decodedBodySize": 2607,
+          "transferSize": 1320,
+          "startTime": 10.299999997019768,
+          "responseEnd": 84.29999999701977
+        },
+        {
+          "path": "/assets/ArrowUpRight.es--_zpcmkU.js",
+          "type": "js",
+          "encodedBodySize": 634,
+          "decodedBodySize": 1535,
+          "transferSize": 934,
+          "startTime": 10.299999997019768,
+          "responseEnd": 86.59999999403954
+        },
+        {
+          "path": "/assets/components-BgRwPuZC.js",
+          "type": "js",
+          "encodedBodySize": 14475,
+          "decodedBodySize": 46279,
+          "transferSize": 14775,
+          "startTime": 10.299999997019768,
+          "responseEnd": 86.29999999701977
+        },
+        {
+          "path": "/assets/Sun.es-CAENYvra.js",
+          "type": "js",
+          "encodedBodySize": 2062,
+          "decodedBodySize": 8081,
+          "transferSize": 2362,
+          "startTime": 10.299999997019768,
+          "responseEnd": 91
+        },
+        {
+          "path": "/assets/Check.es-B8CvK7eS.js",
+          "type": "js",
+          "encodedBodySize": 601,
+          "decodedBodySize": 1590,
+          "transferSize": 901,
+          "startTime": 10.399999991059303,
+          "responseEnd": 97.79999999701977
+        },
+        {
+          "path": "/assets/Copy.es-ude4NMq7.js",
+          "type": "js",
+          "encodedBodySize": 626,
+          "decodedBodySize": 1844,
+          "transferSize": 926,
+          "startTime": 10.5,
+          "responseEnd": 97.70000000298023
+        },
+        {
+          "path": "/assets/DownloadSimple.es-Dbt3AjG6.js",
+          "type": "js",
+          "encodedBodySize": 705,
+          "decodedBodySize": 2067,
+          "transferSize": 1005,
+          "startTime": 10.5,
+          "responseEnd": 97.8999999910593
+        },
+        {
+          "path": "/assets/language-select-CjyFLmsb.js",
+          "type": "js",
+          "encodedBodySize": 2523,
+          "decodedBodySize": 7383,
+          "transferSize": 2823,
+          "startTime": 10.5,
+          "responseEnd": 100.29999999701977
+        },
+        {
+          "path": "/assets/List.es-Bt8v815F.js",
+          "type": "js",
+          "encodedBodySize": 565,
+          "decodedBodySize": 1756,
+          "transferSize": 865,
+          "startTime": 10.5,
+          "responseEnd": 101.20000000298023
+        },
+        {
+          "path": "/assets/theme-BYRIOx62.js",
+          "type": "js",
+          "encodedBodySize": 1018,
+          "decodedBodySize": 2352,
+          "transferSize": 1318,
+          "startTime": 10.5,
+          "responseEnd": 106.20000000298023
+        },
+        {
+          "path": "/assets/components-G5QNLehj.css",
+          "type": "css",
+          "encodedBodySize": 1604,
+          "decodedBodySize": 6564,
+          "transferSize": 1904,
+          "startTime": 10.599999994039536,
+          "responseEnd": 41.29999999701977
+        },
+        {
+          "path": "/assets/language-select-SbAVVthq.css",
+          "type": "css",
+          "encodedBodySize": 722,
+          "decodedBodySize": 1956,
+          "transferSize": 1022,
+          "startTime": 10.599999994039536,
+          "responseEnd": 51.70000000298023
+        },
+        {
+          "path": "/assets/theme-toggle-BTDsrIal.js",
+          "type": "js",
+          "encodedBodySize": 749,
+          "decodedBodySize": 1644,
+          "transferSize": 1049,
+          "startTime": 10.599999994039536,
+          "responseEnd": 107
+        },
+        {
+          "path": "/assets/index-DCH2Uth-.css",
+          "type": "css",
+          "encodedBodySize": 29705,
+          "decodedBodySize": 159603,
+          "transferSize": 30005,
+          "startTime": 10.700000002980232,
+          "responseEnd": 63.20000000298023
+        },
+        {
+          "path": "/assets/dispatch-pages-Cvpya_8L.js",
+          "type": "js",
+          "encodedBodySize": 17611,
+          "decodedBodySize": 61346,
+          "transferSize": 17911,
+          "startTime": 147.8999999910593,
+          "responseEnd": 162.20000000298023
+        },
+        {
+          "path": "/assets/UploadSimple.es-hKsQKLqK.js",
+          "type": "js",
+          "encodedBodySize": 696,
+          "decodedBodySize": 2098,
+          "transferSize": 996,
+          "startTime": 148,
+          "responseEnd": 163.70000000298023
+        },
+        {
+          "path": "/assets/workspace-contacts-qCNCFY74.js",
+          "type": "js",
+          "encodedBodySize": 1381,
+          "decodedBodySize": 3291,
+          "transferSize": 1681,
+          "startTime": 148.09999999403954,
+          "responseEnd": 163.8999999910593
+        },
+        {
+          "path": "/assets/workspace-contacts-9Kms2A_j.css",
+          "type": "css",
+          "encodedBodySize": 613,
+          "decodedBodySize": 1813,
+          "transferSize": 913,
+          "startTime": 148.09999999403954,
+          "responseEnd": 164.09999999403954
+        },
+        {
+          "path": "/assets/file-input-NzLN3ECT.js",
+          "type": "js",
+          "encodedBodySize": 594,
+          "decodedBodySize": 1126,
+          "transferSize": 894,
+          "startTime": 148.20000000298023,
+          "responseEnd": 162.79999999701977
+        },
+        {
+          "path": "/assets/workspace-pages-D0T8o3yv.js",
+          "type": "js",
+          "encodedBodySize": 9169,
+          "decodedBodySize": 32241,
+          "transferSize": 9469,
+          "startTime": 148.20000000298023,
+          "responseEnd": 163.20000000298023
+        },
+        {
+          "path": "/assets/LockKey.es-CwUjBzCg.js",
+          "type": "js",
+          "encodedBodySize": 910,
+          "decodedBodySize": 2636,
+          "transferSize": 1210,
+          "startTime": 148.20000000298023,
+          "responseEnd": 176
+        },
+        {
+          "path": "/assets/credit-balance-DCYx440z.js",
+          "type": "js",
+          "encodedBodySize": 1014,
+          "decodedBodySize": 2530,
+          "transferSize": 1314,
+          "startTime": 148.29999999701977,
+          "responseEnd": 179
+        },
+        {
+          "path": "/assets/credit-balance-z-JgeZZ1.css",
+          "type": "css",
+          "encodedBodySize": 604,
+          "decodedBodySize": 1718,
+          "transferSize": 904,
+          "startTime": 148.3999999910593,
+          "responseEnd": 170.59999999403954
+        },
+        {
+          "path": "/assets/workspace-pages-C98x3RRI.css",
+          "type": "css",
+          "encodedBodySize": 1303,
+          "decodedBodySize": 4707,
+          "transferSize": 1603,
+          "startTime": 148.3999999910593,
+          "responseEnd": 170.79999999701977
+        },
+        {
+          "path": "/assets/assistant-workspace-q_X8FC4D.js",
+          "type": "js",
+          "encodedBodySize": 2986,
+          "decodedBodySize": 9310,
+          "transferSize": 3286,
+          "startTime": 148.5,
+          "responseEnd": 178.79999999701977
+        },
+        {
+          "path": "/assets/CheckCircle.es-BKmlrq6f.js",
+          "type": "js",
+          "encodedBodySize": 743,
+          "decodedBodySize": 2140,
+          "transferSize": 1043,
+          "startTime": 148.5,
+          "responseEnd": 179.3999999910593
+        },
+        {
+          "path": "/assets/postal-cutoff-notice-BdjWtc-D.css",
+          "type": "css",
+          "encodedBodySize": 498,
+          "decodedBodySize": 1173,
+          "transferSize": 798,
+          "startTime": 148.59999999403954,
+          "responseEnd": 175.5
+        },
+        {
+          "path": "/assets/postal-cutoff-notice-DZuhu4A3.js",
+          "type": "js",
+          "encodedBodySize": 1514,
+          "decodedBodySize": 3786,
+          "transferSize": 1814,
+          "startTime": 148.59999999403954,
+          "responseEnd": 179.59999999403954
+        }
+      ],
+      "apiReads": [
+        "/api/session",
+        "/api/capabilities",
+        "/api/documents"
+      ],
+      "apiWrites": [],
+      "externalRequestsBlocked": [],
+      "pageErrors": [],
+      "localControls": {
+        "search": true,
+        "sortBothDirections": true,
+        "paginationAdvanced": true,
+        "pageSizeChanged": true,
+        "newApiReads": 0,
+        "newApiWrites": 0,
+        "newResourceEntries": 0
+      },
+      "heavyModules": {
+        "pdfViewer": [],
+        "templateDesigner": [],
+        "belvedere": []
+      },
+      "heavyImplementationMarkers": {
+        "pdfjs": [],
+        "designer": [],
+        "globe": []
+      }
+    },
+    {
+      "route": "/app/account",
+      "samples": 1,
+      "syntheticLoadedRows": 31,
+      "firstUseful": {
+        "milliseconds": 251.5,
+        "nonzeroSize": true,
+        "inViewport": false
+      },
+      "observedAtMs": 740.4000000059605,
+      "js": {
+        "requests": 24,
+        "encodedBodySize": 543752,
+        "decodedBodySize": 1732790,
+        "transferSize": 550952
+      },
+      "css": {
+        "requests": 5,
+        "encodedBodySize": 33304,
+        "decodedBodySize": 171690,
+        "transferSize": 34804
+      },
+      "assets": [
+        {
+          "path": "/theme-init.js",
+          "type": "js",
+          "encodedBodySize": 1542,
+          "decodedBodySize": 4519,
+          "transferSize": 1842,
+          "startTime": 8.099999994039536,
+          "responseEnd": 26.799999997019768
+        },
+        {
+          "path": "/locale-init.js",
+          "type": "js",
+          "encodedBodySize": 1112,
+          "decodedBodySize": 2345,
+          "transferSize": 1412,
+          "startTime": 8.200000002980232,
+          "responseEnd": 31.900000005960464
+        },
+        {
+          "path": "/assets/rolldown-runtime-XKyaHtl9.js",
+          "type": "js",
+          "encodedBodySize": 429,
+          "decodedBodySize": 726,
+          "transferSize": 729,
+          "startTime": 8.200000002980232,
+          "responseEnd": 42.400000005960464
+        },
+        {
+          "path": "/assets/preload-helper-BLdHbfdN.js",
+          "type": "js",
+          "encodedBodySize": 797,
+          "decodedBodySize": 1519,
+          "transferSize": 1097,
+          "startTime": 8.200000002980232,
+          "responseEnd": 53.099999994039536
+        },
+        {
+          "path": "/assets/jsx-runtime-DkucFTfG.js",
+          "type": "js",
+          "encodedBodySize": 52513,
+          "decodedBodySize": 163819,
+          "transferSize": 52813,
+          "startTime": 8.200000002980232,
+          "responseEnd": 57.29999999701977
+        },
+        {
+          "path": "/assets/CaretRight.es-D-okood6.js",
+          "type": "js",
+          "encodedBodySize": 804,
+          "decodedBodySize": 2666,
+          "transferSize": 1104,
+          "startTime": 8.200000002980232,
+          "responseEnd": 59.79999999701977
+        },
+        {
+          "path": "/assets/WarningCircle.es-DHRGVcWH.js",
+          "type": "js",
+          "encodedBodySize": 679,
+          "decodedBodySize": 1902,
+          "transferSize": 979,
+          "startTime": 8.200000002980232,
+          "responseEnd": 59.900000005960464
+        },
+        {
+          "path": "/assets/index-CtXQtPG0.js",
+          "type": "js",
+          "encodedBodySize": 185964,
+          "decodedBodySize": 637248,
+          "transferSize": 186264,
+          "startTime": 8.200000002980232,
+          "responseEnd": 76.5
+        },
+        {
+          "path": "/assets/api-D8PNOAn7.js",
+          "type": "js",
+          "encodedBodySize": 265173,
+          "decodedBodySize": 810304,
+          "transferSize": 265473,
+          "startTime": 8.200000002980232,
+          "responseEnd": 96.79999999701977
+        },
+        {
+          "path": "/assets/auth-navigation-BQ_Ad_-H.js",
+          "type": "js",
+          "encodedBodySize": 1020,
+          "decodedBodySize": 2607,
+          "transferSize": 1320,
+          "startTime": 8.299999997019768,
+          "responseEnd": 68.09999999403954
+        },
+        {
+          "path": "/assets/components-BgRwPuZC.js",
+          "type": "js",
+          "encodedBodySize": 14475,
+          "decodedBodySize": 46279,
+          "transferSize": 14775,
+          "startTime": 8.400000005960464,
+          "responseEnd": 71.70000000298023
+        },
+        {
+          "path": "/assets/Sun.es-CAENYvra.js",
+          "type": "js",
+          "encodedBodySize": 2062,
+          "decodedBodySize": 8081,
+          "transferSize": 2362,
+          "startTime": 8.400000005960464,
+          "responseEnd": 73
+        },
+        {
+          "path": "/assets/ArrowUpRight.es--_zpcmkU.js",
+          "type": "js",
+          "encodedBodySize": 634,
+          "decodedBodySize": 1535,
+          "transferSize": 934,
+          "startTime": 8.400000005960464,
+          "responseEnd": 73.29999999701977
+        },
+        {
+          "path": "/assets/Check.es-B8CvK7eS.js",
+          "type": "js",
+          "encodedBodySize": 601,
+          "decodedBodySize": 1590,
+          "transferSize": 901,
+          "startTime": 8.400000005960464,
+          "responseEnd": 77.09999999403954
+        },
+        {
+          "path": "/assets/Copy.es-ude4NMq7.js",
+          "type": "js",
+          "encodedBodySize": 626,
+          "decodedBodySize": 1844,
+          "transferSize": 926,
+          "startTime": 8.400000005960464,
+          "responseEnd": 83.29999999701977
+        },
+        {
+          "path": "/assets/DownloadSimple.es-Dbt3AjG6.js",
+          "type": "js",
+          "encodedBodySize": 705,
+          "decodedBodySize": 2067,
+          "transferSize": 1005,
+          "startTime": 8.400000005960464,
+          "responseEnd": 83.70000000298023
+        },
+        {
+          "path": "/assets/components-G5QNLehj.css",
+          "type": "css",
+          "encodedBodySize": 1604,
+          "decodedBodySize": 6564,
+          "transferSize": 1904,
+          "startTime": 8.599999994039536,
+          "responseEnd": 36.5
+        },
+        {
+          "path": "/assets/language-select-CjyFLmsb.js",
+          "type": "js",
+          "encodedBodySize": 2523,
+          "decodedBodySize": 7383,
+          "transferSize": 2823,
+          "startTime": 8.599999994039536,
+          "responseEnd": 83.59999999403954
+        },
+        {
+          "path": "/assets/List.es-Bt8v815F.js",
+          "type": "js",
+          "encodedBodySize": 565,
+          "decodedBodySize": 1756,
+          "transferSize": 865,
+          "startTime": 8.599999994039536,
+          "responseEnd": 90.09999999403954
+        },
+        {
+          "path": "/assets/theme-BYRIOx62.js",
+          "type": "js",
+          "encodedBodySize": 1018,
+          "decodedBodySize": 2352,
+          "transferSize": 1318,
+          "startTime": 8.599999994039536,
+          "responseEnd": 90.20000000298023
+        },
+        {
+          "path": "/assets/theme-toggle-BTDsrIal.js",
+          "type": "js",
+          "encodedBodySize": 749,
+          "decodedBodySize": 1644,
+          "transferSize": 1049,
+          "startTime": 8.599999994039536,
+          "responseEnd": 95.09999999403954
+        },
+        {
+          "path": "/assets/language-select-SbAVVthq.css",
+          "type": "css",
+          "encodedBodySize": 722,
+          "decodedBodySize": 1956,
+          "transferSize": 1022,
+          "startTime": 8.700000002980232,
+          "responseEnd": 36.5
+        },
+        {
+          "path": "/assets/index-DCH2Uth-.css",
+          "type": "css",
+          "encodedBodySize": 29705,
+          "decodedBodySize": 159603,
+          "transferSize": 30005,
+          "startTime": 8.700000002980232,
+          "responseEnd": 44.599999994039536
+        },
+        {
+          "path": "/assets/account-page-BJVS0dBX.js",
+          "type": "js",
+          "encodedBodySize": 7122,
+          "decodedBodySize": 24074,
+          "transferSize": 7422,
+          "startTime": 136.5,
+          "responseEnd": 145.90000000596046
+        },
+        {
+          "path": "/assets/appearance-preferences-C_5KsR5u.js",
+          "type": "js",
+          "encodedBodySize": 552,
+          "decodedBodySize": 1080,
+          "transferSize": 852,
+          "startTime": 136.59999999403954,
+          "responseEnd": 153.5
+        },
+        {
+          "path": "/assets/Monitor.es-DhD9eEtr.js",
+          "type": "js",
+          "encodedBodySize": 706,
+          "decodedBodySize": 2159,
+          "transferSize": 1006,
+          "startTime": 136.70000000298023,
+          "responseEnd": 153.5
+        },
+        {
+          "path": "/assets/workspace-contacts-qCNCFY74.js",
+          "type": "js",
+          "encodedBodySize": 1381,
+          "decodedBodySize": 3291,
+          "transferSize": 1681,
+          "startTime": 136.79999999701977,
+          "responseEnd": 153.70000000298023
+        },
+        {
+          "path": "/assets/workspace-contacts-9Kms2A_j.css",
+          "type": "css",
+          "encodedBodySize": 613,
+          "decodedBodySize": 1813,
+          "transferSize": 913,
+          "startTime": 136.79999999701977,
+          "responseEnd": 154.09999999403954
+        },
+        {
+          "path": "/assets/account-page-BNZ03Mwv.css",
+          "type": "css",
+          "encodedBodySize": 660,
+          "decodedBodySize": 1754,
+          "transferSize": 960,
+          "startTime": 136.90000000596046,
+          "responseEnd": 154.09999999403954
+        }
+      ],
+      "apiReads": [
+        "/api/session",
+        "/api/capabilities",
+        "/api/account/contacts",
+        "/api/account/expert-approval",
+        "/api/account/sessions"
+      ],
+      "apiWrites": [],
+      "externalRequestsBlocked": [],
+      "pageErrors": [],
+      "localControls": {
+        "search": true,
+        "sortBothDirections": true,
+        "paginationAdvanced": true,
+        "pageSizeChanged": true,
+        "newApiReads": 0,
+        "newApiWrites": 0,
+        "newResourceEntries": 0
+      },
+      "heavyModules": {
+        "pdfViewer": [],
+        "templateDesigner": [],
+        "belvedere": []
+      },
+      "heavyImplementationMarkers": {
+        "pdfjs": [],
+        "designer": [],
+        "globe": []
+      }
+    }
+  ]
+}

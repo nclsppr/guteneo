@@ -1,3 +1,4 @@
+import { DataTable, tableTimestamp } from "./data-table";
 import { msg } from "./messages";
 export { RememberDirectChoice } from "./assistant-state";
 import { studioRoutes } from "./app-routes";
@@ -704,92 +705,104 @@ export function Documents({ canPrepare = true }: { canPrepare?: boolean }) {
       {resource.loading && !resource.data ? (
         <Loading />
       ) : resource.data?.items.length ? (
-        <div className="table-scroll">
-          <table className="responsive-table" role="table">
-            <thead role="rowgroup">
-              <tr role="row">
-                <th role="columnheader" scope="col">
-                  {t.document}
-                </th>
-                <th role="columnheader" scope="col">
-                  {t.documents.pages}
-                </th>
-                <th role="columnheader" scope="col">
-                  {t.documents.source}
-                </th>
-                <th role="columnheader" scope="col">
-                  {t.status}
-                </th>
-                <th role="columnheader" scope="col">
-                  {t.created}
-                </th>
-                <th role="columnheader" scope="col">
-                  <span className="sr-only">{t.open}</span>
-                </th>
-              </tr>
-            </thead>
-            <tbody role="rowgroup">
-              {resource.data.items.map((d) => (
-                <tr role="row" key={d.id}>
-                  <td role="cell">
-                    <span className="mobile-cell-label" aria-hidden="true">
-                      {t.document}
-                    </span>
-                    <button
-                      className="row-link text-button"
-                      onClick={(event) => openDocument(d, event.currentTarget)}
-                    >
-                      {d.name}
-                      <span className="reference mono">{d.id}</span>
-                    </button>
-                  </td>
-                  <td role="cell">
-                    <span className="mobile-cell-label" aria-hidden="true">
-                      {t.documents.pages}
-                    </span>
-                    {(selected?.id === d.id ? selected : d).status === "ready"
-                      ? (selected?.id === d.id ? selected : d).pages
-                      : t.documents.pagesUnverified}
-                  </td>
-                  <td role="cell">
-                    <span className="mobile-cell-label" aria-hidden="true">
-                      {t.documents.source}
-                    </span>
-                    {d.source === "import"
-                      ? t.documents.exact
-                      : t.documents.generated}
-                  </td>
-                  <td role="cell">
-                    <span className="mobile-cell-label" aria-hidden="true">
-                      {t.status}
-                    </span>
-                    <DocumentStatus
-                      document={selected?.id === d.id ? selected : d}
-                    />
-                  </td>
-                  <td role="cell" className="date-cell">
-                    <span className="mobile-cell-label" aria-hidden="true">
-                      {t.created}
-                    </span>
-                    {date(d.created_at)}
-                  </td>
-                  <td role="cell">
-                    <span className="mobile-cell-label" aria-hidden="true">
-                      {t.open}
-                    </span>
-                    <button
-                      className="icon-link"
-                      aria-label={`${t.preview} ${d.name}`}
-                      onClick={(event) => openDocument(d, event.currentTarget)}
-                    >
-                      <ArrowRight size={20} />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <DataTable
+          label={t.documents.title}
+          items={resource.data.items}
+          getRowKey={(item) => item.id}
+          filters={[
+            {
+              id: "status",
+              label: t.status,
+              value: (item) =>
+                (selected?.id === item.id ? selected : item).status,
+              options: [
+                ...new Set(resource.data.items.map((item) => item.status)),
+              ].map((value) => ({ value, label: t.statuses[value] ?? value })),
+            },
+            {
+              id: "source",
+              label: t.documents.source,
+              value: (item) => (item.source === "import" ? "import" : "render"),
+              options: [
+                { value: "import", label: t.documents.exact },
+                { value: "render", label: t.documents.generated },
+              ],
+            },
+          ]}
+          columns={[
+            {
+              id: "document",
+              label: t.document,
+              value: (item) => item.name,
+              searchValue: (item) => `${item.name} ${item.id}`,
+              render: (item) => (
+                <button
+                  className="row-link text-button"
+                  onClick={(event) => openDocument(item, event.currentTarget)}
+                >
+                  {item.name}
+                  <span className="reference mono">{item.id}</span>
+                </button>
+              ),
+            },
+            {
+              id: "pages",
+              label: t.documents.pages,
+              value: (item) =>
+                (selected?.id === item.id ? selected : item).status === "ready"
+                  ? (selected?.id === item.id ? selected : item).pages
+                  : null,
+              render: (item) =>
+                (selected?.id === item.id ? selected : item).status === "ready"
+                  ? (selected?.id === item.id ? selected : item).pages
+                  : t.documents.pagesUnverified,
+            },
+            {
+              id: "source",
+              label: t.documents.source,
+              value: (item) =>
+                item.source === "import"
+                  ? t.documents.exact
+                  : t.documents.generated,
+            },
+            {
+              id: "status",
+              label: t.status,
+              value: (item) =>
+                t.statuses[
+                  (selected?.id === item.id ? selected : item).status
+                ] ?? item.status,
+              render: (item) => (
+                <DocumentStatus
+                  document={selected?.id === item.id ? selected : item}
+                />
+              ),
+            },
+            {
+              id: "created",
+              label: t.created,
+              value: (item) => tableTimestamp(item.created_at),
+              searchValue: (item) => date(item.created_at),
+              render: (item) => date(item.created_at),
+              className: "date-cell",
+            },
+            {
+              id: "actions",
+              label: t.open,
+              value: () => "",
+              sortable: false,
+              render: (item) => (
+                <button
+                  className="icon-link"
+                  aria-label={`${t.preview} ${item.name}`}
+                  onClick={(event) => openDocument(item, event.currentTarget)}
+                >
+                  <ArrowRight size={20} aria-hidden="true" />
+                </button>
+              ),
+            },
+          ]}
+        />
       ) : (
         <div className="dashboard-document-empty">
           <EmptyState

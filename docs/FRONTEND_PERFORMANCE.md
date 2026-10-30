@@ -1,4 +1,54 @@
-# Frontend loading and personal bootstrap
+# Frontend loading and table controls
+
+## Operational table controls — 30 October 2026 local candidate
+
+The [shared operational table contract](WEB_APPLICATIONS.md#operational-tables--30-october-2026-candidate)
+adds browser search, categorical filtering, typed column ordering and pagination
+without a new dependency, private endpoint, polling loop or speculative read.
+Date sorting interprets SQL timestamps as UTC, matching their displayed dates;
+amount sorting uses raw numeric units. Numeric source cells and provider decimal
+strings use bounded exact decimal ordering while keeping original values visible.
+Existing API cursors and server-paged
+Belvédère controls remain separate and visible. Studio PDF selection and unsaved
+member-role drafts retain their record identities across browser pages/filters.
+
+[The measured loading record](evidence/responsive-table-loading-2026-10-30.json)
+binds the dirty source, emitted entry and asset fingerprints. Three fresh Chromium
+156 contexts used the final application build on localhost, 1440 × 1000, English,
+Europe/Paris, a fixed 40 ms synthetic API delay and no CPU/network throttling.
+There is one sample per route, no baseline comparison and no isolated host load;
+these observations establish neither a speedup nor production backend latency.
+
+| Route | First row ready (ms) | JS requests / encoded bytes / transferred bytes | CSS requests / encoded bytes / transferred bytes | Synthetic reads / writes |
+| ----- | ------------------: | ---------------------------------------------- | ----------------------------------------------- | ------------------------ |
+| `/app` | 339.2 | 30 / 570,609 / 579,609 | 7 / 35,049 / 37,149 | 6 / 0 |
+| `/app/documents` | 265.0 | 30 / 570,609 / 579,609 | 7 / 35,049 / 37,149 | 3 / 0 |
+| `/app/account` | 251.5 | 24 / 543,752 / 550,952 | 5 / 33,304 / 34,804 | 5 / 0 |
+
+First row ready means nonzero DOM geometry followed by a rendering opportunity;
+the account table is below the viewport, so its figure is DOM readiness rather
+than visible first useful content. Resource Timing includes bootstrap scripts
+and module preloads; interception disables HTTP caching, while the OS cache is
+not reset. Search, ascending/descending sorting and page-size changes on all
+three tables, plus next/previous on the longer document/account lists, caused
+zero additional API reads, writes or resource requests. No PDF viewer/worker,
+template designer or Belvédère globe implementation loaded, and no page errors
+occurred. Every API response was intercepted synthetic data; no authenticated
+account, provider or production delivery was exercised.
+
+The model tests cover accented search, stable natural/numeric ordering, missing
+values, exact decimal/scientific strings, UTC dates and clamping after filtered/
+refreshed results shrink. Browser
+qualification covers 1024 px tablet columns, consistent cell padding, 390/320 px
+cards without page overflow, mobile/desktop sort controls, search/filter recovery,
+31-row CSV pagination, four locales and dark appearance. Clipped mobile headers
+keep their semantic labels while their hidden sort buttons leave the Tab order;
+the visible mobile sort controls remain available. Existing source coordinates,
+read-only platform authority, member actions and generation selection retain
+separate application regressions. The [browser qualification record](evidence/responsive-table-browser-2026-10-30.json)
+keeps the complete regression stage separate from the final exact-decimal checks.
+These are local synthetic/browser results;
+physical devices, hosted CI, merge and publication remain independently unqualified.
 
 ## Independent application code — 29 October 2026 local candidate
 
