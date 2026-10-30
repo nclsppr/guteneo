@@ -2,6 +2,7 @@ import { z } from "zod";
 import { ContentError } from "../../../packages/contracts/src/content";
 import { getTemplateValue } from "../../../packages/contracts/src/templates";
 import type {
+  GenerationContextPage,
   GenerationRecordContext,
   GenerationCorrectionInput,
 } from "../../../packages/contracts/src/generation-context";
@@ -23,10 +24,7 @@ export async function generationRecordContext(
   recordId?: string,
   cursor?: string,
   limit = 50,
-): Promise<
-  | { items: GenerationRecordContext[]; nextCursor: string | null }
-  | GenerationCorrectionInput
-> {
+): Promise<GenerationContextPage | GenerationCorrectionInput> {
   if (ctx.actor !== "browser")
     fail("BROWSER_REQUIRED", "Open this private generation in Guteneo.", 403);
   await workflow.getGeneration(ctx, id);
@@ -113,9 +111,16 @@ export async function generationRecordContext(
       fail("GENERATION_RECORD_NOT_FOUND", "Record not found.", 404);
     return { ...contexts[0].context, data: contexts[0].data };
   }
+  // The owner's own template name, so pages need no second, dependent read.
+  const template = await env.DB.prepare(
+    "SELECT t.name FROM generation_jobs j JOIN document_templates t ON t.organization_id=j.organization_id AND t.id=j.template_id AND t.deleted_at IS NULL WHERE j.organization_id=? AND j.id=? AND j.owner_id=?",
+  )
+    .bind(ctx.organizationId, id, ctx.userId)
+    .first<{ name: string }>();
   return {
     items: contexts.map(({ context }) => context),
     nextCursor:
       rows.results.length > limit ? rows.results[limit - 1].record_id : null,
+    templateName: template?.name ?? null,
   };
 }

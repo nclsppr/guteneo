@@ -6,13 +6,12 @@ import {
 } from "./app-routes";
 import { scrollTable } from "./table-keyboard";
 import { useEffect, useId, useRef, useState, type FormEvent } from "react";
-import type { GenerationRecordContext } from "../../../packages/contracts/src/generation-context";
+import type { GenerationContextPage } from "../../../packages/contracts/src/generation-context";
 import type {
   GenerationJobView,
   GenerationResultView,
   DistributionView,
   Page,
-  TemplateView,
 } from "../../../packages/contracts/src/template-workflow";
 import {
   api,
@@ -142,6 +141,7 @@ function usePreparationSelection(
     loading: boolean;
     records?: GenerationResultView[];
     labels?: Record<string, string>;
+    templateName?: string | null;
     error?: Error;
   }>({ scope, loading: true });
   useEffect(() => {
@@ -155,6 +155,7 @@ function usePreparationSelection(
       const wanted = JSON.parse(selection) as string[];
       const found = new Map<string, GenerationResultView>();
       const labels: Record<string, string> = Object.create(null);
+      let templateName: string | null = null;
       let cursor: string | null = null;
       const seen = new Set<string>();
       for (let pageNumber = 0; pageNumber < 10; pageNumber++) {
@@ -163,13 +164,13 @@ function usePreparationSelection(
           new URLSearchParams({ limit: "50", ...(cursor ? { cursor } : {}) });
         const [records, context]: [
           Page<GenerationResultView>,
-          Page<GenerationRecordContext>,
+          GenerationContextPage,
         ] = await Promise.all([
           api<Page<GenerationResultView>>(
             `/generation-jobs/${encodeURIComponent(jobId)}/results${query}`,
             { signal: controller.signal },
           ),
-          api<Page<GenerationRecordContext>>(
+          api<GenerationContextPage>(
             `/generation-jobs/${encodeURIComponent(jobId)}/record-context${query}`,
             { signal: controller.signal },
           ),
@@ -180,6 +181,7 @@ function usePreparationSelection(
               "The selected PDFs are no longer available. Return to the generation and choose them again.",
             ),
           );
+        templateName ??= context.templateName ?? null;
         for (const record of records.items) found.set(record.recordId, record);
         for (const record of context.items)
           labels[record.recordId] =
@@ -213,6 +215,7 @@ function usePreparationSelection(
           loading: false,
           records: records as GenerationResultView[],
           labels,
+          templateName,
         });
     })().catch((error: unknown) => {
       if (!controller.signal.aborted)
@@ -244,9 +247,6 @@ function DistributionPreparation({
     selection.valid,
   );
   const returnTo = generationSelectionRoute(jobId, selection.recordIds);
-  const template = useResource<TemplateView>(
-    source.data ? `/templates/${source.data.templateId}` : null,
-  );
   const active =
     source.data && ["queued", "running"].includes(source.data.state);
   return (
@@ -261,7 +261,7 @@ function DistributionPreparation({
         title={msg("Prepare distribution (") + selection.recordIds.length + ")"}
         intro={
           source.data
-            ? `${template.data ? `${template.data.name} · v${source.data.templateVersion}` : msg("Template v") + source.data.templateVersion} · ${date(source.data.createdAt)}`
+            ? `${selected.templateName ? `${selected.templateName} · v${source.data.templateVersion}` : msg("Template v") + source.data.templateVersion} · ${date(source.data.createdAt)}`
             : undefined
         }
       />
@@ -297,6 +297,7 @@ function DistributionPreparation({
                 ]),
               )}
               recordLabels={selected.labels ?? {}}
+              onClose={() => go(returnTo)}
             />
           </>
         )}
@@ -369,11 +370,13 @@ function DistributionForm({
   recordIds,
   recordDocuments,
   recordLabels,
+  onClose,
 }: {
   jobId: string;
   recordIds: string[];
   recordDocuments: Record<string, string>;
   recordLabels: Record<string, string>;
+  onClose: () => void;
 }) {
   const currentVisit = useCurrentVisit();
   const [destinations, setDestinations] = useState<Destination[]>([
@@ -1030,15 +1033,25 @@ function DistributionForm({
             </p>
             <p>
               {msg(
-                "Nothing is sent: approvers in this workspace can view these PDFs to review each request, and unavailable channels or rates stay blocked.",
+                "Preparing the distribution lets authorized approvers in this workspace view the selected PDFs to review these requests. It does not send anything.",
+              )}
+            </p>
+            <p>
+              {msg(
+                "Preparation is not approval. Unavailable channels or rates remain blocked with an explicit error. ",
               )}
             </p>
           </div>
         </div>
       </section>
-      <button className="button primary" disabled={action.pending}>
-        {msg("Prepare pairs and quotes ")}
-      </button>
+      <div className="button-group">
+        <button className="button primary" disabled={action.pending}>
+          {msg("Prepare pairs and quotes ")}
+        </button>
+        <button className="button" type="button" onClick={onClose}>
+          {msg("Close ")}
+        </button>
+      </div>
     </form>
   );
 }

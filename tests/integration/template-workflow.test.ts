@@ -412,6 +412,7 @@ describe("Persistent template workflow — local D1/R2 with explicitly synthetic
       generationRecordContext(env, service, member, generation.id),
     ).resolves.toEqual({
       nextCursor: null,
+      templateName: template.name,
       items: [
         {
           recordId: "record-2",

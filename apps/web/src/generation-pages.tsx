@@ -1,4 +1,7 @@
-import type { GenerationRecordContext } from "../../../packages/contracts/src/generation-context";
+import type {
+  GenerationContextPage,
+  GenerationRecordContext,
+} from "../../../packages/contracts/src/generation-context";
 import { msg, msgIn } from "./messages";
 import {
   studioRoutes,
@@ -138,14 +141,11 @@ export function GenerationDetail({
   canPrepare: boolean;
 }) {
   const job = useResource<GenerationJobView>("/generation-jobs/" + id);
-  const template = useResource<TemplateView>(
-    job.data ? "/templates/" + job.data.templateId : null,
-  );
   const results = useResource<Page<GenerationResultView>>(
     "/generation-jobs/" + id + "/results",
   );
   const [contextCursor, setContextCursor] = useState<string>();
-  const context = useResource<{ items: GenerationRecordContext[] }>(
+  const context = useResource<GenerationContextPage>(
     `/generation-jobs/${id}/record-context${contextCursor ? "?" + new URLSearchParams({ cursor: contextCursor }) : ""}`,
   );
   const [contexts, setContexts] = useState<{
@@ -294,7 +294,7 @@ export function GenerationDetail({
         {msg("← Generations ")}
       </a>
       <PageHeading
-        title={generationName(current, template.data?.name)}
+        title={generationName(current, context.data?.templateName ?? undefined)}
         intro={date(current.createdAt)}
         action={<GenerationState state={current.state} />}
       />

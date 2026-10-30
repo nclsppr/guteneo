@@ -8,3 +8,9 @@ export type GenerationRecordContext = {
 export type GenerationCorrectionInput = GenerationRecordContext & {
   data: Record<string, unknown>;
 };
+/** One page of labels; the template name is present for the generation's owner. */
+export type GenerationContextPage = {
+  items: GenerationRecordContext[];
+  nextCursor: string | null;
+  templateName: string | null;
+};
