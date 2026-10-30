@@ -21,7 +21,10 @@ Generation results use bounded business labels (name, subject and reference)
 without changing record identifiers. A browser-only owner-authorized
 `GET /api/generation-jobs/:id/record-context` supplies presentation labels in
 pages of 50 with the result-record cursor;
-`?recordId=…` supplies one record for explicit correction. The current membership,
+`?recordId=…` supplies one record and its current document for explicit
+correction, shown beside the form on wide screens; when a destination takes its
+recipients from the data, the same read of the first selected record offers its
+field names as suggestions. The current membership,
 tenant and creator gates are rechecked; shared-template or review access grants
 no access to private source inputs. This adds no MCP tool or native permission.
 
