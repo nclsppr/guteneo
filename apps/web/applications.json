@@ -134,6 +134,7 @@
         "template-designer.tsx",
         "template-settings.tsx",
         "template-data-form.tsx",
+        "template-gallery-copy.ts",
         "dataset-pages.tsx",
         "generation-pages.tsx",
         "studio-ai.tsx"

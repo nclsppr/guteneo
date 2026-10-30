@@ -30,6 +30,7 @@ import {
   textBlock,
   tableBlock,
 } from "../../../packages/templates/gallery";
+import { galleryCopy } from "./template-gallery-copy";
 import { api, date, permissionsFor, type Session } from "./api";
 import { RolePermissionNotice } from "./role-guide";
 import {
@@ -193,7 +194,7 @@ export function TemplateLibrary({
           className="studio-section"
           onSubmit={(e) => {
             e.preventDefault();
-            void create({ ...blankTemplate(), name });
+            void create({ ...galleryCopy(blankTemplate()), name });
           }}
         >
           <h2>{msg("Start with a blank page")}</h2>
@@ -234,7 +235,7 @@ export function TemplateLibrary({
                 "Create my private copy of {0}",
                 msg(envelope.name),
               )}
-              onClick={() => void create(envelope)}
+              onClick={() => void create(galleryCopy(envelope))}
             >
               {msg("Create my private copy ")}
               <ArrowRight size={17} />

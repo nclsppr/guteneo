@@ -205,8 +205,9 @@ outside that publication.
 
 The gallery has five synthetic starting points: business letter, demo invoice,
 tabular statement, quote and delivery note. Create my private copy saves an
-independent editable/shareable template; reading the gallery does not populate a
-workspace. Each has a business schema, bindings and sample data that render real PDFs.
+independent editable/shareable template in the reader's language (field titles,
+PDF text, sample data and number/date formats); reading the gallery does not
+populate a workspace. Each has a business schema, bindings and sample data that render real PDFs.
 
 Owners may remove their creation from library/studio with confirmation naming it,
 including demo copies. Shared removal also hides it from other members; generated
