@@ -13,6 +13,7 @@ import {
 const jobs = () =>
   Object.fromEntries(
     [
+      "qualification",
       "dependencies",
       "pdf-validator",
       "scanner",
@@ -235,11 +236,11 @@ test("dependency preflight stops incompatible graphs before builds, renderers an
   );
   assert.match(dependencies, /persist-credentials: false/);
   for (const name of ["checks", "vitest", "security", "build", "engineering"])
-    assert.match(section(name), /needs: dependencies/);
+    assert.match(section(name), /needs: \[dependencies, qualification\]/);
   for (const name of ["browser", "distribution-e2e"])
-    assert.match(section(name), /needs: build/);
+    assert.match(section(name), /needs: \[build, qualification\]/);
   for (const name of ["scanner", "pdf-validator"])
-    assert.doesNotMatch(section(name), /needs:/);
+    assert.match(section(name), /needs: qualification/);
   assert.match(section("verify"), /if: always\(\)/);
   assert.match(section("verify"), /needs:[\s\S]*dependencies,/);
   assert.equal(
@@ -250,4 +251,61 @@ test("dependency preflight stops incompatible graphs before builds, renderers an
     (workflow.match(/run: npm run audit:dependencies/g) ?? []).length,
     1,
   );
+});
+
+test("main proof reuse preserves fresh audit, explicit scanner authority and a separate fail-closed gate", async () => {
+  const workflow = await readFile(
+    new URL("../../.github/workflows/ci.yml", import.meta.url),
+    "utf8",
+  );
+  const section = (name) =>
+    workflow.match(
+      new RegExp(`^  ${name}:\\n([\\s\\S]*?)(?=^  [a-z]|(?![\\s\\S]))`, "m"),
+    )?.[1];
+  const qualification = section("qualification");
+  assert.match(qualification, /actions: read/);
+  assert.match(qualification, /pull-requests: read/);
+  assert.doesNotMatch(
+    qualification,
+    /secrets\.|contents: write|actions: write|pull_request_target|run: npm/,
+  );
+  assert.match(
+    qualification,
+    /artifact-ids: \$\{\{ steps\.select\.outputs\.artifact_id \}\}/,
+  );
+  assert.match(qualification, /continue-on-error: true/);
+  assert.match(qualification, /validation-proof\.mjs qualify/);
+  assert.doesNotMatch(section("dependencies"), /^    if:|needs:/m);
+  for (const name of [
+    "pdf-validator",
+    "checks",
+    "vitest",
+    "security",
+    "build",
+    "browser",
+    "distribution-e2e",
+    "engineering",
+  ])
+    assert.match(
+      section(name),
+      /if: needs\.qualification\.outputs\.reused != 'true'/,
+    );
+  assert.match(
+    section("scanner"),
+    /Reuse the scanner suite from the qualified complete PR run/,
+  );
+  assert.match(
+    section("scanner"),
+    /npm --prefix apps\/scanner test\n        if: needs\.qualification\.outputs\.reused != 'true'/,
+  );
+  assert.match(
+    section("verify"),
+    /if: always\(\) && needs\.qualification\.outputs\.reused == 'true'/,
+  );
+  assert.match(section("verify"), /validation-proof\.mjs verify-reused/);
+  assert.match(
+    section("verify"),
+    /github\.event_name == 'pull_request' && needs\.qualification\.outputs\.reused != 'true'/,
+  );
+  assert.doesNotMatch(workflow, /pattern: ci-validation-proof/);
 });

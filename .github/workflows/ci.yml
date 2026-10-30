@@ -1,6 +1,6 @@
 name: Guteneo checks
 on:
-  # A feature change runs once on its PR; main is checked again after merge.
+  # Every PR runs full; main qualifies identical-source proof or runs full again.
   # Keep this workflow unfiltered: API/mobile contracts, shared npm dependencies
   # and scanner changes must retain every required backend/browser check.
   push:
@@ -12,18 +12,63 @@ concurrency:
   group: checks-${{ github.ref }}
   cancel-in-progress: true
 jobs:
+  # A PR always executes the complete suite. Only an identical, freshly tested
+  # ordinary main merge may reuse its complete proof; unknown evidence runs full.
+  qualification:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: read
+      pull-requests: read
+    outputs:
+      reused: ${{ steps.qualify.outputs.reused }}
+      proof_b64: ${{ steps.qualify.outputs.proof_b64 }}
+      run_id: ${{ steps.select.outputs.run_id }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          sparse-checkout: scripts/ci
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: "24"
+      - name: Select an eligible complete PR proof without executing its contents
+        id: select
+        run: node scripts/ci/validation-proof.mjs select
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          CI_FORCE_FULL: ${{ vars.CI_FORCE_FULL || 'false' }}
+      - name: Read only the selected immutable proof artifact
+        if: steps.select.outputs.candidate == 'true'
+        id: download
+        timeout-minutes: 1
+        continue-on-error: true
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          github-token: ${{ github.token }}
+          run-id: ${{ steps.select.outputs.run_id }}
+          artifact-ids: ${{ steps.select.outputs.artifact_id }}
+          path: test-results/ci/pr-validation-proof
+      - name: Qualify exact source, policy, environment and complete test evidence
+        if: always()
+        id: qualify
+        run: node scripts/ci/validation-proof.mjs qualify test-results/ci/pr-validation-proof
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          CI_FORCE_FULL: ${{ vars.CI_FORCE_FULL || 'false' }}
+
   # Refuse unsupported dependency graphs before starting builds or browser setup.
   dependencies:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
           sparse-checkout: |
             scripts/ci
             packages/contracts
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version: "24"
           cache: npm
@@ -32,16 +77,29 @@ jobs:
         run: npm run check:dependencies
       - name: Reject known high and critical dependency advisories
         run: npm run audit:dependencies
+      - name: Bind the exercised suite to its actual runtime
+        if: always()
+        run: node scripts/ci/validation-proof.mjs runtime 'dependencies' 'test-results/ci/environments/runtime-dependencies.json'
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        if: always()
+        with:
+          name: ci-evidence-runtime-dependencies
+          path: test-results/ci/environments/runtime-dependencies.json
+          if-no-files-found: error
+          retention-days: 14
 
   pdf-validator:
+    if: needs.qualification.outputs.reused != 'true'
+    needs: qualification
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           sparse-checkout: |
+            scripts/ci
             apps/pdf-validator
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version: "24"
           cache: npm
@@ -49,33 +107,66 @@ jobs:
       - run: npm ci --prefix apps/pdf-validator
       - run: npm --prefix apps/pdf-validator run typecheck
       - run: npm --prefix apps/pdf-validator test
+      - name: Bind the exercised suite to its actual runtime
+        if: always()
+        run: node scripts/ci/validation-proof.mjs runtime 'pdf-validator' 'test-results/ci/environments/runtime-pdf-validator.json'
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        if: always()
+        with:
+          name: ci-evidence-runtime-pdf-validator
+          path: test-results/ci/environments/runtime-pdf-validator.json
+          if-no-files-found: error
+          retention-days: 14
 
   scanner:
+    needs: qualification
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v7
+      - name: Reuse the scanner suite from the qualified complete PR run
+        if: needs.qualification.outputs.reused == 'true'
+        run: printf 'Scanner proof retained from complete PR validation run %s; verify checks its provenance again.\n' "$VALIDATION_RUN_ID"
+        env:
+          VALIDATION_RUN_ID: ${{ needs.qualification.outputs.run_id }}
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        if: needs.qualification.outputs.reused != 'true'
         with:
           sparse-checkout: |
+            scripts/ci
             apps/scanner
             packages/observability
             .github/workflows
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        if: needs.qualification.outputs.reused != 'true'
         with:
           node-version: "24"
           cache: npm
           cache-dependency-path: apps/scanner/package-lock.json
       - run: npm ci --prefix apps/scanner
+        if: needs.qualification.outputs.reused != 'true'
       - run: npm --prefix apps/scanner run typecheck
+        if: needs.qualification.outputs.reused != 'true'
       - run: npm --prefix apps/scanner test
+        if: needs.qualification.outputs.reused != 'true'
+      - name: Bind the exercised suite to its actual runtime
+        if: always() && needs.qualification.outputs.reused != 'true'
+        run: node scripts/ci/validation-proof.mjs runtime 'scanner' 'test-results/ci/environments/runtime-scanner.json'
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        if: always() && needs.qualification.outputs.reused != 'true'
+        with:
+          name: ci-evidence-runtime-scanner
+          path: test-results/ci/environments/runtime-scanner.json
+          if-no-files-found: error
+          retention-days: 14
 
   checks:
-    needs: dependencies
+    if: needs.qualification.outputs.reused != 'true'
+    needs: [dependencies, qualification]
     runs-on: ubuntu-latest
     # Include fresh FFmpeg package installation and every narration assertion.
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           # Keep application assets, narration sources and every test. Omit only
           # immutable film archives and historical screenshots, not fresh proof.
@@ -86,7 +177,7 @@ jobs:
             !/videos/guteneo-gutenberg/archive/
             !/videos/guteneo-gutenberg/media-parts/
             !/reports/screenshots/
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version: "24"
           cache: npm
@@ -118,18 +209,23 @@ jobs:
           mkdir -p test-results/ci
           set -o pipefail
           npm run test:videos:narration | tee test-results/ci/narration.log
-      - uses: actions/upload-artifact@v7
+      - name: Bind the exercised suite to its actual runtime
+        if: always()
+        run: node scripts/ci/validation-proof.mjs runtime 'checks' 'test-results/ci/environments/runtime-checks.json'
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: always()
         with:
           name: ci-evidence-checks
           path: |
+            test-results/ci/environments/runtime-checks.json
             reports/cost-model.json
             test-results/ci/narration.log
           if-no-files-found: error
           retention-days: 14
 
   vitest:
-    needs: dependencies
+    if: needs.qualification.outputs.reused != 'true'
+    needs: [dependencies, qualification]
     runs-on: ubuntu-latest
     # Shards stay sequential; allow setup time without cutting test coverage.
     timeout-minutes: 20
@@ -138,7 +234,7 @@ jobs:
       matrix:
         shard: [1, 2, 3, 4]
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           # Keep application assets, narration sources and every test. Omit only
           # immutable film archives and historical screenshots, not fresh proof.
@@ -149,7 +245,7 @@ jobs:
             !/videos/guteneo-gutenberg/archive/
             !/videos/guteneo-gutenberg/media-parts/
             !/reports/screenshots/
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version: "24"
           cache: npm
@@ -169,30 +265,35 @@ jobs:
       - name: Preserve the newly exercised restore proof
         if: always()
         run: node scripts/ci/collect-restore-proof.mjs test-results/ci/vitest-${{ matrix.shard }}.json
-      - uses: actions/upload-artifact@v7
+      - name: Bind the exercised suite to its actual runtime
+        if: always()
+        run: node scripts/ci/validation-proof.mjs runtime 'vitest-${{ matrix.shard }}' 'test-results/ci/environments/runtime-vitest-${{ matrix.shard }}.json'
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: always()
         with:
           name: ci-vitest-${{ matrix.shard }}
           path: test-results/ci/blobs/${{ matrix.shard }}.json
           if-no-files-found: error
           retention-days: 14
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: always()
         with:
           name: ci-evidence-vitest-${{ matrix.shard }}
           path: |
+            test-results/ci/environments/runtime-vitest-${{ matrix.shard }}.json
             test-results/ci/vitest-${{ matrix.shard }}.json
             test-results/ci/restore-proof.json
           if-no-files-found: error
           retention-days: 14
 
   security:
-    needs: dependencies
+    if: needs.qualification.outputs.reused != 'true'
+    needs: [dependencies, qualification]
     runs-on: ubuntu-latest
     # The same WebKit dependency mirrors precede the renderer/security tests.
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           # Keep application assets, narration sources and every test. Omit only
           # immutable film archives and historical screenshots, not fresh proof.
@@ -203,7 +304,7 @@ jobs:
             !/videos/guteneo-gutenberg/archive/
             !/videos/guteneo-gutenberg/media-parts/
             !/reports/screenshots/
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version: "24"
           cache: npm
@@ -223,31 +324,36 @@ jobs:
         run: |
           set -o pipefail
           node --test tests/security/*.test.mjs | tee test-results/ci/security.log
-      - uses: actions/upload-artifact@v7
+      - name: Bind the exercised suite to its actual runtime
+        if: always()
+        run: node scripts/ci/validation-proof.mjs runtime 'security' 'test-results/ci/environments/runtime-security.json'
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: always()
         with:
           name: ci-vitest-renderer
           path: test-results/ci/blobs/renderer.json
           if-no-files-found: error
           retention-days: 14
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: always()
         with:
           name: ci-evidence-security
           path: |
+            test-results/ci/environments/runtime-security.json
             test-results/ci/vitest-renderer.json
             test-results/ci/security.log
           if-no-files-found: error
           retention-days: 14
 
   build:
-    needs: dependencies
+    if: needs.qualification.outputs.reused != 'true'
+    needs: [dependencies, qualification]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     outputs:
       browser-matrix: ${{ steps.browser-matrix.outputs.matrix }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           # Keep application assets, narration sources and every test. Omit only
           # immutable film archives and historical screenshots, not fresh proof.
@@ -258,7 +364,7 @@ jobs:
             !/videos/guteneo-gutenberg/archive/
             !/videos/guteneo-gutenberg/media-parts/
             !/reports/screenshots/
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version: "24"
           cache: npm
@@ -274,20 +380,31 @@ jobs:
       - run: npm run build:preview
       - run: npm run build:status
       - run: npx wrangler deploy --config wrangler.status.jsonc --dry-run --outdir dist/status-worker
-      - uses: actions/upload-artifact@v7
+      - name: Bind the exercised suite to its actual runtime
+        if: always()
+        run: node scripts/ci/validation-proof.mjs runtime 'build' 'test-results/ci/environments/runtime-build.json'
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        if: always()
+        with:
+          name: ci-evidence-runtime-build
+          path: test-results/ci/environments/runtime-build.json
+          if-no-files-found: error
+          retention-days: 14
+      - name: Deduplicate exact application and preview output bytes
+        run: node scripts/ci/build-artifact.mjs pack test-results/ci/build-artifact
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: guteneo-browser-builds-${{ github.sha }}
-          # Most bytes are already-compressed MP4/WebP; zip compression adds CPU
-          # without useful savings. Artifact contents and checks remain identical.
+          # Already-compressed media stays uncompressed; identical output bytes
+          # share one verified object, then reconstruct both ordinary products.
           compression-level: 0
-          path: |
-            dist/web/
-            dist/preview/
+          path: test-results/ci/build-artifact/
           if-no-files-found: error
           retention-days: 1
 
   browser:
-    needs: build
+    if: needs.qualification.outputs.reused != 'true'
+    needs: [build, qualification]
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -304,7 +421,7 @@ jobs:
       fail-fast: false
       matrix: ${{ fromJSON(needs.build.outputs.browser-matrix) }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           # Keep application assets, narration sources and every test. Omit only
           # immutable film archives and historical screenshots, not fresh proof.
@@ -315,7 +432,19 @@ jobs:
             !/videos/guteneo-gutenberg/archive/
             !/videos/guteneo-gutenberg/media-parts/
             !/reports/screenshots/
-      - uses: actions/setup-node@v7
+            !/videos/*
+            /videos/guteneo-film/
+            !/videos/guteneo-film/*
+            /videos/guteneo-film/narration/
+            !/videos/guteneo-film/narration/*
+            /videos/guteneo-film/narration/releases/
+            !/videos/guteneo-film/narration/releases/*/*
+            /videos/guteneo-film/narration/releases/*/scripts.json
+            !/assets/
+            !/apps/web/public/videos/
+            !/ios/
+            !/apps/engineering/
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version: "24"
           cache: npm
@@ -330,11 +459,13 @@ jobs:
         run: node scripts/ci/select-artifacts.mjs build
         env:
           GITHUB_TOKEN: ${{ github.token }}
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           artifact-ids: ${{ steps.artifacts.outputs.buildArtifactIds }}
-          path: dist
+          path: test-results/ci/build-artifact
           merge-multiple: true
+      - name: Restore and verify every selected static-product byte
+        run: node scripts/ci/build-artifact.mjs restore test-results/ci/build-artifact web ${{ matrix.preview != '' && 'preview' || '' }}
       - name: Remove historical screenshot evidence from this fresh runner
         run: rm -rf reports/screenshots
       - name: Verify the four-language MCP Apps SDK fixtures
@@ -363,12 +494,24 @@ jobs:
       - name: Bind every suite report to this exact project, shard and run
         if: always()
         run: node scripts/ci/browser-results.mjs record '${{ matrix.project }}' '${{ matrix.shardIndex }}'
-      - uses: actions/upload-artifact@v7
+      - name: Bind the exercised suite to its actual runtime
+        if: always()
+        run: node scripts/ci/validation-proof.mjs runtime 'browser-${{ matrix.project }}-${{ matrix.shardIndex }}' 'test-results/ci/environments/runtime-browser-${{ matrix.project }}-${{ matrix.shardIndex }}.json'
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: always()
         with:
           name: ci-evidence-browser-${{ matrix.project }}-${{ matrix.shardIndex }}
           path: |
-            test-results/ci/
+            test-results/ci/environments/runtime-browser-${{ matrix.project }}-${{ matrix.shardIndex }}.json
+            test-results/ci/browser/${{ matrix.project }}/shard-${{ matrix.shardIndex }}/
+            test-results/ci/artifact-selection-build.json
+          if-no-files-found: error
+          retention-days: 14
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        if: always()
+        with:
+          name: ci-debug-browser-${{ matrix.project }}-${{ matrix.shardIndex }}
+          path: |
             test-results/application/
             test-results/preview/
             test-results/belvedere/
@@ -376,15 +519,16 @@ jobs:
             reports/screenshots/
             reports/mcp-ui-probe/
             reports/mcp-document-upload/
-          if-no-files-found: error
+          if-no-files-found: ignore
           retention-days: 14
 
   engineering:
-    needs: dependencies
+    if: needs.qualification.outputs.reused != 'true'
+    needs: [dependencies, qualification]
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           sparse-checkout-cone-mode: false
           sparse-checkout: |
@@ -392,7 +536,7 @@ jobs:
             !/videos/guteneo-gutenberg/archive/
             !/videos/guteneo-gutenberg/media-parts/
             !/reports/screenshots/
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version: "24"
           cache: npm
@@ -412,11 +556,15 @@ jobs:
       - name: Verify asset-only deployment configuration
         working-directory: apps/engineering
         run: npx wrangler deploy --dry-run
-      - uses: actions/upload-artifact@v7
+      - name: Bind the exercised suite to its actual runtime
+        if: always()
+        run: node scripts/ci/validation-proof.mjs runtime 'engineering' 'test-results/ci/environments/runtime-engineering.json'
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: always()
         with:
           name: ci-evidence-engineering
           path: |
+            test-results/ci/environments/runtime-engineering.json
             test-results/engineering/
             test-results/engineering-report/
             apps/engineering/dist/release.json
@@ -424,7 +572,8 @@ jobs:
           retention-days: 14
 
   distribution-e2e:
-    needs: build
+    if: needs.qualification.outputs.reused != 'true'
+    needs: [build, qualification]
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -448,7 +597,7 @@ jobs:
       GUTENEO_E2E_PREBUILT: "true"
       EXPECTED_DISTRIBUTION_RESULTS: ${{ matrix.expected }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           sparse-checkout-cone-mode: false
           sparse-checkout: |
@@ -456,7 +605,19 @@ jobs:
             !/videos/guteneo-gutenberg/archive/
             !/videos/guteneo-gutenberg/media-parts/
             !/reports/screenshots/
-      - uses: actions/setup-node@v7
+            !/videos/*
+            /videos/guteneo-film/
+            !/videos/guteneo-film/*
+            /videos/guteneo-film/narration/
+            !/videos/guteneo-film/narration/*
+            /videos/guteneo-film/narration/releases/
+            !/videos/guteneo-film/narration/releases/*/*
+            /videos/guteneo-film/narration/releases/*/scripts.json
+            !/assets/
+            !/apps/web/public/videos/
+            !/ios/
+            !/apps/engineering/
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version: "24"
           cache: npm
@@ -474,11 +635,13 @@ jobs:
         run: node scripts/ci/select-artifacts.mjs build
         env:
           GITHUB_TOKEN: ${{ github.token }}
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           artifact-ids: ${{ steps.artifacts.outputs.buildArtifactIds }}
-          path: dist
+          path: test-results/ci/build-artifact
           merge-multiple: true
+      - name: Restore and verify every application byte
+        run: node scripts/ci/build-artifact.mjs restore test-results/ci/build-artifact web
       - name: Exercise secure distribution and the unified account with fictional data
         run: |
           mkdir -p test-results/ci
@@ -501,6 +664,9 @@ jobs:
           }
           console.log(`${summary.passed} deterministic browser results verified; no model calls.`);
           JS
+      - name: Bind the exercised suite to its actual runtime
+        if: always()
+        run: node scripts/ci/validation-proof.mjs runtime 'distribution-${{ matrix.authentication }}' 'test-results/ci/environments/runtime-distribution-${{ matrix.authentication }}.json'
       - name: Independently clear every upload path for invitation secrets
         if: always()
         id: distribution-privacy
@@ -513,18 +679,19 @@ jobs:
             const { run } = JSON.parse(await readFile('test-results/distribution-e2e/report.json', 'utf8'));
             if (marker.schema !== 1 || marker.runId !== run.id) throw new Error('No current artifact privacy clearance.');
             const { state } = JSON.parse(await readFile('test-results/distribution-e2e-state.json', 'utf8'));
-            await assertNoInvitationSecrets(state, ['test-results/ci/distribution.log', 'test-results/distribution-e2e-state.json', 'test-results/distribution-e2e-sanitized.json']);
+            await assertNoInvitationSecrets(state, ['test-results/ci/environments/runtime-distribution-${{ matrix.authentication }}.json', 'test-results/ci/distribution.log', 'test-results/distribution-e2e-state.json', 'test-results/distribution-e2e-sanitized.json']);
             await appendFile(process.env.GITHUB_OUTPUT, 'verified=true\n');
           } catch {
             console.error('Distribution artifacts are not cleared for upload.');
             process.exitCode = 1;
           }
           JS
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: always() && steps.distribution-privacy.outputs.verified == 'true'
         with:
           name: ci-evidence-distribution-${{ matrix.authentication }}
           path: |
+            test-results/ci/environments/runtime-distribution-${{ matrix.authentication }}.json
             test-results/distribution-e2e/
             test-results/distribution-e2e-server.log
             test-results/distribution-e2e-state.json
@@ -534,16 +701,18 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
-  # Branch protection keeps the same required check. A skipped/cancelled/failed
-  # dependency must fail this job rather than produce a green skipped gate.
+  # The required gate either accounts for every new test or independently
+  # rechecks a sealed identical-source full proof. Missing evidence fails closed.
   # Native XCTest/archive have their own source-filtered workflow, not a web gate.
   verify:
     if: always()
     permissions:
       contents: read
       actions: read
+      pull-requests: read
     needs:
       [
+        qualification,
         dependencies,
         pdf-validator,
         scanner,
@@ -559,7 +728,7 @@ jobs:
     # Checkout and evidence download share this budget with verification.
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           # Report merging loads only the root Vitest config; retain the complete
           # unit/browser inventories and their source imports. The only public
@@ -581,41 +750,74 @@ jobs:
             /apps/web/public/openapi.json
             /apps/api/src/
             /packages/
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version: "24"
           cache: npm
       - run: npm ci
+        if: needs.qualification.outputs.reused != 'true'
       - name: Select latest reports per immutable current-run artifact
+        if: needs.qualification.outputs.reused != 'true'
         id: artifacts
         run: node scripts/ci/select-artifacts.mjs verify
         env:
           GITHUB_TOKEN: ${{ github.token }}
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        if: needs.qualification.outputs.reused != 'true'
         with:
           artifact-ids: ${{ steps.artifacts.outputs.vitestArtifactIds }}
           path: test-results/ci/blobs
           merge-multiple: true
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        if: needs.qualification.outputs.reused != 'true'
         with:
           artifact-ids: ${{ steps.artifacts.outputs.evidenceArtifactIds }}
           path: test-results/ci/evidence
       - name: Merge all Vitest results without rerunning tests
+        if: needs.qualification.outputs.reused != 'true'
         run: |
           rm -f reports/vitest.json
           npx vitest run --merge-reports=test-results/ci/blobs \
             --reporter=json --outputFile.json=reports/vitest.json
       - name: Require every job and every discovered test file
-        if: always()
+        if: always() && needs.qualification.outputs.reused != 'true'
         run: node scripts/ci/verify-results.mjs
         env:
           CI_JOB_RESULTS: ${{ toJSON(needs) }}
-      - uses: actions/upload-artifact@v7
+      - name: Independently recheck the qualified complete PR proof
+        if: always() && needs.qualification.outputs.reused == 'true'
+        run: node scripts/ci/validation-proof.mjs verify-reused test-results/ci/verified.json
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          REUSE_PROOF_B64: ${{ needs.qualification.outputs.proof_b64 }}
+          CI_FORCE_FULL: ${{ vars.CI_FORCE_FULL || 'false' }}
+          CI_JOB_RESULTS: ${{ toJSON(needs) }}
+      - name: Record a full PR validation only after complete inventory verification
+        id: full-proof
+        continue-on-error: true
+        if: success() && github.event_name == 'pull_request' && needs.qualification.outputs.reused != 'true'
+        run: node scripts/ci/validation-proof.mjs record test-results/ci/verified.json test-results/ci/proof.json
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        continue-on-error: true
+        if: success() && steps.full-proof.outcome == 'success' && github.event_name == 'pull_request' && needs.qualification.outputs.reused != 'true'
+        with:
+          name: ci-validation-proof-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            test-results/ci/proof.json
+            test-results/ci/verified.json
+          if-no-files-found: error
+          retention-days: 2
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: always()
         with:
           name: guteneo-verification
           path: |
             reports/vitest.json
-            test-results/ci/
+            test-results/ci/verified.json
+            test-results/ci/browser-verified.json
+            test-results/ci/proof.json
+            test-results/ci/artifact-selection-verify.json
           if-no-files-found: error
           retention-days: 14

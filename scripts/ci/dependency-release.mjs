@@ -1,3 +1,4 @@
+import { fullValidationJobs } from "./validation-proof.mjs";
 import { execFileSync } from "node:child_process";
 import { appendFile, readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
@@ -47,22 +48,51 @@ export function requireMainRun(run, context) {
 }
 
 export function requireSuccessfulJobs(jobs, runId) {
+  const required = ["qualification", "dependencies", "scanner", "verify"];
+  const collapsed = [
+    ...required,
+    "pdf-validator",
+    "checks",
+    "vitest",
+    "security",
+    "build",
+    "browser",
+    "distribution-e2e",
+    "engineering",
+  ];
+  const exactReuse = (names) =>
+    jobs.length === names.length &&
+    new Set(jobs.map((job) => job.name)).size === names.length &&
+    jobs.every(
+      (job) =>
+        names.includes(job.name) &&
+        job.conclusion ===
+          (required.includes(job.name) ? "success" : "skipped"),
+    );
+  const exactFull = () =>
+    jobs.length === fullValidationJobs.length &&
+    new Set(jobs.map((job) => job.name)).size === fullValidationJobs.length &&
+    jobs.every(
+      (job) =>
+        fullValidationJobs.includes(job.name) && job.conclusion === "success",
+    );
   demand(
     Array.isArray(jobs) &&
       jobs.length > 0 &&
       new Set(jobs.map((job) => job.id)).size === jobs.length &&
       jobs.every(
         (job) =>
-          id(job.id) &&
-          job.run_id === runId &&
-          job.status === "completed" &&
-          job.conclusion === "success",
+          id(job.id) && job.run_id === runId && job.status === "completed",
       ) &&
       ["verify", "scanner"].every(
         (name) => jobs.filter((job) => job.name === name).length === 1,
-      ),
+      ) &&
+      (exactFull() || exactReuse(collapsed) || exactReuse(fullValidationJobs)),
     "ALL_MAIN_JOBS_MUST_SUCCEED",
   );
+  // The canonical same-main workflow's required verify gate independently checks
+  // the sealed full proof; arbitrary skipped/failed or foreign jobs stay closed.
+  return exactFull() ? "full" : "reused";
 }
 
 export function isDependabotMerge(pull, context) {
@@ -379,7 +409,7 @@ export async function qualifyDependencyRelease(context, request) {
     `${base}/actions/runs/${run.id}/jobs?filter=latest`,
     "jobs",
   );
-  requireSuccessfulJobs(jobs, run.id);
+  const validationMode = requireSuccessfulJobs(jobs, run.id);
   // Successful jobs may belong to earlier attempts after retrying only failures.
   // Recheck the run so a concurrent retry cannot change the selected inventory.
   requireMainRun(await request(`${base}/actions/runs/${run.id}`), context);
@@ -390,6 +420,7 @@ export async function qualifyDependencyRelease(context, request) {
     pullRequest: pull.number,
     runId: run.id,
     runAttempt: run.run_attempt,
+    validationMode,
     jobs: jobs.map(({ id: jobId, name, conclusion }) => ({
       id: jobId,
       name,

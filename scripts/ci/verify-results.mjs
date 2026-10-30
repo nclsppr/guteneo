@@ -4,6 +4,7 @@ import { pathToFileURL } from "node:url";
 import { verifyBrowserEvidence } from "./browser-results.mjs";
 
 const requiredJobs = [
+  "qualification",
   "dependencies",
   "pdf-validator",
   "scanner",

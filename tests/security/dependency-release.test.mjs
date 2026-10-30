@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
+import { fullValidationJobs } from "../../scripts/ci/validation-proof.mjs";
 import {
   isDependabotMerge,
   qualifyDependencyRelease,
@@ -89,7 +90,7 @@ const manifestResponse = (manifest, path = "package.json") => {
     size: bytes.length,
   };
 };
-const jobs = ["verify", "scanner", "checks", "build"].map((name, index) => ({
+const jobs = fullValidationJobs.map((name, index) => ({
   id: index + 1,
   run_id: run.id,
   name,
@@ -262,6 +263,34 @@ test("required successful aggregate checks and every other job remain mandatory"
       ),
     /ALL_MAIN_JOBS_MUST_SUCCEED/,
   );
+});
+
+test("full release qualification requires every canonical job exactly once", () => {
+  assert.equal(jobs.length, 24);
+  assert.equal(requireSuccessfulJobs(jobs, run.id), "full");
+  assert.equal(requireSuccessfulJobs([...jobs].reverse(), run.id), "full");
+  for (const omitted of fullValidationJobs)
+    assert.throws(
+      () =>
+        requireSuccessfulJobs(
+          jobs.filter((job) => job.name !== omitted),
+          run.id,
+        ),
+      /ALL_MAIN_JOBS_MUST_SUCCEED/,
+      omitted,
+    );
+  for (const invalid of [
+    jobs.filter((job) => ["scanner", "verify"].includes(job.name)),
+    [...jobs, { ...jobs[0], id: 99, name: "foreign" }],
+    jobs.map((job, index) => (index === 0 ? { ...job, name: "foreign" } : job)),
+    jobs.map((job, index) =>
+      index === 0 ? { ...job, name: jobs[1].name } : job,
+    ),
+  ])
+    assert.throws(
+      () => requireSuccessfulJobs(invalid, run.id),
+      /ALL_MAIN_JOBS_MUST_SUCCEED/,
+    );
 });
 
 test("eligibility binds complete files, main revision, current CI attempt and bot merge", async () => {
@@ -637,4 +666,66 @@ test("workflow serializes releases, gives CI no production secret and reuses the
   assert.equal(workflow.includes("actions/download-artifact"), false);
   assert.equal(workflow.includes("gh pr merge"), false);
   assert.equal(workflow.includes("workflow_dispatch:"), false);
+});
+
+test("dependency release accepts only the canonical successful reused-proof gate shape", () => {
+  const required = new Set([
+    "qualification",
+    "dependencies",
+    "scanner",
+    "verify",
+  ]);
+  const names = [
+    ...required,
+    "pdf-validator",
+    "checks",
+    "vitest",
+    "security",
+    "build",
+    "browser",
+    "distribution-e2e",
+    "engineering",
+  ];
+  const jobs = names.map((name, index) => ({
+    id: index + 1,
+    run_id: run.id,
+    name,
+    status: "completed",
+    conclusion: required.has(name) ? "success" : "skipped",
+  }));
+  assert.equal(requireSuccessfulJobs(jobs, run.id), "reused");
+  const expanded = fullValidationJobs.map((name, index) => ({
+    id: index + 1,
+    run_id: run.id,
+    name,
+    status: "completed",
+    conclusion: required.has(name) ? "success" : "skipped",
+  }));
+  assert.equal(requireSuccessfulJobs(expanded, run.id), "reused");
+  for (const name of required) {
+    assert.throws(() =>
+      requireSuccessfulJobs(
+        jobs.map((job) =>
+          job.name === name ? { ...job, conclusion: "skipped" } : job,
+        ),
+        run.id,
+      ),
+    );
+  }
+  for (const conclusion of ["failure", "cancelled", "timed_out", null])
+    assert.throws(() =>
+      requireSuccessfulJobs(
+        jobs.map((job) =>
+          job.name === "browser" ? { ...job, conclusion } : job,
+        ),
+        run.id,
+      ),
+    );
+  assert.throws(() => requireSuccessfulJobs(jobs.slice(1), run.id));
+  assert.throws(() =>
+    requireSuccessfulJobs(
+      [...jobs, { ...jobs[0], id: 99, name: "foreign" }],
+      run.id,
+    ),
+  );
 });

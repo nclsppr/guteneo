@@ -6,7 +6,119 @@ Restoring a catalog entry must update the corresponding visible-text assertion,
 not weaken the tenant, membership, hidden-form or zero-write checks. A translated
 refusal remains a refusal; fixture expectations must follow the selected locale.
 
-The required checks remain **verify** and **scanner**. This workflow builds and tests local fixtures only; it does not deploy or receive production secrets. Every pull request runs the full pipeline, and `main` runs it again after merge. Feature-branch push runs have been removed so an open PR no longer starts two copies. No path filters or conditional test selection skip checks on documentation-only changes.
+The required checks remain **verify** and **scanner**. This workflow tests local
+fixtures with read-only GitHub permissions and no production secret. Every PR
+executes the complete suite, including documentation-only PRs. A `main` push
+qualifies an existing complete proof for identical merged content or executes the
+complete suite again. Feature-branch push runs remain disabled so an open PR does
+not start two copies. No path filter removes application test coverage.
+
+## Validate once and qualify an identical main merge
+
+`scripts/ci/validation-proof.mjs` owns this optimization. A full run has 24 jobs:
+the existing 23 plus a small qualification job. After the aggregate independently
+accounts for every current Vitest file and browser test identity, a successful PR
+may publish `ci-validation-proof-<run>-<attempt>` containing only `proof.json` and
+`verified.json`. Creating or uploading this optional proof may fail without
+invalidating genuinely completed tests; an absent proof cannot authorize reuse.
+
+Only an ordinary two-parent `main` merge can reuse it. The qualifier verifies the
+actual merged same-repository PR, exact base/head parents, GitHub's actual tested
+synthetic merge commit and identical complete Git tree. It checks the latest
+complete successful PR workflow/attempt and every expected job, exact immutable
+artifact ID/digest metadata, self-hash and raw report hash, and a 24-hour age bound.
+The CI policy in the trusted pre-merge base must agree: workflow/action pins,
+`scripts/ci`, test configurations and package scripts/engines/development tools.
+Current and tested lockfiles must match. Runtime dependencies or a product-version
+change alone do not invalidate an otherwise identical-source qualification.
+
+Each of the 22 test/build jobs records its actual Node patch, platform,
+architecture and GitHub `ImageOS`/`ImageVersion`, bound to its execution SHA, run
+and attempt. All records must be present, unique and agree with the verifier and
+promotion environment. Missing or mixed image/runtime metadata preserves the full
+validation but makes its proof ineligible. This is bounded runtime provenance,
+not an attestation of all external services or an immutable Ubuntu package mirror.
+The four shared CI actions use reviewed complete commit SHAs instead of moving
+major references; update them through the normal full-qualification path.
+
+On an eligible merge, fresh dependency compatibility and high/critical audit
+checks still run. `scanner` reports the retained complete PR proof explicitly;
+`verify` independently rechecks the sealed data, GitHub facts, current identity
+and exact expected job outcomes. The eight expensive job families are allowed to
+be skipped only on this validated path. A failed fresh check or changed proof
+cannot produce a successful gate. A reused result is never issued as a new full
+proof, so qualification cannot extend its freshness by chaining.
+
+Missing, expired, inaccessible, foreign, incomplete, failed, ambiguous or changed
+evidence selects the full suite before scheduling tests. A policy/toolchain change
+therefore runs full on its first main merge. Drift after jobs have been skipped
+fails the final gate. Setting repository variable `CI_FORCE_FULL=true` forces the
+full route. Qualification reads bounded JSON only and never executes a downloaded
+PR artifact; GitHub tokens remain environment-only and provider output is withheld.
+
+Application publication still requires a successful CI gate on the exact current
+main commit and the clean-main source/served-byte guards. `deploy:live` builds and
+verifies the served release; it does not start another full application test run.
+The engineering release wrapper separately retains its small fresh-build browser
+checks. CI proof reuse grants no merge, deployment, provider or sending authority.
+
+## Transfer each static byte once
+
+The build job packages both complete static products through
+`scripts/ci/build-artifact.mjs`. Its index binds the exact execution commit/tree,
+canonical paths, byte counts and SHA-256. Equal bytes share one `objects/<hash>`
+file across application and preview; the release manifests and hidden paths are
+preserved. Consumers retain current-run exact artifact-ID selection and verify
+the complete object inventory plus every selected release/health asset before
+restoring ordinary `dist/web` and `dist/preview` paths. Tampered, missing, extra,
+symlinked or escaping paths fail. Existing output directories are refused rather
+than overlaid; no package/code from a prior PR artifact is executed for promotion.
+
+Only browser/distribution source checkouts omit media originals, native sources
+and engineering sources they do not execute. Authored narration `scripts.json`
+files remain because preview checks read them. Source-media and narration tests
+still receive their complete inputs in checks/security/build. Raw browser
+screenshots/traces remain in immutable `ci-debug-browser-*` child artifacts; the
+aggregate downloads compact required JSON/digests and retains its compact verdict
+instead of duplicating every child's debug bytes.
+
+## Timing and qualification — 30 October 2026
+
+| Successful source                                                              | Wall time   | Sum of runner execution |
+| ------------------------------------------------------------------------------ | ----------- | ----------------------- |
+| [Main after #120](https://github.com/nclsppr/guteneo/actions/runs/40978447614) | 15 min 04 s | 103 min 54 s            |
+| [PR #122](https://github.com/nclsppr/guteneo/actions/runs/40998467239)         | 14 min 39 s | 102 min 48 s            |
+| [Reviewed #124](https://github.com/nclsppr/guteneo/actions/runs/41028495479)   | 22 min 50 s | 103 min 55 s            |
+
+The last run queued each browser/distribution job for roughly 7 min 41 s. Those
+parallel waits explain most of its extra wall time; summing queued minutes would
+overstate a person's wait. GitHub's usage endpoint reported zero standard Ubuntu
+runner billing for these public-repository observations, not a zero total bill:
+artifact storage, other services and account-specific charges remain separate.
+
+Before this optimization, the static artifact was about 799 MiB and eleven
+consumers downloaded it. Broad consumer source checkouts contained 636.8 MiB. A
+real sparse checkout of the same reviewed tree contains 31.5 MiB and retains all
+nine authored narration scripts; application/preview discovery and the status
+build passed locally. That removes about 605 MiB of irrelevant source per
+consumer, before Git transport compression. A clean local build at `8b661e0a04decf7ed1efb498920a3c164cc64f8e` packed 688 files into 485 unique objects: 837,728,378 logical bytes became 432,683,847 stored bytes, removing 405,044,531 duplicate bytes (48.4%). Eleven identical downloads would therefore avoid about 4.15 GiB before small index/ZIP overhead. Hosted after-change timings remain to be recorded; source-byte or artifact-byte reduction is not itself a measured wall-time improvement.
+
+An eligible main promotion should avoid the second roughly 15-minute complete
+execution, subject to runner queues and its fresh audit/proof checks. This remains
+an estimate until a real eligible promotion is observed. The first CI-policy
+merge deliberately runs full; synthetic controller tests do not establish live
+reuse. Test coverage is unchanged, including all browser/media/tenant assertions.
+
+Git LFS is not introduced: current sparse checkout already avoids over a GiB of
+archived blobs, and tests still need current media bytes. Actions LFS downloads
+consume the repository owner's allowance, while repeated complete file versions
+consume storage. The documented Free/Pro download allowance is 10 GiB/month;
+Team has 250 GiB. Plan, usage and budgets must be checked before any future
+migration. No history rewrite, LFS quota purchase or spending-limit change is made.
+[GitHub LFS billing](https://docs.github.com/en/billing/concepts/product-billing/git-lfs)
+and [Playwright's browser-cache guidance](https://playwright.dev/docs/ci#caching-browsers)
+own those external constraints. Browser binaries are still installed normally;
+a cache does not remove their OS dependencies.
 
 Private scanner and PDF-validator package locks retain the patched Undici
 transport across Wrangler upgrades. Their `miniflare` overrides apply to every
@@ -58,7 +170,7 @@ already covered by `docs:check`, and avoiding the overwritten frontend build
 preserve every assertion. These are measured placement/duplication findings,
 not a qualified wall-time improvement; runner queues and artifact transfer vary.
 
-`verify` uses `always()` and depends on every job above. Failed, cancelled or skipped dependencies cannot produce a successful final gate. It merges the five native Vitest blob reports without rerunning tests, checks every assertion succeeded and compares the resulting file list with all current `tests/unit/**/*.test.ts` and `tests/integration/**/*.test.ts`. Missing, duplicated and unexpected files fail. There is no fixed assertion total to update when tests are added. The matrix uses `fail-fast: false` so a failure in one shard preserves the other shards' evidence.
+`verify` uses `always()` and depends on every job above. On the full route, failed, cancelled or skipped dependencies cannot produce a successful final gate; the strictly qualified promotion route is defined above. It merges the five native Vitest blob reports without rerunning tests, checks every assertion succeeded and compares the resulting file list with all current `tests/unit/**/*.test.ts` and `tests/integration/**/*.test.ts`. Missing, duplicated and unexpected files fail. There is no fixed assertion total to update when tests are added. The matrix uses `fail-fast: false` so a failure in one shard preserves the other shards' evidence.
 
 When adding an integration that launches actual Chromium, route it to the existing
 browser-equipped `security` job and exclude it from the ordinary Vitest shards.
@@ -95,10 +207,10 @@ measures complete GitHub runs from creation to their final completed job; it doe
 not include local implementation, human authentication, merge waiting or public
 verification.
 
-| Completed main run | Source | Jobs passed | Wall time |
-| --- | --- | --- | --- |
-| [Pre-sharding baseline, 25 October](https://github.com/nclsppr/guteneo/actions/runs/40226465628) | `03daa4136de8999cc79018f33f2a22038917c621` | 16 | 25 min 49 s |
-| [Current qualification, 26 October](https://github.com/nclsppr/guteneo/actions/runs/40254684422) | `f94664ff77c532c0c6b352109f565f6768091c2b` | 22 | 12 min 22 s |
+| Completed main run                                                                               | Source                                     | Jobs passed | Wall time   |
+| ------------------------------------------------------------------------------------------------ | ------------------------------------------ | ----------- | ----------- |
+| [Pre-sharding baseline, 25 October](https://github.com/nclsppr/guteneo/actions/runs/40226465628) | `03daa4136de8999cc79018f33f2a22038917c621` | 16          | 25 min 49 s |
+| [Current qualification, 26 October](https://github.com/nclsppr/guteneo/actions/runs/40254684422) | `f94664ff77c532c0c6b352109f565f6768091c2b` | 22          | 12 min 22 s |
 
 The qualified main run used one attempt. Its independent inventory accounted for
 all 1,131 current browser IDs across nine matrix rows and eight suite/profile
@@ -127,7 +239,7 @@ owns observed failures, security implications of holds and hosted activation.
 
 ## Evidence and caches
 
-`guteneo-verification` contains the complete merged `reports/vitest.json`, original per-job reports/logs, browser HTML/JSON reports, newly generated visual-proof screenshots and failure traces/screenshots, the current restoration proof, and the cost model. Intermediate evidence artifacts are retained for 14 days, including when a job fails; the reusable browser builds expire after one day. Downloaded evidence keeps separate artifact directories to avoid report filename collisions. The historical tracked restoration report is copied only by the shard that actually passed the restoration test. Browser runners remove historical screenshot fixtures before testing so their artifacts contain only images generated in that run.
+`guteneo-verification` contains the complete merged `reports/vitest.json` on full runs and compact verified inventories/provenance. Original per-job reports, restoration proof, logs and cost model remain in immutable `ci-evidence-*` child artifacts; browser visual proof and traces remain in `ci-debug-browser-*`. Intermediate evidence artifacts are retained for 14 days, including when a job fails; the reusable browser builds expire after one day. Downloaded evidence keeps separate artifact directories to avoid report filename collisions. The historical tracked restoration report is copied only by the shard that actually passed the restoration test. Browser runners remove historical screenshot fixtures before testing so their artifacts contain only images generated in that run.
 
 ### Manual reruns and artifact identity
 
@@ -162,7 +274,7 @@ execution against the affected run's actual metadata selected its second-attempt
 WebKit artifact while preserving both observations; this is not hosted workflow
 or production qualification.
 
-Every job uses lockfile-keyed `setup-node` npm download caching and still runs `npm ci`; `node_modules`, Miniflare databases and browser session state are not reused. Browser binaries are installed only in jobs that require them. No new browser cache is added: Playwright documents comparable download/restore costs and the need to install Linux system libraries anyway. A measured later change can revisit this choice; it is not assumed to save time.
+Full test jobs use lockfile-keyed `setup-node` npm download caching and still run `npm ci`; metadata qualification and reused verification use dependency-free Node helpers. `node_modules`, Miniflare databases and browser session state are not reused. Browser binaries are installed only in jobs that require them. No new browser cache is added: Playwright documents comparable download/restore costs and the need to install Linux system libraries anyway. A measured later change can revisit this choice; it is not assumed to save time.
 
 All jobs that install Ubuntu packages, including `engineering`, run the existing
 `scripts/ci/ubuntu-mirrors.mjs` before that installation. It prefers the runner's
@@ -220,14 +332,14 @@ all required checks. Its [main run 37928685996](https://github.com/nclsppr/guten
 took 17 min 03 s; the preceding [PR run 37926010842](https://github.com/nclsppr/guteneo/actions/runs/37926010842)
 took 24 min 24 s. These are observed workflow durations, not the optimized result.
 
-| Measured step | Main | Previous PR |
-| --- | ---: | ---: |
-| Build checkout | 186 s | 184 s |
-| iPhone checkout | 26 s | 189 s |
-| Verification checkout | 86 s | 190 s |
-| iPhone application assertions | 327 s | 431 s |
-| iPhone preview assertions | 139 s | 187 s |
-| Build-artifact upload | 26 s | 22 s |
+| Measured step                 |  Main | Previous PR |
+| ----------------------------- | ----: | ----------: |
+| Build checkout                | 186 s |       184 s |
+| iPhone checkout               |  26 s |       189 s |
+| Verification checkout         |  86 s |       190 s |
+| iPhone application assertions | 327 s |       431 s |
+| iPhone preview assertions     | 139 s |       187 s |
+| Build-artifact upload         |  26 s |        22 s |
 
 Checkout alone took 298 s on the main build → iPhone → verify critical path and
 563 s on the PR path. Initial parallel jobs each spent 163–232 s checking out
@@ -244,11 +356,11 @@ materialize. No tracked file is deleted from the repository. Fresh screenshots
 are still generated and uploaded, and both production and preview videos remain
 covered by their existing byte, decode, progression and locale checks.
 
-| Sparse job | Retained tracked bytes | Required scope |
-| --- | ---: | --- |
-| Scanner | 643,537 | Package, shared observability source, workflow fixtures and root files |
-| PDF validator | 1,067,248 | Complete package and root files |
-| Final verification | 2,690,037 | Complete unit/integration test inventory, CI scripts and root configuration |
+| Sparse job         | Retained tracked bytes | Required scope                                                              |
+| ------------------ | ---------------------: | --------------------------------------------------------------------------- |
+| Scanner            |                643,537 | Package, shared observability source, workflow fixtures and root files      |
+| PDF validator      |              1,067,248 | Complete package and root files                                             |
+| Final verification |              2,690,037 | Complete unit/integration test inventory, CI scripts and root configuration |
 
 Shared browser harnesses belong under the retained `tests/fixtures/` scope.
 The final verifier loads their imports while discovering every expected test;
@@ -291,14 +403,14 @@ The strict gate accounted for 102 files and 1,928 assertions. This source
 precedes the monitor's adaptation to the owner's subsequent canonical-only
 routing change; the CI workflow and optimization are identical.
 
-| Measure | Deployed main baseline | Optimized run | Observed change |
-| --- | ---: | ---: | ---: |
-| Workflow wall time, including initial queue | 17 min 03 s | 14 min 12 s | −16.7% |
-| Aggregate runner job durations | 84 min 03 s | 50 min 36 s | −39.8% |
-| Aggregate checkout steps | 31 min 03 s | 6 min 40 s | −78.5% |
-| Build job | 277 s | 113 s | −59.2% |
-| Build checkout | 186 s | 34 s | −81.7% |
-| Scanner checkout | 232 s | 2 s | −99.1% |
+| Measure                                     | Deployed main baseline | Optimized run | Observed change |
+| ------------------------------------------- | ---------------------: | ------------: | --------------: |
+| Workflow wall time, including initial queue |            17 min 03 s |   14 min 12 s |          −16.7% |
+| Aggregate runner job durations              |            84 min 03 s |   50 min 36 s |          −39.8% |
+| Aggregate checkout steps                    |            31 min 03 s |    6 min 40 s |          −78.5% |
+| Build job                                   |                  277 s |         113 s |          −59.2% |
+| Build checkout                              |                  186 s |          34 s |          −81.7% |
+| Scanner checkout                            |                  232 s |           2 s |          −99.1% |
 
 The optimized run included 63 seconds of initial queueing. Its iPhone job
 actually took 637 seconds versus 618 seconds on main: the improvement concerns

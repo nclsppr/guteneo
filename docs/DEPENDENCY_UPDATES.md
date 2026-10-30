@@ -5,13 +5,13 @@
 The first weekly Dependabot batch exposed separate failures; they are not failed
 production releases. Keep the original runs and qualify each corrected revision.
 
-| Pull request | Observed failure | Correction |
-| --- | --- | --- |
-| [103](https://github.com/nclsppr/guteneo/pull/103) | Installation rejects MCP client/server 2.4.0 and legacy SDK 1.32.2 because Agents 0.30.1 requires exact peers 2.3.1 and 1.32.1. | Hold all three unsupported SDK versions until a reviewed Agents/SDK train supports them. Grouping cannot override peer constraints. |
-| [104](https://github.com/nclsppr/guteneo/pull/104) | New Miniflare no longer matches the old version-qualified override and reintroduces vulnerable Undici. The high-severity audit correctly fails. | Keep patched Undici effective for supported Miniflare updates; retain the audit. |
-| [105](https://github.com/nclsppr/guteneo/pull/105) | Nested manifests are treated as feature changes requiring product documentation. | Exclude exact package/lock filenames from feature classification. Source/workflow edits retain normal documentation requirements. Print actual findings in CI. |
-| [109](https://github.com/nclsppr/guteneo/pull/109) | PDFme schemas 6.2.8 imports `parseFont`, absent from the retained transitive PDF library. | Make the existing PDF library explicit; group the family. Hold engine upgrades for compatibility review because stored templates declare engine 6.1.13. |
-| [111](https://github.com/nclsppr/guteneo/pull/111) | TypeScript 7 conflicts with typescript-eslint's supported range below 6.1.0. | Routine version updates remain minor/patch; major toolchain changes require coordinated migration. |
+| Pull request                                       | Observed failure                                                                                                                                | Correction                                                                                                                                                     |
+| -------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [103](https://github.com/nclsppr/guteneo/pull/103) | Installation rejects MCP client/server 2.4.0 and legacy SDK 1.32.2 because Agents 0.30.1 requires exact peers 2.3.1 and 1.32.1.                 | Hold all three unsupported SDK versions until a reviewed Agents/SDK train supports them. Grouping cannot override peer constraints.                            |
+| [104](https://github.com/nclsppr/guteneo/pull/104) | New Miniflare no longer matches the old version-qualified override and reintroduces vulnerable Undici. The high-severity audit correctly fails. | Keep patched Undici effective for supported Miniflare updates; retain the audit.                                                                               |
+| [105](https://github.com/nclsppr/guteneo/pull/105) | Nested manifests are treated as feature changes requiring product documentation.                                                                | Exclude exact package/lock filenames from feature classification. Source/workflow edits retain normal documentation requirements. Print actual findings in CI. |
+| [109](https://github.com/nclsppr/guteneo/pull/109) | PDFme schemas 6.2.8 imports `parseFont`, absent from the retained transitive PDF library.                                                       | Make the existing PDF library explicit; group the family. Hold engine upgrades for compatibility review because stored templates declare engine 6.1.13.        |
+| [111](https://github.com/nclsppr/guteneo/pull/111) | TypeScript 7 conflicts with typescript-eslint's supported range below 6.1.0.                                                                    | Routine version updates remain minor/patch; major toolchain changes require coordinated migration.                                                             |
 
 The scanner, PDF-validator and engineering TypeScript major proposals also need
 their own compiler/tooling qualification. A successful dependency-update generator
@@ -104,3 +104,16 @@ Local qualification on 29 October: 149 Vitest files with 3,161 passed assertions
 and 474 Node security tests passed. Subsequent hardening passed its focused
 regressions separately. Typecheck, lint, generated documentation, actual Chromium
 rendering and build/dry-run evidence remain local; hosted PR CI is separate.
+
+## Qualified main proof reuse
+
+The canonical main workflow may complete through the strict identical-source PR
+proof route defined in [CI.md](CI.md#validate-once-and-qualify-an-identical-main-merge).
+The release selector still requires that exact current-main run and its successful
+`qualification`, fresh `dependencies`, `scanner` and `verify` gates. It accepts only
+the exact canonical skipped-family pattern in that mode; arbitrary skipped,
+foreign, cancelled or failed work remains refused. Evidence records `validationMode`
+as `full` or `reused`. The first CI-policy/toolchain change falls back to full;
+actual hosted reuse and a genuine subsequent Dependabot release remain separate
+qualification observations. Merge, publication and credentials retain their
+existing boundaries.

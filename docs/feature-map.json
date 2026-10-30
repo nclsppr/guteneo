@@ -1007,7 +1007,9 @@
         "CI builds the final non-preview frontend once before unchanged Worker dry runs, executes documentation guards once through docs:check and places the once-only MCP Apps SDK fixtures on desktop Chromium shard three; complete suites, immutable evidence and required main/PR gates remain unchanged, with hosted timing qualification separate",
         "Prepared dependency redelivery qualifies a genuine merged Dependabot root npm update only after complete exact-current-main CI, serialized clean-main publication and canonical served-byte verification; a dedicated application token was installed on 29 October with expiry on 27 January 2027; hosted release activation still requires merged workflow and exact-source proof; MCP dependencies require synchronized reviewed plugin publication, unsupported MCP/PDFme versions remain held and routine major toolchain migrations require review",
         "Operator-only native strict Auth0 MCP registration controller defaults to sanitized GET inspection and requires an exact fresh fingerprint for separately authorized changes; preserves static clients, account connection, explicit scopes, current membership, consent and approval. Legacy-extension inspection, capacity, OIDC interoperability and real host qualification remain fail-closed activation gates; application deployment does not activate DCR.",
-        "TypeScript 7 validator behavior tests use native Node type stripping and an exact JSONC parser declared in both root and service manifests; independent root-only and service-only installs preserve complete shared security assertions."
+        "TypeScript 7 validator behavior tests use native Node type stripping and an exact JSONC parser declared in both root and service manifests; independent root-only and service-only installs preserve complete shared security assertions.",
+        "Every PR retains complete 24-job validation; an ordinary main merge may reuse a fresh complete same-repository PR proof only for identical Git trees, trusted CI policy, current locks, exact recorded runtimes and complete successful job/test inventories; missing or uncertain metadata runs full, fresh advisory checks remain, and an independent final gate rejects drift or arbitrary skips.",
+        "Same-run static builds deduplicate identical bytes into commit/tree-bound SHA-256 objects, verify full object and selected release/health inventories before reconstruction, narrow only prebuilt browser/distribution source checkouts, preserve authored caption scripts and retain raw debug evidence separately from compact aggregate proof; no LFS migration, test removal or paid provisioning."
       ],
       "status": "Implemented operational tooling; changes require explicit authority and exact-source proof.",
       "tests": [
@@ -1030,7 +1032,9 @@
         "tests/unit/providers-webhooks.test.ts",
         "tests/security/dependency-release.test.mjs",
         "tests/unit/dependency-compatibility.test.ts",
-        "tests/security/mcp-registration.test.mjs"
+        "tests/security/mcp-registration.test.mjs",
+        "tests/security/ci-build-artifact.test.mjs",
+        "tests/security/ci-validation-proof.test.mjs"
       ],
       "surfaces": "Authorised operator/CI tooling and private services; anonymous monitoring has no workshop authority.",
       "id": "operations",
@@ -1525,6 +1529,15 @@
       "branch": "Operations → development tooling; independent of product assistant authority",
       "doc": "CODEX_CLOUD.md",
       "failure": "Reject unsupported runtimes, invalid inputs, masked dashboard values and unapproved diagnostic destinations. Missing or refused credentials block only their provider operation. Preserve managed proxy/CA settings, never copy secrets or desktop sessions, never infer sending/production authority from a GET, and do not replay mutations."
+    },
+    {
+      "id": "J39",
+      "title": "Validate a PR and qualify its identical main promotion",
+      "actor": "Repository-authorized contributor and read-only GitHub CI; publication requires separate explicit operator authorization",
+      "steps": "Run the complete PR pipeline → independently account for all current test identities → record source, policy, runtime and immutable proof data → merge after review → qualify exact main/base/head/tree and fresh complete proof or run full → execute fresh dependency/advisory checks → independently recheck the final gate → publish only authorized clean current main and verify served bytes.",
+      "branch": "Operations → CI qualification and publication; no product-role authority",
+      "doc": "CI.md",
+      "failure": "Missing, stale, foreign, changed, incomplete or inaccessible evidence selects full tests. Drift after reuse selection fails final verification. Artifact corruption or path escapes refuse reconstruction. No automatic retry, production credential, merge, send, provider activation or claim of human approval."
     }
   ],
   "roles": [
@@ -1902,6 +1915,14 @@
       "No role-based grant; separate repository/environment access",
       "No role-based grant; separate repository/environment access",
       "Product OAuth grants no development credentials; a repository agent needs separate environment access"
+    ],
+    [
+      "CI validation and identical-source promotion qualification",
+      "No product-role grant; separate repository authority",
+      "No product-role grant; separate repository authority",
+      "No product-role grant; separate repository authority",
+      "No product-role grant; separate repository authority",
+      "Product OAuth grants no GitHub/CI or publication authority; repository agents follow explicit review/merge/deploy authorization"
     ]
   ],
   "schemaVersion": 2

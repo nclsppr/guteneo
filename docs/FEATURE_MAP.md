@@ -1,7 +1,7 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
 # Guteneo feature tree and developer atlas
 
-**24 domains · 380 features · 38 journeys · 76 documented REST operations · 83 MCP tools**
+**24 domains · 382 features · 39 journeys · 76 documented REST operations · 83 MCP tools**
 Updated 2026-10-30.
 
 Repository implementation inventory. Availability depends on current capabilities and authority; implementation, activation and deployed proof are distinct.
@@ -38,7 +38,7 @@ mindmap
       Public pages, languages and appearance (23)
     Operations
       Reviewer OAuth qualification (9)
-      Operations and reliability (29)
+      Operations and reliability (31)
       Belvédère platform oversight (12)
       Public service status (16)
       Engineering documentation (12)
@@ -81,7 +81,7 @@ mindmap
 ### Operations
 
 - [Reviewer OAuth qualification](#reviewer-oauth) — 9 features; operator-gated.
-- [Operations and reliability](#operations) — 29 features; operator-gated.
+- [Operations and reliability](#operations) — 31 features; operator-gated.
 - [Belvédère platform oversight](#belvedere) — 12 features; operator-gated.
 - [Public service status](#status) — 16 features; public.
 - [Engineering documentation](#engineering-docs) — 12 features; public.
@@ -145,6 +145,7 @@ Four human workshop roles are defined by packages/contracts/src/roles.ts. The as
 | Read monthly and daily consumption history | Yes | Reporting option | No | No | Current reporting rights + tenant-scoped REST read; no new MCP billing tool |
 | Read private generation correction input | Only own generation under current browser membership | Only own generation under current browser membership | Only own generation under current browser membership | Only own generation under current browser membership; creation still requires its permission | No MCP/native route; shared-template or dispatch-review access grants no source input |
 | Cloud development bootstrap and diagnostics | No role-based grant; separate repository/environment access | No role-based grant; separate repository/environment access | No role-based grant; separate repository/environment access | No role-based grant; separate repository/environment access | Product OAuth grants no development credentials; a repository agent needs separate environment access |
+| CI validation and identical-source promotion qualification | No product-role grant; separate repository authority | No product-role grant; separate repository authority | No product-role grant; separate repository authority | No product-role grant; separate repository authority | Product OAuth grants no GitHub/CI or publication authority; repository agents follow explicit review/merge/deploy authorization |
 
 Supervisor approval/reporting options are independent and off by default. Resource ownership/context checks still apply. See [workspace roles](WORKSPACE_ROLES.md), [expert approval](EXPERT_APPROVAL.md) and [studio access](TEMPLATES_DATA_DISTRIBUTION.md).
 
@@ -960,10 +961,12 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Prepared dependency redelivery qualifies a genuine merged Dependabot root npm update only after complete exact-current-main CI, serialized clean-main publication and canonical served-byte verification; a dedicated application token was installed on 29 October with expiry on 27 January 2027; hosted release activation still requires merged workflow and exact-source proof; MCP dependencies require synchronized reviewed plugin publication, unsupported MCP/PDFme versions remain held and routine major toolchain migrations require review
 - Operator-only native strict Auth0 MCP registration controller defaults to sanitized GET inspection and requires an exact fresh fingerprint for separately authorized changes; preserves static clients, account connection, explicit scopes, current membership, consent and approval. Legacy-extension inspection, capacity, OIDC interoperability and real host qualification remain fail-closed activation gates; application deployment does not activate DCR.
 - TypeScript 7 validator behavior tests use native Node type stripping and an exact JSONC parser declared in both root and service manifests; independent root-only and service-only installs preserve complete shared security assertions.
+- Every PR retains complete 24-job validation; an ordinary main merge may reuse a fresh complete same-repository PR proof only for identical Git trees, trusted CI policy, current locks, exact recorded runtimes and complete successful job/test inventories; missing or uncertain metadata runs full, fresh advisory checks remain, and an independent final gate rejects drift or arbitrary skips.
+- Same-run static builds deduplicate identical bytes into commit/tree-bound SHA-256 objects, verify full object and selected release/health inventories before reconstruction, narrow only prebuilt browser/distribution source checkouts, preserve authored caption scripts and retain raw debug evidence separately from compact aggregate proof; no LFS migration, test removal or paid provisioning.
 
 **Contract:** [CI.md](CI.md) · **Implementation:** [scripts/deploy-public.mjs](../scripts/deploy-public.mjs)
 
-**Tests:** [tests/security/ci-artifacts.test.mjs](../tests/security/ci-artifacts.test.mjs), [tests/security/ci-results.test.mjs](../tests/security/ci-results.test.mjs), [tests/security/ci-browser-results.test.mjs](../tests/security/ci-browser-results.test.mjs), [tests/security/main-only-release.test.mjs](../tests/security/main-only-release.test.mjs), [tests/security/pdf-validator-release.test.mjs](../tests/security/pdf-validator-release.test.mjs), [apps/pdf-validator/tests/probe-credentials.test.mjs](../apps/pdf-validator/tests/probe-credentials.test.mjs), [tests/security/production-monitor.test.mjs](../tests/security/production-monitor.test.mjs), [tests/security/observability.test.mjs](../tests/security/observability.test.mjs), [tests/integration/documents.test.ts](../tests/integration/documents.test.ts), [tests/unit/telnyx-readiness.test.ts](../tests/unit/telnyx-readiness.test.ts), [apps/scanner/tests/maintenance-status.test.mjs](../apps/scanner/tests/maintenance-status.test.mjs), [apps/scanner/tests/qualification-artifact.test.mjs](../apps/scanner/tests/qualification-artifact.test.mjs), [tests/security/verify-release.test.mjs](../tests/security/verify-release.test.mjs), [tests/security/preview-release-assets.test.mjs](../tests/security/preview-release-assets.test.mjs), [tests/unit/public-routes.test.ts](../tests/unit/public-routes.test.ts), [tests/integration/secure-resend-journey.test.ts](../tests/integration/secure-resend-journey.test.ts), [tests/unit/providers-webhooks.test.ts](../tests/unit/providers-webhooks.test.ts), [tests/security/dependency-release.test.mjs](../tests/security/dependency-release.test.mjs), [tests/unit/dependency-compatibility.test.ts](../tests/unit/dependency-compatibility.test.ts), [tests/security/mcp-registration.test.mjs](../tests/security/mcp-registration.test.mjs)
+**Tests:** [tests/security/ci-artifacts.test.mjs](../tests/security/ci-artifacts.test.mjs), [tests/security/ci-results.test.mjs](../tests/security/ci-results.test.mjs), [tests/security/ci-browser-results.test.mjs](../tests/security/ci-browser-results.test.mjs), [tests/security/main-only-release.test.mjs](../tests/security/main-only-release.test.mjs), [tests/security/pdf-validator-release.test.mjs](../tests/security/pdf-validator-release.test.mjs), [apps/pdf-validator/tests/probe-credentials.test.mjs](../apps/pdf-validator/tests/probe-credentials.test.mjs), [tests/security/production-monitor.test.mjs](../tests/security/production-monitor.test.mjs), [tests/security/observability.test.mjs](../tests/security/observability.test.mjs), [tests/integration/documents.test.ts](../tests/integration/documents.test.ts), [tests/unit/telnyx-readiness.test.ts](../tests/unit/telnyx-readiness.test.ts), [apps/scanner/tests/maintenance-status.test.mjs](../apps/scanner/tests/maintenance-status.test.mjs), [apps/scanner/tests/qualification-artifact.test.mjs](../apps/scanner/tests/qualification-artifact.test.mjs), [tests/security/verify-release.test.mjs](../tests/security/verify-release.test.mjs), [tests/security/preview-release-assets.test.mjs](../tests/security/preview-release-assets.test.mjs), [tests/unit/public-routes.test.ts](../tests/unit/public-routes.test.ts), [tests/integration/secure-resend-journey.test.ts](../tests/integration/secure-resend-journey.test.ts), [tests/unit/providers-webhooks.test.ts](../tests/unit/providers-webhooks.test.ts), [tests/security/dependency-release.test.mjs](../tests/security/dependency-release.test.mjs), [tests/unit/dependency-compatibility.test.ts](../tests/unit/dependency-compatibility.test.ts), [tests/security/mcp-registration.test.mjs](../tests/security/mcp-registration.test.mjs), [tests/security/ci-build-artifact.test.mjs](../tests/security/ci-build-artifact.test.mjs), [tests/security/ci-validation-proof.test.mjs](../tests/security/ci-validation-proof.test.mjs)
 
 **Documented REST operations**
 
@@ -1456,6 +1459,16 @@ Read repository instructions and the cloud-development contract → verify the s
 **Failure/recovery:** Reject unsupported runtimes, invalid inputs, masked dashboard values and unapproved diagnostic destinations. Missing or refused credentials block only their provider operation. Preserve managed proxy/CA settings, never copy secrets or desktop sessions, never infer sending/production authority from a GET, and do not replay mutations.
 
 [Detailed contract](CODEX_CLOUD.md).
+
+### J39 · Validate a PR and qualify its identical main promotion
+
+**Actor:** Repository-authorized contributor and read-only GitHub CI; publication requires separate explicit operator authorization. **Branch:** Operations → CI qualification and publication; no product-role authority.
+
+Run the complete PR pipeline → independently account for all current test identities → record source, policy, runtime and immutable proof data → merge after review → qualify exact main/base/head/tree and fresh complete proof or run full → execute fresh dependency/advisory checks → independently recheck the final gate → publish only authorized clean current main and verify served bytes.
+
+**Failure/recovery:** Missing, stale, foreign, changed, incomplete or inaccessible evidence selects full tests. Drift after reuse selection fails final verification. Artifact corruption or path escapes refuse reconstruction. No automatic retry, production credential, merge, send, provider activation or claim of human approval.
+
+[Detailed contract](CI.md).
 
 ## Required maintenance
 

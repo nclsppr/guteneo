@@ -1,6 +1,6 @@
 ---
 title: "Operations and reliability"
-description: "29 capabilities in the operations branch of Guteneo."
+description: "31 capabilities in the operations branch of Guteneo."
 sidebar:
   order: 20
 ---
@@ -47,6 +47,8 @@ Implemented operational tooling; changes require explicit authority and exact-so
 <li id="feature-a72c18c8cd34">Prepared dependency redelivery qualifies a genuine merged Dependabot root npm update only after complete exact-current-main CI, serialized clean-main publication and canonical served-byte verification; a dedicated application token was installed on 29 October with expiry on 27 January 2027; hosted release activation still requires merged workflow and exact-source proof; MCP dependencies require synchronized reviewed plugin publication, unsupported MCP/PDFme versions remain held and routine major toolchain migrations require review</li>
 <li id="feature-330b2ad0eaea">Operator-only native strict Auth0 MCP registration controller defaults to sanitized GET inspection and requires an exact fresh fingerprint for separately authorized changes; preserves static clients, account connection, explicit scopes, current membership, consent and approval. Legacy-extension inspection, capacity, OIDC interoperability and real host qualification remain fail-closed activation gates; application deployment does not activate DCR.</li>
 <li id="feature-c62f3d93a217">TypeScript 7 validator behavior tests use native Node type stripping and an exact JSONC parser declared in both root and service manifests; independent root-only and service-only installs preserve complete shared security assertions.</li>
+<li id="feature-59c149ef471c">Every PR retains complete 24-job validation; an ordinary main merge may reuse a fresh complete same-repository PR proof only for identical Git trees, trusted CI policy, current locks, exact recorded runtimes and complete successful job/test inventories; missing or uncertain metadata runs full, fresh advisory checks remain, and an independent final gate rejects drift or arbitrary skips.</li>
+<li id="feature-459721b72b29">Same-run static builds deduplicate identical bytes into commit/tree-bound SHA-256 objects, verify full object and selected release/health inventories before reconstruction, narrow only prebuilt browser/distribution source checkouts, preserve authored caption scripts and retain raw debug evidence separately from compact aggregate proof; no LFS migration, test removal or paid provisioning.</li>
 </ol>
 
 ## REST operations
