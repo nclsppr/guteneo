@@ -746,7 +746,7 @@ describe("connection-specific expert status is read-only and current", () => {
       expect(
         tools.tools.find((tool) => tool.name === "get_expert_status")
           ?.annotations,
-      ).toMatchObject({ readOnlyHint: false });
+      ).toMatchObject({ readOnlyHint: true, idempotentHint: true });
       const result = await client.callTool({
         name: "get_expert_status",
         arguments: {},

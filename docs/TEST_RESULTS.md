@@ -16,7 +16,9 @@ The 36 MCP tools that only read now declare `readOnlyHint:true` and
 `idempotentHint:true`, as OpenAI's review guidance requires. The connection's
 last-used time refreshed after any successful call is connection metadata and is
 disclosed as such. `npm run audit:mcp` reports no issue; the ten MCP contract
-suites pass **132/132**; typecheck, lint, documentation, standards and integration
+suites pass **132/132**. A full local run (CI exclusions) then found four more
+assertions of the former annotations; after updating them, those suites pass and
+the run had no other failure (**3,348/3,352** before the update); typecheck, lint, documentation, standards and integration
 fingerprint checks pass for plugin **1.1.22**. These are local observations; no
 release, portal rescan or submission was performed.
 
