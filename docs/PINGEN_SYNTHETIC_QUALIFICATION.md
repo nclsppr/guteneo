@@ -1,36 +1,66 @@
-# Qualification fournisseur Pingen par document fictif
+# Pingen qualification with a synthetic document
 
-Développé à partir de `118ce087`, puis publié dans la source `5b91ad312ec14b40fa3441382d69782cc6343c96`, version Worker `0cac0373-eca4-454d-af8c-322d76fcc8d9`, le 17 septembre 2026 à 03:42:43 UTC. La qualification fournisseur réelle décrite ci-dessous a ensuite créé, inspecté puis supprimé un seul brouillon fictif sans expédition. Les tests locaux restent une preuve distincte : réponses fournisseur fictives et verrou R2 exercé sur le runtime local réel.
+Developed from `118ce087`, published from
+`5b91ad312ec14b40fa3441382d69782cc6343c96`, Worker
+`0cac0373-eca4-454d-af8c-322d76fcc8d9`, on 17 September 2026 at 03:42:43 UTC.
+The real provider exercise then created, inspected and deleted one synthetic draft
+without sending. Local tests are separate evidence with synthetic provider replies
+and an R2 lock exercised on real local runtime.
 
-## Résultat fournisseur observé
+## Observed provider result
 
-Le test s’est déroulé sur le compte de production configuré, avec `LIVE_SENDS_ENABLED=false`. Rapport filtré : `reports/pingen-synthetic-qualification-20260917.json`.
+Configured production account; `LIVE_SENDS_ENABLED=false`.
+Filtered report: `reports/pingen-synthetic-qualification-20260917.json`.
 
-| Heure UTC, 17 septembre 2026 | Étape | Résultat |
+| UTC, 17 September 2026 | Step | Result |
 | --- | --- | --- |
-| 03:43:35 | Calculateur | 151 centimes EUR pour 1 page normale, LU, cheap/simplex/grayscale |
-| 03:43:56 | Dépôt et création | Un seul PDF fictif embarqué ; brouillon `auto_send:false`, état `created` |
-| 03:44:16 | Inspection | 1 page, adresse/pays/papier normal/polices incorporées conformes, suppression et soumission possibles côté fournisseur, aucune soumission effectuée |
-| 03:44:43 | Nettoyage | Suppression API confirmée, état `deleted` |
-| 03:45:22 | Relecture du journal | Tombstone durable `deleted` conservé |
+| 03:43:35 | Calculator | 151 EUR cents, one normal-paper LU page, cheap/simplex/grayscale |
+| 03:43:56 | Upload/create | Only embedded synthetic PDF; `auto_send:false`, `created` |
+| 03:44:16 | Inspect | One page; expected address/country/paper/embedded fonts; provider submit/delete abilities present; no submission |
+| 03:44:43 | Cleanup | API deletion confirmed, `deleted` |
+| 03:45:22 | Journal reread | Durable `deleted` tombstone retained |
 
-Le prix de **1,51 EUR** est une observation du calculateur pour ce compte, cette date et ces options ; il n’est ni un tarif client universel, ni une qualification fiscale, ni une facture finale. La réponse 302 de `/file` a été observée lors de l’inspection sans lire ni suivre `Location`. Aucun aperçu final d’impression n’a été téléchargé ou qualifié. La suppression API ne prouve pas l’effacement immédiat de toutes les copies ou sauvegardes fournisseur.
+**EUR1.51** is an account/date/option observation, not universal customer pricing,
+tax qualification or final invoice. Inspection observed `/file` 302 without reading
+or following Location; no final print preview download/qualification. API deletion
+proves no immediate erasure of all provider copies/backups.
 
-Après nettoyage, les tables D1 utilisateurs, organisations, documents, dispatches, tarifs/devis/règlements fax v3 contenaient toutes zéro ligne (`reports/pingen-synthetic-d1-counts-20260917.json`). Aucun document client, consentement applicatif, envoi postal, tarif actif ou achat de crédit n’a été créé. Le journal technique R2 reste conservé et non rejouable.
+After cleanup, D1 users, organizations, documents, dispatches and fax-v3 tariff/
+quote/settlement tables each had zero rows
+(`reports/pingen-synthetic-d1-counts-20260917.json`). No customer document, app
+consent, letter, active tariff or credit purchase was created. R2 technical journal
+remains nonreplayable. No tenant, business document, approval, dispatch, quota or
+credit was created; `appJourneyVerified`, `liveSendingVerified`, `canSend` stay false.
 
-Cette preuve est indépendante de l'inscription Guteneo et du parcours applicatif. Elle ne crée aucun tenant, document métier, approbation, dispatch, quota ou crédit. `appJourneyVerified`, `liveSendingVerified` et `canSend` restent toujours `false`. Le PDF embarqué est entièrement fictif : une page A4, adresse à gauche x25/y62 mm, Arial incorporé, zones réservées blanches, mention de ne pas imprimer ni expédier. Son rendu a été contrôlé localement ; ce test fournisseur ne prétend pas prouver un upload client, une analyse antivirus métier ou un consentement navigateur.
+The embedded PDF is entirely synthetic: one A4 page, left address x25/y62 mm,
+embedded Arial, white reserved areas and an instruction not to print/send.
+Local rendering was checked; provider testing proves no customer upload, business
+antivirus analysis or browser consent.
 
-## Autorisation et périmètre
+## Authority and scope
 
-L'opérateur disposant de l'accès Cloudflare au même compte appelle la méthode RPC privée `ProviderInspection.qualifyPingenSynthetic` uniquement dans le périmètre autorisé. La classe conserve `fetch() -> 404` ; aucune route REST/MCP/publique n'est ajoutée. L'accès Cloudflare opérateur, distinct d'Auth0, est l'autorité du test. Ne pas accorder une liaison vers ce point d'entrée à un Worker non approuvé. Le run documenté est terminé : son journal ne doit pas être réinitialisé pour créer un autre brouillon.
+Authorized Cloudflare operators call private service-binding RPC
+`ProviderInspection.qualifyPingenSynthetic`. `fetch()` remains 404; no REST/MCP/public
+route is added. Cloudflare operator authority is separate from Auth0. Never bind
+unapproved Workers to this entrypoint. The documented run is finished; never reset
+its journal to create another draft.
 
-La seule entrée est `{phase: "calculator" | "create" | "inspect" | "cleanup"}`. Toute clé supplémentaire est refusée. Aucun PDF, URL, destinataire, organisation, identifiant de lettre, date ou dépendance n'est contrôlable par cette entrée. PDF/SHA, nom, run `20260917-synthetic-v1` et options LU/gauche/cheap/simplex/grayscale sont fixés dans la source. Seule l'organisation déjà configurée est accessible. Le profil relu doit être EUR/LU/fenêtre gauche. La configuration exige explicitement production, `PINGEN_SANDBOX=false`, `LIVE_SENDS_ENABLED=false` et l'origine de dépôt déjà qualifiée, seule dans l'allowliste.
+Only `{phase:"calculator"|"create"|"inspect"|"cleanup"}` is accepted; extra fields
+are refused. Inputs cannot control PDF, URL, recipient, organization, letter ID,
+date or dependency. PDF/hash/name/run `20260917-synthetic-v1` and LU/left/cheap/
+simplex/grayscale options are source-fixed. Only configured organization is usable,
+reread as EUR/LU/left. Configuration requires explicit production,
+`PINGEN_SANDBOX=false`, `LIVE_SENDS_ENABLED=false`, and the single already qualified
+upload origin. Calculator/create expired **18 September 2026 at 12:00 UTC**, also
+checked after network waits. Later inspect/cleanup remain limited to the recorded
+draft. Another run needs a new decision/reviewed change, not a renewed invocation.
+No send flag or active tariff is changed.
 
-Création et calculateur expirent le **18 septembre 2026 à 12:00 UTC**, y compris après les attentes réseau. Inspection et nettoyage restent possibles ensuite pour le seul brouillon enregistré. Cette date ne se prolonge pas à chaque invocation ; un autre run nécessite une nouvelle décision et une modification revue. Aucun flag d'envoi ni tarif actif n'est modifié.
+## Separate operator commands
 
-## Commandes opérateur distinctes
-
-Le script local et son fichier de liaison **ne doivent jamais être déployés**. Ils utilisent un nom de proxy dédié, `persist:false`, `envFiles:[]`, aucune route et aucune observabilité. Les secrets restent dans le Worker. Ne pas utiliser ces commandes sans l'autorisation d'exécuter le test fournisseur.
+Never deploy the local driver or binding configuration. It uses a dedicated proxy,
+`persist:false`, `envFiles:[]`, no routes/observability; secrets stay in the Worker.
+Use only within explicit provider-test authorization:
 
 ```sh
 node scripts/qualify-pingen-draft.mjs --price-only
@@ -39,30 +69,68 @@ node scripts/qualify-pingen-draft.mjs --inspect-created
 node scripts/qualify-pingen-draft.mjs --delete-created
 ```
 
-Chaque commande réalise une phase, sans boucle de polling ni nouvelle tentative automatique. La connexion locale expire après 20 s, l'opération RPC après 50 s, la fermeture après 3 s. Un timeout avant réception du proxy signifie qu'aucune RPC n'a été déclenchée. Après invocation de `create`, un timeout signifie un résultat potentiellement inconnu : utiliser seulement `--inspect-created`, jamais relancer une création. Les réponses et erreurs sont filtrées deux fois, dans le Worker puis dans le driver. Aucun message fournisseur, token, identifiant de lettre, adresse, nom de police, URL ou signature n'est imprimé.
+One phase per command, no polling/retry. Connection deadline 20 seconds, RPC 50,
+close three. Timeout before proxy receipt means no RPC; after `create` starts,
+outcome may be unknown: inspect only, never recreate. Worker and driver both filter
+results/errors. No provider message, token, letter ID, address, font name, URL or
+signature is printed.
 
-## Protocole borné
+## Bounded protocol
 
-OAuth demande explicitement `letter organisation_read`, sans élargissement automatique. Le scope `letter` autorise aussi l'envoi chez Pingen : c'est donc le code fermé de ce probe, et non un scope « lecture seule », qui interdit toute expédition. Il n'existe aucun chemin `/send`, `/cancel`, preset ou batch dans ce module.
+OAuth explicitly requests `letter organisation_read`, without escalation. `letter`
+can send; closed probe code, rather than a read-only scope, prevents sending. No
+`/send`, `/cancel`, preset or batch path exists. Calculator accepts only 200 as
+usable EUR pricing; 202 remains `price_pending`. Parse decimals exactly into integer
+cents. Creation claims the durable journal, obtains upload URL, PUTs only embedded
+bytes without Bearer, then creates with literal `auto_send:false` and fixed key.
+Requests including bodies: eight seconds; JSON: 64 KiB; redirects manual.
 
-Le calculateur POST traite uniquement 200 comme un prix EUR exploitable ; 202 reste `price_pending`. Le montant est conservé en centimes entiers après parsing décimal exact. La création réclame d'abord le journal durable, puis obtient une URL de dépôt, transmet les seuls octets embarqués via PUT sans Bearer, et crée une lettre avec `auto_send:false` littéral et clé d'idempotence fixe. Les requêtes sont limitées à 8 s, corps compris, et les JSON à 64 Kio. Toutes les redirections sont manuelles.
+Inspect verifies letter/organization identity, unique name and creation time near
+the claim, requiring `submitted_at:null`. Project only match booleans, page count
+and delete/submit abilities. `get-pdf-raw:ok` permits observation of `/file` 302
+without reading/returning/following Location; this proves no print preview/download.
 
-L'inspection vérifie l'identité de la lettre et de son organisation, son nom unique et sa date de création proches du claim, et exige `submitted_at:null`. Elle projette seulement des booléens de correspondance adresse/pays/papier/polices, le nombre de pages et les capacités `delete`/`submit`. Si `get-pdf-raw` vaut `ok`, elle constate le 302 de `/file` sans lire, renvoyer ou suivre `Location`. Cela **ne prouve pas** un aperçu final d'impression ni le téléchargement du fichier.
+## Journal, concurrency and cleanup
 
-## Journal, concurrence et nettoyage
+Private `qualification/pingen/20260917-synthetic-v1.json` stores run, synthetic SHA,
+account/client-binding hash, time, revision, state and optional known technical ID.
+No signed URL, credential or user data; no other R2 object is written.
 
-Le journal privé `qualification/pingen/20260917-synthetic-v1.json` contient seulement le run, le SHA fictif, un hash de liaison compte/client, l'heure, la révision, l'état et l'identifiant technique éventuellement reçu. Aucune URL signée, clé ou donnée utilisateur n'y figure. Aucun autre objet R2 n'est écrit.
+`If-None-Match:*` claims before upload. Every transition requires `etagMatches` and
+increasing revision. Missing/uncertain claim forbids provider network. Inspect is
+read-only; never delete old claims or the `deleted` tombstone to permit creation.
 
-`If-None-Match:*` réserve le run avant tout dépôt ; chaque évolution utilise `etagMatches` et une révision croissante. Un résultat de claim nul ou incertain interdit le réseau fournisseur. Une lecture `inspect` ne modifie pas le journal. Un ancien claim n'est jamais effacé pour permettre une nouvelle création. Le tombstone `deleted` est conservé.
+Unusable POST acknowledgement becomes nonreplayable `create_unknown`; hard crashes
+may leave nonreplayable `claimed`. Received 201/ID plus later write failure attempts
+a fallback ID write. A hard crash between acknowledgement and durable recording
+may leave an unknown-ID draft: this probe does not list arbitrary letters and needs
+separate operator reconciliation. Successful PUT then failed creation may leave a
+provider temporary file; no upload-deletion endpoint is claimed.
 
-Un POST sans acknowledgement utilisable devient `create_unknown` et n'est jamais rejoué. Un crash dur peut laisser `claimed`, également non rejouable. Si 201 et l'identifiant sont reçus mais que l'écriture suivante échoue, une écriture de secours conserve cet identifiant quand possible. Un crash dur entre l'acknowledgement et toute écriture durable peut laisser un brouillon dont l'identifiant est inconnu : ce probe ne liste pas arbitrairement les lettres et exige alors une réconciliation opérateur séparée. Un PUT réussi suivi d'un échec avant création peut laisser un fichier temporaire fournisseur ; aucun endpoint de suppression de cet upload n'est prétendu.
+Cleanup reads only journal ID, rechecks organization/name/date/no submission and
+`abilities.self.delete === "ok"`. It CAS-claims deletion, verifies ownership and
+DELETEs without body. Concurrent commands cannot delete another letter. Explicit
+recovery may reclaim after 120 seconds; an old invocation cannot DELETE beyond its
+30-second window. 204 durably records `deleted`; lost response keeps
+`delete_unknown`. An explicit command may reconcile 404/410 after attempted
+deletion without new POST. Cleanup proves API deletion, not immediate erasure.
 
-Le nettoyage relit seulement l'identifiant du journal, contrôle à nouveau organisation/nom/date/absence de soumission et exige `abilities.self.delete === "ok"`. Il réserve la suppression par CAS, vérifie sa possession, puis effectue `DELETE` sans corps. Une commande simultanée ne peut pas supprimer une autre lettre. Après un crash, une reprise explicite peut récupérer ce claim après 120 s ; une ancienne invocation ne peut lancer DELETE au-delà de sa fenêtre de 30 s. Un retour 204 est inscrit durablement comme `deleted`. Une réponse perdue conserve `delete_unknown` ; une commande explicite peut rapprocher 404/410 après une tentative de suppression. Aucun nouvel appel POST n'est nécessaire.
+Primary sources checked 17 September 2026:
+[Pingen OpenAPI](https://api.pingen.com/documentation/swagger-docs),
+[official SDK](https://github.com/pingencom/pingen2-sdk-go/blob/main/letters/letters.go),
+[R2 conditional writes/strong consistency](https://developers.cloudflare.com/r2/api/workers/workers-api-reference/).
+OpenAPI describes DELETE 204, GET file 302 and 24-hour provider idempotency;
+Guteneo's journal remains necessary beyond that period.
 
-Le nettoyage confirme uniquement la suppression API, pas l'effacement immédiat des copies ou sauvegardes. Ne jamais effacer/réinitialiser le journal pour rendre une nouvelle création possible.
+## Local and connection evidence
 
-Sources officielles vérifiées le 17 septembre 2026 : [OpenAPI Pingen](https://api.pingen.com/documentation/swagger-docs), [SDK Pingen](https://github.com/pingencom/pingen2-sdk-go/blob/main/letters/letters.go), [R2 : conditions et cohérence forte](https://developers.cloudflare.com/r2/api/workers/workers-api-reference/). L'OpenAPI documente DELETE 204, GETfile 302 et une idempotence fournisseur limitée à 24 h ; le journal Guteneo reste donc nécessaire au-delà de cette période.
+Three Wrangler 4.132.0 attempts stalled during remote binding. Isolated 4.133.0 then
+completed private Telnyx/Pingen reads and normal close. The project moved to
+Wrangler 4.133.0/matching Miniflare; precise earlier cause remains unknown.
+Successful reads are no Pingen-upload proof.
 
-Note de connexion du 17 septembre 2026 : trois tentatives avec Wrangler 4.132.0 sont restées sans résultat pendant la liaison distante. Une installation isolée de 4.133.0 a ensuite permis les lectures privées Telnyx et Pingen, avec fermeture normale. Le projet utilise désormais Wrangler 4.133.0 et sa version correspondante de Miniflare. Les 45 tests fournisseur et les 7 tests du driver, le typecheck et le lint ciblé passent également avec ces dépendances. La cause précise du blocage précédent n’est pas établie ; ces lectures réussies ne constituent pas une preuve de dépôt Pingen.
-
-Preuve locale : 45 tests Vitest (31 nouveaux cas de qualification et 14 cas de lecture Pingen), 7 tests du driver, typecheck et lint ciblé réussis. Le rapport Vitest global n'a pas été remplacé. SHA-256 du PDF A4 final : `ee8217b869d6e552df3582ea2f886e4c7889964000ef26c975424ece5ba53385`. Rendu visuel local contrôlé après fixation des dimensions A4 exactes ; le test vérifie aussi l'incorporation des polices.
+Passed: 45 Vitest cases (31 new qualification, 14 Pingen reads), seven driver cases,
+typecheck and focused lint, including with updated dependencies. Global Vitest
+report was not replaced. Final synthetic A4 SHA-256:
+`ee8217b869d6e552df3582ea2f886e4c7889964000ef26c975424ece5ba53385`.
+Local rendering was inspected after fixing exact A4 size; tests also verify embedded fonts.

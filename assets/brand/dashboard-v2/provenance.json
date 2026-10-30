@@ -1,0 +1,35 @@
+{
+  "generated_on": "2026-10-11",
+  "tool": "image_gen.imagegen",
+  "mode": "built-in",
+  "purpose": "Illustrations for the opt-in Guteneo V2 dashboard",
+  "reference_files": [
+    "user supplied image-1.png",
+    "assets/brand/source/luxembourg-blue-panorama.png",
+    "apps/web/public/press-halftone-transparent-640.webp"
+  ],
+  "references_role": "Visual references inspected before generation; no source image was edited, and no logo was regenerated.",
+  "background": "opaque warm ivory, not transparent",
+  "subjects": {
+    "atelier": "Historic printing press, blank papers and envelopes; decorative",
+    "documents": "Document folder, blank sheets and envelope; decorative",
+    "pdf-verification": "Imaginary landscape evocative of Luxembourg; decorative, not geographic evidence"
+  },
+  "prompts": {
+    "atelier": "Use case: stylized-concept\nAsset type: Guteneo dashboard illustration, artwork only.\nPrimary request: an elegant, quiet editorial engraving of a historic hand-operated printing press with neatly arranged blank paper sheets and two simple blank envelopes. Make a new image, inspired by the fine blue engravings visible in the reference images, not a screenshot or UI.\nComposition: horizontal 3:2 image. A coherent small atelier still life occupying the right two thirds; the left third and generous space around the subject remain plain warm ivory negative space. No enclosing border. Three-quarter view, press recognizable and proportionate, papers resting naturally on a low work surface. Visually economical, avoid piles of tiny objects.\nStyle: fine copperplate engraving with delicate clear hatch marks, selected stippling, crisp dark blue contours, ivory highlights, sparse shadows. Printed stationery quality. Readable at 440 px wide with bold enough main shapes.\nPalette: warm ivory background #f6f5ef, cobalt blue #234cb6 and dark ink blue #183464 only. Flat consistent ivory outside the illustration; no gray vignette, no parchment stains.\nMood: composed, trustworthy, literary, welcoming.\nConstraints: no people, no text, no letters, no numerals, no logo, no watermark, no interface, no frame. Do not reproduce or alter the existing Gutenberg logo. Preserve generous empty background.",
+    "documents": "Use case: stylized-concept\nAsset type: Guteneo dashboard document-library empty-state illustration, artwork only.\nPrimary request: an elegant blue engraved still life of one open ivory document folder with four blank paper sheets nested inside, one sheet slightly lifted, and a small closed blank envelope nearby. No other objects.\nComposition: landscape 4:3, subject centered slightly to the right, compact low triangular grouping, generous plain ivory margin on every side. Elevated three-quarter view, believable folder geometry, distinct clean paper edges. Designed to remain readable at 320 px wide.\nStyle: fine copperplate engraving, thin confident dark blue contour lines, delicate hatching only on folded edges and the small grounding shadow. Very restrained stippling. Match a literary paper-and-printing identity, quiet crafted quality, not a cartoon or 3D render.\nPalette: warm ivory #f6f5ef background and paper, cobalt #234cb6 and ink blue #183464 linework. Background flat and consistent, not heavily textured.\nMood: calm, orderly, ready for work.\nConstraints: exactly one folder with a modest few sheets and one envelope; no text, no lettering or simulated writing, no checkmarks, no symbols, no numerals, no logo, no people, no watermark, no interface, no frame. Keep the composition sparse and airy.",
+    "pdf-verification": "Use case: stylized-concept\nAsset type: restrained panoramic editorial engraving for Guteneo's dashboard, artwork only.\nPrimary request: a calm imaginary landscape evocative of Luxembourg's old city and green valleys, inspired by the blue panorama previously visible. An arched stone bridge crossing a quiet river, restrained old town rooftops and two distant slender towers on a wooded limestone ridge, mature trees at the sides. This is a poetic illustration, not an exact geographic or photographic representation.\nComposition: very wide 3:1 panorama. Low horizon, uninterrupted pale ivory sky filling the top 40 percent. Quiet river creates a bright meandering opening through the foreground. Architecture remains modest in scale, no monumental close-up. Trees and bank hatching dissolve softly into the plain ivory ground at the bottom and sides, no rectangular border.\nStyle: exquisite but economical blue copperplate engraving, confident main contours, delicate hatchwork on trees and architecture, pale distant lines, small controlled stipple accents. Lighter and calmer than a dense vintage city print. Retain a clear silhouette at 600 px wide.\nPalette: only cobalt blue #234cb6 and ink blue #183464 on warm ivory #f6f5ef. Background consistent and pale, no parchment stains, no gray sky, no gradients.\nMood: spacious, reflective, trust, continuity.\nConstraints: no text, no lettering, no labels, no logo, no people, no vehicles, no watermark, no UI, no frame. Avoid fantasy castles, exaggerated spires, busy repeated houses, excessive dense detail."
+  },
+  "source_files": {
+    "atelier": "atelier-master.png",
+    "documents": "documents-master.png",
+    "pdf-verification": "pdf-verification-master.png"
+  },
+  "delivery_path": "apps/web/public/brand/dashboard-v2/",
+  "processing": "Image generation followed only by proportional resize and WebP encoding. Original generated PNG files preserved.",
+  "limitations": [
+    "This generated landscape does not assert exact architecture or geographic fidelity.",
+    "Historical printing machinery is an editorial illustration, not a technical drawing.",
+    "None of these assets conveys status, approval, delivery, verification or provider evidence."
+  ]
+}

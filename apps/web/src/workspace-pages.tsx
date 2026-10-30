@@ -1,5 +1,13 @@
 import { msg } from "./messages";
-import { useRef, useState, type FormEvent, type ReactNode } from "react";
+import { studioRoutes } from "./app-routes";
+import { FileInput } from "./file-input";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type FormEvent,
+  type ReactNode,
+} from "react";
 import {
   ArrowRight,
   ArrowLeft,
@@ -18,19 +26,17 @@ import {
   type Page,
   type Sender,
 } from "./api";
-import { t } from "./locale";
+import { formatLocale, t } from "./locale";
 import { ProtectedDocumentChoice } from "./protected-document";
-import {
-  DistributionRoadmap,
-  EmailComposer,
-  emailHtml,
-} from "./email-composer";
+import { DistributionRoadmap, EmailComposer } from "./email-composer";
 import { CreditBalance, type WelcomeCredit } from "./credit-balance";
+import { UsageActivityCalendar } from "./usage-activity";
 import type { PostalSetup } from "../../../packages/contracts/src/postal-setup";
 import { PostalSetupPanel } from "./postal-setup-panel";
 import {
   ChannelLabel,
   ConfirmAction,
+  DateTimezone,
   Definition,
   DispatchTable,
   EmptyState,
@@ -130,9 +136,10 @@ export function Campaigns({
             channel: row.channel,
             recipient: row.recipient,
             documentId: documentId || undefined,
-            subject: row.channel === "email" ? subject : undefined,
-            html: row.channel === "email" ? emailHtml(plain, html) : undefined,
-            text: row.channel === "email" ? plain : undefined,
+            subject:
+              row.channel === "email" && subject.trim() ? subject : undefined,
+            html: row.channel === "email" && html.trim() ? html : undefined,
+            text: row.channel === "email" && plain.trim() ? plain : undefined,
             options:
               row.channel === "email" && documentId && protectedLink
                 ? { emailDeliveryMode: "protected_link", protectedDays }
@@ -153,9 +160,9 @@ export function Campaigns({
       <DistributionRoadmap />
       {!isPublicPreview && canPrepare && (
         <p className="notice info">
-          {msg("Pour un PDF personnalisé par client,")}{" "}
-          <a href="#/app/datasets">
-            {msg("importez vos données dans le studio documentaire")}
+          {msg("For a personalised PDF per customer,")}{" "}
+          <a href={`#${studioRoutes.datasets}`}>
+            {msg("import your data into the Studio")}
           </a>
           .
         </p>
@@ -189,8 +196,7 @@ export function Campaigns({
               />
             </Field>
             <Field label={t.campaigns.csvFile}>
-              <input
-                type="file"
+              <FileInput
                 accept=".csv,text/csv"
                 disabled={locked}
                 onChange={(e) => {
@@ -367,11 +373,20 @@ export function Campaigns({
               )}
             {hasEmail && (
               <>
-                <Field label={t.campaigns.emailSubject}>
+                <Field
+                  label={
+                    documentId
+                      ? msg("Subject (optional)")
+                      : t.campaigns.emailSubject
+                  }
+                >
                   <input
                     value={subject}
                     onChange={(e) => setSubject(e.target.value)}
-                    required
+                    required={!documentId}
+                    placeholder={
+                      documentId ? msg("Automatic subject") : undefined
+                    }
                     disabled={locked}
                   />
                 </Field>
@@ -381,6 +396,8 @@ export function Campaigns({
                   onText={setPlain}
                   onHtml={setHtml}
                   disabled={locked}
+                  documentEmail={!!documentId}
+                  documentLink={!!documentId && protectedLink}
                 />
               </>
             )}
@@ -410,6 +427,7 @@ export function Campaigns({
         <h2>{t.campaigns.list}</h2>
         <RefreshButton onClick={campaigns.refresh} />
       </div>
+      {!!campaigns.data?.items.length && <DateTimezone />}
       {campaigns.loading && !campaigns.data ? (
         <Loading />
       ) : !campaigns.data?.items.length ? (
@@ -487,13 +505,7 @@ export function Campaigns({
   );
 }
 
-export function CampaignDetail({
-  id,
-  canPrepare = true,
-}: {
-  id: string;
-  canPrepare?: boolean;
-}) {
+export function CampaignDetail({ id }: { id: string }) {
   const resource = useResource<{ campaign: Campaign; dispatches: Dispatch[] }>(
     `/campaigns/${encodeURIComponent(id)}`,
   );
@@ -522,10 +534,7 @@ export function CampaignDetail({
                 {t.campaigns.total.toLowerCase()}
               </span>
             </div>
-            <DispatchTable
-              items={resource.data.dispatches}
-              canPrepare={canPrepare}
-            />
+            <DispatchTable items={resource.data.dispatches} />
           </>
         )
       )}
@@ -705,25 +714,74 @@ type UsageItem = {
   currency: string;
 };
 export function Usage() {
+  const [refreshVersion, setRefreshVersion] = useState(0);
+  const [period, setPeriod] = useState("latest");
+  const [knownPeriods, setKnownPeriods] = useState<string[]>([]);
+  const [resolvedPeriod, setResolvedPeriod] = useState<string>();
   const resource = useResource<{
     items: UsageItem[];
     welcomeCredit?: WelcomeCredit;
-  }>("/usage");
+    period?: string;
+    currentPeriod?: string;
+    availablePeriods?: string[];
+  }>(`/usage?period=${period}`);
+  useEffect(() => {
+    if (resource.data?.availablePeriods)
+      setKnownPeriods(resource.data.availablePeriods);
+    if (resource.data?.period) setResolvedPeriod(resource.data.period);
+  }, [resource.data?.availablePeriods, resource.data?.period]);
+  const selectedPeriod =
+    resource.data?.period ??
+    (period === "latest" ? (resolvedPeriod ?? period) : period);
+  const periods =
+    resource.data?.availablePeriods ??
+    (knownPeriods.length ? knownPeriods : [selectedPeriod]);
+  const periodLabel = (value: string) =>
+    value === "latest"
+      ? t.usage.latest
+      : new Intl.DateTimeFormat(formatLocale(), {
+          month: "long",
+          year: "numeric",
+          timeZone: "UTC",
+        }).format(new Date(`${value}-01T00:00:00Z`));
   return (
     <>
       <PageHeading
         title={t.usage.title}
         intro={t.usage.intro}
-        action={<RefreshButton onClick={resource.refresh} />}
+        action={
+          <RefreshButton
+            onClick={() => {
+              resource.refresh();
+              setRefreshVersion((version) => version + 1);
+            }}
+          />
+        }
       />
       <ErrorNotice error={resource.error} retry={resource.refresh} />
       {resource.data?.welcomeCredit && (
         <CreditBalance credit={resource.data.welcomeCredit} />
       )}
+      <UsageActivityCalendar refreshVersion={refreshVersion} />
+      <h2>{t.usage.monthlyTitle}</h2>
+      <Field label={t.usage.period} hint={t.usage.periodHint}>
+        <select
+          value={selectedPeriod}
+          disabled={resource.loading}
+          onChange={(event) => setPeriod(event.target.value)}
+        >
+          {periods.map((value) => (
+            <option key={value} value={value}>
+              {periodLabel(value)}
+            </option>
+          ))}
+        </select>
+      </Field>
       {resource.loading && !resource.data ? (
         <Loading />
-      ) : !resource.data?.items.length ? (
-        <EmptyState title={t.usage.empty} />
+      ) : resource.error && !resource.data ? null : !resource.data?.items
+          .length ? (
+        <EmptyState title={t.usage.monthEmpty} />
       ) : (
         <div className="usage-ledger">
           {resource.data.items.map((item) => (
@@ -770,9 +828,9 @@ export function Admin({ children }: { children?: ReactNode }) {
       });
       setScannerMessage(
         response.status === "ready"
-          ? msg("L’analyse des PDF est prête.")
+          ? msg("PDF analysis is ready.")
           : msg(
-              "Le service prépare l’analyse des PDF. Patientez quelques minutes, puis relancez l’analyse depuis votre document.",
+              "The service is preparing PDF analysis. Wait a few minutes, then restart the analysis from your document.",
             ),
       );
     });
@@ -857,10 +915,10 @@ export function Admin({ children }: { children?: ReactNode }) {
       )}
       {!isPublicPreview && (
         <section className="form-panel">
-          <h2>{msg("Analyse des documents")}</h2>
+          <h2>{msg("Document analysis")}</h2>
           <p>
             {msg(
-              "Préparez le service avant d’importer vos PDF. Les documents en attente restent privés jusqu’à la fin de leur vérification.",
+              "Prepare the service before importing your PDFs. Pending documents remain private until verification is complete.",
             )}
           </p>
           <button
@@ -869,8 +927,8 @@ export function Admin({ children }: { children?: ReactNode }) {
             disabled={scannerAction.pending}
           >
             {scannerAction.pending
-              ? msg("Préparation…")
-              : msg("Préparer l’analyse PDF")}
+              ? msg("Preparing…")
+              : msg("Prepare PDF analysis")}
           </button>
           <ErrorNotice error={scannerAction.error} />
           {scannerMessage && <p role="status">{scannerMessage}</p>}
@@ -895,6 +953,7 @@ export function Admin({ children }: { children?: ReactNode }) {
       </div>
       <section className="dead-letters">
         <h2 className="section-title">{t.admin.deadLetters}</h2>
+        {!!diagnostics.data?.deadLetters?.length && <DateTimezone />}
         {diagnostics.data?.deadLetters?.length ? (
           <div className="table-scroll">
             <table className="responsive-table" role="table">

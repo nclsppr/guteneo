@@ -1,117 +1,210 @@
-# Connecteurs et raccordement
+# Provider connectors and setup
 
-Candidat du 21 septembre 2026 : envoi Resend sans document, avec PDF, ou par lien protégé à 1 € par document hébergé. Même contrat REST/MCP, mot de passe navigateur uniquement, acceptation atomique et facturation unique. Voir [PROTECTED_EMAIL.md](PROTECTED_EMAIL.md) pour le contrat courant et [RESEND_PROOF.md](RESEND_PROOF.md) pour la preuve de publication. Les sections datées antérieures restent historiques.
+Initial documentation checked **16 September 2026**, setup updated **17 September**.
+Implementation: `packages/providers/`; callbacks: `apps/api/src/webhooks.ts`.
+Initial request/signature proof used fixtures/local D1. Later separate observations
+qualified account reads, SNS confirmation, one created/deleted unsent synthetic
+Pingen draft and four Pingen subscriptions. These do not qualify Guteneo business
+delivery. Dated `LIVE_SENDS_ENABLED=false` observations remain historical; current
+activation must be reread. See [release](LIVE_RELEASE.md), [SES](SES_STATUS.md),
+[Telnyx](TELNYX_READINESS.md), [Pingen webhook](PINGEN_WEBHOOK_SETUP.md) evidence.
 
-Vérification documentaire initiale : **16 septembre 2026** ; état de raccordement actualisé le **17 septembre**. Code : `packages/providers/`. HTTP callbacks : `apps/api/src/webhooks.ts`. La qualification initiale des requêtes et signatures utilisait uniquement des fixtures et D1 local. Les lectures de comptes, la confirmation SNS, le brouillon Pingen fictif non envoyé puis supprimé et les quatre abonnements Pingen ont depuis été vérifiés séparément sur les ressources configurées. Aucun envoi métier Guteneo n'est qualifié ; `LIVE_SENDS_ENABLED=false` reste en place. Les preuves exactes et leurs limites sont dans [LIVE_RELEASE.md](LIVE_RELEASE.md), [SES_STATUS.md](SES_STATUS.md), [TELNYX_READINESS.md](TELNYX_READINESS.md) et [PINGEN_WEBHOOK_SETUP.md](PINGEN_WEBHOOK_SETUP.md).
+21 September Resend candidate supports no document, exact PDF attachment or protected
+link at EUR1/hosted document, shared REST/MCP, browser-only password, atomic acceptance
+and once-only billing. [PROTECTED_EMAIL.md](PROTECTED_EMAIL.md) owns this contract;
+[RESEND_PROOF.md](RESEND_PROOF.md) owns publication evidence.
 
-## Contrat commun et garanties
+## Common contract and guarantees
 
-`TelnyxFaxProvider`, `SesEmailProvider`, `PingenPostalProvider` exposent leurs capacités, une validation, une estimation, `submit`, `readStatus` et `cancel`. Une capacité absente est explicite : SES ne propose ici ni annulation ni lecture d'un message par ID. Son rapprochement utilise les événements. Une estimation inconnue vaut `amount: null` ; ce n'est pas un coût nul. Les montants connus sont des entiers en unité monétaire mineure et une devise.
+`TelnyxFaxProvider`, `SesEmailProvider`, `PingenPostalProvider` expose capabilities,
+validation, estimates, `submit`, `readStatus`, `cancel`, with unavailable capabilities
+explicit. SES provides neither cancellation nor message-ID lookup here; events
+support reconciliation. Unknown estimate `amount:null` is not zero. Known amounts
+are integer minor units/currency.
 
-Les clients n'autorisent pas un envoi. Le cœur doit conserver avant `submit` l'approbation du manifeste final, le plafond, la réservation, l'outbox et la tentative. Le connecteur ne reçoit qu'un destinataire. Il ne choisit jamais un canal de remplacement.
+Connectors grant no send authority. Before submit, domain must persist approved
+final manifest/ceiling/reservation/outbox/attempt. One recipient per operation; no
+fallback-channel selection. Network calls are bounded, reject redirects and never
+internally retry. Lost response, 5xx, timeout, conflict or unreadable acknowledgement
+after submission yields `submission_unknown`; missing response cannot release
+quota. Certain rejection differs. Only HTTP 429 is explicitly transient; any retry
+belongs to domain leases/bounds/deadlines, never parallel SDK/Queue retry.
 
-Chaque opération réseau est bornée, refuse les redirections et n'effectue aucun retry interne. Une réponse perdue, un 5xx, un timeout, un conflit ou une réponse d'acceptation illisible après soumission donne `submission_unknown`. Aucun quota ne doit alors être libéré sur la simple absence de réponse. Un rejet certain est distinct. Le seul rejet HTTP explicitement marqué transitoire est 429 ; sa reprise appartient au cœur et doit respecter ses baux, limites et délais. Ne pas ajouter des retries au SDK/Queue en parallèle.
+Cancellation capabilities differ. Accepted cancellation requests are `requested`,
+not `confirmed`; offer actual cancellation only after qualification. A deliberate
+new send needs a new linked command.
 
-Les trois annulations n'offrent pas les mêmes garanties. Une réponse acceptant une demande d'annulation devient `requested`, jamais `confirmed`. Le dashboard ne doit proposer une annulation réelle qu'après qualification de la capacité correspondante. Une nouvelle expédition volontaire possède une nouvelle commande liée à l'original.
+## Telnyx fax
 
-## Fax : Telnyx
+[Send API](https://developers.telnyx.com/api-reference/programmable-fax-commands/send-a-fax):
+`POST https://api.telnyx.com/v2/faxes`, Bearer key, `connection_id`, `from`, `to`,
+`media_url`, `client_state`. The latter holds only opaque command reference, no
+organization/content. `store_media`/`store_preview` are false. 202 means command
+accepted; `fax.delivered` supplies transmission outcome.
 
-Le contrat [Send a fax](https://developers.telnyx.com/api-reference/programmable-fax-commands/send-a-fax) documente `POST https://api.telnyx.com/v2/faxes`, Bearer API key, `connection_id`, `from`, `to`, `media_url` et `client_state`. Le client encode dans `client_state` une référence opaque de commande, sans organisation ni contenu. `store_media` et `store_preview` sont désactivés. Une réponse 202 signifie seulement que la commande est acceptée ; `fax.delivered` fournit le résultat de transmission.
+An independent Guteneo account needs:
 
-Préparer dans un compte Guteneo indépendant :
+1. Server key, fax app/connection, authorized sender number/outbound profile. No demo number in config; numeric fixtures are never submitted.
+2. Outbound countries, spend/concurrency caps; qualify LU/FR/DE separately with exact authorized recipient. Prefix allowlisting does not prove successful calls.
+3. Canonical `/webhooks/telnyx`, account Ed25519 public key and expected connection.
+4. Private temporary HTTPS PDF access created only at submission for approved document. Explicit server-origin allowlist and at least twenty minutes residual validity are required. This is a guard, not a Telnyx queue guarantee; qualify operational TTL/retrieval under load. Never log URLs.
 
-1. Une clé API serveur, une application fax et son `connection_id`, un numéro d'émission autorisé et le profil sortant requis. Aucun numéro de démonstration n'est fourni dans la configuration. Les valeurs numériques des tests sont exclusivement des fixtures locales jamais soumises.
-2. Les pays sortants, le plafond de dépense et la concurrence fax du compte. Qualifier séparément Luxembourg, France et Allemagne avec un destinataire exact et son autorisation. Leur préfixe peut figurer dans la liste applicative autorisée sans prétendre qu'un appel y a réussi.
-3. Un endpoint `https://<hôte>/webhooks/telnyx`, la clé publique Ed25519 du compte et le `connection_id` attendu.
-4. Une URL HTTPS de document privée, temporaire, créée au moment de la soumission et limitée au document approuvé. Le client exige une origine serveur explicitement autorisée et au moins 20 minutes de validité résiduelle. Ce délai de garde n'est pas une garantie sur les files Telnyx : le TTL opérationnel et la durée de récupération doivent être qualifiés sous charge. Ne pas journaliser l'URL.
+Config: `TELNYX_API_KEY`, `TELNYX_PUBLIC_KEY`, `TELNYX_CONNECTION_ID`, `TELNYX_FROM`;
+constructor also receives `webhookUrl`, `mediaOrigins`, `allowedDestinationPrefixes`.
+Status uses `GET /v2/faxes/{id}`;
+[cancel](https://developers.telnyx.com/api-reference/programmable-fax-commands/cancel-a-fax)
+uses `POST /v2/faxes/{id}/actions/cancel`. DELETE removes data, not cancellation.
+Connector provider bounds: 50 MB/350 pages; Guteneo may be stricter. Verify PDF/scan
+before media access. Exact stored bytes do not mean a PDF digital signature survives
+fax transport.
 
-Configuration API : `TELNYX_API_KEY`, `TELNYX_PUBLIC_KEY`, `TELNYX_CONNECTION_ID`, `TELNYX_FROM`. Le constructeur reçoit aussi `webhookUrl`, `mediaOrigins` et `allowedDestinationPrefixes`. `readStatus` utilise `GET /v2/faxes/{id}` ; [l'annulation](https://developers.telnyx.com/api-reference/programmable-fax-commands/cancel-a-fax) utilise `POST /v2/faxes/{id}/actions/cancel`. DELETE supprime des données : ce n'est pas une annulation.
+[Fax webhooks](https://developers.telnyx.com/docs/programmable-fax/receiving-webhooks)
+may duplicate/reorder. Verify Ed25519 over `timestamp + "|" + original_body`,
+`telnyx-signature-ed25519`/`telnyx-timestamp`, 300-second window and fax application;
+retain orphan references. [Signature mechanism](https://support.telnyx.com/en/articles/4334722-how-to-leverage-webhooks).
+Synchronize clocks/qualify real callback delays/replay.
 
-Le connecteur impose les limites documentées de 50 MB et 350 pages ; Guteneo peut être plus restrictif. Le pipeline doit avoir vérifié le PDF et son statut de scan avant de créer l'accès. La conservation des octets chez Guteneo est exacte ; la conversion de transport en télécopie ne préserve pas une signature numérique PDF.
+Some Telnyx commands document `command_id`, but inspected fax-create schema did not.
+**No Telnyx-create idempotency is claimed** or arbitrary header sent. Unknown submit
+needs read/reconciliation/operator action, never automatic resend.
+Dated [public fax price](https://telnyx.com/pricing/fax): USD0.007/page **plus SIP
+transport**; number/destination/duration/tax/contract may add cost. Estimate remains
+unknown without qualified tariff. [Prerequisites](https://developers.telnyx.com/docs/programmable-fax/get-started),
+[send guide](https://developers.telnyx.com/docs/programmable-fax/send-a-fax-api).
 
-La [documentation webhook fax](https://developers.telnyx.com/docs/programmable-fax/receiving-webhooks) indique des duplications et un ordre non garanti. Le code vérifie Ed25519 sur `timestamp + "|" + corps_original`, les headers `telnyx-signature-ed25519` / `telnyx-timestamp`, une fenêtre de 300 secondes et l'application fax. Il conserve les références orphelines. Le mécanisme est décrit par [Telnyx Support](https://support.telnyx.com/en/articles/4334722-how-to-leverage-webhooks). Synchroniser les horloges et tester les délais/reprises réels de callbacks.
+## Amazon SES v2
 
-La documentation mentionne une déduplication `command_id` pour certaines commandes, mais le schéma vérifié de création fax ne l'expose pas. **Aucune idempotence de création Telnyx n'est revendiquée**, aucun header arbitraire n'est envoyé. Une soumission incertaine exige lecture/rapprochement ou intervention, jamais un nouvel envoi automatique.
+`SesEmailProvider` signs JSON with `aws4fetch` SigV4/service `ses`, then one fetch to
+`https://email.<region>.amazonaws.com/v2/email/outbound-emails`, without SMTP/Node-only
+SDK. [SendEmail v2](https://docs.aws.amazon.com/ses/latest/APIReference-V2/API_SendEmail.html)
+accepts Simple HTML/text/subject/attachments. MessageId proves acceptance, not delivery/read.
+One recipient, correlation tags/configuration set; max five PDF/PNG/JPEG attachments,
+20 MB combined raw bytes, stricter than SES 40 MB/message. Approved bytes use
+RawContent base64 plus `ContentTransferEncoding:BASE64`; scan/type-check upstream.
+[Attachments](https://docs.aws.amazon.com/ses/latest/dg/attachments.html).
 
-Tarif public consulté : [Telnyx Fax pricing](https://telnyx.com/pricing/fax), 0,007 USD/page **plus le transport SIP** ; numéro, destinations, durée, taxes et contrat peuvent ajouter des coûts. L'estimation applicative reste inconnue jusqu'à raccordement d'un tarif effectivement qualifié. [Prérequis officiels](https://developers.telnyx.com/docs/programmable-fax/get-started), [guide d'envoi](https://developers.telnyx.com/docs/programmable-fax/send-a-fax-api).
+Setup:
 
-## E-mail : Amazon SES v2
+1. Explicit available EU region; identities/sandbox are regional. Verify domain/DKIM/SPF/MAIL FROM/DMARC; only server `authorizedSenders`.
+2. Configuration set events Send/Delivery/Bounce/Complaint/Reject/Rendering Failure; opening/click tracking off. Separate marketing/transactional reputation. Current connector uses one set/instance; separate policies need separate instances before marketing activation.
+3. IAM principal limited to `ses:SendEmail`, exact region/sender identities/set and `ses:FromAddress`; verify exact resources with IAM Simulator. No `ses:*`/admin key. Identity/SNS provisioning authority is separate.
+4. Server-only `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION`, `SES_CONFIGURATION_SET`, optional temporary `sessionToken`; never Vite/browser secrets.
+5. Leave sandbox only after operational validation. Sandbox: 200 messages/24 h, 1/s, verified identities/mailbox simulator. SES simulator may bill and is not free local simulation. [Production access](https://docs.aws.amazon.com/ses/latest/dg/request-production-access.html).
 
-`SesEmailProvider` signe la requête JSON avec `aws4fetch` et SigV4, service `ses`, puis effectue un unique fetch vers `https://email.<région>.amazonaws.com/v2/email/outbound-emails`. Il n'utilise ni SMTP ni SDK exigeant Node côté Worker. Le [contrat SendEmail v2](https://docs.aws.amazon.com/ses/latest/APIReference-V2/API_SendEmail.html) accepte `Content.Simple`, HTML, texte, objet et désormais pièces jointes. `MessageId` est une acceptation, pas une remise ni une lecture.
+[SES events](https://docs.aws.amazon.com/ses/latest/dg/monitor-using-event-publishing.html)
+use dedicated exact-ARN `SES_SNS_TOPIC_ARN` and `/webhooks/ses`. Validate SNS before
+SES payload, requiring **SignatureVersion 2** explicitly on topic (SNS default 1).
+Certificate fetch permits exact HTTPS `sns.<region>.amazonaws.com` and bounded official
+path only, without redirects/query/credentials/arbitrary URL. `jose` imports X509;
+WebCrypto verifies RSA-SHA256 official concatenation including final newline.
+Certificate fetch outage returns 503; invalid signature is rejected before storage.
 
-Le connecteur envoie individuellement, fournit des tags de corrélation et le configuration set. Il limite les pièces jointes à cinq, à PDF/PNG/JPEG et à 20 MB de données brutes cumulées ; cette restriction est inférieure au plafond SES de 40 MB par message. Les octets autorisés sont encodés en base64 dans `RawContent`, avec `ContentTransferEncoding: BASE64`. Scanner et vérifier le type réel en amont. [Documentation officielle des pièces jointes](https://docs.aws.amazon.com/ses/latest/dg/attachments.html).
+Certificate trust uses official-host TLS, not an independent PKIX validator.
+Local crypto/URL tests use a **self-signed test certificate**, not remote SNS proof.
+Public `fixtures/sns-test-key.pem`/`sns-test-cert.pem` grant no account access.
+Signed subscription confirmation is an `unrecognized` receipt with topic/token,
+never SubscribeURL/client content; no automatic link following. Authorized account/
+D1 operator confirms exact configured topic using
+`aws sns confirm-subscription --region <region> --topic-arn <expected_topic> --token <verified_token>`,
+then clears token. Never expose raw receipts in ordinary admin/exports/logs.
+[SNS verification](https://docs.aws.amazon.com/sns/latest/dg/sns-verify-signature-of-message.html),
+[canonical order](https://docs.aws.amazon.com/sns/latest/dg/sns-verify-signature-of-message-verify-message-signature.html),
+[version 2](https://docs.aws.amazon.com/sns/latest/dg/sns-verify-signature-of-message-configure-message-signature.html).
 
-Raccordement :
+Normalizer retains bounceType; only hard bounce/complaint causes durable tenant
+suppression. Delivery is recipient-server handover; later complaint remains separate.
+Retained callback metadata excludes contacts. Marketing requires approved HTML **and**
+text HTTPS unsubscribe URL; connector adds corresponding List-Unsubscribe/One-Click.
+Final manifest must include policy/headers, plus actual endpoint/reputation qualification
+before activation. Headers alone perform no unsubscribe. No verified SES idempotency
+or automatic unknown replay.
 
-1. Choisir explicitement une région SES UE disponible pour le compte ; l'identité et l'état sandbox sont régionaux. Vérifier le domaine d'émission, DKIM, SPF/MAIL FROM et DMARC. Le constructeur n'accepte que les expéditeurs serveur de `authorizedSenders`.
-2. Créer un configuration set et activer les événements utiles, en particulier Send, Delivery, Bounce, Complaint, Reject et Rendering Failure. Désactiver suivi d'ouverture/clic. Séparer les paramètres de réputation des usages marketing et transactionnels. La version actuelle utilise un configuration set par instance de connecteur ; créer une instance/configuration distincte par politique avant l'activation marketing réelle.
-3. Créer un principal IAM limité à `ses:SendEmail` dans la région, aux identités d'émission et au configuration set concernés, avec restriction `ses:FromAddress`. Vérifier la policy avec IAM Simulator contre les ressources exactes du compte. Ne pas accorder `ses:*`, ni une clé administrateur. Le rôle de provisioning des identités/SNS est séparé de celui d'envoi.
-4. Fournir côté serveur `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION`, `SES_CONFIGURATION_SET`; le client supporte aussi un `sessionToken` temporaire. Aucun secret dans Vite ou le navigateur.
-5. Sortir de la sandbox seulement après validation opérationnelle. La sandbox est limitée à 200 messages/24 h et 1/s, vers identités vérifiées ou mailbox simulator. Le simulateur SES peut être facturé : il ne remplace pas notre simulateur local gratuit. [Accès production](https://docs.aws.amazon.com/ses/latest/dg/request-production-access.html).
+Dated [SES pricing](https://aws.amazon.com/ses/pricing/): new accounts or account/
+regions inactive since 1 June 2025 begin Essentials from 21 July 2026, advertised
+USD0.16/1,000; pay-as-you-go USD0.10/1,000 plus USD0.12/GB attachments. Qualify actual
+account plan; SNS/data/options are not implicitly included. No Guteneo tariff follows
+from this page alone. Detailed pricing authority lives in [LIVE_DELIVERY_QUOTES.md](LIVE_DELIVERY_QUOTES.md)
+and [SES_TEXT_ONLY_QUOTE.md](SES_TEXT_ONLY_QUOTE.md).
 
-Le [publishing SES](https://docs.aws.amazon.com/ses/latest/dg/monitor-using-event-publishing.html) est raccordé à un topic SNS dédié autorisé par ARN exact (`SES_SNS_TOPIC_ARN`) et à `/webhooks/ses`. Le code vérifie l'enveloppe SNS avant de lire l'événement SES. Il exige **SignatureVersion 2**, à configurer explicitement sur le topic : la valeur par défaut SNS est 1. Le certificat provient uniquement du host HTTPS exact `sns.<région>.amazonaws.com`, d'un chemin officiel borné, sans redirection, query, credentials ou URL libre. La clé X509 est importée par `jose` et WebCrypto vérifie RSA-SHA256 sur la concaténation officielle, newline finale comprise. Une panne de récupération du certificat rend 503 pour permettre la reprise ; une signature invalide est rejetée avant stockage.
+## Postal provider choice
 
-La confiance du certificat repose ici sur sa récupération auprès du host SNS officiel via la validation TLS du runtime ; le code ne construit pas un validateur X509/PKIX indépendant. Les tests prouvent la vérification RSA et le filtrage d'URL avec un certificat **de test auto-signé**, pas une connexion SNS distante. Les fichiers `fixtures/sns-test-key.pem` et `sns-test-cert.pem` sont des fixtures publiques sans pouvoir d'accès à aucun compte.
+| Candidate | Verified official-source facts | Decision |
+| --- | --- | --- |
+| [Pingen](https://www.pingen.com/en/post-api/) | OAuth/public API, no-send staging, preaddressed PDF, per-letter quotes, signed callbacks, 24 h idempotency; named FR/DE/LU delivery | First connector |
+| [LetterXpress v3](https://www.letterxpress.de/versandwege/api) | base64 PDF/MD5, test/live, 50 MB, 120 requests/min; some GET auth bodies fit Workers fetch poorly | Alternative; qualify FR/LU |
+| [Stannp](https://www.stannp.com/uk/direct-mail-api/letters) | EU API, no-print testing, PDF creation/overlay options, [HMAC callbacks](https://www.stannp.com/uk/direct-mail-api/webhooks) | Alternative; qualify LU/exact-original preservation |
 
-Les confirmations d'abonnement signées sont conservées comme reçu `unrecognized` avec le topic et le token, sans `SubscribeURL` ni contenu client. Aucun lien n'est suivi automatiquement. Un opérateur ayant accès au compte et à D1 confirme le **topic configuré** avec `aws sns confirm-subscription --region <region> --topic-arn <topic_attendu> --token <token_vérifié>`, puis efface le token de ce reçu. Ne pas exposer ces reçus bruts dans l'administration ordinaire, les exports ou les logs. [Vérification SNS](https://docs.aws.amazon.com/sns/latest/dg/sns-verify-signature-of-message.html), [ordre canonique](https://docs.aws.amazon.com/sns/latest/dg/sns-verify-signature-of-message-verify-message-signature.html), [configuration version 2](https://docs.aws.amazon.com/sns/latest/dg/sns-verify-signature-of-message-configure-message-signature.html).
+[Pingen delivery options](https://www.pingen.com/en/print-delivery-options/)
+name France/La Poste, Germany/Deutsche Post, Luxembourg/bpost: advertised supply,
+not actual account/destination qualification. Timings are indicative.
+[Security](https://www.pingen.com/en/trust-security/) includes Swiss Cloudscale hosting;
+never call postal processing exclusively EU.
 
-Le normaliseur conserve `bounceType` pour distinguer Permanent de Transient. Seuls hard bounces et plaintes doivent produire une suppression durable dans l'organisation concernée. Une Delivery signifie remise au serveur destinataire. Une plainte tardive reste un fait distinct. Les contacts ne figurent pas dans les métadonnées de callback conservées par cet adaptateur.
+### Inspected Pingen contract
 
-Pour le marketing, l'URL HTTPS de désinscription doit déjà apparaître dans les versions HTML **et** texte approuvées. Le connecteur ajoute les headers List-Unsubscribe/One-Click correspondant à cette URL ; le manifeste métier final doit également inclure cette politique et ces headers avant toute activation réelle. Le raccordement de l'endpoint public de désinscription et la qualification réputation constituent encore une condition d'ouverture marketing : un seul header ne réalise pas la désinscription. Pas d'idempotence SES vérifiée, pas de replay automatique d'une soumission inconnue.
+[OpenAPI](https://api.pingen.com/documentation/swagger-docs), discovered through
+[ReDoc](https://api.pingen.com/documentation), is normative. Some marketing examples
+omit `/deliveries`; follow OpenAPI.
 
-La [tarification SES](https://aws.amazon.com/ses/pricing/) consultée distingue désormais les nouvelles offres : les comptes nouveaux ou compte/région inactifs depuis le 1er juin 2025 commencent en Essentials depuis le 21 juillet 2026, annoncé à 0,16 USD/1 000 e-mails. L'offre à la carte reste affichée à 0,10 USD/1 000 et 0,12 USD/GB de pièces jointes. Valider **l'offre du compte** ; SNS, données et autres options ne sont pas inclus implicitement. Aucun tarif commercial Guteneo n'en est déduit.
+| Operation | Contract |
+| --- | --- |
+| Token | POST `https://identity.pingen.com/auth/access-tokens`, form client_credentials/client ID/secret, `letter` |
+| Staging | `https://identity-staging.pingen.com`, `https://api-staging.pingen.com` |
+| Upload request | GET `/file-upload` → URL/signature/expiry |
+| Transfer | PUT exact PDF bytes, no Bearer |
+| Draft | POST `/organisations/{id}/deliveries/letters`, JSON:API `letters`, name/URL/signature/address_position, **auto_send:false** |
+| Read | GET `/organisations/{id}/deliveries/letters/{letterId}` |
+| Quote | POST `/organisations/{id}/deliveries/letters/price-calculator`, type `letter_price_calculator`, country/paper/options; 202 incomplete |
+| Send | PATCH `/organisations/{id}/deliveries/letters/{letterId}/send`, final JSON:API options |
+| Cancel | PATCH `/organisations/{id}/deliveries/letters/{letterId}/cancel`, 202 request received |
 
-## Courrier postal : choix Pingen
+Documented POST/PATCH `Idempotency-Key`: 1–64 characters, responses retained 24 h,
+`Idempotent-Replayed`. Stable creation/send keys claim no beyond-window guarantee
+and authorize no unknown replay.
 
-Comparaison bornée sur sources officielles :
+`prepareDocument` preserves preaddressed original bytes, creates unsent draft and
+returns remote ID. Persist it/wait for provider analysis before approval. Submit
+rereads country/extracted address, submit ability/paper/approved price; changes need
+new approval. **Never silently overlay an address in exact-PDF mode.** Explicit
+rendering can create a new corrected document.
 
-| Candidat                                                       | Éléments vérifiés                                                                                                                                                             | Décision                                                              |
-| -------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
-| [Pingen](https://www.pingen.com/en/post-api/)                  | OAuth, API publique, staging annoncé sans expédition, PDF préadressé, devis par lettre, callbacks signés, idempotence 24 h ; FR/DE/LU nommés dans les options de distribution | Premier connecteur concret                                            |
-| [LetterXpress v3](https://www.letterxpress.de/versandwege/api) | PDF base64, MD5, test/live, 50 MB, 120 req/min ; certaines opérations GET attendent une authentification dans le body, peu adaptée à fetch Workers                            | Alternative ; couverture FR/LU à qualifier explicitement              |
-| [Stannp](https://www.stannp.com/uk/direct-mail-api/letters)    | API EU, test sans impression, PDF avec options de création/surimpression, [webhooks HMAC](https://www.stannp.com/uk/direct-mail-api/webhooks)                                 | Alternative ; couverture LU et préservation de l'original à qualifier |
+Initial FR/LU/DE restrictions: normal paper, simplex/duplex, gray/color, fast/cheap;
+no registered/QR/custom-envelope/delivery guarantee. Qualify print region, format,
+margins/fonts/returns/product. Initial connector upload bound was 20 MB; the later
+[current postal preflight](PINGEN_PREFLIGHT.md) restricts it to 8,000,000 bytes.
+Exact account-provided `uploadOrigins` is required; no broad list/arbitrary URL or
+secret sent to storage. Config: `PINGEN_CLIENT_ID`, `PINGEN_CLIENT_SECRET`,
+`PINGEN_ORGANIZATION_ID`, `PINGEN_WEBHOOK_SECRET`; first qualification used explicit
+sandbox plus allowed origins. [PINGEN_SETUP.md](PINGEN_SETUP.md) owns actual setup.
 
-Les [options Pingen](https://www.pingen.com/en/print-delivery-options/) identifient France/La Poste, Allemagne/Deutsche Post et Luxembourg/bpost. Cela démontre une offre annoncée, pas une validation du compte Guteneo ni des destinations réelles. Les délais affichés sont indicatifs. La [page sécurité](https://www.pingen.com/en/trust-security/) indique notamment l'hébergement en Suisse chez Cloudscale : ne pas présenter le traitement postal comme exclusivement UE.
+Callback verifies hex HMAC-SHA256 `Signature` over original bytes, organization and
+`deliverable.type===letters`. Sent means `handed_to_post`, not delivered. Explicit
+letter-bound signed delivered facts may be retained without promising availability
+for ordinary products. Undeliverable fails; issues remain unprojected metadata,
+not invented terminal failure. Raw status remains readable; no complete code list
+assumed. Authenticated calculator price is required; 202/missing tariff never means
+free. No unqualified catalog price is installed.
 
-### Contrat courant vérifié
+## Durable callbacks and reconciliation
 
-Source normative : [OpenAPI Pingen](https://api.pingen.com/documentation/swagger-docs), découvert via la [documentation ReDoc](https://api.pingen.com/documentation). Attention : certains exemples marketing omettent encore `/deliveries` dans les chemins. Le code suit l'OpenAPI courant.
+`handleWebhook(request,env,domain)` runs before browser auth at
+`/webhooks/{telnyx|ses|pingen}`. Max 1 MB; signature/account check precedes idempotent
+`provider_receipts`. Store normalized event/minimal metadata, never HTML/PDF/contact
+lists. Invalid signatures never reach D1; storage failure is 503, never 2xx.
+Post-storage projection failure returns 202/pending.
 
-| Opération          | Contrat                                                                                                                                                        |
-| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Jeton              | POST `https://identity.pingen.com/auth/access-tokens`, form `grant_type=client_credentials`, client id/secret, scope `letter`                                  |
-| Staging            | `https://identity-staging.pingen.com` et `https://api-staging.pingen.com`                                                                                      |
-| Demande upload     | GET `/file-upload` → `url`, `url_signature`, expiration                                                                                                        |
-| Transfert          | PUT des octets PDF exacts à `url`, sans Bearer token                                                                                                           |
-| Création brouillon | POST `/organisations/{id}/deliveries/letters`, JSON:API `type: letters`, nom/url/signature, `address_position`, **`auto_send: false`**                         |
-| Lecture            | GET `/organisations/{id}/deliveries/letters/{letterId}`                                                                                                        |
-| Devis              | POST `/organisations/{id}/deliveries/letters/price-calculator`, JSON:API `type: letter_price_calculator`, pays, types papier, options ; 202 = calcul incomplet |
-| Expédition         | PATCH `/organisations/{id}/deliveries/letters/{letterId}/send`, JSON:API options finales                                                                       |
-| Annulation         | PATCH `/organisations/{id}/deliveries/letters/{letterId}/cancel`, 202 = demande reçue                                                                          |
+`reconcileWebhookReceipts(db,domain,limit)` handles at most 100 indexed receipts/cron,
+without sending. Projected means durably in business journal, possibly still orphaned,
+never delivered. Business events deduplicate then match provider/command IDs.
+Never derive tenant from URL/model input. Unknown-body omission limits later
+reinterpretation; new normalization may need authorized provider read/replay.
 
-`Idempotency-Key` est documenté pour POST/PATCH (1–64 caractères), réponses conservées 24 h, header de replay `Idempotent-Replayed`. Le connecteur utilise des clés stables pour création/expédition ; il n'en tire aucune garantie au-delà des 24 h et ne réessaie pas une soumission inconnue automatiquement.
+Before live activation, separately qualify SNS reads/certificate rotation, provider
+concurrency/quota, scanner, final accounting, transport budget and callback latency.
+Admin should expose pending/orphan/unknown/dead-letter attention. SNS confirmation
+tokens are temporary/operator-restricted, excluded from customer metadata export.
 
-Le destinataire doit déjà être imprimé dans la zone adresse du PDF. `prepareDocument` conserve les octets originaux, demande un brouillon sans envoi, puis retourne l'ID distant. Le cœur doit persister cet ID et attendre la fin du préflight Pingen avant approbation. `submit` relit le brouillon, compare le pays et l'adresse extraite à l'adresse approuvée, vérifie la capacité `submit`, les types papier et un devis inférieur ou égal au plafond approuvé. Un changement exige une nouvelle approbation. **Ne pas surimprimer silencieusement l'adresse dans le parcours “PDF exact”.** Un original incompatible est rejeté ; le parcours rendu peut créer explicitement une version distincte.
-
-Restrictions initiales : FR/LU/DE, papier normal, simplex/duplex, grayscale/color, produits fast/cheap ; pas de recommandé, QR-facture, enveloppe personnalisée ou garantie de livraison. La région d'impression, le format, les marges, polices incorporées, adresse retour et couverture du produit doivent être vérifiés au préflight avec Pingen. Le code limite l'upload à 20 MB. L'origine d'upload doit être configurée depuis celle réellement fournie au compte (`uploadOrigins`) ; aucune liste permissive ou URL renvoyée arbitrairement n'est acceptée. Un secret ne va jamais à l'hôte de stockage.
-
-Configuration API : `PINGEN_CLIENT_ID`, `PINGEN_CLIENT_SECRET`, `PINGEN_ORGANIZATION_ID`, `PINGEN_WEBHOOK_SECRET`. Le constructeur reçoit `sandbox: true` et les origines d'upload autorisées pour la première qualification. Le callback `/webhooks/pingen` vérifie `Signature` HMAC-SHA256 hexadécimal sur le corps original, l'organisation fournisseur et `deliverable.type === letters`.
-
-`webhook_sent` signifie `handed_to_post`. `webhook_delivered` est conservé uniquement lorsqu'un événement signé et explicitement associé à une lettre fournit ce fait ; sa disponibilité n'est **pas promise** pour les produits courrier ordinaires retenus. `webhook_undeliverable` est un échec. `webhook_issues` est conservé en métadonnées non projetées : une difficulté remédiable n'est pas fabriquée en échec final. Les états fournisseur bruts restent consultables ; aucun inventaire complet de codes n'est supposé.
-
-Prix : utiliser le calculateur authentifié par produit, pays et document. Une réponse 202 ou une absence de tarif n'autorise pas une expédition gratuite. Aucun prix catalogue non vérifié n'a été inscrit dans le code.
-
-## Callbacks durables, réconciliation et exploitation
-
-`handleWebhook(request, env, domain)` se place avant l'authentification navigateur sur `/webhooks/{telnyx|ses|pingen}`. Il limite le corps à 1 MB, vérifie la signature et le compte, puis insère une ligne `provider_receipts` idempotente. Seuls un événement normalisé ou des métadonnées minimales sont stockés ; aucun corps HTML/PDF ni liste de contacts. Une signature invalide n'atteint pas la base. Une panne de stockage rend 503, jamais 2xx. Une panne après stockage rend 202 et laisse `pending`.
-
-`reconcileWebhookReceipts(db, domain, limit)` reprend au maximum 100 reçus indexés à chaque passage cron. Il ne fait aucun nouvel envoi. `projected` signifie transféré durablement au journal métier, même si le callback demeure orphelin dans ce journal ; cela ne signifie jamais “livré”. Les événements métier sont eux-mêmes dédupliqués, puis rapprochés de l'ID fournisseur/commande. Ne jamais dériver une organisation d'un paramètre d'URL ou d'un champ soumis par le modèle. Le choix de ne pas conserver les corps inconnus limite leur réinterprétation future : leurs métadonnées permettent le diagnostic, mais un nouveau normaliseur pourra nécessiter une consultation ou un replay autorisé chez le fournisseur.
-
-Avant activation réelle, il reste à qualifier les ressources de lecture SNS et les renouvellements de certificats, la concurrence/quotas fournisseur, le scanning, la comptabilité finale, le budget de transport et la latence des callbacks avec les comptes Guteneo. L'administration doit alerter sur reçus `pending`, événements orphelins, états inconnus et files d'échec. La conservation des tokens SNS de confirmation est temporaire et restreinte aux opérateurs ; ne pas les exporter avec les métadonnées client.
-
-## Preuves exécutées et prochaines qualifications
-
-Commandes :
+## Executed checks and remaining proof
 
 ```sh
 npx vitest run tests/unit/providers.test.ts tests/unit/providers-webhooks.test.ts --reporter=default --reporter=json --outputFile=reports/providers-vitest.json
@@ -119,6 +212,13 @@ npx eslint packages/providers apps/api/src/webhooks.ts tests/unit/providers*.tes
 npm run typecheck
 ```
 
-Les tests de contrat examinent les requêtes réellement construites : SigV4 SES et un seul destinataire, pièces jointes exactes, brouillon Pingen sans `auto_send`, transfert sans fuite de token, garde d'adresse/coût, absence de retry après réponse perdue. Les tests cryptographiques génèrent/signent de vrais messages Ed25519, HMAC et RSA, puis falsifient corps, compte, certificat ou timestamp. Les tests HTTP utilisent D1/Miniflare pour vérifier persistance avant ACK, déduplication, panne de projection/reprise, rejet avant stockage et 503 si le stockage manque.
-
-Rapport initial : `reports/providers-vitest.json`. Les tests à fetch injecté valident les contrats locaux ; ils ne prouvent pas l'acceptation de ces requêtes par les comptes distants. Le test privé Pingen ultérieur utilise le compte réel avec un PDF fictif et `auto_send:false` ; il ne doit pas être renommé test staging. Ses abonnements sont configurés mais la réception d'une notification signée par Pingen reste à qualifier. Les essais fax/e-mail/courrier réels nécessitent les coordonnées fournies et autorisées ainsi que leurs garde-fous propres. Conserver IDs, date, coût, résultats et limites de chaque essai. Ne pas mélanger ces résultats aux métriques de simulation locale.
+Tests inspect constructed SigV4/one-recipient/exact-attachment/unsent-draft requests,
+no storage token leakage, address/cost guards and no retry after response loss.
+Real Ed25519/HMAC/RSA signed tests tamper body/account/cert/time. HTTP D1/Miniflare
+checks persistence-before-ACK/dedupe/projection recovery/prestorage rejection/503.
+Initial report `reports/providers-vitest.json` qualifies injected local transport,
+not remote account acceptance. Later Pingen used a real **production** account,
+synthetic PDF/auto_send:false, never staging. Registered subscriptions still needed
+actual Pingen-signed reception proof. Real fax/email/postal tests need exact supplied
+authorized destinations and channel gates. Record IDs/date/cost/outcome/limits
+separately from local simulation metrics.

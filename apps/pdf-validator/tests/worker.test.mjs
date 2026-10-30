@@ -77,6 +77,32 @@ test("worker forwards exact bytes and returns only bounded technical findings", 
   assert.equal(response.headers.get("cache-control"), "no-store");
 });
 
+test("ordinary service HTTP never exposes graceful or forced qualification stops", async () => {
+  let calls = 0;
+  const environment = {
+    PDF_VALIDATOR_CONTAINER: {
+      getByName: () => {
+        calls++;
+        throw new Error("must not access");
+      },
+    },
+  };
+  for (const path of [
+    "/stop",
+    "/stop?force=true",
+    "/qualification/stop?force=true",
+  ])
+    for (const method of ["GET", "POST"]) {
+      const response = await handleRequest(
+        new Request(`https://validator.internal${path}`, { method }),
+        environment,
+      );
+      assert.equal(response.status, 404);
+      assert.deepEqual(await response.json(), { code: "NOT_FOUND" });
+    }
+  assert.equal(calls, 0);
+});
+
 test("worker rejects wrong byte hash, profile, version, count, duplicate, and arbitrary clauses", () => {
   const variants = [
     { sha256: "b".repeat(64) },
@@ -316,7 +342,7 @@ test("deployment contract is private, bounded, offline and pinned", () => {
   assert.deepEqual(config.routes, []);
   assert.equal(config.observability.enabled, false);
   assert.equal(config.containers[0].max_instances, 1);
-  assert.equal(config.containers[0].instance_type, "basic");
+  assert.equal(config.containers[0].instance_type, "standard-1");
   assert.equal(config.containers[0].constraints.jurisdiction, "eu");
   assert.match(
     readFileSync(new URL("src/index.ts", validator), "utf8"),
@@ -329,6 +355,11 @@ test("deployment contract is private, bounded, offline and pinned", () => {
   );
   assert.match(docker, /sha256sum -c/);
   assert.match(docker, /test "\$VERAPDF_VERSION" = "1\.30\.2"/);
+  assert.match(
+    docker,
+    /--max-time 300 --retry 2 --retry-delay 2 --retry-all-errors/,
+  );
+  assert.doesNotMatch(docker, /--insecure|--retry-connrefused/);
   assert.match(docker, /USER validator/);
   assert.doesNotMatch(docker, /:latest/);
 });

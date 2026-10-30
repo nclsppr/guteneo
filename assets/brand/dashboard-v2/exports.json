@@ -1,0 +1,53 @@
+[
+  {
+    "name": "atelier",
+    "master": {
+      "path": "assets/brand/dashboard-v2/atelier-master.png",
+      "width": 1536,
+      "height": 1024,
+      "bytes": 2443741,
+      "sha256": "afb1ddec8dfbed37aeb6ad2f28cccc13443697e141965db29ad225139641bafa"
+    },
+    "web": {
+      "path": "apps/web/public/brand/dashboard-v2/atelier.webp",
+      "width": 1280,
+      "height": 853,
+      "bytes": 158328,
+      "sha256": "2c6a29f807943ce68700e4aa3a12eb4e3b78600bf0a5d49158a4f14f48f090ee"
+    }
+  },
+  {
+    "name": "documents",
+    "master": {
+      "path": "assets/brand/dashboard-v2/documents-master.png",
+      "width": 1448,
+      "height": 1086,
+      "bytes": 1634360,
+      "sha256": "cae4ee0b4124929f961cf182a4d3120ed8d57948779854e06c52c0af8c209edc"
+    },
+    "web": {
+      "path": "apps/web/public/brand/dashboard-v2/documents.webp",
+      "width": 1280,
+      "height": 960,
+      "bytes": 75294,
+      "sha256": "dd0ceec6c95af8c48966e24f3ccd71096c0f08f29259a15f31753180f5d2c22c"
+    }
+  },
+  {
+    "name": "pdf-verification",
+    "master": {
+      "path": "assets/brand/dashboard-v2/pdf-verification-master.png",
+      "width": 2172,
+      "height": 724,
+      "bytes": 2684243,
+      "sha256": "e1e13671d5a13891005629e68cd0dbf1df35725711a08197cdd82cc257accc80"
+    },
+    "web": {
+      "path": "apps/web/public/brand/dashboard-v2/pdf-verification.webp",
+      "width": 1280,
+      "height": 427,
+      "bytes": 105592,
+      "sha256": "9da81a062c605dab9848da3ccd8855c76e8bc0f4bcc38e70fafaf0b33098db6b"
+    }
+  }
+]

@@ -4,6 +4,7 @@ import type { PdfValidatorEnv } from "./handler";
 interface QualificationContainer extends DurableObjectStub {
   getState(): Promise<{ status: string }>;
   stop(): Promise<void>;
+  destroy(): Promise<void>;
 }
 
 /** Account-private RPC entrypoint. Never bound to the customer application. */
@@ -23,7 +24,7 @@ export class ValidatorQualification extends WorkerEntrypoint<PdfValidatorEnv> {
     return { sourceCommit, workerVersion };
   }
 
-  private container(): QualificationContainer {
+  #container(): QualificationContainer {
     if (this.env.QUALIFICATION_ENABLED !== "true")
       throw new Error("QUALIFICATION_DISABLED");
     return this.env.PDF_VALIDATOR_CONTAINER.getByName(
@@ -32,7 +33,7 @@ export class ValidatorQualification extends WorkerEntrypoint<PdfValidatorEnv> {
   }
 
   async state(): Promise<{ status: string }> {
-    const state = await this.container().getState();
+    const state = await this.#container().getState();
     if (
       !new Set([
         "running",
@@ -46,13 +47,26 @@ export class ValidatorQualification extends WorkerEntrypoint<PdfValidatorEnv> {
     return { status: state.status };
   }
 
-  async stop(): Promise<{ status: string }> {
-    await this.container().stop();
+  async stop(options?: { force?: boolean }): Promise<{ status: string }> {
+    const container = this.#container();
+    if (
+      options !== undefined &&
+      (options === null ||
+        typeof options !== "object" ||
+        Array.isArray(options) ||
+        ![Object.prototype, null].includes(Object.getPrototypeOf(options)) ||
+        Reflect.ownKeys(options).some((key) => key !== "force") ||
+        (Object.hasOwn(options, "force") && typeof options.force !== "boolean"))
+    )
+      throw new Error("QUALIFICATION_INVALID_STOP");
+    // Explicit prelaunch operator recovery only; ordinary stops never escalate.
+    if (options?.force === true) await container.destroy();
+    else await container.stop();
     return this.state();
   }
 
   async privacy(): Promise<{ temporaryDirectories: number }> {
-    const response = await this.container().fetch(
+    const response = await this.#container().fetch(
       new Request("http://validator.internal/qualification/privacy"),
     );
     if (!response.ok) throw new Error("QUALIFICATION_UNAVAILABLE");
@@ -72,7 +86,7 @@ export class ValidatorQualification extends WorkerEntrypoint<PdfValidatorEnv> {
     code: "VALIDATION_TIMEOUT";
     temporaryDirectories: number;
   }> {
-    const response = await this.container().fetch(
+    const response = await this.#container().fetch(
       new Request("http://validator.internal/qualification/process-deadline"),
     );
     if (!response.ok) throw new Error("QUALIFICATION_UNAVAILABLE");

@@ -1,0 +1,202 @@
+---
+title: Troubleshooting safely
+description: Start with the returned state, preserve the original operation and choose a bounded recovery action.
+sidebar:
+  label: Troubleshooting
+  order: 5
+---
+
+Start with what failed and what already exists. A source URL can be refused before
+a document is stored; a confirmation response can disappear after a dispatch was
+accepted. Those situations need different recovery. A generic retry loop cannot
+safely distinguish them.
+
+## Gather a small, useful observation
+
+Record the time, affected surface, HTTP status, stable error code and correlation
+identifier. In a private support context, retain the existing document, dispatch
+or preflight reference and the action already requested. Keep credentials, signed
+URLs, recipient details, original content and raw request/provider bodies out of
+logs and public reports.
+
+These public reads help separate an unavailable application from a disabled
+capability or a different release:
+
+```sh
+curl --fail --silent --show-error https://guteneo.com/api/health
+curl --fail --silent --show-error https://guteneo.com/api/capabilities
+curl --fail --silent --show-error https://guteneo.com/release.json
+```
+
+Interpret each response independently. Health is not provider delivery proof;
+configured scanning is not proof of fresh signatures. Capability flags explain
+current gates, while the manifest identifies published source. Check the
+[status service](https://status.guteneo.com/) for its separately bounded public
+observations.
+
+## Interpret public status before diagnosing a business operation
+
+The 25 October customer status candidate presents public access, observation time,
+three check groups and actual history. It does not expose provider diagnostics,
+local qualification or browser execution reports. Its available result describes
+the recent anonymous public checks; a failing authenticated or delivery journey
+still needs its own existing-operation evidence.
+
+| Observation                                                   | Interpretation and bounded recovery                                                                                   |
+| ------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| Recent valid checks pass                                      | Public access responded within that scope; this does not qualify sign-in, a scanner, a purchase or recipient delivery |
+| A recent check fails                                          | Keep that dated discrepancy and inspect the affected public group/response; do not infer an unrelated provider outage |
+| No observation, unreadable response or inconsistent result    | Current availability is unknown; Refresh rereads existing status/history and launches no test or business operation   |
+| An observation is old                                         | Its time remains useful as historical evidence; expired green results cannot describe the current service             |
+| Recorded history passes but expected observations are missing | Success is calculated from received records only; partial data and unknown days are not complete coverage             |
+| Dates precede collection                                      | Those days are unknown; no successful past is reconstructed                                                           |
+
+The history defaults to thirty days, with seven-day and annual windows. Annual
+cells aggregate actual daily records by month; the daily table retains all 365
+days. Select a cell or open the daily table for recorded/expected counts instead
+of treating a green month as proof for each day. A history-read failure supplies
+no percentage. Refresh and return-to-visible reads cannot repair collection or
+rewrite old results; investigate through authorized operations access.
+
+Language and appearance are presentation choices. Status supports French,
+English, German and Luxembourgish; explicit supported language takes priority,
+then its origin's saved choice, supported browser preference and French fallback.
+It keeps the chosen history and disclosure when language changes. System/light/
+dark preference uses the same storage enum as the main website, while origin
+isolation keeps status preferences separate from the account and the main host's
+presentation cookie. Blocked storage must not prevent reading the page. Use the
+[design system](/engineering/design-system/) for the shared accessibility and
+appearance rules.
+
+## Sign-in, access or mutation refused
+
+| Symptom                                                        | Safe check                                                                 | Recovery boundary                                                                |
+| -------------------------------------------------------------- | -------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| `AUTHENTICATION_REQUIRED` or `SESSION_EXPIRED`                 | Check whether this is a browser session, native session or OAuth call      | Reauthenticate through that client's documented flow                             |
+| `ORIGIN_REJECTED` or `CSRF_REJECTED`                           | Check the exact browser origin and current session/CSRF pairing            | Correct the origin/session; keep the protections enabled                         |
+| `INSUFFICIENT_SCOPE`, revoked connection or changed membership | Check current scopes, workspace binding, role and resource access          | Reconnect or ask the authorized administrator; no client-supplied tenant switch  |
+| A private `404`                                                | Check the existing identifier and the account/workspace actually connected | Absence and inaccessible content are intentionally not a global existence oracle |
+
+Document-authentication and approval-freshness refusals use localized browser
+recovery instead of raw English API errors. **Sign in again** requests fresh
+login and returns to the valid existing application path with its locale; query
+and secondary-fragment values are excluded. Reauthentication never renews the
+quote, replays the approval or reduces the session-age requirement.
+
+For local browser work, use `http://localhost:8787` consistently.
+`127.0.0.1` and `localhost` are different origins. A bearer token is not a browser
+session and cannot be used to impersonate human approval.
+
+Reconnecting an assistant can restore only its valid connection/scopes; it does
+not activate or renew an expert mandate. Use
+[authority and tenancy](/architecture/authority-and-tenancy/) for role and approval
+boundaries, or [MCP integration](/integrations/mcp/) for host-specific limitations.
+
+## A PDF source was refused
+
+`SOURCE_NOT_ALLOWED` is an input/egress refusal before the service downloads and
+stores the PDF. It is distinct from the verification state of a document already
+returned by an earlier upload.
+
+Check that the source is a real, unexpired direct HTTPS PDF download on the
+default port, without credentials, a fragment, redirects or a private/reserved
+host. A host attachment handle, local filesystem path or login page is not an
+accessible source. The service does not copy browser cookies or assistant account
+credentials to retrieve it.
+
+Local URL import is deliberately disabled; use authenticated multipart upload.
+For an expired attachment link, obtain renewed access to the original bytes rather
+than reconstructing a PDF from extracted text or inventing another URL. Keep only
+the safe source-domain diagnostic for support, not the temporary signed URL.
+See [documents and exact bytes](/workflows/documents/) for the import contract.
+
+## A stored PDF is still quarantined
+
+Read the existing document's `analysis` fields. Quarantine means required proof
+has not completed; it is not itself a malware verdict. Follow `nextAction` and
+any returned `retryAfterSeconds` instead of repeatedly importing the same file.
+
+| Analysis result                | Appropriate next step                                                                                         |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------- |
+| `processing` / `wait`          | Wait the returned interval, then read the same document; existing bounded background work needs no new upload |
+| `retryable` / `rescan`         | An authorized actor may explicitly restart analysis of that same original under the existing limits           |
+| `blocked` / `contact_support`  | Keep the original and escalate the stated configuration, freshness, integrity or authority issue              |
+| `blocked` / `replace_document` | Obtain a compatible/corrected file as requested; preserve its separate identity and hash                      |
+| `ready` / `continue`           | Continue only with operations allowed for the current actor and document                                      |
+
+Missing service configuration, stale signatures and integrity failures must not
+be bypassed with a manual ready flag or an approval. A purged document cannot be
+revived by rescanning. Browser preview and PDF verification diagnostics cannot supply the
+missing security proof.
+
+If page-image review fails after readiness, preserve the document/dispatch
+reference and resolve the actual reader/renderer limit. Do not approve unreadable
+pages, create an unnecessary dispatch or request a mandate merely to read an
+otherwise accessible document. Human review remains an explicitly chosen path
+under its own authority.
+
+## A preparation or confirmation response was lost
+
+First read the same operation. Keep the exact parameters and idempotency key for
+an idempotent replay under its contract; a new key describes a new intended
+operation and can create a duplicate.
+
+| Existing dispatch state             | Safe interpretation and next check                                                                             |
+| ----------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `prepared`                          | Inspect its exact quote, document and current approval; preparation created no transmission                    |
+| `queued`                            | Acceptance/reservation/outbox have committed; inspect the existing work rather than preparing another dispatch |
+| `submitting`                        | A provider attempt is in progress or awaiting its outcome; do not create a replacement                         |
+| `submission_unknown`                | Stop automatic resubmission; authorized provider-specific reconciliation is required                           |
+| `accepted` or a later channel state | Read the recorded events; acceptance, delivery, postal handoff and settlement have distinct meanings           |
+| `failed` or `cancelled`             | Inspect the actual attempt/event and cancellation limits before proposing any new communication                |
+
+An HTTP timeout does not prove that a provider rejected a request. A status refresh,
+page reload, queue redelivery or database restore grants no fresh sending authority.
+The [dispatch lifecycle](/architecture/dispatch-lifecycle/) owns the full transition
+and reconciliation model.
+
+An expired quote also needs an explicit contract, not a guessed deadline. The
+linked fax-renewal path is eligible only when the returned state is `prepared`
+and `attemptCount` is explicitly zero. A missing count is not zero. Preserve the
+same document, recipient and ceiling; follow the returned renewal path and obtain
+fresh review/approval for its new version. Sensitive account invitations have a
+separate browser-only **Refresh quote** contract: a current approver can replace
+only an eligible unsubmitted distribution, preserving its stored inputs and
+ceiling, with new human review. A lost response reuses that original's renewal
+instead of creating another preparation. Read the
+[secure distribution workflow](/workflows/secure-distribution/#renew-an-unsubmitted-invitation-quote)
+for its authority and failure boundaries. Neither path applies to ordinary email,
+postal transfer or an uncertain provider attempt.
+
+## Configuration, quota or service capability is closed
+
+Read the returned blocker and current capabilities. Missing identity, renderer,
+scanner, provider, sender, trusted pricing, billing entitlement or channel
+configuration must keep the affected path closed. Enough credit or a valid
+mandate does not satisfy the other gates.
+
+For `RATE_LIMITED`, respect `Retry-After` and the relevant request budget. Content,
+scan, account-credit and delegated budgets are separate limits. Resolving one
+does not reset the others, and a write with an uncertain outcome still needs
+state recovery before any replay.
+
+Ask the authorized owner of the affected setting to review it through the existing
+administration flow. Do not automatically broaden scopes, activate a provider,
+change billing, extend a mandate or promise an available top-up. Platform
+[Belvédère oversight](/administration/belvedere/) helps inspect selected operational
+facts but creates no authority to repair a customer's data or resend work.
+
+## Escalate with bounded evidence
+
+Provide the stable error/correlation code, time, source/release, affected client,
+operation stage, relevant non-sensitive state and the safe checks already made.
+Explain whether the result came from local fixtures, CI, a hosted read or an
+authenticated journey. A small reproducible synthetic case is more useful than
+a raw production payload.
+
+Stop when the missing evidence belongs to another boundary: current identity,
+scan freshness, hosted engine configuration, provider reconciliation or approved
+account administration. Escalation preserves the original identifiers and
+unknown state; it does not assert success, supply consent or create a replacement
+communication. For release-related mismatches and recovery scope, read
+[changes and releases](/engineering/releases/).

@@ -31,7 +31,7 @@ Proposition de vocal concise, fondée sur ces textes :
 
 > Avec Guteneo, préparez vos documents dans votre conversation. Fax, email ou courrier : vérifiez les détails, confirmez l’envoi, puis retrouvez son suivi.
 
-Le site précise que le courrier postal nécessite une configuration dans l’atelier connecté. Ne pas promettre une activation universelle instantanée. Les imports de listes et les fonctions Horizon sont indiqués comme en préparation : ne pas les présenter comme disponibles.
+Le site précise que le courrier postal nécessite une configuration dans l’atelier connecté. Ne pas promettre une activation universelle instantanée. Les imports de listes et les fonctions de vérification PDF sont indiqués comme en préparation : ne pas les présenter comme disponibles.
 
 ## Intégration dans la vidéo
 

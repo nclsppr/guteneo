@@ -192,8 +192,12 @@ export async function handleExpertReviewPages(
   deps: ExpertReviewDependencies,
 ): Promise<Response> {
   const url = new URL(request.url);
-  if (request.method !== "POST" || url.pathname !== "/review-pages")
+  const secure = url.pathname === "/secure-pages";
+  if (request.method !== "POST" || (!secure && url.pathname !== "/review-pages"))
     return new Response("Not found", { status: 404 });
+  const watermark = secure ? request.headers.get("X-Guteneo-Watermark") : null;
+  if (secure && (!watermark || !/^[A-Za-z0-9_-]{8,120}$/.test(watermark)))
+    return failure("REVIEW_INPUT_INVALID", 400);
   const sourceHash = request.headers.get("X-Guteneo-Source-Sha256");
   if (
     request.headers.get("Content-Type") !== "application/pdf" ||
@@ -301,9 +305,14 @@ export async function handleExpertReviewPages(
       const rendered = await page.evaluate(renderExpertReviewPage, {
         page: number,
         ...EXPERT_REVIEW_LIMITS,
+        ...(watermark ? { watermark } : {}),
       });
       assertActive();
       await assertRendered(rendered, number);
+      // Never call an assistant's truncated text layer an accessible document.
+      // This format remains unsupported instead of silently dropping content.
+      if (secure && rendered.textTruncated)
+        throw new Error("REVIEW_UNSUPPORTED_CONTENT");
       pages.push(rendered);
     }
     return {

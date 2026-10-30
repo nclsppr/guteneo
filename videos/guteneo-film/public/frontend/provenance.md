@@ -1,38 +1,38 @@
-# Captures du frontend Guteneo
+# Guteneo frontend captures
 
-Capturées le 2026-09-21T23:26:46.989Z, avec Chromium Playwright, fenêtre 1920 × 1080, densité 1, français, mouvement réduit.
+Captured `2026-09-21T23:26:46.989Z` using Playwright Chromium, 1920 × 1080,
+device scale 1, French, reduced motion.
 
 ## homepage.png
 
-- URL : https://guteneo.com/
-- Version publique : 22c24d5235dd204e48effafabef417c9bafac213
-- Construction publique : 2026-09-21T23:24:46.701Z
-- Page d'accueil réellement servie, sans session ni données de compte.
-- L'API publique annonce fax et courrier ouverts, e-mail fermé. Cette capture ne qualifie aucun envoi.
+- Actual anonymous `https://guteneo.com/`, no account data.
+- Public source `22c24d5235dd204e48effafabef417c9bafac213`, built `2026-09-21T23:24:46.701Z`.
+- Capabilities announced fax/postal open, email closed; screenshot qualifies no send.
 
 ## atelier.png
 
-- URL locale : http://127.0.0.1:5198/#/app
-- Source locale : 22c24d5235dd204e48effafabef417c9bafac213
-- Modifications locales de apps/web et packages : aucune
-- Application existante démarrée avec VITE_PUBLIC_PREVIEW=true, comme prévu dans docs/PUBLIC_PREVIEW.md et apps/web/src/api.ts.
-- Données fictives natives de apps/web/src/preview.ts. Les mentions d'aperçu et de simulation restent visibles.
-- Aucun login, backend, document client ou envoi réel. Les données ne qualifient pas une disponibilité fournisseur.
+- Local `http://127.0.0.1:5198/#/app`, same source; no local apps/web/package changes.
+- Existing application uses `VITE_PUBLIC_PREVIEW=true` as documented by `docs/PUBLIC_PREVIEW.md`/`apps/web/src/api.ts`.
+- Native `preview.ts` synthetic data; preview/simulation disclosures visible.
+- No login/backend/customer document/send; fixture data proves no provider availability.
 
 ## Reproduction
 
-Depuis la racine du dépôt, lancer :
+From repository root:
 
 ```sh
 node videos/guteneo-film/public/frontend/capture.mjs
 ```
 
-Le script démarre puis arrête son serveur Vite local sur le port 5198. Il utilise des contextes navigateur neufs, bloque les méthodes non GET et les routes de services, sauf les lectures anonymes natives /api/capabilities et /api/session de la homepage. Il attend les polices et images, conserve le frontend sans retouche de DOM ni masquage d'éléments. L'atelier ne réalise aucun appel au backend. Le détail machine est dans provenance.json.
+Script starts/stops local Vite port 5198, uses fresh contexts, blocks non-GET/service
+routes except native anonymous homepage capabilities/session reads, waits for fonts/
+images and retains unretouched DOM/disclosures. Workspace makes no backend call.
+Machine detail: `provenance.json`.
 
 ## approval.png
 
-- Vue native de relecture postale de la même fixture locale, 1920 × 1080.
-- Le formulaire a préparé un courrier uniquement dans la mémoire du navigateur, à partir du PDF natif « Votre courrier · exemple.pdf ».
-- Destinataire fictif : Maison Papier · fictive, 12 rue de l’Exemple, 75002 Paris, FR.
-- Arrêt avant toute approbation, confirmation ou expédition, y compris simulée. Aucun fournisseur ou backend contacté.
-- Le bandeau Simulation, le prix fictif, le destinataire et le PDF sont conservés tels que le frontend les affiche.
+- Native postal-review view of same 1920 × 1080 fixture.
+- Form prepared only browser-memory synthetic PDF with its original French fixture filename `Votre courrier · exemple.pdf`.
+- Synthetic recipient: `Maison Papier · fictive`, `12 rue de l’Exemple`, `75002 Paris`, `FR`; retained exactly as the fixture displays.
+- Stopped before approval/confirmation/dispatch, including simulation; no provider/backend call.
+- Simulation banner, fixture price/recipient/PDF remained visible and unchanged.

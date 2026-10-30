@@ -1,11 +1,345 @@
 # Execution plan and handoff
 
-2 October separate Horizon branch: EUR30/month credit-funded plan, administrator
+## Studio reprise — 29 October 2026 local candidate
+
+Continue `claude/studio-space-reprise` from the preserved Claude commits.
+[The local acceptance record](STUDIO_SPACE_REPRISE.md) owns completed lots,
+exact checks, measured loading and outstanding qualification. The target is
+four independently loaded applications, distinct application/workspace selection,
+source-preserving correction, exact PDF/destination associations, durable personal
+copy boundaries and canonical-session Belvédère with its original platform guard.
+No push, merge, infrastructure activation, real communication or deployment is
+authorized by this local reprise.
+
+## Assistant setup and new accounts — 27 October 2026 candidate
+
+Release 1.1.9 preconfigures the existing public ChatGPT client in the downloadable
+plugin, supplies the same ID in the four-language manual guide and selects
+`auth.guteneo.com` for browser entry. Auth0 issuer-response identification,
+the additional stable ChatGPT callback and the tenant-wide custom-domain email
+flag were applied and reread on 27 October. Four unauthenticated authorization
+probes returned the exact issuer; no verification email, human OAuth consent,
+code exchange or new host tool call was performed. DCR remains disabled.
+[OAuth configuration](LLM_SETUP.md#chatgpt-oauth-configuration--27-october-2026)
+and [domain evidence](AUTH0_CUSTOM_DOMAIN.md) own the contracts and limits.
+
+New accounts explicitly persist V2; existing saved Classic/V2 preferences remain.
+Ordinary application entry without membership opens the existing Services area
+with create/join choices. Joining reuses the invitation and verified-email
+acceptance boundary; personal-document entry remains independent. No migration,
+workshop enumeration, provider activation or communication is added. See
+[account identity](ACCOUNT_IDENTITY.md) and [layout](DASHBOARD_V2.md).
+
+Publication still requires complete exact-source CI, clean merged main and served
+release/archive verification. Provider configuration, local fixtures, publication
+and actual ChatGPT installation remain separate evidence.
+
+## MCP Apps original transport — 26 October 2026
+
+Release 1.1.6 at source `147ada069959f69440d4f98f968b0f2f5df1f7ba` is published
+across the application, browser preview and engineering site. The
+[latest Claude Desktop record](CLAUDE_QUALIFICATION.md#claude-desktop-selected-original-app--26-october-2026)
+qualifies two selected fictional originals through exact private R2 bytes and
+ready/verified analysis, including 40 parts/42 base calls for 10 MiB and later
+manual same-ID receipt recovery without resend. A read-only query found all 25
+associated business-effect counters zero for both originals, with no rows written.
+
+The output handoff failed: without supplied IDs or list/search, the next model
+turn had neither new document ID and made no document call. A separate native
+code step computed the smaller conversation attachment's exact size/SHA without
+its expected digest, which establishes neither automatic MCP attachment handoff
+nor fresh runtime egress. The selected window has closed with the flag absent;
+general activation remains pending.
+
+The 1.1.8 source follow-up preserves accepted receipts after late bridge errors,
+adds standard text alongside structured context and provides an explicit Use in
+conversation action for the same four-key receipt. Import sends no automatic
+message or model turn. The late-error source defect is not a proven cause of the
+earlier large-file deadline message. Local official-SDK fixtures cover the
+candidate behavior; actual context and explicit-message native retests remain
+required before claiming a usable model continuation. No API/TTL/part/scope
+change is included. Root owns normal package/version/CI/publication gates.
+
+The [private transport contract](PRIVATE_DOCUMENT_UPLOAD.md#selected-local-originals-through-mcp-apps)
+owns migration-before-code ordering, activation, same-original recovery and
+measured local limits. Other hosts, web, physical iPhone, revocation/background,
+comprehensive retention/confirmations and runtime/cost headroom remain separate.
+The 1.1.5 no-content checkpoint and older inline/preparation evidence remain dated
+history rather than proof of these later actions.
+
+## MCP domain handoff — 25 October 2026 candidate
+
+The independently configured MCP trusted alias and canonical/custom discovery
+preference preserve canonical identity/connection keys, legacy access tokens,
+existing mandates and current revocation fences. Signed custom tokens carry their
+actual verified issuer through postal/expert guards. The live configuration
+candidate explicitly selects the reviewed custom domain; root release/CI and
+deployment verification are still required. No Auth0 client/grant/DCR/provider
+setting was written by this implementation. Domain metadata/key observations,
+synthetic JWTs and actual host consent/renewal are separate evidence. See the
+[authoritative domain contract](AUTH0_CUSTOM_DOMAIN.md#independent-mcp-trust-and-discovery).
+
+The private file-transfer candidate additionally requires additive migration 0061
+before the new reservation/status tools and upload-only binary route are used.
+It retains creator privacy, exact original size/hash, current connection and
+scanner/quarantine policy, with no new OAuth scope, provider secret or sending
+activation. [Private upload](PRIVATE_DOCUMENT_UPLOAD.md) owns the contract.
+Physical Claude iPhone OAuth/renewal/file-transfer proof is still absent and must
+not be inferred from public metadata or web/Desktop/Code fixtures.
+
+A separate small-original candidate adds `import_inline_pdf` for an actual
+runtime with original bytes but no Guteneo egress. Its one MCP invocation is
+bounded to 64 KiB raw, with strict canonical base64/size/SHA validation before
+reservation. It reuses 0061 internally with unchanged claims, SQL authority/time
+fences, quota, scanner and recovery, and needs no migration or new scope. Keep
+the existing 2 MiB MCP and 10 MiB binary bounds separate. Real host encoding/transfer
+and a physical iPhone still require independent proof; source tests and the
+observed original-byte access alone do not establish a completed import.
+
+## Interface and loading handoff — 25 October 2026
+
+Implemented candidate contracts:
+
+- Concise public homepage plus `/how-it-works/`, `/pricing/`,
+  `/getting-started/` and `/pdf-checks/`; complete FAQ on Support, common official-
+  stamp footer and canonical four-language route/sitemap generation. Existing
+  prices, beta/legal notices, film languages and approval/provider gates remain.
+  The panorama is confined to the homepage; other public routes and status keep
+  shared navigation without city artwork. The existing localized closing
+  invitation, first-dispatch link and large stamp/postmark sit above the home
+  panorama; the identical common footer remains on every public React route,
+  including home, with a compact stamp, two original swallows, sixteen links and
+  colophon.
+  A few original swallows decorate public pages only. Dark lettering follows the
+  ivory brand role. Header/app stamps retain white paper inside each asset's
+  actual inner blue frame, leaving exterior/perforations transparent without an
+  outer white contour. Transparent
+  dark editorial/panorama derivatives add no frame; original light/opaque sources
+  remain.
+- System/light/dark appearance, fixed royal-blue browser chrome and a bounded
+  host-only presentation cookie for standalone script-free HTML. Preference is
+  independent of account language, workspace layout and business authority.
+  The public header exposes only the localized appearance icon at every viewport,
+  defaults to the operating system and accepts activation before React is ready.
+  All main-site public routes share a 1440 px maximum outer frame with matching
+  header/main/footer gutters and narrower readable prose inside.
+- Personal-document bootstrap independent of workshop authentication, obsolete-
+  result fences, identity remount and explicit list retry; unused route engines
+  load on demand. Decorative V2 panels are removed without replacing real content.
+- Customer-only status availability and actual history, shared four-language
+  footer and honest stale/unknown/partial/precollection states; monitoring,
+  browser-report ingestion and source/qualification gates stay separate.
+
+Authoritative details: [public site](HOMEPAGE_REDESIGN.md),
+[appearance](THEMES.md), [languages](MULTILINGUAL.md),
+[frontend loading](FRONTEND_PERFORMANCE.md),
+[workspace presentation](DASHBOARD_V2.md) and [status](STATUS_SERVICE.md).
+
+Local evidence is bounded to its recorded source/workload. The controlled personal
+fixture's first-document median was 1,318 → 704 ms with five contexts per variant
+and a 300 ms delay per synthetic API response; it is not production performance
+or a full historical-release comparison. Public-site, status, locale, cookie and
+backend tests cover their own fixtures and surfaces. Earlier preview builds that
+refused concurrent input changes remain recorded. The 10:38 UTC transparent-
+asset/closing-section preview build, including confined stamp paper, then passed its source guard; its exact
+snapshot and limits are in [the public-site contract](HOMEPAGE_REDESIGN.md).
+Subsequent changes require a matching fresh build; no stale artifact is a release
+result.
+That earlier build predates the final inner-frame paper correction, icon-only
+public header, shared outer frame and identical home footer. The later source/
+browser alpha audit found that copying engineering's 5% inset to the different
+main portrait exposed white through perforations. Paper now follows each asset's
+actual inner blue frame; engineering's approved treatment stays unchanged.
+
+The feature/annotation/engineering projections were regenerated from the stable
+registry, and `docs:check` passed: 23 domains, 289 features, 33 journeys, 75 REST
+operations and 72 MCP tools. Nimbus lint also passed for 28 authored MDX files;
+its 26 generated Markdown pages are checked by the projection generator instead.
+
+Engineering's local appearance follow-up passed nine browser cases, an isolated
+55-page build and six render checks. Status's focused follow-up passed eight
+theme/unknown-state cases, including all four languages; their narrower scopes
+remain separate from the earlier complete matrices.
+
+The complete template image-authoring scenario passed once in desktop Chromium
+and three repeated desktop-WebKit runs, preserving the same focused input,
+pending/invalid edits, theme changes, undo, save/reload and original image/PDF
+bytes. Reports: `/tmp/guteneo-template-theme-sol-chromium-final.json` and
+`/tmp/guteneo-template-theme-sol-webkit.json`. These are local fixtures, not native
+device or hosted application proof.
+
+The broad backend run recorded 2,644 of 2,648 passing, with four obsolete status-
+URL assertions; a later focused 91-case run passed. The security run recorded
+397 of 398 passing, with the source-mutating build-guard scenario still requiring
+a repeat after source freeze. A focused pass does not convert either incomplete
+broad run into a full pass. Final branding/public-artwork follow-ups remain
+separate from the earlier appearance counts.
+
+Remaining handoff is to finish final public-artwork/branding browser checks,
+repeat the outstanding guard check after source freeze, rebuild matching inputs
+and qualify complete exact-source CI. Publication and exact served verification
+remain separately authorized per surface, followed by appropriate authenticated
+journeys and current provider/engine evidence. No local screenshot, public history
+read or faster synthetic fixture establishes a live hostname, provider readiness,
+financial operation or deployment. No real communication, paid provisioning,
+provider mutation or production record change is needed for this interface work.
+
+25 October 2026 branch candidate: PDF verification becomes an individual purchase
+for an exact original and selected profile. New subscriptions and recurring renewals
+are retired; immutable historical consent, charges and reports remain preserved.
+Only a current browser administrator can accept the explicit purchase. Failed
+engine execution does not create a settled charge; a complete conformance report
+can be billable whether its rules pass or fail. Billing administration retains
+current browser-administrator authority without a monthly entitlement. Current
+price and terms: [unit-pricing contract](PDF_VERIFICATION_PRICING.md),
+[PDF verification](PDF_ACCESSIBILITY.md). Source, CI, private-engine qualification,
+authenticated financial proof and deployed activation remain distinct.
+
+24 October reconciliation: merge incoming main `4f033e2` (PR 74) with the English
+repository standards and curated engineering site. The recorded passes below
+remain evidence for their stated source and fixtures. This reconciliation needs
+its own complete generated inventory, exact-source CI, build and publication
+verification; none is inferred from either branch's earlier results.
+
+24 October publication decision: the user explicitly selects
+`SENSITIVE_DOCUMENT_AUTHENTICATION=verified_account` for the live document
+profile. The default remains `strong`, and unknown values deny access. Migration
+0059 records the approval's authentication mode and creates the D1 policy singleton,
+initially `strong`. The operator must explicitly set `id=1` to `verified_account`
+and publish the matching environment value; mismatch fails closed and the Worker
+never edits this policy. A verified account/email, current identity-linked session,
+signed recent `auth_time`, independent recipient binding and human browser review
+remain mandatory. Freshness stays 15 minutes for reading, association and approval,
+and five minutes for export, deposit and deletion. This does not claim MFA or
+strong authentication. Passkeys remain deferred; the chosen profile requires no
+stronger-authentication subscription. Publication is authorized, but migrations,
+configuration and connected production tests still need their own observed proof.
+Earlier local passes below qualify their recorded source and fixtures, not this
+later policy change. Activation and rollback are in the implementation contract.
+
+24 October policy qualification: local run
+`01a16ef7-4017-783f-80e7-80426686b572` passes both desktop/phone results for
+`verified_account`, using synthetic ordinary sessions with no strong/MFA claim.
+It exercises sharing, human approval, independent association, private copy/export
+and revocation without real Auth0 login or delivery. The targeted backend report
+passes 73 cases, tariff qualification 31 cases and UI rendering 13 cases.
+The 355 Node cases, build/dry run, typecheck and lint passed
+before the final explicit workspace **Vérifier mon accès** recovery link. That
+link requests fresh login and a secret-free return to the distribution list;
+it grants no approval. The final build/dry run, typecheck and 13 UI cases now pass.
+Strict run `01a16efd-d3c7-7c1e-b6db-7d1c647da7f1` passes 14/14 in 105.63 seconds,
+without skips, flaky results or model calls, with a sanitized archive. Exact-head
+CI remains pending; local success does not establish production activation.
+
+24 October reprise: continue secure distribution and **Mes documents** while
+deferring the passkey choice. Workspace source pagination, explicit personal-copy
+export policy, claim-bound association confirmation, inaccessible personal-list
+cleanup and deletion/expiry recovery were checked under the then-current strong
+test fixtures. Local checks pass on that recorded source: 23 service cases, eight UI rendering cases,
+fourteen TesterArmy results on desktop/phone, six navigation cases across three
+browser projects and twelve desktop login-entry cases. The latter fixture drains
+bounded static proxies before removing interception; it does not suppress errors
+or change Auth0. Failed attempts remain preserved. Build/dry run, typecheck,
+lint and the 252-feature developer tree pass. Exact-head GitHub verification is
+recorded on PR 74; production activation remains separate.
+
+24 October 2026 secure distribution candidate: implement the unified personal
+account, sensitive shared reader, explicit independent personal copy, immutable
+retention pricing and shared REST/MCP/plugin distribution service. The requested
+TesterArmy e2e framework runs locally with real browsers, local D1/R2, private
+PDF rendering and deterministic simulated delivery. Its initial complete
+four-page lifecycle grew to fourteen desktop/phone cases. On candidate
+`d942fa9`, the complete local regression passed 119 Vitest files / 2,305 cases
+and 355 Node security cases. Reconciliation with main `ac795d0` preserves its
+public HTTP errors and explicit logout; 148 affected unit cases and twelve
+desktop login-entry browser cases passed. The final isolated TesterArmy run
+and exact-head GitHub checks are recorded in
+[draft PR 74](https://github.com/nclsppr/guteneo/pull/74); older local passes
+do not automatically qualify this reconciled source. Read
+[implementation](SECURE_DISTRIBUTION_IMPLEMENTATION.md),
+[journeys](SECURE_DISTRIBUTION_JOURNEYS.md) and
+[the e2e guide](../tests/distribution-e2e/README.md).
+No production migration, account provisioning, real send, merge or deployment
+is performed by these local checks. Scheduled GitHub production browser reports
+and their status-page ingestion are a separate candidate; authenticated
+production test accounts and the real journey under the selected document policy
+require qualification; public reports cannot qualify either mode.
+
+24 October 2026: [repository and interface harmonization](HARMONIZATION.md) records
+the isolated branch, English source/documentation and canonical links, shared
+interface patterns, feature-atlas maintenance rules and bounded local evidence.
+Its local verification records full-suite, browser-preview and native UI results;
+it establishes no merge, deployment or live-provider qualification.
+
+23 October 2026: [v1.0.0 preparation](V1_RELEASE_CANDIDATE.md) consolidates release
+identity, dependency security, MCP request bounds, web navigation cancellation
+and template suggestion authority. [Claude distribution](CLAUDE_PLUGIN.md) has a
+separate native plugin and local marketplace candidate. Complete exact-source
+CI and the documented host/production gates before claiming release readiness;
+the existing OpenAI 0.3.5 follow-up continues independently.
+
+10 October account language candidate: centralize the authenticated language
+control in account configuration and apply the saved preference to dashboard
+and Belvédère, including direct entry and focus refresh. Four-language parity,
+private access guards and account separation require fresh checks; publication
+evidence remains separate from local fixtures. See [MULTILINGUAL.md](MULTILINGUAL.md).
+
+Local candidate evidence: final TypeScript, ESLint and feature-map checks passed;
+47 final locale/access unit cases passed. Dashboard account, locale and boundary
+scenarios passed in Chromium desktop/mobile and iPhone WebKit after focused reruns;
+34 distinct Belvédère browser cases are qualified by the full initial run and
+the corrected locale-suite rerun. These use deterministic fixtures. Four-language
+Belvédère captures were inspected. No real profile preference, role, provider
+configuration or communication was changed by these checks. Exact PR/main CI
+and canonical authenticated production verification remain release gates.
+The first PR browser run caught an absent account preference overwriting a
+public query and legacy PDF verification fixtures relying on that query for private views.
+The correction preserves public choices without a preference and makes private
+fixtures use the account preference; two delayed-session regressions cover the
+boundary. The subsequent 93 PDF verification, locale-boundary and studio browser cases
+passed in all three projects, along with 47 locale/access unit cases.
+
+10 October: publication of the independent status service and a link from
+Guteneo is explicitly authorized. Existing Cloudflare quotas may be used;
+business debits, quote consumption and real communication remain excluded.
+Release sequence and qualification limits: [STATUS_SERVICE.md](STATUS_SERVICE.md).
+
+## Current release origin contract
+
+Production application access is restricted to `https://guteneo.com`.
+The application Worker must keep `workers_dev: false` and `preview_urls: false`;
+the former `guteneo-app.nclsppr.workers.dev` address and application version
+preview URLs are closed. The separate fictional design preview remains outside
+this change. Workshop roles and existing authorization rules are unchanged.
+
+For the next publication, retain clean-main and exact-commit CI evidence, deploy
+the canonical-only configuration, run `scripts/verify-release.mjs` against
+`https://guteneo.com`, and separately record that the closed origins no longer
+serve the application. Do not run release asset comparisons against those closed
+hosts or reopen them as a fallback. Public browser checks remain read-only on
+the canonical domain. Follow [MAIN_RELEASE.md](MAIN_RELEASE.md).
+
+Qualify the browser Auth0 callback, logout and allowed-origin configuration for
+the canonical domain separately from application publication. A real verified
+account, callback/session, account change and reconnection still require their
+own human-browser proof; public page checks and fixture tests do not establish
+them. Earlier dated alternate-origin and two-origin release evidence stays
+historical and is not the current hosting contract.
+
+9 October integration candidate: visible personal identity, read-only login email,
+current workshop role/permissions and browser-only responsible contacts, with an
+explicit Auth0 account-change action. Belvédère is reconciled with current main
+and its additive migration becomes 0052. See [ACCOUNT_IDENTITY.md](ACCOUNT_IDENTITY.md)
+and [DASHBOARD_IDENTITY_PROOF.md](DASHBOARD_IDENTITY_PROOF.md) for contracts and
+executed proof. Merge, production migration/configuration and deployment remain
+separate evidence.
+
+Historical 2 October subscription branch, now retired: EUR30/month credit-funded plan, administrator
 billing gate, private veraPDF PDF/UA/PDF/A checks, shared web/REST/MCP journey
 and four-language publicity preparation. Migrations 0050–0051 and a qualified
 private binding are required. Production/publication remain separate.
-Read [PDF_ACCESSIBILITY.md](PDF_ACCESSIBILITY.md), [HORIZON_PROOF.md](HORIZON_PROOF.md)
-and [HORIZON_LAUNCH.md](HORIZON_LAUNCH.md) before release.
+Read [PDF_ACCESSIBILITY.md](PDF_ACCESSIBILITY.md), [PDF_VERIFICATION_PROOF.md](PDF_VERIFICATION_PROOF.md)
+and [PDF_VERIFICATION_LAUNCH_ARCHIVE.md](PDF_VERIFICATION_LAUNCH_ARCHIVE.md) before release.
 
 2 October follow-up: five synthetic demonstration templates, owner-only library
 removal (additive migration 0049) and discoverable REST/MCP authoring rules extend
@@ -19,6 +353,17 @@ Historical September test totals do not qualify this candidate. Current evidence
 and external qualification limits: [TEMPLATES_DATA_DISTRIBUTION.md](TEMPLATES_DATA_DISTRIBUTION.md).
 The user subsequently authorized coordinated publication of that templates
 candidate; real communication and provider activation remain separate.
+
+## Belvédère candidate — 2 October 2026
+
+The dedicated `codex/belvedere-control-tower` branch adds a private read-only
+platform dashboard for the verified `nicolas@pieper.fr` browser identity.
+The connections/distribution globe, global jobs, workshop/member drilldowns,
+access-country telemetry, explicit financial evidence
+and optional Cloudflare reads are documented in [BELVEDERE.md](BELVEDERE.md).
+Migration 0052 and server-only configuration are required before activation.
+Local and fixture checks do not establish hosted authentication or provider access.
+No deployment, production migration, merge or real communication is performed.
 
 2 October local role candidate: administrators manage the workshop; supervisors
 receive independent approval and reporting options; operators prepare; observers
@@ -42,7 +387,7 @@ before server publication. Display choices do not change document bytes, recipie
 input, approval fingerprints or provider options. No production publication or
 App Store qualification is claimed. See [MULTILINGUAL.md](MULTILINGUAL.md).
 
-Candidat du 21 septembre 2026 : envoi Resend sans document, avec PDF, ou par lien protégé à 1 € par document hébergé. Même contrat REST/MCP, mot de passe navigateur uniquement, acceptation atomique et facturation unique. Voir [PROTECTED_EMAIL.md](PROTECTED_EMAIL.md) pour le contrat courant et [RESEND_PROOF.md](RESEND_PROOF.md) pour la preuve de publication. Les sections datées antérieures restent historiques.
+21 September 2026 candidate: Resend delivery without a document, with a PDF, or through a protected link at EUR1 per hosted document. The REST/MCP contract is shared; passwords are browser-only, acceptance is atomic and billing occurs once. See [PROTECTED_EMAIL.md](PROTECTED_EMAIL.md) for the current contract and [RESEND_PROOF.md](RESEND_PROOF.md) for publication evidence. Earlier dated sections remain historical.
 
 ## Native iOS candidate — 22 September 2026
 

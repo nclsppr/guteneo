@@ -1,99 +1,96 @@
-# État du candidat iOS — 22 septembre 2026
+# iOS candidate status — 22 September 2026
 
-Le candidat est une application SwiftUI pour iPhone et iPad, avec PDFKit,
-authentification dans le navigateur système et API mobile dédiée. Il reprend
-les ressources de marque et la palette du frontend. Il n'affiche aucune recharge
-ni invitation à un achat externe. La validation humaine d'un véritable envoi
-reste dans une page de navigateur authentifiée, distincte de l'app.
+The candidate is a SwiftUI iPhone/iPad application with PDFKit, system-browser
+authentication and a dedicated mobile API. It reuses frontend brand assets
+and palette. It displays no top-up or external-purchase invitation. Human
+validation of a real dispatch remains on an authenticated browser page,
+separate from the app.
 
-## Réconciliation locale du 2 octobre 2026
+## Local reconciliation on 2 October 2026
 
-Le candidat `codex/native-reconciliation-october` conserve les deux branches
-`codex/native-ios` et `codex/multilingual-ios`, avec le site multilingue comme
-base. L’accueil adaptatif conserve le sélecteur de langue ; les écrans iPad,
-l’icône Icon Composer, le contraste et les identifiants accessibles du travail
-natif ultérieur sont conservés. Les nouveaux textes adaptatifs sont traduits
-en français, anglais, allemand et luxembourgeois : 252 entrées embarquées.
-Les formats et la page de revue suivent la langue, sans modifier les PDF,
-les destinataires, les montants métier ou les droits d’approbation.
+`codex/native-reconciliation-october` preserves both `codex/native-ios` and
+`codex/multilingual-ios`, with the multilingual website as its base. The
+adaptive welcome retains its language selector; later native work's iPad
+screens, Icon Composer icon, contrast and accessibility identifiers are
+preserved. New adaptive text is translated into French, English, German and
+Luxembourgish: 252 bundled entries. Formatting and the review page follow the
+language without changing PDFs, recipients, business amounts or approval
+rights.
 
-- Backend réconcilié : 82 tests ciblés réussis, dont les 16 tests de l’API
-  mobile et les protections de revue dans les quatre langues ; lint ciblé réussi.
-- Application Debug pour simulateur : compilation réussie avec Xcode 27.0.
-  `build-for-testing` réussit aussi, pour les cibles XCTest et UI.
-- Le script officiel `ios/scripts/test.sh` refuse actuellement l’exécution,
-  car `xcodebuild -checkFirstLaunchStatus` signale une configuration initiale
-  incomplète. Aucun composant système n’a été remplacé et
-  le script n’a pas été modifié pour ignorer ce contrôle.
-- Exécution directe demandée ensuite, sur le binaire déjà compilé du commit
-  `5296838` : `xcodebuild test-without-building` réussit sur iPhone 17 Pro Max,
-  iOS 27.0 (24A5423a), avec 25 tests unitaires et 8 tests UI, zéro échec et zéro
-  exclusion. Le résultat est conservé dans
-  `/tmp/guteneo-native-direct-xctests-20261002.xcresult` ; son résumé
-  `xcresulttool get test-results summary` confirme 33/33 réussis.
-  Cette exécution directe ne valide pas le garde-fou du script officiel :
-  `xcodebuild -checkFirstLaunchStatus` renvoie toujours 69. Elle n’exécute aucun
-  installateur et n’établit aucune preuve sur appareil physique ou sur iPad.
-- La vérification TypeScript complète du candidat isolé dépend encore des
-  textes du film d’accueil dans les catalogues web ; elle doit être relancée
-  sur le candidat global avant publication.
+- Reconciled backend: 82 targeted tests passed, including 16 mobile API tests
+  and review protections in all four languages; targeted lint passed.
+- Simulator Debug application: Xcode 27.0 build passed. `build-for-testing`
+  also passed for XCTest and UI targets.
+- The official `ios/scripts/test.sh` currently refuses execution because
+  `xcodebuild -checkFirstLaunchStatus` reports incomplete first-launch setup.
+  No system component was replaced and the script was not changed to bypass
+  that check.
+- A subsequent requested direct run used the already compiled binary from
+  commit `5296838`: `xcodebuild test-without-building` passed on iPhone 17 Pro
+  Max, iOS 27.0 (24A5423a), with 25 unit tests and 8 UI tests, zero failures
+  and zero exclusions. Its result is retained at
+  `/tmp/guteneo-native-direct-xctests-20261002.xcresult`;
+  `xcresulttool get test-results summary` confirms 33/33 passed. This direct
+  run does not validate the official script's guard:
+  `xcodebuild -checkFirstLaunchStatus` still returns 69. It runs no installer
+  and establishes no physical-device or iPad evidence.
+- Full TypeScript verification of the isolated candidate still depends on
+  welcome-film text in web catalogs; rerun it on the combined candidate
+  before publication.
 
-Les captures du 22 septembre sont des preuves historiques de leurs branches,
-pas des captures du candidat réconcilié. Les limites appareil physique,
-signature de distribution, traitement de suppression et publication Apple
-restent celles du tableau ci-dessous.
+The 22 September captures are historical evidence of their branches, not
+captures of the reconciled candidate. Physical-device, distribution-signing,
+deletion-processing and Apple-publication limits remain those listed below.
 
-## Preuves historiques du 22 septembre
+## Historical evidence from 22 September
 
-- Branche `codex/native-ios`, réconciliée avec la base `origin/main` au commit `22c24d5`.
-  Les préparations de référence `review_prepare_only` restent consultables et
-  ne proposent aucune approbation ni expédition, dans l'app et le navigateur.
-- Backend : 87 tests ciblés réussis après cette intégration, dont 14 tests
-  mobiles, 28 tests de préparation de revue, 31 d'authentification et 14 de compte.
-  Typage, lint et compilation complète réussis. La compilation Worker est un
-  essai local sans déploiement.
-- Migration `0037_native_sessions.sql` : 37 migrations vérifiées localement,
-  241 objets de schéma équivalents, `quick_check=ok`, aucune violation de clé
-  étrangère. Aucune migration de production n'a été exécutée.
-- Les essais natifs, leurs résultats et captures brutes sont documentés dans
-  [Screenshots/README.md](Screenshots/README.md) et [le guide iOS](../README.md).
-  Les comptes, documents et résultats de ces écrans sont fictifs.
-- La campagne iPad de composition la plus récente réussit les 6 scénarios UI
-  sur 6, y compris l'ouverture du véritable onglet Documents, le remplacement
-  du détail et la rotation. L'archive Release non signée du même source
-  applicatif contient l'icône `AppIcon.iconstack` et le manifeste de confidentialité.
-- L'[audit Apple UI](APPLE_UI_AUDIT.md) couvre les recommandations Liquid Glass
-  actuelles, les raffinements 2026, la signature de marque unique, la
-  transparence du portrait et le contraste des couleurs du catalogue.
-- L'[icône Icon Composer](../Art/IconComposer/README.md) utilise le portrait
-  tramé officiel sur papier ivoire. Son document natif, ses aperçus et son
-  intégration dans le catalogue compilé sont vérifiés localement ; une archive
-  signée et une installation physique restent à qualifier.
-- L'URL de confidentialité `https://guteneo.com/confidentialite/` a été vérifiée
-  publiquement : elle décrit le service et les critères de conservation du
-  21 septembre. L'app ouvre directement cette page.
+- `codex/native-ios`, reconciled with `origin/main` at commit `22c24d5`.
+  `review_prepare_only` reference preparations remain readable and offer no
+  approval or dispatch in either app or browser.
+- Backend: 87 targeted tests passed after integration, including 14 mobile,
+  28 review-preparation, 31 authentication and 14 account tests. Typecheck,
+  lint and full build passed. Worker compilation is local without deployment.
+- `0037_native_sessions.sql`: 37 migrations checked locally, 241 equivalent
+  schema objects, `quick_check=ok`, no foreign-key violation. No production
+  migration was executed.
+- Native tests, results and raw captures are documented in
+  [Screenshots/README.md](Screenshots/README.md) and the [iOS guide](../README.md).
+  Accounts, documents and outcomes shown there are fictional.
+- The latest iPad composition batch passed all 6 UI scenarios, including
+  opening the actual Documents tab, detail replacement and rotation. The
+  unsigned Release archive from the same application source contains
+  `AppIcon.iconstack` and the privacy manifest.
+- The [Apple UI audit](APPLE_UI_AUDIT.md) covers current Liquid Glass guidance,
+  2026 refinements, one brand signature, portrait transparency and catalog
+  color contrast.
+- The [Icon Composer icon](../Art/IconComposer/README.md) uses the official
+  halftone portrait on ivory paper. Its native document, previews and compiled
+  catalog integration are locally verified; signed archive and physical
+  installation still require qualification.
+- `https://guteneo.com/privacy/` was publicly checked: it describes the service
+  and 21 September retention criteria. The app opens that page directly.
 
-Les résultats locaux détaillés sont conservés dans `ios/.build/`, exclu du dépôt.
-Le workflow `Guteneo iOS` permet de produire des résultats XCTest et une archive
-non signée sur la branche examinée. Un résultat local n'est pas une preuve de
-réussite du workflow distant ; consulter le statut réel de la pull request.
+Detailed local results remain in `ios/.build/`, excluded from the repository.
+The `Guteneo iOS` workflow can produce XCTest results and an unsigned archive
+on the reviewed branch. A local result is not evidence of remote workflow
+success; inspect the actual pull-request status.
 
-## Ce qui empêche encore une soumission App Store
+## Remaining App Store submission blockers
 
-| Élément | État et travail restant |
+| Item | Status and remaining work |
 | --- | --- |
-| Suppression du compte | L'app enregistre une demande authentifiée. Il reste à implémenter et qualifier le traitement effectif, avec les critères publics existants, le traitement des espaces partagés et les prestataires. La demande n'est pas une suppression réalisée. Voir [ACCOUNT_DELETION.md](../../docs/ACCOUNT_DELETION.md). |
-| Service mobile en production | Le contrat mobile et la migration sont locaux. Une mise en service autorisée, vérifiée et compatible avec le binaire est nécessaire. |
-| Signature de distribution | L'équipe propriétaire du bundle doit être confirmée. Aucun certificat Apple Distribution utilisable n'a été trouvé pendant le contrôle local. L'archive non signée n'est pas soumissible. |
-| Appareil physique | Aucun appareil physique disponible pendant le contrôle. Restent la connexion réelle, l'import, le suivi, VoiceOver et le masque de confidentialité au changement d'app. |
-| App Review et TestFlight | Compte dédié autorisé, parcours reproductible, archive signée, validation Apple, installation TestFlight et captures du binaire final restent à qualifier. Aucun identifiant reviewer n'est inventé. |
+| Account deletion | The app records an authenticated request. Actual processing still needs implementation and qualification, including published criteria, shared workspaces and providers. A request is not completed deletion. See [ACCOUNT_DELETION.md](../../docs/ACCOUNT_DELETION.md). |
+| Production mobile service | The mobile contract and migration are local. Authorized, verified activation compatible with the binary is required. |
+| Distribution signing | Confirm the bundle's owning team. No usable Apple Distribution certificate was found during the local check. The unsigned archive cannot be submitted. |
+| Physical device | None was available during the check. Real login, import, tracking, VoiceOver and the privacy overlay during app switching remain unqualified. |
+| App Review and TestFlight | Dedicated authorized account, reproducible journey, signed archive, Apple validation, TestFlight installation and final-binary captures remain unqualified. No reviewer credentials are invented. |
 
-Les textes français de fiche, les notes de review, le manifeste et le relevé des
-données sont préparés dans [AppStore](../AppStore/REVIEW_POLICY.md). Ils doivent
-correspondre au binaire et au service finalement soumis. Le canal email reste
-fermé dans les capacités de production observées ; la fiche actuelle promet la
-préparation du fax, selon les disponibilités du compte.
+French listing text, review notes, manifest and data inventory are prepared
+in [AppStore](../AppStore/REVIEW_POLICY.md). They must match the binary and
+service eventually submitted. Email remains closed in observed production
+capabilities; the current listing promises fax preparation according to the
+account's availability.
 
-Ce dossier n'atteste ni livraison réelle, ni soumission, ni acceptation Apple,
-ni publication. Le candidat ne doit pas être présenté comme prêt à publier tant
-que ces conditions obligatoires restent ouvertes.
+This folder attests neither real delivery, submission, Apple acceptance nor
+publication. Do not present the candidate as ready to publish while these
+mandatory conditions remain open.

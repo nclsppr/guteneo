@@ -65,6 +65,7 @@ const codes = [
   "QUEUE_DEAD_LETTER",
   "SUBMISSION_UNKNOWN",
   "DISPATCH_FAILED",
+  "SECURE_PREPARATION_FAILED",
   "CRON_FAILED",
   "IDENTITY_NOT_CONFIGURED",
   "OUTBOX_DEFERRED",
@@ -139,7 +140,12 @@ export function routeCode(
 ): RouteCode {
   const path = new URL(request.url).pathname;
   if (component === "documents")
-    return ["/render", "/render/template"].includes(path)
+    return [
+      "/render",
+      "/render/template",
+      "/review-pages",
+      "/secure-pages",
+    ].includes(path)
       ? "render"
       : path === "/validate"
         ? "validate"
@@ -174,6 +180,8 @@ export function routeCode(
     "/api/mappings": "mappings",
     "/api/generation-jobs": "generations",
     "/api/distribution-plans": "distribution",
+    "/api/secure-distributions": "distribution",
+    "/api/secure-distributions/catalog": "distribution",
     "/webhooks/ses": "webhook_ses",
     "/webhooks/resend": "webhook_resend",
     "/webhooks/telnyx": "webhook_telnyx",
@@ -228,6 +236,10 @@ export function routeCode(
     "[a-f0-9]{8}-[a-f0-9]{4}-[1-8][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}";
   for (const [pattern, code] of [
     [
+      "^/api/secure-distributions/sd_[a-f0-9]{32}(/(renew|approve|activate|confirm|revoke|bind|events|preview/([1-9][0-9]?|100)(/text)?))?$",
+      "distribution",
+    ],
+    [
       `^/api/templates/tpl_${id}(/(publish|duplicate|share|sharing|archive|preview|suggest|schema))?$`,
       "templates",
     ],
@@ -237,13 +249,13 @@ export function routeCode(
     ],
     [`^/api/mappings/map_${id}(/validate)?$`, "mappings"],
     [
-      `^/api/generation-jobs/gen_${id}(/(results|provenance|cancel|retry))?$`,
+      `^/api/generation-jobs/gen_${id}(/(results|provenance|record-context|cancel|retry))?$`,
       "generations",
     ],
     [`^/api/distribution-plans/dist_${id}(/resume)?$`, "distribution"],
     [`^/api/documents/doc_${id}(/(content|rescan|validation))?$`, "documents"],
     [
-      `^/api/dispatches/dsp_${id}(/(approve|confirm|cancel|renew-quote))?$`,
+      `^/api/dispatches/dsp_${id}(/(approve|confirm|cancel|renew-quote|dry-run))?$`,
       "dispatches",
     ],
     [`^/api/campaigns/cmp_${id}$`, "campaigns"],

@@ -1,9 +1,33 @@
 import {
+  documentAccessMode,
+  documentSessionTimeSql,
+  documentAccessPolicySql,
+  documentSessionPolicySql,
+} from "../../contracts/src/document-authentication";
+import { deliveryText } from "../../contracts/src/delivery-messages";
+import {
+  defaultLocale,
+  normalizeLocale,
+  type SupportedLocale,
+} from "../../contracts/src/locale";
+import {
+  documentEmailDefaults,
+  protectedEmailInstructions,
+  renderProtectedEmailFooter,
+  renderEmailServiceFooter,
+  renderTransactionalEmail,
+  transactionalEmailText,
+  type ProtectedEmailDocument,
+} from "../../contracts/src/email-template";
+import {
   workspacePermissions,
   type WorkspaceRole,
   type WorkspacePermissions,
 } from "../../contracts/src/roles";
 import { assertFaxDispatchSendable } from "./live-fax-usage";
+import { readUsageActivity } from "./usage-activity";
+import { validateSecureDistribution } from "./secure-distribution";
+import type { SecureDistributionDescriptor } from "../../contracts/src/secure-distribution";
 import {
   validateProtectedDocument,
   type PreparedProtectedDocument,
@@ -38,6 +62,10 @@ import {
 import { ensureCreditPeriod, readWelcomeCredit } from "./welcome-credit";
 import { readFaxPricing, readFaxPricingBatch } from "./live-fax-usage";
 import type { FaxPricing } from "../../contracts/src/fax-pricing";
+import type {
+  DispatchValidationCheck,
+  DispatchValidationResult,
+} from "../../contracts/src/dispatch-validation";
 import {
   DISPATCH_GROUPS,
   isDispatchGroup,
@@ -47,7 +75,9 @@ import {
 export { settleFaxUsage, type OperatorFaxUsageProof } from "./live-fax-usage";
 export { validateLiveFaxQuote, type LiveFaxIdentity } from "./live-fax-quotes";
 import {
-  cleanHtml,
+  cleanEmailHtml,
+  assertNoDocumentUrlPlaceholder,
+  boundedText,
   htmlToText,
   safeHeader,
   validateRecipient,
@@ -63,6 +93,8 @@ export type ActorContext = {
   supervisorCanApprove?: boolean;
   supervisorCanReport?: boolean;
   actor: "browser" | "native" | "mcp" | "system";
+  /** Internal browser credential evidence; never a user-supplied identifier. */
+  documentSessionHash?: string;
 };
 export type DomainContext = ActorContext;
 /** Server-created proof: credentials and current authority are rechecked in the acceptance transaction. */
@@ -100,6 +132,7 @@ export type DispatchStatus =
   | "printed"
   | "handed_to_post";
 export type Dispatch = {
+  recipient_feedback?: "unsubscribed" | "reported" | null;
   faxPricing?: FaxPricing;
   quote_fingerprint?: string | null;
   quote_expires_at?: string | null;
@@ -209,7 +242,7 @@ function key(value: string) {
   if (!value || value.length > 200 || /[\r\n\0]/.test(value))
     throw new DomainError(
       "INVALID_IDEMPOTENCY_KEY",
-      "Une clé d’idempotence de 1 à 200 caractères est requise.",
+      "An idempotency key of 1 to 200 characters is required.",
     );
   return value;
 }
@@ -226,7 +259,7 @@ function requirePermission(
   if (!actorPermissions(ctx)[permission])
     throw new DomainError(
       "FORBIDDEN",
-      "Ce rôle ne permet pas cette opération.",
+      "This role does not permit this operation.",
       403,
     );
 }
@@ -242,111 +275,135 @@ export function membershipPermissionFence(
 }
 function writable(ctx: ActorContext) {
   if (!actorPermissions(ctx).prepareDispatches)
-    throw new DomainError("FORBIDDEN", "Droit de modification requis.", 403);
+    throw new DomainError("FORBIDDEN", "Editing permission required.", 403);
+}
+function browserDocumentApprovalFence(
+  ctx: ActorContext,
+  mode: Mode,
+  requiredAuthentication?: string,
+) {
+  if (
+    ctx.actor !== "browser" ||
+    !ctx.documentSessionHash ||
+    !/^[a-f0-9]{64}$/.test(ctx.documentSessionHash)
+  )
+    return { condition: "0=1", values: [] as (string | number | null)[] };
+  return {
+    condition: `EXISTS(SELECT 1 FROM personal_sessions secure_personal JOIN browser_sessions secure_browser ON secure_browser.token_hash=secure_personal.token_hash AND secure_browser.user_id=secure_personal.user_id
+    WHERE secure_personal.token_hash=? AND secure_browser.organization_id=? AND secure_personal.user_id=?
+    AND ${documentSessionPolicySql("secure_personal", documentAccessMode(requiredAuthentication), mode === "simulation")}
+    AND ${documentAccessPolicySql(documentAccessMode(requiredAuthentication))}
+    AND secure_personal.verified_email IS NOT NULL AND length(trim(secure_personal.verified_email))>0
+    AND secure_personal.expires_at>strftime('%Y-%m-%dT%H:%M:%fZ','now') AND secure_browser.expires_at>strftime('%Y-%m-%dT%H:%M:%fZ','now')
+    AND ${documentSessionTimeSql("secure_personal", documentAccessMode(requiredAuthentication))}
+    AND (?='simulation' OR (secure_personal.is_development=0 AND secure_browser.is_development=0)))`,
+    values: [ctx.documentSessionHash, ctx.organizationId, ctx.userId, mode],
+  };
 }
 function sqlError(error: unknown): never {
   if (String(error).includes("postal_preflight_required"))
     throw new DomainError(
       "POSTAL_PREFLIGHT_REQUIRED",
-      "Le contrôle postal doit être renouvelé.",
+      "Postal preflight must be renewed.",
       409,
     );
   const message = String(error);
+  if (message.includes("secure_browser_approval_required"))
+    throw new DomainError(
+      "STRONG_BROWSER_APPROVAL_REQUIRED",
+      "A recent authorized browser approval is required for this distribution.",
+      403,
+    );
   if (message.includes("approval_permission_required"))
     throw new DomainError(
       "FORBIDDEN",
-      "Le droit de validation a été retiré. Une nouvelle validation autorisée est nécessaire.",
+      "Approval authority was revoked. Fresh authorised approval is required.",
       403,
     );
   if (message.includes("expert_approval_invalid"))
     throw new DomainError(
       "EXPERT_APPROVAL_INVALID",
-      "La délégation ou la revue a expiré ou a été révoquée.",
+      "Delegation or review has expired or been revoked.",
       409,
     );
   if (message.includes("expert_budget_exceeded"))
     throw new DomainError(
       "EXPERT_BUDGET_EXCEEDED",
-      "Le plafond quotidien du mode expert est atteint.",
+      "The daily expert-mode ceiling has been reached.",
       409,
     );
   for (const [needle, code, label, status] of [
     [
       "prepare_only_account",
       "PREPARE_ONLY_ACCOUNT",
-      "Ce compte permet uniquement de préparer les envois. L’expédition est désactivée.",
+      "This account can only prepare dispatches. Sending is disabled.",
       403,
     ],
     [
       "recipient_request_required",
       "RECIPIENT_REQUEST_REQUIRED",
-      "Confirmez que le destinataire a demandé cet e-mail.",
+      "Confirm that the recipient requested this email.",
       409,
     ],
     [
       "credit_exhausted",
       "CREDIT_EXHAUSTED",
-      "Le crédit de bienvenue disponible est insuffisant. La recharge n’est pas encore disponible.",
+      "Insufficient available welcome credit. Top-up is not available yet.",
       409,
     ],
     [
       "live_quote_invalid",
       "LIVE_QUOTE_INVALID",
-      "Le devis fax a expiré ou sa configuration a changé. Renouvelez le devis avant de l’approuver à nouveau.",
+      "The fax quote expired or its configuration changed. Renew the quote before approving it again.",
       409,
     ],
     [
       "quota_exceeded",
       "QUOTA_EXCEEDED",
-      "Crédits ou plafond insuffisants.",
+      "Insufficient credits or ceiling.",
       409,
     ],
     [
       "approval_required",
       "APPROVAL_REQUIRED",
-      "Approbation humaine valide requise.",
+      "Valid human approval is required.",
       409,
     ],
     [
       "fax_review_preparation_only",
       "FAX_REVIEW_PREPARATION_ONLY",
-      "Ce devis de revue ne peut pas être envoyé.",
+      "This review quote cannot be sent.",
       409,
     ],
     [
       "channel_disabled",
       "CHANNEL_DISABLED",
-      "Ce canal est temporairement désactivé.",
+      "This channel is temporarily disabled.",
       409,
     ],
     [
       "campaign_frozen",
       "CAMPAIGN_FROZEN",
-      "La liste approuvée de cette campagne est figée.",
+      "This campaign’s approved recipient list is frozen.",
       409,
     ],
     [
       "document_not_ready",
       "DOCUMENT_QUARANTINED",
-      "Le document n’est pas prêt à expédier.",
+      "The document is not ready for dispatch.",
       409,
     ],
-    [
-      "sender_not_ready",
-      "SENDER_NOT_CONFIGURED",
-      "Expéditeur non vérifié.",
-      409,
-    ],
+    ["sender_not_ready", "SENDER_NOT_CONFIGURED", "Sender not verified.", 409],
     [
       "recipient_suppressed",
       "RECIPIENT_SUPPRESSED",
-      "Destinataire bloqué pour cette organisation.",
+      "Recipient blocked for this organisation.",
       409,
     ],
     [
       "campaign_too_large",
       "CAMPAIGN_TOO_LARGE",
-      "Maximum 500 destinataires.",
+      "At most 500 recipients.",
       413,
     ],
   ] as const)
@@ -359,6 +416,8 @@ export class DomainService {
     public readonly db: D1Database,
     public readonly config: {
       mode: Mode;
+      sensitiveDocumentAuthentication?: string;
+      appOrigin?: string;
       now?: () => number;
       liveFaxIdentity?: LiveFaxIdentity;
       liveDeliveryIdentity?: LiveDeliveryIdentities;
@@ -385,6 +444,7 @@ export class DomainService {
       )
       .bind(ctx.organizationId, ctx.userId)
       .first<{
+        name: string;
         mode: Mode;
         membership_role: string;
         supervisor_can_approve: number;
@@ -403,7 +463,7 @@ export class DomainService {
     )
       throw new DomainError(
         "FORBIDDEN",
-        "Organisation ou rôle inaccessible.",
+        "Organisation or role is inaccessible.",
         403,
       );
     if (org.mode !== this.config.mode)
@@ -474,7 +534,7 @@ export class DomainService {
       (input.status === "ready" && input.pages === 0) ||
       input.pages > LIMITS.pages
     )
-      throw new DomainError("INVALID_DOCUMENT", "Métadonnées PDF invalides.");
+      throw new DomainError("INVALID_DOCUMENT", "Invalid PDF metadata.");
     if (
       this.config.mode === "production" &&
       input.status === "ready" &&
@@ -482,7 +542,7 @@ export class DomainService {
     )
       throw new DomainError(
         "SCAN_REQUIRED",
-        "Le document doit être analysé avant utilisation.",
+        "The document must be scanned before use.",
         409,
       );
     const id = input.id ?? uid("doc");
@@ -535,13 +595,10 @@ export class DomainService {
     if (!registered)
       throw new DomainError(
         "DOCUMENT_UNAVAILABLE",
-        "Document indisponible.",
+        "Document unavailable.",
         409,
       );
-    return (await this.db
-      .prepare("SELECT * FROM documents WHERE organization_id=? AND id=?")
-      .bind(ctx.organizationId, registered.id)
-      .first<DocumentRecord>())!;
+    return this.getDocument(ctx, registered.id);
   }
   async getDocument(
     ctx: ActorContext,
@@ -555,17 +612,18 @@ export class DomainService {
         : { condition: "0=1", values: [] };
     const doc = await this.db
       .prepare(
-        `SELECT * FROM documents WHERE organization_id=? AND id=? AND (access_owner_id IS NULL OR access_owner_id=? OR (${review.condition})) ${dispatchId ? "AND EXISTS(SELECT 1 FROM dispatches d WHERE d.organization_id=documents.organization_id AND d.id=? AND d.document_id=documents.id)" : ""}`,
+        `SELECT * FROM documents WHERE organization_id=? AND id=? AND (access_owner_id IS NULL OR access_owner_id=? OR (${review.condition})) AND (${this.secureSourceVisibility(ctx).condition}) ${dispatchId ? "AND EXISTS(SELECT 1 FROM dispatches d WHERE d.organization_id=documents.organization_id AND d.id=? AND d.document_id=documents.id)" : ""}`,
       )
       .bind(
         ctx.organizationId,
         id,
         ctx.userId,
         ...review.values,
+        ...this.secureSourceVisibility(ctx).values,
         ...(dispatchId ? [dispatchId] : []),
       )
       .first<DocumentRecord>();
-    if (!doc) throw new DomainError("NOT_FOUND", "Document introuvable.", 404);
+    if (!doc) throw new DomainError("NOT_FOUND", "Document not found.", 404);
     return doc;
   }
   async listDocuments(ctx: ActorContext, cursor?: string, limit = 30) {
@@ -580,13 +638,36 @@ export class DomainService {
     );
   }
   /** Prepared requests are reviewable by current approvers; the document library stays private. */
+  private secureSourceVisibility(ctx: ActorContext, alias = "documents") {
+    const review = actorPermissions(ctx).approveDispatches
+      ? membershipPermissionFence(ctx, "approveDispatches")
+      : { condition: "0=1", values: [] };
+    return {
+      condition: `(NOT EXISTS(SELECT 1 FROM secure_distributions secure_source WHERE secure_source.organization_id=${alias}.organization_id AND secure_source.source_id=${alias}.id) OR EXISTS(SELECT 1 FROM secure_distributions secure_source WHERE secure_source.organization_id=${alias}.organization_id AND secure_source.source_id=${alias}.id AND (secure_source.created_by=? OR (${review.condition}))))`,
+      values: [ctx.userId, ...review.values],
+    };
+  }
+  private secureDispatchVisibility(ctx: ActorContext, alias = "dispatches") {
+    const review = actorPermissions(ctx).approveDispatches
+      ? membershipPermissionFence(ctx, "approveDispatches")
+      : { condition: "0=1", values: [] };
+    return {
+      condition: `(json_type(${alias}.options_json,'$.secureDistribution') IS NOT 'object' OR EXISTS(SELECT 1 FROM secure_distributions secure_share WHERE secure_share.organization_id=${alias}.organization_id AND secure_share.id=json_extract(${alias}.options_json,'$.secureDistribution.distributionId') AND (secure_share.dispatch_id IS NULL OR secure_share.dispatch_id=${alias}.id) AND (secure_share.created_by=? OR (${review.condition}))))`,
+      values: [ctx.userId, ...review.values],
+    };
+  }
   private dispatchVisibility(ctx: ActorContext) {
     const review = actorPermissions(ctx).approveDispatches
       ? membershipPermissionFence(ctx, "approveDispatches")
       : { condition: "0=1", values: [] };
     return {
-      condition: `(document_id IS NULL OR EXISTS(SELECT 1 FROM documents doc WHERE doc.organization_id=dispatches.organization_id AND doc.id=dispatches.document_id AND (doc.access_owner_id IS NULL OR doc.access_owner_id=? OR (${review.condition}))))`,
-      values: [ctx.userId, ...review.values],
+      condition: `(document_id IS NULL OR EXISTS(SELECT 1 FROM documents doc WHERE doc.organization_id=dispatches.organization_id AND doc.id=dispatches.document_id AND (doc.access_owner_id IS NULL OR doc.access_owner_id=? OR (${review.condition})) AND (${this.secureSourceVisibility(ctx, "doc").condition}))) AND (${this.secureDispatchVisibility(ctx).condition})`,
+      values: [
+        ctx.userId,
+        ...review.values,
+        ...this.secureSourceVisibility(ctx, "doc").values,
+        ...this.secureDispatchVisibility(ctx).values,
+      ],
     };
   }
   private async page<T>(
@@ -609,15 +690,18 @@ export class DomainService {
         )
           throw Error();
       } catch {
-        throw new DomainError("INVALID_CURSOR", "Curseur invalide.");
+        throw new DomainError("INVALID_CURSOR", "Invalid cursor.");
       }
     }
     // Statuses come from a server-side group, never from the request itself.
     const visibility = documentActor
       ? table === "documents"
         ? {
-            condition: "(access_owner_id IS NULL OR access_owner_id=?)",
-            values: [documentActor.userId],
+            condition: `(access_owner_id IS NULL OR access_owner_id=?) AND (${this.secureSourceVisibility(documentActor).condition})`,
+            values: [
+              documentActor.userId,
+              ...this.secureSourceVisibility(documentActor).values,
+            ],
           }
         : this.dispatchVisibility(documentActor)
       : undefined;
@@ -650,6 +734,41 @@ export class DomainService {
   ): Promise<Dispatch> {
     return this.prepareDispatchInternal(ctx, input, idempotencyKey);
   }
+  /** Server-only preparation from a previously rendered, tenant-scoped source.
+   * Generic clients cannot inject this descriptor through options. */
+  async prepareSecureDistributionDispatch(
+    ctx: ActorContext,
+    input: PrepareInput,
+    idempotencyKey: string,
+    descriptor: SecureDistributionDescriptor,
+    notificationLocale: SupportedLocale = defaultLocale,
+  ): Promise<Dispatch> {
+    const recipient = validateRecipient("email", input.recipient);
+    if (
+      input.channel !== "email" ||
+      input.documentId ||
+      !(await validateSecureDistribution(
+        this.db,
+        ctx.organizationId,
+        descriptor,
+        recipient.email,
+        this.time(),
+      ))
+    )
+      throw new DomainError(
+        "SECURE_DISTRIBUTION_INVALID",
+        "The secure preparation is no longer available.",
+        409,
+      );
+    return this.prepareDispatchInternal(
+      ctx,
+      input,
+      idempotencyKey,
+      undefined,
+      descriptor,
+      notificationLocale,
+    );
+  }
   async renewFaxQuote(
     ctx: ActorContext,
     sourceId: string,
@@ -669,7 +788,7 @@ export class DomainService {
     )
       throw new DomainError(
         "FAX_QUOTE_RENEWAL_UNSAFE",
-        "Seul un devis fax réel peut être renouvelé ici.",
+        "Only a live fax quote can be renewed here.",
         409,
       );
     const recipient = JSON.parse(source.recipient_json) as Record<
@@ -687,7 +806,7 @@ export class DomainService {
     )
       throw new DomainError(
         "RENEWAL_CONTENT_MISMATCH",
-        "Le renouvellement doit conserver le PDF, le destinataire, l’expéditeur et le plafond exacts du devis initial.",
+        "Renewal must preserve the original quote’s exact PDF, recipient, sender and ceiling.",
         409,
       );
     const idempotencyKey = `fax-renew:${source.id}`;
@@ -707,7 +826,7 @@ export class DomainService {
       )
         throw new DomainError(
           "FAX_QUOTE_RENEWAL_UNSAFE",
-          "La soumission de cet envoi a commencé ou il n’est plus préparé. Consultez son statut sans le réexpédier.",
+          "Submission has started or this dispatch is no longer prepared. Read its status without resending it.",
           409,
         );
       let invalid =
@@ -734,8 +853,8 @@ export class DomainService {
         throw new DomainError(
           "QUOTE_STILL_VALID",
           source.faxPricing?.executionScope === "review_prepare_only"
-            ? "Ce devis de préparation est encore valable et reste non envoyable."
-            : "Ce devis est encore valable. Vérifiez-le avant de l’approuver.",
+            ? "This preparation quote is still valid and remains unsendable."
+            : "This quote is still valid. Review it before approval.",
           409,
         );
     }
@@ -760,14 +879,22 @@ export class DomainService {
     input: PrepareInput,
     idempotencyKey: string,
     renewal?: Dispatch,
+    secureDistribution?: SecureDistributionDescriptor,
+    notificationLocale?: SupportedLocale,
   ): Promise<Dispatch> {
     writable(ctx);
-    await this.organization(ctx);
+    const organization = await this.organization(ctx);
     key(idempotencyKey);
     if (!["fax", "email", "postal"].includes(input.channel))
-      throw new DomainError("INVALID_CHANNEL", "Canal inconnu.");
+      throw new DomainError("INVALID_CHANNEL", "Unknown delivery channel.");
     const requestHash = await sha256(
-      canonicalJson(renewal ? { ...input, renewalOf: renewal.id } : input),
+      canonicalJson(
+        secureDistribution
+          ? { ...input, secureDistribution }
+          : renewal
+            ? { ...input, renewalOf: renewal.id }
+            : input,
+      ),
     );
     const existing = await this.db
       .prepare(
@@ -779,7 +906,7 @@ export class DomainService {
       if (existing.request_hash !== requestHash)
         throw new DomainError(
           "IDEMPOTENCY_CONFLICT",
-          "Cette clé correspond à un contenu différent.",
+          "This key belongs to different content.",
           409,
         );
       return this.dispatch(ctx, existing.id);
@@ -788,12 +915,13 @@ export class DomainService {
     const options: Record<string, unknown> = { ...(input.options ?? {}) };
     if (
       "protectedDocument" in options ||
+      "secureDistribution" in options ||
       "password" in options ||
       "replyTo" in options
     )
       throw new DomainError(
         "INVALID_OPTIONS",
-        "Ces options sont réservées au serveur.",
+        "These options are reserved for the server.",
       );
     if (
       input.channel !== "email" &&
@@ -801,7 +929,7 @@ export class DomainService {
     )
       throw new DomainError(
         "INVALID_OPTIONS",
-        "La protection est disponible pour les e-mails.",
+        "Protection is available for email.",
       );
     if (
       input.channel === "email" &&
@@ -812,7 +940,7 @@ export class DomainService {
     )
       throw new DomainError(
         "INVALID_OPTIONS",
-        "Choisissez une pièce jointe ou un lien protégé.",
+        "Choose an attachment or a protected link.",
       );
     if (
       options.protectedDays !== undefined &&
@@ -820,7 +948,7 @@ export class DomainService {
     )
       throw new DomainError(
         "INVALID_PROTECTION_DURATION",
-        "Choisissez une durée de 1, 7 ou 30 jours.",
+        "Choose a duration of 1, 7 or 30 days.",
       );
     if (
       options.protectedDays !== undefined &&
@@ -828,50 +956,102 @@ export class DomainService {
     )
       throw new DomainError(
         "INVALID_OPTIONS",
-        "La durée nécessite un lien protégé.",
+        "Duration requires a protected link.",
       );
     if (canonicalJson(options).length > 8192)
-      throw new DomainError("INVALID_OPTIONS", "Options trop volumineuses.");
+      throw new DomainError("INVALID_OPTIONS", "Options are too large.");
+    if (secureDistribution) options.secureDistribution = secureDistribution;
     if (options.kind === "marketing")
       throw new DomainError(
         "MARKETING_NOT_ENABLED",
-        "Campagnes marketing désactivées jusqu’au raccordement de la désinscription.",
+        "Marketing campaigns remain disabled until unsubscribe handling is connected.",
         409,
       );
     let document: DocumentRecord | undefined;
     if (input.documentId) {
       document = await this.getDocument(ctx, input.documentId);
+      if (
+        await this.db
+          .prepare(
+            "SELECT 1 FROM secure_distributions WHERE organization_id=? AND source_id=?",
+          )
+          .bind(ctx.organizationId, document.id)
+          .first()
+      )
+        throw new DomainError(
+          "SENSITIVE_SOURCE_LEGACY_FORBIDDEN",
+          "This sensitive document cannot be used in this workflow.",
+          403,
+        );
       if (document.status !== "ready")
         throw new DomainError(
           "DOCUMENT_QUARANTINED",
-          "Le document n’est pas prêt à expédier.",
+          "The document is not ready for dispatch.",
           409,
         );
     }
     if (input.channel !== "email" && !document)
       throw new DomainError(
         "DOCUMENT_REQUIRED",
-        "Un PDF validé est requis pour ce canal.",
+        "A verified PDF is required for this channel.",
       );
+    const id = uid("dsp"),
+      now = this.time();
+    let feedbackTokenHash: string | null = null;
     let html: string | null = null,
       text: string | null = null,
       subject: string | null = null;
+    let emailLocale: SupportedLocale = notificationLocale ?? defaultLocale;
+    const customEmailHtml = Boolean(input.html?.trim());
+    let customDocumentLink = false;
     if (input.channel === "email") {
-      subject = safeHeader(input.subject ?? "");
+      assertNoDocumentUrlPlaceholder(input.subject ?? "");
+      assertNoDocumentUrlPlaceholder(input.text ?? "");
+      if (document) {
+        const account = await this.db
+          .prepare(
+            "SELECT u.preferred_locale FROM users u JOIN memberships m ON m.user_id=u.id WHERE m.organization_id=? AND u.id=?",
+          )
+          .bind(ctx.organizationId, ctx.userId)
+          .first<{ preferred_locale: string | null }>();
+        emailLocale =
+          normalizeLocale(account?.preferred_locale) ?? defaultLocale;
+      }
+      const defaults = document
+        ? documentEmailDefaults(
+            organization.name,
+            options.emailDeliveryMode === "protected_link"
+              ? "protected_link"
+              : "attachment",
+            emailLocale,
+          )
+        : undefined;
+      subject = safeHeader(
+        input.subject?.trim() ? input.subject : (defaults?.subject ?? ""),
+      );
       if (!subject || subject.length > 250)
         throw new DomainError(
           "INVALID_SUBJECT",
-          "Saisissez un objet de 1 à 250 caractères.",
+          "Enter a subject of 1 to 250 characters.",
         );
-      html = cleanHtml(input.html ?? "");
-      text = input.text?.trim() || htmlToText(html);
+      const sanitized = cleanEmailHtml(input.html ?? "", {
+        allowDocumentUrlPlaceholder:
+          options.emailDeliveryMode === "protected_link",
+      });
+      html = sanitized.html;
+      customDocumentLink = sanitized.hasDocumentUrlPlaceholder;
+      const htmlText = htmlToText(html);
+      if (customEmailHtml && !htmlText)
+        throw new DomainError(
+          "INVALID_EMAIL_CONTENT",
+          "Custom HTML must contain readable message content.",
+        );
+      text = input.text?.trim() || htmlText || defaults?.text || "";
       if (!text || new TextEncoder().encode(text).length > LIMITS.htmlBytes)
         throw new DomainError(
           "INVALID_EMAIL_CONTENT",
-          "Version texte vide ou trop longue.",
+          "Text version is empty or too long.",
         );
-      if (!html)
-        html = `<p>${text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, "<br>")}</p>`;
       if (
         await this.db
           .prepare(
@@ -882,10 +1062,11 @@ export class DomainService {
       )
         throw new DomainError(
           "RECIPIENT_SUPPRESSED",
-          "Ce destinataire est bloqué pour cette organisation.",
+          "This recipient is blocked for this organisation.",
           409,
         );
     }
+    let protectedEmailDocument: ProtectedEmailDocument | undefined;
     let defaultEmailSenderId: string | undefined;
     if (input.channel === "email") {
       const emailSender = await this.config.ensureEmailSender?.(ctx);
@@ -898,12 +1079,12 @@ export class DomainService {
       if (!document)
         throw new DomainError(
           "DOCUMENT_REQUIRED",
-          "Choisissez le PDF à protéger.",
+          "Choose the PDF to protect.",
         );
       if (!this.config.prepareProtectedDocument)
         throw new DomainError(
           "PROTECTED_DOCUMENTS_NOT_CONFIGURED",
-          "La protection des documents n’est pas configurée.",
+          "Document protection is not configured.",
           409,
         );
       const {
@@ -920,9 +1101,56 @@ export class DomainService {
       );
       options.protectedDocument = protection;
       options.protectedDays = protection.durationDays;
-      const safeUrl = url.replace(/&/g, "&amp;").replace(/"/g, "&quot;");
-      html += `<p><a href="${safeUrl}">Consulter le document protégé</a></p><p>Demandez le mot de passe à l’expéditeur par un autre canal. Ce lien expire le ${protection.expiresAt.slice(0, 10)}.</p>`;
-      text += `\n\nConsulter le document protégé : ${url}\nDemandez le mot de passe à l’expéditeur par un autre canal. Ce lien expire le ${protection.expiresAt.slice(0, 10)}.`;
+      const recipientUrl = new URL(url);
+      recipientUrl.searchParams.set("lang", emailLocale);
+      protectedEmailDocument = {
+        url: recipientUrl.href,
+        expiresAt: protection.expiresAt,
+      };
+    }
+    if (input.channel === "email") {
+      // Resolve only a parsed anchor href, then freeze the complete safe message.
+      if (customEmailHtml) {
+        html = cleanEmailHtml(input.html!, {
+          documentUrl: protectedEmailDocument?.url,
+        }).html;
+        if (protectedEmailDocument)
+          html += renderProtectedEmailFooter(
+            protectedEmailDocument,
+            emailLocale,
+            !customDocumentLink,
+          );
+      } else if (document) {
+        html = renderTransactionalEmail({
+          text: text!,
+          workspaceName: organization.name,
+          locale: emailLocale,
+          protectedDocument: protectedEmailDocument,
+          documentTitle: document.name,
+        });
+        text = transactionalEmailText({
+          text: text!,
+          workspaceName: organization.name,
+          locale: emailLocale,
+          documentTitle: document.name,
+        });
+      } else {
+        html = `<p>${text!.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, "<br>")}</p>`;
+      }
+      if (protectedEmailDocument)
+        text += `\n\n${deliveryText("View the protected document", emailLocale)}: ${protectedEmailDocument.url}\n${protectedEmailInstructions(protectedEmailDocument.expiresAt, emailLocale)}`;
+      if (document || secureDistribution) {
+        const feedbackToken = [...crypto.getRandomValues(new Uint8Array(32))]
+          .map((byte) => byte.toString(16).padStart(2, "0"))
+          .join("");
+        feedbackTokenHash = await sha256(feedbackToken);
+        const preferencesUrl = `${this.config.appOrigin ?? "https://guteneo.com"}/?lang=${emailLocale}#/email-preferences?token=${feedbackToken}`;
+        html += renderEmailServiceFooter(emailLocale, preferencesUrl);
+        text += `\n\n${deliveryText("Discover guteneo", emailLocale)}: https://guteneo.com/?lang=${emailLocale}\n${deliveryText("Unsubscribe or report this email", emailLocale)}: ${preferencesUrl}`;
+      }
+      html = cleanEmailHtml(html).html;
+      boundedText(html, LIMITS.htmlBytes);
+      boundedText(text!, LIMITS.htmlBytes, "INVALID_EMAIL_CONTENT");
     }
     const selectedSenderId = input.senderId ?? defaultEmailSenderId;
     const sender = selectedSenderId
@@ -947,7 +1175,7 @@ export class DomainService {
     if (!sender)
       throw new DomainError(
         "SENDER_NOT_CONFIGURED",
-        "Configurez et vérifiez un expéditeur pour ce canal.",
+        "Configure and verify a sender for this channel.",
         409,
       );
     const tariff =
@@ -977,7 +1205,7 @@ export class DomainService {
     )
       throw new DomainError(
         "FAX_REVIEW_PREPARATION_ONLY",
-        "Le renouvellement doit rester une préparation de revue non envoyable. Une référence de revue valide est requise.",
+        "Renewal must remain an unsendable review preparation. A valid review reference is required.",
         409,
       );
     const deliveryPrice =
@@ -1002,6 +1230,7 @@ export class DomainService {
           (input.channel === "fax" ? (document?.pages ?? 1) : 1);
     const estimatedMinor =
       transportMinor +
+      (secureDistribution?.serviceFeeMinor ?? 0) +
       ((options.protectedDocument as ProtectedDocumentDescriptor | undefined)
         ?.hostingFeeMinor ?? 0);
     const ceilingMinor = input.ceilingMinor ?? estimatedMinor;
@@ -1012,7 +1241,7 @@ export class DomainService {
     )
       throw new DomainError(
         "INVALID_CEILING",
-        "Le plafond doit couvrir l’estimation en centimes.",
+        "The ceiling must cover the estimate in cents.",
       );
     if (input.campaignId) {
       const c = await this.db
@@ -1021,11 +1250,11 @@ export class DomainService {
         )
         .bind(ctx.organizationId, input.campaignId)
         .first<{ status: string }>();
-      if (!c) throw new DomainError("NOT_FOUND", "Campagne introuvable.", 404);
+      if (!c) throw new DomainError("NOT_FOUND", "Campaign not found.", 404);
       if (c.status !== "draft")
         throw new DomainError(
           "CAMPAIGN_FROZEN",
-          "Cette campagne a déjà été approuvée.",
+          "This campaign has already been approved.",
           409,
         );
       const count = await this.db
@@ -1037,7 +1266,7 @@ export class DomainService {
       if ((count?.n ?? 0) >= LIMITS.campaignRows)
         throw new DomainError(
           "CAMPAIGN_TOO_LARGE",
-          `Maximum ${LIMITS.campaignRows} destinataires.`,
+          `At most ${LIMITS.campaignRows} recipients.`,
           413,
         );
     }
@@ -1059,8 +1288,6 @@ export class DomainService {
       mode: this.config.mode,
       ...deliveryPriceDisclosure(deliveryPrice),
     };
-    const id = uid("dsp"),
-      now = this.time();
     const quote = tariff
       ? await makeFaxQuote(id, ctx.organizationId, frozen, tariff, now)
       : deliveryPrice
@@ -1136,6 +1363,22 @@ export class DomainService {
       await this.db.batch([
         ...renewalFence,
         insert,
+        ...(feedbackTokenHash
+          ? [
+              this.db
+                .prepare(
+                  "INSERT INTO email_recipient_feedback_tokens(token_hash,organization_id,dispatch_id,created_at) SELECT ?,?,?,? WHERE EXISTS(SELECT 1 FROM dispatches WHERE organization_id=? AND id=?)",
+                )
+                .bind(
+                  feedbackTokenHash,
+                  ctx.organizationId,
+                  id,
+                  now,
+                  ctx.organizationId,
+                  id,
+                ),
+            ]
+          : []),
         ...(quote
           ? [
               "policy_id" in quote
@@ -1169,7 +1412,7 @@ export class DomainService {
       if (renewal && String(e).includes("malformed JSON"))
         throw new DomainError(
           "FAX_QUOTE_RENEWAL_UNSAFE",
-          "Cet envoi a changé ou sa soumission a commencé. Consultez son statut ; aucun nouveau fax n’a été préparé.",
+          "This dispatch changed or submission started. Read its status; no new fax was prepared.",
           409,
         );
       sqlError(e);
@@ -1183,7 +1426,7 @@ export class DomainService {
     if (saved.request_hash !== requestHash)
       throw new DomainError(
         "IDEMPOTENCY_CONFLICT",
-        "Cette clé correspond à un contenu différent.",
+        "This key belongs to different content.",
         409,
       );
     return this.dispatch(ctx, saved.id);
@@ -1192,11 +1435,15 @@ export class DomainService {
     await this.organization(ctx);
     const row = await this.db
       .prepare(
-        "SELECT d.*,COALESCE(q.expires_at,(SELECT f.expires_at FROM live_fax_quotes_v3 f WHERE f.organization_id=d.organization_id AND f.dispatch_id=d.id),(SELECT f.expires_at FROM live_fax_quotes_v2 f WHERE f.organization_id=d.organization_id AND f.dispatch_id=d.id),(SELECT f.expires_at FROM live_fax_quotes f WHERE f.organization_id=d.organization_id AND f.dispatch_id=d.id)) AS quote_expires_at,q.customer_nanoeur AS quote_customer_nanoeur,q.fiscal_basis AS quote_pricing_basis,json_extract(q.input_json,'$.fx') AS quote_fx_json FROM dispatches d LEFT JOIN live_delivery_quotes q ON q.organization_id=d.organization_id AND q.dispatch_id=d.id WHERE d.organization_id=? AND d.id=?",
+        `SELECT d.*,COALESCE(q.expires_at,(SELECT f.expires_at FROM live_fax_quotes_v3 f WHERE f.organization_id=d.organization_id AND f.dispatch_id=d.id),(SELECT f.expires_at FROM live_fax_quotes_v2 f WHERE f.organization_id=d.organization_id AND f.dispatch_id=d.id),(SELECT f.expires_at FROM live_fax_quotes f WHERE f.organization_id=d.organization_id AND f.dispatch_id=d.id)) AS quote_expires_at,q.customer_nanoeur AS quote_customer_nanoeur,q.fiscal_basis AS quote_pricing_basis,json_extract(q.input_json,'$.fx') AS quote_fx_json FROM dispatches d LEFT JOIN live_delivery_quotes q ON q.organization_id=d.organization_id AND q.dispatch_id=d.id WHERE d.organization_id=? AND d.id=? AND ${this.secureDispatchVisibility(ctx, "d").condition}`,
       )
-      .bind(ctx.organizationId, id)
+      .bind(
+        ctx.organizationId,
+        id,
+        ...this.secureDispatchVisibility(ctx, "d").values,
+      )
       .first<Dispatch & { quote_fx_json: string | null }>();
-    if (!row) throw new DomainError("NOT_FOUND", "Envoi introuvable.", 404);
+    if (!row) throw new DomainError("NOT_FOUND", "Dispatch not found.", 404);
     if (row.document_id) await this.getDocument(ctx, row.document_id, row.id);
     const { quote_fx_json, ...result } = row;
     const fx =
@@ -1227,7 +1474,7 @@ export class DomainService {
     if (ctx.actor !== "browser")
       throw new DomainError(
         "HUMAN_APPROVAL_REQUIRED",
-        "L’approbation exige une session humaine authentifiée.",
+        "Approval requires an authenticated human session.",
         403,
       );
     return this.approveWithAuthority(ctx, id, fingerprint, attestation);
@@ -1243,7 +1490,7 @@ export class DomainService {
     if (ctx.actor !== "mcp" || ctx.role !== "admin")
       throw new DomainError(
         "FORBIDDEN",
-        "Une délégation expert active est requise.",
+        "Active expert delegation is required.",
         403,
       );
     return this.approveWithAuthority(ctx, id, fingerprint, attestation, proof);
@@ -1256,21 +1503,69 @@ export class DomainService {
     proof?: ExpertDispatchAuthority,
   ): Promise<Dispatch> {
     const membership = membershipPermissionFence(ctx, "approveDispatches");
-    const authority = {
+    let authority = {
       condition: `(${membership.condition}) AND (${proof?.condition ?? "1=1"})`,
       values: [...membership.values, ...(proof?.values ?? [])],
     };
     const row = await this.dispatch(ctx, id);
+    const secure = !!JSON.parse(row.options_json).secureDistribution;
+    let secureEvidence:
+      | {
+          id: string;
+          authenticatedAt: number;
+          expiresAt: string;
+          browserExpiresAt: string;
+        }
+      | undefined;
+    if (secure) {
+      if (proof || ctx.actor !== "browser")
+        throw new DomainError(
+          "STRONG_BROWSER_APPROVAL_REQUIRED",
+          "Secure distribution requires browser approval, including under an expert mandate.",
+          403,
+        );
+      const strong = browserDocumentApprovalFence(
+        ctx,
+        row.mode,
+        this.config.sensitiveDocumentAuthentication,
+      );
+      const session = await this.db
+        .prepare(
+          `SELECT authenticated_at,expires_at,(SELECT expires_at FROM browser_sessions WHERE token_hash=personal_sessions.token_hash) browser_expires_at FROM personal_sessions WHERE token_hash=? AND (${strong.condition})`,
+        )
+        .bind(ctx.documentSessionHash ?? "", ...strong.values)
+        .first<{
+          authenticated_at: number;
+          expires_at: string;
+          browser_expires_at: string;
+        }>();
+      if (!session)
+        throw new DomainError(
+          "STRONG_BROWSER_APPROVAL_REQUIRED",
+          "Sign in again before approving this distribution.",
+          403,
+        );
+      secureEvidence = {
+        id: uid("secure_approval"),
+        authenticatedAt: session.authenticated_at,
+        expiresAt: session.expires_at,
+        browserExpiresAt: session.browser_expires_at,
+      };
+      authority = {
+        condition: `(${authority.condition}) AND (${strong.condition})`,
+        values: [...authority.values, ...strong.values],
+      };
+    }
     if (row.status !== "prepared")
       throw new DomainError(
         "INVALID_STATE",
-        "Cet envoi ne peut plus être approuvé.",
+        "This dispatch can no longer be approved.",
         409,
       );
     if (row.fingerprint !== fingerprint)
       throw new DomainError(
         "FINGERPRINT_MISMATCH",
-        "L’aperçu a changé. Rechargez avant approbation.",
+        "The preview changed. Reload before approval.",
         409,
       );
     if (
@@ -1280,7 +1575,7 @@ export class DomainService {
     )
       throw new DomainError(
         "RECIPIENT_REQUEST_REQUIRED",
-        "Confirmez que le destinataire a demandé cet e-mail.",
+        "Confirm that the recipient requested this email.",
         409,
       );
     const now = this.time();
@@ -1319,14 +1614,21 @@ export class DomainService {
     if (proof && !review)
       throw new DomainError(
         "EXPERT_APPROVAL_INVALID",
-        "La revue expert n’est plus valide.",
+        "Expert review is no longer valid.",
         409,
       );
     const approvalExpiresAt = new Date(
       Math.min(
         review ? Date.parse(review.expires_at) : Infinity,
-        this.now() + 15 * 60_000,
+        Date.parse(now) + 15 * 60_000,
         quote ? Date.parse(quote.expires_at) : Infinity,
+        secureEvidence &&
+          documentAccessMode(this.config.sensitiveDocumentAuthentication) ===
+            "strong"
+          ? (secureEvidence.authenticatedAt + 900) * 1000
+          : Infinity,
+        secureEvidence ? Date.parse(secureEvidence.expiresAt) : Infinity,
+        secureEvidence ? Date.parse(secureEvidence.browserExpiresAt) : Infinity,
       ),
     ).toISOString();
     const statements: D1PreparedStatement[] = [];
@@ -1338,10 +1640,31 @@ export class DomainService {
           )
           .bind(now, ctx.organizationId, row.campaign_id, ...authority.values),
       );
+    if (secureEvidence)
+      statements.push(
+        this.db
+          .prepare(
+            `INSERT INTO secure_approval_evidence(id,organization_id,dispatch_id,fingerprint,user_id,session_hash,authenticated_at,policy_version,authentication_mode,created_at)
+        SELECT ?,?,?,?,?,token_hash,authenticated_at,'guteneo-sensitive-v1',?,? FROM personal_sessions WHERE token_hash=? AND user_id=? AND ${authority.condition}`,
+          )
+          .bind(
+            secureEvidence.id,
+            ctx.organizationId,
+            id,
+            fingerprint,
+            ctx.userId,
+            documentAccessMode(this.config.sensitiveDocumentAuthentication),
+            now,
+            ctx.documentSessionHash,
+            ctx.userId,
+            ...authority.values,
+          ),
+      );
+    const approvalIndex = statements.length;
     statements.push(
       this.db
         .prepare(
-          `INSERT INTO approvals(id,organization_id,dispatch_id,user_id,fingerprint,expires_at,created_at,recipient_requested,approval_kind,expert_review_hash) SELECT ?,?,?,?,?,?,?,?,?,? WHERE ${authority.condition} ON CONFLICT(organization_id,dispatch_id) DO UPDATE SET user_id=excluded.user_id,fingerprint=excluded.fingerprint,expires_at=excluded.expires_at,created_at=excluded.created_at,recipient_requested=excluded.recipient_requested,approval_kind=excluded.approval_kind,expert_review_hash=excluded.expert_review_hash`,
+          `INSERT INTO approvals(id,organization_id,dispatch_id,user_id,fingerprint,expires_at,created_at,recipient_requested,approval_kind,expert_review_hash,secure_approval_evidence_id) SELECT ?,?,?,?,?,?,?,?,?,?,? WHERE ${authority.condition} ON CONFLICT(organization_id,dispatch_id) DO UPDATE SET user_id=excluded.user_id,fingerprint=excluded.fingerprint,expires_at=excluded.expires_at,created_at=excluded.created_at,recipient_requested=excluded.recipient_requested,approval_kind=excluded.approval_kind,expert_review_hash=excluded.expert_review_hash,secure_approval_evidence_id=excluded.secure_approval_evidence_id`,
         )
         .bind(
           uid("approval"),
@@ -1354,6 +1677,7 @@ export class DomainService {
           attestation.recipientRequested === true ? 1 : 0,
           proof ? "expert" : "browser",
           proof?.reviewHash ?? null,
+          secureEvidence?.id ?? null,
           ...authority.values,
         ),
       this.audit(
@@ -1362,6 +1686,13 @@ export class DomainService {
         id,
         {
           authority: proof ? "delegated" : "browser",
+          ...(secure
+            ? {
+                documentAccessMode: documentAccessMode(
+                  this.config.sensitiveDocumentAuthentication,
+                ),
+              }
+            : {}),
           ...(proof ? { connectionId: proof.connectionId } : {}),
           fingerprint,
           recipientRequested: attestation.recipientRequested === true,
@@ -1371,10 +1702,12 @@ export class DomainService {
     );
     try {
       const results = await this.db.batch(statements);
-      if (results[row.campaign_id ? 1 : 0].meta.changes !== 1)
+      if (results[approvalIndex].meta.changes !== 1)
         throw new DomainError(
-          "EXPERT_APPROVAL_INVALID",
-          "L’autorisation a changé.",
+          secure
+            ? "STRONG_BROWSER_APPROVAL_REQUIRED"
+            : "EXPERT_APPROVAL_INVALID",
+          "Authority has changed.",
           409,
         );
     } catch (error) {
@@ -1397,80 +1730,193 @@ export class DomainService {
     }
     return this.dispatch(ctx, id);
   }
+  /** Observe existing preparation without approval, reservation or provider work. */
+  async validateDispatch(
+    ctx: ActorContext,
+    id: string,
+  ): Promise<DispatchValidationResult> {
+    // The same tenant, membership and private-document visibility as getDispatch.
+    const row = await this.dispatch(ctx, id);
+    const checkedAt = this.time();
+    const prepared = row.status === "prepared";
+    const checks: DispatchValidationCheck[] = [
+      {
+        id: "prepared_state",
+        status: prepared ? "passed" : "blocked",
+        ...(!prepared ? { code: "INVALID_STATE" } : {}),
+      },
+    ];
+    const inspect = async (
+      checkId: DispatchValidationCheck["id"],
+      operation: () => Promise<unknown>,
+    ) => {
+      try {
+        await operation();
+        checks.push({ id: checkId, status: "passed" });
+      } catch (error) {
+        if (!(error instanceof DomainError)) throw error;
+        checks.push({ id: checkId, status: "blocked", code: error.code });
+      }
+    };
+    if (prepared) {
+      const attempt = await this.db
+        .prepare(
+          "SELECT 1 FROM attempts WHERE organization_id=? AND dispatch_id=? LIMIT 1",
+        )
+        .bind(ctx.organizationId, row.id)
+        .first();
+      const started =
+        attempt !== null ||
+        row.provider !== null ||
+        row.provider_id !== null ||
+        row.active_attempt_id !== null;
+      checks.push({
+        id: "submission_not_started",
+        status: started ? "blocked" : "passed",
+        ...(started ? { code: "SUBMISSION_ALREADY_STARTED" } : {}),
+      });
+      if (row.mode === "production")
+        await inspect("quote", () =>
+          this.validateDispatchQuote(row, checkedAt),
+        );
+      else
+        checks.push({
+          id: "quote",
+          status: "not_checked",
+          code: "SIMULATION_NOT_PRODUCTION_PROOF",
+        });
+      if (JSON.parse(row.options_json).emailDeliveryMode === "protected_link")
+        await inspect("protected_document", () => this.validateProtection(row));
+      else
+        checks.push({
+          id: "protected_document",
+          status: "not_checked",
+          code: "NOT_APPLICABLE",
+        });
+      if (row.channel === "email")
+        await inspect("recipient_suppression", () =>
+          this.validateEmailRecipient(row),
+        );
+      else
+        checks.push({
+          id: "recipient_suppression",
+          status: "not_checked",
+          code: "NOT_APPLICABLE",
+        });
+    } else {
+      for (const checkId of [
+        "submission_not_started",
+        "quote",
+        "protected_document",
+        "recipient_suppression",
+      ] as const)
+        checks.push({
+          id: checkId,
+          status: "not_checked",
+          code: "DISPATCH_NOT_PREPARED",
+        });
+    }
+    // SQL acceptance guards, consent and funding are not exercised by these reads.
+    for (const checkId of ["acceptance", "provider_delivery"] as const)
+      checks.push({
+        id: checkId,
+        status: "not_checked",
+        code: "NOT_EXECUTED",
+      });
+    return {
+      schema: 1,
+      execution: "validation_only",
+      dispatchId: row.id,
+      fingerprint: row.fingerprint,
+      dispatchMode: row.mode,
+      checkedAt,
+      status: checks.some((check) => check.status === "blocked")
+        ? "blocked"
+        : "partial",
+      checks,
+    };
+  }
   async confirmDispatch(
     ctx: ActorContext,
     id: string,
     idempotencyKey: string,
     proof?: ExpertDispatchAuthority,
+    acceptanceAuthority?: {
+      condition: string;
+      values: (string | number | null)[];
+    },
   ): Promise<Dispatch> {
     await this.authorizeApproval(ctx);
     if (ctx.actor === "native")
       throw new DomainError(
         "HUMAN_APPROVAL_REQUIRED",
-        "La validation et l’expédition doivent être confirmées dans le navigateur.",
+        "Approval and dispatch must be confirmed in the browser.",
         403,
       );
     key(idempotencyKey);
     const row = await this.dispatch(ctx, id);
     await assertFaxDispatchSendable(this.db, row);
+    const secure = !!JSON.parse(row.options_json).secureDistribution;
+    if (secure && proof)
+      throw new DomainError(
+        "STRONG_BROWSER_APPROVAL_REQUIRED",
+        "Expert delegation does not replace browser approval for this distribution.",
+        403,
+      );
+    if (
+      secure &&
+      row.status === "prepared" &&
+      ctx.actor === "mcp" &&
+      !acceptanceAuthority
+    )
+      throw new DomainError(
+        "FORBIDDEN",
+        "The current OAuth connection must be verified before acceptance.",
+        403,
+      );
     if (proof && (ctx.actor !== "mcp" || ctx.role !== "admin"))
       throw new DomainError(
         "FORBIDDEN",
-        "Une délégation expert active est requise.",
+        "Active expert delegation is required.",
         403,
       );
     const now = this.time();
-    if (
-      row.mode === "production" &&
-      row.channel === "fax" &&
-      row.status === "prepared"
-    )
-      await validateLiveFaxQuote(
-        this.db,
-        row,
-        this.config.liveFaxIdentity,
-        now,
-      );
-    if (
-      row.mode === "production" &&
-      row.channel !== "fax" &&
-      row.status === "prepared"
-    )
-      await validateLiveDeliveryQuote(
-        this.db,
-        row,
-        this.config.liveDeliveryIdentity?.[row.channel],
-        now,
-      );
+    if (row.status === "prepared") await this.validateDispatchQuote(row, now);
     if (row.status === "prepared") await this.validateProtection(row);
-    if (row.channel === "email" && row.status === "prepared") {
-      const recipient = JSON.parse(row.recipient_json) as { email: string };
-      if (
-        await this.db
-          .prepare(
-            "SELECT 1 FROM suppressions WHERE organization_id=? AND email=?",
-          )
-          .bind(ctx.organizationId, recipient.email)
-          .first()
-      )
-        throw new DomainError(
-          "RECIPIENT_SUPPRESSED",
-          "Ce destinataire est bloqué pour cette organisation.",
-          409,
-        );
-    }
+    if (row.channel === "email" && row.status === "prepared")
+      await this.validateEmailRecipient(row);
     const hash = await sha256(
       canonicalJson({ id, fingerprint: row.fingerprint }),
     );
     const membership = membershipPermissionFence(ctx, "approveDispatches");
-    const validApproval = proof
-      ? `EXISTS(SELECT 1 FROM approvals a WHERE a.organization_id=? AND a.dispatch_id=? AND a.approval_kind='expert' AND a.expert_review_hash=? AND a.user_id=?) AND (${proof.condition})`
-      : "NOT EXISTS(SELECT 1 FROM approvals a WHERE a.organization_id=? AND a.dispatch_id=? AND a.approval_kind='expert')";
-    const approvalFence = `(${membership.condition}) AND (${validApproval})`;
-    const proofValues = proof
-      ? [ctx.organizationId, id, proof.reviewHash, ctx.userId, ...proof.values]
-      : [ctx.organizationId, id];
-    const approvalValues = [...membership.values, ...proofValues];
+    const validApproval = secure
+      ? `EXISTS(SELECT 1 FROM approvals a JOIN valid_secure_approval_evidence e ON e.id=a.secure_approval_evidence_id WHERE a.organization_id=? AND a.dispatch_id=? AND a.fingerprint=? AND a.approval_kind='browser' AND a.expert_review_hash IS NULL AND a.expires_at>? AND e.organization_id=a.organization_id AND e.dispatch_id=a.dispatch_id AND e.fingerprint=a.fingerprint AND e.user_id=a.user_id AND e.created_at=a.created_at AND (e.authentication_mode='strong' OR ?='verified_account'))`
+      : proof
+        ? `EXISTS(SELECT 1 FROM approvals a WHERE a.organization_id=? AND a.dispatch_id=? AND a.approval_kind='expert' AND a.expert_review_hash=? AND a.user_id=?) AND (${proof.condition})`
+        : "NOT EXISTS(SELECT 1 FROM approvals a WHERE a.organization_id=? AND a.dispatch_id=? AND a.approval_kind='expert')";
+    const approvalFence = `(${membership.condition}) AND (${validApproval}) AND (${secure ? documentAccessPolicySql(documentAccessMode(this.config.sensitiveDocumentAuthentication)) : "1=1"}) AND (${acceptanceAuthority?.condition ?? "1=1"})`;
+    const proofValues = secure
+      ? [
+          ctx.organizationId,
+          id,
+          row.fingerprint,
+          now,
+          documentAccessMode(this.config.sensitiveDocumentAuthentication),
+        ]
+      : proof
+        ? [
+            ctx.organizationId,
+            id,
+            proof.reviewHash,
+            ctx.userId,
+            ...proof.values,
+          ]
+        : [ctx.organizationId, id];
+    const approvalValues = [
+      ...membership.values,
+      ...proofValues,
+      ...(acceptanceAuthority?.values ?? []),
+    ];
     try {
       await this.db.batch([
         ensureCreditPeriod(
@@ -1519,24 +1965,28 @@ export class DomainService {
     if (!idem && row.status === "prepared")
       throw new DomainError(
         "APPROVAL_REQUIRED",
-        "L’approbation ou la délégation valide est requise.",
+        "Valid approval or delegation is required.",
         409,
       );
     if (idem?.request_hash !== hash)
       throw new DomainError(
         "IDEMPOTENCY_CONFLICT",
-        "Cette clé confirme un autre envoi.",
+        "This key confirms another dispatch.",
         409,
       );
     const saved = await this.dispatch(ctx, id);
     if (saved.status === "prepared")
       throw new DomainError(
         "APPROVAL_REQUIRED",
-        "Approbation humaine requise.",
+        "Human approval is required.",
         409,
       );
     if (saved.status === "cancelled")
-      throw new DomainError("INVALID_STATE", "Cet envoi a été annulé.", 409);
+      throw new DomainError(
+        "INVALID_STATE",
+        "This dispatch was cancelled.",
+        409,
+      );
     return saved;
   }
   async getDispatch(ctx: ActorContext, id: string) {
@@ -1556,7 +2006,7 @@ export class DomainService {
         .all(),
       this.db
         .prepare(
-          "SELECT a.fingerprint,a.expires_at,a.approval_kind FROM approvals a JOIN memberships m ON m.organization_id=a.organization_id AND m.user_id=a.user_id WHERE a.organization_id=? AND a.dispatch_id=? AND a.fingerprint=? AND a.expires_at>? AND (m.role='admin' OR (a.approval_kind='browser' AND m.role='supervisor' AND m.supervisor_can_approve=1))",
+          `SELECT a.fingerprint,a.expires_at,a.approval_kind FROM approvals a JOIN memberships m ON m.organization_id=a.organization_id AND m.user_id=a.user_id WHERE a.organization_id=? AND a.dispatch_id=? AND a.fingerprint=? AND a.expires_at>? AND (m.role='admin' OR (a.approval_kind='browser' AND m.role='supervisor' AND m.supervisor_can_approve=1)) ${JSON.parse(dispatch.options_json).secureDistribution ? `AND a.approval_kind='browser' AND EXISTS(SELECT 1 FROM valid_secure_approval_evidence e WHERE e.id=a.secure_approval_evidence_id AND e.organization_id=a.organization_id AND e.dispatch_id=a.dispatch_id AND e.user_id=a.user_id AND e.fingerprint=a.fingerprint AND e.created_at=a.created_at AND ${documentAccessPolicySql(documentAccessMode(this.config.sensitiveDocumentAuthentication))})` : ""}`,
         )
         .bind(ctx.organizationId, id, dispatch.fingerprint, this.time())
         .first<{
@@ -1582,7 +2032,7 @@ export class DomainService {
     if (group !== undefined && !isDispatchGroup(group))
       throw new DomainError(
         "INVALID_GROUP",
-        "Filtre d’envois inconnu. Utilisez approval, in_progress, attention ou done.",
+        "Unknown dispatch filter. Use approval, in_progress, attention or done.",
       );
     const page = await this.page<Dispatch>(
       "dispatches",
@@ -1625,9 +2075,13 @@ export class DomainService {
     const [documents, statuses] = await Promise.all([
       this.db
         .prepare(
-          "SELECT count(*) AS n FROM documents WHERE organization_id=? AND (access_owner_id IS NULL OR access_owner_id=?)",
+          `SELECT count(*) AS n FROM documents WHERE organization_id=? AND (access_owner_id IS NULL OR access_owner_id=?) AND (${this.secureSourceVisibility(ctx).condition})`,
         )
-        .bind(ctx.organizationId, ctx.userId)
+        .bind(
+          ctx.organizationId,
+          ctx.userId,
+          ...this.secureSourceVisibility(ctx).values,
+        )
         .first<{ n: number }>(),
       this.db
         .prepare(
@@ -1668,7 +2122,7 @@ export class DomainService {
     if (!result.meta.changes && row.status !== "cancelled")
       throw new DomainError(
         "CANCELLATION_TOO_LATE",
-        "Soumission commencée : annulation non garantie, aucune nouvelle expédition déclenchée.",
+        "Submission started: cancellation is not guaranteed; no new dispatch was triggered.",
         409,
       );
     await this.audit(ctx, "dispatch.cancelled", id).run();
@@ -1708,7 +2162,7 @@ export class DomainService {
       .bind(ctx.organizationId, id)
       .first();
     if (!campaign)
-      throw new DomainError("NOT_FOUND", "Campagne introuvable.", 404);
+      throw new DomainError("NOT_FOUND", "Campaign not found.", 404);
     const visibility = this.dispatchVisibility(ctx);
     const dispatches = await this.db
       .prepare(
@@ -1718,8 +2172,56 @@ export class DomainService {
       .all<Dispatch>();
     return { campaign, dispatches: dispatches.results };
   }
+  private async validateDispatchQuote(row: Dispatch, now: string) {
+    if (row.mode !== "production") return;
+    if (row.channel === "fax")
+      return validateLiveFaxQuote(
+        this.db,
+        row,
+        this.config.liveFaxIdentity,
+        now,
+      );
+    return validateLiveDeliveryQuote(
+      this.db,
+      row,
+      this.config.liveDeliveryIdentity?.[row.channel],
+      now,
+    );
+  }
+  private async validateEmailRecipient(row: Dispatch) {
+    const recipient = JSON.parse(row.recipient_json) as { email: string };
+    if (
+      await this.db
+        .prepare(
+          "SELECT 1 FROM suppressions WHERE organization_id=? AND email=?",
+        )
+        .bind(row.organization_id, recipient.email)
+        .first()
+    )
+      throw new DomainError(
+        "RECIPIENT_SUPPRESSED",
+        "This recipient is blocked for this organisation.",
+        409,
+      );
+  }
   private async validateProtection(row: Dispatch) {
     const options = JSON.parse(row.options_json);
+    if (
+      options.secureDistribution &&
+      !(await validateSecureDistribution(
+        this.db,
+        row.organization_id,
+        options.secureDistribution,
+        (JSON.parse(row.recipient_json) as { email: string }).email,
+        this.time(),
+        row.id,
+      ))
+    )
+      throw new DomainError(
+        "SECURE_DISTRIBUTION_UNAVAILABLE",
+        "The secure share is no longer available.",
+        409,
+      );
     if (
       options.emailDeliveryMode === "protected_link" &&
       (!row.document_id ||
@@ -1733,7 +2235,7 @@ export class DomainService {
     )
       throw new DomainError(
         "PROTECTED_DOCUMENT_UNAVAILABLE",
-        "Le lien protégé a expiré ou a été révoqué. Préparez un nouvel envoi.",
+        "The protected link expired or was revoked. Prepare a new dispatch.",
         409,
       );
   }
@@ -1752,25 +2254,79 @@ export class DomainService {
       ).results,
     };
   }
-  async usage(ctx: ActorContext) {
+  async usage(ctx: ActorContext, requestedPeriod?: string) {
     requirePermission(ctx, "viewReports");
     await this.organization(ctx);
+    if (
+      requestedPeriod !== undefined &&
+      requestedPeriod !== "latest" &&
+      !/^\d{4}-(0[1-9]|1[0-2])$/.test(requestedPeriod)
+    )
+      throw new DomainError(
+        "INVALID_INPUT",
+        "Choose a usage period in YYYY-MM format or latest.",
+        400,
+      );
+    const currentPeriod = this.time().slice(0, 7);
+    const storedPeriods = (
+      await this.db
+        .prepare(
+          "SELECT DISTINCT period FROM usage WHERE organization_id=? ORDER BY period DESC",
+        )
+        .bind(ctx.organizationId)
+        .all<{ period: string }>()
+    ).results.map((row) => row.period);
+    const period =
+      requestedPeriod === "latest"
+        ? (storedPeriods.find((value) => value <= currentPeriod) ??
+          currentPeriod)
+        : (requestedPeriod ?? currentPeriod);
     return {
+      period,
+      currentPeriod,
+      availablePeriods: [...new Set([currentPeriod, ...storedPeriods])].sort(
+        (a, b) => b.localeCompare(a),
+      ),
       welcomeCredit: await readWelcomeCredit(this.db, ctx.organizationId),
       items: (
         await this.db
           .prepare(
             "SELECT channel,period,limit_count,reserved_count,confirmed_count,limit_minor,reserved_minor,confirmed_minor,currency FROM usage WHERE organization_id=? AND period=? ORDER BY channel",
           )
-          .bind(ctx.organizationId, this.time().slice(0, 7))
+          .bind(ctx.organizationId, period)
           .all()
       ).results,
     };
   }
+  async usageActivity(ctx: ActorContext, requestedYear?: string) {
+    requirePermission(ctx, "viewReports");
+    await this.organization(ctx);
+    if (
+      requestedYear !== undefined &&
+      (!/^[1-9]\d{3}$/.test(requestedYear) || Number(requestedYear) > 9998)
+    )
+      throw new DomainError(
+        "INVALID_INPUT",
+        "Choose a usage year between 1000 and 9998.",
+        400,
+      );
+    const asOf = this.time();
+    return readUsageActivity(
+      this.db,
+      ctx.organizationId,
+      this.config.mode,
+      Number(requestedYear ?? asOf.slice(0, 4)),
+      asOf,
+    );
+  }
   async admin(ctx: ActorContext) {
     await this.organization(ctx);
     if (ctx.role !== "admin")
-      throw new DomainError("FORBIDDEN", "Administrateur requis.", 403);
+      throw new DomainError(
+        "FORBIDDEN",
+        "Administrator access is required.",
+        403,
+      );
     const [states, outbox, unknown, audit, controls, deadLetters] =
       await Promise.all([
         this.db
@@ -2139,7 +2695,7 @@ export class DomainService {
       ].includes(input.kind) ||
       !Number.isFinite(Date.parse(input.occurredAt))
     )
-      throw new DomainError("INVALID_EVENT", "Événement fournisseur invalide.");
+      throw new DomainError("INVALID_EVENT", "Invalid provider event.");
     const eventId = uid("evt");
     await this.db
       .prepare(
@@ -2382,7 +2938,7 @@ export function simulationProvider(
       if (dispatch.mode !== "simulation")
         throw new DomainError(
           "SIMULATION_FORBIDDEN",
-          "Simulation interdite pour une organisation de production.",
+          "Simulation is forbidden for a production organisation.",
           403,
         );
       if (options.outcome === "unknown")
@@ -2410,8 +2966,8 @@ export function simulationProvider(
               simulation: true,
               result:
                 channel === "postal"
-                  ? "Remise à la poste simulée, aucune lettre expédiée."
-                  : "Transmission simulée, aucun message envoyé.",
+                  ? "Simulated postal handover; no letter was sent."
+                  : "Simulated transmission; no message sent.",
             },
           },
         ],

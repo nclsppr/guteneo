@@ -12,7 +12,7 @@ private struct PrivacyShield: ViewModifier {
             .overlay {
                 if scenePhase != .active {
                     Brand.paper.ignoresSafeArea().overlay {
-                        Label("Contenu masqué", systemImage: "lock.fill")
+                        Label("Content hidden", systemImage: "lock.fill")
                             .font(.headline).foregroundStyle(Brand.ink)
                     }
                     .accessibilityElement(children: .combine)

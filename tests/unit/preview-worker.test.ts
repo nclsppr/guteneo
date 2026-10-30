@@ -62,12 +62,12 @@ describe("public preview boundary", () => {
     ["?lang=en", "en"],
     ["?lang=DE", "de"],
     ["?lang=lb-LU", "lb"],
-    ["", null],
-    ["?lang=unsupported", null],
-    ["?lang=en&lang=de", null],
-    ["?lang=en&lang=en", null],
+    ["", "de"],
+    ["?lang=unsupported", "de"],
+    ["?lang=en&lang=de", "de"],
+    ["?lang=en&lang=en", "de"],
   ])(
-    "uses explicit public language %s consistently with the live Worker",
+    "resolves public language %s consistently with the live Worker",
     async (query, locale) => {
       const { env, fetch } = assetsEnv();
       const response = await worker.fetch(
@@ -82,8 +82,165 @@ describe("public preview boundary", () => {
       );
       expect(await response.text()).toBe("preview asset");
       expect(response.headers.get("X-Robots-Tag")).toBeNull();
+      expect(response.headers.get("Content-Language")).toBe(locale);
     },
   );
+
+  it.each([
+    ["?lang=de", "guteneo_locale=account.lb", "de", false],
+    ["", "guteneo_locale=account.lb", "lb", true],
+    ["?lang=invalid", "guteneo_locale=selection.fr", "fr", true],
+    ["?lang=en&lang=de", "guteneo_locale=selection.lb", "lb", true],
+    ["", "guteneo_locale=account.lb; guteneo_locale=selection.fr", "en", true],
+  ] as const)(
+    "uses the same URL, hint and browser precedence for %s and %s",
+    async (query, cookie, locale, negotiated) => {
+      const { env, fetch } = assetsEnv();
+      const response = await worker.fetch(
+        new Request(`https://preview.invalid/pricing/${query}`, {
+          headers: { Cookie: cookie, "Accept-Language": "en-GB" },
+        }),
+        env,
+      );
+      const forwarded = fetch.mock.calls[0]?.[0] as Request;
+      expect(new URL(forwarded.url).pathname).toBe(
+        `${site.localizedPrefix}/${locale}/pricing/`,
+      );
+      expect(response.headers.get("Content-Language")).toBe(locale);
+      expect(response.headers.get("X-Robots-Tag")).toBe("noindex, nofollow");
+      expect(response.headers.get("Vary")).toBe(
+        negotiated ? "Cookie, Accept-Language" : null,
+      );
+      expect(response.headers.get("Cache-Control")).toBe(
+        negotiated
+          ? "private, max-age=0, must-revalidate, no-transform"
+          : "max-age=60",
+      );
+      expect(await response.text()).toBe("preview asset");
+    },
+  );
+
+  it("retains the generic French page when neither a hint nor supported browser language is available", async () => {
+    const { env, fetch } = assetsEnv();
+    const response = await worker.fetch(
+      new Request("https://preview.invalid/", {
+        headers: { "Accept-Language": "es-ES" },
+      }),
+      env,
+    );
+    expect(new URL((fetch.mock.calls[0]?.[0] as Request).url).pathname).toBe(
+      "/",
+    );
+    expect(response.headers.get("Content-Language")).toBe("fr");
+    expect(response.headers.get("Vary")).toBe("Cookie, Accept-Language");
+    expect(response.headers.get("Cache-Control")).toBe(
+      "private, max-age=0, must-revalidate, no-transform",
+    );
+  });
+
+  it("keeps negotiated GET, HEAD and conditional bytes private without changing their framing", async () => {
+    for (const method of ["GET", "HEAD"]) {
+      for (const status of [200, 304]) {
+        const { env, fetch } = assetsEnv();
+        const body = '<html lang="lb">Exact fixture</html>';
+        fetch.mockResolvedValueOnce(
+          new Response(status === 304 ? null : body, {
+            status,
+            headers: {
+              "Content-Type": "text/html",
+              ETag: '"fixture-lb"',
+              "Content-Length": String(body.length),
+              Vary: "Accept-Encoding, cookie",
+              "Cache-Control": "max-age=3600",
+            },
+          }),
+        );
+        const response = await worker.fetch(
+          new Request("https://preview.invalid/journal/", {
+            method,
+            headers: {
+              Cookie: "guteneo_locale=account.lb",
+              "If-None-Match": '"fixture-lb"',
+            },
+          }),
+          env,
+        );
+        const forwarded = fetch.mock.calls[0]?.[0] as Request;
+        expect(new URL(forwarded.url).pathname).toBe(
+          `${site.localizedPrefix}/lb/journal/`,
+        );
+        expect(forwarded.method).toBe(method);
+        expect(forwarded.headers.get("If-None-Match")).toBe('"fixture-lb"');
+        expect(response.status).toBe(status);
+        expect(response.headers.get("ETag")).toBe('"fixture-lb"');
+        expect(response.headers.get("Content-Length")).toBe(
+          String(body.length),
+        );
+        expect(response.headers.get("Content-Language")).toBe("lb");
+        expect(response.headers.get("Vary")).toBe(
+          "Accept-Encoding, cookie, Accept-Language",
+        );
+        expect(response.headers.get("Cache-Control")).toBe(
+          "private, max-age=0, must-revalidate, no-transform",
+        );
+        expect(await response.text()).toBe(
+          method === "HEAD" || status === 304 ? "" : body,
+        );
+      }
+    }
+  });
+
+  it("protects negotiated ranges, attachments and errors without changing their protocol or bytes", async () => {
+    for (const [status, requestHeaders, responseHeaders] of [
+      [206, { Range: "bytes=0-4" }, { "Content-Range": "bytes 0-4/10" }],
+      [200, { "If-Range": '"fixture"' }, {}],
+      [200, {}, { "Content-Disposition": "attachment; filename=fixture.html" }],
+      [404, {}, {}],
+    ] as const) {
+      const { env, fetch } = assetsEnv();
+      fetch.mockResolvedValueOnce(
+        new Response("exact", {
+          status,
+          headers: {
+            "Content-Type": "text/html",
+            "Cache-Control": "max-age=60",
+            ...responseHeaders,
+          },
+        }),
+      );
+      const response = await worker.fetch(
+        new Request("https://preview.invalid/", {
+          headers: { Cookie: "guteneo_locale=selection.en", ...requestHeaders },
+        }),
+        env,
+      );
+      expect(response.status).toBe(status);
+      expect(response.headers.get("Cache-Control")).toBe(
+        status >= 400
+          ? "no-store, no-transform"
+          : "private, max-age=0, must-revalidate, no-transform",
+      );
+      expect(response.headers.get("Vary")).toBe("Cookie, Accept-Language");
+      expect(response.headers.get("Content-Language")).toBeNull();
+      for (const [name, value] of Object.entries(responseHeaders))
+        expect(response.headers.get(name)).toBe(value);
+      expect(await response.text()).toBe("exact");
+    }
+  });
+
+  it("keeps private queries uncached after negotiation", async () => {
+    const { env } = assetsEnv();
+    const response = await worker.fetch(
+      new Request("https://preview.invalid/?code=fixture", {
+        headers: { Cookie: "guteneo_locale=selection.en" },
+      }),
+      env,
+    );
+    expect(response.headers.get("Cache-Control")).toBe("no-store");
+    expect(response.headers.get("X-Robots-Tag")).toBe("noindex, nofollow");
+    expect(response.headers.get("Content-Language")).toBe("en");
+    expect(response.headers.get("Vary")).toBe("Cookie, Accept-Language");
+  });
 
   it("refuses direct internal locale URLs before assets or backend routing", async () => {
     const { env, fetch } = assetsEnv();
@@ -195,10 +352,10 @@ describe("public preview boundary", () => {
   it.each([
     "/",
     "/journal/",
-    "/journal/de-gutenberg-au-numerique/",
-    "/journal/histoire-imprimerie-luxembourg/",
-    "/mentions-legales/",
-    "/developpeurs/",
+    "/journal/from-gutenberg-to-digital/",
+    "/journal/printing-history-luxembourg/",
+    "/legal/",
+    "/developers/",
     "/assistants/",
     "/assistants/chatgpt/",
     "/assistants/claude/",
@@ -225,8 +382,8 @@ describe("public preview boundary", () => {
   it.each([
     "/",
     "/journal/",
-    "/mentions-legales/",
-    "/developpeurs/",
+    "/legal/",
+    "/developers/",
     "/image.webp",
     "/assistants/",
     "/assistants/chatgpt/",

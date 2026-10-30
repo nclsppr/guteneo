@@ -1,20 +1,19 @@
-# guteneo — Vos mots. Dans le monde réel.
+# guteneo — Your words in the real world
 
-Les douze vidéos publiques utilisent la narration naturelle Manon Eleven v4 :
-introductions horizontale et iPhone, et présentation des quatre rôles, en FR,
-EN, DE et LB. Les durées suivent la voix originale, sans accélération. La méthode
-C regroupe les phrases complètes en trois blocs ; le texte passe par l’action
-native ElevenLabs **Améliorer**, puis la seconde variation du plugin est retenue.
-Les interventions de style après Enhance sont enregistrées distinctement.
+Twelve public films use natural Manon Eleven v4 narration in FR/EN/DE/LB: horizontal/
+iPhone introductions and roles overview. Original speech is never accelerated.
+Current source-of-truth documentation:
 
-Les introductions sont en **V8**, les rôles EN/DE/LB en **V4** ; les rôles FR
-conservent la **V3** approuvée. Tous gardent le même logo officiel pendant cinq
-secondes et le fond musical au gain constant **0,22**, pauses et logo compris.
-La signature de l’introduction reste silencieuse pendant deux secondes.
+- [Narration procedure](../../docs/VIDEO_NARRATION.md): method C, native Enhance, second plugin variation, immutable snapshots, constant music and offline rendering.
+- [Published media/proof](../../docs/VIDEO_NARRATION_PUBLISHED.md): exact versions, durations, hashes and qualification limits.
+- [Homepage player](../../docs/HOMEPAGE_FILM.md) and [roles player](../../docs/ROLES_FILM.md): locale selection, gestures, accessibility and publication checks.
 
-Les huit bibliothèques immuables de `narration/releases/` contiennent les MP3,
-WAV PCM24, reçus, scripts, améliorations et timelines. Les coupes conservent tous
-les échantillons en ordre. Le rendu est local, sans génération fournisseur :
+Introductions are V8; roles V4 EN/DE/LB and user-approved V3 FR. All keep five silent
+logo seconds/constant 0.22 music; introductions retain two silent Signature seconds.
+Eight immutable `narration/releases/` libraries hold MP3/PCM24/receipts/scripts/
+Enhance results/timelines, preserving every sample in order.
+
+From this directory:
 
 ```sh
 npm ci
@@ -22,88 +21,83 @@ npm run test:narration
 npm run render:localized
 ```
 
-FFmpeg, ffprobe et cwebp sont requis. Les entrées sont qualifiées avant les
-écritures publiques. Le catalogue historique `narration/source-videos.json`
-conserve V5/V1 ; chaque bibliothèque naturelle lie sa propre base musicale.
-Les sources initiales peuvent être amorcées dans `out/` avec
-`scripts/render-natural-sources.mjs`. Les snapshots existants refusent tout
-remplacement. Le plugin fournit la synthèse ; Safari fournit Enhance et les
-exports Scribe natifs nécessaires. L’ancien adaptateur API local reste bloqué
-avant réseau, même si le plugin fonctionne.
+Requires FFmpeg/ffprobe/cwebp. Inputs qualify before public writes. Historical
+`narration/source-videos.json` preserves V5/V1; natural libraries bind their own music
+bases. `scripts/render-natural-sources.mjs` initializes sources only in ignored
+`out/`; snapshots cannot be replaced. Plugin supplies synthesis; Safari supplies
+native Enhance/Scribe. Old API adapter stays blocked before network, independently
+of plugin access. Only FR roles were user-listened/approved; other proof is technical.
 
-Voir [la procédure](../../docs/VIDEO_NARRATION.md),
-[les actifs](../../docs/VIDEO_NARRATION_PUBLISHED.md),
-[le lecteur d’accueil](../../docs/HOMEPAGE_FILM.md) et
-[la page des rôles](../../docs/ROLES_FILM.md). Les rôles FR ont été approuvés à
-l’écoute par l’utilisateur ; les autres contrôles restent techniques. Les
-historiques ci-dessous sont conservés comme sources et archives.
+## Historical films
 
-## Films historiques
+Original independent French brand film: **46 seconds, 1920 × 1080, 30 fps**,
+H.264/AAC stereo, `out/guteneo-film-1080p.mp4`. Ignored `out/`/`node_modules/` contain
+outputs/dependencies; tracked source/media/fonts/lockfiles reproduce it.
 
-Film de marque français de **46 secondes**, **1920 × 1080**, **30 images/s**, H.264 avec son AAC stéréo. Projet Remotion indépendant de l'application métier.
+Second **56-second** iPhone/TikTok future-product film:
+`out/guteneo-vertical-vision-1080x1920.mp4`; [storyboard](docs/VERTICAL_FILM.md).
+First film remained intact. Revision4 native exports:
+`out/guteneo-v4-iphone-18-pro.mp4` 1206 × 2622 and
+`out/guteneo-v4-iphone-18-pro-max.mp4` 1320 × 2868, one Luxembourg scene, simplified
+miniature logo, halftone/postmarked large final stamp. Earlier exports retained.
 
-Le fichier de diffusion est `out/guteneo-film-1080p.mp4`. Le dossier `out/` et `node_modules/` ne sont pas suivis par Git. Les sources, médias, polices locales et fichiers de verrouillage permettent de refaire le rendu.
+## Instrumental V5 sources
 
-Un **second spot vertical de 56 secondes**, pensé pour iPhone/TikTok et la promesse du produit abouti, est également livré : `out/guteneo-vertical-vision-1080x1920.mp4`. Voir [son découpage et ses sources](docs/VERTICAL_FILM.md). Le premier film reste intact. Les exports natifs de la révision 4 sont `out/guteneo-v4-iphone-18-pro.mp4` (1206 × 2622) et `out/guteneo-v4-iphone-18-pro-max.mp4` (1320 × 2868), avec un seul plan Luxembourg. La révision 4 utilise le logo officiel simplifié pour les très petites icônes ; le grand timbre final reste tramé et oblitéré. Les versions précédentes sont conservées.
-
-## Sources instrumentales — V5
-
-La campagne de 56 secondes existe désormais en **1920 × 1080 horizontal** (`Guteneo-Horizontal-Vision`) et au **ratio iPhone** (`Guteneo-iPhone-18-Pro-Max`, 1320 × 2868). Le paysage est recomposé scène par scène, avec la même partition. La première scène utilise le logo simplifié sans oblitération, dans les deux formats. Le grand timbre final reste tramé et oblitéré.
-
-Masters : `out/guteneo-v5-horizontal-1080p.mp4` et `out/guteneo-v5-vertical-iphone.mp4`. Les exports web H.264/AAC optimisés et leurs posters sont livrés dans `apps/web/public/videos/`, à la racine du dépôt. Voir `docs/HOMEPAGE_FILM.md` à la racine pour la diffusion et les validations. Les films précédents sont conservés.
+The 56-second campaign has landscape `Guteneo-Horizontal-Vision` 1920 × 1080 and
+`Guteneo-iPhone-18-Pro-Max` 1320 × 2868, individually recomposed scenes/shared score.
+Both open with simplified unpostmarked logo; large ending retains halftone/postmark.
+Masters: `out/guteneo-v5-horizontal-1080p.mp4`, `out/guteneo-v5-vertical-iphone.mp4`.
+Optimized web MP4s/posters live at repository `apps/web/public/videos/`.
 
 ```sh
 npm run render:horizontal
 npm run render:iphone:pro-max
 ```
 
-## Revoir et modifier
+## Review and edit
 
 ```sh
 cd videos/guteneo-film
 npm ci
 npm run dev
-```
-
-Ouvrir la composition **Guteneo-Film** dans Remotion Studio. Les scènes sont séparées dans `src/scenes/`. Les textes, mouvements, cadrages et durées sont éditables en React. Toutes les animations sont pilotées par les frames ; aucune animation CSS dépendant du temps réel.
-
-```sh
 npm run lint
 npm run render
 ```
 
-`npm run render:review` produit une version de contrôle en 960 × 540. La composition complète dure exactement 1 380 frames, transitions comprises.
+Open **Guteneo-Film** in Remotion Studio. `src/scenes/` contains editable React
+text/motion/framing/duration. Animation is frame-driven, never real-time CSS.
+`render:review` creates 960 × 540 proof; full original is exactly 1,380 frames
+including transitions.
 
-## Découpage
-
-| Temps | Scène |
+| Time | Original scene meaning |
 | --- | --- |
-| 0–5 s | « Vos mots. Dans le monde réel. » — document, timbre et identité Guteneo |
-| 5–13 s | Conversation ChatGPT reconstituée, PDF, préparation et icône Guteneo |
-| 13–20 s | Vraies captures de l'atelier puis de la relecture d'un courrier fictif |
-| 20–25 s | Papier imprimé — photographie générée animée par un mouvement de caméra |
-| 25–31 s | Remise d'une enveloppe — photographie générée animée |
-| 31–36 s | Fax — photographie générée animée |
-| 36–40 s | « Vous avez les mots. Donnez-leur une portée. » |
-| 40–41 s | Clap visuel, fermeture et impact à 40,500 s |
-| 41–46 s | Uniquement le timbre officiel et **guteneo.com** en dessous |
+| 0–5 s | Words in the real world: document/stamp/identity |
+| 5–13 s | Reconstructed ChatGPT/PDF/preparation/icon |
+| 13–20 s | Actual workspace/synthetic-letter review captures |
+| 20–25 s | Generated printed-paper photo/camera motion |
+| 25–31 s | Generated envelope-handover photo |
+| 31–36 s | Generated fax photo |
+| 36–40 s | Invitation to give words reach |
+| 40–41 s | Visual clap, closure/impact at 40.500 s |
+| 41–46 s | Official stamp and guteneo.com only |
 
-## Marque et médias
+## Brand, media and claim boundaries
 
-- Timbre et icône : copies des assets officiels `apps/web/public/brand/guteneo-mark.png` et `guteneo-portrait.png`. L'URL est composée séparément en fin de film.
-- Palette : papier `#f6f5ef`, encre `#181b22`, bleu `#2450db`.
-- Polices : EB Garamond, IBM Plex Sans et IBM Plex Mono, livrées localement avec leurs licences.
-- Images : trois créations via l'outil de génération d'images intégré. Prompts et provenance dans `public/images/PROVENANCE.md`.
-- Frontend : captures sans données client, sans retouche de DOM. Le mode de démonstration natif est conservé. Sources, version et script de recapture : `public/frontend/provenance.md`.
-- ChatGPT : **reconstitution publicitaire**, étiquetée « Démonstration ». Ce n'est pas l'enregistrement d'une conversation réelle ou la preuve d'un widget publié. Elle représente la préparation et le passage à la revue dans Guteneo.
-- Son : composition instrumentale et bruitages synthétisés localement, sans extraits musicaux tiers. Le clap fait déjà partie du master. Partition, script, niveaux et provenance : `public/audio/README.md`.
+Official `apps/web/public/brand/guteneo-mark.png`/`guteneo-portrait.png` copies supply
+stamp/icon; compose ending URL separately. Paper #f6f5ef, ink #181b22, blue #2450db;
+local EB Garamond/IBM Plex Sans/Mono with licenses. Three generated images have
+[provenance](public/images/PROVENANCE.md). Frontend captures have no customer data/
+DOM retouching and retain native demo disclosures; [capture provenance](public/frontend/provenance.md).
+ChatGPT is an explicitly labeled advertising reconstruction, not an actual chat
+recording/published-widget proof. [Local synthetic instrumental/audio](public/audio/README.md)
+uses no third-party music extracts; clap is already in the master.
 
-## Périmètre des affirmations
+Physical scenes illustrate uses with staging disclosures, not actual delivery.
+Workspace data/prices/addresses are synthetic. Original film promises no ChatGPT
+Store availability, guaranteed postal receipt or entirely in-chat standard journey.
+Production creates no business approval/send/deployment/publication; renderer has
+no business binding/secret/customer account and needs no remote assets after install.
 
-Les scènes physiques sont étiquetées « Mise en scène » et illustrent les usages. Elles ne documentent pas une livraison réelle. Les données, prix et adresses de l'atelier sont fictifs. Le film n'annonce ni disponibilité dans le Store ChatGPT, ni réception postale garantie, ni parcours intégralement dans ChatGPT.
-
-La création de ce film ne déclenche aucun envoi, approbation métier, déploiement ou publication externe. Le projet n'a aucun binding métier et ne charge ni secret ni compte client pour le rendu. Aucun asset distant n'est nécessaire après installation des dépendances et du navigateur de rendu.
-
-## Vérification
-
-Lint/TypeScript du projet vidéo, lint du dépôt, rendu de contrôle complet, inspection des neuf plans et du cadrage de validation, contrôle de la durée/pistes/codec du master et décodage intégral du MP4. Les mesures audio sont automatiques ; aucune écoute humaine n'est revendiquée.
+Historical checks: video TypeScript/lint, repository lint, full review render,
+nine-scene/framing inspection, duration/tracks/codec and full MP4 decoding.
+Audio metrics are automated, without human-listening claim.

@@ -1,9 +1,3 @@
-.studio-entry-links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin: 24px 0;
-}
 .studio-guide {
   display: flex;
   gap: 10px;
@@ -20,7 +14,7 @@
 }
 .studio-guide li::before {
   content: counter(steps, decimal-leading-zero) " ";
-  font-family: "IBM Plex Mono", monospace;
+  font-family: var(--font-code);
   color: var(--blue);
 }
 .studio-guide li + li::before {
@@ -45,7 +39,7 @@
   align-items: flex-start;
 }
 .studio-gallery h3 {
-  font-family: "EB Garamond", serif;
+  font-family: var(--font-display);
   font-size: 28px;
   margin: 18px 0 8px;
 }
@@ -90,7 +84,7 @@
   padding: 22px;
 }
 .studio-side h2 {
-  font-family: "EB Garamond", serif;
+  font-family: var(--font-display);
   font-size: 28px;
 }
 .studio-toolbar {
@@ -104,21 +98,71 @@
   flex: 1;
   min-width: 180px;
 }
+/* Images are fixed page content, kept beside the visual editor rather than
+   hidden among business variables. */
+.studio-image-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  margin: 0 0 12px;
+}
+.studio-image-toolbar .button {
+  flex-shrink: 0;
+}
+.studio-image-toolbar .field-hint {
+  margin: 0;
+  max-width: 64ch;
+  font-size: 12px;
+}
+.studio-image-notice {
+  margin: 0 0 12px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
 .studio-designer {
   height: 760px;
   min-width: 0;
   border: 1px solid var(--line);
-  background: #e8e8e2;
+  background: var(--surface-hover);
   isolation: isolate;
 }
 .studio-designer :where(button, input, select, textarea) {
-  font-family: Arial, sans-serif;
+  font-family: var(--font-body);
+}
+/* pdfme's property form embeds its own Ant theme boundary. Keep that chrome
+   aligned without applying page colors to the authored PDF canvas. */
+.studio-designer .ant-form .ant-form-item-label > label,
+.studio-designer .ant-form .ant-checkbox-wrapper,
+.studio-designer .ant-form .ant-checkbox-wrapper + span,
+.studio-designer .ant-form .ant-input-number-input,
+.studio-designer .ant-form .ant-select-selection-item,
+.studio-designer .ant-form .ant-input {
+  color: var(--ink);
+}
+.studio-designer
+  .ant-form
+  :is(
+    .ant-input,
+    .ant-input-number,
+    .ant-select-selector,
+    .ant-input-affix-wrapper
+  ) {
+  background: var(--surface);
+  border-color: var(--control-line);
+}
+.studio-designer .ant-form :is(input, textarea)::placeholder {
+  color: var(--placeholder);
+}
+.studio-designer .ant-form :is(.ant-select-arrow, .ant-input-number-handler) {
+  color: var(--muted);
 }
 .studio-designer :where(button, input, select, textarea):focus-visible {
-  outline: 2px solid var(--blue);
+  outline: 2px solid var(--ink);
   outline-offset: 2px;
 }
-.studio-mobile-help {
+.workspace .studio-mobile-help {
   display: none;
 }
 .studio-list {
@@ -160,7 +204,7 @@
   font-size: 13px;
 }
 .studio-saved {
-  color: #276446;
+  color: var(--success);
   font-size: 14px;
 }
 .studio-unsaved {
@@ -174,7 +218,7 @@
   margin: 24px 0;
 }
 .studio-section h2 {
-  font-family: "EB Garamond", serif;
+  font-family: var(--font-display);
   font-size: 30px;
 }
 .studio-mapping-grid {
@@ -198,6 +242,22 @@
   white-space: normal;
   max-width: 320px;
   overflow-wrap: anywhere;
+}
+.studio-generation-results table {
+  min-width: 800px;
+}
+.studio-generation-results th:first-child {
+  white-space: nowrap;
+}
+.studio-generation-results th[scope="row"] {
+  min-width: 180px;
+}
+.studio-generation-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 8px 12px;
+  min-width: 160px;
 }
 .studio-warning-list {
   padding-left: 22px;
@@ -270,7 +330,7 @@
   margin: 20px 0;
 }
 .studio-tabs [aria-current="page"] {
-  background: var(--blue);
+  background: var(--action);
   color: white;
 }
 @media (max-width: 1200px) {
@@ -288,7 +348,7 @@
   .studio-designer {
     display: none;
   }
-  .studio-mobile-help {
+  .workspace .studio-mobile-help {
     display: block;
   }
   .business-fields,
@@ -356,7 +416,7 @@
 }
 .studio-table:focus-visible,
 .studio-record-selection:focus-visible {
-  outline: 2px solid var(--blue);
+  outline: 2px solid var(--ink);
   outline-offset: 3px;
 }
 @media (max-width: 767px) {

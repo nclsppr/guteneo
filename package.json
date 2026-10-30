@@ -1,10 +1,10 @@
 {
   "name": "guteneo",
-  "version": "0.2.0",
+  "version": "1.1.19",
   "private": true,
   "type": "module",
   "engines": {
-    "node": ">=22.16"
+    "node": "^22.22.3 || >=24.8.0"
   },
   "scripts": {
     "cloud:setup": "bash scripts/codex-cloud-setup.sh",
@@ -15,9 +15,12 @@
     "db:migrate": "wrangler d1 migrations apply guteneo-local --local",
     "db:seed": "wrangler d1 execute guteneo-local --local --file scripts/seed.sql && wrangler d1 execute guteneo-local --local --file scripts/seed-content.sql",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint .",
+    "lint": "eslint . && node scripts/check-applications.mjs",
+    "audit:mcp": "node --import tsx scripts/audit-mcp-annotations.ts",
+    "audit:dependencies": "npm audit --audit-level=high",
     "test": "vitest run && node --test tests/security/*.test.mjs",
     "test:e2e": "playwright test",
+    "test:distribution": "node scripts/test-distribution.mjs",
     "test:preview": "playwright test --config playwright.preview.config.ts",
     "build:web": "vite build --config apps/web/vite.config.ts && node integrations/build.mjs dist/web/integrations",
     "build:preview": "node scripts/build-preview.mjs",
@@ -41,26 +44,48 @@
     "videos:narration:fit": "npm --prefix videos/guteneo-film run narration:fit --",
     "videos:narration:mix": "npm --prefix videos/guteneo-film run narration:mix --",
     "test:videos:narration": "npm --prefix videos/guteneo-film run test:narration",
-    "deploy:pdf-validator": "node scripts/deploy-pdf-validator.mjs"
+    "deploy:pdf-validator": "node scripts/deploy-pdf-validator.mjs",
+    "preview:belvedere": "npm run build:web && node --import tsx scripts/belvedere-preview.mjs",
+    "test:belvedere": "playwright test --config playwright.belvedere.config.ts",
+    "status:prod": "node scripts/production-status.mjs",
+    "monitor:prod": "node scripts/production-monitor.mjs",
+    "monitor:prod:live": "node scripts/production-monitor.mjs --serve",
+    "test:prod:dry-run": "node --import tsx scripts/production-dry-run.ts",
+    "test:offline": "node scripts/test-offline.mjs",
+    "build:status": "node scripts/build-status.mjs",
+    "deploy:status": "node scripts/deploy-status.mjs",
+    "docs:build": "node docs/build-feature-map.mjs && node scripts/build-mcp-annotation-docs.mjs && node scripts/build-engineering-content.mjs",
+    "docs:check": "node docs/build-feature-map.mjs --check && node scripts/build-mcp-annotation-docs.mjs --check && node integrations/sync-claude-workflows.mjs --check && node scripts/repository-standards.mjs && node scripts/build-engineering-content.mjs --check",
+    "check:standards": "node scripts/repository-standards.mjs",
+    "dev:engineering": "npm --prefix apps/engineering run dev",
+    "build:engineering": "node scripts/build-engineering.mjs",
+    "check:engineering": "npm --prefix apps/engineering run typecheck && npm --prefix apps/engineering run lint:docs && node --test tests/security/engineering-site.test.mjs",
+    "test:engineering": "playwright test --config playwright.engineering.config.ts",
+    "deploy:engineering": "node scripts/deploy-engineering.mjs",
+    "sync:integrations": "node integrations/sync.mjs",
+    "check:integrations": "node integrations/sync.mjs --check",
+    "check:dependencies": "node --import tsx scripts/ci/check-dependencies.ts"
   },
   "dependencies": {
     "@cloudflare/puppeteer": "^1.4.0",
     "@fontsource/eb-garamond": "^5.3.0",
     "@fontsource/ibm-plex-mono": "^5.3.0",
     "@fontsource/ibm-plex-sans": "^5.3.0",
-    "@modelcontextprotocol/client": "2.0.0",
-    "@modelcontextprotocol/sdk": "^1.30.0",
-    "@modelcontextprotocol/server": "2.0.0",
+    "@modelcontextprotocol/client": "2.3.1",
+    "@modelcontextprotocol/ext-apps": "2.0.3",
+    "@modelcontextprotocol/sdk": "1.32.1",
+    "@modelcontextprotocol/server": "2.3.1",
     "@pdfme/common": "6.1.13",
     "@pdfme/generator": "6.1.13",
+    "@pdfme/pdf-lib": "6.2.2",
     "@pdfme/schemas": "6.1.13",
     "@pdfme/ui": "6.1.13",
     "@phosphor-icons/react": "^2.1.10",
-    "agents": "^0.23.0",
+    "agents": "0.30.0",
     "aws4fetch": "^1.0.20",
     "fast-xml-parser": "5.11.1",
     "fflate": "0.8.3",
-    "hono": "^4.13.8",
+    "hono": "4.13.13",
     "jose": "^6.2.12",
     "papaparse": "^5.7.0",
     "pdf-lib": "^1.17.1",
@@ -68,13 +93,14 @@
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "read-excel-file": "9.3.10",
-    "sanitize-html": "^2.17.7",
+    "sanitize-html": "2.18.1",
     "swagger-ui-dist": "5.33.0",
-    "zod": "^4.6.5"
+    "zod": "^4.6.6"
   },
   "devDependencies": {
     "@apidevtools/swagger-parser": "13.0.0",
     "@cloudflare/workers-types": "^5.20260916.1",
+    "@e2e-dev/web": "0.15.3",
     "@playwright/test": "^1.63.0",
     "@sparticuz/chromium": "^153.0.0",
     "@types/node": "^22.20.3",
@@ -83,21 +109,28 @@
     "@types/react-dom": "^19.3.0",
     "@types/sanitize-html": "^2.16.1",
     "@vitejs/plugin-react": "^6.1.1",
+    "e2e": "0.21.3",
     "esbuild": "0.28.2",
     "eslint": "^10.10.0",
     "eslint-plugin-react-hooks": "^7.1.1",
-    "miniflare": "^5.20260916.0-alpha",
+    "miniflare": "5.20261006.1-alpha",
     "prettier": "^3.9.7",
     "tsx": "^4.23.13",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.70.0",
     "vite": "^8.3.0",
-    "vitest": "4.1.11",
-    "wrangler": "^4.133.0"
+    "vitest": "4.1.12",
+    "wrangler": "4.149.0"
   },
   "overrides": {
+    "e2e": {
+      "zod": "4.6.6"
+    },
     "@cloudflare/puppeteer": {
       "@puppeteer/browsers": "3.2.2"
+    },
+    "miniflare": {
+      "undici": "7.30.1"
     }
   }
 }

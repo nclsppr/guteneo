@@ -2,7 +2,13 @@ import { msg } from "./messages";
 import { useEffect, useState } from "react";
 import { Copy, LockKey, Check } from "@phosphor-icons/react";
 import { api, date, money, type Dispatch } from "./api";
-import { ErrorNotice, Field, useAction, useResource } from "./components";
+import {
+  DateTimezone,
+  ErrorNotice,
+  Field,
+  useAction,
+  useResource,
+} from "./components";
 
 export type ProtectedDelivery = {
   hostingId: string;
@@ -41,7 +47,7 @@ export function ProtectedDocumentChoice({
   return (
     <section
       className="protected-document-choice"
-      aria-label={msg("Accès au PDF")}
+      aria-label={msg("PDF access")}
     >
       <label className="checkbox-label">
         <input
@@ -50,34 +56,34 @@ export function ProtectedDocumentChoice({
           onChange={(event) => onEnabled(event.target.checked)}
         />
         <span>
-          {msg("Envoyer un lien protégé par mot de passe")}
+          {msg("Send a password-protected link")}
           <small className="sub-label">
-            {msg("1 € par document hébergé, en plus de l’envoi de l’e-mail.")}
+            {msg("€1 per hosted document, in addition to the email dispatch.")}
           </small>
         </span>
       </label>
       {enabled && (
         <>
-          <Field label={msg("Expiration du lien")}>
+          <Field label={msg("Link expiry")}>
             <select
               value={days}
               onChange={(event) =>
                 onDays(Number(event.target.value) as 1 | 7 | 30)
               }
             >
-              <option value="1">{msg("Après 1 jour")}</option>
-              <option value="7">{msg("Après 7 jours")}</option>
-              <option value="30">{msg("Après 30 jours")}</option>
+              <option value="1">{msg("After 1 day")}</option>
+              <option value="7">{msg("After 7 days")}</option>
+              <option value="30">{msg("After 30 days")}</option>
             </select>
           </Field>
           <p className="field-hint">
             {msg(
-              "L’e-mail contient un lien, sans pièce jointe. Le destinataire saisit le mot de passe sans créer de compte. Vous pourrez copier ce mot de passe à la prochaine étape et le transmettre par un autre canal.",
+              "The email contains a link, with no attachment. The recipient enters the password without creating an account. You can copy this password at the next step and share it through another channel.",
             )}
           </p>
           <p className="field-hint">
             {msg(
-              "L’accès est protégé ; ce n’est pas un chiffrement de bout en bout. Une copie téléchargée reste accessible après révocation du lien.",
+              "Access is protected; this is not end-to-end encryption. A downloaded copy remains accessible after the link is revoked.",
             )}
           </p>
         </>
@@ -161,50 +167,51 @@ export function ProtectedDocumentSummary({
     >
       <h2 id="protected-document-title">
         <LockKey size={20} aria-hidden="true" />
-        {msg("Lien protégé par mot de passe")}
+        {msg("Password-protected link")}
       </h2>
       <p>
         {protection.hostingFeeMinor === 0
           ? msg(
-              "Hébergement déjà payé pour ce document : aucun nouveau frais d’hébergement.",
+              "Hosting for this document is already paid: no new hosting charge.",
             )
           : msg(
-              "Hébergement de ce document : {0}, en plus de l’envoi de l’e-mail.",
+              "Hosting this document: {0}, in addition to the email dispatch.",
               money(protection.hostingFeeMinor),
             )}{" "}
         {msg(
-          "Période d’hébergement : {0} jour(s), jusqu’au {1}.",
+          "Hosting period: {0} day(s), until {1}.",
           protection.durationDays,
           date(protection.expiresAt),
         )}
       </p>
+      <DateTimezone />
       <p className="field-hint">
         {msg(
-          "L’e-mail contient un lien, sans pièce jointe. Transmettez le mot de passe par téléphone ou une autre messagerie.",
+          "The email contains a link, with no attachment. Share the password by phone or another messaging service.",
         )}
       </p>
       <p className="field-hint">
         {msg(
-          "Le même lien et le même mot de passe servent à tous les destinataires de cet hébergement. Une révocation coupe l’accès pour tous.",
+          "All recipients of this hosted document use the same link and password. Revoking access affects everyone.",
         )}
       </p>
       {protection.hostingFeeMinor > 0 && (
         <p className="field-hint">
           {msg(
-            "L’hébergement est facturé à l’activation pour cette période, même si l’e-mail échoue ou est annulé ensuite. Sa révocation ne donne pas lieu à un remboursement.",
+            "Hosting is charged when activated for this period, even if the email later fails or is cancelled. Revoking it does not issue a refund.",
           )}
         </p>
       )}
       {status.data?.status === "draft" && !accessRevoked && !expired && (
         <p className="field-hint">
-          {msg("Le lien sera accessible après confirmation de l’envoi.")}
+          {msg("The link will be accessible after the dispatch is confirmed.")}
         </p>
       )}
       {accessRevoked || expired ? (
         <p role="status">
           {accessRevoked
-            ? msg("L’accès à ce document est révoqué.")
-            : msg("Le lien a expiré.")}
+            ? msg("Access to this document has been revoked.")
+            : msg("The link has expired.")}
         </p>
       ) : canManage ? (
         <>
@@ -215,12 +222,12 @@ export function ProtectedDocumentSummary({
               onClick={() => void reveal()}
             >
               {action.pending
-                ? msg("Chargement…")
-                : msg("Afficher le mot de passe")}
+                ? msg("Loading…")
+                : msg("Show the password")}
             </button>
           ) : (
             <div className="protected-password">
-              <code aria-label={msg("Mot de passe du document")}>
+              <code aria-label={msg("Document password")}>
                 {password}
               </code>
               <button
@@ -229,7 +236,7 @@ export function ProtectedDocumentSummary({
                 disabled={action.pending}
               >
                 {copied ? <Check size={17} /> : <Copy size={17} />}
-                {copied ? msg("Copié") : msg("Copier le mot de passe")}
+                {copied ? msg("Copied") : msg("Copy the password")}
               </button>
               <button
                 className="text-button"
@@ -238,10 +245,10 @@ export function ProtectedDocumentSummary({
                   setCopied(false);
                 }}
               >
-                {msg("Masquer")}
+                {msg("Hide")}
               </button>
               <span className="sr-only" role="status">
-                {copied ? msg("Mot de passe copié.") : ""}
+                {copied ? msg("Password copied.") : ""}
               </span>
             </div>
           )}
@@ -251,7 +258,7 @@ export function ProtectedDocumentSummary({
                 <div>
                   <p>
                     {msg(
-                      "Révoquer l’accès pour tous les destinataires de cet hébergement ? Les copies déjà téléchargées restent accessibles.",
+                      "Revoke access for all recipients of this hosted document? Copies already downloaded remain accessible.",
                     )}
                   </p>
                   <div className="button-group">
@@ -260,14 +267,14 @@ export function ProtectedDocumentSummary({
                       disabled={action.pending}
                       onClick={() => void revoke()}
                     >
-                      {msg("Révoquer l’accès au document")}
+                      {msg("Revoke document access")}
                     </button>
                     <button
                       className="text-button"
                       disabled={action.pending}
                       onClick={() => setConfirmRevoke(false)}
                     >
-                      {msg("Conserver l’accès")}
+                      {msg("Keep access")}
                     </button>
                   </div>
                 </div>
@@ -278,7 +285,7 @@ export function ProtectedDocumentSummary({
                   className="text-button"
                   onClick={() => setConfirmRevoke(true)}
                 >
-                  {msg("Révoquer l’accès au document")}
+                  {msg("Revoke document access")}
                 </button>
               </p>
             ))}
@@ -287,7 +294,7 @@ export function ProtectedDocumentSummary({
       <ErrorNotice error={action.error ?? status.error} />
       <p className="field-hint">
         {msg(
-          "Cette protection contrôle l’accès au PDF. Le fichier téléchargé n’est pas protégé par ce mot de passe.",
+          "This protection controls access to the PDF. The downloaded file is not protected by this password.",
         )}
       </p>
     </section>

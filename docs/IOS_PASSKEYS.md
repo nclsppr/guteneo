@@ -1,170 +1,160 @@
-# Passkeys Apple et connexion Guteneo
+# Apple passkeys and Guteneo login
 
-Audit du 22 septembre 2026. Aucune configuration Auth0 modifiée, aucune clé
-créée, aucun compte créé et aucune connexion biométrique réalisée pendant cet
-audit.
+Audit dated 22 September 2026. No Auth0 configuration changed, key created,
+account created or biometric login performed during this audit.
 
 ## Conclusion
 
-Auth0 prend en charge les passkeys de ses connexions de comptes. Une clé propre
-au compte Guteneo peut être conservée dans Mots de passe / le trousseau iCloud,
-puis utilisée sur Mac et iPhone. Il ne s'agit pas de réutiliser la clé du compte
-Apple ni d'ajouter le fournisseur « Se connecter avec Apple ».
+Auth0 supports passkeys on database connections. A key specific to the Guteneo
+account can be stored in Passwords/iCloud Keychain and used on Mac and iPhone.
+This neither reuses the Apple-account key nor adds Sign in with Apple.
 
-Le code Guteneo n'impose pas de mot de passe et peut conserver son parcours
-Universal Login. La lecture du tableau de bord Auth0 authentifié confirme que
-les passkeys sont **désactivées** sur **Guteneo-Accounts**, avec **Identifier
-First** encore manquant. Aucun essai réussi sur un Mac ou un iPhone réel n'est
-revendiqué.
+Guteneo code requires no password and can retain Universal Login. Reading the
+authenticated Auth0 dashboard confirms passkeys are **disabled** on
+**Guteneo-Accounts**, with **Identifier First** still missing. No successful
+physical Mac/iPhone test is claimed.
 
-## Ce qui a été vérifié
+## What was verified
 
-| Niveau | Constat |
+| Level | Finding |
 | --- | --- |
-| Fournisseur | Auth0 documente les passkeys dans Universal Login et leur coexistence avec les mots de passe. |
-| Apple | Le trousseau iCloud peut synchroniser les passkeys entre appareils approuvés. Safari et les systèmes compatibles présentent la validation locale, notamment Face ID ou Touch ID. |
-| Client iOS | `Authentication.swift` utilise `ASWebAuthenticationSession`. Il n'intègre pas de formulaire de mot de passe ni de méthode d'authentification imposée. |
-| Serveur | `auth.ts` utilise le code OAuth et PKCE sans forcer le mot de passe. Le compte doit toujours satisfaire la vérification d'adresse et les preuves signées existantes. |
-| Page publique | Le HTML obtenu avec des en-têtes Safari Mac et iPhone présente e-mail et mot de passe, sans bouton passkey ni attribut `webauthn` dans l'autocomplétion. L'écran a également été observé dans le navigateur intégré : formulaire de mot de passe et un logo Guteneo. Ce contrôle n'est pas un essai Safari ou appareil. L'absence de bouton ne suffit pas à établir la configuration administrative. |
-| Administration | Lecture dans Safari du tableau de bord authentifié `manage.auth0.com/dashboard/eu/pieper/` : Enable Passkey désactivé ; Password actif ; Identifier First manquant. Aucune option enregistrée ou modifiée. |
-| Appareils | Création de clé, synchronisation et authentification Mac/iPhone restent non qualifiées. L'API mobile de cette branche n'est pas déployée. |
+| Provider | Auth0 documents Universal Login passkeys and coexistence with passwords. |
+| Apple | iCloud Keychain can synchronize passkeys between approved devices. Safari/compatible systems present local verification, including Face ID/Touch ID. |
+| iOS client | `Authentication.swift` uses `ASWebAuthenticationSession`. It embeds no password form or imposed authentication method. |
+| Server | `auth.ts` uses OAuth code and PKCE without forcing a password. The account still needs email verification and existing signed evidence. |
+| Public page | HTML fetched with Mac/iPhone Safari headers shows email/password, without a passkey button or `webauthn` autocomplete attribute. The built-in browser also showed a password form and one Guteneo logo. This is not a Safari/device test. Missing buttons alone do not establish administrative configuration. |
+| Administration | Read-only Safari inspection of authenticated `manage.auth0.com/dashboard/eu/pieper/`: Enable Passkey disabled; Password active; Identifier First missing. No setting saved/changed. |
+| Devices | Key creation, synchronization and Mac/iPhone authentication remain unqualified. This branch's mobile API is not deployed. |
 
-Le provisionnement `scripts/setup-auth0.mjs` ne configure ni les passkeys ni
-Identifier First. Cela décrit ce que fait le script, pas l'état actuel du
-fournisseur. Il préserve les options existantes de la connexion.
+`scripts/setup-auth0.mjs` provisioning configures neither passkeys nor
+Identifier First. That describes script behavior, not current provider state.
+It preserves existing connection options.
 
-Le même relevé public montre un seul logo Auth0, chargé depuis
-`https://guteneo.com/brand/guteneo-stamp.png`. Ce PNG est le timbre tramé avec
-« guteneo.com », entièrement opaque (512 × 512 ; 262 144 pixels alpha 255).
-Il est identique au fichier du dépôt, empreinte SHA-256
+The same public inspection shows one Auth0 logo loaded from
+`https://guteneo.com/brand/guteneo-stamp.png`. That PNG is the halftone
+“guteneo.com” stamp, fully opaque (512 × 512; 262,144 pixels at alpha 255).
+It matches the repository file, SHA-256
 `4a71302cbf9226fb6efc2df99ce8effc48101d5bc254d2e71bb10e84f8820822`.
-Le logo transparent employé dans l'app est donc corrigé séparément ; le logo
-effectivement présenté par Auth0 reste à remplacer. Le plan actuel des nouveaux
-clients utilise déjà `guteneo-portrait.png`. Pour un client existant, suivre
-[AUTH0_BRANDING.md](AUTH0_BRANDING.md) : contrôler sa propriété Guteneo, puis
-modifier uniquement son `logo_uri` après autorisation, sans réappliquer le
-provisionnement ni le thème de tout le tenant.
+The app's transparent logo is therefore corrected separately; Auth0's actually
+presented logo still needs replacement. Current plans for new clients already
+use `guteneo-portrait.png`. For an existing client, follow
+[AUTH0_BRANDING.md](AUTH0_BRANDING.md): verify Guteneo ownership, then change
+only `logo_uri` after authorization, without reapplying provisioning or the
+whole tenant theme.
 
-Le portrait public `https://guteneo.com/brand/guteneo-portrait.png` a aussi été
-contrôlé : SHA-256
+Public portrait `https://guteneo.com/brand/guteneo-portrait.png` was also
+checked: SHA-256
 `df22d2f73f7e281ece61a2c99b5331d30be344e647dc97c738d09f9df122fb9a`,
-64 315 pixels transparents. Sa disponibilité et sa transparence sont prouvées ;
-elles ne prouvent pas que le client Auth0 l'utilise déjà.
+64,315 transparent pixels. Availability/transparency are proven; they do not
+prove the Auth0 client already uses it.
 
-La politique configurée dans le dépôt de production est `verified_email`.
-L'audit ne l'a pas changée. Une passkey ne doit pas être transformée en preuve
-de MFA par le client : le mode strict, lorsqu'il est choisi, exige une MFA
-effectivement rapportée par Auth0. Les règles d'approbation humaine et de tenant
-restent applicables quelle que soit la méthode de connexion.
+The production repository's configured policy is `verified_email`. The audit
+did not change it. The client must not treat a passkey as MFA evidence: strict
+mode, when chosen, requires MFA actually reported by Auth0. Human-approval
+and tenant rules apply regardless of login method.
 
-## Réglages Auth0 observés dans Safari
+## Auth0 settings observed in Safari
 
-Le panneau Database > Guteneo-Accounts > Authentication Methods > Configure
-Passkey montre Enable Passkey désactivé (`Value 0`) et Password actif. Les
-prérequis affichés sont : Requires Username désactivé, page de login
-personnalisée désactivée et Universal Login activé — tous satisfaits ;
-Identifier First reste en attente.
+Database > Guteneo-Accounts > Authentication Methods > Configure Passkey shows
+Enable Passkey disabled (`Value 0`) and Password active. Displayed prerequisites:
+Requires Username disabled, custom login page disabled and Universal Login
+enabled — all satisfied; Identifier First remains pending.
 
-Le choix Button & Autofill est sélectionné, ainsi que les options d'enrôlement
-progressif et local affichées. La méthode restant désactivée, ces choix ne
-constituent pas une activation effective. Aucun réglage n'a été changé.
+Button & Autofill is selected, as are the displayed progressive/local
+enrollment options. Because the method remains disabled, these choices are
+not effective activation. No setting changed.
 
-Dans l'onglet Applications de cette connexion, Browser, ChatGPT, Claude Code,
-Claude hosted, Cursor et OpenAI Review sont activés. Default App et Parkventory
-sont désactivés. L'activation des passkeys sur cette connexion concernerait donc
-ses six clients Guteneo. Conserver un accès de secours par mot de passe.
+The connection's Applications tab enables Browser, ChatGPT, Claude Code,
+Claude hosted, Cursor and OpenAI Review. Default App and Parkventory are
+disabled. Enabling passkeys on this connection would therefore affect its
+six Guteneo clients. Preserve password recovery access.
 
-L'option passkeys appartient à la connexion de comptes ; Identifier First
-affecte le parcours de login du tenant. Il faut donc examiner les autres bases
-de comptes et applications avant cette modification. Confirmer aussi le domaine
-de connexion et le RP ID avant
-de créer des clés : changer cette identité peut imposer un nouvel enrôlement.
+Passkey settings belong to the database connection; Identifier First affects
+the tenant login journey. Inspect other databases/applications before changing
+it. Confirm login domain and RP ID before creating keys: changing that
+identity can require reenrollment.
 
-L'app actuelle utilise l'authentification web système. Les APIs de passkey
-directement intégrées dans une app constituent un autre parcours Auth0, avec
-des prérequis supplémentaires (domaine personnalisé, association app/site et
-paramètres de l'application). L'audit n'ajoute pas ce second parcours et ne
-présente pas ces paramètres comme déjà configurés.
+The current app uses system web authentication. Direct in-app passkey APIs
+are another Auth0 journey with additional prerequisites: custom domain,
+app/site association and application settings. The audit adds no such journey
+and does not claim those settings already configured.
 
-## Accès administratif durable en lecture
+## Durable read-only administrative access
 
-Le diagnostic CLI a été qualifié séparément en mémoire : les GET des connexions
-et des prompts terminent avec un code processus 1 et la catégorie
-`AUTHENTICATION_EXPIRED`. Aucun statut HTTP 401 ou 403 précis n'a été établi.
-Les sorties brutes n'ont pas été exposées. La connexion au Dashboard dans Safari
-ne renouvelle pas à elle seule l'identité de la CLI.
+CLI diagnosis was qualified separately in memory: connection/prompt GETs exit
+with process code 1 and category `AUTHENTICATION_EXPIRED`. No precise HTTP
+401/403 status was established. Raw output was not exposed. Safari dashboard
+login does not itself renew CLI identity.
 
-Pour les audits sans reconnexion humaine répétée, la proposition est une
-application M2M dédiée de première partie, limitée à la lecture de la Management
-API du tenant. La [CLI Auth0 distingue la connexion utilisateur et la connexion
-machine](https://auth0.github.io/auth0-cli/auth0_login.html) ; le second mode
-convient aux outils non interactifs. Cette application n'a pas été créée.
+For audits without repeated human login, the proposal is a dedicated first-party
+M2M application limited to read-only tenant Management API access. The
+[Auth0 CLI distinguishes user and machine login](https://auth0.github.io/auth0-cli/auth0_login.html);
+machine login suits noninteractive tools. This application was not created.
 
-| Lecture nécessaire | Permissions proposées |
+| Required read | Proposed permissions |
 | --- | --- |
-| Applications et leur configuration publique | `read:clients` |
-| Connexions et réglages passkeys | `read:connections`, `read:connections_options` |
-| Préférences générales du tenant | `read:tenant_settings` |
-| Universal Login et Identifier First | `read:prompts` |
+| Applications/public configuration | `read:clients` |
+| Connections/passkey settings | `read:connections`, `read:connections_options` |
+| General tenant preferences | `read:tenant_settings` |
+| Universal Login/Identifier First | `read:prompts` |
 
-Les [champs clients ordinaires](https://auth0.com/docs/api/management/v2/clients/get-clients)
-n'exigent pas l'accès aux secrets. Ne pas accorder `read:client_keys`,
-`read:client_credentials`, `read:connections_keys`, l'accès aux utilisateurs ni
-les permissions de création, modification ou suppression. Le scope
-`read:connections_options` est nécessaire pour l'objet `options` depuis le
-[changement Auth0 de juillet 2025](https://auth0.com/docs/troubleshoot/product-lifecycle/deprecations-and-migrations#new-management-api-scopes-required-for-connection-options).
-Les permissions des [réglages du tenant](https://auth0.github.io/auth0-PHP/classes/Auth0-SDK-API-Management-Tenants.html)
-et des [prompts](https://auth0.com/docs/api/management/v2/prompts/get-prompts)
-restent distinctes. Ces scopes portent sur le tenant : un nom d'application
-Guteneo ne limite pas matériellement la lecture à ses seuls objets. L'outil
-d'audit doit donc limiter ses chemins et filtrer les réponses avant affichage.
+[Ordinary client fields](https://auth0.com/docs/api/management/v2/clients/get-clients)
+need no secret access. Grant neither `read:client_keys`,
+`read:client_credentials`, `read:connections_keys`, user access nor create/
+update/delete permissions. `read:connections_options` is required for `options`
+since the [July 2025 Auth0 change](https://auth0.com/docs/troubleshoot/product-lifecycle/deprecations-and-migrations#new-management-api-scopes-required-for-connection-options).
+[Tenant-setting](https://auth0.github.io/auth0-PHP/classes/Auth0-SDK-API-Management-Tenants.html)
+and [prompt](https://auth0.com/docs/api/management/v2/prompts/get-prompts)
+permissions remain distinct. These scopes apply to the tenant: a Guteneo
+application name does not technically restrict reads to its own objects.
+The audit tool must restrict paths and filter responses before display.
 
-Les permissions M2M sont accordées sur son autorisation Management API ;
-`auth0 login --scopes` concerne la connexion utilisateur et ne crée pas ce
-grant. Conserver l'authentifiant machine dans un coffre système ou un gestionnaire
-de secrets, hors dépôt, conversation et historique de commandes. Utiliser les
-jetons seulement en mémoire, sans trace brute. Une autorisation initiale reste
-nécessaire ; elle ne donne pas à l'outil le droit de modifier les réglages.
+M2M permissions are granted on its Management API authorization;
+`auth0 login --scopes` concerns user login and does not create that grant.
+Keep machine credentials in a system vault/secret manager, outside repository,
+conversation and command history. Use tokens only in memory without raw
+traces. Initial authorization remains required; it grants no configuration
+mutation rights to the tool.
 
-Le flux client credentials permet de demander un nouveau jeton automatiquement
-avec les identifiants machine ; il ne dépend pas d'un refresh token utilisateur.
-[Auth0 explique ce renouvellement M2M](https://support.auth0.com/center/s/article/Refresh-token-for-M2M-applications).
-Réutiliser le jeton jusqu'à son échéance avec une marge, puis le renouveler.
-La durée Management API par défaut est de 24 heures ; privilégier une durée
-courte compatible avec le besoin, sans modifier une durée partagée à l'aveugle.
-Les jetons déjà émis restent valables jusqu'à expiration même après révocation
-de l'accès futur : prévoir rotation de l'authentifiant et retrait du grant.
-[Durée et sécurité des jetons](https://auth0.com/docs/secure/tokens/access-tokens/management-api-access-tokens)
+Client credentials can request a new token automatically using machine
+credentials without a user refresh token.
+[Auth0 explains M2M renewal](https://support.auth0.com/center/s/article/Refresh-token-for-M2M-applications).
+Reuse the token until near expiry, then renew. The Management API default
+lifetime is 24 hours; prefer a short lifetime compatible with need, without
+blindly changing a shared duration. Already-issued tokens remain valid until
+expiry after future-access revocation: plan credential rotation and grant
+removal.
+[Token lifetime/security](https://auth0.com/docs/secure/tokens/access-tokens/management-api-access-tokens)
 
-Les jetons de l'audience interne Management API ne consomment pas le quota M2M
-destiné aux audiences personnalisées. Cela ne supprime pas les limites de débit
-ni ne qualifie toutes les fonctionnalités du forfait.
-[Précision Auth0 sur le quota](https://support.auth0.com/center/s/article/Do-Management-API-tokens-count-towards-my-M2M-token-quota)
-Les essais Touch ID/Face ID et la création volontaire d'une passkey restent des
-actions de l'utilisateur ; l'accès machine ne les remplace pas.
+Tokens for the internal Management API audience do not consume the M2M quota
+for custom audiences. This removes neither rate limits nor plan-feature
+qualification.
+[Auth0 quota clarification](https://support.auth0.com/center/s/article/Do-Management-API-tokens-count-towards-my-M2M-token-quota)
+Touch ID/Face ID tests and intentional passkey creation remain user actions;
+machine access does not replace them.
 
-## Qualification à terminer
+## Remaining qualification
 
-1. Sur un compte de test autorisé, créer volontairement une clé Guteneo depuis
-   Safari sur Mac et la conserver dans Mots de passe. L'utilisateur effectue
-   lui-même la validation biométrique et la création de la clé.
-2. Vérifier le retour dans Guteneo, le compte attendu et les contrôles d'accès ;
-   se déconnecter puis se reconnecter avec cette clé.
-3. Sur un iPhone réel approuvé avec le trousseau iCloud actif, vérifier la
-   disponibilité de la clé, sa validation locale et le même compte Guteneo.
-4. Après mise en service autorisée de l'API mobile, effectuer le même parcours
-   depuis la fenêtre d'authentification iOS, avec retour dans l'app. Vérifier
-   également annulation, clé absente, récupération et expiration de session.
+1. On an authorized test account, intentionally create a Guteneo key from
+   Safari on Mac and retain it in Passwords. The user personally performs
+   biometric validation and key creation.
+2. Verify return to Guteneo, expected account and access checks; log out and
+   log in again using the key.
+3. On an approved physical iPhone with iCloud Keychain active, verify key
+   availability, local validation and the same Guteneo account.
+4. After authorized mobile API activation, repeat through the iOS authentication
+   window with return to the app. Also check cancellation, missing key,
+   recovery and session expiry.
 
-Une simulation WebAuthn ou un changement d'en-tête HTTP ne prouve ni Face ID,
-ni Touch ID, ni la synchronisation iCloud. Aucune clé existante ne doit être
-supprimée pour cet essai ; aucun envoi de communication n'est nécessaire.
+Simulated WebAuthn or changed HTTP headers prove neither Face ID, Touch ID
+nor iCloud synchronization. Delete no existing key for this test; no real
+communication is needed.
 
-## Sources officielles consultées
+## Official sources consulted
 
-- [Passkeys Auth0](https://auth0.com/docs/authenticate/database-connections/passkeys)
-- [Prérequis et configuration Auth0](https://auth0.com/docs/authenticate/database-connections/passkeys/configure-passkey-policy)
-- [Portée par connexion de comptes](https://support.auth0.com/center/s/article/enable-passkey-for-specific-app)
-- [APIs passkeys intégrées](https://auth0.com/docs/authenticate/database-connections/passkeys/passkey-apis)
-- [Mots de passe et passkeys sur les appareils Apple](https://support.apple.com/en-gb/120758)
-- [Authentification web système Apple](https://developer.apple.com/documentation/authenticationservices/authenticating-a-user-through-a-web-service)
+- [Auth0 passkeys](https://auth0.com/docs/authenticate/database-connections/passkeys)
+- [Auth0 prerequisites/configuration](https://auth0.com/docs/authenticate/database-connections/passkeys/configure-passkey-policy)
+- [Database-connection scope](https://support.auth0.com/center/s/article/enable-passkey-for-specific-app)
+- [Embedded passkey APIs](https://auth0.com/docs/authenticate/database-connections/passkeys/passkey-apis)
+- [Passwords/passkeys on Apple devices](https://support.apple.com/en-gb/120758)
+- [Apple system web authentication](https://developer.apple.com/documentation/authenticationservices/authenticating-a-user-through-a-web-service)

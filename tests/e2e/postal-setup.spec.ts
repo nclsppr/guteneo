@@ -3,6 +3,39 @@ import { expect, test, type Page } from "@playwright/test";
 import { PDFDocument } from "pdf-lib";
 import type { PostalSetup } from "../../packages/contracts/src/postal-setup";
 
+async function capturePostalSetupScreenshot(page: Page, path: string) {
+  // Chromium can briefly reject a full-page capture while its compositor settles.
+  // Keep the evidence mandatory: only that protocol failure gets two retries.
+  for (let attempt = 0; attempt < 3; attempt++) {
+    await page.bringToFront();
+    await page.waitForFunction(
+      () => document.visibilityState === "visible",
+      undefined,
+      { timeout: 5_000 },
+    );
+    await expect(page.locator("main .loading")).toHaveCount(0);
+    await page.evaluate(async () => {
+      await document.fonts.ready;
+      await new Promise<void>((resolve) =>
+        requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+      );
+    });
+    try {
+      await page.screenshot({ path, fullPage: true, timeout: 10_000 });
+      return;
+    } catch (error) {
+      if (
+        attempt === 2 ||
+        !(error instanceof Error) ||
+        !error.message.includes(
+          "Protocol error (Page.captureScreenshot): Unable to capture screenshot",
+        )
+      )
+        throw error;
+    }
+  }
+}
+
 // Browser fixtures only. Every API request is intercepted; setup never transfers
 // a PDF, creates a provider draft, approves a dispatch or sends a letter here.
 async function fixture(
@@ -188,10 +221,10 @@ test("administrator declares a sender, then reaches postal preparation without a
     page.getByText(/ne constitue pas une vérification physique/),
   ).toBeVisible();
   await mkdir("reports/screenshots/postal-setup", { recursive: true });
-  await page.screenshot({
-    path: `reports/screenshots/postal-setup/${info.project.name}.png`,
-    fullPage: true,
-  });
+  await capturePostalSetupScreenshot(
+    page,
+    `reports/screenshots/postal-setup/${info.project.name}.png`,
+  );
   await name.fill("Atelier Exemple");
   await address.fill("12 rue des Exemples\nL-1234 Luxembourg");
   await page

@@ -9,6 +9,7 @@ import {
   authenticateMcp,
   authenticationPolicy,
   auth0Issuer,
+  verifiedMcpTokenIssuer,
   hasMfa,
   hasVerifiedAccount,
   hashSecret,
@@ -29,7 +30,7 @@ export interface PostalAuthority {
 function changed(): never {
   throw new AuthError(
     "POSTAL_AUTHORITY_CHANGED",
-    "Votre session ou vos droits ont changé. Reprenez depuis votre espace.",
+    "Your session or permissions have changed. Start again from your workspace.",
     403,
   );
 }
@@ -46,7 +47,7 @@ function contextFor(
   )
     throw new AuthError(
       "FORBIDDEN",
-      "Un membre autorisé doit effectuer cette opération.",
+      "An authorized member must perform this operation.",
       403,
     );
   return Object.freeze({ ...context });
@@ -80,7 +81,7 @@ export async function postalBrowserAuthority(
   if (request.headers.has("Authorization"))
     throw new AuthError(
       "BROWSER_REQUIRED",
-      "Ouvrez Guteneo dans votre navigateur pour confirmer cette opération.",
+      "Open Guteneo in your browser to confirm this operation.",
       403,
     );
   const authenticatedRequest = new Request(request.url, {
@@ -164,7 +165,7 @@ export async function postalMcpAuthority(
     if (!isLocalSimulation(authenticatedRequest(), env))
       throw new AuthError(
         "DEVELOPMENT_AUTH_FORBIDDEN",
-        "Authentification de développement interdite.",
+        "Development authentication is forbidden.",
         403,
       );
     const tokenHash = await hashSecret(token);
@@ -190,6 +191,12 @@ export async function postalMcpAuthority(
     });
   } else {
     const issuer = auth0Issuer(env);
+    let tokenIssuer: string;
+    try {
+      tokenIssuer = verifiedMcpTokenIssuer(identity, env);
+    } catch {
+      changed();
+    }
     const payload = decodeJwt(token);
     const issuedAt = payload.iat;
     const expiresAt = payload.exp;
@@ -197,7 +204,7 @@ export async function postalMcpAuthority(
     const tokenClient =
       typeof payload.client_id === "string" ? payload.client_id : payload.azp;
     if (
-      payload.iss !== issuer ||
+      payload.iss !== tokenIssuer ||
       tokenClient !== clientId ||
       typeof subject !== "string" ||
       !subject ||

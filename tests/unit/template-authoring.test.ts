@@ -66,8 +66,8 @@ describe("Executable template authoring reference", () => {
     const envelope = validateTemplateEnvelope(request.envelope);
     expect(
       prepareTemplateRender(envelope, { personName: "Alex Exemple" }).inputs,
-    ).toEqual([{ greeting: "Bonjour Alex Exemple" }]);
-    expect(() => prepareTemplateRender(envelope, {})).toThrow("obligatoire");
+    ).toEqual([{ greeting: "Hello Alex Exemple" }]);
+    expect(() => prepareTemplateRender(envelope, {})).toThrow("required");
 
     const undeclaredPath = structuredClone(envelope);
     undeclaredPath.bindings[0].path = "undeclaredName";
@@ -115,7 +115,7 @@ describe("Executable template authoring reference", () => {
       const incomplete = structuredClone(envelope.sampleData);
       delete incomplete[required!];
       expect(() => prepareTemplateRender(envelope, incomplete)).toThrow(
-        "obligatoire",
+        "required",
       );
     },
   );
@@ -161,16 +161,29 @@ describe("Executable template authoring reference", () => {
   it("keeps quote totals exact while the delivery note has quantities without prices", () => {
     const quote = getTemplateExample("quote")!.envelope;
     const proposal = prepareTemplateRender(quote, quote.sampleData).inputs[0];
-    expect(proposal.total).toBe("Total proposé : 234,00 €");
-    expect(proposal.validUntil).toContain("31/10/2026");
+    expect(quote.locale).toBe("en-GB");
+    expect(quote.inputSchema.properties!.validUntil.title).toBe("Valid until");
+    expect(proposal.reference).toBe("Reference: QUOTE-DEMO-001");
+    expect(proposal.total).toBe("Proposed total: 234.00 €");
+    expect(proposal.validUntil).toBe("Valid until: 31/10/2026");
     const delivery = getTemplateExample("delivery-note")!.envelope;
     const receipt = prepareTemplateRender(delivery, delivery.sampleData)
       .inputs[0];
+    expect(delivery.locale).toBe("en-GB");
+    expect(delivery.inputSchema.properties!.notes.title).toBe("Notes");
+    expect(
+      delivery.definition.schemas[0].find((block) => block.name === "title")!
+        .content,
+    ).toBe("DELIVERY NOTE");
+    expect(receipt.reference).toBe("Reference: DELIVERY-DEMO-001");
+    expect(receipt.notes).toBe(
+      "Notes: Fictional example: check quantities before use.",
+    );
     expect(
       JSON.parse(receipt.items).map((row: string[]) => [row[0], row[2]]),
     ).toEqual([
-      ["DOS-001", "12"],
-      ["ENV-002", "12"],
+      ["FOLDER-001", "12"],
+      ["ENVELOPE-002", "12"],
     ]);
     expect(
       delivery.bindings.some(

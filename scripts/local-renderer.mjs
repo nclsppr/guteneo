@@ -50,6 +50,7 @@ const server = createServer(async (req, res) => {
     ![
       "/render",
       "/review-pages",
+      "/secure-pages",
       "/postal-address-page",
       "/render/template",
     ].includes(url.pathname)
@@ -67,7 +68,7 @@ const server = createServer(async (req, res) => {
   let context;
   try {
     if (
-      ["/review-pages", "/postal-address-page", "/render/template"].includes(
+      ["/review-pages", "/secure-pages", "/postal-address-page", "/render/template"].includes(
         url.pathname,
       )
     ) {

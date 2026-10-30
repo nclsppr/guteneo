@@ -1,0 +1,95 @@
+---
+title: Dispatch lifecycle
+description: How preparation, approval, atomic acceptance, provider attempts and delivery remain distinct.
+sidebar:
+  order: 2
+---
+
+A dispatch is one communication with an immutable preparation fingerprint. Its
+state is persisted by the shared domain service, while approval is a separate
+record. There is no general `approved` dispatch status to substitute for checking
+that approval record and its current authority.
+
+<DispatchLifecycle />
+
+The [diagram reference](/architecture/diagrams/) also provides the logical Mermaid
+flow, source files and accessible explanations for the acceptance boundary.
+
+## Prepare the version that will be reviewed
+
+Preparation validates the actor, document, sender, recipient, channel, options
+and financial bounds. It records a `prepared` dispatch with a fingerprint over
+its exact normalized content and options. The browser review must show that
+version, not a later editable preview.
+
+A changed document, recipient, sender, option or quote is a changed commitment.
+It needs the appropriate new preparation/review. An idempotency key identifies
+one request; reusing it with different content is a conflict rather than a way
+to update an existing approved command.
+
+## Approval is authority for exact content
+
+The standard path uses an authenticated human browser session with Origin/CSRF
+checks. A connected assistant cannot assert that a person reviewed a document.
+An optional expert mandate is a separate administrator-granted, bounded and
+expiring authority; its approvals are recorded as delegated.
+
+A valid approval must still match the fingerprint, current permissions, document
+readiness, quote and other gates when acceptance is requested. Merely opening a
+review link or receiving a quote creates no approval.
+
+The fifteen-minute approval cap starts at its recorded creation time. Validation
+may await storage or quote checks, but uses that same instant for the cap;
+session, quote, strong-authentication or expert-review limits can expire sooner.
+The SQL creation/update guards remain authoritative.
+
+<GutenbergNote pose="review" title="Proof first, stamp second">
+  An approval seals one exact proof. Change its pages, destination or price and
+  it needs another review; the old stamp cannot authorize the new version.
+</GutenbergNote>
+
+## Acceptance makes one atomic commitment
+
+Confirmation performs the transition to `queued` only if all required guards
+still hold. In the same atomic commitment it reserves quota/credit and inserts
+outbox work. A response lost after acceptance must not lead the client to create
+a second dispatch with a new key: first reread the original operation.
+
+| State or record | Meaning |
+| --- | --- |
+| `prepared` | Exact communication is available for review; an approval may be recorded separately |
+| Approval record | Human or delegated authority bound to the immutable version and current policy |
+| `queued` | Acceptance and reservation committed; asynchronous work is eligible |
+| `submitting` | A consumer has conditionally claimed one attempt |
+| `submission_unknown` | The provider outcome cannot safely be classified; do not automatically resend |
+| `accepted` | The provider accepted submission; delivery is not yet established |
+| `delivered` | A verified delivery fact has been applied |
+| `failed`, `cancelled` | Failure/cancellation under the documented state constraints |
+| `printed`, `handed_to_post`, `bounced`, `complained` | Channel-specific later facts, interpreted without pretending that all channels share identical delivery semantics |
+
+## Queue delivery can repeat; provider attempts cannot be blind
+
+Outbox publication is recoverable and queue messages may be delivered more than
+once. The consumer's conditional claim prevents an already claimed dispatch from
+being submitted again simply because the same message arrived twice.
+
+If a submitting lease expires without a trustworthy outcome, the dispatch becomes
+unknown rather than returning to the queue. Cancellation can stop eligible
+prepared/queued work, but cannot promise to retract an external transmission.
+Provider-specific reconciliation is needed once submission may have happened.
+
+## Delivery and settlement are different facts
+
+Provider callbacks are authenticated, stored durably and projected idempotently.
+Acceptance does not prove receipt. Postal handover does not prove final delivery;
+email complaint/bounce facts may arrive later.
+
+For fax usage, a terminal delivery alone does not establish the final financial
+settlement. Qualified usage evidence must match the tenant, attempt, quote and
+provider reference before the bounded customer debit and reserve release. A
+customer estimate or supplier diagnostic field is not that proof.
+
+For implementation entry points, read `packages/domain/src/index.ts`, the related
+migrations and provider event adapters. Integrations should follow the
+[REST sequence](/integrations/rest-api/) or [MCP authority model](/integrations/mcp/)
+without building another acceptance path.

@@ -1,4 +1,4 @@
-import { msg } from "./messages";
+import { msg, msgIn } from "./messages";
 import { formatLocale } from "./locale";
 import { useEffect, useRef } from "react";
 import { Plus } from "@phosphor-icons/react";
@@ -10,9 +10,9 @@ export function PostalCutoffFaq() {
     type: "region",
   });
   const handoverLabels = {
-    sameDay: msg("Le même jour ouvré"),
-    nextDay: msg("Le jour ouvré suivant"),
-    twoDays: msg("Sous deux jours ouvrés"),
+    sameDay: msg("The same working day"),
+    nextDay: msg("The next working day"),
+    twoDays: msg("Within two working days"),
   } as const;
 
   const details = useRef<HTMLDetailsElement>(null);
@@ -38,7 +38,7 @@ export function PostalCutoffFaq() {
       <summary>
         <h3>
           {msg(
-            "À quelle heure faut-il confirmer un courrier pour qu’il soit traité ?",
+            "By what time should a letter be confirmed for processing?",
           )}
         </h3>
         <Plus size={19} aria-hidden="true" />
@@ -46,12 +46,12 @@ export function PostalCutoffFaq() {
       <div className="postal-cutoff-faq__content">
         <p>
           {msg(
-            "L’heure limite dépend du pays du destinataire. Les horaires ci-dessous sont en heure de Paris : CET en hiver, CEST en été. Ils s’appliquent aux courriers transmis au service d’impression avant cette limite.",
+            "The cut-off time depends on the recipient’s country. The times below are in Paris time: CET in winter, CEST in summer. They apply to letters sent to the printing service before this cut-off.",
           )}
         </p>
         <table className="postal-cutoff-faq__table">
           <caption>
-            {msg("Impression et remise à la poste, selon la destination")}
+            {msg("Printing and handover to the postal service, by destination")}
           </caption>
           <colgroup>
             <col className="postal-cutoff-faq__destination" />
@@ -60,9 +60,9 @@ export function PostalCutoffFaq() {
           </colgroup>
           <thead>
             <tr>
-              <th scope="col">{msg("Pays destinataire")}</th>
-              <th scope="col">{msg("Avant")}</th>
-              <th scope="col">{msg("Remise à la poste")}</th>
+              <th scope="col">{msg("Recipient country")}</th>
+              <th scope="col">{msg("Before")}</th>
+              <th scope="col">{msgIn("postal-timeline", "Handed to postal service")}</th>
             </tr>
           </thead>
           <tbody>
@@ -73,7 +73,7 @@ export function PostalCutoffFaq() {
                     ? cutoff.countries
                         .map((country) => countryNames.of(country) ?? country)
                         .join(", ")
-                    : msg("Autres pays")}
+                    : msg("Other countries")}
                 </th>
                 <td>
                   <span className="postal-cutoff-faq__time">
@@ -81,7 +81,7 @@ export function PostalCutoffFaq() {
                   </span>
                   {cutoff.fridayHour !== undefined && (
                     <span className="postal-cutoff-faq__friday">
-                      {msg("Vendredi :")}{" "}
+                      {msg("Friday:")}{" "}
                       <span className="postal-cutoff-faq__time">
                         {formatCutoffHour(cutoff.fridayHour)}
                       </span>
@@ -95,17 +95,17 @@ export function PostalCutoffFaq() {
         </table>
         <p>
           {msg(
-            "Après l’heure limite, le courrier passe au prochain cycle de traitement. Il n’y a pas d’impression ni de remise à la poste les week-ends et jours fériés.",
+            "After the cut-off, the letter moves to the next processing cycle. No printing or handover to the postal service takes place on weekends or public holidays.",
           )}
         </p>
         <p>
           {msg(
-            "Les envois Economy vers l’Allemagne et le courrier B en nombre vers la Suisse peuvent demander un délai de traitement supplémentaire. Les destinations et les modes d’envoi disponibles sont vérifiés lors de la préparation du courrier.",
+            "Economy dispatches to Germany and bulk B Mail to Switzerland may require additional processing time. Available destinations and delivery methods are checked when preparing the letter.",
           )}
         </p>
         <p>
           {msg(
-            "Ces horaires concernent la remise à la poste, pas la réception par le destinataire. Le délai de distribution s’ajoute ensuite.",
+            "These times concern handover to the postal service, not receipt by the recipient. Delivery time is additional.",
           )}
         </p>
       </div>

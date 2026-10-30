@@ -17,7 +17,7 @@ const privateConfig = {
   observability: { enabled: false },
   containers: [
     {
-      instance_type: "basic",
+      instance_type: "standard-1",
       max_instances: 1,
       constraints: { jurisdiction: "eu" },
     },
@@ -96,7 +96,7 @@ test("uncommitted files prevent provisioning", async (t) => {
   assert.equal(executed, false);
 });
 
-test("private release cannot acquire a public route, logs or extra instances", async (t) => {
+test("private release refuses public exposure and any unreviewed resource allocation", async (t) => {
   for (const overrides of [
     { account_id: "00000000000000000000000000000000" },
     { version_metadata: { binding: "UNREVIEWED_METADATA" } },
@@ -108,14 +108,23 @@ test("private release cannot acquire a public route, logs or extra instances", a
     {
       containers: [
         {
-          instance_type: "standard-1",
+          instance_type: "basic",
           max_instances: 1,
           constraints: { jurisdiction: "eu" },
         },
       ],
     },
-    { containers: [{ max_instances: 2, constraints: { jurisdiction: "eu" } }] },
-    { containers: [{ max_instances: 1, constraints: { jurisdiction: "us" } }] },
+    {
+      containers: [
+        { ...privateConfig.containers[0], instance_type: "standard-2" },
+      ],
+    },
+    { containers: [{ ...privateConfig.containers[0], max_instances: 2 }] },
+    {
+      containers: [
+        { ...privateConfig.containers[0], constraints: { jurisdiction: "us" } },
+      ],
+    },
   ]) {
     const { root } = await repository(t, { ...privateConfig, ...overrides });
     let executed = false;
@@ -127,7 +136,7 @@ test("private release cannot acquire a public route, logs or extra instances", a
   }
 });
 
-test("temporary qualification is restricted to a closed Horizon on both origins", async (t) => {
+test("temporary qualification checks closed PDF verification only on the canonical production origin", async (t) => {
   const { root } = await repository(t);
   const visited = [];
   const executions = [];
@@ -136,25 +145,57 @@ test("temporary qualification is restricted to a closed Horizon on both origins"
     qualification: true,
     readCapabilities: async (origin) => {
       visited.push(origin);
-      return { mode: "production", horizon: { available: false } };
+      if (origin !== "https://guteneo.com")
+        throw new Error("Alternate production origin is closed");
+      return {
+        mode: "production",
+        simulation: false,
+        documents: { validation: { available: false } },
+        pdfValidation: { available: false },
+      };
     },
     execute: (...args) => executions.push(args),
   });
-  assert.deepEqual(visited.sort(), [
-    "https://guteneo-app.nclsppr.workers.dev",
-    "https://guteneo.com",
-  ]);
+  assert.deepEqual(visited, ["https://guteneo.com"]);
   assert.equal(result.qualificationEnabled, true);
   assert.equal(executions.length, 1);
   assert.ok(executions[0][1].includes("QUALIFICATION_ENABLED:true"));
 });
 
-test("qualification fails closed on open, unknown or unreachable Horizon", async (t) => {
+test("a reviewed production release with the stable closed document gate can bootstrap qualification", async (t) => {
   const { root } = await repository(t);
+  let executions = 0;
+  await deployPdfValidator({
+    root,
+    qualification: true,
+    readCapabilities: async () => ({
+      mode: "production",
+      simulation: false,
+      documents: { validation: { available: false } },
+    }),
+    execute: () => executions++,
+  });
+  assert.equal(executions, 1);
+});
+
+test("qualification fails closed on open, unknown or unreachable PDF verification", async (t) => {
+  const { root } = await repository(t);
+  const closed = {
+    mode: "production",
+    simulation: false,
+    documents: { validation: { available: false } },
+  };
   for (const capability of [
-    { mode: "production", horizon: { available: true } },
+    { ...closed, pdfValidation: { available: true } },
+    { ...closed, pdfValidation: { available: "false" } },
+    { ...closed, pdfValidation: null },
+    { ...closed, pdfValidation: {} },
+    { ...closed, documents: { validation: { available: true } } },
+    { ...closed, documents: undefined, pdfValidation: { available: false } },
+    { ...closed, simulation: undefined },
+    { ...closed, simulation: true },
+    { ...closed, mode: "simulation" },
     { mode: "production" },
-    { mode: "simulation", horizon: { available: false } },
     null,
     new Error("Network unavailable"),
   ]) {
@@ -163,15 +204,13 @@ test("qualification fails closed on open, unknown or unreachable Horizon", async
       deployPdfValidator({
         root,
         qualification: true,
-        readCapabilities: async (origin) => {
-          if (origin === "https://guteneo.com")
-            return { mode: "production", horizon: { available: false } };
+        readCapabilities: async () => {
           if (capability instanceof Error) throw capability;
           return capability;
         },
         execute: () => (executed = true),
       }),
-      /PDF_VALIDATOR_RELEASE_CLOSED_HORIZON_REQUIRED/,
+      /PDF_VALIDATOR_RELEASE_CLOSED_PDF_CHECKS_REQUIRED/,
     );
     assert.equal(executed, false);
   }

@@ -1,4 +1,7 @@
+import type { GenerationCorrectionInput } from "../../../packages/contracts/src/generation-context";
 import { msg } from "./messages";
+import { studioRoutes } from "./app-routes";
+import { FileInput } from "./file-input";
 import {
   lazy,
   Suspense,
@@ -17,7 +20,6 @@ import type {
 import type { DocxImportResult } from "../../../packages/templates/docx";
 import {
   validateTemplateEnvelope,
-  validateTemplateImage,
   type TemplateEnvelope,
   type BusinessField,
   type TemplateBinding,
@@ -32,6 +34,7 @@ import { api, date, permissionsFor, type Session } from "./api";
 import { RolePermissionNotice } from "./role-guide";
 import {
   ConfirmAction,
+  DateTimezone,
   ErrorNotice,
   BEFORE_WORKSPACE_NAVIGATION,
   Field,
@@ -42,6 +45,7 @@ import {
   PdfPreview,
   useAction,
   useResource,
+  useRoute,
 } from "./components";
 import { BusinessDataForm } from "./template-data-form";
 import { reconcileDesignerChange } from "../../../packages/templates/designer";
@@ -49,15 +53,15 @@ import { TemplateSettings, TemplateAi } from "./template-settings";
 
 const Designer = lazy(() => import("./template-designer"));
 const stateLabel = {
-  draft: "Brouillon",
-  published: "Publié",
-  archived: "Archivé",
+  draft: "Draft",
+  published: "Published",
+  archived: "Archived",
 };
 const permissionLabel: Record<TemplatePermission, string> = {
-  use: "Utiliser",
-  edit: "Modifier",
-  publish: "Publier",
-  share: "Partager",
+  use: "Use",
+  edit: "Edit",
+  publish: "Publish",
+  share: "Share",
 };
 
 function DeleteTemplateAction({
@@ -73,24 +77,22 @@ function DeleteTemplateAction({
 }) {
   if (!model.canDelete) return null;
   const question = [
-    msg("Supprimer « {0} » ?", model.name),
+    msg("Delete “{0}”?", model.name),
     model.visibility === "private"
-      ? msg("Ce modèle sera retiré de votre bibliothèque.")
+      ? msg("This template will be removed from your library.")
       : msg(
-          "Ce modèle partagé sera retiré pour tous les membres de l’atelier.",
+          "This shared template will be removed for everyone in the workspace.",
         ),
-    msg("Les PDF déjà créés et leur historique seront conservés."),
-    ...(dirty
-      ? [msg("Les modifications non enregistrées seront aussi abandonnées.")]
-      : []),
+    msg("Existing PDFs and their history will be kept."),
+    ...(dirty ? [msg("Unsaved changes will also be discarded.")] : []),
   ].join(" ");
   return (
     <ConfirmAction
-      label={msg("Supprimer")}
-      ariaLabel={msg("Supprimer le modèle {0}", model.name)}
+      label={msg("Delete")}
+      ariaLabel={msg("Delete template {0}", model.name)}
       question={question}
-      confirmLabel={msg("Supprimer le modèle")}
-      dismissLabel={msg("Conserver le modèle")}
+      confirmLabel={msg("Delete template")}
+      dismissLabel={msg("Keep template")}
       disabled={pending}
       onConfirm={onDelete}
     />
@@ -106,7 +108,7 @@ export function TemplateLibrary({
 }) {
   const templates = useResource<Page<TemplateView>>("/templates");
   const action = useAction();
-  const [name, setName] = useState(msg("Mon document"));
+  const [name, setName] = useState(msg("My document"));
   const [showBlank, setShowBlank] = useState(startBlank);
   const file = useRef<HTMLInputElement>(null);
   const libraryHeading = useRef<HTMLHeadingElement>(null);
@@ -121,7 +123,7 @@ export function TemplateLibrary({
         method: "POST",
         body: { envelope },
       });
-      go(`/app/template/${result.id}`);
+      go(studioRoutes.template(result.id));
     });
   }
   async function remove(model: TemplateView) {
@@ -147,9 +149,9 @@ export function TemplateLibrary({
     event.preventDefault();
     await action.run(async () => {
       const source = file.current?.files?.[0];
-      if (!source) throw new Error(msg("Choisissez un fichier Word .docx."));
+      if (!source) throw new Error(msg("Choose a Word .docx file."));
       if (source.size > 5 * 1024 * 1024)
-        throw new Error(msg("Le document Word dépasse 5 Mo."));
+        throw new Error(msg("The Word document exceeds 5 MB."));
       const form = new FormData();
       form.set("file", source);
       const result = await api<{
@@ -159,24 +161,26 @@ export function TemplateLibrary({
       setImportWarnings(result.warnings);
       setImportedTemplateId(result.template.id);
       if (result.warnings.length) templates.refresh();
-      else go(`/app/template/${result.template.id}`);
+      else go(studioRoutes.template(result.template.id));
     });
   }
   return (
     <>
       <PageHeading
-        title={msg("Modèles")}
+        title={msg("Templates")}
         intro={msg(
-          "Une page, vos variables, autant de documents que nécessaire. Vos modèles restent rééditables depuis le web, l’API et votre assistant.",
+          "One page, your variables, as many documents as you need. You can keep editing your templates on the web, through the API and with your assistant.",
         )}
         action={
           canPrepare && (
             <button
-              className="button primary"
+              className={showBlank ? "button" : "button primary"}
+              aria-expanded={showBlank}
+              aria-controls={showBlank ? "blank-template-form" : undefined}
               onClick={() => setShowBlank(!showBlank)}
             >
               <Plus size={18} />
-              {msg("Créer un document ")}
+              {msg("Create a document ")}
             </button>
           )
         }
@@ -185,14 +189,15 @@ export function TemplateLibrary({
       {!canPrepare && <RolePermissionNotice />}
       {canPrepare && showBlank && (
         <form
+          id="blank-template-form"
           className="studio-section"
           onSubmit={(e) => {
             e.preventDefault();
             void create({ ...blankTemplate(), name });
           }}
         >
-          <h2>{msg("Partir d’une page vierge")}</h2>
-          <Field label={msg("Nom du modèle")}>
+          <h2>{msg("Start with a blank page")}</h2>
+          <Field label={msg("Template name")}>
             <input
               required
               maxLength={160}
@@ -201,14 +206,14 @@ export function TemplateLibrary({
             />
           </Field>
           <button className="button primary" disabled={action.pending}>
-            {msg("Ouvrir le studio ")}
+            {msg("Create the template ")}
           </button>
         </form>
       )}
-      <h2>{msg("Modèles de démonstration")}</h2>
+      <h2>{msg("Demo templates")}</h2>
       <p className="studio-demo-intro">
         {msg(
-          "Ces exemples contiennent uniquement des données fictives. Créez une copie privée, modifiez-la dans le studio et supprimez-la quand vous n’en avez plus besoin.",
+          "These examples contain only fictional data. Create a private copy, edit it in the studio and delete it when you no longer need it.",
         )}
       </p>
       <div className="studio-gallery">
@@ -226,12 +231,12 @@ export function TemplateLibrary({
               className="button"
               disabled={action.pending || !canPrepare}
               aria-label={msg(
-                "Créer ma copie privée de {0}",
+                "Create my private copy of {0}",
                 msg(envelope.name),
               )}
               onClick={() => void create(envelope)}
             >
-              {msg("Créer ma copie privée ")}
+              {msg("Create my private copy ")}
               <ArrowRight size={17} />
             </button>
           </article>
@@ -239,50 +244,52 @@ export function TemplateLibrary({
       </div>
       <div className="section-toolbar">
         <h2 ref={libraryHeading} tabIndex={-1}>
-          {msg("Vos modèles")}
+          {msg("Your templates")}
         </h2>
-        <a href="#/app/datasets" className="text-link">
-          {canPrepare ? msg("Importer mes données ") : msg("Mes données ")}
+        <a href={`#${studioRoutes.datasets}`} className="text-link">
+          {canPrepare ? msg("Import my data ") : msg("Data ")}
           <ArrowRight size={17} />
         </a>
       </div>
       {deletedName && (
         <p role="status" className="studio-saved">
-          {msg("Le modèle « {0} » a été supprimé.", deletedName)}
+          {msg("Template “{0}” was deleted.", deletedName)}
         </p>
       )}
+      {!!templates.data?.items.length && <DateTimezone />}
       {templates.loading && !templates.data ? (
         <Loading />
       ) : (
         <div className="studio-list">
           {!templates.data?.items.length && (
             <p className="studio-list-row">
-              {msg(
-                "Votre bibliothèque est prête à accueillir son premier modèle. ",
-              )}
+              {msg("Your library is ready for its first template. ")}
             </p>
           )}
           {templates.data?.items.map((item) => (
             <article className="studio-list-row" key={item.id}>
               <div>
                 <h3>
-                  <a href={`#/app/template/${item.id}`}>{item.name}</a>
+                  <a href={`#${studioRoutes.template(item.id)}`}>{item.name}</a>
                 </h3>
                 <p>
                   {msg(stateLabel[item.state])} ·{" "}
                   {item.currentVersion
                     ? msg("Version {0}", item.currentVersion)
-                    : msg("À publier")}{" "}
+                    : msg("Not published yet")}{" "}
                   ·{" "}
                   {item.visibility === "private"
-                    ? msg("Privé")
-                    : msg("Partagé")}{" "}
+                    ? msg("Private")
+                    : msg("Shared")}{" "}
                   · {date(item.updatedAt)}
                 </p>
               </div>
               <div className="studio-list-actions">
-                <a className="button small" href={`#/app/template/${item.id}`}>
-                  {msg("Ouvrir ")}
+                <a
+                  className="button small"
+                  href={`#${studioRoutes.template(item.id)}`}
+                >
+                  {msg("Open ")}
                 </a>
                 {canPrepare && (
                   <DeleteTemplateAction
@@ -303,45 +310,44 @@ export function TemplateLibrary({
       />
       {canPrepare && (
         <form className="studio-section" onSubmit={(e) => void importWord(e)}>
-          <h2>{msg("À partir de Word")}</h2>
+          <h2>{msg("From Word")}</h2>
           <p>
             {msg(
-              "Importez le contenu d’un fichier .docx en blocs rééditables. Vérifiez la mise en page et les avertissements de conversion avant publication. L’ancien format .doc n’est pas pris en charge. ",
+              "Import a .docx file as editable blocks. Check the layout and conversion warnings before publishing. The older .doc format is not supported. ",
             )}
           </p>
           <Field
-            label={msg("Fichier Word (.docx)")}
-            hint={msg("5 Mo maximum. Aucun transfert vers une IA à l’import.")}
+            label={msg("Word file (.docx)")}
+            hint={msg("Maximum 5 MB. No data is sent to AI during import.")}
           >
-            <input
+            <FileInput
               ref={file}
-              type="file"
               accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
               required
             />
           </Field>
           <button className="button" disabled={action.pending}>
-            {msg("Importer Word ")}
+            {msg("Import Word ")}
           </button>
-          {!!importWarnings.length && (
+          {!!importWarnings.length && importedTemplateId && (
             <div role="status">
               <p>
                 {msg(
-                  "Le modèle a été importé dans votre bibliothèque. Points à vérifier : ",
+                  "The template has been imported into your library. Please check: ",
                 )}
               </p>
               <ul>
                 {importWarnings.map((warning, i) => (
                   <li key={i}>
-                    {warning.message} <code>{warning.code}</code>
+                    {msg(warning.message)} <code>{warning.code}</code>
                   </li>
                 ))}
               </ul>
               <a
                 className="button"
-                href={"#/app/template/" + importedTemplateId}
+                href={"#" + studioRoutes.template(importedTemplateId)}
               >
-                {msg("Ouvrir le modèle Word importé ")}
+                {msg("Open the imported Word template ")}
               </a>
             </div>
           )}
@@ -358,26 +364,186 @@ export function TemplateEditor({
   id: string;
   session: Session;
 }) {
-  const resource = useResource<TemplateView>(`/templates/${id}`);
-  if (!resource.data)
+  const query = new URLSearchParams(useRoute().split("?")[1]);
+  const generationId = query.get("generation");
+  const recordId = query.get("record");
+  const correctionRequested = Boolean(generationId && recordId);
+  const sourceGeneration = useResource<GenerationJobView>(
+    generationId
+      ? `/generation-jobs/${encodeURIComponent(generationId)}`
+      : null,
+  );
+  const correction = useResource<GenerationCorrectionInput>(
+    generationId && recordId
+      ? `/generation-jobs/${encodeURIComponent(generationId)}/record-context?${new URLSearchParams({ recordId })}`
+      : null,
+  );
+  const resource = useResource<TemplateView>(
+    correctionRequested ? null : `/templates/${id}`,
+  );
+  const sourceTemplate = useResource<TemplateView>(
+    recordId && sourceGeneration.data
+      ? `/templates/${encodeURIComponent(sourceGeneration.data.templateId)}?version=${sourceGeneration.data.templateVersion}`
+      : null,
+  );
+  const generationScope = JSON.stringify([id, generationId, recordId]);
+  const [generationData, setGenerationData] = useState<{
+    scope: string;
+    data: Record<string, unknown>;
+  }>();
+  if (
+    (!correctionRequested && !resource.data) ||
+    (generationId && !sourceGeneration.data) ||
+    (correctionRequested && (!correction.data || !sourceTemplate.data))
+  )
     return (
       <>
-        <ErrorNotice error={resource.error} />
+        <ErrorNotice
+          error={
+            resource.error ??
+            sourceGeneration.error ??
+            correction.error ??
+            sourceTemplate.error
+          }
+        />
         {resource.error && (
-          <a className="back-link" href="#/app/templates">
-            {msg("← Modèles ")}
+          <a className="back-link" href={`#${studioRoutes.templates}`}>
+            {msg("← Templates ")}
           </a>
         )}
-        {resource.loading && <Loading />}
+        {(resource.loading ||
+          sourceGeneration.loading ||
+          correction.loading ||
+          sourceTemplate.loading) && <Loading />}
       </>
     );
+  if (correction.data && sourceGeneration.data && sourceTemplate.data)
+    return (
+      <GenerationDataCorrection
+        key={generationScope}
+        source={sourceGeneration.data}
+        template={sourceTemplate.data}
+        record={correction.data}
+        canPrepare={permissionsFor(session).prepareDispatches}
+      />
+    );
+  if (!resource.data) return <Loading />;
   return (
     <EditorBody
-      key={`${id}:${resource.data.revision}`}
+      key={`${generationScope}:${resource.data.revision}`}
       model={resource.data}
+      sourceGeneration={sourceGeneration.data}
+      correctionError={sourceGeneration.error ?? correction.error}
+      generationData={
+        generationData?.scope === generationScope
+          ? generationData.data
+          : undefined
+      }
+      onGenerationData={(data) =>
+        setGenerationData({ scope: generationScope, data })
+      }
       session={session}
       onSaved={(next) => resource.setData(next)}
     />
+  );
+}
+
+function GenerationDataCorrection({
+  source,
+  template,
+  record,
+  canPrepare,
+}: {
+  source: GenerationJobView;
+  template: TemplateView;
+  record: GenerationCorrectionInput;
+  canPrepare: boolean;
+}) {
+  const [data, setData] = useState(() => structuredClone(record.data));
+  const key = useRef(crypto.randomUUID());
+  const previousInput = useRef("");
+  const generated = useRef(false);
+  const action = useAction();
+  const dirty = JSON.stringify(data) !== JSON.stringify(record.data);
+  useEffect(() => {
+    if (!dirty) return;
+    const warn = (event: BeforeUnloadEvent) => {
+      if (generated.current) return;
+      event.preventDefault();
+      event.returnValue = "";
+    };
+    const guard = (event: Event) => {
+      if (
+        !generated.current &&
+        !window.confirm(msg("Leave this correction and lose unsaved changes?"))
+      )
+        event.preventDefault();
+    };
+    window.addEventListener("beforeunload", warn);
+    window.addEventListener(BEFORE_WORKSPACE_NAVIGATION, guard);
+    return () => {
+      window.removeEventListener("beforeunload", warn);
+      window.removeEventListener(BEFORE_WORKSPACE_NAVIGATION, guard);
+    };
+  }, [dirty]);
+  return (
+    <>
+      <a className="back-link" href={`#${studioRoutes.generation(source.id)}`}>
+        {msg("← Original generation")}
+      </a>
+      <PageHeading
+        title={msg("Correct data")}
+        intro={`${template.name} · ${msg("Template v")}${source.templateVersion}`}
+      />
+      <ErrorNotice error={action.error} />
+      <form
+        className="studio-section"
+        onSubmit={(event) => {
+          event.preventDefault();
+          void action.run(async () => {
+            const body = {
+              templateId: source.templateId,
+              templateVersion: source.templateVersion,
+              mode: "generate_only",
+              records: [{ recordId: record.recordId, data }],
+            };
+            const serialized = JSON.stringify(body);
+            if (previousInput.current && previousInput.current !== serialized)
+              key.current = crypto.randomUUID();
+            previousInput.current = serialized;
+            const generation = await api<GenerationJobView>(
+              "/generation-jobs",
+              { method: "POST", key: key.current, body },
+            );
+            generated.current = true;
+            go(studioRoutes.generation(generation.id));
+          });
+        }}
+      >
+        <BusinessDataForm
+          schema={template.envelope.inputSchema}
+          disabled={!canPrepare || action.pending}
+          value={data}
+          onChange={(next) => setData(next as Record<string, unknown>)}
+        />
+        <div className="button-group">
+          <button
+            className="button primary"
+            disabled={
+              !canPrepare || !template.permissions.use || action.pending
+            }
+          >
+            {msg("Generate PDF without sending ")}
+          </button>
+          <a
+            className="button"
+            href={`#${studioRoutes.template(source.templateId)}?generation=${encodeURIComponent(source.id)}`}
+          >
+            {msg("Correct and create a new version")}
+          </a>
+        </div>
+      </form>
+    </>
   );
 }
 
@@ -395,10 +561,18 @@ function EditorBody({
   model,
   session,
   onSaved,
+  sourceGeneration,
+  correctionError,
+  generationData,
+  onGenerationData,
 }: {
   model: TemplateView;
   session: Session;
   onSaved: (value: TemplateView) => void;
+  sourceGeneration?: GenerationJobView;
+  correctionError?: Error;
+  generationData?: Record<string, unknown>;
+  onGenerationData: (data: Record<string, unknown>) => void;
 }) {
   const [envelope, setEnvelope] = useState<TemplateEnvelope>(
     structuredClone(model.envelope),
@@ -407,10 +581,11 @@ function EditorBody({
   const [future, setFuture] = useState<TemplateEnvelope[]>([]);
   const [tab, setTab] = useState<"design" | "data" | "share">("design");
   const [data, setData] = useState<Record<string, unknown>>(
-    structuredClone(model.envelope.sampleData),
+    structuredClone(generationData ?? model.envelope.sampleData),
   );
   const [fieldName, setFieldName] = useState("");
   const [fieldTitle, setFieldTitle] = useState("");
+  const [designerPending, setDesignerPending] = useState(false);
   const [fieldType, setFieldType] = useState<
     "string" | "integer" | "date" | "array"
   >("string");
@@ -432,13 +607,7 @@ function EditorBody({
     };
     const guardNavigation = (event: Event) => {
       if (deletionComplete.current) return;
-      if (
-        !window.confirm(
-          msg(
-            "Quitter le studio et perdre les modifications non enregistrées ?",
-          ),
-        )
-      )
+      if (!window.confirm(msg("Leave this template and lose unsaved changes?")))
         event.preventDefault();
     };
     window.addEventListener("beforeunload", warn);
@@ -454,6 +623,7 @@ function EditorBody({
     setEnvelope(next);
   }
   async function save() {
+    if (designerPending) return;
     await action.run(async () => {
       validateTemplateEnvelope(envelope);
       onSaved(
@@ -465,11 +635,10 @@ function EditorBody({
     });
   }
   async function publish() {
+    if (designerPending) return;
     await action.run(async () => {
       if (dirty)
-        throw new Error(
-          msg("Enregistrez le brouillon avant de publier cette version."),
-        );
+        throw new Error(msg("Save the draft before publishing this version."));
       onSaved(
         await api<TemplateView>(`/templates/${model.id}/publish`, {
           method: "POST",
@@ -483,7 +652,7 @@ function EditorBody({
     await action.run(async () => {
       if (dirty || !model.currentVersion || model.state !== "published")
         throw new Error(
-          msg("Enregistrez puis publiez votre modèle avant la génération."),
+          msg("Save and publish your template before generating documents."),
         );
       const payload = {
         templateId: model.id,
@@ -500,7 +669,7 @@ function EditorBody({
         key: generationKey.current,
         body: payload,
       });
-      go(`/app/generation/${job.id}`);
+      go(studioRoutes.generation(job.id));
     });
   }
   function addField() {
@@ -510,10 +679,10 @@ function EditorBody({
         ["constructor", "prototype"].includes(fieldName)
       )
         throw new Error(
-          msg("Utilisez un identifiant simple, par exemple referenceClient."),
+          msg("Use a simple identifier, such as customerReference."),
         );
       if (envelope.inputSchema.properties?.[fieldName])
-        throw new Error(msg("Cette variable existe déjà."));
+        throw new Error(msg("This variable already exists."));
       const next = structuredClone(envelope);
       const blockName = `field_${fieldName}`;
       let page = next.definition.schemas.at(-1)!;
@@ -557,12 +726,12 @@ function EditorBody({
       ];
       next.sampleData[fieldName] =
         fieldType === "array"
-          ? [{ description: msg("Exemple") }]
+          ? [{ description: msg("Example") }]
           : fieldType === "integer"
             ? 1
             : fieldType === "date"
               ? "2026-09-21"
-              : msg("Exemple");
+              : msg("Example");
       if (fieldType === "array") {
         page.push(tableBlock(blockName, [msg("Description")], y));
         next.bindings.push({
@@ -581,7 +750,7 @@ function EditorBody({
           ],
         });
       } else {
-        page.push(textBlock(blockName, "Exemple", 20, y, 170));
+        page.push(textBlock(blockName, "Example", 20, y, 170));
         next.bindings.push({
           block: blockName,
           kind: "value",
@@ -596,40 +765,76 @@ function EditorBody({
         });
       }
       change(validateTemplateEnvelope(next));
-      setData({ ...data, [fieldName]: next.sampleData[fieldName] });
+      const nextData = { ...data, [fieldName]: next.sampleData[fieldName] };
+      setData(nextData);
+      onGenerationData(nextData);
       setFieldName("");
       setFieldTitle("");
     });
   }
   return (
     <>
-      <a className="back-link" href="#/app/templates">
-        {msg("← Modèles ")}
+      <a className="back-link" href={`#${studioRoutes.templates}`}>
+        {msg("← Templates ")}
       </a>
       <PageHeading
         title={model.name}
         intro={msg(
-          "{0} · {1}. La publication fige une version ; la modification suivante ouvre un nouveau brouillon.",
+          "{0} · {1}. Publishing freezes a version; the next edit opens a new draft.",
           msg(stateLabel[model.state]),
           model.currentVersion
-            ? msg("Version publiée {0}", model.currentVersion)
-            : msg("Aucune version publiée"),
+            ? msg("Published version {0}", model.currentVersion)
+            : msg("No published version"),
         )}
       />
-      <ErrorNotice error={action.error} />
-      <nav className="studio-tabs" aria-label={msg("Studio documentaire")}>
+      <ErrorNotice error={action.error ?? correctionError} />
+      {sourceGeneration && (
+        <div className="button-group">
+          <a
+            className="back-link"
+            href={`#${studioRoutes.generation(sourceGeneration.id)}`}
+          >
+            {msg("← Original generation")}
+          </a>
+          {sourceGeneration.datasetId && (
+            <a
+              className="button"
+              href={`#${studioRoutes.dataset(sourceGeneration.datasetId)}?${new URLSearchParams(
+                {
+                  template: model.id,
+                  ...(model.currentVersion
+                    ? { version: String(model.currentVersion) }
+                    : {}),
+                  ...(sourceGeneration.mappingId
+                    ? {
+                        mapping: sourceGeneration.mappingId,
+                        mappingVersion: String(sourceGeneration.mappingVersion),
+                      }
+                    : {}),
+                  generation: sourceGeneration.id,
+                },
+              )}`}
+            >
+              {msg("Use this version with the same data")}
+            </a>
+          )}
+        </div>
+      )}
+      <nav className="studio-tabs" aria-label={msg("Template sections")}>
         {(
           [
-            ["design", msg("Modèle")],
-            ["data", msg("Données et génération")],
-            ["share", msg("Partage")],
+            ["design", msg("Template")],
+            ["data", msg("Data and generation")],
+            ["share", msg("Sharing")],
           ] as const
         ).map(([value, label]) => (
           <button
             key={value}
             className="button small"
             aria-current={tab === value ? "page" : undefined}
-            disabled={value === "share" && (dirty || !canPrepare)}
+            disabled={
+              designerPending || (value === "share" && (dirty || !canPrepare))
+            }
             onClick={() => setTab(value)}
           >
             {label}
@@ -639,7 +844,7 @@ function EditorBody({
       {tab === "design" && (
         <>
           <div className="studio-toolbar">
-            <Field label={msg("Nom du modèle")}>
+            <Field label={msg("Template name")}>
               <input
                 value={envelope.name}
                 maxLength={160}
@@ -657,7 +862,7 @@ function EditorBody({
                 setEnvelope(prev);
               }}
             >
-              {msg("Annuler la modification")}
+              {msg("Undo")}
             </button>
             <button
               className="button small"
@@ -668,19 +873,22 @@ function EditorBody({
                 setFuture(future.slice(1));
               }}
             >
-              {msg("Rétablir ")}
+              {msg("Redo ")}
             </button>
             <button
               className="button primary"
-              disabled={!editable || !dirty || action.pending}
+              disabled={
+                !editable || !dirty || action.pending || designerPending
+              }
               onClick={() => void save()}
             >
-              {msg("Enregistrer le brouillon ")}
+              {msg("Save draft ")}
             </button>
             <button
               className="button"
               disabled={
                 !canPrepare ||
+                designerPending ||
                 !model.permissions.publish ||
                 dirty ||
                 model.state === "archived" ||
@@ -688,18 +896,20 @@ function EditorBody({
               }
               onClick={() => void publish()}
             >
-              {msg("Publier la version ")}
+              {msg("Publish version ")}
             </button>
           </div>
           <p
             className={dirty ? "studio-unsaved" : "studio-saved"}
             role="status"
           >
-            {dirty
-              ? msg(
-                  "Modifications non enregistrées. Enregistrez avant de publier ou de quitter le studio.",
-                )
-              : msg("Toutes les modifications sont enregistrées.")}
+            {designerPending
+              ? msg("Applying the editor changes…")
+              : dirty
+                ? msg(
+                    "Unsaved changes. Save before publishing or leaving the studio.",
+                  )
+                : msg("All changes are saved.")}
           </p>
           <div className="studio-layout studio-editor-layout">
             <div className="studio-main">
@@ -707,6 +917,7 @@ function EditorBody({
                 <Suspense fallback={<Loading />}>
                   <Designer
                     definition={envelope.definition}
+                    onPendingChange={setDesignerPending}
                     onChange={(definition) => {
                       change(reconcileDesignerChange(envelope, definition));
                     }}
@@ -715,16 +926,16 @@ function EditorBody({
               ) : (
                 <p className="notice info">
                   {msg(
-                    "Ce modèle est en consultation. Vos droits permettent les actions indiquées ci-dessus. ",
+                    "This template is read-only. Your permissions allow the actions shown above. ",
                   )}
                 </p>
               )}
             </div>
             <aside className="studio-side">
-              <h2>{msg("Variables métier")}</h2>
+              <h2>{msg("Business variables")}</h2>
               <p className="field-hint">
                 {msg(
-                  "Les variables sont les données propres à chaque document. Les textes fixes se modifient directement sur la page. ",
+                  "Variables contain the data specific to each document. Edit fixed text directly on the page. ",
                 )}
               </p>
               {flatten(envelope.inputSchema).map(({ path, schema }) => (
@@ -734,42 +945,40 @@ function EditorBody({
                   <code>{path}</code>{" "}
                   <span className="studio-meta">
                     {schema.type === "array"
-                      ? msg("Tableau répétable")
+                      ? msg("Repeating table")
                       : (schema.format ?? schema.type)}
                   </span>
                 </p>
               ))}
               {editable && (
                 <fieldset disabled={action.pending}>
-                  <legend>{msg("Ajouter une variable")}</legend>
-                  <Field label={msg("Libellé")}>
+                  <legend>{msg("Add a variable")}</legend>
+                  <Field label={msg("Label")}>
                     <input
                       value={fieldTitle}
                       onChange={(e) => setFieldTitle(e.target.value)}
                     />
                   </Field>
                   <Field
-                    label={msg("Identifiant")}
-                    hint={msg("Exemple : referenceClient")}
+                    label={msg("Identifier")}
+                    hint={msg("Example: customerReference")}
                   >
                     <input
                       value={fieldName}
                       onChange={(e) => setFieldName(e.target.value)}
                     />
                   </Field>
-                  <Field label={msg("Type de variable")}>
+                  <Field label={msg("Variable type")}>
                     <select
                       value={fieldType}
                       onChange={(e) =>
                         setFieldType(e.target.value as typeof fieldType)
                       }
                     >
-                      <option value="string">{msg("Texte")}</option>
-                      <option value="integer">
-                        {msg("Nombre entier / centimes")}
-                      </option>
+                      <option value="string">{msg("Text")}</option>
+                      <option value="integer">{msg("Integer / cents")}</option>
                       <option value="date">{msg("Date")}</option>
-                      <option value="array">{msg("Tableau de lignes")}</option>
+                      <option value="array">{msg("Table of rows")}</option>
                     </select>
                   </Field>
                   <button
@@ -777,47 +986,8 @@ function EditorBody({
                     className="button small"
                     onClick={addField}
                   >
-                    {msg("Ajouter au document ")}
+                    {msg("Add to document ")}
                   </button>
-                  <Field
-                    label={msg("Ajouter votre logo")}
-                    hint={msg("PNG ou JPEG, 250 Ko et 4 mégapixels maximum.")}
-                  >
-                    <input
-                      type="file"
-                      accept="image/png,image/jpeg"
-                      onChange={(event) => {
-                        const file = event.target.files?.[0];
-                        if (file)
-                          void action.run(async () => {
-                            if (file.size > 250 * 1024)
-                              throw new Error(msg("Le logo dépasse 250 Ko."));
-                            const content = await new Promise<string>(
-                              (resolve, reject) => {
-                                const reader = new FileReader();
-                                reader.onload = () =>
-                                  resolve(String(reader.result));
-                                reader.onerror = () =>
-                                  reject(new Error(msg("Fichier illisible.")));
-                                reader.readAsDataURL(file);
-                              },
-                            );
-                            validateTemplateImage(content);
-                            const next = structuredClone(envelope);
-                            next.definition.schemas[0].push({
-                              name: `logo_${next.definition.schemas.flat().length}`,
-                              type: "image",
-                              content,
-                              position: { x: 20, y: 25 },
-                              width: 40,
-                              height: 20,
-                              readOnly: true,
-                            });
-                            change(validateTemplateEnvelope(next));
-                          });
-                      }}
-                    />
-                  </Field>
                 </fieldset>
               )}
             </aside>
@@ -842,28 +1012,30 @@ function EditorBody({
       )}
       {tab === "data" && (
         <form className="studio-section" onSubmit={(e) => void generate(e)}>
-          <h2>{msg("Créer votre PDF")}</h2>
+          <h2>{msg("Create your PDF")}</h2>
           <p>
             {msg(
-              "Les données ci-dessous appartiennent à cette génération. Elles ne remplacent pas les exemples synthétiques partagés du modèle. ",
+              "The data below belongs to this generation. It does not replace the template’s shared synthetic examples. ",
             )}
           </p>
           <BusinessDataForm
             schema={envelope.inputSchema}
             disabled={!canPrepare}
             value={data}
-            onChange={(value) => setData(value as Record<string, unknown>)}
+            onChange={(value) => {
+              const nextData = value as Record<string, unknown>;
+              setData(nextData);
+              onGenerationData(nextData);
+            }}
           />
           <p className="field-hint">
             {msg(
-              "Un PDF distinct, contrôlé et conservé dans vos documents. Aucun envoi ni crédit d’envoi réservé. ",
+              "A separate PDF, checked and saved in your documents. No dispatch is made and no sending credit is reserved. ",
             )}
           </p>
           {(!model.currentVersion || model.state !== "published" || dirty) && (
             <p className="notice info">
-              {msg(
-                "Enregistrez et publiez votre modèle pour pouvoir le générer. ",
-              )}
+              {msg("Save and publish your template to generate documents. ")}
             </p>
           )}
           <div className="button-group">
@@ -886,7 +1058,7 @@ function EditorBody({
                 })
               }
             >
-              {msg("Vérifier un aperçu PDF ")}
+              {msg("Check a PDF preview ")}
             </button>
             <button
               className="button primary"
@@ -898,10 +1070,13 @@ function EditorBody({
                 model.state !== "published"
               }
             >
-              {msg("Générer le PDF sans envoi ")}
+              {msg("Generate PDF without sending ")}
             </button>
-            <a className="button" href="#/app/datasets">
-              {msg("Utiliser un fichier de données ")}
+            <a
+              className="button"
+              href={`#${studioRoutes.datasets}?${new URLSearchParams({ template: model.id, ...(model.currentVersion ? { version: String(model.currentVersion) } : {}) })}`}
+            >
+              {msg("Use a data file ")}
             </a>
           </div>
           {previewId && (
@@ -926,11 +1101,11 @@ function EditorBody({
                 `/templates/${model.id}/duplicate`,
                 { method: "POST", body: {} },
               );
-              go(`/app/template/${copy.id}`);
+              go(studioRoutes.template(copy.id));
             })
           }
         >
-          {msg("Dupliquer le modèle ")}
+          {msg("Duplicate template ")}
         </button>
         <button
           className="text-button"
@@ -952,7 +1127,7 @@ function EditorBody({
             })
           }
         >
-          {msg("Archiver ")}
+          {msg("Archive ")}
         </button>
         {canPrepare && (
           <DeleteTemplateAction
@@ -969,7 +1144,7 @@ function EditorBody({
                   },
                 );
                 deletionComplete.current = true;
-                go("/app/templates");
+                go(studioRoutes.templates);
               })
             }
           />
@@ -995,10 +1170,10 @@ function BindingEditor({
   }
   return (
     <details className="studio-section">
-      <summary>{msg("Liaisons et colonnes des tableaux")}</summary>
+      <summary>{msg("Bindings and table columns")}</summary>
       <p>
         {msg(
-          "Reliez chaque bloc à une variable métier. Les montants sont des entiers en centimes. ",
+          "Link each block to a business variable. Amounts are integers in cents. ",
         )}
       </p>
       {envelope.bindings.map((binding, index) => (
@@ -1008,7 +1183,7 @@ function BindingEditor({
           className="business-object"
         >
           <legend>{binding.block}</legend>
-          <Field label={msg("Variable du bloc {0}", binding.block)}>
+          <Field label={msg("Variable for block {0}", binding.block)}>
             <select
               value={binding.path}
               onChange={(e) =>
@@ -1030,7 +1205,7 @@ function BindingEditor({
           </Field>
           {binding.columns?.map((column, i) => (
             <div className="studio-binding" key={i}>
-              <Field label={msg("Titre de colonne {0}", i + 1)}>
+              <Field label={msg("Column {0} title", i + 1)}>
                 <input
                   value={column.title}
                   onChange={(e) => {
@@ -1046,7 +1221,7 @@ function BindingEditor({
                   }}
                 />
               </Field>
-              <Field label={msg("Champ de colonne {0}", i + 1)}>
+              <Field label={msg("Column {0} field", i + 1)}>
                 <input
                   value={column.path}
                   onChange={(e) =>
@@ -1110,24 +1285,24 @@ function SharingPanel({
         );
       }}
     >
-      <h2>{msg("Partager le modèle")}</h2>
+      <h2>{msg("Share template")}</h2>
       <p>
         {msg(
-          "Le partage inclut tous les textes fixes, images et exemples du modèle, y compris ceux importés de Word. Vérifiez leur contenu. Les fichiers de données, leurs valeurs de génération et les PDF produits restent privés. ",
+          "Sharing includes all fixed text, images and examples in the template, including content imported from Word. Check their contents. Data files, generation values and generated PDFs remain private. ",
         )}
       </p>
       <ErrorNotice error={action.error ?? resource.error} />
       <fieldset disabled={!model.permissions.share || action.pending}>
-        <Field label={msg("Visibilité")}>
+        <Field label={msg("Visibility")}>
           <select
             value={visibility}
             onChange={(e) => setVisibility(e.target.value as typeof visibility)}
           >
-            <option value="private">{msg("Privé")}</option>
+            <option value="private">{msg("Private")}</option>
             <option value="organization">
-              {msg("Toute l’organisation peut utiliser ")}
+              {msg("Everyone in the organisation can use it ")}
             </option>
-            <option value="selected">{msg("Membres sélectionnés")}</option>
+            <option value="selected">{msg("Selected members")}</option>
           </select>
         </Field>
         <div className="studio-permissions">
@@ -1179,11 +1354,11 @@ function SharingPanel({
             onChange={(e) => setConfirmed(e.target.checked)}
           />
           {msg(
-            "J’ai vérifié que les exemples partagés ne contiennent que des données synthétiques autorisées. ",
+            "I have checked that the shared examples contain only authorised synthetic data. ",
           )}
         </label>
         <button className="button primary" disabled={!confirmed}>
-          {msg("Enregistrer le partage ")}
+          {msg("Save sharing settings ")}
         </button>
       </fieldset>
     </form>

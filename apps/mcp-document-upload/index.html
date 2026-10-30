@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none'; script-src 'sha256-{{SCRIPT_HASH}}'; style-src 'sha256-{{STYLE_HASH}}'; connect-src 'none'; img-src 'none'; font-src 'none'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'"
+    />
+    <title>Guteneo original PDF import</title>
+    {{STYLE_TAG}}
+  </head>
+  <body>
+    <main aria-busy="false">
+      <h1 data-copy="title">Import an original PDF</h1>
+      <output id="selection"></output>
+      <section id="selection-controls">
+        <label for="file" data-copy="file">PDF from your device</label
+        ><input
+          id="file"
+          type="file"
+          accept=".pdf,application/pdf"
+          aria-describedby="choose"
+          hidden
+          disabled
+        /><button
+          id="choose-file"
+          type="button"
+          disabled
+          data-copy="chooseFile"
+        >
+          Choose PDF
+        </button>
+        <p id="choose" data-copy="choose">
+          Choose one original PDF, up to 10 MiB.
+        </p>
+        <label class="review"
+          ><input id="review" type="checkbox" disabled /><span
+            data-copy="exclusions"
+            >I checked that this PDF contains no sensitive personal data,
+            payment card data, protected health information, government
+            identifiers or authentication secrets.</span
+          ></label
+        >
+      </section>
+      <div class="actions">
+        <button id="import" type="button" disabled data-copy="import">
+          Import</button
+        ><button id="resume" type="button" hidden data-copy="resume">
+          Resume</button
+        ><button
+          id="use-conversation"
+          type="button"
+          hidden
+          data-copy="useConversation"
+        >
+          Use in conversation</button
+        ><button id="check" type="button" hidden data-copy="check">
+          Check status</button
+        ><button id="cancel" type="button" hidden data-copy="cancel">
+          Cancel import</button
+        ><button id="clear" type="button" hidden data-copy="clear">
+          Clear selection
+        </button>
+      </div>
+      <p id="status" role="status" aria-live="polite" data-copy="connecting">
+        Connecting…
+      </p>
+      <label for="progress" data-copy="progress" hidden id="progress-label"
+        >Confirmed bytes</label
+      ><progress id="progress" value="0" max="1" hidden></progress>
+      <p id="context" role="status" hidden data-copy="contextFailed"></p>
+      <dl id="receipt" hidden>
+        <dt data-copy="document">Document ID</dt>
+        <dd id="document"></dd>
+      </dl>
+      <p class="secondary" data-copy="noSend">
+        Importing prepares or sends no message.
+      </p>
+    </main>
+    {{NOTICES}} {{SCRIPT_TAG}}
+  </body>
+</html>

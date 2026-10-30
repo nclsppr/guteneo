@@ -1,4 +1,12 @@
+import { emailPreparationDescriptions } from "./email-preparation-contract";
+import {
+  standaloneThemeAttributes,
+  standaloneThemeMetadata,
+  standaloneThemeStyles,
+} from "./standalone-theme";
+import { recordConnectionEvent } from "./belvedere-telemetry";
 import { workspacePermissions } from "../../../packages/contracts/src/roles";
+import type { DashboardAppearance } from "../../../packages/contracts/src/dashboard-appearance";
 import { z } from "zod";
 import {
   supportedLocales,
@@ -60,9 +68,12 @@ const preparationInput = z
     channel: z.enum(["fax", "email", "postal"]),
     recipient: z.record(z.string(), z.unknown()),
     documentId: z.string().optional(),
-    subject: z.string().optional(),
-    html: z.string().optional(),
-    text: z.string().optional(),
+    subject: z
+      .string()
+      .optional()
+      .describe(emailPreparationDescriptions.subject),
+    html: z.string().optional().describe(emailPreparationDescriptions.html),
+    text: z.string().optional().describe(emailPreparationDescriptions.text),
     senderId: z.string().optional(),
     options: z.record(z.string(), z.unknown()).optional(),
     campaignId: z.string().optional(),
@@ -82,6 +93,7 @@ type NativeSession = {
     supervisorCanApprove?: boolean;
     supervisorCanReport?: boolean;
     preferredLocale: SupportedLocale | null;
+    preferredDashboardAppearance?: DashboardAppearance;
   };
   simulation: boolean;
   verifiedAccount: boolean;
@@ -93,6 +105,7 @@ type SessionRow = {
   organization_name: string;
   user_name: string;
   preferred_locale: string | null;
+  preferred_dashboard_appearance: DashboardAppearance;
   role: ActorContext["role"];
   supervisor_can_approve: number;
   supervisor_can_report: number;
@@ -148,13 +161,13 @@ export async function authenticateNative(
   if (!match)
     throw new AuthError(
       "AUTHENTICATION_REQUIRED",
-      "Connectez-vous dans l’application pour continuer.",
+      "Sign in to the application to continue.",
     );
   const tokenHash = await hashSecret(match[1]);
   const timestamp = now();
   const row = await env.DB.prepare(
     `SELECT s.organization_id,s.user_id,s.expires_at,
-    o.name organization_name,o.mode,u.name user_name,u.preferred_locale,m.role,m.supervisor_can_approve,m.supervisor_can_report,b.is_development,b.verified_account,b.mfa
+    o.name organization_name,o.mode,u.name user_name,u.preferred_locale,u.preferred_dashboard_appearance,m.role,m.supervisor_can_approve,m.supervisor_can_report,b.is_development,b.verified_account,b.mfa
     FROM native_sessions s JOIN browser_sessions b ON b.token_hash=s.browser_session_hash
     AND b.organization_id=s.organization_id AND b.user_id=s.user_id
     JOIN memberships m ON m.organization_id=s.organization_id AND m.user_id=s.user_id
@@ -169,10 +182,7 @@ export async function authenticateNative(
     row.mode !== env.MODE ||
     (row.is_development && !isLocalSimulation(request, env))
   )
-    throw new AuthError(
-      "SESSION_EXPIRED",
-      "Session expirée. Reconnectez-vous.",
-    );
+    throw new AuthError("SESSION_EXPIRED", "Session expired. Sign in again.");
   if (
     !row.is_development &&
     authenticationPolicy(env) === "verified_email" &&
@@ -180,7 +190,7 @@ export async function authenticateNative(
   )
     throw new AuthError(
       "ACCOUNT_VERIFICATION_REQUIRED",
-      "Reconnectez-vous pour vérifier votre compte.",
+      "Sign in again to verify your account.",
       403,
     );
   if (
@@ -191,7 +201,7 @@ export async function authenticateNative(
   )
     throw new AuthError(
       "MFA_REQUIRED",
-      "Reconnectez-vous après une double authentification.",
+      "Sign in again after two-factor authentication.",
       403,
     );
   return {
@@ -213,6 +223,7 @@ export async function authenticateNative(
       supervisorCanApprove: row.supervisor_can_approve === 1,
       supervisorCanReport: row.supervisor_can_report === 1,
       preferredLocale: normalizeLocale(row.preferred_locale),
+      preferredDashboardAppearance: row.preferred_dashboard_appearance,
     },
     simulation: env.MODE === "simulation",
     verifiedAccount: row.verified_account === 1,
@@ -227,14 +238,14 @@ async function authorize(request: Request, env: Env): Promise<Response> {
   if (!["GET", "POST"].includes(request.method))
     return json(
       {
-        error: { code: "METHOD_NOT_ALLOWED", message: "Méthode indisponible." },
+        error: { code: "METHOD_NOT_ALLOWED", message: "Method unavailable." },
       },
       405,
     );
   if (request.headers.has("Authorization"))
     throw new AuthError(
       "BROWSER_REQUIRED",
-      "Ouvrez la connexion sécurisée Guteneo.",
+      "Open secure Guteneo sign-in.",
       403,
     );
   let input: z.infer<typeof authorizeInput>;
@@ -318,7 +329,7 @@ async function authorize(request: Request, env: Env): Promise<Response> {
         .replaceAll("<", "&lt;")
         .replaceAll(">", "&gt;");
     return new Response(
-      `<!doctype html><html lang="${locale}"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${copy[0]} · guteneo</title><style>body{font-family:system-ui;background:#f6f5ef;color:#181b22;max-width:32rem;margin:12vh auto;padding:24px;line-height:1.5}h1{font-family:Georgia,serif;font-weight:400;font-size:2rem}button{font:inherit;border:0;border-radius:14px;background:#2450db;color:white;padding:16px 22px}a{color:inherit}</style><h1>${copy[1]}</h1><p>${copy[2]}</p><p>${copy[3]} : ${escape(session.organization.name)}</p><form method="post" action="/auth/mobile/authorize"><input type="hidden" name="code_challenge" value="${input.code_challenge}"><input type="hidden" name="code_challenge_method" value="S256"><input type="hidden" name="state" value="${input.state}"><input type="hidden" name="locale" value="${locale}"><input type="hidden" name="csrf" value="${escape(session.csrfToken)}"><button type="submit">${copy[4]}</button></form><p>${copy[5]}</p></html>`,
+      `<!doctype html><html lang="${locale}"${standaloneThemeAttributes(request)}><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">${standaloneThemeMetadata}<title>${copy[0]} · guteneo</title><style>${standaloneThemeStyles}body{font-family:system-ui;background:var(--paper);color:var(--ink);max-width:32rem;margin:12vh auto;padding:24px;line-height:1.5}h1{font-family:Georgia,serif;font-weight:400;font-size:2rem}button{font:inherit;border:0;border-radius:14px;background:#2450db;color:white;padding:16px 22px}a{color:inherit}</style><h1>${copy[1]}</h1><p>${copy[2]}</p><p>${copy[3]} : ${escape(session.organization.name)}</p><form method="post" action="/auth/mobile/authorize"><input type="hidden" name="code_challenge" value="${input.code_challenge}"><input type="hidden" name="code_challenge_method" value="S256"><input type="hidden" name="state" value="${input.state}"><input type="hidden" name="locale" value="${locale}"><input type="hidden" name="csrf" value="${escape(session.csrfToken)}"><button type="submit">${copy[4]}</button></form><p>${copy[5]}</p></html>`,
       {
         headers: {
           "Content-Type": "text/html; charset=utf-8",
@@ -345,7 +356,7 @@ async function authorize(request: Request, env: Env): Promise<Response> {
     )
     .first();
   if (!row)
-    throw new AuthError("SESSION_EXPIRED", "Reconnectez-vous pour continuer.");
+    throw new AuthError("SESSION_EXPIRED", "Sign in again to continue.");
   const callback = new URL(CALLBACK);
   callback.searchParams.set("code", code);
   callback.searchParams.set("state", input.state);
@@ -357,13 +368,13 @@ async function exchange(request: Request, env: Env): Promise<Response> {
   if (request.headers.has("Authorization"))
     throw new AuthError(
       "INVALID_EXCHANGE",
-      "Échange de connexion invalide.",
+      "Invalid connection exchange.",
       400,
     );
   if (env.ENVIRONMENT !== "local") {
     const ip = request.headers.get("CF-Connecting-IP");
     if (!ip)
-      throw new AuthError("LOGIN_UNAVAILABLE", "Connexion indisponible.", 503);
+      throw new AuthError("LOGIN_UNAVAILABLE", "Sign-in unavailable.", 503);
     const window = Math.floor(Date.now() / 3_600_000);
     const limitKey = await hashSecret(
       `mobile:${env.AUTH0_CLIENT_SECRET}:${window}:${ip}`,
@@ -377,7 +388,7 @@ async function exchange(request: Request, env: Env): Promise<Response> {
     if (!limit || limit.count > 60)
       throw new AuthError(
         "LOGIN_RATE_LIMITED",
-        "Trop de tentatives. Réessayez dans une heure.",
+        "Too many attempts. Try again in an hour.",
         429,
       );
   }
@@ -414,7 +425,7 @@ async function exchange(request: Request, env: Env): Promise<Response> {
   if (!inserted.results.length)
     throw new AuthError(
       "INVALID_EXCHANGE",
-      "Connexion expirée ou déjà utilisée. Reconnectez-vous.",
+      "Connection expired or already used. Sign in again.",
     );
   const session = await authenticateNative(
     new Request(request.url, {
@@ -422,6 +433,18 @@ async function exchange(request: Request, env: Env): Promise<Response> {
     }),
     env,
   );
+  const publicId = await env.DB.prepare(
+    "SELECT public_id FROM native_sessions WHERE token_hash=?",
+  )
+    .bind(tokenHash)
+    .first<{ public_id: string }>();
+  if (publicId)
+    await recordConnectionEvent(env.DB, request, {
+      organizationId: session.context.organizationId,
+      userId: session.context.userId,
+      kind: "native",
+      connectionId: publicId.public_id,
+    });
   return json({
     token,
     expiresAt: session.expiresAt,
@@ -438,12 +461,12 @@ async function rateLimit(env: Env, session: NativeSession) {
   if (!limit || limit.count > 180)
     throw new AuthError(
       "RATE_LIMITED",
-      "Trop de requêtes. Réessayez dans une minute.",
+      "Too many requests. Try again in a minute.",
       429,
     );
 }
 const deletionMessage =
-  "Votre demande de suppression est enregistrée. La suppression n’est pas encore effectuée. Guteneo doit vérifier les envois en cours, l’espace partagé et les données soumises à une obligation de conservation. Vous recevrez une confirmation à l’adresse de votre compte une fois le traitement terminé.";
+  "Your deletion request has been recorded. Deletion has not yet been completed. Guteneo must check pending dispatches, the shared workspace and data subject to retention obligations. You will receive confirmation at your account email address once processing is complete.";
 async function deletionRequest(env: Env, session: NativeSession) {
   const row = await env.DB.prepare(
     "SELECT id,status,created_at,updated_at,completed_at FROM account_deletion_requests WHERE user_id=?",
@@ -512,7 +535,7 @@ export async function handleMobileRoute(
     if (!value)
       throw new ContentError(
         "IDEMPOTENCY_REQUIRED",
-        "Une référence unique est requise.",
+        "A unique reference is required.",
       );
     return value;
   };
@@ -584,10 +607,7 @@ export async function handleMobileRoute(
       ),
     ]);
     if (!audit.meta.changes)
-      throw new AuthError(
-        "SESSION_EXPIRED",
-        "Reconnectez-vous pour continuer.",
-      );
+      throw new AuthError("SESSION_EXPIRED", "Sign in again to continue.");
     return json({
       ...publicSession(await authenticateNative(request, env)),
       deletionRequestAvailable: true,
@@ -614,10 +634,7 @@ export async function handleMobileRoute(
       .run();
     const result = await deletionRequest(env, session);
     if (!result)
-      throw new AuthError(
-        "SESSION_EXPIRED",
-        "Reconnectez-vous pour continuer.",
-      );
+      throw new AuthError("SESSION_EXPIRED", "Sign in again to continue.");
     return json(result, 202);
   }
   if (path === "/documents" && request.method === "GET")
@@ -626,9 +643,9 @@ export async function handleMobileRoute(
     const data = await request.formData();
     const file = data.get("file");
     if (!file || typeof file === "string")
-      throw new ContentError("FILE_REQUIRED", "Choisissez un PDF.");
+      throw new ContentError("FILE_REQUIRED", "Choose a PDF.");
     if (file.size > LIMITS.pdfBytes)
-      throw new ContentError("FILE_TOO_LARGE", "PDF trop volumineux.", 413);
+      throw new ContentError("FILE_TOO_LARGE", "PDF is too large.", 413);
     return json(
       await documents.upload(ctx, {
         name: file.name,
@@ -662,7 +679,7 @@ export async function handleMobileRoute(
     if (input.channel === "postal" && env.MODE === "production")
       throw new DomainError(
         "POSTAL_BROWSER_REQUIRED",
-        "La vérification d’adresse et l’autorisation du transfert postal doivent être réalisées sur guteneo.com.",
+        "Address verification and postal transfer authorization must take place on guteneo.com.",
         409,
       );
     const result = await domain.prepareDispatch(ctx, input, key());
@@ -688,7 +705,7 @@ export async function handleMobileRoute(
     {
       error: {
         code: "MOBILE_ROUTE_UNAVAILABLE",
-        message: "Cette opération n’est pas disponible dans l’application iOS.",
+        message: "This operation is not available in the iOS application.",
       },
     },
     404,

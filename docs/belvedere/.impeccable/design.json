@@ -1,0 +1,402 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-02T17:33:05.494202+00:00",
+  "title": "Design System: Belvédère — guteneo",
+  "extensions": {
+    "colorMeta": {
+      "cobalt": {
+        "role": "primary",
+        "displayName": "Cobalt",
+        "tonalRamp": [
+          "oklch(15.00% 0.21723 265.24)",
+          "oklch(26.43% 0.21723 265.24)",
+          "oklch(37.86% 0.21723 265.24)",
+          "oklch(49.29% 0.21723 265.24)",
+          "oklch(60.71% 0.21723 265.24)",
+          "oklch(72.14% 0.21723 265.24)",
+          "oklch(83.57% 0.21723 265.24)",
+          "oklch(95.00% 0.21723 265.24)"
+        ]
+      },
+      "cobalt-hover": {
+        "role": "primary",
+        "displayName": "Cobalt hover",
+        "tonalRamp": [
+          "oklch(15.00% 0.17977 265.60)",
+          "oklch(26.43% 0.17977 265.60)",
+          "oklch(37.86% 0.17977 265.60)",
+          "oklch(49.29% 0.17977 265.60)",
+          "oklch(60.71% 0.17977 265.60)",
+          "oklch(72.14% 0.17977 265.60)",
+          "oklch(83.57% 0.17977 265.60)",
+          "oklch(95.00% 0.17977 265.60)"
+        ]
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "Paper",
+        "tonalRamp": [
+          "oklch(15.00% 0.00802 98.88)",
+          "oklch(26.43% 0.00802 98.88)",
+          "oklch(37.86% 0.00802 98.88)",
+          "oklch(49.29% 0.00802 98.88)",
+          "oklch(60.71% 0.00802 98.88)",
+          "oklch(72.14% 0.00802 98.88)",
+          "oklch(83.57% 0.00802 98.88)",
+          "oklch(95.00% 0.00802 98.88)"
+        ]
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "Surface",
+        "tonalRamp": [
+          "oklch(15.00% 0.00537 95.10)",
+          "oklch(26.43% 0.00537 95.10)",
+          "oklch(37.86% 0.00537 95.10)",
+          "oklch(49.29% 0.00537 95.10)",
+          "oklch(60.71% 0.00537 95.10)",
+          "oklch(72.14% 0.00537 95.10)",
+          "oklch(83.57% 0.00537 95.10)",
+          "oklch(95.00% 0.00537 95.10)"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "tonalRamp": [
+          "oklch(15.00% 0.01007 132.65)",
+          "oklch(26.43% 0.01007 132.65)",
+          "oklch(37.86% 0.01007 132.65)",
+          "oklch(49.29% 0.01007 132.65)",
+          "oklch(60.71% 0.01007 132.65)",
+          "oklch(72.14% 0.01007 132.65)",
+          "oklch(83.57% 0.01007 132.65)",
+          "oklch(95.00% 0.01007 132.65)"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Muted",
+        "tonalRamp": [
+          "oklch(15.00% 0.01336 128.76)",
+          "oklch(26.43% 0.01336 128.76)",
+          "oklch(37.86% 0.01336 128.76)",
+          "oklch(49.29% 0.01336 128.76)",
+          "oklch(60.71% 0.01336 128.76)",
+          "oklch(72.14% 0.01336 128.76)",
+          "oklch(83.57% 0.01336 128.76)",
+          "oklch(95.00% 0.01336 128.76)"
+        ]
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Line",
+        "tonalRamp": [
+          "oklch(15.00% 0.01347 111.29)",
+          "oklch(26.43% 0.01347 111.29)",
+          "oklch(37.86% 0.01347 111.29)",
+          "oklch(49.29% 0.01347 111.29)",
+          "oklch(60.71% 0.01347 111.29)",
+          "oklch(72.14% 0.01347 111.29)",
+          "oklch(83.57% 0.01347 111.29)",
+          "oklch(95.00% 0.01347 111.29)"
+        ]
+      },
+      "field-line": {
+        "role": "neutral",
+        "displayName": "Field line",
+        "tonalRamp": [
+          "oklch(15.00% 0.01941 119.79)",
+          "oklch(26.43% 0.01941 119.79)",
+          "oklch(37.86% 0.01941 119.79)",
+          "oklch(49.29% 0.01941 119.79)",
+          "oklch(60.71% 0.01941 119.79)",
+          "oklch(72.14% 0.01941 119.79)",
+          "oklch(83.57% 0.01941 119.79)",
+          "oklch(95.00% 0.01941 119.79)"
+        ]
+      },
+      "sidebar": {
+        "role": "neutral",
+        "displayName": "Sidebar",
+        "tonalRamp": [
+          "oklch(15.00% 0.01062 106.60)",
+          "oklch(26.43% 0.01062 106.60)",
+          "oklch(37.86% 0.01062 106.60)",
+          "oklch(49.29% 0.01062 106.60)",
+          "oklch(60.71% 0.01062 106.60)",
+          "oklch(72.14% 0.01062 106.60)",
+          "oklch(83.57% 0.01062 106.60)",
+          "oklch(95.00% 0.01062 106.60)"
+        ]
+      },
+      "navigation-selected": {
+        "role": "neutral",
+        "displayName": "Navigation selected",
+        "tonalRamp": [
+          "oklch(15.00% 0.01970 270.21)",
+          "oklch(26.43% 0.01970 270.21)",
+          "oklch(37.86% 0.01970 270.21)",
+          "oklch(49.29% 0.01970 270.21)",
+          "oklch(60.71% 0.01970 270.21)",
+          "oklch(72.14% 0.01970 270.21)",
+          "oklch(83.57% 0.01970 270.21)",
+          "oklch(95.00% 0.01970 270.21)"
+        ]
+      },
+      "evidence-green": {
+        "role": "semantic",
+        "displayName": "Evidence green",
+        "tonalRamp": [
+          "oklch(15.00% 0.07769 161.81)",
+          "oklch(26.43% 0.07769 161.81)",
+          "oklch(37.86% 0.07769 161.81)",
+          "oklch(49.29% 0.07769 161.81)",
+          "oklch(60.71% 0.07769 161.81)",
+          "oklch(72.14% 0.07769 161.81)",
+          "oklch(83.57% 0.07769 161.81)",
+          "oklch(95.00% 0.07769 161.81)"
+        ]
+      },
+      "warning": {
+        "role": "semantic",
+        "displayName": "Warning",
+        "tonalRamp": [
+          "oklch(15.00% 0.10742 53.86)",
+          "oklch(26.43% 0.10742 53.86)",
+          "oklch(37.86% 0.10742 53.86)",
+          "oklch(49.29% 0.10742 53.86)",
+          "oklch(60.71% 0.10742 53.86)",
+          "oklch(72.14% 0.10742 53.86)",
+          "oklch(83.57% 0.10742 53.86)",
+          "oklch(95.00% 0.10742 53.86)"
+        ]
+      },
+      "warning-surface": {
+        "role": "semantic",
+        "displayName": "Warning surface",
+        "tonalRamp": [
+          "oklch(15.00% 0.02492 81.13)",
+          "oklch(26.43% 0.02492 81.13)",
+          "oklch(37.86% 0.02492 81.13)",
+          "oklch(49.29% 0.02492 81.13)",
+          "oklch(60.71% 0.02492 81.13)",
+          "oklch(72.14% 0.02492 81.13)",
+          "oklch(83.57% 0.02492 81.13)",
+          "oklch(95.00% 0.02492 81.13)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Page introduction",
+        "purpose": "Serif page headings; responsive variants remain documented in DESIGN.md."
+      },
+      "title": {
+        "displayName": "Panel title",
+        "purpose": "Medium-weight operational section headings."
+      },
+      "body": {
+        "displayName": "Workspace body",
+        "purpose": "Base sans-serif operational reading with tabular numerals."
+      },
+      "label": {
+        "displayName": "Compact label",
+        "purpose": "Filter labels and operational row content."
+      },
+      "metric": {
+        "displayName": "Primary metric",
+        "purpose": "Shared headline totals."
+      }
+    },
+    "shadows": [
+      {
+        "name": "selected-activity-control",
+        "value": "0 1px 3px #20321812",
+        "purpose": "Selected activity segmentation item."
+      },
+      {
+        "name": "selected-globe-mode",
+        "value": "0 2px 5px #2427220b",
+        "purpose": "Selected globe mode."
+      },
+      {
+        "name": "mobile-navigation-drawer",
+        "value": "12px 16px 30px #242a2515",
+        "purpose": "Overlay navigation below the phone top bar."
+      }
+    ],
+    "motion": [
+      {
+        "name": "control-transition",
+        "value": "color 160ms, background-color 160ms, border-color 160ms",
+        "purpose": "Ordinary interactive state changes; removed for reduced motion."
+      },
+      {
+        "name": "chart-opacity",
+        "value": "opacity 130ms",
+        "purpose": "Activity bar emphasis; removed for reduced motion."
+      },
+      {
+        "name": "loading-placeholder",
+        "value": "bv-loading 1.4s ease-in-out infinite alternate",
+        "purpose": "Opacity 0.5 to 1 only while loading; disabled for reduced motion."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "wide-overview-min",
+        "value": "1550px"
+      },
+      {
+        "name": "wide-globe-min",
+        "value": "1450px"
+      },
+      {
+        "name": "compact-shell-max",
+        "value": "1150px"
+      },
+      {
+        "name": "compact-globe-max",
+        "value": "1100px"
+      },
+      {
+        "name": "single-overview-max",
+        "value": "940px"
+      },
+      {
+        "name": "phone-shell-max",
+        "value": "760px"
+      },
+      {
+        "name": "stacked-globe-max",
+        "value": "720px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Secondary button",
+      "kind": "button",
+      "description": "The standard compact framed action.",
+      "html": "<button class=\"ds-button\">Actualiser</button>",
+      "css": ".ds-button{font-family:\"IBM Plex Sans\",sans-serif;font-size:14px;line-height:1.45;display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid #d7dacf;border-radius:4px;background:var(--bv-surface,#fffefa);color:var(--bv-ink,#242722);padding:9px 12px;min-height:37px;white-space:nowrap;cursor:pointer;transition:color 160ms,background-color 160ms,border-color 160ms;}.ds-button:hover{background:#eceee6;border-color:#b8bfae;}.ds-button:focus-visible{outline:2px solid var(--bv-blue,#2450db);outline-offset:4px;}.ds-button:disabled{cursor:not-allowed;opacity:.42;}@media(prefers-reduced-motion:reduce){.ds-button,.ds-link,.ds-select,.ds-search,.ds-search input,.ds-nav a,.ds-country{transition:none!important;}}",
+      "refersTo": "button-secondary"
+    },
+    {
+      "name": "Primary button",
+      "kind": "button",
+      "description": "The cobalt access action, using the same compact shape.",
+      "html": "<button class=\"ds-button\">Se reconnecter</button>",
+      "css": ".ds-button{font-family:\"IBM Plex Sans\",sans-serif;font-size:14px;line-height:1.45;display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid #d7dacf;border-radius:4px;background:var(--bv-surface,#fffefa);color:var(--bv-ink,#242722);padding:9px 12px;min-height:37px;white-space:nowrap;cursor:pointer;transition:color 160ms,background-color 160ms,border-color 160ms;background:var(--bv-blue,#2450db);border-color:var(--bv-blue,#2450db);color:white;}.ds-button:hover{background:#1b3caa;border-color:#1b3caa;color:white;}.ds-button:focus-visible{outline:2px solid var(--bv-blue,#2450db);outline-offset:4px;}.ds-button:disabled{cursor:not-allowed;opacity:.42;}@media(prefers-reduced-motion:reduce){.ds-button,.ds-link,.ds-select,.ds-search,.ds-search input,.ds-nav a,.ds-country{transition:none!important;}}",
+      "refersTo": "button-primary"
+    },
+    {
+      "name": "Text action",
+      "kind": "button",
+      "description": "A quiet route from a summary to its details.",
+      "html": "<button class=\"ds-link\">Voir les envois <svg width=\"15\" height=\"15\" viewBox=\"0 0 256 256\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"16\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M40 128h176m-72-72 72 72-72 72\"/></svg></button>",
+      "css": ".ds-link{font-family:\"IBM Plex Sans\",sans-serif;display:inline-flex;align-items:center;gap:7px;background:none;border:0;padding:0;color:var(--bv-blue,#2450db);font-size:11px;font-weight:500;cursor:pointer;transition:color 160ms,background-color 160ms,border-color 160ms;}.ds-link:hover{text-decoration:underline;text-underline-offset:3px;color:#173cae;}.ds-link:focus-visible{outline:2px solid var(--bv-blue,#2450db);outline-offset:4px;}@media(prefers-reduced-motion:reduce){.ds-button,.ds-link,.ds-select,.ds-search,.ds-search input,.ds-nav a,.ds-country{transition:none!important;}}",
+      "refersTo": "button-text"
+    },
+    {
+      "name": "Period select",
+      "kind": "input",
+      "description": "A labeled filter with the implemented SVG chevron.",
+      "html": "<label class=\"ds-filter\"><span>Période</span><select class=\"ds-select\"><option>30 derniers jours</option><option>7 derniers jours</option><option>90 derniers jours</option></select></label>",
+      "css": ".ds-filter{font-family:\"IBM Plex Sans\",sans-serif;display:flex;align-items:center;gap:9px;color:var(--bv-muted,#62665e);font-size:12px;}.ds-select{font-family:\"IBM Plex Sans\",sans-serif;appearance:none;border:1px solid #d3d7c9;background-color:var(--bv-surface,#fffefa);border-radius:4px;padding:8px 27px 8px 9px;color:var(--bv-ink,#242722);font-size:12px;min-height:36px;max-width:100%;background-image:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='m3 4.5 3 3 3-3' fill='none' stroke='%23596051' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E\");background-repeat:no-repeat;background-position:right 9px center;transition:color 160ms,background-color 160ms,border-color 160ms;}.ds-select:focus-visible{outline:2px solid var(--bv-blue,#2450db);outline-offset:4px;}@media(prefers-reduced-motion:reduce){.ds-button,.ds-link,.ds-select,.ds-search,.ds-search input,.ds-nav a,.ds-country{transition:none!important;}}",
+      "refersTo": "select"
+    },
+    {
+      "name": "Search field",
+      "kind": "input",
+      "description": "Search has focus on its whole framed surface.",
+      "html": "<label class=\"ds-search\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 256 256\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"16\" stroke-linecap=\"round\" aria-hidden=\"true\"><circle cx=\"112\" cy=\"112\" r=\"80\"/><path d=\"m168.57 168.57 55.43 55.43\"/></svg><input type=\"search\" aria-label=\"Rechercher un atelier\" placeholder=\"Rechercher un atelier\"/></label>",
+      "css": ".ds-search{font-family:\"IBM Plex Sans\",sans-serif;display:flex;align-items:center;gap:8px;color:var(--bv-muted,#62665e);border:1px solid #d3d7c9;border-radius:4px;min-width:240px;background:var(--bv-surface,#fffefa);padding:8px 10px;}.ds-search:focus-within{outline:2px solid var(--bv-blue,#2450db);outline-offset:2px;}.ds-search input{font-family:\"IBM Plex Sans\",sans-serif;min-width:0;width:100%;padding:0;background:transparent;border:0;border-radius:0;color:var(--bv-ink,#242722);outline:none;font-size:12px;transition:color 160ms,background-color 160ms,border-color 160ms;}.ds-search input::placeholder{color:#6b7065;opacity:1;}.ds-search input::-webkit-search-cancel-button{display:none;}@media(prefers-reduced-motion:reduce){.ds-button,.ds-link,.ds-select,.ds-search,.ds-search input,.ds-nav a,.ds-country{transition:none!important;}}",
+      "refersTo": "search"
+    },
+    {
+      "name": "Navigation",
+      "kind": "nav",
+      "description": "Labeled rows expose current location through text, icon and a marker.",
+      "html": "<nav class=\"ds-nav\" aria-label=\"Navigation de démonstration\"><a href=\"#overview\" aria-current=\"page\"><svg width=\"19\" height=\"19\" viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M224 208H208V40a8 8 0 0 0-8-8H152a8 8 0 0 0-8 8V80H104a8 8 0 0 0-8 8V128H56a8 8 0 0 0-8 8V208H32a8 8 0 0 0 0 16H224a8 8 0 0 0 0-16Z\"/></svg><span>Synthèse</span><span class=\"ds-nav-mark\" aria-hidden=\"true\"></span></a><a href=\"#jobs\">Envois</a></nav>",
+      "css": ".ds-nav{font-family:\"IBM Plex Sans\",sans-serif;display:flex;flex-direction:column;gap:5px;background:#eeeee6;padding:12px;font-size:14px;}.ds-nav a{display:flex;align-items:center;gap:11px;text-decoration:none;padding:11px 12px;border-radius:4px;color:#555a51;font-weight:500;transition:color 160ms,background-color 160ms,border-color 160ms;}.ds-nav a:hover{background:#e5e6dc;color:var(--bv-ink,#242722);}.ds-nav a[aria-current]{color:var(--bv-blue,#2450db);background:#e2e7f5;}.ds-nav a:focus-visible{outline:2px solid var(--bv-blue,#2450db);outline-offset:4px;}.ds-nav-mark{margin-left:auto;width:5px;height:5px;border-radius:50%;background:var(--bv-blue,#2450db);}@media(prefers-reduced-motion:reduce){.ds-button,.ds-link,.ds-select,.ds-search,.ds-search input,.ds-nav a,.ds-country{transition:none!important;}}",
+      "refersTo": "navigation-selected"
+    },
+    {
+      "name": "Warning status",
+      "kind": "chip",
+      "description": "A written status paired with semantic amber.",
+      "html": "<span class=\"ds-status\">À examiner</span>",
+      "css": ".ds-status{font-family:\"IBM Plex Sans\",sans-serif;display:inline-flex;align-items:center;white-space:nowrap;font-size:10px;font-weight:400;padding:4px 7px;border-radius:3px;background:var(--bv-amber-pale,#faf0df);color:var(--bv-warning,#8b4a17);}",
+      "refersTo": "status-warning"
+    },
+    {
+      "name": "Panel",
+      "kind": "card",
+      "description": "A flat surface framed by a subtle line.",
+      "html": "<section class=\"ds-panel\"><header class=\"ds-panel-heading\"><h2>Activité quotidienne</h2></header><p>Une lecture de la période sélectionnée.</p></section>",
+      "css": ".ds-panel{font-family:\"IBM Plex Sans\",sans-serif;background:var(--bv-surface,#fffefa);border:1px solid var(--bv-line,#dedfd5);border-radius:5px;padding:23px 25px;min-width:0;color:var(--bv-ink,#242722);}.ds-panel-heading{display:flex;justify-content:space-between;align-items:center;gap:20px;margin-bottom:22px;}.ds-panel h2{margin:0;font-size:16px;font-weight:500;line-height:1.35;text-wrap:balance;}.ds-panel p{margin:0;font-size:12px;line-height:1.6;color:var(--bv-muted,#62665e);}",
+      "refersTo": "panel"
+    },
+    {
+      "name": "Country ranking row",
+      "kind": "custom",
+      "description": "The HTML selection and value counterpart of the globe; sample values are illustrative.",
+      "html": "<button class=\"ds-country\" type=\"button\" aria-pressed=\"true\"><span class=\"ds-country-code\">FR</span><span class=\"ds-country-name\">France<span class=\"ds-country-bar\"><i></i></span></span><span class=\"ds-country-value\">20<small>16,7 %</small></span></button>",
+      "css": ".ds-country{font-family:\"IBM Plex Sans\",sans-serif;width:100%;display:flex;align-items:center;gap:11px;border:0;background:transparent;padding:10px 9px;text-align:left;color:var(--bv-ink,#242722);min-height:48px;border-radius:3px;cursor:pointer;transition:color 160ms,background-color 160ms,border-color 160ms;}.ds-country:hover{background:#f1f3ee;}.ds-country[aria-pressed=\"true\"]{background:#edf1fc;}.ds-country:focus-visible{outline:2px solid var(--bv-blue,#2450db);outline-offset:4px;}.ds-country-code{display:block;width:25px;flex-shrink:0;font:400 10px/1.2 \"IBM Plex Mono\",monospace;color:#65768a;}.ds-country-name{min-width:0;flex:1;font-size:12px;line-height:1.4;}.ds-country[aria-pressed=\"true\"] .ds-country-name{color:#193faf;}.ds-country-bar{display:block;width:100%;max-width:170px;margin-top:6px;height:2px;background:#e6e9e3;}.ds-country-bar i{display:block;height:100%;width:100%;background:#839ad7;}.ds-country[aria-pressed=\"true\"] .ds-country-bar i{background:var(--bv-blue,#2450db);}.ds-country-value{font-size:12px;text-align:right;flex-shrink:0;font-variant-numeric:tabular-nums;}.ds-country-value small{display:block;font-size:10px;color:#686e62;margin-top:3px;}@media(prefers-reduced-motion:reduce){.ds-button,.ds-link,.ds-select,.ds-search,.ds-search input,.ds-nav a,.ds-country{transition:none!important;}}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Tout voir, à la bonne hauteur.",
+    "overview": "Belvédère carries guteneo's printing-house identity into a quiet private workspace. Warm paper, the existing cobalt mark and restrained serif headings give context to precise operational data. Its density comes from aligned rows, compact controls and clear separators, with room around the principal headings and figures.\n\nThis document applies only to the private Belvédère control tower. It records the current local candidate in `apps/web/src/belvedere.css`, `belvedere-globe.css`, `belvedere.tsx` and `belvedere-globe.tsx`; it does not establish a design system for the public site or assert a production release. [The product contract](../PRODUCT.md) and [Belvédère's functional contract](../BELVEDERE.md) remain the sources for access, data meaning and read-only behavior.",
+    "keyCharacteristics": [
+      "The real guteneo mark and lowercase wordmark on ivory surfaces.",
+      "Editorial headings paired with compact, tabular operational data.",
+      "Cobalt for interaction and selected data; green and amber for stated evidence or status.",
+      "Flat framed surfaces with limited depth for selected controls, the mobile drawer and the globe.",
+      "Responsive layouts, accessible data alternatives and user-driven exploration."
+    ],
+    "rules": [
+      {
+        "name": "The Named State Rule",
+        "body": "Keep status and evidence words alongside color; the interface must still explain the state without interpreting a dot or tint.",
+        "section": "colors"
+      },
+      {
+        "name": "The Reading Roles Rule",
+        "body": "Use the serif to introduce a place or subject, and Plex Sans to compare, filter and act. Keep numerical columns aligned and explanatory text visually subordinate without treating tiny annotations as a default.",
+        "section": "typography"
+      },
+      {
+        "name": "The Local Overflow Rule",
+        "body": "Preserve useful table columns and contain their horizontal scrolling inside the table region; adapt the surrounding controls to the viewport.",
+        "section": "layout"
+      },
+      {
+        "name": "The Quiet Surface Rule",
+        "body": "Separate resting surfaces with tone and borders; reserve elevation for a selected control, an overlay or the globe's physical form.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Paired Data Rule",
+        "body": "Every spatial view retains its text-based values and selection route; geographic exploration must not be the only path to the data.",
+        "section": "components"
+      }
+    ],
+    "dos": [
+      "**Do** preserve the real guteneo mark, lowercase wordmark and the private Belvédère scope.",
+      "**Do** pair semantic color with a written state and keep data provenance or absence legible.",
+      "**Do** keep the serif for introductions and Plex Sans for operational reading, with tabular numerals for comparison.",
+      "**Do** keep table overflow local and provide the same geographic values through the country ranking.",
+      "**Do** retain visible focus, named controls and reduced-motion behavior."
+    ],
+    "donts": [
+      "**Don't** turn the globe's shaded material or the drawer's shadow into the default panel treatment.",
+      "**Don't** replace labeled navigation or brand assets with decorative glyphs.",
+      "**Don't** add idle globe motion or make canvas interaction the sole route to data.",
+      "**Don't** imply a missing measurement is zero, a simulation is production evidence or a read-only action sends an operation.",
+      "**Don't** promote isolated annotation sizes, fixture numbers or one-off visual values into reusable design tokens."
+    ]
+  }
+}

@@ -27,7 +27,7 @@ export function StudioAiNotice({ available }: { available: boolean }) {
   return available ? null : (
     <p className="notice info">
       {msg(
-        "L’IA est indisponible tant que le fournisseur, l’autorisation de transfert et le quota de l’atelier ne sont pas prêts. Vous pouvez créer et modifier votre modèle manuellement.",
+        "AI is unavailable until the provider, transfer permission and workshop quota are ready. You can create and edit your template manually.",
       )}
     </p>
   );

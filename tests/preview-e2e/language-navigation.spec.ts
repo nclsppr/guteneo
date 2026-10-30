@@ -4,6 +4,21 @@ import { publicLanguagePicker } from "../public-language";
 test.use({ locale: "en-GB" });
 
 async function preferGerman(page: Page) {
+  // Context locale can override extra headers on navigation. Keep the actual
+  // HTTP language list coherent with the navigator fixture below.
+  await page.route("**/*", (route) => {
+    const request = route.request();
+    return route.continue(
+      request.isNavigationRequest()
+        ? {
+            headers: {
+              ...request.headers(),
+              "accept-language": "es-ES,de-AT;q=0.9,en-GB;q=0.8",
+            },
+          }
+        : {},
+    );
+  });
   await page.addInitScript(() => {
     Object.defineProperty(navigator, "languages", {
       configurable: true,
@@ -26,10 +41,12 @@ test("the first supported browser preference is automatic and a manual choice su
   await preferGerman(page);
   await page.goto("/");
   await expect(page.locator("html")).toHaveAttribute("lang", "de");
+  await page.goto("/how-it-works/");
   await expect(page.locator('[data-film="introduction"]')).toHaveAttribute(
     "data-locale",
     "de",
   );
+  await page.goto("/");
   let picker = await publicLanguagePicker(page);
   await expect(picker).toHaveValue("auto");
   expect(
@@ -100,20 +117,19 @@ test("choosing the detected language still records an explicit choice and can re
   ).toBeNull();
 });
 
-test("the iPhone 15 Pro Max and 320px headers keep one row with language choices inside Menu", async ({
+test("narrow public headers keep one row and navigation yields to language selection", async ({
   page,
 }) => {
   for (const width of [430, 320]) {
     await page.setViewportSize({ width, height: 932 });
     await page.goto("/?lang=lb");
     const header = page.locator("header.site-header");
-    const toggle = header.locator(".mobile-menu-toggle");
+    const toggle = header.locator(".public-menu-toggle");
     const brand = header.locator(":scope > .brand");
+    const languageButton = header.locator(".language-menu summary");
     await expect(toggle).toBeVisible();
+    await page.evaluate(() => document.fonts.ready);
     await expect(toggle).toHaveAttribute("aria-expanded", "false");
-    await expect(header.locator('select[name="language"]:visible')).toHaveCount(
-      0,
-    );
     const headerBounds = await header.boundingBox();
     const brandBounds = await brand.boundingBox();
     const toggleBounds = await toggle.boundingBox();
@@ -128,12 +144,36 @@ test("the iPhone 15 Pro Max and 320px headers keep one row with language choices
     expect(toggleBounds!.y).toBeLessThan(brandBounds!.y + brandBounds!.height);
     await expectNoHorizontalOverflow(page);
 
+    await toggle.click();
+    await expect(toggle).toHaveAttribute("aria-expanded", "true");
+    const mobileLinks = header.locator(".public-mobile-navigation > a:visible");
+    await expect(mobileLinks).toHaveCount(9);
+    expect(
+      await mobileLinks.evaluateAll((links) =>
+        links.map((link) => new URL((link as HTMLAnchorElement).href).pathname),
+      ),
+    ).toEqual([
+      "/how-it-works/",
+      "/pricing/",
+      "/assistants/",
+      "/getting-started/",
+      "/pdf-checks/",
+      "/journal/",
+      "/developers/",
+      "/support/",
+      "/app",
+    ]);
+    expect((await header.boundingBox())!.height).toBe(headerBounds!.height);
+    // Touch activation on WebKit does not implicitly focus a button.
+    await toggle.focus();
+    await page.keyboard.press("Escape");
+    await expect(toggle).toHaveAttribute("aria-expanded", "false");
+    await expect(toggle).toBeFocused();
+
+    await toggle.click();
     const picker = await publicLanguagePicker(page);
     await expect(picker).toHaveValue("lb");
-    await expect(toggle).toHaveAttribute("aria-expanded", "true");
-    await expect(header.locator(".mobile-navigation > a:visible")).toHaveCount(
-      4,
-    );
+    await expect(toggle).toHaveAttribute("aria-expanded", "false");
     expect((await header.boundingBox())!.height).toBe(headerBounds!.height);
     const pickerBounds = await picker.boundingBox();
     expect(pickerBounds!.x).toBeGreaterThanOrEqual(0);
@@ -141,8 +181,7 @@ test("the iPhone 15 Pro Max and 320px headers keep one row with language choices
     await expectNoHorizontalOverflow(page);
     await picker.focus();
     await page.keyboard.press("Escape");
-    await expect(toggle).toHaveAttribute("aria-expanded", "false");
-    await expect(toggle).toBeFocused();
+    await expect(languageButton).toBeFocused();
     await expect(picker).toBeHidden();
   }
 });
@@ -179,15 +218,17 @@ test("public subpage language panels remain fully inside narrow phone viewports"
     await page.setViewportSize({ width, height: 932 });
     for (const path of [
       "/assistants/",
-      "/developpeurs/",
+      "/developers/",
       "/journal/",
-      "/mentions-legales/",
-      "/confidentialite/",
+      "/legal/",
+      "/privacy/",
     ]) {
       await test.step(`${path} at ${width}px`, async () => {
         await page.goto(`${path}?lang=lb`);
         const header = page.locator("header.site-header");
         await expect(header).toBeVisible();
+        // Compare the closed/open menu only after font metrics have settled.
+        await page.evaluate(() => document.fonts.ready);
         const closedHeight = await header.evaluate(
           (element) => element.getBoundingClientRect().height,
         );
@@ -211,6 +252,43 @@ test("public subpage language panels remain fully inside narrow phone viewports"
           expect(bounds.x + bounds.width).toBeLessThanOrEqual(width);
           await expectNoHorizontalOverflow(page);
         }
+      });
+    }
+  }
+});
+
+test("public editorial titles remain inside narrow viewports when web fonts are unavailable", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 320, height: 932 });
+  await page.route("**/*.woff2", (route) => route.abort());
+  for (const path of ["/journal/", "/legal/"]) {
+    for (const locale of ["fr", "en", "de", "lb"]) {
+      await test.step(`${path} in ${locale} with fallback fonts`, async () => {
+        await page.goto(`${path}?lang=${locale}`);
+        await expect(page.locator("html")).toHaveAttribute("lang", locale);
+        await expect(page.locator(".public-site main h1")).toBeVisible();
+        await page.evaluate(() => document.fonts.ready);
+        const header = page.locator("header.public-header");
+        const wordmark = (await header
+          .locator(".brand-wordmark")
+          .boundingBox())!;
+        const actions = (await header
+          .locator(".public-header-actions")
+          .boundingBox())!;
+        expect(wordmark.x + wordmark.width).toBeLessThanOrEqual(actions.x);
+        for (const selector of [
+          ".theme-toggle",
+          ".language-menu > summary",
+          ".public-menu-toggle",
+        ]) {
+          const control = (await header.locator(selector).boundingBox())!;
+          expect(control.width).toBeGreaterThanOrEqual(44);
+          expect(control.height).toBeGreaterThanOrEqual(44);
+          expect(control.x).toBeGreaterThanOrEqual(0);
+          expect(control.x + control.width).toBeLessThanOrEqual(320);
+        }
+        await expectNoHorizontalOverflow(page);
       });
     }
   }

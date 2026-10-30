@@ -1,0 +1,24 @@
+{
+  "generator": "OpenAI image_gen built-in imagegen tool",
+  "generatedOn": "2026-10-25",
+  "alpha": true,
+  "references": ["apps/web/public/editorial/luxembourg-printing.webp"],
+  "prompt": "Use case: precise-object-edit. Exact edit target: Guteneo editorial illustration showing a traditional printing workshop, press and movable type on the left, open books and flying sheet below, and the Luxembourg valley and architecture through the window on the right. Produce a dedicated dark-interface version, preserving the exact entire scene, framing, landmarks, object layout, fine engravings, ratios and proportions. Replace blue ink with warm ivory #F6F5EF engraving and delicate halftone stipple that read on deep navy #11151E. Background and negative space must be REAL TRANSPARENT alpha rather than a colored rectangle; avoid a paper/card background and harsh visible bounds. Keep illustrated object highlights/lines in ivory with dark negative space. Retain the same 1536x1024 3:2 composition. No extra buildings or objects, no text/logos, no border/frame/shadow, no gradients, no photographic/night lighting.",
+  "source": "assets/editorial/source/luxembourg-printing-dark.png",
+  "sourceSha256": "cbc50302cf99f76f4f6ffe55a2858ca40b4894b583d419e9af87d12662e6efdd",
+  "sourceBytes": 4038604,
+  "web": "apps/web/public/editorial/luxembourg-printing-dark.webp",
+  "webSha256": "68fe8703fb2c265c46a5750431e1372046ee0c02d5f7eb3e5a4ac162d3f85687",
+  "webBytes": 812414,
+  "width": 1536,
+  "height": 1024,
+  "conversion": "cwebp -q 88 -alpha_q 100 assets/editorial/source/luxembourg-printing-dark.png -o apps/web/public/editorial/luxembourg-printing-dark.webp",
+  "notes": "Dedicated dark editorial derivative; original light art retained unchanged. Background alpha integrates directly with the dark page, without an added paper frame.",
+  "responsive": {
+    "path": "apps/web/public/editorial/luxembourg-printing-dark-small.webp",
+    "bytes": 205374,
+    "sha256": "ff1c5b7fed0c707c370ad83e2c8bf8439578dc2b77f7ee556ce90ca7dd3851fa",
+    "dimensions": [720, 480],
+    "conversion": "cwebp -q 88 -alpha_q 100 -resize 720 0 assets/editorial/source/luxembourg-printing-dark.png -o apps/web/public/editorial/luxembourg-printing-dark-small.webp"
+  }
+}

@@ -1,98 +1,189 @@
-# Préparer un PDF postal Pingen
+# Preparing a Pingen postal PDF
 
-Vérification officielle : **17 septembre 2026**. Version locale : `pingen-2026-09-17-v2`. Ce document distingue les règles Pingen, les restrictions de la bêta Guteneo et les preuves encore nécessaires. La documentation fournisseur reste l’autorité pour son acceptation.
+Official documentation checked **17 September 2026**; local version
+`pingen-2026-09-17-v2`. This document separates provider rules, Guteneo beta
+restrictions and missing evidence. Provider documentation remains authoritative
+for provider acceptance.
 
-## Fichier et profil
+## Format and account profile
 
-Pingen demande un PDF A4 de **210 × 297 mm**, limité à **8 MB**. Guteneo interprète ce plafond prudemment comme **8 000 000 octets** et conserve sa limite existante de **100 pages**, inférieure aux 320 pages annoncées pour FR/LU/DE. Chaque page compte, y compris les pages blanches. Le recto verso réduit le nombre de feuilles à `ceil(pages / 2)` ; il ne divise pas le nombre de pages du PDF. [Pingen : Letter standards](https://help.pingen.com/en/templates-and-postal-requirements/letter-standards).
+PDFs must be A4, at most 100 pages and 8,000,000 bytes, with embedded fonts.
+Duplex reduces sheets to `ceil(pages / 2)`, not PDF page count.
+[Pingen letter standards](https://help.pingen.com/en/templates-and-postal-requirements/letter-standards).
 
-Le premier profil du compte qualifié est `default_country=LU`, fenêtre gauche. Ne pas déduire ce paramètre de l’adresse de l’utilisateur. Le serveur le lit dans l’organisation Pingen. Pour un compte français, la fenêtre droite est requise ; le gabarit français concerne la destination France. Les lettres de ce compte à destination d’autres pays suivent le gabarit général. Une lettre vers la France depuis un compte non français suit les exigences DHL et le gabarit général, pas le circuit La Poste local.
+The first qualified account profile was `default_country=LU`, left window. Never
+infer this from a user's address; the server reads the Pingen organization. French
+accounts require the right window; their French template applies to France-bound
+letters, while other destinations use the general template. France-bound letters
+from non-French accounts use DHL international rules and the general template,
+rather than the local La Poste route.
 
-## Géométrie du document final
+## Final-document geometry
 
-Unités : **mm, origine en haut à gauche**, avant toute rotation. Les rectangles suivants sont ceux des pages officielles, pas une estimation à partir d’une capture.
+Coordinates are **millimeters from the top left**, before rotation, taken from
+official pages rather than estimated from screenshots.
 
-| Profil                    | Adresse page 1 : x, y, largeur, hauteur | Ensemble réservé page 1 : x, y, largeur, hauteur | Coin réservé sur chaque page |
-| ------------------------- | --------------------------------------- | ------------------------------------------------ | ---------------------------- |
-| Général, fenêtre gauche   | 22 ; 60 ; 85,5 ; 25,5                   | 20 ; 40 ; 89,5 ; 47,5                            | Bas gauche : 15 × 15         |
-| Général, fenêtre droite   | 118 ; 60 ; 85,5 ; 25,5                  | 116 ; 40 ; 89,5 ; 47,5                           | Bas gauche : 15 × 15         |
-| Compte FR, destination FR | 110 ; 50 ; 80 ; 28                      | 90 ; 30 ; 115 ; 64                               | Haut droit : 20 × 20         |
+| Profile | Page 1 address: x, y, width, height | Page 1 reserved region: x, y, width, height | Reserved corner on every page |
+| --- | --- | --- | --- |
+| General, left window | 22; 60; 85.5; 25.5 | 20; 40; 89.5; 47.5 | Bottom left: 15 × 15 |
+| General, right window | 118; 60; 85.5; 25.5 | 116; 40; 89.5; 47.5 | Bottom left: 15 × 15 |
+| FR account, FR destination | 110; 50; 80; 28 | 90; 30; 115; 64 | Top right: 20 × 20 |
 
-L’ensemble réservé contient le rectangle d’adresse : **seul le destinataire** est permis dans ce dernier, le reste doit être blanc. Conserver aussi **5 mm vierges sur les quatre bords de chaque page**. Logos, traits, numéros, repères de gabarit, filigranes et pixels gris sont du contenu. Les schémas officiels des coins ont été inspectés visuellement. [Gabarit général](https://help.pingen.com/en/templates-and-postal-requirements/layout-requirements), [gabarit français et exception internationale](https://help.pingen.com/en/templates-and-postal-requirements/layout-requirements-french-organisations).
+The reserved region includes the address rectangle: **only the recipient** belongs
+inside that rectangle; the remainder must be white. Keep **5 mm blank on every
+page edge**. Logos, lines, numbers, template marks, watermarks and gray pixels count
+as content. Official corner diagrams were visually inspected.
+[General layout](https://help.pingen.com/en/templates-and-postal-requirements/layout-requirements),
+[French layout and international exception](https://help.pingen.com/en/templates-and-postal-requirements/layout-requirements-french-organisations).
 
-Pour créer une nouvelle lettre : police lisible sans empattement, noire, normale, 10–12 pt, alignement gauche, aucune ligne vide. Réserver une marge intérieure supplémentaire ; ne pas placer les glyphes exactement sur la limite de la fenêtre. Ne jamais utiliser de coordonnées PDF partant du bas sans conversion `y_bas = hauteur_page − y_haut − hauteur_bloc`. Le rendu final, et non le CSS ou le prompt, détermine la position.
+For a new letter, use readable black regular sans-serif text, 10–12 pt, left aligned,
+without blank lines. Add inner margin; do not put glyphs directly on window edges.
+Convert bottom-origin PDF coordinates with
+`y_bottom = page_height − y_top − block_height`. Final rendering determines
+placement, rather than CSS or a prompt.
 
-## Adresse et papier
+## Address and paper
 
-L’adresse doit déjà figurer dans le PDF. Le parcours original conserve les octets : aucun déplacement, ajout de couverture, changement de taille ou aplatissage implicite. Une correction produit explicitement un nouveau document, une nouvelle empreinte et une nouvelle approbation.
+The PDF must already contain its address. The original journey preserves exact
+bytes without implicit repositioning, cover insertion, resizing or flattening.
+Correction explicitly creates a new document, fingerprint and approval.
 
-| Destination  | Contrôles utiles et limites                                                                                                                                                                                                                                                                                                                     |
-| ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| LU           | 3–6 lignes hors pays ; rue puis numéro ; code de 4 chiffres, préfixe `L-` conseillé, puis localité. Pas de pays final pour un courrier local LU ; pays final requis à l’international. Police 8–12 pt, préférence 10–12. [Règles bpost LU](https://help.pingen.com/en/templates-and-postal-requirements/address-requirements-bpost-luxembourg). |
-| DE           | Rue puis numéro, code de 5 chiffres puis ville ; pas de préfixe `DE-` ou `D-`. Les grands destinataires à deux lignes restent hors profil simplifié Guteneo. Pas de pays final pour le circuit domestique DE. [Règles Deutsche Post](https://help.pingen.com/en/templates-and-postal-requirements/address-requirements-deutsche-post).          |
-| FR local     | 3–6 lignes, 38 caractères maximum par ligne ; numéro puis rue ; code de 5 chiffres puis ville en capitales. Supprimer la ponctuation à partir de la ligne de rue. Vérifier aussi espacements et hauteur des caractères. [Règles La Poste](https://help.pingen.com/en/templates-and-postal-requirements/address-requirements-la-poste).          |
-| FR depuis LU | Appliquer le circuit international DHL ; dernière ligne `FRANCE`. Les règles locales françaises ne suffisent pas à qualifier ce trajet. [Règles DHL](https://help.pingen.com/en/templates-and-postal-requirements/address-requirements-dhl-international).                                                                                      |
+| Destination | Checks and limits |
+| --- | --- |
+| LU | 3–6 lines excluding country; street then number; four-digit postal code, recommended `L-` prefix, then locality. No country line for domestic LU; country required internationally. 8–12 pt, preferably 10–12. [bpost LU](https://help.pingen.com/en/templates-and-postal-requirements/address-requirements-bpost-luxembourg). |
+| DE | Street then number; five-digit postal code then city; no `DE-`/`D-` prefix. Two-line large-recipient addresses exceed Guteneo's simplified profile. No country line for domestic DE. [Deutsche Post](https://help.pingen.com/en/templates-and-postal-requirements/address-requirements-deutsche-post). |
+| Domestic FR | 3–6 lines, at most 38 characters per line; number then street; five-digit postal code then uppercase city. Remove punctuation from the street line onward; also check spacing and character height. [La Poste](https://help.pingen.com/en/templates-and-postal-requirements/address-requirements-la-poste). |
+| FR from LU | DHL international route; final line `FRANCE`. Domestic French rules alone do not qualify this route. [DHL](https://help.pingen.com/en/templates-and-postal-requirements/address-requirements-dhl-international). |
 
-Le helper accepte délibérément une forme canonique restreinte pour le pays final : `FRANCE`, `GERMANY`, `LUXEMBOURG`. Les autres graphies reconnues par Pingen peuvent être ajoutées après tests ; ce rejet conservateur n’affirme pas qu’elles sont invalides chez le fournisseur. Pingen publie sa [liste des noms de pays](https://help.pingen.com/en/templates-and-postal-requirements/supported-country-names). Cette page générale omet actuellement LU dans les exceptions domestiques ; la page LU plus précise exige l’absence de pays en local.
+The helper deliberately accepts only canonical final-country spellings `FRANCE`,
+`GERMANY`, `LUXEMBOURG`. Other provider-recognized spellings require tests before
+addition; conservative rejection does not imply provider invalidity.
+[Pingen country names](https://help.pingen.com/en/templates-and-postal-requirements/supported-country-names)
+currently omits LU from domestic exceptions; the more specific LU page requires
+no country for domestic mail.
 
-La bêta propose papier `normal`, `simplex`/`duplex`, `grayscale`/`color`, `fast`/`cheap` **lorsque le calculateur du compte les accepte**. Pas de papier SEPA, QR-facture, recommandé ou remplacement automatique d’un produit. Pingen détecte les types de papier par page ; conserver le tableau retourné pour le devis au lieu de fabriquer une équivalence avec le nombre de feuilles. [Papiers](https://help.pingen.com/en/printing-and-paper-options/supported-paper-types), [impression](https://help.pingen.com/en/printing-and-paper-options/print-options).
+Beta options are `normal`, `simplex`/`duplex`, `grayscale`/`color`, `fast`/`cheap`
+**when the account calculator accepts them**. No SEPA paper, QR invoice, registered
+mail or automatic product substitution. Pingen detects paper types per page;
+retain its returned array for pricing instead of inventing a sheet-count
+substitution. [Paper types](https://help.pingen.com/en/printing-and-paper-options/supported-paper-types),
+[print options](https://help.pingen.com/en/printing-and-paper-options/print-options).
 
-L’expéditeur vérifié et la gestion des retours sont deux contrôles distincts du destinataire. Une adresse imprimée en en-tête ne garantit pas le retour physique : Pingen décrit un traitement numérique des plis non distribuables et leur destruction sans ouverture. Ne pas annoncer un renvoi postal à l’expéditeur. [Retours Pingen](https://help.pingen.com/en/submit-and-send-letters/digital-returns-processing).
+Verified sender and return processing are separate from recipient checks. A
+printed letterhead does not guarantee physical return: Pingen describes digital
+processing and unopened destruction of undeliverable letters. Never promise postal
+return to the sender. [Returns](https://help.pingen.com/en/submit-and-send-letters/digital-returns-processing).
 
-## Contrôles livrés et raccordement
+## Delivered checks and integration
 
-`packages/contracts/src/pingen-preflight.ts` exporte :
+`packages/contracts/src/pingen-preflight.ts` exports:
 
-- `preflightPingenPdf(bytes, options)` : lit les octets exacts, empreinte, nombre de pages/feuilles, A4, cadrage, rotation, unité PDF, formulaires, annotations, polices déclarées incorporées. Aucun réseau ni sauvegarde/modification. Il retourne `blocked` ou `review_required`, jamais une autorisation d’envoyer (`canSend: false`). Les restrictions annotations, rotation, cadrage et polices sont des choix conservateurs Guteneo. Le contrôle du fichier de police ne certifie pas la qualité de son programme.
-- `pingenLayout(options)` : profil et rectangles en mm.
-- `checkPingenAddress(lines, options)` : syntaxe bornée, sans normalisation silencieuse ; ne vérifie ni l’existence de l’adresse ni le contenu réel du PDF.
-- `checkPingenRaster(input, options)` : pixels RGBA opaques rendus par le service isolé de confiance, minimum environ 144 dpi, maximum 10 millions de pixels/page ; vérifie les bords et coins sur chaque page, la zone d’affranchissement et la présence d’encre dans la fenêtre page 1. Tout pixel non blanc dans une zone interdite bloque. L’empreinte du rendu doit correspondre à celle du document.
+- `preflightPingenPdf(bytes, options)`: exact bytes, hash, page/sheet count, A4, crop, rotation, PDF unit, forms, annotations and declared embedded fonts. No network, save or mutation. Returns `blocked` or `review_required`, always `canSend:false`. Annotation, rotation, crop and font restrictions are conservative Guteneo choices; font-file inspection does not certify program quality.
+- `pingenLayout(options)`: profile and millimeter rectangles.
+- `checkPingenAddress(lines, options)`: bounded syntax without silent normalization; proves neither address existence nor actual PDF text.
+- `checkPingenRaster(input, options)`: trusted isolated-service opaque RGBA output, at least approximately 144 dpi, at most ten million pixels/page. Checks every page's borders/corners, postage region and page-1 window ink. Any nonwhite forbidden pixel blocks. Render hash must match the document.
 
-Intégrer **après le scan qualifié et avant le dépôt fournisseur**, dans le service documentaire isolé. Le raster doit provenir des octets privés vérifiés, jamais du navigateur ou du LLM. Exiger un résultat pour chacune des pages, dans l’ordre, sans échantillonner seulement la première. La simple présence d’encre ne prouve pas qu’il s’agit d’une adresse : extraction de texte dans la fenêtre, comparaison au destinataire normalisé et examen visuel restent nécessaires. Images, glyphes vectorisés, texte invisible, superpositions et doublons imposent une revue. Un LLM peut assister cette revue, pas attester à lui seul la géométrie ou une identité.
+Integrate **after qualified scanning and before provider upload** in the isolated
+document service. Raster input must come from verified private bytes, never the
+browser or LLM. Require every page, in order. Ink alone does not prove an address:
+window-text extraction, normalized-recipient comparison and visual inspection
+remain necessary. Images, outlined glyphs, invisible text, overlays and duplicates
+need review. An LLM may assist but cannot alone attest geometry or identity.
 
-Pour la revue finale : hash, nombre de pages, adresse extraite exacte, pays, fenêtre, papier détecté, options, montant fournisseur qualifié et prix client gelé doivent appartenir au même brouillon/manifest. Revalider droits et document avant chaque effet externe. Ne pas utiliser le résultat local comme jeton d’approbation. Les outils MCP n’accordent jamais le consentement humain.
+Final review binds hash, page count, exact extracted address, country, window,
+detected paper, options, qualified provider amount and frozen customer price to
+one draft/manifest. Revalidate authority and document before every external
+effect. A local result is no approval token; MCP tools grant no human consent.
 
-Le candidat applicatif raccorde maintenant ces contrôles au renderer privé et à une revue navigateur. Leur présence dans le code ne prouve pas encore leur qualification distante ni le dépôt Pingen. Le connecteur applique également le plafond 8 000 000 octets. L’adresse attendue utilise le pays par défaut du compte qualifié ; elle conserve la dernière ligne de pays pour un destinataire international. Voir [le service documentaire](DOCUMENT_POSTAL_PREFLIGHT.md) pour la preuve du renderer et [la release](LIVE_RELEASE.md) pour l’état publié.
+The candidate integrates these checks with the private renderer and browser review.
+Source presence alone establishes neither remote qualification nor Pingen upload.
+The connector enforces 8,000,000 bytes. Expected address uses the qualified account's
+default country and keeps a final country line internationally. See [document
+service](DOCUMENT_POSTAL_PREFLIGHT.md) and [release proof](LIVE_RELEASE.md).
 
-## Instructions directement lisibles par le MCP
+## MCP-readable instructions
 
-`get_postal_requirements({country})` expose `addressGuidance` pour FR, LU et DE : circuit réellement applicable au profil, ordre des lignes, code postal/pays, caractères, typographie, exemple fictif et sources officielles datées. Les rectangles restent dans `layout`, les plafonds dans `limits`. L’assistant doit lire ces données avant de produire le PDF, puis vérifier le fichier final exact. La France depuis un compte LU utilise DHL ; les règles locales La Poste ne doivent pas être étendues à ce circuit.
+`get_postal_requirements({country})` exposes FR/LU/DE `addressGuidance`: actual route
+for the profile, line order, postal code/country, characters, typography, synthetic
+example and dated official sources. `layout` holds rectangles; `limits` holds
+ceilings. Read before generating a PDF, then check its exact final bytes. France
+from LU uses DHL; do not extend domestic La Poste rules to that route.
 
-**Limite actuelle Guteneo :** `recipient` ne possède que `name`, `line1`, `postalCode`, `city`, `country`. L’adresse attendue a exactement trois lignes (nom, rue/boîte postale, code et ville), puis la ligne canonique du pays pour l’international. Il n’existe pas de `line2` ou de ligne distincte pour bâtiment, étage, service ou référence de distribution. Les 3–6 lignes annoncées par certains opérateurs ne signifient pas que Guteneo sait les représenter. Ne pas supprimer un complément nécessaire pour contourner cette limite. Les champs ne sont jamais imprimés automatiquement sur le PDF ; celui-ci doit déjà contenir l’adresse.
+**Current Guteneo limit:** `recipient` has only `name`, `line1`, `postalCode`, `city`,
+`country`. Expected address is exactly three lines (name, street/post-office box,
+postal code/city), plus canonical country internationally. There is no `line2`
+or separate building, floor, department or delivery-reference line. Provider
+3–6-line support does not mean Guteneo can represent those forms. Never delete a
+required complement to bypass this limit. Fields are not automatically printed;
+the PDF must already contain the address.
 
-Les trois listes `verification.automatic`, `manual` et `provider` séparent les preuves. Guteneo contrôle les octets, le scan, toutes les pages, la géométrie, les zones réservées, l’extraction/correspondance et une syntaxe bornée. La v2 ajoute l’alphabet latin/chiffres 0–9 pour LU/DE, les caractères LU explicitement interdits et les marqueurs `n°`/`nr` sur la ligne de rue canonique, ainsi que la ponctuation de rue en FR local. Elle conserve accents, apostrophes autorisées dans les noms et compléments allemands séparés par `//`. Aucun texte n’est corrigé ou réécrit pour passer.
+`verification.automatic`, `manual` and `provider` distinguish evidence. Guteneo
+checks bytes, scan, all pages, geometry, reserved regions, extraction/matching and
+bounded syntax. Version 2 adds Latin letters/digits 0–9 for LU/DE, explicitly
+forbidden LU characters and `n°`/`nr` markers on the canonical street line, plus
+domestic-FR street punctuation. Accents, permitted name apostrophes and German
+`//` complements remain. Nothing is corrected or rewritten to pass.
 
-L’ordre rue/numéro, la complétude et l’existence de l’adresse, la couleur, le style, la taille, les espacements et la visibilité réelle exigent encore une revue. Les coordonnées des glyphes sont approximatives. Le contrôle fournisseur ajoute sa propre analyse ; même une réponse favorable ne certifie pas toutes les règles ni la distribution.
+Street/number order, completeness, existence, color, style, size, spacing and
+actual visibility still need review. Glyph coordinates are approximate. Provider
+analysis adds checks but does not certify all rules or delivery.
 
-`get_postal_preflight` expose publiquement `address.textVisibility: "not_verified"`, `cropAccess: "authenticated_browser_session_only"` et `mcpEmbeddedVisualEvidenceAvailable: false`. Le lien de l’extrait nécessite une session navigateur : le jeton OAuth du MCP ne donne pas accès à une image embarquée. L’assistant doit examiner son PDF original en vérifiant l’empreinte ou renvoyer vers `reviewUrl`, et ne doit jamais affirmer avoir lu un extrait inaccessible. `canTransfer` décrit uniquement la disponibilité du bouton navigateur ; sa valeur `false` en MCP ne statue pas sur un mandat expert. `transferPolicy` précise cette distinction sans prétendre évaluer le mandat.
+`get_postal_preflight` exposes `address.textVisibility: "not_verified"`,
+`cropAccess: "authenticated_browser_session_only"` and
+`mcpEmbeddedVisualEvidenceAvailable:false`. The crop needs a browser session;
+MCP OAuth grants no embedded image access. Inspect the original with matching
+hash or direct the user to `reviewUrl`; never claim an inaccessible crop was read.
+`canTransfer` describes browser-button availability only; MCP `false` does not
+determine expert eligibility. `transferPolicy` explains this without evaluating a mandate.
 
-## Parcours du candidat REST et MCP
+## REST and MCP candidate journey
 
-1. Lire `GET /api/postal/requirements?country=LU` ou `get_postal_requirements` avant de créer le PDF ; remplacer LU par le pays du destinataire. Le profil de l’organisation est lu chez Pingen, sans envoi de document. `qualified:true` concerne uniquement le profil.
-2. Après import et scan qualifié, `POST /api/postal/preflights` ou `preflight_postal_pdf` reçoit le document, l’expéditeur, le destinataire, les options et le plafond. Les scopes OAuth `documents:write` et `dispatches:prepare` sont tous deux nécessaires. La clé d’idempotence protège aussi la consommation du quota de contrôle.
-3. `GET /api/postal/preflights/{id}` ou `get_postal_preflight` expose l’état, le texte d’adresse, le lien de l’extrait PNG privé et `reviewUrl`. Ni cette lecture ni la préparation n’envoie le PDF à Pingen. Le rapport conserve `canSend:false` et les limites de preuve visuelle décrites ci-dessus.
-4. La session navigateur ouvre `/#/app/postal/{id}`. Elle présente les pages, l’adresse attendue et extraite, les anomalies et les options. Les deux cases explicites autorisent la revue puis le transfert de cette version précise ; le POST privé `/transfer` exige session actuelle et CSRF. Le parcours expert distinct utilise `transfer_postal_draft({preflightId,fingerprint})` uniquement sous un mandat préalable, borné et encore actif, accordé par un administrateur à ce client OAuth et couvrant explicitement le transfert à Pingen. Il enregistre une autorité déléguée, jamais un consentement humain prétendu par le modèle. L’assistant ne peut ni créer ni étendre le mandat ; la confirmation de l’hôte ne le remplace pas.
-5. Le transfert crée uniquement un brouillon avec `auto_send:false`. Une réponse perdue oblige l’interface à relire l’état ; `unknown` ne réactive pas une création. Un échec de chargement de l’extrait bloque la confirmation et peut être repris par « Actualiser ».
-6. Après dépôt consenti, `POST /api/postal/preflights/{id}/quote` ou `quote_postal_draft` demande le devis du même brouillon. Aucun document, prix ou destinataire n’est repris depuis un corps client. Pingen peut répondre que l’analyse n’est pas terminée ; conserver la même clé. L’approbation du devis et l’expédition sont des étapes distinctes.
+1. Read `GET /api/postal/requirements?country=LU` or `get_postal_requirements` before PDF creation, using the recipient country. Organization profile is read at Pingen without document upload. `qualified:true` concerns that profile only.
+2. After import/qualified scan, `POST /api/postal/preflights` or `preflight_postal_pdf` accepts document, sender, recipient, options and ceiling. Both OAuth scopes `documents:write` and `dispatches:prepare` are required. Idempotency also protects check-quota consumption.
+3. `GET /api/postal/preflights/{id}` or `get_postal_preflight` exposes state, address text, private PNG link and `reviewUrl`. Neither reading nor preparation uploads to Pingen. `canSend:false` and visual limits remain.
+4. The browser opens `/#/app/postal/{id}`, showing pages, expected/extracted address, anomalies and options. Explicit review/transfer declarations bind this version; private `/transfer` needs current session/CSRF. Distinct expert `transfer_postal_draft({preflightId,fingerprint})` needs a prior bounded active administrator mandate for this OAuth client explicitly covering Pingen transfer. It records delegated authority, never model-asserted human consent. An assistant cannot create/extend it; host confirmation is no substitute.
+5. Transfer creates only `auto_send:false`. Lost responses require state rereading; `unknown` never reenables creation. A failed crop load blocks confirmation and can be retried through Refresh.
+6. After consented upload, `POST /api/postal/preflights/{id}/quote` or `quote_postal_draft` prices the same draft. No client-supplied document, price or recipient is reused. If analysis remains pending, retain the same key. Quote approval and sending are separate steps.
 
-`POSTAL_DRAFTS_ENABLED` contrôle la préparation fournisseur ; `LIVE_SENDS_ENABLED` contrôle toujours les expéditions. Les drapeaux seuls ne remplacent ni les preuves de scan/rendu, ni l’expéditeur, ni le profil, ni le devis. Le candidat est vérifié avec des données synthétiques ; l’activation et les essais réels restent des preuves séparées.
+`POSTAL_DRAFTS_ENABLED` gates provider preparation; `LIVE_SENDS_ENABLED` still gates
+sending. Flags never replace scan/render proof, sender, profile or quote. The
+candidate uses synthetic evidence; activation and real tests remain separate.
 
-## Qualification distante sans expédition
+## Remote qualification without sending
 
-Source normative lue : [OpenAPI Pingen courant](https://api.pingen.com/documentation/swagger-docs), [documentation](https://api.pingen.com/documentation). Les exemples de calculateur utilisent parfois `type: letters` ; le schéma `LetterPriceCalculatorPOST` donne `letter_price_calculator`, retenu dans Guteneo.
+Normative sources: [current Pingen OpenAPI](https://api.pingen.com/documentation/swagger-docs),
+[documentation](https://api.pingen.com/documentation). Calculator examples sometimes
+use `type: letters`; `LetterPriceCalculatorPOST` specifies `letter_price_calculator`,
+which Guteneo uses.
 
-1. **Sans PDF** : OAuth client credentials avec scope `letter`, puis `POST /organisations/{id}/deliveries/letters/price-calculator`, JSON:API avec `country`, `paper_types`, `print_mode`, `print_spectrum`, `delivery_product`. `200` donne `data.attributes.currency` et `price`; `202` reste indéterminé. Cela ne crée pas une lettre. Le scope est toutefois capable d’envoyer : limiter le code de test aux méthodes et chemins exacts, sans proxy arbitraire ni journalisation de jeton.
-2. **Brouillon autorisé séparément** : `GET /file-upload`, PUT des seuls octets autorisés vers l’origine fournisseur épinglée, puis `POST /organisations/{id}/deliveries/letters` avec `auto_send:false`, sans preset. C’est un transfert externe, même sans expédition. Persister l’identifiant et la clé d’idempotence avant les opérations suivantes ; réponse incertaine = rapprochement, pas création répétée.
-3. Lire `GET /organisations/{id}/deliveries/letters/{letterId}` jusqu’à résultat borné : `address`, `country`, `file_pages`, `paper_types`, `fonts`, état et `meta.abilities.self.submit`. La création `201` ne prouve pas l’analyse terminée. Examiner l’aperçu dans la WebApp sans action de correction/envoi. Aucun `PATCH .../send` lors de ce test.
-4. Les chemins `/file-validation`, `/extract-text`, `/cost-details` et `/calculate-prices` apparaissent dans l’OpenAPI public avec objets de chemin vides lors de cette vérification : aucune méthode ni réponse documentée ne doit être inventée. Le mécanisme de nettoyage du brouillon doit être qualifié avant son automatisation ; suppression et annulation ne sont pas interchangeables.
-5. **Staging** : `identity-staging.pingen.com` et `api-staging.pingen.com`, compte et identifiants distincts. Pingen annonce qu’aucune lettre n’y est imprimée ou distribuée. L’accès production ne démontre pas un accès staging. Garder cette preuve distincte d’un brouillon production et de la simulation locale.
+1. **Without a PDF:** client-credentials OAuth with `letter`, then `POST /organisations/{id}/deliveries/letters/price-calculator`, JSON:API `country`, `paper_types`, `print_mode`, `print_spectrum`, `delivery_product`. `200` provides `data.attributes.currency`/`price`; `202` is indeterminate. No letter is created. The scope can send, so restrict probe methods/paths exactly; no arbitrary proxy or token logging.
+2. **Separately authorized draft:** `GET /file-upload`, PUT only authorized bytes to the pinned provider origin, then `POST /organisations/{id}/deliveries/letters` with `auto_send:false`, no preset. This is external transfer without sending. Persist ID/idempotency before later work; uncertainty requires reconciliation, never repeat creation.
+3. Bounded reads of `GET /organisations/{id}/deliveries/letters/{letterId}` inspect `address`, `country`, `file_pages`, `paper_types`, `fonts`, state and `meta.abilities.self.submit`. Creation `201` does not prove analysis completion. Inspect WebApp preview without correction/send actions. Never `PATCH .../send` in this test.
+4. `/file-validation`, `/extract-text`, `/cost-details`, `/calculate-prices` had empty path objects in the observed public OpenAPI; invent no method or response. Qualify cleanup before automation; deletion and cancellation differ.
+5. **Staging:** `identity-staging.pingen.com` and `api-staging.pingen.com`, separate account/credentials. Pingen states no letters are printed/distributed there. Production access proves no staging access. Separate staging proof, production draft proof and local simulation.
 
-Le calculateur prépare une estimation fournisseur ; il faut encore qualifier devise, taxes, frais et validité avant de figer le prix client à deux fois le coût fournisseur total. Aucun crédit ni montant inconnu n’autorise un envoi gratuit. Les identifiants de document, secrets, URL signées et adresses ne doivent pas apparaître dans les journaux de test.
+The calculator supplies a provider estimate. Qualify currency, tax, fees and
+validity before freezing customer price at twice total provider cost. Unknown
+credit or cost never permits a free send. Test logs exclude document identifiers,
+secrets, signed URLs and addresses.
 
-## Compatibilité de la v2 et validation
+## V2 compatibility and validation
 
-La version fait partie du profil, du rapport et de la preuve gelée. Une preuve v1 ne devient pas une preuve v2 : elle doit être refaite explicitement, sans recréer automatiquement un dépôt déjà transmis ou incertain. `POSTAL_PREFLIGHT_VERSION_CHANGED` apparaît dans les anomalies d’une ancienne preuve, affichée `blocked`. La lecture conserve son état de transfert, son identifiant de brouillon et son extrait pour permettre le rapprochement ; un transfert `preparing` périmé reste présenté `unknown`. Les opérations d’écriture refusent cette ancienne version. Le devis et les transitions atomiques d’envoi refusent aussi l’ancienne version. La migration `0026_postal_address_rules_v2.sql` conserve le garde existant et remplace sa version attendue ; elle ne change aucune donnée, quota ou délégation.
+Version belongs to profile, report and frozen proof. V1 never becomes v2 implicitly:
+explicitly redo checks without recreating an already transferred or uncertain
+draft. Old evidence exposes `POSTAL_PREFLIGHT_VERSION_CHANGED` and `blocked` while
+retaining transfer state, draft ID and crop for reconciliation; expired `preparing`
+remains `unknown`. Writes, quotes and atomic send transitions reject old versions.
+`0026_postal_address_rules_v2.sql` changes the expected version in the existing
+guard without changing data, quota or delegation.
 
-La publication nécessite la migration 0026, le Worker privé `guteneo-documents` et l’application construits depuis la même révision. Tant que leurs versions diffèrent, les nouveaux rapports sont refusés : prévoir cette brève indisponibilité fermée, puis requalifier le renderer avec les PDF synthétiques. Le helper `scripts/qualify-postal-preflight.mjs` exige désormais explicitement la version v2 sur les quatre cas et refuse un renderer v1 même si ses autres résultats passent. Une publication de l’app seule ne suffit pas. Les preuves historiques v1 du renderer restent des preuves v1 ; elles ne qualifient pas ces nouvelles règles.
+Publication needs migration 0026, private `guteneo-documents` and application built
+from the same revision. Mixed versions reject new reports: allow this brief
+closed outage, then requalify with synthetic PDFs. `scripts/qualify-postal-preflight.mjs`
+requires v2 in all four cases and rejects v1 even if other results pass. App-only
+publication is insufficient. Historical v1 renderer evidence qualifies v1 only.
 
-Tests concernés : `postal-requirements`, `pingen-preflight`, `postal`, `postal-mcp`, `live-providers`, `live-delivery-quotes`, et `document-postal-preflight` (Chromium réel), plus typecheck, lint et vérification locale du transport de migrations. Fixtures synthétiques et fournisseur intercepté exclusivement ; aucun dépôt ou courrier réel exécuté pour ce correctif.
+Relevant tests: `postal-requirements`, `pingen-preflight`, `postal`, `postal-mcp`,
+`live-providers`, `live-delivery-quotes`, `document-postal-preflight` (real Chromium),
+typecheck, lint and local migration transport. Synthetic fixtures/intercepted
+provider only; no real upload or letter was executed for this correction.

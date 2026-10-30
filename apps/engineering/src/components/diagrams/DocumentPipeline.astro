@@ -1,0 +1,6 @@
+---
+import DiagramFigure from './DiagramFigure.astro';
+import { diagrams } from './model';
+import svg from '../../../public/illustrations/document-pipeline.svg?raw';
+---
+<DiagramFigure model={diagrams.documents} svg={svg} />

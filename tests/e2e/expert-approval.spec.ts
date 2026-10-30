@@ -56,6 +56,8 @@ async function fixture(
           },
         ],
       };
+    else if (path === "/api/account/contacts" && method === "GET")
+      body = { items: [], hasMore: false };
     else if (path === "/api/account/sessions")
       body = { items: [], hasMore: false };
     else if (path === "/api/account/expert-approval" && method === "GET")

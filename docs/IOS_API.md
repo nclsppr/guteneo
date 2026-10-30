@@ -23,6 +23,15 @@ delegation, administer channels or access billing.
    login, preserving the exact mobile return path. A browser page explicitly
    asks to connect the app. Its POST requires the authenticated browser cookie,
    matching Origin and CSRF token. A GET does not issue a code.
+
+   With the qualified `AUTH0_BROWSER_DOMAIN=auth.guteneo.com` configuration, that
+   browser login opens the custom hostname. The Swift client contains no Auth0
+   tenant hostname: it keeps starting at `https://guteneo.com/auth/mobile/authorize`
+   and retains the existing `guteneo://auth/callback` scheme. No native release,
+   new client, audience, callback, scope or Keychain migration is required merely
+   to select this browser hostname. The canonical MCP issuer is a separate
+   contract. Source and an HTTPS redirect-chain check do not qualify a complete
+   `ASWebAuthenticationSession` callback on a physical device.
 5. The only return target is `guteneo://auth/callback?code=CODE&state=STATE`.
    Check scheme, host `auth`, path `/callback`, state and one nonempty code.
    The code expires after 60 seconds. No access token, cookie or PDF URL appears
@@ -98,6 +107,21 @@ PrepareInput is `{ channel, recipient, documentId?, subject?, html?, text?,
 senderId?, options?, campaignId?, ceilingMinor? }`. The server never accepts a
 tenant or user ID from this payload. Money is integer euro minor units, except
 the existing explicitly named qualified fractional quote fields.
+
+For email with an accessible ready PDF, omitted/blank subject and body independently
+use the shared domain's localized authenticated-workspace defaults. Body defaults
+require both text and custom HTML to be absent; otherwise missing plain text is
+derived from the supplied HTML. Without a file,
+subject and message remain required. Document emails without custom HTML use the
+branded template; custom HTML may use safe inline email styles and the exact
+`<a href="{{document_url}}">…</a>` marker only in protected-link mode. The server
+resolves the private URL before review and never accepts a caller's workspace
+identity, hosting token or password. This extends the existing preparation payload,
+not native approval or password authority. See [the API contract](API_CONTRACT.md)
+for validation/recovery and [protected email](PROTECTED_EMAIL.md) for presentation.
+The current Swift `ComposeView` exposes message-only email; document-email defaults
+and custom-template controls described here are mobile API capabilities, not
+implemented native composer controls.
 
 Recipient forms: fax `{ phone: "+…" }`; email `{ email }`; postal
 `{ name, line1, postalCode, city, country }`. Supported destination countries

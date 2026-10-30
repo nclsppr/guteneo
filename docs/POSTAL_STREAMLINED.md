@@ -1,33 +1,61 @@
-# Parcours courrier simplifié — candidat du 21 septembre 2026
+# Streamlined postal journey — 21 September 2026 candidate
 
-## Expérience proposée
+## Proposed experience
 
-À partir d’un PDF importé et d’un expéditeur configuré, trois actions explicites suffisent :
+Starting with an imported PDF and configured sender, the journey has three explicit actions:
 
-1. **Préparer le courrier** : destinataire, fenêtre gauche/droite, options. La création facultative d’une page d’adresse puis le contrôle du PDF final s’enchaînent sans second bouton. Le PDF original est conservé. Un expéditeur manquant peut être déclaré dans cette même page par un administrateur.
-2. **Valider le document et obtenir le prix** : l’utilisateur parcourt les pages et vérifie la fenêtre/l’adresse de retour. Le texte du bouton et son explication portent les deux déclarations de revue et de transfert. Les deux cases séparées sont supprimées ; les valeurs serveur `reviewed:true` et `consentToTransfer:true` restent exigées. Ce clic transmet uniquement le document pour analyse, sans impression ni envoi.
-3. **Envoyer pour le prix exact affiché** : le navigateur approuve l’empreinte puis demande l’acceptation, avec la clé stable `web-confirm:<dispatchId>`. La réservation et la mise en file restent atomiques côté serveur. Le prix, sa validité et les options enregistrées sont visibles avant ce clic. Fax et e-mail conservent leur propre parcours.
+1. **Prepare letter:** recipient, left/right window and options. Optional address-page creation and final PDF checking continue without a second button. The original stays intact. An administrator can declare a missing sender on the same page.
+2. **Review document and get price:** inspect pages, window and return address. Button copy and explanation carry both review and transfer declarations; separate checkboxes are removed, while the server still requires `reviewed:true` and `consentToTransfer:true`. This transfers the document for analysis only, without printing or sending.
+3. **Send for the exact displayed price:** the browser approves the fingerprint and requests acceptance with stable key `web-confirm:<dispatchId>`. Reservation and queue insertion remain atomic. Price, validity and saved options are visible before this action. Fax and email retain their own journeys.
 
-Le suivi du devis retente uniquement la réponse explicite `POSTAL_DRAFT_NOT_READY`, au maximum 20 fois à 3 secondes d’intervalle. La clé `web-postal-quote:<preflightPath>` reste identique après retour/rechargement. Toute autre erreur arrête ce suivi ; un résultat de transfert ou d’envoi incertain n’est jamais relancé automatiquement. Une modification des champs pendant le scan interrompt la continuation et exige une nouvelle préparation.
+Quote follow-up retries only explicit `POSTAL_DRAFT_NOT_READY`, at most 20 times
+three seconds apart. `web-postal-quote:<preflightPath>` survives back navigation
+and reload. Any other error stops polling; uncertain transfers or sends never
+automatically retry. Editing fields during scanning stops continuation and
+requires new preparation.
 
-Les textes ordinaires du portail, du MCP, du suivi et du skill parlent de Guteneo ou du prestataire d’impression. Les mentions légales/confidentialité et les identifiants, sources et preuves techniques internes conservent le fournisseur réel.
+Ordinary portal, MCP, tracking and skill copy names Guteneo or the print provider.
+Legal/privacy disclosures and internal identifiers, sources and technical evidence
+retain the actual provider name.
 
-## Fenêtre liée au courrier
+## Per-letter window
 
-`PostalReviewInput.options.addressPosition` et `PostalAddressPageInput.addressPosition` acceptent facultativement `left|right`. Sans valeur, le défaut qualifié reste utilisé. `GET /api/postal/requirements` et `get_postal_requirements` acceptent le même choix ; `profile.addressPositions` indique les côtés disponibles. Les profils LU/DE autorisent les deux ; le profil fournisseur FR autorise uniquement la droite. Cette contrainte dépend du profil de l’organisation, pas du seul pays destinataire.
+`PostalReviewInput.options.addressPosition` and
+`PostalAddressPageInput.addressPosition` optionally accept `left|right`; omission
+uses the qualified default. `GET /api/postal/requirements` and
+`get_postal_requirements` accept the same choice; `profile.addressPositions` lists
+available sides. LU/DE profiles allow both; the FR provider profile allows only
+right. This depends on organization profile, not destination country alone.
 
-Le côté est lié à la requête, au PDF dérivé, au profil gelé, au contrôle raster, au brouillon et au devis. Changer le côté ne déplace jamais l’adresse d’un PDF original. Un PDF dérivé pour un côté ne peut pas être contrôlé ou envoyé avec l’autre.
+The side binds the request, derived PDF, frozen profile, raster check, draft and
+quote. Changing it never moves an address inside an original PDF. A derived PDF
+for one side cannot be checked or sent with the other.
 
-Sources techniques vérifiées : [API de création de lettre](https://api.pingen.com/documentation/swagger-docs), [mise en page générale](https://help.pingen.com/en/templates-and-postal-requirements/layout-requirements), [profil France](https://help.pingen.com/en/templates-and-postal-requirements/layout-requirements-french-organisations). Aucun défaut global du compte fournisseur n’est modifié. Le côté du brouillon relu chez le prestataire est comparé au côté attendu lors du devis et de nouveau avant l’envoi. Une modification externe bloque la suite, sans changer la sérialisation des empreintes de prix historiques.
+Verified technical sources: [letter creation API](https://api.pingen.com/documentation/swagger-docs),
+[general layout](https://help.pingen.com/en/templates-and-postal-requirements/layout-requirements),
+[French profile](https://help.pingen.com/en/templates-and-postal-requirements/layout-requirements-french-organisations).
+No provider-account global default changes. The provider draft side is reread and
+compared during quotation and immediately before sending. External changes stop
+continuation without changing historical price-fingerprint serialization.
 
-## Compatibilité et migration
+## Compatibility and migration
 
-La migration `0036_postal_window_options.sql` accepte les générations de 8 ou 16 politiques. Les profils non français configurés créent 16 combinaisons ; les profils français en conservent 8.
+`0036_postal_window_options.sql` accepts generations of eight or sixteen policies.
+Configured non-French profiles create sixteen combinations; French profiles keep eight.
+Existing complete current qualified generations extend to both sides with the
+same dates, evidence and states. Eight historical policies and old quotes remain.
+Revoked policies copy as revoked; manual qualification for the other side is not
+overwritten. Migration never extends an expired generation; its existing explicit
+renewal creates sixteen combinations. Mandates, quotas, credits, senders and
+channel shutdowns are unchanged.
 
-Les comptes existants possédant une génération qualifiée complète, courante, sont étendus aux deux côtés avec les mêmes dates, preuves et états. Les 8 politiques historiques et les anciens devis sont conservés. Une politique révoquée est copiée révoquée ; une qualification manuelle pour l’autre côté n’est pas écrasée. Une génération expirée n’est pas prolongée par migration : son renouvellement explicite existant produit 16 combinaisons. Aucun mandat expert, quota, crédit, expéditeur ou arrêt de canal n’est modifié.
+## Evidence and limits
 
-## Preuve et limites
+Tests use synthetic organizations/PDFs, local D1/R2 and intercepted provider calls.
+They cover both sides, provenance, fingerprints, active/expired/revoked generations,
+automatic preparation, back/reload, interruption and final exact-price sending.
+The real local renderer also checks a right-window LU cover.
 
-Les tests utilisent des organisations/PDF synthétiques, D1/R2 locaux et appels fournisseur interceptés. Ils couvrent les deux côtés, la provenance, les empreintes, les générations actives/expirées/révoquées, la préparation automatique, les retours/rechargements, les interruptions et l’envoi final à prix exact. Le renderer réel local vérifie aussi une couverture LU à droite.
-
-La publication, les migrations distantes et la qualification dans les clients ChatGPT/Claude sont des preuves séparées. Aucun courrier réel n’est envoyé pour cette validation. Voir [LIVE_RELEASE.md](LIVE_RELEASE.md) pour une publication effectivement vérifiée.
+Publication, remote migration and ChatGPT/Claude qualification remain separate.
+No real letter is sent for this validation. [LIVE_RELEASE.md](LIVE_RELEASE.md)
+records actually verified publication.

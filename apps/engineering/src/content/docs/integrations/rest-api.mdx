@@ -1,0 +1,90 @@
+---
+title: REST API integration
+description: Discover current contracts, authenticate appropriately and preserve exact dispatch commitments.
+sidebar:
+  order: 1
+---
+
+The REST API uses the same document/workflow/domain services as the web and MCP.
+Start with the [published OpenAPI document](https://guteneo.com/openapi.json) and
+[current capabilities](https://guteneo.com/api/capabilities). The specification
+is a contract description; it does not enable a channel or prove that your account
+is qualified for a particular provider journey.
+
+## Authentication is specific to the client
+
+| Client | Authentication | Mutation boundary |
+| --- | --- | --- |
+| Web browser | guteneo session cookie | Same Origin and session CSRF; human-only operations remain browser-only |
+| OAuth integration | Consented bearer token for the configured resource | Current connection/membership, scopes, role and resource access |
+| Native companion | Dedicated mobile-session scheme under `/api/mobile/v1` | Native actor permissions; no replacement for browser approval |
+
+An OAuth token is not a browser session. Business REST may accept authorized
+bearer calls, but public integration discovery does not expose a way for an
+assistant to impersonate human approval. Do not add a client-supplied tenant
+header: the server resolves the workspace from current authority.
+
+A read-only authenticated example, using a token obtained through your client's
+actual OAuth flow:
+
+```sh
+curl --fail --silent --show-error \
+  -H "Authorization: Bearer ${GUTENEO_ACCESS_TOKEN}" \
+  https://guteneo.com/api/documents
+```
+
+Keep the token in your client/server credential store. Do not embed it in URLs,
+frontend bundles, logs, screenshots or published examples.
+
+## Use the returned representations
+
+IDs are opaque. Dates use ISO 8601 UTC. Lists are bounded and paginated; follow
+the returned cursor rather than assuming that the first page is the entire
+workspace. Original PDF content is an authenticated binary representation, not a
+public storage URL.
+
+Financial fields declare their units. Ordinary minor-unit values are integers;
+higher-precision pricing/usage fields retain their explicit nano-EUR representation.
+A `null` known cost is unknown, not zero. Use the server quote/fingerprint and
+ceiling rather than deriving a customer charge from a provider diagnostic field.
+
+## Document and dispatch sequence
+
+1. Upload exact bytes through `POST /api/documents`, or explicitly render a new
+   document through the relevant rendering workflow.
+2. Read the returned document and wait for its documented usable state. Upload
+   success does not bypass quarantine.
+3. Prepare with `POST /api/dispatches`, the exact document/recipient/options and
+   a stable `Idempotency-Key`.
+4. Inspect the prepared representation and final review. Human approval is a
+   separate authenticated browser operation; delegated approval requires its
+   separately granted authority.
+5. Request confirmation only for the approved immutable version through the
+   existing confirm contract.
+6. Read the same dispatch and its events/attempts. Queued, provider accepted and
+   delivered are distinct results.
+
+The current OpenAPI owns complete field schemas and per-operation scopes; this
+sequence is not a second hand-maintained specification. Postal preparation and
+Studio distribution have additional explicit stages described in
+[delivery channels](/workflows/delivery-channels/) and [Studio](/workflows/studio-and-data/).
+
+## Idempotency, errors and uncertainty
+
+Use one idempotency key for one intended content/action. A lost response calls for
+rereading or replaying that same request under the contract, not inventing a new
+key. Reusing a key with different content is rejected. A provider outcome marked
+`submission_unknown` must not become an automatic resend.
+
+Errors expose stable English codes/messages and bounded correlation information.
+Retain correlation IDs for support while keeping content, recipients, tokens and
+signed URLs private. Handle documented `Retry-After` values and quotas, but never
+turn a generic HTTP retry policy into retrying an irreversible provider action.
+
+## Validate an integration in layers
+
+Schema/client tests, local production-mode fixtures, a real OAuth connection and
+an authorized hosted delivery are separate evidence. Start with read-only calls,
+then qualify the intended document transfer and exact hash. Preparation alone
+should create neither approval nor sending. Follow [testing](/engineering/testing/)
+for the remaining boundaries.

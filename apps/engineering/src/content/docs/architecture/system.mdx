@@ -1,0 +1,146 @@
+---
+title: System architecture
+description: A shared business service with durable commitments, private document processing and asynchronous delivery.
+sidebar:
+  order: 1
+---
+
+The main application is a TypeScript modular service: a Hono API and React/Vite
+assets share domain operations. The native companion and MCP handler call those
+same operations. Private PDF processing and external transport adapters sit across
+explicit boundaries; they do not own approval or quota decisions.
+
+Open the [Mermaid diagrams](/architecture/diagrams/) for
+logical system, dispatch and document flows with downloadable sources.
+
+<SystemArchitecture />
+
+## Runtime responsibilities
+
+| Component | Owns | Boundary |
+| --- | --- | --- |
+| Application Worker | Authentication, route contracts and service orchestration | Resolve current workspace authority or the separate personal owner principal, according to the route |
+| D1 | Membership, immutable versions, dispatches, approvals, budgets, outbox and durable events | Constraints and transactional writes enforce business commitments |
+| R2 | Exact private PDFs/source objects and independently encrypted shared/personal objects | Object keys grant no access; authorized reads recheck policy and integrity |
+| Document Worker | Isolated rendering, page review and postal document checks | Explicit private bindings and bounded inputs/outputs |
+| Scanner | Antivirus verification of the exact submitted bytes | Missing, stale or mismatched proof cannot promote a PDF to ready |
+| PDF validator | Separate PDF conformance/accessibility diagnostics | Diagnostics do not replace security verification or modify originals |
+| Queues and consumers | Asynchronous provider work from durable references | Duplicate messages do not create unconditional duplicate attempts |
+| Provider adapters | Fax, email and postal request/response translation | Enabled configuration is necessary but does not itself approve a dispatch |
+
+The application can run production rules against synthetic local data for tests.
+That execution mode is distinct from contacting a hosted provider. The independent
+browser-only preview has no business bindings at all.
+
+## Why D1 is the commitment boundary
+
+A communication must not be queued without a matching approval and reservation.
+Acceptance therefore commits the dispatch transition, quota reservation and outbox
+row atomically. SQL constraints and triggers participate in that invariant; moving
+one check into a client would weaken it.
+
+An outbox publisher transfers persisted work to an interactive or bulk queue.
+Publication may repeat after a lost acknowledgement. A consumer conditionally
+claims the eligible dispatch and records an attempt before contacting a provider.
+The [dispatch lifecycle](/architecture/dispatch-lifecycle/) explains the states
+and the treatment of uncertainty.
+
+<GutenbergNote pose="review" title="The ledger outlives the messenger">
+  D1 records the commitment; the queue carries the work. If an acknowledgement
+  disappears, the durable record still determines what may happen next.
+</GutenbergNote>
+
+## Private processing is a separate trust boundary
+
+PDFs and source archives are untrusted input. The API bounds input before heavier
+processing; private services return bounded verification/rendering results tied
+to the expected bytes. Rendering a document creates a new immutable object rather
+than editing an original already used by a dispatch.
+
+Service bindings are intentional private connections. They are not an invitation
+to accept arbitrary user-supplied service URLs. Public HTTPS import has its own
+egress and redirect rules, separate from private scanner/renderer access.
+
+## Identity and external systems
+
+Auth0 supplies identity/OAuth tokens. Current membership, connection binding,
+revocation, role permissions and any delegation remain application decisions.
+Telnyx, Pingen and Resend/SES adapters supply transport facts; their responses do
+not overwrite the approval model. Verified callbacks become durable events before
+status projection.
+
+The [status service](https://status.guteneo.com/) is independently deployed and
+observes bounded public endpoints. Its health observations are not access to
+customer documents or proof that an authenticated delivery journey succeeds.
+This engineering site is a static documentation surface with no business binding.
+The separate [Belvédère administration](/administration/belvedere/) guide explains
+platform oversight, its metadata-only projections and its operator authority.
+
+## External services have specific jobs
+
+| Dependency | What Guteneo delegates | What remains in Guteneo |
+| --- | --- | --- |
+| Auth0 | Identity-provider login and authorization-server token evidence | Stable identity mapping, current sessions/membership, document policy, role/scopes and approval |
+| Telnyx | Fax submission, outcome callbacks and supported usage reads | Qualified route/price policy, exact approved bytes, funded ceiling, attempt fencing and reconciliation |
+| Pingen | Postal preparation/calculation and authorized letter processing | Transfer consent, final preparation equivalence, approval and send authority |
+| Resend / SES | Configured email transport and authenticated provider events | Sender/recipient policy, account/workspace quotas, quote, approval and outcome interpretation |
+| Stripe | Existing customer/customer-portal operations and signed billing-object events | Browser administrator access, application credit/entitlement ledger and webhook deduplication |
+
+These dependencies are not interchangeable fallbacks. Their enabled flags and
+credentials do not grant consent, and one provider's qualification cannot prove
+another's route or billing semantics. [Provider maintenance](/engineering/provider-maintenance/)
+explains tariff/contract refresh without rewriting approved commitments.
+
+Queues also carry secure rendering and personal-deposit work, separately from
+provider dispatch. Scheduled reconciliation handles durable callbacks, leases,
+scans, Studio jobs, secure jobs and bounded retention. Read
+[background jobs](/engineering/background-jobs/) for ordering and recovery.
+
+## Browser rendering, scheduling and optional services
+
+The private document Worker uses Cloudflare's browser binding for isolated PDF
+processing, final-page review and supported document generation. Browser execution
+is a processing dependency with its own resource/corpus/residency qualification;
+it is not a general browser session in the recipient's account. The local browser
+substitute exercises controlled tests, not hosted Browser Run performance.
+
+Cron drives the application's bounded reconciliation/maintenance; a separate
+status Cron performs anonymous availability reads. Queues carry recorded work,
+while D1 remains the commitment authority. Current application configuration does
+not declare a Durable Objects binding: realtime Durable Objects/WebSocket ideas
+in older design studies are proposals, not the current polling implementation.
+Do not add a fourth state store to a diagram because Cloudflare supports it.
+
+Likewise, the current live configuration has no Workers AI binding. The optional
+Studio model adapter is a separately configured proposal generator; it is not
+live-qualified by source presence and cannot approve, send or bypass deterministic
+schema validation. No confidential PDF is implicitly routed to Cloudflare AI.
+Future provider/model integration needs an explicit data-transfer, capability,
+cost and review contract, plus synchronized engineering documentation.
+
+Legacy SES/SNS email remains an adapter/configuration path with its own regional
+sender, topic and signature requirements; it is not a second automatically active
+email transport or a fallback around Resend. Historical SNS/host-migration notes
+remain dated evidence. Read current capability/configuration rather than inferring
+activation from an old provider record.
+
+Billing projections remain bounded: current browser administrator authority
+guards billing reads/actions; a monthly PDF entitlement is no longer required. Assistant tokens
+cannot open a customer portal. Signed Stripe events are deduplicated and canonical
+objects reread before projection. Promotional credit, sending reservations and
+individual PDF-verification purchases and retained legacy subscription charges
+are distinct from a Stripe invoice or card
+charge. There is no automatic purchase/top-up/checkout implied by this module,
+and source tests establish no live commercial account.
+
+## Location and qualification
+
+The checked-in configuration uses EU jurisdiction for relevant D1/R2 resources.
+That setting is not a claim that all identity, browser execution, provider,
+subprocessor, log or backup processing occurs in Europe. Runtime configuration,
+external contracts and actual hosted journeys require their own qualification.
+
+Continue with the [data model](/architecture/data-model/) for record relationships,
+[authority and tenancy](/architecture/authority-and-tenancy/) for
+access decisions and [security and reliability](/engineering/security-and-reliability/)
+for the controls that survive failures.

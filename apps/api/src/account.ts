@@ -4,9 +4,18 @@ import {
 } from "../../../packages/contracts/src/roles";
 import { z } from "zod";
 import {
+  accountEmail,
+  MAX_WORKSPACE_CONTACTS,
+  type WorkspaceContacts,
+} from "../../../packages/contracts/src/account-identity";
+import {
   supportedLocales,
   type SupportedLocale,
 } from "../../../packages/contracts/src/locale";
+import {
+  dashboardAppearances,
+  type DashboardAppearance,
+} from "../../../packages/contracts/src/dashboard-appearance";
 import {
   expertPolicyInput,
   type ExpertApprovalAccount,
@@ -30,6 +39,7 @@ const profileSchema = z
     userName: displayName.optional(),
     organizationName: displayName.optional(),
     preferredLocale: z.enum(supportedLocales).optional(),
+    preferredDashboardAppearance: z.enum(dashboardAppearances).optional(),
   })
   .strict()
   .refine((value) => Object.keys(value).length > 0);
@@ -59,9 +69,9 @@ async function body(request: Request): Promise<unknown> {
       ?.toLowerCase()
       .startsWith("application/json")
   )
-    fail("INVALID_INPUT", "Une requête JSON est nécessaire.");
+    fail("INVALID_INPUT", "A JSON request is required.");
   const reader = request.body?.getReader();
-  if (!reader) fail("INVALID_INPUT", "La requête JSON est absente.");
+  if (!reader) fail("INVALID_INPUT", "The JSON request is missing.");
   const parts: Uint8Array[] = [];
   let size = 0;
   try {
@@ -71,7 +81,7 @@ async function body(request: Request): Promise<unknown> {
       size += chunk.value.byteLength;
       if (size > 4096) {
         await reader.cancel();
-        fail("INVALID_INPUT", "La requête est trop volumineuse.", 413);
+        fail("INVALID_INPUT", "The request is too large.", 413);
       }
       parts.push(chunk.value);
     }
@@ -88,20 +98,19 @@ async function body(request: Request): Promise<unknown> {
   try {
     return JSON.parse(text);
   } catch {
-    fail("INVALID_INPUT", "La requête JSON est invalide.");
+    fail("INVALID_INPUT", "The JSON request is invalid.");
   }
 }
 function parse<T extends z.ZodType>(schema: T, value: unknown): z.infer<T> {
   const result = schema.safeParse(value);
-  if (!result.success)
-    fail("INVALID_INPUT", "Vérifiez les champs du formulaire.");
+  if (!result.success) fail("INVALID_INPUT", "Check the form fields.");
   return result.data;
 }
 function admin(session: AuthenticatedSession) {
   if (session.context.role !== "admin")
     fail(
       "FORBIDDEN",
-      "Seul un administrateur de cet atelier peut effectuer cette action.",
+      "Only a workspace administrator can perform this action.",
       403,
     );
 }
@@ -158,14 +167,14 @@ async function mutate(
     if (!results[0].meta.changes)
       fail(
         "ACCESS_CHANGED",
-        "Vos droits ou la ressource ont changé. Actualisez la page.",
+        "Your permissions or the resource have changed. Refresh the page.",
         409,
       );
   } catch (error) {
     if (String(error).includes("last_admin_required"))
       fail(
         "LAST_ADMIN_REQUIRED",
-        "L’atelier doit conserver au moins un administrateur. Nommez-en un autre avant de modifier ce rôle.",
+        "The workspace must retain at least one administrator. Appoint another administrator before changing this role.",
         409,
       );
     throw error;
@@ -204,10 +213,14 @@ function revokeStatements(
 
 async function account(env: AuthEnv, session: AuthenticatedSession) {
   const user = await env.DB.prepare(
-    "SELECT name,preferred_locale FROM users WHERE id=?",
+    "SELECT name,preferred_locale,preferred_dashboard_appearance FROM users WHERE id=?",
   )
     .bind(session.context.userId)
-    .first<{ name: string; preferred_locale: SupportedLocale | null }>();
+    .first<{
+      name: string;
+      preferred_locale: SupportedLocale | null;
+      preferred_dashboard_appearance: DashboardAppearance;
+    }>();
   const organization = await env.DB.prepare(
     "SELECT name FROM organizations WHERE id=?",
   )
@@ -217,10 +230,12 @@ async function account(env: AuthEnv, session: AuthenticatedSession) {
     user: {
       id: session.context.userId,
       name: user!.name,
+      email: session.user.email,
       role: session.context.role,
       supervisorCanApprove: session.context.supervisorCanApprove === true,
       supervisorCanReport: session.context.supervisorCanReport === true,
       preferredLocale: user!.preferred_locale,
+      preferredDashboardAppearance: user!.preferred_dashboard_appearance,
     },
     organization: {
       id: session.context.organizationId,
@@ -233,6 +248,47 @@ async function account(env: AuthEnv, session: AuthenticatedSession) {
       canApprove: session.context.supervisorCanApprove,
       canReport: session.context.supervisorCanReport,
     }),
+  };
+}
+
+async function workspaceContacts(
+  env: AuthEnv,
+  session: AuthenticatedSession,
+): Promise<WorkspaceContacts> {
+  const timestamp = now();
+  const rows = await env.DB.prepare(
+    `SELECT m.user_id id,u.name,u.email,m.role,m.supervisor_can_approve,m.supervisor_can_report
+    FROM memberships m JOIN users u ON u.id=m.user_id
+    WHERE m.organization_id=? AND m.user_id<>? AND m.role IN ('admin','supervisor')
+    AND ${authority(false, env)}
+    ORDER BY CASE m.role WHEN 'admin' THEN 0 ELSE 1 END,u.name,m.user_id LIMIT ?`,
+  )
+    .bind(
+      session.context.organizationId,
+      session.context.userId,
+      ...authorityArgs(session, timestamp),
+      MAX_WORKSPACE_CONTACTS + 1,
+    )
+    .all<{
+      id: string;
+      name: string;
+      email: string;
+      role: "admin" | "supervisor";
+      supervisor_can_approve: number;
+      supervisor_can_report: number;
+    }>();
+  return {
+    items: rows.results.slice(0, MAX_WORKSPACE_CONTACTS).map((row) => ({
+      id: row.id,
+      name: row.name,
+      email: accountEmail(row.email),
+      role: row.role,
+      permissions: workspacePermissions(row.role, {
+        canApprove: row.supervisor_can_approve === 1,
+        canReport: row.supervisor_can_report === 1,
+      }),
+    })),
+    hasMore: rows.results.length > MAX_WORKSPACE_CONTACTS,
   };
 }
 
@@ -297,6 +353,7 @@ export async function handleAccountRoute(
 ): Promise<Response | null> {
   const url = new URL(request.url);
   const profile = url.pathname === "/api/account";
+  const contacts = url.pathname === "/api/account/contacts";
   const expert = url.pathname === "/api/account/expert-approval";
   const expertMatch = url.pathname.match(
     /^\/api\/account\/expert-approval\/([^/]+)$/,
@@ -311,6 +368,7 @@ export async function handleAccountRoute(
   );
   if (
     !profile &&
+    !contacts &&
     !expert &&
     !expertMatch &&
     !sessions &&
@@ -322,7 +380,7 @@ export async function handleAccountRoute(
   if (request.headers.has("Authorization"))
     fail(
       "BROWSER_REQUIRED",
-      "Ouvrez Guteneo dans votre navigateur pour gérer votre compte.",
+      "Open Guteneo in your browser to manage your account.",
       403,
     );
   const session = await authenticateBrowser(
@@ -340,7 +398,7 @@ export async function handleAccountRoute(
       {
         error: {
           code: "RATE_LIMITED",
-          message: "Trop de requêtes. Réessayez dans une minute.",
+          message: "Too many requests. Try again in a minute.",
         },
       },
       {
@@ -350,6 +408,10 @@ export async function handleAccountRoute(
     );
   const org = session.context.organizationId;
   const userId = session.context.userId;
+  if (contacts && request.method === "GET") {
+    parse(z.object({}).strict(), Object.fromEntries(url.searchParams));
+    return json(await workspaceContacts(env, session));
+  }
   if (expert && request.method === "GET")
     return json(await expertAccount(env, session));
   if (expertMatch && request.method === "PUT") {
@@ -367,18 +429,18 @@ export async function handleAccountRoute(
     )
       fail(
         "EXPERT_POLICY_INVALID",
-        "Vérifiez les plafonds et choisissez une expiration dans les 30 prochains jours.",
+        "Check the limits and choose an expiry within the next 30 days.",
       );
     const connection = await env.DB.prepare(
       "SELECT status FROM authorized_connections WHERE id=? AND organization_id=? AND user_id=?",
     )
       .bind(connectionId, org, userId)
       .first<{ status: string }>();
-    if (!connection) fail("NOT_FOUND", "Connexion introuvable.", 404);
+    if (!connection) fail("NOT_FOUND", "Connection not found.", 404);
     if (input.enabled && connection.status !== "active")
       fail(
         "CONNECTION_REVOKED",
-        "Reconnectez cet assistant avant de lui déléguer une autorisation.",
+        "Reconnect this assistant before delegating authority to it.",
         409,
       );
     await mutate(
@@ -461,6 +523,12 @@ export async function handleAccountRoute(
               `UPDATE users SET preferred_locale=? WHERE id=? AND ${marker}`,
             ).bind(input.preferredLocale, userId, org, auditId),
           );
+        if (input.preferredDashboardAppearance !== undefined)
+          statements.push(
+            env.DB.prepare(
+              `UPDATE users SET preferred_dashboard_appearance=? WHERE id=? AND ${marker}`,
+            ).bind(input.preferredDashboardAppearance, userId, org, auditId),
+          );
         return statements;
       },
     );
@@ -484,7 +552,7 @@ export async function handleAccountRoute(
     )
       .bind(session.tokenHash, org, userId, sessionMatch[1])
       .first<{ current: number }>();
-    if (!current) fail("NOT_FOUND", "Session introuvable.", 404);
+    if (!current) fail("NOT_FOUND", "Session not found.", 404);
     await mutate(
       env,
       session,
@@ -512,7 +580,7 @@ export async function handleAccountRoute(
       Object.fromEntries(url.searchParams),
     );
     const result = await env.DB.prepare(
-      `SELECT m.user_id id,u.name,m.role,m.supervisor_can_approve supervisorCanApprove,m.supervisor_can_report supervisorCanReport,m.created_at joinedAt,
+      `SELECT m.user_id id,u.name,u.email,m.role,m.supervisor_can_approve supervisorCanApprove,m.supervisor_can_report supervisorCanReport,m.created_at joinedAt,
       (SELECT COUNT(*) FROM browser_sessions s WHERE s.organization_id=m.organization_id AND s.user_id=m.user_id AND s.expires_at>?) sessions,
       (SELECT COUNT(*) FROM authorized_connections c WHERE c.organization_id=m.organization_id AND c.user_id=m.user_id AND c.status='active') connections
       FROM memberships m JOIN users u ON u.id=m.user_id WHERE m.organization_id=? AND m.user_id>? ORDER BY m.user_id LIMIT ?`,
@@ -520,11 +588,13 @@ export async function handleAccountRoute(
       .bind(now(), org, query.cursor ?? "", query.limit + 1)
       .all<{
         id: string;
+        email: string;
         supervisorCanApprove: number;
         supervisorCanReport: number;
       }>();
     const items = result.results.slice(0, query.limit).map((member) => ({
       ...member,
+      email: accountEmail(member.email),
       supervisorCanApprove: member.supervisorCanApprove === 1,
       supervisorCanReport: member.supervisorCanReport === 1,
     }));
@@ -551,7 +621,7 @@ export async function handleAccountRoute(
         supervisor_can_approve: number;
         supervisor_can_report: number;
       }>();
-    if (!target) fail("NOT_FOUND", "Membre introuvable dans cet atelier.", 404);
+    if (!target) fail("NOT_FOUND", "Member not found in this workspace.", 404);
     const input = memberMatch[2]
       ? parse(z.object({}).strict(), await body(request))
       : parse(roleSchema, await body(request));
@@ -619,7 +689,7 @@ export async function handleAccountRoute(
   }
   return json(
     {
-      error: { code: "METHOD_NOT_ALLOWED", message: "Méthode non autorisée." },
+      error: { code: "METHOD_NOT_ALLOWED", message: "Method not allowed." },
     },
     405,
   );

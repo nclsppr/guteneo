@@ -2,7 +2,7 @@ import type { Copy } from "../i18n";
 
 export const de: Copy = {
   skip: "Zum Inhalt springen",
-  atelier: "DIE WERKSTATT",
+  atelier: "KORRESPONDENZ",
   yes: "Ja",
   no: "Nein",
   brand: "guteneo",
@@ -17,6 +17,11 @@ export const de: Copy = {
   open: "Öffnen",
   preview: "Vorschau",
   download: "PDF öffnen",
+  fileInput: {
+    choose: "Datei auswählen",
+    chooseMultiple: "Dateien auswählen",
+    empty: "Keine Datei ausgewählt",
+  },
   unknown: "Nicht verfügbar",
   simulation: "Simulation",
   simulationBody:
@@ -38,11 +43,11 @@ export const de: Copy = {
     postal: "Briefpost",
   },
   nav: {
-    horizon: "Horizon-Tarif",
+    pdfChecks: "PDF-Prüfungen",
     overview: "Übersicht",
     documents: "Dokumente",
     templates: "Vorlagen",
-    datasets: "Meine Daten",
+    datasets: "Daten",
     generations: "Generierungen",
     dispatches: "Sendungen",
     campaigns: "Kampagnen",
@@ -128,7 +133,7 @@ export const de: Copy = {
       created: "Erstellt von",
       nav: "Links in der Fußzeile",
       installation: "Installation",
-      atelier: "Die Werkstatt",
+      atelier: "Korrespondenz",
       legal: "Impressum",
     },
     film: {
@@ -172,10 +177,10 @@ export const de: Copy = {
     newTab: "(neuer Tab)",
   },
   login: {
-    title: "Willkommen in der Werkstatt.",
+    title: "Willkommen in Ihrem Arbeitsbereich.",
     body: "Entdecken Sie einen isolierten Demobereich. Dokumente und Sendungen gehören zur ausgewählten Organisation.",
     local: "Lokale Demonstration",
-    atelier: "Atelier betreten",
+    atelier: "Arbeitsbereich öffnen",
     studio: "Studio betreten",
     separator: "Guteneo-Konto",
     managed: "Anmelden",
@@ -198,7 +203,7 @@ export const de: Copy = {
     emptyTitle: "Hier beginnt Ihre erste Sendung.",
     emptyBody:
       "Importieren Sie eine PDF-Datei oder verfassen Sie einen Brief. Vor jeder Bestätigung können Sie den Inhalt prüfen.",
-    connectionTitle: "Ihr Assistent, Ihre Werkstatt.",
+    connectionTitle: "Ihr Assistent, Ihr Arbeitsbereich.",
     connectionBody:
       "Bereiten Sie Ihre Sendungen im Gespräch vor und finden Sie hier dieselben Dokumente und Kennungen wieder.",
     connect: "Verbindung einrichten",
@@ -430,7 +435,7 @@ export const de: Copy = {
   connection: {
     title: "Das Gespräch geht hier weiter.",
     intro:
-      "Eine Werkstatt, erreichbar über Ihren Assistenten, die API und diesen Bereich.",
+      "Ein Arbeitsbereich, erreichbar über Ihren Assistenten, die API und den Browser.",
     endpoint: "Adresse des MCP-Servers",
     copy: "Adresse kopieren",
     copied: "Adresse kopiert",
@@ -505,7 +510,7 @@ export const de: Copy = {
       "Diese Aktivierung übermittelt kein Dokument und versendet keinen Brief. Vor dem Versand prüfen Sie PDF, Empfänger und Preisangebot.",
     ready: "Ihr Postabsender ist bereit",
     readyBody:
-      "Sie können Ihre PDF-Datei importieren und anschließend in der Werkstatt einen Brief vorbereiten.",
+      "Sie können Ihre PDF-Datei importieren und anschließend in Korrespondenz einen Brief vorbereiten.",
     prepare: "Brief vorbereiten",
     declared: "Vom Administrator erklärt",
     submittedInChat: "Im Gespräch angegeben",
@@ -531,6 +536,12 @@ export const de: Copy = {
     title: "Jede Sendung zählt.",
     intro:
       "Reservierungen und Verbrauch Ihrer Organisation. Simulationsguthaben bleibt getrennt.",
+    period: "Verbrauchsmonat",
+    latest: "Zuletzt erfasster Monat",
+    periodHint:
+      "Beim Öffnen erscheint der zuletzt erfasste Monat. Wählen Sie hier einen anderen Monat; das Guthaben zeigt immer den heutigen Stand.",
+    monthlyTitle: "Sendungen und monatliche Limits",
+    monthEmpty: "Für diesen Monat wurden keine Sendungen erfasst.",
     reserved: "Reserviert",
     consumed: "Bestätigt",
     released: "Freigegeben",
@@ -540,7 +551,7 @@ export const de: Copy = {
     note: "Bei einer ungewissen Übermittlung bleibt die Reservierung bis zur Klärung bestehen. Die tatsächlichen Kosten hängen vom Anbieter ab und sind keine Kundenpreise.",
   },
   admin: {
-    title: "Die Werkstatt im Blick.",
+    title: "Den Arbeitsbereich im Blick.",
     intro:
       "Verstehen Sie Vorfälle, bevor Sie handeln. Ungewisse Übermittlungen werden nie ungeprüft wiederholt.",
     refresh: "Diagnose aktualisieren",

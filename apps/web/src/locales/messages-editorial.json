@@ -279,31 +279,15 @@
     "Hauptnavigation",
     "Haaptnavigatioun"
   ],
-  "Le journal": [
-    "The journal",
-    "Das Journal",
-    "De Journal"
-  ],
+  "Le journal": ["The journal", "Das Journal", "De Journal"],
   "Découvrir l’atelier": [
     "Explore the workspace",
     "Arbeitsbereich entdecken",
     "Den Aarbechtsberäich entdecken"
   ],
-  "Cahier": [
-    "Issue",
-    "Heft",
-    "Heft"
-  ],
-  "min de lecture": [
-    "min read",
-    "Min. Lesezeit",
-    "Min. Lieszäit"
-  ],
-  "Les mots voyagent.": [
-    "Words travel.",
-    "Wörter reisen.",
-    "Wierder reesen."
-  ],
+  "Cahier": ["Issue", "Heft", "Heft"],
+  "min de lecture": ["min read", "Min. Lesezeit", "Min. Lieszäit"],
+  "Les mots voyagent.": ["Words travel.", "Wörter reisen.", "Wierder reesen."],
   "Leur histoire aussi.": [
     "So does their history.",
     "Ihre Geschichte auch.",
@@ -324,11 +308,7 @@
     "Das Guteneo-Journal · Zwei Hefte zum Auftakt",
     "De Guteneo-Journal · Zwee Hefter fir unzefänken"
   ],
-  "Une histoire": [
-    "A history",
-    "Eine Geschichte",
-    "Eng Geschicht"
-  ],
+  "Une histoire": ["A history", "Eine Geschichte", "Eng Geschicht"],
   "de transmission.": [
     "of transmission.",
     "der Übermittlung.",
@@ -354,16 +334,8 @@
     "Jedes Heft nennt seine Quellen. Die für Guteneo geschaffenen Illustrationen interpretieren diese Geschichte; sie sind keine Archivdokumente.",
     "All Heft nennt seng Quellen. D’Illustratiounen, déi fir Guteneo erstallt goufen, interpretéieren dës Geschicht; si si keng Archivdokumenter."
   ],
-  "Fil d’Ariane": [
-    "Breadcrumb",
-    "Brotkrumennavigation",
-    "Navigatiounswee"
-  ],
-  "Accueil": [
-    "Home",
-    "Startseite",
-    "Startsäit"
-  ],
+  "Fil d’Ariane": ["Breadcrumb", "Brotkrumennavigation", "Navigatiounswee"],
+  "Accueil": ["Home", "Startseite", "Startsäit"],
   "L’histoire de l’imprimerie · Cahier": [
     "The history of printing · Issue",
     "Die Geschichte des Druckens · Heft",
@@ -374,11 +346,7 @@
     "Guteneo-Redaktion",
     "Guteneo-Redaktioun"
   ],
-  "Publié le": [
-    "Published on",
-    "Veröffentlicht am",
-    "Publizéiert den"
-  ],
+  "Publié le": ["Published on", "Veröffentlicht am", "Publizéiert den"],
   "Une évocation libre, sans valeur de reconstitution historique.": [
     "An imaginative interpretation, not a historical reconstruction.",
     "Eine freie Darstellung, keine historische Rekonstruktion.",
@@ -399,11 +367,7 @@
     "Quellen & weiterführende Literatur",
     "Quellen & weider Lektür"
   ],
-  "Sources :": [
-    "Sources:",
-    "Quellen:",
-    "Quellen:"
-  ],
+  "Sources :": ["Sources:", "Quellen:", "Quellen:"],
   "Pour aller plus loin": [
     "Explore further",
     "Weiterlesen",
@@ -424,9 +388,5 @@
     "Der Faden geht weiter",
     "De Fuedem geet weider"
   ],
-  "Tous les cahiers": [
-    "All issues",
-    "Alle Hefte",
-    "All Hefter"
-  ]
+  "Tous les cahiers": ["All issues", "Alle Hefte", "All Hefter"]
 }

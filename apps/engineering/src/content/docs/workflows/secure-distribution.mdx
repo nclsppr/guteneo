@@ -1,0 +1,171 @@
+---
+title: Secure distribution and personal documents
+description: Follow immutable sharing, independent recipient association and explicitly acquired personal copies without confusing their authorities.
+sidebar:
+  order: 5
+---
+
+Secure distribution gives one named recipient bounded access to prepared pages
+and accessible text. It uses one Guteneo account with an optional workspace:
+receiving a document never joins the sender's workspace. This flow is distinct
+from ordinary attachments and legacy password links.
+
+Read the [feature domain](/features/secure-distribution/) for the complete
+inventory. This guide explains the commitments and failure boundaries; inventory
+presence does not establish current production activation or provider delivery.
+
+## One identity, two authorization domains
+
+A personal account can exist without any workspace, credit or quota. Personal
+browser routes resolve the account owner and their permitted documents. Workspace
+routes require current membership and action/resource permissions. A workspace
+OAuth token cannot open a personal vault, even for an administrator.
+
+Signing in preserves the identity provider's issuer/subject pair. Equal email
+addresses never merge identities or transfer old documents to a recycled address.
+Choosing **Use Guteneo** can voluntarily create or select a workspace; the browser
+then reloads its current session, rights and CSRF before business work. This uses
+the same account without inventing a sender membership for the recipient.
+
+## Freeze the sharing contract before approval
+
+The preparer selects one accessible verified PDF, one recipient, term, permissions,
+notification language, message and complete quote. Sources are limited to 10 MiB
+and 100 pages. Rendering runs in durable batches of at most three pages and
+produces bounded images plus separate accessible text. Viewing does not return
+the original PDF; failed rendering cannot fall back to the original.
+
+The sharing contract distinguishes:
+
+| Choice                                  | Effect                                                   |
+| --------------------------------------- | -------------------------------------------------------- |
+| Shared access for 7/30/90/365 days      | Revocable access until the displayed expiry              |
+| Original download permission            | Separate explicit export of the source                   |
+| Personal-copy option for 365/1,095 days | Independent exportable retention, starting when acquired |
+| Invitation transport                    | Separate provider operation and quote component          |
+
+The server catalog owns versioned prices. A retention term and any personal-copy
+option are funded at activation, even if the recipient never requests a copy.
+Revocation provides no refund of those commitments. Read amounts/ceilings from
+the current quote rather than hardcoding prices in a client or assistant.
+
+The approver reviews final pages/text, recipient, rights, invitation and price,
+with a separate attestation that the recipient requested the email/document.
+Sensitive approval is always a human browser action under the active document
+policy. An expert mandate cannot replace it. REST/MCP can prepare, inspect and
+confirm an exactly approved distribution under current rights/scopes and host
+confirmation; it cannot supply sensitive approval or associate the recipient.
+
+<GutenbergNote
+  pose="review"
+  title="A proof and a delivery are separate commitments"
+>
+  Approving exact pages does not identify the recipient's account. Independent
+  association is checked separately before any sensitive title or page is shown.
+</GutenbergNote>
+
+## Renew an unsubmitted invitation quote
+
+A sign-in interruption can outlast the invitation's provider quote. When approval
+reports expiry or changed quote configuration, **Refresh quote** is an explicit
+browser action for a current approver with source access and recent document
+authentication. It preserves the original source, recipient, rights, content and
+ceiling, and prepares a separate immutable distribution at the current qualified
+price. It does not extend an old quote or transfer its approval.
+
+The original must still be unsubmitted. Guarded cancellation and a durable marker
+prevent a racing acceptance from also producing a replacement. A lost response
+resumes the same renewal and returns its existing replacement. Accepted, attempted
+or uncertain sending requires reconciliation, never this action. Follow the new
+preparation, review the final pages and price again, then separately approve and
+activate. No charge or provider attempt is created by renewal.
+
+This recovery is browser-only; assistants retain their existing read and
+confirmation contracts. The 27 October candidate changes no tariff, provider
+qualification, authentication policy or mandate. Local tests and source presence
+remain distinct from hosted recovery, production publication and delivery proof.
+
+## The active document policy remains explicit
+
+The server defaults to `strong`; an operator can explicitly select
+`verified_account`. The requested launch configuration selects `verified_account`;
+that source configuration alone proves no live activation. Both require verified account/address, identity-linked session,
+signed recent primary authentication time, current permissions and confirmed
+association. Reading, association and approval require authentication within
+fifteen minutes; original export, deposit and deletion require five minutes.
+
+`verified_account` does not claim MFA or physical identity. `strong` additionally
+requires qualified signed evidence of the method actually used; a registered
+passkey or old MFA boolean is insufficient. Environment and durable D1 policy
+must agree or access fails closed. Session access hints explain the UI but do
+not grant server authority. Returning to strong mode cannot relabel an ordinary
+approval as strong evidence.
+
+A document-authentication or freshness refusal shows a localized sign-in notice
+with an explicit **Sign in again** action. Fresh login returns to the existing
+share when its bounded application destination is valid; query and secondary
+fragment values are dropped. It preserves no private
+form fields, replays no mutation and grants no approval or activation. Recipient
+invitation secrets follow the separate handoff below. Passkey selection remains
+a separate product and deployment decision.
+
+## Invitation possession is insufficient
+
+The browser captures/removes the opaque fragment token before any HTTP login
+navigation. Same-tab handoff lasts at most ten minutes; login return paths contain
+no invitation secret. With blocked storage, explicitly sign in and reopen the
+invitation rather than placing its token in a URL.
+
+The recipient verifies the expected address and requests association. A current
+workspace approver independently confirms that stable account against a known
+relationship, separate channel or qualified evidence. A self-entered name alone
+is insufficient. Pending association reveals no sensitive title or content, and
+a changed candidate requires a new verification attestation.
+
+## Shared access and acquired copies have different lifetimes
+
+**Shared with me** follows the sender's grant: revocation blocks future page,
+text and permitted original responses. Every response rechecks authority after
+storage waits and appends durable authorization evidence before content leaves.
+Revocation cannot erase pixels/downloads already received.
+
+**Saved copies** contains explicitly acquired independent copies. Deposit is one
+idempotent durable operation, invisible until final activation rechecks grant,
+policy, owner, funding and fresh session. Revocation before that transaction
+prevents acquisition; later revocation cannot remove the acquired copy. Closing
+a tab does not cancel accepted work. Resume the same operation without a second
+copy or charge.
+
+Personal deletion is explicit. Cancelling retains the copy; confirming removes
+reading/export without deleting the workspace source or previous exports.
+Deletion/expiry prevents redeposit through the same invitation. The original
+workspace sees acquisition, never subsequent private reading activity.
+
+## Dedicated sources close legacy escape paths
+
+Revoke an unexpired legacy password link before first sensitive preparation.
+A source already referenced by ordinary sending, provider drafts, postal
+preflight or postal derivation requires a dedicated replacement source, even if
+that old operation failed or was cancelled. Once sensitive reference exists,
+ordinary attachments, legacy password reads, postal transformations, cropping
+and analysis stay forbidden even after sensitive failure/revocation.
+
+Bidirectional service and SQL guards enforce this against concurrent work. The
+sensitive invitation contains no source attachment. No role, scope or mandate
+lifts this V1 incompatibility; no historical exported copy is recalled.
+
+## Interpret the audit honestly
+
+Server-authorized image/text, browser-declared display, requested download,
+started transfer, copy acquisition and revocation are distinct events. None
+proves complete human reading, disk save, physical printing or screenshot
+prevention. Detailed access activity retains ninety days; immutable approval,
+association and charge receipts have separate retention.
+
+Shared/personal objects use separate random data keys, wrapped by service keys,
+with integrity checked on reads. The trusted runtime can decrypt authorized
+content: this is not end-to-end encryption, certified archival storage or DRM.
+
+Continue with [background jobs](/engineering/background-jobs/) for durable work,
+[authority](/architecture/authority-and-tenancy/) for role/session boundaries and
+[troubleshooting](/engineering/troubleshooting/) for safe recovery.

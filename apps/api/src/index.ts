@@ -1,14 +1,23 @@
+import { handleEmailRecipientFeedback } from "./email-recipient-feedback";
+import {
+  emailContentCapabilities,
+  emailPreparationDescriptions,
+} from "./email-preparation-contract";
+import { handleBelvedereRoute } from "./belvedere";
+import { handleBelvedereHost } from "./belvedere-host";
+import { GUTENEO_VERSION } from "../../../packages/contracts/src/release";
+import { cleanupBelvedereTelemetry } from "./belvedere-telemetry";
 import { handleInvitationRoute } from "./invitations";
 import {
-  handleMonthlyPlanRoute,
-  getHorizonStatus,
-  horizonAvailable,
-  renewHorizonPlans,
-} from "./monthly-plan";
+  handlePdfValidationPricingRoute,
+  pdfValidationAvailable,
+  expirePdfValidations,
+} from "./pdf-validation-pricing";
 import { PdfValidationService } from "./pdf-validation";
 import {
-  pdfValidationInput,
   pdfValidationProfiles,
+  PDF_VALIDATION_PRICE_MINOR,
+  PDF_VALIDATION_TERMS_VERSION,
 } from "../../../packages/contracts/src/pdf-validation";
 import { ensureEmailSender } from "./email-setup";
 import {
@@ -36,6 +45,20 @@ import {
 import { assertBaseConfiguration, assertConfiguration, type Env } from "./env";
 import { DocumentService } from "./documents";
 import {
+  McpAppDocumentUploadService,
+  cleanupMcpAppDocumentUploads,
+} from "./mcp-app-upload";
+import {
+  assertMcpDocumentUploadEnabled,
+  mcpDocumentUploadEnabled,
+} from "./mcp-document-upload";
+import { MCP_APP_UPLOAD_MAX_BYTES } from "../../../packages/contracts/src/mcp-app-upload-limits";
+
+import {
+  PrivateDocumentUploadService,
+  privateUploadPath,
+} from "./document-upload";
+import {
   TemplateWorkflowService,
   type WorkflowActor,
 } from "./template-workflow";
@@ -54,8 +77,11 @@ import {
   requireScope,
   handleAuthRoute,
   AuthError,
+  authFailureRedirect,
+  hashSecret,
+  type McpIdentity,
 } from "./auth";
-import { handleMcp } from "./mcp";
+import { handleMcp, secureDistributionSummary } from "./mcp";
 import {
   createLiveDeliveryQuoteConfig,
   createLiveProviderHook,
@@ -68,6 +94,24 @@ import {
   handleStripeWebhook,
 } from "./billing";
 import { handleAccountRoute } from "./account";
+import { handlePersonalAccountRoute } from "./personal-auth";
+import { authenticatePersonalBrowser } from "./personal-auth";
+import {
+  SecureDistributionService,
+  secureDistributionAvailable,
+} from "./secure-distributions";
+import { documentAccessMode } from "../../../packages/contracts/src/document-authentication";
+import {
+  handlePersonalDocumentRoute,
+  secureWorkshopPreview,
+  secureJson,
+} from "./secure-distribution-routes";
+import { PersonalDocumentsService } from "./personal-documents";
+import {
+  secureDistributionCatalog,
+  secureDistributionInputSchema,
+  secureBindingSchema,
+} from "../../../packages/contracts/src/secure-distribution";
 import { handleMobileRoute } from "./mobile";
 import {
   configurePostalSenderForMcp,
@@ -104,9 +148,18 @@ function identityConfigured(env: Env) {
 export function getCapabilities(env: Env) {
   return {
     name: "Guteneo",
-    version: "0.2.2",
+    version: GUTENEO_VERSION,
     mode: env.MODE,
     simulation: env.MODE === "simulation",
+    secureDistribution: {
+      ...secureDistributionCatalog(
+        documentAccessMode(env.SENSITIVE_DOCUMENT_AUTHENTICATION),
+      ),
+      available: secureDistributionAvailable(env),
+      accountRequired: true,
+      originalDownload: "explicit_policy",
+      revokeRefunds: false,
+    },
     humanApproval: "authenticated_browser",
     approval: {
       default: "authenticated_browser",
@@ -127,18 +180,19 @@ export function getCapabilities(env: Env) {
       configured: billingConfigured(env),
       mode: env.STRIPE_MODE ?? "unconfigured",
       chargingEnabled: false,
-      requiresMonthlyPlan: true,
+      requiresMonthlyPlan: false,
       management: "administrator_browser_only",
     },
-    horizon: {
-      name: "guteneo Horizon",
-      priceMinor: 3000,
+    pdfValidation: {
+      priceMinor: PDF_VALIDATION_PRICE_MINOR,
       currency: "EUR",
-      interval: "month",
+      taxBasis: "excluding_tax",
+      termsVersion: PDF_VALIDATION_TERMS_VERSION,
+      unit: "completed_check",
       paymentSource: "account_credits",
-      available: horizonAvailable(env),
-      subscription: "administrator_browser_only",
-      accountUrl: `${env.APP_ORIGIN}/#/app/plan`,
+      available: pdfValidationAvailable(env),
+      purchase: "administrator_browser_only",
+      accountUrl: `${env.APP_ORIGIN}/#/app/pdf-checks`,
     },
     channels: [
       {
@@ -153,8 +207,9 @@ export function getCapabilities(env: Env) {
       {
         id: "email",
         liveSending: liveSendingEnabled(env, "email"),
-        name: "E-mail",
+        name: "Email",
         deliveryModes: ["none", "attachment", "protected_link"],
+        content: emailContentCapabilities,
         maxAttachmentBytes: 10_000_000,
         protectedDocument: {
           available:
@@ -183,8 +238,8 @@ export function getCapabilities(env: Env) {
       {
         id: "postal",
         liveSending: liveSendingEnabled(env, "postal"),
-        name: "Courrier postal",
-        provider: "Service courrier Guteneo",
+        name: "Postal letter",
+        provider: "Guteneo postal service",
         status: env.PINGEN_CLIENT_ID
           ? "configured_not_live_validated"
           : "not_configured",
@@ -235,10 +290,11 @@ export function getCapabilities(env: Env) {
       exactBytes: true,
       urlImport: ["production", "staging"].includes(env.ENVIRONMENT),
       validation: {
-        available: horizonAvailable(env),
+        available: pdfValidationAvailable(env),
         profiles: pdfValidationProfiles,
-        requiresMonthlyPlan: true,
-        checksPerCalendarMonth: 100,
+        requiresMonthlyPlan: false,
+        paidPerCheck: true,
+        priceMinor: PDF_VALIDATION_PRICE_MINOR,
         automatedOnly: true,
         certification: false,
         engine: "veraPDF",
@@ -296,6 +352,11 @@ export function getCapabilities(env: Env) {
   };
 }
 app.use("*", async (c, next) => {
+  const response = await handleBelvedereHost(c.req.raw, c.env);
+  if (response) return response;
+  return next();
+});
+app.use("*", async (c, next) => {
   const route = routeCode(c.req.raw);
   // Media capability tokens are path segments. Avoid emitting a log in this invocation
   // because platform-added request metadata is outside the structured logger's control.
@@ -305,13 +366,16 @@ app.use("*", async (c, next) => {
     "http",
     route,
     c.req.method,
-    ![
-      "provider_media",
-      "unknown",
-      "public_asset",
-      "auth_other",
-      "webhook_other",
-    ].includes(route),
+    !new URL(c.req.url).searchParams
+      .get("returnTo")
+      ?.startsWith("/belvedere/") &&
+      ![
+        "provider_media",
+        "unknown",
+        "public_asset",
+        "auth_other",
+        "webhook_other",
+      ].includes(route),
   );
   c.set("observation", observation);
   c.header("X-Correlation-ID", observation.correlationId);
@@ -333,7 +397,7 @@ app.use("*", async (c, next) => {
     ) {
       observation.finish(302);
       return c.redirect(
-        `${c.env.APP_ORIGIN}/?auth=IDENTITY_NOT_CONFIGURED#/app`,
+        authFailureRedirect(c.req.raw, c.env, "IDENTITY_NOT_CONFIGURED"),
         302,
       );
     }
@@ -342,7 +406,7 @@ app.use("*", async (c, next) => {
       {
         error: {
           code: "CONFIGURATION_INVALID",
-          message: "Configuration du service invalide.",
+          message: "Invalid service configuration.",
         },
       },
       503,
@@ -351,21 +415,29 @@ app.use("*", async (c, next) => {
   await next();
   observation.finish(c.res.status);
 });
-app.use(
-  "*",
-  bodyLimit({
-    maxSize: LIMITS.pdfBytes + 262144,
-    onError: (c) =>
-      c.json(
-        {
-          error: {
-            code: "REQUEST_TOO_LARGE",
-            message: "Requête trop volumineuse.",
-          },
+const ordinaryBodyLimit = bodyLimit({
+  maxSize: LIMITS.pdfBytes + 262144,
+  onError: (c) =>
+    c.json(
+      {
+        error: {
+          code: "REQUEST_TOO_LARGE",
+          message: "Request too large.",
         },
-        413,
-      ),
-  }),
+      },
+      413,
+    ),
+});
+// MCP authenticates and applies its smaller byte bound before buffering.
+app.use("*", (c, next) =>
+  c.req.path === "/mcp" || privateUploadPath(c.req.path)
+    ? next()
+    : ordinaryBodyLimit(c, next),
+);
+// Authenticate the narrow upload capability before reading any original bytes.
+// This route never accepts ambient browser cookies or an OAuth token.
+app.all("/api/document-uploads/:id/content", (c) =>
+  new PrivateDocumentUploadService(c.env, domain(c.env)).receive(c.req.raw),
 );
 app.get("/api/health", (c) =>
   c.json({
@@ -383,9 +455,49 @@ app.get("/media/:token", (c) =>
 );
 app.all("/mcp", (c) =>
   handleMcp(c.req.raw, c.env, {
+    appAssets: c.env.ASSETS,
     domain: domain(c.env),
     documents: new DocumentService(c.env, domain(c.env)),
+    documentUploads: new PrivateDocumentUploadService(c.env, domain(c.env)),
+    appDocumentUploads: c.env.MCP_DOCUMENT_UPLOAD_APP
+      ? new McpAppDocumentUploadService(
+          c.env,
+          domain(c.env),
+          async (identity) => assertMcpDocumentUploadEnabled(c.env, identity),
+        )
+      : undefined,
+
     workflow: new TemplateWorkflowService(c.env, domain(c.env)),
+    secureDistribution: {
+      prepare: async (identity, input, key) =>
+        (await secureMcpService(c.env, identity, "dispatches:prepare")).prepare(
+          identity.context,
+          input,
+          key,
+        ),
+      list: async (identity, query) =>
+        (await secureMcpService(c.env, identity, "dispatches:read")).list(
+          identity.context,
+          query,
+        ),
+      get: async (identity, id) =>
+        (await secureMcpService(c.env, identity, "dispatches:read")).get(
+          identity.context,
+          id,
+        ),
+      confirm: async (identity, id, key) => {
+        const result = await (
+          await secureMcpService(c.env, identity, "dispatches:send")
+        ).confirm(identity.context, id, key);
+        await publishOutbox(c.env, domain(c.env));
+        return result;
+      },
+      revoke: async (identity, id) =>
+        (await secureMcpService(c.env, identity, "dispatches:send")).revoke(
+          identity.context,
+          id,
+        ),
+    },
     afterGeneration: () =>
       c.executionCtx.waitUntil(
         new TemplateWorkflowService(c.env, domain(c.env))
@@ -415,9 +527,19 @@ app.all("/mcp", (c) =>
       ]);
       return {
         ...capabilities,
-        horizon: {
-          ...capabilities.horizon,
-          account: await getHorizonStatus(c.env, identity.context),
+        documents: {
+          ...capabilities.documents,
+          originalFilePicker: {
+            available: mcpDocumentUploadEnabled(c.env, identity),
+            tool: mcpDocumentUploadEnabled(c.env, identity)
+              ? "open_mcp_document_upload"
+              : null,
+            requiredScope: "documents:write",
+            requiresMcpApps: true,
+            selection: "explicit_local_original",
+            conversationAttachmentAccess: false,
+            maxBytes: MCP_APP_UPLOAD_MAX_BYTES,
+          },
         },
         postal: {
           channel: "postal",
@@ -500,6 +622,8 @@ app.all("/mcp", (c) =>
   }),
 );
 app.use("*", async (c, next) => {
+  const feedback = await handleEmailRecipientFeedback(c.req.raw, c.env);
+  if (feedback) return feedback;
   const protectedDocument = await handleProtectedDocumentRoute(
     c.req.raw,
     c.env,
@@ -512,6 +636,12 @@ app.use("*", async (c, next) => {
   await next();
 });
 app.use("*", async (c, next) => {
+  const belvedere = await handleBelvedereRoute(c.req.raw, c.env);
+  if (belvedere) return belvedere;
+  const personalAccount = await handlePersonalAccountRoute(c.req.raw, c.env);
+  if (personalAccount) return personalAccount;
+  const personalDocument = await handlePersonalDocumentRoute(c.req.raw, c.env);
+  if (personalDocument) return personalDocument;
   const mobile = await handleMobileRoute(
     c.req.raw,
     c.env,
@@ -531,8 +661,18 @@ app.use("/api/billing/*", async (c, next) => {
   if (billing) return billing;
   return next();
 });
+app.get(
+  "/api/pdf-validation/pricing",
+  async (c) =>
+    (await handlePdfValidationPricingRoute(c.req.raw, c.env)) ?? c.notFound(),
+);
+app.all(
+  "/api/pdf-validation/pricing",
+  async (c) =>
+    (await handlePdfValidationPricingRoute(c.req.raw, c.env)) ?? c.notFound(),
+);
 app.use("/api/*", async (c, next) => {
-  const plan = await handleMonthlyPlanRoute(c.req.raw, c.env);
+  const plan = await handlePdfValidationPricingRoute(c.req.raw, c.env);
   if (plan) return plan;
   const postalSetup = await handlePostalSetupRoute(c.req.raw, c.env);
   if (postalSetup) return postalSetup;
@@ -555,7 +695,9 @@ app.use("/api/*", async (c, next) => {
         ? c.req.method === "GET"
           ? "documents:read"
           : "documents:write"
-        : path.endsWith("/confirm") || path.endsWith("/cancel")
+        : path.endsWith("/confirm") ||
+            path.endsWith("/cancel") ||
+            path.endsWith("/revoke")
           ? "dispatches:send"
           : c.req.method === "GET"
             ? "dispatches:read"
@@ -590,7 +732,7 @@ app.use("/api/*", async (c, next) => {
       {
         error: {
           code: "RATE_LIMITED",
-          message: "Trop de requêtes. Réessayez dans une minute.",
+          message: "Too many requests. Try again in a minute.",
         },
       },
       429,
@@ -601,6 +743,8 @@ app.use("/api/*", async (c, next) => {
 const domain = (env: Env) =>
   new DomainService(env.DB, {
     mode: env.MODE,
+    appOrigin: env.APP_ORIGIN,
+    sensitiveDocumentAuthentication: env.SENSITIVE_DOCUMENT_AUTHENTICATION,
     ...createLiveDeliveryQuoteConfig(env),
     ensureEmailSender: (ctx) => ensureEmailSender(env, ctx),
     prepareProtectedDocument: (ctx, input, now) =>
@@ -618,7 +762,7 @@ const idempotency = (value: string | undefined) => {
   if (!value)
     throw new ContentError(
       "IDEMPOTENCY_REQUIRED",
-      "En-tête Idempotency-Key requis.",
+      "Idempotency-Key header required.",
     );
   return value;
 };
@@ -635,6 +779,202 @@ const postalAuthority = async (request: Request, env: Env, scope: string) => {
   return postalBrowserAuthority(request, env, request.method !== "GET");
 };
 app.route("/", createTemplateWorkflowRoutes(domain, postalAuthority));
+const secureService = (env: Env) =>
+  new SecureDistributionService(env, domain(env));
+async function secureMcpService(
+  env: Env,
+  identity: McpIdentity,
+  scope: string,
+) {
+  const authority = await postalMcpAuthority(identity, env, scope);
+  const snapshot = identity.connectionObservation
+    ? {
+        kind: "oauth" as const,
+        ...identity.connectionObservation,
+        expiresAt: identity.expiresAt,
+      }
+    : identity.token.startsWith("gtn_dev_") &&
+        env.ENVIRONMENT === "local" &&
+        env.MODE === "simulation"
+      ? {
+          kind: "development" as const,
+          tokenHash: await hashSecret(identity.token),
+          expiresAt: identity.expiresAt,
+        }
+      : undefined;
+  if (!snapshot)
+    throw new DomainError(
+      "FORBIDDEN",
+      "A current OAuth connection is required.",
+      403,
+    );
+  return new SecureDistributionService(env, domain(env), authority, snapshot);
+}
+async function secureRequestService(request: Request, env: Env, scope: string) {
+  return request.headers.has("Authorization")
+    ? secureMcpService(env, await authenticateMcp(request, env), scope)
+    : secureService(env);
+}
+const secureResult = (
+  actor: ActorContext,
+  value: Awaited<ReturnType<SecureDistributionService["get"]>>,
+) => (actor.actor === "mcp" ? secureDistributionSummary(value) : value);
+app.get("/api/secure-distributions/catalog", (c) =>
+  c.json({
+    ...secureDistributionCatalog(
+      documentAccessMode(c.env.SENSITIVE_DOCUMENT_AUTHENTICATION),
+    ),
+    available: secureDistributionAvailable(c.env),
+  }),
+);
+app.get("/api/secure-distributions", async (c) => {
+  const [cursor, limit] = page(c.req.url),
+    actor = c.get("actor"),
+    result = await (
+      await secureRequestService(c.req.raw, c.env, "dispatches:read")
+    ).list(actor, { cursor, limit });
+  return c.json({
+    ...result,
+    items: result.items.map((item) => secureResult(actor, item)),
+  });
+});
+app.post("/api/secure-distributions", async (c) => {
+  const actor = c.get("actor"),
+    input = await secureJson(
+      c.req.raw,
+      secureDistributionInputSchema,
+      200 * 1024,
+    );
+  return c.json(
+    secureResult(
+      actor,
+      await (
+        await secureRequestService(c.req.raw, c.env, "dispatches:prepare")
+      ).prepare(actor, input, idempotency(c.req.header("Idempotency-Key"))),
+    ),
+    201,
+  );
+});
+app.get("/api/secure-distributions/:id", async (c) =>
+  c.json(
+    secureResult(
+      c.get("actor"),
+      await (
+        await secureRequestService(c.req.raw, c.env, "dispatches:read")
+      ).get(c.get("actor"), c.req.param("id")),
+    ),
+  ),
+);
+app.post("/api/secure-distributions/:id/renew", async (c) => {
+  await secureJson(c.req.raw, z.object({}).strict());
+  const principal = await authenticatePersonalBrowser(c.req.raw, c.env, true);
+  return c.json(
+    await secureService(c.env).renew(
+      c.get("actor"),
+      c.req.param("id"),
+      principal,
+    ),
+  );
+});
+app.post("/api/secure-distributions/:id/approve", async (c) => {
+  const input = await secureJson(
+    c.req.raw,
+    z
+      .object({
+        reviewed: z.literal(true),
+        recipientRequested: z.boolean().default(false),
+      })
+      .strict(),
+  );
+  const principal = await authenticatePersonalBrowser(c.req.raw, c.env, true);
+  return c.json(
+    await secureService(c.env).approve(
+      c.get("actor"),
+      c.req.param("id"),
+      principal,
+      input.reviewed,
+      input.recipientRequested,
+    ),
+  );
+});
+app.post("/api/secure-distributions/:id/activate", async (c) => {
+  if (c.get("actor").actor !== "browser")
+    throw new DomainError(
+      "BROWSER_REQUIRED",
+      "Use confirm for API confirmation after browser approval.",
+      403,
+    );
+  const result = await secureService(c.env).confirm(
+    c.get("actor"),
+    c.req.param("id"),
+    idempotency(c.req.header("Idempotency-Key")),
+  );
+  await publishOutbox(c.env, domain(c.env));
+  return c.json(result);
+});
+app.post("/api/secure-distributions/:id/confirm", async (c) => {
+  const actor = c.get("actor"),
+    result = await (
+      await secureRequestService(c.req.raw, c.env, "dispatches:send")
+    ).confirm(
+      actor,
+      c.req.param("id"),
+      idempotency(c.req.header("Idempotency-Key")),
+    );
+  await publishOutbox(c.env, domain(c.env));
+  return c.json(secureResult(actor, result));
+});
+app.post("/api/secure-distributions/:id/revoke", async (c) =>
+  c.json(
+    secureResult(
+      c.get("actor"),
+      await (
+        await secureRequestService(c.req.raw, c.env, "dispatches:send")
+      ).revoke(c.get("actor"), c.req.param("id")),
+    ),
+  ),
+);
+app.post("/api/secure-distributions/:id/bind", async (c) => {
+  const principal = await authenticatePersonalBrowser(c.req.raw, c.env, true),
+    input = await secureJson(c.req.raw, secureBindingSchema);
+  return c.json(
+    await secureService(c.env).bind(
+      c.get("actor"),
+      c.req.param("id"),
+      principal,
+      input,
+    ),
+  );
+});
+app.get("/api/secure-distributions/:id/preview/:page", async (c) =>
+  secureWorkshopPreview(
+    c.req.raw,
+    c.env,
+    secureService(c.env),
+    c.get("actor"),
+    c.req.param("id"),
+    z.coerce.number().int().min(1).max(100).parse(c.req.param("page")),
+  ),
+);
+app.get("/api/secure-distributions/:id/preview/:page/text", async (c) =>
+  secureWorkshopPreview(
+    c.req.raw,
+    c.env,
+    secureService(c.env),
+    c.get("actor"),
+    c.req.param("id"),
+    z.coerce.number().int().min(1).max(100).parse(c.req.param("page")),
+    true,
+  ),
+);
+app.get("/api/secure-distributions/:id/events", async (c) => {
+  const [cursor, limit] = page(c.req.url);
+  return c.json(
+    await (
+      await secureRequestService(c.req.raw, c.env, "dispatches:read")
+    ).events(c.get("actor"), c.req.param("id"), { cursor, limit }),
+  );
+});
 app.get("/api/postal/requirements", async (c) =>
   c.json(
     await new PostalService(c.env, domain(c.env)).requirements(
@@ -703,7 +1043,7 @@ app.post("/api/postal/preflights/:id/quote", async (c) => {
   if (body && body !== "{}")
     throw new ContentError(
       "POSTAL_QUOTE_INPUT_INVALID",
-      "Le devis reprend le document et le destinataire déjà vérifiés.",
+      "The quote uses the document and recipient already verified.",
     );
   return c.json(
     await new PostalService(c.env, domain(c.env)).quote(
@@ -739,9 +1079,9 @@ app.post("/api/documents", async (c) => {
   const data = await c.req.raw.formData();
   const file = data.get("file");
   if (!file || typeof file === "string")
-    throw new ContentError("FILE_REQUIRED", "Choisissez un PDF.");
+    throw new ContentError("FILE_REQUIRED", "Choose a PDF.");
   if (file.size > LIMITS.pdfBytes)
-    throw new ContentError("FILE_TOO_LARGE", "PDF trop volumineux.", 413);
+    throw new ContentError("FILE_TOO_LARGE", "PDF is too large.", 413);
   return c.json(
     await new DocumentService(c.env, domain(c.env)).upload(c.get("actor"), {
       name: file.name,
@@ -798,9 +1138,9 @@ app.get("/api/documents/:id/validation", async (c) =>
 app.post("/api/documents/:id/validation", async (c) =>
   c.json(
     await new PdfValidationService(c.env, domain(c.env)).validate(
-      await postalAuthority(c.req.raw, c.env, "documents:write"),
+      await postalBrowserAuthority(c.req.raw, c.env, true),
       c.req.param("id"),
-      pdfValidationInput.parse(await c.req.json()),
+      await c.req.json(),
       idempotency(c.req.header("Idempotency-Key")),
     ),
     201,
@@ -823,14 +1163,22 @@ app.get("/api/dispatches", async (c) =>
 app.get("/api/dispatches/:id", async (c) =>
   c.json(await domain(c.env).getDispatch(c.get("actor"), c.req.param("id"))),
 );
+app.get("/api/dispatches/:id/dry-run", async (c) =>
+  c.json(
+    await domain(c.env).validateDispatch(c.get("actor"), c.req.param("id")),
+  ),
+);
 const prepareSchema = z
   .object({
     channel: z.enum(["fax", "email", "postal"]),
     recipient: z.record(z.string(), z.unknown()),
     documentId: z.string().optional(),
-    subject: z.string().optional(),
-    html: z.string().optional(),
-    text: z.string().optional(),
+    subject: z
+      .string()
+      .optional()
+      .describe(emailPreparationDescriptions.subject),
+    html: z.string().optional().describe(emailPreparationDescriptions.html),
+    text: z.string().optional().describe(emailPreparationDescriptions.text),
     senderId: z.string().optional(),
     options: z.record(z.string(), z.unknown()).optional(),
     campaignId: z.string().optional(),
@@ -876,10 +1224,16 @@ app.post("/api/dispatches/:id/approve", async (c) => {
 });
 app.post("/api/dispatches/:id/confirm", async (c) => {
   const service = domain(c.env);
+  const acceptanceAuthority =
+    c.get("actor").actor === "mcp"
+      ? (await postalAuthority(c.req.raw, c.env, "dispatches:send")).sql()
+      : undefined;
   const result = await service.confirmDispatch(
     c.get("actor"),
     c.req.param("id"),
     idempotency(c.req.header("Idempotency-Key")),
+    undefined,
+    acceptanceAuthority,
   );
   // Queue publication is awaited for low latency, but the committed outbox is the durability guarantee.
   try {
@@ -924,14 +1278,19 @@ app.get("/api/senders", async (c) =>
   c.json(await domain(c.env).listSenders(c.get("actor"))),
 );
 app.get("/api/usage", async (c) =>
-  c.json(await domain(c.env).usage(c.get("actor"))),
+  c.json(await domain(c.env).usage(c.get("actor"), c.req.query("period"))),
+);
+app.get("/api/usage/activity", async (c) =>
+  c.json(
+    await domain(c.env).usageActivity(c.get("actor"), c.req.query("year")),
+  ),
 );
 app.get("/api/overview", async (c) => {
   // Workspace summary only: its document count is not a dispatches:read fact.
   if (c.get("actor").actor !== "browser")
     throw new ContentError(
       "BROWSER_REQUIRED",
-      "Ouvrez Guteneo dans votre navigateur pour consulter cette synthèse.",
+      "Open Guteneo in your browser to view this summary.",
       403,
     );
   return c.json(await domain(c.env).dispatchOverview(c.get("actor")));
@@ -947,7 +1306,7 @@ app.post("/api/admin/channels/:channel", async (c) => {
   if (actor.role !== "admin" || actor.actor !== "browser")
     throw new ContentError(
       "ADMIN_REQUIRED",
-      "Administrateur authentifié requis.",
+      "Authenticated administrator required.",
       403,
     );
   const channel = z
@@ -976,7 +1335,7 @@ app.post("/api/admin/channels/:channel", async (c) => {
   return c.json({ channel, enabled });
 });
 app.all("/api/*", (c) =>
-  c.json({ error: { code: "NOT_FOUND", message: "Route introuvable." } }, 404),
+  c.json({ error: { code: "NOT_FOUND", message: "Route not found." } }, 404),
 );
 app.get("*", (c) => c.env.ASSETS.fetch(c.req.raw));
 app.onError((error, c) => {
@@ -998,7 +1357,7 @@ app.onError((error, c) => {
       (error instanceof DomainError && c.req.path === "/auth/callback"))
   ) {
     return c.redirect(
-      `${c.env.APP_ORIGIN}/?auth=${encodeURIComponent(error.code)}#/app`,
+      authFailureRedirect(c.req.raw, c.env, error.code, error),
       302,
     );
   }
@@ -1024,7 +1383,7 @@ app.onError((error, c) => {
       {
         error: {
           code: "VALIDATION_ERROR",
-          message: "Données invalides.",
+          message: "Invalid data.",
           fields: error.issues.map((i) => ({
             path: i.path.join("."),
             message: i.message,
@@ -1037,8 +1396,7 @@ app.onError((error, c) => {
     {
       error: {
         code: "INTERNAL_ERROR",
-        message:
-          "L’opération a échoué. Conservez l’identifiant de corrélation.",
+        message: "The operation failed. Keep the correlation identifier.",
       },
     },
     500,
@@ -1075,8 +1433,8 @@ const simulation: ProviderHook = {
             simulation: true,
             description:
               dispatch.channel === "postal"
-                ? "Remise à la poste simulée, aucune lettre expédiée."
-                : "Résultat de simulation déterministe, aucun envoi réel.",
+                ? "Simulated postal handover; no letter was sent."
+                : "Deterministic simulation result; no real communication.",
           },
         },
       ],
@@ -1110,6 +1468,35 @@ export default {
             .passthrough()
             .safeParse(message.body);
           if (batch.queue.endsWith("-dlq") || !parsed.success) {
+            if (
+              parsed.success &&
+              parsed.data.dispatchId.startsWith("secure_deposit:")
+            ) {
+              await env.DB.prepare(
+                "UPDATE secure_deposit_operations SET auth_session_hash=NULL,lease_expires_at=? WHERE id=? AND status='preparing'",
+              )
+                .bind(
+                  new Date().toISOString(),
+                  parsed.data.dispatchId.slice("secure_deposit:".length),
+                )
+                .run();
+              message.ack();
+              counts.acked++;
+              counts.deadLetters++;
+              continue;
+            }
+            if (
+              parsed.success &&
+              parsed.data.dispatchId.startsWith("secure_render:")
+            ) {
+              await secureService(env).failRender(
+                parsed.data.dispatchId.slice("secure_render:".length),
+              );
+              message.ack();
+              counts.acked++;
+              counts.deadLetters++;
+              continue;
+            }
             await env.DB.prepare(
               "INSERT OR IGNORE INTO dead_letters(id,dispatch_id,queue,received_at) VALUES(?,?,?,?)",
             )
@@ -1123,6 +1510,22 @@ export default {
             message.ack();
             counts.acked++;
             counts.deadLetters++;
+            continue;
+          }
+          if (parsed.data.dispatchId.startsWith("secure_render:")) {
+            await secureService(env).processRender(
+              parsed.data.dispatchId.slice("secure_render:".length),
+            );
+            message.ack();
+            counts.acked++;
+            continue;
+          }
+          if (parsed.data.dispatchId.startsWith("secure_deposit:")) {
+            await new PersonalDocumentsService(env).processDeposit(
+              parsed.data.dispatchId.slice("secure_deposit:".length),
+            );
+            message.ack();
+            counts.acked++;
             continue;
           }
           if (env.MODE !== "simulation" && env.LIVE_SENDS_ENABLED !== "true") {
@@ -1155,7 +1558,8 @@ export default {
               : createLiveProviderHook(env, row.channel),
           );
           if (result.status === "submission_unknown") counts.unknown++;
-          if (result.status === "failed") counts.failed++;
+          if (["failed", "bounced", "complained"].includes(result.status))
+            counts.failed++;
           message.ack();
           counts.acked++;
         } catch {
@@ -1185,7 +1589,15 @@ export default {
       // Already verified receipts must recover even during identity-provider setup.
       // This bounded projection does not publish an outbox or submit communications.
       stage = "callbacks";
-      Object.assign(counts, await reconcileWebhookReceipts(env.DB, service));
+      Object.assign(
+        counts,
+        await reconcileWebhookReceipts(env.DB, service, 100, env),
+      );
+      // Technical check expiry releases only its own approved credit hold.
+      // Identity/provider downtime must not keep a failed check reserved.
+      stage = "documents";
+      await expirePdfValidations(env);
+      await cleanupMcpAppDocumentUploads(env);
       stage = "identity";
       if (env.ENVIRONMENT !== "local" && !identityConfigured(env)) {
         observation.setCode("IDENTITY_NOT_CONFIGURED");
@@ -1197,10 +1609,12 @@ export default {
       stage = "leases";
       Object.assign(counts, await service.reconcileExpiredLeases());
       stage = "documents";
-      await renewHorizonPlans(env);
       await new DocumentService(env, service).processPendingScans();
       await cleanupProtectedDocuments(env.DB);
       await new TemplateWorkflowService(env, service).processPending();
+      await cleanupBelvedereTelemetry(env.DB);
+      await secureService(env).recoverPending();
+      await new PersonalDocumentsService(env).recoverPending();
       Object.assign(counts, await maintainDocuments(env));
       stage = "postal";
       await cleanupPostalEvidence(env.DB);

@@ -1,3 +1,8 @@
+import { readBelvedereFixture } from "../helpers/belvedere-reader";
+import type {
+  BelvedereWorkshopDetail,
+  BelvedereFinance,
+} from "../../packages/contracts/src/belvedere";
 import { readFileSync, readdirSync } from "node:fs";
 import {
   beforeAll,
@@ -79,6 +84,13 @@ let postalUpgradeProof: {
   historicalPostalValid: boolean;
   publicEmailValid: boolean;
 };
+let secureUpgradeProof: {
+  before: string;
+  after: string;
+  legacyQuotesValid: boolean[];
+  foreignKeys: unknown[];
+  quickCheck: unknown;
+};
 const print = {
   addressPosition: "left",
   deliveryProduct: "cheap",
@@ -129,10 +141,34 @@ beforeAll(async () => {
           "0040_protected_documents.sql",
           "0050_monthly_plan.sql",
           "0051_pdf_validation.sql",
+          "0052_belvedere.sql",
+          "0055_personal_accounts.sql",
+          "0056_secure_distributions.sql",
+          "0057_secure_approval_evidence.sql",
+          "0058_secure_copy_jobs.sql",
+          "0059_document_authentication_policy.sql",
+          "0060_pdf_validation_per_check.sql",
+          "0065_verified_account_session_policy.sql",
         ].includes(f),
     )
     .sort())
     await sql(readFileSync(new URL(f, dir), "utf8"));
+  // Current domain reads enforce document privacy even while exercising an old
+  // pricing upgrade. Install only the independent secure tables and evidence
+  // here; retain the actual pre-upgrade financial views for the legacy proof.
+  const secureMigration = readFileSync(
+    new URL("0056_secure_distributions.sql", dir),
+    "utf8",
+  );
+  const secureFinancialStart = secureMigration.indexOf(
+    "\nCREATE TRIGGER secure_distribution_acceptance_guard",
+  );
+  expect(secureFinancialStart).toBeGreaterThan(0);
+  await sql(readFileSync(new URL("0055_personal_accounts.sql", dir), "utf8"));
+  await sql(secureMigration.slice(0, secureFinancialStart));
+  await sql(
+    readFileSync(new URL("0057_secure_approval_evidence.sql", dir), "utf8"),
+  );
   // Exercise an upgrade with an existing immutable quote, approval and settled
   // credit, not merely an empty schema. Both old policies retain their contract.
   await setupFixture();
@@ -220,8 +256,74 @@ beforeAll(async () => {
     "0040_protected_documents.sql",
     "0050_monthly_plan.sql",
     "0051_pdf_validation.sql",
+    "0052_belvedere.sql",
   ])
     await sql(readFileSync(new URL(filename, dir), "utf8"));
+  // Now apply the secure financial upgrade to populated immutable delivery,
+  // approval and credit records, and prove that their historical values remain
+  // identical. This is a real upgrade, not an empty final-schema replacement.
+  const financialSnapshot = async () =>
+    JSON.stringify(
+      await Promise.all(
+        [
+          "dispatches",
+          "live_delivery_quotes",
+          "approvals",
+          "delivery_charge_entries",
+          "welcome_credit_entries",
+          "welcome_credit_balances",
+        ].map(
+          async (table) =>
+            (
+              await db
+                .prepare(
+                  `SELECT * FROM ${table} ORDER BY organization_id${table === "welcome_credit_balances" ? "" : ",rowid"}`,
+                )
+                .all()
+            ).results,
+        ),
+      ),
+    );
+  const secureBefore = await financialSnapshot();
+  await sql(secureMigration.slice(secureFinancialStart));
+  await sql(readFileSync(new URL("0058_secure_copy_jobs.sql", dir), "utf8"));
+  await sql(
+    readFileSync(
+      new URL("0059_document_authentication_policy.sql", dir),
+      "utf8",
+    ),
+  );
+  secureUpgradeProof = {
+    before: secureBefore,
+    after: await financialSnapshot(),
+    legacyQuotesValid: await Promise.all(
+      [
+        [legacy, identity.email],
+        [historicalPostal, identity.postal],
+        [publicEmail, identity.email],
+      ].map(async ([row, connection]) =>
+        Boolean(
+          await validateLiveDeliveryQuote(
+            db,
+            row as typeof legacy,
+            connection as typeof identity.email,
+            stamp(),
+          ),
+        ),
+      ),
+    ),
+    foreignKeys: (await db.prepare("PRAGMA foreign_key_check").all()).results,
+    quickCheck: await db.prepare("PRAGMA quick_check").first(),
+  };
+  await sql(
+    readFileSync(new URL("0060_pdf_validation_per_check.sql", dir), "utf8"),
+  );
+  await sql(
+    readFileSync(
+      new URL("0065_verified_account_session_policy.sql", dir),
+      "utf8",
+    ),
+  );
 });
 afterAll(async () => {
   await mf?.dispose();
@@ -276,7 +378,9 @@ async function setupFixture() {
       )
       .bind(ctx.userId, stamp()),
     db
-      .prepare("INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES(?,?,'admin',?)")
+      .prepare(
+        "INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES(?,?,'admin',?)",
+      )
       .bind(ctx.organizationId, ctx.userId, stamp()),
   ]);
   for (const channel of ["email", "postal"] as const) {
@@ -562,6 +666,12 @@ describe("live delivery quotes and cumulative EUR credit — isolated D1 only", 
     expect(postalUpgradeProof.after).toBe(postalUpgradeProof.before);
     expect(postalUpgradeProof.historicalPostalValid).toBe(true);
     expect(postalUpgradeProof.publicEmailValid).toBe(true);
+  });
+  it("adds secure distribution accounting without changing existing approvals, delivery quotes or settled credit", () => {
+    expect(secureUpgradeProof.after).toBe(secureUpgradeProof.before);
+    expect(secureUpgradeProof.legacyQuotesValid).toEqual([true, true, true]);
+    expect(secureUpgradeProof.foreignKeys).toEqual([]);
+    expect(secureUpgradeProof.quickCheck).toEqual({ quick_check: "ok" });
   });
   it("binds exact Pingen calculator EUR ex-tax price to approval, acceptance and charge without FX", async () => {
     await replacePostalRate();
@@ -1301,6 +1411,57 @@ describe("live delivery quotes and cumulative EUR credit — isolated D1 only", 
       expect(await balance()).toMatchObject({ spentMinor: 2 });
     },
   );
+  it("Belvédère reports posted fractional debits rather than original quoted reservations", async () => {
+    const first = await queue(),
+      second = await queue();
+    await domain.processDispatch(first.id, provider("email"));
+    await domain.processDispatch(second.id, provider("email"));
+    const detail = await readBelvedereFixture<BelvedereWorkshopDetail>(
+      db,
+      ctx.userId,
+      ctx.organizationId,
+      `workshops/${ctx.organizationId}?from=${stamp().slice(0, 10)}&to=${stamp().slice(0, 10)}`,
+    );
+    expect(detail.workshop.consumptionMinor).toBe(1);
+    expect(
+      detail.dispatches.items.find((d) => d.id === first.id),
+    ).toMatchObject({
+      estimatedMinor: 1,
+      customerActualMinor: 1,
+      transportActualMinor: 1,
+      hostingFeeMinor: 0,
+    });
+    expect(
+      detail.dispatches.items.find((d) => d.id === second.id),
+    ).toMatchObject({
+      estimatedMinor: 1,
+      customerActualMinor: 0,
+      transportActualMinor: 0,
+      hostingFeeMinor: 0,
+    });
+    expect(detail.channels).toContainEqual({
+      channel: "email",
+      dispatches: 2,
+      consumptionMinor: 1,
+      reservedMinor: 0,
+    });
+    expect(await domain.usageActivity(ctx)).toMatchObject({
+      days: [
+        {
+          date: stamp().slice(0, 10),
+          amountMinor: 1,
+          dispatchCount: 2,
+          chargeCount: 2,
+        },
+      ],
+      totals: {
+        amountMinor: 1,
+        dispatchCount: 2,
+        chargeCount: 2,
+        activeDays: 1,
+      },
+    });
+  });
   it("shares one credit balance across fractional email and whole-cent postal sends", async () => {
     const mail = await queue(),
       letter = await queue(await postal());
@@ -1426,6 +1587,22 @@ describe("live delivery quotes and cumulative EUR credit — isolated D1 only", 
       .run();
     expect(await balance()).toMatchObject({ spentMinor: 1 });
     expect(await count("delivery_charge_entries")).toBe(1);
+    const report = await readBelvedereFixture<BelvedereFinance>(
+      db,
+      ctx.userId,
+      ctx.organizationId,
+      `finance?from=${stamp().slice(0, 10)}&to=${stamp().slice(0, 10)}`,
+    );
+    // Other test workshops may also post on this day. The deleted job remains
+    // represented in the explicit unknown-channel accounting subtotal.
+    expect(report.periodBasis).toBe("posted_ledger");
+    expect(
+      report.channels.find((c) => c.channel === "unknown")?.consumptionMinor,
+    ).toBe(1);
+    expect(report.monthly.reduce((sum, m) => sum + m.consumptionMinor, 0)).toBe(
+      report.customerConsumptionMinor,
+    );
+    expect(report.customerConsumptionMinor).toBeGreaterThanOrEqual(1);
     await expect(
       db
         .prepare("DELETE FROM delivery_charge_entries WHERE organization_id=?")

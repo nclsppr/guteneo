@@ -1,8 +1,15 @@
 import site from "../../../packages/contracts/src/public-site.json" with { type: "json" };
+import mcpUiProbeManifest from "../../../packages/contracts/src/mcp-ui-probe-resource.json";
+import mcpDocumentUploadManifest from "../../../packages/contracts/src/mcp-document-upload-resource.json";
 import {
+  canonicalPublicAssetPath,
+  canonicalPublicPath,
+} from "../../../packages/contracts/src/public-routes";
+import {
+  applyPublicLocaleHeaders,
   isPublicLocaleAssetPath,
   localizedPublicPath,
-  requestedPublicLocale,
+  resolvePublicRequestLocale,
 } from "../../../packages/contracts/src/public-locales";
 import { withPublicVideoRange } from "../../api/src/public-video-range";
 
@@ -62,7 +69,7 @@ export default {
     if (
       url.pathname === "/app" ||
       url.pathname === "/app/prepare" ||
-      url.pathname === "/app/plan"
+      ["/app/plan", "/app/pdf-checks"].includes(url.pathname)
     ) {
       const response = await env.ASSETS.fetch(
         new Request(new URL("/", url), request),
@@ -74,6 +81,21 @@ export default {
       return new Response(request.method === "HEAD" ? null : response.body, {
         status: response.status,
         headers,
+      });
+    }
+
+    const canonicalPath =
+      canonicalPublicPath(pathname) ?? canonicalPublicAssetPath(pathname);
+    if (canonicalPath && canonicalPath !== url.pathname) {
+      const target = new URL(url);
+      target.pathname = canonicalPath;
+      return new Response(null, {
+        status: 308,
+        headers: {
+          ...privateHeaders,
+          Location: target.href,
+          "Cache-Control": "no-store",
+        },
       });
     }
 
@@ -89,9 +111,10 @@ export default {
       );
     const assetUrl = new URL(url);
     if (pathname === "/health") assetUrl.pathname = "/health.json";
+    const localeSelection = resolvePublicRequestLocale(url, request.headers);
     const localizedPath = localizedPublicPath(
       url.pathname,
-      requestedPublicLocale(url.searchParams),
+      localeSelection?.locale ?? null,
     );
     if (localizedPath) assetUrl.pathname = localizedPath;
     const assetRequest = new Request(assetUrl, request);
@@ -100,6 +123,12 @@ export default {
       await env.ASSETS.fetch(assetRequest),
     );
     const headers = new Headers(response.headers);
+    if (
+      [mcpUiProbeManifest.path, mcpDocumentUploadManifest.path].includes(
+        pathname,
+      )
+    )
+      headers.set("Content-Type", "text/plain; charset=utf-8");
     for (const [key, value] of Object.entries(securityHeaders))
       headers.set(key, value);
     // Only canonical public HTML and image assets are indexable on the real domain.
@@ -122,6 +151,20 @@ export default {
       ["/release.json", "/health", "/health.json"].includes(pathname)
     )
       headers.set("Cache-Control", "no-store");
+    const dispositionType = (headers.get("Content-Disposition") ?? "")
+      .split(";")[0]
+      .trim()
+      .toLowerCase();
+    applyPublicLocaleHeaders(headers, localeSelection, {
+      status: response.status,
+      protocolError:
+        request.headers.has("Range") ||
+        request.headers.has("If-Range") ||
+        response.status === 416 ||
+        headers.has("Content-Range") ||
+        (dispositionType !== "" && dispositionType !== "inline"),
+      privateQuery,
+    });
     return new Response(request.method === "HEAD" ? null : response.body, {
       status: response.status,
       statusText: response.statusText,

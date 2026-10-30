@@ -5,6 +5,7 @@ import {
   createProbeFetch,
   readProbeCredential,
   probeFailureMessage,
+  assertPdfVerificationClosed,
 } from "./probe-credentials.mjs";
 import {
   ENGINE,
@@ -57,6 +58,15 @@ const proof = {
   workerVersion: values["worker-version"],
   engine: ENGINE,
   status: "running",
+  expectedConfiguredResources: {
+    instanceType: "standard-1",
+    vcpu: 0.5,
+    memoryGiB: 4,
+    diskGB: 8,
+    maximumInstances: 1,
+    evidence:
+      "reviewed source configuration; confirm actual allocation in provider inventory",
+  },
   checks: {},
   references: [],
   benchmarks: [],
@@ -68,24 +78,13 @@ const proof = {
   },
 };
 async function closedGate() {
-  await Promise.all(
-    ["https://guteneo.com", "https://guteneo-app.nclsppr.workers.dev"].map(
-      async (origin) => {
-        const response = await fetch(`${origin}/api/capabilities`, {
-          redirect: "error",
-          signal: AbortSignal.timeout(15000),
-        });
-        assert.equal(response.status, 200);
-        const result = await response.json();
-        assert.equal(result.mode, "production");
-        assert.equal(
-          result.horizon?.available,
-          false,
-          "Refuse to stop a validator available to customers",
-        );
-      },
-    ),
-  );
+  const response = await fetch("https://guteneo.com/api/capabilities", {
+    redirect: "error",
+    signal: AbortSignal.timeout(15000),
+  });
+  assert.equal(response.status, 200);
+  const result = await response.json();
+  assertPdfVerificationClosed(result);
 }
 async function call(path, body, media = "application/pdf", extraHeaders = {}) {
   const started = performance.now();
@@ -337,7 +336,7 @@ try {
     mode: 0o600,
   });
   console.error(
-    "Hosted private qualification failed; inspect the private proof file. Do not enable Horizon.",
+    "Hosted private qualification failed; inspect the private proof file. Do not enable PDF verification.",
   );
   process.exitCode = 1;
 }

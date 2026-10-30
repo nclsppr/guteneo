@@ -1,0 +1,12 @@
+---
+import StampPaper from "./StampPaper.astro";
+interface Props { class?: string }
+const { class: className } = Astro.props;
+---
+<span class:list={["engineering-brand", className]} aria-hidden="true">
+  <StampPaper inset="5%"><img src="/brand/guteneo-portrait-128.webp" srcset="/brand/guteneo-portrait-128.webp 128w, /brand/guteneo-portrait-192.webp 192w" sizes="36px" width="36" height="36" alt="" decoding="async" /></StampPaper>
+  <span class="engineering-brand-name">
+    <span class="engineering-wordmark">guteneo</span>
+    <span class="engineering-brand-section">Engineering</span>
+  </span>
+</span>

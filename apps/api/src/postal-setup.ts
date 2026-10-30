@@ -115,7 +115,7 @@ function browserSetupAuthority(
       )
         fail(
           "ACCESS_CHANGED",
-          "Vos droits ont changé. Actualisez la page.",
+          "Your permissions have changed. Refresh the page.",
           403,
         );
     },
@@ -176,25 +176,25 @@ export async function configurePostalSenderForMcp(
   if (!parsed.success)
     fail(
       "INVALID_INPUT",
-      "Indiquez le nom et l’adresse complète de l’expéditeur.",
+      "Provide the sender's name and full address.",
       400,
     );
   if (captured.context.role !== "admin")
     fail(
       "POSTAL_SENDER_ADMIN_REQUIRED",
-      "Seul un administrateur de cet atelier peut ajouter un expéditeur postal.",
+      "Only an administrator of this workspace can add a postal sender.",
       403,
     );
   if (env.MODE !== "production" || env.ENVIRONMENT !== "production")
     fail(
       "POSTAL_SETUP_UNAVAILABLE",
-      "L’activation du courrier est indisponible dans cet environnement.",
+      "Postal activation is unavailable in this environment.",
     );
   const observation = captured.connectionObservation;
   if (!observation || !Number.isSafeInteger(observation.authorizationRevision))
     fail(
       "POSTAL_AUTHORITY_CHANGED",
-      "Cette connexion a changé. Reconnectez votre assistant.",
+      "This connection has changed. Reconnect your assistant.",
       403,
     );
   const issuer = auth0Issuer(env);
@@ -216,7 +216,7 @@ export async function configurePostalSenderForMcp(
   if (!connection)
     fail(
       "POSTAL_AUTHORITY_CHANGED",
-      "Cette connexion n’est plus autorisée. Reconnectez votre assistant.",
+      "This connection is no longer authorized. Reconnect your assistant.",
       403,
     );
   const authority: SetupAuthority = {
@@ -253,7 +253,7 @@ export async function configurePostalSenderForMcp(
       )
         fail(
           "POSTAL_AUTHORITY_CHANGED",
-          "Cette connexion a changé. Reconnectez votre assistant.",
+          "This connection has changed. Reconnect your assistant.",
           403,
         );
     },
@@ -414,9 +414,9 @@ async function readInput(request: Request) {
       ?.toLowerCase()
       .startsWith("application/json")
   )
-    fail("INVALID_INPUT", "Une requête JSON est nécessaire.", 400);
+    fail("INVALID_INPUT", "A JSON request is required.", 400);
   const reader = request.body?.getReader();
-  if (!reader) fail("INVALID_INPUT", "Le formulaire est absent.", 400);
+  if (!reader) fail("INVALID_INPUT", "The form is missing.", 400);
   const chunks: Uint8Array[] = [];
   let size = 0;
   try {
@@ -426,7 +426,7 @@ async function readInput(request: Request) {
       size += value.byteLength;
       if (size > 4096) {
         await reader.cancel();
-        fail("INVALID_INPUT", "Le formulaire est trop volumineux.", 413);
+        fail("INVALID_INPUT", "The form is too large.", 413);
       }
       chunks.push(value);
     }
@@ -443,13 +443,13 @@ async function readInput(request: Request) {
   try {
     value = JSON.parse(new TextDecoder().decode(bytes));
   } catch {
-    fail("INVALID_INPUT", "Le formulaire est invalide.", 400);
+    fail("INVALID_INPUT", "The form is invalid.", 400);
   }
   const parsed = postalSetupInput.safeParse(value);
   if (!parsed.success)
     fail(
       "INVALID_INPUT",
-      "Indiquez votre nom, votre adresse et votre autorisation.",
+      "Provide your name, address and authorization.",
       400,
     );
   return parsed.data;
@@ -465,7 +465,7 @@ export async function handlePostalSetupRoute(
   if (request.headers.has("Authorization"))
     fail(
       "BROWSER_REQUIRED",
-      "Ouvrez Guteneo dans votre navigateur pour déclarer votre expéditeur.",
+      "Open Guteneo in your browser to declare your sender.",
       403,
     );
   const session = await authenticateBrowser(
@@ -483,7 +483,7 @@ export async function handlePostalSetupRoute(
       {
         error: {
           code: "RATE_LIMITED",
-          message: "Trop de requêtes. Réessayez dans une minute.",
+          message: "Too many requests. Try again in a minute.",
         },
       },
       429,
@@ -495,7 +495,7 @@ export async function handlePostalSetupRoute(
       {
         error: {
           code: "METHOD_NOT_ALLOWED",
-          message: "Méthode non autorisée.",
+          message: "Method not allowed.",
         },
       },
       405,
@@ -503,7 +503,7 @@ export async function handlePostalSetupRoute(
   if (session.context.role !== "admin")
     fail(
       "FORBIDDEN",
-      "Seul un administrateur de cet atelier peut déclarer un expéditeur.",
+      "Only an administrator of this workspace can declare a sender.",
       403,
     );
   const input = await readInput(request);
@@ -527,7 +527,7 @@ async function configure(
   if (!available(env))
     fail(
       "POSTAL_SETUP_UNAVAILABLE",
-      "L’activation du courrier est temporairement indisponible.",
+      "Postal activation is temporarily unavailable.",
     );
   const state = await current(env, authority.context);
   if (
@@ -536,7 +536,7 @@ async function configure(
   )
     fail(
       "POSTAL_SENDER_EXISTS",
-      "Un expéditeur existe déjà. Sa déclaration ne peut pas être remplacée ici.",
+      "A sender already exists. Its declaration cannot be replaced here.",
     );
   if (
     ["sender_disabled", "channel_stopped", "operator_review_required"].includes(
@@ -545,7 +545,7 @@ async function configure(
   )
     fail(
       "POSTAL_SETUP_REVIEW_REQUIRED",
-      "La configuration a été suspendue ou nécessite une vérification. Contactez l’administrateur.",
+      "Setup is suspended or requires verification. Contact the administrator.",
     );
   if (state.configured) {
     await authority.assertCurrent();
@@ -574,7 +574,7 @@ async function configure(
   )
     fail(
       "POSTAL_PROFILE_UNQUALIFIED",
-      "Le profil du service postal doit être vérifié avant l’activation.",
+      "The postal service profile must be verified before activation.",
     );
   const profile: Profile = {
     accountId: env.PINGEN_ORGANIZATION_ID!,
@@ -592,7 +592,7 @@ async function configure(
   if (renew && (!previous || previous.profile_json !== canonicalJson(profile)))
     fail(
       "POSTAL_SETUP_REVIEW_REQUIRED",
-      "Le profil du service postal a changé. Sa configuration doit être vérifiée.",
+      "The postal service profile has changed. Its configuration must be verified.",
     );
   const evidence = postalRateEvidence();
   const sourceHash = await sha256(canonicalJson({ rate: evidence, profile }));
@@ -750,7 +750,7 @@ async function configure(
       return latest;
     fail(
       "ACCESS_CHANGED",
-      "Vos droits ou la configuration ont changé. Actualisez la page.",
+      "Your permissions or the configuration have changed. Refresh the page.",
     );
   }
   const latest = await current(env, authority.context);

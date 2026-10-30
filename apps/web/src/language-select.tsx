@@ -89,8 +89,8 @@ export function LanguageSelect({
   );
 }
 
-/** Compact public control; the homepage puts the mobile selector in its menu. */
-export function LanguageMenu() {
+/** Shared public language disclosure, independent of navigation. */
+export function LanguageMenu({ onOpen }: { onOpen?: () => void }) {
   const locale = useLocale();
   const copy = languageCopy();
   const details = useRef<HTMLDetailsElement>(null);
@@ -117,7 +117,10 @@ export function LanguageMenu() {
     <details
       className="language-menu"
       ref={details}
-      onToggle={(event) => setOpen(event.currentTarget.open)}
+      onToggle={(event) => {
+        setOpen(event.currentTarget.open);
+        if (event.currentTarget.open) onOpen?.();
+      }}
       onKeyDown={(event) => {
         if (event.key === "Escape" && event.currentTarget.open) {
           event.preventDefault();

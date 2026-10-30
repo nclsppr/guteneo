@@ -16,7 +16,9 @@ test("web distribution assigns channels to selected records without a Cartesian 
 }, testInfo) => {
   test.setTimeout(120000);
   await page.goto("/#/app");
-  await page.getByRole("button", { name: "Entrer dans l’Atelier" }).click();
+  await page
+    .getByRole("button", { name: "Entrer dans l’espace de travail" })
+    .click();
   await expect(
     page.getByRole("heading", { name: "Votre correspondance, au clair." }),
   ).toBeVisible();
@@ -80,23 +82,18 @@ test("web distribution assigns channels to selected records without a Cartesian 
   expect(new Set(results.items.map((result) => result.documentHash)).size).toBe(
     2,
   );
-  await page.goto(`/#/app/generation/${job.id}`);
+  await page.goto(`/#/app/studio/generation/${job.id}`);
   await page
     .getByRole("button", { name: "Sélectionner les PDF vérifiés affichés" })
     .click();
   await page
     .getByRole("button", { name: "Préparer une distribution (2)" })
     .click();
-  await page
-    .getByLabel("Documents pour la destination 1", { exact: true })
-    .selectOption("selection");
   const group1 = page.getByRole("group", {
     name: "Documents concernés par la destination 1",
     exact: true,
   });
-  await group1
-    .getByRole("checkbox", { name: "client-b", exact: true })
-    .uncheck();
+  await group1.getByRole("checkbox", { name: /client-a/ }).check();
   const destination1 = page.getByRole("group", {
     name: "Destination 1",
     exact: true,
@@ -108,15 +105,12 @@ test("web distribution assigns channels to selected records without a Cartesian 
     .getByRole("button", { name: "Ajouter une destination ou un canal" })
     .click();
   await page
-    .getByLabel("Documents pour la destination 2", { exact: true })
-    .selectOption("selection");
-  await page
     .getByRole("group", {
       name: "Documents concernés par la destination 2",
       exact: true,
     })
-    .getByRole("checkbox", { name: "client-a", exact: true })
-    .uncheck();
+    .getByRole("checkbox", { name: /client-b/ })
+    .check();
   await page.getByLabel("Canal 2", { exact: true }).selectOption("email");
   const destination2 = page.getByRole("group", {
     name: "Destination 2",
@@ -138,15 +132,12 @@ test("web distribution assigns channels to selected records without a Cartesian 
     .getByRole("button", { name: "Ajouter une destination ou un canal" })
     .click();
   await page
-    .getByLabel("Documents pour la destination 3", { exact: true })
-    .selectOption("selection");
-  await page
     .getByRole("group", {
       name: "Documents concernés par la destination 3",
       exact: true,
     })
-    .getByRole("checkbox", { name: "client-a", exact: true })
-    .uncheck();
+    .getByRole("checkbox", { name: /client-b/ })
+    .check();
   await page
     .getByRole("group", { name: "Destination 3", exact: true })
     .getByLabel("Numéro international", { exact: true })
@@ -156,6 +147,17 @@ test("web distribution assigns channels to selected records without a Cartesian 
   });
   await expect(multichannel).toHaveAccessibleName(/pour 1 PDF/);
   await multichannel.check();
+  // The exact pairs and the batch freeze are shown before anything is prepared.
+  const summary = page.getByRole("region", {
+    name: "Ce qui sera préparé",
+    exact: true,
+  });
+  await expect(summary.getByRole("listitem")).toHaveText([
+    /^Destination 1 · Fax : .*Document A$/,
+    /^Destination 2 · .+ : .*Document B$/,
+    /^Destination 3 · Fax : .*Document B$/,
+  ]);
+  await expect(summary).toContainText("fige tout ce lot de génération");
   const responsePromise = page.waitForResponse(
     (response) =>
       response.url().endsWith("/api/distribution-plans") &&
@@ -205,13 +207,19 @@ test("multichannel intent remains available when two records reuse the same PDF 
   page,
 }) => {
   await page.goto("/#/app");
-  await page.getByRole("button", { name: "Entrer dans l’Atelier" }).click();
+  await page
+    .getByRole("button", { name: "Entrer dans l’espace de travail" })
+    .click();
   await expect(
     page.getByRole("heading", { name: "Votre correspondance, au clair." }),
   ).toBeVisible();
   // Explicit UI fixture for an exact-byte deduplication outcome. No generation,
   // approval or distribution mutation is made by this scenario.
   const jobId = "synthetic-shared-artifact";
+  await page.route(
+    `**/api/generation-jobs/${jobId}/record-context{,?*}`,
+    (route) => route.fulfill({ json: { items: [] } }),
+  );
   await page.route(`**/api/generation-jobs/${jobId}`, (route) =>
     route.fulfill({
       json: {
@@ -233,7 +241,7 @@ test("multichannel intent remains available when two records reuse the same PDF 
       },
     }),
   );
-  await page.route(`**/api/generation-jobs/${jobId}/results`, (route) =>
+  await page.route(`**/api/generation-jobs/${jobId}/results{,?*}`, (route) =>
     route.fulfill({
       json: {
         items: ["same-a", "same-b"].map((recordId) => ({
@@ -251,7 +259,7 @@ test("multichannel intent remains available when two records reuse the same PDF 
       },
     }),
   );
-  await page.goto(`/#/app/generation/${jobId}`);
+  await page.goto(`/#/app/studio/generation/${jobId}`);
   await page
     .getByRole("button", { name: "Sélectionner les PDF vérifiés affichés" })
     .click();
@@ -259,29 +267,23 @@ test("multichannel intent remains available when two records reuse the same PDF 
     .getByRole("button", { name: "Préparer une distribution (2)" })
     .click();
   await page
-    .getByLabel("Documents pour la destination 1", { exact: true })
-    .selectOption("selection");
-  await page
     .getByRole("group", {
       name: "Documents concernés par la destination 1",
       exact: true,
     })
-    .getByRole("checkbox", { name: "same-b", exact: true })
-    .uncheck();
+    .getByRole("checkbox", { name: "same-a", exact: true })
+    .check();
   await page
     .getByRole("button", { name: "Ajouter une destination ou un canal" })
     .click();
   await page.getByLabel("Canal 2", { exact: true }).selectOption("email");
   await page
-    .getByLabel("Documents pour la destination 2", { exact: true })
-    .selectOption("selection");
-  await page
     .getByRole("group", {
       name: "Documents concernés par la destination 2",
       exact: true,
     })
-    .getByRole("checkbox", { name: "same-a", exact: true })
-    .uncheck();
+    .getByRole("checkbox", { name: "same-b", exact: true })
+    .check();
   const confirmation = page.getByRole("checkbox", {
     name: /Je demande explicitement/,
   });

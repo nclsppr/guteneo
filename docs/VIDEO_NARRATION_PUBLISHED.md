@@ -1,44 +1,34 @@
-# Narrations naturelles — lot du 3 octobre 2026
+# Natural narration — 3 October 2026 batch
 
-Les douze vidéos du catalogue actif utilisent **Manon Voix française spontanée
-sérieuse**, Eleven v4 et la méthode C : trois blocs de phrases complètes dans
-la langue du film. Les introductions sont en V8, les rôles EN/DE/LB en V4 ; les
-rôles FR restent en V3 avec les octets approuvés par l’utilisateur. Film, poster,
-sous-titres et durée affichée suivent la langue résolue de l’interface et la
-préférence du compte. Une langue ne remplace jamais le média d’une autre langue.
+All twelve active catalog films use **Manon Voix française spontanée sérieuse**,
+Eleven v4 and method C: three complete-sentence contextual blocks in the declared
+language. Introductions are V8; EN/DE/LB roles V4; approved FR roles retain V3 exact
+bytes. Film/poster/captions/displayed duration follow resolved UI/account language;
+never substitute another language's media.
 
-L’action native ElevenLabs **Améliorer**, acceptée avec **Garder** dans Safari,
-a été appliquée aux huit textes complets. Le résultat natif exact reste dans
-chaque snapshot. Les pauses et le ton sont ensuite harmonisés pour une
-présentation calme : les changements sont enregistrés dans `editorialEdits`.
-Le plugin Creative génère deux variations par bloc avec langue explicite ; la
-seconde est retenue par ses vrais IDs de session et de génération. La provenance
-est `elevenlabs-creative-plugin`, `variationIndex: 2`, distincte de la seconde
-Génération web historique.
+Native ElevenLabs Enhance, accepted with Keep in Safari, processed eight complete
+scripts. Each immutable snapshot retains exact native output; later calm-tone/pause
+changes are recorded in `editorialEdits`. Creative plugin generated two variations/
+block with explicit language, selecting second by actual session/generation IDs.
+Provenance `elevenlabs-creative-plugin`, `variationIndex:2` differs from historical
+second web generation.
 
-Les huit snapshots immuables `narration/releases/*-natural-c-v1/` conservent
-**24 MP3 sélectionnés et 68 WAV PCM24**. Chaque groupe de coupes reconstruit
-exactement les trois sources canoniques, sans mot retiré ni accélération. Les
-scènes suivent le débit réel. Les horodatages Whisper sont utilisés pour
-FR/EN/DE ; le luxembourgeois utilise les exports JSON natifs Scribe, sans texte
-attendu ni terme clé, après une transcription locale insuffisante. Les
-variantes lexicales ASR restent archivées et ne sont pas présentées comme une
-écoute humaine.
+Eight `narration/releases/*-natural-c-v1/` snapshots retain **24 selected MP3s and
+68 PCM24 WAVs**. Cuts exactly reconstruct three canonical sources without missing
+words/acceleration. Scenes follow actual speech. FR/EN/DE use Whisper word timing;
+LB uses native Scribe JSON without expected script/keyterms after inadequate local
+transcription. Archived lexical ASR variants are not human listening evidence.
 
-Le fond musical reçoit un **gain constant de 0,22** pendant toute la vidéo,
-y compris les pauses et le logo. La cadence et le fondu final sont conservés.
-Chaque film garde le même composant et média officiel de conclusion pendant
-**150 images à 30 fps**, sans voix. L’introduction conserve également ses deux
-secondes de Signature silencieuse. Les douze images de logo à la même frame
-locale sont identiques aux compositions historiques correspondantes.
+Music stays at **0.22** through speech/pauses/logo, retaining score cadence/end fade.
+Each film reuses official conclusion component/media for **150 frames at 30 fps**
+without narration; introductions also retain two silent Signature seconds. All
+twelve logo frames at matched local position equal corresponding historical ones.
+Mixing preserves new music-base H.264 packets. Exports: H.264/AAC stereo, 30 fps,
+fast-start, below 25 MiB/file. Both introduction formats share one locale VTT;
+roles have a separate track. Posters come from new scenes; qualified timelines
+supply exact catalog duration.
 
-Le mix conserve les paquets H.264 des nouvelles bases musicales. Les formats
-sont H.264/AAC stéréo, 30 images/s, démarrage rapide, sous 25 MiB par fichier.
-Les deux présentations d’une langue partagent une piste VTT ; les rôles ont leur
-propre piste. Les posters sont extraits des nouvelles scènes. La durée exacte
-vient des timelines qualifiées dans le catalogue partagé.
-
-| Fichier public                         | Durée     | Octets   | SHA-256                                                            |
+| Public file                         | Duration     | Bytes   | SHA-256                                                            |
 | -------------------------------------- | --------- | -------- | ------------------------------------------------------------------ |
 | `/videos/guteneo-horizontal-v8-fr.mp4` | 66.5000 s | 11244768 | `43316dde6e0a8cfabb667b782ef09aae26d35db79287b1e597908fa8b7ce6eb9` |
 | `/videos/guteneo-vertical-v8-fr.mp4`   | 66.5000 s | 13753772 | `594a2eb91aeab05419a721451d204eecb47335be05bdaf8f6653e46e382463c9` |
@@ -53,63 +43,46 @@ vient des timelines qualifiées dans le catalogue partagé.
 | `/videos/guteneo-vertical-v8-lb.mp4`   | 67.4667 s | 14098855 | `35dea41eac0431a7102709299d3a3bc19b3fa78e6b161ceb1d136e03b213960c` |
 | `/videos/guteneo-roles-v4-lb.mp4`      | 50.4000 s | 2515634  | `4af8832d5a8aacd377044e91cce4af0f33c36fb8b3330546b9e75de27cce669c` |
 
-## Rejeu et preuve
+## Replay and proof
 
-`npm run videos:render` qualifie les huit bibliothèques, rend leurs bases
-musicales et remixe les voix locales, posters, VTT et manifeste sans appel
-ElevenLabs. Les sources V5/V1 et la bibliothèque George historique restent
-immuables. Le manifeste serveur couvre exactement les douze MP4 actifs.
+`npm run videos:render` qualifies eight libraries, renders musical bases and remixes
+local voices/posters/VTT/manifest without ElevenLabs. V5/V1 sources and historical
+George library remain immutable; server manifest covers exactly twelve active MP4s.
 
-Les hashes MP3/WAV et PCM canonique sont stricts. La qualification portable des
-huit bibliothèques a passé sous macOS et Ubuntu/FFmpeg 6.1.1. Le décodeur scalaire
-(`-cpuflags 0`) conserve les nombres d’échantillons exacts et les hashes stricts
-des médias canoniques. Sous Ubuntu arm64 et x86_64, le delta maximal mesuré sur
-les 24 sources est de **3 LSB PCM24**, sous la borne inchangée de 8 LSB. La fixture
-`tests/fixtures/natural-c-scalar-qualification.json` archive ces deux mesures ;
-`natural-c-linux-qualification.json` conserve la qualification initiale arm64
-(maximum 4 LSB). Les décodeurs MP3 ne sont pas déclarés bit-identiques.
+MP3/WAV/canonical PCM hashes are strict. Portable library qualification passed on
+macOS and Ubuntu/FFmpeg 6.1.1. Scalar `-cpuflags 0` preserves sample counts/canonical
+media hashes. Ubuntu arm64/x86_64 maximum over 24 sources: **3 PCM24 LSB**, below
+unchanged eight-LSB limit. `tests/fixtures/natural-c-scalar-qualification.json`
+archives both; initial arm64 `natural-c-linux-qualification.json` had maximum four
+LSB. MP3 decoders are not claimed bit-identical.
 
-La vidéo française des rôles a été écoutée et approuvée par l’utilisateur. Son
-MP4 SHA `59342f77…`, sa piste VTT, son poster et sa base musicale sont restés
-strictement identiques au preview validé. Les autres narrations conservent
-`criticalListening: pending` dans leurs preuves techniques : noms propres,
-accents et variantes de reconnaissance ne sont pas certifiés par une écoute
-humaine. Aucun test sur téléphone physique n’est revendiqué.
+The user listened to/approved French roles. Its MP4 SHA `59342f77…`, VTT, poster
+and music base exactly match approved preview. Other proofs retain
+`criticalListening:pending`; proper names, accents and ASR variants are not human-certified.
+No physical phone test is claimed.
 
-L’audit indépendant des douze MP4 confirme le décodage intégral, les paquets
-H.264 identiques aux bases musicales, les formats/durées et le manifeste exact.
-Le gain musical mesuré sous la voix, dans les pauses et au logo est compris
-entre **0,217734 et 0,219883**, cohérent avec 0,22 après compression AAC. Les pics
-du prémix reconstruit sont compris entre **0,6301 et 0,69235**, sous le seuil 0,95 :
-le limiteur reste inactif et ne modifie pas le niveau musical.
+Independent audit of twelve MP4s confirms full decoding, music-base-identical
+H.264 packets, formats/durations/exact manifest. Measured musical gain across
+speech/pauses/logo: **0.217734–0.219883**, consistent with 0.22 after AAC.
+Reconstructed premix peaks **0.6301–0.69235**, below 0.95; limiter stays inactive
+without changing music level. Local checks cover PCM/timing/logo/catalog/player
+in Chromium/WebKit. Publication needs merged-commit CI and exact current
+[release checks](MAIN_RELEASE.md); historical procedures used two origins. Deployment
+proof stays outside Git. Videos trigger no business delivery.
 
-Les vérifications locales couvrent PCM, calage, logo, catalogue et lecteur sur
-Chromium/WebKit. La publication exige les
-contrôles du commit fusionné et les preuves exactes sur les deux origines selon
-[MAIN_RELEASE.md](MAIN_RELEASE.md). La preuve de déploiement est conservée hors
-dépôt ; aucune livraison métier n’est déclenchée par ces vidéos.
+# Historical V6/V2 — published 3 October 2026
 
-# Historique V6/V2 — publié le 3 octobre 2026
+The previous five-film batch (FR/EN introductions in both formats and EN roles)
+used male **George — Warm, Captivating Storyteller**, Eleven v4, selected web
+**Generation 2**. That means the second result, not Multilingual v2. Eleven
+introductory sentences per language were reused across formats; six EN role
+sentences were separate. Snapshot retains 34 generation receipts, including six
+historical FR roles excluded during natural-three-block rewriting. Receipts retain
+`webGeneration:2`, MP3 hash and scene-compatible duration. Local fitting preserved
+all words. Voice targeted −18 LUFS; music ducked to 22% during speech and returned
+to normal between sentences/conclusion. Playback made no provider call.
 
-Le lot précédent de cinq vidéos — introductions françaises et anglaises dans les deux
-formats, et rôles anglais — utilisent la voix masculine **George —
-Warm, Captivating Storyteller**, générée dans ElevenLabs avec **Eleven v4**.
-Chaque phrase provient du résultat **Génération 2** choisi dans l'interface web,
-selon la préférence exprimée par l'utilisateur. « Génération 2 » désigne le second
-résultat de cette génération, pas le modèle Multilingual v2.
-
-Chaque langue comporte onze phrases de présentation réutilisées dans les deux
-formats ; six phrases anglaises sont propres aux rôles. Le snapshot conserve
-trente-quatre reçus de génération, dont six rôles français historiques exclus
-des actifs pendant la réécriture en trois blocs naturels choisie par l’utilisateur.
-Les reçus
-indiquent `webGeneration: 2`, un hash du MP3 et une durée compatible avec leur
-scène. Les ajustements de durée locaux conservent les mots des fichiers générés.
-Le mix vise −18 LUFS pour la voix et abaisse la musique à 22 % pendant les phrases.
-La musique retrouve son niveau habituel entre les phrases et sur la conclusion.
-Aucun appel à un fournisseur ne se produit pendant la lecture.
-
-| Fichier public                         | Durée | Octets   | SHA-256                                                            |
+| Public file                         | Duration | Bytes   | SHA-256                                                            |
 | -------------------------------------- | ----- | -------- | ------------------------------------------------------------------ |
 | `/videos/guteneo-horizontal-v6-fr.mp4` | 56 s  | 10347697 | `7c2535462e5314ad741b5a82b10f88c087290c96cd42e76cbb97de7994683cee` |
 | `/videos/guteneo-vertical-v6-fr.mp4`   | 56 s  | 12240339 | `e2d32af8b85b540073cc8a7feee59b837b30b1fefc9ab6431f5c74f3442c8b70` |
@@ -117,37 +90,25 @@ Aucun appel à un fournisseur ne se produit pendant la lecture.
 | `/videos/guteneo-vertical-v6-en.mp4`   | 56 s  | 12162130 | `93b75943f6128d5bef295bbee9ad10486f24aff21d2ca62ddd1be8991973147e` |
 | `/videos/guteneo-roles-v2-en.mp4`      | 36 s  | 2052663  | `2cf94bce41d9981ef95342cf8a44d8fd9bafda2b5585b9b015e962ef31751a5c` |
 
-Les paquets H.264 sont identiques à ceux des versions instrumentales V5/V1.
-Cadrages, animations et logo final sont conservés. Les présentations comptent
-1680 images ; les rôles en comptent 1080. La dernière phrase française se termine
-à 46,730 s pour les présentations ; la dernière phrase
-anglaise à 47,540 s et 30,738 s. Les cinq secondes finales du logo commencent
-respectivement à 51 s et 31 s, sans narration. Les sorties restent H.264/AAC
-stéréo, 30 images/s, avec démarrage rapide, sous 25 MiB par fichier.
+H.264 packets match instrumental V5/V1; framing/animation/final logo remain.
+Introductions: 1,680 frames; roles: 1,080. Last FR introduction phrase ends
+46.730 s, EN introduction 47.540 s, EN roles 30.738 s. Final five-second silent
+logos start 51/31 s respectively. H.264/AAC stereo, 30 fps, fast-start, under 25 MiB.
 
-Le catalogue partagé sélectionne le fichier de la langue résolue sur l'accueil
-et sur `/roles/`. Les posters conservent leurs fichiers V5/V1. Les anciens MP4
-instrumentaux restent disponibles comme sources de régénération. L'allemand et
-le luxembourgeois restent sur leurs vidéos précédentes pendant la préparation
-des voix. Les rôles français restent sur leur V1 instrumentale : l’ancien
-candidat voix V2 FR et sa piste VTT sont exclus de cette publication.
+The shared catalog selected resolved language on home/roles. Posters retained V5/V1.
+Old instrumentals remained regeneration sources. DE/LB retained prior videos while
+voices were prepared; FR roles stayed instrumental V1, excluding old FR V2 voice
+candidate/VTT from that publication. Both introduction formats shared eleven-sentence
+`/videos/guteneo-v6.{fr,en}.vtt`; EN roles used six-sentence
+`/videos/guteneo-roles-v2.en.vtt`, timed to actual clips/native controls. V5 music
+tracks remained instrumental sources.
 
-Les deux formats de présentation partagent les onze phrases sous-titrées dans
-`/videos/guteneo-v6.{fr,en}.vtt`. Les rôles anglais utilisent leurs six phrases
-propres dans `/videos/guteneo-roles-v2.en.vtt`. Le catalogue désigne ces pistes,
-calées sur les clips réellement mixés et disponibles dans les contrôles natifs.
-Les pistes musicales V5 sont conservées pour les sources instrumentales.
-
-Les 34 sources audio, scripts et reçus nettoyés sont suivis dans le
-[snapshot FR/EN Génération 2](../videos/guteneo-film/narration/releases/fr-en-g2/README.md).
-Le rejeu hors ligne des cinq actifs retenus depuis ce snapshot a retrouvé exactement
-les SHA-256 ci-dessus. `npm run videos:render` rend les bases musicales V5/V1,
-puis remixe ce snapshot vers les chemins actifs V6/V2 et régénère les pistes VTT
-et le manifeste. Les entrées sont qualifiées avant toute écriture publique ; le
-snapshot reste immuable et aucun appel fournisseur n’est nécessaire.
-Les preuves détaillées de mixage et de revue restent hors du dépôt.
-Les deux langues ont passé un décodage FFmpeg complet et une revue indépendante
-des hashes, paquets vidéo, reçus Génération 2 et fins musicales. Les contrôles
-techniques n'attestent pas une écoute humaine complète ni un téléphone physique.
-La publication suit [MAIN_RELEASE.md](MAIN_RELEASE.md), avec CI du commit fusionné
-et vérification des deux origines publiques après déploiement.
+[FR/EN Generation 2 snapshot](../videos/guteneo-film/narration/releases/fr-en-g2/README.md)
+tracks 34 audio sources/scripts/filtered receipts. Offline replay of five selected
+assets exactly reproduced hashes above. Historical `videos:render` rendered V5/V1
+bases, remixed that snapshot to then-active V6/V2 paths and regenerated VTT/manifest,
+qualifying inputs before public writes without changing snapshot/provider calls.
+Detailed mix/review evidence stays outside Git. Both languages passed full FFmpeg
+and independent hash/packet/receipt/music-ending checks, without full human-listening
+or physical-phone claims. Publication followed merged-commit CI/two then-public
+origins; current origin procedure is [MAIN_RELEASE.md](MAIN_RELEASE.md).

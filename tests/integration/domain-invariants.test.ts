@@ -387,18 +387,39 @@ describe("D1 domain invariants — actual local Workers SQLite", () => {
       email({ campaignId, recipient: { email: "second@example.invalid" } }),
     );
     await domain.approveDispatch(atelier, first.id, first.fingerprint);
-    await expect(
-      db
-        .prepare("UPDATE dispatches SET recipient_json=? WHERE id=?")
-        .bind('{"email":"changed@example.invalid"}', first.id)
-        .run(),
-    ).rejects.toThrow("immutable_dispatch");
-    await expect(
-      db
-        .prepare("UPDATE dispatches SET ceiling_minor=200 WHERE id=?")
-        .bind(first.id)
-        .run(),
-    ).rejects.toThrow("immutable_dispatch");
+    const document = await domain.registerDocument(atelier, {
+      name: "replacement.pdf",
+      sha256: "b".repeat(64),
+      size: 100,
+      pages: 1,
+      status: "ready",
+      source: "import",
+      storageKey: "org_atelier/replacement.pdf",
+    });
+    for (const [field, value] of [
+      ["recipient_json", '{"email":"changed@example.invalid"}'],
+      ["document_id", document.id],
+      ["subject", "Changed subject"],
+      ["html", "<p>Changed content.</p>"],
+      ["text", "Changed plain content"],
+      ["options_json", '{"kind":"marketing"}'],
+      ["sender_address", "replacement@example.invalid"],
+      ["estimated_minor", first.estimated_minor + 1],
+      ["ceiling_minor", first.ceiling_minor + 1],
+      ["currency", "USD"],
+      ["fingerprint", "0".repeat(64)],
+    ] as const)
+      await expect(
+        db
+          .prepare(
+            `UPDATE dispatches SET ${field}=? WHERE organization_id=? AND id=?`,
+          )
+          .bind(value, atelier.organizationId, first.id)
+          .run(),
+      ).rejects.toThrow("immutable_dispatch");
+    expect(
+      (await domain.getDispatch(atelier, first.id)).dispatch,
+    ).toMatchObject(first);
     await expect(prepare("third", email({ campaignId }))).rejects.toMatchObject(
       { code: "CAMPAIGN_FROZEN" },
     );
@@ -440,6 +461,47 @@ describe("D1 domain invariants — actual local Workers SQLite", () => {
       domain.confirmDispatch(atelier, row.id, "expired"),
     ).rejects.toMatchObject({ code: "APPROVAL_REQUIRED" });
     expect(await count("outbox")).toBe(0);
+  });
+  it("requires a new approval when replacement content, options and cost change", async () => {
+    const original = await prepare("original-review");
+    await domain.approveDispatch(atelier, original.id, original.fingerprint);
+    const replacement = await prepare(
+      "corrected-review",
+      email({
+        subject: "Corrected letter",
+        html: "<p>Corrected content.</p>",
+        options: { kind: "transactional" },
+        ceilingMinor: original.ceiling_minor + 50,
+      }),
+    );
+    expect(replacement.id).not.toBe(original.id);
+    expect(replacement.fingerprint).not.toBe(original.fingerprint);
+    await expect(
+      domain.approveDispatch(atelier, replacement.id, original.fingerprint),
+    ).rejects.toMatchObject({ code: "FINGERPRINT_MISMATCH" });
+    await expect(
+      domain.confirmDispatch(atelier, replacement.id, "unreviewed-replacement"),
+    ).rejects.toMatchObject({ code: "APPROVAL_REQUIRED" });
+    expect(
+      (await domain.getDispatch(atelier, original.id)).dispatch,
+    ).toMatchObject(original);
+    for (const table of ["reservations", "outbox", "attempts"])
+      expect(await count(table)).toBe(0);
+    await domain.approveDispatch(
+      atelier,
+      replacement.id,
+      replacement.fingerprint,
+    );
+    expect(
+      (
+        await domain.confirmDispatch(
+          atelier,
+          replacement.id,
+          "reviewed-replacement",
+        )
+      ).status,
+    ).toBe("queued");
+    expect(await count("outbox")).toBe(1);
   });
   it("checks suppression and emergency stop again immediately before submission", async () => {
     const row = await queue();

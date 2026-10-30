@@ -1,0 +1,239 @@
+---
+title: Testing and evidence
+description: Choose checks that exercise the changed boundary and describe exactly what their results establish.
+sidebar:
+  order: 2
+---
+
+A passing check answers a bounded question. A local provider stub can establish
+request construction and uncertainty handling; it cannot establish a real fax
+delivery. Keep those layers explicit when choosing tests and reporting results.
+
+## Start with the affected contract
+
+| Change | Useful evidence |
+| --- | --- |
+| Pure domain or parser behavior | Focused unit cases, malformed inputs and exact numeric/string handling |
+| Persistence or authorization | Local D1 integration cases with populated migrations, multiple workspaces and revoked authority |
+| Approval, billing or dispatch | Immutable fingerprints, concurrent acceptance, atomic reservation/outbox and unknown-outcome cases |
+| Browser behavior | Actual application E2E with local synthetic records; responsive, keyboard and locale checks |
+| Public layout | Separate browser-only preview tests, without implying business-service coverage |
+| Private rendering, scanner or validator | Qualification of the actual installed engine and its runtime boundary |
+| Native client | Native unit and UI checks; physical-device and distribution proof remain separate |
+| Hosted release | Exact-source deployment verification plus the specific authenticated/provider journey being claimed |
+
+Avoid assertions that merely repeat the implementation. Exercise a failure that
+would violate the contract: a cross-workspace identifier, a changed review hash,
+a stale membership, a duplicate callback or a timeout after a provider may have
+accepted work.
+
+## Run the repository checks
+
+From the repository root after [local setup](/getting-started/local-development/):
+
+```sh
+npm run typecheck
+npm run lint
+npm test
+npm run docs:check
+npm run build
+```
+
+`npm test` runs the Vitest selection and Node security suites. Integration tests
+use local Workers/D1 fixtures and injected transports. Their production-mode
+guards exercise production rules against synthetic records; they do not contact
+the deployed application merely because a fixture selects production mode.
+
+Run the focused suite while developing, then the required repository checks for
+the final change. If another agent or process is changing the same files, agree
+on a stable source snapshot before treating a combined run as final evidence.
+
+## Keep the two browser environments distinct
+
+```sh
+npx playwright install chromium webkit
+npm run test:e2e
+npm run build:preview
+npm run test:preview
+```
+
+Application E2E starts the real local service, migrations and seeded fixtures.
+Preview tests exercise an independent public design model with no business
+bindings. Both are useful, but preview success cannot establish tenant isolation,
+approval acceptance or provider behavior.
+
+Use the configured desktop Chromium, mobile Chromium and iPhone WebKit projects
+for the relevant change. A Chromium fallback is not evidence for Safari. Preserve
+business assertions when adapting a stale label or selector, and retain failure
+traces privately rather than publishing customer-like fixtures by accident.
+
+Full-page layout screenshots use `fullPage: true` and `scale: "css"` to preserve
+the complete document at one image pixel per CSS pixel, avoiding the browser’s
+32,767-pixel bitmap limit under Retina emulation. Device viewport, pixel ratio,
+touch behavior and all layout assertions remain unchanged.
+
+The local secure-distribution suite bounds recovery of an explicit SQLite lock
+to its read-only charge-inspection query. It keeps a fixed attempt limit and total
+deadline; other failures remain failures. Approval actions, billing writes and
+business assertions are never retried by that helper. The suite's repository
+README owns the exact fixture limits. This does not permit retrying an uncertain
+provider outcome.
+
+## Optional local network isolation
+
+On supported macOS hosts, `npm run test:offline` runs a fixed installed selection
+under an OS network boundary. The runner first proves loopback access and an
+actual denied outbound connection. It refuses unsupported hosts instead of
+quietly falling back to online execution.
+
+This selection never installs dependencies or downloads engines. The optional
+`--with-pdf` case requires an already installed browser. The report describes
+synthetic local evidence and captures the tested source before and after the run;
+a changing source set cannot retain a passing result. This is a boundary for
+trusted local test code, not a general-purpose hostile-code sandbox.
+
+## Qualify CI, engines and hosted behavior separately
+
+CI must report the required jobs for the same source revision. Missing, skipped,
+cancelled or failed required jobs do not become a passing release through an
+aggregate label. Reusing a build is meaningful only when its source matches the
+revision under review.
+
+Qualify the actual scanner signatures, renderer, validator and remote browser
+runtime separately from stubbed service responses. An installed container image
+is not evidence of fresh antivirus signatures. Native simulator UI checks do not
+establish physical-device behavior or App Store distribution.
+
+Hosted health, OAuth discovery, authenticated host calls, provider configuration
+and real delivery each need their own observation. Read-only checks cannot prove
+an unperformed send. A build, a package archive or an integration catalog entry
+does not publish or activate a capability.
+
+## Public monitoring separates transport from stored evidence
+
+The scheduled public monitor requests `Accept-Encoding: identity` and
+`Cache-Control: no-transform` only for fixed canonical public paths. Headers are
+requests, not representation proof: the collector still checks received decoded
+byte count and SHA-256 against the release manifest. A failed observation is not
+replaced by automatic retries.
+
+Representation preservation also belongs at the origin. Successful canonical
+public HTML and its conditional 304 responses append `no-transform` to the
+existing response cache policy, retaining bytes, ETag and any existing encoding.
+The application rule leaves private/API responses and non-HTML assets under
+their existing policies. A monitor request header alone cannot enforce this
+origin response contract; stripping injected scripts before comparison would
+weaken the proof. See [Cloudflare's response-header requirement](https://developers.cloudflare.com/speed/optimization/content/compression/#content-length-header-handling).
+
+Bounded diagnostics expose only public-path size/hash/encoding or an allowed
+authority, OIDC or ingestion stage, HTTP status and response code. They remain
+outside the signed report and reveal no token, OIDC URL or upstream body. An
+artifact saved before publication does not prove ingestion succeeded. Runner
+revision, observed product revision, actual report storage and authenticated
+business qualification remain separate evidence.
+
+Report ingestion also checks the signed direct-job workflow claims. The legacy
+form omits both `job_workflow_ref` and `job_workflow_sha`; the current form must
+match the exact canonical main workflow and immutable runner commit as a pair.
+Foreign workflow/revision, partial, empty and null claims remain denied, alongside
+all existing signature, repository, branch, run/attempt, freshness, body-bound
+audience and replay checks. This is not permission for another workflow or role.
+
+Only after an actual `401 REPORT_REJECTED` can the driver diagnose that same
+token/body. Decoded boolean comparisons are explicitly unverified; one invocation
+of the server verifier separately checks the signature. GitHub key reads retain
+a five-second timeout and the entire diagnostic has a six-second deadline. It
+requests no new token, repeats no POST and cannot turn the original rejection
+into success, even if its local verification accepts. Claims, keys and raw errors
+stay private.
+
+Origin preservation requires application publication; claim verification requires
+status-service publication. Both need fresh hosted evidence. An isolated signed
+diagnostic or local fixture does not qualify production report storage or an
+authenticated customer journey.
+
+## Report a result that another engineer can assess
+
+Record the source revision or explicit tested snapshot, environment, suite scope,
+result and material limitations. Keep real, sandbox and deterministic simulation
+evidence separate. A failed or unavailable check remains visible; do not replace
+it with an older passing report.
+
+Use private, untracked artifact destinations for diagnostic logs, screenshots and
+traces. Review sanitized summaries before any public publication. Never collect
+actual documents, recipient addresses, credentials or signed URLs merely to prove
+that instrumentation works.
+
+Generation failures in local simulation now retain a finite phase and exception
+category through the captured error channel. This is diagnostic metadata only:
+no raw exception, content, recipient, URL, SQL value, credential or customer ID.
+Both local environment and simulation mode are required; production emits none.
+Do not change claims, processing, timeouts or retry rules to obtain diagnostics.
+
+The XML regression still requires two exact generated PDFs with their original
+channel/recipient/options and zero sending. A terminal failed/partial batch must
+fail with bounded state/counters rather than consume the remaining polling time.
+The 25 October main run 40241350392 failed one record before its artifact existed;
+an isolated same-source macOS run passed. Linux and preceding shard state were not
+reproduced, so the cause remains unknown. Preserve both results. A new exact-source
+CI pass qualifies that execution, not a claimed repair of the unexplained failure.
+
+The V2 preparation and fax-ceiling scenarios share a test input helper. Touch
+projects use one trusted tap and sequential keyboard entry; desktop uses one
+fill. Both require the exact value and focus after entry and the exact value
+before submitting. In V2 only, the real document/sender GET responses are held
+until after the gesture, then delivered unchanged to check that background data
+does not discard the value. Exact input and dispatch-recipient equality are
+reported as booleans rather than recipient text. There is no refill, automatic
+retry, fixed sleep, longer timeout or relaxed consent/sending assertion.
+
+This followed an empty required field that blocked any POST in PR run 40243121283.
+The original fill, keyboard and controlled-arrival macOS experiments passed, but
+did not reproduce Linux or data arriving during insertion. Keep that limit:
+input-path qualification does not prove the cause was repaired, and no product
+state mutation is justified by the GET timing alone.
+
+Run 40246543758 passed V2 but failed the separate fax-ceiling case: the phone
+field was empty just after its fill, while the typed decimal comma and selected
+PDF remained. No dispatch POST occurred. Neither a nearby data reply nor a
+missing JavaScript exception proves the cause. The fax test adds no data wait or
+interception: its `1,5` keyboard entry, unchanged normalized phone, exact 150-cent
+POST and original timeouts remain required. The shared helper qualifies native
+touch/keyboard input; it does not claim to repair that historical failure or
+qualify clipboard/paste behavior.
+
+## Scheduler fixtures use the current persistence contract
+
+A fixture that invokes the actual scheduler must apply the canonical migrations,
+including cleanup dependencies that run before identity and provider checks.
+Do not copy only the tables needed by the visible assertion or skip production
+cleanup to accommodate an obsolete fixture. The signed provider-callback test
+uses the current schema while retaining its recovery and no-outbox/no-lease
+assertions. A failed fixture is evidence to investigate, not a reason to add a
+retry or suppress the independently required job.
+
+Observability-only D1 doubles must preserve the actual statement interface:
+parameterless reads can call `all()` directly, while `bind()` returns a statement
+with those same operations. Keep heartbeat, privacy and aggregate assertions
+when extending these doubles; do not mock away the scheduler’s cleanup stage.
+
+## Concurrent local secure-browser runs
+
+The distribution harness can select separate integer localhost ports with
+`GUTENEO_DISTRIBUTION_E2E_PORT` and `GUTENEO_LOCAL_RENDERER_PORT`. Both are bounded
+to 1024–65535 and must differ; default 8787/8788 remains. The shared helper derives
+only localhost, and fixture cookies, navigation and egress fencing use that
+exact origin. Never reuse or stop another task's server to obtain a passing
+result. Preserve a failed local CLI/read observation separately from a later
+focused browser pass; a fresh successful run does not relabel earlier evidence.
+
+## Authentication-return browser fixtures
+
+An intercepted Auth0 completion tests browser recovery, not the identity provider.
+Run changed navigation fixtures on Chromium and WebKit: WebKit rejects an
+intercepted 302 response through `route.fulfill`. Use a real local callback route
+or a synthetic HTML navigation to the exact previously asserted safe destination.
+Keep the real recovery-link click, locale, private-query exclusion, full page
+return, unchecked attestations and zero automatic activation assertions. Such a
+fixture establishes neither a signed callback nor successful live SSO. Retain
+the failed hosted observation separately from the corrected cross-engine result.

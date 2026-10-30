@@ -130,7 +130,9 @@ beforeEach(async () => {
       )
       .bind(ctx.userId, date),
     db
-      .prepare("INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES(?,?,'admin',?)")
+      .prepare(
+        "INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES(?,?,'admin',?)",
+      )
       .bind(ctx.organizationId, ctx.userId, date),
     db
       .prepare(
@@ -339,6 +341,70 @@ describe("expert delegation against real D1 and signed OAuth identities", () => 
       .first();
     expect(JSON.stringify(stored)).not.toContain(review.reviewToken);
     expect(stored!.token_hash).toBe(await hashSecret(review.reviewToken));
+  });
+  it("replaces a still-valid review token without accepting an old-token send", async () => {
+    await grant();
+    const { dispatch, review: original, input } = await reviewed();
+    const originalHash = await hashSecret(original.reviewToken);
+    expect(
+      await db
+        .prepare(
+          "SELECT 1 FROM valid_expert_dispatch_reviews WHERE organization_id=? AND dispatch_id=? AND token_hash=?",
+        )
+        .bind(ctx.organizationId, dispatch.id, originalHash)
+        .first(),
+    ).not.toBeNull();
+
+    const replacement = await reviewExpertDispatch(
+      identity,
+      env,
+      domain,
+      dispatch.id,
+    );
+    expect(Date.parse(original.expiresAt)).toBeGreaterThan(Date.now());
+    expect(replacement.reviewToken).not.toBe(original.reviewToken);
+    expect(replacement.fingerprint).toBe(original.fingerprint);
+    expect(await count("expert_dispatch_reviews")).toBe(1);
+    const stored = await db
+      .prepare(
+        "SELECT token_hash FROM valid_expert_dispatch_reviews WHERE organization_id=? AND dispatch_id=?",
+      )
+      .bind(ctx.organizationId, dispatch.id)
+      .first<{ token_hash: string }>();
+    expect(stored?.token_hash).toBe(await hashSecret(replacement.reviewToken));
+    expect(stored?.token_hash).not.toBe(originalHash);
+
+    await expect(
+      acceptExpertDispatch(identity, env, domain, input),
+    ).rejects.toMatchObject({ code: "EXPERT_REVIEW_INVALID" });
+    expect((await domain.getDispatch(ctx, dispatch.id)).dispatch.status).toBe(
+      "prepared",
+    );
+    for (const table of [
+      "approvals",
+      "expert_approval_acceptances",
+      "idempotency_keys",
+      "reservations",
+      "welcome_credit_reservations",
+      "outbox",
+      "attempts",
+    ])
+      expect(await count(table)).toBe(0);
+
+    // This fixture only queues a simulated command; no provider is invoked.
+    const accepted = await acceptExpertDispatch(identity, env, domain, {
+      ...input,
+      reviewToken: replacement.reviewToken,
+    });
+    expect(accepted).toMatchObject({ status: "queued", mode: "simulation" });
+    for (const table of [
+      "approvals",
+      "expert_approval_acceptances",
+      "reservations",
+      "outbox",
+    ])
+      expect(await count(table)).toBe(1);
+    expect(await count("attempts")).toBe(0);
   });
   it("accepts once with an atomic budget, reservation and outbox; retries do not duplicate", async () => {
     await grant();
@@ -762,8 +828,10 @@ describe("exact private PDF before an expert review token", () => {
     expect(review.document).toBeNull();
     expect(review.documentResource).toBeUndefined();
     expect(review.text).toBe("Original content");
-    expect(review.instructions).toContain("ne contient pas de PDF");
-    expect(review.instructions).not.toContain("Lire la ressource PDF");
+    expect(review.instructions).toContain("contains no PDF");
+    expect(review.instructions).not.toContain(
+      "Read the exact embedded PDF resource",
+    );
   });
   it("refuses metadata-only services before issuing any token", async () => {
     const { dispatch } = await prepareWithPdf();
@@ -956,7 +1024,9 @@ describe("exact private PDF before an expert review token", () => {
                   )
                   .bind(admin, now()),
                 db
-                  .prepare("INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES(?,?,'admin',?)")
+                  .prepare(
+                    "INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES(?,?,'admin',?)",
+                  )
                   .bind(ctx.organizationId, admin, now()),
                 db
                   .prepare(

@@ -1,4 +1,5 @@
 import { useRef, useState, type FormEvent } from "react";
+import { FileInput } from "./file-input";
 import {
   WORKSPACE_ROLES,
   type WorkspaceRole,
@@ -6,6 +7,7 @@ import {
 import { api, ApiError, date, type Page } from "./api";
 import {
   ConfirmAction,
+  DateTimezone,
   ErrorNotice,
   LoadMore,
   Loading,
@@ -27,15 +29,15 @@ function inputError(error: unknown): Error {
   if (!(error instanceof InvitationInputError)) return error as Error;
   return new Error(
     error.reason === "email"
-      ? msg("Adresse e-mail invalide à la ligne {0}.", error.line)
+      ? msg("Invalid email address on line {0}.", error.line)
       : error.reason === "limit"
-        ? msg("Une invitation groupée est limitée à 100 adresses différentes.")
+        ? msg("A batch is limited to 100 different addresses.")
         : error.reason === "empty"
-          ? msg("Ajoutez au moins une adresse e-mail.")
+          ? msg("Add at least one email address.")
           : error.reason === "header"
-            ? msg("Le CSV doit contenir une colonne nommée email.")
+            ? msg("The CSV must contain a column named email.")
             : msg(
-                "Le CSV est mal formé à la ligne {0}. Vérifiez les colonnes et les guillemets.",
+                "The CSV is malformed on line {0}. Check the columns and quotation marks.",
                 error.line,
               ),
   );
@@ -43,21 +45,21 @@ function inputError(error: unknown): Error {
 function deliveryLabel(status: Invitation["deliveryStatus"]) {
   return (
     {
-      sent: msg("Accepté par le service d’e-mail"),
-      simulated: msg("Envoi simulé"),
-      failed: msg("Échec de l’e-mail"),
-      unknown: msg("Envoi non confirmé"),
-      pending: msg("Envoi en attente"),
+      sent: msg("Accepted by the email service"),
+      simulated: msg("Simulated delivery"),
+      failed: msg("Email failed"),
+      unknown: msg("Delivery unconfirmed"),
+      pending: msg("Delivery pending"),
     }[status] ?? status
   );
 }
 function statusLabel(status: Invitation["status"]) {
   return (
     {
-      pending: msg("En attente d’acceptation"),
-      accepted: msg("Invitation acceptée"),
-      revoked: msg("Invitation révoquée"),
-      expired: msg("Invitation expirée"),
+      pending: msg("Awaiting acceptance"),
+      accepted: msg("Invitation accepted"),
+      revoked: msg("Invitation revoked"),
+      expired: msg("Invitation expired"),
     }[status] ?? status
   );
 }
@@ -74,6 +76,7 @@ export function TeamInvitations() {
   const [inputIssue, setInputIssue] = useState<Error>();
   const [uncertain, setUncertain] = useState(false);
   const file = useRef<HTMLInputElement>(null);
+  const [fileVersion, setFileVersion] = useState(0);
   const reviewHeading = useRef<HTMLHeadingElement>(null);
   function resetReview() {
     setReview(undefined);
@@ -88,9 +91,9 @@ export function TeamInvitations() {
       if (mode === "single") setReview(invitationRecipients([email]));
       else {
         const selected = file.current?.files?.[0];
-        if (!selected) throw new Error(msg("Choisissez un fichier CSV."));
+        if (!selected) throw new Error(msg("Choose a CSV file."));
         if (selected.size > 1_000_000)
-          throw new Error(msg("Le CSV doit faire moins de 1 Mo."));
+          throw new Error(msg("The CSV must be smaller than 1 MB."));
         setReview(parseInvitationCsv(await selected.text()));
       }
       requestAnimationFrame(() => reviewHeading.current?.focus());
@@ -113,10 +116,10 @@ export function TeamInvitations() {
         });
         setReview(undefined);
         setEmail("");
-        if (file.current) file.current.value = "";
+        setFileVersion((version) => version + 1);
         setMessage(
           msg(
-            "Les invitations ont été traitées. Vérifiez leur état ci-dessous.",
+            "The invitations have been processed. Check their status below.",
           ),
         );
       } catch (error) {
@@ -142,10 +145,10 @@ export function TeamInvitations() {
       className="form-panel team-invitations"
       aria-labelledby="team-invitations-title"
     >
-      <h2 id="team-invitations-title">{msg("Inviter des membres")}</h2>
+      <h2 id="team-invitations-title">{msg("Invite members")}</h2>
       <p className="field-hint">
         {msg(
-          "La personne qui crée un atelier en devient administrateur. Invitez ensuite vos collaborateurs par e-mail, un par un ou depuis un CSV. Le rôle choisi s’applique à toutes les adresses de ce lot.",
+          "The person who creates a workspace becomes its administrator. Then invite colleagues by email, individually or from a CSV. The chosen role applies to every address in this batch.",
         )}
       </p>
       <form
@@ -157,11 +160,11 @@ export function TeamInvitations() {
           className="invitation-fields"
         >
           <legend className="sr-only">
-            {msg("Destinataires et rôle des invitations")}
+            {msg("Invitation recipients and role")}
           </legend>
           <div className="field">
             <label htmlFor="invitation-mode">
-              {msg("Ajouter des destinataires")}
+              {msg("Add recipients")}
             </label>
             <select
               id="invitation-mode"
@@ -171,14 +174,14 @@ export function TeamInvitations() {
                 resetReview();
               }}
             >
-              <option value="single">{msg("Une adresse e-mail")}</option>
-              <option value="csv">{msg("Importer un CSV")}</option>
+              <option value="single">{msg("One email address")}</option>
+              <option value="csv">{msg("Import a CSV")}</option>
             </select>
           </div>
           {mode === "single" ? (
             <div className="field">
               <label htmlFor="invitation-email">
-                {msg("Adresse e-mail à inviter")}
+                {msg("Email address to invite")}
               </label>
               <input
                 id="invitation-email"
@@ -196,11 +199,11 @@ export function TeamInvitations() {
           ) : (
             <div className="field">
               <label htmlFor="invitation-csv">
-                {msg("Fichier CSV des membres")}
+                {msg("Members CSV file")}
               </label>
-              <input
+              <FileInput
+                key={fileVersion}
                 id="invitation-csv"
-                type="file"
                 accept=".csv,text/csv"
                 ref={file}
                 required
@@ -209,14 +212,14 @@ export function TeamInvitations() {
               />
               <small id="invitation-csv-help">
                 {msg(
-                  "Colonne obligatoire : email. Virgule ou point-virgule accepté. 100 adresses différentes maximum ; les doublons sont retirés avant votre validation.",
+                  "Required column: email. Comma or semicolon accepted. Up to 100 different addresses; duplicates are removed before your review.",
                 )}
               </small>
             </div>
           )}
           <div className="field">
             <label htmlFor="invitation-role">
-              {msg("Rôle des nouveaux membres")}
+              {msg("New members’ role")}
             </label>
             <select
               id="invitation-role"
@@ -239,7 +242,7 @@ export function TeamInvitations() {
           </div>
           {role === "supervisor" && (
             <fieldset className="member-rights">
-              <legend>{msg("Droits des superviseurs invités")}</legend>
+              <legend>{msg("Invited supervisors’ permissions")}</legend>
               <label className="checkbox-label">
                 <input
                   type="checkbox"
@@ -249,7 +252,7 @@ export function TeamInvitations() {
                     resetReview();
                   }}
                 />
-                <span>{msg("Approuver et refuser les requêtes")}</span>
+                <span>{msg("Approve and reject requests")}</span>
               </label>
               <label className="checkbox-label">
                 <input
@@ -260,12 +263,12 @@ export function TeamInvitations() {
                     resetReview();
                   }}
                 />
-                <span>{msg("Consulter les rapports")}</span>
+                <span>{msg("Read reports")}</span>
               </label>
             </fieldset>
           )}
           <button className="button" type="submit">
-            {msg("Vérifier les invitations")}
+            {msg("Review invitations")}
           </button>
         </fieldset>
       </form>
@@ -273,7 +276,7 @@ export function TeamInvitations() {
       {uncertain && (
         <p className="notice warning" role="status">
           {msg(
-            "La réponse n’a pas pu être confirmée. Actualisez la liste et vérifiez les invitations avant de recharger cette page. Aucun envoi ne sera relancé automatiquement.",
+            "The response could not be confirmed. Refresh the list and check the invitations before reloading this page. No delivery will be retried automatically.",
           )}
         </p>
       )}
@@ -283,7 +286,7 @@ export function TeamInvitations() {
           aria-labelledby="invitation-review-title"
         >
           <h3 id="invitation-review-title" ref={reviewHeading} tabIndex={-1}>
-            {msg("Vérifier {0} invitation(s)", review.emails.length)}
+            {msg("Review {0} invitation(s)", review.emails.length)}
           </h3>
           <p>
             {roleLabel(role)}. {roleDescription(role)}
@@ -291,14 +294,14 @@ export function TeamInvitations() {
           {role === "supervisor" && (
             <p>
               {msg(
-                "Approbation des requêtes : {0}. Rapports : {1}.",
-                canApprove ? msg("autorisée") : msg("non autorisée"),
-                canReport ? msg("accessibles") : msg("non accessibles"),
+                "Request approval: {0}. Reports: {1}.",
+                canApprove ? msg("allowed") : msg("not allowed"),
+                canReport ? msg("available") : msg("unavailable"),
               )}
             </p>
           )}
           {review.duplicateCount > 0 && (
-            <p>{msg("{0} doublon(s) retiré(s).", review.duplicateCount)}</p>
+            <p>{msg("{0} duplicate(s) removed.", review.duplicateCount)}</p>
           )}
           <ul>
             {review.emails.map((address) => (
@@ -307,7 +310,7 @@ export function TeamInvitations() {
           </ul>
           <p>
             {msg(
-              "Chaque personne recevra un lien personnel et devra se connecter avec cette adresse vérifiée pour rejoindre l’atelier.",
+              "Each person will receive a personal link and must sign in with that verified address to join the workspace.",
             )}
           </p>
           <button
@@ -317,24 +320,25 @@ export function TeamInvitations() {
             onClick={() => void send()}
           >
             {action.pending
-              ? msg("Envoi des invitations…")
-              : msg("Envoyer les invitations")}
+              ? msg("Sending invitations…")
+              : msg("Send invitations")}
           </button>
         </section>
       )}
       {message && <p role="status">{message}</p>}
       <div className="section-toolbar">
-        <h3>{msg("Invitations de l’atelier")}</h3>
+        <h3>{msg("Workspace invitations")}</h3>
         <RefreshButton
           onClick={resource.refresh}
           disabled={resource.loading || action.pending}
         />
       </div>
       <ErrorNotice error={resource.error} retry={resource.refresh} />
+      {!!resource.data?.items.length && <DateTimezone />}
       {resource.loading && !resource.data ? (
         <Loading />
       ) : !resource.data?.items.length ? (
-        <p>{msg("Aucune invitation pour le moment.")}</p>
+        <p>{msg("No invitations yet.")}</p>
       ) : (
         <ul className="invitation-list">
           {resource.data.items.map((item) => (
@@ -345,23 +349,23 @@ export function TeamInvitations() {
                   {roleLabel(item.role)} · {statusLabel(item.status)} ·{" "}
                   {deliveryLabel(item.deliveryStatus)}
                 </p>
-                <p>{msg("Expire le {0}", date(item.expiresAt))}</p>
+                <p>{msg("Expires on {0}", date(item.expiresAt))}</p>
                 {item.deliveryStatus === "unknown" && (
                   <p>
                     {msg(
-                      "Ne renvoyez pas cette invitation tant que le résultat de l’e-mail n’a pas été vérifié.",
+                      "Do not resend this invitation until the email outcome has been verified.",
                     )}
                   </p>
                 )}
               </div>
               {item.status === "pending" && (
                 <ConfirmAction
-                  label={msg("Révoquer l’invitation")}
+                  label={msg("Revoke invitation")}
                   question={msg(
-                    "Révoquer l’invitation de {0} ? Ce lien ne permettra plus de rejoindre l’atelier.",
+                    "Revoke the invitation for {0}? This link will no longer allow them to join the workspace.",
                     item.email,
                   )}
-                  confirmLabel={msg("Révoquer l’invitation")}
+                  confirmLabel={msg("Revoke invitation")}
                   onConfirm={() => void revoke(item.id)}
                   disabled={action.pending}
                 />

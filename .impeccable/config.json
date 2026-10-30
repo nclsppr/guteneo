@@ -1,0 +1,35 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "overused-font",
+        "value": "arial",
+        "files": [
+          "packages/contracts/src/email-template.ts"
+        ],
+        "createdAt": "2026-10-26T00:53:59.422Z",
+        "reason": "Agent review: the transactional email intentionally uses Arial/Helvetica/sans-serif with Georgia headings, inline styles and no remote font requests; the email renderer is separate from application typography."
+      },
+      {
+        "rule": "overused-font",
+        "value": "arial",
+        "files": [
+          "packages/contracts/src/content.ts"
+        ],
+        "createdAt": "2026-10-26T00:53:59.505Z",
+        "reason": "Agent review: Arial is the existing system-font fallback in printableHtml, whose default-src none policy forbids remote resources; this is a printable document wrapper, not application typography."
+      },
+      {
+        "rule": "cramped-padding",
+        "value": "*",
+        "files": [
+          "apps/status/public/index.html"
+        ],
+        "createdAt": "2026-10-27T17:59:00.576Z",
+        "reason": "Agent: browser-computed service rows have 17px top and bottom padding from external style.css; text is 17px/18px from separator edges. Both findings predate the favicon-only HTML edit."
+      }
+    ]
+  }
+}

@@ -1,3 +1,5 @@
+import { authorizeBelvedere } from "../../apps/api/src/belvedere";
+import type { Env } from "../../apps/api/src/env";
 import { readFile, readdir } from "node:fs/promises";
 import {
   afterAll,
@@ -9,10 +11,12 @@ import {
   vi,
 } from "vitest";
 import { Miniflare, convertV4MiniflareOptions } from "miniflare";
+import { discoverAuthorizationServerMetadata } from "@modelcontextprotocol/client";
 import { createLocalJWKSet, exportJWK, generateKeyPair, SignJWT } from "jose";
 import {
   authenticateBrowser,
   authenticateMcp,
+  authFailureRedirect,
   AuthError,
   handleAuthRoute,
   hashSecret,
@@ -28,9 +32,17 @@ import {
   validateAuth0Token,
   type AuthEnv,
 } from "../../apps/api/src/auth";
-import { handleMcp, type McpServices } from "../../apps/api/src/mcp";
+import {
+  handleMcp,
+  MCP_LIMITS,
+  type McpServices,
+} from "../../apps/api/src/mcp";
 import { recordSuccessfulConnectionTool } from "../../apps/api/src/connection-observations";
 import { DomainService } from "../../packages/domain/src/index";
+import worker from "../../apps/api/src/index";
+import { DocumentService } from "../../apps/api/src/documents";
+import { authenticatePersonalBrowser } from "../../apps/api/src/auth";
+import { handlePersonalAccountRoute } from "../../apps/api/src/personal-auth";
 
 let mf: Miniflare;
 let env: AuthEnv;
@@ -79,6 +91,40 @@ const betaEnv = () => ({
   MODE: "production",
   AUTH0_AUTH_POLICY: "verified_email",
 });
+/** Tests of workshop authority explicitly request the sending service after
+ * account login. Signup itself never manufactures a workshop or credit. */
+async function withExplicitWorkspace(
+  response: Response | null,
+  currentEnv: AuthEnv,
+) {
+  if (!response) return response;
+  const cookie = response.headers
+    .get("Set-Cookie")
+    ?.match(/guteneo_session=[^;,]+/)?.[0];
+  if (!cookie) return response;
+  const principal = await authenticatePersonalBrowser(
+    request("/api/personal/session", "GET", undefined, { Cookie: cookie }),
+    currentEnv,
+  );
+  const existing = await currentEnv.DB.prepare(
+    "SELECT 1 FROM memberships WHERE user_id=?",
+  )
+    .bind(principal.userId)
+    .first();
+  if (existing) return response;
+  const created = await handlePersonalAccountRoute(
+    request(
+      "/api/personal/workspace",
+      "POST",
+      { name: "Mon espace" },
+      { Cookie: cookie, "X-CSRF-Token": principal.csrfToken },
+    ),
+    currentEnv,
+  );
+  const headers = new Headers(response.headers);
+  headers.set("Set-Cookie", created!.headers.get("Set-Cookie")!);
+  return new Response(null, { status: response.status, headers });
+}
 async function signedBetaLogin(
   idChanges: Record<string, unknown> = {},
   accessChanges: Record<string, unknown> = {},
@@ -132,7 +178,11 @@ async function signedBetaLogin(
     sub,
     destination,
     callback,
-    complete: () => handleAuthRoute(callback, configured),
+    complete: async () =>
+      withExplicitWorkspace(
+        await handleAuthRoute(callback, configured),
+        configured,
+      ),
   };
 }
 async function login(organization = "atelier") {
@@ -689,6 +739,77 @@ describe("identity and authentication boundaries", () => {
       ),
     ).rejects.toMatchObject({ code: "DEVELOPMENT_AUTH_FORBIDDEN" });
   });
+  it("protects annual usage with current browser reporting rights and real OAuth read scope", async () => {
+    const flow = await signedBetaLogin();
+    const completed = await flow.complete();
+    const cookie = completed!.headers.get("Set-Cookie")!.split(";")[0];
+    const member = await env.DB.prepare(
+      "SELECT m.organization_id,m.user_id FROM memberships m JOIN auth_identities i ON i.user_id=m.user_id WHERE i.subject=?",
+    )
+      .bind(flow.sub)
+      .first<{ organization_id: string; user_id: string }>();
+    const client = `annual-usage-${crypto.randomUUID()}`;
+    const browserRead = () =>
+      worker.fetch(
+        request("/api/usage/activity", "GET", undefined, { Cookie: cookie }),
+        flow.configured as Env,
+      );
+    const oauthRead = async (scope: string) =>
+      worker.fetch(
+        request("/api/usage/activity", "GET", undefined, {
+          Authorization: `Bearer ${await token(`${origin}/mcp`, {
+            sub: flow.sub,
+            client_id: client,
+            scope,
+            "https://guteneo.com/verified_account": true,
+          })}`,
+        }),
+        flow.configured as Env,
+      );
+    expect((await browserRead()).status).toBe(200);
+    const deniedScope = await oauthRead("documents:read");
+    expect(deniedScope.status).toBe(403);
+    expect(await deniedScope.json()).toMatchObject({
+      error: { code: "INSUFFICIENT_SCOPE" },
+    });
+    const authorized = await oauthRead("dispatches:read");
+    expect(authorized.status).toBe(200);
+    expect(await authorized.json()).toMatchObject({
+      evidence: "production",
+      timeZone: "UTC",
+      days: [],
+    });
+    const remainingAdmin = `annual-admin-${crypto.randomUUID()}`;
+    await env.DB.batch([
+      env.DB.prepare(
+        "INSERT INTO users(id,name,email,created_at) VALUES(?,'Fixture administrator','annual-admin@example.invalid',?)",
+      ).bind(remainingAdmin, new Date().toISOString()),
+      env.DB.prepare(
+        "INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES(?,?,'admin',?)",
+      ).bind(member!.organization_id, remainingAdmin, new Date().toISOString()),
+    ]);
+    await env.DB.prepare(
+      "UPDATE memberships SET role='supervisor',supervisor_can_report=0 WHERE organization_id=? AND user_id=?",
+    )
+      .bind(member!.organization_id, member!.user_id)
+      .run();
+    expect((await browserRead()).status).toBe(403);
+    expect((await oauthRead("dispatches:read")).status).toBe(403);
+    await env.DB.prepare(
+      "UPDATE memberships SET supervisor_can_report=1 WHERE organization_id=? AND user_id=?",
+    )
+      .bind(member!.organization_id, member!.user_id)
+      .run();
+    expect((await browserRead()).status).toBe(200);
+    expect((await oauthRead("dispatches:read")).status).toBe(200);
+    await env.DB.prepare(
+      "UPDATE memberships SET role='member',supervisor_can_report=0 WHERE organization_id=? AND user_id=?",
+    )
+      .bind(member!.organization_id, member!.user_id)
+      .run();
+    expect((await browserRead()).status).toBe(403);
+    expect((await oauthRead("dispatches:read")).status).toBe(403);
+  });
   it("verifies signatures, audience, issuer and expiry with real signed JWTs", async () => {
     const keys = createLocalJWKSet({ keys: [jwk] });
     const good = await token(`${origin}/mcp`, { scope: "documents:write" });
@@ -772,7 +893,7 @@ describe("identity and authentication boundaries", () => {
       authorization_servers: string[];
     };
     expect(discovery.resource).toBe(`${origin}/mcp`);
-    expect(discovery.authorization_servers).toEqual([issuer.slice(0, -1)]);
+    expect(discovery.authorization_servers).toEqual([issuer]);
     for (const path of [
       "//attacker.invalid",
       "/\\attacker.invalid",
@@ -781,7 +902,155 @@ describe("identity and authentication boundaries", () => {
     ])
       expect(safeReturnPath(path)).toBe("/#/app");
   });
-  it("grants one shared welcome credit after verified PKCE signup without enabling any channel", async () => {
+  it.each(["login", "signup"])(
+    "recovers %s errors in the chosen language and safe deep route without forwarding secrets",
+    async (action) => {
+      const target =
+        "/#/app/prepare?entry=direct&channel=postal&document=doc_fixture&token=private-invitation&recipient=private-recipient&url=https%3A%2F%2Fprivate.invalid";
+      const response = await worker.fetch(
+        request(
+          `/auth/${action}?locale=lb&returnTo=${encodeURIComponent(target)}`,
+        ),
+        env as Env,
+      );
+      expect(response.status).toBe(302);
+      const destination = new URL(response.headers.get("Location")!);
+      expect(destination.origin).toBe(origin);
+      expect(destination.pathname).toBe("/");
+      expect(destination.search).toBe("?auth=IDENTITY_NOT_CONFIGURED&lang=lb");
+      expect(destination.hash).toBe(
+        "#/app/prepare?entry=direct&channel=postal&document=doc_fixture",
+      );
+      expect(destination.href).not.toMatch(/private-|returnTo|token=/);
+    },
+  );
+  it("bounds recovery routes and does not trust callback query parameters before state validation", () => {
+    for (const target of [
+      "//attacker.invalid/#/app/documents",
+      "/\\attacker.invalid/#/app/documents",
+      "https://attacker.invalid/#/app/documents",
+      "/invitation#token=private-invitation",
+      "/auth/mobile/authorize?state=private-native-state",
+      "/belvedere/private-slug#jobs",
+    ]) {
+      const destination = new URL(
+        authFailureRedirect(
+          request(
+            `/auth/login?locale=de&returnTo=${encodeURIComponent(target)}`,
+          ),
+          env,
+          "LOGIN_STATE_INVALID",
+        ),
+      );
+      expect(destination.origin).toBe(origin);
+      expect(destination.hash).toBe("#/app");
+      expect(destination.searchParams.get("lang")).toBe("de");
+      expect(destination.href).not.toContain("private-");
+    }
+    const callback = new URL(
+      authFailureRedirect(
+        request(
+          "/auth/callback?locale=en&ui_locales=en&returnTo=%2F%23%2Fapp%2Faccount",
+          "GET",
+          undefined,
+          { "Accept-Language": "de-LU" },
+        ),
+        env,
+        "LOGIN_STATE_INVALID",
+      ),
+    );
+    expect(callback.hash).toBe("#/app");
+    expect(callback.searchParams.get("lang")).toBe("de");
+  });
+  it.each([
+    [
+      "/#/app/account?connection=con_fixture",
+      "#/app/account?connection=con_fixture",
+    ],
+    ["/#/app/templates?new=blank", "#/app/templates?new=blank"],
+    [
+      "/#/app/prepare?entry=other&channel=other&document=https%3A%2F%2Fprivate.invalid",
+      "#/app/prepare",
+    ],
+    ["/#/app/dispatches?group=unknown", "#/app/dispatches"],
+    ["/#http://[", "#/app"],
+    ["/#//[", "#/app"],
+    ["/#/app@https://[", "#/app"],
+    [`/#/app/documents?document=${"x".repeat(121)}`, "#/app/documents"],
+    [`/#/app/${"x".repeat(513)}`, "#/app"],
+  ])("bounds recovery navigation for %s", (target, hash) => {
+    const destination = new URL(
+      authFailureRedirect(
+        request(`/auth/login?returnTo=${encodeURIComponent(target)}`),
+        env,
+        "LOGIN_STATE_INVALID",
+      ),
+    );
+    expect(destination.hash).toBe(hash);
+  });
+  it("also preserves recovery language and entry through the configuration preflight", async () => {
+    const response = await worker.fetch(
+      request(
+        `/auth/signup?locale=en&returnTo=${encodeURIComponent("/app/prepare?entry=direct")}`,
+      ),
+      { ...env, ENVIRONMENT: "production", MODE: "production" } as Env,
+    );
+    expect(response.status).toBe(302);
+    expect(response.headers.get("Location")).toBe(
+      `${origin}/?auth=IDENTITY_NOT_CONFIGURED&lang=en#/app/prepare?entry=direct`,
+    );
+  });
+  it.each([
+    "/.well-known/oauth-protected-resource",
+    "/.well-known/oauth-protected-resource/mcp",
+  ])(
+    "discovers the exact Auth0 issuer from %s with the official MCP client and rejects issuer drift",
+    async (path) => {
+      const response = await handleAuthRoute(request(path), realEnv());
+      expect(response?.status).toBe(200);
+      const resourceMetadata = (await response!.json()) as {
+        resource: string;
+        authorization_servers: string[];
+      };
+      expect(resourceMetadata.resource).toBe(`${origin}/mcp`);
+      const authorizationServer = resourceMetadata.authorization_servers[0];
+      const authorizationMetadata = {
+        issuer,
+        authorization_endpoint: `${issuer}authorize`,
+        token_endpoint: `${issuer}oauth/token`,
+        response_types_supported: ["code"],
+        code_challenge_methods_supported: ["S256"],
+      };
+      const fetchFn = vi.fn(
+        async (input: RequestInfo | URL, init?: RequestInit) => {
+          const target = input instanceof Request ? input.url : String(input);
+          expect(target).toBe(
+            `${issuer}.well-known/oauth-authorization-server`,
+          );
+          expect(init?.method ?? "GET").toBe("GET");
+          return Response.json(authorizationMetadata);
+        },
+      );
+      await expect(
+        discoverAuthorizationServerMetadata(authorizationServer, { fetchFn }),
+      ).resolves.toMatchObject({ issuer });
+      expect(fetchFn).toHaveBeenCalledTimes(1);
+
+      const foreignIssuer = "https://other-tenant.auth0.example/";
+      fetchFn.mockResolvedValueOnce(
+        Response.json({ ...authorizationMetadata, issuer: foreignIssuer }),
+      );
+      await expect(
+        discoverAuthorizationServerMetadata(authorizationServer, { fetchFn }),
+      ).rejects.toMatchObject({
+        name: "IssuerMismatchError",
+        kind: "metadata",
+        expected: issuer,
+        received: foreignIssuer,
+      });
+    },
+  );
+  it("keeps signup personal and grants one shared welcome credit only after explicit workshop creation", async () => {
     const configured = { ...realEnv(), MODE: "production" as const };
     const response = await handleAuthRoute(request("/auth/login"), configured);
     const destination = new URL(response!.headers.get("Location")!);
@@ -830,6 +1099,19 @@ describe("identity and authentication boundaries", () => {
     )
       .bind("auth0|test-member")
       .first<{ user_id: string }>();
+    expect(
+      await env.DB.prepare("SELECT count(*) n FROM memberships WHERE user_id=?")
+        .bind(user!.user_id)
+        .first(),
+    ).toEqual({ n: 0 });
+    expect(
+      await env.DB.prepare(
+        "SELECT count(*) n FROM personal_workspace_creations WHERE user_id=?",
+      )
+        .bind(user!.user_id)
+        .first(),
+    ).toEqual({ n: 0 });
+    await withExplicitWorkspace(callback, configured);
     const budgets = await env.DB.prepare(
       "SELECT limit_count,limit_minor FROM usage WHERE organization_id IN (SELECT organization_id FROM memberships WHERE user_id=?)",
     )
@@ -886,6 +1168,91 @@ describe("identity and authentication boundaries", () => {
     await expect(
       handleAuthRoute(callbackRequest, configured),
     ).rejects.toMatchObject({ code: "LOGIN_STATE_INVALID" });
+  });
+  it("binds Belvédère privilege to the signed verified callback and preserves proof on session rotation", async () => {
+    const flow = await signedBetaLogin({ email: "Nicolas@Pieper.fr" });
+    const completed = await flow.complete();
+    const cookie = completed!.headers
+      .get("Set-Cookie")!
+      .match(/guteneo_session=[^;,]+/)![0];
+    const session = await authenticateBrowser(
+      request("/api/session", "GET", undefined, { Cookie: cookie }),
+      flow.configured,
+    );
+    const proof = await env.DB.prepare(
+      "SELECT issuer,subject,verified_email,authenticated_at FROM browser_identity_evidence WHERE token_hash=?",
+    )
+      .bind(session.tokenHash)
+      .first();
+    expect(proof).toMatchObject({
+      issuer,
+      subject: flow.sub,
+      verified_email: "nicolas@pieper.fr",
+    });
+    const towerEnv = {
+      ...flow.configured,
+      ENVIRONMENT: "production",
+      BELVEDERE_SECRET_SLUG: "fixture-secret-route-abcdefghijklmnopqrstuvwxyz",
+    } as Env;
+    expect(
+      await authorizeBelvedere(
+        request(
+          "/belvedere/fixture-secret-route-abcdefghijklmnopqrstuvwxyz",
+          "GET",
+          undefined,
+          { Cookie: `__Host-${cookie}` },
+        ),
+        towerEnv,
+      ),
+    ).toBe(session.context.userId);
+    const nextOrg = `org_${crypto.randomUUID()}`;
+    await env.DB.batch([
+      env.DB.prepare(
+        "INSERT INTO organizations(id,name,mode,created_at) VALUES(?,'Second verified atelier','production',?)",
+      ).bind(nextOrg, new Date().toISOString()),
+      env.DB.prepare(
+        "INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES(?,?,'admin',?)",
+      ).bind(nextOrg, session.context.userId, new Date().toISOString()),
+    ]);
+    const switched = await handleAuthRoute(
+      request(
+        "/api/account/workspace",
+        "POST",
+        { organizationId: nextOrg },
+        { Cookie: cookie, "X-CSRF-Token": session.csrfToken },
+      ),
+      flow.configured,
+    );
+    const nextCookie = switched!.headers.get("Set-Cookie")!.split(";")[0];
+    const next = await authenticateBrowser(
+      request("/api/session", "GET", undefined, { Cookie: nextCookie }),
+      flow.configured,
+    );
+    expect(
+      await env.DB.prepare(
+        "SELECT issuer,subject,verified_email,authenticated_at FROM browser_identity_evidence WHERE token_hash=?",
+      )
+        .bind(next.tokenHash)
+        .first(),
+    ).toEqual(proof);
+    expect(
+      await env.DB.prepare(
+        "SELECT 1 FROM browser_identity_evidence WHERE token_hash=?",
+      )
+        .bind(session.tokenHash)
+        .first(),
+    ).toBeNull();
+    expect(
+      await authorizeBelvedere(
+        request(
+          "/belvedere/fixture-secret-route-abcdefghijklmnopqrstuvwxyz",
+          "GET",
+          undefined,
+          { Cookie: `__Host-${nextCookie}` },
+        ),
+        towerEnv,
+      ),
+    ).toBe(session.context.userId);
   });
   it("switches only between current memberships and rotates the browser session", async () => {
     const original = await login();
@@ -1154,9 +1521,19 @@ describe("identity and authentication boundaries", () => {
     const flow = await signedBetaLogin(
       { email: "wrong-recipient@example.test" },
       {},
-      { headers: { Cookie: invitation.invitationCookie } },
+      {
+        path: "/auth/signup?locale=lb",
+        headers: { Cookie: invitation.invitationCookie },
+      },
     );
-    await expect(flow.complete()).rejects.toBeInstanceOf(Error);
+    const failed = await worker.fetch(flow.callback, flow.configured as Env);
+    expect(failed.status).toBe(302);
+    expect(failed.headers.get("Location")).toBe(
+      `${origin}/?auth=INVITATION_EMAIL_MISMATCH&lang=lb#/app`,
+    );
+    expect(failed.headers.get("Location")).not.toContain(
+      invitation.invitationCookie,
+    );
     expect(
       await env.DB.prepare(
         "SELECT user_id FROM auth_identities WHERE subject=?",
@@ -1280,6 +1657,12 @@ describe("identity and authentication boundaries", () => {
   });
   it.each([
     {
+      label: "mismatched signed access subject",
+      id: { email: "nicolas@pieper.fr" },
+      access: { sub: "auth0|mismatched-identity" },
+      code: "LOGIN_STATE_INVALID",
+    },
+    {
       label: "missing ID proof",
       id: { "https://guteneo.com/verified_account": undefined },
       access: {},
@@ -1313,7 +1696,7 @@ describe("identity and authentication boundaries", () => {
     "free beta refuses $label before creating an account or grant",
     async ({ id, access, code }) => {
       const before = await env.DB.prepare(
-        "SELECT (SELECT count(*) FROM browser_sessions) sessions,(SELECT count(*) FROM welcome_credit_grants) grants",
+        "SELECT (SELECT count(*) FROM browser_sessions) sessions,(SELECT count(*) FROM welcome_credit_grants) grants,(SELECT count(*) FROM browser_identity_evidence) proofs",
       ).first();
       const flow = await signedBetaLogin(id, access);
       await expect(flow.complete()).rejects.toMatchObject({ code });
@@ -1324,7 +1707,7 @@ describe("identity and authentication boundaries", () => {
       ).toBeNull();
       expect(
         await env.DB.prepare(
-          "SELECT (SELECT count(*) FROM browser_sessions) sessions,(SELECT count(*) FROM welcome_credit_grants) grants",
+          "SELECT (SELECT count(*) FROM browser_sessions) sessions,(SELECT count(*) FROM welcome_credit_grants) grants,(SELECT count(*) FROM browser_identity_evidence) proofs",
         ).first(),
       ).toEqual(before);
     },
@@ -1425,7 +1808,9 @@ describe("identity and authentication boundaries", () => {
         {},
         { path: `/auth/signup?locale=${locale}` },
       );
-      expect(flow.destination.searchParams.get("ui_locales")).toBe(locale);
+      expect(flow.destination.searchParams.get("ui_locales")).toBe(
+        locale === "lb" ? "de" : locale,
+      );
       expect(
         await env.DB.prepare(
           "SELECT preferred_locale FROM auth_transactions WHERE state_hash=?",
@@ -1477,6 +1862,123 @@ describe("identity and authentication boundaries", () => {
         .first(),
     ).toEqual({ preferred_locale: "lb" });
   });
+  it("refreshes only the signed identity's verified address while preserving their name, language and login evidence", async () => {
+    const first = await signedBetaLogin(
+      { email: "first@example.test" },
+      {},
+      { path: "/auth/signup?locale=lb" },
+    );
+    await first.complete();
+    const identity = await env.DB.prepare(
+      "SELECT user_id FROM auth_identities WHERE issuer=? AND subject=?",
+    )
+      .bind(issuer, first.sub)
+      .first<{ user_id: string }>();
+    await env.DB.prepare(
+      "UPDATE users SET name='Chosen personal name' WHERE id=?",
+    )
+      .bind(identity!.user_id)
+      .run();
+    const second = await signedBetaLogin(
+      { email: "Changed@Example.test", name: "Provider replacement" },
+      {},
+      {
+        path: "/auth/login?intent=switch-account&locale=en",
+        subject: first.sub,
+      },
+    );
+    const completed = await second.complete();
+    expect(
+      await env.DB.prepare(
+        "SELECT name,email,preferred_locale FROM users WHERE id=?",
+      )
+        .bind(identity!.user_id)
+        .first(),
+    ).toEqual({
+      name: "Chosen personal name",
+      email: "changed@example.test",
+      preferred_locale: "lb",
+    });
+    const cookie = completed!.headers
+      .get("Set-Cookie")!
+      .match(/guteneo_session=[^;,]+/)![0];
+    // The login email is bound to this signed browser login. A mutable contact
+    // address cannot masquerade as a different authenticated account.
+    await env.DB.prepare(
+      "UPDATE users SET email='contact-only@example.test' WHERE id=?",
+    )
+      .bind(identity!.user_id)
+      .run();
+    const session = await handleAuthRoute(
+      request("/api/session", "GET", undefined, { Cookie: cookie }),
+      second.configured,
+    );
+    expect(await session!.json()).toMatchObject({
+      user: {
+        id: identity!.user_id,
+        name: "Chosen personal name",
+        email: "changed@example.test",
+        preferredLocale: "lb",
+        role: "admin",
+      },
+    });
+    const current = await authenticateBrowser(
+      request("/api/session", "GET", undefined, { Cookie: cookie }),
+      second.configured,
+    );
+    const nextOrg = `org_${crypto.randomUUID()}`;
+    await env.DB.batch([
+      env.DB.prepare(
+        "INSERT INTO organizations(id,name,mode,created_at) VALUES(?,'Another workshop','production',?)",
+      ).bind(nextOrg, new Date().toISOString()),
+      env.DB.prepare(
+        "INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES(?,?,'viewer',?)",
+      ).bind(nextOrg, identity!.user_id, new Date().toISOString()),
+    ]);
+    const rotated = await handleAuthRoute(
+      request(
+        "/api/account/workspace",
+        "POST",
+        {
+          organizationId: nextOrg,
+        },
+        { Cookie: cookie, "X-CSRF-Token": current.csrfToken },
+      ),
+      second.configured,
+    );
+    expect(await rotated!.json()).toMatchObject({
+      user: { email: "changed@example.test", role: "viewer" },
+      organization: { id: nextOrg },
+    });
+    const unverified = await signedBetaLogin(
+      { email: "unverified@example.test", email_verified: false },
+      {},
+      { subject: first.sub },
+    );
+    await expect(unverified.complete()).rejects.toMatchObject({
+      code: "EMAIL_VERIFICATION_REQUIRED",
+    });
+    expect(
+      await env.DB.prepare("SELECT email FROM users WHERE id=?")
+        .bind(identity!.user_id)
+        .first(),
+    ).toEqual({ email: "contact-only@example.test" });
+    const unrelated = await signedBetaLogin({
+      email: "contact-only@example.test",
+    });
+    await unrelated.complete();
+    const separate = await env.DB.prepare(
+      "SELECT user_id FROM auth_identities WHERE issuer=? AND subject=?",
+    )
+      .bind(issuer, unrelated.sub)
+      .first<{ user_id: string }>();
+    expect(separate!.user_id).not.toBe(identity!.user_id);
+    expect(
+      await env.DB.prepare("SELECT name,preferred_locale FROM users WHERE id=?")
+        .bind(identity!.user_id)
+        .first(),
+    ).toEqual({ name: "Chosen personal name", preferred_locale: "lb" });
+  });
   it("negotiates new account language from browser preferences and bounds unsupported login hints", async () => {
     const flow = await signedBetaLogin(
       {},
@@ -1515,6 +2017,113 @@ describe("identity and authentication boundaries", () => {
     expect(destination.searchParams.get("prompt")).toBe("login");
     expect(destination.searchParams.get("code_challenge_method")).toBe("S256");
     expect(destination.searchParams.get("scope")).toBe("openid profile email");
+  });
+  it("requests explicit account switching without changing ordinary SSO login or the PKCE binding", async () => {
+    const regular = await handleAuthRoute(request("/auth/login"), realEnv());
+    const regularDestination = new URL(regular!.headers.get("Location")!);
+    expect(regularDestination.searchParams.has("prompt")).toBe(false);
+    expect(regularDestination.searchParams.has("max_age")).toBe(false);
+    const response = await handleAuthRoute(
+      request("/auth/login?intent=switch-account&returnTo=%2F%23%2Fapp"),
+      realEnv(),
+    );
+    const destination = new URL(response!.headers.get("Location")!);
+    expect(destination.searchParams.get("prompt")).toBe("login");
+    expect(destination.searchParams.get("max_age")).toBe("0");
+    expect(destination.searchParams.get("code_challenge_method")).toBe("S256");
+    expect(destination.searchParams.get("scope")).toBe("openid profile email");
+    const state = destination.searchParams.get("state")!;
+    await expect(
+      handleAuthRoute(
+        request(
+          `/auth/callback?state=${state}&code=fixture-code`,
+          "GET",
+          undefined,
+          { Cookie: "guteneo_login=foreign" },
+        ),
+        realEnv(),
+      ),
+    ).rejects.toMatchObject({ code: "LOGIN_STATE_INVALID" });
+  });
+  it("recovers a rejected signed callback using its browser-bound transaction rather than callback hints", async () => {
+    const flow = await signedBetaLogin(
+      { email_verified: false },
+      {},
+      {
+        path: `/auth/signup?locale=lb&returnTo=${encodeURIComponent("/#/app/prepare?entry=direct&channel=postal&document=doc_fixture")}`,
+      },
+    );
+    const callback = new URL(flow.callback.url);
+    callback.searchParams.set("locale", "en");
+    callback.searchParams.set("returnTo", "/#/app/account?token=private-token");
+    const sessionCount = await env.DB.prepare(
+      "SELECT count(*) AS count FROM browser_sessions",
+    ).first();
+    const response = await worker.fetch(
+      new Request(callback, flow.callback),
+      flow.configured as Env,
+    );
+    expect(response.status).toBe(302);
+    expect(response.headers.get("Location")).toBe(
+      `${origin}/?auth=EMAIL_VERIFICATION_REQUIRED&lang=lb#/app/prepare?entry=direct&channel=postal&document=doc_fixture`,
+    );
+    expect(response.headers.get("Set-Cookie") ?? "").not.toContain(
+      "guteneo_session",
+    );
+    expect(
+      await env.DB.prepare(
+        "SELECT count(*) AS count FROM browser_sessions",
+      ).first(),
+    ).toEqual(sessionCount);
+    const replay = await worker.fetch(
+      new Request(callback, flow.callback),
+      flow.configured as Env,
+    );
+    expect(replay.headers.get("Location")).toBe(
+      `${origin}/?auth=LOGIN_STATE_INVALID&lang=fr#/app`,
+    );
+  });
+  it("uses validated state to recover a provider denial without exchanging a code or forwarding provider text", async () => {
+    const started = await handleAuthRoute(
+      request(
+        `/auth/login?locale=de&returnTo=${encodeURIComponent("/#/app/dispatches?group=attention")}`,
+      ),
+      realEnv(),
+    );
+    const destination = new URL(started!.headers.get("Location")!);
+    const callback = request(
+      `/auth/callback?state=${destination.searchParams.get("state")}&error=access_denied&error_description=private-provider-text&locale=en&returnTo=%2F%23%2Fapp%2Faccount`,
+      "GET",
+      undefined,
+      { Cookie: started!.headers.get("Set-Cookie")!.split(";")[0] },
+    );
+    const fetchSpy = vi.spyOn(globalThis, "fetch");
+    const response = await worker.fetch(callback, realEnv() as Env);
+    expect(response.headers.get("Location")).toBe(
+      `${origin}/?auth=LOGIN_STATE_INVALID&lang=de#/app/dispatches?group=attention`,
+    );
+    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(response.headers.get("Location")).not.toContain(
+      "private-provider-text",
+    );
+    expect(
+      await env.DB.prepare(
+        "SELECT state_hash FROM auth_transactions WHERE state_hash=?",
+      )
+        .bind(await hashSecret(destination.searchParams.get("state")!))
+        .first(),
+    ).toBeNull();
+  });
+  it("keeps the original deep destination on successful verified login", async () => {
+    const target = "/#/app/prepare?entry=direct&document=doc_fixture";
+    const flow = await signedBetaLogin(
+      {},
+      {},
+      { path: `/auth/login?locale=en&returnTo=${encodeURIComponent(target)}` },
+    );
+    const response = await flow.complete();
+    expect(response!.headers.get("Location")).toBe(`${origin}${target}`);
+    expect(response!.headers.get("Set-Cookie")).toContain("guteneo_session=");
   });
   it.each([
     {
@@ -1602,7 +2211,12 @@ describe("identity and authentication boundaries", () => {
   it.each(["network", "invalid JSON", "null JSON"])(
     "returns a safe retry error on token exchange %s failure",
     async (failure) => {
-      const response = await handleAuthRoute(request("/auth/login"), realEnv());
+      const response = await handleAuthRoute(
+        request(
+          `/auth/login?locale=lb&returnTo=${encodeURIComponent("/#/app/prepare?entry=direct")}`,
+        ),
+        realEnv(),
+      );
       const destination = new URL(response!.headers.get("Location")!);
       const state = destination.searchParams.get("state")!;
       const sessionCount = await env.DB.prepare(
@@ -1630,6 +2244,16 @@ describe("identity and authentication boundaries", () => {
       expect(error).toBeInstanceOf(AuthError);
       expect(error).toMatchObject({ code: "LOGIN_EXCHANGE_FAILED" });
       expect(String(error)).not.toContain("provider-private-response-fixture");
+      expect(
+        authFailureRedirect(
+          callback,
+          realEnv(),
+          "LOGIN_EXCHANGE_FAILED",
+          error,
+        ),
+      ).toBe(
+        `${origin}/?auth=LOGIN_EXCHANGE_FAILED&lang=lb#/app/prepare?entry=direct`,
+      );
       expect(
         await env.DB.prepare(
           "SELECT count(*) AS count FROM browser_sessions",
@@ -1729,6 +2353,241 @@ describe("actual stateless MCP transport with shared D1 domain", () => {
         : JSON.parse(raw);
     return { response, payload };
   }
+  function streamedMcpRequest(
+    token: string,
+    chunks: Uint8Array[],
+    options: {
+      version?: string;
+      headers?: Record<string, string>;
+      signal?: AbortSignal;
+      cancelNeverSettles?: boolean;
+    } = {},
+  ) {
+    let chunk = 0;
+    const cancel = vi.fn(() =>
+      options.cancelNeverSettles ? new Promise<void>(() => {}) : undefined,
+    );
+    const pull = vi.fn(
+      (controller: ReadableStreamDefaultController<Uint8Array>) => {
+        if (chunk < chunks.length) controller.enqueue(chunks[chunk++]);
+        else controller.close();
+      },
+    );
+    const req = new Request(`${origin}/mcp`, {
+      method: "POST",
+      headers: {
+        Origin: origin,
+        Host: "localhost:8787",
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+        Accept: "application/json, text/event-stream",
+        "MCP-Protocol-Version": options.version ?? "2025-11-25",
+        ...options.headers,
+      },
+      body: new ReadableStream({ pull, cancel }, { highWaterMark: 0 }),
+      duplex: "half",
+      signal: options.signal,
+    } as RequestInit);
+    return { req, pull, cancel };
+  }
+  const mcpMessage = (method = "tools/list", params: unknown = {}) =>
+    JSON.stringify({ jsonrpc: "2.0", id: "bounded-request", method, params });
+  async function mcpWorker(request: Request) {
+    return worker.fetch(request, env as Env);
+  }
+  async function mcpPayload(response: Response) {
+    const text = await response.text();
+    const data = text.split("\n").find((line) => line.startsWith("data:"));
+    return JSON.parse(data ? data.slice(5) : text);
+  }
+  it.each([
+    ["2025-11-25", "missing"],
+    ["2025-11-25", "underdeclared"],
+    ["2026-07-28", "missing"],
+    ["2026-07-28", "underdeclared"],
+  ])(
+    "MCP byte gate stops oversized %s bodies with %s length at the Worker entry",
+    async (version, length) => {
+      const auth = await credential();
+      const render = vi.spyOn(DocumentService.prototype, "render");
+      const message = new TextEncoder().encode(
+        mcpMessage("tools/call", {
+          name: "render_pdf",
+          arguments: { name: "bounded", html: "<p>Synthetic</p>" },
+        }),
+      );
+      const full = new Uint8Array(MCP_LIMITS.requestBytes).fill(32);
+      full.set(message);
+      const stream = streamedMcpRequest(
+        auth.token,
+        [full, new Uint8Array([32]), new Uint8Array([32])],
+        {
+          version,
+          headers: {
+            "Mcp-Method": "tools/call",
+            "Mcp-Name": "render_pdf",
+            ...(length === "underdeclared" ? { "Content-Length": "1" } : {}),
+          },
+          cancelNeverSettles: true,
+        },
+      );
+      const response = await mcpWorker(stream.req);
+      expect(response.status).toBe(413);
+      expect(response.headers.get("Cache-Control")).toBe("no-store");
+      expect(response.headers.get("Access-Control-Allow-Origin")).toBe(origin);
+      expect(await response.json()).toMatchObject({
+        jsonrpc: "2.0",
+        id: null,
+        error: { code: -32000 },
+      });
+      expect(stream.pull).toHaveBeenCalledTimes(2);
+      expect(stream.cancel).toHaveBeenCalledTimes(1);
+      expect(render).not.toHaveBeenCalled();
+      expect(stream.req.body?.locked).toBe(false);
+    },
+  );
+  it.each(["2025-11-25", "2026-07-28"])(
+    "MCP byte gate accepts the exact UTF-8 byte boundary and discovery for %s",
+    async (version) => {
+      const auth = await credential();
+      const base = mcpMessage("tools/list", {
+        _meta: {
+          padding: "",
+          ...(version === "2026-07-28"
+            ? {
+                "io.modelcontextprotocol/protocolVersion": version,
+                "io.modelcontextprotocol/clientCapabilities": {},
+              }
+            : {}),
+        },
+      });
+      const remaining =
+        MCP_LIMITS.requestBytes - new TextEncoder().encode(base).length;
+      const padded = base.replace(
+        '"padding":""',
+        `"padding":"${"é".repeat(Math.floor(remaining / 2))}${" ".repeat(remaining % 2)}"`,
+      );
+      const bytes = new TextEncoder().encode(padded);
+      expect(bytes.byteLength).toBe(MCP_LIMITS.requestBytes);
+      expect(padded.length).toBeLessThan(MCP_LIMITS.requestBytes);
+      const stream = streamedMcpRequest(
+        auth.token,
+        [bytes.subarray(0, 17), bytes.subarray(17)],
+        { version, headers: { "Mcp-Method": "tools/list" } },
+      );
+      const response = await mcpWorker(stream.req);
+      const payload = await mcpPayload(response);
+      expect(response.status, JSON.stringify(payload)).toBe(200);
+      expect(
+        payload.result.tools.some(
+          (tool: { name: string }) => tool.name === "render_pdf",
+        ),
+      ).toBe(true);
+      expect(response.headers.get("Cache-Control")).toBe("no-store");
+      expect(response.headers.get("Access-Control-Allow-Origin")).toBe(origin);
+      expect(stream.cancel).not.toHaveBeenCalled();
+    },
+  );
+  it("MCP byte gate rejects a multibyte overrun delivered in one chunk", async () => {
+    const auth = await credential();
+    const bytes = new TextEncoder().encode(
+      "é".repeat(MCP_LIMITS.requestBytes / 2 + 1),
+    );
+    const stream = streamedMcpRequest(auth.token, [bytes]);
+    expect((await mcpWorker(stream.req)).status).toBe(413);
+    expect(stream.pull).toHaveBeenCalledTimes(1);
+    expect(stream.cancel).toHaveBeenCalledTimes(1);
+  });
+  it("MCP byte gate rejects declared oversize without reading and never parses an unauthenticated body", async () => {
+    const auth = await credential();
+    const declared = streamedMcpRequest(auth.token, [new Uint8Array([32])], {
+      headers: { "Content-Length": String(MCP_LIMITS.requestBytes + 1) },
+      cancelNeverSettles: true,
+    });
+    expect((await mcpWorker(declared.req)).status).toBe(413);
+    expect(declared.pull).not.toHaveBeenCalled();
+    expect(declared.cancel).toHaveBeenCalledTimes(1);
+    const unauthenticated = streamedMcpRequest(
+      "",
+      [new Uint8Array(MCP_LIMITS.requestBytes + 1)],
+      { headers: { Authorization: "" } },
+    );
+    const response = await mcpWorker(unauthenticated.req);
+    expect(response.status).toBe(401);
+    expect(response.headers.get("WWW-Authenticate")).toContain(
+      "oauth-protected-resource/mcp",
+    );
+    expect(unauthenticated.pull).not.toHaveBeenCalled();
+  });
+  it.each(["host", "origin"])(
+    "MCP byte gate preserves the SDK %s rejection for bounded requests",
+    async (guard) => {
+      const auth = await credential();
+      const stream = streamedMcpRequest(
+        auth.token,
+        [new TextEncoder().encode(mcpMessage())],
+        {
+          headers:
+            guard === "host"
+              ? { Host: "foreign.invalid" }
+              : { Origin: "https://foreign.invalid" },
+        },
+      );
+      const response = await mcpWorker(stream.req);
+      expect(response.status).toBe(403);
+      expect(response.headers.get("Access-Control-Allow-Origin")).toBe(origin);
+    },
+  );
+  it("MCP byte gate rejects an interrupted body without disclosing the stream error", async () => {
+    const auth = await credential();
+    const request = new Request(`${origin}/mcp`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${auth.token}`,
+        "Content-Type": "application/json",
+      },
+      body: new ReadableStream(
+        {
+          pull(controller) {
+            controller.error(new Error("private synthetic stream detail"));
+          },
+        },
+        { highWaterMark: 0 },
+      ),
+      duplex: "half",
+    } as RequestInit);
+    const response = await mcpWorker(request);
+    expect(response.status).toBe(400);
+    expect(await response.text()).not.toContain("private synthetic");
+    expect(request.body?.locked).toBe(false);
+  });
+  it("MCP byte gate cancels an aborted pending read without waiting for source cancellation", async () => {
+    const auth = await credential();
+    const controller = new AbortController();
+    const cancel = vi.fn(() => new Promise<void>(() => {}));
+    const request = new Request(`${origin}/mcp`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${auth.token}`,
+        "Content-Type": "application/json",
+      },
+      body: new ReadableStream(
+        {
+          pull() {
+            controller.abort();
+          },
+          cancel,
+        },
+        { highWaterMark: 0 },
+      ),
+      duplex: "half",
+      signal: controller.signal,
+    } as RequestInit);
+    expect((await mcpWorker(request)).status).toBe(499);
+    expect(cancel).toHaveBeenCalledTimes(1);
+    expect(request.body?.locked).toBe(false);
+  });
+
   it("advertises exact file schema and never exposes a human approval tool", async () => {
     const auth = await credential();
     const { response, payload } = await rpc(auth.token, "tools/list");
@@ -1843,5 +2702,574 @@ describe("actual stateless MCP transport with shared D1 domain", () => {
     const result = await rpc(auth.token, "tools/list");
     expect(result.response.status).toBe(429);
     expect(result.response.headers.get("Retry-After")).toBe("60");
+  });
+});
+
+describe("browser Auth0 custom domain with a stable identity namespace", () => {
+  const canonical = "https://pieper.eu.auth0.com/";
+  const custom = "https://auth.guteneo.com/";
+  const configured = (browserDomain?: string): AuthEnv => ({
+    ...betaEnv(),
+    AUTH0_DOMAIN: "pieper.eu.auth0.com",
+    ...(browserDomain === undefined
+      ? {}
+      : { AUTH0_BROWSER_DOMAIN: browserDomain }),
+  });
+  async function signedAt(
+    tokenIssuer: string,
+    audience: string,
+    claims: Record<string, unknown>,
+  ) {
+    return new SignJWT(claims)
+      .setProtectedHeader({ alg: "RS256", kid: jwk.kid })
+      .setIssuer(tokenIssuer)
+      .setAudience(audience)
+      .setIssuedAt()
+      .setExpirationTime("5m")
+      .sign(keyPair.privateKey);
+  }
+  async function flow(
+    startEnv = configured("auth.guteneo.com"),
+    options: {
+      path?: string;
+      subject?: string;
+      email?: string;
+      idIssuer?: string;
+      accessIssuer?: string;
+      idAudience?: string;
+      accessAudience?: string;
+      idChanges?: Record<string, unknown>;
+      accessChanges?: Record<string, unknown>;
+    } = {},
+  ) {
+    const started = await handleAuthRoute(
+      request(options.path ?? "/auth/login"),
+      startEnv,
+    );
+    const destination = new URL(started!.headers.get("Location")!);
+    const tokenIssuer = `${destination.origin}/`;
+    const sub = options.subject ?? `auth0|alias-${crypto.randomUUID()}`;
+    const tokens = {
+      id_token: await signedAt(
+        options.idIssuer ?? tokenIssuer,
+        options.idAudience ?? "guteneo-browser",
+        {
+          sub,
+          nonce: destination.searchParams.get("nonce"),
+          email: options.email ?? "alias-fixture@example.test",
+          email_verified: true,
+          amr: ["pwd", "mfa"],
+          "https://guteneo.com/verified_account": true,
+          ...options.idChanges,
+        },
+      ),
+      access_token: await signedAt(
+        options.accessIssuer ?? tokenIssuer,
+        options.accessAudience ?? `${origin}/mcp`,
+        {
+          sub,
+          client_id: "guteneo-browser",
+          "https://guteneo.com/verified_account": true,
+          ...options.accessChanges,
+        },
+      ),
+    };
+    const fetchSpy = vi
+      .spyOn(globalThis, "fetch")
+      .mockImplementation(async (input) => {
+        const target = input instanceof Request ? input.url : String(input);
+        if (target === `${tokenIssuer}oauth/token`)
+          return Response.json(tokens);
+        if (
+          [canonical, custom].some(
+            (base) => target === `${base}.well-known/jwks.json`,
+          )
+        )
+          return Response.json({ keys: [jwk] });
+        throw new Error("Unexpected custom-domain fixture network target");
+      });
+    const state = destination.searchParams.get("state")!;
+    const callback = request(
+      `/auth/callback?state=${state}&code=alias-fixture-code`,
+      "GET",
+      undefined,
+      { Cookie: started!.headers.get("Set-Cookie")!.split(";")[0] },
+    );
+    return {
+      startEnv,
+      sub,
+      state,
+      destination,
+      callback,
+      fetchSpy,
+      complete: async (callbackEnv = startEnv) =>
+        withExplicitWorkspace(
+          await handleAuthRoute(callback, callbackEnv),
+          callbackEnv,
+        ),
+    };
+  }
+  async function browserSession(response: Response, currentEnv: AuthEnv) {
+    const cookie = response.headers
+      .get("Set-Cookie")!
+      .match(/guteneo_session=[^;,]+/)![0];
+    const session = await authenticateBrowser(
+      request("/api/session", "GET", undefined, { Cookie: cookie }),
+      currentEnv,
+    );
+    return { cookie, session };
+  }
+  it("reuses canonical identities, one welcome grant, preferences, existing sessions and reviewer restrictions", async () => {
+    const before = await flow(configured());
+    const first = await browserSession(
+      (await before.complete())!,
+      before.startEnv,
+    );
+    const userId = first.session.context.userId;
+    await env.DB.batch([
+      env.DB.prepare(
+        "UPDATE users SET preferred_locale='de',name='Saved fixture name' WHERE id=?",
+      ).bind(userId),
+      env.DB.prepare(
+        "INSERT INTO restricted_delivery_identities(issuer,subject) VALUES(?,?)",
+      ).bind(canonical, before.sub),
+    ]);
+    const after = await flow(configured("auth.guteneo.com"), {
+      subject: before.sub,
+    });
+    expect(after.destination.origin).toBe("https://auth.guteneo.com");
+    const bound = await env.DB.prepare(
+      "SELECT authorization_issuer,identity_issuer FROM auth_transactions WHERE state_hash=?",
+    )
+      .bind(await hashSecret(after.state))
+      .first();
+    expect(bound).toEqual({
+      authorization_issuer: custom,
+      identity_issuer: canonical,
+    });
+    const second = await browserSession(
+      (await after.complete())!,
+      after.startEnv,
+    );
+    expect(second.session.context).toEqual(first.session.context);
+    expect(second.session.context.documentSessionHash).toBe(
+      second.session.tokenHash,
+    );
+    expect(
+      Object.getOwnPropertyDescriptor(
+        second.session.context,
+        "documentSessionHash",
+      )?.enumerable,
+    ).toBe(false);
+    expect(JSON.stringify(second.session.context)).not.toContain(
+      second.session.tokenHash,
+    );
+    expect(second.session.user).toMatchObject({
+      name: "Saved fixture name",
+      preferredLocale: "de",
+    });
+    expect(
+      (
+        await authenticateBrowser(
+          request("/api/session", "GET", undefined, { Cookie: first.cookie }),
+          after.startEnv,
+        )
+      ).context,
+    ).toEqual(first.session.context);
+    expect(
+      await env.DB.prepare(
+        "SELECT issuer,user_id FROM auth_identities WHERE subject=?",
+      )
+        .bind(before.sub)
+        .all(),
+    ).toMatchObject({ results: [{ issuer: canonical, user_id: userId }] });
+    expect(
+      await env.DB.prepare(
+        "SELECT count(*) count FROM welcome_credit_grants g JOIN memberships m ON m.organization_id=g.organization_id WHERE m.user_id=?",
+      )
+        .bind(userId)
+        .first(),
+    ).toEqual({ count: 1 });
+    expect(
+      await env.DB.prepare(
+        "SELECT user_id FROM prepare_only_users WHERE user_id=?",
+      )
+        .bind(userId)
+        .first(),
+    ).toEqual({ user_id: userId });
+    expect(
+      await env.DB.prepare(
+        "SELECT issuer,subject FROM browser_identity_evidence WHERE token_hash=?",
+      )
+        .bind(second.session.tokenHash)
+        .first(),
+    ).toEqual({ issuer: canonical, subject: before.sub });
+    expect(
+      await env.DB.prepare(
+        "SELECT enabled FROM channel_controls WHERE organization_id=?",
+      )
+        .bind(second.session.context.organizationId)
+        .all(),
+    ).toMatchObject({
+      results: [{ enabled: 0 }, { enabled: 0 }, { enabled: 0 }],
+    });
+  });
+  it("applies a pre-provisioned reviewer restriction on the first custom-domain login and never links by email", async () => {
+    const subject = `auth0|restricted-alias-${crypto.randomUUID()}`;
+    await env.DB.prepare(
+      "INSERT INTO restricted_delivery_identities(issuer,subject) VALUES(?,?)",
+    )
+      .bind(canonical, subject)
+      .run();
+    const first = await flow(configured("auth.guteneo.com"), { subject });
+    const reviewer = await browserSession(
+      (await first.complete())!,
+      first.startEnv,
+    );
+    expect(
+      await env.DB.prepare(
+        "SELECT user_id FROM prepare_only_users WHERE user_id=?",
+      )
+        .bind(reviewer.session.context.userId)
+        .first(),
+    ).toEqual({ user_id: reviewer.session.context.userId });
+    const other = await flow(); // Same signed email, different signed subject.
+    const unrelated = await browserSession(
+      (await other.complete())!,
+      other.startEnv,
+    );
+    expect(unrelated.session.context.userId).not.toBe(
+      reviewer.session.context.userId,
+    );
+    expect(unrelated.session.context.organizationId).not.toBe(
+      reviewer.session.context.organizationId,
+    );
+  });
+  it("retains canonical signed identity evidence for the existing Belvédère gate", async () => {
+    const started = await flow(configured("auth.guteneo.com"), {
+      email: "nicolas@pieper.fr",
+    });
+    const signedIn = await browserSession(
+      (await started.complete())!,
+      started.startEnv,
+    );
+    expect(
+      await authorizeBelvedere(
+        request(
+          "/belvedere/fixture-secret-route-abcdefghijklmnopqrstuvwxyz",
+          "GET",
+          undefined,
+          { Cookie: `__Host-${signedIn.cookie}` },
+        ),
+        {
+          ...started.startEnv,
+          ENVIRONMENT: "production",
+          BELVEDERE_SECRET_SLUG:
+            "fixture-secret-route-abcdefghijklmnopqrstuvwxyz",
+        } as Env,
+      ),
+    ).toBe(signedIn.session.context.userId);
+  });
+  it.each(["enable", "rollback", "legacy"])(
+    "completes a bound transaction across %s without changing its endpoint",
+    async (transition) => {
+      const canonicalStart = transition !== "rollback";
+      const started = await flow(
+        canonicalStart ? configured() : configured("auth.guteneo.com"),
+      );
+      if (transition === "legacy")
+        await env.DB.prepare(
+          "UPDATE auth_transactions SET authorization_issuer=NULL,identity_issuer=NULL WHERE state_hash=?",
+        )
+          .bind(await hashSecret(started.state))
+          .run();
+      const callbackEnv = canonicalStart
+        ? configured("auth.guteneo.com")
+        : configured();
+      expect((await started.complete(callbackEnv))?.status).toBe(302);
+      const exchanges = started.fetchSpy.mock.calls
+        .map(([input]) => String(input))
+        .filter((url) => url.endsWith("oauth/token"));
+      expect(exchanges).toContain(
+        `${canonicalStart ? canonical : custom}oauth/token`,
+      );
+    },
+  );
+  it("preserves existing canonical MCP connections and discovery while rejecting custom-issued Bearer tokens", async () => {
+    const started = await flow();
+    const member = await browserSession(
+      (await started.complete())!,
+      started.startEnv,
+    );
+    const clientId = `review-client-${crypto.randomUUID()}`;
+    const bearer = await signedAt(canonical, `${origin}/mcp`, {
+      sub: started.sub,
+      client_id: clientId,
+      scope: "documents:read",
+      "https://guteneo.com/verified_account": true,
+    });
+    const mcpRequest = (value: string) =>
+      request("/mcp", "POST", {}, { Authorization: `Bearer ${value}` });
+    const before = await authenticateMcp(mcpRequest(bearer), configured());
+    const after = await authenticateMcp(
+      mcpRequest(bearer),
+      configured("auth.guteneo.com"),
+    );
+    expect(after.context).toEqual(before.context);
+    expect(after.context.userId).toBe(member.session.context.userId);
+    expect(
+      await env.DB.prepare(
+        "SELECT issuer,client_id,status FROM authorized_connections WHERE user_id=?",
+      )
+        .bind(member.session.context.userId)
+        .all(),
+    ).toMatchObject({
+      results: [{ issuer: canonical, client_id: clientId, status: "active" }],
+    });
+    expect(
+      await protectedResourceMetadata(started.startEnv).json(),
+    ).toMatchObject({ authorization_servers: [canonical] });
+    const customBearer = await signedAt(custom, `${origin}/mcp`, {
+      sub: started.sub,
+      client_id: clientId,
+      "https://guteneo.com/verified_account": true,
+    });
+    await expect(
+      authenticateMcp(mcpRequest(customBearer), started.startEnv),
+    ).rejects.toMatchObject({ code: "TOKEN_INVALID" });
+  });
+  it.each([
+    { idIssuer: canonical },
+    { accessIssuer: canonical },
+    { idAudience: "other-browser-client" },
+    { accessAudience: "https://other-api.example/mcp" },
+    { idIssuer: "https://untrusted.example/" },
+    { accessChanges: { sub: "auth0|other-subject" } },
+    { idChanges: { nonce: "other-flow" } },
+    { idChanges: { email_verified: false } },
+    { idChanges: { "https://guteneo.com/verified_account": false } },
+    { accessChanges: { "https://guteneo.com/verified_account": false } },
+  ])(
+    "rejects mismatched browser token proofs before creating an identity: %j",
+    async (changes) => {
+      const started = await flow(configured("auth.guteneo.com"), changes);
+      await expect(started.complete()).rejects.toBeInstanceOf(AuthError);
+      expect(
+        await env.DB.prepare(
+          "SELECT user_id FROM auth_identities WHERE subject=?",
+        )
+          .bind(started.sub)
+          .first(),
+      ).toBeNull();
+      expect(
+        started.fetchSpy.mock.calls
+          .map(([input]) => String(input))
+          .every((url) =>
+            [canonical, custom].some(
+              (base) =>
+                url === `${base}oauth/token` ||
+                url === `${base}.well-known/jwks.json`,
+            ),
+          ),
+      ).toBe(true);
+    },
+  );
+  it("retains administrator MFA requirements when using the browser alias", async () => {
+    const started = await flow(
+      {
+        ...configured("auth.guteneo.com"),
+        AUTH0_AUTH_POLICY: "verified_email_and_mfa",
+      },
+      { idChanges: { amr: ["pwd"] } },
+    );
+    await expect(started.complete()).rejects.toMatchObject({
+      code: "MFA_REQUIRED",
+    });
+    expect(
+      await env.DB.prepare(
+        "SELECT user_id FROM auth_identities WHERE subject=?",
+      )
+        .bind(started.sub)
+        .first(),
+    ).toBeNull();
+  });
+  it.each([
+    { AUTH0_BROWSER_DOMAIN: "untrusted.example" },
+    { AUTH0_BROWSER_DOMAIN: "auth.guteneo.com/path" },
+    { AUTH0_BROWSER_DOMAIN: "auth.guteneo.com?redirect=untrusted" },
+    { AUTH0_BROWSER_DOMAIN: "" },
+    {
+      AUTH0_BROWSER_DOMAIN: "auth.guteneo.com",
+      AUTH0_DOMAIN: "another.auth0.com",
+    },
+  ])(
+    "rejects unsupported browser configuration before network or transaction writes: %j",
+    async (changes) => {
+      const fetchSpy = vi.spyOn(globalThis, "fetch");
+      const count = await env.DB.prepare(
+        "SELECT count(*) count FROM auth_transactions",
+      ).first();
+      await expect(
+        handleAuthRoute(request("/auth/login"), {
+          ...configured(),
+          ...changes,
+        }),
+      ).rejects.toMatchObject({ code: "IDENTITY_CONFIG_INVALID" });
+      expect(fetchSpy).not.toHaveBeenCalled();
+      expect(
+        await env.DB.prepare(
+          "SELECT count(*) count FROM auth_transactions",
+        ).first(),
+      ).toEqual(count);
+    },
+  );
+  it.each([
+    { authorization: "https://untrusted.example/", identity: canonical },
+    { authorization: null, identity: canonical },
+    { authorization: custom, identity: null },
+    { authorization: custom, identity: "https://other.auth0.com/" },
+  ])(
+    "fails closed on an unrecognized or incomplete transaction binding: %j",
+    async ({ authorization, identity }) => {
+      const started = await flow();
+      await env.DB.prepare(
+        "UPDATE auth_transactions SET authorization_issuer=?,identity_issuer=? WHERE state_hash=?",
+      )
+        .bind(authorization, identity, await hashSecret(started.state))
+        .run();
+      await expect(started.complete()).rejects.toMatchObject({
+        code: "IDENTITY_CONFIG_INVALID",
+      });
+      expect(started.fetchSpy).not.toHaveBeenCalled();
+    },
+  );
+  it("rejects a canonical namespace change during an already bound transaction", async () => {
+    const started = await flow();
+    await expect(
+      started.complete({ ...configured(), AUTH0_DOMAIN: "another.auth0.com" }),
+    ).rejects.toMatchObject({ code: "IDENTITY_CONFIG_INVALID" });
+    expect(started.fetchSpy).not.toHaveBeenCalled();
+  });
+  it("uses German hosted UI for custom-domain Luxembourgish login while retaining its account language and destination", async () => {
+    const target = "/#/app/prepare?entry=direct&document=doc_fixture";
+    const started = await flow(configured("auth.guteneo.com"), {
+      path: `/auth/login?locale=lb&returnTo=${encodeURIComponent(target)}`,
+    });
+    expect(started.destination.origin).toBe("https://auth.guteneo.com");
+    expect(started.destination.searchParams.get("ui_locales")).toBe("de");
+    expect(
+      await env.DB.prepare(
+        "SELECT preferred_locale,authorization_issuer,identity_issuer FROM auth_transactions WHERE state_hash=?",
+      )
+        .bind(await hashSecret(started.state))
+        .first(),
+    ).toEqual({
+      preferred_locale: "lb",
+      authorization_issuer: custom,
+      identity_issuer: canonical,
+    });
+    const completed = (await started.complete())!;
+    expect(completed.headers.get("Location")).toBe(`${origin}${target}`);
+    const signedIn = await browserSession(completed, started.startEnv);
+    expect(signedIn.session.user.preferredLocale).toBe("lb");
+  });
+  it("recovers a rejected custom-domain callback from its bound route and locale rather than callback hints", async () => {
+    const target =
+      "/#/app/prepare?entry=direct&channel=postal&document=doc_fixture";
+    const started = await flow(configured("auth.guteneo.com"), {
+      path: `/auth/login?locale=lb&returnTo=${encodeURIComponent(target)}`,
+      idChanges: { email_verified: false },
+    });
+    const callback = new URL(started.callback.url);
+    callback.searchParams.set("locale", "en");
+    callback.searchParams.set("returnTo", "/#/app/account?token=private-token");
+    const response = await worker.fetch(
+      new Request(callback, started.callback),
+      started.startEnv as Env,
+    );
+    expect(response.headers.get("Location")).toBe(
+      `${origin}/?auth=EMAIL_VERIFICATION_REQUIRED&lang=lb#/app/prepare?entry=direct&channel=postal&document=doc_fixture`,
+    );
+    expect(response.headers.get("Location")).not.toMatch(
+      /private-token|returnTo|locale=en/,
+    );
+    expect(response.headers.get("Set-Cookie") ?? "").not.toContain(
+      "guteneo_session",
+    );
+    expect(
+      await env.DB.prepare(
+        "SELECT user_id FROM auth_identities WHERE subject=?",
+      )
+        .bind(started.sub)
+        .first(),
+    ).toBeNull();
+  });
+  it("consumes a custom-domain provider denial without exchanging a code or forwarding provider text", async () => {
+    const target = "/#/app/dispatches?group=attention";
+    const started = await flow(configured("auth.guteneo.com"), {
+      path: `/auth/login?locale=de&returnTo=${encodeURIComponent(target)}`,
+    });
+    const callback = new URL(started.callback.url);
+    callback.searchParams.delete("code");
+    callback.searchParams.set("error", "access_denied");
+    callback.searchParams.set("error_description", "private-provider-text");
+    callback.searchParams.set("locale", "en");
+    const response = await worker.fetch(
+      new Request(callback, started.callback),
+      started.startEnv as Env,
+    );
+    expect(response.headers.get("Location")).toBe(
+      `${origin}/?auth=LOGIN_STATE_INVALID&lang=de#/app/dispatches?group=attention`,
+    );
+    expect(started.fetchSpy).not.toHaveBeenCalled();
+    expect(response.headers.get("Location")).not.toContain(
+      "private-provider-text",
+    );
+    expect(
+      await env.DB.prepare(
+        "SELECT state_hash FROM auth_transactions WHERE state_hash=?",
+      )
+        .bind(await hashSecret(started.state))
+        .first(),
+    ).toBeNull();
+  });
+  it("recovers an invalid custom-domain transaction without network or identity, credit, session or connection creation", async () => {
+    const target = "/#/app/account?connection=con_fixture";
+    const started = await flow(configured("auth.guteneo.com"), {
+      path: `/auth/login?locale=en&returnTo=${encodeURIComponent(target)}`,
+    });
+    const counts = () =>
+      Promise.all(
+        [
+          "auth_identities",
+          "welcome_credit_grants",
+          "browser_sessions",
+          "authorized_connections",
+        ].map((table) =>
+          env.DB.prepare(`SELECT count(*) count FROM ${table}`).first(),
+        ),
+      );
+    const before = await counts();
+    await env.DB.prepare(
+      "UPDATE auth_transactions SET authorization_issuer=? WHERE state_hash=?",
+    )
+      .bind("https://untrusted.example/", await hashSecret(started.state))
+      .run();
+    const response = await worker.fetch(
+      started.callback,
+      started.startEnv as Env,
+    );
+    expect(response.headers.get("Location")).toBe(
+      `${origin}/?auth=IDENTITY_CONFIG_INVALID&lang=en#/app/account?connection=con_fixture`,
+    );
+    expect(started.fetchSpy).not.toHaveBeenCalled();
+    expect(await counts()).toEqual(before);
+    expect(
+      await env.DB.prepare(
+        "SELECT state_hash FROM auth_transactions WHERE state_hash=?",
+      )
+        .bind(await hashSecret(started.state))
+        .first(),
+    ).toBeNull();
   });
 });

@@ -1,26 +1,26 @@
-# Candidat multilingue intégré — 22 septembre 2026
+# Integrated multilingual candidate — 22 September 2026
 
-Ces quatre captures XCTest ont été renouvelées après reprise des changements
-natifs `24bbe2a`, `c7542dc` et `fea555d` dans `codex/multilingual-ios`.
-Elles proviennent des sources applicatives du commit `ec8fe77`, exécutées sur
-**iPhone 17 Pro Max, iOS 27.0 (24A5423a)**. Le lot
-`ios/.build/TestResults/run-QUTBZd/Tests.xcresult` a réussi **23 tests unitaires
-et 7 tests d’interface**, sans échec ni test ignoré.
+These four XCTest captures were renewed after recovering native changes
+`24bbe2a`, `c7542dc` and `fea555d` into `codex/multilingual-ios`.
+They come from application sources at commit `ec8fe77`, executed on
+**iPhone 17 Pro Max, iOS 27.0 (24A5423a)**. The batch
+`ios/.build/TestResults/run-QUTBZd/Tests.xcresult` passed **23 unit tests
+and 7 interface tests**, without failures or skipped tests.
 
-| Capture | Vérification |
+| Capture | Verification |
 | --- | --- |
-| [Accueil anglais](iphone-welcome-en.png) | Sélection immédiate et choix conservé après relance. |
-| [Profil allemand](iphone-account-de.png) | Langue, navigation et explication de la préférence partagée. |
-| [Profil luxembourgeois](iphone-account-lb.png) | Changement dans le même profil, puis état de livraison traduit. |
-| [Devis de référence](iphone-reference-fr.png) | Consultation sans action d’approbation ou d’envoi. |
+| [English welcome](iphone-welcome-en.png) | Immediate selection and choice retained after relaunch. |
+| [German profile](iphone-account-de.png) | Language, navigation and shared-preference explanation. |
+| [Luxembourgish profile](iphone-account-lb.png) | Change in the same profile, then translated delivery state. |
+| [Reference quote](iphone-reference-fr.png) | Read-only inspection without approval or send action. |
 
-Les images sont les PNG originaux exportés du résultat XCTest, sans retouche ni
-recadrage. Elles ont été inspectées ; la liste de profil et le détail du devis
-restent défilants sous la barre native. `manifest.json` conserve leur origine,
-leur test et leur empreinte SHA-256. Tous les noms, documents, destinataires et
-états des écrans connectés proviennent des fixtures Debug fictives.
+Images are original PNGs exported from the XCTest result, without editing
+or cropping. They were inspected; the profile list and quote detail remain
+scrollable beneath the native bar. `manifest.json` retains their origin,
+test and SHA-256 fingerprint. All names, documents, recipients and states
+on authenticated screens come from fictional Debug fixtures.
 
-Les captures iPad du dossier parent restent des preuves du candidat natif
-initial : elles n’ont pas été régénérées pour cette intégration multilingue.
-Aucun essai sur appareil physique, connexion Auth0 réelle, transmission réelle,
-TestFlight ou App Review n’est revendiqué par ces captures.
+The parent folder's iPad captures remain evidence of the initial native
+candidate; they were not regenerated for this multilingual integration.
+These captures claim no physical-device test, real Auth0 login, real
+transmission, TestFlight or App Review qualification.

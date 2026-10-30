@@ -3,13 +3,15 @@ import { createHash } from "node:crypto";
 import test from "node:test";
 import { verifyRelease } from "../../scripts/verify-release.mjs";
 import site from "../../packages/contracts/src/public-site.json" with { type: "json" };
+import mcpUiProbeManifest from "../../packages/contracts/src/mcp-ui-probe-resource.json" with { type: "json" };
+import mcpDocumentUploadManifest from "../../packages/contracts/src/mcp-document-upload-resource.json" with { type: "json" };
 
 const primary = "https://guteneo.com";
 const fallback = "https://guteneo-app.nclsppr.workers.dev";
 // This fixture deliberately spells out the public policy instead of importing
 // the generator: a permissive fallback or a blocked canonical site must fail.
 const publicRobots =
-  "User-agent: *\nAllow: /\nDisallow: /api\nDisallow: /auth\nDisallow: /oauth\nDisallow: /mcp\nDisallow: /webhooks\nDisallow: /media\nDisallow: /.well-known\nSitemap: https://guteneo.com/sitemap.xml\n";
+  "User-agent: *\nAllow: /\nDisallow: /belvedere\nDisallow: /api\nDisallow: /auth\nDisallow: /oauth\nDisallow: /mcp\nDisallow: /webhooks\nDisallow: /media\nDisallow: /share\nDisallow: /.well-known\nSitemap: https://guteneo.com/sitemap.xml\n";
 const privateRobots = "User-agent: *\nDisallow: /\n";
 const html = "<!doctype html><html><main>Guteneo</main></html>";
 const css = "body{color:#181b22}";
@@ -19,6 +21,7 @@ const asset = (path, body) => ({
   sha256: createHash("sha256").update(body).digest("hex"),
 });
 const manifest = {
+  version: "1.0.0",
   sourceCommit: "a".repeat(40),
   sourceDirty: false,
   sourceSnapshotSha256: "b".repeat(64),
@@ -47,6 +50,10 @@ function fixture(origin, overrides = {}) {
       );
       assert.equal(options.redirect, "error");
       assert.equal(options.headers["Cache-Control"], "no-cache");
+      assert.ok(options.method === undefined || options.method === "GET");
+      assert.equal(options.body, undefined);
+      assert.equal(new Headers(options.headers).has("Authorization"), false);
+      assert.equal(new Headers(options.headers).has("Cookie"), false);
       if (url.pathname === "/release.json")
         return Response.json(overrides.remote ?? manifest);
       const headers = new Headers({
@@ -77,6 +84,55 @@ function fixture(origin, overrides = {}) {
   };
 }
 
+for (const appManifest of [mcpUiProbeManifest, mcpDocumentUploadManifest]) {
+  test(`release proof requires inert headers and exact bytes for ${appManifest.path}`, async () => {
+    const text = "<!doctype html><h1>Synthetic source text</h1>";
+    const local = {
+      ...manifest,
+      assets: [...manifest.assets, asset(appManifest.path, text)],
+    };
+    const variants = [
+      {
+        type: "text/plain; charset=utf-8",
+        nosniff: "nosniff",
+        robots: "noindex, nofollow",
+        text,
+        passes: true,
+      },
+      { type: "text/html", nosniff: "nosniff", robots: "noindex", text },
+      { type: "text/plain", nosniff: "", robots: "noindex", text },
+      { type: "text/plain", nosniff: "nosniff", robots: "", text },
+      {
+        type: "text/plain",
+        nosniff: "nosniff",
+        robots: "noindex",
+        text: text + "changed",
+      },
+    ];
+    for (const value of variants) {
+      const base = fixture(primary, { remote: local });
+      const fetcher = (url, options) =>
+        url.pathname === appManifest.path
+          ? Promise.resolve(
+              new Response(value.text, {
+                headers: {
+                  "Content-Type": value.type,
+                  "X-Content-Type-Options": value.nosniff,
+                  "X-Robots-Tag": value.robots,
+                },
+              }),
+            )
+          : base.fetcher(url, options);
+      if (value.passes)
+        assert.equal(
+          (await verifyRelease(primary, local, fetcher)).publicAssetsVerified,
+          3,
+        );
+      else await assert.rejects(verifyRelease(primary, local, fetcher));
+    }
+  });
+}
+
 for (const origin of [primary, fallback]) {
   test(`release proof verifies the complete robots policy and static hashes on ${origin}`, async () => {
     const f = fixture(origin);
@@ -95,6 +151,8 @@ test("release proof rejects permissive fallback robots and blocked canonical rob
     [fallback, publicRobots],
     [primary, privateRobots],
     [primary, publicRobots.replace("Disallow: /api\n", "")],
+    [primary, publicRobots.replace("Disallow: /belvedere\n", "")],
+    [primary, publicRobots.replace("Disallow: /share\n", "")],
   ]) {
     await assert.rejects(
       verifyRelease(origin, manifest, fixture(origin, { robots }).fetcher),
@@ -115,6 +173,14 @@ test("release proof rejects an indexed fallback or a noindex canonical page", as
 });
 
 test("runtime robots verification never weakens other assets or release identity", async () => {
+  await assert.rejects(
+    verifyRelease(
+      primary,
+      manifest,
+      fixture(primary, { remote: { ...manifest, version: "0.3.5" } }).fetcher,
+    ),
+    /Deployed release mismatch: version/,
+  );
   for (const overrides of [{ html: html + " " }, { css: css + " " }])
     await assert.rejects(
       verifyRelease(fallback, manifest, fixture(fallback, overrides).fetcher),

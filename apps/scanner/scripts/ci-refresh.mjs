@@ -54,7 +54,12 @@ export function assertCiEnvironment(env) {
 }
 
 /** JSON APIs are read-only; no token, response text or arbitrary URL is logged. */
-export async function requestJson(url, token, fetcher = fetch) {
+export async function requestJson(
+  url,
+  token,
+  fetcher = fetch,
+  { signal } = {},
+) {
   const response = await fetcher(url, {
     method: "GET",
     redirect: "error",
@@ -66,7 +71,9 @@ export async function requestJson(url, token, fetcher = fetch) {
         ? { "X-GitHub-Api-Version": "2022-11-28" }
         : {}),
     },
-    signal: AbortSignal.timeout(20_000),
+    signal: signal
+      ? AbortSignal.any([signal, AbortSignal.timeout(20_000)])
+      : AbortSignal.timeout(20_000),
   });
   demand(response.ok, `READ_API_FAILED_${response.status}`);
   const reader = response.body?.getReader();
@@ -285,6 +292,55 @@ export function assertContainer(application, image) {
   );
 }
 
+/** Container updates converge after Wrangler returns. Only the observed previous
+ * image may remain during this read-only wait; scope or Worker drift fails now.
+ * There is no deployment retry or rollback here.
+ */
+export async function waitForContainerImage(
+  readState,
+  image,
+  previousImage,
+  version,
+  {
+    pause = (ms) => new Promise((done) => setTimeout(done, ms)),
+    clock = Date.now,
+    timeoutMs = 300_000,
+  } = {},
+) {
+  const deadline = clock() + timeoutMs;
+  const signal = AbortSignal.timeout(timeoutMs);
+  while (clock() < deadline) {
+    let state;
+    try {
+      state = await readState(signal);
+    } catch (error) {
+      if (signal.aborted || clock() >= deadline)
+        throw new Error("SCANNER_CONTAINER_CONVERGENCE_TIMEOUT");
+      throw error;
+    }
+    demand(
+      !signal.aborted && clock() < deadline,
+      "SCANNER_CONTAINER_CONVERGENCE_TIMEOUT",
+    );
+    const { application, deployments, subdomain } = state;
+    const deploymentId = assertDeployment(deployments, version);
+    demand(
+      subdomain.enabled === false && subdomain.previews_enabled === false,
+      "SCANNER_PUBLIC_ENDPOINT_ENABLED",
+    );
+    // Validate scope even while the old image is still reported.
+    assertContainer(application, application?.configuration?.image);
+    const observed = application.configuration.image;
+    if (observed === image) return deploymentId;
+    demand(
+      typeof previousImage === "string" && observed === previousImage,
+      "SCANNER_UNEXPECTED_CONTAINER_IMAGE",
+    );
+    await pause(Math.min(5000, Math.max(0, deadline - clock())));
+  }
+  throw new Error("SCANNER_CONTAINER_CONVERGENCE_TIMEOUT");
+}
+
 function childEnvironment(env, cloud = false) {
   const result = { ...env, CI: "true", WRANGLER_SEND_METRICS: "false" };
   delete result.GH_TOKEN;
@@ -341,7 +397,7 @@ export function execute(command, args, options = {}) {
   });
 }
 
-async function startBridge(env) {
+export async function startBridge(env) {
   const child = spawn(
     process.execPath,
     [
@@ -531,7 +587,8 @@ export async function refreshScanner({
   const buildId = `sha-${env.GITHUB_SHA}-run-${env.GITHUB_RUN_ID}-attempt-${env.GITHUB_RUN_ATTEMPT}`;
   const tag = `guteneo-scanner-ci:${env.GITHUB_SHA.slice(0, 12)}-${env.GITHUB_RUN_ID}-${env.GITHUB_RUN_ATTEMPT}`;
   const api = `https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}`;
-  const cf = (path) => request(`${api}${path}`, env.CLOUDFLARE_API_TOKEN);
+  const cf = (path, signal) =>
+    request(`${api}${path}`, env.CLOUDFLARE_API_TOKEN, undefined, { signal });
   const baseline = await cf(`/containers/applications/${CONTAINER_ID}`);
   demand(baseline.id === CONTAINER_ID, "EXISTING_SCANNER_CONTAINER_REQUIRED");
   const source = await readConfiguration();
@@ -642,15 +699,26 @@ export async function refreshScanner({
   );
   const version = output.match(/Current Version ID:\s*([a-f0-9-]{36})/)?.[1];
   demand(UUID.test(version ?? ""), "DEPLOYED_SCANNER_VERSION_MISSING");
-  const deploymentId = assertDeployment(
-    await cf(`/workers/scripts/${SCANNER_NAME}/deployments`),
+  // Preserve the acknowledged write before any control-plane convergence check.
+  await write("deployment-acknowledged.json", {
     version,
-  );
-  assertContainer(await cf(`/containers/applications/${CONTAINER_ID}`), image);
-  const subdomain = await cf(`/workers/scripts/${SCANNER_NAME}/subdomain`);
-  demand(
-    subdomain.enabled === false && subdomain.previews_enabled === false,
-    "SCANNER_PUBLIC_ENDPOINT_ENABLED",
+    buildId,
+    image,
+    previousImage: baseline.configuration?.image,
+    stage: "worker_deployment_acknowledged_not_yet_qualified",
+  });
+  const deploymentId = await waitForContainerImage(
+    async (signal) => {
+      const [application, deployments, subdomain] = await Promise.all([
+        cf(`/containers/applications/${CONTAINER_ID}`, signal),
+        cf(`/workers/scripts/${SCANNER_NAME}/deployments`, signal),
+        cf(`/workers/scripts/${SCANNER_NAME}/subdomain`, signal),
+      ]);
+      return { application, deployments, subdomain };
+    },
+    image,
+    baseline.configuration?.image,
+    version,
   );
   await write("deployment.json", {
     version,
@@ -692,6 +760,14 @@ export async function refreshScanner({
     assertContainer(
       await cf(`/containers/applications/${CONTAINER_ID}`),
       image,
+    );
+    const finalEndpoint = await cf(
+      `/workers/scripts/${SCANNER_NAME}/subdomain`,
+    );
+    demand(
+      finalEndpoint?.enabled === false &&
+        finalEndpoint?.previews_enabled === false,
+      "SCANNER_PUBLIC_ENDPOINT_ENABLED",
     );
   } finally {
     await localBridge.stop();

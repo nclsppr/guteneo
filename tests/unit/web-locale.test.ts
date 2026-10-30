@@ -3,6 +3,7 @@ import * as React from "react";
 import { renderToString } from "react-dom/server";
 import {
   catalogs,
+  applyAccountLocale,
   getLocale,
   getLocaleSelectionVersion,
   getLocaleSource,
@@ -18,6 +19,7 @@ import { nanoMoney, money, setSession } from "../../apps/web/src/api";
 import { getCustomerPricing } from "../../apps/web/src/customer-pricing";
 import { getPublicSocialCopy } from "../../apps/web/src/editorial/social-copy";
 import publicSite from "../../packages/contracts/src/public-site.json";
+import secureDocumentMessages from "../../apps/web/src/locales/messages-secure-documents.json";
 
 vi.mock("react", async (importOriginal) => {
   const react = await importOriginal<typeof React>();
@@ -41,6 +43,18 @@ afterEach(() => {
   setLocale("fr", false);
 });
 describe("complete product language catalogs", () => {
+  it.each(["fr", "en", "de", "lb"] as const)(
+    "retains the shared original-download label after merging email copy in %s",
+    (locale) => {
+      setLocale(locale, false);
+      const source = "Autoriser le téléchargement du PDF original";
+      expect(msg("Allow download of the original PDF")).toBe(
+        locale === "fr"
+          ? source
+          : secureDocumentMessages[source][["en", "de", "lb"].indexOf(locale)],
+      );
+    },
+  );
   for (const locale of ["en", "de", "lb"] as const) {
     it(`${locale} covers every French catalog leaf including array content`, () => {
       const source = leaves(catalogs.fr);
@@ -79,6 +93,55 @@ describe("complete product language catalogs", () => {
       "Customer-supplied document title",
     );
   });
+  it.each(["fr", "en", "de", "lb"] as const)(
+    "localizes canonical administrator and Word conversion messages in %s",
+    (locale) => {
+      setLocale(locale, false);
+      const copy = [
+        [
+          "The workspace must retain at least one administrator. Appoint another administrator before changing this role.",
+          {
+            fr: "au moins un administrateur",
+            en: "at least one administrator",
+            de: "mindestens einen Administrator",
+            lb: "op d’mannst een Administrateur",
+          },
+        ],
+        [
+          "Paragraphs/tables imported as editable blocks. Word styles, page breaks, images, headers, footers, notes and automatic fields are not reproduced. Check the final PDF before publication.",
+          {
+            fr: "styles Word",
+            en: "Word styles",
+            de: "Word-Formatvorlagen",
+            lb: "Word-Stiler",
+          },
+        ],
+        [
+          "Word images were not imported; add a PNG/JPEG logo in the studio.",
+          {
+            fr: "images Word",
+            en: "Word images",
+            de: "Word-Bilder",
+            lb: "Word-Biller",
+          },
+        ],
+        [
+          "A table has a long first row; neutral column names were added and all rows retained.",
+          {
+            fr: "toutes les lignes ont été conservées",
+            en: "all rows retained",
+            de: "alle Zeilen beibehalten",
+            lb: "all Zeile goufe bäibehalen",
+          },
+        ],
+      ] as const;
+      for (const [source, expected] of copy) {
+        expect(msg(source)).toContain(expected[locale]);
+        if (locale === "en") expect(msg(source)).toBe(source);
+        else expect(msg(source)).not.toBe(source);
+      }
+    },
+  );
   it("provides page-specific metadata for every public route in all four languages", () => {
     for (const path of publicSite.paths) {
       const french = getPublicSocialCopy(path, "fr");
@@ -120,6 +183,7 @@ describe("language precedence and resilient preference storage", () => {
     const location = new URL(path, "https://guteneo.com");
     location.search = search;
     vi.stubGlobal("window", {
+      dispatchEvent: vi.fn(),
       location,
       history: {
         state: null,
@@ -197,11 +261,64 @@ describe("language precedence and resilient preference storage", () => {
         preferredLocale: null,
       },
     });
-    expect(getLocale()).toBe("lb");
+    expect(getLocale()).toBe("en");
+    expect(getLocaleSource()).toBe("account");
     // The restored ?lang=lb may be persisted again; an account's "de" must never leak into it.
     for (const call of write.mock.calls) {
       expect(call).toEqual(["guteneo.locale", "lb"]);
     }
+  });
+  it("uses only the current account preference, including a reset to the browser default", () => {
+    const write = browser("lb", ["en-GB"], "?lang=fr");
+    const session = {
+      organization: { id: "org", name: "Example" },
+      csrfToken: "",
+      simulation: true,
+      user: {
+        id: "first",
+        name: "First",
+        role: "member",
+        preferredLocale: "de" as "de" | null,
+      },
+    };
+    initializeLocale();
+    write.mockClear();
+    setSession(session);
+    expect(getLocale()).toBe("de");
+    setSession({
+      ...session,
+      user: { ...session.user, preferredLocale: null },
+    });
+    expect(getLocale()).toBe("en");
+    expect(getLocaleSource()).toBe("account");
+    setSession({
+      ...session,
+      user: { ...session.user, id: "second", preferredLocale: "de" },
+    });
+    expect(getLocale()).toBe("de");
+    expect(write).not.toHaveBeenCalled();
+    expect(window.location.search).toBe("?lang=fr");
+  });
+  it("hydrates private entry from bounded server metadata without browser persistence", () => {
+    const write = browser(
+      "de",
+      ["en-GB"],
+      "?lang=lb",
+      undefined,
+      "/belvedere/fixture",
+    );
+    const version = getLocaleSelectionVersion();
+    applyAccountLocale("lb");
+    expect(getLocale()).toBe("lb");
+    expect(getLocaleSource()).toBe("account");
+    expect(document.documentElement.lang).toBe("lb");
+    applyAccountLocale("automatic");
+    expect(getLocale()).toBe("en");
+    applyAccountLocale("<script>invalid</script>");
+    expect(getLocale()).toBe("en");
+    expect(getLocaleSelectionVersion()).toBe(version);
+    expect(write).not.toHaveBeenCalled();
+    expect(window.location.search).toBe("?lang=lb");
   });
   it("supports shareable explicit choices but rejects unsupported query values", () => {
     const persist = browser("fr", ["de"], "?lang=en-GB");
@@ -223,6 +340,7 @@ describe("language precedence and resilient preference storage", () => {
       stored = null;
     });
     vi.stubGlobal("window", {
+      dispatchEvent: vi.fn(),
       location: url,
       history: { state, replaceState },
       localStorage: { getItem: () => stored, setItem, removeItem },
@@ -245,12 +363,86 @@ describe("language precedence and resilient preference storage", () => {
     const replacement = new URL(String(replaceState.mock.calls[0][2]));
     expect(replacement.href).toBe("https://guteneo.com/?example=1#pricing");
     vi.stubGlobal("window", {
+      dispatchEvent: vi.fn(),
       location: replacement,
       localStorage: { getItem: () => stored, setItem, removeItem },
     });
     initializeLocale();
     expect(getLocale()).toBe("en");
     expect(getLocaleSource()).toBe("browser");
+  });
+  it("retains the server language when the browser's two language APIs differ", () => {
+    browser(null, ["en-GB"]);
+    Object.defineProperty(document.documentElement, "dataset", {
+      value: { publicLocale: "de", publicPath: "/" },
+    });
+    initializeLocale();
+    expect(getLocale()).toBe("de");
+    expect(getLocaleSource()).toBe("browser");
+  });
+  it("retains the active automatic language across enhanced navigation when browser APIs differ", () => {
+    browser(null, ["en-GB"]);
+    Object.defineProperty(document.documentElement, "dataset", {
+      value: { publicLocale: "de", publicPath: "/" },
+    });
+    initializeLocale();
+    expect(getLocale()).toBe("de");
+    for (const path of ["/pricing/", "/"]) {
+      window.location.pathname = path;
+      initializeLocale(false, { useInitialDocumentLocale: false });
+      expect(getLocale()).toBe("de");
+      expect(getLocaleSource()).toBe("browser");
+    }
+  });
+  it("keeps automatic language after enhanced navigation returns to the initial document path", () => {
+    browser(null, ["fr-FR"], "?lang=en");
+    Object.defineProperty(document.documentElement, "dataset", {
+      value: { publicLocale: "en", publicPath: "/" },
+    });
+    initializeLocale();
+    expect(getLocale()).toBe("en");
+    setAutomaticLocale();
+    expect(getLocale()).toBe("fr");
+    expect(window.location.search).toBe("");
+    for (const path of ["/pricing/", "/"]) {
+      window.location.pathname = path;
+      initializeLocale(false, { useInitialDocumentLocale: false });
+      expect(getLocale()).toBe("fr");
+      expect(getLocaleSource()).toBe("browser");
+      expect(window.location.search).toBe("");
+    }
+  });
+  it("preserves explicit and account preferences when enhanced navigation ignores the old document hint", () => {
+    browser(null, ["fr-FR"], "?lang=de");
+    Object.defineProperty(document.documentElement, "dataset", {
+      value: { publicLocale: "en", publicPath: "/" },
+    });
+    initializeLocale(false, { useInitialDocumentLocale: false });
+    expect(getLocale()).toBe("de");
+    expect(getLocaleSource()).toBe("selection");
+    window.location.search = "";
+    document.cookie = "guteneo_locale=account.lb";
+    initializeLocale(false, { useInitialDocumentLocale: false });
+    expect(getLocale()).toBe("lb");
+    expect(getLocaleSource()).toBe("account");
+  });
+  it("uses a known account presentation hint without overwriting the visitor choice", () => {
+    const write = browser("lb", ["en-GB"]);
+    document.cookie = "guteneo_locale=account.de";
+    initializeLocale();
+    expect(getLocale()).toBe("de");
+    expect(getLocaleSource()).toBe("account");
+    expect(write).not.toHaveBeenCalled();
+    initializeLocale(true);
+    expect(getLocale()).toBe("lb");
+    expect(document.cookie).toContain("guteneo_locale=selection.lb");
+  });
+  it("does not persist a temporary private-entry language before authentication", () => {
+    browser("lb", ["en-GB"]);
+    document.cookie = "guteneo_locale=selection.lb";
+    applyAccountLocale(null, false);
+    expect(getLocale()).toBe("en");
+    expect(document.cookie).toBe("guteneo_locale=selection.lb");
   });
   it("notifies language-source consumers even when the language stays the same", () => {
     browser("fr", ["fr-FR"]);
@@ -322,6 +514,7 @@ describe("language precedence and resilient preference storage", () => {
   it("keeps language selection working when browser storage is unavailable", () => {
     browser(null, ["lb-LU"]);
     vi.stubGlobal("window", {
+      dispatchEvent: vi.fn(),
       location: { search: "" },
       localStorage: {
         getItem: () => {

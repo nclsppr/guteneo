@@ -5,6 +5,7 @@ import worker, { getCapabilities } from "../../apps/api/src/index";
 import { createGuteneoMcpServer } from "../../apps/api/src/mcp";
 import type { Env } from "../../apps/api/src/env";
 import { DomainService } from "../../packages/domain/src/index";
+import release from "../../package.json" with { type: "json" };
 
 const hosted = {
   ENVIRONMENT: "production",
@@ -17,7 +18,58 @@ const hosted = {
 } as Env;
 
 describe("truthful live transport capabilities", () => {
-  it("reports Horizon configuration readiness consistently with its production gates", () => {
+  it.each([
+    [undefined, "account_and_fresh_strong_authentication"],
+    ["strong", "account_and_fresh_strong_authentication"],
+    ["verified_account", "verified_account_session"],
+  ] as const)(
+    "reports the selected document authentication policy %s",
+    (mode, authentication) => {
+      expect(
+        getCapabilities({ ...hosted, SENSITIVE_DOCUMENT_AUTHENTICATION: mode })
+          .secureDistribution.authentication,
+      ).toBe(authentication);
+    },
+  );
+
+  it("does not announce document capabilities for an unknown authentication policy", () => {
+    expect(() =>
+      getCapabilities({
+        ...hosted,
+        SENSITIVE_DOCUMENT_AUTHENTICATION: "unknown",
+      }),
+    ).toThrow("INVALID_SENSITIVE_DOCUMENT_AUTHENTICATION");
+  });
+
+  it("announces the application release through the public capability endpoint", async () => {
+    const response = await worker.fetch(
+      new Request("https://guteneo.com/api/capabilities"),
+      hosted,
+    );
+    expect(response.status).toBe(200);
+    expect(await response.json()).toMatchObject({ version: release.version });
+  });
+
+  it("advertises email defaults and the safe placeholder without enabling delivery", () => {
+    const email = getCapabilities(hosted).channels.find(
+      (channel) => channel.id === "email",
+    );
+    expect(email).toMatchObject({
+      liveSending: false,
+      status: "not_configured",
+      content: {
+        documentDefaults: "localized_authenticated_workspace",
+        messageOnlyRequires: ["subject", "text_or_html"],
+        documentHtmlPresentation: "branded_template_unless_custom_html",
+        customHtml: "safe_inline_email_css",
+        protectedLinkPlaceholder: "{{document_url}}",
+        protectedLinkPlaceholderContext: "exact_anchor_href_only",
+        contentBinding: "final_sanitized_content_before_fingerprint",
+      },
+    });
+  });
+
+  it("reports individual PDF-verification readiness consistently with its production gates", () => {
     const validator = {
       fetch: async () => new Response("fixture"),
     } as unknown as Fetcher;
@@ -26,28 +78,62 @@ describe("truthful live transport capabilities", () => {
     } as unknown as Fetcher;
     const ready = {
       ...hosted,
-      HORIZON_ENABLED: "true",
+      PDF_VALIDATION_ENABLED: "true",
       PDF_VALIDATOR: validator,
       SCANNER: scanner,
     };
     const cases: [Partial<Env>, boolean][] = [
       [{}, true],
-      [{ HORIZON_ENABLED: undefined }, false],
-      [{ HORIZON_ENABLED: "false" }, false],
-      [{ HORIZON_ENABLED: "TRUE" }, false],
+      [{ PDF_VALIDATION_ENABLED: undefined }, false],
+      [{ PDF_VALIDATION_ENABLED: "false" }, false],
+      [{ PDF_VALIDATION_ENABLED: "TRUE" }, false],
       [{ PDF_VALIDATOR: undefined }, false],
       [{ SCANNER: undefined }, false],
       [{ MODE: "simulation" }, false],
-      [
-        { ENVIRONMENT: "local", MODE: "simulation", SCANNER: undefined },
-        true,
-      ],
+      [{ ENVIRONMENT: "local", MODE: "simulation", SCANNER: undefined }, true],
     ];
     for (const [overrides, available] of cases) {
       const capabilities = getCapabilities({ ...ready, ...overrides });
-      expect(capabilities.horizon.available).toBe(available);
+      expect(capabilities.pdfValidation.available).toBe(available);
       expect(capabilities.documents.validation.available).toBe(available);
+      expect(capabilities.documents.validation).toMatchObject({
+        requiresMonthlyPlan: false,
+        paidPerCheck: true,
+      });
+      expect(capabilities.billing.requiresMonthlyPlan).toBe(false);
+      expect(capabilities.pdfValidation).toMatchObject({
+        priceMinor: 10,
+        currency: "EUR",
+        taxBasis: "excluding_tax",
+        purchase: "administrator_browser_only",
+        unit: "completed_check",
+      });
     }
+  });
+
+  it("keeps paid PDF-verification activation independent of configured antivirus scanning", () => {
+    const scanner = {
+      fetch: async () => new Response("fixture"),
+    } as unknown as Fetcher;
+    const validator = {
+      fetch: async () => new Response("fixture"),
+    } as unknown as Fetcher;
+    const closed = getCapabilities({
+      ...hosted,
+      SCANNER: scanner,
+      PDF_VALIDATOR: validator,
+    });
+    expect(closed.scanner).toBe("connected");
+    expect(closed.pdfValidation.available).toBe(false);
+    expect(closed.documents.validation.available).toBe(false);
+    const opened = getCapabilities({
+      ...hosted,
+      SCANNER: scanner,
+      PDF_VALIDATOR: validator,
+      PDF_VALIDATION_ENABLED: "true",
+    });
+    expect(opened.scanner).toBe("connected");
+    expect(opened.pdfValidation.available).toBe(true);
   });
 
   it.each([

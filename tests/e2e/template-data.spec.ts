@@ -26,7 +26,9 @@ const fixture = (name: string) =>
 
 async function login(page: Page) {
   await page.goto("/#/app");
-  await page.getByRole("button", { name: "Entrer dans l’Atelier" }).click();
+  await page
+    .getByRole("button", { name: "Entrer dans l’espace de travail" })
+    .click();
   await expect(
     page.getByRole("heading", { name: "Votre correspondance, au clair." }),
   ).toBeVisible();
@@ -132,7 +134,7 @@ test("API gallery template remains editable in the desktop studio and reusable b
   const model = await createPublished(page, headers, letterTemplate());
   const originalSchema = structuredClone(model.envelope.inputSchema);
   const originalBindings = structuredClone(model.envelope.bindings);
-  await page.goto(`/#/app/template/${model.id}`);
+  await page.goto(`/#/app/studio/template/${model.id}`);
   await expect(
     page.getByRole("heading", { name: model.name, exact: true }),
   ).toBeVisible();
@@ -195,7 +197,7 @@ test("API gallery template remains editable in the desktop studio and reusable b
   const job = (await generated.json()) as GenerationJobView;
   const results = await waitGenerated(page, job.id, 1);
   expect(results[0].recordId).toBe("cross-interface-001");
-  await page.goto(`/#/app/generation/${job.id}`);
+  await page.goto(`/#/app/studio/generation/${job.id}`);
   await expect(
     page.getByRole("heading", { name: "1 / 1 PDF générés" }),
   ).toBeVisible();
@@ -261,7 +263,7 @@ test("reordered CSV is mapped through the web and generates distinct PDFs withou
     )
       sendMutations.push(request.url());
   });
-  await page.goto("/#/app/datasets");
+  await page.goto("/#/app/studio/datasets");
   await page
     .getByLabel("Fichier de données", { exact: true })
     .setInputFiles(fixture("clients-reordered.csv"));
@@ -299,7 +301,7 @@ test("reordered CSV is mapped through the web and generates distinct PDFs withou
   await page
     .getByRole("button", { name: "Générer 2 PDF sans envoi", exact: true })
     .click();
-  await expect(page).toHaveURL(/#\/app\/generation\/gen_/);
+  await expect(page).toHaveURL(/#\/app\/studio\/generation\/gen_/);
   const jobId = page.url().split("/generation/")[1];
   const results = await waitGenerated(page, jobId, 2);
   expect(new Set(results.map((result) => result.documentId)).size).toBe(2);
@@ -328,7 +330,7 @@ test("XLSX with title rows exposes sheets and measured ambiguities on desktop an
   isMobile,
 }, testInfo) => {
   const headers = await login(page);
-  await page.goto("/#/app/datasets");
+  await page.goto("/#/app/studio/datasets");
   await page
     .getByLabel("Fichier de données", { exact: true })
     .setInputFiles(fixture("clients-articles.xlsx"));
@@ -357,7 +359,7 @@ test("XLSX with title rows exposes sheets and measured ambiguities on desktop an
   await capture(page, "xlsx-recognition", testInfo.project.name);
   if (isMobile) {
     const model = await createPublished(page, headers, letterTemplate());
-    await page.goto(`/#/app/template/${model.id}`);
+    await page.goto(`/#/app/studio/template/${model.id}`);
     await expect(
       page.getByText("L’édition graphique demande un écran de bureau.", {
         exact: false,
@@ -420,7 +422,7 @@ test("profile pages preserve late headers and comma-separated exclusions", async
       ],
     },
   ]);
-  await page.goto("/#/app/datasets");
+  await page.goto("/#/app/studio/datasets");
   await page.getByLabel("Fichier de données", { exact: true }).setInputFiles({
     name: "clients-pagination.xlsx",
     mimeType:
@@ -521,7 +523,7 @@ test("CSV encoding and tab separator are explicit and preserve accented source b
   page,
 }) => {
   await login(page);
-  await page.goto("/#/app/datasets");
+  await page.goto("/#/app/studio/datasets");
   await page.getByText("Options CSV", { exact: true }).click();
   await page
     .getByLabel("Encodage CSV", { exact: true })
@@ -622,7 +624,17 @@ test("synthetic AI schema proposal is reviewed before real draft adoption and PD
         usage: { input_tokens: 120, output_tokens: 80 },
       }),
   });
-  await page.route("**/api/dataset-ai-policy", (route) => route.fulfill({ json: { enabled: true, configured: true, transferApproved: true, dailyLimit: 10, usedToday: 0 } }));
+  await page.route("**/api/dataset-ai-policy", (route) =>
+    route.fulfill({
+      json: {
+        enabled: true,
+        configured: true,
+        transferApproved: true,
+        dailyLimit: 10,
+        usedToday: 0,
+      },
+    }),
+  );
   let proposedCalls = 0;
   await page.route("**/api/datasets/*/analyze", async (route) => {
     expect(route.request().postDataJSON().proposeSchema).toBe(true);
@@ -645,7 +657,7 @@ test("synthetic AI schema proposal is reviewed before real draft adoption and PD
     )
       creations++;
   });
-  await page.goto("/#/app/datasets");
+  await page.goto("/#/app/studio/datasets");
   await page
     .getByLabel("Fichier de données", { exact: true })
     .setInputFiles(fixture("clients-articles.xlsx"));
@@ -694,7 +706,7 @@ test("synthetic AI schema proposal is reviewed before real draft adoption and PD
     })
     .check();
   await adopt.click();
-  await expect(page).toHaveURL(/#\/app\/template\/tpl_/);
+  await expect(page).toHaveURL(/#\/app\/studio\/template\/tpl_/);
   expect(creations).toBe(2);
   expect(proposedCalls).toBe(1);
   const templateId = page.url().split("/template/")[1];

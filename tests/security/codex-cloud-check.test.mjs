@@ -12,6 +12,7 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, normalize } from "node:path";
+import { runInNewContext } from "node:vm";
 import {
   checkCloudAccess,
   createCurlTransport,
@@ -495,6 +496,55 @@ test("CLI rejects unknown inputs without reflecting values and defaults to offli
     `${cli.stdout}${cli.stderr}`,
     /fixture_cloudflare_secret/,
   );
+});
+
+test("bootstrap accepts exactly the repository Node.js engine boundaries", () => {
+  const source = readFileSync(
+    new URL("../../scripts/codex-cloud-setup.sh", import.meta.url),
+    "utf8",
+  );
+  const guard = source.match(
+    /run_local node --input-type=module -e '\n([\s\S]*?)\n'/,
+  )?.[1];
+  assert.ok(guard, "The bootstrap must check Node before installing packages");
+  const packageJson = JSON.parse(
+    readFileSync(new URL("../../package.json", import.meta.url), "utf8"),
+  );
+  assert.equal(packageJson.engines.node, "^22.22.3 || >=24.8.0");
+  const rejection = new Error("unsupported runtime");
+  for (const [version, supported] of [
+    ["20.20.0", false],
+    ["22.16.0", false],
+    ["22.22.2", false],
+    ["22.22.3", true],
+    ["22.23.0", true],
+    ["23.12.0", false],
+    ["24.7.9", false],
+    ["24.8.0", true],
+    ["25.0.0", true],
+  ]) {
+    const errors = [];
+    const run = () =>
+      runInNewContext(guard, {
+        process: {
+          versions: { node: version },
+          exit: (code) => {
+            assert.equal(code, 1);
+            throw rejection;
+          },
+        },
+        console: { error: (message) => errors.push(message) },
+      });
+    if (supported) {
+      assert.doesNotThrow(run, version);
+      assert.deepEqual(errors, []);
+    } else {
+      assert.throws(run, (error) => error === rejection, version);
+      assert.deepEqual(errors, [
+        `Codex Cloud setup requires Node.js ${packageJson.engines.node}.`,
+      ]);
+    }
+  }
 });
 
 test("bootstrap keeps provider credentials out of npm and confines database operations to local scripts", () => {

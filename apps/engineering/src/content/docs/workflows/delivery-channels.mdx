@@ -1,0 +1,153 @@
+---
+title: Delivery channel adapters
+description: Shared dispatch commitments with distinct fax, email and postal provider semantics.
+sidebar:
+  order: 3
+---
+
+A channel adapter translates an already authorized domain operation into a
+provider request. It does not create approval, grant credit, choose a fallback
+channel or turn an unknown price into zero. Implementation support and current
+account activation must be checked separately.
+
+## The common boundary
+
+Before submission, the shared domain service has persisted the exact content,
+recipient, sender, quote/ceiling, valid authority, reservation, outbox and claimed
+attempt. The adapter receives that commitment rather than mutable form fields.
+
+Requests are bounded. Lost responses, timeouts or unreadable acknowledgements
+after submission can be uncertain; an SDK or queue must not silently create an
+independent resend loop. Read/reconcile the same operation according to its
+provider semantics. See the [lifecycle](/architecture/dispatch-lifecycle/) for
+`submission_unknown` and cancellation limits.
+
+| Channel     | Adapter boundary                                                                                   | Later facts                                                                             |
+| ----------- | -------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| Fax         | Telnyx submission of the approved PDF to the exact authorized number                               | Provider acceptance, transmission outcome and usage settlement are distinct             |
+| Email       | Resend/SES construction of approved subject, HTML/text and selected attachment/protected-link mode | Delivery, bounce and complaint have different meanings; acceptance is not inbox receipt |
+| Postal mail | Pingen document preparation, format/address review, quote and authorized print/send request        | Printing and handover to post do not promise final recipient delivery                   |
+
+These are implementation families, not a statement that every provider or channel
+is enabled for the current account.
+
+## Fax: exact content and qualified pricing
+
+A ready PDF and validated recipient/sender are required. The provider may need
+short-lived private access to the approved original at submission; those URLs must
+not appear in logs or public documentation. Their existence is not general public
+access to the library.
+
+The approved quote has a lifetime, pricing basis and customer ceiling. Configuration
+or content changes can invalidate it before consumption. A qualified usage proof
+is needed for final financial reconciliation; a transport callback alone is not
+that proof. No provider-create idempotency guarantee is invented where the
+qualified adapter has none.
+
+## Email: preserve the selected presentation
+
+Email preparation retains its subject, final sanitized HTML/text, recipient and
+attachment or protected-link choice in the commitment. A protected link has
+bounded access, with password retrieval restricted to an authorized browser
+operation; neither an assistant nor a log should receive the password. Its hosting charge follows the existing atomic
+billing rules rather than an unrelated client calculation.
+
+An accessible ready PDF permits independent defaults for an omitted/blank subject
+and body. Body defaults require both text and custom HTML to be absent; otherwise
+missing plain text is derived from the supplied HTML. The domain reads the workspace name through authenticated membership and
+uses the sender's saved language; a client cannot invent that identity. Message-only
+email still needs a subject and message and keeps its existing presentation.
+Document emails without custom HTML use the branded template for supplied/default text.
+
+Custom email HTML has a separate safe-inline-style sanitizer for typography,
+colors, spacing, borders and table layout. Scripts, remote resources and unsafe
+CSS are excluded; PDF sanitization is unchanged. A custom protected-link button
+uses the exact anchor `href="{{document_url}}"`. The domain substitutes its own
+private URL before fingerprinting and retains password/expiry instructions plus
+the plain-text URL. A valid marker suppresses the duplicate button; markerless
+protected custom HTML gets the styled fallback button. Access instructions remain
+in both cases. Embedded/malformed markers and use in another delivery mode
+are explicit errors, not a request to invent a token or bypass hosting. If custom
+HTML is empty, the web button helper preserves the plain-text message as escaped
+HTML with line breaks before the button. Otherwise it appends to the existing
+custom HTML without prepending the plain-text alternative.
+
+Web, REST, the mobile API and MCP use this same preparation; capability hints and plugin
+instructions describe it without enabling transport. Standard MCP summary reads
+keep private access material masked; authorized expert review still reads the exact
+final message. Native composer template controls are not implemented by the API
+contract. New content requires new preparation and
+review under the existing role and consent policy; template editing never grants
+approval or authorizes a send.
+
+The browser-only public preview models optional custom HTML and fictional PDF
+message defaults with the same pure template. Its unsaved fictional account uses
+French and its selected demo workspace name. Body defaults require both HTML and
+text to be absent; custom HTML requires supplied plaintext and remains unchanged.
+This tab-memory model creates no backend request, hosting, password or provider
+operation and does not qualify production sanitization or HTML-to-text behavior.
+Keep its form labels and fixture contract aligned when the shared composer changes.
+
+The protected-link footer uses the authenticated sender's saved language, with
+French fallback, from the shared delivery-message catalog. Its button, password
+instructions, formatted expiration and recipient `?lang=` are fixed before the
+approval fingerprint. Customer-authored subject/body and PDF bytes remain exact;
+a later profile change or idempotent replay never translates an existing dispatch.
+Web, the mobile API, REST and MCP preparation share this boundary. Expiration dates use
+UTC. The Luxembourgish formatter uses declared CLDR month names instead of
+relying on runtime Intl support, which can silently fall back to English; test
+that path in workerd as well as the Node-based unit suite.
+
+```mermaid
+flowchart LR
+  Account["Current membership and saved locale"] --> Prepare["Defaults, branded/custom HTML and resolved link"]
+  Prepare --> Review["Fingerprint, quote and approval"]
+  Review --> Provider["Exact approved provider request"]
+  Provider --> Link["Recipient /share URL"]
+  Link --> Reader["Protected handler, password and session"]
+  Reader --> PDF["State, scan and exact-byte checks"]
+```
+
+The recipient URL is private application routing despite requiring no account.
+The `/share` prefix and its unlock/content children bypass Static Assets and the
+public-error renderer; they are excluded from sitemaps and crawling. Worker-first
+routing must remain aligned in local and production configurations. A generic
+site 404 requires checking that boundary before regenerating a link or resending
+mail. Correcting the route preserves existing hosting and password checks.
+
+Administrator, Supervisor and Operator members with current preparation authority
+and source access can reveal a password or revoke hosting only through the
+CSRF-protected browser operation. Observers and connected assistants cannot use
+those operations. The recipient's bounded password session grants no workspace
+membership. Expired, revoked or invalid access stays unavailable.
+
+Maintain the shared private-prefix registry and localized catalog with their
+production-entry, protected-document and frozen-provider-content regressions.
+The 25 October routing/localization correction has local source coverage;
+publication, received-message rendering, hosted unlock and actual download need
+separate evidence. A passing synthetic provider fixture does not send an email.
+
+Provider signatures and durable event handling drive delivery/suppression facts.
+A complaint can arrive after delivery. Marketing remains gated by the actual
+unsubscribe/reputation implementation and qualification; a header alone does not
+implement a working unsubscribe journey.
+
+## Postal mail: transfer and final sending are separate
+
+Postal preparation checks the final PDF, address layout, paper/print options and
+provider profile. An optional address-page operation creates a new document and
+requires fresh verification/review. Provider draft transfer is an external side
+effect even when no letter has been authorized for sending.
+
+Human or separately delegated transfer authority must therefore precede that
+transfer. The final exact quote and final send approval remain additional gates.
+Cancellation is provider/state-specific; a cancellation request is not proof that
+printing or handover was stopped.
+
+## Current capabilities are the integration contract
+
+Read capabilities and the returned operation state at runtime. Disabled channels,
+missing provider configuration, absent trusted pricing, stale scan evidence and
+insufficient credit must fail closed. Tests with synthetic provider responses
+prove request construction and guards, not a fresh account activation or real
+delivery on a destination route.

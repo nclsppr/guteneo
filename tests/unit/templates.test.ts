@@ -98,12 +98,12 @@ describe("Business templates and bounded pdfme adapter", () => {
       { description: "B", quantity: 2, unitPriceMinor: 1999 },
     ];
     const result = prepareTemplateRender(template, data);
-    expect(result.inputs[0].total).toBe("Total : 40,01 €");
+    expect(result.inputs[0].total).toBe("Total: 40.01 €");
     expect(JSON.parse(result.inputs[0].items)[0]).toEqual([
       "A",
       "3",
-      "0,01 €",
-      "0,03 €",
+      "0.01 €",
+      "0.03 €",
     ]);
     expect(formatTemplateValue(9007199254740991, "money", "en-GB")).toBe(
       "90,071,992,547,409.91 €",
@@ -119,31 +119,31 @@ describe("Business templates and bounded pdfme adapter", () => {
           },
         ],
       }),
-    ).toThrow("précision");
+    ).toThrow("precision");
     expect(
       formatTemplateValue("12345678901234567890.00120", "decimal", "fr-FR"),
     ).toBe("12 345 678 901 234 567 890,00120");
     expect(() => formatTemplateValue(0.1, "money", "fr-FR")).toThrow(
-      "entier exact",
+      "exact integer",
     );
   });
   it("reports required fields, invalid dates and bounded arrays without inventing values", () => {
     const template = invoiceTemplate();
     expect(() =>
       prepareTemplateRender(template, { ...template.sampleData, customer: {} }),
-    ).toThrow("obligatoire");
+    ).toThrow("required");
     expect(() =>
       prepareTemplateRender(template, {
         ...template.sampleData,
         date: "09/10/2026",
       }),
-    ).toThrow("AAAA-MM-JJ");
+    ).toThrow("YYYY-MM-DD");
     expect(() =>
       prepareTemplateRender(template, {
         ...template.sampleData,
         date: "2026-02-30",
       }),
-    ).toThrow("AAAA-MM-JJ");
+    ).toThrow("YYYY-MM-DD");
     expect(() =>
       prepareTemplateRender(template, {
         ...template.sampleData,
@@ -152,7 +152,7 @@ describe("Business templates and bounded pdfme adapter", () => {
           () => (template.sampleData.items as unknown[])[0],
         ),
       }),
-    ).toThrow("volumineux");
+    ).toThrow("too large");
   });
   it("applies semantic edits while preserving bindings and Designer definitions", () => {
     const original = invoiceTemplate();
@@ -201,7 +201,7 @@ describe("Business templates and bounded pdfme adapter", () => {
       JSON.parse(
         prepareTemplateRender(added, added.sampleData).inputs[0].items,
       )[0].at(-1),
-    ).toBe("0,00 €");
+    ).toBe("0.00 €");
     const noDefault = applyTemplatePatch(original, {
       op: "add_table_column",
       block: "items",
@@ -215,7 +215,7 @@ describe("Business templates and bounded pdfme adapter", () => {
     });
     expect(() =>
       prepareTemplateRender(noDefault, noDefault.sampleData),
-    ).toThrow("obligatoire");
+    ).toThrow("required");
     expect(() =>
       applyTemplatePatch(original, {
         op: "add_table_column",
@@ -247,7 +247,7 @@ describe("Business templates and bounded pdfme adapter", () => {
         template,
         JSON.parse('{"__proto__":{"polluted":true}}'),
       ),
-    ).toThrow("Clé interdite");
+    ).toThrow("Forbidden key");
     expect(() =>
       validateTemplateImage("data:image/svg+xml;base64,PHN2Zz4="),
     ).toThrow();

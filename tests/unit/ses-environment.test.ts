@@ -27,7 +27,7 @@ describe("real SES sandbox recipient boundary", () => {
       "Allowed@EXAMPLE.INVALID",
     ])
       expect(() => sesTransportSandbox(fixture(), recipient)).toThrow(
-        /destinataire vérifié/,
+        /verified recipient/,
       );
   });
   it("rejects missing, wildcard and malformed qualification lists", () => {

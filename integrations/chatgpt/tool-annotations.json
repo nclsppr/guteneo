@@ -1,0 +1,2468 @@
+{
+  "schemaVersion": 1,
+  "reviewedOn": "2026-10-26",
+  "sourceScope": "local_candidate",
+  "policySources": [
+    {
+      "url": "https://developers.openai.com/plugins/plugin-guidelines#correct-annotation",
+      "consultedOn": "2026-10-20"
+    },
+    {
+      "url": "https://developers.openai.com/plugins/deploy/app-review",
+      "consultedOn": "2026-10-20"
+    },
+    {
+      "url": "https://developers.openai.com/plugins/reference#annotations",
+      "consultedOn": "2026-10-20"
+    },
+    {
+      "url": "https://developers.openai.com/plugins/deploy/submission-errors",
+      "consultedOn": "2026-10-20"
+    }
+  ],
+  "tools": [
+    {
+      "name": "analyze_dataset",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Persists an organization AI usage reservation and sends bounded profile samples for an explicitly requested proposal. A reserved call is not refunded if the provider fails. The proposal is not implicitly adopted. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "destructiveHint": "Returns a needs_review proposal without creating or replacing a template, mapping, or dataset; it increments the AI usage counter.",
+        "openWorldHint": "Uses the fixed OpenAI Responses API endpoint after organization configuration and browser-admin transfer approval; no arbitrary destination is accepted.",
+        "idempotentHint": "A repeated proposal request reserves another AI call and may return a different proposal. Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"analyze_dataset\""
+        },
+        {
+          "path": "apps/api/src/template-workflow.ts",
+          "symbol": "async analyzeDataset("
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "append_mcp_document_upload",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Claims and persists one immutable part and receipt under the current writer, size, time and call limits; confirmed replay preserves bytes but advances call accounting. A validated success can also persist current connection activity.",
+        "destructiveHint": "Reconciliation may remove only this attempt's exact unregistered temporary object after fencing its writer. Registered originals are preserved.",
+        "openWorldHint": "Uses the current authenticated private Guteneo account, its fixed internal storage/scanner pipeline and the standard host App bridge; it accepts no arbitrary URL, browser network permission or external recipient.",
+        "idempotentHint": "Same-key and part receipts protect content operations from duplication, but bounded call accounting, reconciliation and successful connection activity can change on repeated calls."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "append_mcp_document_upload"
+        },
+        {
+          "path": "apps/api/src/mcp-app-upload.ts",
+          "symbol": "async append("
+        }
+      ]
+    },
+    {
+      "name": "approve_and_send_dispatch",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "openWorldHint": true,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Checks the current review token and bounded mandate, records delegated approval, durably accepts the dispatch, reserves credit and inserts delivery outbox work. Publication of that outbox can start delivery. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "destructiveHint": "Acceptance can lead to irreversible external delivery and credit consumption. An existing mandate, exact fingerprint and ceiling checks, current review token, idempotency key and host confirmation constrain the operation but do not eliminate those effects.",
+        "openWorldHint": "Can initiate a real fax, email or postal communication to the user-selected external recipient through the configured delivery provider.",
+        "idempotentHint": "The same key deduplicates durable acceptance; a repeat must not create a second send. Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"approve_and_send_dispatch\""
+        },
+        {
+          "path": "apps/api/src/expert-approval.ts",
+          "symbol": "export async function acceptExpertDispatch"
+        },
+        {
+          "path": "packages/domain/src/index.ts",
+          "symbol": "async confirmDispatch("
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "archive_template",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Sets the existing template state to archived and increments its revision. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "destructiveHint": "Disables further editing, publishing, and generation from this template. Its content, published versions, and PDFs remain stored; reuse requires duplication because no unarchive method is exposed.",
+        "openWorldHint": "Changes a permission-checked template inside the authenticated organization.",
+        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"archive_template\""
+        },
+        {
+          "path": "apps/api/src/template-workflow.ts",
+          "symbol": "async archiveTemplate("
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "begin_document_upload",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Persists an exact private upload reservation or reconciles its durable state. Validated successful production calls can also update connection activity.",
+        "destructiveHint": "Same-key recovery can reconcile an uncertain attempt and delete only its exact unregistered temporary object after fencing its writer; it never deletes a registered document or changes an approval or dispatch.",
+        "openWorldHint": "Confined to the authenticated Guteneo organization and fixed canonical private binary endpoint. No arbitrary outbound source or destination is accepted.",
+        "idempotentHint": "Business recovery reuses one key and upload ID, but a repeated unused reservation can rotate its capability and successful calls can advance connection activity."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"begin_document_upload\""
+        },
+        {
+          "path": "apps/api/src/document-upload.ts",
+          "symbol": "async begin("
+        },
+        {
+          "path": "tests/integration/private-document-upload.test.ts",
+          "symbol": "private original PDF transport with real D1/R2 and document pipeline"
+        }
+      ]
+    },
+    {
+      "name": "begin_mcp_document_upload",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Reserves immutable original metadata, current authority, a bounded upload slot and staging debt; same-key status recovery may reconcile the existing attempt. A validated success can also persist current connection activity.",
+        "destructiveHint": "Reconciliation may remove only this attempt's exact unregistered temporary object after fencing its writer. Registered originals are preserved.",
+        "openWorldHint": "Uses the current authenticated private Guteneo account, its fixed internal storage/scanner pipeline and the standard host App bridge; it accepts no arbitrary URL, browser network permission or external recipient.",
+        "idempotentHint": "Same-key and part receipts protect content operations from duplication, but bounded call accounting, reconciliation and successful connection activity can change on repeated calls."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "begin_mcp_document_upload"
+        },
+        {
+          "path": "apps/api/src/mcp-app-upload.ts",
+          "symbol": "async begin("
+        }
+      ]
+    },
+    {
+      "name": "cancel_dispatch",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Marks an eligible prepared or queued dispatch cancelled, releases associated reservations through existing database transitions and records audit evidence. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "destructiveHint": "Prevents that dispatch from continuing. Requests that have begun provider submission or have an uncertain outcome are rejected, and the tool does not promise physical recall.",
+        "openWorldHint": "Cancellation occurs inside Guteneo without calling the delivery provider or contacting the recipient.",
+        "idempotentHint": "The cancellation path records a new audit entry even when the dispatch is already cancelled. Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"cancel_dispatch\""
+        },
+        {
+          "path": "packages/domain/src/index.ts",
+          "symbol": "async cancelDispatch("
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "cancel_generation_job",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Marks an eligible job and its queued or running records cancelled and clears their processing leases. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "destructiveHint": "Stops pending generation records and prevents that cancelled job from being retried. Already generated PDFs remain stored; producing the omitted PDFs requires a new job.",
+        "openWorldHint": "Cancels only a caller-owned Guteneo generation job; it does not cancel or contact an external delivery provider.",
+        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"cancel_generation_job\""
+        },
+        {
+          "path": "apps/api/src/template-workflow.ts",
+          "symbol": "async cancelGeneration("
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "cancel_mcp_document_upload",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Fences the owned unfinished writer and records cancellation before bounded staging cleanup; it may reconcile an already committed result instead. A validated success can also persist current connection activity.",
+        "destructiveHint": "Cancels only the owned unfinished upload and makes its private staging eligible for bounded deletion; committed or uncertain registered originals are never deleted.",
+        "openWorldHint": "Uses the current authenticated private Guteneo account, its fixed internal storage/scanner pipeline and the standard host App bridge; it accepts no arbitrary URL, browser network permission or external recipient.",
+        "idempotentHint": "Same-key and part receipts protect content operations from duplication, but bounded call accounting, reconciliation and successful connection activity can change on repeated calls."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "appUploads[method]"
+        },
+        {
+          "path": "apps/api/src/mcp-app-upload.ts",
+          "symbol": "async cancel("
+        }
+      ]
+    },
+    {
+      "name": "check_mcp_ui_probe_bridge",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Returns only a fixed diagnostic acknowledgement after rechecking the exact temporary activation, current OAuth membership/scope and connection revision. Normal authentication/rate accounting remains, and validated success attempts to persist this production connection's visible last-successful-use timestamp.",
+        "destructiveHint": "Creates, overwrites, transfers and deletes no document, upload grant, quota reservation, dispatch, approval, charge, outbox or provider operation. It does not change diagnostic activation.",
+        "openWorldHint": "The empty-input call is confined to the exact server-selected authenticated connection and bounded diagnostic window. It accepts no file, arbitrary address, URL or destination and initiates no document/provider request; normal fixed authentication dependencies remain.",
+        "idempotentHint": "The acknowledgement is fixed, but another successful production call may advance the persisted connection-activity timestamp and consumes ordinary HTTP rate accounting; the complete operation is not guaranteed to have no additional effect."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"check_mcp_ui_probe_bridge\""
+        },
+        {
+          "path": "apps/api/src/mcp-ui-probe.ts",
+          "symbol": "assertMcpUiProbeCurrent"
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "configure_postal_sender",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Records an authorized OAuth administrator's sender submission, account pricing policies and initial postal channel setup. An explicit repeat with the same sender may renew expired policies; it records old, already expired policies as revoked. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "destructiveHint": "Does not replace an existing sender, revoke a currently usable quote, bypass an operator suspension, transfer a PDF or send mail. Renewal is restricted to an entirely expired policy set; quotes cannot outlive those policies and historical policy evidence remains stored. Initial setup adds the sender and policies under authorization fences.",
+        "openWorldHint": "Uses Guteneo state and reads only the fixed private Pingen account profile. It does not send a document or recipient address to an arbitrary destination.",
+        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"configure_postal_sender\""
+        },
+        {
+          "path": "apps/api/src/postal-setup.ts",
+          "symbol": "export async function configurePostalSenderForMcp"
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        },
+        {
+          "path": "packages/domain/src/live-delivery-quotes.ts",
+          "symbol": "Date.parse(p.expires_at)"
+        }
+      ]
+    },
+    {
+      "name": "confirm_dispatch",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "openWorldHint": true,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Durably accepts an exactly matching dispatch whose human approval is already recorded, reserves credit and inserts delivery outbox work. The callback can publish this work to delivery queues. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "destructiveHint": "Can cause irreversible communication and credit consumption. The server requires prior human approval and deduplicates acceptance by key; those safeguards do not make sending reversible.",
+        "openWorldHint": "Can initiate real delivery through the configured provider to an externally selected recipient.",
+        "idempotentHint": "The same key deduplicates durable acceptance; a repeat must not create a second send. Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"confirm_dispatch\""
+        },
+        {
+          "path": "packages/domain/src/index.ts",
+          "symbol": "async confirmDispatch("
+        },
+        {
+          "path": "apps/api/src/index.ts",
+          "symbol": "afterConfirmation:"
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "confirm_secure_distribution",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "openWorldHint": true,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Consumes an existing exact browser approval under the active document authentication policy to accept a distribution, commit its non-refundable retention charge and publish its durable notification command. A validated successful production result may also advance the connection last-successful-use timestamp.",
+        "destructiveHint": "Activation commits funded retention even if access is later revoked; can cause a real communication and credit consumption. A delegated expert mandate cannot create this browser approval.",
+        "openWorldHint": "Can submit the notification to the configured recipient through the configured delivery provider.",
+        "idempotentHint": "A stable key prevents a second accepted command; lost or unknown outcomes must be inspected instead of retried with a new key. A validated successful production result may also advance the connection last-successful-use timestamp."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"confirm_secure_distribution\""
+        },
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "secureDistributionSummary"
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "create_distribution_postal_preflight",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Creates a private postal analysis for the exact manifest PDF, consumes analysis quota, and associates the review with the entry. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "destructiveHint": "Adds a postal review and association while preserving the PDF and manifest; it does not approve, transfer, or send the document.",
+        "openWorldHint": "Uses Guteneo's existing private postal-analysis service for the fixed PDF; it performs no print-provider transfer or recipient communication.",
+        "idempotentHint": "The supplied key and exact request reuse the postal preflight. Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"create_distribution_postal_preflight\""
+        },
+        {
+          "path": "apps/api/src/template-workflow.ts",
+          "symbol": "async createDistributionPostalPreflight("
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "create_mapping",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Persists a new private mapping or a new version after checking the expected previous version. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "destructiveHint": "Adds a new mapping version; existing version rows and their declarative plans remain unchanged.",
+        "openWorldHint": "Uses a caller-owned dataset and mapping within the authenticated organization; no AI or external communication is required.",
+        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"create_mapping\""
+        },
+        {
+          "path": "apps/api/src/template-workflow.ts",
+          "symbol": "async createMapping("
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "create_postal_address_page",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Persists an address-page generation, consumes rendering allowance and stores a separate PDF with its own document analysis. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "destructiveHint": "Preserves the original and adds a separate PDF. Cleanup deletes only this generation's temporary render artifact after the final PDF has been registered, not a retained user document. It does not create approval, transfer a provider draft or send mail.",
+        "openWorldHint": "Uses the authorized private original, fixed internal renderer and configured private Pingen profile; it does not upload to the print provider or fetch an arbitrary domain.",
+        "idempotentHint": "The same key and exact generation parameters reuse the existing address-page generation. Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"create_postal_address_page\""
+        },
+        {
+          "path": "apps/api/src/postal-address-page.ts",
+          "symbol": "async generate("
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "create_template",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Creates and persists a new private editable template draft. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "destructiveHint": "Adds a new draft without modifying or deleting existing templates, versions, or PDFs.",
+        "openWorldHint": "Creates a template inside the authenticated organization; it performs no external publication or recipient communication.",
+        "idempotentHint": "A repeat creates a separate private draft. Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"create_template\""
+        },
+        {
+          "path": "apps/api/src/template-workflow.ts",
+          "symbol": "async createTemplate("
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "delete_template",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Soft-deletes an owner-controlled template by setting deleted_at and archived state, with revision checks. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "destructiveHint": "Removes the template from the studio and prevents further use. Immutable versions and historical PDFs remain stored.",
+        "openWorldHint": "Removal is limited to the caller-owned template in the authenticated organization.",
+        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"delete_template\""
+        },
+        {
+          "path": "apps/api/src/template-workflow.ts",
+          "symbol": "async deleteTemplate("
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "dry_run_dispatch",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Reads an existing prepared dispatch to check state, attempts, quote validity, document protection and recipient suppression. It does not consume or renew the quote, reserve credit or enqueue delivery. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "destructiveHint": "Does not alter dispatch state, quote, approval, credit, quota or recipient suppression, and a successful diagnostic is never an authorization to send.",
+        "openWorldHint": "Limited to saved dispatch, document and account evidence in the authenticated organization. It does not call a delivery provider or contact a recipient.",
+        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"dry_run_dispatch\""
+        },
+        {
+          "path": "packages/domain/src/index.ts",
+          "symbol": "async validateDispatch("
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "duplicate_template",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Creates a new private editable copy of an accessible template draft. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "destructiveHint": "Adds a separate template and leaves the original template and historical outputs intact.",
+        "openWorldHint": "Copies an authorized template within Guteneo without sharing its original sources or contacting recipients.",
+        "idempotentHint": "A repeat creates another private copy. Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"duplicate_template\""
+        },
+        {
+          "path": "apps/api/src/template-workflow.ts",
+          "symbol": "async duplicateTemplate("
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "finish_mcp_document_upload",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Claims one complete original, assembles and verifies its exact bytes, then enters the existing private quota/scanner/registration pipeline once. A validated success can also persist current connection activity.",
+        "destructiveHint": "Reconciliation may remove only this attempt's exact unregistered temporary object after fencing its writer. Registered originals are preserved.",
+        "openWorldHint": "Uses the current authenticated private Guteneo account, its fixed internal storage/scanner pipeline and the standard host App bridge; it accepts no arbitrary URL, browser network permission or external recipient.",
+        "idempotentHint": "Same-key and part receipts protect content operations from duplication, but bounded call accounting, reconciliation and successful connection activity can change on repeated calls."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "appUploads[method]"
+        },
+        {
+          "path": "apps/api/src/mcp-app-upload.ts",
+          "symbol": "async finish("
+        }
+      ]
+    },
+    {
+      "name": "generate_documents",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Creates a persistent generate-only job, immutable input records and provenance, then schedules processing to create private PDFs. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "destructiveHint": "Adds a new job and PDF artifacts, preserving templates, inputs, and existing outputs; no delivery approval or sending is performed.",
+        "openWorldHint": "Uses authorized published template versions, caller-owned inputs, and Guteneo's bound renderer and scanner; it does not contact recipients.",
+        "idempotentHint": "The same key and exact request reuse the generation job. Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"generate_documents\""
+        },
+        {
+          "path": "apps/api/src/template-workflow.ts",
+          "symbol": "async createGeneration("
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "get_capabilities",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Reads configured capabilities, account gates, current expert delegation, postal setup and PDF verification availability without enabling them. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "destructiveHint": "Does not modify documents, dispatches, mandates or enabled services. Connection activity records the latest successful use without removing business data or authority.",
+        "openWorldHint": "Limited to Guteneo configuration and the authenticated organization and connection; it does not browse arbitrary external resources or contact recipients.",
+        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"get_capabilities\""
+        },
+        {
+          "path": "apps/api/src/index.ts",
+          "symbol": "export function getCapabilities"
+        },
+        {
+          "path": "apps/api/src/index.ts",
+          "symbol": "capabilities: async (identity)"
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "get_dataset",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Reads the status and metadata of one private dataset without reparsing it. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "destructiveHint": "Does not delete, replace, cancel, or revoke business data; only the connection activity timestamp is updated.",
+        "openWorldHint": "Limited to a caller-owned dataset in the authenticated organization within Guteneo; it does not browse arbitrary external resources or contact recipients.",
+        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"get_dataset\""
+        },
+        {
+          "path": "apps/api/src/template-workflow.ts",
+          "symbol": "async getDataset("
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "get_dataset_ai_policy",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Reads the organization's AI transfer policy, configuration state, daily limit, and usage. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "destructiveHint": "Does not delete, replace, cancel, or revoke business data; only the connection activity timestamp is updated.",
+        "openWorldHint": "Reads only the authenticated organization's saved policy and usage records. It makes no AI request, browses no arbitrary source and contacts no recipient.",
+        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"get_dataset_ai_policy\""
+        },
+        {
+          "path": "apps/api/src/template-workflow.ts",
+          "symbol": "async getAiPolicy("
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "get_dispatch_status",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Reads the saved dispatch, pricing, attempts and approval evidence; it does not reconcile with the provider or change delivery state. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "destructiveHint": "Does not change dispatch state, cost, content, attempts or approval.",
+        "openWorldHint": "Limited to dispatch data already stored in the authenticated organization inside Guteneo; no recipient or delivery provider is contacted.",
+        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"get_dispatch_status\""
+        },
+        {
+          "path": "packages/domain/src/index.ts",
+          "symbol": "async getDispatch("
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "get_distribution_plan",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Reads the immutable distribution manifest and its current preparations, postal reviews, and errors. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "destructiveHint": "Does not delete, replace, cancel, or revoke business data; only the connection activity timestamp is updated.",
+        "openWorldHint": "Limited to a caller-owned distribution in the authenticated organization within Guteneo; it does not browse arbitrary external resources or contact recipients.",
+        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"get_distribution_plan\""
+        },
+        {
+          "path": "apps/api/src/template-workflow.ts",
+          "symbol": "async getDistribution("
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "get_document",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Reads an authorized document and projects its existing analysis state; it does not start or restart scanning. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "destructiveHint": "Does not alter the original PDF or its validation state; any recovery projection is computed from existing evidence.",
+        "openWorldHint": "Limited to a Guteneo document authorized for the current organization and member, including the separately checked dispatch-approver access path.",
+        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"get_document\""
+        },
+        {
+          "path": "apps/api/src/documents.ts",
+          "symbol": "async get("
+        },
+        {
+          "path": "packages/domain/src/index.ts",
+          "symbol": "async getDocument("
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "get_document_upload",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Persists an exact private upload reservation or reconciles its durable state. Validated successful production calls can also update connection activity.",
+        "destructiveHint": "Deletes only the uncertain attempt's exact unregistered temporary object after fencing its writer; registered or deduplicated documents are never deleted.",
+        "openWorldHint": "Confined to the authenticated Guteneo organization and fixed canonical private binary endpoint. No arbitrary outbound source or destination is accepted.",
+        "idempotentHint": "Business recovery reuses one key and upload ID, but a repeated unused reservation can rotate its capability and successful calls can advance connection activity."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"get_document_upload\""
+        },
+        {
+          "path": "apps/api/src/document-upload.ts",
+          "symbol": "async get("
+        },
+        {
+          "path": "tests/integration/private-document-upload.test.ts",
+          "symbol": "private original PDF transport with real D1/R2 and document pipeline"
+        }
+      ]
+    },
+    {
+      "name": "get_expert_status",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Reads the current connection mandate, expiration, channels, ceilings and remaining budget; it does not create or renew a mandate. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "destructiveHint": "Does not enable, extend or revoke a mandate and does not approve or send a dispatch.",
+        "openWorldHint": "Limited to the authenticated organization and OAuth connection and their stored mandate and usage records.",
+        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"get_expert_status\""
+        },
+        {
+          "path": "apps/api/src/expert-status.ts",
+          "symbol": "export async function getExpertStatus"
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "get_generation_job",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Reads generation progress, states, counts, and errors without restarting processing. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "destructiveHint": "Does not delete, replace, cancel, or revoke business data; only the connection activity timestamp is updated.",
+        "openWorldHint": "Limited to a caller-owned generation job in the authenticated organization within Guteneo; it does not browse arbitrary external resources or contact recipients.",
+        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"get_generation_job\""
+        },
+        {
+          "path": "apps/api/src/template-workflow.ts",
+          "symbol": "async getGeneration("
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "get_generation_provenance",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Reads the saved source coordinates, template and mapping versions, and input and engine hashes for a record. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "destructiveHint": "Does not delete, replace, cancel, or revoke business data; only the connection activity timestamp is updated.",
+        "openWorldHint": "Limited to a record in the caller's private generation job within Guteneo; it does not browse arbitrary external resources or contact recipients.",
+        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"get_generation_provenance\""
+        },
+        {
+          "path": "apps/api/src/template-workflow.ts",
+          "symbol": "async generationProvenance("
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "get_generation_results",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Reads a page of generation record results, PDF identifiers, hashes, status, and private content URLs. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "destructiveHint": "Does not delete, replace, cancel, or revoke business data; only the connection activity timestamp is updated.",
+        "openWorldHint": "Reads only the caller's generation records and private Guteneo PDF references. Returning an authenticated content URL does not fetch that URL or contact an arbitrary destination.",
+        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"get_generation_results\""
+        },
+        {
+          "path": "apps/api/src/template-workflow.ts",
+          "symbol": "async generationResults("
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "get_mapping",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Reads a private mapping version and its saved validation. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "destructiveHint": "Does not delete, replace, cancel, or revoke business data; only the connection activity timestamp is updated.",
+        "openWorldHint": "Limited to a caller-owned mapping in the authenticated organization within Guteneo; it does not browse arbitrary external resources or contact recipients.",
+        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"get_mapping\""
+        },
+        {
+          "path": "apps/api/src/template-workflow.ts",
+          "symbol": "async getMapping("
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "get_mcp_document_upload",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Counts an App recovery call and reconciles pending part, finalizer or original receipts, potentially changing the owned upload state. A validated success can also persist current connection activity.",
+        "destructiveHint": "Reconciliation may remove only this attempt's exact unregistered temporary object after fencing its writer. Registered originals are preserved.",
+        "openWorldHint": "Uses the current authenticated private Guteneo account, its fixed internal storage/scanner pipeline and the standard host App bridge; it accepts no arbitrary URL, browser network permission or external recipient.",
+        "idempotentHint": "Same-key and part receipts protect content operations from duplication, but bounded call accounting, reconciliation and successful connection activity can change on repeated calls."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "appUploads[method]"
+        },
+        {
+          "path": "apps/api/src/mcp-app-upload.ts",
+          "symbol": "async get("
+        }
+      ]
+    },
+    {
+      "name": "get_pdf_validation",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Retrieves up to 50 existing reports for the organization’s PDF. It starts no validation and changes no balance, subscription or payment method. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "destructiveHint": "Returns existing diagnostic reports without altering or deleting reports, PDF bytes, subscriptions or dispatches.",
+        "openWorldHint": "Reads reports from the authenticated organization’s private Guteneo storage only, without accessing arbitrary external resources.",
+        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"get_pdf_validation\""
+        },
+        {
+          "path": "apps/api/src/pdf-validation.ts",
+          "symbol": "async list("
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "get_postal_preflight",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Reads the stored postal review, checks and transfer state without retrying a provider transfer. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "destructiveHint": "Does not upload a PDF, change its address verification, approve a transfer or send mail.",
+        "openWorldHint": "Limited to the authorized private Guteneo review and saved transfer evidence.",
+        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"get_postal_preflight\""
+        },
+        {
+          "path": "apps/api/src/postal.ts",
+          "symbol": "async get("
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "get_postal_requirements",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Reads the qualified postal profile and exact layout requirements, including supported address positions and country rules. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "destructiveHint": "Does not modify provider account settings, layout rules or any PDF.",
+        "openWorldHint": "Queries only the configured private Pingen account profile; no PDF is uploaded and no arbitrary URL or recipient is contacted.",
+        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"get_postal_requirements\""
+        },
+        {
+          "path": "apps/api/src/postal.ts",
+          "symbol": "async requirements("
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "get_postal_setup",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Reads the existing account sender, configuration gates and the caller's configuration rights without renewing expired pricing or enabling a channel. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "destructiveHint": "Does not change the sender, account setup, pricing policies, suspensions or transfer approval.",
+        "openWorldHint": "Limited to the authenticated organization's Guteneo postal setup and fixed configured provider context.",
+        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"get_postal_setup\""
+        },
+        {
+          "path": "apps/api/src/postal-setup.ts",
+          "symbol": "export async function getPostalSetupForMcp"
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "get_secure_distribution",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Reads one authorized workshop distribution, quote and provenance-labelled audit events. A validated successful production result may also advance the connection last-successful-use timestamp.",
+        "destructiveHint": "Does not mutate access, recipient binding, approvals or funded retention.",
+        "openWorldHint": "Limited to one authorized private workshop distribution; excludes personal vault access and invitation capabilities.",
+        "idempotentHint": "Repeated reads can persist newer connection activity. A validated successful production result may also advance the connection last-successful-use timestamp."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"get_secure_distribution\""
+        },
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "secureDistributionSummary"
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "get_template",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Reads an accessible template draft or an existing published version. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "destructiveHint": "Does not delete, replace, cancel, or revoke business data; only the connection activity timestamp is updated.",
+        "openWorldHint": "Limited to a permission-checked template in the authenticated organization within Guteneo; it does not browse arbitrary external resources or contact recipients.",
+        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"get_template\""
+        },
+        {
+          "path": "apps/api/src/template-workflow.ts",
+          "symbol": "async getTemplate("
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "get_template_authoring_guide",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Reads the current JSON authoring contract, rules, and a synthetic example. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "destructiveHint": "Does not delete, replace, cancel, or revoke business data; only the connection activity timestamp is updated.",
+        "openWorldHint": "Limited to the built-in authoring guide available to the authenticated member within Guteneo; it does not browse arbitrary external resources or contact recipients.",
+        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"get_template_authoring_guide\""
+        },
+        {
+          "path": "apps/api/src/template-workflow.ts",
+          "symbol": "async getTemplateAuthoringGuide("
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "get_template_example",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Reads one complete built-in synthetic template definition. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "destructiveHint": "Does not delete, replace, cancel, or revoke business data; only the connection activity timestamp is updated.",
+        "openWorldHint": "Limited to a selected identifier in Guteneo's fixed example catalog within Guteneo; it does not browse arbitrary external resources or contact recipients.",
+        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"get_template_example\""
+        },
+        {
+          "path": "apps/api/src/template-workflow.ts",
+          "symbol": "async getTemplateExample("
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "get_template_schema",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Reads the business input schema of an accessible template or published version. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "destructiveHint": "Does not delete, replace, cancel, or revoke business data; only the connection activity timestamp is updated.",
+        "openWorldHint": "Limited to a permission-checked template in the authenticated organization within Guteneo; it does not browse arbitrary external resources or contact recipients.",
+        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"get_template_schema\""
+        },
+        {
+          "path": "apps/api/src/template-workflow.ts",
+          "symbol": "async getTemplate("
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "get_template_sharing",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Reads eligible organization members and the template's current grants. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "destructiveHint": "Does not delete, replace, cancel, or revoke business data; only the connection activity timestamp is updated.",
+        "openWorldHint": "Limited to the authenticated organization and a template the caller may administer within Guteneo; it does not browse arbitrary external resources or contact recipients.",
+        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"get_template_sharing\""
+        },
+        {
+          "path": "apps/api/src/template-workflow.ts",
+          "symbol": "async getTemplateSharing("
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "import_dataset",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": true,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Downloads the supplied data attachment, stores a private immutable original, and runs scanning and profiling. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "destructiveHint": "Adds a new private dataset and analysis; it does not overwrite an existing dataset.",
+        "openWorldHint": "Fetches the user-supplied HTTPS attachment URL after import URL validation, so the source is outside Guteneo.",
+        "idempotentHint": "A repeat can fetch and create another private dataset and analysis. Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"import_dataset\""
+        },
+        {
+          "path": "apps/api/src/template-workflow.ts",
+          "symbol": "async importDatasetFile("
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "import_document",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": true,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Downloads the exact supplied PDF, consumes import allowance, stores or reuses its immutable bytes, and records document analysis. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "destructiveHint": "Adds or reuses an immutable document and analysis without replacing an existing original, cancelling a dispatch or sending a communication.",
+        "openWorldHint": "Accepts a caller-supplied direct HTTPS URL on an arbitrary public domain. Private-network, credential, redirect, size and timeout restrictions constrain the request but do not make its source a bounded private catalog.",
+        "idempotentHint": "Repeating a download and scan can consume import allowance even when the exact bytes are deduplicated. Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"import_document\""
+        },
+        {
+          "path": "apps/api/src/documents.ts",
+          "symbol": "async importFile("
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "import_docx_template",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": true,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Downloads and scans the supplied DOCX, creates an editable private template, and stores the private original. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "destructiveHint": "Adds a new private template and original source; it does not overwrite an existing template.",
+        "openWorldHint": "Fetches the user-supplied HTTPS attachment URL after import URL validation, so the source is outside Guteneo.",
+        "idempotentHint": "A repeat can fetch, scan and create another template and private source. Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"import_docx_template\""
+        },
+        {
+          "path": "apps/api/src/template-workflow.ts",
+          "symbol": "async importDocxFile("
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "import_inline_pdf",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Validates a bounded original then reserves and consumes the existing creator-private document import. Successful production calls can also update connection activity.",
+        "destructiveHint": "Same-key recovery can remove only this attempt’s unregistered temporary object after its writer is fenced; no registered document, approval or dispatch is deleted.",
+        "openWorldHint": "Original bytes are supplied in the bounded authenticated MCP request and enter the existing Guteneo private document pipeline. No arbitrary network source or destination is accepted.",
+        "idempotentHint": "One key preserves one import/claim, but recovery and connection activity can advance durable state; the complete tool call is not guaranteed to have no additional effects."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"import_inline_pdf\""
+        },
+        {
+          "path": "apps/api/src/document-upload.ts",
+          "symbol": "async importInlinePdf("
+        },
+        {
+          "path": "tests/integration/private-document-upload.test.ts",
+          "symbol": "private original PDF transport with real D1/R2 and document pipeline"
+        }
+      ]
+    },
+    {
+      "name": "import_json_dataset",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Stores explicitly supplied JSON as a new private immutable dataset, then scans and profiles it. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "destructiveHint": "Adds a new dataset and profile without modifying existing dataset originals.",
+        "openWorldHint": "Processes JSON supplied in the tool request using private Guteneo storage and the configured scanner; it does not fetch an arbitrary URL.",
+        "idempotentHint": "A repeat can create another dataset and analysis. Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"import_json_dataset\""
+        },
+        {
+          "path": "apps/api/src/template-workflow.ts",
+          "symbol": "async importDataset("
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "list_datasets",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Reads the caller's private dataset statuses, quarantine state, and expiry. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "destructiveHint": "Does not delete, replace, cancel, or revoke business data; only the connection activity timestamp is updated.",
+        "openWorldHint": "Limited to datasets owned by the authenticated member in the organization within Guteneo; it does not browse arbitrary external resources or contact recipients.",
+        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"list_datasets\""
+        },
+        {
+          "path": "apps/api/src/template-workflow.ts",
+          "symbol": "async listDatasets("
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "list_dispatches",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Reads a bounded and optionally state-filtered page of organization dispatches and their saved prices, with response enrichment in memory. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "destructiveHint": "Does not change dispatch content, delivery state, approvals or costs.",
+        "openWorldHint": "Limited to the authenticated organization's private Guteneo dispatch database.",
+        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"list_dispatches\""
+        },
+        {
+          "path": "packages/domain/src/index.ts",
+          "symbol": "async listDispatches("
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "list_documents",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Reads a bounded page of authorized document metadata and saved analysis states without starting document analysis. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "destructiveHint": "Does not alter or remove PDF bytes, document metadata, analysis results or dispatches.",
+        "openWorldHint": "Limited to the authenticated member's authorized private Guteneo document library.",
+        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"list_documents\""
+        },
+        {
+          "path": "apps/api/src/documents.ts",
+          "symbol": "async list("
+        },
+        {
+          "path": "packages/domain/src/index.ts",
+          "symbol": "async listDocuments("
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "list_generation_jobs",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Reads the caller's private generation jobs and progress. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "destructiveHint": "Does not delete, replace, cancel, or revoke business data; only the connection activity timestamp is updated.",
+        "openWorldHint": "Limited to caller-owned generation jobs in the authenticated organization within Guteneo; it does not browse arbitrary external resources or contact recipients.",
+        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"list_generation_jobs\""
+        },
+        {
+          "path": "apps/api/src/template-workflow.ts",
+          "symbol": "async listGenerations("
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "list_mappings",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Reads the latest versions of the caller's private declarative mappings. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "destructiveHint": "Does not delete, replace, cancel, or revoke business data; only the connection activity timestamp is updated.",
+        "openWorldHint": "Limited to caller-owned mappings in the authenticated organization within Guteneo; it does not browse arbitrary external resources or contact recipients.",
+        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"list_mappings\""
+        },
+        {
+          "path": "apps/api/src/template-workflow.ts",
+          "symbol": "async listMappings("
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "list_secure_distributions",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Reads bounded workshop metadata, policies and status. A validated successful production result may also advance the connection last-successful-use timestamp.",
+        "destructiveHint": "Does not change access, source documents, approvals or funded retention.",
+        "openWorldHint": "Limited to the authenticated workshop; excludes personal account documents and recipient-claim details.",
+        "idempotentHint": "Repeated reads can persist newer connection activity. A validated successful production result may also advance the connection last-successful-use timestamp."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"list_secure_distributions\""
+        },
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "secureDistributionSummary"
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "list_template_examples",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Reads the built-in synthetic template catalog. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "destructiveHint": "Does not delete, replace, cancel, or revoke business data; only the connection activity timestamp is updated.",
+        "openWorldHint": "Limited to Guteneo's fixed synthetic example catalog within Guteneo; it does not browse arbitrary external resources or contact recipients.",
+        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"list_template_examples\""
+        },
+        {
+          "path": "apps/api/src/template-workflow.ts",
+          "symbol": "async listTemplateExamples("
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "list_templates",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Reads accessible templates and their effective permissions. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "destructiveHint": "Does not delete, replace, cancel, or revoke business data; only the connection activity timestamp is updated.",
+        "openWorldHint": "Limited to templates in the authenticated organization that the caller can access within Guteneo; it does not browse arbitrary external resources or contact recipients.",
+        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"list_templates\""
+        },
+        {
+          "path": "apps/api/src/template-workflow.ts",
+          "symbol": "async listTemplates("
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "open_mcp_document_upload",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Opening presents an App without a file operation, while it reads the current account language and retains ordinary connection activity. A validated success can also persist current connection activity.",
+        "destructiveHint": "Presents the pinned private-picker resource and reads the current account language without selecting, reading or uploading any file or changing a document.",
+        "openWorldHint": "Uses the current authenticated private Guteneo account, its fixed internal storage/scanner pipeline and the standard host App bridge; it accepts no arbitrary URL, browser network permission or external recipient.",
+        "idempotentHint": "Repeated successful presentation can advance the persisted connection-activity timestamp."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "open_mcp_document_upload"
+        },
+        {
+          "path": "apps/api/src/mcp-document-upload.ts",
+          "symbol": "mcpDocumentUploadOpening"
+        }
+      ]
+    },
+    {
+      "name": "open_mcp_ui_probe",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Presents a default-off diagnostic resource after rechecking the exact temporary activation, current OAuth membership/scope and connection revision. Normal authentication/rate accounting remains, and validated success attempts to persist this production connection's visible last-successful-use timestamp.",
+        "destructiveHint": "Opens a no-content diagnostic without reading file metadata/bytes, granting upload capability or creating, replacing, approving, charging, queueing or sending business work. Picker API presence or a chooser request creates no content or business authority.",
+        "openWorldHint": "The diagnostic is restricted to one server-selected authenticated connection and bounded window. Its self-contained UI has no external dependencies or direct browser network requests and accepts no arbitrary URL or destination; normal fixed authentication and asset-binding reads remain.",
+        "idempotentHint": "Repeated opening returns the same diagnostic contract, but a validated successful production call may advance the persisted connection-activity timestamp and consumes ordinary HTTP rate accounting; the complete operation is not guaranteed to have no additional effect."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"open_mcp_ui_probe\""
+        },
+        {
+          "path": "apps/api/src/mcp-ui-probe.ts",
+          "symbol": "assertMcpUiProbeCurrent"
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "preflight_postal_pdf",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Creates a persistent postal review and consumes a PDF-analysis allowance while checking the exact original, address and qualified postal profile. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "destructiveHint": "Adds analysis and review evidence without altering the original PDF, approving a provider transfer or sending mail.",
+        "openWorldHint": "Uses a private PDF, internal rendering and the fixed configured Pingen profile; it does not deposit a PDF at Pingen or contact the recipient.",
+        "idempotentHint": "The same key and exact request reuse the postal review. Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"preflight_postal_pdf\""
+        },
+        {
+          "path": "apps/api/src/postal.ts",
+          "symbol": "async create("
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "prepare_dispatch",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Persists a prepared dispatch and quote and may create draft protected-document hosting. Qualified production email preparation may provision the sender and pricing, enable the account email control under existing gates, revoke already expired automatic policies, and clear already expired protected-hosting secrets. It does not accept or send the dispatch. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "destructiveHint": "Adds a preparation and optional draft hosting without replacing a live dispatch or original PDF. Housekeeping affects only already expired automatic policies and hosting secrets, which cannot authorize current access. It does not revoke valid access, approve or send the dispatch.",
+        "openWorldHint": "Limited to Guteneo records and bounded reads from the configured private delivery-provider account when needed for a quote. A recipient is stored as preparation data but is not contacted.",
+        "idempotentHint": "The same idempotency key deduplicates dispatch preparation. Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"prepare_dispatch\""
+        },
+        {
+          "path": "packages/domain/src/index.ts",
+          "symbol": "async prepareDispatch("
+        },
+        {
+          "path": "apps/api/src/email-setup.ts",
+          "symbol": "ensureEmailSender"
+        },
+        {
+          "path": "apps/api/src/protected-documents.ts",
+          "symbol": "prepareProtectedDocument"
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "prepare_distribution",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Persists an immutable PDF-hash, channel and recipient manifest, freezes the source generation job against further retries, and prepares individual dispatch records. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "destructiveHint": "Creating the persistent distribution plan permanently prevents retryGeneration for the source job, including failed records excluded from this plan. The tool therefore removes an existing recovery path even though it retains original PDFs and inputs and does not approve or send any dispatch.",
+        "openWorldHint": "Creates records within Guteneo's configured delivery workflow; it does not submit a delivery request to a provider or send a message to the supplied recipients.",
+        "idempotentHint": "The same key and exact request reuse the immutable distribution plan, but a replay calls resumeDistribution with retryFailed=true and may advance unfinished preparation entries. It is therefore not idempotent even before the common production connection-activity update."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"prepare_distribution\""
+        },
+        {
+          "path": "apps/api/src/template-workflow.ts",
+          "symbol": "async prepareDistribution("
+        },
+        {
+          "path": "apps/api/src/template-workflow.ts",
+          "symbol": "GENERATION_FROZEN"
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        },
+        {
+          "path": "apps/api/src/template-workflow.ts",
+          "symbol": "return this.resumeDistribution(ctx, prior.id, true)"
+        }
+      ]
+    },
+    {
+      "name": "prepare_fax",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Persists a fax preparation and quote. With renewalOf it creates a replacement linked to an eligible obsolete preparation and cancels that earlier preparation. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "destructiveHint": "The optional renewalOf path permanently cancels the prior prepared dispatch. The new quote is a separate preparation and any sendable quote requires a new approval; these guards do not remove the cancellation effect.",
+        "openWorldHint": "Prepares records inside Guteneo and uses configured pricing; it does not submit the PDF to the recipient or delivery provider.",
+        "idempotentHint": "The supplied key deduplicates preparation; renewal also has a stable key derived from the obsolete quote. Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"prepare_fax\""
+        },
+        {
+          "path": "packages/domain/src/index.ts",
+          "symbol": "async prepareDispatch("
+        },
+        {
+          "path": "packages/domain/src/index.ts",
+          "symbol": "async renewFaxQuote("
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "prepare_secure_distribution",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Persists an immutable preparation, bounded rendering work and the retention quote; it does not activate access, reserve a final charge or contact the recipient. A validated successful production result may also advance the connection last-successful-use timestamp.",
+        "destructiveHint": "Adds a preparation without replacing source bytes, approving or sending.",
+        "openWorldHint": "Uses the authorized workshop PDF and private rendering/storage services; no arbitrary destination or recipient contact.",
+        "idempotentHint": "A stable business key reuses the preparation; retries do not make the complete observed operation effect-free. A validated successful production result may also advance the connection last-successful-use timestamp."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"prepare_secure_distribution\""
+        },
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "secureDistributionSummary"
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "preview_template",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Reserves rendering budget, renders the selected draft revision, and saves a new private PDF with document checks. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "destructiveHint": "Adds a new preview document without replacing the template or existing generated PDFs.",
+        "openWorldHint": "Uses Guteneo's bound document-rendering and scanning services, then private document storage; it does not contact a recipient.",
+        "idempotentHint": "A repeat can reserve another render and create another private preview PDF. Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"preview_template\""
+        },
+        {
+          "path": "apps/api/src/template-workflow.ts",
+          "symbol": "async previewTemplate("
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "profile_dataset",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Reads a bounded page of the retained dataset profile and anomalies without calling AI. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "destructiveHint": "Does not delete, replace, cancel, or revoke business data; only the connection activity timestamp is updated.",
+        "openWorldHint": "Limited to the stored profile of a caller-owned dataset within Guteneo; it does not browse arbitrary external resources or contact recipients.",
+        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"profile_dataset\""
+        },
+        {
+          "path": "apps/api/src/template-workflow.ts",
+          "symbol": "async datasetProfilePage("
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "publish_template",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Adds an immutable published template version and updates the current-version pointer and revision. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "destructiveHint": "Adds a new immutable version while retaining all earlier published versions and generated PDFs.",
+        "openWorldHint": "Publishes only within the existing Guteneo template and its organization permissions, not to a public website or arbitrary recipient.",
+        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"publish_template\""
+        },
+        {
+          "path": "apps/api/src/template-workflow.ts",
+          "symbol": "async publishTemplate("
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "quote_postal_draft",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Reads the existing provider draft and records a prepared dispatch with its exact quote, bounded by the previously reviewed document and options. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "destructiveHint": "Adds a dispatch preparation and quote without deleting the provider draft, creating send approval or dispatching postal mail.",
+        "openWorldHint": "Uses only the configured private provider account and existing draft, without a new arbitrary upload or recipient communication.",
+        "idempotentHint": "The supplied key deduplicates the resulting dispatch preparation. Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"quote_postal_draft\""
+        },
+        {
+          "path": "apps/api/src/postal.ts",
+          "symbol": "async quote("
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "read_document_pages",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Reads the verified immutable PDF and renders a bounded group of page images. It does not persist expert review progress or create an approval token. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "destructiveHint": "Does not replace the original PDF, revoke existing review tokens, prepare a dispatch or send a communication.",
+        "openWorldHint": "Uses private Guteneo storage and its bound rendering service for an authorized document; no caller-selected network destination is accessed.",
+        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"read_document_pages\""
+        },
+        {
+          "path": "apps/api/src/expert-review-pages.ts",
+          "symbol": "export async function readDocumentPages"
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "render_pdf",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Consumes rendering allowance, renders controlled HTML and persists a new PDF and its document analysis. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "destructiveHint": "Adds a separate PDF without replacing an existing original or sending a communication.",
+        "openWorldHint": "Uses self-contained HTML, private Guteneo storage and its fixed internal rendering and scanning services. Rendering controls prevent arbitrary web navigation or resource fetching.",
+        "idempotentHint": "A repeat can consume rendering allowance and create a new PDF. Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"render_pdf\""
+        },
+        {
+          "path": "apps/api/src/documents.ts",
+          "symbol": "async render("
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "rescan_document",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Can reserve a daily rescan attempt, claim an analysis lease, rerun scanning and update analysis and document readiness. Existing ready or processing cases may return without a new scan. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "destructiveHint": "Preserves the immutable PDF bytes while completing or updating analysis state; it neither removes the document nor cancels or sends a dispatch.",
+        "openWorldHint": "Uses an existing authorized private PDF and the configured internal scanner; it does not download an arbitrary source or contact recipients.",
+        "idempotentHint": "An eligible repeat can consume another daily analysis attempt and update analysis state. Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"rescan_document\""
+        },
+        {
+          "path": "apps/api/src/documents.ts",
+          "symbol": "async rescan("
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "resume_distribution",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Prepares up to three remaining distribution entries and persists their dispatch identifiers or error status. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "destructiveHint": "Adds missing preparations or retries explicitly selected failed preparations without replacing the immutable manifest or sending documents.",
+        "openWorldHint": "Runs Guteneo dispatch preparation against an existing private manifest and configured delivery workflow; it does not submit a delivery request, transfer a postal draft, or contact recipients.",
+        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"resume_distribution\""
+        },
+        {
+          "path": "apps/api/src/template-workflow.ts",
+          "symbol": "async resumeDistribution("
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "retry_dataset_analysis",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Claims an analysis attempt, scans and profiles the stored original, persists the profile, and updates its analysis status. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "destructiveHint": "Preserves the immutable original and its hash while adding or completing analysis results; attempts are bounded to three.",
+        "openWorldHint": "Reuses the original in private Guteneo storage and the configured scanner; it does not download a new URL, call AI, or contact recipients.",
+        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"retry_dataset_analysis\""
+        },
+        {
+          "path": "apps/api/src/template-workflow.ts",
+          "symbol": "async retryDatasetAnalysis("
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "retry_generation_records",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Requeues selected failed records for bounded processing and may update the job state to queued. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "destructiveHint": "Retries only failed records with fewer than three attempts, preserves rendered artifacts, and refuses cancelled jobs or jobs frozen by an existing distribution.",
+        "openWorldHint": "Reuses the private job, its fixed inputs, and Guteneo's configured rendering services; no recipients are contacted.",
+        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"retry_generation_records\""
+        },
+        {
+          "path": "apps/api/src/template-workflow.ts",
+          "symbol": "async retryGeneration("
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "review_dispatch",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Persists expert-review page progress and creates or replaces the temporary review token bound to the exact dispatch, content, recipient, ceiling and active mandate. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "destructiveHint": "A completed new review overwrites the token hash for the same dispatch and connection, invalidating a previously usable review token even before its expiry. Restarting page review may reset its saved progress. It does not itself approve or send the dispatch, but that does not remove the token-replacement effect.",
+        "openWorldHint": "Limited to the authorized private Guteneo dispatch and PDF, rendered through a bound internal service; it does not submit content to a delivery provider.",
+        "idempotentHint": "A completed repeat creates a new token and invalidates the preceding token; restarting page review can also reset progress. Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"review_dispatch\""
+        },
+        {
+          "path": "apps/api/src/expert-approval.ts",
+          "symbol": "export async function reviewExpertDispatch"
+        },
+        {
+          "path": "apps/api/src/expert-review-pages.ts",
+          "symbol": "export async function reviewExpertPages"
+        },
+        {
+          "path": "apps/api/src/expert-approval.ts",
+          "symbol": "token_hash=excluded.token_hash"
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "revoke_secure_distribution",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Revokes subsequent access to the shared distribution after current workshop permission checks. A validated successful production result may also advance the connection last-successful-use timestamp.",
+        "destructiveHint": "Closes shared access without refunding the committed term; retains already delivered personal copies, source bytes and audit evidence.",
+        "openWorldHint": "Changes only the existing authorized Guteneo share; no arbitrary endpoint and no retrieval of exported copies.",
+        "idempotentHint": "A repeat cannot restore access or refund retention; observed connection activity can still advance. A validated successful production result may also advance the connection last-successful-use timestamp."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"revoke_secure_distribution\""
+        },
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "secureDistributionSummary"
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "share_template",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Changes template visibility and replaces the template's per-member permissions after membership and revision checks. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "destructiveHint": "Replaces all current per-member grants and visibility, which can revoke existing access. It retains template content, original sources, and PDFs.",
+        "openWorldHint": "Sharing is restricted to existing members of the authenticated organization; it cannot send to an arbitrary address or publish publicly.",
+        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"share_template\""
+        },
+        {
+          "path": "apps/api/src/template-workflow.ts",
+          "symbol": "async shareTemplate("
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "suggest_template",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Persists an organization AI usage reservation and requests a bounded proposal from the configured provider. A reserved call is not refunded if the provider fails. It does not save the proposed template changes. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "destructiveHint": "Returns a proposal for review without overwriting, publishing, or deleting the template; it increments the AI usage counter.",
+        "openWorldHint": "Uses the fixed OpenAI Responses API endpoint only after organization configuration and browser-admin transfer approval; it cannot select an arbitrary destination.",
+        "idempotentHint": "A repeated proposal request reserves another AI call and may return a different proposal. Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"suggest_template\""
+        },
+        {
+          "path": "apps/api/src/template-workflow.ts",
+          "symbol": "async suggestTemplate("
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "transfer_postal_draft",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Records current delegated transfer authority and uploads the checked PDF and address to the configured private Pingen account as a draft with automatic sending disabled. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "destructiveHint": "Starting a transfer irreversibly consumes this existing preflight's one-shot transfer attempt: the allowed state transitions never return to not_started, and even an unknown outcome cannot be retried. The operation also uploads the PDF and creates a durable draft in the configured private provider account with auto_send disabled. A bounded mandate, exact fingerprint and transfer gates are required; no letter is sent by this tool. This classification rests on permanent workflow closure, not merely on network access or an assumption about provider data retention.",
+        "openWorldHint": "Uploads only to the fixed authorized origins and private Pingen account configured for Guteneo. It does not accept an arbitrary destination or contact the postal recipient.",
+        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"transfer_postal_draft\""
+        },
+        {
+          "path": "apps/api/src/postal.ts",
+          "symbol": "async transfer("
+        },
+        {
+          "path": "apps/api/src/index.ts",
+          "symbol": "expertPostalAuthority"
+        },
+        {
+          "path": "migrations/0020_postal_preflights.sql",
+          "symbol": "postal_transfer_transition_guard"
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "update_template",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Replaces the existing draft definition or applies a semantic patch, then increments its revision under expectedRevision concurrency checks. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "destructiveHint": "Overwrites the current draft definition and name. Published versions and generated PDFs are retained; prior unpublished draft revisions are not saved by this handler.",
+        "openWorldHint": "Changes a permission-checked template inside the authenticated organization; it does not publish outside Guteneo.",
+        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"update_template\""
+        },
+        {
+          "path": "apps/api/src/template-workflow.ts",
+          "symbol": "async updateTemplate("
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "validate_mapping",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Evaluates all dataset rows and may persist a validation summary and validated status on a draft mapping. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "destructiveHint": "Adds validation information and promotes a draft to validated without changing its declarative plan or source dataset.",
+        "openWorldHint": "Runs deterministic validation against the caller's stored dataset and mapping inside Guteneo; no AI call or document sending occurs.",
+        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"validate_mapping\""
+        },
+        {
+          "path": "apps/api/src/template-workflow.ts",
+          "symbol": "async validateMapping("
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "validate_pdf",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Reads an already purchased exact-key PDF validation report. New checks require an explicitly approved browser-administrator purchase and are rejected for assistants; this tool cannot debit credits, renew access or assert consent. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "destructiveHint": "Returns an existing diagnostic report for the exact PDF, profile and approved request key. It cannot start a new check, modify or delete the PDF, change its security status, send a communication or debit credits.",
+        "openWorldHint": "Reads the authenticated organization’s existing hash-bound report in Guteneo. This assistant operation does not call the private validator, accept an arbitrary destination or publish the document.",
+        "idempotentHint": "The same request key, original PDF and profile reuse the saved report. Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"validate_pdf\""
+        },
+        {
+          "path": "apps/api/src/pdf-validation.ts",
+          "symbol": "async validate("
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    }
+  ]
+}

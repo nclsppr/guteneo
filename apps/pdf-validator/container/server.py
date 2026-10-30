@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 import selectors
 import signal
+import socket
 import subprocess
 import tempfile
 import threading
@@ -38,6 +39,7 @@ RULES = {
 }
 VALIDATION_LOCK = threading.Lock()
 ENGINE_READY = False
+SHUTDOWN_REQUESTED = False
 
 
 class ValidationError(Exception):
@@ -157,6 +159,8 @@ def normalize_report(raw, data, profile, returncode):
 
 def bounded_process(arguments, seconds, maximum, env=None):
     """Kill the complete child process group on deadline or oversized stdout."""
+    if SHUTDOWN_REQUESTED:
+        raise ValidationError("VALIDATOR_UNAVAILABLE")
     try:
         process = subprocess.Popen(
             arguments, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
@@ -170,6 +174,8 @@ def bounded_process(arguments, seconds, maximum, env=None):
         with selectors.DefaultSelector() as selector:
             selector.register(process.stdout, selectors.EVENT_READ)
             while selector.get_map():
+                if SHUTDOWN_REQUESTED:
+                    raise ValidationError("VALIDATOR_UNAVAILABLE")
                 remaining = deadline - time.monotonic()
                 if remaining <= 0:
                     raise ValidationError("VALIDATION_TIMEOUT")
@@ -181,13 +187,17 @@ def bounded_process(arguments, seconds, maximum, env=None):
                     if len(output) + len(chunk) > maximum:
                         raise ValidationError("VALIDATION_INCOMPLETE")
                     output.extend(chunk)
-            remaining = deadline - time.monotonic()
-            if remaining <= 0:
-                raise ValidationError("VALIDATION_TIMEOUT")
-            try:
-                returncode = process.wait(timeout=remaining)
-            except subprocess.TimeoutExpired:
-                raise ValidationError("VALIDATION_TIMEOUT") from None
+            while True:
+                if SHUTDOWN_REQUESTED:
+                    raise ValidationError("VALIDATOR_UNAVAILABLE")
+                remaining = deadline - time.monotonic()
+                if remaining <= 0:
+                    raise ValidationError("VALIDATION_TIMEOUT")
+                try:
+                    returncode = process.wait(timeout=min(remaining, 0.1))
+                    break
+                except subprocess.TimeoutExpired:
+                    continue
             return bytes(output), returncode
     finally:
         # Also kill descendants after a parent exits; none may retain private files.
@@ -243,12 +253,15 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(body)
 
     def do_GET(self):
+        if SHUTDOWN_REQUESTED:
+            return self.send_json(503, {"code": "VALIDATOR_UNAVAILABLE"})
         if self.path.startswith("/qualification/") and os.environ.get("QUALIFICATION_ENABLED") == "true":
             if self.path == "/qualification/privacy":
                 return self.send_json(200, {"temporaryDirectories": len(list(Path(tempfile.gettempdir()).glob("guteneo-pdf-*")))})
             if self.path == "/qualification/process-deadline":
                 if not VALIDATION_LOCK.acquire(blocking=False):
                     return self.send_json(503, {"code": "VALIDATOR_BUSY"})
+                status, result = 503, {"code": "VALIDATION_INCOMPLETE"}
                 try:
                     # Exercise the real process-group deadline on harmless synthetic work.
                     # This is explicitly not a claim that a Java PDF timed out.
@@ -257,15 +270,13 @@ class Handler(BaseHTTPRequestHandler):
                             bounded_process([sys.executable, "-c", "import time; time.sleep(1)"], 0.05, 1024)
                         except ValidationError as error:
                             if error.args == ("VALIDATION_TIMEOUT",):
+                                status = 200
                                 result = {"code": "VALIDATION_TIMEOUT"}
-                            else:
-                                return self.send_json(503, {"code": "VALIDATION_INCOMPLETE"})
-                        else:
-                            return self.send_json(503, {"code": "VALIDATION_INCOMPLETE"})
-                    result["temporaryDirectories"] = len(list(Path(tempfile.gettempdir()).glob("guteneo-pdf-*")))
-                    return self.send_json(200, result)
+                    if status == 200:
+                        result["temporaryDirectories"] = len(list(Path(tempfile.gettempdir()).glob("guteneo-pdf-*")))
                 finally:
                     VALIDATION_LOCK.release()
+                return self.send_json(status, result)
         if self.path != "/health":
             return self.send_json(404, {"code": "NOT_FOUND"})
         if not ENGINE_READY:
@@ -289,9 +300,13 @@ class Handler(BaseHTTPRequestHandler):
         if not VALIDATION_LOCK.acquire(blocking=False):
             return self.send_json(503, {"code": "VALIDATOR_BUSY"})
         try:
+            if SHUTDOWN_REQUESTED:
+                raise ValidationError("VALIDATOR_UNAVAILABLE")
             deadline = time.monotonic() + BODY_SECONDS
             data = bytearray()
             while len(data) < int(length):
+                if SHUTDOWN_REQUESTED:
+                    raise ValidationError("VALIDATOR_UNAVAILABLE")
                 remaining = deadline - time.monotonic()
                 if remaining <= 0:
                     raise ValidationError("VALIDATION_TIMEOUT")
@@ -300,32 +315,88 @@ class Handler(BaseHTTPRequestHandler):
                 if not chunk:
                     raise ValidationError("INVALID_PDF")
                 data.extend(chunk)
-            self.send_json(200, validate_bytes(bytes(data), query["profile"][0]))
+            status, result = 200, validate_bytes(bytes(data), query["profile"][0])
         except (TimeoutError, ConnectionError):
-            self.send_json(503, {"code": "VALIDATION_TIMEOUT"})
+            status, result = 503, {"code": "VALIDATION_TIMEOUT"}
         except ValidationError as error:
             code = error.args[0] if error.args and error.args[0] in (
                 "INVALID_PDF", "VALIDATOR_UNAVAILABLE", "VALIDATION_TIMEOUT", "VALIDATION_INCOMPLETE",
             ) else "VALIDATION_INCOMPLETE"
-            self.send_json(400 if code == "INVALID_PDF" else 503, {"code": code})
+            status, result = 400 if code == "INVALID_PDF" else 503, {"code": code}
         except Exception:
-            self.send_json(503, {"code": "VALIDATION_INCOMPLETE"})
+            status, result = 503, {"code": "VALIDATION_INCOMPLETE"}
         finally:
             VALIDATION_LOCK.release()
+        self.send_json(status, result)
 
 
 class PrivateServer(ThreadingHTTPServer):
-    daemon_threads = True
+    # server_close joins request workers so their private-file/process finally
+    # blocks finish before PID 1 exits. Header reads and writes must be bounded too.
+    daemon_threads = False
+
+    def __init__(self, *args, **kwargs):
+        self._connections = set()
+        self._connections_lock = threading.Lock()
+        super().__init__(*args, **kwargs)
+
+    def get_request(self):
+        connection, address = super().get_request()
+        connection.settimeout(BODY_SECONDS)
+        with self._connections_lock:
+            self._connections.add(connection)
+        return connection, address
+
+    def shutdown_request(self, request):
+        with self._connections_lock:
+            self._connections.discard(request)
+        super().shutdown_request(request)
+
+    def server_close(self):
+        # A buffered read can keep receiving trickled bytes indefinitely despite
+        # its inactivity timeout. Unblock input before joining non-daemon workers;
+        # leave output open so active validation can return its bounded 503.
+        with self._connections_lock:
+            for connection in self._connections:
+                try:
+                    connection.shutdown(socket.SHUT_RD)
+                except OSError:
+                    pass  # A worker may already have closed its socket.
+        super().server_close()
 
     def handle_error(self, _request, _client_address):
         # The standard implementation emits raw exception details to stderr.
         pass
 
 
-if __name__ == "__main__":
+def request_shutdown(_signum, _frame):
+    # PID 1 ignores default SIGTERM. A signal handler must only set a flag:
+    # shutdown() or a lock here could deadlock the serving thread it interrupted.
+    global SHUTDOWN_REQUESTED
+    SHUTDOWN_REQUESTED = True
+
+
+def main(address=("0.0.0.0", 8080)):
+    global ENGINE_READY, SHUTDOWN_REQUESTED
+    SHUTDOWN_REQUESTED = False
+    previous = {number: signal.signal(number, request_shutdown) for number in (signal.SIGTERM, signal.SIGINT)}
     try:
-        check_engine()
-        ENGINE_READY = True
-    except Exception:
+        try:
+            check_engine()
+            ENGINE_READY = True
+        except Exception:
+            ENGINE_READY = False
+        if SHUTDOWN_REQUESTED:
+            return
+        with PrivateServer(address, Handler) as httpd:
+            httpd.timeout = 0.1
+            while not SHUTDOWN_REQUESTED:
+                httpd.handle_request()
+    finally:
         ENGINE_READY = False
-    PrivateServer(("0.0.0.0", 8080), Handler).serve_forever()
+        for number, handler in previous.items():
+            signal.signal(number, handler)
+
+
+if __name__ == "__main__":
+    main()

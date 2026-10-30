@@ -29,7 +29,7 @@ type Policy = {
 };
 function denied(
   code = "EXPERT_OPT_IN_REQUIRED",
-  message = "Activez une délégation expert pour cet assistant dans Mon compte.",
+  message = "Enable expert delegation for this assistant in My account.",
 ): never {
   throw new DomainError(code, message, 403);
 }
@@ -75,7 +75,7 @@ export async function expertAuthority(identity: McpIdentity, env: AuthEnv) {
       )
         denied(
           "EXPERT_AUTHORITY_CHANGED",
-          "La délégation a expiré ou changé. Consultez le statut avant toute nouvelle tentative.",
+          "The delegation has expired or changed. Check the status before trying again.",
         );
     },
   };
@@ -86,12 +86,12 @@ function allowed(policy: Policy, channel: Channel, ceiling: number) {
   if (!(JSON.parse(policy.channels_json) as string[]).includes(channel))
     denied(
       "EXPERT_CHANNEL_DISABLED",
-      "Ce canal n’est pas autorisé par la délégation.",
+      "This channel is not authorized by the delegation.",
     );
   if (ceiling > policy.max_per_dispatch_minor)
     denied(
       "EXPERT_LIMIT_EXCEEDED",
-      "Le plafond de cet envoi dépasse la délégation.",
+      "This dispatch's ceiling exceeds the delegation.",
     );
 }
 function randomReview() {
@@ -124,7 +124,7 @@ export async function reviewExpertDispatch(
   if (dispatch.status !== "prepared")
     throw new DomainError(
       "INVALID_STATE",
-      "Consultez le statut de cet envoi ; ne le réexpédiez pas.",
+      "Check this dispatch's status; do not send it again.",
       409,
     );
   allowed(policy, dispatch.channel, dispatch.ceiling_minor);
@@ -150,13 +150,13 @@ export async function reviewExpertDispatch(
     )
       denied(
         "EXPERT_AUTHORITY_CHANGED",
-        "La revue a changé. Reprenez la lecture du même envoi depuis sa première page.",
+        "The review has changed. Resume reading the same dispatch from its first page.",
       );
   } else if (document) {
     if (!readDocument)
       throw new DomainError(
         "EXPERT_DOCUMENT_UNAVAILABLE",
-        "Ce connecteur ne fournit pas le PDF exact pour la revue expert. Une revue humaine dans Guteneo reste une alternative.",
+        "This connector does not provide the exact PDF for expert review. Human review in Guteneo remains an alternative.",
         409,
       );
     const exact = await readDocument(identity.context, document.id, dispatchId);
@@ -168,7 +168,7 @@ export async function reviewExpertDispatch(
     )
       throw new DomainError(
         "DOCUMENT_INTEGRITY_ERROR",
-        "Le PDF a changé : la revue est interrompue. L’intégrité doit être rétablie avant toute approbation.",
+        "The PDF has changed: review has stopped. Integrity must be restored before any approval.",
         423,
       );
     // No async I/O after this conversion before the current authority/proof fences.
@@ -198,7 +198,7 @@ export async function reviewExpertDispatch(
   if (expiresAt <= new Date().toISOString())
     denied(
       "EXPERT_REVIEW_EXPIRED",
-      "Le devis ou la connexion a expiré. Consultez l’état du même envoi avant de reprendre sa revue.",
+      "The quote or connection has expired. Check the same dispatch's status before resuming its review.",
     );
   await authority.assertCurrent();
   const fence = authority.sql();
@@ -291,11 +291,11 @@ export async function reviewExpertDispatch(
     approvalUrl: `${env.APP_ORIGIN}/#/app/dispatch/${encodeURIComponent(dispatchId)}`,
     instructions:
       (pageEvidence
-        ? "Lire toutes les images de pages retournées au fil de cette revue ; le texte extrait aide la lecture mais ne remplace pas les images. Si une page est illisible ou absente dans l’hôte, ne pas approuver. La progression et le jeton attestent une mise à disposition, jamais une compréhension par le modèle. "
+        ? "Read every page image returned during this review; extracted text assists reading but does not replace the images. If any page is unreadable or missing in the host, do not approve. Progress and the token attest availability, never model comprehension. "
         : document
-          ? "Lire la ressource PDF intégrée exacte ; si l’hôte ne peut pas l’ouvrir, ne pas approuver, expliquer la limite dans la conversation et proposer approvalUrl comme alternative sans ouvrir le site automatiquement. La présence du jeton ne prouve pas que le modèle a lu ou compris le fichier. "
-          : "Lire le texte et le HTML exacts retournés ; cet envoi ne contient pas de PDF. ") +
-      "Présenter le document par son nom et son nombre de pages, le destinataire, les options et le coût. Garder les identifiants et empreintes techniques pour les appels d’outils, sauf demande explicite de vérification d’intégrité. Pour un fax v3, présenter faxPricing.display.estimate (fourchette HT et euros de crédit), puis le plafond distinct et display.explanation ; estimatedMinor est seulement la borne haute arrondie, jamais le prix fixe ni le débit. Respecter la confirmation de l’hôte. Le jeton autorise uniquement cet envoi sous la délégation préalable ; il ne prouve pas un nouveau consentement humain.",
+          ? "Read the exact embedded PDF resource; if the host cannot open it, do not approve, explain the limitation in the conversation and offer approvalUrl as an alternative without opening the site automatically. A token does not prove that the model read or understood the file. "
+          : "Read the exact returned text and HTML; this dispatch contains no PDF. ") +
+      "Present the document's name and page count, the recipient, options and cost. Keep technical identifiers and hashes in tool calls unless integrity verification is explicitly requested. For a v3 fax, present faxPricing.display.estimate (range excluding tax and credit euros), followed by the separate ceiling and display.explanation; estimatedMinor is only the rounded upper bound, never a fixed price or charge. Respect host confirmation. The token authorizes only this dispatch under the prior delegation; it does not prove fresh human consent.",
   };
 }
 export type ExpertAcceptanceInput = {
@@ -333,7 +333,7 @@ export async function acceptExpertDispatch(
   if (!review)
     denied(
       "EXPERT_REVIEW_INVALID",
-      "La revue exacte a expiré ou changé. Consultez le statut puis relisez l’envoi.",
+      "The exact review has expired or changed. Check the status, then reread the dispatch.",
     );
   if (current.status === "prepared") {
     const proof: ExpertDispatchAuthority = {

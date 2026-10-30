@@ -1,0 +1,885 @@
+import { expect, test, type Page } from "@playwright/test";
+import { mkdir } from "node:fs/promises";
+import type { Session } from "../../apps/web/src/api";
+import type { SupportedLocale } from "../../packages/contracts/src/locale";
+import {
+  workspacePermissions,
+  type WorkspaceRole,
+} from "../../packages/contracts/src/roles";
+
+// UI evidence only: every API call is intercepted, including all writes.
+// No identity provider, real invitation, communication or billing service is used.
+async function fixture(
+  page: Page,
+  {
+    role = "member",
+    locale = "fr",
+  }: { role?: WorkspaceRole; locale?: SupportedLocale } = {},
+) {
+  const session: Session = {
+    organization: {
+      id: "identity-workshop",
+      name: "Atelier de contrôle des identités",
+    },
+    user: {
+      id: "identity-user",
+      name: "Camille Nom partagé",
+      email:
+        "camille.identite.avec.une.adresse.de.connexion.tres.longue@example.invalid",
+      role,
+      preferredLocale: locale,
+      supervisorCanApprove: false,
+      supervisorCanReport: role === "supervisor",
+    },
+    permissions: workspacePermissions(role, {
+      canApprove: false,
+      canReport: role === "supervisor",
+    }),
+    csrfToken: "intercepted-ui-fixture",
+    simulation: false,
+    verifiedAccount: true,
+  };
+  const members = [
+    {
+      id: session.user.id,
+      name: session.user.name,
+      email: session.user.email,
+      role,
+      supervisorCanApprove: false,
+      supervisorCanReport: false,
+      joinedAt: "2026-10-09T08:00:00Z",
+      sessions: 1,
+      connections: 0,
+    },
+    {
+      id: "same-name-colleague",
+      name: session.user.name,
+      email: "autre.camille@example.invalid",
+      role: "supervisor",
+      supervisorCanApprove: true,
+      supervisorCanReport: false,
+      joinedAt: "2026-10-09T08:00:00Z",
+      sessions: 1,
+      connections: 0,
+    },
+  ];
+  const writes: {
+    method: string;
+    path: string;
+    body: Record<string, unknown>;
+  }[] = [];
+  const unmatched: string[] = [];
+  const state = {
+    failContacts: false,
+    malformedContacts: null as "missing-items" | "missing-permissions" | null,
+    contactReads: 0,
+    sessionReads: 0,
+    holdNextSession: null as {
+      ready: () => void;
+      gate: Promise<void>;
+    } | null,
+    holdNextContacts: null as {
+      ready: () => void;
+      gate: Promise<void>;
+    } | null,
+  };
+  await page.route("**/api/**", async (route) => {
+    const request = route.request();
+    const path = new URL(request.url()).pathname.slice(4);
+    const method = request.method();
+    if (method !== "GET")
+      writes.push({ method, path, body: request.postDataJSON() });
+    let status = 200;
+    let body: unknown;
+    if (path === "/session") {
+      state.sessionReads++;
+      body = structuredClone(session);
+      const held = state.holdNextSession;
+      state.holdNextSession = null;
+      if (held) {
+        held.ready();
+        await held.gate;
+      }
+    } else if (path === "/capabilities")
+      body = { scanner: "ready", simulation: false };
+    else if (path === "/connections") body = { items: [] };
+    else if (path === "/overview")
+      body = {
+        documents: 0,
+        dispatches: {
+          total: 0,
+          approval: 0,
+          in_progress: 0,
+          attention: 0,
+          done: 0,
+        },
+      };
+    else if (path === "/dispatches") body = { items: [], nextCursor: null };
+    else if (path === "/account/workspaces")
+      body = {
+        items: [
+          {
+            id: "identity-workshop",
+            name: "Atelier de contrôle des identités",
+            current: session.organization.id === "identity-workshop",
+          },
+          {
+            id: "other-workshop",
+            name: "Deuxième atelier",
+            current: session.organization.id === "other-workshop",
+          },
+        ],
+      };
+    else if (path === "/account/workspace" && method === "POST") {
+      session.organization = {
+        id: request.postDataJSON().organizationId,
+        name: "Deuxième atelier",
+      };
+      body = session;
+    } else if (path === "/account/contacts") {
+      state.contactReads++;
+      const held = state.holdNextContacts;
+      state.holdNextContacts = null;
+      if (held) {
+        held.ready();
+        await held.gate;
+      }
+      if (state.malformedContacts === "missing-items") body = {};
+      else if (state.malformedContacts === "missing-permissions")
+        body = {
+          items: [
+            {
+              id: "invalid",
+              name: "Invalid fixture",
+              email: null,
+              role: "admin",
+            },
+          ],
+          hasMore: false,
+        };
+      else if (state.failContacts) {
+        status = 503;
+        body = {
+          error: {
+            code: "CONTACTS_UNAVAILABLE",
+            message:
+              "Les contacts sont temporairement indisponibles. Réessayez leur consultation.",
+          },
+        };
+      } else
+        body = {
+          items:
+            session.organization.id === "other-workshop"
+              ? [
+                  {
+                    id: "other-admin",
+                    name: "Responsable du deuxième atelier",
+                    email: "autre.atelier@example.invalid",
+                    role: "admin",
+                    permissions: workspacePermissions("admin"),
+                  },
+                ]
+              : [
+                  {
+                    id: "contact-admin",
+                    name: "Alexandre Responsable avec un nom particulièrement long",
+                    email:
+                      "administration.adresse.longue.pour.verifier.la.mise.en.page@example.invalid",
+                    role: "admin",
+                    permissions: workspacePermissions("admin"),
+                  },
+                  {
+                    id: "contact-approval",
+                    name: "Samira Validation",
+                    email: "validation@example.invalid",
+                    role: "supervisor",
+                    permissions: workspacePermissions("supervisor", {
+                      canApprove: true,
+                    }),
+                  },
+                  {
+                    id: "contact-reports",
+                    name: "Lou Rapports",
+                    email: "rapports@example.invalid",
+                    role: "supervisor",
+                    permissions: workspacePermissions("supervisor", {
+                      canReport: true,
+                    }),
+                  },
+                ],
+          hasMore: false,
+        };
+    } else if (path === "/account/sessions")
+      body = { items: [], hasMore: false };
+    else if (path === "/account/expert-approval")
+      body = {
+        canManage: role === "admin",
+        day: "2026-10-09",
+        connections: [],
+      };
+    else if (path === "/account" && method === "PATCH") {
+      const update = request.postDataJSON();
+      session.user.name = update.userName;
+      if (update.preferredLocale)
+        session.user.preferredLocale = update.preferredLocale;
+      if (update.organizationName)
+        session.organization.name = update.organizationName;
+      body = { saved: true };
+    } else if (path === "/admin/members")
+      body = { items: members, nextCursor: null };
+    else if (path.startsWith("/admin/members/") && method === "PATCH") {
+      const member = members.find((item) => item.id === path.split("/")[3]);
+      Object.assign(member!, request.postDataJSON());
+      body = { self: false, sessionsRevoked: true };
+    } else if (path === "/admin/invitations")
+      body = { items: [], nextCursor: null };
+    else if (path === "/admin") body = { controls: [], deadLetters: [] };
+    else {
+      unmatched.push(`${method} ${path}`);
+      status = 503;
+      body = {
+        error: {
+          code: "UI_FIXTURE_MISSING",
+          message: "Donnée de test manquante.",
+        },
+      };
+    }
+    await route.fulfill({
+      status,
+      contentType: "application/json",
+      body: JSON.stringify(body),
+    });
+  });
+  return { session, state, writes, unmatched };
+}
+
+async function fits(page: Page) {
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () => document.documentElement.scrollWidth <= window.innerWidth + 1,
+      ),
+    )
+    .toBe(true);
+}
+
+async function capture(
+  page: Page,
+  surface: string,
+  project: string,
+  locale = "fr",
+) {
+  await mkdir("/tmp/guteneo-identity-ui", { recursive: true });
+  await page.screenshot({
+    path: `/tmp/guteneo-identity-ui/${surface}-${project}-${locale}.png`,
+    fullPage: true,
+  });
+}
+
+test("personal documents sit in the space switcher and role details stay on the account page", async ({
+  page,
+  isMobile,
+}, info) => {
+  const data = await fixture(page);
+  await page.goto(`/#/app`);
+  await expect(page.locator("aside .workspace-identity")).toContainText(
+    data.session.user.email!,
+  );
+  // My documents is an application in the switcher, reachable with the menu closed.
+  const switcher = page.locator(
+    ".sidebar .application-switcher .space-switcher-trigger",
+  );
+  await expect(switcher).toBeVisible();
+  // Touch screens keep 44 px; desktop pointers use 40 px so every entry fits.
+  expect((await switcher.boundingBox())!.height).toBeGreaterThanOrEqual(
+    isMobile ? 44 : 40,
+  );
+  await switcher.click();
+  await expect(switcher).toHaveAttribute("aria-expanded", "true");
+  const spaces = page.getByRole("navigation", {
+    name: "Applications",
+    exact: true,
+  });
+  const personal = spaces.getByRole("link", {
+    name: "Mes documents",
+    exact: true,
+  });
+  await expect(personal).toHaveAttribute("href", "#/app/my-documents");
+  await expect(
+    spaces.getByRole("link", { name: "Correspondance", exact: true }),
+  ).toHaveAttribute("aria-current", "true");
+  await page.keyboard.press("Escape");
+  await expect(switcher).toHaveAttribute("aria-expanded", "false");
+  await expect(switcher).toBeFocused();
+  await expect(page.locator(".sidebar > .personal-context-link")).toHaveCount(
+    0,
+  );
+  if (isMobile) await page.locator(".workspace-navigation summary").click();
+  await expect(
+    page.locator(".workspace-role, .dashboard-identity"),
+  ).toHaveCount(0);
+  await expect(page.locator("aside .workspace-identity")).not.toContainText(
+    "Opérateur",
+  );
+  await fits(page);
+  await capture(page, `compact-sidebar`, info.project.name);
+  await page.goto(`/#/app/account`);
+  await expect(page.locator(".account-identity")).toContainText("Opérateur");
+  expect(data.writes).toEqual([]);
+  expect(data.unmatched).toEqual([]);
+});
+
+test("identity stays visible, switching names the account action and profile changes persist", async ({
+  page,
+}, info) => {
+  const data = await fixture(page);
+  await page.goto("/#/app");
+  const identity = page.locator("aside .workspace-identity");
+  await expect(identity).toHaveAttribute("aria-label", "Votre compte");
+  await expect(identity).toContainText(data.session.user.name);
+  await expect(identity).toContainText(data.session.user.email!);
+  await expect(identity).not.toContainText("Opérateur");
+  // V2 shows one account row; its menu names the account actions.
+  const trigger = identity.locator(".workspace-identity-trigger");
+  await expect(trigger).toHaveAccessibleName(data.session.user.name);
+  await trigger.click();
+  await expect(trigger).toHaveAttribute("aria-expanded", "true");
+  const switchAccount = identity.getByRole("link", {
+    name: "Changer de compte",
+    exact: true,
+  });
+  const href = await switchAccount.getAttribute("href");
+  const target = new URL(href!, "http://localhost:8787");
+  expect(target.pathname).toBe("/auth/login");
+  expect(target.searchParams.get("intent")).toBe("switch-account");
+  expect(target.searchParams.get("locale")).toBe("fr");
+  expect(target.searchParams.get("returnTo")).toBe("/#/app");
+  await expect(page.locator(".dashboard-identity")).toHaveCount(0);
+  await expect(page.locator(".workspace-contact-list > li")).toHaveCount(3);
+  await capture(page, "dashboard", info.project.name);
+  await identity
+    .getByRole("link", { name: /Mon profil et mes droits/ })
+    .click();
+  await expect(page.getByRole("main")).toBeFocused();
+  const summary = page
+    .getByRole("main")
+    .getByRole("region", { name: "Votre compte", exact: true });
+  await expect(summary).toContainText(data.session.user.email!);
+  await expect(summary).toContainText("Opérateur");
+  await expect(
+    page.getByRole("textbox", { name: /adresse.*connexion|e-mail/i }),
+  ).toHaveCount(0);
+  await page
+    .getByLabel("Votre nom", { exact: true })
+    .fill("Camille Profil modifié");
+  await page.locator(".language-preference select").selectOption("de");
+  await page
+    .getByRole("button", { name: "Enregistrer les modifications", exact: true })
+    .click();
+  await expect(
+    page.getByRole("heading", { name: "Mein Profil", exact: true }),
+  ).toBeVisible();
+  await expect(identity).toHaveAttribute("aria-label", "Ihr Konto");
+  await expect(identity).toContainText("Camille Profil modifié");
+  expect(data.writes).toEqual([
+    {
+      method: "PATCH",
+      path: "/account",
+      body: { userName: "Camille Profil modifié", preferredLocale: "de" },
+    },
+  ]);
+  await page.reload();
+  await expect(page.locator("#account-name")).toHaveValue(
+    "Camille Profil modifié",
+  );
+  await expect(page.locator(".language-preference select")).toHaveValue("de");
+  expect(data.unmatched).toEqual([]);
+});
+
+for (const [locale, heading, roleLabel, contactsHeading] of [
+  [
+    "fr",
+    "Mon profil",
+    "Superviseur",
+    "Qui contacter dans cet espace de travail ?",
+  ],
+  ["en", "My profile", "Supervisor", "Who can help in this workspace?"],
+  [
+    "de",
+    "Mein Profil",
+    "Supervisor",
+    "Wer kann in diesem Arbeitsbereich helfen?",
+  ],
+  [
+    "lb",
+    "Mäi Profil",
+    "Supervisor",
+    "Wien kann an dësem Aarbechtsberäich hëllefen?",
+  ],
+] as const) {
+  test(`account identity and contacts fit long names and addresses in ${locale}`, async ({
+    page,
+    isMobile,
+  }, info) => {
+    const data = await fixture(page, { role: "supervisor", locale });
+    if (isMobile) await page.setViewportSize({ width: 320, height: 740 });
+    await page.goto(`/?locale=${locale}#/app/account`);
+    await expect(
+      page.getByRole("heading", { name: heading, exact: true }),
+    ).toBeVisible();
+    await expect(page.locator(".account-identity")).toContainText(roleLabel);
+    await expect(page.locator(".account-identity")).toContainText(
+      data.session.user.email!,
+    );
+    const contacts = page.getByRole("region", {
+      name: contactsHeading,
+      exact: true,
+    });
+    await expect(
+      contacts.getByRole("link", { name: /validation@example.invalid/ }),
+    ).toBeVisible();
+    await expect(
+      contacts.getByRole("link", { name: /validation@example.invalid/ }),
+    ).toHaveAttribute("href", "mailto:validation%40example.invalid");
+    await expect(contacts.locator(".workspace-contact-list > li")).toHaveCount(
+      3,
+    );
+    await fits(page);
+    await capture(page, "profile", info.project.name, locale);
+    if (locale === "fr") {
+      const rights = page.getByRole("region", {
+        name: "Vos droits dans cet espace de travail",
+        exact: true,
+      });
+      await expect(
+        rights
+          .locator(".account-permissions > div")
+          .filter({ hasText: "Approbation des envois" }),
+      ).toContainText("Non autorisée");
+      await expect(
+        rights
+          .locator(".account-permissions > div")
+          .filter({ hasText: "Rapports de l’espace de travail" }),
+      ).toContainText("Accessibles");
+      const reportContact = contacts
+        .locator(".workspace-contact-list > li")
+        .filter({ hasText: "Lou Rapports" });
+      await expect(reportContact).toContainText(
+        "Ne peut pas approuver les envois",
+      );
+      await expect(reportContact).toContainText("Peut consulter les rapports");
+      const approver = contacts
+        .locator(".workspace-contact-list > li")
+        .filter({ hasText: "Samira Validation" });
+      await expect(approver).toContainText("Peut approuver les envois");
+      await expect(approver).not.toContainText("Gère les accès");
+    }
+    expect(data.writes).toEqual([]);
+    expect(data.unmatched).toEqual([]);
+  });
+}
+
+test("returning to a healthy tab reconciles a different account and workshop together", async ({
+  page,
+}) => {
+  const data = await fixture(page, { role: "admin" });
+  await page.goto("/#/app");
+  const identity = page.locator("aside .workspace-identity");
+  await expect(identity).toContainText("Camille Nom partagé");
+  await expect(page.locator(".workspace-contact-list")).toContainText(
+    "Samira Validation",
+  );
+  data.session.organization = {
+    id: "other-workshop",
+    name: "Deuxième atelier",
+  };
+  data.session.user = {
+    id: "other-account",
+    name: "Noa Compte actuel",
+    email: "noa@example.invalid",
+    role: "viewer",
+    preferredLocale: "fr",
+  };
+  data.session.permissions = workspacePermissions("viewer");
+  // No SESSION_EXPIRED event: the tab still believes its original session is healthy.
+  await expect
+    .poll(async () => {
+      await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+      return identity.textContent();
+    })
+    .toContain("Noa Compte actuel");
+  await expect(identity).toContainText("noa@example.invalid");
+  await expect(identity).not.toContainText("Observateur");
+  await expect(page.locator(".dashboard-identity")).toHaveCount(0);
+  await expect(page.locator(".workspace-contact-list")).toContainText(
+    "Responsable du deuxième atelier",
+  );
+  await expect(page.locator(".workspace-contact-list")).not.toContainText(
+    "Samira Validation",
+  );
+  await expect(identity).not.toContainText("Camille Nom partagé");
+  await page.goto("/#/app/account");
+  await expect(page.locator(".account-identity")).toContainText(
+    "Noa Compte actuel",
+  );
+  await expect(page.locator(".account-identity")).toContainText("Observateur");
+  expect(data.writes).toEqual([]);
+  expect(data.unmatched).toEqual([]);
+});
+
+test("the profile is the sole connected language setting and persists after focus and reload", async ({
+  page,
+}) => {
+  const data = await fixture(page, { locale: "fr" });
+  await page.goto("/#/app");
+  const identity = page.locator("aside .workspace-identity");
+  await expect(identity).toHaveAttribute("aria-label", "Votre compte");
+  await expect(page.locator(".workspace-contact-list > li")).toHaveCount(3);
+  await expect(page.locator('select[name="language"]')).toHaveCount(0);
+  await identity.locator(".workspace-identity-trigger").click();
+  await identity
+    .getByRole("link", { name: /Mon profil et mes droits/ })
+    .click();
+  const language = page.getByLabel("Langue préférée", { exact: true });
+  await expect(page.locator('select[name="language"]')).toHaveCount(1);
+  await expect(page.locator('aside select[name="language"]')).toHaveCount(0);
+  await expect(language).toHaveValue("fr");
+  await language.selectOption("en");
+  await expect(page.locator("html")).toHaveAttribute("lang", "fr");
+  const previousReads = data.state.sessionReads;
+  const rechecked = page.waitForResponse(
+    (response) =>
+      new URL(response.url()).pathname === "/api/session" &&
+      response.request().method() === "GET",
+  );
+  await expect
+    .poll(async () => {
+      await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+      return data.state.sessionReads;
+    })
+    .toBeGreaterThan(previousReads);
+  expect((await rechecked).status()).toBe(200);
+  // Let the resolved session reach React and its locale effects before asserting.
+  await page.evaluate(
+    () =>
+      new Promise<void>((resolve) =>
+        requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+      ),
+  );
+  await expect(identity).toHaveAttribute("aria-label", "Votre compte");
+  await expect(identity).toContainText("Camille Nom partagé");
+  await expect(language).toHaveValue("en");
+  expect(data.session.user.preferredLocale).toBe("fr");
+  expect(data.writes).toEqual([]);
+  await page
+    .getByRole("button", { name: "Enregistrer les modifications", exact: true })
+    .click();
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await expect(
+    page.getByLabel("Preferred language", { exact: true }),
+  ).toHaveValue("en");
+  expect(data.session.user.preferredLocale).toBe("en");
+  expect(data.writes).toEqual([
+    {
+      method: "PATCH",
+      path: "/account",
+      body: { userName: "Camille Nom partagé", preferredLocale: "en" },
+    },
+  ]);
+  await page.goto("/#/app");
+  await expect(identity).toHaveAttribute("aria-label", "Your account");
+  await expect(page.locator('select[name="language"]')).toHaveCount(0);
+  await expect(identity).not.toContainText("Operator");
+  await expect(page.locator(".dashboard-identity")).toHaveCount(0);
+  await page.reload();
+  await expect(identity).toHaveAttribute("aria-label", "Your account");
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await expect(page.locator('select[name="language"]')).toHaveCount(0);
+  await page.goto("/#/app/account");
+  await expect(page.locator(".account-identity")).toContainText("Operator");
+  await expect(page.locator('select[name="language"]')).toHaveCount(1);
+  await expect(
+    page.getByLabel("Preferred language", { exact: true }),
+  ).toHaveValue("en");
+  expect(data.unmatched).toEqual([]);
+});
+
+test("focus during a held session read ignores its stale language and requests one fresh session", async ({
+  page,
+}) => {
+  const data = await fixture(page, { locale: "fr" });
+  await page.goto("/#/app/account");
+  await expect(page.getByLabel("Langue préférée", { exact: true })).toHaveValue(
+    "fr",
+  );
+  await page.evaluate(() => {
+    const changes: string[] = [];
+    Reflect.set(window, "fixtureLocaleChanges", changes);
+    new MutationObserver(() => {
+      changes.push(document.documentElement.lang);
+    }).observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["lang"],
+    });
+  });
+  let release!: () => void;
+  let ready!: () => void;
+  const gate = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  const held = new Promise<void>((resolve) => {
+    ready = resolve;
+  });
+  data.session.user.preferredLocale = "en";
+  data.state.holdNextSession = { ready, gate };
+  const previousReads = data.state.sessionReads;
+  const started = page.waitForRequest(
+    (request) =>
+      new URL(request.url()).pathname === "/api/session" &&
+      request.method() === "GET",
+  );
+  try {
+    await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+    const heldRequest = await started;
+    await held;
+    expect(data.state.sessionReads).toBe(previousReads + 1);
+    data.session.user.preferredLocale = "de";
+    const fresh = page.waitForResponse(
+      (response) =>
+        new URL(response.url()).pathname === "/api/session" &&
+        response.request().method() === "GET" &&
+        response.request() !== heldRequest,
+    );
+    await page.evaluate(() => {
+      window.dispatchEvent(new Event("focus"));
+      window.dispatchEvent(new Event("focus"));
+    });
+    expect(data.state.sessionReads).toBe(previousReads + 1);
+    release();
+    expect((await fresh).status()).toBe(200);
+    await expect(page.locator("html")).toHaveAttribute("lang", "de");
+    await expect(
+      page.getByLabel("Bevorzugte Sprache", { exact: true }),
+    ).toHaveValue("de");
+    expect(data.state.sessionReads).toBe(previousReads + 2);
+    const changes = await page.evaluate(
+      () => Reflect.get(window, "fixtureLocaleChanges") as string[],
+    );
+    expect(changes).toContain("de");
+    expect(changes).not.toContain("en");
+    expect(data.writes).toEqual([]);
+    expect(data.unmatched).toEqual([]);
+  } finally {
+    release();
+  }
+});
+
+test("contact failure is recoverable and switching workshops removes the previous contacts", async ({
+  page,
+}) => {
+  const data = await fixture(page);
+  data.state.failContacts = true;
+  await page.goto("/#/app/account");
+  const contacts = page.getByRole("region", {
+    name: "Qui contacter dans cet espace de travail ?",
+    exact: true,
+  });
+  await expect(contacts.getByRole("alert")).toContainText(
+    "contacts sont temporairement indisponibles",
+  );
+  await expect(
+    contacts.getByRole("link", { name: /validation@example.invalid/ }),
+  ).toHaveCount(0);
+  data.state.failContacts = false;
+  await contacts
+    .getByRole("button", { name: "Réessayer", exact: true })
+    .click();
+  await expect(
+    contacts.getByRole("link", { name: /validation@example.invalid/ }),
+  ).toBeVisible();
+  // The workspace switcher replaces the former account-page form.
+  const readsBeforeSwitch = data.state.contactReads;
+  await page
+    .locator(".sidebar .workspace-switcher .space-switcher-trigger")
+    .click();
+  await page
+    .getByRole("navigation", { name: "Espaces de travail", exact: true })
+    .getByRole("button", { name: "Deuxième atelier", exact: true })
+    .click();
+  await expect(page).toHaveURL(/#\/app$/);
+  await page.evaluate(() => {
+    location.hash = "#/app/account";
+  });
+  await expect(
+    contacts.getByRole("link", { name: /autre.atelier@example.invalid/ }),
+  ).toBeVisible();
+  await expect(
+    contacts.getByRole("link", { name: /validation@example.invalid/ }),
+  ).toHaveCount(0);
+  await expect(page.locator("#account-organization")).toHaveValue(
+    "Deuxième atelier",
+  );
+  // The new workspace reads its own contacts; the old ones never reappear.
+  expect(data.state.contactReads).toBeGreaterThan(readsBeforeSwitch);
+  expect(data.writes).toEqual([
+    {
+      method: "POST",
+      path: "/account/workspace",
+      body: { organizationId: "other-workshop" },
+    },
+  ]);
+  expect(data.unmatched).toEqual([]);
+});
+
+for (const failure of ["network", "malformed"] as const) {
+  test(`profile keeps typing focus when delayed contacts are ${failure}`, async ({
+    page,
+  }) => {
+    const data = await fixture(page);
+    data.state.failContacts = failure === "network";
+    data.state.malformedContacts =
+      failure === "malformed" ? "missing-items" : null;
+    let release!: () => void;
+    let requested!: () => void;
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const ready = new Promise<void>((resolve) => {
+      requested = resolve;
+    });
+    data.state.holdNextContacts = { ready: requested, gate };
+    try {
+      await page.goto(`/#/app/account`);
+      await ready;
+      const name = page.getByLabel("Votre nom", { exact: true });
+      const contacts = page.getByRole("region", {
+        name: "Qui contacter dans cet espace de travail ?",
+        exact: true,
+      });
+      const save = page.getByRole("button", {
+        name: "Enregistrer les modifications",
+        exact: true,
+      });
+      await name.fill("Camille en cours");
+      await expect(name).toBeFocused();
+      await expect(save).toBeEnabled();
+      release();
+      await expect(contacts.getByRole("alert")).toContainText(
+        failure === "network"
+          ? "contacts sont temporairement indisponibles"
+          : "Impossible de vérifier les contacts",
+      );
+      await expect(name).toBeFocused();
+      // Use the current keyboard target: refocusing the locator would hide stolen focus.
+      await page.keyboard.insertText(" de saisie");
+      await expect(name).toHaveValue("Camille en cours de saisie");
+      await expect(name).toBeFocused();
+      await expect(save).toBeEnabled();
+      expect(data.writes).toEqual([]);
+      data.state.failContacts = false;
+      data.state.malformedContacts = null;
+      await contacts
+        .getByRole("button", { name: "Réessayer", exact: true })
+        .click();
+      await expect(
+        contacts.getByRole("link", { name: /validation@example.invalid/ }),
+      ).toBeVisible();
+      await expect(contacts.getByRole("alert")).toHaveCount(0);
+      await expect(name).toHaveValue("Camille en cours de saisie");
+      await expect(save).toBeEnabled();
+      expect(data.state.contactReads).toBe(2);
+      expect(data.writes).toEqual([]);
+      expect(data.unmatched).toEqual([]);
+    } finally {
+      release();
+      await page.unrouteAll({ behavior: "wait" });
+    }
+  });
+}
+
+test("malformed contacts leave the profile usable and support an explicit retry", async ({
+  page,
+}) => {
+  const data = await fixture(page);
+  data.state.malformedContacts = "missing-items";
+  await page.goto("/#/app/account");
+  const contacts = page.getByRole("region", {
+    name: "Qui contacter dans cet espace de travail ?",
+    exact: true,
+  });
+  await expect(contacts.getByRole("alert")).toContainText(
+    "Impossible de vérifier les contacts",
+  );
+  await expect(page.locator("#account-name")).toHaveValue(
+    data.session.user.name,
+  );
+  await page.locator("#account-name").fill("Nom personnel toujours modifiable");
+  await expect(
+    contacts.getByText(
+      "Aucun autre administrateur ou superviseur dans cet espace de travail.",
+      { exact: true },
+    ),
+  ).toHaveCount(0);
+  data.state.malformedContacts = "missing-permissions";
+  await contacts
+    .getByRole("button", { name: "Réessayer", exact: true })
+    .click();
+  await expect.poll(() => data.state.contactReads).toBe(2);
+  await expect(contacts).toHaveAttribute("aria-busy", "false");
+  await expect(contacts.getByRole("alert")).toBeVisible();
+  await expect(
+    contacts.getByText("Invalid fixture", { exact: true }),
+  ).toHaveCount(0);
+  data.state.malformedContacts = null;
+  await contacts
+    .getByRole("button", { name: "Réessayer", exact: true })
+    .click();
+  await expect(
+    contacts.getByRole("link", { name: /validation@example.invalid/ }),
+  ).toBeVisible();
+  await expect(contacts.getByRole("alert")).toHaveCount(0);
+  await expect(page.locator("#account-name")).toHaveValue(
+    "Nom personnel toujours modifiable",
+  );
+  expect(data.writes).toEqual([]);
+  expect(data.unmatched).toEqual([]);
+});
+
+test("member emails distinguish identical names and role controls target the selected member", async ({
+  page,
+}) => {
+  const data = await fixture(page, { role: "admin" });
+  await page.goto("/#/app/admin");
+  const team = page.getByRole("region", {
+    name: "Membres de l’espace de travail",
+    exact: true,
+  });
+  await expect(team.getByRole("rowheader")).toHaveCount(2);
+  await expect(team).toContainText(data.session.user.email!);
+  await expect(team).toContainText("autre.camille@example.invalid");
+  const colleagueLabel = "Camille Nom partagé (autre.camille@example.invalid)";
+  await team
+    .getByLabel(`Rôle de ${colleagueLabel}`, { exact: true })
+    .selectOption("viewer");
+  const save = team.getByRole("button", {
+    name: `Enregistrer le rôle de ${colleagueLabel}`,
+    exact: true,
+  });
+  await save.focus();
+  await expect(save).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(team.getByRole("status")).toContainText("Le rôle a été modifié");
+  expect(data.writes).toEqual([
+    {
+      method: "PATCH",
+      path: "/admin/members/same-name-colleague",
+      body: {
+        role: "viewer",
+        supervisorCanApprove: false,
+        supervisorCanReport: false,
+      },
+    },
+  ]);
+  await fits(page);
+  expect(data.unmatched).toEqual([]);
+});

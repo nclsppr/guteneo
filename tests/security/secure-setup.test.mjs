@@ -235,7 +235,7 @@ test("SES setup validates EU regions, credentials and regional SNS; never enable
   try {
     const html = await (await fetch(setup.url)).text();
     const csrf = html.match(/name="csrf" value="([^"]+)"/)[1];
-    assert.match(html, /statut sandbox/);
+    assert.match(html, /sandbox status/);
     assert.doesNotMatch(html, /name="SES_SANDBOX"|name="LIVE_SENDS_ENABLED"/);
     const submit = (changes) => fetch(setup.url, {
       method: "POST",
@@ -331,8 +331,8 @@ for (const browserType of [chromium, webkit]) {
         assert.equal(await input.getAttribute("type"), "password");
         await input.fill(value);
       }
-      await page.getByRole("button", { name: "Enregistrer dans Cloudflare" }).click();
-      await page.getByText("Configuration enregistrée dans Cloudflare.", { exact: true }).waitFor();
+      await page.getByRole("button", { name: "Save in Cloudflare" }).click();
+      await page.getByText("Configuration saved in Cloudflare.", { exact: true }).waitFor();
       assert.deepEqual(written, pingenFixture);
       assert.doesNotMatch(await page.content(), /fixture-pingen|00000000-0000-4000|<input/);
     } finally {
@@ -352,13 +352,13 @@ for (const browserType of [chromium, webkit]) {
       const page = await browser.newPage();
       await page.goto(setup.url);
       await page
-        .getByLabel("Clé API Telnyx", { exact: true })
+        .getByLabel("Telnyx API key", { exact: true })
         .fill("fixture-browser-key");
       await page
-        .getByRole("button", { name: "Enregistrer dans Cloudflare" })
+        .getByRole("button", { name: "Save in Cloudflare" })
         .click();
       await page
-        .getByText("Configuration enregistrée dans Cloudflare.", {
+        .getByText("Configuration saved in Cloudflare.", {
           exact: true,
         })
         .waitFor();
@@ -384,8 +384,8 @@ for (const browserType of [chromium, webkit]) {
         assert.equal(await input.getAttribute("type"), "password");
         await input.fill(value);
       }
-      await page.getByRole("button", { name: "Enregistrer dans Cloudflare" }).click();
-      await page.getByText("Configuration enregistrée dans Cloudflare.", { exact: true }).waitFor();
+      await page.getByRole("button", { name: "Save in Cloudflare" }).click();
+      await page.getByText("Configuration saved in Cloudflare.", { exact: true }).waitFor();
       assert.equal(written.AWS_SECRET_ACCESS_KEY, sesFixture.AWS_SECRET_ACCESS_KEY);
       assert.equal(written.SES_SANDBOX, "true");
       assert.equal(written.AWS_SESSION_TOKEN, "");

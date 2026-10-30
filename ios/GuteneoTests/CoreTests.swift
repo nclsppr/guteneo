@@ -9,14 +9,14 @@ final class CoreTests: XCTestCase, @unchecked Sendable {
     func testWorkspacePermissionsSeparatePreparationFromApproval() throws {
         let data = #"{"organization":{"id":"org","name":"Atelier"},"user":{"id":"user","name":"Member","role":"supervisor"},"simulation":true,"permissions":{"prepareDispatches":true,"approveDispatches":false,"viewReports":true}}"#.data(using: .utf8)!
         let session = try JSONDecoder().decode(MobileSession.self, from: data)
-        XCTAssertEqual(session.roleTitle, "Superviseur")
+        XCTAssertEqual(session.roleTitle, "Supervisor")
         XCTAssertTrue(session.canPrepare)
         XCTAssertFalse(session.canApprove)
     }
     func testLegacyOperatorSessionCannotOfferApproval() throws {
         let data = #"{"organization":{"id":"org","name":"Atelier"},"user":{"id":"user","name":"Member","role":"member"},"simulation":true}"#.data(using: .utf8)!
         let session = try JSONDecoder().decode(MobileSession.self, from: data)
-        XCTAssertEqual(session.roleTitle, "Opérateur")
+        XCTAssertEqual(session.roleTitle, "Operator")
         XCTAssertTrue(session.canPrepare)
         XCTAssertFalse(session.canApprove)
     }
@@ -70,10 +70,10 @@ final class CoreTests: XCTestCase, @unchecked Sendable {
             context.draw(image, in: CGRect(x: 0, y: 0, width: width, height: height))
         }
         let alpha = stride(from: 3, to: rgba.count, by: 4).map { rgba[$0] }
-        XCTAssertTrue(alpha.contains(0), "Le portrait ne doit pas recevoir de fond opaque.")
-        XCTAssertTrue(alpha.contains { $0 > 0 }, "Le portrait doit conserver son illustration.")
+        XCTAssertTrue(alpha.contains(0), "The portrait must not acquire an opaque background.")
+        XCTAssertTrue(alpha.contains { $0 > 0 }, "The portrait must retain its artwork.")
         for (x, y) in [(0, 0), (width - 1, 0), (0, height - 1), (width - 1, height - 1)] {
-            XCTAssertEqual(rgba[(y * width + x) * 4 + 3], 0, "Le coin du portrait doit rester transparent.")
+            XCTAssertEqual(rgba[(y * width + x) * 4 + 3], 0, "The portrait corner must remain transparent.")
         }
     }
 
@@ -175,7 +175,7 @@ final class CoreTests: XCTestCase, @unchecked Sendable {
     }
 
     func testDeliveryStatusNeverEquatesProviderAcceptanceWithDelivery() throws {
-        for (status, expected) in ["accepted": "Pris en charge", "submission_unknown": "Résultat à confirmer", "printed": "Imprimé", "handed_to_post": "Remis à la poste", "delivered": "Distribué"] {
+        for (status, expected) in ["accepted": "Accepted by provider", "submission_unknown": "Outcome unconfirmed", "printed": "Printed", "handed_to_post": "Handed to the post", "delivered": "Delivered"] {
             let dispatch = try decodeDispatch(recipient: #"{"phone":"+33123456789"}"#, status: status)
             XCTAssertEqual(dispatch.statusTitle, expected)
             XCTAssertFalse(dispatch.canCancel)
@@ -199,7 +199,7 @@ final class CoreTests: XCTestCase, @unchecked Sendable {
             let restricted = try JSONDecoder().decode(DispatchRecord.self, from: JSONSerialization.data(withJSONObject: payload))
             XCTAssertFalse(restricted.canHumanReview)
             XCTAssertEqual(restricted.isReviewPreparation, scope == "review_prepare_only")
-            XCTAssertEqual(restricted.statusTitle, scope == "review_prepare_only" ? "Préparation de référence" : "À consulter")
+            XCTAssertEqual(restricted.statusTitle, scope == "review_prepare_only" ? "Reference preparation" : "Available to view")
             let encoded = try XCTUnwrap(JSONSerialization.jsonObject(with: JSONEncoder().encode(restricted)) as? [String: Any])
             XCTAssertNil((encoded["faxPricing"] as? [String: Any])?["routeNotice"])
         }
@@ -228,7 +228,7 @@ final class CoreTests: XCTestCase, @unchecked Sendable {
         let result = try JSONDecoder().decode(DispatchDetail.self, from: JSONSerialization.data(withJSONObject: payload))
         XCTAssertEqual(result.dispatch.status, "delivered")
         XCTAssertEqual(result.events.count, 1)
-        XCTAssertEqual(result.events[0].title, "Envoi distribué")
+        XCTAssertEqual(result.events[0].title, "Dispatch delivered")
         XCTAssertEqual(result.events[0].createdAt, "2026-09-22T09:03:00Z")
         XCTAssertNotNil(GuteneoDate.parse(result.events[0].createdAt))
         XCTAssertEqual(result.attempts[0].status, "accepted")
@@ -257,10 +257,10 @@ final class CoreTests: XCTestCase, @unchecked Sendable {
     func testAnalysisDoesNotTurnTemporaryDelayIntoSecurityRejection() throws {
         let data = Data(#"{"state":"retryable","code":"engine_unavailable","title":"Unsafe server title","message":"Unsafe server message","nextAction":"rescan","retryAfterSeconds":null}"#.utf8)
         let analysis = try JSONDecoder().decode(DocumentAnalysis.self, from: data)
-        XCTAssertTrue(analysis.safeMessage.contains("conservé"))
-        XCTAssertTrue(analysis.safeMessage.contains("Relancez"))
+        XCTAssertTrue(analysis.safeMessage.contains("preserved"))
+        XCTAssertTrue(analysis.safeMessage.contains("Restart"))
         XCTAssertFalse(analysis.safeMessage.contains("Unsafe"))
-        XCTAssertFalse(analysis.safeMessage.contains("refusé"))
+        XCTAssertFalse(analysis.safeMessage.contains("rejected"))
     }
 
     func testNativeNetworkingDoesNotPersistBrowserCredentials() {
@@ -411,7 +411,7 @@ final class CoreTests: XCTestCase, @unchecked Sendable {
         let data = try await model.documentContent(id: document.id)
         let pdf = try XCTUnwrap(PDFDocument(data: data))
         XCTAssertEqual(pdf.pageCount, document.pages)
-        XCTAssertTrue(pdf.string?.contains("démonstration") == true)
+        XCTAssertTrue(pdf.string?.contains("synthetic document") == true)
         do { _ = try await model.document(id: "unknown"); XCTFail("Unknown fixture must fail locally") }
         catch { XCTAssertNotNil(error as? APIError) }
         XCTAssertNil(NativeURLProtocol.stub.lastRequest)
@@ -428,10 +428,12 @@ final class CoreTests: XCTestCase, @unchecked Sendable {
             let path = try XCTUnwrap(Bundle.main.path(forResource: language.rawValue, ofType: "lproj"))
             let data = try Data(contentsOf: URL(fileURLWithPath: path).appendingPathComponent("Localizable.strings"))
             let catalog = try XCTUnwrap(PropertyListSerialization.propertyList(from: data, format: nil) as? [String: String])
-            XCTAssertGreaterThanOrEqual(catalog.count, 225)
+            XCTAssertGreaterThanOrEqual(catalog.count, 261)
+            XCTAssertNotNil(catalog["Sign in"])
+            XCTAssertNil(catalog["Se connecter"])
             XCTAssertFalse(catalog.values.contains(where: \.isEmpty))
             if let keys { XCTAssertEqual(Set(catalog.keys), keys) } else { keys = Set(catalog.keys) }
-            XCTAssertEqual(L10n.text("Se connecter", locale: language.locale), expected[language.rawValue])
+            XCTAssertEqual(L10n.text("Sign in", locale: language.locale), expected[language.rawValue])
             XCTAssertNotEqual(L10n.pages(1, locale: language.locale), L10n.pages(2, locale: language.locale))
         }
         XCTAssertEqual(L10n.pages(2, locale: AppLanguage.lb.locale), "2 Säiten")

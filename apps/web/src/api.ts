@@ -2,11 +2,12 @@ import { msg } from "./messages";
 import {
   formatLocale,
   initializeLocale,
-  setLocale,
+  applyAccountLocale,
   t,
   getLocale,
 } from "./locale";
 import type { SupportedLocale } from "../../../packages/contracts/src/locale";
+import type { DashboardAppearance } from "../../../packages/contracts/src/dashboard-appearance";
 import type { ExpertApprovalAccount } from "../../../packages/contracts/src/expert-approval";
 import type { FaxPricing } from "../../../packages/contracts/src/fax-pricing";
 import type { DocumentAnalysis } from "../../../packages/contracts/src/document-analysis";
@@ -21,15 +22,18 @@ export type Session = {
   user: {
     id: string;
     name: string;
+    email?: string | null;
     role: string;
     supervisorCanApprove?: boolean;
     supervisorCanReport?: boolean;
     preferredLocale?: SupportedLocale | null;
+    preferredDashboardAppearance?: DashboardAppearance;
   };
   csrfToken: string;
   simulation: boolean;
   verifiedAccount?: boolean;
   permissions?: WorkspacePermissions;
+  canAccessBelvedere?: boolean;
 };
 export function permissionsFor(
   session: Pick<Session, "user" | "permissions">,
@@ -58,6 +62,7 @@ export type DocumentRecord = {
   analysis?: DocumentAnalysis;
 };
 export type Dispatch = {
+  recipient_feedback?: "unsubscribed" | "reported" | null;
   id: string;
   channel: Channel;
   recipient_json: string | Record<string, string>;
@@ -165,29 +170,32 @@ export async function getDocumentContent(
       signal,
     },
   );
+  signal?.throwIfAborted();
   if (!response.ok) {
     announceSessionExpiry(`/documents/${id}/content`, response.status);
     throw new ApiError(
       "DOCUMENT_UNAVAILABLE",
-      "Ce document ne peut pas être affiché.",
+      "This document cannot be displayed.",
       response.status,
     );
   }
-  return new Uint8Array(await response.arrayBuffer());
+  const bytes = new Uint8Array(await response.arrayBuffer());
+  signal?.throwIfAborted();
+  return bytes;
 }
 
 let csrfToken = "";
 let sessionUserId: string | null = null;
 export function setSession(session: Session | null, applyPreference = true) {
   csrfToken = session?.csrfToken ?? "";
-  if (applyPreference && session?.user.preferredLocale)
-    setLocale(session.user.preferredLocale, false);
+  if (applyPreference && session)
+    applyAccountLocale(session.user.preferredLocale);
   else if (
     applyPreference &&
     sessionUserId !== (session?.user.id ?? null) &&
     typeof window !== "undefined"
   )
-    initializeLocale();
+    initializeLocale(true);
   sessionUserId = session?.user.id ?? null;
 }
 export class ApiError extends Error {
@@ -247,11 +255,15 @@ export async function api<T>(
       throw error;
     throw new ApiError(
       "NETWORK",
-      "Connexion interrompue. Actualisez le suivi avant de recommencer une opération.",
+      "Connection interrupted. Refresh the status before repeating an operation.",
       0,
     );
   }
+  init.signal?.throwIfAborted();
   const data: unknown = await response.json().catch(() => null);
+  // A session/account change can abort while an already received body is
+  // parsing. Such a response must not expire the new session or update its UI.
+  init.signal?.throwIfAborted();
   if (!response.ok) {
     announceSessionExpiry(path, response.status);
     const failure = data as {
@@ -260,7 +272,7 @@ export async function api<T>(
     throw new ApiError(
       failure?.error?.code ?? "HTTP_ERROR",
       failure?.error?.message ??
-        msg("Le service a répondu avec une erreur ({0}).", response.status),
+        msg("The service returned an error ({0}).", response.status),
       response.status,
     );
   }

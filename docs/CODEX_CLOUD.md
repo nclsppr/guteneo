@@ -4,6 +4,10 @@ Prepared 4 October 2026 for `nclsppr/guteneo`. This setup removes interactive
 desktop plugins from the development prerequisites. It does not grant a Guteneo
 expert mandate, authorize communications, or authorize production deployment.
 
+Environment publication and provider observations below are dated 4 October
+2026. Integrating these helpers with current main does not renew that evidence;
+a restored fresh task and current provider access still need qualification.
+
 ## Reusable environment
 
 Use the current **Codex Cloud**, not **Legacy Codex Cloud**, in
@@ -29,7 +33,8 @@ node /workspace/.codex-cloud/guteneo-cloud-check.mjs \
 It contains code only; credential values still come from Network secrets.
 Its SHA256 and the hosted execution are recorded in `CODEX_CLOUD_PROOF.md`.
 
-Prerequisites: Node.js >=22.16, npm, Git, bash, curl, and the system libraries
+Prerequisites: Node.js `^22.22.3 || >=24.8.0` (the `package.json` engine range),
+npm, Git, bash, curl, and the system libraries
 needed by workerd. From the repository root:
 
 ```sh

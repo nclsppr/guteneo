@@ -16,11 +16,9 @@ import {
   type McpIdentity,
 } from "../../apps/api/src/auth";
 import {
-  HORIZON_TERMS_VERSION,
-  handleMonthlyPlanRoute,
-  getHorizonStatus,
-  renewHorizonPlans,
-} from "../../apps/api/src/monthly-plan";
+  getPdfValidationPricing,
+  expirePdfValidations,
+} from "../../apps/api/src/pdf-validation-pricing";
 import { createGuteneoMcpServer } from "../../apps/api/src/mcp";
 import {
   postalBrowserAuthority,
@@ -28,6 +26,9 @@ import {
 } from "../../apps/api/src/postal-authority";
 import type { Env } from "../../apps/api/src/env";
 import {
+  PDF_VALIDATION_PRICE_MINOR,
+  PDF_VALIDATION_TERMS_VERSION,
+  pdfManualChecks,
   privatePdfValidationResult,
   pdfValidationRuleTotals,
 } from "../../packages/contracts/src/pdf-validation";
@@ -99,7 +100,11 @@ const engineResult = (
   findings: [],
   ...extra,
 });
-async function fixture(paid = true, privateToCreator = false) {
+async function fixture(
+  enabled = true,
+  privateToCreator = false,
+  mode: "simulation" | "production" = "simulation",
+) {
   const suffix = crypto.randomUUID();
   const now = new Date().toISOString();
   const actor: ActorContext = {
@@ -110,8 +115,8 @@ async function fixture(paid = true, privateToCreator = false) {
   };
   await DB.batch([
     DB.prepare(
-      "INSERT INTO organizations(id,name,mode,created_at) VALUES(?,?,'simulation',?)",
-    ).bind(actor.organizationId, "Synthetic fixture", now),
+      "INSERT INTO organizations(id,name,mode,created_at) VALUES(?,?,?,?)",
+    ).bind(actor.organizationId, "Synthetic fixture", mode, now),
     DB.prepare(
       "INSERT INTO users(id,name,email,created_at) VALUES(?,?,?,?)",
     ).bind(actor.userId, "Fixture", `${suffix}@example.invalid`, now),
@@ -143,29 +148,18 @@ async function fixture(paid = true, privateToCreator = false) {
     DB,
     DOCUMENTS,
     ENVIRONMENT: "local",
-    MODE: "simulation",
+    MODE: mode,
+    SCANNER:
+      mode === "production"
+        ? ({
+            fetch: async () => new Response("synthetic scanner fixture"),
+          } as unknown as Fetcher)
+        : undefined,
     APP_ORIGIN: origin,
-    HORIZON_ENABLED: "true",
+    PDF_VALIDATION_ENABLED: enabled ? "true" : "false",
     PDF_VALIDATOR: { fetch } as unknown as Fetcher,
   } as Env;
-  if (paid)
-    await handleMonthlyPlanRoute(
-      new Request(`${origin}/api/plan/subscribe`, {
-        method: "POST",
-        headers: {
-          Origin: origin,
-          Cookie: `guteneo_session=${secret}`,
-          "X-CSRF-Token": "fixture-csrf",
-          "Idempotency-Key": crypto.randomUUID(),
-        },
-        body: JSON.stringify({
-          consent: true,
-          termsVersion: HORIZON_TERMS_VERSION,
-        }),
-      }),
-      env,
-    );
-  const domain = new DomainService(DB, { mode: "simulation" });
+  const domain = new DomainService(DB, { mode });
   const storageKey = `${actor.organizationId}/original.pdf`;
   await DOCUMENTS.put(storageKey, bytes);
   const document = await domain.registerDocument(actor, {
@@ -177,6 +171,7 @@ async function fixture(paid = true, privateToCreator = false) {
     source: privateToCreator ? "render" : "import",
     storageKey,
     privateToCreator,
+    scanVerified: mode === "production",
   });
   const authRequest = new Request(
     `${origin}/api/documents/${document.id}/validation`,
@@ -202,6 +197,16 @@ async function fixture(paid = true, privateToCreator = false) {
     service: new PdfValidationService(env, domain),
   };
 }
+const purchase = (profile: "ua1" | "ua2" | "1b" | "2b" | "3b" | "4") => ({
+  profile,
+  purchase: {
+    confirmed: true,
+    documentSha256: hash,
+    priceMinor: PDF_VALIDATION_PRICE_MINOR,
+    currency: "EUR",
+    termsVersion: PDF_VALIDATION_TERMS_VERSION,
+  },
+});
 const key = () => crypto.randomUUID();
 
 async function tenantPeer(
@@ -287,7 +292,167 @@ async function diagnosticClient(
   return { client, server };
 }
 
-describe("immutable PDF diagnostics and paid entitlement", () => {
+describe("immutable PDF diagnostics and explicit per-check purchases", () => {
+  it("requires current human purchase consent bound to the exact PDF, profile and unit price", async () => {
+    const f = await fixture();
+    await expect(
+      f.service.validate(f.authority, f.document.id, { profile: "ua1" }, key()),
+    ).rejects.toMatchObject({ code: "PDF_VALIDATION_PURCHASE_REQUIRED" });
+    const approved = purchase("ua1");
+    for (const changed of [
+      { priceMinor: 9 },
+      { currency: "USD" },
+      { termsVersion: "old-terms" },
+    ])
+      await expect(
+        f.service.validate(
+          f.authority,
+          f.document.id,
+          { ...approved, purchase: { ...approved.purchase, ...changed } },
+          key(),
+        ),
+      ).rejects.toMatchObject({ code: "PDF_VALIDATION_PRICE_CHANGED" });
+    await expect(
+      f.service.validate(
+        f.authority,
+        f.document.id,
+        {
+          ...approved,
+          purchase: { ...approved.purchase, documentSha256: "a".repeat(64) },
+        },
+        key(),
+      ),
+    ).rejects.toMatchObject({ code: "PDF_VALIDATION_PURCHASE_REQUIRED" });
+    const peer = await tenantPeer(f, "member");
+    await expect(
+      f.service.validate(peer.authority, f.document.id, approved, key()),
+    ).rejects.toMatchObject({ code: "PDF_VALIDATION_ADMIN_REQUIRED" });
+    expect(f.fetch).not.toHaveBeenCalled();
+    expect(await getPdfValidationPricing(f.env, f.actor)).toMatchObject({
+      creditAvailableMinor: 5000,
+    });
+    expect(
+      await DB.prepare(
+        "SELECT count(*) n FROM pdf_validation_purchases WHERE organization_id=?",
+      )
+        .bind(f.actor.organizationId)
+        .first(),
+    ).toEqual({ n: 0 });
+  });
+
+  it("reserves production credit atomically, settles one completed report and includes its real posting day", async () => {
+    const f = await fixture(true, false, "production");
+    const requestKey = key();
+    const report = await f.service.validate(
+      f.authority,
+      f.document.id,
+      purchase("ua1"),
+      requestKey,
+    );
+    expect(
+      await f.service.validate(
+        f.authority,
+        f.document.id,
+        purchase("ua1"),
+        requestKey,
+      ),
+    ).toEqual(report);
+    expect(f.fetch).toHaveBeenCalledTimes(1);
+    expect(await f.domain.usage(f.actor)).toMatchObject({
+      welcomeCredit: {
+        grantedMinor: 5000,
+        reservedMinor: 0,
+        spentMinor: 10,
+        availableMinor: 4990,
+      },
+    });
+    const completed = await DB.prepare(
+      "SELECT completed_at FROM pdf_validations WHERE organization_id=? AND id=?",
+    )
+      .bind(f.actor.organizationId, report.id)
+      .first<{ completed_at: string }>();
+    expect(await f.domain.usageActivity(f.actor)).toMatchObject({
+      days: [
+        {
+          date: completed!.completed_at.slice(0, 10),
+          amountMinor: 10,
+          dispatchCount: 0,
+          chargeCount: 1,
+        },
+      ],
+      totals: { amountMinor: 10, chargeCount: 1, activeDays: 1 },
+    });
+    await expect(
+      DB.prepare("DELETE FROM pdf_validation_purchases WHERE organization_id=?")
+        .bind(f.actor.organizationId)
+        .run(),
+    ).rejects.toThrow("immutable_pdf_purchase");
+    await expect(
+      DB.prepare("DELETE FROM pdf_validations WHERE organization_id=?")
+        .bind(f.actor.organizationId)
+        .run(),
+    ).rejects.toThrow("immutable_pdf_purchase");
+  });
+
+  it("releases a failed or expired engine hold without consumption and never retries the same key", async () => {
+    const f = await fixture(true, false, "production");
+    const failedKey = key();
+    f.fetch.mockImplementationOnce(
+      async () => new Response("technical failure", { status: 503 }),
+    );
+    await expect(
+      f.service.validate(
+        f.authority,
+        f.document.id,
+        purchase("ua1"),
+        failedKey,
+      ),
+    ).rejects.toMatchObject({ code: "PDF_VALIDATION_FAILED" });
+    await expect(
+      f.service.validate(
+        f.authority,
+        f.document.id,
+        purchase("ua1"),
+        failedKey,
+      ),
+    ).rejects.toMatchObject({ code: "PDF_VALIDATION_FAILED" });
+    expect(f.fetch).toHaveBeenCalledTimes(1);
+    expect(await f.domain.usage(f.actor)).toMatchObject({
+      welcomeCredit: { reservedMinor: 0, spentMinor: 0, availableMinor: 5000 },
+    });
+    let finish = () => {};
+    const held = new Promise<void>((resolve) => {
+      finish = resolve;
+    });
+    f.fetch.mockImplementationOnce(async () => {
+      await held;
+      return Response.json(engineResult());
+    });
+    const pending = f.service.validate(
+      f.authority,
+      f.document.id,
+      purchase("ua1"),
+      key(),
+    );
+    const stopped = expect(pending).rejects.toMatchObject({
+      code: "FORBIDDEN",
+    });
+    await vi.waitFor(() => expect(f.fetch).toHaveBeenCalledTimes(2));
+    expect(await f.domain.usage(f.actor)).toMatchObject({
+      welcomeCredit: { reservedMinor: 10, spentMinor: 0, availableMinor: 4990 },
+    });
+    await expirePdfValidations(
+      f.env,
+      new Date(Date.now() + 61000).toISOString(),
+    );
+    expect(await f.domain.usage(f.actor)).toMatchObject({
+      welcomeCredit: { reservedMinor: 0, spentMinor: 0, availableMinor: 5000 },
+    });
+    finish();
+    await stopped;
+    expect((await f.service.list(f.actor, f.document.id)).items).toEqual([]);
+    expect((await f.domain.usageActivity(f.actor)).days).toEqual([]);
+  });
   it("keeps generated private PDF diagnostics with their browser owner, including replay and history", async () => {
     const f = await fixture(true, true);
     expect(f.document.access_owner_id).toBe(f.actor.userId);
@@ -296,7 +461,7 @@ describe("immutable PDF diagnostics and paid entitlement", () => {
     const report = await f.service.validate(
       f.authority,
       f.document.id,
-      { profile: "ua1" },
+      purchase("ua1"),
       requestKey,
     );
     expect((await f.service.list(f.actor, f.document.id)).items).toEqual([
@@ -309,7 +474,7 @@ describe("immutable PDF diagnostics and paid entitlement", () => {
           f.service.validate(
             peer.authority,
             f.document.id,
-            { profile: "ua1" },
+            purchase("ua1"),
             idempotency,
           ),
         ).rejects.toMatchObject({ code: "NOT_FOUND" });
@@ -339,7 +504,7 @@ describe("immutable PDF diagnostics and paid entitlement", () => {
       const id = key();
       await expect(
         DB.prepare(
-          "INSERT INTO pdf_validations(organization_id,id,document_id,document_sha256,request_user_id,profile,evidence,idempotency_key,period,status,created_at,deadline_at) VALUES(?,?,?,?,?,'ua1','simulation',?,?,'processing',?,?)",
+          `INSERT INTO pdf_validations(organization_id,id,document_id,document_sha256,request_user_id,profile,evidence,idempotency_key,period,status,created_at,deadline_at,purchase_terms_version,purchase_price_minor,purchase_source) VALUES(?,?,?,?,?,'ua1','simulation',?,?,'processing',?,?,'${PDF_VALIDATION_TERMS_VERSION}',${PDF_VALIDATION_PRICE_MINOR},'browser_administrator')`,
         )
           .bind(
             f.actor.organizationId,
@@ -364,13 +529,20 @@ describe("immutable PDF diagnostics and paid entitlement", () => {
         .first(),
     ).toEqual({ n: 0 });
     await expect(
-      f.service.validate(f.authority, f.document.id, { profile: "ua1" }, key()),
+      f.service.validate(f.authority, f.document.id, purchase("ua1"), key()),
     ).resolves.toMatchObject({ status: "passed", documentId: f.document.id });
     expect(f.fetch).toHaveBeenCalledTimes(1);
   });
 
   it("applies generated PDF ownership to authenticated MCP validation and history reads", async () => {
     const f = await fixture(true, true);
+    const purchasedKey = key();
+    await f.service.validate(
+      f.authority,
+      f.document.id,
+      purchase("ua2"),
+      purchasedKey,
+    );
     const own = await diagnosticClient(f, f.actor.userId);
     try {
       expect(
@@ -379,7 +551,7 @@ describe("immutable PDF diagnostics and paid entitlement", () => {
           arguments: {
             documentId: f.document.id,
             profile: "ua2",
-            idempotencyKey: key(),
+            idempotencyKey: purchasedKey,
           },
         }),
       ).toMatchObject({
@@ -447,7 +619,7 @@ describe("immutable PDF diagnostics and paid entitlement", () => {
     const result = await f.service.validate(
       f.authority,
       f.document.id,
-      { profile: "ua1" },
+      purchase("ua1"),
       idempotency,
     );
     expect(result).toMatchObject({
@@ -462,7 +634,7 @@ describe("immutable PDF diagnostics and paid entitlement", () => {
       await f.service.validate(
         f.authority,
         f.document.id,
-        { profile: "ua1" },
+        purchase("ua1"),
         idempotency,
       ),
     ).toEqual(result);
@@ -477,8 +649,8 @@ describe("immutable PDF diagnostics and paid entitlement", () => {
         ),
       ),
     ).toBe(hash);
-    expect(await getHorizonStatus(f.env, f.actor)).toMatchObject({
-      creditAvailableMinor: 2000,
+    expect(await getPdfValidationPricing(f.env, f.actor)).toMatchObject({
+      creditAvailableMinor: 4990,
     });
     expect(await f.service.list(f.actor, f.document.id)).toEqual({
       items: [result],
@@ -487,21 +659,21 @@ describe("immutable PDF diagnostics and paid entitlement", () => {
       f.service.validate(
         f.authority,
         f.document.id,
-        { profile: "ua2" },
+        purchase("ua2"),
         idempotency,
       ),
     ).rejects.toMatchObject({ code: "IDEMPOTENCY_CONFLICT" });
   });
-  it("rejects absent subscription, quarantine and missing engine before reading PDF bytes", async () => {
+  it("rejects disabled checking, quarantine and missing engine before reading PDF bytes", async () => {
     const unpaid = await fixture(false);
     await expect(
       unpaid.service.validate(
         unpaid.authority,
         unpaid.document.id,
-        { profile: "ua1" },
+        purchase("ua1"),
         key(),
       ),
-    ).rejects.toMatchObject({ code: "HORIZON_PLAN_REQUIRED" });
+    ).rejects.toMatchObject({ code: "PDF_VALIDATION_UNAVAILABLE" });
     expect(unpaid.fetch).not.toHaveBeenCalled();
     const f = await fixture();
     const gated = new PdfValidationService(
@@ -509,15 +681,15 @@ describe("immutable PDF diagnostics and paid entitlement", () => {
       f.domain,
     );
     await expect(
-      gated.validate(f.authority, f.document.id, { profile: "ua1" }, key()),
-    ).rejects.toMatchObject({ code: "HORIZON_PLAN_REQUIRED" });
+      gated.validate(f.authority, f.document.id, purchase("ua1"), key()),
+    ).rejects.toMatchObject({ code: "PDF_VALIDATION_UNAVAILABLE" });
     await DB.prepare(
       "UPDATE documents SET status='quarantined' WHERE organization_id=? AND id=?",
     )
       .bind(f.actor.organizationId, f.document.id)
       .run();
     await expect(
-      f.service.validate(f.authority, f.document.id, { profile: "ua1" }, key()),
+      f.service.validate(f.authority, f.document.id, purchase("ua1"), key()),
     ).rejects.toMatchObject({ code: "DOCUMENT_NOT_READY" });
     expect(f.fetch).not.toHaveBeenCalled();
   });
@@ -544,7 +716,7 @@ describe("immutable PDF diagnostics and paid entitlement", () => {
     const result = await f.service.validate(
       f.authority,
       f.document.id,
-      { profile: "ua2" },
+      purchase("ua2"),
       key(),
     );
     expect(result).toMatchObject({
@@ -561,7 +733,7 @@ describe("immutable PDF diagnostics and paid entitlement", () => {
     const f = await fixture();
     for (const extra of [
       { sha256: "b".repeat(64) },
-      { profile: "ua2" },
+      purchase("ua2"),
       { passedRules: 0 },
       { compliant: true, failedRules: 1 },
       { fileName: "private document text" },
@@ -574,7 +746,7 @@ describe("immutable PDF diagnostics and paid entitlement", () => {
         f.service.validate(
           f.authority,
           f.document.id,
-          { profile: "ua1" },
+          purchase("ua1"),
           requestKey,
         ),
       ).rejects.toMatchObject({ code: "PDF_VALIDATION_FAILED" });
@@ -582,7 +754,7 @@ describe("immutable PDF diagnostics and paid entitlement", () => {
         f.service.validate(
           f.authority,
           f.document.id,
-          { profile: "ua1" },
+          purchase("ua1"),
           requestKey,
         ),
       ).rejects.toMatchObject({ code: "PDF_VALIDATION_FAILED" });
@@ -608,7 +780,7 @@ describe("immutable PDF diagnostics and paid entitlement", () => {
     const first = f.service.validate(
       f.authority,
       f.document.id,
-      { profile: "ua1" },
+      purchase("ua1"),
       requestKey,
     );
     await vi.waitFor(() => expect(f.fetch).toHaveBeenCalledTimes(1));
@@ -616,19 +788,19 @@ describe("immutable PDF diagnostics and paid entitlement", () => {
       f.service.validate(
         f.authority,
         f.document.id,
-        { profile: "ua1" },
+        purchase("ua1"),
         requestKey,
       ),
     ).rejects.toMatchObject({ code: "PDF_VALIDATION_BUSY" });
     const second = f.service.validate(
       f.authority,
       f.document.id,
-      { profile: "ua2" },
+      purchase("ua2"),
       key(),
     );
     await vi.waitFor(() => expect(f.fetch).toHaveBeenCalledTimes(2));
     await expect(
-      f.service.validate(f.authority, f.document.id, { profile: "1b" }, key()),
+      f.service.validate(f.authority, f.document.id, purchase("1b"), key()),
     ).rejects.toMatchObject({ code: "PDF_VALIDATION_BUSY" });
     finish();
     await Promise.all([first, second]);
@@ -662,26 +834,20 @@ describe("immutable PDF diagnostics and paid entitlement", () => {
       return Response.json(engineResult());
     });
     await expect(
-      f.service.validate(f.authority, f.document.id, { profile: "ua1" }, key()),
+      f.service.validate(f.authority, f.document.id, purchase("ua1"), key()),
     ).rejects.toMatchObject({ code: "POSTAL_AUTHORITY_CHANGED" });
     expect(
       (await f.service.list({ ...f.actor, role: "viewer" }, f.document.id))
         .items,
     ).toHaveLength(0);
   });
-  it("retains tenant-scoped purchased history after access expires", async () => {
+  it("retains purchased history when new checks become unavailable", async () => {
     const f = await fixture();
-    await f.service.validate(
-      f.authority,
-      f.document.id,
-      { profile: "1b" },
-      key(),
-    );
-    const plan = await getHorizonStatus(f.env, f.actor);
-    await renewHorizonPlans(f.env, new Date(plan.currentPeriodEnd!));
+    await f.service.validate(f.authority, f.document.id, purchase("1b"), key());
+    f.env.PDF_VALIDATION_ENABLED = "false";
     await expect(
-      f.service.validate(f.authority, f.document.id, { profile: "ua1" }, key()),
-    ).rejects.toMatchObject({ code: "HORIZON_PLAN_REQUIRED" });
+      f.service.validate(f.authority, f.document.id, purchase("ua1"), key()),
+    ).rejects.toMatchObject({ code: "PDF_VALIDATION_UNAVAILABLE" });
     expect((await f.service.list(f.actor, f.document.id)).items).toHaveLength(
       1,
     );
@@ -699,7 +865,7 @@ describe("immutable PDF diagnostics and paid entitlement", () => {
       return Response.json(engineResult());
     });
     await expect(
-      f.service.validate(f.authority, f.document.id, { profile: "ua1" }, key()),
+      f.service.validate(f.authority, f.document.id, purchase("ua1"), key()),
     ).rejects.toMatchObject({ code: "SESSION_EXPIRED" });
     expect((await f.service.list(f.actor, f.document.id)).items).toHaveLength(
       0,
@@ -710,7 +876,7 @@ describe("immutable PDF diagnostics and paid entitlement", () => {
     const id = key();
     const now = new Date().toISOString();
     await DB.prepare(
-      "INSERT INTO pdf_validations(organization_id,id,document_id,document_sha256,request_user_id,profile,evidence,idempotency_key,period,status,created_at,deadline_at) VALUES(?,?,?,?,?,'ua1','simulation',?,?,'processing',?,?)",
+      `INSERT INTO pdf_validations(organization_id,id,document_id,document_sha256,request_user_id,profile,evidence,idempotency_key,period,status,created_at,deadline_at,purchase_terms_version,purchase_price_minor,purchase_source) VALUES(?,?,?,?,?,'ua1','simulation',?,?,'processing',?,?,'${PDF_VALIDATION_TERMS_VERSION}',${PDF_VALIDATION_PRICE_MINOR},'browser_administrator')`,
     )
       .bind(
         f.actor.organizationId,
@@ -726,21 +892,32 @@ describe("immutable PDF diagnostics and paid entitlement", () => {
       .run();
     await expect(
       DB.prepare(
-        "UPDATE pdf_validations SET status='complete',result_json='{}' WHERE organization_id=? AND id=?",
+        "UPDATE pdf_validations SET status='complete',result_json='{}',completed_at=created_at WHERE organization_id=? AND id=?",
       )
         .bind(f.actor.organizationId, id)
         .run(),
     ).rejects.toThrow("immutable_pdf_validation");
   });
-  it("enforces shared calendar-month quota atomically before the engine call", async () => {
+  it("refuses an unfunded check before the engine and never grants a monthly allowance", async () => {
     const f = await fixture();
     const now = new Date().toISOString();
     const statements: D1PreparedStatement[] = [];
-    for (let i = 0; i < 100; i++) {
+    for (let i = 0; i < 5000 / PDF_VALIDATION_PRICE_MINOR; i++) {
       const id = key();
+      const report = {
+        ...engineResult(),
+        id,
+        documentId: f.document.id,
+        createdAt: now,
+        evidence: "simulation",
+        status: "passed",
+        manualReviewRequired: true,
+        manualChecks: [...pdfManualChecks],
+        certification: false,
+      };
       statements.push(
         DB.prepare(
-          "INSERT INTO pdf_validations(organization_id,id,document_id,document_sha256,request_user_id,profile,evidence,idempotency_key,period,status,created_at,deadline_at) VALUES(?,?,?,?,?,'ua1','simulation',?,?,'processing',?,?)",
+          `INSERT INTO pdf_validations(organization_id,id,document_id,document_sha256,request_user_id,profile,evidence,idempotency_key,period,status,created_at,deadline_at,purchase_terms_version,purchase_price_minor,purchase_source) VALUES(?,?,?,?,?,'ua1','simulation',?,?,'processing',?,?,'${PDF_VALIDATION_TERMS_VERSION}',${PDF_VALIDATION_PRICE_MINOR},'browser_administrator')`,
         ).bind(
           f.actor.organizationId,
           id,
@@ -750,23 +927,33 @@ describe("immutable PDF diagnostics and paid entitlement", () => {
           id,
           now.slice(0, 7),
           now,
-          new Date(Date.now() + 60_000).toISOString(),
+          new Date(Date.parse(now) + 60000).toISOString(),
         ),
       );
       statements.push(
         DB.prepare(
-          "UPDATE pdf_validations SET status='error' WHERE organization_id=? AND id=?",
-        ).bind(f.actor.organizationId, id),
+          "UPDATE pdf_validations SET status='complete',result_json=?,completed_at=? WHERE organization_id=? AND id=?",
+        ).bind(JSON.stringify(report), now, f.actor.organizationId, id),
       );
     }
     await DB.batch(statements);
+    expect(await getPdfValidationPricing(f.env, f.actor)).toMatchObject({
+      creditAvailableMinor: 0,
+    });
     await expect(
-      f.service.validate(f.authority, f.document.id, { profile: "ua1" }, key()),
-    ).rejects.toMatchObject({ code: "PDF_VALIDATION_QUOTA_EXCEEDED" });
+      f.service.validate(f.authority, f.document.id, purchase("ua1"), key()),
+    ).rejects.toMatchObject({ code: "PDF_VALIDATION_CREDIT_INSUFFICIENT" });
     expect(f.fetch).not.toHaveBeenCalled();
   });
   it("exposes the same scoped diagnostic services in MCP without billing tools", async () => {
     const f = await fixture();
+    const purchasedKey = key();
+    await f.service.validate(
+      f.authority,
+      f.document.id,
+      purchase("ua1"),
+      purchasedKey,
+    );
     const developmentToken = `gtn_dev_${crypto.randomUUID()}`;
     await DB.prepare(
       "INSERT INTO development_mcp_tokens(token_hash,user_id,organization_id,expires_at) VALUES(?,?,?,?)",
@@ -809,9 +996,9 @@ describe("immutable PDF diagnostics and paid entitlement", () => {
       const names = tools.map((tool) => tool.name);
       // Business replay remains keyed, but the shared MCP wrapper also persists
       // successful connection activity; the complete tool is not idempotent.
-      expect(
-        tools.find((tool) => tool.name === "validate_pdf")?.annotations,
-      ).toEqual({
+      const validationTool = tools.find((tool) => tool.name === "validate_pdf")!;
+      expect(validationTool.annotations).toEqual({
+        title: validationTool.title,
         readOnlyHint: false,
         destructiveHint: false,
         idempotentHint: false,
@@ -827,7 +1014,7 @@ describe("immutable PDF diagnostics and paid entitlement", () => {
         arguments: {
           documentId: f.document.id,
           profile: "ua1",
-          idempotencyKey: key(),
+          idempotencyKey: purchasedKey,
         },
       });
       expect(report.isError).not.toBe(true);
@@ -835,6 +1022,24 @@ describe("immutable PDF diagnostics and paid entitlement", () => {
         ok: true,
         data: { certification: false, manualReviewRequired: true },
       });
+      const newPurchase = await client.callTool({
+        name: "validate_pdf",
+        arguments: {
+          documentId: f.document.id,
+          profile: "ua1",
+          idempotencyKey: key(),
+        },
+      });
+      expect(newPurchase).toMatchObject({
+        isError: true,
+        structuredContent: {
+          ok: false,
+          error: { code: "PDF_VALIDATION_BROWSER_PURCHASE_REQUIRED" },
+        },
+      });
+      expect(JSON.stringify(newPurchase.structuredContent)).toContain(
+        `${origin}/#/app/documents?document=${encodeURIComponent(f.document.id)}`,
+      );
       identity.scopes = ["documents:read"];
       const denied = await client.callTool({
         name: "validate_pdf",

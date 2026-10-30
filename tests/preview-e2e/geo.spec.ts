@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-test("homepage exposes the entity, contact, questions and real fragment targets without JavaScript", async ({
+test("public pages expose the entity, contact, complete answers and real fragment targets without JavaScript", async ({
   browser,
   baseURL,
   browserName,
@@ -36,9 +36,15 @@ test("homepage exposes the entity, contact, questions and real fragment targets 
     await expect(
       page.locator('a[href="mailto:guteneo@pieper.fr"]'),
     ).toBeVisible();
-    await expect(page.locator('a[href="/a-propos/"]')).toBeVisible();
-    expect(await page.locator("h2, h3, h4").allTextContents()).toEqual(
-      expect.arrayContaining(["Mon PDF original est-il modifié ?"]),
+    await expect(page.locator('footer a[href="/about/"]')).toBeVisible();
+    await expect(page.locator("main h1")).toHaveText(
+      "Préparez vos documents.Choisissez leur destination.",
+    );
+    await expect(page.locator(".public-home-control")).toContainText(
+      "désactivée par défaut",
+    );
+    await expect(page.locator(".public-home-beta")).toContainText(
+      "aucune vente n’est ouverte",
     );
     const missing = await page.locator('a[href*="#"]').evaluateAll((links) =>
       links.flatMap((link) => {
@@ -66,7 +72,33 @@ test("homepage exposes the entity, contact, questions and real fragment targets 
     await expect(page.locator(".skip-link").first()).toBeFocused();
     await page.keyboard.press("Enter");
     await expect(page.locator("#landing-main")).toBeFocused();
-    await page.goto("/a-propos/");
+    await page.goto("/support/#faq");
+    await expect(page.locator(".faq-questions details")).toHaveCount(8);
+    await expect(
+      page.locator(".faq-questions details").first().locator("summary"),
+    ).toHaveText("Mon PDF original est-il modifié ?");
+    await page
+      .locator(".faq-questions details")
+      .first()
+      .locator("summary")
+      .click();
+    await expect(
+      page.locator(".faq-questions details").first(),
+    ).toHaveAttribute("open", "");
+    for (const path of [
+      "/pricing/",
+      "/getting-started/",
+      "/how-it-works/",
+      "/pdf-checks/",
+    ]) {
+      await page.goto(path);
+      await expect(page.locator("main h1")).toHaveCount(1);
+      await expect(page.locator(".public-site-footer")).toHaveCount(1);
+      await expect(page.locator('footer a[href="/pricing/"]')).toHaveText(
+        "Tarifs",
+      );
+    }
+    await page.goto("/about/");
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(
       "À propos de Guteneo",
     );
@@ -76,7 +108,7 @@ test("homepage exposes the entity, contact, questions and real fragment targets 
   }
 });
 
-test("arrival images load eagerly while the below-fold film poster remains lazy", async ({
+test("homepage arrival avoids lazy visible imagery and leaves the film on its dedicated page", async ({
   page,
 }) => {
   await page.goto("/");
@@ -96,6 +128,8 @@ test("arrival images load eagerly while the below-fold film poster remains lazy"
         .map((image) => image.getAttribute("src")),
     );
   expect(visibleLazyImages).toEqual([]);
+  await expect(page.locator(".homepage-film")).toHaveCount(0);
+  await page.goto("/how-it-works/");
   await expect(page.locator(".homepage-film-poster img")).toHaveAttribute(
     "loading",
     "lazy",

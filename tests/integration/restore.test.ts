@@ -149,6 +149,13 @@ it("restores independent D1/R2 fixtures without resubmitting an uncertain physic
       (await sourceDomain.getDispatch(ctx, prepared.id)).dispatch.status,
     ).toBe("submission_unknown");
 
+    // Operator configuration is backed-up data, not a migration default to
+    // recreate. Deliberately choose the non-default policy before snapshotting.
+    await sourceDb.prepare("UPDATE secure_document_authentication_policy SET mode='verified_account' WHERE id=1").run();
+    const sourcePolicy = await sourceDb.prepare("SELECT id,mode FROM secure_document_authentication_policy").first<{ id: number; mode: string }>();
+    expect(sourcePolicy).toEqual({ id: 1, mode: "verified_account" });
+    expect(await restoredDb.prepare("SELECT id,mode FROM secure_document_authentication_policy").first()).toEqual({ id: 1, mode: "strong" });
+
     // The producer and all consumers are quiesced here. No concurrent mutation is permitted while
     // collecting this logical snapshot; an online SQL backup must use its supported consistent export.
     const tables = (
@@ -193,6 +200,10 @@ it("restores independent D1/R2 fixtures without resubmitting an uncertain physic
       await restoredDb
         .prepare(`DROP TRIGGER ${safeIdentifier(trigger.name)}`)
         .run();
+    // This target is a new isolated fixture, already initialized by migrations.
+    // Remove only the known 0059 seed before strict replay of its saved value;
+    // never ignore conflicts or upsert arbitrary business rows during restore.
+    await restoredDb.prepare("DELETE FROM secure_document_authentication_policy WHERE id=1").run();
     const remaining = [...snapshot],
       loaded = new Set<string>();
     while (remaining.length) {
@@ -215,6 +226,9 @@ it("restores independent D1/R2 fixtures without resubmitting an uncertain physic
       loaded.add(table.name);
     }
     for (const trigger of triggers) await restoredDb.prepare(trigger.sql).run();
+    const restoredPolicy = await restoredDb.prepare("SELECT id,mode FROM secure_document_authentication_policy").first();
+    expect(restoredPolicy).toEqual(sourcePolicy);
+    expect((await restoredDb.prepare("SELECT id,mode FROM secure_document_authentication_policy").all()).results).toEqual([sourcePolicy]);
     await restoredBucket.put(storageKey, objectBackup, {
       httpMetadata: object.httpMetadata,
     });
@@ -293,6 +307,7 @@ it("restores independent D1/R2 fixtures without resubmitting an uncertain physic
           resubmissionsAfterRestore: replaySubmissions,
           uncertaintyResolvedBy: "simulated verified provider fact",
           foreignKeyViolations: 0,
+          documentAuthenticationPolicy: restoredPolicy,
           durationMs: Date.now() - started,
           limitations: [
             "Quiesced local logical snapshot; not a hosted Cloudflare consistent backup",

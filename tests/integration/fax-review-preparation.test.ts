@@ -205,11 +205,11 @@ describe("non-sending reviewer fax quotations", () => {
     });
     expect(d.faxPricing!.estimatedHighNanoeur).toBeGreaterThan(0);
     expect(customerFaxPricing(d.faxPricing!).display.explanation).toContain(
-      "ne peut être ni approuvé ni envoyé",
+      "cannot be approved or sent",
     );
     expect(
       customerFaxPricing(d.faxPricing!).display.ceiling.creditLabel,
-    ).toContain("Aucune réservation");
+    ).toContain("No credit is reserved");
     await noExecution();
   });
   it("keeps preparation-only scope and guidance through the actual MCP transport", async () => {
@@ -256,7 +256,7 @@ describe("non-sending reviewer fax quotations", () => {
         data: { faxPricing: { executionScope: string }; nextActions: string[] };
       };
       expect(body.data.faxPricing.executionScope).toBe("review_prepare_only");
-      expect(body.data.nextActions.join(" ")).toContain("Aucun envoi");
+      expect(body.data.nextActions.join(" ")).toContain("No sending");
       expect(body.data.nextActions.join(" ")).not.toContain(
         "approve_and_send_dispatch",
       );
@@ -554,7 +554,7 @@ describe("non-sending reviewer fax quotations", () => {
       }),
     ).rejects.toThrow();
   });
-  it("keeps the historical live operator pilot bounded to September24", async () => {
+  it("keeps live pilot extensions bounded and historical rows expired", async () => {
     await expect(
       insertRecord(db, "trusted_fax_usage_tariffs", {
         ...tariff,
@@ -563,6 +563,8 @@ describe("non-sending reviewer fax quotations", () => {
         execution_scope: "live",
         review_authority_id: null,
         evidence_observed_at: null,
+        valid_from: "2026-11-03T00:00:00.000Z",
+        expires_at: "2026-11-04T00:00:00.000Z",
       }),
     ).rejects.toThrow();
     const old = {

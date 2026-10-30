@@ -11,6 +11,12 @@ import { syntheticDocxFixture } from "./pdfme-docx-fixture";
 import { importDocxTemplate } from "../packages/templates/docx";
 import { invoiceTemplate, letterTemplate } from "../packages/templates/gallery";
 import type { TemplateEnvelope } from "../packages/contracts/src/templates";
+import { verifyInheritedNetworkBoundary } from "./test-offline.mjs";
+
+const offlineSandbox =
+  process.platform === "darwin" &&
+  process.env.GUTENEO_OFFLINE_SANDBOX === "macos-network";
+if (offlineSandbox) await verifyInheritedNetworkBoundary();
 
 const directory = resolve("reports/template-engine");
 await mkdir(directory, { recursive: true });
@@ -21,6 +27,9 @@ const launch = async () => {
   const browser = await puppeteer.launch({
     executablePath: chromium.executablePath(),
     headless: true,
+    // macOS cannot nest Chromium's seatbelt inside sandbox-exec. Only synthetic
+    // local qualification uses this branch, after a real inherited-network probe.
+    ...(offlineSandbox ? { args: ["--no-sandbox"] } : {}),
   });
   browser.on("targetcreated", async (target) => {
     const page = await target.page();
@@ -38,7 +47,7 @@ const cases: {
 }[] = [1, 30, 200].map((count) => {
   const envelope = invoiceTemplate();
   const items = Array.from({ length: count }, (_, i) => ({
-    description: `LIGNE-${String(i + 1).padStart(3, "0")} — préparation, étude française ; Ä Ö Ü ß €`,
+    description: `LIGNE-${String(i + 1).padStart(3, "0")} — preparation, French glyph sample ; Ä Ö Ü ß €`,
     quantity: (i % 3) + 1,
     unitPriceMinor: 1250,
   }));
@@ -53,7 +62,7 @@ const letter = letterTemplate();
 const paragraphs = Array.from(
   { length: 45 },
   (_, i) =>
-    `PARAGRAPHE-${String(i + 1).padStart(3, "0")} : La préparation d’un courrier exige une pagination complète et lisible. Accents français : é è ê ç œ. Allemand : Ä Ö Ü ß. Montant : 125,00 €. ${"Ce texte vérifie les retours à la ligne et la conservation de chaque paragraphe. ".repeat(3)}`,
+    `PARAGRAPHE-${String(i + 1).padStart(3, "0")} : Preparing a letter requires complete, readable pagination. French accents: é è ê ç œ. German: Ä Ö Ü ß. Amount: 125,00 €. ${"This text checks line wrapping and preservation of every paragraph. ".repeat(3)}`,
 );
 cases.push({
   name: "letter-long",

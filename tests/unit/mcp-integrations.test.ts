@@ -8,6 +8,7 @@ import { InMemoryTransport } from "@modelcontextprotocol/server";
 import { Miniflare, convertV4MiniflareOptions } from "miniflare";
 import {
   createGuteneoMcpServer,
+  MCP_LIMITS,
   type McpDocuments,
   type McpServices,
 } from "../../apps/api/src/mcp";
@@ -24,6 +25,7 @@ import {
   assistantRecoverySchema,
 } from "../../packages/contracts/src/assistant-recovery";
 import { ContentError } from "../../packages/contracts/src/content";
+import { GUTENEO_VERSION } from "../../packages/contracts/src/release";
 import {
   prepareTemplateRender,
   validateTemplateEnvelope,
@@ -118,11 +120,13 @@ async function connected<T>(
   documentServices: Partial<McpDocuments> = {},
   onToolFailure?: McpServices["onToolFailure"],
   postal?: McpServices["postal"],
+  workflow?: McpServices["workflow"],
 ) {
   const server = createGuteneoMcpServer(principal, env, {
     domain,
     onToolFailure,
     postal,
+    workflow,
     capabilities: () => ({ mode: "simulation", liveSendsEnabled: false }),
     documents: {
       async importFile() {
@@ -167,6 +171,115 @@ async function call(
 }
 
 describe("distributable LLM integrations", () => {
+  it("describes both existing JSON dataset root shapes without rewriting their original data", async () => {
+    const importDataset = vi.fn(async () => {
+      throw new DomainError(
+        "SYNTHETIC_REACHED",
+        "Synthetic validation boundary",
+      );
+    });
+    const inputs = [
+      [{ customer: { name: "Example" }, count: 2, enabled: true, note: null }],
+      { Customers: [{ customer: "Example" }], Items: [{ amount: "1.25" }] },
+    ];
+    await connected(
+      async (client) => {
+        const tool = (await client.listTools()).tools.find(
+          (item) => item.name === "import_json_dataset",
+        )!;
+        expect(tool.inputSchema.properties?.data).toEqual({
+          type: ["array", "object"],
+          items: { type: "object" },
+          additionalProperties: {
+            type: "array",
+            items: { type: "object" },
+          },
+        });
+        for (const data of inputs) {
+          const result = await call(client, "import_json_dataset", {
+            name: "Synthetic records",
+            data,
+          });
+          expect(result.structuredContent?.error?.code).toBe(
+            "SYNTHETIC_REACHED",
+          );
+          expect(importDataset).toHaveBeenLastCalledWith(
+            expect.objectContaining({
+              organizationId: identity.context.organizationId,
+            }),
+            {
+              name: "Synthetic records",
+              format: "json",
+              bytes: new TextEncoder().encode(JSON.stringify(data)),
+            },
+          );
+        }
+      },
+      identity,
+      {},
+      undefined,
+      undefined,
+      { importDataset } as unknown as McpServices["workflow"],
+    );
+  });
+
+  it("preserves the supported 100,000-cell JSON dataset before domain validation", async () => {
+    const importDataset = vi.fn(async () => {
+      throw new DomainError(
+        "SYNTHETIC_REACHED",
+        "Synthetic validation boundary",
+      );
+    });
+    const data = Array.from({ length: 5000 }, (_, row) =>
+      Object.fromEntries(
+        Array.from({ length: 20 }, (_, column) => [`field${column}`, row]),
+      ),
+    );
+    expect(Buffer.byteLength(JSON.stringify(data))).toBeLessThan(
+      MCP_LIMITS.requestBytes,
+    );
+    await connected(
+      async (client) => {
+        const result = await call(client, "import_json_dataset", {
+          name: "Synthetic cells",
+          data,
+        });
+        expect(result.structuredContent?.error?.code).toBe("SYNTHETIC_REACHED");
+        expect(importDataset).toHaveBeenCalledTimes(1);
+      },
+      identity,
+      {},
+      undefined,
+      undefined,
+      { importDataset } as unknown as McpServices["workflow"],
+    );
+  });
+
+  it("rejects excessive tool argument elements before validation or document access", async () => {
+    const importFile = vi.fn(async () => {
+      throw new Error("A rejected call must not reach document services");
+    });
+    await connected(
+      async (client) => {
+        const result = await call(client, "import_document", {
+          file: {
+            download_url: "https://files.example.invalid/original.pdf",
+            file_id: "fixture",
+          },
+          excessive: Array.from(
+            { length: MCP_LIMITS.toolInputElements },
+            () => null,
+          ),
+        });
+        expect(result.isError).toBe(true);
+        expect(JSON.stringify(result)).toMatch(/element|limit|complex|large/i);
+        expect(importFile).not.toHaveBeenCalled();
+      },
+      identity,
+      { importFile },
+    );
+  });
+
   it.each([
     ["DOCUMENT_INTEGRITY_ERROR", "contact_support", null],
     ["CORRUPT_PDF", "replace_file", null],
@@ -276,8 +389,8 @@ describe("distributable LLM integrations", () => {
       for (const prerequisite of [
         "status=prepared",
         "attemptCount=0",
-        "renewalOf=ancien dispatchId",
-        "documentId, phone E.164 et ceilingMinor exacts",
+        "renewalOf=the previous dispatchId",
+        "documentId, E.164 phone and ceilingMinor",
       ])
         expect(recovery.message).toContain(prerequisite);
     }
@@ -353,8 +466,10 @@ describe("distributable LLM integrations", () => {
         const error = result.structuredContent?.error as
           { recovery: unknown } | undefined;
         const recovery = assistantRecoverySchema.parse(error?.recovery);
-        expect(recovery.message).toContain("mêmes documentId et page");
-        expect(recovery.message).toContain("ni envoi préparé ni mandat expert");
+        expect(recovery.message).toContain("same documentId and page");
+        expect(recovery.message).toContain(
+          "neither a prepared dispatch nor an expert mandate",
+        );
         expect(recovery.message).not.toContain("review_dispatch");
         expect(JSON.stringify(result)).not.toContain("get_dispatch_status");
         expect(JSON.stringify(result)).not.toContain(
@@ -427,7 +542,7 @@ describe("distributable LLM integrations", () => {
         expect(result.isError).not.toBe(true);
         const message = result.content[0];
         expect(message.type).toBe("text");
-        expect(message.text).toContain("dans cette conversation");
+        expect(message.text).toContain("in this conversation");
         expect(message.text).not.toMatch(/https?:\/\/|quarantined|doc_/);
         expect(result.structuredContent?.data).toMatchObject({
           id: documentId,
@@ -440,7 +555,7 @@ describe("distributable LLM integrations", () => {
           },
         });
         const analysis = result.structuredContent?.data?.analysis;
-        expect(JSON.stringify(analysis)).toContain("automatiquement");
+        expect(JSON.stringify(analysis)).toContain("automatically");
         expect(JSON.stringify(analysis)).not.toContain("quarantined");
         expect(JSON.stringify(result)).not.toContain("private-test-document");
         const listing = await call(client, "list_documents");
@@ -486,7 +601,7 @@ describe("distributable LLM integrations", () => {
           );
           expect(
             JSON.stringify(result.structuredContent?.data?.analysis),
-          ).not.toContain("automatiquement");
+          ).not.toContain("automatically");
         },
         identity,
         { rescan: async () => ({ ...doc, ...(analysis ? { analysis } : {}) }) },
@@ -563,8 +678,40 @@ describe("distributable LLM integrations", () => {
           { encoding: "utf8" },
         ),
       );
-      expect(manifest.version).toBe("0.3.2");
+      expect(manifest.version).toBe(GUTENEO_VERSION);
+      expect(manifest.mcpSourceSha256).toMatch(/^[a-f0-9]{64}$/);
+      expect(manifest.files).toContain("mcp-contract.json");
+      const contract = JSON.parse(
+        execFileSync(
+          "unzip",
+          ["-p", path.join(first, "guteneo-plugin.zip"), "mcp-contract.json"],
+          { encoding: "utf8" },
+        ),
+      );
+      expect(contract.pluginVersion).toBe(manifest.version);
+      expect(contract.mcpSourceSha256).toBe(manifest.mcpSourceSha256);
       expect(manifest.version).toBe(plugin.version);
+      const mcp = JSON.parse(
+        execFileSync(
+          "unzip",
+          ["-p", path.join(first, "guteneo-plugin.zip"), "mcp.json"],
+          { encoding: "utf8" },
+        ),
+      );
+      const oauth = mcp.mcpServers.guteneo.extensions["com.openai"].auth;
+      expect(oauth.client).toEqual({
+        mode: "provided",
+        clientId: "BQKAoIP92KVj7E47io4QUxj9mY7puduZ",
+        tokenEndpointAuthMethod: "none",
+      });
+      expect([...oauth.baseScopes].sort()).toEqual([...MCP_SCOPES].sort());
+      expect(oauth.defaultScopes).toEqual(["openid", "email", "profile"]);
+      expect(oauth.authorizationServerBase).toBe("https://auth.guteneo.com/");
+      expect(oauth.authorizationUrl).toBe("https://auth.guteneo.com/authorize");
+      expect(oauth.tokenUrl).toBe("https://auth.guteneo.com/oauth/token");
+      expect(oauth.resource).toBe("https://guteneo.com/mcp");
+      expect(oauth).not.toHaveProperty("clientSecret");
+      expect(oauth.client).not.toHaveProperty("clientSecret");
       expect(plugin.name).toBe("app-6ab05fbae9a881918dc6ee4e2f235d93");
       expect(manifest.hostQualification).toBe("pending");
       expect(manifest.publishedToDirectories).toBe(false);
@@ -572,13 +719,36 @@ describe("distributable LLM integrations", () => {
       expect(manifest.files).toContain("skills/pdf-accessibility/SKILL.md");
       expect(manifest.files).toContain("skills/fax-pdf/SKILL.md");
       expect(manifest.files).toContain("skills/postal-pdf/SKILL.md");
+      expect(manifest.files).toContain("skills/secure-distribution/SKILL.md");
+      expect(manifest.files).toContain(
+        "skills/secure-distribution/agents/openai.yaml",
+      );
+      const secureSkill = execFileSync(
+        "unzip",
+        [
+          "-p",
+          path.join(first, "guteneo-plugin.zip"),
+          "skills/secure-distribution/SKILL.md",
+        ],
+        { encoding: "utf8" },
+      );
+      for (const tool of [
+        "prepare_secure_distribution",
+        "list_secure_distributions",
+        "get_secure_distribution",
+        "confirm_secure_distribution",
+        "revoke_secure_distribution",
+      ])
+        expect(secureSkill).toContain(tool);
+      expect(secureSkill).toContain("non-refundable");
+      expect(secureSkill).toContain("expert mandate");
       const branding = plugin.extensions["com.openai"].interface;
-      expect(branding.supportURL).toBe("https://guteneo.com/support/");
+      expect(branding.supportURL).toBe("https://guteneo.com/support/?lang=en");
       expect(branding.privacyPolicyURL).toBe(
-        "https://guteneo.com/confidentialite/",
+        "https://guteneo.com/privacy/?lang=en",
       );
       expect(branding.termsOfServiceURL).toBe(
-        "https://guteneo.com/conditions/",
+        "https://guteneo.com/terms/?lang=en",
       );
       expect(branding.shortDescription.length).toBeLessThanOrEqual(30);
       expect(new Set(branding.defaultPrompt).size).toBe(
@@ -623,13 +793,13 @@ describe("distributable LLM integrations", () => {
         { encoding: "utf8" },
       );
       expect(emailSkill).toContain("prepare_dispatch");
-      expect(emailSkill).toContain("aucun `documentId`");
+      expect(emailSkill).toContain("My documents");
+      expect(emailSkill).toContain("protected_link remains an explicit legacy");
+      expect(emailSkill).toContain("never retrieve it with tools");
+      expect(emailSkill).toContain("Preparation-only accounts cannot send");
       expect(emailSkill).toContain(
-        'options.emailDeliveryMode="protected_link"',
+        "Unknown provider outcomes require reconciliation",
       );
-      expect(emailSkill).toContain("Ne jamais ouvrir cette page avec un outil");
-      expect(emailSkill).toContain("préparation ne peuvent pas envoyer");
-      expect(emailSkill).toContain("submission_unknown");
       expect(manifest.files).toContain("skills/document-studio/SKILL.md");
       const authoringPath =
         "skills/document-studio/references/template-authoring.md";
@@ -659,7 +829,7 @@ describe("distributable LLM integrations", () => {
         { encoding: "utf8" },
       );
       expect(postalSkill).toContain("get_capabilities");
-      expect(postalSkill).toContain("n’est pas disponible");
+      expect(postalSkill).toContain("if unavailable");
       expect(postalSkill).toContain("submission_unknown");
       for (const name of ["copilot-vscode-mcp.json", "copilot-cli-mcp.json"]) {
         const built = await readFile(path.join(first, name), "utf8");
@@ -730,7 +900,7 @@ describe("distributable LLM integrations", () => {
       const prompt = await client.getPrompt({ name: "fax_pdf" });
       expect(JSON.stringify(prompt)).toContain("submission_unknown");
       expect(JSON.stringify(prompt)).toContain(
-        "ne remplace pas cette approbation",
+        "neither replaces that approval",
       );
     });
   });
@@ -743,7 +913,9 @@ describe("distributable LLM integrations", () => {
       async (client) => {
         expect(client.getServerVersion()).toMatchObject({
           name: "guteneo",
-          version: "0.3.0",
+          title: "Guteneo",
+          version: GUTENEO_VERSION,
+          websiteUrl: `${env.APP_ORIGIN}/developers/?lang=en`,
           icons: [
             {
               src: `${env.APP_ORIGIN}/brand/guteneo-mark.png`,
@@ -763,6 +935,7 @@ describe("distributable LLM integrations", () => {
           list_documents: [false, false, false, false],
           read_document_pages: [false, false, false, false],
           get_dispatch_status: [false, false, false, false],
+          dry_run_dispatch: [false, false, false, false],
           list_dispatches: [false, false, false, false],
           get_postal_requirements: [false, false, false, false],
           get_postal_setup: [false, false, false, false],
@@ -777,7 +950,7 @@ describe("distributable LLM integrations", () => {
           import_document: [false, false, false, true],
           render_pdf: [false, false, false, false],
           rescan_document: [false, false, false, false],
-          review_dispatch: [false, false, false, false],
+          review_dispatch: [false, true, false, false],
           transfer_postal_draft: [false, true, false, false],
           approve_and_send_dispatch: [false, true, false, true],
           confirm_dispatch: [false, true, false, true],
@@ -793,6 +966,7 @@ describe("distributable LLM integrations", () => {
           const [readOnlyHint, destructiveHint, idempotentHint, openWorldHint] =
             expected[tool.name];
           expect(tool.annotations, tool.name).toEqual({
+            title: tool.title,
             readOnlyHint,
             destructiveHint,
             idempotentHint,

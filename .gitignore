@@ -9,3 +9,7 @@ test-results/
 reports/*.json
 reports/*.log
 *.tsbuildinfo
+reports/mcp-document-upload/
+*.log
+.DS_Store
+__pycache__/

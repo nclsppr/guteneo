@@ -1,4 +1,5 @@
 {
+  "État du service": ["Service status", "Systemstatus", "Servicestatus"],
   "Préparez votre premier envoi depuis une conversation ou directement avec votre document. Dans les deux cas, vous vérifiez les détails avant de confirmer.": [
     "Prepare your first dispatch from a conversation or directly with your document. In both cases, check the details before confirming.",
     "Bereiten Sie Ihre erste Sendung aus einem Gespräch oder direkt mit Ihrem Dokument vor. In beiden Fällen prüfen Sie die Details vor der Bestätigung.",
@@ -13,11 +14,6 @@
     "Mobile navigation",
     "Mobile Navigation",
     "Mobil Navigatioun"
-  ],
-  "Navigation de l’atelier": [
-    "Workspace navigation",
-    "Arbeitsbereich-Navigation",
-    "Navigatioun vum Aarbechtsberäich"
   ],
   "Assistants": ["Assistants", "Assistenten", "Assistenten"],
   "Explorer la démo": ["Explore the demo", "Demo erkunden", "Demo entdecken"],
@@ -407,5 +403,69 @@
     "Updated on 22 September 2026",
     "Aktualisiert am 22. September 2026",
     "Aktualiséiert den 22. September 2026"
+  ],
+  "Ouverture de la connexion…": [
+    "Opening sign-in…",
+    "Anmeldung wird geöffnet…",
+    "Umeldung gëtt opgemaach…"
+  ],
+  "Redirection vers Auth0…": [
+    "Redirecting to Auth0…",
+    "Weiterleitung zu Auth0…",
+    "Weiderleedung op Auth0…"
+  ],
+  "Connexion sécurisée par Auth0.": [
+    "Secure sign-in with Auth0.",
+    "Sichere Anmeldung mit Auth0.",
+    "Sécher Umeldung mat Auth0."
+  ],
+  "Première visite ?": [
+    "New here?",
+    "Zum ersten Mal hier?",
+    "Fir d’éischt hei?"
+  ],
+  "Créer un compte": [
+    "Create an account",
+    "Konto erstellen",
+    "E Kont erstellen"
+  ],
+  "Retour au site": [
+    "Back to the website",
+    "Zurück zur Website",
+    "Zréck op de Site"
+  ],
+  "Auth0 ne propose pas le luxembourgeois. Une langue de repli sera utilisée pour cette étape.": [
+    "Auth0 does not support Luxembourgish. A fallback language will be used for this step.",
+    "Auth0 unterstützt kein Luxemburgisch. Für diesen Schritt wird eine Ersatzsprache verwendet.",
+    "Auth0 ënnerstëtzt kee Lëtzebuergesch. Fir dëse Schrëtt gëtt eng aner Sprooch benotzt."
+  ],
+  "Reprenons la connexion.": [
+    "Let’s try signing in again.",
+    "Versuchen wir die Anmeldung erneut.",
+    "Probéiere mir d’Umeldung nach eng Kéier."
+  ],
+  "Réessayez pour retrouver la page demandée.": [
+    "Try again to return to the page you requested.",
+    "Versuchen Sie es erneut, um zur gewünschten Seite zurückzukehren.",
+    "Probéiert nach eng Kéier, fir op déi gewënscht Säit zeréckzekommen."
+  ],
+  "Apparence": ["Appearance", "Erscheinungsbild", "Ausgesinn"],
+  "Système": ["System", "System", "System"],
+  "Clair": ["Light", "Hell", "Hell"],
+  "Sombre": ["Dark", "Dunkel", "Däischter"],
+  "L’atelier doit conserver au moins un administrateur. Nommez un autre administrateur avant de modifier ce rôle.": [
+    "The workspace must retain at least one administrator. Appoint another administrator before changing this role.",
+    "Der Arbeitsbereich muss mindestens einen Administrator behalten. Ernennen Sie einen weiteren Administrator, bevor Sie diese Rolle ändern.",
+    "Den Aarbechtsberäich muss op d’mannst een Administrateur behalen. Bestëmmt en aneren Administrateur, ier Dir dës Roll ännert."
+  ],
+  "Cette page n’a pas pu être chargée.": [
+    "This page could not be loaded.",
+    "Diese Seite konnte nicht geladen werden.",
+    "Dës Säit konnt net geluede ginn."
+  ],
+  "Recharger la page": [
+    "Reload the page",
+    "Seite neu laden",
+    "D’Säit nei lueden"
   ]
 }

@@ -1,0 +1,14 @@
+{
+  "name": "guteneo",
+  "version": "1.1.19",
+  "description": "Prepare PDFs, email, fax, postal mail and account-protected PDF distribution when enabled.",
+  "author": {
+    "name": "NICOLAS PATRICK HENRI FRANK PIEPER"
+  },
+  "homepage": "https://guteneo.com/about/?lang=en",
+  "repository": "https://github.com/nclsppr/guteneo",
+  "icon": "./assets/guteneo-mark.png",
+  "privacyPolicyUrl": "https://guteneo.com/privacy/?lang=en",
+  "termsOfServiceUrl": "https://guteneo.com/terms/?lang=en",
+  "supportUrl": "https://guteneo.com/support/?lang=en"
+}

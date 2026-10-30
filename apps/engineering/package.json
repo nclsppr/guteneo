@@ -1,0 +1,55 @@
+{
+  "name": "@guteneo/engineering",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "node ../../scripts/build-engineering-content.mjs --check && astro build",
+    "preview": "astro preview",
+    "typecheck": "astro check",
+    "lint:docs": "nimbus-docs lint",
+    "lint:docs:fix": "nimbus-docs lint --fix",
+    "prepreview:cf": "npm run build",
+    "preview:cf": "wrangler dev",
+    "deploy": "node ../../scripts/deploy-engineering.mjs",
+    "predev": "node ../../scripts/build-engineering-content.mjs",
+    "check": "nimbus-docs check"
+  },
+  "dependencies": {
+    "@cloudflare/nimbus-docs": "0.19.0",
+    "@fontsource/eb-garamond": "5.3.0",
+    "@fontsource/ibm-plex-mono": "5.3.0",
+    "@fontsource/ibm-plex-sans": "5.3.0",
+    "@iconify-json/ph": "1.2.2",
+    "@resvg/resvg-js": "2.6.2",
+    "astro": "7.4.2",
+    "clsx": "2.1.1",
+    "satori": "0.26.0",
+    "sharp": "0.35.5",
+    "tailwind-merge": "3.7.0"
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.12",
+    "@astrojs/language-server": "2.16.13",
+    "@mermaid-js/mermaid-cli": "12.0.0",
+    "@tailwindcss/vite": "4.3.3",
+    "pagefind": "1.5.2",
+    "tailwindcss": "4.3.3",
+    "typescript": "5.9.3",
+    "wrangler": "4.152.0"
+  },
+  "description": "Guteneo engineering documentation, built with Cloudflare Nimbus.",
+  "packageManager": "npm@11.16.0",
+  "engines": {
+    "node": ">=22.23.4"
+  },
+  "overrides": {
+    "miniflare": {
+      "undici": "7.30.1"
+    },
+    "@mermaid-js/mermaid-cli": {
+      "katex": "0.18.10"
+    }
+  }
+}

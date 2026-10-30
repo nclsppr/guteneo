@@ -1,0 +1,133 @@
+---
+title: Contributing and maintaining the docs
+description: Change the implementation, feature inventory and technical explanation together while preserving one authoritative source.
+sidebar:
+  label: Contributing
+  order: 3
+---
+
+A feature change is complete when its behavior, authority, tests and explanation
+agree. Start by finding the current contract in the [repository map](/getting-started/repository-map/)
+and [feature atlas](/features/), then make the smallest coherent change across
+those sources.
+
+<GutenbergNote pose="welcome" title="Leave the next reader a clean proof">
+  Update the code, its feature entry and its explanation together. The generated
+  atlas is the same inventory in another format, not a second notebook to keep
+  in sync by hand.
+</GutenbergNote>
+
+## Plan the boundary before editing
+
+Read the repository's engineering rules and the current product, architecture and
+execution-plan documents. Identify the affected actor, workspace boundary, stored
+version and external side effect. Coordinate file ownership when several people
+or agents share a checkout; preserve unrelated local work.
+
+Changes to approval, acceptance, tenancy, money or provider uncertainty deserve
+explicit invariant review. UI refactoring must preserve the decision information
+needed to approve an exact communication. Moving a control into a shared component
+must not move authority into the client.
+
+## Write English source and stable contracts
+
+Write code, identifiers, comments, tests, documentation, diagrams and integration
+instructions in English. Product UI translations belong in their locale resources;
+localized video narration, captions and on-screen text retain their declared
+language. User content, proper names and immutable external evidence keep their
+exact values.
+
+Canonical route segments, API keys, error codes, scopes and tool names stay in
+English across locales. Translate the displayed label without translating its
+destination. If a published route changes, add an explicit compatibility alias
+and update generated links, canonical metadata, discovery and tests together.
+
+Use the existing public shell, page headings, controls, design tokens and locale
+keys for shared behavior. Preserve guteneo's paper, ink and cobalt identity.
+Avoid repeating a page title, introductory paragraph or primary action in its
+surrounding chrome. Keep required consent and financial details at the decision
+where they matter.
+
+## Update one source, then generate its views
+
+`docs/feature-map.json` owns the repository feature tree, actors, journeys,
+availability and interface coverage. When adding, changing or removing a feature:
+
+1. Update the affected feature-map entry, permissions and journeys.
+2. Update the authoritative developer contract and relevant curated engineering
+   explanation in the same pull request.
+3. Regenerate the repository atlas, interface matrices and public feature pages.
+4. Run the documentation checks and inspect the resulting links and wording.
+
+```sh
+npm run docs:build
+npm run docs:check
+npm run check:standards
+```
+
+The `/features/` pages are a reviewed public projection of that source. Do not edit
+generated MDX independently or copy its feature lists into another guide. The
+repository retains source references and private evidence; the public projection
+retains useful contracts and activation limits without publishing those records.
+
+Portable assistant instructions likewise have one source under
+`integrations/guteneo/`. Host-specific constraints belong in the explicit overlay;
+regenerate host copies instead of maintaining parallel instructions by hand.
+
+## Work on the engineering site
+
+The Nimbus app has its own pinned dependencies and lockfile. Its Astro toolchain
+requires Node.js 22.23.4 or later, including a supported Node.js 24 release. This
+is a higher minimum than the main application's local setup. From the repository
+root:
+
+```sh
+npm --prefix apps/engineering ci
+npm run dev:engineering
+```
+
+After editing the curated MDX or a shared site component:
+
+```sh
+npm run build:engineering
+npm run check:engineering
+npm run test:engineering
+```
+
+The build verifies generated feature pages, renders the static site and prepares
+local search. Check the built preview when reviewing search, Markdown versions,
+diagrams and phone navigation. Keep content under `src/content/docs/` and register
+reusable MDX components centrally; the layout already supplies the page heading.
+
+## Keep technical explanations useful
+
+Each current rule has an authoritative home. Link to it from an overview instead
+of copying its full workflow. A tutorial should explain a real decision or task;
+an inventory should describe coverage. Neither should repeat the same warning
+and introduction in every section.
+
+Use exact names from current code and describe failure behavior as carefully as
+the happy path. Separate current implementation from dated observations. Never
+turn a successful local fixture into a claim about an account, provider,
+authenticated host or deployed release.
+
+Public engineering pages contain curated technical explanations. Private operator
+addresses, account/tenant/client identifiers, secrets, customer content, recovery
+procedures and historical proof appendices remain outside the published site.
+Use synthetic examples and conventional environment-variable names.
+
+## Verify and explain the final change
+
+Run checks appropriate to the changed boundary, then the required repository and
+documentation checks. The language and source-ownership guards detect regressions;
+they do not establish fluent English, correct translation or semantic completeness.
+Review the [rendered interface and evidence](/engineering/testing/) as well.
+
+Describe the concrete problem, resulting behavior, validation and remaining limits
+for a reviewer who has not seen the conversation. If scope changes during the work,
+rewrite the description around the final implementation. Keep exact historical
+proof faithful when linking it privately.
+
+Implementation work does not itself authorize real communications, paid
+provisioning, provider activation, marketplace submission or production release.
+Those operations retain their separate authority and verification requirements.

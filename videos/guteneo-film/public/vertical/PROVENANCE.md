@@ -38,19 +38,26 @@ Lighting and color: a controlled luminous blade of natural light grazes the fold
 Constraints: no hands, no pens or decorative clutter, no printed or invented logo, no typography, no watermark, no collage, no infographic. Photo-real physical paper and envelopes. Make distinct letters feel personal and carefully arranged, without relying on any readable content.
 
 
-## Révision 2 — mouvements du footer et oblitération
+## Revision 2 — footer movement and postmark
 
-- Hirondelles : copie inchangée de `apps/web/public/luxembourg-blue-swallow-sheet.webp` dans `public/brand/`, quatre poses synchronisées aux images Remotion. Trois oiseaux de tailles différentes sur les plans Luxembourg et au début du final. Ils quittent le cadre avant la tenue finale.
-- Cachet : géométrie SVG, textes, date fondatrice du 16.09.2026 et grain repris du composant `FoundingPostage` de `apps/web/src/landing-sections.tsx`. Ce motif de marque ne constitue pas un affranchissement postal réel.
-- Les timbres tramés sont composés avec ce cachet ; l’oblitération du final apparaît après la pose du timbre, laissant le visage lisible.
-- Le clap visuel, son impact et la mention « fin » sont supprimés de la composition verticale. La durée demeure 56 secondes.
+- Swallows are unchanged `apps/web/public/luxembourg-blue-swallow-sheet.webp` copies in `public/brand/`, four frame-synchronized poses. Three scales appear at Luxembourg/ending start and leave before final hold.
+- SVG postmark geometry/text/founding date16.09.2026/grain come from `FoundingPostage` in `apps/web/src/landing-sections.tsx`. This brand motif proves no actual postage.
+- Halftone stamps use that postmark; ending cancellation appears after stamp placement, retaining face readability.
+- Vertical visual clap/impact/end label removed; duration stays 56 seconds.
 
-## Révision 4 — logos miniatures
+## Revision 4 — miniature logos
 
-Les timbres d’au plus 80 unités optiques dans le stage de 1080 de large utilisent l’asset canonique inchangé `apps/web/public/brand/guteneo-mark.png`, déjà présent dans `public/brand/`. Le grand timbre final conserve `guteneo-halftone.webp`. La sélection dépend de la taille nominale et du facteur de réduction du parent, pas des petits zooms animés, ce qui évite un changement de motif en pleine transition.
+Stamps at most 80 optical units on 1080-wide stage use unchanged canonical
+`apps/web/public/brand/guteneo-mark.png`, already in `public/brand/`. Large final
+keeps `guteneo-halftone.webp`. Selection uses nominal size/parent scale rather
+than small animated zooms, avoiding midtransition motif switches.
 
-`mobile-web.png` et son fichier de provenance restent des captures originales non retouchées. Dans la composition vidéo `Access` uniquement, une couche native Remotion couvre le logo d’en-tête (position CSS du site : x22, y16.5, carré44 dans un viewport390) et le remplace par l’asset simplifié. Cette composition publicitaire ne constitue pas un changement du site public.
+`mobile-web.png`/provenance remain unretouched originals. Only advertising
+composition `Access` overlays the tiny header logo with simplified asset: site
+CSS x22 / y16.5 / square44 at viewport 390. This changes no public website.
 
-## Révision 5 — ouverture et adaptation horizontale
+## Revision 5 — opening and landscape adaptation
 
-La première scène utilise uniquement le logo simplifié canonique, sans cachet postal, dans la marque et sur le document. Le final conserve le timbre tramé et son cachet. Le nouveau spot horizontal recompose les mêmes séquences en 1920 × 1080, réutilise les mêmes photographies et la même musique, et ne montre Luxembourg qu’une fois. Aucun nouvel asset généré.
+First scene uses only simplified canonical logo without postmark on brand/document;
+ending retains halftone/postmark. Landscape recomposes the same scenes at 1920 × 1080,
+reusing photos/music and showing Luxembourg once. No new generated asset.

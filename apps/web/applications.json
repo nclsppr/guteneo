@@ -1,0 +1,245 @@
+{
+  "$comment": "Ownership of every web source file. Read docs/WEB_APPLICATIONS.md. Checked by scripts/check-applications.mjs (npm run lint).",
+  "root": "apps/web/src",
+  "designSystem": ["theme.css", "styles.css", "fonts.css", "dashboard-v2.css"],
+  "shellSelectors": [
+    "sidebar",
+    "sidebar-context",
+    "space-switcher",
+    "application-switcher",
+    "workspace-navigation",
+    "workspace-identity",
+    "workspace-main",
+    "skip-link"
+  ],
+  "layers": {
+    "host": {
+      "description": "Composition root: chooses the application for a route and loads it.",
+      "files": [
+        "main.tsx",
+        "App.tsx",
+        "workspace-route-loader.ts",
+        "editorial/ssr.tsx",
+        "vite-env.d.ts"
+      ]
+    },
+    "shared": {
+      "description": "Design system, shared frame, API clients and components every application may use.",
+      "files": [
+        "theme.css",
+        "styles.css",
+        "fonts.css",
+        "dashboard-v2.css",
+        "theme.ts",
+        "theme-media.ts",
+        "theme-toggle.tsx",
+        "theme-select.tsx",
+        "appearance-preferences.tsx",
+        "brand.tsx",
+        "components.tsx",
+        "api.ts",
+        "personal-api.ts",
+        "preview.ts",
+        "i18n.ts",
+        "locale.ts",
+        "messages.ts",
+        "message-catalog.ts",
+        "locales/**",
+        "input-modality.ts",
+        "app-routes.ts",
+        "space-switcher.tsx",
+        "space-switcher.css",
+        "workspace-identity.tsx",
+        "workspace-identity.css",
+        "workspace-route-boundary.tsx",
+        "workspace-entry.ts",
+        "auth-navigation.ts",
+        "language-select.tsx",
+        "language-select.css",
+        "legal-links.tsx",
+        "file-input.tsx",
+        "pdf-viewer.tsx",
+        "pdf-check-errors.ts",
+        "pdf-check-offer.tsx",
+        "pdf-check.css",
+        "pdf-validation.tsx",
+        "protected-document.tsx",
+        "protected-document.css",
+        "secure-documents.css",
+        "secure-audit.ts",
+        "secure-audit-history.tsx",
+        "email-composer.tsx",
+        "credit-balance.tsx",
+        "credit-balance.css",
+        "role-guide.tsx",
+        "role-guide.css",
+        "homepage-film.tsx",
+        "homepage-film.css",
+        "roles-film-copy.ts",
+        "assistant-catalog.ts",
+        "assistant-guides.tsx",
+        "assistant-guides.css",
+        "assistant-workspace.css",
+        "claude-connect.tsx",
+        "document-invitation.ts",
+        "postal-cutoff.ts",
+        "route-code-recovery.ts",
+        "table-keyboard.ts"
+      ]
+    },
+    "public": {
+      "description": "Public website, sign-in and public tools. Not one of the four applications.",
+      "files": [
+        "public-chrome.tsx",
+        "public-chrome.css",
+        "public-homepage.tsx",
+        "public-homepage.css",
+        "public-navigation.ts",
+        "public-page-metadata.ts",
+        "public-sharing.ts",
+        "public-site-metadata.ts",
+        "public-site-pages.tsx",
+        "public-site-pages.css",
+        "public-support-faq.tsx",
+        "homepage.css",
+        "landing-example.tsx",
+        "landing-example.css",
+        "landing-sections.tsx",
+        "customer-pricing.ts",
+        "legal-page.tsx",
+        "legal-page.css",
+        "information-page.tsx",
+        "developer-page.tsx",
+        "developer.css",
+        "swagger-loader.ts",
+        "assistants-page.tsx",
+        "pdf-check-public.tsx",
+        "postal-cutoff-faq.tsx",
+        "postal-cutoff-faq.css",
+        "invitation-page.tsx",
+        "email-preferences.tsx",
+        "login-page.tsx",
+        "login-page.css",
+        "editorial/**"
+      ]
+    }
+  },
+  "applications": {
+    "studio": {
+      "description": "Creates documents: templates, data and generations.",
+      "files": [
+        "document-studio.tsx",
+        "document-studio.css",
+        "template-pages.tsx",
+        "template-designer.tsx",
+        "template-settings.tsx",
+        "template-data-form.tsx",
+        "dataset-pages.tsx",
+        "generation-pages.tsx",
+        "studio-ai.tsx"
+      ]
+    },
+    "correspondence": {
+      "description": "Prepares, reviews, sends and tracks correspondence, and runs the workspace. Internal id: workshop.",
+      "files": [
+        "workspace-pages.tsx",
+        "dispatch-pages.tsx",
+        "document-delivery-choice.tsx",
+        "secure-distribution-pages.tsx",
+        "postal-review-page.tsx",
+        "postal-review.css",
+        "postal-address-page.tsx",
+        "postal-address-page.css",
+        "postal-setup-panel.tsx",
+        "postal-quote-followup.ts",
+        "postal-cutoff-notice.tsx",
+        "postal-cutoff-notice.css",
+        "usage-activity.tsx",
+        "usage-activity.css",
+        "billing-page.tsx",
+        "account-page.tsx",
+        "expert-approval.tsx",
+        "expert-approval.css",
+        "workspace-contacts.tsx",
+        "workspace-contacts.css",
+        "team-invitations.tsx",
+        "invitation-csv.ts",
+        "assistant-workspace.tsx",
+        "assistant-state.ts",
+        "distribution-pages.tsx",
+        "distribution-pages.css"
+      ]
+    },
+    "personal": {
+      "description": "My documents: documents received and personal copies, with personal authority only.",
+      "files": [
+        "personal-area.tsx",
+        "personal-space.tsx",
+        "personal-documents.tsx"
+      ]
+    },
+    "belvedere": {
+      "description": "Read-only platform observation under its separate global authority.",
+      "files": [
+        "belvedere.tsx",
+        "belvedere.css",
+        "belvedere-globe.tsx",
+        "belvedere-globe.css",
+        "belvedere-globe-data.json",
+        "belvedere-data.ts",
+        "belvedere-i18n.ts"
+      ]
+    }
+  },
+  "importExceptions": [],
+  "designExceptions": [
+    {
+      "file": "assistant-guides.css",
+      "rule": "raw-color",
+      "count": 1,
+      "reason": "Opaque mask stops for the perforated stamp edge, not a visible color."
+    },
+    {
+      "file": "homepage-film.css",
+      "rule": "raw-color",
+      "count": 2,
+      "reason": "The film frame keeps the film's own backdrop and controls in both themes."
+    },
+    {
+      "file": "secure-documents.css",
+      "rule": "raw-color",
+      "count": 1,
+      "reason": "Rendered document pages stay white paper in both themes."
+    },
+    {
+      "file": "language-select.css",
+      "rule": "raw-color",
+      "count": 1,
+      "reason": "Menu shadow softer than the --shadow token; align when a menu-shadow token exists."
+    },
+    {
+      "file": "belvedere.css",
+      "rule": "raw-color",
+      "count": 3,
+      "reason": "Two channel series colors and a card shadow; to become data-visualization tokens."
+    },
+    {
+      "file": "belvedere-globe.css",
+      "rule": "raw-color",
+      "count": 1,
+      "reason": "Globe control shadow; to become a shared elevation token."
+    },
+    {
+      "file": "belvedere.css",
+      "rule": "token-override",
+      "count": 1,
+      "reason": "Belvédère renders outside the V2 frame and sets the V2 radius itself; removed when it mounts in the shared frame."
+    },
+    {
+      "file": "secure-documents.css",
+      "rule": "token-override",
+      "count": 1,
+      "reason": "The protected reader renders outside the V2 frame and sets the V2 radius itself."
+    }
+  ]
+}

@@ -81,7 +81,7 @@ export function exactFaxPrice(
   )
     throw new DomainError(
       "LIVE_PRICING_REQUIRED",
-      "Coût fournisseur exact non qualifié.",
+      "Exact provider cost is not qualified.",
       409,
     );
   const numerator =
@@ -91,7 +91,7 @@ export function exactFaxPrice(
   if (numerator % denominator !== 0n)
     throw new DomainError(
       "FRACTIONAL_PRICING_UNSUPPORTED",
-      "Le coût fournisseur comporte une fraction de centime. Son agrégation avant facturation doit être raccordée ; aucun arrondi par envoi n’est appliqué.",
+      "Provider cost includes a fraction of a cent. Aggregation before billing must be connected; no per-dispatch rounding is applied.",
       409,
     );
   const supplier = numerator / denominator;
@@ -99,7 +99,7 @@ export function exactFaxPrice(
   if (customer > 1_000_000n)
     throw new DomainError(
       "LIVE_PRICING_REQUIRED",
-      "Le coût qualifié dépasse la limite de cet envoi.",
+      "The qualified cost exceeds this dispatch’s limit.",
       409,
     );
   return { supplier_minor: Number(supplier), customer_minor: Number(customer) };
@@ -107,7 +107,7 @@ export function exactFaxPrice(
 const invalid = () =>
   new DomainError(
     "LIVE_QUOTE_INVALID",
-    "Le devis fax a expiré ou sa configuration a changé. Préparez un nouvel envoi.",
+    "The fax quote expired or its configuration changed. Prepare a new dispatch.",
     409,
   );
 function identityValid(
@@ -134,7 +134,7 @@ export async function resolveFaxTariff(
   if (!identityValid(identity))
     throw new DomainError(
       "LIVE_PRICING_REQUIRED",
-      "Compte fournisseur et tarification fax qualifiée requis.",
+      "A qualified provider account and fax tariff are required.",
       409,
     );
   const usage = await resolveFaxUsageTariff(
@@ -174,7 +174,7 @@ export async function resolveFaxTariff(
   )
     throw new DomainError(
       "LIVE_PRICING_REQUIRED",
-      "Aucun tarif fax qualifié et actuel ne couvre cet envoi.",
+      "No current qualified fax tariff covers this dispatch.",
       409,
     );
   return { ...tariff, ...exactFaxPrice(tariff, pages) };

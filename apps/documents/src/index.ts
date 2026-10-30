@@ -39,7 +39,7 @@ async function handleDocumentRequest(
       launch: () => puppeteer.launch(env.BROWSER),
       script: templateSource,
     });
-  if (new URL(request.url).pathname === "/review-pages")
+  if (["/review-pages", "/secure-pages"].includes(new URL(request.url).pathname))
     return handleExpertReviewPages(request, {
       launch: () => puppeteer.launch(env.BROWSER),
       scripts: {

@@ -3,6 +3,7 @@ import editorial from "../locales/messages-editorial.json" with { type: "json" }
 import information from "../locales/messages-information.json" with { type: "json" };
 import roles from "../locales/messages-roles.json" with { type: "json" };
 import shell from "../locales/messages-shell.json" with { type: "json" };
+import publicSite from "../locales/messages-public-site.json" with { type: "json" };
 
 export type PublicSocialLocale = SupportedLocale;
 export type PublicSocialCopy = Readonly<{
@@ -12,7 +13,13 @@ export type PublicSocialCopy = Readonly<{
 type LocalizedCopy = Readonly<Record<PublicSocialLocale, PublicSocialCopy>>;
 
 // Keep metadata independent of the browser's current locale and React state.
-const messages = { ...shell, ...editorial, ...information, ...roles };
+const messages = {
+  ...shell,
+  ...editorial,
+  ...information,
+  ...roles,
+  ...publicSite,
+};
 type Message = keyof typeof messages;
 
 function sourceCopy(title: Message, description: Message): LocalizedCopy {
@@ -57,6 +64,22 @@ export const publicSocialTaglines = {
 
 /** Page-specific SEO copy. A language-neutral sharing fallback belongs to the builder. */
 export const publicSocialCopy = {
+  "/pricing/": sourceCopy(
+    "Tarifs des e-mails, fax, courriers et contrôles PDF",
+    "Tarifs clients, crédit de bienvenue et devis avant validation. Comparez l’e-mail, le fax, le courrier postal et les contrôles PDF à l’unité.",
+  ),
+  "/how-it-works/": sourceCopy(
+    "Préparer, vérifier et suivre un envoi de document",
+    "Suivez un envoi fictif par e-mail, fax ou courrier : préparez la demande, vérifiez ses détails exacts et comprenez les événements de suivi.",
+  ),
+  "/getting-started/": sourceCopy(
+    "Commencer avec Guteneo ou votre assistant",
+    "Commencez avec votre document dans Guteneo ou suivez le guide d’installation de votre assistant. Vérifiez le destinataire, les options et le coût avant validation.",
+  ),
+  "/pdf-checks/": sourceCopy(
+    "Contrôles d’accessibilité et d’archivage PDF",
+    "Comprenez les contrôles PDF/UA et PDF/A à l’unité, leur prix, les limites des fichiers et la vérification humaine encore nécessaire après un rapport automatique.",
+  ),
   "/": {
     fr: {
       title: `Guteneo · ${publicSocialTaglines.fr}`,
@@ -79,7 +102,7 @@ export const publicSocialCopy = {
         "Vum Gespréich zur Korrespondenz. Bereet Är Dokumenter fir Fax, E-Mail oder Post mat Guteneo vir, geneemegt de Versand a verfollegt de Status.",
     },
   },
-  "/a-propos/": sourceCopy(
+  "/about/": sourceCopy(
     "À propos de Guteneo",
     "Guteneo est un service indépendant édité par Nicolas Pieper pour préparer, autoriser et suivre des envois de documents depuis son atelier ou un assistant connecté.",
   ),
@@ -107,15 +130,15 @@ export const publicSocialCopy = {
         "Vum Gutenberg iwwer Fax an E-Mail bis bei déi lëtzebuergesch Dréckereien: zwee dokumentéiert an illustréiert Texter iwwer d’Geschicht vum Drécken.",
     },
   },
-  "/journal/de-gutenberg-au-numerique/": sourceCopy(
+  "/journal/from-gutenberg-to-digital/": sourceCopy(
     "De Gutenberg au numérique, la longue vie d’une page",
     "De l’impression asiatique à Gutenberg, du courrier au fax et à l’e-mail : comment les pages ont appris à se multiplier, voyager et traverser les réseaux.",
   ),
-  "/journal/histoire-imprimerie-luxembourg/": sourceCopy(
+  "/journal/printing-history-luxembourg/": sourceCopy(
     "L’imprimerie au Luxembourg, une histoire de circulation",
     "Une histoire documentée de l’imprimerie au Luxembourg : le brevet de 1598, les cartes Dieudonné, la presse, la poste et le patrimoine numérique.",
   ),
-  "/mentions-legales/": {
+  "/legal/": {
     fr: {
       title: "Mentions légales | Guteneo",
       description:
@@ -137,11 +160,11 @@ export const publicSocialCopy = {
         "Informatiounen iwwer den Nicolas Pieper, den Editeur vu Guteneo, den Hosting bei Cloudflare, d’Inhalter an d’perséinlech Donnéeë vun der Websäit.",
     },
   },
-  "/confidentialite/": sourceCopy(
+  "/privacy/": sourceCopy(
     "Confidentialité",
     "Les données utilisées par Guteneo, leurs destinataires, leur conservation et les moyens d’exercer vos droits.",
   ),
-  "/conditions/": sourceCopy(
+  "/terms/": sourceCopy(
     "Conditions d’utilisation",
     "Conditions d’utilisation de la bêta Guteneo : accès, documents, autorisations, crédit d’essai et limites des envois.",
   ),
@@ -153,7 +176,7 @@ export const publicSocialCopy = {
     "Rôles et droits",
     "Choisissez qui prépare la correspondance, qui autorise les envois et qui consulte les rapports de votre atelier.",
   ),
-  "/developpeurs/": {
+  "/developers/": {
     fr: {
       title: "Développeurs · API, OAuth et référence OpenAPI | Guteneo",
       description:

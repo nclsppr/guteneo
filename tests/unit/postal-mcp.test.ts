@@ -388,16 +388,16 @@ describe("postal tools over MCP transport", () => {
       for (const required of [
         "get_postal_setup",
         "configure_postal_sender({name,address})",
-        "uniquement les champs manquants",
-        "aucun réimport postal",
+        "only missing fields",
+        "no postal reimport",
         "pricing_expired",
         "reviewUrl",
         "approvalUrl",
-        "mandat postal déjà enregistré",
+        "already-recorded postal mandate",
         "submission_unknown",
       ])
         expect(POSTAL_WORKFLOW).toContain(required);
-      expect(POSTAL_WORKFLOW).toContain("ne doit jamais activer ou étendre");
+      expect(POSTAL_WORKFLOW).toContain("must never activate or extend");
     });
   });
 

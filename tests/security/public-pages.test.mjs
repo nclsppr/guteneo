@@ -161,7 +161,12 @@ test("explicit languages have matching canonical, social locale, copy and locali
       true,
       locale,
     );
-    assert.match(html, new RegExp(`<html lang="${locale}">`));
+    assert.match(
+      html,
+      new RegExp(
+        `<html lang="${locale}" data-public-locale="${locale}" data-public-path="/support/">`,
+      ),
+    );
     assert.ok(html.includes(`rel="canonical" href="${current.canonical}"`));
     assert.deepEqual(metadata(html, "og:url"), [current.canonical]);
     assert.deepEqual(metadata(html, "og:locale"), [tags[locale]]);
@@ -303,7 +308,12 @@ test("all public pages and their four language variants are generated with canon
         ),
         "utf8",
       );
-      assert.match(localized, new RegExp(`<html lang="${locale}">`));
+      assert.match(
+        localized,
+        new RegExp(
+          `<html lang="${locale}" data-public-locale="${locale}" data-public-path="${pathname}">`,
+        ),
+      );
       assert.ok(
         localized.includes(
           `rel="canonical" href="${PUBLIC_ORIGIN}${pathname}?lang=${locale}"`,
@@ -355,7 +365,7 @@ test("an absent article rejects the generation before replacing the built homepa
       output,
       indexable: true,
       renderPublicPage: (pathname, locale) =>
-        pathname === "/journal/histoire-imprimerie-luxembourg/"
+        pathname === "/journal/printing-history-luxembourg/"
           ? null
           : page(pathname, locale),
     }),
@@ -402,11 +412,11 @@ test("real Static Assets parsing retains noindex and security headers together",
     for (const path of [
       "/",
       "/journal/",
-      "/mentions-legales/",
-      "/confidentialite/",
-      "/conditions/",
+      "/legal/",
+      "/privacy/",
+      "/terms/",
       "/support/",
-      "/developpeurs/",
+      "/developers/",
       "/assistants/",
       "/assistants/chatgpt/",
     ]) {

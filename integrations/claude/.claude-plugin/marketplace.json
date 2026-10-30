@@ -1,0 +1,14 @@
+{
+  "name": "guteneo-plugins",
+  "owner": {
+    "name": "NICOLAS PATRICK HENRI FRANK PIEPER"
+  },
+  "plugins": [
+    {
+      "name": "guteneo",
+      "source": "./plugins/guteneo",
+      "description": "Prepare PDFs, email, fax, postal mail and account-protected PDF distribution when enabled."
+    }
+  ],
+  "description": "Guteneo workflows for existing accounts: PDFs, estimates and dispatch tracking."
+}

@@ -5,9 +5,11 @@ import {
   ApiError,
   date,
   isPublicPreview,
+  money,
   type DocumentRecord,
 } from "./api";
 import {
+  DateTimezone,
   ErrorNotice,
   Field,
   Loading,
@@ -15,9 +17,9 @@ import {
   useAction,
   useResource,
 } from "./components";
-import type { HorizonPlan } from "./horizon-plan";
-import { msg } from "./messages";
-import "./horizon.css";
+import type { PdfValidationPricing } from "./pdf-check-offer";
+import { msg, msgIn } from "./messages";
+import "./pdf-check.css";
 import {
   pdfValidationProfiles,
   type PdfValidationProfile,
@@ -38,12 +40,10 @@ export function pdfManualCheckLabel(
   id: PdfValidationReport["manualChecks"][number]["id"],
 ) {
   return {
-    reading_order: msg("Vérifier l’ordre de lecture avec un lecteur d’écran"),
-    alternative_text: msg("Vérifier la pertinence des textes alternatifs"),
-    visual_contrast: msg("Vérifier les contrastes et la lisibilité"),
-    keyboard_navigation: msg(
-      "Vérifier la navigation au clavier et les formulaires",
-    ),
+    reading_order: msg("Check reading order with a screen reader"),
+    alternative_text: msg("Check that alternative text is meaningful"),
+    visual_contrast: msg("Check contrast and readability"),
+    keyboard_navigation: msg("Check keyboard navigation and forms"),
   }[id];
 }
 
@@ -69,7 +69,7 @@ export function PdfValidation({
   canValidate: boolean;
 }) {
   const id = useId();
-  const plan = useResource<HorizonPlan>("/plan");
+  const pricing = useResource<PdfValidationPricing>("/pdf-validation/pricing");
   // Reports are tenant-scoped history. Reading them never starts a validator.
   const reports = useResource<{ items: PdfValidationReport[] }>(
     isPublicPreview
@@ -80,13 +80,26 @@ export function PdfValidation({
   const [profile, setProfile] = useState<PdfValidationProfile>("ua1");
   const [result, setResult] = useState<PdfValidationReport>();
   const requestKey = useRef<{
-    profile: PdfValidationProfile;
+    purchaseKey: string;
     key: string;
   } | null>(null);
-  const enabled = plan.data?.enabled === true && !isPublicPreview;
-  const entitled = plan.data?.entitled === true;
+  const [consentKey, setConsentKey] = useState<string>();
+  const enabled = pricing.data?.enabled === true && !isPublicPreview;
   const ready = document.status === "ready";
-  const canRun = enabled && entitled && ready && canValidate;
+  const canPrepare =
+    enabled && ready && canValidate && pricing.data?.purchaseAllowed === true;
+  const enoughCredit =
+    pricing.data?.creditAvailableMinor !== null &&
+    pricing.data?.creditAvailableMinor !== undefined &&
+    pricing.data.creditAvailableMinor >= pricing.data.priceMinor;
+  const purchaseKey = pricing.data
+    ? `${document.id}:${document.sha256}:${profile}:${pricing.data.priceMinor}:${pricing.data.currency}:${pricing.data.termsVersion}`
+    : "";
+  const consent = Boolean(purchaseKey) && consentKey === purchaseKey;
+  const canRun = canPrepare && enoughCredit && consent;
+  const amount = pricing.data
+    ? money(pricing.data.priceMinor, pricing.data.currency)
+    : "";
   const items = result
     ? [
         result,
@@ -95,25 +108,49 @@ export function PdfValidation({
     : (reports.data?.items ?? []);
   async function validate(event: FormEvent) {
     event.preventDefault();
-    if (!canRun || action.pending) return;
+    if (!canRun || !pricing.data || action.pending) return;
+    const quote = pricing.data;
     await action.run(async () => {
-      if (!requestKey.current || requestKey.current.profile !== profile)
-        requestKey.current = { profile, key: crypto.randomUUID() };
+      if (!requestKey.current || requestKey.current.purchaseKey !== purchaseKey)
+        requestKey.current = { purchaseKey, key: crypto.randomUUID() };
       let report: PdfValidationReport;
       try {
         report = await api<PdfValidationReport>(
           `/documents/${encodeURIComponent(document.id)}/validation`,
-          { method: "POST", key: requestKey.current.key, body: { profile } },
+          {
+            method: "POST",
+            key: requestKey.current.key,
+            body: {
+              profile,
+              purchase: {
+                confirmed: true,
+                documentSha256: document.sha256,
+                priceMinor: quote.priceMinor,
+                currency: quote.currency,
+                termsVersion: quote.termsVersion,
+              },
+            },
+          },
         );
       } catch (error) {
         // A known terminal failure may be checked again on an explicit action.
         // Network uncertainty keeps the key so that replay cannot double-run.
         if (error instanceof ApiError && error.code === "PDF_VALIDATION_FAILED")
           requestKey.current = null;
+        if (
+          error instanceof ApiError &&
+          error.code === "PDF_VALIDATION_PRICE_CHANGED"
+        ) {
+          requestKey.current = null;
+          setConsentKey(undefined);
+          pricing.refresh();
+        }
         throw error;
       }
       requestKey.current = null;
       setResult(report);
+      setConsentKey(undefined);
+      pricing.refresh();
       reports.refresh();
     });
   }
@@ -124,10 +161,10 @@ export function PdfValidation({
       aria-busy={action.pending}
     >
       <div className="section-toolbar">
-        <h3 id={`${id}-title`}>{msg("Accessibilité et archivage du PDF")}</h3>
+        <h3 id={`${id}-title`}>{msg("PDF accessibility and archiving")}</h3>
         <RefreshButton
           onClick={() => {
-            plan.refresh();
+            pricing.refresh();
             reports.refresh();
           }}
           disabled={action.pending || reports.loading}
@@ -135,64 +172,66 @@ export function PdfValidation({
       </div>
       <p>
         {msg(
-          "PDF/UA contrôle les règles techniques d’accessibilité. PDF/A contrôle la conservation à long terme : un PDF/A n’est pas nécessairement accessible.",
+          "PDF/UA checks technical accessibility rules. PDF/A checks long-term preservation: a PDF/A is not necessarily accessible.",
         )}
       </p>
       <p>
         {msg(
-          "Le contrôle utilise le PDF original et conserve son empreinte. Il ne modifie pas le document et ne corrige pas automatiquement les erreurs.",
+          "The check uses the original PDF and retains its fingerprint. It does not change the document or automatically fix errors.",
         )}
       </p>
-      <ErrorNotice error={plan.error ?? reports.error ?? action.error} />
-      {plan.loading && !plan.data && <Loading />}
-      {plan.data && !enabled && (
+      <ErrorNotice error={pricing.error ?? reports.error ?? action.error} />
+      {pricing.loading && !pricing.data && <Loading />}
+      {pricing.data ? (
+        <p className="pdf-check-unit-price">
+          {msg(
+            "{0} excluding tax per PDF and profile, deducted from available credit after confirmation.",
+            amount,
+          )}
+        </p>
+      ) : null}
+      {pricing.data && !enabled ? (
         <p className="notice info">
           {msg(
-            "Cette offre est en préparation. La souscription et les contrôles PDF seront ouverts après activation du service.",
+            "PDF checks are currently unavailable. Existing reports remain readable.",
           )}
         </p>
-      )}
-      {enabled && !entitled && (
+      ) : null}
+      {enabled && !ready ? (
+        <p className="notice info">
+          {msg(
+            "The PDF must first finish its security check before accessibility or archival validation.",
+          )}
+        </p>
+      ) : null}
+      {enabled && (!canValidate || !pricing.data?.purchaseAllowed) ? (
         <p>
           {msg(
-            "Ce contrôle est inclus dans le forfait Horizon à 30 € par mois.",
+            "You can read existing reports. Only a browser administrator can confirm a paid check.",
           )}
         </p>
-      )}
-      {!canRun && (
-        <a className="text-link" href="#/app/plan">
-          {msg("Découvrir le forfait Horizon")}
+      ) : null}
+      {!canPrepare ? (
+        <a className="text-link" href="#/app/pdf-checks">
+          {msg("Explore PDF checks")}
           <ArrowRight size={17} aria-hidden="true" />
         </a>
-      )}
-      {enabled && entitled && !ready && (
-        <p className="notice info">
-          {msg(
-            "Le PDF doit d’abord terminer sa vérification de sécurité avant un contrôle d’accessibilité ou d’archivage.",
-          )}
-        </p>
-      )}
-      {enabled && entitled && !canValidate && (
-        <p>
-          {msg(
-            "Votre rôle permet de consulter les rapports. Demandez à un membre autorisé de lancer un contrôle.",
-          )}
-        </p>
-      )}
-      {canRun && (
+      ) : null}
+      {canPrepare && (
         <form
           onSubmit={(event) => void validate(event)}
-          className="pdf-validation-form"
+          className="pdf-validation-form pdf-check-consent"
         >
           <Field
-            label={msg("Profil de validation")}
-            hint={msg("Choisissez le standard attendu pour votre document.")}
+            label={msg("Validation profile")}
+            hint={msg("Choose the standard required for your document.")}
           >
             <select
               value={profile}
-              onChange={(event) =>
-                setProfile(event.target.value as PdfValidationProfile)
-              }
+              onChange={(event) => {
+                setProfile(event.target.value as PdfValidationProfile);
+                setConsentKey(undefined);
+              }}
               disabled={action.pending}
             >
               {PDF_VALIDATION_PROFILES.map((value) => (
@@ -202,25 +241,77 @@ export function PdfValidation({
               ))}
             </select>
           </Field>
-          <button className="button primary" disabled={action.pending}>
+          <p>
+            {msg(
+              "One check of {0} using {1} costs {2} excluding tax.",
+              document.name,
+              PDF_PROFILE_NAMES[profile],
+              amount,
+            )}
+          </p>
+          <label className="checkbox-field">
+            <input
+              type="checkbox"
+              checked={consent}
+              disabled={action.pending || pricing.loading || !enoughCredit}
+              onChange={(event) =>
+                setConsentKey(event.target.checked ? purchaseKey : undefined)
+              }
+              aria-describedby={`${id}-purchase-help`}
+            />
+            <span>
+              {msg(
+                "I confirm this single check at {0} excluding tax, paid from my available credit.",
+                amount,
+              )}
+            </span>
+          </label>
+          <p id={`${id}-purchase-help`}>
+            {msg(
+              "No subscription or automatic renewal. Choosing another profile requires a new confirmation.",
+            )}
+          </p>
+          <p>
+            {msg(
+              "A completed technical report is charged even when issues are found. An interrupted check with no usable report is not charged.",
+            )}
+          </p>
+          {!enoughCredit ? (
+            <p className="notice info">
+              {msg(
+                "Your available credit is insufficient for this check. No check has been started.",
+              )}
+            </p>
+          ) : null}
+          {pricing.data?.evidence === "simulation" ? (
+            <p className="notice info">
+              {msg(
+                "Simulation workspace: the displayed amounts and checks are fictional.",
+              )}
+            </p>
+          ) : null}
+          <button
+            className="button primary"
+            disabled={!canRun || action.pending || pricing.loading}
+          >
             {action.pending
-              ? msg("Contrôle en cours…")
-              : msg("Contrôler ce PDF")}
+              ? msgIn("postal-preflight", "Checking…")
+              : msg("Pay {0} excluding tax and check this PDF", amount)}
           </button>
           <p id={`${id}-progress`} role="status">
             {action.pending
               ? msg(
-                  "Le contrôle est en cours. Le résultat portera uniquement sur ce PDF et ce profil.",
+                  "The check is running. The result will apply only to this PDF and profile.",
                 )
               : msg(
-                  "Le résultat automatique doit être complété par une revue humaine.",
+                  "The automated result must be supplemented by human review.",
                 )}
           </p>
         </form>
       )}
       {!reports.loading && reports.data && !items.length && (
-        <p className="horizon-limit">
-          {msg("Aucun rapport de validation pour ce PDF.")}
+        <p className="pdf-check-limit">
+          {msg("No validation report for this PDF.")}
         </p>
       )}
       <div className="pdf-validation-reports" aria-live="polite">
@@ -244,7 +335,7 @@ export function PdfReport({
     return (
       <p className="notice error" role="alert">
         {msg(
-          "Ce rapport ne correspond pas à l’empreinte du document affiché. Actualisez les rapports.",
+          "This report does not match the displayed document’s fingerprint. Refresh the reports.",
         )}
       </p>
     );
@@ -257,31 +348,30 @@ export function PdfReport({
           className={`status ${passing ? "status-document-ready" : "status-document-blocked"}`}
         >
           {passing
-            ? msg("Contrôles automatiques réussis")
-            : msg("Écarts techniques détectés")}
+            ? msg("Automated checks passed")
+            : msg("Technical issues found")}
         </span>
       </div>
       <p>
         {date(report.createdAt)} · {report.engine.name} {report.engine.version}
       </p>
+      <DateTimezone />
       {report.evidence === "simulation" && (
         <p className="notice info">
-          {msg(
-            "Rapport de simulation : il ne prouve pas la conformité du PDF.",
-          )}
+          {msg("Simulation report: it does not prove PDF compliance.")}
         </p>
       )}
       <dl className="pdf-report-counts">
         <div>
-          <dt>{msg("Règles réussies")}</dt>
+          <dt>{msg("Passed rules")}</dt>
           <dd>{report.passedRules}</dd>
         </div>
         <div>
-          <dt>{msg("Règles en échec")}</dt>
+          <dt>{msg("Failed rules")}</dt>
           <dd>{report.failedRules}</dd>
         </div>
         <div>
-          <dt>{msg("Contrôles en échec")}</dt>
+          <dt>{msg("Failed checks")}</dt>
           <dd>{report.failedChecks}</dd>
         </div>
       </dl>
@@ -289,16 +379,16 @@ export function PdfReport({
         <div
           className="table-scroll"
           role="region"
-          aria-label={msg("Références des règles à corriger")}
+          aria-label={msg("References for rules to fix")}
           tabIndex={0}
         >
           <table>
-            <caption>{msg("Références des règles à corriger")}</caption>
+            <caption>{msg("References for rules to fix")}</caption>
             <thead>
               <tr>
-                <th scope="col">{msg("Spécification")}</th>
+                <th scope="col">{msg("Specification")}</th>
                 <th scope="col">{msg("Clause / test")}</th>
-                <th scope="col">{msg("Contrôles en échec")}</th>
+                <th scope="col">{msg("Failed checks")}</th>
               </tr>
             </thead>
             <tbody>
@@ -320,15 +410,15 @@ export function PdfReport({
       {report.truncated && (
         <p>
           {msg(
-            "La liste affichée est limitée. Le nombre total d’échecs reste indiqué dans le rapport.",
+            "The displayed list is limited. The report still shows the total failure count.",
           )}
         </p>
       )}
       <details>
-        <summary>{msg("Revue humaine à compléter")}</summary>
+        <summary>{msg("Human review still required")}</summary>
         <p>
           {msg(
-            "Ces points restent à vérifier manuellement. Guteneo n’enregistre pas ici d’attestation de revue humaine.",
+            "These points still need manual review. Guteneo does not record a human review attestation here.",
           )}
         </p>
         <ul>
@@ -337,9 +427,9 @@ export function PdfReport({
           ))}
         </ul>
       </details>
-      <p className="horizon-limit">
+      <p className="pdf-check-limit">
         {msg(
-          "Un résultat technique favorable n’est ni une certification d’accessibilité ni une garantie de conformité légale.",
+          "A passing technical result is neither an accessibility certification nor a guarantee of legal compliance.",
         )}
       </p>
       <p className="pdf-report-hash">
@@ -351,7 +441,7 @@ export function PdfReport({
         type="button"
         onClick={() => exportPdfValidationReport(report)}
       >
-        {msg("Exporter le rapport JSON")}
+        {msg("Export JSON report")}
         <ArrowDown size={17} aria-hidden="true" />
       </button>
     </article>

@@ -3,12 +3,18 @@ import { expect, test, type Page } from "./fixtures";
 import { PDFDocument } from "pdf-lib";
 import type { DocumentRecord, Session } from "../../apps/web/src/api";
 import { documentAnalysis } from "../../packages/contracts/src/document-analysis";
+import {
+  PDF_VALIDATION_PRICE_MINOR,
+  PDF_VALIDATION_TERMS_VERSION,
+} from "../../packages/contracts/src/pdf-validation";
 
 // Browser-only HTTP fixtures. Scanner, byte integrity, tenant and quota proofs
 // live in the D1 unit tests. These scenarios do not send communications.
 async function documentFixture(page: Page) {
   await page.goto("/#/app");
-  await page.getByRole("button", { name: "Entrer dans l’Atelier" }).click();
+  await page
+    .getByRole("button", { name: "Entrer dans l’espace de travail" })
+    .click();
   await expect(
     page.getByRole("heading", { name: "Votre correspondance, au clair." }),
   ).toBeVisible();
@@ -45,9 +51,11 @@ async function documentFixture(page: Page) {
   let rescans = 0;
   const contentPaths: string[] = [];
   const unexpectedWrites: string[] = [];
-  await page.route("**/api/plan", async (route) => {
+  await page.route("**/api/pdf-validation/pricing", async (route) => {
     if (route.request().method() !== "GET") {
-      unexpectedWrites.push(`${route.request().method()} /api/plan`);
+      unexpectedWrites.push(
+        `${route.request().method()} /api/pdf-validation/pricing`,
+      );
       return route.fulfill({
         status: 409,
         json: { error: { code: "UNEXPECTED" } },
@@ -55,24 +63,15 @@ async function documentFixture(page: Page) {
     }
     return route.fulfill({
       json: {
-        plan: {
-          id: "horizon",
-          name: "guteneo Horizon",
-          priceMinor: 3000,
-          currency: "EUR",
-          interval: "month",
-        },
-        termsVersion: "horizon-2026-10-02-v1",
+        priceMinor: PDF_VALIDATION_PRICE_MINOR,
+        currency: "EUR",
+        taxBasis: "excluding_tax",
+        termsVersion: PDF_VALIDATION_TERMS_VERSION,
         enabled: false,
-        status: "inactive",
-        entitled: false,
-        currentPeriodStart: null,
-        currentPeriodEnd: null,
-        cancelAtPeriodEnd: false,
-        billingManagementAllowed: false,
+        purchaseAllowed: false,
         paymentSource: "account_credits",
         evidence: "simulation",
-        creditAvailableMinor: null,
+        creditAvailableMinor: 5000,
       },
     });
   });
@@ -324,7 +323,15 @@ for (const blocked of [
     await fixture.open();
     await expect(
       detailOf(page).locator(".document-analysis").getByRole("status"),
-    ).toContainText(fixture.document.analysis!.title);
+    ).toContainText(
+      {
+        security_rejected: "PDF bloqué par le contrôle de sécurité",
+        pdf_rejected: "Ce PDF ne peut pas être utilisé",
+        rejected: "PDF indisponible",
+        purged: "PDF indisponible",
+        integrity_failure: "Vérification du PDF interrompue",
+      }[blocked],
+    );
     await expectNotUsable(page);
     await expect(
       detailOf(page).getByRole("button", { name: "Relancer la vérification" }),

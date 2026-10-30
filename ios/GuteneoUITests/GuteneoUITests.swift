@@ -20,10 +20,10 @@ final class GuteneoUITests: XCTestCase {
                 label, XCUIElement.ElementType.button.rawValue, XCUIElement.ElementType.link.rawValue
             )).firstMatch
             XCTAssertTrue(link.waitForExistence(timeout: 5))
-            XCTAssertGreaterThanOrEqual(link.frame.height, 44, "Zone tactile trop petite : \(label)")
+            XCTAssertGreaterThanOrEqual(link.frame.height, 44, "Touch target is too small: \(label)")
         }
         assertLogoCount(1, in: app)
-        attachScreenshot(app, name: "Accueil — déconnecté")
+        attachScreenshot(app, name: "Welcome — signed out")
         assertNoPurchaseCallToAction(in: app)
     }
 
@@ -53,14 +53,14 @@ final class GuteneoUITests: XCTestCase {
         ], timeout: 5)
         let stateAfterWait = app.state
         let diagnostic = XCTAttachment(string: "afterSpringBoard=\(stateAfterSwitch.rawValue); springboard=\(springboard.state.rawValue); afterWait=\(stateAfterWait.rawValue); runningBackground=\(XCUIApplication.State.runningBackground.rawValue); suspended=\(XCUIApplication.State.runningBackgroundSuspended.rawValue)")
-        diagnostic.name = "État réel après passage en arrière-plan"
+        diagnostic.name = "Actual state after entering the background"
         diagnostic.lifetime = .keepAlways
         add(diagnostic)
-        XCTAssertEqual(backgroundWait, .completed, "État reçu : \(stateAfterWait.rawValue)")
+        XCTAssertEqual(backgroundWait, .completed, "Received state: \(stateAfterWait.rawValue)")
         app.activate()
         XCTAssertTrue(nativePDF.waitForExistence(timeout: 10))
         assertLogoCount(0, in: app)
-        attachScreenshot(app, name: "PDF synthétique — lecteur natif")
+        attachScreenshot(app, name: "Synthetic PDF — native reader")
         app.buttons["Fermer"].tap()
 
         let prepareFax = app.buttons["Préparer un fax"]
@@ -74,7 +74,7 @@ final class GuteneoUITests: XCTestCase {
         XCTAssertTrue(prepareQuote.waitForExistence(timeout: 5))
         XCTAssertFalse(prepareQuote.isEnabled)
         assertLogoCount(0, in: app)
-        attachScreenshot(app, name: "Préparation — aucun envoi")
+        attachScreenshot(app, name: "Preparation — no sending")
         assertNoPurchaseCallToAction(in: app)
         app.buttons["Fermer"].tap()
         XCTAssertTrue(element("document.detail", in: app).waitForExistence(timeout: 5))
@@ -98,7 +98,7 @@ final class GuteneoUITests: XCTestCase {
         XCTAssertFalse(app.buttons["Ouvrir la validation sécurisée"].exists)
         XCTAssertFalse(app.staticTexts["Votre validation"].exists)
         assertNoPurchaseCallToAction(in: app)
-        attachScreenshot(app, name: "Devis de référence — aucune approbation")
+        attachScreenshot(app, name: "Reference quote — no approval")
     }
 
     func testAccessibilityTextSizeKeepsAccountNavigationAvailable() {
@@ -107,7 +107,7 @@ final class GuteneoUITests: XCTestCase {
             "-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryAccessibilityXXXL"
         ])
         XCTAssertTrue(app.buttons["prepareDispatch"].waitForExistence(timeout: 10))
-        attachScreenshot(app, name: "Atelier — texte accessibilité XXXL")
+        attachScreenshot(app, name: "Workspace — XXXL accessibility text")
         assertLogoCount(1, in: app)
         selectTab("Compte", in: app)
         XCTAssertTrue(app.navigationBars["Compte"].waitForExistence(timeout: 5))
@@ -116,12 +116,12 @@ final class GuteneoUITests: XCTestCase {
         assertNoPurchaseCallToAction(in: app)
         let language = app.buttons["accountLanguage"]
         for _ in 0..<5 where !language.isHittable { app.swipeUp() }
-        XCTAssertTrue(language.isHittable, "Le choix de langue doit rester accessible au plus grand texte")
+        XCTAssertTrue(language.isHittable, "The language picker must remain accessible at the largest text size")
         language.tap()
         XCTAssertTrue(app.buttons["Deutsch"].waitForExistence(timeout: 5))
         app.buttons["Deutsch"].tap()
         XCTAssertTrue(app.navigationBars["Konto"].waitForExistence(timeout: 5))
-        attachScreenshot(app, name: "Compte — texte accessibilité XXXL et choix de langue")
+        attachScreenshot(app, name: "Account — XXXL accessibility text and language selection")
         assertLogoCount(0, in: app)
         assertNoPurchaseCallToAction(in: app)
     }
@@ -131,7 +131,7 @@ final class GuteneoUITests: XCTestCase {
         XCTAssertTrue(app.buttons["prepareDispatch"].waitForExistence(timeout: 10))
         XCTAssertTrue(app.staticTexts["Simulation · aucun envoi réel."].exists)
         assertLogoCount(1, in: app)
-        attachScreenshot(app, name: "Atelier — simulation")
+        attachScreenshot(app, name: "Workspace — simulation")
         assertNoPurchaseCallToAction(in: app)
 
         let openDocuments = app.buttons["atelier.openDocuments"]
@@ -156,7 +156,7 @@ final class GuteneoUITests: XCTestCase {
 
         selectTab("Compte", in: app)
         XCTAssertTrue(app.navigationBars["Compte"].waitForExistence(timeout: 5))
-        attachScreenshot(app, name: "Compte — simulation")
+        attachScreenshot(app, name: "Account — simulation")
         assertLogoCount(0, in: app)
         assertNoPurchaseCallToAction(in: app)
 
@@ -166,7 +166,7 @@ final class GuteneoUITests: XCTestCase {
         about.tap()
         XCTAssertTrue(app.navigationBars["À propos"].waitForExistence(timeout: 5))
         assertLogoCount(1, in: app)
-        attachScreenshot(app, name: "À propos — marque unique")
+        attachScreenshot(app, name: "About — one brand mark")
     }
 
     func testChangingSelectionReplacesDetailsAndPreservesSelectionAfterRotation() {
@@ -178,39 +178,39 @@ final class GuteneoUITests: XCTestCase {
         XCTAssertTrue(readyRow.waitForExistence(timeout: 5))
         readyRow.tap()
         var detail = element("document.detail", in: app)
-        XCTAssertTrue(detail.staticTexts["Dossier de souscription.pdf"].waitForExistence(timeout: 5))
+        XCTAssertTrue(detail.staticTexts["Subscription application.pdf"].waitForExistence(timeout: 5))
         XCTAssertTrue(detail.buttons["Lire le PDF original"].exists)
 
         if UIDevice.current.userInterfaceIdiom == .pad {
             XCUIDevice.shared.orientation = .landscapeLeft
             waitForLayout(landscape: true, in: app)
-            XCTAssertTrue(detail.staticTexts["Dossier de souscription.pdf"].waitForExistence(timeout: 5))
+            XCTAssertTrue(detail.staticTexts["Subscription application.pdf"].waitForExistence(timeout: 5))
         }
         revealListIfCollapsed("Documents", detailTitle: "Document",
             targetRow: "document.row.preview-document-2", in: app)
         element("document.row.preview-document-2", in: app).tap()
         detail = element("document.detail", in: app)
-        XCTAssertTrue(detail.staticTexts["Attestation de domicile.pdf"].waitForExistence(timeout: 5))
+        XCTAssertTrue(detail.staticTexts["Proof of address.pdf"].waitForExistence(timeout: 5))
         XCTAssertTrue(detail.staticTexts["Vérification en cours"].firstMatch.exists)
-        XCTAssertFalse(detail.staticTexts["Dossier de souscription.pdf"].exists)
+        XCTAssertFalse(detail.staticTexts["Subscription application.pdf"].exists)
         XCTAssertFalse(detail.buttons["Lire le PDF original"].exists)
         XCTAssertFalse(detail.buttons["Préparer un fax"].exists)
         assertLogoCount(0, in: app)
-        attachScreenshot(app, name: "Documents — sélection remplacée")
+        attachScreenshot(app, name: "Documents — selection replaced")
 
         if UIDevice.current.userInterfaceIdiom == .pad {
             let screenCapture = XCUIScreen.main.screenshot()
             let attachment = XCTAttachment(screenshot: screenCapture)
-            attachment.name = "Documents — paysage écran complet"
+            attachment.name = "Documents — full landscape screen"
             attachment.lifetime = .keepAlways
             add(attachment)
             let diagnostic = XCTAttachment(string: "deviceOrientation=\(XCUIDevice.shared.orientation.rawValue); appFrame=\(app.frame); screenImageSize=\(screenCapture.image.size); screenImageOrientation=\(screenCapture.image.imageOrientation.rawValue)")
-            diagnostic.name = "Géométrie réelle au moment de la capture paysage"
+            diagnostic.name = "Actual geometry at landscape capture"
             diagnostic.lifetime = .keepAlways
             add(diagnostic)
             XCUIDevice.shared.orientation = .portrait
             waitForLayout(landscape: false, in: app)
-            XCTAssertTrue(detail.staticTexts["Attestation de domicile.pdf"].waitForExistence(timeout: 5))
+            XCTAssertTrue(detail.staticTexts["Proof of address.pdf"].waitForExistence(timeout: 5))
             XCTAssertFalse(detail.buttons["Lire le PDF original"].exists)
         }
 
@@ -230,7 +230,7 @@ final class GuteneoUITests: XCTestCase {
         XCTAssertFalse(dispatchDetail.buttons["Ouvrir la validation sécurisée"].exists)
         XCTAssertFalse(dispatchDetail.staticTexts["Votre validation"].exists)
         assertNoPurchaseCallToAction(in: app)
-        attachScreenshot(app, name: "Envois — actions remplacées")
+        attachScreenshot(app, name: "Dispatches — actions replaced")
     }
 
     private func element(_ identifier: String, in app: XCUIApplication) -> XCUIElement {
@@ -247,51 +247,63 @@ final class GuteneoUITests: XCTestCase {
         let result = XCTWaiter.wait(for: [
             XCTNSPredicateExpectation(predicate: predicate, object: app)
         ], timeout: 5)
-        XCTAssertEqual(result, .completed, "Géométrie reçue : \(app.frame)", file: file, line: line)
+        XCTAssertEqual(result, .completed, "Received geometry: \(app.frame)", file: file, line: line)
     }
 
     private func revealListIfCollapsed(_ listTitle: String, detailTitle: String,
         targetRow: String, in app: XCUIApplication, file: StaticString = #filePath, line: UInt = #line) {
         if element(targetRow, in: app).isHittable { return }
         let back = app.navigationBars[detailTitle].buttons[listTitle]
-        XCTAssertTrue(back.waitForExistence(timeout: 5), "Retour natif vers \(listTitle) introuvable", file: file, line: line)
+        XCTAssertTrue(back.waitForExistence(timeout: 5), "Native back control for \(listTitle) was not found", file: file, line: line)
         back.tap()
         XCTAssertTrue(element(targetRow, in: app).waitForExistence(timeout: 5), file: file, line: line)
     }
 
     private func assertLogoCount(_ count: Int, in app: XCUIApplication, file: StaticString = #filePath, line: UInt = #line) {
         let logos = app.descendants(matching: .any).matching(identifier: "guteneo.logo")
-        XCTAssertEqual(logos.count, count, "Nombre de signatures de marque accessibles à l’écran", file: file, line: line)
+        XCTAssertEqual(logos.count, count, "Number of accessible brand marks on screen", file: file, line: line)
     }
 
     private func selectTab(_ label: String, in app: XCUIApplication, file: StaticString = #filePath, line: UInt = #line) {
-        let tab = tabElement(label, in: app, file: file, line: line)
         // Existence alone does not establish that a native tab is interactive.
-        // Wait for its hit target and verify selection before inspecting a page.
-        let ready = XCTNSPredicateExpectation(predicate: NSPredicate(format: "hittable == true AND enabled == true"), object: tab)
-        XCTAssertEqual(XCTWaiter.wait(for: [ready], timeout: 10), .completed,
-                       "Onglet non interactif : \(label)", file: file, line: line)
-        tab.tap()
-        let selected = XCTNSPredicateExpectation(predicate: NSPredicate(format: "selected == true"), object: tab)
-        XCTAssertEqual(XCTWaiter.wait(for: [selected], timeout: 10), .completed,
-                       "Le tap n’a pas sélectionné l’onglet : \(label)", file: file, line: line)
+        // The hosted runner took 19 seconds to resolve a visible tab after a
+        // large-text launch. Resolve its current AX representation on each poll.
+        let ready = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in
+            let tab = self.tabElement(label, in: app)
+            return tab.exists && tab.isHittable && tab.isEnabled
+        }, object: nil)
+        let readiness = XCTWaiter.wait(for: [ready], timeout: 20)
+        if readiness != .completed {
+            attachScreenshot(app, name: "Tab did not become interactive — \(label)")
+        }
+        XCTAssertEqual(readiness, .completed,
+                       "Tab is not interactive: \(label)", file: file, line: line)
+        tabElement(label, in: app).tap()
+        let selected = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in
+            let tab = self.tabElement(label, in: app)
+            return tab.exists && tab.isSelected
+        }, object: nil)
+        let selection = XCTWaiter.wait(for: [selected], timeout: 20)
+        if selection != .completed {
+            attachScreenshot(app, name: "Tab was not selected — \(label)")
+        }
+        XCTAssertEqual(selection, .completed,
+                       "Tapping did not select the tab: \(label)", file: file, line: line)
     }
 
-    private func tabElement(_ label: String, in app: XCUIApplication, file: StaticString = #filePath, line: UInt = #line) -> XCUIElement {
+    private func tabElement(_ label: String, in app: XCUIApplication) -> XCUIElement {
         let tabBarButton = app.tabBars.buttons[label]
         if tabBarButton.exists {
             return tabBarButton
         }
         // iPad exposes its floating tab items as cells or other accessible elements.
-        let tabItem = app.descendants(matching: .any).matching(NSPredicate(
+        return app.descendants(matching: .any).matching(NSPredicate(
             format: "label == %@ AND (elementType == %d OR elementType == %d OR elementType == %d)",
             label,
             XCUIElement.ElementType.button.rawValue,
             XCUIElement.ElementType.cell.rawValue,
             XCUIElement.ElementType.other.rawValue
         )).firstMatch
-        XCTAssertTrue(tabItem.waitForExistence(timeout: 5), "Onglet introuvable : \(label)", file: file, line: line)
-        return tabItem
     }
 
     func testWelcomeLanguageChangesImmediatelyAndKeepsTheChoice() {
@@ -307,6 +319,25 @@ final class GuteneoUITests: XCTestCase {
         app.launchArguments = ["--uitesting-signed-out", "-AppleLanguages", "(fr)", "-AppleLocale", "fr_FR"]
         app.launch()
         XCTAssertTrue(app.buttons["Sign in"].waitForExistence(timeout: 10))
+
+        // The persisted English choice also localizes interpolated document
+        // accessibility labels; the synthetic hash and file bytes stay unchanged.
+        app.terminate()
+        app.launchArguments = ["--uitesting-preview", "-AppleLanguages", "(fr)", "-AppleLocale", "fr_FR"]
+        app.launch()
+        XCTAssertTrue(app.buttons["prepareDispatch"].waitForExistence(timeout: 10))
+        selectTab("Documents", in: app)
+        let document = element("document.row.preview-document-1", in: app)
+        XCTAssertTrue(document.waitForExistence(timeout: 5))
+        document.tap()
+        let detail = element("document.detail", in: app)
+        XCTAssertTrue(detail.staticTexts["Subscription application.pdf"].waitForExistence(timeout: 5))
+        let fingerprint = detail.buttons["Document fingerprint"]
+        for _ in 0..<3 where !fingerprint.isHittable { detail.swipeUp() }
+        XCTAssertTrue(fingerprint.waitForExistence(timeout: 5))
+        fingerprint.tap()
+        XCTAssertTrue(detail.staticTexts["SHA 256 fingerprint: preview"].waitForExistence(timeout: 5))
+        XCTAssertFalse(detail.staticTexts["Empreinte SHA 256 : preview"].exists)
     }
 
     func testAccountSwitchesGermanAndLuxembourgishWithoutLeavingTheProfile() {
@@ -326,29 +357,44 @@ final class GuteneoUITests: XCTestCase {
     }
 
     private func selectAccountLanguage(_ language: String, in app: XCUIApplication, file: StaticString = #filePath, line: UInt = #line) {
-        let picker = app.buttons["accountLanguage"]
-        XCTAssertTrue(picker.waitForExistence(timeout: 10), file: file, line: line)
-        let interactive = NSPredicate(format: "hittable == true AND enabled == true")
-        XCTAssertEqual(XCTWaiter.wait(for: [
-            XCTNSPredicateExpectation(predicate: interactive, object: picker)
-        ], timeout: 5), .completed, "Sélecteur de langue non interactif", file: file, line: line)
+        guard let picker = interactiveButton("accountLanguage", in: app, file: file, line: line) else { return }
         picker.tap()
 
-        let option = app.buttons[language]
-        XCTAssertTrue(option.waitForExistence(timeout: 5), file: file, line: line)
-        XCTAssertEqual(XCTWaiter.wait(for: [
-            XCTNSPredicateExpectation(predicate: interactive, object: option)
-        ], timeout: 5), .completed, "Option de langue non interactive : \(language)", file: file, line: line)
+        guard let option = interactiveButton(language, in: app, file: file, line: line) else { return }
         option.tap()
 
-        // Locale changes recompose the SwiftUI picker and its native menu.
-        // Observe the displayed selection and closed menu before the next gesture.
-        let selected = NSPredicate(format: "label CONTAINS %@ AND hittable == true AND enabled == true", language)
-        let closed = NSPredicate(format: "exists == false")
-        XCTAssertEqual(XCTWaiter.wait(for: [
-            XCTNSPredicateExpectation(predicate: selected, object: picker),
-            XCTNSPredicateExpectation(predicate: closed, object: option)
-        ], timeout: 5), .completed, "Choix de langue non appliqué ou menu encore ouvert : \(language)", file: file, line: line)
+        // Locale changes recompose the picker and native menu. Observe its
+        // value and menu closure here; hit-testing belongs before a gesture.
+        // UIKit may temporarily lack an activation point for the rebuilt picker.
+        let settled = NSPredicate { _, _ in
+            let picker = app.buttons["accountLanguage"]
+            return picker.exists && picker.label.contains(language) && picker.isEnabled && !app.buttons[language].exists
+        }
+        let result = XCTWaiter.wait(for: [
+            XCTNSPredicateExpectation(predicate: settled, object: nil)
+        ], timeout: 20)
+        if result != .completed {
+            attachScreenshot(app, name: "Language selection did not settle — \(language)")
+        }
+        XCTAssertEqual(result, .completed, "Language choice was not applied or the menu remains open: \(language)", file: file, line: line)
+    }
+
+    private func interactiveButton(_ identifier: String, in app: XCUIApplication, file: StaticString = #filePath, line: UInt = #line) -> XCUIElement? {
+        // Re-resolve controls rebuilt by SwiftUI instead of spending a separate
+        // five-second hit-test budget on an earlier accessibility query.
+        let ready = NSPredicate { _, _ in
+            let button = app.buttons[identifier]
+            return button.exists && button.isEnabled && button.isHittable
+        }
+        let result = XCTWaiter.wait(for: [
+            XCTNSPredicateExpectation(predicate: ready, object: nil)
+        ], timeout: 20)
+        if result != .completed {
+            attachScreenshot(app, name: "Button did not become interactive — \(identifier)")
+        }
+        XCTAssertEqual(result, .completed, "Button is not interactive: \(identifier)", file: file, line: line)
+        guard result == .completed else { return nil }
+        return app.buttons[identifier]
     }
 
     private func launch(arguments: [String]) -> XCUIApplication {

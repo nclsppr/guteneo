@@ -1,131 +1,127 @@
-# Preuves visuelles locales — 22 septembre 2026
+# Local visual evidence — 22 September 2026
 
-Les treize captures sélectionnées proviennent de l'application SwiftUI exécutée
-par XCTest, sans retouche, recadrage ou montage. Les écrans connectés utilisent
-exclusivement les fixtures Debug locales : noms, documents, destinataires et
-états sont fictifs. Aucune communication réelle n'a été envoyée.
+The thirteen selected captures come from the SwiftUI application run by
+XCTest, without editing, cropping or montage. Authenticated screens use only
+local Debug fixtures: names, documents, recipients and states are fictional.
+No real communication was sent.
 
-Il s'agit de preuves de revue locale, pas des images finales de la fiche App
-Store. La configuration Release n'inclut pas ce mode de simulation. Les captures
-de soumission devront correspondre au binaire et au service qualifiés, avec un
-compte reviewer autorisé et des données fictives identifiées.
+These are local review evidence, not final App Store listing images. Release
+configuration excludes this simulation mode. Submission captures must match
+the qualified binary/service, with an authorized reviewer account and
+identified fictional data.
 
-## Composition adaptative et icône — campagne la plus récente
+## Adaptive composition and icon — latest campaign
 
-- Source applicative : `b7e0d4d0865b635ec53a056d668d3d69ade9122e`. Les
-  fichiers applicatifs et l'icône testés étaient identiques avant leur commit ;
-  la documentation a été ajoutée ensuite. Les tests UI proviennent de
+- Application source: `b7e0d4d0865b635ec53a056d668d3d69ade9122e`.
+  Tested app/icon files were identical before their commit; documentation
+  was added later. UI tests come from
   `d2ccf4321ff60fcb18ed244f0a9b7218c7966868`.
-- `run-BaJ3lc/Tests.xcresult` : **6 tests UI iPad réussis sur 6** sous iPadOS
-  27.0, avec le document Icon Composer intégré au binaire Debug. Le lien
-  « Tous les documents » sélectionne bien l'onglet natif Documents ; le détail
-  sélectionné résiste à une rotation. Le diagnostic de la campagne précédente
-  avait révélé qu'un identifiant placé sur le conteneur écrasait celui des
-  boutons enfants ; il a été retiré avant ce lot complet.
-- `run-4MIZfU/Tests.xcresult` : **22 tests unitaires et 6 UI iPhone réussis**
-  sur iOS 26.5, source applicative `8b7dc0f`. Les changements postérieurs
-  touchent le lien Atelier, ses cibles tactiles, un identifiant d'accessibilité
-  iPad et l'icône ; le nouveau résultat iPad couvre la navigation, tandis que
-  le workflow distant doit être examiné séparément sur la tête de la PR.
+- `run-BaJ3lc/Tests.xcresult`: **6 of 6 iPad UI tests passed** on iPadOS 27.0,
+  with the Icon Composer document integrated into the Debug binary. “All
+  documents” selects the actual native Documents tab; selection survives
+  rotation. Previous-campaign diagnosis found that an identifier on the
+  container overwrote child-button identifiers; it was removed before this
+  complete batch.
+- `run-4MIZfU/Tests.xcresult`: **22 unit tests and 6 iPhone UI tests passed**
+  on iOS 26.5, application source `8b7dc0f`. Later changes affect the workspace
+  link, its touch targets, an iPad accessibility identifier and the icon;
+  the new iPad result covers navigation, while the remote workflow needs
+  separate inspection at the PR head.
 
-| Capture brute retenue | Ce qu'elle qualifie |
+| Retained raw capture | What it qualifies |
 | --- | --- |
-| [Accueil iPad](ipad-accueil-redesign.png) | Deux zones utiles, presse illustrée au bleu du logo, une seule signature. |
-| [Atelier iPad](ipad-atelier-redesign.png) | Envois et documents côte à côte, contenu réel des fixtures, action principale visible. |
-| [Documents iPad paysage](ipad-documents-paysage.png) | Capture de l'écran complet par `XCUIScreen` après géométrie paysage confirmée ; liste et détail entièrement visibles. |
-| [Accueil iPhone](iphone-accueil-redesign.png) | Texte et connexion d'abord, illustration plus compacte ensuite. |
-| [Atelier iPhone](iphone-atelier-redesign.png) | Défilement vertical compact avec la marque affichée une fois. |
+| [iPad welcome](ipad-accueil-redesign.png) | Two useful areas, press illustration matching logo blue, one signature. |
+| [iPad workspace](ipad-atelier-redesign.png) | Side-by-side dispatches/documents, actual fixture content, visible primary action. |
+| [Landscape iPad Documents](ipad-documents-paysage.png) | Full-screen `XCUIScreen` capture after landscape geometry confirmation; list/detail fully visible. |
+| [iPhone welcome](iphone-accueil-redesign.png) | Copy/login first, more compact illustration afterward. |
+| [iPhone workspace](iphone-atelier-redesign.png) | Compact vertical scrolling with the brand displayed once. |
 
-Les deux captures iPhone viennent du premier lot de composition. Les trois
-captures iPad viennent du lot complet le plus récent. Les cinq fichiers sont des
-copies binaires des pièces jointes XCTest. Le manifeste donne leur empreinte,
-horodatage, appareil, test et provenance. La capture `app.screenshot()` du détail
-après rotation garde une bande noire et un cadrage erroné ; le diagnostic donne
-une géométrie paysage réelle, et seule la capture `XCUIScreen` complète est
-retenue pour la preuve visuelle. Il reste à essayer une vraie fenêtre iPad
-redimensionnée étroite et un appareil physique. Le PNG paysage conserve ses
-pixels bruts 2064 × 2752 et son orientation EXIF 8 ; aucune rotation du fichier
-n'a été appliquée.
+Both iPhone captures come from the first composition batch. Three iPad
+captures come from the latest complete batch. All five files are byte copies
+of XCTest attachments. The manifest records their fingerprint, timestamp,
+device, test and provenance. The postrotation `app.screenshot()` detail capture
+retains a black strip and incorrect framing; diagnosis confirms actual
+landscape geometry, and only the complete `XCUIScreen` capture is retained
+as visual evidence. An actual narrow resized iPad window and physical device
+remain untested. The landscape PNG retains raw 2064 × 2752 pixels and EXIF
+orientation 8; no file rotation was applied.
 
-## Sources de la campagne de marque précédente
+## Previous brand campaign sources
 
-- Sources applicatives : `f39eae14198665fcb4340d209add29ff25f5cb3a`.
-- Ajustement du seul test d'arrière-plan :
-  `d6e194256a735a1037781a26b0a7b377f8edc508`, sans changement du binaire applicatif.
-- Xcode 27.0, SDK iOS 27.0, Swift 6, signature ad hoc des simulateurs.
-- iPhone 17e, iOS 26.5, portrait, français, mode clair.
-- iPad Pro 13 pouces M5 « Guteneo iPad QA », iPadOS 27.0, portrait, français,
-  mode sombre. Le mode clair a été restauré et le simulateur arrêté après essai.
+- Application sources: `f39eae14198665fcb4340d209add29ff25f5cb3a`.
+- Background-test-only adjustment:
+  `d6e194256a735a1037781a26b0a7b377f8edc508`, without app-binary changes.
+- Xcode 27.0, iOS 27.0 SDK, Swift 6, simulator ad hoc signing.
+- iPhone 17e, iOS 26.5, portrait, French, light mode.
+- iPad Pro 13-inch M5 “Guteneo iPad QA”, iPadOS 27.0, portrait, French,
+  dark mode. Light mode was restored and the simulator stopped afterward.
 
-Le manifeste associe à chaque image son empreinte, son horodatage, son appareil,
-son résultat XCTest et les révisions de l'app et du test. Une image issue d'un
-scénario réussi dans un lot partiellement échoué est identifiée comme telle.
+The manifest associates each image with its fingerprint, timestamp, device,
+XCTest result and app/test revisions. An image from a successful scenario
+in a partially failed batch is identified accordingly.
 
-## Résultats de la campagne de marque
+## Brand campaign results
 
-| Lot local dans `ios/.build/TestResults/` | Résultat |
+| Local batch under `ios/.build/TestResults/` | Result |
 | --- | --- |
-| `run-RY2IZq/Tests.xcresult` — iPhone compact | **22 tests unitaires et 5 tests UI réussis**, premier passage. |
-| `run-D0MUvN/Tests.xcresult` — iPad sombre | **4 tests UI réussis sur 5**. Le PDF s'ouvre, puis l'attente de l'état exact `runningBackground` échoue après Home. |
-| `brand-ipad-pdf-state.xcresult` — iPad sombre | **1 test ciblé réussi** : PDF, arrière-plan et retour, puis formulaire fermé sans envoi. |
-| `brand-ipad-navigation.xcresult` — iPad sombre | **2 tests de suivi réussis** : navigation/À propos et accueil. |
+| `run-RY2IZq/Tests.xcresult` — compact iPhone | **22 unit tests and 5 UI tests passed**, first run. |
+| `run-D0MUvN/Tests.xcresult` — dark iPad | **4 of 5 UI tests passed**. PDF opens; waiting for exact `runningBackground` after Home then fails. |
+| `brand-ipad-pdf-state.xcresult` — dark iPad | **1 targeted test passed**: PDF, background/return, then form closed without sending. |
+| `brand-ipad-navigation.xcresult` — dark iPad | **2 follow-up tests passed**: navigation/About and welcome. |
 
-Le test d'arrière-plan accepte désormais exactement les deux états documentés
-par Apple : `runningBackground` et `runningBackgroundSuspended`, avec le même
-délai de cinq secondes. Il refuse les états inconnu, arrêté ou au premier plan.
-L'observation jointe au passage réussi indique `afterHome=4` (premier plan), puis
-`afterWait=3` (arrière-plan). **Elle ne démontre donc pas que la suspension a
-causé l'échec du premier lot. Cette cause reste indéterminée.** Aucun retry
-automatique ou changement de comportement de l'application n'a été ajouté.
+The background test now accepts exactly Apple's two documented states,
+`runningBackground` and `runningBackgroundSuspended`, with the same five-second
+timeout. It rejects unknown, stopped or foreground states. The successful
+run's attached observation reports `afterHome=4` (foreground), then
+`afterWait=3` (background). **It therefore does not demonstrate that suspension
+caused the first batch's failure. That cause remains undetermined.** No
+automatic retry or application-behavior change was added.
 
-Les cinq scénarios distincts sont ainsi couverts sur chaque format : accueil
-sans achat, navigation, très grand texte XXXL, PDF/formulaire et devis de
-référence sans approbation. Les tests de marque comptent une seule signature
-à l'accueil, dans l'Atelier et dans À propos, et aucune dans les autres onglets,
-le PDF et le formulaire. Les tests unitaires vérifient les pixels transparents
-du portrait compilé et le contraste des couleurs chargées depuis le catalogue,
-en clair/sombre et avec contraste normal/élevé.
+Five distinct scenarios are covered on each format: welcome without purchase,
+navigation, XXXL text, PDF/form and reference quote without approval. Brand
+tests count one signature on welcome, workspace and About, and none in other
+tabs, PDF or form. Unit tests verify compiled-portrait transparent pixels and
+contrast from catalog-loaded colors in light/dark and normal/high-contrast
+modes.
 
-## Sélection inspectée
+## Inspected selection
 
 | Capture | Observation |
 | --- | --- |
-| [iPhone accueil](iphone-accueil.png) | Une signature transparente, aucun second symbole ni erreur de trousseau. |
-| [iPhone Atelier](iphone-atelier.png) | Marque unique et barre native Liquid Glass. |
-| [iPhone Compte XXXL](iphone-compte-texte-accessibilite.png) | Texte dans une liste défilante, onglet Compte accessible et sélectionné. |
-| [iPad accueil sombre](ipad-accueil-sombre.png) | Portrait sans cartouche opaque, mot-symbole et bouton lisibles. |
-| [iPad Atelier sombre](ipad-atelier-sombre.png) | Marque unique, commande principale et barre flottante natives. |
-| [iPad À propos sombre](ipad-a-propos-sombre.png) | Une seule signature sur la surface de contenu. |
-| [iPad PDF sombre](ipad-pdf-natif-sombre.png) | Document synthétique dans PDFKit après retour au premier plan. |
-| [iPad préparation sombre](ipad-preparation-sombre.png) | Formulaire défilé, devis désactivé sans destinataire, aucun logo ajouté. |
+| [iPhone welcome](iphone-accueil.png) | One transparent signature, no second symbol or Keychain error. |
+| [iPhone workspace](iphone-atelier.png) | Single brand and native Liquid Glass bar. |
+| [iPhone Account XXXL](iphone-compte-texte-accessibilite.png) | Scrolling-list text, accessible selected Account tab. |
+| [Dark iPad welcome](ipad-accueil-sombre.png) | Portrait without opaque panel, readable wordmark/button. |
+| [Dark iPad workspace](ipad-atelier-sombre.png) | One brand signature, native primary action/floating bar. |
+| [Dark iPad About](ipad-a-propos-sombre.png) | One signature on the content surface. |
+| [Dark iPad PDF](ipad-pdf-natif-sombre.png) | Synthetic document in PDFKit after foreground return. |
+| [Dark iPad preparation](ipad-preparation-sombre.png) | Scrolled form, quote disabled without recipient, no added logo. |
 
-Les autres captures restent dans les résultats bruts. La capture À propos sur
-iPhone montre une notification système Apple Intelligence ; elle n'a pas été
-retouchée et n'est pas retenue dans cette sélection. Les captures antérieures
-à la correction de marque sont remplacées ici, tout en restant dans l'historique
-Git et les résultats locaux précédents.
+Other captures remain in raw results. The iPhone About capture shows an Apple
+Intelligence system notification; it was not edited and is not in this selection.
+Captures preceding the brand correction are superseded here while remaining
+in Git history and previous local results.
 
-## Limites
+## Limits
 
-Le comptage XCTest porte sur l'arbre accessible ; la revue visuelle le complète.
-Le passage PDF en arrière-plan ne prouve pas l'image exacte capturée par iOS
-pour le sélecteur d'applications. Le masquage à cet instant et la véritable
-session d'authentification restent à vérifier sur appareil physique. La page
-Auth0 distante conserve un ancien logo opaque, distinct du binaire natif ; voir
+XCTest counting concerns the accessible tree; visual review complements it.
+Backgrounding the PDF does not prove the exact image iOS captures for the app
+switcher. Masking at that instant and actual authentication still need
+physical-device verification. The remote Auth0 page retains an old opaque
+logo, separate from the native binary; see
 [IOS_PASSKEYS.md](../../../docs/IOS_PASSKEYS.md).
 
-VoiceOver, toutes les préférences de transparence et de mouvement, l'appareil
-physique, l'authentification réelle, l'approbation navigateur, le service mobile
-de production, TestFlight et App Review ne sont pas qualifiés par ces fixtures.
-Les captures n'attestent aucune livraison, soumission ou publication.
+VoiceOver, all transparency/motion preferences, physical device, actual
+authentication, browser approval, production mobile service, TestFlight and
+App Review are not qualified by these fixtures. Captures attest no delivery,
+submission or publication.
 
-Les détails de conception et les sources Apple actuelles figurent dans
-[l'audit Apple UI](../APPLE_UI_AUDIT.md). Les résultats complets restent dans
-`ios/.build/`, ignoré par Git.
+Design details and Apple sources are in the [Apple UI audit](../APPLE_UI_AUDIT.md).
+Complete results remain in `ios/.build/`, ignored by Git.
 
-## Réconciliation du 2 octobre 2026
+## Reconciliation on 2 October 2026
 
-Ces captures restent rattachées à leurs lots historiques. Le dossier
-[multilingual](multilingual/README.md) conserve les preuves du candidat de langue.
-Aucune nouvelle capture du code réconcilié n’est revendiquée ; sa compilation
-et le blocage du script XCTest sont décrits dans [READINESS.md](../READINESS.md).
+These captures remain tied to their historical batches. The
+[multilingual](multilingual/README.md) folder retains language-candidate
+evidence. No new reconciled-source capture is claimed; its build and XCTest
+script block are described in [READINESS.md](../READINESS.md).

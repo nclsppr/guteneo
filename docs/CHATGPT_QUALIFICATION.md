@@ -1,69 +1,63 @@
-# Qualification ChatGPT — 17 septembre 2026
+# ChatGPT qualification — 17 September 2026
 
-Le nouveau candidat local retire la liste de domaines autorisés pour les sources
-HTTPS publiques des environnements hébergés, avec les contrôles de réseau et
-d’analyse décrits dans [PUBLIC_PDF_IMPORT.md](PUBLIC_PDF_IMPORT.md). Il n’est pas
-déployé par ce travail. Les paragraphes ci-dessous conservent les configurations
-d’hôtes exacts et les essais historiques ; la politique d’hôtes est remplacée
-dans ce candidat. La preuve du premier fax livré concerne un autre parcours et
-ne prouve pas l’état du document signalé aujourd’hui.
+The new local candidate removes the hostname allowlist for public HTTPS sources in hosted environments, with the network and scanning controls described in [PUBLIC_PDF_IMPORT.md](PUBLIC_PDF_IMPORT.md). This work does not deploy it. The paragraphs below retain exact-host configurations and historical trials; the candidate replaces that host policy. Evidence of the first delivered fax concerns a different journey and does not establish the state of the document reported today.
 
-## Premier fax réel livré — preuve limitée au parcours observé
+## First delivered real fax — evidence bounded to the observed journey
 
-Après l’import natif du PDF dans ChatGPT, le renouvellement manuel de son devis et l’approbation de l’utilisateur dans Guteneo, une seule tentative Telnyx a été créée le 17 septembre 2026 à 11:13:55.422 UTC. Elle a été acceptée à 11:13:59.101 UTC. L’événement fournisseur `delivered`, survenu à 11:15:17.154 UTC, a été reçu à 11:15:18.497 UTC et appliqué à 11:15:18.892 UTC. La relecture D1 confirme le statut livré et une tentative unique. L’agent de diagnostic n’a ni approuvé ni renvoyé ce fax.
+After native PDF import in ChatGPT, manual quote renewal and user approval in Guteneo, a single Telnyx attempt was created on 17 September 2026 at 11:13:55.422 UTC. It was accepted at 11:13:59.101 UTC. The provider `delivered` event occurred at 11:15:17.154 UTC, arrived at 11:15:18.497 UTC and was applied at 11:15:18.892 UTC. A D1 read confirms delivered status and a single attempt. The diagnostic agent neither approved nor resent this fax.
 
-La première preuve expurgée, `test-results/chatgpt-import/first-live-fax-delivery.json`, observée à 11:22:18.366 UTC, conservait encore le plafond de 200 centimes en réserve. Le rapprochement ponctuel opérateur/service a ensuite été appliqué le même jour à **11:48:48.891 UTC** : consommation client de **88 411 200 nanoEUR**, débit de **9 centimes**, réservations ramenées à zéro, toujours une seule tentative et une seule approbation. La relecture expurgée est conservée dans `test-results/fax-quote-release/first-fax-redacted-proof.json`. Aucun nouvel envoi n’a été déclenché pour ce rapprochement. Cette preuve ne qualifie pas un collecteur automatique généralisé de l’usage fournisseur. Livraison et décompte restent deux faits distincts ; le champ de borne estimée ne constitue pas un débit.
+The first redacted proof, `test-results/chatgpt-import/first-live-fax-delivery.json`, observed at 11:22:18.366 UTC, still held the 200-cent ceiling in reserve. One-off operator/service reconciliation was then applied that day at **11:48:48.891 UTC**: customer usage **88,411,200 nanoEUR**, **9-cent** debit, reservations reduced to zero, still one attempt and one approval. The redacted readback is in `test-results/fax-quote-release/first-fax-redacted-proof.json`. No new dispatch was triggered for reconciliation. This does not qualify a general automatic provider-usage collector. Delivery and settlement remain separate facts; an estimated-bound field is not a debit.
 
-Cette observation qualifie un document et une route destinataire au Luxembourg. Elle ne certifie pas l’option Local Calling chez Telnyx, la réception de fax par tous les numéros luxembourgeois, ni les 42 routes du catalogue. L’installation privée et les essais initiaux en lecture seule ci-dessous restent des preuves historiques distinctes. Aucun nouvel envoi n’a été effectué pour corriger le renouvellement des devis.
+This observation qualifies one document and one Luxembourg recipient route. It certifies neither Telnyx Local Calling, fax reception by all Luxembourg numbers, nor the catalog's 42 routes. Private installation and the initial read-only tests below remain separate historical evidence. No new communication was sent to correct quote renewal.
 
-## Installation initiale en lecture seule
+## Initial read-only installation
 
-Dans Safari, l’utilisateur était connecté à Guteneo et à ChatGPT. Après son accord explicite, le mode développeur a été activé et le connecteur distant `https://guteneo.com/mcp` a été créé. Le consentement Auth0 a ensuite été accepté avec son autorisation : adresse e-mail, `documents:read` et `dispatches:read` uniquement. Aucun droit d’import, de préparation ou d’envoi n’a été accordé pour cette recette.
+In Safari, the user was signed into Guteneo and ChatGPT. With explicit consent, developer mode was enabled and the remote connector `https://guteneo.com/mcp` created. Auth0 consent was then accepted with authorization for email address, `documents:read` and `dispatches:read` only. No import, preparation or sending permission was granted for this qualification.
 
-Un client OAuth Guteneo dédié à ChatGPT a été enregistré avec l’adresse de retour exacte fournie par l’interface. Ce client public utilise Authorization Code et les contrôles PKCE existants. Les Actions Guteneo vérifient aussi l’audience et l’identité ; leur configuration, le client navigateur et les secrets Cloudflare n’ont pas été modifiés. Aucun secret client n’a été copié dans ChatGPT.
+A dedicated Guteneo OAuth client for ChatGPT was registered with the exact callback supplied by the interface. This public client uses Authorization Code and existing PKCE checks. Guteneo Actions also check audience and identity; their configuration, the browser client and Cloudflare secrets were unchanged. No client secret was copied into ChatGPT.
 
-L’interface a confirmé « Guteneo is installed ». Après actualisation des métadonnées, elle a découvert 16 outils et indiqué qu’une reconnexion avec des droits supplémentaires serait nécessaire pour les outils d’écriture. Une actualisation de la page ChatGPT a rendu le nouveau connecteur disponible dans le sélecteur `@Guteneo`.
+The interface confirmed “Guteneo is installed”. After metadata refresh it discovered 16 tools and indicated that writing tools would require reconnection with additional permissions. Reloading ChatGPT made the connector available in the `@Guteneo` selector.
 
-Une conversation de test explicitement limitée à la lecture a retourné les résultats suivants :
+A conversation explicitly restricted to reads returned:
 
-| Appel | Résultat observé dans ChatGPT |
+| Call | Observed result in ChatGPT |
 | --- | --- |
-| `get_capabilities` | Réussite ; mode `production`, sans simulation |
-| `list_documents` avec `limit:1` | Réussite ; liste vide |
-| `list_dispatches` avec `limit:1` | Réussite ; liste vide |
+| `get_capabilities` | Success; `production` mode, no simulation |
+| `list_documents` with `limit:1` | Success; empty list |
+| `list_dispatches` with `limit:1` | Success; empty list |
 
-Il s’agit d’une preuve observée dans l’interface réelle : installation, consentement, schémas découverts et réponse de la conversation. Aucun jeton, code de retour OAuth, URL signée ou contenu de document n’est conservé dans cette note. La source applicative publiée au moment de ce test était `44d1d5bb64418372c5174faa1ce5601681fcc813`.
+This is evidence from the real interface: installation, consent, discovered schemas and conversation response. This note stores no token, OAuth callback code, signed URL or document content. The published application source at the test was `44d1d5bb64418372c5174faa1ce5601681fcc813`.
 
-Cette recette ne qualifie pas l’import ou la génération d’un PDF, son transfert exact et son empreinte, les parcours d’approbation, le renouvellement du jeton, la révocation ou une communication réelle. Aucun document n’a été créé ni envoyé. Le connecteur est une installation de développement privée ; le paquet de skills complet et la publication dans l’annuaire sont des étapes distinctes.
+This qualification does not cover PDF import/generation, exact transfer/hash, approval journeys, token refresh, revocation or real communication. No document was created or sent. The connector is a private development installation; the complete skill package and directory publication are separate steps.
 
-Parcours suivi : [documentation officielle OpenAI](https://developers.openai.com/plugins/deploy/connect-chatgpt). Limites et prochaines recettes : [LLM_SETUP.md](LLM_SETUP.md).
+Followed journey: [official OpenAI documentation](https://developers.openai.com/plugins/deploy/connect-chatgpt). Limits and next qualification steps: [LLM_SETUP.md](LLM_SETUP.md).
 
-## Correction de l’import distant — historique du 17 septembre 2026
+## Remote import correction — 17 September 2026 history
 
-Le refus `SOURCE_NOT_ALLOWED` venait notamment d’une configuration de production sans `IMPORT_ALLOWED_HOSTS` : toutes les sources distantes étaient refusées, indépendamment de l’activation du fax. Le domaine exact `files.oaiusercontent.com` est désormais configuré dans `wrangler.live.jsonc`. Aucun sous-domaine arbitraire, redirection ou URL non HTTPS n’est accepté. Le contrat natif `openai/fileParams` conserve `download_url` et `file_id` obligatoires ; les octets sont téléchargés, limités, analysés puis conservés avant toute préparation d’envoi.
+`SOURCE_NOT_ALLOWED` was caused in part by production configuration lacking `IMPORT_ALLOWED_HOSTS`: all remote sources were refused independently of fax activation. The exact domain `files.oaiusercontent.com` was then configured in `wrangler.live.jsonc`. No arbitrary subdomain, redirect or non-HTTPS URL was accepted. The native `openai/fileParams` contract retained required `download_url` and `file_id`; bytes are downloaded, bounded, scanned and stored before any dispatch preparation.
 
-Les erreurs d’import renvoient désormais une raison précise, le domaine public normalisé et une corrélation. Le serveur ne journalise que des catégories fermées et le domaine OpenAI reconnu ; aucune URL signée, chemin, nom de fichier, identifiant OpenAI ou domaine inconnu n’est conservé dans les logs. Un lien expiré, une redirection et un dépassement du délai de téléchargement de 15 secondes ont des codes distincts.
+Import errors then returned a precise reason, normalized public domain and correlation. The server logs only closed categories and the recognized OpenAI domain; logs retain no signed URL, path, filename, OpenAI identifier or unknown domain. Expired links, redirects and the 15-second download timeout have distinct codes.
 
-Validation locale : 73 tests ciblés réussis, dont un transfert simulé vers D1/R2 avec comparaison des octets et du SHA-256. Ces fixtures ne constituent pas une preuve de transfert réel depuis ChatGPT.
+Local validation: 73 focused tests passed, including simulated D1/R2 transfer with byte and SHA-256 comparison. These fixtures are not evidence of real transfer from ChatGPT.
 
-Le nouvel essai réel dans la conversation existante a pu relire le PDF original (136 018 octets, une page, SHA-256 `c976528ff2a30ef6374c3df5aaf171036132e12a00c6d180dc19cf35da734e63`) mais la session n’exposait que sept outils de lecture, sans `import_document`. `list_documents` a confirmé une liste vide. Aucun nouvel appel d’import ni fax n’a été effectué dans cet essai : le domaine réellement fourni par cette session, l’import et l’égalité de l’empreinte côté Guteneo restent à qualifier après réactualisation de la connexion d’écriture. Une correction de configuration n’est pas une preuve d’envoi réel.
+A new real trial in the existing conversation reread the original PDF (136,018 bytes, one page, SHA-256 `c976528ff2a30ef6374c3df5aaf171036132e12a00c6d180dc19cf35da734e63`), but the session exposed only seven read tools, without `import_document`. `list_documents` confirmed an empty list. There was no new import call or fax: the session's actual source domain, import and matching hash in Guteneo still required qualification after refreshing the writing connection. A configuration correction is not evidence of a real dispatch.
 
-## Source native observée dans ChatGPT — historique du 17 septembre 2026
+## Native source observed in ChatGPT — 17 September 2026 history
 
-Après actualisation des métadonnées du connecteur et sélection explicite de Guteneo dans une nouvelle conversation Chat, le PDF original a été joint depuis la bibliothèque native de ChatGPT, sans téléchargement local, téléversement manuel ni reconstruction. Cette demande a réellement appelé `import_document` : la réponse authentifiée a identifié le domaine `oaisdmntprnortheu.blob.core.windows.net` avec la raison `untrusted_host`. Le refus du domaine Azure précis explique pourquoi l’autorisation de `files.oaiusercontent.com` ne suffisait pas pour ce fichier.
+After refreshing connector metadata and explicitly selecting Guteneo in a new Chat conversation, the original PDF was attached from ChatGPT's native library without local download, manual upload or reconstruction. The request actually called `import_document`: its authenticated response identified `oaisdmntprnortheu.blob.core.windows.net` with reason `untrusted_host`. Refusal of this specific Azure domain explains why allowing `files.oaiusercontent.com` was insufficient for the file.
 
-Les deux hôtes exacts sont désormais configurés dans `wrangler.live.jsonc`. Le domaine Azure observé rejoint la liste fermée des hôtes journalisables ; aucun autre compte Azure, sous-domaine, suffixe trompeur ou joker n’est autorisé. Les tests vérifient l’import des octets exacts depuis cet hôte et le refus de ces variantes, sans exposer l’URL signée. La configuration a été relue en production le 17 septembre à 10:18 UTC, avec le fax actif. Aucun fax n’a été envoyé dans cette recette.
+Both exact hosts were then configured in `wrangler.live.jsonc`. The observed Azure domain joined the closed list of loggable hosts; no other Azure account, subdomain, deceptive suffix or wildcard was allowed. Tests check exact-byte import from this host and refusal of variants without exposing the signed URL. Production configuration was reread on 17 September at 10:18 UTC with fax active. No fax was sent during this qualification.
 
-Un simple message de suivi sans sélection explicite du connecteur n’a exposé que les outils de lecture et n’a effectué aucun nouvel import. La relance native avec le connecteur et le fichier attachés reste à observer pour confirmer le statut `ready`, la taille et l’égalité du SHA-256 côté Guteneo. L’identification et l’autorisation du domaine ne constituent pas encore cette preuve.
+A follow-up message without explicitly selecting the connector exposed only read tools and performed no new import. A native retry with the connector and file attached still needed observation to confirm `ready`, size and matching SHA-256 in Guteneo. Identifying and allowing the domain did not establish that evidence.
 
-La relance native a ensuite fourni un second compte régional pour ce même fichier : `oaisdmntprdenmarkeast.blob.core.windows.net`, refusé avec `untrusted_host`. Cet hôte exact rejoint la configuration et les tests, aux côtés du premier compte Azure observé et de `files.oaiusercontent.com`. La région de stockage peut donc varier entre deux tentatives ; la liste reste fermée aux hôtes effectivement constatés. Aucune autorisation générique de `blob.core.windows.net` n’est ajoutée.
+The native retry then supplied a second regional account for the same file: `oaisdmntprdenmarkeast.blob.core.windows.net`, refused with `untrusted_host`. This exact host joined configuration and tests alongside the first observed Azure account and `files.oaiusercontent.com`. Storage region could therefore vary between attempts; the list remained restricted to observed hosts. No generic `blob.core.windows.net` authorization was added.
 
-## Transfert exact qualifié dans le client réel — 17 septembre 2026
+## Exact transfer qualified in the real client — 17 September 2026
 
-Une nouvelle conversation Chat dans Safari, avec Guteneo explicitement sélectionné et le PDF original joint depuis la bibliothèque native, a réussi `import_document` puis `get_document` avec **GPT-5.6 Sol, Extra High**. Guteneo a reçu **136 018 octets**, avec le SHA-256 attendu `c976528ff2a30ef6374c3df5aaf171036132e12a00c6d180dc19cf35da734e63`. Aucun téléchargement local, téléversement manuel, rendu ou reconstruction du PDF n’a été utilisé. La création D1 porte la source `import` et l’horodatage **2026-09-17T10:40:40.146Z**.
+A new Chat conversation in Safari, with Guteneo explicitly selected and the original PDF attached from the native library, succeeded at `import_document` then `get_document` with **GPT-5.6 Sol, Extra High**. Guteneo received **136,018 bytes** with expected SHA-256 `c976528ff2a30ef6374c3df5aaf171036132e12a00c6d180dc19cf35da734e63`. No local download, manual upload, rendering or PDF reconstruction was used. The D1 record has source `import` and timestamp **2026-09-17T10:40:40.146Z**.
 
-Le premier résultat était `quarantined`, sans nombre de pages validé. Une relance d’analyse n’a pas suffi. Le diagnostic séparé des services privés a ensuite qualifié l’antivirus et quatre cas de rendu synthétiques, sans Pingen ni modification D1/R2. Pendant que le scanner était prêt, `rescan_document` puis `get_document` dans ChatGPT ont confirmé **`ready`, une page, les mêmes octets et la même empreinte**. La lecture directe de D1 confirme ce résultat. Aucune quarantaine n’a été levée manuellement. Le démarrage à froid reste une limite opérationnelle : `sleepAfter=2m`, disponibilité après trois contrôles espacés de 30 secondes dans ce diagnostic ; un document en quarantaine ne doit jamais être présenté comme prêt.
+The first result was `quarantined`, with no validated page count. Repeating analysis was insufficient. Separate private-service diagnostics then qualified antivirus and four synthetic rendering cases, without Pingen or D1/R2 changes. With the scanner ready, `rescan_document` then `get_document` in ChatGPT confirmed **`ready`, one page, the same bytes and hash**. A direct D1 read confirms it. No quarantine was manually lifted. Cold start remains an operational limit: `sleepAfter=2m`, availability after three checks 30 seconds apart in this diagnostic; a quarantined document must never be presented as ready.
 
-Les essais récents avec GPT-6 Pro, y compris une demande native avec le connecteur attaché, n’exposaient que les outils de lecture. Le changement de modèle a permis cet essai, mais ne prouve pas une restriction générale de l’offre Pro : les sources officielles consultées sont contradictoires et les premiers appels d’import avaient atteint le serveur. Conserver une distinction entre disponibilité des outils dans l’hôte, autorisation du domaine, transfert des octets et validation de sécurité. La preuve porte sur ce parcours observé, pas sur tous les modèles ou sessions.
+Recent GPT-6 Pro trials, including a native request with the connector attached, exposed only read tools. Switching models enabled this trial, but does not prove a general Pro-tier restriction: consulted official sources contradicted each other and the first import calls had reached the server. Distinguish host tool availability, domain authorization, byte transfer and security validation. Evidence applies to this observed journey, rather than all models or sessions.
 
-Aucun fax, e-mail ou courrier n’a été préparé, approuvé ou envoyé pour qualifier ce transfert. Le connecteur demeure une installation de développement privée.
+No fax, email or postal mail was prepared, approved or sent to qualify this transfer. The connector remains a private development installation.

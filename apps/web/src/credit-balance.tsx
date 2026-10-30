@@ -25,21 +25,21 @@ export function CreditBalance({ credit }: { credit: WelcomeCredit }) {
     <section className="credit-balance" aria-labelledby={`${id}-title`}>
       <div className="credit-balance-main">
         <span className="mono">
-          {simulation ? msg("EXEMPLE FICTIF") : msg("CRÉDIT DE BIENVENUE")}
+          {simulation ? msg("FICTIONAL EXAMPLE") : msg("WELCOME CREDIT")}
         </span>
         <h2 id={`${id}-title`}>
-          {msg("Un solde pour toute votre correspondance.")}
+          {msg("One balance for all your correspondence.")}
         </h2>
         <p>
           {msg(
-            "Fax, e-mail et courrier partagent le même crédit, offert une seule fois à votre atelier.",
+            "Fax, email and post share the same credit, granted to your workspace once only.",
           )}
         </p>
         <dl className="credit-balance-amount">
           <dt>
             {simulation
-              ? msg("Disponible dans cet exemple")
-              : msg("Disponible")}
+              ? msg("Available in this example")
+              : msg("Available")}
           </dt>
           <dd>{amount(credit.availableMinor)}</dd>
         </dl>
@@ -47,20 +47,20 @@ export function CreditBalance({ credit }: { credit: WelcomeCredit }) {
           <progress
             max={credit.grantedMinor}
             value={credit.availableMinor}
-            aria-label={msg("Crédit disponible")}
+            aria-label={msg("Available credit")}
           />
         )}
         {credit.status === "exhausted" && (
           <p className="credit-balance-stop" role="status">
             {msg(
-              "Votre crédit disponible est épuisé. Les nouveaux envois sont bloqués.",
+              "Your available credit is exhausted. New deliveries are blocked.",
             )}
           </p>
         )}
         {credit.status === "not_granted" && (
           <p className="credit-balance-stop">
             {msg(
-              "Aucun crédit n’est attribué à cet atelier. Les envois nécessitant un crédit restent bloqués.",
+              "No credit has been assigned to this workspace. Deliveries requiring credit remain blocked.",
             )}
           </p>
         )}
@@ -69,16 +69,16 @@ export function CreditBalance({ credit }: { credit: WelcomeCredit }) {
         <dl>
           <div>
             <dt>
-              {simulation ? msg("Crédit illustratif") : msg("Crédit offert")}
+              {simulation ? msg("Example credit") : msg("Complimentary credit")}
             </dt>
             <dd>{amount(credit.grantedMinor)}</dd>
           </div>
           <div>
-            <dt>{msg("Utilisé")}</dt>
+            <dt>{msg("Used")}</dt>
             <dd>{amount(credit.spentMinor)}</dd>
           </div>
           <div>
-            <dt>{msg("Réservé aux envois en cours")}</dt>
+            <dt>{msg("Reserved for ongoing deliveries")}</dt>
             <dd>{amount(credit.reservedMinor)}</dd>
           </div>
         </dl>
@@ -89,22 +89,22 @@ export function CreditBalance({ credit }: { credit: WelcomeCredit }) {
           aria-describedby={`${id}-topup`}
         >
           <Plus size={18} aria-hidden="true" />
-          {msg("Ajouter du crédit")}
+          {msg("Add credit")}
         </button>
         <p id={`${id}-topup`} className="field-hint">
           {msg(
-            "La recharge sera disponible avec Stripe. Aucun paiement n’est possible pour le moment.",
+            "Top-ups will be available through Stripe. No payment is possible at present.",
           )}
         </p>
         <p className="field-hint">
           {msg(
-            "Le crédit ne se renouvelle pas chaque mois. Un envoi dont le résultat est incertain conserve sa réservation.",
+            "Credit does not renew monthly. A delivery with an uncertain outcome keeps its reservation.",
           )}
         </p>
         {simulation && (
           <p className="field-hint">
             {msg(
-              "Ces montants servent uniquement à explorer l’atelier. Ils ne constituent ni un crédit réel ni une facture.",
+              "These amounts are only for exploring the workspace. They represent neither actual credit nor an invoice.",
             )}
           </p>
         )}

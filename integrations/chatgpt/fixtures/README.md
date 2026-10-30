@@ -1,19 +1,18 @@
-# PDF de recette synthétique
+# Synthetic review PDF
 
-`reviewer-original.pdf` est un original de deux pages A4, sans adresse, numéro,
-email ni identité réelle. Chaque page porte `SYNTHETIC REVIEW DOCUMENT` et
-`DO NOT SEND`. Il sert uniquement à qualifier l’import exact, l’analyse et la
-lecture des pages. Il n’autorise aucun fax, email, transfert chez un prestataire
-postal ou courrier réel.
+`reviewer-original.pdf` is a two-page A4 original without real addresses, phone
+numbers, email addresses or identities. Every page states `SYNTHETIC REVIEW DOCUMENT`
+and `DO NOT SEND`. It qualifies only exact import, analysis and page reading;
+it authorizes no real fax, email, print-provider transfer or postal letter.
 
-- Générateur : `node scripts/create-chatgpt-reviewer-fixture.mjs`.
-- Taille : **4 290 octets**.
-- SHA-256 : `d25de4f63db4cab316d4718638c9747cc11628035dc4045610fed89c5079adbc`.
-- Format : deux pages de **595,28 × 841,89 points**.
-- Qualification locale du 21 septembre 2026 : deux pages rendues avec Poppler
-  et inspectées visuellement ; texte et pagination relus avec pypdf. Aucun
-  import dans un compte distant n’est attesté par cette seule préparation.
+- Generator: `node scripts/create-chatgpt-reviewer-fixture.mjs`.
+- Size: **4 290 bytes**.
+- SHA-256: `d25de4f63db4cab316d4718638c9747cc11628035dc4045610fed89c5079adbc`.
+- Format: two **595.28 × 841.89 point** pages.
+- Local evidence dated 21 September 2026: both pages rendered with Poppler and
+  visually inspected; text and pagination checked with pypdf. That preparation
+  alone proves no remote-account import.
 
-Comparer le SHA-256 du document importé à cette référence avant de déclarer
-le transfert exact qualifié. Un PDF reconstruit par l’assistant depuis son texte
-ne remplace pas cette fixture.
+Compare the imported document's SHA-256 with this reference before declaring
+exact transfer qualified. An assistant reconstruction from extracted text does
+not replace this fixture.

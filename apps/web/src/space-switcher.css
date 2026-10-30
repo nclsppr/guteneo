@@ -1,0 +1,202 @@
+/* The switcher takes the former workshop block's place and geometry. */
+.space-switcher {
+  position: relative;
+  min-width: 0;
+  margin: 0 0 10px;
+}
+.space-switcher-trigger {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 44px;
+  padding: 4px 12px;
+  border: 0;
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+}
+button.space-switcher-trigger:hover,
+.space-switcher-trigger[aria-expanded="true"] {
+  background: var(--surface-hover);
+}
+.space-switcher-trigger > svg {
+  flex-shrink: 0;
+  margin-left: auto;
+  color: var(--muted);
+}
+.space-switcher-mark {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: 20px;
+}
+.space-switcher-label {
+  display: grid;
+  min-width: 0;
+  gap: 1px;
+}
+.space-switcher-label :is(strong, small) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.space-switcher-label strong {
+  font-size: 14px;
+  font-weight: 500;
+}
+.space-switcher-label small {
+  font-size: 12px;
+  color: var(--muted);
+}
+.space-switcher-panel {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 3;
+  min-width: 100%;
+  width: max-content;
+  max-width: min(320px, calc(100vw - 32px));
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface-raised);
+  box-shadow: 0 12px 32px var(--shadow);
+}
+.space-switcher-panel[hidden] {
+  display: none;
+}
+.space-switcher-panel ul {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.space-switcher-panel > :is(ul, section) + :is(ul, section) {
+  margin-top: 4px;
+  padding-top: 4px;
+  border-top: 1px solid var(--line);
+}
+.space-switcher-group {
+  margin: 0;
+  padding: 6px 10px 2px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.space-switcher-panel :is(a, button) {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 36px;
+  padding: 6px 10px;
+  border: 0;
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 14px;
+  text-align: left;
+  text-decoration: none;
+}
+.space-switcher-panel :is(a, button):hover {
+  background: var(--surface-hover);
+}
+.space-switcher-panel a[aria-current="true"] {
+  color: var(--blue);
+  font-weight: 500;
+}
+.space-switcher-panel a > svg:last-child:not(:first-child) {
+  margin-left: auto;
+}
+.space-switcher-panel .space-switcher-mark {
+  width: 24px;
+  height: 24px;
+  font-size: 15px;
+}
+@media (max-width: 1024px) {
+  .space-switcher {
+    justify-self: end;
+    margin: 0;
+  }
+  .space-switcher-panel {
+    right: 0;
+    left: auto;
+  }
+  .space-switcher-panel :is(a, button) {
+    min-height: 44px;
+  }
+}
+@media (forced-colors: active) {
+  .space-switcher-panel a[aria-current="true"] {
+    border: 1px solid CanvasText;
+  }
+}
+/* The application, then the workspace it works in: two choices in one block. */
+.sidebar-context {
+  display: grid;
+  margin: 0 0 6px;
+}
+.sidebar-context > .space-switcher {
+  margin: 0;
+}
+/* Pointer sizes on desktop keep every entry of an administrator in view at 720 px. */
+.application-switcher .space-switcher-trigger {
+  min-height: 40px;
+}
+.workspace-switcher .space-switcher-trigger {
+  min-height: 36px;
+}
+.workspace-switcher .space-switcher-trigger .space-switcher-mark {
+  width: 24px;
+  height: 24px;
+  font-size: 15px;
+}
+@media (max-width: 1024px) {
+  /* Its own row in every application header, grid or wrapping flex. */
+  .sidebar-context {
+    grid-column: 1 / -1;
+    flex-basis: 100%;
+    display: flex;
+    gap: 8px;
+  }
+  /* The application name stays whole; a long workspace name shortens. */
+  .sidebar-context > .application-switcher {
+    flex: 0 0 auto;
+  }
+  .sidebar-context > .workspace-switcher {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+  .sidebar-context .space-switcher-trigger {
+    min-height: 44px;
+  }
+  .application-switcher .space-switcher-panel {
+    right: auto;
+    left: 0;
+  }
+}
+.space-switcher-current {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 36px;
+  padding: 6px 10px;
+  color: var(--blue);
+  font-size: 14px;
+  font-weight: 500;
+}
+.space-switcher-current > svg {
+  margin-left: auto;
+}

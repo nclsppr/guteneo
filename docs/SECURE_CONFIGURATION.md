@@ -1,21 +1,59 @@
-# Configuration privée des prestataires
+# Private provider configuration
 
-La saisie des clés se fait sur l’ordinateur de l’opérateur, puis leur valeur est transmise directement aux secrets Cloudflare du Worker `guteneo-app`. Ne collez jamais une clé dans une conversation, un ticket, un fichier Git ou une URL.
+Enter keys on the operator's computer; values pass directly to Cloudflare secrets
+for `guteneo-app`. Never paste a key into a conversation, issue, Git file or URL.
 
-Depuis le projet, lancer `npm run setup:fax` pour Telnyx, `npm run setup:email` pour Amazon SES, ou `npm run setup:billing` pour Stripe. Ouvrir le lien local imprimé, remplir les champs masqués et enregistrer. Le service Cloudflare doit déjà exister et Wrangler doit être connecté au compte autorisé. Les champs facultatifs vides préservent les secrets existants, sauf le jeton de session AWS : une clé permanente efface l’ancien jeton temporaire.
+Run `npm run setup:fax` for Telnyx, `npm run setup:email` for Amazon SES or
+`npm run setup:billing` for Stripe. Open the printed local link, fill the masked
+fields and save. The Cloudflare service must already exist and Wrangler must be
+signed into the authorized account. Empty optional fields preserve existing
+secrets, except the AWS session token: a permanent key clears an old temporary token.
 
-Pour Pingen, lancer `node scripts/secure-setup.mjs pingen` : identifiant client, secret client et identifiant d’organisation sont obligatoires. Le profil conserve les envois fermés et ne crée aucun courrier ni webhook. La vérification privée de connexion est décrite dans [PINGEN_SETUP.md](PINGEN_SETUP.md).
+For Pingen, run `node scripts/secure-setup.mjs pingen`; client ID, client secret
+and organization ID are mandatory. The profile leaves sending closed and creates
+no letter or webhook. [Pingen setup](PINGEN_SETUP.md) covers private connectivity.
 
-Le serveur écoute exclusivement sur `127.0.0.1`, avec un chemin aléatoire, une vérification de l’origine, un jeton anti-CSRF, une liste fermée de champs, des limites de taille et une expiration de trente minutes. Une saisie réussie ferme le serveur. Les valeurs ne sont jamais renvoyées au navigateur, inscrites dans un fichier ou passées dans les arguments du processus. Elles transitent en mémoire et par l’entrée standard de Wrangler ; ses sorties, journaux sur disque et télémétrie sont désactivés pour cette opération. Ce mécanisme suppose que l’ordinateur et les processus locaux sont de confiance.
+The server listens only on `127.0.0.1`, with a random path, Origin verification,
+CSRF token, closed field list, size bounds and 30-minute expiration. Successful
+entry closes it. Values are never returned to the browser, written to a file or
+passed as process arguments. They travel in memory and through Wrangler stdin;
+output, disk logs and telemetry are disabled for this operation. The computer
+and local processes must be trusted.
 
-La politique de référent est `same-origin` : aucune adresse de saisie n’est envoyée à un autre site, et Safari peut transmettre l’en-tête Origin lors de la soumission du formulaire. Les formulaires ont été éprouvés avec Chromium et WebKit, en plus des essais d’origine étrangère, CSRF invalide, champs inconnus/dupliqués, erreurs et valeurs non réaffichées.
+The `same-origin` referrer policy keeps the entry URL from other sites and lets
+Safari send Origin on form submission. Chromium/WebKit checks also cover foreign
+origins, invalid CSRF, unknown/duplicate fields, failures and values never redisplayed.
 
-Stripe exige ici une clé restreinte **de production** `rk_live_…` ; le service de production refuse les clés de test. Prévoir seulement les autorisations du module décrit dans [BILLING.md](BILLING.md). La création d’un client et l’ouverture du portail ne déclenchent pas de débit. Aucune offre, tarif ou facturation automatique n’est créée par ce formulaire.
+Stripe requires a restricted **production** `rk_live_…` key; production rejects
+test keys. Grant only [billing module permissions](BILLING.md). Creating a customer
+or opening the portal causes no debit. This form creates no offer, price or
+automatic billing.
 
-Amazon SES exige une clé API IAM dédiée à l’envoi Guteneo, sa région européenne et son jeu de configuration. Une clé temporaire exige son jeton de session ; ne pas fournir de clé racine ni de mot de passe SMTP. Le formulaire fixe `SES_SANDBOX=true` et ne modifie jamais l’activation des envois. L’ARN SNS éventuel doit correspondre à la région. Voir [SES_SETUP.md](SES_SETUP.md) pour les autorisations minimales, la vérification du domaine et les notifications signées.
+SES requires a dedicated Guteneo sending IAM API key, European region and
+configuration set. Temporary keys need a session token; never supply a root key
+or SMTP password. The form sets `SES_SANDBOX=true` and never activates sending.
+Any SNS ARN must match the region. See [SES setup](SES_SETUP.md) for minimal
+permissions, domain verification and signed notifications.
 
-Auth0 utilise sa reconnexion officielle et le provisionnement dédié, sans saisie d’un mot de passe dans Guteneo. Une clé de fax ou d’email ne remplace pas la configuration d’identité, l’expéditeur, le tarif vérifié, les budgets et l’approbation humaine.
+Auth0 uses official reauthentication and dedicated provisioning, with no password
+entry in Guteneo. Fax/email keys do not replace identity configuration, sender,
+verified tariff, budgets or human approval.
 
-Le 16 septembre 2026, à la demande explicite de l’utilisateur, la clé Telnyx étiquetée `guteneo-production` a été créée dans sa session Safari, avec expiration le 15 décembre 2026 à 23:59 UTC. Sa valeur a été copiée directement dans le champ sécurisé puis transférée à Cloudflare ; le presse-papiers a ensuite été remplacé. La présence du secret `TELNYX_API_KEY` a été confirmée sans lire sa valeur. La clé publique de validation des callbacks a également été installée sous `TELNYX_PUBLIC_KEY`. L’application fax `Guteneo` (`3050489615535310376`) est active, avec callback `https://guteneo.com/webhooks/telnyx`, profil sortant `Default` et limite d’un canal sortant ; son identifiant est installé sous `TELNYX_CONNECTION_ID`. L’inventaire Telnyx ne contient encore aucun numéro. Aucun fax ni paiement n’a été effectué par l’agent.
+## Dated operator evidence
 
-Mise à jour du 17 septembre : le numéro luxembourgeois actif et attaché à l’application a été vérifié et installé comme `TELNYX_FROM`. Le callback pointe maintenant vers le backend `https://guteneo-app.nclsppr.workers.dev/webhooks/telnyx`. Les identifiants SES et Pingen sont également installés ; l’authentification privée de leurs comptes a réussi. Les preuves, limites et états d’activation actuels figurent dans LIVE_RELEASE.md.
+On 16 September 2026, at the user's explicit request, the `guteneo-production`
+Telnyx key was created in their Safari session, expiring 15 December 2026 at
+23:59 UTC. Its value was copied directly into the secure field and sent to
+Cloudflare; the clipboard was then replaced. `TELNYX_API_KEY` presence was confirmed
+without reading its value. Callback verification key `TELNYX_PUBLIC_KEY` was also
+installed. Fax application `Guteneo` (`3050489615535310376`) was active with
+`https://guteneo.com/webhooks/telnyx`, outbound profile `Default` and one outbound
+channel; its ID was installed as `TELNYX_CONNECTION_ID`. No number was yet in the
+inventory. The agent sent no fax and made no payment.
+
+17 September update: an active Luxembourg number attached to the application was
+verified and installed as `TELNYX_FROM`. At that time, the callback changed to
+`https://guteneo-app.nclsppr.workers.dev/webhooks/telnyx`. SES and Pingen credentials
+were also installed and private account authentication succeeded. These are dated
+observations; [live release evidence](LIVE_RELEASE.md) and the [current canonical
+origin contract](MAIN_RELEASE.md) define their limits and subsequent release rules.

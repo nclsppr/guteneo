@@ -11,15 +11,32 @@ export interface Env {
   ENVIRONMENT: "local" | "staging" | "production";
   MODE: "simulation" | "production";
   APP_ORIGIN: string;
+  /** Server-owned, expiring MCP Apps diagnostic; absent by default. */
+  MCP_UI_PROBE?: string;
+  /** Default-off original-file App; bounded qualification or authorized rollout. */
+  MCP_DOCUMENT_UPLOAD_APP?: string;
   DOCUMENT_RENDERER_URL?: string;
   SCANNER?: Fetcher;
   PDF_VALIDATOR?: Fetcher;
-  HORIZON_ENABLED?: string;
+  PDF_VALIDATION_ENABLED?: string;
+  /** Server secrets only. No public capability exposes this path or privilege. */
+  BELVEDERE_SECRET_SLUG?: string;
+  BELVEDERE_AUTH0_SUBJECT?: string;
+  BELVEDERE_CLOUDFLARE_ACCOUNT_ID?: string;
+  BELVEDERE_CLOUDFLARE_API_TOKEN?: string;
+  BELVEDERE_CLOUDFLARE_BILLING_TOKEN?: string;
+  BELVEDERE_CLOUDFLARE_SCRIPT_NAME?: string;
   AUTH0_DOMAIN?: string;
+  /** Browser-login alias; AUTH0_DOMAIN remains the canonical identity issuer. */
+  AUTH0_BROWSER_DOMAIN?: string;
+  /** Reviewed same-tenant MCP token alias; never changes identity keys. */
+  AUTH0_MCP_TRUSTED_DOMAIN?: string;
+  AUTH0_MCP_DISCOVERY?: "canonical" | "custom";
   AUTH0_CLIENT_ID?: string;
   AUTH0_CLIENT_SECRET?: string;
   AUTH0_AUDIENCE?: string;
   AUTH0_AUTH_POLICY?: "verified_email" | "verified_email_and_mfa";
+  SENSITIVE_DOCUMENT_AUTHENTICATION?: string;
   STRIPE_API_KEY?: string;
   STRIPE_WEBHOOK_SECRET?: string;
   STRIPE_MODE?: "test" | "live";
@@ -41,6 +58,12 @@ export interface Env {
   INVITATION_EMAILS_ENABLED?: string;
   INVITATION_EMAIL_FROM?: string;
   PROTECTED_DOCUMENTS_KEY?: string;
+  /** Versioned envelope key for secure distribution and personal objects. */
+  SECURE_DOCUMENTS_KEY?: string;
+  SECURE_DOCUMENTS_KEY_ID?: string;
+  /** Secret JSON key ring; keep retired wrapping keys until all envelopes migrate. */
+  SECURE_DOCUMENTS_KEYS?: string;
+  SECURE_DISTRIBUTION_ENABLED?: string;
   RESEND_WEBHOOK_SECRET?: string;
   RESEND_ACCOUNT_ID?: string;
   RESEND_DOMAIN_ID?: string;

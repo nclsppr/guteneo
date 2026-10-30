@@ -48,9 +48,12 @@ run_local() {
 }
 
 run_local node --input-type=module -e '
-  const [major, minor] = process.versions.node.split(".").map(Number);
-  if (major < 22 || (major === 22 && minor < 16)) {
-    console.error("Codex Cloud setup requires Node.js >=22.16.");
+  const [major, minor, patch] = process.versions.node.split(".").map(Number);
+  const supported =
+    (major === 22 && (minor > 22 || (minor === 22 && patch >= 3))) ||
+    (major === 24 && minor >= 8) || major > 24;
+  if (!supported) {
+    console.error("Codex Cloud setup requires Node.js ^22.22.3 || >=24.8.0.");
     process.exit(1);
   }
 '

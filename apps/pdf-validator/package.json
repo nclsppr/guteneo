@@ -16,5 +16,11 @@
     "@cloudflare/workers-types": "5.20260916.1",
     "typescript": "6.0.3",
     "wrangler": "4.132.0"
+  },
+  "overrides": {
+    "miniflare@5.20260915.0-alpha": {
+      "undici": "7.30.1",
+      "sharp": "0.35.5"
+    }
   }
 }

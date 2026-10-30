@@ -1,92 +1,71 @@
-# Préparer un courrier dans la conversation
+# Preparing postal mail in conversation
 
-Candidat du 21 septembre 2026. Les tests, la publication du serveur, le catalogue
-chargé dans ChatGPT ou Claude et un véritable envoi restent des preuves distinctes.
+21 September 2026 candidate. Tests, server publication, host-loaded catalogs and
+real sending remain distinct evidence.
 
-« Envoie ce PDF par courrier » sélectionne le canal postal. Le PDF est importé une
-seule fois avec `import_document`, commun aux canaux. Son identifiant est conservé
-pendant l’analyse et la collecte des informations ; la préparation passe ensuite
-par `preflight_postal_pdf`, jamais par un fax ou une préparation générique qui
-contournerait le contrôle postal.
+Send this PDF by post selects postal. Import once with shared `import_document`
+and retain the ID through analysis/information gathering. Continue through
+`preflight_postal_pdf`, never fax or generic preparation bypassing postal checks.
 
-## Expéditeur et informations manquantes
+## Sender and missing information
 
-`get_capabilities` inclut l’état postal du compte authentifié si la connexion possède
-`documents:read`. Sinon, les capacités générales restent accessibles et indiquent
-ce droit manquant, sans révéler l’expéditeur. `get_postal_setup`
-relit cet état, l’expéditeur et les droits de configuration. L’assistant réutilise
-un expéditeur existant et demande uniquement les données manquantes dans la
-conversation : nom et adresse complète d’expéditeur, destinataire, options
-d’impression et de distribution, plafond en euros. Il ne devine aucune adresse
-et ne confond pas expéditeur et destinataire.
+With `documents:read`, `get_capabilities` includes authenticated postal setup;
+without it, general capabilities indicate the missing scope without sender data.
+`get_postal_setup` rereads state, sender and configuration authority. Reuse an
+existing sender and ask only for missing full sender/recipient address, print/
+delivery options and EUR ceiling. Never guess or confuse sender/recipient.
 
-`configure_postal_sender` accepte le nom et l’adresse fournis. Il exige une
-identité OAuth administrateur actuelle et `dispatches:prepare`, indépendamment
-d’une éventuelle délégation expert. Le service métier partagé avec le navigateur
-vérifie le profil fournisseur et les politiques tarifaires. Une répétition
-identique réutilise l’expéditeur ; un remplacement, une désactivation, un arrêt
-du canal ou une révocation de tarif ne peuvent pas être contournés. Le même outil
-peut requalifier explicitement la configuration expirée, avec le même expéditeur
-et le même profil. Une lecture ne renouvelle rien.
+`configure_postal_sender` accepts supplied name/address and requires current OAuth
+administrator plus `dispatches:prepare`, independently of expert delegation.
+The shared browser service checks provider profile/tariffs. Identical repetition
+reuses sender; replacement, deactivation, channel shutdown or revoked tariffs cannot
+be bypassed. Explicit requalification can renew expired setup with the same
+sender/profile; reads renew nothing.
 
-La migration `0034_postal_sender_submission.sql` conserve l’origine historique
-des déclarations navigateur et distingue les soumissions OAuth. Le client et la
-connexion sont dérivés de l’identité authentifiée, jamais d’un argument du chat.
-L’organisation, l’utilisateur, l’émetteur OAuth, le client, l’identifiant historique
-de connexion et sa révision forment un instantané immuable de l’autorité utilisée.
-L’insertion vérifie cet ensemble contre la connexion active du même compte. Cet
-instantané ne référence pas la ligne de connexion mutable : une réassociation
-ultérieure à une autre organisation conserve la preuve historique dans son
-organisation d’origine, sans bloquer le changement de compte.
-La déclaration reste immuable et `physical_address_verified` reste faux. Aucun
-booléen transmis par un assistant n’est présenté comme une preuve de consentement
-humain. Cette configuration n’accorde ni mandat expert, ni crédits, ni permission
-de transmettre un document ou d’expédier une lettre.
+`0034_postal_sender_submission.sql` preserves browser-declaration history and
+separately records OAuth submissions. Authenticated identity supplies client/
+connection, never chat arguments. Immutable authority snapshot binds organization,
+user, issuer, client, historical connection ID and revision; insertion verifies
+against that account's active connection. No foreign key to mutable connection
+lets later rebinding move history or block account switching. Declaration is
+immutable, `physical_address_verified:false`; no assistant boolean becomes human
+consent. Setup grants no mandate, credits, document-transfer or send authority.
 
-## Document, revue et envoi
+## Document, review and sending
 
-Après l’analyse du PDF, les règles postales guident le contrôle de l’adresse du
-destinataire. Sur demande explicite, la page d’adresse automatique crée un PDF
-distinct ; l’original est conservé. L’adresse d’expéditeur enregistrée n’est pas
-automatiquement imprimée et ne constitue pas une garantie de retour du pli.
+After PDF analysis, postal requirements guide address checking. Explicit optional
+address-page creation produces a distinct PDF and preserves original. Recorded
+sender is not automatically printed and guarantees no physical return.
 
-Le parcours standard remet le `reviewUrl` du contrôle postal dans Guteneo. La
-personne relit le document et autorise son transfert pour analyse fournisseur,
-puis le navigateur récupère automatiquement le devis et propose un seul bouton d’envoi au prix exact. L’assistant ne recrée pas de devis en parallèle et ne rappelle pas `confirm_dispatch` après cette action. Voir [POSTAL_STREAMLINED.md](POSTAL_STREAMLINED.md). Un mandat limité au fax n’empêche ni
-l’import, ni la configuration postale autorisée, ni cette préparation standard.
-Une délégation postale déjà active permet le parcours expert existant ; l’assistant
-ne peut pas l’activer ni l’étendre.
+Standard flow returns Guteneo `reviewUrl`; the person reviews/consents to provider
+analysis transfer, browser follows quote automatically and offers one exact-price
+send button. Assistant must not create a parallel quote or append `confirm_dispatch`.
+See [streamlined journey](POSTAL_STREAMLINED.md). A fax-only mandate does not block
+import, authorized postal setup or standard preparation. Existing postal delegation
+permits the expert flow; assistants cannot enable/extend it.
 
-Le prompt serveur `postal_pdf` et le skill `postal-pdf` décrivent ces étapes. Les
-erreurs d’expéditeur dirigent vers `get_postal_setup`, celles d’un contrôle postal
-vers le même `get_postal_preflight`. Un devis en attente ou un transfert incertain
-ne doit jamais produire une nouvelle expédition. Les erreurs d’import restent
-distinctes de la disponibilité des outils dans l’hôte.
+Server prompt `postal_pdf` and `postal-pdf` skill describe these steps. Sender
+errors point to `get_postal_setup`; preflight errors to the same
+`get_postal_preflight`. Pending quotes/uncertain transfers never create new sends.
+Import errors differ from missing host tools.
 
 ## Qualification
 
-La version de paquet et de serveur MCP est `0.2.2`. Les manifestes, le scénario
-postal et les annotations doivent être redistribués ensemble. Une connexion de
-développement ChatGPT doit actualiser ses métadonnées puis être testée dans une
-nouvelle conversation ; un plugin publié suit son propre processus de revue.
+This dated candidate's package/server version was `0.2.2`. Redistribute manifests,
+scenario and annotations together. Development ChatGPT connections refresh metadata
+and test in a new conversation; published plugins have separate review processes.
 
-Les preuves locales doivent couvrir le transport MCP, l’import suivi d’une
-préparation postale, l’expéditeur absent/existant, les autorisations OAuth et
-leur révocation pendant un appel fournisseur, l’isolation des comptes, les
-répétitions identiques et les arrêts administratifs. Les fixtures ne qualifient
-ni le transfert d’une pièce jointe par tous les hôtes, ni une lettre réellement
-expédiée. Aucun envoi réel n’est nécessaire pour valider ce changement.
+Local proof must cover actual MCP transport, import-to-postal preparation,
+missing/existing sender, OAuth authority/revocation during provider waits, account
+isolation, identical repetition and administrative stops. Fixtures prove neither
+all-host file transfer nor real letters. No real sending is necessary.
 
-Preuves locales du candidat : 129 tests de catalogue/transport/reprise et revue MCP et
-50 tests de configuration passent, dont des appels HTTP MCP avec de vrais JWT
-signés de fixture et une base D1 locale. Le typage, le lint et la construction web
-passent. Les 34 migrations produisent un schéma équivalent de 217 objets, avec
-`quick_check=ok` et aucune violation de clé étrangère. La revue indépendante
-a fait corriger la découverte des capacités avec des scopes limités et une
-consigne qui pouvait provoquer un second import. La provenance historique reste
-dans son compte après une réassociation OAuth ; un aller-retour entre comptes,
-même à horodatages identiques, invalide une opération devenue obsolète avant
-l’écriture. Les lectures de configuration forment un seul instantané transactionnel :
-une activation concurrente ne peut pas produire un faux état de suspension, et un
-arrêt réel reste bloquant. Ces résultats ne prouvent pas
-encore une conversation native ChatGPT ou Claude avec cette version.
+Candidate local evidence: 129 catalog/transport/recovery/review cases and 50 setup
+cases passed, including HTTP MCP with signed fixture JWTs/local D1. Typecheck,
+lint/web build passed. All 34 migrations produced 217 equivalent schema objects,
+`quick_check=ok`, no foreign-key violation. Independent review corrected limited-scope
+capability discovery and guidance that could cause double import. Historical
+provenance stays in its original account after rebinding; account round trips,
+even equal timestamps, invalidate stale writes. Setup reads use one transactional
+snapshot, avoiding false suspension during concurrent activation while preserving
+actual shutdown. This proves no native ChatGPT/Claude conversation with that version.

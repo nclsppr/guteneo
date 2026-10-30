@@ -1,61 +1,41 @@
-# Bande-son Guteneo
+# Guteneo soundtrack
 
-`soundtrack.wav` est le master complet de **46 secondes**, stéréo, PCM 16 bits,
-48 kHz. Il contient la musique, les textures de papier et le clap final.
+`soundtrack.wav`: complete **46-second**, stereo PCM16/48 kHz master, including
+music, paper textures and final clap. Original score/melody/timbres are procedural
+`scripts/create-soundtrack.py` oscillator, fixed-seed noise, envelope, harmonic and
+stereo synthesis. No third-party sample/recording/music/audio model/paid service.
+Piano/pad/percussion describe synthesized timbres, not acoustic recordings.
 
-La partition, la mélodie et tous les timbres sont des créations procédurales
-originales du script `scripts/create-soundtrack.py` : oscillateurs, bruit à graine
-fixe, enveloppes, harmoniques et diffusion stéréo. Aucun extrait musical,
-enregistrement, échantillon tiers, modèle audio ni service payant n'est utilisé.
-Les timbres de piano feutré, de pad et de percussion sont des synthèses, pas des
-enregistrements d'instruments acoustiques.
+## Edit timing
 
-## Montage
-
-| Temps | Intention sonore |
+| Time | Sound |
 | --- | --- |
-| 0–5 s | Bruissement de papier, notes espacées, ouverture harmonique lumineuse |
-| 5–13 s | Première phrase mélodique, entrée progressive de la pulsation |
-| 13–20 s | Piano, pad doux, basse et percussion discrète |
-| 20–25 s | Accent papier à 20,06 s, progression de la musique |
-| 25–31 s | Accent papier à 25,05 s, reprise du motif |
-| 31–36 s | Accent papier à 31,07 s, dernière expansion de la mélodie |
-| 36–40,25 s | Retrait progressif de la pulsation puis de la musique |
-| **40,500 s** | **Clap sec**, attaque à l'échantillon 1 944 000 |
-| **41,000 s** | **Accord final du logo**, ré majeur, puis résonance |
-| 44,9–46 s | Extinction douce jusqu'au silence |
+| 0–5 s | Paper rustle, sparse notes, bright harmonic opening |
+| 5–13 s | First melody, gradual pulse |
+| 13–20 s | Piano/soft pad/bass/subtle percussion |
+| 20–25 s | Paper accent at 20.06, music builds |
+| 25–31 s | Paper accent at 25.05, motif returns |
+| 31–36 s | Paper accent at 31.07, last melodic expansion |
+| 36–40.25 s | Pulse/music gradually withdraw |
+| **40.500 s** | **Dry clap**, attack sample 1,944,000 |
+| **41.000 s** | **Final logo chord**, D major/resonance |
+| 44.9–46 s | Soft fade to silence |
 
-La composition est en ré majeur, à 80 BPM. Le master démarre à la première image
-du film, à vitesse normale et volume 1. **Ne pas ajouter un deuxième clap** :
-`clap.wav` est seulement une alternative autonome pour un remontage. Sa durée
-est 0,75 s, avec une attaque locale à 0 s.
+D major/80 BPM, start at film frame0, normal speed/volume 1. **Do not add another
+clap**: `clap.wav` is only a standalone re-edit alternative, 0.75 s/attack at0.
 
-## Génération reproductible
+## Reproduce and inspect
 
-Depuis la racine du dépôt, avec Python 3.9+ et NumPy :
+Repository root, Python3.9+/NumPy, no network:
 
 ```sh
 python3 videos/guteneo-film/scripts/create-soundtrack.py
-```
-
-Le script produit les deux WAV et `soundtrack-measurements.json`. Aucun réseau
-n'est nécessaire à son exécution.
-
-## Vérification
-
-Mesures du WAV relu par FFmpeg, sans modification du master :
-
-```sh
 ffmpeg -hide_banner -i videos/guteneo-film/public/audio/soundtrack.wav \
   -af loudnorm=I=-16:TP=-1:LRA=11:print_format=json -f null -
 ```
 
-- Durée : 46,000 s ; 2 208 000 échantillons par canal.
-- Crête numérique : −1,000 dBFS ; RMS stéréo : −16,439 dBFS.
-- Loudness intégré : −14,33 LUFS ; true peak : −0,95 dBTP.
-- Loudness range : 2,20 LU.
-- Échantillons écrêtés : 0.
-- RMS des 100 dernières millisecondes : −68,982 dBFS.
-
-La validation automatisée porte sur le format, la durée, le signal, les niveaux
-et les attaques. Aucune écoute humaine n'est revendiquée.
+Generator writes both WAVs/`soundtrack-measurements.json`. FFmpeg inspection does
+not change master. Recorded values: 46.000 s/2,208,000 samples-channel; peak
+−1.000 dBFS; stereo RMS −16.439 dBFS; integrated −14.33 LUFS; true peak −0.95 dBTP;
+range 2.20 LU; zero clipped samples; final 100 ms RMS −68.982 dBFS.
+Automated format/duration/signal/level/attack proof claims no human listening.

@@ -1,5 +1,37 @@
 # Private Telnyx configuration inspection
 
+## Scoped pilot renewal — 27 October 2026 candidate
+
+The operator explicitly requested renewal of the existing `+3524` pilot with
+unchanged prices and authorized publication. Migration 0064 and the matching
+runtime change permit only that live operator-test prefix to expire as late as
+**3 November 2026 at 23:59:59.999 UTC**. Each installed revision still lasts at
+most seven days. Other Luxembourg operator-test prefixes retain the original
+24 September deadline. This is a bounded operator exception, not fresh provider
+qualification: `local_calling_verified=0`, the visible unverified-route notice,
+the ten-page maximum and the EUR2 per-dispatch ceiling remain unchanged.
+
+Activation must revoke the previous qualified `+3524` revision and insert its
+replacement in one batch, bound to the same workspace, sender, provider account,
+application, outbound profile and canonical options. Copy the existing page,
+minute and call amounts, duration assumptions, FX and original evidence exactly;
+record the new operator authorization and validity dates separately. Do not edit
+old tariff material, quote fingerprints, approvals, reserves or settlement
+history. Keeping an old source date is intentional and does not assert that the
+supplier reconfirmed its prices.
+
+The runtime and SQL deadline checks must both be published before installing the
+replacement. A database-only extension cannot bypass the old runtime deadline.
+The migration preserves historical rows and installs no active tariff. A new
+preparation uses the replacement only after installation; it requires current
+scan, sender, funding and human approval or an already-valid bounded mandate.
+An expired assistant mandate is never extended by this operation. The operator
+renewal authorizes neither a fax nor an automatic retry of an existing attempt.
+
+This section records the candidate and operator request. Deployment, migration,
+scoped tariff installation and a successful authenticated preparation require
+separate recorded verification; no real transmission is claimed here.
+
 ## Canonical webhook audit — 17 September 2026
 
 The Fax API application's saved webhook was changed, then reread after reloading the portal, to `https://guteneo.com/webhooks/telnyx`. Failover remains empty. Both the previous Workers address and the canonical address returned 405 for GET and 401 `WEBHOOK_REJECTED` for unsigned POST probes. These probes sent no fax and do not qualify a real signed callback. The outgoing adapter already supplies this canonical URL on each fax request; the old application callback did not explain a ChatGPT `SOURCE_NOT_ALLOWED` import refusal.
@@ -24,13 +56,13 @@ The operator requested the Luxembourg country code +352 rather than only the ini
 
 The profile-linked CSV was fetched again on 17 September with the same 34,769,285-byte content and SHA-256 `ec4e3baeb5e26ba40024d99ffac022e95b22573cdbe6af008fb1c6193e0949c7`. It contains exactly 42 distinct LU Local prefixes, all at 60/60-second intervals. The test fixture `tests/fixtures/telnyx-luxembourg-local.json` retains this public reference and is not an active production tariff.
 
-| Local category | Prefixes (all begin +352) | USD/minute | Pilot maximum pages within EUR2 |
-| --- | --- | ---: | ---: |
-| Fixed | 22, 23, 24, 25, 26, 27, 28, 29, 3, 4, 5, 7, 802, 803, 804, 805, 806, 807, 808, 809, 81, 83, 84, 85, 86, 87, 88, 89, 908, 909, 92, 93, 94, 95, 97, 99 | 0.022 | 10 |
-| NGN Service 1 | 20, 291, 801 | 0.044 | 7 |
-| NGN Service 2 | 60 | 0.20 | 1 |
-| Mobile | 6 | 0.08 | 4 |
-| Freephone | 800 | 0 | 10 |
+| Local category | Prefixes (all begin +352)                                                                                                                            | USD/minute | Pilot maximum pages within EUR2 |
+| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ---------: | ------------------------------: |
+| Fixed          | 22, 23, 24, 25, 26, 27, 28, 29, 3, 4, 5, 7, 802, 803, 804, 805, 806, 807, 808, 809, 81, 83, 84, 85, 86, 87, 88, 89, 908, 909, 92, 93, 94, 95, 97, 99 |      0.022 |                              10 |
+| NGN Service 1  | 20, 291, 801                                                                                                                                         |      0.044 |                               7 |
+| NGN Service 2  | 60                                                                                                                                                   |       0.20 |                               1 |
+| Mobile         | 6                                                                                                                                                    |       0.08 |                               4 |
+| Freephone      | 800                                                                                                                                                  |          0 |                              10 |
 
 These page limits use the existing USD0.007/page reference, 30-second duration base, upper estimate of 180 seconds/page, FX10000/11537 and customer estimate rule. At the maximum page count, the minimum estimated ceilings are respectively 131, 177, 140, 186 and 13 cents; the next NGN1/NGN2/mobile page would require 201/246/228 cents and is not opened by this pilot. Freephone's SIP reference is zero, but the fax page component is not. A category's presence in a voice rate deck does not prove that any particular recipient can receive fax.
 
@@ -59,6 +91,36 @@ Each request rejects redirects, has an eight-second timeout, bounds the response
 The result reports the application's active flag, attached numbers/status/country and the documented T.38/HD-voice configuration flags. The phone-number listing schema has no generic `features` list; T.38 being enabled is not proof that a fax will succeed. The outbound profile projection includes enabled state, destination whitelist, concurrent limit, maximum destination rate, daily spend limit and its enabled flag. Explicit `null` concurrency means unlimited according to Telnyx; absent concurrency is `"unknown"`. Missing booleans and monetary configuration are `null`, never inferred as false or zero. The daily spend amount is a provider decimal string in USD; no conversion, tariff quote or customer-price computation occurs.
 
 `status: "ok"` means the bounded inspection completed, not that the account is approved for production. An inactive application, empty number set, missing profile or unavailable fields remain visible. `liveSendingVerified` is always false. Identity, allowed destinations, supplier tariff qualification, human approval, funding and Guteneo's existing live-send gates remain independent.
+
+## Private callback projection
+
+The existing application GET also projects `application.webhooks.primary` and
+`application.webhooks.failover`. Each contains only `status`, `present` and
+`matchesCanonical`; no callback URL or provider text is returned. The explicit
+caller configuration must be exactly `https://guteneo.com/webhooks/telnyx`;
+another value fails before any provider request.
+
+| Status      | Present | Matches canonical | Meaning                                                  |
+| ----------- | ------- | ----------------- | -------------------------------------------------------- |
+| `canonical` | `true`  | `true`            | Exact configured canonical callback                      |
+| `different` | `true`  | `false`           | Valid HTTP(S) callback with a different exact value      |
+| `absent`    | `false` | `false`           | Explicit empty string, or explicit null for failover     |
+| `unknown`   | `null`  | `null`            | Field missing or malformed; primary null is also unknown |
+
+Callback fields are read only after the returned application ID matches the
+configured application. Missing fields never establish an empty failover. URL
+normalization, query strings and trailing slashes never grant a canonical match.
+Credential-bearing, non-HTTP(S), oversized or malformed values remain unknown.
+The overall inspection status still describes completion, not canonical callback
+configuration or delivery. A fresh private provider read is required separately;
+this contract adds no hosted observation to the historical evidence above.
+
+Every outgoing fax request already supplies `webhook_url` from
+`new URL("/webhooks/telnyx", env.APP_ORIGIN).href`, through the existing fax adapter.
+The projection does not alter that request, the saved provider application,
+failover configuration, sends or credentials. Deterministic regressions in
+`tests/unit/telnyx-readiness.test.ts` cover the canonical and former Worker URLs,
+failover, absent and malformed fields, exact comparison and private output.
 
 ## Official schemas checked on 17 September 2026
 

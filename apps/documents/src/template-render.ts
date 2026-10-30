@@ -62,7 +62,7 @@ async function readBounded(
   )
     throw new TemplateError(
       "TEMPLATE_REQUEST_LIMIT",
-      "Requête trop volumineuse.",
+      "Request too large.",
     );
   const reader = request.body.getReader(),
     chunks: Uint8Array[] = [];
@@ -81,7 +81,7 @@ async function readBounded(
       if (length > limit)
         throw new TemplateError(
           "TEMPLATE_REQUEST_LIMIT",
-          "Requête trop volumineuse.",
+          "Request too large.",
         );
       chunks.push(next.value);
     }
@@ -210,8 +210,8 @@ export async function handleTemplateRender(
             error instanceof TemplateError
               ? error.message
               : code === "TEMPLATE_GLYPH_UNSUPPORTED"
-                ? "Le texte contient un caractère absent de la police intégrée. Remplacez-le avant de générer le PDF."
-                : "Le rendu du modèle a échoué. Vérifiez les blocs et leurs dimensions.",
+                ? "The text contains a character missing from the embedded font. Replace it before generating the PDF."
+                : "Template rendering failed. Check blocks and dimensions.",
           ...(error instanceof TemplateError ? { details: error.details } : {}),
         },
       },

@@ -1,91 +1,70 @@
-# Intégration du 3 octobre 2026
+# Integration — 3 October 2026
 
-La demande utilisateur autorise la vérification des PR, leur intégration dans
-`main`, les tests du commit fusionné puis le déploiement. La demande complémentaire
-impose un arbre technique de toutes les fonctionnalités et de tous les parcours,
-avec une vue immédiate des droits, exclusivement dans la documentation du dépôt.
+The user authorized PR review, integration into `main`, merged-commit tests and
+deployment. Additional scope required a repository-only feature/journey tree with
+immediately readable permissions.
 
-## Inventaire et frontières
+## Inventory and boundaries
 
-| PR | Contenu | Source conservée |
+| PR | Content | Preserved source |
 | --- | --- | --- |
-| #43 | Partage multilingue et boutons lecture | `c232f2e` ; fusionnée dans `5417aa0` après CI complète réussie |
-| #38 | Métadonnées des skills et garde-fous e-mail | `fde084a` ; ascendance conservée dans le candidat #41 |
-| #41 | Horizon et diagnostic PDF | `f46aae9` ; correction de l’entrée publique et intégration avec #43 |
-| #47 | Atlas technique, droits, parcours et règle de maintenance | `417c414` ; ascendance conservée dans le candidat #41 |
+| #43 | Multilingual sharing/read buttons | `c232f2e`; merged in `5417aa0` after full CI |
+| #38 | Skill metadata/email safeguards | `fde084a`; ancestry preserved in #41 |
+| #41 | PDF verification/PDF diagnostics | `f46aae9`; public-entry correction/integration with #43 |
+| #47 | Technical atlas/roles/journeys/maintenance | `417c414`; ancestry preserved in #41 |
 
-Le candidat #41 réunit les trois sources restantes avec leurs commits parents,
-sans squash ni remplacement de leurs fonctionnalités. Le seul conflit plugin
-concerne les notes de version : conserver le paquet 0.3.2, les diagnostics PDF,
-les limites de consentement et les garde-fous e-mail/reviewer.
+#41 combines remaining sources with parent commits, without squashing/replacing
+features. The only plugin conflict was release notes: retain 0.3.2, diagnostics,
+consent boundaries and email/reviewer safeguards.
 
-Le serveur reste fermé pour Horizon sans `HORIZON_ENABLED=true` et service privé
-`PDF_VALIDATOR` qualifié et scanner en production. La remarque de revue sur la
-facturation sans scanner est corrigée dans le prédicat partagé de disponibilité :
-aucune souscription ni action/débit de renouvellement sans ce prérequis, y compris
-avec un solde suffisant. Un test D1 couvre ces deux situations et l’atlas décrit
-la même frontière. Les migrations additives 0050–0051 doivent être appliquées
-avant une publication du backend qui consulte ces tables. Merge et déploiement
-applicatif ne qualifient ni le validateur hébergé, ni les obligations commerciales,
-ni les achats récurrents. Les canaux, mandats et envois réels ont leurs autorités
-distinctes ; aucun n’est activé ou exécuté par cette intégration.
+PDF verification stays closed without the PDF verification activation flag set to true, qualified private `PDF_VALIDATOR`
+and production scanner. Review found billing possible without scanner; shared
+availability was corrected to block subscription/renewal actions/debits even with
+sufficient funds. D1 tests cover both and atlas matches. Apply 0050–0051 before
+backend code reads their tables. Merge/app deployment qualifies neither hosted
+validator, commercial obligations nor recurring purchases. Channels, mandates and
+real sends retain separate authority; integration activated/executed none.
 
-## Régression d’intégration corrigée
+## Corrected integration regression
 
-Sur la première base actualisée d’Horizon, les suites desktop et iPhone ont
-signalé `#/app/plan` comme ancre publique sans cible. L’offre utilise désormais
-`/app/plan`, une entrée privée explicite servie avec `no-store` et
-`noindex, nofollow`, puis transmise au routeur existant. Les tests conservent
-l’exigence de cibles réelles pour les liens de fragments publics, sans exception
-pour masquer le défaut.
+Desktop/iPhone initially found public `#/app/plan` without a fragment target.
+The offer now uses explicit private `/app/plan`, served `no-store`,
+`noindex,nofollow`, then handed to the existing router. Tests retain real-target
+requirements without exceptions. Server assertions cover GET/HEAD/preview mutation
+refusal; browser covers click/route/reload and no preview backend traffic.
+After #43 integration, 147 public-entry/subscription/diagnostic assertions and two
+desktop browser journeys passed.
 
-Les assertions serveur couvrent GET/HEAD et le refus de mutations dans la
-maquette ; le parcours navigateur couvre clic, route, reload et absence de
-requêtes backend dans la maquette. La correction a été retestée après intégration
-de #43 : 147 assertions unitaires (entrées publiques, abonnement et diagnostics)
-et deux parcours navigateur desktop réussis.
+## Documentation and roles
 
-## Documentation et rôles
+At that date [atlas](FEATURE_MAP.md) described 16 domains, 118 features, 15 journeys
+with contracts/source/interfaces/tests; [HTML](FEATURE_MAP.html) was standalone,
+responsive/searchable. Four human roles plus assistant column do not create a
+fifth membership role. Supervisor approval/reporting remain independent. Private
+data/template/PDF ownership overrides general workspace-read rights.
 
-L’[atlas technique](FEATURE_MAP.md) décrit 16 domaines, 118 fonctionnalités et
-15 parcours, avec contrats, sources, interfaces et tests. La [vue HTML](FEATURE_MAP.html)
-est autonome, responsive et recherchable. Le contrat actuel comporte quatre
-rôles humains ; la cinquième colonne décrit l’acteur assistant OAuth sans créer
-une cinquième valeur d’adhésion. Les options Approbation et Rapports du superviseur
-restent indépendantes. La propriété des données, modèles et PDF privés prime sur
-un droit générique de consultation de l’atelier.
+AGENTS/PR template require tree/rights/journey updates per feature change. Both
+views share JSON source; none belongs in official site assets/navigation/generator.
 
-`AGENTS.md` et le modèle de PR imposent la mise à jour de l’arbre, des droits et
-des parcours dans chaque changement de fonctionnalité. Les vues sont générées
-depuis une même source JSON. Aucun fichier de cet atlas n’est intégré aux assets,
-à la navigation ou au générateur du site officiel.
+## Verification and publication
 
-## Vérification et publication
+Second iPhone attempt passed app/mobile menu but French roles video stalled at
+0.006 seconds on Linux, fully buffered/visible/unpaused without media error.
+Five local WebKit plays passed. Preview CI sessions became exclusive to avoid
+concurrent audio/GStreamer contention; playback, dimensions, duration and decoded
+final-card assertions remained. This stabilizes without proving internal cause.
+Candidate `8ef13c8` then passed all thirteen jobs including iPhone; scanner-lock
+commit still needed its own CI.
 
-Le second essai iPhone a passé tous les tests applicatifs et le menu mobile,
-mais la vidéo des rôles en français est restée bloquée à 0,006 seconde sur le
-runner Linux : fichier entièrement bufferisé, lecteur visible, non pausé et
-sans erreur média. Cinq lectures WebKit locales du même fichier ont réussi.
-Les sessions de la maquette sont désormais exclusives en CI pour éviter le
-partage concurrent des ressources audio/GStreamer ; les assertions de lecture,
-dimensions, durée et décodage de la carte finale restent intégralement exigées.
-Cette mesure de stabilisation ne constitue pas une preuve de la cause interne
-du blocage. La CI complète du candidat `8ef13c8` a ensuite réussi ses 13 jobs,
-dont le job iPhone ; le commit ajoutant le verrou scanner exige sa propre CI.
+Final-candidate and merged-main full CI are separate required gates. Merged
+`fd33771` passed 28 XCTest unit/eight UI cases and unsigned archive; first web CI
+failed French playback, rerun failed uncertain-PDF third click. Touch-qualification
+fix preserves assertions and needs fresh full PR/main CI. Release requires clean
+`main` synced with origin plus exact-source assets/manifest.
 
-La CI complète doit réussir sur le candidat final, puis sur le commit fusionné
-dans `main`. Les preuves ciblées et historiques ne remplacent pas ces deux gates.
-Le commit fusionné `fd33771` a passé XCTest (28 tests unitaires, 8 tests
-d’interface) et l’archive non signée, mais sa première CI web a échoué sur la
-lecture française et sa relance sur le troisième clic du parcours PDF incertain.
-Le correctif de qualification tactile conserve toutes les assertions et exige
-une nouvelle CI complète sur sa PR puis sur le nouveau `main`.
-Le contrôle de publication exige `main` propre, synchronisé avec `origin/main`,
-ainsi que des assets et un manifeste correspondant exactement aux sources.
-
-Cet environnement cloud n’a actuellement aucune identité ni secret Cloudflare
-configuré ; `wrangler whoami` confirme l’absence d’authentification. Aucun
-déploiement, changement distant de schéma ou service privé n’est revendiqué.
-Après configuration sécurisée d’un accès autorisé, appliquer la procédure
-[MAIN_RELEASE.md](MAIN_RELEASE.md), contrôler ledger/bookmark/intégrité D1,
-puis vérifier le manifeste, les assets et la santé sur les deux hôtes applicatifs.
+That cloud environment had no configured Cloudflare identity/secret; `wrangler
+whoami` confirmed unauthenticated. No deployment, remote schema change or private
+service publication was claimed. After secure authorized access, follow
+[MAIN_RELEASE.md](MAIN_RELEASE.md), check D1 ledger/bookmark/integrity and then
+canonical manifest/assets/health under the current origin contract. Historical
+instructions checked two then-public hosts.

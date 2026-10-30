@@ -1,3 +1,4 @@
+import { generationRecordContext } from "../../apps/api/src/generation-context";
 import {
   afterAll,
   beforeAll,
@@ -37,7 +38,11 @@ import {
 } from "../../apps/api/src/template-workflow-routes";
 import type { Env } from "../../apps/api/src/env";
 import { blankTemplate, textBlock } from "../../packages/templates/gallery";
-import type { MappingPlan } from "../../packages/contracts/src/datasets";
+import type {
+  DatasetProfile,
+  MappingPlan,
+} from "../../packages/contracts/src/datasets";
+import { makeWorkbook } from "../unit/datasets-fixtures";
 import { Hono } from "hono";
 import { Client } from "@modelcontextprotocol/client";
 import { InMemoryTransport } from "@modelcontextprotocol/server";
@@ -311,6 +316,7 @@ afterAll(async () => {
 });
 beforeEach(async () => {
   for (const table of [
+    "email_recipient_feedback_tokens",
     "protected_document_sessions",
     "protected_document_hostings",
     "distribution_postal_reviews",
@@ -376,6 +382,141 @@ beforeEach(async () => {
 });
 
 describe("Persistent template workflow — local D1/R2 with explicitly synthetic renderer transport", () => {
+  it("projects bounded business labels without changing record identity and reads correction data only for its browser owner", async () => {
+    const definition = envelope();
+    definition.inputSchema.properties!.subject = { type: "string" };
+    definition.inputSchema.properties!.reference = { type: "string" };
+    const draft = await service.createTemplate(member, {
+      envelope: definition,
+    });
+    const template = await service.publishTemplate(member, draft.id, {
+      expectedRevision: draft.revision,
+    });
+    const data = {
+      name: "  Synthetic   recipient  ",
+      subject: "S".repeat(200),
+      reference: "REF-17",
+      email: "private@example.invalid",
+    };
+    const generation = await service.createGeneration(
+      member,
+      {
+        templateId: template.id,
+        mode: "generate_only",
+        records: [{ recordId: "record-2", data }],
+      },
+      "record-context",
+    );
+    const before = await service.generationResults(member, generation.id);
+    await expect(
+      generationRecordContext(env, service, member, generation.id),
+    ).resolves.toEqual({
+      nextCursor: null,
+      items: [
+        {
+          recordId: "record-2",
+          name: "Synthetic recipient",
+          subject: "S".repeat(160),
+          reference: "REF-17",
+        },
+      ],
+    });
+    await expect(
+      generationRecordContext(env, service, member, generation.id, "record-2"),
+    ).resolves.toMatchObject({ data, recordId: "record-2" });
+    expect(await service.generationResults(member, generation.id)).toEqual(
+      before,
+    );
+    const many = await service.createGeneration(
+      member,
+      {
+        templateId: template.id,
+        mode: "generate_only",
+        records: Array.from({ length: 51 }, (_, index) => ({
+          recordId: `record-${index}`,
+          data: { name: `Synthetic ${index}` },
+        })),
+      },
+      "record-context-pages",
+    );
+    const firstPage = (await generationRecordContext(
+      env,
+      service,
+      member,
+      many.id,
+    )) as { items: { recordId: string }[]; nextCursor: string | null };
+    expect(firstPage.items.map((record) => record.recordId)).toEqual(
+      (await service.generationResults(member, many.id)).items.map(
+        (record) => record.recordId,
+      ),
+    );
+    const lastPage = (await generationRecordContext(
+      env,
+      service,
+      member,
+      many.id,
+      undefined,
+      firstPage.nextCursor!,
+    )) as { items: { recordId: string }[]; nextCursor: string | null };
+    expect(lastPage.items).toHaveLength(1);
+    expect(lastPage.nextCursor).toBeNull();
+    await service.shareTemplate(member, template.id, {
+      syntheticSamplesConfirmed: true,
+      visibility: "organization",
+      expectedRevision: template.revision,
+      grants: [],
+    });
+    await setRole(reviewer);
+    for (const unauthorized of [owner, reviewer, other])
+      await expect(
+        generationRecordContext(
+          env,
+          service,
+          unauthorized,
+          generation.id,
+          "record-2",
+        ),
+      ).rejects.toMatchObject({ code: "GENERATION_NOT_FOUND" });
+    for (const actor of ["mcp", "native"] as const)
+      await expect(
+        generationRecordContext(
+          env,
+          service,
+          { ...member, actor },
+          generation.id,
+        ),
+      ).rejects.toMatchObject({ code: "BROWSER_REQUIRED" });
+    await expect(
+      generationRecordContext(env, service, member, generation.id, "missing"),
+    ).rejects.toMatchObject({ code: "GENERATION_RECORD_NOT_FOUND" });
+    const getGeneration = service.getGeneration.bind(service);
+    vi.spyOn(service, "getGeneration").mockImplementationOnce(
+      async (...args) => {
+        const value = await getGeneration(...args);
+        await db
+          .prepare(
+            "DELETE FROM memberships WHERE organization_id=? AND user_id=?",
+          )
+          .bind(member.organizationId, member.userId)
+          .run();
+        return value;
+      },
+    );
+    try {
+      await expect(
+        generationRecordContext(env, service, member, generation.id),
+      ).rejects.toMatchObject({ code: "FORBIDDEN" });
+    } finally {
+      await db
+        .prepare(
+          "INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES(?,?,'member',?)",
+        )
+        .bind(member.organizationId, member.userId, new Date().toISOString())
+        .run();
+    }
+    for (const table of ["approvals", "reservations", "outbox", "attempts"])
+      expect(await count(table)).toBe(0);
+  });
   it.each(
     (["browser", "mcp"] as const).flatMap((actor) =>
       [false, true].flatMap((supervisorCanApprove) =>
@@ -533,6 +674,15 @@ describe("Persistent template workflow — local D1/R2 with explicitly synthetic
     }
     await setRole(reviewer);
     for (const approver of [owner, reviewer]) {
+      await expect(
+        generationRecordContext(
+          env,
+          service,
+          approver,
+          generation.id,
+          result.recordId,
+        ),
+      ).rejects.toMatchObject({ code: "GENERATION_NOT_FOUND" });
       expect(
         (await domain.getDispatch(approver, dispatchId)).dispatch.document_id,
       ).toBe(result.documentId);
@@ -1815,6 +1965,172 @@ describe("Persistent template workflow — local D1/R2 with explicitly synthetic
     expect(routeCode(request("/render/template"), "documents")).toBe("render");
     expect(routeCode(request("/scan-source"), "scanner")).toBe("scan");
   });
+  it.each([
+    ["xlsx", "Data", "Données"],
+    ["xlsx", "Données", "Data"],
+    ["json", "Data", "Données"],
+    ["json", "Données", "Data"],
+  ] as const)(
+    "requires exact persisted %s sheet names for pagination, mapping and generation: %s is not %s",
+    async (format, storedName, requestedName) => {
+      const rows = [{ id: "01", nom: "Alice", email: "alice@example.invalid" }];
+      const source = await service.importDataset(owner, {
+        name: `explicit.${format}`,
+        format,
+        bytes:
+          format === "json"
+            ? new TextEncoder().encode(JSON.stringify({ [storedName]: rows }))
+            : makeWorkbook([
+                {
+                  name: storedName,
+                  rows: [Object.keys(rows[0]), Object.values(rows[0])],
+                },
+              ]),
+      });
+      expect(source.status).toBe("ready");
+      const { profile } = await service.getDatasetProfile(owner, source.id);
+      expect(profile.sheets[0]).toMatchObject({
+        name: storedName,
+        nameOrigin: "source",
+      });
+      await expect(
+        service.datasetProfilePage(owner, source.id, requestedName),
+      ).rejects.toMatchObject({ code: "SHEET_NOT_FOUND" });
+      expect(
+        (await service.datasetProfilePage(owner, source.id, storedName))
+          .pagination.sheet,
+      ).toBe(storedName);
+      // A mapping validated against a generated default must be checked again
+      // against this new source, even when every header is identical.
+      const generatedSource = await service.importDataset(owner, {
+        name: "generated.csv",
+        format: "csv",
+        bytes: new TextEncoder().encode(
+          "id,nom,email\n01,Alice,alice@example.invalid",
+        ),
+      });
+      const saved = await service.createMapping(owner, {
+        datasetId: generatedSource.id,
+        plan: { ...mapping, sourceSheet: requestedName },
+      });
+      expect(
+        (
+          await service.validateMapping(owner, saved.id, {
+            datasetId: generatedSource.id,
+            version: 1,
+          })
+        ).status,
+      ).toBe("ready");
+      const validation = await service.validateMapping(owner, saved.id, {
+        datasetId: source.id,
+        version: 1,
+      });
+      expect(validation.status).toBe("needs_review");
+      expect(validation.issues).toContainEqual(
+        expect.objectContaining({ code: "MISSING_SHEET" }),
+      );
+      expect(validation.examples).toEqual([]);
+      const template = await published();
+      await expect(
+        service.createGeneration(
+          owner,
+          {
+            templateId: template.id,
+            mode: "generate_only",
+            datasetId: source.id,
+            mappingId: saved.id,
+            mappingVersion: 1,
+          },
+          "wrong-source-name",
+        ),
+      ).rejects.toMatchObject({ code: "MAPPING_REVIEW_REQUIRED" });
+      const exact = await service.createMapping(owner, {
+        datasetId: source.id,
+        plan: { ...mapping, sourceSheet: storedName },
+      });
+      expect(
+        (
+          await service.validateMapping(owner, exact.id, {
+            datasetId: source.id,
+            version: 1,
+          })
+        ).status,
+      ).toBe("ready");
+      expect(await count("generation_jobs")).toBe(0);
+      expect(await count("outbox")).toBe(0);
+      expect(renders).toBe(0);
+    },
+  );
+  it.each(["Data", "Données"])(
+    "keeps historical JSON profiles exact-only (%s) and records provenance on reimport",
+    async (storedName) => {
+      const bytes = new TextEncoder().encode(
+        '[{"id":"01","nom":"Alice","email":"alice@example.invalid"}]',
+      );
+      const source = await service.importDataset(owner, {
+        name: "array.json",
+        format: "json",
+        bytes,
+      });
+      const { profile } = await service.getDatasetProfile(owner, source.id);
+      const historical: DatasetProfile = structuredClone(profile);
+      historical.sheets[0].name = storedName;
+      delete historical.sheets[0].nameOrigin;
+      const historicalJson = JSON.stringify(historical);
+      const historicalKey = `${owner.organizationId}/workflow/datasets/${source.id}/profile-${await sha256(historicalJson)}.json`;
+      await bucket.put(historicalKey, historicalJson);
+      await db
+        .prepare(
+          "UPDATE workflow_datasets SET profile_key=? WHERE organization_id=? AND id=?",
+        )
+        .bind(historicalKey, owner.organizationId, source.id)
+        .run();
+      const alias = storedName === "Data" ? "Données" : "Data";
+      await expect(
+        service.datasetProfilePage(owner, source.id, alias),
+      ).rejects.toMatchObject({ code: "SHEET_NOT_FOUND" });
+      expect(
+        (await service.datasetProfilePage(owner, source.id, storedName))
+          .pagination.sheet,
+      ).toBe(storedName);
+      const exact = await service.createMapping(owner, {
+        datasetId: source.id,
+        plan: { ...mapping, sourceSheet: storedName },
+      });
+      expect(
+        (
+          await service.validateMapping(owner, exact.id, {
+            datasetId: source.id,
+            version: 1,
+          })
+        ).status,
+      ).toBe("ready");
+      const reimported = await service.importDataset(owner, {
+        name: "array.json",
+        format: "json",
+        bytes,
+      });
+      expect(reimported.sha256).toBe(source.sha256);
+      const page = await service.datasetProfilePage(
+        owner,
+        reimported.id,
+        "Données",
+      );
+      expect(page.pagination.sheet).toBe("Data");
+      expect(page.profile.sheets[0].nameOrigin).toBe("generated");
+      expect(
+        (
+          await service.validateMapping(owner, exact.id, {
+            datasetId: reimported.id,
+            version: 1,
+          })
+        ).status,
+      ).toBe("ready");
+      expect(await (await bucket.get(historicalKey))!.text()).toBe(
+        historicalJson,
+      );
+    },
+  );
   it("imports exact XML over multipart REST with a persisted explicit record path", async () => {
     const xml =
       "<export><meta>Fictional fixture</meta><clients><client><id>001</id><name>Alice</name><email>alice@example.invalid</email></client><client><id>002</id><name>Bob</name><email>bob@example.invalid</email></client></clients></export>";
@@ -1854,6 +2170,21 @@ describe("Persistent template workflow — local D1/R2 with explicitly synthetic
       sha256: await sha256(new TextEncoder().encode(xml)),
     });
     const { profile } = await service.getDatasetProfile(owner, source.id);
+    const legacySheetPage = await service.datasetProfilePage(
+      owner,
+      source.id,
+      "Données",
+      1,
+      1,
+    );
+    expect(legacySheetPage.pagination).toMatchObject({
+      sheet: "Data",
+      cursor: 1,
+      limit: 1,
+      totalRows: 3,
+    });
+    expect(legacySheetPage.profile.sheets[0].rows).toHaveLength(1);
+    expect(legacySheetPage.profile.sheets[0].rows[0].rowNumber).toBe(2);
     expect(profile.sheets[0].rows).toHaveLength(3);
     expect(profile.sheets[0].rows[1].cells.map((cell) => cell.raw)).toContain(
       "001",
@@ -2401,6 +2732,78 @@ describe("Persistent template workflow — local D1/R2 with explicitly synthetic
       service.retryGeneration(owner, generation.id, ["a"]),
     ).rejects.toMatchObject({ code: "GENERATION_FROZEN" });
   });
+  it("preparing a distribution closes retries for failed records excluded from its manifest", async () => {
+    const generation = await job();
+    const upload = vi
+      .spyOn(service.documents, "upload")
+      .mockRejectedValueOnce(
+        new DomainError("SCAN_TEMPORARY", "Synthetic scan failure", 503),
+      );
+    try {
+      await service.processPending(2);
+      expect(await service.getGeneration(owner, generation.id)).toMatchObject({
+        state: "partial",
+        generated: 1,
+        failed: 1,
+      });
+      expect(
+        await service.retryGeneration(owner, generation.id, ["a"]),
+      ).toMatchObject({ pending: 1, failed: 0 });
+      upload.mockRejectedValueOnce(
+        new DomainError("SCAN_TEMPORARY", "Synthetic scan failure", 503),
+      );
+      await service.processPending(1);
+      const before = await service.generationResults(owner, generation.id);
+      expect(before.items).toEqual([
+        expect.objectContaining({
+          recordId: "a",
+          state: "failed",
+          attempts: 2,
+          documentId: null,
+        }),
+        expect.objectContaining({ recordId: "b", state: "generated" }),
+      ]);
+
+      const distribution = await service.prepareDistribution(
+        owner,
+        {
+          jobId: generation.id,
+          entries: [
+            {
+              entryId: "successful-only",
+              recordId: "b",
+              channel: "email",
+              recipientFields: { email: "email" },
+              subject: "Synthetic distribution",
+              text: "Requested synthetic message",
+            },
+          ],
+        },
+        "freeze-excluded-failure",
+      );
+      expect(distribution.entries).toEqual([
+        expect.objectContaining({
+          recordId: "b",
+          documentId: before.items[1].documentId,
+          dispatchId: expect.any(String),
+          errorCode: null,
+        }),
+      ]);
+      // Record a still has a remaining attempt and is not in the manifest.
+      // Creating the distribution nevertheless closes recovery for the whole job.
+      await expect(
+        service.retryGeneration(owner, generation.id, ["a"]),
+      ).rejects.toMatchObject({ code: "GENERATION_FROZEN" });
+      expect(await service.generationResults(owner, generation.id)).toEqual(
+        before,
+      );
+      expect(await service.processPending(1)).toEqual({ processed: 0 });
+      for (const table of ["approvals", "reservations", "outbox", "attempts"])
+        expect(await count(table)).toBe(0);
+    } finally {
+      upload.mockRestore();
+    }
+  });
   it("purges normalized generation data and duplicate artefacts after retention while retaining historical hashes", async () => {
     const generation = await job([
       {
@@ -2470,7 +2873,7 @@ describe("Persistent template workflow — local D1/R2 with explicitly synthetic
       const importer = discovery.tools.find(
         (tool) => tool.name === "import_dataset",
       )!;
-      expect(importer.title).toBe("Importer un fichier de données");
+      expect(importer.title).toBe("Import a dataset file");
       expect(JSON.stringify(importer.inputSchema)).toContain('"xml"');
       expect(importer.inputSchema.properties).toHaveProperty("xmlRecordPath");
       expect(discovery.tools.some((t) => t.name === "generate_documents")).toBe(
@@ -2484,14 +2887,15 @@ describe("Persistent template workflow — local D1/R2 with explicitly synthetic
         discovery.tools.find((t) => t.name === "get_generation_job")
           ?.annotations?.readOnlyHint,
       ).toBe(false); // Current MCP reads record successful connection use.
-      // These operations overwrite drafts, disable use, revoke access or cancel
-      // pending work. Host safeguards cover those effects even when published
-      // versions and already generated PDFs remain available.
+      // These operations overwrite drafts, disable use, revoke access, cancel
+      // pending work or close retries for a partially failed generation job.
+      // Preserving versions and generated PDFs does not remove those effects.
       for (const name of [
         "update_template",
         "archive_template",
         "share_template",
         "cancel_generation_job",
+        "prepare_distribution",
       ]) {
         expect(
           discovery.tools.find((tool) => tool.name === name)?.annotations,
@@ -2874,6 +3278,164 @@ describe("Persistent template workflow — local D1/R2 with explicitly synthetic
       db.prepare("UPDATE distribution_plans SET manifest_json='[]'").run(),
     ).rejects.toThrow("immutable_distribution_plan");
   });
+  it("reports only a finite local renderer failure category and preserves its failed outcome", async () => {
+    const privateMarker = "private-content-recipient-token-sql-url-client-id";
+    const generation = await job([
+      {
+        recordId: privateMarker,
+        data: {
+          name: privateMarker,
+          email: "private@example.invalid",
+          phone: "+35242123456",
+        },
+      },
+    ]);
+    const transport = vi.fn(async () => {
+      throw new TypeError(privateMarker, {
+        cause: new Error(
+          `D1_ERROR: database is locked: SQLITE_BUSY ${privateMarker}`,
+        ),
+      });
+    });
+    env.DOCUMENT_RENDERER = { fetch: transport } as unknown as Fetcher;
+    const stderr = vi.spyOn(console, "error").mockImplementation(() => {});
+    try {
+      await service.processPending(1);
+      expect(transport).toHaveBeenCalledTimes(1);
+      expect(stderr).toHaveBeenCalledTimes(1);
+      expect(JSON.parse(stderr.mock.calls[0][0] as string)).toEqual({
+        schema: 1,
+        component: "template_workflow",
+        event: "generation_record_failure",
+        ordinal: 0,
+        attempt: 1,
+        phase: "renderer_fetch",
+        category: "type_error",
+        causeCategory: "sqlite_busy",
+      });
+      expect(JSON.stringify(stderr.mock.calls)).not.toContain(privateMarker);
+      expect(await service.getGeneration(owner, generation.id)).toMatchObject({
+        state: "failed",
+        generated: 0,
+        failed: 1,
+        pending: 0,
+      });
+      expect(
+        (await service.generationResults(owner, generation.id)).items[0],
+      ).toMatchObject({
+        state: "failed",
+        attempts: 1,
+        errorCode: "GENERATION_FAILED",
+        documentId: null,
+        documentHash: null,
+      });
+      expect(await count("documents")).toBe(0);
+      expect(await service.processPending(1)).toEqual({ processed: 0 });
+      expect(transport).toHaveBeenCalledTimes(1);
+      expect(stderr).toHaveBeenCalledTimes(1);
+    } finally {
+      stderr.mockRestore();
+    }
+  });
+  it("distinguishes an artifact-store failure without emitting any successful-record event", async () => {
+    const generation = await job();
+    const originalPut = bucket.put.bind(bucket);
+    let stored = false;
+    const storage = {
+      ...env,
+      DOCUMENTS: {
+        put: (...args: Parameters<R2Bucket["put"]>) => {
+          if (!stored) {
+            stored = true;
+            throw new Error("private R2 payload", {
+              cause: { code: "ECONNRESET", message: "private URL" },
+            });
+          }
+          return originalPut(...args);
+        },
+      },
+    } as unknown as Env;
+    // The first record fails before registration; the second keeps the same pipeline.
+    const workflow = new TemplateWorkflowService(storage, domain);
+    const stderr = vi.spyOn(console, "error").mockImplementation(() => {});
+    try {
+      await workflow.processPending(2);
+      expect(stderr).toHaveBeenCalledTimes(1);
+      expect(JSON.parse(stderr.mock.calls[0][0] as string)).toMatchObject({
+        phase: "artifact_store",
+        category: "error",
+        causeCategory: "connection_reset",
+      });
+      expect(await workflow.getGeneration(owner, generation.id)).toMatchObject({
+        state: "partial",
+        generated: 1,
+        failed: 1,
+        pending: 0,
+      });
+      expect(renders).toBe(2);
+    } finally {
+      stderr.mockRestore();
+    }
+  });
+  it.each([
+    { environment: "staging", mode: "simulation" },
+    { environment: "production", mode: "simulation" },
+    { environment: "local", mode: "production" },
+    { environment: "production", mode: "production" },
+  ] as const)(
+    "never emits the local failure event in $environment/$mode",
+    async ({ environment, mode }) => {
+      const generation = await job();
+      const workflow = new TemplateWorkflowService(
+        { ...env, ENVIRONMENT: environment, MODE: mode },
+        domain,
+      );
+      const internals = workflow as unknown as {
+        authorize(ctx: WorkflowActor, write?: boolean): Promise<void>;
+      };
+      const authorization = vi
+        .spyOn(internals, "authorize")
+        .mockRejectedValueOnce(new TypeError("private authorization failure"));
+      const stderr = vi.spyOn(console, "error").mockImplementation(() => {});
+      try {
+        await workflow.processPending(1);
+        expect(stderr).not.toHaveBeenCalled();
+        expect(
+          (await service.generationResults(owner, generation.id)).items[0],
+        ).toMatchObject({
+          state: "failed",
+          errorCode: "GENERATION_FAILED",
+          attempts: 1,
+        });
+      } finally {
+        authorization.mockRestore();
+        stderr.mockRestore();
+      }
+    },
+  );
+  it("persists the original failure even when local diagnostic emission fails", async () => {
+    const generation = await job();
+    const renderer = vi.fn(async () => {
+      throw new TypeError("private transport failure");
+    });
+    env.DOCUMENT_RENDERER = { fetch: renderer } as unknown as Fetcher;
+    const stderr = vi.spyOn(console, "error").mockImplementation(() => {
+      throw new Error("diagnostic sink unavailable");
+    });
+    try {
+      await service.processPending(1);
+      expect(
+        (await service.generationResults(owner, generation.id)).items[0],
+      ).toMatchObject({
+        state: "failed",
+        errorCode: "GENERATION_FAILED",
+        attempts: 1,
+      });
+      expect(renderer).toHaveBeenCalledTimes(1);
+    } finally {
+      stderr.mockRestore();
+    }
+  });
   it("retries only failed records and reuses already rendered exact bytes", async () => {
     const generation = await job([
       {
@@ -3058,6 +3620,246 @@ describe("Persistent template workflow — local D1/R2 with explicitly synthetic
         .run();
     }
   });
+  it("projects bounded scan recovery after generation completes without starting work on reads", async () => {
+    await db
+      .prepare("UPDATE organizations SET mode='production' WHERE id=?")
+      .bind(owner.organizationId)
+      .run();
+    try {
+      const bytes = await pdf("Synthetic deferred verification");
+      const hash = await sha256(bytes);
+      const scan = vi
+        .fn(async () => Response.json({ verdict: "clean", sha256: hash }))
+        .mockResolvedValueOnce(
+          Response.json({ code: "SCANNER_BUSY" }, { status: 503 }),
+        );
+      const renderer = vi.fn(async (request: Request) =>
+        new URL(request.url).pathname === "/validate"
+          ? Response.json({ pages: 1, sha256: hash })
+          : new Response(bytes),
+      );
+      const workflow = new TemplateWorkflowService(
+        {
+          ...env,
+          MODE: "production",
+          ENVIRONMENT: "production",
+          SCANNER: { fetch: scan },
+          DOCUMENT_RENDERER: { fetch: renderer },
+        } as unknown as Env,
+        new DomainService(db, { mode: "production" }),
+      );
+      const template = await workflow.createTemplate(owner, {
+        envelope: envelope(),
+      });
+      await workflow.publishTemplate(owner, template.id, {
+        expectedRevision: template.revision,
+      });
+      const generation = await workflow.createGeneration(
+        owner,
+        {
+          templateId: template.id,
+          mode: "generate_only",
+          records: [{ recordId: "scan", data: { name: "Synthetic" } }],
+        },
+        "deferred-result-analysis",
+      );
+      expect(
+        (await workflow.generationResults(owner, generation.id)).items[0]
+          .documentAnalysis,
+      ).toBeNull();
+      await workflow.processPending(1);
+      expect(await workflow.getGeneration(owner, generation.id)).toMatchObject({
+        state: "completed",
+        generated: 1,
+      });
+      const result = (await workflow.generationResults(owner, generation.id))
+        .items[0];
+      expect(result).toMatchObject({
+        state: "generated",
+        documentHash: hash,
+        documentStatus: "quarantined",
+        documentAnalysis: {
+          state: "processing",
+          code: "scanner_busy",
+          nextAction: "wait",
+          retryAfterSeconds: 15,
+        },
+      });
+      const analysisRow = () =>
+        db
+          .prepare(
+            "SELECT * FROM document_analysis WHERE organization_id=? AND document_id=?",
+          )
+          .bind(owner.organizationId, result.documentId)
+          .first();
+      const beforeRead = await analysisRow();
+      await workflow.generationResults(owner, generation.id);
+      await workflow.generationResults(owner, generation.id);
+      expect(await analysisRow()).toEqual(beforeRead);
+      expect(scan).toHaveBeenCalledTimes(1);
+      expect(renderer).toHaveBeenCalledTimes(1);
+
+      await db
+        .prepare(
+          "UPDATE document_analysis SET attempts=1,deadline_at=? WHERE organization_id=? AND document_id=?",
+        )
+        .bind(Date.now() - 1, owner.organizationId, result.documentId)
+        .run();
+      expect(
+        (await workflow.generationResults(owner, generation.id)).items[0]
+          .documentAnalysis,
+      ).toEqual(
+        (await workflow.documents.get(owner, result.documentId!)).analysis,
+      );
+      expect(
+        (await workflow.generationResults(owner, generation.id)).items[0]
+          .documentAnalysis,
+      ).toMatchObject({
+        state: "retryable",
+        code: "retry_exhausted",
+        nextAction: "rescan",
+        retryAfterSeconds: null,
+      });
+      for (const [state, code, nextAction] of [
+        ["blocked", "security_rejected", "replace_document"],
+        ["retryable", "retry_exhausted", "rescan"],
+      ]) {
+        await db
+          .prepare(
+            "UPDATE document_analysis SET state=?,code=? WHERE organization_id=? AND document_id=?",
+          )
+          .bind(state, code, owner.organizationId, result.documentId)
+          .run();
+        expect(
+          (await workflow.generationResults(owner, generation.id)).items[0]
+            .documentAnalysis,
+        ).toMatchObject({ state, code, nextAction, retryAfterSeconds: null });
+      }
+      await db
+        .prepare(
+          "DELETE FROM document_analysis WHERE organization_id=? AND document_id=?",
+        )
+        .bind(owner.organizationId, result.documentId)
+        .run();
+      expect(
+        (await workflow.generationResults(owner, generation.id)).items[0]
+          .documentAnalysis,
+      ).toMatchObject({
+        state: "retryable",
+        code: "not_started",
+        nextAction: "rescan",
+      });
+      expect(await analysisRow()).toBeNull();
+      expect(scan).toHaveBeenCalledTimes(1);
+
+      await db
+        .prepare(
+          "INSERT INTO document_analysis(organization_id,document_id,request_user_id,request_role,state,code,attempts,deadline_at,next_attempt_at,updated_at) VALUES(?,?,?,'admin','processing','scan_pending',0,?,0,?)",
+        )
+        .bind(
+          owner.organizationId,
+          result.documentId,
+          owner.userId,
+          Date.now() + 60_000,
+          Date.now(),
+        )
+        .run();
+      expect(await workflow.documents.processPendingScans()).toEqual({
+        processed: 1,
+      });
+      expect(
+        (await workflow.generationResults(owner, generation.id)).items[0],
+      ).toMatchObject({
+        documentId: result.documentId,
+        documentHash: hash,
+        documentStatus: "ready",
+        documentAnalysis: {
+          state: "ready",
+          code: "verified",
+          nextAction: "continue",
+          retryAfterSeconds: null,
+        },
+      });
+      expect(scan).toHaveBeenCalledTimes(2);
+      for (const table of ["approvals", "reservations", "outbox", "attempts"])
+        expect(await count(table)).toBe(0);
+    } finally {
+      await db
+        .prepare("UPDATE organizations SET mode='simulation' WHERE id=?")
+        .bind(owner.organizationId)
+        .run();
+    }
+  });
+  it("keeps result analysis bound to the owner, tenant, document ID and immutable hash", async () => {
+    const generation = await job();
+    const hash = "a".repeat(64);
+    const register = (ctx: ActorContext) =>
+      domain.registerDocument(ctx, {
+        id: `doc_${crypto.randomUUID()}`,
+        name: "Synthetic analysis fixture",
+        sha256: hash,
+        size: 100,
+        pages: 0,
+        status: "quarantined",
+        source: "render",
+        storageKey: `${ctx.organizationId}/documents/${hash}/synthetic.pdf`,
+        privateToCreator: true,
+      });
+    const own = await register(owner);
+    const foreign = await register(other);
+    await db
+      .prepare(
+        "INSERT INTO document_analysis(organization_id,document_id,request_user_id,request_role,state,code,attempts,deadline_at,next_attempt_at,updated_at) VALUES(?,?,?,'admin','processing','scanner_busy',0,?,?,?)",
+      )
+      .bind(
+        other.organizationId,
+        foreign.id,
+        other.userId,
+        Date.now() + 60_000,
+        Date.now() + 30_000,
+        Date.now(),
+      )
+      .run();
+    for (const [recordId, artifactHash] of [
+      ["a", hash],
+      ["b", "b".repeat(64)],
+    ])
+      await db
+        .prepare(
+          "UPDATE generation_records SET state='generated',document_id=?,artifact_hash=? WHERE organization_id=? AND job_id=? AND record_id=?",
+        )
+        .bind(
+          own.id,
+          artifactHash,
+          owner.organizationId,
+          generation.id,
+          recordId,
+        )
+        .run();
+    const results = await service.generationResults(owner, generation.id);
+    expect(results.items[0]).toMatchObject({
+      recordId: "a",
+      documentStatus: "quarantined",
+      documentAnalysis: { state: "retryable", code: "not_started" },
+    });
+    expect(results.items[1]).toMatchObject({
+      recordId: "b",
+      documentStatus: null,
+      documentAnalysis: null,
+    });
+    for (const actor of [other, member])
+      await expect(
+        service.generationResults(actor, generation.id),
+      ).rejects.toMatchObject({ code: "GENERATION_NOT_FOUND" });
+    expect(
+      await db
+        .prepare(
+          "SELECT COUNT(*) AS n FROM document_analysis WHERE organization_id=? AND document_id=?",
+        )
+        .bind(owner.organizationId, own.id)
+        .first(),
+    ).toEqual({ n: 0 });
+  });
   it("rechecks revoked current membership before asynchronous rendering", async () => {
     const template = await published(member);
     const generation = await service.createGeneration(
@@ -3216,6 +4018,172 @@ describe("Persistent template workflow — local D1/R2 with explicitly synthetic
       inference.mockRestore();
     }
   });
+  it.each([
+    ["unchanged", null, "during"],
+    ["consent", "AI_TRANSFER_NOT_AUTHORIZED", "during"],
+    ["membership", "FORBIDDEN", "during"],
+    ["oauth", "CONNECTION_REVOKED", "during"],
+    ["sharing", "TEMPLATE_NOT_FOUND", "during"],
+    ["revision", "REVISION_CONFLICT", "during"],
+    ["sharing", "TEMPLATE_NOT_FOUND", "before"],
+    ["revision", "REVISION_CONFLICT", "before"],
+  ] as const)(
+    "rechecks template suggestion authority after %s changes (%s) %s synthetic inference",
+    async (change, expectedCode, stage) => {
+      env.DATASET_OPENAI_API_KEY = "synthetic-not-a-secret";
+      env.DATASET_OPENAI_MODEL = "synthetic-contract-model";
+      await service.setAiPolicy(owner, {
+        enabled: true,
+        transferApproved: true,
+        dailyLimit: 1,
+      });
+      const created = await service.createTemplate(owner, {
+        envelope: envelope(),
+      });
+      const template = await service.shareTemplate(owner, created.id, {
+        expectedRevision: created.revision,
+        visibility: "selected",
+        syntheticSamplesConfirmed: true,
+        grants: [
+          {
+            userId: member.userId,
+            use: true,
+            edit: true,
+            publish: false,
+            share: false,
+          },
+        ],
+      });
+      const connectionId = `template-ai-${crypto.randomUUID()}`;
+      await db
+        .prepare(
+          "INSERT INTO authorized_connections(id,issuer,user_id,client_id,organization_id,status,created_at,updated_at) VALUES(?,?,?,?,?,'active',?,?)",
+        )
+        .bind(
+          connectionId,
+          "https://synthetic.invalid",
+          member.userId,
+          connectionId,
+          member.organizationId,
+          new Date().toISOString(),
+          new Date().toISOString(),
+        )
+        .run();
+      const ctx: WorkflowActor = {
+        ...member,
+        actor: "mcp",
+        authority: { connectionId, authorizationRevision: 0 },
+      };
+      const interleave = async () => {
+        if (change === "consent")
+          await service.setAiPolicy(owner, {
+            enabled: false,
+            transferApproved: false,
+            dailyLimit: 1,
+          });
+        else if (change === "membership")
+          await db
+            .prepare(
+              "UPDATE memberships SET role='viewer' WHERE organization_id=? AND user_id=?",
+            )
+            .bind(member.organizationId, member.userId)
+            .run();
+        else if (change === "oauth")
+          await db
+            .prepare(
+              "UPDATE authorized_connections SET not_before=not_before+1 WHERE id=?",
+            )
+            .bind(connectionId)
+            .run();
+        else if (change === "sharing")
+          await service.shareTemplate(owner, template.id, {
+            expectedRevision: template.revision,
+            visibility: "private",
+            syntheticSamplesConfirmed: true,
+            grants: [],
+          });
+        else if (change === "revision")
+          await service.updateTemplate(owner, template.id, {
+            expectedRevision: template.revision,
+            envelope: { ...template.envelope, name: "Fresh human edit" },
+          });
+      };
+      const permissionRead =
+        stage === "before" ? afterTemplateRead(interleave) : undefined;
+      let calls = 0;
+      const originalFetch = globalThis.fetch;
+      const inference = vi
+        .spyOn(globalThis, "fetch")
+        .mockImplementation(async (input, init) => {
+          if (String(input) !== "https://api.openai.com/v1/responses")
+            return originalFetch(input, init);
+          calls++;
+          if (stage === "during") await interleave();
+          return Response.json({
+            status: "completed",
+            output: [
+              {
+                type: "message",
+                content: [
+                  {
+                    type: "output_text",
+                    text: JSON.stringify({
+                      galleryId: null,
+                      patches: [],
+                      warnings: [],
+                    }),
+                  },
+                ],
+              },
+            ],
+            usage: { input_tokens: 100, output_tokens: 20 },
+          });
+        });
+      try {
+        const result = service.suggestTemplate(ctx, template.id, {
+          expectedRevision: template.revision,
+          instruction: "Vérifier cette proposition sans l’adopter.",
+        });
+        if (expectedCode)
+          await expect(result).rejects.toMatchObject({ code: expectedCode });
+        else
+          await expect(result).resolves.toMatchObject({
+            status: "needs_review",
+            templateId: template.id,
+            expectedRevision: template.revision,
+            envelope: template.envelope,
+          });
+        expect(calls).toBe(stage === "before" ? 0 : 1);
+        expect(
+          await db
+            .prepare(
+              "SELECT calls FROM workflow_ai_usage WHERE organization_id=?",
+            )
+            .bind(owner.organizationId)
+            .first(),
+        ).toEqual({ calls: 1 });
+        const current = await service.getTemplate(owner, template.id);
+        expect(current.envelope).toEqual(
+          change === "revision"
+            ? { ...template.envelope, name: "Fresh human edit" }
+            : template.envelope,
+        );
+        for (const table of [
+          "template_versions",
+          "generation_jobs",
+          "dispatches",
+          "approvals",
+          "reservations",
+          "outbox",
+          "attempts",
+        ])
+          expect(await count(table)).toBe(0);
+      } finally {
+        inference.mockRestore();
+        permissionRead?.mockRestore();
+      }
+    },
+  );
   it("requires explicit configured AI access and never lets an assistant grant organization transfer consent", async () => {
     const source = await service.importDataset(owner, {
       name: "data.json",

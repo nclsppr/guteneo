@@ -11,8 +11,19 @@ import { en } from "./locales/en";
 import { de } from "./locales/de";
 import { lb } from "./locales/lb";
 import site from "../../../packages/contracts/src/public-site.json";
-import { requestedPublicLocale } from "../../../packages/contracts/src/public-locales";
-import { syncPublicSharing } from "./public-sharing";
+import {
+  parsePublicLocaleCookie,
+  publicLocaleCookieMaxAge,
+  publicLocaleCookieName,
+  requestedPublicLocale,
+} from "../../../packages/contracts/src/public-locales";
+
+export const LOCALE_CHANGE_EVENT = "guteneo-locale-change";
+
+function notifyLocalePresentation() {
+  if (typeof window !== "undefined")
+    window.dispatchEvent(new Event(LOCALE_CHANGE_EVENT));
+}
 
 export {
   supportedLocales,
@@ -39,7 +50,7 @@ export const localeLabels = {
       "La langue du navigateur est utilisée par défaut. Votre choix est conservé sur cet appareil.",
     preference: "Langue préférée",
     choose: "Choisissez une langue",
-    hint: "Cette langue sera utilisée dans votre compte sur le site et dans l’application iOS.",
+    hint: "Le tableau de bord, le Belvédère et l’application iOS suivent cette langue.",
     saved: "Votre langue préférée a été enregistrée.",
     saving: "Enregistrement…",
     save: "Enregistrer la langue",
@@ -53,7 +64,7 @@ export const localeLabels = {
       "Your browser language is used by default. Your choice is saved on this device.",
     preference: "Preferred language",
     choose: "Choose a language",
-    hint: "Your account will use this language on the website and in the iOS app.",
+    hint: "The dashboard, Belvédère and iOS app use this language.",
     saved: "Your preferred language has been saved.",
     saving: "Saving…",
     save: "Save language",
@@ -67,7 +78,7 @@ export const localeLabels = {
       "Standardmäßig wird die Sprache Ihres Browsers verwendet. Ihre Auswahl wird auf diesem Gerät gespeichert.",
     preference: "Bevorzugte Sprache",
     choose: "Sprache auswählen",
-    hint: "Ihr Konto verwendet diese Sprache auf der Website und in der iOS-App.",
+    hint: "Das Dashboard, Belvédère und die iOS-App verwenden diese Sprache.",
     saved: "Ihre bevorzugte Sprache wurde gespeichert.",
     saving: "Wird gespeichert…",
     save: "Sprache speichern",
@@ -81,7 +92,7 @@ export const localeLabels = {
       "Standardméisseg gëtt d'Sprooch vun Ärem Browser benotzt. Äre Choix gëtt op dësem Apparat gespäichert.",
     preference: "Bevirzuchte Sprooch",
     choose: "Wielt eng Sprooch",
-    hint: "Äre Kont benotzt dës Sprooch op der Websäit an an der iOS-App.",
+    hint: "Den Dashboard, Belvédère an d’iOS-App benotzen dës Sprooch.",
     saved: "Är bevirzuchte Sprooch gouf gespäichert.",
     saving: "Gëtt gespäichert…",
     save: "Sprooch späicheren",
@@ -134,12 +145,25 @@ function syncPublicLocaleUrl(locale: SupportedLocale) {
 export function useLocaleSource() {
   return useSyncExternalStore(subscribe, getLocaleSource, getLocaleSource);
 }
+/** Nonsecret presentation hint only; authentication never trusts this cookie. */
+function syncLocaleCookie(locale: SupportedLocale, source: LocaleSource) {
+  if (typeof document === "undefined" || typeof window === "undefined") return;
+  try {
+    document.cookie =
+      `${publicLocaleCookieName}=${source === "browser" ? "" : `${source}.${locale}`}; Path=/; Max-Age=${source === "browser" ? 0 : publicLocaleCookieMaxAge}; SameSite=Lax` +
+      (window.location.protocol === "https:" ? "; Secure" : "");
+  } catch {
+    /* Cookie blocking never prevents an in-page language choice. */
+  }
+}
 export function setLocale(
   locale: SupportedLocale,
   persist = true,
   source: LocaleSource = persist ? "selection" : "account",
+  rememberPresentation = true,
 ) {
   if (!isSupportedLocale(locale)) return;
+  if (rememberPresentation) syncLocaleCookie(locale, source);
   if (persist) selectionVersion += 1;
   if (persist && typeof window !== "undefined") {
     syncPublicLocaleUrl(locale);
@@ -150,7 +174,7 @@ export function setLocale(
     }
   }
   if (typeof document !== "undefined") document.documentElement.lang = locale;
-  syncPublicSharing();
+  notifyLocalePresentation();
   if (current === locale && currentSource === source) return;
   current = locale;
   currentSource = source;
@@ -163,6 +187,18 @@ function browserLocale() {
     ? navigator.languages
     : [navigator.language];
   return resolveLocale(languages);
+}
+/** Account settings never inherit a visitor's stored or URL language choice. */
+export function applyAccountLocale(
+  preferredLocale: unknown,
+  rememberPresentation = true,
+) {
+  setLocale(
+    isSupportedLocale(preferredLocale) ? preferredLocale : browserLocale(),
+    false,
+    "account",
+    rememberPresentation,
+  );
 }
 /** Reset this browser's choice without changing the account preference. */
 export function setAutomaticLocale() {
@@ -183,8 +219,13 @@ export function setAutomaticLocale() {
   }
   setLocale(browserLocale(), false, "browser");
 }
-/** Run before first render. Account preference is applied after authentication. */
-export function initializeLocale() {
+/** Only the initial document may supply a server-rendered language hint. */
+export function initializeLocale(
+  restoreVisitor = false,
+  {
+    useInitialDocumentLocale = true,
+  }: { useInitialDocumentLocale?: boolean } = {},
+) {
   let stored: SupportedLocale | null = null;
   try {
     stored = normalizeLocale(window.localStorage.getItem(storageKey));
@@ -194,14 +235,40 @@ export function initializeLocale() {
   const requested = requestedPublicLocale(
     new URLSearchParams(window.location.search),
   );
+  // Logout restores the separate visitor choice, never a previous account hint.
+  let hint = null;
+  try {
+    if (!restoreVisitor) hint = parsePublicLocaleCookie(document.cookie);
+  } catch {
+    /* Cookie access is optional, just like local storage. */
+  }
+  // The HTTP language decision is already visible. Retain it even if navigator
+  // and Accept-Language differ. Enhanced navigation keeps the active automatic
+  // choice; only the initial render may reuse the document's bootstrap hint.
+  const initial = restoreVisitor
+    ? null
+    : !useInitialDocumentLocale
+      ? currentSource === "browser"
+        ? current
+        : null
+      : normalizeLocale(
+          typeof document === "undefined" ||
+            document.documentElement.dataset?.publicPath !==
+              window.location.pathname
+            ? null
+            : document.documentElement.dataset?.publicLocale,
+        );
+  const source = requested
+    ? "selection"
+    : (hint?.source ?? (stored ? "selection" : "browser"));
   setLocale(
-    requested ?? stored ?? browserLocale(),
+    requested ?? hint?.locale ?? stored ?? initial ?? browserLocale(),
     !!requested,
-    requested || stored ? "selection" : "browser",
+    source,
   );
   // A saved explicit choice also survives ordinary navigation between public pages.
-  if (!requested && stored) {
-    syncPublicLocaleUrl(stored);
-    syncPublicSharing();
+  if (!requested && source === "selection") {
+    syncPublicLocaleUrl(getLocale());
+    notifyLocalePresentation();
   }
 }

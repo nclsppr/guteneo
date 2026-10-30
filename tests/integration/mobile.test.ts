@@ -1,4 +1,4 @@
-import { readFile, readdir } from "node:fs/promises";
+import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
 import {
   afterAll,
   beforeAll,
@@ -11,6 +11,7 @@ import {
 import { Miniflare, convertV4MiniflareOptions } from "miniflare";
 import { PDFDocument } from "pdf-lib";
 import { hashSecret } from "../../apps/api/src/auth";
+import { handleAccountRoute } from "../../apps/api/src/account";
 import {
   authenticateNative,
   handleMobileRoute,
@@ -44,6 +45,17 @@ const prefix = "/api/mobile/v1";
 const verifier = random();
 const state = random();
 let challenge: string;
+async function saveThemeEvidence(name: string, html: string) {
+  const directory = process.env.GUTENEO_THEME_EVIDENCE_DIRECTORY;
+  if (!directory) return;
+  await mkdir(directory, { recursive: true });
+  // Fictional fixtures only; strip even their hidden security values from artifacts.
+  const sanitized = html.replace(
+    /(<input[^>]+type="hidden"[^>]+value=")[^"]*/g,
+    "$1fixture",
+  );
+  await writeFile(`${directory}/${name}.html`, sanitized);
+}
 
 beforeAll(async () => {
   mf = new Miniflare(
@@ -238,6 +250,43 @@ async function connect(principal = owner) {
 }
 
 describe("native mobile boundary on actual D1 and R2", () => {
+  it("reads the personal web appearance without adding a native appearance mutation", async () => {
+    const { token } = await connect();
+    const other = await connect(outsider);
+    const browserUpdate = await handleAccountRoute(
+      new Request(`${env.APP_ORIGIN}/api/account`, {
+        method: "PATCH",
+        headers: {
+          Origin: env.APP_ORIGIN,
+          Cookie: owner.cookie,
+          "X-CSRF-Token": owner.csrf,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ preferredDashboardAppearance: "v2" }),
+      }),
+      env,
+    );
+    expect(browserUpdate!.status).toBe(200);
+    for (const path of ["/session", "/account"])
+      expect(await (await call(path, token)).json()).toMatchObject({
+        user: { id: owner.userId, preferredDashboardAppearance: "v2" },
+      });
+    expect(await (await call("/account", other.token)).json()).toMatchObject({
+      user: { preferredDashboardAppearance: "classic" },
+    });
+    await expect(
+      call("/account", token, "PATCH", {
+        preferredDashboardAppearance: "classic",
+      }),
+    ).rejects.toThrow();
+    expect(
+      await (
+        await call("/account", token, "PATCH", { preferredLocale: "de" })
+      ).json(),
+    ).toMatchObject({
+      user: { preferredLocale: "de", preferredDashboardAppearance: "v2" },
+    });
+  });
   it("persists only the current native user's locale and exposes changes to every session", async () => {
     const { token } = await connect();
     const second = await connect();
@@ -354,6 +403,35 @@ describe("native mobile boundary on actual D1 and R2", () => {
       expect(redirect.searchParams.get("returnTo")).toContain(
         `locale=${locale}`,
       );
+    }
+  });
+  it("themes native authorization without changing PKCE, state, CSRF or creating a session", async () => {
+    for (const theme of ["light", "dark", "system"]) {
+      const source = authorizeReq(owner);
+      const headers = new Headers(source.headers);
+      headers.set("Cookie", `${owner.cookie}; guteneo_theme=${theme}`);
+      const response = (await handleMobileRoute(
+        new Request(source.url, { headers }),
+        env,
+        domain,
+        caps,
+      ))!;
+      expect(response.status).toBe(200);
+      expect(response.headers.get("Cache-Control")).toBe("no-store");
+      const html = await response.text();
+      expect(html).toContain('<meta name="theme-color" content="#2450db">');
+      await saveThemeEvidence(`native-authorization-${theme}`, html);
+      if (theme !== "system") expect(html).toContain(`data-theme="${theme}"`);
+      expect(html).toContain(`name="csrf" value="${owner.csrf}"`);
+      expect(html).toContain(`name="code_challenge" value="${challenge}"`);
+      expect(html).toContain(`name="state" value="${state}"`);
+      expect(html).not.toContain("<script");
+      expect(
+        (await db
+          .prepare("SELECT count(*) n FROM native_sessions WHERE user_id=?")
+          .bind(owner.userId)
+          .first<{ n: number }>())!.n,
+      ).toBe(0);
     }
   });
 
@@ -696,6 +774,80 @@ describe("native mobile boundary on actual D1 and R2", () => {
     expect(detail.dispatch.html).toBe(html);
     expect(detail.dispatch.text).toBe(text);
   }, 60_000);
+  it("forwards document defaults and a custom protected button to the shared domain without native approval", async () => {
+    const { token } = await connect();
+    const identity = await authenticateNative(
+      req(prefix + "/session", token),
+      env,
+    );
+    const fixture = await domain.prepareDispatch(
+      identity.context,
+      {
+        channel: "email",
+        recipient: { email: "fixture@example.invalid" },
+        subject: "Native fixture",
+        text: "Fictional route fixture",
+      },
+      `native-content:${crypto.randomUUID()}`,
+    );
+    const prepare = vi
+      .spyOn(domain, "prepareDispatch")
+      .mockResolvedValue(fixture);
+    try {
+      for (const content of [
+        {},
+        {
+          html: '<a href="{{document_url}}" style="background-color:#2450db;padding:12px">Open document</a>',
+        },
+      ]) {
+        const input = {
+          channel: "email",
+          recipient: { email: "fixture@example.invalid" },
+          documentId: "document_route_fixture",
+          options: { emailDeliveryMode: "protected_link" },
+          ...content,
+        };
+        const key = `native-defaults:${crypto.randomUUID()}`;
+        const response = await call("/dispatches", token, "POST", input, {
+          "Idempotency-Key": key,
+        });
+        expect(response.status).toBe(201);
+        expect(prepare).toHaveBeenLastCalledWith(identity.context, input, key);
+        expect(await response.json()).toMatchObject({
+          id: fixture.id,
+          approvalUrl: `${env.APP_ORIGIN}/auth/mobile/review/${fixture.id}`,
+        });
+      }
+    } finally {
+      prepare.mockRestore();
+    }
+    await expect(
+      call(
+        "/dispatches",
+        token,
+        "POST",
+        {
+          channel: "email",
+          recipient: { email: "fixture@example.invalid" },
+        },
+        { "Idempotency-Key": `native-empty:${crypto.randomUUID()}` },
+      ),
+    ).rejects.toMatchObject({ code: "INVALID_HEADER" });
+    await expect(
+      call(
+        "/dispatches",
+        token,
+        "POST",
+        {
+          channel: "email",
+          recipient: { email: "fixture@example.invalid" },
+          documentId: "unknown_document",
+        },
+        { "Idempotency-Key": `native-document:${crypto.randomUUID()}` },
+      ),
+    ).rejects.toMatchObject({ code: "NOT_FOUND" });
+  });
+
   it("prepares idempotently, returns exact browser review, and denies approve/send/expert/billing", async () => {
     const { token } = await connect();
     const input = {
@@ -833,6 +985,26 @@ describe("native mobile boundary on actual D1 and R2", () => {
     expect(await preferred.text()).toContain('<html lang="de">');
     await call("/account", token, "PATCH", { preferredLocale: "fr" });
     const page = await review(browserRequest());
+    for (const theme of ["light", "dark", "system"]) {
+      const themed = await review(
+        browserRequest(owner, undefined, {
+          Cookie: `${owner.cookie}; guteneo_theme=${theme}`,
+        }),
+      );
+      expect(themed.status).toBe(200);
+      expect(themed.headers.get("Cache-Control")).toBe("no-store");
+      expect(themed.headers.get("Content-Security-Policy")).toContain(
+        "default-src 'none'",
+      );
+      const html = await themed.text();
+      await saveThemeEvidence(`mobile-review-${theme}`, html);
+      if (theme !== "system") expect(html).toContain(`data-theme="${theme}"`);
+      expect(html).toContain(preparation.fingerprint);
+      expect(html).toContain('name="csrf"');
+      expect(html).toContain('name="reviewed"');
+      expect(html).toContain('iframe class="message"');
+      expect(html).not.toContain("<script");
+    }
     const text = await page.text();
     expect(text).toContain("Valider cette version");
     expect(text).not.toMatch(

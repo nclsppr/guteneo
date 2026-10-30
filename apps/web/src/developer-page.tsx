@@ -1,18 +1,16 @@
-import { LanguageMenu } from "./language-select";
 import { msg } from "./messages";
 import { useRef, useState } from "react";
 import { ArrowDown, ArrowUpRight, Code, FilePdf } from "@phosphor-icons/react";
-import { LuxembourgFooter } from "./landing-sections";
-import { Brand } from "./brand";
+import { PublicHeader, PublicFooter } from "./public-chrome";
 import "./developer.css";
 
 const uploadExample = `curl 'https://guteneo.com/api/documents' \\\n  --header "Authorization: Bearer $GUTENEO_ACCESS_TOKEN" \\\n  --form 'file=@./document.pdf;type=application/pdf'`;
-const prepareExample = `curl 'https://guteneo.com/api/dispatches' \\\n  --header "Authorization: Bearer $GUTENEO_ACCESS_TOKEN" \\\n  --header 'Content-Type: application/json' \\\n  --header 'Idempotency-Key: ma-preparation-unique-001' \\\n  --data '{
+const prepareExample = `curl 'https://guteneo.com/api/dispatches' \\\n  --header "Authorization: Bearer $GUTENEO_ACCESS_TOKEN" \\\n  --header 'Content-Type: application/json' \\\n  --header 'Idempotency-Key: unique-preparation-001' \\\n  --data '{
     "channel": "fax",
-    "documentId": "doc_identifiant_recu",
+    "documentId": "doc_received_identifier",
     "recipient": { "phone": "+33199001234" }
   }'`;
-const readExample = `curl 'https://guteneo.com/api/dispatches/dsp_identifiant_recu' \\\n  --header "Authorization: Bearer $GUTENEO_ACCESS_TOKEN"`;
+const readExample = `curl 'https://guteneo.com/api/dispatches/dsp_received_identifier' \\\n  --header "Authorization: Bearer $GUTENEO_ACCESS_TOKEN"`;
 
 function CodeExample({ title, children }: { title: string; children: string }) {
   return (
@@ -27,23 +25,17 @@ function CodeExample({ title, children }: { title: string; children: string }) {
 
 export function DeveloperPage() {
   const scopes = [
-    [
-      "documents:read",
-      msg("Lister les PDF et consulter leurs octets validés."),
-    ],
-    ["documents:write", msg("Déposer, générer et réexaminer un document.")],
+    ["documents:read", msg("List PDFs and read their validated bytes.")],
+    ["documents:write", msg("Upload, generate and recheck a document.")],
     [
       "dispatches:prepare",
-      msg("Préparer un envoi, créer une campagne, valider un CSV."),
+      msg("Prepare a dispatch, create a campaign, validate a CSV."),
     ],
     [
       "dispatches:send",
-      msg("Confirmer après accord humain ou annuler avant soumission."),
+      msg("Confirm after human approval or cancel before submission."),
     ],
-    [
-      "dispatches:read",
-      msg("Lire les envois, campagnes, expéditeurs et consommation."),
-    ],
+    ["dispatches:read", msg("Read dispatches, campaigns, senders and usage.")],
   ];
   const [reference, setReference] = useState<
     "closed" | "loading" | "open" | "error"
@@ -62,205 +54,202 @@ export function DeveloperPage() {
     }
   }
   return (
-    <div className="landing developer-page">
+    <div className="landing public-site developer-page">
       <a className="skip-link" href="#developer-main">
-        {msg("Aller à la documentation")}
+        {msg("Skip to documentation")}
       </a>
-      <header className="site-header developer-header">
-        <Brand />
-        <LanguageMenu />
-        <nav aria-label={msg("Navigation principale")}>
-          <a href="/#installation">{msg("Les intégrations")}</a>
-          <a href="/openapi.json" download="guteneo-openapi.json">
-            OpenAPI <ArrowDown size={16} aria-hidden="true" />
-          </a>
-        </nav>
-      </header>
-      <main id="developer-main">
+      <PublicHeader activePage="developers" />
+      <main id="developer-main" tabIndex={-1}>
         <div className="developer-intro">
-          <p className="developer-kicker">{msg("L’ATELIER / DÉVELOPPEURS")}</p>
           <h1>
-            {msg("Vos documents.")}
+            {msg("Your documents.")}
             <br />
-            <em>{msg("Votre façon de les envoyer.")}</em>
+            <em>{msg("Your way to send them.")}</em>
           </h1>
           <p className="developer-dek">
             {msg(
-              "Reliez votre application à Guteneo : un PDF fidèle à l’original, une préparation vérifiable et le dernier mot laissé à la personne qui l’envoie.",
+              "Connect your app to Guteneo: a PDF faithful to the original, a preparation you can check and the final say left to the person sending it.",
             )}
           </p>
           <div className="developer-intro-links">
-            <a className="button" href="#premiers-pas">
-              {msg("Lire le guide ")}
+            <a className="button" href="#getting-started">
+              {msg("Read the guide ")}
               <ArrowDown size={17} aria-hidden="true" />
             </a>
             <a href="/openapi.json" download="guteneo-openapi.json">
-              {msg("Télécharger le contrat OpenAPI")}{" "}
+              {msg("Download the OpenAPI contract")}{" "}
               <ArrowUpRight size={17} aria-hidden="true" />
             </a>
           </div>
           <p className="developer-beta">
-            <strong>{msg("Bêta en préparation.")}</strong>{" "}
+            <strong>{msg("Beta in preparation.")}</strong>{" "}
             {msg(
-              " Cette référence décrit le code disponible. Guteneo héberge la bêta ; consultez les capacités du service pour connaître les canaux activés. La démonstration séparée utilise des données fictives. Le crédit de bienvenue de 50 € ne remplace pas l’activation des transports ; aucune recharge n’est proposée.",
+              " This reference describes the available code. Guteneo hosts the beta; check the service capabilities for enabled channels. The separate demo uses fictional data. The €50 welcome credit does not replace transport activation; no top-ups are offered.",
             )}
           </p>
           <dl className="developer-facts">
             <div>
-              <dt>{msg("Contrat")}</dt>
+              <dt>{msg("Contract")}</dt>
               <dd>REST · OpenAPI 3.0.3</dd>
             </div>
             <div>
-              <dt>{msg("Accès")}</dt>
+              <dt>{msg("Access")}</dt>
               <dd>OAuth 2.0 · PKCE</dd>
             </div>
             <div>
               <dt>{msg("Documents")}</dt>
-              <dd>{msg("PDF privés · SHA-256")}</dd>
+              <dd>{msg("Private PDFs · SHA-256")}</dd>
             </div>
           </dl>
         </div>
         <div className="developer-layout">
           <nav
             className="developer-contents"
-            aria-label={msg("Sommaire de la documentation")}
+            aria-label={msg("Documentation contents")}
           >
-            <span>{msg("Dans ce guide")}</span>
-            <a href="#premiers-pas">{msg("01 — Préparer un envoi")}</a>
-            <a href="#authentification">{msg("02 — Se connecter")}</a>
-            <a href="#documents">{msg("03 — Garder l’original")}</a>
-            <a href="#fiabilite">{msg("04 — Suivre sans doubler")}</a>
-            <a href="#limites">{msg("05 — Limites et erreurs")}</a>
-            <a href="#reference">{msg("06 — Référence API")}</a>
+            <span>{msg("In this guide")}</span>
+            <a href="#getting-started">{msg("01 — Prepare a dispatch")}</a>
+            <a href="#authentication">{msg("02 — Sign in")}</a>
+            <a href="#documents">{msg("03 — Keep the original")}</a>
+            <a href="#reliability">{msg("04 — Track without duplicating")}</a>
+            <a href="#limits">{msg("05 — Limits and errors")}</a>
+            <a href="#reference">{msg("06 — API reference")}</a>
           </nav>
           <div className="developer-copy">
-            <section id="premiers-pas">
-              <p className="developer-kicker">{msg("01 / LE PARCOURS")}</p>
-              <h2>{msg("Préparer. Vérifier. Confirmer.")}</h2>
+            <section id="getting-started">
+              <h2>{msg("Prepare. Review. Confirm.")}</h2>
               <p>
                 {msg(
-                  "Le dépôt et la préparation ne déclenchent aucune communication. Après l’ouverture de la bêta, commencez par créer votre espace Guteneo dans le navigateur et vérifier votre adresse e-mail. Connectez ensuite un client OAuth enregistré avec les droits nécessaires.",
+                  "Uploading and preparation do not trigger any communication. Once the beta is open, first create your Guteneo workspace in the browser and verify your email address. Then connect a registered OAuth client with the required permissions.",
                 )}
               </p>
               <ol className="developer-steps">
                 <li>
-                  <strong>{msg("Déposez le PDF.")}</strong>{" "}
-                  {msg(" Envoyez le fichier original dans le champ ")}
+                  <strong>{msg("Upload the PDF.")}</strong>{" "}
+                  {msg(" Send the original file in the field ")}
                   <code>file</code>
-                  {msg(". Attendez son état")} <code>ready</code>{" "}
+                  {msg(". Wait for its status to become")} <code>ready</code>{" "}
                   {msg(
-                    " : une réponse 201 peut encore désigner un document en quarantaine.",
+                    " : a 201 response may still refer to a quarantined document.",
                   )}
                 </li>
                 <li>
-                  <strong>{msg("Préparez l’envoi.")}</strong>{" "}
+                  <strong>{msg("Prepare the dispatch.")}</strong>{" "}
                   {msg(
-                    " Choisissez le document et le destinataire. Conservez la réponse, son ",
+                    " Choose the document and recipient. Keep the response, its ",
                   )}
                   <code>id</code>
                   {msg(
-                    ", son empreinte et les montants retournés. Votre plafond éventuel est exprimé en centimes EUR.",
+                    ", its fingerprint and the returned amounts. Any spending limit you set is in EUR cents.",
                   )}
                 </li>
                 <li>
-                  <strong>{msg("Validation standard.")}</strong>{" "}
-                  {msg(" Orientez la personne vers")}{" "}
+                  <strong>{msg("Standard approval.")}</strong>{" "}
+                  {msg(" Direct the person to")}{" "}
                   <code>https://guteneo.com/#/app/dispatch/&#123;id&#125;</code>
                   {msg(
-                    ". Elle vérifie le PDF, le destinataire, les options et le coût, puis approuve dans sa session Guteneo. Le mode expert facultatif suit un mandat limité, activé au préalable dans Mon compte pour l’assistant concerné.",
+                    ". They review the PDF, recipient, options and cost, then approve in their Guteneo session. Optional expert mode follows a limited mandate enabled beforehand in My account for the relevant assistant.",
                   )}
                 </li>
                 <li>
-                  <strong>{msg("Confirmez et suivez.")}</strong>{" "}
-                  {msg(" Le client peut alors appeler")}{" "}
+                  <strong>{msg("Confirm and track.")}</strong>{" "}
+                  {msg(" The client can then call")}{" "}
                   <code>POST /api/dispatches/&#123;id&#125;/confirm</code>
                   {msg(
-                    ", avec une clé d’idempotence propre à cette confirmation. Relisez ensuite l’état de l’envoi.",
+                    ", with an idempotency key specific to this confirmation. Then read the dispatch status again.",
                   )}
                 </li>
               </ol>
-              <CodeExample title={msg("1. Déposer le fichier original")}>
+              <CodeExample title={msg("1. Upload the original file")}>
                 {uploadExample}
               </CodeExample>
               <CodeExample
                 title={msg(
-                  "2. Préparer un fax — identifiants et numéro fictifs à remplacer",
+                  "2. Prepare a fax — replace the fictional identifiers and number",
                 )}
               >
                 {prepareExample}
               </CodeExample>
               <p className="developer-note">
                 {msg(
-                  "Ces exemples sont des modèles de requête, pas des accès fournis. La variable d’environnement contient un jeton d’accès obtenu par votre client OAuth ; ne le placez jamais dans une URL ou dans un dépôt de code. Aucun exemple n’est exécuté depuis cette page.",
+                  "These examples are request templates, not provided credentials. The environment variable contains an access token obtained by your OAuth client; never put it in a URL or code repository. No example is executed from this page.",
                 )}
               </p>
               <p>
-                {msg("Le résultat REST est l’envoi brut. Le champ")}{" "}
+                {msg("The REST result is the raw dispatch. The field")}{" "}
                 <code>approvalUrl</code>{" "}
                 {msg(
-                  " appartient à la réponse MCP ; en REST, construisez le lien navigateur avec l’identifiant retourné. Un « oui » dans une conversation et une autorisation d’outil ne créent ni approbation humaine ni mandat expert. Le parcours MCP expert utilise une revue récente puis l’approbation déléguée ; il respecte les limites du mandat et les confirmations de votre assistant.",
+                  " belongs to the MCP response; in REST, build the browser link using the returned identifier. A yes in a conversation and tool permission create neither human approval nor an expert mandate. The expert MCP flow uses a recent review followed by delegated approval; it respects the mandate’s limits and your assistant’s confirmations.",
                 )}
               </p>
               <p>
-                {msg("Pour le courrier, lisez d’abord le gabarit avec")}{" "}
+                {msg("For postal mail, first read the template with")}{" "}
                 <code>GET /api/postal/requirements?country=LU</code>
                 {msg(
-                  ", en indiquant le pays du destinataire. Après avoir créé et importé le PDF, utilisez ",
+                  ", specifying the recipient’s country. After creating and importing the PDF, use ",
                 )}
                 <code>POST /api/postal/preflights</code>{" "}
-                {msg(" : Guteneo contrôle le PDF exact et retourne un")}{" "}
+                {msg(" : Guteneo checks the exact PDF and returns a")}{" "}
                 <code>reviewUrl</code>
                 {msg(
-                  ". En mode standard, la personne ouvre ce lien pour relire les pages et autoriser le dépôt chez le prestataire d’impression. Le mode expert exige un mandat postal couvrant séparément ce transfert de données ; il ne déclenche aucune expédition. Après l’analyse du brouillon, demandez",
+                  ". In standard mode, the person opens this link to review the pages and authorise transfer to the printing provider. Expert mode requires a postal mandate that separately covers this data transfer; it does not trigger any dispatch. After the draft has been analysed, request",
                 )}
                 <code> POST /api/postal/preflights/&#123;id&#125;/quote</code>
                 {msg(
-                  ", puis faites approuver le devis. Ces étapes restent distinctes de l’expédition ; un transfert incertain ne doit jamais être relancé automatiquement.",
+                  ", then have the quote approved. These steps remain separate from sending; an uncertain transfer must never be retried automatically.",
                 )}
               </p>
             </section>
-            <section id="authentification">
-              <p className="developer-kicker">{msg("02 / AUTHENTIFICATION")}</p>
-              <h2>{msg("Des permissions précises.")}</h2>
+            <section id="authentication">
+              <h2>{msg("Precise permissions.")}</h2>
               <p>
-                {msg("Les clients utilisent Authorization Code avec PKCE")}{" "}
+                {msg(
+                  "For the website and iOS app, start sign-in from Guteneo. The identity form uses",
+                )}{" "}
+                <code>auth.guteneo.com</code>
+                {msg(
+                  ". The OAuth addresses below are for new API and MCP connections. Existing connections keep working with their original issuer.",
+                )}
+              </p>
+              <p>
+                {msg("Clients use Authorization Code with PKCE")}{" "}
                 <code>S256</code>
                 {msg(
-                  ", une URI de retour enregistrée exactement et un paramètre ",
+                  ", an exactly registered redirect URI and a verified parameter ",
                 )}
-                <code>state</code> {msg(" vérifié. L’audience est")}{" "}
+                <code>state</code> {msg(" . The audience is")}{" "}
                 <code>https://guteneo.com/mcp</code>
                 {msg(
-                  ", aussi pour les routes REST documentées. Il n’existe pas de clé API personnelle ni de mot de passe à transmettre à un assistant.",
+                  ", including for the documented REST routes. There is no personal API key or password to share with an assistant.",
                 )}
               </p>
               <dl className="developer-endpoints">
-                <dt>{msg("Autorisation")}</dt>
+                <dt>{msg("API / MCP authorisation")}</dt>
                 <dd>
-                  <code>https://pieper.eu.auth0.com/authorize</code>
+                  <code>https://auth.guteneo.com/authorize</code>
                 </dd>
-                <dt>{msg("Échange du code")}</dt>
+                <dt>{msg("API / MCP code exchange")}</dt>
                 <dd>
-                  <code>https://pieper.eu.auth0.com/oauth/token</code>
+                  <code>https://auth.guteneo.com/oauth/token</code>
                 </dd>
-                <dt>{msg("Jeton HTTP")}</dt>
+                <dt>{msg("HTTP token")}</dt>
                 <dd>
                   <code>Authorization: Bearer &lt;access_token&gt;</code>
                 </dd>
               </dl>
               <p>
                 {msg(
-                  "Utilisez un jeton d’accès, jamais un ID token. Un client public ne contient aucun secret client. L’organisation est déterminée par l’adhésion et la connexion autorisée ; aucun paramètre ne permet de choisir librement un autre espace. Avec plusieurs espaces, l’association se fait dans les connexions du tableau de bord. Le rôle de lecteur interdit les écritures, même avec un scope. Pendant la bêta, un compte vérifié est requis pour tous les rôles ; la double authentification n’est pas obligatoire.",
+                  "Use an access token, never an ID token. A public client contains no client secret. The organisation is determined by membership and the authorised connection; no parameter allows freely selecting another workspace. With multiple workspaces, the link is set in the dashboard’s connections. The reader role forbids writes, even with a scope. During the beta, all roles require a verified account; two-factor authentication is not mandatory.",
                 )}
               </p>
               <div
                 className="developer-table-scroll"
                 tabIndex={0}
-                aria-label={msg("Permissions OAuth")}
+                aria-label={msg("OAuth permissions")}
               >
                 <table>
                   <caption>
-                    {msg("Demandez uniquement les permissions utiles.")}
+                    {msg("Request only the permissions you need.")}
                   </caption>
                   <thead>
                     <tr>
@@ -281,245 +270,234 @@ export function DeveloperPage() {
                 </table>
               </div>
               <p>
-                <strong>
-                  {msg("Aucun scope n’autorise l’approbation humaine.")}
-                </strong>{" "}
+                <strong>{msg("No scope authorises human approval.")}</strong>{" "}
                 {msg(
-                  "La route navigateur d’approbation, l’administration et la facturation ne font pas partie de cette API développeurs. Les droits accordés par OAuth ne remplacent pas les contrôles de rôle, d’expéditeur, de crédit ou de canal.",
+                  "The browser approval route, administration and billing are not part of this developer API. OAuth permissions do not replace role, sender, credit or channel checks.",
                 )}
               </p>
               <p>
                 {msg(
-                  "Pour les assistants, le transport prévu est MCP Streamable HTTP sur ",
+                  "For assistants, the intended transport is MCP Streamable HTTP at ",
                 )}
                 <code>https://guteneo.com/mcp</code>
-                {msg(
-                  ". Les fichiers d’intégration sont disponibles depuis",
-                )}{" "}
+                {msg(". Integration files are available in")}{" "}
                 <a href="/#installation">
-                  {msg("les instructions d’installation")}
+                  {msg("the installation instructions")}
                 </a>
                 {msg(
-                  ". Chaque client doit encore être enregistré et testé dans son environnement réel.",
+                  ". Each client still needs to be registered and tested in its real environment.",
                 )}
               </p>
             </section>
             <section id="documents">
-              <p className="developer-kicker">{msg("03 / DOCUMENTS")}</p>
-              <h2>{msg("Un original reste un original.")}</h2>
+              <h2>{msg("An original stays an original.")}</h2>
               <p>
                 <code>POST /api/documents</code>{" "}
                 {msg(
-                  " conserve les octets déposés. Le PDF est privé, identifié par son SHA-256 et soumis à une analyse ainsi qu’à une validation dans un environnement isolé.",
+                  " preserves the uploaded bytes. The PDF is private, identified by its SHA-256, and undergoes scanning and validation in an isolated environment.",
                 )}{" "}
                 <code>GET /api/documents/&#123;id&#125;/content</code>{" "}
-                {msg(" restitue uniquement un document prêt, avec l’en-tête")}{" "}
-                <code>X-Document-SHA256</code> {msg(" et sans cache public.")}
+                {msg(" returns only a ready document, with the header")}{" "}
+                <code>X-Document-SHA256</code> {msg(" and no public caching.")}
               </p>
               <p>
                 <code>POST /api/documents/render</code>{" "}
                 {msg(
-                  " fabrique un nouveau PDF A4 à partir de HTML nettoyé. Les scripts, styles fournis et ressources externes sont retirés. Ce rendu ne doit pas servir à reconstruire un original à partir de son texte. L’import d’une URL est réservé à l’outil MCP ",
+                  " creates a new A4 PDF from sanitised HTML. Scripts, supplied styles and external resources are removed. This rendering must not be used to reconstruct an original from its text. URL import is restricted to the MCP tool ",
                 )}
                 <code>import_document</code>
                 {msg(
-                  ", sur tout domaine public en HTTPS, sans redirection ; ce n’est pas une route REST.",
+                  ", on any public HTTPS domain, without redirects; it is not a REST route.",
                 )}
               </p>
               <p>
-                {msg("Le champ ")}
+                <code>import_inline_pdf</code>{" "}
+                {msg(
+                  "transfers one original up to 64 KiB through MCP when the host can read the file but its computing environment cannot reach Guteneo. A native file handoff or permitted binary upload remains preferable for larger PDFs. The original size, SHA-256, private access and scanner checks still apply.",
+                )}
+              </p>
+              <p>
+                {msg("The field ")}
                 <code>analysis</code>{" "}
                 {msg(
-                  " indique si la vérification est en cours, terminée, à relancer ou bloquée, avec une explication et une prochaine action. Pendant une vérification en cours, consultez ",
+                  " shows whether the check is in progress, complete, needs a retry or is blocked, with an explanation and a next action. While a check is in progress, query ",
                 )}
                 <code>GET /api/documents/&#123;id&#125;</code>{" "}
                 {msg(
-                  " toutes les 15 secondes au maximum. Le serveur gère les reprises automatiques limitées. Proposez une relance explicite via",
+                  " no more often than every 15 seconds. The server handles limited automatic retries. Offer an explicit retry via",
                 )}{" "}
                 <code>POST /api/documents/&#123;id&#125;/rescan</code>{" "}
-                {msg(" seulement lorsque l’action retournée est ")}
+                {msg(" only when the returned action is ")}
                 <code>rescan</code>
-                {msg(
-                  ". Conservez le même document : aucun nouveau dépôt n’est nécessaire.",
-                )}
+                {msg(". Keep the same document: no new upload is needed.")}
               </p>
             </section>
-            <section id="fiabilite">
-              <p className="developer-kicker">{msg("04 / FIABILITÉ")}</p>
-              <h2>{msg("Une demande, un envoi.")}</h2>
+            <section id="reliability">
+              <h2>{msg("One request, one dispatch.")}</h2>
               <p>
-                {msg("L’en-tête ")}
+                {msg("The header ")}
                 <code>Idempotency-Key</code>{" "}
                 {msg(
-                  " est obligatoire pour préparer et confirmer : 1 à 200 caractères, sans retour à la ligne ni caractère NUL. Gardez une clé stable par opération logique ; utilisez une autre clé pour la confirmation. Réutiliser une clé avec un contenu différent produit",
+                  " is required for preparation and confirmation: 1 to 200 characters, with no newline or NUL character. Keep a stable key for each logical operation; use a different key for confirmation. Reusing a key with different content produces",
                 )}{" "}
                 <code>IDEMPOTENCY_CONFLICT</code>.
               </p>
               <p>
-                {msg("L’empreinte ")}
+                {msg("The fingerprint ")}
                 <code>fingerprint</code>{" "}
                 {msg(
-                  " lie le contenu, le destinataire, le document, les options et le coût approuvés. L’accord dure au maximum 15 minutes et peut expirer plus tôt avec le devis. La confirmation réserve le plafond et inscrit le travail à effectuer dans la même transaction.",
+                  " binds the approved content, recipient, document, options and cost. Approval lasts at most 15 minutes and may expire earlier with the quote. Confirmation reserves the spending limit and inserts the work to be done in the same transaction.",
                 )}
               </p>
               <CodeExample
-                title={msg(
-                  "Lire l’état avant de décider d’une nouvelle action",
-                )}
+                title={msg("Read the status before deciding on another action")}
               >
                 {readExample}
               </CodeExample>
               <ul className="developer-states">
                 <li>
                   <code>prepared</code>{" "}
-                  {msg(" : préparation enregistrée, pas encore mise en file.")}
+                  {msg(" : preparation saved, not yet queued.")}
                 </li>
                 <li>
                   <code>queued</code>{" "}
-                  {msg(" : confirmation acceptée, travail en attente.")}
+                  {msg(" : confirmation accepted, work pending.")}
                 </li>
                 <li>
                   <code>submitting</code> / <code>submission_unknown</code>{" "}
                   {msg(
-                    " : le fournisseur peut déjà avoir reçu la demande. Aucune relance automatique ni nouvel envoi de remplacement.",
+                    " : the provider may already have received the request. No automatic retry or new replacement dispatch.",
                   )}
                 </li>
                 <li>
                   <code>accepted</code>{" "}
                   {msg(
-                    " : accepté par le fournisseur ; ce n’est pas une preuve de livraison. Consultez les événements suivants.",
+                    " : accepted by the provider; this is not proof of delivery. Check the subsequent events.",
                   )}
                 </li>
               </ul>
               <p>
                 {msg(
-                  "Après un délai d’attente HTTP, relisez d’abord l’envoi. Une annulation est possible seulement avant le début de la soumission, pour ",
+                  "After an HTTP timeout, first read the dispatch again. Cancellation is possible only before submission starts, for ",
                 )}
-                <code>prepared</code> {msg(" ou ")}
+                <code>prepared</code> {msg(" or ")}
                 <code>queued</code>. <code>CANCELLATION_TOO_LATE</code>{" "}
-                {msg(" signifie que l’annulation n’est plus garantie.")}
+                {msg(" means cancellation is no longer guaranteed.")}
               </p>
               <p>
-                {msg("Les réponses distinguent toujours ")}
-                <code>mode: simulation</code> {msg("et ")}
+                {msg("Responses always distinguish between ")}
+                <code>mode: simulation</code> {msg("and ")}
                 <code>production</code>
                 {msg(
-                  ". Les soldes et plafonds sont des entiers en centimes EUR. Un devis fractionnaire expose aussi",
+                  ". Balances and spending limits are integers in EUR cents. A fractional quote also exposes",
                 )}
                 <code> quote_customer_nanoeur</code>{" "}
                 {msg(
-                  " : 1 EUR vaut un milliard de nanoEUR. Le débit en centimes suit le cumul exact de l’organisation, sans arrondir chaque e-mail à un centime. Ces champs peuvent être absents des listes ou null ; cela ne signifie pas un prix nul.",
+                  " : 1 EUR equals one billion nanoEUR. Charges in cents follow the organisation’s exact cumulative total, without rounding each email up to one cent. These fields may be absent from lists or null; this does not mean a zero price.",
                 )}
               </p>
               <p>
-                {msg("Pour le fax v3, ")}
+                {msg("For fax v3, ")}
                 <code>faxPricing</code>{" "}
                 {msg(
-                  " fournit la fourchette HT en nanoEUR et le plafond ferme en centimes. Le plafond est réservé à la confirmation. Consultez ensuite",
+                  " provides the price range excluding tax in nanoEUR and the firm spending limit in cents. The limit is reserved at confirmation. Then check",
                 )}
                 <code> settlement.status</code>{" "}
-                {msg(
-                  " : une livraison peut être terminée alors que le décompte est encore ",
-                )}
+                {msg(" : delivery may be complete while settlement is still ")}
                 <code>reserved</code>
-                {msg(". Seul ")}
+                {msg(". Only ")}
                 <code>settled</code>{" "}
                 {msg(
-                  " fournit la consommation validée et le débit du solde. Le tarif qualifié limite le fax à dix pages au maximum, même si le PDF a pu être importé.",
+                  " provides validated usage and the balance debit. The qualified rate limits faxes to a maximum of ten pages, even if the PDF was successfully imported.",
                 )}
               </p>
               <p>
                 {msg(
-                  "En production, chaque canal exige une tarification privée qualifiée et un devis encore valide. Aucun montant fournisseur fourni par le client ne peut les remplacer. Les tarifs indicatifs de la page d’accueil ne constituent pas un devis API.",
+                  "In production, each channel requires qualified private pricing and a quote that is still valid. No provider amount supplied by the client can replace them. The indicative homepage rates are not an API quote.",
                 )}
               </p>
             </section>
-            <section id="limites">
-              <p className="developer-kicker">
-                {msg("05 / LIMITES ET ERREURS")}
-              </p>
-              <h2>{msg("Prévoir les cas d’attente.")}</h2>
+            <section id="limits">
+              <h2>{msg("Plan for waiting states.")}</h2>
               <dl className="developer-limits">
                 <div>
                   <dt>PDF</dt>
-                  <dd>{msg("10 Mio · 100 pages maximum")}</dd>
+                  <dd>{msg("10 MiB · 100 pages maximum")}</dd>
                 </div>
                 <div>
-                  <dt>{msg("HTML et texte e-mail")}</dt>
-                  <dd>{msg("128 Kio UTF-8 par contenu")}</dd>
+                  <dt>{msg("Email HTML and text")}</dt>
+                  <dd>{msg("128 KiB UTF-8 per content")}</dd>
                 </div>
                 <div>
                   <dt>CSV</dt>
-                  <dd>{msg("256 Kio · 500 lignes maximum")}</dd>
+                  <dd>{msg("256 KiB · 500 rows maximum")}</dd>
                 </div>
                 <div>
-                  <dt>{msg("Listes")}</dt>
-                  <dd>{msg("30 éléments par défaut · 100 maximum")}</dd>
+                  <dt>{msg("Lists")}</dt>
+                  <dd>{msg("30 items by default · 100 maximum")}</dd>
                 </div>
                 <div>
-                  <dt>{msg("API authentifiée")}</dt>
-                  <dd>{msg("180 requêtes par minute et organisation")}</dd>
+                  <dt>{msg("Authenticated API")}</dt>
+                  <dd>{msg("180 requests per minute per organisation")}</dd>
                 </div>
                 <div>
-                  <dt>{msg("Réexamens PDF")}</dt>
-                  <dd>{msg("10 par jour et organisation")}</dd>
+                  <dt>{msg("PDF rechecks")}</dt>
+                  <dd>{msg("10 per day per organisation")}</dd>
                 </div>
               </dl>
               <p>
                 {msg(
-                  "Les dépôts et rendus ont aussi des quotas quotidiens propres à l’organisation. Les listes renvoient ",
+                  "Uploads and renders also have daily quotas specific to the organisation. Lists return ",
                 )}
-                <code>items</code> {msg(" et")} <code>nextCursor</code>{" "}
+                <code>items</code> {msg(" and")} <code>nextCursor</code>{" "}
                 {msg(
-                  " ; renvoyez ce curseur opaque sans le modifier. Les réponses de validation CSV séparent",
+                  " ; send this opaque cursor back unchanged. CSV validation responses separate",
                 )}{" "}
-                <code>rows</code>, <code>errors</code> {msg(" et")}{" "}
+                <code>rows</code>, <code>errors</code> {msg(" and")}{" "}
                 <code>duplicates</code>{" "}
-                {msg(
-                  " : un succès HTTP ne signifie pas que chaque ligne est valide.",
-                )}
+                {msg(" : HTTP success does not mean every row is valid.")}
               </p>
               <p>
-                {msg("Une erreur contient")}{" "}
+                {msg("An error contains")}{" "}
                 <code>
                   &#123; "error": &#123; "code", "message" &#125; &#125;
                 </code>
-                {msg(", parfois une liste ")}
+                {msg(", sometimes a list ")}
                 <code>fields</code>
-                {msg(". Conservez le code et")} <code>X-Correlation-ID</code>{" "}
+                {msg(". Keep the code and")} <code>X-Correlation-ID</code>{" "}
                 {msg(
-                  " pour le diagnostic, sans journaliser le document, le destinataire ou le jeton.",
+                  " for diagnostics, without logging the document, recipient or token.",
                 )}
               </p>
               <ul>
                 <li>
                   <strong>401 / 403 :</strong>{" "}
-                  {msg(" authentification ou permission ;")}{" "}
+                  {msg(" authentication or permission;")}{" "}
                   <code>ONBOARDING_REQUIRED</code>{" "}
-                  {msg(" demande d’abord une connexion au navigateur.")}
+                  {msg(" requires signing in through the browser first.")}
                 </li>
                 <li>
                   <strong>409 :</strong>{" "}
                   {msg(
-                    " approbation, devis, crédit, quota ou état incompatible. Corrigez la cause ; ne changez pas de clé pour forcer l’envoi.",
+                    " incompatible approval, quote, credit, quota or status. Correct the cause; do not change the key to force a dispatch.",
                   )}
                 </li>
                 <li>
                   <strong>413 / 423 :</strong>{" "}
-                  {msg(" contenu trop volumineux ou document non consultable.")}
+                  {msg(" content too large or document cannot be viewed.")}
                 </li>
                 <li>
                   <strong>429 :</strong>{" "}
-                  {msg(" ralentissez. La limite HTTP renvoie")}{" "}
+                  {msg(" slow down. The HTTP limit returns")}{" "}
                   <code>Retry-After: 60</code>{" "}
                   {msg(
-                    " ; les quotas documentaires n’ont pas nécessairement cet en-tête.",
+                    " ; document quotas do not necessarily include this header.",
                   )}
                 </li>
                 <li>
                   <strong>503 :</strong>{" "}
                   {msg(
-                    " configuration ou service requis indisponible. La démonstration publique répond quant à elle",
+                    " required configuration or service unavailable. The public demo instead returns",
                   )}{" "}
                   <code>403 PREVIEW_ONLY</code>.
                 </li>
@@ -527,7 +505,7 @@ export function DeveloperPage() {
               <p>
                 <code>GET /api/usage</code>{" "}
                 {msg(
-                  " distingue le crédit de bienvenue, les réservations et les plafonds mensuels. Le crédit ne se renouvelle pas. Une issue fournisseur inconnue conserve la réservation ; elle ne justifie jamais une nouvelle expédition automatique.",
+                  " distinguishes welcome credit, reservations and monthly limits. The credit does not renew. An unknown provider outcome keeps the reservation; it never justifies an automatic resend.",
                 )}
               </p>
             </section>
@@ -540,18 +518,15 @@ export function DeveloperPage() {
         >
           <div className="developer-reference-heading">
             <div>
-              <p className="developer-kicker">
-                {msg("06 / LE CONTRAT COMPLET")}
-              </p>
               <h2 id="reference-title">
-                {msg("Chaque route, chaque réponse.")}
+                {msg("Every route, every response.")}
               </h2>
             </div>
             <FilePdf size={38} weight="thin" aria-hidden="true" />
           </div>
           <p>
             {msg(
-              "23 opérations : documents, contrôle postal, envois, campagnes, destinataires, expéditeurs, consommation et état du service. Explorez les schémas en lecture seule. Aucun bouton d’exécution, aucune connexion OAuth, aucun jeton envoyé depuis l’explorateur.",
+              "23 operations: documents, postal checks, dispatches, campaigns, recipients, senders, usage and service status. Explore the schemas in read-only mode. No execution button, no OAuth sign-in and no token sent from the explorer.",
             )}
           </p>
           <div className="developer-reference-actions">
@@ -565,35 +540,33 @@ export function DeveloperPage() {
             >
               <Code size={19} aria-hidden="true" />{" "}
               {reference === "loading"
-                ? msg("Chargement de la référence…")
+                ? msg("Loading the reference…")
                 : reference === "open"
-                  ? msg("Référence ouverte")
-                  : msg("Ouvrir la référence Swagger")}
+                  ? msg("Reference open")
+                  : msg("Open Swagger reference")}
             </button>
             <a href="/openapi.json" download="guteneo-openapi.json">
-              {msg("Télécharger OpenAPI (.json)")}{" "}
+              {msg("Download OpenAPI (.json)")}{" "}
               <ArrowDown size={17} aria-hidden="true" />
             </a>
           </div>
           <noscript>
             <p>
               {msg(
-                "Le guide est disponible sans JavaScript. Pour explorer les schémas, téléchargez le contrat OpenAPI ci-dessus.",
+                "The guide is available without JavaScript. To explore the schemas, download the OpenAPI contract above.",
               )}
             </p>
           </noscript>
           <p role="status" className="developer-reference-status">
             {reference === "error"
               ? msg(
-                  "La référence n’a pas pu être chargée. Réessayez ou téléchargez le fichier OpenAPI.",
+                  "The reference could not be loaded. Try again or download the OpenAPI file.",
                 )
               : reference === "open"
-                ? msg(
-                    "Référence chargée. Vous pouvez déplier les opérations ci-dessous.",
-                  )
+                ? msg("Reference loaded. You can expand the operations below.")
                 : reference === "loading"
-                  ? msg("Chargement des schémas en lecture seule.")
-                  : msg("L’explorateur se charge uniquement à votre demande.")}
+                  ? msg("Loading read-only schemas.")
+                  : msg("The explorer loads only when you request it.")}
           </p>
           <div
             id="swagger-reference"
@@ -602,7 +575,7 @@ export function DeveloperPage() {
           />
         </section>
       </main>
-      <LuxembourgFooter />
+      <PublicFooter />
     </div>
   );
 }

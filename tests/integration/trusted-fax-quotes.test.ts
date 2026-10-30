@@ -601,12 +601,13 @@ describe("Trusted live fax quotes — isolated D1, no provider sends", () => {
         "usage",
         "dispatches",
       ]) {
+        // Project the actual pre-0014 user schema. Later personal preferences
+        // are not part of historical quote data and must not be copied back.
+        const projection = table === "users" ? "id,name,email,created_at" : "*";
         const rows = await db
-          .prepare(`SELECT * FROM ${table}`)
+          .prepare(`SELECT ${projection} FROM ${table}`)
           .all<Record<string, unknown>>();
         for (const row of rows.results) {
-          // Personal language preferences were added after this historical schema.
-          if (table === "users") delete row.preferred_locale;
           if (table === "documents") {
             // These are historical organization-visible imports. A private PDF
             // must never be projected into a schema without owner access rules.
@@ -619,6 +620,8 @@ describe("Trusted live fax quotes — isolated D1, no provider sends", () => {
             delete row.supervisor_can_report;
           }
           if (table === "dispatches") {
+            // Recipient email feedback did not exist in the historical schema.
+            delete row.recipient_feedback;
             const quote = historicalQuotes.get(row.id as string)!;
             row.fingerprint = quote.dispatch_fingerprint;
             row.quote_fingerprint = quote.fingerprint;
@@ -654,6 +657,7 @@ describe("Trusted live fax quotes — isolated D1, no provider sends", () => {
         delete approval.recipient_requested;
         delete approval.approval_kind;
         delete approval.expert_review_hash;
+        delete approval.secure_approval_evidence_id;
         await insert("approvals", approval);
       }
       await legacy

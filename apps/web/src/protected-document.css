@@ -49,6 +49,9 @@
 .protected-document-choice .field {
   margin: 20px 0 0;
 }
+.protected-document-choice .field-hint {
+  margin-top: 8px;
+}
 .protected-document-choice .field-hint,
 .protected-document-summary p:last-child {
   margin-bottom: 0;
@@ -81,7 +84,7 @@
   padding: 64px 24px;
 }
 .protected-document-page h1 {
-  font-family: "EB Garamond", serif;
+  font-family: var(--font-display);
   font-size: clamp(36px, 6vw, 56px);
   line-height: 1.08;
 }

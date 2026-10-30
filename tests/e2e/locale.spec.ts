@@ -2,11 +2,19 @@ import { expect, test } from "@playwright/test";
 import { publicLanguagePicker } from "../public-language";
 import { publicFilmAsset } from "../../packages/contracts/src/public-videos";
 
-test("the saved account language selects the public film ahead of the browser choice", async ({
+test("explicit public language selects its films without a late account-language change", async ({
   page,
+  context,
+  baseURL,
 }) => {
-  await page.route("**/api/**", (route) =>
-    route.fulfill({
+  let sessionRequests = 0;
+  await context.addCookies([
+    { name: "guteneo_locale", value: "account.de", url: baseURL! },
+  ]);
+  await page.route("**/api/**", (route) => {
+    if (new URL(route.request().url()).pathname === "/api/session")
+      sessionRequests += 1;
+    return route.fulfill({
       json:
         new URL(route.request().url()).pathname === "/api/session"
           ? {
@@ -21,33 +29,42 @@ test("the saved account language selects the public film ahead of the browser ch
               simulation: true,
             }
           : {},
-    }),
-  );
-  await page.goto("/?lang=en");
+    });
+  });
+  await page.goto("/how-it-works/?lang=en");
   const film = page.locator('[data-film="introduction"]');
-  await expect(film).toHaveAttribute("data-locale", "de");
-  await expect(film.locator("video")).toHaveAttribute("lang", "de");
+  await expect(film).toHaveAttribute("data-locale", "en");
+  await expect(film.locator("video")).toHaveAttribute("lang", "en");
   await expect(film.locator("video")).not.toHaveAttribute("src");
   await expect(film.locator(".homepage-film-poster img")).toHaveAttribute(
     "src",
-    publicFilmAsset("introduction", "de").poster,
+    publicFilmAsset("introduction", "en").poster,
   );
   await page.goto("/roles/?lang=en");
   await expect(page.locator('[data-film="roles"]')).toHaveAttribute(
     "data-locale",
-    "de",
+    "en",
   );
   await expect(
     page.locator('[data-film="roles"] .homepage-film-poster img'),
-  ).toHaveAttribute("src", publicFilmAsset("roles", "de").poster);
+  ).toHaveAttribute("src", publicFilmAsset("roles", "en").poster);
+  expect(sessionRequests).toBe(0);
 });
 
 test.use({ locale: "en-GB" });
-test("home language is available in navigation, survives reload and works on mobile", async ({
+test("the home language follows navigation to the film, survives reload and works on mobile", async ({
   page,
 }) => {
   await page.goto("/?lang=en");
   let picker = await publicLanguagePicker(page);
+  await expect(picker).toHaveValue("en");
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await page
+    .locator(".public-home-hero")
+    .getByRole("link", { name: "See how it works", exact: true })
+    .click();
+  await expect(page).toHaveURL(/\/how-it-works\/\?lang=en$/);
+  picker = await publicLanguagePicker(page);
   await expect(picker).toHaveValue("en");
   await expect(page.locator(".homepage-film-play")).toContainText(
     "Watch the film",
@@ -98,7 +115,7 @@ test("home language is available in navigation, survives reload and works on mob
   });
 });
 
-test("profile saves language for the account and keeps edited fields when switching the interface", async ({
+test("profile applies its saved language and keeps edited fields while choosing it", async ({
   page,
 }) => {
   let preferredLocale = "de";
@@ -137,6 +154,8 @@ test("profile saves language for the account and keeps edited fields when switch
       };
     else if (path === "/api/account/sessions")
       response = { items: [], hasMore: false };
+    else if (path === "/api/account/contacts")
+      response = { items: [], hasMore: false };
     else if (path === "/api/account/expert-approval")
       response = { connections: [], enabled: false };
     else if (path === "/api/capabilities")
@@ -146,14 +165,12 @@ test("profile saves language for the account and keeps edited fields when switch
   await page.goto("/#/app/account");
   await expect(page.locator("html")).toHaveAttribute("lang", "de");
   await page.locator("#account-name").fill("Camille Updated");
-  await page
-    .locator('.workspace-language select[name="language"]')
-    .selectOption("en");
+  await expect(page.locator('select[name="language"]')).toHaveCount(1);
+  await page.locator(".language-preference select").selectOption("lb");
   await expect(page.locator("#account-name")).toHaveValue("Camille Updated");
-  await page
-    .getByLabel("Preferred language", { exact: true })
-    .selectOption("lb");
-  await page.getByRole("button", { name: "Save changes", exact: true }).click();
+  await expect(page.locator("html")).toHaveAttribute("lang", "de");
+  expect(updates).toEqual([]);
+  await page.locator('form.form-panel button[type="submit"]').click();
   await expect(page.locator("html")).toHaveAttribute("lang", "lb");
   expect(updates).toHaveLength(1);
   expect(updates[0]).toEqual({
@@ -199,7 +216,7 @@ test("failed profile save keeps the active account language and offers retry", a
                 { id: "o", name: "Example", role: "member", current: true },
               ],
             }
-          : path === "/api/account/sessions"
+          : path === "/api/account/sessions" || path === "/api/account/contacts"
             ? { items: [], hasMore: false }
             : path === "/api/account/expert-approval"
               ? { connections: [], enabled: false }

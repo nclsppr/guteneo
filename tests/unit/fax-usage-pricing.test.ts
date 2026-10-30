@@ -91,12 +91,13 @@ describe("operator-test absolute expiry — runtime guard without SQL", () => {
   };
   it("accepts authority ending exactly at the pilot deadline", async () => {
     await expect(
-      quote("2026-09-23T09:00:00.000Z", "2026-09-24T09:00:01.620Z"),
+      quote("2026-11-02T00:00:00.000Z", "2026-11-03T23:59:59.999Z"),
     ).resolves.toMatchObject({ ceiling_minor: 200 });
   });
   it.each([
-    ["2026-09-23T09:00:00.000Z", "2026-09-24T09:00:01.621Z"],
-    ["2026-09-30T09:00:00.000Z", "2026-10-01T09:00:00.000Z"],
+    ["2026-11-02T00:00:00.000Z", "2026-11-04T00:00:00.000Z"],
+    ["2026-11-04T00:00:00.000Z", "2026-11-05T00:00:00.000Z"],
+    ["2026-10-27T00:00:00.000Z", "2026-11-03T00:00:00.001Z"],
   ])(
     "rejects short authority after the pilot deadline: %s to %s",
     async (from, to) => {

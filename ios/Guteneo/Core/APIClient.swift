@@ -6,33 +6,33 @@ struct APIError: Error, LocalizedError, Equatable, Sendable {
     init(code: String, status: Int = 0) { self.code = code; self.status = status }
     var isAuthenticationFailure: Bool { status == 401 || ["SESSION_EXPIRED", "NATIVE_SESSION_EXPIRED", "UNAUTHENTICATED"].contains(code) }
     var errorDescription: String? {
-        if isAuthenticationFailure { return "Votre session a expiré. Connectez-vous à nouveau pour reprendre." }
+        if isAuthenticationFailure { return "Your session has expired. Sign in again to continue." }
         switch code {
-        case "NETWORK": return "Connexion interrompue. Actualisez le suivi avant de recommencer une opération."
-        case "CANCELLED": return "L’opération a été annulée."
-        case "AUTH_CALLBACK_INVALID", "AUTH_START_FAILED": return "La connexion n’a pas abouti. Réessayez depuis cet appareil."
-        case "KEYCHAIN": return "Votre session ne peut pas être enregistrée en sécurité sur cet appareil. Réessayez après l’avoir déverrouillé."
-        case "INVALID_PDF": return "Choisissez un fichier PDF valide."
-        case "FILE_TOO_LARGE", "PAYLOAD_TOO_LARGE": return "Ce PDF est trop volumineux. Choisissez un fichier de 10 Mo maximum."
-        case "PDF_NOT_READY", "DOCUMENT_NOT_READY", "DOCUMENT_QUARANTINED": return "Le PDF doit être vérifié avant de préparer cet envoi."
-        case "DOCUMENT_UNAVAILABLE", "DOCUMENT_NOT_FOUND", "NOT_FOUND": return "Cet élément est indisponible. Actualisez la liste."
-        case "SENDER_NOT_CONFIGURED", "CHANNEL_NOT_AVAILABLE", "CHANNEL_DISABLED", "LIVE_SEND_DISABLED": return "Ce mode d’envoi n’est pas disponible pour votre compte."
-        case "QUOTE_EXPIRED", "APPROVAL_EXPIRED": return "Le devis a expiré. Consultez l’envoi dans votre espace Guteneo."
-        case "INVALID_INPUT", "VALIDATION_ERROR": return "Vérifiez les informations saisies avant de continuer."
-        case "RATE_LIMITED": return "Trop de demandes ont été effectuées. Patientez quelques instants avant de réessayer."
-        case "INSUFFICIENT_CREDIT", "INSUFFICIENT_CREDITS", "INSUFFICIENT_BALANCE", "WELCOME_CREDIT_EXHAUSTED": return "Le solde disponible ne permet pas cet envoi."
-        case "SIMULATION_UNAVAILABLE": return "Cette application nécessite un compte Guteneo en service réel."
-        case "FORBIDDEN", "INSUFFICIENT_ROLE", "NATIVE_SCOPE_DENIED": return "Votre compte ne dispose pas des droits nécessaires à cette action."
+        case "NETWORK": return "Connection interrupted. Refresh tracking before trying an operation again."
+        case "CANCELLED": return "The operation was cancelled."
+        case "AUTH_CALLBACK_INVALID", "AUTH_START_FAILED": return "Sign-in did not complete. Try again from this device."
+        case "KEYCHAIN": return "Your session could not be securely saved on this device. Try again after unlocking it."
+        case "INVALID_PDF": return "Choose a valid PDF file."
+        case "FILE_TOO_LARGE", "PAYLOAD_TOO_LARGE": return "This PDF is too large. Choose a file no larger than 10 MB."
+        case "PDF_NOT_READY", "DOCUMENT_NOT_READY", "DOCUMENT_QUARANTINED": return "The PDF must be verified before preparing this dispatch."
+        case "DOCUMENT_UNAVAILABLE", "DOCUMENT_NOT_FOUND", "NOT_FOUND": return "This item is unavailable. Refresh the list."
+        case "SENDER_NOT_CONFIGURED", "CHANNEL_NOT_AVAILABLE", "CHANNEL_DISABLED", "LIVE_SEND_DISABLED": return "This delivery method is not available for your account."
+        case "QUOTE_EXPIRED", "APPROVAL_EXPIRED": return "The quote has expired. View the dispatch in your Guteneo workspace."
+        case "INVALID_INPUT", "VALIDATION_ERROR": return "Check the information you entered before continuing."
+        case "RATE_LIMITED": return "Too many requests. Wait a moment before trying again."
+        case "INSUFFICIENT_CREDIT", "INSUFFICIENT_CREDITS", "INSUFFICIENT_BALANCE", "WELCOME_CREDIT_EXHAUSTED": return "The available balance is insufficient for this dispatch."
+        case "SIMULATION_UNAVAILABLE": return "This app requires a Guteneo account in live mode."
+        case "FORBIDDEN", "INSUFFICIENT_ROLE", "NATIVE_SCOPE_DENIED": return "Your account does not have permission for this action."
         default:
-            if status == 403 { return "Cette action n’est pas disponible pour votre compte." }
-            if status == 409 { return "La situation de cet envoi a changé. Actualisez son suivi avant de continuer." }
-            if status == 429 { return "Patientez quelques instants avant de réessayer." }
-            return "Cette opération est momentanément indisponible. Réessayez plus tard ou contactez l’assistance."
+            if status == 403 { return "This action is not available for your account." }
+            if status == 409 { return "This dispatch has changed. Refresh its tracking before continuing." }
+            if status == 429 { return "Wait a moment before trying again." }
+            return "This operation is temporarily unavailable. Try again later or contact support."
         }
     }
     static func safeMessage(for error: Error) -> String {
-        if let error = error as? APIError { return error.errorDescription ?? "Opération indisponible." }
-        if error is CancellationError { return "L’opération a été annulée." }
+        if let error = error as? APIError { return error.errorDescription ?? "Operation unavailable." }
+        if error is CancellationError { return "The operation was cancelled." }
         return APIError(code: "NETWORK").errorDescription!
     }
 }

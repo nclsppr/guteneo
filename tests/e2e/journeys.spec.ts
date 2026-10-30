@@ -123,7 +123,7 @@ async function login(
   await page.goto("/#/app");
   await page
     .getByRole("button", {
-      name: `Entrer dans ${organization === "Atelier" ? "l’Atelier" : "le Studio"}`,
+      name: `Entrer dans ${organization === "Atelier" ? "l’espace de travail" : "le Studio"}`,
     })
     .click();
   await expect(
@@ -174,7 +174,7 @@ test("landing and workspace fit desktop and iPhone widths, keyboard navigation r
   await page.goto("/");
   await expect(
     page.getByRole("heading", {
-      name: "Votre assistant prépare. Guteneo transmet.",
+      name: "Préparez vos documents. Choisissez leur destination.",
     }),
   ).toBeVisible();
   // WebKit on macOS uses Option-Tab for links unless full keyboard navigation is enabled.
@@ -191,7 +191,7 @@ test("landing and workspace fit desktop and iPhone widths, keyboard navigation r
   await expect(page.locator("#landing-main")).toBeFocused();
   await page
     .getByRole("heading", {
-      name: "Votre assistant prépare. Guteneo transmet.",
+      name: "Préparez vos documents. Choisissez leur destination.",
     })
     .click();
   await expect
@@ -286,12 +286,15 @@ test("generates an inspectable PDF, approves the frozen email and tracks its sim
   await screenshot(page, `document-${testInfo.project.name}`);
   await page.getByRole("link", { name: "Utiliser pour un envoi" }).click();
   await page.getByRole("radio", { name: "E-mail", exact: true }).check();
+  await page
+    .getByLabel("Accès au document", { exact: true })
+    .selectOption("attachment");
   await page.getByLabel("Adresse e-mail").fill("e2e@example.invalid");
   await page
-    .getByLabel("Objet", { exact: true })
+    .getByLabel("Objet (facultatif)", { exact: true })
     .fill("Correspondance de contrôle");
   await page
-    .getByLabel("Message", { exact: true })
+    .getByLabel("Message (facultatif)", { exact: true })
     .fill("Bonjour. Voici le document joint.");
   await page.getByRole("button", { name: "Vérifier et préparer" }).click();
   await expect(
@@ -370,7 +373,9 @@ test("CSV duplicate checks precede a campaign with individual frozen preparation
   await login(page);
   await page.goto("/#/app/campaigns");
   const name = `Campagne E2E ${crypto.randomUUID().slice(0, 8)}`;
-  await page.getByLabel("Nom de la campagne").fill(name);
+  const campaignNameInput = page.getByLabel("Nom de la campagne");
+  await campaignNameInput.fill(name);
+  await expect(campaignNameInput).toHaveValue(name);
   await page
     .getByLabel("Liste des destinataires au format CSV")
     .fill(
@@ -394,6 +399,7 @@ test("CSV duplicate checks precede a campaign with individual frozen preparation
   await page
     .getByLabel("Message", { exact: true })
     .fill("Correspondance individuelle.");
+  await expect(campaignNameInput).toHaveValue(name);
   await page.getByRole("button", { name: "Créer la campagne" }).click();
   await expect(page.getByRole("heading", { name, exact: true })).toBeVisible();
   await expect(page.locator("tbody tr")).toHaveCount(2);

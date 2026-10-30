@@ -1,126 +1,118 @@
-# Claude.ai : installation et renouvellement
+# Claude.ai: installation and renewal
 
-État du **18 septembre 2026** : candidat local. La connexion réelle initiale est
-qualifiée dans [CLAUDE_QUALIFICATION.md](CLAUDE_QUALIFICATION.md). Le bouton et le
-renouvellement décrits ici nécessitent encore publication et activation Auth0 ;
-aucun échange réel de refresh token n’est attesté par les tests locaux.
+State as of **18 September 2026**: local candidate. Initial actual connection
+is qualified in [CLAUDE_QUALIFICATION.md](CLAUDE_QUALIFICATION.md). The button/
+renewal described here still require publication and Auth0 activation; local
+tests attest no actual refresh-token exchange.
 
-## Installation pour un autre utilisateur
+## Installation for another user
 
-1. Créer son compte Guteneo, vérifier son adresse e-mail et ouvrir son espace
-   Guteneo une première fois. Cette étape crée son identité et son organisation.
-2. Dans le guide Claude de « Assistants », ou dans « Connecter un assistant », utiliser
-   **Connecter à Claude**. Le lien officiel préremplit le nom Guteneo et l’URL
-   `https://guteneo.com/mcp` dans le formulaire Claude.ai.
-3. Copier l’identifiant public `IhJieRsvZBAnl1uJO125X2SPoIHxT8ed`, choisir
-   **Use your own OAuth client** et le coller dans **OAuth client ID**. Laisser
-   le secret vide. Le lien officiel ne sait pas préremplir ces champs OAuth.
-4. Ajouter le connecteur puis connecter son propre compte Guteneo et examiner
-   les permissions. Sur un espace Claude administré, son propriétaire peut
-   devoir ajouter le connecteur avant que les membres puissent se connecter.
+1. Create a Guteneo account, verify email and open the workspace once. This
+   creates identity/organization.
+2. In the Claude Assistants guide or Connect an assistant, use **Connect to
+   Claude**. The official link prefills Guteneo and `https://guteneo.com/mcp`
+   in Claude.ai.
+3. Copy public ID `IhJieRsvZBAnl1uJO125X2SPoIHxT8ed`, choose **Use your own
+   OAuth client**, paste into **OAuth client ID**, leave secret empty.
+   The official link cannot prefill these OAuth fields.
+4. Add the connector, connect your own Guteneo account and review permissions.
+   An administered Claude workspace may require its owner to add the connector
+   before members connect.
 
-L’identifiant public ne donne accès à aucun compte. Chaque connexion conserve
-son utilisateur authentifié, ses permissions et son organisation. Un utilisateur
-ayant plusieurs organisations choisit celle à associer dans Guteneo. Aucun
-compte Auth0 d’administration ni terminal n’est demandé au client final.
+The public ID grants no account access. Every connection retains its
+authenticated user, permissions and organization. Users with multiple
+organizations choose one in Guteneo. End users need neither Auth0 admin
+accounts nor a terminal.
 
-Le parcours conserve les contrôles du mode local et de la maquette publique :
-ils ne présentent pas une connexion de démonstration comme une connexion réelle.
-La configuration téléchargeable pour le terminal est nommée **Claude Code**.
+Local/public-mockup controls remain: demonstration connection never appears
+as actual connection. Downloadable terminal configuration is named **Claude
+Code**.
 
-Source : [liens d’installation officiels Claude](https://claude.com/docs/connectors/building/directory-vs-custom#share-an-install-link).
+Source: [official Claude install links](https://claude.com/docs/connectors/building/directory-vs-custom#share-an-install-link).
 
-## Durées et sécurité
+## Lifetimes and security
 
-| Élément | Politique préparée |
+| Item | Prepared policy |
 | --- | --- |
-| Jeton d’accès | Une heure au maximum, comme auparavant |
-| Renouvellement | Nouveau refresh token à chaque échange |
-| Inactivité | Expiration après 30 jours sans échange de renouvellement |
-| Durée absolue | Nouvelle authentification au plus tard après 90 jours |
-| Tolérance réseau | 3 secondes pour un échange concurrent ou une réponse perdue |
-| Réutilisation hors tolérance | Détection et révocation de la famille par Auth0 |
+| Access token | At most one hour, unchanged |
+| Renewal | New refresh token each exchange |
+| Inactivity | Expiry after 30 days without refresh exchange |
+| Absolute lifetime | Reauthentication no later than 90 days |
+| Network tolerance | 3 seconds for concurrent exchange/lost response |
+| Reuse beyond tolerance | Auth0 family detection/revocation |
 
-Les 90 jours constituent un choix produit borné, pas une durée imposée par
-Auth0. La rotation et les deux expirations utilisent le mécanisme natif Auth0.
-Claude demande `offline_access` quand la découverte du serveur le propose et
-gère les jetons côté hôte. Guteneo ne les stocke pas dans le navigateur, ne les
-ajoute pas aux URL et n’introduit aucun timer de maintien artificiel de session.
+Ninety days is a bounded product choice, not an Auth0 requirement. Rotation/
+both expiries use native Auth0. Claude requests `offline_access` when server
+discovery offers it and manages host-side tokens. Guteneo stores none in
+browser/URLs and adds no artificial keep-alive timer.
 
-Les Actions conservent S256 PKCE pour l’autorisation initiale. Seul un client
-hébergé explicitement sélectionné peut ensuite utiliser `oauth2-refresh-token`,
-pour la bonne audience, la connexion de comptes Guteneo et un compte toujours
-vérifié. Un refresh ne prouve pas une nouvelle MFA : aucun claim MFA n’est
-réémis à ce titre et la politique MFA stricte refuse ce parcours silencieux.
-Les autres clients et la session navigateur ne reçoivent pas cette extension.
+Actions retain S256 PKCE for initial authorization. Only explicitly selected
+hosted clients can later use `oauth2-refresh-token` for the correct audience,
+Guteneo connection and still-verified account. Refresh proves no new MFA:
+no MFA claim is reissued on that basis, and strict MFA rejects silent renewal.
+Other clients/browser sessions gain no extension.
 
-À chaque requête, le Worker vérifie encore l’identité signée, l’appartenance à
-l’organisation, les scopes et la connexion active. **Révoquer la connexion dans
-Guteneo bloque aussi les nouveaux jetons issus d’un renouvellement.** Cette
-révocation locale ne supprime pas le consentement Auth0 ; celui-ci et sa famille
-de refresh tokens peuvent être révoqués chez Auth0. Une réassociation explicite
-par le navigateur reste nécessaire après une révocation locale. Le renouvellement
-OAuth n’active ni ne prolonge un mandat expert.
+Every request still verifies signed identity, organization membership, scopes
+and active connection. **Revoking the Guteneo connection also blocks new
+refresh-issued tokens.** Local revocation does not remove Auth0 consent;
+consent/token family can be revoked there. Explicit browser reassociation
+remains required after local revocation. OAuth renewal activates/extends no
+expert mandate.
 
-Sources : [authentification Claude](https://claude.com/docs/connectors/building/authentication),
-[rotation Auth0](https://auth0.com/docs/secure/tokens/refresh-tokens/configure-refresh-token-rotation),
-[expiration Auth0](https://auth0.com/docs/secure/tokens/refresh-tokens/configure-refresh-token-expiration).
+Sources: [Claude authentication](https://claude.com/docs/connectors/building/authentication),
+[Auth0 rotation](https://auth0.com/docs/secure/tokens/refresh-tokens/configure-refresh-token-rotation),
+[Auth0 expiry](https://auth0.com/docs/secure/tokens/refresh-tokens/configure-refresh-token-expiration).
 
-## Activation et preuve à conserver
+## Activation and retained evidence
 
-Le plan général reproductible est disponible avec :
+Reproducible general plan:
 
 ```sh
 node scripts/setup-auth0.mjs --auth-policy verified_email --claude-callback https://claude.ai/api/mcp/auth_callback --refresh-client claudeHosted
 ```
 
-Pour l’installation existante, utiliser le script ciblé
-`scripts/enable-claude-renewal.mjs` : inspection sans mutation, revue de son
-empreinte, puis application de cette empreinte après autorisation de production.
-Il ne réimporte pas de secret navigateur et ne modifie pas les autres clients.
-Ne pas utiliser le provisioning global pour cette seule évolution.
+For the existing installation, use targeted
+`scripts/enable-claude-renewal.mjs`: inspect without mutation, review its
+fingerprint, then apply that fingerprint after production authorization.
+It reimports no browser secret and changes no other client. Do not use global
+provisioning solely for this change.
 
 ```sh
 node scripts/enable-claude-renewal.mjs --inspect
-# Après revue de l’empreinte affichée et autorisation de production :
-node scripts/enable-claude-renewal.mjs --apply --expect EMPREINTE_SHA256_REVALIDEE
+# After fingerprint review and production authorization:
+node scripts/enable-claude-renewal.mjs --apply --expect REVALIDATED_SHA256_FINGERPRINT
 ```
 
-La session CLI doit viser `pieper.eu.auth0.com` et permettre la lecture des
-clients, connexions, API et Actions, ainsi que la mise à jour des clients, API
-et Actions. Les versions des Actions et leurs associations sont relues avec
-`read:actions`. L’inspection refuse une autre source active, une modification
-personnalisée ou un état qui a changé depuis la revue. Une interruption impose
-une nouvelle inspection et une nouvelle empreinte ; une mutation échouée n’est
-jamais relancée automatiquement. Seul le code déjà validé permet une reprise.
-Auth0 n’offre pas de transaction pour cet ensemble : éviter toute modification
-administrative concurrente pendant l’application.
+CLI session must target `pieper.eu.auth0.com`, permit reading clients,
+connections, APIs/Actions and updating clients/APIs/Actions. Action versions/
+bindings are reread with `read:actions`. Inspection rejects other active
+sources, custom modifications or state changed since review. Interruption
+requires fresh inspection/fingerprint; failed mutations never automatically
+retry. Only already validated code permits recovery. Auth0 provides no
+transaction across this set; avoid concurrent administration during apply.
 
-Après activation, reconnecter Claude une fois pour qu’une nouvelle autorisation
-émette un refresh token. Un ancien jeton d’accès n’en acquiert pas rétroactivement.
-Vérifier ensuite `get_capabilities`, puis un nouvel appel après expiration du
-jeton d’accès, sans nouvelle authentification interactive. La preuve doit
-distinguer : configuration relue, callback réussi, renouvellement réellement
-observé, puis révocation. Ne conserver ni jeton, ni code OAuth, ni URL signée,
-ni donnée de document dans cette recette. Aucun envoi réel n’est nécessaire.
+After activation, reconnect Claude once so new authorization issues a refresh
+token. Old access tokens gain none retroactively. Verify `get_capabilities`,
+then a new call after access-token expiry without interactive authentication.
+Distinguish reread configuration, successful callback, actually observed
+renewal and revocation. Retain no token, OAuth code, signed URL or document
+data. No real send is needed.
 
-Le 18 septembre, l’inspection administrative a été refusée car la session de la
-CLI Auth0 avait expiré. Aucun réglage distant n’a été modifié. Cette limite ne
-constitue pas un échec du connecteur utilisateur et ne change pas la preuve du
-17 septembre.
+On 18 September administrative inspection was refused because Auth0 CLI
+session expired. No remote setting changed. This is not user-connector failure
+and does not change 17 September evidence.
 
-## Vérifications locales du candidat
+## Local candidate checks
 
-Le 18 septembre : typecheck, ESLint, build applicatif avec dry-run Wrangler,
-build de production et build de la maquette réussis. Les **1 087 tests Vitest**
-(55 fichiers, dont les fixtures de révocation) passent. Les **167 tests Node de
-sécurité** passent, dont 30 cas de migration ciblée ; les **32 tests navigateur
-de la maquette** passent avec quatre exclusions desktop intentionnelles. La
-recette couvre copie, sélection manuelle, refus du presse-papiers, absence de
-requêtes métier et écrans étroits. Une revue visuelle a été effectuée sur le
-panneau Claude en largeur normale et à 390 px.
+On 18 September: typecheck, ESLint, application build/Worker dry-run,
+production build and mockup build passed. **1,087 Vitest tests** in 55 files,
+including revocation fixtures, pass. **167 Node security tests**, including
+30 targeted migration cases, pass. **32 mockup browser tests** pass with four
+intentional desktop exclusions. Qualification covers copy/manual selection,
+clipboard refusal, no business requests and narrow screens. Claude panel was
+visually reviewed at normal width/390 px.
 
-Le test d’authentification Worker utilise de vrais JWT signés par une clé de
-fixture : après révocation, un jeton émis ultérieurement reste refusé. Ces
-résultats ne prouvent ni émission Auth0 d’un refresh token, ni échange automatique
-par Claude, ni publication du bouton sur le domaine de production.
+Worker authentication tests use actual JWTs signed by fixture keys: after
+revocation, later-issued tokens remain refused. Results prove neither Auth0
+refresh-token issuance, automatic Claude exchange nor production button
+publication.

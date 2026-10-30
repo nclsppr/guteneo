@@ -1,273 +1,374 @@
-# Modèles, données et distribution
+# Templates, data and distribution
 
-Reprise locale du 2 octobre 2026 sur `a808307c5687588eb8c0aab45c9e559aa70a03dc`,
-dans le worktree `templates-workflow`. Le travail du 21 septembre a été récupéré
-du snapshot `20d7b8249b1aa8d942c45b59d56ec9e768503b8e` (base `c5319253`).
-Ses anciens rapports ne prouvent pas la validation de cette réconciliation.
-Le candidat reste local, sans merge, déploiement, activation IA ni envoi réel.
+## Correction and explicit preparation — 29 October 2026 local candidate
 
-## Publication coordonnée autorisée le 2 octobre 2026
+Each destination explicitly selects its PDFs. Adding a destination selects no
+piece automatically. The preparation summary shows the exact associations and
+warns that the first preparation permanently freezes the entire generation,
+including excluded/failed rows. Navigation alone creates no plan or dispatch.
 
-La demande ultérieure de déploiement autorise la fusion et la publication de ce
-candidat après validation de la PR et du commit fusionné. Les preuves locales
-ci-dessous restent distinctes de la publication, identifiable par le manifeste
-public et la version Cloudflare.
+One template id has a current published version and immutable earlier versions.
+Publishing a correction advances that current version; existing generations and
+preparations retain their original version and exact PDFs. Later publications
+continue the same history with automatically assigned version numbers.
 
-La réconciliation avec `8b060bb` conserve les migrations déjà fusionnées
-`0042_workspace_roles.sql` et `0043_workspace_invitations.sql`. Les six migrations
-du studio, encore inédites en production, sont renumérotées 0044–0049 sans changer
-leurs octets SQL. Les preuves locales antérieures employaient les numéros
-0042–0047 ; leurs comptes et journaux restent historiques.
+Studio preserves the selected template/version through compatible data import,
+replacement and field mapping. Row exclusions survive replacement only when
+row identity/structure can be verified; reordered, inserted, changed or
+unverifiable rows require explicit exclusion review before validation. Corrections create a new version/generation;
+previous documents and prepared manifests keep their immutable bytes and hashes.
+Generation results use bounded business labels (name, subject and reference)
+without changing record identifiers. A browser-only owner-authorized
+`GET /api/generation-jobs/:id/record-context` supplies presentation labels in
+pages of 50 with the result-record cursor;
+`?recordId=…` supplies one record for explicit correction. The current membership,
+tenant and creator gates are rechecked; shared-template or review access grants
+no access to private source inputs. This adds no MCP tool or native permission.
 
-Le studio applique les rôles actuels : consultation seule pour l’observateur,
-préparation pour l’opérateur, approbation séparée selon les droits effectifs.
-Un PDF généré reste privé avant préparation. La préparation rend son accès de
-revue disponible aux approbateurs actuels, dans le seul contexte de la demande
-liée ; l’interface l’indique avant cette action. La bibliothèque conserve son
-filtre privé. REST et MCP exigent la demande exacte, le même atelier et les
-droits actuels ; les métadonnées, octets et pages sont revérifiés après lecture.
-La révocation du droit d’approbation ou de la connexion coupe cet accès.
+[Local acceptance](STUDIO_SPACE_REPRISE.md) records the actual V1/V2 and missing-
+data checks separately from browser fixtures and deployed/provider qualification.
 
-La publication requiert les migrations du studio 0044–0049 et les deux services privés :
-le renderer pour `/render/template` et le scanner, conteneur compris, pour
-`/scan-source`. Publier et qualifier les services privés avant de coordonner
-les migrations et l’application. Utiliser les lots atomiques produits par
-`scripts/migrate-remote.mjs`, conserver un bookmark D1 et vérifier schéma,
-ledger et intégrité. Appliquer uniquement les migrations absentes.
+## Studio space — 29 October 2026 candidate
 
-La migration 0045 remplace l’index de déduplication pour distinguer les PDF privés.
-Le prédicat SQL de l’ancienne application devient incompatible : la fenêtre
-entre cette migration et la publication applicative doit être courte et
-coordonnée, les imports/rendus pouvant alors échouer. Après création de PDF
-privés, ne pas revenir à une application antérieure aux contrôles
-`access_owner_id` : elle ne protège pas ces documents. Toute version de repli
-doit conserver les nouveaux contrôles d’accès et la compatibilité du schéma.
+Templates, Data and Generations form the web **Studio** space under
+`/app/studio/templates`, `/app/studio/datasets` and `/app/studio/generations`,
+with detail pages at `/app/studio/template/<id>`, `/app/studio/dataset/<id>` and
+`/app/studio/generation/<id>`. Earlier addresses resolve to these routes in the
+browser and keep their query. Selected PDFs pass by identifiers to
+`/app/distribution/new?generation=<id>&selected=<recordId>…`; Correspondence
+revalidates all selected ready results before displaying its preparation form,
+including selections spanning multiple 50-record pages. Navigation makes no write.
+Every new destination starts with zero documents, even for one selected PDF.
+Back/Forward, reload and explicit return preserve Studio selection; unsaved
+preparation changes may veto departure. Prepared distribution plans keep
+`/app/distribution/<id>` and their form, detail and styles belong to Correspondence,
+under Dispatches. The Studio uses
+the same workspace session, roles and private-resource rules; REST paths, MCP
+tools and scopes are unchanged. The [workspace layout contract](DASHBOARD_V2.md)
+owns the switcher and navigation.
 
-Les signatures du scanner ont été rafraîchies et qualifiées localement le
-2 octobre : ClamAV 1.5.4, base 28141 du 2 octobre à 06:26:12 UTC, PDF propre et
-EICAR inoffensif reconnus avec empreintes exactes. Cette preuve Docker ne
-remplace pas les contrôles distants du renderer et de `/scan-source`.
-La qualification de déploiement est conservée séparément dans
+## Synthetic generation diagnostics — 26 October 2026 follow-up
+
+A terminal `failed` or `partial` generation is not pending work. Status reads
+never restart failed records. The XML browser regression retains its two exact
+generated PDFs, routing/options and zero-send assertions, and reports a terminal
+failure immediately with bounded state/counters instead of waiting out 90 seconds.
+
+In local simulation only, an uncoded record failure emits a finite phase and
+exception-category diagnostic through the captured error channel. It includes no
+raw exception, content, recipient, URL, SQL value, credential or customer ID.
+Production and nonlocal/nonsimulation environments emit none of these diagnostics.
+Processing, claims, quotas, API errors, timeouts and retry rules remain unchanged.
+
+Main run 40241350392 had one terminal XML-record failure with `GENERATION_FAILED`
+before its render artifact was retained; the other record completed. An isolated
+macOS reproduction on the same source passed both records at their first attempt.
+That does not reproduce Linux or its preceding shard state and establishes no
+cause. Preserve the failed run and this qualification limit; a later source pass
+must not be described as proof that the historical failure's cause was repaired.
+
+## Local images and committed editor changes — 25 October 2026 candidate
+
+An editor with current edit authority imports a local PNG/JPEG from the visible
+image action above the canvas, using pointer or keyboard. The existing image
+contract permits at most 250 KiB, four million pixels and 4,000 pixels per side;
+it rejects SVG, remote URLs and malformed raster data. The helper inserts on the
+selected page, fits the original aspect ratio, uses a name unique across pages
+and static content, and preserves business bindings and original embedded bytes.
+The new block is selected for direct position/size editing. No separate upload,
+asset store, external image fetch, AI call or production service is introduced.
+An unsupported image leaves the prior template intact and permits another choice.
+
+The native property panel debounces changes. Saving, publishing or changing studio
+tabs waits until the accepted model matches mapped authoring inputs, so a rapid
+save cannot persist old geometry. Search controls do not block saving. Invalid
+numbers remain visibly pending; correcting them or restoring the accepted value
+recovers without waiting for a nonexistent change callback. Ambiguous native
+changes restore the previous accepted definition under the existing reconciliation
+contract. Save/publish still use current authority and revision checks, and
+published versions remain immutable. Mobile import remains available while native
+visual editing requires a desktop viewport; the desktop help state reflects that.
+
+The REST/MCP envelope format and document-rendering path are unchanged. Native
+clients do not gain a designer or new authority. A generated PDF retains its normal
+exact-byte security gate; an embedded raster is not separately advertised as an
+antivirus-qualified file. Exporting a shared template includes its embedded image.
+Relevant source: `apps/web/src/template-designer.tsx`, `template-pages.tsx`,
+`packages/templates/designer-images.ts` and the existing image contract. The unit
+and actual browser/API/PDF round trip are in `templates-images.test.ts` and
+`template-images.spec.ts`; final browser-engine and hosted evidence is recorded in
+[TEST_RESULTS.md](TEST_RESULTS.md).
+
+### Generation completion and PDF security analysis
+
+Generation completion and readable PDFs are separate states. Each result exposes
+`documentAnalysis: DocumentAnalysis | null` through the existing REST/MCP result
+view. The projection uses the current authorized document, its exact artifact
+hash and the tenant-bound analysis relation. An unrelated owner, tenant or hash
+cannot supply readiness. The shared document projection distinguishes
+`processing`, `ready`, `retryable` and `blocked`; expired processing and legacy
+quarantine without analysis do not claim that a scan is still running.
+
+The generation page follows confirmed processing every 15 seconds for at most
+two wall-clock minutes and eight followup reads per page/manual refresh, even
+after the job completes. Hidden pages pause scheduling without extending that
+deadline. Terminal, retryable, unavailable or failed reads stop automatic refresh;
+manual refresh remains available and resets the window. Reads never start or
+retry an analysis, render another PDF, reserve credit or create a dispatch.
+Selection, preview and distribution still require an accessible ready PDF.
+Refreshing the job counter does not establish that its independently loaded
+result rows are ready. Native keyboard navigation skips disabled rows and keeps
+its current focus when later data enables a checkbox; no refresh steals focus.
+
+The pure analysis projection, actual generation/read integration and controlled
+slower-result keyboard regression are covered by
+`document-analysis-projection.test.ts`, `template-workflow.test.ts` and
+`generation-analysis.spec.ts`, with keyboard ordering in
+`template-xml-multichannel.spec.ts`. No schema migration, new route or new scope
+is introduced by this additional read projection.
+
+## AI suggestions — 23 October 2026 version 1.0.0 candidate
+
+Template edit permission, current membership/OAuth connection, revision and AI
+transfer consent must remain valid immediately before inference and before returning
+a proposal. Revocation, removed sharing or concurrent edits block stale results.
+Reread current state and explicitly request another proposal; no automatic apply,
+publish or send follows. Browser/REST/MCP share these server checks. Reserved quota
+remains consumed. Regressions intercept synthetic inference, proving no actual
+provider call. See [V1_RELEASE_CANDIDATE.md](V1_RELEASE_CANDIDATE.md).
+
+## MCP annotations — 20 October 2026 local candidate
+
+`prepare_distribution` now declares `destructiveHint:true` for an existing effect:
+the first plan permanently prevents retries of failed records anywhere in its
+generation batch, including records excluded from selection. Classification/copy
+adds no permission, route or send. Roles/scopes/ownership are unchanged; explain
+this consequence before calling and honor host confirmations.
+
+Finish desired failed-record retries before creating a plan. Afterwards
+`retry_generation_records` returns `GENERATION_FROZEN`; regeneration requires a
+new batch. `resume_distribution` continues only preparations in the frozen plan,
+without reopening generation, approving sends or retrying unknown provider outcomes.
+Existing PDFs/provenance remain.
+
+[Annotation remediation](MCP_ANNOTATION_REMEDIATION.md) records all four booleans for
+67 tools. Success may persist production connection activity, so full-contract
+`readOnlyHint:false`/`idempotentHint:false` also apply to observed business reads.
+`npm run audit:mcp` checks actual local `tools/list` coverage. On 20 October,
+55 `tests/integration/template-workflow.test.ts` cases including excluded-record
+freezing, 16 `tests/unit/mcp-annotation-audit.test.ts` cases, full typecheck/lint and
+67-tool/268-boolean/216-source-reference audit passed without discrepancy. This
+proves neither exact-commit CI, deployment, portal checks nor OpenAI approval.
+
+## Recovery and coordinated publication — 2 October 2026
+
+Local recovery used `a808307c5687588eb8c0aab45c9e559aa70a03dc` in worktree
+`templates-workflow`, restoring 21 September work from snapshot
+`20d7b8249b1aa8d942c45b59d56ec9e768503b8e` (base `c5319253`). Older reports do not
+qualify reconciliation. Initially this was local without merge/deployment/AI
+activation/real sending. A subsequent user request authorized merge/publication
+after PR/merged-commit validation. Local proof remains distinct from public
+manifest and Cloudflare-version publication proof.
+
+Reconciliation with `8b060bb` preserves merged role/invitation migrations 0042–0043.
+Six studio migrations, previously unpublished, became 0044–0049 without SQL-byte
+changes. Earlier proof used numbers 0042–0047 and remains historical.
+
+Current roles apply: observer reads, operator prepares, approval follows effective
+permissions. Generated PDFs stay private before preparation. Preparing grants
+current approvers exact-dispatch-context review access, explained before the
+action. The library remains private; REST/MCP require exact dispatch, same workspace
+and current rights, rechecking metadata/bytes/pages after reads. Removing approval
+or connection authority cuts this access.
+
+Publication requires studio migrations 0044–0049, private `/render/template` renderer
+and scanner/container `/scan-source`. Publish/qualify private services before
+coordinating migrations/app. Use atomic `scripts/migrate-remote.mjs` batches, retain
+a D1 bookmark, check schema/ledger/integrity and apply absent migrations only.
+
+Migration 0045 changes deduplication for private PDFs, making the old application's
+SQL predicate incompatible. Keep the migration-to-app window brief; imports/renders
+may fail during it. Once private PDFs exist, never roll back before `access_owner_id`
+checks. Fallback code must preserve new access guards/schema compatibility.
+
+Scanner Docker proof on 2 October: ClamAV 1.5.4, database 28141 dated 06:26:12 UTC,
+clean PDF and harmless EICAR recognized with exact hashes. This does not replace
+remote renderer/`scan-source` checks. Separate deployment evidence:
 `/Users/nclsppr/Developer/.artifacts/guteneo-templates-deploy-20261002`.
-Les canaux déjà configurés restent inchangés ; aucun envoi réel, activation IA
-ou mandat de délégation ne fait partie de cette publication.
+Existing channels stayed unchanged; real sends, AI activation and mandates were
+outside that publication.
 
-## Complément : démonstrations, suppression et création par les LLM
+## Demonstrations, removal and LLM authoring
 
-La galerie contient cinq bases fictives : courrier professionnel, facture de
-démonstration, relevé tabulaire, devis et bon de livraison. « Créer ma copie
-privée » enregistre un modèle indépendant, modifiable et partageable ; lire la
-galerie ne remplit pas automatiquement l’atelier. Les cinq modèles ont un schéma
-métier, des liaisons et des données d’exemple permettant de produire un vrai PDF.
+The gallery has five synthetic starting points: business letter, demo invoice,
+tabular statement, quote and delivery note. Create my private copy saves an
+independent editable/shareable template; reading the gallery does not populate a
+workspace. Each has a business schema, bindings and sample data that render real PDFs.
 
-Le propriétaire peut supprimer sa création depuis la bibliothèque ou le studio,
-avec une confirmation nommant le modèle. Les copies de démonstration suivent le
-même parcours. Une suppression retire aussi un modèle partagé de la bibliothèque
-des autres membres. Les PDF déjà générés et leur historique sont conservés ;
-la base de démonstration reste disponible pour créer une nouvelle copie.
-Les modifications non enregistrées sont signalées dans la confirmation ; annuler
-conserve le brouillon. Un droit d’édition ou de publication n’accorde pas celui
-de supprimer la création d’un autre membre.
+Owners may remove their creation from library/studio with confirmation naming it,
+including demo copies. Shared removal also hides it from other members; generated
+PDFs/history remain and the demo base remains reusable. Confirmation warns of
+unsaved edits; cancellation retains the draft. Edit/publish rights do not grant
+another owner's deletion right.
 
-La migration additive `0049_template_soft_deletion.sql` ajoute `deleted_at`.
-La mutation vérifie propriétaire, adhésion actuelle, autorité OAuth et révision.
-Les lectures et nouvelles générations excluent les modèles supprimés ; les
-courses avec édition, publication ou partage ne peuvent les réactiver. Les
-versions immuables et relations de provenance restent conservées.
+`0049_template_soft_deletion.sql` adds `deleted_at`; mutation checks current owner,
+membership, OAuth authority and revision. Reads/new generation exclude deleted
+templates. Concurrent edit/publish/share cannot revive them; immutable versions
+and provenance relations remain.
 
-Les LLM découvrent les règles avec `get_template_authoring_guide` : schémas JSON
-générés depuis le contrat Zod courant, propriétés graphiques autorisées, règles
-sémantiques, limites et enveloppe minimale complète. `list_template_examples`
-et `get_template_example` fournissent les mêmes cinq modèles que la galerie web.
-Les lectures ne créent rien. L’assistant adapte l’enveloppe et l’enregistre avec
-`create_template`, puis vérifie l’aperçu avant publication. Cette création
-directe n’utilise pas les adaptateurs OpenAI internes et fonctionne sans leur
-configuration. Le guide embarqué dans le plugin complète la référence du serveur.
+`get_template_authoring_guide` exposes JSON schemas from current Zod contracts,
+allowed graphic properties, semantic rules, limits and complete minimal envelope.
+`list_template_examples`/`get_template_example` return the same five web examples
+without writes. Adapt, `create_template`, inspect preview, then publish explicitly.
+Direct LLM authoring needs no internal OpenAI adapter/configuration. Plugin guidance
+complements server reference. Owner `delete_template` needs ID/current revision;
+reads use `templates:read`, creation/removal `templates:write`; other permissions
+remain separate. See [API_CONTRACT.md](API_CONTRACT.md).
 
-Le propriétaire peut également demander `delete_template` avec l’identifiant et
-la révision courante. Les lectures utilisent `templates:read`, la création et la
-suppression `templates:write` ; les autres droits restent distincts. Le contrat
-REST correspondant est décrit dans [API_CONTRACT.md](API_CONTRACT.md).
+Separate evidence:
+`/Users/nclsppr/Developer/.artifacts/guteneo-template-demos-20261002`.
+It covers 52 contract/plugin tests, 39 non-AI workflow cases (including a focused
+recheck after correcting an expectation), 216 security checks, six browser journeys
+and one Designer regression. All five examples rendered real visually inspected
+PDFs. The [executable MCP example](../examples/template-workflow/README.md) discovered
+rules, created a private quote, previewed it, removed the template and reread the
+retained PDF. [TEST_RESULTS.md](TEST_RESULTS.md) separates successful runs, corrected
+initial failures and local limits; these counts do not replace base-candidate totals.
 
-Les nouvelles preuves sont archivées dans
-`/Users/nclsppr/Developer/.artifacts/guteneo-template-demos-20261002` et ne
-remplacent pas les résultats du candidat de base ci-dessous.
-La recette couvre 52 tests de contrats/plugin, 39 cas de workflow hors IA
-(dont un recontrôle ciblé après correction d’un attendu), 216 contrôles de
-sécurité, six parcours navigateur et une régression de l’éditeur graphique.
-Les cinq exemples ont produit leurs PDF réels, inspectés visuellement.
-L’[exemple MCP exécutable](../examples/template-workflow/README.md) a découvert
-les règles, créé un devis privé, rendu son aperçu, supprimé le modèle et relu
-le PDF conservé. Le [rapport de recette](TEST_RESULTS.md) distingue les passages
-réussis, les premiers échecs corrigés et les limites de cette preuve locale.
+## Initial architecture and decisions
 
-## Cartographie initiale
+One business service, Hono API, MCP and React workspace remain. D1 owns membership,
+approval, quota, dispatch and outbox; R2 holds private bytes. `DocumentService`
+imports/checks/stores PDFs; a private Worker isolates rendering. CSV campaigns
+prepare individual sends without modeling line items or personalized PDFs.
 
-Le dépôt conserve un seul service métier Guteneo, une API Hono, le MCP et
-l’atelier React. D1 fait autorité pour les adhésions, approbations, quotas,
-envois et outbox. R2 conserve les octets privés. `DocumentService` importe,
-vérifie et stocke les PDF ; le Worker documentaire sépare le rendu du service
-exposé. Les campagnes CSV existantes préparent des envois individuels mais ne
-modélisent ni les lignes d’articles ni un document personnalisé par client.
+Additions are engine-independent template envelopes/versions/rights, separate
+sources/mappings, generation jobs and explicit result/destination associations.
+Distribution calls existing preparation; publishing, mapping validation and PDF
+generation never approve sending. The first vertical journey is gallery/API
+creation → visual edit → revision-checked save → immutable publish → business-object
+generation → checked PDF. Dataset/batch work extends it.
 
-Les ajouts portent sur une enveloppe de modèle indépendante du moteur, ses
-versions et droits, les sources et mappings distincts, les jobs de génération
-et les associations explicites entre résultat et destination. La distribution
-continue d’appeler la préparation existante. Publier un modèle, valider un
-mapping ou générer un PDF ne vaut jamais approbation d’envoi.
+- pdfme is pinned. Dimension/margin `basePdf` supports dynamic tables; a background PDF does not supply that pagination. Rendered PDF, not canvas, is evidence.
+- Business values remain objects/arrays; a bounded adapter creates engine inputs without user JavaScript expressions.
+- React lazily loads the embedded Designer; customer PDFs get no imposed Guteneo branding.
+- Dataset originals stay private; mappings are separate deterministic plans. AI may propose, never silently apply.
+- Word import yields editable blocks with conversion warnings, without faithful Microsoft Word round-trip promises.
+- Existing quote/postal/consent/mandate rules govern distribution. Repeated destinations authorize no merging, deduplication or channel switch.
 
-Premier parcours vertical : création d’un modèle dans la galerie ou par API,
-édition visuelle, sauvegarde avec contrôle de révision, publication immuable,
-génération à partir d’un objet métier, consultation du PDF contrôlé. L’import
-de données et le lot prolongent ce parcours sans le remplacer.
+Risks include fonts/pagination, bundle cost, adversarial XLSX/DOCX archives, data
+ambiguity, revoked async authority, concurrent duplicates and partial errors.
+Sources: [pdfme tables](https://pdfme.com/docs/tables), [pdfme source](https://github.com/pdfme/pdfme),
+[Workers practices](https://developers.cloudflare.com/workers/best-practices/workers-best-practices/).
 
-## Décisions et risques
+## Evidence boundaries
 
-- pdfme est évalué dans une version publiée et épinglée. Un `basePdf` en
-  dimensions et marges permet les tableaux dynamiques ; un PDF de fond ne
-  fournit pas cette pagination. Le PDF rendu, pas le canvas, est la preuve.
-- Les contenus métier restent des objets et tableaux. Un adaptateur borné
-  produit les valeurs du moteur, sans expression JavaScript utilisateur.
-- Le studio utilise le Designer intégré dans React, chargé à la demande.
-  Les PDF clients n’acquièrent pas de marque Guteneo imposée.
-- L’original d’un dataset reste privé. Le mapping est un plan distinct ;
-  l’IA peut le proposer, mais la validation et l’application sont déterministes.
-- Le traitement Word vise des blocs rééditables avec avertissements de
-  conversion. Il ne promet pas un aller-retour fidèle avec Microsoft Word.
-- Les devis, contrôles postaux, consentements et mandats experts existants
-  restent l’autorité pour la distribution. Une destination répétée n’autorise
-  ni fusion, ni déduplication, ni changement de canal.
+Initial development used an isolated worktree and authorized no deployment,
+merge, paid provisioning, provider activation or real send. Later publication
+authority is dated above. Local renderer proof is no remote Browser Run proof;
+local MCP is no ChatGPT/Claude/Cursor qualification. Recovered AI adapters were
+unchanged/inactive; all AI tests were excluded on 2 October. Historical synthetic
+AI doubles qualify neither that recovery nor an actual model.
 
-Les risques à éprouver sont la pagination et les polices, le coût des bundles,
-les archives XLSX/DOCX adversariales, les ambiguïtés des données, les droits
-révoqués pendant un job, les doublons concurrents et les erreurs partielles.
+## Delivered implementation
 
-Sources officielles vérifiées : [tables pdfme](https://pdfme.com/docs/tables),
-[code pdfme](https://github.com/pdfme/pdfme),
-[bonnes pratiques Workers](https://developers.cloudflare.com/workers/best-practices/workers-best-practices/).
+- `packages/contracts/src/templates.ts`, `datasets.ts`, `template-workflow.ts`: envelopes, business data, declarative plans and shared contracts.
+- `packages/templates/`: gallery, adapter, semantic changes, Word import and bundled assets. [TEMPLATE_ENGINE.md](TEMPLATE_ENGINE.md) owns decision/licenses/measurements/limits.
+- `packages/data/`: CSV/XLSX/XML/JSON profiling, full validation, joins, normalization and OpenAI adapters. [DATA_IMPORT.md](DATA_IMPORT.md) owns formats/bounds.
+- `apps/api/src/template-workflow.ts`: single business authority; `template-workflow-routes.ts`/`mcp.ts` transport it. React decides no authority/approval.
+- `apps/documents/`: private pdfme rendering beside HTML/PDF; `apps/scanner/` separately scans office-source bytes.
+- `apps/web/src/*-pages.tsx`, `template-*.tsx`: library, lazy Designer, forms, sharing, mapping, tracking, distribution; not exposed in fictional public preview.
 
-## Frontières de preuve
+Additive migrations: `0044_template_workflow.sql` creates templates, versions,
+grants, private sources, mappings, jobs, results, manifests;
+`0045_private_generated_documents.sql` adds private ownership/separate deduplication,
+preserving old documents; `0046_generation_provenance.sql` stores cell coordinates,
+hashes/render parameters; `0047_distribution_postal_reviews.sql` binds checks to
+frozen entries; `0048_dataset_analysis_recovery.sql` adds leases/counters/options
+for same-original retry. Initial implementation reset/migrated no remote database.
 
-Le développement est isolé dans un worktree. Aucun déploiement, merge,
-provisionnement payant, activation fournisseur ou envoi réel n’est autorisé
-par cette mission. Un rendu local dans le même adaptateur ne qualifie pas
-Cloudflare Browser Run distant ; des outils MCP testés localement ne qualifient
-pas leur exécution dans ChatGPT, Claude ou Cursor. Les adaptateurs IA récupérés
-restent inchangés et inactifs. Tous les tests IA sont exclus de la recette du
-2 octobre ; leurs anciens doubles synthétiques ne qualifient ni cette reprise
-ni un modèle réel.
+Source retention: 30 days. Normalized inputs/intermediate generation copies:
+90 days outside active jobs. Final PDFs/dispatches follow existing maintenance.
+Provenance excludes cell values. Published versions/templates remain traceable;
+archive does not destroy them. Original Word files are private, but extracted
+content becomes template content and must be reviewed before sharing.
 
-## Architecture livrée
+## Interface parity
 
-- `packages/contracts/src/templates.ts`, `datasets.ts` et `template-workflow.ts` : enveloppe, données métier, plans déclaratifs et contrats communs.
-- `packages/templates/` : galerie, adaptateur, changements sémantiques, import Word et ressources embarquées. Décision, licences, mesures et limites : [TEMPLATE_ENGINE.md](TEMPLATE_ENGINE.md).
-- `packages/data/` : profilage CSV/XLSX/XML/JSON, validation complète, jointures, normalisation et adaptateurs OpenAI. Formats et limites : [DATA_IMPORT.md](DATA_IMPORT.md).
-- `apps/api/src/template-workflow.ts` : autorité métier unique ; `template-workflow-routes.ts` et `mcp.ts` sont les transports. La logique React ne décide ni des droits ni de l’approbation.
-- `apps/documents/` : nouveau rendu pdfme privé, aux côtés du rendu HTML et de l’import PDF. `apps/scanner/` ajoute une analyse des octets de sources bureautiques, séparée de l’ancienne route PDF.
-- `apps/web/src/*-pages.tsx` et `template-*.tsx` : bibliothèque, Designer chargé à la demande, formulaires métier, partage, mapping, suivi et distribution. Ces capacités ne sont pas exposées dans la prévisualisation publique à fixtures.
+Names below are server MCP names without host prefixes. The same service checks
+each resource. `get_capabilities` describes limits, no-send generation and local
+qualification status. REST paths are prefixed `/api`.
 
-Les migrations sont additives. `0044_template_workflow.sql` crée les modèles,
-versions, droits, sources privées, mappings, jobs, résultats et manifestes.
-`0045_private_generated_documents.sql` ajoute une propriété privée aux documents
-générés et sépare leur déduplication de celle des documents historiques ; les
-anciens documents conservent leurs règles. `0046_generation_provenance.sql`
-conserve coordonnées des cellules, empreintes et paramètres de rendu. `0047_distribution_postal_reviews.sql` relie les contrôles postaux aux entrées
-figées ; `0048_dataset_analysis_recovery.sql` ajoute les leases, compteurs et
-options d’analyse pour réessayer le même original. Aucun reset de base ou
-migration distante n’a été réalisé.
-
-Les sources sont conservées 30 jours ; les entrées normalisées et copies
-intermédiaires de génération sont purgées après 90 jours hors job actif. Les PDF
-finaux et envois suivent la maintenance documentaire existante. La provenance ne
-contient pas les valeurs des cellules. Les modèles et versions publiées restent
-conservés pour la traçabilité ; archiver ne les détruit pas. Les originaux Word
-sont privés, mais leur contenu extrait appartient au modèle et doit être vérifié
-avant partage.
-
-## Parité des interfaces
-
-Les noms MCP ci-dessous sont ceux annoncés par le serveur, sans préfixe ajouté
-par un hôte. Chaque opération vérifie les droits sur la ressource dans le même
-service. `get_capabilities` décrit les limites, l’absence d’envoi à la génération
-et le statut de qualification local.
-
-| Opération | API | MCP | Web |
+| Operation | API | MCP | Web |
 | --- | --- | --- | --- |
-| Bibliothèque et schéma | `GET /templates`, `/:id`, `/:id/schema` | `list_templates`, `get_template`, `get_template_schema` | Modèles, palette et formulaire métier |
-| Créer/modifier | `POST /templates`, `PATCH /templates/:id` | `create_template`, `update_template` | Galerie, page vierge, Designer, variables, colonnes, logo, formats, conditions et totaux |
-| Import Word | `POST /templates/import-docx` multipart | `import_docx_template` avec transport fichier supporté | Fichier .docx, avertissements puis studio |
-| Suggestion de modèle | `POST /templates/:id/suggest` | `suggest_template` | Instruction, revue puis application locale explicite |
-| Publier/dupliquer/archiver | `POST /templates/:id/{publish,duplicate,archive}` | `publish_template`, `duplicate_template`, `archive_template` | Actions dédiées, révision attendue |
-| Partage | `GET /templates/:id/sharing`, `POST /templates/:id/share` | `get_template_sharing`, `share_template` | Privé, organisation ou membres ; quatre droits séparés |
-| Aperçu exact | `POST /templates/:id/preview` | `preview_template` | PDF serveur avec navigation de pages |
-| Import original | `POST /datasets` multipart ou JSON | `import_dataset`, `import_json_dataset` | CSV, XLSX, XML, JSON |
-| Profilage et lecture | `GET /datasets`, `/:id`, `/:id/profile` | `list_datasets`, `get_dataset`, `profile_dataset` | Feuilles, lignes, en-têtes, anomalies, aperçu paginé |
-| Reprise d’analyse | `POST /datasets/:id/retry-analysis` | `retry_dataset_analysis` | Réessayer le même original après un échec temporaire |
-| Proposition IA | `POST /datasets/:id/analyze` | `analyze_dataset` | Mapping ou nouveau schéma/modèle proposé, revue puis adoption explicite |
-| Mappings | `GET/POST /mappings`, `/:id`, `/:id/validate` | `list_mappings`, `get_mapping`, `create_mapping`, `validate_mapping` | Version indépendante, regroupement/jointure, réemploi, validation |
-| Génération | `POST /generation-jobs` | `generate_documents` | Saisie unitaire ou lot depuis mapping validé |
-| Suivi et provenance | `GET /generation-jobs`, `/:id`, `/:id/results`, `/:id/provenance` | `list_generation_jobs`, `get_generation_job`, `get_generation_results`, `get_generation_provenance` | Progression, PDF, erreurs et cellules d’origine |
-| Annulation/reprise | `POST /generation-jobs/:id/{cancel,retry}` | `cancel_generation_job`, `retry_generation_records` | Annuler ou reprendre les records échoués désignés |
-| Distribution | `POST /distribution-plans`, `GET /distribution-plans/:id` | `prepare_distribution`, `get_distribution_plan` | Sélection, destination commune ou champs figés, multicanal explicite |
-| Reprise de préparation | `POST /distribution-plans/:id/resume` | `resume_distribution` | Préparer les entrées restantes ou reprendre les erreurs désignées |
-| Contrôle postal | `POST /distribution-plans/:id/entries/:entryId/postal-preflight` | `create_distribution_postal_preflight` | Revue postale existante liée à l’entrée figée |
-| Politique IA | `GET/PUT /dataset-ai-policy` | Lecture `get_dataset_ai_policy` uniquement | Administrateur navigateur ; activation et transfert réservés à l’humain |
+| Library/schema | `GET /templates`, `/:id`, `/:id/schema` | `list_templates`, `get_template`, `get_template_schema` | Templates, palette, business form |
+| Create/edit | `POST /templates`, `PATCH /templates/:id` | `create_template`, `update_template` | Gallery, blank page, Designer, variables, columns, logo, formatting, conditions, totals |
+| Word import | `POST /templates/import-docx` multipart | `import_docx_template` through supported file transport | .docx, warnings, studio |
+| Template suggestion | `POST /templates/:id/suggest` | `suggest_template` | Instruction, review, explicit local apply |
+| Publish/duplicate/archive | `POST /templates/:id/{publish,duplicate,archive}` | `publish_template`, `duplicate_template`, `archive_template` | Dedicated actions/expected revision |
+| Sharing | `GET /templates/:id/sharing`, `POST /templates/:id/share` | `get_template_sharing`, `share_template` | Private/workspace/members; four distinct rights |
+| Exact preview | `POST /templates/:id/preview` | `preview_template` | Server PDF/page navigation |
+| Original import | `POST /datasets` multipart/JSON | `import_dataset`, `import_json_dataset` | CSV/XLSX/XML/JSON |
+| Profile/read | `GET /datasets`, `/:id`, `/:id/profile` | `list_datasets`, `get_dataset`, `profile_dataset` | Sheets/rows/headers/anomalies/paged preview |
+| Analysis recovery | `POST /datasets/:id/retry-analysis` | `retry_dataset_analysis` | Explicit same-original retry after temporary failure |
+| AI proposal | `POST /datasets/:id/analyze` | `analyze_dataset` | Mapping or new schema/template; explicit review/adoption |
+| Mappings | `GET/POST /mappings`, `/:id`, `/:id/validate` | `list_mappings`, `get_mapping`, `create_mapping`, `validate_mapping` | Independent version, grouping/join/reuse/validation |
+| Generation | `POST /generation-jobs` | `generate_documents` | Single form or validated-mapping batch |
+| Tracking/provenance | `GET /generation-jobs`, `/:id`, `/:id/results`, `/:id/provenance` | `list_generation_jobs`, `get_generation_job`, `get_generation_results`, `get_generation_provenance` | Progress/PDF/errors/source cells |
+| Cancel/retry | `POST /generation-jobs/:id/{cancel,retry}` | `cancel_generation_job`, `retry_generation_records` | Cancel or retry designated failed records |
+| Distribution | `POST /distribution-plans`, `GET /distribution-plans/:id` | `prepare_distribution`, `get_distribution_plan` | Selection/common or frozen-field recipients/explicit multichannel |
+| Resume preparation | `POST /distribution-plans/:id/resume` | `resume_distribution` | Remaining entries or designated preparation errors |
+| Postal checks | `POST /distribution-plans/:id/entries/:entryId/postal-preflight` | `create_distribution_postal_preflight` | Existing postal review bound to frozen entry |
+| AI policy | `GET/PUT /dataset-ai-policy` | Read-only `get_dataset_ai_policy` | Browser administrator; human-only activation/transfer authority |
 
-Les routes sont préfixées `/api`. La spécification publiée dans le code est
-`apps/web/public/openapi.json`, générée pour ce module par
-`scripts/update-template-openapi.ts`. Les nouveaux scopes OAuth sont distincts :
-`templates:read/write/publish/share`, `datasets:read/write`,
-`generations:read/write`. Les scopes documents et envois gardent leur rôle.
-Aucune session navigateur copiée, clé API inventée ou autorité de délégation
-implicite n’est ajoutée. Les exemples OAuth statiques des intégrations listent les
-scopes demandables ; modifier ces fichiers n’accorde aucune autorisation existante.
+`apps/web/public/openapi.json` is generated for this module by
+`scripts/update-template-openapi.ts`. Distinct scopes are
+`templates:read/write/publish/share`, `datasets:read/write`, `generations:read/write`.
+Document/dispatch scopes keep their roles. No copied browser session, invented API
+key or implicit delegation is added. Static integration examples list requestable
+scopes; editing them grants no authority to existing connections.
 
-## Garanties métier
+## Business guarantees
 
-Une version publiée est un instantané immuable ; une modification ouvre un
-brouillon, et une nouvelle publication crée une autre version. Le lancement
-résout la version puis fige modèle, données, mapping et empreintes. Les statuts
-et listes ne lancent pas de travail. Les mutations lancent un traitement borné
-avec `waitUntil` ; le cron reprend les records persistés, avec lease, trois
-tentatives maximum, vérification des autorités et annulation. Les queues
-existantes restent celles des envois. Un PDF déjà enregistré est réutilisé lors de la reprise.
+Published versions are immutable snapshots; edits open drafts/new publication
+creates a new version. Job creation resolves/fixes template, data, mapping and
+hashes. Lists/status never start work. Mutations begin bounded `waitUntil` work;
+cron resumes persisted records with leases, at most three attempts, authority
+checks and cancellation. Existing Queues still serve dispatches. Recovery reuses
+already-stored PDFs.
 
-Une génération accepte au plus 500 records, avec trois jobs actifs par
-organisation, 64 Kio par record et 1 900 000 octets de payload. La création
-atomique utilise une insertion JSON ensembliste, pas 500 requêtes dans une batch.
-L’idempotence est liée à l’organisation et au contenu. Le résultat garde son
-`recordId` même si les rendus terminent dans un autre ordre.
+Maximum generation: 500 records, three active jobs/organization, 64 KiB/record,
+1,900,000-byte payload. Atomic creation uses set-based JSON insertion rather than
+500 batch requests. Idempotency binds tenant/content. Stable `recordId` survives
+out-of-order rendering.
 
-Partager un modèle n’accorde pas l’accès aux datasets, mappings, jobs ou PDF
-privés d’un autre membre, même administrateur. Les accès aux documents, aperçus,
-envois dérivés et campagnes appliquent cette propriété. Deux utilisateurs qui
-génèrent les mêmes octets ne récupèrent pas le document privé de l’autre.
-Révoquer l’adhésion, le client OAuth ou le droit d’utilisation est recontrôlé
-pendant le travail asynchrone. « Privé » signifie propriétaire uniquement.
+Template sharing grants no other owner's datasets/mappings/jobs/private PDFs,
+even to administrators. Document/preview/derived dispatch/campaign guards preserve
+ownership. Equal generated bytes never reveal another user's private document.
+Async work rechecks membership, OAuth and use-right revocation. Private means owner-only,
+with the separately documented dispatch-review exception after preparation.
 
-La distribution fige le lien record → document/version/hash → canal/destinataire.
-`recipientFields` est résolu dans les données déjà figées du record, pas depuis un
-fichier réinterprété après génération. Plusieurs destinations restent plusieurs
-envois ; plusieurs canaux pour un record exigent `explicitMultichannel:true`.
-Le web permet d’affecter chaque destination à tous les records sélectionnés ou
-à un sous-ensemble nommé. Le choix multicanal tient compte du document exact :
-deux records qui réutilisent les mêmes octets restent soumis au contrôle commun
-si leurs canaux diffèrent. Le plan ne crée aucune approbation, tentative d’envoi
-ou réservation de crédit.
-Une préparation postale qui référence un brouillon fournisseur déjà qualifié peut
-consulter le fournisseur pour obtenir son devis ; elle ne soumet aucun envoi.
-Les erreurs par entrée restent visibles. Reprendre un rendu après
-création d’un plan est refusé afin de ne pas y réintroduire silencieusement un PDF.
+Distribution freezes record → document/version/hash → channel/recipient.
+`recipientFields` resolves frozen record data, not reparsed files. Multiple
+recipients remain separate dispatches; multiple channels require
+`explicitMultichannel:true`. Web destinations apply to all selected records or a
+named subset; with several selected PDFs a new destination starts with none, so
+every association is chosen, and the form lists the exact destination/channel/PDF
+pairs and the batch freeze below before preparing. Identical bytes shared by different records still receive common
+multichannel checks. Plans create no approval, provider attempt or credit reservation.
+Postal preparation referencing a qualified draft may read provider pricing without
+submitting. Entry errors stay visible. First plan freezes the entire batch,
+including excluded records; later retries return `GENERATION_FROZEN`. Finish
+retries first or create a new batch. Plan preparation recovery differs from
+generation retry and sending.
 
-Les canaux réellement activés, profils expéditeurs, devis, facturation, mode
-Review, contrôles postaux et mandats experts restent ceux de Guteneo. Le fait
-qu’un formulaire propose e-mail ou postal ne vaut pas activation de ces canaux.
-Un fournisseur incertain reste soumis à la réconciliation existante, sans retry
-aveugle. Les e-mails ont sujet et corps distincts du PDF, un seul record/PDF par
-préparation et aucun regroupement en CC/BCC ; le blocage existant des pièces
-jointes e-mail non qualifiées reste explicite.
+Actual channels, verified senders, quotes, billing, Review mode, postal checks and
+mandates remain existing Guteneo gates. A UI option does not activate transport.
+Unknown provider outcomes require reconciliation. Email has subject/body separate
+from PDF, one record/PDF per preparation, no CC/BCC grouping, and explicit blocking
+of unqualified attachments.
 
-## Configuration locale et IA
+## Local setup and AI
 
 ```sh
 npm ci
@@ -276,182 +377,128 @@ npm run db:seed
 npm run dev
 ```
 
-Ouvrir `http://localhost:8787/#/app`. Le bandeau **Simulation** est obligatoire
-pour cette recette : le navigateur documentaire fonctionne réellement en local,
-mais le contrôle antivirus est simulé dans ce mode. La production continue à
-exiger le scanner, l’identité, les bindings et les fournisseurs configurés.
+Open `http://localhost:8787/#/app`; the **Simulation** banner is mandatory. The local
+document browser is real, antivirus is simulated in this mode. Production still
+requires scanner, identity, bindings and provider configuration.
 
-L’aide IA reste désactivée sans `DATASET_OPENAI_API_KEY` et un modèle explicite
-`DATASET_OPENAI_MODEL`. Configurer ces secrets ne donne pas le consentement de
-transfert : l’administrateur navigateur doit activer la politique de
-l’organisation, autoriser le transfert et fixer un budget d’appels quotidien.
-Aucune clé n’a été créée ou configurée et aucune inférence n’a été exécutée
-pendant cette reprise. Le contrôle de présence n’a exposé aucune valeur ; le
-choix de configuration par l’utilisateur reste attendu. Les adaptateurs
-récupérés, non modifiés, utilisent les sorties structurées de Responses, `store:false`, un
-échantillon borné, aucun outil et aucun pouvoir d’envoi. Ils retournent toujours
-une proposition à revoir ; les modèles et mappings validés fonctionnent ensuite
-sans IA. Avec `proposeSchema:true`, l’analyse existante peut aussi proposer les
-champs métier et un modèle éditable à partir du mapping : un seul appel, schéma
-construit et validé par le serveur, exemples synthétiques, au plus 24 champs simples
-et quatre tableaux de dix colonnes. Le web présente les sources et types puis crée
-le brouillon privé et sa correspondance seulement après adoption explicite.
-Les tests de réponses IA historiques utilisent des doubles identifiés ; ils
-n’ont pas été relancés le 2 octobre et ne mesurent pas la qualité d’un modèle
-réel. Aucun AI Gateway ni engagement de résidence UE n’est présenté comme
-configuré.
+AI assistance needs `DATASET_OPENAI_API_KEY` plus explicit `DATASET_OPENAI_MODEL`.
+Secrets alone give no transfer consent: a browser administrator enables organization
+policy, transfer and daily call budget. No key was created/configured and no
+inference executed during recovery. Presence checks exposed no value; configuration
+choice remains the user's. Unchanged recovered adapters use Responses structured
+outputs, `store:false`, bounded samples, no tools or sending authority. Proposals
+always require review; validated templates/mappings run deterministically afterwards.
+`proposeSchema:true` may propose fields/editable template in the same analysis
+call: server-built/validated schema, synthetic examples, at most 24 simple fields
+and four ten-column arrays. Web shows sources/types and saves private draft/mapping
+only after explicit adoption. Historical AI doubles were not rerun on 2 October
+and measure no real model quality. No AI Gateway or EU-residency promise is claimed.
 
-## Démonstration exacte
+## Exact demonstration
 
 ### Web
 
-1. Dans **Modèles**, choisir **Courrier professionnel**, ou importer la fixture
-   `template-engine/word-source.docx` du dossier de preuves externe indiqué
-   ci-dessous. Lire les avertissements Word.
-2. Déplacer un bloc dans le Designer, ajouter une variable métier et enregistrer
-   le brouillon. Publier la version. Dans **Données et génération**, remplir les
-   champs puis vérifier l’aperçu PDF serveur ou générer sans envoi.
-3. Dans **Mes données**, importer `tests/fixtures/datasets/clients-reordered.csv`.
-   Choisir le modèle cible, la clé client et les colonnes métier ; valider toutes
-   les lignes. Lire le nombre de documents et corriger les anomalies avant de
-   générer.
-4. Pour le cas clients/articles, utiliser `clients-articles.xlsx`, les titres
-   avant en-tête et ses deux feuilles. La fixture de mapping exacte est
-   `examples/template-workflow/clients-articles.mapping.json` : elle illustre la
-   clé validée entre feuilles et les conventions explicites de dates/montants.
-5. Dans **Générations**, ouvrir les PDF, consulter la provenance, sélectionner les
-   résultats prêts puis **Préparer la distribution**. Choisir une destination
-   commune ou ses chemins dans les données. Le manifeste et les blocages restent
-   consultables ; les validations humaines se font dans le parcours d’envoi
-   existant. La recette automatisée s’arrête avant toute approbation/envoi.
+1. In Templates choose Business letter, or import external-evidence `template-engine/word-source.docx`; inspect Word warnings.
+2. Move a Designer block, add a business variable, save revision and publish. In Data and generation, fill fields, inspect server PDF or generate without sending.
+3. In My data import `tests/fixtures/datasets/clients-reordered.csv`; choose target template, client key and business columns; validate every row/count and correct anomalies first.
+4. For client/line-item data use `clients-articles.xlsx`, pre-header titles and two sheets. `examples/template-workflow/clients-articles.mapping.json` demonstrates validated sheet joins and explicit date/amount conventions.
+5. In Generations inspect PDFs/provenance, select ready results and Prepare distribution. Choose common recipients or data paths. Manifest/blockers remain readable; human approvals use existing dispatch flow. Automated qualification stops before approval/sending.
 
-### API et assistant
+### API and assistant
 
-Les scripts exécutables et leurs preuves sont dans
-[examples/template-workflow/README.md](../examples/template-workflow/README.md).
-`api.mjs` et `mcp.mjs` créent et publient le modèle, génèrent deux records et
-consultent les résultats. Ils utilisent un bearer OAuth autorisé fourni par
-l’environnement ; leur vérification locale utilise exclusivement le jeton de
-simulation du dépôt, pas une qualification OAuth machine distante.
+[Executable examples](../examples/template-workflow/README.md) document scripts and
+proof. `api.mjs`/`mcp.mjs` create/publish a template, generate two records and inspect
+results using an authorized environment-supplied OAuth bearer. Local proof uses
+only the repository simulation token, not remote machine-OAuth qualification.
+An assistant on the candidate server may follow:
 
-Un assistant connecté au serveur candidat peut suivre cette demande :
+> Read capabilities. Create a template from `create-template.json`, add a business
+> column with `update_template` and `add_table_column`, then publish the expected
+> revision. Import XLSX through the host's advertised file transport, read its
+> paged profile, create/validate the supplied mapping. Generate without sending;
+> follow the job and inspect PDFs/provenance. Prepare distribution only with the
+> supplied explicit associations; confirm no dispatch.
 
-> Lis les capacités. Crée un modèle depuis l’exemple `create-template.json`,
-> ajoute une colonne métier via `update_template` et son patch
-> `add_table_column`, puis publie la version attendue. Importe le fichier XLSX
-> via le transport fichier annoncé par ton hôte, lis son profil paginé, crée le
-> mapping fourni et valide-le. Génère les documents sans envoi, suis le job et
-> vérifie les PDF et leur provenance. Prépare uniquement la distribution avec
-> les associations explicites fournies ; ne confirme aucun envoi.
+If private file transfer is unsupported, explain and use web upload. Never rebuild
+an original from an extract or make it public. Integration `document-studio/SKILL.md`
+defines the journey without assistant-created human consent. Rebuilt local packages
+are not marketplace publication.
 
-Si l’hôte ne sait pas transférer un fichier privé, il doit le signaler et utiliser
-le web ; il ne reconstitue pas l’original depuis un extrait et ne le rend pas
-public. Le module `integrations/guteneo/skills/document-studio/SKILL.md` décrit ce
-parcours sans attribuer de consentement humain à l’assistant. Le paquet local
-reconstruit n’est pas une publication marketplace.
+## 2 October candidate verification
 
-## Vérifications du candidat du 2 octobre
+Current external evidence:
+`/Users/nclsppr/Developer/.artifacts/guteneo-templates-20261002`, machine summary
+`verification.json`. September observations remain historical; subsets/reruns are
+not added to broad totals.
 
-Les preuves actuelles sont conservées hors du dépôt dans
-`/Users/nclsppr/Developer/.artifacts/guteneo-templates-20261002`.
-Le résumé machine est `verification.json` dans ce dossier.
-Les anciennes mesures du 21 septembre restent historiques. Les sous-ensembles
-et relances ci-dessous ne sont pas additionnés aux résultats de la suite large.
-
-| Périmètre local | Résultat et preuve |
+| Local scope | Result/evidence |
 | --- | --- |
-| Suite unitaire/intégration hors IA | **1 540 tests réussis dans 82 fichiers** ; deux fichiers échouent pendant leur initialisation, laissant 31 cas non exécutés (`non-ai-tests.log`). Les fixtures historiques n’avaient pas la colonne `documents.access_owner_id`. Après correction, Luxembourg **3/3** (`historical-fax-regressions.log`), puis préparation fax **28/28** (`fax-review-final.log`) réussissent. Ce sont des reprises ciblées, pas une nouvelle exécution intégrale verte. |
-| Données et runtime | **29 tests de données + un test workerd réussis**, inclus dans la suite large : CSV/XLSX/JSON/XML, valeurs lexicales, adresses imbriquées, tables d’articles liées, chemins explicites et refus XML bornés. |
-| Intégration du workflow | **27 cas hors IA réussis** dans la vérification ciblée du workflow, dont les régressions de confidentialité, révocation et annulation. Les reprises de sous-ensembles ne sont pas additionnées à ce nombre. |
-| Modèles et rendu | **20 tests réussis**, inclus dans la suite large. Cinq PDF produits par le vrai handler dans Chromium isolé : factures de 1, 30 et 200 lignes, courrier long et import Word ; marqueurs, limites de page, pagination et absence de requêtes externes vérifiés. |
-| Sécurité et contrat | **215 contrôles de sécurité réussis** (`security-tests.log`), dont **7 contrôles OpenAPI** vérifiant notamment l’inventaire exact de 60 opérations, les scopes, l’approbation navigateur et l’idempotence. |
-| Scanner | **29 tests JavaScript + 38 tests Python réussis** lors de la reprise du 2 octobre ; résultat observé dans le terminal, sans journal exporté dans ce dossier. Ces tests ne qualifient pas l’antivirus hébergé. |
-| Studio navigateur | **22 cas réussis, huit sauts intentionnels** (`studio-browser.log`) ; les sauts concernent l’édition graphique sur les deux projets mobiles. Le mapping et la distribution sont éprouvés sur Chromium desktop, Chromium mobile et WebKit iPhone. |
-| XML, langues et clavier | **6/6 cas réussis** sur les trois projets navigateur (`studio-table-a11y-final-browser.log`) : canal/destinataire issus de chaque record XML sans envoi, changement de langue conservant titre client et modifications non enregistrées, Tab et focus visible sur les tables source/résultats, défilement réel par flèches et sélection au clavier. Cette reprise enrichit les mêmes six cas de `xml-language-browser-final.log` ; elle ne s’y additionne pas. |
-| Navigation de l’atelier | **21/21 cas réussis** (`studio-navigation-regression.log`) : routes privées, focus, session, navigation traduite et affichage mobile. |
-| Prévisualisation publique | **76 cas réussis, six sauts intentionnels** (`preview-tests.log`). Ce modèle à fixtures reste séparé ; les capacités métier du studio n’y ont pas été ajoutées. |
-| Migrations | **46 migrations, 296 objets de schéma**, schémas source/transport équivalents, `quick_check=ok`, aucune violation de clé étrangère (`migration-transport.json`). |
-| Exemples exécutables | Les trois scripts REST, MCP et dataset terminent avec **exit 0** (`example-api.log`, `example-mcp.log`, `example-dataset-api.log`). Chacun génère deux PDF prêts. Le dernier réemploie le mapping et vérifie quatre associations dans deux plans préparés : zéro approbation, zéro tentative fournisseur, crédits et quotas inchangés. Détails dans le [README des exemples](../examples/template-workflow/README.md). |
-| Construction et dépendances | Typecheck et lint global réussis après la dernière correction clavier ; builds application/web et preview, dry-runs API et Worker documentaire réussis (`build.log`, `final-web-build.log`, `preview-build.log`, `documents-build.log`). Le web et le lint ciblé repassent après cette correction (`studio-table-a11y-final-build.log`, `studio-table-a11y-final-lint.log`). L’audit npm `--omit=dev` signale **zéro vulnérabilité de production** (`npm-audit.json`) ; trois alertes connues de développement restent hors de ce résultat. `lint.log` conserve une tentative antérieure échouée ; il ne représente pas la reprise réussie. |
+| Non-AI unit/integration | **1,540 passed in 82 files**; two files failed initialization, leaving 31 unexecuted (`non-ai-tests.log`), from fixtures missing `documents.access_owner_id`. After correction LU **3/3** (`historical-fax-regressions.log`) and fax preparation **28/28** (`fax-review-final.log`) passed. Focused recovery is not a new full green run. |
+| Data/runtime | **29 data tests + one workerd test passed**, included above: CSV/XLSX/JSON/XML, lexical values, nested addresses, joined line-item tables, explicit paths and bounded XML refusal. |
+| Workflow | **27 non-AI focused cases passed**, including privacy/revocation/cancellation; subsets are not added. |
+| Templates/rendering | **20 passed**, included above. Five real-handler isolated-Chromium PDFs: 1/30/200-line invoices, long letter, Word import. Markers/page bounds/pagination/no external requests verified. |
+| Security/contract | **215 security checks passed** (`security-tests.log`), including **seven OpenAPI checks** for exact 60-operation inventory, scopes, browser approval and idempotency. |
+| Scanner | **29 JavaScript + 38 Python tests passed** on 2 October; terminal observation without exported log in that folder; no hosted-antivirus qualification. |
+| Browser studio | **22 passed, eight intentional skips** (`studio-browser.log`); mobile graphical editing skipped in both mobile projects. Mapping/distribution checked on desktop/mobile Chromium/iPhone WebKit. |
+| XML/language/keyboard | **6/6 passed** in three projects (`studio-table-a11y-final-browser.log`): per-record XML channel/recipient without sending; locale change retains customer title/unsaved edits; Tab/visible table focus, real arrow scroll and keyboard selection. This enriches the same six `xml-language-browser-final.log` cases, not additional cases. |
+| Workspace navigation | **21/21 passed** (`studio-navigation-regression.log`): private routes, focus, session, translated navigation/mobile. |
+| Public preview | **76 passed, six intentional skips** (`preview-tests.log`); separate fixtures without studio business capabilities. |
+| Migrations | **46 migrations, 296 schema objects**, equivalent source/transport, `quick_check=ok`, no foreign-key violation (`migration-transport.json`). |
+| Executable examples | REST/MCP/dataset scripts **exit 0** (`example-api.log`, `example-mcp.log`, `example-dataset-api.log`), each two ready PDFs. Dataset example reuses mapping and checks four associations across two plans: zero approval/provider attempts, unchanged credits/quotas. |
+| Build/dependencies | Full typecheck/lint after final keyboard fix; application/web/preview builds, API/document-Worker dry runs (`build.log`, `final-web-build.log`, `preview-build.log`, `documents-build.log`). Final web/focused lint reran (`studio-table-a11y-final-build.log`, `studio-table-a11y-final-lint.log`). `npm audit --omit=dev`: **zero production vulnerabilities** (`npm-audit.json`); three known development alerts excluded. `lint.log` retains an earlier failed attempt, not the successful rerun. |
 
-La reprise ciblée Resend réussit aussi **8/8 cas** (`resend-regression.log`), avec
-transport intercepté ; elle n’ajoute aucune preuve de livraison réelle. Les
-logs conservent les tentatives initiales et les reprises, sans les confondre.
-Aucune CI sur un commit final, recette navigateur complète de l’application ou
-qualification distante n’est revendiquée ici.
+Focused Resend recovery also passed **8/8** with intercepted transport
+(`resend-regression.log`), no real delivery. Logs retain initial attempts/reruns
+separately. No final-commit CI, complete application-browser suite or remote
+qualification is claimed here. AI is excluded: no key/call, unchanged recovered
+adapters and tests awaiting the user's configuration choice.
 
-L’IA demeure hors de ce bilan : aucune clé créée/configurée, aucun appel,
-adaptateurs récupérés inchangés et tests IA exclus dans l’attente du choix de
-l’utilisateur.
+## Remaining limits
 
-## Limites et qualification restante
+- Real-handler local isolated Chromium/workerd proof establishes no hosted Cloudflare CPU/memory bounds or sustained 500-render load.
+- Word retains editable content, not Word styles/pages/images. `.doc`/`.docm` excluded; the spike is an actual synthetic file.
+- Graphical editing qualified on desktop; mobile supports reading/forms/mapping/tracking. Lazy Designer: approximately 6.52 MB minified JS/2.16 MB gzip. Document Worker: 2,828.43 KiB gzip (approximately 2.76 MiB). Initial slow-network cost remains to monitor.
+- Bundled fonts cover the checked FR/DE/English/euro corpus; missing glyphs fail. Arbitrary layout, external fonts and intentional block overlap are unsupported.
+- Real AI quality/cost/latency, hosted office-source antivirus, ChatGPT/Claude/Cursor file transport, providers and remote machine OAuth need separate authorized qualification.
+- The initial candidate work itself performed no merge, production deployment, real send, payment, activation or paid provisioning; later authority is dated above.
 
-- Les rendus sont éprouvés dans le handler documentaire réel avec Chromium isolé
-  local, et les parseurs dans workerd local. Aucun runtime Cloudflare hébergé,
-  limite CPU/mémoire distante ou charge soutenue à 500 rendus n’est qualifié.
-- L’import Word conserve du contenu éditable, pas les styles/pages/images Word ;
-  `.doc` et `.docm` sont exclus. Le spike Word est un vrai fichier synthétique.
-- L’édition graphique est qualifiée sur desktop ; mobile permet consultation,
-  formulaires, mapping et suivi. Le Designer charge environ 6,52 Mo de JavaScript
-  minifié (2,16 Mo gzip) à la demande. Le Worker documentaire pèse 2 828,43 Kio gzip (environ 2,76 Mio).
-  Ces poids mesurés restent un coût initial à surveiller sur réseau lent.
-- La police embarquée couvre le corpus FR/DE/anglais/euro éprouvé ; les glyphes
-  absents sont refusés. Mise en page arbitraire, fontes externes et recouvrement
-  volontaire de blocs ne sont pas pris en charge.
-- L’IA réelle, ses coûts/latences/qualité, l’antivirus hébergé sur CSV/XLSX/DOCX,
-  le transport natif des fichiers ChatGPT/Claude/Cursor, les canaux fournisseurs
-  et l’OAuth machine distant demandent une qualification séparée autorisée.
-- Aucun merge, déploiement en production, envoi réel, paiement, activation de
-  fournisseur ou provisionnement payant n’a été effectué.
+## Recovery and postal checks
 
+`POST /api/datasets/:id/retry-analysis`/`retry_dataset_analysis` preserve original
+hash/encoding/separator. Initial attempt counts toward three; 90-second lease
+prevents concurrent analysis. Security rejection never becomes ready by retry.
+Web exposes state/deadline/explicit retry; reads start nothing. Failed Word import
+before template creation needs a new import.
 
-## Récupération et contrôle postal
+Distribution performs at most three preparations per mutation. Two statements
+atomically insert up to 500 manifest entries; `pendingCount`/`errorCount` remain
+visible. Explicit `/distribution-plans/:id/resume`/`resume_distribution` handles
+next entries or preparation errors with `retryFailed:true`, never unknown provider
+attempts.
 
-`POST /api/datasets/:id/retry-analysis` et MCP `retry_dataset_analysis` réanalysent
-le même original, avec son hash et ses options d’encodage/séparateur conservés.
-La tentative initiale compte dans la limite de trois ; une lease de 90 secondes
-évite les analyses concurrentes. Un rejet de sécurité ne devient pas prêt par
-retry. Le web affiche l’état, le délai et une action explicite ; les lectures ne
-relancent rien. Un échec Word avant création du modèle exige un nouvel import.
+Postal entries freeze sender/ceiling/three print options.
+`POST /api/distribution-plans/:id/entries/:entryId/postal-preflight`/
+`create_distribution_postal_preflight` needs both `documents:write` and
+`dispatches:prepare`. It may read configured provider profile, but transfers no
+PDF, creates no draft and grants no consent. Existing review/authorized transfer/
+quote remain. No automatic PDF correction: edit template, regenerate and create
+an explicit new plan, preserving original/manifest. Plan exposes review/eventual
+final dispatch separately from frozen original PDF; web links each row. Missing
+options require a new explicit manifest.
 
-Une distribution traite au plus trois préparations par mutation. Le manifeste
-complet de 500 entrées est inséré atomiquement avec deux instructions ;
-`pendingCount` et `errorCount` restent visibles. La reprise explicite
-`POST /api/distribution-plans/:id/resume` / MCP `resume_distribution` traite les
-suivantes, ou les erreurs de préparation avec `retryFailed:true`. Cela ne reprend
-jamais une tentative fournisseur inconnue.
+Publication validates contract/sample data, not a prior rendered preview. Server
+preview/generation rejects overflow; inspect final PDF before distribution.
 
-Pour chaque entrée postale, expéditeur, plafond et trois options d’impression
-sont figés. `POST /api/distribution-plans/:id/entries/:entryId/postal-preflight`
-(MCP `create_distribution_postal_preflight`) ouvre le contrôle postal existant,
-avec les droits `documents:write` **et** `dispatches:prepare`. Il peut lire le
-profil fournisseur configuré ; il ne transfère pas le document, ne crée pas de
-brouillon chez le fournisseur et n’accorde aucun consentement. Les étapes de revue, transfert autorisé et devis restent celles de Guteneo.
-Aucune adaptation postale automatique du PDF n’est ajoutée : une correction
-demande de modifier le modèle, de générer un nouveau PDF puis de préparer un
-nouveau plan explicite ; l’original et son manifeste restent conservés. Le plan expose la revue et son éventuel envoi final séparément du PDF
-original figé, sans modifier ce dernier. Le web relie chaque ligne à ce parcours.
-Les options absentes exigent un nouveau manifeste explicite.
+## XML and data-selected channels
 
-Une publication valide le contrat et les données d’exemple ; elle n’atteste pas
-qu’un aperçu a déjà été rendu. Les débordements sont bloqués par le rendu serveur
-au preview ou à la génération. Vérifier le PDF final fait donc partie du parcours
-de recette avant distribution.
+UTF-8 XML preserves lexical values and refuses DTDs, external entities, mixed
+content and ambiguous structures. `xmlRecordPath` explicitly selects a collection,
+for example `/export/clients/client`. Repeated lines become sheets joined by
+`__xml_record_id`/`__xml_parent_id`, explicitly mapped; see [DATA_IMPORT.md](DATA_IMPORT.md).
 
-## XML et canal défini dans les données
-
-Les imports XML utilisent UTF-8, conservent les valeurs lexicales et refusent
-DTD, entités externes, contenu mixte et structures ambiguës. `xmlRecordPath`
-peut sélectionner explicitement une collection (ex. `/export/clients/client`).
-Les lignes répétées deviennent des feuilles liées par `__xml_record_id` et
-`__xml_parent_id`, à associer explicitement dans le mapping. Voir DATA_IMPORT.md.
-
-Une entrée de distribution choisit `channel` **ou** `channelField`. Ce dernier
-résout uniquement `fax`, `email` ou `postal` dans le record figé. Les champs de
-destination peuvent être communs (`recipientFields`) ou distincts par canal
-(`recipientFieldsByChannel`). `senderIdsByChannel` et `optionsByChannel` évitent
-qu’un expéditeur ou des options postales soient appliqués à un e-mail ou un fax.
-Le manifeste conserve le canal, destinataire, expéditeur et options effectivement
-résolus ; aucun choix de canal ni aucune adresse ne sont devinés par le serveur.
-Une correction exige une nouvelle préparation explicite et garde les contrôles
-d’approbation, de prix et de transfert postal du parcours existant.
+Each distribution entry chooses `channel` **or** `channelField`; the latter resolves
+only fax/email/postal from frozen data. Use shared `recipientFields` or
+`recipientFieldsByChannel`; `senderIdsByChannel`/`optionsByChannel` prevent cross-channel
+sender/postal-option misuse. Manifest retains resolved channel/recipient/sender/
+options. Server guesses neither address nor channel. Corrections require explicit
+new preparation with existing approval, pricing and postal-transfer guards.

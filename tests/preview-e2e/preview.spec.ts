@@ -14,7 +14,7 @@ test("public design and every workspace page render without server data or overf
   await page.goto("/");
   await expect(
     page.getByRole("heading", {
-      name: "Votre assistant prépare. Guteneo transmet.",
+      name: "Préparez vos documents. Choisissez leur destination.",
     }),
   ).toBeVisible();
   await expect(
@@ -23,6 +23,7 @@ test("public design and every workspace page render without server data or overf
   await page.screenshot({
     path: await evidencePath(`preview/landing-${info.project.name}.png`),
     fullPage: true,
+    scale: "css",
   });
   const menu = page.getByRole("button", { name: "Menu", exact: true });
   if (await menu.isVisible()) await menu.click();
@@ -36,6 +37,7 @@ test("public design and every workspace page render without server data or overf
   await page.screenshot({
     path: await evidencePath(`preview/workspace-${info.project.name}.png`),
     fullPage: true,
+    scale: "css",
   });
   for (const route of [
     "documents",
@@ -44,7 +46,7 @@ test("public design and every workspace page render without server data or overf
     "connection",
     "senders",
     "usage",
-    "plan",
+    "pdf-checks",
     "billing",
     "account",
     "admin",
@@ -68,15 +70,16 @@ test("public design and every workspace page render without server data or overf
       await page.screenshot({
         path: await evidencePath(`preview/billing-${info.project.name}.png`),
         fullPage: true,
+        scale: "css",
       });
     }
-    if (route === "plan") {
+    if (route === "pdf-checks") {
       await expect(
-        page.getByText("Bientôt disponible", { exact: true }),
+        page.getByText("Les contrôles PDF sont actuellement indisponibles", {
+          exact: true,
+        }),
       ).toBeVisible();
-      await expect(
-        page.getByRole("button", { name: "Souscrire Horizon" }),
-      ).toHaveCount(0);
+      await expect(page.locator(".pdf-check-offer form")).toHaveCount(0);
       await expect(page.getByRole("checkbox")).toHaveCount(0);
     }
     expect(
@@ -111,6 +114,9 @@ test("email can be prepared, reviewed and simulated in the tab only", async ({
   await expect(
     page.getByRole("heading", { name: "Le bon à envoyer." }),
   ).toBeVisible();
+  await expect(
+    page.frameLocator("iframe.email-preview").locator("body"),
+  ).toHaveText("Bonjour depuis l’atelier.");
   await page.getByRole("checkbox").check();
   await page
     .getByRole("button", { name: "Approuver et simuler l’envoi" })
@@ -124,6 +130,49 @@ test("email can be prepared, reviewed and simulated in the tab only", async ({
   expect(outbound).toEqual([]);
 });
 
+test("document email defaults are reviewed in the tab without custom HTML", async ({
+  page,
+}) => {
+  const backendRequests: string[] = [];
+  page.on("request", (request) => {
+    if (
+      /^\/(api|auth|mcp)(\/|$)/.test(new URL(request.url()).pathname) ||
+      request.method() !== "GET"
+    )
+      backendRequests.push(request.url());
+  });
+  await page.goto("/#/app/prepare");
+  await page.getByRole("radio", { name: "E-mail", exact: true }).check();
+  await page
+    .getByLabel("Pièce jointe PDF (facultative)", { exact: true })
+    .selectOption({ index: 1 });
+  await page
+    .getByLabel("Adresse e-mail", { exact: true })
+    .fill("document@example.invalid");
+  await expect(
+    page.getByLabel("Objet (facultatif)", { exact: true }),
+  ).toBeEmpty();
+  await expect(
+    page.getByLabel("Message (facultatif)", { exact: true }),
+  ).toBeEmpty();
+  await page.getByRole("button", { name: "Vérifier et préparer" }).click();
+  await expect(
+    page.getByRole("heading", { name: "Le bon à envoyer." }),
+  ).toBeVisible();
+  await expect(page.locator("#main-content")).toContainText(
+    "Document envoyé par Gutenberg workshop · Demo",
+  );
+  const email = page.frameLocator("iframe.email-preview");
+  await expect(
+    email.locator('table[role="presentation"]').first(),
+  ).toBeVisible();
+  await expect(email.locator("body")).toContainText(
+    "Gutenberg workshop · Demo vous a envoyé un document.",
+  );
+  await expect(email.locator("body")).toContainText("pièce jointe");
+  expect(backendRequests).toEqual([]);
+});
+
 test("fixture PDF renders and backend routes refuse remote actions", async ({
   page,
   request,
@@ -135,11 +184,9 @@ test("fixture PDF renders and backend routes refuse remote actions", async ({
     page.getByRole("button", { name: "Télécharger le PDF d’exemple" }),
   ).toBeVisible();
   await expect(page.locator(".pdf-validation")).toContainText(
-    "Cette offre est en préparation",
+    "Les contrôles PDF sont actuellement indisponibles. Les rapports existants restent consultables.",
   );
-  await expect(
-    page.getByRole("button", { name: "Contrôler ce PDF" }),
-  ).toHaveCount(0);
+  await expect(page.locator(".pdf-validation form")).toHaveCount(0);
   for (const path of [
     "/api/dev/login",
     "/api/dispatches",
@@ -157,7 +204,7 @@ test("fixture PDF renders and backend routes refuse remote actions", async ({
     expect(await response.text()).toContain("PREVIEW_ONLY");
   }
   for (const path of [
-    "/api/plan",
+    "/api/pdf-validation/pricing",
     "/api/documents/preview_document/validation",
   ]) {
     const response = await request.get(path);

@@ -1,0 +1,1463 @@
+{
+  "comparedAt": "2026-10-28T15:25:34.265Z",
+  "comparable": true,
+  "scriptSha256": "5cb292ffb7441b3cc794cf229ddd4ed6e0366460d417c3de9a12dfe39b035faa",
+  "environment": {
+    "browser": "153.0.8010.12",
+    "engine": "Chromium headless",
+    "node": "v24.18.0",
+    "platform": "darwin",
+    "architecture": "arm64",
+    "locale": "fr-FR",
+    "timezone": "Europe/Paris",
+    "theme": "light",
+    "reducedMotion": "reduce",
+    "viewportDesktop": {
+      "width": 1440,
+      "height": 1000
+    },
+    "mobileDevice": "Pixel 7",
+    "networkThrottle": "none",
+    "cpuThrottle": "none",
+    "cache": "new isolated browser context per sample/surface; normal browser HTTP cache enabled within Home→Pricing→Support; CDP Fetch method gate, no Playwright.route",
+    "serviceWorkers": "blocked",
+    "repeatsPerProfileAndSurface": 3
+  },
+  "releasesBefore": [
+    {
+      "origin": "https://guteneo.com",
+      "observedAt": "2026-10-28T13:46:06.456Z",
+      "commit": "f3ba8d0b0c12200c51c1eb3aeb9736205b1c5f6e",
+      "dirty": false,
+      "assetsSha256": "ab13e8a578c7b617a4bf5fa19d957da9b2bb78673e65ca7a09ce60e7fb770fd8",
+      "sourceSnapshotSha256": "7ef299bed253622cf7999204a8b2869f92074488d520d3b6a956eb0a6824318f",
+      "mode": "production",
+      "version": "1.1.16"
+    },
+    {
+      "origin": "https://status.guteneo.com",
+      "observedAt": "2026-10-28T13:46:06.311Z",
+      "commit": "03daa4136de8999cc79018f33f2a22038917c621",
+      "dirty": false,
+      "assetsSha256": "0f1a0d40bd70f9987827c43740909db41feab8fa4e44aac22f99d0b4889deefc",
+      "sourceSnapshotSha256": "2400531e693bb569df22f5f66d19c8a07f47d3c0002990333cfbc8b5ca46f7dc",
+      "mode": "production-observation",
+      "version": null
+    }
+  ],
+  "releasesAfter": [
+    {
+      "origin": "https://guteneo.com",
+      "observedAt": "2026-10-28T15:23:02.446Z",
+      "commit": "a93e7334f603b818a689385f73c33757cdfeea38",
+      "dirty": false,
+      "assetsSha256": "e024eda554f02d1759c46da120ba0bcb41f094db065b255be0ac07ef815a51dc",
+      "sourceSnapshotSha256": "91399bc1f1484fb91555d63c00bfbc680d9e819cdbf15ca55ace681549628585",
+      "mode": "production",
+      "version": "1.1.17"
+    },
+    {
+      "origin": "https://status.guteneo.com",
+      "observedAt": "2026-10-28T15:23:02.428Z",
+      "commit": "a93e7334f603b818a689385f73c33757cdfeea38",
+      "dirty": false,
+      "assetsSha256": "57ffa053212f03229e5d39fe7711c86b3d0a01e02083e997bb29f06d1c321ea8",
+      "sourceSnapshotSha256": "5ffcba966baf373cef2bca8895e4da1ea32b450213a9edf6bb4aa49a4aff656d",
+      "mode": "production-observation",
+      "version": null
+    }
+  ],
+  "groups": [
+    {
+      "profile": "desktop",
+      "surface": "public",
+      "path": "/",
+      "before": {
+        "firstUsefulMs": {
+          "values": [
+            499.605224609375,
+            663.276123046875,
+            809.693115234375
+          ],
+          "median": 663.276123046875,
+          "min": 499.605224609375,
+          "max": 809.693115234375
+        },
+        "interactiveMs": {
+          "values": [
+            698.605224609375,
+            727.276123046875,
+            817.693115234375
+          ],
+          "median": 727.276123046875,
+          "min": 698.605224609375,
+          "max": 817.693115234375
+        },
+        "documentRequests": {
+          "values": [
+            1,
+            1,
+            1
+          ],
+          "median": 1,
+          "min": 1,
+          "max": 1
+        },
+        "jsRequests": {
+          "values": [
+            24,
+            24,
+            24
+          ],
+          "median": 24,
+          "min": 24,
+          "max": 24
+        },
+        "jsTransferredBytes": {
+          "values": [
+            486661,
+            487238,
+            486364
+          ],
+          "median": 486661,
+          "min": 486364,
+          "max": 487238
+        },
+        "jsDecodedBodyBytes": {
+          "values": [
+            1509181,
+            1509181,
+            1509181
+          ],
+          "median": 1509181,
+          "min": 1509181,
+          "max": 1509181
+        },
+        "unknownDecodedSizes": 0
+      },
+      "after": {
+        "firstUsefulMs": {
+          "values": [
+            596.10205078125,
+            670.18701171875,
+            571.447998046875
+          ],
+          "median": 596.10205078125,
+          "min": 571.447998046875,
+          "max": 670.18701171875
+        },
+        "interactiveMs": {
+          "values": [
+            694.10205078125,
+            727.18701171875,
+            661.447998046875
+          ],
+          "median": 694.10205078125,
+          "min": 661.447998046875,
+          "max": 727.18701171875
+        },
+        "documentRequests": {
+          "values": [
+            1,
+            1,
+            1
+          ],
+          "median": 1,
+          "min": 1,
+          "max": 1
+        },
+        "jsRequests": {
+          "values": [
+            19,
+            19,
+            19
+          ],
+          "median": 19,
+          "min": 19,
+          "max": 19
+        },
+        "jsTransferredBytes": {
+          "values": [
+            491802,
+            490741,
+            491742
+          ],
+          "median": 491742,
+          "min": 490741,
+          "max": 491802
+        },
+        "jsDecodedBodyBytes": {
+          "values": [
+            1540857,
+            1540857,
+            1540857
+          ],
+          "median": 1540857,
+          "min": 1540857,
+          "max": 1540857
+        },
+        "unknownDecodedSizes": 0
+      },
+      "firstUsefulMedianDeltaMs": -67.174072265625
+    },
+    {
+      "profile": "desktop",
+      "surface": "public",
+      "path": "/pricing/",
+      "before": {
+        "firstUsefulMs": {
+          "values": [
+            711,
+            424,
+            398
+          ],
+          "median": 424,
+          "min": 398,
+          "max": 711
+        },
+        "interactiveMs": {
+          "values": [
+            748,
+            572,
+            693
+          ],
+          "median": 693,
+          "min": 572,
+          "max": 748
+        },
+        "documentRequests": {
+          "values": [
+            1,
+            1,
+            1
+          ],
+          "median": 1,
+          "min": 1,
+          "max": 1
+        },
+        "jsRequests": {
+          "values": [
+            26,
+            26,
+            26
+          ],
+          "median": 26,
+          "min": 26,
+          "max": 26
+        },
+        "jsTransferredBytes": {
+          "values": [
+            28284,
+            28308,
+            28314
+          ],
+          "median": 28308,
+          "min": 28284,
+          "max": 28314
+        },
+        "jsDecodedBodyBytes": {
+          "values": [
+            1530812,
+            1530812,
+            1530812
+          ],
+          "median": 1530812,
+          "min": 1530812,
+          "max": 1530812
+        },
+        "unknownDecodedSizes": 0
+      },
+      "after": {
+        "firstUsefulMs": {
+          "values": [
+            28,
+            19,
+            24
+          ],
+          "median": 24,
+          "min": 19,
+          "max": 28
+        },
+        "interactiveMs": {
+          "values": [
+            25,
+            17,
+            17
+          ],
+          "median": 17,
+          "min": 17,
+          "max": 25
+        },
+        "documentRequests": {
+          "values": [
+            0,
+            0,
+            0
+          ],
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "jsRequests": {
+          "values": [
+            0,
+            0,
+            0
+          ],
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "jsTransferredBytes": {
+          "values": [
+            0,
+            0,
+            0
+          ],
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "jsDecodedBodyBytes": {
+          "values": [
+            0,
+            0,
+            0
+          ],
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "unknownDecodedSizes": 0
+      },
+      "firstUsefulMedianDeltaMs": -400
+    },
+    {
+      "profile": "desktop",
+      "surface": "public",
+      "path": "/support/",
+      "before": {
+        "firstUsefulMs": {
+          "values": [
+            105,
+            412,
+            419
+          ],
+          "median": 412,
+          "min": 105,
+          "max": 419
+        },
+        "interactiveMs": {
+          "values": [
+            124,
+            444,
+            434
+          ],
+          "median": 434,
+          "min": 124,
+          "max": 444
+        },
+        "documentRequests": {
+          "values": [
+            1,
+            1,
+            1
+          ],
+          "median": 1,
+          "min": 1,
+          "max": 1
+        },
+        "jsRequests": {
+          "values": [
+            24,
+            24,
+            24
+          ],
+          "median": 24,
+          "min": 24,
+          "max": 24
+        },
+        "jsTransferredBytes": {
+          "values": [
+            18817,
+            18787,
+            18794
+          ],
+          "median": 18794,
+          "min": 18787,
+          "max": 18817
+        },
+        "jsDecodedBodyBytes": {
+          "values": [
+            1509181,
+            1509181,
+            1509181
+          ],
+          "median": 1509181,
+          "min": 1509181,
+          "max": 1509181
+        },
+        "unknownDecodedSizes": 0
+      },
+      "after": {
+        "firstUsefulMs": {
+          "values": [
+            26,
+            23,
+            20
+          ],
+          "median": 23,
+          "min": 20,
+          "max": 26
+        },
+        "interactiveMs": {
+          "values": [
+            19,
+            20,
+            14
+          ],
+          "median": 19,
+          "min": 14,
+          "max": 20
+        },
+        "documentRequests": {
+          "values": [
+            0,
+            0,
+            0
+          ],
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "jsRequests": {
+          "values": [
+            0,
+            0,
+            0
+          ],
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "jsTransferredBytes": {
+          "values": [
+            0,
+            0,
+            0
+          ],
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "jsDecodedBodyBytes": {
+          "values": [
+            0,
+            0,
+            0
+          ],
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "unknownDecodedSizes": 0
+      },
+      "firstUsefulMedianDeltaMs": -389
+    },
+    {
+      "profile": "desktop",
+      "surface": "status",
+      "path": "/",
+      "before": {
+        "firstUsefulMs": {
+          "values": [
+            453.208984375,
+            356.426025390625,
+            458.177001953125
+          ],
+          "median": 453.208984375,
+          "min": 356.426025390625,
+          "max": 458.177001953125
+        },
+        "interactiveMs": null,
+        "documentRequests": {
+          "values": [
+            1,
+            1,
+            1
+          ],
+          "median": 1,
+          "min": 1,
+          "max": 1
+        },
+        "jsRequests": {
+          "values": [
+            5,
+            5,
+            5
+          ],
+          "median": 5,
+          "min": 5,
+          "max": 5
+        },
+        "jsTransferredBytes": {
+          "values": [
+            14746,
+            14865,
+            14753
+          ],
+          "median": 14753,
+          "min": 14746,
+          "max": 14865
+        },
+        "jsDecodedBodyBytes": {
+          "values": [
+            33182,
+            33182,
+            33182
+          ],
+          "median": 33182,
+          "min": 33182,
+          "max": 33182
+        },
+        "unknownDecodedSizes": 0
+      },
+      "after": {
+        "firstUsefulMs": {
+          "values": [
+            353.2490234375,
+            300.748046875,
+            395.51513671875
+          ],
+          "median": 353.2490234375,
+          "min": 300.748046875,
+          "max": 395.51513671875
+        },
+        "interactiveMs": null,
+        "documentRequests": {
+          "values": [
+            1,
+            1,
+            1
+          ],
+          "median": 1,
+          "min": 1,
+          "max": 1
+        },
+        "jsRequests": {
+          "values": [
+            2,
+            2,
+            2
+          ],
+          "median": 2,
+          "min": 2,
+          "max": 2
+        },
+        "jsTransferredBytes": {
+          "values": [
+            10155,
+            10179,
+            10127
+          ],
+          "median": 10155,
+          "min": 10127,
+          "max": 10179
+        },
+        "jsDecodedBodyBytes": {
+          "values": [
+            24672,
+            24672,
+            24672
+          ],
+          "median": 24672,
+          "min": 24672,
+          "max": 24672
+        },
+        "unknownDecodedSizes": 0
+      },
+      "firstUsefulMedianDeltaMs": -99.9599609375
+    },
+    {
+      "profile": "mobile",
+      "surface": "public",
+      "path": "/",
+      "before": {
+        "firstUsefulMs": {
+          "values": [
+            960.40380859375,
+            905.68896484375,
+            777.298095703125
+          ],
+          "median": 905.68896484375,
+          "min": 777.298095703125,
+          "max": 960.40380859375
+        },
+        "interactiveMs": {
+          "values": [
+            1002.40380859375,
+            924.68896484375,
+            877.298095703125
+          ],
+          "median": 924.68896484375,
+          "min": 877.298095703125,
+          "max": 1002.40380859375
+        },
+        "documentRequests": {
+          "values": [
+            1,
+            1,
+            1
+          ],
+          "median": 1,
+          "min": 1,
+          "max": 1
+        },
+        "jsRequests": {
+          "values": [
+            24,
+            24,
+            24
+          ],
+          "median": 24,
+          "min": 24,
+          "max": 24
+        },
+        "jsTransferredBytes": {
+          "values": [
+            486644,
+            486870,
+            486773
+          ],
+          "median": 486773,
+          "min": 486644,
+          "max": 486870
+        },
+        "jsDecodedBodyBytes": {
+          "values": [
+            1509181,
+            1509181,
+            1509181
+          ],
+          "median": 1509181,
+          "min": 1509181,
+          "max": 1509181
+        },
+        "unknownDecodedSizes": 0
+      },
+      "after": {
+        "firstUsefulMs": {
+          "values": [
+            673.7919921875,
+            554.8271484375,
+            454.68505859375
+          ],
+          "median": 554.8271484375,
+          "min": 454.68505859375,
+          "max": 673.7919921875
+        },
+        "interactiveMs": {
+          "values": [
+            807.7919921875,
+            806.8271484375,
+            799.68505859375
+          ],
+          "median": 806.8271484375,
+          "min": 799.68505859375,
+          "max": 807.7919921875
+        },
+        "documentRequests": {
+          "values": [
+            1,
+            1,
+            1
+          ],
+          "median": 1,
+          "min": 1,
+          "max": 1
+        },
+        "jsRequests": {
+          "values": [
+            19,
+            19,
+            19
+          ],
+          "median": 19,
+          "min": 19,
+          "max": 19
+        },
+        "jsTransferredBytes": {
+          "values": [
+            491061,
+            490975,
+            492002
+          ],
+          "median": 491061,
+          "min": 490975,
+          "max": 492002
+        },
+        "jsDecodedBodyBytes": {
+          "values": [
+            1540857,
+            1540857,
+            1540857
+          ],
+          "median": 1540857,
+          "min": 1540857,
+          "max": 1540857
+        },
+        "unknownDecodedSizes": 0
+      },
+      "firstUsefulMedianDeltaMs": -350.86181640625
+    },
+    {
+      "profile": "mobile",
+      "surface": "public",
+      "path": "/pricing/",
+      "before": {
+        "firstUsefulMs": {
+          "values": [
+            634,
+            560,
+            428
+          ],
+          "median": 560,
+          "min": 428,
+          "max": 634
+        },
+        "interactiveMs": {
+          "values": [
+            1695,
+            849,
+            778
+          ],
+          "median": 849,
+          "min": 778,
+          "max": 1695
+        },
+        "documentRequests": {
+          "values": [
+            1,
+            1,
+            1
+          ],
+          "median": 1,
+          "min": 1,
+          "max": 1
+        },
+        "jsRequests": {
+          "values": [
+            26,
+            26,
+            26
+          ],
+          "median": 26,
+          "min": 26,
+          "max": 26
+        },
+        "jsTransferredBytes": {
+          "values": [
+            28174,
+            28200,
+            28301
+          ],
+          "median": 28200,
+          "min": 28174,
+          "max": 28301
+        },
+        "jsDecodedBodyBytes": {
+          "values": [
+            1530812,
+            1530812,
+            1530812
+          ],
+          "median": 1530812,
+          "min": 1530812,
+          "max": 1530812
+        },
+        "unknownDecodedSizes": 0
+      },
+      "after": {
+        "firstUsefulMs": {
+          "values": [
+            20,
+            28,
+            33
+          ],
+          "median": 28,
+          "min": 20,
+          "max": 33
+        },
+        "interactiveMs": {
+          "values": [
+            16,
+            18,
+            18
+          ],
+          "median": 18,
+          "min": 16,
+          "max": 18
+        },
+        "documentRequests": {
+          "values": [
+            0,
+            0,
+            0
+          ],
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "jsRequests": {
+          "values": [
+            0,
+            0,
+            0
+          ],
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "jsTransferredBytes": {
+          "values": [
+            0,
+            0,
+            0
+          ],
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "jsDecodedBodyBytes": {
+          "values": [
+            0,
+            0,
+            0
+          ],
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "unknownDecodedSizes": 0
+      },
+      "firstUsefulMedianDeltaMs": -532
+    },
+    {
+      "profile": "mobile",
+      "surface": "public",
+      "path": "/support/",
+      "before": {
+        "firstUsefulMs": {
+          "values": [
+            95,
+            90,
+            394
+          ],
+          "median": 95,
+          "min": 90,
+          "max": 394
+        },
+        "interactiveMs": {
+          "values": [
+            662,
+            842,
+            451
+          ],
+          "median": 662,
+          "min": 451,
+          "max": 842
+        },
+        "documentRequests": {
+          "values": [
+            1,
+            1,
+            1
+          ],
+          "median": 1,
+          "min": 1,
+          "max": 1
+        },
+        "jsRequests": {
+          "values": [
+            24,
+            24,
+            24
+          ],
+          "median": 24,
+          "min": 24,
+          "max": 24
+        },
+        "jsTransferredBytes": {
+          "values": [
+            18820,
+            18820,
+            18783
+          ],
+          "median": 18820,
+          "min": 18783,
+          "max": 18820
+        },
+        "jsDecodedBodyBytes": {
+          "values": [
+            1509181,
+            1509181,
+            1509181
+          ],
+          "median": 1509181,
+          "min": 1509181,
+          "max": 1509181
+        },
+        "unknownDecodedSizes": 0
+      },
+      "after": {
+        "firstUsefulMs": {
+          "values": [
+            23,
+            22,
+            23
+          ],
+          "median": 23,
+          "min": 22,
+          "max": 23
+        },
+        "interactiveMs": {
+          "values": [
+            20,
+            19,
+            20
+          ],
+          "median": 20,
+          "min": 19,
+          "max": 20
+        },
+        "documentRequests": {
+          "values": [
+            0,
+            0,
+            0
+          ],
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "jsRequests": {
+          "values": [
+            0,
+            0,
+            0
+          ],
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "jsTransferredBytes": {
+          "values": [
+            0,
+            0,
+            0
+          ],
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "jsDecodedBodyBytes": {
+          "values": [
+            0,
+            0,
+            0
+          ],
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "unknownDecodedSizes": 0
+      },
+      "firstUsefulMedianDeltaMs": -72
+    },
+    {
+      "profile": "mobile",
+      "surface": "status",
+      "path": "/",
+      "before": {
+        "firstUsefulMs": {
+          "values": [
+            389.464111328125,
+            379.710205078125,
+            331.817138671875
+          ],
+          "median": 379.710205078125,
+          "min": 331.817138671875,
+          "max": 389.464111328125
+        },
+        "interactiveMs": null,
+        "documentRequests": {
+          "values": [
+            1,
+            1,
+            1
+          ],
+          "median": 1,
+          "min": 1,
+          "max": 1
+        },
+        "jsRequests": {
+          "values": [
+            5,
+            5,
+            5
+          ],
+          "median": 5,
+          "min": 5,
+          "max": 5
+        },
+        "jsTransferredBytes": {
+          "values": [
+            14761,
+            14746,
+            14814
+          ],
+          "median": 14761,
+          "min": 14746,
+          "max": 14814
+        },
+        "jsDecodedBodyBytes": {
+          "values": [
+            33182,
+            33182,
+            33182
+          ],
+          "median": 33182,
+          "min": 33182,
+          "max": 33182
+        },
+        "unknownDecodedSizes": 0
+      },
+      "after": {
+        "firstUsefulMs": {
+          "values": [
+            390.1689453125,
+            364.85791015625,
+            354.9228515625
+          ],
+          "median": 364.85791015625,
+          "min": 354.9228515625,
+          "max": 390.1689453125
+        },
+        "interactiveMs": null,
+        "documentRequests": {
+          "values": [
+            1,
+            1,
+            1
+          ],
+          "median": 1,
+          "min": 1,
+          "max": 1
+        },
+        "jsRequests": {
+          "values": [
+            2,
+            2,
+            2
+          ],
+          "median": 2,
+          "min": 2,
+          "max": 2
+        },
+        "jsTransferredBytes": {
+          "values": [
+            10154,
+            10164,
+            10133
+          ],
+          "median": 10154,
+          "min": 10133,
+          "max": 10164
+        },
+        "jsDecodedBodyBytes": {
+          "values": [
+            24672,
+            24672,
+            24672
+          ],
+          "median": 24672,
+          "min": 24672,
+          "max": 24672
+        },
+        "unknownDecodedSizes": 0
+      },
+      "firstUsefulMedianDeltaMs": -14.852294921875
+    }
+  ],
+  "journeys": [
+    {
+      "profile": "desktop",
+      "surface": "public",
+      "before": {
+        "documentRequests": {
+          "values": [
+            3,
+            3,
+            3
+          ],
+          "median": 3,
+          "min": 3,
+          "max": 3
+        },
+        "jsRequests": {
+          "values": [
+            74,
+            74,
+            74
+          ],
+          "median": 74,
+          "min": 74,
+          "max": 74
+        },
+        "jsTransferredBytes": {
+          "values": [
+            533762,
+            534333,
+            533472
+          ],
+          "median": 533762,
+          "min": 533472,
+          "max": 534333
+        },
+        "jsDecodedBodyBytes": {
+          "values": [
+            4549174,
+            4549174,
+            4549174
+          ],
+          "median": 4549174,
+          "min": 4549174,
+          "max": 4549174
+        }
+      },
+      "after": {
+        "documentRequests": {
+          "values": [
+            1,
+            1,
+            1
+          ],
+          "median": 1,
+          "min": 1,
+          "max": 1
+        },
+        "jsRequests": {
+          "values": [
+            19,
+            19,
+            19
+          ],
+          "median": 19,
+          "min": 19,
+          "max": 19
+        },
+        "jsTransferredBytes": {
+          "values": [
+            491802,
+            490741,
+            491742
+          ],
+          "median": 491742,
+          "min": 490741,
+          "max": 491802
+        },
+        "jsDecodedBodyBytes": {
+          "values": [
+            1540857,
+            1540857,
+            1540857
+          ],
+          "median": 1540857,
+          "min": 1540857,
+          "max": 1540857
+        }
+      }
+    },
+    {
+      "profile": "desktop",
+      "surface": "status",
+      "before": {
+        "documentRequests": {
+          "values": [
+            1,
+            1,
+            1
+          ],
+          "median": 1,
+          "min": 1,
+          "max": 1
+        },
+        "jsRequests": {
+          "values": [
+            5,
+            5,
+            5
+          ],
+          "median": 5,
+          "min": 5,
+          "max": 5
+        },
+        "jsTransferredBytes": {
+          "values": [
+            14746,
+            14865,
+            14753
+          ],
+          "median": 14753,
+          "min": 14746,
+          "max": 14865
+        },
+        "jsDecodedBodyBytes": {
+          "values": [
+            33182,
+            33182,
+            33182
+          ],
+          "median": 33182,
+          "min": 33182,
+          "max": 33182
+        }
+      },
+      "after": {
+        "documentRequests": {
+          "values": [
+            1,
+            1,
+            1
+          ],
+          "median": 1,
+          "min": 1,
+          "max": 1
+        },
+        "jsRequests": {
+          "values": [
+            2,
+            2,
+            2
+          ],
+          "median": 2,
+          "min": 2,
+          "max": 2
+        },
+        "jsTransferredBytes": {
+          "values": [
+            10155,
+            10179,
+            10127
+          ],
+          "median": 10155,
+          "min": 10127,
+          "max": 10179
+        },
+        "jsDecodedBodyBytes": {
+          "values": [
+            24672,
+            24672,
+            24672
+          ],
+          "median": 24672,
+          "min": 24672,
+          "max": 24672
+        }
+      }
+    },
+    {
+      "profile": "mobile",
+      "surface": "public",
+      "before": {
+        "documentRequests": {
+          "values": [
+            3,
+            3,
+            3
+          ],
+          "median": 3,
+          "min": 3,
+          "max": 3
+        },
+        "jsRequests": {
+          "values": [
+            74,
+            74,
+            74
+          ],
+          "median": 74,
+          "min": 74,
+          "max": 74
+        },
+        "jsTransferredBytes": {
+          "values": [
+            533638,
+            533890,
+            533857
+          ],
+          "median": 533857,
+          "min": 533638,
+          "max": 533890
+        },
+        "jsDecodedBodyBytes": {
+          "values": [
+            4549174,
+            4549174,
+            4549174
+          ],
+          "median": 4549174,
+          "min": 4549174,
+          "max": 4549174
+        }
+      },
+      "after": {
+        "documentRequests": {
+          "values": [
+            1,
+            1,
+            1
+          ],
+          "median": 1,
+          "min": 1,
+          "max": 1
+        },
+        "jsRequests": {
+          "values": [
+            19,
+            19,
+            19
+          ],
+          "median": 19,
+          "min": 19,
+          "max": 19
+        },
+        "jsTransferredBytes": {
+          "values": [
+            491061,
+            490975,
+            492002
+          ],
+          "median": 491061,
+          "min": 490975,
+          "max": 492002
+        },
+        "jsDecodedBodyBytes": {
+          "values": [
+            1540857,
+            1540857,
+            1540857
+          ],
+          "median": 1540857,
+          "min": 1540857,
+          "max": 1540857
+        }
+      }
+    },
+    {
+      "profile": "mobile",
+      "surface": "status",
+      "before": {
+        "documentRequests": {
+          "values": [
+            1,
+            1,
+            1
+          ],
+          "median": 1,
+          "min": 1,
+          "max": 1
+        },
+        "jsRequests": {
+          "values": [
+            5,
+            5,
+            5
+          ],
+          "median": 5,
+          "min": 5,
+          "max": 5
+        },
+        "jsTransferredBytes": {
+          "values": [
+            14761,
+            14746,
+            14814
+          ],
+          "median": 14761,
+          "min": 14746,
+          "max": 14814
+        },
+        "jsDecodedBodyBytes": {
+          "values": [
+            33182,
+            33182,
+            33182
+          ],
+          "median": 33182,
+          "min": 33182,
+          "max": 33182
+        }
+      },
+      "after": {
+        "documentRequests": {
+          "values": [
+            1,
+            1,
+            1
+          ],
+          "median": 1,
+          "min": 1,
+          "max": 1
+        },
+        "jsRequests": {
+          "values": [
+            2,
+            2,
+            2
+          ],
+          "median": 2,
+          "min": 2,
+          "max": 2
+        },
+        "jsTransferredBytes": {
+          "values": [
+            10154,
+            10164,
+            10133
+          ],
+          "median": 10154,
+          "min": 10133,
+          "max": 10164
+        },
+        "jsDecodedBodyBytes": {
+          "values": [
+            24672,
+            24672,
+            24672
+          ],
+          "median": 24672,
+          "min": 24672,
+          "max": 24672
+        }
+      }
+    }
+  ],
+  "safety": {
+    "observedMethods": [
+      "GET"
+    ],
+    "blockedRequests": [],
+    "pageErrors": [],
+    "allNetworkWindowsSettled": true,
+    "unknownDecodedSizes": 0
+  },
+  "limits": [
+    "Three samples per profile/surface expose ordinary network and browser variability; medians are observations, not a latency guarantee or a statistical significance claim.",
+    "The comparison is Chromium desktop and emulated Pixel 7 on the same macOS host, not a physical mobile-device qualification.",
+    "First useful content is the documented DOM/paint-opportunity metric; header interactivity is separate. This is not Lighthouse LCP or a complete Core Web Vitals study.",
+    "Decoded script response bytes include reused browser-cache bodies and do not measure parsing, decoding or Worker CPU time.",
+    "Anonymous public and stored status-read behavior only: no authenticated/private app, document/provider journey, billed-cost or forced collector qualification.",
+    "Some initial-homepage and status timing ranges overlap before/after. Three samples do not justify generalizing their latency changes; the robust measured result is the removal of document/script requests during public page changes, whose timing ranges are entirely separated in these samples."
+  ]
+}

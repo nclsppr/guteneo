@@ -1,10 +1,16 @@
 # Guteneo
 
-An independent, MCP-first correspondence product: exact PDF → fax or physical post, HTML → PDF, and HTML/text → individual email. French editorial frontend inspired by printing craft. Telnyx, Amazon SES and Pingen connectors. No VBS dependency.
+The [1.0.0 release candidate](docs/V1_RELEASE_CANDIDATE.md) consolidates the web,
+MCP and integration versions with additional security and navigation checks.
+The [dedicated Claude package](docs/CLAUDE_PLUGIN.md) has its own plugin and local
+marketplace archives. Candidate preparation, production availability and directory
+publication are tracked separately in those documents.
 
-**Public design preview:** [guteneo.com](https://guteneo.com), with a directly accessible [sample workspace](https://guteneo.com/#/app). The dedicated Cloudflare preview runs entirely with fictional, per-tab browser data. No registration, upload, payment, assistant connection or real sending is active there. See [deployment evidence and preview commands](docs/PUBLIC_PREVIEW.md).
+An independent, MCP-first correspondence product: exact PDF → fax or physical post, HTML → PDF, and HTML/text → individual email. Multilingual editorial frontend inspired by printing craft. Telnyx, Amazon SES and Pingen connectors. No VBS dependency.
 
-**Hosted beta:** [guteneo-app.nclsppr.workers.dev](https://guteneo-app.nclsppr.workers.dev) runs the production-mode backend with private EU D1/R2 storage, queues and qualified private PDF services. Account/profile/session/team management, billing tracking and MCP/plugin packages are implemented. Auth0 activation and Stripe setup remain incomplete, and real assistant clients have not been qualified. Telnyx credentials are installed; verified account tariffs, an owned sender and funded budgets still gate live fax. See [release evidence](docs/LIVE_RELEASE.md).
+**Production application:** [guteneo.com](https://guteneo.com) is the canonical production origin, including browser login and the authenticated dashboard. The application uses private EU D1/R2 storage, queues and private PDF services. Account/profile/session/team management, billing tracking and MCP/plugin packages are implemented; actual identity-provider, assistant and delivery qualification remain separate evidence. The publication contract disables the application’s `workers.dev` hostname and Cloudflare version preview URLs. On 10 October 2026, the user accepted deferring migration of the dormant SES SNS subscription while SES is unused and business email sending remains disabled; canonical callback qualification is required before any future SES activation. See [current release procedure](docs/MAIN_RELEASE.md), [accepted SES deferral](docs/SES_STATUS.md) and [dated release evidence](docs/LIVE_RELEASE.md).
+
+**Separate fictional design preview:** [guteneo-preview.nclsppr.workers.dev](https://guteneo-preview.nclsppr.workers.dev), with a directly accessible [sample workspace](https://guteneo-preview.nclsppr.workers.dev/#/app). This dedicated Worker runs entirely with fictional, per-tab browser data and has no business bindings. No registration, upload, payment, assistant connection or real sending is active there. It is separate from production and is unaffected by the closure of application preview URLs. See [preview commands and dated evidence](docs/PUBLIC_PREVIEW.md).
 
 ## Run locally
 
@@ -16,7 +22,7 @@ npx playwright install chromium
 npm run demo
 ```
 
-Open `http://localhost:8787`, enter the atelier and select either fictional organization. `demo` applies local migrations, seeds fictional organizations, builds the frontend and starts Workers and the local PDF renderer. No cloud credentials or real communication needed.
+Open `http://localhost:8787`, enter the workspace and select either fictional organization. `demo` applies local migrations, seeds fictional organizations, builds the frontend and starts Workers and the local PDF renderer. No cloud credentials or real communication needed.
 
 If the Playwright CDN is unavailable on Linux, `npm run browser:prepare` extracts the bundled Chromium development fallback; it does not qualify Safari or remote Browser Run. The renderer selects this fallback if the regular browser is absent.
 
@@ -48,19 +54,12 @@ Restricted environment verification used `GUTENEO_BUNDLED_CHROMIUM=1 npx playwri
 
 ## Documentation
 
-- [Developer feature tree, role matrix and customer journeys](docs/FEATURE_MAP.md) — [offline visual atlas](docs/FEATURE_MAP.html), maintained with every feature change; repository documentation only.
-- [Product scope and accepted journeys](docs/PRODUCT.md)
-- [Execution plan, evidence and remaining work](docs/EXECUTION_PLAN.md)
-- [Architecture](docs/ARCHITECTURE.md), [data model](docs/DATA_MODEL.md), [ADR](docs/adr/0001-reliable-modular-monolith.md)
-- [API contract](docs/API_CONTRACT.md), [identity/MCP and client matrix](docs/IDENTITY_MCP.md), [Cursor file adapter](docs/CURSOR.md)
-- [Provider contracts/setup](docs/PROVIDERS.md), [live activation](docs/LIVE_ACTIVATION.md)
-- [Threats and controls](docs/THREATS.md), [dated verification sources](docs/VERIFICATION.md)
-- [Costs](docs/COSTS.md), [operations/deployment/restore](docs/RUNBOOK.md), [restore proof](docs/RESTORE_PROOF.md)
-- [Demonstration](docs/DEMO.md), [test results](docs/TEST_RESULTS.md), [product improvements](docs/IMPROVEMENTS.md)
-- [Hosted release](docs/LIVE_RELEASE.md), [Cloudflare setup](docs/CLOUDFLARE_SETUP.md), [remote migrations](docs/D1_MIGRATION.md)
-- [Account and team administration](docs/ACCOUNT_ADMIN.md), [billing](docs/BILLING.md), [assistant installation](docs/LLM_SETUP.md)
-- [Secure credential setup](docs/SECURE_CONFIGURATION.md), [antivirus](docs/SCANNER.md), [PDF rescan](docs/SCANNER_RESCAN.md)
-- [Brand asset](docs/BRAND_ASSET.md)
+Use the [engineering documentation index](docs/README.md) to find product,
+architecture, API, assistant, provider, native, verification and release contracts.
+The [repository standards](docs/REPOSITORY_STANDARDS.md) define English-first
+language, canonical English routes, terminology and ownership. The
+[technical feature atlas](docs/FEATURE_MAP.md) and its [visual view](docs/FEATURE_MAP.html)
+map features, permissions and journeys to their source; they remain repository-only.
 
 ## Deliberate gates
 

@@ -1,0 +1,2509 @@
+import { handleEmailRecipientFeedback } from "../../apps/api/src/email-recipient-feedback";
+import { readFile, readdir } from "node:fs/promises";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
+import { Miniflare, convertV4MiniflareOptions } from "miniflare";
+import { DomainService, canonicalJson } from "../../packages/domain/src/index";
+import { emailRateComponents } from "../../packages/domain/src/live-delivery-quotes";
+import {
+  secureDistributionCatalog,
+  secureDistributionInputSchema,
+  secureDistributionQuote,
+  type SecureDistributionPolicy,
+  type SecureDistributionInput,
+} from "../../packages/contracts/src/secure-distribution";
+import {
+  authenticateBrowser,
+  authenticatePersonalBrowser,
+  createPersonalBrowserSession,
+  createSession,
+  memberships,
+} from "../../apps/api/src/auth";
+import type { Env } from "../../apps/api/src/env";
+import {
+  SecureDistributionService,
+  secureSharedBinding,
+  type SecureDistributionRow,
+} from "../../apps/api/src/secure-distributions";
+import { PersonalDocumentsService } from "../../apps/api/src/personal-documents";
+import { handlePersonalDocumentRoute } from "../../apps/api/src/secure-distribution-routes";
+import {
+  getSecureObject,
+  openSecureSecret,
+  putSecureObject,
+  sealSecureSecret,
+  secureSha256,
+} from "../../apps/api/src/secure-storage";
+import {
+  maintainDocuments,
+  maintainSecureObjects,
+} from "../../apps/api/src/maintenance";
+
+// Real, isolated Workers SQLite and R2. The renderer and authentication evidence
+// below are synthetic fixtures; no provider, Auth0 tenant or real send is used.
+let mf: Miniflare, db: D1Database, bucket: R2Bucket;
+const origin = "https://guteneo.example.test";
+const stamp = () => new Date().toISOString();
+const id = (prefix: string) =>
+  `${prefix}_${crypto.randomUUID().replaceAll("-", "")}`;
+const identity = {
+  provider: "resend" as const,
+  accountId: "secure-core-fixture",
+  routeId: "resend:secure-core-fixture:guteneo.com",
+};
+async function apply(sql: string) {
+  let statement = "",
+    trigger = false;
+  const statements: D1PreparedStatement[] = [];
+  for (const raw of sql.split("\n")) {
+    const line = raw.trim();
+    if (!line || line.startsWith("--")) continue;
+    if (!statement) trigger = line.startsWith("CREATE TRIGGER");
+    statement += `${line}\n`;
+    if (
+      (trigger && (line === "END;" || /\bBEGIN\b.+\bEND;$/.test(line))) ||
+      (!trigger && line.endsWith(";"))
+    ) {
+      statements.push(db.prepare(statement));
+      statement = "";
+      trigger = false;
+    }
+  }
+  if (statement.trim()) throw new Error("Incomplete migration fixture");
+  if (statements.length) await db.batch(statements);
+}
+beforeAll(async () => {
+  mf = new Miniflare(
+    convertV4MiniflareOptions({
+      name: "secure-distribution-core",
+      modules: true,
+      script: 'export default {fetch(){return new Response("fixture")}}',
+      compatibilityDate: "2026-09-16",
+      d1Databases: ["DB"],
+      r2Buckets: ["DOCUMENTS"],
+    }),
+  );
+  db = (await mf.getD1Database("DB")) as unknown as D1Database;
+  bucket = (await mf.getR2Bucket("DOCUMENTS")) as unknown as R2Bucket;
+  for (const filename of (
+    await readdir(new URL("../../migrations/", import.meta.url))
+  )
+    .filter((name) => name.endsWith(".sql"))
+    .sort())
+    await apply(
+      await readFile(
+        new URL(`../../migrations/${filename}`, import.meta.url),
+        "utf8",
+      ),
+    );
+});
+afterAll(async () => {
+  await mf?.dispose();
+});
+
+function proxyBucket(overrides: Partial<R2Bucket>): R2Bucket {
+  return new Proxy(bucket, {
+    get(target, key) {
+      const override = Reflect.get(overrides, key);
+      if (override !== undefined) return override;
+      const value = Reflect.get(target, key);
+      return typeof value === "function" ? value.bind(target) : value;
+    },
+  });
+}
+async function fixture(
+  mode: "simulation" | "production" = "simulation",
+  pageCount = 1,
+  accessMode: "strong" | "verified_account" = "strong",
+  quoteClock?: { value: number },
+) {
+  await db
+    .prepare(
+      "UPDATE secure_document_authentication_policy SET mode=? WHERE id=1",
+    )
+    .bind(accessMode)
+    .run();
+  const organizationId = id("org"),
+    userId = id("usr"),
+    recipientId = id("usr");
+  const senderId = id("sender"),
+    createdAt = stamp();
+  const email = `${recipientId}@example.test`,
+    ownerEmail = `${userId}@example.test`;
+  const bytes = new TextEncoder().encode(
+    `%PDF-1.7\nSynthetic confidential fixture ${organizationId}\n%%EOF`,
+  );
+  const hash = await secureSha256(bytes),
+    storageKey = `core-source/${organizationId}.pdf`;
+  await db.batch([
+    db
+      .prepare(
+        "INSERT INTO organizations(id,name,mode,created_at) VALUES(?,'Atelier synthétique',?,?)",
+      )
+      .bind(organizationId, mode, createdAt),
+    db
+      .prepare(
+        "INSERT INTO users(id,name,email,created_at) VALUES(?,'Expéditeur synthétique',?,?),(?,'Destinataire synthétique',?,?)",
+      )
+      .bind(userId, ownerEmail, createdAt, recipientId, email, createdAt),
+    db
+      .prepare(
+        "INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES(?,?,'admin',?)",
+      )
+      .bind(organizationId, userId, createdAt),
+    db
+      .prepare(
+        "INSERT INTO senders(id,organization_id,channel,name,address,status,mode,created_at) VALUES(?,?,'email','Atelier synthétique',?,'verified',?,?)",
+      )
+      .bind(
+        senderId,
+        organizationId,
+        mode === "production"
+          ? "documents@guteneo.com"
+          : `${organizationId}@example.invalid`,
+        mode,
+        createdAt,
+      ),
+    db
+      .prepare(
+        "INSERT INTO usage(organization_id,channel,period,limit_count,limit_minor,currency) VALUES(?,'email',?,100,50000,'EUR')",
+      )
+      .bind(organizationId, createdAt.slice(0, 7)),
+    db
+      .prepare("INSERT INTO channel_controls VALUES(?,'email',1)")
+      .bind(organizationId),
+  ]);
+  const queue = vi.fn(async (_message: unknown) => {});
+  const renderer = vi.fn(async (request: Request) => {
+    const url = new URL(request.url),
+      start = Number(url.searchParams.get("startPage")),
+      count = Number(url.searchParams.get("pageCount"));
+    expect(new Uint8Array(await request.arrayBuffer())).toEqual(bytes);
+    expect(request.headers.get("X-Guteneo-Scan-Sha256")).toBe(hash);
+    const pages = await Promise.all(
+      Array.from({ length: count }, async (_, offset) => {
+        const page = start + offset,
+          image = new Uint8Array([255, 216, page, 255, 217]);
+        return {
+          page,
+          width: 1200,
+          height: 1600,
+          mimeType: "image/jpeg",
+          imageBase64: btoa(String.fromCharCode(...image)),
+          imageSha256: await secureSha256(image),
+          text: `Texte accessible synthétique, page ${page}`,
+          textTruncated: false,
+        };
+      }),
+    );
+    return Response.json({
+      sha256: hash,
+      totalPages: pageCount,
+      startPage: start,
+      pageCount: count,
+      nextPage: start + count <= pageCount ? start + count : null,
+      pages,
+      rendering: { complete: true },
+    });
+  });
+  const env = {
+    DB: db,
+    DOCUMENTS: bucket,
+    APP_ORIGIN: origin,
+    MODE: mode,
+    ENVIRONMENT: mode === "production" ? "production" : "local",
+    SECURE_DISTRIBUTION_ENABLED: "true",
+    SENSITIVE_DOCUMENT_AUTHENTICATION: accessMode,
+    ...(accessMode === "verified_account"
+      ? { AUTH0_AUTH_POLICY: "verified_email" }
+      : {}),
+    SECURE_DOCUMENTS_KEY: btoa("s".repeat(32)),
+    DOCUMENT_RENDERER: { fetch: renderer },
+    DISPATCH_QUEUE: { send: queue },
+  } as unknown as Env;
+  if (mode === "production") {
+    const rate = {
+      usdMicrosPerMessage: 100,
+      eurPerUsdNumerator: 1,
+      eurPerUsdDenominator: 1,
+      attachmentBasis: "no_attachments" as const,
+    };
+    const components = emailRateComponents(rate);
+    await db
+      .prepare(
+        "INSERT INTO trusted_delivery_costs(id,organization_id,sender_id,channel,provider,account_id,route_id,options_json,rate_json,base_numerator,byte_numerator,rate_denominator,currency,fiscal_basis,quote_ttl_seconds,source_reference,source_sha256,valid_from,expires_at,status,created_at) VALUES(?,?,?,'email','resend',?,?,'{}',?,?,?,?,'EUR','qualified_final_variable_cost',900,'ISOLATED SYNTHETIC TEST',?,?,?,'qualified',?)",
+      )
+      .bind(
+        id("cost"),
+        organizationId,
+        senderId,
+        identity.accountId,
+        identity.routeId,
+        canonicalJson(rate),
+        components.base_numerator,
+        components.byte_numerator,
+        components.rate_denominator,
+        "b".repeat(64),
+        quoteClock
+          ? new Date(quoteClock.value - 60000).toISOString()
+          : createdAt,
+        new Date(Date.now() + 3600000).toISOString(),
+        createdAt,
+      )
+      .run();
+  }
+  if (accessMode === "verified_account")
+    await db.batch(
+      [userId, recipientId].map((accountId) =>
+        db
+          .prepare(
+            "INSERT INTO auth_identities(issuer,subject,user_id,created_at) VALUES('https://fixture.invalid/',?,?,?)",
+          )
+          .bind(accountId, accountId, createdAt),
+      ),
+    );
+  const authEvidence = {
+    verifiedEmail: ownerEmail,
+    authenticatedAt: Math.floor(Date.now() / 1000),
+    amr: accessMode === "strong" ? ["webauthn"] : ["pwd"],
+    strongAuthentication: accessMode === "strong",
+    authenticationPolicyVersion:
+      accessMode === "strong" ? "guteneo-sensitive-v1" : null,
+    identityIssuer: "https://fixture.invalid/",
+    identitySubject: userId,
+  };
+  const ownerSession = await createSession(
+    env,
+    (await memberships(env, userId))[0],
+    accessMode === "strong",
+    false,
+    true,
+    authEvidence,
+  );
+  const ownerRequest = new Request(`${origin}/api/session`, {
+    headers: { Cookie: ownerSession.cookie.split(";")[0] },
+  });
+  const authenticated = await authenticateBrowser(ownerRequest, env);
+  const owner = await authenticatePersonalBrowser(ownerRequest, env);
+  const recipientSession = await createPersonalBrowserSession(env, {
+    ...authEvidence,
+    verifiedEmail: email,
+    userId: recipientId,
+    development: false,
+    mfa: accessMode === "strong",
+    verifiedAccount: true,
+    identitySubject: recipientId,
+  });
+  const recipient = await authenticatePersonalBrowser(
+    new Request(`${origin}/api/personal/session`, {
+      headers: { Cookie: recipientSession.cookie.split(";")[0] },
+    }),
+    env,
+  );
+  const domain = new DomainService(db, {
+    mode,
+    sensitiveDocumentAuthentication: accessMode,
+    ...(quoteClock ? { now: () => quoteClock.value } : {}),
+    ...(mode === "production"
+      ? { liveDeliveryIdentity: { email: identity } }
+      : {}),
+  });
+  const source = await domain.registerDocument(authenticated.context, {
+    name: "Document confidentiel synthétique.pdf",
+    sha256: hash,
+    size: bytes.length,
+    pages: pageCount,
+    status: "ready",
+    source: "import",
+    storageKey,
+    ...(mode === "production" ? { scanVerified: true } : {}),
+  });
+  await bucket.put(storageKey, bytes);
+  const service = new SecureDistributionService(env, domain),
+    personal = new PersonalDocumentsService(env);
+  return {
+    env,
+    domain,
+    service,
+    personal,
+    ctx: authenticated.context,
+    owner,
+    recipient,
+    source,
+    bytes,
+    hash,
+    queue,
+    renderer,
+    organizationId,
+  };
+}
+type Fixture = Awaited<ReturnType<typeof fixture>>;
+const policy: SecureDistributionPolicy = {
+  recipientBinding: "independent",
+  retentionDays: 7,
+  allowOriginalDownload: false,
+  allowVaultDeposit: true,
+  personalRetentionDays: 365,
+};
+async function prepared(
+  f: Fixture,
+  options: Partial<SecureDistributionPolicy> = {},
+  invitation: Partial<SecureDistributionInput> = {},
+) {
+  const input = secureDistributionInputSchema.parse({
+    documentId: f.source.id,
+    recipient: { address: f.recipient.email! },
+    ...policy,
+    ...options,
+    ...invitation,
+  });
+  const key = id("prepare");
+  const initial = await f.service.prepare(f.ctx, input, key);
+  expect(initial.status).toBe("preparing");
+  expect(initial.dispatchId).toBeNull();
+  for (let step = 0; step < 35; step++) {
+    await f.service.processRender(initial.id);
+    const result = await f.service.get(f.ctx, initial.id);
+    if (result.status !== "preparing") return { view: result, input, key };
+  }
+  throw new Error("Fixture render did not complete");
+}
+async function accepted(
+  f: Fixture,
+  options: Partial<SecureDistributionPolicy> = {},
+) {
+  const preparation = await prepared(f, options);
+  expect(
+    preparation.view.status,
+    JSON.stringify(
+      await db
+        .prepare("SELECT error_code FROM secure_distributions WHERE id=?")
+        .bind(preparation.view.id)
+        .first(),
+    ),
+  ).toBe("prepared");
+  const approved = await f.service.approve(
+    f.ctx,
+    preparation.view.id,
+    f.owner,
+    true,
+    true,
+  );
+  expect(approved.approved).toBe(true);
+  const key = id("confirm"),
+    active = await f.service.confirm(f.ctx, approved.id, key);
+  expect(active.status).toBe("active");
+  const row = (await db
+    .prepare(
+      "SELECT * FROM secure_distributions WHERE organization_id=? AND id=?",
+    )
+    .bind(f.organizationId, active.id)
+    .first<SecureDistributionRow>())!;
+  return { ...preparation, view: active, row, confirmKey: key };
+}
+async function bound(
+  f: Fixture,
+  options: Partial<SecureDistributionPolicy> = {},
+) {
+  const share = await accepted(f, options);
+  const token = await openSecureSecret(
+    f.env,
+    `${f.organizationId}:${share.view.id}`,
+    share.row.sealed_token,
+  );
+  expect(await f.personal.claim(f.recipient, token)).toMatchObject({
+    status: "pending",
+  });
+  expect((await f.personal.get(f.recipient, share.view.id)).pages).toEqual([]);
+  await f.service.bind(f.ctx, share.view.id, f.owner, {
+    recipientUserId: f.recipient.userId,
+    verificationMethod: "independent_channel",
+  });
+  return share;
+}
+async function financials(f: Fixture, dispatchId: string) {
+  const charge = await db
+    .prepare(
+      "SELECT amount_minor,evidence FROM secure_distribution_charges WHERE organization_id=? AND dispatch_id=?",
+    )
+    .bind(f.organizationId, dispatchId)
+    .first();
+  const credit = await db
+    .prepare(
+      "SELECT granted_minor,spent_minor,reserved_minor,available_minor FROM welcome_credit_balances WHERE organization_id=?",
+    )
+    .bind(f.organizationId)
+    .first();
+  const usage = await db
+    .prepare(
+      "SELECT reserved_minor,confirmed_minor FROM usage WHERE organization_id=? AND channel='email' AND period=?",
+    )
+    .bind(f.organizationId, stamp().slice(0, 7))
+    .first();
+  const transport = await db
+    .prepare(
+      "SELECT amount_minor FROM reservations WHERE organization_id=? AND dispatch_id=?",
+    )
+    .bind(f.organizationId, dispatchId)
+    .first();
+  return { charge, credit, usage, transport };
+}
+
+describe("secure distribution — encrypted objects and immutable prices", () => {
+  it("prices each immutable PDF/recipient term separately from notification transport", () => {
+    expect(secureDistributionCatalog().unit).toBe("pdf_per_recipient");
+    for (const [days, price] of [
+      [7, 49],
+      [30, 99],
+      [90, 199],
+      [365, 499],
+    ] as const)
+      expect(
+        secureDistributionQuote(
+          { ...policy, retentionDays: days, allowVaultDeposit: false },
+          2,
+        ),
+      ).toMatchObject({
+        sharedMinor: price,
+        personalMinor: 0,
+        transportMinor: 2,
+        totalMinor: price + 2,
+        nonRefundable: true,
+      });
+    expect(
+      secureDistributionQuote({ ...policy, personalRetentionDays: 1095 }, 1)
+        .totalMinor,
+    ).toBe(549);
+    expect(() => secureDistributionQuote(policy, 0.5)).toThrow();
+    expect(
+      secureDistributionInputSchema.safeParse({
+        documentId: "doc",
+        recipient: { address: "x@example.test" },
+        retentionDays: 8,
+      }).success,
+    ).toBe(false);
+  });
+  it("stores envelope ciphertext and authenticates namespace, content hash and encryption key", async () => {
+    const f = await fixture(),
+      key = id("encrypted"),
+      binding = `shared:${f.organizationId}:share:original`;
+    await putSecureObject(f.env, key, binding, f.bytes, "application/pdf");
+    const stored = (await bucket.get(key))!;
+    expect(new Uint8Array(await stored.arrayBuffer())).not.toEqual(f.bytes);
+    expect(stored.httpMetadata?.contentType).toBe("application/octet-stream");
+    expect(stored.customMetadata?.binding).toBe(await secureSha256(binding));
+    expect((await getSecureObject(f.env, key, binding, f.hash)).bytes).toEqual(
+      f.bytes,
+    );
+    await expect(
+      getSecureObject(f.env, key, `shared:other:${binding}`, f.hash),
+    ).rejects.toMatchObject({ code: "SECURE_STORAGE_INTEGRITY" });
+    await expect(
+      getSecureObject(f.env, key, binding, "0".repeat(64)),
+    ).rejects.toMatchObject({ code: "SECURE_STORAGE_INTEGRITY" });
+    await expect(
+      getSecureObject(
+        { ...f.env, SECURE_DOCUMENTS_KEY: btoa("k".repeat(32)) },
+        key,
+        binding,
+        f.hash,
+      ),
+    ).rejects.toMatchObject({ code: "SECURE_STORAGE_INTEGRITY" });
+    await expect(
+      getSecureObject(
+        { ...f.env, MODE: "production", SECURE_DOCUMENTS_KEY: undefined },
+        key,
+        binding,
+        f.hash,
+      ),
+    ).rejects.toMatchObject({ code: "SECURE_STORAGE_INTEGRITY" });
+    // An immutable replay verifies the committed content instead of replacing it.
+    await expect(
+      putSecureObject(
+        f.env,
+        key,
+        binding,
+        new Uint8Array([1, 2, 3]),
+        "application/pdf",
+      ),
+    ).rejects.toMatchObject({ code: "SECURE_STORAGE_INTEGRITY" });
+    expect((await getSecureObject(f.env, key, binding, f.hash)).bytes).toEqual(
+      f.bytes,
+    );
+  });
+  it("rotates the active wrapping key while retaining decryption of old objects and invitations", async () => {
+    const f = await fixture(),
+      oldKey = id("old-object"),
+      newKey = id("new-object");
+    const binding = `shared:${f.organizationId}:share:original`;
+    await putSecureObject(f.env, oldKey, binding, f.bytes, "application/pdf");
+    const oldSecret = await sealSecureSecret(
+      f.env,
+      binding,
+      "opaque-synthetic-invitation",
+    );
+    // Exercise already stored metadata and two-part invitation ciphertext from
+    // before key-version support; no object or link is rewritten on rotation.
+    const stored = (await bucket.get(oldKey))!,
+      metadata = { ...stored.customMetadata };
+    delete metadata.keyId;
+    await bucket.put(oldKey, await stored.arrayBuffer(), {
+      customMetadata: metadata,
+    });
+    const legacySecret = oldSecret.split(".").slice(1).join(".");
+    const rotated: Env = {
+      ...f.env,
+      SECURE_DOCUMENTS_KEY: undefined,
+      SECURE_DOCUMENTS_KEY_ID: "v2",
+      SECURE_DOCUMENTS_KEYS: JSON.stringify({
+        v1: f.env.SECURE_DOCUMENTS_KEY,
+        v2: btoa("n".repeat(32)),
+      }),
+    };
+    expect(
+      (await getSecureObject(rotated, oldKey, binding, f.hash)).bytes,
+    ).toEqual(f.bytes);
+    expect(await openSecureSecret(rotated, binding, oldSecret)).toBe(
+      "opaque-synthetic-invitation",
+    );
+    expect(await openSecureSecret(rotated, binding, legacySecret)).toBe(
+      "opaque-synthetic-invitation",
+    );
+    await putSecureObject(rotated, newKey, binding, f.bytes, "application/pdf");
+    expect((await bucket.head(newKey))?.customMetadata?.keyId).toBe("v2");
+    expect(
+      (await getSecureObject(rotated, newKey, binding, f.hash)).bytes,
+    ).toEqual(f.bytes);
+    const newSecret = await sealSecureSecret(
+      rotated,
+      binding,
+      "new-invitation",
+    );
+    expect(newSecret.startsWith("v2.")).toBe(true);
+    expect(await openSecureSecret(rotated, binding, newSecret)).toBe(
+      "new-invitation",
+    );
+    await expect(
+      openSecureSecret(rotated, `${binding}:other-recipient`, newSecret),
+    ).rejects.toMatchObject({ code: "SECURE_STORAGE_INTEGRITY" });
+    const retired: Env = {
+      ...rotated,
+      MODE: "production",
+      SECURE_DOCUMENTS_KEYS: JSON.stringify({ v2: btoa("n".repeat(32)) }),
+    };
+    await expect(
+      getSecureObject(retired, oldKey, binding, f.hash),
+    ).rejects.toMatchObject({ code: "SECURE_STORAGE_INTEGRITY" });
+    await expect(
+      openSecureSecret(retired, binding, legacySecret),
+    ).rejects.toMatchObject({ code: "SECURE_STORAGE_INTEGRITY" });
+    expect(
+      (await getSecureObject(retired, newKey, binding, f.hash)).bytes,
+    ).toEqual(f.bytes);
+  });
+  it.each(["ciphertext", "wrapped_key"] as const)(
+    "rejects tampering of %s in actual R2",
+    async (part) => {
+      const f = await fixture(),
+        key = id("tampered"),
+        binding = `personal:${f.recipient.userId}:pd:original`;
+      await putSecureObject(f.env, key, binding, f.bytes, "application/pdf");
+      const stored = (await bucket.get(key))!,
+        ciphertext = new Uint8Array(await stored.arrayBuffer()),
+        metadata = { ...stored.customMetadata };
+      if (part === "ciphertext") ciphertext[0] ^= 1;
+      else metadata.sealedKey = btoa("corrupt wrapped data key");
+      await bucket.put(key, ciphertext, { customMetadata: metadata });
+      await expect(
+        getSecureObject(f.env, key, binding, f.hash),
+      ).rejects.toMatchObject({ code: "SECURE_STORAGE_INTEGRITY" });
+    },
+  );
+});
+
+describe("secure distribution — asynchronous preparation and paid acceptance", () => {
+  it("bounds browser approval expiry by its recorded creation time across clock ticks", async () => {
+    const startedAt = Date.now();
+    let advancing = false;
+    let tick = 0;
+    const clock = {
+      get value() {
+        return startedAt + (advancing ? tick++ * 1000 : 0);
+      },
+    };
+    const f = await fixture("simulation", 1, "verified_account", clock);
+    const preparation = await prepared(f);
+    const dispatchId = preparation.view.dispatchId!;
+    const { dispatch } = await f.domain.getDispatch(f.ctx, dispatchId);
+    // Cross second boundaries during approval without sleeping or changing
+    // session, identity, membership or any database authorization fence.
+    advancing = true;
+    const approve = async () => {
+      await f.domain.approveDispatch(f.ctx, dispatchId, dispatch.fingerprint, {
+        recipientRequested: true,
+      });
+      const record = await db
+        .prepare(
+          "SELECT id,created_at,expires_at,approval_kind FROM approvals WHERE organization_id=? AND dispatch_id=?",
+        )
+        .bind(f.organizationId, dispatchId)
+        .first<{
+          id: string;
+          created_at: string;
+          expires_at: string;
+          approval_kind: string;
+        }>();
+      expect(record).toMatchObject({ approval_kind: "browser" });
+      expect(
+        Date.parse(record!.expires_at) - Date.parse(record!.created_at),
+      ).toBe(15 * 60_000);
+      expect((await f.service.get(f.ctx, preparation.view.id)).approved).toBe(
+        true,
+      );
+      return record!;
+    };
+    const inserted = await approve();
+    // Reapproval exercises the SQL update trigger with the same invariant.
+    const updated = await approve();
+    expect(updated.id).toBe(inserted.id);
+    expect(updated.created_at).not.toBe(inserted.created_at);
+  });
+  it("renders bounded batches, preserves immutable consent and replays a preparation without new storage or fees", async () => {
+    const f = await fixture("simulation", 4),
+      p = await prepared(f);
+    expect(p.view.status).toBe("prepared");
+    expect(
+      f.renderer.mock.calls.map(([request]) => new URL(request.url).search),
+    ).toEqual(["?startPage=1&pageCount=3", "?startPage=4&pageCount=1"]);
+    expect((await f.service.prepare(f.ctx, p.input, p.key)).id).toBe(p.view.id);
+    await expect(
+      f.service.prepare(
+        f.ctx,
+        { ...p.input, recipient: { address: "different@example.test" } },
+        p.key,
+      ),
+    ).rejects.toMatchObject({ code: "IDEMPOTENCY_CONFLICT" });
+    expect(await financials(f, p.view.dispatchId!)).toMatchObject({
+      charge: null,
+      transport: null,
+    });
+    await expect(
+      f.service.confirm(f.ctx, p.view.id, id("premature")),
+    ).rejects.toMatchObject({ code: "HUMAN_APPROVAL_REQUIRED" });
+    await expect(
+      db
+        .prepare(
+          "UPDATE secure_distributions SET recipient_address='swapped@example.test' WHERE id=?",
+        )
+        .bind(p.view.id)
+        .run(),
+    ).rejects.toThrow("secure_distribution_immutable");
+    await expect(
+      db
+        .prepare(
+          "UPDATE secure_distribution_pages SET image_sha256=? WHERE distribution_id=?",
+        )
+        .bind("0".repeat(64), p.view.id)
+        .run(),
+    ).rejects.toThrow("secure_page_immutable");
+    expect(
+      await db
+        .prepare("SELECT count(*) AS n FROM outbox WHERE organization_id=?")
+        .bind(f.organizationId)
+        .first(),
+    ).toEqual({ n: 0 });
+  });
+  it("fails closed on a renderer hash mismatch before creating a dispatch, charge or delivery outbox", async () => {
+    const f = await fixture();
+    f.renderer.mockImplementationOnce(async () =>
+      Response.json({
+        sha256: "0".repeat(64),
+        totalPages: 1,
+        startPage: 1,
+        pageCount: 1,
+        nextPage: null,
+        pages: [
+          {
+            page: 1,
+            width: 10,
+            height: 10,
+            mimeType: "image/jpeg",
+            imageBase64: "YWJj",
+            imageSha256: "a".repeat(64),
+            text: "",
+            textTruncated: false,
+          },
+        ],
+        rendering: { complete: true },
+      }),
+    );
+    const input = secureDistributionInputSchema.parse({
+      documentId: f.source.id,
+      recipient: { address: f.recipient.email! },
+    });
+    const p = await f.service.prepare(f.ctx, input, id("bad-render"));
+    await f.service.processRender(p.id);
+    expect(await f.service.get(f.ctx, p.id)).toMatchObject({
+      status: "failed",
+      dispatchId: null,
+      approved: false,
+    });
+    expect(
+      await db
+        .prepare("SELECT error_code FROM secure_distributions WHERE id=?")
+        .bind(p.id)
+        .first(),
+    ).toEqual({ error_code: "SECURE_RENDER_INTEGRITY" });
+    expect(
+      await db
+        .prepare(
+          "SELECT count(*) n FROM secure_distribution_charges WHERE organization_id=?",
+        )
+        .bind(f.organizationId)
+        .first(),
+    ).toEqual({ n: 0 });
+    expect(
+      await db
+        .prepare("SELECT count(*) n FROM outbox WHERE organization_id=?")
+        .bind(f.organizationId)
+        .first(),
+    ).toEqual({ n: 0 });
+  });
+  it("observes a durable preparation failure once without exporting private error details", async () => {
+    const f = await fixture();
+    const marker = "private-recipient@example.test signed-url secret-document";
+    f.renderer.mockRejectedValueOnce(new Error(marker));
+    const p = await f.service.prepare(
+      f.ctx,
+      secureDistributionInputSchema.parse({
+        documentId: f.source.id,
+        recipient: { address: f.recipient.email! },
+      }),
+      id("failed-render-observation"),
+    );
+    const log = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    try {
+      await f.service.processRender(p.id);
+      await f.service.processRender(p.id);
+      expect(log).toHaveBeenCalledTimes(1);
+      expect(log.mock.calls[0][0]).toMatchObject({
+        component: "app",
+        event: "queue",
+        route: "distribution",
+        code: "SECURE_PREPARATION_FAILED",
+        failed: 1,
+      });
+      const output = JSON.stringify(log.mock.calls);
+      for (const value of [marker, p.id, f.organizationId, f.recipient.email!])
+        expect(output).not.toContain(value);
+      expect(await f.service.get(f.ctx, p.id)).toMatchObject({
+        status: "failed",
+        dispatchId: null,
+      });
+    } finally {
+      log.mockRestore();
+    }
+  });
+  it("observes exhausted secure-render jobs once without retrying preparation", async () => {
+    const f = await fixture();
+    const p = await f.service.prepare(
+      f.ctx,
+      secureDistributionInputSchema.parse({
+        documentId: f.source.id,
+        recipient: { address: f.recipient.email! },
+      }),
+      id("exhausted-render-observation"),
+    );
+    const log = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    try {
+      await f.service.failRender(p.id);
+      await f.service.failRender(p.id);
+      await f.service.processRender(p.id);
+      expect(log).toHaveBeenCalledTimes(1);
+      expect(log.mock.calls[0][0]).toMatchObject({
+        code: "SECURE_PREPARATION_FAILED",
+        failed: 1,
+      });
+      expect(f.renderer).not.toHaveBeenCalled();
+      expect(await f.service.get(f.ctx, p.id)).toMatchObject({
+        status: "failed",
+        dispatchId: null,
+      });
+    } finally {
+      log.mockRestore();
+    }
+  });
+  it.each(["simulation", "production"] as const)(
+    "charges a %s term once, separates transport and never refunds revocation",
+    async (mode) => {
+      const f = await fixture(mode),
+        p = await accepted(f),
+        fee = 248;
+      const before = await financials(f, p.view.dispatchId!);
+      expect(before.charge).toEqual({ amount_minor: fee, evidence: mode });
+      expect(
+        await db
+          .prepare(
+            "SELECT available_minor FROM pdf_validation_available_credits WHERE organization_id=? AND evidence=?",
+          )
+          .bind(f.organizationId, mode)
+          .first(),
+      ).toEqual({
+        available_minor:
+          5000 -
+          fee -
+          (mode === "production" ? p.view.quote.transportMinor : 0),
+      });
+      expect(
+        await new DomainService(db, { mode }).usageActivity(f.ctx),
+      ).toMatchObject({
+        evidence: mode,
+        totals: {
+          amountMinor: fee,
+          dispatchCount: 0,
+          chargeCount: 1,
+          activeDays: 1,
+        },
+      });
+      expect(before.usage).toMatchObject({ confirmed_minor: fee });
+      expect(before.transport).toEqual({
+        amount_minor: p.view.quote.transportMinor,
+      });
+      if (mode === "production")
+        expect(before.credit).toEqual({
+          granted_minor: 5000,
+          spent_minor: fee,
+          reserved_minor: p.view.quote.transportMinor,
+          available_minor: 5000 - fee - p.view.quote.transportMinor,
+        });
+      else expect(before.credit).toBeNull();
+      await f.service.confirm(f.ctx, p.view.id, p.confirmKey);
+      expect(await financials(f, p.view.dispatchId!)).toEqual(before);
+      await f.service.revoke(f.ctx, p.view.id);
+      await f.service.revoke(f.ctx, p.view.id);
+      expect(await financials(f, p.view.dispatchId!)).toEqual(before);
+      expect((await f.service.get(f.ctx, p.view.id)).status).toBe("revoked");
+      expect(
+        await db
+          .prepare(
+            "SELECT count(*) n FROM outbox WHERE organization_id=? AND dispatch_id=?",
+          )
+          .bind(f.organizationId, p.view.dispatchId)
+          .first(),
+      ).toEqual({ n: 1 });
+      await expect(
+        db
+          .prepare(
+            "DELETE FROM secure_distribution_charges WHERE organization_id=?",
+          )
+          .bind(f.organizationId)
+          .run(),
+      ).rejects.toThrow("secure_charge_immutable");
+    },
+  );
+});
+
+describe("secure distribution — explicit quote recovery", () => {
+  async function expiredPreparation() {
+    const clock = { value: Date.now() - 16 * 60000 };
+    const f = await fixture("production", 1, "verified_account", clock);
+    const p = await prepared(f, {}, { costCeilingMinor: 300 });
+    clock.value = Date.now();
+    expect(p.view.status).toBe("prepared");
+    expect(Date.parse(p.view.renewal!.expiresAt!)).toBeLessThan(Date.now());
+    return { f, p };
+  }
+  async function financialEffects(organizationId: string) {
+    return db
+      .prepare(
+        `SELECT (SELECT count(*) FROM approvals WHERE organization_id=?) approvals,
+       (SELECT count(*) FROM reservations WHERE organization_id=?) reservations,
+       (SELECT count(*) FROM outbox WHERE organization_id=?) outbox,
+       (SELECT count(*) FROM secure_distribution_charges WHERE organization_id=?) charges,
+       (SELECT count(*) FROM attempts WHERE organization_id=?) attempts`,
+      )
+      .bind(...Array(5).fill(organizationId))
+      .first();
+  }
+  it("replaces an expired notification quote with the same source, recipient, policy, sender and cap, requiring new approval", async () => {
+    const { f, p } = await expiredPreparation();
+    const old = (await f.domain.getDispatch(f.ctx, p.view.dispatchId!))
+      .dispatch;
+    const snapshot = await db
+      .prepare(
+        "SELECT quote_json,input_json,dispatch_id,manifest_sha256 FROM secure_distributions WHERE id=?",
+      )
+      .bind(p.view.id)
+      .first();
+    await expect(
+      f.service.approve(f.ctx, p.view.id, f.owner, true, true),
+    ).rejects.toMatchObject({ code: "LIVE_QUOTE_INVALID" });
+    const renewed = await f.service.renew(f.ctx, p.view.id, f.owner);
+    expect(renewed.id).not.toBe(p.view.id);
+    expect(renewed.status).toBe("preparing");
+    await f.service.processRender(renewed.id);
+    const ready = await f.service.get(f.ctx, renewed.id);
+    const replacement = (await f.domain.getDispatch(f.ctx, ready.dispatchId!))
+      .dispatch;
+    expect(ready.status).toBe("prepared");
+    expect(ready.source).toEqual(p.view.source);
+    expect(ready.recipient).toEqual(p.view.recipient);
+    expect(ready.policy).toEqual(p.view.policy);
+    expect(ready.quote).toEqual(p.view.quote);
+    expect(ready.approved).toBe(false);
+    expect(replacement.sender_id).toBe(old.sender_id);
+    expect(replacement.ceiling_minor).toBe(old.ceiling_minor);
+    expect(Date.parse(replacement.quote_expires_at!)).toBeGreaterThan(
+      Date.now(),
+    );
+    expect((await f.domain.getDispatch(f.ctx, old.id)).dispatch.status).toBe(
+      "cancelled",
+    );
+    expect(
+      await db
+        .prepare(
+          "SELECT quote_json,input_json,dispatch_id,manifest_sha256 FROM secure_distributions WHERE id=?",
+        )
+        .bind(p.view.id)
+        .first(),
+    ).toEqual(snapshot);
+    expect((await f.service.get(f.ctx, p.view.id)).renewal).toMatchObject({
+      available: true,
+      replacementId: renewed.id,
+    });
+    expect(await financialEffects(f.organizationId)).toEqual({
+      approvals: 0,
+      reservations: 0,
+      outbox: 0,
+      charges: 0,
+      attempts: 0,
+    });
+    await expect(
+      f.service.confirm(f.ctx, ready.id, id("confirm")),
+    ).rejects.toMatchObject({ code: "HUMAN_APPROVAL_REQUIRED" });
+  });
+  it("deduplicates concurrent renewal and reuses its replacement after a lost response", async () => {
+    const { f, p } = await expiredPreparation();
+    const [first, second] = await Promise.all([
+      f.service.renew(f.ctx, p.view.id, f.owner),
+      f.service.renew(f.ctx, p.view.id, f.owner),
+    ]);
+    expect(second.id).toBe(first.id);
+    expect((await f.service.renew(f.ctx, p.view.id, f.owner)).id).toBe(
+      first.id,
+    );
+    expect(
+      await db
+        .prepare(
+          "SELECT count(*) n FROM secure_distributions WHERE organization_id=?",
+        )
+        .bind(f.organizationId)
+        .first(),
+    ).toEqual({ n: 2 });
+    expect(
+      await db
+        .prepare(
+          "SELECT count(*) n FROM secure_document_events WHERE distribution_id=? AND type='quote_renewal_started'",
+        )
+        .bind(p.view.id)
+        .first(),
+    ).toEqual({ n: 1 });
+  });
+  it("reuses a completed concurrent renewal after source verification resumes", async () => {
+    const { f, p } = await expiredPreparation();
+    const verifier = f.service as unknown as {
+      exactSource(row: SecureDistributionRow): Promise<unknown>;
+    };
+    const original = verifier.exactSource.bind(f.service);
+    let reached!: () => void, release!: () => void;
+    const paused = new Promise<void>((resolve) => {
+      reached = resolve;
+    });
+    const resumed = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const check = vi
+      .spyOn(verifier, "exactSource")
+      .mockImplementationOnce(async (row) => {
+        reached();
+        await resumed;
+        return original(row);
+      });
+    const first = f.service.renew(f.ctx, p.view.id, f.owner);
+    try {
+      await paused;
+      const second = await f.service.renew(f.ctx, p.view.id, f.owner);
+      release();
+      expect((await first).id).toBe(second.id);
+      expect(
+        await db
+          .prepare(
+            "SELECT count(*) n FROM secure_distributions WHERE organization_id=?",
+          )
+          .bind(f.organizationId)
+          .first(),
+      ).toEqual({ n: 2 });
+      expect(await financialEffects(f.organizationId)).toEqual({
+        approvals: 0,
+        reservations: 0,
+        outbox: 0,
+        charges: 0,
+        attempts: 0,
+      });
+    } finally {
+      release();
+      check.mockRestore();
+    }
+  });
+  it("preserves old approval evidence without transferring it after a policy revision", async () => {
+    const f = await fixture("production", 1, "verified_account");
+    const p = await prepared(f);
+    await f.service.approve(f.ctx, p.view.id, f.owner, true, true);
+    const before = await db
+      .prepare("SELECT * FROM approvals WHERE organization_id=?")
+      .bind(f.organizationId)
+      .all();
+    await db
+      .prepare(
+        "UPDATE trusted_delivery_costs SET status='revoked' WHERE organization_id=?",
+      )
+      .bind(f.organizationId)
+      .run();
+    const fields = (
+      await db
+        .prepare("PRAGMA table_info(trusted_delivery_costs)")
+        .all<{ name: string }>()
+    ).results.map((field) => field.name);
+    await db
+      .prepare(
+        `INSERT INTO trusted_delivery_costs(${fields.join(",")}) SELECT ${fields.map((name) => (name === "id" ? "?" : name === "status" ? "'qualified'" : name)).join(",")} FROM trusted_delivery_costs WHERE organization_id=?`,
+      )
+      .bind(id("cost"), f.organizationId)
+      .run();
+    const renewed = await f.service.renew(f.ctx, p.view.id, f.owner);
+    await f.service.processRender(renewed.id);
+    expect((await f.service.get(f.ctx, renewed.id)).approved).toBe(false);
+    expect(
+      (
+        await db
+          .prepare("SELECT * FROM approvals WHERE organization_id=?")
+          .bind(f.organizationId)
+          .all()
+      ).results,
+    ).toEqual(before.results);
+    expect(await financialEffects(f.organizationId)).toEqual({
+      approvals: 1,
+      reservations: 0,
+      outbox: 0,
+      charges: 0,
+      attempts: 0,
+    });
+  });
+  it("resumes a failure after guarded cancellation without reusing approval or sending", async () => {
+    const { f, p } = await expiredPreparation();
+    const preparation = vi
+      .spyOn(f.service, "prepare")
+      .mockRejectedValueOnce(new Error("Synthetic preparation interruption"));
+    await expect(f.service.renew(f.ctx, p.view.id, f.owner)).rejects.toThrow(
+      "Synthetic preparation interruption",
+    );
+    expect((await f.service.get(f.ctx, p.view.id)).renewal).toMatchObject({
+      available: true,
+      replacementId: null,
+    });
+    const renewed = await f.service.renew(f.ctx, p.view.id, f.owner);
+    expect(renewed.status).toBe("preparing");
+    expect(preparation).toHaveBeenCalledTimes(2);
+    expect(await financialEffects(f.organizationId)).toEqual({
+      approvals: 0,
+      reservations: 0,
+      outbox: 0,
+      charges: 0,
+      attempts: 0,
+    });
+    preparation.mockRestore();
+  });
+  it("refuses valid, active, manually cancelled and attempted preparations", async () => {
+    const valid = await fixture("production", 1, "verified_account");
+    const current = await prepared(valid);
+    await expect(
+      valid.service.renew(valid.ctx, current.view.id, valid.owner),
+    ).rejects.toMatchObject({ code: "QUOTE_STILL_VALID" });
+    const active = await accepted(valid);
+    await expect(
+      valid.service.renew(valid.ctx, active.view.id, valid.owner),
+    ).rejects.toMatchObject({ code: "SECURE_QUOTE_RENEWAL_UNSAFE" });
+    const cancelled = await expiredPreparation();
+    await cancelled.f.domain.cancelDispatch(
+      cancelled.f.ctx,
+      cancelled.p.view.dispatchId!,
+    );
+    await expect(
+      cancelled.f.service.renew(
+        cancelled.f.ctx,
+        cancelled.p.view.id,
+        cancelled.f.owner,
+      ),
+    ).rejects.toMatchObject({ code: "SECURE_QUOTE_RENEWAL_UNSAFE" });
+    const attempted = await expiredPreparation();
+    await db
+      .prepare(
+        "INSERT INTO attempts(id,dispatch_id,organization_id,provider,status,created_at,updated_at) VALUES(?,?,?,'resend','unknown',?,?)",
+      )
+      .bind(
+        id("attempt"),
+        attempted.p.view.dispatchId,
+        attempted.f.organizationId,
+        stamp(),
+        stamp(),
+      )
+      .run();
+    await expect(
+      attempted.f.service.renew(
+        attempted.f.ctx,
+        attempted.p.view.id,
+        attempted.f.owner,
+      ),
+    ).rejects.toMatchObject({ code: "SECURE_QUOTE_RENEWAL_UNSAFE" });
+    expect(
+      (
+        await attempted.f.domain.getDispatch(
+          attempted.f.ctx,
+          attempted.p.view.dispatchId!,
+        )
+      ).dispatch.status,
+    ).toBe("prepared");
+  });
+  it("requires current browser approver authority and isolates tenants", async () => {
+    const { f, p } = await expiredPreparation();
+    await expect(
+      f.service.renew({ ...f.ctx, actor: "mcp" }, p.view.id, f.owner),
+    ).rejects.toMatchObject({ code: "BROWSER_REQUIRED" });
+    await expect(
+      f.service.renew({ ...f.ctx, role: "member" }, p.view.id, f.owner),
+    ).rejects.toMatchObject({ code: "FORBIDDEN" });
+    const other = await fixture("production", 1, "verified_account");
+    await expect(
+      other.service.renew(other.ctx, p.view.id, other.owner),
+    ).rejects.toMatchObject({ code: "NOT_FOUND" });
+    await db
+      .prepare("DELETE FROM personal_sessions WHERE token_hash=?")
+      .bind(f.owner.tokenHash)
+      .run();
+    await expect(
+      f.service.renew(f.ctx, p.view.id, f.owner),
+    ).rejects.toMatchObject({ code: "SECURE_QUOTE_RENEWAL_UNSAFE" });
+    expect(
+      (await f.domain.getDispatch(f.ctx, p.view.dispatchId!)).dispatch.status,
+    ).toBe("prepared");
+  });
+  it.each(["cancellation", "membership", "session"] as const)(
+    "refuses a racing %s change at its guarded update",
+    async (change) => {
+      const { f, p } = await expiredPreparation();
+      const original = f.env.DB;
+      if (change === "membership")
+        await original
+          .prepare(
+            "INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES(?,?,'admin',?)",
+          )
+          .bind(f.organizationId, f.recipient.userId, stamp())
+          .run();
+      let intercepted = false;
+      f.env.DB = new Proxy(original, {
+        get(target, property) {
+          if (property === "batch")
+            return async (statements: D1PreparedStatement[]) => {
+              if (!intercepted) {
+                intercepted = true;
+                if (change === "cancellation")
+                  await f.domain.cancelDispatch(f.ctx, p.view.dispatchId!);
+                else if (change === "membership")
+                  await original
+                    .prepare(
+                      "UPDATE memberships SET role='member' WHERE organization_id=? AND user_id=?",
+                    )
+                    .bind(f.organizationId, f.ctx.userId)
+                    .run();
+                else
+                  await original
+                    .prepare("DELETE FROM personal_sessions WHERE token_hash=?")
+                    .bind(f.owner.tokenHash)
+                    .run();
+              }
+              return target.batch(statements);
+            };
+          const value = Reflect.get(target, property);
+          return typeof value === "function" ? value.bind(target) : value;
+        },
+      });
+      await expect(
+        f.service.renew(f.ctx, p.view.id, f.owner),
+      ).rejects.toMatchObject({ code: "SECURE_QUOTE_RENEWAL_UNSAFE" });
+      expect(
+        await db
+          .prepare(
+            "SELECT count(*) n FROM secure_document_events WHERE distribution_id=? AND type='quote_renewal_started'",
+          )
+          .bind(p.view.id)
+          .first(),
+      ).toEqual({ n: 0 });
+      expect(
+        await db
+          .prepare(
+            "SELECT count(*) n FROM secure_distributions WHERE organization_id=?",
+          )
+          .bind(f.organizationId)
+          .first(),
+      ).toEqual({ n: 1 });
+    },
+  );
+});
+
+describe("personal copies — independent ownership and final authorization", () => {
+  it.each(["strong", "verified_account"] as const)(
+    "withdraws every shared reading form after revocation in %s while retaining the revocation receipt",
+    async (accessMode) => {
+      const f = await fixture("simulation", 1, accessMode),
+        share = await bound(f, { allowOriginalDownload: true });
+      expect(
+        (await f.personal.get(f.recipient, share.view.id)).pages,
+      ).toHaveLength(1);
+      expect(
+        (await f.personal.page(f.recipient, share.view.id, 1)).status,
+      ).toBe(200);
+      expect(
+        await (
+          await f.personal.page(f.recipient, share.view.id, 1, true)
+        ).json(),
+      ).toEqual({
+        text: "Texte accessible synthétique, page 1",
+      });
+      expect(
+        new Uint8Array(
+          await (
+            await f.personal.download(f.recipient, share.view.id)
+          ).arrayBuffer(),
+        ),
+      ).toEqual(f.bytes);
+      const before = await financials(f, share.view.dispatchId!);
+
+      await f.service.revoke(f.ctx, share.view.id);
+      expect(await f.personal.get(f.recipient, share.view.id)).toMatchObject({
+        status: "revoked",
+        pages: [],
+        audit: [],
+      });
+      expect((await f.personal.list(f.recipient)).items).toEqual([
+        expect.objectContaining({ id: share.view.id, status: "revoked" }),
+      ]);
+      for (const read of [
+        () => f.personal.page(f.recipient, share.view.id, 1),
+        () => f.personal.page(f.recipient, share.view.id, 1, true),
+        () => f.personal.download(f.recipient, share.view.id),
+        () => f.personal.deposit(f.recipient, share.view.id),
+        () => f.personal.displayEvent(f.recipient, share.view.id, 1),
+      ])
+        await expect(read()).rejects.toMatchObject({
+          code: "NOT_FOUND",
+          status: 404,
+        });
+      expect(
+        (await f.personal.events(f.recipient, share.view.id)).items,
+      ).toContainEqual(
+        expect.objectContaining({
+          type: "access_revoked",
+          provenance: "server",
+        }),
+      );
+      expect(await financials(f, share.view.dispatchId!)).toEqual(before);
+    },
+  );
+
+  it.each(["strong", "verified_account"] as const)(
+    "converges concurrent %s deposits and duplicate worker deliveries on one durable personal copy",
+    async (accessMode) => {
+      const f = await fixture("simulation", 4, accessMode),
+        share = await bound(f),
+        before = await financials(f, share.view.dispatchId!);
+      const responses = await Promise.all([
+        f.personal.deposit(f.recipient, share.view.id),
+        f.personal.deposit(f.recipient, share.view.id),
+        f.personal.deposit(f.recipient, share.view.id),
+      ]);
+      expect(new Set(responses.map((response) => response.id)).size).toBe(1);
+      const operation = (await db
+        .prepare(
+          "SELECT id,personal_document_id FROM secure_deposit_operations WHERE organization_id=? AND distribution_id=? AND user_id=?",
+        )
+        .bind(f.organizationId, share.view.id, f.recipient.userId)
+        .first<{ id: string; personal_document_id: string }>())!;
+      await Promise.all([
+        f.personal.processDeposit(operation.id),
+        f.personal.processDeposit(operation.id),
+      ]);
+      const copy = await f.personal.deposit(f.recipient, share.view.id);
+      expect(copy).toMatchObject({
+        id: operation.personal_document_id,
+        status: "active",
+      });
+      expect(responses.every((response) => response.id === copy.id)).toBe(true);
+      for (const [table, scope, values] of [
+        [
+          "secure_deposit_operations",
+          "distribution_id=? AND user_id=?",
+          [share.view.id, f.recipient.userId],
+        ],
+        [
+          "secure_personal_documents",
+          "source_distribution_id=? AND user_id=?",
+          [share.view.id, f.recipient.userId],
+        ],
+        [
+          "secure_document_events",
+          "distribution_id=? AND type='personal_copy_delivered'",
+          [share.view.id],
+        ],
+        [
+          "secure_document_events",
+          "personal_document_id=? AND type='personal_copy_received'",
+          [copy.id],
+        ],
+      ] as const)
+        expect(
+          await db
+            .prepare(`SELECT count(*) n FROM ${table} WHERE ${scope}`)
+            .bind(...values)
+            .first(),
+        ).toEqual({ n: 1 });
+      expect(
+        await db
+          .prepare(
+            "SELECT count(*) n FROM secure_personal_pages WHERE personal_document_id=?",
+          )
+          .bind(copy.id)
+          .first(),
+      ).toEqual({ n: 4 });
+      expect(
+        new Uint8Array(
+          await (await f.personal.download(f.recipient, copy.id)).arrayBuffer(),
+        ),
+      ).toEqual(f.bytes);
+      expect(await financials(f, share.view.dispatchId!)).toEqual(before);
+    },
+  );
+
+  it.each(["strong", "verified_account"] as const)(
+    "closes personal metadata access when %s Worker and database policies drift",
+    async (accessMode) => {
+      const f = await fixture("simulation", 1, accessMode);
+      expect((await f.personal.list(f.recipient)).items).toEqual([]);
+      await db
+        .prepare(
+          "UPDATE secure_document_authentication_policy SET mode=? WHERE id=1",
+        )
+        .bind(accessMode === "strong" ? "verified_account" : "strong")
+        .run();
+      await expect(f.personal.list(f.recipient)).rejects.toMatchObject({
+        code:
+          accessMode === "verified_account"
+            ? "DOCUMENT_AUTHENTICATION_REQUIRED"
+            : "STRONG_AUTHENTICATION_REQUIRED",
+        status: 403,
+      });
+    },
+  );
+
+  it.each(["strong", "verified_account"] as const)(
+    "keeps %s recovery when the current session is revoked after authentication",
+    async (accessMode) => {
+      const f = await fixture("simulation", 1, accessMode);
+      await db
+        .prepare("DELETE FROM personal_sessions WHERE token_hash=?")
+        .bind(f.recipient.tokenHash)
+        .run();
+      await expect(f.personal.list(f.recipient)).rejects.toMatchObject({
+        code:
+          accessMode === "verified_account"
+            ? "DOCUMENT_AUTHENTICATION_REQUIRED"
+            : "STRONG_AUTHENTICATION_REQUIRED",
+        status: 403,
+      });
+      expect(
+        await db
+          .prepare(
+            "SELECT count(*) n FROM secure_document_rate_limits WHERE scope_hash=?",
+          )
+          .bind(await secureSha256(`personal-documents:${f.recipient.userId}`))
+          .first(),
+      ).toEqual({ n: 0 });
+      expect(f.queue).not.toHaveBeenCalled();
+    },
+  );
+
+  it("allows an authorized private deposit even when downloading the shared original is forbidden, then survives workshop revocation", async () => {
+    const f = await fixture("simulation", 4),
+      p = await bound(f);
+    await expect(
+      f.personal.download(f.recipient, p.view.id),
+    ).rejects.toMatchObject({ code: "ORIGINAL_DOWNLOAD_FORBIDDEN" });
+    const first = await f.personal.deposit(f.recipient, p.view.id);
+    expect(first).toMatchObject({ status: "preparing", expiresAt: null });
+    const op = (await db
+      .prepare(
+        "SELECT id,next_page,original_ready,status FROM secure_deposit_operations WHERE distribution_id=?",
+      )
+      .bind(p.view.id)
+      .first<{
+        id: string;
+        next_page: number;
+        original_ready: number;
+        status: string;
+      }>())!;
+    expect(op).toMatchObject({
+      next_page: 4,
+      original_ready: 1,
+      status: "preparing",
+    });
+    expect(f.queue).toHaveBeenCalledWith({
+      dispatchId: `secure_deposit:${op.id}`,
+    });
+    await f.personal.processDeposit(op.id);
+    const copy = await f.personal.deposit(f.recipient, p.view.id);
+    expect(copy).toMatchObject({ id: first.id, status: "active" });
+    expect(Date.parse(copy.expiresAt!) - Date.now()).toBeGreaterThan(
+      364 * 86400000,
+    );
+    const personalView = await f.personal.get(f.recipient, copy.id);
+    expect(personalView).toMatchObject({
+      kind: "personal",
+      status: "active",
+      allowOriginalDownload: true,
+    });
+    expect(personalView.pages).toHaveLength(4);
+    const original = await f.personal.download(f.recipient, copy.id);
+    expect(new Uint8Array(await original.arrayBuffer())).toEqual(f.bytes);
+    const record = (await db
+      .prepare("SELECT original_key FROM secure_personal_documents WHERE id=?")
+      .bind(copy.id)
+      .first<{ original_key: string }>())!;
+    expect(record.original_key).not.toBe(p.row.original_key);
+    await expect(
+      getSecureObject(
+        f.env,
+        record.original_key,
+        secureSharedBinding(p.row, "original"),
+        f.hash,
+      ),
+    ).rejects.toMatchObject({ code: "SECURE_STORAGE_INTEGRITY" });
+    const before = await financials(f, p.view.dispatchId!);
+    await f.service.revoke(f.ctx, p.view.id);
+    await expect(
+      f.personal.page(f.recipient, p.view.id, 1),
+    ).rejects.toMatchObject({ code: "NOT_FOUND" });
+    expect((await f.personal.page(f.recipient, copy.id, 4)).status).toBe(200);
+    expect((await f.personal.get(f.recipient, copy.id)).status).toBe("active");
+    expect(await financials(f, p.view.dispatchId!)).toEqual(before);
+    const workshopEvents = await f.service.events(f.ctx, p.view.id);
+    expect(
+      workshopEvents.items.filter(
+        (event) => event.type === "personal_copy_delivered",
+      ),
+    ).toHaveLength(1);
+    expect(
+      workshopEvents.items.some(
+        (event) => event.type === "original_transfer_started",
+      ),
+    ).toBe(false);
+    expect(
+      await db
+        .prepare("SELECT count(*) n FROM memberships WHERE user_id=?")
+        .bind(f.recipient.userId)
+        .first(),
+    ).toEqual({ n: 0 });
+  });
+  it.each(["deleted", "expired"] as const)(
+    "does not restart or recharge an acquired personal copy after it becomes %s",
+    async (status) => {
+      const f = await fixture(),
+        p = await bound(f);
+      const copy = await f.personal.deposit(f.recipient, p.view.id);
+      expect(copy.status).toBe("active");
+      expect(await f.personal.get(f.recipient, p.view.id)).toMatchObject({
+        allowVaultDeposit: false,
+        depositedDocumentId: copy.id,
+      });
+      const before = await financials(f, p.view.dispatchId!);
+      if (status === "deleted") await f.personal.remove(f.recipient, copy.id);
+      else
+        await db
+          .prepare(
+            "UPDATE secure_personal_documents SET status='expired' WHERE user_id=? AND id=?",
+          )
+          .bind(f.recipient.userId, copy.id)
+          .run();
+      const view = await f.personal.get(f.recipient, p.view.id);
+      expect(view).toMatchObject({
+        status: "active",
+        allowVaultDeposit: false,
+      });
+      expect(view.depositedDocumentId).toBeUndefined();
+      await expect(
+        f.personal.deposit(f.recipient, p.view.id),
+      ).rejects.toMatchObject({
+        code: "PERSONAL_COPY_UNAVAILABLE",
+        status: 410,
+      });
+      expect(await financials(f, p.view.dispatchId!)).toEqual(before);
+      expect(
+        await db
+          .prepare(
+            "SELECT count(*) n FROM secure_personal_documents WHERE user_id=? AND source_distribution_id=?",
+          )
+          .bind(f.recipient.userId, p.view.id)
+          .first(),
+      ).toEqual({ n: 1 });
+      expect(
+        await db
+          .prepare(
+            "SELECT count(*) n FROM secure_deposit_operations WHERE user_id=? AND distribution_id=?",
+          )
+          .bind(f.recipient.userId, p.view.id)
+          .first(),
+      ).toEqual({ n: 1 });
+    },
+  );
+  it("denies a private copy unless it was authorized and paid in the immutable invitation", async () => {
+    const f = await fixture(),
+      p = await bound(f, {
+        allowVaultDeposit: false,
+        allowOriginalDownload: true,
+      });
+    expect(p.view.quote.personalMinor).toBe(0);
+    await expect(
+      f.personal.deposit(f.recipient, p.view.id),
+    ).rejects.toMatchObject({ code: "PERSONAL_COPY_FORBIDDEN" });
+    expect((await f.personal.download(f.recipient, p.view.id)).status).toBe(
+      200,
+    );
+    expect(
+      await db
+        .prepare(
+          "SELECT count(*) n FROM secure_deposit_operations WHERE distribution_id=?",
+        )
+        .bind(p.view.id)
+        .first(),
+    ).toEqual({ n: 0 });
+  });
+  it.each(
+    (["strong", "verified_account"] as const).flatMap((accessMode) =>
+      (["stale", "expired", "revoked"] as const)
+        .filter((failure) => accessMode === "strong" || failure !== "stale")
+        .map((failure) => ({ accessMode, failure })),
+    ),
+  )(
+    "resumes the same paid copy in $accessMode after $failure during final R2 awaits",
+    async ({ accessMode, failure }) => {
+      const f = await fixture("simulation", 1, accessMode),
+        share = await bound(f),
+        before = await financials(f, share.view.dispatchId!);
+      let changed = false;
+      const racedBucket = proxyBucket({
+        get: (async (key: string) => {
+          const object = await bucket.get(key);
+          if (
+            !changed &&
+            key.startsWith(`secure/personal/${f.recipient.userId}/`) &&
+            key.endsWith("/1.text")
+          ) {
+            changed = true;
+            if (failure === "stale")
+              await db
+                .prepare(
+                  "UPDATE personal_sessions SET authenticated_at=? WHERE token_hash=?",
+                )
+                .bind(
+                  Math.floor(Date.now() / 1000) - 301,
+                  f.recipient.tokenHash,
+                )
+                .run();
+            else if (failure === "expired")
+              await db
+                .prepare(
+                  "UPDATE personal_sessions SET expires_at='2000-01-01T00:00:00.000Z' WHERE token_hash=?",
+                )
+                .bind(f.recipient.tokenHash)
+                .run();
+            else
+              await db
+                .prepare("DELETE FROM personal_sessions WHERE token_hash=?")
+                .bind(f.recipient.tokenHash)
+                .run();
+          }
+          return object;
+        }) as R2Bucket["get"],
+      });
+      await expect(
+        new PersonalDocumentsService({
+          ...f.env,
+          DOCUMENTS: racedBucket,
+        }).deposit(f.recipient, share.view.id),
+      ).rejects.toMatchObject({
+        code:
+          accessMode === "strong"
+            ? "STRONG_AUTHENTICATION_REQUIRED"
+            : "DOCUMENT_AUTHENTICATION_REQUIRED",
+        status: 403,
+      });
+      expect(changed).toBe(true);
+      const operation = (await db
+        .prepare(
+          "SELECT id,personal_document_id,status,auth_session_hash,lease_token,lease_expires_at FROM secure_deposit_operations WHERE organization_id=? AND distribution_id=? AND user_id=?",
+        )
+        .bind(f.organizationId, share.view.id, f.recipient.userId)
+        .first<{
+          id: string;
+          personal_document_id: string;
+          status: string;
+          auth_session_hash: string | null;
+          lease_token: string;
+          lease_expires_at: string;
+        }>())!;
+      expect(operation).toMatchObject({
+        status: "preparing",
+        auth_session_hash: null,
+        lease_token: "",
+      });
+      expect(Date.parse(operation.lease_expires_at)).toBeLessThanOrEqual(
+        Date.now(),
+      );
+      expect(
+        await db
+          .prepare(
+            "SELECT count(*) n FROM secure_personal_documents WHERE source_distribution_id=?",
+          )
+          .bind(share.view.id)
+          .first(),
+      ).toEqual({ n: 0 });
+      // The pending job is kept without a reusable credential, and neither a
+      // recovery cron nor a duplicated queue delivery can publish it unattended.
+      f.queue.mockClear();
+      await f.personal.recoverPending();
+      expect(f.queue).not.toHaveBeenCalled();
+      await f.personal.processDeposit(operation.id);
+      expect(
+        await db
+          .prepare(
+            "SELECT count(*) n FROM secure_personal_documents WHERE source_distribution_id=?",
+          )
+          .bind(share.view.id)
+          .first(),
+      ).toEqual({ n: 0 });
+      const signedIn = await createPersonalBrowserSession(f.env, {
+        userId: f.recipient.userId,
+        verifiedEmail: f.recipient.email,
+        mfa: accessMode === "strong",
+        verifiedAccount: true,
+        authenticatedAt: Math.floor(Date.now() / 1000),
+        amr: accessMode === "strong" ? ["webauthn"] : ["pwd"],
+        strongAuthentication: accessMode === "strong",
+        authenticationPolicyVersion:
+          accessMode === "strong" ? "guteneo-sensitive-v1" : null,
+        identityIssuer: "https://fixture.invalid/",
+        identitySubject: f.recipient.userId,
+        development: false,
+      });
+      const cookie = signedIn.cookie.split(";")[0];
+      const principal = await authenticatePersonalBrowser(
+        new Request(`${origin}/api/personal/session`, {
+          headers: { Cookie: cookie },
+        }),
+        f.env,
+      );
+      const retry = () =>
+        handlePersonalDocumentRoute(
+          new Request(
+            `${origin}/api/personal/documents/${share.view.id}/deposit`,
+            {
+              method: "POST",
+              headers: {
+                Origin: origin,
+                Cookie: cookie,
+                "X-CSRF-Token": principal.csrfToken,
+              },
+            },
+          ),
+          f.env,
+        );
+      const response = await retry();
+      expect(response?.status).toBe(200);
+      const copy = (await response!.json()) as { id: string; status: string };
+      expect(copy).toMatchObject({
+        id: operation.personal_document_id,
+        status: "active",
+      });
+      expect(await (await retry())!.json()).toMatchObject(copy);
+      expect(await financials(f, share.view.dispatchId!)).toEqual(before);
+      expect(
+        await db
+          .prepare(
+            "SELECT count(*) n FROM secure_deposit_operations WHERE organization_id=? AND distribution_id=?",
+          )
+          .bind(f.organizationId, share.view.id)
+          .first(),
+      ).toEqual({ n: 1 });
+      expect(
+        await db
+          .prepare(
+            "SELECT count(*) n FROM secure_personal_documents WHERE source_distribution_id=?",
+          )
+          .bind(share.view.id)
+          .first(),
+      ).toEqual({ n: 1 });
+      expect(
+        await db
+          .prepare(
+            "SELECT count(*) n FROM secure_document_events WHERE distribution_id=? AND type='personal_copy_delivered'",
+          )
+          .bind(share.view.id)
+          .first(),
+      ).toEqual({ n: 1 });
+      expect(
+        await db
+          .prepare(
+            "SELECT count(*) n FROM secure_document_events WHERE personal_document_id=? AND type='personal_copy_received'",
+          )
+          .bind(copy.id)
+          .first(),
+      ).toEqual({ n: 1 });
+      expect(
+        await db
+          .prepare(
+            "SELECT auth_session_hash,status FROM secure_deposit_operations WHERE id=?",
+          )
+          .bind(operation.id)
+          .first(),
+      ).toEqual({ auth_session_hash: signedIn.tokenHash, status: "active" });
+    },
+  );
+  it.each(["strong", "verified_account"] as const)(
+    "rolls back and purges unpublished objects on workshop revocation in %s",
+    async (accessMode) => {
+      const f = await fixture("simulation", 1, accessMode),
+        p = await bound(f);
+      let revoked = false;
+      const racedBucket = proxyBucket({
+        get: (async (key: string) => {
+          const object = await bucket.get(key);
+          if (
+            !revoked &&
+            key.startsWith(`secure/personal/${f.recipient.userId}/`)
+          ) {
+            revoked = true;
+            await f.service.revoke(f.ctx, p.view.id);
+          }
+          return object;
+        }) as R2Bucket["get"],
+      });
+      const raced = new PersonalDocumentsService({
+        ...f.env,
+        DOCUMENTS: racedBucket,
+      });
+      await expect(raced.deposit(f.recipient, p.view.id)).rejects.toMatchObject(
+        {
+          code: "NOT_FOUND",
+        },
+      );
+      expect(revoked).toBe(true);
+      const operation = (await db
+        .prepare(
+          "SELECT id,personal_document_id,status FROM secure_deposit_operations WHERE distribution_id=?",
+        )
+        .bind(p.view.id)
+        .first<{
+          id: string;
+          personal_document_id: string;
+          status: string;
+        }>())!;
+      expect(operation.status).toBe("aborted");
+      expect(
+        await db
+          .prepare(
+            "SELECT count(*) n FROM secure_personal_documents WHERE source_distribution_id=?",
+          )
+          .bind(p.view.id)
+          .first(),
+      ).toEqual({ n: 0 });
+      expect(
+        await db
+          .prepare(
+            "SELECT count(*) n FROM secure_document_events WHERE distribution_id=? AND type='personal_copy_delivered'",
+          )
+          .bind(p.view.id)
+          .first(),
+      ).toEqual({ n: 0 });
+      const prefix = `secure/personal/${f.recipient.userId}/${operation.personal_document_id}/`;
+      expect((await bucket.list({ prefix })).objects.length).toBeGreaterThan(0);
+      await maintainSecureObjects(f.env);
+      expect((await bucket.list({ prefix })).objects).toEqual([]);
+      expect(
+        await db
+          .prepare("SELECT scope FROM secure_object_purges WHERE resource_id=?")
+          .bind(operation.id)
+          .first(),
+      ).toEqual({ scope: "deposit" });
+      expect(
+        await db
+          .prepare(
+            "SELECT count(*) n FROM secure_distribution_charges WHERE distribution_id=?",
+          )
+          .bind(p.view.id)
+          .first(),
+      ).toEqual({ n: 1 });
+    },
+  );
+  it.each(
+    (["strong", "verified_account"] as const).flatMap((accessMode) =>
+      (["expired", "revoked", "stale", "share_revoked"] as const)
+        .filter((change) => accessMode === "strong" || change !== "stale")
+        .flatMap((change) =>
+          (["image", "text", "original"] as const).map((resource) => ({
+            accessMode,
+            change,
+            resource,
+          })),
+        ),
+    ),
+  )(
+    "withholds decrypted $resource bytes in $accessMode when $change wins before authorization",
+    async ({ accessMode, change, resource }) => {
+      const f = await fixture("simulation", 1, accessMode),
+        p = await bound(f, { allowOriginalDownload: true });
+      let changed = false;
+      const racedBucket = proxyBucket({
+        get: (async (key: string) => {
+          const object = await bucket.get(key);
+          if (
+            !changed &&
+            (resource === "original"
+              ? key === p.row.original_key
+              : key.endsWith(`1.${resource}`))
+          ) {
+            changed = true;
+            if (change === "expired")
+              await db
+                .prepare(
+                  "UPDATE personal_sessions SET expires_at='2000-01-01T00:00:00.000Z' WHERE token_hash=?",
+                )
+                .bind(f.recipient.tokenHash)
+                .run();
+            else if (change === "revoked")
+              await db
+                .prepare("DELETE FROM personal_sessions WHERE token_hash=?")
+                .bind(f.recipient.tokenHash)
+                .run();
+            else if (change === "stale")
+              await db
+                .prepare(
+                  "UPDATE personal_sessions SET authenticated_at=? WHERE token_hash=?",
+                )
+                .bind(
+                  Math.floor(Date.now() / 1000) - 901,
+                  f.recipient.tokenHash,
+                )
+                .run();
+            else await f.service.revoke(f.ctx, p.view.id);
+          }
+          return object;
+        }) as R2Bucket["get"],
+      });
+      const service = new PersonalDocumentsService({
+        ...f.env,
+        DOCUMENTS: racedBucket,
+      });
+      await expect(
+        resource === "original"
+          ? service.download(f.recipient, p.view.id)
+          : service.page(f.recipient, p.view.id, 1, resource === "text"),
+      ).rejects.toMatchObject({ code: "NOT_FOUND" });
+      expect(changed).toBe(true);
+      expect(
+        await db
+          .prepare(
+            "SELECT count(*) n FROM secure_document_events WHERE distribution_id=? AND type IN ('page_access_authorized','accessible_text_access_authorized','original_download_requested','original_transfer_started')",
+          )
+          .bind(p.view.id)
+          .first(),
+      ).toEqual({ n: 0 });
+    },
+  );
+  it("uses the existing two-hour-old verified session through approval, reading and personal-copy operations", async () => {
+    const f = await fixture("production", 1, "verified_account");
+    const authenticatedAt = Math.floor(Date.now() / 1000) - 7200;
+    await db
+      .prepare(
+        "UPDATE personal_sessions SET authenticated_at=? WHERE token_hash IN (?,?)",
+      )
+      .bind(authenticatedAt, f.owner.tokenHash, f.recipient.tokenHash)
+      .run();
+    f.owner.authenticatedAt = authenticatedAt;
+    f.recipient.authenticatedAt = authenticatedAt;
+    const share = await bound(f);
+    expect(f.owner).toMatchObject({
+      identityVerified: true,
+      mfa: false,
+      strongAuthentication: false,
+      authenticationPolicyVersion: null,
+    });
+    expect(f.recipient).toMatchObject({
+      identityVerified: true,
+      mfa: false,
+      strongAuthentication: false,
+      authenticationPolicyVersion: null,
+    });
+    expect(
+      await db
+        .prepare(
+          "SELECT authentication_mode FROM secure_approval_evidence WHERE dispatch_id=?",
+        )
+        .bind(share.view.dispatchId)
+        .first(),
+    ).toEqual({ authentication_mode: "verified_account" });
+    const before = await financials(f, share.view.dispatchId!);
+    expect((await f.personal.page(f.recipient, share.view.id, 1)).status).toBe(
+      200,
+    );
+    await expect(
+      f.personal.download(f.recipient, share.view.id),
+    ).rejects.toMatchObject({ code: "ORIGINAL_DOWNLOAD_FORBIDDEN" });
+    const other = await fixture("production", 1, "verified_account");
+    await expect(
+      f.personal.get(other.recipient, share.view.id),
+    ).rejects.toMatchObject({ code: "NOT_FOUND" });
+    const copy = await f.personal.deposit(f.recipient, share.view.id);
+    expect(copy.status).toBe("active");
+    expect((await f.personal.download(f.recipient, copy.id)).status).toBe(200);
+    await f.service.revoke(f.ctx, share.view.id);
+    expect((await f.personal.get(f.recipient, copy.id)).status).toBe("active");
+    await f.personal.remove(f.recipient, copy.id);
+    expect((await f.personal.get(f.recipient, copy.id)).status).toBe("revoked");
+    expect(await financials(f, share.view.dispatchId!)).toEqual(before);
+  });
+  it("keeps paid private objects out of general orphan deletion, and erases them after personal removal", async () => {
+    const f = await fixture(),
+      p = await bound(f),
+      copy = await f.personal.deposit(f.recipient, p.view.id);
+    expect(copy.status).toBe("active");
+    const personalKey = (await db
+      .prepare("SELECT original_key FROM secure_personal_documents WHERE id=?")
+      .bind(copy.id)
+      .first<{ original_key: string }>())!.original_key;
+    const orphan = `orphan/${id("orphan")}`;
+    await bucket.put(orphan, "synthetic orphan");
+    const aged = proxyBucket({
+      list: (async (options?: R2ListOptions) => {
+        const listing = await bucket.list(options);
+        return {
+          ...listing,
+          objects: listing.objects.map((object) => ({
+            ...object,
+            uploaded: new Date(Date.now() - 2 * 86400000),
+          })),
+        };
+      }) as R2Bucket["list"],
+    });
+    // Maintenance visits one bounded page; shared fixtures may span several.
+    const objectCount = (await bucket.list({ limit: 1000 })).objects.length;
+    for (let page = 0; page <= Math.ceil(objectCount / 50); page++) {
+      await maintainDocuments({ ...f.env, DOCUMENTS: aged });
+      if (!(await bucket.head(orphan))) break;
+    }
+    expect(await bucket.head(orphan)).toBeNull();
+    expect(await bucket.head(personalKey)).not.toBeNull();
+    expect(await bucket.head(p.row.original_key!)).not.toBeNull();
+    await f.personal.remove(f.recipient, copy.id);
+    await maintainSecureObjects(f.env);
+    expect(await bucket.head(personalKey)).toBeNull();
+    expect(await bucket.head(p.row.original_key!)).not.toBeNull();
+    await maintainSecureObjects(f.env);
+    expect(
+      await db
+        .prepare(
+          "SELECT count(*) n FROM secure_object_purges WHERE scope='personal' AND resource_id=?",
+        )
+        .bind(copy.id)
+        .first(),
+    ).toEqual({ n: 1 });
+  });
+  it("purges old activity detail while retaining current authorization and significant receipts", async () => {
+    const f = await fixture(),
+      p = await bound(f),
+      old = new Date(Date.now() - 91 * 86400000).toISOString();
+    const activity = id("sev"),
+      receipt = id("sev");
+    await db.batch([
+      db
+        .prepare(
+          "INSERT INTO secure_document_events(id,organization_id,distribution_id,user_id,type,provenance,page_number,created_at) VALUES(?,?,?,?,'page_displayed','browser',1,?)",
+        )
+        .bind(
+          activity,
+          f.ctx.organizationId,
+          p.view.id,
+          f.recipient.userId,
+          old,
+        ),
+      db
+        .prepare(
+          "INSERT INTO secure_document_events(id,organization_id,distribution_id,user_id,type,provenance,created_at) VALUES(?,?,?,?,'recipient_binding_confirmed','server',?)",
+        )
+        .bind(receipt, f.ctx.organizationId, p.view.id, f.ctx.userId, old),
+    ]);
+    expect((await f.personal.page(f.recipient, p.view.id, 1)).status).toBe(200);
+    await maintainSecureObjects(f.env);
+    expect(
+      await db
+        .prepare("SELECT 1 FROM secure_document_events WHERE id=?")
+        .bind(activity)
+        .first(),
+    ).toBeNull();
+    expect(
+      await db
+        .prepare("SELECT 1 FROM secure_document_events WHERE id=?")
+        .bind(receipt)
+        .first(),
+    ).not.toBeNull();
+    expect(
+      await db
+        .prepare(
+          "SELECT 1 FROM secure_document_events WHERE distribution_id=? AND type='page_access_authorized'",
+        )
+        .bind(p.view.id)
+        .first(),
+    ).not.toBeNull();
+    expect(
+      await db
+        .prepare(
+          "SELECT count(*) n FROM secure_distribution_charges WHERE distribution_id=?",
+        )
+        .bind(p.view.id)
+        .first(),
+    ).toEqual({ n: 1 });
+  });
+});
+
+describe("account document invitations", () => {
+  it.each(["expired", "unverified", "revoked"] as const)(
+    "refuses automatic binding when the persisted personal session is %s",
+    async (change) => {
+      const f = await fixture("simulation", 1, "verified_account");
+      const share = await accepted(f, { recipientBinding: "verified_email" });
+      const token = await openSecureSecret(
+        f.env,
+        `${f.organizationId}:${share.view.id}`,
+        share.row.sealed_token,
+      );
+      const statement =
+        change === "expired"
+          ? "UPDATE personal_sessions SET expires_at='2000-01-01T00:00:00.000Z' WHERE token_hash=?"
+          : change === "unverified"
+            ? "UPDATE personal_sessions SET verified_email=NULL,verified_account=0 WHERE token_hash=?"
+            : "DELETE FROM personal_sessions WHERE token_hash=?";
+      await db.prepare(statement).bind(f.recipient.tokenHash).run();
+      await expect(f.personal.claim(f.recipient, token)).rejects.toThrow();
+      expect(
+        await db
+          .prepare(
+            "SELECT recipient_user_id,bound_at FROM secure_distributions WHERE id=?",
+          )
+          .bind(share.view.id)
+          .first(),
+      ).toEqual({ recipient_user_id: null, bound_at: null });
+    },
+  );
+  it("adds one styled account button to custom HTML without a marker and preserves supplied subject and text", async () => {
+    const f = await fixture();
+    const p = await prepared(
+      f,
+      { recipientBinding: undefined },
+      {
+        subject: "Exact user subject",
+        message: "Exact alternative text",
+        html: '<h2 style="color:#2450db">Custom content</h2>',
+        notificationLocale: "en",
+      },
+    );
+    const d = (await f.domain.getDispatch(f.ctx, p.view.dispatchId!)).dispatch;
+    expect(d.subject).toBe("Exact user subject");
+    expect(d.text).toContain("Exact alternative text");
+    expect(d.html).toContain('<h2 style="color:#2450db">Custom content</h2>');
+    expect(d.html?.match(/href="[^"]*#\/app\/my-documents/g)).toHaveLength(1);
+    expect(d.html).toContain("Open in My documents");
+    expect(d.html).toContain("border-radius:7px");
+    expect(d.html).not.toContain("Your document is ready.");
+  });
+
+  it("opens the approved document for the matching verified account without independent confirmation", async () => {
+    const f = await fixture("simulation", 1, "verified_account");
+    const share = await accepted(f, {
+      recipientBinding: "verified_email",
+      allowOriginalDownload: true,
+    });
+    const token = await openSecureSecret(
+      f.env,
+      `${f.organizationId}:${share.view.id}`,
+      share.row.sealed_token,
+    );
+    await expect(f.personal.claim(f.owner, token)).rejects.toThrow();
+    expect(await f.personal.claim(f.recipient, token)).toMatchObject({
+      id: share.view.id,
+      status: "active",
+      recipientBinding: "confirmed",
+    });
+    expect(await f.personal.claim(f.recipient, token)).toMatchObject({
+      status: "active",
+    });
+    const result = await f.personal.get(f.recipient, share.view.id);
+    expect(result.pages).toHaveLength(1);
+    expect(result.status).toBe("active");
+    expect(await memberships(f.env, f.recipient.userId)).toEqual([]);
+    expect(
+      await db
+        .prepare(
+          "SELECT binding_method,binding_by FROM secure_distributions WHERE id=?",
+        )
+        .bind(share.view.id)
+        .first(),
+    ).toEqual({
+      binding_method: "verified_email",
+      binding_by: f.recipient.userId,
+    });
+    expect(
+      await db
+        .prepare(
+          "SELECT count(*) n FROM secure_document_events WHERE distribution_id=? AND type='recipient_verified_email_bound'",
+        )
+        .bind(share.view.id)
+        .first(),
+    ).toEqual({ n: 1 });
+    await f.service.revoke(f.ctx, share.view.id);
+    await expect(f.personal.claim(f.recipient, token)).rejects.toThrow();
+    expect((await f.personal.get(f.recipient, share.view.id)).pages).toEqual(
+      [],
+    );
+  });
+  it("freezes localized workspace defaults and resolves a styled HTML marker before review", async () => {
+    const f = await fixture();
+    await db
+      .prepare("UPDATE organizations SET name='Atelier Exemple' WHERE id=?")
+      .bind(f.organizationId)
+      .run();
+    await db
+      .prepare("UPDATE users SET preferred_locale='fr' WHERE id=?")
+      .bind(f.ctx.userId)
+      .run();
+    const p = await prepared(
+      f,
+      { recipientBinding: undefined },
+      {
+        html: '<p>Votre message.</p><a href="{{document_url}}" style="background-color:#2450db;color:#ffffff;padding:14px 24px;border-radius:7px">Consulter</a>',
+      },
+    );
+    expect(p.view.policy.recipientBinding).toBe("verified_email");
+    const original = (await f.domain.getDispatch(f.ctx, p.view.dispatchId!))
+      .dispatch;
+    expect(original.subject).toContain("Atelier Exemple");
+    expect(original.html).toContain("#/app/my-documents?invitation=");
+    expect(original.html).toContain("background-color:#2450db");
+    expect(original.html).toContain("créez votre compte Guteneo");
+    expect(original.html).not.toContain("{{document_url}}");
+    expect(original.html).not.toContain("mot de passe");
+    expect(
+      original.html?.match(/href="[^"]*#\/app\/my-documents/g),
+    ).toHaveLength(1);
+    expect(original.text).toContain("#/app/my-documents?invitation=");
+    expect(original.document_id).toBeNull();
+    await db
+      .prepare("UPDATE organizations SET name='Changed workspace' WHERE id=?")
+      .bind(f.organizationId)
+      .run();
+    await db
+      .prepare("UPDATE users SET preferred_locale='de' WHERE id=?")
+      .bind(f.ctx.userId)
+      .run();
+    await f.service.prepare(f.ctx, p.input, p.key);
+    const replay = (await f.domain.getDispatch(f.ctx, p.view.dispatchId!))
+      .dispatch;
+    expect(replay.fingerprint).toBe(original.fingerprint);
+    expect(replay.html).toBe(original.html);
+  });
+  it.each(["fr", "en", "de", "lb"] as const)(
+    "uses the V2 template and one account button in %s without custom content",
+    async (locale) => {
+      const f = await fixture();
+      const p = await prepared(
+        f,
+        { recipientBinding: undefined },
+        { notificationLocale: locale },
+      );
+      const d = (await f.domain.getDispatch(f.ctx, p.view.dispatchId!))
+        .dispatch;
+      expect(d.html).toContain("border-radius:10px");
+      expect(d.html).toContain("font-family:Georgia,serif");
+      expect(d.html).toContain(`?lang=${locale}#/app/my-documents`);
+      expect(d.html?.match(/href="[^"]*#\/app\/my-documents/g)).toHaveLength(1);
+      expect(d.text).toContain(
+        locale === "fr" ? `« ${p.view.title} »` : `“${p.view.title}”`,
+      );
+      expect(d.html).not.toContain("/share/");
+      expect(d.html).not.toContain("password");
+    },
+  );
+  it("rejects misplaced placeholders before rendering or inserting a preparation", async () => {
+    const f = await fixture();
+    await expect(
+      f.service.prepare(
+        f.ctx,
+        secureDistributionInputSchema.parse({
+          documentId: f.source.id,
+          recipient: { address: f.recipient.email! },
+          html: "<p>{{document_url}}</p>",
+        }),
+        id("bad-html"),
+      ),
+    ).rejects.toMatchObject({ code: "INVALID_DOCUMENT_URL_PLACEHOLDER" });
+    expect(
+      await db
+        .prepare(
+          "SELECT count(*) n FROM secure_distributions WHERE organization_id=?",
+        )
+        .bind(f.organizationId)
+        .first(),
+    ).toEqual({ n: 0 });
+    expect(f.renderer).not.toHaveBeenCalled();
+  });
+});
+
+describe("recipient feedback belongs to the document delivery lifecycle", () => {
+  async function request(
+    f: Fixture,
+    token: string,
+    action: "unsubscribe" | "report",
+    originHeader = origin,
+  ) {
+    return handleEmailRecipientFeedback(
+      new Request(`${origin}/api/email-preferences`, {
+        method: "POST",
+        headers: { Origin: originHeader, "Content-Type": "application/json" },
+        body: JSON.stringify({ token, action }),
+      }),
+      f.env,
+    );
+  }
+  async function feedbackToken(f: Fixture, dispatchId: string) {
+    const d = (await f.domain.getDispatch(f.ctx, dispatchId)).dispatch;
+    const token = d.text?.match(/email-preferences\?token=([a-f0-9]{64})/)?.[1];
+    if (!token) throw new Error("Synthetic feedback capability is missing.");
+    return token;
+  }
+  it("records unsubscribe and report once, preserves document access and blocks only the originating workspace", async () => {
+    const f = await fixture("simulation", 1, "verified_account");
+    const share = await accepted(f, { recipientBinding: "verified_email" });
+    const token = await feedbackToken(f, share.view.dispatchId!);
+    const before = await f.domain.prepareDispatch(
+      f.ctx,
+      {
+        channel: "email",
+        recipient: { email: f.recipient.email! },
+        subject: "Pending",
+        text: "Synthetic pending message",
+      },
+      id("pending"),
+    );
+    await f.domain.approveDispatch(f.ctx, before.id, before.fingerprint, {
+      recipientRequested: true,
+    });
+    for (const action of [
+      "unsubscribe",
+      "unsubscribe",
+      "report",
+      "unsubscribe",
+    ] as const) {
+      const response = await request(f, token, action);
+      expect(response?.status).toBe(200);
+    }
+    const view = await f.service.get(f.ctx, share.view.id);
+    expect(view.recipientFeedback).toBe("reported");
+    expect(view.status).toBe("active");
+    expect(
+      view.audit.filter(
+        (event) => event.type === "recipient_email_unsubscribed",
+      ),
+    ).toHaveLength(1);
+    expect(
+      view.audit.filter((event) => event.type === "recipient_email_reported"),
+    ).toHaveLength(1);
+    expect(
+      await db
+        .prepare(
+          "SELECT reason FROM suppressions WHERE organization_id=? AND email=?",
+        )
+        .bind(f.organizationId, f.recipient.email!)
+        .first(),
+    ).toEqual({ reason: "complaint" });
+    await expect(
+      f.domain.prepareDispatch(
+        f.ctx,
+        {
+          channel: "email",
+          recipient: { email: f.recipient.email! },
+          subject: "Blocked",
+          text: "Blocked",
+        },
+        id("blocked"),
+      ),
+    ).rejects.toMatchObject({ code: "RECIPIENT_SUPPRESSED" });
+    await expect(
+      f.domain.confirmDispatch(f.ctx, before.id, id("blocked-confirm")),
+    ).rejects.toMatchObject({ code: "RECIPIENT_SUPPRESSED" });
+    const renders = f.renderer.mock.calls.length;
+    await expect(
+      f.service.prepare(f.ctx, share.input, id("blocked-share")),
+    ).rejects.toMatchObject({ code: "RECIPIENT_SUPPRESSED" });
+    expect(f.renderer.mock.calls.length).toBe(renders);
+    const invitation = await openSecureSecret(
+      f.env,
+      `${f.organizationId}:${share.view.id}`,
+      share.row.sealed_token,
+    );
+    expect(await f.personal.claim(f.recipient, invitation)).toMatchObject({
+      status: "active",
+    });
+    expect(
+      (await f.personal.get(f.recipient, share.view.id)).pages,
+    ).toHaveLength(1);
+    const other = await fixture();
+    await expect(
+      other.domain.prepareDispatch(
+        other.ctx,
+        {
+          channel: "email",
+          recipient: { email: f.recipient.email! },
+          subject: "Other workspace",
+          text: "Separate authority",
+        },
+        id("other-workspace"),
+      ),
+    ).resolves.toMatchObject({ status: "prepared" });
+  });
+  it("rejects cancellation between capability lookup and the atomic feedback writes", async () => {
+    const f = await fixture();
+    const share = await accepted(f);
+    const token = await feedbackToken(f, share.view.dispatchId!);
+    const batch = vi.fn(async (statements: D1PreparedStatement[]) => {
+      expect(
+        (await f.domain.cancelDispatch(f.ctx, share.view.dispatchId!)).status,
+      ).toBe("cancelled");
+      return db.batch(statements);
+    });
+    const racingDb = new Proxy(db, {
+      get(target, key) {
+        if (key === "batch") return batch;
+        const value = Reflect.get(target, key);
+        return typeof value === "function" ? value.bind(target) : value;
+      },
+    });
+    const response = await request(
+      { ...f, env: { ...f.env, DB: racingDb } },
+      token,
+      "report",
+    );
+    expect(batch).toHaveBeenCalledOnce();
+    expect(response?.status).toBe(404);
+    expect(
+      await db
+        .prepare(
+          "SELECT status,recipient_feedback FROM dispatches WHERE organization_id=? AND id=?",
+        )
+        .bind(f.organizationId, share.view.dispatchId!)
+        .first(),
+    ).toEqual({ status: "cancelled", recipient_feedback: null });
+    expect(
+      await db
+        .prepare("SELECT count(*) n FROM suppressions WHERE organization_id=?")
+        .bind(f.organizationId)
+        .first(),
+    ).toEqual({ n: 0 });
+    expect(
+      await db
+        .prepare(
+          "SELECT count(*) n FROM secure_document_events WHERE organization_id=? AND distribution_id=? AND type LIKE 'recipient_email_%'",
+        )
+        .bind(f.organizationId, share.view.id)
+        .first(),
+    ).toEqual({ n: 0 });
+    expect(
+      await db
+        .prepare(
+          "SELECT count(*) n FROM audit_log WHERE organization_id=? AND resource_id=? AND action LIKE 'recipient.email_%'",
+        )
+        .bind(f.organizationId, share.view.dispatchId!)
+        .first(),
+    ).toEqual({ n: 0 });
+  });
+  it.each(["unsubscribe", "report"] as const)(
+    "preserves the lifecycle timestamp when replaying %s",
+    async (action) => {
+      const f = await fixture();
+      const share = await accepted(f);
+      const token = await feedbackToken(f, share.view.dispatchId!);
+      expect((await request(f, token, action))?.status).toBe(200);
+      const earlierResponseAt = new Date(Date.now() - 60000).toISOString();
+      await db
+        .prepare(
+          "UPDATE dispatches SET updated_at=? WHERE organization_id=? AND id=?",
+        )
+        .bind(earlierResponseAt, f.organizationId, share.view.dispatchId!)
+        .run();
+      for (const replay of [action, "unsubscribe"] as const) {
+        const response = await request(f, token, replay);
+        expect(response?.status).toBe(200);
+        expect(await response?.json()).toEqual({
+          feedback: action === "report" ? "reported" : "unsubscribed",
+          scope: "workspace",
+        });
+        expect(
+          await db
+            .prepare(
+              "SELECT updated_at FROM dispatches WHERE organization_id=? AND id=?",
+            )
+            .bind(f.organizationId, share.view.dispatchId!)
+            .first(),
+        ).toEqual({ updated_at: earlierResponseAt });
+      }
+    },
+  );
+  it("rejects GET, cross-origin requests, invalid capabilities and draft previews without a preference change", async () => {
+    const f = await fixture();
+    const draft = await prepared(f);
+    const token = await feedbackToken(f, draft.view.dispatchId!);
+    expect(
+      (
+        await handleEmailRecipientFeedback(
+          new Request(`${origin}/api/email-preferences`),
+          f.env,
+        )
+      )?.status,
+    ).toBe(405);
+    expect(
+      (await request(f, token, "unsubscribe", "https://other.invalid"))?.status,
+    ).toBe(403);
+    expect((await request(f, "0".repeat(64), "report"))?.status).toBe(404);
+    expect((await request(f, token, "unsubscribe"))?.status).toBe(404);
+    expect(
+      await db
+        .prepare("SELECT count(*) n FROM suppressions WHERE organization_id=?")
+        .bind(f.organizationId)
+        .first(),
+    ).toEqual({ n: 0 });
+  });
+});

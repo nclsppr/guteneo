@@ -1,0 +1,109 @@
+.account-identity-details,
+.account-permissions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px 30px;
+  margin: 0 0 20px;
+}
+.account-identity-details > div,
+.account-permissions > div {
+  min-width: 0;
+}
+.account-identity-details dt,
+.account-permissions dt {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 5px;
+}
+.account-identity-details dd,
+.account-permissions dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  line-height: 1.5;
+}
+.account-identity-details dd {
+  font-weight: 600;
+}
+.account-permissions {
+  padding-block: 18px;
+  border-block: 1px solid var(--line);
+  margin-block: 20px;
+}
+.workspace-contacts-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.workspace-contacts-heading h2 {
+  font-size: 21px;
+  margin: 0;
+  overflow-wrap: anywhere;
+  flex: 1 1 220px;
+}
+.workspace-contacts > .field-hint {
+  max-width: 70ch;
+}
+.workspace-contact-list {
+  padding: 0;
+  margin: 22px 0 0;
+  list-style: none;
+}
+.workspace-contact-list > li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px 30px;
+  padding-block: 18px;
+  border-top: 1px solid var(--line);
+}
+.workspace-contact-identity {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.workspace-contact-identity > span,
+.workspace-contact-identity > a {
+  font-size: 13px;
+}
+.workspace-contact-identity > span {
+  color: var(--muted);
+}
+.workspace-contact-identity a {
+  max-width: 100%;
+}
+.workspace-contact-rights {
+  padding-left: 18px;
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.65;
+}
+.workspace-contact-profile-link {
+  display: inline-block;
+  margin-top: 18px;
+}
+.member-name,
+.member-email {
+  display: block;
+  overflow-wrap: anywhere;
+}
+.member-email {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--muted);
+  margin-top: 6px;
+}
+@media (max-width: 600px) {
+  .account-identity-details,
+  .account-permissions,
+  .workspace-contact-list > li {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .workspace-contact-list > li {
+    gap: 12px;
+  }
+}

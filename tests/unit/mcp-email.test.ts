@@ -125,7 +125,9 @@ describe("email assistant contract", () => {
           ...(mode === "none" ? {} : { documentId: "document_fixture" }),
           ...(mode === "protected_link"
             ? { options: { emailDeliveryMode: mode, protectedDays: 7 } }
-            : {}),
+            : mode === "attachment"
+              ? { options: { emailDeliveryMode: mode } }
+              : {}),
         };
         for (const [name, args] of [
           ["prepare_dispatch", { ...input, idempotencyKey: "stable_fixture" }],
@@ -165,11 +167,11 @@ describe("email assistant contract", () => {
             expect(JSON.stringify(response)).not.toContain(value);
           if (name !== "list_dispatches") {
             expect(body.data.nextActions?.join(" ")).toContain(
-              "Sans mandat expert actif",
+              "Without an active expert mandate",
             );
             if (mode === "protected_link")
               expect(body.data.nextActions?.join(" ")).toContain(
-                "Ne jamais lire, demander ou afficher le mot de passe",
+                "Never read, request or display the password",
               );
           }
         }
@@ -182,6 +184,61 @@ describe("email assistant contract", () => {
       });
     },
   );
+
+  it.each(["attachment", "protected_link"] as const)(
+    "forwards omitted document-email content in %s without exposing a private URL",
+    async (mode) => {
+      await connected(emailDispatch(mode), async (client, prepare, confirm) => {
+        const input = {
+          channel: "email",
+          recipient: { email: "recipient@example.invalid" },
+          documentId: "document_fixture",
+          options: { emailDeliveryMode: mode },
+        };
+        const result = await client.callTool({
+          name: "prepare_dispatch",
+          arguments: { ...input, idempotencyKey: "document_defaults_fixture" },
+        });
+        expect(result.isError).not.toBe(true);
+        expect(prepare).toHaveBeenCalledExactlyOnceWith(
+          identity.context,
+          input,
+          "document_defaults_fixture",
+        );
+        for (const value of Object.values(privateValues))
+          expect(JSON.stringify(result)).not.toContain(value);
+        expect(confirm).not.toHaveBeenCalled();
+      });
+    },
+  );
+
+  it("passes the exact custom button marker to domain validation while keeping access material out of readbacks", async () => {
+    await connected(
+      emailDispatch("protected_link"),
+      async (client, prepare, confirm) => {
+        const input = {
+          channel: "email",
+          recipient: { email: "recipient@example.invalid" },
+          documentId: "document_fixture",
+          html: '<p>Requested message</p><a href="{{document_url}}" style="background-color:#2450db;color:#ffffff;padding:12px 20px">Open document</a>',
+          options: { emailDeliveryMode: "protected_link" },
+        };
+        const result = await client.callTool({
+          name: "prepare_dispatch",
+          arguments: { ...input, idempotencyKey: "custom_button_fixture" },
+        });
+        expect(result.isError).not.toBe(true);
+        expect(prepare).toHaveBeenCalledExactlyOnceWith(
+          identity.context,
+          input,
+          "custom_button_fixture",
+        );
+        for (const value of Object.values(privateValues))
+          expect(JSON.stringify(result)).not.toContain(value);
+        expect(confirm).not.toHaveBeenCalled();
+      },
+    );
+  });
 
   it.each([
     { password: "forbidden_fixture" },
@@ -232,25 +289,29 @@ describe("email assistant contract", () => {
           ),
         ).toBe(false);
         expect(tool.inputSchema.required).not.toContain("documentId");
+        for (const field of ["subject", "html", "text"])
+          expect(tool.inputSchema.required).not.toContain(field);
+        expect(tool.description).toContain("authenticated workspace");
+        expect(tool.description).toContain("{{document_url}}");
+        expect(JSON.stringify(tool.inputSchema.properties?.html)).toContain(
+          "exact anchor",
+        );
         const prompt = JSON.stringify(
           await client.getPrompt({ name: "email" }),
         );
-        expect(prompt).toContain("Sans mandat expert actif");
-        expect(prompt).toContain("Ne pas visiter cet accès avec un outil");
-        expect(prompt).toContain(
-          "compte de revue limité à la préparation ne peut pas envoyer",
-        );
-        expect(prompt).toContain(
-          "Si les outils du studio sont présents dans le catalogue",
-        );
-        expect(prompt).toContain(
-          "import_dataset, generate_documents puis prepare_distribution",
-        );
-        expect(prompt).toContain("XML, CSV, XLSX ou JSON");
-        expect(prompt).toContain("Ce parcours e-mail reçoit le PDF final");
-        expect(prompt).toContain(
-          "les autres pièces jointes et les comptes destinataires restent indisponibles",
-        );
+        for (const instruction of [
+          "My documents",
+          "matching verified email",
+          "without a separate document password",
+          "{{document_url}}",
+          "confirm_secure_distribution",
+          "Neither chat consent nor an expert mandate",
+          "never retrieve it with tools",
+          "Preparation-only accounts cannot send",
+          "Unknown provider outcomes require reconciliation",
+        ])
+          expect(prompt).toContain(instruction);
+        expect(prompt).not.toContain("recipient accounts remain unavailable");
         expect(prepare).not.toHaveBeenCalled();
         expect(confirm).not.toHaveBeenCalled();
       },
@@ -264,11 +325,9 @@ describe("email assistant contract", () => {
       origin,
       0,
     );
-    expect(expired.nextActions.join(" ")).toContain(
-      "consulter get_dispatch_status",
-    );
+    expect(expired.nextActions.join(" ")).toContain("read get_dispatch_status");
     expect(expired.nextActions.join(" ")).not.toContain(
-      "renouveler avec prepare_fax",
+      "renew through prepare_fax",
     );
     const unknown = dispatchSummary(
       { ...dispatch, status: "submission_unknown" },
@@ -276,7 +335,7 @@ describe("email assistant contract", () => {
       1,
     );
     expect(unknown.nextActions).toEqual([
-      "Attendre le rapprochement opérateur. Ne pas réexpédier cette commande.",
+      "Wait for operator reconciliation. Do not resend this command.",
     ]);
   });
 });

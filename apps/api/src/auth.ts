@@ -1,4 +1,18 @@
+import { recordConnectionEvent } from "./belvedere-telemetry";
+import {
+  BELVEDERE_WATCHER_EMAIL,
+  canAccessBelvedereSession,
+  isBelvedereBrowserOrigin,
+} from "./belvedere-policy";
+import { accountEmail } from "../../../packages/contracts/src/account-identity";
+import { documentAccessMode } from "../../../packages/contracts/src/document-authentication";
+import {
+  defaultDashboardAppearance,
+  type DashboardAppearance,
+} from "../../../packages/contracts/src/dashboard-appearance";
+import { isDispatchGroup } from "../../../packages/contracts/src/dispatch-groups";
 import { acceptWorkspaceInvitation, getInvitationPreview } from "./invitations";
+import { isWorkspaceInvitationToken } from "../../../packages/contracts/src/workspace-invitation-token";
 import {
   workspacePermissions,
   type WorkspaceRole,
@@ -35,11 +49,24 @@ export interface AuthEnv {
   ENVIRONMENT: string;
   MODE: string;
   APP_ORIGIN: string;
+  /** Disabled unless an exact connection/revision has a bounded diagnostic window. */
+  MCP_UI_PROBE?: string;
+  /** Default-off original-file App; bounded qualification or authorized rollout. */
+  MCP_DOCUMENT_UPLOAD_APP?: string;
   AUTH0_DOMAIN?: string;
+  /** Browser-only alias; never enables MCP trust or changes identity keys. */
+  AUTH0_BROWSER_DOMAIN?: string;
+  /** Explicit same-tenant MCP alias; independent of browser login selection. */
+  AUTH0_MCP_TRUSTED_DOMAIN?: string;
+  /** Discovery rollback retains the separately configured trusted issuer. */
+  AUTH0_MCP_DISCOVERY?: string;
   AUTH0_CLIENT_ID?: string;
   AUTH0_CLIENT_SECRET?: string;
   AUTH0_AUDIENCE?: string;
   AUTH0_AUTH_POLICY?: string;
+  BELVEDERE_AUTH0_SUBJECT?: string;
+  BELVEDERE_SECRET_SLUG?: string;
+  SENSITIVE_DOCUMENT_AUTHENTICATION?: string;
 }
 export interface AuthContext {
   organizationId: string;
@@ -48,13 +75,18 @@ export interface AuthContext {
   supervisorCanApprove?: boolean;
   supervisorCanReport?: boolean;
   actor: "browser" | "native" | "mcp" | "system";
+  /** Internal hash of the actual authenticated browser credential. Never
+   * serialize this context or accept this field from an API request. */
+  documentSessionHash?: string;
 }
-interface Membership {
+export interface Membership {
   organization_id: string;
   organization_name: string;
   user_id: string;
   user_name: string;
+  user_email: string | null;
   preferred_locale: SupportedLocale | null;
+  preferred_dashboard_appearance: DashboardAppearance;
   role: AuthContext["role"];
   supervisor_can_approve: number;
   supervisor_can_report: number;
@@ -65,10 +97,12 @@ export interface AuthenticatedSession {
   user: {
     id: string;
     name: string;
+    email: string | null;
     role: AuthContext["role"];
     supervisorCanApprove?: boolean;
     supervisorCanReport?: boolean;
     preferredLocale: SupportedLocale | null;
+    preferredDashboardAppearance: DashboardAppearance;
   };
   csrfToken: string;
   simulation: boolean;
@@ -76,12 +110,37 @@ export interface AuthenticatedSession {
   verifiedAccount: boolean;
   tokenHash: string;
 }
+/** A personal account grants no workshop authority. Authentication evidence is
+ * copied only from signature-verified login claims, never enrollment flags. */
+export interface PersonalPrincipal {
+  userId: string;
+  name: string;
+  email: string | null;
+  verifiedEmail: boolean;
+  mfa: boolean;
+  verifiedAccount: boolean;
+  /** Current persisted Auth0 subject and verified email still match this user. */
+  identityVerified?: boolean;
+  authenticatedAt: number | null;
+  amr: string[];
+  acr: string | null;
+  strongAuthentication: boolean;
+  authenticationPolicyVersion: string | null;
+  preferredLocale: SupportedLocale | null;
+  preferredDashboardAppearance: DashboardAppearance;
+  csrfToken: string;
+  tokenHash: string;
+  simulation: boolean;
+  development: boolean;
+}
 export interface McpIdentity {
   context: AuthContext;
   scopes: string[];
   clientId: string;
   expiresAt: number;
   token: string;
+  /** Exact issuer after signature verification, never client-supplied metadata. */
+  verifiedTokenIssuer?: string;
   /** Trusted snapshot from production OAuth authentication, never host metadata. */
   connectionObservation?: {
     connectionId: string;
@@ -134,11 +193,7 @@ export function isLocalSimulation(request: Request, env: AuthEnv): boolean {
 }
 export function requireSameOrigin(request: Request, env: AuthEnv): void {
   if (request.headers.get("Origin") !== env.APP_ORIGIN)
-    throw new AuthError(
-      "ORIGIN_REJECTED",
-      "Origine de la requête refusée.",
-      403,
-    );
+    throw new AuthError("ORIGIN_REJECTED", "Request origin rejected.", 403);
 }
 export function safeReturnPath(value: string | null): string {
   if (
@@ -152,6 +207,86 @@ export function safeReturnPath(value: string | null): string {
   return parsed.origin === "https://guteneo.invalid"
     ? `${parsed.pathname}${parsed.search}${parsed.hash}`
     : "/#/app";
+}
+interface LoginFailureContext {
+  returnTo: string;
+  locale: SupportedLocale;
+}
+// Recovery context stays private to the thrown error and is never serialized.
+// Callback context is populated only after the browser-bound state is consumed.
+const loginFailureContexts = new WeakMap<object, LoginFailureContext>();
+
+function requestedLoginLocale(request: Request): SupportedLocale {
+  const url = new URL(request.url);
+  return (
+    normalizeLocale(url.searchParams.get("locale")) ??
+    normalizeLocale(url.searchParams.get("ui_locales")) ??
+    localeFromAcceptLanguage(request.headers.get("Accept-Language"))
+  );
+}
+
+function recoveryHash(returnTo: string): string {
+  const destination = new URL(
+    safeReturnPath(returnTo),
+    "https://guteneo.invalid",
+  );
+  // A fragment is navigation data, not an arbitrary URL to parse. Reject it
+  // before URL construction so malformed hosts cannot break error recovery.
+  if (destination.hash && !/^#\/app(?:[/?]|$)/.test(destination.hash))
+    return "#/app";
+  const route = destination.hash
+    ? new URL(destination.hash.slice(1), "https://guteneo.invalid")
+    : destination;
+  if (
+    route.pathname.length > 512 ||
+    !/^\/app(?:\/[A-Za-z0-9_-]+)*\/?$/.test(route.pathname)
+  )
+    return "#/app";
+  // Keep explicit navigation choices, never arbitrary query data or capability
+  // tokens. These references still require current authenticated membership.
+  const query = new URLSearchParams();
+  for (const [key, value] of route.searchParams) {
+    if (
+      (key === "entry" && value === "direct") ||
+      (key === "channel" && ["fax", "email", "postal"].includes(value)) ||
+      (key === "group" && isDispatchGroup(value)) ||
+      (key === "new" && value === "blank") ||
+      (["document", "connection"].includes(key) &&
+        /^[A-Za-z0-9_-]{1,120}$/.test(value))
+    )
+      query.set(key, value);
+  }
+  return `#${route.pathname}${query.size ? `?${query}` : ""}`;
+}
+
+export function authFailureRedirect(
+  request: Request,
+  env: Pick<AuthEnv, "APP_ORIGIN">,
+  code: string,
+  error?: unknown,
+): string {
+  const url = new URL(request.url);
+  const startingLogin = ["/auth/login", "/auth/signup"].includes(url.pathname);
+  const context =
+    error !== null && typeof error === "object"
+      ? loginFailureContexts.get(error)
+      : undefined;
+  const destination = new URL("/", env.APP_ORIGIN);
+  destination.searchParams.set("auth", code);
+  destination.searchParams.set(
+    "lang",
+    context?.locale ??
+      (startingLogin
+        ? requestedLoginLocale(request)
+        : localeFromAcceptLanguage(request.headers.get("Accept-Language"))),
+  );
+  destination.hash = recoveryHash(
+    context?.returnTo ??
+      (startingLogin
+        ? safeReturnPath(url.searchParams.get("returnTo"))
+        : "/#/app"),
+  );
+  return destination.href;
 }
 function cookieName(
   env: AuthEnv,
@@ -193,7 +328,7 @@ export function auth0Issuer(env: AuthEnv): string {
   if (!env.AUTH0_DOMAIN)
     throw new AuthError(
       "IDENTITY_NOT_CONFIGURED",
-      "Le fournisseur d’identité doit être raccordé.",
+      "The identity provider must be connected.",
       503,
     );
   const url = new URL(
@@ -212,10 +347,113 @@ export function auth0Issuer(env: AuthEnv): string {
   )
     throw new AuthError(
       "IDENTITY_CONFIG_INVALID",
-      "Configuration d’identité invalide.",
+      "Invalid identity configuration.",
       503,
     );
   return url.href;
+}
+// The alias belongs to this same Auth0 tenant. Never learn this mapping from a
+// token's unverified `iss`, discovery metadata, a request or an email address.
+const TRUSTED_AUTH0_ALIAS = {
+  canonical: "https://pieper.eu.auth0.com/",
+  custom: "https://auth.guteneo.com/",
+} as const;
+function invalidIdentityConfiguration(): never {
+  throw new AuthError(
+    "IDENTITY_CONFIG_INVALID",
+    "Invalid identity configuration.",
+    503,
+  );
+}
+function browserAuth0Issuer(env: AuthEnv): string {
+  const canonical = auth0Issuer(env);
+  if (env.AUTH0_BROWSER_DOMAIN === undefined) return canonical;
+  let browser: string;
+  try {
+    browser = auth0Issuer({ ...env, AUTH0_DOMAIN: env.AUTH0_BROWSER_DOMAIN });
+  } catch {
+    return invalidIdentityConfiguration();
+  }
+  if (
+    canonical !== TRUSTED_AUTH0_ALIAS.canonical ||
+    browser !== TRUSTED_AUTH0_ALIAS.custom
+  )
+    invalidIdentityConfiguration();
+  return browser;
+}
+function mcpAuth0Configuration(env: AuthEnv) {
+  const identityIssuer = auth0Issuer(env);
+  const preference = env.AUTH0_MCP_DISCOVERY ?? "canonical";
+  if (preference !== "canonical" && preference !== "custom")
+    invalidIdentityConfiguration();
+  let customIssuer: string | undefined;
+  if (env.AUTH0_MCP_TRUSTED_DOMAIN !== undefined) {
+    try {
+      customIssuer = auth0Issuer({
+        ...env,
+        AUTH0_DOMAIN: env.AUTH0_MCP_TRUSTED_DOMAIN,
+      });
+    } catch {
+      return invalidIdentityConfiguration();
+    }
+    if (
+      identityIssuer !== TRUSTED_AUTH0_ALIAS.canonical ||
+      customIssuer !== TRUSTED_AUTH0_ALIAS.custom
+    )
+      invalidIdentityConfiguration();
+  }
+  if (preference === "custom" && !customIssuer) invalidIdentityConfiguration();
+  return {
+    identityIssuer,
+    tokenIssuers: customIssuer
+      ? [identityIssuer, customIssuer]
+      : [identityIssuer],
+    authorizationIssuer:
+      preference === "custom" ? customIssuer! : identityIssuer,
+  };
+}
+
+/** Discovery preference never changes the canonical data namespace or trust set. */
+export function mcpAuthorizationIssuer(env: AuthEnv): string {
+  return mcpAuth0Configuration(env).authorizationIssuer;
+}
+
+/** Downstream fences consume the authentication snapshot and retain canonical
+ * connection keys. A missing snapshot can only match the historical issuer. */
+export function verifiedMcpTokenIssuer(
+  identity: Pick<McpIdentity, "verifiedTokenIssuer">,
+  env: AuthEnv,
+): string {
+  const configuration = mcpAuth0Configuration(env);
+  const issuer = identity.verifiedTokenIssuer ?? configuration.identityIssuer;
+  if (!configuration.tokenIssuers.includes(issuer))
+    throw new AuthError("TOKEN_INVALID", "Expired or invalid token.");
+  return issuer;
+}
+function transactionAuth0Issuer(
+  env: AuthEnv,
+  transaction: {
+    authorization_issuer: string | null;
+    identity_issuer: string | null;
+  },
+): string {
+  const canonical = auth0Issuer(env);
+  // Pre-migration transactions were always initiated at the canonical domain.
+  // In particular they must not inherit a newly enabled browser alias.
+  if (
+    transaction.authorization_issuer === null &&
+    transaction.identity_issuer === null
+  )
+    return canonical;
+  if (transaction.identity_issuer !== canonical) invalidIdentityConfiguration();
+  if (transaction.authorization_issuer === canonical) return canonical;
+  // Keep an already-started alias flow valid when the opt-in is rolled back.
+  if (
+    canonical === TRUSTED_AUTH0_ALIAS.canonical &&
+    transaction.authorization_issuer === TRUSTED_AUTH0_ALIAS.custom
+  )
+    return transaction.authorization_issuer;
+  return invalidIdentityConfiguration();
 }
 function configuredIdentity(env: AuthEnv): {
   issuer: string;
@@ -227,7 +465,7 @@ function configuredIdentity(env: AuthEnv): {
   if (!env.AUTH0_CLIENT_ID || !env.AUTH0_AUDIENCE || !env.AUTH0_CLIENT_SECRET)
     throw new AuthError(
       "IDENTITY_NOT_CONFIGURED",
-      "Le client Auth0 et son audience doivent être raccordés.",
+      "The Auth0 client and audience must be connected.",
       503,
     );
   return {
@@ -243,12 +481,29 @@ export async function validateAuth0Token(
   kind: "id" | "access",
   keyOverride?: JWTVerifyGetKey,
 ): Promise<JWTPayload> {
-  const issuer = auth0Issuer(env);
+  return validateAuth0TokenAtIssuer(
+    token,
+    env,
+    kind,
+    auth0Issuer(env),
+    keyOverride,
+  );
+}
+/** Key discovery is server-owned. MCP's bounded same-tenant aliases use the
+ * canonical key set; the token never chooses a JWKS URL or creates an alias. */
+async function validateAuth0TokenAtIssuer(
+  token: string,
+  env: AuthEnv,
+  kind: "id" | "access",
+  issuer: string,
+  keyOverride?: JWTVerifyGetKey,
+  acceptedIssuers: string[] = [issuer],
+): Promise<JWTPayload> {
   const audience = kind === "id" ? env.AUTH0_CLIENT_ID : env.AUTH0_AUDIENCE;
   if (!audience)
     throw new AuthError(
       "IDENTITY_NOT_CONFIGURED",
-      "Audience d’identité absente.",
+      "Identity audience is missing.",
       503,
     );
   let keys = JWKS.get(issuer);
@@ -260,7 +515,7 @@ export async function validateAuth0Token(
   }
   try {
     const { payload } = await jwtVerify(token, keyOverride ?? keys, {
-      issuer,
+      issuer: acceptedIssuers,
       audience,
       algorithms: ["RS256"],
       requiredClaims: ["sub", "exp", "iat"],
@@ -275,14 +530,62 @@ export async function validateAuth0Token(
       throw new Error("access_lifetime");
     return payload;
   } catch {
-    throw new AuthError("TOKEN_INVALID", "Jeton expiré ou non valide.");
+    throw new AuthError("TOKEN_INVALID", "Expired or invalid token.");
   }
 }
 export function hasMfa(payload: JWTPayload): boolean {
   return (
     (Array.isArray(payload.amr) && payload.amr.includes("mfa")) ||
-    payload["https://guteneo.com/mfa"] === true
+    payload["https://guteneo.com/mfa"] === true ||
+    documentAuthenticationEvidence(payload).strongAuthentication
   );
+}
+/** Call only after JWT signature/issuer/audience/nonce validation. A deployed
+ * Auth0 Action may issue this assertion only after qualifying the actual
+ * user-verified WebAuthn or equivalent enterprise authentication ceremony.
+ * Native MFA can complete after primary auth_time; its actual timestamp must
+ * lie between that authentication and this token's signed issuance time. */
+export function documentAuthenticationEvidence(payload: JWTPayload) {
+  const authenticatedAt =
+    typeof payload.auth_time === "number" &&
+    Number.isSafeInteger(payload.auth_time) &&
+    payload.auth_time > 0
+      ? payload.auth_time
+      : null;
+  const amr = Array.isArray(payload.amr)
+    ? payload.amr
+        .filter((item): item is string => typeof item === "string")
+        .slice(0, 20)
+    : [];
+  const acr =
+    typeof payload.acr === "string" ? payload.acr.slice(0, 200) : null;
+  const assertion = payload["https://guteneo.com/document_authentication"];
+  const ceremonyAt =
+    assertion && typeof assertion === "object" && !Array.isArray(assertion)
+      ? (assertion as Record<string, unknown>).authenticated_at
+      : null;
+  const valid =
+    !!assertion &&
+    typeof assertion === "object" &&
+    !Array.isArray(assertion) &&
+    (assertion as Record<string, unknown>).policy === "guteneo-sensitive-v1" &&
+    ((assertion as Record<string, unknown>).method === "webauthn_uv" ||
+      (assertion as Record<string, unknown>).method ===
+        "qualified_federation") &&
+    authenticatedAt !== null &&
+    typeof ceremonyAt === "number" &&
+    Number.isSafeInteger(ceremonyAt) &&
+    typeof payload.iat === "number" &&
+    Number.isSafeInteger(payload.iat) &&
+    authenticatedAt <= ceremonyAt &&
+    ceremonyAt <= payload.iat;
+  return {
+    authenticatedAt,
+    amr,
+    acr,
+    strongAuthentication: valid,
+    authenticationPolicyVersion: valid ? "guteneo-sensitive-v1" : null,
+  };
 }
 export function authenticationPolicy(
   env: Pick<AuthEnv, "AUTH0_AUTH_POLICY">,
@@ -291,7 +594,7 @@ export function authenticationPolicy(
   if (policy !== "verified_email" && policy !== "verified_email_and_mfa")
     throw new AuthError(
       "IDENTITY_CONFIG_INVALID",
-      "Politique de connexion invalide.",
+      "Invalid connection policy.",
       503,
     );
   return policy;
@@ -308,16 +611,16 @@ function requireVerifiedAccount(payload: JWTPayload): void {
   if (!hasVerifiedAccount(payload))
     throw new AuthError(
       "ACCOUNT_VERIFICATION_REQUIRED",
-      "Reconnectez-vous après la vérification de votre adresse e-mail.",
+      "Sign in again after verifying your email address.",
       403,
     );
 }
-async function memberships(
+export async function memberships(
   env: AuthEnv,
   userId: string,
 ): Promise<Membership[]> {
   const result = await env.DB.prepare(
-    `SELECT m.organization_id, o.name organization_name, m.user_id, u.name user_name, u.preferred_locale, m.role,m.supervisor_can_approve,m.supervisor_can_report
+    `SELECT m.organization_id, o.name organization_name, m.user_id, u.name user_name,u.email user_email, u.preferred_locale,u.preferred_dashboard_appearance, m.role,m.supervisor_can_approve,m.supervisor_can_report
     FROM memberships m JOIN organizations o ON o.id=m.organization_id JOIN users u ON u.id=m.user_id
     WHERE m.user_id=? ORDER BY m.organization_id LIMIT 101`,
   )
@@ -334,23 +637,33 @@ function sessionResult(
   tokenHash: string,
   env: AuthEnv,
 ): AuthenticatedSession {
+  const context: AuthContext = {
+    organizationId: row.organization_id,
+    userId: row.user_id,
+    role: row.role,
+    supervisorCanApprove: row.supervisor_can_approve === 1,
+    supervisorCanReport: row.supervisor_can_report === 1,
+    actor: "browser",
+  };
+  // Internal evidence must survive direct server use without appearing in JSON
+  // authority objects, public sessions or a spread into an OAuth identity.
+  Object.defineProperty(context, "documentSessionHash", {
+    value: tokenHash,
+    enumerable: false,
+    writable: false,
+  });
   return {
-    context: {
-      organizationId: row.organization_id,
-      userId: row.user_id,
-      role: row.role,
-      supervisorCanApprove: row.supervisor_can_approve === 1,
-      supervisorCanReport: row.supervisor_can_report === 1,
-      actor: "browser",
-    },
+    context,
     organization: { id: row.organization_id, name: row.organization_name },
     user: {
       id: row.user_id,
       name: row.user_name,
+      email: accountEmail(row.user_email),
       role: row.role,
       supervisorCanApprove: row.supervisor_can_approve === 1,
       supervisorCanReport: row.supervisor_can_report === 1,
       preferredLocale: row.preferred_locale,
+      preferredDashboardAppearance: row.preferred_dashboard_appearance,
     },
     csrfToken: row.csrf_token,
     simulation: env.MODE === "simulation",
@@ -373,12 +686,38 @@ export function publicSession(session: AuthenticatedSession) {
     verifiedAccount: session.verifiedAccount,
   };
 }
-async function createSession(
+
+export async function publicBrowserSession(
+  env: AuthEnv,
+  session: AuthenticatedSession,
+) {
+  return {
+    ...publicSession(session),
+    canAccessBelvedere:
+      session.user.email === BELVEDERE_WATCHER_EMAIL &&
+      (await canAccessBelvedereSession(
+        env,
+        session.tokenHash,
+        session.user.id,
+      )),
+  };
+}
+export async function createSession(
   env: AuthEnv,
   membership: Membership,
   mfa: boolean,
   development: boolean,
   verifiedAccount = false,
+  authentication?: {
+    verifiedEmail: string;
+    authenticatedAt: number | null;
+    amr?: string[];
+    acr?: string | null;
+    strongAuthentication?: boolean;
+    authenticationPolicyVersion?: string | null;
+    identityIssuer?: string;
+    identitySubject?: string;
+  },
 ): Promise<{ session: AuthenticatedSession; cookie: string }> {
   const secret = randomSecret();
   const tokenHash = await hashSecret(secret);
@@ -399,6 +738,23 @@ async function createSession(
       Number(verifiedAccount),
     )
     .run();
+  await persistPersonalSession(env, {
+    tokenHash,
+    userId: membership.user_id,
+    csrfToken: csrf,
+    mfa,
+    development,
+    verifiedAccount,
+    verifiedEmail: authentication?.verifiedEmail ?? null,
+    authenticatedAt: authentication?.authenticatedAt ?? null,
+    amr: authentication?.amr,
+    acr: authentication?.acr,
+    strongAuthentication: authentication?.strongAuthentication,
+    authenticationPolicyVersion: authentication?.authenticationPolicyVersion,
+    identityIssuer: authentication?.identityIssuer,
+    identitySubject: authentication?.identitySubject,
+    expiresAt: new Date(Date.now() + HOUR).toISOString(),
+  });
   return {
     session: sessionResult(
       {
@@ -413,6 +769,327 @@ async function createSession(
     cookie: cookie(env, "session", secret, 3600),
   };
 }
+
+export async function persistPersonalSession(
+  env: AuthEnv,
+  input: {
+    tokenHash: string;
+    userId: string;
+    csrfToken: string;
+    verifiedEmail: string | null;
+    mfa: boolean;
+    verifiedAccount: boolean;
+    authenticatedAt: number | null;
+    amr?: string[];
+    acr?: string | null;
+    strongAuthentication?: boolean;
+    authenticationPolicyVersion?: string | null;
+    development: boolean;
+    expiresAt: string;
+    identityIssuer?: string;
+    identitySubject?: string;
+  },
+): Promise<void> {
+  await env.DB.prepare(
+    `INSERT INTO personal_sessions(token_hash,user_id,csrf_token,verified_email,mfa,verified_account,authenticated_at,amr_json,acr,strong_authentication,authentication_policy_version,is_development,public_id,created_at,expires_at,identity_issuer,identity_subject,identity_authenticated_at)
+     VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+  )
+    .bind(
+      input.tokenHash,
+      input.userId,
+      input.csrfToken,
+      input.verifiedEmail,
+      Number(input.mfa),
+      Number(input.verifiedAccount),
+      input.authenticatedAt,
+      JSON.stringify(input.amr ?? []),
+      input.acr ?? null,
+      Number(input.strongAuthentication ?? false),
+      input.authenticationPolicyVersion ?? null,
+      Number(input.development),
+      `personal_${crypto.randomUUID().replaceAll("-", "")}`,
+      nowISO(),
+      input.expiresAt,
+      input.identityIssuer ?? null,
+      input.identitySubject ?? null,
+      input.identityIssuer ? nowISO() : null,
+    )
+    .run();
+}
+
+export async function createPersonalBrowserSession(
+  env: AuthEnv,
+  input: Omit<
+    Parameters<typeof persistPersonalSession>[1],
+    "tokenHash" | "csrfToken" | "expiresAt"
+  >,
+): Promise<{ cookie: string; tokenHash: string }> {
+  const secret = randomSecret();
+  const tokenHash = await hashSecret(secret);
+  await persistPersonalSession(env, {
+    ...input,
+    tokenHash,
+    csrfToken: randomSecret(),
+    expiresAt: new Date(Date.now() + HOUR).toISOString(),
+  });
+  return { cookie: cookie(env, "session", secret, 3600), tokenHash };
+}
+
+export async function authenticatePersonalBrowser(
+  request: Request,
+  env: AuthEnv,
+  mutating = false,
+): Promise<PersonalPrincipal> {
+  if (request.headers.has("Authorization"))
+    throw new AuthError(
+      "BROWSER_REQUIRED",
+      "Open your documents in your browser.",
+      403,
+    );
+  const token = readCookie(request, cookieName(env, "session"));
+  if (!token || !/^[\w-]{43}$/.test(token))
+    throw new AuthError("AUTHENTICATION_REQUIRED", "Sign in to continue.");
+  const tokenHash = await hashSecret(token);
+  const row = await env.DB.prepare(
+    `SELECT p.user_id,p.csrf_token,p.verified_email,p.mfa,p.verified_account,p.authenticated_at,p.amr_json,p.acr,p.strong_authentication,p.authentication_policy_version,p.is_development,u.name,u.preferred_locale,u.preferred_dashboard_appearance,
+     EXISTS(SELECT 1 FROM auth_identities ai WHERE ai.user_id=p.user_id AND ai.issuer=p.identity_issuer AND ai.subject=p.identity_subject AND u.email=p.verified_email) identity_verified
+     FROM personal_sessions p JOIN users u ON u.id=p.user_id WHERE p.token_hash=? AND p.expires_at>?`,
+  )
+    .bind(tokenHash, nowISO())
+    .first<{
+      user_id: string;
+      csrf_token: string;
+      verified_email: string | null;
+      mfa: number;
+      verified_account: number;
+      identity_verified: number;
+      authenticated_at: number | null;
+      amr_json: string;
+      acr: string | null;
+      strong_authentication: number;
+      authentication_policy_version: string | null;
+      is_development: number;
+      name: string;
+      preferred_locale: SupportedLocale | null;
+      preferred_dashboard_appearance: DashboardAppearance;
+    }>();
+  if (!row || (row.is_development && !isLocalSimulation(request, env)))
+    throw new AuthError("SESSION_EXPIRED", "Session expired. Sign in again.");
+  if (mutating) {
+    requireSameOrigin(request, env);
+    if (
+      !constantEqual(request.headers.get("X-CSRF-Token") ?? "", row.csrf_token)
+    )
+      throw new AuthError(
+        "CSRF_REJECTED",
+        "Session confirmation is missing or invalid.",
+        403,
+      );
+  }
+  return {
+    userId: row.user_id,
+    name: row.name,
+    email: accountEmail(row.verified_email),
+    verifiedEmail: !!row.verified_email,
+    mfa: row.mfa === 1,
+    verifiedAccount: row.verified_account === 1,
+    identityVerified: row.identity_verified === 1,
+    authenticatedAt: row.authenticated_at,
+    amr: JSON.parse(row.amr_json),
+    acr: row.acr,
+    strongAuthentication: row.strong_authentication === 1,
+    authenticationPolicyVersion: row.authentication_policy_version,
+    preferredLocale: row.preferred_locale,
+    preferredDashboardAppearance: row.preferred_dashboard_appearance,
+    csrfToken: row.csrf_token,
+    tokenHash,
+    simulation: env.MODE === "simulation",
+    development: row.is_development === 1,
+  };
+}
+
+export function requirePersonalStrongAuthentication(
+  principal: PersonalPrincipal,
+  options: { maxAgeSeconds?: number } = {},
+): void {
+  const now = Math.floor(Date.now() / 1000);
+  if (
+    !principal.verifiedEmail ||
+    !principal.strongAuthentication ||
+    principal.authenticationPolicyVersion !== "guteneo-sensitive-v1" ||
+    principal.authenticatedAt === null ||
+    principal.authenticatedAt > now + 5 ||
+    now - principal.authenticatedAt > (options.maxAgeSeconds ?? 900)
+  )
+    throw new AuthError(
+      "STRONG_AUTHENTICATION_REQUIRED",
+      "Sign in again with recent strong authentication to access this document.",
+      403,
+    );
+  if (principal.development && !principal.simulation)
+    throw new AuthError(
+      "DEVELOPMENT_AUTH_FORBIDDEN",
+      "A real sign-in is required.",
+      403,
+    );
+}
+
+/** Document authorization policy never upgrades the observed authentication. */
+export function requirePersonalDocumentAuthentication(
+  principal: PersonalPrincipal,
+  env: Pick<AuthEnv, "SENSITIVE_DOCUMENT_AUTHENTICATION">,
+  options: { maxAgeSeconds?: number } = {},
+): void {
+  if (documentAccessMode(env.SENSITIVE_DOCUMENT_AUTHENTICATION) === "strong")
+    return requirePersonalStrongAuthentication(principal, options);
+  const now = Math.floor(Date.now() / 1000);
+  if (
+    !principal.verifiedAccount ||
+    !principal.verifiedEmail ||
+    !principal.email ||
+    !(
+      principal.identityVerified ||
+      (principal.development && principal.simulation)
+    ) ||
+    !Number.isSafeInteger(principal.authenticatedAt) ||
+    principal.authenticatedAt === null ||
+    principal.authenticatedAt <= 0 ||
+    principal.authenticatedAt > now + 5
+  )
+    throw new AuthError(
+      "DOCUMENT_AUTHENTICATION_REQUIRED",
+      "Sign in with your verified account to access this document.",
+      403,
+    );
+  if (principal.development && !principal.simulation)
+    throw new AuthError(
+      "DEVELOPMENT_AUTH_FORBIDDEN",
+      "A real sign-in is required.",
+      403,
+    );
+}
+
+/** Rotate the shared cookie without extending the original authenticated
+ * lifetime. A personal session never supplies an organization by assertion. */
+export async function enterWorkspaceFromPersonal(
+  env: AuthEnv,
+  principal: PersonalPrincipal,
+  organizationId: string,
+): Promise<{ session: AuthenticatedSession; cookie: string }> {
+  const member = (await memberships(env, principal.userId)).find(
+    (item) => item.organization_id === organizationId,
+  );
+  if (!member)
+    throw new AuthError(
+      "MEMBERSHIP_REQUIRED",
+      "You are not a member of this workspace.",
+      403,
+    );
+  if (
+    !principal.development &&
+    authenticationPolicy(env) === "verified_email_and_mfa" &&
+    member.role === "admin" &&
+    !principal.mfa
+  )
+    throw new AuthError(
+      "MFA_REQUIRED",
+      "Sign in again after two-factor authentication.",
+      403,
+    );
+  const secret = randomSecret();
+  const tokenHash = await hashSecret(secret);
+  const csrfToken = randomSecret();
+  const timestamp = nowISO();
+  const results = await env.DB.batch([
+    env.DB.prepare(
+      `INSERT INTO browser_sessions(token_hash,user_id,organization_id,csrf_token,mfa,is_development,created_at,expires_at,verified_account)
+      SELECT ?,p.user_id,m.organization_id,?,p.mfa,p.is_development,?,p.expires_at,p.verified_account FROM personal_sessions p
+      JOIN memberships m ON m.user_id=p.user_id JOIN organizations o ON o.id=m.organization_id
+      WHERE p.token_hash=? AND p.user_id=? AND p.csrf_token=? AND p.expires_at>? AND m.organization_id=? AND m.role=? AND m.supervisor_can_approve=? AND m.supervisor_can_report=? AND o.mode=?`,
+    ).bind(
+      tokenHash,
+      csrfToken,
+      timestamp,
+      principal.tokenHash,
+      principal.userId,
+      principal.csrfToken,
+      timestamp,
+      organizationId,
+      member.role,
+      member.supervisor_can_approve,
+      member.supervisor_can_report,
+      env.MODE,
+    ),
+    env.DB.prepare(
+      `INSERT INTO personal_sessions(token_hash,user_id,csrf_token,verified_email,mfa,verified_account,authenticated_at,amr_json,acr,strong_authentication,authentication_policy_version,is_development,public_id,created_at,expires_at,identity_issuer,identity_subject,identity_authenticated_at)
+      SELECT ?,user_id,?,verified_email,mfa,verified_account,authenticated_at,amr_json,acr,strong_authentication,authentication_policy_version,is_development,?,?,expires_at,identity_issuer,identity_subject,identity_authenticated_at FROM personal_sessions WHERE token_hash=? AND EXISTS(SELECT 1 FROM browser_sessions WHERE token_hash=?)`,
+    ).bind(
+      tokenHash,
+      csrfToken,
+      `personal_${crypto.randomUUID().replaceAll("-", "")}`,
+      timestamp,
+      principal.tokenHash,
+      tokenHash,
+    ),
+    env.DB.prepare(
+      "INSERT INTO browser_identity_evidence(token_hash,issuer,subject,verified_email,authenticated_at) SELECT ?,identity_issuer,identity_subject,verified_email,identity_authenticated_at FROM personal_sessions WHERE token_hash=? AND identity_issuer IS NOT NULL AND identity_subject IS NOT NULL AND EXISTS(SELECT 1 FROM browser_sessions WHERE token_hash=?)",
+    ).bind(tokenHash, principal.tokenHash, tokenHash),
+    env.DB.prepare(
+      "DELETE FROM browser_sessions WHERE token_hash=? AND EXISTS(SELECT 1 FROM personal_sessions WHERE token_hash=?)",
+    ).bind(principal.tokenHash, tokenHash),
+    env.DB.prepare(
+      "DELETE FROM personal_sessions WHERE token_hash=? AND EXISTS(SELECT 1 FROM personal_sessions WHERE token_hash=?)",
+    ).bind(principal.tokenHash, tokenHash),
+  ]);
+  if (!results[0].meta.changes)
+    throw new AuthError(
+      "ACCESS_CHANGED",
+      "Your permissions or session have changed. Sign in again.",
+      403,
+    );
+  return {
+    session: sessionResult(
+      {
+        ...member,
+        user_email: principal.email,
+        csrf_token: csrfToken,
+        mfa: Number(principal.mfa),
+        verified_account: Number(principal.verifiedAccount),
+      },
+      tokenHash,
+      env,
+    ),
+    cookie: cookie(env, "session", secret, 3600),
+  };
+}
+async function observeBrowserSession(
+  env: AuthEnv,
+  request: Request,
+  session: AuthenticatedSession,
+): Promise<void> {
+  try {
+    const publicId = await env.DB.prepare(
+      "SELECT public_id FROM browser_sessions WHERE token_hash=? AND organization_id=? AND user_id=? AND is_development=0 AND expires_at>?",
+    )
+      .bind(
+        session.tokenHash,
+        session.context.organizationId,
+        session.context.userId,
+        nowISO(),
+      )
+      .first<{ public_id: string }>();
+    if (publicId)
+      await recordConnectionEvent(env.DB, request, {
+        organizationId: session.context.organizationId,
+        userId: session.context.userId,
+        kind: "browser",
+        connectionId: publicId.public_id,
+      });
+  } catch {
+    // The optional public-ID lookup is telemetry too. Its failure never changes
+    // authenticated authority or the session cookie already being rotated.
+  }
+}
 export async function authenticateBrowser(
   request: Request,
   env: AuthEnv,
@@ -420,15 +1097,14 @@ export async function authenticateBrowser(
 ): Promise<AuthenticatedSession> {
   const token = readCookie(request, cookieName(env, "session"));
   if (!token || !/^[\w-]{43}$/.test(token))
-    throw new AuthError(
-      "AUTHENTICATION_REQUIRED",
-      "Connectez-vous pour continuer.",
-    );
+    throw new AuthError("AUTHENTICATION_REQUIRED", "Sign in to continue.");
   const tokenHash = await hashSecret(token);
   const row = await env.DB.prepare(
-    `SELECT s.csrf_token,s.mfa,s.is_development,s.verified_account,m.organization_id,m.user_id,m.role,m.supervisor_can_approve,m.supervisor_can_report,o.name organization_name,u.name user_name,u.preferred_locale
+    `SELECT s.csrf_token,s.mfa,s.is_development,s.verified_account,m.organization_id,m.user_id,m.role,m.supervisor_can_approve,m.supervisor_can_report,o.name organization_name,u.name user_name,COALESCE(e.verified_email,u.email) user_email,u.preferred_locale,u.preferred_dashboard_appearance
     FROM browser_sessions s JOIN memberships m ON m.organization_id=s.organization_id AND m.user_id=s.user_id
-    JOIN organizations o ON o.id=m.organization_id JOIN users u ON u.id=m.user_id WHERE s.token_hash=? AND s.expires_at>?`,
+    JOIN organizations o ON o.id=m.organization_id JOIN users u ON u.id=m.user_id
+    LEFT JOIN browser_identity_evidence e ON e.token_hash=s.token_hash
+    WHERE s.token_hash=? AND s.expires_at>?`,
   )
     .bind(tokenHash, nowISO())
     .first<
@@ -440,10 +1116,7 @@ export async function authenticateBrowser(
       }
     >();
   if (!row || (row.is_development && !isLocalSimulation(request, env)))
-    throw new AuthError(
-      "SESSION_EXPIRED",
-      "Session expirée. Reconnectez-vous.",
-    );
+    throw new AuthError("SESSION_EXPIRED", "Session expired. Sign in again.");
   const policy = authenticationPolicy(env);
   if (
     !row.is_development &&
@@ -452,7 +1125,7 @@ export async function authenticateBrowser(
   )
     throw new AuthError(
       "ACCOUNT_VERIFICATION_REQUIRED",
-      "Reconnectez-vous pour vérifier votre compte.",
+      "Sign in again to verify your account.",
       403,
     );
   if (
@@ -463,7 +1136,7 @@ export async function authenticateBrowser(
   )
     throw new AuthError(
       "MFA_REQUIRED",
-      "La double authentification est nécessaire pour les administrateurs.",
+      "Two-factor authentication is required for administrators.",
       403,
     );
   if (mutating) {
@@ -473,7 +1146,7 @@ export async function authenticateBrowser(
     )
       throw new AuthError(
         "CSRF_REJECTED",
-        "La confirmation de session est absente ou invalide.",
+        "Session confirmation is missing or invalid.",
         403,
       );
   }
@@ -486,7 +1159,7 @@ export function requireScope(
   if (!identity.scopes.includes(scope))
     throw new AuthError(
       "INSUFFICIENT_SCOPE",
-      `Autorisation requise : ${scope}.`,
+      `Authorization required: ${scope}.`,
       403,
     );
 }
@@ -498,14 +1171,14 @@ export async function authenticateMcp(
   if (!/^Bearer [^\s]+$/i.test(header))
     throw new AuthError(
       "AUTHENTICATION_REQUIRED",
-      "Autorisez la connexion de votre assistant.",
+      "Authorize your assistant connection.",
     );
   const token = header.slice(7);
   if (token.startsWith("gtn_dev_")) {
     if (!isLocalSimulation(request, env))
       throw new AuthError(
         "DEVELOPMENT_AUTH_FORBIDDEN",
-        "Authentification de développement interdite.",
+        "Development authentication is forbidden.",
         403,
       );
     const row = await env.DB.prepare(
@@ -521,8 +1194,7 @@ export async function authenticateMcp(
         supervisor_can_report: number;
         expires_at: string;
       }>();
-    if (!row)
-      throw new AuthError("TOKEN_INVALID", "Jeton de simulation expiré.");
+    if (!row) throw new AuthError("TOKEN_INVALID", "Simulation token expired.");
     return {
       context: {
         organizationId: row.organization_id,
@@ -538,10 +1210,18 @@ export async function authenticateMcp(
       token,
     };
   }
-  const payload = await validateAuth0Token(token, env, "access");
+  const configuration = mcpAuth0Configuration(env);
+  const payload = await validateAuth0TokenAtIssuer(
+    token,
+    env,
+    "access",
+    configuration.identityIssuer,
+    undefined,
+    configuration.tokenIssuers,
+  );
   const policy = authenticationPolicy(env);
   if (policy === "verified_email") requireVerifiedAccount(payload);
-  const issuer = auth0Issuer(env);
+  const issuer = configuration.identityIssuer;
   const clientId =
     typeof payload.client_id === "string"
       ? payload.client_id
@@ -558,7 +1238,7 @@ export async function authenticateMcp(
   if (!identity)
     throw new AuthError(
       "ONBOARDING_REQUIRED",
-      "Connectez-vous d’abord à Guteneo pour créer votre espace.",
+      "Sign in to Guteneo first to create your workspace.",
       403,
     );
   const memberRows = await memberships(env, identity.user_id);
@@ -583,7 +1263,7 @@ export async function authenticateMcp(
     if (memberRows.length !== 1)
       throw new AuthError(
         "ORGANIZATION_SELECTION_REQUIRED",
-        "Associez cet assistant à une organisation depuis les connexions du tableau de bord.",
+        "Link this assistant to an organization from the dashboard connections.",
         403,
       );
     await env.DB.prepare(
@@ -609,7 +1289,7 @@ export async function authenticateMcp(
   )
     throw new AuthError(
       "CONNECTION_REVOKED",
-      "Cette connexion a été révoquée.",
+      "This connection has been revoked.",
       403,
     );
   const member = memberRows.find(
@@ -618,7 +1298,7 @@ export async function authenticateMcp(
   if (!member)
     throw new AuthError(
       "MEMBERSHIP_REQUIRED",
-      "Accès à cette organisation refusé.",
+      "Access to this organization denied.",
       403,
     );
   if (
@@ -628,9 +1308,16 @@ export async function authenticateMcp(
   )
     throw new AuthError(
       "MFA_REQUIRED",
-      "Reconnectez l’assistant après une double authentification.",
+      "Reconnect the assistant after two-factor authentication.",
       403,
     );
+  if (env.MODE === "production")
+    await recordConnectionEvent(env.DB, request, {
+      organizationId: member.organization_id,
+      userId: member.user_id,
+      kind: "mcp",
+      connectionId: connection.id,
+    });
   const scopes =
     typeof payload.scope === "string"
       ? payload.scope
@@ -650,6 +1337,7 @@ export async function authenticateMcp(
     clientId,
     expiresAt: payload.exp,
     token,
+    verifiedTokenIssuer: payload.iss!,
     ...(env.MODE === "production" && connection.authorization_revision !== null
       ? {
           connectionObservation: {
@@ -663,17 +1351,17 @@ export async function authenticateMcp(
 export function protectedResourceMetadata(env: AuthEnv): Response {
   return json({
     resource: `${env.APP_ORIGIN}/mcp`,
-    authorization_servers: [auth0Issuer(env).replace(/\/$/, "")],
+    authorization_servers: [mcpAuthorizationIssuer(env)],
     scopes_supported: MCP_SCOPES,
     bearer_methods_supported: ["header"],
     resource_name: "Guteneo",
+    resource_documentation: `${env.APP_ORIGIN}/developers/?lang=en`,
   });
 }
 
 async function boundedAuthInput(request: Request): Promise<unknown> {
   const reader = request.body?.getReader();
-  if (!reader)
-    throw new AuthError("INVALID_INPUT", "Invitation invalide.", 400);
+  if (!reader) throw new AuthError("INVALID_INPUT", "Invalid invitation.", 400);
   let text = "";
   const decoder = new TextDecoder();
   try {
@@ -683,7 +1371,7 @@ async function boundedAuthInput(request: Request): Promise<unknown> {
       text += decoder.decode(part.value, { stream: true });
       if (text.length > 512) {
         await reader.cancel();
-        throw new AuthError("INVALID_INPUT", "Invitation invalide.", 400);
+        throw new AuthError("INVALID_INPUT", "Invalid invitation.", 400);
       }
     }
   } finally {
@@ -693,13 +1381,27 @@ async function boundedAuthInput(request: Request): Promise<unknown> {
   try {
     input = JSON.parse(text);
   } catch {
-    throw new AuthError("INVALID_INPUT", "Invitation invalide.", 400);
+    throw new AuthError("INVALID_INPUT", "Invalid invitation.", 400);
   }
   return input;
 }
 export async function handleAuthRoute(
   request: Request,
   env: AuthEnv,
+): Promise<Response | null> {
+  const failureContext: { validated?: LoginFailureContext } = {};
+  try {
+    return await handleAuthRouteOperation(request, env, failureContext);
+  } catch (error) {
+    if (failureContext.validated && error !== null && typeof error === "object")
+      loginFailureContexts.set(error, failureContext.validated);
+    throw error;
+  }
+}
+async function handleAuthRouteOperation(
+  request: Request,
+  env: AuthEnv,
+  failureContext: { validated?: LoginFailureContext },
 ): Promise<Response | null> {
   const url = new URL(request.url);
   if (
@@ -718,7 +1420,7 @@ export async function handleAuthRoute(
     )
       throw new AuthError(
         "BROWSER_REQUIRED",
-        "Ouvrez l’invitation dans votre navigateur.",
+        "Open the invitation in your browser.",
         403,
       );
     const input = await boundedAuthInput(request);
@@ -727,15 +1429,14 @@ export async function handleAuthRoute(
       typeof input !== "object" ||
       Object.keys(input).length !== 1 ||
       !("token" in input) ||
-      typeof input.token !== "string" ||
-      !/^[A-Za-z0-9_-]{43}$/.test(input.token)
+      !isWorkspaceInvitationToken(input.token)
     )
-      throw new AuthError("INVALID_INPUT", "Invitation invalide.", 400);
+      throw new AuthError("INVALID_INPUT", "Invalid invitation.", 400);
     const preview = await getInvitationPreview(env, input.token);
     if (preview.status !== "pending")
       throw new AuthError(
         "INVITATION_UNAVAILABLE",
-        "Cette invitation n’est plus disponible.",
+        "This invitation is no longer available.",
         409,
       );
     return json({ loginUrl: "/auth/login?fresh=1" }, 200, {
@@ -747,18 +1448,12 @@ export async function handleAuthRoute(
     ["/auth/login", "/auth/signup"].includes(url.pathname)
   ) {
     const config = configuredIdentity(env);
-    const preferredLocale =
-      normalizeLocale(url.searchParams.get("locale")) ??
-      normalizeLocale(url.searchParams.get("ui_locales")) ??
-      localeFromAcceptLanguage(request.headers.get("Accept-Language"));
+    const authorizationIssuer = browserAuth0Issuer(env);
+    const preferredLocale = requestedLoginLocale(request);
     if (env.ENVIRONMENT !== "local") {
       const ip = request.headers.get("CF-Connecting-IP");
       if (!ip)
-        throw new AuthError(
-          "LOGIN_UNAVAILABLE",
-          "Connexion indisponible.",
-          503,
-        );
+        throw new AuthError("LOGIN_UNAVAILABLE", "Sign-in unavailable.", 503);
       const window = Math.floor(Date.now() / 3_600_000);
       const key = await hashSecret(
         `${env.AUTH0_CLIENT_SECRET}:${Math.floor(window / 24)}:${ip}`,
@@ -773,7 +1468,7 @@ export async function handleAuthRoute(
       if (!limit || limit.count > 60)
         throw new AuthError(
           "LOGIN_RATE_LIMITED",
-          "Trop de tentatives. Réessayez dans une heure.",
+          "Too many attempts. Try again in an hour.",
           429,
         );
     }
@@ -789,12 +1484,11 @@ export async function handleAuthRoute(
       .replaceAll("/", "_")
       .replaceAll("=", "");
     const invitationToken = readCookie(request, cookieName(env, "invitation"));
-    const invitationHash =
-      invitationToken && /^[A-Za-z0-9_-]{43}$/.test(invitationToken)
-        ? await hashSecret(invitationToken)
-        : null;
+    const invitationHash = isWorkspaceInvitationToken(invitationToken)
+      ? await hashSecret(invitationToken)
+      : null;
     await env.DB.prepare(
-      "INSERT INTO auth_transactions(state_hash,browser_hash,code_verifier,nonce,return_to,expires_at,preferred_locale,invitation_token_hash) VALUES(?,?,?,?,?,?,?,?)",
+      "INSERT INTO auth_transactions(state_hash,browser_hash,code_verifier,nonce,return_to,expires_at,preferred_locale,invitation_token_hash,authorization_issuer,identity_issuer,account_context) VALUES(?,?,?,?,?,?,?,?,?,?,?)",
     )
       .bind(
         await hashSecret(state),
@@ -805,15 +1499,22 @@ export async function handleAuthRoute(
         new Date(Date.now() + 600_000).toISOString(),
         preferredLocale,
         invitationHash,
+        authorizationIssuer,
+        config.issuer,
+        url.searchParams.get("context") === "personal"
+          ? "personal"
+          : "workshop",
       )
       .run();
-    const destination = new URL("authorize", config.issuer);
+    const destination = new URL("authorize", authorizationIssuer);
     destination.search = new URLSearchParams({
       client_id: config.clientId,
       response_type: "code",
       redirect_uri: `${env.APP_ORIGIN}/auth/callback`,
       scope: "openid profile email",
-      ui_locales: preferredLocale,
+      // Auth0 does not offer Luxembourgish. Keep the personal preference intact
+      // while requesting its supported German interface for the hosted screen.
+      ui_locales: preferredLocale === "lb" ? "de" : preferredLocale,
       audience: config.audience,
       state,
       nonce,
@@ -822,9 +1523,32 @@ export async function handleAuthRoute(
     }).toString();
     if (url.pathname === "/auth/signup")
       destination.searchParams.set("screen_hint", "signup");
+    if (
+      documentAccessMode(env.SENSITIVE_DOCUMENT_AUTHENTICATION) ===
+      "verified_account"
+    ) {
+      // Match the ordinary application session lifetime, reusing current SSO
+      // when entering from MCP while requiring signed primary auth_time in the
+      // initial workshop/personal login rather than a later second ceremony.
+      destination.searchParams.set("max_age", String(HOUR / 1000));
+    }
+    if (url.searchParams.get("context") === "personal") {
+      if (
+        documentAccessMode(env.SENSITIVE_DOCUMENT_AUTHENTICATION) === "strong"
+      ) {
+        destination.searchParams.set(
+          "acr_values",
+          "http://schemas.openid.net/pape/policies/2007/06/multi-factor",
+        );
+        destination.searchParams.set("max_age", "0");
+      }
+    }
     // A fresh login allows a newly verified email or MFA enrolment to be reflected
     // in signed claims rather than reusing an old identity-provider session.
-    if (url.searchParams.get("fresh") === "1") {
+    if (
+      url.searchParams.get("fresh") === "1" ||
+      url.searchParams.get("intent") === "switch-account"
+    ) {
       destination.searchParams.set("prompt", "login");
       destination.searchParams.set("max_age", "0");
     }
@@ -838,14 +1562,22 @@ export async function handleAuthRoute(
     const browser = readCookie(request, cookieName(env, "login"));
     const state = url.searchParams.get("state");
     const code = url.searchParams.get("code");
-    if (!browser || !state || !code || state.length > 256 || code.length > 4096)
-      throw new AuthError("LOGIN_STATE_INVALID", "Recommencez la connexion.");
+    if (
+      !browser ||
+      !state ||
+      state.length > 256 ||
+      (code && code.length > 4096)
+    )
+      throw new AuthError("LOGIN_STATE_INVALID", "Restart sign-in.");
     const transaction = await env.DB.prepare(
-      "DELETE FROM auth_transactions WHERE state_hash=? AND browser_hash=? AND expires_at>? RETURNING code_verifier,nonce,return_to,preferred_locale,invitation_token_hash",
+      "DELETE FROM auth_transactions WHERE state_hash=? AND browser_hash=? AND expires_at>? RETURNING code_verifier,nonce,return_to,preferred_locale,invitation_token_hash,authorization_issuer,identity_issuer,account_context",
     )
       .bind(await hashSecret(state), await hashSecret(browser), nowISO())
       .first<{
         invitation_token_hash: string | null;
+        authorization_issuer: string | null;
+        identity_issuer: string | null;
+        account_context: "personal" | "workshop";
         code_verifier: string;
         nonce: string;
         return_to: string;
@@ -854,9 +1586,17 @@ export async function handleAuthRoute(
     if (!transaction)
       throw new AuthError(
         "LOGIN_STATE_INVALID",
-        "Connexion expirée ou déjà utilisée.",
+        "Connection expired or already used.",
       );
-    const response = await fetch(new URL("oauth/token", config.issuer), {
+    failureContext.validated = {
+      returnTo: safeReturnPath(transaction.return_to),
+      locale:
+        normalizeLocale(transaction.preferred_locale) ??
+        localeFromAcceptLanguage(request.headers.get("Accept-Language")),
+    };
+    if (!code) throw new AuthError("LOGIN_STATE_INVALID", "Restart sign-in.");
+    const authorizationIssuer = transactionAuth0Issuer(env, transaction);
+    const response = await fetch(new URL("oauth/token", authorizationIssuer), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       redirect: "manual",
@@ -872,19 +1612,19 @@ export async function handleAuthRoute(
     }).catch(() => {
       throw new AuthError(
         "LOGIN_EXCHANGE_FAILED",
-        "Le service de connexion est momentanément indisponible. Réessayez.",
+        "The sign-in service is temporarily unavailable. Try again.",
       );
     });
     if (!response.ok)
       throw new AuthError(
         "LOGIN_EXCHANGE_FAILED",
-        "La connexion n’a pas pu être terminée. Recommencez.",
+        "Sign-in could not be completed. Start again.",
         401,
       );
     const tokens = (await response.json().catch(() => {
       throw new AuthError(
         "LOGIN_EXCHANGE_FAILED",
-        "La connexion n’a pas pu être terminée. Recommencez.",
+        "Sign-in could not be completed. Start again.",
       );
     })) as {
       id_token?: string;
@@ -900,18 +1640,24 @@ export async function handleAuthRoute(
     )
       throw new AuthError(
         "LOGIN_EXCHANGE_FAILED",
-        "Réponse d’identité incomplète.",
+        "Incomplete identity response.",
       );
-    const claims = await validateAuth0Token(tokens.id_token, env, "id");
-    const accessClaims = await validateAuth0Token(
+    const claims = await validateAuth0TokenAtIssuer(
+      tokens.id_token,
+      env,
+      "id",
+      authorizationIssuer,
+    );
+    const accessClaims = await validateAuth0TokenAtIssuer(
       tokens.access_token,
       env,
       "access",
+      authorizationIssuer,
     );
     if (claims.nonce !== transaction.nonce || claims.sub !== accessClaims.sub)
       throw new AuthError(
         "LOGIN_STATE_INVALID",
-        "Réponse d’identité non liée à cette connexion.",
+        "The identity response is not bound to this connection.",
       );
     if (
       claims.email_verified !== true ||
@@ -921,7 +1667,7 @@ export async function handleAuthRoute(
     )
       throw new AuthError(
         "EMAIL_VERIFICATION_REQUIRED",
-        "Vérifiez votre adresse avec le lien reçu par e-mail, puis reconnectez-vous.",
+        "Verify your address using the link in the email, then sign in again.",
         403,
       );
     const policy = authenticationPolicy(env);
@@ -936,6 +1682,16 @@ export async function handleAuthRoute(
     )
       .bind(config.issuer, claims.sub)
       .first<{ user_id: string }>();
+    const platformBrowser = isBelvedereBrowserOrigin(request, env);
+    if (
+      platformBrowser &&
+      (!identity ||
+        transaction.invitation_token_hash ||
+        claims.email.trim().toLowerCase() !== BELVEDERE_WATCHER_EMAIL ||
+        (env.BELVEDERE_AUTH0_SUBJECT &&
+          claims.sub !== env.BELVEDERE_AUTH0_SUBJECT))
+    )
+      throw new AuthError("ACCESS_DENIED", "Access denied.", 403);
     let invitedOrganizationId: string | undefined;
     if (transaction.invitation_token_hash) {
       if (policy === "verified_email_and_mfa" && !hasMfa(claims)) {
@@ -947,7 +1703,7 @@ export async function handleAuthRoute(
         if (invitedRole?.role === "admin")
           throw new AuthError(
             "MFA_REQUIRED",
-            "Activez la double authentification pour accepter ce rôle administrateur.",
+            "Enable two-factor authentication to accept this administrator role.",
             403,
           );
       }
@@ -957,7 +1713,7 @@ export async function handleAuthRoute(
         ? []
         : [
             env.DB.prepare(
-              "INSERT INTO users(id,name,email,created_at,preferred_locale) VALUES(?,?,?,?,?)",
+              "INSERT INTO users(id,name,email,created_at,preferred_locale,preferred_dashboard_appearance) VALUES(?,?,?,?,?,?)",
             ).bind(
               userId,
               typeof claims.name === "string"
@@ -966,6 +1722,7 @@ export async function handleAuthRoute(
               claims.email,
               createdAt,
               transaction.preferred_locale,
+              defaultDashboardAppearance,
             ),
             env.DB.prepare(
               "INSERT INTO auth_identities(issuer,subject,user_id,created_at) VALUES(?,?,?,?)",
@@ -982,57 +1739,39 @@ export async function handleAuthRoute(
       identity = { user_id: userId };
     }
     if (!identity) {
-      if (policy === "verified_email_and_mfa" && !hasMfa(claims))
+      if (
+        policy === "verified_email_and_mfa" &&
+        !hasMfa(claims) &&
+        !documentAuthenticationEvidence(claims).strongAuthentication
+      )
         throw new AuthError(
           "MFA_REQUIRED",
-          "Terminez la double authentification pour créer votre espace.",
+          "Complete enhanced authentication to create your account.",
           403,
         );
-      // The organization trigger grants one shared lifetime welcome credit.
-      // Per-channel quotas are safety ceilings; channels still need activation.
       const userId = `usr_${crypto.randomUUID()}`;
-      const organizationId = `org_${crypto.randomUUID()}`;
       const createdAt = nowISO();
       try {
         await env.DB.batch([
           env.DB.prepare(
-            "INSERT INTO users(id,name,email,created_at,preferred_locale) VALUES(?,?,?,?,?)",
+            "INSERT INTO users(id,name,email,created_at,preferred_locale,preferred_dashboard_appearance) VALUES(?,?,?,?,?,?)",
           ).bind(
             userId,
             typeof claims.name === "string"
               ? claims.name.slice(0, 200)
               : "Utilisateur Guteneo",
-            typeof claims.email === "string" && claims.email_verified === true
-              ? claims.email.slice(0, 320)
-              : "",
+            claims.email.trim().toLowerCase(),
             createdAt,
             transaction.preferred_locale,
+            defaultDashboardAppearance,
           ),
-          env.DB.prepare(
-            "INSERT INTO organizations(id,name,mode,created_at) VALUES(?,?,?,?)",
-          ).bind(organizationId, "Mon espace", env.MODE, createdAt),
-          env.DB.prepare(
-            "INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES(?,?,'admin',?)",
-          ).bind(organizationId, userId, createdAt),
           env.DB.prepare(
             "INSERT INTO auth_identities(issuer,subject,user_id,created_at) VALUES(?,?,?,?)",
           ).bind(config.issuer, claims.sub, userId, createdAt),
-          env.DB.prepare(
-            "INSERT INTO content_limits(organization_id,uploads_per_day,bytes_per_day,renders_per_day) VALUES(?,10,20971520,3)",
-          ).bind(organizationId),
-          ...["fax", "email", "postal"].flatMap((channel) => [
-            env.DB.prepare(
-              "INSERT INTO usage(organization_id,channel,period,limit_count,limit_minor,currency) VALUES(?,?,?,10000,5000,'EUR')",
-            ).bind(organizationId, channel, createdAt.slice(0, 7)),
-            env.DB.prepare(
-              "INSERT INTO channel_controls(organization_id,channel,enabled) VALUES(?,?,0)",
-            ).bind(organizationId, channel),
-          ]),
         ]);
         identity = { user_id: userId };
       } catch (error) {
-        // Concurrent valid callbacks can race to create the same identity. The
-        // failed D1 batch rolls back, then we reuse only the exact signed subject.
+        // Never merge identities by email, including concurrent callbacks.
         identity = await env.DB.prepare(
           "SELECT user_id FROM auth_identities WHERE issuer=? AND subject=?",
         )
@@ -1042,10 +1781,37 @@ export async function handleAuthRoute(
       }
     }
     const memberRows = await memberships(env, identity.user_id);
-    if (!memberRows.length)
-      return redirect(`${env.APP_ORIGIN}/?auth=invitation_required#/app`, [
+    if (platformBrowser && !memberRows.length)
+      throw new AuthError("ACCESS_DENIED", "Access denied.", 403);
+    if (
+      !memberRows.length ||
+      (transaction.account_context === "personal" && !invitedOrganizationId)
+    ) {
+      await env.DB.prepare(
+        "UPDATE users SET email=? WHERE id=? AND EXISTS(SELECT 1 FROM auth_identities i WHERE i.user_id=users.id AND i.issuer=? AND i.subject=?)",
+      )
+        .bind(
+          claims.email.trim().toLowerCase(),
+          identity.user_id,
+          config.issuer,
+          claims.sub,
+        )
+        .run();
+      const personal = await createPersonalBrowserSession(env, {
+        userId: identity.user_id,
+        verifiedEmail: claims.email.trim().toLowerCase(),
+        mfa: hasMfa(claims),
+        verifiedAccount,
+        ...documentAuthenticationEvidence(claims),
+        identityIssuer: config.issuer,
+        identitySubject: claims.sub,
+        development: false,
+      });
+      return redirect(new URL(transaction.return_to, env.APP_ORIGIN).href, [
         cookie(env, "login", "", 0),
+        personal.cookie,
       ]);
+    }
     const member = invitedOrganizationId
       ? memberRows.find(
           (entry) => entry.organization_id === invitedOrganizationId,
@@ -1054,7 +1820,7 @@ export async function handleAuthRoute(
     if (!member)
       throw new AuthError(
         "MEMBERSHIP_REQUIRED",
-        "Votre accès à cet atelier a changé.",
+        "Your access to this workspace has changed.",
         403,
       );
     if (
@@ -1064,16 +1830,41 @@ export async function handleAuthRoute(
     )
       throw new AuthError(
         "MFA_REQUIRED",
-        "Activez la double authentification avant d’accéder à l’espace administrateur.",
+        "Enable two-factor authentication before accessing the administrator workspace.",
         403,
       );
+    // Only the exact signature-verified identity may refresh its login address.
+    // A profile edit and an email match never link or elevate another account.
+    // Preserve the person's name and saved language across Auth0 reconnections.
+    if (claims.email_verified === true) {
+      const verifiedEmail = claims.email.trim().toLowerCase();
+      if (member.user_email !== verifiedEmail)
+        await env.DB.prepare(
+          "UPDATE users SET email=? WHERE id=? AND EXISTS(SELECT 1 FROM auth_identities i WHERE i.user_id=users.id AND i.issuer=? AND i.subject=?)",
+        )
+          .bind(verifiedEmail, identity.user_id, config.issuer, claims.sub)
+          .run();
+      member.user_email = verifiedEmail;
+    }
     const session = await createSession(
       env,
       member,
       hasMfa(claims),
       false,
       verifiedAccount,
+      {
+        verifiedEmail: claims.email.trim().toLowerCase(),
+        ...documentAuthenticationEvidence(claims),
+        identityIssuer: config.issuer,
+        identitySubject: claims.sub,
+      },
     );
+    await env.DB.prepare(
+      "INSERT INTO browser_identity_evidence(token_hash,issuer,subject,verified_email,authenticated_at) SELECT token_hash,identity_issuer,identity_subject,verified_email,identity_authenticated_at FROM personal_sessions WHERE token_hash=? AND identity_issuer IS NOT NULL AND identity_subject IS NOT NULL",
+    )
+      .bind(session.session.tokenHash)
+      .run();
+    await observeBrowserSession(env, request, session.session);
     return redirect(
       new URL(
         invitedOrganizationId ? "/#/app" : transaction.return_to,
@@ -1086,7 +1877,7 @@ export async function handleAuthRoute(
     if (!isLocalSimulation(request, env))
       throw new AuthError(
         "DEVELOPMENT_AUTH_FORBIDDEN",
-        "Connexion de démonstration disponible uniquement en local.",
+        "Demo sign-in is available locally only.",
         403,
       );
     requireSameOrigin(request, env);
@@ -1094,7 +1885,7 @@ export async function handleAuthRoute(
     if (!["atelier", "studio"].includes(body.organization ?? ""))
       throw new AuthError(
         "INVALID_ORGANIZATION",
-        "Choisissez une organisation de simulation.",
+        "Choose a simulation organization.",
         400,
       );
     const selected = (await memberships(env, `user_${body.organization}`)).find(
@@ -1103,11 +1894,17 @@ export async function handleAuthRoute(
     if (!selected)
       throw new AuthError(
         "SEED_REQUIRED",
-        "Initialisez les données de simulation.",
+        "Initialize the simulation data.",
         503,
       );
-    const result = await createSession(env, selected, false, true);
-    return json(publicSession(result.session), 200, {
+    const result = await createSession(env, selected, false, true, false, {
+      verifiedEmail: selected.user_email ?? "workshop@example.test",
+      authenticatedAt: Math.floor(Date.now() / 1000),
+      amr: ["simulation"],
+      strongAuthentication: true,
+      authenticationPolicyVersion: "guteneo-sensitive-v1",
+    });
+    return json(await publicBrowserSession(env, result.session), 200, {
       "Set-Cookie": result.cookie,
     });
   }
@@ -1115,7 +1912,7 @@ export async function handleAuthRoute(
     if (request.headers.has("Authorization"))
       throw new AuthError(
         "BROWSER_REQUIRED",
-        "Ouvrez Guteneo dans votre navigateur.",
+        "Open Guteneo in your browser.",
         403,
       );
     const session = await authenticateBrowser(request, env);
@@ -1137,7 +1934,7 @@ export async function handleAuthRoute(
     if (request.headers.has("Authorization"))
       throw new AuthError(
         "BROWSER_REQUIRED",
-        "Ouvrez Guteneo dans votre navigateur.",
+        "Open Guteneo in your browser.",
         403,
       );
     const session = await authenticateBrowser(request, env, true);
@@ -1152,7 +1949,7 @@ export async function handleAuthRoute(
     )
       throw new AuthError(
         "INVALID_INPUT",
-        "Choisissez un atelier accessible.",
+        "Choose an accessible workspace.",
         400,
       );
     const available = await memberships(env, session.context.userId);
@@ -1162,7 +1959,7 @@ export async function handleAuthRoute(
     if (!selected)
       throw new AuthError(
         "MEMBERSHIP_REQUIRED",
-        "Vous n’êtes pas membre de cet atelier.",
+        "You are not a member of this workspace.",
         403,
       );
     const current = await env.DB.prepare(
@@ -1171,10 +1968,7 @@ export async function handleAuthRoute(
       .bind(session.tokenHash, nowISO())
       .first<{ is_development: number }>();
     if (!current)
-      throw new AuthError(
-        "SESSION_EXPIRED",
-        "Session expirée. Reconnectez-vous.",
-      );
+      throw new AuthError("SESSION_EXPIRED", "Session expired. Sign in again.");
     if (
       !current.is_development &&
       authenticationPolicy(env) === "verified_email_and_mfa" &&
@@ -1183,11 +1977,11 @@ export async function handleAuthRoute(
     )
       throw new AuthError(
         "MFA_REQUIRED",
-        "Reconnectez-vous après une double authentification.",
+        "Sign in again after two-factor authentication.",
         403,
       );
     if (selected.organization_id === session.context.organizationId)
-      return json(publicSession(session));
+      return json(await publicBrowserSession(env, session));
     const secret = randomSecret();
     const tokenHash = await hashSecret(secret);
     const csrfToken = randomSecret();
@@ -1224,6 +2018,20 @@ export async function handleAuthRoute(
         current.is_development,
       ),
       env.DB.prepare(
+        "INSERT INTO browser_identity_evidence(token_hash,issuer,subject,verified_email,authenticated_at) SELECT ?,identity_issuer,identity_subject,verified_email,identity_authenticated_at FROM personal_sessions WHERE token_hash=? AND identity_issuer IS NOT NULL AND identity_subject IS NOT NULL AND EXISTS(SELECT 1 FROM browser_sessions WHERE token_hash=?)",
+      ).bind(tokenHash, session.tokenHash, tokenHash),
+      env.DB.prepare(
+        `INSERT INTO personal_sessions(token_hash,user_id,csrf_token,verified_email,mfa,verified_account,authenticated_at,amr_json,acr,strong_authentication,authentication_policy_version,is_development,public_id,created_at,expires_at,identity_issuer,identity_subject,identity_authenticated_at)
+        SELECT ?,user_id,?,verified_email,mfa,verified_account,authenticated_at,amr_json,acr,strong_authentication,authentication_policy_version,is_development,?,?,expires_at,identity_issuer,identity_subject,identity_authenticated_at FROM personal_sessions WHERE token_hash=? AND EXISTS(SELECT 1 FROM browser_sessions WHERE token_hash=?)`,
+      ).bind(
+        tokenHash,
+        csrfToken,
+        `personal_${crypto.randomUUID().replaceAll("-", "")}`,
+        now,
+        session.tokenHash,
+        tokenHash,
+      ),
+      env.DB.prepare(
         "DELETE FROM browser_sessions WHERE token_hash=? AND EXISTS(SELECT 1 FROM browser_sessions WHERE token_hash=?)",
       ).bind(session.tokenHash, tokenHash),
     ]);
@@ -1231,12 +2039,13 @@ export async function handleAuthRoute(
     if (!results[0].meta.changes)
       throw new AuthError(
         "ACCESS_CHANGED",
-        "Vos droits ou votre session ont changé. Reconnectez-vous.",
+        "Your permissions or session have changed. Sign in again.",
         403,
       );
     const result = sessionResult(
       {
         ...selected,
+        user_email: session.user.email,
         csrf_token: csrfToken,
         mfa: Number(session.mfa),
         verified_account: Number(session.verifiedAccount),
@@ -1244,12 +2053,16 @@ export async function handleAuthRoute(
       tokenHash,
       env,
     );
-    return json(publicSession(result), 200, {
+    if (!current.is_development)
+      await observeBrowserSession(env, request, result);
+    return json(await publicBrowserSession(env, result), 200, {
       "Set-Cookie": cookie(env, "session", secret, 3600),
     });
   }
   if (request.method === "GET" && url.pathname === "/api/session")
-    return json(publicSession(await authenticateBrowser(request, env)));
+    return json(
+      await publicBrowserSession(env, await authenticateBrowser(request, env)),
+    );
   if (request.method === "POST" && url.pathname === "/api/logout") {
     const session = await authenticateBrowser(request, env, true);
     await env.DB.prepare("DELETE FROM browser_sessions WHERE token_hash=?")
@@ -1263,7 +2076,7 @@ export async function handleAuthRoute(
     if (!isLocalSimulation(request, env))
       throw new AuthError(
         "DEVELOPMENT_AUTH_FORBIDDEN",
-        "Disponible uniquement en simulation locale.",
+        "Available in local simulation only.",
         403,
       );
     const session = await authenticateBrowser(request, env, true);
@@ -1308,7 +2121,7 @@ export async function handleAuthRoute(
     if (!body.clientId || !/^[A-Za-z0-9_-]{1,200}$/.test(body.clientId))
       throw new AuthError(
         "CLIENT_ID_INVALID",
-        "Identifiant OAuth invalide.",
+        "Invalid OAuth identifier.",
         400,
       );
     await env.DB.batch([
@@ -1355,7 +2168,7 @@ export async function handleAuthRoute(
       )
       .first();
     if (!existing)
-      throw new AuthError("NOT_FOUND", "Connexion introuvable.", 404);
+      throw new AuthError("NOT_FOUND", "Connection not found.", 404);
     await env.DB.batch([
       env.DB.prepare(
         "UPDATE authorized_connections SET status='revoked',updated_at=? WHERE id=? AND user_id=? AND organization_id=?",

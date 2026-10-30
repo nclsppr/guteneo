@@ -13,7 +13,9 @@ test("Word import exposes conversion warnings, supports native visual editing an
   test.skip(isMobile, "Native graphical editing is qualified on desktop.");
   test.setTimeout(120000);
   await page.goto("/#/app");
-  await page.getByRole("button", { name: "Entrer dans l’Atelier" }).click();
+  await page
+    .getByRole("button", { name: "Entrer dans l’espace de travail" })
+    .click();
   await expect(
     page.getByRole("heading", { name: "Votre correspondance, au clair." }),
   ).toBeVisible();
@@ -21,7 +23,7 @@ test("Word import exposes conversion warnings, supports native visual editing an
     await page.request.get("/api/session")
   ).json()) as Session;
   expect(session.simulation).toBe(true);
-  await page.goto("/#/app/templates");
+  await page.goto("/#/app/studio/templates");
   const sourceBytes = Buffer.from(syntheticDocxFixture());
   expect(sourceBytes.subarray(0, 2).toString()).toBe("PK");
   await page.getByLabel("Fichier Word (.docx)", { exact: true }).setInputFiles({
@@ -55,7 +57,8 @@ test("Word import exposes conversion warnings, supports native visual editing an
   const warnings = page
     .getByRole("status")
     .filter({ hasText: "Le modèle a été importé" });
-  await expect(warnings).toContainText("Styles Word");
+  await expect(warnings).toContainText("styles Word");
+  await expect(warnings).not.toContainText(imported.warnings[0].message);
   await expect(warnings).toContainText("DOCX_LAYOUT_REVIEW");
   await page
     .getByRole("link", { name: "Ouvrir le modèle Word importé", exact: true })

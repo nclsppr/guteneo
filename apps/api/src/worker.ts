@@ -14,23 +14,23 @@ import { qualifyPingenSynthetic } from "../../../packages/providers/pingen-quali
 import { configurePingenWebhooks } from "../../../packages/providers/pingen-webhook-setup";
 
 import application from "./index";
+import { handleBelvedereHost } from "./belvedere-host";
 import { servePublicAssets } from "./public-assets";
+import { publicHttpError } from "./public-http-error";
 import site from "../../../packages/contracts/src/public-site.json" with { type: "json" };
 import { startObservation } from "../../../packages/observability/src/index";
 
 export default {
   ...application,
   async fetch(request: Request, env: Env, ctx: ExecutionContext) {
+    const platform = await handleBelvedereHost(request, env);
+    if (platform) return platform;
     let asset: Response | null;
     try {
       asset = await servePublicAssets(request, env);
     } catch {
-      asset = new Response("Static content unavailable", {
-        status: 503,
-        headers: {
-          "Cache-Control": "no-store",
-          "X-Robots-Tag": "noindex, nofollow",
-        },
+      asset = publicHttpError(request, new URL(request.url).pathname, 503, {
+        plainMessage: "Static content unavailable",
       });
     }
     // Successful public assets do not create one log per image/font/script.
@@ -98,6 +98,7 @@ export class ProviderInspection extends WorkerEntrypoint<Env> {
     const inspection = await inspectTelnyxReadiness({
       apiKey: this.env.TELNYX_API_KEY || "",
       connectionId: this.env.TELNYX_CONNECTION_ID || "",
+      canonicalWebhookUrl: `${this.env.APP_ORIGIN}/webhooks/telnyx`,
     });
     return {
       ...inspection,

@@ -1,13 +1,12 @@
 # Organization billing
 
-**2 October branch candidate:** the service operations/routes below now require
-an active **guteneo Horizon** monthly entitlement and current browser admin.
-EUR30/month is debited atomically from available account credits after immutable
-recurring consent; it creates no Stripe card charge or fiscal invoice.
-Private `/api/plan` routes let an administrator subscribe/cancel before having
-billing access. Historical PDF reports stay readable after expiry. The older
-Stripe description below is retained as history; see [MONTHLY_PLAN.md](MONTHLY_PLAN.md)
-and [PDF_ACCESSIBILITY.md](PDF_ACCESSIBILITY.md) for the new candidate.
+25 October branch candidate: billing reads and actions require the current browser
+administrator and existing session/CSRF protections. An active PDF subscription
+is no longer required. New subscriptions and recurring renewals are retired;
+immutable historical subscription charges remain part of the shared account
+balance and UTC usage projection. New PDF checks use their separate exact-file
+[unit purchase](PDF_VERIFICATION_PRICING.md). This creates no Stripe card charge,
+invoice, top-up or new external billing activation.
 
 Updated on 2026-09-17. This module tracks actual Stripe billing objects when an independently owned Stripe account is configured and exposes the separate, one-time **EUR50 promotional credit** shared by an organization. Stripe projections never convert simulation usage to money, invent a plan, create a charge, subscribe a customer, refill promotional credit or enable a channel. Local intercepted Stripe responses are test evidence, not a qualified live account. See [WELCOME_CREDIT.md](WELCOME_CREDIT.md) for grant, atomic reservation, settlement and exhaustion rules.
 
@@ -25,9 +24,28 @@ Apply `migrations/0009_billing.sql` and `migrations/0014_welcome_credit.sql` bef
 
 Mutation bodies are empty or `{}`. A caller cannot submit a customer ID, organization, return URL, amount or plan. Billing requires an administrator browser session: assistant tokens cannot open the portal. The return path is fixed at `/#/app/billing`. Portal URLs are checked against `https://billing.stripe.com`, returned with `no-store` and never persisted or logged. Current session, CSRF, administrator membership and original tenant/user are rechecked after Stripe responds, before the bearer portal URL leaves the server.
 
-The overview additionally returns `welcomeCredit` with integer `grantedMinor`, `reservedMinor`, `spentMinor` and `availableMinor` in EUR, `grantedAt`, `status`, `kind`, `renewal: "none"` and `topUpAvailable: false`. The response root also contains `topUpAvailable: false`. This balance remains visible when Stripe is unconfigured. `GET /api/usage` exposes the same organization-scoped balance to authenticated members. It is not a payment or an invoice. Recharge is unavailable and no purchase endpoint exists.
+The overview additionally returns `welcomeCredit` with integer `grantedMinor`, `reservedMinor`, `spentMinor` and `availableMinor` in EUR, `grantedAt`, `status`, `kind`, `renewal: "none"` and `topUpAvailable: false`. The response root also contains `topUpAvailable: false`. This balance remains visible when Stripe is unconfigured. `GET /api/usage` exposes the same organization-scoped balance to administrators and supervisors with reporting authority. It is not a payment or an invoice. Recharge is unavailable and no purchase endpoint exists.
 
 The `Billing` page in `apps/web/src/billing-page.tsx` takes the active `Session` as a prop. It presents the connected organization's invoices, payments, subscription statuses and usage reservations. Public preview builds display an empty demonstration state without billing API requests. Local simulation usage remains labelled as simulation even when Stripe test mode is configured.
+
+The separate **Usage** page opens the latest retained monthly channel ledger and
+offers every stored month plus the current UTC month. An inactive current month
+does not imply missing history. Its credit card always shows the current lifetime
+promotional balance, including when a historical month is selected. The existing
+administrator or supervisor reporting authority remains mandatory. See the
+[usage read contract](API_CONTRACT.md#campaigns-csv-and-administration) for query,
+empty-month, validation and tenant boundaries. This is a read-only projection;
+it does not backfill, settle, refund or modify historical financial entries.
+
+Its annual calendar uses the separate
+[daily activity endpoint](API_CONTRACT.md#campaigns-csv-and-administration),
+including delivery settlements, protected hosting, retained legacy PDF subscription
+charges, completed PDF-verification purchases and secure-distribution
+service debits on their actual UTC posting dates. The integer credit debit is
+counted once; fractional zero-cent settlements remain visible as operations.
+Reservations and promotional grants stay outside the calendar. No monthly total
+is spread across invented days. Simulation and the fictional public preview
+remain explicitly separate from real posted consumption.
 
 ## Configuration
 

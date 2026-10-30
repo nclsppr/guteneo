@@ -17,6 +17,7 @@ import {
   qualifiedMain,
   refreshScanner,
   requestJson,
+  waitForContainerImage,
 } from "../scripts/ci-refresh.mjs";
 
 const source = parse(
@@ -467,6 +468,7 @@ test("orchestrates qualify then exact-image push then scanner-only deploy and pr
       "local-qualification.json",
       "wrangler.json",
       "publication.json",
+      "deployment-acknowledged.json",
       "deployment.json",
       "remote-qualification.json",
       "result.json",
@@ -627,7 +629,7 @@ test("pre-publication binding probe accepts an old scanner but rejects HTML, aut
   );
 });
 
-test("workflow stays opt-in on schedule, read-only in GitHub and non-cancellable during publication", async () => {
+test("workflow refuses disabled schedules visibly, stays read-only in GitHub and never cancels publication", async () => {
   const workflow = await readFile(
     new URL("../../../.github/workflows/scanner-refresh.yml", import.meta.url),
     "utf8",
@@ -641,12 +643,193 @@ test("workflow stays opt-in on schedule, read-only in GitHub and non-cancellable
     ),
   );
   assert.match(workflow, /cron: "17 8 \* \* \*"/);
-  assert.match(workflow, /vars\.SCANNER_REFRESH_ENABLED == 'true'/);
+  assert.doesNotMatch(workflow, /if: github\.event_name/);
+  assert.match(workflow, /test "\$SCANNER_REFRESH_ENABLED" = true/);
+  assert.match(workflow, /maintenance-status\.mjs --check-settings/);
+  assert.match(workflow, /vars\.SCANNER_TOKEN_EXPIRES_AT/);
   assert.match(workflow, /contents: read/);
   assert.match(workflow, /actions: read/);
   assert.doesNotMatch(workflow, /(contents|actions|pull-requests): write/);
   assert.match(workflow, /cancel-in-progress: false/);
+  assert.match(workflow, /queue: max/);
   assert.match(workflow, /persist-credentials: false/);
   assert.match(workflow, /secrets\.CLOUDFLARE_SCANNER_API_TOKEN/);
   assert.doesNotMatch(workflow, /pull_request:|git (push|commit)|deploy:live/);
+});
+
+test("waits only for the prior image to converge and never performs a write", async () => {
+  let time = 0,
+    reads = 0;
+  const previousImage = "registry.example/previous@sha256:" + "d".repeat(64);
+  const state = () => ({
+    application: {
+      ...container,
+      configuration: { image: ++reads < 3 ? previousImage : image },
+    },
+    deployments: deployment,
+    subdomain: { enabled: false, previews_enabled: false },
+  });
+  const result = await waitForContainerImage(
+    state,
+    image,
+    previousImage,
+    version,
+    {
+      clock: () => time,
+      pause: async (ms) => {
+        time += ms;
+      },
+      timeoutMs: 15_000,
+    },
+  );
+  assert.equal(result, "deployment1");
+  assert.equal(reads, 3);
+  assert.equal(time, 10_000);
+});
+
+test("bounds container convergence and rejects unrelated image, scope, public or Worker drift immediately", async () => {
+  const previousImage = "previous-image";
+  const base = {
+    application: { ...container, configuration: { image: previousImage } },
+    deployments: deployment,
+    subdomain: { enabled: false, previews_enabled: false },
+  };
+  let time = 0;
+  await assert.rejects(
+    waitForContainerImage(async () => base, image, previousImage, version, {
+      clock: () => time,
+      pause: async (ms) => {
+        time += ms;
+      },
+      timeoutMs: 12_000,
+    }),
+    /SCANNER_CONTAINER_CONVERGENCE_TIMEOUT/,
+  );
+  assert.equal(time, 12_000);
+  for (const [state, code] of [
+    [
+      { ...base, application: { ...base.application, max_instances: 2 } },
+      /SCANNER_CONTAINER_IMAGE_OR_SCOPE_MISMATCH/,
+    ],
+    [
+      {
+        ...base,
+        application: {
+          ...base.application,
+          constraints: { jurisdiction: "us" },
+        },
+      },
+      /SCANNER_CONTAINER_IMAGE_OR_SCOPE_MISMATCH/,
+    ],
+    [
+      {
+        ...base,
+        application: {
+          ...base.application,
+          configuration: { image: "unexpected" },
+        },
+      },
+      /SCANNER_UNEXPECTED_CONTAINER_IMAGE/,
+    ],
+    [
+      { ...base, subdomain: { enabled: true, previews_enabled: false } },
+      /SCANNER_PUBLIC_ENDPOINT_ENABLED/,
+    ],
+    [
+      { ...base, deployments: { deployments: [] } },
+      /SCANNER_EXACT_VERSION_100_PERCENT_REQUIRED/,
+    ],
+  ]) {
+    let reads = 0;
+    await assert.rejects(
+      waitForContainerImage(
+        async () => {
+          reads++;
+          return state;
+        },
+        image,
+        previousImage,
+        version,
+        {
+          pause: async () => {
+            throw new Error("MUST_NOT_WAIT_ON_DRIFT");
+          },
+        },
+      ),
+      code,
+    );
+    assert.equal(reads, 1);
+  }
+});
+
+test("convergence rejects late read success and propagates one shared request deadline", async () => {
+  let time = 0;
+  await assert.rejects(
+    waitForContainerImage(
+      async (signal) => {
+        assert.ok(signal instanceof AbortSignal);
+        time = 301_000;
+        return {
+          application: container,
+          deployments: deployment,
+          subdomain: { enabled: false, previews_enabled: false },
+        };
+      },
+      image,
+      "previous",
+      version,
+      { clock: () => time, timeoutMs: 300_000 },
+    ),
+    /SCANNER_CONTAINER_CONVERGENCE_TIMEOUT/,
+  );
+
+  const control = new AbortController();
+  let observed;
+  await assert.rejects(
+    requestJson(
+      "https://api.cloudflare.com/test",
+      "synthetic",
+      async (_url, options) => {
+        observed = options.signal;
+        control.abort();
+        options.signal.throwIfAborted();
+      },
+      { signal: control.signal },
+    ),
+    { name: "AbortError" },
+  );
+  assert.equal(observed.aborted, true);
+});
+
+test("refresh never certifies privacy when an endpoint opens during remote qualification", async () => {
+  for (const endpoint of [
+    { enabled: true, previews_enabled: false },
+    { enabled: false, previews_enabled: true },
+  ]) {
+    const h = harness();
+    let afterQualification = false;
+    await assert.rejects(
+      refreshScanner({
+        ...h.dependencies,
+        run: async (command, args, options) => {
+          const result = await h.run(command, args, options);
+          if (args[0] === "tests/qualify_scanner_remote.py")
+            afterQualification = true;
+          return result;
+        },
+        request: async (url, token) =>
+          afterQualification && url.endsWith("/subdomain")
+            ? endpoint
+            : h.request(url, token),
+      }),
+      /SCANNER_PUBLIC_ENDPOINT_ENABLED/,
+    );
+    assert.equal(h.stopCount, 2);
+    assert.equal(h.writes.has("result.json"), false);
+    assert.equal(
+      h.calls.filter((c) => c.type === "command" && c.args[1] === "deploy")
+        .length,
+      1,
+    );
+  }
 });

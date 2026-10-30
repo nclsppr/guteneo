@@ -12,11 +12,35 @@ concurrency:
   group: checks-${{ github.ref }}
   cancel-in-progress: true
 jobs:
+  # Refuse unsupported dependency graphs before starting builds or browser setup.
+  dependencies:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            scripts/ci
+            packages/contracts
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: npm
+      - run: npm ci
+      - name: Require supported dependency peers, template engine and patched transport
+        run: npm run check:dependencies
+      - name: Reject known high and critical dependency advisories
+        run: npm run audit:dependencies
+
   pdf-validator:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
+        with:
+          sparse-checkout: |
+            apps/pdf-validator
       - uses: actions/setup-node@v7
         with:
           node-version: "24"
@@ -31,6 +55,11 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
+        with:
+          sparse-checkout: |
+            apps/scanner
+            packages/observability
+            .github/workflows
       - uses: actions/setup-node@v7
         with:
           node-version: "24"
@@ -41,21 +70,45 @@ jobs:
       - run: npm --prefix apps/scanner test
 
   checks:
+    needs: dependencies
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    # Include fresh FFmpeg package installation and every narration assertion.
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
+        with:
+          # Keep application assets, narration sources and every test. Omit only
+          # immutable film archives and historical screenshots, not fresh proof.
+          # checkout uses blob:none for sparse trees, so these bytes are not fetched.
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/videos/guteneo-gutenberg/archive/
+            !/videos/guteneo-gutenberg/media-parts/
+            !/reports/screenshots/
       - uses: actions/setup-node@v7
         with:
           node-version: "24"
           cache: npm
       - run: npm ci
+      - run: npm run check:integrations
       - run: npm run typecheck
       - run: npm run lint
-      - name: Require a synchronized developer feature tree and valid references
-        run: node docs/build-feature-map.mjs --check
+      - name: Require synchronized documentation, English sources and canonical links
+        run: npm run docs:check
+      - name: Require feature and developer documentation in the same change
+        if: github.event_name == 'pull_request'
+        env:
+          DOCS_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          git fetch --no-tags --depth=1 origin "$DOCS_BASE_SHA"
+          node scripts/repository-standards.mjs --base "$DOCS_BASE_SHA"
+      - name: Audit every advertised MCP tool annotation and justification
+        run: npm run audit:mcp
       - run: node scripts/migrate-remote.mjs --verify
       - run: npm run costs
+      - name: Prefer official Ubuntu archives over the slow Azure mirror
+        run: node scripts/ci/ubuntu-mirrors.mjs
       - name: Run every offline narration test
         run: |
           if ! command -v ffmpeg >/dev/null; then
@@ -76,14 +129,26 @@ jobs:
           retention-days: 14
 
   vitest:
+    needs: dependencies
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    # Shards stay sequential; allow setup time without cutting test coverage.
+    timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
         shard: [1, 2, 3, 4]
     steps:
       - uses: actions/checkout@v7
+        with:
+          # Keep application assets, narration sources and every test. Omit only
+          # immutable film archives and historical screenshots, not fresh proof.
+          # checkout uses blob:none for sparse trees, so these bytes are not fetched.
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/videos/guteneo-gutenberg/archive/
+            !/videos/guteneo-gutenberg/media-parts/
+            !/reports/screenshots/
       - uses: actions/setup-node@v7
         with:
           node-version: "24"
@@ -96,6 +161,7 @@ jobs:
           --exclude=tests/integration/document-postal-preflight.test.ts
           --exclude=tests/integration/expert-review-renderer.test.ts
           --exclude=tests/integration/postal-address-page-renderer.test.ts
+          --exclude=tests/integration/secure-resend-journey.test.ts
           --exclude=tests/integration/templates-renderer.test.ts
           --reporter=default --reporter=json --reporter=blob
           --outputFile.json=test-results/ci/vitest-${{ matrix.shard }}.json
@@ -121,21 +187,35 @@ jobs:
           retention-days: 14
 
   security:
+    needs: dependencies
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    # The same WebKit dependency mirrors precede the renderer/security tests.
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
+        with:
+          # Keep application assets, narration sources and every test. Omit only
+          # immutable film archives and historical screenshots, not fresh proof.
+          # checkout uses blob:none for sparse trees, so these bytes are not fetched.
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/videos/guteneo-gutenberg/archive/
+            !/videos/guteneo-gutenberg/media-parts/
+            !/reports/screenshots/
       - uses: actions/setup-node@v7
         with:
           node-version: "24"
           cache: npm
       - run: npm ci
       # Security setup forms exercise both engines, not just Chromium.
+      - name: Prefer official Ubuntu archives over the slow Azure mirror
+        run: node scripts/ci/ubuntu-mirrors.mjs
       - run: npx playwright install --with-deps chromium webkit
       - name: Preserve the Chromium sandbox
         run: node scripts/ci/chromium-sandbox.mjs
       - run: >-
-          npx vitest run tests/integration/document-postal-preflight.test.ts tests/integration/expert-review-renderer.test.ts tests/integration/postal-address-page-renderer.test.ts tests/integration/templates-renderer.test.ts
+          npx vitest run tests/integration/document-postal-preflight.test.ts tests/integration/expert-review-renderer.test.ts tests/integration/postal-address-page-renderer.test.ts tests/integration/secure-resend-journey.test.ts tests/integration/templates-renderer.test.ts
           --reporter=default --reporter=json --reporter=blob
           --outputFile.json=test-results/ci/vitest-renderer.json
           --outputFile.blob=test-results/ci/blobs/renderer.json
@@ -161,25 +241,45 @@ jobs:
           retention-days: 14
 
   build:
+    needs: dependencies
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    outputs:
+      browser-matrix: ${{ steps.browser-matrix.outputs.matrix }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          # Keep application assets, narration sources and every test. Omit only
+          # immutable film archives and historical screenshots, not fresh proof.
+          # checkout uses blob:none for sparse trees, so these bytes are not fetched.
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/videos/guteneo-gutenberg/archive/
+            !/videos/guteneo-gutenberg/media-parts/
+            !/reports/screenshots/
       - uses: actions/setup-node@v7
         with:
           node-version: "24"
           cache: npm
       - run: npm ci
-      # Typecheck runs once in checks. These are the same two steps as build.
-      - run: npm run build:web
+      - name: Define every isolated browser project and shard
+        id: browser-matrix
+        run: node scripts/ci/browser-results.mjs matrix >> "$GITHUB_OUTPUT"
+      # Build the final non-preview frontend once; every Worker dry run remains.
+      - run: npm run build:live
       - run: npx wrangler deploy --dry-run --outdir dist/worker
       - run: npx wrangler deploy --config apps/documents/wrangler.jsonc --dry-run --outdir ../../dist/documents-worker
-      - run: npm run build:live
       - run: npx wrangler deploy --config wrangler.live.jsonc --dry-run --outdir dist/live-worker
       - run: npm run build:preview
+      - run: npm run build:status
+      - run: npx wrangler deploy --config wrangler.status.jsonc --dry-run --outdir dist/status-worker
       - uses: actions/upload-artifact@v7
         with:
           name: guteneo-browser-builds-${{ github.sha }}
+          # Most bytes are already-compressed MP4/WebP; zip compression adds CPU
+          # without useful savings. Artifact contents and checks remain identical.
+          compression-level: 0
           path: |
             dist/web/
             dist/preview/
@@ -189,8 +289,12 @@ jobs:
   browser:
     needs: build
     runs-on: ubuntu-latest
-    # Includes browser installation, the complete app and public media suite.
-    timeout-minutes: 15
+    permissions:
+      contents: read
+      actions: read
+    # Each project is split across isolated runners, never concurrent local DBs.
+    # Keep setup budgets and every browser/media assertion unchanged.
+    timeout-minutes: 30
     env:
       # WebKit's legacy Linux playbin stalls on valid H.264/AAC media in its
       # download buffer. Use its supported playbin3 pipeline; native Safari is
@@ -198,53 +302,235 @@ jobs:
       WEBKIT_GST_USE_PLAYBIN3: "1"
     strategy:
       fail-fast: false
-      matrix:
-        include:
-          - project: chromium
-            browsers: chromium
-            preview: desktop
-          - project: mobile-chromium
-            browsers: chromium
-            preview: ""
-          - project: iphone-webkit
-            # The local HTML renderer needs Chromium even for WebKit clients.
-            browsers: chromium webkit
-            preview: iphone
+      matrix: ${{ fromJSON(needs.build.outputs.browser-matrix) }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          # Keep application assets, narration sources and every test. Omit only
+          # immutable film archives and historical screenshots, not fresh proof.
+          # checkout uses blob:none for sparse trees, so these bytes are not fetched.
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/videos/guteneo-gutenberg/archive/
+            !/videos/guteneo-gutenberg/media-parts/
+            !/reports/screenshots/
       - uses: actions/setup-node@v7
         with:
           node-version: "24"
           cache: npm
       - run: npm ci
+      - name: Prefer official Ubuntu archives over the slow Azure mirror
+        run: node scripts/ci/ubuntu-mirrors.mjs
       - run: npx playwright install --with-deps ${{ matrix.browsers }}
       - name: Preserve the Chromium sandbox
         run: node scripts/ci/chromium-sandbox.mjs
+      - name: Select the current run's latest immutable build artifact
+        id: artifacts
+        run: node scripts/ci/select-artifacts.mjs build
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
       - uses: actions/download-artifact@v8
         with:
-          name: guteneo-browser-builds-${{ github.sha }}
+          artifact-ids: ${{ steps.artifacts.outputs.buildArtifactIds }}
           path: dist
+          merge-multiple: true
       - name: Remove historical screenshot evidence from this fresh runner
         run: rm -rf reports/screenshots
-      # Each project has its own runner, D1 state and fixed local server ports.
-      - run: npx playwright test --project=${{ matrix.project }}
+      - name: Verify the four-language MCP Apps SDK fixtures
+        if: ${{ matrix.project == 'chromium' && matrix.shardIndex == 3 }}
+        run: node --test tests/browser/mcp-ui-probe.test.mjs tests/browser/mcp-document-upload.test.mjs
+      # Each shard has its own runner, D1/R2 state and fixed local server ports.
+      - run: npx playwright test --project=${{ matrix.project }} --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
         env:
           GUTENEO_E2E_PREBUILT: "true"
-          PLAYWRIGHT_HTML_OUTPUT_DIR: test-results/ci/${{ matrix.project }}/html
-          PLAYWRIGHT_JSON_OUTPUT_NAME: test-results/ci/${{ matrix.project }}/playwright.json
+          PLAYWRIGHT_HTML_OUTPUT_DIR: test-results/ci/browser/${{ matrix.project }}/shard-${{ matrix.shardIndex }}/html
+          PLAYWRIGHT_JSON_OUTPUT_NAME: test-results/ci/browser/${{ matrix.project }}/shard-${{ matrix.shardIndex }}/application.json
       - if: ${{ matrix.preview != '' }}
-        run: npx playwright test --config playwright.preview.config.ts --project=${{ matrix.preview }}
+        run: npx playwright test --config playwright.preview.config.ts --project=${{ matrix.preview }} --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
         env:
-          PLAYWRIGHT_JSON_OUTPUT_NAME: test-results/ci/${{ matrix.project }}/preview-playwright.json
+          PLAYWRIGHT_JSON_OUTPUT_NAME: test-results/ci/browser/${{ matrix.project }}/shard-${{ matrix.shardIndex }}/preview.json
+      - name: Verify the private control tower with fictional local data
+        if: ${{ matrix.preview != '' && matrix.shardIndex == 1 }}
+        run: npx playwright test --config playwright.belvedere.config.ts --project=${{ matrix.preview }}
+        env:
+          PLAYWRIGHT_JSON_OUTPUT_NAME: test-results/ci/browser/${{ matrix.project }}/shard-${{ matrix.shardIndex }}/belvedere.json
+      - name: Verify status history, stale evidence and seasonal controls
+        if: ${{ matrix.project == 'chromium' && matrix.shardIndex == 1 }}
+        run: npx playwright test --config playwright.status.config.ts
+        env:
+          PLAYWRIGHT_JSON_OUTPUT_NAME: test-results/ci/browser/${{ matrix.project }}/shard-${{ matrix.shardIndex }}/status.json
+      - name: Bind every suite report to this exact project, shard and run
+        if: always()
+        run: node scripts/ci/browser-results.mjs record '${{ matrix.project }}' '${{ matrix.shardIndex }}'
       - uses: actions/upload-artifact@v7
         if: always()
         with:
-          name: ci-evidence-browser-${{ matrix.project }}
+          name: ci-evidence-browser-${{ matrix.project }}-${{ matrix.shardIndex }}
           path: |
             test-results/ci/
             test-results/application/
             test-results/preview/
+            test-results/belvedere/
+            test-results/status/
             reports/screenshots/
+            reports/mcp-ui-probe/
+            reports/mcp-document-upload/
+          if-no-files-found: error
+          retention-days: 14
+
+  engineering:
+    needs: dependencies
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/videos/guteneo-gutenberg/archive/
+            !/videos/guteneo-gutenberg/media-parts/
+            !/reports/screenshots/
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            apps/engineering/package-lock.json
+      - run: npm ci
+      - run: PUPPETEER_SKIP_DOWNLOAD=true npm ci --prefix apps/engineering
+      - run: npm audit --prefix apps/engineering --audit-level=high
+      - run: npm run docs:check
+      - run: npm run build:engineering
+      - name: Prefer official Ubuntu archives over the slow Azure mirror
+        run: node scripts/ci/ubuntu-mirrors.mjs
+      - name: Install the documentation browsers
+        run: npx playwright install --with-deps chromium webkit
+      - run: npm run test:engineering
+      - name: Verify asset-only deployment configuration
+        working-directory: apps/engineering
+        run: npx wrangler deploy --dry-run
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: ci-evidence-engineering
+          path: |
+            test-results/engineering/
+            test-results/engineering-report/
+            apps/engineering/dist/release.json
+          if-no-files-found: error
+          retention-days: 14
+
+  distribution-e2e:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - authentication: strong
+            config: e2e.config.ts
+            expected: 14
+          - authentication: verified_account
+            config: e2e.verified-account.config.ts
+            expected: 2
+    env:
+      E2E_TELEMETRY_DISABLED: "1"
+      DO_NOT_TRACK: "1"
+      WRANGLER_SEND_METRICS: "false"
+      WRANGLER_WRITE_LOGS: "false"
+      GUTENEO_E2E_PREBUILT: "true"
+      EXPECTED_DISTRIBUTION_RESULTS: ${{ matrix.expected }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/videos/guteneo-gutenberg/archive/
+            !/videos/guteneo-gutenberg/media-parts/
+            !/reports/screenshots/
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: npm
+      - run: npm ci
+      - name: Prefer official Ubuntu archives over the slow Azure mirror
+        run: node scripts/ci/ubuntu-mirrors.mjs
+      - name: Install the local PDF renderer browser
+        run: npx --no-install playwright install chromium
+      - name: Install the independent TesterArmy browser and dependencies
+        run: npx --no-install e2e-web install chromium --with-deps
+      - name: Preserve the renderer Chromium sandbox
+        run: node scripts/ci/chromium-sandbox.mjs
+      - name: Select the current run's latest immutable build artifact
+        id: artifacts
+        run: node scripts/ci/select-artifacts.mjs build
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+      - uses: actions/download-artifact@v8
+        with:
+          artifact-ids: ${{ steps.artifacts.outputs.buildArtifactIds }}
+          path: dist
+          merge-multiple: true
+      - name: Exercise secure distribution and the unified account with fictional data
+        run: |
+          mkdir -p test-results/ci
+          set -o pipefail
+          npm run test:distribution -- --config '${{ matrix.config }}' | tee test-results/ci/distribution.log
+      - name: Require complete deterministic coverage on both viewports
+        run: |
+          node --input-type=module <<'JS'
+          import { readFile } from 'node:fs/promises';
+          const { run } = JSON.parse(await readFile('test-results/distribution-e2e/report.json', 'utf8'));
+          const { summary, usage } = run;
+          if (run.status !== 'passed' || run.exitCode !== 0 || run.errors.length !== 0 ||
+              summary.discovered !== Number(process.env.EXPECTED_DISTRIBUTION_RESULTS) || summary.selected !== summary.discovered ||
+              summary.executed !== summary.discovered || summary.passed !== summary.discovered ||
+              summary.failed || summary.skipped || summary.flaky || summary.interrupted ||
+              run.results.some(result => result.status !== 'passed') ||
+              JSON.stringify(run.targets.map(target => target.id).sort()) !== JSON.stringify(['desktop', 'phone']) ||
+              usage.modelTokens !== 0 || usage.maxModelCallsInStep !== 0) {
+            throw new Error('Secure distribution requires every deterministic test to pass without skips or model calls.');
+          }
+          console.log(`${summary.passed} deterministic browser results verified; no model calls.`);
+          JS
+      - name: Independently clear every upload path for invitation secrets
+        if: always()
+        id: distribution-privacy
+        run: |
+          node --input-type=module <<'JS'
+          import { readFile, appendFile } from 'node:fs/promises';
+          import { assertNoInvitationSecrets } from './scripts/test-distribution-secrets.mjs';
+          try {
+            const marker = JSON.parse(await readFile('test-results/distribution-e2e-sanitized.json', 'utf8'));
+            const { run } = JSON.parse(await readFile('test-results/distribution-e2e/report.json', 'utf8'));
+            if (marker.schema !== 1 || marker.runId !== run.id) throw new Error('No current artifact privacy clearance.');
+            const { state } = JSON.parse(await readFile('test-results/distribution-e2e-state.json', 'utf8'));
+            await assertNoInvitationSecrets(state, ['test-results/ci/distribution.log', 'test-results/distribution-e2e-state.json', 'test-results/distribution-e2e-sanitized.json']);
+            await appendFile(process.env.GITHUB_OUTPUT, 'verified=true\n');
+          } catch {
+            console.error('Distribution artifacts are not cleared for upload.');
+            process.exitCode = 1;
+          }
+          JS
+      - uses: actions/upload-artifact@v7
+        if: always() && steps.distribution-privacy.outputs.verified == 'true'
+        with:
+          name: ci-evidence-distribution-${{ matrix.authentication }}
+          path: |
+            test-results/distribution-e2e/
+            test-results/distribution-e2e-server.log
+            test-results/distribution-e2e-state.json
+            test-results/distribution-e2e-sanitized.json
+            test-results/ci/distribution.log
+            test-results/ci/artifact-selection-build.json
           if-no-files-found: error
           retention-days: 14
 
@@ -253,24 +539,66 @@ jobs:
   # Native XCTest/archive have their own source-filtered workflow, not a web gate.
   verify:
     if: always()
-    needs: [pdf-validator, scanner, checks, vitest, security, build, browser]
+    permissions:
+      contents: read
+      actions: read
+    needs:
+      [
+        dependencies,
+        pdf-validator,
+        scanner,
+        checks,
+        vitest,
+        security,
+        build,
+        browser,
+        distribution-e2e,
+        engineering,
+      ]
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    # Checkout and evidence download share this budget with verification.
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
+        with:
+          # Report merging loads only the root Vitest config; retain the complete
+          # unit/browser inventories and their source imports. The only public
+          # asset read during discovery is OpenAPI; do not fetch current films.
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/*/
+            /scripts/
+            /tests/unit/
+            /tests/integration/
+            /tests/e2e/
+            /tests/preview-e2e/
+            /tests/belvedere-e2e/
+            /tests/status-e2e/
+            /tests/fixtures/
+            /tests/public-language.ts
+            /apps/web/src/
+            /apps/web/public/openapi.json
+            /apps/api/src/
+            /packages/
       - uses: actions/setup-node@v7
         with:
           node-version: "24"
           cache: npm
       - run: npm ci
+      - name: Select latest reports per immutable current-run artifact
+        id: artifacts
+        run: node scripts/ci/select-artifacts.mjs verify
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
       - uses: actions/download-artifact@v8
         with:
-          pattern: ci-vitest-*
+          artifact-ids: ${{ steps.artifacts.outputs.vitestArtifactIds }}
           path: test-results/ci/blobs
           merge-multiple: true
       - uses: actions/download-artifact@v8
         with:
-          pattern: ci-evidence-*
+          artifact-ids: ${{ steps.artifacts.outputs.evidenceArtifactIds }}
           path: test-results/ci/evidence
       - name: Merge all Vitest results without rerunning tests
         run: |

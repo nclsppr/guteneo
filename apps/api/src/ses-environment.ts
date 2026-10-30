@@ -20,7 +20,7 @@ function mailbox(value: string): string | null {
 /** SES sandbox still sends real email. This is separate from app simulation. */
 export function sesTransportSandbox(env: Env, recipient: string): boolean {
   if (!["true", "false"].includes(env.SES_SANDBOX ?? ""))
-    fail("SES_MODE_REQUIRED", "Le mode d’envoi e-mail doit être configuré.");
+    fail("SES_MODE_REQUIRED", "The email sending mode must be configured.");
   if (
     !/^\d{12}$/.test(env.SES_ACCOUNT_ID ?? "") ||
     !/^eu-(west|central|north|south)-\d$/.test(env.AWS_REGION ?? "") ||
@@ -30,13 +30,13 @@ export function sesTransportSandbox(env: Env, recipient: string): boolean {
   )
     fail(
       "SES_IDENTITY_REQUIRED",
-      "Le compte e-mail et son suivi doivent être vérifiés.",
+      "The email account and its tracking must be verified.",
     );
   const address = mailbox(recipient);
   if (!address)
     fail(
       "INVALID_EMAIL_RECIPIENT",
-      "L’adresse e-mail du destinataire est invalide.",
+      "The recipient's email address is invalid.",
     );
   if (env.SES_SANDBOX === "false") return false;
   const configured = (env.SES_VERIFIED_RECIPIENTS ?? "")
@@ -49,7 +49,7 @@ export function sesTransportSandbox(env: Env, recipient: string): boolean {
   )
     fail(
       "SES_RECIPIENT_NOT_QUALIFIED",
-      "Amazon SES est encore en mode test. Cet envoi nécessite un destinataire vérifié ; aucun e-mail n’a été transmis.",
+      "Amazon SES is still in test mode. This dispatch requires a verified recipient; no email was transmitted.",
     );
   return true;
 }

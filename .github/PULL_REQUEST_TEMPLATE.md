@@ -1,16 +1,20 @@
-## Changement et comportement
+## Problem and resulting behavior
 
-Décrire le besoin, le comportement final et les éventuelles conditions d’activation.
+Describe the need, the final behavior and any activation requirements.
 
-## Documentation technique obligatoire
+## Required technical documentation
 
-- [ ] L’arbre `docs/feature-map.json` décrit chaque fonctionnalité ajoutée, modifiée ou retirée.
-- [ ] La matrice des droits et chaque parcours client affecté sont actualisés : entrée, acteur, étapes, résultat, erreurs/reprise, confidentialité et interfaces.
-- [ ] Les contrats, sources, tests et conditions d’activation sont reliés ; implémentation, activation et publication restent distinctes.
-- [ ] `node docs/build-feature-map.mjs` a régénéré les vues Markdown et HTML, vérifiées visuellement et conservées uniquement dans la documentation du dépôt.
+- [ ] Code, comments, documentation, API names and canonical paths follow the [repository standards](../docs/REPOSITORY_STANDARDS.md); localized UI/video content remains in its declared resources.
+- [ ] `docs/feature-map.json` describes every feature added, changed or removed.
+- [ ] Affected role permissions and customer journeys are current: entry, actor, steps, result, errors/recovery, privacy and interfaces.
+- [ ] Contracts, sources, tests and activation conditions are linked; implementation, activation and publication remain separate facts.
+- [ ] The authoritative documentation is updated and repeated guidance is replaced with links.
+- [ ] CI/CD, Cloudflare, service integrations and tariff changes update the affected authored engineering guide, diagrams and maintenance instructions in the same PR.
+- [ ] Changed AI instructions, design rules, i18n, accessibility and video production rules are reflected in their engineering guides; recorded voices and asset provenance remain accurate.
+- [ ] `node docs/build-feature-map.mjs` regenerated the Markdown/HTML views, which were visually checked and remain repository-only.
 
-Si aucune fonctionnalité ni aucun parcours ne change, expliquer pourquoi l’atlas reste exact.
+If no feature or journey changes, explain why the atlas remains accurate.
 
 ## Validation
 
-Indiquer les vérifications exécutées sur ce changement et les limites restantes.
+Record the checks run for this change and the remaining qualification limits.
