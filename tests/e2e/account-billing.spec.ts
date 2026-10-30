@@ -6,7 +6,9 @@ const origin = "http://localhost:8787";
 
 async function login(page: Page): Promise<Session> {
   await page.goto("/#/app");
-  await page.getByRole("button", { name: "Entrer dans l’Atelier" }).click();
+  await page
+    .getByRole("button", { name: "Entrer dans l’espace de travail" })
+    .click();
   await expect(
     page.getByRole("heading", { name: "Votre correspondance, au clair." }),
   ).toBeVisible();
@@ -33,10 +35,10 @@ test("profile changes persist through the browser and current-session revocation
       userName,
     );
     await page
-      .getByLabel("Nom de l’atelier", { exact: true })
+      .getByLabel("Nom de l’espace de travail", { exact: true })
       .fill(organizationName);
     await expect(
-      page.getByLabel("Nom de l’atelier", { exact: true }),
+      page.getByLabel("Nom de l’espace de travail", { exact: true }),
     ).toHaveValue(organizationName);
     await page
       .getByRole("button", { name: "Enregistrer les modifications" })
@@ -51,7 +53,7 @@ test("profile changes persist through the browser and current-session revocation
       userName,
     );
     await expect(
-      page.getByLabel("Nom de l’atelier", { exact: true }),
+      page.getByLabel("Nom de l’espace de travail", { exact: true }),
     ).toHaveValue(organizationName);
     const persisted = (await (
       await page.request.get("/api/session")
@@ -72,7 +74,7 @@ test("profile changes persist through the browser and current-session revocation
     .getByRole("button", { name: /^Me déconnecter de la session/ })
     .click();
   await expect(
-    page.getByRole("button", { name: "Entrer dans l’Atelier" }),
+    page.getByRole("button", { name: "Entrer dans l’espace de travail" }),
   ).toBeVisible();
   expect((await page.request.get("/api/session")).status()).toBe(401);
 });
@@ -107,7 +109,9 @@ test("the sole admin cannot demote themselves and disconnecting their access ref
 }) => {
   const session = await login(page);
   await page.goto("/#/app/admin");
-  const team = page.getByRole("region", { name: "Membres de l’atelier" });
+  const team = page.getByRole("region", {
+    name: "Membres de l’espace de travail",
+  });
   await team
     .getByLabel(`Rôle de ${session.user.name}`, { exact: true })
     .selectOption("viewer");
@@ -126,12 +130,12 @@ test("the sole admin cannot demote themselves and disconnecting their access ref
   expect(unchanged.user.role).toBe("admin");
   await team
     .getByRole("button", {
-      name: `Déconnecter ${session.user.name} de cet atelier`,
+      name: `Déconnecter ${session.user.name} de cet espace de travail`,
     })
     .click();
   await team.getByRole("button", { name: "Oui, déconnecter" }).click();
   await expect(
-    page.getByRole("button", { name: "Entrer dans l’Atelier" }),
+    page.getByRole("button", { name: "Entrer dans l’espace de travail" }),
   ).toBeVisible();
   expect((await page.request.get("/api/session")).status()).toBe(401);
 });

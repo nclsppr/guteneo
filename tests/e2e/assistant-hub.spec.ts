@@ -383,7 +383,7 @@ test("Assistants is the second workspace destination and every private guide sur
   const state = await fixture(page);
   await page.goto("/#/app");
   const nav = page.getByRole("navigation", {
-    name: "Navigation de l’atelier",
+    name: "Navigation de la correspondance",
     exact: true,
   });
   // The session response mounts the navigation after the initial page load.
@@ -391,14 +391,16 @@ test("Assistants is the second workspace destination and every private guide sur
   if (!(await nav.isVisible()))
     await page.locator(".workspace-navigation summary").click();
   await expect(nav).toBeVisible();
-  const personal = nav.getByRole("link", {
-    name: "Mes documents — Espace personnel",
-    exact: true,
-  });
-  await expect(personal).toHaveCount(1);
-  await expect(personal).toHaveAttribute("href", "#/app/my-documents");
+  // My documents is an application in the switcher, outside the navigation.
+  await expect(nav.locator('a[href="#/app/my-documents"]')).toHaveCount(0);
+  await expect(
+    page.locator('.sidebar .space-switcher-panel a[href="#/app/my-documents"]'),
+  ).toHaveCount(1);
+  // The V2 New dispatch shortcut is an action, not a destination.
   const labels = (
-    await nav.locator('a:not([href="#/app/my-documents"])').allTextContents()
+    await nav
+      .locator('a:not([href="#/app/my-documents"]):not(.workspace-create)')
+      .allTextContents()
   ).map((text) => text.trim());
   expect(labels.slice(0, 2)).toEqual(["Vue d’ensemble", "Assistants"]);
   expect(labels.slice(2, 4)).toEqual(["Documents", "Distribution sécurisée"]);

@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import { generationRecordContext } from "./generation-context";
 import { z } from "zod";
 import { XmlRecordPathSchema } from "../../../packages/contracts/src/datasets";
 import type { DomainService } from "../../../packages/domain/src/index";
@@ -54,10 +55,7 @@ export function createTemplateWorkflowRoutes(
     const form = await c.req.raw.formData(),
       file = form.get("file");
     if (!file || typeof file === "string")
-      throw new ContentError(
-        "FILE_REQUIRED",
-        "Choose a Word .docx file.",
-      );
+      throw new ContentError("FILE_REQUIRED", "Choose a Word .docx file.");
     return c.json(
       await service(c.env).importDocx(c.get("actor"), {
         name: file.name,
@@ -340,6 +338,19 @@ export function createTemplateWorkflowRoutes(
         c.get("actor"),
         c.req.param("id"),
         z.string().min(1).max(200).parse(c.req.query("recordId")),
+      ),
+    ),
+  );
+  app.get("/api/generation-jobs/:id/record-context", async (c) =>
+    c.json(
+      await generationRecordContext(
+        c.env,
+        service(c.env),
+        c.get("actor"),
+        c.req.param("id"),
+        c.req.query("recordId"),
+        c.req.query("cursor"),
+        Number(c.req.query("limit") ?? 50),
       ),
     ),
   );

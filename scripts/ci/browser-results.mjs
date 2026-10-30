@@ -62,6 +62,13 @@ export const declaredBrowserSkips = [
   [
     "application",
     mobileProjects,
+    "studio-space.spec.ts",
+    "every workshop entry of an administrator stays in view at 1280 by 720",
+    "Desktop sidebar geometry; phones use the collapsed navigation.",
+  ],
+  [
+    "application",
+    mobileProjects,
     "template-data.spec.ts",
     "API gallery template remains editable in the desktop studio and reusable by API",
     "Graphical editing is qualified on desktop; mobile consultation has its own scenario.",
@@ -93,6 +100,13 @@ export const declaredBrowserSkips = [
     "template-images.spec.ts",
     "the image tool inserts a movable logo, saves original bytes and renders it into a PDF",
     "Native visual editing is qualified on desktop; the image importer remains available on mobile.",
+  ],
+  [
+    "application",
+    mobileProjects,
+    "dashboard-v2.spec.ts",
+    "V2 keeps every destination in view and in place on common desktop screens",
+    "Desktop sidebar geometry; phones use the collapsed navigation.",
   ],
   [
     "application",

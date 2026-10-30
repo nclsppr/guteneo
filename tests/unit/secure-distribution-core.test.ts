@@ -621,6 +621,52 @@ describe("secure distribution — encrypted objects and immutable prices", () =>
 });
 
 describe("secure distribution — asynchronous preparation and paid acceptance", () => {
+  it("bounds browser approval expiry by its recorded creation time across clock ticks", async () => {
+    const startedAt = Date.now();
+    let advancing = false;
+    let tick = 0;
+    const clock = {
+      get value() {
+        return startedAt + (advancing ? tick++ * 1000 : 0);
+      },
+    };
+    const f = await fixture("simulation", 1, "verified_account", clock);
+    const preparation = await prepared(f);
+    const dispatchId = preparation.view.dispatchId!;
+    const { dispatch } = await f.domain.getDispatch(f.ctx, dispatchId);
+    // Cross second boundaries during approval without sleeping or changing
+    // session, identity, membership or any database authorization fence.
+    advancing = true;
+    const approve = async () => {
+      await f.domain.approveDispatch(f.ctx, dispatchId, dispatch.fingerprint, {
+        recipientRequested: true,
+      });
+      const record = await db
+        .prepare(
+          "SELECT id,created_at,expires_at,approval_kind FROM approvals WHERE organization_id=? AND dispatch_id=?",
+        )
+        .bind(f.organizationId, dispatchId)
+        .first<{
+          id: string;
+          created_at: string;
+          expires_at: string;
+          approval_kind: string;
+        }>();
+      expect(record).toMatchObject({ approval_kind: "browser" });
+      expect(
+        Date.parse(record!.expires_at) - Date.parse(record!.created_at),
+      ).toBe(15 * 60_000);
+      expect((await f.service.get(f.ctx, preparation.view.id)).approved).toBe(
+        true,
+      );
+      return record!;
+    };
+    const inserted = await approve();
+    // Reapproval exercises the SQL update trigger with the same invariant.
+    const updated = await approve();
+    expect(updated.id).toBe(inserted.id);
+    expect(updated.created_at).not.toBe(inserted.created_at);
+  });
   it("renders bounded batches, preserves immutable consent and replays a preparation without new storage or fees", async () => {
     const f = await fixture("simulation", 4),
       p = await prepared(f);
@@ -1215,6 +1261,138 @@ describe("secure distribution — explicit quote recovery", () => {
 
 describe("personal copies — independent ownership and final authorization", () => {
   it.each(["strong", "verified_account"] as const)(
+    "withdraws every shared reading form after revocation in %s while retaining the revocation receipt",
+    async (accessMode) => {
+      const f = await fixture("simulation", 1, accessMode),
+        share = await bound(f, { allowOriginalDownload: true });
+      expect(
+        (await f.personal.get(f.recipient, share.view.id)).pages,
+      ).toHaveLength(1);
+      expect(
+        (await f.personal.page(f.recipient, share.view.id, 1)).status,
+      ).toBe(200);
+      expect(
+        await (
+          await f.personal.page(f.recipient, share.view.id, 1, true)
+        ).json(),
+      ).toEqual({
+        text: "Texte accessible synthétique, page 1",
+      });
+      expect(
+        new Uint8Array(
+          await (
+            await f.personal.download(f.recipient, share.view.id)
+          ).arrayBuffer(),
+        ),
+      ).toEqual(f.bytes);
+      const before = await financials(f, share.view.dispatchId!);
+
+      await f.service.revoke(f.ctx, share.view.id);
+      expect(await f.personal.get(f.recipient, share.view.id)).toMatchObject({
+        status: "revoked",
+        pages: [],
+        audit: [],
+      });
+      expect((await f.personal.list(f.recipient)).items).toEqual([
+        expect.objectContaining({ id: share.view.id, status: "revoked" }),
+      ]);
+      for (const read of [
+        () => f.personal.page(f.recipient, share.view.id, 1),
+        () => f.personal.page(f.recipient, share.view.id, 1, true),
+        () => f.personal.download(f.recipient, share.view.id),
+        () => f.personal.deposit(f.recipient, share.view.id),
+        () => f.personal.displayEvent(f.recipient, share.view.id, 1),
+      ])
+        await expect(read()).rejects.toMatchObject({
+          code: "NOT_FOUND",
+          status: 404,
+        });
+      expect(
+        (await f.personal.events(f.recipient, share.view.id)).items,
+      ).toContainEqual(
+        expect.objectContaining({
+          type: "access_revoked",
+          provenance: "server",
+        }),
+      );
+      expect(await financials(f, share.view.dispatchId!)).toEqual(before);
+    },
+  );
+
+  it.each(["strong", "verified_account"] as const)(
+    "converges concurrent %s deposits and duplicate worker deliveries on one durable personal copy",
+    async (accessMode) => {
+      const f = await fixture("simulation", 4, accessMode),
+        share = await bound(f),
+        before = await financials(f, share.view.dispatchId!);
+      const responses = await Promise.all([
+        f.personal.deposit(f.recipient, share.view.id),
+        f.personal.deposit(f.recipient, share.view.id),
+        f.personal.deposit(f.recipient, share.view.id),
+      ]);
+      expect(new Set(responses.map((response) => response.id)).size).toBe(1);
+      const operation = (await db
+        .prepare(
+          "SELECT id,personal_document_id FROM secure_deposit_operations WHERE organization_id=? AND distribution_id=? AND user_id=?",
+        )
+        .bind(f.organizationId, share.view.id, f.recipient.userId)
+        .first<{ id: string; personal_document_id: string }>())!;
+      await Promise.all([
+        f.personal.processDeposit(operation.id),
+        f.personal.processDeposit(operation.id),
+      ]);
+      const copy = await f.personal.deposit(f.recipient, share.view.id);
+      expect(copy).toMatchObject({
+        id: operation.personal_document_id,
+        status: "active",
+      });
+      expect(responses.every((response) => response.id === copy.id)).toBe(true);
+      for (const [table, scope, values] of [
+        [
+          "secure_deposit_operations",
+          "distribution_id=? AND user_id=?",
+          [share.view.id, f.recipient.userId],
+        ],
+        [
+          "secure_personal_documents",
+          "source_distribution_id=? AND user_id=?",
+          [share.view.id, f.recipient.userId],
+        ],
+        [
+          "secure_document_events",
+          "distribution_id=? AND type='personal_copy_delivered'",
+          [share.view.id],
+        ],
+        [
+          "secure_document_events",
+          "personal_document_id=? AND type='personal_copy_received'",
+          [copy.id],
+        ],
+      ] as const)
+        expect(
+          await db
+            .prepare(`SELECT count(*) n FROM ${table} WHERE ${scope}`)
+            .bind(...values)
+            .first(),
+        ).toEqual({ n: 1 });
+      expect(
+        await db
+          .prepare(
+            "SELECT count(*) n FROM secure_personal_pages WHERE personal_document_id=?",
+          )
+          .bind(copy.id)
+          .first(),
+      ).toEqual({ n: 4 });
+      expect(
+        new Uint8Array(
+          await (await f.personal.download(f.recipient, copy.id)).arrayBuffer(),
+        ),
+      ).toEqual(f.bytes);
+      expect(await financials(f, share.view.dispatchId!)).toEqual(before);
+    },
+  );
+
+  it.each(["strong", "verified_account"] as const)(
     "closes personal metadata access when %s Worker and database policies drift",
     async (accessMode) => {
       const f = await fixture("simulation", 1, accessMode);
@@ -1687,18 +1865,29 @@ describe("personal copies — independent ownership and final authorization", ()
     (["strong", "verified_account"] as const).flatMap((accessMode) =>
       (["expired", "revoked", "stale", "share_revoked"] as const)
         .filter((change) => accessMode === "strong" || change !== "stale")
-        .map((change) => ({ accessMode, change })),
+        .flatMap((change) =>
+          (["image", "text", "original"] as const).map((resource) => ({
+            accessMode,
+            change,
+            resource,
+          })),
+        ),
     ),
   )(
-    "withholds decrypted page bytes in $accessMode when $change wins before authorization",
-    async ({ accessMode, change }) => {
+    "withholds decrypted $resource bytes in $accessMode when $change wins before authorization",
+    async ({ accessMode, change, resource }) => {
       const f = await fixture("simulation", 1, accessMode),
-        p = await bound(f);
+        p = await bound(f, { allowOriginalDownload: true });
       let changed = false;
       const racedBucket = proxyBucket({
         get: (async (key: string) => {
           const object = await bucket.get(key);
-          if (!changed && key.endsWith("1.image")) {
+          if (
+            !changed &&
+            (resource === "original"
+              ? key === p.row.original_key
+              : key.endsWith(`1.${resource}`))
+          ) {
             changed = true;
             if (change === "expired")
               await db
@@ -1727,18 +1916,20 @@ describe("personal copies — independent ownership and final authorization", ()
           return object;
         }) as R2Bucket["get"],
       });
+      const service = new PersonalDocumentsService({
+        ...f.env,
+        DOCUMENTS: racedBucket,
+      });
       await expect(
-        new PersonalDocumentsService({ ...f.env, DOCUMENTS: racedBucket }).page(
-          f.recipient,
-          p.view.id,
-          1,
-        ),
+        resource === "original"
+          ? service.download(f.recipient, p.view.id)
+          : service.page(f.recipient, p.view.id, 1, resource === "text"),
       ).rejects.toMatchObject({ code: "NOT_FOUND" });
       expect(changed).toBe(true);
       expect(
         await db
           .prepare(
-            "SELECT count(*) n FROM secure_document_events WHERE distribution_id=? AND type='page_access_authorized'",
+            "SELECT count(*) n FROM secure_document_events WHERE distribution_id=? AND type IN ('page_access_authorized','accessible_text_access_authorized','original_download_requested','original_transfer_started')",
           )
           .bind(p.view.id)
           .first(),

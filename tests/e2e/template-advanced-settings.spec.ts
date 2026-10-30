@@ -10,7 +10,9 @@ test("business rules edited in the studio persist and govern real PDF totals, de
   test.skip(isMobile, "Graphical template settings are qualified on desktop.");
   test.setTimeout(120000);
   await page.goto("/#/app");
-  await page.getByRole("button", { name: "Entrer dans l’Atelier" }).click();
+  await page
+    .getByRole("button", { name: "Entrer dans l’espace de travail" })
+    .click();
   await expect(
     page.getByRole("heading", { name: "Votre correspondance, au clair." }),
   ).toBeVisible();
@@ -63,7 +65,7 @@ test("business rules edited in the studio persist and govern real PDF totals, de
     },
   );
   expect(publication.status(), await publication.text()).toBe(200);
-  await page.goto(`/#/app/template/${model.id}`);
+  await page.goto(`/#/app/studio/template/${model.id}`);
 
   await page
     .getByText("Champs requis et valeurs par défaut", { exact: true })

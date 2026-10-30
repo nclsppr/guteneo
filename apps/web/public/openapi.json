@@ -12426,5 +12426,8 @@
     "clientExecutionRequiresOriginalAndAuthorizedNetwork": true,
     "referenceClientRuntime": "POSIX Python 3.9+",
     "binaryProtocolHostNeutral": true
+  },
+  "x-browser-application-continuity": {
+    "description": "29 October 2026 local candidate: browser session responses expose only canAccessBelvedere for navigation; every protected Belvedere read repeats its signed privileged-browser guard. The browser-only /api/generation-jobs/{id}/record-context endpoint is excluded from the OAuth API, returns bounded labels or one recordId correction input to its current tenant-scoped owner, and grants no MCP/native or dispatch-review source authority."
   }
 }

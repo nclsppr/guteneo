@@ -143,6 +143,7 @@ describe("secure distribution browser choices", () => {
     it(`returns to the exact share through ordinary document authentication in ${locale}`, () => {
       setLocale(locale, false);
       vi.stubGlobal("window", {
+        dispatchEvent: vi.fn(),
         location: {
           hash: "#/app/secure-distribution/sd_fixture?view=approval&invitation=private-invitation#private-fragment",
           hostname: "localhost",
@@ -185,6 +186,7 @@ describe("secure distribution browser choices", () => {
       it(`provides localized ${code} recovery in ${locale} without exposing technical details`, () => {
         setLocale(locale, false);
         vi.stubGlobal("window", {
+          dispatchEvent: vi.fn(),
           location: { hash: "#/app/secure-distribution/sd_fixture" },
         });
         const html = renderToStaticMarkup(
@@ -210,6 +212,7 @@ describe("secure distribution browser choices", () => {
     it(`uses the verified-account recovery wording in ${locale} without requiring stronger sign-in`, () => {
       const invitation = "a".repeat(64);
       vi.stubGlobal("window", {
+        dispatchEvent: vi.fn(),
         location: {
           hash: `#/app/my-documents?kind=personal&invitation=${invitation}&q=private-fixture-search`,
         },

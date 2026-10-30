@@ -1,5 +1,52 @@
 # Templates, data and distribution
 
+## Correction and explicit preparation — 29 October 2026 local candidate
+
+Each destination explicitly selects its PDFs. Adding a destination selects no
+piece automatically. The preparation summary shows the exact associations and
+warns that the first preparation permanently freezes the entire generation,
+including excluded/failed rows. Navigation alone creates no plan or dispatch.
+
+One template id has a current published version and immutable earlier versions.
+Publishing a correction advances that current version; existing generations and
+preparations retain their original version and exact PDFs. Later publications
+continue the same history with automatically assigned version numbers.
+
+Studio preserves the selected template/version through compatible data import,
+replacement and field mapping. Row exclusions survive replacement only when
+row identity/structure can be verified; reordered, inserted, changed or
+unverifiable rows require explicit exclusion review before validation. Corrections create a new version/generation;
+previous documents and prepared manifests keep their immutable bytes and hashes.
+Generation results use bounded business labels (name, subject and reference)
+without changing record identifiers. A browser-only owner-authorized
+`GET /api/generation-jobs/:id/record-context` supplies presentation labels in
+pages of 50 with the result-record cursor;
+`?recordId=…` supplies one record for explicit correction. The current membership,
+tenant and creator gates are rechecked; shared-template or review access grants
+no access to private source inputs. This adds no MCP tool or native permission.
+
+[Local acceptance](STUDIO_SPACE_REPRISE.md) records the actual V1/V2 and missing-
+data checks separately from browser fixtures and deployed/provider qualification.
+
+## Studio space — 29 October 2026 candidate
+
+Templates, Data and Generations form the web **Studio** space under
+`/app/studio/templates`, `/app/studio/datasets` and `/app/studio/generations`,
+with detail pages at `/app/studio/template/<id>`, `/app/studio/dataset/<id>` and
+`/app/studio/generation/<id>`. Earlier addresses resolve to these routes in the
+browser and keep their query. Selected PDFs pass by identifiers to
+`/app/distribution/new?generation=<id>&selected=<recordId>…`; Correspondence
+revalidates all selected ready results before displaying its preparation form,
+including selections spanning multiple 50-record pages. Navigation makes no write.
+Every new destination starts with zero documents, even for one selected PDF.
+Back/Forward, reload and explicit return preserve Studio selection; unsaved
+preparation changes may veto departure. Prepared distribution plans keep
+`/app/distribution/<id>` and their form, detail and styles belong to Correspondence,
+under Dispatches. The Studio uses
+the same workspace session, roles and private-resource rules; REST paths, MCP
+tools and scopes are unchanged. The [workspace layout contract](DASHBOARD_V2.md)
+owns the switcher and navigation.
+
 ## Synthetic generation diagnostics — 26 October 2026 follow-up
 
 A terminal `failed` or `partial` generation is not pending work. Status reads
@@ -305,7 +352,9 @@ Distribution freezes record → document/version/hash → channel/recipient.
 `recipientFields` resolves frozen record data, not reparsed files. Multiple
 recipients remain separate dispatches; multiple channels require
 `explicitMultichannel:true`. Web destinations apply to all selected records or a
-named subset. Identical bytes shared by different records still receive common
+named subset; with several selected PDFs a new destination starts with none, so
+every association is chosen, and the form lists the exact destination/channel/PDF
+pairs and the batch freeze below before preparing. Identical bytes shared by different records still receive common
 multichannel checks. Plans create no approval, provider attempt or credit reservation.
 Postal preparation referencing a qualified draft may read provider pricing without
 submitting. Entry errors stay visible. First plan freezes the entire batch,

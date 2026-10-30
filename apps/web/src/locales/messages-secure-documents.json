@@ -4,31 +4,19 @@
     "Die persönliche Kopie kann exportiert werden, auch wenn das Herunterladen des Original-PDFs deaktiviert ist.",
     "Déi perséinlech Kopie kann exportéiert ginn, och wann d’Erofluede vum Original-PDF desaktivéiert ass."
   ],
-  "Mes documents": [
-    "My documents",
-    "Meine Dokumente",
-    "Meng Dokumenter"
-  ],
+  "Mes documents": ["My documents", "Meine Dokumente", "Meng Dokumenter"],
   "Espace personnel": [
     "Personal space",
     "Persönlicher Bereich",
     "Perséinleche Beräich"
   ],
-  "Utiliser Guteneo": [
-    "Use Guteneo",
-    "Guteneo nutzen",
-    "Guteneo benotzen"
-  ],
+  "Utiliser Guteneo": ["Use Guteneo", "Guteneo nutzen", "Guteneo benotzen"],
   "Compte et sécurité": [
     "Account and security",
     "Konto und Sicherheit",
     "Kont a Sécherheet"
   ],
-  "Partagés avec moi": [
-    "Shared with me",
-    "Mit mir geteilt",
-    "Mat mir gedeelt"
-  ],
+  "Partagés avec moi": ["Shared with me", "Mit mir geteilt", "Mat mir gedeelt"],
   "Copies conservées": [
     "Saved copies",
     "Aufbewahrte Kopien",
@@ -44,16 +32,8 @@
     "Sichere Bereitstellungen",
     "Séchert Deele vun Dokumenter"
   ],
-  "Nouveau partage": [
-    "New share",
-    "Neue Freigabe",
-    "Neit Deelen"
-  ],
-  "Ouvrir": [
-    "Open",
-    "Öffnen",
-    "Opmaachen"
-  ],
+  "Nouveau partage": ["New share", "Neue Freigabe", "Neit Deelen"],
+  "Ouvrir": ["Open", "Öffnen", "Opmaachen"],
   "Ouvrir le document": [
     "Open document",
     "Dokument öffnen",
@@ -104,11 +84,7 @@
     "Sie können eine Kopie aufbewahren, wenn der sendende Arbeitsbereich dies erlaubt.",
     "Dir kënnt eng Kopie späicheren, wann den Atelier, deen se schéckt, dat erlaabt."
   ],
-  "Expéditeur": [
-    "Sender",
-    "Absender",
-    "Expéditeur"
-  ],
+  "Expéditeur": ["Sender", "Absender", "Expéditeur"],
   "Disponible jusqu’au {0}": [
     "Available until {0}",
     "Verfügbar bis {0}",
@@ -124,11 +100,7 @@
     "Zugriff widerrufen",
     "Zougang zréckgezunn"
   ],
-  "Accès expiré": [
-    "Access expired",
-    "Zugriff abgelaufen",
-    "Zougang ofgelaf"
-  ],
+  "Accès expiré": ["Access expired", "Zugriff abgelaufen", "Zougang ofgelaf"],
   "Association en attente": [
     "Association pending",
     "Zuordnung ausstehend",
@@ -139,11 +111,7 @@
     "Zugriff verfügbar",
     "Zougang disponibel"
   ],
-  "Copie conservée": [
-    "Copy saved",
-    "Kopie aufbewahrt",
-    "Kopie gespäichert"
-  ],
+  "Copie conservée": ["Copy saved", "Kopie aufbewahrt", "Kopie gespäichert"],
   "Votre identité de compte et votre accès doivent être vérifiés avant l’affichage du document.": [
     "Your account identity and access must be verified before the document can be displayed.",
     "Ihre Kontoidentität und Ihr Zugriff müssen vor der Anzeige des Dokuments überprüft werden.",
@@ -234,11 +202,7 @@
     "Gewähren Sie individuellen Zugriff auf ein Dokument und verfolgen Sie die verfügbaren Anzeigeereignisse.",
     "Gitt individuellen Zougang zu engem Dokument a verfollegt déi disponibel Consultatiounsevenementer."
   ],
-  "Découvrir les tarifs": [
-    "View pricing",
-    "Preise ansehen",
-    "Präisser kucken"
-  ],
+  "Découvrir les tarifs": ["View pricing", "Preise ansehen", "Präisser kucken"],
   "Vos documents reçus restent accessibles sans achat de service.": [
     "Your received documents remain accessible without purchasing a service.",
     "Ihre empfangenen Dokumente bleiben ohne Dienstekauf zugänglich.",
@@ -254,16 +218,8 @@
     "Angemeldet als {0}",
     "Ageloggt als {0}"
   ],
-  "Changer de compte": [
-    "Switch account",
-    "Konto wechseln",
-    "Kont wiesselen"
-  ],
-  "Se déconnecter": [
-    "Sign out",
-    "Abmelden",
-    "Ofmellen"
-  ],
+  "Changer de compte": ["Switch account", "Konto wechseln", "Kont wiesselen"],
+  "Se déconnecter": ["Sign out", "Abmelden", "Ofmellen"],
   "Aucun atelier associé à ce compte.": [
     "No workspace is associated with this account.",
     "Diesem Konto ist kein Arbeitsbereich zugeordnet.",
@@ -274,16 +230,8 @@
     "Kontoidentität",
     "Kontidentitéit"
   ],
-  "Nom": [
-    "Name",
-    "Name",
-    "Numm"
-  ],
-  "Adresse e-mail": [
-    "Email address",
-    "E-Mail-Adresse",
-    "E-Mail-Adress"
-  ],
+  "Nom": ["Name", "Name", "Numm"],
+  "Adresse e-mail": ["Email address", "E-Mail-Adresse", "E-Mail-Adress"],
   "Enregistrer les préférences": [
     "Save preferences",
     "Einstellungen speichern",
@@ -354,11 +302,7 @@
     "Versand vorbereiten",
     "Eng Sendung virbereeden"
   ],
-  "Session du {0}": [
-    "Session from {0}",
-    "Sitzung vom {0}",
-    "Sessioun vum {0}"
-  ],
+  "Session du {0}": ["Session from {0}", "Sitzung vom {0}", "Sessioun vum {0}"],
   "Aucune session active": [
     "No active sessions",
     "Keine aktiven Sitzungen",
@@ -414,21 +358,13 @@
     "Ihre Aufrufe dieser persönlichen Kopie werden dem sendenden Arbeitsbereich nicht mitgeteilt.",
     "Är Consultatioune vun dëser perséinlecher Kopie ginn net un den Atelier vum Expéditeur weiderginn."
   ],
-  "Afficher les pages": [
-    "Show pages",
-    "Seiten anzeigen",
-    "Säiten uweisen"
-  ],
+  "Afficher les pages": ["Show pages", "Seiten anzeigen", "Säiten uweisen"],
   "Afficher le texte accessible": [
     "Show accessible text",
     "Barrierefreien Text anzeigen",
     "Den zougänglechen Text uweisen"
   ],
-  "{0} page(s)": [
-    "{0} page(s)",
-    "{0} Seite(n)",
-    "{0} Säit(en)"
-  ],
+  "{0} page(s)": ["{0} page(s)", "{0} Seite(n)", "{0} Säit(en)"],
   "Exporter ma copie": [
     "Export my copy",
     "Meine Kopie exportieren",
@@ -459,11 +395,7 @@
     "Barrierefreier Dokumenttext",
     "Zougänglechen Dokumenttext"
   ],
-  "Page {0}": [
-    "Page {0}",
-    "Seite {0}",
-    "Säit {0}"
-  ],
+  "Page {0}": ["Page {0}", "Seite {0}", "Säit {0}"],
   "Aucun texte accessible n’est disponible pour cette page.": [
     "No accessible text is available for this page.",
     "Für diese Seite ist kein barrierefreier Text verfügbar.",
@@ -509,11 +441,7 @@
     "Genehmigt, Aktivierung ausstehend",
     "Geneemegt, Aktivéierung steet aus"
   ],
-  "Accès actif": [
-    "Active access",
-    "Aktiver Zugriff",
-    "Aktiven Zougang"
-  ],
+  "Accès actif": ["Active access", "Aktiver Zugriff", "Aktiven Zougang"],
   "Préparation en cours": [
     "Preparation in progress",
     "Vorbereitung läuft",
@@ -534,11 +462,7 @@
     "Ein Widerruf sperrt neue Zugriffe und erstattet den aktivierten Zeitraum nicht.",
     "D’Zeréckzéie blockéiert nei Zougrëffer a rembourséiert déi aktivéiert Period net."
   ],
-  "Voir le partage": [
-    "View share",
-    "Freigabe ansehen",
-    "D’Deelung kucken"
-  ],
+  "Voir le partage": ["View share", "Freigabe ansehen", "D’Deelung kucken"],
   "Aucune distribution sécurisée": [
     "No secure distributions",
     "Keine sicheren Bereitstellungen",
@@ -564,11 +488,7 @@
     "Dokument und Empfänger",
     "Dokument an Empfänger"
   ],
-  "PDF vérifié": [
-    "Verified PDF",
-    "Überprüftes PDF",
-    "Kontrolléierte PDF"
-  ],
+  "PDF vérifié": ["Verified PDF", "Überprüftes PDF", "Kontrolléierte PDF"],
   "Le document original reste inchangé. La consultation utilise des pages préparées pour le destinataire.": [
     "The original document remains unchanged. Viewing uses pages prepared for the recipient.",
     "Das Originaldokument bleibt unverändert. Zur Anzeige werden für den Empfänger vorbereitete Seiten verwendet.",
@@ -644,11 +564,7 @@
     "Einladungsnachricht",
     "Invitatiounsmessagë"
   ],
-  "Objet": [
-    "Subject",
-    "Betreff",
-    "Betreff"
-  ],
+  "Objet": ["Subject", "Betreff", "Betreff"],
   "Évitez toute information confidentielle dans l’invitation par e-mail.": [
     "Keep confidential information out of the email invitation.",
     "Vermeiden Sie vertrauliche Informationen in der E-Mail-Einladung.",
@@ -754,11 +670,7 @@
     "Sichere Freigabe prüfen",
     "Déi sécher Deelung kontrolléieren"
   ],
-  "PDF original": [
-    "Original PDF",
-    "Original-PDF",
-    "Original-PDF"
-  ],
+  "PDF original": ["Original PDF", "Original-PDF", "Original-PDF"],
   "Téléchargement autorisé": [
     "Download allowed",
     "Download erlaubt",
@@ -779,16 +691,8 @@
     "Erlaubt · {0} Tage",
     "Erlaabt · {0} Deeg"
   ],
-  "Échéance": [
-    "Expiry",
-    "Ablauf",
-    "Oflaf"
-  ],
-  "{0} HT": [
-    "{0} excluding tax",
-    "{0} zzgl. Steuern",
-    "{0} ouni Steieren"
-  ],
+  "Échéance": ["Expiry", "Ablauf", "Oflaf"],
+  "{0} HT": ["{0} excluding tax", "{0} zzgl. Steuern", "{0} ouni Steieren"],
   "La période activée est due en totalité. Révoquer ou désactiver le partage ne donne pas droit à remboursement.": [
     "The activated term is payable in full. Revoking or disabling the share does not entitle you to a refund.",
     "Der aktivierte Zeitraum ist vollständig zahlbar. Der Widerruf oder die Deaktivierung der Freigabe begründet keinen Erstattungsanspruch.",
@@ -1184,11 +1088,7 @@
     "Ungültiger Seitencursor.",
     "Ongëltege Säitecursor."
   ],
-  "Rechercher": [
-    "Search",
-    "Suchen",
-    "Sichen"
-  ],
+  "Rechercher": ["Search", "Suchen", "Sichen"],
   "Un document est disponible dans Guteneo": [
     "A document is available in Guteneo",
     "Ein Dokument ist in Guteneo verfügbar",
@@ -1244,11 +1144,7 @@
     "Detaillierte Zugriffsereignisse werden 90 Tage aufbewahrt. Freigabe-, Abrechnungs- und Übergabebelege haben eigene Aufbewahrungsfristen.",
     "Detailléiert Zougrëffsevenementer gi fir 90 Deeg gespäichert. D’Beleeger fir Geneemegung, Rechnung an Iwwergab hunn hir eege Späicherfristen."
   ],
-  "Message": [
-    "Message",
-    "Nachricht",
-    "Noriicht"
-  ],
+  "Message": ["Message", "Nachricht", "Noriicht"],
   "Révoquez le lien protégé existant avant de préparer une distribution sensible de ce document.": [
     "Revoke the existing protected link before preparing a secure distribution of this document.",
     "Widerrufen Sie den bestehenden geschützten Link, bevor Sie eine sichere Bereitstellung dieses Dokuments vorbereiten.",
@@ -1269,11 +1165,7 @@
     "Dieses Dokument wird bereits in einem anderen Versandablauf verwendet. Wählen Sie ein separates Dokument für die sichere Bereitstellung.",
     "Dëst Dokument gëtt schonn an engem aneren Oflaf fir Envoien benotzt. Wielt en eegent Dokument fir dat séchert Deelen."
   ],
-  "{0} jours": [
-    "{0} days",
-    "{0} Tage",
-    "{0} Deeg"
-  ],
+  "{0} jours": ["{0} days", "{0} Tage", "{0} Deeg"],
   "Reconnectez-vous pour vérifier votre accès. Vous reviendrez sur cette page.": [
     "Sign in again to verify your access. You will return to this page.",
     "Melden Sie sich erneut an, um Ihren Zugriff zu überprüfen. Anschließend kehren Sie zu dieser Seite zurück.",
@@ -1304,10 +1196,10 @@
     "Diese Freigabe hat sich geändert oder der Versand hat begonnen. Aktualisieren Sie den Status, bevor Sie fortfahren.",
     "Dëst Deelen huet sech geännert oder den Envoi huet ugefaangen. Aktualiséiert de Status, ier Dir weiderfuert."
   ],
-  "Créer ou rejoindre un atelier": [
+  "Créer ou rejoindre un espace de travail": [
     "Create or join a workspace",
     "Arbeitsbereich erstellen oder beitreten",
-    "En Atelier erstellen oder bäitrieden"
+    "En Aarbechtsberäich erstellen oder bäitrieden"
   ],
   "Choix de l’atelier": [
     "Workspace setup",

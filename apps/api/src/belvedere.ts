@@ -1,6 +1,7 @@
 import { authenticateBrowser, AuthError } from "./auth";
 import {
-  BELVEDERE_WATCHER_EMAIL,
+  belvedereConfigured,
+  canAccessBelvedereSession,
   isBelvedereBrowserOrigin,
 } from "./belvedere-policy";
 import type { Env } from "./env";
@@ -732,9 +733,7 @@ async function finance(env: Env, f: Filters): Promise<BelvedereFinance> {
 }
 
 export function belvedereBasePath(env: Env): string | null {
-  return env.ENVIRONMENT === "production" &&
-    env.MODE === "production" &&
-    /^[A-Za-z0-9_-]{32,128}$/.test(env.BELVEDERE_SECRET_SLUG ?? "")
+  return belvedereConfigured(env)
     ? `/belvedere/${env.BELVEDERE_SECRET_SLUG}`
     : null;
 }
@@ -754,29 +753,12 @@ async function belvedereAccess(
     return null;
   const session = await authenticateBrowser(request, env);
   if (env.AUTH0_AUTH_POLICY !== "verified_email" && !session.mfa) return null;
-  const row = await first<{
-    userId: string;
-    issuer: string;
-    subject: string;
-    verifiedEmail: string;
-  } | null>(
-    env.DB,
-    `SELECT b.user_id userId,e.issuer,e.subject,e.verified_email verifiedEmail FROM browser_sessions b JOIN browser_identity_evidence e ON e.token_hash=b.token_hash JOIN auth_identities i ON i.issuer=e.issuer AND i.subject=e.subject AND i.user_id=b.user_id WHERE b.token_hash=? AND b.is_development=0 AND b.expires_at>?`,
-    [session.tokenHash, new Date().toISOString()],
-  );
-  const expectedIssuer = env.AUTH0_DOMAIN
-    ? `https://${env.AUTH0_DOMAIN.replace(/^https:\/\//, "").replace(/\/$/, "")}/`
-    : null;
   if (
-    !row ||
-    row.verifiedEmail !== BELVEDERE_WATCHER_EMAIL ||
-    !expectedIssuer ||
-    row.issuer !== expectedIssuer ||
-    (env.BELVEDERE_AUTH0_SUBJECT && row.subject !== env.BELVEDERE_AUTH0_SUBJECT)
+    !(await canAccessBelvedereSession(env, session.tokenHash, session.user.id))
   )
     return null;
   return {
-    userId: row.userId,
+    userId: session.user.id,
     preferredLocale: isSupportedLocale(session.user.preferredLocale)
       ? session.user.preferredLocale
       : null,
@@ -801,7 +783,17 @@ export async function handleBelvedereRoute(
   )
     return null;
   const configuredBase = belvedereBasePath(env);
-  const base = dedicatedHost ? "" : configuredBase;
+  const canonicalEntry =
+    env.APP_ORIGIN === "https://guteneo.com" &&
+    url.origin === env.APP_ORIGIN &&
+    (url.pathname === "/belvedere" ||
+      url.pathname === "/belvedere/" ||
+      url.pathname.startsWith("/belvedere/api/"));
+  const base = dedicatedHost
+    ? ""
+    : canonicalEntry
+      ? "/belvedere"
+      : configuredBase;
   if (
     !configuredBase ||
     base === null ||

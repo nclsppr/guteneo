@@ -390,17 +390,21 @@
   grid-column: 1;
   grid-row: 1 / 3;
   align-self: start;
+  width: 100%;
+  min-width: 0;
   flex-direction: column;
+  flex-wrap: nowrap;
   align-items: stretch;
   justify-content: flex-start;
   height: 100dvh;
   min-height: 0;
-  gap: 28px;
-  padding: 22px 12px 12px;
+  gap: 14px;
+  /* The same frame insets as the workspace sidebar. */
+  padding: 18px 12px 10px;
   border-bottom: 0;
   border-right: 1px solid var(--line);
   background: var(--sidebar-surface);
-  overflow-y: auto;
+  overflow: visible;
 }
 .personal-space-v2 .personal-space-header .brand {
   --brand-mark-size: 42px;
@@ -435,33 +439,11 @@
   font-weight: 500;
   text-decoration: none;
 }
-.personal-space-v2 .personal-space-header > .theme-toggle {
-  align-self: flex-start;
+.personal-space-v2 .sidebar-account {
+  min-width: 0;
   margin-top: auto;
-}
-.personal-space-v2 .personal-space-account {
-  display: grid;
-  gap: 12px;
-  margin: 0;
-  padding: 18px 12px 0;
+  padding-top: 6px;
   border-top: 1px solid var(--line);
-  font-size: 12px;
-  line-height: 1.5;
-}
-.personal-space-v2 .personal-space-account strong {
-  display: block;
-  margin-bottom: 4px;
-  color: var(--ink);
-  font-size: 14px;
-  font-weight: 500;
-}
-.personal-space-v2 .personal-space-account .button {
-  justify-self: start;
-  justify-content: flex-start;
-  min-height: 44px;
-  padding-inline: 0;
-  border: 0;
-  font-size: 13px;
 }
 .personal-space-v2 .personal-space-main {
   grid-column: 2;
@@ -682,7 +664,7 @@
     margin-bottom: 0;
   }
 }
-@media (max-width: 900px) {
+@media (max-width: 1024px) {
   .personal-account-security-grid {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -693,6 +675,7 @@
   .personal-space-v2 .personal-space-header {
     position: static;
     flex-direction: row;
+    flex-wrap: wrap;
     align-items: center;
     height: auto;
     gap: 12px 20px;
@@ -709,19 +692,11 @@
     flex-direction: row;
     gap: 6px;
   }
-  .personal-space-v2 .personal-space-header > .theme-toggle {
-    align-self: center;
-    margin-top: 0;
-    margin-inline-start: auto;
-  }
-  .personal-space-v2 .personal-space-account {
-    display: flex;
+  .personal-space-v2 .sidebar-account {
     order: 4;
     flex-basis: 100%;
-    padding: 12px 0 0;
-  }
-  .personal-space-v2 .personal-space-account strong {
-    display: none;
+    margin-top: 0;
+    padding: 8px 0 0;
   }
   .personal-space-v2 .personal-space-main {
     padding: 24px 0 48px;
@@ -788,5 +763,16 @@
   .personal-space-account {
     gap: 8px 16px;
     margin-bottom: 24px;
+  }
+}
+
+@media (max-width: 1024px) and (max-height: 640px) {
+  .personal-space-v2 .workspace-identity-menu {
+    position: fixed;
+    inset: 16px 16px auto;
+    width: auto;
+    min-width: 0;
+    max-width: none;
+    max-height: calc(100dvh - 32px);
   }
 }

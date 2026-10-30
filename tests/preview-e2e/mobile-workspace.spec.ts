@@ -15,127 +15,167 @@ async function fits(page: Page) {
   }
 }
 
-for (const appearance of ["classic", "v2"] as const) {
-  test(`mobile ${appearance} navigation exposes every destination and returns focus to the opened page`, async ({
-    page,
-  }) => {
-    await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto(`/?appearance=${appearance}#/app`);
-    await expect(page.locator(".workspace")).toHaveAttribute(
-      "data-appearance",
-      appearance,
-    );
-    const menu = page.locator(".workspace-navigation");
-    const toggle = menu.locator("summary");
-    const nav = page.getByRole("navigation", {
-      name: "Navigation de l’atelier",
-    });
-    await expect(nav).toBeHidden();
-    await toggle.click();
-    await expect(nav).toBeVisible();
-    const links = nav.getByRole("link");
-    const destinations = [
-      "#/app",
-      "#/app/connection",
-      "#/app/documents",
-      "#/app/dispatches",
-      "#/app/campaigns",
-      "#/app/senders",
-      "#/app/usage",
-      "#/app/pdf-checks",
-      "#/app/billing",
-      ...(appearance === "classic" ? ["#/app/account"] : []),
-      "#/app/admin",
-    ];
-    await expect(links).toHaveCount(destinations.length);
-    expect(
-      await links.evaluateAll((elements) =>
-        elements.map((element) => element.getAttribute("href")),
-      ),
-    ).toEqual(destinations);
-    for (const link of await links.all()) {
-      expect((await link.boundingBox())?.height).toBeGreaterThanOrEqual(44);
-      expect((await link.boundingBox())?.width).toBeGreaterThanOrEqual(44);
-    }
-    await nav.getByRole("link", { name: "Facturation", exact: true }).click();
-    await expect(page.locator("main h1")).toHaveText("Facturation");
-    await expect(nav).toBeHidden();
-    await expect(page.locator("main")).toBeFocused();
-    await toggle.focus();
-    await page.keyboard.press("Enter");
-    await expect(nav).toBeVisible();
-    await nav.getByRole("link", { name: "Documents", exact: true }).focus();
-    await page.keyboard.press("Escape");
-    await expect(nav).toBeHidden();
-    await expect(toggle).toBeFocused();
-    const account = page.locator(
-      '.sidebar-account a.workspace-identity-profile[href="#/app/account"]',
-    );
-    await expect(account).toHaveCount(1);
-    await expect(account).toBeVisible();
-    expect((await account.boundingBox())?.height).toBeGreaterThanOrEqual(44);
-    expect((await account.boundingBox())?.width).toBeGreaterThanOrEqual(44);
-    await account.click();
-    await expect(page).toHaveURL(/#\/app\/account$/);
-    await expect(page.locator("main h1")).toBeVisible();
-    await expect(page.locator("main")).toBeFocused();
-    await expect(account).toHaveAttribute("aria-current", "page");
-    await expect(nav).toBeHidden();
+test(`mobile navigation exposes every destination and returns focus to the opened page`, async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/#/app");
+  const menu = page.locator(".workspace-navigation");
+  const toggle = menu.locator("summary");
+  const nav = page.getByRole("navigation", {
+    name: "Navigation de la correspondance",
   });
+  await expect(nav).toBeHidden();
+  await toggle.click();
+  await expect(nav).toBeVisible();
+  const links = nav.getByRole("link");
+  const destinations = [
+    // The New dispatch shortcut stays on every page.
+    "#/app/prepare",
+    "#/app",
+    "#/app/connection",
+    "#/app/documents",
+    "#/app/dispatches",
+    "#/app/campaigns",
+    "#/app/senders",
+    "#/app/usage",
+    "#/app/pdf-checks",
+    "#/app/billing",
+    "#/app/admin",
+  ];
+  await expect(links).toHaveCount(destinations.length);
+  expect(
+    await links.evaluateAll((elements) =>
+      elements.map((element) => element.getAttribute("href")),
+    ),
+  ).toEqual(destinations);
+  for (const link of await links.all()) {
+    expect((await link.boundingBox())?.height).toBeGreaterThanOrEqual(44);
+    expect((await link.boundingBox())?.width).toBeGreaterThanOrEqual(44);
+  }
+  await nav.getByRole("link", { name: "Facturation", exact: true }).click();
+  await expect(page.locator("main h1")).toHaveText("Facturation");
+  await expect(nav).toBeHidden();
+  await expect(page.locator("main")).toBeFocused();
+  await toggle.focus();
+  await page.keyboard.press("Enter");
+  await expect(nav).toBeVisible();
+  await nav.getByRole("link", { name: "Documents", exact: true }).focus();
+  await page.keyboard.press("Escape");
+  await expect(nav).toBeHidden();
+  await expect(toggle).toBeFocused();
+  const account = page.locator(
+    '.sidebar-account a.workspace-identity-profile[href="#/app/account"]',
+  );
+  await expect(account).toHaveCount(1);
+  // One account row outside the navigation opens the profile link.
+  const trigger = page.locator(".sidebar-account .workspace-identity-trigger");
+  await expect(trigger).toBeVisible();
+  expect((await trigger.boundingBox())?.height).toBeGreaterThanOrEqual(44);
+  await trigger.click();
+  await expect(trigger).toHaveAttribute("aria-expanded", "true");
+  await expect(account).toBeVisible();
+  expect((await account.boundingBox())?.height).toBeGreaterThanOrEqual(44);
+  expect((await account.boundingBox())?.width).toBeGreaterThanOrEqual(44);
+  await account.click();
+  await expect(page).toHaveURL(/#\/app\/account$/);
+  await expect(page.locator("main h1")).toBeVisible();
+  await expect(page.locator("main")).toBeFocused();
+  await expect(account).toHaveAttribute("aria-current", "page");
+  await expect(nav).toBeHidden();
+});
 
-  test(`mobile ${appearance} Escape closes native details before its queued toggle reaches React`, async ({
-    page,
-  }) => {
-    await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto(`/?appearance=${appearance}#/app`);
-    const menu = page.locator(".workspace-navigation");
-    const summary = menu.locator("summary");
-    const nav = menu.locator("nav");
-    await expect(page.locator(".workspace")).toHaveAttribute(
-      "data-appearance",
-      appearance,
+test(`mobile Escape closes native details before its queued toggle reaches React`, async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/#/app");
+  const menu = page.locator(".workspace-navigation");
+  const summary = menu.locator("summary");
+  const nav = menu.locator("nav");
+  await expect(nav).toBeHidden();
+  const immediate = await menu.evaluate((element: HTMLDetailsElement) => {
+    // Native activation changes open synchronously; its toggle event is a
+    // later task. Keep Escape in this task to reproduce that exact ordering.
+    const toggle = element.querySelector("summary")!;
+    toggle.click();
+    const opened = element.open;
+    const destination = element.querySelector<HTMLAnchorElement>(
+      'a[href="#/app/documents"]',
+    )!;
+    destination.focus();
+    destination.dispatchEvent(
+      new KeyboardEvent("keydown", {
+        key: "Escape",
+        bubbles: true,
+        cancelable: true,
+      }),
     );
-    await expect(nav).toBeHidden();
-    const immediate = await menu.evaluate((element: HTMLDetailsElement) => {
-      // Native activation changes open synchronously; its toggle event is a
-      // later task. Keep Escape in this task to reproduce that exact ordering.
-      const toggle = element.querySelector("summary")!;
-      toggle.click();
-      const opened = element.open;
-      const destination = element.querySelector<HTMLAnchorElement>(
-        'a[href="#/app/documents"]',
-      )!;
-      destination.focus();
-      destination.dispatchEvent(
-        new KeyboardEvent("keydown", {
-          key: "Escape",
-          bubbles: true,
-          cancelable: true,
-        }),
-      );
-      return {
-        opened,
-        closed: !element.open,
-        summaryFocused: document.activeElement === toggle,
-      };
-    });
-    expect(immediate).toEqual({
-      opened: true,
-      closed: true,
-      summaryFocused: true,
-    });
-    await expect(nav).toBeHidden();
-    await expect(summary).toBeFocused();
-    // The coalesced native toggle must not restore the previous open state.
-    await summary.press("Enter");
-    await expect(nav).toBeVisible();
-    await nav
-      .getByRole("link", { name: "Documents", exact: true })
-      .press("Escape");
-    await expect(nav).toBeHidden();
-    await expect(summary).toBeFocused();
+    return {
+      opened,
+      closed: !element.open,
+      summaryFocused: document.activeElement === toggle,
+    };
   });
-}
+  expect(immediate).toEqual({
+    opened: true,
+    closed: true,
+    summaryFocused: true,
+  });
+  await expect(nav).toBeHidden();
+  await expect(summary).toBeFocused();
+  // The coalesced native toggle must not restore the previous open state.
+  await summary.press("Enter");
+  await expect(nav).toBeVisible();
+  await nav
+    .getByRole("link", { name: "Documents", exact: true })
+    .press("Escape");
+  await expect(nav).toBeHidden();
+  await expect(summary).toBeFocused();
+});
+
+test("mobile v2 account menu keeps 44 pixel items and closes on Escape or outside", async ({
+  page,
+  browserName,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/#/app");
+  const trigger = page.locator(".sidebar-account .workspace-identity-trigger");
+  const menu = page.locator(".workspace-identity-menu");
+  await expect(menu).toBeHidden();
+  await trigger.focus();
+  await page.keyboard.press("Enter");
+  await expect(trigger).toHaveAttribute("aria-expanded", "true");
+  const items = menu.locator("li > :is(a, button)");
+  await expect(items).toHaveCount(4);
+  for (const item of await items.all())
+    expect((await item.boundingBox())?.height).toBeGreaterThanOrEqual(44);
+  // The preview has no account switching; theme and sign-out stay available.
+  await expect(menu.locator(".theme-toggle")).toBeVisible();
+  await expect(
+    menu.getByRole("button", { name: "Se déconnecter", exact: true }),
+  ).toBeVisible();
+  // WebKit's native Tab skips links and buttons: focus the first item there.
+  if (browserName === "webkit") await items.first().focus();
+  else await page.keyboard.press("Tab");
+  expect(
+    await menu.evaluate((element) => element.contains(document.activeElement)),
+  ).toBe(true);
+  await page.keyboard.press("Escape");
+  await expect(menu).toBeHidden();
+  await expect(trigger).toBeFocused();
+  await expect(trigger).toHaveAttribute("aria-expanded", "false");
+  await trigger.click();
+  await expect(menu).toBeVisible();
+  // The open menu covers the page heading; select an uncovered area instead.
+  await page
+    .locator(".sidebar .workspace-switcher .space-switcher-static")
+    .click();
+  await expect(menu).toBeHidden();
+  expect(
+    await page.evaluate(() => document.documentElement.scrollWidth),
+  ).toBeLessThanOrEqual(390);
+});
 
 test("mobile navigation preserves restored summary focus after deferred route frames", async ({
   page,
@@ -146,7 +186,9 @@ test("mobile navigation preserves restored summary focus after deferred route fr
   );
   await page.goto("/#/app");
   const toggle = page.locator(".workspace-navigation summary");
-  const nav = page.getByRole("navigation", { name: "Navigation de l’atelier" });
+  const nav = page.getByRole("navigation", {
+    name: "Navigation de la correspondance",
+  });
   await toggle.click();
   await expect(nav).toBeVisible();
 
@@ -189,21 +231,23 @@ test("mobile tables retain all fields without horizontal scrolling at 320px and 
     { width: 844, height: 390 },
   ]) {
     await page.setViewportSize(viewport);
-    for (const route of [
-      "",
-      "/documents",
-      "/dispatches",
-      "/campaigns",
-      "/connection",
-      "/senders",
-      "/usage",
-      "/billing",
-      "/account",
-      "/admin",
-      "/prepare",
+    for (const [route, title] of [
+      ["", "Votre correspondance, au clair."],
+      ["/documents", "La matière première."],
+      ["/dispatches", "Le fil des envois."],
+      ["/campaigns", "Une lettre. Plusieurs destinations."],
+      ["/connection", "Vos assistants, votre correspondance."],
+      ["/senders", "Qui prend la plume ?"],
+      ["/usage", "Chaque envoi compte."],
+      ["/billing", "Facturation"],
+      ["/account", "Mon compte"],
+      ["/admin", "L’espace de travail sous surveillance."],
+      ["/prepare", "Préparer une correspondance."],
     ]) {
       await page.goto(`/#/app${route}`);
-      await expect(page.locator("main h1")).toBeVisible();
+      // Route modules may retain the previous page while loading. Measure
+      // controls only after the requested destination replaces that page.
+      await expect(page.locator("main h1")).toHaveText(title);
       await fits(page);
       for (const row of await page
         .locator(".responsive-table tbody tr")

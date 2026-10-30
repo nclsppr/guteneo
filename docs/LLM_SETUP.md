@@ -124,6 +124,16 @@ Indirect business/provider changes still require review of their MCP effects;
 a fingerprint does not establish semantic correctness. Package generation and
 CI create no marketplace submission, merge, deployment or human consent.
 
+### Browser-continuity source synchronization — 29 October 2026
+
+The local 1.1.18 candidate changes browser-only session/platform navigation and
+private generation correction. Shared authentication and observability files are
+in the MCP fingerprint, so the existing application/portable/Claude/Cursor
+versions and archives are synchronized together. Review retains current MCP
+tools, schemas, annotations, scopes, host confirmations, approval and provider
+gates. The correction input and platform views remain browser-only. Package
+parity establishes no actual host import, marketplace update, CI or deployment.
+
 ## Connecting hosts
 
 ### Shared OAuth and separate host qualification

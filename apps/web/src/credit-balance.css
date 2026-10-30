@@ -16,7 +16,7 @@
   color: var(--blue);
 }
 .credit-balance h2 {
-  font-family: "EB Garamond", serif;
+  font-family: var(--font-display);
   font-size: clamp(30px, 3.4vw, 42px);
   line-height: 1.1;
   max-width: 440px;
@@ -34,7 +34,7 @@
 }
 .credit-balance-amount dd {
   margin: 0;
-  font-family: "EB Garamond", serif;
+  font-family: var(--font-display);
   font-size: clamp(48px, 6vw, 72px);
   line-height: 1.15;
   font-variant-numeric: tabular-nums;

@@ -1,4 +1,5 @@
 import { msg } from "./messages";
+import { studioRoutes } from "./app-routes";
 import { FileInput } from "./file-input";
 import {
   useEffect,
@@ -160,8 +161,8 @@ export function Campaigns({
       {!isPublicPreview && canPrepare && (
         <p className="notice info">
           {msg("For a personalised PDF per customer,")}{" "}
-          <a href="#/app/datasets">
-            {msg("import your data into the document studio")}
+          <a href={`#${studioRoutes.datasets}`}>
+            {msg("import your data into the Studio")}
           </a>
           .
         </p>
@@ -504,13 +505,7 @@ export function Campaigns({
   );
 }
 
-export function CampaignDetail({
-  id,
-  canPrepare = true,
-}: {
-  id: string;
-  canPrepare?: boolean;
-}) {
+export function CampaignDetail({ id }: { id: string }) {
   const resource = useResource<{ campaign: Campaign; dispatches: Dispatch[] }>(
     `/campaigns/${encodeURIComponent(id)}`,
   );
@@ -539,10 +534,7 @@ export function CampaignDetail({
                 {t.campaigns.total.toLowerCase()}
               </span>
             </div>
-            <DispatchTable
-              items={resource.data.dispatches}
-              canPrepare={canPrepare}
-            />
+            <DispatchTable items={resource.data.dispatches} />
           </>
         )
       )}

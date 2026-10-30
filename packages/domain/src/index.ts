@@ -1620,7 +1620,7 @@ export class DomainService {
     const approvalExpiresAt = new Date(
       Math.min(
         review ? Date.parse(review.expires_at) : Infinity,
-        this.now() + 15 * 60_000,
+        Date.parse(now) + 15 * 60_000,
         quote ? Date.parse(quote.expires_at) : Infinity,
         secureEvidence &&
           documentAccessMode(this.config.sensitiveDocumentAuthentication) ===

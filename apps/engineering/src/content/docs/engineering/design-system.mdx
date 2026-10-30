@@ -45,18 +45,50 @@ controls and small-screen behavior. A component migration must preserve every
 meaningful state, including loading, empty, denied, unavailable and recoverable
 failure states.
 
-The application-space rule in `AGENTS.md` requires the workshop, personal
+The application rule in `AGENTS.md` requires Studio, Correspondence, My
 documents and Belvédère to speak one design language in all four supported
-languages. Compare navigation, theme actions, typography, forms, tables and
+languages. `npm run lint` enforces it: application and shared stylesheets use
+theme tokens for color, the three font tokens for type, never redefine a root
+token and never restyle the shared frame, and no application imports another.
+`docs/WEB_APPLICATIONS.md` owns the ownership manifest, the rules and their
+dated exceptions. Compare navigation, theme actions, typography, forms, tables and
 account customization against the shared components before changing any of them.
 Keep authority and loading independent: visual consistency never justifies
 importing another space's session bootstrap or granting its permissions.
 
-The workshop's My documents entry uses the shared `.personal-context-link` in
-Classic and V2: one-pixel blue outline, ink label, existing blue icon and a
-minimum 44 px target on desktop and in the mobile menu. Keep its existing
-personal-space destination and accessible description. Its visual emphasis
-creates no new session read, route or document-access authority.
+Two separate switchers open the shared frame. The application switcher lists
+Studio, Correspondence and My documents, plus Belvédère only when its server
+capability permits; without a workspace, Studio and
+Correspondence lead to choosing or creating one first. Below it, in Studio and
+Correspondence only, the workspace switcher shows the current workspace, the
+person's other memberships and "Create or join a workspace". The account menu at
+the bottom says who they are. Keep that split: an application never lists
+workspaces, the workspace list is read only when its panel opens, triggers are
+40 px (application) and 36 px (workspace) for desktop pointers and 44 px on
+touch screens. Use
+`apps/web/src/app-routes.ts` for spaces, Studio addresses, aliases and the
+current entry instead of new route expressions. Switching never creates a new
+session read on page load or document-access authority.
+
+Keep every V2 workshop destination in view from 864 px high: desktop rows are
+34 px, while touch layouts keep 44 px. When a shorter screen still scrolls the
+list, the sticky bottom fade must show that entries remain; draw keyboard focus
+inside rows that a scroll container clips. Give each destination its own icon
+in the shared navigation list. **New dispatch** keeps one outlined place on every
+page so entries never move, and the page keeps the single filled primary action.
+The same account row in workspace, personal documents and canonical Belvédère
+opens a disclosure menu for profile, the shared labelled
+`ThemeToggle`, account switching, service status and sign-out; Escape returns
+focus to the row. Check the menu's longest labels in all four languages. The
+closed identity trigger must not block another panel through an elevated stacking
+context; only the open account panel needs that priority. Constrain long identity
+text within the sidebar and bound a short mobile personal menu to the viewport,
+with internally scrollable actions and intact touch targets. The
+shared application, workspace and account panels announce their opening so peers
+close without moving focus. Keep this independent of pointer-focus behavior and
+the cancelable workspace-navigation event. The
+[workspace contract](https://github.com/nclsppr/guteneo/blob/main/docs/DASHBOARD_V2.md#compact-sidebar-and-account-menu--29-october-2026-candidate)
+records the measurements.
 
 Start the requested workshop screen's code alongside its initial session read.
 Keep private data and useful content behind the authenticated authority gate;
@@ -80,8 +112,7 @@ trigger a private sign-in before the required session result.
 The 27 October secure-distribution candidate applies the same secure-document
 primitives beneath the workshop and personal V2 shells. List, composer, review
 and reader surfaces reuse the existing rounded panels and rows, body-font section
-headings, controls, facts, price presentation and responsive spacing. Classic
-retains its saved layout. These selectors do not add a new session bootstrap or
+headings, controls, facts, price presentation and responsive spacing. These selectors do not add a new session bootstrap or
 change document policy, membership or approval. The
 [frontend loading contract](https://github.com/nclsppr/guteneo/blob/main/docs/FRONTEND_PERFORMANCE.md)
 owns environment-specific measurements; matching styles alone proves no latency
@@ -91,8 +122,7 @@ Secure-document price panels use a one-pixel cobalt side rule in both saved
 layouts. Retain the existing padding, price, conditions and approval controls;
 the fine rule distinguishes the amount without a thick decorative side tab.
 
-Authenticated personal documents fill the available width in both Classic and V2,
-as the workshop does. Apply responsive gutters to the shell and narrow readable
+Authenticated personal documents fill the available width, as the workshop does. Apply responsive gutters to the shell and narrow readable
 measures to internal prose, form fields and document previews. Do not apply the
 public website's maximum outer frame to the authenticated application. Check wide
 and ultrawide displays as well as narrow mobile layouts in both color palettes;
@@ -113,6 +143,19 @@ standalone authentication handoff, Belvédère, protected-document and error HTM
 reuse the shared icon metadata. Source checks establish consistency, while
 publication and rendered hosted-login behavior require their own evidence.
 
+Assistant choices and guide headings share the existing image component. Follow
+the [appearance contract](https://github.com/nclsppr/guteneo/blob/main/docs/THEMES.md#public-identity-and-image-selection):
+keep transparent exteriors in both themes, invert only the monochrome ChatGPT,
+GitHub Copilot and Cursor display in dark mode, and retain the colored Claude,
+Microsoft 365 and Grok artwork. Apply the same CSS token to explicit dark mode
+and the system fallback; preserve source bytes, proportions, clear space and
+visible product names. Forced colors select the monochrome filter from the
+system's light/dark high-contrast palette instead of the stored page preference.
+Check public and workshop placements at phone and desktop widths while switching
+themes, including a script-free system preference and forced colors. This
+presentation change adds no JavaScript or asset request; rendered checks and
+deployed-source verification remain distinct.
+
 | Role            | Source token / value          | Application                              |
 | --------------- | ----------------------------- | ---------------------------------------- |
 | Paper           | `--paper`, `#f6f5ef`          | Main reading surface                     |
@@ -126,10 +169,11 @@ publication and rendered hosted-login behavior require their own evidence.
 | Reading measure | `--content-measure`, `68ch`   | Long-form text                           |
 | Control height  | `--control-height`, `44px`    | Comfortable interactive targets          |
 
-New accounts persist V2 when created; existing saved Classic/V2 preferences are
-preserved. Keep the browser fallback and account forms on the shared
-`defaultDashboardAppearance` contract. Never rewrite a saved Classic choice during
-sign-in. Ordinary application entry without a workshop opens the existing personal
+The Classic layout was retired on 29 October 2026: the workshop and personal
+documents render V2 for every account, and account forms offer language and color
+only. Keep the stored `preferredDashboardAppearance` value accepted for older
+clients, never rewrite it, and never let it, an old `appearance` link or a browser
+cache change the layout. Ordinary application entry without a workshop opens the existing personal
 Services form first: create a workspace or use the invitation acceptance flow.
 Direct received-document links retain personal access without workshop creation.
 The choice adds no API read or eager dependency; exercise successful creation,
@@ -155,7 +199,7 @@ qualifying a change.
 
 Reserve the same PDF viewport height while its lazy module loads, pages render or
 an error appears. Dispatch-review consent and document-page verification-purchase
-controls must stay stationary during that work in Classic and V2. Long PDFs
+controls must stay stationary during that work. Long PDFs
 scroll inside the frame; previewing and scrolling create no approval or purchase.
 Exercise delayed module and document responses while a pointer gesture is held,
 not only a fully rendered static page.
@@ -168,9 +212,8 @@ data must remain unknown rather than appearing as zero or success.
 Belvédère uses the workshop V2 navigation, type and control geometry while
 retaining its private platform guard and read-only data. Its own design contract
 records operational tables and the paired globe/list. Personal documents use the
-saved Classic/V2 account preference and small shared customization controls,
-without importing the workshop account page or requesting its resources. A theme
-icon changes only color; a successfully saved layout choice changes presentation.
+V2 shell and small shared customization controls, without importing the workshop
+account page or requesting its resources. A theme icon changes only color.
 Engineering maps the brand to Nimbus theme variables.
 
 ## Compose a page around one task
@@ -196,10 +239,9 @@ the localized Engineering documentation link after Developers; retain the exact
 English-authored. The public header
 offers an appearance icon at every viewport; the default follows the operating
 system and the head bootstrap handles activation before React is ready. The
-personal header and Belvédère page actions use the same small control; three-way
-System/Light/Dark selection belongs in account customization. Keep Classic/V2
-layout independent, apply it only after a successful explicit save, and reconcile
-it when the current identity changes. Put detailed
+personal and canonical Belvédère account menus use its labelled form; the
+dedicated Belvédère host keeps the small page-action control. Three-way
+System/Light/Dark selection belongs in account customization. Put detailed
 pricing, setup and support information on their appropriate pages rather than
 requiring visitors to search a long homepage. Keep those pages in the canonical
 public route registry so sitemap and language variants are generated together.
@@ -377,11 +419,19 @@ Keep focus visible beneath sticky headers. A disclosure reports its expanded
 state; Escape closes an overlay and returns focus to its trigger. Preserve the
 application's existing route-focus and unsaved-work behavior.
 
+Route focus moves to the new `main` (`tabindex="-1"`). Safari reports that
+script focus as `:focus-visible` even after a click, so styles read the last
+input from `data-input` on the root element (`apps/web/src/input-modality.ts`)
+instead. Pointer navigation draws no ring around script-focused containers;
+keyboard navigation underlines the new page title in the brand blue, like the
+current navigation link. Never frame a whole page with a focus ring: interactive
+controls keep their own `:focus-visible` rings.
+
 The workshop's native `<details>` menu opens before its queued `toggle` event
 updates React. Escape therefore closes the DOM property and the saved component
 state synchronously before returning focus to the summary. A state-only close can
 be ignored when React still holds `false`. Preserve native activation and cover
-this event ordering with the same-task Classic/V2 regression in
+this event ordering with the same-task regression in
 `tests/preview-e2e/mobile-workspace.spec.ts`; do not hide it with delays or retries.
 
 Loading a job counter does not make its independently fetched result rows
@@ -411,8 +461,7 @@ locale rather than the browser language. Keep literal filenames unchanged.
 Give native selects an explicit height and an authored arrow: desktop Safari
 may ignore `min-height` on its default face. Retain native appearance in forced
 colors. Hints must have positive space below their control; inspect nested
-sections as well as ordinary fields. Verify both Classic and V2, desktop WebKit
-and phone sizes. My documents shares the compact navigation rhythm; detailed
+sections as well as ordinary fields. Verify desktop WebKit and phone sizes. My documents shares the compact navigation rhythm; detailed
 role information belongs on My account instead of every shell and overview.
 See the [workspace contract](https://github.com/nclsppr/guteneo/blob/main/docs/DASHBOARD_V2.md)
 and its dated qualification notes for the 25 October correction candidate.
@@ -496,8 +545,8 @@ nested keys above their values. Repeating a fixed minimum label column at every
 depth can shrink a leaf value to zero width; new capability metadata can expose
 that failure without changing the diagnostic component. Keep nested tracks within
 the available inline size, wrap technical keys/values and retain every authorized
-field. The existing all-routes Classic/V2 browser check covers this at native and
-320 px widths. CSS changes neither the server's data scope nor administration rights.
+field. The existing all-routes browser check covers this at native and 320 px
+widths. CSS changes neither the server's data scope nor administration rights.
 
 ## Document email presentation
 
@@ -531,7 +580,28 @@ fallback and a source outside the first list page when changing this editor.
 
 Document titles use an escaped semantic quotation. The footer uses two small underlined service links; the preference page reuses public chrome and shows an explicit action before any write. Account/document status remains separate from a recipient email response. The fragment capability is never copied into public navigation.
 
-The mobile V2 profile link retains a 44 px minimum touch target in the compact
-identity row. Test its account destination, focus and active-page semantics
-alongside the Classic and V2 menu links; moving a destination does not remove it
-from navigation coverage. Desktop profile geometry is unchanged.
+The mobile V2 account row and its menu items retain a 44 px minimum touch
+target. Test the profile destination, focus and active-page semantics alongside
+the menu links; moving a destination into the account menu does not remove it
+from navigation coverage.
+
+## Independent applications and text revisions
+
+Application code loads on demand. My documents starts its personal session in
+parallel with the route module and invalidates entry results on visibility,
+identity or navigation changes. The shared account menu uses no speculative
+profile/workspace read. Component geometry belongs in `workspace-identity.css`,
+not a particular application's stylesheet. The locale layer announces changes;
+the public sharing adapter observes them rather than being imported by shared
+authenticated code.
+
+Use Workspace / Espace de travail / Arbeitsbereich / Aarbechtsberäich for the
+current tenant. The application name Correspondence is separate. Exact reviewed
+label revisions preserve existing catalog keys and apply before interpolation;
+never replace terms inside customer names, source documents or historical prose.
+
+A route-code error uses the shared explicit reload boundary. The reload may
+refresh only failed same-origin public JS/CSS assets to recover an errored
+module-preload resource in the tested WebKit runtime. Recovery omits credentials
+and referrers, rejects redirects/private/query-bearing URLs and bounds count, bytes and
+time. It never automatically retries a business request or provider submission.

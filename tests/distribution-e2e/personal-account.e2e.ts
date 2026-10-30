@@ -68,7 +68,7 @@ test("a recipient has one account, no automatic workshop, and voluntary access t
   expect(received.status).toBe(200);
   await screen.getByRole("link", "Utiliser Guteneo").tap();
   await expect(screen.getByRole("heading", "Utiliser Guteneo")).toBeVisible();
-  await expect(screen.getByLabel("Nom de votre atelier")).toBeVisible();
+  await expect(screen.getByLabel("Nom de votre espace de travail")).toBeVisible();
   await expect(
     screen.getByText(
       "Vos documents reçus restent accessibles sans achat de service.",
@@ -96,6 +96,7 @@ test("a recipient has one account, no automatic workshop, and voluntary access t
     authenticationRedirects += 1;
     await route.abort();
   });
+  await browser.locator(".personal-space-header .workspace-identity-trigger").tap();
   const [signedOut] = await Promise.all([
     browser.waitForResponse("**/api/personal/logout"),
     screen.getByRole("button", "Se déconnecter").tap(),
@@ -138,12 +139,12 @@ test("creating and selecting a workshop reloads its session without changing the
   expect(before.body.workspaces).toEqual([]);
   await screen.getByRole("link", "Utiliser Guteneo").tap();
   await screen
-    .getByLabel("Nom de votre atelier")
+    .getByLabel("Nom de votre espace de travail")
     .fill("Atelier personnel de test");
   await app.screenshot("personal-workspace-onboarding");
   const [createdResponse] = await Promise.all([
     browser.waitForResponse("**/api/personal/workspace"),
-    screen.getByRole("button", "Créer mon atelier").tap(),
+    screen.getByRole("button", "Créer mon espace de travail").tap(),
   ]);
   expect(createdResponse.status).toBe(200);
   await expect(browser).toHaveURL(/#\/app\/prepare/);
@@ -161,7 +162,7 @@ test("creating and selecting a workshop reloads its session without changing the
   // Stay in the mounted document: a fresh server cookie alone does not update
   // Application's workshop state or the API module's mutation CSRF token.
   await browser.evaluate(() => { location.hash = "/app/account"; return true; });
-  await expect(screen.getByLabel("Nom de l’atelier")).toHaveValue("Atelier personnel de test");
+  await expect(screen.getByLabel("Nom de l’espace de travail")).toHaveValue("Atelier personnel de test");
   await screen.getByLabel("Votre nom", { exact: true }).fill("Destinataire après création");
   const [createdProfile] = await Promise.all([
     browser.waitForResponse("**/api/account"),
@@ -182,12 +183,15 @@ test("creating and selecting a workshop reloads its session without changing the
   try {
     await browser.evaluate(() => { location.hash = "/app/my-documents"; return true; });
     await expect(screen.getByRole("heading", "Mes documents")).toBeVisible();
-    await screen.getByRole("link", "Utiliser Guteneo").tap();
+    // Existing members reach services through the workspace navigation. Keep
+    // this session-selection check in the mounted document as above.
+    await browser.evaluate(() => { location.hash = "/app/services"; return true; });
+    await expect(screen.getByRole("heading", "Utiliser Guteneo")).toBeVisible();
     await screen.getByRole("button", "Nouveau partage").tap();
-    await screen.getByLabel("Atelier actif").selectOption({ value: "org_studio" });
+    await screen.getByLabel("Espace de travail actif").selectOption({ value: "org_studio" });
     const [selectedResponse] = await Promise.all([
       browser.waitForResponse("**/api/personal/workspace/select"),
-      screen.getByRole("button", "Ouvrir mon atelier").tap(),
+      screen.getByRole("button", "Ouvrir mon espace de travail").tap(),
     ]);
     expect(selectedResponse.status).toBe(200);
     await expect(browser).toHaveURL(`${distributionOrigin}/#/app/secure-distributions/new`);
@@ -201,8 +205,8 @@ test("creating and selecting a workshop reloads its session without changing the
     expect(selected.body.organization.id).toBe("org_studio");
     expect(selected.body.user.role).toBe("member");
     await browser.evaluate(() => { location.hash = "/app/account"; return true; });
-    await expect(screen.getByLabel("Nom de l’atelier")).toHaveValue("Studio Papier · Simulation");
-    await expect(screen.getByLabel("Nom de l’atelier")).toBeDisabled();
+    await expect(screen.getByLabel("Nom de l’espace de travail")).toHaveValue("Studio Papier · Simulation");
+    await expect(screen.getByLabel("Nom de l’espace de travail")).toBeDisabled();
     await screen.getByLabel("Votre nom", { exact: true }).fill("Destinataire après sélection");
     const [selectedProfile] = await Promise.all([
       browser.waitForResponse("**/api/account"),

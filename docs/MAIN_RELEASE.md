@@ -119,7 +119,11 @@ results separately; see [TELNYX_READINESS.md](TELNYX_READINESS.md) and
 `scanner`, `checks`, four Vitest shards, `security`, `build`, three browser
 profiles with three independent shards each, and aggregate `verify`. `/api/mobile/v1`, shared contracts, migrations and npm
 dependencies use the full suite. Required `verify`/`scanner` and branch policy are
-unchanged.
+unchanged. A separate credential-gated dependency release workflow may publish a
+genuine merged Dependabot root npm update after successful exact-current-main CI.
+It retains the clean-main and served-verification gates below; see
+[the dependency maintenance contract](DEPENDENCY_UPDATES.md) for eligibility,
+dedicated credentials and activation evidence.
 
 ### Parallel browser execution — 25 October 2026 follow-up
 
@@ -137,7 +141,9 @@ the complete union of reported test IDs: missing/duplicate/unexpected entries or
 absent reports fail the gate. Intentional existing skip semantics remain distinct
 from a missing test or a skipped required job. The workflow still checks every PR
 and merged main revision, with no path-based coverage reduction, automatic retry
-or production deployment. The complete current application workflow has 22 jobs;
+or production deployment within the checks workflow. The dependency preflight
+stops incompatible graphs before the costly matrix; the complete current
+application workflow has 23 jobs;
 required `verify` and `scanner` protections remain unchanged.
 
 The earlier sequential iPhone job identified the browser critical path. The
@@ -161,9 +167,11 @@ verification; current filtering preserves a fresh run for native changes.
 
 `build:live` and `build:preview` remain available on PR/detached HEAD for testing
 and dry runs. `VITE_PUBLIC_PREVIEW` is explicitly false for application builds and
-true for preview; local `.env` cannot reverse it. No GitHub secret, CI deployment,
-purchase or resource is added. Private configuration/secret commands publish no
-source and do not use this guard.
+true for preview; local `.env` cannot reverse it. The application checks workflow
+receives no production release secret and provisions no paid resource.
+Private configuration/secret commands publish no
+source and do not use this guard. Production credentials for optional dependency
+redelivery belong only to its separate guarded workflow, never PR checks.
 
 The guard protects project commands, not Cloudflare access policy. Direct
 `npx wrangler deploy`, another project, an old script or external administrator

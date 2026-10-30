@@ -84,6 +84,23 @@ summary:focus-visible {
 :is(a, button, input, select, textarea, summary):focus:not(:focus-visible) {
   outline: none;
 }
+/* Page changes focus their new container (main, a section, a result heading).
+   input-modality.ts records the last input because Safari treats that script
+   focus as visible after a click: pointer navigation draws no ring around the
+   page, and keyboard navigation underlines the page title like the current
+   navigation link instead of framing the whole page. */
+:root:not([data-input="keyboard"])
+  [tabindex="-1"]:not(a, button, input, select, textarea, summary):focus {
+  outline: none;
+}
+:root[data-input="keyboard"] main[tabindex="-1"]:focus:has(h1) {
+  outline: none;
+}
+:root[data-input="keyboard"] main[tabindex="-1"]:focus h1:first-of-type {
+  text-decoration: underline var(--blue);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.14em;
+}
 h1,
 h2,
 h3,
@@ -447,12 +464,7 @@ ol {
   --brand-mark-size: 40px;
   font-size: 32px;
 }
-.atelier-label {
-  font-family: var(--font-code);
-  color: var(--muted);
-  font-size: 9px;
-  letter-spacing: 2px;
-}
+
 .organization {
   display: flex;
   min-width: 0;
@@ -514,23 +526,7 @@ ol {
   background: var(--blue-tint);
   font-weight: 500;
 }
-.sidebar nav a[href="#/app/templates"] {
-  margin-top: 24px;
-}
-.sidebar-footer {
-  margin-top: auto;
-  padding: 30px 8px 0;
-}
-.sidebar-footer button {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 11px;
-  color: var(--muted);
-  border: 0;
-  padding: 0;
-  background: none;
-}
+
 .workspace-main {
   min-width: 0;
   display: flex;
@@ -563,19 +559,7 @@ ol {
   color: var(--blue);
   white-space: nowrap;
 }
-.app-topbar {
-  height: 70px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-  padding: 0 42px;
-  border-bottom: 1px solid var(--line);
-}
-.app-topbar > span {
-  font-size: 12px;
-  color: var(--muted);
-}
+
 .workspace main {
   width: 100%;
   max-width: 1370px;
@@ -584,17 +568,7 @@ ol {
   flex: 1;
   min-width: 0;
 }
-.app-footer {
-  display: flex;
-  gap: 20px;
-  padding: 17px 42px;
-  border-top: 1px solid var(--line);
-  font-size: 10px;
-  color: var(--muted);
-}
-.app-footer > span:last-child {
-  margin-left: auto;
-}
+
 .page-heading {
   display: flex;
   align-items: flex-start;
@@ -1708,9 +1682,7 @@ ol {
   .workspace main {
     padding: 37px 28px 45px;
   }
-  .app-topbar {
-    padding: 0 28px;
-  }
+
   .simulation-banner {
     padding: 10px 28px;
   }
@@ -1854,9 +1826,7 @@ ol {
   .sidebar-brand .brand {
     font-size: 28px;
   }
-  .atelier-label {
-    display: none;
-  }
+
   .organization {
     justify-self: end;
     border: 0;
@@ -1897,12 +1867,7 @@ ol {
     height: 16px;
     width: 16px;
   }
-  .sidebar nav a[href="#/app/templates"] {
-    margin-top: 0;
-  }
-  .sidebar-footer {
-    display: none;
-  }
+
   .simulation-banner {
     padding: 9px 19px;
     gap: 9px;
@@ -1916,18 +1881,7 @@ ol {
     font-size: 8px;
     padding: 3px 5px;
   }
-  .app-topbar {
-    height: 58px;
-    padding: 0 20px;
-    gap: 10px;
-  }
-  .app-topbar > span {
-    font-size: 10px;
-  }
-  .app-topbar .button {
-    font-size: 10px;
-    min-height: 33px;
-  }
+
   .workspace main {
     padding: 29px 20px 40px;
   }
@@ -2043,17 +1997,7 @@ ol {
   .connection-callout p {
     font-size: 12px;
   }
-  .app-footer {
-    padding: 15px 20px;
-    gap: 12px;
-    font-size: 8px;
-  }
-  .app-footer > span:last-child {
-    max-width: 110px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
+
   .form-panel {
     padding: 20px 15px;
     margin-bottom: 20px;
@@ -2227,37 +2171,12 @@ ol {
   }
 }
 
-.navigation-logout {
-  display: none;
-}
 @media (max-width: 1024px) {
   /* The sidebar footer is hidden on phones and tablets: keep sign-out in the
      menu, away from the top-left corner where a back action is expected. */
-  .workspace-navigation .navigation-logout {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    width: 100%;
-    min-height: 44px;
-    margin: 0 0 16px;
-    padding: 11px 12px;
-    border: 0;
-    border-top: 1px solid var(--line);
-    background: none;
-    color: var(--muted);
-    font-size: 14px;
-    text-align: left;
-  }
 }
 @media (max-width: 767px) {
   /* Same icon size and spacing as the menu links above it. */
-  .workspace-navigation .navigation-logout {
-    gap: 7px;
-  }
-  .workspace-navigation .navigation-logout svg {
-    width: 16px;
-    height: 16px;
-  }
 }
 .session-expired {
   display: flex;
@@ -2304,11 +2223,6 @@ ol {
 .authorized-connections form {
   margin-top: 20px;
   max-width: 580px;
-}
-@media (max-width: 767px) {
-  .app-topbar > span {
-    margin-right: auto;
-  }
 }
 
 .scanner-warning {
@@ -3285,19 +3199,7 @@ ol {
     font-size: 14px;
     padding: 11px 12px;
   }
-  .workspace .app-topbar {
-    min-height: 68px;
-    height: auto;
-    padding-block: 10px;
-  }
-  .workspace .app-topbar > span {
-    font-size: 12px;
-    overflow-wrap: anywhere;
-    min-width: 0;
-  }
-  .workspace .app-topbar > .button {
-    flex-shrink: 0;
-  }
+
   .workspace .page-heading p,
   .workspace .empty-state p,
   .workspace .connection-callout p,
@@ -3417,11 +3319,6 @@ ol {
     font-size: 14px;
     white-space: normal;
   }
-  .workspace .app-footer {
-    flex-wrap: wrap;
-    padding-bottom: max(20px, env(safe-area-inset-bottom));
-    font-size: 11px;
-  }
 }
 @media (max-width: 360px) {
   .workspace main {
@@ -3430,9 +3327,6 @@ ol {
   .workspace .field-row,
   .workspace .document-metadata {
     grid-template-columns: minmax(0, 1fr);
-  }
-  .workspace .app-topbar {
-    padding-inline: 12px;
   }
 }
 .workspace-navigation > summary {
@@ -3507,13 +3401,7 @@ ol {
     margin: 0;
     padding: 0 0 14px;
   }
-  .workspace .sidebar-footer,
-  .workspace .atelier-label {
-    display: none;
-  }
-  .workspace .sidebar nav a[href="#/app/templates"] {
-    margin-top: 0;
-  }
+
   .workspace main {
     padding-inline: 28px;
   }
@@ -3528,4 +3416,11 @@ ol {
   .button {
     transition: none;
   }
+}
+
+.studio-entry-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 24px 0;
 }

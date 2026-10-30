@@ -13,6 +13,7 @@ import {
 const jobs = () =>
   Object.fromEntries(
     [
+      "dependencies",
       "pdf-validator",
       "scanner",
       "checks",
@@ -201,4 +202,52 @@ test("CI deduplication retains documentation guards and every Worker dry run", a
   }
   assert.ok(build.includes("run: npm run build:preview"));
   assert.ok(build.includes("run: npm run build:status"));
+});
+
+test("dependency preflight stops incompatible graphs before builds, renderers and browser matrices", async () => {
+  const workflow = await readFile(
+    new URL("../../.github/workflows/ci.yml", import.meta.url),
+    "utf8",
+  );
+  const section = (name) =>
+    workflow.match(
+      new RegExp(`^  ${name}:\\n([\\s\\S]*?)(?=^  [a-z]|(?![\\s\\S]))`, "m"),
+    )?.[1];
+  const dependencies = section("dependencies");
+  assert.ok(dependencies);
+  const commands = [
+    "run: npm ci",
+    "run: npm run check:dependencies",
+    "run: npm run audit:dependencies",
+  ];
+  let previous = -1;
+  for (const command of commands) {
+    const position = dependencies.indexOf(command);
+    assert.ok(
+      position > previous,
+      `${command} must follow successful locked installation and compatibility checks.`,
+    );
+    previous = position;
+  }
+  assert.doesNotMatch(
+    dependencies,
+    /secrets\.|playwright install|deploy|build:live|vitest run/,
+  );
+  assert.match(dependencies, /persist-credentials: false/);
+  for (const name of ["checks", "vitest", "security", "build", "engineering"])
+    assert.match(section(name), /needs: dependencies/);
+  for (const name of ["browser", "distribution-e2e"])
+    assert.match(section(name), /needs: build/);
+  for (const name of ["scanner", "pdf-validator"])
+    assert.doesNotMatch(section(name), /needs:/);
+  assert.match(section("verify"), /if: always\(\)/);
+  assert.match(section("verify"), /needs:[\s\S]*dependencies,/);
+  assert.equal(
+    (workflow.match(/run: npm run check:dependencies/g) ?? []).length,
+    1,
+  );
+  assert.equal(
+    (workflow.match(/run: npm run audit:dependencies/g) ?? []).length,
+    1,
+  );
 });

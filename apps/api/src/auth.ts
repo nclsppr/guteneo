@@ -1,6 +1,7 @@
 import { recordConnectionEvent } from "./belvedere-telemetry";
 import {
   BELVEDERE_WATCHER_EMAIL,
+  canAccessBelvedereSession,
   isBelvedereBrowserOrigin,
 } from "./belvedere-policy";
 import { accountEmail } from "../../../packages/contracts/src/account-identity";
@@ -64,6 +65,7 @@ export interface AuthEnv {
   AUTH0_AUDIENCE?: string;
   AUTH0_AUTH_POLICY?: string;
   BELVEDERE_AUTH0_SUBJECT?: string;
+  BELVEDERE_SECRET_SLUG?: string;
   SENSITIVE_DOCUMENT_AUTHENTICATION?: string;
 }
 export interface AuthContext {
@@ -682,6 +684,22 @@ export function publicSession(session: AuthenticatedSession) {
     simulation: session.simulation,
     mfa: session.mfa,
     verifiedAccount: session.verifiedAccount,
+  };
+}
+
+export async function publicBrowserSession(
+  env: AuthEnv,
+  session: AuthenticatedSession,
+) {
+  return {
+    ...publicSession(session),
+    canAccessBelvedere:
+      session.user.email === BELVEDERE_WATCHER_EMAIL &&
+      (await canAccessBelvedereSession(
+        env,
+        session.tokenHash,
+        session.user.id,
+      )),
   };
 }
 export async function createSession(
@@ -1886,7 +1904,7 @@ async function handleAuthRouteOperation(
       strongAuthentication: true,
       authenticationPolicyVersion: "guteneo-sensitive-v1",
     });
-    return json(publicSession(result.session), 200, {
+    return json(await publicBrowserSession(env, result.session), 200, {
       "Set-Cookie": result.cookie,
     });
   }
@@ -1963,7 +1981,7 @@ async function handleAuthRouteOperation(
         403,
       );
     if (selected.organization_id === session.context.organizationId)
-      return json(publicSession(session));
+      return json(await publicBrowserSession(env, session));
     const secret = randomSecret();
     const tokenHash = await hashSecret(secret);
     const csrfToken = randomSecret();
@@ -2037,12 +2055,14 @@ async function handleAuthRouteOperation(
     );
     if (!current.is_development)
       await observeBrowserSession(env, request, result);
-    return json(publicSession(result), 200, {
+    return json(await publicBrowserSession(env, result), 200, {
       "Set-Cookie": cookie(env, "session", secret, 3600),
     });
   }
   if (request.method === "GET" && url.pathname === "/api/session")
-    return json(publicSession(await authenticateBrowser(request, env)));
+    return json(
+      await publicBrowserSession(env, await authenticateBrowser(request, env)),
+    );
   if (request.method === "POST" && url.pathname === "/api/logout") {
     const session = await authenticateBrowser(request, env, true);
     await env.DB.prepare("DELETE FROM browser_sessions WHERE token_hash=?")

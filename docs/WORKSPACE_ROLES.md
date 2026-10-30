@@ -101,7 +101,7 @@ Four roles separate preparation, approval and administration:
 | Manage workspace, members, permissions | Yes | No | No | No |
 | Manage billing, senders, channels | Yes | No | No | No |
 | Grant/renew assistant delegation | Yes, browser only | No | No | No |
-| Set own language and Classic/V2 appearance | Personal browser setting | Personal browser setting | Personal browser setting | Personal browser setting |
+| Set own language | Personal browser setting | Personal browser setting | Personal browser setting | Personal browser setting |
 
 Administrators own workspace access; at least one must remain. Supervisors prepare
 and independently receive approval/reporting options, both initially off unless
@@ -164,7 +164,8 @@ Visual emphasis bypasses no server guard. All roles retain account/role access
 with mobile menu closed. Service status near account adds no authority. Home
 explains effective rights without repeating personal/workspace identity. Removing
 redundant V2 section headings/footer removes no consent summary, detail return or
-date timezone. Classic/native/REST/MCP contracts remain unchanged; [V2 evidence](DASHBOARD_V2.md)
+date timezone. Native/REST/MCP contracts remain unchanged; Classic was retired on
+29 October 2026 without changing any role; [V2 evidence](DASHBOARD_V2.md)
 is separate from hosted use/publication.
 
 ## Assigning access
@@ -252,8 +253,11 @@ contract: `packages/contracts/src/roles.ts`.
 Only current authenticated workspace administrators can mutate members. Options
 cannot be enabled for other roles. Session/account `permissions` drive UI; server
 checks remain authoritative and recheck in D1 transactions.
-`GET /api/account/workspaces` lists current memberships; CSRF-protected browser
-`POST /api/account/workspace` selects one. An ID alone proves no access.
+`GET /api/account/workspaces` lists current memberships when the space switcher
+first opens; CSRF-protected browser `POST /api/account/workspace` selects one. An
+ID alone proves no access. The Studio space adds no role or permission: its
+creation controls keep the preparation permission, and observers read according
+to sharing.
 
 Additive `0042_workspace_roles.sql` rebuilds membership with supervisor and
 `supervisor_can_approve`/`supervisor_can_report`, preserving members/relations,

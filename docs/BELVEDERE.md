@@ -1,5 +1,28 @@
 # Belvédère — guteneo control tower
 
+## Canonical application entry — 29 October 2026 local candidate
+
+The protected canonical `/belvedere` entry reuses the canonical host's existing
+valid browser session. Its `/belvedere/api/…` reads repeat the existing platform
+guard. The server-secret compatibility entry and dedicated host remain protected
+and supported. No parent-domain cookie, URL token, iframe or client email check
+is introduced. Existing configuration, production mode, current membership,
+signed issuer/subject/verified-email evidence and optional subject pin remain
+mandatory. Workspace role alone still grants no platform authority.
+
+Workspace and personal session projections expose only `canAccessBelvedere`.
+Personal projection additionally requires the matching current workspace browser
+session and signed evidence: a personal verified email alone is insufficient.
+The hint determines navigation visibility, never data access. Revocation or
+expiry removes displayed data and follows ordinary protected identity recovery.
+
+On canonical entry the real seven-view application and interactive globe load
+on demand. `ApplicationSwitcher` and `WorkspaceIdentity` provide the shared
+application/account controls. The workspace filter remains an observation filter
+and never switches operational membership. The dedicated host retains its
+isolated authentication/route policy. Local synthetic acceptance is tracked in
+[the reprise record](STUDIO_SPACE_REPRISE.md); this source adds no hosted proof.
+
 **Watcher** names Nicolas's personal access to this read-only
 surface. It is neither a workspace role nor an assistant mandate.
 The [visual system](belvedere/DESIGN.md) documents the implemented interface.
@@ -43,13 +66,14 @@ Belvédère uses the workshop V2 visual vocabulary: shared portrait/wordmark, a
 simple section titles, shared typography, rounded panels and readable tables.
 Navigation scrolls locally while account utilities remain reachable. At tablet
 and phone widths a labeled, keyboard-operable drawer preserves all seven views;
-wide tables retain their own scroll region. No workshop shell or customer
-bootstrap is imported to obtain this appearance. The dedicated host allows only
+wide tables retain their own scroll region. Canonical entry reuses the shared
+application/account controls and reads its existing workspace identity after the
+platform guard; the dedicated host retains its isolated bootstrap. The dedicated host allows only
 the exact 128/192 px portrait files required by the shared mark, alongside its
 existing bounded assets; query-bearing or unrelated brand paths remain refused.
 
-One shared `ThemeToggle` in page actions replaces the sidebar appearance menu at
-every width. It defaults to the operating system, supports pointer and native
+Canonical entry places the shared labelled `ThemeToggle` in the account menu;
+the dedicated host retains its compact page action. It defaults to the operating system, supports pointer and native
 keyboard activation and retains a local explicit light/dark choice. Theme changes
 preserve the selected view, search and filters without rereading business data or
 writing the account. [Interface appearance](THEMES.md) owns the bootstrap and

@@ -5,8 +5,9 @@ sidebar:
   order: 7
 ---
 
-GitHub CI checks proposed source and then checks `main` again. It does not deploy
-Guteneo automatically. The reviewed revision, required job results, clean build,
+GitHub CI checks proposed source and then checks `main` again. A separate,
+credential-gated workflow can publish an eligible merged dependency update after
+the complete current-main checks succeed. The reviewed revision, required job results, clean build,
 authorized publication and served bytes form a chain of evidence with distinct
 owners and failure states.
 
@@ -20,23 +21,44 @@ and explains how to maintain it when services or dependencies change.
 path filters. Shared contracts, mobile API routes, migrations and npm dependencies
 can affect more than their immediate directory, so they retain complete coverage.
 
-| Job family             | Responsibility                                                                                                                                                        | Evidence boundary                                                  |
-| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
-| Private services       | Scanner and PDF-validator type/behavior tests                                                                                                                         | Local service contracts, not hosted engine freshness               |
-| Checks                 | Type/lint, dependency audit, generated docs, language/route standards, MCP/package freshness, MCP annotations, migration equivalence, cost model and narration checks | Repository consistency for that revision                           |
-| Four Vitest shards     | Sequential isolated domain/integration files and restore evidence                                                                                                     | Deterministic local database/provider fixtures                     |
-| Security and renderer  | Browser-backed document rendering and Node security guards                                                                                                            | Actual local Chromium processing plus controlled refusal paths     |
-| Build                  | Main, live, preview and status builds; Worker dry runs                                                                                                                | Buildable artifacts/configuration without publication              |
-| Browser matrix         | Three isolated shards per desktop/mobile Chromium and iPhone WebKit profile; applicable preview, Belvédère and status suites                                          | Same-run application artifacts and fictional local data            |
-| Distribution profiles  | Isolated strong and verified-account lifecycles on desktop/phone                                                                                                      | Separate synthetic identity policies, no real Auth0 or delivery    |
-| Engineering            | Independent dependency install/audit, content checks, static build, browsers and asset-only dry run                                                                   | Documentation release surface only                                 |
-| Aggregate verification | Required dependencies and current-run reports                                                                                                                         | Missing, failed, skipped or cancelled required work is not success |
+| Job family             | Responsibility                                                                                                                                                                                                                | Evidence boundary                                                      |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| Dependency preflight   | Locked installation, supported MCP peers/template engine/transport and high-severity audit before root matrices                                                                                                               | Unsupported graphs fail before costly jobs; all suites remain required |
+| Private services       | Scanner and PDF-validator type/behavior tests                                                                                                                                                                                 | Local service contracts, not hosted engine freshness                   |
+| Checks                 | Type/lint (including web application boundaries and design rules), dependency audit, generated docs, language/route standards, MCP/package freshness, MCP annotations, migration equivalence, cost model and narration checks | Repository consistency for that revision                               |
+| Four Vitest shards     | Sequential isolated domain/integration files and restore evidence                                                                                                                                                             | Deterministic local database/provider fixtures                         |
+| Security and renderer  | Browser-backed document rendering and Node security guards                                                                                                                                                                    | Actual local Chromium processing plus controlled refusal paths         |
+| Build                  | Main, live, preview and status builds; Worker dry runs                                                                                                                                                                        | Buildable artifacts/configuration without publication                  |
+| Browser matrix         | Three isolated shards per desktop/mobile Chromium and iPhone WebKit profile; applicable preview, Belvédère and status suites                                                                                                  | Same-run application artifacts and fictional local data                |
+| Distribution profiles  | Isolated strong and verified-account lifecycles on desktop/phone                                                                                                                                                              | Separate synthetic identity policies, no real Auth0 or delivery        |
+| Engineering            | Independent dependency install/audit, content checks, static build, browsers and asset-only dry run                                                                                                                           | Documentation release surface only                                     |
+| Aggregate verification | Required dependencies and current-run reports                                                                                                                                                                                 | Missing, failed, skipped or cancelled required work is not success     |
 
 Browser/distribution jobs download the build from the same GitHub revision rather
 than rebuilding assets concurrently. Distribution reports require complete
 execution on both targets without skips, flaky results or model calls; a separate
 privacy guard checks every upload path before evidence is archived. Do not weaken
 these assertions to make a partial run green.
+
+When shared navigation or localized product terminology changes, update the
+independent distribution fixtures as well as the Playwright matrix. Use the
+current complete visible label and open the shared account menu before selecting
+its actions. Preserve negative privacy assertions too: checking that an obsolete
+message is absent does not prove that the current message is absent. Rerun both
+identity-policy profiles against fresh isolated state; a corrected selector never
+justifies reducing lifecycle coverage, increasing retries or bypassing the
+artifact privacy guard.
+
+The shared CI artifact includes prerendered public pages. Account-language
+boundary fixtures should start from an explicit public language when automatic
+server/browser resolution is outside their assertion; assuming a bare Vite
+document can make a locally passing fixture fail against the canonical build.
+Public-preview tests retain separate automatic-language coverage.
+
+Freeze time-based browser fixtures at a deliberate UTC instant. Status-cache
+expiry tests use midday so their fifteen-minute advance cannot accidentally
+exercise the separate midnight invalidation rule. Keep a distinct boundary case
+for each clock-dependent condition and preserve the exact request-count checks.
 
 The build job creates its final non-preview frontend once with `build:live`
 before the local, private-document and live Worker dry runs. This reuses the
@@ -65,6 +87,35 @@ When moving a suite, preserve its assertions and the final discovered-file
 inventory. On setup failure, retain the failed revision and logs, repair the
 declared dependency and run the corrected revision; skipping the suite or treating
 an installed browser as delivery proof does not recover the gate.
+
+## Dependency compatibility and application redelivery
+
+Routine npm version updates remain minor/patch with a seven-day cooldown.
+Security updates have separate coupled-family groups and no cooldown; they may cross a
+major version, but exact MCP peer and PDFme engine holds also affect automatic
+security proposals and require reviewed migrations. Coupled families stay grouped;
+the dependency check compares the actual lockfile with Agents peers, the declared
+template engine and patched Miniflare transport. Package/lock-only changes keep
+full CI without inventing new product features or documentation changes.
+
+The separate dependency-release workflow verifies successful complete CI for the
+exact current `main` push, a genuinely merged Dependabot PR and dependency-only
+files. Only root npm changes qualify for application publication. Service-only
+and workflow-action changes retain their separate release scope. MCP dependency
+changes, including lockfile-only upgrades, also require the
+existing synchronized application/plugin/archive release procedure; it is reported
+as requiring synchronization before publication. A dedicated
+application release token is mandatory; the scanner credential is insufficient.
+The dedicated credential was installed on 29 October. The workflow remains a
+source candidate until authorized merge, current-main checks and its first hosted
+publication are qualified; credential storage alone is no release proof.
+
+Publication is serialized, rechecks current `main` and calls the existing clean
+main release command. Exact anonymous served-byte verification follows publication;
+the scheduled public browser monitor remains separate. Failure remains failure; no automatic merge, schema
+migration, provider send or retry is introduced. The
+[maintenance contract](https://github.com/nclsppr/guteneo/blob/main/docs/DEPENDENCY_UPDATES.md)
+owns the observed failures, compatibility holds, activation and recovery steps.
 
 ## Keep browser icons bound to their source
 
@@ -237,7 +288,9 @@ Reports and artifact names include the project and shard. The final gate lists
 the complete unsharded inventory independently and compares it with the union
 of reported test IDs. A missing, duplicated or unexpected test, missing shard or
 invalid report blocks success. Existing intentional test skips are accounted for
-without treating a skipped required job as success. Browser assertions, sandbox
+without treating a skipped required job as success. Each skip is declared in
+`scripts/ci/browser-results.mjs` with its exact suite, projects, file, title and
+reason; a new desktop-only check needs its own entry. Browser assertions, sandbox
 setup and the WebKit media pipeline remain intact; there is no automatic retry,
 path filter or publication shortcut.
 
@@ -279,7 +332,9 @@ product-state cause from the failed input traces. The
 
 Maintain `scripts/ci/browser-results.mjs`, the workflow matrix and its security
 tests together. Adding a browser, suite or shard requires the matching inventory,
-report and artifact contract. Keep the final `verify` dependency and protected
+report and artifact contract. A new `test.skip` for a project needs its own
+registry entry whose reason matches the skip description exactly; otherwise
+`verify` rejects the run even when every browser job passed. Keep the final `verify` dependency and protected
 `scanner` check, and retain merged-main CI before an authorized publication.
 
 ## Install the dependency tree actually used by each job

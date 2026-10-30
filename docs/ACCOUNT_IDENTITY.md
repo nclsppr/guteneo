@@ -1,5 +1,20 @@
 # Signed-in account and workspace contacts
 
+## Shared account menu — 29 October 2026 local candidate
+
+Studio, Correspondence and My documents reuse `WorkspaceIdentity` for identity,
+profile, appearance, account switching, status and logout. Personal navigation
+opens **Account and security** through this menu; it does not acquire workspace
+permissions. The personal account-change link retains `context=personal` and the
+current safe destination. Opening utilities reads no additional resource.
+Escape restores trigger focus; navigation and identity replacement close the menu.
+Opening an application, workspace or account panel explicitly closes the other
+panels, including keyboard activation after a pointer did not focus its trigger.
+This presentation event changes no session, authority, route or business data.
+Personal logout retains its existing linked-session revocation and public return.
+[Frontend loading](FRONTEND_PERFORMANCE.md) owns parallel personal bootstrap;
+[Belvédère](BELVEDERE.md) owns the independent platform access hint and guard.
+
 ## Unified account and received documents — 24 October 2026 candidate
 
 A Guteneo account is personal and independent of workspaces. The same identity
@@ -112,10 +127,11 @@ identity or reconnection.
 ## Journey and authority
 
 Every browser member finds their name and login email in navigation, including
-mobile. This block links to My account, which shows the current workspace role
+mobile: one account row shows the name, and its menu starts with the name and
+email. This block links to My account, which shows the current workspace role
 and effective rights, including the supervisor's independent approval/reporting
 options. The 25 October correction removes role repetition from the shared
-sidebar and overview; Classic also retains its Account entry.
+sidebar and overview.
 Role depends on the active workspace and cannot be edited in the personal
 profile. On tab return, the session is reread to reconcile account/workspace
 changes elsewhere, including saved account language. Since 10 October,
@@ -156,26 +172,28 @@ from CI, publication and actual observed logout after publication.
 
 The account block sits at the bottom of left navigation on desktop, with
 name, email, profile and account switching. Role details remain on My account.
-My documents is a compact navigation link with accessible personal-space context,
-instead of a separate card. In My profile,
-**Workspace version** sits beside language and offers **Classic** or **V2**.
-The choice persists only after **Save changes** and successful existing
-`PATCH /api/account`. Labels exist in French, English, German and
-Luxembourgish. Actual V2 is not labeled experimental; simulated sessions
-retain their simulation banner.
+Since the 29 October Studio candidate, the space switcher at the top of the
+sidebar reaches My documents, the current workspace's Studio and other
+workspaces; My account no longer has its own workspace form. Classic was retired on 29 October 2026: My profile
+offers language and color beside each other, with no workspace-version choice,
+and every account uses V2. Simulated sessions retain their simulation banner.
 
 In the 14 October V2 candidate, workspace name stays in navigation and
 personal identity in the account block; the dashboard keeps effective rights
 without repeating either identity. The redundant footer is removed and
 public **Service status** joins **Switch account** in identity utilities.
-That block/link remains accessible with the mobile menu closed. Browser
-timezone accompanies relevant dates without a new profile setting or formatting
-change. Classic retains its shell. These moves change neither login email,
+That block/link remains accessible with the mobile menu closed. Since the
+29 October candidate, V2 places profile, light/dark appearance, **Switch
+account**, **Service status** and **Sign out** in the account row's disclosure
+menu. The [workspace layout contract](DASHBOARD_V2.md) owns that presentation.
+Browser timezone accompanies relevant dates without a new profile setting or
+formatting change. These moves change neither login email,
 contacts, role nor profile saving, and add no business read.
 
-Strict optional `preferredDashboardAppearance: "classic" | "v2"` is personal.
-Every browser role can edit its own preference without changing rights or
-another member's settings. It is stored in `users.preferred_dashboard_appearance`,
+Strict optional `preferredDashboardAppearance: "classic" | "v2"` is personal and
+retained for compatibility. Since the Classic retirement the web neither offers
+nor sends it and renders V2 whatever its value; older clients may still read or
+write it without changing rights or another member's settings. It is stored in `users.preferred_dashboard_appearance`,
 added by migration `0053` with historical default `classic`, `NOT NULL` and `CHECK`
 constraints. New verified/invited accounts explicitly persist the shared V2 default;
 returning accounts retain their saved value. See [new-account layout](DASHBOARD_V2.md#new-account-default--27-october-2026-candidate). After session reread it follows the same person across sessions,
@@ -189,13 +207,10 @@ transactional authority revalidation. Foreign targets/unknown values are
 rejected; membership revoked before write produces no partial change.
 `account.updated` audits field names without values.
 
-`?appearance=v2` or `?appearance=classic` forces presentation only for that entry;
-the link performs no server write. Legacy `atelier` links remain accepted inbound. Successful saving after explicit appearance
-selection and detected identity changes discard an old override. Saving only
-name/language neither persists nor removes it. The selector shows the saved
-account choice, not temporary presentation. Browser cache is best-effort
-bootstrap, not authenticated account authority. Save errors remain visible
-and do not confirm preference persistence.
+Old `?appearance=v2`, `?appearance=classic` and legacy `atelier` links still open
+the application but no longer change its layout; they perform no server write.
+The web no longer reads or writes a browser layout cache. Save errors remain
+visible and do not confirm preference persistence.
 
 ## Who to contact
 

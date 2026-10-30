@@ -1,7 +1,62 @@
-import { mkdir } from "node:fs/promises";
+import { mkdir, readFile, realpath } from "node:fs/promises";
+import { extname, resolve, sep } from "node:path";
+import { fileURLToPath } from "node:url";
 import { expect, test as base, type Page } from "@playwright/test";
 
 const origin = "https://login-ui.example.test";
+const buildDirectory = fileURLToPath(
+  new URL("../../dist/web/", import.meta.url),
+);
+const assetTypes: Record<string, string> = {
+  ".js": "text/javascript; charset=utf-8",
+  ".mjs": "text/javascript; charset=utf-8",
+  ".css": "text/css; charset=utf-8",
+  ".wasm": "application/wasm",
+  ".woff2": "font/woff2",
+  ".webp": "image/webp",
+  ".png": "image/png",
+  ".jpg": "image/jpeg",
+  ".jpeg": "image/jpeg",
+  ".svg": "image/svg+xml",
+  ".avif": "image/avif",
+  ".gif": "image/gif",
+  ".ico": "image/x-icon",
+  ".webmanifest": "application/manifest+json",
+  ".vtt": "text/vtt; charset=utf-8",
+  ".mp4": "video/mp4",
+  ".webm": "video/webm",
+  ".mp3": "audio/mpeg",
+  ".ogg": "audio/ogg",
+  ".wav": "audio/wav",
+};
+
+async function builtPublicResource(url: URL) {
+  const hashedAsset = url.pathname.startsWith("/assets/");
+  if (
+    url.search ||
+    url.hash ||
+    !(hashedAsset
+      ? /^\/assets\/[A-Za-z0-9._-]+$/.test(url.pathname)
+      : /^\/(?:[A-Za-z0-9._-]+\/)*[A-Za-z0-9._-]+$/.test(url.pathname))
+  )
+    throw new Error("Invalid built asset path.");
+  const contentType = assetTypes[extname(url.pathname)];
+  if (!contentType) throw new Error("Unsupported built asset type.");
+  const directory = await realpath(buildDirectory);
+  const file = await realpath(resolve(directory, "." + url.pathname));
+  // Validate the physical path too: a symlink must not escape the build assets.
+  const permittedDirectory =
+    directory + sep + (hashedAsset ? "assets" + sep : "");
+  if (!file.startsWith(permittedDirectory))
+    throw new Error(
+      "Built public resource is outside its permitted directory.",
+    );
+  return { contentType, body: await readFile(file) };
+}
+
+type RetainedResource = { requested: Promise<void>; release: () => void };
+type RetentionGate = { requested: () => void; released: Promise<void> };
+
 type HostedEntry = {
   requestOrigin: string;
   authRequests: string[];
@@ -10,6 +65,10 @@ type HostedEntry = {
   authenticated: boolean;
   logoutStatus: number;
   logoutRequests: number;
+  deliveredBuildPaths: string[];
+  httpProxyPaths: string[];
+  retainBuiltResource: (path: string) => RetainedResource;
+  retainHttpProxy: (path: string) => RetainedResource;
   drainStaticProxies: () => Promise<void>;
 };
 
@@ -29,6 +88,20 @@ const hostedSession = {
 const test = base.extend<{ hosted: HostedEntry }>({
   hosted: async ({ page, baseURL }, use) => {
     const staticProxies = new Set<Promise<void>>();
+    const retainedResources = new Map<string, RetentionGate>();
+    const retainedHttpProxies = new Map<string, RetentionGate>();
+    const retain = (gates: Map<string, RetentionGate>, path: string) => {
+      let requested!: () => void;
+      let release!: () => void;
+      const ready = new Promise<void>((resolve) => {
+        requested = resolve;
+      });
+      const released = new Promise<void>((resolve) => {
+        release = resolve;
+      });
+      gates.set(path, { requested, released });
+      return { requested: ready, release };
+    };
     const drainStaticProxies = async () => {
       let deadline: ReturnType<typeof setTimeout> | undefined;
       try {
@@ -60,12 +133,17 @@ const test = base.extend<{ hosted: HostedEntry }>({
       authenticated: false,
       logoutStatus: 200,
       logoutRequests: 0,
+      deliveredBuildPaths: [],
+      httpProxyPaths: [],
+      retainBuiltResource: (path) => retain(retainedResources, path),
+      retainHttpProxy: (path) => retain(retainedHttpProxies, path),
       drainStaticProxies,
     };
     const unexpected: string[] = [];
     // A reserved origin exercises the hosted sign-in surface. Every browser
     // request is intercepted, including any attempted third-party navigation.
-    // Static assets alone are fetched from the local application server.
+    // Public scripts/images use the frozen build. Documents retain the local
+    // server's response headers; API/authentication guards remain independent.
     await page.route("**/*", async (route) => {
       const request = route.request();
       const url = new URL(request.url());
@@ -172,13 +250,43 @@ const test = base.extend<{ hosted: HostedEntry }>({
           body: "Blocked by the UI fixture.",
         });
       } else {
+        const fromBuild =
+          request.resourceType() !== "document" &&
+          (url.pathname.startsWith("/assets/") ||
+            Boolean(assetTypes[extname(url.pathname)]));
         const proxy = (async () => {
-          const response = await route.fetch({
-            url: new URL(url.pathname + url.search, baseURL).href,
-            maxRedirects: 0,
-            timeout: 5000,
-          });
-          await route.fulfill({ response });
+          try {
+            if (fromBuild) {
+              const retained = retainedResources.get(url.pathname);
+              retained?.requested();
+              if (retained) await retained.released;
+              await route.fulfill({
+                status: 200,
+                ...(await builtPublicResource(url)),
+              });
+              state.deliveredBuildPaths.push(url.pathname);
+            } else {
+              state.httpProxyPaths.push(url.pathname);
+              const retained = retainedHttpProxies.get(url.pathname);
+              retained?.requested();
+              if (retained) await retained.released;
+              const response = await route.fetch({
+                url: new URL(url.pathname + url.search, baseURL).href,
+                maxRedirects: 0,
+                timeout: 5000,
+              });
+              await route.fulfill({ response });
+            }
+          } catch {
+            // Do not leave a failed route to resolve the reserved fixture host.
+            // Paths, queries and underlying transport errors may carry secrets.
+            await route.abort("failed").catch(() => undefined);
+            throw new Error(
+              fromBuild
+                ? "Hosted entry fixture could not deliver a built public resource."
+                : `Hosted entry fixture local static proxy failed before fulfillment (${request.resourceType()}).`,
+            );
+          }
         })();
         staticProxies.add(proxy);
         try {
@@ -208,18 +316,12 @@ test("explicit sign-out returns to the public site without reopening SSO and kee
   hosted.logoutStatus = 503;
   await page.goto(`${origin}/?lang=en#/app/account`);
   await expect(page.locator("#account-name")).toHaveValue("Hosted account");
-  const navigation = page.locator(".workspace-navigation");
-  const openNavigation = async () => {
-    const summary = navigation.locator("summary");
-    if (await summary.isVisible()) {
-      await summary.click();
-      return navigation.getByRole("button", { name: "Sign out", exact: true });
-    }
-    return page
-      .locator(".sidebar-footer")
-      .getByRole("button", { name: "Sign out", exact: true });
-  };
-  const logout = await openNavigation();
+  // V2 keeps sign-out in the account menu at every viewport.
+  const account = page.locator(".workspace-identity-trigger");
+  const logout = page
+    .locator(".workspace-identity-menu")
+    .getByRole("button", { name: "Sign out", exact: true });
+  await account.click();
   await logout.click();
   await expect(page.getByRole("alert")).toContainText("Sign-out unavailable.");
   await expect(page.locator("#account-name")).toHaveValue("Hosted account");
@@ -228,6 +330,10 @@ test("explicit sign-out returns to the public site without reopening SSO and kee
   expect(hosted.logoutRequests).toBe(1);
 
   hosted.logoutStatus = 200;
+  // The focused error closes the menu when focus was inside it.
+  await expect(page.getByRole("alert")).toBeFocused();
+  if ((await account.getAttribute("aria-expanded")) !== "true")
+    await account.click();
   await logout.click();
   // The explicit English choice survives sign-out. The bare public URL is only
   // a navigation intermediate before locale initialization canonicalizes it.
@@ -593,7 +699,7 @@ test("local entry retains the isolated demonstration without an Auth0 redirect",
     "Explorez la démonstration",
   );
   await expect(
-    page.getByRole("button", { name: /Entrer dans l’Atelier$/ }),
+    page.getByRole("button", { name: /Entrer dans l’espace de travail$/ }),
   ).toBeVisible();
   await expect(
     page.getByRole("button", { name: /Entrer dans le Studio$/ }),
@@ -602,4 +708,67 @@ test("local entry retains the isolated demonstration without an Auth0 redirect",
   await expect(page.locator('a[href^="/auth/"]')).toHaveCount(0);
   expect(hosted.authRequests).toEqual([]);
   await noHorizontalOverflow(page);
+});
+
+test("built public scripts bypass held HTTP relays and draining waits for a retained image", async ({
+  page,
+  baseURL,
+  hosted,
+}) => {
+  hosted.requestOrigin = new URL(baseURL!).origin;
+  const script = hosted.retainBuiltResource("/locale-init.js");
+  const image = hosted.retainBuiltResource("/brand/guteneo-portrait-128.webp");
+  const localeHttp = hosted.retainHttpProxy("/locale-init.js");
+  const themeHttp = hosted.retainHttpProxy("/theme-init.js");
+  const unexpectedHttp = Promise.race([
+    localeHttp.requested,
+    themeHttp.requested,
+  ]).then(() => {
+    throw new Error("A built root script unexpectedly used the HTTP relay.");
+  });
+  try {
+    await page.goto("/?lang=fr#/app", { waitUntil: "commit" });
+    await Promise.race([script.requested, unexpectedHttp]);
+    expect(hosted.deliveredBuildPaths).not.toContain("/locale-init.js");
+    await expect(page.locator(".access-panel")).toHaveCount(0);
+    script.release();
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+      "Explorez la démonstration",
+    );
+    // The header may choose a different DPR-specific portrait. Start this
+    // exact existing public image after bootstrap, independently of srcset.
+    await page.evaluate(() => {
+      const retained = new Image(1, 1);
+      retained.alt = "";
+      retained.src = "/brand/guteneo-portrait-128.webp";
+      document.body.appendChild(retained);
+    });
+    await Promise.race([image.requested, unexpectedHttp]);
+    let drained = false;
+    const draining = hosted.drainStaticProxies().then(() => {
+      drained = true;
+    });
+    // A browser round trip gives an incorrectly early drain time to resolve;
+    // the image remains blocked by its explicit gate, without a timed sleep.
+    await page.evaluate(() => document.readyState);
+    expect(drained).toBe(false);
+    image.release();
+    await draining;
+    expect(hosted.deliveredBuildPaths).toEqual(
+      expect.arrayContaining([
+        "/locale-init.js",
+        "/theme-init.js",
+        "/brand/guteneo-portrait-128.webp",
+      ]),
+    );
+    expect(hosted.authRequests).toEqual([]);
+    expect(hosted.httpProxyPaths).toContain("/");
+    expect(hosted.httpProxyPaths).not.toContain("/locale-init.js");
+    expect(hosted.httpProxyPaths).not.toContain("/theme-init.js");
+  } finally {
+    script.release();
+    image.release();
+    localeHttp.release();
+    themeHttp.release();
+  }
 });

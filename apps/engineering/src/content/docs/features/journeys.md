@@ -61,17 +61,17 @@ Read authoring guide or a synthetic example → create/private-copy or import DO
 
 **Actor:** Preparer owning the private source · **Branch:** Create
 
-Import CSV/XLSX/XML/JSON → verify/profile the exact original → select sheet/header/record path → define deterministic versioned mappings → validate every row → select published template → generate → inspect results and provenance.
+Choose a published template → import CSV/XLSX/XML/JSON while preserving that choice → verify/profile exact original → define versioned field mapping and validate each row/cell → generate distinct PDFs → inspect business name/subject/reference and provenance. In the browser, replace compatible source data without losing the mapping; preserve only verifiable exclusions and explicitly review unmatched rows. Correct one result with its exact historical template version, or explicitly create a new template version; each correction creates a new generation and leaves prior PDF bytes/hashes and prepared manifests intact.
 
-**Failure and recovery:** Resume the same original after transient analysis failure. Resolve mapping/type/join issues explicitly. Generation completion does not establish PDF readiness; follow the bounded security-analysis refresh and review retryable or blocked results explicitly. AI is optional and separately consented; generation creates no dispatch or credit reservation. An accepted cold-route transition temporarily fences the old editor against new input until commit; existing unsaved-work vetoes still run before acceptance.
+**Failure and recovery:** Resume the same original after transient analysis failure. Resolve mapping/type/join issues explicitly. Generation completion does not establish PDF readiness; follow the bounded security-analysis refresh and review retryable or blocked results explicitly. AI is optional and separately consented; generation creates no dispatch or credit reservation. An accepted cold-route transition temporarily fences the old editor against new input until commit; existing unsaved-work vetoes still run before acceptance. Private correction input is browser-owner-only under current membership; template sharing and dispatch review do not expose it. Query changes and Back/Forward cannot reuse another record’s unsaved data; leaving an unsaved correction requires explicit review.
 
 ## J08: Distribute a PDF batch
 
 **Actor:** Preparer → current approver · **Branch:** Deliver
 
-Choose generated PDFs and frozen channel/recipient data → disclose that the first distribution plan permanently freezes the entire batch → prepare the manifest → resume remaining entries → complete linked postal preflight where needed → review/approve each exact dispatch.
+Select generated PDFs by their business labels in Studio → open Correspondence /app/distribution/new with generation and selected record IDs → revalidate every selected ready result in bounded 50-record pages → explicitly choose each document for each new destination, starting with zero documents even for one selected PDF → inspect exact associations and full-generation freeze consequence → prepare the immutable manifest at /app/distribution/:id → resume remaining entries → complete linked postal preflight where needed → review/approve each exact dispatch. Back/Forward/reload preserve the selected IDs, unsaved changes can veto departure, and navigation alone creates no plan or dispatch.
 
-**Failure and recovery:** A frozen batch cannot retry even excluded failed records; create a new generation batch when needed. Multiple channels require explicitMultichannel. No manifest operation implies consent, transfer or sending.
+**Failure and recovery:** An unavailable or inaccessible selected record blocks preparation rather than dropping part of the selection. A response from an obsolete visit cannot navigate after departure or a workspace/account change, including a return to the same URL. A frozen batch cannot retry even excluded failed records; create a new generation batch when needed. Multiple channels require explicitMultichannel. No manifest operation implies consent, transfer or sending.
 
 ## J09: Supervise or observe work
 
@@ -133,7 +133,7 @@ Update feature tree/developer contracts/source/tests together → regenerate and
 
 **Actor:** Browser member in the current workshop · **Branch:** Access
 
-Read visible name/login email → open account profile for role → inspect effective permissions and workshop responsible contacts → edit own name/language or explicitly switch account.
+Read visible name/login email (in V2, open the account menu) → open account profile for role → inspect effective permissions and workshop responsible contacts → edit own name/language or explicitly switch account.
 
 **Failure and recovery:** Provider login email is read-only identity data. Missing address/contact errors stay explicit. Reconcile identity after tab focus and ignore cancelled stale reads without interrupting editing.
 
@@ -141,7 +141,7 @@ Read visible name/login email → open account profile for role → inspect effe
 
 **Actor:** Explicitly authorised browser Watchkeeper with verified identity · **Branch:** Operations
 
-Open the dedicated protected Belvédère host root, or compatible server-secret entry → complete normal Auth0 sign-in and current platform guard → inspect read-only overview/workshops/members/dispatches/connections/finances/infrastructure → read available provider measurements and their limits.
+Open Belvedere from the application switcher only when the server projects capability, or use canonical /belvedere / the protected compatibility entry → reuse a valid canonical browser session or follow normal identity recovery → repeat current signed platform guard on every read → inspect seven read-only views and interactive globe; dedicated host remains isolated.
 
 **Failure and recovery:** Workshop administrator/OAuth/assistant roles grant no platform authority. Unknown costs/profit stay unavailable. Preview fixtures and hosted observations are separate.
 
@@ -169,13 +169,13 @@ Open public status from its URL or common footer with the same approved product 
 
 **Failure and recovery:** Missing, invalid, unreadable, contradictory, implausibly future or stale evidence makes current availability unknown; an earlier successful observation never stays green as a current result. An actual fresh failed check identifies its group. A history error supplies no percentage. Public reads trigger no collection, test, approval or transmission; local simulation and configuration never prove business delivery.
 
-## J21: Save and restore Classic/V2 application layout
+## J21: Open the single V2 application layout
 
-**Actor:** Authenticated browser member changing their own preference · **Branch:** Operate
+**Actor:** Authenticated browser member with any stored layout value · **Branch:** Operate
 
-Enter personal documents or the workshop → open account customization → choose Classic/V2 beside the shared language and color controls → save successfully through the existing context-specific profile endpoint → apply the saved personal preference in a full-width shell with responsive gutters and readable internal forms → reload, switch identity or enter the other application context → reconcile the current account preference without workshop bootstrap in personal documents.
+Enter personal documents or the workshop, including through an old appearance=classic or atelier link → render the V2 shell whatever the stored preference → open account customization with language and color controls only → save language through the existing context-specific profile endpoint, which omits the layout field → reload, switch identity or enter the other application context → reconcile language without workshop bootstrap in personal documents.
 
-**Failure and recovery:** Temporary atelier overrides never claim a server save and clear after explicit save/identity change. Old cache cannot override the current person; business authority remains identical. Immediate system/light/dark browser appearance is a separate preference and never claims an account profile save.
+**Failure and recovery:** A stored classic value or an old link never restores the retired layout and is never rewritten; business authority remains identical. Immediate system/light/dark browser appearance is a separate preference and never claims an account profile save.
 
 ## J22: Qualify reviewer OAuth refresh
 
@@ -237,7 +237,7 @@ In an active share allowing deposit, read independent retention/export terms →
 
 **Actor:** Guteneo account owner with zero or more memberships · **Branch:** Personal-to-workspace navigation, without another registration or separate sender account
 
-Start in My documents → voluntarily open Use Guteneo → choose Prepare a dispatch or New share → select a current membership or request the initial workspace → idempotent creation, initial administrator and closed channels → reload the chosen destination and reread server session/workspace/rights/CSRF → continue normal preparation using the same name/language/identity. Local browser regression creates an administrator workspace then selects another as operator, with real screen/profile changes in both contexts.
+Start in My documents → choose Studio or Correspondence in the application switcher, or open Use Guteneo when no workspace exists → choose Prepare a dispatch or New share → select a current membership or request the initial workspace → idempotent creation, initial administrator and closed channels → reload the chosen destination and reread server session/workspace/rights/CSRF → continue normal preparation using the same name/language/identity. Local browser regression creates an administrator workspace then selects another as operator, with real screen/profile changes in both contexts.
 
 **Failure and recovery:** Receipt never permits entry into the sender’s workspace; an organizationId without membership is denied. Creation/selection failure stays visible in the personal area without false navigation. Success retains no previous workspace session/authority. Registration implies no purchase, subscription, confidential-content targeting or marketing email; promised document access remains independent of conversion. An obsolete workspace bootstrap cannot overwrite a personal route, and returning to service use reads fresh workspace authority.
 
@@ -261,15 +261,15 @@ Open the engineering site → find a feature in the generated tree → read its 
 
 **Actor:** Anonymous or signed-in browser reader; no role or additional authority required · **Branch:** Interfaces
 
-Start with the operating-system palette unless a valid local choice exists → use the shared public/personal header or Belvédère page-action localized light/dark action icon at any viewport, with public activation available before React, or a three-way account setting where that surface exposes one → apply the resolved palette in place → retain the local origin preference when storage is available → follow system or same-origin storage changes. Main-site standalone HTML uses only the host-only enum cookie; status and engineering retain independent origin state. Native public pictures select matching dark art; header/app white paper stays inside each actual inner blue frame with transparent exterior/perforations, while document/PDF/email surfaces keep original content appearance.
+Start with the operating-system palette unless a valid local choice exists → use the shared public/personal header or Belvédère page-action localized light/dark action icon at any viewport, or its labelled form in the V2 workshop account menu, with public activation available before React, or a three-way account setting where that surface exposes one → apply the resolved palette in place → retain the local origin preference when storage is available → follow system or same-origin storage changes. Main-site standalone HTML uses only the host-only enum cookie; status and engineering retain independent origin state. Native public pictures select matching dark art; header/app white paper stays inside each actual inner blue frame with transparent exterior/perforations. Public/workshop assistant marks have no added white backing; monochrome marks invert in explicit/system dark mode while colored sources stay unchanged. Document/PDF/email surfaces keep original content appearance.
 
-**Failure and recovery:** Blocked persistence still permits an in-page choice. Invalid or duplicate cookies fall back to system without interpolation or account lookup. Script-free CSS follows system; language, Classic/V2 layout, identity, drafts, approval and provider gates remain independent. Local browser-engine evidence establishes no physical-device Safari or deployed-host pass.
+**Failure and recovery:** Blocked persistence still permits an in-page choice. Invalid or duplicate cookies fall back to system without interpolation or account lookup. Script-free CSS follows system; language, identity, drafts, approval and provider gates remain independent. Local browser-engine evidence establishes no physical-device Safari or deployed-host pass.
 
 ## J33: Open personal documents without an unrelated workspace wait
 
 **Actor:** Authenticated personal account owner, with or without a workspace · **Branch:** Access
 
-Open My documents directly or use the shared blue-outlined personal-context entry in Classic/V2 desktop/mobile navigation → start the personal shell → validate current personal session → read the authorized list across the available main width with responsive gutters → retry a failed list explicitly. On focus or account change reconcile the session and discard previous identity/document state; returning to a workshop loads its current session and rights.
+Open My documents directly or through the application switcher → request personal route code and one visit-scoped personal session in parallel → discard hidden/obsolete prefetches → read the authorized list without workspace bootstrap → open shared account utilities without extra reads. Revalidate on focus/account change and discard prior identity/documents; a new workspace visit rechecks workspace authority.
 
 **Failure and recovery:** Personal policy and recipient bindings are never skipped. Cancelled or late workspace/account results cannot restore earlier identity, language or documents; expired sessions use established recovery. The five-context synthetic timing comparison is bounded local instrumentation, not production latency, real-client access or provider delivery proof.
 

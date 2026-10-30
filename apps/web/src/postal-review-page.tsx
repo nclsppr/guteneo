@@ -1,6 +1,5 @@
 import { msg } from "./messages";
 import { t } from "./locale";
-import { useDashboardAppearance } from "./dashboard-appearance";
 import { RolePermissionNotice } from "./role-guide";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { ArrowLeft, ArrowRight, ArrowClockwise } from "@phosphor-icons/react";
@@ -115,7 +114,6 @@ export function PostalReviewPage({
   canApprove?: boolean;
   canPrepare?: boolean;
 }) {
-  const { appearance } = useDashboardAppearance();
   const path = `/postal/preflights/${encodeURIComponent(id)}`;
   const resource = useResource<PostalReview>(path);
   const readReview = resource.refresh;
@@ -223,12 +221,10 @@ export function PostalReviewPage({
 
   return (
     <>
-      {appearance === "v2" && (
-        <a className="back-link" href="#/app/dispatches">
-          <ArrowLeft size={18} aria-hidden="true" />
-          {t.nav.dispatches}
-        </a>
-      )}
+      <a className="back-link" href="#/app/dispatches">
+        <ArrowLeft size={18} aria-hidden="true" />
+        {t.nav.dispatches}
+      </a>
       <PageHeading
         title={msg("Check your letter.")}
         intro={msg(

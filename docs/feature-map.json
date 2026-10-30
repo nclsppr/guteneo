@@ -1,6 +1,6 @@
 {
   "title": "Guteneo feature tree and developer atlas",
-  "updated": "2026-10-28",
+  "updated": "2026-10-29",
   "scope": "Repository implementation inventory. Availability depends on current capabilities and authority; implementation, activation and deployed proof are distinct.",
   "roleNote": "Four human workshop roles are defined by packages/contracts/src/roles.ts. The assistant column describes a connected OAuth actor, never a fifth membership role. Effective membership, independent supervisor permissions, consented scopes and any bounded expert mandate are rechecked by the server. Installing a package or renewing tokens grants no additional authority. Browser-only account/platform controls remain distinct. Assistant content-exclusion instructions are workflow restrictions, not automatic classification or new server guards. Personal account authority is separate from workspace membership. Template/default email copy and link placeholders grant no approval or recipient consent. Sensitive approval and recipient association always require the browser under the active document policy; an expert mandate cannot replace them.",
   "groups": [
@@ -11,18 +11,18 @@
       "features": [
         "Auth0 sign-in, verified accounts and explicit MFA policy",
         "Canonical browser sign-in/callback; retired hosts and preview URLs refuse authentication",
-        "Personal profile, interface language and saved Classic/V2 workspace layout; browser color preference is separate presentation state",
+        "Personal profile and interface language; browser color preference is separate presentation state; the retired Classic layout value stays accepted but no longer changes the web layout",
         "Session listing, revocation and explicit logout",
         "Successful logout returns to the public home before Login remounts; failures stay visible and never claim a logout",
         "Workshop switching with current membership rights",
         "OAuth connection binding, revocation and consented scopes",
         "Exact resource-metadata discovery issuer, including its trailing slash; official MCP SDK contract tests without external network",
         "Account deletion request; complete erasure processing remains unqualified",
-        "Visible signed-in name and login email on desktop/mobile; current role and permissions belong on My account",
+        "Visible signed-in name and login email on desktop/mobile, with the email heading the V2 account menu; current role and permissions belong on My account",
         "Explicit Auth0 account switching without disabling ordinary SSO",
         "Tab-focus reconciliation of identity, workshop and saved language",
         "One authenticated language control in the account; visitor choice stays separate",
-        "Account Classic/V2 preference, migration 0053 and reconciliation after identity changes",
+        "Stored Classic/V2 preference (migration 0053) stays readable and accepted for compatibility; the web renders V2 for every account, and identity changes still reconcile language",
         "Late contact-directory errors provide accessible recovery without interrupting profile editing",
         "Path-scoped browser reads: hide previous resources, preserve same-path refresh and ignore cancelled late responses/401s",
         "Direct Auth0 entry from public links and unauthenticated private routes, preserving locale and exact destination",
@@ -36,7 +36,7 @@
         "Verified dual-token subject binds to the canonical namespace without email linking or duplicate person/workshop/credits/authority; browser evidence and prepare_only restriction remain",
         "One Guteneo account without an automatic workspace; idempotent initial administrator/workspace creation only on explicit service use",
         "Personal browser principal and session without membership, separate from workspace API authority; shared profile name/language and no email-based identity merging",
-        "My documents, Use Guteneo and Account and security share one sign-in; voluntary workspace choice/creation reloads the chosen destination and bootstraps that workspace’s current session, rights and CSRF",
+        "My documents, Use Guteneo and Account and security share one sign-in; voluntary workspace choice/creation reloads the chosen destination and bootstraps that workspace’s current session, rights and CSRF; the application switcher opens Studio or Correspondence in the current workspace (or workspace choice/creation when none exists), and Use Guteneo appears in personal navigation only without a workspace",
         "Document policy defaults to strong or explicitly selects verified_account: verified account/address and signed auth_time in an unexpired, unrevoked identity-linked session; no separate document sign-in for verified_account, while strong retains fifteen minutes for reading/association/approval and five for export/deposit/deletion; documentAccessAllowed/documentAccessMode do not imply MFA or strongAuthentication; D1 defaults strong and environment disagreement fails closed",
         "Document invitation handoff lasts at most ten minutes in the same tab, then is deleted; capture before Auth0 with secret-free returnTo and no arbitrary private query",
         "Document-service 401 offers explicit recovery without session-bootstrap loops; Auth0 recovery reconciles language and returned identity",
@@ -44,7 +44,8 @@
         "Ordinary application entry without workshop membership offers workspace creation or joining through an existing canonical same-origin invitation with the shared raw 43-character base64url token contract, fragment clearing and explicit acceptance; server-generated invitation integration covers the entry, preview and auth handoff, while the stored SHA-256 hash never enters the link; explicit personal document entry remains independent, with no public workspace enumeration",
         "Production browser configuration selects auth.guteneo.com; the tenant-wide custom-domain email flag and exact authorization-response issuer identification were applied and reread on 27 October, without sending verification mail or qualifying human login",
         "Normal verified-account browser entry reuses Auth0 SSO within the existing one-hour session bound; signed authentication time is requested without forcing personal-entry max_age=0, and explicit fresh/account-switch behavior remains",
-        "Verified-account personal and document-authentication recovery use ordinary bounded Auth0 SSO without fresh=1; strong and explicit freshness recovery retain forced authentication. Legacy sessions missing signed auth_time require a real new authorization response, never a timestamp reconstructed from session creation; safe return paths, locale, tenant rights and human approval remain unchanged"
+        "Verified-account personal and document-authentication recovery use ordinary bounded Auth0 SSO without fresh=1; strong and explicit freshness recovery retain forced authentication. Legacy sessions missing signed auth_time require a real new authorization response, never a timestamp reconstructed from session creation; safe return paths, locale, tenant rights and human approval remain unchanged",
+        "Workspace and personal browser sessions project only canAccessBelvedere for navigation; signed privileged browser evidence and current membership remain mandatory, with no authority derived from mutable profile email or workspace role"
       ],
       "status": "Unified personal account and optional workspace implementation; migrations, aligned document policy, Auth0 configuration and connected production qualification require separate evidence.",
       "tests": [
@@ -205,7 +206,7 @@
         "tests/unit/templates-images.test.ts",
         "tests/e2e/template-images.spec.ts"
       ],
-      "surfaces": "Web, REST and MCP; optional configured AI proposal service.",
+      "surfaces": "Web Studio space under /app/studio/…, REST and MCP; optional configured AI proposal service.",
       "id": "templates",
       "category": "Create",
       "availability": "capability-gated",
@@ -262,7 +263,8 @@
         "Versioned field/group/join mappings",
         "Mapping validation before generation",
         "Optional AI analysis under browser-administrator policy and transfer consent",
-        "Document-studio exclusions also cover datasets, direct records and AI functions; stop reading/profiling/mapping/generation on known excluded content without collecting its values"
+        "Document-studio exclusions also cover datasets, direct records and AI functions; stop reading/profiling/mapping/generation on known excluded content without collecting its values",
+        "Compatible replacement imports retain the current template/version, field correspondence and valid record selection; cell/person/field errors remain actionable without mutating prior generated content"
       ],
       "status": "Implemented; private-source and optional AI-transfer gates apply.",
       "tests": [
@@ -271,7 +273,7 @@
         "tests/e2e/dataset-mapping-alias.spec.ts",
         "tests/unit/mcp-integrations.test.ts"
       ],
-      "surfaces": "Web, REST and MCP; private source/mapping ownership.",
+      "surfaces": "Web Studio space under /app/studio/…, REST and MCP; private source/mapping ownership.",
       "id": "datasets",
       "category": "Create",
       "availability": "capability-gated",
@@ -312,12 +314,15 @@
         "Progress, per-record results and source-cell provenance; only local simulation emits finite failure phase/category diagnostics through the captured error channel, never raw errors or customer data; terminal failed/partial XML test results stop polling while preserving both expected exact PDFs and zero sending, and a separate macOS pass does not establish the cause of an earlier Linux failure",
         "Exact authorized generated-document analysis state distinguishes processing, retryable and blocked results; bounded visible refresh follows pending scans after generation completes without changing readiness, stealing focus or retrying analysis",
         "Generation cancellation and retry of failed records only",
-        "PDF selection and separate distribution-plan preparation",
+        "PDF selection in Studio opens the single Correspondence-owned preparation form with bounded record IDs; arrival revalidates every selected ready result in 50-record pages, performs no navigation write, and Back/Forward/reload preserve the selection",
         "The first plan permanently freezes the full batch, including excluded failed records; prepare_distribution declares destructiveHint true",
         "Common recipient or frozen columns with an explicit channel per record",
         "Resume remaining entries without duplication",
         "Entry-linked postal preflight with separate review and sending",
-        "Known assistant-excluded content is never generated, previewed, shared or distributed; request a person-redacted version and never treat scanning as proof of absence"
+        "Known assistant-excluded content is never generated, previewed, shared or distributed; request a person-redacted version and never treat scanning as proof of absence",
+        "Browser results show bounded name/subject/reference labels without changing record identifiers; the browser-only owner-authorized record-context read supplies labels or one explicit correction input, with current tenant/creator guards and no MCP/native authority",
+        "Import/replacement retain the selected template/version and compatible field mapping/record exclusions; correcting data or a template creates a new generation/version while prior PDFs and prepared manifests retain their exact hashes",
+        "Every new destination starts with zero documents even for one PDF; unsaved preparation may veto departure and late preparation/postal replies cannot navigate obsolete visits; the pre-preparation summary lists exact associations and explains that the first plan freezes the full generation, including excluded failed records"
       ],
       "status": "Implemented; generation, preparation, approval and delivery remain separate.",
       "tests": [
@@ -327,9 +332,11 @@
         "tests/e2e/generation-analysis.spec.ts",
         "tests/e2e/template-xml-multichannel.spec.ts",
         "tests/unit/mcp-annotation-audit.test.ts",
-        "tests/unit/mcp-integrations.test.ts"
+        "tests/unit/mcp-integrations.test.ts",
+        "tests/e2e/studio-continuity.spec.ts",
+        "tests/e2e/studio-distribution-handoff.spec.ts"
       ],
-      "surfaces": "Web, REST and MCP; generation is separate from distribution and delivery.",
+      "surfaces": "Web Studio under /app/studio/… and Correspondence preparation /app/distribution/new plus frozen detail /app/distribution/:id, REST and MCP; generation is separate from distribution and delivery. Browser-only owner-authorized record-context supplies correction inputs and is excluded from the OAuth OpenAPI paths.",
       "id": "generation",
       "category": "Create",
       "availability": "capability-gated",
@@ -489,7 +496,7 @@
         "Bounded durable private rendering serves authorized page images and accessible text; the reader never delivers the original PDF",
         "Shared terms of 7/30/90/365 days and personal-copy terms of 365/1095 days; personal-copy options are funded at activation even when unused",
         "Versioned prices and separate invitation transport; activated retention commitments are nonrefundable even after revocation",
-        "Review final pages/text, recipient, message, permissions and quote before browser approval under the active policy; email-request attestation remains separate",
+        "Review final pages/text, recipient, message, permissions and quote before browser approval under the active policy; email-request attestation remains separate; the fifteen-minute expiry cap uses the recorded approval creation time across asynchronous validation, with all stricter session/quote/review limits retained",
         "Atomic activation and outbox insertion require sensitive browser evidence even through REST/MCP confirmation; expert delegation cannot approve this flow",
         "Browser-only explicit quote recovery replaces an eligible unsubmitted distribution from its exact stored source, recipient, policy, notification and ceiling; guarded cancellation and a durable marker retain history, deterministic replay returns the same replacement, and new human review is required before activation",
         "Opaque invitation moves through same-tab handoff and a POST exchange, never authentication returnTo, logs, MCP responses or public captures",
@@ -510,13 +517,14 @@
         "Personal-list 401/403 clears loaded metadata and cursors; stale pagination responses cannot restore an old list after refresh",
         "Direct personal routes start their own small shell and authenticated personal session before the document list without waiting for workshop bootstrap; old workshop reads are aborted and fenced from applying identity/language after navigation, and return rereads current workshop authority",
         "Personal focus/visibility session reconciliation is bounded and cleaned up; changed identity remounts document state, obsolete results are ignored and list retry does not reload a still-valid session; recipient/document-policy/server authorization remains unchanged",
-        "Secure distribution list, composer, detail and reader reuse the shared V2 workspace/personal surfaces, typography, controls, facts and responsive spacing; the saved Classic layout and each authorization boundary remain unchanged",
+        "Secure distribution list, composer, detail and reader reuse the shared V2 workspace/personal surfaces, typography, controls, facts and responsive spacing; each authorization boundary remains unchanged",
         "Personal section changes retain the mounted authenticated shell while capturing and removing each new invitation before children render; no redundant personal-session bootstrap precedes the next page. Initial entry, bounded visible-tab revalidation, identity-change remounts and current server authorization remain required",
         "Provider preflight validates the transport reservation after deducting already committed secure retention/personal-copy charges from the immutable total ceiling; it retains all active attempt, approval, sender and tenant checks",
-        "One explicit priced browser Send action records approval then activation after two attestations; a failed response requires read-only Check status before same-key recovery, without effect-driven writes or another MCP confirmation after active readback"
+        "One explicit priced browser Send action records approval then activation after two attestations; a failed response requires read-only Check status before same-key recovery, without effect-driven writes or another MCP confirmation after active readback",
+        "Local D1/R2 regressions cover revocation of metadata/images/text/permitted-original/deposit, decryption races, concurrent deposit and duplicate-copy workers; durable copies converge on exact bytes and single receipts without reviving revoked shared access"
       ],
       "status": "Implemented candidate with migrations 0055–0059 and separate deterministic strong/verified_account qualification. Default strong, explicitly selected verified_account, aligned environment/D1 policy and human approval remain mandatory; real Auth0, provider delivery, publication and external-client proof are separate.",
-      "surfaces": "Workspace and personal web UI in FR/EN/DE/LB with shared V2 primitives and preserved Classic layout; workspace REST/MCP and assistant packages under scopes. Recipient access, sensitive approval and explicit quote renewal are browser-only; workspace Bearer tokens cannot open the personal vault. Native and real host support need surface-specific qualification.",
+      "surfaces": "Workspace and personal web UI in FR/EN/DE/LB with shared V2 primitives; workspace REST/MCP and assistant packages under scopes. Recipient access, sensitive approval and explicit quote renewal are browser-only; workspace Bearer tokens cannot open the personal vault. Native and real host support need surface-specific qualification.",
       "tests": [
         "tests/unit/personal-auth.test.ts",
         "tests/unit/document-invitation.test.ts",
@@ -795,7 +803,7 @@
       "source": "packages/contracts/src/public-site.json",
       "features": [
         "Concise homepage introduces document preparation, explicit review and channel choice; durable How it works, Getting started, Pricing and PDF checks routes retain the full existing offer, examples, guides and conditions",
-        "Four-language assistant hub and manual installation guides; OAuth, workflows and publication have separate qualification",
+        "Four-language assistant hub and manual installation guides; shared public/workshop marks retain transparent exteriors in both themes, with CSS inversion only for monochrome ChatGPT, GitHub Copilot and Cursor in explicit/system dark mode, unchanged color artwork and source bytes, and no added JavaScript or image request; OAuth, workflows and publication have separate qualification",
         "Package download and version/SHA-256 manifest; compare published and local candidate versions; download grants no consent",
         "Journal, articles, legal notices and privacy",
         "French, English, German and Luxembourgish frontend/video localisation",
@@ -815,7 +823,8 @@
         "The public header exposes only a localized light/dark action icon at every viewport, defaults to the operating system and supports activation before React through the head bootstrap. Shared origin preference and fixed royal-blue chrome remain; standalone HTML reads only a bounded host-only nonsecret enum cookie with script-free system fallback. Native theme-media and ArticlePicture select original transparent dark portrait and responsive RGBA art. White paper stays inside each asset’s actual inner blue frame with transparent exterior/perforations, without a universal inset rule or outer white contour; original light art and opaque stamp remain unchanged",
         "One approved simple browser-icon family from apps/web/public serves product, status, engineering and standalone authentication/Belvedere/protected/error HTML; the shared exact-byte helper binds independent build source scopes and retains the existing canonical hosted-login favicon URL; read-only provider inspection found that URL already aligned, with no remote mutation or deployment claim",
         "Self-hosted interface fonts use optional display and three emitted-asset preloads, preserving the approved type when ready while keeping already-visible text geometry stable when font delivery is slow; delayed-font tests qualify desktop and mobile browsers separately, and shared public heading wrapping and responsive wordmark/action bounds preserve narrow layouts with unavailable-font metrics",
-        "Ordinary same-origin links between registered public pages retain one browser document and loaded application; all small public page components are available on the first interactive click without HTML, route-code, session or private-data prefetch. Canonical English URLs, four-language presentation, static direct entries, history, anchors, focus and destination metadata remain coherent; unavailable initial JavaScript retains the complete static page"
+        "Ordinary same-origin links between registered public pages retain one browser document and loaded application; all small public page components are available on the first interactive click without HTML, route-code, session or private-data prefetch. Canonical English URLs, four-language presentation, static direct entries, history, anchors, focus and destination metadata remain coherent; unavailable initial JavaScript retains the complete static page. Pointer route focus does not frame script-focused containers; keyboard route focus underlines the new main title in the brand blue while interactive controls retain their focus indicators",
+        "Public film play controls are disabled in server HTML until the client handler mounts; releasing route code starts no movie, and the first enabled click keeps playback/fullscreen in the native gesture with the resolved locale"
       ],
       "status": "The 25 October public hierarchy, four detail routes, shared footer, four-language static generation and appearance were published from main 03daa4136de8999cc79018f33f2a22038917c621. Canonical served assets and four-language public layout/link checks passed. The 27 October stable-language, public-session removal and initial-example-CSS correction is a local candidate; its measured build graph adds 1092 gzip CSS bytes without another initial stylesheet request. Current-source browser checks, CI and publication remain separately evidenced. The separate preview retains an isolated provider asset-delivery failure; indexing, provider and real financial qualification remain separate. The 28 October navigation candidate removes repeated document/app startup between public pages; local measurements, CI and publication remain separate.",
       "tests": [
@@ -856,35 +865,42 @@
       "doc": "DASHBOARD_V2.md",
       "source": "apps/web/src/account-page.tsx",
       "features": [
-        "Full real-web Classic/V2 views with the same account, tenant, resources and operations",
-        "Account at navigation bottom, saved Classic/V2 layout beside language, applied after a successful profile save; mobile identity remains visible with the menu closed and its V2 profile link retains a 44 px touch target; role and detailed permissions live on My account; native mobile details closes synchronously on Escape before a queued toggle reaches React, preserving summary focus and keyboard activation",
-        "Personal users.preferred_dashboard_appearance, migration 0053, V2 persisted for new accounts and used by browser fallbacks; existing saved Classic/V2 choices and cross-workshop/session/device reconciliation preserved",
-        "Personal documents apply the same saved Classic/V2 account layout in a shell filling the available width with responsive gutters and readable internal form measures, with lightweight independent navigation; personal and workshop customization reuse small shared language/theme/layout controls, preserving personal-only access and existing guarded PATCH authority",
+        "Full real-web V2 views with the same account, tenant, resources and operations; Classic was retired on 29 October 2026",
+        "Account at navigation bottom, language and color controls side by side in account customization; mobile identity remains visible with the menu closed; the V2 account row opens a disclosure menu with name/email, profile, the shared labelled light/dark action, account switching, service status and sign-out, closing on Escape with focus returned and keeping 44 px touch targets; role and detailed permissions live on My account; native mobile details closes synchronously on Escape before a queued toggle reaches React, preserving summary focus and keyboard activation",
+        "Personal users.preferred_dashboard_appearance, migration 0053: V2 persisted for new accounts; stored values, including classic, stay readable and accepted for compatibility without changing the web layout, and no migration rewrites them",
+        "Personal documents use the V2 shell filling the available width with responsive gutters and readable internal form measures, with lightweight independent navigation; personal and workshop customization reuse small shared language/theme controls, preserving personal-only access and existing guarded PATCH authority",
         "Strict browser account PATCH with current authority, Origin/CSRF and field-name audit; every role changes only its own preference",
-        "Temporary appearance=v2/classic override accepts legacy atelier URLs, never persists server-side and clears after explicit appearance save or identity change; local cache is non-authoritative",
+        "Old appearance=classic/v2 and legacy atelier links remain harmless: the web ignores them, opens V2 and persists nothing; it no longer reads or writes a browser layout cache",
         "Existing activity/alerts precede introduction, otherwise a complete welcome; content preview precedes approval in reading/tab order",
         "Stable PDF frame above dispatch-review and document-page verification-purchase consent across lazy module loading/render/error, keyboard-accessible internal scrolling and unchanged consent/data authority",
         "Consistent documents, preparation, review, tracking, assistants, account, studio, PDF verification, credits, tables and forms; secure-document price panels retain their padding and consent with a fine one-pixel cobalt side rule; Belvédère shares the V2 visual vocabulary while retaining distinct platform authority and read-only data; recursive diagnostics keep outer key/value columns and stack nested fields without zero-width values or page overflow",
-        "One brand signature, workshop in navigation and no redundant V2 footer; service status near account and browser timezone near dates",
-        "One page title, contextual detail back link and task-specific primary action; global New dispatch stays secondary and permission-aware",
+        "One brand signature, workshop in navigation and no redundant V2 footer; service status in the account menu and browser timezone near dates",
+        "One page title, contextual detail back link and task-specific primary action as the screen's only filled button; global New dispatch keeps one secondary, permission-aware place on every V2 page and is repeated in the Overview/Dispatches heading only on narrow screens",
+        "Compact V2 desktop navigation keeps every destination in view from 864 px high with 34 px pointer rows, fades a cut-off entry while the list still scrolls, draws keyboard focus inside clipped rows and gives each destination one distinct icon; touch layouts keep 44 px targets",
         "Generation introduction focuses on finding PDFs and makes clear that generation sends nothing",
         "Official identity and real documents, metrics and controls remain; decorative DashboardArtwork panels and swallow styling are retired from overview, empty Documents and assistant introduction, without replacement illustrations",
         "Four-language labels; simulation notices only for simulated sessions",
         "Same four roles, supervisor options, private access and consents; no new mandate, channel or business API/MCP tool",
         "Native account/session reads include appearance without a setter; existing name/language browser PATCH and native language PATCH remain compatible",
-        "Shared compact My documents personal-context link across Classic/V2 desktop/mobile navigation: one-pixel blue outline, ink label, existing blue icon and minimum 44 px target, retaining its personal-space description, exact destination and independent authentication without an oversized separate card, repeated role panel, new request or authority",
+        "Two separate switchers open the shared V2 sidebar: the application switcher (Studio, Correspondence, My documents; in every application) and, in Studio and Correspondence only, the workspace switcher (current workspace, other memberships, create or join). The workspace list is read only when its panel opens, belongs to one account/workspace/authority identity so a late or earlier list is never shown, is read again after a refused membership, honours the existing unsaved-work veto before switching, and both panels close on Escape (including after a Safari pointer click), an outside pointer or any navigation; triggers are 40/36 px for desktop pointers and 44 px on touch screens; identity actions stay in the account menu",
+        "Studio space in the same workspace session: Templates, Data and Generations live under /app/studio/… with permanent client aliases for earlier Studio links that keep the query; prepared batches (/app/distribution/…) stay with Dispatches; the workshop navigation keeps Assistants immediately after Overview and shows New dispatch only in the workshop",
+        "One application route table (apps/web/src/app-routes.ts) owns spaces, Studio addresses, aliases, the current navigation entry and route-code preloading",
         "Shared native file input with four-language authored chooser/empty text and literal filenames, keyboard validation and exact-byte upload semantics",
         "Desktop Safari select height and protected-link hint spacing; visible keyboard focus, selection and forced-colors states remain readable in both palettes",
-        "Public and personal headers and Belvédère page actions share one localized light/dark action icon at every viewport, defaulting to the operating system; authenticated personal Classic/V2 shells fill the available width with responsive gutters, while personal V2 follows workshop geometry without changing personal navigation, identity, document access or logout. Browser theme is independent of saved Classic/V2 layout, account language and role; document/PDF/email content retains original light-paper appearance and bytes",
+        "Public and personal headers and Belvédère page actions share one localized light/dark action icon at every viewport, defaulting to the operating system; the authenticated personal V2 shell fills the available width with responsive gutters and follows workshop geometry without changing personal navigation, identity, document access or logout. Browser theme is independent of account language and role; document/PDF/email content retains original light-paper appearance and bytes",
         "Template-designer controls adopt the resolved shared palette in place while original template content, output geometry, bindings and PDF bytes retain their document contract",
         "V2 protected-email choice, review summary, email preview and PDF viewer frame share the existing 10 px panel corners; 7 px controls and original square PDF paper retain their distinct roles without extra API reads",
-        "Requested workshop route code loads in parallel with its initial authenticated session, without speculative hover/focus imports or private-data reads; failed route code preserves navigation and current identity with a localized explicit reload, while late imports cannot replace a newer route; transitions temporarily fence retained main content with inert/busy while navigation remains available, preserving existing vetoes and preventing post-check edits; child route readers share one committed context and subscription, account deep-link notices receive focus after the fence clears, and document-close focus returns only to a connected trigger after commit"
+        "Requested workshop route code loads in parallel with its initial authenticated session, without speculative hover/focus imports or private-data reads; failed route code preserves navigation and current identity with a localized explicit reload, while late imports cannot replace a newer route; transitions temporarily fence retained main content with inert/busy while navigation remains available, preserving existing vetoes and preventing post-check edits; child route readers share one committed context and subscription, account deep-link notices receive focus after the fence clears, and document-close focus returns only to a connected trigger after commit; pointer-focused containers have no page-sized outline, keyboard-focused main titles use a brand-blue underline, and interactive-control focus indicators remain unchanged",
+        "My documents loads as its own application chunk while a visit-scoped personal session starts in parallel; hidden/obsolete entry results are discarded and current identity/cancellation fences remain",
+        "WorkspaceIdentity shares profile/theme/account-switch/status/logout controls with My documents and canonical Belvedere; personal account switching sanitizes private return queries, Escape restores focus and navigation/identity replacement close menus",
+        "Exact complete-label revisions unify workspace terminology in French, English, German and Luxembourgish while preserving legacy lookup keys, explicit contexts, names and interpolated content",
+        "All four application import exceptions are removed: personal lazy entry, correspondence preference helper, shared entry-link style and locale-change event replace the former eager/cross-layer dependencies",
+        "Explicit route-code recovery refreshes only failed same-origin public JS/CSS assets before reloading, with no credentials/referrer/private query, at most eight requests, an eight-MiB per-response read bound and five-second timeout; no background retry or business endpoint is added"
       ],
-      "status": "Classic/V2 account layout authority is unchanged. The initial 25 October theme integration and removal of decorative panels were published from main 03daa4136de8999cc79018f33f2a22038917c621. The personal Classic/V2 account and Belvédère visual follow-up requires its own exact-source release proof and grants no new business authority. The shared outlined personal-context navigation refinement is a local source candidate requiring its own rendered and publication evidence.",
+      "status": "The 29 October 2026 Studio space, the application/workspace switchers and the four-application ownership check are a local source candidate requiring CI and publication evidence. The 29 October 2026 Classic retirement is a local source candidate requiring CI and publication evidence: every account sees V2, and the stored preference stays accepted without changing the web layout. The initial 25 October theme integration and removal of decorative panels were published from main 03daa4136de8999cc79018f33f2a22038917c621. The personal Classic/V2 account and Belvédère visual follow-up requires its own exact-source release proof and grants no new business authority. The shared outlined personal-context navigation refinement is a local source candidate requiring its own rendered and publication evidence. The 29 October compact V2 navigation and account-menu refinement is a local source candidate requiring CI and publication evidence.",
       "tests": [
         "tests/unit/account.test.ts",
         "tests/integration/mobile.test.ts",
-        "tests/unit/dashboard-appearance.test.ts",
         "tests/preview-e2e/dashboard-v2.spec.ts",
         "tests/e2e/dashboard-v2.spec.ts",
         "tests/e2e/protected-email.spec.ts",
@@ -896,9 +912,17 @@
         "tests/e2e/personal-document-performance.spec.ts",
         "tests/belvedere-e2e/control-tower.spec.ts",
         "tests/e2e/pdf-validation.spec.ts",
-        "tests/e2e/workspace-route-performance.spec.ts"
+        "tests/e2e/workspace-route-performance.spec.ts",
+        "tests/preview-e2e/mobile-workspace.spec.ts",
+        "tests/e2e/locale-boundaries.spec.ts",
+        "tests/e2e/login-entry.spec.ts",
+        "tests/e2e/studio-space.spec.ts",
+        "tests/unit/app-routes.test.ts",
+        "tests/e2e/personal-entry-race.spec.ts",
+        "tests/unit/message-terminology.test.ts",
+        "tests/unit/route-code-recovery.test.ts"
       ],
-      "surfaces": "Authenticated web Classic/V2; native reads preference without a setter; no new business API/MCP authority.",
+      "surfaces": "Authenticated web V2 only; native reads the stored preference without a setter; no new business API/MCP authority.",
       "id": "dashboard",
       "category": "Operate",
       "availability": "browser-session",
@@ -979,7 +1003,8 @@
         "Native Cloudflare failure and missing-cron Monitors were configured and reread on 27 October 2026 with an owner-designated email destination; configured delivery and actual receipt remain separate evidence",
         "Prepared separate operator-only direct MCP Events incident schema and agent instructions define signed delivery, durable deduplication and bounded autonomous diagnosis/tests/draftPRs; no operator bridge, subscription, new permission or agent run is activated",
         "Chromium-dependent secure Resend journey runs once in the existing browser-equipped security job, outside ordinary Vitest shards; dependency-driven routing checks and aggregate inventory preserve complete coverage",
-        "CI builds the final non-preview frontend once before unchanged Worker dry runs, executes documentation guards once through docs:check and places the once-only MCP Apps SDK fixtures on desktop Chromium shard three; complete suites, immutable evidence and required main/PR gates remain unchanged, with hosted timing qualification separate"
+        "CI builds the final non-preview frontend once before unchanged Worker dry runs, executes documentation guards once through docs:check and places the once-only MCP Apps SDK fixtures on desktop Chromium shard three; complete suites, immutable evidence and required main/PR gates remain unchanged, with hosted timing qualification separate",
+        "Prepared dependency redelivery qualifies a genuine merged Dependabot root npm update only after complete exact-current-main CI, serialized clean-main publication and canonical served-byte verification; a dedicated application token was installed on 29 October with expiry on 27 January 2027; hosted release activation still requires merged workflow and exact-source proof; MCP dependencies require synchronized reviewed plugin publication, unsupported MCP/PDFme versions remain held and routine major toolchain migrations require review"
       ],
       "status": "Implemented operational tooling; changes require explicit authority and exact-source proof.",
       "tests": [
@@ -999,7 +1024,9 @@
         "tests/security/preview-release-assets.test.mjs",
         "tests/unit/public-routes.test.ts",
         "tests/integration/secure-resend-journey.test.ts",
-        "tests/unit/providers-webhooks.test.ts"
+        "tests/unit/providers-webhooks.test.ts",
+        "tests/security/dependency-release.test.mjs",
+        "tests/unit/dependency-compatibility.test.ts"
       ],
       "surfaces": "Authorised operator/CI tooling and private services; anonymous monitoring has no workshop authority.",
       "id": "operations",
@@ -1023,7 +1050,10 @@
         "Server-side Cloudflare connectors with explicit availability; never invent cost or profit",
         "Additive migration 0052 and deterministic loopback-only preview; hosted activation is separate",
         "Account-selected four-language UI on direct entry and tab focus, including exact known source-authored finance explanations with distinct accounting meanings; unknown data remains verbatim and no private language selector is added",
-        "V2 workshop visual vocabulary with independent platform navigation, shared single system-default light/dark action, readable tables/globe and keyboard mobile drawer; theme changes preserve filters without business reads/writes or layout-preference changes"
+        "V2 workshop visual vocabulary with independent platform navigation, shared single system-default light/dark action, readable tables/globe and keyboard mobile drawer; theme changes preserve filters without business reads/writes or layout-preference changes",
+        "Canonical /belvedere and its protected child reads reuse the existing canonical host-only browser session; signed-evidence/current-membership guards remain mandatory and the private legacy entry/dedicated host remain protected",
+        "Session responses expose only canAccessBelvedere for shared application navigation, never a private slug or token; personal projection additionally checks the matching current workspace browser session/evidence",
+        "Canonical entry uses shared application/account controls, demand-loaded seven-view UI and interactive globe; observation filters never switch operational membership"
       ],
       "status": "Dedicated-host release and authenticated overview verified on 25 October from 03daa4136de8999cc79018f33f2a22038917c621; later 06d92 V2 publication and seven-section native Safari navigation are dated proof. Public routing/refusals were observed on f946 at 26 October 01:47 UTC; an authenticated journey on that newer source is not claimed. Private read-only authority remains separate from workshop roles.",
       "tests": [
@@ -1033,7 +1063,8 @@
         "tests/belvedere-e2e/control-tower.spec.ts",
         "tests/unit/belvedere-finance.test.ts",
         "tests/belvedere-e2e/locale.spec.ts",
-        "tests/unit/belvedere-locale.test.ts"
+        "tests/unit/belvedere-locale.test.ts",
+        "tests/belvedere-e2e/canonical-session.spec.ts"
       ],
       "surfaces": "Private verified Watchkeeper browser only; no workshop/native/OAuth/MCP authority.",
       "id": "belvedere",
@@ -1102,7 +1133,7 @@
         "Maintained GitHub job/artifact/release explanation, fresh dependency boundaries and separate application/native/engineering evidence; every Ubuntu package installation, including engineering browsers, first prefers the runner's recognized official HTTPS archives while retaining signed package verification and the Azure fallback, and an unexpected mirror configuration fails closed",
         "Curated Cloudflare/Auth0/transport dependencies, background jobs, tariff maintenance, design/i18n/accessibility, AI contribution and reproducible video/voice production guides",
         "Origin-scoped system/light/dark selection uses guteneo.theme with pre-paint resolution, cross-tab/system updates and optional migration of a prior ui-mode choice; Nimbus data-mode styling, fixed blue chrome, script-free system fallback and readable ivory dark branding grant no account or operational authority",
-        "Three isolated browser shards for each desktop/mobile Chromium and iPhone WebKit profile, same-revision build artifacts and independent complete test-ID inventory accounting; exact skip declarations must remain in the discovered inventory and obsolete desktop exceptions are removed when Classic/V2 navigation runs on both profiles; no missing/duplicate shard, skipped required job, automatic retry or merged-main publication shortcut; V2 consent and fax-ceiling first fields share one trusted touch/keyboard or desktop fill with exact value/focus and pre-submit checks; V2 retains unchanged real GET responses and exact dispatch recipient, while fax preserves its original timing, typed decimal comma, normalized phone and 150-cent POST without refilling, logging recipients or claiming either unexplained historical Linux input loss was repaired"
+        "Three isolated browser shards for each desktop/mobile Chromium and iPhone WebKit profile, same-revision build artifacts and independent complete test-ID inventory accounting; exact skip declarations must remain in the discovered inventory and obsolete desktop exceptions are removed when workspace navigation runs on both profiles; no missing/duplicate shard, skipped required job, automatic retry or merged-main publication shortcut; V2 consent and fax-ceiling first fields share one trusted touch/keyboard or desktop fill with exact value/focus and pre-submit checks; V2 retains unchanged real GET responses and exact dispatch recipient, while fax preserves its original timing, typed decimal comma, normalized phone and 150-cent POST without refilling, logging recipients or claiming either unexplained historical Linux input loss was repaired"
       ],
       "status": "Implemented documentation candidate; production publication requires an explicitly authorized, independently verified release.",
       "tests": [
@@ -1182,19 +1213,19 @@
       "id": "J07",
       "title": "Turn data into PDFs",
       "actor": "Preparer owning the private source",
-      "steps": "Import CSV/XLSX/XML/JSON → verify/profile the exact original → select sheet/header/record path → define deterministic versioned mappings → validate every row → select published template → generate → inspect results and provenance.",
+      "steps": "Choose a published template → import CSV/XLSX/XML/JSON while preserving that choice → verify/profile exact original → define versioned field mapping and validate each row/cell → generate distinct PDFs → inspect business name/subject/reference and provenance. In the browser, replace compatible source data without losing the mapping; preserve only verifiable exclusions and explicitly review unmatched rows. Correct one result with its exact historical template version, or explicitly create a new template version; each correction creates a new generation and leaves prior PDF bytes/hashes and prepared manifests intact.",
       "branch": "Create",
       "doc": "TEMPLATES_DATA_DISTRIBUTION.md",
-      "failure": "Resume the same original after transient analysis failure. Resolve mapping/type/join issues explicitly. Generation completion does not establish PDF readiness; follow the bounded security-analysis refresh and review retryable or blocked results explicitly. AI is optional and separately consented; generation creates no dispatch or credit reservation. An accepted cold-route transition temporarily fences the old editor against new input until commit; existing unsaved-work vetoes still run before acceptance."
+      "failure": "Resume the same original after transient analysis failure. Resolve mapping/type/join issues explicitly. Generation completion does not establish PDF readiness; follow the bounded security-analysis refresh and review retryable or blocked results explicitly. AI is optional and separately consented; generation creates no dispatch or credit reservation. An accepted cold-route transition temporarily fences the old editor against new input until commit; existing unsaved-work vetoes still run before acceptance. Private correction input is browser-owner-only under current membership; template sharing and dispatch review do not expose it. Query changes and Back/Forward cannot reuse another record’s unsaved data; leaving an unsaved correction requires explicit review."
     },
     {
       "id": "J08",
       "title": "Distribute a PDF batch",
       "actor": "Preparer → current approver",
-      "steps": "Choose generated PDFs and frozen channel/recipient data → disclose that the first distribution plan permanently freezes the entire batch → prepare the manifest → resume remaining entries → complete linked postal preflight where needed → review/approve each exact dispatch.",
+      "steps": "Select generated PDFs by their business labels in Studio → open Correspondence /app/distribution/new with generation and selected record IDs → revalidate every selected ready result in bounded 50-record pages → explicitly choose each document for each new destination, starting with zero documents even for one selected PDF → inspect exact associations and full-generation freeze consequence → prepare the immutable manifest at /app/distribution/:id → resume remaining entries → complete linked postal preflight where needed → review/approve each exact dispatch. Back/Forward/reload preserve the selected IDs, unsaved changes can veto departure, and navigation alone creates no plan or dispatch.",
       "branch": "Deliver",
       "doc": "TEMPLATES_DATA_DISTRIBUTION.md",
-      "failure": "A frozen batch cannot retry even excluded failed records; create a new generation batch when needed. Multiple channels require explicitMultichannel. No manifest operation implies consent, transfer or sending."
+      "failure": "An unavailable or inaccessible selected record blocks preparation rather than dropping part of the selection. A response from an obsolete visit cannot navigate after departure or a workspace/account change, including a return to the same URL. A frozen batch cannot retry even excluded failed records; create a new generation batch when needed. Multiple channels require explicitMultichannel. No manifest operation implies consent, transfer or sending."
     },
     {
       "id": "J09",
@@ -1263,7 +1294,7 @@
       "id": "J16",
       "title": "Verify identity and find a responsible contact",
       "actor": "Browser member in the current workshop",
-      "steps": "Read visible name/login email → open account profile for role → inspect effective permissions and workshop responsible contacts → edit own name/language or explicitly switch account.",
+      "steps": "Read visible name/login email (in V2, open the account menu) → open account profile for role → inspect effective permissions and workshop responsible contacts → edit own name/language or explicitly switch account.",
       "branch": "Access",
       "doc": "ACCOUNT_IDENTITY.md",
       "failure": "Provider login email is read-only identity data. Missing address/contact errors stay explicit. Reconcile identity after tab focus and ignore cancelled stale reads without interrupting editing."
@@ -1272,7 +1303,7 @@
       "id": "J17",
       "title": "Inspect the platform in Belvédère",
       "actor": "Explicitly authorised browser Watchkeeper with verified identity",
-      "steps": "Open the dedicated protected Belvédère host root, or compatible server-secret entry → complete normal Auth0 sign-in and current platform guard → inspect read-only overview/workshops/members/dispatches/connections/finances/infrastructure → read available provider measurements and their limits.",
+      "steps": "Open Belvedere from the application switcher only when the server projects capability, or use canonical /belvedere / the protected compatibility entry → reuse a valid canonical browser session or follow normal identity recovery → repeat current signed platform guard on every read → inspect seven read-only views and interactive globe; dedicated host remains isolated.",
       "branch": "Operations",
       "doc": "BELVEDERE.md",
       "failure": "Workshop administrator/OAuth/assistant roles grant no platform authority. Unknown costs/profit stay unavailable. Preview fixtures and hosted observations are separate."
@@ -1306,12 +1337,12 @@
     },
     {
       "id": "J21",
-      "title": "Save and restore Classic/V2 application layout",
-      "actor": "Authenticated browser member changing their own preference",
-      "steps": "Enter personal documents or the workshop → open account customization → choose Classic/V2 beside the shared language and color controls → save successfully through the existing context-specific profile endpoint → apply the saved personal preference in a full-width shell with responsive gutters and readable internal forms → reload, switch identity or enter the other application context → reconcile the current account preference without workshop bootstrap in personal documents.",
+      "title": "Open the single V2 application layout",
+      "actor": "Authenticated browser member with any stored layout value",
+      "steps": "Enter personal documents or the workshop, including through an old appearance=classic or atelier link → render the V2 shell whatever the stored preference → open account customization with language and color controls only → save language through the existing context-specific profile endpoint, which omits the layout field → reload, switch identity or enter the other application context → reconcile language without workshop bootstrap in personal documents.",
       "branch": "Operate",
       "doc": "DASHBOARD_V2.md",
-      "failure": "Temporary atelier overrides never claim a server save and clear after explicit save/identity change. Old cache cannot override the current person; business authority remains identical. Immediate system/light/dark browser appearance is a separate preference and never claims an account profile save."
+      "failure": "A stored classic value or an old link never restores the retired layout and is never rewritten; business authority remains identical. Immediate system/light/dark browser appearance is a separate preference and never claims an account profile save."
     },
     {
       "id": "J22",
@@ -1380,7 +1411,7 @@
       "id": "J29",
       "title": "Move from received documents to services with the same account",
       "actor": "Guteneo account owner with zero or more memberships",
-      "steps": "Start in My documents → voluntarily open Use Guteneo → choose Prepare a dispatch or New share → select a current membership or request the initial workspace → idempotent creation, initial administrator and closed channels → reload the chosen destination and reread server session/workspace/rights/CSRF → continue normal preparation using the same name/language/identity. Local browser regression creates an administrator workspace then selects another as operator, with real screen/profile changes in both contexts.",
+      "steps": "Start in My documents → choose Studio or Correspondence in the application switcher, or open Use Guteneo when no workspace exists → choose Prepare a dispatch or New share → select a current membership or request the initial workspace → idempotent creation, initial administrator and closed channels → reload the chosen destination and reread server session/workspace/rights/CSRF → continue normal preparation using the same name/language/identity. Local browser regression creates an administrator workspace then selects another as operator, with real screen/profile changes in both contexts.",
       "branch": "Personal-to-workspace navigation, without another registration or separate sender account",
       "doc": "SECURE_DISTRIBUTION_JOURNEYS.md",
       "failure": "Receipt never permits entry into the sender’s workspace; an organizationId without membership is denied. Creation/selection failure stays visible in the personal area without false navigation. Success retains no previous workspace session/authority. Registration implies no purchase, subscription, confidential-content targeting or marketing email; promised document access remains independent of conversion. An obsolete workspace bootstrap cannot overwrite a personal route, and returning to service use reads fresh workspace authority."
@@ -1407,16 +1438,16 @@
       "id": "J32",
       "title": "Choose browser appearance",
       "actor": "Anonymous or signed-in browser reader; no role or additional authority required",
-      "steps": "Start with the operating-system palette unless a valid local choice exists → use the shared public/personal header or Belvédère page-action localized light/dark action icon at any viewport, with public activation available before React, or a three-way account setting where that surface exposes one → apply the resolved palette in place → retain the local origin preference when storage is available → follow system or same-origin storage changes. Main-site standalone HTML uses only the host-only enum cookie; status and engineering retain independent origin state. Native public pictures select matching dark art; header/app white paper stays inside each actual inner blue frame with transparent exterior/perforations, while document/PDF/email surfaces keep original content appearance.",
+      "steps": "Start with the operating-system palette unless a valid local choice exists → use the shared public/personal header or Belvédère page-action localized light/dark action icon at any viewport, or its labelled form in the V2 workshop account menu, with public activation available before React, or a three-way account setting where that surface exposes one → apply the resolved palette in place → retain the local origin preference when storage is available → follow system or same-origin storage changes. Main-site standalone HTML uses only the host-only enum cookie; status and engineering retain independent origin state. Native public pictures select matching dark art; header/app white paper stays inside each actual inner blue frame with transparent exterior/perforations. Public/workshop assistant marks have no added white backing; monochrome marks invert in explicit/system dark mode while colored sources stay unchanged. Document/PDF/email surfaces keep original content appearance.",
       "branch": "Interfaces",
       "doc": "THEMES.md",
-      "failure": "Blocked persistence still permits an in-page choice. Invalid or duplicate cookies fall back to system without interpolation or account lookup. Script-free CSS follows system; language, Classic/V2 layout, identity, drafts, approval and provider gates remain independent. Local browser-engine evidence establishes no physical-device Safari or deployed-host pass."
+      "failure": "Blocked persistence still permits an in-page choice. Invalid or duplicate cookies fall back to system without interpolation or account lookup. Script-free CSS follows system; language, identity, drafts, approval and provider gates remain independent. Local browser-engine evidence establishes no physical-device Safari or deployed-host pass."
     },
     {
       "id": "J33",
       "title": "Open personal documents without an unrelated workspace wait",
       "actor": "Authenticated personal account owner, with or without a workspace",
-      "steps": "Open My documents directly or use the shared blue-outlined personal-context entry in Classic/V2 desktop/mobile navigation → start the personal shell → validate current personal session → read the authorized list across the available main width with responsive gutters → retry a failed list explicitly. On focus or account change reconcile the session and discard previous identity/document state; returning to a workshop loads its current session and rights.",
+      "steps": "Open My documents directly or through the application switcher → request personal route code and one visit-scoped personal session in parallel → discard hidden/obsolete prefetches → read the authorized list without workspace bootstrap → open shared account utilities without extra reads. Revalidate on focus/account change and discard prior identity/documents; a new workspace visit rechecks workspace authority.",
       "branch": "Access",
       "doc": "FRONTEND_PERFORMANCE.md",
       "failure": "Personal policy and recipient bindings are never skipped. Cancelled or late workspace/account results cannot restore earlier identity, language or documents; expired sessions use established recovery. The five-context synthetic timing comparison is bounded local instrumentation, not production latency, real-client access or provider delivery proof."
@@ -1659,12 +1690,12 @@
       "Owner/context authority; no general private-library access"
     ],
     [
-      "Profile, language, own sessions and Classic/V2 layout",
+      "Profile, language and own sessions",
       "Own account in browser",
       "Own account in browser",
       "Own account in browser",
       "Own account in browser",
-      "No browser account administration or Classic/V2 setter"
+      "No browser account administration"
     ],
     [
       "Read responsible workshop contacts",
@@ -1817,6 +1848,14 @@
       "No",
       "No",
       "Current reporting rights + tenant-scoped REST read; no new MCP billing tool"
+    ],
+    [
+      "Read private generation correction input",
+      "Only own generation under current browser membership",
+      "Only own generation under current browser membership",
+      "Only own generation under current browser membership",
+      "Only own generation under current browser membership; creation still requires its permission",
+      "No MCP/native route; shared-template or dispatch-review access grants no source input"
     ]
   ],
   "schemaVersion": 2

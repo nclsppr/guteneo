@@ -302,20 +302,80 @@ for (const film of ["introduction", "roles"] as const) {
   });
 }
 
-test("a saved browser language selects the matching film and poster", async ({
-  page,
-}) => {
-  await page.addInitScript(() =>
-    window.localStorage.setItem("guteneo.locale", "lb"),
-  );
-  await mockPlayer(page);
-  await page.goto("/how-it-works/");
-  const section = page.locator('[data-film="introduction"]');
-  await expect(section).toHaveAttribute("data-locale", "lb");
-  await expect(section.locator("video")).not.toHaveAttribute("src");
-  await section.locator(".homepage-film-play").click();
-  await expect(section.locator("video")).toHaveAttribute("src", /-lb\.mp4$/);
-});
+for (const film of ["introduction", "roles"] as const) {
+  test(`${film} waits for interaction readiness and preserves the saved browser language`, async ({
+    page,
+  }) => {
+    await page.addInitScript(() =>
+      window.localStorage.setItem("guteneo.locale", "lb"),
+    );
+    await mockPlayer(page);
+    let releaseEntry!: () => void;
+    const entryGate = new Promise<void>((resolve) => {
+      releaseEntry = resolve;
+    });
+    let heldEntryRequests = 0;
+    // Hold the actual browser entry module, including the request after the
+    // saved-language redirect. SSR controls must not promise readiness yet.
+    await page.route("**/assets/index-*.js", async (route) => {
+      heldEntryRequests += 1;
+      await entryGate;
+      await route.continue().catch(() => undefined);
+    });
+    try {
+      // A held deferred module also postpones DOMContentLoaded.
+      await page.goto(film === "roles" ? "/roles/" : "/how-it-works/", {
+        waitUntil: "commit",
+      });
+      const section = page.locator(`[data-film="${film}"]`);
+      const player = section.locator("video");
+      const button = section.locator(".homepage-film-play");
+      await expect(section).toHaveAttribute("data-locale", "lb");
+      await expect.poll(() => heldEntryRequests).toBeGreaterThan(0);
+      await expect(button).toBeVisible();
+      await expect(button).toBeDisabled();
+      await expect(player).not.toHaveAttribute("src");
+      // A real pointer gesture on the disabled SSR control must neither start
+      // playback nor be replayed after the JavaScript becomes available.
+      await button.scrollIntoViewIfNeeded();
+      const bounds = await button.boundingBox();
+      expect(bounds).not.toBeNull();
+      await page.mouse.click(
+        bounds!.x + bounds!.width / 2,
+        bounds!.y + bounds!.height / 2,
+      );
+      expect(
+        await page.evaluate(() => (window as unknown as FilmWindow).filmCalls),
+      ).toEqual([]);
+      releaseEntry();
+      await expect(button).toBeEnabled();
+      await expect(player).not.toHaveAttribute("src");
+      expect(
+        await page.evaluate(() => (window as unknown as FilmWindow).filmCalls),
+      ).toEqual([]);
+      await button.click();
+      await expect(player).toHaveAttribute("src", /-lb\.mp4$/);
+      expect(
+        await page.evaluate(() => (window as unknown as FilmWindow).filmCalls),
+      ).toEqual(
+        expect.arrayContaining([
+          {
+            name: "play",
+            active: true,
+            src: expect.stringMatching(/-lb\.mp4$/),
+          },
+          {
+            name: "fullscreen",
+            active: true,
+            src: expect.stringMatching(/-lb\.mp4$/),
+          },
+        ]),
+      );
+    } finally {
+      releaseEntry();
+    }
+  });
+}
 
 test("loads no movie before a gesture, chooses the current screen, and keeps it through rotation", async ({
   page,

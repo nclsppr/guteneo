@@ -9,6 +9,7 @@ function routeModule<T>(load: () => Promise<T>) {
 
 // Imports contain UI code only. Components retain their authenticated reads.
 export const workspaceRouteModules = {
+  personal: routeModule(() => import("./personal-area")),
   dispatch: routeModule(() => import("./dispatch-pages")),
   workspace: routeModule(() => import("./workspace-pages")),
   billing: routeModule(() => import("./billing-page")),
@@ -17,6 +18,7 @@ export const workspaceRouteModules = {
   invitations: routeModule(() => import("./team-invitations")),
   connection: routeModule(() => import("./assistant-workspace")),
   studio: routeModule(() => import("./document-studio")),
+  distribution: routeModule(() => import("./distribution-pages")),
   secureDistribution: routeModule(() => import("./secure-distribution-pages")),
 };
 
@@ -42,11 +44,9 @@ export async function preloadWorkspaceRoute(route: string): Promise<void> {
     await workspaceRouteModules.postal();
   else if (/^\/app\/connection(\/|$)/.test(path))
     await workspaceRouteModules.connection();
-  else if (
-    /^\/app\/(templates|template|datasets|dataset|generations|generation|distribution)(\/|$)/.test(
-      path,
-    )
-  )
+  else if (/^\/app\/distribution(\/|$)/.test(path))
+    await workspaceRouteModules.distribution();
+  else if (/^\/app\/studio(\/|$)/.test(path))
     await workspaceRouteModules.studio();
   else if (/^\/app\/secure-distributions?(\/|$)/.test(path))
     await workspaceRouteModules.secureDistribution();
