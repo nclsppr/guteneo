@@ -252,10 +252,18 @@
 .studio-generation-results th[scope="row"] {
   min-width: 180px;
 }
+/* The person's name leads; subject and reference follow in plain text. */
+.studio-generation-results th[scope="row"] div {
+  font-weight: 400;
+}
+.studio-generation-results th[scope="row"] .studio-meta {
+  color: var(--muted);
+  font-size: 13px;
+}
 .studio-generation-actions {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-start;
+  align-items: baseline;
   gap: 8px 12px;
   min-width: 160px;
 }
@@ -425,6 +433,25 @@
     flex-basis: 100%;
   }
   .studio-binding {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+/* Correct a document while seeing its current PDF on wide screens. */
+.correction-layout {
+  display: grid;
+  gap: 24px;
+  align-items: start;
+}
+@media (min-width: 1200px) {
+  .correction-layout {
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 0.8fr);
+  }
+  .correction-preview {
+    position: sticky;
+    top: 24px;
+  }
+  /* Beside the preview, the form reads in one column. */
+  .correction-layout .business-fields {
     grid-template-columns: minmax(0, 1fr);
   }
 }

@@ -19,6 +19,23 @@ export function englishMessages(catalog: MessageCatalog): MessageCatalog {
   return result;
 }
 
+/**
+ * English index of several catalogs, the first catalog winning per English
+ * source. Built per catalog, so two catalogs that share a French key with
+ * different English sources both stay translatable.
+ */
+export function englishIndex(
+  catalogs: readonly MessageCatalog[],
+): MessageCatalog {
+  const result: MessageCatalog = Object.create(null);
+  for (const catalog of catalogs)
+    for (const [english, translations] of Object.entries(
+      englishMessages(catalog),
+    ))
+      if (!Object.hasOwn(result, english)) result[english] = translations;
+  return result;
+}
+
 export function translateMessage(
   source: string,
   locale: SupportedLocale,

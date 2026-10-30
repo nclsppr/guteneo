@@ -30,6 +30,7 @@ import {
   textBlock,
   tableBlock,
 } from "../../../packages/templates/gallery";
+import { galleryCopy } from "./template-gallery-copy";
 import { api, date, permissionsFor, type Session } from "./api";
 import { RolePermissionNotice } from "./role-guide";
 import {
@@ -193,7 +194,7 @@ export function TemplateLibrary({
           className="studio-section"
           onSubmit={(e) => {
             e.preventDefault();
-            void create({ ...blankTemplate(), name });
+            void create({ ...galleryCopy(blankTemplate()), name });
           }}
         >
           <h2>{msg("Start with a blank page")}</h2>
@@ -234,7 +235,7 @@ export function TemplateLibrary({
                 "Create my private copy of {0}",
                 msg(envelope.name),
               )}
-              onClick={() => void create(envelope)}
+              onClick={() => void create(galleryCopy(envelope))}
             >
               {msg("Create my private copy ")}
               <ArrowRight size={17} />
@@ -493,56 +494,69 @@ function GenerationDataCorrection({
       </a>
       <PageHeading
         title={msg("Correct data")}
-        intro={`${template.name} · ${msg("Template v")}${source.templateVersion}`}
+        intro={`${record.name ?? record.recordId} · ${template.name} · v${source.templateVersion}`}
       />
+      <p className="field-hint">
+        {msg(
+          "Generating creates a new PDF for this document only; the original generation and its PDFs stay unchanged. To change the layout or text of every document, create a new template version.",
+        )}
+      </p>
       <ErrorNotice error={action.error} />
-      <form
-        className="studio-section"
-        onSubmit={(event) => {
-          event.preventDefault();
-          void action.run(async () => {
-            const body = {
-              templateId: source.templateId,
-              templateVersion: source.templateVersion,
-              mode: "generate_only",
-              records: [{ recordId: record.recordId, data }],
-            };
-            const serialized = JSON.stringify(body);
-            if (previousInput.current && previousInput.current !== serialized)
-              key.current = crypto.randomUUID();
-            previousInput.current = serialized;
-            const generation = await api<GenerationJobView>(
-              "/generation-jobs",
-              { method: "POST", key: key.current, body },
-            );
-            generated.current = true;
-            go(studioRoutes.generation(generation.id));
-          });
-        }}
-      >
-        <BusinessDataForm
-          schema={template.envelope.inputSchema}
-          disabled={!canPrepare || action.pending}
-          value={data}
-          onChange={(next) => setData(next as Record<string, unknown>)}
-        />
-        <div className="button-group">
-          <button
-            className="button primary"
-            disabled={
-              !canPrepare || !template.permissions.use || action.pending
-            }
-          >
-            {msg("Generate PDF without sending ")}
-          </button>
-          <a
-            className="button"
-            href={`#${studioRoutes.template(source.templateId)}?generation=${encodeURIComponent(source.id)}`}
-          >
-            {msg("Correct and create a new version")}
-          </a>
-        </div>
-      </form>
+      <div className="correction-layout">
+        <form
+          className="studio-section"
+          onSubmit={(event) => {
+            event.preventDefault();
+            void action.run(async () => {
+              const body = {
+                templateId: source.templateId,
+                templateVersion: source.templateVersion,
+                mode: "generate_only",
+                records: [{ recordId: record.recordId, data }],
+              };
+              const serialized = JSON.stringify(body);
+              if (previousInput.current && previousInput.current !== serialized)
+                key.current = crypto.randomUUID();
+              previousInput.current = serialized;
+              const generation = await api<GenerationJobView>(
+                "/generation-jobs",
+                { method: "POST", key: key.current, body },
+              );
+              generated.current = true;
+              go(studioRoutes.generation(generation.id));
+            });
+          }}
+        >
+          <BusinessDataForm
+            schema={template.envelope.inputSchema}
+            disabled={!canPrepare || action.pending}
+            value={data}
+            onChange={(next) => setData(next as Record<string, unknown>)}
+          />
+          <div className="button-group">
+            <button
+              className="button primary"
+              disabled={
+                !canPrepare || !template.permissions.use || action.pending
+              }
+            >
+              {msg("Generate PDF without sending ")}
+            </button>
+            <a
+              className="button"
+              href={`#${studioRoutes.template(source.templateId)}?generation=${encodeURIComponent(source.id)}`}
+            >
+              {msg("Correct and create a new version")}
+            </a>
+          </div>
+        </form>
+        {record.documentId && (
+          <section className="studio-section correction-preview">
+            <h2>{msg("Current PDF")}</h2>
+            <PdfPreview id={record.documentId} />
+          </section>
+        )}
+      </div>
     </>
   );
 }

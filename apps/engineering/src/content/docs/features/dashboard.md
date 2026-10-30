@@ -1,6 +1,6 @@
 ---
 title: "Workspace layout and browser appearance"
-description: "31 capabilities in the operate branch of Guteneo."
+description: "32 capabilities in the operate branch of Guteneo."
 sidebar:
   order: 18
 ---
@@ -35,6 +35,7 @@ The 29 October 2026 Studio space, the application/workspace switchers and the fo
 <li id="feature-4d010bc7a846">Four-language labels; simulation notices only for simulated sessions</li>
 <li id="feature-40f2190fa707">Same four roles, supervisor options, private access and consents; no new mandate, channel or business API/MCP tool</li>
 <li id="feature-6a0d97700a37">Native account/session reads include appearance without a setter; existing name/language browser PATCH and native language PATCH remain compatible</li>
+<li id="feature-3c472629cfe4">On screens up to 1024 px the account sits beside the brand as a named 44 px avatar whose menu opens towards the page, and a one-entry personal navigation is hidden; empty Dispatches offer New dispatch and From a generation to members who can prepare</li>
 <li id="feature-b18f1b329597">Two separate switchers open the shared V2 sidebar: the application switcher (Studio, Correspondence, My documents; in every application) and, in Studio and Correspondence only, the workspace switcher (current workspace, other memberships, create or join). The workspace list is read only when its panel opens, belongs to one account/workspace/authority identity so a late or earlier list is never shown, is read again after a refused membership, honours the existing unsaved-work veto before switching, and both panels close on Escape (including after a Safari pointer click), an outside pointer or any navigation; triggers are 40/36 px for desktop pointers and 44 px on touch screens; identity actions stay in the account menu</li>
 <li id="feature-3f0decd0925d">Studio space in the same workspace session: Templates, Data and Generations live under /app/studio/… with permanent client aliases for earlier Studio links that keep the query; prepared batches (/app/distribution/…) stay with Dispatches; the workshop navigation keeps Assistants immediately after Overview and shows New dispatch only in the workshop</li>
 <li id="feature-1dbd4a510238">One application route table (apps/web/src/app-routes.ts) owns spaces, Studio addresses, aliases, the current navigation entry and route-code preloading</li>

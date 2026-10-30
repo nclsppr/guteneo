@@ -107,3 +107,7 @@
 .distribution-summary .notice {
   margin: 0;
 }
+/* The one-action fill keeps its distance from the next field. */
+.distribution-destination > .button.small {
+  margin-bottom: 16px;
+}

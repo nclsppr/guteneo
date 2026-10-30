@@ -151,3 +151,29 @@
     font-size: 14px;
   }
 }
+/* Beside the brand on small screens: the avatar alone, still named for assistive technology. */
+@media (max-width: 1024px) {
+  .sidebar-account .workspace-identity-trigger {
+    width: auto;
+    padding: 6px;
+  }
+  .sidebar-account .workspace-identity-avatar {
+    width: 32px;
+    height: 32px;
+  }
+  .sidebar-account .workspace-identity-name {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .sidebar-account .workspace-identity-trigger > svg {
+    display: none;
+  }
+  .sidebar-account .workspace-identity-menu {
+    right: 0;
+    left: auto;
+  }
+}

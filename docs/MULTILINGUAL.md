@@ -127,7 +127,9 @@ The Worker serves the selected immutable asset under the private
 Its content, metadata, canonical URL, structured data and HTML language all match
 the selected variant. The French fallback without a specific variant retains the
 generic document and neutral sharing preview. The client starts from that same
-resolved language; its bundled catalogs translate synchronously. Documents
+resolved language; its bundled catalogs translate synchronously. The English
+source index is built catalog by catalog, so two catalogs that share a French
+wording with different English sources both stay translated. Documents
 without a valid explicit `lang` use private revalidation caching and vary on
 `Cookie` and `Accept-Language`, including GET, HEAD and 304 responses, so a shared
 cache cannot reuse another visitor's negotiated document. Explicit variants retain
@@ -269,6 +271,13 @@ whichever catalog entry happens to load first. Keep `{0}`, `{1}` parameters
 identical across languages. Never call `msg` on identifiers, form values,
 names or user content. Construct label-bearing arrays at render or through a
 getter so language changes need no reload.
+
+API error messages stay English and the web translates them through `msg`.
+`tests/unit/server-message-translations.test.ts` fails when a message thrown in
+`apps/api/src`, `packages/contracts/src` or `packages/domain/src` has no French,
+German or Luxembourgish entry. Files whose messages reach another audience
+(Belvédère's own catalog, MCP, the native app, operator checks) are listed there
+with the reason.
 
 `tests/unit/web-locale.test.ts` checks catalog parity/parameters. Browser
 `locale.spec.ts` and `locale-boundaries.spec.ts` check visitor/account selection.

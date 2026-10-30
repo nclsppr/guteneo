@@ -320,7 +320,7 @@
         "Resume remaining entries without duplication",
         "Entry-linked postal preflight with separate review and sending",
         "Known assistant-excluded content is never generated, previewed, shared or distributed; request a person-redacted version and never treat scanning as proof of absence",
-        "Browser results show bounded name/subject/reference labels without changing record identifiers; the browser-only owner-authorized record-context read supplies labels or one explicit correction input, with current tenant/creator guards and no MCP/native authority",
+        "Browser results show bounded name/subject/reference labels without changing record identifiers; the browser-only owner-authorized record-context read supplies labels or one explicit correction input, with current tenant/creator guards and no MCP/native authority. Its optional current template name requires current template read permission and becomes null after sharing revocation",
         "Import/replacement retain the selected template/version and compatible field mapping/record exclusions; correcting data or a template creates a new generation/version while prior PDFs and prepared manifests retain their exact hashes",
         "Every new destination starts with zero documents even for one PDF; unsaved preparation may veto departure and late preparation/postal replies cannot navigate obsolete visits; the pre-preparation summary lists exact associations and explains that the first plan freezes the full generation, including excluded failed records"
       ],
@@ -882,6 +882,7 @@
         "Four-language labels; simulation notices only for simulated sessions",
         "Same four roles, supervisor options, private access and consents; no new mandate, channel or business API/MCP tool",
         "Native account/session reads include appearance without a setter; existing name/language browser PATCH and native language PATCH remain compatible",
+        "On screens up to 1024 px the account sits beside the brand as a named 44 px avatar whose menu opens towards the page, and a one-entry personal navigation is hidden; empty Dispatches offer New dispatch and From a generation to members who can prepare",
         "Two separate switchers open the shared V2 sidebar: the application switcher (Studio, Correspondence, My documents; in every application) and, in Studio and Correspondence only, the workspace switcher (current workspace, other memberships, create or join). The workspace list is read only when its panel opens, belongs to one account/workspace/authority identity so a late or earlier list is never shown, is read again after a refused membership, honours the existing unsaved-work veto before switching, and both panels close on Escape (including after a Safari pointer click), an outside pointer or any navigation; triggers are 40/36 px for desktop pointers and 44 px on touch screens; identity actions stay in the account menu",
         "Studio space in the same workspace session: Templates, Data and Generations live under /app/studio/… with permanent client aliases for earlier Studio links that keep the query; prepared batches (/app/distribution/…) stay with Dispatches; the workshop navigation keeps Assistants immediately after Overview and shows New dispatch only in the workshop",
         "One application route table (apps/web/src/app-routes.ts) owns spaces, Studio addresses, aliases, the current navigation entry and route-code preloading",
@@ -1305,7 +1306,7 @@
       "id": "J17",
       "title": "Inspect the platform in Belvédère",
       "actor": "Explicitly authorised browser Watchkeeper with verified identity",
-      "steps": "Open Belvedere from the application switcher only when the server projects capability, or use canonical /belvedere / the protected compatibility entry → reuse a valid canonical browser session or follow normal identity recovery → repeat current signed platform guard on every read → inspect seven read-only views and interactive globe; dedicated host remains isolated.",
+      "steps": "Open Belvedere from the application switcher only when the server projects capability, or use canonical /belvedere (absent to visitors without a session) / the protected compatibility entry → reuse a valid canonical browser session or follow normal identity recovery after expiry → repeat current signed platform guard on every read → inspect seven read-only views and interactive globe; dedicated host remains isolated.",
       "branch": "Operations",
       "doc": "BELVEDERE.md",
       "failure": "Workshop administrator/OAuth/assistant roles grant no platform authority. Unknown costs/profit stay unavailable. Preview fixtures and hosted observations are separate."

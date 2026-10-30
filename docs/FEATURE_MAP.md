@@ -1,7 +1,7 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
 # Guteneo feature tree and developer atlas
 
-**23 domains · 370 features · 37 journeys · 76 documented REST operations · 83 MCP tools**
+**23 domains · 371 features · 37 journeys · 76 documented REST operations · 83 MCP tools**
 Updated 2026-10-30.
 
 Repository implementation inventory. Availability depends on current capabilities and authority; implementation, activation and deployed proof are distinct.
@@ -30,7 +30,7 @@ mindmap
     Operate
       Campaigns and tracking (8)
       Credits and billing (8)
-      Workspace layout and browser appearance (31)
+      Workspace layout and browser appearance (32)
       PDF verification (10)
     Interfaces
       Assistants and API (31)
@@ -68,7 +68,7 @@ mindmap
 
 - [Campaigns and tracking](#campaigns) — 8 features; capability-gated.
 - [Credits and billing](#billing) — 8 features; partial.
-- [Workspace layout and browser appearance](#dashboard) — 31 features; browser-session.
+- [Workspace layout and browser appearance](#dashboard) — 32 features; browser-session.
 - [PDF verification](#pdf-verification) — 10 features; capability-gated.
 
 ### Interfaces
@@ -417,7 +417,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Resume remaining entries without duplication
 - Entry-linked postal preflight with separate review and sending
 - Known assistant-excluded content is never generated, previewed, shared or distributed; request a person-redacted version and never treat scanning as proof of absence
-- Browser results show bounded name/subject/reference labels without changing record identifiers; the browser-only owner-authorized record-context read supplies labels or one explicit correction input, with current tenant/creator guards and no MCP/native authority
+- Browser results show bounded name/subject/reference labels without changing record identifiers; the browser-only owner-authorized record-context read supplies labels or one explicit correction input, with current tenant/creator guards and no MCP/native authority. Its optional current template name requires current template read permission and becomes null after sharing revocation
 - Import/replacement retain the selected template/version and compatible field mapping/record exclusions; correcting data or a template creates a new generation/version while prior PDFs and prepared manifests retain their exact hashes
 - Every new destination starts with zero documents even for one PDF; unsaved preparation may veto departure and late preparation/postal replies cannot navigate obsolete visits; the pre-preparation summary lists exact associations and explains that the first plan freezes the full generation, including excluded failed records
 
@@ -866,6 +866,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Four-language labels; simulation notices only for simulated sessions
 - Same four roles, supervisor options, private access and consents; no new mandate, channel or business API/MCP tool
 - Native account/session reads include appearance without a setter; existing name/language browser PATCH and native language PATCH remain compatible
+- On screens up to 1024 px the account sits beside the brand as a named 44 px avatar whose menu opens towards the page, and a one-entry personal navigation is hidden; empty Dispatches offer New dispatch and From a generation to members who can prepare
 - Two separate switchers open the shared V2 sidebar: the application switcher (Studio, Correspondence, My documents; in every application) and, in Studio and Correspondence only, the workspace switcher (current workspace, other memberships, create or join). The workspace list is read only when its panel opens, belongs to one account/workspace/authority identity so a late or earlier list is never shown, is read again after a refused membership, honours the existing unsaved-work veto before switching, and both panels close on Escape (including after a Safari pointer click), an outside pointer or any navigation; triggers are 40/36 px for desktop pointers and 44 px on touch screens; identity actions stay in the account menu
 - Studio space in the same workspace session: Templates, Data and Generations live under /app/studio/… with permanent client aliases for earlier Studio links that keep the query; prepared batches (/app/distribution/…) stay with Dispatches; the workshop navigation keeps Assistants immediately after Overview and shows New dispatch only in the workshop
 - One application route table (apps/web/src/app-routes.ts) owns spaces, Studio addresses, aliases, the current navigation entry and route-code preloading
@@ -1214,7 +1215,7 @@ Read visible name/login email (in V2, open the account menu) → open account pr
 
 **Actor:** Explicitly authorised browser Watchkeeper with verified identity. **Branch:** Operations.
 
-Open Belvedere from the application switcher only when the server projects capability, or use canonical /belvedere / the protected compatibility entry → reuse a valid canonical browser session or follow normal identity recovery → repeat current signed platform guard on every read → inspect seven read-only views and interactive globe; dedicated host remains isolated.
+Open Belvedere from the application switcher only when the server projects capability, or use canonical /belvedere (absent to visitors without a session) / the protected compatibility entry → reuse a valid canonical browser session or follow normal identity recovery after expiry → repeat current signed platform guard on every read → inspect seven read-only views and interactive globe; dedicated host remains isolated.
 
 **Failure/recovery:** Workshop administrator/OAuth/assistant roles grant no platform authority. Unknown costs/profit stay unavailable. Preview fixtures and hosted observations are separate.
 

@@ -307,7 +307,11 @@ test("XML records determine each PDF channel and recipient without sending", asy
       name: "Résultats de cette génération",
       exact: true,
     }),
-    page.getByRole("button", { name: "Actualiser le suivi", exact: true }),
+    // Selecting and preparing sit just before the results table.
+    page.getByRole("button", {
+      name: "Sélectionner les PDF vérifiés affichés",
+      exact: true,
+    }),
     browserName,
     isMobile,
   );

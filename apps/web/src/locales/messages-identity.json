@@ -173,5 +173,255 @@
     "The contacts for this workshop could not be verified. Try loading them again.",
     "Die Kontakte dieses Arbeitsbereichs konnten nicht geprüft werden. Versuchen Sie, sie erneut zu laden.",
     "D’Kontakter vun dësem Atelier konnten net iwwerpréift ginn. Probéiert se nach eng Kéier ze lueden."
+  ],
+  "Origine de la requête refusée.": [
+    "Request origin rejected.",
+    "Herkunft der Anfrage abgelehnt.",
+    "Hierkonft vun der Ufro refuséiert."
+  ],
+  "Le fournisseur d’identité doit être connecté.": [
+    "The identity provider must be connected.",
+    "Der Identitätsanbieter muss verbunden sein.",
+    "Den Identitéitsubidder muss verbonne sinn."
+  ],
+  "Configuration d’identité non valide.": [
+    "Invalid identity configuration.",
+    "Ungültige Identitätskonfiguration.",
+    "Ongëlteg Identitéitskonfiguratioun."
+  ],
+  "Jeton expiré ou non valide.": [
+    "Expired or invalid token.",
+    "Abgelaufenes oder ungültiges Token.",
+    "Ofgelafenen oder ongëltegen Token."
+  ],
+  "Le client et l’audience Auth0 doivent être connectés.": [
+    "The Auth0 client and audience must be connected.",
+    "Auth0-Client und Zielgruppe müssen verbunden sein.",
+    "Den Auth0-Client an d’Audience musse verbonne sinn."
+  ],
+  "L’audience d’identité est absente.": [
+    "Identity audience is missing.",
+    "Die Identitätszielgruppe fehlt.",
+    "D’Identitéitsaudience feelt."
+  ],
+  "Règle de connexion non valide.": [
+    "Invalid connection policy.",
+    "Ungültige Verbindungsrichtlinie.",
+    "Ongëlteg Verbindungsreegel."
+  ],
+  "Reconnectez-vous après avoir vérifié votre adresse e-mail.": [
+    "Sign in again after verifying your email address.",
+    "Melden Sie sich erneut an, nachdem Sie Ihre E-Mail-Adresse bestätigt haben.",
+    "Mellt Iech nei un, nodeems Dir Är E-Mail-Adress verifizéiert hutt."
+  ],
+  "Ouvrez vos documents dans votre navigateur.": [
+    "Open your documents in your browser.",
+    "Öffnen Sie Ihre Dokumente in Ihrem Browser.",
+    "Maacht Är Dokumenter an Ärem Browser op."
+  ],
+  "Connectez-vous pour continuer.": [
+    "Sign in to continue.",
+    "Melden Sie sich an, um fortzufahren.",
+    "Mellt Iech un, fir weiderzemaachen."
+  ],
+  "Session expirée. Reconnectez-vous.": [
+    "Session expired. Sign in again.",
+    "Sitzung abgelaufen. Melden Sie sich erneut an.",
+    "Sessioun ofgelaf. Mellt Iech nei un."
+  ],
+  "La confirmation de session est absente ou non valide.": [
+    "Session confirmation is missing or invalid.",
+    "Die Sitzungsbestätigung fehlt oder ist ungültig.",
+    "D’Sessiounsconfirmatioun feelt oder ass ongëlteg."
+  ],
+  "Reconnectez-vous avec une authentification forte récente pour accéder à ce document.": [
+    "Sign in again with recent strong authentication to access this document.",
+    "Melden Sie sich mit einer aktuellen starken Authentifizierung erneut an, um auf dieses Dokument zuzugreifen.",
+    "Mellt Iech mat enger rezenter staarker Authentifikatioun nei un, fir op dëst Dokument zouzegräifen."
+  ],
+  "Une connexion réelle est requise.": [
+    "A real sign-in is required.",
+    "Eine echte Anmeldung ist erforderlich.",
+    "Eng richteg Umeldung ass néideg."
+  ],
+  "Connectez-vous avec votre compte vérifié pour accéder à ce document.": [
+    "Sign in with your verified account to access this document.",
+    "Melden Sie sich mit Ihrem verifizierten Konto an, um auf dieses Dokument zuzugreifen.",
+    "Mellt Iech mat Ärem verifizéierte Kont un, fir op dëst Dokument zouzegräifen."
+  ],
+  "Vous n’êtes pas membre de cet espace de travail.": [
+    "You are not a member of this workspace.",
+    "Sie sind kein Mitglied dieses Arbeitsbereichs.",
+    "Dir sidd kee Member vun dësem Aarbechtsberäich."
+  ],
+  "Reconnectez-vous après l’authentification à deux facteurs.": [
+    "Sign in again after two-factor authentication.",
+    "Melden Sie sich nach der Zwei-Faktor-Authentifizierung erneut an.",
+    "Mellt Iech no der Zwee-Faktor-Authentifikatioun nei un."
+  ],
+  "Vos droits ou votre session ont changé. Reconnectez-vous.": [
+    "Your permissions or session have changed. Sign in again.",
+    "Ihre Rechte oder Ihre Sitzung haben sich geändert. Melden Sie sich erneut an.",
+    "Är Rechter oder Är Sessioun hu sech geännert. Mellt Iech nei un."
+  ],
+  "Reconnectez-vous pour vérifier votre compte.": [
+    "Sign in again to verify your account.",
+    "Melden Sie sich erneut an, um Ihr Konto zu verifizieren.",
+    "Mellt Iech nei un, fir Äre Kont ze verifizéieren."
+  ],
+  "L’authentification à deux facteurs est requise pour les administrateurs.": [
+    "Two-factor authentication is required for administrators.",
+    "Für Administratoren ist die Zwei-Faktor-Authentifizierung erforderlich.",
+    "Fir Administrateuren ass d’Zwee-Faktor-Authentifikatioun néideg."
+  ],
+  "Autorisez la connexion de votre assistant.": [
+    "Authorize your assistant connection.",
+    "Autorisieren Sie die Verbindung Ihres Assistenten.",
+    "Autoriséiert d’Verbindung vun Ärem Assistent."
+  ],
+  "L’authentification de développement est interdite.": [
+    "Development authentication is forbidden.",
+    "Die Entwicklungsauthentifizierung ist verboten.",
+    "D’Entwécklungsauthentifikatioun ass verbueden."
+  ],
+  "Jeton de simulation expiré.": [
+    "Simulation token expired.",
+    "Simulationstoken abgelaufen.",
+    "Simulatiounstoken ofgelaf."
+  ],
+  "Jeton OAuth incomplet.": [
+    "Incomplete OAuth token.",
+    "Unvollständiges OAuth-Token.",
+    "Onvollstännegen OAuth-Token."
+  ],
+  "Connectez-vous d’abord à Guteneo pour créer votre espace de travail.": [
+    "Sign in to Guteneo first to create your workspace.",
+    "Melden Sie sich zuerst bei Guteneo an, um Ihren Arbeitsbereich zu erstellen.",
+    "Mellt Iech fir d’éischt bei Guteneo un, fir Ären Aarbechtsberäich ze erstellen."
+  ],
+  "Reliez cet assistant à une organisation depuis les connexions du tableau de bord.": [
+    "Link this assistant to an organization from the dashboard connections.",
+    "Verknüpfen Sie diesen Assistenten über die Verbindungen im Dashboard mit einer Organisation.",
+    "Verbannt dësen Assistent iwwer d’Verbindungen am Dashboard mat enger Organisatioun."
+  ],
+  "Accès à cette organisation refusé.": [
+    "Access to this organization denied.",
+    "Zugriff auf diese Organisation verweigert.",
+    "Zougang zu dëser Organisatioun refuséiert."
+  ],
+  "Reconnectez l’assistant après l’authentification à deux facteurs.": [
+    "Reconnect the assistant after two-factor authentication.",
+    "Verbinden Sie den Assistenten nach der Zwei-Faktor-Authentifizierung erneut.",
+    "Verbannt den Assistent no der Zwee-Faktor-Authentifikatioun nei."
+  ],
+  "Invitation non valide.": [
+    "Invalid invitation.",
+    "Ungültige Einladung.",
+    "Ongëlteg Invitatioun."
+  ],
+  "Ouvrez l’invitation dans votre navigateur.": [
+    "Open the invitation in your browser.",
+    "Öffnen Sie die Einladung in Ihrem Browser.",
+    "Maacht d’Invitatioun an Ärem Browser op."
+  ],
+  "Cette invitation n’est plus disponible.": [
+    "This invitation is no longer available.",
+    "Diese Einladung ist nicht mehr verfügbar.",
+    "Dës Invitatioun ass net méi disponibel."
+  ],
+  "Connexion indisponible.": [
+    "Sign-in unavailable.",
+    "Anmeldung nicht verfügbar.",
+    "Umeldung net disponibel."
+  ],
+  "Trop de tentatives. Réessayez dans une heure.": [
+    "Too many attempts. Try again in an hour.",
+    "Zu viele Versuche. Versuchen Sie es in einer Stunde erneut.",
+    "Ze vill Versich. Probéiert et an enger Stonn nach eng Kéier."
+  ],
+  "Recommencez la connexion.": [
+    "Restart sign-in.",
+    "Starten Sie die Anmeldung neu.",
+    "Fänkt d’Umeldung nei un."
+  ],
+  "Connexion expirée ou déjà utilisée.": [
+    "Connection expired or already used.",
+    "Verbindung abgelaufen oder bereits verwendet.",
+    "Verbindung ofgelaf oder scho benotzt."
+  ],
+  "Le service de connexion est temporairement indisponible. Réessayez.": [
+    "The sign-in service is temporarily unavailable. Try again.",
+    "Der Anmeldedienst ist vorübergehend nicht verfügbar. Versuchen Sie es erneut.",
+    "Den Umeldungsdéngscht ass temporär net disponibel. Probéiert et nach eng Kéier."
+  ],
+  "La connexion n’a pas pu aboutir. Recommencez.": [
+    "Sign-in could not be completed. Start again.",
+    "Die Anmeldung konnte nicht abgeschlossen werden. Beginnen Sie erneut.",
+    "D’Umeldung konnt net ofgeschloss ginn. Fänkt nei un."
+  ],
+  "Réponse d’identité incomplète.": [
+    "Incomplete identity response.",
+    "Unvollständige Identitätsantwort.",
+    "Onvollstänneg Identitéitsäntwert."
+  ],
+  "La réponse d’identité n’est pas liée à cette connexion.": [
+    "The identity response is not bound to this connection.",
+    "Die Identitätsantwort ist nicht an diese Verbindung gebunden.",
+    "D’Identitéitsäntwert ass net un dës Verbindung gebonnen."
+  ],
+  "Accès refusé.": [
+    "Access denied.",
+    "Zugriff verweigert.",
+    "Zougang refuséiert."
+  ],
+  "Activez l’authentification à deux facteurs pour accepter ce rôle d’administrateur.": [
+    "Enable two-factor authentication to accept this administrator role.",
+    "Aktivieren Sie die Zwei-Faktor-Authentifizierung, um diese Administratorrolle anzunehmen.",
+    "Aktivéiert d’Zwee-Faktor-Authentifikatioun, fir dës Administrateursroll unzehuelen."
+  ],
+  "Terminez l’authentification renforcée pour créer votre compte.": [
+    "Complete enhanced authentication to create your account.",
+    "Schließen Sie die erweiterte Authentifizierung ab, um Ihr Konto zu erstellen.",
+    "Schléisst déi verstäerkt Authentifikatioun of, fir Äre Kont ze erstellen."
+  ],
+  "Votre accès à cet espace de travail a changé.": [
+    "Your access to this workspace has changed.",
+    "Ihr Zugriff auf diesen Arbeitsbereich hat sich geändert.",
+    "Ären Zougang zu dësem Aarbechtsberäich huet sech geännert."
+  ],
+  "Activez l’authentification à deux facteurs avant d’accéder à l’espace d’administration.": [
+    "Enable two-factor authentication before accessing the administrator workspace.",
+    "Aktivieren Sie die Zwei-Faktor-Authentifizierung, bevor Sie auf den Administratorbereich zugreifen.",
+    "Aktivéiert d’Zwee-Faktor-Authentifikatioun, ier Dir op den Administratiounsberäich zougräift."
+  ],
+  "La connexion de démonstration n’est disponible qu’en local.": [
+    "Demo sign-in is available locally only.",
+    "Die Demo-Anmeldung ist nur lokal verfügbar.",
+    "D’Demo-Umeldung ass just lokal disponibel."
+  ],
+  "Choisissez une organisation de simulation.": [
+    "Choose a simulation organization.",
+    "Wählen Sie eine Simulationsorganisation.",
+    "Wielt eng Simulatiounsorganisatioun."
+  ],
+  "Initialisez les données de simulation.": [
+    "Initialize the simulation data.",
+    "Initialisieren Sie die Simulationsdaten.",
+    "Initialiséiert d’Simulatiounsdaten."
+  ],
+  "Choisissez un espace de travail accessible.": [
+    "Choose an accessible workspace.",
+    "Wählen Sie einen zugänglichen Arbeitsbereich.",
+    "Wielt en zougängleche Aarbechtsberäich."
+  ],
+  "Disponible uniquement en simulation locale.": [
+    "Available in local simulation only.",
+    "Nur in der lokalen Simulation verfügbar.",
+    "Just an der lokaler Simulatioun disponibel."
+  ],
+  "Identifiant OAuth non valide.": [
+    "Invalid OAuth identifier.",
+    "Ungültige OAuth-Kennung.",
+    "Ongëltegen OAuth-Identifiant."
   ]
 }

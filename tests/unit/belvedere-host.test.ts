@@ -293,6 +293,21 @@ describe("canonical Belvedere application session", () => {
     expect(await compatible!.text()).toContain(`content="/belvedere/${slug}"`);
   });
 
+  it("answers absent to a visitor without any session on the public path", async () => {
+    const anonymous = (await handleBelvedereRoute(
+      new Request(`${canonical}/belvedere`),
+      env,
+    ))!;
+    expect(anonymous.status).toBe(404);
+    expect(anonymous.headers.has("Location")).toBe(false);
+    const legacy = (await handleBelvedereRoute(
+      new Request(`${canonical}/belvedere/${slug}`),
+      env,
+    ))!;
+    expect(legacy.status).toBe(302);
+    expect(assetRequests).toHaveLength(0);
+  });
+
   it("projects only a boolean from signed proof in both session surfaces", async () => {
     for (const path of ["/api/session", "/api/personal/session"]) {
       const response =

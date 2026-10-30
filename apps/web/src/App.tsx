@@ -918,7 +918,7 @@ function WorkspaceApplication({
                     }
                   }}
                   aria-current={
-                    navigationEntryFor(page) === id ? "page" : undefined
+                    navigationEntryFor(route) === id ? "page" : undefined
                   }
                 >
                   <Icon size={21} aria-hidden="true" />
