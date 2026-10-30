@@ -45,7 +45,11 @@
     "Mat enger eideler Säit ufänken"
   ],
   "Nom du modèle": ["Template name", "Vorlagenname", "Numm vun der Virlag"],
-  "Ouvrir le studio": ["Open the studio", "Studio öffnen", "Studio opmaachen"],
+  "Créer le modèle": [
+    "Create the template",
+    "Vorlage erstellen",
+    "Virlag erstellen"
+  ],
   "Une base pour commencer": [
     "A starting point",
     "Ein Ausgangspunkt",
@@ -130,10 +134,10 @@
     "Keine veröffentlichte Version",
     "Keng verëffentlecht Versioun"
   ],
-  "Studio documentaire": [
-    "Document studio",
-    "Dokumentenstudio",
-    "Dokumentestudio"
+  "Sections du modèle": [
+    "Template sections",
+    "Vorlagenbereiche",
+    "Beräicher vun der Virlag"
   ],
   "Modèle": ["Template", "Vorlage", "Virlag"],
   "Données et génération": [

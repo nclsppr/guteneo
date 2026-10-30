@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "pluginVersion": "1.1.17",
-  "mcpSourceSha256": "0b8bb4bb26d1e4cb1b14b85338a8a3efa07e7ab910d68d534d0bb8c586b3eccb",
-  "packageSha256": "11eaa26f2c76b4e07fb1293bdcb1ea41fc55e8b2c754110304c0333492e8bef4",
+  "pluginVersion": "1.1.19",
+  "mcpSourceSha256": "c10d4e45ae3bdb2bdd197580bf8f42861f5dc404f3f88c8583f611da7e44f395",
+  "packageSha256": "1ce80f1744e081c865d20a8d5ee9b0083aa7960836273cd7da5dce3127c94a6f",
   "sources": {
-    "apps/api/src/auth.ts": "194a7120f886ecd42e1df366181046c955a9be7a636d2aee56d6e7ca3cb2adba",
+    "apps/api/src/auth.ts": "98b513683d77bb3d183d1fc638f2bf6893104932d4be3fae30914994ded605f5",
     "apps/api/src/connection-observations.ts": "40278b9fab339e05949a04c2d2718348236e9362e944f95a4d2a3466c186fa24",
     "apps/api/src/document-upload.ts": "6bb308c9823d9418efada8d1e9962246490d12d7dfaee07e19cb2800facac99c",
     "apps/api/src/documents.ts": "3ef3ab6f31a821b9203ac6602ba87a1aaafec0991e7834bf89b060ccf2b6aa07",
@@ -35,7 +35,7 @@
     "packages/contracts/src/release.ts": "4edd274e1c5e5bbb97e8004ca81b9bf87ff81f0ba8bab4315f9c2b583ef323c1",
     "packages/contracts/src/secure-distribution.ts": "5393fb5c0813c8346a0def96e0c0016d931d3bcb22407fac86b7d92ed5f4e64e",
     "packages/contracts/src/template-workflow.ts": "1b7814220766d35b0463cd4cabc424ec6b721e96587b66c700c59dde0a966a74",
-    "packages/domain/src/index.ts": "12af38122b307b26dd1f6a6d695a0c347893672843472f094890ec0a4cbbaeee",
-    "packages/observability/src/index.ts": "a7ab0849bbdfc45c39b421204a172ed03db8354030b274c176a668328142775c"
+    "packages/domain/src/index.ts": "5dd9d657dd215dbdd5a44a2e921896e2ca099307a377455514125e966dce9351",
+    "packages/observability/src/index.ts": "3337ba925069cf50e25f09e4d7c58b12b503ea2978c55a744a3f6c54b1ff6195"
   }
 }

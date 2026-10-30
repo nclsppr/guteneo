@@ -71,7 +71,7 @@ test("verified accounts with no strong proof complete sharing, automatic verifie
   const claim = await claimResponse.json<{ id: string; status: string }>();
   expect(claim.id).toBe(prepared.id);
   expect(claim.status).toBe("active");
-  await expect(screen.getByText("Votre demande d’accès attend la confirmation de l’atelier.")).toHaveCount(0);
+  await expect(screen.getByText("Votre demande d’accès attend la confirmation de l’espace de travail.")).toHaveCount(0);
   await app.open(`/#/app/my-documents/${prepared.id}`);
   await browser.locator(".secure-document-pages > figure:first-child").scrollIntoView();
   await expect(screen.getByRole("img", /^Page 1\./u)).toBeVisible();
@@ -90,7 +90,7 @@ test("verified accounts with no strong proof complete sharing, automatic verifie
   expect(repeated.status).toBe(200);
   expect(repeated.body.id).toBe(copy.id);
   await screen.getByRole("link", "Ouvrir ma copie personnelle").tap();
-  await expect(screen.getByText("Vos consultations de cette copie personnelle ne sont pas communiquées à l’atelier expéditeur.")).toBeVisible();
+  await expect(screen.getByText("Vos consultations de cette copie personnelle ne sont pas communiquées à l’espace de travail expéditeur.")).toBeVisible();
   await screen.getByRole("button", "Exporter ma copie").tap();
   const downloaded = await browser.waitForDownload(() => screen.getByRole("button", "Lancer le téléchargement").tap());
   const digest = (bytes: Uint8Array) => createHash("sha256").update(bytes).digest("hex");

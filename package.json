@@ -1,6 +1,6 @@
 {
   "name": "guteneo",
-  "version": "1.1.17",
+  "version": "1.1.19",
   "private": true,
   "type": "module",
   "engines": {
@@ -12,7 +12,7 @@
     "db:migrate": "wrangler d1 migrations apply guteneo-local --local",
     "db:seed": "wrangler d1 execute guteneo-local --local --file scripts/seed.sql && wrangler d1 execute guteneo-local --local --file scripts/seed-content.sql",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint .",
+    "lint": "eslint . && node scripts/check-applications.mjs",
     "audit:mcp": "node --import tsx scripts/audit-mcp-annotations.ts",
     "audit:dependencies": "npm audit --audit-level=high",
     "test": "vitest run && node --test tests/security/*.test.mjs",

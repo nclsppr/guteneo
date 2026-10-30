@@ -1,5 +1,4 @@
 import { msg } from "./messages";
-import { useDashboardAppearance } from "./dashboard-appearance";
 import { useState, type FormEvent } from "react";
 import {
   ArrowLeft,
@@ -41,7 +40,6 @@ function ConnectionDiagnostics() {
 }
 
 export function OverviewAssistantStart({ session }: { session: Session }) {
-  const { appearance } = useDashboardAppearance();
   const connections = useAssistantConnections();
   const { direct, chooseDirect } = useDirectChoice(session);
   if (direct) return null;
@@ -98,10 +96,7 @@ export function OverviewAssistantStart({ session }: { session: Session }) {
             )}
           </p>
         </div>
-        <a
-          className={appearance === "v2" ? "button" : "button primary"}
-          href="#/app/connection"
-        >
+        <a className="button" href="#/app/connection">
           {msg("Use my assistant ")}
           <ArrowRight size={18} aria-hidden="true" />
         </a>

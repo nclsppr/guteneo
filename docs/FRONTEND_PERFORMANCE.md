@@ -1,8 +1,98 @@
 # Frontend loading and personal bootstrap
 
-28 October 2026. This contract owns route-loading behavior and separates bounded
-local measurements from anonymous production observations. Neither establishes
-server CPU, provider readiness, price or physical-device qualification.
+## Independent application code — 29 October 2026 local candidate
+
+The host loads My documents with `import()` just like the other applications.
+`PersonalEntry` starts its one personal-session read alongside the code request;
+`PersonalSpace` consumes that visit-scoped result and retains its normal focus
+revalidation, cancellation and identity fences. Leaving aborts the entry read.
+Neither authority nor the result is cached across visits or account identities.
+Personal navigation keeps the same shell/session; document reads still wait for
+personal authority. Opening the shared account menu adds no request.
+
+The direct-preparation preference helper now loads with Correspondence. Studio
+styles load with Studio; its reused entry-link rule belongs to shared styles.
+Locale changes emit a shared event that the public sharing adapter observes,
+removing the shared locale module's dependency on public-site code. The four
+import exceptions in `applications.json` are removed rather than expanded.
+Batch distribution preparation and frozen-plan tracking now belong to a separate
+Correspondence module and stylesheet; entering Studio does not load them.
+
+The [final loading record](evidence/studio-space-loading-2026-10-29.json)
+compares `1e013dbc` with the version 1.1.19 candidate `06edca59` through explicit
+frontend artifact equivalence. The entry HTML and all 74 generated assets match
+`64b857e4` byte for byte. All 43 distinct JS/CSS resources observed in the original
+18 fresh Chromium contexts also match. The record retains their original
+sampling time and adds a separate verification time; no browser run or latency
+observation was repeated for `06edca59`. The backend approval-lifetime correction
+and integration archives require their separate functional qualification.
+
+The original contexts (three per route/variant, interleaved) used local
+uncompressed static HTTP, a 1440 × 900 viewport and read-only synthetic APIs
+delayed by 40 ms. Complete unit, end-to-end, preview and Belvédère suites ran
+concurrently on the same machine; neither CPU isolation nor a timing improvement
+is claimed.
+
+| Route          | JS / CSS requests | API reads | JS body-byte delta | CSS body-byte delta | JS+CSS transfer-byte delta |
+| -------------- | ----------------: | --------: | -----------------: | ------------------: | -------------------------: |
+| my-documents   |   19 → 25 / 2 → 2 |     2 → 2 |            +49,066 |              -8,741 |                    +42,125 |
+| correspondence |   28 → 30 / 6 → 6 |     6 → 6 |            +10,881 |              -8,741 |                     +2,740 |
+| studio         |   22 → 24 / 2 → 3 |     3 → 3 |             +1,328 |              -1,856 |                       +372 |
+
+First useful means an available document title, correspondence row or visible
+built-in template title followed by a rendering opportunity; the below-fold
+private Studio row has its separate DOM-readiness field. The figures are
+DOM/rAF observations, not physical first-paint or server/provider latency. Exact
+timing medians and ranges remain in the JSON; concurrent suites prevent
+attributing those differences to the code. Transfer bytes are browser Resource
+Timing values including reported response overhead on this local server.
+No viewer, PDF worker, designer or globe implementation is requested by these
+three entry scenarios; writes, unexpected APIs, external requests and errors are
+zero. Independent application chunks add requests and some code; this is not a
+general loading reduction. The exact terminology table alone is 42,330 source
+bytes / 11,854 gzip bytes when minified and compressed separately, not its
+incremental bundled network cost.
+
+At the preserved `de6a3420` checkpoint, the extraction added 1,876 JavaScript body
+bytes and 207 CSS bytes to My documents, and 1,884 JavaScript bytes and 207 CSS bytes
+to Correspondence, compared with `125ed8fe`. Studio removed 13,932 JavaScript bytes
+and 13 CSS bytes but added one JavaScript request. The shared-event panel
+correction at `64b857e4` added 422 JavaScript bytes to My documents, 400 to
+Correspondence and 411 to Studio over `de6a3420`, with unchanged CSS and JS/CSS/API
+request counts. The current frontend retains those exact bytes and resource references.
+These normal-entry bytes do not qualify panel interaction. Both distribution
+assets exist in the build but are not requested by these three entries; opening
+that workflow has separate functional evidence.
+
+The initial `1ceb29ff` experiment exposed a personal delay around 300 ms despite
+code/session readiness. After the resolved-module renderer change, the
+`08df95d5` observation no longer showed that delay; its medians were 173 → 173 ms.
+This supports the first `React.lazy` retry explanation locally, rather than
+establishing a production cause. The intermediate `d47d8027` recovery candidate
+and `125ed8fe` readiness/recovery checkpoint remain dated evidence alongside both
+earlier comparisons. Identity prefetch remains visit-scoped, visibility-invalidated and
+independent of workspace bootstrap. A failed code request uses the shared
+explicit reload boundary. This normal-success measurement does not qualify its
+error recovery, redirect rejection, visit cancellation or native film gestures;
+their separate functional acceptance belongs to
+[the reprise record](STUDIO_SPACE_REPRISE.md).
+
+## Space switcher and Studio routes — 29 October 2026 candidate
+
+The space switcher adds no request when a page loads. A local check of `/app`
+read the same six API resources as before (session, capabilities, contacts,
+connections, overview, dispatches); the first switcher opening read
+`/api/account/workspaces` once and a second opening read nothing. Earlier Studio
+links are rewritten in the browser with `history.replaceState`, without a
+request, and Studio route code keeps its own lazy chunk.
+
+Production builds of the candidate and of its base (`claude/retire-classic`,
+same locked dependencies) compare as follows: main JavaScript 651,468 → 654,726
+bytes raw, 186,445 → 187,301 gzip (+856); main CSS 163,304 → 165,787 raw,
+30,431 → 30,875 gzip (+444); Studio chunk 35,231 → 35,248 gzip. Environment:
+macOS arm64, Node 24, local Vite build and a local Wrangler simulation server in
+Chromium. These are single local observations, not a latency or production
+measurement.
 
 ## Anonymous production observation — 28 October 2026
 
@@ -682,3 +772,32 @@ first-content timing, production compression or an Auth0 latency improvement.
 | Application entry | 475,450 / 136,948 | 475,470 / 136,962 |
 | Shared components | 29,730 / 9,726 | 29,792 / 9,741 |
 | Authentication navigation | 663 / 412 | 677 / 421 |
+
+## Explicit module-preload recovery
+
+The tested iPhone WebKit runtime retains a failed module-preload resource after
+an ordinary page reload. A minimal HTML/Node HTTP reproduction outside React
+and outside request interception confirms this for a non-cacheable HTTP 503;
+physical Safari remains separately unqualified. The explicit reload action first
+refreshes failed or zero-size/unknown-status same-origin `/assets/*.js|css`
+resources, consuming each successful response before navigation.
+
+The recovery allowlist rejects private paths, queries, fragments, credentials,
+foreign origins, redirects and non-code files. It sends no cookies or referrer, requests at
+most eight assets, reads at most eight MiB per response and stops after five
+seconds. It runs only after the person's reload gesture and never retries an
+API, provider operation or authorization action. Navigating elsewhere cancels
+the pending page reload. Fourteen unit cases cover its privacy/bounds; twelve
+entry/recovery browser cases pass on Chromium, mobile Chromium and iPhone WebKit.
+
+## Public film readiness before the first gesture
+
+Static HTML can appear before the entry module installs React handlers. The
+public film's visible play button remains disabled during that interval and
+becomes enabled only after mounting; resolving code never starts playback. A
+deterministic browser regression holds the actual entry module, checks the
+server-rendered disabled state in Luxembourgish, releases code and then proves
+that the first enabled gesture calls play/fullscreen synchronously. Both
+introduction and role films retain their actual media, language, captions and
+format/rotation contracts. The four new browser cases and existing playback
+suite run on Chromium and iPhone WebKit; physical-device behavior is separate.

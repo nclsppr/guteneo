@@ -17,7 +17,13 @@ import {
   publicLocaleCookieName,
   requestedPublicLocale,
 } from "../../../packages/contracts/src/public-locales";
-import { syncPublicSharing } from "./public-sharing";
+
+export const LOCALE_CHANGE_EVENT = "guteneo-locale-change";
+
+function notifyLocalePresentation() {
+  if (typeof window !== "undefined")
+    window.dispatchEvent(new Event(LOCALE_CHANGE_EVENT));
+}
 
 export {
   supportedLocales,
@@ -168,7 +174,7 @@ export function setLocale(
     }
   }
   if (typeof document !== "undefined") document.documentElement.lang = locale;
-  syncPublicSharing();
+  notifyLocalePresentation();
   if (current === locale && currentSource === source) return;
   current = locale;
   currentSource = source;
@@ -263,6 +269,6 @@ export function initializeLocale(
   // A saved explicit choice also survives ordinary navigation between public pages.
   if (!requested && source === "selection") {
     syncPublicLocaleUrl(getLocale());
-    syncPublicSharing();
+    notifyLocalePresentation();
   }
 }

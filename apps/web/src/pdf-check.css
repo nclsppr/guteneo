@@ -21,7 +21,7 @@
   flex-wrap: wrap;
 }
 .pdf-check-price strong {
-  font-family: "EB Garamond", Georgia, serif;
+  font-family: var(--font-display);
   font-size: 46px;
   font-weight: 500;
   line-height: 1.1;

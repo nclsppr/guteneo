@@ -122,7 +122,9 @@ test("administrator assigns a supervisor and independently saves approval and re
 }, testInfo) => {
   const state = await fixture(page, "admin");
   await page.goto("/#/app/admin");
-  const team = page.getByRole("region", { name: "Membres de l’atelier" });
+  const team = page.getByRole("region", {
+    name: "Membres de l’espace de travail",
+  });
   const role = team.getByLabel("Rôle de Alex Responsable de correspondance", {
     exact: true,
   });
@@ -227,7 +229,7 @@ test("observer sees documents and tracking without preparation controls", async 
   ).toBeVisible();
   await page.goto("/#/app/admin");
   await expect(
-    page.getByRole("heading", { name: "Membres de l’atelier" }),
+    page.getByRole("heading", { name: "Membres de l’espace de travail" }),
   ).toHaveCount(0);
   await expect(
     page.getByText("Votre rôle ne permet pas cette action.", { exact: false }),
@@ -380,15 +382,26 @@ test("switching workspace refreshes its name and permissions without carrying ov
   });
   await page.goto("/#/app/account");
   await expect(
-    page.getByLabel("Nom de l’atelier", { exact: true }),
+    page.getByLabel("Nom de l’espace de travail", { exact: true }),
   ).toHaveValue("Atelier de préparation");
-  await page.getByLabel("Atelier actif").selectOption("second");
-  await page.getByRole("button", { name: "Ouvrir cet atelier" }).click();
-  await expect(
-    page.getByLabel("Nom de l’atelier", { exact: true }),
-  ).toHaveValue("Atelier de consultation");
-  await expect(page.getByLabel("Atelier actif")).toHaveValue("second");
+  const switcher = page.locator(
+    ".sidebar .workspace-switcher .space-switcher-trigger",
+  );
+  await switcher.click();
+  await page
+    .getByRole("navigation", { name: "Espaces de travail", exact: true })
+    .getByRole("button", { name: "Atelier de consultation", exact: true })
+    .click();
+  // A new workspace starts at the root of the same space.
+  await expect(page).toHaveURL(/#\/app$/);
+  await expect(switcher).toContainText("Atelier de consultation");
   await expect(page.locator('a[href="#/app/prepare"]')).toHaveCount(0);
+  await page.evaluate(() => {
+    location.hash = "#/app/account";
+  });
+  await expect(
+    page.getByLabel("Nom de l’espace de travail", { exact: true }),
+  ).toHaveValue("Atelier de consultation");
   expect(switches).toEqual([{ organizationId: "second" }]);
 });
 
@@ -410,8 +423,22 @@ test("an invalid optional workspace response leaves the account form usable", as
   await expect(
     page.getByRole("button", { name: "Enregistrer les modifications" }),
   ).toBeEnabled();
-  await expect(page.getByLabel("Atelier actif")).toHaveCount(0);
+  await expect(page.getByLabel("Espace de travail actif")).toHaveCount(0);
   await expect(
     page.locator(".workspace-contacts").getByRole("alert"),
   ).toHaveCount(0);
+  // The switcher reads workspaces only when opened and tolerates the response.
+  await page
+    .locator(".sidebar .workspace-switcher .space-switcher-trigger")
+    .click();
+  const spaces = page.getByRole("navigation", {
+    name: "Espaces de travail",
+    exact: true,
+  });
+  await expect(
+    spaces.getByRole("link", {
+      name: "Créer ou rejoindre un espace de travail",
+    }),
+  ).toBeVisible();
+  await expect(spaces.getByRole("alert")).toHaveCount(0);
 });

@@ -1,6 +1,6 @@
 ---
 title: "Access and identity"
-description: "36 capabilities in the access branch of Guteneo."
+description: "37 capabilities in the access branch of Guteneo."
 sidebar:
   order: 1
 ---
@@ -20,7 +20,7 @@ Unified personal account and optional workspace implementation; migrations, alig
 <ol>
 <li id="feature-118253ca6bfe">Auth0 sign-in, verified accounts and explicit MFA policy</li>
 <li id="feature-5996e8b92f62">Canonical browser sign-in/callback; retired hosts and preview URLs refuse authentication</li>
-<li id="feature-3b417c25ebfb">Personal profile, interface language and saved Classic/V2 workspace layout; browser color preference is separate presentation state</li>
+<li id="feature-5d20c4df9bed">Personal profile and interface language; browser color preference is separate presentation state; the retired Classic layout value stays accepted but no longer changes the web layout</li>
 <li id="feature-1b09fee94068">Session listing, revocation and explicit logout</li>
 <li id="feature-258bd6db5347">Successful logout returns to the public home before Login remounts; failures stay visible and never claim a logout</li>
 <li id="feature-0d705f70130f">Workshop switching with current membership rights</li>
@@ -31,7 +31,7 @@ Unified personal account and optional workspace implementation; migrations, alig
 <li id="feature-a27bec3f16f6">Explicit Auth0 account switching without disabling ordinary SSO</li>
 <li id="feature-91f1d79cca79">Tab-focus reconciliation of identity, workshop and saved language</li>
 <li id="feature-1422d346be7e">One authenticated language control in the account; visitor choice stays separate</li>
-<li id="feature-db7acc719ea5">Account Classic/V2 preference, migration 0053 and reconciliation after identity changes</li>
+<li id="feature-d387a5ae42a3">Stored Classic/V2 preference (migration 0053) stays readable and accepted for compatibility; the web renders V2 for every account, and identity changes still reconcile language</li>
 <li id="feature-5fb66b6b5b44">Late contact-directory errors provide accessible recovery without interrupting profile editing</li>
 <li id="feature-9f0ca97174ac">Path-scoped browser reads: hide previous resources, preserve same-path refresh and ignore cancelled late responses/401s</li>
 <li id="feature-27ec8cd628c9">Direct Auth0 entry from public links and unauthenticated private routes, preserving locale and exact destination</li>
@@ -45,7 +45,7 @@ Unified personal account and optional workspace implementation; migrations, alig
 <li id="feature-e4042fab26c4">Verified dual-token subject binds to the canonical namespace without email linking or duplicate person/workshop/credits/authority; browser evidence and prepare_only restriction remain</li>
 <li id="feature-1a57b0baee0f">One Guteneo account without an automatic workspace; idempotent initial administrator/workspace creation only on explicit service use</li>
 <li id="feature-32b756cf5246">Personal browser principal and session without membership, separate from workspace API authority; shared profile name/language and no email-based identity merging</li>
-<li id="feature-ca1439eebfa1">My documents, Use Guteneo and Account and security share one sign-in; voluntary workspace choice/creation reloads the chosen destination and bootstraps that workspace’s current session, rights and CSRF</li>
+<li id="feature-dd2354d1a2ff">My documents, Use Guteneo and Account and security share one sign-in; voluntary workspace choice/creation reloads the chosen destination and bootstraps that workspace’s current session, rights and CSRF; the application switcher opens Studio or Correspondence in the current workspace (or workspace choice/creation when none exists), and Use Guteneo appears in personal navigation only without a workspace</li>
 <li id="feature-60f129aa16b0">Document policy defaults to strong or explicitly selects verified_account: verified account/address and signed auth_time in an unexpired, unrevoked identity-linked session; no separate document sign-in for verified_account, while strong retains fifteen minutes for reading/association/approval and five for export/deposit/deletion; documentAccessAllowed/documentAccessMode do not imply MFA or strongAuthentication; D1 defaults strong and environment disagreement fails closed</li>
 <li id="feature-f9f5d7df1035">Document invitation handoff lasts at most ten minutes in the same tab, then is deleted; capture before Auth0 with secret-free returnTo and no arbitrary private query</li>
 <li id="feature-455cf75df968">Document-service 401 offers explicit recovery without session-bootstrap loops; Auth0 recovery reconciles language and returned identity</li>
@@ -54,4 +54,5 @@ Unified personal account and optional workspace implementation; migrations, alig
 <li id="feature-f86a9c83e39e">Production browser configuration selects auth.guteneo.com; the tenant-wide custom-domain email flag and exact authorization-response issuer identification were applied and reread on 27 October, without sending verification mail or qualifying human login</li>
 <li id="feature-164854ca8126">Normal verified-account browser entry reuses Auth0 SSO within the existing one-hour session bound; signed authentication time is requested without forcing personal-entry max_age=0, and explicit fresh/account-switch behavior remains</li>
 <li id="feature-7785137dbdd5">Verified-account personal and document-authentication recovery use ordinary bounded Auth0 SSO without fresh=1; strong and explicit freshness recovery retain forced authentication. Legacy sessions missing signed auth_time require a real new authorization response, never a timestamp reconstructed from session creation; safe return paths, locale, tenant rights and human approval remain unchanged</li>
+<li id="feature-34f94846ae01">Workspace and personal browser sessions project only canAccessBelvedere for navigation; signed privileged browser evidence and current membership remain mandatory, with no authority derived from mutable profile email or workspace role</li>
 </ol>

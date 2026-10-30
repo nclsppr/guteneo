@@ -48,6 +48,8 @@ now execute on both desktop Chromium and iPhone WebKit; their former desktop
 exception is removed, leaving the other eighteen project-specific skips intact.
 The 29 October V2 sidebar geometry case is desktop-only: its two declared
 mobile-project skips bring the registry to twenty project-specific exceptions.
+The Studio space candidate adds the same exception for its 1280 × 720 check in
+`studio-space.spec.ts`, bringing the registry to twenty-two.
 The gate still rejects obsolete declarations, unexpected skips and incomplete
 execution. Validate registry maintenance with `verifyBrowserEvidence` against
 the original current-run reports and fresh inventories, not just `--list` or

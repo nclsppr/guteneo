@@ -36,7 +36,8 @@ test("period snapshots avoid duplicate reads and build daily rows only on disclo
 
 test("a period snapshot expires after fifteen minutes", async ({ page }) => {
   const reads: number[] = [];
-  await page.clock.install({ time: Date.now() });
+  // Isolate TTL expiry from the separate UTC-midnight invalidation below.
+  await page.clock.install({ time: new Date("2026-10-28T12:00:00Z") });
   page.on("request", (request) => {
     const url = new URL(request.url());
     if (url.pathname === "/api/history")

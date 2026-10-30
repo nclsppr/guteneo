@@ -75,6 +75,14 @@ knowing an address cannot satisfy that independent identity check. Existing
 authentication/MFA policy still applies. Workspace membership remains current;
 Belvédère does not create an alternative login system.
 
+Canonical application entry reuses a valid canonical host-only browser session,
+with minimal server-projected navigation capability and the same guard on every
+read. Switching applications alone does not require another sign-in. The shared
+application/account controls preserve all seven views and load the interactive
+globe only when needed. A navigation hint grants no access; identity expiry or
+revocation removes displayed data and follows normal recovery. Personal-only
+accounts without a current workspace browser session gain no platform authority.
+
 The dedicated platform host keeps the control tower at its root throughout normal
 Auth0 sign-in. Its callback and logout origins are exact allowlist entries; its
 secure browser cookie remains host-only. It exposes only the protected control

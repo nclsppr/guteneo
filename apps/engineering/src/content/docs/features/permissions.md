@@ -35,7 +35,7 @@ There are four human membership roles. A connected assistant is a separate OAuth
 | Remove a template | Owner | Owner | Owner | No | Owner + current role/scopes |
 | Cancel/retry a generation | Batch owner | Batch owner | Batch owner | No | Owner + generations:write; frozen batches cannot retry |
 | Read private generated PDFs | Creator/context access | Creator/context access | Creator/context access | Explicit current document access | Owner/context authority; no general private-library access |
-| Profile, language, own sessions and Classic/V2 layout | Own account in browser | Own account in browser | Own account in browser | Own account in browser | No browser account administration or Classic/V2 setter |
+| Profile, language and own sessions | Own account in browser | Own account in browser | Own account in browser | Own account in browser | No browser account administration |
 | Read responsible workshop contacts | Authenticated browser | Authenticated browser | Authenticated browser | Authenticated browser | No |
 | Read public pages/errors/status | Public; no privilege acquired | Public; no privilege acquired | Public; no privilege acquired | Public; no privilege acquired | Public read only; no extra tool/authority |
 | Choose public language and retain a presentation hint | Local browser presentation only; no session required | Local browser presentation only; no session required | Local browser presentation only; no session required | Local browser presentation only; no session required | No account-language setter or extra REST/MCP authority |
@@ -55,5 +55,6 @@ There are four human membership roles. A connected assistant is a separate OAuth
 | Keep or export one’s own received document | Personal principal + document policy + share permission | Personal principal + document policy + share permission | Personal principal + document policy + share permission | Personal principal + document policy + share permission | No; personal operation outside workspace OAuth |
 | Read public browser reports | Public access without workspace privilege | Public access without workspace privilege | Public access without workspace privilege | Public access without workspace privilege | Public read only; no ingestion or business authority |
 | Read monthly and daily consumption history | Yes | Reporting option | No | No | Current reporting rights + tenant-scoped REST read; no new MCP billing tool |
+| Read private generation correction input | Only own generation under current browser membership | Only own generation under current browser membership | Only own generation under current browser membership | Only own generation under current browser membership; creation still requires its permission | No MCP/native route; shared-template or dispatch-review access grants no source input |
 
 Read [authority and tenancy](/architecture/authority-and-tenancy/) for the enforcement model and [MCP](/integrations/mcp/) for assistant constraints.

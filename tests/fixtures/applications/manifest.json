@@ -1,0 +1,15 @@
+{
+  "root": "tests/fixtures/applications/src",
+  "designSystem": ["theme.css"],
+  "shellSelectors": ["sidebar"],
+  "layers": {
+    "host": { "files": ["main.tsx"] },
+    "shared": { "files": ["theme.css", "button.tsx"] }
+  },
+  "applications": {
+    "studio": { "files": ["studio.tsx", "studio.css"] },
+    "personal": { "files": ["personal.tsx"] }
+  },
+  "importExceptions": [],
+  "designExceptions": []
+}

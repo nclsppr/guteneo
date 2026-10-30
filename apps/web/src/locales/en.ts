@@ -2,7 +2,7 @@ import type { Copy } from "../i18n";
 
 export const en: Copy = {
   skip: "Skip to content",
-  atelier: "THE WORKSHOP",
+  atelier: "CORRESPONDENCE",
   yes: "Yes",
   no: "No",
   brand: "guteneo",
@@ -47,7 +47,7 @@ export const en: Copy = {
     overview: "Overview",
     documents: "Documents",
     templates: "Templates",
-    datasets: "My data",
+    datasets: "Data",
     generations: "Generations",
     dispatches: "Dispatches",
     campaigns: "Campaigns",
@@ -133,7 +133,7 @@ export const en: Copy = {
       created: "Created by",
       nav: "Footer links",
       installation: "Installation",
-      atelier: "The workshop",
+      atelier: "Correspondence",
       legal: "Legal notice",
     },
     film: {
@@ -176,10 +176,10 @@ export const en: Copy = {
     newTab: "(new tab)",
   },
   login: {
-    title: "Welcome to the workshop.",
+    title: "Welcome to your workspace.",
     body: "Explore an isolated demo workspace. Documents and dispatches belong to the selected organisation.",
     local: "Local demonstration",
-    atelier: "Enter the Atelier",
+    atelier: "Enter the workspace",
     studio: "Enter the Studio",
     separator: "Guteneo account",
     managed: "Sign in",
@@ -202,7 +202,7 @@ export const en: Copy = {
     emptyTitle: "Your first dispatch starts here.",
     emptyBody:
       "Import a PDF or compose a letter. You will review it before any confirmation.",
-    connectionTitle: "Your assistant, your workshop.",
+    connectionTitle: "Your assistant, your workspace.",
     connectionBody:
       "Prepare dispatches from a conversation and find the same documents and identifiers here.",
     connect: "Set up the connection",
@@ -429,7 +429,7 @@ export const en: Copy = {
   connection: {
     title: "The conversation continues here.",
     intro:
-      "One workshop, accessible from your assistant, the API and this workspace.",
+      "One workspace, accessible from your assistant, the API and the browser.",
     endpoint: "MCP server address",
     copy: "Copy address",
     copied: "Address copied",
@@ -502,7 +502,7 @@ export const en: Copy = {
       "This activation does not transfer any document or send any letter. You will check the PDF, recipient and quote before sending.",
     ready: "Your postal sender is ready",
     readyBody:
-      "You can import your PDF and then prepare a letter in the workshop.",
+      "You can import your PDF and then prepare a letter in Correspondence.",
     prepare: "Prepare a letter",
     declared: "Declared by the administrator",
     submittedInChat: "Provided in the conversation",
@@ -543,7 +543,7 @@ export const en: Copy = {
     note: "An uncertain submission keeps its reservation until it is resolved. Actual costs depend on the provider and are not customer prices.",
   },
   admin: {
-    title: "Keeping an eye on the workshop.",
+    title: "Keeping an eye on the workspace.",
     intro:
       "Understand incidents before acting. Uncertain submissions are never retried blindly.",
     refresh: "Refresh diagnostics",

@@ -14,7 +14,9 @@ import { documentAnalysis } from "../../packages/contracts/src/document-analysis
 
 async function login(page: Page) {
   await page.goto("/#/app");
-  await page.getByRole("button", { name: "Entrer dans l’Atelier" }).click();
+  await page
+    .getByRole("button", { name: "Entrer dans l’espace de travail" })
+    .click();
   await expect(
     page.getByRole("heading", { name: "Votre correspondance, au clair." }),
   ).toBeVisible();
@@ -147,7 +149,7 @@ test("XML records determine each PDF channel and recipient without sending", asy
     )
       approvalCalls.push(request.url());
   });
-  await page.goto("/#/app/datasets");
+  await page.goto("/#/app/studio/datasets");
   await page.getByText("Options XML", { exact: true }).click();
   await page
     .getByLabel("Chemin des enregistrements XML", { exact: true })
@@ -212,7 +214,7 @@ test("XML records determine each PDF channel and recipient without sending", asy
   await page
     .getByRole("button", { name: "Générer 2 PDF sans envoi", exact: true })
     .click();
-  await expect(page).toHaveURL(/#\/app\/generation\/gen_/);
+  await expect(page).toHaveURL(/#\/app\/studio\/generation\/gen_/);
   const jobId = page.url().split("/generation/")[1];
   let generation: GenerationJobView | undefined;
   await expect
@@ -326,6 +328,10 @@ test("XML records determine each PDF channel and recipient without sending", asy
   await page
     .getByRole("button", { name: "Préparer une distribution (2)", exact: true })
     .click();
+  // Several PDFs: the destination's documents are chosen explicitly.
+  await page
+    .getByLabel("Documents pour la destination 1", { exact: true })
+    .selectOption("all");
   await page.getByLabel("Canal 1", { exact: true }).selectOption("data");
   await expect(page.getByLabel("Champ du canal", { exact: true })).toHaveValue(
     "delivery.channel",
@@ -457,6 +463,9 @@ test("a slower generation result read preserves focus until selection becomes av
   const resultsHeld = new Promise<void>((resolve) => {
     announceRead = resolve;
   });
+  await page.route(`**/api/generation-jobs/${id}/record-context`, (route) =>
+    route.fulfill({ json: { items: [] } }),
+  );
   await page.route(`**/api/generation-jobs/${id}{,/results}`, async (route) => {
     expect(route.request().method()).toBe("GET");
     if (!new URL(route.request().url()).pathname.endsWith("/results")) {
@@ -493,9 +502,9 @@ test("a slower generation result read preserves focus until selection becomes av
     });
   });
   try {
-    await page.goto(`/#/app/generation/${id}`);
+    await page.goto(`/#/app/studio/generation/${id}`);
     const selection = page.getByRole("checkbox", {
-      name: "Sélectionner record-2",
+      name: /^Sélectionner record-2(?: ·|$)/,
       exact: true,
     });
     await expect(selection).toBeDisabled();
@@ -558,7 +567,7 @@ test("account language changes in another tab preserve the studio title and unsa
       },
     }),
   );
-  await page.goto("/#/app/template/locale-studio");
+  await page.goto("/#/app/studio/template/locale-studio");
   async function changeAccountLanguage(locale: string) {
     const settings = await page.context().newPage();
     try {
@@ -625,8 +634,8 @@ test("account language changes in another tab preserve the studio title and unsa
     fullPage: true,
   });
   page.once("dialog", (dialog) => dialog.dismiss());
-  await page.locator('a.back-link[href="#/app/templates"]').click();
-  await expect(page).toHaveURL(/#\/app\/template\/locale-studio$/);
+  await page.locator('a.back-link[href="#/app/studio/templates"]').click();
+  await expect(page).toHaveURL(/#\/app\/studio\/template\/locale-studio$/);
   await expect(
     page.getByLabel("Numm vun der Virlag", { exact: true }),
   ).toHaveValue("Brouillon conservé");

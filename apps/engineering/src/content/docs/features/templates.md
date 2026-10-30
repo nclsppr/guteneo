@@ -11,7 +11,7 @@ sidebar:
 
 Implemented; AI suggestions require configuration and organisation consent.
 
-**Surfaces:** Web, REST and MCP; optional configured AI proposal service.
+**Surfaces:** Web Studio space under /app/studio/…, REST and MCP; optional configured AI proposal service.
 
 [Read the engineering guide](/workflows/studio-and-data/) · [All features](/features/)
 

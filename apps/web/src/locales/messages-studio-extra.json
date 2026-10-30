@@ -42,10 +42,10 @@
     "Für ein personalisiertes PDF pro Kunde",
     "Fir e personaliséierte PDF pro Client"
   ],
-  "importez vos données dans le studio documentaire": [
-    "import your data into the document studio",
-    "importieren Sie Ihre Daten in das Dokumentenstudio",
-    "importéiert Är Donnéeën an den Dokumentestudio"
+  "importez vos données dans le Studio": [
+    "import your data into the Studio",
+    "importieren Sie Ihre Daten in das Studio",
+    "importéiert Är Donnéeën an de Studio"
   ],
   "Brouillon": ["Draft", "Entwurf", "Entworf"],
   "Publié": ["Published", "Veröffentlicht", "Verëffentlecht"],
@@ -129,9 +129,64 @@
     "Eine mehrseitige Tabelle mit nach Empfänger gruppierten Zeilen.",
     "Eng Tabell iwwer méi Säite mat Reien no Empfänger gruppéiert."
   ],
-  "Quitter le studio et perdre les modifications non enregistrées ?": [
-    "Leave the studio and lose unsaved changes?",
-    "Studio verlassen und ungespeicherte Änderungen verwerfen?",
-    "De Studio verloossen an net gespäichert Ännerunge verléieren?"
+  "Quitter ce modèle et perdre les modifications non enregistrées ?": [
+    "Leave this template and lose unsaved changes?",
+    "Diese Vorlage verlassen und ungespeicherte Änderungen verwerfen?",
+    "Dës Virlag verloossen an net gespäichert Ännerunge verléieren?"
+  ],
+  "Remplacer le fichier de données": [
+    "Replace the data file",
+    "Datendatei ersetzen",
+    "Datefichier ersetzen"
+  ],
+  "Fichier de données corrigé": [
+    "Corrected data file",
+    "Korrigierte Datendatei",
+    "Korrigéierten Datefichier"
+  ],
+  "Corriger et créer une nouvelle version": [
+    "Correct and create a new version",
+    "Korrigieren und eine neue Version erstellen",
+    "Korrigéieren an eng nei Versioun erstellen"
+  ],
+  "Corriger les données source": [
+    "Correct source data",
+    "Quelldaten korrigieren",
+    "Quelldate korrigéieren"
+  ],
+  "← Génération d’origine": [
+    "← Original generation",
+    "← Ursprüngliche Generierung",
+    "← Ursprénglech Generéierung"
+  ],
+  "Utiliser cette version avec les mêmes données": [
+    "Use this version with the same data",
+    "Diese Version mit denselben Daten verwenden",
+    "Dës Versioun mat de selwechten Date benotzen"
+  ],
+  "Importer et conserver les correspondances de champs": [
+    "Import and keep my mapping",
+    "Importieren und meine Zuordnung beibehalten",
+    "Datefichier importéieren a meng Zouuerdnung behalen"
+  ],
+  "Corriger les données": [
+    "Correct data",
+    "Daten korrigieren",
+    "Date korrigéieren"
+  ],
+  "Quitter cette correction et perdre les modifications non enregistrées ?": [
+    "Leave this correction and lose unsaved changes?",
+    "Diese Korrektur verlassen und ungespeicherte Änderungen verwerfen?",
+    "Dës Korrektur verloossen an net gespäichert Ännerunge verléieren?"
+  ],
+  "Les lignes exclues n’ont pas pu être retrouvées dans ce fichier. Vérifiez-les avant de valider.": [
+    "Row exclusions could not be matched to this file. Review them before validating.",
+    "Die ausgeschlossenen Zeilen konnten dieser Datei nicht zugeordnet werden. Prüfen Sie sie vor der Validierung.",
+    "Déi ausgeschlosse Reie konnten dësem Fichier net zougeuerdent ginn. Iwwerpréift se virun der Validatioun."
+  ],
+  "J’ai vérifié les lignes exclues de ce fichier.": [
+    "I reviewed the row exclusions for this file.",
+    "Ich habe die ausgeschlossenen Zeilen für diese Datei geprüft.",
+    "Ech hunn déi ausgeschlosse Reie fir dëse Fichier iwwerpréift."
   ]
 }

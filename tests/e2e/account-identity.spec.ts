@@ -276,59 +276,55 @@ async function capture(
   });
 }
 
-test("personal documents use one compact navigation row and role details stay on the account page", async ({
+test("personal documents sit in the space switcher and role details stay on the account page", async ({
   page,
   isMobile,
 }, info) => {
   const data = await fixture(page);
-  for (const appearance of ["classic", "v2"]) {
-    await page.goto(`/?appearance=${appearance}#/app`);
-    await expect(page.locator("aside .workspace-identity")).toContainText(
-      data.session.user.email!,
-    );
-    const navigation = page.locator(".workspace-navigation");
-    if (isMobile) await navigation.locator("summary").click();
-    const personal = navigation.locator('a[href="#/app/my-documents"]');
-    await expect(personal).toHaveCount(1);
-    await expect(personal).toHaveAccessibleName(
-      "Mes documents — Espace personnel",
-    );
-    await expect(personal).toHaveAttribute("title", "Espace personnel");
-    await expect(page.locator(".sidebar > .personal-context-link")).toHaveCount(
-      0,
-    );
-    const personalBox = await personal.boundingBox();
-    const overviewBox = await navigation
-      .locator('a[href="#/app"]')
-      .boundingBox();
-    expect(personalBox).not.toBeNull();
-    expect(overviewBox).not.toBeNull();
-    expect(personalBox!.height).toBeGreaterThanOrEqual(44);
-    expect(personalBox!.height).toBeLessThanOrEqual(48);
-    const brandBlue = await personal.evaluate((element) =>
-      getComputedStyle(element).getPropertyValue("--blue").trim(),
-    );
-    expect(["#2450db", "#9bb5ff"]).toContain(brandBlue);
-    const blueChannels = brandBlue
-      .slice(1)
-      .match(/.{2}/g)!
-      .map((channel) => Number.parseInt(channel, 16));
-    const borderColor = `rgb(${blueChannels.join(", ")})`;
-    for (const side of ["top", "right", "bottom", "left"]) {
-      await expect(personal).toHaveCSS(`border-${side}-width`, "1px");
-      await expect(personal).toHaveCSS(`border-${side}-color`, borderColor);
-    }
-    await expect(
-      page.locator(".workspace-role, .dashboard-identity"),
-    ).toHaveCount(0);
-    await expect(page.locator("aside .workspace-identity")).not.toContainText(
-      "Opérateur",
-    );
-    await fits(page);
-    await capture(page, `compact-sidebar-${appearance}`, info.project.name);
-    await page.goto(`/?appearance=${appearance}#/app/account`);
-    await expect(page.locator(".account-identity")).toContainText("Opérateur");
-  }
+  await page.goto(`/#/app`);
+  await expect(page.locator("aside .workspace-identity")).toContainText(
+    data.session.user.email!,
+  );
+  // My documents is an application in the switcher, reachable with the menu closed.
+  const switcher = page.locator(
+    ".sidebar .application-switcher .space-switcher-trigger",
+  );
+  await expect(switcher).toBeVisible();
+  // Touch screens keep 44 px; desktop pointers use 40 px so every entry fits.
+  expect((await switcher.boundingBox())!.height).toBeGreaterThanOrEqual(
+    isMobile ? 44 : 40,
+  );
+  await switcher.click();
+  await expect(switcher).toHaveAttribute("aria-expanded", "true");
+  const spaces = page.getByRole("navigation", {
+    name: "Applications",
+    exact: true,
+  });
+  const personal = spaces.getByRole("link", {
+    name: "Mes documents",
+    exact: true,
+  });
+  await expect(personal).toHaveAttribute("href", "#/app/my-documents");
+  await expect(
+    spaces.getByRole("link", { name: "Correspondance", exact: true }),
+  ).toHaveAttribute("aria-current", "true");
+  await page.keyboard.press("Escape");
+  await expect(switcher).toHaveAttribute("aria-expanded", "false");
+  await expect(switcher).toBeFocused();
+  await expect(page.locator(".sidebar > .personal-context-link")).toHaveCount(
+    0,
+  );
+  if (isMobile) await page.locator(".workspace-navigation summary").click();
+  await expect(
+    page.locator(".workspace-role, .dashboard-identity"),
+  ).toHaveCount(0);
+  await expect(page.locator("aside .workspace-identity")).not.toContainText(
+    "Opérateur",
+  );
+  await fits(page);
+  await capture(page, `compact-sidebar`, info.project.name);
+  await page.goto(`/#/app/account`);
+  await expect(page.locator(".account-identity")).toContainText("Opérateur");
   expect(data.writes).toEqual([]);
   expect(data.unmatched).toEqual([]);
 });
@@ -401,10 +397,25 @@ test("identity stays visible, switching names the account action and profile cha
 });
 
 for (const [locale, heading, roleLabel, contactsHeading] of [
-  ["fr", "Mon profil", "Superviseur", "Qui contacter dans cet atelier ?"],
-  ["en", "My profile", "Supervisor", "Who can help in this workshop?"],
-  ["de", "Mein Profil", "Supervisor", "Wer kann in dieser Werkstatt helfen?"],
-  ["lb", "Mäi Profil", "Supervisor", "Wien kann an dësem Atelier hëllefen?"],
+  [
+    "fr",
+    "Mon profil",
+    "Superviseur",
+    "Qui contacter dans cet espace de travail ?",
+  ],
+  ["en", "My profile", "Supervisor", "Who can help in this workspace?"],
+  [
+    "de",
+    "Mein Profil",
+    "Supervisor",
+    "Wer kann in diesem Arbeitsbereich helfen?",
+  ],
+  [
+    "lb",
+    "Mäi Profil",
+    "Supervisor",
+    "Wien kann an dësem Aarbechtsberäich hëllefen?",
+  ],
 ] as const) {
   test(`account identity and contacts fit long names and addresses in ${locale}`, async ({
     page,
@@ -437,7 +448,7 @@ for (const [locale, heading, roleLabel, contactsHeading] of [
     await capture(page, "profile", info.project.name, locale);
     if (locale === "fr") {
       const rights = page.getByRole("region", {
-        name: "Vos droits dans cet atelier",
+        name: "Vos droits dans cet espace de travail",
         exact: true,
       });
       await expect(
@@ -448,7 +459,7 @@ for (const [locale, heading, roleLabel, contactsHeading] of [
       await expect(
         rights
           .locator(".account-permissions > div")
-          .filter({ hasText: "Rapports de l’atelier" }),
+          .filter({ hasText: "Rapports de l’espace de travail" }),
       ).toContainText("Accessibles");
       const reportContact = contacts
         .locator(".workspace-contact-list > li")
@@ -670,7 +681,7 @@ test("contact failure is recoverable and switching workshops removes the previou
   data.state.failContacts = true;
   await page.goto("/#/app/account");
   const contacts = page.getByRole("region", {
-    name: "Qui contacter dans cet atelier ?",
+    name: "Qui contacter dans cet espace de travail ?",
     exact: true,
   });
   await expect(contacts.getByRole("alert")).toContainText(
@@ -686,12 +697,19 @@ test("contact failure is recoverable and switching workshops removes the previou
   await expect(
     contacts.getByRole("link", { name: /validation@example.invalid/ }),
   ).toBeVisible();
+  // The workspace switcher replaces the former account-page form.
+  const readsBeforeSwitch = data.state.contactReads;
   await page
-    .getByLabel("Atelier actif", { exact: true })
-    .selectOption("other-workshop");
-  await page
-    .getByRole("button", { name: "Ouvrir cet atelier", exact: true })
+    .locator(".sidebar .workspace-switcher .space-switcher-trigger")
     .click();
+  await page
+    .getByRole("navigation", { name: "Espaces de travail", exact: true })
+    .getByRole("button", { name: "Deuxième atelier", exact: true })
+    .click();
+  await expect(page).toHaveURL(/#\/app$/);
+  await page.evaluate(() => {
+    location.hash = "#/app/account";
+  });
   await expect(
     contacts.getByRole("link", { name: /autre.atelier@example.invalid/ }),
   ).toBeVisible();
@@ -701,7 +719,8 @@ test("contact failure is recoverable and switching workshops removes the previou
   await expect(page.locator("#account-organization")).toHaveValue(
     "Deuxième atelier",
   );
-  expect(data.state.contactReads).toBe(3);
+  // The new workspace reads its own contacts; the old ones never reappear.
+  expect(data.state.contactReads).toBeGreaterThan(readsBeforeSwitch);
   expect(data.writes).toEqual([
     {
       method: "POST",
@@ -712,72 +731,70 @@ test("contact failure is recoverable and switching workshops removes the previou
   expect(data.unmatched).toEqual([]);
 });
 
-for (const appearance of ["classic", "v2"] as const) {
-  for (const failure of ["network", "malformed"] as const) {
-    test(`${appearance} profile keeps typing focus when delayed contacts are ${failure}`, async ({
-      page,
-    }) => {
-      const data = await fixture(page);
-      data.state.failContacts = failure === "network";
-      data.state.malformedContacts =
-        failure === "malformed" ? "missing-items" : null;
-      let release!: () => void;
-      let requested!: () => void;
-      const gate = new Promise<void>((resolve) => {
-        release = resolve;
-      });
-      const ready = new Promise<void>((resolve) => {
-        requested = resolve;
-      });
-      data.state.holdNextContacts = { ready: requested, gate };
-      try {
-        await page.goto(`/?appearance=${appearance}#/app/account`);
-        await ready;
-        const name = page.getByLabel("Votre nom", { exact: true });
-        const contacts = page.getByRole("region", {
-          name: "Qui contacter dans cet atelier ?",
-          exact: true,
-        });
-        const save = page.getByRole("button", {
-          name: "Enregistrer les modifications",
-          exact: true,
-        });
-        await name.fill("Camille en cours");
-        await expect(name).toBeFocused();
-        await expect(save).toBeEnabled();
-        release();
-        await expect(contacts.getByRole("alert")).toContainText(
-          failure === "network"
-            ? "contacts sont temporairement indisponibles"
-            : "Impossible de vérifier les contacts",
-        );
-        await expect(name).toBeFocused();
-        // Use the current keyboard target: refocusing the locator would hide stolen focus.
-        await page.keyboard.insertText(" de saisie");
-        await expect(name).toHaveValue("Camille en cours de saisie");
-        await expect(name).toBeFocused();
-        await expect(save).toBeEnabled();
-        expect(data.writes).toEqual([]);
-        data.state.failContacts = false;
-        data.state.malformedContacts = null;
-        await contacts
-          .getByRole("button", { name: "Réessayer", exact: true })
-          .click();
-        await expect(
-          contacts.getByRole("link", { name: /validation@example.invalid/ }),
-        ).toBeVisible();
-        await expect(contacts.getByRole("alert")).toHaveCount(0);
-        await expect(name).toHaveValue("Camille en cours de saisie");
-        await expect(save).toBeEnabled();
-        expect(data.state.contactReads).toBe(2);
-        expect(data.writes).toEqual([]);
-        expect(data.unmatched).toEqual([]);
-      } finally {
-        release();
-        await page.unrouteAll({ behavior: "wait" });
-      }
+for (const failure of ["network", "malformed"] as const) {
+  test(`profile keeps typing focus when delayed contacts are ${failure}`, async ({
+    page,
+  }) => {
+    const data = await fixture(page);
+    data.state.failContacts = failure === "network";
+    data.state.malformedContacts =
+      failure === "malformed" ? "missing-items" : null;
+    let release!: () => void;
+    let requested!: () => void;
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
     });
-  }
+    const ready = new Promise<void>((resolve) => {
+      requested = resolve;
+    });
+    data.state.holdNextContacts = { ready: requested, gate };
+    try {
+      await page.goto(`/#/app/account`);
+      await ready;
+      const name = page.getByLabel("Votre nom", { exact: true });
+      const contacts = page.getByRole("region", {
+        name: "Qui contacter dans cet espace de travail ?",
+        exact: true,
+      });
+      const save = page.getByRole("button", {
+        name: "Enregistrer les modifications",
+        exact: true,
+      });
+      await name.fill("Camille en cours");
+      await expect(name).toBeFocused();
+      await expect(save).toBeEnabled();
+      release();
+      await expect(contacts.getByRole("alert")).toContainText(
+        failure === "network"
+          ? "contacts sont temporairement indisponibles"
+          : "Impossible de vérifier les contacts",
+      );
+      await expect(name).toBeFocused();
+      // Use the current keyboard target: refocusing the locator would hide stolen focus.
+      await page.keyboard.insertText(" de saisie");
+      await expect(name).toHaveValue("Camille en cours de saisie");
+      await expect(name).toBeFocused();
+      await expect(save).toBeEnabled();
+      expect(data.writes).toEqual([]);
+      data.state.failContacts = false;
+      data.state.malformedContacts = null;
+      await contacts
+        .getByRole("button", { name: "Réessayer", exact: true })
+        .click();
+      await expect(
+        contacts.getByRole("link", { name: /validation@example.invalid/ }),
+      ).toBeVisible();
+      await expect(contacts.getByRole("alert")).toHaveCount(0);
+      await expect(name).toHaveValue("Camille en cours de saisie");
+      await expect(save).toBeEnabled();
+      expect(data.state.contactReads).toBe(2);
+      expect(data.writes).toEqual([]);
+      expect(data.unmatched).toEqual([]);
+    } finally {
+      release();
+      await page.unrouteAll({ behavior: "wait" });
+    }
+  });
 }
 
 test("malformed contacts leave the profile usable and support an explicit retry", async ({
@@ -787,7 +804,7 @@ test("malformed contacts leave the profile usable and support an explicit retry"
   data.state.malformedContacts = "missing-items";
   await page.goto("/#/app/account");
   const contacts = page.getByRole("region", {
-    name: "Qui contacter dans cet atelier ?",
+    name: "Qui contacter dans cet espace de travail ?",
     exact: true,
   });
   await expect(contacts.getByRole("alert")).toContainText(
@@ -799,7 +816,7 @@ test("malformed contacts leave the profile usable and support an explicit retry"
   await page.locator("#account-name").fill("Nom personnel toujours modifiable");
   await expect(
     contacts.getByText(
-      "Aucun autre administrateur ou superviseur dans cet atelier.",
+      "Aucun autre administrateur ou superviseur dans cet espace de travail.",
       { exact: true },
     ),
   ).toHaveCount(0);
@@ -834,7 +851,7 @@ test("member emails distinguish identical names and role controls target the sel
   const data = await fixture(page, { role: "admin" });
   await page.goto("/#/app/admin");
   const team = page.getByRole("region", {
-    name: "Membres de l’atelier",
+    name: "Membres de l’espace de travail",
     exact: true,
   });
   await expect(team.getByRole("rowheader")).toHaveCount(2);

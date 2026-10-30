@@ -1,10 +1,8 @@
-import { defaultDashboardAppearance } from "../../../packages/contracts/src/dashboard-appearance";
 import { msg, msgIn } from "./messages";
 import { useState, type FormEvent } from "react";
 import {
   canAdminister,
   permissionsFor,
-  setSession,
   api,
   ApiError,
   date,
@@ -30,10 +28,6 @@ import {
 } from "./locale";
 import { LanguageSelect } from "./language-select";
 import { AppearancePreferences } from "./appearance-preferences";
-import {
-  useDashboardAppearance,
-  type DashboardAppearance,
-} from "./dashboard-appearance";
 import { ExpertApproval } from "./expert-approval";
 import {
   WORKSPACE_ROLES,
@@ -76,80 +70,8 @@ function PreviewNotice() {
   );
 }
 
-function WorkspaceSwitcher({ session, onUpdated }: Props) {
-  const workspaces = useResource<{
-    items: { id: string; name: string; current: boolean }[];
-  }>(isPublicPreview ? null : "/account/workspaces");
-  const action = useAction();
-  const [selected, setSelected] = useState(session.organization.id);
-  if (
-    !Array.isArray(workspaces.data?.items) ||
-    workspaces.data.items.length < 2
-  )
-    return null;
-  async function change(event: FormEvent) {
-    event.preventDefault();
-    await action.run(async () => {
-      const next = await api<Session>("/account/workspace", {
-        method: "POST",
-        body: { organizationId: selected },
-      });
-      setSession(next);
-      await onUpdated();
-    });
-  }
-  return (
-    <form
-      className="form-panel"
-      onSubmit={(event) => void change(event)}
-      aria-busy={action.pending}
-    >
-      <h2>{msgIn("workspace-account", "Switch workspace")}</h2>
-      <div className="field">
-        <label htmlFor="account-workspace">{msg("Active workspace")}</label>
-        <select
-          id="account-workspace"
-          value={selected}
-          disabled={action.pending}
-          onChange={(event) => setSelected(event.target.value)}
-        >
-          {workspaces.data.items.map((item) => (
-            <option value={item.id} key={item.id}>
-              {item.name}
-            </option>
-          ))}
-        </select>
-      </div>
-      <p className="field-hint">
-        {msg(
-          "Your documents and permissions depend on the selected workspace. Switching opens a new session in that workspace.",
-        )}
-      </p>
-      <button
-        className="button"
-        disabled={action.pending || selected === session.organization.id}
-      >
-        {action.pending ? msg("Signing in…") : msg("Open this workspace")}
-      </button>
-      <ErrorNotice error={action.error} />
-    </form>
-  );
-}
-
 export function Account({ session, onUpdated }: Props) {
   const permissions = permissionsFor(session);
-  const { appearance, setAppearance, saveAccountAppearance } =
-    useDashboardAppearance();
-  const [draftAppearance, setDraftAppearance] =
-    useState<DashboardAppearance | null>(null);
-  const selectedAppearance =
-    draftAppearance ??
-    session.user.preferredDashboardAppearance ??
-    defaultDashboardAppearance;
-  const appearanceChanged =
-    draftAppearance !== null &&
-    selectedAppearance !==
-      (session.user.preferredDashboardAppearance ?? defaultDashboardAppearance);
   const [userName, setUserName] = useState(session.user.name);
   const [organizationName, setOrganizationName] = useState(
     session.organization.name,
@@ -168,8 +90,6 @@ export function Account({ session, onUpdated }: Props) {
   );
   const isAdmin = canAdminister(session);
   const changed =
-    appearanceChanged ||
-    (draftAppearance !== null && selectedAppearance !== appearance) ||
     (languageEdited && preferredLocale !== "") ||
     userName.trim() !== session.user.name ||
     (isAdmin && organizationName.trim() !== session.organization.name);
@@ -182,19 +102,13 @@ export function Account({ session, onUpdated }: Props) {
         body: {
           userName,
           ...(languageEdited && preferredLocale ? { preferredLocale } : {}),
-          ...(appearanceChanged
-            ? { preferredDashboardAppearance: selectedAppearance }
-            : {}),
           ...(isAdmin ? { organizationName } : {}),
         },
       });
       if (languageEdited && preferredLocale)
         applyAccountLocale(preferredLocale);
-      if (draftAppearance !== null)
-        saveAccountAppearance(selectedAppearance, session.user.id);
       await onUpdated();
       setLanguageEdited(false);
-      setDraftAppearance(null);
       setSaved(true);
     });
   }
@@ -245,16 +159,11 @@ export function Account({ session, onUpdated }: Props) {
           )}
         </p>
       </section>
-      <WorkspaceSwitcher session={session} onUpdated={onUpdated} />
       {isPublicPreview ? (
         <>
           <PreviewNotice />
           <section className="form-panel">
-            <AppearancePreferences
-              language={<LanguageSelect profile />}
-              appearance={appearance}
-              onAppearanceChange={setAppearance}
-            />
+            <AppearancePreferences language={<LanguageSelect profile />} />
             <p className="field-hint">{languageCopy().browser}</p>
           </section>
         </>
@@ -334,13 +243,6 @@ export function Account({ session, onUpdated }: Props) {
                   }}
                 />
               }
-              appearance={selectedAppearance}
-              disabled={action.pending}
-              onAppearanceChange={(next) => {
-                setDraftAppearance(next);
-                setSaved(false);
-                action.clear();
-              }}
             />
             <button
               className="button primary"

@@ -3,7 +3,14 @@ import { blankTemplate } from "../../packages/templates/gallery";
 import type { TemplateView } from "../../packages/contracts/src/template-workflow";
 
 const accountChunk = /\/assets\/account-page-[^/]+\.js$/;
-const accountLink = '.sidebar nav a[href="#/app/account"]';
+const accountMenu = ".sidebar-account .workspace-identity-trigger";
+const accountLink = ".sidebar-account .workspace-identity-profile";
+
+// The profile link lives in the closed account menu; each use opens it first.
+async function profileLink(page: Page) {
+  await page.locator(accountMenu).click();
+  return page.locator(accountLink);
+}
 
 // Only synthetic browser responses are used; no account or document is written.
 async function fixture(page: Page, waitForSession?: Promise<void>) {
@@ -76,46 +83,70 @@ test("initial workshop route code loads alongside authority without mounting pri
   }
 });
 
-test("a failed requested route retains navigation and offers an explicit page reload", async ({
-  page,
-}, info) => {
-  const state = await fixture(page);
-  let chunkRequests = 0;
-  let unavailable = true;
-  await page.route(accountChunk, (route) => {
-    chunkRequests += 1;
-    return unavailable ? route.abort("failed") : route.continue();
-  });
-  await page.goto("/#/app/account");
-  await expect(page.getByRole("alert")).toContainText(
-    "This page could not be loaded.",
-  );
-  await expect(page.locator(".sidebar")).toBeVisible();
-  expect(state.writes).toEqual([]);
-  const failures = chunkRequests;
-  const previousDocument = await page.evaluate(() => performance.timeOrigin);
-  unavailable = false;
-  await page
-    .getByRole("button", { name: "Reload the page", exact: true })
-    .click();
-  await expect
-    .poll(() => page.evaluate(() => performance.timeOrigin))
-    .not.toBe(previousDocument);
-  if (info.project.name === "iphone-webkit") {
-    // WebKit retains the simulated aborted module-preload failure across reload.
-    // The action reloads once; it never loops or substitutes private content.
+for (const failure of ["HTTP refusal", "simulated network abort"] as const) {
+  test(`route code ${failure} retains navigation and offers an explicit page reload`, async ({
+    page,
+  }, info) => {
+    const state = await fixture(page);
+    let chunkRequests = 0;
+    let recoveryRequests = 0;
+    let unavailable = true;
+    await page.route(accountChunk, (route) => {
+      chunkRequests += 1;
+      if (route.request().resourceType() === "fetch") recoveryRequests += 1;
+      if (!unavailable) return route.continue();
+      return failure === "simulated network abort"
+        ? route.abort("failed")
+        : route.fulfill({
+            status: 503,
+            contentType: "text/javascript",
+            headers: { "Cache-Control": "no-store" },
+            body: "/* Synthetic unavailable route module. */",
+          });
+    });
+    await page.goto("/#/app/account");
     await expect(page.getByRole("alert")).toContainText(
       "This page could not be loaded.",
     );
     await expect(page.locator(".sidebar")).toBeVisible();
-  } else {
-    await expect(
-      page.getByRole("heading", { name: "My account", exact: true }),
-    ).toBeVisible();
-    expect(chunkRequests).toBe(failures + 1);
-  }
-  expect(state.writes).toEqual([]);
-});
+    expect(state.writes).toEqual([]);
+    const failures = chunkRequests;
+    const interceptedWebKitAbort =
+      failure === "simulated network abort" &&
+      info.project.name === "iphone-webkit";
+    const previousDocument = await page.evaluate(() => performance.timeOrigin);
+    unavailable = false;
+    await page
+      .getByRole("button", { name: "Reload the page", exact: true })
+      .click();
+    await expect
+      .poll(() => page.evaluate(() => performance.timeOrigin))
+      .not.toBe(previousDocument);
+    if (interceptedWebKitAbort) {
+      // This intercepted abort remains cached by this WebKit build. A real HTTP
+      // refusal recovers in the adjacent case; this case must retain a usable
+      // boundary without repeated reloads or substitute private content.
+      await expect(page.getByRole("alert")).toContainText(
+        "This page could not be loaded.",
+      );
+      await expect(page.locator(".sidebar")).toBeVisible();
+      // This interception exposes no failed Resource Timing entry. Do not
+      // invent an asset URL to refresh; the native module cache retains it.
+      expect(recoveryRequests).toBe(0);
+      expect(chunkRequests).toBe(failures);
+    } else {
+      await expect(
+        page.getByRole("heading", { name: "My account", exact: true }),
+      ).toBeVisible();
+      // One explicit public-code refresh precedes the new document. Its module
+      // request may reuse that response; neither path permits a reload loop.
+      expect(recoveryRequests).toBe(1);
+      expect(chunkRequests).toBeGreaterThanOrEqual(failures + 1);
+      expect(chunkRequests).toBeLessThanOrEqual(failures + 2);
+    }
+    expect(state.writes).toEqual([]);
+  });
+}
 
 test("cold navigation keeps the current useful content until code is ready and still honors the existing veto", async ({
   page,
@@ -137,7 +168,6 @@ test("cold navigation keeps the current useful content until code is ready and s
     const originalHeading = await page
       .locator(".workspace main h1")
       .textContent();
-    const target = page.locator(".sidebar-account .workspace-identity-profile");
     await page.evaluate(() => {
       window.addEventListener(
         "guteneo:before-workspace-navigation",
@@ -145,6 +175,7 @@ test("cold navigation keeps the current useful content until code is ready and s
         { once: true },
       );
     });
+    let target = await profileLink(page);
     await target.focus();
     await page.keyboard.press("Enter");
     await expect(page).toHaveURL(/#\/app\/documents$/);
@@ -156,6 +187,7 @@ test("cold navigation keeps the current useful content until code is ready and s
       "",
     );
     expect(requested).toBe(0);
+    target = await profileLink(page);
     await target.focus();
     await target.press("Enter");
     await expect.poll(() => requested).toBe(1);
@@ -227,12 +259,11 @@ test("template edits remain protected before and during a cold route transition"
     await route.continue();
   });
   try {
-    await page.goto("/#/app/template/transition-template");
+    await page.goto("/#/app/studio/template/transition-template");
     const field = page.getByLabel("Template name", { exact: true });
     const save = page.getByRole("button", { name: "Save draft", exact: true });
     await expect(field).toHaveValue(model.name);
     await expect(save).toBeDisabled();
-    const target = page.locator(".sidebar-account .workspace-identity-profile");
     await field.fill("Unsaved synthetic edit");
     await expect(save).toBeEnabled();
     await page.evaluate(
@@ -243,9 +274,11 @@ test("template edits remain protected before and during a cold route transition"
       expect(confirmation.message()).toContain("unsaved changes");
       await confirmation.dismiss();
     });
-    await target.click();
+    await (await profileLink(page)).click();
     await dialog;
-    await expect(page).toHaveURL(/#\/app\/template\/transition-template$/);
+    await expect(page).toHaveURL(
+      /#\/app\/studio\/template\/transition-template$/,
+    );
     await expect(field).toHaveValue("Unsaved synthetic edit");
     expect(requested).toBe(false);
     await field.fill(model.name);
@@ -254,7 +287,7 @@ test("template edits remain protected before and during a cold route transition"
       () =>
         new Promise<void>((resolve) => requestAnimationFrame(() => resolve())),
     );
-    await target.click();
+    await (await profileLink(page)).click();
     await expect.poll(() => requested).toBe(true);
     const main = page.locator("#main-content");
     await expect(main).toHaveAttribute("inert", "");
@@ -303,7 +336,7 @@ test("an obsolete route import never replaces the destination selected afterward
     await expect.poll(() => requested).toBe(true);
     const menu = page.locator(".workspace-navigation summary");
     if (await menu.isVisible()) await menu.click();
-    await expect(page.locator(accountLink)).toBeVisible();
+    await expect(page.locator(accountMenu)).toBeVisible();
     await page.locator('.sidebar nav a[href="#/app/documents"]').click();
     await expect(page.locator(".workspace main h1")).toBeVisible();
     const heading = await page.locator(".workspace main h1").textContent();

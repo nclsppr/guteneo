@@ -1,6 +1,6 @@
 export const fr = {
   skip: "Aller au contenu",
-  atelier: "L’ATELIER",
+  atelier: "CORRESPONDANCE",
   yes: "Oui",
   no: "Non",
   brand: "guteneo",
@@ -48,7 +48,7 @@ export const fr = {
     overview: "Vue d’ensemble",
     documents: "Documents",
     templates: "Modèles",
-    datasets: "Mes données",
+    datasets: "Données",
     generations: "Générations",
     dispatches: "Envois",
     campaigns: "Campagnes",
@@ -152,7 +152,7 @@ export const fr = {
       created: "Créé par",
       nav: "Liens de bas de page",
       installation: "Installation",
-      atelier: "L’atelier",
+      atelier: "Correspondance",
       legal: "Mentions légales",
     },
   },
@@ -178,10 +178,10 @@ export const fr = {
     newTab: "(nouvel onglet)",
   },
   login: {
-    title: "Bienvenue à l’atelier.",
+    title: "Bienvenue dans votre espace de travail.",
     body: "Explorez un espace de démonstration isolé. Les documents et les envois appartiennent à l’organisation choisie.",
     local: "Démonstration locale",
-    atelier: "Entrer dans l’Atelier",
+    atelier: "Entrer dans l’espace de travail",
     studio: "Entrer dans le Studio",
     separator: "Compte Guteneo",
     managed: "Se connecter",
@@ -202,7 +202,7 @@ export const fr = {
     waiting: "À approuver",
     attention: "À vérifier",
     tracked: "Envois",
-    statsLabel: "Synthèse de l’atelier",
+    statsLabel: "Synthèse de l’espace de travail",
     attentionTitle: "Des envois demandent votre attention.",
     attentionBody:
       "Leur résultat est incertain ou négatif. Consultez leur suivi avant de préparer un nouvel envoi.",
@@ -210,7 +210,7 @@ export const fr = {
     emptyTitle: "Le premier envoi commence ici.",
     emptyBody:
       "Importez un PDF ou composez une lettre. Vous la relirez avant toute confirmation.",
-    connectionTitle: "Votre assistant, votre atelier.",
+    connectionTitle: "Votre assistant, votre espace de travail.",
     connectionBody:
       "Préparez vos envois depuis une conversation et retrouvez ici les mêmes documents et identifiants.",
     connect: "Configurer la connexion",
@@ -429,7 +429,7 @@ export const fr = {
   connection: {
     title: "La conversation continue ici.",
     intro:
-      "Un seul atelier, accessible depuis votre assistant, l’API et cet espace.",
+      "Un seul espace de travail, accessible depuis votre assistant, l’API et le navigateur.",
     endpoint: "Adresse du serveur MCP",
     copy: "Copier l’adresse",
     copied: "Adresse copiée",
@@ -505,7 +505,7 @@ export const fr = {
       "Cette activation ne transmet aucun document et n’expédie aucune lettre. Vous vérifierez le PDF, le destinataire et le devis avant l’envoi.",
     ready: "Votre expéditeur postal est prêt",
     readyBody:
-      "Vous pouvez importer votre PDF puis préparer un courrier dans l’atelier.",
+      "Vous pouvez importer votre PDF puis préparer un courrier dans Correspondance.",
     prepare: "Préparer un courrier",
     declared: "Déclaré par l’administrateur",
     submittedInChat: "Renseigné dans la conversation",
@@ -546,7 +546,7 @@ export const fr = {
     note: "Une soumission incertaine conserve sa réservation jusqu’à sa résolution. Les frais réels dépendent du prestataire et ne sont pas des prix commerciaux.",
   },
   admin: {
-    title: "L’atelier sous surveillance.",
+    title: "L’espace de travail sous surveillance.",
     intro:
       "Comprenez les incidents avant d’agir. Les soumissions incertaines ne sont jamais relancées à l’aveugle.",
     refresh: "Actualiser le diagnostic",
@@ -555,7 +555,7 @@ export const fr = {
     failed: "Échecs à examiner",
     outbox: "Publications en attente",
     health: "Connecteurs",
-    noIncidents: "Aucun envoi à vérifier dans cet atelier.",
+    noIncidents: "Aucun envoi à vérifier dans cet espace de travail.",
     note: "Les actions de reprise d’un envoi potentiellement accepté exigent un rapprochement avec le prestataire.",
     restricted: "Cet écran nécessite un rôle d’administration.",
     deadLetters: "Messages en file d’échec",
@@ -567,7 +567,7 @@ export const fr = {
     paused: "Canal suspendu",
     pause: "Suspendre",
     pauseQuestion:
-      "Suspendre ce canal ? Les prochaines soumissions de l’atelier seront bloquées jusqu’à sa réactivation.",
+      "Suspendre ce canal ? Les prochaines soumissions de l’espace de travail seront bloquées jusqu’à sa réactivation.",
     pauseConfirm: "Oui, suspendre",
     resume: "Réactiver",
     controlsHelp:

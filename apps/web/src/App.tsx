@@ -1,6 +1,6 @@
-import { defaultDashboardAppearance } from "../../../packages/contracts/src/dashboard-appearance";
 import { msg } from "./messages";
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
+import { flushSync } from "react-dom";
 import {
   ArrowRight,
   Check,
@@ -10,19 +10,17 @@ import {
   PaperPlaneTilt,
   Printer,
   SquaresFour,
-  Files,
   Stack,
   Table,
   PlugsConnected,
-  UserCircle,
   ChartBar,
   Wrench,
   Plus,
-  SignOut,
   Receipt,
   List,
   AddressBook,
   WarningCircle,
+  type Icon,
 } from "@phosphor-icons/react";
 import {
   api,
@@ -46,6 +44,20 @@ import { syncPublicSharing } from "./public-sharing";
 import { usePublicLocation } from "./public-navigation";
 import { Brand } from "./brand";
 import {
+  navigationEntryFor,
+  spaceHome,
+  spaceOf,
+  studioRoutes,
+  type StudioEntry,
+  type WorkshopEntry,
+} from "./app-routes";
+import {
+  ApplicationSwitcher,
+  WorkspaceSwitcher,
+  type SwitcherWorkspace,
+} from "./space-switcher";
+import {
+  BEFORE_WORKSPACE_NAVIGATION,
   ErrorNotice,
   go,
   Loading,
@@ -55,10 +67,11 @@ import {
 } from "./components";
 import { PdfCheckPage } from "./pdf-check-offer";
 import { Login } from "./login-page";
-// This small shell starts the private session read on the first render instead
-// of waiting for a second route chunk and an initial Suspense fallback.
-import PersonalArea from "./personal-area";
-import { personalApi } from "./personal-api";
+import {
+  personalApi,
+  type PersonalSession,
+  type PersonalSessionRead,
+} from "./personal-api";
 import {
   preloadWorkspaceRoute,
   workspaceRouteModules,
@@ -74,17 +87,82 @@ import { ArticlePage, JournalPage } from "./editorial/pages";
 import { getArticles, articlePath } from "./editorial/articles";
 import { getPublicSocialCopy } from "./editorial/social-copy";
 import { AssistantsPage } from "./assistants-page";
-import { RememberDirectChoice } from "./assistant-state";
 import { clearPendingDocumentInvitation } from "./document-invitation";
-import {
-  DashboardAppearanceProvider,
-  useDashboardAppearance,
-} from "./dashboard-appearance";
-import "./document-studio.css";
 import "./secure-documents.css";
 
 const publicPreview = import.meta.env.VITE_PUBLIC_PREVIEW === "true";
 const EmailPreferencesPage = lazy(() => import("./email-preferences"));
+const RememberDirectChoice = lazy(() =>
+  workspaceRouteModules.dispatch().then((module) => ({
+    default: module.RememberDirectChoice,
+  })),
+);
+
+/** Load personal code and personal authority together, scoped to this visit. */
+function PersonalEntry({ route }: { route: string }) {
+  const [initialSession, setInitialSession] = useState<PersonalSessionRead>();
+  const [area, setArea] = useState<{
+    Component: Awaited<
+      ReturnType<typeof workspaceRouteModules.personal>
+    >["default"];
+  }>();
+  const [codeError, setCodeError] = useState<Error>();
+  useEffect(() => {
+    const controller = new AbortController();
+    let alive = true;
+    void workspaceRouteModules.personal().then(
+      (module) => {
+        if (alive) setArea({ Component: module.default });
+      },
+      (error: Error) => {
+        if (alive) setCodeError(error);
+      },
+    );
+    const invalidate = () => controller.abort();
+    // A hidden entry waits for the personal shell's normal visible read.
+    const read: PersonalSessionRead = {
+      signal: controller.signal,
+      result: new Promise((resolve) => {
+        if (document.visibilityState === "hidden") {
+          controller.abort();
+          resolve({ error: new DOMException("Entry hidden", "AbortError") });
+          return;
+        }
+        controller.signal.addEventListener(
+          "abort",
+          () =>
+            resolve({
+              error: new DOMException("Entry obsolete", "AbortError"),
+            }),
+          { once: true },
+        );
+        void personalApi<PersonalSession>("/personal/session", undefined, {
+          signal: controller.signal,
+        }).then(
+          (session) => resolve({ session }),
+          (error: Error) => resolve({ error }),
+        );
+      }),
+    };
+    window.addEventListener("focus", invalidate);
+    document.addEventListener("visibilitychange", invalidate);
+    setInitialSession(read);
+    return () => {
+      alive = false;
+      invalidate();
+      window.removeEventListener("focus", invalidate);
+      document.removeEventListener("visibilitychange", invalidate);
+    };
+  }, []);
+  if (codeError) throw codeError;
+  // Render resolved code directly: an initial lazy retry can hold Suspense's
+  // fallback for another 300 ms after code and identity are already available.
+  return area && initialSession ? (
+    <area.Component route={route} initialSession={initialSession} />
+  ) : (
+    <Loading />
+  );
+}
 
 const Overview = lazy(() =>
   workspaceRouteModules
@@ -167,6 +245,7 @@ const Connection = lazy(() =>
   })),
 );
 const DocumentStudio = lazy(() => workspaceRouteModules.studio());
+const DistributionPage = lazy(() => workspaceRouteModules.distribution());
 const SecureDistributionPage = lazy(() =>
   workspaceRouteModules.secureDistribution().then((module) => ({
     default: module.SecureDistributionPage,
@@ -215,9 +294,11 @@ function SessionExpiredNotice({ onReconnect }: { onReconnect: () => void }) {
   );
 }
 
-// One glyph per destination. Files stays with My documents, as in the
-// personal space; workshop documents are the PDF library.
-const navigation = [
+// One glyph per destination; workshop documents are the PDF library. Studio
+// authoring has its own space and navigation in the same workspace session.
+type NavigationItem<Entry> = { id: Entry; path: string; Icon: Icon };
+const workshopNavigation: readonly NavigationItem<WorkshopEntry>[] = [
+  // Assistants stay immediately after Overview (see ASSISTANT_HUB.md).
   { id: "overview", path: "/app", Icon: SquaresFour },
   { id: "connection", path: "/app/connection", Icon: PlugsConnected },
   { id: "documents", path: "/app/documents", Icon: FilePdf },
@@ -226,25 +307,22 @@ const navigation = [
     path: "/app/secure-distributions",
     Icon: FileLock,
   },
-  { id: "templates", path: "/app/templates", Icon: FileText },
-  { id: "datasets", path: "/app/datasets", Icon: Table },
-  { id: "generations", path: "/app/generations", Icon: Printer },
   { id: "dispatches", path: "/app/dispatches", Icon: PaperPlaneTilt },
   { id: "campaigns", path: "/app/campaigns", Icon: Stack },
   { id: "senders", path: "/app/senders", Icon: AddressBook },
   { id: "usage", path: "/app/usage", Icon: ChartBar },
   { id: "pdfChecks", path: "/app/pdf-checks", Icon: Check },
   { id: "billing", path: "/app/billing", Icon: Receipt },
-  { id: "account", path: "/app/account", Icon: UserCircle },
   { id: "admin", path: "/app/admin", Icon: Wrench },
-] as const;
+];
+const studioNavigation: readonly NavigationItem<StudioEntry>[] = [
+  { id: "templates", path: studioRoutes.templates, Icon: FileText },
+  { id: "datasets", path: studioRoutes.datasets, Icon: Table },
+  { id: "generations", path: studioRoutes.generations, Icon: Printer },
+];
 
 export function App() {
-  return (
-    <DashboardAppearanceProvider>
-      <Application />
-    </DashboardAppearanceProvider>
-  );
+  return <Application />;
 }
 
 function Application() {
@@ -269,14 +347,6 @@ function Application() {
     "public" | "workspace" | null
   >(null);
   const ready = readyContext === (workspaceRoute ? "workspace" : "public");
-  const { applyAccountAppearance } = useDashboardAppearance();
-  useEffect(() => {
-    if (session && !isPublicPreview)
-      applyAccountAppearance(
-        session.user.preferredDashboardAppearance ?? defaultDashboardAppearance,
-        session.user.id,
-      );
-  }, [session, applyAccountAppearance]);
   useEffect(() => {
     // Personal routes authenticate independently. A workshop session must not
     // block their first read or survive a later return to another workshop.
@@ -443,7 +513,6 @@ function WorkspaceApplication({
     )
       setSession(session);
   }, [page, session, personalRoute]);
-  const { appearance } = useDashboardAppearance();
   const navigationSummary = useRef<HTMLElement>(null);
   const [navigationOpen, setNavigationOpen] = useState(
     () => window.matchMedia("(min-width: 1025px)").matches,
@@ -513,7 +582,7 @@ function WorkspaceApplication({
             current.user.id !== session?.user.id ||
             current.organization.id !== session?.organization.id
           )
-            go("/app");
+            go(spaceHome[spaceOf(page)]);
           setSession(current, !isPublicPreview && page.startsWith("/app"));
           updateSession(current);
           setSessionExpired(false);
@@ -554,7 +623,12 @@ function WorkspaceApplication({
   if (pathname === "/legal/") return <LegalPage />;
   if (page === "/legal") return <LegalPage />;
   if (!page.startsWith("/app")) return <Landing />;
-  if (personalRoute) return <PersonalArea route={route} />;
+  if (personalRoute)
+    return (
+      <WorkspaceRouteBoundary route={route}>
+        <PersonalEntry route={route} />
+      </WorkspaceRouteBoundary>
+    );
   if (!ready)
     return (
       <div className="initial-loading">
@@ -593,11 +667,17 @@ function WorkspaceApplication({
         <SecureDistributionPage route={route} session={session} />
       </Suspense>
     );
-  else if (
-    /^\/app\/(templates|template|datasets|dataset|generations|generation|distribution)(\/|$)/.test(
-      page,
-    )
-  )
+  else if (/^\/app\/distribution(\/|$)/.test(page))
+    content = (
+      <Suspense fallback={<Loading />}>
+        <DistributionPage
+          key={`${session.organization.id}:${session.user.id}:${route}`}
+          route={route}
+          session={session}
+        />
+      </Suspense>
+    );
+  else if (/^\/app\/studio(\/|$)/.test(page))
     content = (
       <Suspense fallback={<Loading />}>
         <DocumentStudio route={route} session={session} />
@@ -651,12 +731,7 @@ function WorkspaceApplication({
       />
     );
   else if (page.startsWith("/app/campaign/"))
-    content = (
-      <CampaignDetail
-        id={page.slice("/app/campaign/".length)}
-        canPrepare={permissions.prepareDispatches}
-      />
-    );
+    content = <CampaignDetail id={page.slice("/app/campaign/".length)} />;
   else if (page === "/app/connection" || page.startsWith("/app/connection/"))
     content = (
       <Connection
@@ -694,8 +769,33 @@ function WorkspaceApplication({
       </Admin>
     );
   else content = <Overview session={session} />;
-  const navigationLabel = (id: (typeof navigation)[number]["id"]) =>
+  const navigationLabel = (id: WorkshopEntry | StudioEntry) =>
     id === "secure-distributions" ? msg("Secure distribution") : t.nav[id];
+  const space = spaceOf(page);
+  const navigation: readonly NavigationItem<WorkshopEntry | StudioEntry>[] =
+    space === "studio" ? studioNavigation : workshopNavigation;
+  const navigationName =
+    space === "studio"
+      ? msg("Studio navigation")
+      : msg("Correspondence navigation");
+  const enterWorkspace = async (id: string, target: "workshop" | "studio") => {
+    // Let a screen with unsaved work refuse before the session changes.
+    if (
+      !window.dispatchEvent(
+        new Event(BEFORE_WORKSPACE_NAVIGATION, { cancelable: true }),
+      )
+    )
+      return;
+    const next = await api<Session>("/account/workspace", {
+      method: "POST",
+      body: { organizationId: id },
+    });
+    setSession(next, !isPublicPreview);
+    // Remount the page for the new workspace before routing, so the previous
+    // screen cannot ask a second time.
+    flushSync(() => updateSession(next));
+    go(spaceHome[target]);
+  };
   const logout = async () => {
     setLogoutError(undefined);
     try {
@@ -709,10 +809,7 @@ function WorkspaceApplication({
     }
   };
   return (
-    <div
-      className={appearance === "v2" ? "workspace workspace-v2" : "workspace"}
-      data-appearance={appearance}
-    >
+    <div className="workspace workspace-v2">
       <a
         href="#main-content"
         className="skip-link"
@@ -726,16 +823,35 @@ function WorkspaceApplication({
       <aside className="sidebar">
         <div className="sidebar-brand">
           <Brand app />
-          <span className="atelier-label">{t.atelier}</span>
         </div>
-        <div className="organization">
-          <span className="organization-initial">
-            {session.organization.name.slice(0, 1)}
-          </span>
-          <div>
-            <strong>{session.organization.name}</strong>
-            <small>{msg("Workshop")}</small>
-          </div>
+        <div className="sidebar-context">
+          <ApplicationSwitcher
+            application={space === "studio" ? "studio" : "workshop"}
+            hasWorkspace
+            canAccessBelvedere={session.canAccessBelvedere === true}
+            preview={publicPreview}
+          />
+          <WorkspaceSwitcher
+            key={session.user.id}
+            application={space === "studio" ? "studio" : "workshop"}
+            workspace={session.organization}
+            identity={[
+              session.user.id,
+              session.organization.id,
+              session.user.role,
+              permissions.approveDispatches,
+              permissions.viewReports,
+            ].join(":")}
+            preview={publicPreview}
+            loadWorkspaces={async (signal) => {
+              const { items } = await api<{ items?: SwitcherWorkspace[] }>(
+                "/account/workspaces",
+                { signal },
+              );
+              return Array.isArray(items) ? items : [];
+            }}
+            enterWorkspace={enterWorkspace}
+          />
         </div>
         <details
           className="workspace-navigation"
@@ -757,31 +873,17 @@ function WorkspaceApplication({
         >
           <summary ref={navigationSummary}>
             <List size={21} aria-hidden="true" />
-            {msg("Workspace navigation")}
+            {navigationName}
           </summary>
-          <nav aria-label={msg("Workspace navigation")}>
-            {!publicPreview && (
-              <a
-                className="personal-context-link"
-                href="#/app/my-documents"
-                title={msg("Personal space")}
-              >
-                <Files size={21} aria-hidden="true" />
-                <span>
-                  {msg("My documents")}
-                  <span className="sr-only"> — {msg("Personal space")}</span>
-                </span>
-              </a>
-            )}
-            {/* Present on every page so the entries below never move. */}
-            {appearance === "v2" && permissions.prepareDispatches && (
+          <nav aria-label={navigationName}>
+            {/* Present on every workshop page so the entries never move. */}
+            {space === "workshop" && permissions.prepareDispatches && (
               <a className="button workspace-create" href="#/app/prepare">
                 <Plus size={19} aria-hidden="true" />
                 {t.dispatch.new}
               </a>
             )}
             {navigation
-              .filter((n) => appearance !== "v2" || n.id !== "account")
               .filter(
                 (n) =>
                   (!["admin", "billing"].includes(n.id) ||
@@ -816,22 +918,7 @@ function WorkspaceApplication({
                     }
                   }}
                   aria-current={
-                    page === path ||
-                    (id === "secure-distributions" &&
-                      /^\/app\/secure-distributions?(\/|$)/.test(page)) ||
-                    (id === "templates" && page.startsWith("/app/template/")) ||
-                    (id === "datasets" && page.startsWith("/app/dataset/")) ||
-                    (id === "generations" &&
-                      (page.startsWith("/app/generation/") ||
-                        page.startsWith("/app/distribution/"))) ||
-                    (id === "connection" &&
-                      page.startsWith("/app/connection/")) ||
-                    (id === "dispatches" &&
-                      (page.startsWith("/app/dispatch/") ||
-                        page === "/app/prepare" ||
-                        page.startsWith("/app/postal/")))
-                      ? "page"
-                      : undefined
+                    navigationEntryFor(page) === id ? "page" : undefined
                   }
                 >
                   <Icon size={21} aria-hidden="true" />
@@ -839,29 +926,11 @@ function WorkspaceApplication({
                 </a>
               ))}
           </nav>
-          {/* V2 signs out from the account menu, outside the navigation. */}
-          {appearance !== "v2" && (
-            <button
-              type="button"
-              className="navigation-logout"
-              onClick={() => void logout()}
-            >
-              <SignOut size={21} aria-hidden="true" />
-              {t.login.logout}
-            </button>
-          )}
         </details>
+        {/* Sign-out lives in the account menu, outside the navigation. */}
         <div className="sidebar-account">
           <WorkspaceIdentity session={session} onLogout={logout} />
         </div>
-        {appearance !== "v2" && (
-          <div className="sidebar-footer">
-            <button onClick={() => void logout()}>
-              <SignOut size={19} />
-              {t.login.logout}
-            </button>
-          </div>
-        )}
       </aside>
       <div className="workspace-main">
         {session.simulation && (
@@ -894,41 +963,6 @@ function WorkspaceApplication({
             }}
           />
         )}
-        {appearance !== "v2" && (
-          <div className="app-topbar">
-            <span>
-              {navigationLabel(
-                navigation.find((n) => n.path === page)?.id ??
-                  (page === "/app/prepare" ||
-                  page.startsWith("/app/dispatch/") ||
-                  page.startsWith("/app/postal/")
-                    ? "dispatches"
-                    : /^\/app\/secure-distributions?(\/|$)/.test(page)
-                      ? "secure-distributions"
-                      : page.startsWith("/app/template/")
-                        ? "templates"
-                        : page.startsWith("/app/dataset/")
-                          ? "datasets"
-                          : page.startsWith("/app/generation/") ||
-                              page.startsWith("/app/distribution/")
-                            ? "generations"
-                            : page.startsWith("/app/connection/")
-                              ? "connection"
-                              : page.startsWith("/app/campaign/")
-                                ? "campaigns"
-                                : "overview"),
-              )}
-            </span>
-            {/* These pages already lead to the preparation form themselves. */}
-            {permissions.prepareDispatches &&
-              !["/app/prepare", "/app/dispatches"].includes(page) && (
-                <a className="button small primary" href="#/app/prepare">
-                  <Plus size={16} aria-hidden="true" />
-                  {t.dispatch.new}
-                </a>
-              )}
-          </div>
-        )}
         {/* A new identity starts from fresh pages, without the previous state. */}
         <main
           id="main-content"
@@ -942,14 +976,6 @@ function WorkspaceApplication({
             <Suspense fallback={<Loading />}>{content}</Suspense>
           </WorkspaceRouteBoundary>
         </main>
-        {appearance !== "v2" && (
-          <footer className="app-footer">
-            <Brand app variant="simple" compact />
-            <span>{session.organization.name}</span>
-            <span>{Intl.DateTimeFormat().resolvedOptions().timeZone}</span>
-            <a href="https://status.guteneo.com/">{msg("Service status")}</a>
-          </footer>
-        )}
       </div>
     </div>
   );

@@ -1,5 +1,4 @@
 import {
-  ArrowRight,
   ArrowUpRight,
   CaretUpDown,
   Pulse,
@@ -9,10 +8,9 @@ import {
 } from "@phosphor-icons/react";
 import { useEffect, useId, useRef, useState } from "react";
 import { isPublicPreview, type Session } from "./api";
-import { useRoute } from "./components";
+import { NAVIGATION_PANEL_OPEN, useRoute } from "./components";
 import { getLocale, t } from "./locale";
 import { msg } from "./messages";
-import { useDashboardAppearance } from "./dashboard-appearance";
 import { ThemeToggle } from "./theme-toggle";
 import "./workspace-identity.css";
 
@@ -27,69 +25,38 @@ function initials(name: string) {
     .toLocaleUpperCase();
 }
 
-function switchAccountHref() {
-  const returnTo = encodeURIComponent("/" + (window.location.hash || "#/app"));
-  return `/auth/login?intent=switch-account&locale=${getLocale()}&returnTo=${returnTo}`;
+function switchAccountHref(returnPath?: string, personal = false) {
+  const returnTo = encodeURIComponent(
+    returnPath ?? "/" + (window.location.hash || "#/app"),
+  );
+  return `/auth/login?intent=switch-account&locale=${getLocale()}&returnTo=${returnTo}${personal ? "&context=personal" : ""}`;
 }
 
+/** One identity row; its disclosure holds the account utilities. */
 export function WorkspaceIdentity({
   session,
   onLogout,
+  profileHref = "#/app/account",
+  profileLabel,
+  authenticationContext,
+  returnTo,
+  logoutPending = false,
 }: {
-  session: Session;
+  session: { user: Pick<Session["user"], "id" | "name" | "email"> };
   onLogout: () => Promise<void>;
-}) {
-  const { appearance } = useDashboardAppearance();
-  return appearance === "v2" ? (
-    <AccountMenu session={session} onLogout={onLogout} />
-  ) : (
-    <section className="workspace-identity" aria-label={msg("Your account")}>
-      <a
-        className="workspace-identity-profile"
-        href="#/app/account"
-        aria-current={
-          window.location.hash.split("?")[0] === "#/app/account"
-            ? "page"
-            : undefined
-        }
-      >
-        <span className="workspace-identity-avatar" aria-hidden="true">
-          {initials(session.user.name)}
-        </span>
-        <span className="workspace-identity-label">{msg("Signed in as")}</span>
-        <strong>{session.user.name}</strong>
-        <span className="workspace-identity-email">
-          {session.user.email || msg("Sign-in email unavailable")}
-        </span>
-        <span className="workspace-identity-action">
-          <UserCircle size={17} aria-hidden="true" />
-          {msg("My profile and permissions")}
-          <ArrowRight size={15} aria-hidden="true" />
-        </span>
-      </a>
-      <div className="workspace-account-utilities">
-        {!isPublicPreview && (
-          <a className="workspace-switch-account" href={switchAccountHref()}>
-            {msg("Switch account")}
-          </a>
-        )}
-      </div>
-    </section>
-  );
-}
-
-/** V2 keeps one identity row; its disclosure holds the account utilities. */
-function AccountMenu({
-  session,
-  onLogout,
-}: {
-  session: Session;
-  onLogout: () => Promise<void>;
+  profileHref?: string;
+  profileLabel?: string;
+  authenticationContext?: "personal";
+  returnTo?: string;
+  logoutPending?: boolean;
 }) {
   const route = useRoute();
+  const context = `${session.user.id}:${route}`;
   // Opening records the committed route, so navigating away closes the menu.
   const [openOn, setOpenOn] = useState<string>();
-  const open = openOn === route;
+  // Forget it on navigation, so returning to the same address keeps it closed.
+  if (openOn !== undefined && openOn !== context) setOpenOn(undefined);
+  const open = openOn === context;
   const area = useRef<HTMLElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
   const menuId = useId();
@@ -99,9 +66,29 @@ function AccountMenu({
     const dismiss = (event: PointerEvent) => {
       if (!area.current?.contains(event.target as Node)) setOpenOn(undefined);
     };
+    // Two quick address changes may render once; the event still closes it.
+    const navigate = () => setOpenOn(undefined);
+    const escape = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      event.preventDefault();
+      setOpenOn(undefined);
+      trigger.current?.focus();
+    };
+    const anotherPanel = (event: Event) => {
+      if ((event as CustomEvent<string>).detail !== menuId)
+        setOpenOn(undefined);
+    };
     document.addEventListener("pointerdown", dismiss);
-    return () => document.removeEventListener("pointerdown", dismiss);
-  }, [open]);
+    document.addEventListener("keydown", escape);
+    document.addEventListener(NAVIGATION_PANEL_OPEN, anotherPanel);
+    window.addEventListener("hashchange", navigate);
+    return () => {
+      document.removeEventListener("pointerdown", dismiss);
+      document.removeEventListener("keydown", escape);
+      document.removeEventListener(NAVIGATION_PANEL_OPEN, anotherPanel);
+      window.removeEventListener("hashchange", navigate);
+    };
+  }, [open, menuId]);
   return (
     <section
       ref={area}
@@ -128,7 +115,15 @@ function AccountMenu({
         className="workspace-identity-trigger"
         aria-expanded={open}
         aria-controls={menuId}
-        onClick={() => (open ? close() : setOpenOn(route))}
+        onClick={() => {
+          if (open) close();
+          else {
+            document.dispatchEvent(
+              new CustomEvent(NAVIGATION_PANEL_OPEN, { detail: menuId }),
+            );
+            setOpenOn(context);
+          }
+        }}
       >
         <span className="workspace-identity-avatar" aria-hidden="true">
           {initials(session.user.name)}
@@ -147,14 +142,16 @@ function AccountMenu({
           <li>
             <a
               className="workspace-identity-profile"
-              href="#/app/account"
+              href={profileHref}
               aria-current={
-                route.split("?")[0] === "/app/account" ? "page" : undefined
+                route.split("?")[0] === profileHref.split("#")[1]?.split("?")[0]
+                  ? "page"
+                  : undefined
               }
               onClick={close}
             >
               <UserCircle size={20} aria-hidden="true" />
-              {msg("My profile and permissions")}
+              {profileLabel ?? msg("My profile and permissions")}
             </a>
           </li>
           <li>
@@ -164,7 +161,10 @@ function AccountMenu({
             <li>
               <a
                 className="workspace-switch-account"
-                href={switchAccountHref()}
+                href={switchAccountHref(
+                  returnTo,
+                  authenticationContext === "personal",
+                )}
               >
                 <UserSwitch size={20} aria-hidden="true" />
                 {msg("Switch account")}
@@ -185,6 +185,7 @@ function AccountMenu({
             <button
               type="button"
               className="workspace-sign-out"
+              disabled={logoutPending}
               onClick={() => void onLogout()}
             >
               <SignOut size={20} aria-hidden="true" />

@@ -65,7 +65,9 @@ test(
     const source = await uploadSyntheticPdf(app, screen, browser, 4);
     await app.open("/#/app/secure-distributions/new");
     await screen.getByLabel("PDF vérifié").selectOption({ value: source.id });
-    await screen.getByLabel("Accès au document").selectOption({ value: "independent" });
+    await screen
+      .getByLabel("Accès au document")
+      .selectOption({ value: "independent" });
     await screen
       .getByLabel("Nom du destinataire")
       .fill("Destinataire de simulation");
@@ -100,11 +102,10 @@ test(
     let publication = (await localApi<Publication>(browser, path)).body;
     expect(await readSecureCharge(prepared.id)).toEqual([]);
     await browser.reload();
-    await expect(browser.locator(".app-topbar > span")).toHaveText(
-      "Distribution sécurisée",
-    );
     await expect(
-      browser.locator('.workspace-navigation a[href="#/app/secure-distributions"]'),
+      browser.locator(
+        '.workspace-navigation a[href="#/app/secure-distributions"]',
+      ),
     ).toHaveAttribute("aria-current", "page");
     await expect(
       screen.getByRole("button", /^Simuler l’envoi pour /u),
@@ -154,17 +155,28 @@ test(
       const session = (await account.json()) as { csrfToken: string };
       const logout = await fetch("/api/personal/logout", {
         method: "POST",
-        headers: { "Content-Type": "application/json", "X-CSRF-Token": session.csrfToken },
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-Token": session.csrfToken,
+        },
         body: "{}",
       });
       location.hash = `/app/my-documents?invitation=${token}`;
       const deadline = Date.now() + 8000;
-      while (Date.now() < deadline && (location.hash.includes("invitation=") ||
-        !document.querySelector('a[href^="/auth/login"]'))) {
+      while (
+        Date.now() < deadline &&
+        (location.hash.includes("invitation=") ||
+          !document.querySelector('a[href^="/auth/login"]'))
+      ) {
         await new Promise((resolve) => setTimeout(resolve, 20));
       }
-      const pending = JSON.parse(sessionStorage.getItem("guteneo.pending-document-invitation.v1") ?? "null") as { token?: string; expiresAt?: number } | null;
-      const link = document.querySelector<HTMLAnchorElement>('a[href^="/auth/login"]');
+      const pending = JSON.parse(
+        sessionStorage.getItem("guteneo.pending-document-invitation.v1") ??
+          "null",
+      ) as { token?: string; expiresAt?: number } | null;
+      const link = document.querySelector<HTMLAnchorElement>(
+        'a[href^="/auth/login"]',
+      );
       const login = link ? new URL(link.href) : null;
       const returnTo = login?.searchParams.get("returnTo");
       return {
@@ -172,8 +184,11 @@ test(
         cleanHash: location.hash === "#/app/my-documents",
         storedInThisTab: pending?.token === token,
         ttlMs: pending?.expiresAt ? pending.expiresAt - Date.now() : 0,
-        cleanLogin: Boolean(login && !decodeURIComponent(login.href).includes(token) &&
-          returnTo === "/#/app/my-documents"),
+        cleanLogin: Boolean(
+          login &&
+          !decodeURIComponent(login.href).includes(token) &&
+          returnTo === "/#/app/my-documents",
+        ),
       };
     }, publication.dispatchId!);
     expect(handoff.signedOut).toBe(true);
@@ -185,17 +200,29 @@ test(
       browser.waitForResponse(/\/auth\/login\?/),
       screen.getByRole("link", "Se connecter à mon compte").tap(),
     ]);
-    expect(loginResponse.status >= 300 && loginResponse.status < 400).toBe(true);
+    expect(loginResponse.status >= 300 && loginResponse.status < 400).toBe(
+      true,
+    );
     // The local server has no live identity-provider configuration. The fixture
     // represents its successful callback; it does not qualify Auth0 or MFA.
     const returned = await browser.evaluate(() => ({
       hashClean: location.hash === "#/app/my-documents",
-      noPrivateQuery: !/[a-f0-9]{64}|invitation=/u.test(decodeURIComponent(location.href)),
-      pending: sessionStorage.getItem("guteneo.pending-document-invitation.v1") !== null,
+      noPrivateQuery: !/[a-f0-9]{64}|invitation=/u.test(
+        decodeURIComponent(location.href),
+      ),
+      pending:
+        sessionStorage.getItem("guteneo.pending-document-invitation.v1") !==
+        null,
     }));
-    expect(returned).toEqual({ hashClean: true, noPrivateQuery: true, pending: true });
+    expect(returned).toEqual({
+      hashClean: true,
+      noPrivateQuery: true,
+      pending: true,
+    });
     await localIdentity(browser, app, "recipient");
-    await expect(screen.getByRole("button", "Ouvrir mon document")).toBeVisible();
+    await expect(
+      screen.getByRole("button", "Ouvrir mon document"),
+    ).toBeVisible();
     const [claimResponse] = await Promise.all([
       browser.waitForResponse("**/api/personal/documents/claim"),
       screen.getByRole("button", "Ouvrir mon document").tap(),
@@ -204,10 +231,16 @@ test(
     const claim = await claimResponse.json<{ id: string; status: string }>();
     expect(claim.id).toBe(prepared.id);
     expect(claim.status).toBe("pending");
-    expect(await browser.evaluate(() => sessionStorage.getItem("guteneo.pending-document-invitation.v1") === null)).toBe(true);
+    expect(
+      await browser.evaluate(
+        () =>
+          sessionStorage.getItem("guteneo.pending-document-invitation.v1") ===
+          null,
+      ),
+    ).toBe(true);
     await expect(
       screen.getByText(
-        "Votre demande d’accès attend la confirmation de l’atelier.",
+        "Votre demande d’accès attend la confirmation de l’espace de travail.",
       ),
     ).toBeVisible();
     const pendingImage = await browser.evaluate(
@@ -359,7 +392,7 @@ test(
     await app.open(`/#/app/my-documents/${copy.id}`);
     await expect(
       screen.getByText(
-        "Vos consultations de cette copie personnelle ne sont pas communiquées à l’atelier expéditeur.",
+        "Vos consultations de cette copie personnelle ne sont pas communiquées à l’espace de travail expéditeur.",
       ),
     ).toBeVisible();
     await screen.getByText("Page 1").scrollIntoView();
@@ -391,9 +424,10 @@ test(
     // access, and these private actions never extend the workshop's journal.
     await localIdentity(browser, app, "recipient");
     await screen.getByRole("link", "Copies conservées").tap();
-    await expect(
-      screen.getByRole("link", "Copies conservées"),
-    ).toHaveAttribute("aria-current", "page");
+    await expect(screen.getByRole("link", "Copies conservées")).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
     const retainedCopy = browser.locator(
       `a[href="#/app/my-documents/${copy.id}"]`,
     );
@@ -410,19 +444,17 @@ test(
     await expect(
       screen.getByRole("button", "Confirmer la suppression"),
     ).toHaveCount(0);
-    const keptCopy = await localApi<{ status: string; pages: { number: number }[] }>(
-      browser,
-      `/api/personal/documents/${copy.id}`,
-    );
+    const keptCopy = await localApi<{
+      status: string;
+      pages: { number: number }[];
+    }>(browser, `/api/personal/documents/${copy.id}`);
     expect(keptCopy.status).toBe(200);
     expect(keptCopy.body.status).toBe("active");
     expect(keptCopy.body.pages).toHaveLength(4);
 
     await screen.getByRole("button", "Supprimer ma copie").tap();
     const [deletedResponse, refreshedCopies] = await Promise.all([
-      browser.waitForResponse(
-        `**/api/personal/documents/${copy.id}/delete`,
-      ),
+      browser.waitForResponse(`**/api/personal/documents/${copy.id}/delete`),
       browser.waitForResponse(
         /\/api\/personal\/documents\?kind=personal(?:&|$)/u,
       ),
@@ -431,15 +463,19 @@ test(
     expect(deletedResponse.status).toBe(200);
     expect(await deletedResponse.json()).toEqual({ deleted: true });
     expect(refreshedCopies.status).toBe(200);
-    const remainingCopies = await refreshedCopies.json<{ items: { id: string }[] }>();
-    expect(remainingCopies.items.some((item) => item.id === copy.id)).toBe(false);
+    const remainingCopies = await refreshedCopies.json<{
+      items: { id: string }[];
+    }>();
+    expect(remainingCopies.items.some((item) => item.id === copy.id)).toBe(
+      false,
+    );
     await expect(browser).toHaveURL(/#\/app\/my-documents\?kind=personal$/u);
     await expect(retainedCopy).toHaveCount(0);
 
-    const inaccessibleCopy = await localApi<{ status: string; pages: { number: number }[] }>(
-      browser,
-      `/api/personal/documents/${copy.id}`,
-    );
+    const inaccessibleCopy = await localApi<{
+      status: string;
+      pages: { number: number }[];
+    }>(browser, `/api/personal/documents/${copy.id}`);
     // Known ownership metadata remains readable; document content does not.
     expect(inaccessibleCopy.status).toBe(200);
     expect(inaccessibleCopy.body.status).toBe("revoked");
@@ -460,7 +496,11 @@ test(
           body: "{}",
         }),
       ]);
-      return { page: page.status, text: text.status, download: download.status };
+      return {
+        page: page.status,
+        text: text.status,
+        download: download.status,
+      };
     }, copy.id);
     expect(deniedCopy).toEqual({ page: 404, text: 404, download: 404 });
     const [removedReader] = await Promise.all([
@@ -472,8 +512,12 @@ test(
       browser.locator('.secure-document-panel [role="status"]'),
     ).toHaveText("Accès révoqué");
     await expect(browser.locator(".secure-document-pages")).toHaveCount(0);
-    await expect(screen.getByRole("button", "Exporter ma copie")).toHaveCount(0);
-    await expect(screen.getByRole("button", "Supprimer ma copie")).toHaveCount(0);
+    await expect(screen.getByRole("button", "Exporter ma copie")).toHaveCount(
+      0,
+    );
+    await expect(screen.getByRole("button", "Supprimer ma copie")).toHaveCount(
+      0,
+    );
     await app.screenshot("personal-copy-access-after-deletion");
 
     await localIdentity(browser, app, "atelier");

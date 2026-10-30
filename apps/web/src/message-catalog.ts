@@ -1,6 +1,11 @@
 import type { SupportedLocale } from "./locale";
+import workspaceTerminology from "./locales/workspace-terminology.json";
 
 export type MessageCatalog = Record<string, readonly string[]>;
+const revisedLabels: Record<
+  string,
+  Readonly<Partial<Record<SupportedLocale, string>>>
+> = workspaceTerminology;
 
 /** English source keys share translations; legacy inputs remain readable for API errors. */
 export function englishMessages(catalog: MessageCatalog): MessageCatalog {
@@ -27,15 +32,25 @@ export function translateMessage(
   const contextual = context ? contexts[`${context}\u0004${key}`] : undefined;
   const translated = contextual ?? english[key];
   const old = Object.hasOwn(legacy, key) ? legacy[key] : undefined;
-  const translation = translated
-    ? locale === "en"
-      ? key
-      : translated[{ fr: 0, de: 1, lb: 2 }[locale]]
-    : old
-      ? locale === "fr"
-        ? key
-        : old[{ en: 0, de: 1, lb: 2 }[locale]]
-      : key;
+  // Only reviewed complete source labels have compatibility copy. Interpolated
+  // names, document content and historical printing workshops are never rewritten.
+  const revised = Object.hasOwn(revisedLabels, key)
+    ? revisedLabels[key]
+    : old && Object.hasOwn(revisedLabels, old[0])
+      ? revisedLabels[old[0]]
+      : undefined;
+  const translation =
+    revised?.[locale] && !contextual
+      ? revised[locale]
+      : translated
+        ? locale === "en"
+          ? key
+          : translated[{ fr: 0, de: 1, lb: 2 }[locale]]
+        : old
+          ? locale === "fr"
+            ? key
+            : old[{ en: 0, de: 1, lb: 2 }[locale]]
+          : key;
   const text =
     source.slice(0, source.length - source.trimStart().length) +
     translation +

@@ -103,7 +103,7 @@ cartouche. Engineering's existing `StampPaper` remains unchanged; its geometry
 is not a universal inset rule for the different main/status/API portrait asset.
 
 The shared appearance enum resolves system/light/dark independently of account
-language or Classic/V2 layout. Main-origin bootstrap uses the validated local
+language. Main-origin bootstrap uses the validated local
 preference and bounded nonsecret host-only cookie. Standalone server HTML accepts
 only the enum, adds no session/database lookup and retains script-free system
 fallback, CSP, cache and route authority. Separate origins retain separate state.

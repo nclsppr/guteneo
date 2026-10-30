@@ -1,5 +1,16 @@
 # Execution plan and handoff
 
+## Studio reprise — 29 October 2026 local candidate
+
+Continue `claude/studio-space-reprise` from the preserved Claude commits.
+[The local acceptance record](STUDIO_SPACE_REPRISE.md) owns completed lots,
+exact checks, measured loading and outstanding qualification. The target is
+four independently loaded applications, distinct application/workspace selection,
+source-preserving correction, exact PDF/destination associations, durable personal
+copy boundaries and canonical-session Belvédère with its original platform guard.
+No push, merge, infrastructure activation, real communication or deployment is
+authorized by this local reprise.
+
 ## Assistant setup and new accounts — 27 October 2026 candidate
 
 Release 1.1.9 preconfigures the existing public ChatGPT client in the downloadable

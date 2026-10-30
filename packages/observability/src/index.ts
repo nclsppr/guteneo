@@ -249,7 +249,7 @@ export function routeCode(
     ],
     [`^/api/mappings/map_${id}(/validate)?$`, "mappings"],
     [
-      `^/api/generation-jobs/gen_${id}(/(results|provenance|cancel|retry))?$`,
+      `^/api/generation-jobs/gen_${id}(/(results|provenance|record-context|cancel|retry))?$`,
       "generations",
     ],
     [`^/api/distribution-plans/dist_${id}(/resume)?$`, "distribution"],

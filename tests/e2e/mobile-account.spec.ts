@@ -225,7 +225,9 @@ test("mobile private account links errors to fields and keeps every session and 
   ).toBeVisible();
   await fits(page);
   await page.goto("/#/app/admin");
-  const team = page.getByRole("region", { name: "Membres de l’atelier" });
+  const team = page.getByRole("region", {
+    name: "Membres de l’espace de travail",
+  });
   const role = team.getByRole("combobox");
   await expect(role).toBeVisible();
   expect((await role.boundingBox())?.height).toBeGreaterThanOrEqual(44);

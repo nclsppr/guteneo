@@ -14,6 +14,7 @@ export type PersonalSession = {
   };
   csrfToken: string;
   simulation: boolean;
+  canAccessBelvedere?: boolean;
   mfa: boolean;
   strongAuthentication: boolean;
   documentAccessAllowed?: boolean;
@@ -24,6 +25,15 @@ export type PersonalSession = {
   verifiedAccount: boolean;
   authenticatedAt: number | null;
   workspaces: { id: string; name: string; role: string; current: boolean }[];
+};
+
+/** A single entry read; never cached across personal-area visits or identities. */
+export type PersonalSessionRead = {
+  result: Promise<
+    | { session: PersonalSession; error?: never }
+    | { error: Error; session?: never }
+  >;
+  signal: AbortSignal;
 };
 
 export async function personalApi<T>(

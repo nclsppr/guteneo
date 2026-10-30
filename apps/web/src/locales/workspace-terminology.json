@@ -1,0 +1,595 @@
+{
+  ". View other memberships from the workshops.": {
+    "fr": ". Consultez les autres appartenances depuis les espaces de travail.",
+    "en": ". View other memberships from the workspaces.",
+    "de": ". Weitere Mitgliedschaften finden Sie in den Arbeitsbereichen.",
+    "lb": ". Kuckt déi aner Memberschaften an den Aarbechtsberäicher."
+  },
+  "Workshop": {
+    "fr": "Espace de travail",
+    "en": "Workspace",
+    "de": "Arbeitsbereich",
+    "lb": "Aarbechtsberäich"
+  },
+  "Workshop or dispatch ID…": {
+    "fr": "Espace de travail ou identifiant d’envoi…",
+    "en": "Workspace or dispatch ID…",
+    "de": "Arbeitsbereich oder Versand-ID…",
+    "lb": "Aarbechtsberäich oder Versand-ID…"
+  },
+  "Workshops": {
+    "fr": "Espaces de travail",
+    "en": "Workspaces",
+    "de": "Arbeitsbereiche",
+    "lb": "Aarbechtsberäicher"
+  },
+  "Workshops and consumption": {
+    "fr": "Espaces de travail et consommation",
+    "en": "Workspaces and consumption",
+    "de": "Arbeitsbereiche und Verbrauch",
+    "lb": "Aarbechtsberäicher a Verbrauch"
+  },
+  "Workshops and roles": {
+    "fr": "Espaces de travail et rôles",
+    "en": "Workspaces and roles",
+    "de": "Arbeitsbereiche und Rollen",
+    "lb": "Aarbechtsberäicher a Rollen"
+  },
+  "No workshops in this mode.": {
+    "fr": "Aucun espace de travail dans ce mode.",
+    "en": "No workspaces in this mode.",
+    "de": "Keine Arbeitsbereiche in diesem Modus.",
+    "lb": "Keng Aarbechtsberäicher an dësem Modus."
+  },
+  "No matching workshops.": {
+    "fr": "Aucun espace de travail ne correspond.",
+    "en": "No matching workspaces.",
+    "de": "Keine passenden Arbeitsbereiche.",
+    "lb": "Keng passend Aarbechtsberäicher."
+  },
+  "These statistics cover all access to the configured Worker. They are independent of the workshop mode.": {
+    "fr": "Ces statistiques couvrent le Worker configuré, tous ses accès confondus. Elles sont indépendantes du mode des espaces de travail.",
+    "en": "These statistics cover all access to the configured Worker. They are independent of the workspace mode.",
+    "de": "Diese Statistiken umfassen alle Zugriffe auf den konfigurierten Worker. Sie sind unabhängig vom Modus des Arbeitsbereichs.",
+    "lb": "Dës Statistiken ëmfaassen all Zougrëff op de konfiguréierte Worker. Si sinn onofhängeg vum Modus vun den Aarbechtsberäicher."
+  },
+  "This window is independent of the workshop period and mode. A missing hour does not mean zero requests.": {
+    "fr": "Cette fenêtre est indépendante de la période et du mode des espaces de travail. Une heure absente ne signifie pas zéro requête.",
+    "en": "This window is independent of the workspace period and mode. A missing hour does not mean zero requests.",
+    "de": "Dieses Zeitfenster ist unabhängig vom Zeitraum und Modus der Arbeitsbereiche. Eine fehlende Stunde bedeutet nicht null Anfragen.",
+    "lb": "Dës Zäitfënster ass onofhängeg vun der Period an dem Modus vun den Aarbechtsberäicher. Eng feelend Stonn bedeit net null Ufroen."
+  },
+  "Change the data filter to view other workshops.": {
+    "fr": "Changez le filtre de données pour consulter les autres espaces de travail.",
+    "en": "Change the data filter to view other workspaces.",
+    "de": "Ändern Sie den Datenfilter, um andere Arbeitsbereiche zu sehen.",
+    "lb": "Ännert den Datefilter, fir aner Aarbechtsberäicher ze gesinn."
+  },
+  "Choose another period to view this workshop’s history.": {
+    "fr": "Choisissez une autre période pour consulter l’historique de cet espace de travail.",
+    "en": "Choose another period to view this workspace’s history.",
+    "de": "Wählen Sie einen anderen Zeitraum, um den Verlauf dieses Arbeitsbereichs zu sehen.",
+    "lb": "Wielt eng aner Period, fir de Verlaf vun dësem Aarbechtsberäich ze gesinn."
+  },
+  "Browsing workshops": {
+    "fr": "Consultation des espaces de travail",
+    "en": "Browsing workspaces",
+    "de": "Arbeitsbereiche ansehen",
+    "lb": "Aarbechtsberäicher ukucken"
+  },
+  "Current billing cycle, separate from the workshop activity period": {
+    "fr": "Cycle de facturation en cours, distinct de la période d’activité des espaces de travail",
+    "en": "Current billing cycle, separate from the workspace activity period",
+    "de": "Aktueller Abrechnungszyklus, getrennt vom Aktivitätszeitraum der Arbeitsbereiche",
+    "lb": "Aktuellen Ofrechnungszyklus, getrennt vun der Aktivitéitsperiod vun den Aarbechtsberäicher"
+  },
+  "Workshop details": {
+    "fr": "Détail de l’espace de travail",
+    "en": "Workspace details",
+    "de": "Details des Arbeitsbereichs",
+    "lb": "Detailer vum Aarbechtsberäich"
+  },
+  "Dispatch / workshop": {
+    "fr": "Envoi / espace de travail",
+    "en": "Dispatch / workspace",
+    "de": "Sendung / Arbeitsbereich",
+    "lb": "Sendung / Aarbechtsberäich"
+  },
+  "Workshop dispatches": {
+    "fr": "Envois de l’espace de travail",
+    "en": "Workspace dispatches",
+    "de": "Sendungen des Arbeitsbereichs",
+    "lb": "Sendunge vum Aarbechtsberäich"
+  },
+  "Failed or undelivered dispatches, complaints, or unknown provider outcomes. Open the workshop to examine the situation.": {
+    "fr": "Envois en échec, non distribués, signalés par une plainte ou dont le résultat fournisseur est inconnu. Ouvrez l’espace de travail pour examiner la situation.",
+    "en": "Failed or undelivered dispatches, complaints, or unknown provider outcomes. Open the workspace to examine the situation.",
+    "de": "Fehlgeschlagene oder nicht zugestellte Sendungen, Beschwerden oder unbekannte Anbieterergebnisse. Öffnen Sie den Arbeitsbereich, um die Situation zu prüfen.",
+    "lb": "Feelgeschloen oder net zougestallte Sendungen, Reklamatiounen oder onbekannt Ubidderresultater. Maacht den Aarbechtsberäich op, fir d’Situatioun ze kontrolléieren."
+  },
+  "Belvédère observes. Business actions stay in the workshops.": {
+    "fr": "Le Belvédère observe. Les actions métier restent dans les espaces de travail.",
+    "en": "Belvédère observes. Business actions stay in the workspaces.",
+    "de": "Belvédère beobachtet. Geschäftsaktionen bleiben in den Arbeitsbereichen.",
+    "lb": "Belvédère observéiert. Geschäftsaktioune bleiwen an den Aarbechtsberäicher."
+  },
+  "The summary will appear when workshops consume their credits.": {
+    "fr": "Le récapitulatif apparaîtra lorsque les espaces de travail consommeront leurs crédits.",
+    "en": "The summary will appear when workspaces consume their credits.",
+    "de": "Die Zusammenfassung erscheint, sobald Arbeitsbereiche ihr Guthaben verbrauchen.",
+    "lb": "D’Iwwersiicht erschéngt, wann Aarbechtsberäicher hiert Guthabe verbrauchen."
+  },
+  "Workshops in detail.": {
+    "fr": "Les espaces de travail, dans le détail.",
+    "en": "Workspaces in detail.",
+    "de": "Arbeitsbereiche im Detail.",
+    "lb": "Aarbechtsberäicher am Detail."
+  },
+  "Members will appear after joining the workshop.": {
+    "fr": "Les membres apparaîtront après leur rattachement à l’espace de travail.",
+    "en": "Members will appear after joining the workspace.",
+    "de": "Mitglieder erscheinen nach ihrer Zuordnung zum Arbeitsbereich.",
+    "lb": "Memberen erschéngen no hirer Zouuerdnung zum Aarbechtsberäich."
+  },
+  "guteneo activity, from workshops to connections.": {
+    "fr": "L’activité de guteneo, des espaces de travail aux connexions.",
+    "en": "guteneo activity, from workspaces to connections.",
+    "de": "Die Aktivität von guteneo, von Arbeitsbereichen bis zu Verbindungen.",
+    "lb": "D’Aktivitéit vu guteneo, vun den Aarbechtsberäicher bis bei d’Verbindungen."
+  },
+  "Activity, members and operation details for this workshop.": {
+    "fr": "L’activité, les membres et le détail des opérations de cet espace de travail.",
+    "en": "Activity, members and operation details for this workspace.",
+    "de": "Aktivität, Mitglieder und Vorgangsdetails dieses Arbeitsbereichs.",
+    "lb": "Aktivitéit, Memberen an Operatiounsdetailer vun dësem Aarbechtsberäich."
+  },
+  "Workspace members": {
+    "fr": "Membres de l’espace de travail"
+  },
+  "Workshop name…": {
+    "fr": "Nom d’un espace de travail…",
+    "en": "Workspace name…",
+    "de": "Name eines Arbeitsbereichs…",
+    "lb": "Numm vun engem Aarbechtsberäich…"
+  },
+  "Person / workshop": {
+    "fr": "Personne / espace de travail",
+    "en": "Person / workspace",
+    "de": "Person / Arbeitsbereich",
+    "lb": "Persoun / Aarbechtsberäich"
+  },
+  "Person or workshop…": {
+    "fr": "Personne ou espace de travail…",
+    "en": "Person or workspace…",
+    "de": "Person oder Arbeitsbereich…",
+    "lb": "Persoun oder Aarbechtsberäich…"
+  },
+  "Search workshops": {
+    "fr": "Rechercher un espace de travail",
+    "en": "Search workspaces",
+    "de": "Arbeitsbereich suchen",
+    "lb": "Aarbechtsberäich sichen"
+  },
+  "Current workshop balance": {
+    "fr": "Solde actuel de l’espace de travail",
+    "en": "Current workspace balance",
+    "de": "Aktuelles Guthaben des Arbeitsbereichs",
+    "lb": "Aktuellt Guthabe vum Aarbechtsberäich"
+  },
+  "All workshops": {
+    "fr": "Tous les espaces de travail",
+    "en": "All workspaces",
+    "de": "Alle Arbeitsbereiche",
+    "lb": "All Aarbechtsberäicher"
+  },
+  "All members, their workshops and access.": {
+    "fr": "Tous les membres, leurs espaces de travail et leurs accès.",
+    "en": "All members, their workspaces and access.",
+    "de": "Alle Mitglieder, ihre Arbeitsbereiche und Zugänge.",
+    "lb": "All Memberen, hir Aarbechtsberäicher an hiren Zougang."
+  },
+  "workshops": {
+    "fr": "espaces de travail",
+    "en": "workspaces",
+    "de": "Arbeitsbereiche",
+    "lb": "Aarbechtsberäicher"
+  },
+  "workshops shown out of": {
+    "fr": "espaces de travail affichés sur",
+    "en": "workspaces shown out of",
+    "de": "Arbeitsbereiche angezeigt von",
+    "lb": "Aarbechtsberäicher ugewisen aus"
+  },
+  "· Quotes and limits remain available in workshop details.": {
+    "fr": "· Les devis et plafonds restent consultables dans le détail des espaces de travail.",
+    "en": "· Quotes and limits remain available in workspace details.",
+    "de": "· Angebote und Obergrenzen bleiben in den Details des Arbeitsbereichs verfügbar.",
+    "lb": "· Devisen a Limitte bleiwen an den Detailer vum Aarbechtsberäich disponibel."
+  },
+  "· Workshop, member and session totals reflect the current state.": {
+    "fr": "· Les totaux d’espaces de travail, membres et sessions décrivent l’état actuel.",
+    "en": "· Workspace, member and session totals reflect the current state.",
+    "de": "· Summen der Arbeitsbereiche, Mitglieder und Sitzungen zeigen den aktuellen Stand.",
+    "lb": "· D’Totaler vun Aarbechtsberäicher, Memberen a Sessioune weisen den aktuelle Stand."
+  },
+  "{0} workshops in this view": {
+    "fr": "{0} espaces de travail dans cette vue",
+    "en": "{0} workspaces in this view",
+    "de": "{0} Arbeitsbereiche in dieser Ansicht",
+    "lb": "{0} Aarbechtsberäicher an dëser Vue"
+  },
+  "Workspace version": {
+    "fr": "Version de l’espace de travail"
+  },
+  "Your role in this workshop": {
+    "fr": "Votre rôle dans cet espace de travail",
+    "en": "Your role in this workspace",
+    "de": "Ihre Rolle in diesem Arbeitsbereich",
+    "lb": "Är Roll an dësem Aarbechtsberäich"
+  },
+  "Workshop reports": {
+    "fr": "Rapports de l’espace de travail",
+    "en": "Workspace reports",
+    "de": "Berichte des Arbeitsbereichs",
+    "lb": "Rapporte vum Aarbechtsberäich"
+  },
+  "To change your role or permissions, contact an administrator of this workshop.": {
+    "fr": "Pour changer de rôle ou de droits, contactez un administrateur de cet espace de travail.",
+    "en": "To change your role or permissions, contact an administrator of this workspace.",
+    "de": "Um Ihre Rolle oder Rechte zu ändern, kontaktieren Sie einen Administrator dieses Arbeitsbereichs.",
+    "lb": "Fir Är Roll oder Är Rechter ze änneren, kontaktéiert en Administrateur vun dësem Aarbechtsberäich."
+  },
+  "Who can help in this workshop?": {
+    "fr": "Qui contacter dans cet espace de travail ?",
+    "en": "Who can help in this workspace?",
+    "de": "Wer kann in diesem Arbeitsbereich helfen?",
+    "lb": "Wien kann an dësem Aarbechtsberäich hëllefen?"
+  },
+  "There are no other administrators or supervisors in this workshop.": {
+    "fr": "Aucun autre administrateur ou superviseur dans cet espace de travail.",
+    "en": "There are no other administrators or supervisors in this workspace.",
+    "de": "In diesem Arbeitsbereich gibt es keine weiteren Administratoren oder Supervisoren.",
+    "lb": "Et gëtt keng aner Administrateuren oder Supervisoren an dësem Aarbechtsberäich."
+  },
+  "You can view this workshop’s activity in read-only mode.": {
+    "fr": "Vous consultez l’activité de cet espace de travail en lecture seule.",
+    "en": "You can view this workspace’s activity in read-only mode.",
+    "de": "Sie können die Aktivitäten dieses Arbeitsbereichs nur ansehen.",
+    "lb": "Dir kënnt d’Aktivitéit vun dësem Aarbechtsberäich nëmme kucken."
+  },
+  "The contacts for this workshop could not be verified. Try loading them again.": {
+    "fr": "Impossible de vérifier les contacts de cet espace de travail. Réessayez leur consultation.",
+    "en": "The contacts for this workspace could not be verified. Try loading them again.",
+    "lb": "D’Kontakter vun dësem Aarbechtsberäich konnten net iwwerpréift ginn. Probéiert se nach eng Kéier ze lueden."
+  },
+  "Guteneo is an independent service published by Nicolas Pieper to prepare, authorise and track document dispatches from its workshop or a connected assistant.": {
+    "fr": "Guteneo est un service indépendant édité par Nicolas Pieper pour préparer, autoriser et suivre des envois de documents depuis son espace de travail ou un assistant connecté.",
+    "en": "Guteneo is an independent service published by Nicolas Pieper to prepare, authorise and track document dispatches from its workspace or a connected assistant.",
+    "de": "Guteneo ist ein unabhängiger, von Nicolas Pieper herausgegebener Dienst zum Vorbereiten, Autorisieren und Verfolgen von Dokumentensendungen aus dem Arbeitsbereich oder über einen verbundenen Assistenten.",
+    "lb": "Guteneo ass en onofhängege Service vum Nicolas Pieper, fir Dokumentesendungen aus sengem Aarbechtsberäich oder engem verbonnenen Assistent virzebereeden, ze autoriséieren an ze verfollegen."
+  },
+  "THE WORKSHOP / DEVELOPERS": {
+    "fr": "L’ESPACE DE TRAVAIL / DÉVELOPPEURS",
+    "en": "THE WORKSPACE / DEVELOPERS",
+    "de": "DER ARBEITSBEREICH / ENTWICKLER",
+    "lb": "DEN AARBECHTSBERÄICH / ENTWÉCKLER"
+  },
+  "Guteneo is an independent service published by Nicolas Pieper to prepare, authorise and track document dispatches from its workshop or a connected assistant. His contact details appear in the": {
+    "fr": "Guteneo est un service indépendant édité par Nicolas Pieper pour préparer, autoriser et suivre des envois de documents depuis son espace de travail ou un assistant connecté. Ses coordonnées figurent dans les",
+    "en": "Guteneo is an independent service published by Nicolas Pieper to prepare, authorise and track document dispatches from its workspace or a connected assistant. His contact details appear in the",
+    "de": "Guteneo ist ein unabhängiger, von Nicolas Pieper herausgegebener Dienst zum Vorbereiten, Autorisieren und Verfolgen von Dokumentensendungen aus dem Arbeitsbereich oder über einen verbundenen Assistenten. Seine Kontaktdaten finden Sie im",
+    "lb": "Guteneo ass en onofhängege Service vum Nicolas Pieper, fir Dokumentesendungen aus sengem Aarbechtsberäich oder engem verbonnenen Assistent virzebereeden, ze autoriséieren an ze verfollegen. Seng Kontaktdonnéeë fannt Dir am"
+  },
+  "Sign {0} out of this workshop": {
+    "fr": "Déconnecter {0} de cet espace de travail",
+    "en": "Sign {0} out of this workspace",
+    "de": "{0} von diesem Arbeitsbereich abmelden",
+    "lb": "{0} aus dësem Aarbechtsberäich ausloggen"
+  },
+  "The workspace can also process CSV, XLSX, XML, JSON or Word sources you provide, their profiles and sample data, templates, field mappings, generation data and distribution manifests. When PDF/UA or PDF/A diagnostics are available, their reports are linked to the exact document and its fingerprint. This information supports the creation, checks and retrieval you request; it may be returned to your assistant according to its permissions.": {
+    "fr": "L’espace de travail peut aussi traiter les sources CSV, XLSX, XML, JSON ou Word que vous fournissez, leurs profils et exemples de données, les modèles, les correspondances de champs, les données de génération et les manifestes de distribution. Lorsque les diagnostics PDF/UA ou PDF/A sont disponibles, leurs rapports sont associés au document exact et à son empreinte. Ces informations servent aux créations, contrôles et consultations que vous demandez ; elles peuvent être retournées à votre assistant selon ses permissions."
+  },
+  "Optional workspace AI assistance:": {
+    "fr": "Aide IA optionnelle de l’espace de travail :"
+  },
+  "Guteneo provides a connected workspace to prepare and track document deliveries. Postal mail is available after an administrator declares the sender; each delivery still requires document verification, a quote, available credit and approval. Other channels depend on their activation in the account.": {
+    "fr": "Guteneo propose un espace de travail connecté pour préparer et suivre des envois de documents. Le courrier postal est accessible après la déclaration de l’expéditeur par un administrateur ; chaque envoi reste soumis à la vérification du document, au devis, au crédit disponible et à son approbation. Les autres canaux dépendent de leur activation dans le compte."
+  },
+  "Explore welcome credit and delivery tracking in this fictional workspace.": {
+    "fr": "Explorez le crédit de bienvenue et le suivi des envois dans cet espace de travail fictif."
+  },
+  "Fax, email and post share the same credit, granted to your workspace once only.": {
+    "fr": "Fax, e-mail et courrier partagent le même crédit, offert une seule fois à votre espace de travail."
+  },
+  "No credit has been assigned to this workspace. Deliveries requiring credit remain blocked.": {
+    "fr": "Aucun crédit n’est attribué à cet espace de travail. Les envois nécessitant un crédit restent bloqués."
+  },
+  "These amounts are only for exploring the workspace. They represent neither actual credit nor an invoice.": {
+    "fr": "Ces montants servent uniquement à explorer l’espace de travail. Ils ne constituent ni un crédit réel ni une facture."
+  },
+  "Your workspace and document will be introduced automatically.": {
+    "fr": "Votre espace de travail et votre document seront présentés automatiquement."
+  },
+  "Better prepared documents, a better equipped workspace.": {
+    "fr": "Des documents mieux préparés, un espace de travail mieux équipé.",
+    "lb": "Besser preparéiert Dokumenter, e besser equipéierten Aarbechtsberäich."
+  },
+  "Simulation workspace: the displayed amounts and entitlements are fictional.": {
+    "fr": "Espace de travail de simulation : les montants et les droits affichés sont fictifs.",
+    "lb": "Simuléierten Aarbechtsberäich: déi ugewisen Zommen a Rechter si fiktiv."
+  },
+  "This workspace’s mode is incompatible.": {
+    "lb": "De Modus vun dësem Aarbechtsberäich ass net kompatibel."
+  },
+  "Available in your workspace": {
+    "fr": "Disponible dans votre espace de travail",
+    "lb": "An Ärem Aarbechtsberäich disponibel"
+  },
+  "Check your workspace": {
+    "fr": "Consultez votre espace de travail",
+    "lb": "Kuckt an Ärem Aarbechtsberäich"
+  },
+  "Simulation workspace: the displayed amounts and checks are fictional.": {
+    "fr": "Espace de travail de simulation : les montants et les contrôles affichés sont fictifs.",
+    "lb": "Simuléierten Aarbechtsberäich: déi ugewisen Zommen a Kontrolle si fiktiv."
+  },
+  "Service availability is confirmed in your workspace before you purchase a check.": {
+    "fr": "La disponibilité du service est confirmée dans votre espace de travail avant l’achat d’un contrôle.",
+    "lb": "D’Disponibilitéit vum Service gëtt virum Kaf vun enger Kontroll an Ärem Aarbechtsberäich bestätegt."
+  },
+  "Indicative amounts excluding tax, checked on 17 September 2026. Dollar prices converted at the ECB rate of 16 September: €1 = US$1.1537. The applicable price and options appear in the quote before approval. Postal mail is available after setup in your signed-in workspace; the preview remains a demonstration with no real sends.": {
+    "fr": "Montants indicatifs hors taxes, vérifiés le 17 septembre 2026. Conversion des tarifs en dollars au cours BCE du 16 septembre : 1 € = 1,1537 $ US. Le prix applicable et les options figurent dans le devis avant validation. Le courrier postal est disponible après configuration dans votre espace de travail connecté ; l’aperçu reste une démonstration sans envoi réel."
+  },
+  "Manages the workspace, members, billing and delegations. Prepares and approves dispatches and reads all reports.": {
+    "fr": "Gère l’espace de travail, ses membres, la facturation et les délégations. Prépare, approuve et consulte tous les rapports.",
+    "lb": "Verwalt den Aarbechtsberäich, d’Memberen, d’Facturatioun an d’Delegatiounen. Bereet Sendunge vir, geneemegt se a liest all Rapporten."
+  },
+  "Reads workspace documents, recipients and dispatch tracking without changing them.": {
+    "fr": "Consulte les documents, les destinataires et le suivi des envois de l’espace de travail, sans les modifier.",
+    "lb": "Liest d’Dokumenter, d’Empfänger an d’Sendungsverfolgung vum Aarbechtsberäich, ouni se ze änneren."
+  },
+  "Your role does not provide access to workspace reports. An administrator can change your permissions.": {
+    "fr": "Votre rôle ne donne pas accès aux rapports de l’espace de travail. Un administrateur peut modifier vos droits.",
+    "lb": "Är Roll erlaabt keen Zougang zu de Rapporte vum Aarbechtsberäich. En Administrateur kann Är Rechter änneren."
+  },
+  "Choose who prepares correspondence, who authorizes dispatches and who reads your workspace reports.": {
+    "fr": "Choisissez qui prépare la correspondance, qui autorise les envois et qui consulte les rapports de votre espace de travail.",
+    "lb": "Bestëmmt, wien d’Korrespondenz virbereet, Sendunge geneemegt an d’Rapporte vun Ärem Aarbechtsberäich liest."
+  },
+  "Each person has a separate role in each workspace. All roles can access that workspace’s documents, recipients and tracking: the Observer role does not hide sensitive content.": {
+    "fr": "Chaque personne a un rôle propre à chaque espace de travail. Tous les rôles donnent accès aux documents, aux destinataires et au suivi de cet espace de travail : le rôle Observateur ne masque pas les contenus sensibles.",
+    "lb": "All Persoun huet eng eege Roll an all Aarbechtsberäich. All Rolle kënnen op d’Dokumenter, d’Empfänger an d’Verfolgung vum Aarbechtsberäich zougräifen: d’Roll Observateur verstoppt keng sensibel Inhalter."
+  },
+  "Allows review and transfer of postal PDFs, approval of content and cost, dispatch confirmation, and cancellation before submission to the provider. Approval can trigger a dispatch and consume workspace credit.": {
+    "fr": "Autorise la revue et le transfert du PDF postal, l’approbation du contenu et du coût, la confirmation de l’envoi, ainsi que l’annulation avant soumission au prestataire. Une approbation peut déclencher un envoi et consommer le crédit de l’espace de travail."
+  },
+  "Start with Observer for reading, Operator for preparation and Supervisor for approval or reporting responsibilities. Reserve Administrator for people who actually manage the workspace.": {
+    "fr": "Commencez par Observateur pour une consultation, Opérateur pour la préparation, et Superviseur pour une responsabilité de validation ou de reporting. Réservez Administrateur aux personnes qui gèrent réellement l’espace de travail.",
+    "lb": "Wielt Observateur fir ze liesen, Operateur fir d’Virbereedung a Supervisor fir Geneemegungen oder Rapporten. Reservéiert Administrateur fir Leit, déi den Aarbechtsberäich tatsächlech verwalten."
+  },
+  "In your workspace, open Administration → Workspace members. Choose the role, set the two supervisor options, then save. Changing permissions disconnects the member’s sessions and assistants; they must sign in again. The last administrator cannot give up their role.": {
+    "fr": "Dans l’espace de travail, ouvrez Administration → Membres de l’espace de travail. Choisissez le rôle, ajustez les deux options du superviseur, puis enregistrez. Un changement de droits déconnecte les sessions et les assistants du membre concerné ; il devra se reconnecter. Le dernier administrateur ne peut pas abandonner son rôle.",
+    "lb": "Maacht am Aarbechtsberäich Administratioun → Membere vum Aarbechtsberäich op. Wielt d’Roll, passt déi zwou Supervisor-Optiounen un a späichert. Geännert Rechter trennen dem Member seng Sessiounen an Assistenten; hie muss sech nei umellen. De leschten Administrateur kann seng Roll net ofginn."
+  },
+  "Your workspace permissions": {
+    "fr": "Vos droits dans cet espace de travail",
+    "lb": "Är Rechter an dësem Aarbechtsberäich"
+  },
+  "The person who creates a workspace becomes its administrator. Then invite colleagues by email, individually or from a CSV. The chosen role applies to every address in this batch.": {
+    "fr": "La personne qui crée un espace de travail en devient administrateur. Invitez ensuite vos collaborateurs par e-mail, un par un ou depuis un CSV. Le rôle choisi s’applique à toutes les adresses de ce lot.",
+    "lb": "Wien en Aarbechtsberäich erstellt, gëtt säin Administrateur. Invitéiert duerno Är Mataarbechter per E-Mail, eenzel oder iwwer eng CSV-Datei. Déi gewielte Roll gëllt fir all Adress an dëser Grupp."
+  },
+  "Each person will receive a personal link and must sign in with that verified address to join the workspace.": {
+    "fr": "Chaque personne recevra un lien personnel et devra se connecter avec cette adresse vérifiée pour rejoindre l’espace de travail.",
+    "lb": "All Persoun kritt e perséinleche Link a muss sech mat där verifizéierter Adress umellen, fir dem Aarbechtsberäich bäizetrieden."
+  },
+  "Workspace invitations": {
+    "fr": "Invitations de l’espace de travail",
+    "lb": "Invitatioune vum Aarbechtsberäich"
+  },
+  "Revoke the invitation for {0}? This link will no longer allow them to join the workspace.": {
+    "fr": "Révoquer l’invitation de {0} ? Ce lien ne permettra plus de rejoindre l’espace de travail."
+  },
+  "Invitation to join a workspace": {
+    "fr": "Invitation à rejoindre un espace de travail",
+    "lb": "Invitatioun fir engem Aarbechtsberäich bäizetrieden"
+  },
+  "Sign in or create your account with the email address that received the invitation. It must be verified. You will join this workspace with the stated role, even if you already have a Guteneo account.": {
+    "fr": "Connectez-vous ou créez votre compte avec l’adresse e-mail qui a reçu l’invitation. Elle doit être vérifiée. Vous rejoindrez cet espace de travail avec le rôle indiqué, même si vous avez déjà un compte Guteneo.",
+    "lb": "Mellt Iech un oder erstellt Äre Kont mat der E-Mail-Adress, déi d’Invitatioun kritt huet. Si muss verifizéiert sinn. Dir triedt dësem Aarbechtsberäich mat der uginner Roll bäi, och wann Dir schonn e Guteneo-Kont hutt."
+  },
+  "This invitation is no longer available. Ask the workspace administrator for a new invitation.": {
+    "fr": "Cette invitation n’est plus disponible. Demandez une nouvelle invitation à l’administrateur de l’espace de travail.",
+    "lb": "Dës Invitatioun ass net méi verfügbar. Frot den Administrateur vum Aarbechtsberäich no enger neier Invitatioun."
+  },
+  "The person who creates a workspace becomes its administrator. They can then invite members with an email address or a CSV file, review the recipients and role, and send the invitations. Each invitee joins by creating an account or signing in with the verified address that received their personal link.": {
+    "fr": "La personne qui crée un espace de travail en devient administrateur. Elle peut ensuite inviter des membres avec une adresse e-mail ou un fichier CSV, vérifier les destinataires et leur rôle, puis envoyer les invitations. Chaque invité rejoint l’espace de travail en créant un compte ou en se connectant avec l’adresse vérifiée qui a reçu son lien personnel.",
+    "lb": "Wien en Aarbechtsberäich erstellt, gëtt säin Administrateur. Duerno kënne Membere per E-Mail-Adress oder CSV-Datei invitéiert, d’Empfänger an d’Roll kontrolléiert an d’Invitatioune geschéckt ginn. All Invitéierten trëtt bäi, andeems hie mat der verifizéierter Adress, déi säi perséinleche Link kritt huet, e Kont erstellt oder sech umellt."
+  },
+  "Switch workspace": {
+    "fr": "Changer d’espace de travail",
+    "lb": "Aarbechtsberäich wiesselen"
+  },
+  "Active workspace": {
+    "fr": "Espace de travail actif",
+    "lb": "Aktiven Aarbechtsberäich"
+  },
+  "Your documents and permissions depend on the selected workspace. Switching opens a new session in that workspace.": {
+    "fr": "Vos documents et vos droits dépendent de l’espace de travail choisi. Le changement ouvre une nouvelle session dans cet espace de travail.",
+    "lb": "Är Dokumenter a Rechter hänke vum gewielten Aarbechtsberäich of. De Wiessel mécht eng nei Sessioun an deem Aarbechtsberäich op."
+  },
+  "Open this workspace": {
+    "fr": "Ouvrir cet espace de travail",
+    "lb": "Dësen Aarbechtsberäich opmaachen"
+  },
+  "This invitation has expired, been revoked or already been used. Ask the workspace administrator for a new link.": {
+    "fr": "Cette invitation a expiré, a été révoquée ou a déjà été utilisée. Demandez un nouveau lien à l’administrateur de l’espace de travail.",
+    "lb": "Dës Invitatioun ass ofgelaf, gouf zréckgezunn oder scho benotzt. Frot den Administrateur vum Aarbechtsberäich no engem neie Link."
+  },
+  "You already belong to this workspace. Sign in and select it in My account.": {
+    "fr": "Vous êtes déjà membre de cet espace de travail. Connectez-vous à votre compte, puis choisissez cet espace de travail dans le sélecteur d’espace de travail.",
+    "en": "You already belong to this workspace. Sign in, then choose it in the workspace switcher.",
+    "de": "Sie sind bereits Mitglied dieses Arbeitsbereichs. Melden Sie sich an und wählen Sie ihn über die Arbeitsbereichsauswahl.",
+    "lb": "Dir sidd scho Member vun dësem Aarbechtsberäich. Mellt Iech un a wielt en iwwer d’Aarbechtsberäichauswiel."
+  },
+  "These copies were delivered to you for the stated retention period. The workspace can no longer withdraw them.": {
+    "fr": "Ces copies vous ont été remises pour la durée indiquée. L’espace de travail ne peut plus les retirer.",
+    "lb": "Dës Kopië goufen Iech fir déi uginn Dauer iwwerreecht. Den Aarbechtsberäich kann se net méi zeréckzéien."
+  },
+  "You can save a copy when the sending workspace allows it.": {
+    "fr": "Vous pourrez conserver une copie si l’espace de travail expéditeur l’autorise.",
+    "lb": "Dir kënnt eng Kopie späicheren, wann den Aarbechtsberäich, deen se schéckt, dat erlaabt."
+  },
+  "Your account also gives you access to Guteneo services. No workspace is created to view your documents.": {
+    "fr": "Votre compte sert aussi à utiliser les services Guteneo. Aucun espace de travail n’est créé pour consulter vos documents.",
+    "lb": "Mat Ärem Kont kënnt Dir och d’Servicer vu Guteneo benotzen. Fir Är Dokumenter ze kucke gëtt keen Aarbechtsberäich erstallt."
+  },
+  "Open my workspace": {
+    "fr": "Ouvrir mon espace de travail",
+    "lb": "Mäin Aarbechtsberäich opmaachen"
+  },
+  "Choose a workspace": {
+    "fr": "Choisir un espace de travail",
+    "lb": "En Aarbechtsberäich wielen"
+  },
+  "Create my workspace": {
+    "fr": "Créer mon espace de travail",
+    "lb": "Mäin Aarbechtsberäich erstellen"
+  },
+  "Your workspace name": {
+    "fr": "Nom de votre espace de travail",
+    "lb": "Numm vun Ärem Aarbechtsberäich"
+  },
+  "Your sending workspace is created only when you request it, using the same account.": {
+    "lb": "Ären Aarbechtsberäich fir ze schécke gëtt nëmmen op Är Ufro mam selwechte Kont erstallt."
+  },
+  "No workspace is associated with this account.": {
+    "fr": "Aucun espace de travail associé à ce compte.",
+    "lb": "Kee Aarbechtsberäich ass mat dësem Kont verbonnen."
+  },
+  "Your documents and workspace permissions remain linked to this single account.": {
+    "fr": "Vos documents et les droits de vos espaces de travail restent liés à ce compte unique.",
+    "lb": "Är Dokumenter an d’Rechter vun Ären Aarbechtsberäicher bleiwe mat dësem eenzege Kont verbonnen."
+  },
+  "Check the signed-in account before requesting access. This invitation grants no permissions in the sender’s workspace.": {
+    "fr": "Vérifiez le compte connecté avant de demander l’accès. L’invitation ne donne aucun droit dans l’espace de travail expéditeur.",
+    "lb": "Kontrolléiert den ageloggte Kont, ier Dir Zougang ufrot. D’Invitatioun gëtt keng Rechter am Aarbechtsberäich vum Expéditeur."
+  },
+  "The workspace may need to confirm the association with your account before granting access to the content.": {
+    "fr": "L’espace de travail peut devoir confirmer l’association à votre compte avant de vous donner accès au contenu.",
+    "lb": "Den Aarbechtsberäich muss eventuell d’Zouuerdnung zu Ärem Kont bestätegen, ier Dir Zougang zum Inhalt kritt."
+  },
+  "Your access request is awaiting confirmation from the workspace.": {
+    "fr": "Votre demande d’accès attend la confirmation de l’espace de travail.",
+    "lb": "Är Zougangsufro waart op d’Bestätegung vum Aarbechtsberäich."
+  },
+  "The workspace receives a log of authorized access and reported displays. Screenshots are not detected.": {
+    "fr": "L’espace de travail reçoit un journal des accès autorisés et des affichages déclarés. Les captures d’écran ne sont pas détectées.",
+    "lb": "Den Aarbechtsberäich kritt e Protokoll vun autoriséierten Zougrëffer a gemellten Affichagen. Screenshots ginn net erkannt."
+  },
+  "Your views of this personal copy are not shared with the sending workspace.": {
+    "fr": "Vos consultations de cette copie personnelle ne sont pas communiquées à l’espace de travail expéditeur.",
+    "lb": "Är Consultatioune vun dëser perséinlecher Kopie ginn net un den Aarbechtsberäich vum Expéditeur weiderginn."
+  },
+  "This copy can be exported and will be retained for {0} days from delivery. The workspace will no longer be able to withdraw it.": {
+    "fr": "Cette copie sera exportable et conservée pendant {0} jours à partir de sa remise. L’espace de travail ne pourra plus la retirer.",
+    "lb": "Dës Kopie kann exportéiert ginn a gëtt {0} Deeg vun hirer Iwwerreechung u gespäichert. Den Aarbechtsberäich kann se net méi zeréckzéien."
+  },
+  "Prepare a share from a verified PDF in this workspace.": {
+    "fr": "Préparez un partage à partir d’un PDF vérifié dans cet espace de travail.",
+    "lb": "Bereet eng Deelung aus engem kontrolléierte PDF an dësem Aarbechtsberäich vir."
+  },
+  "The recipient uses their Guteneo account. Receiving a document grants no permissions in your workspace.": {
+    "fr": "Le destinataire utilise son compte Guteneo. Recevoir un document ne donne aucun droit dans votre espace de travail.",
+    "lb": "Den Empfänger benotzt säi Guteneo-Kont. En Dokument ze kréie gëtt keng Rechter an Ärem Aarbechtsberäich."
+  },
+  "Workspace log": {
+    "fr": "Journal de l’espace de travail",
+    "lb": "Protokoll vum Aarbechtsberäich"
+  },
+  "Deleting removes your copy from this space. It does not delete the workspace original or files already downloaded.": {
+    "fr": "La suppression retire votre copie de cet espace. Elle ne supprime pas l’original de l’espace de travail ni les fichiers déjà téléchargés.",
+    "lb": "D’Läsche läscht Är Kopie aus dësem Beräich. Et läscht weder d’Original vum Aarbechtsberäich nach scho erofgeluede Fichieren."
+  },
+  "The workspace has not allowed a personal copy.": {
+    "fr": "L’espace de travail n’a pas autorisé de copie personnelle.",
+    "lb": "Den Aarbechtsberäich huet keng perséinlech Kopie erlaabt."
+  },
+  "Page preview access authorized in the workspace": {
+    "fr": "Accès à l’aperçu de page autorisé dans l’espace de travail",
+    "lb": "Zougang zur Säitevirschau am Aarbechtsberäich autoriséiert"
+  },
+  "Accessible text access authorized in the workspace": {
+    "fr": "Accès au texte accessible autorisé dans l’espace de travail",
+    "lb": "Zougang zum zougänglechen Text am Aarbechtsberäich autoriséiert"
+  },
+  "Workspace setup": {
+    "fr": "Choix de l’espace de travail",
+    "lb": "Aarbechtsberäich ariichten"
+  },
+  "Join an existing workspace": {
+    "fr": "Rejoindre un espace de travail existant",
+    "lb": "Engem bestoenden Aarbechtsberäich bäitrieden"
+  },
+  "Workspace invitation link": {
+    "fr": "Lien d’invitation à l’espace de travail",
+    "lb": "Invitatiounslink fir den Aarbechtsberäich"
+  },
+  "Ask the workspace administrator for an invitation to {0}, then paste the received link.": {
+    "fr": "Demandez à l’administrateur de l’espace de travail une invitation pour {0}, puis collez le lien reçu.",
+    "lb": "Frot den Administrateur vum Aarbechtsberäich ëm eng Invitatioun fir {0} a setzt de kritt Link an."
+  },
+  "Paste the complete Guteneo workspace invitation link.": {
+    "fr": "Collez le lien complet d’invitation à l’espace de travail Guteneo.",
+    "lb": "Setzt de kompletten Invitatiounslink fir de Guteneo-Aarbechtsberäich an."
+  },
+  "Accounts and access in this preview are fictional. You can edit them in your signed-in workspace.": {
+    "fr": "Dans cet aperçu, les comptes et les accès sont fictifs. Leur modification sera disponible dans votre espace de travail connecté."
+  },
+  "Your identity, assistant permissions and workspace sessions.": {
+    "fr": "Votre identité, les autorisations de vos assistants et vos sessions dans l’espace de travail."
+  },
+  "Profile and workspace": {
+    "fr": "Profil et espace de travail"
+  },
+  "Your profile name is shared across your workspaces. Your sign-in address and security factors remain managed by your identity provider.": {
+    "fr": "Votre nom de profil est partagé entre vos espaces de travail. Votre adresse de connexion et vos facteurs de sécurité restent gérés par le fournisseur d’identité."
+  },
+  "Workspace name": {
+    "fr": "Nom de l’espace de travail"
+  },
+  "All members of this workspace can see this name.": {
+    "fr": "Ce nom sera visible par tous les membres de cet espace de travail."
+  },
+  "Only an administrator can rename this workspace.": {
+    "fr": "Seul un administrateur peut renommer cet espace de travail."
+  },
+  "Sessions in this workspace expire after one hour. Revoking a session removes its access to Guteneo; it does not sign you out of your identity provider account.": {
+    "fr": "Les sessions de cet espace de travail expirent après une heure. Révoquer une session coupe son accès à Guteneo ; cela ne déconnecte pas votre compte du fournisseur d’identité."
+  },
+  "Only administrators of this workspace can manage members.": {
+    "fr": "La gestion des membres est réservée aux administrateurs de cet espace de travail."
+  },
+  "Changing a role disconnects that member’s sessions and assistants. If you change your own role, you must sign in again. The workspace always retains at least one administrator.": {
+    "fr": "Un changement de rôle déconnecte les sessions et les assistants du membre concerné. Si vous modifiez votre propre rôle, vous devrez vous reconnecter. L’espace de travail conserve toujours au moins un administrateur."
+  },
+  "The workspace must retain at least one administrator. Appoint another administrator before changing this role.": {
+    "fr": "L’espace de travail doit conserver au moins un administrateur. Nommez un autre administrateur avant de modifier ce rôle."
+  },
+  "This shared template will be removed for everyone in the workspace.": {
+    "fr": "Ce modèle partagé sera retiré pour tous les membres de l’espace de travail.",
+    "lb": "Dës gedeelt Virlag gëtt fir all Membere vum Aarbechtsberäich ewechgeholl."
+  },
+  "Preparing the distribution lets authorized approvers in this workspace view the selected PDFs to review these requests. It does not send anything.": {
+    "fr": "La préparation rend les PDF sélectionnés consultables par les approbateurs de cet espace de travail pour examiner ces demandes. Elle ne déclenche aucun envoi.",
+    "lb": "D’Virbereedung erlaabt de Persoune mat Geneemegungsrecht an dësem Aarbechtsberäich, déi ausgewielte PDFen ze liesen, fir dës Ufroen ze préiwen. Et gëtt näischt verschéckt."
+  },
+  "AI is unavailable until the provider, transfer permission and workshop quota are ready. You can create and edit your template manually.": {
+    "fr": "L’IA est indisponible tant que le fournisseur, l’autorisation de transfert et le quota de l’espace de travail ne sont pas prêts. Vous pouvez créer et modifier votre modèle manuellement.",
+    "en": "AI is unavailable until the provider, transfer permission and workspace quota are ready. You can create and edit your template manually.",
+    "lb": "D’KI ass eréischt disponibel, wann de Fournisseur, d’Iwwerdroungserlaabnis an de Kontingent vum Aarbechtsberäich prett sinn. Dir kënnt Är Virlag manuell erstellen an änneren."
+  },
+  "Explore the workspace": {
+    "fr": "Découvrir l’espace de travail"
+  }
+}

@@ -1,5 +1,18 @@
 # API and MCP reference
 
+## Browser application continuity — 29 October 2026 local candidate
+
+Browser session responses may contain the minimal `canAccessBelvedere` navigation
+hint. It confers no authority; every protected platform read repeats the
+[Belvédère guard](BELVEDERE.md). Canonical `/belvedere` shares only the existing
+canonical host-only browser session, preserving protected legacy entries.
+
+The browser-only `GET /api/generation-jobs/:id/record-context` endpoint returns
+bounded business labels or, with `recordId`, one correction input under current
+tenant/creator authority. It grants no extra access from shared-template or
+review permission and changes no MCP/native result schema. See
+[the template workflow](TEMPLATES_DATA_DISTRIBUTION.md).
+
 Code inspected on 16 September 2026. This describes delivered routes, not a public
 API stability commitment. REST, MCP and the interface share `DomainService` and
 `DocumentService`. Later additions are dated explicitly; the 11 October appearance
@@ -225,7 +238,8 @@ not writable through public routes.
 
 Standard flow: prepare → inspect final content → human approval → confirm.
 [Expert approval](EXPERT_APPROVAL.md) separately uses server review and delegated
-acceptance. Standard approval binds fingerprint for at most 15 minutes; expert
+acceptance. Standard approval binds fingerprint for at most 15 minutes from its
+recorded creation time; asynchronous validation does not restart that cap. Expert
 review lasts five minutes within its mandate. `GET /api/dispatches/:id` returns
 `approval:{fingerprint,expires_at}` only when current/unexpired, otherwise null.
 Approval leaves `prepared`: never infer consent from local state or status alone.

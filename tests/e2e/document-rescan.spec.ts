@@ -12,7 +12,9 @@ import {
 // live in the D1 unit tests. These scenarios do not send communications.
 async function documentFixture(page: Page) {
   await page.goto("/#/app");
-  await page.getByRole("button", { name: "Entrer dans l’Atelier" }).click();
+  await page
+    .getByRole("button", { name: "Entrer dans l’espace de travail" })
+    .click();
   await expect(
     page.getByRole("heading", { name: "Votre correspondance, au clair." }),
   ).toBeVisible();

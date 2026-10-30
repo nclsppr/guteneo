@@ -1,3 +1,4 @@
+import { generationRecordContext } from "../../apps/api/src/generation-context";
 import {
   afterAll,
   beforeAll,
@@ -381,6 +382,141 @@ beforeEach(async () => {
 });
 
 describe("Persistent template workflow — local D1/R2 with explicitly synthetic renderer transport", () => {
+  it("projects bounded business labels without changing record identity and reads correction data only for its browser owner", async () => {
+    const definition = envelope();
+    definition.inputSchema.properties!.subject = { type: "string" };
+    definition.inputSchema.properties!.reference = { type: "string" };
+    const draft = await service.createTemplate(member, {
+      envelope: definition,
+    });
+    const template = await service.publishTemplate(member, draft.id, {
+      expectedRevision: draft.revision,
+    });
+    const data = {
+      name: "  Synthetic   recipient  ",
+      subject: "S".repeat(200),
+      reference: "REF-17",
+      email: "private@example.invalid",
+    };
+    const generation = await service.createGeneration(
+      member,
+      {
+        templateId: template.id,
+        mode: "generate_only",
+        records: [{ recordId: "record-2", data }],
+      },
+      "record-context",
+    );
+    const before = await service.generationResults(member, generation.id);
+    await expect(
+      generationRecordContext(env, service, member, generation.id),
+    ).resolves.toEqual({
+      nextCursor: null,
+      items: [
+        {
+          recordId: "record-2",
+          name: "Synthetic recipient",
+          subject: "S".repeat(160),
+          reference: "REF-17",
+        },
+      ],
+    });
+    await expect(
+      generationRecordContext(env, service, member, generation.id, "record-2"),
+    ).resolves.toMatchObject({ data, recordId: "record-2" });
+    expect(await service.generationResults(member, generation.id)).toEqual(
+      before,
+    );
+    const many = await service.createGeneration(
+      member,
+      {
+        templateId: template.id,
+        mode: "generate_only",
+        records: Array.from({ length: 51 }, (_, index) => ({
+          recordId: `record-${index}`,
+          data: { name: `Synthetic ${index}` },
+        })),
+      },
+      "record-context-pages",
+    );
+    const firstPage = (await generationRecordContext(
+      env,
+      service,
+      member,
+      many.id,
+    )) as { items: { recordId: string }[]; nextCursor: string | null };
+    expect(firstPage.items.map((record) => record.recordId)).toEqual(
+      (await service.generationResults(member, many.id)).items.map(
+        (record) => record.recordId,
+      ),
+    );
+    const lastPage = (await generationRecordContext(
+      env,
+      service,
+      member,
+      many.id,
+      undefined,
+      firstPage.nextCursor!,
+    )) as { items: { recordId: string }[]; nextCursor: string | null };
+    expect(lastPage.items).toHaveLength(1);
+    expect(lastPage.nextCursor).toBeNull();
+    await service.shareTemplate(member, template.id, {
+      syntheticSamplesConfirmed: true,
+      visibility: "organization",
+      expectedRevision: template.revision,
+      grants: [],
+    });
+    await setRole(reviewer);
+    for (const unauthorized of [owner, reviewer, other])
+      await expect(
+        generationRecordContext(
+          env,
+          service,
+          unauthorized,
+          generation.id,
+          "record-2",
+        ),
+      ).rejects.toMatchObject({ code: "GENERATION_NOT_FOUND" });
+    for (const actor of ["mcp", "native"] as const)
+      await expect(
+        generationRecordContext(
+          env,
+          service,
+          { ...member, actor },
+          generation.id,
+        ),
+      ).rejects.toMatchObject({ code: "BROWSER_REQUIRED" });
+    await expect(
+      generationRecordContext(env, service, member, generation.id, "missing"),
+    ).rejects.toMatchObject({ code: "GENERATION_RECORD_NOT_FOUND" });
+    const getGeneration = service.getGeneration.bind(service);
+    vi.spyOn(service, "getGeneration").mockImplementationOnce(
+      async (...args) => {
+        const value = await getGeneration(...args);
+        await db
+          .prepare(
+            "DELETE FROM memberships WHERE organization_id=? AND user_id=?",
+          )
+          .bind(member.organizationId, member.userId)
+          .run();
+        return value;
+      },
+    );
+    try {
+      await expect(
+        generationRecordContext(env, service, member, generation.id),
+      ).rejects.toMatchObject({ code: "FORBIDDEN" });
+    } finally {
+      await db
+        .prepare(
+          "INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES(?,?,'member',?)",
+        )
+        .bind(member.organizationId, member.userId, new Date().toISOString())
+        .run();
+    }
+    for (const table of ["approvals", "reservations", "outbox", "attempts"])
+      expect(await count(table)).toBe(0);
+  });
   it.each(
     (["browser", "mcp"] as const).flatMap((actor) =>
       [false, true].flatMap((supervisorCanApprove) =>
@@ -538,6 +674,15 @@ describe("Persistent template workflow — local D1/R2 with explicitly synthetic
     }
     await setRole(reviewer);
     for (const approver of [owner, reviewer]) {
+      await expect(
+        generationRecordContext(
+          env,
+          service,
+          approver,
+          generation.id,
+          result.recordId,
+        ),
+      ).rejects.toMatchObject({ code: "GENERATION_NOT_FOUND" });
       expect(
         (await domain.getDispatch(approver, dispatchId)).dispatch.document_id,
       ).toBe(result.documentId);

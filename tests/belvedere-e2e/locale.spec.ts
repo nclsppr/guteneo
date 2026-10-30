@@ -1,5 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import messages from "../../apps/web/src/locales/messages-belvedere.json" with { type: "json" };
+import revisions from "../../apps/web/src/locales/workspace-terminology.json" with { type: "json" };
 import type {
   BelvedereFinance,
   BelvedereOverview,
@@ -10,8 +11,17 @@ import type {
 import { fixtureBase, fixtureResponse } from "../fixtures/belvedere";
 
 type Locale = "fr" | "en" | "de" | "lb";
-const copy = (locale: Locale, source: keyof typeof messages) =>
-  locale === "fr" ? source : messages[source][{ en: 0, de: 1, lb: 2 }[locale]];
+const copy = (locale: Locale, source: keyof typeof messages) => {
+  const revised = (
+    revisions as Record<string, Partial<Record<Locale, string>>>
+  )[messages[source][0]]?.[locale];
+  return (
+    revised ??
+    (locale === "fr"
+      ? source
+      : messages[source][{ en: 0, de: 1, lb: 2 }[locale]])
+  );
+};
 
 async function setup(page: Page, locale: Locale | "automatic") {
   let preferredLocale: Locale | null = locale === "automatic" ? null : locale;

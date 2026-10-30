@@ -133,6 +133,9 @@ test("reused XML joins display the resolved sheet and keep main-sheet grouping s
       };
     } else if (path === "/api/templates") {
       body = { items: [template], nextCursor: null };
+    } else if (path === `/api/templates/${template.id}`) {
+      expect(url.searchParams.get("version")).toBe("1");
+      body = template;
     } else if (path === "/api/mappings") {
       body = { items: [mapping], nextCursor: null };
     } else if (path === `/api/datasets/${value.dataset.id}/profile`) {
@@ -161,7 +164,7 @@ test("reused XML joins display the resolved sheet and keep main-sheet grouping s
     );
   });
 
-  await page.goto(`/#/app/dataset/${value.dataset.id}`);
+  await page.goto(`/#/app/studio/dataset/${value.dataset.id}`);
   await page
     .getByLabel("Template to populate", { exact: true })
     .selectOption(template.id);

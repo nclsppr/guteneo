@@ -8,7 +8,9 @@ import { documentAnalysis } from "../../packages/contracts/src/document-analysis
 
 async function generationFixture(page: Page) {
   await page.goto("/#/app");
-  await page.getByRole("button", { name: "Entrer dans l’Atelier" }).click();
+  await page
+    .getByRole("button", { name: "Entrer dans l’espace de travail" })
+    .click();
   await expect(page.locator(".workspace")).toBeVisible();
   const session = (await (
     await page.request.get("/api/session")
@@ -53,6 +55,9 @@ async function generationFixture(page: Page) {
   let fail = false;
   let nextReadGate: Promise<void> | undefined;
   const writes: string[] = [];
+  await page.route(`**/api/generation-jobs/${id}/record-context`, (route) =>
+    route.fulfill({ json: { items: [] } }),
+  );
   page.on("request", (request) => {
     if (request.method() !== "GET") writes.push(request.url());
   });
@@ -86,7 +91,7 @@ async function generationFixture(page: Page) {
       return release;
     },
     async open() {
-      await page.goto(`/#/app/generation/${id}`);
+      await page.goto(`/#/app/studio/generation/${id}`);
       await expect(selection(page)).toBeDisabled();
     },
   };

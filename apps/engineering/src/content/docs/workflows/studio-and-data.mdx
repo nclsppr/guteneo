@@ -86,9 +86,19 @@ person's current keyboard focus.
 
 ## Distribution freezes a deliberate selection
 
+Studio hands the selected record ids to Correspondence at
+`/app/distribution/new`. Correspondence rechecks the current private generation,
+each selected ready document and its business label before mounting the form.
+It loads its own code and styles; opening a route makes no preparation request.
+Browser Back and the return link preserve the selected ids, while an unsaved
+preparation can veto departure. A late preparation or postal-preflight response
+cannot navigate a later visit or another account/workspace.
+
 Preparing distribution creates ordinary dispatch preparations from generated
 results. It preserves exact destinations and channels; repeated values do not
-authorize merging, deduplicating or switching a recipient's channel.
+authorize merging, deduplicating or switching a recipient's channel. Every new
+destination starts without an assigned PDF, including a selection of one PDF.
+Prepared plans retain `/app/distribution/<id>` and their immutable contents.
 
 The first distribution plan freezes its generation batch and prevents failed-record
 retries, including records outside the selected subset. Finish desired retries
@@ -108,3 +118,18 @@ A proposal is never automatically applied, published or sent. Manual authoring a
 external-assistant mappings remain usable without the internal AI adapter. The
 [dispatch lifecycle](/architecture/dispatch-lifecycle/) still governs final
 communications.
+
+## Correct without changing prepared originals
+
+Generation results identify records by available name, subject and business
+reference. Browser-only owner-authorized context reads expose no private source
+to shared-template users or bounded dispatch reviewers. Corrections reuse the
+selected template/version and compatible data mapping, then create a new
+version/generation. Replacement imports preserve compatible mappings and record
+exclusions; missing data remains tied to its person, field and cell.
+
+Each destination explicitly selects its documents. The summary precedes
+preparation and explains that the first plan freezes the full generation,
+including excluded failed rows. A corrected generation leaves prior PDFs,
+hashes and prepared manifests untouched. Generation, preparation, approval,
+provider acceptance and delivery remain distinct events.

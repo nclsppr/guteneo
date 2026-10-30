@@ -1,8 +1,9 @@
 .usage-activity {
-  --activity-0: #eeeee7;
-  --activity-1: #cbd7fa;
-  --activity-2: #93acf0;
-  --activity-3: #5b7de6;
+  /* Derived from the theme so the scale follows light and dark modes. */
+  --activity-0: color-mix(in srgb, var(--line) 50%, var(--surface));
+  --activity-1: color-mix(in srgb, var(--blue) 25%, var(--surface));
+  --activity-2: color-mix(in srgb, var(--blue) 50%, var(--surface));
+  --activity-3: color-mix(in srgb, var(--blue) 75%, var(--surface));
   --activity-4: var(--blue);
   min-width: 0;
   margin: 12px 0 40px;
@@ -76,7 +77,8 @@
   overscroll-behavior-x: contain;
   max-width: 100%;
   padding: 5px 5px 12px;
-  scrollbar-color: #a8aca0 var(--paper);
+  scrollbar-color: color-mix(in srgb, var(--muted) 50%, var(--paper))
+    var(--paper);
   scrollbar-width: thin;
 }
 .usage-activity-calendar {

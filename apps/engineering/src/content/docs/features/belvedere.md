@@ -1,6 +1,6 @@
 ---
 title: "Belvédère platform oversight"
-description: "9 capabilities in the operations branch of Guteneo."
+description: "12 capabilities in the operations branch of Guteneo."
 sidebar:
   order: 21
 ---
@@ -27,4 +27,7 @@ Dedicated-host release and authenticated overview verified on 25 October from 03
 <li id="feature-17f4133e5cce">Additive migration 0052 and deterministic loopback-only preview; hosted activation is separate</li>
 <li id="feature-5b314e9663e2">Account-selected four-language UI on direct entry and tab focus, including exact known source-authored finance explanations with distinct accounting meanings; unknown data remains verbatim and no private language selector is added</li>
 <li id="feature-462c38702cd1">V2 workshop visual vocabulary with independent platform navigation, shared single system-default light/dark action, readable tables/globe and keyboard mobile drawer; theme changes preserve filters without business reads/writes or layout-preference changes</li>
+<li id="feature-72bebbcb1d11">Canonical /belvedere and its protected child reads reuse the existing canonical host-only browser session; signed-evidence/current-membership guards remain mandatory and the private legacy entry/dedicated host remain protected</li>
+<li id="feature-12f7a2c42c92">Session responses expose only canAccessBelvedere for shared application navigation, never a private slug or token; personal projection additionally checks the matching current workspace browser session/evidence</li>
+<li id="feature-392ed5a55ea4">Canonical entry uses shared application/account controls, demand-loaded seven-view UI and interactive globe; observation filters never switch operational membership</li>
 </ol>
