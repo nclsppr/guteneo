@@ -142,7 +142,7 @@ export async function uploadSyntheticPdf(
   // The framework matches response URLs, not HTTP methods. Let the initial
   // GET /documents finish rendering before observing the POST on the same URL.
   await expect(
-    browser.locator("main .responsive-table, main .dashboard-document-empty"),
+    browser.locator("main .data-table__grid, main .dashboard-document-empty"),
   ).toBeVisible();
   await screen.getByRole("button", "Importer un PDF").tap();
   await screen.getByLabel("Fichier PDF").setInputFiles(fileURLToPath(file));

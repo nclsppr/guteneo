@@ -313,20 +313,20 @@
   border-radius: 12px;
   background: var(--surface);
 }
-.workspace-v2 table:not(.studio-designer *) {
+.workspace-v2 table:not(.studio-designer *, .data-table *) {
   font-size: 14px;
 }
-.workspace-v2 th:not(.studio-designer *) {
+.workspace-v2 th:not(.studio-designer *, .data-table *) {
   background: var(--surface-alt);
   color: var(--muted);
   font-size: 12px;
   padding: 14px 16px;
 }
-.workspace-v2 td:not(.studio-designer *) {
+.workspace-v2 td:not(.studio-designer *, .data-table *) {
   padding: 16px;
 }
 /* A row header names its row: it reads like a cell, not a column heading. */
-.workspace-v2 tbody th:not(.studio-designer *) {
+.workspace-v2 tbody th:not(.studio-designer *, .data-table *) {
   background: transparent;
   color: var(--ink);
   font-size: 14px;
@@ -335,23 +335,23 @@
   white-space: normal;
 }
 /* A table title sits at the start, like the section headings around it. */
-.workspace-v2 caption:not(.studio-designer *) {
+.workspace-v2 caption:not(.studio-designer *, .data-table *) {
   padding: 14px 20px 10px;
   color: var(--heading-ink);
   font-size: 15px;
   font-weight: 500;
   text-align: start;
 }
-.workspace-v2 :is(th, td):not(.studio-designer *):first-child {
+.workspace-v2 :is(th, td):not(.studio-designer *, .data-table *):first-child {
   padding-left: 20px;
 }
-.workspace-v2 :is(th, td):not(.studio-designer *):last-child {
+.workspace-v2 :is(th, td):not(.studio-designer *, .data-table *):last-child {
   padding-right: 20px;
 }
 .workspace-v2
   :is(tbody, tfoot)
   tr:last-child
-  :is(th, td):not(.studio-designer *) {
+  :is(th, td):not(.studio-designer *, .data-table *) {
   border-bottom: 0;
 }
 .workspace-v2 .row-link {
@@ -656,11 +656,17 @@
     padding-left: 0;
   }
   /* Cards drop every table inset, including the first and last cells. */
-  .workspace-v2 .responsive-table tbody :is(th, td):not(.studio-designer *),
   .workspace-v2
     .responsive-table
     tbody
-    :is(th, td):not(.studio-designer *):is(:first-child, :last-child) {
+    :is(th, td):not(.studio-designer *, .data-table *),
+  .workspace-v2
+    .responsive-table
+    tbody
+    :is(th, td):not(.studio-designer *, .data-table *):is(
+      :first-child,
+      :last-child
+    ) {
     padding: 0;
   }
   .workspace-v2 .table-scroll {

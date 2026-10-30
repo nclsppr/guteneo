@@ -151,7 +151,7 @@ silently stop applying when Wrangler changes its dependency. The PDF validator
 also preserves its reviewed Sharp override. Reinstall and audit each independent
 package after changing either toolchain.
 
-The 30 October 1.1.21 candidate also scopes one temporary workerd override to the
+The provider-maintenance candidate also scopes one temporary workerd override to the
 root development Miniflare's exact `1.20261006.1` engine, replacing it with
 `1.20261029.1`. Cloudflare's published fix raises SQLite's VDBE budget so the
 complete database-wide integrity program can compile; the global check and all

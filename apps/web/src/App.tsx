@@ -1,4 +1,5 @@
 import { msg } from "./messages";
+import { isAdvancedLocalPreview } from "./local-preview";
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import {
@@ -91,6 +92,12 @@ import { clearPendingDocumentInvitation } from "./document-invitation";
 import "./secure-documents.css";
 
 const publicPreview = import.meta.env.VITE_PUBLIC_PREVIEW === "true";
+const LocalPreviewControls =
+  import.meta.env.DEV &&
+  import.meta.env.VITE_PUBLIC_PREVIEW === "true" &&
+  isAdvancedLocalPreview
+    ? lazy(() => import("./local-preview-controls"))
+    : null;
 const EmailPreferencesPage = lazy(() => import("./email-preferences"));
 const RememberDirectChoice = lazy(() =>
   workspaceRouteModules.dispatch().then((module) => ({
@@ -322,14 +329,27 @@ const studioNavigation: readonly NavigationItem<StudioEntry>[] = [
 ];
 
 export function App() {
-  return <Application />;
+  const [scenarioRevision, setScenarioRevision] = useState(0);
+  return (
+    <>
+      {LocalPreviewControls && (
+        <Suspense fallback={null}>
+          <LocalPreviewControls
+            onApplied={() => setScenarioRevision((value) => value + 1)}
+          />
+        </Suspense>
+      )}
+      <Application key={scenarioRevision} />
+    </>
+  );
 }
 
 function Application() {
   const publicLocation = usePublicLocation();
   const locale = useLocale();
   const { route, pending: routePending } = useRouteState();
-  const personalRoute = personalPage(route) && !publicPreview;
+  const personalRoute =
+    personalPage(route) && (!publicPreview || isAdvancedLocalPreview);
   const emailPreferencesRoute = route.split("?")[0] === "/email-preferences";
   const workspaceRoute = route.startsWith("/app") && !personalRoute;
   const canonicalLocation = canonicalPublicLocation(
@@ -503,7 +523,8 @@ function WorkspaceApplication({
   ready: boolean;
 }) {
   const page = route.split("?")[0] ?? "/";
-  const personalRoute = personalPage(page) && !publicPreview;
+  const personalRoute =
+    personalPage(page) && (!publicPreview || isAdvancedLocalPreview);
   useEffect(() => {
     if (
       session &&

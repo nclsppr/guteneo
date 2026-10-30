@@ -1,3 +1,4 @@
+import { DataTable } from "./data-table";
 import { useId, useRef, useState, type FormEvent } from "react";
 import { ArrowDown, ArrowRight } from "@phosphor-icons/react";
 import {
@@ -376,36 +377,33 @@ export function PdfReport({
         </div>
       </dl>
       {report.findings.length > 0 && (
-        <div
-          className="table-scroll"
-          role="region"
-          aria-label={msg("References for rules to fix")}
-          tabIndex={0}
-        >
-          <table>
-            <caption>{msg("References for rules to fix")}</caption>
-            <thead>
-              <tr>
-                <th scope="col">{msg("Specification")}</th>
-                <th scope="col">{msg("Clause / test")}</th>
-                <th scope="col">{msg("Failed checks")}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {report.findings.map((finding, index) => (
-                <tr
-                  key={`${finding.specification}-${finding.clause}-${finding.testNumber}-${index}`}
-                >
-                  <td>{finding.specification}</td>
-                  <td>
-                    {finding.clause} / {finding.testNumber}
-                  </td>
-                  <td>{finding.failedChecks}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <DataTable
+          label={msg("References for rules to fix")}
+          items={report.findings.map((finding, index) => ({
+            ...finding,
+            index,
+          }))}
+          getRowKey={(finding) =>
+            `${finding.specification}-${finding.clause}-${finding.testNumber}-${finding.index}`
+          }
+          columns={[
+            {
+              id: "specification",
+              label: msg("Specification"),
+              value: (finding) => finding.specification,
+            },
+            {
+              id: "clause",
+              label: msg("Clause / test"),
+              value: (finding) => `${finding.clause} / ${finding.testNumber}`,
+            },
+            {
+              id: "failures",
+              label: msg("Failed checks"),
+              value: (finding) => finding.failedChecks,
+            },
+          ]}
+        />
       )}
       {report.truncated && (
         <p>

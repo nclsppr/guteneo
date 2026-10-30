@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "pluginVersion": "1.1.21",
+  "pluginVersion": "1.1.22",
   "mcpSourceSha256": "4101683c7e154a0931f787b85a4ecae574aa05707a77371997917ad4b5ce5b40",
-  "packageSha256": "d33dc5758d019b92bb6de9b57f8ff89b00e7855ff41a1216bb4435bf05de440d",
+  "packageSha256": "915060c6e87908f0fec421560d3bdc8891767469792f502885bf5f6825750b17",
   "sources": {
     "apps/api/src/auth.ts": "98b513683d77bb3d183d1fc638f2bf6893104932d4be3fae30914994ded605f5",
     "apps/api/src/connection-observations.ts": "40278b9fab339e05949a04c2d2718348236e9362e944f95a4d2a3466c186fa24",

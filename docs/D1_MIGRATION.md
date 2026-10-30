@@ -2,7 +2,7 @@
 
 ## Global integrity verification — 30 October 2026 candidate
 
-The first 1.1.21 CI run failed while compiling a database-wide `PRAGMA quick_check`
+The first provider-maintenance CI run failed while compiling a database-wide `PRAGMA quick_check`
 for the complete seventy-migration schema. The Linux workerd engine returned
 `SQLITE_NOMEM` because its SQLite VDBE instruction budget was 25,000; this was
 not evidence of damaged data or a measured shortage of physical memory.

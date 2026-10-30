@@ -1,6 +1,16 @@
 import Papa from "papaparse";
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import previewStamp from "./assets/guteneo-stamp-preview.jpg?inline";
+import {
+  workspacePermissions,
+  type WorkspaceRole,
+} from "../../../packages/contracts/src/roles";
+import {
+  createPreviewData,
+  PreviewDataError,
+  type PreviewDataCounts,
+} from "./preview-data";
+import { readPreviewStudio } from "./preview-studio";
 import type {
   Channel,
   Dispatch,
@@ -60,6 +70,7 @@ type Campaign = {
 type Workspace = {
   documents: DocumentRecord[];
   contents: Map<string, Uint8Array>;
+  pendingContents: Map<string, Promise<Uint8Array>>;
   dispatches: DispatchDetail[];
   campaigns: Campaign[];
   enabled: Record<Channel, boolean>;
@@ -76,6 +87,32 @@ const page = <T>(items: T[]) => ({ items, nextCursor: null });
 const fail = (code: string, message: string, status = 400): never => {
   throw new PreviewError(code, message, status);
 };
+
+export const PREVIEW_ACCOUNTS = [
+  "admin",
+  "supervisor",
+  "member",
+  "viewer",
+  "belvedere",
+] as const;
+export type PreviewAccount = (typeof PREVIEW_ACCOUNTS)[number];
+export type PreviewSimulationConfiguration = {
+  account: PreviewAccount;
+  seed: string;
+  counts: PreviewDataCounts | null;
+};
+
+function emptyWorkspace(): Workspace {
+  return {
+    documents: [],
+    contents: new Map(),
+    pendingContents: new Map(),
+    dispatches: [],
+    campaigns: [],
+    enabled: { email: true, fax: true, postal: true },
+    keys: new Map(),
+  };
+}
 
 function previewCredit(state: Workspace): WelcomeCredit {
   const spentMinor = state.dispatches.reduce(
@@ -411,6 +448,7 @@ async function createWorkspace(slug: string): Promise<Workspace> {
   return {
     documents,
     contents,
+    pendingContents: new Map(),
     dispatches,
     campaigns: [campaign],
     enabled: { email: true, fax: true, postal: true },
@@ -418,9 +456,41 @@ async function createWorkspace(slug: string): Promise<Workspace> {
   };
 }
 
-export function createPreviewApi() {
+export function createPreviewApi(options: { advancedLocal?: boolean } = {}) {
+  const advancedLocal = options.advancedLocal === true;
+  let settings: PreviewSimulationConfiguration = {
+    account: "admin",
+    seed: "guteneo-local",
+    counts: null,
+  };
+  let scenarioRevision = 0;
+  let visitRevision = 0;
   let organization: "atelier" | "studio" | null = "atelier";
   const workspaces = new Map<string, Promise<Workspace>>();
+  const generators = new Map<string, ReturnType<typeof createPreviewData>>();
+  const role = (): WorkspaceRole =>
+    settings.account === "belvedere" ? "viewer" : settings.account;
+  const workspaceId = (slug: string) =>
+    `preview_${slug}${advancedLocal && scenarioRevision > 0 ? `_scenario_${scenarioRevision}` : ""}`;
+  const permissions = () =>
+    workspacePermissions(role(), { canApprove: true, canReport: true });
+  const generator = () => {
+    if (!settings.counts || !organization) return null;
+    const key = `${organization}:${scenarioRevision}`;
+    if (!generators.has(key))
+      generators.set(
+        key,
+        createPreviewData({
+          seed: settings.seed,
+          workspace: `preview_${organization}`,
+          counts: settings.counts,
+          role: role(),
+          supervisorCanApprove: true,
+          supervisorCanReport: true,
+        }),
+      );
+    return generators.get(key)!;
+  };
   const workspace = () => {
     if (!organization)
       fail(
@@ -429,8 +499,15 @@ export function createPreviewApi() {
         401,
       );
     const slug = organization!;
-    if (!workspaces.has(slug)) workspaces.set(slug, createWorkspace(slug));
-    return workspaces.get(slug)!;
+    const key = `${slug}:${scenarioRevision}`;
+    if (!workspaces.has(key))
+      workspaces.set(
+        key,
+        settings.counts
+          ? Promise.resolve(emptyWorkspace())
+          : createWorkspace(slug),
+      );
+    return workspaces.get(key)!;
   };
   async function request(
     path: string,
@@ -442,11 +519,15 @@ export function createPreviewApi() {
     const body = (init.body ?? {}) as Record<string, unknown>;
     if (route === "/dev/login" && method === "POST") {
       organization = body.organization === "studio" ? "studio" : "atelier";
+      visitRevision += 1;
       return { ok: true, simulation: true };
     }
     if (route === "/logout" && method === "POST") {
       organization = null;
       workspaces.clear();
+      generators.clear();
+      scenarioRevision += 1;
+      visitRevision += 1;
       return { ok: true };
     }
     if (!organization)
@@ -455,20 +536,74 @@ export function createPreviewApi() {
         "Open a demonstration workspace to continue.",
         401,
       );
+    if (route === "/account/workspace" && method === "POST" && advancedLocal) {
+      const target = (["atelier", "studio"] as const).find(
+        (slug) => workspaceId(slug) === body.organizationId,
+      );
+      if (!target)
+        fail(
+          "NOT_FOUND",
+          "Workspace not found in this fictional scenario.",
+          404,
+        );
+      organization = target!;
+      visitRevision += 1;
+      return request("/session", { signal: init.signal });
+    }
     if (route === "/session" && method === "GET") {
       return {
         organization: {
-          id: `preview_${organization}`,
+          id: workspaceId(organization!),
           name: workspaceName(organization!),
         },
         user: {
-          id: `preview_user_${organization}`,
-          name: "Camille · Demonstration",
-          role: "admin",
+          id: `preview_user_${organization}${settings.account === "admin" ? "" : `_${settings.account}`}`,
+          name:
+            settings.account === "admin"
+              ? "Camille · Demonstration"
+              : `${settings.account} · Fictional account`,
+          email: `${settings.account}@example.invalid`,
+          role: role(),
+          supervisorCanApprove: role() === "supervisor",
+          supervisorCanReport: role() === "supervisor",
         },
         csrfToken: "browser-preview-no-server-session",
         simulation: true,
+        permissions: permissions(),
+        ...(advancedLocal && settings.account === "belvedere"
+          ? { canAccessBelvedere: true }
+          : {}),
       } satisfies Session;
+    }
+    const rights = permissions();
+    if (
+      (route.startsWith("/billing") && !rights.manageBilling) ||
+      (route.startsWith("/admin") && !rights.manageOrganization) ||
+      (route.startsWith("/usage") && !rights.viewReports)
+    )
+      fail(
+        "FORBIDDEN",
+        "This fictional account does not have the required workspace permission.",
+        403,
+      );
+    if (method !== "GET") {
+      const ownAccount = route === "/account" || route.startsWith("/account/");
+      const approval = /^\/dispatches\/[^/]+\/(approve|confirm)$/.test(route);
+      if (
+        (!ownAccount && !rights.prepareDispatches) ||
+        (approval && !rights.approveDispatches)
+      )
+        fail(
+          "FORBIDDEN",
+          "This fictional account cannot perform that workspace action.",
+          403,
+        );
+      if (settings.counts && route !== "/recipients/validate")
+        fail(
+          "PREVIEW_VOLUME_READ_ONLY",
+          "Generated volume scenarios contain read-only fictional metadata. Choose the default scenario to explore preparation and simulation.",
+          409,
+        );
     }
     if (
       ["/documents", "/documents/render"].includes(route) &&
@@ -478,8 +613,17 @@ export function createPreviewApi() {
         "PREVIEW_DOCUMENTS_UNAVAILABLE",
         "The preview provides two fictional PDFs to explore. Import and HTML rendering require the full application; no file was uploaded.",
       );
+    const visit = visitRevision;
+    const currentOrganization = organization;
     const state = await workspace();
     init.signal?.throwIfAborted();
+    if (visit !== visitRevision || currentOrganization !== organization)
+      fail(
+        "PREVIEW_SCENARIO_CHANGED",
+        "The fictional scenario changed. Refresh this view.",
+        409,
+      );
+    const generated = generator();
     const input = JSON.stringify({ route, method, body });
     const cached = init.key && state.keys.get(init.key);
     if (cached) {
@@ -496,6 +640,47 @@ export function createPreviewApi() {
       return copy(result);
     };
     if (method === "GET") {
+      const studio = readPreviewStudio(path, generated, fail);
+      if (studio !== undefined) return copy(studio);
+      if (route === "/account/workspaces")
+        return {
+          items: (["atelier", "studio"] as const).map((slug) => ({
+            id: workspaceId(slug),
+            name: workspaceName(slug),
+            role: role(),
+            current: slug === organization,
+          })),
+        };
+      if (route === "/account/sessions" || route === "/account/contacts")
+        return { items: [], hasMore: false };
+      if (route === "/account/expert-approval")
+        return {
+          canManage: rights.manageExpertDelegation,
+          day: now().slice(0, 10),
+          connections: [],
+        };
+      if (route === "/admin/members")
+        return page(
+          (["admin", "supervisor", "member", "viewer"] as const).map(
+            (membership) => ({
+              id: `preview_user_${organization}_${membership}`,
+              name: `${membership} · Fictional account`,
+              email: `${membership}@example.invalid`,
+              role: membership,
+              supervisorCanApprove: membership === "supervisor",
+              supervisorCanReport: membership === "supervisor",
+              joinedAt: "2026-10-30T12:00:00.000Z",
+              sessions: 0,
+              connections: 0,
+            }),
+          ),
+        );
+      if (
+        route === "/admin/invitations" ||
+        route === "/billing/invoices" ||
+        route === "/billing/payments"
+      )
+        return page([]);
       if (route === "/plan")
         fail(
           "MONTHLY_PLAN_RETIRED",
@@ -516,11 +701,73 @@ export function createPreviewApi() {
         } satisfies PdfValidationPricing;
       if (route === "/billing")
         return { welcomeCredit: previewCredit(state), topUpAvailable: false };
-      if (route === "/documents") return copy(page(state.documents));
+      if (route === "/documents") {
+        const query = new URLSearchParams(path.split("?")[1]);
+        if (query.has("recordNumber")) {
+          const ordinal = Number(query.get("recordNumber"));
+          if (
+            !/^[1-9]\d{0,9}$/.test(query.get("recordNumber") ?? "") ||
+            !Number.isSafeInteger(ordinal) ||
+            ordinal > 1_000_000_000 ||
+            query.has("cursor")
+          )
+            fail(
+              "INVALID_INPUT",
+              "Choose one fictional document number between 1 and 1000000000.",
+            );
+          const record = generated
+            ? generated.at("documents", ordinal - 1)
+            : state.documents[ordinal - 1];
+          const entry =
+            record &&
+            (state.documents.find((cached) => cached.id === record.id) ??
+              record);
+          return copy({
+            items: entry ? [entry] : [],
+            nextCursor: null,
+            total: entry ? 1 : 0,
+          });
+        }
+        if (!generated) return copy(page(state.documents));
+        const result = generated.page("documents", {
+          cursor: query.get("cursor"),
+          ...(query.has("limit") ? { limit: Number(query.get("limit")) } : {}),
+        });
+        result.items = result.items.map(
+          (entry) =>
+            state.documents.find((cached) => cached.id === entry.id) ?? entry,
+        );
+        return copy(result);
+      }
+      const document = route.match(/^\/documents\/([^/]+)$/);
+      if (document) {
+        const id = decodeURIComponent(document[1]);
+        return copy(
+          state.documents.find((entry) => entry.id === id) ??
+            generated?.get("documents", id) ??
+            fail(
+              "DOCUMENT_NOT_FOUND",
+              "Document not found in this fictional workspace.",
+              404,
+            ),
+        );
+      }
       if (route === "/dispatches") {
         const group = new URLSearchParams(path.split("?")[1]).get("group");
         if (group !== null && !isDispatchGroup(group))
           fail("INVALID_GROUP", "Unknown dispatch filter.");
+        if (generated) {
+          const query = new URLSearchParams(path.split("?")[1]);
+          return copy(
+            generated.page("dispatches", {
+              cursor: query.get("cursor"),
+              ...(query.has("limit")
+                ? { limit: Number(query.get("limit")) }
+                : {}),
+              ...(group && isDispatchGroup(group) ? { group } : {}),
+            }),
+          );
+        }
         const members: readonly string[] | undefined =
           group === null
             ? undefined
@@ -536,6 +783,7 @@ export function createPreviewApi() {
         );
       }
       if (route === "/overview") {
+        if (generated) return copy(generated.overview());
         const dispatches: DispatchOverview["dispatches"] = {
           total: state.dispatches.length,
           approval: 0,
@@ -692,9 +940,10 @@ export function createPreviewApi() {
       const detail = route.match(/^\/dispatches\/([^/]+)$/);
       if (detail)
         return copy(
-          state.dispatches.find(
-            (entry) => entry.dispatch.id === decodeURIComponent(detail[1]),
-          ) ??
+          generated?.dispatchDetail(decodeURIComponent(detail[1])) ??
+            state.dispatches.find(
+              (entry) => entry.dispatch.id === decodeURIComponent(detail[1]),
+            ) ??
             fail(
               "NOT_FOUND",
               "Cet envoi ne se trouve pas dans cet atelier fictif.",
@@ -973,7 +1222,80 @@ export function createPreviewApi() {
     );
   }
   async function documentContent(id: string) {
+    const visit = visitRevision;
+    const currentOrganization = organization;
     const state = await workspace();
+    if (visit !== visitRevision || currentOrganization !== organization)
+      fail(
+        "PREVIEW_SCENARIO_CHANGED",
+        "The fictional scenario changed. Open this PDF again.",
+        409,
+      );
+    const generated = generator();
+    const metadata = generated?.get("documents", id);
+    if (!state.contents.has(id) && metadata) {
+      if (metadata.status !== "ready")
+        fail(
+          "DOCUMENT_NOT_READY",
+          "This fictional PDF is not available while its illustrative status is blocked.",
+          409,
+        );
+      let pending = state.pendingContents.get(id);
+      if (!pending) {
+        if (state.pendingContents.size >= 16)
+          fail(
+            "PREVIEW_PDF_LIMIT",
+            "At most sixteen fictional PDFs can be prepared at once. Try again after the current previews finish.",
+            429,
+          );
+        pending = (async () => {
+          const bytes = await fixturePdf(metadata.name.replace(/\.pdf$/, ""));
+          const digest = await crypto.subtle.digest(
+            "SHA-256",
+            new Uint8Array(bytes),
+          );
+          if (visit !== visitRevision || currentOrganization !== organization)
+            fail(
+              "PREVIEW_SCENARIO_CHANGED",
+              "The fictional scenario changed. Open this PDF again.",
+              409,
+            );
+          const exact = {
+            ...metadata,
+            size: bytes.length,
+            pages: 1,
+            sha256: Array.from(new Uint8Array(digest), (byte) =>
+              byte.toString(16).padStart(2, "0"),
+            ).join(""),
+          };
+          state.contents.set(id, bytes);
+          const previous = state.documents.findIndex(
+            (entry) => entry.id === id,
+          );
+          if (previous >= 0) state.documents.splice(previous, 1);
+          state.documents.push(exact);
+          while (state.documents.length > 16) {
+            const removed = state.documents.shift();
+            if (removed) state.contents.delete(removed.id);
+          }
+          return bytes;
+        })();
+        state.pendingContents.set(id, pending);
+      }
+      try {
+        const bytes = await pending;
+        if (visit !== visitRevision || currentOrganization !== organization)
+          fail(
+            "PREVIEW_SCENARIO_CHANGED",
+            "The fictional scenario changed. Open this PDF again.",
+            409,
+          );
+        return new Uint8Array(bytes);
+      } finally {
+        if (state.pendingContents.get(id) === pending)
+          state.pendingContents.delete(id);
+      }
+    }
     const bytes =
       state.contents.get(id) ??
       fail(
@@ -983,7 +1305,75 @@ export function createPreviewApi() {
       );
     return new Uint8Array(bytes);
   }
-  return { request, documentContent };
+  async function safeRequest(path: string, init: RequestOptions = {}) {
+    try {
+      return await request(path, init);
+    } catch (error) {
+      if (error instanceof PreviewDataError)
+        throw new PreviewError(error.code, error.message);
+      throw error;
+    }
+  }
+  function configuration(): PreviewSimulationConfiguration {
+    return copy(settings);
+  }
+  async function configure(
+    next: PreviewSimulationConfiguration,
+  ): Promise<Session> {
+    if (!advancedLocal)
+      fail(
+        "PREVIEW_LOCAL_ONLY",
+        "Scenario controls are available only in the local browser simulation.",
+        403,
+      );
+    if (
+      !next ||
+      typeof next !== "object" ||
+      !(PREVIEW_ACCOUNTS as readonly string[]).includes(next.account) ||
+      typeof next.seed !== "string" ||
+      !next.seed.trim() ||
+      next.seed.length > 128 ||
+      (next.counts !== null &&
+        (typeof next.counts !== "object" || Array.isArray(next.counts)))
+    )
+      fail(
+        "INVALID_PREVIEW_DATA",
+        "Choose a valid fictional account and seed.",
+      );
+    if (next.counts !== null) {
+      try {
+        createPreviewData({
+          seed: next.seed,
+          workspace: "preview_validation",
+          counts: next.counts,
+        });
+      } catch (error) {
+        if (error instanceof PreviewDataError)
+          throw new PreviewError(error.code, error.message);
+        throw error;
+      }
+    }
+    settings = copy(next);
+    scenarioRevision += 1;
+    visitRevision += 1;
+    organization ??= "atelier";
+    workspaces.clear();
+    generators.clear();
+    return safeRequest("/session") as Promise<Session>;
+  }
+  return {
+    request: safeRequest,
+    documentContent,
+    configure,
+    configuration,
+    advancedLocal,
+  };
 }
 
-export const publicPreview = createPreviewApi();
+export const publicPreview = createPreviewApi({
+  advancedLocal:
+    import.meta.env.DEV &&
+    import.meta.env.VITE_PUBLIC_PREVIEW === "true" &&
+    typeof location !== "undefined" &&
+    ["127.0.0.1", "localhost", "[::1]"].includes(location.hostname),
+});

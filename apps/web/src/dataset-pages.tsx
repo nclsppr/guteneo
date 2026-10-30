@@ -1,7 +1,7 @@
 import { msg, msgIn } from "./messages";
 import { studioRoutes } from "./app-routes";
 import { FileInput } from "./file-input";
-import { scrollTable } from "./table-keyboard";
+import { DataTable, type DataTableColumn } from "./data-table";
 import { useStudioAiPolicy, StudioAiNotice } from "./studio-ai";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { ArrowRight, UploadSimple } from "@phosphor-icons/react";
@@ -442,62 +442,71 @@ function DatasetPreview({
       ) : (
         current && (
           <>
-            <div
-              className="studio-table"
-              role="region"
-              onKeyDown={scrollTable}
-              tabIndex={0}
-              aria-label={msg("Original preview — ") + sheet}
-              aria-busy={resource.loading}
-            >
-              <table>
-                <caption>
+            <DataTable<ProfileSheet["rows"][number]>
+              key={JSON.stringify([value.dataset.id, sheet, cursor])}
+              label={msg("Original preview — ") + sheet}
+              items={rows}
+              getRowKey={(row) => row.rowNumber}
+              pagination={false}
+              scope="page"
+              layout="scroll"
+              ariaBusy={resource.loading}
+              caption={
+                <>
                   {msg("Original preview — ")}
                   {sheet} {msg(": rows ")}
                   {rows[0]?.rowNumber ?? 0} {msg("to")}{" "}
                   {rows.at(-1)?.rowNumber ?? 0} {msg("of ")}
                   {pagination!.totalRows}
-                </caption>
-                <thead>
-                  <tr>
-                    <th>{msg("Row")}</th>
-                    {Array.from({ length: columns }, (_, index) => (
-                      <th key={index}>
-                        {msg("Column ")}
-                        {index + 1}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {rows.map((row) => (
-                    <tr key={row.rowNumber}>
-                      <th scope="row">
-                        {row.rowNumber}
-                        {row.hidden ? msg(" · hidden") : ""}
-                      </th>
-                      {Array.from({ length: columns }, (_, index) => {
-                        const cell = row.cells[index];
-                        return (
-                          <td key={index}>
-                            {cell?.raw ?? "—"}
-                            {cell?.formula && (
-                              <span className="studio-meta">
-                                {" "}
-                                {msg("· formula ")}
-                                {cell.cached
-                                  ? msg(" (cached)")
-                                  : msg(" no result")}
-                              </span>
-                            )}
-                          </td>
-                        );
-                      })}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                </>
+              }
+              columns={[
+                {
+                  id: "row",
+                  label: msg("Row"),
+                  value: (row) => row.rowNumber,
+                  render: (row) => (
+                    <>
+                      {row.rowNumber}
+                      {row.hidden ? msg(" · hidden") : ""}
+                    </>
+                  ),
+                },
+                ...Array.from(
+                  { length: columns },
+                  (
+                    _,
+                    index,
+                  ): DataTableColumn<ProfileSheet["rows"][number]> => ({
+                    id: "column-" + index,
+                    label: msg("Column ") + (index + 1),
+                    value: (row) => row.cells[index]?.raw ?? "",
+                    sortType: rows.some(
+                      (row) => row.cells[index]?.kind === "number",
+                    )
+                      ? "decimal"
+                      : undefined,
+                    render: (row) => {
+                      const cell = row.cells[index];
+                      return (
+                        <>
+                          {cell?.raw ?? "—"}
+                          {cell?.formula && (
+                            <span className="studio-meta">
+                              {" "}
+                              {msg("· formula ")}
+                              {cell.cached
+                                ? msg(" (cached)")
+                                : msg(" no result")}
+                            </span>
+                          )}
+                        </>
+                      );
+                    },
+                  }),
+                ),
+              ]}
+            />
             <p className="studio-meta">
               {msg("Long values are limited to")}{" "}
               {pagination!.sampleValuesTruncatedAt}{" "}
@@ -1645,51 +1654,45 @@ function MappingEditor({ value }: { value: PagedProfileView }) {
                 "expected document(s). The structure and a synthetic example have been checked by the server. ",
               )}
             </p>
-            <div
-              className="studio-table"
-              role="region"
-              onKeyDown={scrollTable}
-              tabIndex={0}
-              aria-label={msg("Proposed fields and source columns")}
-            >
-              <table>
-                <caption>{msg("Proposed fields and source columns")}</caption>
-                <thead>
-                  <tr>
-                    <th>{msg("Template field")}</th>
-                    <th>{msg("Type")}</th>
-                    <th>{msgIn("document-source", "Source")}</th>
-                    <th>{msg("Rule")}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {schemaProposal.schemaSuggestion.fields.map((field) => (
-                    <tr key={field.path}>
-                      <th scope="row">{field.path}</th>
-                      <td>
-                        {msg(
-                          {
-                            text: "Text",
-                            integer: "Integer",
-                            decimal: "Exact decimal (text)",
-                            minor: "Integer minor units",
-                            date: "Date",
-                            boolean: "Yes / no",
-                          }[field.type],
-                        )}
-                      </td>
-                      <td>
-                        {field.sheet} · {field.source}
-                      </td>
-                      <td>
-                        {field.repeated ? msg("In a table · ") : ""}
-                        {field.required ? msg("Required") : msg("Optional")}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <DataTable
+              label={msg("Proposed fields and source columns")}
+              items={schemaProposal.schemaSuggestion.fields}
+              getRowKey={(field) => field.path}
+              columns={[
+                {
+                  id: "field",
+                  label: msg("Template field"),
+                  value: (field) => field.path,
+                },
+                {
+                  id: "type",
+                  label: msg("Type"),
+                  value: (field) =>
+                    msg(
+                      {
+                        text: "Text",
+                        integer: "Integer",
+                        decimal: "Exact decimal (text)",
+                        minor: "Integer minor units",
+                        date: "Date",
+                        boolean: "Yes / no",
+                      }[field.type],
+                    ),
+                },
+                {
+                  id: "source",
+                  label: msgIn("document-source", "Source"),
+                  value: (field) => field.sheet + " · " + field.source,
+                },
+                {
+                  id: "rule",
+                  label: msg("Rule"),
+                  value: (field) =>
+                    (field.repeated ? msg("In a table · ") : "") +
+                    (field.required ? msg("Required") : msg("Optional")),
+                },
+              ]}
+            />
             <ul>
               {[
                 ...schemaProposal.schemaSuggestion.warnings,

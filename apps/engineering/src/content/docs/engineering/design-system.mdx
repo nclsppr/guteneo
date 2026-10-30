@@ -211,8 +211,8 @@ with tabular figures. Status colors always accompany a written state; missing
 data must remain unknown rather than appearing as zero or success.
 
 Belvédère uses the workshop V2 navigation, type and control geometry while
-retaining its private platform guard and read-only data. Its own design contract
-records operational tables and the paired globe/list. Personal documents use the
+retaining its private platform guard and read-only data. The shared table contract
+owns operational rows; its own design contract owns the paired globe/list. Personal documents use the
 V2 shell and small shared customization controls, without importing the workshop
 account page or requesting its resources. A theme icon changes only color.
 Engineering maps the brand to Nimbus theme variables.
@@ -514,6 +514,42 @@ Respect `prefers-reduced-motion`; decorative birds and diagrams must remain
 understandable when animation stops. Check captions and a text alternative for
 new instructional media rather than assuming that narration is accessible to all.
 
+## Operational lists and table controls
+
+Reuse `data-table.tsx` and its shared model/styles for operational record lists.
+Give every column a stable id, a localized label and its raw sort value; provide
+localized search text separately when dates, amounts or secondary labels differ
+from that value. Keep existing row actions and status meanings in their renderers.
+Search, optional categorical filters, accessible column buttons and browser pages
+operate on supplied rows without adding a data request. Keep the existing cursor
+loader visible so users can explicitly include older records; the count and
+search label must identify their loaded-row scope.
+
+Layout follows the table container. At 40 rem or less, operational rows use
+labelled cards with one consistent inset, readable text and a separate action
+area; the visible column and direction controls replace visually hidden column
+headers for sorting. Wider tables retain aligned columns and contain any
+horizontal overflow. Search, filters and pagination wrap with the page and keep
+44 px touch targets, visible keyboard focus and theme tokens. Static comparison
+and technical report tables can remain scrollable. Preserve editable spreadsheet
+coordinates, row identities and keyboard behavior rather than imposing generic
+record-list controls on them.
+
+Existing server-paged Belvédère lists retain their server search and paginator;
+disable duplicate browser search/pagination and state that local column sorting
+covers the current server page. Complete chart-value and finance arrays can use
+the shared browser pagination. Filtering, sorting or changing the page size
+returns to the first browser page, shrinking results clamps the page, and an
+empty result keeps a clear-filters action. Use the four-language shared controls
+without persisting search terms or records to preferences, URLs or browser storage.
+
+The [web application contract](https://github.com/nclsppr/guteneo/blob/main/docs/WEB_APPLICATIONS.md#operational-tables--30-october-2026-candidate)
+owns the source contract and qualification limits. These controls grant no new
+role, data scope, approval, mandate or native/REST/MCP operation. Preserve the
+page's account and tenant fences and Belvédère's separate read-only platform
+authority. Local synthetic checks and measured loading are distinct from CI,
+publication, authenticated delivery and physical-device qualification.
+
 ## A practical recipe for the next frontend
 
 1. Find its actors, entry conditions and failure states in the feature atlas.
@@ -608,3 +644,28 @@ refresh only failed same-origin public JS/CSS assets to recover an errored
 module-preload resource in the tested WebKit runtime. Recovery omits credentials
 and referrers, rejects redirects/private/query-bearing URLs and bounds count, bytes and
 time. It never automatically retries a business request or provider submission.
+
+## Qualify role and volume variants locally
+
+The loopback developer preview has explicit fictional administrator, supervisor,
+operator and observer profiles, plus an observer with a separate simulated
+platform-access hint. A collapsible control bar selects reproducible seeds and
+volume presets without creating actual accounts or platform permissions. Its
+DEV/preview/loopback guards exclude those controls from built production and the
+hosted browser preview.
+
+Large scenarios generate bounded pages on demand, including Studio metadata and
+read-only personal documents. Logical totals through one billion rows exercise
+the interface without allocating a billion objects or claiming database/provider
+performance. The ordinary interactive default remains separate. Preserve original
+navigation vetoes, actor/scenario identities, cursor scopes and bounded document
+caches. Local fixture refusals must never fall through to a real request. A
+separate loopback read-only Belvédère fixture retains the selected seed, counts
+and interface language; production still requires its actual platform guard.
+
+Shared table scroll regions use distinct table-prefixed accessible names so an
+outer account section keeps one unambiguous landmark. Source previews retain
+their row-range caption as the table name. Keyboard journeys traverse search,
+mobile sorting and column-header controls before row actions; responsive checks
+assert the rendered card/table mode, preserving contained wide-table scrolling
+and strict page/card bounds.

@@ -1,6 +1,6 @@
 # Executed verification
 
-## Consumed provider deadlines — 30 October 2026 candidate 1.1.21
+## Consumed provider deadlines — 30 October 2026 candidate 1.1.22
 
 Production remains **1.1.20**, source
 `13d5553f8e9b93cf0f8d6e296943c65c0155ec66`. Its compatible runtime preceded

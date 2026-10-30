@@ -79,6 +79,66 @@ their values come from tokens. The visual vocabulary itself (portrait, blue rule
 typography, geometry, controls, tables and forms) is described in the
 [design-system guide](../apps/engineering/src/content/docs/engineering/design-system.mdx).
 
+## Operational tables — 30 October 2026 candidate
+
+`apps/web/src/data-table.tsx`, `data-table-model.ts` and `data-table.css` own the
+shared read-only presentation controls. Operational lists reuse them for
+accent-insensitive multiword search, categorical filters where useful, column
+sorting and bounded browser pages. Column definitions provide raw numeric/date
+sort values and separate localized search text. Exact decimal-string source columns
+opt into bounded decimal comparison without floating-point conversion or exponent
+expansion, retaining their raw display/search text. Renderers retain the original
+links, statuses, forms and business actions. No table-control change issues a
+business request or changes the initial authorized read.
+
+The layout follows the table's available container width, including space taken
+by navigation and adjacent panels. Above 40 rem (640 px at the default root size),
+keep aligned columns in a contained horizontal scroll region when needed.
+Narrower operational tables become labelled cards with one consistent row inset,
+readable values and full-width action groups. A visible column/direction selector
+keeps sorting available when column headers are visually hidden. All controls
+retain keyboard focus, 44 px targets, four-language labels and light/dark tokens.
+Scroll regions have distinct table-prefixed names, and source-range captions own
+the table accessible name. Keyboard checks traverse added search/sort controls;
+wide tabular views may scroll inside their region while active cards and pages
+remain free of horizontal overflow.
+Static reference tables, technical reports and editable spreadsheet grids retain
+their appropriate contained scrolling and specialized keyboard behavior.
+
+Search and sort apply only to supplied, currently authorized rows. A cursor-based
+page keeps its existing explicit **Load more** control; unloaded rows are not
+searched or silently fetched. Changing the search, a filter, the sort or the page
+size returns to the first browser page; shrinking results clamps the page. Empty
+results offer clearing filters without dropping the surrounding page or actions.
+Server-paged Belvédère lists retain their server search, filters and paginator,
+disable the duplicate browser search/pagination and identify local sorting as
+applying to the current server page. Complete chart/finance detail arrays use the
+shared browser controls.
+
+The four human membership roles, independent supervisor permissions, personal
+access and Belvédère's separate platform authority remain unchanged. Controls
+organize rows already supplied by the authorized page; they grant no tenant
+access, approval, paid operation, mandate or new REST/MCP/native capability.
+State stays inside the mounted table and is not written to account preferences,
+URLs or persistent storage. Keep caller identity/unmount guards intact so a new
+account or workspace never inherits prior records.
+
+The table model's unit tests and `tests/preview-e2e/data-tables.spec.ts` qualify the
+source candidate with synthetic loaded rows. Rendered checks, measured loading,
+CI and publication evidence are recorded separately in the
+[frontend performance contract](FRONTEND_PERFORMANCE.md); source implementation
+alone establishes no hosted, authenticated-provider or physical-device proof.
+
+## Loopback simulation profiles
+
+The [local simulation contract](PUBLIC_PREVIEW.md#local-roles-and-large-volume-fixtures--30-october-2026-candidate)
+owns fictional role/platform profiles, seeded bounded metadata and the separate
+read-only Belvédère fixture. The composition root loads the control bar only for
+DEV + public-preview + loopback. Shared API/personal adapters preserve actual
+production authority and never interpret fixture profiles as real accounts. A
+scenario change honours the existing unsaved-navigation veto and replaces the
+application identity rather than retaining previous account data.
+
 ## Exceptions are dated debt
 
 `importExceptions` and `designExceptions` in the manifest record what does not

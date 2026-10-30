@@ -193,6 +193,11 @@
   "Cet appareil": ["This device", "Dieses Gerät", "Dësen Apparat"],
   "Autre session": ["Other session", "Andere Sitzung", "Aner Sessioun"],
   " · simulation": [" · simulation", " · Simulation", " · Simulatioun"],
+  "Authentification à deux facteurs": [
+    "Two-factor authentication",
+    "Zwei-Faktor-Authentifizierung",
+    "Zwee-Faktor-Authentifizéierung"
+  ],
   " · double authentification": [
     " · two-factor authentication",
     " · Zwei-Faktor-Authentifizierung",

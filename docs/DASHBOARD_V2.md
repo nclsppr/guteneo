@@ -931,3 +931,14 @@ Sources: `apps/web/src/styles.css` and the existing `Diagnostics` renderer in
 320 px; request/transfer/useful-content observations are recorded in
 [frontend performance](FRONTEND_PERFORMANCE.md). The failed CI artifact remains
 in the external evidence directory; local repair and final CI are separate proof.
+
+## Operational tables — 30 October 2026 candidate
+
+Documents, dispatches, campaigns, senders, account administration, billing, Studio
+and Belvédère use the [shared table contract](WEB_APPLICATIONS.md#operational-tables--30-october-2026-candidate).
+Container width determines column versus card presentation; every field retains
+its inset. Search, relevant categorical filters, typed column ordering and local
+pagination act only on authorized loaded records. Existing backend cursor/search
+controls and all four membership roles retain their authority. This source
+candidate adds no business API, native or assistant operation, financial consent,
+communication or deployment.

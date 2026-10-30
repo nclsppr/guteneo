@@ -324,6 +324,9 @@ test("coming back to the tab re-reads the list once and keeps loaded pages", asy
   ).json()) as { dispatches: { total: number } };
   await page.goto("/#/app/dispatches");
   const rows = page.locator("tbody tr");
+  await page
+    .getByRole("combobox", { name: "Lignes par page", exact: true })
+    .selectOption("50");
   await expect(rows).toHaveCount(30);
   const firstPageReads: string[] = [];
   page.on("request", (request) => {
@@ -342,13 +345,30 @@ test("coming back to the tab re-reads the list once and keeps loaded pages", asy
 
   await page.getByRole("button", { name: "Afficher la suite" }).click();
   const loaded = Math.min(dispatches.total, 60);
-  await expect(rows).toHaveCount(loaded);
+  const loadedRows = async () => {
+    await expect(rows).toHaveCount(Math.min(loaded, 50));
+    const content = await rows.allTextContents();
+    if (loaded > 50) {
+      await page
+        .getByRole("button", { name: "Page suivante", exact: true })
+        .click();
+      await expect(rows).toHaveCount(loaded - 50);
+      content.push(...(await rows.allTextContents()));
+      await page
+        .getByRole("button", { name: "Page précédente", exact: true })
+        .click();
+      await expect(rows).toHaveCount(50);
+    }
+    expect(content).toHaveLength(loaded);
+    return content;
+  };
+  const beforeBackgroundRead = await loadedRows();
   await page.waitForTimeout(1100);
   await comeBack();
   // Absence check: the extra rows must survive a background re-read.
   await page.waitForTimeout(500);
   expect(firstPageReads).toHaveLength(1);
-  await expect(rows).toHaveCount(loaded);
+  expect(await loadedRows()).toEqual(beforeBackgroundRead);
 
   await page.getByRole("button", { name: "Actualiser", exact: true }).click();
   await expect(rows).toHaveCount(30);
