@@ -4,6 +4,7 @@ import DispatchLifecycle from "./components/diagrams/DispatchLifecycle.astro";
 import DocumentPipeline from "./components/diagrams/DocumentPipeline.astro";
 import DataModelDiagram from "./components/diagrams/DataModelDiagram.astro";
 import ServiceRelease from "./components/diagrams/ServiceRelease.astro";
+import ProviderFreshness from "./components/diagrams/ProviderFreshness.astro";
 /**
  * MDX globals registry — components available inside MDX without `import`.
  * Wired via `<Content components={components} />` in `[...slug].astro`.
@@ -26,6 +27,7 @@ export const components = {
   DocumentPipeline,
   DataModelDiagram,
   ServiceRelease,
+  ProviderFreshness,
   GutenbergNote,
   Aside,
   Card,

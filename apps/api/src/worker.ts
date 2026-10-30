@@ -20,6 +20,7 @@ import { publicHttpError } from "./public-http-error";
 import site from "../../../packages/contracts/src/public-site.json" with { type: "json" };
 import { startObservation } from "../../../packages/observability/src/index";
 import { inspectTelnyxFaxTariffCatalog } from "./fax-tariff-refresh";
+import { inspectResendPolicySources } from "./resend-policy-refresh";
 
 export default {
   ...application,
@@ -62,6 +63,11 @@ export class ProviderInspection extends WorkerEntrypoint<Env> {
   /** Read-only catalog qualification before any tariff registration. */
   async inspectTelnyxFaxTariffCatalog() {
     return inspectTelnyxFaxTariffCatalog(this.env);
+  }
+
+  /** Qualify fixed read-only sources without changing a policy or sending. */
+  async inspectResendPolicySources() {
+    return inspectResendPolicySources(this.env);
   }
 
   /** Fixed callback registration, private operator capability only. */

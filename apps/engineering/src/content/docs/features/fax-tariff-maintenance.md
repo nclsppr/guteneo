@@ -9,7 +9,7 @@ sidebar:
 
 **Access boundary:** Restricted operator authority required.
 
-Source candidate for the bounded local +3524 pilot only; schema, actual server-key catalog discovery, explicit route registration and successful scheduled maintenance require independent qualification. No historical CSV fallback is allowed.
+Production 1.1.20 includes migration 0067 and the explicitly registered bounded local +3524 pilot. Actual server-key catalog discovery and its first genuine automatic refresh were observed; other routes and actual delivery remain unqualified. No historical CSV fallback is allowed.
 
 **Surfaces:** Authorized private operator CLI/service-binding qualification and registration, and existing scheduled backend maintenance; no public browser, REST or MCP registration authority.
 
@@ -18,7 +18,7 @@ Source candidate for the bounded local +3524 pilot only; schema, actual server-k
 ## Capabilities
 
 <ol>
-<li id="feature-45498dac8f73">Current candidate covers only the existing local Luxembourg fixed +3524 operator-test route with canonical empty options and EUR2; refresh preserves its exact existing page limit up to ten pages and never extends its independent 3 November 2026 pilot deadline; continuous reviewer preparation remains capped at seven pages</li>
+<li id="feature-451680bb6be6">Supported scope is the existing local Luxembourg fixed +3524 operator-test route with canonical empty options and EUR2; refresh preserves its exact existing page limit up to ten pages and never extends its independent 3 November 2026 pilot deadline; continuous reviewer preparation remains capped at seven pages</li>
 <li id="feature-fea7c89505c3">Explicit registration binds an exact tenant, sender, provider account/application/profile, destination prefix and options to an authorized global-conversational public commercial catalog</li>
 <li id="feature-3a4c32b375ed">Daily authenticated current-catalog discovery plus bounded official fax-page, selected allowlisted CSV and dated ECB reads and current provider ownership inspection create new immutable revisions with at most 168-hour validity</li>
 <li id="feature-c7cdcc6fb886">Public commercial references do not claim negotiated supplier prices or a freshly observed provider UI association; original source and association dates retain their meaning</li>

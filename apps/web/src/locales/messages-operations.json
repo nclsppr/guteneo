@@ -3027,5 +3027,15 @@
     "This review quote is only for preparing and viewing the fax. No sending, approval or reservation is allowed.",
     "Dieses Prüfangebot dient nur zum Vorbereiten und Ansehen des Faxes. Versand, Freigabe oder Reservierung sind nicht erlaubt.",
     "Dësen Iwwerpréiwungsdevis déngt just dozou, de Fax virzebereeden an ze kucken. Kee Versand, keng Fräigab a keng Reservatioun sinn erlaabt."
+  ],
+  "La qualification du fournisseur d’e-mail a changé et doit être vérifiée.": [
+    "The email provider qualification changed and must be verified.",
+    "Die Qualifizierung des E-Mail-Anbieters hat sich geändert und muss überprüft werden.",
+    "D’Qualifikatioun vum E-Mail-Ubidder huet sech geännert a muss iwwerpréift ginn."
+  ],
+  "La qualification de l’e-mail n’a pas pu être vérifiée.": [
+    "The email qualification could not be checked.",
+    "Die E-Mail-Qualifizierung konnte nicht überprüft werden.",
+    "D’E-Mail-Qualifikatioun konnt net iwwerpréift ginn."
   ]
 }

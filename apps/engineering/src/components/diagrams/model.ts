@@ -1,4 +1,4 @@
-export type DiagramId = 'system' | 'dispatch' | 'documents';
+export type DiagramId = 'system' | 'dispatch' | 'documents' | 'freshness';
 
 export interface DiagramStep {
   label: string;
@@ -11,10 +11,26 @@ export interface DiagramModel {
   title: string;
   asset: string;
   caption: string;
+  hint?: string;
   steps: DiagramStep[];
 }
 
 export const diagrams: Record<DiagramId, DiagramModel> = {
+  freshness: {
+    id: 'freshness',
+    figure: '04',
+    title: 'The freshness governor',
+    asset: 'provider-freshness',
+    hint: 'Follow the reference · choose a step',
+    caption: 'A calibration bench explains maintenance of a technical reference. The blue coupon is a reference, not a document or communication. Only information consumed by an active mechanism enters this process. The timer marks the last twenty-four hours before a real deadline; the stop preserves the operation’s safety gate. This is an explanatory model, not live telemetry.',
+    steps: [
+      { label: 'Select active inputs', detail: 'Select the exact provider, account, route or current policy generation actually used by the enabled operation. Informational dates, inactive configurations, revoked generations and the reviewer’s explicitly archived reference do not create freshness alerts.' },
+      { label: 'Inspect real evidence', detail: 'Read the actual provider or official source within bounded requests. Recheck account, sender, currency and profile bindings. A successful GET alone does not turn old evidence into a new observation of the information used by the mechanism.' },
+      { label: 'Commit a revision', detail: 'A successful renewal creates a new immutable revision under current guards. It preserves historical evidence and exact commitments. Work still bound to an earlier usable quote or uncertain provider outcome is not silently invalidated or resubmitted.' },
+      { label: 'Warn at J−1', detail: 'If an active required deadline is at most twenty-four hours away without a valid replacement, record a durable incident and emit an operational alert. A new valid revision or proven deactivation resolves that binding; an unknown read or an omitted page does not.' },
+      { label: 'Keep the safety stop', detail: 'At expiry, an unusable required reference still closes its affected operation. Technical renewal never extends a human mandate, creates an approval, enables a channel, reserves credit or submits a communication.' },
+    ],
+  },
   system: {
     id: 'system',
     figure: '01',
@@ -66,6 +82,17 @@ export const mermaidDiagrams: Record<DiagramId, {
   width: number;
   text: string[];
 }> = {
+  freshness: {
+    title: 'Active inputs, renewal and the final twenty-four hours',
+    caption: 'The maintenance loop follows only data consumed by an active operation. Successful renewal and early operational warning support the existing expiry gate; they do not replace it.',
+    width: 900,
+    text: [
+      'Start with the operation’s actual selected provider/account/route or current policy generation. Exclude inactive and informational references before evaluating deadlines.',
+      'A bounded source read and exact binding validation can produce a new immutable technical revision. Preserve usable commitments and independent human authority; a failure leaves the earlier evidence unchanged.',
+      'At deadline minus twenty-four hours, an active binding without a valid replacement opens a durable incident. Emit a distinct freshness signal to the existing operational alert channel. Resolve only from a current valid replacement or proven deactivation.',
+      'At the real expiry, the affected operation continues to fail closed if its required data is invalid. Short-lived quotes, ordinary login expiry and intentionally bounded human mandates are not automatically renewed by this loop.',
+    ],
+  },
   system: {
     title: 'System and provider boundaries',
     caption: 'Workers orchestrate the shared domain service. Durable commitments, private bytes and queued work stay on the application side of an explicit handoff to external delivery providers.',

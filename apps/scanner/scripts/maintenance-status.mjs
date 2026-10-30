@@ -17,6 +17,9 @@ const UUID = /^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/;
 const SHA = /^[a-f0-9]{40}$/;
 const MAX_REFRESH_AGE_MS = 30 * 3_600_000;
 const EXPIRY_WARNING_MS = 14 * 24 * 3_600_000;
+// Monitoring only: six-hour cadence + 24-hour lead before the 72-hour runtime
+// refusal. The shared 48-hour qualification and runtime gate stay unchanged.
+const SIGNATURE_WARNING_AGE_MS = 42 * 3_600_000;
 const WARMUP_MS = 5 * 60_000;
 const HEALTH_URL = "http://127.0.0.1:8799/scanner/health";
 const WARMUP_CODES = new Set([
@@ -44,6 +47,7 @@ const ERROR_CODES = new Set([
   "SCANNER_PUBLIC_ENDPOINT_ENABLED",
   "SCANNER_PRIVATE_HEALTH_INVALID",
   "SCANNER_SIGNATURES_STALE",
+  "SCANNER_SIGNATURES_EXPIRING",
   "SCANNER_HEALTH_WARMUP_TIMEOUT",
   "SCANNER_RUNTIME_IDENTITY_MISMATCH",
   "SCANNER_EXACT_VERSION_100_PERCENT_REQUIRED",
@@ -194,6 +198,11 @@ export async function currentHealth(
           response.headers.get("x-guteneo-scanner-build-id") ===
             expected.buildId,
         "SCANNER_RUNTIME_IDENTITY_MISMATCH",
+      );
+      demand(
+        clock() - Date.parse(body.engine.signatureDate) <
+          SIGNATURE_WARNING_AGE_MS,
+        "SCANNER_SIGNATURES_EXPIRING",
       );
       return {
         engine: Object.fromEntries(

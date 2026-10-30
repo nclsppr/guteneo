@@ -424,6 +424,7 @@ export class DomainService {
       postalQuote?: PostalQuoteResolver;
       ensureEmailSender?: (
         ctx: ActorContext,
+        options?: { pricing?: boolean; senderId?: string },
       ) => Promise<{ replyTo: string; senderId: string } | undefined>;
       prepareProtectedDocument?: (
         ctx: ActorContext,
@@ -1069,7 +1070,9 @@ export class DomainService {
     let protectedEmailDocument: ProtectedEmailDocument | undefined;
     let defaultEmailSenderId: string | undefined;
     if (input.channel === "email") {
-      const emailSender = await this.config.ensureEmailSender?.(ctx);
+      const emailSender = await this.config.ensureEmailSender?.(ctx, {
+        senderId: input.senderId,
+      });
       if (emailSender) {
         options.replyTo = emailSender.replyTo;
         defaultEmailSenderId = emailSender.senderId;
@@ -2242,7 +2245,7 @@ export class DomainService {
   async listSenders(ctx: ActorContext) {
     await this.organization(ctx);
     if (actorPermissions(ctx).prepareDispatches)
-      await this.config.ensureEmailSender?.(ctx);
+      await this.config.ensureEmailSender?.(ctx, { pricing: false });
     return {
       items: (
         await this.db

@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "pluginVersion": "1.1.20",
-  "mcpSourceSha256": "fe636b5c5a434214713150a59fbc6e3792cab1b899a8a016bf261c66a0b70231",
-  "packageSha256": "d6c34b5829292ec4ea1eb7328853c557cef4ab57b5b5db0807034463356bb073",
+  "pluginVersion": "1.1.21",
+  "mcpSourceSha256": "4101683c7e154a0931f787b85a4ecae574aa05707a77371997917ad4b5ce5b40",
+  "packageSha256": "d33dc5758d019b92bb6de9b57f8ff89b00e7855ff41a1216bb4435bf05de440d",
   "sources": {
     "apps/api/src/auth.ts": "98b513683d77bb3d183d1fc638f2bf6893104932d4be3fae30914994ded605f5",
     "apps/api/src/connection-observations.ts": "40278b9fab339e05949a04c2d2718348236e9362e944f95a4d2a3466c186fa24",
@@ -14,7 +14,7 @@
     "apps/api/src/expert-status.ts": "eb3a32798ac614e7a91839ca18ff752700408146323945da9089f81db74d3f7f",
     "apps/api/src/mcp-document-upload.ts": "02522866f3802c9aebb9894110936d3e45950b664a5192e02409191a6e022373",
     "apps/api/src/mcp-ui-probe.ts": "ec64e9c872b38bbe10a9729a6edb7629330432f0adf54c5fd9eec1210fcaa3fa",
-    "apps/api/src/mcp.ts": "a84f68ab5586194cdecede1e96dd1efe1d4c6beaf5399c4059aa47609449885b",
+    "apps/api/src/mcp.ts": "4f3af1077db2499ec3bbdcc4b49d13caf98b28e3762354e54a49f752723eecfe",
     "apps/api/src/postal-address-page.ts": "a8eeaf6dac0f81433f3a39ccd9a3e9bcf6f9202c8502631e85e7bd7b851dc25d",
     "apps/api/src/postal-authority.ts": "69dc7155a56311b7927416b90acf3577417b30f0ca410e3f815530c1b29b7e98",
     "apps/api/src/template-workflow.ts": "c742ed65d429aba2d481d24fb496dbd354264ffd1d7265c74df784cb70255ca7",
@@ -35,7 +35,7 @@
     "packages/contracts/src/release.ts": "4edd274e1c5e5bbb97e8004ca81b9bf87ff81f0ba8bab4315f9c2b583ef323c1",
     "packages/contracts/src/secure-distribution.ts": "5393fb5c0813c8346a0def96e0c0016d931d3bcb22407fac86b7d92ed5f4e64e",
     "packages/contracts/src/template-workflow.ts": "1b7814220766d35b0463cd4cabc424ec6b721e96587b66c700c59dde0a966a74",
-    "packages/domain/src/index.ts": "5dd9d657dd215dbdd5a44a2e921896e2ca099307a377455514125e966dce9351",
-    "packages/observability/src/index.ts": "d6d23eecc2ce6a330d5ab87a8ea33caa1f73056b5bd4446f9e123fd1ba6daa92"
+    "packages/domain/src/index.ts": "55f66f62855cbc42d9bde16237e21ba8fe1cca97827619827ce567895b0824be",
+    "packages/observability/src/index.ts": "6eec893f2bff2de42b6c68fb30a0f246b303aef0b6212d3668cfb28dd7671837"
   }
 }

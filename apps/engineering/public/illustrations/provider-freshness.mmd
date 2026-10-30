@@ -1,0 +1,26 @@
+flowchart TD
+  Operation[Enabled operation] --> Selected{Exact selected input?}
+  Selected -->|No| Ignore[No freshness incident]
+  Selected -->|Yes| Deadline[Real consumed deadline]
+  Deadline --> Due{Renewal due?}
+  Due -->|Yes| Technical{Technical renewal allowed?}
+  Technical -->|Yes| Inspect[Bounded real source inspection]
+  Technical -->|No| Authority[Preserve the independent authority deadline]
+  Authority --> Watch
+  Inspect --> Binding{Exact current bindings valid?}
+  Binding -->|Yes| Commitment{Earlier commitments safe?}
+  Commitment -->|Yes| Revision[Atomic immutable revision]
+  Commitment -->|No| Defer[Defer and preserve commitments]
+  Binding -->|No| Preserve[Keep earlier evidence unchanged]
+  Revision --> Resolve[Resolve prior incident for this binding]
+  Due -->|No| Watch[Wait for next scheduled check]
+  Defer --> Watch
+  Preserve --> Watch
+  Watch --> Risk{Within twenty-four hours?}
+  Risk -->|Yes| Incident[Durable idempotent incident]
+  Incident --> Alert[Distinct freshness signal to existing operations channel]
+  Risk -->|No| Watch
+  Alert --> Expired{Real deadline reached?}
+  Expired -->|Yes and still invalid| Stop[Close only the affected operation]
+  Expired -->|No| Watch
+  Stop --> Due

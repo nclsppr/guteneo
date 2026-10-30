@@ -55,6 +55,9 @@ export interface Env {
   AWS_REGION?: string;
   EMAIL_PROVIDER?: "ses" | "resend";
   RESEND_API_KEY?: string;
+  /** Optional private inspection credential. Sending keeps the separate
+   * domain-limited RESEND_API_KEY; maintenance uses this key for fixed GETs. */
+  RESEND_READINESS_API_KEY?: string;
   INVITATION_EMAILS_ENABLED?: string;
   INVITATION_EMAIL_FROM?: string;
   PROTECTED_DOCUMENTS_KEY?: string;

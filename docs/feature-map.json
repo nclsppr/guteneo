@@ -383,7 +383,7 @@
         "Explicit continuous access removes periodic reviewer-reference renewal for the exact restricted single-member account; archived pricing stays labelled, quotes retain their 900-second lifetime and approval/sending remain prohibited",
         "Registered live commercial references refresh from actual official sources and provider-ownership reads through the existing scheduler; bounded leases/backoff and active-quote deferral preserve immutable approved prices"
       ],
-      "status": "Implemented fax contracts; continuous reviewer access and automatic commercial-reference maintenance are source candidates requiring additive migrations, explicit registration and independent hosted qualification. Live sender, tariff, approval, credits and provider gates apply.",
+      "status": "Implemented fax contracts. Release 1.1.20 and migrations 0066–0067 are deployed for the exact restricted reviewer and registered Luxembourg pilot; reviewer preparation and a genuine automatic refresh were observed. Other routes, hosted assistant journeys and actual delivery retain separate qualification. Live sender, tariff, approval, credits and provider gates apply.",
       "tests": [
         "tests/e2e/fax-pricing.spec.ts",
         "tests/integration/continuous-review-preparation.test.ts",
@@ -1182,7 +1182,7 @@
         "No approval, acceptance, sending, reservation, provider attempt, outbox, media grant or financial settlement is available; the independent prepare_only account restriction remains in force",
         "Compatible bounded old-schema reads and null-omitting historical hashes permit a runtime-first rollout before schema; private planning and digest-bound atomic application grant no account/password/Auth0 change or public API"
       ],
-      "status": "Source candidate with isolated tests; migration, explicit access installation and actual saved-submission host cases remain separate qualification.",
+      "status": "Production 1.1.20 includes migration 0066 and the explicitly installed exact restricted-reviewer access; web preparation was observed. Saved-submission host cases and marketplace publication remain separate qualification, with no sending authority.",
       "tests": [
         "tests/integration/continuous-review-preparation.test.ts",
         "tests/unit/continuous-review-operator.test.ts"
@@ -1199,7 +1199,7 @@
       "doc": "FAX_TARIFF_MAINTENANCE.md",
       "source": "apps/api/src/fax-tariff-refresh.ts",
       "features": [
-        "Current candidate covers only the existing local Luxembourg fixed +3524 operator-test route with canonical empty options and EUR2; refresh preserves its exact existing page limit up to ten pages and never extends its independent 3 November 2026 pilot deadline; continuous reviewer preparation remains capped at seven pages",
+        "Supported scope is the existing local Luxembourg fixed +3524 operator-test route with canonical empty options and EUR2; refresh preserves its exact existing page limit up to ten pages and never extends its independent 3 November 2026 pilot deadline; continuous reviewer preparation remains capped at seven pages",
         "Explicit registration binds an exact tenant, sender, provider account/application/profile, destination prefix and options to an authorized global-conversational public commercial catalog",
         "Daily authenticated current-catalog discovery plus bounded official fax-page, selected allowlisted CSV and dated ECB reads and current provider ownership inspection create new immutable revisions with at most 168-hour validity",
         "Public commercial references do not claim negotiated supplier prices or a freshly observed provider UI association; original source and association dates retain their meaning",
@@ -1208,13 +1208,45 @@
         "Coarse refreshed/failed/deferred results exclude content, recipients, credentials and private source bodies; a bounded same-account private RPC qualifies current catalog access without registering or writing a price",
         "Registration configuration and plans are absolute private 0600 files under a 0700 directory outside Git; read-only planning and reviewed-digest application remain distinct"
       ],
-      "status": "Source candidate for the bounded local +3524 pilot only; schema, actual server-key catalog discovery, explicit route registration and successful scheduled maintenance require independent qualification. No historical CSV fallback is allowed.",
+      "status": "Production 1.1.20 includes migration 0067 and the explicitly registered bounded local +3524 pilot. Actual server-key catalog discovery and its first genuine automatic refresh were observed; other routes and actual delivery remain unqualified. No historical CSV fallback is allowed.",
       "tests": [
         "tests/integration/fax-tariff-refresh.test.ts",
         "tests/unit/fax-tariff-sources.test.ts"
       ],
       "surfaces": "Authorized private operator CLI/service-binding qualification and registration, and existing scheduled backend maintenance; no public browser, REST or MCP registration authority.",
       "id": "fax-tariff-maintenance",
+      "category": "Operations",
+      "availability": "operator-gated",
+      "tools": [],
+      "rest": []
+    },
+    {
+      "title": "Consumed provider freshness and J-1 alerts",
+      "doc": "PROVIDER_FRESHNESS.md",
+      "source": "apps/api/src/provider-freshness.ts",
+      "features": [
+        "Current production consumer, tenant, provider, account, route, verified sender and options select the real enforced deadline, including configured first use; historical/informational dates, archived reviewer references and explicitly inactive mechanisms are excluded",
+        "Six durable bounded collector inventories distinguish verified inactivity from missing configuration or failed reads; current manual policies receive operator warnings without fabricated automatic renewal",
+        "Pingen profile maintenance follows selected production preparation even when final sending is cut, uses genuine organisation-read evidence, preserves method dates and actual prepared-letter calculator pricing, and installs a new exact 90-day generation only under current matching guards",
+        "Resend daily exact-domain, Full-access Usage API, public USD900-micro price and actual ECB reads atomically qualify 30 days; optional inspection key stays separate from the sending key, tariff and account-limit statuses are independent, and a manual replacement suppresses the unused automatic setting",
+        "Leases, exact predecessor comparisons and final quote/binding rechecks preserve immutable historical rows and approved commitments; active prepared or queued/submitting/unknown fax and postal work defers replacement, while Resend caps, holds, reservations and unknown outcomes never reset",
+        "Confirmed Resend contradictions block their real consumer: domain/binding affect both, capacity affects acceptance and price affects automatic pricing; exact qualified manual overrides retain their own price/expiry. Required-source failure grants no extension, and no maintenance renews consent, expert delegation, quote TTL, session or independent route authority",
+        "J-1 starts exactly 86400 seconds before the consumed UTC deadline; tenant/binding/revision/deadline incidents are idempotent and stale or unknown evaluations cannot resolve current risk",
+        "Separate FRESHNESS_AT_RISK and FRESHNESS_CHECK_FAILED observations preserve normal Cron heartbeat meaning; a query-only native-monitor plan preserves existing destinations and controls without activating notifications or relying on Resend delivery",
+        "Scanner watchdog warns at 42 hours of actually loaded signatures with existing daily refresh and six-hour checks, preserving shared 48-hour qualification and 72-hour runtime refusal; GitHub and native notification receipt remain independent",
+        "Runtime-first rollout keeps strict legacy Resend qualification before 0070 and records maintenance schema failures without stopping unrelated safe work; no new public REST/MCP tool, product permission, secret provisioning or provider send is added"
+      ],
+      "status": "Local candidate only: migrations 0068–0070 are not applied and the extended native monitor is not configured or receipt-qualified. Prior production 1.1.20 fax/reviewer proof does not establish Pingen/Resend renewal, scanner warning deployment, alert receipt or real delivery.",
+      "tests": [
+        "tests/integration/freshness-alerts.test.ts",
+        "tests/integration/provider-freshness.test.ts",
+        "tests/integration/postal-policy-refresh.test.ts",
+        "tests/integration/resend-policy-refresh.test.ts",
+        "tests/security/native-alerting-plan.test.mjs",
+        "apps/scanner/tests/maintenance-status.test.mjs"
+      ],
+      "surfaces": "Existing private scheduled maintenance, provider-inspection RPC/operator CLI, GitHub scanner watchdog and separately authorized native-monitor configuration; no public browser, REST or MCP maintenance surface.",
+      "id": "provider-freshness",
       "category": "Operations",
       "availability": "operator-gated",
       "tools": [],
@@ -1590,6 +1622,15 @@
       "branch": "Operations",
       "doc": "FAX_TARIFF_MAINTENANCE.md",
       "failure": "Reject ambiguous/stale sources, identity drift, expired independent operator authority, lost leases and concurrent predecessor changes. Preserve historical quotes and source dates. Back off on failure; existing valid pricing may continue only under its original bounds, while expired pricing fails closed. No sending, mandate, consent or paid infrastructure is created."
+    },
+    {
+      "id": "J42",
+      "title": "Maintain consumed provider deadlines and warn at J-1",
+      "actor": "Separately authorized platform operator for configuration; scheduled backend and scanner watchdog for bounded technical checks",
+      "steps": "Identify the mechanism that actually consumes a deadline, including selected first use and postal preparation with final sending cut → exclude obsolete or explicitly suspended bindings and keep unexplained losses unknown → privately qualify genuine source access → after separate authorization roll out compatible runtime and additive schema → perform due exact-source reads, preserve independent authority/caps/history and defer quote-bound replacements → record a new immutable technical revision only after complete proof → reconcile exact UTC J-1 incidents with durable cursors → emit a risk or failed-control signal separate from Cron completion → use the separately configured existing native monitor or scanner watchdog channel and inspect the real result.",
+      "branch": "Operations",
+      "doc": "PROVIDER_FRESHNESS.md",
+      "failure": "No date bump after an unrelated GET, automatic key widening, manual-policy conversion, consent extension, cap reset, hold removal or unknown communication retry. Confirmed Resend contradictions block their affected consumer; automatic-price drift does not replace an exact qualified manual override, and failed reads preserve their true uncertainty. Do not clear unvisited bindings, stale evidence or a failed check with a healthy Cron heartbeat. Migrations 0068–0070, new renewals and native-condition delivery remain locally prepared, not production-qualified."
     }
   ],
   "roles": [
@@ -1993,6 +2034,14 @@
       "No authority from workspace role",
       "No authority from workspace role",
       "No; distinct authorized platform operator registers an exact source/route once; bounded scheduler refreshes do not grant consent, route authority or sending rights"
+    ],
+    [
+      "Configure provider freshness and native operational alerts",
+      "No authority from workspace role; distinct explicit platform authorization",
+      "No authority from workspace role",
+      "No authority from workspace role",
+      "No authority from workspace role",
+      "No business REST/MCP authority; a separately authorized repository/operator workflow may inspect sources and prepare reviewed changes, without granting approval, provider credentials, consent, mandates, purchases or sending rights"
     ]
   ],
   "schemaVersion": 2

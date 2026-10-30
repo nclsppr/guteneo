@@ -1,5 +1,48 @@
 # Executed verification
 
+## Consumed provider deadlines — 30 October 2026 candidate 1.1.21
+
+Production remains **1.1.20**, source
+`13d5553f8e9b93cf0f8d6e296943c65c0155ec66`. Its compatible runtime preceded
+migrations 0066/0067, explicitly authorized continuous reviewer access and the
+bounded Luxembourg fax refresh registration. The real current catalog inspection,
+scheduled refresh and restricted synthetic browser preparation passed separately;
+none establishes real delivery or marketplace publication.
+
+This follow-up adds source-specific Pingen/Resend technical renewal, consumed
+deadline selection, durable J-1 incidents, a separate maintenance signal and the
+loaded-scanner warning. Its migrations 0068–0070 and extended native Cloudflare
+condition are **not installed in production**. No Resend inspection credential
+was created or expanded, and no alert notification or business communication was
+sent. Authenticated Resend renewal remains unqualified.
+
+The initial complete application run passed **3,373/3,377** tests. Its four
+failures identified two untranslated web messages and the old one-event Cron
+assertion. After correction, all **23** translation/observation checks pass,
+including a failed freshness read that preserves the completed heartbeat and
+outbox while emitting its own closed failure signal. All **629** security checks
+pass. Subsequent provider selection and contradiction fixes have their focused
+integration evidence; exact final hosted CI remains a separate release gate.
+
+Final combined Resend/collector regressions pass **85/85** (27 refresh, 13 setup,
+23 transport and 22 collector), including genuine-source contradictions surviving
+an unrelated 403/timeout, tariff-only qualification without recreating revoked
+quotas, explicit manual sender overrides and continued preparation with sending
+closed. Pingen's focused D1 suite passes **16/16**; durable incident reconciliation
+passes **14/14**. The final 70-migration empty local D1 installation passes with
+`quick_check=ok`, zero foreign-key violations and no installed incident or
+maintenance authority. Typecheck, lint, synchronized integration/archive checks
+and generated-document checks pass. These are deterministic local observations.
+
+The Engineering build passes, including its content and publication checks.
+Keyboard steps, textual alternatives, SVG downloads and reduced-motion reading
+pass **6/6** across desktop Chromium, mobile Chromium and WebKit. Actual local
+rendering of the new figure was inspected in light/dark and at mobile width,
+with zero page exceptions or horizontal overflow. The full geometry audit passes
+for all four figures; the new calibration bench has **63** measured solids,
+zero failing geometry lines and **zero floating texture-line ends**. These are
+local code/rendering observations, not live monitoring or website publication.
+
 ## Policy-aware recovery follow-up — 27 October 2026 candidate 1.1.16
 
 The preceding 1.1.15 release was merged as

@@ -14,6 +14,47 @@ own templates/datasets/mappings/generation/distribution; [postal review](POSTAL_
 owns preflight/transfer/quote; [expert approval](EXPERT_APPROVAL.md) owns delegated
 authority. Link to these instead of maintaining another copy of their full rules.
 
+## Provider freshness — 30 October 2026 candidate
+
+Automatic maintenance and J-1 alerting are backend/operator mechanisms, with no
+new business REST route, MCP tool or OAuth scope. Applications still prepare an
+exact short-lived quote, obtain current human/delegated authority and respect
+provider, credit and channel gates. A technical reference renewal grants none of
+those permissions. [Provider freshness](PROVIDER_FRESHNESS.md) maps the deadlines
+actually consumed by fax, Pingen preparation and Resend email.
+
+The candidate refreshes a matching Pingen profile for 90 days while keeping the
+prepared-letter calculator price and transfer consent separate. Resend qualifies
+30-day pricing evidence only after genuine exact-domain, public-price and ECB
+reads; selected account limits also require actual Usage API capacity. A tariff
+can renew without creating an absent or revoked limit policy. The optional
+server-only inspection key does not replace `RESEND_API_KEY` for
+sending. The Usage API needs Full access; a refused Sending key creates no new
+evidence. Existing account caps/reservations, manual policies, immutable quote
+hashes and unknown outcomes remain protected. `GET /api/senders` consumes identity
+and membership, without requiring an otherwise unused tariff deadline.
+
+The private `ProviderInspection.inspectResendPolicySources` method reuses the
+same readers/parsers without any database access or renewal. Authorized operator
+inspection via `node scripts/provider-readiness.mjs resend-policy-sources`
+returns only a closed read-only status, source stage/code and coarse verified
+observations. It exposes no account/domain identifiers, tokens or raw responses
+and sends no email. Provider source inspection is separate from actual scheduled
+renewal, dispatch acceptance and delivery qualification.
+
+Effective UTC deadlines produce J-1 incidents at 86,400 seconds before expiry.
+`FRESHNESS_AT_RISK` and `FRESHNESS_CHECK_FAILED` belong to a separate private
+operational observation; normal Cron completion cannot replace them. No recipient,
+content, tenant/binding key, credential or free-form provider error enters that
+signal. Missing/malformed configuration is unknown, not proof of suspension.
+Short quote/preflight/session TTLs and consent are not automatically extended.
+
+Only the prior 1.1.20 fax/reviewer mechanisms are deployed. This cross-provider
+candidate's migrations 0068–0070 and extended native monitor condition remain
+unapplied/unconfigured; local tests are not evidence of provider renewal or alert
+receipt. The scanner watchdog warning candidate starts at 42 hours of actual
+loaded signatures while retaining the existing 72-hour runtime refusal.
+
 ## Contract and authority
 
 The studio integration described OpenAPI 3.0.3 business version 0.2.0 with **55 paths

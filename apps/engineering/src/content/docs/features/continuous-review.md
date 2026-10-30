@@ -9,7 +9,7 @@ sidebar:
 
 **Access boundary:** Restricted operator authority required.
 
-Source candidate with isolated tests; migration, explicit access installation and actual saved-submission host cases remain separate qualification.
+Production 1.1.20 includes migration 0066 and the explicitly installed exact restricted-reviewer access; web preparation was observed. Saved-submission host cases and marketplace publication remain separate qualification, with no sending authority.
 
 **Surfaces:** Authorized private operator setup; existing web, REST, MCP and native preparation/tracking retain their current account and document guards.
 

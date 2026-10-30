@@ -1,7 +1,11 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
-import { ACCOUNT_ID, CONTAINER_ID } from "../scripts/ci-refresh.mjs";
+import {
+  ACCOUNT_ID,
+  CONTAINER_ID,
+  assertFreshEngine,
+} from "../scripts/ci-refresh.mjs";
 import {
   checkMaintenance,
   checkSettings,
@@ -201,6 +205,40 @@ test("private health waits through cold start using GET only and binds actual ru
   assert.equal(calls, 2);
   assert.deepEqual(proof.engine, engine);
   assert.equal(proof.checkedAt, "2026-10-23T12:00:05.000Z");
+});
+
+test("watchdog warns at 42 hours on the real loaded engine without changing qualification", async () => {
+  for (const [age, warning] of [
+    [42 * 3_600_000 - 1, false],
+    [42 * 3_600_000, true],
+    [47 * 3_600_000, true],
+  ]) {
+    const loaded = {
+      ...engine,
+      signatureDate: new Date(now - age).toISOString(),
+    };
+    assert.doesNotThrow(() => assertFreshEngine(loaded, now));
+    let reads = 0;
+    const result = currentHealth(control, expected, {
+      clock: () => now,
+      fetcher: async (url, init) => {
+        reads++;
+        assert.equal(url, "http://127.0.0.1:8799/scanner/health");
+        assert.equal(init.method, "GET");
+        return healthyResponse({ status: "ready", engine: loaded });
+      },
+      sleep: async () => {
+        assert.fail("Signature warning must not retry or refresh");
+      },
+    });
+    if (warning) await assert.rejects(result, /SCANNER_SIGNATURES_EXPIRING/);
+    else assert.deepEqual((await result).engine, loaded);
+    assert.equal(reads, 1);
+  }
+  assert.equal(
+    safeFailureCode(new Error("SCANNER_SIGNATURES_EXPIRING")),
+    "SCANNER_SIGNATURES_EXPIRING",
+  );
 });
 
 test("health rejects stale signatures and malformed responses instead of retrying into false success", async () => {

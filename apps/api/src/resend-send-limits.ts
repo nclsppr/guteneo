@@ -1,4 +1,9 @@
 import type { ProviderResult } from "../../../packages/providers";
+import {
+  readResendPolicyState,
+  resendPolicyContradictions,
+  isAutomaticResendPolicy,
+} from "./resend-policy-state";
 
 type Scope = {
   accountId: string;
@@ -32,6 +37,35 @@ export async function submitResendWithLimits(
   )
     return denied("RESEND_LIMITS_NOT_CONFIGURED");
   try {
+    const qualification = await readResendPolicyState(db, scope.accountId);
+    const contradictions = resendPolicyContradictions(qualification.state);
+    let independentPrice = false;
+    const manualPrice = async () => {
+      const policy = await db
+        .prepare(
+          "SELECT p.* FROM live_delivery_quotes q JOIN trusted_delivery_costs p ON p.organization_id=q.organization_id AND p.id=q.policy_id WHERE q.organization_id=? AND q.dispatch_id=? AND q.account_id=? AND q.provider='resend'",
+        )
+        .bind(scope.organizationId, scope.dispatchId, scope.accountId)
+        .first<Parameters<typeof isAutomaticResendPolicy>[0]>();
+      return !!policy && !(await isAutomaticResendPolicy(policy));
+    };
+    independentPrice = await manualPrice();
+    const blockedCodes = [
+      "DOMAIN_CHANGED",
+      "BINDING_CHANGED",
+      "CAPACITY_CHANGED",
+      ...(independentPrice ? [] : ["PRICE_CHANGED"]),
+    ];
+    if (contradictions.some((code) => blockedCodes.includes(code)))
+      return denied("RESEND_QUALIFICATION_CHANGED");
+    const codes = blockedCodes.map((code) => "'" + code + "'").join(",");
+    const qualificationGuard = qualification.schemaAvailable
+      ? "AND NOT EXISTS(SELECT 1 FROM resend_policy_refresh_state s WHERE s.account_id=i.account AND (s.blocked_reason IN (" +
+        codes +
+        ") OR EXISTS(SELECT 1 FROM json_each(COALESCE(s.blocked_reasons_json,'[]')) reason WHERE reason.value IN (" +
+        codes +
+        "))))"
+      : "";
     const reserved = await db
       .prepare(
         `
@@ -42,6 +76,7 @@ export async function submitResendWithLimits(
       WHERE EXISTS(SELECT 1 FROM attempts a JOIN dispatches d ON d.organization_id=a.organization_id AND d.id=a.dispatch_id
         WHERE a.id=i.attempt AND a.organization_id=i.organization AND a.dispatch_id=i.dispatch AND a.provider='resend' AND a.status='started' AND a.bridge_claimed_at IS NOT NULL
           AND d.active_attempt_id=a.id AND d.provider='resend' AND d.status='submitting' AND d.mode='production' AND d.channel='email')
+      ${qualificationGuard}
       AND NOT EXISTS(SELECT 1 FROM resend_send_reservations r WHERE r.account_id=i.account AND (r.status='reserved' OR r.completed_at_ms>i.now-p.min_interval_ms))
       AND (SELECT COUNT(*) FROM resend_send_reservations r WHERE r.account_id=i.account AND (r.status IN ('reserved','unknown') OR (r.status='accepted' AND r.completed_at_ms>i.now-86400000)))<p.max_recipients_24h
       AND (SELECT COUNT(*) FROM resend_send_reservations r WHERE r.account_id=i.account AND (r.status IN ('reserved','unknown') OR (r.status='accepted' AND strftime('%Y-%m',r.completed_at_ms/1000,'unixepoch')=strftime('%Y-%m',i.now/1000,'unixepoch'))))<p.max_recipients_month
@@ -63,6 +98,26 @@ export async function submitResendWithLimits(
         .bind(scope.attemptId, scope.organizationId, scope.dispatchId)
         .first();
       return prior ? unknown() : denied("RESEND_ACCOUNT_LIMIT_OR_POLICY");
+    }
+    const latest = resendPolicyContradictions(
+      (await readResendPolicyState(db, scope.accountId)).state,
+    );
+    if (latest.includes("PRICE_CHANGED") && !independentPrice)
+      independentPrice = await manualPrice();
+    if (latest.some((code) => code !== "PRICE_CHANGED" || !independentPrice)) {
+      await db
+        .prepare(
+          "UPDATE resend_send_reservations SET status='rejected',completed_at_ms=? WHERE attempt_id=? AND organization_id=? AND dispatch_id=? AND account_id=? AND status='reserved'",
+        )
+        .bind(
+          Math.max(started, now()),
+          scope.attemptId,
+          scope.organizationId,
+          scope.dispatchId,
+          scope.accountId,
+        )
+        .run();
+      return denied("RESEND_QUALIFICATION_CHANGED");
     }
   } catch {
     return denied("RESEND_LIMITS_UNAVAILABLE");

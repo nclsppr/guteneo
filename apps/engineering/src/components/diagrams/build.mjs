@@ -39,8 +39,8 @@ function scene(name, bounds, label) {
       k.solidSvg(k.slabOf(plan, z, h, P, 5, .6), { tone, lit, inner }),
       A.slab(plan, z, h, {}, 5), meta);
   };
-  const cylinder = (id, x, y, r, z, h, { tone = 'mid', lit = false, ...meta } = {}) => {
-    put(id, [x, y, z + h / 2], k.solidSvg(k.cylinder(x, y, r, z, h, P, 40, .25), { tone, lit }),
+  const cylinder = (id, x, y, r, z, h, { tone = 'mid', lit = false, inner = '', ...meta } = {}) => {
+    put(id, [x, y, z + h / 2], k.solidSvg(k.cylinder(x, y, r, z, h, P, 40, .25), { tone, lit, inner }),
       A.cylinder(x, y, r, z, h), meta);
   };
   const roller = (id, x, y, z, length, radius) => {
@@ -78,24 +78,30 @@ function scene(name, bounds, label) {
     slab(`${id}-lid`, x + 2, y + 2, w - 4, d - 4, h, 2, { r: 2, tone: 'hi', inner: screws(x + 2, y + 2, w - 4, d - 4, h + 2) });
   };
   const slot = (id, x, y, w, d, z) => slab(id, x, y, w, d, z, .8, { r: .4, tone: 'lo' });
-  const finish = (stops) => {
+  const finish = (stops, subject = 'envelope') => {
     const [sx, sy, sz] = stops[0];
     const cardPlan = { x: sx - 12, y: sy - 10, w: 24, d: 20, r: 1 };
     // The document is a real solid resting on the rail; record its complete shape.
     const packet = k.solidSvg(k.slabOf(cardPlan, sz, 2, P, 4, .4), { lit: true, tone: 'blue', className: 'sample-paper',
-      inner: k.lineSvg(k.onTop([[sx - 11, sy - 10], [sx, sy + 2], [sx + 11, sy - 10]], sz + 2, P), { tone: 'blue' }) });
+      inner: subject === 'reference'
+        ? rules(sx - 8, sy - 5, 16, sz + 2, 3)
+        : k.lineSvg(k.onTop([[sx - 11, sy - 10], [sx, sy + 2], [sx + 11, sy - 10]], sz + 2, P), { tone: 'blue' }) });
     const origin = at(stops[0]);
     const offsets = stops.map((p) => { const q = at(p); return [q[0] - origin[0], q[1] - origin[1]]; });
-    R.put({ name: `${name}.sample-envelope`, piece: 'packet', move: [stops.at(-1)[0] - sx, 0, 0], at: [sx, sy, sz + 1],
+    const subjectName = subject === 'reference' ? 'reference-coupon' : 'sample-envelope';
+    R.put({ name: `${name}.${subjectName}`, piece: 'packet', move: [stops.at(-1)[0] - sx, 0, 0], at: [sx, sy, sz + 1],
       svg: `<g data-packet="" data-stops='${JSON.stringify(offsets)}'>${packet}</g>`,
-      shapes: [R.solid(A.slab(cardPlan, sz, 2, { name: `${name}.sample-envelope` }, 4))] });
+      shapes: [R.solid(A.slab(cardPlan, sz, 2, { name: `${name}.${subjectName}` }, 4))] });
     count++;
     A.settle(R, P);
     R.items.sort((a, b) => a.key - b.key);
     A.auditOrExit(R, P);
     let svg = k.figureSvg({ width: WIDTH, height: HEIGHT, label, standalone: 'light',
       body: `<style>${BRAND_CSS}</style>${R.items.map((item) => item.svg).join('')}` });
-    svg = svg.replace('role="img"', `role="img" data-diagram="${name}"`).replace('</svg>', `<desc>${label} The small cobalt envelope marks an illustrative document, not a live operation.</desc></svg>`);
+    const subjectDescription = subject === 'reference'
+      ? 'The cobalt coupon follows an illustrative technical reference. It is not a document, approval, communication or live telemetry.'
+      : 'The small cobalt envelope marks an illustrative document, not a live operation.';
+    svg = svg.replace('role="img"', `role="img" data-diagram="${name}"`).replace('</svg>', `<desc>${label} ${subjectDescription}</desc></svg>`);
     writeFileSync(`${OUTPUT}/${name}.svg`, svg);
     console.log(`${name}: ${count} measured solid parts, ${stops.length} document positions`);
     return { name, parts: count, stops: offsets };
@@ -210,5 +216,66 @@ function documents() {
   return s.finish([[-141, 66, 6], [-65, 66, 6], [5, 66, 6], [76, 66, 6], [144, 66, 6], [145, 66, 6]]);
 }
 
-const manifest = [system(), dispatch(), documents()];
+function freshness() {
+  const s = scene('provider-freshness', [[-188, -76, -13], [188, 90, 0], [80, -35, 66]],
+    'A calibration bench selects only a reference used by an active mechanism. A press checks genuine source evidence, a ledger retains immutable revisions, a timer and bell mark the final twenty-four hours, and an interlock stops the affected operation at expiry. An automatic refresh never renews human authority.');
+  const { slab, cylinder, paper, deck, rail, machine, slot, rules, screws, P } = s;
+  s.station(-1); deck('calibration-deck', -184, -72, 368, 160); rail(-170, 165, 64);
+  const strip = { x: -164, y: 79, w: 318, d: 5, r: .5 };
+  const ticks = k.topTicks(strip.x + 4, strip.x + strip.w - 4, 5, 5, strip.y + .4, .7, [2, 3.6], P);
+  slab('deadline-ruler', strip.x, strip.y, strip.w, strip.d, 0, .7, { r: .5, tone: 'lo',
+    inner: k.lineSvg(ticks.minor, { tone: 'lo' }) + k.lineSvg(ticks.major, { tone: 'mid' }) });
+
+  s.station(0); machine('active-selector', -165, -55, 54, 56, 17);
+  cylinder('selector-shaft', -139, -28, 3, 19, 4);
+  cylinder('selector-knob', -139, -28, 8, 23, 5, { tone: 'hi',
+    inner: k.lineSvg(k.knurl(-139, -28, 8, 23, 28, 32, P), { tone: 'lo' }) });
+  for (const x of [-155, -121]) slab('selector-stop', x, -31, 3, 6, 19, 4, { r: .5 });
+  slab('selector-label', -158, -48, 40, 9, 19, .6, { tone: 'lo', inner: rules(-154, -46, 31, 19.6, 2) });
+  slab('inactive-holder', -163, 10, 49, 33, 0, 4, { r: 2 });
+  for (const x of [-162, -119]) slab('source-guide', x, 13, 4, 27, 4, 7, { r: .5 });
+  for (let i = 0; i < 3; i++) paper('unused-reference', -154, 15 + i * 3, 27, 18, 4 + i * .65);
+
+  s.station(1); slab('inspection-bed', -96, -51, 54, 72, 0, 5, { r: 2 });
+  for (const x of [-93, -50]) slab('inspection-upright', x, -45, 5, 48, 5, 29, { r: 1 });
+  slab('inspection-crosshead', -93, -45, 48, 48, 34, 5, { r: 1.5, tone: 'hi', inner: screws(-93, -45, 48, 48, 39) });
+  slab('inspection-service-cover', -86, -38, 34, 34, 39, .6, { r: .8, tone: 'lo', inner: screws(-86, -38, 34, 34, 39.6) });
+  cylinder('inspection-calibration-crown', -69, -21, 5, 39.6, 4, { tone: 'hi',
+    inner: k.lineSvg(k.knurl(-69, -21, 5, 39.6, 43.6, 24, P), { tone: 'lo' }) });
+  for (const x of [-88, -58]) slab('inspection-bearing', x, -16, 8, 17, 5, 8, { r: .8 });
+  cylinder('inspection-plunger', -69, -20, 2, 17, 17);
+  slab('inspection-shoe', -80, -31, 22, 22, 13, 4, { r: 1, tone: 'hi' });
+  paper('inspected-reference', -80, -31, 22, 22, 5);
+
+  s.station(2); machine('revision-ledger', -24, -53, 54, 58, 36);
+  for (let i = 0; i < 3; i++) {
+    slab('revision-drawer', -21, 5, 48, 1.6, 3 + i * 10, 8, { r: .6, tone: 'hi' });
+    slab('revision-handle', -7, 6.6, 20, 2, 6 + i * 10, 2, { r: .4 });
+  }
+
+  s.station(3); slab('timer-plinth', 47, -50, 52, 59, 0, 7, { r: 3 });
+  cylinder('timer-housing', 73, -27, 21, 7, 10, { tone: 'hi' });
+  const dial = k.lineSvg(k.ring(73, -27, 18.5, 17.6, P, 64), { tone: 'lo' });
+  const scale = k.radialTicks(73, -27, 17.5, 24, 6, 17.6, [1.3, 2.5], P);
+  const needle = k.lineSvg(k.lineOnTop([73, -27], [61, -31], 17.7, P), { tone: 'hi', free: true });
+  cylinder('timer-face', 73, -27, 18.5, 17, .6, { tone: 'lo', inner: dial + k.lineSvg(scale.minor, { tone: 'lo' }) + k.lineSvg(scale.major, { tone: 'mid' }) + needle });
+  cylinder('timer-pivot', 73, -27, 1.5, 17.6, .8, { tone: 'hi' });
+  cylinder('timer-crown', 73, -27, 4, 18.4, 3, { tone: 'hi' });
+  slab('warning-pedestal', 57, 20, 32, 23, 0, 5, { r: 2 });
+  cylinder('warning-stem', 73, 31.5, 2.5, 5, 13);
+  cylinder('warning-bell', 73, 31.5, 10, 18, 7, { tone: 'hi' });
+  cylinder('warning-cap', 73, 31.5, 3, 25, 2, { tone: 'mid' });
+
+  s.station(4); slab('interlock-bed', 117, -53, 52, 73, 0, 6, { r: 2 });
+  for (const x of [120, 161]) slab('interlock-upright', x, -47, 5, 57, 6, 39, { r: 1 });
+  slab('interlock-crosshead', 120, -47, 46, 57, 45, 6, { r: 1.5, tone: 'hi', inner: screws(120, -47, 46, 57, 51) });
+  cylinder('interlock-lock-crown', 143, -17, 6, 51, 5, { tone: 'hi',
+    inner: k.lineSvg(k.knurl(143, -17, 6, 51, 56, 28, P), { tone: 'lo' }) });
+  slab('interlock-label', 129, -40, 28, 9, 51, .6, { tone: 'lo', inner: rules(133, -38, 20, 51.6, 2) });
+  slab('interlock-shoe', 132, -30, 22, 22, 6, 15, { r: 1, tone: 'hi' });
+  slot('interlock-stop', 132, -4, 22, 10, 6);
+  return s.finish([[-140, 68, 6], [-69, 68, 6], [3, 68, 6], [73, 68, 6], [143, 68, 6]], 'reference');
+}
+
+const manifest = [system(), dispatch(), documents(), freshness()];
 writeFileSync(`${OUTPUT}/anatomy-manifest.json`, `${JSON.stringify({ upstream: '1482e8469b0a9e0d8cc18ea2740a01423d29ae80', figures: manifest }, null, 2)}\n`);

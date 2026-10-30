@@ -126,6 +126,10 @@ import { expertPostalAuthority } from "./expert-approval";
 import { getExpertStatus } from "./expert-status";
 import { postalReviewInputSchema } from "../../../packages/contracts/src/postal-review";
 import { refreshFaxTariffs } from "./fax-tariff-refresh";
+import { refreshPostalPolicies } from "./postal-policy-refresh";
+import { refreshResendPolicies } from "./resend-policy-refresh";
+import { collectProviderFreshness } from "./provider-freshness";
+import { reconcileFreshnessAlerts } from "./freshness-alerts";
 
 import {
   startObservation,
@@ -747,7 +751,8 @@ const domain = (env: Env) =>
     appOrigin: env.APP_ORIGIN,
     sensitiveDocumentAuthentication: env.SENSITIVE_DOCUMENT_AUTHENTICATION,
     ...createLiveDeliveryQuoteConfig(env),
-    ensureEmailSender: (ctx) => ensureEmailSender(env, ctx),
+    ensureEmailSender: (ctx, options) =>
+      ensureEmailSender(env, ctx, undefined, options),
     prepareProtectedDocument: (ctx, input, now) =>
       prepareProtectedDocument(env, ctx, input, now),
     liveFaxIdentity:
@@ -1603,6 +1608,51 @@ export default {
       // it creates no dispatch, approval, reservation or provider submission.
       stage = "tariffs";
       Object.assign(counts, await refreshFaxTariffs(env));
+      // These technical renewals preserve current bindings and commitments.
+      // A maintenance failure must not stop unrelated durable work while its
+      // own existing safety gates remain valid.
+      try {
+        Object.assign(counts, await refreshPostalPolicies(env));
+      } catch {
+        counts.postalPolicyRefreshFailed =
+          (counts.postalPolicyRefreshFailed ?? 0) + 1;
+      }
+      try {
+        Object.assign(counts, await refreshResendPolicies(env));
+      } catch {
+        counts.resendPolicyRefreshFailed =
+          (counts.resendPolicyRefreshFailed ?? 0) + 1;
+      }
+      if (env.ENVIRONMENT === "production" && env.MODE === "production") {
+        // Separate from cron/complete: a warning cannot manufacture a healthy
+        // heartbeat, and a completed heartbeat cannot hide a failed check.
+        const freshness = startObservation(
+          env,
+          "app",
+          "freshness",
+          "maintenance",
+        );
+        try {
+          const selected = await collectProviderFreshness(env);
+          const reconciled = await reconcileFreshnessAlerts(
+            env.DB,
+            selected.evaluations,
+          );
+          const metrics = {
+            ...reconciled,
+            freshnessChecksFailed:
+              reconciled.freshnessChecksFailed + selected.freshnessChecksFailed,
+          };
+          if (metrics.freshnessChecksFailed)
+            freshness.setCode("FRESHNESS_CHECK_FAILED");
+          else if (metrics.freshnessAtRisk || metrics.freshnessExpired)
+            freshness.setCode("FRESHNESS_AT_RISK");
+          freshness.finish(undefined, metrics, "freshness");
+        } catch {
+          freshness.setCode("FRESHNESS_CHECK_FAILED");
+          freshness.finish(undefined, { freshnessChecksFailed: 1 }, "freshness");
+        }
+      }
       stage = "identity";
       if (env.ENVIRONMENT !== "local" && !identityConfigured(env)) {
         observation.setCode("IDENTITY_NOT_CONFIGURED");
