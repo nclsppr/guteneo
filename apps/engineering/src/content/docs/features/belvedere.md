@@ -1,6 +1,6 @@
 ---
 title: "Belvédère platform oversight"
-description: "12 capabilities in the operations branch of Guteneo."
+description: "14 capabilities in the operations branch of Guteneo."
 sidebar:
   order: 21
 ---
@@ -9,7 +9,7 @@ sidebar:
 
 **Access boundary:** Restricted operator authority required.
 
-Dedicated-host release and authenticated overview verified on 25 October from 03daa4136de8999cc79018f33f2a22038917c621; later 06d92 V2 publication and seven-section native Safari navigation are dated proof. Public routing/refusals were observed on f946 at 26 October 01:47 UTC; an authenticated journey on that newer source is not claimed. Private read-only authority remains separate from workshop roles.
+Dedicated-host release and authenticated overview verified on 25 October from 03daa4136de8999cc79018f33f2a22038917c621; later 06d92 V2 publication and seven-section native Safari navigation are dated proof. Public routing/refusals were observed on f946 at 26 October 01:47 UTC; an authenticated journey on that newer source is not claimed. Private read-only authority remains separate from workshop roles. The 30 October shared-table migration passed local desktop Chromium and iPhone WebKit regressions; hosted CI, authenticated platform access and publication remain separate.
 
 **Surfaces:** Private verified Watchkeeper browser only; no workshop/native/OAuth/MCP authority.
 
@@ -30,4 +30,6 @@ Dedicated-host release and authenticated overview verified on 25 October from 03
 <li id="feature-72bebbcb1d11">Canonical /belvedere and its protected child reads reuse the existing canonical host-only browser session; signed-evidence/current-membership guards remain mandatory and the private legacy entry/dedicated host remain protected</li>
 <li id="feature-12f7a2c42c92">Session responses expose only canAccessBelvedere for shared application navigation, never a private slug or token; personal projection additionally checks the matching current workspace browser session/evidence</li>
 <li id="feature-392ed5a55ea4">Canonical entry uses shared application/account controls, demand-loaded seven-view UI and interactive globe; observation filters never switch operational membership</li>
+<li id="feature-6b2ca8426cc7">All operational and chart-detail tables reuse shared column sorting and responsive presentation; server-paged lists preserve existing server search/filter/pagination and label local sorting as current-page only, while complete chart/monthly/service arrays use client search and pagination without new reads or platform authority</li>
+<li id="feature-900452aea6f4">The loopback fictional platform account opens a separate GET/HEAD-only Belvedere fixture with seeded bounded pages, arithmetic totals and preserved locale; the default fixture remains compatible and no real platform access, credentials, provider or backend mutation is created</li>
 </ol>

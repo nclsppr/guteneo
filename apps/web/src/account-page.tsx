@@ -1,3 +1,4 @@
+import { DataTable, tableTimestamp } from "./data-table";
 import { msg, msgIn } from "./messages";
 import { useState, type FormEvent } from "react";
 import {
@@ -23,6 +24,7 @@ import {
 } from "./components";
 import {
   applyAccountLocale,
+  t,
   languageCopy,
   type SupportedLocale,
 } from "./locale";
@@ -57,6 +59,19 @@ type Member = {
   sessions: number;
   connections: number;
 };
+
+type MemberRights = Pick<
+  Member,
+  "role" | "supervisorCanApprove" | "supervisorCanReport"
+>;
+const memberRightsKey = (member: Member) =>
+  `${member.role}-${member.supervisorCanApprove}-${member.supervisorCanReport}`;
+function memberDisplayLabel(member: Member, members: readonly Member[]) {
+  return members.filter((item) => item.name === member.name).length > 1 &&
+    member.email
+    ? `${member.name} (${member.email})`
+    : member.name;
+}
 
 function PreviewNotice() {
   return (
@@ -333,90 +348,59 @@ export function Account({ session, onUpdated }: Props) {
               <Loading />
             ) : (
               sessions.data && (
-                <div className="table-scroll">
-                  <table className="responsive-table" role="table">
-                    <thead role="rowgroup">
-                      <tr role="row">
-                        <th role="columnheader" scope="col">
-                          {msg("Started")}
-                        </th>
-                        <th role="columnheader" scope="col">
-                          {msg("Expiry")}
-                        </th>
-                        <th role="columnheader" scope="col">
-                          {msg("Session")}
-                        </th>
-                        <th role="columnheader" scope="col">
-                          {msg("Action")}
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody role="rowgroup">
-                      {sessions.data.items.map((item) => (
-                        <tr role="row" key={item.id}>
-                          <td role="cell" className="date-cell">
-                            <span
-                              className="mobile-cell-label"
-                              aria-hidden="true"
-                            >
-                              {msg("Started")}
-                            </span>
-                            {date(item.createdAt)}
-                          </td>
-                          <td role="cell" className="date-cell">
-                            <span
-                              className="mobile-cell-label"
-                              aria-hidden="true"
-                            >
-                              {msg("Expiry")}
-                            </span>
-                            {date(item.expiresAt)}
-                          </td>
-                          <td role="cell">
-                            <span
-                              className="mobile-cell-label"
-                              aria-hidden="true"
-                            >
-                              {msg("Session")}
-                            </span>
-                            {item.current
-                              ? msg("This device")
-                              : msg("Other session")}
-                            {item.development
-                              ? " · simulation"
-                              : item.mfa
-                                ? " · double authentification"
-                                : ""}
-                          </td>
-                          <td role="cell">
-                            <span
-                              className="mobile-cell-label"
-                              aria-hidden="true"
-                            >
-                              {msg("Action")}
-                            </span>
-                            <button
-                              type="button"
-                              className="button small"
-                              disabled={action.pending || sessionAction.pending}
-                              onClick={() => void revoke(item.id)}
-                              aria-label={msg(
-                                item.current
-                                  ? "Sign me out of the session opened on {0}"
-                                  : "Revoke the session opened on {0}",
-                                date(item.createdAt),
-                              )}
-                            >
-                              {item.current
-                                ? msgIn("account-action", "Sign out")
-                                : msg("Revoke")}
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                <DataTable
+                  label={msg("Your active sessions")}
+                  items={sessions.data.items}
+                  getRowKey={(item) => item.id}
+                  columns={[
+                    {
+                      id: "started",
+                      label: msg("Started"),
+                      value: (item) => tableTimestamp(item.createdAt),
+                      searchValue: (item) => date(item.createdAt),
+                      render: (item) => date(item.createdAt),
+                      className: "date-cell",
+                    },
+                    {
+                      id: "expiry",
+                      label: msg("Expiry"),
+                      value: (item) => tableTimestamp(item.expiresAt),
+                      searchValue: (item) => date(item.expiresAt),
+                      render: (item) => date(item.expiresAt),
+                      className: "date-cell",
+                    },
+                    {
+                      id: "session",
+                      label: msg("Session"),
+                      value: (item) =>
+                        `${item.current ? msg("This device") : msg("Other session")}${item.development ? ` · ${t.simulation}` : item.mfa ? ` · ${msg("Two-factor authentication")}` : ""}`,
+                    },
+                    {
+                      id: "actions",
+                      label: msg("Action"),
+                      value: () => "",
+                      sortable: false,
+                      render: (item) => (
+                        <button
+                          type="button"
+                          className="button small"
+                          disabled={action.pending || sessionAction.pending}
+                          onClick={() => void revoke(item.id)}
+                          aria-label={msg(
+                            item.current
+                              ? "Sign me out of the session opened on {0}"
+                              : "Revoke the session opened on {0}",
+                            date(item.createdAt),
+                          )}
+                        >
+                          {item.current
+                            ? msgIn("account-action", "Sign out")
+                            : msg("Revoke")}
+                        </button>
+                      ),
+                    },
+                  ]}
+                />
               )
             )}
             {sessions.data?.hasMore && (
@@ -434,164 +418,111 @@ export function Account({ session, onUpdated }: Props) {
   );
 }
 
-function MemberRow({
+function MemberRoleEditor({
   member,
   memberLabel,
-  currentUserId,
   disabled,
+  rights,
+  onDraft,
   onRole,
-  onRevoke,
 }: {
   member: Member;
   memberLabel: string;
-  currentUserId: string;
   disabled: boolean;
-  onRole: (
-    rights: Pick<
-      Member,
-      "role" | "supervisorCanApprove" | "supervisorCanReport"
-    >,
-  ) => void;
-  onRevoke: () => void;
+  rights: MemberRights;
+  onDraft: (rights: MemberRights) => void;
+  onRole: (rights: MemberRights) => void;
 }) {
-  const [role, setRole] = useState(member.role);
-  const [canApprove, setCanApprove] = useState(
-    member.supervisorCanApprove ?? false,
-  );
-  const [canReport, setCanReport] = useState(
-    member.supervisorCanReport ?? false,
-  );
+  const {
+    role,
+    supervisorCanApprove: canApprove,
+    supervisorCanReport: canReport,
+  } = rights;
   const changed =
     role !== member.role ||
     (role === "supervisor" &&
       (canApprove !== (member.supervisorCanApprove ?? false) ||
         canReport !== (member.supervisorCanReport ?? false)));
   return (
-    <tr role="row">
-      <th scope="row" role="rowheader">
-        <span className="mobile-cell-label" aria-hidden="true">
-          {msg("Member")}
-        </span>
-        <span className="member-name">
-          {member.name}
-          {member.id === currentUserId ? msg(" (you)") : ""}
-        </span>
-        <span className="member-email">
-          {member.email || msg("Sign-in email unavailable")}
-        </span>
-      </th>
-      <td role="cell" className="member-role-cell">
-        <span className="mobile-cell-label" aria-hidden="true">
-          {msg("Role")}
-        </span>
-        <div className="field" style={{ marginBottom: 0 }}>
-          <label htmlFor={`member-role-${member.id}`} className="sr-only">
-            {msg("Role of ")}
-            {memberLabel}
-          </label>
-          <select
-            id={`member-role-${member.id}`}
-            value={role}
-            onChange={(event) => {
-              setRole(event.target.value as Member["role"]);
-              setCanApprove(false);
-              setCanReport(false);
-            }}
-            aria-describedby={`member-role-help-${member.id}`}
-            disabled={disabled}
-          >
-            {WORKSPACE_ROLES.map((value) => (
-              <option key={value} value={value}>
-                {roleLabel(value)}
-              </option>
-            ))}
-          </select>
-          <p
-            id={`member-role-help-${member.id}`}
-            className="member-role-description"
-          >
-            {roleDescription(role)}
-          </p>
-          {role === "supervisor" && (
-            <fieldset className="member-rights" disabled={disabled}>
-              <legend>{msg("Permissions for {0}", memberLabel)}</legend>
-              <label className="checkbox-label">
-                <input
-                  type="checkbox"
-                  checked={canApprove}
-                  onChange={(event) => setCanApprove(event.target.checked)}
-                />
-                <span>{msg("Approve and reject requests")}</span>
-              </label>
-              <label className="checkbox-label">
-                <input
-                  type="checkbox"
-                  checked={canReport}
-                  onChange={(event) => setCanReport(event.target.checked)}
-                />
-                <span>{msg("Read reports")}</span>
-              </label>
-            </fieldset>
-          )}
-        </div>
-      </td>
-      <td role="cell">
-        <span className="mobile-cell-label" aria-hidden="true">
-          {msg("Active access")}
-        </span>
-        {msg(
-          member.sessions === 1 ? "{0} session" : "{0} sessions",
-          member.sessions,
+    <>
+      <div className="field" style={{ marginBottom: 0 }}>
+        <label htmlFor={`member-role-${member.id}`} className="sr-only">
+          {msg("Role of ")}
+          {memberLabel}
+        </label>
+        <select
+          id={`member-role-${member.id}`}
+          value={role}
+          onChange={(event) => {
+            onDraft({
+              role: event.target.value as Member["role"],
+              supervisorCanApprove: false,
+              supervisorCanReport: false,
+            });
+          }}
+          aria-describedby={`member-role-help-${member.id}`}
+          disabled={disabled}
+        >
+          {WORKSPACE_ROLES.map((value) => (
+            <option key={value} value={value}>
+              {roleLabel(value)}
+            </option>
+          ))}
+        </select>
+        <p
+          id={`member-role-help-${member.id}`}
+          className="member-role-description"
+        >
+          {roleDescription(role)}
+        </p>
+        {role === "supervisor" && (
+          <fieldset className="member-rights" disabled={disabled}>
+            <legend>{msg("Permissions for {0}", memberLabel)}</legend>
+            <label className="checkbox-label">
+              <input
+                type="checkbox"
+                checked={canApprove}
+                onChange={(event) =>
+                  onDraft({
+                    ...rights,
+                    supervisorCanApprove: event.target.checked,
+                  })
+                }
+              />
+              <span>{msg("Approve and reject requests")}</span>
+            </label>
+            <label className="checkbox-label">
+              <input
+                type="checkbox"
+                checked={canReport}
+                onChange={(event) =>
+                  onDraft({
+                    ...rights,
+                    supervisorCanReport: event.target.checked,
+                  })
+                }
+              />
+              <span>{msg("Read reports")}</span>
+            </label>
+          </fieldset>
         )}
-        <br />
-        {msg(
-          member.connections === 1
-            ? "{0} assistant connection"
-            : "{0} assistant connections",
-          member.connections,
-        )}
-      </td>
-      <td role="cell" className="member-actions-cell">
-        <span className="mobile-cell-label" aria-hidden="true">
-          {msg("Actions")}
-        </span>
-        <div className="member-actions">
-          <button
-            type="button"
-            className="button small"
-            disabled={disabled || !changed}
-            onClick={() =>
-              onRole({
-                role,
-                supervisorCanApprove: role === "supervisor" && canApprove,
-                supervisorCanReport: role === "supervisor" && canReport,
-              })
-            }
-            aria-label={msg("Save the role for {0}", memberLabel)}
-          >
-            {msg("Save role")}
-          </button>
-          <ConfirmAction
-            className="text-button"
-            disabled={disabled || (!member.sessions && !member.connections)}
-            onConfirm={onRevoke}
-            ariaLabel={msg("Sign {0} out of this workshop", memberLabel)}
-            label={msg("Disconnect access")}
-            question={
-              member.id === currentUserId
-                ? msg(
-                    "Disconnect your own sessions and assistants? You will need to sign in again.",
-                  )
-                : msg(
-                    "Disconnect {0}’s sessions and assistants? They remain a member and can sign in again.",
-                    memberLabel,
-                  )
-            }
-            confirmLabel={msg("Yes, disconnect")}
-          />
-        </div>
-      </td>
-    </tr>
+      </div>
+      <button
+        type="button"
+        className="button small"
+        disabled={disabled || !changed}
+        onClick={() =>
+          onRole({
+            role,
+            supervisorCanApprove: role === "supervisor" && canApprove,
+            supervisorCanReport: role === "supervisor" && canReport,
+          })
+        }
+        aria-label={msg("Save the role for {0}", memberLabel)}
+      >
+        {msg("Save role")}
+      </button>
+    </>
   );
 }
 
@@ -601,6 +532,10 @@ export function TeamAdmin({ session, onUpdated }: Props) {
   );
   const action = useAction();
   const [message, setMessage] = useState("");
+  const [memberDrafts, setMemberDrafts] = useState<
+    Record<string, { baseline: string; rights: MemberRights }>
+  >({});
+
   async function change(
     member: Member,
     rights?: Pick<
@@ -668,45 +603,141 @@ export function TeamAdmin({ session, onUpdated }: Props) {
           ) : (
             members.data && (
               <>
-                <div className="table-scroll">
-                  <table className="responsive-table" role="table">
-                    <thead role="rowgroup">
-                      <tr role="row">
-                        <th role="columnheader" scope="col">
-                          {msg("Member")}
-                        </th>
-                        <th role="columnheader" scope="col">
-                          {msg("Role")}
-                        </th>
-                        <th role="columnheader" scope="col">
-                          {msg("Active access")}
-                        </th>
-                        <th role="columnheader" scope="col">
-                          {msg("Actions")}
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody role="rowgroup">
-                      {members.data.items.map((member) => (
-                        <MemberRow
+                <DataTable
+                  label={msg("Workspace members")}
+                  items={members.data.items}
+                  getRowKey={(member) => member.id}
+                  columns={[
+                    {
+                      id: "member",
+                      label: msg("Member"),
+                      value: (member) => `${member.name} ${member.email ?? ""}`,
+                      render: (member) => (
+                        <>
+                          <span className="member-name">
+                            {member.name}
+                            {member.id === session.user.id ? msg(" (you)") : ""}
+                          </span>
+                          <span className="member-email">
+                            {member.email || msg("Sign-in email unavailable")}
+                          </span>
+                        </>
+                      ),
+                    },
+                    {
+                      id: "role",
+                      label: msg("Role"),
+                      value: (member) => roleLabel(member.role),
+                      className: "member-role-cell",
+                      cardSpan: "full",
+                      render: (member) => (
+                        <MemberRoleEditor
                           key={`${member.id}-${member.role}-${member.supervisorCanApprove}-${member.supervisorCanReport}`}
                           member={member}
-                          memberLabel={
-                            (members.data?.items.filter(
-                              (item) => item.name === member.name,
-                            ).length ?? 0) > 1 && member.email
-                              ? `${member.name} (${member.email})`
-                              : member.name
-                          }
-                          currentUserId={session.user.id}
+                          memberLabel={memberDisplayLabel(
+                            member,
+                            members.data?.items ?? [],
+                          )}
                           disabled={action.pending}
+                          rights={
+                            memberDrafts[member.id]?.baseline ===
+                            memberRightsKey(member)
+                              ? memberDrafts[member.id].rights
+                              : {
+                                  role: member.role,
+                                  supervisorCanApprove:
+                                    member.supervisorCanApprove,
+                                  supervisorCanReport:
+                                    member.supervisorCanReport,
+                                }
+                          }
+                          onDraft={(rights) =>
+                            setMemberDrafts((current) => ({
+                              ...current,
+                              [member.id]: {
+                                baseline: memberRightsKey(member),
+                                rights,
+                              },
+                            }))
+                          }
                           onRole={(role) => void change(member, role)}
-                          onRevoke={() => void change(member)}
                         />
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                      ),
+                    },
+                    {
+                      id: "access",
+                      label: msg("Active access"),
+                      value: (member) => member.sessions + member.connections,
+                      render: (member) => (
+                        <>
+                          {msg(
+                            member.sessions === 1
+                              ? "{0} session"
+                              : "{0} sessions",
+                            member.sessions,
+                          )}
+                          <br />
+                          {msg(
+                            member.connections === 1
+                              ? "{0} assistant connection"
+                              : "{0} assistant connections",
+                            member.connections,
+                          )}
+                        </>
+                      ),
+                    },
+                    {
+                      id: "actions",
+                      label: msg("Actions"),
+                      value: () => "",
+                      sortable: false,
+                      className: "member-actions-cell",
+                      render: (member) => (
+                        <ConfirmAction
+                          className="text-button"
+                          disabled={
+                            action.pending ||
+                            (!member.sessions && !member.connections)
+                          }
+                          onConfirm={() => void change(member)}
+                          ariaLabel={msg(
+                            "Sign {0} out of this workshop",
+                            memberDisplayLabel(
+                              member,
+                              members.data?.items ?? [],
+                            ),
+                          )}
+                          label={msg("Disconnect access")}
+                          question={
+                            member.id === session.user.id
+                              ? msg(
+                                  "Disconnect your own sessions and assistants? You will need to sign in again.",
+                                )
+                              : msg(
+                                  "Disconnect {0}’s sessions and assistants? They remain a member and can sign in again.",
+                                  memberDisplayLabel(
+                                    member,
+                                    members.data?.items ?? [],
+                                  ),
+                                )
+                          }
+                          confirmLabel={msg("Yes, disconnect")}
+                        />
+                      ),
+                    },
+                  ]}
+                  filters={[
+                    {
+                      id: "role",
+                      label: msg("Role"),
+                      value: (member) => member.role,
+                      options: WORKSPACE_ROLES.map((role) => ({
+                        value: role,
+                        label: roleLabel(role),
+                      })),
+                    },
+                  ]}
+                />
                 <LoadMore
                   path="/admin/members"
                   data={members.data}

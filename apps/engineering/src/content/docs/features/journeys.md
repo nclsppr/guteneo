@@ -336,3 +336,19 @@ Inspect the existing archived review tariff, original authority and exact restri
 Review the supported local Luxembourg fixed +3524 operator-test route, empty options, unchanged live page limit up to ten pages, EUR2 ceiling and independent pilot deadline → fully roll out the compatible reader and drain prior work before schema installation → qualify actual server-key catalog access through the bounded private service binding → register its exact global-conversational public commercial catalog binding once using private files → scheduler claims one due route → resolve the current CSV link with the fixed Telnyx API endpoint → reread genuine official source bytes and current provider ownership → validate route/FX and current registration → defer if a quote remains active → atomically insert a new immutable revision and retire only its exact predecessor → record coarse maintenance results.
 
 **Failure and recovery:** Reject ambiguous/stale sources, identity drift, expired independent operator authority, lost leases and concurrent predecessor changes. Preserve historical quotes and source dates. Back off on failure; existing valid pricing may continue only under its original bounds, while expired pricing fails closed. No sending, mandate, consent or paid infrastructure is created.
+
+## J42: Find and organize authorized table rows
+
+**Actor:** Authenticated browser reader with the current page’s data authority; Belvédère retains separate platform access · **Branch:** Operate
+
+Open an authorized operational list → search the loaded rows or use the existing server search → apply an available categorical filter → select a column and direction from its header or narrow-layout control → choose the browser page size and navigate results → explicitly load older cursor records when needed. Server-paged Belvédère lists retain their existing paginator and identify current-page sorting. Cards follow the available container width; surrounding page controls reflow.
+
+**Failure and recovery:** Unloaded records are not silently fetched or included in local search. Changing controls resets the browser page, shrinking results clamps it, and empty results retain a clear-filters action. Loading/denial/error and account/tenant guards remain the owning page’s responsibility; no state persistence, new read scope, approval, send, paid action, mandate or REST/MCP/native capability is added.
+
+## J43: Local role and volume simulation
+
+**Actor:** Local developer using explicitly fictional browser profiles · **Branch:** DEV + public-preview + loopback only; interactive default and read-only virtual volumes are distinct; dedicated platform fixture has no real authority.
+
+Open Local simulation → select a fictional role or separate platform profile → choose a volume and seed → apply after any unsaved-work veto → inspect Correspondence, Studio and My documents → use the fictional platform link for read-only Belvedere → page/search/sort bounded metadata or reroll the reproducible scenario.
+
+**Failure and recovery:** Invalid seeds/counts/cursors, stale actors/scenarios and unsupported generated writes fail locally; no backend fallback. Logical billion-row counts qualify interface behavior only, never actual database throughput, authentication, receipt, approval or delivery.

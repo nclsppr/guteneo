@@ -65,6 +65,7 @@ import { ApplicationSwitcher } from "./space-switcher";
 import { WorkspaceIdentity } from "./workspace-identity";
 import { api, setSession, type Session } from "./api";
 import { WorkspaceRouteProvider } from "./components";
+import { DataTable } from "./data-table";
 import "./belvedere.css";
 
 const BelvedereGlobe = lazy(() =>
@@ -812,24 +813,6 @@ function Search({
     </label>
   );
 }
-function DataTable({
-  children,
-  label,
-}: {
-  children: ReactNode;
-  label: string;
-}) {
-  return (
-    <div
-      className="bv-table-scroll"
-      tabIndex={0}
-      role="region"
-      aria-label={label}
-    >
-      <table>{children}</table>
-    </div>
-  );
-}
 
 function Overview(
   props: ViewProps & {
@@ -1211,32 +1194,53 @@ function ActivityChart({ data }: { data: BelvedereOverview["trend"] }) {
           </div>
           <details className="bv-chart-table">
             <summary>{bmsg("Show chart values")}</summary>
-            <DataTable label={bmsg("Daily values")}>
-              <thead>
-                <tr>
-                  <th>{bmsg("Date")}</th>
-                  <th className="bv-numeric">{bmsg("Dispatches")}</th>
-                  <th className="bv-numeric">
-                    {bmsgIn("belvedere-plural", "Delivered")}
-                  </th>
-                  <th className="bv-numeric">{bmsg("Connections")}</th>
-                  <th className="bv-numeric">{bmsg("Consumption")}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.map((item) => (
-                  <tr key={item.date}>
-                    <td>{shortDate(item.date)}</td>
-                    <td className="bv-numeric">{number(item.dispatches)}</td>
-                    <td className="bv-numeric">{number(item.delivered)}</td>
-                    <td className="bv-numeric">{number(item.connections)}</td>
-                    <td className="bv-numeric">
-                      {money(item.consumptionMinor)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </DataTable>
+            <DataTable
+              label={bmsg("Daily values")}
+              className="bv-data-table"
+              items={data}
+              getRowKey={(item) => item.date}
+              columns={[
+                {
+                  id: "date",
+                  label: bmsg("Date"),
+                  value: (item) => item.date,
+                  searchValue: (item) => shortDate(item.date),
+                  render: (item) => <>{shortDate(item.date)}</>,
+                },
+                {
+                  id: "dispatches",
+                  label: bmsg("Dispatches"),
+                  value: (item) => item.dispatches,
+                  searchValue: (item) => number(item.dispatches),
+                  className: "bv-numeric",
+                  render: (item) => <>{number(item.dispatches)}</>,
+                },
+                {
+                  id: "delivered",
+                  label: bmsgIn("belvedere-plural", "Delivered"),
+                  value: (item) => item.delivered,
+                  searchValue: (item) => number(item.delivered),
+                  className: "bv-numeric",
+                  render: (item) => <>{number(item.delivered)}</>,
+                },
+                {
+                  id: "connections",
+                  label: bmsg("Connections"),
+                  value: (item) => item.connections,
+                  searchValue: (item) => number(item.connections),
+                  className: "bv-numeric",
+                  render: (item) => <>{number(item.connections)}</>,
+                },
+                {
+                  id: "consumption",
+                  label: bmsg("Consumption"),
+                  value: (item) => item.consumptionMinor,
+                  searchValue: (item) => money(item.consumptionMinor),
+                  className: "bv-numeric",
+                  render: (item) => <>{money(item.consumptionMinor)}</>,
+                },
+              ]}
+            />
           </details>
         </>
       )}
@@ -1404,24 +1408,21 @@ function Workshops({
             : bmsg("Change the data filter to view other workshops.")}
         </Empty>
       ) : (
-        <DataTable label={bmsg("Workshops and consumption")}>
-          <thead>
-            <tr>
-              <th>{bmsg("Workshop")}</th>
-              <th className="bv-numeric">{bmsg("Members")}</th>
-              <th className="bv-numeric">{bmsg("Dispatches")}</th>
-              <th className="bv-numeric">{bmsg("Consumption")}</th>
-              <th>{bmsg("Needs attention")}</th>
-              <th>{bmsg("Last activity")}</th>
-              <th>
-                <span className="sr-only">{bmsg("Details")}</span>
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.items.map((item) => (
-              <tr key={item.id}>
-                <td>
+        <DataTable
+          label={bmsg("Workshops and consumption")}
+          className="bv-data-table"
+          items={data.items}
+          getRowKey={(item) => item.id}
+          searchable={false}
+          pagination={false}
+          scope="page"
+          columns={[
+            {
+              id: "workshop",
+              label: bmsg("Workshop"),
+              value: (item) => item.name,
+              render: (item) => (
+                <>
                   <button
                     className="bv-table-link"
                     onClick={() => openWorkshop(item)}
@@ -1429,23 +1430,52 @@ function Workshops({
                     {item.name}
                   </button>
                   <Mode mode={item.mode} />
-                </td>
-                <td className="bv-numeric">{number(item.members)}</td>
-                <td className="bv-numeric">
+                </>
+              ),
+            },
+            {
+              id: "members",
+              label: bmsg("Members"),
+              value: (item) => item.members,
+              className: "bv-numeric",
+              render: (item) => <>{number(item.members)}</>,
+            },
+            {
+              id: "dispatches",
+              label: bmsg("Dispatches"),
+              value: (item) => item.dispatches,
+              className: "bv-numeric",
+              render: (item) => (
+                <>
                   {number(item.dispatches)}
                   <small>
                     {number(item.pages)}
                     {bmsg(" pages")}
                   </small>
-                </td>
-                <td className="bv-numeric bv-emphasis">
+                </>
+              ),
+            },
+            {
+              id: "consumption",
+              label: bmsg("Consumption"),
+              value: (item) => item.consumptionMinor,
+              className: "bv-numeric bv-emphasis",
+              render: (item) => (
+                <>
                   {money(item.consumptionMinor)}
                   <small>
                     {money(item.reservedMinor)}
                     {bmsg(" reserved")}
                   </small>
-                </td>
-                <td>
+                </>
+              ),
+            },
+            {
+              id: "attention",
+              label: bmsg("Needs attention"),
+              value: (item) => item.attention,
+              render: (item) => (
+                <>
                   {item.attention > 0 ? (
                     <span className="bv-status bv-status-warning">
                       {number(item.attention)}
@@ -1457,11 +1487,23 @@ function Workshops({
                       {bmsg("Nothing to report")}
                     </span>
                   )}
-                </td>
-                <td className="bv-date-cell">
-                  {dateTime(item.lastActivityAt)}
-                </td>
-                <td>
+                </>
+              ),
+            },
+            {
+              id: "activity",
+              label: bmsg("Last activity"),
+              value: (item) => item.lastActivityAt,
+              className: "bv-date-cell",
+              render: (item) => <>{dateTime(item.lastActivityAt)}</>,
+            },
+            {
+              id: "actions",
+              label: bmsg("Details"),
+              value: (item) => item.id,
+              sortable: false,
+              render: (item) => (
+                <>
                   <button
                     className="bv-icon-button"
                     onClick={() => openWorkshop(item)}
@@ -1469,11 +1511,11 @@ function Workshops({
                   >
                     <ArrowUpRight size={18} />
                   </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </DataTable>
+                </>
+              ),
+            },
+          ]}
+        />
       )}
       {data && (
         <Pagination data={data} onChange={setPage} label={bmsg("workshops")} />
@@ -1616,36 +1658,65 @@ function WorkshopDetail({
               )}
             </SectionHeading>
             {data.dispatches.items.length ? (
-              <DataTable label={bmsg("Workshop dispatches")}>
-                <thead>
-                  <tr>
-                    <th>{bmsg("Dispatch")}</th>
-                    <th>{bmsg("Channel / mode")}</th>
-                    <th>{bmsg("Status")}</th>
-                    <th className="bv-numeric">{bmsg("Pages")}</th>
-                    <th className="bv-numeric">{bmsg("Consumed")}</th>
-                    <th className="bv-numeric">{bmsg("Reserved")}</th>
-                    <th className="bv-numeric">{bmsg("Provider cost")}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {data.dispatches.items.map((dispatch) => (
-                    <tr key={dispatch.id}>
-                      <td>
+              <DataTable
+                label={bmsg("Workshop dispatches")}
+                className="bv-data-table"
+                items={data.dispatches.items}
+                getRowKey={(dispatch) => dispatch.id}
+                searchable={false}
+                pagination={false}
+                scope="page"
+                columns={[
+                  {
+                    id: "dispatch",
+                    label: bmsg("Dispatch"),
+                    value: (dispatch) => dispatch.id,
+                    render: (dispatch) => (
+                      <>
                         <code title={dispatch.id}>{dispatch.id}</code>
                         <small>{dateTime(dispatch.createdAt)}</small>
-                      </td>
-                      <td>
+                      </>
+                    ),
+                  },
+                  {
+                    id: "channel",
+                    label: bmsg("Channel / mode"),
+                    value: (dispatch) => channelName(dispatch.channel),
+                    render: (dispatch) => (
+                      <>
                         <strong>{channelName(dispatch.channel)}</strong>
                         <Mode mode={dispatch.mode} />
-                      </td>
-                      <td>
+                      </>
+                    ),
+                  },
+                  {
+                    id: "status",
+                    label: bmsg("Status"),
+                    value: (dispatch) => statusName(dispatch.status),
+                    render: (dispatch) => (
+                      <>
                         <Status value={dispatch.status} />
-                      </td>
-                      <td className="bv-numeric">
+                      </>
+                    ),
+                  },
+                  {
+                    id: "pages",
+                    label: bmsg("Pages"),
+                    value: (dispatch) => dispatch.pages,
+                    className: "bv-numeric",
+                    render: (dispatch) => (
+                      <>
                         {dispatch.pages === null ? "—" : number(dispatch.pages)}
-                      </td>
-                      <td className="bv-numeric bv-emphasis">
+                      </>
+                    ),
+                  },
+                  {
+                    id: "consumed",
+                    label: bmsg("Consumed"),
+                    value: (dispatch) => dispatch.customerActualMinor,
+                    className: "bv-numeric bv-emphasis",
+                    render: (dispatch) => (
+                      <>
                         {dispatch.customerActualMinor === null ? (
                           <span className="bv-subtle">
                             {bmsg("Not finalised")}
@@ -1666,11 +1737,23 @@ function WorkshopDetail({
                           {bmsg("Limit: ")}
                           {money(dispatch.ceilingMinor)}
                         </small>
-                      </td>
-                      <td className="bv-numeric">
-                        {money(dispatch.reservedMinor)}
-                      </td>
-                      <td className="bv-numeric">
+                      </>
+                    ),
+                  },
+                  {
+                    id: "reserved",
+                    label: bmsg("Reserved"),
+                    value: (dispatch) => dispatch.reservedMinor,
+                    className: "bv-numeric",
+                    render: (dispatch) => <>{money(dispatch.reservedMinor)}</>,
+                  },
+                  {
+                    id: "provider",
+                    label: bmsg("Provider cost"),
+                    value: (dispatch) => dispatch.supplierVerifiedMinor,
+                    className: "bv-numeric",
+                    render: (dispatch) => (
+                      <>
                         {dispatch.supplierVerifiedMinor === null ? (
                           <span className="bv-subtle">
                             {bmsg("Unverified")}
@@ -1681,11 +1764,11 @@ function WorkshopDetail({
                             dispatch.supplierCurrency || "EUR",
                           )
                         )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </DataTable>
+                      </>
+                    ),
+                  },
+                ]}
+              />
             ) : (
               <Empty title={bmsg("No dispatches in this period.")}>
                 {bmsg("Choose another period to view this workshop’s history.")}
@@ -1755,20 +1838,21 @@ function Members({
           {bmsg("Try another name, email address or mode.")}
         </Empty>
       ) : (
-        <DataTable label={bmsg("Members and access")}>
-          <thead>
-            <tr>
-              <th>{bmsg("Member")}</th>
-              <th>{bmsg("Workshops and roles")}</th>
-              <th className="bv-numeric">{bmsg("Active connections")}</th>
-              <th>{bmsg("Last observed connection")}</th>
-              <th>{bmsg("Registration")}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.items.map((member) => (
-              <tr key={member.id}>
-                <td>
+        <DataTable
+          label={bmsg("Members and access")}
+          className="bv-data-table"
+          items={data.items}
+          getRowKey={(member) => member.id}
+          searchable={false}
+          pagination={false}
+          scope="page"
+          columns={[
+            {
+              id: "member",
+              label: bmsg("Member"),
+              value: (member) => `${member.name} ${member.email}`,
+              render: (member) => (
+                <>
                   <div className="bv-person">
                     <span className="bv-avatar">{initials(member.name)}</span>
                     <div>
@@ -1776,8 +1860,20 @@ function Members({
                       <small>{member.email}</small>
                     </div>
                   </div>
-                </td>
-                <td>
+                </>
+              ),
+            },
+            {
+              id: "workshops",
+              label: bmsg("Workshops and roles"),
+              value: (member) =>
+                member.workshops
+                  .map(
+                    (workshop) => `${workshop.name} ${roleName(workshop.role)}`,
+                  )
+                  .join(" "),
+              render: (member) => (
+                <>
                   <div className="bv-memberships">
                     {member.workshops.map((workshop) => (
                       <div key={workshop.id}>
@@ -1806,16 +1902,32 @@ function Members({
                       </small>
                     )}
                   </div>
-                </td>
-                <td className="bv-numeric">
-                  {number(member.activeConnections)}
-                </td>
-                <td className="bv-date-cell">{dateTime(member.lastSeenAt)}</td>
-                <td className="bv-date-cell">{shortDate(member.createdAt)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </DataTable>
+                </>
+              ),
+            },
+            {
+              id: "connections",
+              label: bmsg("Active connections"),
+              value: (member) => member.activeConnections,
+              className: "bv-numeric",
+              render: (member) => <>{number(member.activeConnections)}</>,
+            },
+            {
+              id: "lastSeen",
+              label: bmsg("Last observed connection"),
+              value: (member) => member.lastSeenAt,
+              className: "bv-date-cell",
+              render: (member) => <>{dateTime(member.lastSeenAt)}</>,
+            },
+            {
+              id: "registered",
+              label: bmsg("Registration"),
+              value: (member) => member.createdAt,
+              className: "bv-date-cell",
+              render: (member) => <>{shortDate(member.createdAt)}</>,
+            },
+          ]}
+        />
       )}
       {data && (
         <Pagination data={data} onChange={setPage} label={bmsg("members")} />
@@ -1926,25 +2038,33 @@ function Connections({ basePath, filters, revision, refresh }: ViewProps) {
         ) : tab === "current" ? (
           <>
             {data.current.items.length ? (
-              <DataTable label={bmsg("Current sessions and authorisations")}>
-                <thead>
-                  <tr>
-                    <th>{bmsg("Person / workshop")}</th>
-                    <th>{bmsg("Access")}</th>
-                    <th>{bmsg("Country")}</th>
-                    <th>{bmsg("Status")}</th>
-                    <th>{bmsg("Last observed connection")}</th>
-                    <th>{bmsg("Expires")}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {data.current.items.map((connection) => (
-                    <tr key={connection.id}>
-                      <td>
+              <DataTable
+                label={bmsg("Current sessions and authorisations")}
+                className="bv-data-table"
+                items={data.current.items}
+                getRowKey={(connection) => connection.id}
+                searchable={false}
+                pagination={false}
+                scope="page"
+                columns={[
+                  {
+                    id: "person",
+                    label: bmsg("Person / workshop"),
+                    value: (connection) =>
+                      `${connection.userName} ${connection.workshopName}`,
+                    render: (connection) => (
+                      <>
                         <strong>{connection.userName}</strong>
                         <small>{connection.workshopName}</small>
-                      </td>
-                      <td>
+                      </>
+                    ),
+                  },
+                  {
+                    id: "access",
+                    label: bmsg("Access"),
+                    value: (connection) => accessName(connection.kind),
+                    render: (connection) => (
+                      <>
                         <span className="bv-access-kind">
                           <Monitor size={16} />
                           {accessName(connection.kind)}
@@ -1953,23 +2073,51 @@ function Connections({ basePath, filters, revision, refresh }: ViewProps) {
                           {bmsg("Created on ")}
                           {shortDate(connection.createdAt)}
                         </small>
-                      </td>
-                      <td>{countryName(connection.country)}</td>
-                      <td>
+                      </>
+                    ),
+                  },
+                  {
+                    id: "country",
+                    label: bmsg("Country"),
+                    value: (connection) => countryName(connection.country),
+                    render: (connection) => (
+                      <>{countryName(connection.country)}</>
+                    ),
+                  },
+                  {
+                    id: "status",
+                    label: bmsg("Status"),
+                    value: (connection) => statusName(connection.status),
+                    render: (connection) => (
+                      <>
                         <Status value={connection.status} />
-                      </td>
-                      <td className="bv-date-cell">
-                        {dateTime(connection.lastSeenAt)}
-                      </td>
-                      <td className="bv-date-cell">
+                      </>
+                    ),
+                  },
+                  {
+                    id: "lastSeen",
+                    label: bmsg("Last observed connection"),
+                    value: (connection) => connection.lastSeenAt,
+                    className: "bv-date-cell",
+                    render: (connection) => (
+                      <>{dateTime(connection.lastSeenAt)}</>
+                    ),
+                  },
+                  {
+                    id: "expires",
+                    label: bmsg("Expires"),
+                    value: (connection) => connection.expiresAt,
+                    className: "bv-date-cell",
+                    render: (connection) => (
+                      <>
                         {connection.expiresAt
                           ? dateTime(connection.expiresAt)
                           : bmsg("No expiry recorded")}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </DataTable>
+                      </>
+                    ),
+                  },
+                ]}
+              />
             ) : (
               <Empty title={bmsg("No sessions in this view.")}>
                 {bmsg("Change the filters or view the connection history.")}
@@ -1984,32 +2132,56 @@ function Connections({ basePath, filters, revision, refresh }: ViewProps) {
         ) : (
           <>
             {data.events.items.length ? (
-              <DataTable label={bmsg("Connection history")}>
-                <thead>
-                  <tr>
-                    <th>{bmsg("Connection date")}</th>
-                    <th>{bmsg("Person")}</th>
-                    <th>{bmsg("Workshop")}</th>
-                    <th>{bmsg("Access")}</th>
-                    <th>{bmsg("Observed country")}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {data.events.items.map((connection) => (
-                    <tr key={connection.id}>
-                      <td className="bv-date-cell">
-                        {dateTime(connection.occurredAt)}
-                      </td>
-                      <td>
+              <DataTable
+                label={bmsg("Connection history")}
+                className="bv-data-table"
+                items={data.events.items}
+                getRowKey={(connection) => connection.id}
+                searchable={false}
+                pagination={false}
+                scope="page"
+                columns={[
+                  {
+                    id: "date",
+                    label: bmsg("Connection date"),
+                    value: (connection) => connection.occurredAt,
+                    className: "bv-date-cell",
+                    render: (connection) => (
+                      <>{dateTime(connection.occurredAt)}</>
+                    ),
+                  },
+                  {
+                    id: "person",
+                    label: bmsg("Person"),
+                    value: (connection) => connection.userName,
+                    render: (connection) => (
+                      <>
                         <strong>{connection.userName}</strong>
-                      </td>
-                      <td>{connection.workshopName}</td>
-                      <td>{accessName(connection.kind)}</td>
-                      <td>{countryName(connection.country)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </DataTable>
+                      </>
+                    ),
+                  },
+                  {
+                    id: "workshop",
+                    label: bmsg("Workshop"),
+                    value: (connection) => connection.workshopName,
+                    render: (connection) => <>{connection.workshopName}</>,
+                  },
+                  {
+                    id: "access",
+                    label: bmsg("Access"),
+                    value: (connection) => accessName(connection.kind),
+                    render: (connection) => <>{accessName(connection.kind)}</>,
+                  },
+                  {
+                    id: "country",
+                    label: bmsg("Observed country"),
+                    value: (connection) => countryName(connection.country),
+                    render: (connection) => (
+                      <>{countryName(connection.country)}</>
+                    ),
+                  },
+                ]}
+              />
             ) : (
               <Empty title={bmsg("No new connections observed.")}>
                 {bmsg(
@@ -2196,20 +2368,26 @@ function Finance({ basePath, filters, revision, refresh }: ViewProps) {
           {bmsg("Months at either end of the period may be incomplete.")}
         </SectionHeading>
         {data.monthly.length ? (
-          <DataTable label={bmsg("Monthly consumption")}>
-            <thead>
-              <tr>
-                <th>{bmsg("Month")}</th>
-                <th className="bv-numeric">{bmsg("Debited dispatches")}</th>
-                <th className="bv-numeric">{bmsg("Dispatches and hosting")}</th>
-                <th className="bv-numeric">{bmsg("Legacy PDF plans")}</th>
-                <th className="bv-numeric">{bmsg("Total consumption")}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.monthly.map((month) => (
-                <tr key={month.month}>
-                  <td>
+          <DataTable
+            label={bmsg("Monthly consumption")}
+            className="bv-data-table"
+            items={data.monthly}
+            getRowKey={(month) => month.month}
+            columns={[
+              {
+                id: "month",
+                label: bmsg("Month"),
+                value: (month) => month.month,
+                searchValue: (month) =>
+                  new Intl.DateTimeFormat(formatLocale(), {
+                    month: "long",
+                    year: "numeric",
+                    timeZone: "UTC",
+                  }).format(
+                    new Date(`${month.month.slice(0, 7)}-01T12:00:00Z`),
+                  ),
+                render: (month) => (
+                  <>
                     {new Intl.DateTimeFormat(formatLocale(), {
                       month: "long",
                       year: "numeric",
@@ -2217,23 +2395,55 @@ function Finance({ basePath, filters, revision, refresh }: ViewProps) {
                     }).format(
                       new Date(`${month.month.slice(0, 7)}-01T12:00:00Z`),
                     )}
-                  </td>
-                  <td className="bv-numeric">{number(month.dispatches)}</td>
-                  <td className="bv-numeric">
+                  </>
+                ),
+              },
+              {
+                id: "dispatches",
+                label: bmsg("Debited dispatches"),
+                value: (month) => month.dispatches,
+                searchValue: (month) => number(month.dispatches),
+                className: "bv-numeric",
+                render: (month) => <>{number(month.dispatches)}</>,
+              },
+              {
+                id: "dispatchConsumption",
+                label: bmsg("Dispatches and hosting"),
+                value: (month) =>
+                  month.consumptionMinor - month.legacyPlanConsumptionMinor,
+                searchValue: (month) =>
+                  money(
+                    month.consumptionMinor - month.legacyPlanConsumptionMinor,
+                  ),
+                className: "bv-numeric",
+                render: (month) => (
+                  <>
                     {money(
                       month.consumptionMinor - month.legacyPlanConsumptionMinor,
                     )}
-                  </td>
-                  <td className="bv-numeric">
-                    {money(month.legacyPlanConsumptionMinor)}
-                  </td>
-                  <td className="bv-numeric bv-emphasis">
-                    {money(month.consumptionMinor)}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </DataTable>
+                  </>
+                ),
+              },
+              {
+                id: "legacyPlans",
+                label: bmsg("Legacy PDF plans"),
+                value: (month) => month.legacyPlanConsumptionMinor,
+                searchValue: (month) => money(month.legacyPlanConsumptionMinor),
+                className: "bv-numeric",
+                render: (month) => (
+                  <>{money(month.legacyPlanConsumptionMinor)}</>
+                ),
+              },
+              {
+                id: "consumption",
+                label: bmsg("Total consumption"),
+                value: (month) => month.consumptionMinor,
+                searchValue: (month) => money(month.consumptionMinor),
+                className: "bv-numeric bv-emphasis",
+                render: (month) => <>{money(month.consumptionMinor)}</>,
+              },
+            ]}
+          />
         ) : (
           <Empty title={bmsg("No consumption recorded in the ledger.")}>
             {bmsg(
@@ -2484,26 +2694,45 @@ function InfrastructureChart({
       </div>
       <details className="bv-chart-table">
         <summary>{bmsg("Show hourly measurements")}</summary>
-        <DataTable label={bmsg("Hourly Cloudflare measurements")}>
-          <thead>
-            <tr>
-              <th>{bmsg("Hour")}</th>
-              <th className="bv-numeric">{bmsg("Requests")}</th>
-              <th className="bv-numeric">{bmsg("Errors")}</th>
-              <th className="bv-numeric">{bmsg("Subrequests")}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {series.map((item) => (
-              <tr key={item.hour}>
-                <td>{dateTime(item.hour)}</td>
-                <td className="bv-numeric">{number(item.requests)}</td>
-                <td className="bv-numeric">{number(item.errors)}</td>
-                <td className="bv-numeric">{number(item.subrequests)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </DataTable>
+        <DataTable
+          label={bmsg("Hourly Cloudflare measurements")}
+          className="bv-data-table"
+          items={series}
+          getRowKey={(item) => item.hour}
+          columns={[
+            {
+              id: "hour",
+              label: bmsg("Hour"),
+              value: (item) => item.hour,
+              searchValue: (item) => dateTime(item.hour),
+              render: (item) => <>{dateTime(item.hour)}</>,
+            },
+            {
+              id: "requests",
+              label: bmsg("Requests"),
+              value: (item) => item.requests,
+              searchValue: (item) => number(item.requests),
+              className: "bv-numeric",
+              render: (item) => <>{number(item.requests)}</>,
+            },
+            {
+              id: "errors",
+              label: bmsg("Errors"),
+              value: (item) => item.errors,
+              searchValue: (item) => number(item.errors),
+              className: "bv-numeric",
+              render: (item) => <>{number(item.errors)}</>,
+            },
+            {
+              id: "subrequests",
+              label: bmsg("Subrequests"),
+              value: (item) => item.subrequests,
+              searchValue: (item) => number(item.subrequests),
+              className: "bv-numeric",
+              render: (item) => <>{number(item.subrequests)}</>,
+            },
+          ]}
+        />
       </details>
     </>
   );
@@ -2561,34 +2790,55 @@ function CloudflareBilling({
               </div>
             ))}
           </div>
-          <DataTable label={bmsg("Cloudflare billable usage by service")}>
-            <thead>
-              <tr>
-                <th>{bmsg("Service")}</th>
-                <th className="bv-numeric">{bmsg("Billable periods")}</th>
-                <th className="bv-numeric">{bmsg("Reported usage")}</th>
-                <th className="bv-numeric">{bmsg("Exact source value")}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.services.map((service) => (
-                <tr key={`${service.service}:${service.currency}`}>
-                  <td>{service.service}</td>
-                  <td className="bv-numeric">
-                    {number(service.chargePeriods)}
-                  </td>
-                  <td className="bv-numeric bv-emphasis">
-                    {money(service.amountMinor, service.currency)}
-                  </td>
-                  <td className="bv-numeric">
+          <DataTable
+            label={bmsg("Cloudflare billable usage by service")}
+            className="bv-data-table"
+            items={data.services}
+            getRowKey={(service) => `${service.service}:${service.currency}`}
+            columns={[
+              {
+                id: "service",
+                label: bmsg("Service"),
+                value: (service) => service.service,
+                render: (service) => <>{service.service}</>,
+              },
+              {
+                id: "periods",
+                label: bmsg("Billable periods"),
+                value: (service) => service.chargePeriods,
+                searchValue: (service) => number(service.chargePeriods),
+                className: "bv-numeric",
+                render: (service) => <>{number(service.chargePeriods)}</>,
+              },
+              {
+                id: "usage",
+                label: bmsg("Reported usage"),
+                value: (service) => service.amountMinor,
+                searchValue: (service) =>
+                  money(service.amountMinor, service.currency),
+                className: "bv-numeric bv-emphasis",
+                render: (service) => (
+                  <>{money(service.amountMinor, service.currency)}</>
+                ),
+              },
+              {
+                id: "source",
+                label: bmsg("Exact source value"),
+                value: (service) => service.reportedAmountDecimal,
+                sortType: "decimal",
+                searchValue: (service) =>
+                  `${service.reportedAmountDecimal} ${service.currency}`,
+                className: "bv-numeric",
+                render: (service) => (
+                  <>
                     <code>
                       {service.reportedAmountDecimal} {service.currency}
                     </code>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </DataTable>
+                  </>
+                ),
+              },
+            ]}
+          />
           <p className="bv-source-note">
             {bmsg(
               "Amounts rounded to the nearest minor unit after aggregating each subtotal; no currency conversion.",
@@ -2866,22 +3116,21 @@ function Jobs({
             )}
           </Empty>
         ) : (
-          <DataTable label={bmsg("All dispatches and their costs")}>
-            <thead>
-              <tr>
-                <th>{bmsg("Dispatch / workshop")}</th>
-                <th>{bmsg("Channel")}</th>
-                <th>{bmsg("Destination")}</th>
-                <th>{bmsg("Status")}</th>
-                <th className="bv-numeric">{bmsg("Customer consumption")}</th>
-                <th className="bv-numeric">{bmsg("Reserved")}</th>
-                <th className="bv-numeric">{bmsg("Provider cost")}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.items.map((job) => (
-                <tr key={job.id}>
-                  <td>
+          <DataTable
+            label={bmsg("All dispatches and their costs")}
+            className="bv-data-table"
+            items={data.items}
+            getRowKey={(job) => job.id}
+            searchable={false}
+            pagination={false}
+            scope="page"
+            columns={[
+              {
+                id: "dispatch",
+                label: bmsg("Dispatch / workshop"),
+                value: (job) => `${job.workshopName} ${job.id}`,
+                render: (job) => (
+                  <>
                     <button
                       className="bv-table-link"
                       onClick={() =>
@@ -2896,8 +3145,15 @@ function Jobs({
                     </button>
                     <code>{job.id}</code>
                     <small>{dateTime(job.createdAt)}</small>
-                  </td>
-                  <td>
+                  </>
+                ),
+              },
+              {
+                id: "channel",
+                label: bmsg("Channel"),
+                value: (job) => channelName(job.channel),
+                render: (job) => (
+                  <>
                     <strong>{channelName(job.channel)}</strong>
                     <Mode mode={job.mode} />
                     <small>
@@ -2910,12 +3166,32 @@ function Jobs({
                           ? bmsg(" · Attachment")
                           : ""}
                     </small>
-                  </td>
-                  <td>{countryName(job.destinationCountry)}</td>
-                  <td>
+                  </>
+                ),
+              },
+              {
+                id: "destination",
+                label: bmsg("Destination"),
+                value: (job) => countryName(job.destinationCountry),
+                render: (job) => <>{countryName(job.destinationCountry)}</>,
+              },
+              {
+                id: "status",
+                label: bmsg("Status"),
+                value: (job) => statusName(job.status),
+                render: (job) => (
+                  <>
                     <Status value={job.status} />
-                  </td>
-                  <td className="bv-numeric bv-emphasis">
+                  </>
+                ),
+              },
+              {
+                id: "consumption",
+                label: bmsg("Customer consumption"),
+                value: (job) => job.customerActualMinor,
+                className: "bv-numeric bv-emphasis",
+                render: (job) => (
+                  <>
                     {job.customerActualMinor === null ? (
                       <span className="bv-subtle">{bmsg("Not finalised")}</span>
                     ) : (
@@ -2928,15 +3204,31 @@ function Jobs({
                       {bmsg("Hosting: ")}
                       {money(job.hostingFeeMinor ?? 0)}
                     </small>
-                  </td>
-                  <td className="bv-numeric">
+                  </>
+                ),
+              },
+              {
+                id: "reserved",
+                label: bmsg("Reserved"),
+                value: (job) => job.reservedMinor,
+                className: "bv-numeric",
+                render: (job) => (
+                  <>
                     {money(job.reservedMinor)}
                     <small>
                       {bmsg("Limit: ")}
                       {money(job.ceilingMinor)}
                     </small>
-                  </td>
-                  <td className="bv-numeric">
+                  </>
+                ),
+              },
+              {
+                id: "provider",
+                label: bmsg("Provider cost"),
+                value: (job) => job.supplierVerifiedMinor,
+                className: "bv-numeric",
+                render: (job) => (
+                  <>
                     {job.supplierVerifiedMinor === null ? (
                       <span className="bv-subtle">{bmsg("Unverified")}</span>
                     ) : (
@@ -2945,11 +3237,11 @@ function Jobs({
                         job.supplierCurrency || "EUR",
                       )
                     )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </DataTable>
+                  </>
+                ),
+              },
+            ]}
+          />
         )}
         {data && (
           <Pagination

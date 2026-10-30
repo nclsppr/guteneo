@@ -4,15 +4,63 @@ import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { resolve, extname, sep } from "node:path";
 import { fixtureBase, fixtureResponse } from "../tests/fixtures/belvedere.ts";
+import {
+  LocalBelvedereScenarioError,
+  localBelvedereLanguage,
+  localBelvedereResponse,
+  localBelvedereScenario,
+} from "../tests/fixtures/local-belvedere.ts";
 
 const root = resolve(fileURLToPath(new URL("../dist/web/", import.meta.url)));
 const port = Number(process.env.GUTENEO_BELVEDERE_PREVIEW_PORT || 8794);
 if (!Number.isInteger(port) || port < 1024 || port > 65535)
   throw new Error("Invalid local preview port");
-const shell = (await readFile(resolve(root, "index.html"), "utf8")).replace(
-  "<head>",
-  `<head><meta name="guteneo-belvedere" content="${fixtureBase}"><meta name="guteneo-belvedere-demo" content="true">`,
-);
+const index = await readFile(resolve(root, "index.html"), "utf8");
+const shell = (basePath = fixtureBase) =>
+  index.replace(
+    "<head>",
+    `<head><meta name="guteneo-belvedere" content="${basePath}"><meta name="guteneo-belvedere-demo" content="true">`,
+  );
+const scenarioPrefix = `${fixtureBase}/scenario/`;
+function scenarioPath(scenario) {
+  return (
+    scenarioPrefix + Buffer.from(JSON.stringify(scenario)).toString("base64url")
+  );
+}
+function scenarioFromToken(token) {
+  if (
+    !/^[A-Za-z0-9_-]{1,2048}$/.test(token) ||
+    Buffer.from(token, "base64url").toString("base64url") !== token
+  )
+    throw new LocalBelvedereScenarioError();
+  let parsed;
+  try {
+    parsed = JSON.parse(Buffer.from(token, "base64url").toString("utf8"));
+  } catch {
+    throw new LocalBelvedereScenarioError();
+  }
+  if (
+    !parsed ||
+    typeof parsed.seed !== "string" ||
+    !parsed.counts ||
+    typeof parsed.counts !== "object" ||
+    Array.isArray(parsed.counts) ||
+    !Number.isSafeInteger(parsed.members) ||
+    !Number.isSafeInteger(parsed.connections)
+  )
+    throw new LocalBelvedereScenarioError();
+  const scenario = localBelvedereScenario(
+    new URLSearchParams({
+      seed: parsed.seed,
+      counts: JSON.stringify(parsed.counts),
+      members: String(parsed.members),
+      connections: String(parsed.connections),
+    }),
+  );
+  if (scenarioPath(scenario) !== scenarioPrefix + token)
+    throw new LocalBelvedereScenarioError();
+  return scenario;
+}
 const mime = {
   ".js": "text/javascript; charset=utf-8",
   ".css": "text/css; charset=utf-8",
@@ -42,13 +90,53 @@ const server = createServer(async (req, res) => {
   }
   const url = new URL(req.url, `http://127.0.0.1:${port}`);
   try {
+    if (url.pathname === "/scenario") {
+      const scenario = localBelvedereScenario(url.searchParams);
+      const language = localBelvedereLanguage(url.searchParams);
+      res.writeHead(302, {
+        Location:
+          scenarioPath(scenario) + (language ? `?lang=${language}` : ""),
+      });
+      res.end();
+      return;
+    }
+    if (url.pathname.startsWith(scenarioPrefix)) {
+      const tail = url.pathname.slice(scenarioPrefix.length);
+      const separator = tail.indexOf("/api/");
+      const token =
+        separator < 0 ? tail.replace(/\/$/, "") : tail.slice(0, separator);
+      const scenario = scenarioFromToken(token);
+      const basePath = scenarioPath(scenario);
+      if (separator < 0) {
+        res.setHeader("Content-Type", "text/html; charset=utf-8");
+        res.end(req.method === "HEAD" ? undefined : shell(basePath));
+      } else {
+        const normalized = new URL(url);
+        normalized.pathname = `${fixtureBase}${tail.slice(separator)}`;
+        const data = localBelvedereResponse(normalized, scenario);
+        res.writeHead(data ? 200 : 404, { "Content-Type": "application/json" });
+        res.end(
+          req.method === "HEAD"
+            ? undefined
+            : JSON.stringify(
+                data ?? {
+                  error: {
+                    code: "FIXTURE_ROUTE_MISSING",
+                    message: "Fictional data unavailable.",
+                  },
+                },
+              ),
+        );
+      }
+      return;
+    }
     if (
       url.pathname === "/" ||
       url.pathname === fixtureBase ||
       url.pathname === fixtureBase + "/"
     ) {
       res.setHeader("Content-Type", "text/html; charset=utf-8");
-      res.end(req.method === "HEAD" ? undefined : shell);
+      res.end(req.method === "HEAD" ? undefined : shell());
       return;
     }
     if (url.pathname.startsWith(fixtureBase + "/api/")) {
@@ -77,7 +165,18 @@ const server = createServer(async (req, res) => {
     const bytes = await readFile(file);
     res.setHeader("Content-Type", mime[extname(file)]);
     res.end(req.method === "HEAD" ? undefined : bytes);
-  } catch {
+  } catch (error) {
+    if (error instanceof LocalBelvedereScenarioError) {
+      res.writeHead(400, { "Content-Type": "application/json" });
+      res.end(
+        req.method === "HEAD"
+          ? undefined
+          : JSON.stringify({
+              error: { code: "INVALID_LOCAL_SCENARIO", message: error.message },
+            }),
+      );
+      return;
+    }
     res.writeHead(404);
     res.end();
   }

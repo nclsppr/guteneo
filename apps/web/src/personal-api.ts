@@ -1,4 +1,4 @@
-import { ApiError } from "./api";
+import { ApiError, isPublicPreview } from "./api";
 import { getLocale } from "./locale";
 import { msg } from "./messages";
 import type { SupportedLocale } from "../../../packages/contracts/src/locale";
@@ -36,6 +36,25 @@ export type PersonalSessionRead = {
   signal: AbortSignal;
 };
 
+async function localPreview() {
+  if (
+    !isPublicPreview ||
+    !import.meta.env.DEV ||
+    typeof location === "undefined" ||
+    !["127.0.0.1", "localhost", "[::1]"].includes(location.hostname)
+  )
+    return null;
+  const [{ publicPreview, PreviewError }, { createPreviewPersonal }] =
+    await Promise.all([import("./preview"), import("./preview-personal")]);
+  if (!publicPreview.advancedLocal)
+    throw new ApiError(
+      "PREVIEW_LOCAL_ONLY",
+      "The fictional personal area is unavailable in this context.",
+      403,
+    );
+  return { adapter: createPreviewPersonal(publicPreview), PreviewError };
+}
+
 export async function personalApi<T>(
   path: string,
   session?: Pick<PersonalSession, "csrfToken">,
@@ -46,6 +65,19 @@ export async function personalApi<T>(
     signal?: AbortSignal;
   } = {},
 ): Promise<T> {
+  const local = await localPreview();
+  if (local) {
+    try {
+      return (await local.adapter.request(path, {
+        ...init,
+        csrfToken: session?.csrfToken,
+      })) as T;
+    } catch (error) {
+      if (error instanceof local.PreviewError)
+        throw new ApiError(error.code, error.message, error.status);
+      throw error;
+    }
+  }
   const method = init.method ?? "GET";
   const headers: Record<string, string> = {
     Accept: "application/json",
@@ -102,6 +134,30 @@ export async function personalBlob(
     expectedType?: "image" | "pdf";
   } = {},
 ): Promise<Blob> {
+  const local = await localPreview();
+  if (local) {
+    try {
+      const value = await local.adapter.blob(path, {
+        ...init,
+        csrfToken: session.csrfToken,
+      });
+      if (
+        (init.expectedType === "image" &&
+          !["image/png", "image/jpeg", "image/webp"].includes(value.type)) ||
+        (init.expectedType === "pdf" && value.type !== "application/pdf")
+      )
+        throw new ApiError(
+          "DOCUMENT_UNAVAILABLE",
+          msg("This document cannot be displayed."),
+          502,
+        );
+      return value;
+    } catch (error) {
+      if (error instanceof local.PreviewError)
+        throw new ApiError(error.code, error.message, error.status);
+      throw error;
+    }
+  }
   const method = init.method ?? "GET";
   const headers: Record<string, string> = { "Accept-Language": getLocale() };
   if (method !== "GET") headers["X-CSRF-Token"] = session.csrfToken;

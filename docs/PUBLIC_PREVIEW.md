@@ -1,6 +1,6 @@
 # Public design preview — updated 2026-10-26
 
-The user originally requested an immediate Cloudflare deployment to inspect the existing design. The separate preview is now at **https://guteneo-preview.nclsppr.workers.dev**, with its fictional workspace at **https://guteneo-preview.nclsppr.workers.dev/#/app**. Since the controlled switch on 17 September 2026 at 01:11 UTC, **https://guteneo.com** serves the production-mode application, with Auth0 configured and live sending disabled. Do not run the fictional-preview journeys against that canonical application. Only the read-only developer and SEO specs support the explicit `GUTENEO_PUBLIC_APP=1` mode for canonical qualification; never run the fictional workspace journeys there. See [LIVE_RELEASE.md](LIVE_RELEASE.md) for its current release and remaining account qualification.
+The user originally requested an immediate Cloudflare deployment to inspect the existing design. The separate preview is now at **https://guteneo-preview.nclsppr.workers.dev**, with its fictional workspace at **https://guteneo-preview.nclsppr.workers.dev/#/app**. Since the controlled switch on 17 September 2026 at 01:11 UTC, **https://guteneo.com** serves the production-mode application, with authenticated accounts and channel availability governed by its current configuration and provider gates. Do not run the fictional-preview journeys against that canonical application. Only the read-only developer and SEO specs support the explicit `GUTENEO_PUBLIC_APP=1` mode for canonical qualification; never run the fictional workspace journeys there. See [LIVE_RELEASE.md](LIVE_RELEASE.md) for its current release and remaining account qualification.
 
 The separate `guteneo-preview` Worker serves the React application built with `VITE_PUBLIC_PREVIEW=true`. The first deployment version was `71f30997-dfbd-4f70-a4ce-10cfa4367e81`. `/release.json` records the currently deployed source commit, whether local changes were included, the source snapshot digest and individual asset digests. `/health` identifies the preview mode and closed live-send gate. These endpoints are public evidence; a successful local build alone is not deployment proof.
 
@@ -13,6 +13,61 @@ This candidate has been reconciled with `main` at `c81ea94` for release `1.1.3`;
 The preview build generates the same static `/integrations/guteneo-plugin.zip` and `integrations/manifest.json` as the application build, using the synchronized plugin sources. The ChatGPT guide can therefore offer a real downloadable archive. The archive and manifest are covered by the preview release asset hashes; an outdated MCP/package fingerprint stops the build. See the [mandatory synchronization procedure](LLM_SETUP.md#mandatory-mcp-plugin-and-archive-synchronization).
 
 Opening the guide or downloading the archive makes no backend call. The package contains the production endpoint `https://guteneo.com/mcp`; importing it into ChatGPT is a separate user action requiring the real Guteneo authentication and permissions. The preview does not provide a fictional MCP endpoint or activate a connection. Its browser-only fixture model and `ASSETS`-only Worker remain unchanged. Building or downloading the ZIP does not qualify installation, OAuth, a tool call or marketplace publication, and this candidate has not been deployed by this work.
+
+## Local roles and large-volume fixtures — 30 October 2026 candidate
+
+The loopback Vite development preview adds a collapsible **Local simulation**
+control bar. Run `VITE_PUBLIC_PREVIEW=true npm run dev:web -- --host 127.0.0.1
+--port 8791 --strictPort`, then open the local workspace. A separate
+`npm run preview:belvedere` process serves the fictional read-only control tower.
+The DEV flag, preview flag and loopback hostname are all required; built public
+preview and production accounts do not expose these developer controls.
+
+Five fictional accounts represent the four membership roles: administrator,
+supervisor (approval/reporting options on), operator and observer, plus a separate
+observer account with the local platform-access hint. This hint authorizes no real
+platform request. Accounts are in-memory fixture identities; switching them creates
+no Auth0 account, membership, session, mandate or communication. Existing unsaved
+navigation guards can veto a scenario change. Applying a profile/seed remounts
+application state, and scoped IDs, cursors and late-response guards reject prior
+account/scenario data. No scenario preference persists after reload.
+
+Choose the interactive default, or seeded Small, Large, Huge and Extreme metadata
+sets. Each collection receives its own reproducible count within the selected
+range, through one billion logical documents, dispatches, templates, datasets or
+generations. The bar displays actual counts and offers a new random seed. Logical
+collections generate at most fifty records per read; indexed lookup and pagination
+never allocate an array proportional to the logical total. Studio source pages
+retain bounded coordinate samples. Requested fictional PDF bytes and page images
+are generated only on explicit opening, with bounded caches. These are browser
+navigation/data-shape tests, not a measurement of a billion-row database or provider
+throughput. Domain upload, scan, generation, price and recipient limits remain
+unchanged.
+
+The interactive default retains its existing fictional preparation/review flows.
+Generated volume scenarios are read-only and explicitly labelled: they never
+pretend that synthetic metadata is an approved quote, actual receipt or completed
+delivery. Personal document fixtures have no original-download or personal-deposit
+permission and no audit evidence. Personal bulk lookup accepts an exact document
+number or fixture identifier; unsupported free-text search fails explicitly rather
+than scanning virtual billions of rows. Local personal transport cannot fall through to
+the real backend after a fixture refusal.
+
+Only the fictional platform account sees the local Belvédère destination. Its
+separate loopback GET/HEAD-only server retains the selected seed/counts and locale
+in an encoded scenario path; it has no credentials, database, CORS grant or real
+platform capability. The seven views use bounded generated pages and arithmetic
+counts, and the default dedicated fixture remains compatible with prior tests.
+Production canonical Belvédère continues to check its actual authenticated
+platform authority on every read.
+
+Source contracts: `preview-data.ts`, `preview.ts`, `preview-studio.ts`,
+`preview-personal.ts`, `local-preview.ts` and `local-preview-controls.tsx` under
+`apps/web/src`; the dedicated local server and `tests/fixtures/local-belvedere.ts`
+remain server/test-only. `playwright.local-preview.config.ts` is a separate DEV
+qualification configuration; hosted CI's production/browser-preview inventory and
+coverage remain unchanged. Local unit and browser evidence, hosted checks and
+actual deployment are qualified separately.
 
 ## What is interactive
 

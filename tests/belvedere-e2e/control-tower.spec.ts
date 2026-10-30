@@ -147,6 +147,131 @@ test("workshop search, detail and paginated consumption keep recipient content p
   ).toBeVisible();
 });
 
+test("shared column sorting reorders only the current server page without new reads", async ({
+  page,
+}) => {
+  const reads: string[] = [];
+  const writes: string[] = [];
+  page.on("request", (request) => {
+    if (!request.url().includes("/api/")) return;
+    if (["GET", "HEAD"].includes(request.method())) reads.push(request.url());
+    else writes.push(request.url());
+  });
+  await ready(page);
+  await navigate(page, "Espaces de travail");
+  const table = page.locator(".bv-data-table").first();
+  const names = table.locator('tbody [data-column="workshop"] .bv-table-link');
+  await expect(names).toHaveCount(6);
+  await expect(table.getByRole("searchbox")).toHaveCount(0);
+  await expect(table.locator(".data-table__pagination")).toHaveCount(0);
+  const expected = (await names.allTextContents()).sort((a, b) =>
+    a.localeCompare(b, "fr-FR", { numeric: true, sensitivity: "base" }),
+  );
+  const readsBefore = [...reads];
+  const mobileSort = table.locator(".data-table__mobile-sort");
+  const header = table.locator("thead th").first();
+  if (await mobileSort.isVisible()) {
+    await mobileSort.getByRole("combobox").selectOption("workshop");
+  } else {
+    await header.getByRole("button").click();
+  }
+  await expect(header).toHaveAttribute("aria-sort", "ascending");
+  await expect(names).toHaveText(expected);
+  if (await mobileSort.isVisible()) {
+    await mobileSort.getByRole("button").click();
+  } else {
+    await header.getByRole("button").click();
+  }
+  await expect(header).toHaveAttribute("aria-sort", "descending");
+  await expect(names).toHaveText([...expected].reverse());
+  expect(reads).toEqual(readsBefore);
+  expect(writes).toEqual([]);
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= window.innerWidth + 1,
+    ),
+  ).toBe(true);
+});
+
+test("exact provider decimals sort numerically and retain their source text", async ({
+  page,
+}) => {
+  await page.route("**/api/infrastructure/billing", (route) => {
+    const data = fixtureResponse(new URL(route.request().url())) as Record<
+      string,
+      unknown
+    >;
+    return route.fulfill({
+      json: {
+        ...data,
+        status: "ok",
+        lineCount: 3,
+        totals: [
+          {
+            currency: "USD",
+            amountMinor: 110,
+            reportedAmountDecimal: "1.10000000000000001",
+          },
+        ],
+        services: ["0.9", "0.10000000000000001", "0.10"].map(
+          (value, index) => ({
+            service: "Synthetic service " + index,
+            currency: "USD",
+            amountMinor: index === 0 ? 90 : 10,
+            reportedAmountDecimal: value,
+            chargePeriods: 1,
+          }),
+        ),
+      },
+    });
+  });
+  const reads: string[] = [];
+  const writes: string[] = [];
+  page.on("request", (request) => {
+    if (!request.url().includes("/api/")) return;
+    if (["GET", "HEAD"].includes(request.method())) reads.push(request.url());
+    else writes.push(request.url());
+  });
+  await ready(page);
+  await navigate(page, "Infrastructure");
+  const table = page.locator(".bv-data-table").first();
+  const values = table.locator('tbody [data-column="source"] code');
+  await expect(values).toHaveText([
+    "0.9 USD",
+    "0.10000000000000001 USD",
+    "0.10 USD",
+  ]);
+  const readsBefore = [...reads];
+  const mobileSort = table.locator(".data-table__mobile-sort");
+  const header = table.locator("thead th").nth(3);
+  if (await mobileSort.isVisible()) {
+    await mobileSort.getByRole("combobox").selectOption("source");
+  } else {
+    await header.getByRole("button").click();
+  }
+  await expect(header).toHaveAttribute("aria-sort", "ascending");
+  await expect(values).toHaveText([
+    "0.10 USD",
+    "0.10000000000000001 USD",
+    "0.9 USD",
+  ]);
+  if (await mobileSort.isVisible()) {
+    await mobileSort.getByRole("button").click();
+  } else {
+    await header.getByRole("button").click();
+  }
+  await expect(header).toHaveAttribute("aria-sort", "descending");
+  await expect(values).toHaveText([
+    "0.9 USD",
+    "0.10000000000000001 USD",
+    "0.10 USD",
+  ]);
+  await table.getByRole("searchbox").fill("0.10000000000000001");
+  await expect(values).toHaveText(["0.10000000000000001 USD"]);
+  expect(reads).toEqual(readsBefore);
+  expect(writes).toEqual([]);
+});
+
 test("one appearance icon follows the system and preserves filters without business reads or writes", async ({
   page,
 }) => {

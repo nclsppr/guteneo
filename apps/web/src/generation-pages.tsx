@@ -9,7 +9,7 @@ import {
   generationSelectionRoute,
   readGenerationSelection,
 } from "./app-routes";
-import { scrollTable } from "./table-keyboard";
+import { DataTable } from "./data-table";
 import { useEffect, useRef, useState } from "react";
 import type {
   GenerationJobView,
@@ -214,7 +214,7 @@ export function GenerationDetail({
     return () => document.removeEventListener("visibilitychange", update);
   }, []);
   useEffect(() => {
-    if (!active) return;
+    if (isPublicPreview || !active) return;
     const timer = setInterval(() => {
       refreshJob();
       refreshResults();
@@ -407,141 +407,220 @@ export function GenerationDetail({
           </p>
         )}
       </section>
-      {canPrepare && !!ready.length && (
-        <div className="studio-toolbar">
-          <button
-            className="button"
-            onClick={() => setSelected(ready.map((r) => r.recordId))}
-          >
-            {msg("Select displayed verified PDFs ")}
-          </button>
-          <button
-            className="button primary"
-            disabled={!selected.length || active}
-            onClick={() => {
-              const current = new URL(window.location.href);
-              current.hash = generationSelectionRoute(id, selected);
-              window.history.replaceState(window.history.state, "", current);
-              go(distributionPreparationRoute(id, selected));
-            }}
-          >
-            {msg("Prepare distribution (")}
-            {selected.length})
-          </button>
-        </div>
-      )}
-      <div
-        className="studio-table studio-generation-results"
-        role="region"
-        aria-busy={results.loading}
-        onKeyDown={scrollTable}
-        tabIndex={0}
-        aria-label={msg("Results of this generation")}
-      >
-        <table>
-          <caption>{msg("Results of this generation")}</caption>
-          <thead>
-            <tr>
-              <th>{msg("Selection")}</th>
-              <th>{msg("Document")}</th>
-              <th>{msg("Status")}</th>
-              <th>{msg("Action")}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {results.data?.items.map((result) => (
-              <tr key={result.recordId}>
-                <td>
-                  <input
-                    type="checkbox"
-                    aria-label={
-                      msg("Select ") +
-                      result.recordId +
-                      (recordLabels[result.recordId] &&
-                      recordLabels[result.recordId] !== result.recordId
-                        ? " · " + recordLabels[result.recordId]
-                        : "")
-                    }
-                    checked={selected.includes(result.recordId)}
-                    disabled={
-                      !canPrepare ||
-                      result.state !== "generated" ||
-                      result.documentStatus !== "ready"
-                    }
-                    onChange={(e) =>
-                      setSelected(
-                        e.target.checked
-                          ? [...selected, result.recordId]
-                          : selected.filter((s) => s !== result.recordId),
-                      )
-                    }
-                  />
-                </td>
-                <th scope="row">
-                  <strong>
-                    {recordContexts[result.recordId]?.name ?? result.recordId}
-                  </strong>
-                  {recordContexts[result.recordId]?.subject && (
-                    <div>{recordContexts[result.recordId].subject}</div>
-                  )}
-                  {recordContexts[result.recordId]?.reference && (
+      <DataTable<GenerationResultView>
+        label={msg("Results of this generation")}
+        items={results.data?.items ?? []}
+        getRowKey={(result) => result.recordId}
+        ariaBusy={results.loading}
+        toolbar={(visibleItems) =>
+          canPrepare &&
+          !!ready.length && (
+            <div className="studio-toolbar">
+              <button
+                type="button"
+                className="button"
+                disabled={
+                  !visibleItems.some(
+                    (result) =>
+                      result.state === "generated" &&
+                      result.documentStatus === "ready",
+                  )
+                }
+                onClick={() =>
+                  setSelected((previous) => [
+                    ...new Set([
+                      ...previous,
+                      ...visibleItems
+                        .filter(
+                          (result) =>
+                            result.state === "generated" &&
+                            result.documentStatus === "ready",
+                        )
+                        .map((result) => result.recordId),
+                    ]),
+                  ])
+                }
+              >
+                {msg("Select displayed verified PDFs ")}
+              </button>
+              <button
+                type="button"
+                className="button primary"
+                disabled={!selected.length || active}
+                onClick={() => {
+                  const current = new URL(window.location.href);
+                  current.hash = generationSelectionRoute(id, selected);
+                  window.history.replaceState(
+                    window.history.state,
+                    "",
+                    current,
+                  );
+                  go(distributionPreparationRoute(id, selected));
+                }}
+              >
+                {msg("Prepare distribution (")}
+                {selected.length})
+              </button>
+            </div>
+          )
+        }
+        filters={[
+          {
+            id: "state",
+            label: msg("Status"),
+            value: (result) => result.state,
+            options: [
+              ...new Set(
+                (results.data?.items ?? []).map((result) => result.state),
+              ),
+            ].map((state) => ({
+              value: state,
+              label: msgIn("generation-state", stateLabel[state]),
+            })),
+          },
+        ]}
+        columns={[
+          {
+            id: "document",
+            label: msg("Document"),
+            value: (result) =>
+              recordContexts[result.recordId]?.name ?? result.recordId,
+            searchValue: (result) =>
+              [
+                result.recordId,
+                recordContexts[result.recordId]?.name,
+                recordContexts[result.recordId]?.subject,
+                recordContexts[result.recordId]?.reference,
+              ]
+                .filter(Boolean)
+                .join(" "),
+            render: (result) => (
+              <>
+                <strong>
+                  {recordContexts[result.recordId]?.name ?? result.recordId}
+                </strong>
+                {recordContexts[result.recordId]?.subject && (
+                  <div>{recordContexts[result.recordId].subject}</div>
+                )}
+                {recordContexts[result.recordId]?.reference && (
+                  <div className="studio-meta">
+                    {recordContexts[result.recordId].reference}
+                  </div>
+                )}
+              </>
+            ),
+          },
+          {
+            id: "selection",
+            label: msg("Selection"),
+            value: () => "",
+            sortable: false,
+            render: (result) => (
+              <input
+                type="checkbox"
+                aria-label={
+                  msg("Select ") +
+                  result.recordId +
+                  (recordLabels[result.recordId] &&
+                  recordLabels[result.recordId] !== result.recordId
+                    ? " · " + recordLabels[result.recordId]
+                    : "")
+                }
+                checked={selected.includes(result.recordId)}
+                disabled={
+                  !canPrepare ||
+                  result.state !== "generated" ||
+                  result.documentStatus !== "ready"
+                }
+                onChange={(event) => {
+                  const checked = event.target.checked;
+                  setSelected((previous) =>
+                    checked
+                      ? [...new Set([...previous, result.recordId])]
+                      : previous.filter(
+                          (recordId) => recordId !== result.recordId,
+                        ),
+                  );
+                }}
+              />
+            ),
+          },
+          {
+            id: "status",
+            label: msg("Status"),
+            value: (result) =>
+              msgIn("generation-state", stateLabel[result.state]) +
+              (result.documentStatus === "ready" ? " " + msg("verified") : ""),
+            searchValue: (result) =>
+              [
+                msgIn("generation-state", stateLabel[result.state]),
+                result.documentStatus === "ready"
+                  ? msg("verified")
+                  : result.documentStatus,
+                result.documentAnalysis && msg(result.documentAnalysis.title),
+                result.documentAnalysis && msg(result.documentAnalysis.message),
+                result.errorCode,
+              ]
+                .filter(Boolean)
+                .join(" "),
+            render: (result) => (
+              <>
+                {msgIn("generation-state", stateLabel[result.state])}
+                {result.documentStatus === "ready" && " · " + msg("verified")}
+                {result.documentAnalysis &&
+                  result.documentStatus !== "ready" && (
                     <div className="studio-meta">
-                      {recordContexts[result.recordId].reference}
+                      <p>{msg(result.documentAnalysis.title)}</p>
+                      <p>{msg(result.documentAnalysis.message)}</p>
                     </div>
                   )}
-                </th>
-                <td>
-                  {msgIn("generation-state", stateLabel[result.state])}
-                  {result.documentStatus === "ready" && " · " + msg("verified")}
-                  {result.documentAnalysis &&
-                    result.documentStatus !== "ready" && (
-                      <div className="studio-meta">
-                        <p>{msg(result.documentAnalysis.title)}</p>
-                        <p>{msg(result.documentAnalysis.message)}</p>
-                      </div>
-                    )}
-                  {!result.documentAnalysis &&
-                    result.documentStatus &&
-                    result.documentStatus !== "ready" && (
-                      <p className="studio-meta">{msg("Needs checking")}</p>
-                    )}
-                  {result.errorCode && (
-                    <p>
-                      <code>{result.errorCode}</code>
-                    </p>
+                {!result.documentAnalysis &&
+                  result.documentStatus &&
+                  result.documentStatus !== "ready" && (
+                    <p className="studio-meta">{msg("Needs checking")}</p>
                   )}
-                </td>
-                <td>
-                  <div className="studio-generation-actions">
-                    {result.documentId && result.documentStatus === "ready" && (
-                      <button
-                        className="text-button"
-                        onClick={() => setPreviewId(result.documentId!)}
-                      >
-                        {msg("View PDF ")}
-                      </button>
-                    )}
-                    <button
-                      className="text-button"
-                      onClick={() => setTraceRecord(result.recordId)}
-                    >
-                      {msg("View provenance ")}
-                    </button>
-                    {canPrepare && (
-                      <a
-                        className="text-link"
-                        href={`#${studioRoutes.template(current.templateId)}?${new URLSearchParams({ generation: id, record: result.recordId })}`}
-                      >
-                        {msg("Correct data")}
-                      </a>
-                    )}
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+                {result.errorCode && (
+                  <p>
+                    <code>{result.errorCode}</code>
+                  </p>
+                )}
+              </>
+            ),
+          },
+          {
+            id: "actions",
+            label: msg("Action"),
+            value: () => "",
+            sortable: false,
+            render: (result) => (
+              <div className="studio-generation-actions">
+                {result.documentId && result.documentStatus === "ready" && (
+                  <button
+                    className="text-button"
+                    onClick={() => setPreviewId(result.documentId!)}
+                  >
+                    {msg("View PDF ")}
+                  </button>
+                )}
+                <button
+                  className="text-button"
+                  onClick={() => setTraceRecord(result.recordId)}
+                >
+                  {msg("View provenance ")}
+                </button>
+                {canPrepare && (
+                  <a
+                    className="text-link"
+                    href={`#${studioRoutes.template(current.templateId)}?${new URLSearchParams({ generation: id, record: result.recordId })}`}
+                  >
+                    {msg("Correct data")}
+                  </a>
+                )}
+              </div>
+            ),
+          },
+        ]}
+      />
       {traceRecord && (
         <GenerationProvenance
           jobId={id}
@@ -635,38 +714,34 @@ function GenerationProvenance({
               <code>{trace.data.sourceHash}</code>
             </p>
           )}
-          <div
-            className="studio-table"
-            role="region"
-            onKeyDown={scrollTable}
-            tabIndex={0}
-            aria-label={msg("Provenance of ") + recordId}
-          >
-            <table>
-              <thead>
-                <tr>
-                  <th>{msg("Data field")}</th>
-                  <th>{msg("Source cells")}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {Object.entries(trace.data.provenance).map(([field, cells]) => (
-                  <tr key={field}>
-                    <th scope="row">{field}</th>
-                    <td>
-                      {cells.map((c, i) => (
-                        <span key={i}>
-                          {i ? " ; " : ""}
-                          {c.sheet} · {c.address} {msg("(row ")}
-                          {c.row})
-                        </span>
-                      ))}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <DataTable
+            label={msg("Provenance of ") + recordId}
+            items={Object.entries(trace.data.provenance)}
+            getRowKey={([field]) => field}
+            columns={[
+              {
+                id: "field",
+                label: msg("Data field"),
+                value: ([field]) => field,
+              },
+              {
+                id: "source",
+                label: msg("Source cells"),
+                value: ([, cells]) =>
+                  cells
+                    .map((cell) => `${cell.sheet} ${cell.address} ${cell.row}`)
+                    .join(" "),
+                render: ([, cells]) =>
+                  cells.map((cell, index) => (
+                    <span key={index}>
+                      {index ? " ; " : ""}
+                      {cell.sheet} · {cell.address} {msg("(row ")}
+                      {cell.row})
+                    </span>
+                  )),
+              },
+            ]}
+          />
           <p className="studio-meta">
             {msg("Rendering:")}{" "}
             {Object.entries(trace.data.renderMetadata)

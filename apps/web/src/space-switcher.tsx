@@ -1,3 +1,4 @@
+import { isAdvancedLocalPreview, useLocalBelvedereHref } from "./local-preview";
 import {
   CaretDown,
   Check,
@@ -142,6 +143,7 @@ export function ApplicationSwitcher({
   preview?: boolean;
 }) {
   const panel = usePanel();
+  const localBelvedereHref = useLocalBelvedereHref(canAccessBelvedere);
   const current = applications.find((item) => item.id === application)!;
   const label = (
     <>
@@ -153,7 +155,7 @@ export function ApplicationSwitcher({
       </span>
     </>
   );
-  if (preview)
+  if (preview && !isAdvancedLocalPreview)
     return (
       <div className="space-switcher application-switcher">
         <div className="space-switcher-trigger space-switcher-static">
@@ -195,8 +197,20 @@ export function ApplicationSwitcher({
                 <a
                   href={
                     item.id === "belvedere"
-                      ? "/belvedere"
+                      ? isAdvancedLocalPreview
+                        ? localBelvedereHref
+                        : "/belvedere"
                       : `${application === "belvedere" ? "/" : ""}#${item.needsWorkspace && !hasWorkspace ? "/app/services" : spaceHome[item.id]}`
+                  }
+                  target={
+                    item.id === "belvedere" && isAdvancedLocalPreview
+                      ? "_blank"
+                      : undefined
+                  }
+                  rel={
+                    item.id === "belvedere" && isAdvancedLocalPreview
+                      ? "noopener noreferrer"
+                      : undefined
                   }
                   aria-current={item.id === application ? "true" : undefined}
                   onClick={panel.close}
@@ -282,7 +296,7 @@ export function WorkspaceSwitcher({
       </span>
     </>
   );
-  if (preview)
+  if (preview && !isAdvancedLocalPreview)
     return (
       <div className="space-switcher workspace-switcher">
         <div className="space-switcher-trigger space-switcher-static">

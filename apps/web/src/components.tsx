@@ -1,4 +1,5 @@
 import { msg } from "./messages";
+import { DataTable, tableTimestamp } from "./data-table";
 import { canonicalApplicationRoute } from "./app-routes";
 import {
   useCallback,
@@ -577,6 +578,14 @@ export function EmptyState({
     </div>
   );
 }
+function dispatchStatusText(status: string, channel?: Channel) {
+  let text = t.statuses[status] ?? status;
+  if (status === "delivered" && channel === "email")
+    text = t.statuses.email_delivered ?? text;
+  if (status === "delivered" && channel === "fax")
+    text = t.statuses.fax_delivered ?? text;
+  return text;
+}
 export function Status({
   status,
   channel,
@@ -584,12 +593,11 @@ export function Status({
   status: string;
   channel?: Channel;
 }) {
-  let text = t.statuses[status] ?? status;
-  if (status === "delivered" && channel === "email")
-    text = t.statuses.email_delivered ?? text;
-  if (status === "delivered" && channel === "fax")
-    text = t.statuses.fax_delivered ?? text;
-  return <span className={`status status-${status}`}>{text}</span>;
+  return (
+    <span className={`status status-${status}`}>
+      {dispatchStatusText(status, channel)}
+    </span>
+  );
 }
 export function ChannelLabel({ channel }: { channel: Channel }) {
   return (
@@ -627,77 +635,87 @@ export function DispatchTable({
   return (
     <>
       <DateTimezone />
-      <div className="table-scroll">
-        <table className="responsive-table" role="table">
-          <thead role="rowgroup">
-            <tr role="row">
-              <th role="columnheader" scope="col">
-                {t.recipient}
-              </th>
-              <th role="columnheader" scope="col">
-                {t.channel}
-              </th>
-              <th role="columnheader" scope="col">
-                {t.status}
-              </th>
-              <th role="columnheader" scope="col">
-                {t.created}
-              </th>
-              <th role="columnheader" scope="col">
-                <span className="sr-only">{t.open}</span>
-              </th>
-            </tr>
-          </thead>
-          <tbody role="rowgroup">
-            {items.map((d) => (
-              <tr role="row" key={d.id}>
-                <td role="cell">
-                  <span className="mobile-cell-label" aria-hidden="true">
-                    {t.recipient}
-                  </span>
-                  <a className="row-link" href={`#/app/dispatch/${d.id}`}>
-                    {recipientLabel(d) || d.id}
-                    <span className="reference mono">{d.id}</span>
-                  </a>
-                </td>
-                <td role="cell">
-                  <span className="mobile-cell-label" aria-hidden="true">
-                    {t.channel}
-                  </span>
-                  <ChannelLabel channel={d.channel} />
-                </td>
-                <td role="cell">
-                  <span className="mobile-cell-label" aria-hidden="true">
-                    {t.status}
-                  </span>
-                  <Status status={d.status} channel={d.channel} />
-                  {d.mode === "simulation" && (
-                    <small className="sub-label">{t.simulation}</small>
-                  )}
-                </td>
-                <td role="cell" className="date-cell">
-                  <span className="mobile-cell-label" aria-hidden="true">
-                    {t.created}
-                  </span>
-                  {date(d.created_at)}
-                </td>
-                <td role="cell">
-                  <span className="mobile-cell-label" aria-hidden="true">
-                    {t.open}
-                  </span>
-                  <a
-                    className="icon-link"
-                    href={`#/app/dispatch/${d.id}`}
-                    aria-label={`${t.open} ${d.id}`}
-                  >
-                    <ArrowRight size={20} />
-                  </a>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <DataTable
+        label={t.dispatch.listTitle}
+        items={items}
+        getRowKey={(item) => item.id}
+        filters={[
+          {
+            id: "channel",
+            label: t.channel,
+            value: (item) => item.channel,
+            options: [...new Set(items.map((item) => item.channel))].map(
+              (value) => ({ value, label: t.channels[value] ?? value }),
+            ),
+          },
+          {
+            id: "status",
+            label: t.status,
+            value: (item) => item.status,
+            options: [...new Set(items.map((item) => item.status))].map(
+              (value) => ({ value, label: t.statuses[value] ?? value }),
+            ),
+          },
+        ]}
+        columns={[
+          {
+            id: "recipient",
+            label: t.recipient,
+            value: (item) => recipientLabel(item) || item.id,
+            searchValue: (item) => `${recipientLabel(item)} ${item.id}`,
+            render: (item) => (
+              <a className="row-link" href={`#/app/dispatch/${item.id}`}>
+                {recipientLabel(item) || item.id}
+                <span className="reference mono">{item.id}</span>
+              </a>
+            ),
+          },
+          {
+            id: "channel",
+            label: t.channel,
+            value: (item) => t.channels[item.channel] ?? item.channel,
+            render: (item) => <ChannelLabel channel={item.channel} />,
+          },
+          {
+            id: "status",
+            label: t.status,
+            value: (item) => dispatchStatusText(item.status, item.channel),
+            searchValue: (item) =>
+              `${dispatchStatusText(item.status, item.channel)} ${item.mode === "simulation" ? t.simulation : ""}`,
+            render: (item) => (
+              <>
+                <Status status={item.status} channel={item.channel} />
+                {item.mode === "simulation" && (
+                  <small className="sub-label">{t.simulation}</small>
+                )}
+              </>
+            ),
+          },
+          {
+            id: "created",
+            label: t.created,
+            value: (item) => tableTimestamp(item.created_at),
+            searchValue: (item) => date(item.created_at),
+            className: "date-cell",
+            render: (item) => date(item.created_at),
+          },
+          {
+            id: "actions",
+            label: t.open,
+            value: () => "",
+            sortable: false,
+            render: (item) => (
+              <a
+                className="icon-link"
+                href={`#/app/dispatch/${item.id}`}
+                aria-label={`${t.open} ${item.id}`}
+              >
+                <ArrowRight size={20} aria-hidden="true" />
+              </a>
+            ),
+          },
+        ]}
+      />
     </>
   );
 }
