@@ -2,6 +2,13 @@
 
 The required checks remain **verify** and **scanner**. This workflow builds and tests local fixtures only; it does not deploy or receive production secrets. Every pull request runs the full pipeline, and `main` runs it again after merge. Feature-branch push runs have been removed so an open PR no longer starts two copies. No path filters or conditional test selection skip checks on documentation-only changes.
 
+Private scanner and PDF-validator package locks retain the patched Undici
+transport across Wrangler upgrades. Their `miniflare` overrides apply to every
+resolved Miniflare version; a selector limited to the previous version would
+silently stop applying when Wrangler changes its dependency. The PDF validator
+also preserves its reviewed Sharp override. Reinstall and audit each independent
+package after changing either toolchain.
+
 ## Independent work
 
 - `dependencies`: locked install, supported MCP peers/template engine/transport
