@@ -1466,7 +1466,7 @@ Read repository instructions and the cloud-development contract → verify the s
 
 Run the complete PR pipeline → independently account for all current test identities → record source, policy, runtime and immutable proof data → merge after review → qualify exact main/base/head/tree and fresh complete proof or run full → execute fresh dependency/advisory checks → independently recheck the final gate → publish only authorized clean current main and verify served bytes.
 
-**Failure/recovery:** Missing, stale, foreign, changed, incomplete or inaccessible evidence selects full tests. Drift after reuse selection fails final verification. Artifact corruption or path escapes refuse reconstruction. No automatic retry, production credential, merge, send, provider activation or claim of human approval.
+**Failure/recovery:** Missing, stale, foreign, changed, incomplete or inaccessible evidence selects full tests. Drift after reuse selection fails final verification. Artifact corruption or path escapes refuse reconstruction. Dated hosted full-run timings and transfer measurements remain separate from an observed successful reused main promotion. No automatic retry, production credential, merge, send, provider activation or claim of human approval.
 
 [Detailed contract](CI.md).
 
