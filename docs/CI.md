@@ -17,6 +17,13 @@ pending and unrelated locator assertions time out. Handoff URL, locale,
 return-route, duplicate-activation and cached-return assertions remain required;
 this synthetic transport behavior does not qualify real provider login.
 
+Public-navigation browser checks prove document reuse with a random identifier
+bound to the current Window, plus zero document navigation requests. Exact
+`performance.timeOrigin` equality is unsuitable for that identity assertion:
+the 30 October WebKit run observed a one-millisecond difference within the same
+navigation sequence. Timing values remain in the attached measurements; the
+identity check has no clock tolerance and still fails on a new document.
+
 ## Independent work
 
 - `dependencies`: locked install, supported MCP peers/template engine/transport
