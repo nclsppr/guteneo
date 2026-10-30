@@ -46,6 +46,7 @@ const guide = {
   belvedere: "/administration/belvedere/",
   status: "/engineering/testing/",
   "engineering-docs": "/engineering/contributing/",
+  "cloud-development": "/engineering/ai-contributions/",
 };
 const availability = {
   public: "Public reading surface",

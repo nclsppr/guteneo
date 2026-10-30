@@ -1,7 +1,7 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
 # Guteneo feature tree and developer atlas
 
-**23 domains · 371 features · 37 journeys · 76 documented REST operations · 83 MCP tools**
+**24 domains · 379 features · 38 journeys · 76 documented REST operations · 83 MCP tools**
 Updated 2026-10-30.
 
 Repository implementation inventory. Availability depends on current capabilities and authority; implementation, activation and deployed proof are distinct.
@@ -42,6 +42,7 @@ mindmap
       Belvédère platform oversight (12)
       Public service status (16)
       Engineering documentation (12)
+      Codex Cloud development (8)
 ```
 
 ### Access
@@ -84,6 +85,7 @@ mindmap
 - [Belvédère platform oversight](#belvedere) — 12 features; operator-gated.
 - [Public service status](#status) — 16 features; public.
 - [Engineering documentation](#engineering-docs) — 12 features; public.
+- [Codex Cloud development](#cloud-development) — 8 features; local-candidate.
 
 ## Availability and evidence
 
@@ -142,6 +144,7 @@ Four human workshop roles are defined by packages/contracts/src/roles.ts. The as
 | Read public browser reports | Public access without workspace privilege | Public access without workspace privilege | Public access without workspace privilege | Public access without workspace privilege | Public read only; no ingestion or business authority |
 | Read monthly and daily consumption history | Yes | Reporting option | No | No | Current reporting rights + tenant-scoped REST read; no new MCP billing tool |
 | Read private generation correction input | Only own generation under current browser membership | Only own generation under current browser membership | Only own generation under current browser membership | Only own generation under current browser membership; creation still requires its permission | No MCP/native route; shared-template or dispatch-review access grants no source input |
+| Cloud development bootstrap and diagnostics | No role-based grant; separate repository/environment access | No role-based grant; separate repository/environment access | No role-based grant; separate repository/environment access | No role-based grant; separate repository/environment access | Product OAuth grants no development credentials; a repository agent needs separate environment access |
 
 Supervisor approval/reporting options are independent and off by default. Resource ownership/context checks still apply. See [workspace roles](WORKSPACE_ROLES.md), [expert approval](EXPERT_APPROVAL.md) and [studio access](TEMPLATES_DATA_DISTRIBUTION.md).
 
@@ -1049,6 +1052,28 @@ Supervisor approval/reporting options are independent and off by default. Resour
 
 
 
+<a id="cloud-development"></a>
+### Codex Cloud development
+
+**Availability model:** local-candidate. Development helper implementation. Provider/setup observations are dated 4 October 2026; fresh-task restoration and current provider access remain separately unqualified.
+
+**Surfaces:** Repository CLI and development runtime only; no new product browser, native, REST or MCP surface.
+
+- Repository-authorized development with the package.json Node.js engine range, npm, Git, bash and curl; no elevation of human workshop roles or the connected product assistant
+- Credential-filtered bootstrap installs locked dependencies, applies local D1 migrations and fixtures, and builds the web application; optional Linux Chromium preparation retains separate browser and native qualification
+- Repository CLI/API and official HTTPS documentation remain usable when desktop plugins are absent; missing provider access blocks only dependent work while source changes and local simulation continue
+- Offline configuration inventory and bounded redacted GET diagnostics preserve managed proxy and certificate settings; credentials enter curl through stdin, with no secret arguments, redirects, automatic retries or provider payload output
+- Missing configuration, unverified credentials, authentication failure, access denial and network errors remain separate outcomes; successful reads never prove unrestricted functionality or a read-only credential
+- Historical 4 October 2026 setup observations include exact-host Cloudflare and Telnyx network secrets, Cloudflare metadata-only permissions and a dedicated Telnyx key without native read-only scope; no desktop-session export or production-secret files
+- Dated developer evidence retains the original helper tests, hosted simulation and partial HTTP smoke observations; restored fresh-task access and current provider readiness require new observations
+- Bootstrap and diagnostics grant no expert mandate, communication approval, paid provisioning, billing activation, production mutation or deployment; web, native, REST and MCP product contracts are unchanged
+
+**Contract:** [CODEX_CLOUD.md](CODEX_CLOUD.md) · **Implementation:** [scripts/codex-cloud-check.mjs](../scripts/codex-cloud-check.mjs)
+
+**Tests:** [tests/security/codex-cloud-check.test.mjs](../tests/security/codex-cloud-check.test.mjs)
+
+
+
 ## Customer journeys and recovery
 
 ### J01 · Discover and sign in
@@ -1420,6 +1445,16 @@ Review source/package and actual host checkpoint → apply migration 0063 before
 **Failure/recovery:** Absent/invalid activation, mismatched/expired qualification, observer role, missing scope, changed connection/revision/issuer/membership, token/session expiry, quota/debt/call limits, noncanonical or conflicting parts and full-size/hash/PDF mismatch fail closed. General mode retains current production OAuth/writer guards; without MCP Apps explain the unsupported flow and retain ordinary tools. Bounds remain 256 KiB/part, 40 parts/10 MiB, 64 App calls, five minutes/original token expiry, one active session per user within the current workspace, 20 pending/200 MiB organization debt and 200 daily reservations. APP_PART_NOT_ACCEPTED is a settled pre-put refusal. APP_PART_UNCONFIRMED allows only manual same-ID status with volatile buffer retained inside fixed expiry/budget/current authority; only positive immutable-object length/hash evidence can enable explicit Resume. Missing objects never authorize replay. Final pipeline uncertainty is status-only and clears bytes; no new key, transport switch or reimport. The App-specific recovery has tool:null rather than instructing model/binary calls. Cancel/expiry/revocation fence writers; bounded cron also reclaims expired global App-finalizer capacity without deleting an original, while staging waits for original expiry plus 90 seconds and unresolved puts retain debt/tombstones. No direct browser fetch, egress/Origin/CSP exception, public PDF, bytes/base64/token in model context/storage/logs, paid check, approval, send or mandate. Release 1.1.6 has bounded actual Claude Desktop selected-original 299,807-byte/10 MiB storage/readiness and manual same-ID receipt recovery without resend, plus zero associated business effects for those two originals. The model then had neither new ID and made zero get_document calls: registered-ID handoff failed and general activation stays pending. The 1.1.8 source fixes preserve accepted receipts after late bridge errors and add text-plus-structured context plus a user-gesture-only minimal-receipt message with local fixtures; import sends no automatic chat message, repeated pending/acknowledged/refused/uncertain attempts are deduplicated for the same ID/status and message failure retains the document; the actual retest remains required, and neither fix proves the earlier deadline cause. Web/iPhone/other hosts, automatic attachment handoff, full retention/confirmation and runtime headroom remain separately unqualified.
 
 [Detailed contract](PRIVATE_DOCUMENT_UPLOAD.md).
+
+### J38 · Prepare an isolated cloud development checkout
+
+**Actor:** Developer or repository-authorized coding agent with separately configured environment credentials. **Branch:** Operations → development tooling; independent of product assistant authority.
+
+Read repository instructions and the cloud-development contract → verify the supported Node.js runtime → run the credential-filtered local bootstrap → inspect offline configuration → explicitly request only required bounded provider GET diagnostics → continue source changes, local simulation and relevant tests → record exact source, environment and qualification gaps.
+
+**Failure/recovery:** Reject unsupported runtimes, invalid inputs, masked dashboard values and unapproved diagnostic destinations. Missing or refused credentials block only their provider operation. Preserve managed proxy/CA settings, never copy secrets or desktop sessions, never infer sending/production authority from a GET, and do not replay mutations.
+
+[Detailed contract](CODEX_CLOUD.md).
 
 ## Required maintenance
 

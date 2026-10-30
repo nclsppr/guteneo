@@ -7,7 +7,7 @@ sidebar:
 
 <!-- Generated from docs/feature-map.json. Run npm run docs:build; do not edit this view. -->
 
-**23 domains · 371 capabilities · 37 journeys · 76 REST operations · 83 MCP tools.**
+**24 domains · 379 capabilities · 38 journeys · 76 REST operations · 83 MCP tools.**
 
 Follow a branch to find its behavior, access boundary and engineering guide. Use the site search to find a specific capability.
 
@@ -53,6 +53,7 @@ This is an implementation inventory, not a live availability dashboard. Current 
 - [Belvédère platform oversight](/features/belvedere/) — 12 capabilities
 - [Public service status](/features/status/) — 16 capabilities
 - [Engineering documentation](/features/engineering-docs/) — 12 capabilities
+- [Codex Cloud development](/features/cloud-development/) — 8 capabilities
 
 ## Across the branches
 

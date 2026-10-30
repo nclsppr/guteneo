@@ -17,6 +17,38 @@ role, confirmation and delegation rules described in
 [roles and authority](/features/permissions/) and [assistant integration](/integrations/mcp/).
 Repository write access never creates production sending authority.
 
+## Prepare development without desktop plugins
+
+The repository's `docs/CODEX_CLOUD.md` owns the setup and credential contract;
+`docs/CODEX_CLOUD_PROOF.md` retains dated observations. Use `npm run cloud:setup`
+with the Node.js engine range in `package.json` to install locked dependencies,
+apply local D1 migrations and fixtures, and build the web application. Optional
+`--with-browser` prepares package-owned Chromium on Linux; WebKit and native
+toolchains need their own qualification. The bootstrap passes a reduced
+environment to dependency hooks, retaining the managed proxy and certificate
+settings while removing provider keys and arbitrary Node/npm startup options.
+Its private writable npm/Wrangler directories are removed on completion or
+failure; existing user configuration is preserved. It creates no credential file.
+
+`npm run cloud:check` inventories configuration without networking. Explicit
+`--network` uses a fixed allowlist of bounded GET requests; `--require` selects
+the services required for the current task. Credentials enter curl through
+stdin, never arguments or temporary files. Redirects and automatic retries are
+disabled, response payloads are discarded, and diagnostics distinguish missing,
+unverified, refused and verified access. Run `npm run test:cloud` after changing
+the helper, together with the repository checks; keep endpoint and credential
+redaction tests current when a provider contract changes.
+
+An unavailable provider blocks only work that needs it. Continue source changes,
+simulation and local checks through repository commands and official HTTPS
+documentation when a desktop plugin is absent. Preserve managed proxy and CA
+settings and separately review provider permissions: an accepted GET does not
+establish that a credential is read-only, authorize a mutation, or enable a
+product assistant. The 4 October 2026 setup observations are historical; a fresh
+restored task and current provider access require independent evidence. This
+development tooling changes no human role, OAuth scope, expert mandate or
+production release gate.
+
 ## Give the contributor a bounded brief
 
 A useful brief names the user-visible result, the affected surface, the current
