@@ -93,7 +93,13 @@ for (const [locale, pricing] of [
     });
     await page.goto(`/?lang=${locale}`);
     await interactive(page);
-    const origin = await page.evaluate(() => performance.timeOrigin);
+    const documentId = await page.evaluate(() => {
+      const id = crypto.randomUUID();
+      Object.defineProperty(window, "__guteneoNavigationDocument", {
+        value: id,
+      });
+      return id;
+    });
     const documentRequests: string[] = [];
     page.on("request", (request) => {
       if (request.isNavigationRequest()) documentRequests.push(request.url());
@@ -149,6 +155,7 @@ for (const [locale, pricing] of [
         return {
           milliseconds: performance.now() - started,
           timeOrigin: performance.timeOrigin,
+          documentId: Reflect.get(window, "__guteneoNavigationDocument"),
           heading: document.querySelector("main h1")?.textContent,
           resources: performance
             .getEntriesByType("resource")
@@ -164,7 +171,7 @@ for (const [locale, pricing] of [
             }),
         };
       }, started);
-      expect(sample.timeOrigin).toBe(origin);
+      expect(sample.documentId).toBe(documentId);
       samples.push({ path, ...sample });
     }
     expect(documentRequests).toEqual([]);
@@ -185,7 +192,11 @@ for (const [locale, pricing] of [
     await expect(page).toHaveURL(`/assistants/?lang=${locale}`);
     await page.goForward();
     await expect(page).toHaveURL(`/assistants/cursor/?lang=${locale}`);
-    expect(await page.evaluate(() => performance.timeOrigin)).toBe(origin);
+    expect(
+      await page.evaluate(() =>
+        Reflect.get(window, "__guteneoNavigationDocument"),
+      ),
+    ).toBe(documentId);
     expect(documentRequests).toEqual([]);
   });
 }

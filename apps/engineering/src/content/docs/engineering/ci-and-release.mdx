@@ -55,6 +55,13 @@ server/browser resolution is outside their assertion; assuming a bare Vite
 document can make a locally passing fixture fail against the canonical build.
 Public-preview tests retain separate automatic-language coverage.
 
+The public-navigation suite binds a random identifier to its current Window and
+checks it after every route transition and history traversal, alongside zero
+document-navigation requests. This tests actual document reuse without assuming
+bit-identical readings of `performance.timeOrigin`; a WebKit run on 30 October
+observed a one-millisecond clock difference. Timing remains measured in the
+attached resource samples and is not used as document identity.
+
 Freeze time-based browser fixtures at a deliberate UTC instant. Status-cache
 expiry tests use midday so their fifteen-minute advance cannot accidentally
 exercise the separate midnight invalidation rule. Keep a distinct boundary case

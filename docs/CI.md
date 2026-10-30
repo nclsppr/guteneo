@@ -2,6 +2,13 @@
 
 The required checks remain **verify** and **scanner**. This workflow builds and tests local fixtures only; it does not deploy or receive production secrets. Every pull request runs the full pipeline, and `main` runs it again after merge. Feature-branch push runs have been removed so an open PR no longer starts two copies. No path filters or conditional test selection skip checks on documentation-only changes.
 
+Public-navigation browser checks prove document reuse with a random identifier
+bound to the current Window, plus zero document navigation requests. Exact
+`performance.timeOrigin` equality is unsuitable for that identity assertion:
+the 30 October WebKit run observed a one-millisecond difference within the same
+navigation sequence. Timing values remain in the attached measurements; the
+identity check has no clock tolerance and still fails on a new document.
+
 ## Independent work
 
 - `dependencies`: locked install, supported MCP peers/template engine/transport
