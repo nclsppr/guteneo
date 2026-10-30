@@ -2,6 +2,14 @@
 
 The required checks remain **verify** and **scanner**. This workflow builds and tests local fixtures only; it does not deploy or receive production secrets. Every pull request runs the full pipeline, and `main` runs it again after merge. Feature-branch push runs have been removed so an open PR no longer starts two copies. No path filters or conditional test selection skip checks on documentation-only changes.
 
+Hosted sign-in browser fixtures intercept the fixed Auth0 entry request and
+explicitly abort that navigation. This preserves the current document for
+pending/repeat-click/recovery assertions without contacting Auth0. A fulfilled
+HTTP 204 is unsuitable with Playwright 1.64: Chromium keeps its navigation waiter
+pending and unrelated locator assertions time out. Handoff URL, locale,
+return-route, duplicate-activation and cached-return assertions remain required;
+this synthetic transport behavior does not qualify real provider login.
+
 ## Independent work
 
 - `dependencies`: locked install, supported MCP peers/template engine/transport

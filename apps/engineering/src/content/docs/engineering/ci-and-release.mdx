@@ -55,6 +55,13 @@ server/browser resolution is outside their assertion; assuming a bare Vite
 document can make a locally passing fixture fail against the canonical build.
 Public-preview tests retain separate automatic-language coverage.
 
+Hosted sign-in fixtures abort their intercepted Auth0-entry navigation explicitly.
+They keep the current document alive to check exact handoff destinations,
+localized pending state, repeated activation and cached-return recovery. A
+fulfilled HTTP 204 leaves a navigation waiter pending in Chromium with
+Playwright 1.64 and blocks locator assertions, so it cannot model this fixture
+boundary. No external identity provider is contacted or qualified by these tests.
+
 Freeze time-based browser fixtures at a deliberate UTC instant. Status-cache
 expiry tests use midday so their fifteen-minute advance cannot accidentally
 exercise the separate midnight invalidation rule. Keep a distinct boundary case
