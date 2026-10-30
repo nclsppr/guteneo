@@ -194,5 +194,400 @@
     "Die Erzeugung erstellt nur für dieses Dokument ein neues PDF; die ursprüngliche Generierung und ihre PDFs bleiben unverändert. Um Layout oder Text aller Dokumente zu ändern, erstellen Sie eine neue Vorlagenversion.",
     "D’Generéierung mécht en neit PDF just fir dëst Dokument; déi ursprénglech Generéierung an hir PDFe bleiwen onverännert. Fir de Layout oder den Text vun allen Dokumenter z’änneren, maacht eng nei Versioun vun der Virlag."
   ],
-  "PDF actuel": ["Current PDF", "Aktuelles PDF", "Aktuellt PDF"]
+  "PDF actuel": ["Current PDF", "Aktuelles PDF", "Aktuellt PDF"],
+  "Les données sont trop volumineuses.": [
+    "Data is too large.",
+    "Die Daten sind zu groß.",
+    "D’Donnéeë sinn ze grouss."
+  ],
+  "La structure du modèle est trop complexe.": [
+    "Template structure is too complex.",
+    "Die Struktur der Vorlage ist zu komplex.",
+    "D’Struktur vun der Virlag ass ze komplex."
+  ],
+  "Le fichier Word dépasse 5 Mio.": [
+    "Word file exceeds 5 MiB.",
+    "Die Word-Datei überschreitet 5 MiB.",
+    "De Word-Fichier ass méi grouss wéi 5 MiB."
+  ],
+  "En local, utilisez l’import authentifié.": [
+    "Locally, use authenticated upload.",
+    "Verwenden Sie lokal den authentifizierten Upload.",
+    "Benotzt lokal den authentifizéierten Upload."
+  ],
+  "Joignez de nouveau le fichier Word avec un lien HTTPS direct.": [
+    "Attach the Word file again with a direct HTTPS link.",
+    "Hängen Sie die Word-Datei erneut mit einem direkten HTTPS-Link an.",
+    "Hänkt de Word-Fichier nach eng Kéier mat engem direkten HTTPS-Link un."
+  ],
+  "L’accès a été révoqué ou le rôle est insuffisant.": [
+    "Access has been revoked or the role is insufficient.",
+    "Der Zugriff wurde widerrufen oder die Rolle reicht nicht aus.",
+    "Den Zougang gouf zréckgezunn oder d’Roll geet net duer."
+  ],
+  "Reconnectez cet assistant pour continuer.": [
+    "Reconnect this assistant to continue.",
+    "Verbinden Sie diesen Assistenten erneut, um fortzufahren.",
+    "Verbannt dësen Assistent nei, fir weiderzefueren."
+  ],
+  "Cette connexion a été révoquée.": [
+    "This connection has been revoked.",
+    "Diese Verbindung wurde widerrufen.",
+    "Dës Verbindung gouf zréckgezunn."
+  ],
+  "Modèle introuvable ou droits insuffisants.": [
+    "Template not found or insufficient permission.",
+    "Vorlage nicht gefunden oder Berechtigung nicht ausreichend.",
+    "Virlag net fonnt oder Rechter net duergoend."
+  ],
+  "Exemple de modèle introuvable.": [
+    "Template example not found.",
+    "Vorlagenbeispiel nicht gefunden.",
+    "Beispill vun der Virlag net fonnt."
+  ],
+  "Le modèle a changé.": [
+    "The template has changed.",
+    "Die Vorlage hat sich geändert.",
+    "D’Virlag huet sech geännert."
+  ],
+  "Le moteur local de bouclage est requis.": [
+    "Local loopback engine required.",
+    "Die lokale Loopback-Engine ist erforderlich.",
+    "De lokale Loopback-Motor ass néideg."
+  ],
+  "Le moteur pdfme n’est pas connecté.": [
+    "The pdfme engine is not connected.",
+    "Die pdfme-Engine ist nicht verbunden.",
+    "De pdfme-Motor ass net verbonnen."
+  ],
+  "La création du document a échoué.": [
+    "Document rendering failed.",
+    "Die Erstellung des Dokuments ist fehlgeschlagen.",
+    "D’Erstelle vum Dokument ass feelgeschloen."
+  ],
+  "Limite de modèles atteinte.": [
+    "Template limit reached.",
+    "Vorlagenlimit erreicht.",
+    "Limitt vun de Virlagen erreecht."
+  ],
+  "Dupliquez ce modèle archivé pour le modifier.": [
+    "Duplicate this archived template to edit it.",
+    "Duplizieren Sie diese archivierte Vorlage, um sie zu bearbeiten.",
+    "Duplizéiert dës archivéiert Virlag, fir se z’änneren."
+  ],
+  "Le modèle a changé. Rechargez avant d’enregistrer.": [
+    "The template has changed. Reload before saving.",
+    "Die Vorlage hat sich geändert. Laden Sie neu, bevor Sie speichern.",
+    "D’Virlag huet sech geännert. Lued nei, ier Dir späichert."
+  ],
+  "Le modèle est archivé.": [
+    "The template is archived.",
+    "Die Vorlage ist archiviert.",
+    "D’Virlag ass archivéiert."
+  ],
+  "Seul son propriétaire peut supprimer ce modèle.": [
+    "Only the owner can delete this template.",
+    "Nur der Eigentümer kann diese Vorlage löschen.",
+    "Just de Besëtzer kann dës Virlag läschen."
+  ],
+  "Un membre apparaît plusieurs fois.": [
+    "A member appears more than once.",
+    "Ein Mitglied kommt mehrfach vor.",
+    "E Member kënnt méi wéi eng Kéier vir."
+  ],
+  "Un membre n’appartient pas à cette organisation.": [
+    "A member does not belong to this organization.",
+    "Ein Mitglied gehört nicht zu dieser Organisation.",
+    "E Member gehéiert net zu dëser Organisatioun."
+  ],
+  "Le partage a changé.": [
+    "Sharing has changed.",
+    "Die Freigabe hat sich geändert.",
+    "D’Deele huet sech geännert."
+  ],
+  "Version publiée introuvable.": [
+    "Published version not found.",
+    "Veröffentlichte Version nicht gefunden.",
+    "Publizéiert Versioun net fonnt."
+  ],
+  "Source privée introuvable.": [
+    "Private source not found.",
+    "Private Quelle nicht gefunden.",
+    "Privat Quell net fonnt."
+  ],
+  "Le fichier est vide ou dépasse 5 Mio.": [
+    "File is empty or exceeds 5 MiB.",
+    "Die Datei ist leer oder überschreitet 5 MiB.",
+    "De Fichier ass eidel oder méi grouss wéi 5 MiB."
+  ],
+  "Limite de sources conservées atteinte.": [
+    "Retained source limit reached.",
+    "Limit für aufbewahrte Quellen erreicht.",
+    "Limitt vun de gespäicherte Quellen erreecht."
+  ],
+  "Cette source n’est plus disponible pour l’analyse. Importez un fichier corrigé.": [
+    "This source is no longer available for analysis. Import a corrected file.",
+    "Diese Quelle ist für die Analyse nicht mehr verfügbar. Importieren Sie eine korrigierte Datei.",
+    "Dës Quell ass net méi fir d’Analys disponibel. Importéiert e korrigéierte Fichier."
+  ],
+  "Les trois tentatives ont échoué. Corrigez la cause, puis importez de nouveau le fichier.": [
+    "All three attempts failed. Correct the cause, then import the file again.",
+    "Alle drei Versuche sind fehlgeschlagen. Beheben Sie die Ursache und importieren Sie die Datei erneut.",
+    "All dräi Versich sinn feelgeschloen. Korrigéiert d’Ursaach an importéiert de Fichier nach eng Kéier."
+  ],
+  "L’original conservé a expiré.": [
+    "The retained original has expired.",
+    "Das aufbewahrte Original ist abgelaufen.",
+    "Den opgehalenen Original ass ofgelaf."
+  ],
+  "L’empreinte du fichier d’origine ne correspond plus.": [
+    "The original file hash no longer matches.",
+    "Der Hash der Originaldatei stimmt nicht mehr überein.",
+    "Den Hash vum Original-Fichier stëmmt net méi."
+  ],
+  "La source reste en quarantaine : l’analyse antivirus est indisponible.": [
+    "The source remains quarantined: malware scanning is unavailable.",
+    "Die Quelle bleibt in Quarantäne: Die Virenprüfung ist nicht verfügbar.",
+    "D’Quell bleift a Quarantän: d’Virekontroll ass net disponibel."
+  ],
+  "L’analyse de la source a échoué.": [
+    "Source analysis failed.",
+    "Die Analyse der Quelle ist fehlgeschlagen.",
+    "D’Analys vun der Quell ass feelgeschloen."
+  ],
+  "La source n’a pas passé les contrôles de sécurité.": [
+    "The source failed security checks.",
+    "Die Quelle hat die Sicherheitsprüfungen nicht bestanden.",
+    "D’Quell huet d’Sécherheetskontrollen net bestanen."
+  ],
+  "La source doit être vérifiée et analysée.": [
+    "The source must be verified and analyzed.",
+    "Die Quelle muss geprüft und analysiert sein.",
+    "D’Quell muss iwwerpréift an analyséiert sinn."
+  ],
+  "La source a expiré.": [
+    "The source has expired.",
+    "Die Quelle ist abgelaufen.",
+    "D’Quell ass ofgelaf."
+  ],
+  "Feuille introuvable.": [
+    "Sheet not found.",
+    "Tabellenblatt nicht gefunden.",
+    "Blat net fonnt."
+  ],
+  "Joignez de nouveau le fichier avec un lien HTTPS direct.": [
+    "Attach the file again with a direct HTTPS link.",
+    "Hängen Sie die Datei erneut mit einem direkten HTTPS-Link an.",
+    "Hänkt de Fichier nach eng Kéier mat engem direkten HTTPS-Link un."
+  ],
+  "Correspondance privée introuvable.": [
+    "Private mapping not found.",
+    "Private Zuordnung nicht gefunden.",
+    "Privat Zouuerdnung net fonnt."
+  ],
+  "Un administrateur doit configurer le transfert vers l’IA dans le navigateur.": [
+    "An administrator must configure AI transfer in the browser.",
+    "Ein Administrator muss die KI-Übertragung im Browser einrichten.",
+    "En Administrateur muss den Transfert un d’KI am Browser astellen."
+  ],
+  "L’analyse par IA est indisponible ; la correspondance manuelle reste possible.": [
+    "AI analysis is unavailable; manual mapping remains available.",
+    "Die KI-Analyse ist nicht verfügbar; die manuelle Zuordnung bleibt möglich.",
+    "D’KI-Analys ass net disponibel; d’manuell Zouuerdnung bleift méiglech."
+  ],
+  "Un administrateur doit autoriser ce transfert dans les réglages.": [
+    "An administrator must authorize this transfer in settings.",
+    "Ein Administrator muss diese Übertragung in den Einstellungen erlauben.",
+    "En Administrateur muss dësen Transfert an den Astellungen erlaben."
+  ],
+  "Le budget quotidien d’analyse par IA est épuisé.": [
+    "The daily AI analysis budget is exhausted.",
+    "Das tägliche Budget für KI-Analysen ist ausgeschöpft.",
+    "Den deegleche Budget fir KI-Analysen ass opgebraucht."
+  ],
+  "Le transfert vers l’IA a été désactivé pendant l’analyse.": [
+    "AI transfer was disabled during analysis.",
+    "Die KI-Übertragung wurde während der Analyse deaktiviert.",
+    "Den Transfert un d’KI gouf während der Analys desaktivéiert."
+  ],
+  "L’aide de l’IA est indisponible ; l’éditeur manuel reste disponible.": [
+    "AI assistance is unavailable; the manual editor remains available.",
+    "Die KI-Unterstützung ist nicht verfügbar; der manuelle Editor bleibt verfügbar.",
+    "D’KI-Hëllef ass net disponibel; den manuellen Editeur bleift disponibel."
+  ],
+  "Le transfert vers l’IA a été désactivé pendant la suggestion.": [
+    "AI transfer was disabled during the suggestion.",
+    "Die KI-Übertragung wurde während des Vorschlags deaktiviert.",
+    "Den Transfert un d’KI gouf während der Propos desaktivéiert."
+  ],
+  "Le budget quotidien d’aide par IA est épuisé.": [
+    "The daily AI assistance budget is exhausted.",
+    "Das tägliche Budget für KI-Unterstützung ist ausgeschöpft.",
+    "Den deegleche Budget fir KI-Hëllef ass opgebraucht."
+  ],
+  "La source doit être prête.": [
+    "The source must be ready.",
+    "Die Quelle muss bereit sein.",
+    "D’Quell muss prett sinn."
+  ],
+  "La version de la correspondance a changé.": [
+    "The mapping version has changed.",
+    "Die Version der Zuordnung hat sich geändert.",
+    "D’Versioun vun der Zouuerdnung huet sech geännert."
+  ],
+  "Cette clé appartient à une autre demande.": [
+    "This key belongs to another request.",
+    "Dieser Schlüssel gehört zu einer anderen Anfrage.",
+    "Dëse Schlëssel gehéiert zu enger anerer Ufro."
+  ],
+  "Ce modèle est archivé.": [
+    "This template is archived.",
+    "Diese Vorlage ist archiviert.",
+    "Dës Virlag ass archivéiert."
+  ],
+  "Publiez une version avant la génération.": [
+    "Publish a version before generation.",
+    "Veröffentlichen Sie vor der Generierung eine Version.",
+    "Publizéiert eng Versioun virun der Generéierung."
+  ],
+  "Validez la correspondance avant la génération.": [
+    "Validate the mapping before generation.",
+    "Bestätigen Sie die Zuordnung vor der Generierung.",
+    "Validéiert d’Zouuerdnung virun der Generéierung."
+  ],
+  "La structure ou les données doivent être validées de nouveau.": [
+    "The structure or data requires new validation.",
+    "Die Struktur oder die Daten müssen erneut bestätigt werden.",
+    "D’Struktur oder d’Donnéeë musse nei validéiert ginn."
+  ],
+  "Un lot contient de 1 à 500 documents.": [
+    "A batch contains 1 to 500 documents.",
+    "Ein Lauf enthält 1 bis 500 Dokumente.",
+    "E Laf enthält 1 bis 500 Dokumenter."
+  ],
+  "Chaque recordId doit être unique.": [
+    "Every recordId must be unique.",
+    "Jede recordId muss eindeutig sein.",
+    "All recordId muss eenzegaarteg sinn."
+  ],
+  "Une organisation peut avoir au plus trois lots en cours en même temps.": [
+    "A maximum of three simultaneous batches is allowed per organization.",
+    "Pro Organisation sind höchstens drei gleichzeitige Läufe erlaubt.",
+    "Pro Organisatioun sinn héchstens dräi gläichzäiteg Laf erlaabt."
+  ],
+  "Lot privé introuvable.": [
+    "Private batch not found.",
+    "Privater Lauf nicht gefunden.",
+    "Private Laf net fonnt."
+  ],
+  "Ligne de données introuvable.": [
+    "Record not found.",
+    "Datensatz nicht gefunden.",
+    "Datesaz net fonnt."
+  ],
+  "Un lot annulé ne peut pas reprendre.": [
+    "A cancelled batch cannot be resumed.",
+    "Ein abgebrochener Lauf kann nicht fortgesetzt werden.",
+    "En ofgebrachene Laf kann net weidergefouert ginn."
+  ],
+  "Une distribution fige ce lot ; créez un nouveau lot pour les lignes exclues.": [
+    "A distribution freezes this batch; create a new batch for excluded records.",
+    "Eine Verteilung friert diesen Lauf ein; erstellen Sie für ausgeschlossene Datensätze einen neuen Lauf.",
+    "Eng Verdeelung fréiert dëse Laf an; maacht en neie Laf fir déi ausgeschloss Datesätz."
+  ],
+  "Le modèle a été archivé.": [
+    "The template has been archived.",
+    "Die Vorlage wurde archiviert.",
+    "D’Virlag gouf archivéiert."
+  ],
+  "Le fichier conservé est indisponible.": [
+    "The retained artifact is unavailable.",
+    "Die aufbewahrte Datei ist nicht verfügbar.",
+    "De gespäicherte Fichier ass net disponibel."
+  ],
+  "L’intégrité du PDF conservé n’est pas valide.": [
+    "The retained PDF's integrity is invalid.",
+    "Die Integrität des aufbewahrten PDFs ist ungültig.",
+    "D’Integritéit vum gespäicherte PDF ass net valabel."
+  ],
+  "Le traitement a été interrompu.": [
+    "Processing was interrupted.",
+    "Die Verarbeitung wurde unterbrochen.",
+    "D’Veraarbechtung gouf ënnerbrach."
+  ],
+  "Ce traitement a été annulé.": [
+    "This processing was cancelled.",
+    "Diese Verarbeitung wurde abgebrochen.",
+    "Dës Veraarbechtung gouf ofgebrach."
+  ],
+  "Cette clé appartient à une autre distribution.": [
+    "This key belongs to another distribution.",
+    "Dieser Schlüssel gehört zu einer anderen Verteilung.",
+    "Dëse Schlëssel gehéiert zu enger anerer Verdeelung."
+  ],
+  "Attendez la fin ou annulez le lot avant la distribution.": [
+    "Wait for completion or cancel the batch before distribution.",
+    "Warten Sie auf den Abschluss oder brechen Sie den Lauf vor der Verteilung ab.",
+    "Waart op d’Enn oder briecht de Laf virun der Verdeelung of."
+  ],
+  "Chaque entryId doit être unique.": [
+    "Every entryId must be unique.",
+    "Jede entryId muss eindeutig sein.",
+    "All entryId muss eenzegaarteg sinn."
+  ],
+  "Un résultat sélectionné doit encore être vérifié.": [
+    "A selected result still needs verification.",
+    "Ein ausgewähltes Ergebnis muss noch geprüft werden.",
+    "E gewielt Resultat muss nach iwwerpréift ginn."
+  ],
+  "Le canal de distribution manque dans les données figées.": [
+    "The distribution channel is missing from the frozen data.",
+    "Der Verteilungskanal fehlt in den eingefrorenen Daten.",
+    "De Verdeelungskanal feelt an de gefruerenen Donnéeën."
+  ],
+  "Le canal doit être exactement fax, email ou postal.": [
+    "The channel must be exactly fax, email or postal.",
+    "Der Kanal muss genau fax, email oder postal sein.",
+    "De Kanal muss genee fax, email oder postal sinn."
+  ],
+  "Plusieurs canaux doivent être demandés explicitement.": [
+    "Multiple channels must be requested explicitly.",
+    "Mehrere Kanäle müssen ausdrücklich angefordert werden.",
+    "Méi Kanäl mussen ausdrécklech ugefrot ginn."
+  ],
+  "Définissez dans les données les champs destinataire du canal choisi.": [
+    "Define the selected channel's recipient fields in the data.",
+    "Legen Sie die Empfängerfelder des gewählten Kanals in den Daten fest.",
+    "Leet d’Empfängerfelder vum gewielte Kanal an den Donnéeë fest."
+  ],
+  "Envoi postal introuvable.": [
+    "Postal entry not found.",
+    "Postsendung nicht gefunden.",
+    "Postversand net fonnt."
+  ],
+  "Créez un nouveau manifeste avec un expéditeur, un plafond et les trois options d’impression explicites.": [
+    "Create a new manifest with a sender, a ceiling and all three explicit print options.",
+    "Erstellen Sie ein neues Manifest mit Absender, Obergrenze und allen drei ausdrücklichen Druckoptionen.",
+    "Maacht en neie Manifest mat engem Ofsender, engem Plafong an allen dräi explizitten Drockoptiounen."
+  ],
+  "Le PDF exact doit être vérifié.": [
+    "The exact PDF must be verified.",
+    "Das exakte PDF muss geprüft sein.",
+    "Dat exakt PDF muss iwwerpréift sinn."
+  ],
+  "L’analyse postale ne correspond pas au PDF figé.": [
+    "The postal analysis does not match the frozen PDF.",
+    "Die Postanalyse stimmt nicht mit dem eingefrorenen PDF überein.",
+    "D’Postanalys stëmmt net mat dem gefruerenen PDF iwwereneen."
+  ],
+  "Distribution privée introuvable.": [
+    "Private distribution not found.",
+    "Private Verteilung nicht gefunden.",
+    "Privat Verdeelung net fonnt."
+  ],
+  "Ouvrez cette génération privée dans Guteneo.": [
+    "Open this private generation in Guteneo.",
+    "Öffnen Sie diese private Generierung in Guteneo.",
+    "Maacht dës privat Generéierung a Guteneo op."
+  ]
 }

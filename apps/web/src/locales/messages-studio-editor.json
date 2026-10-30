@@ -452,5 +452,300 @@
     "Applying the editor changes…",
     "Änderungen des Editors werden übernommen…",
     "D’Ännerunge vum Editor ginn iwwerholl…"
+  ],
+  "La structure est trop profonde.": [
+    "Structure is too deep.",
+    "Die Struktur ist zu tief verschachtelt.",
+    "D’Struktur ass ze déif verschachtelt."
+  ],
+  "Clé interdite.": [
+    "Forbidden key.",
+    "Unzulässiger Schlüssel.",
+    "Verbuedene Schlëssel."
+  ],
+  "Le schéma dépasse huit niveaux.": [
+    "The schema exceeds eight levels.",
+    "Das Schema überschreitet acht Ebenen.",
+    "De Schema ass méi déif wéi aacht Niveauen."
+  ],
+  "Déclarez les propriétés de l’objet.": [
+    "Declare the object's properties.",
+    "Deklarieren Sie die Eigenschaften des Objekts.",
+    "Deklaréiert d’Eegeschafte vum Objet."
+  ],
+  "Un champ obligatoire manque dans le schéma.": [
+    "Required field is missing from the schema.",
+    "Ein Pflichtfeld fehlt im Schema.",
+    "E Pflichtfeld feelt am Schema."
+  ],
+  "Déclarez les éléments du tableau.": [
+    "Declare the array items.",
+    "Deklarieren Sie die Elemente der Liste.",
+    "Deklaréiert d’Elementer vun der Lëscht."
+  ],
+  "La structure est incompatible avec le type.": [
+    "Structure is incompatible with the type.",
+    "Die Struktur passt nicht zum Typ.",
+    "D’Struktur passt net zum Typ."
+  ],
+  "Choisissez une image PNG ou JPEG de moins de 250 Ko.": [
+    "Choose a PNG or JPEG image below 250 KB.",
+    "Wählen Sie ein PNG- oder JPEG-Bild unter 250 KB.",
+    "Wielt e PNG- oder JPEG-Bild ënner 250 KB."
+  ],
+  "Image base64 non valide.": [
+    "Invalid base64 image.",
+    "Ungültiges Base64-Bild.",
+    "Ongëltegt Base64-Bild."
+  ],
+  "Signature PNG non valide.": [
+    "Invalid PNG signature.",
+    "Ungültige PNG-Signatur.",
+    "Ongëlteg PNG-Signatur."
+  ],
+  "Signature JPEG non valide.": [
+    "Invalid JPEG signature.",
+    "Ungültige JPEG-Signatur.",
+    "Ongëlteg JPEG-Signatur."
+  ],
+  "Le texte enrichi actif n’est pas pris en charge ; utilisez du texte simple.": [
+    "Active rich text is not supported; use plain text.",
+    "Aktiver Rich Text wird nicht unterstützt; verwenden Sie einfachen Text.",
+    "Aktiven Rich Text gëtt net ënnerstëtzt; benotzt einfachen Text."
+  ],
+  "La valeur visuelle sort de la plage autorisée.": [
+    "Visual value is outside the allowed range.",
+    "Der visuelle Wert liegt außerhalb des erlaubten Bereichs.",
+    "De visuelle Wäert läit ausserhalb vum erlaabte Beräich."
+  ],
+  "Police indisponible.": [
+    "Font unavailable.",
+    "Schriftart nicht verfügbar.",
+    "Schrëft net disponibel."
+  ],
+  "Les ressources visuelles externes sont interdites.": [
+    "External visual resources are forbidden.",
+    "Externe visuelle Ressourcen sind nicht erlaubt.",
+    "Extern visuell Ressourcë sinn net erlaabt."
+  ],
+  "Le modèle dépasse 512 Ko.": [
+    "The template exceeds 512 KB.",
+    "Die Vorlage überschreitet 512 KB.",
+    "D’Virlag ass méi grouss wéi 512 KB."
+  ],
+  "Les données métier doivent être un objet.": [
+    "Business data must be an object.",
+    "Die Geschäftsdaten müssen ein Objekt sein.",
+    "D’Geschäftsdonnéeë mussen en Objet sinn."
+  ],
+  "Les marges sont incompatibles avec la page.": [
+    "Margins are incompatible with the page.",
+    "Die Ränder passen nicht zur Seite.",
+    "D’Ränner passen net zur Säit."
+  ],
+  "Les noms de blocs doivent être uniques.": [
+    "Block names must be unique.",
+    "Blocknamen müssen eindeutig sein.",
+    "D’Nimm vun de Bléck mussen eenzegaarteg sinn."
+  ],
+  "Le bloc dépasse de la page ; déplacez-le ou redimensionnez-le.": [
+    "The block extends beyond the page; move or resize it.",
+    "Der Block ragt über die Seite hinaus; verschieben oder verkleinern Sie ihn.",
+    "De Block geet iwwer d’Säit eraus; réckelt en oder ännert seng Gréisst."
+  ],
+  "Le texte utilise un débordement d’extension dynamique.": [
+    "Text uses dynamic expand overflow.",
+    "Der Text verwendet einen dynamischen Erweiterungsüberlauf.",
+    "Den Text benotzt en dynameschen Erweiderungsiwwerlaf."
+  ],
+  "La taille de police doit être comprise entre 6 et 72 points.": [
+    "Font size must be between 6 and 72 points.",
+    "Die Schriftgröße muss zwischen 6 und 72 Punkt liegen.",
+    "D’Schrëftgréisst muss tëscht 6 an 72 Punkte leien."
+  ],
+  "Seule la police intégrée GuteneoSans est qualifiée.": [
+    "Only the embedded GuteneoSans font is qualified.",
+    "Nur die eingebettete Schriftart GuteneoSans ist qualifiziert.",
+    "Just déi agebaut Schrëft GuteneoSans ass qualifizéiert."
+  ],
+  "Utilisez des liaisons déclaratives pour les variables.": [
+    "Use declarative bindings for variables.",
+    "Verwenden Sie deklarative Verknüpfungen für Variablen.",
+    "Benotzt deklarativ Verknëppunge fir Variabelen."
+  ],
+  "Le contenu est trop long.": [
+    "Content is too long.",
+    "Der Inhalt ist zu lang.",
+    "Den Inhalt ass ze laang."
+  ],
+  "En-têtes de tableau non valides.": [
+    "Invalid table headers.",
+    "Ungültige Tabellenüberschriften.",
+    "Ongëlteg Tabellekäpp."
+  ],
+  "Police du tableau indisponible.": [
+    "Table font unavailable.",
+    "Tabellenschriftart nicht verfügbar.",
+    "Schrëft vun der Tabell net disponibel."
+  ],
+  "Un bloc a plusieurs liaisons.": [
+    "A block has multiple bindings.",
+    "Ein Block hat mehrere Verknüpfungen.",
+    "E Block huet méi Verknëppungen."
+  ],
+  "Le bloc lié manque dans la définition.": [
+    "The bound block is missing from the definition.",
+    "Der verknüpfte Block fehlt in der Definition.",
+    "De verknëppte Block feelt an der Definitioun."
+  ],
+  "Le champ lié manque dans le schéma métier.": [
+    "The bound field is missing from the business schema.",
+    "Das verknüpfte Feld fehlt im Geschäftsschema.",
+    "D’verknëppt Feld feelt am Geschäftsschema."
+  ],
+  "Une liaison de tableau exige un bloc tableau et une liste métier.": [
+    "A table binding requires a table block and a business array.",
+    "Eine Tabellenverknüpfung erfordert einen Tabellenblock und eine Geschäftsliste.",
+    "Eng Tabelleverknëppung brauch en Tabelleblock an eng Geschäftslëscht."
+  ],
+  "La colonne manque dans le schéma métier.": [
+    "The column is missing from the business schema.",
+    "Die Spalte fehlt im Geschäftsschema.",
+    "D’Kolonn feelt am Geschäftsschema."
+  ],
+  "Les colonnes visuelles et métier doivent correspondre.": [
+    "Visual and business columns must match.",
+    "Visuelle und geschäftliche Spalten müssen übereinstimmen.",
+    "Visuell a geschäftlech Kolonne mussen iwwereneestëmmen."
+  ],
+  "Une liaison de valeur exige un bloc de texte.": [
+    "A value binding requires a text block.",
+    "Eine Wertverknüpfung erfordert einen Textblock.",
+    "Eng Wäertverknëppung brauch en Textblock."
+  ],
+  "Un total exige une liste et une valeur déclarée.": [
+    "A total requires an array and a declared value.",
+    "Eine Summe erfordert eine Liste und einen deklarierten Wert.",
+    "Eng Zomm brauch eng Lëscht an en deklaréierte Wäert."
+  ],
+  "La condition manque dans le schéma.": [
+    "The condition is missing from the schema.",
+    "Die Bedingung fehlt im Schema.",
+    "D’Konditioun feelt am Schema."
+  ],
+  "Valeur obligatoire manquante.": [
+    "Missing required value.",
+    "Pflichtwert fehlt.",
+    "Pflichtwäert feelt."
+  ],
+  "Un objet est attendu.": [
+    "Object expected.",
+    "Ein Objekt wird erwartet.",
+    "En Objet gëtt erwaart."
+  ],
+  "La liste manque ou est trop longue.": [
+    "Array is missing or too large.",
+    "Die Liste fehlt oder ist zu groß.",
+    "D’Lëscht feelt oder ass ze grouss."
+  ],
+  "Un nombre fini est attendu.": [
+    "Finite number expected.",
+    "Eine endliche Zahl wird erwartet.",
+    "Eng endlech Zuel gëtt erwaart."
+  ],
+  "Le texte est trop long.": [
+    "Text is too long.",
+    "Der Text ist zu lang.",
+    "Den Text ass ze laang."
+  ],
+  "Utilisez une date valide au format AAAA-MM-JJ.": [
+    "Use a valid date in YYYY-MM-DD format.",
+    "Verwenden Sie ein gültiges Datum im Format JJJJ-MM-TT.",
+    "Benotzt e gëltegen Datum am Format JJJJ-MM-DD."
+  ],
+  "Adresse e-mail non valide.": [
+    "Invalid email address.",
+    "Ungültige E-Mail-Adresse.",
+    "Ongëlteg E-Mail-Adress."
+  ],
+  "La valeur ne fait pas partie des choix autorisés.": [
+    "Value is outside the allowed choices.",
+    "Der Wert gehört nicht zu den erlaubten Optionen.",
+    "De Wäert gehéiert net zu den erlaabten Optiounen."
+  ],
+  "Les données dépassent 512 Ko.": [
+    "Data exceeds 512 KB.",
+    "Die Daten überschreiten 512 KB.",
+    "D’Donnéeë si méi grouss wéi 512 KB."
+  ],
+  "Un entier exact est requis pour le calcul.": [
+    "An exact integer is required for calculation.",
+    "Für die Berechnung ist eine exakte Ganzzahl erforderlich.",
+    "Fir d’Berechnung brauch een eng exakt Ganzzuel."
+  ],
+  "Le résultat dépasse la précision autorisée.": [
+    "The result exceeds the allowed precision.",
+    "Das Ergebnis überschreitet die erlaubte Genauigkeit.",
+    "D’Resultat geet iwwer déi erlaabt Präzisioun eraus."
+  ],
+  "Un nombre est attendu.": [
+    "Number expected.",
+    "Eine Zahl wird erwartet.",
+    "Eng Zuel gëtt erwaart."
+  ],
+  "Une date au format AAAA-MM-JJ est requise.": [
+    "A YYYY-MM-DD date is required.",
+    "Ein Datum im Format JJJJ-MM-TT ist erforderlich.",
+    "En Datum am Format JJJJ-MM-DD ass néideg."
+  ],
+  "Une valeur simple est attendue.": [
+    "A simple value is expected.",
+    "Ein einfacher Wert wird erwartet.",
+    "En einfache Wäert gëtt erwaart."
+  ],
+  "Valeur liée manquante.": [
+    "Missing bound value.",
+    "Verknüpfter Wert fehlt.",
+    "Verknëppte Wäert feelt."
+  ],
+  "Une liste est attendue.": [
+    "Array expected.",
+    "Eine Liste wird erwartet.",
+    "Eng Lëscht gëtt erwaart."
+  ],
+  "Cellule obligatoire manquante.": [
+    "Missing required cell.",
+    "Pflichtzelle fehlt.",
+    "Pflichtzell feelt."
+  ],
+  "Une liste est requise pour le total.": [
+    "An array is required for the total.",
+    "Für die Summe ist eine Liste erforderlich.",
+    "Fir d’Zomm brauch een eng Lëscht."
+  ],
+  "Bloc introuvable.": [
+    "Block not found.",
+    "Block nicht gefunden.",
+    "Block net fonnt."
+  ],
+  "Liez ce tableau à des données avant d’ajouter une colonne.": [
+    "Bind this table to data before adding a column.",
+    "Verknüpfen Sie diese Tabelle mit Daten, bevor Sie eine Spalte hinzufügen.",
+    "Verknëppt dës Tabell mat Donnéeën, ier Dir eng Kolonn bäisetzt."
+  ],
+  "Un objet métier par ligne est requis.": [
+    "One business object per row is required.",
+    "Pro Zeile ist ein Geschäftsobjekt erforderlich.",
+    "Pro Zeil brauch een e Geschäftsobjet."
+  ],
+  "Le chemin traverse un champ qui n’est pas un objet.": [
+    "The path crosses a non-object field.",
+    "Der Pfad führt durch ein Feld, das kein Objekt ist.",
+    "De Pfad geet duerch e Feld, dat keen Objet ass."
+  ],
+  "Le champ existe déjà ; réutilisez-le sans redéclarer son type.": [
+    "The field already exists; reuse it without redeclaring its type.",
+    "Das Feld existiert bereits; verwenden Sie es erneut, ohne seinen Typ neu zu deklarieren.",
+    "D’Feld gëtt et schonn; benotzt et nach eng Kéier, ouni säin Typ nei ze deklaréieren."
   ]
 }
