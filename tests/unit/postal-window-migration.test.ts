@@ -1,6 +1,7 @@
 import { readFile, readdir } from "node:fs/promises";
 import { afterAll, beforeAll, expect, it } from "vitest";
 import { Miniflare, convertV4MiniflareOptions } from "miniflare";
+import { quickCheckTables } from "../../scripts/d1-integrity.mjs";
 import { unstable_splitSqlQuery } from "wrangler";
 import { canonicalJson, sha256 } from "../../packages/domain/src/index";
 import {
@@ -348,9 +349,7 @@ it("extends active non-French qualifications without changing history, expiry, r
   expect((await db.prepare("PRAGMA foreign_key_check").all()).results).toEqual(
     [],
   );
-  expect(
-    await db.prepare("PRAGMA quick_check").first<string>("quick_check"),
-  ).toBe("ok");
+  expect(await quickCheckTables(db)).toBe("ok");
 });
 
 async function verifyHistoricalRenewal() {

@@ -44,7 +44,7 @@ These are recovery references, not a request to restore. Restoration after onboa
 
 ## Reproduce the transport proof
 
-Run `node scripts/migrate-remote.mjs --verify` for the local equivalence and integrity check. `--verify --schema` additionally prints the local normalized schema. Run `node scripts/migrate-remote.mjs` to list migration hashes/counts; `--json` emits the schema-only API batch plan. The helper does not read credentials or apply remote writes itself.
+Run `node scripts/migrate-remote.mjs --verify` for the local equivalence and integrity check. The integrity check runs `PRAGMA quick_check` once per table through `scripts/d1-integrity.mjs`: with the full schema, a single database-wide check exceeds the local D1 runtime's memory on CI. Per table it still verifies every row's NOT NULL and CHECK constraints and each table's indexes; the migration tests use the same helper. `--verify --schema` additionally prints the local normalized schema. Run `node scripts/migrate-remote.mjs` to list migration hashes/counts; `--json` emits the schema-only API batch plan. The helper does not read credentials or apply remote writes itself.
 
 For a future authorized remote migration, first read the current migration ledger, retain a Time Travel bookmark, and select only unapplied entries from the reviewed plan. Submit each entry's entire `batch` to `POST /accounts/{account_id}/d1/database/{database_id}/query` through an authenticated Cloudflare connector/API client. Do not split a migration into separate requests. Confirm the ledger, schema, foreign keys and integrity afterward. Never replay the initial plan against an already migrated database.
 

@@ -1,6 +1,7 @@
 import { readFileSync, readdirSync } from "node:fs";
 import { Miniflare, convertV4MiniflareOptions } from "miniflare";
 import { unstable_splitSqlQuery } from "wrangler";
+import { quickCheckTables } from "../../scripts/d1-integrity.mjs";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import {
   faxUsageEstimate,
@@ -195,9 +196,7 @@ describe("bounded +3524 pilot extension — populated isolated D1", () => {
     expect(
       (await db.prepare("PRAGMA foreign_key_check").all()).results,
     ).toEqual([]);
-    expect(await db.prepare("PRAGMA quick_check").first()).toEqual({
-      quick_check: "ok",
-    });
+    expect(await quickCheckTables(db)).toBe("ok");
     expect(
       (await db.prepare("PRAGMA foreign_key_list(live_fax_quotes_v3)").all())
         .results,
