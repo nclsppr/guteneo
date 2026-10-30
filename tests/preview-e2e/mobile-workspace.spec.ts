@@ -167,9 +167,10 @@ test("mobile v2 account menu keeps 44 pixel items and closes on Escape or outsid
   await expect(trigger).toHaveAttribute("aria-expanded", "false");
   await trigger.click();
   await expect(menu).toBeVisible();
-  // The open menu covers the page heading; select an uncovered area instead.
+  // The open menu, beside the brand, covers the right of the header and the
+  // page heading; select the uncovered application label instead.
   await page
-    .locator(".sidebar .workspace-switcher .space-switcher-static")
+    .locator(".sidebar .application-switcher .space-switcher-static")
     .click();
   await expect(menu).toBeHidden();
   expect(

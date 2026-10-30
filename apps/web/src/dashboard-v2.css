@@ -571,11 +571,15 @@
   .workspace-v2 main {
     padding: 26px 22px 40px;
   }
+  /* The account sits beside the brand: one row less before the page. */
   .workspace-v2 .sidebar-account {
-    grid-column: 1 / -1;
-    margin-top: 8px;
-    padding-top: 8px;
-    border-top: 1px solid var(--line);
+    grid-row: 1;
+    grid-column: 2;
+    justify-self: end;
+    align-self: center;
+    margin: 0 0 14px;
+    padding: 0;
+    border-top: 0;
   }
   .workspace-v2 .sidebar nav a.workspace-create {
     grid-column: 1 / -1;
