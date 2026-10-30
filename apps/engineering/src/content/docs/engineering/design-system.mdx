@@ -384,8 +384,10 @@ For web copy, call `msg("English source", ...values)` during render or reuse a
 common `t` entry. Register complete translations in the established locale
 catalogs. Their existing storage format uses a French lookup with an
 English/German/Luxembourgish array; `message-catalog.ts` derives the English
-source lookup. That storage format is localization data, not permission to add
-French prose to component source.
+source lookup catalog by catalog (`englishIndex`), so two catalogs that share a
+French wording with different English sources both stay translated. That
+storage format is localization data, not permission to add French prose to
+component source.
 
 Use `msgIn("stable-context", "English source", ...values)` when the same English
 phrase has distinct grammatical meanings, and register its explicit context in
