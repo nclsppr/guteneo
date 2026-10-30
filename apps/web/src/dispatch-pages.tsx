@@ -1702,7 +1702,12 @@ export function DispatchList({ canPrepare = true }: { canPrepare?: boolean }) {
         }
       />
       {/* A new key per filter: never show the previous selection's rows. */}
-      <DispatchListResults key={path} path={path} filtered={!!group}>
+      <DispatchListResults
+        key={path}
+        path={path}
+        filtered={!!group}
+        canPrepare={canPrepare}
+      >
         <nav className="dispatch-filter" aria-label={t.dispatch.filterLabel}>
           {([undefined, ...dispatchGroupNames] as const).map((item) => (
             <a
@@ -1724,10 +1729,12 @@ export function DispatchList({ canPrepare = true }: { canPrepare?: boolean }) {
 function DispatchListResults({
   path,
   filtered,
+  canPrepare,
   children,
 }: {
   path: string;
   filtered: boolean;
+  canPrepare: boolean;
   children: ReactNode;
 }) {
   const resource = useResource<Page<Dispatch>>(path);
@@ -1754,7 +1761,21 @@ function DispatchListResults({
         (filtered && !resource.data.items.length ? (
           <p className="empty-inline">{t.dispatch.groupEmpty}</p>
         ) : (
-          <DispatchTable items={resource.data.items} />
+          <DispatchTable
+            items={resource.data.items}
+            emptyAction={
+              canPrepare && (
+                <div className="button-group">
+                  <a className="button" href="#/app/prepare">
+                    {t.dispatch.new}
+                  </a>
+                  <a className="button" href="#/app/studio/generations">
+                    {msg("From a generation")}
+                  </a>
+                </div>
+              )
+            }
+          />
         ))
       )}
       <LoadMore
