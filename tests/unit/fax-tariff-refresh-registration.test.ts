@@ -49,7 +49,7 @@ beforeEach(async () => {
     operator_authorization_reference: "ISOLATED LIVE PILOT AUTHORITY",
     operator_test_ceiling_minor: 200,
     local_calling_verified: 0,
-    max_pages: 7,
+    max_pages: 10,
     quote_ttl_seconds: 900,
     expires_at: "2026-10-28T10:00:00.000Z",
   });
@@ -83,6 +83,7 @@ describe("one-time public fax reference registration", () => {
       "registration_only_first_refresh_requires_current_catalog_source_and_provider_reads",
     );
     expect(p.source.tariff_catalog).toBe("global_conversational");
+    expect(p.snapshot.tariff.max_pages).toBe(10);
     expect(p.discovery).toEqual({
       tariffCatalog: "global_conversational",
       currentCatalogUrl: "https://api.telnyx.com/v2/tariffs",
@@ -316,7 +317,7 @@ it("does not start an operator policy before the initial tariff's valid-from", a
       operator_authorization_reference: "ISOLATED FUTURE AUTHORITY",
       operator_test_ceiling_minor: 200,
       local_calling_verified: 0,
-      max_pages: 7,
+      max_pages: 10,
       expires_at: "2026-11-01T10:00:00.000Z",
     },
   );

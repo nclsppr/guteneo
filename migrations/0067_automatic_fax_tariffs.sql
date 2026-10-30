@@ -50,7 +50,7 @@ CREATE VIEW valid_fax_tariff_refresh_sources AS
  AND anchor.destination_prefix=source.destination_prefix AND anchor.options_json=source.options_json
  AND anchor.origin_class='local' AND anchor.sender_country_code='LU' AND anchor.destination_country_code='LU'
  AND anchor.destination_category='fixed' AND anchor.route_qualification='operator_test'
- AND anchor.route_allowed=1 AND anchor.local_calling_verified=0 AND anchor.max_pages<=7
+ AND anchor.route_allowed=1 AND anchor.local_calling_verified=0 AND anchor.max_pages<=10
  AND anchor.operator_test_ceiling_minor<=200 AND anchor.quote_ttl_seconds<=900
  AND anchor.initial_seconds=60 AND anchor.increment_seconds=60 AND anchor.call_nano_usd=0
  AND substr(sender.address,1,length(anchor.sender_prefix))=anchor.sender_prefix;

@@ -79,7 +79,7 @@ beforeEach(async () => {
     operator_authorization_reference: "ISOLATED LIVE PILOT AUTHORITY",
     operator_test_ceiling_minor: 200,
     execution_scope: "live",
-    max_pages: 7,
+    max_pages: 10,
     quote_ttl_seconds: 900,
     valid_from: "2026-10-28T10:00:00.000Z",
     expires_at: deadline,
@@ -289,6 +289,7 @@ describe("automatic real fax tariff references", () => {
       valid_from: stamp(),
       expires_at: deadline,
       quote_ttl_seconds: 900,
+      max_pages: 10,
       operator_test_ceiling_minor: 200,
       execution_scope: "live",
     });
@@ -314,6 +315,7 @@ describe("automatic real fax tariff references", () => {
       minute_nano_usd: 12_000_002,
       fx_date: "2026-10-31",
       expires_at: deadline,
+      max_pages: 10,
     });
     expect(fetcher.mock.calls.slice(7).map(([url]) => String(url))).toContain(
       currentDeckUrl,
@@ -685,4 +687,44 @@ describe("automatic real fax tariff references", () => {
     });
     await noExecution();
   });
+});
+
+it("refuses a live page-limit change instead of changing the registered anchor", async () => {
+  await register();
+  await db
+    .prepare(
+      "UPDATE trusted_fax_usage_tariffs SET status='revoked' WHERE organization_id=? AND id=?",
+    )
+    .bind(fixture.ctx.organizationId, fixture.tariff.id)
+    .run();
+  await insertRecord(db, "trusted_fax_usage_tariffs", {
+    ...fixture.tariff,
+    id: crypto.randomUUID(),
+    max_pages: 9,
+  });
+  const fetcher = network();
+  expect(await refreshFaxTariffs(env, { now, fetcher })).toEqual({
+    ...empty,
+    tariffRefreshFailed: 1,
+  });
+  expect(fetcher).not.toHaveBeenCalled();
+  expect((await state())?.last_error_code).toBe("BINDING_CHANGED");
+  expect((await current())?.max_pages).toBe(9);
+});
+
+it("rejects an eleven-page live tariff while preserving the registered ten-page policy", async () => {
+  await register();
+  await expect(
+    insertRecord(db, "trusted_fax_usage_tariffs", {
+      ...fixture.tariff,
+      id: crypto.randomUUID(),
+      max_pages: 11,
+    }),
+  ).rejects.toThrow(/CHECK/);
+  expect((await current())?.max_pages).toBe(10);
+  expect(await refreshFaxTariffs(env, { now, fetcher: network() })).toEqual({
+    ...empty,
+    tariffsRefreshed: 1,
+  });
+  expect((await current())?.max_pages).toBe(10);
 });

@@ -22,12 +22,14 @@ expert mandates remain independent gates.
 ## Current supported scope
 
 This candidate supports only the existing local Luxembourg fixed `+3524`
-operator-test route with canonical options `{}`, at most seven pages and a
-200-cent ceiling. Its independently authorized pilot deadline remains
+operator-test route with canonical options `{}`. Refresh preserves the existing
+live tariff's exact page limit, up to ten pages, and its 200-cent ceiling; it
+cannot increase or decrease that limit. Its independently authorized pilot deadline remains
 3 November 2026; daily source refresh does not extend that deadline. Other
 prefixes, destinations, option combinations or normal provider-verified routes
 are not implemented by this maintenance path and must not be registered as if
-covered. Continuous archived reviewer preparation remains separate.
+covered. Continuous archived reviewer preparation remains separate and retains
+its seven-page maximum.
 
 The registration utility requires an absolute regular `0600` configuration and
 plan inside a `0700` private directory outside every Git working tree. Inspect

@@ -118,7 +118,7 @@ function validateSnapshot(s, c, now) {
     t.options_json !== "{}" ||
     t.route_allowed !== 1 ||
     t.local_calling_verified !== 0 ||
-    t.max_pages > 7 ||
+    t.max_pages > 10 ||
     t.operator_test_ceiling_minor > 200 ||
     t.quote_ttl_seconds > 900 ||
     t.initial_seconds !== 60 ||

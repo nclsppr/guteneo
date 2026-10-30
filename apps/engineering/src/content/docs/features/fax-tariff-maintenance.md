@@ -18,7 +18,7 @@ Source candidate for the bounded local +3524 pilot only; schema, actual server-k
 ## Capabilities
 
 <ol>
-<li id="feature-fdb86cb6a0ae">Current candidate covers only the existing local Luxembourg fixed +3524 operator-test route with canonical empty options, at most seven pages and EUR2; source refresh never extends its independent 3 November 2026 pilot deadline</li>
+<li id="feature-45498dac8f73">Current candidate covers only the existing local Luxembourg fixed +3524 operator-test route with canonical empty options and EUR2; refresh preserves its exact existing page limit up to ten pages and never extends its independent 3 November 2026 pilot deadline; continuous reviewer preparation remains capped at seven pages</li>
 <li id="feature-fea7c89505c3">Explicit registration binds an exact tenant, sender, provider account/application/profile, destination prefix and options to an authorized global-conversational public commercial catalog</li>
 <li id="feature-3a4c32b375ed">Daily authenticated current-catalog discovery plus bounded official fax-page, selected allowlisted CSV and dated ECB reads and current provider ownership inspection create new immutable revisions with at most 168-hour validity</li>
 <li id="feature-c7cdcc6fb886">Public commercial references do not claim negotiated supplier prices or a freshly observed provider UI association; original source and association dates retain their meaning</li>
