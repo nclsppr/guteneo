@@ -34,7 +34,7 @@ export async function generationRecordContext(
     ? Math.max(1, Math.min(50, Math.floor(limit)))
     : 50;
   const rows = await env.DB.prepare(
-    "SELECT r.record_id,r.input_json FROM generation_records r JOIN generation_jobs j ON j.organization_id=r.organization_id AND j.id=r.job_id AND j.owner_id=? JOIN memberships m ON m.organization_id=j.organization_id AND m.user_id=j.owner_id AND m.role=? AND (m.role<>'supervisor' OR (m.supervisor_can_approve=? AND m.supervisor_can_report=?)) JOIN organizations o ON o.id=m.organization_id AND o.mode=? WHERE r.organization_id=? AND r.job_id=? AND (? IS NULL OR r.record_id=?) AND r.record_id>? ORDER BY r.record_id LIMIT ?",
+    "SELECT r.record_id,r.input_json,r.document_id FROM generation_records r JOIN generation_jobs j ON j.organization_id=r.organization_id AND j.id=r.job_id AND j.owner_id=? JOIN memberships m ON m.organization_id=j.organization_id AND m.user_id=j.owner_id AND m.role=? AND (m.role<>'supervisor' OR (m.supervisor_can_approve=? AND m.supervisor_can_report=?)) JOIN organizations o ON o.id=m.organization_id AND o.mode=? WHERE r.organization_id=? AND r.job_id=? AND (? IS NULL OR r.record_id=?) AND r.record_id>? ORDER BY r.record_id LIMIT ?",
   )
     .bind(
       ctx.userId,
@@ -49,7 +49,11 @@ export async function generationRecordContext(
       recordId === undefined ? (cursor ?? "") : "",
       recordId === undefined ? limit + 1 : 1,
     )
-    .all<{ record_id: string; input_json: string }>();
+    .all<{
+      record_id: string;
+      input_json: string;
+      document_id: string | null;
+    }>();
   if (!rows.results.length) await workflow.getGeneration(ctx, id);
   const contexts = rows.results.slice(0, limit).map((row) => {
     const data = JSON.parse(row.input_json) as Record<string, unknown>;
@@ -104,12 +108,16 @@ export async function generationRecordContext(
         80,
       ),
     };
-    return { context, data };
+    return { context, data, documentId: row.document_id };
   });
   if (recordId !== undefined) {
     if (!contexts.length)
       fail("GENERATION_RECORD_NOT_FOUND", "Record not found.", 404);
-    return { ...contexts[0].context, data: contexts[0].data };
+    return {
+      ...contexts[0].context,
+      data: contexts[0].data,
+      documentId: contexts[0].documentId,
+    };
   }
   // The owner's own template name, so pages need no second, dependent read.
   const template = await env.DB.prepare(

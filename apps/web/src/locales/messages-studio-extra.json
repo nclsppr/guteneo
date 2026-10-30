@@ -193,5 +193,6 @@
     "Generating creates a new PDF for this document only; the original generation and its PDFs stay unchanged. To change the layout or text of every document, create a new template version.",
     "Die Erzeugung erstellt nur für dieses Dokument ein neues PDF; die ursprüngliche Generierung und ihre PDFs bleiben unverändert. Um Layout oder Text aller Dokumente zu ändern, erstellen Sie eine neue Vorlagenversion.",
     "D’Generéierung mécht en neit PDF just fir dëst Dokument; déi ursprénglech Generéierung an hir PDFe bleiwen onverännert. Fir de Layout oder den Text vun allen Dokumenter z’änneren, maacht eng nei Versioun vun der Virlag."
-  ]
+  ],
+  "PDF actuel": ["Current PDF", "Aktuelles PDF", "Aktuellt PDF"]
 }

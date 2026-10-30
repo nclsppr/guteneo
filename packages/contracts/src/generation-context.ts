@@ -7,6 +7,8 @@ export type GenerationRecordContext = {
 };
 export type GenerationCorrectionInput = GenerationRecordContext & {
   data: Record<string, unknown>;
+  /** The record's current PDF, shown beside its correction. */
+  documentId: string | null;
 };
 /** One page of labels; the template name is present for the generation's owner. */
 export type GenerationContextPage = {
