@@ -1,6 +1,6 @@
 ---
 title: "Workspace layout and browser appearance"
-description: "36 capabilities in the operate branch of Guteneo."
+description: "37 capabilities in the operate branch of Guteneo."
 sidebar:
   order: 18
 ---
@@ -54,4 +54,5 @@ The 29 October 2026 Studio space, the application/workspace switchers and the fo
 <li id="feature-7658af281325">Table controls reset the browser page after search/filter/sort/page-size changes, clamp shrinking results, offer clear-filter recovery and persist no search or record state; explicit cursor loading stays visible, server-paged Belvédère search/pagination remains authoritative and local column sorting identifies its current-page scope; four human roles, personal isolation and business authority are unchanged</li>
 <li id="feature-8dd4afef2e51">DEV + public-preview + loopback-only simulation controls select four fictional membership roles and a separate observer platform-access hint; unsaved-navigation veto, scenario identity remount and scoped IDs/cursors preserve account separation without Auth0, memberships or business authority</li>
 <li id="feature-feefe2bbffe9">Reproducible seeded Small/Large/Huge/Extreme metadata profiles expose up to one billion logical documents, dispatches, templates, datasets and generations while generating at most fifty records per read; generated volumes and fictional personal documents are read-only, bounded PDF caches materialize only requested bytes and fixture failures never fall through to production</li>
+<li id="feature-f04217fd708e">Shared table regions have distinct accessible names and source-range captions retain table naming; keyboard journeys traverse added search/sort controls, pagination tests inspect all loaded rows, and responsive assertions distinguish active cards from intentionally scrollable wider tables</li>
 </ol>

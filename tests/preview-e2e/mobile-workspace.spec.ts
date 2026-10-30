@@ -11,11 +11,21 @@ async function fits(page: Page) {
       'main .table-scroll, main .data-table[data-layout="cards"] .data-table__scroll',
     )
     .all()) {
-    expect(
-      await table.evaluate(
-        (element) => element.scrollWidth - element.clientWidth,
-      ),
-    ).toBeLessThanOrEqual(1);
+    const layout = await table.evaluate((element) => {
+      const grid = element.querySelector(".data-table__grid");
+      return {
+        adaptive: grid !== null,
+        cards: grid ? getComputedStyle(grid).display === "block" : true,
+        overflow: element.scrollWidth - element.clientWidth,
+        overflowX: getComputedStyle(element).overflowX,
+      };
+    });
+    if (layout.adaptive && !layout.cards) {
+      if (layout.overflow > 1)
+        expect(["auto", "scroll"]).toContain(layout.overflowX);
+    } else {
+      expect(layout.overflow).toBeLessThanOrEqual(1);
+    }
   }
 }
 

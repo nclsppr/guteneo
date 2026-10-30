@@ -1,0 +1,83 @@
+{
+  "qualification": "Local fictional fixtures and browser regression checks, separate from hosted CI and production.",
+  "baseCommit": "4220c3f2ce2d1a94ee5d51234aaea83f0d58d6c1",
+  "checks": [
+    {
+      "scope": "Loaded rows, browser paging and explicit refresh",
+      "stats": {
+        "startTime": "2026-10-30T19:54:34.279Z",
+        "duration": 8027.256000000001,
+        "expected": 2,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "reportSha256": "729d922731ebe1c0381b08b6b31761f76cef73073cab024ba631dacda7593433"
+    },
+    {
+      "scope": "Source captions, keyboard traversal, delayed focus and observer Studio",
+      "stats": {
+        "startTime": "2026-10-30T20:13:27.988Z",
+        "duration": 38876.219,
+        "expected": 12,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "reportSha256": "1ab38adf4d28a4ac3a7518ded98ff74a4b93fa802c70ff5b647b0aa3f75cdff1"
+    },
+    {
+      "scope": "Distinct account landmarks and exact member actions",
+      "stats": {
+        "startTime": "2026-10-30T20:16:36.537Z",
+        "duration": 5866.724999999999,
+        "expected": 3,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "reportSha256": "c830dc9c8b02b8bf4972e68389773fb89497bc5312e5b4e74914dd72714f7f14"
+    },
+    {
+      "scope": "Phone cards and landscape contained scrolling",
+      "stats": {
+        "startTime": "2026-10-30T20:15:20.128Z",
+        "duration": 5687.258,
+        "expected": 1,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "reportSha256": "b7b9cca2548c4d1221a898afaae3b1e5be53f4dc3d60168efd43e6407c233fbe"
+    },
+    {
+      "scope": "Complete fictional Belvedere Chromium and iPhone views",
+      "stats": {
+        "startTime": "2026-10-30T21:04:16.650Z",
+        "duration": 104609.45700000001,
+        "expected": 50,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "reportSha256": "dabbddc36d0308163f7750bd62f1a131423f73354d886f13649f52dd0ae66edf"
+    },
+    {
+      "scope": "Local role/volume controls responsive appearance",
+      "stats": {
+        "startTime": "2026-10-30T19:20:30.034Z",
+        "duration": 6577.649,
+        "expected": 2,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "reportSha256": "b5c5dc0a540157fb8ce3d071e0df42eb0d4cb912d2af137ee1e6f53acc4165b2"
+    }
+  ],
+  "independentDistribution": {
+    "strongPassed": 14,
+    "verifiedAccountPassed": 2,
+    "qualification": "Independent local Worker/rendering transport with fictional accounts, byte checks, policy and invitation privacy assertions; no provider delivery."
+  }
+}

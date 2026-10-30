@@ -27,7 +27,7 @@
   display: none;
 }
 .local-preview-controls > summary:focus-visible {
-  outline: 2px solid var(--focus);
+  outline: 2px solid var(--action);
   outline-offset: -3px;
 }
 .local-preview-controls > summary:hover {
@@ -52,10 +52,9 @@
 }
 .local-preview-controls fieldset {
   display: grid;
-  grid-template-columns: minmax(140px, 1fr) minmax(160px, 1.1fr) minmax(
-      150px,
-      1fr
-    ) auto;
+  grid-template-columns:
+    minmax(140px, 1fr) minmax(160px, 1.1fr) minmax(150px, 1fr)
+    auto;
   align-items: end;
   gap: 12px;
   margin: 0;
@@ -77,6 +76,11 @@
   min-height: 44px;
   margin: 0;
   background-color: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: none;
+  color: var(--ink);
+  padding: 10px 12px;
   font-size: 14px;
 }
 .local-preview-controls__seed input {

@@ -63,5 +63,6 @@
     "Page {0} of {1}",
     "Seite {0} von {1}",
     "Säit {0} vun {1}"
-  ]
+  ],
+  "Tableau : {0}": ["Table: {0}", "Tabelle: {0}", "Tabell: {0}"]
 }

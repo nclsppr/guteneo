@@ -48,15 +48,22 @@ async function checkKeyboardTable(
   previousControl: Locator,
   browserName: string,
   mobile: boolean,
+  controlsBeforeRegion: Locator[] = [],
 ) {
   await expect(region).toHaveAttribute("tabindex", "0");
   await previousControl.focus();
   // WebKit follows the macOS full-keyboard-access setting for non-form targets.
-  await page.keyboard.press(
+  const tab =
     browserName === "webkit" && process.platform === "darwin"
       ? "Alt+Tab"
-      : "Tab",
-  );
+      : "Tab";
+  for (const control of controlsBeforeRegion) {
+    if (await control.isVisible()) {
+      await page.keyboard.press(tab);
+      await expect(control).toBeFocused();
+    }
+  }
+  await page.keyboard.press(tab);
   await expect(region).toBeFocused();
   expect(
     await region.evaluate((element) => getComputedStyle(element).outlineStyle),
@@ -67,6 +74,16 @@ async function checkKeyboardTable(
     ),
   ).toBeGreaterThanOrEqual(2);
   if (mobile) {
+    // Original source coordinates keep a scrollable grid; result cards fit
+    // the narrow page while retaining the same keyboard-reachable region.
+    if ((await region.locator("..").getAttribute("data-layout")) !== "scroll") {
+      expect(
+        await region.evaluate(
+          (element) => element.scrollWidth <= element.clientWidth,
+        ),
+      ).toBe(true);
+      return;
+    }
     expect(
       await region.evaluate(
         (element) => element.scrollWidth > element.clientWidth,
@@ -82,6 +99,26 @@ async function checkKeyboardTable(
       .poll(() => region.evaluate((element) => element.scrollLeft))
       .toBe(before);
   }
+}
+
+async function tabToFirstRowControl(
+  page: Page,
+  region: Locator,
+  control: Locator,
+  browserName: string,
+) {
+  const tab =
+    browserName === "webkit" && process.platform === "darwin"
+      ? "Alt+Tab"
+      : "Tab";
+  for (const sort of await region.locator("thead").getByRole("button").all()) {
+    if (await sort.isVisible()) {
+      await page.keyboard.press(tab);
+      await expect(sort).toBeFocused();
+    }
+  }
+  await page.keyboard.press(tab);
+  await expect(control).toBeFocused();
 }
 
 test("XML records determine each PDF channel and recipient without sending", async ({
@@ -183,15 +220,26 @@ test("XML records determine each PDF channel and recipient without sending", asy
     }),
   ).toBeVisible();
   await expect(page.getByText("0007", { exact: true })).toBeVisible();
+  const previewControls = page.getByRole("group", {
+    name: "Aperçu original — Data",
+    exact: true,
+  });
   await checkKeyboardTable(
     page,
     page.getByRole("region", {
-      name: "Aperçu original — Data",
+      name: "Tableau : Aperçu original — Data",
       exact: true,
     }),
     page.getByLabel("Feuille de l’aperçu", { exact: true }),
     browserName,
     isMobile,
+    [
+      previewControls.getByRole("searchbox"),
+      previewControls.getByRole("combobox", {
+        name: "Trier par colonne",
+        exact: true,
+      }),
+    ],
   );
   let releaseTemplate!: () => void;
   let announceTemplateRead!: () => void;
@@ -330,12 +378,13 @@ test("XML records determine each PDF channel and recipient without sending", asy
   // Progress and results refresh independently. Tab must wait for the result,
   // rather than skip a checkbox that still belongs to the earlier snapshot.
   await expect(firstRecord).toBeEnabled();
+  const resultsRegion = page.getByRole("region", {
+    name: "Tableau : Résultats de cette génération",
+    exact: true,
+  });
   await checkKeyboardTable(
     page,
-    page.getByRole("region", {
-      name: "Résultats de cette génération",
-      exact: true,
-    }),
+    resultsRegion,
     // Selecting and preparing sit just before the results table.
     page.getByRole("button", {
       name: "Sélectionner les PDF vérifiés affichés",
@@ -344,12 +393,7 @@ test("XML records determine each PDF channel and recipient without sending", asy
     browserName,
     isMobile,
   );
-  await page.keyboard.press(
-    browserName === "webkit" && process.platform === "darwin"
-      ? "Alt+Tab"
-      : "Tab",
-  );
-  await expect(firstRecord).toBeFocused();
+  await tabToFirstRowControl(page, resultsRegion, firstRecord, browserName);
   await page.keyboard.press("Space");
   await expect(firstRecord).toBeChecked();
   await page
@@ -550,26 +594,20 @@ test("a slower generation result read preserves focus until selection becomes av
     ).toBeVisible();
     await expect(selection).toBeDisabled();
     const region = page.getByRole("region", {
-      name: "Résultats de cette génération",
+      name: "Tableau : Résultats de cette génération",
       exact: true,
     });
-    const tab =
-      browserName === "webkit" && process.platform === "darwin"
-        ? "Alt+Tab"
-        : "Tab";
     await region.focus();
-    await page.keyboard.press(tab);
     const provenance = region.getByRole("button", {
       name: "Voir la provenance",
       exact: true,
     });
-    await expect(provenance).toBeFocused();
+    await tabToFirstRowControl(page, region, provenance, browserName);
     release();
     await expect(selection).toBeEnabled();
     await expect(provenance).toBeFocused();
     await region.focus();
-    await page.keyboard.press(tab);
-    await expect(selection).toBeFocused();
+    await tabToFirstRowControl(page, region, selection, browserName);
     await page.keyboard.press("Space");
     await expect(selection).toBeChecked();
   } finally {

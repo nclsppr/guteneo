@@ -1,7 +1,7 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
 # Guteneo feature tree and developer atlas
 
-**26 domains · 404 features · 43 journeys · 76 documented REST operations · 83 MCP tools**
+**26 domains · 405 features · 43 journeys · 76 documented REST operations · 83 MCP tools**
 Updated 2026-10-30.
 
 Repository implementation inventory. Availability depends on current capabilities and authority; implementation, activation and deployed proof are distinct.
@@ -30,7 +30,7 @@ mindmap
     Operate
       Campaigns and tracking (8)
       Credits and billing (8)
-      Workspace layout and browser appearance (36)
+      Workspace layout and browser appearance (37)
       PDF verification (10)
     Interfaces
       Assistants and API (31)
@@ -71,7 +71,7 @@ mindmap
 
 - [Campaigns and tracking](#campaigns) — 8 features; capability-gated.
 - [Credits and billing](#billing) — 8 features; partial.
-- [Workspace layout and browser appearance](#dashboard) — 36 features; browser-session.
+- [Workspace layout and browser appearance](#dashboard) — 37 features; browser-session.
 - [PDF verification](#pdf-verification) — 10 features; capability-gated.
 
 ### Interfaces
@@ -901,6 +901,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Table controls reset the browser page after search/filter/sort/page-size changes, clamp shrinking results, offer clear-filter recovery and persist no search or record state; explicit cursor loading stays visible, server-paged Belvédère search/pagination remains authoritative and local column sorting identifies its current-page scope; four human roles, personal isolation and business authority are unchanged
 - DEV + public-preview + loopback-only simulation controls select four fictional membership roles and a separate observer platform-access hint; unsaved-navigation veto, scenario identity remount and scoped IDs/cursors preserve account separation without Auth0, memberships or business authority
 - Reproducible seeded Small/Large/Huge/Extreme metadata profiles expose up to one billion logical documents, dispatches, templates, datasets and generations while generating at most fifty records per read; generated volumes and fictional personal documents are read-only, bounded PDF caches materialize only requested bytes and fixture failures never fall through to production
+- Shared table regions have distinct accessible names and source-range captions retain table naming; keyboard journeys traverse added search/sort controls, pagination tests inspect all loaded rows, and responsive assertions distinguish active cards from intentionally scrollable wider tables
 
 **Contract:** [DASHBOARD_V2.md](DASHBOARD_V2.md) · **Implementation:** [apps/web/src/account-page.tsx](../apps/web/src/account-page.tsx)
 

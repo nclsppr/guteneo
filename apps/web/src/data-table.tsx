@@ -291,11 +291,15 @@ export function DataTable<T>({
       <div
         className="data-table__scroll"
         role="region"
-        aria-label={label}
+        aria-label={msg("Table: {0}", label)}
         tabIndex={0}
         onKeyDown={scrollTable}
       >
-        <table className="data-table__grid" role="table" aria-label={label}>
+        <table
+          className="data-table__grid"
+          role="table"
+          aria-label={caption ? undefined : label}
+        >
           {caption && <caption>{caption}</caption>}
           <thead role="rowgroup">
             <tr role="row">

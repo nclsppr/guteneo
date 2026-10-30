@@ -98,6 +98,10 @@ Narrower operational tables become labelled cards with one consistent row inset,
 readable values and full-width action groups. A visible column/direction selector
 keeps sorting available when column headers are visually hidden. All controls
 retain keyboard focus, 44 px targets, four-language labels and light/dark tokens.
+Scroll regions have distinct table-prefixed names, and source-range captions own
+the table accessible name. Keyboard checks traverse added search/sort controls;
+wide tabular views may scroll inside their region while active cards and pages
+remain free of horizontal overflow.
 Static reference tables, technical reports and editable spreadsheet grids retain
 their appropriate contained scrolling and specialized keyboard behavior.
 
