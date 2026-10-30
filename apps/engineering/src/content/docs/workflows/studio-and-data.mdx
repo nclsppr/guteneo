@@ -41,6 +41,15 @@ conventions and optional grouping/joins. Headers and structural signatures detec
 changed source structure. A mapping update creates a new validated version; it
 does not silently reinterpret an already generated document.
 
+In the browser, validation waits for the exact selected template payload as well
+as its identifier. This derives readiness from the current loaded resource,
+without another state/effect or request. Writer/private-source and template-read
+rights remain unchanged; a late or failed read cannot authorize validation. A
+30 October synthetic CI trace exposed a click during a 215 ms template read; the
+regression deliberately holds that response, verifies the disabled action, then
+completes the original validation and generation checks. This is loading-race
+qualification, not a production latency measurement.
+
 - Postal codes and identifiers preserve leading zeros.
 - Exact decimal values remain strings, or convert to explicitly scaled integer
   minor units; numeric mapping performs no implicit floating-point rounding.

@@ -25,7 +25,7 @@ Implemented; private-source and optional AI-transfer gates apply.
 <li id="feature-2e7661d36254">Profiling, anomalies and paginated inspection</li>
 <li id="feature-8b84483a97d3">Resume analysis of the same original</li>
 <li id="feature-9bf3c806a59c">Versioned field/group/join mappings</li>
-<li id="feature-46faf4660e81">Mapping validation before generation</li>
+<li id="feature-60e0a2bf28d6">Mapping validation before generation; browser validation waits for the exact selected template payload rather than its identifier alone, using existing loaded-resource state without extra effects or requests</li>
 <li id="feature-70426d795853">Optional AI analysis under browser-administrator policy and transfer consent</li>
 <li id="feature-40ccaa008315">Document-studio exclusions also cover datasets, direct records and AI functions; stop reading/profiling/mapping/generation on known excluded content without collecting its values</li>
 <li id="feature-c9d57cd7c922">Compatible replacement imports retain the current template/version, field correspondence and valid record selection; cell/person/field errors remain actionable without mutating prior generated content</li>

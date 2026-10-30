@@ -125,6 +125,7 @@ Four human workshop roles are defined by packages/contracts/src/roles.ts. The as
 | Publish/archive a template | Resource publish right | Resource publish right | Resource publish right | No | Current member + templates:publish + resource right |
 | Manage template sharing | Resource share right | Resource share right | Resource share right | No | Current member + templates:share + resource right; revocation disclosed |
 | Remove a template | Owner | Owner | Owner | No | Owner + current role/scopes |
+| Validate a private data mapping | Current writer + own source + template access | Current writer + own source + template access | Current writer + own source + template access | No | Current member + datasets:write + private-source and template access; browser also requires the selected template payload to be loaded. No sending authority. |
 | Cancel/retry a generation | Batch owner | Batch owner | Batch owner | No | Owner + generations:write; frozen batches cannot retry |
 | Read private generated PDFs | Creator/context access | Creator/context access | Creator/context access | Explicit current document access | Owner/context authority; no general private-library access |
 | Profile, language and own sessions | Own account in browser | Own account in browser | Own account in browser | Own account in browser | No browser account administration |
@@ -373,14 +374,14 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Profiling, anomalies and paginated inspection
 - Resume analysis of the same original
 - Versioned field/group/join mappings
-- Mapping validation before generation
+- Mapping validation before generation; browser validation waits for the exact selected template payload rather than its identifier alone, using existing loaded-resource state without extra effects or requests
 - Optional AI analysis under browser-administrator policy and transfer consent
 - Document-studio exclusions also cover datasets, direct records and AI functions; stop reading/profiling/mapping/generation on known excluded content without collecting its values
 - Compatible replacement imports retain the current template/version, field correspondence and valid record selection; cell/person/field errors remain actionable without mutating prior generated content
 
 **Contract:** [DATA_IMPORT.md](DATA_IMPORT.md) · **Implementation:** [apps/api/src/template-workflow.ts](../apps/api/src/template-workflow.ts)
 
-**Tests:** [tests/unit/datasets.test.ts](../tests/unit/datasets.test.ts), [tests/integration/template-workflow.test.ts](../tests/integration/template-workflow.test.ts), [tests/e2e/dataset-mapping-alias.spec.ts](../tests/e2e/dataset-mapping-alias.spec.ts), [tests/unit/mcp-integrations.test.ts](../tests/unit/mcp-integrations.test.ts)
+**Tests:** [tests/unit/datasets.test.ts](../tests/unit/datasets.test.ts), [tests/integration/template-workflow.test.ts](../tests/integration/template-workflow.test.ts), [tests/e2e/dataset-mapping-alias.spec.ts](../tests/e2e/dataset-mapping-alias.spec.ts), [tests/e2e/template-xml-multichannel.spec.ts](../tests/e2e/template-xml-multichannel.spec.ts), [tests/unit/mcp-integrations.test.ts](../tests/unit/mcp-integrations.test.ts)
 
 **Documented REST operations**
 
@@ -1195,9 +1196,9 @@ Read authoring guide or a synthetic example → create/private-copy or import DO
 
 **Actor:** Preparer owning the private source. **Branch:** Create.
 
-Choose a published template → import CSV/XLSX/XML/JSON while preserving that choice → verify/profile exact original → define versioned field mapping and validate each row/cell → generate distinct PDFs → inspect business name/subject/reference and provenance. In the browser, replace compatible source data without losing the mapping; preserve only verifiable exclusions and explicitly review unmatched rows. Correct one result with its exact historical template version, or explicitly create a new template version; each correction creates a new generation and leaves prior PDF bytes/hashes and prepared manifests intact.
+Choose a published template → import CSV/XLSX/XML/JSON while preserving that choice → verify/profile exact original → define versioned field mapping → wait for the exact selected template payload before browser validation → validate each row/cell → generate distinct PDFs → inspect business name/subject/reference and provenance. In the browser, replace compatible source data without losing the mapping; preserve only verifiable exclusions and explicitly review unmatched rows. Correct one result with its exact historical template version, or explicitly create a new template version; each correction creates a new generation and leaves prior PDF bytes/hashes and prepared manifests intact.
 
-**Failure/recovery:** Resume the same original after transient analysis failure. Resolve mapping/type/join issues explicitly. Generation completion does not establish PDF readiness; follow the bounded security-analysis refresh and review retryable or blocked results explicitly. AI is optional and separately consented; generation creates no dispatch or credit reservation. An accepted cold-route transition temporarily fences the old editor against new input until commit; existing unsaved-work vetoes still run before acceptance. Private correction input is browser-owner-only under current membership; template sharing and dispatch review do not expose it. Query changes and Back/Forward cannot reuse another record’s unsaved data; leaving an unsaved correction requires explicit review.
+**Failure/recovery:** Resume the same original after transient analysis failure. Keep browser validation unavailable while the selected template payload is loading or failed; selecting an identifier grants no readiness or new authority. Resolve mapping/type/join issues explicitly. Generation completion does not establish PDF readiness; follow the bounded security-analysis refresh and review retryable or blocked results explicitly. AI is optional and separately consented; generation creates no dispatch or credit reservation. An accepted cold-route transition temporarily fences the old editor against new input until commit; existing unsaved-work vetoes still run before acceptance. Private correction input is browser-owner-only under current membership; template sharing and dispatch review do not expose it. Query changes and Back/Forward cannot reuse another record’s unsaved data; leaving an unsaved correction requires explicit review.
 
 [Detailed contract](TEMPLATES_DATA_DISTRIBUTION.md).
 

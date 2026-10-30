@@ -48,11 +48,27 @@ errors, optional defaults are explicit, and overlapping/prototype paths or unkno
 mapping properties are rejected. No script, expression, `eval`, macro or network
 function can be supplied by a mapping.
 
+## Browser mapping readiness — 30 October 2026
+
+The selected template identifier alone is insufficient to validate a mapping.
+The browser keeps validation disabled until that exact template payload is
+available, matching the handler's existing prerequisite. Current writer/private
+source rights and template access remain mandatory; observers gain no action,
+REST/MCP authority is unchanged, and validation grants no sending approval.
+
+A saved mobile CI trace showed the template GET taking 215 ms while the click
+arrived about 60 ms after the request began; no validation POST followed. The
+regression retains that GET until the test confirms the disabled state, then
+releases it and preserves the complete mapping/PDF/channel assertions. No sleep,
+timeout increase, extra request or new loading waterfall is introduced. These
+synthetic CI timings identify the race, not production latency or a measured
+performance improvement.
+
 ## Supported source behavior and limits
 
 | Boundary              | Implemented limit or rule                                                                                                                             |
 | --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Original upload       | 5 MiB, nonempty, CSV/XLSX/XML/JSON only                                                                                                                   |
+| Original upload       | 5 MiB, nonempty, CSV/XLSX/XML/JSON only                                                                                                               |
 | Workbook              | 12 sheets, 5,000 rows per sheet, 128 columns, 100,000 cells total including rectangular XLSX gaps                                                     |
 | ZIP                   | 256 entries, 24 MiB total expansion, 8 MiB per entry, maximum expansion ratio 200                                                                     |
 | Cells and diagnostics | 12,000 characters per cell, 1,000 issues retained; overflow prevents ready status during normalization                                                |

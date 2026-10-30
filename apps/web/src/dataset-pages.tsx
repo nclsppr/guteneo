@@ -1520,6 +1520,7 @@ function MappingEditor({ value }: { value: PagedProfileView }) {
               action.pending ||
               !rowsReviewed ||
               !templateId ||
+              !template ||
               headerRows.pending ||
               !!headerRows.error ||
               !!excludeRowsError ||

@@ -33,6 +33,7 @@ There are four human membership roles. A connected assistant is a separate OAuth
 | Publish/archive a template | Resource publish right | Resource publish right | Resource publish right | No | Current member + templates:publish + resource right |
 | Manage template sharing | Resource share right | Resource share right | Resource share right | No | Current member + templates:share + resource right; revocation disclosed |
 | Remove a template | Owner | Owner | Owner | No | Owner + current role/scopes |
+| Validate a private data mapping | Current writer + own source + template access | Current writer + own source + template access | Current writer + own source + template access | No | Current member + datasets:write + private-source and template access; browser also requires the selected template payload to be loaded. No sending authority. |
 | Cancel/retry a generation | Batch owner | Batch owner | Batch owner | No | Owner + generations:write; frozen batches cannot retry |
 | Read private generated PDFs | Creator/context access | Creator/context access | Creator/context access | Explicit current document access | Owner/context authority; no general private-library access |
 | Profile, language and own sessions | Own account in browser | Own account in browser | Own account in browser | Own account in browser | No browser account administration |
