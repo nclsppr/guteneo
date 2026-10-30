@@ -50,6 +50,25 @@ execution on both targets without skips, flaky results or model calls; a separat
 privacy guard checks every upload path before evidence is archived. Do not weaken
 these assertions to make a partial run green.
 
+The [first optimized hosted full run on 30 October](https://github.com/nclsppr/guteneo/actions/runs/41034945110)
+passed all 24 jobs in 14 min 20 s, using 96 min 23 s of cumulative runner execution
+versus the preceding reviewed run's 103 min 55 s, a 7.25% reduction. The static
+archive shrank from 837,847,377 to 432,896,927 bytes (48.33%). Across eleven
+consumers, median checkout fell from 11 to 3 seconds and download from 17 to 8
+seconds, with a 2-second reconstruction median. Source and runner conditions
+differed, especially queues, so these observations are not a controlled latency
+benchmark. The slowest iPhone WebKit job still took 667 seconds; all application,
+preview and control-tower assertions remain.
+
+That full run produced a source-bound proof with all 22 suite environments
+matching verification. The first policy-changing main merge deliberately runs
+full. At the time the #125 measurements were recorded on 30 October 2026,
+successful live reuse had not been observed. A later ordinary merge must pass the
+independent current-main qualification; full-run proof, byte savings and synthetic
+reuse tests do not establish that result. The
+[dated measurements and proof identity](https://github.com/nclsppr/guteneo/blob/main/docs/CI.md#timing-and-qualification--30-october-2026)
+retain the exact source, runtime and evidence limits.
+
 When shared navigation or localized product terminology changes, update the
 independent distribution fixtures as well as the Playwright matrix. Use the
 current complete visible label and open the shared account menu before selecting

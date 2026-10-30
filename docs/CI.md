@@ -89,11 +89,12 @@ instead of duplicating every child's debug bytes.
 | [Main after #120](https://github.com/nclsppr/guteneo/actions/runs/40978447614) | 15 min 04 s | 103 min 54 s            |
 | [PR #122](https://github.com/nclsppr/guteneo/actions/runs/40998467239)         | 14 min 39 s | 102 min 48 s            |
 | [Reviewed #124](https://github.com/nclsppr/guteneo/actions/runs/41028495479)   | 22 min 50 s | 103 min 55 s            |
+| [Optimized #125](https://github.com/nclsppr/guteneo/actions/runs/41034945110)  | 14 min 20 s | 96 min 23 s             |
 
-The last run queued each browser/distribution job for roughly 7 min 41 s. Those
+The #124 run queued each browser/distribution job for roughly 7 min 41 s. Those
 parallel waits explain most of its extra wall time; summing queued minutes would
 overstate a person's wait. GitHub's usage endpoint reported zero standard Ubuntu
-runner billing for these public-repository observations, not a zero total bill:
+runner billing for the three baseline public-repository observations, not a zero total bill:
 artifact storage, other services and account-specific charges remain separate.
 
 Before this optimization, the static artifact was about 799 MiB and eleven
@@ -101,13 +102,36 @@ consumers downloaded it. Broad consumer source checkouts contained 636.8 MiB. A
 real sparse checkout of the same reviewed tree contains 31.5 MiB and retains all
 nine authored narration scripts; application/preview discovery and the status
 build passed locally. That removes about 605 MiB of irrelevant source per
-consumer, before Git transport compression. A clean local build at `8b661e0a04decf7ed1efb498920a3c164cc64f8e` packed 688 files into 485 unique objects: 837,728,378 logical bytes became 432,683,847 stored bytes, removing 405,044,531 duplicate bytes (48.4%). Eleven identical downloads would therefore avoid about 4.15 GiB before small index/ZIP overhead. Hosted after-change timings remain to be recorded; source-byte or artifact-byte reduction is not itself a measured wall-time improvement.
+consumer, before Git transport compression. A clean local build at `8b661e0a04decf7ed1efb498920a3c164cc64f8e` packed 688 files into 485 unique objects: 837,728,378 logical bytes became 432,683,847 stored bytes, removing 405,044,531 duplicate bytes (48.4%). Eleven identical downloads would therefore avoid about 4.15 GiB before small index/ZIP overhead.
 
-An eligible main promotion should avoid the second roughly 15-minute complete
-execution, subject to runner queues and its fresh audit/proof checks. This remains
-an estimate until a real eligible promotion is observed. The first CI-policy
-merge deliberately runs full; synthetic controller tests do not establish live
-reuse. Test coverage is unchanged, including all browser/media/tenant assertions.
+The first optimized hosted run, #125 attempt 1, completed all 24 jobs. Its actual
+static archive was 432,896,927 bytes versus #124's 837,847,377 bytes, a 48.33%
+reduction including index/ZIP overhead. Across the eleven browser/distribution
+consumers, median checkout time fell from 11 to 3 seconds and median artifact
+download time from 17 to 8 seconds; reconstruction added a 2-second median. Sum
+of runner execution fell by 7 min 32 s, or 7.25%, from #124. These are dated
+observations, not a controlled performance benchmark: source revisions and runner
+conditions differ, and #125's consumer queues were roughly 3 seconds. Its wall
+time ends at the final job's completion. The slowest iPhone WebKit job still took
+667 seconds, equal to #124; its application, preview and control-tower assertions
+remain intact. Transfer savings do not remove that test execution cost.
+
+The exact `ci-validation-proof-41034945110-1` artifact contains only `proof.json`
+and `verified.json`, with matching archive/report hashes. Its full proof records
+156 Vitest files and 3,232 passing tests, plus 1,393 discovered browser
+results: 1,371 passed and 22 declared skips. All 22 suite runtime records agree
+with verification on Node `v24.22.1`, Linux/x64, `ubuntu24` image
+`20261026.354.1`, synthetic commit `d43e1a357f5d4fd836e3d7975b8302d14ce06f6e`
+and tree `7189e30e27b357af37c94e498c034ea5b6ae6009`. This establishes complete
+hosted full-run evidence, not a successful reused main promotion.
+
+At the time the #125 measurements were recorded on 30 October 2026, no successful
+live reuse had been observed. Avoiding a second roughly 15-minute complete
+execution remained an estimate, subject to runner queues and fresh audit/proof
+checks. The first CI-policy merge, #125, deliberately runs full. A later ordinary same-repository merge with
+unchanged policy and an exact, fresh, uniformly recorded runtime can exercise the
+positive route; neither synthetic controller tests nor #125's full proof establish
+live reuse. Test coverage is unchanged, including all browser/media/tenant assertions.
 
 Git LFS is not introduced: current sparse checkout already avoids over a GiB of
 archived blobs, and tests still need current media bytes. Actions LFS downloads
