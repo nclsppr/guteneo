@@ -1303,7 +1303,7 @@
       "id": "J17",
       "title": "Inspect the platform in Belvédère",
       "actor": "Explicitly authorised browser Watchkeeper with verified identity",
-      "steps": "Open Belvedere from the application switcher only when the server projects capability, or use canonical /belvedere / the protected compatibility entry → reuse a valid canonical browser session or follow normal identity recovery → repeat current signed platform guard on every read → inspect seven read-only views and interactive globe; dedicated host remains isolated.",
+      "steps": "Open Belvedere from the application switcher only when the server projects capability, or use canonical /belvedere (absent to visitors without a session) / the protected compatibility entry → reuse a valid canonical browser session or follow normal identity recovery after expiry → repeat current signed platform guard on every read → inspect seven read-only views and interactive globe; dedicated host remains isolated.",
       "branch": "Operations",
       "doc": "BELVEDERE.md",
       "failure": "Workshop administrator/OAuth/assistant roles grant no platform authority. Unknown costs/profit stay unavailable. Preview fixtures and hosted observations are separate."

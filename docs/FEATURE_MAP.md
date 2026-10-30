@@ -1213,7 +1213,7 @@ Read visible name/login email (in V2, open the account menu) → open account pr
 
 **Actor:** Explicitly authorised browser Watchkeeper with verified identity. **Branch:** Operations.
 
-Open Belvedere from the application switcher only when the server projects capability, or use canonical /belvedere / the protected compatibility entry → reuse a valid canonical browser session or follow normal identity recovery → repeat current signed platform guard on every read → inspect seven read-only views and interactive globe; dedicated host remains isolated.
+Open Belvedere from the application switcher only when the server projects capability, or use canonical /belvedere (absent to visitors without a session) / the protected compatibility entry → reuse a valid canonical browser session or follow normal identity recovery after expiry → repeat current signed platform guard on every read → inspect seven read-only views and interactive globe; dedicated host remains isolated.
 
 **Failure/recovery:** Workshop administrator/OAuth/assistant roles grant no platform authority. Unknown costs/profit stay unavailable. Preview fixtures and hosted observations are separate.
 
