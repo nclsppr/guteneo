@@ -22,6 +22,12 @@ merge or deployment is established by these edits. The
 [OpenAI follow-up](OPENAI_RESUBMISSION_TODO.md) owns the new draft's portal state;
 account credentials, OAuth consent, scan and saved-version cases remain separate.
 
+Local transport qualification covers all 67 migrations: source/transport schema
+equivalence, 459 schema objects, unchanged guard outcomes, successful quick check
+and zero foreign-key violations. The new review view uses the equivalent SQLite
+`iif` expression accepted by the existing D1 transport parser. Continuous-review
+and historical pilot regressions also pass; this installs no production schema.
+
 ## Strict registration tooling — 30 October 2026 candidate
 
 The [strict MCP registration candidate](MCP_REGISTRATION.md) has been reconciled with current main. Local controller fixtures cover fail-closed inspection, drift and bounded mutation recovery. No provider configuration was applied; legacy-extension inspection, capacity and real host interoperability remain activation gates.

@@ -85,7 +85,7 @@ CREATE VIEW valid_review_fax_usage_tariffs AS
 -- Only a newly hash-bound quote may use the current continuous access record.
 DROP VIEW valid_live_fax_quotes_v3;
 CREATE VIEW valid_live_fax_quotes_v3 AS
- SELECT q.*,t.valid_from AS tariff_valid_from,CASE WHEN q.review_access_id IS NOT NULL THEN q.expires_at ELSE t.expires_at END AS tariff_expires_at
+ SELECT q.*,t.valid_from AS tariff_valid_from,iif(q.review_access_id IS NOT NULL,q.expires_at,t.expires_at) AS tariff_expires_at
  FROM live_fax_quotes_v3 q
  JOIN dispatches d ON d.organization_id=q.organization_id AND d.id=q.dispatch_id
  JOIN trusted_fax_usage_tariffs t ON t.organization_id=q.organization_id AND t.id=q.tariff_id
