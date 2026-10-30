@@ -101,9 +101,7 @@ consumers downloaded it. Broad consumer source checkouts contained 636.8 MiB. A
 real sparse checkout of the same reviewed tree contains 31.5 MiB and retains all
 nine authored narration scripts; application/preview discovery and the status
 build passed locally. That removes about 605 MiB of irrelevant source per
-consumer, before Git transport compression. Actual deduplicated-byte and hosted
-after-change timings must be recorded from the new pack index and successful run;
-source-byte reduction is not itself a measured wall-time improvement.
+consumer, before Git transport compression. A clean local build at `8b661e0a04decf7ed1efb498920a3c164cc64f8e` packed 688 files into 485 unique objects: 837,728,378 logical bytes became 432,683,847 stored bytes, removing 405,044,531 duplicate bytes (48.4%). Eleven identical downloads would therefore avoid about 4.15 GiB before small index/ZIP overhead. Hosted after-change timings remain to be recorded; source-byte or artifact-byte reduction is not itself a measured wall-time improvement.
 
 An eligible main promotion should avoid the second roughly 15-minute complete
 execution, subject to runner queues and its fresh audit/proof checks. This remains
