@@ -291,3 +291,80 @@ test("multichannel intent remains available when two records reuse the same PDF 
   await expect(confirmation).not.toBeChecked();
   await expect(confirmation).toHaveAttribute("required", "");
 });
+
+test("recipients from the data offer the documents' own fields and fill them in one action", async ({
+  page,
+}) => {
+  test.setTimeout(120000);
+  await page.goto("/#/app");
+  await page
+    .getByRole("button", { name: "Entrer dans l’espace de travail" })
+    .click();
+  await expect(
+    page.getByRole("heading", { name: "Votre correspondance, au clair." }),
+  ).toBeVisible();
+  const session = (await (
+    await page.request.get("/api/session")
+  ).json()) as Session;
+  const headers = {
+    Origin: "http://localhost:8787",
+    "X-CSRF-Token": session.csrfToken,
+  };
+  const envelope = letterTemplate();
+  envelope.name += " data fields " + crypto.randomUUID().slice(0, 8);
+  const model = (await (
+    await page.request.post("/api/templates", { headers, data: { envelope } })
+  ).json()) as TemplateView;
+  await page.request.post(`/api/templates/${model.id}/publish`, {
+    headers,
+    data: { expectedRevision: model.revision },
+  });
+  const generated = await page.request.post("/api/generation-jobs", {
+    headers: { ...headers, "Idempotency-Key": crypto.randomUUID() },
+    data: {
+      mode: "generate_only",
+      templateId: model.id,
+      records: ["a", "b"].map((letter) => ({
+        recordId: `client-${letter}`,
+        data: {
+          ...envelope.sampleData,
+          recipient: {
+            ...(envelope.sampleData.recipient as Record<string, unknown>),
+            email: `client-${letter}@example.invalid`,
+          },
+        },
+      })),
+    },
+  });
+  const job = (await generated.json()) as GenerationJobView;
+  await expect
+    .poll(
+      async () =>
+        (
+          (await (
+            await page.request.get(`/api/generation-jobs/${job.id}`)
+          ).json()) as GenerationJobView
+        ).generated,
+      { timeout: 90000 },
+    )
+    .toBe(2);
+  await page.goto(
+    `/#/app/distribution/new?generation=${job.id}&selected=client-a&selected=client-b`,
+  );
+  await page
+    .getByLabel("Documents pour la destination 1", { exact: true })
+    .selectOption("all");
+  await page.getByLabel("Canal 1", { exact: true }).selectOption("email");
+  await page.getByLabel("Destinataire 1", { exact: true }).selectOption("data");
+  const email = page.getByLabel("Champ métier → Adresse e-mail", {
+    exact: true,
+  });
+  await expect(email).toHaveAttribute("placeholder", "recipient.email");
+  await page
+    .getByRole("button", { name: "Utiliser les champs proposés", exact: true })
+    .click();
+  await expect(email).toHaveValue("recipient.email");
+  await expect(
+    page.getByRole("button", { name: "Utiliser les champs proposés" }),
+  ).toHaveCount(0);
+});

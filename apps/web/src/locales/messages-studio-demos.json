@@ -76,5 +76,178 @@
     "A recipient, a reference and the delivered items, without prices. All contact details are fictional.",
     "Ein Empfänger, eine Referenz und die gelieferten Artikel, ohne Preise. Alle Kontaktdaten sind fiktiv.",
     "En Empfänger, eng Referenz an déi geliwwert Artikelen, ouni Präisser. All Kontaktdonnéeë si fiktiv."
-  ]
+  ],
+  "MAISON EXEMPLE": ["EXAMPLE COMPANY", "BEISPIELFIRMA", "BEISPILLFIRMA"],
+  "Données fictives · Page {currentPage} / {totalPages}": [
+    "Fictional data · Page {currentPage} / {totalPages}",
+    "Fiktive Daten · Seite {currentPage} / {totalPages}",
+    "Fiktiv Donnéeën · Säit {currentPage} / {totalPages}"
+  ],
+  "Maison Exemple\n12 rue des Ateliers\n75002 Paris": [
+    "Example Company\n12 rue des Ateliers\n75002 Paris",
+    "Beispielfirma\n12 rue des Ateliers\n75002 Paris",
+    "Beispillfirma\n12 rue des Ateliers\n75002 Paris"
+  ],
+  "Objet du courrier": [
+    "Letter subject",
+    "Betreff des Schreibens",
+    "Sujet vum Bréif"
+  ],
+  "Madame, Monsieur,\n\nVotre courrier personnalisé commence ici.\n\nCordialement,": [
+    "Dear Sir or Madam,\n\nYour personalised letter starts here.\n\nKind regards,",
+    "Sehr geehrte Damen und Herren,\n\nhier beginnt Ihr persönliches Schreiben.\n\nMit freundlichen Grüßen",
+    "Léif Dammen an Hären,\n\nhei fänkt Äre perséinleche Bréif un.\n\nMat beschte Gréiss,"
+  ],
+  "L’équipe Exemple": [
+    "The Example team",
+    "Das Beispiel-Team",
+    "D’Beispill-Equipe"
+  ],
+  "Nom et adresse": ["Name and address", "Name und Adresse", "Numm an Adress"],
+  "Corps du courrier": ["Letter body", "Text des Schreibens", "Text vum Bréif"],
+  "Signature": ["Signature", "Unterschrift", "Ënnerschrëft"],
+  "Votre rapport personnalisé": [
+    "Your personalised report",
+    "Ihr persönlicher Bericht",
+    "Äre perséinleche Rapport"
+  ],
+  "Madame, Monsieur,\n\nVeuillez trouver notre rapport. Les caractères français et allemands sont conservés : é è ê ç œ — Ä Ö Ü ß — 125,00 €.\n\nCordialement,": [
+    "Dear Sir or Madam,\n\nPlease find our report. French and German characters are preserved: é è ê ç œ — Ä Ö Ü ß — €125.00.\n\nKind regards,",
+    "Sehr geehrte Damen und Herren,\n\nanbei erhalten Sie unseren Bericht. Französische und deutsche Zeichen bleiben erhalten: é è ê ç œ — Ä Ö Ü ß — 125,00 €.\n\nMit freundlichen Grüßen",
+    "Léif Dammen an Hären,\n\nanbäi fannt Dir eise Rapport. Franséisch an däitsch Zeeche bleiwen erhalen: é è ê ç œ — Ä Ö Ü ß — 125,00 €.\n\nMat beschte Gréiss,"
+  ],
+  "FACTURE · DÉMONSTRATION": [
+    "INVOICE · DEMONSTRATION",
+    "RECHNUNG · DEMONSTRATION",
+    "RECHNUNG · DEMONSTRATIOUN"
+  ],
+  "Description": ["Description", "Beschreibung", "Beschreiwung"],
+  "Quantité": ["Quantity", "Menge", "Quantitéit"],
+  "Prix unitaire": ["Unit price", "Einzelpreis", "Eenheetspräis"],
+  "Montant": ["Amount", "Betrag", "Montant"],
+  "Total : 25,00 €": ["Total: 25.00 €", "Summe: 25,00 €", "Total: 25,00 €"],
+  "Client": ["Customer", "Kunde", "Client"],
+  "Date": ["Date", "Datum", "Datum"],
+  "Lignes": ["Rows", "Zeilen", "Zeilen"],
+  "Prix unitaire (en centimes)": [
+    "Unit price (minor units)",
+    "Einzelpreis (in Cent)",
+    "Eenheetspräis (a Cent)"
+  ],
+  "Référence :": ["Reference:", "Referenz:", "Referenz:"],
+  "Total :": ["Total:", "Summe:", "Total:"],
+  "Maison Exemple — Munich": [
+    "Example Company — München",
+    "Beispielfirma — München",
+    "Beispillfirma — München"
+  ],
+  "Conseil et préparation de documents": [
+    "Consulting and document preparation",
+    "Beratung und Dokumentenerstellung",
+    "Berodung a Virbereedung vun Dokumenter"
+  ],
+  "RELEVÉ D’ACTIVITÉ": [
+    "ACTIVITY STATEMENT",
+    "TÄTIGKEITSAUSZUG",
+    "AKTIVITÉITSAUSZUCH"
+  ],
+  "Préparation du dossier": [
+    "Case preparation",
+    "Vorbereitung der Akte",
+    "Virbereedung vum Dossier"
+  ],
+  "DEVIS · DÉMONSTRATION": [
+    "QUOTE · DEMONSTRATION",
+    "ANGEBOT · DEMONSTRATION",
+    "DEVIS · DEMONSTRATIOUN"
+  ],
+  "Validité du devis": [
+    "Quote validity",
+    "Gültigkeit des Angebots",
+    "Gëltegkeet vum Devis"
+  ],
+  "Valable jusqu’au": ["Valid until", "Gültig bis", "Gëlteg bis"],
+  "Émis le :": ["Issued on:", "Ausgestellt am:", "Ausgestallt den:"],
+  "Total proposé :": [
+    "Proposed total:",
+    "Vorgeschlagene Summe:",
+    "Proposéierten Total:"
+  ],
+  "Valable jusqu’au :": ["Valid until:", "Gültig bis:", "Gëlteg bis:"],
+  "Atelier Exemple — Luxembourg": [
+    "Example Workshop — Luxembourg",
+    "Beispielwerkstatt — Luxemburg",
+    "Beispillatelier — Lëtzebuerg"
+  ],
+  "Conception du dossier": [
+    "Case design",
+    "Gestaltung der Akte",
+    "Konzeptioun vum Dossier"
+  ],
+  "Préparation de la copie": [
+    "Copy preparation",
+    "Vorbereitung der Vorlage",
+    "Virbereedung vun der Kopie"
+  ],
+  "BON DE LIVRAISON": ["DELIVERY NOTE", "LIEFERSCHEIN", "LIWWERSCHÄIN"],
+  "Destinataire de démonstration": [
+    "Demo recipient",
+    "Demo-Empfänger",
+    "Demo-Empfänger"
+  ],
+  "Référence de l’article": [
+    "Item reference",
+    "Artikelnummer",
+    "Artikelreferenz"
+  ],
+  "Notes de livraison": [
+    "Delivery notes",
+    "Lieferhinweise",
+    "Liwwerungsnotizen"
+  ],
+  "Référence de livraison": [
+    "Delivery reference",
+    "Lieferreferenz",
+    "Liwwerreferenz"
+  ],
+  "Date de livraison": ["Delivery date", "Lieferdatum", "Liwwerdatum"],
+  "Articles livrés": [
+    "Delivered items",
+    "Gelieferte Artikel",
+    "Geliwwert Artikelen"
+  ],
+  "Quantité livrée": [
+    "Delivered quantity",
+    "Gelieferte Menge",
+    "Geliwwert Quantitéit"
+  ],
+  "Notes": ["Notes", "Hinweise", "Notizen"],
+  "Livraison de démonstration, sans expédition réelle.": [
+    "Demo delivery, without actual dispatch.",
+    "Demo-Lieferung ohne tatsächlichen Versand.",
+    "Demo-Liwwerung ouni richtege Versand."
+  ],
+  "Notes :": ["Notes:", "Hinweise:", "Notizen:"],
+  "Atelier Exemple\n12 rue des Ateliers\n75002 Paris": [
+    "Example Workshop\n12 rue des Ateliers\n75002 Paris",
+    "Beispielwerkstatt\n12 rue des Ateliers\n75002 Paris",
+    "Beispillatelier\n12 rue des Ateliers\n75002 Paris"
+  ],
+  "Chemise de présentation": [
+    "Presentation folder",
+    "Präsentationsmappe",
+    "Presentatiounsmapp"
+  ],
+  "Enveloppe de démonstration": [
+    "Demo envelope",
+    "Demo-Umschlag",
+    "Demo-Enveloppe"
+  ],
+  "Exemple fictif : vérifiez les quantités avant utilisation.": [
+    "Fictional example: check quantities before use.",
+    "Fiktives Beispiel: Prüfen Sie die Mengen vor der Verwendung.",
+    "Fiktiv Beispill: kontrolléiert d’Quantitéiten virum Gebrauch."
+  ],
+  "Nouveau modèle": ["New template", "Neue Vorlage", "Nei Virlag"],
+  "Page vierge.": ["Blank page.", "Leere Seite.", "Eidel Säit."]
 }

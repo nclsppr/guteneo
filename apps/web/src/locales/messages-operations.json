@@ -1765,5 +1765,1262 @@
     "The protected link and expiry will appear in the final review.",
     "Der geschützte Link und sein Ablaufdatum erscheinen in der abschließenden Prüfung.",
     "De geschützte Link a säin Oflafdatum erschéngen an der definitiver Iwwerpréiwung."
+  ],
+  "Limite quotidienne d’analyses atteinte. Réessayez demain.": [
+    "Daily analysis limit reached. Try again tomorrow.",
+    "Tägliches Analyselimit erreicht. Versuchen Sie es morgen erneut.",
+    "Deeglech Limitt fir Analysen erreecht. Probéiert et muer nach eng Kéier."
+  ],
+  "Le fichier source est inaccessible.": [
+    "The source file is inaccessible.",
+    "Die Quelldatei ist nicht zugänglich.",
+    "De Quell-Fichier ass net zougänglech."
+  ],
+  "Le fichier est trop volumineux.": [
+    "File is too large.",
+    "Die Datei ist zu groß.",
+    "De Fichier ass ze grouss."
+  ],
+  "Fichier vide.": ["Empty file.", "Leere Datei.", "Eidele Fichier."],
+  "L’original de ce document est indisponible.": [
+    "The original of this document is unavailable.",
+    "Das Original dieses Dokuments ist nicht verfügbar.",
+    "Den Original vun dësem Dokument ass net disponibel."
+  ],
+  "L’intégrité du fichier d’origine n’a pas pu être vérifiée.": [
+    "The original file's integrity could not be verified.",
+    "Die Integrität der Originaldatei konnte nicht überprüft werden.",
+    "D’Integritéit vum Original-Fichier konnt net iwwerpréift ginn."
+  ],
+  "Cette analyse a expiré. Vous pouvez réessayer.": [
+    "This analysis has expired. You can try again.",
+    "Diese Analyse ist abgelaufen. Sie können es erneut versuchen.",
+    "Dës Analys ass ofgelaf. Dir kënnt et nach eng Kéier probéieren."
+  ],
+  "Ce document ne peut pas être analysé de nouveau.": [
+    "This document cannot be analyzed again.",
+    "Dieses Dokument kann nicht erneut analysiert werden.",
+    "Dëst Dokument kann net nach eng Kéier analyséiert ginn."
+  ],
+  "Le service d’analyse doit être connecté avant de réessayer.": [
+    "The analysis service must be connected before trying again.",
+    "Der Analysedienst muss verbunden sein, bevor Sie es erneut versuchen.",
+    "Den Analysedéngscht muss verbonne sinn, ier Dir et nach eng Kéier probéiert."
+  ],
+  "Seul un administrateur peut préparer le service d’analyse dans son navigateur.": [
+    "Only an administrator can prepare the analysis service in their browser.",
+    "Nur ein Administrator kann den Analysedienst in seinem Browser einrichten.",
+    "Just en Administrateur kann den Analysedéngscht a sengem Browser preparéieren."
+  ],
+  "Le service d’analyse n’est pas connecté.": [
+    "The analysis service is not connected.",
+    "Der Analysedienst ist nicht verbunden.",
+    "Den Analysedéngscht ass net verbonnen."
+  ],
+  "Document immuable incompatible.": [
+    "Incompatible immutable document.",
+    "Unveränderliches Dokument nicht kompatibel.",
+    "Onverännerlecht Dokument net kompatibel."
+  ],
+  "Le PDF manque ou est trop volumineux.": [
+    "PDF is missing or too large.",
+    "Das PDF fehlt oder ist zu groß.",
+    "D’PDF feelt oder ass ze grouss."
+  ],
+  "La vérification finale du PDF n’est pas terminée. Relancez la même préparation dans quelques instants.": [
+    "The final PDF verification is incomplete. Retry the same preparation in a few moments.",
+    "Die abschließende PDF-Prüfung ist nicht abgeschlossen. Wiederholen Sie dieselbe Vorbereitung in einigen Augenblicken.",
+    "Déi lescht PDF-Iwwerpréiwung ass net fäerdeg. Probéiert déiselwecht Virbereedung an e puer Momenter nach eng Kéier."
+  ],
+  "Seuls les PDF sont acceptés.": [
+    "Only PDFs are accepted.",
+    "Nur PDFs werden akzeptiert.",
+    "Just PDFen ginn akzeptéiert."
+  ],
+  "Le moteur local doit utiliser l’adresse de bouclage.": [
+    "The local engine must use loopback.",
+    "Die lokale Engine muss Loopback verwenden.",
+    "De lokale Motor muss Loopback benotzen."
+  ],
+  "Le moteur PDF n’est pas connecté.": [
+    "The PDF engine is not connected.",
+    "Die PDF-Engine ist nicht verbunden.",
+    "De PDF-Motor ass net verbonnen."
+  ],
+  "Le PDF n’est pas prêt pour la revue.": [
+    "PDF is not ready for review.",
+    "Das PDF ist nicht bereit für die Prüfung.",
+    "D’PDF ass net prett fir d’Iwwerpréiwung."
+  ],
+  "Le PDF d’origine ne peut pas être vérifié.": [
+    "The original PDF cannot be verified.",
+    "Das Original-PDF kann nicht überprüft werden.",
+    "D’Original-PDF kann net iwwerpréift ginn."
+  ],
+  "La preuve du PDF exact est indisponible.": [
+    "Exact PDF evidence is unavailable.",
+    "Der Nachweis des exakten PDFs ist nicht verfügbar.",
+    "De Beweis vum exakte PDF ass net disponibel."
+  ],
+  "PDF d’origine indisponible.": [
+    "Original PDF unavailable.",
+    "Original-PDF nicht verfügbar.",
+    "Original-PDF net disponibel."
+  ],
+  "La taille du PDF a changé.": [
+    "The PDF size has changed.",
+    "Die Größe des PDFs hat sich geändert.",
+    "D’Gréisst vum PDF huet sech geännert."
+  ],
+  "Le PDF dépasse la taille autorisée ; aucun extrait n’a été renvoyé.": [
+    "The PDF exceeds the allowed size; no excerpt was returned.",
+    "Das PDF überschreitet die erlaubte Größe; es wurde kein Auszug zurückgegeben.",
+    "D’PDF ass méi grouss wéi erlaabt; et gouf keen Auszuch zréckginn."
+  ],
+  "Le PDF n’a pas pu être lu.": [
+    "The PDF could not be read.",
+    "Das PDF konnte nicht gelesen werden.",
+    "D’PDF konnt net gelies ginn."
+  ],
+  "L’intégrité du PDF exact n’a pas pu être vérifiée.": [
+    "The exact PDF's integrity could not be verified.",
+    "Die Integrität des exakten PDFs konnte nicht überprüft werden.",
+    "D’Integritéit vum exakte PDF konnt net iwwerpréift ginn."
+  ],
+  "Cette page n’existe pas dans le PDF.": [
+    "This page does not exist in the PDF.",
+    "Diese Seite gibt es im PDF nicht.",
+    "Dës Säit gëtt et am PDF net."
+  ],
+  "Le lecteur PDF local est indisponible.": [
+    "The local PDF reader is unavailable.",
+    "Der lokale PDF-Leser ist nicht verfügbar.",
+    "De lokale PDF-Lieser ass net disponibel."
+  ],
+  "La lecture des pages du PDF est temporairement indisponible. Le document reste enregistré.": [
+    "PDF page reading is temporarily unavailable. The document remains saved.",
+    "Das Lesen der PDF-Seiten ist vorübergehend nicht verfügbar. Das Dokument bleibt gespeichert.",
+    "D’Liese vun de PDF-Säiten ass temporär net disponibel. D’Dokument bleift gespäichert."
+  ],
+  "Ces pages dépassent la capacité du lecteur de conversation.": [
+    "These pages exceed the conversation reader's budget.",
+    "Diese Seiten überschreiten das Budget des Gesprächslesers.",
+    "Dës Säite gi méi wäit wéi de Budget vum Gespréichslieser."
+  ],
+  "La reproduction fidèle de ces pages n’a pas pu être vérifiée.": [
+    "Faithful reproduction of these pages could not be verified.",
+    "Die getreue Wiedergabe dieser Seiten konnte nicht überprüft werden.",
+    "Déi trei Reproduktioun vun dëse Säite konnt net iwwerpréift ginn."
+  ],
+  "Le PDF a changé pendant sa lecture.": [
+    "The PDF changed while it was being read.",
+    "Das PDF hat sich während des Lesens geändert.",
+    "D’PDF huet sech während dem Liese geännert."
+  ],
+  "Document en quarantaine : l’aperçu et l’envoi sont bloqués.": [
+    "Document quarantined: preview and sending are blocked.",
+    "Dokument in Quarantäne: Vorschau und Versand sind gesperrt.",
+    "Dokument a Quarantän: Virschau a Versand si gespaart."
+  ],
+  "Limite de documents atteinte ou crédits de documents non accordés.": [
+    "Document limit reached or document credits have not been granted.",
+    "Dokumentenlimit erreicht oder Dokumentguthaben nicht gewährt.",
+    "Dokumentelimitt erreecht oder Dokumentekreditter net accordéiert."
+  ],
+  "Une adresse appartient déjà à un membre de cet espace de travail.": [
+    "One address already belongs to a member of this workspace.",
+    "Eine Adresse gehört bereits zu einem Mitglied dieses Arbeitsbereichs.",
+    "Eng Adress gehéiert schonn zu engem Member vun dësem Aarbechtsberäich."
+  ],
+  "La limite quotidienne de 500 invitations est atteinte.": [
+    "The daily limit of 500 invitations has been reached.",
+    "Das tägliche Limit von 500 Einladungen ist erreicht.",
+    "Déi deeglech Limitt vu 500 Invitatiounen ass erreecht."
+  ],
+  "Une invitation est déjà en attente pour une adresse.": [
+    "An invitation is already pending for one address.",
+    "Für eine Adresse ist bereits eine Einladung ausstehend.",
+    "Fir eng Adress ass schonn eng Invitatioun am Gaang."
+  ],
+  "Vos droits d’administration ont changé.": [
+    "Your administration permissions have changed.",
+    "Ihre Administrationsrechte haben sich geändert.",
+    "Är Administratiounsrechter hu sech geännert."
+  ],
+  "Cette invitation a expiré, a été révoquée ou a déjà été utilisée.": [
+    "This invitation has expired, been revoked or already been used.",
+    "Diese Einladung ist abgelaufen, wurde widerrufen oder bereits verwendet.",
+    "Dës Invitatioun ass ofgelaf, gouf zréckgezunn oder schonn benotzt."
+  ],
+  "Une requête JSON est requise.": [
+    "A JSON request is required.",
+    "Eine JSON-Anfrage ist erforderlich.",
+    "Eng JSON-Ufro ass néideg."
+  ],
+  "La requête JSON est absente.": [
+    "The JSON request is missing.",
+    "Die JSON-Anfrage fehlt.",
+    "D’JSON-Ufro feelt."
+  ],
+  "La requête est trop volumineuse.": [
+    "The request is too large.",
+    "Die Anfrage ist zu groß.",
+    "D’Ufro ass ze grouss."
+  ],
+  "La requête JSON n’est pas valide.": [
+    "The JSON request is invalid.",
+    "Die JSON-Anfrage ist ungültig.",
+    "D’JSON-Ufro ass net valabel."
+  ],
+  "Vérifiez les adresses, le rôle et les droits de chaque invitation.": [
+    "Check the addresses, role and permissions for every invitation.",
+    "Prüfen Sie Adressen, Rolle und Rechte jeder Einladung.",
+    "Kontrolléiert d’Adressen, d’Roll an d’Rechter vun all Invitatioun."
+  ],
+  "Invitation indisponible.": [
+    "Invitation unavailable.",
+    "Einladung nicht verfügbar.",
+    "Invitatioun net disponibel."
+  ],
+  "Connectez-vous avec l’adresse e-mail vérifiée du destinataire de l’invitation.": [
+    "Sign in with the invitation recipient's verified email address.",
+    "Melden Sie sich mit der verifizierten E-Mail-Adresse des Einladungsempfängers an.",
+    "Mellt Iech mat der verifizéierter E-Mail-Adress vum Empfänger vun der Invitatioun un."
+  ],
+  "Vos droits ont changé.": [
+    "Your permissions have changed.",
+    "Ihre Rechte haben sich geändert.",
+    "Är Rechter hu sech geännert."
+  ],
+  "Ouvrez Guteneo dans votre navigateur.": [
+    "Open Guteneo in your browser.",
+    "Öffnen Sie Guteneo in Ihrem Browser.",
+    "Maacht Guteneo an Ärem Browser op."
+  ],
+  "Seul un administrateur peut inviter des collaborateurs.": [
+    "Only an administrator can invite collaborators.",
+    "Nur ein Administrator kann Mitwirkende einladen.",
+    "Just en Administrateur kann Mataarbechter invitéieren."
+  ],
+  "Cette invitation n’est plus en attente ou vos droits ont changé.": [
+    "This invitation is no longer pending or your permissions have changed.",
+    "Diese Einladung ist nicht mehr ausstehend oder Ihre Rechte haben sich geändert.",
+    "Dës Invitatioun ass net méi am Gaang oder Är Rechter hu sech geännert."
+  ],
+  "L’envoi des e-mails d’invitation n’est pas encore activé dans cet environnement.": [
+    "Invitation email delivery is not yet enabled for this environment.",
+    "Der Versand von Einladungs-E-Mails ist in dieser Umgebung noch nicht aktiviert.",
+    "De Versand vun Invitatiouns-E-Mailen ass an dësem Ëmfeld nach net aktivéiert."
+  ],
+  "Vos droits ont changé. Actualisez la page.": [
+    "Your permissions have changed. Refresh the page.",
+    "Ihre Rechte haben sich geändert. Aktualisieren Sie die Seite.",
+    "Är Rechter hu sech geännert. Aktualiséiert d’Säit."
+  ],
+  "Seul un administrateur de l’espace de travail peut effectuer cette action.": [
+    "Only a workspace administrator can perform this action.",
+    "Nur ein Administrator des Arbeitsbereichs kann diese Aktion ausführen.",
+    "Just en Administrateur vum Aarbechtsberäich kann dës Aktioun ausféieren."
+  ],
+  "Vos droits ou la ressource ont changé. Actualisez la page.": [
+    "Your permissions or the resource have changed. Refresh the page.",
+    "Ihre Rechte oder die Ressource haben sich geändert. Aktualisieren Sie die Seite.",
+    "Är Rechter oder d’Ressource hu sech geännert. Aktualiséiert d’Säit."
+  ],
+  "Ouvrez Guteneo dans votre navigateur pour gérer votre compte.": [
+    "Open Guteneo in your browser to manage your account.",
+    "Öffnen Sie Guteneo in Ihrem Browser, um Ihr Konto zu verwalten.",
+    "Maacht Guteneo an Ärem Browser op, fir Äre Kont ze geréieren."
+  ],
+  "Vérifiez les limites et choisissez une échéance dans les 30 prochains jours.": [
+    "Check the limits and choose an expiry within the next 30 days.",
+    "Prüfen Sie die Limits und wählen Sie einen Ablauf innerhalb der nächsten 30 Tage.",
+    "Kontrolléiert d’Limitten a wielt en Oflaf an den nächsten 30 Deeg."
+  ],
+  "Connexion introuvable.": [
+    "Connection not found.",
+    "Verbindung nicht gefunden.",
+    "Verbindung net fonnt."
+  ],
+  "Reconnectez cet assistant avant de lui déléguer une autorité.": [
+    "Reconnect this assistant before delegating authority to it.",
+    "Verbinden Sie diesen Assistenten erneut, bevor Sie ihm Befugnisse übertragen.",
+    "Verbannt dësen Assistent nei, ier Dir him Autoritéit delegéiert."
+  ],
+  "Session introuvable.": [
+    "Session not found.",
+    "Sitzung nicht gefunden.",
+    "Sessioun net fonnt."
+  ],
+  "Membre introuvable dans cet espace de travail.": [
+    "Member not found in this workspace.",
+    "Mitglied in diesem Arbeitsbereich nicht gefunden.",
+    "Member an dësem Aarbechtsberäich net fonnt."
+  ],
+  "Une clé d’idempotence de 1 à 200 caractères est requise.": [
+    "An idempotency key of 1 to 200 characters is required.",
+    "Ein Idempotenzschlüssel mit 1 bis 200 Zeichen ist erforderlich.",
+    "En Idempotenzschlëssel vun 1 bis 200 Zeechen ass néideg."
+  ],
+  "Ce rôle ne permet pas cette opération.": [
+    "This role does not permit this operation.",
+    "Diese Rolle erlaubt diesen Vorgang nicht.",
+    "Dës Roll erlaabt dës Operatioun net."
+  ],
+  "Droit de modification requis.": [
+    "Editing permission required.",
+    "Bearbeitungsrecht erforderlich.",
+    "Recht fir z’änneren néideg."
+  ],
+  "Le contrôle postal préalable doit être renouvelé.": [
+    "Postal preflight must be renewed.",
+    "Die postalische Vorabprüfung muss erneuert werden.",
+    "Déi postalesch Virkontroll muss erneiert ginn."
+  ],
+  "Une approbation récente et autorisée dans le navigateur est requise pour cette distribution.": [
+    "A recent authorized browser approval is required for this distribution.",
+    "Für diese Verteilung ist eine aktuelle, autorisierte Freigabe im Browser erforderlich.",
+    "Fir dës Verdeelung ass eng rezent, autoriséiert Fräigab am Browser néideg."
+  ],
+  "Le pouvoir d’approbation a été révoqué. Une nouvelle approbation autorisée est requise.": [
+    "Approval authority was revoked. Fresh authorised approval is required.",
+    "Die Freigabebefugnis wurde widerrufen. Eine neue autorisierte Freigabe ist erforderlich.",
+    "D’Fräigabautoritéit gouf zréckgezunn. Eng nei autoriséiert Fräigab ass néideg."
+  ],
+  "La délégation ou la revue a expiré ou a été révoquée.": [
+    "Delegation or review has expired or been revoked.",
+    "Die Delegation oder Prüfung ist abgelaufen oder wurde widerrufen.",
+    "D’Delegatioun oder d’Iwwerpréiwung ass ofgelaf oder gouf zréckgezunn."
+  ],
+  "Le plafond quotidien du mode expert est atteint.": [
+    "The daily expert-mode ceiling has been reached.",
+    "Die Tagesobergrenze des Expertenmodus ist erreicht.",
+    "De Plafong pro Dag vum Expertemodus ass erreecht."
+  ],
+  "L’organisation ou le rôle est inaccessible.": [
+    "Organisation or role is inaccessible.",
+    "Organisation oder Rolle ist nicht zugänglich.",
+    "D’Organisatioun oder d’Roll ass net zougänglech."
+  ],
+  "Environnement et organisation incompatibles.": [
+    "Environment and organization are incompatible.",
+    "Umgebung und Organisation sind nicht kompatibel.",
+    "Ëmfeld an Organisatioun sinn net kompatibel."
+  ],
+  "Métadonnées PDF non valides.": [
+    "Invalid PDF metadata.",
+    "Ungültige PDF-Metadaten.",
+    "Ongëlteg PDF-Metadaten."
+  ],
+  "Le document doit être analysé avant utilisation.": [
+    "The document must be scanned before use.",
+    "Das Dokument muss vor der Verwendung geprüft werden.",
+    "D’Dokument muss virum Gebrauch gepréift ginn."
+  ],
+  "Document introuvable.": [
+    "Document not found.",
+    "Dokument nicht gefunden.",
+    "Dokument net fonnt."
+  ],
+  "La préparation sécurisée n’est plus disponible.": [
+    "The secure preparation is no longer available.",
+    "Die sichere Vorbereitung ist nicht mehr verfügbar.",
+    "Déi sécher Virbereedung ass net méi disponibel."
+  ],
+  "Seul un devis de fax réel peut être renouvelé ici.": [
+    "Only a live fax quote can be renewed here.",
+    "Hier kann nur ein echtes Faxangebot erneuert werden.",
+    "Hei kann just e richtegen Fax-Devis erneiert ginn."
+  ],
+  "Le renouvellement doit conserver le PDF exact, le destinataire, l’expéditeur et le plafond du devis d’origine.": [
+    "Renewal must preserve the original quote’s exact PDF, recipient, sender and ceiling.",
+    "Die Erneuerung muss das exakte PDF, den Empfänger, den Absender und die Obergrenze des ursprünglichen Angebots beibehalten.",
+    "D’Erneierung muss dat exakt PDF, den Empfänger, den Ofsender an de Plafong vum ursprénglechen Devis behalen."
+  ],
+  "La soumission a commencé ou cet envoi n’est plus préparé. Consultez son état sans le renvoyer.": [
+    "Submission has started or this dispatch is no longer prepared. Read its status without resending it.",
+    "Die Übermittlung hat begonnen oder dieser Versand ist nicht mehr vorbereitet. Lesen Sie seinen Status, ohne ihn erneut zu senden.",
+    "D’Iwwermëttlung huet ugefaang oder dëse Versand ass net méi virbereet. Liest säi Status, ouni en nach eng Kéier ze schécken."
+  ],
+  "Cette clé appartient à un autre contenu.": [
+    "This key belongs to different content.",
+    "Dieser Schlüssel gehört zu anderem Inhalt.",
+    "Dëse Schlëssel gehéiert zu engem aneren Inhalt."
+  ],
+  "Ces options sont réservées au serveur.": [
+    "These options are reserved for the server.",
+    "Diese Optionen sind dem Server vorbehalten.",
+    "Dës Optioune si fir de Server reservéiert."
+  ],
+  "La protection est disponible pour l’e-mail.": [
+    "Protection is available for email.",
+    "Der Schutz ist für E-Mail verfügbar.",
+    "De Schutz ass fir E-Mail disponibel."
+  ],
+  "Choisissez une pièce jointe ou un lien protégé.": [
+    "Choose an attachment or a protected link.",
+    "Wählen Sie einen Anhang oder einen geschützten Link.",
+    "Wielt en Unhang oder e geschützte Link."
+  ],
+  "Une durée nécessite un lien protégé.": [
+    "Duration requires a protected link.",
+    "Eine Dauer erfordert einen geschützten Link.",
+    "Eng Dauer brauch e geschützte Link."
+  ],
+  "Les options sont trop volumineuses.": [
+    "Options are too large.",
+    "Die Optionen sind zu groß.",
+    "D’Optioune sinn ze grouss."
+  ],
+  "Les campagnes marketing restent désactivées tant que la gestion des désabonnements n’est pas connectée.": [
+    "Marketing campaigns remain disabled until unsubscribe handling is connected.",
+    "Marketingkampagnen bleiben deaktiviert, bis die Abmeldeverwaltung verbunden ist.",
+    "Marketingkampagne bleiwen desaktivéiert, bis d’Gestioun vun den Ofmeldunge verbonnen ass."
+  ],
+  "Le document n’est pas prêt pour l’envoi.": [
+    "The document is not ready for dispatch.",
+    "Das Dokument ist nicht versandbereit.",
+    "D’Dokument ass net prett fir de Versand."
+  ],
+  "Un PDF vérifié est requis pour ce canal.": [
+    "A verified PDF is required for this channel.",
+    "Für diesen Kanal ist ein geprüftes PDF erforderlich.",
+    "Fir dëse Kanal ass e gepréiften PDF néideg."
+  ],
+  "Saisissez un objet de 1 à 250 caractères.": [
+    "Enter a subject of 1 to 250 characters.",
+    "Geben Sie einen Betreff mit 1 bis 250 Zeichen ein.",
+    "Gitt e Sujet vun 1 bis 250 Zeechen an."
+  ],
+  "La version texte est vide ou trop longue.": [
+    "Text version is empty or too long.",
+    "Die Textversion ist leer oder zu lang.",
+    "D’Textversioun ass eidel oder ze laang."
+  ],
+  "Choisissez le PDF à protéger.": [
+    "Choose the PDF to protect.",
+    "Wählen Sie das zu schützende PDF.",
+    "Wielt de PDF, dee geschützt soll ginn."
+  ],
+  "La protection des documents n’est pas configurée.": [
+    "Document protection is not configured.",
+    "Der Dokumentenschutz ist nicht konfiguriert.",
+    "De Schutz vun den Dokumenter ass net konfiguréiert."
+  ],
+  "Configurez et vérifiez un expéditeur pour ce canal.": [
+    "Configure and verify a sender for this channel.",
+    "Konfigurieren und verifizieren Sie einen Absender für diesen Kanal.",
+    "Konfiguréiert a verifizéiert en Ofsender fir dëse Kanal."
+  ],
+  "Le renouvellement doit rester une préparation de revue qui ne peut pas être envoyée. Une référence de revue valide est requise.": [
+    "Renewal must remain an unsendable review preparation. A valid review reference is required.",
+    "Die Erneuerung muss eine nicht versendbare Prüfvorbereitung bleiben. Eine gültige Prüfreferenz ist erforderlich.",
+    "D’Erneierung muss eng Iwwerpréiwungsvirbereedung bleiwen, déi net verschéckt ka ginn. Eng gëlteg Iwwerpréiwungsreferenz ass néideg."
+  ],
+  "Le plafond doit couvrir l’estimation en centimes.": [
+    "The ceiling must cover the estimate in cents.",
+    "Die Obergrenze muss die Schätzung in Cent abdecken.",
+    "De Plafong muss d’Schätzung a Cent ofdecken."
+  ],
+  "Campagne introuvable.": [
+    "Campaign not found.",
+    "Kampagne nicht gefunden.",
+    "Kampagne net fonnt."
+  ],
+  "Cette campagne a déjà été approuvée.": [
+    "This campaign has already been approved.",
+    "Diese Kampagne wurde bereits freigegeben.",
+    "Dës Kampagne gouf scho fräiginn."
+  ],
+  "Cet envoi a changé ou sa soumission a commencé. Consultez son état ; aucun nouveau fax n’a été préparé.": [
+    "This dispatch changed or submission started. Read its status; no new fax was prepared.",
+    "Dieser Versand hat sich geändert oder die Übermittlung hat begonnen. Lesen Sie seinen Status; es wurde kein neues Fax vorbereitet.",
+    "Dëse Versand huet sech geännert oder d’Iwwermëttlung huet ugefaang. Liest säi Status; et gouf keen neie Fax virbereet."
+  ],
+  "Envoi introuvable.": [
+    "Dispatch not found.",
+    "Versand nicht gefunden.",
+    "Versand net fonnt."
+  ],
+  "L’approbation exige une session humaine authentifiée.": [
+    "Approval requires an authenticated human session.",
+    "Die Freigabe erfordert eine authentifizierte menschliche Sitzung.",
+    "D’Fräigab brauch eng authentifizéiert mënschlech Sessioun."
+  ],
+  "Une délégation experte active est requise.": [
+    "Active expert delegation is required.",
+    "Eine aktive Expertendelegation ist erforderlich.",
+    "Eng aktiv Expertedelegatioun ass néideg."
+  ],
+  "La distribution sécurisée exige une approbation dans le navigateur, y compris sous mandat expert.": [
+    "Secure distribution requires browser approval, including under an expert mandate.",
+    "Die sichere Verteilung erfordert eine Freigabe im Browser, auch mit Expertenmandat.",
+    "Déi sécher Verdeelung brauch eng Fräigab am Browser, och ënner engem Expertemandat."
+  ],
+  "Reconnectez-vous avant d’approuver cette distribution.": [
+    "Sign in again before approving this distribution.",
+    "Melden Sie sich erneut an, bevor Sie diese Verteilung freigeben.",
+    "Mellt Iech nei un, ier Dir dës Verdeelung fräigitt."
+  ],
+  "Cet envoi ne peut plus être approuvé.": [
+    "This dispatch can no longer be approved.",
+    "Dieser Versand kann nicht mehr freigegeben werden.",
+    "Dëse Versand kann net méi fräigi ginn."
+  ],
+  "L’aperçu a changé. Rechargez avant d’approuver.": [
+    "The preview changed. Reload before approval.",
+    "Die Vorschau hat sich geändert. Laden Sie vor der Freigabe neu.",
+    "D’Virschau huet sech geännert. Lued nei, ier Dir fräigitt."
+  ],
+  "Confirmez que le destinataire a demandé cet e-mail.": [
+    "Confirm that the recipient requested this email.",
+    "Bestätigen Sie, dass der Empfänger diese E-Mail angefordert hat.",
+    "Bestätegt, datt den Empfänger dës E-Mail ugefrot huet."
+  ],
+  "La revue experte n’est plus valide.": [
+    "Expert review is no longer valid.",
+    "Die Expertenprüfung ist nicht mehr gültig.",
+    "D’Expertiwwerpréiwung ass net méi gëlteg."
+  ],
+  "L’approbation et l’envoi doivent être confirmés dans le navigateur.": [
+    "Approval and dispatch must be confirmed in the browser.",
+    "Freigabe und Versand müssen im Browser bestätigt werden.",
+    "Fräigab a Versand mussen am Browser bestätegt ginn."
+  ],
+  "La délégation experte ne remplace pas l’approbation dans le navigateur pour cette distribution.": [
+    "Expert delegation does not replace browser approval for this distribution.",
+    "Die Expertendelegation ersetzt nicht die Freigabe im Browser für diese Verteilung.",
+    "D’Expertedelegatioun ersetzt net d’Fräigab am Browser fir dës Verdeelung."
+  ],
+  "La connexion OAuth actuelle doit être vérifiée avant l’acceptation.": [
+    "The current OAuth connection must be verified before acceptance.",
+    "Die aktuelle OAuth-Verbindung muss vor der Annahme überprüft werden.",
+    "Déi aktuell OAuth-Verbindung muss virun der Akzeptatioun iwwerpréift ginn."
+  ],
+  "Une approbation ou une délégation valide est requise.": [
+    "Valid approval or delegation is required.",
+    "Eine gültige Freigabe oder Delegation ist erforderlich.",
+    "Eng gëlteg Fräigab oder Delegatioun ass néideg."
+  ],
+  "Cette clé confirme un autre envoi.": [
+    "This key confirms another dispatch.",
+    "Dieser Schlüssel bestätigt einen anderen Versand.",
+    "Dëse Schlëssel bestätegt en anere Versand."
+  ],
+  "Une approbation humaine est requise.": [
+    "Human approval is required.",
+    "Eine menschliche Freigabe ist erforderlich.",
+    "Eng mënschlech Fräigab ass néideg."
+  ],
+  "Cet envoi a été annulé.": [
+    "This dispatch was cancelled.",
+    "Dieser Versand wurde storniert.",
+    "Dëse Versand gouf annuléiert."
+  ],
+  "Filtre d’envoi inconnu. Utilisez approval, in_progress, attention ou done.": [
+    "Unknown dispatch filter. Use approval, in_progress, attention or done.",
+    "Unbekannter Versandfilter. Verwenden Sie approval, in_progress, attention oder done.",
+    "Onbekannte Versandfilter. Benotzt approval, in_progress, attention oder done."
+  ],
+  "La soumission a commencé : l’annulation n’est pas garantie ; aucun nouvel envoi n’a été déclenché.": [
+    "Submission started: cancellation is not guaranteed; no new dispatch was triggered.",
+    "Die Übermittlung hat begonnen: Die Stornierung ist nicht garantiert; es wurde kein neuer Versand ausgelöst.",
+    "D’Iwwermëttlung huet ugefaang: d’Annulatioun ass net garantéiert; et gouf keen neie Versand ausgeléist."
+  ],
+  "Le partage sécurisé n’est plus disponible.": [
+    "The secure share is no longer available.",
+    "Die sichere Freigabe ist nicht mehr verfügbar.",
+    "Den sécheren Deelen ass net méi disponibel."
+  ],
+  "Le lien protégé a expiré ou a été révoqué. Préparez un nouvel envoi.": [
+    "The protected link expired or was revoked. Prepare a new dispatch.",
+    "Der geschützte Link ist abgelaufen oder wurde widerrufen. Bereiten Sie einen neuen Versand vor.",
+    "De geschützte Link ass ofgelaf oder gouf zréckgezunn. Preparéiert en neie Versand."
+  ],
+  "Choisissez une période d’utilisation au format AAAA-MM ou latest.": [
+    "Choose a usage period in YYYY-MM format or latest.",
+    "Wählen Sie einen Nutzungszeitraum im Format JJJJ-MM oder latest.",
+    "Wielt eng Notzungsperiod am Format JJJJ-MM oder latest."
+  ],
+  "Choisissez une année d’utilisation entre 1000 et 9998.": [
+    "Choose a usage year between 1000 and 9998.",
+    "Wählen Sie ein Nutzungsjahr zwischen 1000 und 9998.",
+    "Wielt e Notzungsjoer tëscht 1000 an 9998."
+  ],
+  "Un accès administrateur est requis.": [
+    "Administrator access is required.",
+    "Administratorzugriff ist erforderlich.",
+    "Administrateurzougang ass néideg."
+  ],
+  "Fournisseur incompatible.": [
+    "Incompatible provider.",
+    "Anbieter nicht kompatibel.",
+    "Ubidder net kompatibel."
+  ],
+  "Événement de fournisseur non valide.": [
+    "Invalid provider event.",
+    "Ungültiges Anbieterereignis.",
+    "Ongëltegt Evenement vum Ubidder."
+  ],
+  "La simulation est interdite pour une organisation de production.": [
+    "Simulation is forbidden for a production organisation.",
+    "Die Simulation ist für eine Produktionsorganisation verboten.",
+    "D’Simulatioun ass fir eng Produktiounsorganisatioun verbueden."
+  ],
+  "Ce dépôt n’est plus autorisé. Consultez son état depuis votre compte connecté.": [
+    "This upload is no longer authorized. Read its status through your connected account.",
+    "Dieser Upload ist nicht mehr erlaubt. Lesen Sie seinen Status über Ihr verbundenes Konto.",
+    "Dësen Upload ass net méi erlaabt. Liest säi Status iwwer Äre verbonnene Kont."
+  ],
+  "L’origine des dépôts privés n’est pas configurée.": [
+    "The private upload origin is not configured.",
+    "Die Herkunft privater Uploads ist nicht konfiguriert.",
+    "D’Hierkonft vu private Uploads ass net konfiguréiert."
+  ],
+  "Trop de dépôts privés en attente ou dans la journée. Consultez un dépôt existant avant d’en créer un autre.": [
+    "Too many pending or daily private uploads. Read an existing upload before creating another.",
+    "Zu viele ausstehende oder tägliche private Uploads. Lesen Sie einen bestehenden Upload, bevor Sie einen weiteren erstellen.",
+    "Ze vill privat Uploads amgaang oder fir haut. Liest en existéierenden Upload, ier Dir en neien erstellt."
+  ],
+  "Cette clé identifie déjà un autre original ou une autre connexion.": [
+    "This key already identifies a different original or connection.",
+    "Dieser Schlüssel kennzeichnet bereits ein anderes Original oder eine andere Verbindung.",
+    "Dëse Schlëssel identifizéiert schonn en aneren Original oder eng aner Verbindung."
+  ],
+  "Utilisez le base64 standard canonique du PDF d’origine choisi, sans espaces ni URI data.": [
+    "Use canonical standard base64 of the selected original PDF, without whitespace or a data URI.",
+    "Verwenden Sie kanonisches Standard-Base64 des ausgewählten Original-PDFs, ohne Leerzeichen oder Data-URI.",
+    "Benotzt kanonesche Standard-Base64 vum gewielten Original-PDF, ouni Espacen oder Data-URI."
+  ],
+  "L’encodage base64 du PDF d’origine n’est pas canonique.": [
+    "The original PDF base64 encoding is not canonical.",
+    "Die Base64-Kodierung des Original-PDFs ist nicht kanonisch.",
+    "D’Base64-Kodéierung vum Original-PDF ass net kanonesch."
+  ],
+  "Calculez la taille en octets et le SHA-256 sur le PDF d’origine choisi. Ne le réparez pas, ne le reconstruisez pas et ne réessayez pas avec une nouvelle clé.": [
+    "Compute the byte size and SHA-256 against the selected original PDF. Do not repair, reconstruct or retry it with a new key.",
+    "Berechnen Sie Bytegröße und SHA-256 anhand des ausgewählten Original-PDFs. Reparieren oder rekonstruieren Sie es nicht und versuchen Sie es nicht mit einem neuen Schlüssel erneut.",
+    "Berechent d’Gréisst a Bytes an de SHA-256 um gewielten Original-PDF. Reparéiert en net, rekonstruéiert en net a probéiert et net mat engem neie Schlëssel nach eng Kéier."
+  ],
+  "L’original choisi n’est pas un PDF.": [
+    "The selected original is not a PDF.",
+    "Das ausgewählte Original ist kein PDF.",
+    "De gewielten Original ass keen PDF."
+  ],
+  "Consultez le même dépôt par MCP ; ne répétez pas la requête binaire.": [
+    "Read the same upload through MCP; do not repeat the binary request.",
+    "Lesen Sie denselben Upload über MCP; wiederholen Sie die Binäranfrage nicht.",
+    "Liest dee selwechten Upload iwwer MCP; widderhuelt déi binär Ufro net."
+  ],
+  "La taille du PDF d’origine diffère de la réservation.": [
+    "The original PDF size differs from the reservation.",
+    "Die Größe des Original-PDFs weicht von der Reservierung ab.",
+    "D’Gréisst vum Original-PDF ass anescht wéi an der Reservatioun."
+  ],
+  "Le PDF reçu diffère de l’original réservé.": [
+    "The received PDF differs from the reserved original.",
+    "Das empfangene PDF weicht vom reservierten Original ab.",
+    "De kritte PDF ass anescht wéi de reservéierten Original."
+  ],
+  "L’original reçu n’est pas un PDF.": [
+    "The received original is not a PDF.",
+    "Das empfangene Original ist kein PDF.",
+    "De kritten Original ass keen PDF."
+  ],
+  "Le PDF enregistré ne correspond pas à l’original réservé.": [
+    "The registered PDF does not match the reserved original.",
+    "Das registrierte PDF passt nicht zum reservierten Original.",
+    "De registréierte PDF passt net zum reservéierten Original."
+  ],
+  "Consultez l’état de cet envoi ; ne l’envoyez pas de nouveau.": [
+    "Check this dispatch's status; do not send it again.",
+    "Prüfen Sie den Status dieses Versands; senden Sie ihn nicht erneut.",
+    "Kuckt de Status vun dësem Versand; schéckt en net nach eng Kéier."
+  ],
+  "Ce connecteur ne fournit pas le PDF exact pour la revue experte. La revue humaine dans Guteneo reste possible.": [
+    "This connector does not provide the exact PDF for expert review. Human review in Guteneo remains an alternative.",
+    "Dieser Connector liefert nicht das exakte PDF für die Expertenprüfung. Die menschliche Prüfung in Guteneo bleibt eine Alternative.",
+    "Dëse Connector liwwert net de genaue PDF fir d’Expertiwwerpréiwung. D’mënschlech Iwwerpréiwung a Guteneo bleift eng Alternativ."
+  ],
+  "Le PDF a changé : la revue est arrêtée. Son intégrité doit être rétablie avant toute approbation.": [
+    "The PDF has changed: review has stopped. Integrity must be restored before any approval.",
+    "Das PDF hat sich geändert: Die Prüfung wurde gestoppt. Die Integrität muss vor jeder Freigabe wiederhergestellt werden.",
+    "D’PDF huet sech geännert: d’Iwwerpréiwung ass gestoppt. D’Integritéit muss virun all Fräigab erëmhiergestallt ginn."
+  ],
+  "Votre connexion ou vos droits ont changé. Reconnectez l’assistant pour voir votre délégation.": [
+    "Your connection or permissions have changed. Reconnect the assistant to view your delegation.",
+    "Ihre Verbindung oder Ihre Rechte haben sich geändert. Verbinden Sie den Assistenten erneut, um Ihre Delegation zu sehen.",
+    "Är Verbindung oder Är Rechter hu sech geännert. Verbannt den Assistent nei, fir Är Delegatioun ze gesinn."
+  ],
+  "En-tête Idempotency-Key requis.": [
+    "Idempotency-Key header required.",
+    "Header Idempotency-Key erforderlich.",
+    "Header Idempotency-Key néideg."
+  ],
+  "Une connexion OAuth actuelle est requise.": [
+    "A current OAuth connection is required.",
+    "Eine aktuelle OAuth-Verbindung ist erforderlich.",
+    "Eng aktuell OAuth-Verbindung ass néideg."
+  ],
+  "Utilisez confirm pour la confirmation par l’API après l’approbation dans le navigateur.": [
+    "Use confirm for API confirmation after browser approval.",
+    "Verwenden Sie confirm für die API-Bestätigung nach der Freigabe im Browser.",
+    "Benotzt confirm fir d’API-Confirmatioun no der Fräigab am Browser."
+  ],
+  "Le devis utilise le document et le destinataire déjà vérifiés.": [
+    "The quote uses the document and recipient already verified.",
+    "Das Angebot verwendet das bereits geprüfte Dokument und den bereits geprüften Empfänger.",
+    "Den Devis benotzt d’Dokument an den Empfänger, déi scho gepréift sinn."
+  ],
+  "Choisissez un PDF.": [
+    "Choose a PDF.",
+    "Wählen Sie ein PDF.",
+    "Wielt e PDF."
+  ],
+  "Le PDF est trop volumineux.": [
+    "PDF is too large.",
+    "Das PDF ist zu groß.",
+    "D’PDF ass ze grouss."
+  ],
+  "Ouvrez Guteneo dans votre navigateur pour voir ce résumé.": [
+    "Open Guteneo in your browser to view this summary.",
+    "Öffnen Sie Guteneo in Ihrem Browser, um diese Übersicht zu sehen.",
+    "Maacht Guteneo an Ärem Browser op, fir dës Iwwersiicht ze gesinn."
+  ],
+  "Administrateur authentifié requis.": [
+    "Authenticated administrator required.",
+    "Authentifizierter Administrator erforderlich.",
+    "Authentifizéierten Administrateur néideg."
+  ],
+  "La page d’adresse est en préparation. Relancez la même demande dans quelques instants.": [
+    "The address page is being prepared. Retry the same request in a few moments.",
+    "Die Adressseite wird vorbereitet. Wiederholen Sie dieselbe Anfrage in einigen Augenblicken.",
+    "D’Adresssäit gëtt virbereet. Probéiert déiselwecht Ufro an e puer Momenter nach eng Kéier."
+  ],
+  "L’adresse, le mode d’impression ou le profil postal a changé. Recréez la page d’adresse à partir de votre PDF d’origine.": [
+    "The address, print mode or postal profile has changed. Recreate the address page from your original PDF.",
+    "Die Adresse, der Druckmodus oder das Postprofil hat sich geändert. Erstellen Sie die Adressseite aus Ihrem Original-PDF neu.",
+    "D’Adress, den Drockmodus oder de Postprofil huet sech geännert. Erstellt d’Adresssäit nei aus Ärem Original-PDF."
+  ],
+  "Une clé de reprise valide est requise.": [
+    "A valid recovery key is required.",
+    "Ein gültiger Wiederaufnahmeschlüssel ist erforderlich.",
+    "E gëltege Schlëssel fir d’Erëmopname ass néideg."
+  ],
+  "Cette clé de reprise appartient à une autre préparation.": [
+    "This recovery key belongs to another preparation.",
+    "Dieser Wiederaufnahmeschlüssel gehört zu einer anderen Vorbereitung.",
+    "Dëse Schlëssel fir d’Erëmopname gehéiert zu enger anerer Virbereedung."
+  ],
+  "La limite quotidienne de création de PDF est atteinte.": [
+    "The daily PDF creation limit has been reached.",
+    "Das Tageslimit für die PDF-Erstellung ist erreicht.",
+    "Déi deeglech Limitt fir PDFen ze erstellen ass erreecht."
+  ],
+  "Votre session ou vos droits ont changé. Recommencez depuis votre espace de travail.": [
+    "Your session or permissions have changed. Start again from your workspace.",
+    "Ihre Sitzung oder Ihre Rechte haben sich geändert. Beginnen Sie erneut in Ihrem Arbeitsbereich.",
+    "Är Sessioun oder Är Rechter hu sech geännert. Fänkt nei vun Ärem Aarbechtsberäich aus un."
+  ],
+  "Un membre autorisé doit effectuer cette opération.": [
+    "An authorized member must perform this operation.",
+    "Ein berechtigtes Mitglied muss diesen Vorgang ausführen.",
+    "En autoriséierte Member muss dës Operatioun maachen."
+  ],
+  "Ouvrez Guteneo dans votre navigateur pour confirmer cette opération.": [
+    "Open Guteneo in your browser to confirm this operation.",
+    "Öffnen Sie Guteneo in Ihrem Browser, um diesen Vorgang zu bestätigen.",
+    "Maacht Guteneo an Ärem Browser op, fir dës Operatioun ze bestätegen."
+  ],
+  "Indiquez le nom et l’adresse complète de l’expéditeur.": [
+    "Provide the sender's name and full address.",
+    "Geben Sie den Namen und die vollständige Adresse des Absenders an.",
+    "Gitt den Numm an déi komplett Adress vum Ofsender un."
+  ],
+  "Seul un administrateur de cet espace de travail peut ajouter un expéditeur postal.": [
+    "Only an administrator of this workspace can add a postal sender.",
+    "Nur ein Administrator dieses Arbeitsbereichs kann einen Postabsender hinzufügen.",
+    "Just en Administrateur vun dësem Aarbechtsberäich kann e Postofsender derbäisetzen."
+  ],
+  "L’activation postale est indisponible dans cet environnement.": [
+    "Postal activation is unavailable in this environment.",
+    "Die Postaktivierung ist in dieser Umgebung nicht verfügbar.",
+    "D’Postaktivéierung ass an dësem Ëmfeld net disponibel."
+  ],
+  "Cette connexion a changé. Reconnectez votre assistant.": [
+    "This connection has changed. Reconnect your assistant.",
+    "Diese Verbindung hat sich geändert. Verbinden Sie Ihren Assistenten erneut.",
+    "Dës Verbindung huet sech geännert. Verbannt Ären Assistent nei."
+  ],
+  "Cette connexion n’est plus autorisée. Reconnectez votre assistant.": [
+    "This connection is no longer authorized. Reconnect your assistant.",
+    "Diese Verbindung ist nicht mehr autorisiert. Verbinden Sie Ihren Assistenten erneut.",
+    "Dës Verbindung ass net méi autoriséiert. Verbannt Ären Assistent nei."
+  ],
+  "Le formulaire est absent.": [
+    "The form is missing.",
+    "Das Formular fehlt.",
+    "De Formulaire feelt."
+  ],
+  "Le formulaire est trop volumineux.": [
+    "The form is too large.",
+    "Das Formular ist zu groß.",
+    "De Formulaire ass ze grouss."
+  ],
+  "Le formulaire n’est pas valide.": [
+    "The form is invalid.",
+    "Das Formular ist ungültig.",
+    "De Formulaire ass ongëlteg."
+  ],
+  "Indiquez votre nom, votre adresse et votre autorisation.": [
+    "Provide your name, address and authorization.",
+    "Geben Sie Ihren Namen, Ihre Adresse und Ihre Berechtigung an.",
+    "Gitt Ären Numm, Är Adress an Är Autorisatioun un."
+  ],
+  "Ouvrez Guteneo dans votre navigateur pour déclarer votre expéditeur.": [
+    "Open Guteneo in your browser to declare your sender.",
+    "Öffnen Sie Guteneo in Ihrem Browser, um Ihren Absender anzumelden.",
+    "Maacht Guteneo an Ärem Browser op, fir Ären Ofsender ze deklaréieren."
+  ],
+  "Seul un administrateur de cet espace de travail peut déclarer un expéditeur.": [
+    "Only an administrator of this workspace can declare a sender.",
+    "Nur ein Administrator dieses Arbeitsbereichs kann einen Absender anmelden.",
+    "Just en Administrateur vun dësem Aarbechtsberäich kann en Ofsender deklaréieren."
+  ],
+  "L’activation postale est temporairement indisponible.": [
+    "Postal activation is temporarily unavailable.",
+    "Die Postaktivierung ist vorübergehend nicht verfügbar.",
+    "D’Postaktivéierung ass temporär net disponibel."
+  ],
+  "Un expéditeur existe déjà. Sa déclaration ne peut pas être remplacée ici.": [
+    "A sender already exists. Its declaration cannot be replaced here.",
+    "Ein Absender existiert bereits. Seine Anmeldung kann hier nicht ersetzt werden.",
+    "Et gëtt schonn en Ofsender. Seng Deklaratioun kann hei net ersat ginn."
+  ],
+  "La configuration est suspendue ou doit être vérifiée. Contactez l’administrateur.": [
+    "Setup is suspended or requires verification. Contact the administrator.",
+    "Die Einrichtung ist ausgesetzt oder muss überprüft werden. Wenden Sie sich an den Administrator.",
+    "D’Astellung ass suspendéiert oder muss iwwerpréift ginn. Kontaktéiert den Administrateur."
+  ],
+  "Le profil du service postal doit être vérifié avant l’activation.": [
+    "The postal service profile must be verified before activation.",
+    "Das Profil des Postdienstes muss vor der Aktivierung überprüft werden.",
+    "De Profil vum Postdéngscht muss virun der Aktivéierung iwwerpréift ginn."
+  ],
+  "Le profil du service postal a changé. Sa configuration doit être vérifiée.": [
+    "The postal service profile has changed. Its configuration must be verified.",
+    "Das Profil des Postdienstes hat sich geändert. Seine Konfiguration muss überprüft werden.",
+    "De Profil vum Postdéngscht huet sech geännert. Seng Konfiguratioun muss iwwerpréift ginn."
+  ],
+  "Vos droits ou la configuration ont changé. Actualisez la page.": [
+    "Your permissions or the configuration have changed. Refresh the page.",
+    "Ihre Rechte oder die Konfiguration haben sich geändert. Aktualisieren Sie die Seite.",
+    "Är Rechter oder d’Konfiguratioun hu sech geännert. Aktualiséiert d’Säit."
+  ],
+  "Analyse interrompue.": [
+    "Analysis interrupted.",
+    "Analyse unterbrochen.",
+    "Analys ënnerbrach."
+  ],
+  "La protection des documents n’est pas encore configurée.": [
+    "Document protection is not yet configured.",
+    "Der Dokumentenschutz ist noch nicht konfiguriert.",
+    "De Schutz vun den Dokumenter ass nach net konfiguréiert."
+  ],
+  "Le document protégé est indisponible.": [
+    "The protected document is unavailable.",
+    "Das geschützte Dokument ist nicht verfügbar.",
+    "D’geschützt Dokument ass net disponibel."
+  ],
+  "Vous ne pouvez pas accéder à cet espace de travail.": [
+    "You cannot access this workspace.",
+    "Sie können nicht auf diesen Arbeitsbereich zugreifen.",
+    "Dir kënnt net op dësen Aarbechtsberäich zougräifen."
+  ],
+  "Ce service nécessite le mode réel.": [
+    "This service requires live mode.",
+    "Dieser Dienst erfordert den Echtbetrieb.",
+    "Dësen Déngscht brauch de richtege Modus."
+  ],
+  "Choisissez une durée de 1, 7 ou 30 jours.": [
+    "Choose a duration of 1, 7 or 30 days.",
+    "Wählen Sie eine Dauer von 1, 7 oder 30 Tagen.",
+    "Wielt eng Dauer vun 1, 7 oder 30 Deeg."
+  ],
+  "Un PDF vérifié est requis.": [
+    "A verified PDF is required.",
+    "Ein geprüftes PDF ist erforderlich.",
+    "E gepréiften PDF ass néideg."
+  ],
+  "Ouvrez votre espace de travail Guteneo pour cette action.": [
+    "Open your Guteneo workspace for this action.",
+    "Öffnen Sie für diese Aktion Ihren Guteneo-Arbeitsbereich.",
+    "Maacht fir dës Aktioun Ären Guteneo-Aarbechtsberäich op."
+  ],
+  "Document protégé indisponible.": [
+    "Protected document unavailable.",
+    "Geschütztes Dokument nicht verfügbar.",
+    "Geschützt Dokument net disponibel."
+  ],
+  "Le droit d’approbation est requis pour révoquer cet accès.": [
+    "Approval permission is required to revoke this access.",
+    "Zum Widerrufen dieses Zugriffs ist das Freigaberecht erforderlich.",
+    "Fir dësen Zougang zréckzezéien, ass d’Fräigabrecht néideg."
+  ],
+  "Vos droits ou cet accès ont changé. Actualisez la page.": [
+    "Your permissions or this access have changed. Refresh the page.",
+    "Ihre Rechte oder dieser Zugriff haben sich geändert. Aktualisieren Sie die Seite.",
+    "Är Rechter oder dësen Zougang hu sech geännert. Aktualiséiert d’Säit."
+  ],
+  "Requête vide.": ["Empty request.", "Leere Anfrage.", "Eidel Ufro."],
+  "La requête dépasse la limite.": [
+    "The request exceeds the limit.",
+    "Die Anfrage überschreitet das Limit.",
+    "D’Ufro iwwerschreit d’Limitt."
+  ],
+  "Requête JSON non valide.": [
+    "Invalid JSON request.",
+    "Ungültige JSON-Anfrage.",
+    "Ongëlteg JSON-Ufro."
+  ],
+  "Ouvrez l’aperçu dans Guteneo.": [
+    "Open the preview in Guteneo.",
+    "Öffnen Sie die Vorschau in Guteneo.",
+    "Maacht d’Virschau a Guteneo op."
+  ],
+  "Identité incohérente.": [
+    "Inconsistent identity.",
+    "Inkonsistente Identität.",
+    "Inkonsequent Identitéit."
+  ],
+  "Le rendu n’est pas disponible.": [
+    "The rendered output is not available.",
+    "Die gerenderte Ausgabe ist nicht verfügbar.",
+    "De Rendu ass net disponibel."
+  ],
+  "Une autorisation OAuth actuelle est requise.": [
+    "Current OAuth authorization is required.",
+    "Eine aktuelle OAuth-Autorisierung ist erforderlich.",
+    "Eng aktuell OAuth-Autorisatioun ass néideg."
+  ],
+  "Votre rôle ne permet pas cette opération.": [
+    "Your role does not permit this operation.",
+    "Ihre Rolle erlaubt diesen Vorgang nicht.",
+    "Är Roll erlaabt dës Operatioun net."
+  ],
+  "Votre accès a changé.": [
+    "Your access has changed.",
+    "Ihr Zugriff hat sich geändert.",
+    "Ären Zougang huet sech geännert."
+  ],
+  "Révoquez le lien protégé existant avant de préparer une distribution sensible de ce document.": [
+    "Revoke the existing protected link before preparing a sensitive distribution of this document.",
+    "Widerrufen Sie den bestehenden geschützten Link, bevor Sie eine sensible Verteilung dieses Dokuments vorbereiten.",
+    "Zitt de bestoende geschützte Link zréck, ier Dir eng sensibel Verdeelung vun dësem Dokument virbereet."
+  ],
+  "Ce document a une préparation postale dérivée. Choisissez un document dédié à la distribution sensible.": [
+    "This document has a derived postal preparation. Choose a document dedicated to sensitive distribution.",
+    "Dieses Dokument hat eine abgeleitete Postvorbereitung. Wählen Sie ein Dokument, das der sensiblen Verteilung vorbehalten ist.",
+    "Dëst Dokument huet eng ofgeleete Postvirbereedung. Wielt en Dokument, dat fir déi sensibel Verdeelung reservéiert ass."
+  ],
+  "Ce document est déjà utilisé dans un autre parcours d’envoi. Choisissez un document dédié à la distribution sensible.": [
+    "This document is already used in another dispatch workflow. Choose a document dedicated to sensitive distribution.",
+    "Dieses Dokument wird bereits in einem anderen Versandablauf verwendet. Wählen Sie ein Dokument, das der sensiblen Verteilung vorbehalten ist.",
+    "Dëst Dokument gëtt schonn an engem anere Versandoflaf benotzt. Wielt en Dokument, dat fir déi sensibel Verdeelung reservéiert ass."
+  ],
+  "Le HTML personnalisé doit contenir un message lisible.": [
+    "Custom HTML must contain readable message content.",
+    "Benutzerdefiniertes HTML muss lesbaren Nachrichteninhalt enthalten.",
+    "Personaliséierten HTML muss e liesbare Message enthalen."
+  ],
+  "Ce destinataire est bloqué pour cette organisation.": [
+    "This recipient is blocked for this organisation.",
+    "Dieser Empfänger ist für diese Organisation gesperrt.",
+    "Dësen Empfänger ass fir dës Organisatioun gespaart."
+  ],
+  "Le plafond doit couvrir le prix de conservation.": [
+    "The ceiling must cover the retention price.",
+    "Die Obergrenze muss den Aufbewahrungspreis abdecken.",
+    "De Plafong muss de Präis fir d’Openthalen ofdecken."
+  ],
+  "Une autorisation actuelle est requise.": [
+    "Current authorization is required.",
+    "Eine aktuelle Autorisierung ist erforderlich.",
+    "Eng aktuell Autorisatioun ass néideg."
+  ],
+  "La limite quotidienne de préparations est atteinte ou vos droits ont changé.": [
+    "The daily preparation limit has been reached or your permissions have changed.",
+    "Das Tageslimit für Vorbereitungen ist erreicht oder Ihre Rechte haben sich geändert.",
+    "Déi deeglech Limitt fir Virbereedungen ass erreecht oder Är Rechter hu sech geännert."
+  ],
+  "La préparation a perdu son autorisation.": [
+    "The preparation has lost its authorization.",
+    "Die Vorbereitung hat ihre Autorisierung verloren.",
+    "D’Virbereedung huet hir Autorisatioun verluer."
+  ],
+  "Ce PDF ne peut pas être préparé pour une consultation sécurisée.": [
+    "This PDF cannot be prepared for secure viewing.",
+    "Dieses PDF kann nicht für die sichere Ansicht vorbereitet werden.",
+    "Dëse PDF kann net fir eng sécher Usiicht virbereet ginn."
+  ],
+  "Le rendu dépasse la limite.": [
+    "The rendered output exceeds the limit.",
+    "Die gerenderte Ausgabe überschreitet das Limit.",
+    "De Rendu iwwerschreit d’Limitt."
+  ],
+  "Le rendu ne correspond pas au document.": [
+    "The rendered output does not match the document.",
+    "Die gerenderte Ausgabe passt nicht zum Dokument.",
+    "De Rendu passt net zum Dokument."
+  ],
+  "La couche de texte est trop volumineuse.": [
+    "The text layer is too large.",
+    "Die Textebene ist zu groß.",
+    "D’Textschicht ass ze grouss."
+  ],
+  "Le rendu a changé.": [
+    "The rendered output has changed.",
+    "Die gerenderte Ausgabe hat sich geändert.",
+    "De Rendu huet sech geännert."
+  ],
+  "Chaque page doit être préparée.": [
+    "Every page must be prepared.",
+    "Jede Seite muss vorbereitet werden.",
+    "All Säit muss virbereet ginn."
+  ],
+  "Renouvelez cette préparation dans Guteneo.": [
+    "Renew this preparation in Guteneo.",
+    "Erneuern Sie diese Vorbereitung in Guteneo.",
+    "Erneiert dës Virbereedung a Guteneo."
+  ],
+  "Seule une préparation non soumise peut être renouvelée.": [
+    "Only an unsubmitted preparation can be renewed.",
+    "Nur eine nicht übermittelte Vorbereitung kann erneuert werden.",
+    "Just eng Virbereedung, déi net iwwermëttelt gouf, kann erneiert ginn."
+  ],
+  "La soumission a commencé ou cette préparation ne peut plus être renouvelée.": [
+    "Submission has started or this preparation is no longer renewable.",
+    "Die Übermittlung hat begonnen oder diese Vorbereitung kann nicht mehr erneuert werden.",
+    "D’Iwwermëttlung huet ugefaang oder dës Virbereedung kann net méi erneiert ginn."
+  ],
+  "Ce devis est encore valide. Vérifiez-le avant l’approbation.": [
+    "This quote is still valid. Review it before approval.",
+    "Dieses Angebot ist noch gültig. Prüfen Sie es vor der Freigabe.",
+    "Dësen Devis ass nach gëlteg. Kuckt en, ier Dir fräigitt."
+  ],
+  "La préparation ou votre accès a changé. Consultez son état actuel avant de continuer.": [
+    "The preparation or your access changed. Read its current status before continuing.",
+    "Die Vorbereitung oder Ihr Zugriff hat sich geändert. Lesen Sie den aktuellen Status, bevor Sie fortfahren.",
+    "D’Virbereedung oder Ären Zougang huet sech geännert. Liest den aktuelle Status, ier Dir weidermaacht."
+  ],
+  "Vérifiez le document et ses conditions avant d’approuver.": [
+    "Review the document and its terms before approving.",
+    "Prüfen Sie das Dokument und seine Bedingungen vor der Freigabe.",
+    "Kuckt d’Dokument a seng Konditiounen, ier Dir fräigitt."
+  ],
+  "La préparation doit être complète.": [
+    "The preparation must be complete.",
+    "Die Vorbereitung muss vollständig sein.",
+    "D’Virbereedung muss komplett sinn."
+  ],
+  "La préparation n’est pas complète.": [
+    "The preparation is not complete.",
+    "Die Vorbereitung ist nicht vollständig.",
+    "D’Virbereedung ass net komplett."
+  ],
+  "La vérification du destinataire nécessite le navigateur.": [
+    "Recipient verification requires the browser.",
+    "Die Überprüfung des Empfängers erfordert den Browser.",
+    "D’Iwwerpréiwung vum Empfänger brauch de Browser."
+  ],
+  "La version de clé n’est pas valide.": [
+    "The key version is invalid.",
+    "Die Schlüsselversion ist ungültig.",
+    "D’Schlësselversioun ass ongëlteg."
+  ],
+  "Le trousseau de clés du stockage sécurisé n’est pas valide.": [
+    "The secure storage key ring is invalid.",
+    "Der Schlüsselbund des sicheren Speichers ist ungültig.",
+    "De Schlësselbond vum sécheren Späicher ass ongëlteg."
+  ],
+  "Le stockage sécurisé n’est pas configuré.": [
+    "Secure storage is not configured.",
+    "Der sichere Speicher ist nicht konfiguriert.",
+    "De sécheren Späicher ass net konfiguréiert."
+  ],
+  "La clé du stockage sécurisé n’est pas valide.": [
+    "The secure storage key is invalid.",
+    "Der Schlüssel des sicheren Speichers ist ungültig.",
+    "De Schlëssel vum sécheren Späicher ass ongëlteg."
+  ],
+  "L’invitation est indisponible.": [
+    "The invitation is unavailable.",
+    "Die Einladung ist nicht verfügbar.",
+    "D’Invitatioun ass net disponibel."
+  ],
+  "Ce document sensible doit être consulté et distribué par son parcours sécurisé.": [
+    "This sensitive document must be viewed and distributed through its secure workflow.",
+    "Dieses sensible Dokument muss über seinen sicheren Ablauf angesehen und verteilt werden.",
+    "Dëst sensibelt Dokument muss iwwer säi sécheren Oflaf gekuckt a verdeelt ginn."
+  ],
+  "Choisissez un fichier XML, CSV, XLSX ou JSON.": [
+    "Choose an XML, CSV, XLSX or JSON file.",
+    "Wählen Sie eine XML-, CSV-, XLSX- oder JSON-Datei.",
+    "Wielt e XML-, CSV-, XLSX- oder JSON-Fichier."
+  ],
+  "Autorité postale indisponible.": [
+    "Postal authority unavailable.",
+    "Postbefugnis nicht verfügbar.",
+    "Postautoritéit net disponibel."
+  ],
+  "Utilisez {{document_url}} uniquement comme href exact d’un lien HTML.": [
+    "Use {{document_url}} only as the exact href of an HTML anchor.",
+    "Verwenden Sie {{document_url}} nur als exaktes href eines HTML-Links.",
+    "Benotzt {{document_url}} just als exakten href vun engem HTML-Link."
+  ],
+  "L’URL du document protégé n’est pas valide.": [
+    "The protected document URL is invalid.",
+    "Die URL des geschützten Dokuments ist ungültig.",
+    "D’URL vum geschützten Dokument ass ongëlteg."
+  ],
+  "L’espace réservé de l’URL du document nécessite un e-mail d’accès au document.": [
+    "The document URL placeholder requires document-access email.",
+    "Der Platzhalter für die Dokument-URL erfordert eine E-Mail mit Dokumentzugang.",
+    "De Plazhalter fir d’Dokument-URL brauch eng E-Mail mat Dokumentzougang."
+  ],
+  "Le lien vers le document protégé doit avoir un libellé lisible.": [
+    "The protected document link must have a readable label.",
+    "Der Link zum geschützten Dokument muss eine lesbare Beschriftung haben.",
+    "De Link op dat geschützt Dokument muss e liesbare Label hunn."
+  ],
+  "PDF vide ou trop volumineux (10 Mio au maximum).": [
+    "Empty or oversized PDF (maximum 10 MiB).",
+    "Leeres oder zu großes PDF (maximal 10 MiB).",
+    "Eidele oder ze groussen PDF (maximal 10 MiB)."
+  ],
+  "Le fichier ne contient pas de PDF.": [
+    "The file does not contain a PDF.",
+    "Die Datei enthält kein PDF.",
+    "De Fichier enthält keen PDF."
+  ],
+  "PDF tronqué ou non valide.": [
+    "Truncated or invalid PDF.",
+    "Abgeschnittenes oder ungültiges PDF.",
+    "Ofgeschniddenen oder ongëltege PDF."
+  ],
+  "PDF illisible, corrompu ou chiffré.": [
+    "Unreadable, corrupt or encrypted PDF.",
+    "Unlesbares, beschädigtes oder verschlüsseltes PDF.",
+    "Onliesbaren, korrupten oder verschlësselte PDF."
+  ],
+  "Les PDF chiffrés ne sont pas pris en charge.": [
+    "Encrypted PDFs are not supported.",
+    "Verschlüsselte PDFs werden nicht unterstützt.",
+    "Verschlësselt PDFe ginn net ënnerstëtzt."
+  ],
+  "Le PDF est trop complexe.": [
+    "PDF is too complex.",
+    "Das PDF ist zu komplex.",
+    "D’PDF ass ze komplex."
+  ],
+  "Ce PDF contient une fonction active ou une pièce jointe non autorisée.": [
+    "This PDF contains an active feature or an unauthorized attachment.",
+    "Dieses PDF enthält eine aktive Funktion oder einen nicht erlaubten Anhang.",
+    "Dëse PDF enthält eng aktiv Funktioun oder en net erlaabten Unhang."
+  ],
+  "Le devis a expiré ou sa configuration a changé. Préparez un nouvel envoi.": [
+    "The quote expired or its configuration changed. Prepare a new dispatch.",
+    "Das Angebot ist abgelaufen oder seine Konfiguration hat sich geändert. Bereiten Sie einen neuen Versand vor.",
+    "Den Devis ass ofgelaf oder seng Konfiguratioun huet sech geännert. Preparéiert en neie Versand."
+  ],
+  "Un tarif, une devise et un compte qualifiés sont requis pour ce canal.": [
+    "A qualified rate, currency and account are required for this channel.",
+    "Für diesen Kanal sind ein qualifizierter Tarif, eine Währung und ein Konto erforderlich.",
+    "Fir dëse Kanal sinn e qualifizéierten Tarif, eng Währung an e Kont néideg."
+  ],
+  "Les pièces jointes ne doivent pas dépasser 10 Mo. Utilisez un lien protégé pour ce PDF.": [
+    "Attachments must be at most 10 MB. Use a protected link for this PDF.",
+    "Anhänge dürfen höchstens 10 MB groß sein. Verwenden Sie für dieses PDF einen geschützten Link.",
+    "Unhäng dierfen héchstens 10 MB grouss sinn. Benotzt fir dëse PDF e geschützte Link."
+  ],
+  "Le coût exact du fournisseur n’est pas qualifié.": [
+    "Exact provider cost is not qualified.",
+    "Die exakten Anbieterkosten sind nicht qualifiziert.",
+    "Déi genau Käschte vum Ubidder sinn net qualifizéiert."
+  ],
+  "Le coût du fournisseur comprend une fraction de centime. L’agrégation avant facturation doit être connectée ; aucun arrondi par envoi n’est appliqué.": [
+    "Provider cost includes a fraction of a cent. Aggregation before billing must be connected; no per-dispatch rounding is applied.",
+    "Die Anbieterkosten enthalten einen Bruchteil eines Cents. Die Aggregation vor der Abrechnung muss verbunden sein; pro Versand wird nicht gerundet.",
+    "D’Käschte vum Ubidder enthalen e Bruchdeel vun engem Cent. D’Aggregatioun virun der Ofrechnung muss verbonne sinn; pro Versand gëtt net ofgerount."
+  ],
+  "Le coût qualifié dépasse la limite de cet envoi.": [
+    "The qualified cost exceeds this dispatch’s limit.",
+    "Die qualifizierten Kosten überschreiten das Limit dieses Versands.",
+    "Déi qualifizéiert Käschten iwwerschreiden d’Limitt vun dësem Versand."
+  ],
+  "Le devis de fax a expiré ou sa configuration a changé. Préparez un nouvel envoi.": [
+    "The fax quote expired or its configuration changed. Prepare a new dispatch.",
+    "Das Faxangebot ist abgelaufen oder seine Konfiguration hat sich geändert. Bereiten Sie einen neuen Versand vor.",
+    "De Fax-Devis ass ofgelaf oder seng Konfiguratioun huet sech geännert. Preparéiert en neie Versand."
+  ],
+  "Un compte fournisseur et un tarif de fax qualifiés sont requis.": [
+    "A qualified provider account and fax tariff are required.",
+    "Ein qualifiziertes Anbieterkonto und ein Faxtarif sind erforderlich.",
+    "E qualifizéierten Ubidderkont an e Faxtarif sinn néideg."
+  ],
+  "Aucun tarif de fax qualifié actuel ne couvre cet envoi.": [
+    "No current qualified fax tariff covers this dispatch.",
+    "Kein aktueller qualifizierter Faxtarif deckt diesen Versand ab.",
+    "Keen aktuelle qualifizéierte Faxtarif deckt dëse Versand of."
+  ],
+  "Le devis de fax a expiré ou sa configuration a changé.": [
+    "The fax quote expired or its configuration changed.",
+    "Das Faxangebot ist abgelaufen oder seine Konfiguration hat sich geändert.",
+    "De Fax-Devis ass ofgelaf oder seng Konfiguratioun huet sech geännert."
+  ],
+  "Aucun tarif de fax qualifié ne couvre cette destination et ces options.": [
+    "No qualified fax tariff covers this destination and these options.",
+    "Kein qualifizierter Faxtarif deckt dieses Ziel und diese Optionen ab.",
+    "Keen qualifizéierte Faxtarif deckt dës Destinatioun an dës Optiounen of."
+  ],
+  "Le test de fax au Luxembourg est limité à un plafond de 2 EUR par envoi.": [
+    "The Luxembourg fax test is limited to a EUR2 ceiling per dispatch.",
+    "Der Faxtest in Luxemburg ist auf eine Obergrenze von 2 EUR pro Versand begrenzt.",
+    "Den Faxtest zu Lëtzebuerg ass op e Plafong vun 2 EUR pro Versand limitéiert."
+  ],
+  "Preuve d’utilisation du fax non valide.": [
+    "Invalid fax usage evidence.",
+    "Ungültiger Nachweis der Faxnutzung.",
+    "Ongëltege Beweis vun der Faxnotzung."
+  ],
+  "La date de la preuve est dans le futur.": [
+    "Evidence date is in the future.",
+    "Das Datum des Nachweises liegt in der Zukunft.",
+    "Den Datum vum Beweis läit an der Zukunft."
+  ],
+  "Un autre règlement existe pour cet envoi.": [
+    "Another settlement exists for this dispatch.",
+    "Für diesen Versand existiert bereits eine andere Abrechnung.",
+    "Fir dëse Versand gëtt et schonn eng aner Ofrechnung."
+  ],
+  "La preuve ne correspond pas au devis.": [
+    "Evidence does not match the quote.",
+    "Der Nachweis passt nicht zum Angebot.",
+    "De Beweis passt net zum Devis."
+  ],
+  "Le montant de la preuve est hors limites.": [
+    "Evidence amount is out of bounds.",
+    "Der Betrag des Nachweises liegt außerhalb der Grenzen.",
+    "De Montant vum Beweis ass baussent de Grenzen."
+  ],
+  "100 envois au maximum.": [
+    "At most 100 dispatches.",
+    "Höchstens 100 Sendungen.",
+    "Héchstens 100 Versänn."
+  ],
+  "Ce devis de revue sert uniquement à préparer et consulter le fax. Aucun envoi, aucune approbation ni réservation n’est permis.": [
+    "This review quote is only for preparing and viewing the fax. No sending, approval or reservation is allowed.",
+    "Dieses Prüfangebot dient nur zum Vorbereiten und Ansehen des Faxes. Versand, Freigabe oder Reservierung sind nicht erlaubt.",
+    "Dësen Iwwerpréiwungsdevis déngt just dozou, de Fax virzebereeden an ze kucken. Kee Versand, keng Fräigab a keng Reservatioun sinn erlaabt."
   ]
 }

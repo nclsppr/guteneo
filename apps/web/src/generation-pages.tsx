@@ -1,4 +1,7 @@
-import type { GenerationRecordContext } from "../../../packages/contracts/src/generation-context";
+import type {
+  GenerationContextPage,
+  GenerationRecordContext,
+} from "../../../packages/contracts/src/generation-context";
 import { msg, msgIn } from "./messages";
 import {
   studioRoutes,
@@ -12,6 +15,7 @@ import type {
   GenerationJobView,
   GenerationResultView,
   Page,
+  TemplateView,
 } from "../../../packages/contracts/src/template-workflow";
 import type { SourceCell } from "../../../packages/contracts/src/datasets";
 import { api, date, isPublicPreview } from "./api";
@@ -38,8 +42,38 @@ const stateLabel: Record<string, string> = {
   cancelled: "Cancelled",
   generated: "PDF generated",
 };
+/** Existing state colours: done, in progress or needing attention. */
+const stateTone: Record<string, string> = {
+  queued: "status-document-processing",
+  running: "status-document-processing",
+  completed: "status-document-ready",
+  partial: "status-document-blocked",
+  failed: "status-document-blocked",
+  cancelled: "status-document-blocked",
+};
+function GenerationState({ state }: { state: string }) {
+  return (
+    <span className={`status ${stateTone[state] ?? ""}`}>
+      {msgIn("generation-state", stateLabel[state])}
+    </span>
+  );
+}
+/** A generation is named after its template; the version tells V1 from V2. */
+function generationName(job: GenerationJobView, templateName?: string) {
+  return templateName
+    ? `${templateName} · v${job.templateVersion}`
+    : msg("Template v") + job.templateVersion;
+}
 export function GenerationList({ canPrepare }: { canPrepare: boolean }) {
   const resource = useResource<Page<GenerationJobView>>("/generation-jobs");
+  // One read in parallel; a missing name falls back to the template version.
+  const templates = useResource<Page<TemplateView>>("/templates?limit=100");
+  const templateNames = Object.fromEntries(
+    (templates.data?.items ?? []).map((template) => [
+      template.id,
+      template.name,
+    ]),
+  );
   return (
     <>
       <PageHeading
@@ -71,21 +105,21 @@ export function GenerationList({ canPrepare }: { canPrepare: boolean }) {
               <div>
                 <h3>
                   <a href={"#" + studioRoutes.generation(job.id)}>
-                    {msgIn("generation-state", stateLabel[job.state])} ·{" "}
-                    {job.generated} / {job.total} {msg("PDF ")}
+                    {generationName(job, templateNames[job.templateId])}
                   </a>
                 </h3>
                 <p>
-                  {date(job.createdAt)} {msg("· template v")}
-                  {job.templateVersion} · {job.failed} {msg("error(s) ")}
+                  {date(job.createdAt)} · {job.generated} / {job.total}{" "}
+                  {msg("PDF ")}
+                  {job.failed > 0 && (
+                    <>
+                      {" "}
+                      · {job.failed} {msg("error(s) ")}
+                    </>
+                  )}
                 </p>
               </div>
-              <a
-                className="button small"
-                href={"#" + studioRoutes.generation(job.id)}
-              >
-                {msg("Track ")}
-              </a>
+              <GenerationState state={job.state} />
             </article>
           ))}
         </div>
@@ -111,7 +145,7 @@ export function GenerationDetail({
     "/generation-jobs/" + id + "/results",
   );
   const [contextCursor, setContextCursor] = useState<string>();
-  const context = useResource<{ items: GenerationRecordContext[] }>(
+  const context = useResource<GenerationContextPage>(
     `/generation-jobs/${id}/record-context${contextCursor ? "?" + new URLSearchParams({ cursor: contextCursor }) : ""}`,
   );
   const [contexts, setContexts] = useState<{
@@ -142,6 +176,7 @@ export function GenerationDetail({
   const incomingSelection = readGenerationSelection(useRoute());
   const action = useAction(),
     [previewId, setPreviewId] = useState<string>(),
+    previewSection = useRef<HTMLElement>(null),
     [selected, setSelected] = useState<string[]>(incomingSelection.recordIds),
     [traceRecord, setTraceRecord] = useState<string>();
   const [verificationPaused, setVerificationPaused] = useState(false);
@@ -165,6 +200,10 @@ export function GenerationDetail({
     ) ?? false;
   const refreshJob = job.refresh,
     refreshResults = results.refresh;
+  // The preview opens below the results: bring it into view.
+  useEffect(() => {
+    if (previewId) previewSection.current?.scrollIntoView({ block: "start" });
+  }, [previewId]);
   useEffect(() => {
     verificationBudget.current = undefined;
     setVerificationPaused(false);
@@ -255,27 +294,23 @@ export function GenerationDetail({
         {msg("← Generations ")}
       </a>
       <PageHeading
-        title={msgIn("generation-state", stateLabel[current.state])}
-        intro={
-          msg("Template v") +
-          current.templateVersion +
-          " · " +
-          date(current.createdAt)
-        }
+        title={generationName(current, context.data?.templateName ?? undefined)}
+        intro={date(current.createdAt)}
+        action={<GenerationState state={current.state} />}
       />
       <ErrorNotice error={action.error ?? job.error ?? results.error} />
       <ErrorNotice error={context.error} focusOnError={false} />
       {canPrepare && (
         <div className="button-group">
           <a
-            className="button"
+            className="button small"
             href={`#${studioRoutes.template(current.templateId)}?generation=${encodeURIComponent(id)}`}
           >
             {msg("Correct and create a new version")}
           </a>
           {current.datasetId && (
             <a
-              className="button"
+              className="button small"
               href={`#${studioRoutes.dataset(current.datasetId)}?${new URLSearchParams(
                 {
                   template: current.templateId,
@@ -372,6 +407,29 @@ export function GenerationDetail({
           </p>
         )}
       </section>
+      {canPrepare && !!ready.length && (
+        <div className="studio-toolbar">
+          <button
+            className="button"
+            onClick={() => setSelected(ready.map((r) => r.recordId))}
+          >
+            {msg("Select displayed verified PDFs ")}
+          </button>
+          <button
+            className="button primary"
+            disabled={!selected.length || active}
+            onClick={() => {
+              const current = new URL(window.location.href);
+              current.hash = generationSelectionRoute(id, selected);
+              window.history.replaceState(window.history.state, "", current);
+              go(distributionPreparationRoute(id, selected));
+            }}
+          >
+            {msg("Prepare distribution (")}
+            {selected.length})
+          </button>
+        </div>
+      )}
       <div
         className="studio-table studio-generation-results"
         role="region"
@@ -387,7 +445,6 @@ export function GenerationDetail({
               <th>{msg("Selection")}</th>
               <th>{msg("Document")}</th>
               <th>{msg("Status")}</th>
-              <th>{msg("Exact PDF")}</th>
               <th>{msg("Action")}</th>
             </tr>
           </thead>
@@ -455,38 +512,21 @@ export function GenerationDetail({
                   )}
                 </td>
                 <td>
-                  {result.documentId ? (
-                    <>
-                      <a href={"#/app/documents?document=" + result.documentId}>
-                        {msg("Open the document ")}
-                      </a>
-                      <p
-                        className="studio-meta"
-                        title={result.documentHash ?? undefined}
-                      >
-                        {result.documentHash?.slice(0, 16)}…
-                      </p>
-                    </>
-                  ) : (
-                    "—"
-                  )}
-                </td>
-                <td>
                   <div className="studio-generation-actions">
+                    {result.documentId && result.documentStatus === "ready" && (
+                      <button
+                        className="text-button"
+                        onClick={() => setPreviewId(result.documentId!)}
+                      >
+                        {msg("View PDF ")}
+                      </button>
+                    )}
                     <button
                       className="text-button"
                       onClick={() => setTraceRecord(result.recordId)}
                     >
                       {msg("View provenance ")}
                     </button>
-                    {result.documentId && result.documentStatus === "ready" && (
-                      <button
-                        className="button small"
-                        onClick={() => setPreviewId(result.documentId!)}
-                      >
-                        {msg("View PDF ")}
-                      </button>
-                    )}
                     {canPrepare && (
                       <a
                         className="text-link"
@@ -518,7 +558,7 @@ export function GenerationDetail({
         }}
       />
       {previewId && (
-        <section className="studio-section">
+        <section className="studio-section" ref={previewSection}>
           <div className="section-toolbar">
             <h2>{msg("Final PDF")}</h2>
             <button
@@ -530,29 +570,6 @@ export function GenerationDetail({
           </div>
           <PdfPreview id={previewId} />
         </section>
-      )}
-      {canPrepare && !!ready.length && (
-        <div className="studio-toolbar">
-          <button
-            className="button"
-            onClick={() => setSelected(ready.map((r) => r.recordId))}
-          >
-            {msg("Select displayed verified PDFs ")}
-          </button>
-          <button
-            className="button primary"
-            disabled={!selected.length || active}
-            onClick={() => {
-              const current = new URL(window.location.href);
-              current.hash = generationSelectionRoute(id, selected);
-              window.history.replaceState(window.history.state, "", current);
-              go(distributionPreparationRoute(id, selected));
-            }}
-          >
-            {msg("Prepare distribution (")}
-            {selected.length})
-          </button>
-        </div>
       )}
       {canPrepare && active && (
         <p className="field-hint">

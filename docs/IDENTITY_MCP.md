@@ -2,6 +2,15 @@
 
 Initial provider research verified on **2026-09-16**; authentication policy updated on **2026-09-17** for the user-selected Auth0 Free beta. Implemented in `apps/api/src/auth.ts`, `apps/api/src/mcp.ts` and authentication migrations. External Auth0 and assistant qualification remains separate from these local contracts. Passing local tests is not evidence that a user's account or subscription exposes a particular connector feature.
 
+**24 October 2026 candidate:** [MCP_REGISTRATION.md](MCP_REGISTRATION.md) prepares
+native strict Auth0 DCR with user consent, an explicit default MCP scope grant,
+the existing account connection at domain level and trusted third-party refresh.
+It is not activated by the source change. The canonical issuer, existing clients,
+reviewer restrictions and application authority stay unchanged. The static-client
+setup below remains the fallback; its general provisioning tool intentionally
+stops rather than overwrite a later DCR policy. OIDC support for strict clients
+and each host's real lifecycle require separate qualification.
+
 ## Selected identity provider
 
 | Criterion          | Auth0 — selected                                                                                         | Clerk — considered                                                                                        |

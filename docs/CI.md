@@ -1,6 +1,34 @@
 # GitHub verification pipeline
 
+French browser fixtures assert the actual translated refusal shown by the
+interface while their simulated API responses retain the English contract.
+Restoring a catalog entry must update the corresponding visible-text assertion,
+not weaken the tenant, membership, hidden-form or zero-write checks. A translated
+refusal remains a refusal; fixture expectations must follow the selected locale.
+
 The required checks remain **verify** and **scanner**. This workflow builds and tests local fixtures only; it does not deploy or receive production secrets. Every pull request runs the full pipeline, and `main` runs it again after merge. Feature-branch push runs have been removed so an open PR no longer starts two copies. No path filters or conditional test selection skip checks on documentation-only changes.
+
+Private scanner and PDF-validator package locks retain the patched Undici
+transport across Wrangler upgrades. Their `miniflare` overrides apply to every
+resolved Miniflare version; a selector limited to the previous version would
+silently stop applying when Wrangler changes its dependency. The PDF validator
+also preserves its reviewed Sharp override. Reinstall and audit each independent
+package after changing either toolchain.
+
+Hosted sign-in browser fixtures intercept the fixed Auth0 entry request and
+explicitly abort that navigation. This preserves the current document for
+pending/repeat-click/recovery assertions without contacting Auth0. A fulfilled
+HTTP 204 is unsuitable with Playwright 1.64: Chromium keeps its navigation waiter
+pending and unrelated locator assertions time out. Handoff URL, locale,
+return-route, duplicate-activation and cached-return assertions remain required;
+this synthetic transport behavior does not qualify real provider login.
+
+Public-navigation browser checks prove document reuse with a random identifier
+bound to the current Window, plus zero document navigation requests. Exact
+`performance.timeOrigin` equality is unsuitable for that identity assertion:
+the 30 October WebKit run observed a one-millisecond difference within the same
+navigation sequence. Timing values remain in the attached measurements; the
+identity check has no clock tolerance and still fails on a new document.
 
 ## Independent work
 

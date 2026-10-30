@@ -1,5 +1,9 @@
 # Guteneo in ChatGPT, Claude, Grok, Cursor and GitHub Copilot
 
+## Strict registration tooling — 30 October 2026 candidate
+
+An operator-only [strict native registration candidate](MCP_REGISTRATION.md) is available for separate review. It is not enabled by application publication. Existing preconfigured clients and the current [custom-domain trust contract](AUTH0_CUSTOM_DOMAIN.md) remain authoritative.
+
 <img src="https://guteneo.com/brand/guteneo-mark.png" alt="guteneo" width="64" height="64" />
 
 The MCP server advertises this existing 512 px PNG through standard

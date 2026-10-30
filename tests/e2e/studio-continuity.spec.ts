@@ -458,6 +458,10 @@ test("keeps template and mapping through source correction, then creates exact V
   await page.goto(
     `/#/app/studio/template/${model.id}?${new URLSearchParams({ generation: first.id, record: "record-3" })}`,
   );
+  // The current PDF stays in view while its data is corrected.
+  await expect(
+    page.getByRole("heading", { name: "PDF actuel", exact: true }),
+  ).toBeVisible();
   await expect(page.getByLabel(/^name(?: \*)?$/)).toHaveValue("Alex Example");
   await expect(page.getByLabel(/^city(?: \*)?$/)).toHaveValue("Metz");
   await page.getByLabel(/^city(?: \*)?$/).fill("Nancy");

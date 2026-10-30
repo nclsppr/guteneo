@@ -4,7 +4,9 @@
 
 The protected canonical `/belvedere` entry reuses the canonical host's existing
 valid browser session. Its `/belvedere/api/…` reads repeat the existing platform
-guard. The server-secret compatibility entry and dedicated host remain protected
+guard. A visitor without any session receives the same absent response there as
+any refusal, so the public path reveals nothing; an expired session still leads
+to signing in again. The server-secret compatibility entry and dedicated host remain protected
 and supported. No parent-domain cookie, URL token, iframe or client email check
 is introduced. Existing configuration, production mode, current membership,
 signed issuer/subject/verified-email evidence and optional subject pin remain

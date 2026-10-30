@@ -240,9 +240,10 @@ const test = base.extend<{ hosted: HostedEntry }>({
         });
       } else if (["/auth/login", "/auth/signup"].includes(url.pathname)) {
         state.authRequests.push(url.href);
-        // A 204 navigation leaves the current document intact so that the
-        // pending state and a restored pageshow can be tested without Auth0.
-        await route.fulfill({ status: 204 });
+        // End the intercepted navigation explicitly without replacing the
+        // current document or contacting Auth0. Playwright 1.64 keeps a
+        // fulfilled 204 navigation pending before locator assertions.
+        await route.abort("aborted");
       } else if (/^\/(api|auth|oauth|mcp)(\/|$)/.test(url.pathname)) {
         unexpected.push(`${request.method()} ${url.pathname}`);
         await route.fulfill({
@@ -352,7 +353,7 @@ test("explicit sign-out returns to the public site without reopening SSO and kee
   ).toHaveCount(2);
   expect(hosted.authRequests).toEqual([]);
 
-  // The simulated Auth0 handoff returns 204 and deliberately opens no document.
+  // The simulated Auth0 handoff is aborted and opens no document.
   await page.goto(`${origin}/#/app/connection/chatgpt`, {
     waitUntil: "commit",
   });
@@ -509,7 +510,7 @@ for (const copy of locales) {
       const entryUrl = new URL(entry, origin);
       entryUrl.searchParams.set("lang", copy.code);
       const priorRequests = hosted.authRequests.length;
-      // The intercepted 204 leaves the document alive. Start a fresh visit so
+      // The intercepted navigation leaves the document alive. Start a fresh visit so
       // consecutive hash routes do not merely reuse its intentional retry guard.
       await page.goto("about:blank");
       await page.goto(entryUrl.href, { waitUntil: "domcontentloaded" });

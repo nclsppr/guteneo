@@ -1,5 +1,9 @@
 # Execution plan and handoff
 
+## Strict registration tooling — 30 October 2026 candidate
+
+The [strict MCP registration candidate](MCP_REGISTRATION.md) has been reconciled with current main. Local controller fixtures cover fail-closed inspection, drift and bounded mutation recovery. No provider configuration was applied; legacy-extension inspection, capacity and real host interoperability remain activation gates.
+
 ## Studio reprise — 29 October 2026 local candidate
 
 Continue `claude/studio-space-reprise` from the preserved Claude commits.

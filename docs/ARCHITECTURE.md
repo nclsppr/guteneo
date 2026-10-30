@@ -1,5 +1,9 @@
 # Architecture
 
+## Strict registration tooling — 30 October 2026 candidate
+
+The operator-only strict MCP registration candidate is documented in [MCP_REGISTRATION.md](MCP_REGISTRATION.md). It changes no Worker, token-validation, tenant, consent or sending contract. Provider activation remains separate and disabled by this source update.
+
 ## Selected-original MCP App — 26 October 2026
 
 The App-only transport, published in 1.1.6, adds private R2 staging and tenant-scoped D1 part receipts

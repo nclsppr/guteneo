@@ -1,5 +1,5 @@
 import { getLocale, catalogs } from "./locale";
-import { englishMessages, translateMessage } from "./message-catalog";
+import { englishIndex, translateMessage } from "./message-catalog";
 import contexts from "./locales/message-contexts.json";
 import information from "./locales/messages-information.json";
 import editorial from "./locales/messages-editorial.json";
@@ -39,30 +39,34 @@ function sourceMessages(
   );
 }
 
-export const messages: Record<string, readonly string[]> = {
-  ...sourceMessages(catalogs.fr, [catalogs.en, catalogs.de, catalogs.lb]),
-  ...studioEditor,
-  ...studioDemos,
-  ...studioDatasets,
-  ...studioExtra,
-  ...studioDistribution,
-  ...shell,
-  ...pricing,
-  ...roles,
-  ...secureDocuments,
-  ...identity,
-  ...pdfChecks,
-  ...dashboardV2,
-  ...usageActivity,
-  ...publicSite,
-  ...legal,
-  ...operations,
-  ...assistants,
-  ...editorial,
-  ...information,
-  ...delivery,
-};
-const english = englishMessages(messages);
+const sources: Record<string, readonly string[]>[] = [
+  sourceMessages(catalogs.fr, [catalogs.en, catalogs.de, catalogs.lb]),
+  studioEditor,
+  studioDemos,
+  studioDatasets,
+  studioExtra,
+  studioDistribution,
+  shell,
+  pricing,
+  roles,
+  secureDocuments,
+  identity,
+  pdfChecks,
+  dashboardV2,
+  usageActivity,
+  publicSite,
+  legal,
+  operations,
+  assistants,
+  editorial,
+  information,
+  delivery,
+];
+export const messages: Record<string, readonly string[]> = Object.assign(
+  {},
+  ...sources,
+);
+const english = englishIndex(sources);
 
 /** Source-owned interface copy only. Never pass user-authored document content. */
 export function msg(source: string, ...values: unknown[]): string {

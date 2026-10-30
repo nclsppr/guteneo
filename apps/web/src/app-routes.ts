@@ -120,6 +120,12 @@ export function navigationEntryFor(
   if (path === "/app/usage") return "usage";
   if (path === "/app/billing") return "billing";
   if (/^\/app\/admin(\/|$)/.test(path)) return "admin";
+  // Correcting a generation's data stays in Generations, where it started.
+  if (
+    /^\/app\/studio\/template\//.test(path) &&
+    new URLSearchParams(route.split("?")[1]).has("generation")
+  )
+    return "generations";
   if (/^\/app\/studio\/templates?(\/|$)/.test(path)) return "templates";
   if (/^\/app\/studio\/datasets?(\/|$)/.test(path)) return "datasets";
   if (/^\/app\/studio\/generations?(\/|$)/.test(path)) return "generations";

@@ -810,10 +810,13 @@ export async function handleBelvedereRoute(
     access = await belvedereAccess(request, env);
   } catch (error) {
     if (error instanceof AuthError) {
+      // The public canonical path stays absent to visitors without any
+      // session; an expired session still leads to signing in again.
       if (
         shell &&
         !request.headers.has("Authorization") &&
-        ["AUTHENTICATION_REQUIRED", "SESSION_EXPIRED"].includes(error.code)
+        (error.code === "SESSION_EXPIRED" ||
+          (error.code === "AUTHENTICATION_REQUIRED" && !canonicalEntry))
       )
         return new Response(null, {
           status: 302,

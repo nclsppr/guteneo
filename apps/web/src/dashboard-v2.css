@@ -325,13 +325,33 @@
 .workspace-v2 td:not(.studio-designer *) {
   padding: 16px;
 }
+/* A row header names its row: it reads like a cell, not a column heading. */
+.workspace-v2 tbody th:not(.studio-designer *) {
+  background: transparent;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 500;
+  padding: 16px;
+  white-space: normal;
+}
+/* A table title sits at the start, like the section headings around it. */
+.workspace-v2 caption:not(.studio-designer *) {
+  padding: 14px 20px 10px;
+  color: var(--heading-ink);
+  font-size: 15px;
+  font-weight: 500;
+  text-align: start;
+}
 .workspace-v2 :is(th, td):not(.studio-designer *):first-child {
   padding-left: 20px;
 }
 .workspace-v2 :is(th, td):not(.studio-designer *):last-child {
   padding-right: 20px;
 }
-.workspace-v2 tr:last-child td:not(.studio-designer *) {
+.workspace-v2
+  :is(tbody, tfoot)
+  tr:last-child
+  :is(th, td):not(.studio-designer *) {
   border-bottom: 0;
 }
 .workspace-v2 .row-link {
@@ -551,11 +571,15 @@
   .workspace-v2 main {
     padding: 26px 22px 40px;
   }
+  /* The account sits beside the brand: one row less before the page. */
   .workspace-v2 .sidebar-account {
-    grid-column: 1 / -1;
-    margin-top: 8px;
-    padding-top: 8px;
-    border-top: 1px solid var(--line);
+    grid-row: 1;
+    grid-column: 2;
+    justify-self: end;
+    align-self: center;
+    margin: 0 0 14px;
+    padding: 0;
+    border-top: 0;
   }
   .workspace-v2 .sidebar nav a.workspace-create {
     grid-column: 1 / -1;
@@ -631,7 +655,12 @@
     border-left: 0;
     padding-left: 0;
   }
-  .workspace-v2 .responsive-table td {
+  /* Cards drop every table inset, including the first and last cells. */
+  .workspace-v2 .responsive-table tbody :is(th, td):not(.studio-designer *),
+  .workspace-v2
+    .responsive-table
+    tbody
+    :is(th, td):not(.studio-designer *):is(:first-child, :last-child) {
     padding: 0;
   }
   .workspace-v2 .table-scroll {

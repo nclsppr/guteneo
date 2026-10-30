@@ -574,7 +574,7 @@
   ],
   "Objet de l’e-mail": ["Email subject", "E-Mail-Betreff", "E-Mail-Betreff"],
   "Corps de l’e-mail": ["Email body", "E-Mail-Text", "E-Mail-Text"],
-  "Chaque e-mail comporte uniquement le PDF de son record. Aucun CC/BCC.": [
+  "Chaque e-mail comporte uniquement le PDF de son document. Aucun CC/BCC.": [
     "Each email contains only its record’s PDF. No CC/BCC.",
     "Jede E-Mail enthält nur die PDF-Datei ihres Datensatzes. Kein CC/BCC.",
     "All E-Mail enthält nëmmen d’PDF-Datei vun hirem Datesaz. Kee CC/BCC."
@@ -615,7 +615,7 @@
     "Verteilung vorbereitet",
     "Verdeelung virbereet"
   ],
-  "Le manifeste fige chaque record, PDF, hash, canal et destinataire. Chaque envoi conserve ses contrôles et son approbation.": [
+  "Le manifeste fige chaque ligne de données, PDF, empreinte, canal et destinataire. Chaque envoi conserve ses contrôles et son approbation.": [
     "The manifest freezes each record, PDF, hash, channel and recipient. Each send retains its checks and approval.",
     "Das Manifest schreibt jeden Datensatz, jede PDF-Datei, jeden Hash, Kanal und Empfänger fest. Jeder Versand behält seine Prüfungen und Freigabe.",
     "D’Manifest hält all Datesaz, PDF, Hash, Kanal an Empfänger fest. All Versand behält seng Kontrollen a seng Fräigab."
@@ -751,5 +751,26 @@
     "Leave this preparation and lose unsaved changes?",
     "Diese Vorbereitung verlassen und ungespeicherte Änderungen verlieren?",
     "Dës Virbereedung verloossen an net gespäichert Ännerunge verléieren?"
+  ],
+  "Un seul destinataire": ["One recipient", "Ein Empfänger", "Een Empfänger"],
+  "Depuis les données de chaque document": [
+    "From each document’s data",
+    "Aus den Daten jedes Dokuments",
+    "Aus den Donnéeë vun all Dokument"
+  ],
+  "Choisissez un champ de ces documents ou saisissez son chemin.": [
+    "Choose a field from these documents or type its path.",
+    "Wählen Sie ein Feld dieser Dokumente oder geben Sie seinen Pfad ein.",
+    "Wielt e Feld vun dësen Dokumenter oder gitt säi Pfad an."
+  ],
+  "Utiliser les champs proposés": [
+    "Use the suggested fields",
+    "Vorgeschlagene Felder verwenden",
+    "Déi proposéiert Felder benotzen"
+  ],
+  "Depuis une génération": [
+    "From a generation",
+    "Aus einer Generierung",
+    "Aus enger Generéierung"
   ]
 }

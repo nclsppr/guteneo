@@ -6,7 +6,10 @@ import {
 } from "./app-routes";
 import { scrollTable } from "./table-keyboard";
 import { useEffect, useId, useRef, useState, type FormEvent } from "react";
-import type { GenerationRecordContext } from "../../../packages/contracts/src/generation-context";
+import type {
+  GenerationContextPage,
+  GenerationCorrectionInput,
+} from "../../../packages/contracts/src/generation-context";
 import type {
   GenerationJobView,
   GenerationResultView,
@@ -141,6 +144,7 @@ function usePreparationSelection(
     loading: boolean;
     records?: GenerationResultView[];
     labels?: Record<string, string>;
+    templateName?: string | null;
     error?: Error;
   }>({ scope, loading: true });
   useEffect(() => {
@@ -154,6 +158,7 @@ function usePreparationSelection(
       const wanted = JSON.parse(selection) as string[];
       const found = new Map<string, GenerationResultView>();
       const labels: Record<string, string> = Object.create(null);
+      let templateName: string | null = null;
       let cursor: string | null = null;
       const seen = new Set<string>();
       for (let pageNumber = 0; pageNumber < 10; pageNumber++) {
@@ -162,13 +167,13 @@ function usePreparationSelection(
           new URLSearchParams({ limit: "50", ...(cursor ? { cursor } : {}) });
         const [records, context]: [
           Page<GenerationResultView>,
-          Page<GenerationRecordContext>,
+          GenerationContextPage,
         ] = await Promise.all([
           api<Page<GenerationResultView>>(
             `/generation-jobs/${encodeURIComponent(jobId)}/results${query}`,
             { signal: controller.signal },
           ),
-          api<Page<GenerationRecordContext>>(
+          api<GenerationContextPage>(
             `/generation-jobs/${encodeURIComponent(jobId)}/record-context${query}`,
             { signal: controller.signal },
           ),
@@ -179,6 +184,7 @@ function usePreparationSelection(
               "The selected PDFs are no longer available. Return to the generation and choose them again.",
             ),
           );
+        templateName ??= context.templateName ?? null;
         for (const record of records.items) found.set(record.recordId, record);
         for (const record of context.items)
           labels[record.recordId] =
@@ -212,6 +218,7 @@ function usePreparationSelection(
           loading: false,
           records: records as GenerationResultView[],
           labels,
+          templateName,
         });
     })().catch((error: unknown) => {
       if (!controller.signal.aborted)
@@ -257,7 +264,7 @@ function DistributionPreparation({
         title={msg("Prepare distribution (") + selection.recordIds.length + ")"}
         intro={
           source.data
-            ? `${msg("Template v")}${source.data.templateVersion} · ${date(source.data.createdAt)}`
+            ? `${selected.templateName ? `${selected.templateName} · v${source.data.templateVersion}` : msg("Template v") + source.data.templateVersion} · ${date(source.data.createdAt)}`
             : undefined
         }
       />
@@ -330,6 +337,29 @@ const recipientFields: Record<Channel, [string, string][]> = {
     ["country", "Country (FR, LU or DE)"],
   ],
 };
+/** Dotted paths of the text and number values in one document's data. */
+function dataPaths(value: unknown, prefix = ""): string[] {
+  if (value && typeof value === "object" && !Array.isArray(value))
+    return Object.entries(value).flatMap(([key, child]) =>
+      dataPaths(child, prefix ? `${prefix}.${key}` : key),
+    );
+  return prefix && (typeof value === "string" || typeof value === "number")
+    ? [prefix]
+    : [];
+}
+// The likeliest data path for each recipient field, shown as a suggestion.
+const fieldHints: Record<string, RegExp> = {
+  email: /e-?mail|courriel/i,
+  phone: /fax|phone|t[eé]l/i,
+  name: /(^|\.)(name|nom|full_?name)$/i,
+  line1: /address|adresse|line1|rue|street/i,
+  postalCode: /postal|zip|code_?postal/i,
+  city: /city|ville|localit/i,
+  country: /country|pays/i,
+};
+function suggestedPath(field: string, paths: string[]) {
+  return paths.find((path) => fieldHints[field]?.test(path));
+}
 function channelLabel(channel: Channel) {
   return msg({ fax: "Fax", email: "Email", postal: "Post" }[channel]);
 }
@@ -383,7 +413,23 @@ function DistributionForm({
     senders = useResource<{ items: Sender[] }>("/senders");
   const key = useRef(crypto.randomUUID()),
     last = useRef(""),
-    summaryId = useId();
+    summaryId = useId(),
+    pathListId = useId();
+  // Field names are read from the first selected document, only once a
+  // destination takes its recipients from the data.
+  const usesData = destinations.some(
+    (destination) =>
+      destination.mode === "data" || destination.channel === "data",
+  );
+  const sample = useResource<GenerationCorrectionInput>(
+    usesData && recordIds.length
+      ? `/generation-jobs/${encodeURIComponent(jobId)}/record-context?${new URLSearchParams({ recordId: recordIds[0] })}`
+      : null,
+  );
+  const paths = sample.data ? dataPaths(sample.data.data) : [];
+  const pathHint = paths.length
+    ? msg("Choose a field from these documents or type its path.")
+    : msg("Path in the frozen data, for example customer.email");
   const prepared = useRef(false);
   const initialDraft = useRef(JSON.stringify({ destinations, multi }));
   const dirty =
@@ -579,11 +625,6 @@ function DistributionForm({
   }
   return (
     <form className="distribution-section" onSubmit={(e) => void prepare(e)}>
-      <div className="section-toolbar">
-        <button className="text-button" type="button" onClick={onClose}>
-          {msg("Close ")}
-        </button>
-      </div>
       <p>
         {recordIds.length} {msg("PDFs selected · ")}
         {associationCount}{" "}
@@ -693,10 +734,8 @@ function DistributionForm({
                   })
                 }
               >
-                <option value="common">
-                  {msg("Same recipient for these documents ")}
-                </option>
-                <option value="data">{msg("Recipient from the data")}</option>
+                <option value="common">{msg("One recipient")}</option>
+                <option value="data">{msg("From each document’s data")}</option>
               </select>
             </Field>
             {destination.channel !== "data" && (
@@ -774,12 +813,12 @@ function DistributionForm({
                           <Field
                             key={field}
                             label={msg("Data field → ") + msg(label)}
-                            hint={msg(
-                              "Path in the frozen data, for example customer.email",
-                            )}
+                            hint={pathHint}
                           >
                             <input
                               required
+                              list={pathListId}
+                              placeholder={suggestedPath(field, paths)}
                               value={
                                 destination.valuesByChannel[channel][field] ??
                                 ""
@@ -841,16 +880,16 @@ function DistributionForm({
                     (destination.mode === "data" ? msg("Data field → ") : "") +
                     msg(label)
                   }
-                  hint={
-                    destination.mode === "data"
-                      ? msg(
-                          "Path in the frozen data, for example customer.email",
-                        )
-                      : undefined
-                  }
+                  hint={destination.mode === "data" ? pathHint : undefined}
                 >
                   <input
                     required
+                    list={destination.mode === "data" ? pathListId : undefined}
+                    placeholder={
+                      destination.mode === "data"
+                        ? suggestedPath(field, paths)
+                        : undefined
+                    }
                     value={destination.values[field] ?? ""}
                     onChange={(e) =>
                       update(destination.id, {
@@ -865,6 +904,33 @@ function DistributionForm({
               ))}
             </div>
           )}
+          {destination.channel !== "data" &&
+            destination.mode === "data" &&
+            recipientFields[destination.channel].some(
+              ([field]) =>
+                !destination.values[field] && suggestedPath(field, paths),
+            ) && (
+              <button
+                type="button"
+                className="button small"
+                onClick={() =>
+                  update(destination.id, {
+                    values: Object.fromEntries(
+                      recipientFields[destination.channel as Channel].map(
+                        ([field]) => [
+                          field,
+                          destination.values[field] ||
+                            suggestedPath(field, paths) ||
+                            "",
+                        ],
+                      ),
+                    ),
+                  })
+                }
+              >
+                {msg("Use the suggested fields")}
+              </button>
+            )}
           {(destination.channel === "postal" ||
             (destination.channel === "data" &&
               destination.dataChannels.includes("postal"))) && (
@@ -949,16 +1015,20 @@ function DistributionForm({
               </Field>
             </>
           )}
-          <Field label={msg("Limit per send (euro cents)")}>
+          {/* Euros on screen; integer cents in the request. */}
+          <Field label={msg("Cap per delivery (€)")}>
             <input
               type="number"
+              inputMode="decimal"
               min={0}
-              max={1000000}
-              step={1}
+              max={10000}
+              step={0.01}
               required
-              value={destination.ceilingMinor}
+              value={destination.ceilingMinor / 100}
               onChange={(e) =>
-                update(destination.id, { ceilingMinor: Number(e.target.value) })
+                update(destination.id, {
+                  ceilingMinor: Math.round(Number(e.target.value) * 100),
+                })
               }
             />
           </Field>
@@ -995,6 +1065,11 @@ function DistributionForm({
           {multichannelDocuments} {msg("PDFs. ")}
         </label>
       )}
+      <datalist id={pathListId}>
+        {paths.map((path) => (
+          <option key={path} value={path} />
+        ))}
+      </datalist>
       <section className="distribution-summary" aria-labelledby={summaryId}>
         <h3 id={summaryId}>{msg("What will be prepared")}</h3>
         <ul>
@@ -1023,25 +1098,34 @@ function DistributionForm({
             );
           })}
         </ul>
-        <p className="notice warning">
-          {msg(
-            "Preparing freezes this whole generation batch, including PDFs not selected here: their failures can no longer be retried in it. Retry them first, or correct them in a new generation.",
-          )}
-        </p>
+        <div className="notice warning">
+          <div>
+            <p>
+              {msg(
+                "Preparing freezes this whole generation batch, including PDFs not selected here: their failures can no longer be retried in it. Retry them first, or correct them in a new generation.",
+              )}
+            </p>
+            <p>
+              {msg(
+                "Preparing the distribution lets authorized approvers in this workspace view the selected PDFs to review these requests. It does not send anything.",
+              )}
+            </p>
+            <p>
+              {msg(
+                "Preparation is not approval. Unavailable channels or rates remain blocked with an explicit error. ",
+              )}
+            </p>
+          </div>
+        </div>
       </section>
-      <p className="field-hint">
-        {msg(
-          "Preparing the distribution lets authorized approvers in this workspace view the selected PDFs to review these requests. It does not send anything.",
-        )}
-      </p>
-      <p className="field-hint">
-        {msg(
-          "Preparation is not approval. Unavailable channels or rates remain blocked with an explicit error. ",
-        )}
-      </p>
-      <button className="button primary" disabled={action.pending}>
-        {msg("Prepare pairs and quotes ")}
-      </button>
+      <div className="button-group">
+        <button className="button primary" disabled={action.pending}>
+          {msg("Prepare pairs and quotes ")}
+        </button>
+        <button className="button" type="button" onClick={onClose}>
+          {msg("Close ")}
+        </button>
+      </div>
     </form>
   );
 }

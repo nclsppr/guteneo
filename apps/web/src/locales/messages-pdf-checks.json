@@ -414,5 +414,95 @@
     "Confirm the displayed price of this check before starting it.",
     "Bestätigen Sie vor dem Start den angezeigten Preis dieser Prüfung.",
     "Bestätegt den ugewisene Präis vun dëser Kontroll, ier Dir se start."
+  ],
+  "Cet espace de travail est inaccessible.": [
+    "This workspace is inaccessible.",
+    "Dieser Arbeitsbereich ist nicht zugänglich.",
+    "Dësen Aarbechtsberäich ass net zougänglech."
+  ],
+  "Ouvrez Guteneo dans votre navigateur pour consulter les prix des contrôles PDF.": [
+    "Open Guteneo in your browser to review PDF check prices.",
+    "Öffnen Sie Guteneo in Ihrem Browser, um die Preise der PDF-Prüfungen einzusehen.",
+    "Maacht Guteneo an Ärem Browser op, fir d’Präisser vun de PDF-Kontrollen ze kucken."
+  ],
+  "Une clé d’idempotence est requise.": [
+    "An idempotency key is required.",
+    "Ein Idempotenzschlüssel ist erforderlich.",
+    "En Idempotenzschlëssel ass néideg."
+  ],
+  "Le contrôle a échoué. Aucun résultat de conformité n’a été enregistré.": [
+    "The check failed. No compliance result was recorded.",
+    "Die Prüfung ist fehlgeschlagen. Es wurde kein Konformitätsergebnis gespeichert.",
+    "D’Kontroll ass feelgeschloen. Et gouf kee Konformitéitsresultat gespäichert."
+  ],
+  "Un administrateur de l’espace de travail doit approuver ce contrôle payant dans le navigateur.": [
+    "A workspace administrator must approve this paid check in the browser.",
+    "Ein Administrator des Arbeitsbereichs muss diese kostenpflichtige Prüfung im Browser freigeben.",
+    "En Administrateur vum Aarbechtsberäich muss dës bezuelt Kontroll am Browser fräiginn."
+  ],
+  "Les contrôles PDF payants ne sont pas disponibles pour cet espace de travail.": [
+    "Paid PDF checks are not available for this workspace.",
+    "Kostenpflichtige PDF-Prüfungen sind für diesen Arbeitsbereich nicht verfügbar.",
+    "Bezuelt PDF-Kontrolle sinn fir dësen Aarbechtsberäich net disponibel."
+  ],
+  "Vérifiez le PDF exact, le profil et le prix, puis confirmez ce contrôle unique.": [
+    "Review the exact PDF, profile and price, then confirm this one check.",
+    "Prüfen Sie das exakte PDF, das Profil und den Preis und bestätigen Sie dann diese eine Prüfung.",
+    "Kontrolléiert dat exakt PDF, de Profil an de Präis, a bestätegt dann dës eng Kontroll."
+  ],
+  "Le prix ou les conditions d’achat ont changé. Consultez le prix actuel avant de confirmer.": [
+    "The price or purchase terms changed. Review the current price before confirming.",
+    "Der Preis oder die Kaufbedingungen haben sich geändert. Prüfen Sie den aktuellen Preis vor der Bestätigung.",
+    "De Präis oder d’Kafbedéngungen hu sech geännert. Kuckt den aktuelle Präis, ier Dir bestätegt."
+  ],
+  "Confirmez le PDF exact actuel, le profil et le prix.": [
+    "Confirm the current exact PDF, profile and price.",
+    "Bestätigen Sie das aktuelle exakte PDF, das Profil und den Preis.",
+    "Bestätegt dat aktuellt exakt PDF, de Profil an de Präis."
+  ],
+  "Le PDF doit terminer sa vérification de sécurité.": [
+    "The PDF must complete its security verification.",
+    "Das PDF muss seine Sicherheitsprüfung abschließen.",
+    "D’PDF muss seng Sécherheetsiwwerpréiwung ofschléissen."
+  ],
+  "Le service de contrôle PDF doit être configuré.": [
+    "The PDF checking service must be configured.",
+    "Der PDF-Prüfdienst muss konfiguriert sein.",
+    "De PDF-Kontrolldéngscht muss konfiguréiert sinn."
+  ],
+  "Votre session ou vos droits ont changé.": [
+    "Your session or permissions have changed.",
+    "Ihre Sitzung oder Ihre Rechte haben sich geändert.",
+    "Är Sessioun oder Är Rechter hu sech geännert."
+  ],
+  "Les crédits disponibles ne suffisent pas pour ce contrôle. Les réservations existantes restent protégées.": [
+    "There are not enough available credits for this check. Existing reservations remain protected.",
+    "Für diese Prüfung ist nicht genügend Guthaben verfügbar. Bestehende Reservierungen bleiben geschützt.",
+    "Et sinn net genuch Kreditter fir dës Kontroll disponibel. Bestoend Reservatioune bleiwe geschützt."
+  ],
+  "Deux contrôles sont déjà en cours. Consultez les rapports avant de réessayer.": [
+    "Two checks are already in progress. View the reports before retrying.",
+    "Zwei Prüfungen laufen bereits. Sehen Sie sich die Berichte an, bevor Sie es erneut versuchen.",
+    "Zwou Kontrolle lafe schonn. Kuckt d’Rapporten, ier Dir et nach eng Kéier probéiert."
+  ],
+  "Les droits ou l’achat approuvé ont changé.": [
+    "Permissions or the approved purchase have changed.",
+    "Die Rechte oder der freigegebene Kauf haben sich geändert.",
+    "D’Rechter oder de fräiginnene Kaf hu sech geännert."
+  ],
+  "Les droits ont changé pendant le contrôle. Aucun crédit n’a été consommé.": [
+    "Permissions changed during the check. No credits were consumed.",
+    "Die Rechte haben sich während der Prüfung geändert. Es wurde kein Guthaben verbraucht.",
+    "D’Rechter hu sech während der Kontroll geännert. Et gouf kee Kredit verbraucht."
+  ],
+  "Cette clé appartient à un autre contrôle.": [
+    "This key belongs to another check.",
+    "Dieser Schlüssel gehört zu einer anderen Prüfung.",
+    "Dëse Schlëssel gehéiert zu enger anerer Kontroll."
+  ],
+  "Le contrôle est déjà en cours. Consultez les rapports avant de réessayer.": [
+    "The check is already in progress. View the reports before retrying.",
+    "Die Prüfung läuft bereits. Sehen Sie sich die Berichte an, bevor Sie es erneut versuchen.",
+    "D’Kontroll leeft schonn. Kuckt d’Rapporten, ier Dir et nach eng Kéier probéiert."
   ]
 }

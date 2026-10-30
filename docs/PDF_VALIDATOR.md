@@ -75,6 +75,17 @@ purchase a customer check or debit an account. See the
 configuration boundary. Preserve the earlier failed hosted attempt alongside the
 successful suite; neither result promises future readiness or full accessibility.
 
+## Local compiler and behavior checks
+
+The private package uses TypeScript 7 for `tsc --noEmit`. Its Node behavior
+suites execute the real Worker source after Node's `stripTypeScriptTypes`
+removes type syntax; only the Cloudflare host classes are replaced by controlled
+test doubles. Wrangler JSONC is parsed with the package's pinned `jsonc-parser`,
+and every parse diagnostic fails the contract assertions. The tests do not rely
+on the compiler API removed in TypeScript 7. Use the supported repository Node
+runtime and a fresh package-local `npm ci` before `npm run typecheck` and
+`npm test`. These checks do not run or redeploy the hosted veraPDF service.
+
 ## Supported checks and limits
 
 The initially qualified repertoire is deliberately explicit:
@@ -269,3 +280,7 @@ binding to the application (`PDF_VALIDATOR` → `guteneo-pdf-validator`). Missin
 binding must keep the feature unavailable. The public design preview never
 receives this binding. Scanner refresh, production migrations and native-client
 qualification remain separate workflows.
+
+The root security suite also imports the validator Worker behavior tests. Both
+root and service manifests therefore declare the exact JSONC parser dependency;
+a service-local install cannot qualify the root-only CI installation.

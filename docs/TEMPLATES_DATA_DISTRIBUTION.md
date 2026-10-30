@@ -21,9 +21,16 @@ Generation results use bounded business labels (name, subject and reference)
 without changing record identifiers. A browser-only owner-authorized
 `GET /api/generation-jobs/:id/record-context` supplies presentation labels in
 pages of 50 with the result-record cursor;
-`?recordId=…` supplies one record for explicit correction. The current membership,
+`?recordId=…` supplies one record and its current document for explicit
+correction, shown beside the form on wide screens; when a destination takes its
+recipients from the data, the same read of the first selected record offers its
+field names as suggestions. The current membership,
 tenant and creator gates are rechecked; shared-template or review access grants
-no access to private source inputs. This adds no MCP tool or native permission.
+no access to private source inputs. The optional current template name also
+requires current template read permission; revoking sharing hides that metadata
+while the creator retains their own generation and record labels. A local D1/R2
+regression covers sharing, revocation and a later private rename. This adds no MCP
+tool or native permission.
 
 [Local acceptance](STUDIO_SPACE_REPRISE.md) records the actual V1/V2 and missing-
 data checks separately from browser fixtures and deployed/provider qualification.
@@ -202,8 +209,9 @@ outside that publication.
 
 The gallery has five synthetic starting points: business letter, demo invoice,
 tabular statement, quote and delivery note. Create my private copy saves an
-independent editable/shareable template; reading the gallery does not populate a
-workspace. Each has a business schema, bindings and sample data that render real PDFs.
+independent editable/shareable template in the reader's language (field titles,
+PDF text, sample data and number/date formats); reading the gallery does not
+populate a workspace. Each has a business schema, bindings and sample data that render real PDFs.
 
 Owners may remove their creation from library/studio with confirmation naming it,
 including demo copies. Shared removal also hides it from other members; generated
@@ -402,7 +410,7 @@ and measure no real model quality. No AI Gateway or EU-residency promise is clai
 2. Move a Designer block, add a business variable, save revision and publish. In Data and generation, fill fields, inspect server PDF or generate without sending.
 3. In My data import `tests/fixtures/datasets/clients-reordered.csv`; choose target template, client key and business columns; validate every row/count and correct anomalies first.
 4. For client/line-item data use `clients-articles.xlsx`, pre-header titles and two sheets. `examples/template-workflow/clients-articles.mapping.json` demonstrates validated sheet joins and explicit date/amount conventions.
-5. In Generations inspect PDFs/provenance, select ready results and Prepare distribution. Choose common recipients or data paths. Manifest/blockers remain readable; human approvals use existing dispatch flow. Automated qualification stops before approval/sending.
+5. In Generations (each named after its template and version, with its state) inspect PDFs/provenance, select ready results and Prepare distribution; the per-send cap is entered in euros and sent in integer cents. Choose common recipients or data paths. Manifest/blockers remain readable; human approvals use existing dispatch flow. Automated qualification stops before approval/sending.
 
 ### API and assistant
 

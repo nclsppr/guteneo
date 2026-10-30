@@ -5,7 +5,7 @@ import type { SupportedLocale } from "../../../packages/contracts/src/locale";
 import { getPublicSocialCopy } from "./editorial/social-copy";
 import editorial from "./locales/messages-editorial.json";
 import shell from "./locales/messages-shell.json";
-import { englishMessages, translateMessage } from "./message-catalog";
+import { englishIndex, translateMessage } from "./message-catalog";
 import type { getPublicPageMetadata } from "./public-page-metadata";
 import { LOCALE_CHANGE_EVENT } from "./locale";
 
@@ -21,7 +21,7 @@ export function registerPublicPageMetadata(
 }
 
 const sharingMessages = { ...editorial, ...shell };
-const sharingEnglish = englishMessages(sharingMessages);
+const sharingEnglish = englishIndex([editorial, shell]);
 const translatePublicText = (source: string, locale: SupportedLocale) =>
   translateMessage(source, locale, sharingEnglish, sharingMessages, []);
 

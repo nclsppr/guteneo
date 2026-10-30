@@ -614,8 +614,16 @@ export function RefreshButton({
     </button>
   );
 }
-export function DispatchTable({ items }: { items: Dispatch[] }) {
-  if (!items.length) return <EmptyState title={t.dispatch.countEmpty} />;
+export function DispatchTable({
+  items,
+  emptyAction,
+}: {
+  items: Dispatch[];
+  /** The next step when the list is empty. */
+  emptyAction?: ReactNode;
+}) {
+  if (!items.length)
+    return <EmptyState title={t.dispatch.countEmpty} action={emptyAction} />;
   return (
     <>
       <DateTimezone />

@@ -35,6 +35,8 @@ async function createDemo(page: Page, name: string, storedName: string) {
   expect(model.visibility).toBe("private");
   expect(model.canDelete).toBe(true);
   expect(model.envelope.name).toBe(storedName);
+  // The copy is written in the reader's language, with its number and date formats.
+  expect(model.envelope.locale).toBe("fr-FR");
   await expect(page).toHaveURL(
     new RegExp(`#/app/studio/template/${model.id}$`),
   );
@@ -119,7 +121,7 @@ test("demo copy can be edited, saved and deleted from the library after keyboard
   const model = await createDemo(
     page,
     "Devis de démonstration",
-    "Demo quotation",
+    "Devis de démonstration",
   );
   const name = `Devis client synthétique ${crypto.randomUUID().slice(0, 8)}`;
   await page.getByLabel("Nom du modèle", { exact: true }).fill(name);
@@ -142,7 +144,7 @@ test("demo copy can be edited, saved and deleted from the library after keyboard
     await expect(
       page
         .locator(".studio-designer")
-        .getByText("Quote validity", { exact: true }),
+        .getByText("Validité du devis", { exact: true }),
     ).toBeVisible();
   await expect(
     page.getByRole("button", { name: "Enregistrer le brouillon", exact: true }),
@@ -228,7 +230,7 @@ test("owner deletes a shared demo with unsaved edits in one named confirmation",
   const model = await createDemo(
     page,
     "Bon de livraison de démonstration",
-    "Demo delivery note",
+    "Bon de livraison de démonstration",
   );
   await page.getByRole("button", { name: "Partage", exact: true }).click();
   await page

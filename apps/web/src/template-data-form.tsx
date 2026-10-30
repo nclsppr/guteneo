@@ -30,6 +30,14 @@ export function initialData(schema: FormSchema): unknown {
   return "";
 }
 
+function fieldWords(key: string) {
+  const words = key
+    .replace(/([a-z\d])([A-Z])/g, "$1 $2")
+    .replace(/[._-]+/g, " ")
+    .trim();
+  return words.charAt(0).toLocaleUpperCase() + words.slice(1);
+}
+
 export function BusinessDataForm({
   schema,
   value,
@@ -45,7 +53,8 @@ export function BusinessDataForm({
   required?: boolean;
   disabled?: boolean;
 }) {
-  const title = schema.title ?? label;
+  // A field without a title shows its key as words, never a raw identifier.
+  const title = schema.title ?? (label ? fieldWords(label) : label);
   const absent = value === undefined || value === null || value === "";
   const defaulted =
     absent && schema.default !== undefined ? schema.default : value;
@@ -101,11 +110,7 @@ export function BusinessDataForm({
             <button
               type="button"
               className="text-button"
-              aria-label={msg(
-                "Remove row {0} from {1}",
-                index + 1,
-                title,
-              )}
+              aria-label={msg("Remove row {0} from {1}", index + 1, title)}
               onClick={() => onChange(items.filter((_, i) => i !== index))}
             >
               {msg("Remove row ")}

@@ -736,7 +736,7 @@ export class PostalService {
       const timeout = new Promise<never>((_, reject) => {
         onAbort = () =>
           reject(
-            new ContentError("POSTAL_RENDER_TIMEOUT", "Analyse interrompue."),
+            new ContentError("POSTAL_RENDER_TIMEOUT", "Analysis interrupted."),
           );
         signal.addEventListener("abort", onAbort, { once: true });
       });

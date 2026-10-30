@@ -7,6 +7,15 @@ scroll/focus on commit. Private reads still require current authority. Secure
 document prices retain their existing padding and consent with a one-pixel
 cobalt side rule. See the [loading contract and measured environment](FRONTEND_PERFORMANCE.md#route-dependencies-follow-the-requested-task).
 
+## Small screens and empty dispatches — 30 October 2026 candidate
+
+On screens up to 1024 px the account sits beside the brand as its 44 px avatar,
+named for assistive technology, and its menu opens towards the page; My
+documents uses the same rows and hides a navigation whose only entry repeats the
+application switcher. The page title starts about 50 px higher. An empty
+Dispatches list offers New dispatch and From a generation as secondary actions to
+members who can prepare.
+
 ## Studio space and space switcher — 29 October 2026 candidate
 
 The [Studio reprise](STUDIO_SPACE_REPRISE.md), extending the dated

@@ -1,5 +1,9 @@
 # Guteneo product contract
 
+## Strict registration tooling — 30 October 2026 candidate
+
+The [strict MCP registration operator candidate](MCP_REGISTRATION.md) prepares native Auth0 configuration only. Registration grants no account access, membership, human approval or expert mandate; provider activation and each real host journey remain separately qualified.
+
 ## Selected-original MCP App — 26 October 2026
 
 Release 1.1.6 is published. In a temporary Claude Desktop window, two explicitly

@@ -55,6 +55,20 @@ server/browser resolution is outside their assertion; assuming a bare Vite
 document can make a locally passing fixture fail against the canonical build.
 Public-preview tests retain separate automatic-language coverage.
 
+Hosted sign-in fixtures abort their intercepted Auth0-entry navigation explicitly.
+They keep the current document alive to check exact handoff destinations,
+localized pending state, repeated activation and cached-return recovery. A
+fulfilled HTTP 204 leaves a navigation waiter pending in Chromium with
+Playwright 1.64 and blocks locator assertions, so it cannot model this fixture
+boundary. No external identity provider is contacted or qualified by these tests.
+
+The public-navigation suite binds a random identifier to its current Window and
+checks it after every route transition and history traversal, alongside zero
+document-navigation requests. This tests actual document reuse without assuming
+bit-identical readings of `performance.timeOrigin`; a WebKit run on 30 October
+observed a one-millisecond clock difference. Timing remains measured in the
+attached resource samples and is not used as document identity.
+
 Freeze time-based browser fixtures at a deliberate UTC instant. Status-cache
 expiry tests use midday so their fifteen-minute advance cannot accidentally
 exercise the separate midnight invalidation rule. Keep a distinct boundary case
@@ -344,6 +358,22 @@ have their own package/lockfile boundaries. The engineering job installs both
 root dependencies and `apps/engineering` dependencies; it cannot rely on a
 previous developer checkout. CI currently uses Node 24. Engineering requires
 Node 22.23.4+ or a supported Node 24+ version.
+
+Scanner and PDF-validator package-local Miniflare overrides retain Undici
+7.30.1 across Wrangler updates. The PDF validator also keeps its existing Sharp
+0.35.5 override. An override scoped to a former Miniflare version stops protecting
+a new Wrangler dependency, even when the root package has its own valid override.
+Each independent package therefore needs fresh locked install, audit and behavior
+checks; root dependency-preflight success cannot replace those service checks.
+
+The private PDF-validator package typechecks with TypeScript 7. Its Node
+behavior suites strip type syntax with the supported Node runtime and parse
+Wrangler JSONC with an exact parser dependency in both the service package and
+root package, because the root security suite imports those service tests. Each
+install must resolve this test dependency independently; the suites retain every original
+Worker contract assertion. A compiler major update must qualify both the CLI
+and any compiler API used by tests. Passing `tsc` alone cannot qualify a removed
+JavaScript compiler API or an incompatible Astro checker peer dependency.
 
 Browser-backed jobs install their required engines and Linux dependencies.
 Installing Chromium for a renderer is distinct from installing an independent

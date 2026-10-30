@@ -2,16 +2,12 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { readFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
-import ts from "typescript";
+import { stripTypeScriptTypes } from "node:module";
+import { parse } from "jsonc-parser";
 
 const validator = new URL("../", import.meta.url);
 const source = readFileSync(new URL("src/handler.ts", validator), "utf8");
-const compiled = ts.transpileModule(source, {
-  compilerOptions: {
-    target: ts.ScriptTarget.ES2022,
-    module: ts.ModuleKind.ESNext,
-  },
-}).outputText;
+const compiled = stripTypeScriptTypes(source, { mode: "strip" });
 const { handleRequest, sanitizeResult } = await import(
   `data:text/javascript;base64,${Buffer.from(compiled).toString("base64")}`
 );
@@ -332,11 +328,13 @@ test("worker response deadline completes even when the private binding ignores c
 });
 
 test("deployment contract is private, bounded, offline and pinned", () => {
-  const { config, error } = ts.parseConfigFileTextToJson(
-    "wrangler.jsonc",
+  const errors = [];
+  const config = parse(
     readFileSync(new URL("wrangler.jsonc", validator), "utf8"),
+    errors,
+    { allowTrailingComma: true },
   );
-  assert.equal(error, undefined);
+  assert.deepEqual(errors, []);
   assert.equal(config.workers_dev, false);
   assert.equal(config.preview_urls, false);
   assert.deepEqual(config.routes, []);

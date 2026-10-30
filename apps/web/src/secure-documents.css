@@ -692,11 +692,21 @@
     flex-direction: row;
     gap: 6px;
   }
+  /* Same header rows as the workspace: brand and account, then context. */
   .personal-space-v2 .sidebar-account {
-    order: 4;
-    flex-basis: 100%;
-    margin-top: 0;
-    padding: 8px 0 0;
+    order: 1;
+    margin: 0 0 0 auto;
+    padding: 0;
+  }
+  .personal-space-v2 .personal-space-header > .sidebar-context {
+    order: 2;
+  }
+  .personal-space-v2 .personal-space-header > nav {
+    order: 3;
+  }
+  /* A single entry repeats the application switcher just above it. */
+  .personal-space-v2 .personal-space-header > nav:has(> a:only-child) {
+    display: none;
   }
   .personal-space-v2 .personal-space-main {
     padding: 24px 0 48px;

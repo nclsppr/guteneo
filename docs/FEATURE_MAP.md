@@ -1,8 +1,8 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
 # Guteneo feature tree and developer atlas
 
-**23 domains · 369 features · 37 journeys · 76 documented REST operations · 83 MCP tools**
-Updated 2026-10-29.
+**24 domains · 380 features · 38 journeys · 76 documented REST operations · 83 MCP tools**
+Updated 2026-10-30.
 
 Repository implementation inventory. Availability depends on current capabilities and authority; implementation, activation and deployed proof are distinct.
 
@@ -30,7 +30,7 @@ mindmap
     Operate
       Campaigns and tracking (8)
       Credits and billing (8)
-      Workspace layout and browser appearance (31)
+      Workspace layout and browser appearance (32)
       PDF verification (10)
     Interfaces
       Assistants and API (31)
@@ -38,10 +38,11 @@ mindmap
       Public pages, languages and appearance (23)
     Operations
       Reviewer OAuth qualification (9)
-      Operations and reliability (27)
+      Operations and reliability (29)
       Belvédère platform oversight (12)
       Public service status (16)
       Engineering documentation (12)
+      Codex Cloud development (8)
 ```
 
 ### Access
@@ -68,7 +69,7 @@ mindmap
 
 - [Campaigns and tracking](#campaigns) — 8 features; capability-gated.
 - [Credits and billing](#billing) — 8 features; partial.
-- [Workspace layout and browser appearance](#dashboard) — 31 features; browser-session.
+- [Workspace layout and browser appearance](#dashboard) — 32 features; browser-session.
 - [PDF verification](#pdf-verification) — 10 features; capability-gated.
 
 ### Interfaces
@@ -80,10 +81,11 @@ mindmap
 ### Operations
 
 - [Reviewer OAuth qualification](#reviewer-oauth) — 9 features; operator-gated.
-- [Operations and reliability](#operations) — 27 features; operator-gated.
+- [Operations and reliability](#operations) — 29 features; operator-gated.
 - [Belvédère platform oversight](#belvedere) — 12 features; operator-gated.
 - [Public service status](#status) — 16 features; public.
 - [Engineering documentation](#engineering-docs) — 12 features; public.
+- [Codex Cloud development](#cloud-development) — 8 features; local-candidate.
 
 ## Availability and evidence
 
@@ -142,6 +144,7 @@ Four human workshop roles are defined by packages/contracts/src/roles.ts. The as
 | Read public browser reports | Public access without workspace privilege | Public access without workspace privilege | Public access without workspace privilege | Public access without workspace privilege | Public read only; no ingestion or business authority |
 | Read monthly and daily consumption history | Yes | Reporting option | No | No | Current reporting rights + tenant-scoped REST read; no new MCP billing tool |
 | Read private generation correction input | Only own generation under current browser membership | Only own generation under current browser membership | Only own generation under current browser membership | Only own generation under current browser membership; creation still requires its permission | No MCP/native route; shared-template or dispatch-review access grants no source input |
+| Cloud development bootstrap and diagnostics | No role-based grant; separate repository/environment access | No role-based grant; separate repository/environment access | No role-based grant; separate repository/environment access | No role-based grant; separate repository/environment access | Product OAuth grants no development credentials; a repository agent needs separate environment access |
 
 Supervisor approval/reporting options are independent and off by default. Resource ownership/context checks still apply. See [workspace roles](WORKSPACE_ROLES.md), [expert approval](EXPERT_APPROVAL.md) and [studio access](TEMPLATES_DATA_DISTRIBUTION.md).
 
@@ -417,7 +420,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Resume remaining entries without duplication
 - Entry-linked postal preflight with separate review and sending
 - Known assistant-excluded content is never generated, previewed, shared or distributed; request a person-redacted version and never treat scanning as proof of absence
-- Browser results show bounded name/subject/reference labels without changing record identifiers; the browser-only owner-authorized record-context read supplies labels or one explicit correction input, with current tenant/creator guards and no MCP/native authority
+- Browser results show bounded name/subject/reference labels without changing record identifiers; the browser-only owner-authorized record-context read supplies labels or one explicit correction input, with current tenant/creator guards and no MCP/native authority. Its optional current template name requires current template read permission and becomes null after sharing revocation
 - Import/replacement retain the selected template/version and compatible field mapping/record exclusions; correcting data or a template creates a new generation/version while prior PDFs and prepared manifests retain their exact hashes
 - Every new destination starts with zero documents even for one PDF; unsaved preparation may veto departure and late preparation/postal replies cannot navigate obsolete visits; the pre-preparation summary lists exact associations and explains that the first plan freezes the full generation, including excluded failed records
 
@@ -866,6 +869,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Four-language labels; simulation notices only for simulated sessions
 - Same four roles, supervisor options, private access and consents; no new mandate, channel or business API/MCP tool
 - Native account/session reads include appearance without a setter; existing name/language browser PATCH and native language PATCH remain compatible
+- On screens up to 1024 px the account sits beside the brand as a named 44 px avatar whose menu opens towards the page, and a one-entry personal navigation is hidden; empty Dispatches offer New dispatch and From a generation to members who can prepare
 - Two separate switchers open the shared V2 sidebar: the application switcher (Studio, Correspondence, My documents; in every application) and, in Studio and Correspondence only, the workspace switcher (current workspace, other memberships, create or join). The workspace list is read only when its panel opens, belongs to one account/workspace/authority identity so a late or earlier list is never shown, is read again after a refused membership, honours the existing unsaved-work veto before switching, and both panels close on Escape (including after a Safari pointer click), an outside pointer or any navigation; triggers are 40/36 px for desktop pointers and 44 px on touch screens; identity actions stay in the account menu
 - Studio space in the same workspace session: Templates, Data and Generations live under /app/studio/… with permanent client aliases for earlier Studio links that keep the query; prepared batches (/app/distribution/…) stay with Dispatches; the workshop navigation keeps Assistants immediately after Overview and shows New dispatch only in the workshop
 - One application route table (apps/web/src/app-routes.ts) owns spaces, Studio addresses, aliases, the current navigation entry and route-code preloading
@@ -954,10 +958,12 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Chromium-dependent secure Resend journey runs once in the existing browser-equipped security job, outside ordinary Vitest shards; dependency-driven routing checks and aggregate inventory preserve complete coverage
 - CI builds the final non-preview frontend once before unchanged Worker dry runs, executes documentation guards once through docs:check and places the once-only MCP Apps SDK fixtures on desktop Chromium shard three; complete suites, immutable evidence and required main/PR gates remain unchanged, with hosted timing qualification separate
 - Prepared dependency redelivery qualifies a genuine merged Dependabot root npm update only after complete exact-current-main CI, serialized clean-main publication and canonical served-byte verification; a dedicated application token was installed on 29 October with expiry on 27 January 2027; hosted release activation still requires merged workflow and exact-source proof; MCP dependencies require synchronized reviewed plugin publication, unsupported MCP/PDFme versions remain held and routine major toolchain migrations require review
+- Operator-only native strict Auth0 MCP registration controller defaults to sanitized GET inspection and requires an exact fresh fingerprint for separately authorized changes; preserves static clients, account connection, explicit scopes, current membership, consent and approval. Legacy-extension inspection, capacity, OIDC interoperability and real host qualification remain fail-closed activation gates; application deployment does not activate DCR.
+- TypeScript 7 validator behavior tests use native Node type stripping and an exact JSONC parser declared in both root and service manifests; independent root-only and service-only installs preserve complete shared security assertions.
 
 **Contract:** [CI.md](CI.md) · **Implementation:** [scripts/deploy-public.mjs](../scripts/deploy-public.mjs)
 
-**Tests:** [tests/security/ci-artifacts.test.mjs](../tests/security/ci-artifacts.test.mjs), [tests/security/ci-results.test.mjs](../tests/security/ci-results.test.mjs), [tests/security/ci-browser-results.test.mjs](../tests/security/ci-browser-results.test.mjs), [tests/security/main-only-release.test.mjs](../tests/security/main-only-release.test.mjs), [tests/security/pdf-validator-release.test.mjs](../tests/security/pdf-validator-release.test.mjs), [apps/pdf-validator/tests/probe-credentials.test.mjs](../apps/pdf-validator/tests/probe-credentials.test.mjs), [tests/security/production-monitor.test.mjs](../tests/security/production-monitor.test.mjs), [tests/security/observability.test.mjs](../tests/security/observability.test.mjs), [tests/integration/documents.test.ts](../tests/integration/documents.test.ts), [tests/unit/telnyx-readiness.test.ts](../tests/unit/telnyx-readiness.test.ts), [apps/scanner/tests/maintenance-status.test.mjs](../apps/scanner/tests/maintenance-status.test.mjs), [apps/scanner/tests/qualification-artifact.test.mjs](../apps/scanner/tests/qualification-artifact.test.mjs), [tests/security/verify-release.test.mjs](../tests/security/verify-release.test.mjs), [tests/security/preview-release-assets.test.mjs](../tests/security/preview-release-assets.test.mjs), [tests/unit/public-routes.test.ts](../tests/unit/public-routes.test.ts), [tests/integration/secure-resend-journey.test.ts](../tests/integration/secure-resend-journey.test.ts), [tests/unit/providers-webhooks.test.ts](../tests/unit/providers-webhooks.test.ts), [tests/security/dependency-release.test.mjs](../tests/security/dependency-release.test.mjs), [tests/unit/dependency-compatibility.test.ts](../tests/unit/dependency-compatibility.test.ts)
+**Tests:** [tests/security/ci-artifacts.test.mjs](../tests/security/ci-artifacts.test.mjs), [tests/security/ci-results.test.mjs](../tests/security/ci-results.test.mjs), [tests/security/ci-browser-results.test.mjs](../tests/security/ci-browser-results.test.mjs), [tests/security/main-only-release.test.mjs](../tests/security/main-only-release.test.mjs), [tests/security/pdf-validator-release.test.mjs](../tests/security/pdf-validator-release.test.mjs), [apps/pdf-validator/tests/probe-credentials.test.mjs](../apps/pdf-validator/tests/probe-credentials.test.mjs), [tests/security/production-monitor.test.mjs](../tests/security/production-monitor.test.mjs), [tests/security/observability.test.mjs](../tests/security/observability.test.mjs), [tests/integration/documents.test.ts](../tests/integration/documents.test.ts), [tests/unit/telnyx-readiness.test.ts](../tests/unit/telnyx-readiness.test.ts), [apps/scanner/tests/maintenance-status.test.mjs](../apps/scanner/tests/maintenance-status.test.mjs), [apps/scanner/tests/qualification-artifact.test.mjs](../apps/scanner/tests/qualification-artifact.test.mjs), [tests/security/verify-release.test.mjs](../tests/security/verify-release.test.mjs), [tests/security/preview-release-assets.test.mjs](../tests/security/preview-release-assets.test.mjs), [tests/unit/public-routes.test.ts](../tests/unit/public-routes.test.ts), [tests/integration/secure-resend-journey.test.ts](../tests/integration/secure-resend-journey.test.ts), [tests/unit/providers-webhooks.test.ts](../tests/unit/providers-webhooks.test.ts), [tests/security/dependency-release.test.mjs](../tests/security/dependency-release.test.mjs), [tests/unit/dependency-compatibility.test.ts](../tests/unit/dependency-compatibility.test.ts), [tests/security/mcp-registration.test.mjs](../tests/security/mcp-registration.test.mjs)
 
 **Documented REST operations**
 
@@ -1044,6 +1050,28 @@ Supervisor approval/reporting options are independent and off by default. Resour
 **Contract:** [ENGINEERING_SITE.md](ENGINEERING_SITE.md) · **Implementation:** [apps/engineering/astro.config.ts](../apps/engineering/astro.config.ts)
 
 **Tests:** [tests/security/engineering-site.test.mjs](../tests/security/engineering-site.test.mjs), [tests/engineering-e2e/site.spec.ts](../tests/engineering-e2e/site.spec.ts), [tests/security/engineering-release.test.mjs](../tests/security/engineering-release.test.mjs), [tests/engineering-e2e/theme.spec.ts](../tests/engineering-e2e/theme.spec.ts), [tests/security/ci-artifacts.test.mjs](../tests/security/ci-artifacts.test.mjs), [tests/security/ci-results.test.mjs](../tests/security/ci-results.test.mjs), [tests/security/ci-browser-results.test.mjs](../tests/security/ci-browser-results.test.mjs), [tests/security/brand-icons.test.mjs](../tests/security/brand-icons.test.mjs)
+
+
+
+<a id="cloud-development"></a>
+### Codex Cloud development
+
+**Availability model:** local-candidate. Development helper implementation. Provider/setup observations are dated 4 October 2026; fresh-task restoration and current provider access remain separately unqualified.
+
+**Surfaces:** Repository CLI and development runtime only; no new product browser, native, REST or MCP surface.
+
+- Repository-authorized development with the package.json Node.js engine range, npm, Git, bash and curl; no elevation of human workshop roles or the connected product assistant
+- Credential-filtered bootstrap installs locked dependencies, applies local D1 migrations and fixtures, and builds the web application; optional Linux Chromium preparation retains separate browser and native qualification
+- Repository CLI/API and official HTTPS documentation remain usable when desktop plugins are absent; missing provider access blocks only dependent work while source changes and local simulation continue
+- Offline configuration inventory and bounded redacted GET diagnostics preserve managed proxy and certificate settings; credentials enter curl through stdin, with no secret arguments, redirects, automatic retries or provider payload output
+- Missing configuration, unverified credentials, authentication failure, access denial and network errors remain separate outcomes; successful reads never prove unrestricted functionality or a read-only credential
+- Historical 4 October 2026 setup observations include exact-host Cloudflare and Telnyx network secrets, Cloudflare metadata-only permissions and a dedicated Telnyx key without native read-only scope; no desktop-session export or production-secret files
+- Dated developer evidence retains the original helper tests, hosted simulation and partial HTTP smoke observations; restored fresh-task access and current provider readiness require new observations
+- Bootstrap and diagnostics grant no expert mandate, communication approval, paid provisioning, billing activation, production mutation or deployment; web, native, REST and MCP product contracts are unchanged
+
+**Contract:** [CODEX_CLOUD.md](CODEX_CLOUD.md) · **Implementation:** [scripts/codex-cloud-check.mjs](../scripts/codex-cloud-check.mjs)
+
+**Tests:** [tests/security/codex-cloud-check.test.mjs](../tests/security/codex-cloud-check.test.mjs)
 
 
 
@@ -1213,7 +1241,7 @@ Read visible name/login email (in V2, open the account menu) → open account pr
 
 **Actor:** Explicitly authorised browser Watchkeeper with verified identity. **Branch:** Operations.
 
-Open Belvedere from the application switcher only when the server projects capability, or use canonical /belvedere / the protected compatibility entry → reuse a valid canonical browser session or follow normal identity recovery → repeat current signed platform guard on every read → inspect seven read-only views and interactive globe; dedicated host remains isolated.
+Open Belvedere from the application switcher only when the server projects capability, or use canonical /belvedere (absent to visitors without a session) / the protected compatibility entry → reuse a valid canonical browser session or follow normal identity recovery after expiry → repeat current signed platform guard on every read → inspect seven read-only views and interactive globe; dedicated host remains isolated.
 
 **Failure/recovery:** Workshop administrator/OAuth/assistant roles grant no platform authority. Unknown costs/profit stay unavailable. Preview fixtures and hosted observations are separate.
 
@@ -1418,6 +1446,16 @@ Review source/package and actual host checkpoint → apply migration 0063 before
 **Failure/recovery:** Absent/invalid activation, mismatched/expired qualification, observer role, missing scope, changed connection/revision/issuer/membership, token/session expiry, quota/debt/call limits, noncanonical or conflicting parts and full-size/hash/PDF mismatch fail closed. General mode retains current production OAuth/writer guards; without MCP Apps explain the unsupported flow and retain ordinary tools. Bounds remain 256 KiB/part, 40 parts/10 MiB, 64 App calls, five minutes/original token expiry, one active session per user within the current workspace, 20 pending/200 MiB organization debt and 200 daily reservations. APP_PART_NOT_ACCEPTED is a settled pre-put refusal. APP_PART_UNCONFIRMED allows only manual same-ID status with volatile buffer retained inside fixed expiry/budget/current authority; only positive immutable-object length/hash evidence can enable explicit Resume. Missing objects never authorize replay. Final pipeline uncertainty is status-only and clears bytes; no new key, transport switch or reimport. The App-specific recovery has tool:null rather than instructing model/binary calls. Cancel/expiry/revocation fence writers; bounded cron also reclaims expired global App-finalizer capacity without deleting an original, while staging waits for original expiry plus 90 seconds and unresolved puts retain debt/tombstones. No direct browser fetch, egress/Origin/CSP exception, public PDF, bytes/base64/token in model context/storage/logs, paid check, approval, send or mandate. Release 1.1.6 has bounded actual Claude Desktop selected-original 299,807-byte/10 MiB storage/readiness and manual same-ID receipt recovery without resend, plus zero associated business effects for those two originals. The model then had neither new ID and made zero get_document calls: registered-ID handoff failed and general activation stays pending. The 1.1.8 source fixes preserve accepted receipts after late bridge errors and add text-plus-structured context plus a user-gesture-only minimal-receipt message with local fixtures; import sends no automatic chat message, repeated pending/acknowledged/refused/uncertain attempts are deduplicated for the same ID/status and message failure retains the document; the actual retest remains required, and neither fix proves the earlier deadline cause. Web/iPhone/other hosts, automatic attachment handoff, full retention/confirmation and runtime headroom remain separately unqualified.
 
 [Detailed contract](PRIVATE_DOCUMENT_UPLOAD.md).
+
+### J38 · Prepare an isolated cloud development checkout
+
+**Actor:** Developer or repository-authorized coding agent with separately configured environment credentials. **Branch:** Operations → development tooling; independent of product assistant authority.
+
+Read repository instructions and the cloud-development contract → verify the supported Node.js runtime → run the credential-filtered local bootstrap → inspect offline configuration → explicitly request only required bounded provider GET diagnostics → continue source changes, local simulation and relevant tests → record exact source, environment and qualification gaps.
+
+**Failure/recovery:** Reject unsupported runtimes, invalid inputs, masked dashboard values and unapproved diagnostic destinations. Missing or refused credentials block only their provider operation. Preserve managed proxy/CA settings, never copy secrets or desktop sessions, never infer sending/production authority from a GET, and do not replay mutations.
+
+[Detailed contract](CODEX_CLOUD.md).
 
 ## Required maintenance
 

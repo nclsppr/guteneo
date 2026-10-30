@@ -1,5 +1,9 @@
 # Claude.ai: installation and renewal
 
+## Strict registration tooling — 30 October 2026 candidate
+
+The separate [strict registration controller](MCP_REGISTRATION.md) preserves the static-client renewal fallback. It does not activate DCR or prove a new client renewal policy; inspect and qualify the actual host before enabling provider changes.
+
 State as of **18 September 2026**: local candidate. Initial actual connection
 is qualified in [CLAUDE_QUALIFICATION.md](CLAUDE_QUALIFICATION.md). The button/
 renewal described here still require publication and Auth0 activation; local

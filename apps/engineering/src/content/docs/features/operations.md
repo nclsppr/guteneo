@@ -1,6 +1,6 @@
 ---
 title: "Operations and reliability"
-description: "27 capabilities in the operations branch of Guteneo."
+description: "29 capabilities in the operations branch of Guteneo."
 sidebar:
   order: 20
 ---
@@ -45,6 +45,8 @@ Implemented operational tooling; changes require explicit authority and exact-so
 <li id="feature-157d08734bea">Chromium-dependent secure Resend journey runs once in the existing browser-equipped security job, outside ordinary Vitest shards; dependency-driven routing checks and aggregate inventory preserve complete coverage</li>
 <li id="feature-df7dcc38bd55">CI builds the final non-preview frontend once before unchanged Worker dry runs, executes documentation guards once through docs:check and places the once-only MCP Apps SDK fixtures on desktop Chromium shard three; complete suites, immutable evidence and required main/PR gates remain unchanged, with hosted timing qualification separate</li>
 <li id="feature-a72c18c8cd34">Prepared dependency redelivery qualifies a genuine merged Dependabot root npm update only after complete exact-current-main CI, serialized clean-main publication and canonical served-byte verification; a dedicated application token was installed on 29 October with expiry on 27 January 2027; hosted release activation still requires merged workflow and exact-source proof; MCP dependencies require synchronized reviewed plugin publication, unsupported MCP/PDFme versions remain held and routine major toolchain migrations require review</li>
+<li id="feature-330b2ad0eaea">Operator-only native strict Auth0 MCP registration controller defaults to sanitized GET inspection and requires an exact fresh fingerprint for separately authorized changes; preserves static clients, account connection, explicit scopes, current membership, consent and approval. Legacy-extension inspection, capacity, OIDC interoperability and real host qualification remain fail-closed activation gates; application deployment does not activate DCR.</li>
+<li id="feature-c62f3d93a217">TypeScript 7 validator behavior tests use native Node type stripping and an exact JSONC parser declared in both root and service manifests; independent root-only and service-only installs preserve complete shared security assertions.</li>
 </ol>
 
 ## REST operations
