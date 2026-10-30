@@ -262,7 +262,7 @@ test("workflow downloads exact IDs with narrowly scoped read permission and reta
       .length,
     2,
   );
-  assert.equal((source.match(/actions: read/g) ?? []).length, 3);
+  assert.equal((source.match(/actions: read/g) ?? []).length, 4);
   assert.match(source, /node scripts\/ci\/select-artifacts\.mjs verify/);
   assert.match(
     source,

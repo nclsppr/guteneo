@@ -312,3 +312,11 @@ Review source/package and actual host checkpoint → apply migration 0063 before
 Read repository instructions and the cloud-development contract → verify the supported Node.js runtime → run the credential-filtered local bootstrap → inspect offline configuration → explicitly request only required bounded provider GET diagnostics → continue source changes, local simulation and relevant tests → record exact source, environment and qualification gaps.
 
 **Failure and recovery:** Reject unsupported runtimes, invalid inputs, masked dashboard values and unapproved diagnostic destinations. Missing or refused credentials block only their provider operation. Preserve managed proxy/CA settings, never copy secrets or desktop sessions, never infer sending/production authority from a GET, and do not replay mutations.
+
+## J39: Validate a PR and qualify its identical main promotion
+
+**Actor:** Repository-authorized contributor and read-only GitHub CI; publication requires separate explicit operator authorization · **Branch:** Operations → CI qualification and publication; no product-role authority
+
+Run the complete PR pipeline → independently account for all current test identities → record source, policy, runtime and immutable proof data → merge after review → qualify exact main/base/head/tree and fresh complete proof or run full → execute fresh dependency/advisory checks → independently recheck the final gate → publish only authorized clean current main and verify served bytes.
+
+**Failure and recovery:** Missing, stale, foreign, changed, incomplete or inaccessible evidence selects full tests. Drift after reuse selection fails final verification. Artifact corruption or path escapes refuse reconstruction. No automatic retry, production credential, merge, send, provider activation or claim of human approval.

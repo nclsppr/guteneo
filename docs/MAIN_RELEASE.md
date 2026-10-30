@@ -118,7 +118,9 @@ results separately; see [TELNYX_READINESS.md](TELNYX_READINESS.md) and
 `Guteneo checks` runs for every PR and `main` push without path filters. It retains
 `scanner`, `checks`, four Vitest shards, `security`, `build`, three browser
 profiles with three independent shards each, and aggregate `verify`. `/api/mobile/v1`, shared contracts, migrations and npm
-dependencies use the full suite. Required `verify`/`scanner` and branch policy are
+dependencies receive complete PR coverage. Main may qualify an identical-source
+full PR proof under [the CI contract](CI.md#validate-once-and-qualify-an-identical-main-merge),
+or execute the full suite; an unavailable proof never bypasses validation. Required `verify`/`scanner` and branch policy are
 unchanged. A separate credential-gated dependency release workflow may publish a
 genuine merged Dependabot root npm update after successful exact-current-main CI.
 It retains the clean-main and served-verification gates below; see
@@ -143,7 +145,9 @@ from a missing test or a skipped required job. The workflow still checks every P
 and merged main revision, with no path-based coverage reduction, automatic retry
 or production deployment within the checks workflow. The dependency preflight
 stops incompatible graphs before the costly matrix; the complete current
-application workflow has 23 jobs;
+full application workflow has 24 jobs including qualification;
+an eligible main promotion executes qualification, fresh dependency/audit checks,
+explicit scanner provenance and independently rechecked verification;
 required `verify` and `scanner` protections remain unchanged.
 
 The earlier sequential iPhone job identified the browser critical path. The

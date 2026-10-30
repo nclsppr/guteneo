@@ -19,23 +19,33 @@ and explains how to maintain it when services or dependencies change.
 
 `Guteneo checks` runs on every pull request and `main` push without application
 path filters. Shared contracts, mobile API routes, migrations and npm dependencies
-can affect more than their immediate directory, so they retain complete coverage.
+can affect more than their immediate directory, so every PR retains complete coverage.
+A main merge reuses a fresh, complete identical-source PR proof only under the
+[repository qualification contract](https://github.com/nclsppr/guteneo/blob/main/docs/CI.md#validate-once-and-qualify-an-identical-main-merge);
+otherwise it runs the complete suite. Required `verify` and `scanner` stay in place.
 
-| Job family             | Responsibility                                                                                                                                                                                                                | Evidence boundary                                                      |
-| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
-| Dependency preflight   | Locked installation, supported MCP peers/template engine/transport and high-severity audit before root matrices                                                                                                               | Unsupported graphs fail before costly jobs; all suites remain required |
-| Private services       | Scanner and PDF-validator type/behavior tests                                                                                                                                                                                 | Local service contracts, not hosted engine freshness                   |
-| Checks                 | Type/lint (including web application boundaries and design rules), dependency audit, generated docs, language/route standards, MCP/package freshness, MCP annotations, migration equivalence, cost model and narration checks | Repository consistency for that revision                               |
-| Four Vitest shards     | Sequential isolated domain/integration files and restore evidence                                                                                                                                                             | Deterministic local database/provider fixtures                         |
-| Security and renderer  | Browser-backed document rendering and Node security guards                                                                                                                                                                    | Actual local Chromium processing plus controlled refusal paths         |
-| Build                  | Main, live, preview and status builds; Worker dry runs                                                                                                                                                                        | Buildable artifacts/configuration without publication                  |
-| Browser matrix         | Three isolated shards per desktop/mobile Chromium and iPhone WebKit profile; applicable preview, Belvédère and status suites                                                                                                  | Same-run application artifacts and fictional local data                |
-| Distribution profiles  | Isolated strong and verified-account lifecycles on desktop/phone                                                                                                                                                              | Separate synthetic identity policies, no real Auth0 or delivery        |
-| Engineering            | Independent dependency install/audit, content checks, static build, browsers and asset-only dry run                                                                                                                           | Documentation release surface only                                     |
-| Aggregate verification | Required dependencies and current-run reports                                                                                                                                                                                 | Missing, failed, skipped or cancelled required work is not success     |
+| Job family             | Responsibility                                                                                                                                                                                                                | Evidence boundary                                                                             |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| Qualification          | Exact source/policy/runtime and complete PR proof, or full fallback                                                                                                                                                           | Read-only JSON metadata; no deployment or PR artifact execution                               |
+| Dependency preflight   | Locked installation, supported MCP peers/template engine/transport and high-severity audit before root matrices                                                                                                               | Unsupported graphs fail before costly jobs; all suites remain required                        |
+| Private services       | Scanner and PDF-validator type/behavior tests                                                                                                                                                                                 | Local service contracts, not hosted engine freshness                                          |
+| Checks                 | Type/lint (including web application boundaries and design rules), dependency audit, generated docs, language/route standards, MCP/package freshness, MCP annotations, migration equivalence, cost model and narration checks | Repository consistency for that revision                                                      |
+| Four Vitest shards     | Sequential isolated domain/integration files and restore evidence                                                                                                                                                             | Deterministic local database/provider fixtures                                                |
+| Security and renderer  | Browser-backed document rendering and Node security guards                                                                                                                                                                    | Actual local Chromium processing plus controlled refusal paths                                |
+| Build                  | Main, live, preview and status builds; Worker dry runs                                                                                                                                                                        | Buildable artifacts/configuration without publication                                         |
+| Browser matrix         | Three isolated shards per desktop/mobile Chromium and iPhone WebKit profile; applicable preview, Belvédère and status suites                                                                                                  | Same-run application artifacts and fictional local data                                       |
+| Distribution profiles  | Isolated strong and verified-account lifecycles on desktop/phone                                                                                                                                                              | Separate synthetic identity policies, no real Auth0 or delivery                               |
+| Engineering            | Independent dependency install/audit, content checks, static build, browsers and asset-only dry run                                                                                                                           | Documentation release surface only                                                            |
+| Aggregate verification | Required dependencies and current-run reports                                                                                                                                                                                 | Full inventory or independently rechecked identical-source proof; arbitrary skips are refused |
 
-Browser/distribution jobs download the build from the same GitHub revision rather
-than rebuilding assets concurrently. Distribution reports require complete
+Browser/distribution jobs download a deduplicated object bundle from the same GitHub revision rather
+than rebuilding assets concurrently. The index binds its Git commit/tree and every
+file SHA-256; consumers verify the entire object inventory and selected release
+manifest, then restore normal files. Static bytes shared by the application and
+preview are transferred once. Narrow consumer checkouts omit unused media/native/
+engineering sources while retaining caption-script JSON; source-media checks keep
+their complete checkout. Debug screenshots/traces stay in separate immutable child
+artifacts, while aggregate qualification transfers only required JSON/digests. Distribution reports require complete
 execution on both targets without skips, flaky results or model calls; a separate
 privacy guard checks every upload path before evidence is archived. Do not weaken
 these assertions to make a partial run green.
@@ -192,8 +202,9 @@ owns timestamp selection, pagination, provenance, scoped read permissions and
 failure handling. An inaccessible, ambiguous, expired or invalid latest artifact
 blocks qualification. Inspect and preserve the failed run before recovery; do
 not delete artifacts or bypass the aggregate gate. Metadata selection tests are
-local contract evidence; the corrected PR and merged revision still require full
-hosted checks before an authorized release.
+local contract evidence; the corrected PR requires full hosted checks, and the
+merged revision requires either full checks or the strictly qualified identical-source
+proof before an authorized release.
 
 ## Keep the downloadable plugin synchronized
 
@@ -501,3 +512,32 @@ isolated adapter tests missed. Such a passing source test does not establish
 actual Auth0 SSO, mailbox receipt, fax delivery or postal fulfillment. Real
 canaries require separately authorized dedicated identities, destinations,
 limits and signed/reconciled outcomes.
+
+## Keep promotion fast without weakening test coverage
+
+A complete PR run emits an optional proof only after independent test inventory
+verification. Twenty-two suite/build runtime records bind actual Node, architecture,
+OS/image, execution SHA and attempt. Missing, mixed or unavailable provenance
+preserves real test success and disables reuse. Main qualification compares the
+ordinary merge parents and full tree with GitHub's tested PR commit, current locks,
+trusted CI policy and exact runtime within 24 hours. It reads JSON as data and
+rechecks the proof in the final gate; a reused result never extends the original
+full proof. Fresh dependency compatibility and advisory checks still run.
+
+Policy changes, forks, new runtime versions, expired/missing proof or uncertain
+GitHub metadata select the complete suite. The first policy-changing merge is
+therefore deliberately full. No test is removed, and no production credential,
+merge, publication, provider activation or customer authority is introduced.
+Repository variable `CI_FORCE_FULL` provides an explicit full requalification.
+
+The four common CI actions are pinned to reviewed immutable commits. Update their
+pins with the normal CI-policy qualification and retain Node/runner fingerprints;
+these records are not an attestation of every network service or Ubuntu mirror.
+The dependency release selector accepts only the canonical independently verified
+main gate shape and still publishes through clean-main/served-byte guards.
+
+The [dated measurements](https://github.com/nclsppr/guteneo/blob/main/docs/CI.md#timing-and-qualification--30-october-2026)
+separate roughly fifteen minutes of normal validation from runner queues and
+about 104 aggregate runner minutes. Current media move through same-run build
+objects; Git LFS would still meter their downloads and is not introduced. Record
+new artifact sizes and actual hosted timing before claiming a wall-time gain.
