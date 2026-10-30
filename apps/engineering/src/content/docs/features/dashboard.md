@@ -1,6 +1,6 @@
 ---
 title: "Workspace layout and browser appearance"
-description: "34 capabilities in the operate branch of Guteneo."
+description: "36 capabilities in the operate branch of Guteneo."
 sidebar:
   order: 18
 ---
@@ -52,4 +52,6 @@ The 29 October 2026 Studio space, the application/workspace switchers and the fo
 <li id="feature-d39de70928dd">Explicit route-code recovery refreshes only failed same-origin public JS/CSS assets before reloading, with no credentials/referrer/private query, at most eight requests, an eight-MiB per-response read bound and five-second timeout; no background retry or business endpoint is added</li>
 <li id="feature-08ab2f9b9982">Shared data-table.tsx/model/styles provide accent-insensitive multiword search, optional categorical filters, raw-value column sorting with accessible headers/mobile controls, page-size selection and bounded browser pagination over already authorized loaded rows; container-based 40-rem cards keep consistent padding while wider tables contain horizontal overflow, and static/reference/editable grids retain their specialized behavior</li>
 <li id="feature-7658af281325">Table controls reset the browser page after search/filter/sort/page-size changes, clamp shrinking results, offer clear-filter recovery and persist no search or record state; explicit cursor loading stays visible, server-paged Belvédère search/pagination remains authoritative and local column sorting identifies its current-page scope; four human roles, personal isolation and business authority are unchanged</li>
+<li id="feature-8dd4afef2e51">DEV + public-preview + loopback-only simulation controls select four fictional membership roles and a separate observer platform-access hint; unsaved-navigation veto, scenario identity remount and scoped IDs/cursors preserve account separation without Auth0, memberships or business authority</li>
+<li id="feature-feefe2bbffe9">Reproducible seeded Small/Large/Huge/Extreme metadata profiles expose up to one billion logical documents, dispatches, templates, datasets and generations while generating at most fifty records per read; generated volumes and fictional personal documents are read-only, bounded PDF caches materialize only requested bytes and fixture failures never fall through to production</li>
 </ol>

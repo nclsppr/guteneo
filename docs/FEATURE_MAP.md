@@ -1,7 +1,7 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
 # Guteneo feature tree and developer atlas
 
-**26 domains · 401 features · 42 journeys · 76 documented REST operations · 83 MCP tools**
+**26 domains · 404 features · 43 journeys · 76 documented REST operations · 83 MCP tools**
 Updated 2026-10-30.
 
 Repository implementation inventory. Availability depends on current capabilities and authority; implementation, activation and deployed proof are distinct.
@@ -30,7 +30,7 @@ mindmap
     Operate
       Campaigns and tracking (8)
       Credits and billing (8)
-      Workspace layout and browser appearance (34)
+      Workspace layout and browser appearance (36)
       PDF verification (10)
     Interfaces
       Assistants and API (31)
@@ -39,7 +39,7 @@ mindmap
     Operations
       Reviewer OAuth qualification (9)
       Operations and reliability (31)
-      Belvédère platform oversight (13)
+      Belvédère platform oversight (14)
       Public service status (16)
       Engineering documentation (12)
       Codex Cloud development (8)
@@ -71,7 +71,7 @@ mindmap
 
 - [Campaigns and tracking](#campaigns) — 8 features; capability-gated.
 - [Credits and billing](#billing) — 8 features; partial.
-- [Workspace layout and browser appearance](#dashboard) — 34 features; browser-session.
+- [Workspace layout and browser appearance](#dashboard) — 36 features; browser-session.
 - [PDF verification](#pdf-verification) — 10 features; capability-gated.
 
 ### Interfaces
@@ -84,7 +84,7 @@ mindmap
 
 - [Reviewer OAuth qualification](#reviewer-oauth) — 9 features; operator-gated.
 - [Operations and reliability](#operations) — 31 features; operator-gated.
-- [Belvédère platform oversight](#belvedere) — 13 features; operator-gated.
+- [Belvédère platform oversight](#belvedere) — 14 features; operator-gated.
 - [Public service status](#status) — 16 features; public.
 - [Engineering documentation](#engineering-docs) — 12 features; public.
 - [Codex Cloud development](#cloud-development) — 8 features; local-candidate.
@@ -155,6 +155,7 @@ Four human workshop roles are defined by packages/contracts/src/roles.ts. The as
 | Prepare using continuous reviewer reference access | Only the exact restricted sole-member reviewer after operator setup | No authority from this role | No authority from this role | No | Current authenticated exact reviewer + preparation scope + ready synthetic original + active access and current no-send guards; never approval, provider execution or credit reservation |
 | Register automatic fax commercial-reference maintenance | No authority from workspace role | No authority from workspace role | No authority from workspace role | No authority from workspace role | No; distinct authorized platform operator registers an exact source/route once; bounded scheduler refreshes do not grant consent, route authority or sending rights |
 | Search, filter, sort and page authorized browser table rows | Only rows already visible under current page authority | Only rows already visible under current page authority and independent reporting options | Only rows already visible under current page authority | Only rows already visible under current page authority | No new REST/MCP/native tool or authority; browser controls never fetch inaccessible rows or grant approval, sending, paid operations or a mandate |
+| Use loopback fictional role/volume controls | No production authority; local fixture only | No production authority; local fixture only | No production authority; local fixture only | No production authority; local fixture only | No REST/MCP/native authority or real platform capability; DEV + preview + loopback only |
 
 Supervisor approval/reporting options are independent and off by default. Resource ownership/context checks still apply. See [workspace roles](WORKSPACE_ROLES.md), [expert approval](EXPERT_APPROVAL.md) and [studio access](TEMPLATES_DATA_DISTRIBUTION.md).
 
@@ -898,10 +899,12 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Explicit route-code recovery refreshes only failed same-origin public JS/CSS assets before reloading, with no credentials/referrer/private query, at most eight requests, an eight-MiB per-response read bound and five-second timeout; no background retry or business endpoint is added
 - Shared data-table.tsx/model/styles provide accent-insensitive multiword search, optional categorical filters, raw-value column sorting with accessible headers/mobile controls, page-size selection and bounded browser pagination over already authorized loaded rows; container-based 40-rem cards keep consistent padding while wider tables contain horizontal overflow, and static/reference/editable grids retain their specialized behavior
 - Table controls reset the browser page after search/filter/sort/page-size changes, clamp shrinking results, offer clear-filter recovery and persist no search or record state; explicit cursor loading stays visible, server-paged Belvédère search/pagination remains authoritative and local column sorting identifies its current-page scope; four human roles, personal isolation and business authority are unchanged
+- DEV + public-preview + loopback-only simulation controls select four fictional membership roles and a separate observer platform-access hint; unsaved-navigation veto, scenario identity remount and scoped IDs/cursors preserve account separation without Auth0, memberships or business authority
+- Reproducible seeded Small/Large/Huge/Extreme metadata profiles expose up to one billion logical documents, dispatches, templates, datasets and generations while generating at most fifty records per read; generated volumes and fictional personal documents are read-only, bounded PDF caches materialize only requested bytes and fixture failures never fall through to production
 
 **Contract:** [DASHBOARD_V2.md](DASHBOARD_V2.md) · **Implementation:** [apps/web/src/account-page.tsx](../apps/web/src/account-page.tsx)
 
-**Tests:** [tests/unit/account.test.ts](../tests/unit/account.test.ts), [tests/integration/mobile.test.ts](../tests/integration/mobile.test.ts), [tests/preview-e2e/dashboard-v2.spec.ts](../tests/preview-e2e/dashboard-v2.spec.ts), [tests/e2e/dashboard-v2.spec.ts](../tests/e2e/dashboard-v2.spec.ts), [tests/e2e/protected-email.spec.ts](../tests/e2e/protected-email.spec.ts), [tests/e2e/account-identity.spec.ts](../tests/e2e/account-identity.spec.ts), [tests/e2e/team-invitations.spec.ts](../tests/e2e/team-invitations.spec.ts), [tests/e2e/template-images.spec.ts](../tests/e2e/template-images.spec.ts), [tests/preview-e2e/theme.spec.ts](../tests/preview-e2e/theme.spec.ts), [tests/e2e/personal-appearance.spec.ts](../tests/e2e/personal-appearance.spec.ts), [tests/e2e/personal-document-performance.spec.ts](../tests/e2e/personal-document-performance.spec.ts), [tests/belvedere-e2e/control-tower.spec.ts](../tests/belvedere-e2e/control-tower.spec.ts), [tests/e2e/pdf-validation.spec.ts](../tests/e2e/pdf-validation.spec.ts), [tests/e2e/workspace-route-performance.spec.ts](../tests/e2e/workspace-route-performance.spec.ts), [tests/preview-e2e/mobile-workspace.spec.ts](../tests/preview-e2e/mobile-workspace.spec.ts), [tests/e2e/locale-boundaries.spec.ts](../tests/e2e/locale-boundaries.spec.ts), [tests/e2e/login-entry.spec.ts](../tests/e2e/login-entry.spec.ts), [tests/e2e/studio-space.spec.ts](../tests/e2e/studio-space.spec.ts), [tests/unit/app-routes.test.ts](../tests/unit/app-routes.test.ts), [tests/e2e/personal-entry-race.spec.ts](../tests/e2e/personal-entry-race.spec.ts), [tests/unit/message-terminology.test.ts](../tests/unit/message-terminology.test.ts), [tests/unit/route-code-recovery.test.ts](../tests/unit/route-code-recovery.test.ts), [tests/unit/data-table-model.test.ts](../tests/unit/data-table-model.test.ts), [tests/preview-e2e/data-tables.spec.ts](../tests/preview-e2e/data-tables.spec.ts)
+**Tests:** [tests/unit/account.test.ts](../tests/unit/account.test.ts), [tests/integration/mobile.test.ts](../tests/integration/mobile.test.ts), [tests/preview-e2e/dashboard-v2.spec.ts](../tests/preview-e2e/dashboard-v2.spec.ts), [tests/e2e/dashboard-v2.spec.ts](../tests/e2e/dashboard-v2.spec.ts), [tests/e2e/protected-email.spec.ts](../tests/e2e/protected-email.spec.ts), [tests/e2e/account-identity.spec.ts](../tests/e2e/account-identity.spec.ts), [tests/e2e/team-invitations.spec.ts](../tests/e2e/team-invitations.spec.ts), [tests/e2e/template-images.spec.ts](../tests/e2e/template-images.spec.ts), [tests/preview-e2e/theme.spec.ts](../tests/preview-e2e/theme.spec.ts), [tests/e2e/personal-appearance.spec.ts](../tests/e2e/personal-appearance.spec.ts), [tests/e2e/personal-document-performance.spec.ts](../tests/e2e/personal-document-performance.spec.ts), [tests/belvedere-e2e/control-tower.spec.ts](../tests/belvedere-e2e/control-tower.spec.ts), [tests/e2e/pdf-validation.spec.ts](../tests/e2e/pdf-validation.spec.ts), [tests/e2e/workspace-route-performance.spec.ts](../tests/e2e/workspace-route-performance.spec.ts), [tests/preview-e2e/mobile-workspace.spec.ts](../tests/preview-e2e/mobile-workspace.spec.ts), [tests/e2e/locale-boundaries.spec.ts](../tests/e2e/locale-boundaries.spec.ts), [tests/e2e/login-entry.spec.ts](../tests/e2e/login-entry.spec.ts), [tests/e2e/studio-space.spec.ts](../tests/e2e/studio-space.spec.ts), [tests/unit/app-routes.test.ts](../tests/unit/app-routes.test.ts), [tests/e2e/personal-entry-race.spec.ts](../tests/e2e/personal-entry-race.spec.ts), [tests/unit/message-terminology.test.ts](../tests/unit/message-terminology.test.ts), [tests/unit/route-code-recovery.test.ts](../tests/unit/route-code-recovery.test.ts), [tests/unit/data-table-model.test.ts](../tests/unit/data-table-model.test.ts), [tests/preview-e2e/data-tables.spec.ts](../tests/preview-e2e/data-tables.spec.ts), [tests/unit/preview-data.test.ts](../tests/unit/preview-data.test.ts), [tests/unit/local-preview-scenarios.test.ts](../tests/unit/local-preview-scenarios.test.ts), [tests/unit/local-preview-personal.test.ts](../tests/unit/local-preview-personal.test.ts), [tests/unit/local-preview-controls.test.ts](../tests/unit/local-preview-controls.test.ts), [tests/local-preview-e2e/scenarios.spec.ts](../tests/local-preview-e2e/scenarios.spec.ts)
 
 
 
@@ -1007,10 +1010,11 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Session responses expose only canAccessBelvedere for shared application navigation, never a private slug or token; personal projection additionally checks the matching current workspace browser session/evidence
 - Canonical entry uses shared application/account controls, demand-loaded seven-view UI and interactive globe; observation filters never switch operational membership
 - All operational and chart-detail tables reuse shared column sorting and responsive presentation; server-paged lists preserve existing server search/filter/pagination and label local sorting as current-page only, while complete chart/monthly/service arrays use client search and pagination without new reads or platform authority
+- The loopback fictional platform account opens a separate GET/HEAD-only Belvedere fixture with seeded bounded pages, arithmetic totals and preserved locale; the default fixture remains compatible and no real platform access, credentials, provider or backend mutation is created
 
 **Contract:** [BELVEDERE.md](BELVEDERE.md) · **Implementation:** [apps/api/src/belvedere.ts](../apps/api/src/belvedere.ts)
 
-**Tests:** [tests/unit/belvedere.test.ts](../tests/unit/belvedere.test.ts), [tests/unit/belvedere-host.test.ts](../tests/unit/belvedere-host.test.ts), [tests/unit/auth-telemetry.test.ts](../tests/unit/auth-telemetry.test.ts), [tests/belvedere-e2e/control-tower.spec.ts](../tests/belvedere-e2e/control-tower.spec.ts), [tests/unit/belvedere-finance.test.ts](../tests/unit/belvedere-finance.test.ts), [tests/belvedere-e2e/locale.spec.ts](../tests/belvedere-e2e/locale.spec.ts), [tests/unit/belvedere-locale.test.ts](../tests/unit/belvedere-locale.test.ts), [tests/belvedere-e2e/canonical-session.spec.ts](../tests/belvedere-e2e/canonical-session.spec.ts)
+**Tests:** [tests/unit/belvedere.test.ts](../tests/unit/belvedere.test.ts), [tests/unit/belvedere-host.test.ts](../tests/unit/belvedere-host.test.ts), [tests/unit/auth-telemetry.test.ts](../tests/unit/auth-telemetry.test.ts), [tests/belvedere-e2e/control-tower.spec.ts](../tests/belvedere-e2e/control-tower.spec.ts), [tests/unit/belvedere-finance.test.ts](../tests/unit/belvedere-finance.test.ts), [tests/belvedere-e2e/locale.spec.ts](../tests/belvedere-e2e/locale.spec.ts), [tests/unit/belvedere-locale.test.ts](../tests/unit/belvedere-locale.test.ts), [tests/belvedere-e2e/canonical-session.spec.ts](../tests/belvedere-e2e/canonical-session.spec.ts), [tests/unit/local-belvedere.test.ts](../tests/unit/local-belvedere.test.ts)
 
 
 
@@ -1555,6 +1559,16 @@ Open an authorized operational list → search the loaded rows or use the existi
 **Failure/recovery:** Unloaded records are not silently fetched or included in local search. Changing controls resets the browser page, shrinking results clamps it, and empty results retain a clear-filters action. Loading/denial/error and account/tenant guards remain the owning page’s responsibility; no state persistence, new read scope, approval, send, paid action, mandate or REST/MCP/native capability is added.
 
 [Detailed contract](WEB_APPLICATIONS.md).
+
+### J43 · Local role and volume simulation
+
+**Actor:** Local developer using explicitly fictional browser profiles. **Branch:** DEV + public-preview + loopback only; interactive default and read-only virtual volumes are distinct; dedicated platform fixture has no real authority..
+
+Open Local simulation → select a fictional role or separate platform profile → choose a volume and seed → apply after any unsaved-work veto → inspect Correspondence, Studio and My documents → use the fictional platform link for read-only Belvedere → page/search/sort bounded metadata or reroll the reproducible scenario.
+
+**Failure/recovery:** Invalid seeds/counts/cursors, stale actors/scenarios and unsupported generated writes fail locally; no backend fallback. Logical billion-row counts qualify interface behavior only, never actual database throughput, authentication, receipt, approval or delivery.
+
+[Detailed contract](PUBLIC_PREVIEW.md).
 
 ## Required maintenance
 

@@ -214,7 +214,7 @@ export function GenerationDetail({
     return () => document.removeEventListener("visibilitychange", update);
   }, []);
   useEffect(() => {
-    if (!active) return;
+    if (isPublicPreview || !active) return;
     const timer = setInterval(() => {
       refreshJob();
       refreshResults();

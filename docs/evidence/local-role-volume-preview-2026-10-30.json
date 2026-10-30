@@ -1,0 +1,43 @@
+{
+  "qualification": "Local DEV loopback fixtures only; no real accounts, providers, backend performance, hosted authentication or delivery qualification.",
+  "baseCommit": "c89775c0eefbfcde4f628e10a25bfc380e06ec10",
+  "unitCommand": "vitest run preview-data local-preview-scenarios local-preview-personal local-preview-controls local-belvedere public-preview pdf-check-web data-table-model",
+  "unitTestsPassed": 121,
+  "browser": {
+    "startTime": "2026-10-30T18:45:52.529Z",
+    "duration": 29238.857,
+    "expected": 10,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "browserReportSha256": "5305653052bda3e345d302f018e39f76eb695bc7a55801ea48577b08a9018d7d",
+  "maximumLogicalRecordsPerCollection": 1000000000,
+  "maximumGeneratedRecordsPerPage": 50,
+  "fixturesReadOnlyAtVolume": true,
+  "productionControlsRequireAll": [
+    "DEV build",
+    "VITE_PUBLIC_PREVIEW=true",
+    "loopback browser origin"
+  ],
+  "sourceFingerprints": {
+    "apps/web/src/App.tsx": "6634b150a998b7cb7d5a0dbd5a5772f8e8601df46b59bc02821d1c332e81fe2c",
+    "apps/web/src/space-switcher.tsx": "dc7202a2d66743b0dd0852e53a860f9bdb4f99c462459145f9770a4cee98cbb7",
+    "apps/web/src/local-preview.ts": "a7a63e90175a878788ac19d94096690a16e6607956759b632701cbc6d5e1aeba",
+    "apps/web/src/local-preview-controls.tsx": "516704a99647b6978d9914a2ed493594727942949e21d1003c49e67e0c637241",
+    "apps/web/src/local-preview-controls.css": "b3493a0dd44c68e2471b27a83c797afa492f2da390247f53960b4446cdfe4524",
+    "apps/web/src/preview-data.ts": "54422b94650536ea82c7d13a827fb04552245b97dbd3047a4eceb0ddbd2390af",
+    "apps/web/src/preview.ts": "7ed1727298509fedad926b40449a21a68341c0d66cd7b03c16047854e9d9024c",
+    "apps/web/src/preview-studio.ts": "781be17285700519dcbe2229a4b6d3488fc8a5e60a9ad3df15e729c20d5ccc10",
+    "apps/web/src/preview-personal.ts": "eadca7095e545040c46f09d0e1e54a852b756956bbdca72db4462c1a01a62580",
+    "apps/web/src/personal-api.ts": "e50bbd43d502ed0108561b1b99c83e0e04797bd66fa94261d8aeb5b196cbf341",
+    "apps/web/src/document-studio.tsx": "3515cf1a1553ff991ea9a37f8d3f67029286656eef82ec0a5bfc9c46e4088526",
+    "scripts/belvedere-preview.mjs": "6db44cae39cb231371a2a89c1112457708a8739347f11f973fe03c7862ad1719",
+    "tests/fixtures/local-belvedere.ts": "476a6d17591b0aad3c2bdea039cb3b69bc49a4121d13d8f9b892921689923fc8"
+  },
+  "limits": [
+    "Logical counts are not actual database or provider throughput.",
+    "The isolated platform fixture grants no production capability.",
+    "The normal public preview and production keep their actual authority gates."
+  ]
+}

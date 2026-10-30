@@ -125,6 +125,16 @@ CI and publication evidence are recorded separately in the
 [frontend performance contract](FRONTEND_PERFORMANCE.md); source implementation
 alone establishes no hosted, authenticated-provider or physical-device proof.
 
+## Loopback simulation profiles
+
+The [local simulation contract](PUBLIC_PREVIEW.md#local-roles-and-large-volume-fixtures--30-october-2026-candidate)
+owns fictional role/platform profiles, seeded bounded metadata and the separate
+read-only Belvédère fixture. The composition root loads the control bar only for
+DEV + public-preview + loopback. Shared API/personal adapters preserve actual
+production authority and never interpret fixture profiles as real accounts. A
+scenario change honours the existing unsaved-navigation veto and replaces the
+application identity rather than retaining previous account data.
+
 ## Exceptions are dated debt
 
 `importExceptions` and `designExceptions` in the manifest record what does not

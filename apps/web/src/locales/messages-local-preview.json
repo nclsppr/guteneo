@@ -1,0 +1,46 @@
+{
+  "Simulation locale": [
+    "Local simulation",
+    "Lokale Simulation",
+    "Lokal Simulatioun"
+  ],
+  "Compte de démonstration": ["Demo account", "Demokonto", "Demokonto"],
+  "Volume de données": ["Data volume", "Datenmenge", "Datevolumen"],
+  "Graine": ["Seed", "Startwert", "Startwäert"],
+  "Appliquer le scénario": [
+    "Apply scenario",
+    "Szenario anwenden",
+    "Szenario uwenden"
+  ],
+  "Nouvelles données aléatoires": [
+    "New random data",
+    "Neue Zufallsdaten",
+    "Nei zoufälleg Donnéeën"
+  ],
+  "Par défaut · interactif": [
+    "Interactive default",
+    "Interaktiver Standard",
+    "Interaktive Standard"
+  ],
+  "Petit": ["Small", "Klein", "Kleng"],
+  "Important": ["Large", "Groß", "Grouss"],
+  "Très important": ["Huge", "Sehr groß", "Ganz grouss"],
+  "Extrême": ["Extreme", "Extrem", "Extrem"],
+  "jusqu’à {0}": ["up to {0}", "bis zu {0}", "bis zu {0}"],
+  "Les volumes générés sont virtuels et en lecture seule, avec au plus 50 lignes par page ; le scénario par défaut reste interactif.": [
+    "Generated volumes are virtual and read-only, with up to 50 rows per page; the default scenario stays interactive.",
+    "Generierte Datenmengen sind virtuell und schreibgeschützt, mit höchstens 50 Zeilen pro Seite; das Standardszenario bleibt interaktiv.",
+    "Déi generéiert Datevolume si virtuell an nëmme liesbar, mat héchstens 50 Zeile pro Säit; de Standardszenario bleift interaktiv."
+  ],
+  "Données du scénario": [
+    "Scenario records",
+    "Szenariodatensätze",
+    "Szenariodonnéeën"
+  ],
+  "Jeux de données": ["Datasets", "Datensätze", "Datesätz"],
+  "Impossible d’appliquer le scénario local. Réessayez.": [
+    "The local scenario could not be applied. Try again.",
+    "Das lokale Szenario konnte nicht angewendet werden. Versuchen Sie es erneut.",
+    "De lokale Szenario konnt net ugewannt ginn. Probéiert nach eng Kéier."
+  ]
+}
