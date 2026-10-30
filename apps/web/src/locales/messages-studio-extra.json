@@ -188,5 +188,10 @@
     "I reviewed the row exclusions for this file.",
     "Ich habe die ausgeschlossenen Zeilen für diese Datei geprüft.",
     "Ech hunn déi ausgeschlosse Reie fir dëse Fichier iwwerpréift."
+  ],
+  "La génération crée un nouveau PDF pour ce seul document ; la génération d’origine et ses PDF restent inchangés. Pour modifier la mise en page ou le texte de tous les documents, créez une nouvelle version du modèle.": [
+    "Generating creates a new PDF for this document only; the original generation and its PDFs stay unchanged. To change the layout or text of every document, create a new template version.",
+    "Die Erzeugung erstellt nur für dieses Dokument ein neues PDF; die ursprüngliche Generierung und ihre PDFs bleiben unverändert. Um Layout oder Text aller Dokumente zu ändern, erstellen Sie eine neue Vorlagenversion.",
+    "D’Generéierung mécht en neit PDF just fir dëst Dokument; déi ursprénglech Generéierung an hir PDFe bleiwen onverännert. Fir de Layout oder den Text vun allen Dokumenter z’änneren, maacht eng nei Versioun vun der Virlag."
   ]
 }

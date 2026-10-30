@@ -751,5 +751,16 @@
     "Leave this preparation and lose unsaved changes?",
     "Diese Vorbereitung verlassen und ungespeicherte Änderungen verlieren?",
     "Dës Virbereedung verloossen an net gespäichert Ännerunge verléieren?"
+  ],
+  "Un seul destinataire": ["One recipient", "Ein Empfänger", "Een Empfänger"],
+  "Depuis les données de chaque document": [
+    "From each document’s data",
+    "Aus den Daten jedes Dokuments",
+    "Aus den Donnéeë vun all Dokument"
+  ],
+  "Rien n’est envoyé : les approbateurs de cet espace de travail peuvent consulter ces PDF pour examiner chaque demande, et les canaux ou tarifs indisponibles restent bloqués.": [
+    "Nothing is sent: approvers in this workspace can view these PDFs to review each request, and unavailable channels or rates stay blocked.",
+    "Es wird nichts versendet: Die Freigabeberechtigten dieses Arbeitsbereichs können diese PDFs einsehen, um jede Anfrage zu prüfen, und nicht verfügbare Kanäle oder Tarife bleiben gesperrt.",
+    "Et gëtt näischt verschéckt: d’Approbateure vun dësem Aarbechtsberäich kënnen dës PDFen consultéieren, fir all Ufro ze iwwerpréiwen, an net disponibel Kanäl oder Tariffer bleiwe gespaart."
   ]
 }

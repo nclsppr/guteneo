@@ -12,6 +12,7 @@ import type {
   GenerationResultView,
   DistributionView,
   Page,
+  TemplateView,
 } from "../../../packages/contracts/src/template-workflow";
 import {
   api,
@@ -243,6 +244,9 @@ function DistributionPreparation({
     selection.valid,
   );
   const returnTo = generationSelectionRoute(jobId, selection.recordIds);
+  const template = useResource<TemplateView>(
+    source.data ? `/templates/${source.data.templateId}` : null,
+  );
   const active =
     source.data && ["queued", "running"].includes(source.data.state);
   return (
@@ -257,7 +261,7 @@ function DistributionPreparation({
         title={msg("Prepare distribution (") + selection.recordIds.length + ")"}
         intro={
           source.data
-            ? `${msg("Template v")}${source.data.templateVersion} · ${date(source.data.createdAt)}`
+            ? `${template.data ? `${template.data.name} · v${source.data.templateVersion}` : msg("Template v") + source.data.templateVersion} · ${date(source.data.createdAt)}`
             : undefined
         }
       />
@@ -293,7 +297,6 @@ function DistributionPreparation({
                 ]),
               )}
               recordLabels={selected.labels ?? {}}
-              onClose={() => go(returnTo)}
             />
           </>
         )}
@@ -366,13 +369,11 @@ function DistributionForm({
   recordIds,
   recordDocuments,
   recordLabels,
-  onClose,
 }: {
   jobId: string;
   recordIds: string[];
   recordDocuments: Record<string, string>;
   recordLabels: Record<string, string>;
-  onClose: () => void;
 }) {
   const currentVisit = useCurrentVisit();
   const [destinations, setDestinations] = useState<Destination[]>([
@@ -579,11 +580,6 @@ function DistributionForm({
   }
   return (
     <form className="distribution-section" onSubmit={(e) => void prepare(e)}>
-      <div className="section-toolbar">
-        <button className="text-button" type="button" onClick={onClose}>
-          {msg("Close ")}
-        </button>
-      </div>
       <p>
         {recordIds.length} {msg("PDFs selected · ")}
         {associationCount}{" "}
@@ -693,10 +689,8 @@ function DistributionForm({
                   })
                 }
               >
-                <option value="common">
-                  {msg("Same recipient for these documents ")}
-                </option>
-                <option value="data">{msg("Recipient from the data")}</option>
+                <option value="common">{msg("One recipient")}</option>
+                <option value="data">{msg("From each document’s data")}</option>
               </select>
             </Field>
             {destination.channel !== "data" && (
@@ -949,16 +943,20 @@ function DistributionForm({
               </Field>
             </>
           )}
-          <Field label={msg("Limit per send (euro cents)")}>
+          {/* Euros on screen; integer cents in the request. */}
+          <Field label={msg("Cap per delivery (€)")}>
             <input
               type="number"
+              inputMode="decimal"
               min={0}
-              max={1000000}
-              step={1}
+              max={10000}
+              step={0.01}
               required
-              value={destination.ceilingMinor}
+              value={destination.ceilingMinor / 100}
               onChange={(e) =>
-                update(destination.id, { ceilingMinor: Number(e.target.value) })
+                update(destination.id, {
+                  ceilingMinor: Math.round(Number(e.target.value) * 100),
+                })
               }
             />
           </Field>
@@ -1023,22 +1021,21 @@ function DistributionForm({
             );
           })}
         </ul>
-        <p className="notice warning">
-          {msg(
-            "Preparing freezes this whole generation batch, including PDFs not selected here: their failures can no longer be retried in it. Retry them first, or correct them in a new generation.",
-          )}
-        </p>
+        <div className="notice warning">
+          <div>
+            <p>
+              {msg(
+                "Preparing freezes this whole generation batch, including PDFs not selected here: their failures can no longer be retried in it. Retry them first, or correct them in a new generation.",
+              )}
+            </p>
+            <p>
+              {msg(
+                "Nothing is sent: approvers in this workspace can view these PDFs to review each request, and unavailable channels or rates stay blocked.",
+              )}
+            </p>
+          </div>
+        </div>
       </section>
-      <p className="field-hint">
-        {msg(
-          "Preparing the distribution lets authorized approvers in this workspace view the selected PDFs to review these requests. It does not send anything.",
-        )}
-      </p>
-      <p className="field-hint">
-        {msg(
-          "Preparation is not approval. Unavailable channels or rates remain blocked with an explicit error. ",
-        )}
-      </p>
       <button className="button primary" disabled={action.pending}>
         {msg("Prepare pairs and quotes ")}
       </button>

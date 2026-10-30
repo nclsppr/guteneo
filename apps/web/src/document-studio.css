@@ -252,10 +252,18 @@
 .studio-generation-results th[scope="row"] {
   min-width: 180px;
 }
+/* The person's name leads; subject and reference follow in plain text. */
+.studio-generation-results th[scope="row"] div {
+  font-weight: 400;
+}
+.studio-generation-results th[scope="row"] .studio-meta {
+  color: var(--muted);
+  font-size: 13px;
+}
 .studio-generation-actions {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-start;
+  align-items: baseline;
   gap: 8px 12px;
   min-width: 160px;
 }

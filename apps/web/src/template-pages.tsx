@@ -493,8 +493,13 @@ function GenerationDataCorrection({
       </a>
       <PageHeading
         title={msg("Correct data")}
-        intro={`${template.name} · ${msg("Template v")}${source.templateVersion}`}
+        intro={`${record.name ?? record.recordId} · ${template.name} · v${source.templateVersion}`}
       />
+      <p className="field-hint">
+        {msg(
+          "Generating creates a new PDF for this document only; the original generation and its PDFs stay unchanged. To change the layout or text of every document, create a new template version.",
+        )}
+      </p>
       <ErrorNotice error={action.error} />
       <form
         className="studio-section"

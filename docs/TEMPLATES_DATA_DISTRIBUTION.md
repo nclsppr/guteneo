@@ -402,7 +402,7 @@ and measure no real model quality. No AI Gateway or EU-residency promise is clai
 2. Move a Designer block, add a business variable, save revision and publish. In Data and generation, fill fields, inspect server PDF or generate without sending.
 3. In My data import `tests/fixtures/datasets/clients-reordered.csv`; choose target template, client key and business columns; validate every row/count and correct anomalies first.
 4. For client/line-item data use `clients-articles.xlsx`, pre-header titles and two sheets. `examples/template-workflow/clients-articles.mapping.json` demonstrates validated sheet joins and explicit date/amount conventions.
-5. In Generations inspect PDFs/provenance, select ready results and Prepare distribution. Choose common recipients or data paths. Manifest/blockers remain readable; human approvals use existing dispatch flow. Automated qualification stops before approval/sending.
+5. In Generations (each named after its template and version, with its state) inspect PDFs/provenance, select ready results and Prepare distribution; the per-send cap is entered in euros and sent in integer cents. Choose common recipients or data paths. Manifest/blockers remain readable; human approvals use existing dispatch flow. Automated qualification stops before approval/sending.
 
 ### API and assistant
 
