@@ -81,6 +81,9 @@ export type FaxUsageTariff = {
   route_qualification?: "provider_verified" | "operator_test";
   execution_scope?: "live" | "review_prepare_only";
   review_authority_id?: string | null;
+  /** Only populated from the current, restricted reviewer access view. */
+  continuous_review_access_id?: string | null;
+  continuous_review_access_created_at?: string | null;
   evidence_observed_at?: string | null;
   operator_authorization_reference?: string | null;
   operator_test_ceiling_minor?: number | null;
@@ -117,6 +120,7 @@ export type FaxUsageQuote = {
   dispatch_id: string;
   organization_id: string;
   tariff_id: string;
+  review_access_id?: string | null;
   fingerprint: string;
   dispatch_fingerprint: string;
   input_json: string;
@@ -251,21 +255,31 @@ export async function resolveFaxUsageTariff(
     )
     .bind(organizationId, senderId)
     .first<{ address: string }>();
-  const reviewAuthorized =
-    t?.execution_scope !== "review_prepare_only" ||
-    !!(await db
-      .prepare(
-        "SELECT 1 FROM valid_review_fax_usage_tariffs WHERE organization_id=? AND id=? AND review_recipient_phone=?",
-      )
-      .bind(organizationId, t.id, number)
-      .first());
+  const reviewAccess =
+    t?.execution_scope === "review_prepare_only"
+      ? await db
+          .prepare(
+            "SELECT * FROM valid_review_fax_usage_tariffs WHERE organization_id=? AND id=? AND review_recipient_phone=?",
+          )
+          .bind(organizationId, t.id, number)
+          .first<{
+            continuous_review_access_id?: string | null;
+            continuous_review_access_created_at?: string | null;
+          }>()
+      : null;
+  const continuous = !!reviewAccess?.continuous_review_access_id;
   if (
     !t ||
-    !reviewAuthorized ||
+    (t.execution_scope === "review_prepare_only" && !reviewAccess) ||
+    (continuous &&
+      (!id.safeParse(reviewAccess!.continuous_review_access_id).success ||
+        !timestamp.safeParse(reviewAccess!.continuous_review_access_created_at)
+          .success ||
+        reviewAccess!.continuous_review_access_created_at! > now)) ||
     t.status !== "qualified" ||
     !sender ||
     t.valid_from > now ||
-    t.expires_at <= now ||
+    (!continuous && t.expires_at <= now) ||
     t.route_allowed !== 1 ||
     (t.destination_category !== "fixed" && !operatorRouteTest(t)) ||
     t.currency !== "USD" ||
@@ -293,7 +307,19 @@ export async function resolveFaxUsageTariff(
         t.sender_country_code === t.destination_country_code)
   )
     throw unavailable();
-  return { ...t, pricing_version: 3, ...faxUsageEstimate(t, pages) };
+  return {
+    ...t,
+    ...(continuous
+      ? {
+          continuous_review_access_id:
+            reviewAccess!.continuous_review_access_id,
+          continuous_review_access_created_at:
+            reviewAccess!.continuous_review_access_created_at,
+        }
+      : {}),
+    pricing_version: 3,
+    ...faxUsageEstimate(t, pages),
+  };
 }
 
 function material(q: FaxUsageQuote) {
@@ -301,11 +327,13 @@ function material(q: FaxUsageQuote) {
   const {
     fingerprint: _fingerprint,
     dispatch_fingerprint: _dispatch,
+    review_access_id,
     ...value
   } = q;
   void _fingerprint;
   void _dispatch;
-  return value;
+  // D1 adds NULL for legacy rows after migration. Keep their original hashes.
+  return review_access_id == null ? value : { ...value, review_access_id };
 }
 export async function makeFaxUsageQuote(
   dispatchId: string,
@@ -331,6 +359,9 @@ export async function makeFaxUsageQuote(
     dispatch_id: dispatchId,
     organization_id: organizationId,
     tariff_id: t.id,
+    ...(t.continuous_review_access_id
+      ? { review_access_id: t.continuous_review_access_id }
+      : {}),
     fingerprint: "",
     dispatch_fingerprint: "",
     input_json: input,
@@ -355,8 +386,8 @@ export async function makeFaxUsageQuote(
     created_at: now,
     expires_at: new Date(
       Math.min(
-        Date.parse(t.expires_at),
-        Date.parse(now) + t.quote_ttl_seconds * 1000,
+        t.continuous_review_access_id ? Infinity : Date.parse(t.expires_at),
+        Date.parse(now) + Math.min(t.quote_ttl_seconds, 900) * 1000,
       ),
     ).toISOString(),
   };
@@ -633,7 +664,12 @@ export async function readFaxPricingBatch(
         currency: "EUR",
         basis: "qualified_usage_ex_tax",
         ...(q.execution_scope === "review_prepare_only"
-          ? { executionScope: "review_prepare_only" as const }
+          ? {
+              executionScope: "review_prepare_only" as const,
+              ...(q.review_access_id
+                ? { referenceBasis: "archived_review_reference" as const }
+                : {}),
+            }
           : {}),
         ...(q.route_qualification === "operator_test"
           ? {

@@ -193,23 +193,52 @@ test("XML records determine each PDF channel and recipient without sending", asy
     browserName,
     isMobile,
   );
-  await chooseModel(page, model.id);
-  await page
-    .getByLabel("Clé du document / client", { exact: true })
-    .selectOption("id");
-  for (const [target, source] of Object.entries({
-    name: "name",
-    "delivery.channel": "channel",
-    "delivery.phone": "phone",
-    "delivery.email": "email",
-  })) {
+  let releaseTemplate!: () => void;
+  let announceTemplateRead!: () => void;
+  const templateGate = new Promise<void>((resolve) => {
+    releaseTemplate = resolve;
+  });
+  const templateRead = new Promise<void>((resolve) => {
+    announceTemplateRead = resolve;
+  });
+  await page.route(
+    (url) => url.pathname === `/api/templates/${model.id}`,
+    async (route) => {
+      if (route.request().method() === "GET") {
+        announceTemplateRead();
+        await templateGate;
+      }
+      await route.continue();
+    },
+  );
+  const validate = page.getByRole("button", {
+    name: "Valider toutes les lignes",
+    exact: true,
+  });
+  try {
+    await chooseModel(page, model.id);
+    await templateRead;
     await page
-      .getByLabel(`Colonne pour ${target}`, { exact: true })
-      .selectOption(source);
+      .getByLabel("Clé du document / client", { exact: true })
+      .selectOption("id");
+    for (const [target, source] of Object.entries({
+      name: "name",
+      "delivery.channel": "channel",
+      "delivery.phone": "phone",
+      "delivery.email": "email",
+    })) {
+      await page
+        .getByLabel(`Colonne pour ${target}`, { exact: true })
+        .selectOption(source);
+    }
+    // The list already supplies the editable fields, but validation needs the
+    // independently loaded selected template. No timing assumption covers it.
+    await expect(validate).toBeDisabled();
+  } finally {
+    releaseTemplate();
   }
-  await page
-    .getByRole("button", { name: "Valider toutes les lignes", exact: true })
-    .click();
+  await expect(validate).toBeEnabled();
+  await validate.click();
   await expect(page.getByText(/Correspondance validée/)).toBeVisible();
   await page
     .getByRole("button", { name: "Générer 2 PDF sans envoi", exact: true })

@@ -38,6 +38,8 @@ const guide = {
   billing: "/architecture/dispatch-lifecycle/",
   assistants: "/integrations/mcp/",
   "reviewer-oauth": "/integrations/mcp/",
+  "continuous-review": "/engineering/provider-maintenance/",
+  "fax-tariff-maintenance": "/engineering/provider-maintenance/",
   native: "/getting-started/repository-map/",
   public: "/engineering/contributing/",
   dashboard: "/engineering/contributing/",

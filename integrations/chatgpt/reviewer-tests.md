@@ -1,5 +1,32 @@
 # ChatGPT submission qualification
 
+## Continuous reviewer preparation — 30 October 2026 candidate
+
+The account and its private credentials are separate from quote validity. The
+creation script schedules no account/password expiry. The exact restricted
+reviewer can receive one explicit continuous preparation access record under
+[the maintained contract](../../docs/REVIEW_FAX_PREPARATION.md), removing weekly
+reference and thirty-day authority revalidation for P5. Its archived reference is
+explicitly labelled; each quote remains short-lived and unsendable. Quote expiry
+uses an explicit same-input renewal, never a send or fabricated status.
+
+Migration, application publication, reviewed one-time access installation and
+all current account/tenant guards must be verified before using this candidate.
+Before activation, the legacy bounded path below still expires as recorded.
+A different account, OAuth connection, successful scan or earlier execution does
+not inherit that proof. Credentials belong only in private storage and the
+portal's secure fields. Normal login, exact-client OAuth refresh and revocation
+remain independently qualified; continuous reference access is not an infinite
+OAuth token or an expert mandate.
+
+Keep the original five positive cases P1/P2/P3/P5/P6 and three negative cases
+R1/R2/R3. P5 must report the archived reference basis when continuous access is
+used, keep the actual controlled recipient private and show the returned estimate,
+separate ceiling and quote expiry. Verify no approval, attempt or reserved credit.
+A valid continuous registration avoids a recurring provider-source revalidation
+task; it never turns the quote into live permission to send. Historical test
+statuses below remain dated until the saved version is actually exercised.
+
 This file defines executable cases and authority boundaries. The
 [marketplace evidence record](../../docs/CHATGPT_MARKETPLACE.md) owns dated portal,
 scan, archive and client observations; the

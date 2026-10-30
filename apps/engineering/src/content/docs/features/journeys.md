@@ -31,7 +31,7 @@ Open members → invite individually or preview CSV → select role and supervis
 
 Import/reuse the exact ready PDF → collect E.164 recipient/sender/ceiling → obtain the actual quote → show estimate and separate ceiling → human browser approval or existing expert review → confirm → track delivery and usage settlement separately.
 
-**Failure and recovery:** Keep reviewer quotes unsendable. Expired operator tariffs require a separately authorized scoped replacement after matching runtime/SQL support; old price evidence stays dated and no mandate is renewed. Renew only an eligible prepared unattempted quote with exact original parameters and stable key, then obtain fresh approval. Unknown submissions require reconciliation, never resend.
+**Failure and recovery:** Registered sendable references refresh automatically only after genuine source/ownership reads; source failure keeps expired pricing closed and does not extend route authority. Continuous reviewer access uses its exact restricted account and labelled archived reference, never sending. Renew only an eligible prepared unattempted quote with exact original parameters and stable key, then obtain fresh approval where sending is permitted. Unknown submissions require reconciliation, never resend.
 
 ## J04: Prepare and send postal mail
 
@@ -61,9 +61,9 @@ Read authoring guide or a synthetic example → create/private-copy or import DO
 
 **Actor:** Preparer owning the private source · **Branch:** Create
 
-Choose a published template → import CSV/XLSX/XML/JSON while preserving that choice → verify/profile exact original → define versioned field mapping and validate each row/cell → generate distinct PDFs → inspect business name/subject/reference and provenance. In the browser, replace compatible source data without losing the mapping; preserve only verifiable exclusions and explicitly review unmatched rows. Correct one result with its exact historical template version, or explicitly create a new template version; each correction creates a new generation and leaves prior PDF bytes/hashes and prepared manifests intact.
+Choose a published template → import CSV/XLSX/XML/JSON while preserving that choice → verify/profile exact original → define versioned field mapping → wait for the exact selected template payload before browser validation → validate each row/cell → generate distinct PDFs → inspect business name/subject/reference and provenance. In the browser, replace compatible source data without losing the mapping; preserve only verifiable exclusions and explicitly review unmatched rows. Correct one result with its exact historical template version, or explicitly create a new template version; each correction creates a new generation and leaves prior PDF bytes/hashes and prepared manifests intact.
 
-**Failure and recovery:** Resume the same original after transient analysis failure. Resolve mapping/type/join issues explicitly. Generation completion does not establish PDF readiness; follow the bounded security-analysis refresh and review retryable or blocked results explicitly. AI is optional and separately consented; generation creates no dispatch or credit reservation. An accepted cold-route transition temporarily fences the old editor against new input until commit; existing unsaved-work vetoes still run before acceptance. Private correction input is browser-owner-only under current membership; template sharing and dispatch review do not expose it. Query changes and Back/Forward cannot reuse another record’s unsaved data; leaving an unsaved correction requires explicit review.
+**Failure and recovery:** Resume the same original after transient analysis failure. Keep browser validation unavailable while the selected template payload is loading or failed; selecting an identifier grants no readiness or new authority. Resolve mapping/type/join issues explicitly. Generation completion does not establish PDF readiness; follow the bounded security-analysis refresh and review retryable or blocked results explicitly. AI is optional and separately consented; generation creates no dispatch or credit reservation. An accepted cold-route transition temporarily fences the old editor against new input until commit; existing unsaved-work vetoes still run before acceptance. Private correction input is browser-owner-only under current membership; template sharing and dispatch review do not expose it. Query changes and Back/Forward cannot reuse another record’s unsaved data; leaving an unsaved correction requires explicit review.
 
 ## J08: Distribute a PDF batch
 
@@ -320,3 +320,19 @@ Read repository instructions and the cloud-development contract → verify the s
 Run the complete PR pipeline → independently account for all current test identities → record source, policy, runtime and immutable proof data → merge after review → qualify exact main/base/head/tree and fresh complete proof or run full → execute fresh dependency/advisory checks → independently recheck the final gate → publish only authorized clean current main and verify served bytes.
 
 **Failure and recovery:** Missing, stale, foreign, changed, incomplete or inaccessible evidence selects full tests. Drift after reuse selection fails final verification. Artifact corruption or path escapes refuse reconstruction. Dated hosted full-run timings and transfer measurements remain separate from an observed successful reused main promotion. No automatic retry, production credential, merge, send, provider activation or claim of human approval.
+
+## J40: Keep reviewer preparation available
+
+**Actor:** Explicitly authorized platform operator for setup; exact restricted reviewer for preparation · **Branch:** Operations
+
+Inspect the existing archived review tariff, original authority and exact restricted sole-member account → fully roll out the compatible reader and drain prior work before applying the schema → review a private continuous-access plan → explicitly install its digest-bound access once → authenticate the intended account/client → import a synthetic exact PDF → prepare and track the review fax → explicitly renew an eligible expired quote when needed.
+
+**Failure and recovery:** No periodic tariff/authority revalidation after continuous setup. Revocation, membership/identity/sender/recipient drift, enabled fax or expert policy and a missing scan close access without legacy fallback. Quotes remain unsendable and short-lived; do not treat an archive as a current supplier price or reuse another client’s OAuth qualification.
+
+## J41: Maintain live fax references automatically
+
+**Actor:** Explicitly authorized platform operator for registration; scheduled backend for bounded refresh · **Branch:** Operations
+
+Review the supported local Luxembourg fixed +3524 operator-test route, empty options, unchanged live page limit up to ten pages, EUR2 ceiling and independent pilot deadline → fully roll out the compatible reader and drain prior work before schema installation → qualify actual server-key catalog access through the bounded private service binding → register its exact global-conversational public commercial catalog binding once using private files → scheduler claims one due route → resolve the current CSV link with the fixed Telnyx API endpoint → reread genuine official source bytes and current provider ownership → validate route/FX and current registration → defer if a quote remains active → atomically insert a new immutable revision and retire only its exact predecessor → record coarse maintenance results.
+
+**Failure and recovery:** Reject ambiguous/stale sources, identity drift, expired independent operator authority, lost leases and concurrent predecessor changes. Preserve historical quotes and source dates. Back off on failure; existing valid pricing may continue only under its original bounds, while expired pricing fails closed. No sending, mandate, consent or paid infrastructure is created.

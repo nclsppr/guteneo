@@ -125,6 +125,7 @@ import { postalBrowserAuthority, postalMcpAuthority } from "./postal-authority";
 import { expertPostalAuthority } from "./expert-approval";
 import { getExpertStatus } from "./expert-status";
 import { postalReviewInputSchema } from "../../../packages/contracts/src/postal-review";
+import { refreshFaxTariffs } from "./fax-tariff-refresh";
 
 import {
   startObservation,
@@ -1598,6 +1599,10 @@ export default {
       stage = "documents";
       await expirePdfValidations(env);
       await cleanupMcpAppDocumentUploads(env);
+      // Price maintenance reads registered public references and provider state;
+      // it creates no dispatch, approval, reservation or provider submission.
+      stage = "tariffs";
+      Object.assign(counts, await refreshFaxTariffs(env));
       stage = "identity";
       if (env.ENVIRONMENT !== "local" && !identityConfigured(env)) {
         observation.setCode("IDENTITY_NOT_CONFIGURED");

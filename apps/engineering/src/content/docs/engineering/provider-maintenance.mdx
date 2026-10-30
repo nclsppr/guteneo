@@ -8,7 +8,9 @@ sidebar:
 Provider configuration and prices change independently of Guteneo releases.
 Maintenance therefore tracks both the implementation contract and fresh evidence
 for the exact account, route, currency and validity window. An expired or unknown
-price closes new preparation or acceptance; it never becomes zero cost.
+sendable price closes new preparation or acceptance; it never becomes zero cost.
+The separately restricted reviewer path can use an explicitly labelled archive,
+as described below.
 
 This is the maintenance model, not a list of current live rates. The server's
 qualified catalog/quote and private dated evidence own actual amounts and
@@ -113,6 +115,65 @@ Store source date/hash, qualification date and expiry separately. A reinspection
 must not rewrite the historical date of an old price or exchange-rate reference.
 A commercial fixed FX reference is not a live currency quote. Unknown, absent,
 false, zero and provider `null` have different meanings.
+
+## Continuous review and automatic commercial references
+
+The dedicated restricted reviewer can use an explicitly registered continuous
+preparation reference. It remains an archived reference, labelled separately from
+current provider prices, and grants no approval, reservation or sending path.
+Current identity, sole-member tenancy, sender/recipient and no-send guards remain
+mandatory. Each exact quote keeps its short lifetime; revocation closes access
+without falling back to a temporary authority. This removes recurring manual
+reference validation from the reviewer journey without extending live authority.
+The archived-reference notice is localized in the shared four-language message
+catalog; REST and MCP preserve the actual historical FX date and reference basis.
+Fully roll out the compatible reader and drain prior in-flight work before adding
+the nullable quote pointer. Bounded old-schema reads and omission of null from
+historical hash material preserve existing quotes during this staged release;
+the schema and explicit registrations still gate all new access.
+
+Sendable routes use a separate registered commercial-source maintenance path.
+The existing scheduler considers one due route per execution, obtains genuine
+bounded source reads and current provider-ownership evidence, and creates a new
+immutable revision. A daily target, lease/backoff and active-quote deferral keep
+work bounded and preserve approved prices. An unavailable or ambiguous source
+leaves old history intact; an expired reference closes preparation until a valid
+replacement is obtained. No timer enables a channel or extends an operator-test
+route's independently bounded authority.
+
+Each refresh authenticates to the fixed Telnyx catalog endpoint and resolves the
+current global-conversational CSV link. The initial registered export is only an
+anchor; its versioned URL is never a fallback when current discovery fails.
+The credential stays on the fixed Telnyx API host. Public CSV/page and ECB reads
+receive no API credential. Catalog response, selected URL and actual source bytes
+are bound into immutable evidence before the guarded replacement.
+
+```mermaid
+flowchart LR
+  Cron[Existing scheduled handler] --> Due{Registered route due?}
+  Due -->|Yes| Catalog[Authenticated current catalog GET]
+  Catalog --> Reads[Current CSV, fax fee, ECB and provider ownership]
+  Reads --> Guard{Exact predecessor and no active quote?}
+  Guard -->|Yes| Revision[Atomic immutable revision]
+  Guard -->|No| Defer[Defer without replacement]
+```
+
+The selected basis is a **public commercial reference**, not a negotiated
+supplier price or proof of a freshly observed profile-to-CSV UI association.
+Original source and association dates retain their meaning. Maintenance records
+only coarse refreshed, failed and deferred results, with no content, recipients,
+credentials or account identifiers. The source candidate requires additive schema,
+explicit private registrations and hosted verification before activation can be
+claimed. Local tests and a portal tool scan do not establish those outcomes.
+The discovery endpoint was observed in Telnyx's official portal client on
+30 October 2026; an anonymous GET returned 401. Its standard server-key access
+and actual current response remain unqualified until hosted verification. The
+endpoint has no established public stable contract: a permission or schema
+change closes refresh and requires integration maintenance.
+Before registering a route, the operator can qualify the fixed catalog GET
+through the existing authenticated same-account service binding. This bounded
+private RPC exposes no credential, installs no price and has no public HTTP or
+MCP equivalent. It keeps the server-held key on the server during qualification.
 
 ## Telnyx: qualify the route and the complete pricing basis
 

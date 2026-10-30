@@ -20,6 +20,7 @@ const phone = "+35240000000"; // Synthetic fixture; never submitted to a provide
 let mf: Miniflare, db: D1Database;
 let before: Record<string, unknown>, rollback: Record<string, unknown>;
 let beforeSchema: unknown[], rollbackSchema: unknown[];
+let migrated: Record<string, unknown>, migratedSchema: unknown[];
 let old: Awaited<ReturnType<typeof createFaxUsageFixture>>;
 let oldDispatchId: string;
 const tables = [
@@ -166,6 +167,14 @@ beforeAll(async () => {
   rollback = await snapshot();
   rollbackSchema = await schema();
   await sql(migration);
+  migrated = await snapshot();
+  migratedSchema = await schema();
+  // Preserve the exact 0064 upgrade proof above, then use the complete current
+  // schema for every following call into the current production runtime.
+  for (const name of readdirSync(directory)
+    .filter((name) => name.endsWith(".sql") && name > migrationName)
+    .sort())
+    await sql(readFileSync(new URL(name, directory), "utf8"));
 });
 afterAll(async () => {
   await mf?.dispose();
@@ -177,12 +186,12 @@ describe("bounded +3524 pilot extension — populated isolated D1", () => {
     expect((before.welcome_credit_reservations as unknown[]).length).toBe(1);
     expect(rollback).toEqual(before);
     expect(rollbackSchema).toEqual(beforeSchema);
-    expect(await snapshot()).toEqual(before);
+    expect(migrated).toEqual(before);
     const unchanged = (rows: unknown[]) =>
       rows.filter(
         (row) => (row as { name: string }).name !== "trusted_fax_usage_tariffs",
       );
-    expect(unchanged(await schema())).toEqual(unchanged(beforeSchema));
+    expect(unchanged(migratedSchema)).toEqual(unchanged(beforeSchema));
     expect(
       (await db.prepare("PRAGMA foreign_key_check").all()).results,
     ).toEqual([]);

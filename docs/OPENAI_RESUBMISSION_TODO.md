@@ -1,28 +1,74 @@
 # Guteneo OpenAI resubmission follow-up — 23 October 2026
 
-This follow-up concerns the existing plugin `app-6ab05fbae9a881918dc6ee4e2f235d93` and server `https://guteneo.com/mcp`. Resume this identity and its actual state each session. Do not create a duplicate to bypass an unavailable control. Credentials, secrets, recipients, signed URLs and private review data remain outside this file and the repository.
+## Current request and new draft — 30 October 2026
 
-## Established state
+The user explicitly requested a **new** Guteneo plugin and a new submission using
+the latest release. This supersedes the earlier instruction against duplicating
+the unavailable legacy entry for this requested action only. The old rejected
+entry is retained; its history and previous support correspondence remain below.
 
-| Layer | Evidence of 23 October | Limit |
-| --- | --- | --- |
-| Rejection reason | Tool-annotation notification requesting explicit booleans and rationales | The notification identified no exact tool or rejected snapshot |
-| Correction | PR #65 merged, commit `5b5041ab04b235b57fccfa60814e7efa5683e17d` | The correction does not establish review approval |
-| Main CI | 13 checks passed, [run 39914778387](https://github.com/nclsppr/guteneo/actions/runs/39914778387) | Local/automated evidence for the commit, separate from production |
-| Application | Release succeeded, Worker version `0334ff69-f89e-419c-ba11-6cf4d035cd88`; unchanged full verification passed at 08:11:41 UTC: 266 exact assets, correct robots and headers | Authenticated MCP catalog still requires separate qualification |
-| Local annotations | 67 tools, 268 booleans, 216 code references; no structural drift; generated documents synchronized | Replaces neither semantic audit nor saved portal scan |
-| Package | 0.3.5, 19 files, 1,315,855 bytes; schema, CRC and deterministic rebuild passed | Two complete requirements audits finished; 32 package tests passed; package neither imported nor submitted |
-| Portal | 0.3.2 “Changes required”, “Not published”; MCP configuration unavailable, no accessible rescan control | ZIP update blocked by “Configure the existing MCP app before updating its plugin ZIP.” |
-| Scanner | Restoration qualified at 08:27:39 UTC: ClamAV 1.5.4, signatures 28162 dated 23 October at 06:24:08 UTC, version `6f9f4e2d-ade1-4c67-abc2-d490988a9fe0`, private traffic at 100% | Initial run remains failed after reading the control plane too early; scheduled maintenance still inactive |
-| Additional corrections | PR #67 merged at `f5d7c9aea1f938719bede15f4a6edd4892520ff1`; release of PRs #67 and #68 explicitly authorized | New release and public verification still required |
-| OpenAI support | Email sent at 10:03 Paris after two complete audits; recipient and text verified in sent messages | Request to restore existing configuration; no response or resolution established |
-| Reviewer | `prepare_only` restriction restored: guarded insertion of one row and three exact readback checks passed | “Guteneo Review” connector currently targets another tenant; its calls do not establish the submission account |
-| OAuth | Auth0 refresh configuration applied on 13 October | Actual refresh in the host remains unqualified |
+The new draft was created as `plugin_asdk_app_6ae47454e9d08191b5c65c3cd63ccaaa`,
+submission `appsub_6ae47454ea108191b1b0f611ce5aedef`, package `guteneo` version
+1.1.19. The requested availability is France, Luxembourg, Belgium and Germany.
+The portal saved the original five positive and three negative cases, historical
+video and release notes. The domain is verified, metadata has no findings, and
+the authorized OAuth connection has discovered tools and its completed scan shows
+no findings. The eight current saved-version scenarios remain unrun.
+The draft remains **not submitted** and **not published**. An accepted grant or
+successful scan does not establish current case execution or review approval.
+
+The user requested removal of periodic reviewer revalidation and manual tariff
+maintenance. The 1.1.20 source candidate therefore adds
+[continuous restricted reviewer access](REVIEW_FAX_PREPARATION.md) and separate
+[automatic commercial-reference maintenance](FAX_TARIFF_MAINTENANCE.md). Neither
+schema installation nor a local test activates either mechanism. No provider
+price can be made fresh simply by replacing its date.
+
+Resume in this order:
+
+1. Complete exact-source checks and the synchronized application/plugin archive.
+   Release/migration and operator activation require their own explicit authority
+   and observed results; preserve all existing quotes and account restrictions.
+2. Install the reviewed one-time continuous reviewer access and verify its exact
+   restricted identity, sole-member tenant and no-send guards. Keep stored
+   credentials private; the user authorized the existing test account's use in
+   OpenAI's secure reviewer fields, not a password reset or a personal account.
+3. Verify the new draft's exact account/client/tenant binding, current scan and
+   imported fields. Upload the final corrected archive and reread saved values;
+   reupload can reset attestations.
+4. Exercise P1/P2/P3/P5/P6 and R1/R2/R3 on this saved version. P5 uses the current
+   continuous-access contract and labels its archived reference; quote TTL,
+   synthetic original bytes, controlled destination, no-send and zero-reservation
+   checks remain. Do not replace original scenarios with easier cases.
+5. Complete secure reviewer access and current legal/policy attestations with the
+   authorized developer, submit within the user's request, then verify actual
+   receipt/status. Approval and later publication remain separate outcomes.
+
+## Historical 23 October follow-up
+
+Historical follow-up: this concerned the existing plugin `app-6ab05fbae9a881918dc6ee4e2f235d93` and server `https://guteneo.com/mcp`. Resume this identity and its actual state each session. Do not create a duplicate to bypass an unavailable control. Credentials, secrets, recipients, signed URLs and private review data remain outside this file and the repository.
+
+### Established state
+
+| Layer                  | Evidence of 23 October                                                                                                                                                          | Limit                                                                                                          |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| Rejection reason       | Tool-annotation notification requesting explicit booleans and rationales                                                                                                        | The notification identified no exact tool or rejected snapshot                                                 |
+| Correction             | PR #65 merged, commit `5b5041ab04b235b57fccfa60814e7efa5683e17d`                                                                                                                | The correction does not establish review approval                                                              |
+| Main CI                | 13 checks passed, [run 39914778387](https://github.com/nclsppr/guteneo/actions/runs/39914778387)                                                                                | Local/automated evidence for the commit, separate from production                                              |
+| Application            | Release succeeded, Worker version `0334ff69-f89e-419c-ba11-6cf4d035cd88`; unchanged full verification passed at 08:11:41 UTC: 266 exact assets, correct robots and headers      | Authenticated MCP catalog still requires separate qualification                                                |
+| Local annotations      | 67 tools, 268 booleans, 216 code references; no structural drift; generated documents synchronized                                                                              | Replaces neither semantic audit nor saved portal scan                                                          |
+| Package                | 0.3.5, 19 files, 1,315,855 bytes; schema, CRC and deterministic rebuild passed                                                                                                  | Two complete requirements audits finished; 32 package tests passed; package neither imported nor submitted     |
+| Portal                 | 0.3.2 “Changes required”, “Not published”; MCP configuration unavailable, no accessible rescan control                                                                          | ZIP update blocked by “Configure the existing MCP app before updating its plugin ZIP.”                         |
+| Scanner                | Restoration qualified at 08:27:39 UTC: ClamAV 1.5.4, signatures 28162 dated 23 October at 06:24:08 UTC, version `6f9f4e2d-ade1-4c67-abc2-d490988a9fe0`, private traffic at 100% | Initial run remains failed after reading the control plane too early; scheduled maintenance still inactive     |
+| Additional corrections | PR #67 merged at `f5d7c9aea1f938719bede15f4a6edd4892520ff1`; release of PRs #67 and #68 explicitly authorized                                                                   | New release and public verification still required                                                             |
+| OpenAI support         | Email sent at 10:03 Paris after two complete audits; recipient and text verified in sent messages                                                                               | Request to restore existing configuration; no response or resolution established                               |
+| Reviewer               | `prepare_only` restriction restored: guarded insertion of one row and three exact readback checks passed                                                                        | “Guteneo Review” connector currently targets another tenant; its calls do not establish the submission account |
+| OAuth                  | Auth0 refresh configuration applied on 13 October                                                                                                                               | Actual refresh in the host remains unqualified                                                                 |
 
 Package 0.3.5 SHA-256: `717748d2b61b0ea3aee64d329fa3ad35c95a650f02106188bffd287790feae88`.
 The developer name matches the identity already verified in the portal. The package does not replace portal test cases; no unexecuted case has been reported as passed.
 
-## Resumption order
+### Resumption order
 
 1. **Qualify MCP after the verified release.** The unchanged full verifier passed on 23 October at 08:11:41 UTC: 266 public assets, correct robots and headers. The old video recovered without mutation; do not replay a repair plan. Then capture the correct client's authenticated MCP catalog, checking all 67 names, descriptions, schemas and annotations, particularly the two corrected `destructiveHint` values. Keep redacted evidence outside the repository.
 2. **Restore configuration of the existing MCP application in the portal.** Reread fresh state and available controls. Resolve configuration before retrying the ZIP. If the portal remains unavailable, retain the exact message and ask OpenAI to restore configuration/rescan controls and identify the affected fields/tools. Support was emailed on 23 October at 10:03 Paris after two complete requirements audits, then verified in sent messages. It also requests exact tools and values from the rejected snapshot. Do not duplicate that email; resume from its response when available. ZIP import and the review response remain separate steps.
@@ -32,7 +78,7 @@ The developer name matches the identity already verified in the portal. The pack
 6. **Import and rescan version 0.3.5.** Once existing configuration is restored, import the ZIP with the hash above, reread saved fields and obtain a scan of the corrected server. Reconcile each value and rationale with the current matrix, including `dry_run_dispatch` and historical gaps for `update_template`, `archive_template`, `share_template` and `cancel_generation_job`. Keep existing portal cases until a justified change has been verified.
 7. **Resubmit and verify receipt.** Use authorization granted in the resumption session to transmit corrected materials and a factual response to the rejection reason. Every attestation must correspond to actual evidence. Reread the existing submission's version, status and timestamp. “Submitted/In review” proves receipt only; approval and publication require their own observations.
 
-## Working evidence and history
+### Working evidence and history
 
 Local artifacts from that pass remain outside the repository in `/Users/nclsppr/.codex/artifacts/guteneo-resubmission-2026-10-23/`: `annotation-audit/`, `submission/`, `SCANNER_REVIEW_READINESS.md`, `scanner-preparation/READY_FOR_AUTHORIZATION.md`, `public-assets-bounded-verification.json`, `PUBLIC_RELEASE_ASSET_DIAGNOSIS.md`, `LEGACY_ASSET_RECOVERY.md`, `legacy-asset-repair/full-release-verification.log`, `SUPPORT_EMAIL_SENT.md`, the two complete requirements matrices and redacted scanner reports. The `release/` clone is separate from the package worktree. A created but empty report or running command is not a successful result.
 

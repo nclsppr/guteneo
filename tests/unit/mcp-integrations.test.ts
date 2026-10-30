@@ -712,7 +712,7 @@ describe("distributable LLM integrations", () => {
       expect(oauth.resource).toBe("https://guteneo.com/mcp");
       expect(oauth).not.toHaveProperty("clientSecret");
       expect(oauth.client).not.toHaveProperty("clientSecret");
-      expect(plugin.name).toBe("app-6ab05fbae9a881918dc6ee4e2f235d93");
+      expect(plugin.name).toBe("guteneo");
       expect(manifest.hostQualification).toBe("pending");
       expect(manifest.publishedToDirectories).toBe(false);
       expect(manifest.files).toContain("skills/email/SKILL.md");

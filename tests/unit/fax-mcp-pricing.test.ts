@@ -259,3 +259,146 @@ describe("fax display precision", () => {
     expect(result.settlement.chargedMinor).toBeNull();
   });
 });
+
+it("carries archived reviewer pricing through strict MCP and OpenAPI output schemas", async () => {
+  const pricing: FaxPricing = {
+    version: 3,
+    currency: "EUR",
+    basis: "qualified_usage_ex_tax",
+    executionScope: "review_prepare_only",
+    referenceBasis: "archived_review_reference",
+    routeQualification: "operator_authorized_test",
+    estimatedLowNanoeur: 50_273_036,
+    estimatedHighNanoeur: 164_687_528,
+    ceilingMinor: 200,
+    fx: {
+      numerator: 9,
+      denominator: 10,
+      date: "2026-09-17",
+      source: "https://www.ecb.europa.eu/",
+    },
+    settlement: {
+      status: "not_reserved",
+      customerNanoeur: null,
+      chargedMinor: null,
+      settledAt: null,
+    },
+  };
+  const dispatch = {
+    id: "continuous_review_fixture",
+    channel: "fax",
+    status: "prepared",
+    mode: "production",
+    recipient_json: '{"phone":"+35220000000"}',
+    document_id: "document_fixture",
+    campaign_id: null,
+    fingerprint: "a".repeat(64),
+    estimated_minor: 17,
+    ceiling_minor: 200,
+    known_minor: null,
+    currency: "EUR",
+    updated_at: "2027-02-01T10:00:00.000Z",
+    quote_expires_at: "2027-02-01T10:15:00.000Z",
+    faxPricing: pricing,
+    review_access_id: "private-access-should-not-leak",
+  } as unknown as Dispatch;
+  const server = createGuteneoMcpServer(
+    identity,
+    { APP_ORIGIN: "https://guteneo.invalid" } as AuthEnv,
+    {
+      domain: {
+        getDispatch: async () => ({ dispatch, attempts: [] }),
+        listDispatches: async () => ({ items: [dispatch], nextCursor: null }),
+        prepareDispatch: async () => dispatch,
+      } as unknown as DomainService,
+      documents: {
+        importFile: async () => {
+          throw new Error("No import in transport regression");
+        },
+        render: async () => {
+          throw new Error("No render in transport regression");
+        },
+      },
+      capabilities: () => ({ mode: "production", liveSendsEnabled: false }),
+    },
+  );
+  const client = new Client({
+    name: "continuous-review-pricing-contract",
+    version: "1",
+  });
+  const [ct, st] = InMemoryTransport.createLinkedPair();
+  await server.connect(st);
+  await client.connect(ct);
+  try {
+    const { tools } = await client.listTools(),
+      validator = new AjvJsonSchemaValidator();
+    for (const [name, args] of [
+      [
+        "prepare_fax",
+        {
+          documentId: "document_fixture",
+          phone: "+35220000000",
+          ceilingMinor: 200,
+          idempotencyKey: "continuous_fixture",
+        },
+      ],
+      ["get_dispatch_status", { dispatchId: dispatch.id }],
+      ["list_dispatches", {}],
+    ] as const) {
+      const response = await client.callTool({ name, arguments: args });
+      expect(response.isError).not.toBe(true);
+      const tool = tools.find((entry) => entry.name === name)!;
+      expect(tool.outputSchema).toBeDefined();
+      expect(
+        validator.getValidator(tool.outputSchema!)(response.structuredContent)
+          .valid,
+      ).toBe(true);
+      const body = response.structuredContent as {
+        ok: boolean;
+        data: {
+          faxPricing?: FaxPricing;
+          items?: { faxPricing: FaxPricing }[];
+          attemptCount?: number;
+          nextActions?: string[];
+        };
+      };
+      expect(body.ok).toBe(true);
+      const projected =
+        name === "list_dispatches"
+          ? body.data.items?.[0].faxPricing
+          : body.data.faxPricing;
+      expect(projected).toMatchObject({
+        executionScope: "review_prepare_only",
+        referenceBasis: "archived_review_reference",
+        fx: { date: "2026-09-17" },
+        display: {
+          explanation: expect.stringContaining("not a current provider price"),
+        },
+        settlement: { status: "not_reserved", chargedMinor: null },
+      });
+      expect(validatePricing(projected).valid).toBe(true);
+      expect(
+        validatePricing({
+          ...projected,
+          referenceBasis: "current_provider_price",
+        }).valid,
+      ).toBe(false);
+      if (name !== "list_dispatches") {
+        expect(body.data.nextActions?.join(" ")).toContain(
+          "no periodic tariff revalidation is required",
+        );
+        if (name === "get_dispatch_status")
+          expect(body.data.attemptCount).toBe(0);
+      }
+      expect(JSON.stringify(response)).not.toContain(
+        "private-access-should-not-leak",
+      );
+      expect(response.content).toEqual([
+        { type: "text", text: JSON.stringify(response.structuredContent) },
+      ]);
+    }
+  } finally {
+    await client.close();
+    await server.close();
+  }
+});

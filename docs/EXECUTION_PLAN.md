@@ -1,5 +1,36 @@
 # Execution plan and handoff
 
+## Continuous review and automatic fax references — 30 October 2026 candidate
+
+The user requested removal of recurring reviewer revalidation and manual tariff
+maintenance. The source candidate adds explicit revocable continuous access for
+the exact restricted reviewer (migration 0066) and separately registered automatic
+commercial-reference maintenance for sendable fax routes (migration 0067).
+Archived reviewer evidence remains dated and unsendable; live refreshes must
+genuinely reread official sources and current provider ownership before inserting
+new immutable revisions. Historical quotes and all financial/approval boundaries
+remain intact. Current contracts: [review preparation](REVIEW_FAX_PREPARATION.md),
+[private reviewer installation](REVIEW_FAX_OPERATOR.md) and
+[automatic tariff maintenance](FAX_TARIFF_MAINTENANCE.md).
+
+Qualify the fixed current-catalog endpoint with the actual server API key before
+activation; the old versioned CSV and an anonymous 401 do not prove that access.
+Complete exact-source checks, the compatible runtime-first rollout and drained
+prior work before the additive schema, then explicit private
+plans/registrations and hosted verification before reporting activation. No
+production migration, operator installation, Auth0 change, real communication,
+merge or deployment is established by these edits. The
+[OpenAI follow-up](OPENAI_RESUBMISSION_TODO.md) owns the new draft's portal state;
+account credentials, OAuth consent, scan and saved-version cases remain separate.
+
+Local transport qualification covers all 67 migrations: source/transport schema
+equivalence, 459 schema objects, unchanged guard outcomes, successful quick check
+and zero foreign-key violations. The new review view uses the equivalent SQLite
+`iif` expression accepted by the existing D1 transport parser. Continuous-review
+and historical pilot regressions also pass; this installs no production schema.
+The runtime-first sequence prevents the previous reader from hashing the newly
+added null quote pointer; see [the rollout contract](REVIEW_FAX_OPERATOR.md#safe-runtime-and-schema-rollout).
+
 ## Strict registration tooling — 30 October 2026 candidate
 
 The [strict MCP registration candidate](MCP_REGISTRATION.md) has been reconciled with current main. Local controller fixtures cover fail-closed inspection, drift and bounded mutation recovery. No provider configuration was applied; legacy-extension inspection, capacity and real host interoperability remain activation gates.

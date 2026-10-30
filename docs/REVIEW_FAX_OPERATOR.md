@@ -1,4 +1,99 @@
-# Private fax reference qualification for OpenAI review
+# Private reviewer preparation access
+
+## Continuous access — 30 October 2026 candidate
+
+Use this one-time setup for the existing dedicated reviewer when its fax
+preparation must remain available throughout a multi-week review. The
+[continuous preparation contract](REVIEW_FAX_PREPARATION.md) owns runtime guards,
+quote limits and sending exclusions. The earlier weekly qualification procedure
+below remains historical and applies only to the legacy bounded path.
+
+Complete the [safe runtime and schema rollout](#safe-runtime-and-schema-rollout)
+before installing an access record. Migration and deployment create no access record, tariff,
+account, balance, channel, mandate or communication. After explicit operator
+authorization, the utility binds the existing archived review tariff and
+original authority to the exact restricted reviewer. It does not fetch provider
+credentials, change their policies or rewrite historical evidence dates.
+
+### Safe runtime and schema rollout
+
+Fully deploy the compatible runtime first, verify its exact version and let prior
+in-flight work drain before applying migrations 0066 and 0067. The compatible
+runtime reads the old bounded review view without requiring the new optional
+columns, and omits a null access pointer from legacy quote hash material. Until
+the schema and explicit records exist, bounded legacy expiry still applies;
+continuous access and automatic maintenance are not active.
+
+Do not apply 0066 while the previous runtime can still read quotes: that runtime
+hashes every selected quote column, so the newly added null pointer would change
+its historical hash material. After the compatible rollout, the migration adds
+that column without changing legacy hashes under the deployed reader. Verify
+schema/integrity and current guards before applying either private plan. The new
+maintenance stage may report a missing-schema failure before 0067 is installed;
+it catches that failure and performs no refresh or business write.
+
+After 0066, any rollback build must retain the compatible quote reader and hash
+material. Do not roll back to 1.1.19: revoking new access records does not remove
+the nullable database column. Disable the opt-ins if necessary and keep a
+compatible runtime; restoring a database is a separate consequential operation.
+
+### Private access plan
+
+Keep the input and plan outside every Git working tree in a `0700` directory,
+with regular `0600` files. Never publish the identity, account identifiers,
+recipient, credentials or private plan. The strict version-1 configuration has:
+
+| Field                                                 | Meaning                                                               |
+| ----------------------------------------------------- | --------------------------------------------------------------------- |
+| `version`                                             | `1`                                                                   |
+| `accessId`                                            | New unique immutable access reference                                 |
+| `organizationId`, `reviewerUserId`                    | Exact dedicated organization and its sole current administrator       |
+| `tariffId`, `authorityId`                             | Existing immutable review-only tariff and its original authority      |
+| `reviewerIdentity.issuer`, `reviewerIdentity.subject` | Exact provisioned identity already restricted to `prepare_only`       |
+| `authorizationReference`                              | Actual private operator decision authorizing durable preparation only |
+
+The default operation reads the existing bindings and guards, writes a private
+reviewable plan and prints only a redacted result and digest:
+
+```sh
+node scripts/enable-continuous-review.mjs \
+  --config /absolute/private-directory/continuous-review.json \
+  --output /absolute/private-directory/continuous-review-plan.json
+```
+
+Read the private plan and confirm its exact account, archived reference and
+no-send scope. Only after explicit authority, apply its reviewed digest:
+
+```sh
+node scripts/enable-continuous-review.mjs \
+  --apply /absolute/private-directory/continuous-review-plan.json \
+  --reviewed-plan-sha256 THE_EXACT_REVIEWED_PLAN_DIGEST
+```
+
+Application rereads the exact saved snapshot and current guards, then uses an
+atomic conditional write. An exact successful replay is harmless. Unexpected
+drift or an uncertain write requires a fresh read; do not retry blindly. An
+already revoked access record cannot be re-enabled. Revocation and guard loss
+also close old-quote validation instead of falling back to a temporary authority.
+The command does not create a new account, reset its password, modify Auth0,
+refresh provider evidence, enable a channel or record human approval.
+
+After installation, verify account login, exact OAuth client/tenant binding,
+scanner readiness and the original P1/P2/P3/P5/P6 and R1/R2/R3 cases on the saved
+submission. Quotes still expire after at most fifteen minutes; explicit same-input
+renewal creates a distinct preparation. There is no recurring operator task to
+keep continuous reviewer reference access alive. Current real sendable pricing
+uses the separate [automatic tariff maintenance](FAX_TARIFF_MAINTENANCE.md)
+contract and never inherits this archive exemption.
+
+## Historical bounded operator procedure
+
+The following procedure records the original source/provider qualification path.
+Its weekly and thirty-day limits continue to describe that legacy path; they do
+not apply to the explicit continuous access record above. Keep its dated evidence
+and immutable rows instead of editing their expiry or claiming a new observation.
+
+## Private fax reference qualification for OpenAI review
 
 This operator utility installs **preparation only** for the dedicated reviewer
 tenant, its verified sender and the exact already-owned Luxembourg test number.
@@ -22,7 +117,7 @@ the reviewed plan is a separate authorized step. The migration alone grants no
 authority or tariff; deploying the application first would cause missing-view
 errors while the old schema remains active.
 
-## Independent validity periods
+### Independent validity periods
 
 - The operator's immutable authority is at most 30 days from its explicit start.
   For example, 21 September at 12:00 UTC to 21 October at 12:00 UTC is 30 days.
@@ -38,7 +133,7 @@ errors while the old schema remains active.
   and authority. The ceiling is EUR2 and the maximum is seven pages. If the
   seven-page estimate exceeds that ceiling, qualification fails.
 
-## Evidence and commercial meaning
+### Evidence and commercial meaning
 
 The default command makes bounded HTTPS GETs to the official Telnyx fax price
 page, the exact CSV previously observed in the account/profile's **View rates**
@@ -78,7 +173,7 @@ Official sources: [fax price](https://telnyx.com/pricing/fax),
 No unavailable pricing API is replaced with invented prices or a relabelled
 historical observation.
 
-## Operator input and plan
+### Operator input and plan
 
 Use a directory outside **every Git working tree**, with mode `0700`. The input
 must be a regular file with no group/other permissions (`0600`). Never paste its
@@ -149,7 +244,7 @@ previous review tariff ID and any exact legacy transition. Three `0600` files in
 public response bytes. The digest binds that plan; it is not a human consent
 signature and is never recorded as approval to send.
 
-## Explicit application after review
+### Explicit application after review
 
 First review the complete private plan, exact scope, actual source files and
 commercial assumptions. Only then, with explicit operator authorization:
