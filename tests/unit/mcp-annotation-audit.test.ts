@@ -174,10 +174,53 @@ describe("MCP annotation audit", () => {
     ).toEqual(["empty_catalogue", "invalid_matrix"]);
   });
 
-  it("discovers all optional surfaces through the MCP transport and matches the maintained matrix", async () => {
-    const tools = await discoverLocalMcpTools();
+  it("preserves ordinary discovery while reviewing every synthetic opt-in surface without handlers", async () => {
+    const ordinary = await discoverLocalMcpTools();
+    const tools = await discoverLocalMcpTools("reviewed");
+    const diagnosticNames = ["check_mcp_ui_probe_bridge", "open_mcp_ui_probe"];
+    const appNames = [
+      "open_mcp_document_upload",
+      "begin_mcp_document_upload",
+      "append_mcp_document_upload",
+      "get_mcp_document_upload",
+      "finish_mcp_document_upload",
+      "cancel_mcp_document_upload",
+    ];
+    const optInNames = [...diagnosticNames, ...appNames];
+    expect(ordinary).toHaveLength(75);
+    expect(tools).toHaveLength(ordinary.length + optInNames.length);
+    for (const name of optInNames)
+      expect(ordinary.map((tool) => tool.name)).not.toContain(name);
+    for (const name of diagnosticNames)
+      expect(tools.find((tool) => tool.name === name)?.annotations).toEqual({
+        title: tools.find((tool) => tool.name === name)?.title,
+        readOnlyHint: false,
+        destructiveHint: false,
+        openWorldHint: false,
+        idempotentHint: false,
+      });
+    for (const tool of tools) {
+      expect(tool.title, tool.name).toEqual(expect.any(String));
+      expect(tool.title!.trim().length, tool.name).toBeGreaterThan(0);
+      expect(tool.annotations?.title, tool.name).toBe(tool.title);
+      expect(tool.description, tool.name).toContain(
+        "Supported ChatGPT and Codex content excludes",
+      );
+      expect(tool.description, tool.name).not.toContain(
+        "before requesting content, explain",
+      );
+      expect(tool.description, tool.name).not.toMatch(/https?:\/\//);
+      for (const other of tools)
+        expect(tool.description, `${tool.name}: ${other.name}`).not.toMatch(
+          new RegExp(`\\b${other.name}\\b`),
+        );
+    }
+    expect(tools.filter((tool) => !optInNames.includes(tool.name))).toEqual(
+      ordinary,
+    );
     expect(tools.map((tool) => tool.name)).toEqual(
       expect.arrayContaining([
+        ...optInNames,
         "get_postal_setup",
         "configure_postal_sender",
         "create_postal_address_page",
@@ -189,6 +232,11 @@ describe("MCP annotation audit", () => {
         "get_template_authoring_guide",
         "create_distribution_postal_preflight",
         "dry_run_dispatch",
+        "prepare_secure_distribution",
+        "list_secure_distributions",
+        "get_secure_distribution",
+        "confirm_secure_distribution",
+        "revoke_secure_distribution",
       ]),
     );
     const matrix: unknown = JSON.parse(
@@ -205,5 +253,12 @@ describe("MCP annotation audit", () => {
     expect(result.passed).toBe(true);
     expect(result.documentedToolCount).toBe(tools.length);
     expect(result.explicitBooleanCount).toBe(tools.length * 4);
+    expect(auditMcpAnnotations(ordinary, matrix).issues).toEqual(
+      [...optInNames].sort().map((name) => ({
+        code: "stale_matrix_tool",
+        location: name,
+        message: "Matrix entry is absent from MCP tools/list.",
+      })),
+    );
   });
 });

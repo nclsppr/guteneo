@@ -35,7 +35,7 @@ const path = z
         .some((part) =>
           ["__proto__", "prototype", "constructor"].includes(part),
         ),
-    "Chemin de champ interdit.",
+    "Forbidden field path.",
   );
 const jsonValue: z.ZodType<unknown> = z.lazy(() =>
   z.union([
@@ -251,7 +251,7 @@ function fail(
   throw new TemplateError(code, message, { field, block });
 }
 function safeTree(value: unknown, depth = 0): void {
-  if (depth > 14) fail("TEMPLATE_COMPLEXITY", "Structure trop profonde.");
+  if (depth > 14) fail("TEMPLATE_COMPLEXITY", "Structure is too deep.");
   if (Array.isArray(value)) {
     for (const v of value) safeTree(v, depth + 1);
     return;
@@ -259,21 +259,21 @@ function safeTree(value: unknown, depth = 0): void {
   if (value && typeof value === "object")
     for (const [name, item] of Object.entries(value)) {
       if (forbiddenNames.has(name))
-        fail("TEMPLATE_UNSAFE_KEY", "Clé interdite.", name);
+        fail("TEMPLATE_UNSAFE_KEY", "Forbidden key.", name);
       safeTree(item, depth + 1);
     }
 }
 function validateBusinessSchema(schema: BusinessField, depth = 0): void {
   if (depth > 8)
-    fail("TEMPLATE_SCHEMA_DEPTH", "Le schéma dépasse huit niveaux.");
+    fail("TEMPLATE_SCHEMA_DEPTH", "The schema exceeds eight levels.");
   if (schema.type === "object") {
     if (!schema.properties || Object.keys(schema.properties).length > 100)
-      fail("TEMPLATE_SCHEMA_INVALID", "Déclarez les propriétés de l’objet.");
+      fail("TEMPLATE_SCHEMA_INVALID", "Declare the object's properties.");
     for (const required of schema.required ?? [])
       if (!Object.hasOwn(schema.properties, required))
         fail(
           "TEMPLATE_SCHEMA_INVALID",
-          "Champ requis absent du schéma.",
+          "Required field is missing from the schema.",
           required,
         );
     Object.values(schema.properties).forEach((v) =>
@@ -281,10 +281,10 @@ function validateBusinessSchema(schema: BusinessField, depth = 0): void {
     );
   } else if (schema.type === "array") {
     if (!schema.items)
-      fail("TEMPLATE_SCHEMA_INVALID", "Déclarez les éléments du tableau.");
+      fail("TEMPLATE_SCHEMA_INVALID", "Declare the array items.");
     validateBusinessSchema(schema.items, depth + 1);
   } else if (schema.items || schema.properties || schema.required)
-    fail("TEMPLATE_SCHEMA_INVALID", "Structure incompatible avec le type.");
+    fail("TEMPLATE_SCHEMA_INVALID", "Structure is incompatible with the type.");
 }
 function schemaAt(
   schema: BusinessField,
@@ -308,16 +308,16 @@ export function validateTemplateImage(content: string): {
   if (!match || match[2].length % 4 !== 0 || match[2].length > 342_000)
     fail(
       "TEMPLATE_IMAGE_INVALID",
-      "Choisissez une image PNG ou JPEG de moins de 250 Ko.",
+      "Choose a PNG or JPEG image below 250 KB.",
     );
   let bytes: Uint8Array;
   try {
     bytes = Uint8Array.from(atob(match[2]), (c) => c.charCodeAt(0));
   } catch {
-    return fail("TEMPLATE_IMAGE_INVALID", "Image base64 invalide.");
+    return fail("TEMPLATE_IMAGE_INVALID", "Invalid base64 image.");
   }
   if (bytes.length > 250 * 1024)
-    fail("TEMPLATE_IMAGE_LIMIT", "L’image dépasse 250 Ko.");
+    fail("TEMPLATE_IMAGE_LIMIT", "The image exceeds 250 KB.");
   const view = new DataView(bytes.buffer);
   let width = 0,
     height = 0;
@@ -327,7 +327,7 @@ export function validateTemplateImage(content: string): {
       Array.from(bytes.slice(0, 8)).join(",") !== "137,80,78,71,13,10,26,10" ||
       new TextDecoder().decode(bytes.slice(12, 16)) !== "IHDR"
     )
-      fail("TEMPLATE_IMAGE_INVALID", "Signature PNG invalide.");
+      fail("TEMPLATE_IMAGE_INVALID", "Invalid PNG signature.");
     width = view.getUint32(16);
     height = view.getUint32(20);
   } else {
@@ -337,7 +337,7 @@ export function validateTemplateImage(content: string): {
       bytes.at(-2) !== 255 ||
       bytes.at(-1) !== 217
     )
-      fail("TEMPLATE_IMAGE_INVALID", "Signature JPEG invalide.");
+      fail("TEMPLATE_IMAGE_INVALID", "Invalid JPEG signature.");
     let offset = 2;
     while (offset + 9 <= bytes.length) {
       if (bytes[offset] !== 255) break;
@@ -362,7 +362,7 @@ export function validateTemplateImage(content: string): {
   )
     fail(
       "TEMPLATE_IMAGE_DIMENSIONS",
-      "L’image doit rester sous 4 millions de pixels et 4 000 pixels par côté.",
+      "The image must remain below 4 million pixels and 4,000 pixels per side.",
     );
   return { mimeType: match[1], bytes: bytes.length, width, height };
 }
@@ -371,22 +371,22 @@ function validateGraphicValues(value: unknown, key = ""): void {
   if (key === "textFormat" && value !== "plain")
     fail(
       "TEMPLATE_TEXT_FORMAT",
-      "Le texte enrichi actif n’est pas pris en charge ; utilisez du texte simple.",
+      "Active rich text is not supported; use plain text.",
     );
   if (
     typeof value === "number" &&
     (!Number.isFinite(value) || Math.abs(value) > 10_000)
   )
-    fail("TEMPLATE_STYLE_INVALID", "Valeur graphique hors limites.");
+    fail("TEMPLATE_STYLE_INVALID", "Visual value is outside the allowed range.");
   if (key === "fontName" && value !== "GuteneoSans")
-    fail("TEMPLATE_FONT_UNAVAILABLE", "Police non disponible.");
+    fail("TEMPLATE_FONT_UNAVAILABLE", "Font unavailable.");
   if (
     typeof value === "string" &&
     /^(?:https?:|data:|javascript:|blob:)/i.test(value)
   )
     fail(
       "TEMPLATE_RESOURCE_FORBIDDEN",
-      "Ressource graphique externe interdite.",
+      "External visual resources are forbidden.",
     );
   if (Array.isArray(value))
     value.forEach((item) => validateGraphicValues(item));
@@ -398,7 +398,7 @@ export function validateTemplateEnvelope(raw: unknown): TemplateEnvelope {
   if (
     new TextEncoder().encode(JSON.stringify(raw)).length > TEMPLATE_LIMITS.bytes
   )
-    fail("TEMPLATE_TOO_LARGE", "Le modèle dépasse 512 Ko.");
+    fail("TEMPLATE_TOO_LARGE", "The template exceeds 512 KB.");
   safeTree(raw);
   const parsed = TemplateEnvelopeSchema.safeParse(raw);
   if (!parsed.success)
@@ -413,7 +413,7 @@ export function validateTemplateEnvelope(raw: unknown): TemplateEnvelope {
   if (envelope.inputSchema.type !== "object")
     fail(
       "TEMPLATE_SCHEMA_INVALID",
-      "Les données métier doivent être un objet.",
+      "Business data must be an object.",
     );
   validateBusinessSchema(envelope.inputSchema);
   const base = envelope.definition.basePdf;
@@ -421,7 +421,7 @@ export function validateTemplateEnvelope(raw: unknown): TemplateEnvelope {
     base.padding[1] + base.padding[3] >= base.width ||
     base.padding[0] + base.padding[2] >= base.height
   )
-    fail("TEMPLATE_PAGE_INVALID", "Marges incompatibles avec la page.");
+    fail("TEMPLATE_PAGE_INVALID", "Margins are incompatible with the page.");
   const names = new Set<string>();
   let blocks = 0;
   for (const block of [
@@ -431,7 +431,7 @@ export function validateTemplateEnvelope(raw: unknown): TemplateEnvelope {
     if (++blocks > TEMPLATE_LIMITS.blocks || names.has(block.name))
       fail(
         "TEMPLATE_BLOCK_INVALID",
-        "Les noms de blocs doivent être uniques.",
+        "Block names must be unique.",
         undefined,
         block.name,
       );
@@ -440,7 +440,7 @@ export function validateTemplateEnvelope(raw: unknown): TemplateEnvelope {
       if (!allowedGraphicKeys.has(name))
         fail(
           "TEMPLATE_UNSUPPORTED_PROPERTY",
-          `Propriété graphique non prise en charge : ${name}.`,
+          `Unsupported visual property: ${name}.`,
           undefined,
           block.name,
         );
@@ -450,14 +450,14 @@ export function validateTemplateEnvelope(raw: unknown): TemplateEnvelope {
     )
       fail(
         "TEMPLATE_OVERFLOW",
-        "Le bloc dépasse la page ; déplacez-le ou réduisez-le.",
+        "The block extends beyond the page; move or resize it.",
         undefined,
         block.name,
       );
     if (block.type === "text" && block.overflow && block.overflow !== "expand")
       fail(
         "TEMPLATE_OVERFLOW_MODE",
-        "Les textes utilisent le débordement dynamique expand.",
+        "Text uses dynamic expand overflow.",
         undefined,
         block.name,
       );
@@ -467,14 +467,14 @@ export function validateTemplateEnvelope(raw: unknown): TemplateEnvelope {
     )
       fail(
         "TEMPLATE_FONT_SIZE",
-        "La taille de police doit être comprise entre 6 et 72 points.",
+        "Font size must be between 6 and 72 points.",
         undefined,
         block.name,
       );
     if (block.fontName && block.fontName !== "GuteneoSans")
       fail(
         "TEMPLATE_FONT_UNAVAILABLE",
-        "Seule la police intégrée GuteneoSans est qualifiée.",
+        "Only the embedded GuteneoSans font is qualified.",
         undefined,
         block.name,
       );
@@ -487,7 +487,7 @@ export function validateTemplateEnvelope(raw: unknown): TemplateEnvelope {
     )
       fail(
         "TEMPLATE_EXPRESSION_FORBIDDEN",
-        "Utilisez les liaisons déclaratives pour les variables.",
+        "Use declarative bindings for variables.",
         undefined,
         block.name,
       );
@@ -496,7 +496,7 @@ export function validateTemplateEnvelope(raw: unknown): TemplateEnvelope {
       block.type !== "image" &&
       (block.content?.length ?? 0) > TEMPLATE_LIMITS.text
     )
-      fail("TEMPLATE_TEXT_LIMIT", "Contenu trop long.", undefined, block.name);
+      fail("TEMPLATE_TEXT_LIMIT", "Content is too long.", undefined, block.name);
     validateGraphicValues(block);
     if (block.type === "table") {
       if (
@@ -507,7 +507,7 @@ export function validateTemplateEnvelope(raw: unknown): TemplateEnvelope {
       )
         fail(
           "TEMPLATE_TABLE_INVALID",
-          "En-têtes de tableau invalides.",
+          "Invalid table headers.",
           undefined,
           block.name,
         );
@@ -522,7 +522,7 @@ export function validateTemplateEnvelope(raw: unknown): TemplateEnvelope {
         )
           fail(
             "TEMPLATE_FONT_UNAVAILABLE",
-            "Police de tableau non disponible.",
+            "Table font unavailable.",
             undefined,
             block.name,
           );
@@ -534,7 +534,7 @@ export function validateTemplateEnvelope(raw: unknown): TemplateEnvelope {
     if (bound.has(binding.block))
       fail(
         "TEMPLATE_BINDING_DUPLICATE",
-        "Un bloc possède plusieurs liaisons.",
+        "A block has multiple bindings.",
         binding.path,
         binding.block,
       );
@@ -545,7 +545,7 @@ export function validateTemplateEnvelope(raw: unknown): TemplateEnvelope {
     if (!block)
       fail(
         "TEMPLATE_BINDING_INVALID",
-        "Bloc lié absent de la définition.",
+        "The bound block is missing from the definition.",
         binding.path,
         binding.block,
       );
@@ -553,7 +553,7 @@ export function validateTemplateEnvelope(raw: unknown): TemplateEnvelope {
     if (!field)
       fail(
         "TEMPLATE_BINDING_INVALID",
-        "Champ lié absent du schéma métier.",
+        "The bound field is missing from the business schema.",
         binding.path,
         binding.block,
       );
@@ -566,7 +566,7 @@ export function validateTemplateEnvelope(raw: unknown): TemplateEnvelope {
       )
         fail(
           "TEMPLATE_BINDING_INVALID",
-          "Une liaison tableau attend un bloc tableau et un tableau métier.",
+          "A table binding requires a table block and a business array.",
           binding.path,
           binding.block,
         );
@@ -574,21 +574,21 @@ export function validateTemplateEnvelope(raw: unknown): TemplateEnvelope {
         if (!schemaAt(field.items, column.path))
           fail(
             "TEMPLATE_BINDING_INVALID",
-            "Colonne absente du schéma métier.",
+            "The column is missing from the business schema.",
             column.path,
             binding.block,
           );
       if ((block.head as unknown[]).length !== binding.columns.length)
         fail(
           "TEMPLATE_TABLE_COLUMNS",
-          "Les colonnes graphiques et métier doivent correspondre.",
+          "Visual and business columns must match.",
           binding.path,
           binding.block,
         );
     } else if (block.type !== "text")
       fail(
         "TEMPLATE_BINDING_INVALID",
-        "Une liaison valeur attend un bloc texte.",
+        "A value binding requires a text block.",
         binding.path,
         binding.block,
       );
@@ -601,14 +601,14 @@ export function validateTemplateEnvelope(raw: unknown): TemplateEnvelope {
     )
       fail(
         "TEMPLATE_BINDING_INVALID",
-        "Un total attend un tableau et une valeur déclarée.",
+        "A total requires an array and a declared value.",
         binding.path,
         binding.block,
       );
     if (binding.when && !schemaAt(envelope.inputSchema, binding.when.path))
       fail(
         "TEMPLATE_BINDING_INVALID",
-        "Condition absente du schéma.",
+        "The condition is missing from the schema.",
         binding.when.path,
         binding.block,
       );
@@ -639,12 +639,12 @@ function normalize(
   if (value === undefined || value === null || value === "") {
     if (schema.default !== undefined) value = schema.default;
     else if (required)
-      fail("TEMPLATE_REQUIRED_FIELD", "Valeur obligatoire manquante.", field);
+      fail("TEMPLATE_REQUIRED_FIELD", "Missing required value.", field);
     else return undefined;
   }
   if (schema.type === "object") {
     if (!value || typeof value !== "object" || Array.isArray(value))
-      fail("TEMPLATE_FIELD_TYPE", "Objet attendu.", field);
+      fail("TEMPLATE_FIELD_TYPE", "Object expected.", field);
     const output: Record<string, unknown> = {};
     for (const [name, child] of Object.entries(schema.properties ?? {})) {
       const normalized = normalize(
@@ -662,7 +662,7 @@ function normalize(
       !Array.isArray(value) ||
       value.length > (schema.maxItems ?? TEMPLATE_LIMITS.rows)
     )
-      fail("TEMPLATE_ARRAY_LIMIT", "Tableau absent ou trop volumineux.", field);
+      fail("TEMPLATE_ARRAY_LIMIT", "Array is missing or too large.", field);
     return value.map((item, i) =>
       normalize(schema.items!, item, `${field}[${i}]`, true),
     );
@@ -672,12 +672,12 @@ function normalize(
       ? !Number.isSafeInteger(value)
       : typeof value !== schema.type
   )
-    fail("TEMPLATE_FIELD_TYPE", `Valeur ${schema.type} attendue.`, field);
+    fail("TEMPLATE_FIELD_TYPE", `Expected a value of type ${schema.type}.`, field);
   if (typeof value === "number" && !Number.isFinite(value))
-    fail("TEMPLATE_FIELD_TYPE", "Nombre fini attendu.", field);
+    fail("TEMPLATE_FIELD_TYPE", "Finite number expected.", field);
   if (typeof value === "string") {
     if (value.length > (schema.maxLength ?? TEMPLATE_LIMITS.text))
-      fail("TEMPLATE_TEXT_LIMIT", "Texte trop long.", field);
+      fail("TEMPLATE_TEXT_LIMIT", "Text is too long.", field);
     if (
       schema.format === "date" &&
       (!/^\d{4}-\d{2}-\d{2}$/.test(value) ||
@@ -686,14 +686,14 @@ function normalize(
     )
       fail(
         "TEMPLATE_DATE_AMBIGUOUS",
-        "Utilisez une date valide au format AAAA-MM-JJ.",
+        "Use a valid date in YYYY-MM-DD format.",
         field,
       );
     if (schema.format === "email" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value))
-      fail("TEMPLATE_FIELD_TYPE", "Adresse e-mail invalide.", field);
+      fail("TEMPLATE_FIELD_TYPE", "Invalid email address.", field);
   }
   if (schema.enum && !schema.enum.includes(value as string | number | boolean))
-    fail("TEMPLATE_FIELD_ENUM", "Valeur hors des choix autorisés.", field);
+    fail("TEMPLATE_FIELD_ENUM", "Value is outside the allowed choices.", field);
   return value;
 }
 export function validateTemplateData(
@@ -704,7 +704,7 @@ export function validateTemplateData(
     new TextEncoder().encode(JSON.stringify(data)).length >
     TEMPLATE_LIMITS.inputBytes
   )
-    fail("TEMPLATE_INPUT_LIMIT", "Les données dépassent 512 Ko.");
+    fail("TEMPLATE_INPUT_LIMIT", "Data exceeds 512 KB.");
   safeTree(data);
   return normalize(envelope.inputSchema, data, "", true) as Record<
     string,
@@ -715,7 +715,7 @@ function safeInteger(value: unknown, field: string): bigint {
   if (!Number.isSafeInteger(value))
     fail(
       "TEMPLATE_INTEGER_REQUIRED",
-      "Un entier exact est requis pour le calcul.",
+      "An exact integer is required for calculation.",
       field,
     );
   return BigInt(value as number);
@@ -727,7 +727,7 @@ function exactNumber(value: bigint, field: string): number {
   )
     fail(
       "TEMPLATE_AMOUNT_OVERFLOW",
-      "Le résultat dépasse la précision autorisée.",
+      "The result exceeds the allowed precision.",
       field,
     );
   return Number(value);
@@ -770,7 +770,7 @@ export function formatTemplateValue(
       return `${negative ? "−" : ""}${grouped}${fraction === undefined ? "" : (locale === "en-GB" ? "." : ",") + fraction}`;
     }
     if (typeof value !== "number" || !Number.isFinite(value))
-      fail("TEMPLATE_FIELD_TYPE", "Nombre attendu.", field);
+      fail("TEMPLATE_FIELD_TYPE", "Number expected.", field);
     return new Intl.NumberFormat(locale, { maximumFractionDigits: 6 })
       .format(value)
       .replace(/[\u202f\u00a0]/g, " ");
@@ -782,7 +782,7 @@ export function formatTemplateValue(
       Number.isNaN(Date.parse(value)) ||
       new Date(value).toISOString().slice(0, 10) !== value
     )
-      fail("TEMPLATE_DATE_AMBIGUOUS", "Date AAAA-MM-JJ requise.", field);
+      fail("TEMPLATE_DATE_AMBIGUOUS", "A YYYY-MM-DD date is required.", field);
     return new Intl.DateTimeFormat(locale, {
       day: "2-digit",
       month: "2-digit",
@@ -791,7 +791,7 @@ export function formatTemplateValue(
     }).format(new Date(`${value}T12:00:00Z`));
   }
   if (typeof value === "object")
-    fail("TEMPLATE_FIELD_TYPE", "Une valeur simple est attendue.", field);
+    fail("TEMPLATE_FIELD_TYPE", "A simple value is expected.", field);
   return String(value);
 }
 export function prepareTemplateRender(
@@ -843,7 +843,7 @@ export function prepareTemplateRender(
     if (value === undefined && binding.required)
       fail(
         "TEMPLATE_REQUIRED_FIELD",
-        "Valeur liée manquante.",
+        "Missing bound value.",
         binding.path,
         binding.block,
       );
@@ -853,7 +853,7 @@ export function prepareTemplateRender(
         else
           fail(
             "TEMPLATE_FIELD_TYPE",
-            "Tableau attendu.",
+            "Array expected.",
             binding.path,
             binding.block,
           );
@@ -865,7 +865,7 @@ export function prepareTemplateRender(
           if (cell === undefined && column.required)
             fail(
               "TEMPLATE_REQUIRED_FIELD",
-              "Cellule obligatoire manquante.",
+              "Missing required cell.",
               field,
               binding.block,
             );
@@ -894,7 +894,7 @@ export function prepareTemplateRender(
         if (!Array.isArray(value))
           fail(
             "TEMPLATE_FIELD_TYPE",
-            "Tableau requis pour le total.",
+            "An array is required for the total.",
             binding.path,
             binding.block,
           );
@@ -982,7 +982,7 @@ export function applyTemplatePatch(
     if (!block)
       fail(
         "TEMPLATE_BLOCK_NOT_FOUND",
-        "Bloc introuvable.",
+        "Block not found.",
         undefined,
         change.block,
       );
@@ -1010,7 +1010,7 @@ export function applyTemplatePatch(
       if (!binding?.columns)
         fail(
           "TEMPLATE_BINDING_INVALID",
-          "Liez ce tableau aux données avant d’ajouter une colonne.",
+          "Bind this table to data before adding a column.",
           undefined,
           change.block,
         );
@@ -1019,7 +1019,7 @@ export function applyTemplatePatch(
         if (array?.type !== "array" || array.items?.type !== "object")
           fail(
             "TEMPLATE_BINDING_INVALID",
-            "Un objet métier par ligne est requis.",
+            "One business object per row is required.",
             binding.path,
             change.block,
           );
@@ -1035,7 +1035,7 @@ export function applyTemplatePatch(
           if (child.type !== "object")
             fail(
               "TEMPLATE_SCHEMA_CONFLICT",
-              "Le chemin traverse un champ qui n’est pas un objet.",
+              "The path crosses a non-object field.",
               change.column.path,
               change.block,
             );
@@ -1048,7 +1048,7 @@ export function applyTemplatePatch(
         if (Object.hasOwn(parent.properties, name))
           fail(
             "TEMPLATE_SCHEMA_CONFLICT",
-            "Le champ existe déjà ; réutilisez-le sans redéclarer son type.",
+            "The field already exists; reuse it without redeclaring its type.",
             change.column.path,
             change.block,
           );

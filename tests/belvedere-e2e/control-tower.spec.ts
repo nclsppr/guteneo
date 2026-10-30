@@ -11,7 +11,7 @@ async function navigate(page: Page, name: string) {
 async function ready(page: Page) {
   await page.goto(fixtureBase);
   await expect(
-    page.getByRole("heading", { name: "Tout voir, à la bonne hauteur." }),
+    page.getByRole("heading", { name: "Synthèse", level: 1 }),
   ).toBeVisible();
   await expect(
     page.getByRole("heading", { name: "Le monde de guteneo." }),
@@ -22,6 +22,55 @@ async function ready(page: Page) {
     ),
   ).toBeVisible();
 }
+
+test("a root-host shell keeps navigation and read-only data on its own origin", async ({
+  page,
+}, info) => {
+  const failures: string[] = [];
+  const reads: string[] = [];
+  page.on("pageerror", (error) => failures.push(error.message));
+  await page.route("http://127.0.0.1:8794/", async (route) => {
+    const response = await route.fetch();
+    const body = (await response.text()).replace(
+      `name="guteneo-belvedere" content="${fixtureBase}"`,
+      'name="guteneo-belvedere" content=""',
+    );
+    await route.fulfill({ response, body });
+  });
+  await page.route("**/api/**", async (route) => {
+    const url = new URL(route.request().url());
+    if (!url.pathname.startsWith("/api/")) return route.continue();
+    reads.push(url.pathname);
+    url.pathname = fixtureBase + url.pathname;
+    const data = fixtureResponse(url);
+    await route.fulfill({ status: data ? 200 : 404, json: data ?? {} });
+  });
+  await page.goto("/");
+  await expect(
+    page.getByRole("heading", { name: "Synthèse", level: 1 }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Le monde de guteneo." }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "Retour à guteneo", includeHidden: true }),
+  ).toHaveAttribute("href", "https://guteneo.com/");
+  await navigate(page, "Finances");
+  await expect(
+    page.getByRole("heading", {
+      name: "Finances",
+    }),
+  ).toBeVisible();
+  expect(new URL(page.url()).pathname).toBe("/");
+  expect(reads).toContain("/api/overview");
+  expect(reads).toContain("/api/finance");
+  expect(failures).toEqual([]);
+  await mkdir("/tmp/guteneo-belvedere-host", { recursive: true });
+  await page.screenshot({
+    path: `/tmp/guteneo-belvedere-host/root-${info.project.name}.png`,
+    fullPage: true,
+  });
+});
 
 test("overview filters, accessible chart and every navigation destination work", async ({
   page,
@@ -49,15 +98,17 @@ test("overview filters, accessible chart and every navigation destination work",
     page.getByRole("heading", { name: "Le monde de guteneo." }),
   ).toBeVisible();
   for (const [name, heading] of [
-    ["Ateliers", "Les ateliers, dans le détail."],
-    ["Envois", "Chaque envoi, à portée de vue."],
-    ["Membres", "Les personnes derrière l’activité."],
-    ["Connexions", "Chaque connexion a une origine."],
-    ["Finances", "Des chiffres qui disent ce qu’ils sont."],
-    ["Infrastructure", "Sous le capot de guteneo."],
+    ["Espaces de travail", "Espaces de travail"],
+    ["Envois", "Envois"],
+    ["Membres", "Membres"],
+    ["Connexions", "Connexions"],
+    ["Finances", "Finances"],
+    ["Infrastructure", "Infrastructure"],
   ]) {
     await navigate(page, name);
-    await expect(page.getByRole("heading", { name: heading })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: heading, level: 1 }),
+    ).toBeVisible();
     await expect(page.locator("#belvedere-main")).not.toContainText(
       "Les données n’ont pas pu être chargées.",
     );
@@ -69,8 +120,8 @@ test("workshop search, detail and paginated consumption keep recipient content p
   page,
 }) => {
   await ready(page);
-  await navigate(page, "Ateliers");
-  await page.getByLabel("Rechercher un atelier").fill("Rives");
+  await navigate(page, "Espaces de travail");
+  await page.getByLabel("Rechercher un espace de travail").fill("Rives");
   await expect(
     page.getByRole("button", { name: "Atelier des Rives", exact: true }),
   ).toBeVisible();
@@ -81,7 +132,7 @@ test("workshop search, detail and paginated consumption keep recipient content p
     page.getByRole("heading", { name: "Atelier des Rives", exact: true }),
   ).toBeVisible();
   await expect(
-    page.getByRole("region", { name: "Envois de l’atelier" }),
+    page.getByRole("region", { name: "Envois de l’espace de travail" }),
   ).toBeVisible();
   await expect(
     page.getByText("Non vérifié", { exact: true }).first(),
@@ -94,6 +145,86 @@ test("workshop search, detail and paginated consumption keep recipient content p
   await expect(
     page.getByRole("heading", { name: "Atelier des Rives", exact: true }),
   ).toBeVisible();
+});
+
+test("one appearance icon follows the system and preserves filters without business reads or writes", async ({
+  page,
+}) => {
+  const reads: string[] = [];
+  const writes: string[] = [];
+  page.on("request", (request) => {
+    if (!request.url().includes("/api/")) return;
+    if (["GET", "HEAD"].includes(request.method())) reads.push(request.url());
+    else writes.push(request.url());
+  });
+  await page.emulateMedia({ colorScheme: "dark" });
+  await page.addInitScript(() => {
+    Reflect.set(window, "belvedereThemeChanges", 0);
+    window.addEventListener("guteneo-theme-change", () => {
+      Reflect.set(
+        window,
+        "belvedereThemeChanges",
+        Number(Reflect.get(window, "belvedereThemeChanges")) + 1,
+      );
+    });
+  });
+  await ready(page);
+  await navigate(page, "Espaces de travail");
+  const search = page.getByLabel("Rechercher un espace de travail");
+  const searchResponse = page.waitForResponse((response) => {
+    const url = new URL(response.url());
+    return (
+      url.pathname === `${fixtureBase}/api/workshops` &&
+      url.searchParams.get("q") === "Rives"
+    );
+  });
+  await search.fill("Rives");
+  expect((await searchResponse).status()).toBe(200);
+  await expect(
+    page.getByRole("button", { name: "Atelier des Rives", exact: true }),
+  ).toBeVisible();
+  const root = page.locator("html");
+  const button = page.locator("button[data-theme-toggle]");
+  await expect(button).toHaveCount(1);
+  await expect(button).toBeVisible();
+  await expect(
+    page.getByRole("combobox", { name: "Apparence", exact: true }),
+  ).toHaveCount(0);
+  await expect(root).toHaveAttribute("data-theme-preference", "system");
+  await expect(root).toHaveAttribute("data-theme", "dark");
+  const size = await button.boundingBox();
+  expect(size?.width).toBeGreaterThanOrEqual(44);
+  expect(size?.height).toBeGreaterThanOrEqual(44);
+  const readsBefore = [...reads];
+  const changesBefore = await page.evaluate(() =>
+    Number(Reflect.get(window, "belvedereThemeChanges")),
+  );
+  await page.emulateMedia({ colorScheme: "light" });
+  await expect(root).toHaveAttribute("data-theme", "light");
+  await expect(root).toHaveAttribute("data-theme-preference", "system");
+  await button.click();
+  await expect(root).toHaveAttribute("data-theme", "dark");
+  await expect(button).toHaveAccessibleName("Passer au mode clair");
+  await button.press("Enter");
+  await expect(root).toHaveAttribute("data-theme", "light");
+  await expect(button).toHaveAccessibleName("Passer au mode sombre");
+  expect(
+    await page.evaluate(() =>
+      Number(Reflect.get(window, "belvedereThemeChanges")),
+    ),
+  ).toBe(changesBefore + 3);
+  await expect(search).toHaveValue("Rives");
+  expect(reads).toEqual(readsBefore);
+  expect(writes).toEqual([]);
+  await page.emulateMedia({ colorScheme: "dark" });
+  await expect(root).toHaveAttribute("data-theme", "light");
+  await page.reload();
+  await expect(
+    page.getByRole("heading", { name: "Espaces de travail", exact: true }),
+  ).toBeVisible();
+  await expect(root).toHaveAttribute("data-theme-preference", "light");
+  await expect(root).toHaveAttribute("data-theme", "light");
+  expect(writes).toEqual([]);
 });
 
 test("members search and geography distinguish unknown country from a fabricated value", async ({
@@ -212,7 +343,7 @@ test("empty data remains explicit without invented income or activity", async ({
   });
   await page.goto(fixtureBase);
   await expect(
-    page.getByRole("heading", { name: "Tout voir, à la bonne hauteur." }),
+    page.getByRole("heading", { name: "Synthèse", level: 1 }),
   ).toBeVisible();
   await expect(page.locator("#belvedere-main")).not.toContainText("NaN");
   await navigate(page, "Finances");
@@ -220,20 +351,23 @@ test("empty data remains explicit without invented income or activity", async ({
   await expect(page.getByText("Non configurés", { exact: true })).toBeVisible();
 });
 
-test("finance separates Horizon consumption from delivery channels and counts", async ({
+test("finance separates retained legacy PDF plan consumption from delivery channels and counts", async ({
   page,
 }) => {
   await ready(page);
   await navigate(page, "Finances");
   await expect(
-    page.getByText("Abonnement Horizon", { exact: true }),
+    page.getByRole("term").filter({ hasText: /^Anciens forfaits PDF$/ }),
   ).toBeVisible();
   await expect(page.locator("#belvedere-main")).toContainText(
-    "1 débit d’abonnement comptabilisé sur la période, inclus dans la consommation totale.",
+    "1 débit d’abonnement comptabilisé sur la période, inclus dans la consommation totale. Il n’est pas compté comme un envoi.",
   );
   const monthly = page.getByRole("region", { name: "Consommation mensuelle" });
   await expect(
-    monthly.getByRole("columnheader", { name: "Horizon", exact: true }),
+    monthly.getByRole("columnheader", {
+      name: "Anciens forfaits PDF",
+      exact: true,
+    }),
   ).toBeVisible();
   await expect(
     monthly.getByRole("columnheader", { name: "Envois débités", exact: true }),
@@ -255,7 +389,7 @@ test("capture design evidence across the operational views without page overflow
   await mkdir(dir, { recursive: true });
   for (const [name, id] of [
     ["Synthèse", "overview"],
-    ["Ateliers", "workshops"],
+    ["Espaces de travail", "workspaces"],
     ["Envois", "jobs"],
     ["Membres", "members"],
     ["Connexions", "connections"],

@@ -1,0 +1,150 @@
+---
+title: Security and reliability
+description: The boundaries that protect private documents and keep uncertain delivery from becoming duplicate work.
+sidebar:
+  order: 1
+---
+
+guteneo treats documents as untrusted input and communications as durable business
+commitments. A control is useful only if it survives a different client, a repeated
+message, a revoked permission or an interrupted provider request. These boundaries
+are enforced in the shared service and persistence layer.
+
+## Resolve access before touching private data
+
+The authenticated actor resolves to current workspace membership or a bound OAuth
+connection. Resource lookups, deduplication, idempotency keys and relationships are
+workspace scoped. A document identifier, object key or assistant-supplied workspace
+value never grants access by itself.
+
+Browser mutations retain session, Origin and CSRF checks. Connected clients also
+need the appropriate scopes and current resource authority; the token alone does
+not preserve a role that has since been revoked. Native and assistant clients do
+not inherit administrator powers from the browser UI.
+
+See [authority and tenancy](/architecture/authority-and-tenancy/) for the full
+distinction between identity, permission, human review and bounded delegation.
+
+## Keep hostile input away from privileged execution
+
+Uploaded PDFs retain their exact bytes and hash. They remain quarantined until the
+required verification succeeds for that version. Missing, stale or mismatched
+scan evidence fails closed; a successful browser preview cannot supply that proof.
+
+HTML rendering uses a restricted input model and blocks unwanted browser requests.
+Source parsing and document generation have explicit size, page, resource and time
+bounds. Dataset formulas are not executable application code. Public URL imports
+use a separate trusted HTTPS policy; private service bindings do not authorize
+arbitrary outbound fetches.
+
+These controls reduce specific risks. They are not a claim that every possible
+hostile PDF, compressed archive or browser resource pattern is harmless. New
+parsers, formats and rendering dependencies need focused hostile-input tests and
+qualification of the actual isolated runtime.
+
+## Seal approval, then commit work
+
+An approval binds the exact content, recipient, options and cost reviewed. Changes
+to those values require a new review. A model's assertion of consent is not
+evidence of a human action. Optional delegation has its own server-recorded actor,
+expiry, channel and budget limits; it does not relabel delegated approval as human.
+
+Acceptance, quota reservation and outbox insertion happen atomically. Consumers
+use a conditional claim and durable attempt records. Duplicate queue publication
+can therefore be handled without treating every delivery of a message as a new
+permission to contact a provider.
+
+The hardest case is an interrupted request whose remote outcome is unknown.
+`submission_unknown` preserves that uncertainty. It blocks automatic resubmission
+until reconciliation establishes what happened. A timeout does not mean a provider
+rejected the communication, and a retry button cannot safely assume it did.
+
+## Treat callbacks as evidence
+
+Provider callbacks require signature verification and durable, deduplicated
+receipts before projecting a status. Events may arrive more than once or out of
+order; some may arrive before their corresponding local association is available.
+Reconciliation must retain those facts without inventing a successful delivery.
+
+Acceptance by a provider, recipient delivery, postal handoff and financial
+settlement are distinct observations. Read the [dispatch lifecycle](/architecture/dispatch-lifecycle/)
+and [channel contracts](/workflows/delivery-channels/) before changing projections.
+
+## Observe failures without collecting document contents
+
+Application diagnostics use bounded event codes, correlation identifiers, route
+codes, version metadata, durations and integer counters. They exclude document
+contents, recipients, tokens, signed URLs and raw request/response bodies. Avoid
+logging free-form provider exceptions: they may contain private payloads.
+
+Metrics and logs help locate a failure; they are neither a backup nor the durable
+business audit. Platform and dependency metadata need their own privacy review.
+A safe application event does not prove that every surrounding runtime log is
+safe to persist.
+
+## Keep failure closed through recovery
+
+Missing identity, scanner, provider, tariff or required billing configuration
+must stop the affected capability. Production rejects development authentication
+and simulation shortcuts. A configured key or healthy process is not sufficient
+authority to send.
+
+Recovery must preserve accepted commitments and unknown attempts. Restoring a
+database does not establish that an external provider forgot a request. Reconcile
+provider facts and persisted attempts before replay; do not turn a restore into a
+bulk resubmission mechanism.
+
+The [testing guide](/engineering/testing/) separates local regression evidence,
+isolated-engine qualification, exact-source CI, hosted observations and real
+delivery. Public [status](https://status.guteneo.com/) reports bounded health; it
+does not certify every account, host, provider or security control.
+
+## Verified-address invitation binding
+
+The 26 October 2026 candidate connects individual email to the existing personal
+document service. New approved policies default to `recipientBinding=verified_email`.
+The claim transaction checks the private invitation, matching verified email,
+stable authenticated identity, active share and fresh current-policy session,
+then binds that account once and records a server event. This proves address
+control, not physical identity, and grants no workspace membership. Historical
+policies without the field and explicit `independent` policies retain human
+workspace confirmation. Never rewrite an approved policy to repair a delivery.
+
+The dependency chain is the existing identity/session service, D1 transaction,
+private renderer/storage and email outbox. Missing service configuration, stale
+authentication, wrong address, expired or revoked access fail closed. Explicit
+fresh login preserves the valid application destination and locale, then checks
+the returned identity and current rights. It never replays approval or extends
+session-age limits. The 27 October recovery candidate localizes recognized
+freshness refusals, including the browser-approval fence, without new Auth0
+configuration or credentials. `docs/SECURE_DISTRIBUTION_JOURNEYS.md`
+owns authority and recovery; `docs/PROTECTED_EMAIL.md` owns email compatibility.
+Local tests are distinct from live signup, delivery and publication proof.
+
+## Reuse the verified session without replacing human review
+
+The verified-account document policy uses the existing unexpired, unrevoked
+identity-linked session and verified address. It still requires a positive,
+nonfuture signed authentication time; the strong policy additionally retains its
+existing short authentication-age windows. Browser login requests the documented
+one-hour authentication age matching the normal application session, rather than
+forcing immediate reauthentication on entry to personal documents. Session
+lifetimes, revocation and tenant permissions remain unchanged.
+
+Recovery must follow the same policy. A verified-account personal recovery link
+and the corresponding workshop document-authentication error use ordinary bounded
+SSO, rather than always adding `fresh=1`. Strong and explicit freshness recovery
+still request fresh authentication. A legacy cookie can have a verified address
+and linked identity but no signed authentication time; obtain a real new
+authorization response instead of reconstructing that time from session creation.
+Auth0 can still require primary sign-in when its ordinary SSO age is exceeded.
+Recovery preserves safe destinations and locale, strips invitation/private input
+and never replays a write. No tenant configuration or migration is needed.
+
+Migration 0065 updates the approval evidence view and immutable approval guards
+together. Approval expires within its normal fifteen-minute review window and
+the actual session/quote expiry. A single priced browser action records approval
+then activation; no page load or status refresh sends. MCP status readback after
+that action goes directly to tracking. Assistants never acquire human consent or
+permission to enable a mandate. Qualify actual Auth0 SSO callbacks separately from
+signed synthetic tokens and local database tests before publication.

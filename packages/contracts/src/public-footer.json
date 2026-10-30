@@ -1,0 +1,193 @@
+{
+  "navigationLabel": {
+    "fr": "Navigation du site",
+    "en": "Site navigation",
+    "de": "Seitennavigation",
+    "lb": "Säitennavigatioun"
+  },
+  "groups": [
+    {
+      "id": "product",
+      "labels": {
+        "fr": "Produit",
+        "en": "Product",
+        "de": "Produkt",
+        "lb": "Produkt"
+      },
+      "links": [
+        {
+          "href": "/how-it-works/",
+          "labels": {
+            "fr": "Fonctionnement",
+            "en": "How it works",
+            "de": "So funktioniert es",
+            "lb": "Esou funktionéiert et"
+          }
+        },
+        {
+          "href": "/pricing/",
+          "labels": {
+            "fr": "Tarifs",
+            "en": "Pricing",
+            "de": "Preise",
+            "lb": "Präisser"
+          }
+        },
+        {
+          "href": "/pdf-checks/",
+          "labels": {
+            "fr": "Contrôles PDF",
+            "en": "PDF checks",
+            "de": "PDF-Prüfungen",
+            "lb": "PDF-Kontrollen"
+          }
+        },
+        {
+          "href": "/getting-started/",
+          "labels": {
+            "fr": "Premiers pas",
+            "en": "Getting started",
+            "de": "Erste Schritte",
+            "lb": "Éischt Schrëtt"
+          }
+        }
+      ]
+    },
+    {
+      "id": "resources",
+      "labels": {
+        "fr": "Ressources",
+        "en": "Resources",
+        "de": "Ressourcen",
+        "lb": "Ressourcen"
+      },
+      "links": [
+        {
+          "href": "/assistants/",
+          "labels": {
+            "fr": "Assistants",
+            "en": "Assistants",
+            "de": "Assistenten",
+            "lb": "Assistenten"
+          }
+        },
+        {
+          "href": "/developers/",
+          "labels": {
+            "fr": "Développeurs",
+            "en": "Developers",
+            "de": "Entwickler",
+            "lb": "Entwéckler"
+          }
+        },
+        {
+          "href": "https://engineering.guteneo.com/",
+          "labels": {
+            "fr": "Documentation technique",
+            "en": "Engineering documentation",
+            "de": "Technische Dokumentation",
+            "lb": "Technesch Dokumentatioun"
+          }
+        },
+        {
+          "href": "/journal/",
+          "labels": {
+            "fr": "Le journal",
+            "en": "The journal",
+            "de": "Das Journal",
+            "lb": "De Journal"
+          }
+        },
+        {
+          "href": "/about/",
+          "labels": {
+            "fr": "À propos de Guteneo",
+            "en": "About Guteneo",
+            "de": "Über Guteneo",
+            "lb": "Iwwer Guteneo"
+          }
+        }
+      ]
+    },
+    {
+      "id": "help",
+      "labels": { "fr": "Aide", "en": "Help", "de": "Hilfe", "lb": "Hëllef" },
+      "links": [
+        {
+          "href": "/support/",
+          "labels": {
+            "fr": "Assistance",
+            "en": "Support",
+            "de": "Support",
+            "lb": "Ënnerstëtzung"
+          }
+        },
+        {
+          "href": "/roles/",
+          "labels": {
+            "fr": "Rôles et permissions",
+            "en": "Roles and permissions",
+            "de": "Rollen und Berechtigungen",
+            "lb": "Rollen a Berechtegungen"
+          }
+        },
+        {
+          "href": "https://status.guteneo.com/",
+          "labels": {
+            "fr": "État du service",
+            "en": "Service status",
+            "de": "Systemstatus",
+            "lb": "Servicestatus"
+          }
+        },
+        {
+          "href": "mailto:guteneo@pieper.fr",
+          "labels": {
+            "fr": "Nous contacter",
+            "en": "Contact us",
+            "de": "Kontakt",
+            "lb": "Kontakt"
+          }
+        }
+      ]
+    },
+    {
+      "id": "legal",
+      "labels": {
+        "fr": "Informations légales",
+        "en": "Legal",
+        "de": "Rechtliches",
+        "lb": "Rechtlech Informatiounen"
+      },
+      "links": [
+        {
+          "href": "/legal/",
+          "labels": {
+            "fr": "Mentions légales",
+            "en": "Legal notice",
+            "de": "Impressum",
+            "lb": "Impressum"
+          }
+        },
+        {
+          "href": "/privacy/",
+          "labels": {
+            "fr": "Confidentialité",
+            "en": "Privacy",
+            "de": "Datenschutz",
+            "lb": "Dateschutz"
+          }
+        },
+        {
+          "href": "/terms/",
+          "labels": {
+            "fr": "Conditions d’utilisation",
+            "en": "Terms",
+            "de": "Nutzungsbedingungen",
+            "lb": "Notzungsbedingungen"
+          }
+        }
+      ]
+    }
+  ]
+}

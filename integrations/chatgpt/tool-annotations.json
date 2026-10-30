@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "reviewedOn": "2026-10-20",
+  "reviewedOn": "2026-10-26",
   "sourceScope": "local_candidate",
   "policySources": [
     {
@@ -47,6 +47,31 @@
         {
           "path": "apps/api/src/connection-observations.ts",
           "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "append_mcp_document_upload",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Claims and persists one immutable part and receipt under the current writer, size, time and call limits; confirmed replay preserves bytes but advances call accounting. A validated success can also persist current connection activity.",
+        "destructiveHint": "Reconciliation may remove only this attempt's exact unregistered temporary object after fencing its writer. Registered originals are preserved.",
+        "openWorldHint": "Uses the current authenticated private Guteneo account, its fixed internal storage/scanner pipeline and the standard host App bridge; it accepts no arbitrary URL, browser network permission or external recipient.",
+        "idempotentHint": "Same-key and part receipts protect content operations from duplication, but bounded call accounting, reconciliation and successful connection activity can change on repeated calls."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "append_mcp_document_upload"
+        },
+        {
+          "path": "apps/api/src/mcp-app-upload.ts",
+          "symbol": "async append("
         }
       ]
     },
@@ -113,6 +138,60 @@
       ]
     },
     {
+      "name": "begin_document_upload",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Persists an exact private upload reservation or reconciles its durable state. Validated successful production calls can also update connection activity.",
+        "destructiveHint": "Same-key recovery can reconcile an uncertain attempt and delete only its exact unregistered temporary object after fencing its writer; it never deletes a registered document or changes an approval or dispatch.",
+        "openWorldHint": "Confined to the authenticated Guteneo organization and fixed canonical private binary endpoint. No arbitrary outbound source or destination is accepted.",
+        "idempotentHint": "Business recovery reuses one key and upload ID, but a repeated unused reservation can rotate its capability and successful calls can advance connection activity."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"begin_document_upload\""
+        },
+        {
+          "path": "apps/api/src/document-upload.ts",
+          "symbol": "async begin("
+        },
+        {
+          "path": "tests/integration/private-document-upload.test.ts",
+          "symbol": "private original PDF transport with real D1/R2 and document pipeline"
+        }
+      ]
+    },
+    {
+      "name": "begin_mcp_document_upload",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Reserves immutable original metadata, current authority, a bounded upload slot and staging debt; same-key status recovery may reconcile the existing attempt. A validated success can also persist current connection activity.",
+        "destructiveHint": "Reconciliation may remove only this attempt's exact unregistered temporary object after fencing its writer. Registered originals are preserved.",
+        "openWorldHint": "Uses the current authenticated private Guteneo account, its fixed internal storage/scanner pipeline and the standard host App bridge; it accepts no arbitrary URL, browser network permission or external recipient.",
+        "idempotentHint": "Same-key and part receipts protect content operations from duplication, but bounded call accounting, reconciliation and successful connection activity can change on repeated calls."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "begin_mcp_document_upload"
+        },
+        {
+          "path": "apps/api/src/mcp-app-upload.ts",
+          "symbol": "async begin("
+        }
+      ]
+    },
+    {
       "name": "cancel_dispatch",
       "annotations": {
         "readOnlyHint": false,
@@ -163,6 +242,60 @@
         {
           "path": "apps/api/src/template-workflow.ts",
           "symbol": "async cancelGeneration("
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "cancel_mcp_document_upload",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Fences the owned unfinished writer and records cancellation before bounded staging cleanup; it may reconcile an already committed result instead. A validated success can also persist current connection activity.",
+        "destructiveHint": "Cancels only the owned unfinished upload and makes its private staging eligible for bounded deletion; committed or uncertain registered originals are never deleted.",
+        "openWorldHint": "Uses the current authenticated private Guteneo account, its fixed internal storage/scanner pipeline and the standard host App bridge; it accepts no arbitrary URL, browser network permission or external recipient.",
+        "idempotentHint": "Same-key and part receipts protect content operations from duplication, but bounded call accounting, reconciliation and successful connection activity can change on repeated calls."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "appUploads[method]"
+        },
+        {
+          "path": "apps/api/src/mcp-app-upload.ts",
+          "symbol": "async cancel("
+        }
+      ]
+    },
+    {
+      "name": "check_mcp_ui_probe_bridge",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Returns only a fixed diagnostic acknowledgement after rechecking the exact temporary activation, current OAuth membership/scope and connection revision. Normal authentication/rate accounting remains, and validated success attempts to persist this production connection's visible last-successful-use timestamp.",
+        "destructiveHint": "Creates, overwrites, transfers and deletes no document, upload grant, quota reservation, dispatch, approval, charge, outbox or provider operation. It does not change diagnostic activation.",
+        "openWorldHint": "The empty-input call is confined to the exact server-selected authenticated connection and bounded diagnostic window. It accepts no file, arbitrary address, URL or destination and initiates no document/provider request; normal fixed authentication dependencies remain.",
+        "idempotentHint": "The acknowledgement is fixed, but another successful production call may advance the persisted connection-activity timestamp and consumes ordinary HTTP rate accounting; the complete operation is not guaranteed to have no additional effect."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"check_mcp_ui_probe_bridge\""
+        },
+        {
+          "path": "apps/api/src/mcp-ui-probe.ts",
+          "symbol": "assertMcpUiProbeCurrent"
         },
         {
           "path": "apps/api/src/connection-observations.ts",
@@ -229,6 +362,35 @@
         {
           "path": "apps/api/src/index.ts",
           "symbol": "afterConfirmation:"
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "confirm_secure_distribution",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "openWorldHint": true,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Consumes an existing exact browser approval under the active document authentication policy to accept a distribution, commit its non-refundable retention charge and publish its durable notification command. A validated successful production result may also advance the connection last-successful-use timestamp.",
+        "destructiveHint": "Activation commits funded retention even if access is later revoked; can cause a real communication and credit consumption. A delegated expert mandate cannot create this browser approval.",
+        "openWorldHint": "Can submit the notification to the configured recipient through the configured delivery provider.",
+        "idempotentHint": "A stable key prevents a second accepted command; lost or unknown outcomes must be inspected instead of retried with a new key. A validated successful production result may also advance the connection last-successful-use timestamp."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"confirm_secure_distribution\""
+        },
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "secureDistributionSummary"
         },
         {
           "path": "apps/api/src/connection-observations.ts",
@@ -440,6 +602,31 @@
       ]
     },
     {
+      "name": "finish_mcp_document_upload",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Claims one complete original, assembles and verifies its exact bytes, then enters the existing private quota/scanner/registration pipeline once. A validated success can also persist current connection activity.",
+        "destructiveHint": "Reconciliation may remove only this attempt's exact unregistered temporary object after fencing its writer. Registered originals are preserved.",
+        "openWorldHint": "Uses the current authenticated private Guteneo account, its fixed internal storage/scanner pipeline and the standard host App bridge; it accepts no arbitrary URL, browser network permission or external recipient.",
+        "idempotentHint": "Same-key and part receipts protect content operations from duplication, but bounded call accounting, reconciliation and successful connection activity can change on repeated calls."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "appUploads[method]"
+        },
+        {
+          "path": "apps/api/src/mcp-app-upload.ts",
+          "symbol": "async finish("
+        }
+      ]
+    },
+    {
       "name": "generate_documents",
       "annotations": {
         "readOnlyHint": false,
@@ -477,7 +664,7 @@
         "idempotentHint": false
       },
       "justification": {
-        "readOnlyHint": "Reads configured capabilities, account gates, current expert delegation, postal setup and Horizon status without enabling them. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "readOnlyHint": "Reads configured capabilities, account gates, current expert delegation, postal setup and PDF verification availability without enabling them. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
         "destructiveHint": "Does not modify documents, dispatches, mandates or enabled services. Connection activity records the latest successful use without removing business data or authority.",
         "openWorldHint": "Limited to Guteneo configuration and the authenticated organization and connection; it does not browse arbitrary external resources or contact recipients.",
         "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
@@ -651,6 +838,35 @@
       ]
     },
     {
+      "name": "get_document_upload",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Persists an exact private upload reservation or reconciles its durable state. Validated successful production calls can also update connection activity.",
+        "destructiveHint": "Deletes only the uncertain attempt's exact unregistered temporary object after fencing its writer; registered or deduplicated documents are never deleted.",
+        "openWorldHint": "Confined to the authenticated Guteneo organization and fixed canonical private binary endpoint. No arbitrary outbound source or destination is accepted.",
+        "idempotentHint": "Business recovery reuses one key and upload ID, but a repeated unused reservation can rotate its capability and successful calls can advance connection activity."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"get_document_upload\""
+        },
+        {
+          "path": "apps/api/src/document-upload.ts",
+          "symbol": "async get("
+        },
+        {
+          "path": "tests/integration/private-document-upload.test.ts",
+          "symbol": "private original PDF transport with real D1/R2 and document pipeline"
+        }
+      ]
+    },
+    {
       "name": "get_expert_status",
       "annotations": {
         "readOnlyHint": false,
@@ -796,6 +1012,31 @@
       ]
     },
     {
+      "name": "get_mcp_document_upload",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Counts an App recovery call and reconciles pending part, finalizer or original receipts, potentially changing the owned upload state. A validated success can also persist current connection activity.",
+        "destructiveHint": "Reconciliation may remove only this attempt's exact unregistered temporary object after fencing its writer. Registered originals are preserved.",
+        "openWorldHint": "Uses the current authenticated private Guteneo account, its fixed internal storage/scanner pipeline and the standard host App bridge; it accepts no arbitrary URL, browser network permission or external recipient.",
+        "idempotentHint": "Same-key and part receipts protect content operations from duplication, but bounded call accounting, reconciliation and successful connection activity can change on repeated calls."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "appUploads[method]"
+        },
+        {
+          "path": "apps/api/src/mcp-app-upload.ts",
+          "symbol": "async get("
+        }
+      ]
+    },
+    {
       "name": "get_pdf_validation",
       "annotations": {
         "readOnlyHint": false,
@@ -904,6 +1145,35 @@
         {
           "path": "apps/api/src/postal-setup.ts",
           "symbol": "export async function getPostalSetupForMcp"
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "get_secure_distribution",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Reads one authorized workshop distribution, quote and provenance-labelled audit events. A validated successful production result may also advance the connection last-successful-use timestamp.",
+        "destructiveHint": "Does not mutate access, recipient binding, approvals or funded retention.",
+        "openWorldHint": "Limited to one authorized private workshop distribution; excludes personal vault access and invitation capabilities.",
+        "idempotentHint": "Repeated reads can persist newer connection activity. A validated successful production result may also advance the connection last-successful-use timestamp."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"get_secure_distribution\""
+        },
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "secureDistributionSummary"
         },
         {
           "path": "apps/api/src/connection-observations.ts",
@@ -1144,6 +1414,35 @@
       ]
     },
     {
+      "name": "import_inline_pdf",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Validates a bounded original then reserves and consumes the existing creator-private document import. Successful production calls can also update connection activity.",
+        "destructiveHint": "Same-key recovery can remove only this attempt’s unregistered temporary object after its writer is fenced; no registered document, approval or dispatch is deleted.",
+        "openWorldHint": "Original bytes are supplied in the bounded authenticated MCP request and enter the existing Guteneo private document pipeline. No arbitrary network source or destination is accepted.",
+        "idempotentHint": "One key preserves one import/claim, but recovery and connection activity can advance durable state; the complete tool call is not guaranteed to have no additional effects."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"import_inline_pdf\""
+        },
+        {
+          "path": "apps/api/src/document-upload.ts",
+          "symbol": "async importInlinePdf("
+        },
+        {
+          "path": "tests/integration/private-document-upload.test.ts",
+          "symbol": "private original PDF transport with real D1/R2 and document pipeline"
+        }
+      ]
+    },
+    {
       "name": "import_json_dataset",
       "annotations": {
         "readOnlyHint": false,
@@ -1322,6 +1621,35 @@
       ]
     },
     {
+      "name": "list_secure_distributions",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Reads bounded workshop metadata, policies and status. A validated successful production result may also advance the connection last-successful-use timestamp.",
+        "destructiveHint": "Does not change access, source documents, approvals or funded retention.",
+        "openWorldHint": "Limited to the authenticated workshop; excludes personal account documents and recipient-claim details.",
+        "idempotentHint": "Repeated reads can persist newer connection activity. A validated successful production result may also advance the connection last-successful-use timestamp."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"list_secure_distributions\""
+        },
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "secureDistributionSummary"
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
       "name": "list_template_examples",
       "annotations": {
         "readOnlyHint": false,
@@ -1372,6 +1700,60 @@
         {
           "path": "apps/api/src/template-workflow.ts",
           "symbol": "async listTemplates("
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "open_mcp_document_upload",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Opening presents an App without a file operation, while it reads the current account language and retains ordinary connection activity. A validated success can also persist current connection activity.",
+        "destructiveHint": "Presents the pinned private-picker resource and reads the current account language without selecting, reading or uploading any file or changing a document.",
+        "openWorldHint": "Uses the current authenticated private Guteneo account, its fixed internal storage/scanner pipeline and the standard host App bridge; it accepts no arbitrary URL, browser network permission or external recipient.",
+        "idempotentHint": "Repeated successful presentation can advance the persisted connection-activity timestamp."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "open_mcp_document_upload"
+        },
+        {
+          "path": "apps/api/src/mcp-document-upload.ts",
+          "symbol": "mcpDocumentUploadOpening"
+        }
+      ]
+    },
+    {
+      "name": "open_mcp_ui_probe",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Presents a default-off diagnostic resource after rechecking the exact temporary activation, current OAuth membership/scope and connection revision. Normal authentication/rate accounting remains, and validated success attempts to persist this production connection's visible last-successful-use timestamp.",
+        "destructiveHint": "Opens a no-content diagnostic without reading file metadata/bytes, granting upload capability or creating, replacing, approving, charging, queueing or sending business work. Picker API presence or a chooser request creates no content or business authority.",
+        "openWorldHint": "The diagnostic is restricted to one server-selected authenticated connection and bounded window. Its self-contained UI has no external dependencies or direct browser network requests and accepts no arbitrary URL or destination; normal fixed authentication and asset-binding reads remain.",
+        "idempotentHint": "Repeated opening returns the same diagnostic contract, but a validated successful production call may advance the persisted connection-activity timestamp and consumes ordinary HTTP rate accounting; the complete operation is not guaranteed to have no additional effect."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"open_mcp_ui_probe\""
+        },
+        {
+          "path": "apps/api/src/mcp-ui-probe.ts",
+          "symbol": "assertMcpUiProbeCurrent"
         },
         {
           "path": "apps/api/src/connection-observations.ts",
@@ -1508,6 +1890,35 @@
         {
           "path": "packages/domain/src/index.ts",
           "symbol": "async renewFaxQuote("
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "prepare_secure_distribution",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Persists an immutable preparation, bounded rendering work and the retention quote; it does not activate access, reserve a final charge or contact the recipient. A validated successful production result may also advance the connection last-successful-use timestamp.",
+        "destructiveHint": "Adds a preparation without replacing source bytes, approving or sending.",
+        "openWorldHint": "Uses the authorized workshop PDF and private rendering/storage services; no arbitrary destination or recipient contact.",
+        "idempotentHint": "A stable business key reuses the preparation; retries do not make the complete observed operation effect-free. A validated successful production result may also advance the connection last-successful-use timestamp."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"prepare_secure_distribution\""
+        },
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "secureDistributionSummary"
         },
         {
           "path": "apps/api/src/connection-observations.ts",
@@ -1843,6 +2254,35 @@
       ]
     },
     {
+      "name": "revoke_secure_distribution",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Revokes subsequent access to the shared distribution after current workshop permission checks. A validated successful production result may also advance the connection last-successful-use timestamp.",
+        "destructiveHint": "Closes shared access without refunding the committed term; retains already delivered personal copies, source bytes and audit evidence.",
+        "openWorldHint": "Changes only the existing authorized Guteneo share; no arbitrary endpoint and no retrieval of exported copies.",
+        "idempotentHint": "A repeat cannot restore access or refund retention; observed connection activity can still advance. A validated successful production result may also advance the connection last-successful-use timestamp."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"revoke_secure_distribution\""
+        },
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "secureDistributionSummary"
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
       "name": "share_template",
       "annotations": {
         "readOnlyHint": false,
@@ -2004,10 +2444,10 @@
         "idempotentHint": false
       },
       "justification": {
-        "readOnlyHint": "Creates and persists a validation attempt and report, consumes allowance from an already active Horizon plan, and may settle already timed-out attempts as errors. It does not subscribe, renew a plan or alter billing. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
-        "destructiveHint": "Adds a diagnostic report for the exact original PDF bytes without replacing a completed report. Settling an already timed-out attempt does not cancel a currently valid diagnosis. It neither modifies nor deletes the PDF, changes its security status, sends a communication, subscribes to a plan or debits a payment method.",
-        "openWorldHint": "Uses the authenticated organization’s existing PDF and the configured private veraPDF validation service. It does not accept an arbitrary destination or publish the document.",
-        "idempotentHint": "The same key and original PDF/profile reuse the saved validation report instead of consuming a second validation allowance. Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+        "readOnlyHint": "Reads an already purchased exact-key PDF validation report. New checks require an explicitly approved browser-administrator purchase and are rejected for assistants; this tool cannot debit credits, renew access or assert consent. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "destructiveHint": "Returns an existing diagnostic report for the exact PDF, profile and approved request key. It cannot start a new check, modify or delete the PDF, change its security status, send a communication or debit credits.",
+        "openWorldHint": "Reads the authenticated organization’s existing hash-bound report in Guteneo. This assistant operation does not call the private validator, accept an arbitrary destination or publish the document.",
+        "idempotentHint": "The same request key, original PDF and profile reuse the saved report. Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect."
       },
       "evidence": [
         {

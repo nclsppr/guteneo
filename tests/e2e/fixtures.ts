@@ -20,7 +20,8 @@ export const test = base.extend<{ localRateWindow: void }>({
       // Give each independent scenario its own HTTP/content usage window. The
       // daily upload/render limits remain unchanged and are enforced inside each
       // scenario; repeated full suites must not exhaust yesterday's fixtures.
-      // Account language and appearance are saved on the fictional user; reset both for each
+      // Account language and the retired `classic` layout value are saved on the fictional user;
+      // storing `classic` keeps proving that the web ignores it. Reset both for each
       // independent scenario, including after an interrupted preceding test.
       // This only touches the two seeded simulation organizations, never sending
       // credit, sending quotas, limits, customer content or production state.

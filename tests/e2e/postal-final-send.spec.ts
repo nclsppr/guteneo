@@ -3,7 +3,6 @@ import { expect, test, type Page } from "@playwright/test";
 async function fixture(page: Page, expiresIn = 900_000) {
   const now = Date.parse("2026-09-21T12:00:00.000Z");
   await page.clock.install({ time: new Date(now - 60_000) });
-  await page.clock.pauseAt(new Date(now));
   const writes: { path: string; body: unknown; key: string | undefined }[] = [];
   const dispatch = {
     id: "postal_final",
@@ -120,14 +119,24 @@ async function fixture(page: Page, expiresIn = 900_000) {
       body: JSON.stringify(result),
     });
   });
-  return { dispatch, control, writes };
+  return {
+    dispatch,
+    control,
+    writes,
+    async open() {
+      await page.goto("/#/app/dispatch/postal_final");
+      // Let the lazy screen commit before freezing its expiry timers.
+      await expect(page.locator(".dispatch-reference")).toBeVisible();
+      await page.clock.pauseAt(new Date(now));
+    },
+  };
 }
 
 test("one explicit postal click approves the immutable version and sends at its exact price", async ({
   page,
 }, testInfo) => {
   const f = await fixture(page);
-  await page.goto("/#/app/dispatch/postal_final");
+  await f.open();
   const send = page.getByRole("button", {
     name: "Envoyer pour 2,4615 € HT",
     exact: true,
@@ -180,7 +189,7 @@ test("postal quote expiry disables sending and offers preparation without callin
   page,
 }) => {
   const f = await fixture(page, 2000);
-  await page.goto("/#/app/dispatch/postal_final");
+  await f.open();
   const send = page.getByRole("button", { name: /Envoyer pour/ });
   await expect(send).toBeEnabled();
   await page.clock.fastForward(3000);
@@ -203,7 +212,7 @@ test("a missing exact production postal price cannot authorize sending", async (
   const f = await fixture(page);
   f.dispatch.quote_customer_nanoeur = null;
   f.dispatch.options_json = undefined;
-  await page.goto("/#/app/dispatch/postal_final");
+  await f.open();
   await expect(
     page.getByRole("button", { name: "Prix indisponible" }),
   ).toBeDisabled();
@@ -218,7 +227,7 @@ test("a lost acceptance response reads the committed status without resending", 
 }) => {
   const f = await fixture(page);
   f.control.result = "lost-queued";
-  await page.goto("/#/app/dispatch/postal_final");
+  await f.open();
   await page.getByRole("button", { name: /Envoyer pour/ }).click();
   await expect(page.locator(".dispatch-reference")).toContainText("En file");
   await expect(page.getByRole("button", { name: /Envoyer pour/ })).toHaveCount(
@@ -237,7 +246,7 @@ test("unreadable outcome blocks sending until a read succeeds, then explicit ret
 }) => {
   const f = await fixture(page);
   f.control.result = "lost-prepared";
-  await page.goto("/#/app/dispatch/postal_final");
+  await f.open();
   const send = page.getByRole("button", { name: /Envoyer pour/ });
   await expect(send).toBeEnabled();
   f.control.failReads = true;
@@ -269,7 +278,7 @@ test("a provider unknown outcome is never retried and the postal follow-up names
 }) => {
   const f = await fixture(page);
   f.control.result = "unknown";
-  await page.goto("/#/app/dispatch/postal_final");
+  await f.open();
   await page.getByRole("button", { name: /Envoyer pour/ }).click();
   await expect(page.getByRole("button", { name: /Envoyer pour/ })).toHaveCount(
     0,
@@ -292,7 +301,7 @@ test("a quote invalidated between approval and acceptance stays blocked", async 
 }) => {
   const f = await fixture(page);
   f.control.result = "invalid";
-  await page.goto("/#/app/dispatch/postal_final");
+  await f.open();
   await page.getByRole("button", { name: /Envoyer pour/ }).click();
   await expect(
     page.getByText("Ce devis n’est plus valable.", { exact: true }),

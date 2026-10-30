@@ -4,6 +4,7 @@ import { createServer } from "node:http";
 import { readFile } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
 import { productionStatus } from "./production-status.mjs";
+import { publicHtmlLanguage } from "../packages/contracts/src/public-html-language.ts";
 
 const origins = ["https://guteneo.com"];
 // The owner retired this hostname on 9 October 2026. Reopening it is a regression.
@@ -16,7 +17,7 @@ const publicPaths = [
   "/?lang=de",
   "/?lang=lb",
   "/roles/",
-  "/developpeurs/",
+  "/developers/",
   "/assistants/chatgpt/",
 ];
 const privatePaths = [
@@ -219,7 +220,7 @@ export async function productionMonitor(
           typeof entry.sha256 === "string" &&
           r.body?.length === entry.bytes &&
           digest(r.body) === entry.sha256 &&
-          r.text?.includes(`<html lang="${locale}">`) &&
+          publicHtmlLanguage(r.text) === locale &&
           r.headers?.get("content-type")?.includes("text/html") &&
           r.headers?.get("x-content-type-options") === "nosniff" &&
           r.headers
@@ -253,33 +254,32 @@ export async function productionMonitor(
   const caps = get(origins[0], "/api/capabilities")?.data;
   const coverage = [
     {
-      feature: "Connexion Auth0",
+      feature: "Auth0 sign-in",
       state: "not_checked",
       evidence:
-        "Configuration et refus anonyme seulement ; connexion et renouvellement à qualifier.",
+        "Configuration and anonymous refusal only; sign-in and renewal require qualification.",
     },
     {
-      feature: "PDF : import, antivirus, rendu",
+      feature: "PDF: import, antivirus, rendering",
       state: "not_checked",
       evidence:
-        "Binding annoncé ; fraîcheur des signatures, analyse et rendu non testés.",
+        "Binding advertised; signature freshness, scanning and rendering untested.",
     },
     {
-      feature: "Studio : modèles, données, génération",
+      feature: "Studio: templates, data, generation",
       state: "not_checked",
-      evidence: "Aucune génération authentifiée exécutée par ce contrôle.",
+      evidence: "This check performed no authenticated generation.",
     },
     {
-      feature: "Cron, files, callbacks, sauvegardes",
+      feature: "Cron, queues, callbacks, backups",
+      state: "not_checked",
+      evidence: "Requires private metrics and recent restore evidence.",
+    },
+    {
+      feature: "MCP assistants",
       state: "not_checked",
       evidence:
-        "Nécessite des métriques privées et une preuve de restauration récente.",
-    },
-    {
-      feature: "Assistants MCP",
-      state: "not_checked",
-      evidence:
-        "Refus anonyme vérifié ; parcours OAuth et outils en client réel non testés.",
+        "Anonymous refusal verified; real-client OAuth and tool workflows untested.",
     },
     ...channels.map((id) => {
       const enabled = Array.isArray(caps?.channels)
@@ -287,27 +287,27 @@ export async function productionMonitor(
         : null;
       return {
         feature:
-          id === "fax" ? "Fax" : id === "postal" ? "Courrier postal" : "E-mail",
+          id === "fax" ? "Fax" : id === "postal" ? "Postal mail" : "Email",
         state: enabled === false ? "disabled" : "not_checked",
         evidence:
           enabled === true
-            ? "Envoi autorisé par configuration ; devis, remise fournisseur et livraison non testés."
+            ? "Sending allowed by configuration; quotes, provider handoff and delivery untested."
             : enabled === false
-              ? "Canal fermé par configuration."
-              : "Configuration indisponible.",
+              ? "Channel disabled by configuration."
+              : "Configuration unavailable.",
       };
     }),
     ...[
-      ["Horizon / validation PDF", caps?.horizon?.available],
-      ["Paiements Stripe", caps?.billing?.chargingEnabled],
-      ["Propositions IA", caps?.studio?.ai?.configured],
+      ["PDF verification", caps?.pdfValidation?.available],
+      ["Stripe payments", caps?.billing?.chargingEnabled],
+      ["AI proposals", caps?.studio?.ai?.configured],
     ].map(([feature, enabled]) => ({
       feature,
       state: enabled === false ? "disabled" : "not_checked",
       evidence:
         enabled === false
-          ? "Fonction désactivée dans la configuration publique."
-          : "Parcours authentifié non testé.",
+          ? "Feature disabled in public configuration."
+          : "Authenticated workflow untested.",
     })),
   ];
   return {
@@ -323,7 +323,7 @@ export async function productionMonitor(
     sourceCommit: summary.sourceCommit,
     expectedCommit,
     scope:
-      "Lectures publiques réelles ; aucun envoi. Les temps sont des échantillons locaux, pas un SLO.",
+      "Real public reads; no sending. Timings are local samples, not an SLO.",
     checks: checks.sort((a, b) =>
       `${a.origin}${a.path}`.localeCompare(`${b.origin}${b.path}`),
     ),
@@ -421,7 +421,7 @@ if (
   if (args.length === 1 && args[0] === "--serve") {
     await serveProductionMonitor();
     console.log(
-      "Vue locale : http://127.0.0.1:8796 — lecture publique toutes les 60 s ; Ctrl+C pour arrêter.",
+      "Local view: http://127.0.0.1:8796 — public reads every 60 seconds; Ctrl+C to stop.",
     );
   } else if (
     !args.length ||

@@ -1,5 +1,37 @@
 # Private Telnyx configuration inspection
 
+## Scoped pilot renewal — 27 October 2026 candidate
+
+The operator explicitly requested renewal of the existing `+3524` pilot with
+unchanged prices and authorized publication. Migration 0064 and the matching
+runtime change permit only that live operator-test prefix to expire as late as
+**3 November 2026 at 23:59:59.999 UTC**. Each installed revision still lasts at
+most seven days. Other Luxembourg operator-test prefixes retain the original
+24 September deadline. This is a bounded operator exception, not fresh provider
+qualification: `local_calling_verified=0`, the visible unverified-route notice,
+the ten-page maximum and the EUR2 per-dispatch ceiling remain unchanged.
+
+Activation must revoke the previous qualified `+3524` revision and insert its
+replacement in one batch, bound to the same workspace, sender, provider account,
+application, outbound profile and canonical options. Copy the existing page,
+minute and call amounts, duration assumptions, FX and original evidence exactly;
+record the new operator authorization and validity dates separately. Do not edit
+old tariff material, quote fingerprints, approvals, reserves or settlement
+history. Keeping an old source date is intentional and does not assert that the
+supplier reconfirmed its prices.
+
+The runtime and SQL deadline checks must both be published before installing the
+replacement. A database-only extension cannot bypass the old runtime deadline.
+The migration preserves historical rows and installs no active tariff. A new
+preparation uses the replacement only after installation; it requires current
+scan, sender, funding and human approval or an already-valid bounded mandate.
+An expired assistant mandate is never extended by this operation. The operator
+renewal authorizes neither a fax nor an automatic retry of an existing attempt.
+
+This section records the candidate and operator request. Deployment, migration,
+scoped tariff installation and a successful authenticated preparation require
+separate recorded verification; no real transmission is claimed here.
+
 ## Canonical webhook audit — 17 September 2026
 
 The Fax API application's saved webhook was changed, then reread after reloading the portal, to `https://guteneo.com/webhooks/telnyx`. Failover remains empty. Both the previous Workers address and the canonical address returned 405 for GET and 401 `WEBHOOK_REJECTED` for unsigned POST probes. These probes sent no fax and do not qualify a real signed callback. The outgoing adapter already supplies this canonical URL on each fax request; the old application callback did not explain a ChatGPT `SOURCE_NOT_ALLOWED` import refusal.

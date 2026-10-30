@@ -49,7 +49,6 @@
   display: block;
   margin-bottom: 25px;
   overflow: hidden;
-  background: var(--paper);
 }
 .journal-story-art img {
   display: block;
@@ -57,7 +56,7 @@
   height: auto;
   aspect-ratio: 3/2;
   object-fit: cover;
-  mix-blend-mode: multiply;
+  mix-blend-mode: normal;
   transition: transform 0.4s ease;
 }
 .journal-story-art:hover img {
@@ -167,13 +166,12 @@
 }
 .article-hero {
   margin: 0 0 65px;
-  border-top: 1px solid var(--line);
 }
 .article-hero img {
   width: 100%;
   height: auto;
   display: block;
-  mix-blend-mode: multiply;
+  mix-blend-mode: normal;
   max-height: 650px;
   object-fit: contain;
 }
@@ -182,7 +180,8 @@
   line-height: 1.6;
   color: var(--muted);
   border-top: 1px solid var(--line);
-  padding-top: 13px;
+  padding-top: 16px;
+  margin-top: 20px;
   max-width: 95ch;
 }
 .article-layout {
@@ -367,12 +366,6 @@
   .journal-note p {
     max-width: none;
   }
-  .editorial-header nav > a:first-child:not(.button) {
-    display: block;
-  }
-  .editorial-header nav {
-    gap: 12px;
-  }
   .article-intro {
     padding-top: 30px;
   }
@@ -429,16 +422,6 @@
   }
 }
 @media (max-width: 420px) {
-  .editorial-header .brand {
-    font-size: 29px;
-  }
-  .editorial-header nav > .button {
-    font-size: 11px;
-    padding: 9px;
-  }
-  .editorial-header nav > a:first-child:not(.button) {
-    display: none;
-  }
   .article-intro h1 {
     font-size: 39px;
   }
@@ -461,13 +444,6 @@
   }
 }
 @media print {
-  .editorial-header,
-  .article-contents,
-  .article-next,
-  .luxembourg-footer,
-  .skip-link {
-    display: none;
-  }
   .landing {
     max-width: none;
     padding: 0;

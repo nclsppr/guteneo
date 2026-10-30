@@ -41,6 +41,8 @@ import { recordSuccessfulConnectionTool } from "../../apps/api/src/connection-ob
 import { DomainService } from "../../packages/domain/src/index";
 import worker from "../../apps/api/src/index";
 import { DocumentService } from "../../apps/api/src/documents";
+import { authenticatePersonalBrowser } from "../../apps/api/src/auth";
+import { handlePersonalAccountRoute } from "../../apps/api/src/personal-auth";
 
 let mf: Miniflare;
 let env: AuthEnv;
@@ -89,6 +91,40 @@ const betaEnv = () => ({
   MODE: "production",
   AUTH0_AUTH_POLICY: "verified_email",
 });
+/** Tests of workshop authority explicitly request the sending service after
+ * account login. Signup itself never manufactures a workshop or credit. */
+async function withExplicitWorkspace(
+  response: Response | null,
+  currentEnv: AuthEnv,
+) {
+  if (!response) return response;
+  const cookie = response.headers
+    .get("Set-Cookie")
+    ?.match(/guteneo_session=[^;,]+/)?.[0];
+  if (!cookie) return response;
+  const principal = await authenticatePersonalBrowser(
+    request("/api/personal/session", "GET", undefined, { Cookie: cookie }),
+    currentEnv,
+  );
+  const existing = await currentEnv.DB.prepare(
+    "SELECT 1 FROM memberships WHERE user_id=?",
+  )
+    .bind(principal.userId)
+    .first();
+  if (existing) return response;
+  const created = await handlePersonalAccountRoute(
+    request(
+      "/api/personal/workspace",
+      "POST",
+      { name: "Mon espace" },
+      { Cookie: cookie, "X-CSRF-Token": principal.csrfToken },
+    ),
+    currentEnv,
+  );
+  const headers = new Headers(response.headers);
+  headers.set("Set-Cookie", created!.headers.get("Set-Cookie")!);
+  return new Response(null, { status: response.status, headers });
+}
 async function signedBetaLogin(
   idChanges: Record<string, unknown> = {},
   accessChanges: Record<string, unknown> = {},
@@ -142,7 +178,11 @@ async function signedBetaLogin(
     sub,
     destination,
     callback,
-    complete: () => handleAuthRoute(callback, configured),
+    complete: async () =>
+      withExplicitWorkspace(
+        await handleAuthRoute(callback, configured),
+        configured,
+      ),
   };
 }
 async function login(organization = "atelier") {
@@ -699,6 +739,77 @@ describe("identity and authentication boundaries", () => {
       ),
     ).rejects.toMatchObject({ code: "DEVELOPMENT_AUTH_FORBIDDEN" });
   });
+  it("protects annual usage with current browser reporting rights and real OAuth read scope", async () => {
+    const flow = await signedBetaLogin();
+    const completed = await flow.complete();
+    const cookie = completed!.headers.get("Set-Cookie")!.split(";")[0];
+    const member = await env.DB.prepare(
+      "SELECT m.organization_id,m.user_id FROM memberships m JOIN auth_identities i ON i.user_id=m.user_id WHERE i.subject=?",
+    )
+      .bind(flow.sub)
+      .first<{ organization_id: string; user_id: string }>();
+    const client = `annual-usage-${crypto.randomUUID()}`;
+    const browserRead = () =>
+      worker.fetch(
+        request("/api/usage/activity", "GET", undefined, { Cookie: cookie }),
+        flow.configured as Env,
+      );
+    const oauthRead = async (scope: string) =>
+      worker.fetch(
+        request("/api/usage/activity", "GET", undefined, {
+          Authorization: `Bearer ${await token(`${origin}/mcp`, {
+            sub: flow.sub,
+            client_id: client,
+            scope,
+            "https://guteneo.com/verified_account": true,
+          })}`,
+        }),
+        flow.configured as Env,
+      );
+    expect((await browserRead()).status).toBe(200);
+    const deniedScope = await oauthRead("documents:read");
+    expect(deniedScope.status).toBe(403);
+    expect(await deniedScope.json()).toMatchObject({
+      error: { code: "INSUFFICIENT_SCOPE" },
+    });
+    const authorized = await oauthRead("dispatches:read");
+    expect(authorized.status).toBe(200);
+    expect(await authorized.json()).toMatchObject({
+      evidence: "production",
+      timeZone: "UTC",
+      days: [],
+    });
+    const remainingAdmin = `annual-admin-${crypto.randomUUID()}`;
+    await env.DB.batch([
+      env.DB.prepare(
+        "INSERT INTO users(id,name,email,created_at) VALUES(?,'Fixture administrator','annual-admin@example.invalid',?)",
+      ).bind(remainingAdmin, new Date().toISOString()),
+      env.DB.prepare(
+        "INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES(?,?,'admin',?)",
+      ).bind(member!.organization_id, remainingAdmin, new Date().toISOString()),
+    ]);
+    await env.DB.prepare(
+      "UPDATE memberships SET role='supervisor',supervisor_can_report=0 WHERE organization_id=? AND user_id=?",
+    )
+      .bind(member!.organization_id, member!.user_id)
+      .run();
+    expect((await browserRead()).status).toBe(403);
+    expect((await oauthRead("dispatches:read")).status).toBe(403);
+    await env.DB.prepare(
+      "UPDATE memberships SET supervisor_can_report=1 WHERE organization_id=? AND user_id=?",
+    )
+      .bind(member!.organization_id, member!.user_id)
+      .run();
+    expect((await browserRead()).status).toBe(200);
+    expect((await oauthRead("dispatches:read")).status).toBe(200);
+    await env.DB.prepare(
+      "UPDATE memberships SET role='member',supervisor_can_report=0 WHERE organization_id=? AND user_id=?",
+    )
+      .bind(member!.organization_id, member!.user_id)
+      .run();
+    expect((await browserRead()).status).toBe(403);
+    expect((await oauthRead("dispatches:read")).status).toBe(403);
+  });
   it("verifies signatures, audience, issuer and expiry with real signed JWTs", async () => {
     const keys = createLocalJWKSet({ keys: [jwk] });
     const good = await token(`${origin}/mcp`, { scope: "documents:write" });
@@ -939,7 +1050,7 @@ describe("identity and authentication boundaries", () => {
       });
     },
   );
-  it("grants one shared welcome credit after verified PKCE signup without enabling any channel", async () => {
+  it("keeps signup personal and grants one shared welcome credit only after explicit workshop creation", async () => {
     const configured = { ...realEnv(), MODE: "production" as const };
     const response = await handleAuthRoute(request("/auth/login"), configured);
     const destination = new URL(response!.headers.get("Location")!);
@@ -988,6 +1099,19 @@ describe("identity and authentication boundaries", () => {
     )
       .bind("auth0|test-member")
       .first<{ user_id: string }>();
+    expect(
+      await env.DB.prepare("SELECT count(*) n FROM memberships WHERE user_id=?")
+        .bind(user!.user_id)
+        .first(),
+    ).toEqual({ n: 0 });
+    expect(
+      await env.DB.prepare(
+        "SELECT count(*) n FROM personal_workspace_creations WHERE user_id=?",
+      )
+        .bind(user!.user_id)
+        .first(),
+    ).toEqual({ n: 0 });
+    await withExplicitWorkspace(callback, configured);
     const budgets = await env.DB.prepare(
       "SELECT limit_count,limit_minor FROM usage WHERE organization_id IN (SELECT organization_id FROM memberships WHERE user_id=?)",
     )
@@ -2678,8 +2802,11 @@ describe("browser Auth0 custom domain with a stable identity namespace", () => {
       destination,
       callback,
       fetchSpy,
-      complete: (callbackEnv = startEnv) =>
-        handleAuthRoute(callback, callbackEnv),
+      complete: async (callbackEnv = startEnv) =>
+        withExplicitWorkspace(
+          await handleAuthRoute(callback, callbackEnv),
+          callbackEnv,
+        ),
     };
   }
   async function browserSession(response: Response, currentEnv: AuthEnv) {
@@ -2725,6 +2852,18 @@ describe("browser Auth0 custom domain with a stable identity namespace", () => {
       after.startEnv,
     );
     expect(second.session.context).toEqual(first.session.context);
+    expect(second.session.context.documentSessionHash).toBe(
+      second.session.tokenHash,
+    );
+    expect(
+      Object.getOwnPropertyDescriptor(
+        second.session.context,
+        "documentSessionHash",
+      )?.enumerable,
+    ).toBe(false);
+    expect(JSON.stringify(second.session.context)).not.toContain(
+      second.session.tokenHash,
+    );
     expect(second.session.user).toMatchObject({
       name: "Saved fixture name",
       preferredLocale: "de",

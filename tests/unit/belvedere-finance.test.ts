@@ -2,7 +2,6 @@ import { readFile, readdir } from "node:fs/promises";
 import { Miniflare, convertV4MiniflareOptions } from "miniflare";
 import { afterAll, beforeAll, expect, it } from "vitest";
 import { hashSecret } from "../../apps/api/src/auth";
-import { horizonPeriodEnd } from "../../apps/api/src/monthly-plan";
 import type { BelvedereFinance } from "../../packages/contracts/src/belvedere";
 import { readBelvedereFixture } from "../helpers/belvedere-reader";
 
@@ -16,6 +15,27 @@ const currentStart = new Date(
 const previousStart = new Date(
   Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, 1),
 );
+
+async function applyMigration(filename: string) {
+  const sql = await readFile(
+    new URL(`../../migrations/${filename}`, import.meta.url),
+    "utf8",
+  );
+  let statement = "";
+  let trigger = false;
+  for (const raw of sql.split("\n")) {
+    const line = raw.trim();
+    if (!line || line.startsWith("--")) continue;
+    if (line.startsWith("CREATE TRIGGER") && !line.endsWith("END;"))
+      trigger = true;
+    statement += `${line}\n`;
+    if ((trigger && line === "END;") || (!trigger && line.endsWith(";"))) {
+      await db.prepare(statement).run();
+      statement = "";
+      trigger = false;
+    }
+  }
+}
 
 beforeAll(async () => {
   mf = new Miniflare(
@@ -31,27 +51,12 @@ beforeAll(async () => {
   for (const filename of (
     await readdir(new URL("../../migrations/", import.meta.url))
   )
-    .filter((name) => name.endsWith(".sql"))
-    .sort()) {
-    const sql = await readFile(
-      new URL(`../../migrations/${filename}`, import.meta.url),
-      "utf8",
-    );
-    let statement = "";
-    let trigger = false;
-    for (const raw of sql.split("\n")) {
-      const line = raw.trim();
-      if (!line || line.startsWith("--")) continue;
-      if (line.startsWith("CREATE TRIGGER") && !line.endsWith("END;"))
-        trigger = true;
-      statement += `${line}\n`;
-      if ((trigger && line === "END;") || (!trigger && line.endsWith(";"))) {
-        await db.prepare(statement).run();
-        statement = "";
-        trigger = false;
-      }
-    }
-  }
+    .filter(
+      (name) =>
+        name.endsWith(".sql") && name !== "0060_pdf_validation_per_check.sql",
+    )
+    .sort())
+    await applyMigration(filename);
   await db
     .prepare("INSERT INTO users(id,name,email,created_at) VALUES(?,?,?,?)")
     .bind(
@@ -107,13 +112,15 @@ async function subscribeFixture(
         userId,
         tokenHash,
         stamp,
-        horizonPeriodEnd(start),
+        new Date(
+          Date.UTC(start.getUTCFullYear(), start.getUTCMonth() + 1, 1),
+        ).toISOString(),
         stamp,
       ),
   ]);
 }
 
-it("includes dated Horizon debits once without inventing dispatches or mixing simulation", async () => {
+it("preserves retired subscription debits after migration without inventing dispatches or mixing simulation", async () => {
   await subscribeFixture(
     "finance_production_previous",
     "production",
@@ -125,6 +132,7 @@ it("includes dated Horizon debits once without inventing dispatches or mixing si
     currentStart,
   );
   await subscribeFixture("finance_simulation", "simulation", currentStart);
+  await applyMigration("0060_pdf_validation_per_check.sql");
   const from = currentStart.toISOString().slice(0, 10);
   const to = now.toISOString().slice(0, 10);
   const read = (mode: "production" | "simulation", firstDay = from) =>
@@ -139,8 +147,8 @@ it("includes dated Horizon debits once without inventing dispatches or mixing si
   expect(current).toMatchObject({
     periodBasis: "posted_ledger",
     customerConsumptionMinor: 3000,
-    horizonConsumptionMinor: 3000,
-    horizonCharges: 1,
+    legacyPlanConsumptionMinor: 3000,
+    legacyPlanCharges: 1,
     promotionalGrantedMinor: 10000,
     promotionalRemainingMinor: 4000,
     channels: [],
@@ -148,7 +156,7 @@ it("includes dated Horizon debits once without inventing dispatches or mixing si
       {
         month: from.slice(0, 7),
         consumptionMinor: 3000,
-        horizonConsumptionMinor: 3000,
+        legacyPlanConsumptionMinor: 3000,
         dispatches: 0,
       },
     ],
@@ -158,8 +166,8 @@ it("includes dated Horizon debits once without inventing dispatches or mixing si
     previousStart.toISOString().slice(0, 10),
   );
   expect(historical.customerConsumptionMinor).toBe(6000);
-  expect(historical.horizonConsumptionMinor).toBe(6000);
-  expect(historical.horizonCharges).toBe(2);
+  expect(historical.legacyPlanConsumptionMinor).toBe(6000);
+  expect(historical.legacyPlanCharges).toBe(2);
   expect(historical.monthly).toHaveLength(2);
   expect(historical.monthly.every((month) => month.dispatches === 0)).toBe(
     true,
@@ -167,8 +175,8 @@ it("includes dated Horizon debits once without inventing dispatches or mixing si
   const simulation = await read("simulation");
   expect(simulation).toMatchObject({
     customerConsumptionMinor: 3000,
-    horizonConsumptionMinor: 3000,
-    horizonCharges: 1,
+    legacyPlanConsumptionMinor: 3000,
+    legacyPlanCharges: 1,
     promotionalGrantedMinor: 0,
     cashReceived: [],
     channels: [],

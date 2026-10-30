@@ -4,16 +4,20 @@
   "locales": ["fr", "en", "de", "lb"],
   "paths": [
     "/",
-    "/a-propos/",
+    "/how-it-works/",
+    "/pricing/",
+    "/getting-started/",
+    "/pdf-checks/",
+    "/about/",
     "/journal/",
-    "/journal/de-gutenberg-au-numerique/",
-    "/journal/histoire-imprimerie-luxembourg/",
-    "/mentions-legales/",
-    "/confidentialite/",
-    "/conditions/",
+    "/journal/from-gutenberg-to-digital/",
+    "/journal/printing-history-luxembourg/",
+    "/legal/",
+    "/privacy/",
+    "/terms/",
     "/support/",
     "/roles/",
-    "/developpeurs/",
+    "/developers/",
     "/assistants/",
     "/assistants/chatgpt/",
     "/assistants/claude/",
@@ -30,6 +34,20 @@
     "mcp",
     "webhooks",
     "media",
+    "share",
     ".well-known"
-  ]
+  ],
+  "aliases": {
+    "/a-propos/": "/about/",
+    "/developpeurs/": "/developers/",
+    "/mentions-legales/": "/legal/",
+    "/confidentialite/": "/privacy/",
+    "/conditions/": "/terms/",
+    "/journal/de-gutenberg-au-numerique/": "/journal/from-gutenberg-to-digital/",
+    "/journal/histoire-imprimerie-luxembourg/": "/journal/printing-history-luxembourg/"
+  },
+  "assetAliases": {
+    "/guides/installer-guteneo.md": "/guides/install-guteneo.md"
+  },
+  "privateFragments": ["/app", "/email-preferences"]
 }

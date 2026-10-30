@@ -181,6 +181,13 @@ test("copying a guide leaves an active authorization unverified", async ({
   await expect(
     connections.getByText(activeMessage, { exact: true }),
   ).toBeVisible();
+  await expect(
+    page.getByRole("link", {
+      name: "Télécharger le plugin Guteneo (ZIP)",
+      exact: true,
+    }),
+  ).toHaveAttribute("href", "/integrations/guteneo-plugin.zip");
+  await page.getByRole("button", { name: "Adresse MCP", exact: true }).click();
   await page
     .getByRole("button", { name: "Copier l’adresse", exact: true })
     .click();
@@ -376,7 +383,7 @@ test("Assistants is the second workspace destination and every private guide sur
   const state = await fixture(page);
   await page.goto("/#/app");
   const nav = page.getByRole("navigation", {
-    name: "Navigation de l’atelier",
+    name: "Navigation de la correspondance",
     exact: true,
   });
   // The session response mounts the navigation after the initial page load.
@@ -384,11 +391,22 @@ test("Assistants is the second workspace destination and every private guide sur
   if (!(await nav.isVisible()))
     await page.locator(".workspace-navigation summary").click();
   await expect(nav).toBeVisible();
-  const labels = (await nav.getByRole("link").allTextContents()).map((text) =>
-    text.trim(),
-  );
+  // My documents is an application in the switcher, outside the navigation.
+  await expect(nav.locator('a[href="#/app/my-documents"]')).toHaveCount(0);
+  await expect(
+    page.locator('.sidebar .space-switcher-panel a[href="#/app/my-documents"]'),
+  ).toHaveCount(1);
+  // The V2 New dispatch shortcut is an action, not a destination.
+  const labels = (
+    await nav
+      .locator('a:not([href="#/app/my-documents"]):not(.workspace-create)')
+      .allTextContents()
+  ).map((text) => text.trim());
   expect(labels.slice(0, 2)).toEqual(["Vue d’ensemble", "Assistants"]);
-  await nav.getByRole("link", { name: "Assistants", exact: true }).focus();
+  expect(labels.slice(2, 4)).toEqual(["Documents", "Distribution sécurisée"]);
+  const assistants = nav.getByRole("link", { name: "Assistants", exact: true });
+  await expect(assistants).toHaveAttribute("href", "#/app/connection");
+  await assistants.focus();
   await page.keyboard.press("Enter");
   await expect(page).toHaveURL(/#\/app\/connection$/);
   await expect(
@@ -449,7 +467,12 @@ test("direct authentication and recovery preserve the requested guide or sending
     if (url.origin !== testOrigin || request.method() !== "GET") {
       unexpected.push(`${request.method()} ${url.origin}${url.pathname}`);
       await route.fulfill({ status: 403, body: "Blocked by the UI fixture." });
-    } else if (url.pathname === "/api/session") {
+    } else if (
+      url.pathname === "/api/session" ||
+      url.pathname === "/api/personal/session"
+    ) {
+      // The unified bootstrap checks personal authority after an unauthenticated
+      // workshop response. Neither account context exists in this hosted fixture.
       await route.fulfill({
         status: 401,
         json: {

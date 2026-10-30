@@ -6,223 +6,31 @@ import { DeveloperPage } from "../developer-page";
 import { getArticles, articlePath } from "./articles";
 import { ArticlePage, JournalPage } from "./pages";
 import { AssistantsPage } from "../assistants-page";
-import { getAssistant } from "../assistant-catalog";
+import { PublicSitePage } from "../public-site-pages";
+import { isPublicSitePage } from "../public-site-metadata";
 import { getLocale, getLocaleSource, setLocale } from "../locale";
-import { msg } from "../messages";
 import { getPublicSocialCopy } from "./social-copy";
 import {
   isSupportedLocale,
   type SupportedLocale,
 } from "../../../../packages/contracts/src/locale";
 import { localizePublicSchema } from "../public-sharing";
-
-const origin = "https://guteneo.com";
-const publisher = {
-  "@type": "Organization",
-  "@id": `${origin}/#organization`,
-  name: "Guteneo",
-  url: origin,
-  email: "guteneo@pieper.fr",
-  contactPoint: {
-    "@type": "ContactPoint",
-    contactType: "customer support",
-    email: "guteneo@pieper.fr",
-    url: `${origin}/support/`,
-  },
-  logo: {
-    "@type": "ImageObject",
-    url: `${origin}/brand/guteneo-stamp.png`,
-    width: 512,
-    height: 512,
-  },
-};
-const editor = {
-  "@context": "https://schema.org",
-  "@type": "Person",
-  "@id": `${origin}/#editor`,
-  name: "Nicolas Pieper",
-  url: "https://nicolaspieper.com",
-  sameAs: [
-    "https://www.linkedin.com/in/nicolaspieper",
-    "https://github.com/nclsppr",
-    "https://twitter.com/NicolasPieper",
-  ],
-};
-const author = {
-  "@type": "Organization",
-  name: "Guteneo",
-  url: `${origin}/journal/`,
-};
-
-function breadcrumbs(items: { name: string; path: string }[]) {
-  return {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: items.map((item, index) => ({
-      "@type": "ListItem",
-      position: index + 1,
-      name: msg(item.name),
-      item: origin + item.path,
-    })),
-  };
-}
+import { getPublicPageMetadata } from "../public-page-metadata";
 
 function renderPublicContent(pathname: string) {
+  if (isPublicSitePage(pathname)) return <PublicSitePage path={pathname} />;
   const information = getInformationPages()[pathname];
-  if (information)
-    return {
-      html: renderToString(<InformationPage content={information} />),
-      title: `${information.label} | Guteneo`,
-      description: information.description,
-      canonical: origin + pathname,
-      structuredData: [
-        breadcrumbs([
-          { name: "Accueil", path: "/" },
-          { name: information.label, path: pathname },
-        ]),
-      ],
-    };
-  if (pathname.startsWith("/assistants/")) {
-    const id = pathname.split("/")[2];
-    const assistant = getAssistant(id);
-    if (id && !assistant) return null;
-    const title = assistant
-      ? `Connecter ${assistant.name} à Guteneo`
-      : "Vos assistants, votre correspondance";
-    return {
-      html: renderToString(<AssistantsPage assistantId={id || undefined} />),
-      title: `${title} | Guteneo`,
-      description: assistant
-        ? `Suivez le guide pour ajouter Guteneo à ${assistant.name} : prérequis, configuration, autorisation et première demande de vérification.`
-        : "Choisissez votre assistant et découvrez comment le connecter à Guteneo. Guides ChatGPT, Claude, Grok, GitHub Copilot, Microsoft 365 Copilot et Cursor.",
-      canonical: origin + pathname,
-      structuredData: [
-        breadcrumbs([
-          { name: "Accueil", path: "/" },
-          { name: "Assistants", path: "/assistants/" },
-          ...(assistant ? [{ name: assistant.name, path: pathname }] : []),
-        ]),
-      ],
-    };
-  }
-  if (pathname === "/")
-    return {
-      html: renderToString(<Landing />),
-      title: "Guteneo · La suite de vos mots.",
-      description:
-        "De la conversation à la correspondance. Préparez, approuvez et suivez vos documents par fax, e-mail ou courrier avec Guteneo.",
-      canonical: origin + "/",
-      structuredData: [
-        { "@context": "https://schema.org", ...publisher },
-        editor,
-        {
-          "@context": "https://schema.org",
-          "@type": "WebSite",
-          name: "Guteneo",
-          url: origin + "/",
-          inLanguage: "fr",
-          publisher,
-          creator: { "@id": editor["@id"] },
-        },
-      ],
-    };
-  if (pathname === "/developpeurs/")
-    return {
-      html: renderToString(<DeveloperPage />),
-      title: "Développeurs · API, OAuth et référence OpenAPI | Guteneo",
-      description:
-        "Intégrez vos PDF à Guteneo : guide REST et MCP, permissions OAuth, approbation humaine, limites et référence OpenAPI en lecture seule. Bêta en préparation.",
-      canonical: origin + pathname,
-      structuredData: [
-        {
-          "@context": "https://schema.org",
-          "@type": "WebPage",
-          name: "Documentation développeurs Guteneo",
-          url: origin + pathname,
-          inLanguage: "fr",
-          publisher,
-        },
-        breadcrumbs([
-          { name: "Accueil", path: "/" },
-          { name: "Développeurs", path: pathname },
-        ]),
-      ],
-    };
-  if (pathname === "/journal/")
-    return {
-      html: renderToString(<JournalPage />),
-      title: "Le journal · Histoire de l’imprimerie et des échanges | Guteneo",
-      description:
-        "De Gutenberg au fax et à l’e-mail, jusqu’aux ateliers luxembourgeois : deux récits documentés et illustrés sur l’histoire de l’imprimerie.",
-      canonical: origin + pathname,
-      image: "/editorial/gutenberg-to-digital.webp",
-      imageWidth: 1536,
-      imageHeight: 1024,
-      imageType: "image/webp",
-      imageAlt: getArticles().find(
-        (article) => article.slug === "de-gutenberg-au-numerique",
-      )!.hero.alt,
-      structuredData: [
-        {
-          "@context": "https://schema.org",
-          "@type": "CollectionPage",
-          name: "Le journal de Guteneo",
-          url: origin + pathname,
-          inLanguage: "fr",
-          publisher,
-        },
-        breadcrumbs([
-          { name: "Accueil", path: "/" },
-          { name: "Le journal", path: pathname },
-        ]),
-      ],
-    };
-  if (pathname === "/mentions-legales/")
-    return {
-      html: renderToString(<LegalPage />),
-      title: "Mentions légales | Guteneo",
-      description:
-        "Informations sur Nicolas Pieper, éditeur de Guteneo, l’hébergement Cloudflare, les contenus et les données personnelles du site.",
-      canonical: origin + pathname,
-    };
+  if (information) return <InformationPage content={information} />;
+  if (pathname.startsWith("/assistants/"))
+    return <AssistantsPage assistantId={pathname.split("/")[2] || undefined} />;
+  if (pathname === "/") return <Landing />;
+  if (pathname === "/developers/") return <DeveloperPage />;
+  if (pathname === "/journal/") return <JournalPage />;
+  if (pathname === "/legal/") return <LegalPage />;
   const article = getArticles().find(
     (item) => articlePath(item.slug) === pathname,
   );
-  if (!article) return null;
-  return {
-    html: renderToString(<ArticlePage article={article} />),
-    title: `${article.title} | Guteneo`,
-    description: article.description,
-    canonical: origin + pathname,
-    image: article.hero.src,
-    imageWidth: article.hero.width,
-    imageHeight: article.hero.height,
-    imageType: "image/webp",
-    imageAlt: article.hero.alt,
-    structuredData: [
-      {
-        "@context": "https://schema.org",
-        "@type": "Article",
-        headline: article.title,
-        description: article.description,
-        url: origin + pathname,
-        mainEntityOfPage: origin + pathname,
-        image: origin + article.hero.src,
-        datePublished: article.published,
-        dateModified: article.published,
-        inLanguage: "fr",
-        author,
-        publisher,
-        isAccessibleForFree: true,
-        citation: article.sources.map((source) => source.url),
-      },
-      breadcrumbs([
-        { name: "Accueil", path: "/" },
-        { name: "Le journal", path: "/journal/" },
-        { name: article.title, path: pathname },
-      ]),
-    ],
-  };
+  return article ? <ArticlePage article={article} /> : null;
 }
 
 /** Build-time only: scope the existing catalogs to one synchronous render. */
@@ -237,12 +45,14 @@ export function renderPublicPage(
   const language = locale ?? "fr";
   setLocale(language, false, locale ? "selection" : "browser");
   try {
-    const page = renderPublicContent(pathname);
+    const page = getPublicPageMetadata(pathname);
+    const content = page ? renderPublicContent(pathname) : null;
     const copy = getPublicSocialCopy(pathname, language);
-    if (!page || !copy) return null;
-    const canonical = origin + pathname + (locale ? `?lang=${locale}` : "");
+    if (!page || !copy || !content) return null;
+    const canonical = page.canonical + (locale ? `?lang=${locale}` : "");
     return {
       ...page,
+      html: renderToString(content),
       ...copy,
       canonical,
       structuredData: ("structuredData" in page

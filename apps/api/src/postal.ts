@@ -29,6 +29,7 @@ import { preparePostalDraft } from "./live-providers";
 import { readLimited } from "./documents";
 import type { Env } from "./env";
 import type { PostalAuthority } from "./postal-authority";
+import { assertLegacySourceAllowed } from "./sensitive-source";
 import { postalAddressLines } from "../../../packages/contracts/src/postal-address-page";
 import {
   addressPageForDocument,
@@ -256,13 +257,13 @@ export class PostalService {
         renderDpi: 144,
       },
       requirements: [
-        "Coordonnées en millimètres depuis le coin supérieur gauche. Toutes les pages doivent être A4, sans rotation, recadrage, formulaire, annotation ni contenu actif, avec polices incorporées.",
-        "Garder 5 mm blancs sur les quatre bords de chaque page et les coins réservés. Seul le destinataire peut occuper le rectangle adresse ; le reste du rectangle postage doit rester blanc, sans logo, trait ni pixel gris.",
-        "Adresse noire, sans empattement, 10–12 points, alignée à gauche, sans ligne vide, avec marge intérieure. Ajouter une dernière ligne de pays en anglais et majuscules pour un destinataire international ; suivre les exigences spécifiques du profil France domestique lorsque sélectionné.",
-        "Rendre et examiner toutes les pages à au moins 144 dpi ; comparer le destinataire attendu au texte et à l’image réellement visibles. L’extraction de texte et le contrôle automatique ne prouvent pas seuls cette identité.",
-        "L’expéditeur vérifié et le traitement des retours exigent une revue distincte. Ne pas promettre un retour postal : les retours sont traités numériquement.",
-        "Ne jamais corriger ou recomposer un original importé. Pour une nouvelle lettre, générer un nouveau PDF, puis appeler preflight_postal_pdf avec les octets déposés et son identifiant Guteneo.",
-        "Papier normal et options simplex/duplex, grayscale/color, cheap/fast seulement si le calculateur du brouillon les accepte. Un brouillon fournisseur et un devis exact ne valent pas approbation ni acceptation d’envoi ; celles-ci suivent la voie navigateur ou un mandat expert préalable. Ce profil n’autorise aucun envoi.",
+        "Coordinates are in millimeters from the top-left corner. Every page must be A4 with embedded fonts and no rotation, cropping, forms, annotations or active content.",
+        "Keep a 5 mm white margin on all four edges of every page and the reserved corners. Only the recipient may occupy the address rectangle; the rest of the postage rectangle must remain white with no logo, line or grey pixel.",
+        "Use a black sans-serif address in 10–12 point type, left-aligned, with no blank lines and an inner margin. Add a final uppercase English country line for an international recipient; follow the selected domestic France profile's specific requirements.",
+        "Render and inspect every page at a minimum of 144 dpi; compare the expected recipient with the text and image actually visible. Text extraction and automatic checks alone do not prove this identity.",
+        "The verified sender and return handling require separate review. Do not promise postal returns: returns are handled digitally.",
+        "Never correct or recompose an imported original. For a new letter, generate a new PDF, then call preflight_postal_pdf with the uploaded bytes and its Guteneo identifier.",
+        "Use normal paper and simplex/duplex, grayscale/color and cheap/fast options only when the draft calculator accepts them. A provider draft and exact quote do not constitute approval or send acceptance; those follow browser approval or a prior expert mandate. This profile authorizes no sending.",
       ],
       canSend: false as const,
     };
@@ -319,6 +320,7 @@ export class PostalService {
   }
 
   async exactDocument(organizationId: string, documentId: string) {
+    await assertLegacySourceAllowed(this.env.DB, organizationId, documentId);
     const document = await this.env.DB.prepare(
       "SELECT * FROM documents WHERE organization_id=? AND id=? AND status='ready' AND pages>0 AND size<=?",
     )
@@ -343,6 +345,7 @@ export class PostalService {
       (await sha256(bytes)) !== document.sha256
     )
       error("DOCUMENT_INTEGRITY_MISMATCH");
+    await assertLegacySourceAllowed(this.env.DB, organizationId, documentId);
     return { document, bytes };
   }
   private async sender(organizationId: string, senderId: string) {
@@ -363,6 +366,11 @@ export class PostalService {
       .first<Row>();
     if (!row) error("POSTAL_PREFLIGHT_NOT_FOUND", 404);
     await this.domain.getDocument(authority.context, row.document_id);
+    await assertLegacySourceAllowed(
+      this.env.DB,
+      row.organization_id,
+      row.document_id,
+    );
     return row;
   }
   private async current(authority: PostalAuthority, row: Row, profile = false) {
@@ -399,6 +407,11 @@ export class PostalService {
     )
       error("POSTAL_PROFILE_CHANGED");
     await authority.assertCurrent();
+    await assertLegacySourceAllowed(
+      this.env.DB,
+      row.organization_id,
+      row.document_id,
+    );
     return exact;
   }
   private report(row: Row): StoredReport | null {
@@ -436,6 +449,13 @@ export class PostalService {
       document.status === "ready",
     );
     await authority.assertCurrent();
+    // Cached analysis contains source text and unwatermarked pixels. Postal
+    // authority does not carry a qualified sensitive browser proof.
+    await assertLegacySourceAllowed(
+      this.env.DB,
+      row.organization_id,
+      row.document_id,
+    );
     return {
       id: row.id,
       fingerprint: row.request_hash,
@@ -529,6 +549,11 @@ export class PostalService {
     const raw = atob(report.address.crop.pngBase64);
     const bytes = Uint8Array.from(raw, (character) => character.charCodeAt(0));
     await authority.assertCurrent();
+    await assertLegacySourceAllowed(
+      this.env.DB,
+      row.organization_id,
+      row.document_id,
+    );
     return new Response(bytes, {
       headers: {
         "Content-Type": "image/png",

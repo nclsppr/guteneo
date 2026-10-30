@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import { generationRecordContext } from "./generation-context";
 import { z } from "zod";
 import { XmlRecordPathSchema } from "../../../packages/contracts/src/datasets";
 import type { DomainService } from "../../../packages/domain/src/index";
@@ -28,7 +29,7 @@ export function createTemplateWorkflowRoutes(
     if (!value)
       throw new ContentError(
         "IDEMPOTENCY_REQUIRED",
-        "En-tête Idempotency-Key requis.",
+        "Idempotency-Key header required.",
       );
     return value;
   };
@@ -54,10 +55,7 @@ export function createTemplateWorkflowRoutes(
     const form = await c.req.raw.formData(),
       file = form.get("file");
     if (!file || typeof file === "string")
-      throw new ContentError(
-        "FILE_REQUIRED",
-        "Choisissez un fichier Word .docx.",
-      );
+      throw new ContentError("FILE_REQUIRED", "Choose a Word .docx file.");
     return c.json(
       await service(c.env).importDocx(c.get("actor"), {
         name: file.name,
@@ -190,7 +188,7 @@ export function createTemplateWorkflowRoutes(
       if (!file || typeof file === "string")
         throw new ContentError(
           "FILE_REQUIRED",
-          "Choisissez un fichier XML, CSV, XLSX ou JSON.",
+          "Choose an XML, CSV, XLSX or JSON file.",
         );
       const format = z
         .enum(["csv", "xlsx", "json", "xml"])
@@ -343,6 +341,19 @@ export function createTemplateWorkflowRoutes(
       ),
     ),
   );
+  app.get("/api/generation-jobs/:id/record-context", async (c) =>
+    c.json(
+      await generationRecordContext(
+        c.env,
+        service(c.env),
+        c.get("actor"),
+        c.req.param("id"),
+        c.req.query("recordId"),
+        c.req.query("cursor"),
+        Number(c.req.query("limit") ?? 50),
+      ),
+    ),
+  );
   app.post("/api/generation-jobs/:id/cancel", async (c) =>
     c.json(
       await service(c.env).cancelGeneration(c.get("actor"), c.req.param("id")),
@@ -396,7 +407,7 @@ export function createTemplateWorkflowRoutes(
       if (!postalAuthority)
         throw new ContentError(
           "POSTAL_AUTHORITY_REQUIRED",
-          "Autorité postale indisponible.",
+          "Postal authority unavailable.",
         );
       const authority = await postalAuthority(
         c.req.raw,

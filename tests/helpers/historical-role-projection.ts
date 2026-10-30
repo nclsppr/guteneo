@@ -4,8 +4,9 @@
  * options. Project those absent options as false without altering historical
  * tables, writes, triggers or the migration under test.
  */
+import {historicalSecureProjection} from "./historical-secure-projection";
 export function historicalRoleProjection(db: D1Database): D1Database {
-  return new Proxy(db, {
+  return historicalSecureProjection(new Proxy(db, {
     get(target, property) {
       if (property === "prepare")
         return (sql: string) =>
@@ -21,5 +22,5 @@ export function historicalRoleProjection(db: D1Database): D1Database {
       const value = Reflect.get(target, property);
       return typeof value === "function" ? value.bind(target) : value;
     },
-  });
+  }));
 }

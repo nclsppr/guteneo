@@ -354,8 +354,8 @@
 }
 
 .guided-example ::selection {
-  color: var(--surface);
-  background: var(--blue);
+  color: #ffffff;
+  background: var(--action);
 }
 
 @media (max-width: 1000px) {

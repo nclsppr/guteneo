@@ -10,70 +10,70 @@ struct AccountView: View {
     var body: some View {
         List {
             if let session = model.session {
-                Section("Votre identité") {
-                    LabeledContent("Nom", value: session.user.name)
+                Section("Your identity") {
+                    LabeledContent("Name", value: session.user.name)
                     LabeledContent("Organisation", value: session.organization.name)
-                    LabeledContent("Rôle", value: L10n.text(session.roleTitle, locale: locale))
-                    LabeledContent("Préparer des envois", value: L10n.text(session.canPrepare ? "Autorisé" : "Non autorisé", locale: locale))
-                    LabeledContent("Valider dans le navigateur", value: L10n.text(session.canApprove ? "Autorisé" : "Non autorisé", locale: locale))
-                    Link("Comprendre les rôles", destination: Brand.siteURL("/roles/", locale: locale))
+                    LabeledContent("Role", value: L10n.text(session.roleTitle, locale: locale))
+                    LabeledContent("Prepare dispatches", value: L10n.text(session.canPrepare ? "Allowed" : "Not allowed", locale: locale))
+                    LabeledContent("Approve in the browser", value: L10n.text(session.canApprove ? "Allowed" : "Not allowed", locale: locale))
+                    Link("Understand roles", destination: Brand.siteURL("/roles/", locale: locale))
                 }
             }
             Section {
-                Picker("Langue préférée", selection: Binding(get: { model.language }, set: { value in
+                Picker("Preferred language", selection: Binding(get: { model.language }, set: { value in
                     Task {
                         error = nil
                         do { try await model.saveLanguage(value) }
-                        catch { self.error = "L’enregistrement de la langue n’a pas pu être confirmé. Votre préférence précédente a été rétablie. Actualisez le profil avant de réessayer." }
+                        catch { self.error = "Saving the language could not be confirmed. Your previous preference has been restored. Refresh your profile before trying again." }
                     }
                 })) {
                     ForEach(AppLanguage.allCases) { Text(verbatim: $0.name).tag($0) }
                 }.accessibilityIdentifier("accountLanguage").disabled(model.isSavingLanguage)
-                if model.isSavingLanguage { ProgressView("Enregistrement de la langue…") }
-            } header: { Text("Langue") } footer: {
-                Text("Votre préférence est partagée entre le site et l’application. Le contenu de vos documents et messages reste inchangé.")
+                if model.isSavingLanguage { ProgressView("Saving language…") }
+            } header: { Text("Language") } footer: {
+                Text("Your preference is shared between the website and the app. Your documents and messages remain unchanged.")
             }
-            Section("Vie privée") {
-                NavigationLink("Vos données dans l’application") { PrivacyView() }
-                Link("Politique de confidentialité", destination: Brand.siteURL("/confidentialite/", locale: locale))
-                Text("Les documents sont téléchargés à la demande. La session est conservée dans le trousseau sécurisé de cet appareil.")
+            Section("Privacy settings") {
+                NavigationLink("Your data in the app") { PrivacyView() }
+                Link("Privacy policy", destination: Brand.siteURL("/privacy/", locale: locale))
+                Text("Documents are downloaded on demand. Your session is kept in this device’s secure Keychain.")
                     .font(.footnote).foregroundStyle(.secondary)
             }
-            Section("Besoin d’aide") {
-                Link(destination: Brand.supportURL) { Label("Contacter l’assistance", systemImage: "envelope") }
-                NavigationLink("À propos de Guteneo") {
+            Section("Need help?") {
+                Link(destination: Brand.supportURL) { Label("Contact support", systemImage: "envelope") }
+                NavigationLink("About Guteneo") {
                     List {
                         Wordmark().padding(.vertical)
-                        Text("Préparez vos documents et retrouvez le suivi de votre atelier Guteneo.")
+                        Text("Prepare documents and follow your Guteneo workspace’s dispatches.")
                         LabeledContent("Version", value: Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0")
-                        Text("Application native pour iPhone et iPad.")
-                        Link("Mentions légales", destination: Brand.siteURL("/mentions-legales/", locale: locale))
-                    }.paperList().navigationTitle("À propos")
+                        Text("Native app for iPhone and iPad.")
+                        Link("Legal notice", destination: Brand.siteURL("/legal/", locale: locale))
+                    }.paperList().navigationTitle("About")
                 }
             }
             if let error { Section { Notice(text: error, symbol: "exclamationmark.circle") } }
             Section {
-                Button("Se déconnecter") { signOutConfirmation = true }.disabled(working)
+                Button("Sign out") { signOutConfirmation = true }.disabled(working)
                     .accessibilityIdentifier("signOut")
             }
-            Section("Suppression du compte") {
+            Section("Account deletion") {
                 if let request = model.accountDeletionRequest {
-                    Label(LocalizedStringKey(request.status == "completed" ? "Suppression terminée" : "Demande de suppression enregistrée"), systemImage: "person.crop.circle.badge.minus")
-                    Text("Demandée le \(GuteneoDate.label(request.createdAt, locale: locale))").font(.footnote)
+                    Label(LocalizedStringKey(request.status == "completed" ? "Deletion completed" : "Deletion request recorded"), systemImage: "person.crop.circle.badge.minus")
+                    Text("Requested on \(GuteneoDate.label(request.createdAt, locale: locale))").font(.footnote)
                     if request.status != "completed" {
-                        Notice(text: "Le compte n’est pas encore supprimé. Le traitement doit tenir compte des envois en cours, de votre organisation et des obligations de conservation. Une confirmation vous sera adressée après traitement.")
+                        Notice(text: "Your account has not been deleted yet. Processing must take into account ongoing dispatches, your organisation and retention requirements. You will receive confirmation once processing is complete.")
                     }
                 } else {
-                    Text("Demandez la suppression de votre compte et des données associées. Certaines preuves peuvent être conservées lorsqu’une obligation l’impose.")
+                    Text("Request deletion of your account and associated data. Some records may be retained when legally required.")
                         .font(.footnote).foregroundStyle(.secondary)
-                    Button("Demander la suppression du compte", role: .destructive) { deleteConfirmation = true }
+                    Button("Request account deletion", role: .destructive) { deleteConfirmation = true }
                         .disabled(working).accessibilityIdentifier("deleteAccount")
                 }
             }
-        }.paperList().navigationTitle(Text(verbatim: L10n.text("Compte", locale: locale)))
+        }.paperList().navigationTitle(Text(verbatim: L10n.text("Account", locale: locale)))
             .refreshable { await model.refresh() }
-            .confirmationDialog("Supprimer votre compte ?", isPresented: $deleteConfirmation, titleVisibility: .visible) {
-                Button("Confirmer la demande de suppression", role: .destructive) {
+            .confirmationDialog("Delete your account?", isPresented: $deleteConfirmation, titleVisibility: .visible) {
+                Button("Confirm deletion request", role: .destructive) {
                     Task {
                         working = true; error = nil
                         defer { working = false }
@@ -82,10 +82,10 @@ struct AccountView: View {
                     }
                 }
             } message: {
-                Text("La demande concerne votre compte Guteneo, sur le site comme dans l’application. Elle ne rappelle pas les documents déjà envoyés. Le traitement n’est pas instantané.")
+                Text("This request applies to your Guteneo account on the website and in the app. It does not recall documents already sent. Processing is not immediate.")
             }
-            .confirmationDialog("Se déconnecter de cet appareil ?", isPresented: $signOutConfirmation, titleVisibility: .visible) {
-                Button("Se déconnecter", role: .destructive) { Task { await model.signOut() } }
+            .confirmationDialog("Sign out of this device?", isPresented: $signOutConfirmation, titleVisibility: .visible) {
+                Button("Sign out", role: .destructive) { Task { await model.signOut() } }
             }
     }
 }
@@ -94,17 +94,17 @@ struct PrivacyView: View {
     @Environment(\.locale) private var locale
     var body: some View {
         List {
-            Section("Compte et documents") {
-                Text("Guteneo utilise votre identité et votre organisation pour vous donner accès à vos documents et à vos envois. Les PDF, destinataires et messages que vous déposez sont traités pour fournir le service.")
+            Section("Account and documents") {
+                Text("Guteneo uses your identity and organisation to give you access to your documents and dispatches. The PDFs, recipients and messages you provide are processed to deliver the service.")
             }
-            Section("Sur cet appareil") {
-                Text("La session est stockée dans le trousseau sécurisé. Les PDF consultés restent en mémoire pendant leur lecture. L’application ne demande pas l’accès à vos contacts, à votre position, au microphone ou à la caméra.")
+            Section("On this device") {
+                Text("Your session is stored in the secure Keychain. Viewed PDFs remain in memory while you read them. The app does not request access to your contacts, location, microphone or camera.")
             }
-            Section("Vos choix") {
-                Text("Vous choisissez les fichiers à importer dans Fichiers. Vous pouvez vous déconnecter ou demander la suppression de votre compte depuis Compte.")
-                Link("Consulter la politique complète", destination: Brand.siteURL("/confidentialite/", locale: locale))
-                Link("Poser une question sur vos données", destination: Brand.supportURL)
+            Section("Your choices") {
+                Text("You choose files to import in Files. You can sign out or request account deletion from Account.")
+                Link("Read the full policy", destination: Brand.siteURL("/privacy/", locale: locale))
+                Link("Ask about your data", destination: Brand.supportURL)
             }
-        }.paperList().navigationTitle("Vos données").navigationBarTitleDisplayMode(.inline)
+        }.paperList().navigationTitle("Your data").navigationBarTitleDisplayMode(.inline)
     }
 }

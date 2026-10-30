@@ -7,7 +7,7 @@ export const number = (value: number) =>
   new Intl.NumberFormat(formatLocale()).format(value);
 export const money = (value: number | null, currency = "EUR") =>
   value === null
-    ? bmsg("Non disponible")
+    ? bmsg("Unavailable")
     : new Intl.NumberFormat(formatLocale(), {
         style: "currency",
         currency,
@@ -27,7 +27,7 @@ export const dateTime = (value: string | null) => {
         dateStyle: "medium",
         timeStyle: "short",
       }).format(date)
-    : bmsg("Non renseigné");
+    : bmsg("Unspecified");
 };
 export const shortDate = (value: string) => {
   const date = parsedDate(`${value.slice(0, 10)}T12:00:00Z`);
@@ -37,11 +37,11 @@ export const shortDate = (value: string) => {
         month: "short",
         timeZone: "UTC",
       }).format(date)
-    : bmsg("Non renseigné");
+    : bmsg("Unspecified");
 };
 export function countryName(code: string | null) {
   if (!code || code === "XX" || code === "T1")
-    return bmsg("Pays non renseigné");
+    return bmsg("Country unspecified");
   try {
     return (
       new Intl.DisplayNames([formatLocale()], { type: "region" }).of(
@@ -56,48 +56,48 @@ export const channelName = (channel: string) =>
   ({
     email: bmsg("Email"),
     fax: bmsg("Fax"),
-    postal: bmsg("Courrier postal"),
-    unknown: bmsg("Canal non conservé"),
+    postal: bmsg("Postal mail"),
+    unknown: bmsg("Channel not retained"),
   })[channel] || channel;
 export const roleName = (role: string) =>
   ({
-    admin: bmsg("Administrateur"),
-    operator: bmsg("Opérateur"),
-    member: bmsg("Opérateur"),
-    supervisor: bmsg("Superviseur"),
-    viewer: bmsg("Observateur"),
+    admin: bmsg("Administrator"),
+    operator: bmsg("Operator"),
+    member: bmsg("Operator"),
+    supervisor: bmsg("Supervisor"),
+    viewer: bmsg("Observer"),
   })[role] || role;
 export const statusName = (status: string) =>
   ({
-    delivered: bmsg("Livré"),
-    completed: bmsg("Terminé"),
-    accepted: bmsg("Accepté"),
-    queued: bmsg("En attente"),
-    sending: bmsg("En cours"),
-    submitted: bmsg("Transmis"),
-    processing: bmsg("Traitement"),
-    draft: bmsg("Brouillon"),
-    prepared: bmsg("À approuver"),
-    submitting: bmsg("Transmission"),
-    printed: bmsg("Imprimé"),
-    handed_to_post: bmsg("Remis à la poste"),
-    reconciliation_required: bmsg("À rapprocher"),
-    bounced: bmsg("Non distribué"),
-    complained: bmsg("Plainte reçue"),
-    failed: bmsg("Échec"),
-    rejected: bmsg("Refusé"),
-    unknown: bmsg("Résultat inconnu"),
-    submission_unknown: bmsg("Résultat inconnu"),
-    authorized: bmsg("Autorisée"),
-    cancelled: bmsg("Annulé"),
-    expired: bmsg("Expiré"),
+    delivered: bmsg("Delivered"),
+    completed: bmsg("Completed"),
+    accepted: bmsg("Accepted"),
+    queued: bmsg("Pending"),
+    sending: bmsg("In progress"),
+    submitted: bmsg("Submitted"),
+    processing: bmsg("Processing"),
+    draft: bmsg("Draft"),
+    prepared: bmsg("Awaiting approval"),
+    submitting: bmsg("Submitting"),
+    printed: bmsg("Printed"),
+    handed_to_post: bmsg("Handed to the post office"),
+    reconciliation_required: bmsg("Needs reconciliation"),
+    bounced: bmsg("Undelivered"),
+    complained: bmsg("Complaint received"),
+    failed: bmsg("Failed"),
+    rejected: bmsg("Rejected"),
+    unknown: bmsg("Unknown outcome"),
+    submission_unknown: bmsg("Unknown outcome"),
+    authorized: bmsg("Allowed"),
+    cancelled: bmsg("Cancelled"),
+    expired: bmsg("Expired"),
     active: bmsg("Active"),
-    revoked: bmsg("Révoquée"),
-    pending: bmsg("En attente"),
-    awaiting_approval: bmsg("À approuver"),
-    approved: bmsg("Approuvé"),
-    simulated: bmsg("Simulé"),
-    paused: bmsg("Suspendu"),
+    revoked: bmsg("Revoked"),
+    pending: bmsg("Pending"),
+    awaiting_approval: bmsg("Awaiting approval"),
+    approved: bmsg("Approved"),
+    simulated: bmsg("Simulated"),
+    paused: bmsg("Paused"),
   })[status] || status.replaceAll("_", " ");
 export function periodFilters(
   days: number,
@@ -126,8 +126,8 @@ export class BelvedereError extends Error {
   constructor(readonly status: number) {
     super(
       status === 401 || status === 403 || status === 404
-        ? "Votre accès à Belvédère a expiré ou n’est plus autorisé."
-        : "La lecture des données a échoué. Vous pouvez réessayer.",
+        ? "Your access to Belvédère has expired or is no longer authorised."
+        : "Reading data failed. You can try again.",
     );
   }
 }
@@ -169,7 +169,7 @@ export function useBelvedereResource<T>(url: string | null, revision: number) {
             error:
               error instanceof Error
                 ? error
-                : new Error("La connexion a été interrompue."),
+                : new Error("The connection was interrupted."),
           });
       });
     return () => controller.abort();

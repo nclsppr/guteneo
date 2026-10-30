@@ -1,0 +1,101 @@
+---
+title: Authority and tenancy
+description: How membership, roles, OAuth scopes, resource access and explicit approval intersect.
+sidebar:
+  order: 3
+---
+
+Identity answers who is connected. Membership selects the current workspace.
+Permissions determine eligible operations. Approval authorizes one exact
+communication. Provider and financial gates determine whether that authorized
+operation can proceed. None of these layers replaces another.
+
+## Personal identity is separate from workspace membership
+
+One account can have zero workspaces. A document recipient uses an owner-bound
+personal browser principal; receiving an invitation creates no sender membership.
+Personal sessions/CSRF and `/api/personal/*` guards remain separate from the
+workspace contract. A workspace Bearer token, administrator role or expert mandate
+cannot read another person's personal documents. Identity binds issuer/subject,
+never equality of email addresses.
+
+Explicit workspace creation/selection reloads current workspace authority. It
+does not weaken the owner boundary or automatically activate a channel. See
+[secure distribution](/workflows/secure-distribution/) for independent recipient
+association, document authentication policy and acquired-copy ownership.
+
+## Resolve the tenant on the server
+
+Private lookups, unique keys and relations are workspace-scoped. The authenticated
+membership or recorded OAuth connection determines the workspace; an arbitrary
+organization field/header cannot switch it. A person may belong to several
+workspaces with different rights.
+
+Changes to membership, connection binding or revocation must be checked at action
+time. A previously issued token or a previously loaded page is not proof that the
+same authority still exists. Asynchronous suggestions and document reads also
+recheck their relevant resource/connection state before returning sensitive data
+or committing writes.
+
+## Four human roles
+
+| Role | Effective responsibility |
+| --- | --- |
+| Administrator | Workspace/member/channel/billing administration and preparation/approval; delegation requires the browser |
+| Supervisor | Preparation plus independent approval/reporting options granted by an administrator |
+| Operator | Preparation for authorized review; no confirmation, rejection or cancellation authority |
+| Observer | Read ordinary operational content without mutation |
+
+The wire role identifiers remain `admin`, `supervisor`, `member` and `viewer`.
+Supervisor options do not grant membership management, billing or delegation.
+Observers are not a private-folder role: creator-private Studio documents have
+separate resource checks. Platform oversight is also separate from workspace
+administration and is not an assistant or membership role.
+
+## Clients retain their own boundaries
+
+Browser mutations require a valid session, same origin and CSRF. Native sessions
+use the mobile API and their own credential scheme; the companion can prepare
+within current rights but final approval/confirmation remains in authenticated
+browser review. A native administrator does not thereby gain a native approve
+endpoint.
+
+OAuth-connected assistants receive the intersection of consented scopes, current
+membership, connection binding and resource access. Host execution permission or
+a conversational “yes” is not fresh human consent in guteneo. Tool annotations
+explain effects to the host; they grant no server permission.
+
+## Optional delegation is explicit and bounded
+
+Standard human review is the default. Only an authenticated browser administrator
+may grant one OAuth connection an expiring expert mandate with selected channels,
+per-dispatch/daily monetary limits and count limits. The assistant cannot enable,
+extend or enlarge that mandate. The server records delegated authority distinctly
+from human approval.
+
+Review tokens bind the exact dispatch/document, current connection and policy,
+quote, bounds and completed page provision. Replacing a token invalidates the
+previous one. A token proves recent provision under server checks, not the
+model's understanding of document content.
+
+Postal draft transfer has its own delegated authority and provider-transfer
+consent. Preparation transfer and final sending are separate side effects.
+Preserve host confirmations, OAuth scopes and provider gates in addition to the
+mandate; do not suppress one layer because another layer passed.
+
+Sensitive distribution is an explicit exception to delegated approval: human
+browser review under the active document policy and independent recipient
+association cannot be supplied by a mandate or assistant. An authorized assistant
+can confirm a preparation only after its matching browser approval exists.
+
+## Preserve resource privacy through the whole operation
+
+A private Studio PDF stays creator-private in the library. A currently authorized
+approver can receive access to the exact PDF in its prepared-dispatch context;
+that access neither exposes unrelated documents nor survives lost approval rights.
+Changing the underlying version invalidates the old review context.
+
+Use the [dispatch lifecycle](/architecture/dispatch-lifecycle/) for commitment
+semantics, [MCP integration](/integrations/mcp/) for assistant behavior and
+[security controls](/engineering/security-and-reliability/) for request/storage
+boundaries.

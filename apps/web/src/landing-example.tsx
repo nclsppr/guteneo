@@ -1,9 +1,7 @@
 import { formatLocale } from "./locale";
-import { msg } from "./messages";
+import { msg, msgIn } from "./messages";
 import { useId, useRef, useState, type KeyboardEvent } from "react";
 import { ArrowRight, Check, FilePdf } from "@phosphor-icons/react";
-import { scrollToSection } from "./landing-sections";
-import "./landing-example.css";
 
 type ExampleStep = "request" | "review" | "tracking";
 type ExampleChannel = "fax" | "email" | "postal";
@@ -12,18 +10,18 @@ export function GuidedExample() {
   const steps: { id: ExampleStep; label: string; description: string }[] = [
     {
       id: "request",
-      label: msg("Demande"),
-      description: msg("Vous composez dans votre assistant."),
+      label: msg("Request"),
+      description: msg("Compose in your assistant."),
     },
     {
       id: "review",
-      label: msg("Vérification"),
-      description: msg("Vous relisez les détails dans Guteneo."),
+      label: msg("Review"),
+      description: msg("Review the details in Guteneo."),
     },
     {
       id: "tracking",
-      label: msg("Suivi"),
-      description: msg("Vous retrouvez le résultat de chaque étape."),
+      label: msg("Tracking"),
+      description: msg("See the result of each step."),
     },
   ];
 
@@ -41,92 +39,84 @@ export function GuidedExample() {
   > = {
     fax: {
       label: msg("Fax"),
-      request: msg(
-        "Prépare l’envoi de Correspondance.pdf par fax à Maison Exemple.",
-      ),
-      recipient: msg("Maison Exemple"),
-      recipientDetail: msg("Destinataire et numéro de fax fictifs"),
-      costLabel: msg("Plafond d’exemple"),
+      request: msg("Prepare to fax Correspondence.pdf to Example Company."),
+      recipient: msg("Example Company"),
+      recipientDetail: msg("Fictional recipient and fax number"),
+      costLabel: msg("Example spending limit"),
       amountMinor: 20,
       tracking: [
         {
-          title: msg("Prise en charge"),
-          detail: msg("Le prestataire a accepté la demande de fax."),
+          title: msg("Accepted for processing"),
+          detail: msg("The provider accepted the fax request."),
           confirmed: true,
         },
         {
-          title: msg("Transmission terminée"),
+          title: msg("Transmission complete"),
           detail: msg(
-            "Les 2 pages ont été transmises au télécopieur destinataire.",
+            "The 2 pages were transmitted to the recipient’s fax machine.",
           ),
           confirmed: true,
         },
         {
-          title: msg("Réception technique confirmée"),
-          detail: msg("Cet accusé ne prouve pas la lecture du document."),
+          title: msg("Technical receipt confirmed"),
+          detail: msg(
+            "This receipt does not prove that the document was read.",
+          ),
           confirmed: true,
         },
       ],
     },
     email: {
-      label: msg("E-mail"),
+      label: msg("Email"),
       request: msg(
-        "Prépare un e-mail à Maison Exemple avec Correspondance.pdf en pièce jointe.",
+        "Prepare an email to Example Company with Correspondence.pdf attached.",
       ),
       recipient: "bonjour@maison-exemple.test",
-      recipientDetail: msg("Adresse fictive réservée à cet exemple"),
-      costLabel: msg("Prix d’exemple"),
+      recipientDetail: msg("Fictional address reserved for this example"),
+      costLabel: msg("Example price"),
       amountMinor: 4,
       tracking: [
         {
-          title: msg("Prise en charge"),
-          detail: msg(
-            "Le prestataire a accepté le message et sa pièce jointe.",
-          ),
+          title: msg("Accepted for processing"),
+          detail: msg("The provider accepted the message and its attachment."),
           confirmed: true,
         },
         {
-          title: msg("Message remis au serveur"),
-          detail: msg(
-            "Le serveur de messagerie destinataire a accepté l’e-mail.",
-          ),
+          title: msg("Message delivered to server"),
+          detail: msg("The recipient’s mail server accepted the email."),
           confirmed: true,
         },
         {
-          title: msg("Lecture non confirmée"),
-          detail: msg(
-            "La remise technique ne prouve pas l’ouverture ou la lecture.",
-          ),
+          title: msg("Reading not confirmed"),
+          detail: msg("Technical delivery does not prove opening or reading."),
           confirmed: false,
         },
       ],
     },
     postal: {
-      label: msg("Courrier"),
-      request: msg(
-        "Prépare l’envoi de Correspondance.pdf par courrier à Maison Exemple.",
-      ),
-      recipient: msg("Maison Exemple · Ville Exemple"),
-      recipientDetail: msg("Destinataire et adresse postale fictifs"),
-      costLabel: msg("Prix d’exemple"),
+      label: msgIn("mail-channel", "Post"),
+      request: msg("Prepare to post Correspondence.pdf to Example Company."),
+      recipient: msg("Example Company · Example City"),
+      recipientDetail: msg("Fictional recipient and postal address"),
+      costLabel: msg("Example price"),
       amountMinor: 320,
       tracking: [
         {
-          title: msg("Prise en charge"),
-          detail: msg("Le prestataire a accepté le document pour impression."),
+          title: msg("Accepted for processing"),
+          detail: msg("The provider accepted the document for printing."),
           confirmed: true,
         },
         {
-          title: msg("Remise à la poste"),
+          title: msgIn("postal-timeline", "Handed to postal service"),
           detail: msg(
-            "La lettre a été imprimée, mise sous pli puis remise au réseau postal.",
+            "The letter was printed, placed in an envelope and handed to the postal network.",
           ),
           confirmed: true,
         },
         {
-          title: msg("Livraison non confirmée"),
+          title: msg("Delivery not confirmed"),
           detail: msg(
-            "La remise à la poste ne prouve pas la réception par le destinataire.",
+            "Handover to the postal service does not prove receipt by the recipient.",
           ),
           confirmed: false,
         },
@@ -189,19 +179,17 @@ export function GuidedExample() {
     >
       <div className="guided-example-intro">
         <h2 id="guided-example-title">
-          {msg("Une demande.")} <br />
-          {msg("Une vérification.")} <br />
-          <em>{msg("Un envoi.")}</em>
+          {msg("A fictional dispatch, step by step")}
         </h2>
         <p>
           {msg(
-            "Cette démonstration suit 3 étapes : vous composez votre demande, vérifiez les détails dans Guteneo pour donner votre accord, puis suivez l’envoi.",
+            "This demonstration follows 3 steps: compose your request, check the details in Guteneo to give your approval, then track the dispatch.",
           )}
         </p>
         <div
           className="guided-example-tabs"
           role="tablist"
-          aria-label={msg("Étapes de la démonstration")}
+          aria-label={msg("Demo steps")}
         >
           {steps.map((item, index) => (
             <button
@@ -237,14 +225,14 @@ export function GuidedExample() {
 
       <div className="guided-example-proof">
         <p className="guided-example-notice">
-          {msg("Démonstration — aucun envoi réel")}
+          {msg("Demo — no real dispatch")}
         </p>
         <div className="guided-example-channel-row">
-          <span>{msg("Choisir un canal")}</span>
+          <span>{msg("Choose a channel")}</span>
           <div
             className="guided-example-channels"
             role="group"
-            aria-label={msg("Canal de démonstration")}
+            aria-label={msg("Demo channel")}
           >
             {(["fax", "email", "postal"] as const).map((item) => (
               <button
@@ -268,32 +256,34 @@ export function GuidedExample() {
         >
           {step === "request" && (
             <div className="guided-example-request">
-              <h3>{msg("Tout commence avec vos mots.")}</h3>
+              <h3>{msg("It all starts with your words.")}</h3>
               <ol className="guided-example-conversation">
                 <li>
-                  <span>{msg("Vous")}</span>
+                  <span>{msg("You")}</span>
                   <p>{example.request}</p>
                 </li>
                 <li>
                   <span>{msg("Guteneo")}</span>
                   <p>
                     {msg(
-                      "Le PDF de 2 pages est prêt. Vérifiez le destinataire, le canal et ",
+                      "The 2-page PDF is ready. Check the recipient, channel and ",
                     )}
-                    {channel === "fax" ? msg("le plafond") : msg("le prix")}{" "}
-                    {msg(" dans Guteneo avant de donner votre accord.")}
+                    {channel === "fax"
+                      ? msg("the spending limit")
+                      : msg("the price")}{" "}
+                    {msg(" in Guteneo before giving your approval.")}
                   </p>
                 </li>
               </ol>
               <p className="guided-example-detail">
-                {msg("Conversation, document et destinataire fictifs.")}
+                {msg("Fictional conversation, document and recipient.")}
               </p>
               <button
                 type="button"
                 className="button"
                 onClick={() => selectStep("review")}
               >
-                {msg("Voir la vérification")}
+                {msg("View the review step")}
                 <ArrowRight size={18} aria-hidden="true" />
               </button>
             </div>
@@ -301,10 +291,10 @@ export function GuidedExample() {
 
           {step === "review" && (
             <div className="guided-example-review">
-              <h3>{msg("L’épreuve avant l’envoi.")}</h3>
+              <h3>{msg("The proof before dispatch.")}</h3>
               <p>
                 {msg(
-                  "Vérifiez le document, le destinataire, le canal et le montant avant de donner votre accord.",
+                  "Check the document, recipient, channel and amount before giving your approval.",
                 )}
               </p>
               <dl className="guided-example-fields">
@@ -313,20 +303,20 @@ export function GuidedExample() {
                   <dd className="guided-example-document">
                     <FilePdf size={27} weight="light" aria-hidden="true" />
                     <span>
-                      {msg("Correspondance.pdf")}
-                      <small>{msg("2 pages · document fictif")}</small>
+                      {msg("Correspondence.pdf")}
+                      <small>{msg("2 pages · fictional document")}</small>
                     </span>
                   </dd>
                 </div>
                 <div>
-                  <dt>{msg("Destinataire")}</dt>
+                  <dt>{msg("Recipient")}</dt>
                   <dd>
                     {example.recipient}
                     <small>{example.recipientDetail}</small>
                   </dd>
                 </div>
                 <div>
-                  <dt>{msg("Canal")}</dt>
+                  <dt>{msg("Channel")}</dt>
                   <dd>{example.label}</dd>
                 </div>
                 <div className="guided-example-cost">
@@ -335,7 +325,7 @@ export function GuidedExample() {
                     <strong>
                       {exampleCurrency.format(example.amountMinor / 100)}
                     </strong>
-                    <small>{msg("Montant fictif, aucun tarif réel")}</small>
+                    <small>{msg("Fictional amount, not a real rate")}</small>
                   </dd>
                 </div>
               </dl>
@@ -344,7 +334,7 @@ export function GuidedExample() {
                 className="button primary"
                 onClick={() => selectStep("tracking")}
               >
-                {msg("Simuler la validation")}
+                {msg("Simulate approval")}
                 <ArrowRight size={18} aria-hidden="true" />
               </button>
             </div>
@@ -352,10 +342,10 @@ export function GuidedExample() {
 
           {step === "tracking" && (
             <div className="guided-example-tracking">
-              <h3>{msg("Chaque étape laisse une trace.")}</h3>
+              <h3>{msg("Every step leaves a trace.")}</h3>
               <p className="guided-example-tracking-caption">
-                {msg("Suivi fictif · ")}
-                {example.label} {msg(" · Correspondance.pdf")}
+                {msg("Fictional tracking · ")}
+                {example.label} {msg(" · Correspondence.pdf")}
               </p>
               <ol className="guided-example-timeline">
                 {example.tracking.map((item) => (
@@ -377,7 +367,7 @@ export function GuidedExample() {
               </ol>
               <p className="guided-example-detail">
                 {msg(
-                  "Ce résultat illustre le suivi. Aucun document n’a été transmis.",
+                  "This result illustrates tracking. No document was transmitted.",
                 )}
               </p>
             </div>
@@ -385,12 +375,8 @@ export function GuidedExample() {
         </div>
 
         <div className="guided-example-next">
-          <a
-            className="text-link"
-            href="#installation"
-            onClick={(event) => scrollToSection(event, "installation")}
-          >
-            {msg("Préparer mon premier envoi")}
+          <a className="text-link" href="/getting-started/">
+            {msg("Prepare my first dispatch")}
             <ArrowRight size={17} aria-hidden="true" />
           </a>
         </div>

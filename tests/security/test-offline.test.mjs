@@ -204,7 +204,7 @@ test("public qualification is sanitized, distinctly local and requires proven ne
   assert.equal(report.sourceCommit, null);
   assert.match(
     report.limitations.join(" "),
-    /ne prouve pas le fonctionnement de la production/,
+    /does not prove production operation/,
   );
   assert.doesNotMatch(JSON.stringify(report), /secret|private\/user|stdout/);
   for (const change of [

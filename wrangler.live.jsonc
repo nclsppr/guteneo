@@ -8,7 +8,10 @@
   "workers_dev": false,
   "preview_urls": false,
   // Auth0 is configured; real browser login is qualified on this canonical origin.
-  "routes": [{ "pattern": "guteneo.com", "custom_domain": true }],
+  "routes": [
+    { "pattern": "guteneo.com", "custom_domain": true },
+    { "pattern": "belvedere.guteneo.com", "custom_domain": true },
+  ],
   "assets": {
     "directory": "./dist/web",
     "binding": "ASSETS",
@@ -23,18 +26,29 @@
     "APP_ORIGIN": "https://guteneo.com",
     "LIVE_SENDS_ENABLED": "true",
     // Transport only: tenant controls, verified senders, quotes and approval still apply.
-    "LIVE_SEND_CHANNELS": "fax,postal",
+    "LIVE_SEND_CHANNELS": "fax,postal,email",
     "EMAIL_PROVIDER": "resend",
-    "RESEND_SENDS_ENABLED": "false",
+    "RESEND_SENDS_ENABLED": "true",
     "RESEND_ACCOUNT_ID": "nclsppr",
     "RESEND_DOMAIN_ID": "0140c1df-a406-495d-adb7-78a1204607b3",
     "RESEND_VERIFIED_DOMAIN": "guteneo.com",
-    "RESEND_TARIFF_QUALIFIED_UNTIL": "2026-10-21T00:00:00.000Z",
+    "RESEND_TARIFF_QUALIFIED_UNTIL": "2026-11-23T00:00:00.000Z",
     // Reviewed PDF transfer creates an auto_send:false Pingen draft only.
     "POSTAL_DRAFTS_ENABLED": "true",
     "SES_ACCOUNT_ID": "982055099242",
     "PINGEN_DEFAULT_COUNTRY": "LU",
     "AUTH0_AUTH_POLICY": "verified_email",
+    // New browser/native login uses the verified alias; identity keys stay canonical.
+    "AUTH0_BROWSER_DOMAIN": "auth.guteneo.com",
+    // Canonical identity keys and existing connections remain on the tenant.
+    "AUTH0_MCP_TRUSTED_DOMAIN": "auth.guteneo.com",
+    // Roll discovery back independently; retain trusted-domain token continuity.
+    "AUTH0_MCP_DISCOVERY": "custom",
+    "SECURE_DISTRIBUTION_ENABLED": "true",
+    // Publish only after the private validator has passed hosted qualification.
+    "PDF_VALIDATION_ENABLED": "true",
+    // Fresh verified accounts; additional strong authentication remains optional.
+    "SENSITIVE_DOCUMENT_AUTHENTICATION": "verified_account",
   },
   "d1_databases": [
     {
@@ -53,6 +67,7 @@
   ],
   "services": [
     { "binding": "SCANNER", "service": "guteneo-scanner" },
+    { "binding": "PDF_VALIDATOR", "service": "guteneo-pdf-validator" },
     { "binding": "DOCUMENT_RENDERER", "service": "guteneo-documents" },
   ],
   "queues": {
@@ -94,14 +109,14 @@
     "logs": {
       "enabled": true,
       "invocation_logs": false,
-      "persist": true
+      "persist": true,
     },
     "traces": {
       "enabled": false,
-      "persist": false
-    }
+      "persist": false,
+    },
   },
   "version_metadata": {
-    "binding": "WRANGLER_VERSION_METADATA"
+    "binding": "WRANGLER_VERSION_METADATA",
   },
 }

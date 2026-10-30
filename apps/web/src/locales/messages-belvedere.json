@@ -22,11 +22,6 @@
     "99 % der Ausführungen unter diesem Wert",
     "99 % vun den Ausféierungen ënner dësem Wäert"
   ],
-  "Abonnement Horizon": [
-    "Horizon subscription",
-    "Horizon-Abonnement",
-    "Horizon-Abonnement"
-  ],
   "Accepté": ["Accepted", "Angenommen", "Ugeholl"],
   "Accès": ["Access", "Zugang", "Zougang"],
   "Accès personnel": [
@@ -349,11 +344,6 @@
     "Verbrauch, Zahlungseingänge und Anbieterkosten getrennt ausgewiesen.",
     "Verbrauch, Bezuelungsagäng an Ubidderkäschte getrennt gewisen."
   ],
-  "Consommations simulées des envois et d’Horizon selon leur date de confirmation ou de comptabilisation. Elles ne représentent pas des encaissements réels.": [
-    "Simulated dispatch and Horizon consumption by confirmation or ledger date. These are not real receipts.",
-    "Simulierter Verbrauch für Sendungen und Horizon nach Bestätigungs- oder Buchungsdatum. Dies sind keine echten Zahlungseingänge.",
-    "Simuléierte Verbrauch fir Sendungen an Horizon nom Bestätegungs- oder Buchungsdatum. Dat si keng reell Bezuelungsagäng."
-  ],
   "Consommations simulées selon leur mois de confirmation ou de comptabilisation.": [
     "Simulated consumption by confirmation or ledger month.",
     "Simulierter Verbrauch nach Bestätigungs- oder Buchungsmonat.",
@@ -453,16 +443,6 @@
   "Données": ["Data", "Daten", "Daten"],
   "Données du globe": ["Globe data", "Globusdaten", "Globusdaten"],
   "Du": ["From", "Von", "Vum"],
-  "Débits des envois, de l’hébergement et d’Horizon enregistrés sur la période, selon leur date de comptabilisation, y compris pour les envois supprimés depuis. Ces montants peuvent provenir de crédits promotionnels.": [
-    "Dispatch, hosting and Horizon debits recorded in this period, by ledger date, including dispatches deleted since. These amounts may come from promotional credits.",
-    "Belastungen für Sendungen, Hosting und Horizon im Zeitraum nach Buchungsdatum, einschließlich inzwischen gelöschter Sendungen. Diese Beträge können aus Aktionsguthaben stammen.",
-    "Belaaschtunge fir Sendungen, Hosting an Horizon an dëser Period nom Buchungsdatum, och fir mëttlerweil geläschte Sendungen. Dës Beträg kënnen aus Promotiounsguthabe kommen."
-  ],
-  "Débits selon leur mois de comptabilisation, y compris Horizon et l’historique des envois supprimés.": [
-    "Debits by ledger month, including Horizon and the history of deleted dispatches.",
-    "Belastungen nach Buchungsmonat, einschließlich Horizon und dem Verlauf gelöschter Sendungen.",
-    "Belaaschtungen nom Buchungsmount, och Horizon an de Verlaf vu geläschte Sendungen."
-  ],
   "Début de la collecte": [
     "Collection started",
     "Beginn der Erfassung",
@@ -1335,11 +1315,6 @@
     "Stündliches Anfragevolumen, Detailwerte unten",
     "Ufrovolume pro Stonn, Detailwäerter hei drënner"
   ],
-  "Volumes : envois créés sur la période. Montants : débits comptabilisés sur la période, hors abonnement Horizon.": [
-    "Volumes: dispatches created in this period. Amounts: debits recorded in the period, excluding the Horizon subscription.",
-    "Volumen: im Zeitraum erstellte Sendungen. Beträge: im Zeitraum verbuchte Belastungen, ohne Horizon-Abonnement.",
-    "Volumen: Sendungen an dëser Period erstallt. Beträg: Belaaschtungen an dëser Period verbucht, ouni Horizon-Abonnement."
-  ],
   "Votre accès doit être vérifié.": [
     "Your access needs to be checked.",
     "Ihr Zugang muss geprüft werden.",
@@ -1551,5 +1526,40 @@
     "{0} Atelieren an dëser Vue"
   ],
   "{0} personnes": ["{0} people", "{0} Personen", "{0} Persounen"],
-  "{0} jours": ["{0} days", "{0} Tage", "{0} Deeg"]
+  "{0} jours": ["{0} days", "{0} Tage", "{0} Deeg"],
+  "Anciens forfaits PDF": [
+    "Legacy PDF plans",
+    "Frühere PDF-Tarife",
+    "Fréier PDF-Abonnementer"
+  ],
+  "Débits des envois, de l’hébergement, des contrôles PDF et des anciens forfaits enregistrés sur la période, selon leur date de comptabilisation, y compris pour les envois supprimés depuis. Ces montants peuvent provenir de crédits promotionnels.": [
+    "Dispatch, hosting, PDF check and legacy plan debits recorded in this period, by ledger date, including dispatches deleted since. These amounts may come from promotional credits.",
+    "Belastungen für Sendungen, Hosting, PDF-Prüfungen und frühere Tarife im Zeitraum nach Buchungsdatum, einschließlich inzwischen gelöschter Sendungen. Diese Beträge können aus Aktionsguthaben stammen.",
+    "Belaaschtunge fir Sendungen, Hosting, PDF-Kontrollen a fréier Abonnementer an dëser Period nom Buchungsdatum, och fir mëttlerweil geläschte Sendungen. Dës Beträg kënnen aus Promotiounsguthabe kommen."
+  ],
+  "Consommations simulées des envois, des contrôles PDF et des anciens forfaits selon leur date de confirmation ou de comptabilisation. Elles ne représentent pas des encaissements réels.": [
+    "Simulated dispatch, PDF check and legacy plan consumption by confirmation or ledger date. These are not real receipts.",
+    "Simulierter Verbrauch für Sendungen, PDF-Prüfungen und frühere Tarife nach Bestätigungs- oder Buchungsdatum. Dies sind keine echten Zahlungseingänge.",
+    "Simuléierte Verbrauch fir Sendungen, PDF-Kontrollen a fréier Abonnementer nom Bestätegungs- oder Buchungsdatum. Dat si keng reell Bezuelungsagäng."
+  ],
+  "Volumes : envois créés sur la période. Montants : débits comptabilisés sur la période, hors anciens forfaits.": [
+    "Volumes: dispatches created in this period. Amounts: debits recorded in the period, excluding legacy plan charges.",
+    "Volumen: im Zeitraum erstellte Sendungen. Beträge: im Zeitraum verbuchte Belastungen, ohne frühere Tarifgebühren.",
+    "Volumen: Sendungen an dëser Period erstallt. Beträg: Belaaschtungen an dëser Period verbucht, ouni fréier Abonnementskäschten."
+  ],
+  "Débits selon leur mois de comptabilisation, y compris les contrôles PDF, les anciens forfaits et l’historique des envois supprimés.": [
+    "Debits by ledger month, including PDF checks, legacy plans and the history of deleted dispatches.",
+    "Belastungen nach Buchungsmonat, einschließlich PDF-Prüfungen, früherer Tarife und des Verlaufs gelöschter Sendungen.",
+    "Belaaschtungen nom Buchungsmount, mat PDF-Kontrollen, fréieren Abonnementer an dem Verlaf vu geläschte Sendungen."
+  ],
+  "Les crédits promotionnels ne sont pas des revenus. Les factures fournisseurs, les remboursements, les taxes et les frais fixes ne sont pas encore tous rapprochés.": [
+    "Promotional credits are not revenue. Supplier invoices, refunds, taxes and fixed costs have not all been reconciled.",
+    "Aktionsguthaben sind keine Einnahmen. Lieferantenrechnungen, Erstattungen, Steuern und Fixkosten sind noch nicht vollständig abgeglichen.",
+    "Promotiounskreditter si keng Recetten. Fournisseursrechnungen, Remboursementer, Steieren a fix Käschte sinn nach net all ofgeglach."
+  ],
+  "Les coûts fournisseurs, les factures Cloudflare et les encaissements complets ne sont pas disponibles.": [
+    "Supplier costs, Cloudflare invoices and complete receipts are unavailable.",
+    "Lieferantenkosten, Cloudflare-Rechnungen und vollständige Zahlungseingänge sind nicht verfügbar.",
+    "Fournisseurskäschten, Cloudflare-Rechnungen an déi vollstänneg Bezuelungsagäng sinn net disponibel."
+  ]
 }

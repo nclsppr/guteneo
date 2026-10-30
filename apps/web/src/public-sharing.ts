@@ -5,6 +5,25 @@ import type { SupportedLocale } from "../../../packages/contracts/src/locale";
 import { getPublicSocialCopy } from "./editorial/social-copy";
 import editorial from "./locales/messages-editorial.json";
 import shell from "./locales/messages-shell.json";
+import { englishMessages, translateMessage } from "./message-catalog";
+import type { getPublicPageMetadata } from "./public-page-metadata";
+import { LOCALE_CHANGE_EVENT } from "./locale";
+
+if (typeof window !== "undefined")
+  window.addEventListener(LOCALE_CHANGE_EVENT, syncPublicSharing);
+
+let resolvePageMetadata: typeof getPublicPageMetadata | undefined;
+/** Register after catalogs initialize; the locale bootstrap must stay acyclic. */
+export function registerPublicPageMetadata(
+  resolver: typeof getPublicPageMetadata,
+) {
+  resolvePageMetadata = resolver;
+}
+
+const sharingMessages = { ...editorial, ...shell };
+const sharingEnglish = englishMessages(sharingMessages);
+const translatePublicText = (source: string, locale: SupportedLocale) =>
+  translateMessage(source, locale, sharingEnglish, sharingMessages, []);
 
 const localeTags = { fr: "fr_FR", en: "en_GB", de: "de_DE", lb: "lb_LU" };
 
@@ -26,10 +45,6 @@ export function localizePublicSchema(
   };
   const urlFor = (path: string) =>
     `${site.origin}${path}${locale ? `?lang=${locale}` : ""}`;
-  const translate = (source: string, translations: readonly string[]) =>
-    language === "fr"
-      ? source
-      : translations[{ en: 0, de: 1, lb: 2 }[language]];
   function visit(value: unknown, key = ""): unknown {
     if (key === "inLanguage") return language;
     if (["url", "item", "mainEntityOfPage"].includes(key)) {
@@ -52,10 +67,10 @@ export function localizePublicSchema(
     if (source["@type"] === "ListItem") {
       const path = publicPath(source.item);
       const names: Record<string, string> = {
-        "/": translate("Accueil", editorial.Accueil),
-        "/journal/": translate("Le journal", editorial["Le journal"]),
-        "/assistants/": translate("Assistants", shell.Assistants),
-        "/developpeurs/": translate("Développeurs", shell["Développeurs"]),
+        "/": translatePublicText("Home", language),
+        "/journal/": translatePublicText("The journal", language),
+        "/assistants/": translatePublicText("Assistants", language),
+        "/developers/": translatePublicText("Developers", language),
         "/assistants/chatgpt/": "ChatGPT",
         "/assistants/claude/": "Claude",
         "/assistants/grok/": "Grok",
@@ -131,10 +146,10 @@ export function publicSocialImage(
 ) {
   if (!locale || !path.startsWith("/journal/"))
     return cards[locale ?? "neutral"];
-  const luxembourg = path === "/journal/histoire-imprimerie-luxembourg/";
+  const luxembourg = path === "/journal/printing-history-luxembourg/";
   const description = luxembourg
-    ? "Presse, caractères mobiles et livres devant une vue illustrée des toits et de la vallée de Luxembourg, gravés en bleu."
-    : "Composition illustrée réunissant une presse ancienne, des lettres, un fax et un ordinateur autour de pages imprimées.";
+    ? "A printing press, movable type and books before an illustrated view of Luxembourg’s rooftops and valley, engraved in blue."
+    : "Illustration bringing together an old printing press, letters, a fax machine and a computer around printed pages.";
   return {
     src: luxembourg
       ? "/editorial/luxembourg-printing.webp"
@@ -142,10 +157,7 @@ export function publicSocialImage(
     width: 1536,
     height: 1024,
     type: "image/webp",
-    alt:
-      locale === "fr"
-        ? description
-        : editorial[description][{ en: 0, de: 1, lb: 2 }[locale]],
+    alt: translatePublicText(description, locale),
   };
 }
 
@@ -196,9 +208,41 @@ export function syncPublicSharing() {
   for (const key of ["width", "height", "type", "alt"] as const)
     meta(`og:image:${key}`, String(image[key]));
   meta("twitter:image:alt", image.alt);
+  const page = resolvePageMetadata?.(url.pathname);
+  const sourceSchemas = () =>
+    Array.from(
+      document.head.querySelectorAll('script[type="application/ld+json"]'),
+      (node) => {
+        try {
+          return JSON.parse(node.textContent ?? "null") as Record<
+            string,
+            unknown
+          >;
+        } catch {
+          return null;
+        }
+      },
+    ).filter((item): item is Record<string, unknown> => item !== null);
+  const structuredData = resolvePageMetadata
+    ? page && "structuredData" in page
+      ? (page.structuredData ?? [])
+      : []
+    : sourceSchemas();
+  meta(
+    "og:type",
+    structuredData.some((item) => item["@type"] === "Article")
+      ? "article"
+      : "website",
+  );
   document.head
     .querySelector<HTMLLinkElement>('link[rel="canonical"]')
     ?.setAttribute("href", canonical);
+  for (const alternate of document.head.querySelectorAll<HTMLLinkElement>(
+    'link[rel="alternate"][hreflang]',
+  )) {
+    const code = alternate.hreflang;
+    alternate.href = `${site.origin}${url.pathname}${code === "x-default" ? "" : `?lang=${code}`}`;
+  }
   for (const node of document.head.querySelectorAll(
     'meta[property="og:locale:alternate"]',
   ))
@@ -213,20 +257,18 @@ export function syncPublicSharing() {
   {
     for (const node of document.head.querySelectorAll(
       'script[type="application/ld+json"]',
-    )) {
-      try {
-        const schema = localizePublicSchema(
-          JSON.parse(node.textContent ?? "null"),
-          url.pathname,
-          locale,
-        );
-        node.textContent = JSON.stringify(schema)
-          .replaceAll("<", "\\u003c")
-          .replaceAll(">", "\\u003e")
-          .replaceAll("&", "\\u0026");
-      } catch {
-        /* A malformed unrelated schema never blocks language selection. */
-      }
+    ))
+      node.remove();
+    for (const item of structuredData) {
+      const node = document.createElement("script");
+      node.type = "application/ld+json";
+      node.textContent = JSON.stringify(
+        localizePublicSchema(item, url.pathname, locale),
+      )
+        .replaceAll("<", "\\u003c")
+        .replaceAll(">", "\\u003e")
+        .replaceAll("&", "\\u0026");
+      document.head.appendChild(node);
     }
   }
 }

@@ -1,10 +1,10 @@
 interface QualificationEnv {
-  HORIZON_QUALIFICATION_TOKEN?: string;
+  PDF_VALIDATOR_QUALIFICATION_TOKEN?: string;
   PDF_VALIDATOR: Fetcher;
   QUALIFICATION: {
     release(): Promise<{ sourceCommit: string; workerVersion: string }>;
     state(): Promise<{ status: string }>;
-    stop(): Promise<{ status: string }>;
+    stop(options?: { force?: boolean }): Promise<{ status: string }>;
     privacy(): Promise<{ temporaryDirectories: number }>;
     processDeadline(): Promise<{ code: string; temporaryDirectories: number }>;
   };
@@ -23,8 +23,10 @@ export default {
         { code: "LOCAL_PROBE_ORIGIN_FORBIDDEN" },
         { status: 403 },
       );
-    const expectedToken = env.HORIZON_QUALIFICATION_TOKEN;
-    const suppliedToken = request.headers.get("X-Horizon-Qualification-Token");
+    const expectedToken = env.PDF_VALIDATOR_QUALIFICATION_TOKEN;
+    const suppliedToken = request.headers.get(
+      "X-PDF-Validator-Qualification-Token",
+    );
     if (
       !/^[a-f0-9]{64}$/.test(expectedToken ?? "") ||
       !/^[a-f0-9]{64}$/.test(suppliedToken ?? "") ||
@@ -49,8 +51,16 @@ export default {
         !url.search
       )
         return Response.json(await env.QUALIFICATION.privacy());
-      if (request.method === "POST" && url.pathname === "/stop" && !url.search)
-        return Response.json(await env.QUALIFICATION.stop());
+      if (
+        request.method === "POST" &&
+        url.pathname === "/stop" &&
+        (url.search === "" || url.search === "?force=true")
+      )
+        return Response.json(
+          await env.QUALIFICATION.stop(
+            url.search === "?force=true" ? { force: true } : undefined,
+          ),
+        );
       if (
         request.method === "POST" &&
         url.pathname === "/process-deadline" &&
@@ -66,6 +76,7 @@ export default {
         // The real service validates these parameters/body bounds; retain negative tests.
         // The local per-run credential must never cross a remote service binding.
         const headers = new Headers(request.headers);
+        headers.delete("X-PDF-Validator-Qualification-Token");
         headers.delete("X-Horizon-Qualification-Token");
         return await env.PDF_VALIDATOR.fetch(
           new Request(

@@ -347,7 +347,7 @@ describe("connection-specific expert status is read-only and current", () => {
         ],
       },
     });
-    expect(result.message).toContain("reconnexion désactive");
+    expect(result.message).toContain("reconnection disables");
     const reviewer = await getExpertStatus(
       await identify("documents:read dispatches:read dispatches:send"),
       env,
@@ -578,7 +578,7 @@ describe("connection-specific expert status is read-only and current", () => {
         remainingMinor: 100,
       });
     expect(await snapshot()).toEqual(before);
-    expect(first.usageBasis).toContain("ne sont pas réservées");
+    expect(first.usageBasis).toContain("are not reserved");
   });
 
   it("keeps concurrent acceptance atomic when two callers observed the same remaining budget", async () => {

@@ -442,7 +442,7 @@ describe("fax quote renewal — local D1, no provider request", () => {
             {
               id: old.id,
               quoteExpiresAt: old.quote_expires_at,
-              nextActions: [expect.stringContaining("Devis expiré")],
+              nextActions: [expect.stringContaining("Quote expired")],
             },
           ],
         },

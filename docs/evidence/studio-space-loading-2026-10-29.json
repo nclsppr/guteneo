@@ -1,0 +1,642 @@
+{
+  "measuredAt": "2026-10-29T21:31:11.702Z",
+  "baseline": "1e013dbc129dd73fb953b36898f59dad379d5aaa",
+  "candidate": "06edca59c11f66fe1951e6ebce9122185420cb29",
+  "version": "1.1.19",
+  "environment": {
+    "node": "v24.18.0",
+    "browser": "153.0.8010.12",
+    "engine": "Chromium",
+    "viewport": "1440x900",
+    "locale": "en-GB",
+    "theme": "light",
+    "reducedMotion": "reduce",
+    "browserCache": "new browser context per sample",
+    "server": "Node HTTP loopback; no compression; Cache-Control no-store",
+    "api": "all intercepted read-only synthetic responses; 40ms fixed delay per request",
+    "database": "none",
+    "realProviderRequests": "none; external origins blocked",
+    "usefulDefinition": "My documents: synthetic personal-document title; Correspondence: synthetic dispatch-recipient row; Studio: first built-in template gallery title after verified workspace session. Non-zero-size DOM element followed by next requestAnimationFrame opportunity, viewport inclusion recorded. Studio private-library row readiness recorded separately because it is below the fold.",
+    "implementationMarkers": {
+      "pdfjs": "PDFDocumentLoadingTask",
+      "designer": "pdfme-internal-link-cache",
+      "globe": "bv-globe-stage"
+    },
+    "sampling": "3 fresh contexts per variant/route, interleaved before/after; no CPU/network emulation; OS file cache not reset",
+    "concurrentWork": "Root reported complete unit, end-to-end, preview and Belvedere acceptance suites running concurrently on the same machine. The sampling process and host CPU workload were not isolated; timing differences are not attributed to the candidate."
+  },
+  "sourceFingerprints": {
+    "baselineIndexSha256": "2b598a8203296a10bec24c1deb13b249cd9b8566fd02d16997b73f4e3eff41a7",
+    "candidateIndexSha256": "01edf402aced807e37e5698d92b9292a2e094036a24b93b78e62402b859a1473",
+    "probeSha256": "357b3d3b2b1d545a134006891c06beaa4f2904a2d8f842f4944a5d2895113b44",
+    "runtimePatchParent": "64b857e4b48096a9e352639b6378c820a0137f1e",
+    "runtimePatchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "candidatePackageLockSha256": "25389b8da7da33d306e1fd7c76a7c8a853a15e2d8fc1bfa94f16455c06606762",
+    "dependencyComparison": "The lockfile differs from the baseline only in the root package version 1.1.17→1.1.19; dependency versions and installed runtime are unchanged.",
+    "implementationMarkerPositiveControls": {
+      "before": {
+        "globe": ["/assets/belvedere-lb2Jj7X8.js"],
+        "pdfjs": ["/assets/pdf-viewer-CTUeu8WP.js"],
+        "designer": ["/assets/template-designer-BdNOSMxN.js"]
+      },
+      "after": {
+        "globe": ["/assets/belvedere-globe-DS-a_adF.js"],
+        "pdfjs": ["/assets/pdf-viewer-BIBmZgrl.js"],
+        "designer": ["/assets/template-designer-BGjqBNI6.js"]
+      }
+    }
+  },
+  "summaries": [
+    {
+      "route": "my-documents",
+      "before": {
+        "samples": 3,
+        "firstUsefulMs": {
+          "median": 196.40000000037253,
+          "minimum": 196.09999999962747,
+          "maximum": 236.59999999962747
+        },
+        "firstUsefulInViewport": true,
+        "privateLibraryDomMs": null,
+        "privateLibraryInViewport": null,
+        "jsRequests": {
+          "median": 19,
+          "minimum": 19,
+          "maximum": 19
+        },
+        "cssRequests": {
+          "median": 2,
+          "minimum": 2,
+          "maximum": 2
+        },
+        "jsBodyBytes": {
+          "median": 1562500,
+          "minimum": 1562500,
+          "maximum": 1562500
+        },
+        "cssBodyBytes": {
+          "median": 168734,
+          "minimum": 168734,
+          "maximum": 168734
+        },
+        "jsCssTransferBytes": {
+          "median": 1737534,
+          "minimum": 1737534,
+          "maximum": 1737534
+        },
+        "jsCssGzipFileBytesSum": {
+          "median": 521610,
+          "minimum": 521610,
+          "maximum": 521610
+        },
+        "apiRequests": {
+          "median": 2,
+          "minimum": 2,
+          "maximum": 2
+        },
+        "apiPaths": [
+          "/api/personal/session",
+          "/api/personal/documents?kind=shared"
+        ],
+        "unexpectedApis": [],
+        "heavyModuleRequests": [],
+        "heavyImplementationMarkers": [],
+        "writes": [],
+        "externalRequests": [],
+        "errors": [],
+        "failures": []
+      },
+      "after": {
+        "samples": 3,
+        "firstUsefulMs": {
+          "median": 265.90000000037253,
+          "minimum": 192.90000000037253,
+          "maximum": 282.30000000074506
+        },
+        "firstUsefulInViewport": true,
+        "privateLibraryDomMs": null,
+        "privateLibraryInViewport": null,
+        "jsRequests": {
+          "median": 25,
+          "minimum": 25,
+          "maximum": 25
+        },
+        "cssRequests": {
+          "median": 2,
+          "minimum": 2,
+          "maximum": 2
+        },
+        "jsBodyBytes": {
+          "median": 1611566,
+          "minimum": 1611566,
+          "maximum": 1611566
+        },
+        "cssBodyBytes": {
+          "median": 159993,
+          "minimum": 159993,
+          "maximum": 159993
+        },
+        "jsCssTransferBytes": {
+          "median": 1779659,
+          "minimum": 1779659,
+          "maximum": 1779659
+        },
+        "jsCssGzipFileBytesSum": {
+          "median": 538685,
+          "minimum": 538685,
+          "maximum": 538685
+        },
+        "apiRequests": {
+          "median": 2,
+          "minimum": 2,
+          "maximum": 2
+        },
+        "apiPaths": [
+          "/api/personal/session",
+          "/api/personal/documents?kind=shared"
+        ],
+        "unexpectedApis": [],
+        "heavyModuleRequests": [],
+        "heavyImplementationMarkers": [],
+        "writes": [],
+        "externalRequests": [],
+        "errors": [],
+        "failures": []
+      },
+      "change": {
+        "jsBodyBytes": 49066,
+        "cssBodyBytes": -8741,
+        "jsCssTransferBytes": 42125,
+        "firstUsefulMs": 69.5
+      }
+    },
+    {
+      "route": "correspondence",
+      "before": {
+        "samples": 3,
+        "firstUsefulMs": {
+          "median": 267.69999999925494,
+          "minimum": 243.59999999962747,
+          "maximum": 302.5
+        },
+        "firstUsefulInViewport": true,
+        "privateLibraryDomMs": null,
+        "privateLibraryInViewport": null,
+        "jsRequests": {
+          "median": 28,
+          "minimum": 28,
+          "maximum": 28
+        },
+        "cssRequests": {
+          "median": 6,
+          "minimum": 6,
+          "maximum": 6
+        },
+        "jsBodyBytes": {
+          "median": 1682989,
+          "minimum": 1682989,
+          "maximum": 1682989
+        },
+        "cssBodyBytes": {
+          "median": 178145,
+          "minimum": 178145,
+          "maximum": 178145
+        },
+        "jsCssTransferBytes": {
+          "median": 1871334,
+          "minimum": 1871334,
+          "maximum": 1871334
+        },
+        "jsCssGzipFileBytesSum": {
+          "median": 560014,
+          "minimum": 560014,
+          "maximum": 560014
+        },
+        "apiRequests": {
+          "median": 6,
+          "minimum": 6,
+          "maximum": 6
+        },
+        "apiPaths": [
+          "/api/session",
+          "/api/capabilities",
+          "/api/account/contacts",
+          "/api/connections",
+          "/api/overview",
+          "/api/dispatches?limit=6"
+        ],
+        "unexpectedApis": [],
+        "heavyModuleRequests": [],
+        "heavyImplementationMarkers": [],
+        "writes": [],
+        "externalRequests": [],
+        "errors": [],
+        "failures": []
+      },
+      "after": {
+        "samples": 3,
+        "firstUsefulMs": {
+          "median": 262.09999999962747,
+          "minimum": 252.5,
+          "maximum": 292.5
+        },
+        "firstUsefulInViewport": true,
+        "privateLibraryDomMs": null,
+        "privateLibraryInViewport": null,
+        "jsRequests": {
+          "median": 30,
+          "minimum": 30,
+          "maximum": 30
+        },
+        "cssRequests": {
+          "median": 6,
+          "minimum": 6,
+          "maximum": 6
+        },
+        "jsBodyBytes": {
+          "median": 1693870,
+          "minimum": 1693870,
+          "maximum": 1693870
+        },
+        "cssBodyBytes": {
+          "median": 169404,
+          "minimum": 169404,
+          "maximum": 169404
+        },
+        "jsCssTransferBytes": {
+          "median": 1874074,
+          "minimum": 1874074,
+          "maximum": 1874074
+        },
+        "jsCssGzipFileBytesSum": {
+          "median": 565689,
+          "minimum": 565689,
+          "maximum": 565689
+        },
+        "apiRequests": {
+          "median": 6,
+          "minimum": 6,
+          "maximum": 6
+        },
+        "apiPaths": [
+          "/api/session",
+          "/api/capabilities",
+          "/api/account/contacts",
+          "/api/connections",
+          "/api/overview",
+          "/api/dispatches?limit=6"
+        ],
+        "unexpectedApis": [],
+        "heavyModuleRequests": [],
+        "heavyImplementationMarkers": [],
+        "writes": [],
+        "externalRequests": [],
+        "errors": [],
+        "failures": []
+      },
+      "change": {
+        "jsBodyBytes": 10881,
+        "cssBodyBytes": -8741,
+        "jsCssTransferBytes": 2740,
+        "firstUsefulMs": -5.599999999627471
+      }
+    },
+    {
+      "route": "studio",
+      "before": {
+        "samples": 3,
+        "firstUsefulMs": {
+          "median": 187.09999999962747,
+          "minimum": 164.59999999962747,
+          "maximum": 202.19999999925494
+        },
+        "firstUsefulInViewport": true,
+        "privateLibraryDomMs": {
+          "median": 245.09999999962747,
+          "minimum": 222.39999999850988,
+          "maximum": 264
+        },
+        "privateLibraryInViewport": false,
+        "jsRequests": {
+          "median": 22,
+          "minimum": 22,
+          "maximum": 22
+        },
+        "cssRequests": {
+          "median": 2,
+          "minimum": 2,
+          "maximum": 2
+        },
+        "jsBodyBytes": {
+          "median": 1695600,
+          "minimum": 1695600,
+          "maximum": 1695600
+        },
+        "cssBodyBytes": {
+          "median": 168734,
+          "minimum": 168734,
+          "maximum": 168734
+        },
+        "jsCssTransferBytes": {
+          "median": 1871534,
+          "minimum": 1871534,
+          "maximum": 1871534
+        },
+        "jsCssGzipFileBytesSum": {
+          "median": 558355,
+          "minimum": 558355,
+          "maximum": 558355
+        },
+        "apiRequests": {
+          "median": 3,
+          "minimum": 3,
+          "maximum": 3
+        },
+        "apiPaths": ["/api/session", "/api/capabilities", "/api/templates"],
+        "unexpectedApis": [],
+        "heavyModuleRequests": [],
+        "heavyImplementationMarkers": [],
+        "writes": [],
+        "externalRequests": [],
+        "errors": [],
+        "failures": []
+      },
+      "after": {
+        "samples": 3,
+        "firstUsefulMs": {
+          "median": 193.59999999962747,
+          "minimum": 185,
+          "maximum": 203.5
+        },
+        "firstUsefulInViewport": true,
+        "privateLibraryDomMs": {
+          "median": 262.19999999925494,
+          "minimum": 241.30000000074506,
+          "maximum": 270.7000000011176
+        },
+        "privateLibraryInViewport": false,
+        "jsRequests": {
+          "median": 24,
+          "minimum": 24,
+          "maximum": 24
+        },
+        "cssRequests": {
+          "median": 3,
+          "minimum": 3,
+          "maximum": 3
+        },
+        "jsBodyBytes": {
+          "median": 1696928,
+          "minimum": 1696928,
+          "maximum": 1696928
+        },
+        "cssBodyBytes": {
+          "median": 166878,
+          "minimum": 166878,
+          "maximum": 166878
+        },
+        "jsCssTransferBytes": {
+          "median": 1871906,
+          "minimum": 1871906,
+          "maximum": 1871906
+        },
+        "jsCssGzipFileBytesSum": {
+          "median": 563599,
+          "minimum": 563599,
+          "maximum": 563599
+        },
+        "apiRequests": {
+          "median": 3,
+          "minimum": 3,
+          "maximum": 3
+        },
+        "apiPaths": ["/api/session", "/api/capabilities", "/api/templates"],
+        "unexpectedApis": [],
+        "heavyModuleRequests": [],
+        "heavyImplementationMarkers": [],
+        "writes": [],
+        "externalRequests": [],
+        "errors": [],
+        "failures": []
+      },
+      "change": {
+        "jsBodyBytes": 1328,
+        "cssBodyBytes": -1856,
+        "jsCssTransferBytes": 372,
+        "firstUsefulMs": 6.5
+      }
+    }
+  ],
+  "terminology": {
+    "file": "apps/web/src/locales/workspace-terminology.json",
+    "sourceBytes": 42330,
+    "minifiedBytes": 39425,
+    "standaloneMinifiedGzipBytes": 11854,
+    "sha256": "dbd4a9dd9cb48781143f967f4dfd6a70d4eb679aa2ecb4e3dbc27d1d840920d2",
+    "reviewedLabels": 131
+  },
+  "changeFromD47d8027": [
+    {
+      "route": "my-documents",
+      "uncompressedJavaScriptBodyBytes": 3335,
+      "cssBodyBytes": 207,
+      "javaScriptRequests": 0,
+      "cssRequests": 0,
+      "apiRequests": 0,
+      "sumStandaloneGzipAssetsBytes": 986
+    },
+    {
+      "route": "correspondence",
+      "uncompressedJavaScriptBodyBytes": 3321,
+      "cssBodyBytes": 207,
+      "javaScriptRequests": 0,
+      "cssRequests": 0,
+      "apiRequests": 0,
+      "sumStandaloneGzipAssetsBytes": 994
+    },
+    {
+      "route": "studio",
+      "uncompressedJavaScriptBodyBytes": -12484,
+      "cssBodyBytes": -13,
+      "javaScriptRequests": 1,
+      "cssRequests": 0,
+      "apiRequests": 0,
+      "sumStandaloneGzipAssetsBytes": -2598
+    }
+  ],
+  "changeFrom08df95d5": [
+    {
+      "route": "my-documents",
+      "uncompressedJavaScriptBodyBytes": 4537,
+      "cssBodyBytes": 207,
+      "javaScriptRequests": 0,
+      "cssRequests": 0,
+      "apiRequests": 0,
+      "sumStandaloneGzipAssetsBytes": 1460
+    },
+    {
+      "route": "correspondence",
+      "uncompressedJavaScriptBodyBytes": 4523,
+      "cssBodyBytes": 207,
+      "javaScriptRequests": 0,
+      "cssRequests": 0,
+      "apiRequests": 0,
+      "sumStandaloneGzipAssetsBytes": 1468
+    },
+    {
+      "route": "studio",
+      "uncompressedJavaScriptBodyBytes": -11282,
+      "cssBodyBytes": -13,
+      "javaScriptRequests": 1,
+      "cssRequests": 0,
+      "apiRequests": 0,
+      "sumStandaloneGzipAssetsBytes": -2130
+    }
+  ],
+  "historicalComparisons": [
+    {
+      "candidate": "1ceb29ff",
+      "result": "The initial integrated checkpoint had an observed personal-entry median of 175→443ms and 315–317ms between session and list request starts; later resolved-module rendering removed this local delay.",
+      "qualification": "The first React.lazy retry explanation was an inference supported by the renderer change and subsequent observations; no production cause is claimed."
+    },
+    {
+      "candidate": "08df95d5c4313e942ede50ec43be6b335304e377",
+      "measuredAt": "2026-10-29T19:45:03.294Z",
+      "firstUsefulMedians": [
+        {
+          "route": "my-documents",
+          "before": 173.29999999981374,
+          "after": 172.70000000018626
+        },
+        {
+          "route": "correspondence",
+          "before": 173.10000000009313,
+          "after": 175.79999999981374
+        },
+        {
+          "route": "studio",
+          "before": 138.6999999997206,
+          "after": 136.39999999990687
+        }
+      ],
+      "result": "Resolved-module checkpoint before explicit public-code recovery; preserved in the dated 08df95d5 artifacts."
+    },
+    {
+      "candidate": "d47d8027f1a10e23051508047f464de1e5c9f331",
+      "measuredAt": "2026-10-29T19:59:56.705Z",
+      "result": "Bounded public-code recovery before SSR film readiness, redirect rejection and visit cancellation; preserved in the dated d47d8027 artifacts."
+    },
+    {
+      "candidate": "125ed8fec2143729884dadb94385b8cbbdf213cc",
+      "measuredAt": "2026-10-29T20:27:38.782Z",
+      "result": "Explicit recovery, redirect rejection, visit cancellation and SSR film readiness before the independent distribution extraction; preserved in the dated 125ed8fe artifacts."
+    },
+    {
+      "candidate": "de6a34203fadcf562c7c9c66ea5410be5253c163",
+      "measuredAt": "2026-10-29T20:57:43.636Z",
+      "result": "Independent distribution preparation/tracking and layout consolidation before shared-event panel exclusivity; preserved in the dated de6a3420 artifacts."
+    },
+    {
+      "candidate": "64b857e4b48096a9e352639b6378c820a0137f1e",
+      "measuredAt": "2026-10-29T21:31:11.702Z",
+      "result": "The original 18-context observation includes shared-event panel exclusivity. Entry HTML, all 74 generated assets and all 43 distinct observed JS/CSS resources are byte-identical in 06edca59; the observation is retained without a new browser run."
+    }
+  ],
+  "rawArtifactBundle": {
+    "directory": "CODEX-PERFORMANCE in the dated local handover folder",
+    "measurementsSha256": "b947aa0cb5ec176deeca933a91213668ebd13258d53fe9073b1ae16aa26f3338",
+    "sourcesSha256": "4a634ecb53f6978521855522e4680e76be9feb72897f99daeae76eb681782f03",
+    "retainedCheckpoints": [
+      "1ceb29ff",
+      "08df95d5",
+      "d47d8027",
+      "125ed8fe",
+      "de6a3420",
+      "64b857e4"
+    ],
+    "equivalenceSha256": "ce3cec5ba03bb869d9ab78296928e463f61e3bc0f83e1c6485a815e0e7d8962b"
+  },
+  "scope": "Local uncompressed static assets with synthetic read-only API responses and fresh Chromium contexts. No database, real identity, provider, hosted latency, physical device, CI or deployment qualification. Concurrent local suites prevent attributing timing differences to the candidate; this normal-success harness does not qualify error recovery or film gestures. The 1.1.19 frontend qualification reuses 64b observations through explicit artifact equivalence; it adds no backend TTL, integration archive or new latency qualification.",
+  "changeFrom125ed8fe": [
+    {
+      "route": "my-documents",
+      "uncompressedJavaScriptBodyBytes": 2298,
+      "cssBodyBytes": 207,
+      "javaScriptRequests": 0,
+      "cssRequests": 0,
+      "apiRequests": 0,
+      "sumStandaloneGzipAssetsBytes": 700
+    },
+    {
+      "route": "correspondence",
+      "uncompressedJavaScriptBodyBytes": 2284,
+      "cssBodyBytes": 207,
+      "javaScriptRequests": 0,
+      "cssRequests": 0,
+      "apiRequests": 0,
+      "sumStandaloneGzipAssetsBytes": 703
+    },
+    {
+      "route": "studio",
+      "uncompressedJavaScriptBodyBytes": -13521,
+      "cssBodyBytes": -13,
+      "javaScriptRequests": 1,
+      "cssRequests": 0,
+      "apiRequests": 0,
+      "sumStandaloneGzipAssetsBytes": -2885
+    }
+  ],
+  "distributionLoading": {
+    "dedicatedAssets": [
+      "/assets/distribution-pages-Cx-2SDuj.css",
+      "/assets/distribution-pages-DGoQapJT.js"
+    ],
+    "entryRequests": [],
+    "scope": "The separate Correspondence distribution code and CSS are present in the build but not requested by the three measured entry routes. Opening distribution has its separate functional proof; this harness does not measure that destination."
+  },
+  "changeFromDe6a3420": [
+    {
+      "route": "my-documents",
+      "uncompressedJavaScriptBodyBytes": 422,
+      "cssBodyBytes": 0,
+      "javaScriptRequests": 0,
+      "cssRequests": 0,
+      "apiRequests": 0,
+      "sumStandaloneGzipAssetsBytes": 122
+    },
+    {
+      "route": "correspondence",
+      "uncompressedJavaScriptBodyBytes": 400,
+      "cssBodyBytes": 0,
+      "javaScriptRequests": 0,
+      "cssRequests": 0,
+      "apiRequests": 0,
+      "sumStandaloneGzipAssetsBytes": 116
+    },
+    {
+      "route": "studio",
+      "uncompressedJavaScriptBodyBytes": 411,
+      "cssBodyBytes": 0,
+      "javaScriptRequests": 0,
+      "cssRequests": 0,
+      "apiRequests": 0,
+      "sumStandaloneGzipAssetsBytes": 111
+    }
+  ],
+  "verifiedAt": "2026-10-29T22:24:24.539Z",
+  "observationCandidate": "64b857e4b48096a9e352639b6378c820a0137f1e",
+  "artifactEquivalence": {
+    "verifiedAt": "2026-10-29T22:24:24.539Z",
+    "observationCandidate": "64b857e4b48096a9e352639b6378c820a0137f1e",
+    "observationMeasuredAt": "2026-10-29T21:31:11.702Z",
+    "verifiedCandidate": "06edca59c11f66fe1951e6ebce9122185420cb29",
+    "method": "Byte-for-byte comparison of entry HTML and all generated assets, with separate validation of every distinct JS/CSS resource in the original 18 contexts. No new browser run or latency observation.",
+    "indexSha256": "01edf402aced807e37e5698d92b9292a2e094036a24b93b78e62402b859a1473",
+    "indexBytes": 3139,
+    "assetCount": 74,
+    "loadedAssetCount": 43,
+    "assetManifestSha256": "3da8e6816a75f811ca97de2bbeea6b983f9e3a2f35d5fbd1cac0a3963c919a80",
+    "limits": "Entry HTML and frontend assets are identical. Other public files, integration archives, package metadata, backend approval TTL and version 1.1.19 behavior are outside these synthetic frontend-loading observations.",
+    "manifestFile": "equivalence-06edca59.json"
+  }
+}

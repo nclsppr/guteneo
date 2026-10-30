@@ -1,545 +1,569 @@
 import { test, expect } from "@playwright/test";
-import { fixtures, history, qualification, snapshot } from "./fixtures";
+import { fixtures, history, snapshot } from "./fixtures";
 
-const serviceGroups = [
-  ["pages", 7],
-  ["api", 3],
-  ["access", 4],
-] as const;
+const headings = {
+  fr: "État du service",
+  en: "Service status",
+  de: "Dienststatus",
+  lb: "Servicestatus",
+};
+const available = {
+  fr: "Les accès publics sont disponibles",
+  en: "Public access is available",
+  de: "Der öffentliche Zugang ist verfügbar",
+  lb: "Den ëffentlechen Zougang ass disponibel",
+};
+const reportDirectory = process.env.STATUS_REVIEW_DIR;
 
-for (const width of [1440, 390, 320]) {
-  test(`three views, keyboard and filters at ${width}px`, async ({ page }) => {
-    await page.setViewportSize({ width, height: 900 });
-    const evidence = await fixtures(page);
-    await page.goto("/");
-    await expect(page.locator("#passed-count")).toHaveText("14");
-    await expect(page.locator("#panel-service")).toBeVisible();
-    await expect(page.locator("#live-state")).toHaveAttribute(
-      "data-state",
-      "pass",
-    );
-    await expect(page.locator("#state-title")).toHaveText(
-      "Contrôles de disponibilité réussis",
-    );
-    await expect(
-      page.locator(".monitoring-cadence .cadence-value"),
-    ).toBeVisible();
-    await expect(page.locator(".monitoring-cadence .cadence-value")).toHaveText(
-      "Toutes les 15 minutes",
-    );
-    for (const [group, count] of serviceGroups) {
-      await expect(page.locator(`#service-${group}-state`)).toHaveText(
-        `${count}/${count} contrôles réussis`,
-      );
-      await expect(page.locator(`#service-${group}-state`)).toHaveClass(
-        /success/,
-      );
+for (const language of ["fr", "en", "de", "lb"] as const) {
+  for (const theme of ["light", "dark"] as const) {
+    for (const width of [1440, 390, 320]) {
+      test(`${language} ${theme} at ${width}px shows availability and accessible real history`, async ({
+        page,
+      }) => {
+        await page.setViewportSize({ width, height: 1000 });
+        await page.emulateMedia({ colorScheme: theme });
+        const evidence = await fixtures(page, {
+          history: (days) => history(days, true),
+        });
+        await page.goto(`/?lang=${language}`);
+        await expect(page.locator("html")).toHaveAttribute("lang", language);
+        await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
+        await expect(page.locator("h1")).toHaveText(headings[language]);
+        await expect(page.locator("#state-title")).toHaveText(
+          available[language],
+        );
+        await expect(page.locator("#live-state")).toHaveAttribute(
+          "data-state",
+          "pass",
+        );
+        await expect(page.locator('meta[name="theme-color"]')).toHaveAttribute(
+          "content",
+          "#2450db",
+        );
+        await expect(page.locator("#history-chart button")).toHaveCount(30);
+        await expect(page.locator("#history-chart .unknown")).toHaveCount(29);
+        await expect(
+          page.locator("#history-chart .attention.partial"),
+        ).toHaveCount(1);
+        await expect(page.locator("#history-state")).not.toContainText(
+          /\{\d+\}|undefined|NaN/,
+        );
+        await expect(page.locator("#checked-time")).toHaveAttribute(
+          "datetime",
+          /T/,
+        );
+        await expect(page.locator("#history-chart [tabindex='0']")).toHaveCount(
+          1,
+        );
+        const control = page.locator("#history-chart button").last();
+        const box = await control.boundingBox();
+        expect(box!.width).toBeGreaterThanOrEqual(44);
+        expect(box!.height).toBeGreaterThanOrEqual(44);
+        expect(
+          await page.evaluate(() => document.documentElement.scrollWidth),
+        ).toBeLessThanOrEqual(width);
+        await expect(page.locator(".service-list li")).toHaveCount(3);
+        await expect(
+          page.locator("#public-footer-nav .footer-group"),
+        ).toHaveCount(4);
+        await expect(page.locator("#public-footer-nav a")).toHaveCount(16);
+        await expect(
+          page.locator(
+            '#public-footer-nav a[href="https://engineering.guteneo.com/"]',
+          ),
+        ).toHaveText(
+          {
+            fr: "Documentation technique",
+            en: "Engineering documentation",
+            de: "Technische Dokumentation",
+            lb: "Technesch Dokumentatioun",
+          }[language],
+        );
+        const stamp = page.locator(".status-footer .founding-stamp");
+        await expect(stamp).toHaveAttribute(
+          "src",
+          "/assets/gutenberg-guteneo-stamp.webp",
+        );
+        await page.locator(".status-footer").scrollIntoViewIfNeeded();
+        await stamp.evaluate((image) => (image as HTMLImageElement).decode());
+        await expect(stamp).toHaveJSProperty("naturalWidth", 640);
+        await expect(
+          page.locator(".status-footer .founding-postmark"),
+        ).toBeVisible();
+        await expect(
+          page.locator(
+            'a[href="https://guteneo.com/legal/?lang=' + language + '"]',
+          ),
+        ).toBeVisible();
+        await page.locator(".daily-details summary").click();
+        await expect(page.locator("#history-rows tr")).toHaveCount(30);
+        await page.locator(".daily-details summary").click();
+        await expect(page.locator("body")).not.toContainText(
+          /GitHub|Auth0|Stripe|provider|qualification|Qualification|GET https:|fingerprint|API|Cloudflare/,
+        );
+        if (reportDirectory && width !== 320)
+          await page.evaluate(() => scrollTo({ top: 0, behavior: "instant" }));
+        if (reportDirectory && width !== 320)
+          await page.screenshot({
+            path: `${reportDirectory}/status-${language}-${theme}-${width}.png`,
+            fullPage: true,
+          });
+        expect(evidence.errors).toEqual([]);
+        expect(evidence.external).toEqual([]);
+      });
     }
-    await expect(page.locator("#panel-service #coverage")).toHaveCount(0);
-    await expect(page.locator("#panel-service [data-filter]")).toHaveCount(0);
-    await expect(page.locator("#summary-grid [data-shortcut]")).toHaveCount(2);
-    await expect(
-      page.locator('[data-shortcut="not_checked"], [data-shortcut="disabled"]'),
-    ).toHaveCount(0);
-    await expect(page.locator("#panel-service")).not.toContainText(
-      /GET https:|\/api\/documents|dsp_|traceId|fingerprint|Non vérifié de bout en bout|Sans preuve complète|Preuve partielle/,
-    );
-    for (const tab of ["service", "verification", "operations"]) {
-      await page.locator(`[data-tab="${tab}"]`).click();
-      await expect(page.locator(`#panel-${tab}`)).toBeVisible();
-      expect(
-        await page.evaluate(() => document.documentElement.scrollWidth),
-      ).toBeLessThanOrEqual(width);
-    }
-    await page.locator('[data-tab="verification"]').click();
-    await expect(page.locator("#panel-verification #coverage")).toBeVisible();
-    for (const [filter, count] of [
-      ["disabled", 4],
-      ["not_checked", 7],
-      ["all", 11],
-    ] as const) {
-      await page.locator(`[data-filter="${filter}"]`).click();
-      await expect(page.locator(".business-row")).toHaveCount(count);
-    }
-    await expect(
-      page.locator(".business-row > summary .badge", {
-        hasText: "Hors périmètre de ces contrôles",
-      }),
-    ).toHaveCount(7);
-    await expect(
-      page.locator(".business-row > summary .badge", { hasText: "Non activé" }),
-    ).toHaveCount(4);
-    await expect(
-      page.locator(
-        ".business-row > summary .badge.success, .business-row > summary .badge.failure, .business-row > summary .badge.pending",
-      ),
-    ).toHaveCount(0);
-    const businessDetail = page.locator(".business-row").first();
-    await businessDetail.locator("summary").focus();
-    await page.keyboard.press("Enter");
-    await expect(businessDetail).toHaveAttribute("open", "");
-    await expect(businessDetail.locator(".detail-body")).toContainText(
-      "Aucune preuve complète et actuelle",
-    );
-    await page.locator("#check-search").fill("DOCUMENTS");
-    await expect(page.locator(".scenario")).toHaveCount(1);
-    await page.locator(".scenario > summary").focus();
-    await page.keyboard.press("Enter");
-    await expect(page.locator(".scenario")).toHaveAttribute("open", "");
-    await expect(page.locator(".scenario .detail-body")).toContainText(
-      "HTTP 401",
-    );
-    await page.locator('[data-check-filter="fail"]').click();
-    await expect(page.locator(".scenario")).toHaveCount(0);
-    await page.locator("#check-search").fill("");
-    await page.locator('[data-check-filter="pass"]').click();
-    await expect(page.locator(".scenario")).toHaveCount(14);
-    await page.locator("#qualification-detail > summary").click();
-    await expect(page.locator("#qualification-scope li")).toHaveCount(1);
-    await expect(page.locator("#qualification-state")).toHaveText(
-      "4 tests · local",
-    );
-    await page.locator('[data-tab="service"]').focus();
-    await page.keyboard.press("ArrowRight");
-    await expect(page.locator('[data-tab="verification"]')).toBeFocused();
-    await page.keyboard.press("End");
-    await expect(page.locator('[data-tab="operations"]')).toBeFocused();
-    await page.keyboard.press("Home");
-    await expect(page.locator('[data-tab="service"]')).toBeFocused();
-    await page.locator(".status-footer").scrollIntoViewIfNeeded();
-    await expect(page.locator(".status-landscape > img")).toHaveJSProperty(
-      "complete",
-      true,
-    );
-    expect(
-      await page
-        .locator(".status-landscape > img")
-        .evaluate((image: HTMLImageElement) => image.naturalWidth),
-    ).toBeGreaterThan(0);
-    await expect(page.locator(".status-bird")).toHaveCount(3);
-    const panorama = await page
-      .locator(".status-landscape > img")
-      .boundingBox();
-    expect(panorama).not.toBeNull();
-    expect(panorama!.width / panorama!.height).toBeCloseTo(2172 / 724, 2);
-    await expect(page.locator("body")).not.toContainText(
-      /Cucumber|ancien hôte|workers\.dev/,
-    );
-    expect(evidence.errors).toEqual([]);
-    expect(evidence.external).toEqual([]);
-  });
+  }
 }
 
-test("history periods, missing coverage and unavailable response stay honest", async ({
+test("7/30/365 use actual samples, monthly year summaries and complete daily detail", async ({
   page,
 }) => {
-  let measured = false,
-    unavailable = false;
-  await fixtures(page, {
-    history: (days) => (unavailable ? {} : history(days, measured)),
-  });
-  await page.goto("/");
-  await expect(page.locator("#history-availability")).toHaveText(
-    "Aucune mesure",
-  );
-  await expect(page.locator(".bar-empty")).toHaveCount(7);
-  measured = true;
-  for (const days of [30, 365, 7]) {
+  await fixtures(page, { history: (days) => history(days, true) });
+  await page.goto("/?lang=en");
+  await page.locator(".daily-details summary").click();
+  for (const days of [7, 30, 365]) {
     await page.locator(`[data-days="${days}"]`).click();
-    await expect(page.locator("#history-rows tr")).toHaveCount(days);
-    await expect(page.locator("#history-chart rect")).toHaveCount(days);
-    await expect(page.locator(".bar-empty")).toHaveCount(days - 1);
-    await expect(page.locator("#history-availability")).toHaveText("50 %");
-    await expect(page.locator("#history-coverage")).toHaveText("2 / 4");
-    await expect(page.locator("#history-state")).toContainText(
-      "2 mesures attendues non reçues.",
+    await expect(page.locator("#history-chart")).not.toHaveAttribute(
+      "aria-busy",
+      "true",
     );
-    await expect(
-      page.locator("#history-chart rect").last().locator("title"),
-    ).toContainText("50 % de réussite observée");
+    await expect(page.locator("#history-rows tr")).toHaveCount(days);
+    const buttons = page.locator("#history-chart button");
+    if (days === 365) expect(await buttons.count()).toBeGreaterThanOrEqual(12);
+    else await expect(buttons).toHaveCount(days);
+    await expect(page.locator("#history-state")).toHaveText(
+      "50% of recorded checks passed. 2 of 4 observations recorded.",
+    );
+    await buttons.last().focus();
+    await page.keyboard.press("Home");
+    await expect(buttons.first()).toBeFocused();
+    await expect(buttons.first()).toHaveAttribute("aria-pressed", "true");
+    await expect(page.locator("#history-selection")).toContainText(
+      "No observations recorded.",
+    );
+    await page.keyboard.press("End");
+    await expect(buttons.last()).toBeFocused();
+    await expect(page.locator("#history-selection")).toContainText(
+      "50% of recorded checks passed.",
+    );
+    await page.keyboard.press("ArrowLeft");
+    await expect(buttons.nth((await buttons.count()) - 2)).toBeFocused();
   }
-  unavailable = true;
-  await page.locator('[data-days="30"]').click();
-  await expect(page.locator("#history-availability")).toHaveText("—");
-  await expect(page.locator("#history-chart rect")).toHaveCount(0);
 });
 
-for (const state of ["stale", "missing", "offline", "future"] as const) {
-  test(`${state} evidence cannot imply current success`, async ({ page }) => {
-    const data = snapshot();
-    if (state === "stale") {
-      data.checkedAt = new Date(Date.now() - 1900000).toISOString();
-      data.freshness = "stale";
-    }
-    if (state === "missing") {
-      data.checkedAt = null;
-      data.freshness = "missing";
-      data.status = "unknown";
-      data.checks = [];
-    }
-    if (state === "future")
-      data.checkedAt = new Date(Date.now() + 61000).toISOString();
-    const evidence = await fixtures(page, {
-      status: state === "offline" ? {} : data,
-      http: state === "future" ? 200 : 503,
-    });
-    await page.goto("/");
-    await expect(page.locator("#live-state")).toHaveAttribute(
-      "data-state",
-      state === "future" ? "stale" : state === "missing" ? "unknown" : state,
-    );
-    await expect(page.locator("#summary-grid")).toHaveAttribute(
-      "data-current",
-      "false",
-    );
-    await expect(page.locator("#public-evidence-state")).not.toHaveClass(
-      /success/,
-    );
-    for (const [group] of serviceGroups) {
-      await expect(page.locator(`#service-${group}-state`)).toHaveText(
-        state === "stale" || state === "future"
-          ? "Mesure ancienne"
-          : "Mesure indisponible",
-      );
-      await expect(page.locator(`#service-${group}-state`)).not.toHaveClass(
-        /success/,
-      );
-    }
-    expect(evidence.errors).toEqual([]);
-  });
-}
-
-test("failed control, preserved detail and network recovery", async ({
+test("stale, missing, failed and contradictory observations never retain a green summary", async ({
   page,
 }) => {
   const data = snapshot();
-  data.checks[10].status = "fail";
-  data.checks[10].httpStatus = 200;
-  let offline = false;
-  await fixtures(page, {
-    status: () =>
-      offline ? {} : { ...data, checkedAt: new Date().toISOString() },
-  });
-  await page.goto("/");
+  await fixtures(page, { status: () => data });
+  await page.goto("/?lang=en");
   await expect(page.locator("#live-state")).toHaveAttribute(
     "data-state",
-    "attention",
+    "pass",
   );
-  await expect(page.locator("#state-title")).toContainText(
-    "1 contrôle public en écart",
+  data.checkedAt = new Date(Date.now() - 3600000).toISOString();
+  await page.locator("#refresh").click();
+  await expect(page.locator("#live-state")).toHaveAttribute(
+    "data-state",
+    "unknown",
   );
-  await expect(page.locator("#service-access-state")).toHaveText(
-    "1 contrôle en écart",
+  await expect(page.locator(".service-state.success")).toHaveCount(0);
+  await expect(page.locator("#state-detail")).toContainText("old");
+  data.checkedAt = new Date().toISOString();
+  data.status = "attention";
+  await page.locator("#refresh").click();
+  await expect(page.locator("#live-state")).toHaveAttribute(
+    "data-state",
+    "unknown",
   );
-  await expect(page.locator("#service-access-state")).toHaveClass(/failure/);
+  data.checks[0].status = "fail";
+  await page.locator("#refresh").click();
   await expect(page.locator("#service-pages-state")).toHaveText(
-    "7/7 contrôles réussis",
+    "Issue detected",
   );
-  await expect(page.locator("#service-api-state")).toHaveText(
-    "3/3 contrôles réussis",
-  );
-  await page.locator('[data-shortcut="fail"]').click();
-  await expect(page.locator(".scenario")).toHaveCount(1);
-  const summary = page.locator(".scenario > summary");
-  await summary.click();
-  await expect(page.locator(".scenario .detail-body")).toContainText(
-    "HTTP 401 attendu ; http 200 observé.",
-  );
-  await summary.focus();
-  await page.evaluate(() => document.getElementById("refresh")?.click());
-  await expect(page.locator("#refresh")).toBeEnabled();
-  await expect(summary).toBeFocused();
-  await expect(page.locator(".scenario")).toHaveAttribute("open", "");
-  offline = true;
+  await expect(page.locator("#service-api-state")).toHaveText("Responding");
+  data.checkedAt = null;
+  data.checks = [];
+  data.freshness = "missing";
+  data.status = "unknown";
   await page.locator("#refresh").click();
   await expect(page.locator("#live-state")).toHaveAttribute(
     "data-state",
-    "offline",
+    "unknown",
   );
-  await expect(page.locator("#passed-count")).toHaveText("13");
-  await expect(page.locator("#summary-grid")).toHaveAttribute(
-    "data-current",
-    "false",
-  );
-  for (const [group] of serviceGroups) {
-    await expect(page.locator(`#service-${group}-state`)).toHaveText(
-      "Mesure ancienne",
-    );
-    await expect(page.locator(`#service-${group}-state`)).not.toHaveClass(
-      /success/,
-    );
-  }
-  offline = false;
-  await page.locator("#refresh").click();
-  await expect(page.locator("#live-state")).toHaveAttribute(
-    "data-state",
-    "attention",
-  );
-  await expect(page.locator("#summary-grid")).toHaveAttribute(
-    "data-current",
-    "true",
-  );
-  await expect(page.locator("#service-access-state")).toHaveText(
-    "1 contrôle en écart",
-  );
+  await expect(page.locator("#checked-time")).toHaveText("No observation yet");
 });
 
-for (const [group, index] of [
-  ["pages", 0],
-  ["api", 8],
-] as const) {
-  test(`a failed ${group} control remains an incident despite neutral business coverage`, async ({
+test("refresh failures preserve dated evidence while making the current state unknown", async ({
+  page,
+}) => {
+  await fixtures(page);
+  await page.goto("/?lang=en");
+  await expect(page.locator("#live-state")).toHaveAttribute(
+    "data-state",
+    "pass",
+  );
+  const observed = await page.locator("#checked-time").getAttribute("datetime");
+  await page.route("**/api/status", (route) =>
+    route.fulfill({ status: 502, body: "unavailable" }),
+  );
+  await page.locator("#refresh").click();
+  await expect(page.locator("#live-state")).toHaveAttribute(
+    "data-state",
+    "unknown",
+  );
+  await expect(page.locator("#checked-time")).toHaveAttribute(
+    "datetime",
+    observed!,
+  );
+  await expect(page.locator("#state-detail")).toContainText("Try refreshing");
+  await expect(page.locator(".service-state.success")).toHaveCount(0);
+});
+
+test("invalid status and inconsistent history fail closed", async ({
+  page,
+}) => {
+  const data = snapshot();
+  data.checks[0].httpStatus = 503;
+  await fixtures(page, {
+    status: data,
+    history: (days) => {
+      const value = history(days, true);
+      value.buckets.at(-1)!.availabilityPercent = 100;
+      return value;
+    },
+  });
+  await page.goto("/?lang=en");
+  await expect(page.locator("#live-state")).toHaveAttribute(
+    "data-state",
+    "unknown",
+  );
+  await expect(page.locator("#history-state")).toHaveText(
+    "History could not be loaded. Try refreshing.",
+  );
+  await expect(page.locator("#history-chart button")).toHaveCount(0);
+  await expect(page.locator("#history-rows tr")).toHaveCount(0);
+});
+
+test("query, saved choice, browser list and French fallback follow public language priority", async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, "languages", {
+      get: () =>
+        location.search.includes("unsupported=1")
+          ? ["es-ES"]
+          : ["es-ES", "de-AT", "en-GB"],
+    });
+  });
+  await fixtures(page);
+  await page.goto("/");
+  await expect(page.locator("html")).toHaveAttribute("lang", "de");
+  await page.locator("#status-language").selectOption("lb");
+  await expect(page.locator("html")).toHaveAttribute("lang", "lb");
+  await page.goto("/?lang=fr-CA");
+  await expect(page.locator("html")).toHaveAttribute("lang", "fr");
+  await page.goto("/?lang=en&lang=de");
+  await expect(page.locator("html")).toHaveAttribute("lang", "fr");
+  await page.goto("/?lang=not%20valid");
+  await expect(page.locator("html")).toHaveAttribute("lang", "fr");
+  await page.locator("#status-language").selectOption("auto");
+  await expect(page.locator("html")).toHaveAttribute("lang", "de");
+  await expect(page).not.toHaveURL(/lang=/);
+  await page.goto("/?unsupported=1");
+  await expect(page.locator("html")).toHaveAttribute("lang", "fr");
+});
+
+test("optional browser storage cannot block locale or system theme selection", async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    Storage.prototype.getItem = () => {
+      throw new Error("blocked");
+    };
+    Storage.prototype.setItem = () => {
+      throw new Error("blocked");
+    };
+    Storage.prototype.removeItem = () => {
+      throw new Error("blocked");
+    };
+  });
+  await page.emulateMedia({ colorScheme: "dark" });
+  const evidence = await fixtures(page);
+  await page.goto("/?lang=lb");
+  await expect(page.locator("html")).toHaveAttribute("lang", "lb");
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  await page.locator("#status-theme").selectOption("light");
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+  await page.locator("#status-language").selectOption("de");
+  await expect(page.locator("html")).toHaveAttribute("lang", "de");
+  expect(evidence.errors).toEqual([]);
+});
+
+test("theme preference persists, follows system changes and synchronizes across tabs", async ({
+  page,
+  context,
+}) => {
+  await fixtures(page);
+  await page.emulateMedia({ colorScheme: "dark" });
+  await page.goto("/?lang=en");
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  await page.locator("#status-theme").selectOption("light");
+  await page.reload();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+  await expect(page.locator("html")).toHaveAttribute(
+    "data-theme-preference",
+    "light",
+  );
+  const other = await context.newPage();
+  await fixtures(other);
+  await other.goto("/?lang=en");
+  await other.locator("#status-theme").selectOption("dark");
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  await expect(page.locator("#status-theme")).toHaveValue("dark");
+  await page.locator("#status-theme").selectOption("system");
+  await page.emulateMedia({ colorScheme: "light" });
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+  await page.emulateMedia({ colorScheme: "dark" });
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+});
+
+test("forced colors and reduced motion retain readable keyboard history", async ({
+  page,
+}) => {
+  await page.emulateMedia({ forcedColors: "active", reducedMotion: "reduce" });
+  const evidence = await fixtures(page, {
+    history: (days) => history(days, true),
+  });
+  await page.goto("/?lang=de");
+  await page.locator("#history-chart button").last().focus();
+  await page.keyboard.press("Home");
+  await expect(page.locator("#history-chart button").first()).toBeFocused();
+  expect(
+    await page.evaluate(
+      () => getComputedStyle(document.documentElement).scrollBehavior,
+    ),
+  ).toBe("auto");
+  expect(evidence.errors).toEqual([]);
+});
+
+for (const language of ["fr", "en", "de", "lb"] as const) {
+  test(`${language} localizes attention, missing measurements and history errors`, async ({
     page,
   }) => {
     const data = snapshot();
-    data.checks[index].status = "fail";
-    data.checks[index].httpStatus = 503;
-    await fixtures(page, { status: data });
-    await page.goto("/");
+    const evidence = await fixtures(page, {
+      status: () => data,
+      history: () => ({ invalid: true }),
+    });
+    data.checks[0].status = "fail";
+    data.status = "attention";
+    await page.goto(`/?lang=${language}`);
     await expect(page.locator("#live-state")).toHaveAttribute(
       "data-state",
       "attention",
     );
-    await expect(page.locator("#failed-count")).toHaveText("1");
-    await expect(page.locator(`#service-${group}-state`)).toHaveText(
-      "1 contrôle en écart",
-    );
-    await expect(page.locator(`#service-${group}-state`)).toHaveClass(
-      /failure/,
-    );
-    for (const [other, count] of serviceGroups.filter(([id]) => id !== group)) {
-      await expect(page.locator(`#service-${other}-state`)).toHaveText(
-        `${count}/${count} contrôles réussis`,
+    const attention = {
+      fr: "Certains contrôles demandent une vérification",
+      en: "Some checks need attention",
+      de: "Einige Prüfungen erfordern Aufmerksamkeit",
+      lb: "E puer Kontrolle mussen iwwerpréift ginn",
+    };
+    await expect(page.locator("#state-title")).toHaveText(attention[language]);
+    const unknown = {
+      fr: "Disponibilité actuelle inconnue",
+      en: "Current availability is unknown",
+      de: "Aktuelle Verfügbarkeit unbekannt",
+      lb: "Aktuell Disponibilitéit onbekannt",
+    };
+    data.checkedAt = null;
+    data.checks = [];
+    data.status = "unknown";
+    data.freshness = "missing";
+    await page.locator("#refresh").click();
+    await expect(page.locator("#state-title")).toHaveText(unknown[language]);
+    if (language !== "en") {
+      await expect(page.locator("#history-state")).not.toContainText(
+        "History could not be loaded",
+      );
+      await expect(page.locator("#state-detail")).not.toContainText(
+        "No recent observation",
+      );
+      await expect(page.locator("#checked-time")).not.toHaveText(
+        "No observation yet",
       );
     }
-    await page.locator('[data-shortcut="fail"]').click();
-    await expect(page.locator(".scenario")).toHaveCount(1);
-    await page.locator(".scenario > summary").click();
-    await expect(page.locator(".scenario .detail-body")).toContainText(
-      "HTTP 200 attendu ; http 503 observé.",
-    );
+    expect(evidence.errors).toEqual([]);
   });
 }
 
-test("business deep link preserves access to neutral coverage and its limits", async ({
+test("light and dark text colors meet WCAG contrast", async ({ page }) => {
+  await fixtures(page);
+  await page.goto("/?lang=en");
+  for (const theme of ["light", "dark"]) {
+    await page.locator("#status-theme").selectOption(theme);
+    const pairs = await page.evaluate(() => {
+      const style = getComputedStyle(document.documentElement);
+      const value = (name: string) => style.getPropertyValue(name).trim();
+      return [
+        ["--ink", "--paper"],
+        ["--muted", "--paper"],
+        ["--blue", "--paper"],
+        ["--success", "--success-wash"],
+        ["--attention", "--attention-wash"],
+        ["--unknown", "--unknown-wash"],
+      ].map(([foreground, background]) => [
+        value(foreground),
+        value(background),
+      ]);
+    });
+    const luminance = (color: string) => {
+      const channels = [1, 3, 5]
+        .map((start) => parseInt(color.slice(start, start + 2), 16) / 255)
+        .map((value) =>
+          value <= 0.04045
+            ? value / 12.92
+            : Math.pow((value + 0.055) / 1.055, 2.4),
+        );
+      return channels[0] * 0.2126 + channels[1] * 0.7152 + channels[2] * 0.0722;
+    };
+    for (const [foreground, background] of pairs) {
+      const values = [luminance(foreground), luminance(background)].sort(
+        (a, b) => b - a,
+      );
+      expect(
+        (values[0] + 0.05) / (values[1] + 0.05),
+        `${theme}: ${foreground} on ${background}`,
+      ).toBeGreaterThanOrEqual(4.5);
+    }
+  }
+});
+
+test("changing language preserves the current history, disclosure and page without another read", async ({
   page,
 }) => {
-  const evidence = await fixtures(page);
-  await page.goto("/#business");
-  await expect(page.locator("#panel-verification")).toBeVisible();
-  await expect(page.locator('[data-tab="verification"]')).toHaveAttribute(
-    "aria-selected",
+  const reads: string[] = [];
+  page.on("request", (request) => {
+    if (request.url().includes("/api/")) reads.push(request.url());
+  });
+  await fixtures(page, { history: (days) => history(days, true) });
+  await page.goto("/?lang=en#content");
+  await page.locator('[data-days="365"]').click();
+  await expect(page.locator("#history-rows tr")).toHaveCount(0);
+  await page.locator(".daily-details summary").click();
+  await expect(page.locator("#history-rows tr")).toHaveCount(365);
+  await page.locator("#history-chart button").first().click();
+  const before = reads.length;
+  const loadedAt = await page.evaluate(() => performance.timeOrigin);
+  await page.locator("#status-language").focus();
+  await page.locator("#status-language").selectOption("fr");
+  await expect(page.locator("h1")).toHaveText("État du service");
+  await expect(page.locator('[data-days="365"]')).toHaveAttribute(
+    "aria-pressed",
     "true",
   );
-  await expect(page).toHaveURL(/#verification$/);
-  await expect(page.locator("#live-state")).toHaveAttribute(
-    "data-state",
-    "pass",
+  await expect(page.locator(".daily-details")).toHaveAttribute("open", "");
+  await expect(page.locator("#history-chart button").first()).toHaveAttribute(
+    "aria-pressed",
+    "true",
   );
-  await page.locator('[data-filter="disabled"]').click();
-  await expect(page.locator(".business-row")).toHaveCount(4);
-  const detail = page.locator(".business-row").first();
-  await detail.locator("summary").click();
-  await expect(detail.locator(".detail-body")).toContainText(
-    "aucun succès de parcours n’est revendiqué",
-  );
-  expect(evidence.errors).toEqual([]);
-  expect(evidence.external).toEqual([]);
+  await expect(page.locator("#status-language")).toBeFocused();
+  expect(await page.evaluate(() => performance.timeOrigin)).toBe(loadedAt);
+  expect(reads).toHaveLength(before);
 });
 
-test("fresh success becomes historical during an outage while its proof stays readable", async ({
+test("a previously successful observation becomes unknown when its freshness expires", async ({
   page,
 }) => {
-  let offline = false;
-  await fixtures(page, { status: () => (offline ? {} : snapshot()) });
-  await page.goto("/");
-  await expect(page.locator("#live-state")).toHaveAttribute(
-    "data-state",
-    "pass",
-  );
-  await page.locator('[data-shortcut="pass"]').click();
-  const detail = page.locator(".scenario").first();
-  await detail.locator("summary").click();
-  const freshColor = await detail
-    .locator(".badge")
-    .evaluate((element) => getComputedStyle(element).color);
-  offline = true;
-  await page.locator("#refresh").click();
-  await expect(page.locator("#live-state")).toHaveAttribute(
-    "data-state",
-    "offline",
-  );
-  for (const [group] of serviceGroups) {
-    await expect(page.locator(`#service-${group}-state`)).toHaveText(
-      "Mesure ancienne",
-    );
-    await expect(page.locator(`#service-${group}-state`)).not.toHaveClass(
-      /success/,
-    );
-  }
-  await expect(page.locator("#public-evidence-state")).not.toHaveClass(
-    /success/,
-  );
-  await expect(page.locator("#probes")).toHaveAttribute(
-    "data-current",
-    "false",
-  );
-  await expect(detail.locator(".detail-body")).toBeVisible();
-  await expect(detail.locator(".detail-body")).toContainText("HTTP 200");
-  await expect
-    .poll(() =>
-      detail
-        .locator(".badge")
-        .evaluate((element) => getComputedStyle(element).color),
-    )
-    .not.toBe(freshColor);
-  offline = false;
-  await page.locator("#refresh").click();
-  await expect(page.locator("#live-state")).toHaveAttribute(
-    "data-state",
-    "pass",
-  );
-  for (const [group, count] of serviceGroups) {
-    await expect(page.locator(`#service-${group}-state`)).toHaveText(
-      `${count}/${count} contrôles réussis`,
-    );
-  }
-});
-
-for (const reason of [
-  "network",
-  "skipped",
-  "sourceChanged",
-  "missingHash",
-  "failure",
-] as const) {
-  test(`local proof stays incomplete when ${reason}`, async ({ page }) => {
-    const data = qualification();
-    if (reason === "network") data.networkPolicy = "unproven";
-    if (reason === "skipped") data.counts.testsSkipped = 1;
-    if (reason === "sourceChanged") data.sourceUnchangedDuringRun = false;
-    if (reason === "missingHash") data.sourceSnapshotSha256 = "";
-    if (reason === "failure") data.status = "failed";
-    await fixtures(page, { qualification: data });
-    await page.goto("/");
-    await expect(page.locator("#qualification-state")).toHaveText(
-      "Qualification incomplète",
-    );
-    await expect(page.locator("#qualification-state")).not.toHaveClass(
-      /success/,
-    );
-  });
-}
-
-test("reduced motion is honored even if the saved preference is on", async ({
-  page,
-}) => {
-  await page.addInitScript(() =>
-    localStorage.setItem("guteneo.status.motion", "on"),
-  );
+  await page.clock.install({ time: Date.now() });
   await fixtures(page);
-  await page.goto("/");
-  await expect(page.locator("#motion-toggle")).toBeDisabled();
-  await expect(page.locator("#season-canvas")).toHaveAttribute(
-    "data-running",
-    "false",
+  await page.goto("/?lang=en");
+  await expect(page.locator("#live-state")).toHaveAttribute(
+    "data-state",
+    "pass",
   );
+  await page.clock.fastForward(31 * 60 * 1000);
+  await expect(page.locator("#live-state")).toHaveAttribute(
+    "data-state",
+    "unknown",
+  );
+  await expect(page.locator(".service-state.success")).toHaveCount(0);
 });
 
-for (const [season, month] of [
-  ["autumn", 9],
-  ["winter", 0],
-] as const) {
-  test(`${season} animation is bounded, pauses and preserves off preference`, async ({
-    page,
-  }) => {
-    await page.emulateMedia({ reducedMotion: "no-preference" });
-    await page.setViewportSize({ width: 390, height: 900 });
-    await page.addInitScript((value) => {
-      Date.prototype.getMonth = () => value;
-    }, month);
-    const evidence = await fixtures(page);
-    await page.goto("/");
-    const canvas = page.locator("#season-canvas");
-    await expect(canvas).toHaveAttribute("data-running", "true");
-    await expect(canvas).toHaveAttribute("data-season", season);
-    expect(
-      Number(await canvas.getAttribute("data-particles")),
-    ).toBeLessThanOrEqual(24);
-    expect(
-      await canvas.evaluate(
-        (element: HTMLCanvasElement) => element.width * element.height,
-      ),
-    ).toBeLessThanOrEqual(2000000);
-    await page.evaluate(() => {
-      Object.defineProperty(document, "hidden", {
-        get: () => true,
-        configurable: true,
-      });
-      document.dispatchEvent(new Event("visibilitychange"));
-    });
-    await expect(canvas).toHaveAttribute("data-running", "false");
-    await page.evaluate(() => {
-      Object.defineProperty(document, "hidden", {
-        get: () => false,
-        configurable: true,
-      });
-      document.dispatchEvent(new Event("visibilitychange"));
-    });
-    await expect(canvas).toHaveAttribute("data-running", "true");
-    await page.locator("#motion-toggle").click();
-    await expect(canvas).toHaveAttribute("data-running", "false");
-    await page.reload();
-    await expect(page.locator("#motion-toggle")).toHaveAttribute(
-      "aria-pressed",
-      "false",
-    );
-    expect(evidence.errors).toEqual([]);
-    expect(evidence.external).toEqual([]);
-  });
-}
-
-for (const bad of [
-  "duplicate",
-  "incomplete",
-  "falseHttp",
-  "missingCoverage",
-] as const) {
-  test(`inconsistent public contract ${bad} cannot be green`, async ({
+for (const language of ["fr", "en", "de", "lb"] as const) {
+  test(`${language}: future and server-unknown observations use neutral recovery, while old observations retain history detail`, async ({
     page,
   }) => {
     const data = snapshot();
-    if (bad === "duplicate")
-      data.checks = Array.from({ length: 14 }, () => ({ ...data.checks[0] }));
-    if (bad === "incomplete") data.checks.pop();
-    if (bad === "falseHttp") data.checks[10].httpStatus = 200;
-    if (bad === "missingCoverage") data.coverage = [];
-    await fixtures(page, { status: data });
-    await page.goto("/");
+    await fixtures(page, { status: () => data });
+    await page.goto(`/?lang=${language}`);
     await expect(page.locator("#live-state")).toHaveAttribute(
       "data-state",
-      "offline",
+      "pass",
     );
-    await expect(page.locator("#summary-grid")).toHaveAttribute(
-      "data-current",
-      "false",
+    const neutral = {
+      fr: "La disponibilité actuelle n’a pas pu être confirmée. Essayez d’actualiser.",
+      en: "Current availability could not be confirmed. Try refreshing.",
+      de: "Die aktuelle Verfügbarkeit konnte nicht bestätigt werden. Bitte aktualisieren.",
+      lb: "Déi aktuell Disponibilitéit konnt net bestätegt ginn. Probéiert ze aktualiséieren.",
+    };
+    data.checkedAt = new Date(Date.now() + 60000).toISOString();
+    await page.locator("#refresh").click();
+    await expect(page.locator("#live-state")).toHaveAttribute(
+      "data-state",
+      "unknown",
+    );
+    await expect(page.locator("#state-detail")).toHaveText(neutral[language]);
+    await expect(page.locator(".service-state.success")).toHaveCount(0);
+    data.checkedAt = new Date().toISOString();
+    data.status = "unknown";
+    await page.locator("#refresh").click();
+    await expect(page.locator("#state-detail")).toHaveText(neutral[language]);
+    await expect(page.locator(".service-state.success")).toHaveCount(0);
+    data.status = "public_checks_passed";
+    data.checkedAt = new Date(Date.now() - 3600000).toISOString();
+    await page.locator("#refresh").click();
+    await expect(page.locator("#state-detail")).not.toHaveText(
+      neutral[language],
+    );
+    await expect(page.locator("#live-state")).toHaveAttribute(
+      "data-state",
+      "unknown",
     );
   });
 }
-for (const bad of ["ratio", "coverage"] as const) {
-  test(`inconsistent historical ${bad} is discarded`, async ({ page }) => {
-    await fixtures(page, {
-      history: (days) => {
-        const data = history(days, true);
-        if (bad === "ratio") data.buckets[days - 1].availabilityPercent = 100;
-        else data.buckets[days - 1].unknownSamples = 0;
-        return data;
-      },
-    });
-    await page.goto("/");
-    await expect(page.locator("#history-availability")).toHaveText("—");
-    await expect(page.locator("#history-state")).toContainText(
-      "Historique indisponible",
-    );
+
+test("status static content follows system dark without JavaScript", async ({
+  browser,
+  baseURL,
+}) => {
+  const context = await browser.newContext({
+    javaScriptEnabled: false,
+    colorScheme: "dark",
+    viewport: { width: 390, height: 844 },
   });
-}
+  const page = await context.newPage();
+  await page.goto(baseURL!);
+  expect(
+    await page
+      .locator("html")
+      .evaluate((root) => getComputedStyle(root).colorScheme),
+  ).toBe("dark");
+  expect(
+    await page
+      .locator(".brand")
+      .evaluate((brand) => getComputedStyle(brand).color),
+  ).toBe("rgb(246, 245, 239)");
+  expect(
+    await page
+      .locator(".brand")
+      .evaluate((brand) => getComputedStyle(brand).backgroundColor),
+  ).toBe("rgba(0, 0, 0, 0)");
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth + 1,
+    ),
+  ).toBe(true);
+  await context.close();
+});

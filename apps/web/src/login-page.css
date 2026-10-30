@@ -9,13 +9,6 @@
 .access-page summary {
   touch-action: manipulation;
 }
-.access-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  min-height: 104px;
-  gap: 24px;
-}
 .access-main {
   flex: 1;
   display: flex;
@@ -34,7 +27,7 @@
   border-radius: 4px;
 }
 .access-panel h1 {
-  font-family: "EB Garamond", Georgia, serif;
+  font-family: var(--font-display);
   font-size: 38px;
   line-height: 1.12;
   letter-spacing: -0.025em;
@@ -106,6 +99,9 @@
   color: var(--muted);
   font-size: 13px;
 }
+.access-footer .legal-links {
+  justify-content: center;
+}
 .access-footer a {
   display: inline-flex;
   align-items: center;
@@ -120,9 +116,6 @@
   margin: 0;
 }
 @media (max-width: 520px) {
-  .access-header {
-    min-height: 88px;
-  }
   .access-main {
     justify-content: flex-start;
     padding-block: 36px;

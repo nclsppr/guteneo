@@ -1,10 +1,10 @@
 {
   "name": "guteneo",
-  "version": "1.0.0",
+  "version": "1.1.19",
   "private": true,
   "type": "module",
   "engines": {
-    "node": ">=22.16"
+    "node": "^22.22.3 || >=24.8.0"
   },
   "scripts": {
     "dev": "npm run build:web && node scripts/dev.mjs",
@@ -12,11 +12,12 @@
     "db:migrate": "wrangler d1 migrations apply guteneo-local --local",
     "db:seed": "wrangler d1 execute guteneo-local --local --file scripts/seed.sql && wrangler d1 execute guteneo-local --local --file scripts/seed-content.sql",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint .",
+    "lint": "eslint . && node scripts/check-applications.mjs",
     "audit:mcp": "node --import tsx scripts/audit-mcp-annotations.ts",
     "audit:dependencies": "npm audit --audit-level=high",
     "test": "vitest run && node --test tests/security/*.test.mjs",
     "test:e2e": "playwright test",
+    "test:distribution": "node scripts/test-distribution.mjs",
     "test:preview": "playwright test --config playwright.preview.config.ts",
     "build:web": "vite build --config apps/web/vite.config.ts && node integrations/build.mjs dist/web/integrations",
     "build:preview": "node scripts/build-preview.mjs",
@@ -49,7 +50,18 @@
     "test:prod:dry-run": "node --import tsx scripts/production-dry-run.ts",
     "test:offline": "node scripts/test-offline.mjs",
     "build:status": "node scripts/build-status.mjs",
-    "deploy:status": "node scripts/deploy-status.mjs"
+    "deploy:status": "node scripts/deploy-status.mjs",
+    "docs:build": "node docs/build-feature-map.mjs && node scripts/build-mcp-annotation-docs.mjs && node scripts/build-engineering-content.mjs",
+    "docs:check": "node docs/build-feature-map.mjs --check && node scripts/build-mcp-annotation-docs.mjs --check && node integrations/sync-claude-workflows.mjs --check && node scripts/repository-standards.mjs && node scripts/build-engineering-content.mjs --check",
+    "check:standards": "node scripts/repository-standards.mjs",
+    "dev:engineering": "npm --prefix apps/engineering run dev",
+    "build:engineering": "node scripts/build-engineering.mjs",
+    "check:engineering": "npm --prefix apps/engineering run typecheck && npm --prefix apps/engineering run lint:docs && node --test tests/security/engineering-site.test.mjs",
+    "test:engineering": "playwright test --config playwright.engineering.config.ts",
+    "deploy:engineering": "node scripts/deploy-engineering.mjs",
+    "sync:integrations": "node integrations/sync.mjs",
+    "check:integrations": "node integrations/sync.mjs --check",
+    "check:dependencies": "node --import tsx scripts/ci/check-dependencies.ts"
   },
   "dependencies": {
     "@cloudflare/puppeteer": "^1.4.0",
@@ -57,10 +69,12 @@
     "@fontsource/ibm-plex-mono": "^5.3.0",
     "@fontsource/ibm-plex-sans": "^5.3.0",
     "@modelcontextprotocol/client": "2.3.1",
+    "@modelcontextprotocol/ext-apps": "2.0.3",
     "@modelcontextprotocol/sdk": "1.32.1",
     "@modelcontextprotocol/server": "2.3.1",
     "@pdfme/common": "6.1.13",
     "@pdfme/generator": "6.1.13",
+    "@pdfme/pdf-lib": "6.2.2",
     "@pdfme/schemas": "6.1.13",
     "@pdfme/ui": "6.1.13",
     "@phosphor-icons/react": "^2.1.10",
@@ -83,6 +97,7 @@
   "devDependencies": {
     "@apidevtools/swagger-parser": "13.0.0",
     "@cloudflare/workers-types": "^5.20260916.1",
+    "@e2e-dev/web": "0.15.3",
     "@playwright/test": "^1.63.0",
     "@sparticuz/chromium": "^153.0.0",
     "@types/node": "^22.20.3",
@@ -91,6 +106,7 @@
     "@types/react-dom": "^19.3.0",
     "@types/sanitize-html": "^2.16.1",
     "@vitejs/plugin-react": "^6.1.1",
+    "e2e": "0.21.3",
     "esbuild": "0.28.2",
     "eslint": "^10.10.0",
     "eslint-plugin-react-hooks": "^7.1.1",
@@ -104,10 +120,13 @@
     "wrangler": "4.149.0"
   },
   "overrides": {
+    "e2e": {
+      "zod": "4.6.6"
+    },
     "@cloudflare/puppeteer": {
       "@puppeteer/browsers": "3.2.2"
     },
-    "miniflare@5.20261006.1-alpha": {
+    "miniflare": {
       "undici": "7.30.1"
     }
   }

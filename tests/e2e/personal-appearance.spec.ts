@@ -1,0 +1,676 @@
+import { expect, test, type Page } from "@playwright/test";
+import type { PersonalSession } from "../../apps/web/src/personal-api";
+import type { DashboardAppearance } from "../../packages/contracts/src/dashboard-appearance";
+import type { SupportedLocale } from "../../packages/contracts/src/locale";
+
+async function openAccountMenu(page: Page) {
+  const trigger = page.locator(
+    ".personal-space-header .workspace-identity-trigger",
+  );
+  if ((await trigger.getAttribute("aria-expanded")) !== "true")
+    await trigger.click();
+  await expect(
+    page.locator(".personal-space-header .workspace-identity-menu"),
+  ).toBeVisible();
+}
+
+// Account writes and document reads stay inside these synthetic browser fixtures.
+async function fixture(
+  page: Page,
+  appearance: DashboardAppearance = "v2",
+  locale: SupportedLocale = "en",
+) {
+  let session: PersonalSession = {
+    user: {
+      id: "personal-appearance-a",
+      name: "Synthetic reader",
+      email: "personal-appearance-a@example.invalid",
+      preferredLocale: locale,
+      preferredDashboardAppearance: appearance,
+    },
+    csrfToken: "synthetic-personal-appearance",
+    simulation: true,
+    mfa: false,
+    strongAuthentication: false,
+    documentAccessAllowed: true,
+    documentAccessMode: "verified_account",
+    authenticationPolicyVersion: "synthetic",
+    amr: [],
+    acr: null,
+    verifiedAccount: true,
+    authenticatedAt: Date.now(),
+    workspaces: [],
+  };
+  const reads: string[] = [];
+  const writes: { path: string; body: Record<string, unknown> }[] = [];
+  const scripts: string[] = [];
+  let rejectSave = false;
+  page.on("request", (request) => {
+    const path = new URL(request.url()).pathname;
+    if (path.endsWith(".js")) scripts.push(path);
+  });
+  await page.route("**/api/**", async (route) => {
+    const request = route.request();
+    const path = new URL(request.url()).pathname;
+    if (request.method() === "GET") reads.push(path);
+    else writes.push({ path, body: request.postDataJSON() });
+    if (path === "/api/personal/session")
+      return route.fulfill({ json: session });
+    if (path === "/api/personal/account" && request.method() === "PATCH") {
+      if (rejectSave)
+        return route.fulfill({
+          status: 503,
+          json: {
+            error: {
+              code: "TEMPORARILY_UNAVAILABLE",
+              message: "Synthetic profile service unavailable",
+            },
+          },
+        });
+      session = {
+        ...session,
+        user: { ...session.user, ...request.postDataJSON() },
+      };
+      return route.fulfill({ json: session });
+    }
+    if (path === "/api/personal/documents")
+      return route.fulfill({
+        json: {
+          items: [
+            {
+              id: "synthetic-document",
+              title: "Synthetic personal document",
+              sender: "Synthetic workshop",
+              kind: "shared",
+              status: "active",
+              expiresAt: "2026-12-01T00:00:00.000Z",
+            },
+          ],
+          nextCursor: null,
+        },
+      });
+    if (path === "/api/personal/account/sessions")
+      return route.fulfill({
+        json: {
+          items: [
+            {
+              id: "synthetic-current-session",
+              createdAt: "2026-10-25T08:00:00.000Z",
+              expiresAt: "2026-10-25T09:00:00.000Z",
+              current: true,
+              mfa: false,
+              authenticatedAt: Date.now(),
+            },
+          ],
+        },
+      });
+    return route.fulfill({
+      status: 401,
+      json: { error: { code: "UNAUTHENTICATED", message: "No workshop" } },
+    });
+  });
+  return {
+    reads,
+    writes,
+    scripts,
+    rejectSave(value: boolean) {
+      rejectSave = value;
+    },
+    switchAccount() {
+      session = {
+        ...session,
+        user: {
+          ...session.user,
+          id: "personal-appearance-b",
+          name: "Second synthetic reader",
+          email: "personal-appearance-b@example.invalid",
+          preferredLocale: "de",
+          preferredDashboardAppearance: "classic",
+        },
+      };
+    },
+  };
+}
+
+test("ordinary application entry offers workspace setup before service cards", async ({
+  page,
+}, info) => {
+  const state = await fixture(page);
+  await page.goto("/#/app");
+  await expect(page).toHaveURL(/#\/app\/services\?next=%2Fapp$/);
+  const heading = page.getByRole("heading", {
+    name: "Create or join a workspace",
+  });
+  await expect(heading).toBeVisible();
+  await expect(page.locator(".personal-space")).toHaveClass(
+    /personal-space-v2/,
+  );
+  await expect(page.getByLabel("Your workspace name")).toBeVisible();
+  expect(
+    await page
+      .locator(".secure-document-form")
+      .evaluate((form) =>
+        Boolean(
+          form.compareDocumentPosition(
+            document.querySelector(".personal-space-service-grid")!,
+          ) & Node.DOCUMENT_POSITION_FOLLOWING,
+        ),
+      ),
+  ).toBe(true);
+  expect(state.writes).toEqual([]);
+  expect(state.reads).not.toContain("/api/personal/documents");
+  await info.attach("workspace-entry-loading", {
+    contentType: "application/json",
+    body: JSON.stringify(
+      await page.evaluate(() => ({
+        resources: performance.getEntriesByType("resource").length,
+        transferredBytes: performance
+          .getEntriesByType("resource")
+          .reduce(
+            (sum, entry) =>
+              sum + (entry as PerformanceResourceTiming).transferSize,
+            0,
+          ),
+        firstContentfulPaintMs:
+          performance.getEntriesByName("first-contentful-paint")[0]
+            ?.startTime ?? null,
+      })),
+    ),
+  });
+});
+
+for (const [locale, setup, invitationLabel, review, error] of [
+  [
+    "en",
+    "Workspace setup",
+    "Workspace invitation link",
+    "Review invitation",
+    "Paste the complete Guteneo workspace invitation link.",
+  ],
+  [
+    "fr",
+    "Choix de l’espace de travail",
+    "Lien d’invitation à l’espace de travail",
+    "Examiner l’invitation",
+    "Collez le lien complet d’invitation à l’espace de travail Guteneo.",
+  ],
+  [
+    "de",
+    "Arbeitsbereich einrichten",
+    "Einladungslink zum Arbeitsbereich",
+    "Einladung prüfen",
+    "Fügen Sie den vollständigen Einladungslink zum Guteneo-Arbeitsbereich ein.",
+  ],
+  [
+    "lb",
+    "Aarbechtsberäich ariichten",
+    "Invitatiounslink fir den Aarbechtsberäich",
+    "Invitatioun iwwerpréiwen",
+    "Setzt de kompletten Invitatiounslink fir de Guteneo-Aarbechtsberäich an.",
+  ],
+] as const) {
+  test(`workspace join validates the invitation and retains recovery in ${locale}`, async ({
+    page,
+  }) => {
+    const state = await fixture(page, "v2", locale);
+    await page.goto("/#/app/services");
+    await page.getByLabel(setup).selectOption("join");
+    const input = page.getByLabel(invitationLabel);
+    const token = Buffer.alloc(32, 0xfb).toString("base64url");
+    await input.fill(`https://other.example/invitation/#token=${token}`);
+    await page.getByRole("button", { name: review, exact: true }).click();
+    await expect(page.getByText(error, { exact: true })).toBeVisible();
+    await expect(input).toHaveValue(
+      `https://other.example/invitation/#token=${token}`,
+    );
+    expect(state.writes).toEqual([]);
+    const previews: unknown[] = [];
+    const accepts: unknown[] = [];
+    await page.route("**/api/invitations/preview", (route) => {
+      previews.push(route.request().postDataJSON());
+      return route.fulfill({
+        json: {
+          organization: { name: "Synthetic invited workshop" },
+          role: "member",
+          supervisorCanApprove: false,
+          supervisorCanReport: false,
+          maskedEmail: "p***@example.invalid",
+          status: "pending",
+          expiresAt: "2026-12-01T00:00:00.000Z",
+        },
+      });
+    });
+    await page.route("**/auth/invitation", (route) => {
+      accepts.push(route.request().postDataJSON());
+      return route.fulfill({ json: { loginUrl: "/auth/login?fresh=1" } });
+    });
+    await page.route("**/auth/login?fresh=1", (route) =>
+      route.fulfill({
+        contentType: "text/html",
+        body: "<main>Synthetic sign-in</main>",
+      }),
+    );
+    const destination = `${new URL(page.url()).origin}/invitation/#token=${token}`;
+    await input.fill(destination);
+    await page.getByRole("button", { name: review, exact: true }).click();
+    await expect(page).toHaveURL(new URL("/invitation/", destination).href);
+    await expect(
+      page.getByRole("heading", { name: "Synthetic invited workshop" }),
+    ).toBeVisible();
+    expect(previews).toEqual([{ token }]);
+    expect(accepts).toEqual([]);
+    expect(state.writes).toEqual([]);
+    await page.locator(".invitation-page").getByRole("button").click();
+    await expect(page.getByText("Synthetic sign-in")).toBeVisible();
+    expect(accepts).toEqual([{ token }]);
+    await expect(page).toHaveURL(/\/auth\/login\?fresh=1$/);
+  });
+}
+
+test("a personal account opens the only layout without workshop reads or account bundles", async ({
+  page,
+}) => {
+  const state = await fixture(page);
+  await page.addInitScript(() => {
+    localStorage.setItem("guteneo.dashboard.appearance", "classic");
+  });
+  await page.goto("/#/app/my-documents");
+  await expect(page.locator(".personal-space")).toHaveClass(
+    /personal-space-v2/,
+  );
+  await expect(
+    page.getByRole("heading", { name: "Synthetic personal document" }),
+  ).toBeVisible();
+  await expect(
+    page.locator(".personal-space-header [data-theme-toggle]"),
+  ).toHaveCount(1);
+  await expect(page.locator(".personal-space-header select")).toHaveCount(0);
+  expect(state.reads).toEqual([
+    "/api/personal/session",
+    "/api/personal/documents",
+  ]);
+  expect(
+    state.scripts.filter((path) =>
+      /account-page|workspace-contacts|pdf-viewer|template-designer|document-studio/.test(
+        path,
+      ),
+    ),
+  ).toEqual([]);
+  expect(state.writes).toEqual([]);
+  state.switchAccount();
+  await expect(async () => {
+    await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+    await expect(page.locator(".workspace-identity-email")).toHaveText(
+      "personal-appearance-b@example.invalid",
+      { timeout: 250 },
+    );
+  }).toPass();
+  // The second account stores `classic`; the only layout still applies.
+  await expect(page.locator(".personal-space")).toHaveClass(
+    /personal-space-v2/,
+  );
+  await expect(
+    page.getByText("personal-appearance-a@example.invalid", { exact: false }),
+  ).toHaveCount(0);
+  expect(state.writes).toEqual([]);
+});
+
+test("a late profile save cannot restore a previous personal account or its preferences", async ({
+  page,
+}) => {
+  const state = await fixture(page, "classic");
+  await page.addInitScript(() => {
+    const original = fetch.bind(window);
+    window.fetch = async (input, init) => {
+      const response = await original(input, {
+        ...init,
+        ...(new URL(String(input), location.href).pathname ===
+        "/api/personal/account"
+          ? { signal: undefined }
+          : {}),
+      });
+      if (
+        new URL(String(input), location.href).pathname ===
+        "/api/personal/account"
+      )
+        await new Promise<void>((resolve) => {
+          Reflect.set(window, "releasePreviousPersonalSave", resolve);
+        });
+      return response;
+    };
+  });
+  await page.goto("/#/app/personal-account");
+  await page
+    .locator(".personal-account-profile select")
+    .nth(1)
+    .selectOption("fr");
+  await page
+    .getByRole("button", { name: "Save preferences", exact: true })
+    .click();
+  await page.waitForFunction(() =>
+    Boolean(Reflect.get(window, "releasePreviousPersonalSave")),
+  );
+  state.switchAccount();
+  await expect(async () => {
+    await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+    await expect(
+      page.locator(".personal-account-identity-details"),
+    ).toContainText("personal-appearance-b@example.invalid", { timeout: 250 });
+  }).toPass();
+  await page.evaluate(() => {
+    Reflect.get(window, "releasePreviousPersonalSave")();
+  });
+  await page.evaluate(
+    () =>
+      new Promise<void>((resolve) =>
+        requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+      ),
+  );
+  await expect(page.locator("html")).toHaveAttribute("lang", "de");
+  await expect(
+    page.locator(".personal-account-identity-details"),
+  ).toContainText("personal-appearance-b@example.invalid");
+  await expect(
+    page.getByText("personal-appearance-a@example.invalid", { exact: false }),
+  ).toHaveCount(0);
+});
+
+test("an older focus session read cannot overwrite a successful profile save", async ({
+  page,
+}) => {
+  await fixture(page, "classic");
+  await page.addInitScript(() => {
+    const original = fetch.bind(window);
+    window.fetch = async (input, init) => {
+      if (
+        new URL(String(input), location.href).pathname ===
+          "/api/personal/session" &&
+        Reflect.get(window, "holdNextPersonalFocusRead")
+      ) {
+        Reflect.set(window, "holdNextPersonalFocusRead", false);
+        const response = await original(input, { ...init, signal: undefined });
+        await new Promise<void>((resolve) => {
+          Reflect.set(window, "releasePreviousPersonalRead", resolve);
+        });
+        return response;
+      }
+      return original(input, init);
+    };
+  });
+  await page.goto("/#/app/personal-account");
+  await expect(
+    page.getByRole("textbox", { name: "Your name", exact: true }),
+  ).toBeVisible();
+  // Hold an actual background revalidation, after the initial profile is ready.
+  // A code/session race may legitimately replace an entry read before that.
+  await page.evaluate(() => {
+    Reflect.set(window, "holdNextPersonalFocusRead", true);
+  });
+  await expect(async () => {
+    await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+    await expect
+      .poll(
+        () =>
+          page.evaluate(() =>
+            Boolean(Reflect.get(window, "releasePreviousPersonalRead")),
+          ),
+        { timeout: 250 },
+      )
+      .toBe(true);
+  }).toPass();
+  await page
+    .getByRole("textbox", { name: "Your name", exact: true })
+    .fill("Updated synthetic reader");
+  await page
+    .locator(".personal-account-profile select")
+    .nth(1)
+    .selectOption("fr");
+  await page
+    .getByRole("button", { name: "Save preferences", exact: true })
+    .click();
+  await expect(page.locator("html")).toHaveAttribute("lang", "fr");
+  await page.evaluate(() => {
+    Reflect.get(window, "releasePreviousPersonalRead")();
+  });
+  await page.evaluate(
+    () =>
+      new Promise<void>((resolve) =>
+        requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+      ),
+  );
+  await expect(page.locator("html")).toHaveAttribute("lang", "fr");
+  await expect(
+    page.locator(".personal-account-identity-details"),
+  ).toContainText("Updated synthetic reader");
+});
+
+test("personal preferences persist across reload, the layout fills the width and a failed save retains the draft", async ({
+  page,
+}, testInfo) => {
+  const state = await fixture(page);
+  await page.goto("/#/app/personal-account");
+  const shell = page.locator(".personal-space");
+  const name = page.getByRole("textbox", { name: "Your name", exact: true });
+  await expect(shell).toHaveClass(/personal-space-v2/);
+  await name.fill("Updated synthetic reader");
+  await page
+    .getByRole("button", { name: "Save preferences", exact: true })
+    .click();
+  await expect(page.getByRole("status")).toContainText("Preferences saved.");
+  await page.reload();
+  await expect(name).toHaveValue("Updated synthetic reader");
+  await page.setViewportSize({ width: 3440, height: 960 });
+  expect(
+    (await page.locator(".personal-account-profile > .field").boundingBox())
+      ?.width,
+  ).toBeLessThanOrEqual(780);
+  await page
+    .locator('.personal-space-header nav a[href="#/app/my-documents"]')
+    .click();
+  await expect(
+    page.getByRole("heading", { name: "Synthetic personal document" }),
+  ).toBeVisible();
+  for (const width of [1920, 3440, 320, 390]) {
+    await page.setViewportSize({ width, height: 960 });
+    for (const theme of ["light", "dark"]) {
+      if ((await page.locator("html").getAttribute("data-theme")) !== theme) {
+        await openAccountMenu(page);
+        await page
+          .locator(".personal-space-header [data-theme-toggle]")
+          .click();
+        await page.keyboard.press("Escape");
+      }
+      await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
+      const geometry = await shell.evaluate((element) => {
+        const frame = element.getBoundingClientRect();
+        const main = element.querySelector("main")!.getBoundingClientRect();
+        const mainStyle = getComputedStyle(element.querySelector("main")!);
+        const documents = element
+          .querySelector(".secure-document-list")!
+          .getBoundingClientRect();
+        const style = getComputedStyle(element);
+        return {
+          left: frame.left,
+          width: frame.width,
+          viewport: innerWidth,
+          mainRight: main.right,
+          documentsRight: documents.right,
+          contentRightGutter: Number.parseFloat(mainStyle.paddingRight),
+          rightGutter: Number.parseFloat(style.paddingRight),
+          pageWidth: document.documentElement.scrollWidth,
+        };
+      });
+      expect(geometry.left).toBeCloseTo(0);
+      expect(geometry.width).toBeCloseTo(geometry.viewport);
+      expect(geometry.mainRight).toBeCloseTo(
+        geometry.viewport - geometry.rightGutter,
+      );
+      expect(geometry.pageWidth).toBeLessThanOrEqual(geometry.viewport);
+      expect(geometry.documentsRight).toBeCloseTo(
+        geometry.mainRight - geometry.contentRightGutter,
+      );
+      if (testInfo.project.name === "chromium")
+        await page.screenshot({
+          path: testInfo.outputPath(
+            `personal-full-width-${theme}-${width}.png`,
+          ),
+        });
+    }
+  }
+  await openAccountMenu(page);
+  await page.locator('a[href="#/app/personal-account"]').click();
+  expect(
+    (await page.locator(".personal-account-profile > .field").boundingBox())
+      ?.width,
+  ).toBeLessThanOrEqual(780);
+  expect(state.writes.map((write) => write.body)).toEqual([
+    { name: "Updated synthetic reader", preferredLocale: "en" },
+  ]);
+  state.rejectSave(true);
+  await name.fill("Unsaved synthetic reader");
+  await page
+    .getByRole("button", { name: "Save preferences", exact: true })
+    .click();
+  await expect(page.getByRole("alert")).toContainText(
+    "Synthetic profile service unavailable",
+  );
+  await expect(name).toHaveValue("Unsaved synthetic reader");
+  expect(state.reads.every((path) => path.startsWith("/api/personal/"))).toBe(
+    true,
+  );
+  expect(
+    state.writes.every((write) => write.path === "/api/personal/account"),
+  ).toBe(true);
+});
+
+test("a stored Classic preference and old layout links still open the personal V2 layout", async ({
+  page,
+}) => {
+  const state = await fixture(page, "classic");
+  await page.addInitScript(() => {
+    localStorage.setItem("guteneo.dashboard.appearance", "classic");
+  });
+  for (const link of [
+    "/?atelier=classic#/app/my-documents",
+    "/?appearance=classic#/app/personal-account",
+  ]) {
+    await page.goto(link);
+    await expect(page.locator(".personal-space")).toHaveClass(
+      /personal-space-v2/,
+    );
+    await expect(
+      page.locator(".personal-space-header [data-theme-toggle]"),
+    ).toHaveCount(1);
+  }
+  await expect(page.locator("#dashboard-appearance")).toHaveCount(0);
+  expect(state.writes).toEqual([]);
+});
+
+const titles = {
+  fr: {
+    account: "Compte et sécurité",
+    documents: "Mes documents",
+  },
+  en: {
+    account: "Account and security",
+    documents: "My documents",
+  },
+  de: {
+    account: "Konto und Sicherheit",
+    documents: "Meine Dokumente",
+  },
+  lb: {
+    account: "Kont a Sécherheet",
+    documents: "Meng Dokumenter",
+  },
+};
+
+for (const locale of ["fr", "en", "de", "lb"] as const) {
+  test(`personal V2 documents and account remain usable in ${locale}`, async ({
+    page,
+  }, testInfo) => {
+    const state = await fixture(page, "v2", locale);
+    await page.goto("/#/app/my-documents");
+    await expect(
+      page.getByRole("heading", {
+        name: titles[locale].documents,
+        exact: true,
+      }),
+    ).toBeVisible();
+    await expect(page.locator(".personal-space")).toHaveClass(
+      /personal-space-v2/,
+    );
+    await expect(
+      page.getByRole("heading", { name: "Synthetic personal document" }),
+    ).toBeVisible();
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth,
+      ),
+    ).toBe(true);
+    await page.screenshot({
+      path: testInfo.outputPath(`personal-v2-documents-${locale}.png`),
+      fullPage: true,
+    });
+    await openAccountMenu(page);
+    await page.locator('a[href="#/app/personal-account"]').click();
+    await expect(
+      page.getByRole("heading", { name: titles[locale].account, exact: true }),
+    ).toBeVisible();
+    await expect(
+      page.locator(".personal-account-identity-details"),
+    ).toContainText("personal-appearance-a@example.invalid");
+    await expect(
+      page.locator(".account-display-preferences select"),
+    ).toHaveCount(2);
+    for (const select of await page
+      .locator(".account-display-preferences select")
+      .all()) {
+      expect((await select.boundingBox())?.height).toBeGreaterThanOrEqual(44);
+      const style = await select.evaluate((element) => {
+        const computed = getComputedStyle(element);
+        return {
+          appearance: computed.appearance,
+          backgroundImage: computed.backgroundImage,
+          endPadding: Number.parseFloat(computed.paddingInlineEnd),
+        };
+      });
+      expect(style.appearance).toBe("none");
+      expect(style.backgroundImage).not.toBe("none");
+      expect(style.endPadding).toBeGreaterThanOrEqual(40);
+    }
+    const theme = page.locator(
+      ".account-display-preferences .theme-control select",
+    );
+    expect(
+      await theme.evaluate((element) =>
+        Number.parseFloat(getComputedStyle(element).paddingInlineStart),
+      ),
+    ).toBeGreaterThanOrEqual(38);
+    await theme.selectOption("dark");
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth,
+      ),
+    ).toBe(true);
+    await page.screenshot({
+      path: testInfo.outputPath(`personal-v2-account-dark-${locale}.png`),
+      fullPage: true,
+    });
+    await theme.selectOption("system");
+    await expect(page.locator("html")).toHaveAttribute(
+      "data-theme-preference",
+      "system",
+    );
+    for (const anchor of await page
+      .locator(".personal-space-header nav a")
+      .all()) {
+      expect((await anchor.boundingBox())?.height).toBeGreaterThanOrEqual(44);
+    }
+    expect(state.writes).toEqual([]);
+    expect(state.reads.every((path) => path.startsWith("/api/personal/"))).toBe(
+      true,
+    );
+  });
+}

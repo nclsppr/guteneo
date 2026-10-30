@@ -107,7 +107,9 @@ async function tenant(mode = "production"): Promise<ActorContext> {
       )
       .bind(actor.userId, stamp()),
     db
-      .prepare("INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES(?,?,'admin',?)")
+      .prepare(
+        "INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES(?,?,'admin',?)",
+      )
       .bind(actor.organizationId, actor.userId, stamp()),
     ...(["email", "postal", "fax"] as const).flatMap((channel) => [
       db
@@ -593,7 +595,9 @@ describe("one shared lifetime promotional credit", () => {
           )
           .bind(id, stamp()),
         db
-          .prepare("INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES(?,'missing-user','admin',?)")
+          .prepare(
+            "INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES(?,'missing-user','admin',?)",
+          )
           .bind(id, stamp()),
       ]),
     ).rejects.toThrow();
@@ -675,6 +679,65 @@ describe("one shared lifetime promotional credit", () => {
       availableMinor: 2000,
       reservedMinor: 3000,
     });
+  });
+  it("atomically competes a paid PDF check with dispatch acceptance for the same available credits", async () => {
+    const dispatchId = await approved(4995);
+    const document = await domain.registerDocument(owner, {
+      name: "Synthetic credit competition.pdf",
+      sha256: "f".repeat(64),
+      size: 100,
+      pages: 1,
+      status: "ready",
+      source: "render",
+      storageKey: `synthetic-credit-${crypto.randomUUID()}`,
+      scanVerified: true,
+    });
+    const validationId = crypto.randomUUID();
+    // Trusted SQL fixture for the financial boundary. Browser consent/session,
+    // exact bytes and profile approval are exercised by the PDF service suite.
+    const results = await Promise.allSettled([
+      domain.confirmDispatch(owner, dispatchId, dispatchId),
+      db
+        .prepare(
+          "INSERT INTO pdf_validations(organization_id,id,document_id,document_sha256,request_user_id,profile,evidence,idempotency_key,period,status,created_at,deadline_at,purchase_terms_version,purchase_price_minor,purchase_source) VALUES(?,?,?,?,?,'ua1','production',?,?,'processing',?,?,'pdf-check-2026-10-25-v1',10,'browser_administrator')",
+        )
+        .bind(
+          owner.organizationId,
+          validationId,
+          document.id,
+          document.sha256,
+          owner.userId,
+          validationId,
+          stamp().slice(0, 7),
+          stamp(),
+          new Date(now + 60000).toISOString(),
+        )
+        .run(),
+    ]);
+    expect(
+      results.filter((result) => result.status === "fulfilled"),
+    ).toHaveLength(1);
+    const credit = await balance();
+    expect([10, 4995]).toContain(credit.reservedMinor);
+    expect(credit.spentMinor).toBe(0);
+    expect(credit.availableMinor).toBe(5000 - credit.reservedMinor);
+    const pdfWon = results[1].status === "fulfilled";
+    expect(
+      await db
+        .prepare(
+          "SELECT count(*) n FROM pdf_validation_purchases WHERE organization_id=?",
+        )
+        .bind(owner.organizationId)
+        .first(),
+    ).toEqual({ n: pdfWon ? 1 : 0 });
+    expect(
+      await db
+        .prepare(
+          "SELECT count(*) n FROM outbox WHERE organization_id=? AND dispatch_id=?",
+        )
+        .bind(owner.organizationId, dispatchId)
+        .first(),
+    ).toEqual({ n: pdfWon ? 0 : 1 });
   });
   it("settles the immutable customer quote once, releases the unused ceiling and ignores callback cost claims", async () => {
     const id = await queue(1200, 3000);
@@ -1012,6 +1075,160 @@ describe("one shared lifetime promotional credit", () => {
     ).rejects.toMatchObject({ code: "QUOTA_EXCEEDED" });
     expect(await balance(fresh)).toMatchObject({ availableMinor: 5000 });
   });
+  it("reads retained monthly history after rollover without changing current credit or quotas", async () => {
+    await accept(await queue(363));
+    const september = await domain.usage(owner);
+    now = Date.parse("2026-10-25T12:00:00.000Z");
+    const current = await domain.usage(owner);
+    expect(current).toMatchObject({
+      period: "2026-10",
+      currentPeriod: "2026-10",
+      availablePeriods: ["2026-10", "2026-09"],
+      items: [],
+      welcomeCredit: { spentMinor: 363, availableMinor: 4637 },
+    });
+    for (const requested of ["latest", "2026-09"]) {
+      const historical = await domain.usage(owner, requested);
+      expect(historical).toMatchObject({
+        period: "2026-09",
+        currentPeriod: "2026-10",
+        availablePeriods: ["2026-10", "2026-09"],
+      });
+      expect(historical.items).toEqual(september.items);
+      expect(historical.welcomeCredit).toEqual(current.welcomeCredit);
+    }
+    expect(await domain.usage(owner)).toEqual(current);
+    expect(
+      await db
+        .prepare(
+          "SELECT 1 FROM usage WHERE organization_id=? AND period='2026-10'",
+        )
+        .bind(owner.organizationId)
+        .first(),
+    ).toBeNull();
+  });
+  it("lists every retained month only for the authorized organization", async () => {
+    const other = await tenant();
+    const periods = Array.from({ length: 26 }, (_, offset) =>
+      new Date(Date.UTC(2024, offset, 1)).toISOString().slice(0, 7),
+    );
+    await db.batch([
+      ...periods.map((period) =>
+        db
+          .prepare(
+            "INSERT INTO usage(organization_id,channel,period,limit_count,limit_minor,currency) VALUES(?,'email',?,100,5000,'EUR')",
+          )
+          .bind(owner.organizationId, period),
+      ),
+      db
+        .prepare(
+          "INSERT INTO usage(organization_id,channel,period,limit_count,limit_minor,currency) VALUES(?,'email','2023-03',100,5000,'EUR')",
+        )
+        .bind(other.organizationId),
+    ]);
+    const result = await domain.usage(owner, "2024-01");
+    expect(result.availablePeriods).toEqual(
+      ["2026-09", ...periods].sort((a, b) => b.localeCompare(a)),
+    );
+    expect(result.items).toHaveLength(1);
+    expect(await domain.usage(owner, "2023-03")).toMatchObject({ items: [] });
+    await expect(
+      domain.usage(
+        { ...owner, organizationId: other.organizationId },
+        "latest",
+      ),
+    ).rejects.toMatchObject({ code: "FORBIDDEN" });
+  });
+  it("projects settled daily debits by their posting date, excluding reservations and grants", async () => {
+    now = Date.parse("2026-12-31T23:59:55.000Z");
+    const crossingYear = await queue(363);
+    now = Date.parse("2027-01-01T00:00:05.000Z");
+    await accept(crossingYear);
+    const pending = await queue(100);
+    const other = await tenant();
+    await accept(await queue(222, 222, "email", other));
+    const activity = await domain.usageActivity(owner, "2027");
+    expect(activity).toMatchObject({
+      year: 2027,
+      currentYear: 2027,
+      availableYears: [2027],
+      asOf: stamp(),
+      timeZone: "UTC",
+      currency: "EUR",
+      evidence: "production",
+      days: [
+        {
+          date: "2027-01-01",
+          amountMinor: 363,
+          dispatchCount: 1,
+          chargeCount: 1,
+        },
+      ],
+      totals: {
+        amountMinor: 363,
+        dispatchCount: 1,
+        chargeCount: 1,
+        activeDays: 1,
+      },
+    });
+    expect((await domain.usageActivity(owner, "2026")).days).toEqual([]);
+    expect(await balance()).toMatchObject({
+      spentMinor: 363,
+      reservedMinor: 100,
+    });
+    await domain.cancelDispatch(owner, pending);
+    expect(await domain.usageActivity(owner)).toEqual(activity);
+    await expect(
+      domain.usageActivity(
+        { ...owner, organizationId: other.organizationId },
+        "2027",
+      ),
+    ).rejects.toMatchObject({ code: "FORBIDDEN" });
+    for (const year of [
+      "",
+      "999",
+      "0202",
+      "2026-01",
+      "10000",
+      "9999",
+      "2026 OR 1=1",
+    ])
+      await expect(domain.usageActivity(owner, year)).rejects.toMatchObject({
+        code: "INVALID_INPUT",
+        status: 400,
+      });
+    now = Date.parse("2026-12-31T23:59:59.000Z");
+    expect(await domain.usageActivity(owner, "2027")).toMatchObject({
+      availableYears: [2026],
+      days: [],
+      totals: { amountMinor: 0, activeDays: 0 },
+    });
+  });
+  it("validates requested history months and handles an organization without stored periods", async () => {
+    for (const requested of [
+      "",
+      "2026-00",
+      "2026-13",
+      "26-09",
+      "2026-9",
+      "2026-09 OR 1=1",
+    ])
+      await expect(domain.usage(owner, requested)).rejects.toMatchObject({
+        code: "INVALID_INPUT",
+        status: 400,
+      });
+    const empty = await tenant();
+    await db
+      .prepare("DELETE FROM usage WHERE organization_id=?")
+      .bind(empty.organizationId)
+      .run();
+    expect(await domain.usage(empty, "latest")).toMatchObject({
+      period: "2026-09",
+      currentPeriod: "2026-09",
+      availablePeriods: ["2026-09"],
+      items: [],
+    });
+  });
   it("keeps approvals and channel emergency stops independent from credit", async () => {
     const id = await approved(100);
     await db
@@ -1072,8 +1289,24 @@ describe("one shared lifetime promotional credit", () => {
       spentMinor: 1000,
       availableMinor: 4000,
     });
+    expect(await domain.usageActivity(owner)).toMatchObject({
+      days: [
+        {
+          date: "2026-09-17",
+          amountMinor: 1000,
+          dispatchCount: 1,
+          chargeCount: 1,
+        },
+      ],
+      totals: {
+        amountMinor: 1000,
+        dispatchCount: 1,
+        chargeCount: 1,
+        activeDays: 1,
+      },
+    });
   });
-  it("retains promotional credits without a plan and restricts billing to a paid browser administrator", async () => {
+  it("retains promotional credits and lets the current browser administrator inspect billing without a subscription", async () => {
     await queue(200, 500);
     const env: BillingEnv = {
       DB: db,
@@ -1082,8 +1315,14 @@ describe("one shared lifetime promotional credit", () => {
       APP_ORIGIN: "https://guteneo.example",
     };
     const billing = new BillingService(env);
-    await expect(billing.overview(owner)).rejects.toMatchObject({
-      code: "HORIZON_PLAN_REQUIRED",
+    expect(await billing.overview(owner)).toMatchObject({
+      welcomeCredit: {
+        grantedMinor: 5000,
+        reservedMinor: 500,
+        availableMinor: 4500,
+      },
+      status: "configuration_required",
+      chargingEnabled: false,
     });
     expect(await balance()).toMatchObject({
       grantedMinor: 5000,

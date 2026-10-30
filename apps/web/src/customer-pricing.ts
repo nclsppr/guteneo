@@ -16,51 +16,51 @@ export function getCustomerPricing(): { rates: CustomerRate[]; note: string } {
     rates: [
       {
         id: "email",
-        channel: msg("E-mail"),
-        scope: msg("Un destinataire, avec ou sans PDF joint"),
+        channel: msg("Email"),
+        scope: msg("One recipient, with or without a PDF attachment"),
         prices: [
-          { amount: msg("≈ 1,56 €"), unit: msg("pour 1 000 e-mails") },
+          { amount: msg("≈ €1.56"), unit: msg("per 1,000 emails") },
           {
-            amount: msg("1 €"),
-            unit: msg("par document hébergé avec mot de passe, en option"),
+            amount: msg("€1"),
+            unit: msg("per optional password-protected hosted document"),
           },
         ],
         supplement: msg(
-          "Le PDF joint n’ajoute pas de supplément de transport. L’option de lien protégé remplace la pièce jointe ; son hébergement s’ajoute au prix de l’e-mail. Montants hors taxes.",
+          "A PDF attachment adds no transport surcharge. The protected-link option replaces the attachment; its hosting adds to the email price. Amounts exclude tax.",
         ),
       },
       {
         id: "fax",
         channel: msg("Fax"),
-        scope: msg("Selon les pages, la durée et la destination"),
+        scope: msg("Depends on pages, duration and destination"),
         prices: [
           {
-            amount: msg("≈ 0,05–0,17 €"),
-            unit: msg("par fax, estimation du scénario ci-dessous"),
+            amount: msg("≈ €0.05–0.17"),
+            unit: msg("per fax, estimate for the scenario below"),
           },
         ],
         supplement: msg(
-          "Exemple : une page depuis notre numéro luxembourgeois vers un numéro fixe au Luxembourg, pour une estimation de 1 à 4 minutes facturées de transmission. Le coût varie selon la durée réelle et la route ; cette fourchette n’est pas un plafond garanti. Le devis indique le plafond avant confirmation. Autres destinations et durées sur devis.",
+          "Example: one page from our Luxembourg number to a landline in Luxembourg, with an estimated 1 to 4 billed transmission minutes. Cost varies with actual duration and route; this range is not a guaranteed cap. The quote shows the cap before confirmation. Other destinations and durations require a quote.",
         ),
       },
       {
         id: "postal",
-        channel: msg("Courrier postal"),
-        scope: msg("Une page en noir et blanc, papier normal"),
+        channel: msg("Post"),
+        scope: msg("One black-and-white page, standard paper"),
         prices: [
-          { amount: msg("Dès 2,50 €"), unit: msg("par lettre vers la France") },
+          { amount: msg("From €2.50"), unit: msg("per letter to France") },
           {
-            amount: msg("Dès 3,02 €"),
-            unit: msg("par lettre vers le Luxembourg"),
+            amount: msg("From €3.02"),
+            unit: msg("per letter to Luxembourg"),
           },
         ],
         supplement: msg(
-          "Exemples pour une page en noir et blanc sur papier normal, port économique inclus, moins de 500 lettres par mois et grille locale du pays concerné. Autres routes, pages, couleur, papier et modes d’expédition sur devis.",
+          "Examples for one black-and-white page on standard paper, including economy postage, fewer than 500 letters per month and the local rate schedule of the country concerned. Other routes, pages, colour, paper and delivery options require a quote.",
         ),
       },
     ],
     note: msg(
-      "Montants indicatifs hors taxes. Tarifs e-mail révisés le 21 septembre 2026 ; fax et courrier vérifiés le 17 septembre 2026. Conversion des tarifs en dollars au cours BCE du 16 septembre : 1 € = 1,1537 $ US. Le prix applicable et les options figurent dans le devis avant validation. Le courrier postal est disponible après configuration dans votre atelier connecté ; l’aperçu reste une démonstration sans envoi réel.",
+      "Indicative amounts excluding tax. Email rates revised on 21 September 2026; fax and post checked on 17 September 2026. Dollar rates converted at the ECB rate of 16 September: €1 = US$1.1537. The applicable price and options appear in the quote before approval. Postal mail is available after setup in your connected workspace; the preview remains a demonstration with no real dispatches.",
     ),
   };
 }

@@ -55,9 +55,12 @@ function LocalizedFilm({
   const retryNativeFullscreen = useRef(false);
   const playbackAttempt = useRef(0);
   const [format, setFormat] = useState<Format | null>(null);
+  const [interactive, setInteractive] = useState(false);
   const [status, setStatus] = useState<"ready" | "loading" | "error" | "ended">(
     "ready",
   );
+
+  useEffect(() => setInteractive(true), []);
 
   useEffect(() => {
     const player = video.current;
@@ -260,6 +263,7 @@ function LocalizedFilm({
             ref={trigger}
             type="button"
             className="homepage-film-play"
+            disabled={!interactive}
             onClick={start}
           >
             <span className="homepage-film-play-icon">

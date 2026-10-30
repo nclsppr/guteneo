@@ -1,0 +1,17 @@
+---
+interface Props {
+  class?: string;
+  inset?: string;
+}
+const { class: className, inset = "7.5%" } = Astro.props;
+---
+
+<span class:list={["stamp-paper", className]} style={`--stamp-paper-inset:${inset}`} aria-hidden="true">
+  <slot />
+</span>
+
+<style>
+  .stamp-paper { display: inline-grid; position: relative; isolation: isolate; flex: none; }
+  .stamp-paper::before { content: ""; position: absolute; inset: var(--stamp-paper-inset); background: #fff; z-index: -1; }
+  .stamp-paper :global(img) { position: relative; display: block; z-index: 0; }
+</style>

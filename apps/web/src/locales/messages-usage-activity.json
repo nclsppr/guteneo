@@ -1,0 +1,116 @@
+{
+  "Activité quotidienne": [
+    "Daily activity",
+    "Tägliche Aktivität",
+    "Deeglech Aktivitéit"
+  ],
+  "Vos correspondances, au fil des jours.": [
+    "Your correspondence, one day at a time.",
+    "Ihre Korrespondenz, Tag für Tag.",
+    "Är Korrespondenz, Dag fir Dag."
+  ],
+  "Année d’activité": ["Activity year", "Aktivitätsjahr", "Aktivitéitsjoer"],
+  "{0} opération comptabilisée": [
+    "{0} posted operation",
+    "{0} gebuchter Vorgang",
+    "{0} gebuchtene Virgang"
+  ],
+  "{0} opérations comptabilisées": [
+    "{0} posted operations",
+    "{0} gebuchte Vorgänge",
+    "{0} gebuchte Virgänger"
+  ],
+  "{0} : {1} consommés, {2}": [
+    "{0}: {1} consumed, {2}",
+    "{0}: {1} verbraucht, {2}",
+    "{0}: {1} verbraucht, {2}"
+  ],
+  "L’activité quotidienne n’a pas pu être chargée. Votre historique mensuel reste accessible ci-dessous.": [
+    "Daily activity could not be loaded. Your monthly history remains available below.",
+    "Die tägliche Aktivität konnte nicht geladen werden. Ihr monatlicher Verlauf bleibt unten verfügbar.",
+    "Déi deeglech Aktivitéit konnt net geluede ginn. Äre monatleche Verlaf bleift hei drënner disponibel."
+  ],
+  "Activité simulée — ces montants sont fictifs.": [
+    "Simulation activity — these amounts are fictional.",
+    "Simulierte Aktivität — diese Beträge sind fiktiv.",
+    "Simuléiert Aktivitéit — dës Montante si fiktiv."
+  ],
+  "consommés en {0}": [
+    "consumed in {0}",
+    "verbraucht im Jahr {0}",
+    "verbraucht am Joer {0}"
+  ],
+  "{0} jour d’activité": [
+    "{0} active day",
+    "{0} aktiver Tag",
+    "{0} aktiven Dag"
+  ],
+  "{0} jours d’activité": [
+    "{0} active days",
+    "{0} aktive Tage",
+    "{0} aktiv Deeg"
+  ],
+  "Sélectionnez un jour pour voir son détail. Utilisez les flèches du clavier pour parcourir le calendrier.": [
+    "Select a day to see its details. Use the arrow keys to move through the calendar.",
+    "Wählen Sie einen Tag, um die Details anzuzeigen. Mit den Pfeiltasten bewegen Sie sich im Kalender.",
+    "Wielt en Dag, fir seng Detailer ze gesinn. Benotzt d’Feiltasten, fir duerch de Kalenner ze goen."
+  ],
+  "Faites défiler horizontalement pour explorer l’année.": [
+    "Scroll horizontally to explore the year.",
+    "Scrollen Sie horizontal, um das Jahr zu erkunden.",
+    "Scrollt horizontal, fir d’Joer ze entdecken."
+  ],
+  "Consommation quotidienne en {0}": [
+    "Daily consumption in {0}",
+    "Täglicher Verbrauch im Jahr {0}",
+    "Deegleche Verbrauch am Joer {0}"
+  ],
+  "{0} : jour à venir": [
+    "{0}: upcoming day",
+    "{0}: zukünftiger Tag",
+    "{0}: zukünftegen Dag"
+  ],
+  "Légende du calendrier": [
+    "Calendar legend",
+    "Kalenderlegende",
+    "Legend vum Kalenner"
+  ],
+  "Sans activité": ["No activity", "Keine Aktivität", "Keng Aktivitéit"],
+  "Moins": ["Less", "Weniger", "Manner"],
+  "Plus de consommation": ["More consumed", "Mehr Verbrauch", "Méi Verbrauch"],
+  "Opérations comptabilisées": [
+    "Posted operations",
+    "Gebuchte Vorgänge",
+    "Gebuchte Virgänger"
+  ],
+  "Aucune consommation enregistrée pour ce jour.": [
+    "No consumption recorded for this day.",
+    "Für diesen Tag ist kein Verbrauch erfasst.",
+    "Fir dësen Dag ass kee Verbrauch erfaasst."
+  ],
+  "Aucune consommation datée enregistrée pour cette année.": [
+    "No dated consumption recorded for this year.",
+    "Für dieses Jahr ist kein datierter Verbrauch erfasst.",
+    "Fir dëst Joer ass keen datéierte Verbrauch erfaasst."
+  ],
+  "Débits comptabilisés, par jour UTC. Les réservations et le crédit offert ne sont pas inclus.": [
+    "Posted debits, grouped by UTC day. Reservations and complimentary credit are excluded.",
+    "Gebuchte Abbuchungen, nach UTC-Tag gruppiert. Reservierungen und geschenktes Guthaben sind nicht enthalten.",
+    "Gebuchten Debit, no UTC-Dag gruppéiert. Reservatiounen a geschenkte Kredit sinn net abegraff."
+  ],
+  "Les anciens totaux sans date restent accessibles dans le détail mensuel.": [
+    "Older totals without a date remain available in the monthly detail.",
+    "Ältere Summen ohne Datum bleiben in den monatlichen Details verfügbar.",
+    "Eeler Zommen ouni Datum bleiwen am monatlechen Detail disponibel."
+  ],
+  "Envois concernés": [
+    "Related dispatches",
+    "Zugehörige Sendungen",
+    "Zougehéiereg Sendungen"
+  ],
+  "Consommation du jour": [
+    "Daily consumption",
+    "Tagesverbrauch",
+    "Verbrauch vum Dag"
+  ]
+}

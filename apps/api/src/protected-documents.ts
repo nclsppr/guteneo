@@ -13,6 +13,10 @@ import {
 import { DomainError, sha256 } from "../../../packages/domain/src/index";
 import type { PreparedProtectedDocument } from "../../../packages/domain/src/protected-documents";
 import { authenticateBrowser, type AuthContext, type AuthEnv } from "./auth";
+import {
+  assertLegacySourceAllowed,
+  legacySourceFence,
+} from "./sensitive-source";
 
 export type ProtectedDocumentsEnv = AuthEnv & {
   DOCUMENTS: R2Bucket;
@@ -64,7 +68,7 @@ async function encryptionKey(env: ProtectedDocumentsEnv): Promise<CryptoKey> {
   if (!tokenPattern.test(env.PROTECTED_DOCUMENTS_KEY ?? ""))
     fail(
       "PROTECTED_DOCUMENTS_NOT_CONFIGURED",
-      "La protection des documents n’est pas encore configurée.",
+      "Document protection is not yet configured.",
     );
   return crypto.subtle.importKey(
     "raw",
@@ -127,7 +131,7 @@ async function open(
   } catch {
     return fail(
       "PROTECTED_DOCUMENT_UNAVAILABLE",
-      "Le document protégé est indisponible.",
+      "The protected document is unavailable.",
     );
   }
 }
@@ -174,11 +178,11 @@ async function member(
       .bind(ctx.organizationId, ctx.userId, ctx.role)
       .first())
   )
-    fail("FORBIDDEN", "Cet espace ne vous est pas accessible.", 403);
+    fail("FORBIDDEN", "You cannot access this workspace.", 403);
   if (env.MODE !== "production")
     fail(
       "PROTECTED_DOCUMENTS_PRODUCTION_REQUIRED",
-      "Ce service nécessite le mode réel.",
+      "This service requires live mode.",
     );
 }
 export async function prepareProtectedDocument(
@@ -189,19 +193,20 @@ export async function prepareProtectedDocument(
 ): Promise<PreparedProtectedDocument> {
   await member(env, ctx);
   await encryptionKey(env);
+  await assertLegacySourceAllowed(env.DB, ctx.organizationId, input.documentId);
   const duration = input.durationDays ?? 7;
   if (![1, 7, 30].includes(duration))
     fail(
       "INVALID_PROTECTION_DURATION",
-      "Choisissez une durée de 1, 7 ou 30 jours.",
+      "Choose a duration of 1, 7 or 30 days.",
       400,
     );
   const document = await env.DB.prepare(
-    "SELECT id,sha256 FROM documents d WHERE organization_id=? AND id=? AND status='ready' AND (access_owner_id IS NULL OR access_owner_id=?) AND EXISTS(SELECT 1 FROM audit_log a WHERE a.organization_id=d.organization_id AND a.action='document.scan_verified' AND a.resource_id=d.sha256)",
+    "SELECT id,sha256 FROM documents d WHERE organization_id=? AND id=? AND status='ready' AND (access_owner_id IS NULL OR access_owner_id=?) AND NOT EXISTS(SELECT 1 FROM secure_distributions s WHERE s.organization_id=d.organization_id AND s.source_id=d.id) AND EXISTS(SELECT 1 FROM audit_log a WHERE a.organization_id=d.organization_id AND a.action='document.scan_verified' AND a.resource_id=d.sha256)",
   )
     .bind(ctx.organizationId, input.documentId, ctx.userId)
     .first<{ id: string; sha256: string }>();
-  if (!document) fail("DOCUMENT_NOT_READY", "Un PDF vérifié est nécessaire.");
+  if (!document) fail("DOCUMENT_NOT_READY", "A verified PDF is required.");
   const material = {
     id: `host_${crypto.randomUUID()}`,
     organization_id: ctx.organizationId,
@@ -221,7 +226,7 @@ export async function prepareProtectedDocument(
       "UPDATE protected_document_hostings SET status='expired',sealed_secrets='' WHERE organization_id=? AND document_id=? AND status IN ('draft','active') AND expires_at<=?",
     ).bind(ctx.organizationId, document.id, now),
     env.DB.prepare(
-      "INSERT INTO protected_document_hostings(id,organization_id,document_id,document_sha256,duration_days,token_hash,password_salt,password_verifier,sealed_secrets,status,created_at,expires_at) SELECT ?,?,?,?,?,?,?,?,?,'draft',?,? WHERE EXISTS(SELECT 1 FROM memberships WHERE organization_id=? AND user_id=? AND role=?) AND EXISTS(SELECT 1 FROM documents WHERE organization_id=? AND id=? AND sha256=? AND status='ready' AND (access_owner_id IS NULL OR access_owner_id=?)) ON CONFLICT(organization_id,document_id) WHERE status IN ('draft','active') DO NOTHING",
+      "INSERT INTO protected_document_hostings(id,organization_id,document_id,document_sha256,duration_days,token_hash,password_salt,password_verifier,sealed_secrets,status,created_at,expires_at) SELECT ?,?,?,?,?,?,?,?,?,'draft',?,? WHERE EXISTS(SELECT 1 FROM memberships WHERE organization_id=? AND user_id=? AND role=?) AND EXISTS(SELECT 1 FROM documents WHERE organization_id=? AND id=? AND sha256=? AND status='ready' AND (access_owner_id IS NULL OR access_owner_id=?) AND NOT EXISTS(SELECT 1 FROM secure_distributions s WHERE s.organization_id=documents.organization_id AND s.source_id=documents.id)) ON CONFLICT(organization_id,document_id) WHERE status IN ('draft','active') DO NOTHING",
     ).bind(
       material.id,
       ctx.organizationId,
@@ -251,9 +256,10 @@ export async function prepareProtectedDocument(
   if (!row)
     fail(
       "PROTECTED_DOCUMENT_UNAVAILABLE",
-      "Le document protégé est indisponible.",
+      "The protected document is unavailable.",
     );
   const secrets = await open(env, row);
+  await assertLegacySourceAllowed(env.DB, row.organization_id, row.document_id);
   return {
     hostingId: row.id,
     url: new URL(`/share/${secrets.token}`, env.APP_ORIGIN).href,
@@ -268,12 +274,13 @@ async function dispatchHosting(
   ctx: AuthContext,
   dispatchId: string,
   now: string,
+  allowSensitive = false,
 ): Promise<Hosting> {
   await member(env, ctx);
   if (ctx.actor !== "browser")
     fail(
       "BROWSER_REQUIRED",
-      "Ouvrez votre espace Guteneo pour cette action.",
+      "Open your Guteneo workspace for this action.",
       403,
     );
   const row = await env.DB.prepare(
@@ -281,7 +288,13 @@ async function dispatchHosting(
   )
     .bind(ctx.organizationId, dispatchId, now, ctx.userId)
     .first<Hosting>();
-  if (!row) fail("NOT_FOUND", "Document protégé indisponible.", 404);
+  if (!row) fail("NOT_FOUND", "Protected document unavailable.", 404);
+  if (!allowSensitive)
+    await assertLegacySourceAllowed(
+      env.DB,
+      row.organization_id,
+      row.document_id,
+    );
   return row;
 }
 export async function revealProtectedDocumentPassword(
@@ -293,11 +306,20 @@ export async function revealProtectedDocumentPassword(
   const row = await dispatchHosting(env, ctx, dispatchId, now);
   const { password } = await open(env, row);
   await member(env, ctx);
-  await env.DB.prepare(
-    "INSERT INTO audit_log(id,organization_id,user_id,action,resource_id,details_json,created_at) VALUES(?,?,?,'protected_document.password_revealed',?,'{}',?)",
+  const source = legacySourceFence(row.organization_id, row.document_id);
+  const audited = await env.DB.prepare(
+    `INSERT INTO audit_log(id,organization_id,user_id,action,resource_id,details_json,created_at) SELECT ?,?,?,'protected_document.password_revealed',?,'{}',? WHERE ${source.condition} RETURNING id`,
   )
-    .bind(crypto.randomUUID(), ctx.organizationId, ctx.userId, row.id, now)
-    .run();
+    .bind(
+      crypto.randomUUID(),
+      ctx.organizationId,
+      ctx.userId,
+      row.id,
+      now,
+      ...source.values,
+    )
+    .first();
+  if (!audited) fail("NOT_FOUND", "Protected document unavailable.", 404);
   return { password, expiresAt: row.expires_at };
 }
 export async function revokeProtectedDocument(
@@ -309,10 +331,10 @@ export async function revokeProtectedDocument(
   if (!actorPermissions(ctx).approveDispatches)
     fail(
       "FORBIDDEN",
-      "Le droit de validation est nécessaire pour révoquer cet accès.",
+      "Approval permission is required to revoke this access.",
       403,
     );
-  const row = await dispatchHosting(env, ctx, dispatchId, now);
+  const row = await dispatchHosting(env, ctx, dispatchId, now, true);
   const authority = membershipPermissionFence(ctx, "approveDispatches");
   const results = await env.DB.batch([
     env.DB.prepare(
@@ -336,7 +358,7 @@ export async function revokeProtectedDocument(
   if (results[0].meta.changes !== 1)
     fail(
       "FORBIDDEN",
-      "Vos droits ou cet accès ont changé. Actualisez la page.",
+      "Your permissions or this access have changed. Refresh the page.",
       403,
     );
   return { revoked: true };
@@ -352,7 +374,7 @@ async function activeHosting(
   now: string,
 ): Promise<Hosting | null> {
   return env.DB.prepare(
-    "SELECT h.* FROM protected_document_hostings h JOIN documents d ON d.organization_id=h.organization_id AND d.id=h.document_id AND d.sha256=h.document_sha256 WHERE h.token_hash=? AND h.status='active' AND h.expires_at>? AND d.status='ready' AND EXISTS(SELECT 1 FROM protected_hosting_charges c WHERE c.organization_id=h.organization_id AND c.hosting_id=h.id)",
+    "SELECT h.* FROM protected_document_hostings h JOIN documents d ON d.organization_id=h.organization_id AND d.id=h.document_id AND d.sha256=h.document_sha256 WHERE h.token_hash=? AND h.status='active' AND h.expires_at>? AND d.status='ready' AND NOT EXISTS(SELECT 1 FROM secure_distributions s WHERE s.organization_id=d.organization_id AND s.source_id=d.id) AND EXISTS(SELECT 1 FROM protected_hosting_charges c WHERE c.organization_id=h.organization_id AND c.hosting_id=h.id)",
   )
     .bind(await sha256(token), now)
     .first<Hosting>();
@@ -435,7 +457,7 @@ export async function handleProtectedDocumentRoute(
     path: string,
     state: "locked" | "unlocked" | "unavailable",
     error?: string,
-  ) => renderPage(path, state, error, locale);
+  ) => renderPage(path, state, error, locale, request);
   const sensitive =
     /^\/api\/dispatches\/([A-Za-z0-9_-]+)\/protected-document(?:\/(password|revoke))?$/.exec(
       pathname,
@@ -449,7 +471,7 @@ export async function handleProtectedDocumentRoute(
       const session = await authenticateBrowser(request, env);
       await member(env, session.context);
       const row = await env.DB.prepare(
-        "SELECT h.status,h.expires_at,h.id FROM protected_document_hostings h JOIN dispatches d ON d.organization_id=h.organization_id AND d.document_id=h.document_id AND json_extract(d.options_json,'$.protectedDocument.hostingId')=h.id WHERE h.organization_id=? AND d.id=? AND EXISTS(SELECT 1 FROM documents doc WHERE doc.organization_id=d.organization_id AND doc.id=d.document_id AND (doc.access_owner_id IS NULL OR doc.access_owner_id=?))",
+        "SELECT h.status,h.expires_at,h.id FROM protected_document_hostings h JOIN dispatches d ON d.organization_id=h.organization_id AND d.document_id=h.document_id AND json_extract(d.options_json,'$.protectedDocument.hostingId')=h.id WHERE h.organization_id=? AND d.id=? AND NOT EXISTS(SELECT 1 FROM secure_distributions s WHERE s.organization_id=d.organization_id AND s.source_id=d.document_id) AND EXISTS(SELECT 1 FROM documents doc WHERE doc.organization_id=d.organization_id AND doc.id=d.document_id AND (doc.access_owner_id IS NULL OR doc.access_owner_id=?))",
       )
         .bind(
           session.context.organizationId,
@@ -524,7 +546,7 @@ export async function handleProtectedDocumentRoute(
       )
         return new Response(
           protectedDocumentText(
-            "Trop de tentatives. Réessayez dans quinze minutes.",
+            "Too many attempts. Try again in fifteen minutes.",
             locale,
           ),
           { status: 429, headers: { ...safeHeaders, "Retry-After": "900" } },
@@ -540,7 +562,7 @@ export async function handleProtectedDocumentRoute(
         return page(
           path,
           "locked",
-          "Ce mot de passe ne permet pas d’ouvrir le document.",
+          "This password does not unlock the document.",
         );
       const session = random(),
         expiry = new Date(
@@ -572,7 +594,7 @@ export async function handleProtectedDocumentRoute(
     const unlocked = await sessionValid(env, request, row, now);
     if (action === "content" && request.method === "GET") {
       if (!unlocked)
-        return new Response(protectedDocumentText("Accès protégé", locale), {
+        return new Response(protectedDocumentText("Protected access", locale), {
           status: 401,
           headers: safeHeaders,
         });
@@ -595,11 +617,19 @@ export async function handleProtectedDocumentRoute(
         !(await activeHosting(env, token, new Date().toISOString()))
       )
         return page(path, "unavailable");
-      await env.DB.prepare(
-        "INSERT INTO audit_log(id,organization_id,user_id,action,resource_id,details_json,created_at) VALUES(?,?,NULL,'protected_document.downloaded',?,'{}',?)",
+      const source = legacySourceFence(row.organization_id, row.document_id);
+      const audited = await env.DB.prepare(
+        `INSERT INTO audit_log(id,organization_id,user_id,action,resource_id,details_json,created_at) SELECT ?,?,NULL,'protected_document.downloaded',?,'{}',? WHERE ${source.condition} RETURNING id`,
       )
-        .bind(crypto.randomUUID(), row.organization_id, row.id, now)
-        .run();
+        .bind(
+          crypto.randomUUID(),
+          row.organization_id,
+          row.id,
+          now,
+          ...source.values,
+        )
+        .first();
+      if (!audited) return page(path, "unavailable");
       return new Response(bytes, {
         headers: {
           ...safeHeaders,

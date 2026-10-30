@@ -1,5 +1,14 @@
 import { expect, test, type Page } from "@playwright/test";
 import { PDFDocument } from "pdf-lib";
+import { cleanEmailHtml } from "../../packages/contracts/src/content";
+import {
+  documentEmailDefaults,
+  renderTransactionalEmail,
+} from "../../packages/contracts/src/email-template";
+import {
+  secureDistributionCatalog,
+  secureDistributionQuote,
+} from "../../packages/contracts/src/secure-distribution";
 
 const sampleDocument = {
   id: "document_protected_ui",
@@ -48,6 +57,8 @@ async function fixture(
     pageSize?: [number, number];
     secondPage?: boolean;
     unavailable?: boolean;
+    preferredLocale?: "fr" | "en" | "de" | "lb";
+    omitDocumentFromList?: boolean;
   } = {},
 ) {
   const writes: { path: string; body: Record<string, unknown> }[] = [];
@@ -72,18 +83,74 @@ async function fixture(
     if (request.method() !== "GET") {
       writes.push({ path, body: request.postDataJSON() });
     }
+    if (path === "/api/secure-distributions/catalog") {
+      await route.fulfill({
+        json: secureDistributionCatalog("verified_account"),
+      });
+      return;
+    }
+    if (
+      path === `/api/documents/${sampleDocument.id}` &&
+      request.method() === "GET"
+    ) {
+      await route.fulfill({ json: sampleDocument });
+      return;
+    }
+    if (path.startsWith("/api/secure-distributions")) {
+      const policy = {
+        retentionDays: 30 as const,
+        allowOriginalDownload: true,
+        allowVaultDeposit: false,
+        personalRetentionDays: 365 as const,
+        recipientBinding: "verified_email" as const,
+      };
+      await route.fulfill({
+        json: {
+          id: "sd_ui",
+          status: "prepared",
+          dispatchId: dispatch.id,
+          title: sampleDocument.name,
+          source: sampleDocument,
+          recipient: { address: "recipient@example.invalid" },
+          invitation: {
+            subject: dispatch.subject,
+            message: dispatch.text,
+            html: dispatch.html,
+          },
+          policy,
+          quote: secureDistributionQuote(policy, 1),
+          approved: false,
+          approval: null,
+          approvalUrl: null,
+          recipientBinding: "unclaimed",
+          pendingClaim: null,
+          recipientUserId: null,
+          expiresAt: null,
+          audit: [],
+        },
+      });
+      return;
+    }
     const body =
       path === "/api/session"
         ? {
             organization: { id: "org_ui", name: "Atelier de contrôle" },
-            user: { id: "user_ui", name: "Camille", role: "admin" },
+            user: {
+              id: "user_ui",
+              name: "Camille",
+              role: "admin",
+              preferredLocale: pdfOptions.preferredLocale,
+            },
             simulation: false,
             csrfToken: "fixture-only",
           }
         : path === "/api/capabilities"
           ? {}
           : path === "/api/documents"
-            ? { items: [sampleDocument], nextCursor: null }
+            ? {
+                items: pdfOptions.omitDocumentFromList ? [] : [sampleDocument],
+                nextCursor: null,
+              }
             : path === "/api/senders"
               ? {
                   items: [
@@ -107,7 +174,12 @@ async function fixture(
                     ? { revoked: true }
                     : path === "/api/dispatches"
                       ? dispatch
-                      : { dispatch, attempts: [], events: [], approval: null };
+                      : {
+                          dispatch,
+                          attempts: [],
+                          events: [],
+                          approval: null,
+                        };
     await route.fulfill({
       contentType: "application/json",
       body: JSON.stringify(body),
@@ -124,210 +196,298 @@ function gate() {
   return { ready, release };
 }
 
-for (const appearance of ["classic", "v2"] as const) {
-  test(`${appearance} review keeps consent stationary through PDF loading and a held pointer`, async ({
-    page,
-    isMobile,
-    browserName,
-  }, testInfo) => {
-    if (isMobile) await page.setViewportSize({ width: 320, height: 812 });
-    const moduleGate = gate();
-    const contentGate = gate();
-    const writes = await fixture(page, {
-      ready: contentGate.ready,
-      pageSize: [595, 2000],
-      secondPage: true,
-    });
-    await page.route("**/assets/pdf-viewer-*.js", async (route) => {
-      await moduleGate.ready;
-      await route.continue();
-    });
-    try {
-      await page.goto(
-        `/?atelier=${appearance}#/app/dispatch/dispatch_protected_ui`,
-      );
-      const viewport = page.getByRole("region", {
-        name: "Aperçu du document approuvé",
-      });
-      const contentConsent = page.getByRole("checkbox", {
-        name: /J’ai vérifié le contenu/,
-      });
-      const recipientConsent = page.getByRole("checkbox", {
-        name: /ce destinataire a demandé/,
-      });
-      const send = page.getByRole("button", {
-        name: "Approuver et envoyer",
-        exact: true,
-      });
-      await expect(viewport.getByRole("status")).toBeVisible();
-      await expect(contentConsent).toBeVisible();
-      await page.evaluate(() => document.fonts.ready);
-      const documentY = () =>
-        recipientConsent.evaluate(
-          (element) => element.getBoundingClientRect().top + window.scrollY,
-        );
-      const frameHeight = () =>
-        viewport.evaluate((element) => element.getBoundingClientRect().height);
-      const initialY = await documentY();
-      const initialHeight = await frameHeight();
-      moduleGate.release();
-      await expect(
-        viewport.locator('.pdf-canvas-wrap[aria-busy="true"]'),
-      ).toBeVisible();
-      expect(await documentY()).toBeCloseTo(initialY, 0);
-      expect(await frameHeight()).toBeCloseTo(initialHeight, 0);
-      await contentConsent.check();
-      await expect(send).toBeDisabled();
-      await expect(recipientConsent).not.toBeChecked();
-      await recipientConsent.scrollIntoViewIfNeeded();
-      const target = await recipientConsent.boundingBox();
-      if (!target) throw new Error("Recipient consent has no clickable box");
-      await page.mouse.move(
-        target.x + target.width / 2,
-        target.y + target.height / 2,
-      );
-      await page.mouse.down();
-      contentGate.release();
-      await expect(
-        viewport.locator('.pdf-canvas-wrap[aria-busy="false"]'),
-      ).toBeVisible();
-      await expect(viewport.locator("canvas")).toBeVisible();
-      expect(await documentY()).toBeCloseTo(initialY, 0);
-      expect(await frameHeight()).toBeCloseTo(initialHeight, 0);
-      await page.mouse.up();
-      await expect(recipientConsent).toBeChecked();
-      await expect(contentConsent).toBeChecked();
-      await expect(send).toBeEnabled();
-      expect(writes).toEqual([]);
-
-      // The whole long page and its navigation remain reachable without moving consent.
-      await viewport.focus();
-      await expect(viewport).toBeFocused();
-      await page.keyboard.press("End");
-      await expect
-        .poll(() => viewport.evaluate((element) => element.scrollTop))
-        .toBeGreaterThan(0);
-      expect(await documentY()).toBeCloseTo(initialY, 0);
-      await page.keyboard.press("Tab");
-      await expect(viewport).not.toBeFocused();
-      const nextPage = viewport.getByRole("button", { name: "Page suivante" });
-      // Safari's native tab order may skip buttons; verify their activation separately.
-      if (browserName === "webkit") await nextPage.focus();
-      await expect(nextPage).toBeFocused();
-      await page.keyboard.press("Space");
-      await expect(viewport.locator("canvas")).toHaveAccessibleName(
-        "Aperçu · Page 2",
-      );
-      await expect(
-        viewport.locator('.pdf-canvas-wrap[aria-busy="false"]'),
-      ).toBeVisible();
-      expect(await documentY()).toBeCloseTo(initialY, 0);
-      expect(await frameHeight()).toBeCloseTo(initialHeight, 0);
-      await page.keyboard.press("Tab");
-      expect(
-        await viewport.evaluate((element) =>
-          element.contains(document.activeElement),
-        ),
-      ).toBe(false);
-      if (browserName !== "webkit") await expect(contentConsent).toBeFocused();
-      await expect(contentConsent).toBeChecked();
-      await expect(recipientConsent).toBeChecked();
-      expect(writes).toEqual([]);
-      expect(
-        await page.evaluate(
-          () => document.documentElement.scrollWidth <= innerWidth,
-        ),
-      ).toBe(true);
-      await page.screenshot({
-        path: testInfo.outputPath(`stable-review-${appearance}.png`),
-        fullPage: true,
-      });
-    } finally {
-      moduleGate.release();
-      contentGate.release();
-      await page.mouse.up();
-      await page.unrouteAll({ behavior: "wait" });
-    }
+test(`review keeps consent stationary through PDF loading and a held pointer`, async ({
+  page,
+  isMobile,
+  browserName,
+}, testInfo) => {
+  if (isMobile) await page.setViewportSize({ width: 320, height: 812 });
+  const moduleGate = gate();
+  const contentGate = gate();
+  const writes = await fixture(page, {
+    ready: contentGate.ready,
+    pageSize: [595, 2000],
+    secondPage: true,
   });
-
-  test(`${appearance} review keeps consent stationary when the PDF fails`, async ({
-    page,
-    isMobile,
-  }, testInfo) => {
-    if (isMobile) await page.setViewportSize({ width: 320, height: 812 });
-    const contentGate = gate();
-    const writes = await fixture(page, {
-      ready: contentGate.ready,
-      unavailable: true,
+  await page.route("**/assets/pdf-viewer-*.js", async (route) => {
+    await moduleGate.ready;
+    await route.continue();
+  });
+  try {
+    await page.goto(`/#/app/dispatch/dispatch_protected_ui`);
+    const viewport = page.getByRole("region", {
+      name: "Aperçu du document approuvé",
     });
-    try {
-      await page.goto(
-        `/?atelier=${appearance}#/app/dispatch/dispatch_protected_ui`,
+    const contentConsent = page.getByRole("checkbox", {
+      name: /J’ai vérifié le contenu/,
+    });
+    const recipientConsent = page.getByRole("checkbox", {
+      name: /ce destinataire a demandé/,
+    });
+    const send = page.getByRole("button", {
+      name: "Approuver et envoyer",
+      exact: true,
+    });
+    await expect(viewport.getByRole("status")).toBeVisible();
+    await expect(contentConsent).toBeVisible();
+    await page.evaluate(() => document.fonts.ready);
+    const documentY = () =>
+      recipientConsent.evaluate(
+        (element) => element.getBoundingClientRect().top + window.scrollY,
       );
-      const viewport = page.getByRole("region", {
-        name: "Aperçu du document approuvé",
-      });
-      const contentConsent = page.getByRole("checkbox", {
-        name: /J’ai vérifié le contenu/,
-      });
-      const recipientConsent = page.getByRole("checkbox", {
-        name: /ce destinataire a demandé/,
-      });
-      await expect(
-        viewport.locator('.pdf-canvas-wrap[aria-busy="true"]'),
-      ).toBeVisible();
-      await page.evaluate(() => document.fonts.ready);
-      const documentY = () =>
-        recipientConsent.evaluate(
-          (element) => element.getBoundingClientRect().top + window.scrollY,
-        );
-      const initialY = await documentY();
-      const initialHeight = await viewport.evaluate(
+    const frameHeight = () =>
+      viewport.evaluate((element) => element.getBoundingClientRect().height);
+    const initialY = await documentY();
+    const initialHeight = await frameHeight();
+    moduleGate.release();
+    await expect(
+      viewport.locator('.pdf-canvas-wrap[aria-busy="true"]'),
+    ).toBeVisible();
+    expect(await documentY()).toBeCloseTo(initialY, 0);
+    expect(await frameHeight()).toBeCloseTo(initialHeight, 0);
+    await contentConsent.check();
+    await expect(send).toBeDisabled();
+    await expect(recipientConsent).not.toBeChecked();
+    await recipientConsent.scrollIntoViewIfNeeded();
+    const target = await recipientConsent.boundingBox();
+    if (!target) throw new Error("Recipient consent has no clickable box");
+    await page.mouse.move(
+      target.x + target.width / 2,
+      target.y + target.height / 2,
+    );
+    await page.mouse.down();
+    contentGate.release();
+    await expect(
+      viewport.locator('.pdf-canvas-wrap[aria-busy="false"]'),
+    ).toBeVisible();
+    await expect(viewport.locator("canvas")).toBeVisible();
+    expect(await documentY()).toBeCloseTo(initialY, 0);
+    expect(await frameHeight()).toBeCloseTo(initialHeight, 0);
+    await page.mouse.up();
+    await expect(recipientConsent).toBeChecked();
+    await expect(contentConsent).toBeChecked();
+    await expect(send).toBeEnabled();
+    expect(writes).toEqual([]);
+
+    // The whole long page and its navigation remain reachable without moving consent.
+    await viewport.focus();
+    await expect(viewport).toBeFocused();
+    await page.keyboard.press("End");
+    await expect
+      .poll(() => viewport.evaluate((element) => element.scrollTop))
+      .toBeGreaterThan(0);
+    expect(await documentY()).toBeCloseTo(initialY, 0);
+    await page.keyboard.press("Tab");
+    await expect(viewport).not.toBeFocused();
+    const nextPage = viewport.getByRole("button", { name: "Page suivante" });
+    // Safari's native tab order may skip buttons; verify their activation separately.
+    if (browserName === "webkit") await nextPage.focus();
+    await expect(nextPage).toBeFocused();
+    await page.keyboard.press("Space");
+    await expect(viewport.locator("canvas")).toHaveAccessibleName(
+      "Aperçu · Page 2",
+    );
+    await expect(
+      viewport.locator('.pdf-canvas-wrap[aria-busy="false"]'),
+    ).toBeVisible();
+    expect(await documentY()).toBeCloseTo(initialY, 0);
+    expect(await frameHeight()).toBeCloseTo(initialHeight, 0);
+    await page.keyboard.press("Tab");
+    expect(
+      await viewport.evaluate((element) =>
+        element.contains(document.activeElement),
+      ),
+    ).toBe(false);
+    if (browserName !== "webkit") await expect(contentConsent).toBeFocused();
+    await expect(contentConsent).toBeChecked();
+    await expect(recipientConsent).toBeChecked();
+    expect(writes).toEqual([]);
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth,
+      ),
+    ).toBe(true);
+    await page.screenshot({
+      path: testInfo.outputPath(`stable-review.png`),
+      fullPage: true,
+    });
+  } finally {
+    moduleGate.release();
+    contentGate.release();
+    await page.mouse.up();
+    await page.unrouteAll({ behavior: "wait" });
+  }
+});
+
+test(`review keeps consent stationary when the PDF fails`, async ({
+  page,
+  isMobile,
+}, testInfo) => {
+  if (isMobile) await page.setViewportSize({ width: 320, height: 812 });
+  const contentGate = gate();
+  const writes = await fixture(page, {
+    ready: contentGate.ready,
+    unavailable: true,
+  });
+  try {
+    await page.goto(`/#/app/dispatch/dispatch_protected_ui`);
+    const viewport = page.getByRole("region", {
+      name: "Aperçu du document approuvé",
+    });
+    const contentConsent = page.getByRole("checkbox", {
+      name: /J’ai vérifié le contenu/,
+    });
+    const recipientConsent = page.getByRole("checkbox", {
+      name: /ce destinataire a demandé/,
+    });
+    await expect(
+      viewport.locator('.pdf-canvas-wrap[aria-busy="true"]'),
+    ).toBeVisible();
+    await page.evaluate(() => document.fonts.ready);
+    const documentY = () =>
+      recipientConsent.evaluate(
+        (element) => element.getBoundingClientRect().top + window.scrollY,
+      );
+    const initialY = await documentY();
+    const initialHeight = await viewport.evaluate(
+      (element) => element.getBoundingClientRect().height,
+    );
+    await contentConsent.check();
+    contentGate.release();
+    await expect(viewport.getByRole("alert")).toBeVisible();
+    expect(await documentY()).toBeCloseTo(initialY, 0);
+    expect(
+      await viewport.evaluate(
         (element) => element.getBoundingClientRect().height,
-      );
-      await contentConsent.check();
-      contentGate.release();
-      await expect(viewport.getByRole("alert")).toBeVisible();
-      expect(await documentY()).toBeCloseTo(initialY, 0);
-      expect(
-        await viewport.evaluate(
-          (element) => element.getBoundingClientRect().height,
-        ),
-      ).toBeCloseTo(initialHeight, 0);
-      await expect(contentConsent).toBeChecked();
-      await expect(recipientConsent).not.toBeChecked();
-      await expect(
-        page.getByRole("button", { name: "Approuver et envoyer", exact: true }),
-      ).toBeDisabled();
-      await expect(
-        page.locator(".pdf-preview .preview-label a"),
-      ).toHaveAttribute(
-        "href",
-        `/api/documents/${sampleDocument.id}/content?dispatchId=${dispatch.id}`,
-      );
-      expect(writes).toEqual([]);
-      await page.screenshot({
-        path: testInfo.outputPath(`stable-review-error-${appearance}.png`),
-        fullPage: true,
-      });
-    } finally {
-      contentGate.release();
-      await page.unrouteAll({ behavior: "wait" });
-    }
-  });
-}
+      ),
+    ).toBeCloseTo(initialHeight, 0);
+    await expect(contentConsent).toBeChecked();
+    await expect(recipientConsent).not.toBeChecked();
+    await expect(
+      page.getByRole("button", { name: "Approuver et envoyer", exact: true }),
+    ).toBeDisabled();
+    await expect(page.locator(".pdf-preview .preview-label a")).toHaveAttribute(
+      "href",
+      `/api/documents/${sampleDocument.id}/content?dispatchId=${dispatch.id}`,
+    );
+    expect(writes).toEqual([]);
+    await page.screenshot({
+      path: testInfo.outputPath(`stable-review-error.png`),
+      fullPage: true,
+    });
+  } finally {
+    contentGate.release();
+    await page.unrouteAll({ behavior: "wait" });
+  }
+});
 
 async function fillMessage(page: Page) {
   await page
     .getByLabel("Adresse e-mail", { exact: true })
     .fill("recipient@example.invalid");
-  await page.getByLabel("Objet", { exact: true }).fill("Votre document");
+  await page.getByLabel(/^Objet(?: \(facultatif\))?$/).fill("Votre document");
   await page
-    .getByLabel("Message", { exact: true })
+    .getByLabel(/^Message(?: \(facultatif\))?$/)
     .fill("Bonjour <Camille>,\nVoici votre document.");
 }
 
-test("email without attachment needs one message and escapes its automatic HTML", async ({
+test.describe("localized preparation controls", () => {
+  test.use({ locale: "en-GB" });
+
+  test(`keeps French file copy, full-height expiry and keyboard focus`, async ({
+    page,
+    isMobile,
+    browserName,
+  }, testInfo) => {
+    await fixture(page, { preferredLocale: "fr" });
+    await page.route("**/api/documents", async (route) => {
+      if (route.request().method() === "GET") return route.fallback();
+      await route.fulfill({ json: sampleDocument });
+    });
+    await page.route(`**/api/documents/${sampleDocument.id}`, (route) =>
+      route.fulfill({ json: sampleDocument }),
+    );
+    await page.goto("/?lang=fr#/app/prepare?channel=email");
+    await expect(page.locator("html")).toHaveAttribute("lang", "fr");
+    const upload = page.getByLabel("Ou importer un PDF", { exact: true });
+    const uploadSurface = upload.locator("..");
+    await expect(uploadSurface.locator(".file-input-button")).toHaveText(
+      "Choisir un fichier",
+    );
+    await expect(uploadSurface.locator(".file-input-name")).toHaveText(
+      "Aucun fichier sélectionné",
+    );
+    const fileName = "Correspondance — vérification française.pdf";
+    const chooserReady = page.waitForEvent("filechooser");
+    await upload.click();
+    const chooser = await chooserReady;
+    await chooser.setFiles({
+      name: fileName,
+      mimeType: "application/pdf",
+      buffer: Buffer.from("synthetic UI-only PDF selection"),
+    });
+    await expect(uploadSurface.locator(".file-input-name")).toHaveText(
+      fileName,
+    );
+    expect(
+      await upload.evaluate(
+        (element: HTMLInputElement) => element.files?.length,
+      ),
+    ).toBe(1);
+    const expiry = page.getByLabel("Durée d’accès");
+    await expiry.selectOption("30");
+    await expect(expiry).toHaveValue("30");
+    const choice = page.locator(".protected-document-choice");
+    const layout = await choice.evaluate((element) => {
+      const select = element.querySelector("select")!;
+      const hint = element.querySelector(".field-hint")!;
+      const selectRect = select.getBoundingClientRect();
+      return {
+        selectHeight: selectRect.height,
+        hintGap: hint.getBoundingClientRect().top - selectRect.bottom,
+      };
+    });
+    expect(layout.selectHeight).toBeGreaterThanOrEqual(44);
+    expect(layout.hintGap).toBeGreaterThanOrEqual(8);
+    await expect(expiry).toHaveCSS("appearance", "none");
+    if (!isMobile) {
+      const emailChannel = page.getByRole("radio", {
+        name: "E-mail",
+        exact: true,
+      });
+      await emailChannel.locator("..").click();
+      expect(
+        await emailChannel
+          .locator("..")
+          .locator("span")
+          .evaluate((element) => getComputedStyle(element).outlineStyle),
+      ).toBe("none");
+      await page.getByLabel("Pièce jointe PDF (facultative)").focus();
+      await page.keyboard.press(browserName === "webkit" ? "Alt+Tab" : "Tab");
+      await expect(upload).toBeFocused();
+      const keyboardFocus = await uploadSurface.evaluate((element) => {
+        const style = getComputedStyle(element);
+        return {
+          width: style.outlineWidth,
+          color: style.outlineColor,
+        };
+      });
+      expect(keyboardFocus.width).toBe("2px");
+      expect(keyboardFocus.color).toBe("rgb(24, 27, 34)");
+    }
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= window.innerWidth,
+      ),
+    ).toBe(true);
+    await page.screenshot({
+      path: testInfo.outputPath(`localized-controls.png`),
+      fullPage: true,
+    });
+  });
+});
+
+test("email without attachment requires its message and leaves automatic HTML to the server", async ({
   page,
 }) => {
   const writes = await fixture(page);
@@ -338,7 +498,20 @@ test("email without attachment needs one message and escapes its automatic HTML"
   await expect(
     page.getByRole("checkbox", { name: /Envoyer un lien protégé/ }),
   ).toHaveCount(0);
+  await expect(page.getByLabel("Objet", { exact: true })).toHaveAttribute(
+    "required",
+    "",
+  );
+  await expect(page.getByLabel("Message", { exact: true })).toHaveAttribute(
+    "required",
+    "",
+  );
+  await page.getByRole("button", { name: "Vérifier et préparer" }).click();
+  expect(writes).toEqual([]);
   await fillMessage(page);
+  await expect(
+    page.frameLocator(".email-preview").locator("body"),
+  ).toContainText("Bonjour <Camille>");
   await page.getByRole("button", { name: "Vérifier et préparer" }).click();
   await expect(
     page.getByRole("heading", { name: "Le bon à envoyer." }),
@@ -346,48 +519,390 @@ test("email without attachment needs one message and escapes its automatic HTML"
   expect(writes[0]?.body).toMatchObject({
     channel: "email",
     text: "Bonjour <Camille>,\nVoici votre document.",
-    html: "<p>Bonjour &lt;Camille&gt;,<br>Voici votre document.</p>",
   });
+  expect(writes[0]?.body).not.toHaveProperty("html");
   expect(writes[0]?.body).not.toHaveProperty("documentId");
   expect(writes[0]?.body).not.toHaveProperty("options");
 });
 
-test("PDF protection is optional, priced before preparation and binds its selected duration", async ({
+for (const accountDelivery of [false, true]) {
+  test(`document email omits default content for ${accountDelivery ? "My documents" : "attachment"}`, async ({
+    page,
+  }) => {
+    const writes = await fixture(page);
+    await page.goto("/#/app/prepare?channel=email");
+    await page
+      .getByLabel("Pièce jointe PDF (facultative)")
+      .selectOption(sampleDocument.id);
+    if (!accountDelivery)
+      await page
+        .getByLabel("Accès au document", { exact: true })
+        .selectOption("attachment");
+    await expect(
+      page.getByLabel("Objet (facultatif)", { exact: true }),
+    ).not.toHaveAttribute("required", "");
+    await expect(
+      page.getByLabel("Message (facultatif)", { exact: true }),
+    ).not.toHaveAttribute("required", "");
+    await page
+      .getByLabel("Adresse e-mail", { exact: true })
+      .fill("recipient@example.invalid");
+    await page.getByRole("button", { name: "Vérifier et préparer" }).click();
+    await expect(
+      page.getByRole("heading", {
+        name: accountDelivery ? sampleDocument.name : "Le bon à envoyer.",
+      }),
+    ).toBeVisible();
+    expect(writes[0]?.body.documentId).toBe(sampleDocument.id);
+    for (const key of ["subject", "text", "html"])
+      expect(writes[0]?.body).not.toHaveProperty(key);
+    if (accountDelivery) {
+      expect(writes[0]?.path).toBe("/api/secure-distributions");
+      expect(writes[0]?.body).toMatchObject({
+        retentionDays: 7,
+        recipientBinding: "verified_email",
+      });
+    } else
+      expect(writes[0]?.body.options).toEqual({
+        emailDeliveryMode: "attachment",
+      });
+    await expect(
+      page.frameLocator(".email-preview").locator("body"),
+    ).toContainText("Votre document demandé.");
+    await expect(
+      page.getByRole("checkbox", {
+        name: accountDelivery
+          ? /J’ai vérifié le document/
+          : /J’ai vérifié le contenu/,
+      }),
+    ).not.toBeChecked();
+  });
+}
+
+for (const locale of ["fr", "en", "de", "lb"] as const) {
+  test(`${locale} document content controls are optional and restore requirements without a PDF`, async ({
+    page,
+  }) => {
+    const writes = await fixture(page, { preferredLocale: locale });
+    await page.goto(`/?lang=${locale}#/app/prepare?channel=email`);
+    const attachment = page.locator(".prepare-fields > .field select").first();
+    await attachment.selectOption(sampleDocument.id);
+    const subjectLabel = {
+      fr: "Objet (facultatif)",
+      en: "Subject (optional)",
+      de: "Betreff (optional)",
+      lb: "Betreff (optional)",
+    }[locale];
+    const messageLabel = {
+      fr: "Message (facultatif)",
+      en: "Message (optional)",
+      de: "Nachricht (optional)",
+      lb: "Message (optional)",
+    }[locale];
+    await expect(page.getByLabel(subjectLabel, { exact: true })).toBeVisible();
+    await expect(
+      page.getByLabel(messageLabel, { exact: true }),
+    ).not.toHaveAttribute("required", "");
+    await page.locator(".email-advanced summary").click();
+
+    await expect(page.locator(".email-document-link")).toContainText(
+      "{{document_url}}",
+    );
+    await attachment.selectOption("");
+    await expect(page.locator(".email-document-link")).toHaveCount(0);
+    await expect(
+      page.locator(".prepare-fields input[maxlength='200']"),
+    ).toHaveAttribute("required", "");
+    await expect(
+      page.locator(".prepare-fields textarea:not(.code-input)"),
+    ).toHaveAttribute("required", "");
+    expect(writes).toEqual([]);
+  });
+}
+
+test.describe("unsaved account language", () => {
+  test.use({ locale: "en-GB" });
+  for (const composer of ["email", "secure-share"] as const) {
+    test(`${composer} draft and generated button follow the French fallback without changing the English UI`, async ({
+      page,
+    }, testInfo) => {
+      const writes = await fixture(page);
+      await page.goto(
+        `/?lang=en#${composer === "email" ? "/app/prepare?channel=email" : "/app/secure-distributions/new"}`,
+      );
+      await expect(page.locator("html")).toHaveAttribute("lang", "en");
+      const documentSelect = page.getByLabel(
+        composer === "email" ? "PDF attachment (optional)" : "Verified PDF",
+        { exact: true },
+      );
+      await expect(documentSelect).toBeVisible();
+      const firstVisibleComposerMs = await page.evaluate(() =>
+        performance.now(),
+      );
+      await documentSelect.selectOption(sampleDocument.id);
+      await expect(
+        page.getByLabel("Subject (optional)", { exact: true }),
+      ).toBeVisible();
+      await expect(
+        page.frameLocator(".email-preview").locator("body"),
+      ).toContainText(
+        "Atelier de contrôle vous a adressé un document dans Guteneo.",
+      );
+      await page.locator(".email-advanced summary").click();
+      if (composer === "email")
+        await page
+          .getByLabel("HTML version", { exact: true })
+          .fill(`<blockquote>« ${sampleDocument.name} »</blockquote>`);
+      await page
+        .getByRole("button", { name: "Insert a document button", exact: true })
+        .click();
+      const customHtml = await page
+        .getByLabel("HTML version", { exact: true })
+        .inputValue();
+      expect(customHtml).toContain(">Ouvrir dans Mes documents</a>");
+      expect(customHtml).toContain('href="{{document_url}}"');
+      expect(customHtml).not.toContain("Open in My documents");
+      await expect(
+        page.frameLocator(".email-preview").getByRole("link", {
+          name: "Ouvrir dans Mes documents",
+          exact: true,
+        }),
+      ).toHaveAttribute("href", "#");
+      await expect(page.locator("html")).toHaveAttribute("lang", "en");
+      if (composer === "email") {
+        await expect(
+          page.frameLocator(".email-preview").locator("blockquote"),
+        ).toHaveText(`« ${sampleDocument.name} »`);
+        const metrics = await page.evaluate(async () => {
+          await document.fonts.ready;
+          const resources = performance.getEntriesByType(
+            "resource",
+          ) as PerformanceResourceTiming[];
+          return {
+            resourceCount: resources.length,
+            transferredBytes: resources.reduce(
+              (sum, entry) => sum + entry.transferSize,
+              0,
+            ),
+            javascriptTransferredBytes: resources
+              .filter((entry) => new URL(entry.name).pathname.endsWith(".js"))
+              .reduce((sum, entry) => sum + entry.transferSize, 0),
+            firstContentfulPaintMs:
+              performance.getEntriesByName("first-contentful-paint")[0]
+                ?.startTime ?? null,
+          };
+        });
+        await testInfo.attach("localized-account-email-performance", {
+          body: JSON.stringify({ ...metrics, firstVisibleComposerMs }, null, 2),
+          contentType: "application/json",
+        });
+        const screenshot = testInfo.outputPath("localized-account-button.png");
+        await page.screenshot({ path: screenshot, fullPage: true });
+        await testInfo.attach("localized-account-button", {
+          path: screenshot,
+          contentType: "image/png",
+        });
+      }
+      await page
+        .getByLabel(
+          composer === "email" ? "Email address" : "Recipient email address",
+          { exact: true },
+        )
+        .fill("recipient@example.invalid");
+      await page
+        .getByRole("button", {
+          name:
+            composer === "email"
+              ? "Check and prepare"
+              : "Prepare and review share",
+          exact: true,
+        })
+        .click();
+      await expect(
+        page.getByRole("heading", { name: sampleDocument.name }),
+      ).toBeVisible();
+      expect(writes[0]?.path).toBe("/api/secure-distributions");
+      expect(writes[0]?.body).toMatchObject({
+        html: customHtml,
+        notificationLocale: "fr",
+      });
+    });
+  }
+});
+
+test("the draft quotes an initial document outside the first list page", async ({
   page,
-}, testInfo) => {
+}) => {
+  const writes = await fixture(page, {
+    omitDocumentFromList: true,
+    preferredLocale: "fr",
+  });
+  await page.goto(
+    `/?lang=fr#/app/prepare?channel=email&document=${sampleDocument.id}`,
+  );
+  await expect(
+    page.getByLabel("Pièce jointe PDF (facultative)", { exact: true }),
+  ).toHaveValue(sampleDocument.id);
+  await expect(
+    page.frameLocator(".email-preview").locator("blockquote"),
+  ).toHaveText(`« ${sampleDocument.name} »`);
+  expect(writes).toEqual([]);
+});
+
+test("account custom HTML inserts an editable styled button and preserves its submitted markup", async ({
+  page,
+}) => {
   const writes = await fixture(page);
   await page.goto("/#/app/prepare?channel=email");
   await page
     .getByLabel("Pièce jointe PDF (facultative)")
     .selectOption(sampleDocument.id);
-  const protection = page.getByRole("checkbox", {
-    name: /Envoyer un lien protégé/,
-  });
-  await expect(protection).not.toBeChecked();
-  await expect(page.getByText(/1 € par document hébergé/)).toBeVisible();
-  await protection.check();
-  await expect(page.getByLabel("Expiration du lien")).toHaveValue("7");
-  await page.getByLabel("Expiration du lien").selectOption("30");
+  await page
+    .getByLabel("Message (facultatif)", { exact: true })
+    .fill("Plain-text alternative only.");
+  await page.locator(".email-advanced summary").click();
+  await page
+    .getByLabel("Version HTML", { exact: true })
+    .fill('<h2 style="color: #2450db;">Votre document</h2>');
+  await page
+    .getByRole("button", { name: "Insérer un bouton vers le document" })
+    .click();
+  const html = await page
+    .getByLabel("Version HTML", { exact: true })
+    .inputValue();
+  expect(html).toContain('href="{{document_url}}"');
+  expect(html).toMatch(/background-color:\s*#2450db/);
+  expect(html).toContain('<h2 style="color: #2450db;">Votre document</h2>');
+  expect(html).not.toContain("Plain-text alternative only.");
   await expect(
-    page.getByText(/ce n’est pas un chiffrement de bout en bout/),
+    page
+      .frameLocator(".email-preview")
+      .getByRole("link", { name: "Ouvrir dans Mes documents" }),
+  ).toHaveAttribute("href", "#");
+  await expect(page.getByLabel("Version HTML", { exact: true })).toBeFocused();
+  await expect(
+    page.getByRole("button", { name: "Insérer un bouton vers le document" }),
+  ).toBeDisabled();
+  await page
+    .getByLabel("Adresse e-mail", { exact: true })
+    .fill("recipient@example.invalid");
+  await page.getByRole("button", { name: "Vérifier et préparer" }).click();
+  await expect(
+    page.getByRole("heading", { name: sampleDocument.name }),
   ).toBeVisible();
+  expect(writes[0]?.body.html).toBe(html);
+  expect(writes[0]?.body).not.toHaveProperty("subject");
+  expect(writes[0]?.body.message).toBe("Plain-text alternative only.");
+});
+
+test("inserting the first document button preserves the written message in HTML", async ({
+  page,
+}) => {
+  const writes = await fixture(page);
+  const text = "Bonjour <Camille>,\nVotre document & ses pièces.";
+  await page.goto("/#/app/prepare?channel=email");
+  await page
+    .getByLabel("Pièce jointe PDF (facultative)")
+    .selectOption(sampleDocument.id);
+  await page.getByLabel("Message (facultatif)", { exact: true }).fill(text);
+  await page.locator(".email-advanced summary").click();
+  await expect(page.getByLabel("Version HTML", { exact: true })).toHaveValue(
+    "",
+  );
+  await page
+    .getByRole("button", { name: "Insérer un bouton vers le document" })
+    .click();
+  const html = await page
+    .getByLabel("Version HTML", { exact: true })
+    .inputValue();
+  expect(html).toContain(
+    "<p>Bonjour &lt;Camille&gt;,<br>Votre document &amp; ses pièces.</p>",
+  );
+  expect(html).toContain('href="{{document_url}}"');
+  await expect(
+    page.frameLocator(".email-preview").locator("body"),
+  ).toContainText("Bonjour <Camille>,");
+  await expect(
+    page.frameLocator(".email-preview").locator("body"),
+  ).toContainText("Votre document & ses pièces.");
+  await expect(
+    page
+      .frameLocator(".email-preview")
+      .getByRole("link", { name: "Ouvrir dans Mes documents" }),
+  ).toHaveCount(1);
+  await page
+    .getByLabel("Adresse e-mail", { exact: true })
+    .fill("recipient@example.invalid");
+  await page.getByRole("button", { name: "Vérifier et préparer" }).click();
+  await expect(
+    page.getByRole("heading", { name: sampleDocument.name }),
+  ).toBeVisible();
+  expect(writes[0]?.body).toMatchObject({ message: text, html });
+});
+
+test("account delivery is the default and binds its priced access period", async ({
+  page,
+}, testInfo) => {
+  const writes = await fixture(page);
+  await page.goto("/#/app/prepare?channel=email");
+  await expect(page.getByLabel("Pièce jointe PDF (facultative)")).toBeVisible();
+  const firstUsefulContentMs = await page.evaluate(() => performance.now());
+  await page
+    .getByLabel("Pièce jointe PDF (facultative)")
+    .selectOption(sampleDocument.id);
+  await expect(
+    page.getByLabel("Accès au document", { exact: true }),
+  ).toHaveValue("my_documents");
+  await expect(page.getByLabel("Durée d’accès")).toHaveValue("7");
+  await page.getByLabel("Durée d’accès").selectOption("30");
+  await expect(
+    page.getByText(/Aucun mot de passe de document à transmettre/),
+  ).toBeVisible();
+  const metrics = await page.evaluate(async () => {
+    await document.fonts.ready;
+    const resources = performance.getEntriesByType(
+      "resource",
+    ) as PerformanceResourceTiming[];
+    return {
+      resources: resources.length,
+      transferredBytes: resources.reduce(
+        (sum, entry) => sum + entry.transferSize,
+        0,
+      ),
+      javascriptTransferredBytes: resources
+        .filter((entry) => new URL(entry.name).pathname.endsWith(".js"))
+        .reduce((sum, entry) => sum + entry.transferSize, 0),
+      firstContentfulPaintMs:
+        performance.getEntriesByName("first-contentful-paint")[0]?.startTime ??
+        null,
+      apiRequests: resources
+        .filter((entry) => new URL(entry.name).pathname.startsWith("/api/"))
+        .map((entry) => new URL(entry.name).pathname),
+      pdfViewerLoaded: resources.some((entry) =>
+        /pdf-viewer.*\.js/.test(entry.name),
+      ),
+    };
+  });
+  await testInfo.attach("preparation-performance", {
+    body: JSON.stringify({ ...metrics, firstUsefulContentMs }, null, 2),
+    contentType: "application/json",
+  });
   await fillMessage(page);
   await page.screenshot({
-    path: testInfo.outputPath("protected-email-preparation.png"),
+    path: testInfo.outputPath("account-email-preparation.png"),
     fullPage: true,
   });
   await page.getByRole("button", { name: "Vérifier et préparer" }).click();
   await expect(
-    page.getByRole("heading", { name: "Le bon à envoyer." }),
+    page.getByRole("heading", { name: sampleDocument.name }),
   ).toBeVisible();
+  expect(writes[0]?.path).toBe("/api/secure-distributions");
   expect(writes[0]?.body).toMatchObject({
     documentId: sampleDocument.id,
-    options: { emailDeliveryMode: "protected_link", protectedDays: 30 },
+    retentionDays: 30,
+    recipientBinding: "verified_email",
+    allowOriginalDownload: true,
   });
-  await expect(page.locator(".protected-document-summary")).toContainText(
-    "1,00",
-  );
-  await expect(page.getByText("1,00156 €", { exact: true })).toBeVisible();
 });
 
 test("custom HTML remains optional and uses the message as its accessible text version", async ({
@@ -467,6 +982,9 @@ test("inline PDF import stays in the email workflow and waits for verification",
   await expect(page.getByLabel("Pièce jointe PDF (facultative)")).toHaveValue(
     sampleDocument.id,
   );
+  await expect(
+    page.frameLocator(".email-preview").locator("blockquote"),
+  ).toHaveText(`« ${sampleDocument.name} »`);
   await expect(page).toHaveURL(/#\/app\/prepare\?channel=email$/);
 });
 
@@ -624,5 +1142,52 @@ for (const mode of ["message", "attachment", "protected_link"] as const) {
       { action: "confirm", key: "web-confirm:dispatch_protected_ui" },
       { action: "confirm", key: "web-confirm:dispatch_protected_ui" },
     ]);
+  });
+}
+
+for (const locale of ["fr", "en", "de", "lb"] as const) {
+  test(`V2 account email renders without remote resources or overflow in ${locale}`, async ({
+    page,
+    isMobile,
+  }, testInfo) => {
+    if (isMobile) await page.setViewportSize({ width: 320, height: 812 });
+    const workspaceName = "Atelier de contrôle";
+    const url = `https://guteneo.example/?lang=${locale}#/app/my-documents?invitation=synthetic`;
+    const html = cleanEmailHtml(
+      renderTransactionalEmail({
+        text: documentEmailDefaults(workspaceName, "my_documents", locale).text,
+        workspaceName,
+        locale,
+        accountDocument: { url, retentionDays: 7 },
+        documentTitle: "Attestation — Atelier de contrôle.pdf",
+        preferencesUrl:
+          "https://guteneo.example/?lang=fr#/email-preferences?token=synthetic",
+      }),
+    ).html;
+    const requests: string[] = [];
+    page.on("request", (request) => requests.push(request.url()));
+    await page.setContent(
+      `<!doctype html><html lang="${locale}"><meta name="viewport" content="width=device-width,initial-scale=1"><body style="margin:0;background:#f6f5ef">${html}</body></html>`,
+    );
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+    await expect(page.getByRole("link")).toHaveCount(3);
+    await expect(page.locator('a[href*="/app/my-documents"]')).toHaveAttribute(
+      "href",
+      url,
+    );
+    await expect(page.locator("blockquote")).toContainText(
+      "Attestation — Atelier de contrôle.pdf",
+    );
+    expect(requests).toEqual([]);
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth,
+      ),
+    ).toBe(true);
+    if (locale === "fr")
+      await page.screenshot({
+        path: testInfo.outputPath("account-email-v2.png"),
+        fullPage: true,
+      });
   });
 }

@@ -28,14 +28,14 @@ function boundedXml(bytes: Uint8Array): string {
     if (++nodes > 30_000)
       throw new TemplateError(
         "DOCX_XML_LIMIT",
-        "Le document Word dépasse la complexité autorisée.",
+        "The Word document exceeds allowed complexity.",
       );
     if (/^<\//.test(token[0])) depth--;
     else if (!/^<[!?]/.test(token[0]) && !/\/>$/.test(token[0])) depth++;
     if (depth > 64 || depth < 0)
       throw new TemplateError(
         "DOCX_XML_LIMIT",
-        "La structure Word dépasse la profondeur autorisée.",
+        "The Word structure exceeds allowed depth.",
       );
   }
   return xml;
@@ -81,7 +81,7 @@ export async function importDocxTemplate(
   if (!name.toLowerCase().endsWith(".docx"))
     throw new TemplateError(
       "DOCX_FORMAT_REQUIRED",
-      "Utilisez un fichier .docx. Les anciens fichiers .doc et les macros .docm ne sont pas pris en charge.",
+      "Use a .docx file. Legacy .doc files and .docm macros are unsupported.",
     );
   const files = unzipBounded(bytes, {
     sourceBytes: 5 * 1024 * 1024,
@@ -92,7 +92,7 @@ export async function importDocxTemplate(
   if (!files["[Content_Types].xml"] || !files["word/document.xml"])
     throw new TemplateError(
       "DOCX_INVALID",
-      "Le fichier n’est pas un document Word DOCX reconnu.",
+      "The file is not a recognised Word DOCX document.",
     );
   const contentTypes = boundedXml(files["[Content_Types].xml"]);
   if (
@@ -100,7 +100,7 @@ export async function importDocxTemplate(
       "application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml",
     )
   )
-    throw new TemplateError("DOCX_INVALID", "Type principal DOCX invalide.");
+    throw new TemplateError("DOCX_INVALID", "Invalid DOCX main content type.");
   for (const [entry, content] of Object.entries(files)) {
     if (
       /vbaProject|embeddings\/|activeX\//i.test(entry) ||
@@ -108,12 +108,12 @@ export async function importDocxTemplate(
     )
       throw new TemplateError(
         "DOCX_ACTIVE_CONTENT",
-        "Retirez les macros, objets incorporés et contrôles actifs avant l’import.",
+        "Remove macros, embedded objects and active controls before import.",
       );
     if (entry.endsWith(".rels")) {
       const relationships = boundedXml(content);
       if (XMLValidator.validate(relationships) !== true)
-        throw new TemplateError("DOCX_INVALID", "Relations Word invalides.");
+        throw new TemplateError("DOCX_INVALID", "Invalid Word relationships.");
       if (
         hasExternalRelationship(
           new XMLParser({
@@ -124,7 +124,7 @@ export async function importDocxTemplate(
       )
         throw new TemplateError(
           "DOCX_EXTERNAL_RELATIONSHIP",
-          "Retirez les liens ou ressources externes du document avant l’import.",
+          "Remove external links/resources before import.",
         );
     }
   }
@@ -135,7 +135,7 @@ export async function importDocxTemplate(
   )
     throw new TemplateError(
       "DOCX_ACTIVE_CONTENT",
-      "Les champs automatiques et contenus incorporés ne sont pas importables.",
+      "Automatic fields and embedded content cannot be imported.",
     );
   const parsed = new XMLParser({
     preserveOrder: true,
@@ -147,25 +147,25 @@ export async function importDocxTemplate(
   }).parse(xml) as XmlNode[];
   const body = childNodes(childNodes(parsed, "document")[0] ?? [], "body")[0];
   if (!body)
-    throw new TemplateError("DOCX_INVALID", "Corps du document absent.");
+    throw new TemplateError("DOCX_INVALID", "Document body is missing.");
   const envelope = blankTemplate();
   envelope.name =
-    name.replace(/\.docx$/i, "").slice(0, 160) || "Document Word importé";
+    name.replace(/\.docx$/i, "").slice(0, 160) || "Imported Word document";
   envelope.description =
-    "Contenu Word importé dans un modèle éditable. Vérifiez la mise en page et les variables avant publication.";
+    "Word content imported into an editable template. Check layout/variables before publication.";
   envelope.definition.basePdf.staticSchema = [];
   const warnings: DocxImportResult["warnings"] = [
     {
       code: "DOCX_LAYOUT_REVIEW",
       message:
-        "Paragraphes et tableaux importés comme blocs éditables. Styles Word, sauts de page, images, en-têtes, pieds de page, notes et champs automatiques ne sont pas reproduits. Vérifiez le PDF final avant publication.",
+        "Paragraphs/tables imported as editable blocks. Word styles, page breaks, images, headers, footers, notes and automatic fields are not reproduced. Check the final PDF before publication.",
     },
   ];
   if (/<(?:\w+:)?(?:drawing|pict)\b/i.test(xml))
     warnings.push({
       code: "DOCX_IMAGES_OMITTED",
       message:
-        "Les images Word n’ont pas été importées ; ajoutez un logo PNG/JPEG dans le studio.",
+        "Word images were not imported; add a PNG/JPEG logo in the studio.",
     });
   let y = 25,
     paragraphs = 0,
@@ -175,7 +175,7 @@ export async function importDocxTemplate(
     if (envelope.definition.schemas.flat().length >= 90)
       throw new TemplateError(
         "DOCX_BLOCK_LIMIT",
-        "Le document dépasse 90 blocs. Scindez-le avant l’import.",
+        "The document exceeds 90 blocks. Split it before import.",
       );
     if (y + block.height > 272) {
       envelope.definition.schemas.push([]);
@@ -193,7 +193,7 @@ export async function importDocxTemplate(
       if (characters > 50_000 || text.length > 10_000)
         throw new TemplateError(
           "DOCX_TEXT_LIMIT",
-          "Le document dépasse les limites de texte importable.",
+          "The document exceeds importable text limits.",
         );
       const block = textBlock(
         `paragraph_${++paragraphs}`,
@@ -207,7 +207,7 @@ export async function importDocxTemplate(
       // preserves their text while leaving the block editable in the studio.
       if (text.includes("{")) {
         const field = `paragraph_${paragraphs}`;
-        block.content = "Texte importé";
+        block.content = "Imported text";
         block.readOnly = false;
         envelope.inputSchema.properties![field] = {
           type: "string",
@@ -229,7 +229,7 @@ export async function importDocxTemplate(
       if (/"(?:gridSpan|vMerge|hMerge)"\s*:/.test(JSON.stringify(node.tbl)))
         throw new TemplateError(
           "DOCX_TABLE_STRUCTURE",
-          "Les cellules fusionnées Word doivent être séparées avant l’import.",
+          "Split merged Word cells before import.",
         );
       const rows = childNodes(children(node.tbl), "tr").map((row) =>
         childNodes(row, "tc").map((cell) =>
@@ -247,26 +247,26 @@ export async function importDocxTemplate(
       )
         throw new TemplateError(
           "DOCX_TABLE_STRUCTURE",
-          "Tableau trop volumineux ou cellules fusionnées irrégulières. Simplifiez le tableau avant l’import.",
+          "The table is too large or has irregular merged cells. Simplify it before import.",
         );
       characters += rows.flat().reduce((sum, cell) => sum + cell.length, 0);
       if (characters > 50_000 || rows.flat().some((cell) => cell.length > 2000))
-        throw new TemplateError("DOCX_TEXT_LIMIT", "Tableau trop volumineux.");
+        throw new TemplateError("DOCX_TEXT_LIMIT", "Table is too large.");
       if (rows.flat().some((cell) => cell.includes("{")))
         throw new TemplateError(
           "DOCX_TABLE_VARIABLES",
-          "Remplacez les accolades dans le tableau Word ; configurez les colonnes variables dans le studio.",
+          "Replace braces in the Word table; configure variable columns in the studio.",
         );
       const block = tableBlock(`table_${++tables}`, rows[0], y);
       block.content = JSON.stringify(rows.slice(1));
       block.readOnly = true;
       if (rows[0].some((cell) => cell.length > 100)) {
-        block.head = rows[0].map((_cell, index) => `Colonne ${index + 1}`);
+        block.head = rows[0].map((_cell, index) => `Column ${index + 1}`);
         block.content = JSON.stringify(rows);
         warnings.push({
           code: "DOCX_TABLE_HEADER",
           message:
-            "Un tableau contient une première ligne longue ; des noms de colonnes neutres ont été ajoutés et toutes les lignes conservées.",
+            "A table has a long first row; neutral column names were added and all rows retained.",
         });
       }
       add(block);
@@ -275,7 +275,7 @@ export async function importDocxTemplate(
   if (!paragraphs && !tables)
     throw new TemplateError(
       "DOCX_EMPTY",
-      "Aucun paragraphe ou tableau importable n’a été trouvé.",
+      "No importable paragraph/table found.",
     );
   const sourceSha256 = Array.from(
     new Uint8Array(

@@ -4,7 +4,7 @@ enum Channel: String, Codable, CaseIterable, Identifiable, Sendable {
     case fax, email, postal
     var id: String { rawValue }
     var title: String {
-        switch self { case .fax: "Fax"; case .email: "E-mail"; case .postal: "Courrier" }
+        switch self { case .fax: "Fax"; case .email: "Email"; case .postal: "Post" }
     }
     var symbol: String {
         switch self { case .fax: "printer"; case .email: "envelope"; case .postal: "envelope.badge.shield.half.filled" }
@@ -24,11 +24,11 @@ struct MobileSession: Codable, Sendable {
     var canApprove: Bool { permissions?.approveDispatches ?? (user.role == "admin") }
     var roleTitle: String {
         switch user.role {
-        case "admin": "Administrateur"
-        case "supervisor": "Superviseur"
-        case "member": "Opérateur"
-        case "viewer": "Observateur"
-        default: "Accès indisponible"
+        case "admin": "Administrator"
+        case "supervisor": "Supervisor"
+        case "member": "Operator"
+        case "viewer": "Observer"
+        default: "Access unavailable"
         }
     }
     let organization: Organization
@@ -83,25 +83,25 @@ struct DocumentAnalysis: Codable, Sendable {
     // Local, reviewed copy keeps recovery distinct from an infection verdict.
     var safeTitle: String {
         switch state {
-        case "ready": "PDF prêt"
-        case "processing": "Vérification en cours"
-        case "retryable": "Vérification à reprendre"
-        default: "PDF indisponible"
+        case "ready": "PDF ready"
+        case "processing": "Verification in progress"
+        case "retryable": "Verification needs retrying"
+        default: "PDF unavailable"
         }
     }
     var safeMessage: String {
         switch code {
-        case "security_rejected": return "Le contrôle de sécurité a refusé ce PDF. Vérifiez le fichier d’origine ou choisissez un autre PDF."
-        case "pdf_rejected": return "Vérifiez que le PDF s’ouvre correctement et n’est pas protégé par un mot de passe."
-        case "service_not_configured", "signatures_stale": return "Votre PDF est conservé. Le service de vérification est indisponible ; contactez l’assistance."
-        case "access_revoked": return "Vos droits ont changé. Un administrateur de votre organisation peut reprendre la vérification."
+        case "security_rejected": return "The security check rejected this PDF. Check the original file or choose another PDF."
+        case "pdf_rejected": return "Check that the PDF opens correctly and is not password protected."
+        case "service_not_configured", "signatures_stale": return "Your PDF is preserved. The verification service is unavailable; contact support."
+        case "access_revoked": return "Your permissions have changed. An administrator of your organisation can restart verification."
         default: break
         }
         switch state {
-        case "ready": return "Votre PDF a été vérifié. Vous pouvez préparer votre envoi."
-        case "processing": return "Votre PDF est enregistré. Sa vérification peut prendre quelques minutes. Aucun nouveau dépôt n’est nécessaire."
-        case "retryable": return "Votre PDF est conservé. Relancez sa vérification sans le déposer à nouveau."
-        default: return "La vérification ne peut pas être terminée. Choisissez un autre PDF ou contactez l’assistance."
+        case "ready": return "Your PDF has been verified. You can prepare your dispatch."
+        case "processing": return "Your PDF is saved. Verification may take a few minutes. You do not need to upload it again."
+        case "retryable": return "Your PDF is preserved. Restart verification without uploading it again."
+        default: return "Verification cannot be completed. Choose another PDF or contact support."
         }
     }
 }
@@ -123,10 +123,10 @@ struct DocumentRecord: Codable, Identifiable, Sendable {
     var isReady: Bool { status == "ready" && (analysis == nil || analysis?.state == "ready") }
     var canRescan: Bool { analysis?.nextAction == "rescan" }
     var statusTitle: String {
-        if isReady { return "Prêt" }
-        if analysis?.state == "processing" { return "Vérification en cours" }
-        if canRescan { return "À vérifier" }
-        return "Indisponible"
+        if isReady { return "Ready" }
+        if analysis?.state == "processing" { return "Verification in progress" }
+        if canRescan { return "Needs verification" }
+        return "Unavailable"
     }
 }
 
@@ -187,23 +187,23 @@ struct DispatchRecord: Codable, Identifiable, Sendable {
         recipient["email"] ?? recipient["phone"] ?? [recipient["name"], recipient["city"], recipient["country"]].compactMap { $0 }.joined(separator: ", ")
     }
     var statusTitle: String {
-        if isReviewPreparation { return "Préparation de référence" }
-        if status == "prepared", faxPricing?.executionScope != nil { return "À consulter" }
+        if isReviewPreparation { return "Reference preparation" }
+        if status == "prepared", faxPricing?.executionScope != nil { return "Available to view" }
         return switch status {
-        case "draft", "prepared", "quoted", "pending_approval", "awaiting_approval": "À valider"
-        case "approved": "Validé"
-        case "queued": "En attente"
-        case "accepted": "Pris en charge"
-        case "sending", "submitted", "submitting", "processing": "En cours"
-        case "delivered": "Distribué"
-        case "failed", "rejected", "bounced": "Échec"
-        case "complained": "Signalé par le destinataire"
-        case "printed": "Imprimé"
-        case "handed_to_post": "Remis à la poste"
-        case "cancelled", "canceled": "Annulé"
-        case "expired": "Devis expiré"
-        case "unknown", "submission_unknown": "Résultat à confirmer"
-        default: "Suivi en cours"
+        case "draft", "prepared", "quoted", "pending_approval", "awaiting_approval": "Awaiting approval"
+        case "approved": "Approved"
+        case "queued": "Queued"
+        case "accepted": "Accepted by provider"
+        case "sending", "submitted", "submitting", "processing": "In progress"
+        case "delivered": "Delivered"
+        case "failed", "rejected", "bounced": "Failed"
+        case "complained": "Reported by recipient"
+        case "printed": "Printed"
+        case "handed_to_post": "Handed to the post"
+        case "cancelled", "canceled": "Cancelled"
+        case "expired": "Quote expired"
+        case "unknown", "submission_unknown": "Outcome unconfirmed"
+        default: "Tracking in progress"
         }
     }
     var isReviewPreparation: Bool { faxPricing?.executionScope == "review_prepare_only" }
@@ -248,20 +248,20 @@ struct EventRecord: Decodable, Identifiable, Sendable {
     }
     var title: String {
         switch status ?? eventType ?? type ?? "" {
-        case "delivered", "dispatch.delivered": "Envoi distribué"
-        case "failed", "dispatch.failed": "Échec de l’envoi"
-        case "approved", "dispatch.approved": "Envoi validé"
-        case "cancelled", "dispatch.cancelled": "Envoi annulé"
-        case "queued", "dispatch.queued": "Envoi en attente"
-        case "prepared", "dispatch.prepared": "Envoi préparé"
-        case "accepted", "dispatch.accepted": "Pris en charge par le fournisseur"
-        case "submitting", "dispatch.submitting": "Transmission en cours"
-        case "submission_unknown", "dispatch.submission_unknown": "Résultat à confirmer"
-        case "bounced", "dispatch.bounced": "Envoi non distribué"
-        case "complained", "dispatch.complained": "Réclamation reçue"
-        case "printed", "dispatch.printed": "Courrier imprimé"
-        case "handed_to_post", "dispatch.handed_to_post": "Courrier remis à la poste"
-        default: "Suivi mis à jour"
+        case "delivered", "dispatch.delivered": "Dispatch delivered"
+        case "failed", "dispatch.failed": "Dispatch failed"
+        case "approved", "dispatch.approved": "Dispatch approved"
+        case "cancelled", "dispatch.cancelled": "Dispatch cancelled"
+        case "queued", "dispatch.queued": "Dispatch queued"
+        case "prepared", "dispatch.prepared": "Dispatch prepared"
+        case "accepted", "dispatch.accepted": "Accepted by the provider"
+        case "submitting", "dispatch.submitting": "Transmission in progress"
+        case "submission_unknown", "dispatch.submission_unknown": "Outcome unconfirmed"
+        case "bounced", "dispatch.bounced": "Dispatch not delivered"
+        case "complained", "dispatch.complained": "Complaint received"
+        case "printed", "dispatch.printed": "Letter printed"
+        case "handed_to_post", "dispatch.handed_to_post": "Letter handed to the post"
+        default: "Tracking updated"
         }
     }
 }
@@ -336,7 +336,7 @@ enum GuteneoDate {
         return formatter.date(from: full)
     }
     static func label(_ value: String, locale: Locale = Locale(identifier: "fr_FR")) -> String {
-        guard let date = parse(value) else { return L10n.text("Date indisponible", locale: locale) }
+        guard let date = parse(value) else { return L10n.text("Date unavailable", locale: locale) }
         return date.formatted(.dateTime.day().month(.abbreviated).year().hour().minute().locale(locale))
     }
 }

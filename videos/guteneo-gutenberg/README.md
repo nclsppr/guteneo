@@ -1,124 +1,75 @@
-# Gutenberg à travers les âges — dossier de reprise
+# Gutenberg through the ages — recovery dossier
 
-Archive du travail réalisé le **3 octobre 2026**, accompagnée des décisions et de
-la dernière proposition de mise en scène. Ce projet est distinct des films
-d'accueil déjà publiés dans `../guteneo-film/`.
+Archive of **3 October 2026** work, decisions and latest scene proposal, separate
+from the published [homepage/roles films](../guteneo-film/README.md).
+**The complete film is unfinished. Paid generation stays paused until a revised
+total budget and ceiling are approved.** Historical authority covered Git archival/
+main integration, never restarting old Seedance nodes. No archived media joins the
+public catalog.
 
-**Le film complet n'est pas terminé. Les générations payantes restent suspendues
-jusqu'à validation d'un nouveau budget total et de son plafond.** L'autorisation
-actuelle couvre l'archivage dans Git et son intégration à `main` ; elle ne relance
-pas les anciens nœuds Seedance. Aucun média de cette archive n'est ajouté au
-catalogue public du site.
+## Start here
 
-## Commencer ici
+1. [Decisions/current state](DECISIONS_AND_STATUS.md).
+2. [Revised storyboard/prompts](STORYBOARD_AND_PROMPTS.md).
+3. [Technical handoff](TECHNICAL_HANDOFF.md): files/provider IDs/timing/commands/limits.
+4. [Verifiable inventory](inventory.json), [structured handoff](handoff.json), [archive audit](ARCHIVE_AUDIT.md).
 
-1. Lire [les décisions et l'état actuel](DECISIONS-ET-ETAT.md).
-2. Lire [le storyboard et les nouveaux prompts](STORYBOARD-ET-PROMPTS.md).
-3. Utiliser [le guide technique](REPRISE-TECHNIQUE.md) pour les fichiers, les
-   identifiants ElevenLabs, les durées, les commandes et les limites connues.
-4. Consulter [l'inventaire vérifiable](inventory.json) et
-   [l'état de reprise structuré](handoff.json).
+Seven new scenes are written proposals, with no new generated/approved images.
+Old archived prompts/storyboards/nodes do not supersede them. Open approved
+[character proposal2](archive/production/images/Pixar-proposition-2.png),
+[34-second preview excluding broken computer](archive/production/deliverables/Guteneo-apercu-court-sans-plan-ordinateur-34s.mp4)
+and [credit audit](archive/production/deliverables/cost-audit.json) first. Preview
+reuses old fax/web/Guteneo scenes rather than the seven proposed environments.
 
-La nouvelle proposition des sept scènes est documentée ici, mais ses images
-n'ont pas encore été générées ni validées. Les anciens storyboards, prompts et
-nœuds de génération conservés dans `archive/` ne remplacent pas cette proposition.
+## Layout and recovery
 
-## Les trois fichiers à ouvrir en premier
+`archive/production/` holds images/audio/video/sfx/product/finishing/deliverables,
+local editing scripts and historical state/final-production manifests.
+`archive/brand-reference/` holds official media, `archive/verification/` initial
+historical proof; `tools/` archives/verifies without generation.
 
-- [Gutenberg, proposition 2 validée](archive/production/images/Pixar-proposition-2.png).
-- [Dernier aperçu vertical de 34 secondes, sans l'ordinateur défectueux](archive/production/deliverables/Guteneo-apercu-court-sans-plan-ordinateur-34s.mp4).
-- [Audit des crédits](archive/production/deliverables/cost-audit.json).
-
-L'aperçu de 34 secondes réutilise les anciens plans fax, web et Guteneo. Il montre
-ce qui a pu être récupéré, pas les sept nouveaux environnements proposés.
-
-## Organisation
-
-| Chemin | Contenu |
-| --- | --- |
-| `archive/production/images/` | Références, propositions, images des scènes et provenance |
-| `archive/production/audio/` | Vocaux validés, pistes de référence et contrôles |
-| `archive/production/video/` | Essai Égypte, plans Seedance et corrections de synchronisation |
-| `archive/production/sfx/` | Bruitages ElevenLabs et leurs reçus |
-| `archive/production/product/` | Vraies captures du site et script de capture |
-| `archive/production/finishing/` | Mixages, éléments préparés et fins officielles |
-| `archive/production/deliverables/` | Extraits exportés, audit, ancien kit ZIP et contrôles |
-| `archive/brand-reference/` | Vidéos d'accueil officielles, timbre et sources publiques |
-| `archive/verification/` | Première production historique et ses contrôles |
-| `archive/production/*.py` | Scripts de montage locaux |
-| `archive/production/{state,final-production}.json` | États historiques, prompts, références et identifiants fournisseur |
-| `tools/` | Archivage et vérification sans génération |
-
-## Récupérer les médias
-
-Les médias sont conservés **dans Git**, sans réduction de qualité ni réencodage.
-Le projet ajoute environ **1,14 Go** au checkout. Un clone normal récupère les
-données ; aucun accès ElevenLabs ni Git LFS n'est nécessaire. Six fichiers
-historiques de plus de 16 Mio sont stockés en blocs binaires et se reconstituent
-localement avec la première commande ci-dessous. La proposition 2, tous les vocaux
-et l'aperçu actuel de 34 secondes sont directement accessibles à leur chemin.
-Installer Python 3.11 ou plus récent pour le vérificateur, puis depuis la racine
-du dépôt :
+Media stays **ordinary Git**, no quality reduction/reencoding, approximately
+**1.14 GB** checkout. No ElevenLabs/LFS access needed. Six historical files over
+16 MiB use8-MiB `media-parts/` chunks plus `large-media.json`; approved character/
+voices/34-second preview are directly accessible. Python3.11+:
 
 ```sh
 python3 videos/guteneo-gutenberg/tools/restore_large_media.py
 python3 videos/guteneo-gutenberg/tools/verify_archive.py
 ```
 
-L'inventaire contient les tailles et SHA-256 de chaque fichier source et de sa
-copie archivée. Le vérificateur détecte les fichiers absents ou incomplets.
+Inventory tracks source/archive sizes/hashes; verifier detects missing/incomplete
+files. LFS and HTTPS Git authentication failed while GitHub API writes worked;
+no LFS object transferred. Git API request limits required chunks. Restoration
+reconstructs exact original bytes without codecs/services, needs ~207 MB extra
+and leaves restored files ignored to prevent duplicates. Future LFS migration is separate.
 
-Git LFS avait été envisagé pour isoler les gros médias, mais son point d'accès
-a refusé l'authentification disponible dans l'environnement. Aucun objet LFS
-n'a été transféré. L'envoi Git HTTPS a également refusé l'authentification,
-alors que l'API GitHub autorisait bien les écritures. L'archive a donc été
-transférée avec l'API Git. Pour respecter sa limite de requête, les six plus gros
-fichiers sont découpés en blocs de 8 Mio sous `media-parts/`. Le manifeste
-`large-media.json` et le script de restauration vérifient leurs empreintes et
-reconstituent les originaux **octet pour octet**, sans codec ni service externe.
-La restauration demande environ 207 Mo supplémentaires. Les fichiers restaurés
-sont ignorés par Git pour éviter un ajout en double. Une éventuelle migration
-future vers LFS sera une opération distincte.
+## Fidelity and evidence boundary
 
-## Fidélité et limites de la sauvegarde
+All useful `/workspace/guteneo/` local files, including rejected attempts, were
+copied under archive. Only reproducible `.cache`/`__pycache__`/`.pyc` were omitted
+and inventoried. Media bytes stay exact. Signed-URL temporary parameters/oobCode
+were removed from text copies before public archival; generation IDs remain.
+Authorized account access can renew remote links; cleaned URLs promise no anonymous
+download. Local viewing/editing needs no authentication token.
 
-Tous les fichiers utiles présents dans `/workspace/guteneo/` sont copiés dans
-`archive/`, y compris les essais rejetés. Seuls les caches d'exécution
-reconstructibles (`*.cache`, `__pycache__`, `*.pyc`) sont exclus et recensés dans
-l'inventaire. Les médias conservent exactement leurs octets originaux.
+Historical absolute paths map to archive equivalents. Editing scripts resolve
+from their own location and regenerate concat lists. Copied product/capture.py
+output path was made script-relative and recorded in inventory; captured pixels
+were untouched. Archive is available local files/manifests, not full conversation
+history/every provider-only variation. Essential decisions/latest scenes are
+recorded here. First-message original image was not confidently identified;
+approved proposal2 is included.
 
-Les paramètres d'accès temporaires des URL signées et les codes de connexion
-`oobCode` sont retirés des copies textuelles avant publication dans ce dépôt
-public. Les identifiants de génération sont conservés ; utiliser le compte
-ElevenLabs autorisé pour renouveler un accès. Une URL nettoyée n'est pas une
-promesse de téléchargement anonyme. Aucun jeton d'authentification n'est requis
-pour lire ou monter les médias déjà archivés.
+`archive/` is immutable original evidence, including localized narration/prompts/
+original comments. Natural narration snapshots in the separate film project also
+retain frozen original evidence. English technical wrappers explain those sources;
+new instructions remain English under [standards](../../docs/REPOSITORY_STANDARDS.md).
 
-Les chemins `/workspace/guteneo/...` de certains reçus et rapports sont des
-provenances historiques : leur équivalent est `archive/...` dans ce dossier.
-Les scripts de montage utilisent leur propre emplacement pour résoudre les
-entrées. Les listes temporaires de concaténation se régénèrent au montage.
-Le chemin de sortie absolu de `production/product/capture.py` est remplacé par
-un chemin relatif au script dans la copie Git ; cette modification est tracée
-dans l'inventaire. Les captures existantes ne sont pas modifiées.
+## Product and brand
 
-Cette archive contient les fichiers locaux disponibles et leurs manifestes,
-pas un export intégral de l'historique de conversation ni toutes les variantes
-éventuellement conservées uniquement par ElevenLabs. Les décisions essentielles
-de la conversation et la dernière proposition de scènes sont retranscrites dans
-les documents de reprise.
-La copie originale de l'image jointe au tout premier message n'a pas été
-identifiée avec certitude parmi les fichiers locaux. La référence approuvée
-« proposition 2 », utilisée pour poursuivre le projet, est bien incluse.
-
-## Relation avec le produit et la marque
-
-Cet ajout archive un projet audiovisuel : il ne change aucune fonctionnalité,
-permission, parcours client, vidéo diffusée ou configuration de déploiement.
-Il n'appelle donc pas de modification de la carte des fonctionnalités.
-
-Respecter [les règles de marque](../../docs/BRAND_IDENTITY.md) et
-[les instructions du dépôt](../../AGENTS.md). Les demandes explicites pour ce
-projet fixent François-Louis pour Gutenberg et Manon pour la signature, et
-préservent les vocaux déjà approuvés. Ne pas régénérer ces voix pour appliquer
-par défaut les choix des autres films du dépôt.
+This archival addition changes no feature/permission/journey/public film/deployment
+and requires no feature-map change by itself. Follow [brand identity](../../docs/BRAND_IDENTITY.md)
+and [AGENTS](../../AGENTS.md). This project's explicit approved François-Louis
+narration/Manon signature override other-film default voice preferences: never
+regenerate approved speech to enforce an unrelated default.

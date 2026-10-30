@@ -238,9 +238,9 @@ export async function startSnsConfirmation({
       return send(403, "Forbidden");
     if (req.method !== "GET") return send(405, "Method not allowed");
     if (revealed || now() >= expiresAt)
-      return send(410, "Cette consultation est terminée.");
+      return send(410, "This session has ended.");
     revealed = true;
-    const body = `<!doctype html><html lang="fr"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Guteneo — confirmation SNS privée</title><style>body{font:17px/1.55 system-ui,sans-serif;background:#f5f2e9;color:#222520;margin:0}main{max-width:700px;padding:40px 24px;margin:auto}h1{font:40px/1.1 Georgia,serif}label{display:block;margin:24px 0 8px;font-weight:600}input{box-sizing:border-box;width:100%;padding:13px;border:1px solid #72786d;font:inherit}button{margin-top:18px;padding:12px 20px;border:0;background:#284c3e;color:white;font:inherit;cursor:pointer}button:disabled{opacity:.55}code{overflow-wrap:anywhere}small{display:block;margin-top:24px}</style><main><p>GUTENEO · CONFIRMATION PRIVÉE</p><h1>Confirmer les notifications SES</h1><p>Reçu : <code>${escape(receipt.eventId)}</code></p><p>Sujet : <code>${escape(receipt.topicArn)}</code></p><p>Âge du reçu : ${receipt.ageSeconds} secondes.</p><label for="token">Jeton SNS privé</label><input id="token" type="password" readonly autocomplete="off" spellcheck="false" value="${escape(receipt.token)}"><button id="copy" type="button">Copier le jeton</button><p id="status" role="status"></p><small>Transférez ce jeton dans la saisie masquée de CloudShell. Ne l’affichez pas dans la conversation. Cette page est consultable une seule fois ; le serveur expire après dix minutes au maximum. Fermez la page et videz le presse-papiers après confirmation. Aucun appel AWS ni aucune modification de la base ne sont effectués ici.</small></main><script nonce="${nonce}">const token = document.getElementById("token"), button = document.getElementById("copy"), status = document.getElementById("status"); button.addEventListener("click", async () => { button.disabled = true; try { await navigator.clipboard.writeText(token.value); token.value = ""; token.removeAttribute("value"); status.textContent = "Jeton copié. Collez-le dans la saisie masquée de CloudShell, puis videz le presse-papiers."; } catch { button.disabled = false; status.textContent = "Copie indisponible. Vérifiez l’autorisation du presse-papiers dans le navigateur."; } }); setTimeout(() => { token.value = ""; token.removeAttribute("value"); button.disabled = true; status.textContent = "Cette consultation est terminée."; }, ${Math.max(0, expiresAt - now())});</script></html>`;
+    const body = `<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Guteneo — private SNS confirmation</title><style>body{font:17px/1.55 system-ui,sans-serif;background:#f7f5ef;color:#182338;margin:0}main{max-width:700px;padding:40px 24px;margin:auto}h1{font:40px/1.1 Georgia,serif}label{display:block;margin:24px 0 8px;font-weight:600}input{box-sizing:border-box;width:100%;padding:13px;border:1px solid #72786d;font:inherit}button{margin-top:18px;padding:12px 20px;border:0;background:#234ce0;color:white;font:inherit;cursor:pointer}button:disabled{opacity:.55}code{overflow-wrap:anywhere}small{display:block;margin-top:24px}</style><main><p>GUTENEO · PRIVATE CONFIRMATION</p><h1>Confirm SES notifications</h1><p>Receipt: <code>${escape(receipt.eventId)}</code></p><p>Topic: <code>${escape(receipt.topicArn)}</code></p><p>Receipt age: ${receipt.ageSeconds} seconds.</p><label for="token">Private SNS token</label><input id="token" type="password" readonly autocomplete="off" spellcheck="false" value="${escape(receipt.token)}"><button id="copy" type="button">Copy token</button><p id="status" role="status"></p><small>Transfer this token into the masked CloudShell prompt. Never display it in the conversation. This page can be viewed only once; the server expires after at most ten minutes. Close the page and clear the clipboard after confirmation. This page makes no AWS call or database change.</small></main><script nonce="${nonce}">const token = document.getElementById("token"), button = document.getElementById("copy"), status = document.getElementById("status"); button.addEventListener("click", async () => { button.disabled = true; try { await navigator.clipboard.writeText(token.value); token.value = ""; token.removeAttribute("value"); status.textContent = "Token copied. Paste it into the masked CloudShell prompt, then clear the clipboard."; } catch { button.disabled = false; status.textContent = "Copy unavailable. Check browser clipboard permission."; } }); setTimeout(() => { token.value = ""; token.removeAttribute("value"); button.disabled = true; status.textContent = "This session has ended."; }, ${Math.max(0, expiresAt - now())});</script></html>`;
     receipt.token = "";
     send(200, body, "text/html; charset=utf-8");
   });
@@ -274,14 +274,14 @@ if (
   try {
     const setup = await startSnsConfirmation();
     console.log(
-      `Confirmation privée disponible pendant dix minutes au maximum : ${setup.url}`,
+      `Private confirmation available for at most ten minutes: ${setup.url}`,
     );
     console.log(
-      `Reçu ${setup.eventId} ; âge ${setup.ageSeconds} secondes ; ${setup.topicArn}`,
+      `Receipt ${setup.eventId}; age ${setup.ageSeconds} seconds; ${setup.topicArn}`,
     );
   } catch {
     console.error(
-      "Confirmation SNS indisponible : vérifiez le reçu signé récent et l’accès Cloudflare.",
+      "SNS confirmation unavailable: check the recent signed receipt and Cloudflare access.",
     );
     process.exitCode = 1;
   }

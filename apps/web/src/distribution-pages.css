@@ -1,0 +1,109 @@
+/* Correspondence owns batch preparation and frozen-plan tracking. */
+.distribution-section {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  padding: 24px;
+  margin: 24px 0;
+}
+.distribution-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 18px 0;
+}
+.distribution-meta {
+  color: var(--muted);
+  font-size: 13px;
+}
+.distribution-mapping-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+.distribution-table {
+  width: 100%;
+  overflow: auto;
+  border: 1px solid var(--line);
+  margin: 16px 0;
+}
+.distribution-table table {
+  min-width: 640px;
+  margin: 0;
+}
+.distribution-table th,
+.distribution-table td {
+  vertical-align: top;
+  white-space: normal;
+  max-width: 320px;
+  overflow-wrap: anywhere;
+}
+.distribution-record-selection {
+  max-height: 280px;
+  overflow-y: auto;
+  overflow-wrap: anywhere;
+  border: 1px solid var(--line);
+  padding: 12px;
+  margin-bottom: 16px;
+}
+.distribution-record-selection .check-field {
+  display: block;
+  min-height: 44px;
+  padding-block: 10px;
+}
+.distribution-record-selection .check-field input {
+  margin-inline-end: 8px;
+}
+.distribution-destination {
+  margin: 20px 0;
+}
+.distribution-destination legend {
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 12px;
+}
+.distribution-section fieldset {
+  min-inline-size: 0;
+}
+.distribution-section :where(h2, h3, legend, label) {
+  overflow-wrap: anywhere;
+}
+.distribution-channel-mapping {
+  border-top: 1px solid var(--line);
+  padding-block: 16px;
+}
+.distribution-channel-mapping > .check-field {
+  font-weight: 500;
+}
+.distribution-table:focus-visible,
+.distribution-record-selection:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}
+@media (max-width: 767px) {
+  .distribution-mapping-grid {
+    grid-template-columns: 1fr;
+  }
+  .distribution-section {
+    padding: 18px;
+  }
+}
+/* The exact pairs and the batch freeze, read before preparing. */
+.distribution-summary {
+  display: grid;
+  gap: 8px;
+  margin-top: 16px;
+}
+.distribution-summary h3 {
+  margin: 0;
+  font-size: 16px;
+}
+.distribution-summary ul {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding-left: 20px;
+}
+.distribution-summary .notice {
+  margin: 0;
+}

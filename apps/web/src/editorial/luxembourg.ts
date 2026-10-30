@@ -3,13 +3,13 @@ import type { EditorialArticle } from "./types";
 
 export function getLuxembourgArticle(): EditorialArticle {
   return {
-    slug: "histoire-imprimerie-luxembourg",
-    title: msg("L’imprimerie au Luxembourg, une histoire de circulation"),
+    slug: "printing-history-luxembourg",
+    title: msg("Printing in Luxembourg, a history of circulation"),
     dek: msg(
-      "Des premiers ateliers aux journaux numérisés, les caractères racontent un pays où les livres, les langues et les nouvelles passent les frontières.",
+      "From the first workshops to digitised newspapers, type tells the story of a country where books, languages and news cross borders.",
     ),
     description: msg(
-      "Une histoire documentée de l’imprimerie au Luxembourg : le brevet de 1598, les cartes Dieudonné, la presse, la poste et le patrimoine numérique.",
+      "A documented history of printing in Luxembourg: the 1598 patent, Dieudonné playing cards, newspapers, post and digital heritage.",
     ),
     published: "2026-09-17",
     readingMinutes: 6,
@@ -18,98 +18,98 @@ export function getLuxembourgArticle(): EditorialArticle {
       width: 1536,
       height: 1024,
       alt: msg(
-        "Presse, caractères mobiles et livres devant une vue illustrée des toits et de la vallée de Luxembourg, gravés en bleu.",
+        "A printing press, movable type and books before an illustrated view of Luxembourg’s rooftops and valley, engraved in blue.",
       ),
-      caption: msg("Illustration contemporaine générée pour Guteneo."),
+      caption: msg("Contemporary illustration generated for Guteneo."),
     },
     chapters: [
       {
         id: "livres-et-frontieres",
-        title: msg("Des livres venus d’ailleurs"),
+        title: msg("Books from elsewhere"),
         paragraphs: [
           msg(
-            "L’histoire luxembourgeoise de l’imprimé commence par une distinction : posséder un livre et le fabriquer sont deux histoires différentes. La Bibliothèque nationale du Luxembourg conserve environ deux cents incunables, ces livres imprimés avant 1501. Leur présence dans ses collections ne démontre pas l’existence d’un atelier local au XVe siècle. Elle ouvre plutôt une enquête sur les lieux de fabrication, les propriétaires et les chemins parcourus par chaque exemplaire.",
+            "Luxembourg’s history of print begins with a distinction: owning a book and making one are two different stories. The National Library of Luxembourg holds around two hundred incunabula, books printed before 1501. Their presence in its collections does not demonstrate the existence of a local workshop in the fifteenth century. Instead, it opens an enquiry into where each copy was made, who owned it and the routes it travelled.",
           ),
           msg(
-            "Un volume décrit par la BnL en donne un indice concret : des sermons imprimés à Strasbourg par Martin Flach en 1497 portent un ex-libris manuscrit d’Echternach, daté de la fin du XVe ou du début du XVIe siècle. L’objet associe ainsi une production extérieure à une trace de possession locale. Pour les impressions antérieures à 1800, la BnL retient par ailleurs les imprimeurs actifs dans l’ancien duché de Luxembourg. Ce cadre historique ne se confond pas avec les frontières du pays actuel.",
+            "A volume described by the BnL offers a concrete clue: sermons printed in Strasbourg by Martin Flach in 1497 bear a handwritten ownership inscription from Echternach, dated to the late fifteenth or early sixteenth century. The object thus links outside production with evidence of local ownership. For works printed before 1800, the BnL also considers printers active in the former Duchy of Luxembourg. This historical framework is not the same as the country’s present borders.",
           ),
         ],
         sourceIds: ["bnl-fonds-rares", "bnl-incunables"],
       },
       {
         id: "brevet-et-reprises",
-        title: msg("1598 : un atelier, puis des reprises"),
+        title: msg("1598: a workshop and its successors"),
         paragraphs: [
           msg(
-            "Le premier jalon de l’imprimerie locale est un brevet accordé le 10 avril 1598 à Matthias Birthon, appelé Mathias Birton au Kulturhuef. La présentation du corpus des imprimés luxembourgeois par la Ruhr-Universität Bochum permet de suivre la suite de l’atelier. Après la mort de l’imprimeur, six ans plus tard, sa veuve poursuit l’activité jusqu’en 1618. Elle appartient donc pleinement à cette première histoire du métier, même si cette notice ne donne pas son prénom.",
+            "The first landmark in local printing is a patent granted on 10 April 1598 to Matthias Birthon, known as Mathias Birton at the Kulturhuef. The presentation of Luxembourg printed works by Ruhr University Bochum traces the workshop’s subsequent history. After the printer’s death six years later, his widow continued the business until 1618. She therefore belongs fully to this early history of the trade, even though the account does not give her first name.",
           ),
           msg(
-            "Le 18 juillet 1618, Hubert Reulandt, venu de Saint-Vith, reçoit à son tour l’autorisation d’établir une imprimerie. Il reprend les caractères et les vignettes de l’atelier Birthon ; la reprise de la presse elle-même reste présentée comme probable par les chercheurs. Son dernier imprimé luxembourgeois connu date de 1638. Après une longue interruption, Andreas Chevalier ouvre un nouvel atelier en 1686, imprimant d’abord en latin et en français ; le prochain imprimé en allemand signalé par ce corpus date de 1703. La chronologie montre ainsi des transmissions et des ruptures, loin d’une croissance continue depuis un unique acte fondateur.",
+            "On 18 July 1618, Hubert Reulandt, from Saint-Vith, in turn received permission to establish a printing shop. He took over the type and ornaments from Birthon’s workshop; researchers describe the transfer of the press itself as probable. His last known Luxembourg imprint dates from 1638. After a long interruption, Andreas Chevalier opened a new workshop in 1686, initially printing in Latin and French; the next German-language imprint noted in this corpus dates from 1703. The chronology thus reveals succession and breaks, rather than continuous growth from a single founding act.",
           ),
         ],
         sourceIds: ["rub-premiers-ateliers", "kulturhuef-expositions"],
       },
       {
         id: "cartes-de-grevenmacher",
-        title: msg("À Grevenmacher, imprimer pour jouer"),
+        title: msg("In Grevenmacher, printing for play"),
         paragraphs: [
           msg(
-            "L’imprimé luxembourgeois prend aussi la forme d’objets que l’on tient en éventail. En 1754, Jean Dieudonné s’installe à Grevenmacher et y fonde une manufacture de cartes à jouer. Selon le Kulturhuef, sa production vise surtout les marchés étrangers. Les descendants poursuivent ce métier jusqu’à l’arrêt de la fabrication par Jean-Paul Dieudonné en 1880.",
+            "Luxembourg’s printed output also took the form of objects held in a fan. In 1754, Jean Dieudonné settled in Grevenmacher and founded a playing-card factory. According to the Kulturhuef, his production was aimed chiefly at foreign markets. His descendants continued the trade until Jean-Paul Dieudonné ended production in 1880.",
           ),
           msg(
-            "Les planches, feuilles imprimées et outils conservés rendent cette activité tangible. Ils rappellent que l’histoire de l’impression dépasse le livre et le journal : elle comprend aussi les images répétées, découpées, distribuées et utilisées au quotidien. Ces cartes donnent au récit un autre point de départ, celui de la table de jeu et de l’exportation.",
+            "The surviving blocks, printed sheets and tools make this activity tangible. They remind us that printing history extends beyond books and newspapers: it also includes images repeated, cut out, distributed and used in everyday life. These cards offer another starting point for the story, at the gaming table and in export markets.",
           ),
         ],
         sourceIds: ["kulturhuef-expositions"],
       },
       {
         id: "visages-de-la-presse",
-        title: msg("La presse se reconnaît aussi à ses lettres"),
+        title: msg("The press is also recognised by its letters"),
         paragraphs: [
           msg(
-            "Au XIXe siècle, les journaux offrent un observatoire particulièrement riche de l’imprimé. Le Luxemburger Wort, fondé en 1848 dans les milieux catholiques après l’octroi de la liberté de la presse, en est un exemple. L’étude de Peter Gilles, publiée sur le portail universitaire Infolux, suit son titre depuis le numéro du 23 mars 1848. Elle compare les bandeaux de première page sur la période 1848–1980.",
+            "In the nineteenth century, newspapers provide a particularly rich view of print culture. The Luxemburger Wort, founded in Catholic circles in 1848 after freedom of the press was granted, is one example. Peter Gilles’s study, published on the university portal Infolux, traces its masthead from the issue of 23 March 1848. It compares the front-page nameplates over the period 1848–1980.",
           ),
           msg(
-            "Le résultat déplace le regard : le nom du journal reste reconnaissable, mais ses lettres changent. La Fraktur alterne au XIXe siècle avec une Didot, une forme sans empattements puis une égyptienne. Une Antiqua apparaît pendant l’occupation nazie, avant le retour du titre en Fraktur en 1944. Observer ces transformations invite à lire une page comme un objet graphique autant que comme un texte. La typographie contribue à son identité et peut aussi porter les traces d’une époque politique.",
+            "The result shifts our perspective: the newspaper’s name remains recognisable, but its letters change. In the nineteenth century, Fraktur alternated with a Didot, a sans-serif form and then a slab serif. An Antiqua appeared during the Nazi occupation, before the Fraktur masthead returned in 1944. Watching these changes invites us to read a page as a graphic object as well as a text. Typography helps shape its identity and can also bear traces of a political era.",
           ),
         ],
         sourceIds: ["infolux-typographie"],
       },
       {
         id: "papier-en-voyage",
-        title: msg("Après la presse, le trajet du papier"),
+        title: msg("After the press, the paper’s journey"),
         paragraphs: [
           msg(
-            "Une fois la feuille produite, il reste à la faire parvenir à quelqu’un. L’histoire de la poste apporte un autre fil à ce récit. POST Luxembourg situe la création de l’Administration des Postes en 1842, l’émission du premier timbre-poste luxembourgeois en 1852 et la participation du pays comme membre fondateur de l’Union postale universelle en 1874. Ces dates concernent des institutions et des services précis ; elles ne signifient pas que toute circulation du courrier commence en 1842.",
+            "Once a sheet has been produced, it still has to reach someone. Postal history adds another thread to this account. POST Luxembourg dates the creation of the Postal Administration to 1842, the issue of Luxembourg’s first postage stamp to 1852 and the country’s participation as a founding member of the Universal Postal Union to 1874. These dates concern specific institutions and services; they do not mean that all movement of mail began in 1842.",
           ),
           msg(
-            "On peut lire ensemble ces deux histoires sans les confondre : l’atelier multiplie les exemplaires, tandis que le réseau postal organise des déplacements. Le timbre matérialise un service sur un petit morceau de papier lui-même imprimé. La lettre et le journal rappellent ainsi qu’un document prend aussi son sens dans la relation entre celui qui le produit et celui qui le reçoit.",
+            "We can read these two histories together without confusing them: the workshop multiplies copies, while the postal network organises their movement. A stamp embodies a service on a small piece of paper that is itself printed. Letters and newspapers thus remind us that a document also acquires meaning through the relationship between its producer and its recipient.",
           ),
         ],
         sourceIds: ["post-histoire"],
       },
       {
         id: "gestes-conserves",
-        title: msg("Un patrimoine qui se pratique"),
+        title: msg("A heritage kept alive through practice"),
         paragraphs: [
           msg(
-            "Au Kulturhuef de Grevenmacher, la collection de machines donne une présence matérielle à cette histoire. La Linotype et la presse à platine Heidelberg figurent parmi les pièces mises en valeur. Les ateliers ouverts au public et les résidences d’artistes permettent aussi de travailler sur des presses historiques. Le patrimoine y reste associé au geste : encrer, exercer une pression, découvrir l’empreinte. Une page terminée cache le travail qui l’a rendue possible ; l’atelier le remet au premier plan.",
+            "At the Kulturhuef in Grevenmacher, the collection of machines gives this history a physical presence. The Linotype and Heidelberg platen press are among the highlighted exhibits. Public workshops and artist residencies also allow people to work on historic presses. Heritage remains connected to action: inking, applying pressure, discovering the impression. A finished page hides the work that made it possible; the workshop brings that work back to the foreground.",
           ),
         ],
         sourceIds: ["kulturhuef-expositions"],
       },
       {
         id: "nouvelles-vies-numeriques",
-        title: msg("Le papier devient aussi une archive consultable"),
+        title: msg("Paper also becomes a searchable archive"),
         paragraphs: [
           msg(
-            "Une autre forme de transmission se développe à la BnL : la numérisation des journaux historiques avec reconnaissance optique des caractères commence en 2006. L’image de la page est accompagnée d’un texte que l’on peut interroger. Cette transformation facilite les recherches, mais garde les difficultés du document d’origine. Un papier dégradé ou une lettre mal reconnue peut rendre un mot invisible au moteur de recherche, alors qu’il reste lisible sur la page.",
+            "Another form of transmission is developing at the BnL: the digitisation of historical newspapers with optical character recognition began in 2006. The page image is accompanied by searchable text. This transformation makes research easier, but retains the original document’s difficulties. Damaged paper or a misrecognised letter can make a word invisible to the search engine even though it remains legible on the page.",
           ),
           msg(
-            "La BnL a développé Nautilus-OCR pour améliorer ces transcriptions. Elle propose également des ensembles de journaux du domaine public sous forme d’images, de textes et de métadonnées. On peut ainsi examiner un numéro comme un tout ou étudier ses articles séparément. Le document conserve une apparence, une structure et une provenance, au-delà des mots extraits automatiquement.",
+            "The BnL developed Nautilus-OCR to improve these transcriptions. It also offers sets of public-domain newspapers as images, texts and metadata. An issue can thus be examined as a whole or its articles studied separately. The document retains an appearance, a structure and a provenance beyond the automatically extracted words.",
           ),
           msg(
-            "Cette mémoire numérique rencontre une caractéristique ancienne du pays : plusieurs langues peuvent cohabiter sur une même page. En 2023, eluxemburgensia a ajouté un filtre par langue, tout en précisant les limites de la détection automatique, notamment pour les articles multilingues. Chercher, lire et revenir à l’original restent des opérations complémentaires. De l’exemplaire marqué à Echternach au journal consulté à distance, le fil de cette histoire est celui des passages : entre langues, entre lecteurs, entre supports.",
+            "This digital memory meets a longstanding feature of the country: several languages can share a single page. In 2023, eluxemburgensia added a language filter, while explaining the limits of automatic detection, particularly for multilingual articles. Searching, reading and returning to the original remain complementary activities. From the copy marked in Echternach to the newspaper consulted remotely, the thread of this history is one of crossings: between languages, between readers, between media.",
           ),
         ],
         sourceIds: ["bnl-nautilus", "bnl-open-data", "bnl-langues"],

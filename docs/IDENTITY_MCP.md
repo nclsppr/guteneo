@@ -51,7 +51,7 @@ The session persists explicit verified-account evidence and exposes `verifiedAcc
 
 `POST /api/logout` deletes the local session. It does not claim to terminate all Auth0 SSO sessions. Sessions expire after one hour; the user re-enters the hosted flow, where provider SSO may apply. No home-grown refresh protocol is implemented.
 
-MCP bearer tokens are verified using Auth0 JWKS and mapped by `(issuer, subject)` to a local user. A single membership can be bound on first OAuth use. Users with multiple memberships must bind the OAuth client in the dashboard. `POST /api/connections {clientId}` binds the current authenticated organization and invalidates older token issuance times. `DELETE /api/connections/:id` immediately disables Guteneo access for that connection. Refresh-token and provider-consent revocation can also be performed in Auth0; the app does not claim to revoke Auth0's grant through its local DELETE route.
+MCP bearer tokens are verified using the server-owned Auth0 JWKS and mapped by the canonical `(issuer, subject)` to a local user. The independently configured custom-domain trust accepts only the reviewed alias of that same tenant; the verified token issuer stays distinct from canonical identity/connection keys. Discovery can prefer the custom domain or roll back without removing that trust. See [the domain contract](AUTH0_CUSTOM_DOMAIN.md#independent-mcp-trust-and-discovery) for exact settings, validation and rollback order. A single membership can be bound on first OAuth use. Users with multiple memberships must bind the OAuth client in the dashboard. `POST /api/connections {clientId}` binds the current authenticated organization and invalidates older token issuance times. `DELETE /api/connections/:id` immediately disables Guteneo access for that connection. Refresh-token and provider-consent revocation can also be performed in Auth0; the app does not claim to revoke Auth0's grant through its local DELETE route.
 
 The 18 September Claude renewal candidate uses Auth0-managed rotating refresh
 tokens for explicitly selected hosted clients only. The Worker continues to
@@ -90,16 +90,14 @@ The `fax_pdf` MCP prompt and distributable Agent Plugins/Claude Code/Cursor pack
 
 The OpenAI adapter declares `_meta["openai/fileParams"]: ["file"]`. Its file object declares four fields: `download_url`, `file_id`, `mime_type`, `file_name`; **only the first two are required**. After source and download checks, the document service imports exact bytes, validates/quarantines and returns a durable document ID. Optional name/type are not trusted as content validation. The local candidate removes the hosted source-domain allowlist while retaining public HTTPS egress, direct-download limits and scan gates; local URL imports remain disabled. A rejected source never reaches the scanner. This is not a hosted or all-client qualification; see [PUBLIC_PDF_IMPORT.md](PUBLIC_PDF_IMPORT.md). [Official file contract](https://developers.openai.com/plugins/reference).
 
-| Client and journey                    | Implemented                                     | Evidence                                                                              | Remaining gate                                                            |
-| ------------------------------------- | ----------------------------------------------- | ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
-| ChatGPT remote tools/OAuth            | Server + Auth0 boundary                         | Local HTTP and signed token fixtures                                                  | Real account consent/refresh and connection                               |
-| ChatGPT uploaded PDF                  | Exact fileParams adapter                        | One exact transfer qualified; see [CHATGPT_QUALIFICATION.md](CHATGPT_QUALIFICATION.md) | Qualify the new public-source candidate in the actual client              |
-| ChatGPT PDF generated in conversation | Same adapter                                    | **Not tested**                                                                        | Generate PDF inside client and compare SHA-256 after import               |
-| Claude remote tools/HTML render       | Common MCP tools                                | Local transport only                                                                  | Real connector connection and render                                      |
-| Claude original conversation PDF      | No undocumented special adapter                 | **Non-verified**                                                                      | Official byte-transfer mechanism or explicit authenticated upload         |
-| Cursor remote tools/OAuth             | Common MCP endpoint                             | Local transport only                                                                  | Real desktop client consent and refresh                                   |
-| Cursor local PDF                      | Project-limited byte upload adapter implemented | 27 automated local path, symlink, origin and upload tests; see [CURSOR.md](CURSOR.md) | Actual Cursor invocation and OAuth credential lifecycle remain unverified |
-| MCP Apps preview card                 | Deferred                                        | None                                                                                  | Real supported host; text fallback already available                      |
+The [client compatibility matrix](MCP_CLIENT_COMPATIBILITY.md) owns current
+per-surface status and remaining gates. Dated actual observations live in the
+[Claude qualification record](CLAUDE_QUALIFICATION.md) and
+[ChatGPT qualification record](CHATGPT_QUALIFICATION.md). The
+[private original transport](PRIVATE_DOCUMENT_UPLOAD.md) owns binary/inline
+contracts; [Cursor integration](CURSOR.md) owns its separate local adapter and
+fixture evidence. A pass for one transport, host or surface does not qualify
+another. Keep these results out of a second status matrix here.
 
 Claude remote connectors originate in Anthropic infrastructure, including Desktop/Cowork. They do not make a local filesystem path remotely readable. [Claude connector networking](https://support.claude.com/en/articles/11175166-get-started-with-custom-connectors-using-remote-mcp).
 

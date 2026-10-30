@@ -262,6 +262,21 @@
     "Gezielte Berechtigungen.",
     "Genee Berechtegungen."
   ],
+  "Pour le site et l’application iOS, ouvrez la connexion depuis Guteneo. Le formulaire d’identité utilise": [
+    "For the website and iOS app, start sign-in from Guteneo. The identity form uses",
+    "Starten Sie die Anmeldung für die Website und die iOS-App über Guteneo. Das Identitätsformular verwendet",
+    "Fir d’Websäit an d’iOS-App, start d’Umeldung iwwer Guteneo. Den Identitéitsformular benotzt"
+  ],
+  "Autorisation API / MCP": [
+    "API / MCP authorisation",
+    "API- / MCP-Autorisierung",
+    "API- / MCP-Autorisatioun"
+  ],
+  "Échange du code API / MCP": [
+    "API / MCP code exchange",
+    "API- / MCP-Code-Austausch",
+    "API- / MCP-Code-Austausch"
+  ],
   "Les clients utilisent Authorization Code avec PKCE": [
     "Clients use Authorization Code with PKCE",
     "Clients verwenden Authorization Code mit PKCE",
@@ -1255,5 +1270,15 @@
     "if an administrator has enabled it and authorized this transfer, OpenAI may receive bounded excerpts of the data or template, their structure and your instruction to produce the requested proposal. The request uses store:false; this does not mean the provider retains no data. This assistance is separate from your connected assistant and does not initiate any delivery.",
     "wenn ein Administrator sie aktiviert und diese Übertragung genehmigt hat, kann OpenAI begrenzte Auszüge der Daten oder Vorlage, ihre Struktur und Ihre Anweisung erhalten, um den gewünschten Vorschlag zu erstellen. Die Anfrage verwendet store:false; dies bedeutet nicht, dass der Anbieter keine Daten aufbewahrt. Diese Hilfe ist von Ihrem verbundenen Assistenten getrennt und löst keinen Versand aus.",
     "wann en Administrateur se aktivéiert an dësen Transfert autoriséiert huet, kann OpenAI begrenzten Extraiten vun den Donnéeën oder der Virlag, hir Struktur an Är Instruktioun kréien, fir de gefrote Virschlag ze erstellen. D’Ufro benotzt store:false; dat bedeit net, datt dësen Ubidder keng Donnéeë späichert. Dës Hëllef ass vun Ärem verbonnenen Assistent getrennt a léist keng Sendung aus."
+  ],
+  ". Les adresses OAuth ci-dessous concernent les nouvelles connexions API et MCP. Les connexions existantes continuent de fonctionner avec leur émetteur d’origine.": [
+    ". The OAuth addresses below are for new API and MCP connections. Existing connections keep working with their original issuer.",
+    ". Die folgenden OAuth-Adressen gelten für neue API- und MCP-Verbindungen. Bestehende Verbindungen funktionieren weiterhin mit ihrem bisherigen Aussteller.",
+    ". D’OAuth-Adressen hei drënner gëlle fir nei API- a MCP-Verbindungen. Bestoend Verbindunge funktionéiere weider mat hirem ursprénglechen Aussteller."
+  ],
+  "transfère un original de 64 Kio maximum par MCP lorsque l’hôte peut lire le fichier mais que son environnement de calcul ne peut pas joindre Guteneo. Pour les PDF plus volumineux, privilégiez le transfert natif de l’hôte ou un import binaire autorisé. La taille, l’empreinte SHA-256, l’accès privé et le contrôle antivirus restent vérifiés.": [
+    "transfers one original up to 64 KiB through MCP when the host can read the file but its computing environment cannot reach Guteneo. A native file handoff or permitted binary upload remains preferable for larger PDFs. The original size, SHA-256, private access and scanner checks still apply.",
+    "überträgt ein Original bis 64 KiB über MCP, wenn der Host die Datei lesen kann, seine Rechenumgebung Guteneo aber nicht erreicht. Für größere PDFs sollten die native Dateiübergabe des Hosts oder ein erlaubter Binär-Upload verwendet werden. Originalgröße, SHA-256, privater Zugriff und Virenprüfung werden weiterhin geprüft.",
+    "iwwermëttelt een Original bis 64 KiB iwwer MCP, wann den Host d’Datei liese kann, säi Rechenëmfeld Guteneo awer net erreecht. Fir méi grouss PDFe soll déi nativ Dateiiwwergab vum Host oder en erlaabte binären Upload benotzt ginn. D’Originalgréisst, SHA-256, de privaten Zougrëff an d’Antiviruskontroll ginn nach ëmmer gepréift."
   ]
 }

@@ -1533,5 +1533,131 @@
     "The package includes skills and the MCP connection. Choose your application’s guide to install it and verify your account connection.",
     "Das Paket enthält Skills und die MCP-Verbindung. Wählen Sie die Anleitung Ihrer Anwendung für die Installation und die Prüfung Ihrer Kontoverbindung.",
     "De Pak enthält Skills an d’MCP-Verbindung. Wielt d’Uleedung vun Ärer Applikatioun fir d’Installatioun an d’Kontroll vun Ärer Kontverbindung."
+  ],
+  "Comment souhaitez-vous ajouter Guteneo ?": [
+    "How would you like to add Guteneo?",
+    "Wie möchten Sie Guteneo hinzufügen?",
+    "Wéi wëllt Dir Guteneo derbäifügen?"
+  ],
+  "Archive du plugin (ZIP)": [
+    "Plugin archive (ZIP)",
+    "Plugin-Archiv (ZIP)",
+    "Plugin-Archiv (ZIP)"
+  ],
+  "Adresse MCP": ["MCP address", "MCP-Adresse", "MCP-Adress"],
+  "Ajoutez le plugin Guteneo à ChatGPT avec son archive ZIP. Elle contient la connexion au serveur Guteneo et les instructions de l’assistant.": [
+    "Add the Guteneo plugin to ChatGPT using its ZIP archive. It contains the connection to the Guteneo server and instructions for the assistant.",
+    "Fügen Sie das Guteneo-Plugin über sein ZIP-Archiv zu ChatGPT hinzu. Es enthält die Verbindung zum Guteneo-Server und die Anweisungen für den Assistenten.",
+    "Füügt de Guteneo-Plugin mat sengem ZIP-Archiv bei ChatGPT derbäi. Et enthält d’Verbindung mam Guteneo-Server an d’Instruktioune fir den Assistent."
+  ],
+  "Un compte ChatGPT qui autorise l’ajout de plugins par archive.": [
+    "A ChatGPT account that allows adding plugins from an archive.",
+    "Ein ChatGPT-Konto, das das Hinzufügen von Plugins aus einem Archiv erlaubt.",
+    "E ChatGPT-Kont, deen d’Derbäifüge vu Plugins aus engem Archiv erlaabt."
+  ],
+  "Téléchargez le plugin Guteneo": [
+    "Download the Guteneo plugin",
+    "Guteneo-Plugin herunterladen",
+    "De Guteneo-Plugin eroflueden"
+  ],
+  "Enregistrez le fichier guteneo-plugin.zip. Conservez l’archive ZIP sans la décompresser pour l’importer dans ChatGPT.": [
+    "Save guteneo-plugin.zip. Keep the ZIP archive without extracting it so you can import it into ChatGPT.",
+    "Speichern Sie die Datei guteneo-plugin.zip. Entpacken Sie das ZIP-Archiv nicht, um es in ChatGPT zu importieren.",
+    "Späichert d’Datei guteneo-plugin.zip. Entpaakt den ZIP-Archiv net, fir en a ChatGPT z’importéieren."
+  ],
+  "Télécharger le plugin Guteneo (ZIP)": [
+    "Download the Guteneo plugin (ZIP)",
+    "Guteneo-Plugin herunterladen (ZIP)",
+    "De Guteneo-Plugin eroflueden (ZIP)"
+  ],
+  "Importez l’archive dans ChatGPT": [
+    "Import the archive into ChatGPT",
+    "Archiv in ChatGPT importieren",
+    "Den Archiv a ChatGPT importéieren"
+  ],
+  "Ouvrez Plugins, puis l’option d’ajout par archive. Sélectionnez guteneo-plugin.zip et vérifiez les informations affichées avant d’ajouter le plugin.": [
+    "Open Plugins, then the option to add a plugin from an archive. Select guteneo-plugin.zip and review the displayed information before adding the plugin.",
+    "Öffnen Sie Plugins und anschließend die Option zum Hinzufügen aus einem Archiv. Wählen Sie guteneo-plugin.zip und prüfen Sie die angezeigten Informationen, bevor Sie das Plugin hinzufügen.",
+    "Maacht Plugins op an duerno d’Optioun fir e Plugin aus engem Archiv derbäizefügen. Wielt guteneo-plugin.zip a kontrolléiert d’Informatiounen, ier Dir de Plugin derbäifüügt."
+  ],
+  "Je ne vois pas l’ajout par archive": [
+    "I cannot see the option to add an archive",
+    "Ich sehe keine Option zum Hinzufügen aus einem Archiv",
+    "Ech gesinn d’Optioun fir en Archiv derbäizefügen net"
+  ],
+  "Vérifiez les possibilités de votre compte et les règles de votre espace ChatGPT. Si l’ajout par archive est indisponible, choisissez « Adresse MCP » dans ce guide pour consulter l’autre méthode.": [
+    "Check your account’s features and your ChatGPT workspace rules. If adding an archive is unavailable, select “MCP address” in this guide to see the other method.",
+    "Prüfen Sie die Funktionen Ihres Kontos und die Regeln Ihres ChatGPT-Arbeitsbereichs. Falls das Hinzufügen aus einem Archiv nicht verfügbar ist, wählen Sie in dieser Anleitung „MCP-Adresse“ für die andere Methode.",
+    "Kontrolléiert d’Méiglechkeete vun Ärem Kont an d’Reegele vun Ärem ChatGPT-Beräich. Wann d’Derbäifügen aus engem Archiv net disponibel ass, wielt „MCP-Adress“ an dësem Guide fir déi aner Method."
+  ],
+  "Comment mettre à jour le plugin ?": [
+    "How do I update the plugin?",
+    "Wie aktualisiere ich das Plugin?",
+    "Wéi aktualiséieren ech de Plugin?"
+  ],
+  "Téléchargez à nouveau l’archive depuis ce guide, puis utilisez l’option de mise à jour proposée par ChatGPT pour le plugin Guteneo. Vérifiez ensuite la connexion dans une nouvelle conversation.": [
+    "Download the archive again from this guide, then use the update option provided by ChatGPT for the Guteneo plugin. Check the connection in a new conversation afterwards.",
+    "Laden Sie das Archiv erneut über diese Anleitung herunter und verwenden Sie die von ChatGPT angebotene Aktualisierungsoption für das Guteneo-Plugin. Prüfen Sie anschließend die Verbindung in einer neuen Unterhaltung.",
+    "Luet den Archiv nach eng Kéier aus dësem Guide erof a benotzt d’Aktualiséierungsoptioun, déi ChatGPT fir de Guteneo-Plugin ubitt. Kontrolléiert duerno d’Verbindung an engem neie Gespréich."
+  ],
+  "Installer le plugin": [
+    "Install the plugin",
+    "Plugin installieren",
+    "De Plugin installéieren"
+  ],
+  "Les méthodes de ce guide permettent d’ajouter Guteneo directement à ChatGPT, sans passer par son catalogue de plugins.": [
+    "The methods in this guide let you add Guteneo directly to ChatGPT without going through its plugin directory.",
+    "Mit den Methoden in dieser Anleitung können Sie Guteneo direkt zu ChatGPT hinzufügen, ohne dessen Plugin-Verzeichnis zu verwenden.",
+    "Mat de Methoden an dësem Guide kënnt Dir Guteneo direkt bei ChatGPT derbäifügen, ouni säi Plugin-Katalog ze benotzen."
+  ],
+  "Les menus et les possibilités d’accès peuvent varier selon votre compte.": [
+    "Menus and access options may vary depending on your account.",
+    "Menüs und Zugriffsmöglichkeiten können je nach Konto variieren.",
+    "D’Menüen an d’Zougangsméiglechkeete kënne jee no Kont variéieren."
+  ],
+  "L’archive contient l’identifiant OAuth public de Guteneo. Connectez-vous sur auth.guteneo.com, vérifiez les autorisations, puis revenez dans ChatGPT. Aucun secret client n’est nécessaire.": [
+    "The archive includes Guteneo’s public OAuth client ID. Sign in at auth.guteneo.com, review the permissions, then return to ChatGPT. No client secret is needed.",
+    "Das Archiv enthält die öffentliche OAuth-Client-ID von Guteneo. Melden Sie sich auf auth.guteneo.com an, prüfen Sie die Berechtigungen und kehren Sie zu ChatGPT zurück. Ein Client-Geheimnis ist nicht erforderlich.",
+    "Den Archiv enthält déi ëffentlech OAuth-Client-ID vu Guteneo. Mellt Iech op auth.guteneo.com un, kontrolléiert d’Autorisatiounen a gitt zeréck op ChatGPT. Kee Client-Geheimnis ass néideg."
+  ],
+  "ChatGPT demande un identifiant client OAuth": [
+    "ChatGPT asks for an OAuth client ID",
+    "ChatGPT fragt nach einer OAuth-Client-ID",
+    "ChatGPT freet no enger OAuth-Client-ID"
+  ],
+  "Téléchargez le dernier ZIP et mettez le plugin à jour. Si ChatGPT le demande encore, sélectionnez « Adresse MCP » ici et copiez l’identifiant client public fourni. Laissez le secret client vide.": [
+    "Download the latest ZIP and update the plugin. If ChatGPT still asks, select “MCP address” here and copy the supplied public client ID. Leave the client secret empty.",
+    "Laden Sie das neueste ZIP herunter und aktualisieren Sie das Plugin. Falls ChatGPT weiterhin danach fragt, wählen Sie hier „MCP-Adresse“ und kopieren Sie die angegebene öffentliche Client-ID. Lassen Sie das Client-Geheimnis leer.",
+    "Luet déi neiste ZIP-Datei erof an aktualiséiert de Plugin. Wann ChatGPT nach ëmmer freet, wielt hei „MCP-Adress“ a kopéiert déi uginn ëffentlech Client-ID. Loosst d’Client-Geheimnis eidel."
+  ],
+  "Utilisez le client OAuth enregistré de Guteneo": [
+    "Use Guteneo’s registered OAuth client",
+    "Verwenden Sie den registrierten OAuth-Client von Guteneo",
+    "Benotzt de registréierten OAuth-Client vu Guteneo"
+  ],
+  "Choisissez un client enregistré et copiez cet identifiant client public. Si demandé, sélectionnez aucune authentification du client (none) et laissez le secret client vide. Ne choisissez pas l’enregistrement dynamique.": [
+    "Choose a registered client and copy this public client ID. Select no client authentication (none) if asked, and leave the client secret empty. Do not choose dynamic registration.",
+    "Wählen Sie einen registrierten Client und kopieren Sie diese öffentliche Client-ID. Wählen Sie bei Bedarf keine Client-Authentifizierung (none) und lassen Sie das Client-Geheimnis leer. Wählen Sie keine dynamische Registrierung.",
+    "Wielt e registréierte Client a kopéiert dës ëffentlech Client-ID. Wielt op Ufro keng Client-Authentifikatioun (none) a loosst d’Client-Geheimnis eidel. Wielt keng dynamesch Registréierung."
+  ],
+  "Connectez-vous sur auth.guteneo.com, vérifiez les autorisations et choisissez Create as a plugin. Vérifiez les outils disponibles, puis installez votre plugin personnel.": [
+    "Sign in at auth.guteneo.com, review the permissions and choose Create as a plugin. Check the available tools, then install your personal plugin.",
+    "Melden Sie sich auf auth.guteneo.com an, prüfen Sie die Berechtigungen und wählen Sie Create as a plugin. Prüfen Sie die verfügbaren Werkzeuge und installieren Sie dann Ihr persönliches Plugin.",
+    "Mellt Iech op auth.guteneo.com un, kontrolléiert d’Autorisatiounen a wielt Create as a plugin. Kontrolléiert déi disponibel Wierkzeugen an installéiert dann Äre perséinleche Plugin."
+  ],
+  "ChatGPT refuse l’adresse de retour OAuth": [
+    "ChatGPT rejects the OAuth redirect address",
+    "ChatGPT lehnt die OAuth-Weiterleitungsadresse ab",
+    "ChatGPT refuséiert d’OAuth-Retouradress"
+  ],
+  "Mettez la connexion existante à jour avec la dernière archive. Si l’erreur persiste, contactez l’assistance Guteneo avec l’adresse de retour exacte affichée par ChatGPT. Ne partagez jamais de mot de passe, de jeton ou de secret client.": [
+    "Update the existing connection with the latest archive. If the error remains, contact Guteneo support with the exact redirect address shown by ChatGPT. Never share a password, token or client secret.",
+    "Aktualisieren Sie die bestehende Verbindung mit dem neuesten Archiv. Falls der Fehler bleibt, kontaktieren Sie den Guteneo-Support mit der genauen Weiterleitungsadresse aus ChatGPT. Geben Sie niemals ein Passwort, Token oder Client-Geheimnis weiter.",
+    "Aktualiséiert déi bestoend Verbindung mam neisten Archiv. Wann de Feeler bleift, kontaktéiert de Guteneo-Support mat der exakter Retouradress aus ChatGPT. Deelt ni e Passwuert, Token oder Client-Geheimnis."
+  ],
+  "Copier l’identifiant client": [
+    "Copy client ID",
+    "Client-ID kopieren",
+    "Client-ID kopéieren"
   ]
 }

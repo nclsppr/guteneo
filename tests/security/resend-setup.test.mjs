@@ -458,11 +458,11 @@ test("real browser Auth0 preparation masks the key and never activates or echoes
       await input.fill(value);
     }
     await page
-      .getByRole("button", { name: "Préparer dans Auth0, sans activation" })
+      .getByRole("button", { name: "Prepare in Auth0 without activation" })
       .click();
     await page
       .getByText(
-        "Fournisseur préparé dans Auth0 et relu désactivé. Aucun email envoyé.",
+        "Provider prepared in Auth0 and reread as disabled. No email sent.",
         { exact: true },
       )
       .waitFor();

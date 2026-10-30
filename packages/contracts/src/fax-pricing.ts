@@ -27,7 +27,7 @@ export type FaxPricing = {
 };
 
 export type FaxPricingDisplay = {
-  locale: "fr-FR";
+  locale: "en-GB";
   creditUnit: "EUR_balance";
   estimate: {
     lowEur: string;
@@ -55,42 +55,42 @@ function euroLabel(nanoeur: number): string {
       ? decimal(BigInt(nanoeur), 9)
       : decimal(rounded, 4);
   const [whole, fraction] = value.split(".");
-  return `${whole},${fraction.replace(/0+$/, "").padEnd(2, "0")}`;
+  return `${whole}.${fraction.replace(/0+$/, "").padEnd(2, "0")}`;
 }
 
 function faxPricingDisplay(pricing: FaxPricing): FaxPricingDisplay {
-  const range = `${euroLabel(pricing.estimatedLowNanoeur)} à ${euroLabel(pricing.estimatedHighNanoeur)}`;
+  const range = `${euroLabel(pricing.estimatedLowNanoeur)} to ${euroLabel(pricing.estimatedHighNanoeur)}`;
   const ceiling = decimal(BigInt(pricing.ceilingMinor), 2);
   return {
-    locale: "fr-FR",
+    locale: "en-GB",
     creditUnit: "EUR_balance",
     estimate: {
       lowEur: decimal(BigInt(pricing.estimatedLowNanoeur), 9),
       highEur: decimal(BigInt(pricing.estimatedHighNanoeur), 9),
-      label: `Environ ${range} € HT`,
-      creditLabel: `Environ ${range} € de crédit`,
+      label: `About EUR${range} excl. tax`,
+      creditLabel: `About EUR${range} in credit`,
     },
     ceiling: {
       eur: ceiling,
-      label: `Plafond ferme : ${ceiling.replace(".", ",")} € HT`,
+      label: `Firm ceiling: EUR${ceiling} excl. tax`,
       creditLabel:
         pricing.executionScope === "review_prepare_only"
-          ? "Aucune réservation ni consommation de crédit."
-          : `Réservation à la confirmation : ${ceiling.replace(".", ",")} € de crédit`,
+          ? "No credit is reserved or consumed."
+          : `Reservation on confirmation: EUR${ceiling} in credit`,
     },
     explanation:
       pricing.executionScope === "review_prepare_only"
         ? FAX_REVIEW_PREPARATION_NOTICE
-        : "L’estimation porte sur ce fax entier, transmission comprise, et varie avec la durée réelle, qui n’est pas garantie. Ce n’est ni un prix fixe par page ni un débit. Le plafond est réservé à la confirmation ; la consommation définitive est déterminée après vérification de l’usage et reste limitée à ce plafond. Les fractions de centime sont cumulées avant le débit du solde. Le statut settlement indique si la réserve est active, réglée ou libérée.",
+        : "The estimate covers this entire fax, including transmission, and varies with the actual duration, which is not guaranteed. It is neither a fixed per-page price nor a charge. The ceiling is reserved on confirmation; final consumption is determined after verified usage and remains bounded by that ceiling. Fractions of a cent accumulate before the balance is debited. The settlement status indicates whether the reservation is active, settled or released.",
     legacyEstimatedMinorMeaning: "rounded_up_estimated_high_centimes",
   };
 }
 
 export const FAX_REVIEW_PREPARATION_NOTICE =
-  "Préparation de revue uniquement. Cette fourchette de référence HT utilise des tarifs réels et des hypothèses de durée ; elle exclut les ajustements conditionnels non qualifiés. Ce fax ne peut être ni approuvé ni envoyé, y compris en mode expert. Aucun crédit n’est réservé ou débité. La capacité Local Calling reste non confirmée.";
+  "Preparation for review only. This reference range excluding tax uses real rates and assumed durations; it excludes unqualified conditional adjustments. This fax cannot be approved or sent, including in expert mode. No credit is reserved or deducted. Local Calling capability remains unconfirmed.";
 
 export const FAX_OPERATOR_TEST_NOTICE =
-  "Test Luxembourg autorisé par l’opérateur. La capacité Local Calling n’est pas confirmée ; le fournisseur peut refuser la transmission.";
+  "Luxembourg test authorised by the operator. Local Calling capability is unconfirmed; the provider may reject transmission.";
 
 /** Explicit projection also excludes accidental extra runtime accounting fields. */
 export function customerFaxPricing(

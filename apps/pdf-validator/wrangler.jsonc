@@ -14,7 +14,7 @@
     {
       "class_name": "PdfValidatorContainer",
       "image": "./Dockerfile",
-      "instance_type": "basic",
+      "instance_type": "standard-1",
       "max_instances": 1,
       "constraints": { "jurisdiction": "eu" },
     },

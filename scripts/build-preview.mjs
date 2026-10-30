@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 import { join } from "node:path";
 import { build } from "vite";
 import { buildPublicPages } from "./build-public-pages.mjs";
+import { buildIntegrationPackage } from "../integrations/build.mjs";
 import site from "../packages/contracts/src/public-site.json" with { type: "json" };
 
 import {
@@ -29,6 +30,7 @@ await build({
   build: { outDir: output, emptyOutDir: true },
 });
 await buildPublicPages({ root, output, indexable: true });
+await buildIntegrationPackage(join(output, "integrations"));
 // The preview Worker refuses these backend paths before its asset binding.
 // Remove copied business assets before publishing their manifest hashes.
 for (const prefix of ["review", ...site.privatePrefixes])

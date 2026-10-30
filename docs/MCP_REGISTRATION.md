@@ -11,8 +11,9 @@ Neither a healthy MCP endpoint nor this candidate restores that portal binding.
 Use Auth0's native Dynamic Client Registration (DCR), not a new authorization
 server or a shared browser credential. The MCP issuer remains
 `https://pieper.eu.auth0.com/`; the protected resource remains
-`https://guteneo.com/mcp`. The optional browser login host `auth.guteneo.com`
-does not change those identifiers or any existing OAuth connection.
+`https://guteneo.com/mcp`. The current [custom-domain trust and discovery contract](AUTH0_CUSTOM_DOMAIN.md)
+owns the independently selected browser/MCP domains. This controller retains the
+canonical API audience and identity keys; it does not select or migrate issuers.
 
 Once the provider configuration and the particular host have been qualified, a
 person adds `https://guteneo.com/mcp` in a DCR-capable client, leaving its optional
@@ -201,3 +202,10 @@ Verified on 24 October 2026:
 
 Local tests, CI, provider activation, a real host journey and marketplace
 submission remain separate evidence. Preparation is not activation or approval.
+
+## Current-source review — 30 October 2026
+
+Reconciled with current main and its verified-account recovery changes. Local
+registration/setup/identity-Action fixtures pass on the combined source; this
+review performs no live Auth0 inspection or mutation. The 24 October provider
+observations above remain dated evidence and must be rechecked before activation.

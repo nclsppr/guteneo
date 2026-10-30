@@ -5,6 +5,7 @@ import {
   MCP_SCOPES,
   authenticationPolicy,
   auth0Issuer,
+  verifiedMcpTokenIssuer,
   hasMfa,
   hasVerifiedAccount,
   hashSecret,
@@ -85,7 +86,7 @@ export type ExpertStatus = {
 function invalid(): never {
   throw new AuthError(
     "EXPERT_STATUS_AUTHORITY_CHANGED",
-    "Votre connexion ou vos droits ont changé. Reconnectez l’assistant pour consulter votre délégation.",
+    "Your connection or permissions have changed. Reconnect the assistant to view your delegation.",
     403,
   );
 }
@@ -109,7 +110,7 @@ export async function getExpertStatus(
     if (!isLocalSimulation(new Request(new URL("/mcp", env.APP_ORIGIN)), env))
       throw new AuthError(
         "DEVELOPMENT_AUTH_FORBIDDEN",
-        "Authentification de développement interdite.",
+        "Development authentication is forbidden.",
         403,
       );
     if (identity.clientId !== "local-simulation") invalid();
@@ -120,6 +121,12 @@ export async function getExpertStatus(
     ];
   } else {
     issuer = auth0Issuer(env);
+    let tokenIssuer: string;
+    try {
+      tokenIssuer = verifiedMcpTokenIssuer(identity, env);
+    } catch {
+      invalid();
+    }
     let claims: ReturnType<typeof decodeJwt>;
     try {
       claims = decodeJwt(identity.token);
@@ -137,7 +144,7 @@ export async function getExpertStatus(
             )
         : [];
     if (
-      claims.iss !== issuer ||
+      claims.iss !== tokenIssuer ||
       clientId !== identity.clientId ||
       typeof claims.sub !== "string" ||
       !claims.sub ||
@@ -246,9 +253,9 @@ export async function getExpertStatus(
     : null;
   let state: ExpertStatus["state"] = "inactive";
   let code = "delegation_missing";
-  let title = "Mode expert non activé";
+  let title = "Expert mode is not enabled";
   let message =
-    "Aucune délégation n’est active pour cette connexion. Un administrateur peut l’activer volontairement dans Mon compte, avec des canaux, des limites et une expiration. Vous pouvez aussi choisir la revue humaine pour cet envoi.";
+    "No delegation is active for this connection. An administrator may voluntarily enable it in My account with channels, limits and an expiry. You may also choose human review for this dispatch.";
   let nextAction: ExpertStatus["nextAction"] = "administrator_setup";
   if (!connectionCurrent) {
     state =
@@ -261,38 +268,38 @@ export async function getExpertStatus(
         : row.connection_status === null
           ? "connection_missing"
           : "connection_changed";
-    title = "Connexion à renouveler";
+    title = "Connection renewal required";
     message =
-      "Reconnectez cet assistant à votre espace Guteneo. Une reconnexion ne réactive pas une ancienne délégation : un administrateur devra ensuite vérifier et réactiver volontairement le mode expert pour cette connexion.";
+      "Reconnect this assistant to your Guteneo workspace. Reconnecting does not reactivate an old delegation: an administrator must then review and voluntarily reactivate expert mode for this connection.";
     nextAction = "reconnect";
   } else if (row.role !== "admin") {
     code = "administrator_required";
     message =
-      "Le mode expert est réservé à une connexion appartenant à un administrateur. Demandez à un administrateur de configurer sa propre connexion, ou choisissez la revue humaine pour cet envoi.";
+      "Expert mode is restricted to an administrator's own connection. Ask an administrator to configure their own connection, or choose human review for this dispatch.";
   } else if (row.enabled === 0) {
     state = "revoked";
     code = "delegation_revoked";
-    title = "Délégation désactivée";
+    title = "Delegation disabled";
     message =
-      "La délégation de cette connexion est désactivée, notamment après une révocation ou une reconnexion. Un administrateur doit la réactiver volontairement dans Mon compte pour reprendre le mode expert.";
+      "This connection's delegation is disabled, including after revocation or reconnection. An administrator must voluntarily reactivate it in My account to resume expert mode.";
   } else if (row.enabled === 1 && row.expires_at! <= row.checked_at) {
     state = "expired";
     code = "delegation_expired";
-    title = "Délégation expirée";
+    title = "Delegation expired";
     message =
-      "Cette délégation a expiré. Un administrateur peut la renouveler volontairement dans Mon compte ; l’assistant ne peut pas la prolonger. La revue humaine reste une alternative pour cet envoi.";
+      "This delegation has expired. An administrator may voluntarily renew it in My account; the assistant cannot extend it. Human review remains an alternative for this dispatch.";
   } else if (row.policy_active && channels.length) {
     state = "active";
     code = "delegation_active";
-    title = "Mode expert actif";
+    title = "Expert mode active";
     message =
-      "La délégation est active pour cette connexion. Poursuivez la préparation et la revue de l’envoi ici, dans les canaux et plafonds autorisés. Les confirmations de l’hôte, la lecture du contenu exact et les contrôles du fournisseur restent obligatoires.";
+      "Delegation is active for this connection. Continue preparing and reviewing the dispatch here within the authorized channels and ceilings. Host confirmations, exact-content reading and provider checks remain mandatory.";
     nextAction = "continue";
     if (missing.length) {
       code = "scopes_missing";
-      title = "Permissions de connexion à compléter";
+      title = "Additional connection permissions required";
       message =
-        "La délégation existe, mais cette connexion ne dispose pas de toutes les permissions nécessaires à la revue et à l’envoi expert. Reconnectez l’assistant avec les permissions manquantes, puis faites réactiver volontairement la délégation : la reconnexion désactive l’ancien mandat.";
+        "The delegation exists, but this connection lacks some permissions required for expert review and sending. Reconnect the assistant with the missing permissions, then have the delegation voluntarily reactivated: reconnection disables the old mandate.";
       nextAction = "reconnect";
     } else if (
       !daily ||
@@ -300,9 +307,9 @@ export async function getExpertStatus(
       daily.remainingMinor === 0
     ) {
       code = "daily_limit_reached";
-      title = "Limite quotidienne du mode expert atteinte";
+      title = "Daily expert-mode limit reached";
       message =
-        "Le nombre ou le budget quotidien des envois délégués est épuisé. Attendez la prochaine journée UTC indiquée, ou choisissez la revue humaine si les autres contrôles l’autorisent. L’assistant ne peut pas relever ces limites.";
+        "The delegated dispatch count or daily budget is exhausted. Wait until the indicated next UTC day, or choose human review if other checks allow it. The assistant cannot raise these limits.";
       nextAction = "wait_until_reset";
     }
   }
@@ -337,6 +344,6 @@ export async function getExpertStatus(
     checkedAt: row.checked_at,
     accountUrl: `${env.APP_ORIGIN}/#/app/account${row.connection_id ? `?connection=${encodeURIComponent(row.connection_id)}` : ""}`,
     usageBasis:
-      "Les montants sont des centimes EUR. Le budget cumule les plafonds des envois acceptés, pas leur coût final ; les brouillons postaux ont un compteur distinct. Ces disponibilités ne sont pas réservées : l’acceptation revérifie et consomme les limites atomiquement, avec les autres contrôles.",
+      "Amounts are EUR cents. The budget accumulates accepted dispatch ceilings, not final costs; postal drafts have a separate counter. These available limits are not reserved: acceptance atomically rechecks and consumes the limits with the other safeguards.",
   };
 }

@@ -61,7 +61,7 @@ const server = createServer(async (req, res) => {
               data || {
                 error: {
                   code: "FIXTURE_ROUTE_MISSING",
-                  message: "Donnée fictive indisponible.",
+                  message: "Fictional data unavailable.",
                 },
               },
             ),
@@ -84,7 +84,7 @@ const server = createServer(async (req, res) => {
 });
 server.listen(port, "127.0.0.1", () =>
   console.log(
-    `Belvédère — données fictives uniquement : http://127.0.0.1:${port}${fixtureBase}`,
+    `Belvédère — fictional data only: http://127.0.0.1:${port}${fixtureBase}`,
   ),
 );
 for (const signal of ["SIGINT", "SIGTERM"])

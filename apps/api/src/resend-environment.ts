@@ -8,7 +8,7 @@ export function emailProvider(env: Env): "ses" | "resend" {
   if (env.EMAIL_PROVIDER === "resend") return "resend";
   throw new DomainError(
     "INVALID_EMAIL_PROVIDER",
-    "Fournisseur e-mail invalide.",
+    "Invalid email provider.",
     409,
   );
 }
@@ -39,19 +39,19 @@ export function assertResendSender(env: Env, sender: string): void {
   if (!resendConfigured(env))
     throw new DomainError(
       "RESEND_NOT_CONFIGURED",
-      "Le compte et le domaine Resend doivent être qualifiés.",
+      "The Resend account and domain must be qualified.",
       409,
     );
   if (env.RESEND_SENDS_ENABLED !== "true")
     throw new DomainError(
       "RESEND_TRANSPORT_DISABLED",
-      "Les envois Resend ne sont pas activés.",
+      "Resend sending is not enabled.",
       409,
     );
   if (!/^[^<>\s@]+@guteneo\.com$/i.test(sender))
     throw new DomainError(
       "RESEND_SENDER_DOMAIN_MISMATCH",
-      "L’expéditeur doit appartenir au domaine Guteneo.com vérifié.",
+      "The sender must belong to the verified guteneo.com domain.",
       409,
     );
 }

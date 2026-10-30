@@ -71,11 +71,71 @@ test("OpenAPI is valid, self-contained and never resolves a remote document", as
     for (const child of Object.values(value)) inspect(child);
   }
   inspect(spec);
-  assert.equal(operations.length, 67);
+  assert.equal(operations.length, 76);
   assert.equal(
     new Set(operations.map(({ operation }) => operation.operationId)).size,
     operations.length,
   );
+});
+
+test("generation results expose bounded exact-document analysis without adding scan authority", () => {
+  const result = spec.components.schemas.GenerationResult;
+  assert.equal(result.additionalProperties, false);
+  assert.ok(result.required.includes("documentAnalysis"));
+  assert.deepEqual(
+    result.properties.documentAnalysis.properties,
+    spec.components.schemas.DocumentAnalysis.properties,
+  );
+  assert.deepEqual(
+    result.properties.documentAnalysis.required,
+    spec.components.schemas.DocumentAnalysis.required,
+  );
+  assert.equal(result.properties.documentAnalysis.additionalProperties, false);
+  assert.equal(result.properties.documentAnalysis.type, "object");
+  assert.equal(result.properties.documentAnalysis.nullable, true);
+  assert.match(
+    result.properties.documentAnalysis.description,
+    /immutable hash/,
+  );
+  assert.match(result.properties.documentAnalysis.description, /bounded/);
+  assert.match(
+    result.properties.documentAnalysis.description,
+    /never starts a scan/,
+  );
+  assert.deepEqual(
+    spec.components.schemas.DocumentAnalysis.properties.state.enum,
+    ["processing", "ready", "retryable", "blocked"],
+  );
+  const read = spec.paths["/api/generation-jobs/{id}/results"].get;
+  assert.equal(read.requestBody, undefined);
+  assert.deepEqual(read.responses["200"].content["application/json"].schema, {
+    $ref: "#/components/schemas/GenerationResultPage",
+  });
+  for (const forbidden of ["organizationId", "requestUserId", "scan", "rescan"])
+    assert.ok(!(forbidden in result.properties));
+});
+
+test("documentation groups use unique English names and every operation refers to a declared group", () => {
+  const englishGroups = new Set([
+    "Service",
+    "Documents",
+    "Dispatches",
+    "Campaigns",
+    "Account",
+    "Post",
+    "Document studio",
+    "Secure distribution",
+  ]);
+  const declared = spec.tags.map((tag) => tag.name);
+  assert.equal(new Set(declared).size, declared.length);
+  for (const name of declared)
+    assert(englishGroups.has(name), `Unexpected documentation group: ${name}`);
+  for (const { operation } of operations)
+    for (const name of operation.tags ?? [])
+      assert(
+        declared.includes(name),
+        `Undeclared documentation group: ${name}`,
+      );
 });
 
 test("documented routes exist and OAuth cannot acquire browser approval or private account operations", () => {
@@ -85,6 +145,7 @@ test("documented routes exist and OAuth cannot acquire browser approval or priva
     "get /api/documents",
     "get /api/documents/{id}",
     "post /api/documents",
+    "put /api/document-uploads/{id}/content",
     "post /api/documents/render",
     "get /api/documents/{id}/content",
     "post /api/documents/{id}/rescan",
@@ -103,6 +164,14 @@ test("documented routes exist and OAuth cannot acquire browser approval or priva
     "post /api/recipients/validate",
     "get /api/senders",
     "get /api/usage",
+    "get /api/usage/activity",
+    "get /api/pdf-validation/pricing",
+    "get /api/secure-distributions",
+    "post /api/secure-distributions",
+    "get /api/secure-distributions/catalog",
+    "get /api/secure-distributions/{id}",
+    "post /api/secure-distributions/{id}/confirm",
+    "post /api/secure-distributions/{id}/revoke",
     "post /api/postal/preflights",
     "get /api/postal/preflights/{id}",
     "get /api/postal/preflights/{id}/address.png",
@@ -153,9 +222,10 @@ test("documented routes exist and OAuth cannot acquire browser approval or priva
     expected,
   );
   for (const { path, method, operation } of operations) {
+    const uploadCapability = path === "/api/document-uploads/{id}/content";
     assert.ok(
       new RegExp(
-        `app\\.${method}\\(\\s*"${path.replaceAll("{id}", ":id").replaceAll("{entryId}", ":entryId").replaceAll("{exampleId}", ":exampleId")}"`,
+        `app\\.${uploadCapability ? "all" : method}\\(\\s*"${path.replaceAll("{id}", ":id").replaceAll("{entryId}", ":entryId").replaceAll("{exampleId}", ":exampleId")}"`,
       ).test(api),
       `${method} ${path} must exist in router`,
     );
@@ -164,6 +234,9 @@ test("documented routes exist and OAuth cannot acquire browser approval or priva
       /approve|transfer|admin|billing|session|webhooks|documents\/import/,
     );
     const publicRoute = ["/api/health", "/api/capabilities"].includes(path);
+    const browserPurchase =
+      path === "/api/pdf-validation/pricing" ||
+      (path === "/api/documents/{id}/validation" && method === "post");
     const scope = path.startsWith("/api/templates")
       ? /\/shar(e|ing)$/.test(path)
         ? "templates:share"
@@ -188,7 +261,7 @@ test("documented routes exist and OAuth cannot acquire browser approval or priva
             ? method === "get"
               ? "documents:read"
               : "documents:write"
-            : /\/(confirm|cancel)$/.test(path)
+            : /\/(confirm|cancel|revoke)$/.test(path)
               ? "dispatches:send"
               : method === "get"
                 ? "dispatches:read"
@@ -197,24 +270,79 @@ test("documented routes exist and OAuth cannot acquire browser approval or priva
       operation.security,
       publicRoute
         ? []
-        : [
-            {
-              GuteneoOAuth:
-                path === "/api/postal/preflights" ||
-                path.endsWith("/postal-preflight")
-                  ? ["documents:write", "dispatches:prepare"]
-                  : [scope],
-            },
-          ],
+        : uploadCapability
+          ? [{ DocumentUploadCapability: [] }]
+          : browserPurchase
+            ? [{ BrowserSession: [] }]
+            : [
+                {
+                  GuteneoOAuth:
+                    path === "/api/postal/preflights" ||
+                    path.endsWith("/postal-preflight")
+                      ? ["documents:write", "dispatches:prepare"]
+                      : [scope],
+                },
+              ],
     );
   }
   assert.match(
     spec.paths["/api/dispatches/{id}/confirm"].post.description,
-    /navigateur/,
+    /browser/,
   );
   assert.match(
     spec.paths["/api/dispatches/{id}"].get.description,
-    /Ne jamais recréer automatiquement/,
+    /Never automatically recreate/,
+  );
+});
+
+test("secure distribution documents retention charges and no personal OAuth authority", () => {
+  const { schemas } = spec.components;
+  assert.equal(schemas.SecureDistributionInput.additionalProperties, false);
+  assert.deepEqual(schemas.SecureDistributionInput.required, [
+    "documentId",
+    "recipient",
+  ]);
+  for (const field of [
+    "organizationId",
+    "recipientUserId",
+    "pendingClaim",
+    "approved",
+    "fingerprint",
+  ])
+    assert(!(field in schemas.SecureDistributionInput.properties));
+  for (const field of ["recipientUserId", "recipientBinding", "pendingClaim"])
+    assert(!(field in schemas.SecureDistribution.properties));
+  for (const field of [
+    "sharedMinor",
+    "personalMinor",
+    "transportMinor",
+    "totalMinor",
+  ])
+    assert.equal(
+      schemas.SecureDistribution.properties.quote.properties[field].type,
+      "integer",
+    );
+  assert.deepEqual(
+    schemas.SecureDistribution.properties.quote.properties.nonRefundable.enum,
+    [true],
+  );
+  assert.deepEqual(
+    schemas.SecureDistribution.properties.quote.properties.taxBasis.enum,
+    ["excluding_tax"],
+  );
+  assert.match(
+    spec.paths["/api/secure-distributions/{id}/confirm"].post.description,
+    /browser/,
+  );
+  assert.match(
+    spec.paths["/api/secure-distributions/{id}/revoke"].post.description,
+    /without refunding/,
+  );
+  assert.equal(spec["x-secure-distribution"].noPersonalOAuthAuthority, true);
+  assert(
+    !Object.keys(spec.paths).some((path) =>
+      /personal|claim|binding|secure-distributions.*approve/.test(path),
+    ),
   );
 });
 
@@ -254,9 +382,111 @@ test("template authoring and removal stay explicit without extending share permi
   );
 });
 
+test("annual usage publishes only bounded daily aggregates with integer debits and explicit evidence", () => {
+  const operation = spec.paths["/api/usage/activity"].get;
+  assert.deepEqual(operation.security, [{ GuteneoOAuth: ["dispatches:read"] }]);
+  assert.deepEqual(
+    operation.parameters.map((parameter) => parameter.name),
+    ["year"],
+  );
+  assert.equal(operation.parameters[0].in, "query");
+  assert.deepEqual(operation.parameters[0].schema, {
+    type: "integer",
+    minimum: 1000,
+    maximum: 9998,
+  });
+  assert.equal(operation.requestBody, undefined);
+  assert.match(operation.description, /reporting authority/);
+  assert.match(operation.description, /Reservations, grants/);
+  assert.match(operation.description, /zero-cent/);
+  assert.match(operation.description, /future-posted rows are excluded/);
+  const activity = spec.components.schemas.UsageActivity;
+  assert.equal(activity.additionalProperties, false);
+  assert.deepEqual(activity.properties.evidence.enum, [
+    "production",
+    "simulation",
+  ]);
+  assert.deepEqual(activity.properties.currency.enum, ["EUR"]);
+  assert.deepEqual(activity.properties.timeZone.enum, ["UTC"]);
+  assert.equal(activity.properties.asOf.format, "date-time");
+  assert.equal(activity.properties.year.minimum, 1000);
+  assert.equal(activity.properties.year.maximum, 9998);
+  assert.equal(activity.properties.days.maxItems, 366);
+  assert.equal(activity.properties.availableYears.uniqueItems, true);
+  const day = spec.components.schemas.UsageActivityDay;
+  assert.equal(day.additionalProperties, false);
+  assert.deepEqual(Object.keys(day.properties).sort(), [
+    "amountMinor",
+    "chargeCount",
+    "date",
+    "dispatchCount",
+  ]);
+  assert.deepEqual(
+    day.required.slice().sort(),
+    Object.keys(day.properties).sort(),
+  );
+  assert.equal(day.properties.date.format, "date");
+  for (const field of ["amountMinor", "chargeCount", "dispatchCount"])
+    assert.deepEqual(
+      {
+        type: day.properties[field].type,
+        minimum: day.properties[field].minimum,
+      },
+      { type: "integer", minimum: 0 },
+    );
+  for (const field of [
+    "amountMinor",
+    "chargeCount",
+    "dispatchCount",
+    "activeDays",
+  ])
+    assert.equal(activity.properties.totals.properties[field].type, "integer");
+});
+
+test("paid PDF checks require exact browser-only purchase consent without recurring access", () => {
+  const schema = spec.components.schemas.PdfValidationPurchaseInput;
+  assert.deepEqual(schema.required, ["profile", "purchase"]);
+  assert.equal(schema.additionalProperties, false);
+  assert.deepEqual(schema.properties.purchase.required, [
+    "confirmed",
+    "documentSha256",
+    "priceMinor",
+    "currency",
+    "termsVersion",
+  ]);
+  assert.equal(schema.properties.purchase.additionalProperties, false);
+  assert.deepEqual(schema.properties.purchase.properties.confirmed.enum, [
+    true,
+  ]);
+  assert.deepEqual(schema.properties.purchase.properties.priceMinor.enum, [10]);
+  assert.deepEqual(schema.properties.purchase.properties.currency.enum, [
+    "EUR",
+  ]);
+  assert.deepEqual(schema.properties.purchase.properties.termsVersion.enum, [
+    "pdf-check-2026-10-25-v1",
+  ]);
+  const purchase = spec.paths["/api/documents/{id}/validation"].post;
+  assert.deepEqual(purchase.security, [{ BrowserSession: [] }]);
+  assert.ok(
+    purchase.parameters.some(
+      (field) => field.name === "X-CSRF-Token" && field.required,
+    ),
+  );
+  assert.match(purchase.description, /Technical failure.*releases the hold/);
+  assert.deepEqual(spec.paths["/api/pdf-validation/pricing"].get.security, [
+    { BrowserSession: [] },
+  ]);
+  assert.equal(spec.components.securitySchemes.BrowserSession.in, "cookie");
+  assert.equal(spec["x-pdf-validation-purchase"].monthlySubscriptions, false);
+  assert.equal(spec["x-pdf-validation-purchase"].defaultEnabled, false);
+  assert.equal(spec["x-horizon-plan"], undefined);
+});
+
 test("OAuth publishes the real audience and explicitly scoped authorities without fictitious API keys", () => {
   assert.deepEqual(Object.keys(spec.components.securitySchemes), [
     "GuteneoOAuth",
+    "BrowserSession",
+    "DocumentUploadCapability",
   ]);
   const oauth = spec.components.securitySchemes.GuteneoOAuth;
   assert.equal(oauth.type, "oauth2");
@@ -265,11 +495,11 @@ test("OAuth publishes the real audience and explicitly scoped authorities withou
   assert.equal(oauth["x-pkce-required"], true);
   assert.equal(
     oauth.flows.authorizationCode.authorizationUrl,
-    "https://pieper.eu.auth0.com/authorize",
+    "https://auth.guteneo.com/authorize",
   );
   assert.equal(
     oauth.flows.authorizationCode.tokenUrl,
-    "https://pieper.eu.auth0.com/oauth/token",
+    "https://auth.guteneo.com/oauth/token",
   );
   const actualScopes = [
     ...auth
@@ -280,6 +510,64 @@ test("OAuth publishes the real audience and explicitly scoped authorities withou
     Object.keys(oauth.flows.authorizationCode.scopes).sort(),
     actualScopes.sort(),
   );
+});
+
+test("private PDF transfer has an upload-only capability without a public PDF or OAuth content endpoint", () => {
+  const capability = spec.components.securitySchemes.DocumentUploadCapability;
+  assert.equal(capability.type, "apiKey");
+  assert.equal(capability.in, "header");
+  assert.equal(capability.name, "X-Guteneo-Upload-Capability");
+  const path = spec.paths["/api/document-uploads/{id}/content"];
+  assert.deepEqual(Object.keys(path), ["put"]);
+  assert.deepEqual(path.put.security, [{ DocumentUploadCapability: [] }]);
+  assert.deepEqual(Object.keys(path.put.requestBody.content), [
+    "application/pdf",
+  ]);
+  assert.equal(
+    path.put.requestBody.content["application/pdf"].schema["x-max-bytes"],
+    10 * 1024 * 1024,
+  );
+  const received = spec.components.schemas.PrivateDocumentUploadReceived;
+  assert.equal(received.additionalProperties, false);
+  assert.deepEqual(received.required, ["uploadId", "status"]);
+  assert.deepEqual(Object.keys(received.properties), ["uploadId", "status"]);
+  const contract = spec["x-private-document-upload"];
+  assert.equal(contract.creatorPrivate, true);
+  assert.equal(contract.exactOriginalSizeAndSha256, true);
+  assert.equal(contract.maxCapabilityTtlSeconds, 300);
+  assert.equal(contract.boundedByOAuthTokenExpiry, true);
+  for (const field of [
+    "oauthBearerAcceptedOnContentRoute",
+    "browserCookiesAcceptedOnContentRoute",
+    "capabilityInUrl",
+    "automaticRetryAfterUnknownOutcome",
+    "sendingApprovalOrPurchaseAuthority",
+  ])
+    assert.equal(contract[field], false);
+});
+
+test("document-email defaults and protected HTML markers keep server identity and access material private", () => {
+  const input = spec.components.schemas.PrepareDispatch;
+  for (const field of ["subject", "text", "html"])
+    assert.ok(!input.required.includes(field));
+  assert.match(input.properties.subject.description, /authenticated workspace/);
+  assert.match(input.properties.subject.description, /without a file requires/);
+  assert.match(input.properties.text.description, /Without a document/);
+  assert.match(
+    input.properties.html.description,
+    /exact anchor href="\{\{document_url\}\}"/,
+  );
+  assert.match(input.properties.html.description, /before fingerprinting/);
+  assert.match(input.properties.html.description, /unsafe CSS/);
+  for (const field of ["workspaceName", "documentUrl", "password", "token"])
+    assert.ok(!(field in input.properties));
+  const content =
+    spec.components.schemas.Capabilities.properties.channels.items.properties
+      .content;
+  assert.deepEqual(content.properties.protectedLinkPlaceholder.enum, [
+    "{{document_url}}",
+  ]);
+  assert.equal(content.additionalProperties, false);
 });
 
 test("wire contracts retain integer prices, JSON strings, quarantine and required idempotency", () => {
@@ -312,6 +600,8 @@ test("wire contracts retain integer prices, JSON strings, quarantine and require
     "post /api/generation-jobs",
     "post /api/distribution-plans",
     "post /api/distribution-plans/{id}/entries/{entryId}/postal-preflight",
+    "post /api/secure-distributions",
+    "post /api/secure-distributions/{id}/confirm",
   ]);
   assert.equal(spec.components.parameters.IdempotencyKey.required, true);
   assert.equal(
@@ -406,12 +696,12 @@ test("registration documents both explicit beta and historical verification poli
   ]);
   assert.match(
     verification.description,
-    /sans politique explicite conserve verified_email_and_mfa/,
+    /without an explicit policy retains verified_email_and_mfa/,
   );
   assert.match(
     spec.components.securitySchemes.GuteneoOAuth.description,
     /https:\/\/guteneo\.com\/verified_account=true/,
   );
-  assert.match(spec.info.description, /MFA n’est pas obligatoire/);
-  assert.doesNotMatch(spec.info.description, /configurer la MFA/);
+  assert.match(spec.info.description, /MFA is optional/);
+  assert.doesNotMatch(spec.info.description, /configure MFA/);
 });

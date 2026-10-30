@@ -1,4 +1,4 @@
-# Assistants and direct sending — local candidate, 20 September 2026
+# Assistants and direct sending
 
 The assistant journey extends the isolated homepage candidate. The existing
 Luxembourg footer and homepage identity are retained. This document records
@@ -6,14 +6,70 @@ implementation and local validation; publication evidence is recorded
 separately against the deployed source commit. No external assistant connection,
 permission grant or real communication is performed by these checks.
 
+## Combined archive handoff — 26 October 2026
+
+The PR 84 archive is being reconciled with `main` at `c81ea94`, including all
+75 MCP tools and the current private-original, inline-PDF and email review
+contracts. The shared application/plugin version advances to `1.1.3`: the
+previous synchronization record already named `1.1.1`, so changed fingerprints
+must use a strictly newer version through the normal generator. Do not edit or
+remove the saved record to bypass that guard.
+
+The dated archive hashes and browser counts below belong to the earlier
+`1.1.1` candidate. The combined candidate requires its own generated contract,
+archive bytes, source-bound checks and release proof. An archive download still
+does not qualify a real ChatGPT import, OAuth renewal or marketplace publication.
+
+## ChatGPT archive candidate — 25 October 2026
+
+The ChatGPT guide now opens on **Plugin archive (ZIP)** with the generated
+`/integrations/guteneo-plugin.zip` download, import instructions and a read-only
+connection check. **MCP address** remains an alternative. Public and account
+surfaces reuse the four-language catalog; the archive requires no browser API
+call or additional membership right. Host import and OAuth remain separate user
+actions. The [synchronization contract](LLM_SETUP.md#mandatory-mcp-plugin-and-archive-synchronization)
+owns MCP/plugin versioning, archive freshness and release verification.
+
+The implementation was reconciled with current `main` for release `1.1.1` and
+revalidated locally on **26 October 2026**. The public-preview suite passed
+32/32 cases in 25.8 seconds on desktop Chromium and iPhone WebKit; dashboard UI
+fixtures passed 21/21 in 52.7 seconds across desktop/mobile Chromium and iPhone
+WebKit. Four-language checks compared actual download bytes with the manifest;
+the archive link remained available without JavaScript. The 34 MCP/package tests,
+13 synchronization/schema tests, 26 locale tests and 62 release/asset checks
+passed, as did typecheck, lint and the Worker dry-run. Documentation generation
+and consistency checks passed; the engineering site built all 54 documentation
+pages, its 28 authored MDX pages passed lint and four publication-boundary tests
+passed. These are local fixtures/builds, not hosted ChatGPT or production proof.
+
+The rebuilt `1.1.1` archive SHA-256 is
+`3be169cdabf76de8cc2cd14b01c75f346a46f7b693a877893fa25010f50e7e57`.
+A fresh desktop Chromium context at 1280 × 800 against local Wrangler preview,
+without throttling and with other validation jobs running, measured a 332 ms first
+contentful paint, 26 browser requests (25 resource requests), six script requests,
+415,881 script transfer bytes and 1,133,416 total resource transfer bytes. No
+backend request occurred. This is one environment-specific loading sample, not a
+measured improvement or a production performance claim. Evidence is archived in
+`/Users/nclsppr/.codex/artifacts/guteneo-chatgpt-archive-guide/rebased/`, including
+`guide-performance.json`. No merge, deployment, portal update or actual ChatGPT
+archive upload was performed by this validation.
+
+Earlier local tests of package `0.3.4`
+(28 public-preview cases, 21 dashboard fixtures, 32 package tests, 11 locale tests,
+six sync guards and 62 release/asset checks) ran before that reconciliation.
+Their archive SHA-256 was
+`d0205778a5f7171a29c74163b893b529ece6eaee423a5cc56f285cd4e52f5831`.
+Those reports remain historical at
+`/Users/nclsppr/.codex/artifacts/guteneo-chatgpt-archive-guide`; they do not qualify
+the new source, a real ChatGPT import, OAuth, marketplace publication or
+production deployment. September results below are historical as well.
+
 ## User journeys
 
-- MCP setup is the primary installation journey. It does not depend on a
-  Guteneo plugin being published in a host directory. Each guide separates
-  "Installer par MCP" from the currently unpublished directory plugin.
-  ChatGPT's Plugins menu can create a personal MCP connection; it is not
-  evidence of public directory publication. The advanced ZIP download is
-  explicitly labelled as a package for manual installation.
+- ChatGPT offers archive import first and manual MCP setup as an alternative.
+  Availability depends on the account and workspace policies. Other hosts retain
+  their own instructions. Downloading the generated ZIP grants no connection,
+  permission or expert mandate and implies no public directory publication.
 - `/assistants/` is public. Six guides cover ChatGPT, Claude, Grok, GitHub Copilot,
   Microsoft 365 Copilot and Cursor. GitHub Copilot has distinct VS Code and CLI
   instructions; Microsoft 365 is explicitly an administrator/agent workflow.
@@ -126,14 +182,16 @@ qualified integration.
 
 ## Validation
 
+Historical report and capture paths identify local evidence artifacts that are not checked into this checkout.
+
 These are local candidate results. The browser runs overlap and must not be
 added together as a unique-test total.
 
 After the MCP-first copy clarification, the preview build, typecheck and scoped
 lint passed again. All 18 public assistant-guide checks passed on desktop and
 iPhone, including the same guide component used in the dashboard; see the
-[copy clarification report](../reports/assistant-mcp-copy-playwright.json) and
-[updated captures](../reports/screenshots/assistant-mcp-copy/).
+copy clarification report (`reports/assistant-mcp-copy-playwright.json`) and
+updated captures (`reports/screenshots/assistant-mcp-copy/`).
 This follow-up changes guidance and labels only, with no backend change.
 
 Release preparation caught a missed hash navigation between the initial render
@@ -142,17 +200,17 @@ previous bundle, then passed after resynchronizing the route at subscription
 without moving the initial scroll position. The postal review test now waits
 for the rendered PDF before interacting with consent checkboxes. All nine
 targeted checks (three scenarios across three browser profiles) passed; see
-[the release-fix report](../reports/ci-iphone-fixes-playwright.json).
+the release-fix report (`reports/ci-iphone-fixes-playwright.json`).
 
 | Check | Result and evidence |
 | --- | --- |
-| Public browser suite | 56 passed, 4 intentionally skipped, no failures or flaky results. The skipped cases are iPhone/WebKit-specific checks omitted from the desktop project. [Report](../reports/assistant-hub-preview-playwright.json). |
-| Final public regression | 32 passed, no skipped or flaky results, across desktop and iPhone projects. [Report](../reports/assistant-hub-preview-final-playwright.json). |
-| Narrow navigation | 2 passed at 320 px, desktop and iPhone projects. [Report](../reports/assistant-hub-narrow-navigation-playwright.json). |
-| Private assistant journey | 18 passed across three profiles (`chromium`, `mobile-chromium`, `iphone-webkit`), covering two browser engines. [Report](../reports/assistant-hub-private-playwright.json). |
+| Public browser suite | 56 passed, 4 intentionally skipped, no failures or flaky results. The skipped cases are iPhone/WebKit-specific checks omitted from the desktop project. Report (`reports/assistant-hub-preview-playwright.json`). |
+| Final public regression | 32 passed, no skipped or flaky results, across desktop and iPhone projects. Report (`reports/assistant-hub-preview-final-playwright.json`). |
+| Narrow navigation | 2 passed at 320 px, desktop and iPhone projects. Report (`reports/assistant-hub-narrow-navigation-playwright.json`). |
+| Private assistant journey | 18 passed across three profiles (`chromium`, `mobile-chromium`, `iphone-webkit`), covering two browser engines. Report (`reports/assistant-hub-private-playwright.json`). |
 | Typecheck, lint and builds | Passed for the local candidate. These establish code/build validity, not production deployment or real-host qualification. |
-| Vitest | The initial full run covered 1,108 tests in 56 files: 1,100 passed and 8 failed in the postal-authority fixture because migration 0030 was missing from that fixture. After a one-line test setup correction, all 18 postal-authority tests passed, including the 8 failures. No product code changed after the full run. Together these runs cover the 1,108 tests; a fresh full `npm test` run is not claimed. [Initial JSON](../reports/assistant-hub-vitest-initial.json), [run log](../reports/assistant-hub-vitest.log). |
-| Node security suite | 132 passed. [Run log](../reports/assistant-hub-security-tests.log). |
+| Vitest | The initial full run covered 1,108 tests in 56 files: 1,100 passed and 8 failed in the postal-authority fixture because migration 0030 was missing from that fixture. After a one-line test setup correction, all 18 postal-authority tests passed, including the 8 failures. No product code changed after the full run. Together these runs cover the 1,108 tests; a fresh full `npm test` run is not claimed. Initial JSON (`reports/assistant-hub-vitest-initial.json`), run log (`reports/assistant-hub-vitest.log`). |
+| Node security suite | 132 passed. Run log (`reports/assistant-hub-security-tests.log`). |
 | Design review | The bounded Impeccable review concluded `SHIP` for this local candidate, with no material design reservation. This is a local design judgment, not release authorization. |
 
 The tested behavior includes public guide access without a session, responsive
@@ -162,7 +220,7 @@ connection-list failure and refresh, and the separation of OAuth authorization
 from observed successful exchanges. Test ownership is in the
 [public suite](../tests/preview-e2e/assistant-hub.spec.ts) and
 [private suite](../tests/e2e/assistant-hub.spec.ts). Representative visual proof
-is kept in [the assistant-hub captures](../reports/screenshots/assistant-hub/),
+is kept in the assistant-hub captures (`reports/screenshots/assistant-hub/`),
 including the public directory, guide pages, private workspace and Luxembourg
 footer at desktop and mobile widths.
 
@@ -174,7 +232,7 @@ footer at desktop and mobile widths.
 - A verified tool exchange is narrower than PDF attachment transfer, document
   fidelity, approval, provider acceptance or delivery. None is inferred from
   a logo, guide visit, copied prompt or historical connection observation.
-- The guides are French. No complete multilingual guide parity is claimed.
+- September validation predates the four-language catalog. Current archive instructions use French, English, German and Luxembourgish; historical tests do not qualify their current rendering.
 - Prerendered routes and sitemap entries establish publication readiness;
   they do not establish production publication, crawling or indexing.
 - Production release remains a separate authorized operation, including the

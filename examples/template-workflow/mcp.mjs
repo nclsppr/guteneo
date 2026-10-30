@@ -15,7 +15,7 @@ if (origin.username || origin.password)
 const token = process.env.GUTENEO_BEARER_TOKEN;
 if (!token)
   throw new Error(
-    "GUTENEO_BEARER_TOKEN requis : une connexion OAuth autorisée avec les nouveaux scopes.",
+    "GUTENEO_BEARER_TOKEN required: an authorised OAuth connection with the new scopes.",
   );
 const client = new Client({
   name: "guteneo-template-example",

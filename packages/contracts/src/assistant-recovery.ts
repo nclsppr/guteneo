@@ -4,6 +4,7 @@ export const assistantRecoverySchema = z
   .object({
     action: z.enum([
       "check_document",
+      "check_document_upload",
       "check_pdf_validation",
       "check_dispatch",
       "check_mandate",
@@ -19,6 +20,7 @@ export const assistantRecoverySchema = z
     tool: z
       .enum([
         "get_document",
+        "get_document_upload",
         "get_pdf_validation",
         "get_dispatch_status",
         "get_expert_status",
@@ -34,7 +36,62 @@ export const assistantRecoverySchema = z
 export type AssistantRecovery = z.infer<typeof assistantRecoverySchema>;
 
 export type AssistantRecoveryContext =
-  "read_document_pages" | "postal_setup" | "postal_preflight";
+  | "read_document_pages"
+  | "postal_setup"
+  | "postal_preflight"
+  | "private_document_upload"
+  | "mcp_app_document_upload";
+
+function recoverMcpAppUpload(code: string): AssistantRecovery {
+  if (["MCP_DOCUMENT_UPLOAD_UNAVAILABLE", "APP_UPLOAD_DISABLED", "UPLOAD_AUTHORITY_CHANGED", "CONNECTION_REVOKED", "INSUFFICIENT_SCOPE", "TOKEN_EXPIRED", "TOKEN_INVALID"].includes(code))
+    return {
+      action: "check_document_upload",
+      tool: null,
+      retry: "after_change",
+      message: "Restore current document-write authority and availability before returning to the existing Guteneo PDF App. Keep the same upload and original metadata; this does not activate a mandate or authorize a new import. Use its Check status control after recovery, not a binary-upload tool.",
+    };
+  return {
+    action: "check_document_upload",
+    tool: null,
+    retry: "read_only",
+    message: "Use Check status in the existing Guteneo PDF App for the same upload. If the begin reply contained no ID, that control recovers only the same frozen key, filename, size and SHA-256. Resume content only after conclusive App status explicitly permits it and the person requests Resume. Never invoke App-only tools from the model, expose file bytes, use a new key, switch transport, reconstruct the PDF or create a dispatch. An unknown final pipeline remains status-only.",
+  };
+}
+
+function recoverPrivateUpload(code: string): AssistantRecovery {
+  if (
+    [
+      "CONNECTION_REVOKED",
+      "INSUFFICIENT_SCOPE",
+      "TOKEN_EXPIRED",
+      "TOKEN_INVALID",
+      "POSTAL_AUTHORITY_CHANGED",
+      "UPLOAD_AUTHORITY_CHANGED",
+    ].includes(code)
+  )
+    return {
+      action: "reconnect",
+      tool: null,
+      retry: "after_change",
+      message:
+        "Restore this connection's current document-write authority before reading the same upload. Keep the original and its existing key/metadata. Do not automatically import again, create another key or prepare a dispatch.",
+    };
+  if (code.startsWith("INLINE_PDF_"))
+    return {
+      action: "check_document_upload",
+      tool: null,
+      retry: "after_change",
+      message:
+        "The inline original was refused before a reservation. Check the selected original's exact bytes, size, SHA-256 and canonical base64 locally with the person, within64KiB. Preserve the original and key; do not repair, reconstruct, split or automatically import it again. This creates no dispatch.",
+    };
+  return {
+    action: "check_document_upload",
+    tool: "get_document_upload",
+    retry: "never_resend",
+    message:
+      "The import outcome may already be recorded. If uploadId is known, read only that same ID through get_document_upload. If no ID was received, call begin_document_upload with strictly the same idempotencyKey, fileName, size and SHA-256 to recover its ID, then get_document_upload. Never put base64 or a capability in recovery arguments, automatically call import_inline_pdf again, resend bytes, rescan, use a new key or create a dispatch. Unknown/rejected requires explanation, not another import.",
+  };
+}
 
 function readSameDocument(): AssistantRecovery {
   return {
@@ -42,31 +99,36 @@ function readSameDocument(): AssistantRecovery {
     tool: "read_document_pages",
     retry: "after_change",
     message:
-      "Conservez le même PDF. Après résolution du problème de lecture, reprenez read_document_pages avec les mêmes documentId et page. Ne répétez pas une lecture qui échoue. Cette lecture ne nécessite ni envoi préparé ni mandat expert : ne créez pas d’envoi et ne demandez pas de mandat pour la reprendre.",
+      "Keep the same PDF. After resolving the reader issue, resume read_document_pages with the same documentId and page. Do not repeat a failing read. This read requires neither a prepared dispatch nor an expert mandate: do not create a dispatch or request a mandate to resume it.",
   };
 }
 
 const linkedFaxRenewal =
-  "Si le devis est expiré ou invalide, seul un fax avec status=prepared et attemptCount=0 explicitement peut être renouvelé ; un champ absent ne vaut pas zéro. Utilisez prepare_fax avec renewalOf=ancien dispatchId et les mêmes documentId, phone E.164 et ceilingMinor exacts. Ne préparez jamais librement un autre envoi. Présentez le nouveau devis, puis obtenez une nouvelle approbation ou reprenez la revue expert complète sur le nouvel identifiant sous l’autorité actuelle ; aucun ancien accord ni jeton de revue ne se reporte.";
+  "If the quote is expired or invalid, only a fax explicitly reporting status=prepared and attemptCount=0 may be renewed; a missing field does not mean zero. Use prepare_fax with renewalOf=the previous dispatchId and the exact same documentId, E.164 phone and ceilingMinor. Never freely prepare another dispatch. Present the new quote, then obtain fresh approval or repeat the full expert review on the new identifier under current authority; no previous agreement or review token carries over.";
 
 /** Closed, content-free actions. Error categories never authorize a send. */
 export function assistantRecovery(
   code: string,
   context?: AssistantRecoveryContext,
 ): AssistantRecovery {
+  if (context === "mcp_app_document_upload") return recoverMcpAppUpload(code);
+  if (context === "private_document_upload") return recoverPrivateUpload(code);
   if (["PDF_VALIDATION_BUSY", "PDF_VALIDATION_FAILED"].includes(code))
     return {
       action: "check_pdf_validation",
       tool: "get_pdf_validation",
       retry: "read_only",
       message:
-        "Conservez le même PDF et la même clé de contrôle. Consultez les rapports enregistrés, sans relancer ni réimporter automatiquement. Un échec du service n’est pas un verdict sur l’accessibilité du PDF.",
+        "Keep the same PDF and check key. View the saved reports without automatically rerunning or importing again. Service failure is not an accessibility verdict on the PDF.",
     };
   if (
     [
-      "HORIZON_PLAN_REQUIRED",
-      "HORIZON_UNAVAILABLE",
-      "PDF_VALIDATION_QUOTA_EXCEEDED",
+      "PDF_VALIDATION_BROWSER_PURCHASE_REQUIRED",
+      "PDF_VALIDATION_ADMIN_REQUIRED",
+      "PDF_VALIDATION_PURCHASE_REQUIRED",
+      "PDF_VALIDATION_PRICE_CHANGED",
+      "PDF_VALIDATION_CREDIT_INSUFFICIENT",
+      "PDF_VALIDATION_UNAVAILABLE",
       "PDF_VALIDATOR_CONFIGURATION_REQUIRED",
     ].includes(code)
   )
@@ -75,7 +137,7 @@ export function assistantRecovery(
       tool: null,
       retry: "after_change",
       message:
-        "Expliquez la limite du compte ou du service à la personne. L’assistant ne peut modifier aucun forfait, crédit ou réglage de facturation. Ne réessayez pas automatiquement et ne présentez pas ce refus comme un contrôle du PDF.",
+        "Open the supplied Guteneo document link for a current browser administrator to review the exact PDF, selected profile and unit price. An assistant cannot approve a purchase or change credits or billing settings. Do not retry automatically or describe this refusal as a completed PDF check.",
     };
   if (code === "CONNECTION_REVOKED")
     return {
@@ -83,7 +145,7 @@ export function assistantRecovery(
       tool: null,
       retry: "after_change",
       message:
-        "Cette connexion doit être réautorisée par un administrateur avant de reprendre ici. Cela n’active ni ne renouvelle le mandat expert.",
+        "An administrator must reauthorize this connection before resuming here. This does not activate or renew the expert mandate.",
     };
   if (
     [
@@ -99,7 +161,7 @@ export function assistantRecovery(
       tool: null,
       retry: "after_change",
       message:
-        "Reconnectez Guteneo dans l’assistant avec les droits nécessaires, puis reprenez ici. Une reconnexion ne renouvelle pas le mandat expert.",
+        "Reconnect Guteneo in the assistant with the required permissions, then resume here. Reconnecting does not renew the expert mandate.",
     };
   if (
     [
@@ -115,7 +177,7 @@ export function assistantRecovery(
       tool: "get_expert_status",
       retry: "read_only",
       message:
-        "Consultez le mandat de cette connexion et ses limites avant de continuer. L’assistant ne peut ni l’activer ni augmenter les plafonds.",
+        "Read this connection’s mandate and limits before continuing. The assistant cannot activate it or raise its ceilings.",
     };
   if (
     [
@@ -135,7 +197,7 @@ export function assistantRecovery(
       tool: "get_postal_setup",
       retry: "read_only",
       message:
-        "Consultez la configuration postale du même compte et expliquez reason et canManage. Si l’expéditeur manque, recueillez seulement son nom et son adresse dans cette conversation ; un administrateur autorisé peut demander configure_postal_sender avec ces valeurs. Si seuls les tarifs ont expiré, expliquez la revalidation et reprenez explicitement la même configuration avec le même expéditeur. Ne remplacez pas un expéditeur existant, ne restaurez aucune suspension et ne créez aucun mandat. Conservez le PDF déjà importé ; la configuration n’autorise ni transfert ni envoi.",
+        "Read the same account's postal setup and explain reason and canManage. If the sender is missing, collect only their name and address in this conversation; an authorized administrator may request configure_postal_sender with those values. If only pricing has expired, explain revalidation and explicitly repeat the same setup with the same sender. Do not replace an existing sender, restore any suspension or create a mandate. Keep the imported PDF; setup authorizes neither transfer nor sending.",
     };
   if (code === "POSTAL_DRAFT_NOT_READY")
     return {
@@ -143,7 +205,7 @@ export function assistantRecovery(
       tool: "get_postal_preflight",
       retry: "read_only",
       message:
-        "Le courrier existant est encore en cours d’analyse. Conservez preflightId et la clé de devis ; consultez ce contrôle, puis attendez avant de reprendre quote_postal_draft avec exactement les mêmes valeurs. Ne retransférez pas le PDF et ne créez pas un autre contrôle ou une nouvelle clé. Aucun envoi n’est encore créé par ce refus.",
+        "The existing letter is still being analyzed. Keep preflightId and the quote key; inspect this preflight, then wait before resuming quote_postal_draft with exactly the same values. Do not transfer the PDF again or create another preflight or key. This refusal has not created a dispatch.",
     };
   if (code === "POSTAL_PREFLIGHT_NOT_FOUND")
     return {
@@ -151,7 +213,7 @@ export function assistantRecovery(
       tool: null,
       retry: "after_change",
       message:
-        "Ce contrôle postal est introuvable dans le compte connecté. Vérifiez l’identifiant conservé et le compte avec la personne ; ne supposez pas qu’un autre contrôle est le bon et ne recréez pas un transfert pour contourner ce refus.",
+        "This postal preflight was not found in the connected account. Check the saved identifier and account with the person; do not assume another preflight is correct or recreate a transfer to bypass this refusal.",
     };
   if (
     [
@@ -169,7 +231,7 @@ export function assistantRecovery(
       tool: "get_postal_preflight",
       retry: "never_resend",
       message:
-        "Relisez le même contrôle postal et son transfert avant toute nouvelle action. Un transfert unknown exige un rapprochement, jamais une nouvelle clé ou un nouveau dépôt. Une revue expirée, modifiée ou bloquée n’autorise pas la transmission. Conservez le PDF, les options et les identifiants ; expliquez la correction nécessaire et reprenez la revue sous l’autorité actuelle sans inventer d’approbation.",
+        "Reread the same postal preflight and its transfer before any further action. An unknown transfer requires reconciliation, never a new key or upload. An expired, changed or blocked review does not authorize transmission. Keep the PDF, options and identifiers; explain the required correction and resume review under current authority without inventing approval.",
     };
   if (
     [
@@ -185,7 +247,7 @@ export function assistantRecovery(
           tool: "get_dispatch_status",
           retry: "never_resend",
           message:
-            "Relisez le statut du même envoi. S’il est toujours préparé et son devis valide, reprenez sa revue. " +
+            "Reread the same dispatch's status. If it remains prepared and its quote is valid, resume its review. " +
             linkedFaxRenewal,
         };
   if (["FAX_QUOTE_RENEWAL_UNSAFE", "RENEWAL_CONTENT_MISMATCH"].includes(code))
@@ -196,7 +258,7 @@ export function assistantRecovery(
           tool: "get_dispatch_status",
           retry: "never_resend",
           message:
-            "Arrêtez le renouvellement et consultez le statut du même envoi pour expliquer le refus. Ne contournez pas ce blocage par une préparation libre, un autre PDF, numéro, plafond ou une nouvelle clé. Un résultat de transmission incertain ne doit jamais être renvoyé.",
+            "Stop renewal and read the same dispatch's status to explain the refusal. Do not bypass this block with a fresh preparation, another PDF, number, ceiling or key. Never resend an uncertain transmission.",
         };
   if (code === "QUOTE_STILL_VALID")
     return context === "read_document_pages"
@@ -206,7 +268,7 @@ export function assistantRecovery(
           tool: "get_dispatch_status",
           retry: "never_resend",
           message:
-            "Consultez le statut du même envoi. Si son devis est toujours valide et son statut préparé, reprenez la revue et l’approbation de ce devis existant ; aucun renouvellement ni nouvel envoi n’est nécessaire.",
+            "Read the same dispatch's status. If its quote remains valid and its status is prepared, resume review and approval of that existing quote; no renewal or new dispatch is needed.",
         };
   if (code === "EXPERT_REVIEW_SEQUENCE_REQUIRED")
     return {
@@ -214,7 +276,7 @@ export function assistantRecovery(
       tool: "review_dispatch",
       retry: "after_change",
       message:
-        "Reprenez la lecture du même envoi à la page 1, puis suivez nextPage sans sauter de pages.",
+        "Resume reading the same dispatch at page 1, then follow nextPage without skipping pages.",
     };
   if (
     [
@@ -230,7 +292,7 @@ export function assistantRecovery(
       tool: "get_document",
       retry: "read_only",
       message:
-        "Consultez la vérification du même PDF et suivez son action proposée ; aucun nouvel import n’est nécessaire.",
+        "Read the same PDF's verification and follow its proposed action; no new import is needed.",
     };
   if (
     [
@@ -250,7 +312,7 @@ export function assistantRecovery(
           tool: "review_dispatch",
           retry: "after_change",
           message:
-            "Conservez le même envoi. La revue par images accepte les PDF jusqu’à 10 Mio ; le PDF intégré jusqu’à 1 Mio est une alternative seulement si l’hôte sait le lire. Ne répétez pas une lecture qui échoue et n’approuvez aucune page illisible.",
+            "Keep the same dispatch. Image review accepts PDFs up to 10 MiB; an embedded PDF up to 1 MiB is an alternative only if the host can read it. Do not repeat a failing read or approve an unreadable page.",
         };
   if (
     ["DOWNLOAD_FAILED", "DOWNLOAD_TIMEOUT", "DOWNLOAD_EXPIRED"].includes(code)
@@ -260,7 +322,7 @@ export function assistantRecovery(
       tool: null,
       retry: "after_change",
       message:
-        "Joignez à nouveau le PDF original dans cette conversation pour renouveler son accès. Ne le reconstruisez pas à partir de son texte.",
+        "Attach the original PDF again in this conversation to renew access. Do not reconstruct it from its text.",
     };
   if (code === "REVIEW_UNSUPPORTED_CONTENT")
     return {
@@ -268,7 +330,7 @@ export function assistantRecovery(
       tool: null,
       retry: "after_change",
       message:
-        "Le document ne peut pas être relu fidèlement pour cet envoi. Expliquez cette limite ici ; une revue humaine reste une alternative choisie par l’utilisateur, sans ouverture automatique du site.",
+        "The document cannot be faithfully reread for this dispatch. Explain this limitation here; human review remains an alternative chosen by the user, without opening the site automatically.",
     };
   if (
     ["DOCUMENT_INTEGRITY_ERROR", "DOCUMENT_INTEGRITY_MISMATCH"].includes(code)
@@ -278,7 +340,7 @@ export function assistantRecovery(
       tool: null,
       retry: "after_change",
       message:
-        "Arrêtez cette revue et contactez l’assistance : l’intégrité du PDF ou sa preuve de vérification doit être rétablie avant toute approbation. Changer de format ou ouvrir le site ne résout pas ce blocage.",
+        "Stop this review and contact support: the PDF's integrity or verification evidence must be restored before any approval. Changing format or opening the site does not resolve this block.",
     };
   if (code.startsWith("POSTAL_ADDRESS_PAGE_"))
     return {
@@ -286,7 +348,7 @@ export function assistantRecovery(
       tool: "get_document",
       retry: "after_change",
       message:
-        "Conservez le PDF source et la clé de génération. Si un nouveau document a été retourné, consultez sa vérification sans régénérer. Après une interruption temporaire, reprenez create_postal_address_page avec exactement la même clé et les mêmes paramètres. Une adresse, un format ou une limite refusés doivent être corrigés explicitement avec la personne avant une nouvelle demande ; ne tronquez pas l’adresse et ne créez aucun envoi pour contourner ce refus.",
+        "Keep the source PDF and generation key. If a new document was returned, inspect its verification without regenerating it. After a temporary interruption, resume create_postal_address_page with exactly the same key and parameters. A rejected address, format or limit must be explicitly corrected with the person before a new request; do not truncate the address or create a dispatch to bypass this refusal.",
     };
   if (
     [
@@ -308,7 +370,7 @@ export function assistantRecovery(
       tool: null,
       retry: "after_change",
       message:
-        "Un PDF valide et compatible est nécessaire, dans la limite de 10 Mio et 100 pages. Demandez une version corrigée à l’utilisateur ; ne modifiez pas l’original sans sa demande et ne répétez pas l’import du même fichier invalide.",
+        "A valid compatible PDF is required within the 10 MiB and 100-page limits. Ask the user for a corrected version; do not change the original without their request or repeat import of the same invalid file.",
     };
   if (code === "SOURCE_NOT_ALLOWED")
     return {
@@ -316,7 +378,7 @@ export function assistantRecovery(
       tool: null,
       retry: "after_change",
       message:
-        "La source du fichier doit être autorisée par Guteneo. Conservez le diagnostic de domaine pour l’assistance, sans partager son URL temporaire ; ne multipliez pas les imports et n’inventez pas une autre URL.",
+        "Guteneo must authorize the file source. Keep the domain diagnostic for support without sharing its temporary URL; do not multiply imports or invent another URL.",
     };
   if (["CREDIT_EXHAUSTED", "QUOTA_EXCEEDED"].includes(code))
     return context === "postal_preflight"
@@ -325,14 +387,14 @@ export function assistantRecovery(
           tool: "get_postal_preflight",
           retry: "after_change",
           message:
-            "Les crédits et quotas du compte restent requis. Conservez le PDF, le contrôle et la clé de devis ; consultez le même contrôle s’il existe puis attendez que cette limite soit résolue. Ne créez pas de doublon et ne promettez pas de recharge disponible.",
+            "Account credits and quotas remain required. Keep the PDF, preflight and quote key; inspect the same preflight if it exists, then wait until the limit is resolved. Do not create a duplicate or promise available top-ups.",
         }
       : {
           action: "check_dispatch",
           tool: "get_dispatch_status",
           retry: "after_change",
           message:
-            "Le budget du mandat ne remplace pas les crédits et quotas du compte. Conservez le même envoi et attendez que cette limite soit résolue ; ne créez pas un doublon et ne promettez pas de recharge disponible.",
+            "The mandate budget does not replace account credits and quotas. Keep the same dispatch and wait until this limit is resolved; do not create a duplicate or promise available top-ups.",
         };
   if (context === "read_document_pages") return readSameDocument();
   if (context === "postal_setup")
@@ -341,7 +403,7 @@ export function assistantRecovery(
       tool: "get_postal_setup",
       retry: "read_only",
       message:
-        "Consultez l’expéditeur et la configuration du même compte. Après une réponse perdue, conservez les valeurs fournies et vérifiez cet état avant de reprendre configure_postal_sender avec exactement le même nom et la même adresse ; ne remplacez pas l’identité, ne restaurez aucune suspension et ne renouvelez rien par une lecture. Les champs manquants se recueillent dans cette conversation.",
+        "Read the same account's sender and setup. After a lost response, keep the supplied values and check that state before resuming configure_postal_sender with exactly the same name and address; do not replace the identity, restore any suspension or renew anything through a read. Collect missing fields in this conversation.",
     };
   if (context === "postal_preflight")
     return {
@@ -349,13 +411,13 @@ export function assistantRecovery(
       tool: "get_postal_preflight",
       retry: "never_resend",
       message:
-        "Conservez le même PDF et le même contrôle postal. Si preflightId a été retourné, consultez-le avant toute action. Si seule la réponse de création du contrôle a été perdue, reprenez preflight_postal_pdf avec exactement les mêmes paramètres et la même clé, sans nouvelle importation. Un transfert unknown ou un envoi incertain ne se relance jamais ; aucun échec n’autorise un autre dépôt ni un autre envoi.",
+        "Keep the same PDF and postal preflight. If preflightId was returned, inspect it before any action. If only the preflight creation response was lost, resume preflight_postal_pdf with exactly the same parameters and key, without importing again. Never retry an unknown transfer or uncertain dispatch; no failure authorizes another upload or dispatch.",
     };
   return {
     action: "check_dispatch",
     tool: "get_dispatch_status",
     retry: "never_resend",
     message:
-      "Si un envoi existe déjà, consultez son statut avant toute nouvelle action. Ne créez pas de doublon et ne renvoyez jamais un envoi au résultat incertain.",
+      "If a dispatch already exists, read its status before any further action. Do not create a duplicate or resend a dispatch with an uncertain outcome.",
   };
 }

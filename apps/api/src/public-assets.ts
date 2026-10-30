@@ -1,10 +1,22 @@
+import mcpUiProbeManifest from "../../../packages/contracts/src/mcp-ui-probe-resource.json";
+import mcpDocumentUploadManifest from "../../../packages/contracts/src/mcp-document-upload-resource.json";
 import site from "../../../packages/contracts/src/public-site.json" with { type: "json" };
 import {
+  canonicalPublicAssetPath,
+  canonicalPublicPath,
+} from "../../../packages/contracts/src/public-routes";
+import {
+  applyPublicLocaleHeaders,
   isPublicLocaleAssetPath,
   localizedPublicPath,
   requestedPublicLocale,
+  resolvePublicRequestLocale,
 } from "../../../packages/contracts/src/public-locales";
 import { assertBaseConfiguration, type Env } from "./env";
+import {
+  isPublicDocumentNavigation,
+  publicHttpError,
+} from "./public-http-error";
 import { withPublicVideoRange } from "./public-video-range";
 
 const publicPages = new Set(site.paths);
@@ -38,9 +50,8 @@ export async function servePublicAssets(
   try {
     pathname = decodeURIComponent(url.pathname);
   } catch {
-    return new Response(request.method === "HEAD" ? null : "Invalid path", {
-      status: 400,
-      headers: privateHeaders,
+    return publicHttpError(request, url.pathname, 400, {
+      plainMessage: "Invalid path",
     });
   }
   if (isPublicLocaleAssetPath(pathname))
@@ -61,10 +72,31 @@ export async function servePublicAssets(
   try {
     assertBaseConfiguration(env, request);
   } catch {
-    return new Response(
-      request.method === "HEAD" ? null : "Service configuration unavailable",
-      { status: 503, headers: privateHeaders },
-    );
+    return publicHttpError(request, pathname, 503, {
+      plainMessage: "Service configuration unavailable",
+    });
+  }
+
+  const canonicalPath =
+    canonicalPublicPath(pathname) ?? canonicalPublicAssetPath(pathname);
+  if (canonicalPath && canonicalPath !== url.pathname) {
+    const target = new URL(url);
+    target.pathname = canonicalPath;
+    const crawlable =
+      url.origin === site.origin &&
+      publicPages.has(canonicalPath) &&
+      (!url.search ||
+        (requestedPublicLocale(url.searchParams) !== null &&
+          [...url.searchParams.keys()].every((key) => key === "lang")));
+    return new Response(null, {
+      status: 308,
+      headers: {
+        ...securityHeaders,
+        Location: target.href,
+        "X-Robots-Tag": crawlable ? "noindex, follow" : "noindex, nofollow",
+        "Cache-Control": crawlable ? "public, max-age=3600" : "no-store",
+      },
+    });
   }
 
   if (
@@ -72,7 +104,7 @@ export async function servePublicAssets(
     pathname === "/invitation" ||
     url.pathname === "/app" ||
     url.pathname === "/app/prepare" ||
-    url.pathname === "/app/plan"
+    ["/app/plan", "/app/pdf-checks"].includes(url.pathname)
   ) {
     // Private browser entries share the root shell without forwarding URL data.
     // The invitation secret stays in the URL fragment and never reaches asset logs.
@@ -102,10 +134,11 @@ export async function servePublicAssets(
     });
   }
   let response: Response;
+  const localeSelection = resolvePublicRequestLocale(url, request.headers);
   try {
     const localizedPath = localizedPublicPath(
       url.pathname,
-      requestedPublicLocale(url.searchParams),
+      localeSelection?.locale ?? null,
     );
     const assetUrl = new URL(url);
     if (localizedPath) assetUrl.pathname = localizedPath;
@@ -117,12 +150,58 @@ export async function servePublicAssets(
       await env.ASSETS.fetch(assetRequest),
     );
   } catch {
-    return new Response(
-      request.method === "HEAD" ? null : "Static content unavailable",
-      { status: 503, headers: privateHeaders },
-    );
+    return publicHttpError(request, pathname, 503, {
+      plainMessage: "Static content unavailable",
+    });
+  }
+  const missingVariant =
+    response.status === 404 && publicPages.has(url.pathname);
+  const representationType = (response.headers.get("Content-Type") ?? "")
+    .split(";")[0]
+    .trim()
+    .toLowerCase();
+  const documentErrorRepresentation = [
+    "",
+    "text/html",
+    "text/plain",
+    "application/xhtml+xml",
+  ].includes(representationType);
+  const dispositionType = (response.headers.get("Content-Disposition") ?? "")
+    .split(";")[0]
+    .trim()
+    .toLowerCase();
+  const protocolError =
+    request.headers.has("Range") ||
+    request.headers.has("If-Range") ||
+    response.status === 416 ||
+    response.headers.has("Content-Range") ||
+    (dispositionType !== "" && dispositionType !== "inline");
+  if (
+    !protocolError &&
+    documentErrorRepresentation &&
+    (response.status === 404 ||
+      (response.status >= 400 &&
+        response.status <= 599 &&
+        isPublicDocumentNavigation(request, pathname)))
+  ) {
+    // Discard only an error representation already owned by this public boundary.
+    // Successful bytes and non-document protocol/binary responses stay untouched.
+    try {
+      await response.body?.cancel();
+    } catch {
+      /* No upstream error data is exposed. */
+    }
+    return publicHttpError(request, pathname, response.status, {
+      allowDocument: !missingVariant,
+      protocolHeaders: response.headers,
+    });
   }
   const headers = new Headers(response.headers);
+  // App shells remain inert public text; only authorized MCP resource reads execute them.
+  if (
+    [mcpUiProbeManifest.path, mcpDocumentUploadManifest.path].includes(pathname)
+  )
+    headers.set("Content-Type", "text/plain; charset=utf-8");
   for (const [name, value] of Object.entries(securityHeaders))
     headers.set(name, value);
   const indexable =
@@ -166,8 +245,29 @@ export async function servePublicAssets(
     )
   )
     headers.set("Cache-Control", "no-store");
-  // Preserve asset bytes (or the selected video range), ETag, status and redirects.
-  // Never rewrite HTML or cache across hosts.
+  const publicHtml = applyPublicLocaleHeaders(headers, localeSelection, {
+    status: response.status,
+    protocolError,
+    privateQuery,
+  });
+  if (canonical && publicHtml) {
+    // Cloudflare's automatic HTML injection must not change the bytes bound
+    // to our release manifest. no-transform must be sent by the origin, not
+    // requested by the monitor. Keep the existing cache directives and any
+    // already encoded representation, including its ETag and framing.
+    const cacheControl = headers.get("Cache-Control");
+    if (
+      !cacheControl
+        ?.split(",")
+        .some((directive) => directive.trim().toLowerCase() === "no-transform")
+    )
+      headers.set(
+        "Cache-Control",
+        cacheControl ? `${cacheControl}, no-transform` : "no-transform",
+      );
+  }
+  // Preserve successful asset bytes (or the selected video range), ETag, status
+  // and redirects. Error documents are generated above, never cached across hosts.
   return new Response(request.method === "HEAD" ? null : response.body, {
     status: response.status,
     statusText: response.statusText,

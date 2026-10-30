@@ -1,0 +1,301 @@
+{
+  "This quote is for viewing only. It cannot be approved or sent. No amount is reserved or charged.": [
+    "Ce devis est réservé à la consultation. Il ne peut être ni approuvé ni envoyé. Aucun montant n’est réservé ou débité.",
+    "Dieses Angebot dient nur zur Ansicht. Es kann weder freigegeben noch versandt werden. Es wird kein Betrag reserviert oder abgebucht.",
+    "Dësen Devis ass nëmme fir ze kucken. En kann weder bestätegt nach geschéckt ginn. Kee Montant gëtt reservéiert oder verrechent."
+  ],
+  "For review preparation only. This reference range excluding tax uses real rates and duration assumptions; it excludes unqualified conditional adjustments. This fax cannot be approved or sent, including in expert mode. No amount is reserved or charged. Local Calling capability remains unconfirmed.": [
+    "Préparation de revue uniquement. Cette fourchette de référence HT utilise des tarifs réels et des hypothèses de durée ; elle exclut les ajustements conditionnels non qualifiés. Ce fax ne peut être ni approuvé ni envoyé, y compris en mode expert. Aucun montant n’est réservé ou débité. La capacité Local Calling reste non confirmée.",
+    "Nur zur Vorbereitung einer Prüfung. Diese Referenzspanne ohne Steuern verwendet tatsächliche Tarife und Annahmen zur Dauer; nicht qualifizierte bedingte Anpassungen sind ausgeschlossen. Dieses Fax kann weder freigegeben noch versandt werden, auch nicht im Expertenmodus. Es wird kein Betrag reserviert oder abgebucht. Die Funktion Local Calling bleibt unbestätigt.",
+    "Nëmme fir eng Kontroll virzebereeden. Dëse Referenzberäich ouni Steiere benotzt reell Tariffer an Hypotheesen iwwer d’Dauer; net qualifizéiert bedéngt Upassunge sinn ausgeschloss. Dëse Fax kann weder bestätegt nach geschéckt ginn, och net am Expertmodus. Kee Montant gëtt reservéiert oder verrechent. D’Funktioun Local Calling bleift onbestätegt."
+  ],
+  "Refresh tracking": [
+    "Actualiser le suivi",
+    "Sendungsverfolgung aktualisieren",
+    "De Status aktualiséieren"
+  ],
+  "Cancel this dispatch": [
+    "Annuler cet envoi",
+    "Diese Sendung stornieren",
+    "Dës Sendung annuléieren"
+  ],
+  "Cancelled": ["Annulé", "Storniert", "Annuléiert"],
+  "Channel": ["Canal", "Kanal", "Kanal"],
+  "Recipient": ["Destinataire", "Empfänger", "Empfänger"],
+  "Quote valid until": [
+    "Devis valable jusqu’au",
+    "Angebot gültig bis",
+    "Devis gülteg bis"
+  ],
+  "Email": ["E-mail", "E-Mail", "E-Mail"],
+  "Sender": ["Expéditeur", "Absender", "Ofsender"],
+  "Fax": ["Fax", "Fax", "Fax"],
+  "Guteneo": ["Guteneo", "Guteneo", "Guteneo"],
+  "Printed": ["Imprimé", "Gedruckt", "Gedréckt"],
+  "Subject": ["Objet", "Betreff", "Betreff"],
+  "Complaint received": [
+    "Réclamation reçue",
+    "Beschwerde eingegangen",
+    "Reklamatioun kritt"
+  ],
+  "Tracking in progress": [
+    "Suivi en cours",
+    "Sendungsverfolgung läuft",
+    "De Status gëtt verfollegt"
+  ],
+  "Transmission in progress": [
+    "Transmission en cours",
+    "Übertragung läuft",
+    "Iwwerdroung leeft"
+  ],
+  "Your approval": ["Votre validation", "Ihre Freigabe", "Är Bestätegung"],
+  "Needs verification": [
+    "À vérifier",
+    "Prüfung erforderlich",
+    "Muss gepréift ginn"
+  ],
+  "Failed": ["Échec", "Fehlgeschlagen", "Feelgeschloen"],
+  "Review dispatch": [
+    "Vérifier l’envoi",
+    "Sendung prüfen",
+    "D’Sendung préiwen"
+  ],
+  "This page is only for reviewing this dispatch. Close it to return to the app.": [
+    "Cette page sert uniquement à vérifier cet envoi. Fermez-la pour revenir à l’application.",
+    "Diese Seite dient ausschließlich zur Prüfung dieser Sendung. Schließen Sie sie, um zur App zurückzukehren.",
+    "Dës Säit déngt nëmmen der Kontroll vun dëser Sendung. Maacht se zou, fir an d’App zeréckzegoen."
+  ],
+  "Operation unavailable": [
+    "Opération indisponible",
+    "Vorgang nicht verfügbar",
+    "Aktioun net disponibel"
+  ],
+  "Browser sign-in required": [
+    "Connexion navigateur requise",
+    "Browser-Anmeldung erforderlich",
+    "Umeldung am Browser néideg"
+  ],
+  "Use secure sign-in in your browser to review this dispatch.": [
+    "Utilisez la connexion sécurisée dans votre navigateur pour vérifier cet envoi.",
+    "Melden Sie sich sicher in Ihrem Browser an, um diese Sendung zu prüfen.",
+    "Mellt Iech sécher an Ärem Browser un, fir dës Sendung ze préiwen."
+  ],
+  "Sign in again to continue": [
+    "Reconnectez-vous pour continuer",
+    "Erneut anmelden, um fortzufahren",
+    "Mellt Iech nach eng Kéier un, fir weiderzefueren"
+  ],
+  "Your session or its security confirmation is no longer valid. The operation was not performed.": [
+    "Votre session ou sa confirmation de sécurité n’est plus valide. L’opération n’a pas été effectuée.",
+    "Ihre Sitzung oder deren Sicherheitsbestätigung ist nicht mehr gültig. Der Vorgang wurde nicht ausgeführt.",
+    "Är Sessioun oder hir Sécherheetsbestätegung ass net méi gülteg. D’Aktioun gouf net ausgeféiert."
+  ],
+  "Secure sign-in": [
+    "Connexion sécurisée",
+    "Sichere Anmeldung",
+    "Sécher Umeldung"
+  ],
+  "Dispatch unavailable": [
+    "Envoi indisponible",
+    "Sendung nicht verfügbar",
+    "Sendung net disponibel"
+  ],
+  "You cannot view this dispatch from this workspace.": [
+    "Vous ne pouvez pas consulter cet envoi depuis cet espace.",
+    "Sie können diese Sendung in diesem Arbeitsbereich nicht einsehen.",
+    "Dir kënnt dës Sendung net an dësem Aarbechtsberäich kucken."
+  ],
+  "Awaiting processing": [
+    "En attente de traitement",
+    "Verarbeitung ausstehend",
+    "Waart op d’Bearbechtung"
+  ],
+  "Outcome unconfirmed: do not send this dispatch again": [
+    "Résultat à vérifier : ne renvoyez pas cet envoi",
+    "Ergebnis unbestätigt: diese Sendung nicht erneut versenden",
+    "Resultat net bestätegt: schéckt dës Sendung net nach eng Kéier"
+  ],
+  "Accepted by provider": [
+    "Accepté par le fournisseur",
+    "Vom Anbieter angenommen",
+    "Vum Fournisseur ugeholl"
+  ],
+  "Delivered": ["Livré", "Zugestellt", "Zougestallt"],
+  "Not delivered": ["Non distribué", "Nicht zugestellt", "Net zougestallt"],
+  "Handed to the postal network": [
+    "Remis au réseau postal",
+    "An das Postnetz übergeben",
+    "Un d’Postnetz iwwerreecht"
+  ],
+  "This dispatch cannot be confirmed right now. No new dispatch was triggered. You can keep your preparation and contact support if needed.": [
+    "Cet envoi ne peut pas être confirmé actuellement. Aucun nouvel envoi n’a été déclenché. Vous pouvez conserver votre préparation et contacter l’assistance si nécessaire.",
+    "Diese Sendung kann derzeit nicht bestätigt werden. Es wurde keine neue Sendung ausgelöst. Ihre Vorbereitung bleibt erhalten; wenden Sie sich bei Bedarf an den Support.",
+    "Dës Sendung kann am Moment net bestätegt ginn. Keng nei Sendung gouf ausgeléist. Dir kënnt Är Virbereedung behalen a bei Bedarf d’Hëllef kontaktéieren."
+  ],
+  "The quote is no longer valid. Refresh this page to check renewal options, then review the new quote.": [
+    "Le devis n’est plus valable. Actualisez cette page pour consulter les possibilités de renouvellement, puis vérifiez la nouvelle proposition.",
+    "Das Angebot ist nicht mehr gültig. Aktualisieren Sie diese Seite, um Erneuerungsmöglichkeiten anzuzeigen, und prüfen Sie dann das neue Angebot.",
+    "Den Devis ass net méi gülteg. Aktualiséiert dës Säit, fir d’Erneierungsoptiounen ze kucken, a préift duerno den neien Devis."
+  ],
+  "The displayed version has changed. Refresh this page and review the dispatch before continuing.": [
+    "La version affichée a changé. Actualisez cette page et relisez l’envoi avant de continuer.",
+    "Die angezeigte Version hat sich geändert. Aktualisieren Sie die Seite und prüfen Sie die Sendung, bevor Sie fortfahren.",
+    "Déi ugewisen Versioun huet sech geännert. Aktualiséiert dës Säit a préift d’Sendung, ier Dir weiderfuert."
+  ],
+  "The security confirmation is no longer valid. Refresh the page before continuing.": [
+    "La confirmation de sécurité n’est plus valide. Actualisez la page avant de continuer.",
+    "Die Sicherheitsbestätigung ist nicht mehr gültig. Aktualisieren Sie die Seite, bevor Sie fortfahren.",
+    "D’Sécherheetsbestätegung ass net méi gülteg. Aktualiséiert d’Säit, ier Dir weiderfuert."
+  ],
+  "Confirm that the recipient requested this email before approving it.": [
+    "Confirmez que le destinataire a demandé cet e-mail avant de l’approuver.",
+    "Bestätigen Sie vor der Freigabe, dass der Empfänger diese E-Mail angefordert hat.",
+    "Bestätegt virun der Freigab, datt den Empfänger dës E-Mail ugefrot huet."
+  ],
+  "The operation could not be confirmed. Refresh tracking before trying again; do not prepare a new dispatch to replace an uncertain outcome.": [
+    "L’opération n’a pas pu être confirmée. Actualisez le suivi avant de recommencer ; ne préparez pas un nouvel envoi pour remplacer un résultat incertain.",
+    "Der Vorgang konnte nicht bestätigt werden. Aktualisieren Sie die Sendungsverfolgung vor einem neuen Versuch; bereiten Sie bei ungewissem Ergebnis keine Ersatzsendung vor.",
+    "D’Aktioun konnt net bestätegt ginn. Aktualiséiert de Status virun engem neie Versuch; bereet bei engem onséchere Resultat keng Ersatzsendung vir."
+  ],
+  "Printing": ["Impression", "Druck", "Drock"],
+  "Colour": ["Couleur", "Farbe", "Faarf"],
+  "Delivery service": ["Acheminement", "Versanddienst", "Versanddéngscht"],
+  "Address position": [
+    "Position de l’adresse",
+    "Adressposition",
+    "Positioun vun der Adress"
+  ],
+  "Message type": ["Type de message", "Nachrichtentyp", "Typ vum Message"],
+  "Paper": ["Papier", "Papier", "Pabeier"],
+  "Single-sided": ["Recto", "Einseitig", "Eensäiteg"],
+  "Double-sided": ["Recto verso", "Beidseitig", "Bäidsäiteg"],
+  "Black and white": ["Noir et blanc", "Schwarzweiß", "Schwaarz-wäiss"],
+  "Economy": ["Économique", "Economy", "Ekonomesch"],
+  "Fast": ["Rapide", "Schnell", "Séier"],
+  "Left": ["À gauche", "Links", "Lénks"],
+  "Right": ["À droite", "Rechts", "Riets"],
+  "Transactional": ["Transactionnel", "Transaktional", "Transaktionell"],
+  "Standard": ["Standard", "Standard", "Standard"],
+  "Yes": ["Oui", "Ja", "Jo"],
+  "No": ["Non", "Nein", "Nee"],
+  "Not set": ["Non défini", "Nicht festgelegt", "Net festgeluecht"],
+  "{low} to {high}": ["{low} à {high}", "{low} bis {high}", "{low} bis {high}"],
+  "Final email content": [
+    "Contenu final de l’e-mail",
+    "Endgültiger E-Mail-Inhalt",
+    "Finalen Inhalt vun der E-Mail"
+  ],
+  "Simulation: no real communication.": [
+    "Simulation : aucune communication réelle.",
+    "Simulation: keine echte Kommunikation.",
+    "Simulatioun: keng reell Kommunikatioun."
+  ],
+  "Recipient and cost": [
+    "Destinataire et coût",
+    "Empfänger und Kosten",
+    "Empfänger a Käschten"
+  ],
+  "Postal letter": ["Courrier postal", "Briefpost", "Postbréif"],
+  "Estimate": ["Estimation", "Schätzung", "Schätzung"],
+  " excl. tax": [" HT", " ohne Steuern", " ouni Steieren"],
+  "Firm limit": ["Plafond ferme", "Verbindliche Obergrenze", "Fest Limitt"],
+  "The cost of this entire fax depends on transmission duration. The limit is reserved when you confirm. The final cost is determined after usage verification and cannot exceed the limit. Fractions of a cent are accumulated across dispatches.": [
+    "Le coût de ce fax entier dépend de la durée de transmission. Le plafond est réservé à la confirmation. Le coût définitif est déterminé après vérification de l’usage et reste limité au plafond. Les fractions de centime sont cumulées entre les envois.",
+    "Die Kosten dieses gesamten Faxes hängen von der Übertragungsdauer ab. Die Obergrenze wird bei der Bestätigung reserviert. Die endgültigen Kosten werden nach Prüfung der Nutzung bestimmt und überschreiten die Obergrenze nicht. Bruchteile eines Cents werden über mehrere Sendungen angesammelt.",
+    "D’Käschte vun dësem ganze Fax hänke vun der Iwwerdroungsdauer of. D’Limitt gëtt bei der Bestätegung reservéiert. Déi definitiv Käschte ginn no der Kontroll vum Verbrauch ermëttelt a bleiwen ënner der Limitt. Brochdeeler vun engem Cent gi fir verschidde Sendungen zesummegerechent."
+  ],
+  "Luxembourg test authorised by the operator. Local Calling capability is unconfirmed; the provider may reject transmission.": [
+    "Test Luxembourg autorisé par l’opérateur. La capacité Local Calling n’est pas confirmée ; le fournisseur peut refuser la transmission.",
+    "Vom Betreiber autorisierter Luxemburg-Test. Die Funktion Local Calling ist nicht bestätigt; der Anbieter kann die Übertragung ablehnen.",
+    "Lëtzebuerg-Test vum Bedreiwer autoriséiert. D’Funktioun Local Calling ass net bestätegt; de Fournisseur kann d’Iwwerdroung refuséieren."
+  ],
+  "Fractions of a cent are accumulated across dispatches before rounding. The limit remains reserved until the outcome is known.": [
+    "Les fractions de centime sont cumulées entre les envois avant arrondi. Le plafond reste réservé jusqu’au résultat.",
+    "Bruchteile eines Cents werden vor der Rundung über mehrere Sendungen angesammelt. Die Obergrenze bleibt bis zum Ergebnis reserviert.",
+    "Brochdeeler vun engem Cent gi virum Ronnen iwwer verschidde Sendungen zesummegerechent. D’Limitt bleift bis zum Resultat reservéiert."
+  ],
+  "Exact content": ["Contenu exact", "Exakter Inhalt", "Exakten Inhalt"],
+  "Exact original PDF": [
+    "PDF original exact",
+    "Exakte Original-PDF",
+    "Exakten originale PDF"
+  ],
+  "Open original PDF": [
+    "Ouvrir le PDF original",
+    "Original-PDF öffnen",
+    "Den originale PDF opmaachen"
+  ],
+  "PDF verification must finish before approval.": [
+    "Le PDF doit terminer sa vérification avant approbation.",
+    "Die PDF-Prüfung muss vor der Freigabe abgeschlossen sein.",
+    "De PDF muss virun der Bestätegung fäerdeg gepréift sinn."
+  ],
+  "SHA-256 fingerprint": [
+    "Empreinte SHA-256",
+    "SHA-256-Prüfsumme",
+    "SHA-256-Fangerofdrock"
+  ],
+  "The quote has expired.": [
+    "Le devis a expiré.",
+    "Das Angebot ist abgelaufen.",
+    "Den Devis ass ofgelaf."
+  ],
+  "Renew it below, then review the new version.": [
+    "Renouvelez-le ci-dessous, puis vérifiez sa nouvelle version.",
+    "Erneuern Sie es unten und prüfen Sie dann die neue Version.",
+    "Erneiert en hei drënner a préift duerno déi nei Versioun."
+  ],
+  "This dispatch cannot be confirmed using this quote.": [
+    "Cet envoi ne peut pas être confirmé avec ce devis.",
+    "Diese Sendung kann mit diesem Angebot nicht bestätigt werden.",
+    "Dës Sendung kann net mat dësem Devis bestätegt ginn."
+  ],
+  "Renew quote": ["Renouveler le devis", "Angebot erneuern", "Devis erneieren"],
+  "I have reviewed the exact content, recipient and options. I accept the cost up to {amount} for this version.": [
+    "J’ai vérifié le contenu exact, le destinataire et les options. J’accepte le coût dans la limite de {amount} pour cette version.",
+    "Ich habe den exakten Inhalt, den Empfänger und die Optionen geprüft. Ich akzeptiere die Kosten bis zur Obergrenze von {amount} für diese Version.",
+    "Ech hunn den exakten Inhalt, den Empfänger an d’Optioune gepréift. Ech akzeptéieren d’Käschte bis zu {amount} fir dës Versioun."
+  ],
+  "This recipient requested this email and its content.": [
+    "Ce destinataire a demandé cet e-mail et son contenu.",
+    "Dieser Empfänger hat diese E-Mail und ihren Inhalt angefordert.",
+    "Dësen Empfänger huet dës E-Mail an hiren Inhalt ugefrot."
+  ],
+  "Approve this version": [
+    "Valider cette version",
+    "Diese Version freigeben",
+    "Dës Versioun bestätegen"
+  ],
+  "Version approved": [
+    "Version validée",
+    "Version freigegeben",
+    "Versioun bestätegt"
+  ],
+  "Your approval is recorded. Now confirm sending this version to the displayed recipient.": [
+    "La validation est enregistrée. Confirmez maintenant l’expédition de cette version au destinataire affiché.",
+    "Ihre Freigabe ist gespeichert. Bestätigen Sie jetzt den Versand dieser Version an den angezeigten Empfänger.",
+    "Är Bestätegung ass gespäichert. Bestätegt elo de Versand vun dëser Versioun un den ugewisenen Empfänger."
+  ],
+  "I confirm the real sending of this version.": [
+    "Je confirme l’envoi réel de cette version.",
+    "Ich bestätige den tatsächlichen Versand dieser Version.",
+    "Ech bestätegen de reelle Versand vun dëser Versioun."
+  ],
+  "I confirm the simulation of this version.": [
+    "Je confirme la simulation de cette version.",
+    "Ich bestätige die Simulation dieser Version.",
+    "Ech bestätegen d’Simulatioun vun dëser Versioun."
+  ],
+  "Confirm sending": [
+    "Confirmer l’envoi",
+    "Versand bestätigen",
+    "Versand bestätegen"
+  ],
+  "Run simulation": [
+    "Lancer la simulation",
+    "Simulation starten",
+    "Simulatioun starten"
+  ],
+  "page": ["page", "Seite", "Säit"],
+  "pages": ["pages", "Seiten", "Säiten"]
+}

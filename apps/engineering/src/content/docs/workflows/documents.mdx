@@ -1,0 +1,77 @@
+---
+title: Documents and exact bytes
+description: Import, quarantine, verification, rendering and recovery without silently changing an original.
+sidebar:
+  order: 1
+---
+
+A document is more than a filename. It has private bytes, a SHA-256 hash, ownership,
+provenance and a usable verification state. Dispatch approval refers to that
+immutable version. A friendly upload response does not imply that the PDF can
+already be read, generated into another format or sent.
+
+<DocumentPipeline />
+
+## Import and verification
+
+Multipart upload preserves the received PDF bytes. The service applies bounded
+input, tenant/resource rules and content budgets, calculates the exact hash and
+stores the private original. Tenant-aware deduplication must preserve access rules;
+a shared hash never creates cross-workspace access.
+
+The document remains unusable until the required antivirus and isolated PDF
+validation agree on its exact bytes. Missing scanner configuration, stale
+signatures, service unavailability, an incomplete analysis or a security rejection
+must not be converted into `ready` by a client or an approval operation.
+
+| Document state | Meaning |
+| --- | --- |
+| `quarantined` | Required verification has not completed successfully; this alone is not a malware verdict |
+| `ready` | Required exact-byte verification and PDF checks allow the documented operations |
+| `rejected` | The document was refused under its verification rules |
+| `purged` | File retention cleanup has removed eligible bytes; historical metadata is not thereby erased |
+
+Analysis/recovery state explains why a quarantined document is waiting and which
+bounded action is available. It is distinct from the document's send-readiness
+gate. Reads do not trigger arbitrary retries or manually lift quarantine.
+
+## Public HTTPS import is a different entry path
+
+Hosted URL import accepts a direct public HTTPS download under explicit port,
+credential, address, timeout and size restrictions. Redirects are refused. The
+hosted runtime's public-only egress boundary is separate from the private service
+bindings used for scanning and rendering.
+
+Source refusal happens before download/storage and therefore is not the same as
+quarantine. A host-specific attachment handle, local path, login page or expired
+signed link is not an accessible PDF source. guteneo does not forward a browser's
+cookies or an assistant account's credentials to make it accessible.
+
+Local URL import is disabled because the local runtime does not provide the same
+public-egress guarantee. Use authenticated multipart upload for local files.
+Default PDF bounds are 10 MiB and 100 pages; the service's current contract remains
+authoritative for every input.
+
+## Generated documents have new identities
+
+HTML rendering accepts a bounded sanitized document within a controlled template;
+it is not a faithful converter for arbitrary web pages, scripts or external
+resources. Studio rendering uses its own typed template/data path. Adding a postal
+address page also creates a separate PDF while retaining the source.
+
+Every derived PDF is stored and verified as its own immutable document. A changed
+page count or content changes what must be quoted and approved. Do not patch the
+bytes behind an existing document ID or reuse an old approval for the derivative.
+
+## Reads, previews and recovery
+
+Metadata, original bytes and bounded page images have separate authorized
+representations. A preview is not a public asset. Creator-private Studio PDFs
+retain their specific access policy, including dispatch-context review for current
+approvers.
+
+When analysis is retryable, follow the same document's explicit recovery action.
+Do not create duplicate imports to conceal an unavailable scanner or describe a
+partial extract as the complete PDF. [PDF diagnostics](/workflows/pdf-diagnostics/)
+provide a separate conformance assessment; they cannot replace these security
+gates.

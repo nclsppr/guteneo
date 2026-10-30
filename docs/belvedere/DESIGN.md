@@ -2,29 +2,31 @@
 name: Belvédère — guteneo
 description: The visual system of guteneo's private, read-only control tower.
 colors:
-  cobalt: "#2450db"
-  cobalt-hover: "#1b3caa"
-  paper: "#f5f4ee"
-  surface: "#fffefa"
-  ink: "#242722"
-  muted: "#62665e"
-  line: "#dedfd5"
-  field-line: "#d3d7c9"
-  sidebar: "#eeeee6"
-  navigation-selected: "#e2e7f5"
-  evidence-green: "#28654a"
-  warning: "#8b4a17"
-  warning-surface: "#faf0df"
+  cobalt: "var(--blue)"
+  action: "var(--action)"
+  action-hover: "var(--action-hover)"
+  paper: "var(--paper)"
+  surface: "var(--surface)"
+  ink: "var(--ink)"
+  heading-ink: "var(--heading-ink)"
+  muted: "var(--muted)"
+  line: "var(--line)"
+  field-line: "var(--control-line)"
+  sidebar: "var(--sidebar-surface)"
+  navigation-selected: "var(--blue-tint)"
+  evidence-green: "var(--success)"
+  warning: "var(--warning)"
+  warning-surface: "var(--warning-tint)"
 typography:
   display:
-    fontFamily: '"EB Garamond", serif'
-    fontSize: "36px"
+    fontFamily: '"EB Garamond", Georgia, serif'
+    fontSize: "38px"
     fontWeight: 400
     lineHeight: 1.12
-    letterSpacing: "-0.027em"
+    letterSpacing: "-0.02em"
   title:
     fontFamily: '"IBM Plex Sans", sans-serif'
-    fontSize: "16px"
+    fontSize: "18px"
     fontWeight: 500
     lineHeight: 1.35
   body:
@@ -37,13 +39,13 @@ typography:
   metric:
     fontFamily: '"IBM Plex Sans", sans-serif'
     fontSize: "32px"
-    fontWeight: 500
+    fontWeight: 400
     lineHeight: 1.2
     letterSpacing: "-0.035em"
 rounded:
   compact: "3px"
-  control: "4px"
-  panel: "5px"
+  control: "7px"
+  panel: "12px"
 spacing:
   micro: "4px"
   inline: "8px"
@@ -57,14 +59,14 @@ components:
     backgroundColor: "{colors.surface}"
     textColor: "{colors.ink}"
     rounded: "{rounded.control}"
-    padding: "9px 12px"
+    padding: "10px 16px"
   button-primary:
-    backgroundColor: "{colors.cobalt}"
+    backgroundColor: "{colors.action}"
     textColor: "white"
     rounded: "{rounded.control}"
-    padding: "9px 12px"
+    padding: "10px 16px"
   button-primary-hover:
-    backgroundColor: "{colors.cobalt-hover}"
+    backgroundColor: "{colors.action-hover}"
     textColor: "white"
   button-text:
     textColor: "{colors.cobalt}"
@@ -73,17 +75,17 @@ components:
     backgroundColor: "{colors.surface}"
     textColor: "{colors.ink}"
     rounded: "{rounded.control}"
-    padding: "8px 27px 8px 9px"
+    padding: "10px 36px 10px 12px"
   search:
     backgroundColor: "{colors.surface}"
     textColor: "{colors.ink}"
     rounded: "{rounded.control}"
-    padding: "8px 10px"
+    padding: "10px 12px"
   navigation-selected:
     backgroundColor: "{colors.navigation-selected}"
     textColor: "{colors.cobalt}"
     rounded: "{rounded.control}"
-    padding: "11px 12px"
+    padding: "10px 12px"
   status-warning:
     backgroundColor: "{colors.warning-surface}"
     textColor: "{colors.warning}"
@@ -92,22 +94,21 @@ components:
   panel:
     backgroundColor: "{colors.surface}"
     rounded: "{rounded.panel}"
-    padding: "23px 25px"
+    padding: "24px"
 ---
 
 # Design System: Belvédère — guteneo
 
 ## Overview
 
-**Creative North Star: "Tout voir, à la bonne hauteur."**
+Belvédère carries guteneo's printing-house identity into a quiet private workspace. Warm paper, the existing cobalt mark and restrained serif headings give context to precise operational data. The shell follows the workshop V2
+geometry and shared theme tokens, preserving separate platform authority. Its density comes from aligned rows, compact controls and clear separators, with room around the principal headings and figures.
 
-Belvédère carries guteneo's printing-house identity into a quiet private workspace. Warm paper, the existing cobalt mark and restrained serif headings give context to precise operational data. Its density comes from aligned rows, compact controls and clear separators, with room around the principal headings and figures.
-
-This document applies only to the private Belvédère control tower. It records the current local candidate in `apps/web/src/belvedere.css`, `belvedere-globe.css`, `belvedere.tsx` and `belvedere-globe.tsx`; it does not establish a design system for the public site or assert a production release. [The product contract](../PRODUCT.md) and [Belvédère's functional contract](../BELVEDERE.md) remain the sources for access, data meaning and read-only behavior.
+This document applies only to the private Belvédère control tower. It records the V2 alignment source follow-up in `apps/web/src/belvedere.css`, `belvedere-globe.css`, `belvedere.tsx` and `belvedere-globe.tsx`; it does not establish a design system for the public site or assert a production release. [The product contract](../PRODUCT.md) and [Belvédère's functional contract](../BELVEDERE.md) remain the sources for access, data meaning and read-only behavior.
 
 **Key Characteristics:**
 
-- The real guteneo mark and lowercase wordmark on ivory surfaces.
+- The approved guteneo portrait and lowercase wordmark, using ink in light mode and ivory directly on dark surfaces. The stamp retains white paper inside its frame and a transparent exterior.
 - Editorial headings paired with compact, tabular operational data.
 - Cobalt for interaction and selected data; green and amber for stated evidence or status.
 - Flat framed surfaces with limited depth for selected controls, the mobile drawer and the globe.
@@ -119,12 +120,13 @@ The palette combines warm neutral surfaces with a single cobalt accent; semantic
 
 ### Primary
 
-- **Cobalt** marks active navigation, actions, focused controls and principal chart data. Its darker hover companion gives primary buttons a clear response.
+- **Cobalt** marks active navigation, actions and principal chart data. Visible
+  keyboard focus uses the shared ink token, independently of pointer selection. Its darker hover companion gives primary buttons a clear response.
 
 ### Neutral
 
 - **Paper** is the workspace canvas; **Surface** is the lighter ground for panels and fields.
-- **Ink** carries headings and primary values; **Muted** carries supporting labels, dates and explanations.
+- **Heading Ink** carries page headings and principal metrics; **Ink** carries section headings and ordinary content. **Muted** carries supporting labels, dates and explanations.
 - **Line** separates regions without raising them. **Field Line** provides the slightly firmer outline around search and filter controls.
 - **Sidebar** gives the persistent navigation a gentle tonal separation. **Navigation Selected** supports the cobalt current-page label.
 
@@ -140,25 +142,27 @@ Green and amber are semantic colors, not additional decorative accents. Evidence
 
 **Label/Mono Font:** IBM Plex Mono with monospace fallback for identifiers, country codes and globe coordinates.
 
-The serif introduces the page and the globe; the sans-serif carries actions, tables, labels and most numbers. Tabular numerals align comparisons throughout the workspace. Headings use natural sentence case and restrained weight.
+The serif introduces the page; sans-serif section titles, including the globe,
+carry the workshop V2 hierarchy. Sans-serif also carries actions, tables, labels
+and most numbers. Tabular numerals align comparisons throughout the workspace. Headings use natural sentence case and restrained weight.
 
 ### Hierarchy
 
-- **Display:** The frontmatter records the standard page heading. It becomes 32px below 1150px, 29px below 940px, then 30px in the phone layout. The globe uses a related 30px serif heading, becoming 29px below 720px.
-- **Title:** Medium-weight sans-serif section titles organize panels. Phone section titles become 15px.
-- **Body:** The workspace base is the body role; prose uses a more generous line height of 1.6. Most operational rows and controls use the compact label size.
-- **Label:** Compact sans-serif labels identify filters and metrics. Supporting notes are smaller in the incumbent code; their individual 9–11px values are not a reusable typography scale for new screens.
-- **Metric:** Medium-weight sans-serif totals are visually distinct from their muted labels. Their responsive size follows available space; the globe summary has a separate serif treatment.
+- **Display:** Page titles use 38 px on desktop, 36 px from 768 to 1024 px, and 34 px at 767 px and below. Titles identify the selected section directly instead of adding a tagline.
+- **Title:** Medium-weight 18 px sans-serif headings organize panels and the globe.
+- **Body:** Tables and ordinary controls use 14 px text; prose retains a generous line height.
+- **Label:** Table headers and supporting operational labels use 12 px text. Counts and unavailable states remain readable and explicit.
+- **Metric:** Tabular sans-serif totals retain the size needed for comparison within their responsive container.
 
 **The Reading Roles Rule.** Use the serif to introduce a place or subject, and Plex Sans to compare, filter and act. Keep numerical columns aligned and explanatory text visually subordinate without treating tiny annotations as a default.
 
 ## Layout
 
-The desktop shell is a two-column grid: a sticky 218px sidebar and a flexible workspace. The sidebar contracts to 185px below 1150px. Main content is centered within a maximum width of 1640px, using the desktop gutter from the frontmatter; gutters become 24px below 1150px and 20px in the phone layout.
+The desktop shell is a two-column grid: a sticky 258px sidebar and a flexible workspace. The sidebar contracts to 232px between 1025px and 1150px. Main content is centered within a maximum width of 1450px, using 36px desktop gutters, 24px gutters on compact desktop, 22px from 768px to 1024px, and 16px at 767px and below.
 
-The shared frame places page identity above filters and content. The overview presents totals, geography, activity and incidents in that order. Four metrics occupy a divided row on desktop and a two-column grid on phone. Supporting panels use asymmetric or equal two-column grids according to the information, with a recurring 20px gap and a 16px compact gap. The overview collapses at 940px; finance and remaining detail grids collapse at 760px.
+The shared frame places page identity above filters and content. The overview presents totals, geography, activity and incidents in that order. Four metrics occupy a divided row on desktop and a two-column grid at 1024px and below. Supporting panels use asymmetric or equal two-column grids according to the information, with a recurring 20px gap and a 16px compact gap. The overview panel grid collapses at 940px; finance, connection and detail grids collapse at 1024px.
 
-At 760px, the shell becomes a single column with a sticky 58px top bar. A labeled menu button opens the navigation drawer. Filters wrap into available width, searches span the panel, and large tables scroll within their own region. The page itself should not acquire horizontal overflow.
+At 1024px and below, the shell becomes a single column with a sticky mobile top bar. A labeled menu button opens the navigation drawer. Filters wrap into available width, searches span the panel, and large tables scroll within their own region. The page itself should not acquire horizontal overflow.
 
 The globe and its country ranking are side by side until 720px, where they stack. Its canvas height responds to space, while the ranking keeps a bounded local scroll region. A long ranking must remain reachable without expanding the entire globe panel.
 
@@ -172,13 +176,13 @@ The workspace is flat at rest. Tonal shifts and thin borders define panels, fiel
 
 - **Selected activity control:** `0 1px 3px #20321812`.
 - **Selected globe mode:** `0 2px 5px #2427220b`.
-- **Mobile navigation drawer:** `12px 16px 30px #242a2515`.
+- **Mobile navigation drawer:** `12px 16px 30px var(--shadow)`.
 
 **The Quiet Surface Rule.** Separate resting surfaces with tone and borders; reserve elevation for a selected control, an overlay or the globe's physical form.
 
 ## Shapes
 
-Small corners preserve the printing-house character. Compact tags and segmented items use the compact radius, common fields and buttons use the control radius, and framed panels use the panel radius. The globe's outer frame remains square. Avatars, evidence dots and globe markers are circular because their role calls for that geometry; they do not make pill-shaped containers the default.
+Small corners preserve the printing-house character. Status tags and activity segments use the compact radius; common fields, buttons and globe mode controls use the control radius. Framed panels, including the globe, use the 12 px panel radius. Avatars, evidence dots and globe markers are circular because their role calls for that geometry; they do not make pill-shaped containers the default.
 
 ## Components
 
@@ -189,22 +193,22 @@ Controls are compact, lightly framed and explicit. The secondary button is the c
 - Secondary controls use the surface background, a thin outline and the control radius. Hover changes the surface and border tone.
 - Primary controls use cobalt with white text and the darker cobalt hover state.
 - Text actions use cobalt, adding an underline on hover.
-- Interactive elements receive a cobalt focus outline (2px, offset 4px); search uses a wrapper outline with a 2px offset.
+- Interactive elements receive the shared ink focus-visible outline (2 px, offset 3 px). Navigation rows use a -2px inset so their scroll container does not clip the ring; the globe canvas uses a -6px inset. Pointer activation does not leave a keyboard ring.
 - Disabled buttons lower opacity and show the unavailable cursor. Do not remove their explanatory context.
 
 ### Inputs / Fields
 
-Search and filter controls share a warm surface, compact sans-serif labels and a thin field border. Selects use an inline SVG chevron, leaving space for the value. Phone filters have a minimum height of 40px. Search supplies a visible label through its surrounding context or accessible name and preserves focus on the entire framed field.
+Search and filter controls share a warm surface, compact sans-serif labels and a thin field border. Selects use an inline SVG chevron, leaving space for the value. Search and filter fields have a minimum height of 46 px; common action buttons and icon controls use 44 px. Field text becomes 16 px on mobile. Search supplies a visible label through its surrounding context or accessible name and preserves focus on the entire framed field.
 
 ### Navigation
 
-Seven destinations share a labeled icon-and-text row. The current page combines a cobalt label, a filled icon, a pale selected surface and a small end marker. The identity uses `/brand/guteneo-mark-128.webp` and the lowercase guteneo wordmark; preserve the asset rather than substituting a glyph.
+Seven destinations share a labeled 21px icon-and-text row with a 44px minimum height. The current page combines a cobalt label, medium weight and a pale selected surface; all icons keep their regular stroke. The identity uses the shared `BrandMark` with the approved transparent portrait and the lowercase guteneo wordmark; preserve the asset rather than substituting a glyph.
 
-The phone toggle uses a conventional menu icon, a close icon in its open state and the Belvédère label. Expanded state and opening/closing labels are exposed to assistive technology. Escape closes the drawer and returns focus to the toggle.
+The phone toggle uses a conventional menu icon, a close icon in its open state and the Belvédère label. Expanded state and opening/closing labels are exposed to assistive technology. Opening focuses the active navigation link; Escape closes the drawer and returns focus to the toggle. The navigation scrolls locally while the account footer stays reachable. A single localized light/dark `ThemeToggle` stays in page actions at all widths, outside the drawer. It follows the system by default and changes no account, data or platform authority.
 
 ### Cards / Containers
 
-Panels have the shared surface, line border and modest panel radius. Internal padding contracts with the viewport. Section headings pair a title and concise context with any relevant count or action. Tables and notices belong to the panel's information hierarchy rather than independent floating cards.
+Panels have the shared surface, line border and modest panel radius. Ordinary panels use 24px padding, becoming 20px on compact desktop and phone layouts; the globe retains its separate canvas and ranking geometry. Section headings pair a title and concise context with any relevant count or action. Tables and notices belong to the panel's information hierarchy rather than independent floating cards.
 
 ### Status Labels / Notices
 
@@ -216,11 +220,15 @@ Tables use muted header rows, separators, aligned numeric cells and a subtle row
 
 ### Globe and Country Ranking
 
-The globe is a geographic view paired with equivalent HTML data. A segmented control chooses connections or distribution; country buttons share selection with the canvas, and distribution can open the corresponding envois. Unknown geography remains an explicit row rather than an invented marker.
+The globe is a geographic view paired with equivalent HTML data. A segmented control chooses connections or distribution; country buttons share selection with the canvas, and distribution can open the corresponding dispatches. Unknown geography remains an explicit row rather than an invented marker.
 
 The canvas supports dragging, arrow keys, Home and labeled rotation controls. The country ranking provides keyboard-accessible selection and values. Latitude/longitude annotations describe the camera; markers represent countries rather than precise person locations.
 
 **The Paired Data Rule.** Every spatial view retains its text-based values and selection route; geographic exploration must not be the only path to the data.
+
+The globe canvas, data selection, accessible alternatives and request lifecycle
+are unchanged by this skin. The browser theme choice is host-local; Belvédère does
+not save or override the account's Classic/V2 layout.
 
 State transitions for ordinary controls last 160ms; chart opacity uses 130ms. Loading placeholders may pulse while data is loading. The globe has no idle rotation. Reduced-motion preference removes transitions and loading animation.
 

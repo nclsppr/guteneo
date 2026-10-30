@@ -18,7 +18,7 @@
     "Die Datei ist größer als 5 MB.",
     "D’Datei ass méi grouss wéi 5 MB."
   ],
-  "Mes données": ["My data", "Meine Daten", "Meng Donnéeën"],
+  "Données": ["Data", "Daten", "Donnéeën"],
   "Importez votre fichier tel qu’il est. Choisissez les feuilles, les colonnes et les regroupements avant de générer vos documents.": [
     "Import your file as it is. Choose sheets, columns and groups before generating your documents.",
     "Importieren Sie Ihre Datei unverändert. Wählen Sie Blätter, Spalten und Gruppierungen aus, bevor Sie Ihre Dokumente erstellen.",
@@ -198,7 +198,7 @@
     "Exakte Dezimalwerte erfordern ein Textfeld in der Vorlage. Passen Sie die markierten Felder vor der Prüfung an.",
     "Exakt Dezimalwäerter brauchen en Textfeld an der Virlag. Passt déi markéiert Felder virun der Validatioun un."
   ],
-  "← Mes données": ["← My data", "← Meine Daten", "← Meng Donnéeën"],
+  "← Données": ["← Data", "← Daten", "← Donnéeën"],
   "Vérifiez les données reconnues, puis leur correspondance avec votre modèle. Chaque client peut regrouper plusieurs lignes.": [
     "Check the recognised data, then their mapping to your template. Each customer can group several rows.",
     "Prüfen Sie die erkannten Daten und anschließend deren Zuordnung zur Vorlage. Mehrere Zeilen können zu einem Kunden gehören.",

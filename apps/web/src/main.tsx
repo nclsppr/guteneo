@@ -1,26 +1,34 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import "@fontsource/ibm-plex-sans/latin-400.css";
-import "@fontsource/ibm-plex-sans/latin-500.css";
-import "@fontsource/ibm-plex-sans/latin-600.css";
-import "@fontsource/ibm-plex-mono/latin-400.css";
-import "@fontsource/eb-garamond/latin-400.css";
-import "@fontsource/eb-garamond/latin-500.css";
-import "@fontsource/eb-garamond/latin-400-italic.css";
+import "./fonts.css";
 import { applyAccountLocale, initializeLocale, t, useLocale } from "./locale";
-import { api, ApiError, type Session } from "./api";
-import { observePublicLinks } from "./public-sharing";
+import { api, ApiError, setSession, type Session } from "./api";
+import {
+  observePublicLinks,
+  registerPublicPageMetadata,
+} from "./public-sharing";
+import { getPublicPageMetadata } from "./public-page-metadata";
+import { initializeTheme } from "./theme";
 import { App } from "./App";
+import { installPublicNavigation } from "./public-navigation";
+import { installInputModality } from "./input-modality";
 import "./styles.css";
 import "./login-page.css";
 import "./protected-document.css";
 import "./dashboard-v2.css";
+import "./landing-example.css";
+import "./public-site-pages.css";
+
+initializeTheme();
+installInputModality();
+registerPublicPageMetadata(getPublicPageMetadata);
 
 // Crawlable entry links hand off to the existing browser router before rendering.
 if (
   window.location.pathname === "/app" ||
   window.location.pathname === "/app/prepare" ||
-  window.location.pathname === "/app/plan"
+  window.location.pathname === "/app/plan" ||
+  window.location.pathname === "/app/pdf-checks"
 ) {
   const entry = new URL(window.location.href);
   entry.hash =
@@ -37,7 +45,7 @@ const belvederePath = document.querySelector<HTMLMetaElement>(
   'meta[name="guteneo-belvedere"]',
 )?.content;
 const isBelvedere =
-  !!belvederePath &&
+  belvederePath !== undefined &&
   window.location.pathname.replace(/\/$/, "") === belvederePath;
 if (isBelvedere) {
   applyAccountLocale(
@@ -49,7 +57,7 @@ if (isBelvedere) {
   import.meta.env.VITE_PUBLIC_PREVIEW !== "true" &&
   window.location.hash.startsWith("#/app")
 ) {
-  applyAccountLocale(null);
+  applyAccountLocale(null, false);
 } else {
   initializeLocale();
 }
@@ -58,6 +66,9 @@ const Belvedere = React.lazy(() => import("./belvedere"));
 
 function BelvedereEntry({ basePath }: { basePath: string }) {
   useLocale();
+  const integrated = basePath === "/belvedere";
+  const [session, updateSession] = React.useState<Session | null>(null);
+  const [sessionExpired, expireSession] = React.useState(false);
   React.useEffect(() => {
     let alive = true;
     let pending = false;
@@ -90,8 +101,14 @@ function BelvedereEntry({ basePath }: { basePath: string }) {
       const currentRevision = revision;
       api<Session>("/session", { signal: controller.signal })
         .then((session) => {
-          if (alive && currentRevision === revision)
+          if (alive && currentRevision === revision) {
             applyAccountLocale(session.user.preferredLocale);
+            if (integrated) {
+              setSession(session);
+              updateSession(session);
+              expireSession(session.canAccessBelvedere !== true);
+            }
+          }
         })
         .catch((error: unknown) => {
           if (
@@ -99,8 +116,14 @@ function BelvedereEntry({ basePath }: { basePath: string }) {
             currentRevision === revision &&
             error instanceof ApiError &&
             [401, 403].includes(error.status)
-          )
+          ) {
             applyAccountLocale(null);
+            if (integrated) {
+              setSession(null);
+              updateSession(null);
+              expireSession(true);
+            }
+          }
         })
         .finally(() => {
           pending = false;
@@ -120,6 +143,9 @@ function BelvedereEntry({ basePath }: { basePath: string }) {
     window.addEventListener("focus", refresh);
     window.addEventListener("pageshow", restore);
     document.addEventListener("visibilitychange", refresh);
+    // The private shell proves entry. Read identity/CSRF alongside the first
+    // view, without making any business read depend on this account request.
+    if (integrated) read();
     return () => {
       alive = false;
       controller.abort();
@@ -128,7 +154,7 @@ function BelvedereEntry({ basePath }: { basePath: string }) {
       window.removeEventListener("pageshow", restore);
       document.removeEventListener("visibilitychange", refresh);
     };
-  }, []);
+  }, [integrated]);
   return (
     <React.Suspense
       fallback={
@@ -137,13 +163,23 @@ function BelvedereEntry({ basePath }: { basePath: string }) {
         </main>
       }
     >
-      <Belvedere basePath={basePath} />
+      <Belvedere
+        basePath={basePath}
+        session={session}
+        sessionExpired={sessionExpired}
+      />
     </React.Suspense>
   );
 }
 
-ReactDOM.createRoot(document.getElementById("root")!).render(
-  <React.StrictMode>
-    {isBelvedere ? <BelvedereEntry basePath={belvederePath} /> : <App />}
-  </React.StrictMode>,
-);
+function renderApplication() {
+  ReactDOM.createRoot(document.getElementById("root")!).render(
+    <React.StrictMode>
+      {isBelvedere ? <BelvedereEntry basePath={belvederePath} /> : <App />}
+    </React.StrictMode>,
+  );
+  if (!isBelvedere) installPublicNavigation();
+}
+
+// Every public route is ready together; native SSR links work before this mount.
+renderApplication();

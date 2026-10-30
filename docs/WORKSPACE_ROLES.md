@@ -1,208 +1,246 @@
-# Rôles et droits dans un atelier
+# Workspace roles and permissions
 
-Candidat local du 2 octobre 2026. Ce document décrit le contrat applicatif et sa
-migration ; il ne constitue pas une preuve de publication en production. Le guide
-public destiné aux clients est disponible dans l’application à `/roles/`, avec les
-versions française, anglaise, allemande et luxembourgeoise. Le compte et la gestion
-des membres renvoient vers ce guide.
+## Unified account and sensitive distribution — 26 October 2026 candidate
 
-## Choisir un rôle
+A Guteneo account may belong to no workspace. Receiving a document and acquiring
+a personal copy use personal authority independent of the four roles below.
+“Recipient” is not a fifth human role. The same account can read its documents
+and voluntarily create or choose a workspace to use Guteneo services. Receiving
+an invitation never joins the sender's workspace. After voluntary creation or
+selection, the browser reloads the chosen destination and workspace session;
+current rights and CSRF are read together before business operations. The browser
+regression creates an administrator workspace, then selects another as operator,
+with a real profile update in each local context.
 
-Chaque personne reçoit un rôle **dans un atelier donné**. Son rôle dans un autre
-atelier peut être différent. Quatre rôles suffisent à séparer le travail quotidien,
-la validation et l’administration sans multiplier les profils difficiles à
-comprendre.
+Document policy is independent of role: `strong` by default, `verified_account`
+only by explicit selection. The requested live profile uses a verified account
+and email, an identity-linked recent Auth0 session, policy-bound recipient
+association and human review. It claims neither MFA nor strong assurance.
+Reading, association and approval require fifteen-minute freshness; export,
+deposit and deletion require five minutes. `SENSITIVE_DOCUMENT_AUTHENTICATION`
+must match `secure_document_authentication_policy(id=1, mode)` created by 0059.
+Only the operator changes this D1 row; unknown values or disagreement deny access.
+An ordinary approval receipt cannot replace strong evidence after returning to
+`strong`. `documentAccessAllowed` and `documentAccessMode` inform the UI without
+extending current server/SQL authority.
 
-| Droit                                                           | Administrateur          | Superviseur            | Opérateur | Observateur |
-| --------------------------------------------------------------- | ----------------------- | ---------------------- | --------- | ----------- |
-| Consulter les documents, destinataires et envois de l’atelier   | Oui                     | Oui                    | Oui       | Oui         |
-| Contrôler à blanc un envoi existant accessible                | Selon accès à l’envoi   | Selon accès à l’envoi  | Selon accès à l’envoi | Selon accès à l’envoi |
-| Importer des documents et préparer des envois ou campagnes      | Oui                     | Oui                    | Oui       | Non         |
-| Approuver, confirmer, refuser ou annuler un envoi admissible    | Oui                     | Option « Approbation » | Non       | Non         |
-| Autoriser le transfert d’un document postal pour sa revue       | Oui                     | Option « Approbation » | Non       | Non         |
-| Consulter les rapports agrégés et la consommation               | Oui                     | Option « Rapports »    | Non       | Non         |
-| Gérer l’atelier, ses membres et leurs droits                    | Oui                     | Non                    | Non       | Non         |
-| Gérer la facturation et la configuration des expéditeurs/canaux | Oui                     | Non                    | Non       | Non         |
-| Activer ou renouveler une délégation à un assistant             | Oui, dans le navigateur | Non                    | Non       | Non         |
-| Régler sa langue et sa version Classique/V2 dans son compte     | Personnel, navigateur  | Personnel, navigateur  | Personnel, navigateur | Personnel, navigateur |
+The server rechecks the following sensitive-distribution permissions at action
+time. Creators see their own preparations; current workspace approvers may review
+them. Other operators, supervisors without approval permission and observers
+receive no sensitive content through general read access.
 
-- **Administrateur** : responsable de l’atelier et de ses accès. Il dispose de
-  tous les droits applicatifs de l’atelier. Au moins un administrateur doit rester.
-- **Superviseur** : prépare le travail et reçoit séparément les droits
-  d’approbation et de reporting, selon les responsabilités confiées. Les deux
-  options sont désactivées à sa première attribution, sauf choix explicite de
-  l’administrateur.
-- **Opérateur** : prépare les documents et les demandes d’envoi ; un administrateur
-  ou superviseur habilité doit les examiner et les valider. L’opérateur ne peut
-  pas confirmer un envoi déjà approuvé, ni le refuser ou l’annuler.
-- **Observateur** : suit le travail sans le modifier. C’est un rôle de lecture des
-  contenus de l’atelier, pas un accès limité à des statistiques anonymes.
+| Action | Administrator | Supervisor | Operator | Observer | Connected assistant |
+| --- | --- | --- | --- | --- | --- |
+| Prepare sharing of an accessible PDF | Yes | Yes | Yes | No | Membership, `dispatches:prepare` and current authority |
+| Read a distribution and workspace audit | Yes | All with approval permission; otherwise own creations | Own creations | No | Same resource access and `dispatches:read` |
+| Inspect final review pages | Browser and recent document session | Same requirement, with approval permission or own creation | Own creation, browser and recent document session | No | No recipient-page or personal-principal access |
+| Give sensitive approval | Browser and recent document session | Approval permission, browser and recent document session | No | No | No; an expert mandate cannot replace approval |
+| Activate an already approved distribution | Yes, with current evidence | Approval permission and current evidence | No | No | Approver role, `dispatches:send`, existing sensitive browser evidence and host confirmation |
+| Confirm an independent recipient/account association | Browser, independent verification and recent document session | Same requirement and approval permission | No | No | No |
+| Read a delivery’s recipient response | Own/current authorized delivery | Own/current authorized delivery | Own creation | No | Current resource rights; cannot exercise recipient preference or restore permission |
+| Revoke shared access without refund | Yes | Approval permission | No | No | Approver role and `dispatches:send`; acquired personal copies remain |
+| Read, export or delete another person's personal copy | No | No | No | No | No |
 
-Exemples : une responsable de validation peut recevoir « Approbation » sans
-« Rapports » ; une responsable de suivi peut recevoir « Rapports » sans
-« Approbation » ; une cheffe d’équipe peut recevoir les deux. Aucun de ces choix
-ne donne accès à la gestion des membres, à la facturation ou aux délégations.
+New `verified_email` invitations bind the matching verified address to the stable
+personal account at claim; this is recipient authority, not a workspace-role
+permission. Explicit `independent` and historical missing-field policies retain
+the confirmation row above. The [recipient journey](SECURE_DISTRIBUTION_JOURNEYS.md)
+owns entry, recovery and privacy conditions.
 
-Le prix et le statut d’un envoi restent visibles dans sa fiche pour tous les
-membres qui peuvent la lire. L’option « Rapports » contrôle les synthèses agrégées
-et la consommation de l’atelier ; elle ne masque pas tous les montants ni les
-contenus individuels.
+Any account owner, with or without a workspace role, can read their own documents
+under the active document policy, then download or retain only what the sharing
+policy permits. An acquired personal copy keeps its own retention/export
+commitment; its original workspace cannot revoke it. Neither workspace
+administrators nor assistants gain a global view of a person's personal documents.
 
-## Annotations MCP — candidat du 20 octobre 2026
+Price, term, recipient and permissions are frozen before approval. The separate
+attestation that the recipient requested this email and document is not inferred
+from a general review checkbox. Activation funds the entire term; revocation
+provides no refund. A personal-copy option is funded at activation even when
+unused. See [journeys](SECURE_DISTRIBUTION_JOURNEYS.md).
 
-La [remédiation des annotations](MCP_ANNOTATION_REMEDIATION.md) conserve cette
-matrice, les scopes OAuth et les droits sur les ressources. Les annotations
-décrivent les effets pour les confirmations de l’hôte ; elles ne donnent aucun
-droit supplémentaire et ne remplacent aucun mandat.
+This isolation applies to the new sensitive flow. Ordinary-document, Studio and
+preparer/approver limitations remain below. The candidate establishes no general
+folder isolation, retroactive migration of old links or hosted qualification.
 
-`review_dispatch` est signalé comme destructif parce qu’une nouvelle revue
-terminée remplace le jeton précédent du même envoi et de la même connexion.
-L’accès demeure soumis aux scopes de revue et au mandat expert existants ; il ne
-devient pas une simple lecture accessible à un rôle non habilité.
-`prepare_distribution` est également signalé comme destructif : la création du
-plan fige le lot et interdit toute reprise de ses records échoués, y compris
-ceux exclus de la sélection. Le propriétaire doit terminer les reprises voulues
-avant de préparer le plan ; ensuite, les éléments à régénérer nécessitent un
-nouveau lot. Les accès au plan et les droits d’approbation restent distincts.
+One source cannot combine sensitive distribution with legacy sending,
+password-link hosting, postal transformation, cropping or analysis. This is a
+deliberate V1 incompatibility that no role, scope or mandate overrides.
 
-Les lectures métier MCP conservent `readOnlyHint:false` et
-`idempotentHint:false` car un succès peut enregistrer en production la dernière
-activité visible de la connexion. Cette observation ne change aucun rôle ni
-scope et ne crée pas une approbation. Le 20 octobre, les neuf suites ciblées ont
-réussi leurs 260 tests, auxquels s’ajoutent trois tests ciblés d’observation des
-connexions. Le typecheck et le lint complets ont réussi ; l’audit local a vérifié
-les 67 outils, leurs 268 booléens et 216 références de code sans écart.
-Ces preuves locales restent distinctes de la CI du commit exact, du serveur
-déployé, du catalogue du portail et de l’approbation OpenAI, comme le précise
-le dossier de remédiation.
+| Source state or operation | Compatibility with sensitive distribution |
+| --- | --- |
+| Unexpired legacy `draft` or `active` hosting | Revoke the link before first sensitive preparation; all other restrictions still apply |
+| Derived, reserved or generated postal preparation | Choose a dedicated source |
+| Legacy send, postal preflight or provider draft already referencing the source | Choose a dedicated source, even after failure or cancellation |
+| New ordinary email, fax or postal attachment after sensitive reference | Forbidden for every role |
+| Legacy password/link content, postal processing, cropping or analysis after sensitive reference | Forbidden, including after sensitive failure or revocation |
+| Dedicated sensitive invitation | Allowed under current rights, without the source attachment (`document_id` is null) |
 
-## Présentation V2 et actions disponibles
+Bidirectional service and SQL guards protect sensitive insertion and concurrent
+legacy writes for the same workspace/source. A legacy operation already under
+way cannot become sensitive during provider transfer. This exclusion cannot
+recall files already exported.
 
-La simplification V2 du 14 octobre 2026 conserve cette matrice. Chaque action
-principale reste conditionnée au droit courant : notamment aucune importation,
-préparation ou création de document pour l’observateur ; aucune approbation pour
-l’opérateur ou le superviseur sans son option. Le raccourci global **Nouvel envoi**
-est secondaire dans la navigation et n’est rendu que pour une personne autorisée
-à préparer. Une action locale mise en valeur ne contourne aucun contrôle serveur.
+2 October 2026 local candidate contract/migration, not production-publication
+proof. The customer guide at `/roles/` is localized in French, English, German and
+Luxembourgish; account/member management link to it.
 
-Les quatre rôles retrouvent leur propre compte et leur rôle même lorsque le menu
-mobile est fermé. Le lien **État du service** près du compte mène au service public
-sans autorité supplémentaire. L’accueil conserve les droits effectifs sans répéter
-l’identité personnelle et le nom d’atelier. La disparition du pied de page V2 et du
-titre de section redondant ne retire ni les récapitulatifs nécessaires au consentement,
-ni le retour des détails, ni le fuseau associé aux dates. Classique et les clients
-natifs/REST/MCP conservent leurs contrats. Les preuves du candidat sont suivies dans
-[DASHBOARD_V2.md](DASHBOARD_V2.md), séparément de la publication et de l’usage hébergé.
+## Choosing a role
 
-## Attribuer et expliquer les accès
+Roles belong to **one workspace**; the same person may have another role elsewhere.
+Four roles separate preparation, approval and administration:
 
-La personne qui crée un atelier en devient automatiquement administrateur.
-Un administrateur ouvre **Membres**, choisit le rôle et, pour un superviseur,
-règle séparément les options d’approbation et de rapports. Le formulaire explique
-chaque rôle et indique qu’un changement de droits déconnecte le membre. La fiche
-de compte affiche les droits effectifs de la personne connectée.
+| Permission | Administrator | Supervisor | Operator | Observer |
+| --- | --- | --- | --- | --- |
+| Read ordinary workspace documents, recipients, dispatches | Yes | Yes | Yes | Yes |
+| Dry-run an accessible existing dispatch | Subject to dispatch access | Subject to dispatch access | Subject to dispatch access | Subject to dispatch access |
+| Import documents; prepare dispatches/campaigns | Yes | Yes | Yes | No |
+| Approve, confirm, reject, cancel eligible dispatches | Yes | Approval option | No | No |
+| Authorize postal document transfer for review | Yes | Approval option | No | No |
+| Read aggregate reports/usage | Yes | Reporting option | No | No |
+| Manage workspace, members, permissions | Yes | No | No | No |
+| Manage billing, senders, channels | Yes | No | No | No |
+| Grant/renew assistant delegation | Yes, browser only | No | No | No |
+| Set own language | Personal browser setting | Personal browser setting | Personal browser setting | Personal browser setting |
 
-Le changement est limité à cet atelier. Il est journalisé et révoque les sessions
-web, les sessions et codes natifs, les accès de développement et les connexions
-OAuth concernés. Les délégations de l’ancien accès sont désactivées. La personne
-se reconnecte avec ses nouveaux droits. Les accès de cette même personne dans
-un autre atelier sont conservés.
+Administrators own workspace access; at least one must remain. Supervisors prepare
+and independently receive approval/reporting options, both initially off unless
+explicitly selected. Operators prepare for authorized review and cannot confirm
+already-approved sends, reject or cancel. Observers read operational content;
+the role is not restricted to anonymous statistics.
 
-Une personne membre de plusieurs ateliers peut utiliser **Compte → Changer
-d’atelier** pour choisir son atelier actif. Le serveur ne propose que ses
-appartenances actuelles ; le changement crée une nouvelle session et invalide
-l’ancienne. Les documents et les droits affichés deviennent ceux du nouvel
-atelier. Une connexion d’assistant reste attachée à son atelier d’autorisation.
+A reviewer may receive approval without reporting, a monitoring lead reporting
+without approval, or a team lead both. None gains members, billing or delegation
+management. Dispatch price/status remains visible to anyone who can read that
+item; reporting gates aggregate summaries/usage rather than every individual amount.
 
-Un rôle ne remplace pas la revue d’envoi : l’approbation porte toujours sur le
-contenu, les destinataires, les options et le coût exacts. Retirer le droit
-d’approbation invalide les approbations encore en attente ; le rétablir ne les
-réactive pas. Une nouvelle revue est nécessaire. Les envois déjà acceptés
-conservent leur historique et continuent selon leur état : un changement de rôle
-n’annule pas une communication déjà confiée à un fournisseur.
+## MCP App original selection — 26 October 2026
 
-La fonction de refus utilise l’annulation d’une demande préparée. L’annulation
-après acceptation reste soumise aux limites existantes ; une issue fournisseur
-inconnue ne déclenche jamais une nouvelle tentative automatique. Un motif de refus
-structuré ou un circuit à plusieurs approbateurs ne sont pas implémentés.
+The default-off [MCP App selected-original transport](PRIVATE_DOCUMENT_UPLOAD.md#selected-local-originals-through-mcp-apps--disabled-candidate)
+requires a current administrator, supervisor or operator connection with
+`documents:write` for the opener and every App-only operation. Observers are
+denied. Explicit device-file selection and Import grant only that bounded
+creator-private import; they create no human send approval or mandate. The
+activation setting (bounded qualification or reviewed general rollout) belongs
+to a separately authorized operator, not to any
+workshop role or assistant. Web/native/REST upload permissions remain unchanged,
+and a chooser grants no access to an earlier conversation attachment.
+One active App session is bounded per user within the current workspace;
+switching workspace creates no cross-workspace document or session access. The
+separate database-wide App-finalizer lease is capacity admission, not a new role,
+document right or total Worker memory guarantee. Potential cleanup of this
+attempt's unregistered object is disclosed by the five App-only tools' destructive annotation;
+status recovery creates no authority to delete a registered original.
+The post-registration Use in conversation control shares only the current App's
+four-field document receipt after an explicit UI gesture. It creates no role,
+scope, approval or provider communication; importing never sends that chat
+message automatically. Host message availability and model receipt remain
+separately qualified.
 
-## Inviter un collaborateur ou importer un groupe
+## MCP annotations — 20 October 2026 candidate
 
-Dans **Membres**, l’administrateur peut saisir une adresse e-mail ou importer un
-CSV contenant une colonne `email`. La virgule et le point-virgule sont acceptés.
-Le fichier est limité à 1 Mo et à 100 adresses distinctes par lot. L’aperçu retire
-les doublons, affiche toutes les adresses et rappelle le rôle et les deux options
-éventuelles du superviseur. Le même rôle s’applique à tout le lot. Le bouton
-**Envoyer les invitations** confirme ce lot précis ; la lecture du CSV seule
-n’envoie rien.
+[Annotation remediation](MCP_ANNOTATION_REMEDIATION.md) preserves roles/scopes/resource
+access. Hints describe effects for host confirmation, never grant authority or
+replace mandates. `review_dispatch` is destructive because completed review replaces
+the same connection/dispatch's previous token. It still requires review scopes and
+expert authority. `prepare_distribution` is destructive because creating a plan
+freezes the batch and prevents failed-record retries, including records outside
+selection. Finish desired retries first; later regeneration needs a new batch.
+Plan access and approval authority remain separate.
 
-Chaque lien est personnel, valable sept jours et utilisable une seule fois. La
-personne invitée peut créer son compte ou se connecter à un compte existant, avec
-l’adresse vérifiée correspondante. Elle
-rejoint l’atelier avec les droits choisis au moment de l’invitation ; aucun atelier
-personnel supplémentaire n’est créé dans ce parcours. Un utilisateur existant peut
-ainsi rejoindre un autre atelier tout en conservant ses autres appartenances.
-Un lien seul ne permet pas de se connecter et ne prouve pas la possession de
-l’adresse e-mail.
+Observed business reads retain `readOnlyHint:false`/`idempotentHint:false` because
+production success may record visible connection activity, without role/scope or
+approval changes. Local evidence on 20 October: nine focused suites, 260 tests,
+three connection-observation tests, full typecheck/lint, and 67-tool/268-boolean/
+216-reference annotation audit passed. Exact-commit CI, deployed server, portal
+catalog and OpenAI approval remain separate.
 
-Les invitations en attente sont visibles et révocables par un administrateur de
-l’atelier. Pour changer le rôle d’une invitation, révoquer le lien puis créer une
-nouvelle invitation. Un changement du rôle administrateur de l’émetteur révoque
-ses invitations encore en attente ; le rétablir ne réactive pas ces liens. Les
-invitations acceptées restent dans l’historique.
+## V2 presentation
 
-Le serveur refuse le lot complet si une adresse appartient déjà à un membre de
-cet atelier ou possède déjà une invitation en attente. La limite quotidienne est
-de 500 invitations par atelier. Une invitation expirée peut être remplacée par une
-nouvelle action explicite. Un résultat d’envoi « non confirmé » ne fait l’objet
-d’aucune relance automatique, même lors d’un rafraîchissement de la liste.
+14 October V2 simplification preserves the matrix. No import/preparation/generation
+for observers; no approval for operators or supervisors lacking that option.
+Global New dispatch is secondary navigation for authorized preparers only.
+Visual emphasis bypasses no server guard. All roles retain account/role access
+with mobile menu closed. Service status near account adds no authority. Home
+explains effective rights without repeating personal/workspace identity. Removing
+redundant V2 section headings/footer removes no consent summary, detail return or
+date timezone. Native/REST/MCP contracts remain unchanged; Classic was retired on
+29 October 2026 without changing any role; [V2 evidence](DASHBOARD_V2.md)
+is separate from hosted use/publication.
 
-En simulation locale, aucun e-mail n’est envoyé et le résultat est marqué
-« Envoi simulé ». En production, l’envoi reste fermé tant que sa configuration
-dédiée n’est pas explicitement activée. « Accepté par le service d’e-mail » signifie que le
-fournisseur a accusé réception de la demande ; cela ne prouve pas la réception
-dans la boîte du destinataire ni l’acceptation de l’invitation.
+## Assigning access
 
-## Portée et limites
+Workspace creators become administrators. In Members, an administrator selects a
+role and independent supervisor options. Forms explain roles and that changes
+sign the affected member out; account shows effective permissions.
 
-Les documents ordinaires, les destinataires et leur historique sont partagés dans
-l’atelier. Les PDF générés par le studio restent privés à leur créateur. Après
-préparation d’une demande, un administrateur ou un superviseur actuellement
-habilité à approuver peut lire le PDF exact dans le contexte de cette demande.
-Cette exception ne rend pas le PDF visible dans la bibliothèque générale ; les
-autres opérateurs et les observateurs n’y gagnent aucun accès. Le retrait du droit
-d’approbation coupe cet accès de revue, y compris pour une demande historique.
-Il n’existe pas de cloisonnement général par dossier ou par équipe, ni de rôle
-invité à accès documentaire restreint. Ne pas présenter « Observateur » comme une
-restriction de confidentialité des documents ordinaires de l’atelier.
+Changes are workspace-scoped, audited, and revoke affected web/native sessions,
+native codes, development access and OAuth connections. Former-access mandates
+are disabled; reconnect with new rights. Other-workspace memberships remain.
+Account → Change workspace lists only current memberships; switching creates a
+new session and invalidates the old one. Assistant connections stay bound to their
+authorized workspace.
 
-Le superviseur avec approbation peut approuver ses propres demandes. La séparation
-obligatoire entre préparateur et approbateur, les doubles validations, les plafonds
-individuels et les rôles personnalisés restent des évolutions distinctes. Un rôle
-« Comptable » pourrait devenir utile avec un espace financier distinct ; l’option
-« Rapports » suffit au besoin actuel sans lui attribuer de facturation.
+Roles never replace exact content/recipient/options/cost review. Removing approval
+rights invalidates pending approvals; restoring rights does not revive them.
+Accepted work retains history and continues by state: role changes cannot retract
+provider-submitted communication. Reject uses prepared-dispatch cancellation;
+post-acceptance cancellation retains existing limits, with no automatic retry of
+unknown provider outcomes. Structured rejection reasons/multiple-approver workflows
+are not implemented.
 
-Les assistants conservent l’intersection des scopes OAuth et des droits actuels
-du membre. Un assistant ne peut pas déclarer une approbation humaine. Le mode
-expert reste désactivé par défaut et réservé à une délégation explicite d’un
-administrateur, bornée et expirante ; aucun superviseur ne peut la créer. Les
-clients natifs peuvent préparer selon le rôle, mais la validation reste dans une
-page web authentifiée. L’application native affiche le rôle, masque les actions
-de préparation et de validation non autorisées, et utilise les droits effectifs
-retournés par le serveur. Elle n’embarque pas la gestion des membres ni les
-invitations ; ces actions restent dans le navigateur. Un changement de session
-web peut nécessiter de reconnecter sa session native associée. Les autorisations
-de fournisseur, les contrôles de fichier
-et les limites financières continuent à s’appliquer à chaque rôle.
+## Invitations and group import
 
-## Contrat technique et migration
+Browser administrators enter an email or import comma/semicolon CSV with `email`.
+Maximum 1 MB and 100 distinct addresses/batch. Preview removes duplicates, displays
+all addresses and shared role/supervisor options. Send invitations explicitly
+confirms that exact batch; CSV reading sends nothing.
 
-Les identifiants API sont `admin`, `supervisor`, `member`, `viewer`. Les deux noms
-historiques `member` et `viewer` sont conservés pour la compatibilité ; leurs
-libellés destinés aux personnes sont désormais « Opérateur » et « Observateur ».
-Le contrat partagé se trouve dans `packages/contracts/src/roles.ts`.
+Personal links last seven days and are single-use. Invitees sign up or log into an
+existing account with matching verified email. They join with recorded role/options
+without an extra personal workspace; existing memberships remain. Link possession
+alone neither signs in nor proves email ownership. Pending invitations are visible
+and revocable by administrators. Change role by revoking/recreating. Changing the
+issuing administrator's role revokes their pending invitations; restoring it never
+revives links. Accepted invitations retain history.
 
-`PATCH /api/admin/members/:userId` accepte :
+The whole batch is refused if an address is already a workspace member or has a
+pending invitation. Daily limit: 500/workspace. Expired invitations may be explicitly
+replaced. Unconfirmed email outcomes never automatically retry, including list
+refresh. Local simulation sends no email and says Simulated send. Production stays
+closed until dedicated activation. Provider acceptance proves neither inbox receipt
+nor invitation acceptance. Authored invitation emails use English; stored recipient
+locale metadata does not change this authority or delivery boundary.
+
+## Scope and limits
+
+Ordinary documents, recipients and history are shared within a workspace. Studio
+PDFs remain creator-private. After dispatch preparation, a currently authorized
+administrator/supervisor approver may read its exact PDF only in that context.
+This does not expose it in the general library or to other operators/observers.
+Withdrawing approval cuts this access even for historical requests. No general
+folder/team partitioning or restricted-document guest role exists; do not present
+Observer as an ordinary-document privacy restriction.
+
+Supervisors may approve their own preparation. Mandatory preparer/approver
+separation, dual approval, individual ceilings and custom roles are separate
+future work. A financial-only accountant role may eventually help; current
+reporting option does not grant billing.
+
+Assistants receive the intersection of OAuth scopes/current membership and cannot
+assert human consent. Default-off expert delegation is administrator-only, bounded
+and expiring; supervisors cannot create it. Native clients prepare by role but
+final validation uses authenticated web review. Native UI uses server permissions,
+shows role and hides unauthorized preparation/approval, without member/invitation
+management. Web-session changes may require native reconnection. Provider/file/
+financial gates apply to every role.
+
+## Technical contract and migrations
+
+Stable API IDs: `admin`, `supervisor`, `member`, `viewer`. Historical `member`/`viewer`
+remain for compatibility; English display labels are Operator/Observer. Shared
+contract: `packages/contracts/src/roles.ts`.
+`PATCH /api/admin/members/:userId` accepts:
 
 ```json
 {
@@ -212,127 +250,112 @@ Le contrat partagé se trouve dans `packages/contracts/src/roles.ts`.
 }
 ```
 
-Seul un administrateur authentifié de cet atelier peut modifier ce membre. Les
-options ne peuvent être activées pour les autres rôles. Les réponses de session et
-de compte exposent les droits effectifs dans `permissions` ; les clients doivent
-les utiliser pour présenter les actions, tandis que les contrôles serveur restent
-autoritaires. Les changements de droits sont revérifiés dans la transaction D1.
-`GET /api/account/workspaces` liste les appartenances actuelles de la personne ;
-`POST /api/account/workspace` sélectionne une de ces appartenances dans une session
-navigateur avec CSRF. L’identifiant demandé ne constitue jamais à lui seul une
-preuve d’accès à un atelier.
+Only current authenticated workspace administrators can mutate members. Options
+cannot be enabled for other roles. Session/account `permissions` drive UI; server
+checks remain authoritative and recheck in D1 transactions.
+`GET /api/account/workspaces` lists current memberships when the space switcher
+first opens; CSRF-protected browser `POST /api/account/workspace` selects one. An
+ID alone proves no access. The Studio space adds no role or permission: its
+creation controls keep the preparation permission, and observers read according
+to sharing.
 
-La migration additive `0042_workspace_roles.sql` reconstruit la table de membres
-avec le nouveau rôle et les colonnes `supervisor_can_approve` et
-`supervisor_can_report`. Elle préserve les membres et les relations existantes,
-notamment les sessions et codes natifs malgré leurs cascades, et étend le rôle
-mémorisé par la reprise d’analyse documentaire. Les contraintes empêchent les
-options hors superviseur et la suppression du dernier administrateur.
+Additive `0042_workspace_roles.sql` rebuilds membership with supervisor and
+`supervisor_can_approve`/`supervisor_can_report`, preserving members/relations,
+including native sessions/codes despite cascades, and extends document-recovery
+remembered roles. Constraints prevent non-supervisor options and last-admin removal.
 
-**Changement volontaire pour les ateliers existants** : les anciens `member`
-deviennent des opérateurs sans approbation ni rapports ; les anciens `viewer`
-conservent la lecture opérationnelle sans rapports. Les administrateurs doivent
-attribuer « Superviseur » et les options adéquates aux personnes qui en ont besoin.
-Aucun droit supplémentaire n’est attribué automatiquement. Les anciennes
-approbations d’un `member` ne permettent plus de faire accepter une demande en
-attente ; un approbateur habilité doit la revoir. L’historique déjà accepté reste
-conservé.
+Intentional existing-workspace change: former `member` becomes Operator without
+approval/reporting; `viewer` keeps operational reading without reports. Administrators
+must explicitly assign Supervisor/options; no automatic extra rights. Old member
+approvals cannot accept pending requests; a current approver must review again.
+Accepted history remains.
 
-Les gardes SQL contrôlent l’autorité courante lors de l’écriture d’une approbation
-et lors du passage atomique à la file d’envoi. Le domaine revérifie aussi le rôle
-et ses options à chaque accès ; un contexte client ou une session conservant
-d’anciens droits ne suffit pas. Les rapports passent par les contrôles du domaine
-sur `usage` et `dispatchOverview`. Les routes administratives gardent leurs
-restrictions propres.
+SQL guards check current authority at approval insertion and atomic queue entry.
+Domain rechecks role/options per access; stale client/session contexts are
+insufficient. `usage`/`dispatchOverview` use reporting guards; admin routes retain
+their own restrictions.
 
-La migration `0043_workspace_invitations.sql` ajoute les invitations, la preuve
-d’acceptation et le rattachement de leur hash à la transaction de connexion PKCE.
-Le jeton brut n’est jamais enregistré en base ; le lien le porte dans son fragment.
-La transaction d’acceptation installe ensemble l’identité éventuelle, le rôle, les
-options et la preuve d’acceptation, après vérification Auth0 de l’adresse. Le
-serveur revérifie l’expiration, l’état du lien et l’autorité de l’émetteur lors de
-cette même transaction.
+`0043_workspace_invitations.sql` adds invitations, acceptance proof and invitation
+hash binding to PKCE login. Raw tokens are never stored; links carry them in the
+fragment. One transaction installs identity if needed, role/options and acceptance
+proof after Auth0 email verification, rechecking expiry/link state/issuer authority.
 
-L’API d’invitation utilise `GET/POST /api/admin/invitations`,
-`POST /api/admin/invitations/:id/revoke` et
-`POST /api/invitations/preview`. L’aperçu public masque l’adresse et requiert le
-jeton personnel. La création est réservée aux sessions navigateur administrateur
-avec protection CSRF ; elle accepte les adresses déjà extraites du CSV dans
-`emails`, avec `role`, `supervisorCanApprove` et `supervisorCanReport`.
+Invitation routes: `GET/POST /api/admin/invitations`,
+`POST /api/admin/invitations/:id/revoke`, `POST /api/invitations/preview`.
+Public preview masks email and needs the personal token. Creation requires browser
+admin/CSRF; accepts CSV-extracted `emails`, `role`, `supervisorCanApprove`,
+`supervisorCanReport`.
 
-L’expédition dédiée requiert `INVITATION_EMAILS_ENABLED=true`, une adresse
-`INVITATION_EMAIL_FROM` sur le domaine vérifié `guteneo.com` et les paramètres
-Resend existants. Ces paramètres ne sont pas activés par cette migration. Un lot
-est enregistré puis revendiqué avant l’appel au fournisseur ; une interruption
-conserve un résultat inconnu sans répétition automatique. Aucun jeton persistant
-ne sert à une relance.
+Dedicated delivery needs `INVITATION_EMAILS_ENABLED=true`, verified-guteneo.com
+`INVITATION_EMAIL_FROM` and existing Resend configuration. Migration activates none.
+The batch is persisted/claimed before provider calls; interruption stays unknown
+without automatic repetition or token-backed retry.
 
-## Preuve et publication
+## Evidence and publication
 
-`tests/integration/workspace-roles.test.ts` exerce les droits distincts sur D1
-local, les transports navigateur/MCP/natif, les options indépendantes, les accès
-inter-ateliers, les droits forgés ou périmés, les courses pendant l’approbation
-et la confirmation, et la révocation des accès.
+- `tests/integration/workspace-roles.test.ts`: real local D1 rights across browser/MCP/native, independent options, cross-workspace access, forged/stale authority, approval/confirmation races and revocation.
+- `workspace-roles-migration.test.ts`: populated D1 migration, before/after sessions/connections/recovery documents/approvals/send proof, integrity/foreign keys and removed old-approval authority.
+- `workspace-invitations.test.ts`: individual/group creation, bounds/duplicates/current rights/races/revocation, preview, atomic single acceptance, email matching and simulated Resend outcomes.
 
-`tests/integration/workspace-roles-migration.test.ts` applique la migration à une
-base D1 peuplée. Il compare les sessions, connexions, documents en reprise,
-approbations et preuves d’envoi avant/après, vérifie les clés étrangères et
-l’intégrité, puis contrôle la perte d’autorité des anciennes approbations.
+Only deterministic simulation/synthetic data qualifies here. Code/remote migration
+needs explicit authorization, backup and usual release gates. No real send/provider
+activation is needed for this change.
 
-`tests/integration/workspace-invitations.test.ts` vérifie la création individuelle
-et groupée, les limites, les doublons, les droits courants, les courses et
-révocations, la prévisualisation, l’acceptation unique et atomique, la correspondance
-de l’adresse, ainsi que les issues du transport Resend simulé.
+## Identity and contacts — 9 October 2026 candidate
 
-Ces preuves utilisent uniquement une simulation déterministe et des données
-fictives. Le déploiement du code et de la migration distante nécessite une
-autorisation explicite, une sauvegarde et les contrôles habituels de publication.
-Aucun envoi réel ni activation de fournisseur n’est nécessaire à cette évolution.
+Navigation/profile show name, login email and current role. Browser members can
+read a bounded projection of workspace administrators/supervisors without sessions/
+connections. Real supervisor options determine approval. Admin-list emails distinguish
+namesakes; personal names alter no rights. Refusals direct to contacts. No MCP
+directory/authority is added; see [ACCOUNT_IDENTITY.md](ACCOUNT_IDENTITY.md).
 
-## Identité et contacts — candidat du 9 octobre 2026
+## Dry run — 10 October 2026 candidate
 
-La navigation et le profil affichent nom, adresse de connexion et rôle courant.
-Tous les membres navigateur peuvent consulter les administrateurs et superviseurs
-de leur atelier via une projection bornée sans sessions ni connexions. Les options
-réelles du superviseur déterminent sa capacité à approuver. Les adresses dans la
-liste administrative distinguent les homonymes ; le nom personnel ne modifie aucun
-droit. Les refus orientent vers les contacts. Aucun annuaire ni nouveau droit MCP
-n’est ajouté. Voir [ACCOUNT_IDENTITY.md](ACCOUNT_IDENTITY.md) et ses preuves.
+`GET /api/dispatches/:id/dry-run` and MCP `dry_run_dispatch` use the same authority
+as dispatch detail: current membership, linked-document access, OAuth
+`dispatches:read`. All four roles can read without approval/reporting, except the
+existing review authority needed for another creator's private PDF. Lost authority
+is never restored. Choose an accessible prepared dispatch, run checks, inspect
+passed/blocked/not-executed gates, then resolve through existing journeys.
+Operators/observers still cannot approve/confirm; assistants create no mandate/consent.
 
-## Contrôle à blanc — candidat du 10 octobre 2026
+Result is `partial|blocked`, never executed acceptance/delivery. It creates/renews
+no quote/expiry and consumes no quote/credit; no approval, reservation, outbox or
+provider attempt. HTTP counters/connection observation remain separate and explain
+why hints do not promise zero writes. Expired quotes/engaged dispatches remain
+blocked; network failures/omitted proof remain unknown without automatic renewal/send.
+No new web/native screen, approval permission or role is introduced. Candidate was
+not deployed; [PRODUCTION_DRY_RUN.md](PRODUCTION_DRY_RUN.md) owns limits.
 
-`GET /api/dispatches/:id/dry-run` et l’outil MCP `dry_run_dispatch` relisent un
-envoi existant avec la même autorité que sa fiche : membre courant de l’atelier,
-accès au document lié et, pour OAuth, scope `dispatches:read`. Les quatre rôles
-peuvent utiliser cette lecture ; aucune option d’approbation ou de rapports n’est
-requise, sauf l’autorité de revue déjà nécessaire pour lire le PDF privé d’un
-autre créateur. Une autorité retirée n’est pas restaurée par le contrôle.
+## Independent public status
 
-Parcours : choisir un envoi accessible déjà préparé → exécuter le contrôle →
-lire les gardes validées, bloquées et non exécutées → traiter le blocage dans le
-parcours existant. Un opérateur ou un observateur ne peut toujours pas approuver
-ou confirmer. Un assistant ne crée pas de consentement ou de mandat.
+`status.guteneo.com` exposes the same anonymous state, aggregate history and
+redacted local qualification to all roles/visitors. It grants no workspace,
+document, approval or collector-administration authority and starts no tests from
+public routes. Its Worker has no business binding and accepts no client identity
+or dispatch ID. Decorative effects are page-local. See [STATUS_SERVICE.md](STATUS_SERVICE.md)
+and atlas journey J20.
 
-Le résultat reste `partial` ou `blocked` : aucune acceptation ni livraison n’est
-exécutée. La lecture ne prépare ou ne renouvelle aucun devis, ne prolonge aucune
-expiration, ne consomme aucun devis ou crédit et ne crée ni approbation, ni
-réservation, ni outbox, ni tentative fournisseur. Les compteurs HTTP et
-l’observabilité de connexion restent distincts de ces mutations métier. Les
-annotations MCP de lecture observée ne prétendent donc pas une absence absolue
-d’écriture.
+Journey J30 adds anonymous browser reports. Only the authorized GitHub main
+workflow can submit its OIDC-bound report; no human role or assistant acquires
+this authority through membership. Driver diagnostics are restricted to public
+paths/hashes and allowed publication codes. A local artifact or failed ingestion
+cannot establish stored-report success or qualified business coverage.
 
-Un refus d’accès conserve les protections existantes ; un devis expiré ou un
-envoi déjà engagé reste bloqué. Une erreur réseau ou une preuve non exécutée
-reste inconnue, sans renouvellement ou envoi automatique. Aucun écran web/natif,
-nouvelle permission d’approbation ou changement de rôle n’est ajouté. Ce candidat
-n’est pas déployé ; voir [le contrat et ses limites](PRODUCTION_DRY_RUN.md).
+Public HTML integrity adds `no-transform` to application responses for canonical
+public documents only. It grants no visitor, role or assistant authority and
+broadens no API, session or private cache. Size/SHA comparisons remain complete.
+Direct-job OIDC can carry `job_workflow_ref` and `job_workflow_sha`; the server
+accepts only their joint legacy absence or exact equality with the canonical
+main workflow and runner commit. This adds no authorized workflow, branch, role
+or assistant. It requires status publication and separate ingestion evidence.
 
-## Statut public indépendant
+Mailbox-link unsubscribe/report authority is scoped separately in [recipient feedback](EMAIL_RECIPIENT_FEEDBACK.md); it creates no role or document-access right.
 
-Le service `status.guteneo.com` expose les mêmes lectures anonymes à tous les
-rôles et aux visiteurs : état, historique agrégé et qualification locale
-expurgée. Aucun droit atelier, document, approbation ou administration de la
-collecte n’est obtenu. Les routes publiques ne déclenchent aucun test.
-Le Worker de statut n’a aucun binding métier et n’accepte ni identité client ni
-identifiant d’envoi. Les effets décoratifs sont propres à cette page.
-Voir [État du service](STATUS_SERVICE.md) et le parcours J20 de l’atlas.
+## CI evidence authority
+
+Current-run artifact metadata is read by the scoped GitHub jobs described in
+[the CI contract](CI.md#manual-reruns-and-artifact-identity). A manual rerun grants
+no workspace role, personal-document access, assistant scope or release authority.
+Web/native/REST/MCP permissions remain unchanged; publication still requires the
+explicitly authorized operator and complete exact-source checks in journey J15.

@@ -5,7 +5,7 @@
 }
 .postal-review-summary,
 .postal-consent {
-  border-block: 1px solid var(--line, #d4d5cf);
+  border-block: 1px solid var(--line);
   padding-block: 1.5rem;
 }
 .postal-review-summary h2,
@@ -31,7 +31,7 @@
   margin: 1.5rem 0;
   padding: 1rem;
   background: white;
-  border: 1px solid var(--line, #d4d5cf);
+  border: 1px solid var(--line);
 }
 .postal-address-crop img {
   display: block;
@@ -40,7 +40,7 @@
 }
 .postal-address-crop figcaption {
   margin-top: 0.75rem;
-  color: var(--muted, #585e69);
+  color: var(--muted);
   font-size: 0.8rem;
 }
 .postal-address-comparison {
@@ -64,11 +64,11 @@
   display: grid;
   gap: 0.75rem;
   padding-block: 1rem;
-  border-top: 1px solid var(--line, #d4d5cf);
+  border-top: 1px solid var(--line);
 }
 .postal-print-options dt {
   font-size: 0.8rem;
-  color: var(--muted, #585e69);
+  color: var(--muted);
 }
 .postal-print-options dd {
   margin: 0.25rem 0 0;

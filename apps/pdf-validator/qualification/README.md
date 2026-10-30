@@ -15,6 +15,13 @@ The repository ignores `.dev.vars*`; this file must never be committed or sent
 to Cloudflare. Setup rotates an existing valid probe credential, but refuses to
 overwrite foreign settings, exposed files or symbolic links. Inspect and preserve
 any such existing file before preparing a dedicated probe checkout.
+Setup writes the current `PDF_VALIDATOR_QUALIFICATION_TOKEN` key and the runner
+uses `X-PDF-Validator-Qualification-Token`. An exact owner-private credential file
+from the previous format can be read only to rotate it safely; foreign settings,
+exposed files and symlinks remain refused. Always run setup before starting the
+bridge. The local bridge strips both current and previous credential headers
+before any remote service request.
+
 Wrangler and the runner read the same local file. The runner sends its credential
 only to the selected loopback listener, refuses redirects, and the bridge removes
 the credential header before any remote service fetch. Missing or incorrect
@@ -25,7 +32,7 @@ The separate `ValidatorQualification` named RPC entrypoint is unavailable unless
 the operator temporarily deploys the validator with `QUALIFICATION_ENABLED=true`.
 The normal HTTP service does not expose these RPC operations or container audit
 paths. The qualification runner checks public production capabilities before
-stopping the container and refuses whenever Horizon is available to customers.
+stopping the container and refuses whenever PDF verification is available to customers.
 Use this only before opening the product; it includes three intentional container
 stops to measure actual cold health, cold reference validation and cold large-file
 validation.
@@ -42,7 +49,7 @@ In a separate terminal, from the same clean main checkout:
 
 ```sh
 node apps/pdf-validator/scripts/setup-probe.mjs
-apps/pdf-validator/node_modules/.bin/wrangler dev \
+node node_modules/wrangler/bin/wrangler.js dev \
   --config apps/pdf-validator/qualification/wrangler.jsonc \
   --ip 127.0.0.1 --port 8891 --log-level error
 ```
@@ -53,8 +60,14 @@ Then, supplying the exact source commit and actual deployed version UUID:
 npm --prefix apps/pdf-validator run qualify:hosted -- \
   --source-commit FULL_MAIN_SHA \
   --worker-version DEPLOYED_WORKER_UUID \
-  --proof /absolute/private/path/horizon-validator-hosted-proof.json
+  --proof /absolute/private/path/pdf-validator-hosted-proof.json
 ```
+
+Run the bridge with the repository-root Wrangler, the same reviewed runtime used
+by the deployment guard. The package-local Wrangler 4.132.0 cannot run this
+configuration's 2 October 2026 compatibility date; root Wrangler 4.149.0 was
+verified during the 25 October hosted attempt. Do not lower the compatibility
+date or change the qualification assertions to accommodate an older local tool.
 
 The private service reports the guarded `SOURCE_COMMIT` variable and actual
 `CF_VERSION_METADATA.id`; both must match the supplied deployment evidence.
@@ -84,41 +97,63 @@ response without consuming a report or retrying the request; this is a response
 deadline, not a claim to forcibly kill a remote engine. The separate process
 deadline remains forty seconds.
 
-The candidate uses the **basic** instance (0.25 vCPU, 1 GiB memory, 4 GB
-provisioned disk), one instance maximum, a five-second idle window and the
+The current candidate uses the **standard-1** instance (0.5 vCPU, 4 GiB memory,
+8 GB provisioned disk), one instance maximum, a five-second idle window and the
 unchanged 384 MiB heap. Serial GC, one active processor and level-one tiered
 compilation reduce per-document JVM startup work without changing veraPDF's
-binary or rule inventory. See the exact local resource comparison and excluded
-lite result in [`local-resource-proof.json`](../tests/benchmark-fixtures/local-resource-proof.json).
-These Docker observations do not substitute for this hosted qualification.
+binary or rule inventory. The 25 October native local run passed the full corpus
+on this tier; `basic` failed the near-limit 100-page fixture. Earlier comparisons
+in [`local-resource-proof.json`](../tests/benchmark-fixtures/local-resource-proof.json)
+are dated historical evidence. The hosted proof labels the expected configured
+tier; verify the actual allocation in provider inventory against the reviewed
+deployment. These Docker observations do not substitute for hosted qualification.
 
 A failed check writes a private `status: failed` proof and exits nonzero. Keep
-that evidence and resolve the cause; do not loosen assertions or enable Horizon.
+that evidence and resolve the cause; do not loosen assertions or enable PDF verification.
 Positive reference machine checks do not replace human accessibility assessment.
 No real customer PDF, subscription or communication is performed by this probe.
 
-After qualification passes, keep Horizon closed and physically stop the
+The 25 October first hosted run from `1d905ff2729e579cd6dc017ccfb422ba9cf985fe`
+observed cold veraPDF 1.30.2 health in 2960 ms, then failed the unchanged
+twenty-second graceful-stop check before processing any reference PDF. Python
+running as PID 1 ignored the default signal. This failure is not corpus,
+idle-sleep or production-readiness evidence. The lifecycle correction must pass
+fresh graceful stop/start and automatic idle checks before activation.
+
+The Python entrypoint handles SIGTERM/SIGINT explicitly, stops admitting new
+work and lets bounded body/process cancellation and cleanup finish. An explicit
+operator recovery request, `POST /stop?force=true`, asks the temporary private
+RPC to call SDK `destroy()` for a stuck prelaunch instance. It requires the same
+local credential, Origin refusal and enabled qualification gate. Reconfirm the
+canonical feature closed and the exact private release/application/instance
+before using it. Poll a terminal state afterwards; an acknowledgement is not
+physical-stop evidence. Forced recovery never substitutes for the normal
+SIGTERM cold-start or automatic-idle qualification assertions and is never
+exposed by the customer service.
+
+After qualification passes, keep PDF verification closed and physically stop the
 container while the qualification gate is still enabled. This also ensures that
 the Python process cannot retain its previous qualification environment across
-the normal deployment. Check Horizon only on the canonical production origin;
+the normal deployment. Check PDF verification only on the canonical production origin;
 the closed application `workers.dev` host is not a prerequisite for this cleanup.
 From the repository root, with the probe still running:
 
 ```sh
 node --input-type=module <<'NODE'
 import assert from 'node:assert/strict';
-import { createProbeFetch, readProbeCredential } from './apps/pdf-validator/scripts/probe-credentials.mjs';
+import { assertPdfVerificationClosed, createProbeFetch, readProbeCredential } from './apps/pdf-validator/scripts/probe-credentials.mjs';
 const response = await fetch('https://guteneo.com/api/capabilities', {
   redirect: 'error', signal: AbortSignal.timeout(15000),
 });
 assert.equal(response.status, 200);
 const capabilities = await response.json();
-assert.equal(capabilities.mode, 'production');
-assert.equal(capabilities.horizon?.available, false);
+assertPdfVerificationClosed(capabilities);
 const call = createProbeFetch('http://127.0.0.1:8891', readProbeCredential());
 const stopped = await call('/stop', { method: 'POST', signal: AbortSignal.timeout(48000) });
 assert.equal(stopped.status, 200);
-assert.deepEqual(await stopped.json(), { status: 'stopped' });
+await stopped.json();
+// SIGTERM can return before shutdown completes. Only a terminal state below
+// confirms that the private container has physically stopped.
 const deadline = performance.now() + 20000;
 for (;;) {
   const response = await call('/state', { signal: AbortSignal.timeout(5000) });
@@ -128,7 +163,7 @@ for (;;) {
   assert.ok(performance.now() < deadline, 'Container did not stop');
   await new Promise(resolve => setTimeout(resolve, 250));
 }
-console.log('Horizon closed; private container stopped before normal deployment.');
+console.log('PDF verification closed; private container stopped before normal deployment.');
 NODE
 ```
 
@@ -151,7 +186,7 @@ import { createProbeFetch, readProbeCredential } from './apps/pdf-validator/scri
 const call = createProbeFetch('http://127.0.0.1:8891', readProbeCredential());
 for (const [method, path] of [
   ['GET', '/release'], ['GET', '/state'], ['GET', '/privacy'],
-  ['POST', '/stop'], ['POST', '/process-deadline'],
+  ['POST', '/stop'], ['POST', '/stop?force=true'], ['POST', '/process-deadline'],
 ]) {
   const response = await call(path, { method, signal: AbortSignal.timeout(48000) });
   assert.equal(response.status, 503);

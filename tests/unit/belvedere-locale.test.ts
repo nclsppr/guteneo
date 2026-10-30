@@ -82,7 +82,7 @@ describe("Belvédère account-language interface", () => {
           currency: "USD",
         }).format(1234.56),
       );
-      expect(money(null)).toBe(bmsg("Non disponible"));
+      expect(money(null)).toBe(bmsg("Unavailable"));
       expect(dateTime("2026-01-09 13:45:00")).toBe(
         new Intl.DateTimeFormat(tag, {
           dateStyle: "medium",

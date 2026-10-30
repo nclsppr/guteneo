@@ -188,11 +188,11 @@ With organization-approved provider configuration and the existing
 POST /api/datasets/{datasetId}/analyze
 Content-Type: application/json
 
-{"proposeSchema":true,"instruction":"Un document par client avec ses lignes d’articles."}
+{"proposeSchema":true,"instruction":"One document per customer with their line items."}
 ```
 
 The equivalent MCP call is `analyze_dataset` with
-`{ "id": "<datasetId>", "proposeSchema": true, "instruction": "Un document par client avec ses lignes d’articles." }`.
+`{ "id": "<datasetId>", "proposeSchema": true, "instruction": "One document per customer with their line items." }`.
 The response remains `needs_review` and adds
 `schemaSuggestion.inputSchema`, `schemaSuggestion.envelope`, a readable `fields`
 list and `warnings`, alongside the mapping and bounded validation examples.

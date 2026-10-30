@@ -11,6 +11,7 @@ import {
 } from "vitest";
 import { Miniflare, convertV4MiniflareOptions } from "miniflare";
 import { build } from "esbuild";
+import { publicObservationTransport } from "../../scripts/production-e2e-runtime";
 import worker, {
   collectPublicSnapshot,
   handleStatusRequest,
@@ -31,7 +32,7 @@ const pages = new Map(
     `<html lang="${new URL(path, "https://guteneo.com").searchParams.get("lang") ?? "fr"}"><body>Fixture</body></html>`,
   ]),
 );
-const manifest = () => ({
+const manifest = (publicPages: ReadonlyMap<string, string> = pages) => ({
   mode: "production",
   publicPreview: false,
   sourceDirty: false,
@@ -40,7 +41,7 @@ const manifest = () => ({
   assetsSha256: "c".repeat(64),
   liveSendsEnabled: true,
   liveSendChannels: ["fax", "email"],
-  assets: [...pages].map(([path, html]) => {
+  assets: [...publicPages].map(([path, html]) => {
     const url = new URL(path, "https://guteneo.com");
     return {
       path: `${url.searchParams.has("lang") ? `/__public-locales/${url.searchParams.get("lang")}` : ""}${url.pathname}index.html`,
@@ -60,24 +61,27 @@ const capabilities = () => ({
     { id: "email", liveSending: true },
     { id: "postal", liveSending: false },
   ],
-  horizon: { available: false },
+  pdfValidation: { available: false },
   billing: { chargingEnabled: false },
   studio: { ai: { configured: false } },
 });
-function fixture(url: string): Response {
+function fixture(
+  url: string,
+  publicPages: ReadonlyMap<string, string> = pages,
+): Response {
   const parsed = new URL(url),
     path = parsed.pathname + parsed.search;
   if (parsed.origin !== "https://guteneo.com")
     throw new Error("Unexpected destination");
-  if (pages.has(path))
-    return new Response(pages.get(path), {
+  if (publicPages.has(path))
+    return new Response(publicPages.get(path), {
       headers: {
         "Content-Type": "text/html",
         "X-Content-Type-Options": "nosniff",
         "Content-Security-Policy": "frame-ancestors 'none'",
       },
     });
-  if (path === "/release.json") return Response.json(manifest());
+  if (path === "/release.json") return Response.json(manifest(publicPages));
   if (path === "/api/health")
     return Response.json({
       status: "ok",
@@ -151,6 +155,130 @@ afterAll(async () => {
 });
 
 describe("public collector with no business transport", () => {
+  it.each(["first", "last"])(
+    "accepts generated public HTML metadata when the root lang attribute is %s",
+    async (position) => {
+      const generatedPages = new Map(
+        PUBLIC_PATHS.map((path) => {
+          const url = new URL(path, "https://guteneo.com");
+          const locale = url.searchParams.get("lang") ?? "fr";
+          const metadata = `data-public-locale="${locale}" data-public-path="${url.pathname}"`;
+          const attributes =
+            position === "first"
+              ? `lang="${locale}" ${metadata}`
+              : `${metadata} lang="${locale}"`;
+          return [
+            path,
+            `<!DOCTYPE html>\n<html ${attributes}><head><meta charset="utf-8"></head><body>Fixture</body></html>`,
+          ];
+        }),
+      );
+      const result = await collectPublicSnapshot(
+        async (url) => fixture(url, generatedPages),
+        () => NOW,
+      );
+      expect(result.checks).toHaveLength(14);
+      expect(result.checks.every((check) => check.status === "pass")).toBe(
+        true,
+      );
+      expect(
+        result.categories.find((category) => category.id === "pages"),
+      ).toMatchObject({ passed: 7, total: 7 });
+    },
+  );
+
+  it.each([
+    ["wrong", 'lang="fr"'],
+    ["regional", 'lang="en-GB"'],
+    ["missing", 'data-lang="en"'],
+    ["duplicate matching", 'lang="en" lang="en"'],
+    ["duplicate conflicting", 'lang="en" lang="fr"'],
+  ])(
+    "rejects %s root language even when the exact bytes match the manifest",
+    async (_label, attributes) => {
+      const generatedPages = new Map(pages);
+      generatedPages.set(
+        "/?lang=en",
+        `<!DOCTYPE html><html data-public-locale="en" data-public-path="/" ${attributes}><head></head><body><main lang="en">Fixture</main></body></html>`,
+      );
+      const result = await collectPublicSnapshot(
+        async (url) => fixture(url, generatedPages),
+        () => NOW,
+      );
+      expect(
+        result.checks.find((check) => check.path === "/?lang=en"),
+      ).toMatchObject({ status: "fail", code: "LANGUAGE_MISMATCH" });
+      expect(
+        result.checks.filter((check) => check.status === "pass"),
+      ).toHaveLength(13);
+    },
+  );
+
+  it("keeps all manifest checks strict through the Node identity transport", async () => {
+    const transport = publicObservationTransport(async (input, init) => {
+      expect(new Headers(init?.headers).get("Accept-Encoding")).toBe(
+        "identity",
+      );
+      expect(new Headers(init?.headers).get("Cache-Control")).toBe(
+        "no-transform",
+      );
+      return fixture(String(input));
+    });
+    const result = await collectPublicSnapshot(transport.fetch, () => NOW);
+    expect(result.checks).toHaveLength(14);
+    expect(result.checks.every((check) => check.status === "pass")).toBe(true);
+    expect(transport.pages.size).toBe(7);
+    expect(transport.expectedPages.size).toBe(7);
+    expect(transport.pages.get("/roles/")?.observedDecodedBytes).toBe(
+      transport.expectedPages.get("/roles/")?.expectedBytes,
+    );
+    expect(transport.pages.get("/roles/")?.observedSha256).toBe(
+      transport.expectedPages.get("/roles/")?.expectedSha256,
+    );
+  });
+
+  it.each(["length", "hash"])(
+    "still fails closed on a CDN %s transformation after requesting identity",
+    async (change) => {
+      const transport = publicObservationTransport(async (input) => {
+        if (String(input) !== "https://guteneo.com/roles/")
+          return fixture(String(input));
+        const response = fixture(String(input));
+        const original = await response.text();
+        // Equal-length changes must fail the hash; neither branch can pass by
+        // trusting Content-Length or a server that ignores Accept-Encoding.
+        return new Response(
+          change === "length"
+            ? original + " "
+            : original.replace("Fixture", "Changed"),
+          {
+            headers: {
+              ...Object.fromEntries(response.headers),
+              "Content-Encoding": "br",
+              "Content-Length": "1",
+            },
+          },
+        );
+      });
+      const result = await collectPublicSnapshot(transport.fetch, () => NOW);
+      expect(
+        result.checks.find((check) => check.path === "/roles/"),
+      ).toMatchObject({
+        status: "fail",
+        code:
+          change === "length"
+            ? "CONTENT_LENGTH_MISMATCH"
+            : "CONTENT_HASH_MISMATCH",
+      });
+      expect(
+        result.checks.filter((check) => check.status === "pass"),
+      ).toHaveLength(13);
+      expect(transport.pages.get("/roles/")?.responseContentEncoding).toBe(
+        "br",
+      );
+    },
+  );
+
   it.each([false, true])(
     "runs default fetch in workerd without following redirects (redirect=%s)",
     async (redirect) => {
@@ -248,11 +376,50 @@ describe("public collector with no business transport", () => {
     });
     expect(result.checks).toHaveLength(14);
     expect(result.coverage).toHaveLength(11);
+    expect(result.coverage.map((row) => row.feature)).toEqual([
+      "Auth0 sign-in",
+      "PDF: import, antivirus, rendering",
+      "Studio: templates, data, generation",
+      "Cron, queues, callbacks, backups",
+      "MCP assistants",
+      "Fax",
+      "Email",
+      "Postal mail",
+      "PDF verification",
+      "Stripe payments",
+      "AI proposals",
+    ]);
     expect(
       result.coverage.filter((c) => c.state === "not_checked"),
     ).toHaveLength(7);
     expect(result.categories.map((c) => c.total)).toEqual([7, 3, 4]);
   });
+
+  it.each([false, true, undefined, "false"])(
+    "keeps paid PDF verification capability %j distinct from the unqualified scanning journey",
+    async (available) => {
+      const current: Record<string, unknown> = capabilities();
+      if (available === undefined) delete current.pdfValidation;
+      else current.pdfValidation = { available };
+      const result = await collectPublicSnapshot(
+        async (url) =>
+          url.endsWith("/api/capabilities")
+            ? Response.json(current)
+            : fixture(url),
+        () => NOW,
+      );
+      expect(
+        result.coverage.find((row) => row.feature === "PDF verification"),
+      ).toMatchObject({
+        state: available === false ? "disabled" : "not_checked",
+      });
+      expect(
+        result.coverage.find(
+          (row) => row.feature === "PDF: import, antivirus, rendering",
+        ),
+      ).toMatchObject({ state: "not_checked" });
+    },
+  );
 
   it.each([
     null,
@@ -670,6 +837,27 @@ describe("isolated D1 history and read-only public API", () => {
     expect(
       await db.prepare("SELECT COUNT(*) n FROM status_samples").first(),
     ).toEqual({ n: 1 });
+  });
+
+  it("reads historical public routes without rewriting the observed URL", async () => {
+    const historical = await snapshot();
+    historical.checks.find((check) => check.path === "/developers/")!.path =
+      "/developpeurs/";
+    await persistSnapshot(db, historical, NOW, NOW);
+    const response = await get("/api/status");
+    expect(response.status).toBe(200);
+    const data = (await response.json()) as Snapshot;
+    expect(data.checks.some((check) => check.path === "/developpeurs/")).toBe(
+      true,
+    );
+    expect(data.checks.some((check) => check.path === "/developers/")).toBe(
+      false,
+    );
+    expect(
+      await db
+        .prepare("SELECT sample_json FROM status_samples")
+        .first("sample_json"),
+    ).toBe(JSON.stringify(historical));
   });
 
   it("rejects empty snapshots before writes and corrupted stored evidence on reads", async () => {

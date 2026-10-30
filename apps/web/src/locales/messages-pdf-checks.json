@@ -1,0 +1,418 @@
+{
+  "Contrôles PDF/UA-1 et PDF/UA-2 pour l’accessibilité": [
+    "PDF/UA-1 and PDF/UA-2 accessibility checks",
+    "PDF/UA-1- und PDF/UA-2-Prüfungen für Barrierefreiheit",
+    "PDF/UA-1- a PDF/UA-2-Kontrolle fir Accessibilitéit"
+  ],
+  "Validation PDF/A-1b, 2b, 3b et 4 pour l’archivage": [
+    "PDF/A-1b, 2b, 3b and 4 archival validation",
+    "PDF/A-1b-, 2b-, 3b- und 4-Validierung für die Archivierung",
+    "PDF/A-1b-, 2b-, 3b- a 4-Validatioun fir d’Archivatioun"
+  ],
+  "Rapports exportables liés à l’empreinte du PDF original": [
+    "Exportable reports linked to the original PDF fingerprint",
+    "Exportierbare Berichte mit dem Fingerabdruck des Original-PDF",
+    "Exportéierbar Rapporten, déi mam Fangerofdrock vum Original-PDF verbonne sinn"
+  ],
+  "Repères de revue humaine et contrôles depuis votre assistant": [
+    "Human review guidance and checks from your assistant",
+    "Hinweise zur menschlichen Prüfung und Kontrollen über Ihren Assistenten",
+    "Hiweiser fir d’mënschlech Iwwerpréiwung a Kontrolle vun Ärem Assistent aus"
+  ],
+  "Gestion de la facturation réservée à l’administrateur": [
+    "Billing management reserved for the administrator",
+    "Rechnungsverwaltung ausschließlich durch den Administrator",
+    "Verwaltung vun der Facturatioun nëmme fir den Administrateur"
+  ],
+  "Des documents mieux préparés, un atelier mieux équipé.": [
+    "Better prepared documents, a better equipped workspace.",
+    "Besser vorbereitete Dokumente, ein besser ausgestatteter Arbeitsbereich.",
+    "Besser preparéiert Dokumenter, e besser equipéierten Atelier."
+  ],
+  "Bientôt disponible": [
+    "Coming soon",
+    "Bald verfügbar",
+    "Geschwënn disponibel"
+  ],
+  "Résiliation programmée": [
+    "Cancellation scheduled",
+    "Kündigung vorgemerkt",
+    "Kënnegung geplangt"
+  ],
+  "Atelier de simulation : les montants et les droits affichés sont fictifs.": [
+    "Simulation workspace: the displayed amounts and entitlements are fictional.",
+    "Simulationsbereich: Die angezeigten Beträge und Berechtigungen sind fiktiv.",
+    "Simulatiounsatelier: déi ugewisen Zommen a Rechter si fiktiv."
+  ],
+  "Période en cours jusqu’au {0}.": [
+    "Current period ends on {0}.",
+    "Aktueller Zeitraum bis {0}.",
+    "Déi aktuell Period leeft bis {0}."
+  ],
+  "Crédit disponible : {0}.": [
+    "Available credit: {0}.",
+    "Verfügbares Guthaben: {0}.",
+    "Verfügbare Kredit: {0}."
+  ],
+  "Confirmer la résiliation": [
+    "Confirm cancellation",
+    "Kündigung bestätigen",
+    "Kënnegung bestätegen"
+  ],
+  "Gérer la facturation": [
+    "Manage billing",
+    "Rechnungen verwalten",
+    "Facturatioun verwalten"
+  ],
+  "Les contrôles automatiques apportent des repères techniques. Ils ne remplacent pas une revue humaine et ne constituent pas une certification de conformité légale.": [
+    "Automated checks provide technical guidance. They do not replace human review or certify legal compliance.",
+    "Automatische Prüfungen liefern technische Hinweise. Sie ersetzen keine menschliche Prüfung und bescheinigen keine gesetzliche Konformität.",
+    "Automatesch Kontrolle ginn technesch Hiweiser. Si ersetzen keng mënschlech Iwwerpréiwung a si keng Zertifizéierung vun der gesetzlecher Konformitéit."
+  ],
+  "La loi européenne impose-t-elle des PDF accessibles ?": [
+    "Does European law require accessible PDFs?",
+    "Verlangt europäisches Recht barrierefreie PDFs?",
+    "Verlaangt d’europäescht Gesetz accessibel PDFen?"
+  ],
+  "L’Acte européen sur l’accessibilité, directive (UE) 2019/882, s’applique depuis le 28 juin 2025 à certains produits et services destinés aux consommateurs, dont le commerce électronique. Son périmètre comporte des exceptions, notamment pour les microentreprises qui fournissent des services. Il n’impose pas une obligation universelle à tous les PDF.": [
+    "The European Accessibility Act, Directive (EU) 2019/882, has applied since 28 June 2025 to certain consumer products and services, including e-commerce. Its scope has exceptions, including microenterprises providing services. It does not impose a universal requirement on every PDF.",
+    "Der European Accessibility Act, Richtlinie (EU) 2019/882, gilt seit dem 28. Juni 2025 für bestimmte Produkte und Dienstleistungen für Verbraucher, darunter den elektronischen Handel. Ausnahmen bestehen unter anderem für Kleinstunternehmen, die Dienstleistungen anbieten. Er verpflichtet nicht pauschal alle PDFs.",
+    "Den European Accessibility Act, Direktiv (EU) 2019/882, gëllt zënter dem 28. Juni 2025 fir bestëmmte Produkter a Servicer fir Konsumenten, dorënner den Onlinehandel. Et ginn Ausnamen, besonnesch fir Mikroentreprisen, déi Servicer ubidden. Hie setzt keng allgemeng Flicht fir all PDF fest."
+  ],
+  "La directive (UE) 2016/2102 encadre aussi les sites et applications mobiles du secteur public. Les obligations précises dépendent du service, du document, des exceptions et de la transposition nationale.": [
+    "Directive (EU) 2016/2102 also covers public-sector websites and mobile apps. Exact duties depend on the service, document, exceptions and national implementation.",
+    "Richtlinie (EU) 2016/2102 regelt auch Websites und mobile Anwendungen des öffentlichen Sektors. Die genauen Pflichten hängen vom Dienst, Dokument, den Ausnahmen und der nationalen Umsetzung ab.",
+    "D’Direktiv (EU) 2016/2102 regelt och Websäiten a mobil Applikatioune vum ëffentleche Secteur. Déi genee Flichten hänke vum Service, Dokument, den Ausnamen an der nationaler Ëmsetzung of."
+  ],
+  "Lire la synthèse européenne sur l’accessibilité": [
+    "Read the European accessibility summary",
+    "Europäische Zusammenfassung zur Barrierefreiheit lesen",
+    "D’europäesch Zesummefaassung iwwer Accessibilitéit liesen"
+  ],
+  "Lire les règles applicables au secteur public": [
+    "Read the public-sector rules",
+    "Regeln für den öffentlichen Sektor lesen",
+    "D’Reegele fir den ëffentleche Secteur liesen"
+  ],
+  "Un PDF/A ou un contrôle PDF/UA suffit-il à prouver l’accessibilité ?": [
+    "Does PDF/A or a PDF/UA check prove accessibility?",
+    "Beweist PDF/A oder eine PDF/UA-Prüfung die Barrierefreiheit?",
+    "Beweist PDF/A oder eng PDF/UA-Kontroll d’Accessibilitéit?"
+  ],
+  "PDF/A sert à la conservation à long terme ; PDF/UA porte sur l’accessibilité. Ces objectifs sont distincts. veraPDF vérifie les règles contrôlables automatiquement, mais l’ordre de lecture, la pertinence des alternatives et l’expérience réelle nécessitent une revue humaine. Un rapport favorable ne constitue pas une certification de conformité légale.": [
+    "PDF/A is for long-term preservation; PDF/UA concerns accessibility. These are distinct goals. veraPDF checks rules that can be automated, but reading order, meaningful alternatives and the real experience require human review. A passing report does not certify legal compliance.",
+    "PDF/A dient der Langzeitarchivierung; PDF/UA betrifft die Barrierefreiheit. Diese Ziele sind verschieden. veraPDF prüft automatisierbare Regeln. Lesereihenfolge, sinnvolle Alternativen und die tatsächliche Nutzung erfordern eine menschliche Prüfung. Ein erfolgreicher Bericht bescheinigt keine gesetzliche Konformität.",
+    "PDF/A déngt der laangfristeger Conservatioun; PDF/UA betrëfft d’Accessibilitéit. Dat si verschidden Ziler. veraPDF kontrolléiert automatesch iwwerpréifbar Reegelen, mee d’Liesuerdnung, sënnvoll Alternativen an déi tatsächlech Notzung brauchen eng mënschlech Iwwerpréiwung. E positive Rapport zertifizéiert keng gesetzlech Konformitéit."
+  ],
+  "Consulter la documentation de veraPDF": [
+    "Read the veraPDF documentation",
+    "veraPDF-Dokumentation lesen",
+    "D’veraPDF-Dokumentatioun liesen"
+  ],
+  "Vérifier l’ordre de lecture avec un lecteur d’écran": [
+    "Check reading order with a screen reader",
+    "Lesereihenfolge mit einem Screenreader prüfen",
+    "D’Liesuerdnung mat engem Screenreader iwwerpréiwen"
+  ],
+  "Vérifier la pertinence des textes alternatifs": [
+    "Check that alternative text is meaningful",
+    "Aussagekraft der Alternativtexte prüfen",
+    "D’Pertinenz vun den Alternativtexter iwwerpréiwen"
+  ],
+  "Vérifier les contrastes et la lisibilité": [
+    "Check contrast and readability",
+    "Kontraste und Lesbarkeit prüfen",
+    "Kontraster a Liesbarkeet iwwerpréiwen"
+  ],
+  "Vérifier la navigation au clavier et les formulaires": [
+    "Check keyboard navigation and forms",
+    "Tastaturnavigation und Formulare prüfen",
+    "D’Tastaturnavigatioun an d’Formulairen iwwerpréiwen"
+  ],
+  "Accessibilité et archivage du PDF": [
+    "PDF accessibility and archiving",
+    "PDF-Barrierefreiheit und Archivierung",
+    "Accessibilitéit an Archivatioun vum PDF"
+  ],
+  "PDF/UA contrôle les règles techniques d’accessibilité. PDF/A contrôle la conservation à long terme : un PDF/A n’est pas nécessairement accessible.": [
+    "PDF/UA checks technical accessibility rules. PDF/A checks long-term preservation: a PDF/A is not necessarily accessible.",
+    "PDF/UA prüft technische Regeln zur Barrierefreiheit. PDF/A prüft die Langzeitarchivierung: Ein PDF/A ist nicht automatisch barrierefrei.",
+    "PDF/UA kontrolléiert technesch Reegelen zur Accessibilitéit. PDF/A kontrolléiert déi laangfristeg Conservatioun: e PDF/A ass net onbedéngt accessibel."
+  ],
+  "Le contrôle utilise le PDF original et conserve son empreinte. Il ne modifie pas le document et ne corrige pas automatiquement les erreurs.": [
+    "The check uses the original PDF and retains its fingerprint. It does not change the document or automatically fix errors.",
+    "Die Prüfung verwendet das Original-PDF und bewahrt seinen Fingerabdruck. Sie verändert das Dokument nicht und korrigiert Fehler nicht automatisch.",
+    "D’Kontroll benotzt den Original-PDF a behält säi Fangerofdrock. Si ännert d’Dokument net a korrigéiert Feeler net automatesch."
+  ],
+  "Le PDF doit d’abord terminer sa vérification de sécurité avant un contrôle d’accessibilité ou d’archivage.": [
+    "The PDF must first finish its security check before accessibility or archival validation.",
+    "Das PDF muss vor der Prüfung auf Barrierefreiheit oder Archivierung seine Sicherheitsprüfung abschließen.",
+    "De PDF muss fir d’éischt seng Sécherheetskontroll ofschléissen, ier d’Accessibilitéit oder d’Archivatioun kontrolléiert gëtt."
+  ],
+  "Votre rôle permet de consulter les rapports. Demandez à un membre autorisé de lancer un contrôle.": [
+    "Your role allows you to view reports. Ask an authorised member to run a check.",
+    "Ihre Rolle erlaubt das Lesen der Berichte. Bitten Sie ein berechtigtes Mitglied, eine Prüfung zu starten.",
+    "Är Roll erlaabt Iech, Rapporten ze kucken. Frot en autoriséierte Member, eng Kontroll ze starten."
+  ],
+  "Profil de validation": [
+    "Validation profile",
+    "Validierungsprofil",
+    "Validatiounsprofil"
+  ],
+  "Choisissez le standard attendu pour votre document.": [
+    "Choose the standard required for your document.",
+    "Wählen Sie den für Ihr Dokument erforderlichen Standard.",
+    "Wielt de Standard, dee fir Äert Dokument erwaart gëtt."
+  ],
+  "Contrôle en cours…": ["Checking…", "Prüfung läuft…", "Kontroll leeft…"],
+  "Contrôler ce PDF": [
+    "Check this PDF",
+    "Dieses PDF prüfen",
+    "Dëse PDF kontrolléieren"
+  ],
+  "Le contrôle est en cours. Le résultat portera uniquement sur ce PDF et ce profil.": [
+    "The check is running. The result will apply only to this PDF and profile.",
+    "Die Prüfung läuft. Das Ergebnis gilt ausschließlich für dieses PDF und dieses Profil.",
+    "D’Kontroll leeft. D’Resultat gëllt nëmme fir dëse PDF an dëse Profil."
+  ],
+  "Le résultat automatique doit être complété par une revue humaine.": [
+    "The automated result must be supplemented by human review.",
+    "Das automatische Ergebnis muss durch eine menschliche Prüfung ergänzt werden.",
+    "Dat automatescht Resultat muss duerch eng mënschlech Iwwerpréiwung ergänzt ginn."
+  ],
+  "Aucun rapport de validation pour ce PDF.": [
+    "No validation report for this PDF.",
+    "Kein Validierungsbericht für dieses PDF.",
+    "Kee Validatiounsrapport fir dëse PDF."
+  ],
+  "Ce rapport ne correspond pas à l’empreinte du document affiché. Actualisez les rapports.": [
+    "This report does not match the displayed document’s fingerprint. Refresh the reports.",
+    "Dieser Bericht stimmt nicht mit dem Fingerabdruck des angezeigten Dokuments überein. Aktualisieren Sie die Berichte.",
+    "Dëse Rapport entsprécht net dem Fangerofdrock vum ugewisenen Dokument. Aktualiséiert d’Rapporten."
+  ],
+  "Contrôles automatiques réussis": [
+    "Automated checks passed",
+    "Automatische Prüfungen bestanden",
+    "Automatesch Kontrolle bestanen"
+  ],
+  "Écarts techniques détectés": [
+    "Technical issues found",
+    "Technische Abweichungen erkannt",
+    "Technesch Ofwäichunge fonnt"
+  ],
+  "Rapport de simulation : il ne prouve pas la conformité du PDF.": [
+    "Simulation report: it does not prove PDF compliance.",
+    "Simulationsbericht: Er beweist keine PDF-Konformität.",
+    "Simulatiounsrapport: hie beweist net d’Konformitéit vum PDF."
+  ],
+  "Règles réussies": ["Passed rules", "Bestandene Regeln", "Bestane Reegelen"],
+  "Règles en échec": [
+    "Failed rules",
+    "Fehlgeschlagene Regeln",
+    "Net bestane Reegelen"
+  ],
+  "Contrôles en échec": [
+    "Failed checks",
+    "Fehlgeschlagene Prüfungen",
+    "Net bestane Kontrollen"
+  ],
+  "Références des règles à corriger": [
+    "References for rules to fix",
+    "Referenzen der zu korrigierenden Regeln",
+    "Referenze vun de Reegelen, déi ze korrigéiere sinn"
+  ],
+  "Spécification": ["Specification", "Spezifikation", "Spezifikatioun"],
+  "Clause / test": ["Clause / test", "Abschnitt / Test", "Abschnitt / Test"],
+  "La liste affichée est limitée. Le nombre total d’échecs reste indiqué dans le rapport.": [
+    "The displayed list is limited. The report still shows the total failure count.",
+    "Die angezeigte Liste ist begrenzt. Der Bericht zeigt weiterhin die Gesamtzahl der Fehler.",
+    "Déi ugewisen Lëscht ass limitéiert. D’Gesamtzuel vun de Feeler bleift am Rapport uginn."
+  ],
+  "Revue humaine à compléter": [
+    "Human review still required",
+    "Menschliche Prüfung noch erforderlich",
+    "Mënschlech Iwwerpréiwung nach néideg"
+  ],
+  "Ces points restent à vérifier manuellement. Guteneo n’enregistre pas ici d’attestation de revue humaine.": [
+    "These points still need manual review. Guteneo does not record a human review attestation here.",
+    "Diese Punkte müssen noch manuell geprüft werden. Guteneo erfasst hier keine Bestätigung einer menschlichen Prüfung.",
+    "Dës Punkte sinn nach manuell ze iwwerpréiwen. Guteneo registréiert hei keng Bestätegung vun enger mënschlecher Iwwerpréiwung."
+  ],
+  "Un résultat technique favorable n’est ni une certification d’accessibilité ni une garantie de conformité légale.": [
+    "A passing technical result is neither an accessibility certification nor a guarantee of legal compliance.",
+    "Ein erfolgreiches technisches Ergebnis ist weder eine Zertifizierung der Barrierefreiheit noch eine Garantie gesetzlicher Konformität.",
+    "E positive technescht Resultat ass weder eng Accessibilitéitszertifizéierung nach eng Garantie fir gesetzlech Konformitéit."
+  ],
+  "Exporter le rapport JSON": [
+    "Export JSON report",
+    "JSON-Bericht exportieren",
+    "JSON-Rapport exportéieren"
+  ],
+  "Le compte ne dispose pas des crédits nécessaires. Actualisez le solde avant de recommencer.": [
+    "The account does not have enough credit. Refresh the balance before trying again.",
+    "Das Konto hat nicht genügend Guthaben. Aktualisieren Sie den Saldo vor einem neuen Versuch.",
+    "De Kont huet net genuch Kredit. Aktualiséiert de Solde, ier Dir nach eng Kéier probéiert."
+  ],
+  "Le service de validation PDF n’est pas encore activé. Votre document est conservé et aucun résultat de conformité n’a été produit.": [
+    "The PDF validation service is not activated yet. Your document is retained and no compliance result has been produced.",
+    "Der PDF-Validierungsdienst ist noch nicht aktiviert. Ihr Dokument bleibt erhalten; ein Konformitätsergebnis wurde nicht erstellt.",
+    "De PDF-Validatiounsservice ass nach net aktivéiert. Äert Dokument bleift gespäichert an et gouf kee Konformitéitsresultat produzéiert."
+  ],
+  "Un contrôle de ce PDF est déjà en cours. Actualisez ses rapports avant de recommencer.": [
+    "A check of this PDF is already running. Refresh its reports before trying again.",
+    "Eine Prüfung dieses PDF läuft bereits. Aktualisieren Sie die Berichte vor einem neuen Versuch.",
+    "Eng Kontroll vun dësem PDF leeft schonn. Aktualiséiert seng Rapporten, ier Dir nach eng Kéier probéiert."
+  ],
+  "La limite de contrôles PDF est atteinte pour cette période. Réessayez plus tard.": [
+    "The PDF check limit for this period has been reached. Try again later.",
+    "Das Limit für PDF-Prüfungen in diesem Zeitraum ist erreicht. Versuchen Sie es später erneut.",
+    "D’Limit vun de PDF-Kontrolle fir dës Period ass erreecht. Probéiert méi spéit nach eng Kéier."
+  ],
+  "Le contrôle n’a pas abouti. Aucun résultat de conformité n’a été produit ; vous pouvez demander un nouveau contrôle.": [
+    "The check did not complete. No compliance result was produced; you can request a new check.",
+    "Die Prüfung konnte nicht abgeschlossen werden. Es wurde kein Konformitätsergebnis erstellt; Sie können eine neue Prüfung anfordern.",
+    "D’Kontroll gouf net ofgeschloss. Et gouf kee Konformitéitsresultat produzéiert; Dir kënnt eng nei Kontroll ufroen."
+  ],
+  "Le mode de cet espace est incompatible.": [
+    "This workspace’s mode is incompatible.",
+    "Der Modus dieses Arbeitsbereichs ist nicht kompatibel.",
+    "De Modus vun dësem Atelier ass net kompatibel."
+  ],
+  "Disponible dans votre atelier": [
+    "Available in your workspace",
+    "In Ihrem Arbeitsbereich verfügbar",
+    "An Ärem Atelier disponibel"
+  ],
+  "Consultez votre atelier": [
+    "Check your workspace",
+    "Prüfen Sie Ihren Arbeitsbereich",
+    "Kuckt an Ärem Atelier"
+  ],
+  "Repérez les obstacles dans vos PDF avant de les partager.": [
+    "Find barriers in your PDFs before sharing them.",
+    "Erkennen Sie Barrieren in Ihren PDFs, bevor Sie sie teilen.",
+    "Fannt Barrièren an Äre PDFen, ier Dir se deelt."
+  ],
+  "Contrôles PDF": ["PDF checks", "PDF-Prüfungen", "PDF-Kontrollen"],
+  "Vérification d’accessibilité PDF": [
+    "PDF accessibility checks",
+    "PDF-Prüfungen zur Barrierefreiheit",
+    "PDF-Kontrolle fir Accessibilitéit"
+  ],
+  "Vérifiez les règles techniques d’accessibilité ou d’archivage d’un document, selon vos besoins.": [
+    "Check a document’s technical accessibility or archival rules, when you need it.",
+    "Prüfen Sie bei Bedarf die technischen Regeln für Barrierefreiheit oder Archivierung eines Dokuments.",
+    "Kontrolléiert bei Bedarf déi technesch Reegele fir Accessibilitéit oder Archivatioun vun engem Dokument."
+  ],
+  "Un contrôle à la demande": [
+    "Pay for the check you need",
+    "Die benötigte Prüfung einzeln bezahlen",
+    "Bezuelt déi Kontroll, déi Dir braucht"
+  ],
+  "HT, par PDF et par profil": [
+    "excluding tax, per PDF and profile",
+    "zzgl. Steuern, pro PDF und Profil",
+    "ouni Steieren, pro PDF a Profil"
+  ],
+  "Les contrôles PDF sont actuellement indisponibles": [
+    "PDF checks are currently unavailable",
+    "PDF-Prüfungen sind derzeit nicht verfügbar",
+    "PDF-Kontrolle sinn den Ament net disponibel"
+  ],
+  "Chaque contrôle est payé avec votre crédit disponible après votre confirmation. Sans abonnement ni renouvellement automatique. La lecture d’un rapport existant est gratuite.": [
+    "Each check is paid from your available credit after your confirmation. There is no subscription or automatic renewal. Reading an existing report is free.",
+    "Jede Prüfung wird nach Ihrer Bestätigung aus Ihrem verfügbaren Guthaben bezahlt. Es gibt kein Abonnement und keine automatische Verlängerung. Bestehende Berichte können kostenlos gelesen werden.",
+    "All Kontroll gëtt no Ärer Bestätegung mat Ärem verfügbare Kredit bezuelt. Et gëtt keen Abonnement a keng automatesch Erneierung. Bestehend Rapporte kënne gratis gelies ginn."
+  ],
+  "Repères de revue humaine pour les points que l’automatisation ne peut pas évaluer": [
+    "Human review guidance for the points automation cannot assess",
+    "Hinweise zur menschlichen Prüfung der Punkte, die sich nicht automatisiert bewerten lassen",
+    "Hiweiser fir d’mënschlech Iwwerpréiwung vu Punkten, déi net automatesch kënne bewäert ginn"
+  ],
+  "PDF jusqu’à 10 Mio et 100 pages. Chaque profil fait l’objet d’un contrôle distinct ; le prix exact s’affiche avant votre confirmation.": [
+    "PDFs up to 10 MiB and 100 pages. Each profile is a separate check; the exact price is shown before you confirm.",
+    "PDFs bis 10 MiB und 100 Seiten. Jedes Profil ist eine separate Prüfung; der genaue Preis wird vor Ihrer Bestätigung angezeigt.",
+    "PDFe bis 10 MiB an 100 Säiten. All Profil ass eng separat Kontroll; den exakte Präis gëtt virun Ärer Bestätegung gewisen."
+  ],
+  "Atelier de simulation : les montants et les contrôles affichés sont fictifs.": [
+    "Simulation workspace: the displayed amounts and checks are fictional.",
+    "Simulationsbereich: Die angezeigten Beträge und Prüfungen sind fiktiv.",
+    "Simulatiounsatelier: déi ugewisen Zommen a Kontrolle si fiktiv."
+  ],
+  "Ouvrez un PDF prêt dans Documents pour choisir un profil et confirmer un contrôle payant. Seul un administrateur connecté dans le navigateur peut confirmer son paiement.": [
+    "Open a ready PDF in Documents to choose a profile and confirm one paid check. Only a browser administrator can confirm its payment.",
+    "Öffnen Sie eine bereitstehende PDF unter Dokumente, um ein Profil zu wählen und eine kostenpflichtige Prüfung zu bestätigen. Nur ein im Browser angemeldeter Administrator kann die Zahlung bestätigen.",
+    "Maacht e fäerdege PDF ënner Dokumenter op, fir e Profil ze wielen an eng bezuelte Kontroll ze bestätegen. Nëmmen en Administrateur am Browser kann d’Bezuelung bestätegen."
+  ],
+  "Choisir un PDF": ["Choose a PDF", "PDF auswählen", "E PDF wielen"],
+  "Choisissez l’accessibilité PDF/UA ou l’archivage PDF/A. Payez seulement le contrôle que vous confirmez, sans abonnement mensuel.": [
+    "Choose PDF/UA accessibility or PDF/A archiving. Pay only for the check you confirm, with no monthly subscription.",
+    "Wählen Sie PDF/UA-Barrierefreiheit oder PDF/A-Archivierung. Bezahlen Sie nur die bestätigte Prüfung, ohne monatliches Abonnement.",
+    "Wielt PDF/UA-Accessibilitéit oder PDF/A-Archivatioun. Bezuelt nëmmen déi Kontroll, déi Dir bestätegt, ouni monatlecht Abonnement."
+  ],
+  "La disponibilité du service est confirmée dans votre atelier avant l’achat d’un contrôle.": [
+    "Service availability is confirmed in your workspace before you purchase a check.",
+    "Die Verfügbarkeit des Dienstes wird vor dem Kauf einer Prüfung in Ihrem Arbeitsbereich bestätigt.",
+    "D’Disponibilitéit vum Service gëtt virum Kaf vun enger Kontroll an Ärem Atelier bestätegt."
+  ],
+  "Découvrir les contrôles PDF": [
+    "Explore PDF checks",
+    "PDF-Prüfungen entdecken",
+    "PDF-Kontrollen entdecken"
+  ],
+  "{0} HT par PDF et par profil, prélevés sur le crédit disponible après confirmation.": [
+    "{0} excluding tax per PDF and profile, deducted from available credit after confirmation.",
+    "{0} zzgl. Steuern pro PDF und Profil, nach Bestätigung vom verfügbaren Guthaben abgezogen.",
+    "{0} ouni Steieren pro PDF a Profil, no der Bestätegung vum verfügbare Kredit ofgezunn."
+  ],
+  "Les contrôles PDF sont actuellement indisponibles. Les rapports existants restent consultables.": [
+    "PDF checks are currently unavailable. Existing reports remain readable.",
+    "PDF-Prüfungen sind derzeit nicht verfügbar. Bestehende Berichte bleiben lesbar.",
+    "PDF-Kontrolle sinn den Ament net disponibel. Bestehend Rapporte bleiwe liesbar."
+  ],
+  "Vous pouvez lire les rapports existants. Seul un administrateur connecté dans le navigateur peut confirmer un contrôle payant.": [
+    "You can read existing reports. Only a browser administrator can confirm a paid check.",
+    "Sie können bestehende Berichte lesen. Nur ein im Browser angemeldeter Administrator kann eine kostenpflichtige Prüfung bestätigen.",
+    "Dir kënnt bestoend Rapporte liesen. Nëmmen en Administrateur am Browser kann eng bezuelte Kontroll bestätegen."
+  ],
+  "Un contrôle de {0} selon le profil {1} coûte {2} HT.": [
+    "One check of {0} using {1} costs {2} excluding tax.",
+    "Eine Prüfung von {0} mit dem Profil {1} kostet {2} zzgl. Steuern.",
+    "Eng Kontroll vu {0} mam Profil {1} kascht {2} ouni Steieren."
+  ],
+  "Je confirme ce contrôle unique à {0} HT, payé avec mon crédit disponible.": [
+    "I confirm this single check at {0} excluding tax, paid from my available credit.",
+    "Ich bestätige diese einzelne Prüfung für {0} zzgl. Steuern, bezahlt aus meinem verfügbaren Guthaben.",
+    "Ech bestätegen dës eenzel Kontroll fir {0} ouni Steieren, bezuelt mat mengem verfügbare Kredit."
+  ],
+  "Sans abonnement ni renouvellement automatique. Choisir un autre profil nécessite une nouvelle confirmation.": [
+    "No subscription or automatic renewal. Choosing another profile requires a new confirmation.",
+    "Kein Abonnement und keine automatische Verlängerung. Ein anderes Profil erfordert eine neue Bestätigung.",
+    "Keen Abonnement a keng automatesch Erneierung. En anere Profil erfuerdert eng nei Bestätegung."
+  ],
+  "Votre crédit disponible est insuffisant pour ce contrôle. Aucun contrôle n’a été lancé.": [
+    "Your available credit is insufficient for this check. No check has been started.",
+    "Ihr verfügbares Guthaben reicht für diese Prüfung nicht aus. Es wurde keine Prüfung gestartet.",
+    "Äre verfügbare Kredit geet net fir dës Kontroll duer. Et gouf keng Kontroll gestart."
+  ],
+  "Payer {0} HT et contrôler ce PDF": [
+    "Pay {0} excluding tax and check this PDF",
+    "{0} zzgl. Steuern bezahlen und diese PDF prüfen",
+    "{0} ouni Steiere bezuelen an dëse PDF kontrolléieren"
+  ],
+  "Un rapport technique complet est facturé même s’il révèle des erreurs. Un contrôle interrompu sans rapport exploitable n’est pas facturé.": [
+    "A completed technical report is charged even when issues are found. An interrupted check with no usable report is not charged.",
+    "Ein vollständiger technischer Bericht wird auch bei gefundenen Fehlern berechnet. Eine unterbrochene Prüfung ohne verwertbaren Bericht wird nicht berechnet.",
+    "E komplette technesche Rapport gëtt och bei fonntene Feeler berechent. Eng ënnerbrach Kontroll ouni brauchbare Rapport gëtt net berechent."
+  ],
+  "Le prix ou les conditions du contrôle ont changé. Actualisez le prix et confirmez à nouveau.": [
+    "The check price or terms have changed. Refresh the price and confirm again.",
+    "Preis oder Bedingungen der Prüfung haben sich geändert. Aktualisieren Sie den Preis und bestätigen Sie erneut.",
+    "De Präis oder d’Konditioune vun der Kontroll hunn geännert. Aktualiséiert de Präis a bestätegt nach eng Kéier."
+  ],
+  "Confirmez le prix affiché de ce contrôle avant de le lancer.": [
+    "Confirm the displayed price of this check before starting it.",
+    "Bestätigen Sie vor dem Start den angezeigten Preis dieser Prüfung.",
+    "Bestätegt den ugewisene Präis vun dëser Kontroll, ier Dir se start."
+  ]
+}

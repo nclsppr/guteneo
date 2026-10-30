@@ -31,29 +31,10 @@
     grid-template-rows: auto;
   }
 }
-.dashboard-appearance-control {
-  display: grid;
-  gap: 6px;
-  min-width: 0;
-}
-.dashboard-appearance-control label {
-  font-size: 14px;
-  color: var(--ink);
-}
-.dashboard-appearance-select {
-  width: 100%;
-  min-width: 0;
-  min-height: 46px;
-  padding: 11px 12px;
-  color: var(--ink);
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: 5px;
-  font-size: 15px;
-}
+
 .account-display-preferences {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   align-items: start;
   gap: 20px;
   margin-bottom: 24px;
@@ -65,9 +46,6 @@
 .account-display-preferences .field {
   margin-bottom: 0;
 }
-.workspace-identity-avatar {
-  display: none;
-}
 .sidebar-account {
   min-width: 0;
 }
@@ -77,34 +55,28 @@
   }
 }
 .workspace-v2 {
-  --paper: #f6f5ef;
-  --surface: #fffefa;
-  --ink: #181b22;
-  --muted: #596172;
-  --blue: #2450db;
-  --blue-tint: #eaf0fc;
-  --line: #dcdedc;
   --radius: 7px;
-  --heading-ink: #172e5c;
   background: var(--paper);
   grid-template-columns: 258px minmax(0, 1fr);
   font-size: 14px;
 }
 .workspace-v2 ::selection {
-  background: #d8e3fc;
-  color: #172e5c;
+  background: var(--blue-tint);
+  color: var(--blue-ink);
 }
 .workspace-v2 :is(input, textarea) {
   caret-color: var(--blue);
 }
 .workspace-v2 .sidebar {
-  background: #f0efea;
-  padding: 22px 12px 12px;
-  scrollbar-color: #bac4d6 transparent;
+  /* The account menu may extend over the page beside the sidebar. */
+  z-index: 2;
+  background: var(--sidebar-surface);
+  padding: 18px 12px 10px;
+  scrollbar-color: var(--control-line) transparent;
   scrollbar-width: thin;
 }
 .workspace-v2 .sidebar-brand {
-  padding: 0 12px 18px;
+  padding: 0 12px 14px;
   gap: 9px;
 }
 .workspace-v2 .sidebar .brand {
@@ -113,35 +85,29 @@
   gap: 9px;
   color: #181b22;
 }
-.workspace-v2 .atelier-label {
-  font-family: "IBM Plex Sans", sans-serif;
-  font-size: 12px;
-  letter-spacing: 0;
-  text-transform: none;
-  color: var(--muted);
-}
+
 .workspace-v2 .sidebar nav a {
   min-height: 44px;
   padding: 10px 12px;
   font-size: 14px;
-  color: #35445f;
+  color: var(--muted);
   gap: 12px;
 }
 .workspace-v2 .sidebar nav a[aria-current="page"] {
-  color: var(--ink);
-  background: #e2e4e0;
+  color: var(--blue);
+  background: var(--blue-tint);
   font-weight: 500;
 }
 .workspace-v2 .sidebar nav a:hover {
-  background: #e7e8e3;
+  background: var(--surface-hover);
 }
 .workspace-v2 .sidebar nav a:nth-child(5) {
   margin-top: 0;
 }
 .workspace-v2 .sidebar .organization {
   border: 0;
-  margin: 0 0 14px;
-  padding: 8px 12px 14px;
+  margin: 0 0 10px;
+  padding: 4px 12px 8px;
   gap: 10px;
 }
 .workspace-v2 .organization-initial {
@@ -150,138 +116,73 @@
   font-size: 20px;
   border-radius: 6px;
 }
-.workspace-v2 .sidebar .atelier-label,
-.workspace-v2 .sidebar-footer p {
-  display: none;
-}
-.workspace-v2 .sidebar-footer {
-  margin: 0;
-  padding: 0 12px;
-}
-.workspace-v2 .sidebar-footer button {
-  min-height: 40px;
-  font-size: 13px;
-}
+
 @media (min-width: 1025px) {
+  /* Compact pointer rows keep every destination in view from 864 px high;
+     touch layouts below keep 44 px rows. */
+  .workspace-v2 .sidebar nav {
+    gap: 2px;
+  }
+  .workspace-v2 .sidebar nav a {
+    min-height: 34px;
+    padding-block: 7px;
+  }
+  /* Only the navigation scrolls; the account menu may overhang the page. */
   .workspace-v2 .sidebar {
-    overflow: hidden;
+    overflow: visible;
   }
   .workspace-v2 .workspace-navigation {
     flex: 1 1 auto;
     min-height: 0;
     overflow-y: auto;
     overscroll-behavior-y: contain;
-    padding-bottom: 16px;
+    scrollbar-width: thin;
+  }
+  /* The scrolling list clips an outer ring, as in Belvédère: draw it inside. */
+  .workspace-v2 .workspace-navigation nav a:focus-visible {
+    outline-offset: -2px;
+  }
+  /* In flow after the last entry, this fade stays invisible. While entries
+     remain below, it sticks to the bottom edge and fades the cut-off row. */
+  .workspace-v2 .workspace-navigation nav::after {
+    content: "";
+    position: sticky;
+    bottom: 0;
+    flex: 0 0 28px;
+    background: linear-gradient(transparent, var(--sidebar-surface) 85%);
+    pointer-events: none;
   }
   .workspace-v2 .sidebar-account {
     margin-top: auto;
-    padding-top: 12px;
+    padding-top: 6px;
     border-top: 1px solid var(--line);
   }
-  .workspace-v2
-    .sidebar
-    nav
-    a:is([href="#/app/templates"], [href="#/app/senders"]) {
-    margin-top: 14px;
+  .workspace-v2 .sidebar nav a[href="#/app/senders"] {
+    margin-top: 10px;
   }
 }
-.workspace-v2 .workspace-identity {
-  padding: 6px 10px 8px;
-  margin: 0;
-  border: 0;
+@media (min-width: 1025px) and (forced-colors: active) {
+  .workspace-v2 .workspace-navigation nav::after {
+    display: none;
+  }
 }
-.workspace-v2 .workspace-identity-profile {
-  display: grid;
-  grid-template-columns: 36px minmax(0, 1fr);
-  column-gap: 10px;
-  row-gap: 2px;
-  align-items: center;
-  border-radius: 8px;
-}
-.workspace-v2 .workspace-identity-avatar {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  grid-column: 1;
-  grid-row: 1 / 4;
-  align-self: start;
-  border-radius: 50%;
-  background: #dfe5f0;
-  color: #304369;
-  font-size: 12px;
-  font-weight: 500;
-}
-.workspace-v2
-  .workspace-identity-profile
-  > :is(strong, .workspace-identity-email, .workspace-role) {
-  grid-column: 2;
-  grid-row: auto;
-  justify-self: start;
-  max-width: 100%;
-}
-.workspace-v2 .workspace-identity-profile strong {
-  font-size: 13px;
-}
-.workspace-v2 .workspace-identity-email {
-  font-size: 11px;
-  color: var(--muted);
-}
-.workspace-v2 .workspace-identity-profile .workspace-role {
-  padding: 0;
-  border: 0;
-  background: transparent;
-  font-weight: 400;
-  color: var(--muted);
-}
-.workspace-v2 .workspace-identity-profile .workspace-identity-label,
-.workspace-v2 .workspace-identity-action {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  clip-path: inset(50%);
-  overflow: hidden;
-  white-space: nowrap;
-}
-.workspace-v2 .workspace-identity-profile:hover {
-  background: #e7e8e3;
-}
-.workspace-v2 .workspace-identity-profile[aria-current="page"] {
-  background: #e2e4e0;
-}
-.workspace-v2 .workspace-account-utilities {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0 16px;
-  margin-left: 46px;
-}
-.workspace-v2 :is(.workspace-switch-account, .workspace-service-status) {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  min-height: 36px;
-  margin: 0;
-  font-size: 12px;
-  color: var(--muted);
-  text-underline-offset: 3px;
-}
-.workspace-v2 .workspace-service-status:hover {
-  color: var(--ink);
-}
+/* The global shortcut keeps its place on every page. The page's own primary
+   action stays the single filled button. */
 .workspace-v2 .sidebar nav a.workspace-create {
   justify-content: flex-start;
-  margin: 0 0 12px;
-  border: 1px solid #b0b6c0;
-  background: transparent;
-  color: var(--heading-ink);
+  min-height: 44px;
+  margin: 0 0 8px;
+  border: 1px solid var(--ink);
+  color: var(--ink);
 }
-.workspace-v2 .sidebar nav a.workspace-create:hover {
-  background: #e2e4e0;
-  border-color: var(--muted);
+/* Overview and Dispatches repeat the shortcut in their heading for phones,
+   where the navigation is collapsed. */
+@media (min-width: 1025px) {
+  .workspace-v2 .page-heading-actions > .heading-new-dispatch {
+    display: none;
+  }
 }
+
 .workspace-v2 .timestamp-context {
   color: var(--muted);
   font-size: 12px;
@@ -309,79 +210,21 @@
 }
 .workspace-v2 .dashboard-editorial-heading {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(160px, 29%);
+  grid-template-columns: minmax(0, 1fr);
   align-items: center;
   gap: 24px;
   margin-bottom: 26px;
-  min-height: 162px;
+  min-height: 0;
 }
 .workspace-v2 .dashboard-editorial-heading .page-heading {
   margin: 0;
 }
-.dashboard-artwork {
-  position: relative;
-  width: 100%;
-  pointer-events: none;
-}
-.dashboard-artwork > img {
-  display: block;
-  width: 100%;
-  height: auto;
-  max-height: inherit;
-  object-fit: contain;
-  object-position: inherit;
-  mix-blend-mode: multiply;
-}
-/* Two fixed poses from the approved footer sprite stay inside the engraving's
-   blank space. No wingbeat runs here, including with reduced motion enabled. */
-.dashboard-artwork .dashboard-artwork-swallow {
-  position: absolute;
-  animation: none;
-}
-.dashboard-artwork-swallow-near {
-  top: 18%;
-  left: 13%;
-  width: 13%;
-  background-position: 0 0;
-}
-.dashboard-artwork-swallow-far {
-  top: 7%;
-  left: 34%;
-  width: 8%;
-  background-position: 100% 100%;
-}
-.dashboard-artwork-atelier {
-  max-width: 270px;
-  max-height: 180px;
-}
-.dashboard-artwork-documents .dashboard-artwork-swallow-near {
-  top: 20%;
-  left: 7%;
-}
-.dashboard-artwork-documents .dashboard-artwork-swallow-far {
-  top: 9%;
-  left: 25%;
-}
-.dashboard-artwork-horizon .dashboard-artwork-swallow-near {
-  top: 8%;
-  left: 40%;
-  width: 9%;
-}
-.dashboard-artwork-horizon .dashboard-artwork-swallow-far {
-  top: 16%;
-  left: 56%;
-  width: 5.5%;
-}
-.workspace-v2 .dashboard-editorial-heading-horizon {
-  grid-template-columns: minmax(0, 1.15fr) minmax(180px, 0.85fr);
-}
-.dashboard-artwork-horizon {
-  max-width: 480px;
-  max-height: 160px;
+.workspace-v2 .dashboard-editorial-heading-pdf-verification {
+  grid-template-columns: minmax(0, 1fr);
 }
 .workspace-v2 .dashboard-document-empty {
   display: grid;
-  grid-template-columns: minmax(150px, 270px) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
   align-items: center;
   gap: 24px;
   padding: 24px;
@@ -400,7 +243,7 @@
 .workspace-v2 .form-panel > h2,
 .workspace-v2 .assistant-welcome-heading h2,
 .workspace-v2 .assistant-direct-route h2 {
-  font-family: "EB Garamond", Georgia, serif;
+  font-family: var(--font-display);
   color: var(--heading-ink);
   font-weight: 400;
   font-size: 28px;
@@ -443,7 +286,7 @@
   margin-bottom: 12px;
 }
 .workspace-v2 .overview-stats strong {
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: var(--font-body);
   font-size: 32px;
   font-weight: 400;
   font-variant-numeric: tabular-nums;
@@ -458,12 +301,12 @@
   line-height: 1.45;
 }
 .workspace-v2 .button.primary {
-  background: var(--blue);
-  border-color: var(--blue);
+  background: var(--action);
+  border-color: var(--action);
   color: white;
 }
 .workspace-v2 .button.primary:hover:not(:disabled) {
-  background: #1b3caa;
+  background: var(--action-hover);
 }
 .workspace-v2 .table-scroll {
   border: 1px solid var(--line);
@@ -474,8 +317,8 @@
   font-size: 14px;
 }
 .workspace-v2 th:not(.studio-designer *) {
-  background: #f0f2f5;
-  color: #42516b;
+  background: var(--surface-alt);
+  color: var(--muted);
   font-size: 12px;
   padding: 14px 16px;
 }
@@ -493,7 +336,7 @@
 }
 .workspace-v2 .row-link {
   font-size: 14px;
-  color: #213858;
+  color: var(--blue-ink);
 }
 .workspace-v2 .reference {
   font-size: 11px;
@@ -519,8 +362,17 @@
 .workspace-v2 .form-panel,
 .workspace-v2 .approval-panel,
 .workspace-v2 .notice,
-.workspace-v2 .preview-empty {
+.workspace-v2 .preview-empty,
+.workspace-v2 .protected-document-choice,
+.workspace-v2 .protected-document-summary,
+.workspace-v2 .email-preview,
+.workspace-v2 .pdf-preview-viewport,
+.workspace-v2 .pdf-preview > .pdf-viewer {
   border-radius: 10px;
+}
+/* Round the viewing surface while keeping the original PDF page geometry. */
+.workspace-v2 .pdf-preview > .pdf-viewer {
+  overflow: hidden;
 }
 .workspace-v2
   :is(
@@ -528,7 +380,7 @@
     .studio-side,
     .studio-list,
     .studio-table,
-    .horizon-offer,
+    .pdf-check-offer,
     .pdf-validation,
     .credit-balance,
     .studio-gallery article
@@ -542,13 +394,13 @@
     .form-panel,
     .studio-section,
     .studio-side,
-    .horizon-offer,
+    .pdf-check-offer,
     .pdf-validation,
     .studio-gallery article
   ) {
   padding: 24px;
 }
-.workspace-v2 :is(.studio-section, .horizon-offer, .pdf-validation) {
+.workspace-v2 :is(.studio-section, .pdf-check-offer, .pdf-validation) {
   margin-block: 24px;
 }
 .workspace-v2
@@ -561,14 +413,23 @@
     .section-title,
     .channel-controls h2,
     .operations-diagnostics > h2,
-    .credit-balance h2
+    .credit-balance h2,
+    .protected-document-summary h2
   ) {
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: var(--font-body);
   font-size: 18px;
   font-weight: 500;
   line-height: 1.4;
   letter-spacing: -0.01em;
   color: var(--ink);
+}
+.workspace-v2 .protected-document-summary h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.workspace-v2 .protected-document-summary h2 svg {
+  flex: 0 0 auto;
 }
 .workspace-v2 :is(.section-toolbar, .studio-toolbar, .studio-list-actions) {
   flex-wrap: wrap;
@@ -585,9 +446,9 @@
   :is(
     .usage-ledger dd strong,
     .credit-balance-amount dd,
-    .horizon-price strong
+    .pdf-check-price strong
   ) {
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: var(--font-body);
   font-size: 32px;
   font-weight: 500;
   font-variant-numeric: tabular-nums;
@@ -635,6 +496,10 @@
   min-height: 46px;
   padding: 11px 12px;
 }
+.workspace-v2 .field select {
+  height: 46px;
+  padding-inline-end: 40px;
+}
 .workspace-v2 .channel-selector span {
   min-height: 46px;
   font-size: 14px;
@@ -644,8 +509,8 @@
   gap: 30px;
 }
 .workspace-v2 .approval-panel {
-  background: #edf2fe;
-  border-color: #c5d3f0;
+  background: var(--blue-tint);
+  border-color: var(--blue-line);
   padding: 24px;
 }
 .workspace-v2 .approval-panel > p,
@@ -682,14 +547,7 @@
     --brand-mark-size: 44px;
     font-size: 31px;
   }
-  .dashboard-appearance-control {
-    padding: 0;
-    min-width: 0;
-  }
-  .dashboard-appearance-select {
-    min-height: 44px;
-    font-size: 16px;
-  }
+
   .workspace-v2 main {
     padding: 26px 22px 40px;
   }
@@ -698,23 +556,6 @@
     margin-top: 8px;
     padding-top: 8px;
     border-top: 1px solid var(--line);
-  }
-  .workspace-v2 .workspace-identity {
-    padding: 4px 0 0;
-    border: 0;
-  }
-  .workspace-v2 .workspace-identity-profile {
-    grid-template-columns: 32px minmax(0, 1fr);
-  }
-  .workspace-v2 .workspace-identity-avatar {
-    width: 32px;
-    height: 32px;
-  }
-  .workspace-v2 .workspace-account-utilities {
-    margin-left: 0;
-  }
-  .workspace-v2 :is(.workspace-switch-account, .workspace-service-status) {
-    min-height: 44px;
   }
   .workspace-v2 .sidebar nav a.workspace-create {
     grid-column: 1 / -1;
@@ -750,7 +591,7 @@
       .form-panel,
       .studio-section,
       .studio-side,
-      .horizon-offer,
+      .pdf-check-offer,
       .pdf-validation,
       .credit-balance-main,
       .credit-balance-detail
@@ -758,18 +599,10 @@
     padding: 20px;
   }
   .workspace-v2 .dashboard-editorial-heading,
-  .workspace-v2 .dashboard-editorial-heading-horizon {
+  .workspace-v2 .dashboard-editorial-heading-pdf-verification {
     grid-template-columns: minmax(0, 1fr);
     gap: 12px;
     min-height: 0;
-  }
-  .dashboard-artwork-atelier {
-    display: none;
-  }
-  .dashboard-artwork-horizon {
-    max-width: 330px;
-    max-height: 110px;
-    object-position: left center;
   }
   .workspace-v2 .page-heading h1 {
     font-size: 34px;
@@ -779,9 +612,6 @@
     flex-direction: column;
     gap: 0;
     padding: 20px 0;
-  }
-  .workspace-v2 .dashboard-document-empty > .dashboard-artwork {
-    width: 180px;
   }
   .workspace-v2 .dashboard-document-empty .empty-state {
     text-align: center;
@@ -824,15 +654,12 @@
   .workspace-v2 .dispatch-filter a {
     min-height: 44px;
   }
-  .workspace-v2 .page-heading > .button.primary {
+  .workspace-v2 .page-heading-actions > .button.primary {
     width: 100%;
     margin-top: 8px;
   }
 }
 @media (forced-colors: active) {
-  .dashboard-artwork {
-    display: none;
-  }
   .workspace-v2 .status,
   .workspace-v2 .sidebar nav a[aria-current="page"] {
     border: 1px solid CanvasText;

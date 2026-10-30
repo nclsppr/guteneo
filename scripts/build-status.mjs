@@ -4,9 +4,16 @@ import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { collectAssets, sha256, sourceSnapshot } from "./release-source.mjs";
 import { captureSourceSnapshot, sourceInputs } from "./test-offline.mjs";
+import { brandIconSourcePaths, copyBrandIcons } from "./brand-icons.mjs";
+import { transform } from "esbuild";
 
 export const statusScope = Object.freeze([
   "apps/status",
+  ...brandIconSourcePaths,
+  "scripts/brand-icons.mjs",
+  "packages/contracts/src/brand-icons.json",
+  "packages/contracts/src/public-footer.json",
+  "packages/contracts/src/public-html-language.ts",
   "wrangler.status.jsonc",
   "scripts/build-status.mjs",
   "scripts/deploy-status.mjs",
@@ -16,6 +23,52 @@ export const statusScope = Object.freeze([
   "package.json",
   "package-lock.json",
 ]);
+
+/** One authored footer catalog serves the web client and the static status UI. */
+export async function statusFooterScript(root) {
+  const catalog = JSON.parse(
+    await readFile(
+      join(root, "packages/contracts/src/public-footer.json"),
+      "utf8",
+    ),
+  );
+  const labels = (value) =>
+    ["fr", "en", "de", "lb"].every(
+      (language) =>
+        typeof value?.[language] === "string" &&
+        value[language].trim().length > 0,
+    );
+  if (
+    !labels(catalog.navigationLabel) ||
+    !Array.isArray(catalog.groups) ||
+    !catalog.groups.length ||
+    catalog.groups.some(
+      (group) =>
+        !labels(group.labels) ||
+        !Array.isArray(group.links) ||
+        group.links.some(
+          (link) => typeof link.href !== "string" || !labels(link.labels),
+        ),
+    )
+  )
+    throw new Error("STATUS_FOOTER_CATALOG_INVALID");
+  return `window.GUTENEO_PUBLIC_FOOTER = ${JSON.stringify(catalog)};\n`;
+}
+
+/** One small deferred browser script retains the authored catalogs and runtime. */
+export async function statusApplicationScript(root) {
+  const [messages, footer, localization, application] = await Promise.all([
+    readFile(join(root, "apps/status/public/locales/messages.js"), "utf8"),
+    statusFooterScript(root),
+    readFile(join(root, "apps/status/public/i18n.js"), "utf8"),
+    readFile(join(root, "apps/status/public/app.js"), "utf8"),
+  ]);
+  const { code } = await transform(
+    [messages, footer, localization, application].join("\n;\n"),
+    { loader: "js", format: "iife", target: "es2022", minify: true },
+  );
+  return code;
+}
 
 function approvedQualificationInputs(scope) {
   return [false, true]
@@ -81,6 +134,18 @@ export async function buildStatus(
   await rm(output, { recursive: true, force: true });
   await mkdir(output, { recursive: true });
   await cp(join(root, "apps/status/public"), output, { recursive: true });
+  await copyBrandIcons(root, output);
+  const html = await readFile(join(output, "index.html"), "utf8");
+  if (html.includes('src="/app.bundle.js"'))
+    await writeFile(
+      join(output, "app.bundle.js"),
+      await statusApplicationScript(root),
+    );
+  if (
+    html.includes('src="/footer.js"') ||
+    html.includes('src="/app.bundle.js"')
+  )
+    await writeFile(join(output, "footer.js"), await statusFooterScript(root));
   const qualificationSource = await qualifiedSource(root, output);
   const assets = await collectAssets(output, ["/release.json"]);
   const manifest = {

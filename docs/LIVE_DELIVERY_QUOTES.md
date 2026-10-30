@@ -1,71 +1,157 @@
-# Devis réels e-mail et courrier
+# Live email and postal quotes
 
-État au 17 septembre 2026 : chemins de production implémentés et testés localement sur D1 avec transports interceptés. Cette livraison ne qualifie aucun tarif réel, ne modifie aucun compte fournisseur et n’expédie rien. Migration additive `0016_live_delivery_quotes.sql` ; les devis fax v2 et les écritures historiques restent intacts.
+17 September 2026: production paths implemented/tested locally on D1 with
+intercepted transports. This qualifies no actual tariff, changes no provider
+account and sends nothing. Additive `0016_live_delivery_quotes.sql` preserves fax
+v2 and historical financial writes.
 
-## Engagement et autorité
+## Commitment and authority
 
-`DomainService` reçoit `liveDeliveryIdentity` et le callback privé `postalQuote` via `createLiveDeliveryQuoteConfig(env)`. Aucun champ du body navigateur/MCP ne fixe un coût fournisseur. Les options et le plafond utilisateur peuvent restreindre une demande, jamais qualifier un prix. Le secret fournisseur reste dans le bridge API.
+`createLiveDeliveryQuoteConfig(env)` supplies `liveDeliveryIdentity` and private
+`postalQuote` to `DomainService`. Browser/MCP input cannot establish provider cost;
+options/user ceiling can restrict, never qualify pricing. Provider secrets stay
+in the API bridge.
 
-Une ligne opérateur `trusted_delivery_costs`, immuable sauf révocation, qualifie explicitement l’organisation Guteneo, l’expéditeur vérifié, le canal, le compte fournisseur, la route, les options, la source et son SHA-256, la base de coût, la devise EUR, la période et la durée du devis (30–900 secondes). Aucun endpoint public n’installe cette qualification. Compte SES : `SES_ACCOUNT_ID` ; route SES : `AWS_REGION:SES_CONFIGURATION_SET:SES_SANDBOX`. Compte et route Pingen : `PINGEN_ORGANIZATION_ID`. Un changement de compte, région, configuration SES ou mode invalide l’ancienne identité.
+Operator-only `trusted_delivery_costs` rows, immutable except revocation, qualify
+Guteneo organization, verified sender, channel, provider account, route, options,
+source/SHA-256, cost basis, EUR currency, validity and quote TTL (30–900 seconds).
+No public endpoint installs them. SES account is `SES_ACCOUNT_ID`; route is
+`AWS_REGION:SES_CONFIGURATION_SET:SES_SANDBOX`. Pingen account/route is
+`PINGEN_ORGANIZATION_ID`. Changed account/region/configuration/mode invalidates old identity.
 
-Le devis immuable lie cette politique au contenu normalisé, au PDF privé ID/SHA-256/taille, au destinataire, à l’expéditeur, aux options, au prix exact, au plafond, à la source et à l’expiration. Son empreinte fait partie de l’empreinte approuvée humainement. Un assistant ne peut pas approuver. Pour l’e-mail de production, l’approbation humaine exige en plus l’attestation que le destinataire a demandé ce message (migration0018) ; elle ne constitue pas une collecte de consentement marketing.
+Immutable quotes bind policy, normalized content, private PDF ID/hash/size,
+recipient, sender, options, exact price, ceiling, source and expiry. Quote hash
+belongs to the human-approved fingerprint. Assistants cannot assert human approval;
+production email also requires requested-message attestation (migration 0018),
+which is not marketing-consent collection. Optional delegated approval retains
+its separate [expert mandate](EXPERT_APPROVAL.md).
 
-La vue SQL valide les relations de même organisation. Les gardes SQL vérifient préparation du devis, approbation, acceptation et acquisition de tentative ; l’acceptation réserve crédit/quota et écrit l’outbox atomiquement. Le bridge revalide le devis, l’expéditeur, l’arrêt du canal et la tentative avant l’appel final. Une expiration ou une révocation pendant un calcul Pingen bloque le PATCH d’envoi. Une erreur ou réponse incertaine n’autorise jamais une nouvelle tentative automatique.
+SQL views enforce same-tenant relations. Guards cover quote preparation, approval,
+acceptance and attempt claim; acceptance atomically reserves credit/quota and
+writes outbox. Before final calls, bridge revalidates quote, sender, channel and
+attempt. Expiry/revocation during Pingen calculation blocks send PATCH. Unknown
+outcomes never permit automatic retry.
 
-## SES : formule précise et qualification
+## SES formula and qualification
 
-La page AWS courante distingue plusieurs plans et paliers ; elle ne permet pas de déduire le plan du compte Guteneo. Elle indique notamment un tarif sortant par destinataire et un supplément pour les données des pièces jointes. Le plan Essentials annoncé commence à 0,16 USD/1 000 messages ; l’offre à la carte présente 0,10 USD/1 000. Les pièces jointes sont annoncées à 0,12 USD/GB. Aucun de ces nombres n’est installé par migration. La qualification doit établir le plan, le palier, les promotions éventuelles, les taxes et les options payantes effectivement applicables. [Tarification officielle SES](https://aws.amazon.com/ses/pricing/).
+The dated public AWS page showed multiple plans/tiers, not Guteneo's actual plan:
+Essentials from USD0.16/1,000 messages; pay-as-you-go USD0.10/1,000; attachments
+USD0.12/GB. No price is installed by migration. Qualify actual plan/tier/promotions,
+tax and paid options. [SES pricing](https://aws.amazon.com/ses/pricing/).
 
-Le helper privé `emailRateComponents()` transforme ces preuves en un tarif rationnel EUR. Pour les pièces jointes qualifiées :
+Private `emailRateComponents()` converts evidence to rational EUR pricing:
 
 ```ts
 {
-  usdMicrosPerMessage, // 100 pour 0,10 USD/1 000 ; exemple, pas tarif actif
-  usdMicrosPerGb,     // unité : millionième USD par GB facturé
-  bytesPerGb,        // définition comptable explicitement qualifiée
+  usdMicrosPerMessage, // 100 for USD0.10/1,000; example, never an active tariff
+  usdMicrosPerGb,     // millionths of USD per billed GB
+  bytesPerGb,        // explicitly qualified accounting unit
   eurPerUsdNumerator,
   eurPerUsdDenominator,
   attachmentBasis: "raw_pdf_bytes"
 }
 ```
 
-Le rapport de change est fixé, documenté et gelé côté serveur ; aucun taux de change supposé, conversion flottante ou change reçu du client. Le tarif converti est réduit par PGCD en `base_numerator`, `byte_numerator`, `rate_denominator`, puis le fournisseur vaut `(base + byte × taille_originale_PDF) / denominator` **en nano-EUR**. `rate_json` conserve les unités USD et le rapport EUR/USD ; les coefficients doivent correspondre exactement à ce JSON. Les bornes protègent l’arithmétique entière de SQLite. Une qualification nécessitant une précision non représentable par les coefficients admis est refusée.
+Server-fixed documented FX is frozen, never assumed/floating/client-supplied.
+GCD-reduced `base_numerator`, `byte_numerator`, `rate_denominator` express provider
+`(base + byte × original_PDF_size) / denominator` in **nanoEUR**. `rate_json`
+retains USD units/FX; coefficients must match exactly. Integer bounds protect
+SQLite; unsupported precision is refused.
 
-**Point à qualifier avant une pièce jointe réelle** : les documents publics consultés ne précisent pas complètement l’assiette de facturation octets bruts/encodés ni le dénominateur exact du GB. SES décrit séparément l’encodage base64 du transport JSON et l’encodage MIME final. Cela ne prouve pas l’assiette comptable. La seule assiette implémentée pour les pièces jointes est `raw_pdf_bytes` ; l’opérateur doit apporter la preuve qu’elle correspond au contrat/coût du compte, ou faire évoluer explicitement le modèle. Ne pas choisir silencieusement 10⁹, 2³⁰ ou multiplier par 4/3. Le coût sans pièce jointe reste calculable sur la base du message lorsque ce plan et le change sont qualifiés. [Documentation AWS des pièces jointes](https://docs.aws.amazon.com/ses/latest/dg/attachments.html).
+Before real attachments, qualify raw/encoded billing basis and exact GB divisor.
+Public attachment docs describe JSON base64/MIME transport without proving billing
+units. Only `raw_pdf_bytes` is implemented; prove it fits the account or explicitly
+extend the model. Never silently choose 10⁹, 2³⁰ or 4/3. No-attachment cost remains
+calculable with qualified message rate/FX.
+[AWS attachments](https://docs.aws.amazon.com/ses/latest/dg/attachments.html).
 
-Depuis la migration `0021_ses_text_only_quotes.sql`, `attachmentBasis: "no_attachments"` qualifie séparément un message sans document. Ce format omet les champs de prix par GB et ne présume aucune assiette de pièce jointe. Préparation, vue SQL, lecture et contrôle avant soumission refusent explicitement tout document, même de taille zéro. Le taux message et le change doivent toujours être qualifiés. La proposition Essentials Paris, ses sources et les preuves fiscales/monétaires restantes figurent dans [SES_TEXT_ONLY_QUOTE.md](SES_TEXT_ONLY_QUOTE.md).
+`0021_ses_text_only_quotes.sql` adds `attachmentBasis:"no_attachments"`, omitting
+per-GB fields. Preparation, SQL view, reads and pre-submit checks reject any document,
+even zero-size. Message rate/FX still require qualification; see [text-only
+contract](SES_TEXT_ONLY_QUOTE.md).
 
-Depuis `0022_ses_public_list_prices.sql`, `pricing_basis` distingue les deux contrats. `public_list_price_ex_tax` est limité à SES Essentials premier palier, un destinataire, sans pièce jointe et sans option supplémentaire : tarif public HT ×2 au change commercial fixé dans le devis. Ce mode ne demande pas une facture AWS future. Sa source datée et ses métadonnées sont conservées dans `rate_json` ; le ratio/date/source de change et la base sont signés avec le contenu. Le coût net AWS et la fiscalité éventuelle de facturation ne sont pas présentés comme établis. Le champ politique historique `fiscal_basis` est déprécié et conservé pour compatibilité ; seule `pricing_basis` détermine le contrat repris dans le snapshot.
+`0022_ses_public_list_prices.sql` separates `pricing_basis`:
+`public_list_price_ex_tax` is Essentials first tier, one recipient, no attachment/
+extra option, public ex-tax list ×2 with quote-fixed commercial FX. It needs no
+future AWS invoice. Dated source/metadata stay in `rate_json`; FX ratio/date/source
+and basis are signed with content. Net AWS cost and eventual customer-tax treatment
+are not claimed established. Historical policy `fiscal_basis` is deprecated for
+compatibility; only `pricing_basis` owns snapshot semantics.
 
-La base `qualified_final_variable_cost` couvre le coût variable final qualifié de cet envoi, avec son traitement fiscal et de change documenté dans la source. Elle ne répartit pas automatiquement un abonnement mensuel, des IP dédiées ou un service annexe entre messages. Si ces éléments modifient le coût variable ou empêchent de connaître son total, ne pas qualifier la politique correspondante. Le mode sandbox SES envoie réellement et reste limité aux identités de destinataires vérifiées, indépendamment de la tarification et de la simulation Guteneo. Voir [SES_SEND_LIMITS.md](SES_SEND_LIMITS.md).
+`qualified_final_variable_cost` covers qualified final variable cost/tax/FX for
+this send; it does not automatically allocate monthly subscriptions, dedicated IPs
+or related services. If these alter variable cost or hide its total, do not qualify.
+SES sandbox sends real messages to verified recipients; it is separate from Guteneo
+simulation. [SES limits](SES_SEND_LIMITS.md).
 
-## Courrier : brouillon analysé et calculateur fournisseur
+## Postal analyzed draft and calculator
 
-Le parcours crée d’abord un brouillon explicitement autorisé, avec `auto_send:false`, en conservant les octets du PDF. Il n’ajoute ni ne déplace l’adresse. `PINGEN_DEFAULT_COUNTRY` fixe le profil qualifié du compte ; une destination internationale conserve la dernière ligne de pays. Le dépôt respecte 8 000 000 octets maximum. Les contrôles de géométrie et leurs limites sont détaillés dans [PINGEN_PREFLIGHT.md](PINGEN_PREFLIGHT.md).
+A separately authorized draft preserves exact bytes with `auto_send:false`, without
+moving/adding addresses. `PINGEN_DEFAULT_COUNTRY` supplies qualified account profile;
+international addresses keep a final country line. Upload max: 8,000,000 bytes.
+[Pingen preflight](PINGEN_PREFLIGHT.md) owns geometry/limitations.
 
-La préparation du devis lit le brouillon Pingen exact, vérifie pays/adresse, exige `meta.abilities.self.submit === "ok"` et ses `paper_types` analysés. Elle appelle ensuite `POST /organisations/{id}/deliveries/letters/price-calculator`, type JSON:API `letter_price_calculator`, avec pays, papier, recto/recto verso, couleur/gris et produit postal approuvés. Seule une réponse `200` EUR calculable en centimes est définitive ici ; `202` reste en attente. Les papiers spéciaux non pris en charge sont refusés. Le coût client vaut exactement deux fois ce coût fournisseur EUR ; le traitement fiscal/frais doit avoir été qualifié dans la politique du compte. [OpenAPI Pingen](https://api.pingen.com/documentation/swagger-docs).
+Quote preparation reads the exact provider draft, checks address/country,
+`meta.abilities.self.submit === "ok"` and analyzed `paper_types`, then calls
+`POST /organisations/{id}/deliveries/letters/price-calculator`, JSON:API type
+`letter_price_calculator`, with approved country/paper/print mode/spectrum/product.
+Only calculable EUR 200 is final here; 202 remains pending. Unsupported special
+paper is refused. Customer cost is twice provider EUR cost with qualified tax/fees.
+[OpenAPI](https://api.pingen.com/documentation/swagger-docs).
 
-L’empreinte de preuve comprend l’identifiant fournisseur, le pays, l’adresse normalisée, le papier analysé, les options et le montant. Juste avant `PATCH .../send`, le connecteur relit et recalcule : montant **et** preuve doivent égaler le devis approuvé, même si un nouveau prix reste sous le plafond utilisateur. Il revalide ensuite l’état local courant. Un brouillon appartient à une organisation/document/expéditeur/destinataire et ne peut être revendiqué par deux commandes. Une réponse incertaine exige un rapprochement manuel.
+Evidence binds provider ID, country, normalized address, analyzed paper, options
+and amount. Immediately before `PATCH .../send`, reread/recalculate both amount
+and evidence; both must equal approval even if a changed price stays below ceiling.
+Then revalidate current local state. Drafts bind one organization/document/sender/
+recipient and cannot be claimed by two commands. Unknown results need reconciliation.
 
-## Nano-EUR, réserve et débit du crédit
+## NanoEUR, reservation and debit
 
-Un EUR vaut 1 000 000 000 nano-EUR ; un centime vaut 10 000 000 nano-EUR. Le prix fournisseur rationnel est conservé comme numérateur/dénominateur décimaux textuels. Sa projection vers le nano-EUR arrondit vers le haut de **moins d’un nano-EUR**, puis le prix client vaut exactement deux fois cette projection. L’écart à deux fois le rationnel initial reste inférieur à deux nano-EUR par envoi ; il n’est pas caché derrière la mention « exact ». Le courrier, exprimé en centimes, n’a pas cet écart.
+EUR1 = 1,000,000,000 nanoEUR; one cent = 10,000,000. Rational provider numerator/
+denominator remain decimal strings. Upward projection differs by **less than one
+nanoEUR**; customer price is twice that projection, differing by less than two
+nanoEUR from twice the original rational. Do not hide this behind exact-price
+wording. Cent-denominated postal prices have no such difference.
 
-Le plafond entier en centimes reste réservé avant tout effet externe. Le champ `estimated_minor = ceil(customer_nanoeur / 10 000 000)` représente la borne d’un envoi isolé ; il ne signifie pas qu’un centime sera facturé pour chaque e-mail.
-
-À chaque acceptation fournisseur prouvée, la transaction ajoute une écriture immuable `delivery_charge_entries` avec montant nano-EUR et débit :
+Reserve integer-cent ceiling before external effects.
+`estimated_minor = ceil(customer_nanoeur / 10 000 000)` bounds an isolated operation;
+it does not charge a cent per email. Proven provider acceptance atomically appends
+immutable `delivery_charge_entries` with nano amount and incremental debit:
 
 ```text
 ceil((total_nano_avant + prix_nano) / 10 000 000)
 − ceil(total_nano_avant / 10 000 000)
 ```
 
-Le total est celui de l’organisation, commun aux nouveaux devis e-mail/courrier, conservé même si les métadonnées historiques d’un envoi sont retirées. Les montants fax historiques entiers restent séparés et s’additionnent normalement. L’écart cumulé entre débit centimes et total nano-EUR est toujours inférieur à un centime, sans réinitialisation mensuelle. La réserve entière est libérée et ce seul débit est ajouté au crédit **et** au quota financier mensuel du canal courant. Le comptage des envois reste un par opération acceptée. La dernière opération reçoit éventuellement le centime de report issu de fractions antérieures ; ce n’est pas son seul prix isolé.
+The organization-wide total combines new email/postal quotes and survives historical
+metadata removal; historical integer fax amounts stay separate/add normally.
+Cumulative overrounding remains under one cent without monthly reset. Release
+reservation and add only incremental debit to credit and current channel monthly
+financial quota; count one accepted send. A final operation can receive a carried
+cent from earlier fractions, rather than only its isolated price.
 
-L’issue inconnue, y compris un callback d’échec qui ne prouve pas l’absence de coût fournisseur, conserve les réservations financières. Annulation avant tentative ou rejet certain libèrent crédit et quota. Une acceptation positive tardive après échec visible règle une fois le prix, sans faire régresser l’état affiché. Les mêmes règles empêchent de consommer deux fois le crédit de bienvenue. Réserve conservatrice et arrondi peuvent bloquer un envoi moins d’un centime avant 50 EUR de coût nano cumulé ; aucune recharge ni nouveau crédit mensuel n’est créé.
+Unknown outcomes retain financial reservations, including failure callbacks that
+do not prove zero provider cost. Pre-attempt cancellation/certain rejection release
+credit/quota. Late proven acceptance after visible failure settles once without
+regressing displayed state or double-spending welcome credit. Conservative
+reservation/rounding may block less than a cent before EUR50 cumulative nano cost;
+no recharge or monthly credit is created.
 
-## Contrat de lecture et preuves
+## Read contract and evidence
 
-Les commandes `prepare`, `approve`, `confirm`, annulation et `getDispatch` enrichissent la lecture unitaire avec `quote_expires_at`, `quote_customer_nanoeur`, `quote_supplier_nanoeur`, `quote_pricing_basis` et `quote_fx` (null hors devis e-mail/courrier v1). Pour la base publique HT, `quote_supplier_nanoeur` désigne le tarif catalogue converti et `quote_fx` contient seulement `{ numerator, denominator, date, source }`, EUR par USD, extrait du contenu signé. L’ancien mode a `quote_fx: null`. Les listes brutes peuvent omettre ces champs : les clients les traitent comme optionnels. `welcomeCredit` et `usage` gardent leurs champs en centimes ; ils reflètent les débits cumulatifs effectivement comptabilisés. Ne pas afficher `estimated_minor` comme prix exact d’un petit e-mail.
+Historical unit reads from prepare/approve/confirm/cancel/getDispatch add
+`quote_expires_at`, `quote_customer_nanoeur`, `quote_supplier_nanoeur`,
+`quote_pricing_basis`, `quote_fx` (null without email/postal v1 quote). For public
+ex-tax pricing, supplier-named value means converted list reference, not invoice;
+FX is public `{numerator,denominator,date,source}`, EUR/USD, from signed content.
+Old mode has null FX. Public customer projections now omit supplier cost under
+[API_CONTRACT.md](API_CONTRACT.md). Lists may omit optional quote fields.
+WelcomeCredit/Usage remain cents and show cumulative booked debits; do not label
+`estimated_minor` as exact small-email cost.
 
-Preuves locales : vraie base D1 de workerd, migrations ordonnées, tenant/compte/options, altérations SQL, délai/révocation, plafond partagé, 51 e-mails concurrents pour 2 centimes au tarif fictif de test, e-mail+postal, rejeu, échec inconnu puis acceptation tardive, conservation après suppression historique, preuve humaine du message demandé. Les bridges SES/Pingen utilisent des réponses HTTP interceptées. Aucun montant de fixture, succès local ou réponse de calculateur ne prouve un tarif qualifié, une lettre expédiée ou une activation de production.
+Local proof uses real workerd D1/ordered migrations: tenant/account/options,
+SQL tampering, expiry/revocation, shared ceiling, 51 concurrent synthetic-rate
+emails for two cents, combined email/postal, replay, unknown failure then late
+acceptance, history removal and human requested-message attestation. SES/Pingen
+HTTP is intercepted. Fixtures/local success/calculator replies prove no qualified
+real tariff, sent letter or production activation.

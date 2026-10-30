@@ -52,13 +52,13 @@ const timestamp = z.iso.datetime({ precision: 3 });
 const invalid = () =>
   new DomainError(
     "LIVE_QUOTE_INVALID",
-    "Le devis fax a expiré ou sa configuration a changé.",
+    "The fax quote expired or its configuration changed.",
     409,
   );
 const unavailable = () =>
   new DomainError(
     "LIVE_PRICING_REQUIRED",
-    "Aucun tarif fax qualifié ne couvre cette destination et ces options.",
+    "No qualified fax tariff covers this destination and these options.",
     409,
   );
 
@@ -204,7 +204,10 @@ function operatorRouteTest(t: FaxUsageTariff): boolean {
         Date.parse(t.expires_at) - Date.parse(t.evidence_observed_at) <=
           168 * 3600_000 &&
         t.max_pages <= 7
-      : t.expires_at <= "2026-09-24T09:00:01.620Z") &&
+      : t.expires_at <=
+        (t.destination_prefix === "+3524"
+          ? "2026-11-03T23:59:59.999Z"
+          : "2026-09-24T09:00:01.620Z")) &&
     Date.parse(t.expires_at) - Date.parse(t.valid_from) <= 7 * 86400_000
   );
 }
@@ -320,7 +323,7 @@ export async function makeFaxUsageQuote(
   )
     throw new DomainError(
       "FAX_TEST_CEILING_EXCEEDED",
-      "Le test fax Luxembourg est limité à un plafond de 2 € par envoi.",
+      "The Luxembourg fax test is limited to a EUR2 ceiling per dispatch.",
       409,
     );
   const input = canonicalJson(frozen);
@@ -474,14 +477,14 @@ export async function settleFaxUsage(
   if (!parsed.success || !timestamp.safeParse(now).success)
     throw new DomainError(
       "FAX_USAGE_PROOF_INVALID",
-      "Preuve d’usage fax invalide.",
+      "Invalid fax usage evidence.",
       409,
     );
   const p = parsed.data;
   if (p.observedAt > now)
     throw new DomainError(
       "FAX_USAGE_PROOF_INVALID",
-      "Date de preuve future.",
+      "Evidence date is in the future.",
       409,
     );
   const fingerprint = await sha256(canonicalJson(p));
@@ -495,7 +498,7 @@ export async function settleFaxUsage(
     if (prior.proof_fingerprint !== fingerprint)
       throw new DomainError(
         "FAX_USAGE_PROOF_CONFLICT",
-        "Un autre règlement existe pour cet envoi.",
+        "Another settlement exists for this dispatch.",
         409,
       );
     return prior;
@@ -520,7 +523,7 @@ export async function settleFaxUsage(
   )
     throw new DomainError(
       "FAX_USAGE_PROOF_INVALID",
-      "La preuve ne correspond pas au devis.",
+      "Evidence does not match the quote.",
       409,
     );
   await assertIntegrity(q, row);
@@ -531,7 +534,7 @@ export async function settleFaxUsage(
   if (supplier > 9_000_000_000_000_000n)
     throw new DomainError(
       "FAX_USAGE_PROOF_INVALID",
-      "Montant de preuve hors limites.",
+      "Evidence amount is out of bounds.",
       409,
     );
   const cap = BigInt(q.ceiling_minor) * BigInt(NANO_PER_CENT);
@@ -578,7 +581,7 @@ export async function settleFaxUsage(
     if (concurrent?.proof_fingerprint === fingerprint) return concurrent;
     throw new DomainError(
       concurrent ? "FAX_USAGE_PROOF_CONFLICT" : "FAX_USAGE_PROOF_INVALID",
-      "Le règlement fax ne peut pas être appliqué.",
+      "Fax settlement cannot be applied.",
       409,
     );
   }
@@ -591,7 +594,7 @@ export async function settleFaxUsage(
   if (!saved || saved.proof_fingerprint !== fingerprint)
     throw new DomainError(
       "FAX_USAGE_PROOF_CONFLICT",
-      "Un autre règlement existe pour cet envoi.",
+      "Another settlement exists for this dispatch.",
       409,
     );
   return saved;
@@ -606,7 +609,7 @@ export async function readFaxPricingBatch(
   const ids = [...new Set(dispatchIds)];
   if (!ids.length) return new Map();
   if (ids.length > 100)
-    throw new DomainError("INVALID_LIMIT", "Au maximum 100 envois.");
+    throw new DomainError("INVALID_LIMIT", "At most 100 dispatches.");
   const rows = await db
     .prepare(
       "SELECT q.*,t.route_qualification,t.execution_scope,r.status AS reservation_status,s.customer_nanoeur,n.charged_minor,s.created_at AS settled_at FROM live_fax_quotes_v3 q JOIN trusted_fax_usage_tariffs t ON t.organization_id=q.organization_id AND t.id=q.tariff_id LEFT JOIN welcome_credit_reservations r ON r.organization_id=q.organization_id AND r.dispatch_id=q.dispatch_id LEFT JOIN fax_usage_settlements s ON s.organization_id=q.organization_id AND s.dispatch_id=q.dispatch_id LEFT JOIN delivery_charge_entries n ON n.organization_id=q.organization_id AND n.dispatch_id=q.dispatch_id WHERE q.organization_id=? AND q.dispatch_id IN (SELECT value FROM json_each(?))",
@@ -682,7 +685,7 @@ export async function assertFaxDispatchSendable(
   )
     throw new DomainError(
       "FAX_REVIEW_PREPARATION_ONLY",
-      "Ce devis de revue sert uniquement à préparer et consulter le fax. Aucun envoi, aucune approbation et aucune réservation ne sont autorisés.",
+      "This review quote is only for preparing and viewing the fax. No sending, approval or reservation is allowed.",
       409,
     );
 }

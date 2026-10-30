@@ -1,4 +1,4 @@
-import { msg } from "./messages";
+import { msg, msgIn } from "./messages";
 import { useStudioAiPolicy, StudioAiNotice } from "./studio-ai";
 import { useState } from "react";
 import {
@@ -40,12 +40,10 @@ export function TemplateSettings({
   return (
     <>
       <details className="studio-section">
-        <summary>
-          {msg("Langue, en-tête, pied de page et nouvelles colonnes")}
-        </summary>
+        <summary>{msg("Language, header, footer and new columns")}</summary>
         <ErrorNotice error={action.error} />
         <fieldset disabled={disabled}>
-          <Field label={msg("Langue des dates et montants")}>
+          <Field label={msg("Language for dates and amounts")}>
             <select
               value={envelope.locale}
               onChange={(e) =>
@@ -67,13 +65,13 @@ export function TemplateSettings({
                 key={b.name}
                 label={
                   b.name === "header"
-                    ? msg("En-tête répété")
+                    ? msg("Repeating header")
                     : b.name === "footer"
-                      ? msg("Pied de page répété")
+                      ? msg("Repeating footer")
                       : b.name
                 }
                 hint={msg(
-                  "Compteurs disponibles : {currentPage} et {totalPages}.",
+                  "Available counters: {currentPage} and {totalPages}.",
                 )}
               >
                 <input
@@ -91,14 +89,14 @@ export function TemplateSettings({
             ))}
           {envelope.bindings.some((b) => b.kind === "table") && (
             <>
-              <h3>{msg("Ajouter une colonne métier")}</h3>
+              <h3>{msg("Add a data column")}</h3>
               <p>
                 {msg(
-                  "La colonne crée un champ réutilisable dans les formulaires, l’API et les correspondances de fichiers. ",
+                  "The column creates a field you can reuse in forms, the API and file mappings. ",
                 )}
               </p>
               <div className="studio-mapping-grid">
-                <Field label={msg("Tableau cible")}>
+                <Field label={msg("Target table")}>
                   <select
                     value={selectedTable}
                     onChange={(e) => setBlock(e.target.value)}
@@ -112,13 +110,13 @@ export function TemplateSettings({
                       ))}
                   </select>
                 </Field>
-                <Field label={msg("Libellé de la nouvelle colonne")}>
+                <Field label={msg("New column label")}>
                   <input
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                   />
                 </Field>
-                <Field label={msg("Identifiant de la nouvelle colonne")}>
+                <Field label={msg("New column identifier")}>
                   <input
                     value={path}
                     onChange={(e) => setPath(e.target.value)}
@@ -126,16 +124,14 @@ export function TemplateSettings({
                   />
                 </Field>
               </div>
-              <Field label={msg("Format de la nouvelle colonne")}>
+              <Field label={msg("New column format")}>
                 <select
                   value={format}
                   onChange={(e) => setFormat(e.target.value as typeof format)}
                 >
-                  <option value="text">{msg("Texte")}</option>
-                  <option value="integer">{msg("Entier")}</option>
-                  <option value="money">
-                    {msg("Montant en centimes EUR")}
-                  </option>
+                  <option value="text">{msg("Text")}</option>
+                  <option value="integer">{msg("Integer")}</option>
+                  <option value="money">{msg("Amount in euro cents")}</option>
                 </select>
               </Field>
               <button
@@ -165,7 +161,7 @@ export function TemplateSettings({
                   })
                 }
               >
-                {msg("Ajouter cette colonne ")}
+                {msg("Add this column ")}
               </button>
             </>
           )}
@@ -206,11 +202,11 @@ function fieldAt(schema: BusinessField, path: string) {
     );
 }
 const formatNames: Record<TemplateBinding["format"], string> = {
-  text: "Texte",
-  integer: "Entier",
-  decimal: "Décimal",
+  text: "Text",
+  integer: "Integer",
+  decimal: "Decimal",
   date: "Date",
-  money: "Montant en centimes",
+  money: "Amount in cents",
 };
 function FormatControls({
   value,
@@ -223,7 +219,7 @@ function FormatControls({
 }) {
   return (
     <div className="studio-mapping-grid">
-      <Field label={msg("Format de {0}", label)}>
+      <Field label={msg("Format for {0}", label)}>
         <select
           value={value.format}
           onChange={(event) =>
@@ -241,7 +237,7 @@ function FormatControls({
         </select>
       </Field>
       {value.format === "money" && (
-        <Field label={msg("Devise de {0}", label)}>
+        <Field label={msg("Currency for {0}", label)}>
           <select
             value={value.currency ?? "EUR"}
             onChange={(event) =>
@@ -286,9 +282,9 @@ function ScalarValue({
             )
           }
         >
-          <option value="">{msg("Choisir une valeur")}</option>
-          <option value="true">{msg("Oui")}</option>
-          <option value="false">{msg("Non")}</option>
+          <option value="">{msg("Choose a value")}</option>
+          <option value="true">{msg("Yes")}</option>
+          <option value="false">{msg("No")}</option>
         </select>
       </Field>
     );
@@ -306,7 +302,7 @@ function validateDeclaredValue(
   value: unknown,
 ) {
   if (value === undefined)
-    throw new Error(msg("Déclarez une valeur avant d’appliquer la règle."));
+    throw new Error(msg("Enter a value before applying the rule."));
   const field = structuredClone(schema);
   // Reusing the server normalizer validates date, enum, precision, lengths and
   // nested values. The explicit default permits an intentionally empty string.
@@ -343,15 +339,15 @@ function AdvancedBindings(props: SettingsProps) {
     props.envelope.bindings[0];
   return (
     <details className="studio-section">
-      <summary>{msg("Formats, calculs et conditions")}</summary>
+      <summary>{msg("Formats, calculations and conditions")}</summary>
       <p>
         {msg(
-          "Choisissez la valeur affichée par un bloc, son format et ses règles. Les sommes et produits utilisent uniquement des entiers exacts ; les montants sont exprimés en centimes. ",
+          "Choose the value a block displays, its format and its rules. Sums and products use exact integers only; amounts are expressed in cents. ",
         )}
       </p>
       {binding ? (
         <>
-          <Field label={msg("Bloc à configurer")}>
+          <Field label={msg("Block to configure")}>
             <select
               disabled={props.disabled}
               value={binding.block}
@@ -372,9 +368,7 @@ function AdvancedBindings(props: SettingsProps) {
         </>
       ) : (
         <p>
-          {msg(
-            "Ajoutez une variable métier au document pour configurer ses règles. ",
-          )}
+          {msg("Add a data variable to the document to configure its rules. ")}
         </p>
       )}
     </details>
@@ -416,12 +410,12 @@ function BindingRuleEditor({
   return (
     <fieldset disabled={disabled || action.pending} className="business-object">
       <legend>
-        {msg("Règles du bloc ")}
+        {msg("Block rules ")}
         {binding.block}
       </legend>
       <ErrorNotice error={action.error} />
       {binding.kind !== "table" && (
-        <Field label={msg("Contenu du bloc")}>
+        <Field label={msg("Block content")}>
           <select
             value={draft.kind}
             onChange={(event) => {
@@ -437,12 +431,12 @@ function BindingRuleEditor({
               setHasFallback(false);
             }}
           >
-            <option value="value">{msg("Valeur d’un champ")}</option>
-            <option value="sum">{msg("Total des lignes d’un tableau")}</option>
+            <option value="value">{msg("Field value")}</option>
+            <option value="sum">{msg("Sum of table rows")}</option>
           </select>
         </Field>
       )}
-      <Field label={msg("Source du bloc")}>
+      <Field label={msg("Block source")}>
         <select
           value={draft.path}
           onChange={(event) =>
@@ -454,29 +448,29 @@ function BindingRuleEditor({
             })
           }
         >
-          <option value="">{msg("Choisir un champ")}</option>
+          <option value="">{msg("Choose a field")}</option>
           <FieldChoices fields={draft.kind === "value" ? scalar : arrays} />
         </select>
       </Field>
       {draft.kind === "sum" && (
         <div className="studio-mapping-grid">
-          <Field label={msg("Valeur à additionner")}>
+          <Field label={msg("Value to sum")}>
             <select
               value={draft.valuePath ?? ""}
               onChange={(event) => update({ valuePath: event.target.value })}
             >
-              <option value="">{msg("Choisir une valeur entière")}</option>
+              <option value="">{msg("Choose an integer value")}</option>
               <FieldChoices fields={integers} />
             </select>
           </Field>
-          <Field label={msg("Multiplier chaque valeur par")}>
+          <Field label={msg("Multiply each value by")}>
             <select
               value={draft.multiplyBy ?? ""}
               onChange={(event) =>
                 update({ multiplyBy: event.target.value || undefined })
               }
             >
-              <option value="">{msg("Aucun multiplicateur")}</option>
+              <option value="">{msg("No multiplier")}</option>
               <FieldChoices fields={integers} />
             </select>
           </Field>
@@ -486,18 +480,18 @@ function BindingRuleEditor({
         <>
           <FormatControls
             value={draft}
-            label={msg("ce bloc")}
+            label={msg("this block")}
             onChange={update}
           />
           <div className="studio-mapping-grid">
-            <Field label={msg("Texte avant la valeur")}>
+            <Field label={msg("Text before the value")}>
               <input
                 value={draft.prefix ?? ""}
                 maxLength={200}
                 onChange={(event) => update({ prefix: event.target.value })}
               />
             </Field>
-            <Field label={msg("Texte après la valeur")}>
+            <Field label={msg("Text after the value")}>
               <input
                 value={draft.suffix ?? ""}
                 maxLength={200}
@@ -513,7 +507,7 @@ function BindingRuleEditor({
           checked={draft.required}
           onChange={(event) => update({ required: event.target.checked })}
         />
-        {msg("Bloquer si la source du bloc est absente ")}
+        {msg("Block if the block’s source is missing ")}
       </label>
       {draft.kind === "value" && source && (
         <>
@@ -526,12 +520,12 @@ function BindingRuleEditor({
                 if (!event.target.checked) update({ default: undefined });
               }}
             />
-            {msg("Déclarer une valeur de remplacement pour ce bloc ")}
+            {msg("Set a fallback value for this block ")}
           </label>
           {hasFallback && (
             <ScalarValue
               schema={source}
-              label={msg("Valeur de remplacement du bloc")}
+              label={msg("Block fallback value")}
               value={draft.default}
               onChange={(value) =>
                 update({ default: value as TemplateBinding["default"] })
@@ -540,7 +534,7 @@ function BindingRuleEditor({
           )}
           <p className="field-hint">
             {msg(
-              "La valeur de remplacement ne rend pas facultatif un champ métier obligatoire. Les règles métier ci-dessous s’appliquent avant le rendu. ",
+              "A fallback value does not make a required data field optional. The data rules below apply before rendering. ",
             )}
           </p>
         </>
@@ -549,10 +543,12 @@ function BindingRuleEditor({
         draft.columns?.map((entry, index) => (
           <fieldset className="business-object" key={index}>
             <legend>
-              {msg("Colonne ")}
+              {msg("Column ")}
               {index + 1} · {entry.title}
             </legend>
-            <Field label={msg("Titre de la colonne {0}", index + 1)}>
+            <Field
+              label={msgIn("table-settings", "Column {0} title", index + 1)}
+            >
               <input
                 value={entry.title}
                 maxLength={100}
@@ -561,7 +557,7 @@ function BindingRuleEditor({
                 }
               />
             </Field>
-            <Field label={msg("Source de la colonne {0}", index + 1)}>
+            <Field label={msg("Column {0} source", index + 1)}>
               <select
                 value={entry.path}
                 onChange={(event) =>
@@ -577,17 +573,17 @@ function BindingRuleEditor({
             </Field>
             <FormatControls
               value={entry}
-              label={msg("la colonne {0}", index + 1)}
+              label={msg("column {0}", index + 1)}
               onChange={(value) => column(index, value)}
             />
-            <Field label={msg("Multiplier la colonne {0} par", index + 1)}>
+            <Field label={msg("Multiply column {0} by", index + 1)}>
               <select
                 value={entry.multiplyBy ?? ""}
                 onChange={(event) =>
                   column(index, { multiplyBy: event.target.value || undefined })
                 }
               >
-                <option value="">{msg("Aucun multiplicateur")}</option>
+                <option value="">{msg("No multiplier")}</option>
                 <FieldChoices fields={integers} />
               </select>
             </Field>
@@ -599,12 +595,12 @@ function BindingRuleEditor({
                   column(index, { required: event.target.checked })
                 }
               />
-              {msg("Colonne ")}
-              {index + 1} {msg("obligatoire ")}
+              {msg("Column ")}
+              {index + 1} {msg("required ")}
             </label>
           </fieldset>
         ))}
-      <Field label={msg("Afficher ce bloc")}>
+      <Field label={msg("Show this block")}>
         <select
           value={
             draft.when
@@ -619,9 +615,7 @@ function BindingRuleEditor({
               const path = draft.when?.path ?? scalar[0]?.path;
               if (!path)
                 throw new Error(
-                  msg(
-                    "Ajoutez un champ métier avant de définir une condition.",
-                  ),
+                  msg("Add a data field before defining a condition."),
                 );
               const schema = fieldAt(envelope.inputSchema, path)!;
               update({
@@ -640,18 +634,18 @@ function BindingRuleEditor({
             }
           }}
         >
-          <option value="always">{msg("Toujours")}</option>
+          <option value="always">{msg("Always")}</option>
           <option value="equals" disabled={!scalar.length}>
-            {msg("Quand un champ est égal à une valeur ")}
+            {msg("When a field equals a value ")}
           </option>
           <option value="missing" disabled={!scalar.length}>
-            {msg("Quand un champ est absent ")}
+            {msg("When a field is missing ")}
           </option>
         </select>
       </Field>
       {draft.when && (
         <>
-          <Field label={msg("Champ de la condition")}>
+          <Field label={msg("Condition field")}>
             <select
               value={draft.when.path}
               onChange={(event) => {
@@ -680,7 +674,7 @@ function BindingRuleEditor({
           {draft.when.equals !== null && conditional && (
             <ScalarValue
               schema={conditional}
-              label={msg("Valeur attendue pour afficher le bloc")}
+              label={msg("Value required to show the block")}
               value={draft.when.equals}
               onChange={(value) =>
                 update({
@@ -694,7 +688,7 @@ function BindingRuleEditor({
           )}
           <p className="field-hint">
             {msg(
-              "Une condition fausse masque le bloc complet. Une valeur absente n’est ni zéro ni « Non ». Un champ déclaré obligatoire doit toujours être renseigné. ",
+              "A false condition hides the entire block. A missing value is neither zero nor “No”. A required field must always be filled in. ",
             )}
           </p>
         </>
@@ -707,7 +701,7 @@ function BindingRuleEditor({
             const next = structuredClone(envelope),
               candidate = structuredClone(draft);
             if (candidate.kind === "value" && hasFallback) {
-              if (!source) throw new Error(msg("Choisissez un champ source."));
+              if (!source) throw new Error(msg("Choose a source field."));
               candidate.default = validateDeclaredValue(
                 envelope,
                 source,
@@ -716,7 +710,7 @@ function BindingRuleEditor({
             } else delete candidate.default;
             if (candidate.when && candidate.when.equals !== null) {
               if (!conditional)
-                throw new Error(msg("Choisissez le champ de la condition."));
+                throw new Error(msg("Choose the condition field."));
               candidate.when.equals = validateDeclaredValue(
                 envelope,
                 conditional,
@@ -737,7 +731,7 @@ function BindingRuleEditor({
           })
         }
       >
-        {msg("Appliquer les règles du bloc ")}
+        {msg("Apply block rules ")}
       </button>
     </fieldset>
   );
@@ -781,15 +775,15 @@ function BusinessRules(props: SettingsProps) {
   const rule = rules.find((entry) => entry.path === selected) ?? rules[0];
   return (
     <details className="studio-section">
-      <summary>{msg("Champs requis et valeurs par défaut")}</summary>
+      <summary>{msg("Required fields and default values")}</summary>
       <p>
         {msg(
-          "Ces règles sont partagées par le formulaire, l’API et les générations. Une valeur par défaut s’applique uniquement lorsqu’un champ est absent ou vide. Aucune donnée d’exemple n’est modifiée. ",
+          "These rules apply to the form, the API and document generation. A default value applies only when a field is missing or empty. Example data remains unchanged. ",
         )}
       </p>
       {rule ? (
         <>
-          <Field label={msg("Champ métier à configurer")}>
+          <Field label={msg("Data field to configure")}>
             <select
               disabled={props.disabled}
               value={rule.path}
@@ -811,7 +805,7 @@ function BusinessRules(props: SettingsProps) {
           />
         </>
       ) : (
-        <p>{msg("Ajoutez d’abord des variables métier au modèle.")}</p>
+        <p>{msg("Add data variables to the template first.")}</p>
       )}
     </details>
   );
@@ -831,7 +825,7 @@ function BusinessRuleEditor({
   return (
     <fieldset className="business-object" disabled={disabled || action.pending}>
       <legend>
-        {msg("Règles de ")}
+        {msg("Rules for ")}
         {rule.schema.title ?? rule.path}
       </legend>
       <ErrorNotice error={action.error} />
@@ -841,7 +835,7 @@ function BusinessRuleEditor({
           checked={required}
           onChange={(event) => setRequired(event.target.checked)}
         />
-        {msg("Champ métier obligatoire ")}
+        {msg("Required data field ")}
       </label>
       <label className="check-field">
         <input
@@ -861,14 +855,14 @@ function BusinessRuleEditor({
               );
           }}
         />
-        {msg("Déclarer une valeur par défaut ")}
+        {msg("Set a default value ")}
       </label>
       {hasDefault && (
         <ScalarValue
           schema={rule.schema}
           value={value}
           onChange={setValue}
-          label={msg("Valeur par défaut déclarée")}
+          label={msg("Declared default value")}
         />
       )}
       <button
@@ -897,7 +891,7 @@ function BusinessRuleEditor({
           })
         }
       >
-        {msg("Appliquer les règles du champ ")}
+        {msg("Apply field rules ")}
       </button>
     </fieldset>
   );
@@ -920,18 +914,18 @@ export function TemplateAi({
   const action = useAction();
   return (
     <details className="studio-section">
-      <summary>{msg("Demander une modification à l’IA")}</summary>
+      <summary>{msg("Ask AI for a change")}</summary>
       <p>
         {msg(
-          "Un appel explicite à OpenAI transmet un aperçu borné du modèle et vos instructions. Il exige une configuration et une autorisation administrateur. La proposition reste à vérifier dans le studio. ",
+          "An explicit OpenAI request sends a limited preview of the template and your instructions. It requires configuration and administrator authorization. Review the proposal in the studio. ",
         )}
       </p>
       <ErrorNotice error={action.error} />
       <StudioAiNotice available={aiPolicy.available} />
       <Field
-        label={msg("Modification souhaitée")}
+        label={msg("Requested change")}
         hint={msg(
-          "Enregistrez d’abord vos modifications. Évitez toute donnée personnelle dans l’instruction.",
+          "Save your changes first. Do not include personal data in the instruction.",
         )}
       >
         <textarea
@@ -940,7 +934,7 @@ export function TemplateAi({
           value={instruction}
           onChange={(e) => setInstruction(e.target.value)}
           placeholder={msg(
-            "Déplace la signature plus bas et reformule le texte fixe de conclusion.",
+            "Move the signature down and rephrase the fixed closing text.",
           )}
         />
       </Field>
@@ -965,28 +959,28 @@ export function TemplateAi({
           })
         }
       >
-        {msg("Obtenir une proposition ")}
+        {msg("Get a proposal ")}
       </button>
       {proposal && (
         <div role="status">
-          <h3>{msg("Proposition à vérifier")}</h3>
+          <h3>{msg("Proposal to review")}</h3>
           <p>
-            {proposal.patches.length} {msg("modification(s) ")}
+            {proposal.patches.length} {msg("change(s) ")}
             {proposal.galleryId
-              ? msg(", base proposée : {0}", proposal.galleryId)
+              ? msg(", proposed base: {0}", proposal.galleryId)
               : ""}
-            {msg(". Aucun brouillon enregistré. ")}
+            {msg(". No draft saved. ")}
           </p>
           <ul>
             {proposal.patches.map((patch, index) => (
               <li key={index}>
                 {msg(
                   {
-                    set_text: "Modifier le texte",
-                    move_block: "Déplacer le bloc",
-                    remove_block: "Supprimer le bloc",
-                    set_binding: "Modifier la liaison métier",
-                    add_table_column: "Ajouter une colonne",
+                    set_text: "Edit text",
+                    move_block: "Move block",
+                    remove_block: "Remove block",
+                    set_binding: "Edit business binding",
+                    add_table_column: "Add column",
                   }[patch.op],
                 )}{" "}
                 · {"block" in patch ? patch.block : patch.binding.block}
@@ -1002,7 +996,7 @@ export function TemplateAi({
                   : ""}
                 {patch.op === "set_binding" && (
                   <details>
-                    <summary>{msg("Détails de la liaison proposée")}</summary>
+                    <summary>{msg("Proposed binding details")}</summary>
                     <BindingSummary binding={patch.binding} />
                   </details>
                 )}
@@ -1021,14 +1015,14 @@ export function TemplateAi({
               setProposal(undefined);
             }}
           >
-            {msg("Appliquer dans le brouillon local ")}
+            {msg("Apply to the local draft ")}
           </button>
           <button
             type="button"
             className="text-button"
             onClick={() => setProposal(undefined)}
           >
-            {msg("Écarter ")}
+            {msg("Discard ")}
           </button>
         </div>
       )}
@@ -1040,49 +1034,48 @@ function BindingSummary({ binding }: { binding: TemplateBinding }) {
   return (
     <>
       <p>
-        {msg("Source : ")}
-        {binding.path}.{" "}
-        {binding.required ? msg("Obligatoire.") : msg("Facultative.")}{" "}
-        {msg("Format :")} {msg(formatNames[binding.format])}
+        {msg("Source: ")}
+        {binding.path}. {binding.required ? msg("Required.") : msg("Optional.")}{" "}
+        {msg("Format:")} {msg(formatNames[binding.format])}
         {binding.format === "money" ? ` (${binding.currency ?? "EUR"})` : ""}.
       </p>
       {binding.kind === "sum" && (
         <p>
-          {msg("Somme de ")}
+          {msg("Sum of ")}
           {binding.valuePath}
           {binding.multiplyBy
-            ? msg(" × {0}, ligne par ligne", binding.multiplyBy)
+            ? msg(" × {0}, row by row", binding.multiplyBy)
             : ""}
           .
         </p>
       )}
       {binding.default !== undefined && (
         <p>
-          {msg("Valeur de remplacement : ")}
+          {msg("Fallback value: ")}
           {String(binding.default)}.
         </p>
       )}
       {(binding.prefix || binding.suffix) && (
         <p>
-          {msg("Texte avant : « ")}
-          {binding.prefix ?? ""} {msg("». Texte après : «")}{" "}
+          {msg("Text before: “ ")}
+          {binding.prefix ?? ""} {msg("”. Text after: “")}{" "}
           {binding.suffix ?? ""} ».
         </p>
       )}
       <p>
         {binding.when
           ? binding.when.equals === null
-            ? msg("Visible si {0} est absent.", binding.when.path)
+            ? msg("Visible when {0} is missing.", binding.when.path)
             : msg(
-                "Visible si {0} vaut « {1} ».",
+                "Visible when {0} equals “{1}”.",
                 binding.when.path,
                 typeof binding.when.equals === "boolean"
                   ? binding.when.equals
-                    ? msg("Oui")
-                    : msg("Non")
+                    ? msg("Yes")
+                    : msg("No")
                   : binding.when.equals,
               )
-          : msg("Toujours visible.")}
+          : msg("Always visible.")}
       </p>
       {binding.columns && (
         <ul>
@@ -1094,7 +1087,7 @@ function BindingSummary({ binding }: { binding: TemplateBinding }) {
               {column.format === "money"
                 ? ` (${column.currency ?? "EUR"})`
                 : ""}{" "}
-              · {column.required ? "obligatoire" : "facultative"}.
+              · {column.required ? "required" : "facultative"}.
             </li>
           ))}
         </ul>

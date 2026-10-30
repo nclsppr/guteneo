@@ -55,9 +55,17 @@ The configured API identifier is `https://guteneo.com/mcp`, with RS256 access to
 
 | Guteneo-owned application | Type and authentication                          | Exact callback                                                                          |
 | ------------------------- | ------------------------------------------------ | --------------------------------------------------------------------------------------- |
-| Browser                   | Confidential regular web client, secret via POST | `https://guteneo.com/auth/callback`                                                     |
+| Browser                   | Confidential regular web client, secret via POST | `https://guteneo.com/auth/callback` and `https://belvedere.guteneo.com/auth/callback`       |
 | Claude Code               | Public native client, S256 PKCE                  | `http://localhost:8788/callback`                                                        |
 | Cursor                    | Public native client, S256 PKCE                  | `http://localhost:8787/callback` and `https://www.cursor.com/agents/mcp/oauth/callback` |
+
+The browser catalog also retains the exact logout returns `https://guteneo.com/`
+and `https://belvedere.guteneo.com/`, with web origins `https://guteneo.com` and
+`https://belvedere.guteneo.com`. Reapplying the setup must preserve both hosts;
+each callback returns to its originating host and its host-only browser session.
+These allowlists grant no Belvédère authorization: the application's current
+operator identity and access checks remain mandatory. Review this catalog when
+maintaining [the private Belvédère host](BELVEDERE.md).
 
 These are explicit first-party registrations owned by Guteneo, with user consent required by the API. They avoid claiming that a strict third-party registration supports OpenID scopes. A Guteneo-scoped Action checks S256 PKCE; there is no invented `enforce_pkce` application field. Only `authorization_code` is enabled in this first setup. Refresh tokens remain disabled, so hosts must reconnect after expiry. [Auth0 client schema](https://auth0.com/docs/api/management/v2/clients/post-clients), [PKCE enforcement](https://support.auth0.com/center/s/article/Enforce-PKCE-with-Actions), [host setup and callbacks](LLM_SETUP.md)
 

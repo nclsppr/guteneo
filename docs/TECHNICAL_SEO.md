@@ -1,12 +1,16 @@
 # Public HTML and crawl boundaries
 
-The public site builds complete HTML documents for every route in `packages/contracts/src/public-site.json`. Their source is the same React content supplied by `apps/web/src/editorial/ssr.tsx`; the build uses Vite `ssrLoadModule` and injects the rendered markup into the built document. CSS and the application entry come from the ordinary hashed production build. Every public page retains the entry to apply the visitor's language or saved account preference and operate its language selector. Journal and legal content remains readable without JavaScript.
+The public site builds complete HTML documents for every route in `packages/contracts/src/public-site.json`. Their source is the same React content supplied by `apps/web/src/editorial/ssr.tsx`; the build uses Vite `ssrLoadModule` and injects the rendered markup into the built document. CSS and the application entry come from the ordinary hashed production build. Every public page retains the entry to operate its language selector and page interactions; the initial document already has the resolved language. Journal and legal content remain readable without JavaScript. The [multilingual contract](MULTILINGUAL.md) owns selection and retention.
 
 Each page has its own title, description, absolute canonical URL, Open Graph/Twitter metadata and the structured data supplied by the editorial module. Structured JSON escapes HTML delimiters before insertion. Article and breadcrumb facts must match visible content; the builder does not invent dates, authors, ratings or FAQ claims. Missing content or a mismatched canonical fails the build.
 
 The primary `guteneo.com` preview allows indexing of these public pages and publishes a sitemap containing the generic routes and their four explicit language variants. Private API/auth/media routes remain blocked. The fragment workspace has no separate URL in the sitemap; fragments are not used as editorial routes. The `workers.dev` preview returns `X-Robots-Tag: noindex, nofollow` and a disallow-all robots response. The production build now also emits indexable public HTML for the eventual canonical-domain cutover. Its static `_headers` remain noindex by default. The production Worker runs before every asset, checks the exact canonical HTTPS origin, public path or image response, response status and sensitive query keys, then removes noindex only for permitted GET/HEAD 200/304 responses. The header stays noindex on `workers.dev`, unknown hosts, private query parameters, machine JSON, 404s and failures. API/auth/write requests retain the existing Hono middleware and its noindex/authentication gates.
 
 Workers Static Assets uses real missing-file 404s, without the former SPA fallback. Folder index documents use trailing slash canonical routes. Release verification maps every nested `/index.html` asset to its canonical folder route, verifies its exact bytes, and never follows arbitrary redirects. The public-page generator runs before the source snapshot recheck and asset-manifest hash; both build scripts include it and the release verifier in their snapshot scope. A source change during rendering aborts the release candidate.
+
+The October 24 local correction makes confirmed missing public documents renderable rather than returning an empty, untyped response that Safari can download. The reusable browser HTTP-error document also covers public malformed-path 400s, fail-closed public configuration/fetch 503s, and documentary 400–599 errors returned by Static Assets to an eligible document navigation. The outer Worker public-fetch exception uses the same bounded 503 renderer. Each response retains its actual error status, `noindex, nofollow`, `no-store`, the strict CSP and `nosniff`; it never redirects an unknown URL to authentication or serves a successful SPA shell. Explicit `Accept: text/html` is required; supplied Fetch Metadata must identify a document navigation. Non-GET/HEAD requests, private API/MCP/auth/review/application paths, asset namespaces, non-HTML file extensions and range requests are excluded. Missing variants of known public pages remain typed plain-text 404s. Typed JSON, binary or event-stream errors, explicit `Content-Disposition: attachment` downloads and unknown nonempty disposition types treated as attachments, even on extensionless URLs, status416, responses carrying `Content-Range` and other non-document Static Assets errors retain their original protocol/body representation. `Retry-After`, `Allow` and `WWW-Authenticate` are preserved when formatting an upstream public error, without displaying their values. GET and HEAD have the same representation metadata, with no HEAD body; HTTP compression can independently change transfer framing.
+
+The four-language documents use the bounded explicit `lang` contract and default to French. They contain checked-in status-specific recovery copy, a short explanation of private PDF preparation and human-validated dispatches subject to account channels, and static links to the canonical homepage, assistants, developers, support and independent status service. Navigation/request errors share one generated illustration, 401/403 use the access illustration, and 429/5xx use the service illustration. No path, query, upstream error, authentication challenge, account or recipient information enters the HTML. Common statuses 400, 401, 403, 404, 405, 408, 410, 413, 414, 415, 422, 429, 500, 501, 502, 503 and 504 have specific copy; other 4xx/5xx retain their status and a generic family message. This is renderer coverage for errors actually reaching the public boundary, not a claim that each status has a new public endpoint or has occurred in production. There is no public error-preview route. API/MCP/auth/delegated-review/binary responses and successful public asset bytes remain outside the formatter. Cloudflare edge errors generated before the Worker, such as an edge challenge or unavailable runtime, cannot be replaced by this application component. Unit and real Static Assets regression tests distinguish those boundaries; actual native Safari rendering after authorized publication remains a separate qualification.
 
 Tests cover generated raw HTML, safe metadata, no-JavaScript pages, incomplete-build rejection, the primary/fallback header distinction, preserved backend 403s, 404s and canonical redirects. Browser checks inspect HTTP source and navigate the journal with JavaScript disabled. Build/test/deployment results are recorded separately when run; crawl eligibility does not establish actual Google indexing or ranking.
 
@@ -20,7 +24,44 @@ The two article illustrations were generated specifically for Guteneo using the 
 
 Primary references checked 17 September 2026: [Google JavaScript SEO](https://developers.google.com/search/docs/crawling-indexing/javascript/javascript-seo-basics), [robots metadata and X-Robots-Tag](https://developers.google.com/search/docs/crawling-indexing/robots-meta-tag), [sitemaps](https://developers.google.com/search/docs/crawling-indexing/sitemaps/build-sitemap), [Article structured data](https://developers.google.com/search/docs/appearance/structured-data/article), [Cloudflare HTML handling](https://developers.cloudflare.com/workers/static-assets/routing/advanced/html-handling/), [Worker-first asset routing](https://developers.cloudflare.com/workers/static-assets/routing/worker-script/), [static headers and Worker response precedence](https://developers.cloudflare.com/workers/static-assets/headers/) and [Vite SSR](https://vite.dev/guide/ssr.html).
 
-## Multilingual link previews — 3 October 2026 candidate
+Protected recipient URLs under `/share` are private application routes in the
+shared registry, including their unlock/content children. They bypass Static
+Assets and the generic public-error renderer, remain outside every sitemap and
+are disallowed by robots. The protected handler owns access checks, unavailable
+responses and private headers; see [protected PDF delivery](PROTECTED_DOCUMENTS.md).
+
+## Initial language and cache selection — 27 October 2026 candidate
+
+The Worker chooses an existing static language document before returning public
+HTML. One supported explicit `lang` wins; without one, the bounded nonsecret
+presentation cookie precedes `Accept-Language`, then the generic French fallback.
+The complete precedence, legacy-device migration and account/visitor separation
+are owned by [the multilingual contract](MULTILINGUAL.md#selection-and-retention).
+No session or account lookup occurs on this path. Public pages no longer probe
+`/api/session` to replace already visible language. This is a local implementation
+candidate; publication and hosted behavior require independent qualification.
+
+Responses without an explicit supported `lang` retain upstream `Vary` dimensions
+and add `Cookie, Accept-Language`. Successful HTML GET/HEAD and 304 responses use
+private revalidation caching with `no-transform`; sensitive queries keep
+`no-store`. Explicit language URLs retain their existing static cache policy.
+`Content-Language` names the actual selected language. The response reuses exact
+static bytes, ETag and encoding, without injecting identity or rewriting HTML.
+Shared caches must never reuse a negotiated response for a different visitor.
+
+Selected language variants carry their matching metadata, canonical explicit
+language URL and structured data even when requested through a generic URL.
+The generic French fallback retains the neutral sharing card. The sitemap still
+derives generic and four-language URLs from the shared route registry, and the
+private locale asset namespace remains inaccessible directly. Crawl eligibility
+and local source validation do not establish indexing, cached sharing previews
+or a release result.
+
+## Multilingual link previews — historical 3 October 2026 candidate
+
+The selection rules below describe the 3 October candidate. The preceding
+27 October section supersedes its request-language and post-load behavior;
+the original artwork, metadata and dated qualification remain historical facts.
 
 The generic public URLs have a language-neutral Open Graph/Twitter preview: `guteneo`, `guteneo.com`, and an ivory/cobalt card containing the approved blue portrait, three website swallows and one lowercase `guteneo.com` signature in the website’s black ink. This applies to all 18 public routes. Their ordinary SEO title, description and initial page content remain French; browser preferences may change the visible interface after loading.
 

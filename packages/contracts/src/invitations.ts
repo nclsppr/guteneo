@@ -22,11 +22,11 @@ export const workspaceInvitationInput = z
     (input) =>
       input.role === "supervisor" ||
       (!input.supervisorCanApprove && !input.supervisorCanReport),
-    "Les options sont réservées au superviseur.",
+    "Options are restricted to supervisors.",
   )
   .refine(
     (input) => new Set(input.emails).size === input.emails.length,
-    "Une adresse ne doit apparaître qu’une fois.",
+    "Each address must appear only once.",
   );
 export type WorkspaceInvitationInput = z.infer<typeof workspaceInvitationInput>;
 export type InvitationStatus = "pending" | "accepted" | "revoked" | "expired";

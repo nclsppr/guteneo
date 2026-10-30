@@ -1,0 +1,194 @@
+{
+  "Passer au mode clair": [
+    "Switch to light mode",
+    "Zum hellen Modus wechseln",
+    "Op den helle Modus wiesselen"
+  ],
+  "Passer au mode sombre": [
+    "Switch to dark mode",
+    "Zum dunklen Modus wechseln",
+    "Op den donkele Modus wiesselen"
+  ],
+  "Préparer": ["Prepare", "Vorbereiten", "Virbereeden"],
+  "Préparez vos documents.": [
+    "Prepare your documents.",
+    "Bereiten Sie Ihre Dokumente vor.",
+    "Bereet Är Dokumenter vir."
+  ],
+  "Choisissez leur destination.": [
+    "Choose how they travel.",
+    "Wählen Sie den Versandweg.",
+    "Wielt hire Versandwee."
+  ],
+  "E-mail, fax et courrier postal. Préparez dans Guteneo ou avec votre assistant, vérifiez les détails, puis validez votre envoi.": [
+    "Email, fax and post. Prepare in Guteneo or with your assistant, review the details, then approve your dispatch.",
+    "E-Mail, Fax und Briefpost. Bereiten Sie Ihre Sendung in Guteneo oder mit Ihrem Assistenten vor, prüfen Sie die Details und geben Sie sie frei.",
+    "E-Mail, Fax a Bréifpost. Bereet an Guteneo oder mat Ärem Assistent vir, kontrolléiert d’Detailer a gitt Är Sendung fräi."
+  ],
+  "Commencer": ["Get started", "Jetzt starten", "Ufänken"],
+  "Voir le fonctionnement": [
+    "See how it works",
+    "So funktioniert es",
+    "Esou funktionéiert et"
+  ],
+  "Fonctionnement": ["How it works", "Funktionsweise", "Funktiounsweis"],
+  "Ressources": ["Resources", "Ressourcen", "Ressourcen"],
+  "Premiers pas": ["Getting started", "Erste Schritte", "Éischt Schrëtt"],
+  "Contrôles PDF": ["PDF checks", "PDF-Prüfungen", "PDF-Kontrollen"],
+  "Parcours d’un envoi de document": [
+    "Document dispatch workflow",
+    "Ablauf eines Dokumentversands",
+    "Oflaf vun enger Dokumentsendung"
+  ],
+  "Correspondance.pdf": [
+    "Correspondence.pdf",
+    "Korrespondenz.pdf",
+    "Korrespondenz.pdf"
+  ],
+  "Votre PDF original, inchangé": [
+    "Your original PDF, unchanged",
+    "Ihr Original-PDF bleibt unverändert",
+    "Ären Original-PDF bleift onverännert"
+  ],
+  "Document, destinataire, options et prix": [
+    "Document, recipient, options and price",
+    "Dokument, Empfänger, Optionen und Preis",
+    "Dokument, Empfänger, Optiounen a Präis"
+  ],
+  "Du document à son destinataire.": [
+    "From your document to its destination.",
+    "Vom Dokument zum Empfänger.",
+    "Vum Dokument bei säin Empfänger."
+  ],
+  "Suivre un exemple": [
+    "Follow an example",
+    "Ein Beispiel ansehen",
+    "E Beispill kucken"
+  ],
+  "Importez un PDF, créez un document ou demandez à votre assistant connecté de préparer votre envoi.": [
+    "Import a PDF, create a document or ask your connected assistant to prepare your dispatch.",
+    "Importieren Sie ein PDF, erstellen Sie ein Dokument oder bitten Sie Ihren verbundenen Assistenten, die Sendung vorzubereiten.",
+    "Importéiert e PDF, erstellt en Dokument oder frot Äre verbonnenen Assistent, Är Sendung virzebereeden."
+  ],
+  "Vérifiez le document exact, le destinataire, le canal et le coût. Par défaut, vous validez dans Guteneo.": [
+    "Check the exact document, recipient, channel and cost. By default, you approve in Guteneo.",
+    "Prüfen Sie das genaue Dokument, den Empfänger, den Kanal und die Kosten. Standardmäßig erteilen Sie die Freigabe in Guteneo.",
+    "Kontrolléiert dat genee Dokument, den Empfänger, de Kanal an d’Käschten. Standardméisseg gitt Dir an Guteneo fräi."
+  ],
+  "Suivez les événements retournés pour votre envoi. Une livraison technique ne prouve pas qu’un document a été lu.": [
+    "Follow the events returned for your dispatch. Technical delivery does not prove that a document was read.",
+    "Verfolgen Sie die gemeldeten Ereignisse Ihrer Sendung. Eine technische Zustellung beweist nicht, dass ein Dokument gelesen wurde.",
+    "Verfollegt déi gemellt Evenementer vun Ärer Sendung. Eng technesch Liwwerung beweist net, datt en Dokument gelies gouf."
+  ],
+  "Commencez par votre document. Ou votre assistant.": [
+    "Start with your document. Or your assistant.",
+    "Starten Sie mit Ihrem Dokument. Oder Ihrem Assistenten.",
+    "Fänkt mat Ärem Dokument un. Oder Ärem Assistent."
+  ],
+  "Retrouvez la même préparation, la même vérification et le même suivi, quel que soit votre point de départ.": [
+    "Use the same preparation, review and tracking workflow whichever way you start.",
+    "Vorbereitung, Prüfung und Nachverfolgung bleiben gleich, unabhängig davon, wie Sie beginnen.",
+    "Virbereedung, Kontroll a Suivi bleiwen déiselwecht, egal wéi Dir ufänkt."
+  ],
+  "Un prix avant votre accord.": [
+    "A price before you approve.",
+    "Ein Preis vor Ihrer Freigabe.",
+    "E Präis virun Ärer Fräigab."
+  ],
+  "Voir les tarifs et conditions": [
+    "View prices and terms",
+    "Preise und Bedingungen ansehen",
+    "Präisser a Konditioune kucken"
+  ],
+  "E-mail, fax et courrier postal": [
+    "Email, fax and post",
+    "E-Mail, Fax und Briefpost",
+    "E-Mail, Fax a Bréifpost"
+  ],
+  "Tarifs, exemples et crédit de bienvenue": [
+    "Rates, examples and welcome credit",
+    "Preise, Beispiele und Startguthaben",
+    "Präisser, Beispiller a Wëllkommenskredit"
+  ],
+  "PDF/UA et PDF/A, par document et par profil": [
+    "PDF/UA and PDF/A, per document and profile",
+    "PDF/UA und PDF/A, pro Dokument und Profil",
+    "PDF/UA a PDF/A, pro Dokument a Profil"
+  ],
+  "Votre accord vous appartient.": [
+    "Your approval stays yours.",
+    "Sie entscheiden über die Freigabe.",
+    "Dir entscheet iwwer d’Fräigab."
+  ],
+  "Un accord dans une conversation ne remplace pas la validation dans Guteneo. La délégation experte est désactivée par défaut ; seul un administrateur dans le navigateur peut accorder un mandat limité, révocable et avec une date de fin.": [
+    "An agreement in a conversation does not replace approval in Guteneo. Optional expert delegation is off by default; only a browser administrator can grant a limited, revocable mandate with an expiry date.",
+    "Eine Zustimmung im Gespräch ersetzt keine Freigabe in Guteneo. Die optionale Expertendelegation ist standardmäßig deaktiviert; nur ein Administrator im Browser kann ein begrenztes, widerrufbares Mandat mit Ablaufdatum erteilen.",
+    "En Accord an engem Gespréich ersetzt keng Fräigab an Guteneo. Déi fakultativ Expertendelegatioun ass standardméisseg aus; nëmmen en Administrateur am Browser kann e limitéiert, réckruffbart Mandat mat engem Oflafdatum ginn."
+  ],
+  "Questions et réponses": [
+    "Questions and answers",
+    "Fragen und Antworten",
+    "Froen an Äntwerten"
+  ],
+  "Horaires de traitement du courrier": [
+    "Postal processing times",
+    "Bearbeitungszeiten für Briefpost",
+    "Veraarbechtungszäite fir Bréifpost"
+  ],
+  "Lire le journal": ["Read the journal", "Journal lesen", "De Journal liesen"],
+  "Tarifs des e-mails, fax, courriers et contrôles PDF": [
+    "Pricing for email, fax, post and PDF checks",
+    "Preise für E-Mails, Faxe, Briefpost und PDF-Prüfungen",
+    "Präisser fir E-Mailen, Faxen, Bréifpost a PDF-Kontrollen"
+  ],
+  "Tarifs clients, crédit de bienvenue et devis avant validation. Comparez l’e-mail, le fax, le courrier postal et les contrôles PDF à l’unité.": [
+    "Customer rates, welcome credit and the quote shown before approval. Compare email, fax, postal mail and individual PDF checks.",
+    "Kundenpreise, Startguthaben und Angebot vor der Freigabe. Vergleichen Sie E-Mail, Fax, Briefpost und einzelne PDF-Prüfungen.",
+    "Clientpräisser, Wëllkommenskredit an Devis virun der Fräigab. Vergläicht E-Mail, Fax, Bréifpost an eenzel PDF-Kontrollen."
+  ],
+  "Préparer, vérifier et suivre un envoi de document": [
+    "Prepare, review and track a document dispatch",
+    "Einen Dokumentversand vorbereiten, prüfen und verfolgen",
+    "Eng Dokumentsendung virbereeden, kontrolléieren a verfollegen"
+  ],
+  "Suivez un envoi fictif par e-mail, fax ou courrier : préparez la demande, vérifiez ses détails exacts et comprenez les événements de suivi.": [
+    "Follow a fictional email, fax or postal dispatch: prepare the request, review its exact details and understand its tracking events.",
+    "Verfolgen Sie eine fiktive E-Mail-, Fax- oder Briefsendung: Bereiten Sie die Anfrage vor, prüfen Sie die genauen Angaben und verstehen Sie die Statusmeldungen.",
+    "Verfollegt eng fiktiv E-Mail-, Fax- oder Bréifsendung: Bereet d’Ufro vir, kontrolléiert déi genee Detailer a verstitt d’Suivi-Evenementer."
+  ],
+  "Commencer avec Guteneo ou votre assistant": [
+    "Get started with Guteneo or your assistant",
+    "Mit Guteneo oder Ihrem Assistenten starten",
+    "Mat Guteneo oder Ärem Assistent ufänken"
+  ],
+  "Commencez avec votre document dans Guteneo ou suivez le guide d’installation de votre assistant. Vérifiez le destinataire, les options et le coût avant validation.": [
+    "Start with your document in Guteneo or follow the setup guide for your assistant. Review the recipient, options and cost before approval.",
+    "Starten Sie mit Ihrem Dokument in Guteneo oder folgen Sie der Einrichtungsanleitung für Ihren Assistenten. Prüfen Sie Empfänger, Optionen und Kosten vor der Freigabe.",
+    "Fänkt mat Ärem Dokument an Guteneo un oder verfollegt den Ariichtungsguide fir Ären Assistent. Kontrolléiert den Empfänger, d’Optiounen an d’Käschte virun der Fräigab."
+  ],
+  "Contrôles d’accessibilité et d’archivage PDF": [
+    "PDF accessibility and archiving checks",
+    "PDF-Prüfungen für Barrierefreiheit und Archivierung",
+    "PDF-Kontrolle fir Accessibilitéit an Archivage"
+  ],
+  "Comprenez les contrôles PDF/UA et PDF/A à l’unité, leur prix, les limites des fichiers et la vérification humaine encore nécessaire après un rapport automatique.": [
+    "Understand individual PDF/UA and PDF/A checks, their price, file limits and the human review still needed after an automated report.",
+    "Erfahren Sie mehr über einzelne PDF/UA- und PDF/A-Prüfungen, Preise, Dateigrenzen und die weiterhin notwendige menschliche Prüfung nach einem automatisierten Bericht.",
+    "Verstitt eenzel PDF/UA- a PDF/A-Kontrollen, hire Präis, d’Dateigränzen an déi mënschlech Kontroll, déi no engem automatesche Rapport nach néideg ass."
+  ],
+  "Comprendre le rapport": [
+    "Understanding the report",
+    "Den Bericht verstehen",
+    "De Rapport verstoen"
+  ],
+  "Choisissez votre point de départ": [
+    "Choose your starting point",
+    "Wählen Sie Ihren Einstieg",
+    "Wielt Äre Startpunkt"
+  ],
+  "Un envoi fictif, étape par étape": [
+    "A fictional dispatch, step by step",
+    "Eine fiktive Sendung, Schritt für Schritt",
+    "Eng fiktiv Sendung, Schrëtt fir Schrëtt"
+  ]
+}

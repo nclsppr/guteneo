@@ -1,0 +1,71 @@
+---
+title: PDF verification
+description: Separate automated conformance reports from security readiness, remediation and certification.
+sidebar:
+  order: 4
+---
+
+PDF verification checks an existing ready PDF without rewriting it. Its private validator
+checks supported archival/accessibility profiles and returns a bounded report tied
+to the original hash. This is a separate pipeline from antivirus verification,
+document readiness and dispatch approval.
+
+## Three different questions
+
+| Question | Responsible boundary |
+| --- | --- |
+| Can this exact PDF be used safely under the application's checks? | Document scanning and isolated PDF validation |
+| Which supported machine-checkable conformance rules pass or fail? | PDF verification diagnostic profile and private validator |
+| Is the document usable and appropriate for its real audience? | Human review, including reading order, alternatives and interaction |
+
+A quarantined document cannot bypass its security gate by requesting a diagnostic.
+A favorable automated report is not a certification, human review or permission
+to send. Reports retain explicit manual-review requirements.
+
+## A bounded, immutable report
+
+Web, REST and MCP share the validation service. The request chooses a supported
+profile and stable idempotency key; the tenant and original bytes come from
+authenticated access, not caller-supplied ownership fields.
+
+Before execution and again before publishing a report, the server checks current
+session/connection authority, scopes, resource access and exact bytes, plus the
+current browser administrator’s explicit purchase for a new check.
+The response must match the expected hash/profile, pinned validator and complete
+rule totals. Time, stream/chunk size and retained findings are bounded. Replaying
+an already handled idempotent request does not start a second engine run.
+
+The private validator operates on a temporary exact original without runtime
+network access. Reports keep allowed rule identifiers and counters, not arbitrary
+PDF text, snippets, raw engine output or customer content in logs.
+
+## Each new verification has its own purchase
+
+The current browser administrator reviews the exact PDF, selected profile, unit
+price, excluding-tax basis and terms before accepting a purchase from available
+account credits. The reservation and subsequent settled charge are atomic and
+tenant scoped. Assistants, native callers and other members cannot create that
+financial consent. New subscriptions and automatic renewals are retired; old
+financial records remain immutable.
+
+A complete valid report is billable even when it finds failed conformance rules.
+Engine failure, timeout or incomplete output creates no settled charge. Reusing
+the same key recovers an uncertain response without purchasing twice; a new
+independent check needs a new explicit purchase.
+
+Missing required bindings or scanner readiness fail closed; enough credit alone
+does not enable the service. Existing reports retain current document access
+without a subscription, new purchase or broader PDF visibility.
+
+## Corrections create new documents
+
+A report may explain findings, but the pipeline performs no silent remediation.
+A corrected PDF must be imported or generated as a new immutable version, scanned
+and diagnosed as appropriate. An old report or dispatch approval does not transfer
+to its changed bytes.
+
+For the underlying file lifecycle, read [documents and exact bytes](/workflows/documents/).
+For client authorization and capability checks, read [REST](/integrations/rest-api/)
+and [MCP](/integrations/mcp/). The [feature atlas](/features/) records the implementation
+and activation boundaries; source implementation does not establish a deployed
+price, real financial transaction or hosted engine qualification.

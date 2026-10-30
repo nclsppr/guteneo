@@ -1,11 +1,8 @@
-# Partition de la présentation des rôles
+# Roles-film score
 
-`roles-soundtrack.wav` est un montage de la partition instrumentale originale de
-Guteneo, `vertical-soundtrack.wav`, dont la provenance et le générateur sont
-conservés dans ce dossier et dans `scripts/create-vertical-soundtrack.py`.
-
-Le montage prend les 31,2 premières secondes puis les cinq dernières secondes,
-avec un fondu croisé triangulaire de 0,2 seconde. Durée finale : 36 secondes,
-48 kHz, PCM 16 bits stéréo. La cadence finale reste celle du film V5.
-`scripts/render-localized.mjs` régénère ce montage avec FFmpeg avant le rendu.
-Il n'utilise aucun échantillon externe, voix de synthèse ou service distant.
+`roles-soundtrack.wav` edits original Guteneo `vertical-soundtrack.wav`, whose
+provenance/generator remain here and in `scripts/create-vertical-soundtrack.py`.
+Take first 31.2 s plus last five seconds with 0.2-second triangular crossfade:
+36 seconds, stereo PCM16/48 kHz. Final cadence remains V5's.
+`scripts/render-localized.mjs` regenerates using FFmpeg before rendering, without
+external samples, synthesized voices or remote services.

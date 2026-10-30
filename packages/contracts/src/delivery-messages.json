@@ -1,4 +1,42 @@
 {
+  "Votre atelier": ["Your workspace", "Ihr Arbeitsbereich", "Ären Atelier"],
+  "Document envoyé par {0}": [
+    "Document from {0}",
+    "Dokument von {0}",
+    "Dokument vun {0}"
+  ],
+  "{0} vous a transmis un document protégé.": [
+    "{0} has shared a protected document with you.",
+    "{0} hat ein geschütztes Dokument mit Ihnen geteilt.",
+    "{0} huet e geschützt Dokument mat Iech gedeelt."
+  ],
+  "{0} vous a envoyé un document. Vous le trouverez en pièce jointe à cet e-mail.": [
+    "{0} has sent you a document. You will find it attached to this email.",
+    "{0} hat Ihnen ein Dokument gesendet. Sie finden es im Anhang dieser E-Mail.",
+    "{0} huet Iech en Dokument geschéckt. Dir fannt et am Unhang vun dëser E-Mail."
+  ],
+  "janvier": ["January", "Januar", "Januar"],
+  "février": ["February", "Februar", "Februar"],
+  "mars": ["March", "März", "Mäerz"],
+  "avril": ["April", "April", "Abrëll"],
+  "mai": ["May", "Mai", "Mee"],
+  "juin": ["June", "Juni", "Juni"],
+  "juillet": ["July", "Juli", "Juli"],
+  "août": ["August", "August", "August"],
+  "septembre": ["September", "September", "September"],
+  "octobre": ["October", "Oktober", "Oktober"],
+  "novembre": ["November", "November", "November"],
+  "décembre": ["December", "Dezember", "Dezember"],
+  "Consulter le document protégé": [
+    "View the protected document",
+    "Geschütztes Dokument ansehen",
+    "Dat geschützt Dokument kucken"
+  ],
+  "Demandez le mot de passe à l’expéditeur par un autre canal. Ce lien expire le {0}.": [
+    "Ask the sender for the password through another channel. This link expires on {0}.",
+    "Bitten Sie den Absender über einen anderen Kanal um das Passwort. Dieser Link läuft am {0} ab.",
+    "Frot den Ofsender iwwer en anere Kanal nom Passwuert. Dëse Link leeft den {0} of."
+  ],
   "Personnaliser la version HTML (facultatif)": [
     "Customise the HTML version (optional)",
     "HTML-Version anpassen (optional)",
@@ -391,5 +429,130 @@
     "Indicative amounts excluding tax. Email rates revised on 21 September 2026; fax and post checked on 17 September 2026. Dollar rates converted at the ECB rate of 16 September: €1 = US$1.1537. The applicable price and options appear in the quote before approval. Postal mail is available after setup in your connected workspace; the preview remains a demonstration with no real dispatches.",
     "Unverbindliche Beträge ohne Steuern. E-Mail-Tarife vom 21. September 2026; Fax und Post am 17. September 2026 geprüft. Dollartarife zum EZB-Kurs vom 16. September umgerechnet: 1 € = 1,1537 US$. Preis und Optionen stehen vor der Genehmigung im Angebot. Postversand ist nach Einrichtung im angemeldeten Arbeitsbereich verfügbar; die Vorschau bleibt eine Demo ohne echte Sendungen.",
     "Indicativ Beträg ouni Steieren. E-Mail-Tariffer den 21. September 2026 aktualiséiert; Fax a Post de 17. September 2026 gepréift. Dollartariffer mam EZB-Cours vum 16. September ëmgewandelt: 1 € = 1,1537 US$. De gëltege Präis an d’Optioune stinn am Devis virun der Geneemegung. Postversand ass no der Konfiguratioun am ugemellten Aarbechtsberäich disponibel; d’Virschau bleift eng Demonstratioun ouni reelle Versand."
+  ],
+  "{0} vous a adressé un document dans Guteneo.": [
+    "{0} has sent you a document in Guteneo.",
+    "{0} hat Ihnen ein Dokument in Guteneo geschickt.",
+    "{0} huet Iech en Dokument op Guteneo geschéckt."
+  ],
+  "Ouvrir dans Mes documents": [
+    "Open in My documents",
+    "In Meine Dokumente öffnen",
+    "A Meng Dokumenter opmaachen"
+  ],
+  "Connectez-vous ou créez votre compte Guteneo avec l’adresse qui a reçu cet e-mail.": [
+    "Sign in or create your Guteneo account with the address that received this email.",
+    "Melden Sie sich an oder erstellen Sie Ihr Guteneo-Konto mit der Adresse, die diese E-Mail erhalten hat.",
+    "Mellt Iech un oder erstellt Äre Guteneo-Kont mat der Adress, déi dës E-Mail kritt huet."
+  ],
+  "Accès pendant {0} jours à compter de l’envoi.": [
+    "Access for {0} days from sending.",
+    "Zugriff für {0} Tage ab dem Versand.",
+    "Zougang fir {0} Deeg ab dem Versand."
+  ],
+  "Votre document vous attend dans Mes documents.": [
+    "Your document is waiting in My documents.",
+    "Ihr Dokument wartet unter Meine Dokumente auf Sie.",
+    "Äert Dokument waart ënner Meng Dokumenter op Iech."
+  ],
+  "Accès au document": [
+    "Document access",
+    "Dokumentzugriff",
+    "Zougang zum Dokument"
+  ],
+  "Dans Mes documents": [
+    "In My documents",
+    "In Meine Dokumente",
+    "A Meng Dokumenter"
+  ],
+  "PDF en pièce jointe": ["PDF attachment", "PDF-Anhang", "PDF als Unhang"],
+  "Le destinataire se connecte ou crée son compte avec son adresse vérifiée. Aucun mot de passe de document à transmettre.": [
+    "The recipient signs in or creates an account with their verified address. No separate document password is needed.",
+    "Der Empfänger meldet sich an oder erstellt ein Konto mit seiner bestätigten Adresse. Ein separates Dokumentpasswort ist nicht erforderlich.",
+    "Den Empfänger mellt sech un oder erstellt e Kont mat senger bestätegter Adress. E separat Dokumentpasswuert ass net néideg."
+  ],
+  "Durée d’accès": ["Access period", "Zugriffsdauer", "Zougangsdauer"],
+  "{0} jours — {1} hors taxes par destinataire": [
+    "{0} days — {1} excluding tax per recipient",
+    "{0} Tage — {1} ohne Steuern pro Empfänger",
+    "{0} Deeg — {1} ouni Steiere pro Empfänger"
+  ],
+  "Le bouton définitif sera lié au compte du destinataire dans Mes documents.": [
+    "The final button will open My documents for the recipient’s account.",
+    "Die endgültige Schaltfläche öffnet Meine Dokumente für das Konto des Empfängers.",
+    "Den definitive Knäppche mécht Meng Dokumenter fir de Kont vum Empfänger op."
+  ],
+  "Ouvrir mon document": [
+    "Open my document",
+    "Mein Dokument öffnen",
+    "Mäin Dokument opmaachen"
+  ],
+  "Utilisez le compte correspondant à l’adresse qui a reçu cet e-mail.": [
+    "Use the account matching the address that received this email.",
+    "Verwenden Sie das Konto mit der Adresse, die diese E-Mail erhalten hat.",
+    "Benotzt de Kont mat der Adress, déi dës E-Mail kritt huet."
+  ],
+  "Accès avec l’adresse vérifiée du destinataire": [
+    "Access with the recipient’s verified address",
+    "Zugriff mit der bestätigten Adresse des Empfängers",
+    "Zougang mat der bestätegter Adress vum Empfänger"
+  ],
+  "Confirmation indépendante par l’atelier": [
+    "Independent confirmation by the workspace",
+    "Unabhängige Bestätigung durch den Arbeitsbereich",
+    "Onofhängeg Bestätegung duerch den Atelier"
+  ],
+  "Découvrir guteneo": [
+    "Discover guteneo",
+    "guteneo entdecken",
+    "guteneo entdecken"
+  ],
+  "Se désabonner ou signaler cet e-mail": [
+    "Unsubscribe or report this email",
+    "Abmelden oder diese E-Mail melden",
+    "Ofmellen oder dës E-Mail mellen"
+  ],
+  "Préférences e-mail": [
+    "Email preferences",
+    "E-Mail-Einstellungen",
+    "E-Mail-Astellungen"
+  ],
+  "Se désabonner": ["Unsubscribe", "Abmelden", "Ofmellen"],
+  "Signaler un e-mail non souhaité": [
+    "Report an unwanted email",
+    "Eine unerwünschte E-Mail melden",
+    "Eng onerwënscht E-Mail mellen"
+  ],
+  "Désabonné": ["Unsubscribed", "Abgemeldet", "Ofgemellt"],
+  "E-mail signalé": ["Email reported", "E-Mail gemeldet", "E-Mail gemellt"],
+  "Vous ne recevrez plus d’e-mails de cet atelier. Vos documents existants restent accessibles.": [
+    "You will no longer receive emails from this workspace. Your existing documents remain accessible.",
+    "Sie erhalten keine E-Mails mehr von diesem Arbeitsbereich. Ihre bisherigen Dokumente bleiben zugänglich.",
+    "Dir kritt keng E-Maile méi vun dësem Atelier. Är bestoend Dokumenter bleiwen zougänglech."
+  ],
+  "Arrêtez les e-mails de l’atelier qui vous a envoyé ce message. Signaler un e-mail non souhaité bloque également ces messages.": [
+    "Stop emails from the workspace that sent this message. Reporting an unwanted email also stops these messages.",
+    "Stoppen Sie E-Mails aus dem Arbeitsbereich, der diese Nachricht gesendet hat. Das Melden einer unerwünschten E-Mail blockiert diese Nachrichten ebenfalls.",
+    "Stoppt E-Maile vum Atelier, deen Iech dëse Message geschéckt huet. Eng onerwënscht E-Mail ze melle blockéiert dës Messagen och."
+  ],
+  "Rouvrez le lien de préférences dans l’e-mail reçu.": [
+    "Reopen the preference link in the email you received.",
+    "Öffnen Sie den Einstellungslink in der erhaltenen E-Mail erneut.",
+    "Maacht den Astellungslink an der krittener E-Mail nach eng Kéier op."
+  ],
+  "La demande n’a pas abouti. Rouvrez le lien de l’e-mail ou réessayez.": [
+    "The request could not be completed. Reopen the email link or try again.",
+    "Die Anfrage konnte nicht abgeschlossen werden. Öffnen Sie den E-Mail-Link erneut oder versuchen Sie es noch einmal.",
+    "D’Ufro konnt net ofgeschloss ginn. Maacht den E-Mail-Link nach eng Kéier op oder probéiert nach eng Kéier."
+  ],
+  "Réponse du destinataire": [
+    "Recipient response",
+    "Antwort des Empfängers",
+    "Äntwert vum Empfänger"
+  ],
+  "Adresse vérifiée associée au document": [
+    "Verified address associated with the document",
+    "Verifizierte Adresse mit dem Dokument verknüpft",
+    "Verifizéiert Adress mam Dokument verbonnen"
   ]
 }

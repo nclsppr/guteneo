@@ -620,6 +620,8 @@ describe("Trusted live fax quotes — isolated D1, no provider sends", () => {
             delete row.supervisor_can_report;
           }
           if (table === "dispatches") {
+            // Recipient email feedback did not exist in the historical schema.
+            delete row.recipient_feedback;
             const quote = historicalQuotes.get(row.id as string)!;
             row.fingerprint = quote.dispatch_fingerprint;
             row.quote_fingerprint = quote.fingerprint;
@@ -655,6 +657,7 @@ describe("Trusted live fax quotes — isolated D1, no provider sends", () => {
         delete approval.recipient_requested;
         delete approval.approval_kind;
         delete approval.expert_review_hash;
+        delete approval.secure_approval_evidence_id;
         await insert("approvals", approval);
       }
       await legacy

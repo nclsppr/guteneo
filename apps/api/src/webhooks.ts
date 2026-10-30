@@ -13,6 +13,11 @@ import {
 } from "../../../packages/providers";
 import { boundedText } from "../../../packages/providers/transport";
 import type { Env } from "./env";
+import {
+  startObservation,
+  type ObservationEnv,
+  type RouteCode,
+} from "../../../packages/observability/src/index";
 
 type ReceiptPayload = {
   event?: ProviderEvent;
@@ -60,18 +65,41 @@ async function projectReceipt(
   db: D1Database,
   domain: EventSink,
   receipt: Receipt,
+  observationEnv: ObservationEnv = {},
 ): Promise<void> {
   const payload = JSON.parse(receipt.payload_json) as ReceiptPayload;
   if (!payload.event) throw new ProviderError("receipt_without_event");
   // Ingestion is idempotent and persists orphan events. If the process stops between
   // these writes, replaying this receipt cannot duplicate the business fact.
-  await domain.ingestEvent(payload.event);
-  await db
+  const result = await domain.ingestEvent(payload.event);
+  const projected = await db
     .prepare(
       "UPDATE provider_receipts SET status='projected' WHERE provider=? AND event_id=? AND status='pending'",
     )
     .bind(receipt.provider, receipt.event_id)
     .run();
+  // A valid negative provider fact can arrive with HTTP 200. Report its first
+  // applied receipt independently of HTTP availability, without callback data.
+  if (
+    projected.meta.changes === 1 &&
+    result.applied &&
+    ["failed", "bounced", "complained"].includes(payload.event.kind)
+  ) {
+    const routes: Record<ProviderName, RouteCode> = {
+      resend: "webhook_resend",
+      ses: "webhook_ses",
+      telnyx: "webhook_telnyx",
+      pingen: "webhook_pingen",
+    };
+    const observation = startObservation(
+      observationEnv,
+      "app",
+      "http",
+      routes[receipt.provider],
+    );
+    observation.setCode("DISPATCH_FAILED");
+    observation.finish(undefined, { failed: 1 });
+  }
 }
 
 /** Signature verification happens before any write; a durable receipt precedes every 2xx. */
@@ -207,7 +235,7 @@ export async function handleWebhook(
   }
   if (receipt.status === "pending") {
     try {
-      await projectReceipt(env.DB, domain, receipt);
+      await projectReceipt(env.DB, domain, receipt, env);
     } catch {
       return json({ received: true, projection: "pending" }, 202);
     }
@@ -220,6 +248,7 @@ export async function reconcileWebhookReceipts(
   db: D1Database,
   domain: EventSink,
   limit = 100,
+  observationEnv: ObservationEnv = {},
 ): Promise<{ projected: number; pending: number }> {
   const rows = await db
     .prepare(
@@ -231,7 +260,7 @@ export async function reconcileWebhookReceipts(
   let pending = 0;
   for (const row of rows.results) {
     try {
-      await projectReceipt(db, domain, row);
+      await projectReceipt(db, domain, row, observationEnv);
       projected++;
     } catch {
       pending++;

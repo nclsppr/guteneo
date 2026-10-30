@@ -35,7 +35,7 @@ try {
   console.log(JSON.stringify(result, null, 2));
 } catch {
   console.error(
-    "Inspection du fournisseur indisponible. Vérifiez la liaison Cloudflare privée et le déploiement.",
+    "Provider inspection unavailable. Check the private Cloudflare binding and deployment.",
   );
   process.exitCode = 1;
 } finally {

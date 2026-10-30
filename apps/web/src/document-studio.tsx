@@ -3,11 +3,8 @@ import type { Session } from "./api";
 import { isPublicPreview, permissionsFor } from "./api";
 import { TemplateLibrary, TemplateEditor } from "./template-pages";
 import { DatasetLibrary, DatasetMapper } from "./dataset-pages";
-import {
-  GenerationList,
-  GenerationDetail,
-  DistributionDetail,
-} from "./generation-pages";
+import { GenerationList, GenerationDetail } from "./generation-pages";
+import { studioRoutes } from "./app-routes";
 import "./document-studio.css";
 
 export default function DocumentStudio({
@@ -23,45 +20,37 @@ export default function DocumentStudio({
     return (
       <p className="notice info">
         {msg(
-          "Le studio documentaire est disponible dans l’espace privé. Cette démonstration publique ne traite pas de fichiers. ",
+          "The document studio is available in your private workspace. This public demo does not process files. ",
         )}
       </p>
     );
-  if (path.startsWith("/app/template/"))
+  if (path.startsWith(studioRoutes.template("")))
     return (
       <TemplateEditor
-        key={path}
-        id={path.slice("/app/template/".length)}
+        key={route}
+        id={path.slice(studioRoutes.template("").length)}
         session={session}
       />
     );
-  if (path.startsWith("/app/dataset/"))
+  if (path.startsWith(studioRoutes.dataset("")))
     return (
       <DatasetMapper
-        key={path}
-        id={path.slice("/app/dataset/".length)}
+        key={route}
+        id={path.slice(studioRoutes.dataset("").length)}
         canPrepare={permissions.prepareDispatches}
       />
     );
-  if (path.startsWith("/app/generation/"))
+  if (path.startsWith(studioRoutes.generation("")))
     return (
       <GenerationDetail
-        key={path}
-        id={path.slice("/app/generation/".length)}
+        key={route}
+        id={path.slice(studioRoutes.generation("").length)}
         canPrepare={permissions.prepareDispatches}
       />
     );
-  if (path.startsWith("/app/distribution/"))
-    return (
-      <DistributionDetail
-        key={path}
-        id={path.slice("/app/distribution/".length)}
-        canPrepare={permissions.prepareDispatches}
-        canApprove={permissions.approveDispatches}
-      />
-    );
-  if (path === "/app/datasets") return <DatasetLibrary session={session} />;
-  if (path === "/app/generations")
+  if (path === studioRoutes.datasets)
+    return <DatasetLibrary session={session} />;
+  if (path === studioRoutes.generations)
     return <GenerationList canPrepare={permissions.prepareDispatches} />;
   return (
     <TemplateLibrary
@@ -73,11 +62,11 @@ export default function DocumentStudio({
 
 export function StudioSteps() {
   return (
-    <ol className="studio-guide" aria-label={msg("Parcours documentaire")}>
-      <li>{msg("Vos données")}</li>
-      <li>{msg("Votre modèle")}</li>
-      <li>{msg("PDF vérifiés")}</li>
-      <li>{msg("Distribution facultative")}</li>
+    <ol className="studio-guide" aria-label={msg("Document workflow")}>
+      <li>{msg("Your data")}</li>
+      <li>{msg("Your template")}</li>
+      <li>{msg("Verified PDFs")}</li>
+      <li>{msg("Optional distribution")}</li>
     </ol>
   );
 }

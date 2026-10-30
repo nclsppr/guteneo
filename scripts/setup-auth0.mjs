@@ -242,7 +242,10 @@ function clientSpecs(options) {
       name: "Guteneo - Browser",
       app_type: "regular_web",
       token_endpoint_auth_method: "client_secret_post",
-      callbacks: ["https://guteneo.com/auth/callback"],
+      callbacks: [
+        "https://guteneo.com/auth/callback",
+        "https://belvedere.guteneo.com/auth/callback",
+      ],
     },
     {
       key: "claudeCode",
@@ -327,8 +330,14 @@ function clientSpecs(options) {
       jwt_configuration: { alg: "RS256", lifetime_in_seconds: 3600 },
       ...(key === "browser"
         ? {
-            allowed_logout_urls: ["https://guteneo.com/"],
-            web_origins: ["https://guteneo.com"],
+            allowed_logout_urls: [
+              "https://guteneo.com/",
+              "https://belvedere.guteneo.com/",
+            ],
+            web_origins: [
+              "https://guteneo.com",
+              "https://belvedere.guteneo.com",
+            ],
           }
         : {}),
     },

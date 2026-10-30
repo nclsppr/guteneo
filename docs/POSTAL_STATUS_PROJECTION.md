@@ -1,23 +1,55 @@
-# Suivi postal après remise au réseau
+# Postal status after network handover
 
-Correction publiée le 17 septembre 2026 dans la source `44d1d5bb64418372c5174faa1ce5601681fcc813`, sans migration ni activation des envois. Les preuves de publication et de CI sont distinctes de la recette locale décrite ci-dessous ; aucun courrier réel n'est qualifié par cette correction.
+Published on 17 September 2026 from
+`44d1d5bb64418372c5174faa1ce5601681fcc813`, without migration or send activation.
+Publication/CI proof is separate from local acceptance below; this change does
+not qualify any real letter.
 
-Le webhook Pingen signé `webhook_sent` produit `handed_to_post` : la remise au réseau postal ne prouve pas la livraison. Auparavant, le rang commun de `failed` était inférieur à celui de cette remise. Un `webhook_undeliverable` était alors conservé et marqué appliqué sans rendre l'échec visible ; un événement `sent` arrivé en retard pouvait aussi remplacer cet échec.
+Signed Pingen `webhook_sent` produces `handed_to_post`; postal handover is not
+delivery. Previously, shared `failed` ranked below handover: an
+`webhook_undeliverable` could be retained and marked applied without showing failure,
+and a late `sent` event could replace that failure.
 
-La projection donne désormais à l'échec postal une priorité supérieure à `printed` et `handed_to_post`, tout en conservant la priorité d'un fait explicite `delivered`. L'ordre d'arrivée, la concurrence et les replays ne restaurent donc pas la remise au réseau après non-distribution. Les règles fax/e-mail et la vérification de signature/organisation restent inchangées. Un événement contradictoire ne supprime pas les faits conservés dans le journal.
+Postal failure now outranks `printed` and `handed_to_post`, while explicit
+`delivered` retains priority. Arrival order, concurrency and replay cannot restore
+handover after non-delivery. Fax/email rules and signature/organization checks are
+unchanged. Contradictory events do not erase journaled facts.
 
-L'affranchissement déjà encouru reste consommé. Ce changement ne rembourse rien, ne recrée aucune réservation et ne déclenche aucune nouvelle soumission. Une preuve de remboursement exigerait un traitement financier distinct, absent de cette correction.
+Postage already incurred remains consumed. This change refunds nothing, recreates
+no reservation and submits nothing again. Refund evidence would need separate
+financial processing outside this change.
 
-## Preuve locale
+## Local evidence
 
-Les trois nouveaux scénarios postaux échouaient avant correction avec `handed_to_post` au lieu de `failed`. Après correction, **57 tests passent dans trois fichiers**, en 43,42 secondes : crédit de bienvenue, invariants métier et notifications fournisseurs. Les cas postaux utilisent un corps HMAC signé et traversent la réception HTTP, le reçu durable et la projection D1 réelle locale : ordre normal, ordre inversé, concurrence, replays et notification tardive distincte. Ils vérifient une seule soumission, le maintien des 302 centimes consommés, un seul débit fractionnaire et la priorité conservée d'une livraison explicite. Fax et e-mail sont aussi contrôlés dans les deux ordres livraison/échec.
+The three new postal scenarios failed before the fix with `handed_to_post` instead
+of `failed`. Afterwards, **57 tests in three files passed in 43.42 seconds**:
+welcome credit, business invariants and provider notifications. Postal cases use
+HMAC-signed bodies through HTTP reception, durable receipt and real local D1
+projection: normal/reversed order, concurrency, replay and a distinct late event.
+They check one submission, 302 cents remaining consumed, one fractional debit and
+explicit delivery retaining priority. Fax/email are checked in both delivery/failure orders.
 
-Typecheck, lint ciblé et `git diff --check` passent. Rapports séparés : `reports/postal-status-before.json` et `reports/postal-status-after.json` dans le worktree de correction. Cette recette locale n'a utilisé aucun compte fournisseur, courrier réel ou base distante.
+Typecheck, focused lint and `git diff --check` passed. Separate reports:
+`reports/postal-status-before.json` and `reports/postal-status-after.json` in the
+correction worktree. No provider account, real letter or remote database was used.
 
-## Preuve de publication
+## Publication evidence
 
-Les CI [PR 35180968830](https://github.com/nclsppr/guteneo/actions/runs/35180968830) et [push 35180966623](https://github.com/nclsppr/guteneo/actions/runs/35180966623) ont toutes deux réussi au premier essai sur cette source exacte. La validation intégrée comprend 675 tests Vitest dans 41 fichiers, 78 tests de sécurité, six tests Worker et huit tests Python du scanner, 75 cas navigateur applicatifs avec trois exclusions intentionnelles, et 30 cas de prévisualisation avec quatre exclusions intentionnelles. Les rapports et le journal sont référencés dans [TEST_RESULTS.md](TEST_RESULTS.md).
+[PR CI 35180968830](https://github.com/nclsppr/guteneo/actions/runs/35180968830) and
+[push CI 35180966623](https://github.com/nclsppr/guteneo/actions/runs/35180966623)
+both passed first attempt on this exact source: 675 Vitest tests in 41 files,
+78 security tests, six Worker tests, eight scanner Python tests, 75 application
+browser cases with three intentional exclusions and 30 preview cases with four
+intentional exclusions. [TEST_RESULTS.md](TEST_RESULTS.md) links reports and logs.
 
-Le rapport `reports/published-44d1d5b-release-proof.json` consigne la publication à 04:22:44 UTC, version Worker `bb332483-fd95-4b72-9b19-f967fbe492e0`, avec 100 % du trafic applicatif. Les 56 ressources publiques correspondent sur chacun des hôtes canonique et de repli ; `/api/health` répond HTTP 200 en production avec `liveSending:false`. Les scénarios signés restent des fixtures locales : cette publication ne prouve ni une notification émise par Pingen, ni un affranchissement ou une distribution réelle.
+`reports/published-44d1d5b-release-proof.json` records publication at 04:22:44 UTC,
+Worker `bb332483-fd95-4b72-9b19-f967fbe492e0`, 100% application traffic. All 56
+public assets matched on the then-canonical and fallback hosts; `/api/health`
+returned production HTTP 200 with `liveSending:false`. Signed scenarios remain
+local fixtures: publication proves no Pingen-originated notification, postage or
+real delivery. The [current origin contract](MAIN_RELEASE.md) supersedes that
+historical two-host arrangement.
 
-La correction porte sur les nouvelles projections. Elle ne réécrit pas automatiquement les événements historiques déjà marqués appliqués ; un éventuel rapprochement de tels envois doit être explicite et conserver leur historique financier.
+The correction affects new projections. Historical events already marked applied
+are not automatically rewritten; reconciliation must be explicit and preserve
+financial history.

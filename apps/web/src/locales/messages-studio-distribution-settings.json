@@ -711,5 +711,45 @@
     "Preparing the distribution lets authorized approvers in this workspace view the selected PDFs to review these requests. It does not send anything.",
     "Bei der Vorbereitung können freigabeberechtigte Personen dieses Arbeitsbereichs die ausgewählten PDFs zur Prüfung dieser Anfragen einsehen. Es wird nichts versendet.",
     "D’Virbereedung erlaabt de Persoune mat Geneemegungsrecht an dësem Atelier, déi ausgewielte PDFen ze liesen, fir dës Ufroen ze préiwen. Et gëtt näischt verschéckt."
+  ],
+  "Association en attente de préparation.": [
+    "Association pending preparation.",
+    "Zuordnung wartet auf Vorbereitung.",
+    "D’Zouuerdnung waart op d’Virbereedung."
+  ],
+  "Ce qui sera préparé": [
+    "What will be prepared",
+    "Was vorbereitet wird",
+    "Wat preparéiert gëtt"
+  ],
+  "Destination {0} · {1} : {2}": [
+    "Destination {0} · {1}: {2}",
+    "Ziel {0} · {1}: {2}",
+    "Destinatioun {0} · {1}: {2}"
+  ],
+  "aucun document choisi": [
+    "no document chosen",
+    "kein Dokument ausgewählt",
+    "keen Dokument gewielt"
+  ],
+  "La préparation fige tout ce lot de génération, y compris les PDF non sélectionnés ici : leurs échecs ne pourront plus y être relancés. Relancez-les d’abord, ou corrigez-les dans une nouvelle génération.": [
+    "Preparing freezes this whole generation batch, including PDFs not selected here: their failures can no longer be retried in it. Retry them first, or correct them in a new generation.",
+    "Die Vorbereitung friert diesen gesamten Generierungslauf ein, auch die hier nicht ausgewählten PDFs: Ihre Fehler können darin nicht mehr wiederholt werden. Wiederholen Sie sie zuerst oder korrigieren Sie sie in einer neuen Generierung.",
+    "D’Virbereedung fréiert dëse ganze Generéierungslaf an, och d’PDFen, déi hei net ausgewielt sinn: hir Feeler kënnen do net méi nei probéiert ginn. Probéiert se fir d’éischt nei, oder korrigéiert se an enger neier Generéierung."
+  ],
+  "Sélectionnez au moins un PDF vérifié dans Studio.": [
+    "Select at least one verified PDF in Studio.",
+    "Wählen Sie mindestens eine geprüfte PDF-Datei im Studio aus.",
+    "Wielt op d'mannst eng iwwerpréift PDF-Datei am Studio aus."
+  ],
+  "Les PDF sélectionnés ne sont plus disponibles. Retournez à la génération et choisissez-les à nouveau.": [
+    "The selected PDFs are no longer available. Return to the generation and choose them again.",
+    "Die ausgewählten PDFs sind nicht mehr verfügbar. Kehren Sie zur Generierung zurück und wählen Sie sie erneut aus.",
+    "Déi ausgewielte PDFe sinn net méi disponibel. Gitt zréck bei d'Generatioun a wielt se nach eng Kéier aus."
+  ],
+  "Quitter cette préparation et perdre les modifications non enregistrées ?": [
+    "Leave this preparation and lose unsaved changes?",
+    "Diese Vorbereitung verlassen und ungespeicherte Änderungen verlieren?",
+    "Dës Virbereedung verloossen an net gespäichert Ännerunge verléieren?"
   ]
 }

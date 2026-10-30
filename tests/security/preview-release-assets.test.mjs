@@ -5,12 +5,66 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
 import site from "../../packages/contracts/src/public-site.json" with { type: "json" };
+import mcpUiProbeManifest from "../../packages/contracts/src/mcp-ui-probe-resource.json" with { type: "json" };
+import mcpDocumentUploadManifest from "../../packages/contracts/src/mcp-document-upload-resource.json" with { type: "json" };
 import { collectAssets, sha256 } from "../../scripts/release-source.mjs";
 
 const root = fileURLToPath(new URL("../../", import.meta.url));
 
+async function assertCanonicalPublicAssets(output, release) {
+  const paths = new Set(release.assets.map(({ path }) => path));
+  for (const appManifest of [mcpUiProbeManifest, mcpDocumentUploadManifest]) {
+    const resource = await readFile(join(output, appManifest.path));
+    assert.deepEqual(
+      release.assets.find(({ path }) => path === appManifest.path),
+      {
+        path: appManifest.path,
+        bytes: appManifest.bytes,
+        sha256: appManifest.sha256,
+      },
+    );
+    assert.equal(resource.length, appManifest.bytes);
+    assert.equal(sha256(resource), appManifest.sha256);
+  }
+  for (const [alias, canonical] of Object.entries(site.assetAliases)) {
+    assert.ok(
+      !paths.has(alias),
+      `Manifest advertises redirected asset ${alias}`,
+    );
+    await assert.rejects(access(join(output, alias)), { code: "ENOENT" });
+    const source = await readFile(join(root, "apps/web/public", canonical));
+    assert.deepEqual(await readFile(join(output, canonical)), source);
+    assert.deepEqual(
+      release.assets.find(({ path }) => path === canonical),
+      { path: canonical, bytes: source.length, sha256: sha256(source) },
+    );
+  }
+  for (const prefix of [
+    "",
+    ...site.locales.map((locale) => `${site.localizedPrefix}/${locale}`),
+  ]) {
+    for (const [alias, canonical] of Object.entries(site.aliases)) {
+      for (const path of [
+        `${prefix}${alias.slice(0, -1)}`,
+        `${prefix}${alias.slice(0, -1)}.html`,
+        `${prefix}${alias}index.html`,
+      ]) {
+        assert.ok(
+          !paths.has(path),
+          `Manifest advertises redirected page ${path}`,
+        );
+        await assert.rejects(access(join(output, path)), { code: "ENOENT" });
+      }
+      assert.ok(
+        paths.has(`${prefix}${canonical}index.html`),
+        `Manifest is missing canonical page ${prefix}${canonical}`,
+      );
+    }
+  }
+}
+
 test(
-  "real preview manifest advertises only accessible assets and live retains its challenge",
+  "real preview and live manifests contain canonical public assets and retain their access boundaries",
   { timeout: 120000 },
   async () => {
     // Build the actual products; no deployment, remote API or communication occurs.
@@ -46,6 +100,19 @@ test(
     const liveRelease = JSON.parse(
       await readFile(join(live, "release.json"), "utf8"),
     );
+    await assertCanonicalPublicAssets(preview, release);
+    await assertCanonicalPublicAssets(live, liveRelease);
+    const archivePath = "integrations/guteneo-plugin.zip";
+    const archive = await readFile(join(live, archivePath));
+    assert.deepEqual(await readFile(join(preview, archivePath)), archive);
+    for (const output of [live, preview]) {
+      const manifest = JSON.parse(
+        await readFile(join(output, "integrations/manifest.json"), "utf8"),
+      );
+      assert.equal(manifest.bytes, archive.length);
+      assert.equal(manifest.sha256, sha256(archive));
+    }
+    assert.ok(assets.some(({ path }) => path === `/${archivePath}`));
     assert.deepEqual(
       liveRelease.assets.find(({ path }) => path === challengePath),
       {

@@ -1,13 +1,186 @@
 # Architecture
 
-24 October 2026: [automatic MCP registration](MCP_REGISTRATION.md) is a native
-Auth0 control-plane candidate. The Worker remains the same resource server,
-using the canonical issuer and its existing token/membership/connection checks.
-The controller prepares strict DCR, a domain-level account connection, a bounded
-user-only default scope grant and opt-in third-party refresh in the two exact
-identity Actions. It adds no OAuth proxy, token store, Worker endpoint, migration,
-secret or recurring work. Provider activation and each real client remain
-separate gates; open registration is a material provider access change.
+## Strict registration tooling — 30 October 2026 candidate
+
+The operator-only strict MCP registration candidate is documented in [MCP_REGISTRATION.md](MCP_REGISTRATION.md). It changes no Worker, token-validation, tenant, consent or sending contract. Provider activation remains separate and disabled by this source update.
+
+## Selected-original MCP App — 26 October 2026
+
+The App-only transport, published in 1.1.6, adds private R2 staging and tenant-scoped D1 part receipts
+through migration 0063. The official App bridge carries verified fixed parts;
+one finalization claim assembles and validates the immutable full original before
+the same quota, private document-registration, scanner and validation pipeline as
+binary/inline upload. PDF bytes never enter SQL. D1 receipts, R2 writes, quota,
+registration and completion remain separate operations with explicit uncertainty
+recovery; they are not a distributed transaction. Current authority and expiry
+fences apply across waits and final registration. See the
+[authoritative transport contract](PRIVATE_DOCUMENT_UPLOAD.md#selected-local-originals-through-mcp-apps--disabled-candidate).
+
+The default-off resource/tool gate supports an exact current connection/revision
+qualification window or a separately explicit general production rollout after
+review and actual qualification. Both retain current writer/OAuth authority; the
+candidate activates neither mode by itself. It adds no direct browser networking, Origin exception, public
+file source, OAuth scope, provider or infrastructure. Cleanup runs in the existing
+minute scheduler before identity/provider availability gates so those outages do
+not indefinitely retain abandoned staging. Cancellation/expiry fences writers
+before deletion of only owned staging; registered/deduplicated originals retain
+their existing policy. Exact host payload/privacy behavior and concurrent
+resource headroom require independent qualification.
+
+One active App session is scoped to the user within the current workspace. A
+separate database-wide finalizer lease bounds App assembly; minute cron reclaims
+expired capacity after fencing the original writer, without replaying its
+pipeline or deleting an original. That lease does not bound concurrent ordinary
+imports or prove total isolate memory. Recoverable part uncertainty and terminal
+pipeline uncertainty have distinct App behavior, with
+[same-original recovery](PRIVATE_DOCUMENT_UPLOAD.md#staging-limits-and-unknown-outcomes)
+and no automatic retry or transport switch.
+
+## Document email entry — 26 October 2026 candidate
+
+Individual web and MCP document email now enters the existing account-based
+secure distribution service by default. The recipient opens **My documents**
+with the matching verified account; no separate document password is generated.
+See [email authoring and compatibility](PROTECTED_EMAIL.md) and the current
+[recipient/approval journeys and authority matrix](SECURE_DISTRIBUTION_JOURNEYS.md).
+This source update does not rewrite historical invitations or prove deployment.
+
+## MCP issuer migration — 25 October 2026 candidate
+
+The explicit trusted MCP alias and independently selected discovery domain are
+defined in [the Auth0 domain contract](AUTH0_CUSTOM_DOMAIN.md#independent-mcp-trust-and-discovery).
+Both token families use the server-owned canonical signing-key source and retain
+the exact verified token issuer in the authentication snapshot. Identity,
+membership, connection, revocation and mandate queries keep canonical keys.
+Postal/expert fences compare the signed issuer with that verified snapshot;
+no scope, personal authority or approval is inferred from an alias. Discovery
+rollback retains configured token trust. Browser/native issuer-bound PKCE
+transactions and provider configuration remain independent. Source and synthetic
+JWT tests do not establish actual host consent, refresh or deployed activation.
+
+Private original-file import adds an independent upload-only capability after
+current OAuth writer authorization. Migration 0061 stores the hashed capability
+and bounded identity/connection/expiry snapshot, never a replayable OAuth token.
+The binary route validates the exact original then enters the existing private
+document/scanner pipeline; status remains OAuth protected. It grants no read,
+approval, purchase or sending authority. [Private upload](PRIVATE_DOCUMENT_UPLOAD.md)
+owns its limits, same-ID recovery and actual-host/iPhone qualification boundary.
+
+The bounded `import_inline_pdf` candidate admits one original up to 64 KiB through
+MCP when runtime HTTP egress is unavailable. It strictly validates canonical
+base64, actual size and SHA-256 before side effects, then internally reuses 0061
+reservation/receipt processing under the current OAuth identity without a fetch.
+The same conditional claim, SQL time/authority fences, quota, private document
+registration and scanner/quarantine pipeline apply. No new migration, scope or
+send authority is added; MCP input remains bounded to 2 MiB. The host must relay
+the original encoding intact; context/truncation and real-client qualification
+are explicit boundaries rather than an implied10MiB inline capability.
+
+## Frontend presentation and bootstrap — 25 October 2026 candidate
+
+`public-site.json` owns canonical public paths; the public renderer and
+`build-public-pages.mjs` derive complete generic/four-language HTML, metadata,
+localized assets and sitemap from that registry. The four detail routes reuse
+existing pricing, fictional example/film, setup and PDF-offer contracts. Their
+metadata is shared by static generation and client navigation. Small public page
+components join the initial application graph; ordinary registered same-origin
+links change browser history without reloading HTML or route code. Complete
+static HTML remains useful before entry JavaScript is ready. `public-footer.json` owns shared four-language
+navigation. React, status and eligible public error adapters consume the same
+source; status includes it in its source fingerprint and manifests the generated
+footer bytes. [HOMEPAGE_REDESIGN.md](HOMEPAGE_REDESIGN.md) owns this public contract.
+
+`PublicHomeClosing` precedes the homepage's common footer: its existing localized
+invitation, installation link and large stamp appear above the home-only panorama.
+The same `PublicFooter` follows every main-site public route, including home,
+with its compact stamp, two decorative original swallows, sixteen links and
+colophon. The home-only large closing stamp and three panorama birds remain
+above that common footer. `theme-media.ts` supplies native picture media selection for Brand,
+panorama and the shared `editorial/article-picture.tsx`; system follows CSS media
+before scripts, while explicit themes select only the matching asset. Separate
+RGBA dark derivatives preserve original light sources and expose the actual page
+background without CSS filters or added paper framing. Asset provenance does not
+replace source/manifest/served verification.
+Header/app stamps preserve white paper inside each asset's actual inner blue
+frame, with transparent exterior/perforations and no outer contour or wordmark
+cartouche. Engineering's existing `StampPaper` remains unchanged; its geometry
+is not a universal inset rule for the different main/status/API portrait asset.
+
+The shared appearance enum resolves system/light/dark independently of account
+language. Main-origin bootstrap uses the validated local
+preference and bounded nonsecret host-only cookie. Standalone server HTML accepts
+only the enum, adds no session/database lookup and retains script-free system
+fallback, CSP, cache and route authority. Separate origins retain separate state.
+The palette themes controls around a PDF/template; it never rewrites or filters
+original document content. [THEMES.md](THEMES.md) owns surface-specific behavior
+and final qualification; a theme cookie confers no authentication or approval.
+
+Personal routes mount the small personal shell without workshop-session gating.
+They still require the authenticated personal session before document reads.
+Entering personal navigation clears cached workshop state and invalidates its
+pending bootstrap; aborted or late results cannot reapply an old identity,
+language or redirect. Returning to a workshop rereads current authority. Personal
+content remounts on observed user change, and list retry remains separate from
+session renewal. Unused workshop editors/viewers remain lazy. See
+[FRONTEND_PERFORMANCE.md](FRONTEND_PERFORMANCE.md); its local controlled timings
+are not hosted latency or server CPU proof.
+
+Workshop entry starts the requested static route module alongside session
+verification, while private data and useful content remain authority-gated.
+Accepted route transitions retain the current screen until code is ready, with
+existing unsaved-work vetoes and identity/resource fences. No speculative
+private-data read or business action is added.
+
+The independent status UI reads availability/history and removes internal report
+presentation. Worker collection, stored observations, sanitized browser-report
+read/ingestion and source-bound qualification remain unchanged. Its neutral
+unknown state and partial history never activate a business capability. These
+presentation changes add no binding, business migration, tenant relation, paid
+service or provider call. Current member, personal-document, immutable approval,
+exact-byte, acceptance/outbox and unknown-provider-outcome invariants remain intact.
+
+25 October 2026 branch candidate: PDF verification becomes an individual purchase
+for an exact original and selected profile. New subscriptions and recurring renewals
+are retired; immutable historical consent, charges and reports remain preserved.
+Only a current browser administrator can accept the explicit purchase. Failed
+engine execution does not create a settled charge; a complete conformance report
+can be billable whether its rules pass or fail. Billing administration retains
+current browser-administrator authority without a monthly entitlement. Current
+price and terms: [unit-pricing contract](PDF_VERIFICATION_PRICING.md),
+[PDF verification](PDF_ACCESSIBILITY.md). Source, CI, private-engine qualification,
+authenticated financial proof and deployed activation remain distinct.
+
+24 October 2026: migrations 0055–0059 separate personal authority from workshop
+membership, bind immutable secure distributions and paid terms, enforce human
+browser approval under the current document policy at SQL acceptance, and retain
+restartable private copy jobs. `SENSITIVE_DOCUMENT_AUTHENTICATION` defaults to
+`strong`; the requested live profile explicitly selects `verified_account`.
+Unknown values fail closed. The selected profile requires a verified account
+and email, an identity-linked Auth0 session and signed primary `auth_time`.
+The 27 October 2026 candidate reuses the current valid session for
+`verified_account`; the explicit `strong` policy retains its shorter freshness
+windows. The [current account-policy contract](SECURE_DISTRIBUTION_JOURNEYS.md#authority-and-entry-conditions)
+owns those requirements. This does not create MFA evidence.
+Migration 0059 records `secure_approval_evidence.authentication_mode`
+and creates the singleton `secure_document_authentication_policy(id=1, mode)`,
+defaulting to `strong`. The operator sets its mode explicitly; the Worker never
+writes this policy. Environment/D1 disagreement denies access. SQL acceptance
+rechecks the current D1 policy and identity, including historical receipts;
+an ordinary approval cannot satisfy a policy changed back to `strong`.
+The `guteneo-sensitive-v1` family alone no longer denotes strong assurance.
+Private page images/text and autonomous personal objects use distinct envelope
+contexts and versioned wrapping keys. Final content authorization writes its
+audit event after R2 waits and rechecks current sessions/grants. OAuth
+distribution writes use current credential fences; no atelier token opens the
+personal vault. Queue and bounded maintenance recover pending jobs without
+retrying an unknown external communication. Read
+[the secure distribution contract](SECURE_DISTRIBUTION_IMPLEMENTATION.md)
+before changing these invariants. Runtime key ownership, provider configuration
+and the hosted account journey remain separately qualified deployment gates.
+The session's `documentAccessMode` and `documentAccessAllowed` describe current
+policy eligibility for the UI; the server rechecks each action and its applicable
+session requirements. `strongAuthentication` remains factual and may be false while
+the explicitly selected verified-account policy permits access.
 
 23 October 2026: [candidate 1.0.0](V1_RELEASE_CANDIDATE.md) uses the root package
 version for application capabilities, MCP server identity and public release
@@ -56,7 +229,7 @@ and [DASHBOARD_IDENTITY_PROOF.md](DASHBOARD_IDENTITY_PROOF.md) for contracts and
 executed proof. Merge, production migration/configuration and deployment remain
 separate evidence.
 
-2 October Horizon branch candidate: migrations 0050–0051 add immutable recurring
+Historical 2 October PDF verification subscription candidate, now retired: migrations 0050–0051 add immutable recurring
 browser consent, atomic credit debits and tenant-scoped diagnostics. A private
 veraPDF 1.30.2 service is reached through `PDF_VALIDATOR`. Exact bytes, paid
 access and current browser/OAuth credential SQL fences guard writes. Diagnostics
@@ -116,7 +289,7 @@ before server publication. Display choices do not change document bytes, recipie
 input, approval fingerprints or provider options. No production publication or
 App Store qualification is claimed. See [MULTILINGUAL.md](MULTILINGUAL.md).
 
-Candidat du 21 septembre 2026 : envoi Resend sans document, avec PDF, ou par lien protégé à 1 € par document hébergé. Même contrat REST/MCP, mot de passe navigateur uniquement, acceptation atomique et facturation unique. Voir [PROTECTED_EMAIL.md](PROTECTED_EMAIL.md) pour le contrat courant et [RESEND_PROOF.md](RESEND_PROOF.md) pour la preuve de publication. Les sections datées antérieures restent historiques.
+21 September 2026 candidate: Resend delivery without a document, with a PDF, or through a protected link at EUR1 per hosted document. The REST/MCP contract is shared; passwords are browser-only, acceptance is atomic and billing occurs once. See [PROTECTED_EMAIL.md](PROTECTED_EMAIL.md) for the current contract and [RESEND_PROOF.md](RESEND_PROOF.md) for publication evidence. Earlier dated sections remain historical.
 
 ## Native companion candidate — 22 September 2026
 
@@ -248,3 +421,15 @@ retain their existing organization visibility. Dispatch/campaign/postal reads
 also enforce that private document authority. Generation is separate from
 approval, sending quota and provider attempts. Optional configured OpenAI calls
 produce reviewable proposals only. See [the implementation report](TEMPLATES_DATA_DISTRIBUTION.md).
+
+## Secure sending session and final action — 27 October 2026 candidate
+
+The current [secure journey contract](SECURE_DISTRIBUTION_JOURNEYS.md) reuses a
+valid verified account session and combines browser review approval/activation
+in one explicit priced action. The strong policy retains its separate freshness
+requirements. Migration 0065 aligns the persisted approval view/immutable guards
+with the server policy; it changes no historical receipt, session expiry or
+assistant authority. The live bridge validates the remaining transport reservation
+after committed hosting. Unknown outcomes still require same-ID reconciliation.
+Local source and signed synthetic tests do not establish migration publication,
+actual Auth0 SSO, recipient login or Resend delivery.

@@ -45,7 +45,11 @@
     "Mat enger eideler Säit ufänken"
   ],
   "Nom du modèle": ["Template name", "Vorlagenname", "Numm vun der Virlag"],
-  "Ouvrir le studio": ["Open the studio", "Studio öffnen", "Studio opmaachen"],
+  "Créer le modèle": [
+    "Create the template",
+    "Vorlage erstellen",
+    "Virlag erstellen"
+  ],
   "Une base pour commencer": [
     "A starting point",
     "Ein Ausgangspunkt",
@@ -130,10 +134,10 @@
     "Keine veröffentlichte Version",
     "Keng verëffentlecht Versioun"
   ],
-  "Studio documentaire": [
-    "Document studio",
-    "Dokumentenstudio",
-    "Dokumentestudio"
+  "Sections du modèle": [
+    "Template sections",
+    "Vorlagenbereiche",
+    "Beräicher vun der Virlag"
   ],
   "Modèle": ["Template", "Vorlage", "Virlag"],
   "Données et génération": [
@@ -373,5 +377,80 @@
     "Zeile {0} aus {1} entfernen",
     "Rei {0} aus {1} läschen"
   ],
-  "Annuler la modification": ["Undo", "Rückgängig", "Réckgängeg maachen"]
+  "Annuler la modification": ["Undo", "Rückgängig", "Réckgängeg maachen"],
+  "Les paragraphes et les tableaux sont importés sous forme de blocs éditables. Les styles Word, sauts de page, images, en-têtes, pieds de page, notes et champs automatiques ne sont pas reproduits. Vérifiez le PDF final avant publication.": [
+    "Paragraphs/tables imported as editable blocks. Word styles, page breaks, images, headers, footers, notes and automatic fields are not reproduced. Check the final PDF before publication.",
+    "Absätze und Tabellen werden als bearbeitbare Blöcke importiert. Word-Formatvorlagen, Seitenumbrüche, Bilder, Kopf- und Fußzeilen, Notizen und automatische Felder werden nicht übernommen. Prüfen Sie das endgültige PDF vor der Veröffentlichung.",
+    "Abschnitter an Tabelle ginn als editéierbar Bléck importéiert. Word-Stiler, Säitenëmbroch, Biller, Kapp- a Fousszeilen, Notizen an automatesch Felder ginn net iwwerholl. Kontrolléiert de fäerdege PDF virun der Verëffentlechung."
+  ],
+  "Les images Word ne sont pas importées ; ajoutez un logo PNG/JPEG dans le studio.": [
+    "Word images were not imported; add a PNG/JPEG logo in the studio.",
+    "Word-Bilder wurden nicht importiert; fügen Sie im Studio ein PNG/JPEG-Logo hinzu.",
+    "Word-Biller goufen net importéiert; füügt am Studio e PNG/JPEG-Logo derbäi."
+  ],
+  "Un tableau comporte une première ligne longue ; des noms de colonnes neutres ont été ajoutés et toutes les lignes ont été conservées.": [
+    "A table has a long first row; neutral column names were added and all rows retained.",
+    "Eine Tabelle hat eine lange erste Zeile; neutrale Spaltennamen wurden hinzugefügt und alle Zeilen beibehalten.",
+    "Eng Tabell huet eng laang éischt Zeil; neutral Kolonnennimm goufen derbäigesat an all Zeile goufe bäibehalen."
+  ],
+  "Ajouter une image": [
+    "Add an image",
+    "Bild hinzufügen",
+    "E Bild derbäisetzen"
+  ],
+  "Ajout de l’image…": [
+    "Adding image…",
+    "Bild wird hinzugefügt…",
+    "Bild gëtt derbäigesat…"
+  ],
+  "Choisir une image pour le modèle": [
+    "Choose an image for the template",
+    "Bild für die Vorlage auswählen",
+    "E Bild fir d’Virlag wielen"
+  ],
+  "Logo, photo ou illustration. PNG ou JPEG, jusqu’à 250 Ko et 4 mégapixels. L’image est intégrée à ce modèle.": [
+    "Logo, photo or illustration. PNG or JPEG, up to 250 KB and 4 megapixels. The image is embedded in this template.",
+    "Logo, Foto oder Illustration. PNG oder JPEG, bis 250 KB und 4 Megapixel. Das Bild wird in diese Vorlage eingebettet.",
+    "Logo, Foto oder Illustratioun. PNG oder JPEG, bis 250 KB a 4 Megapixel. D’Bild gëtt an dës Virlag integréiert."
+  ],
+  "{0} ajouté à la page {1}. Déplacez ou redimensionnez l’image directement dans l’éditeur, puis enregistrez le brouillon.": [
+    "{0} added to page {1}. Move or resize it directly in the editor, then save your draft.",
+    "{0} wurde auf Seite {1} hinzugefügt. Verschieben oder skalieren Sie das Bild direkt im Editor und speichern Sie dann den Entwurf.",
+    "{0} gouf op Säit {1} derbäigesat. Verréckelt oder skaléiert d’Bild direkt am Editor a späichert dann de Brouillon."
+  ],
+  "L’image dépasse 250 Ko.": [
+    "The image exceeds 250 KB.",
+    "Das Bild ist größer als 250 KB.",
+    "D’Bild ass méi grouss wéi 250 KB."
+  ],
+  "L’image n’a pas pu être ajoutée.": [
+    "The image could not be added.",
+    "Das Bild konnte nicht hinzugefügt werden.",
+    "D’Bild konnt net derbäigesat ginn."
+  ],
+  "Choisissez une image PNG ou JPEG valide.": [
+    "Choose a valid PNG or JPEG image.",
+    "Wählen Sie ein gültiges PNG- oder JPEG-Bild.",
+    "Wielt e gültegt PNG- oder JPEG-Bild."
+  ],
+  "L’image doit rester sous 4 millions de pixels et 4 000 pixels par côté.": [
+    "The image must remain below 4 million pixels and 4,000 pixels per side.",
+    "Das Bild muss unter 4 Millionen Pixeln und 4.000 Pixeln pro Seite bleiben.",
+    "D’Bild muss ënner 4 Millioune Pixelen a 4.000 Pixele pro Säit bleiwen."
+  ],
+  "La page sélectionnée n’existe plus. Choisissez à nouveau votre image.": [
+    "The selected page no longer exists. Choose your image again.",
+    "Die ausgewählte Seite existiert nicht mehr. Wählen Sie Ihr Bild erneut aus.",
+    "Déi gewielte Säit gëtt et net méi. Wielt Äert Bild nach eng Kéier."
+  ],
+  "Le modèle dépasse 100 blocs.": [
+    "The template exceeds 100 blocks.",
+    "Die Vorlage überschreitet 100 Blöcke.",
+    "D’Virlag iwwerschreit 100 Bléck."
+  ],
+  "Application des modifications de l’éditeur…": [
+    "Applying the editor changes…",
+    "Änderungen des Editors werden übernommen…",
+    "D’Ännerunge vum Editor ginn iwwerholl…"
+  ]
 }

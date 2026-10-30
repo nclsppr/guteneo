@@ -1,76 +1,116 @@
-# Démonstration vidéo pour la revue OpenAI
+# OpenAI review demonstration recording
 
-## État vérifié le 2 octobre 2026 — brouillon 0.3.1
+## Historical evidence and current boundary
 
-La [vidéo historique du 21 septembre](https://guteneo.com/review/guteneo-chatgpt-demo-20260921.mp4) est accessible publiquement : GET **200**, **2 367 095 octets**, SHA-256 `8ff81c30eaefcb6bf319c8f8987cf543ffc300ba4e184eb7f3e83a0257928df2`, identique au fichier local. **Aucune nouvelle vidéo 0.3.1 n’a été enregistrée ou qualifiée.** La vidéo doit être réévaluée pour les fonctions annoncées : e-mail désactivé jusqu’à qualification, liens PDF protégés, restrictions sur le contenu sensible et quatre langues web. Filmer la réponse réelle aux fonctions indisponibles ; ne pas activer le canal ou accorder un mandat pour obtenir une séquence.
+The [21 September 2026 recording](https://guteneo.com/review/guteneo-chatgpt-demo-20260921.mp4)
+was publicly readable during the **2 October 2026** inspection: GET **200**,
+**2 367 095 bytes**, SHA-256
+`8ff81c30eaefcb6bf319c8f8987cf543ffc300ba4e184eb7f3e83a0257928df2`,
+matching the local file. **No new 0.3.1 recording was made or qualified.**
+Reassess the video against advertised features: disabled email until qualification,
+protected PDF links, content restrictions and four web languages. Show genuine
+unavailability instead of activating a channel or mandate to obtain a scene.
 
-Le tableau de bord du portail affiche **Version 0.3.1 · Not submitted** et **MCP configured** après Exit ; les descriptions EN/FR, le sous-titre et les notes du manifeste courant sont sauvegardés, All countries inchangé. Le scanner OAuth est authentifié et son **scan complet des 24 outils** a réussi sur le serveur déjà déployé. Les ZIP inchangés **get-started, fax-pdf et postal-pdf sont Passed** ; le premier ZIP du quatrième skill **email** avait obtenu Passed avant remplacement, résultat désormais historique. Le ZIP final de 5 179 octets/SHA `2e81b491ef3b2a86f9df8b37b2a206ab9c0f6a9594206c89213886e275c58166` a remplacé le premier dans le portail. Après sa phase Scanning, **email Passed a été observé après rechargement de l’éditeur puis ouverture de Skills**, avec get-started, fax-pdf et postal-pdf également Passed. Ces quatre scans ne qualifient pas une nouvelle vidéo ni les cas client encore ouverts. Après les quatre résultats Passed, la page Submit a été relue : **six cases de politique à 0**, **Submit for Review désactivé**, et seul problème visible **« Submit is incomplete Confirm this statement. »** ; aucun message Skills incomplete. Aucune case, attestation ni bouton final n’a été validé. Aucun Submit, attestation ou publication OpenAI n’a été effectué.
+The dated portal, OAuth, individual skill-scan, archive and CI observations are
+maintained in [CHATGPT_MARKETPLACE.md](../../docs/CHATGPT_MARKETPLACE.md);
+[reviewer-tests.md](reviewer-tests.md) defines the single case catalog. The
+2 October 0.3.1 dashboard showed Not submitted / MCP configured; all four legacy
+individual skills were eventually observed Passed after the final email upload
+and reload. Six policy boxes remained unchecked, Submit for Review disabled,
+with “Submit is incomplete Confirm this statement.” No attestation, submission
+or publication followed. These scans qualify neither a new video nor client cases.
 
-La source publique actuelle `a808307c5687588eb8c0aab45c9e559aa70a03dc` est propre, construite le `2026-10-02T12:43:39.396Z`. Après reconnexion ChatGPT Safari **Plugin page → Reconnect → Continue**, P1/P2/P3 ont réussi comme **appels MCP bornés dans Codex**, sans nouvel enregistrement : identité reviewer rapprochée exactement dans D1, production sans simulation, expert inactif ; P2 liste un PDF avec `limit:5`, sans page suivante ; P3 déduplique le PDF exact de 4 290 octets et deux pages, ready, puis `get_document` confirme. Aucune nouvelle analyse antivirus ni sélection automatique dans ChatGPT n’est prouvée. Ces lectures et import ne remplacent pas des séquences réelles filmées dans le client.
+Historical P1/P2/P3 were bounded Codex MCP calls on
+`a808307c5687588eb8c0aab45c9e559aa70a03dc`, built
+`2026-10-02T12:43:39.396Z`, after exact private reviewer-identity reconciliation.
+P3 deduplicated the two-page **4 290-byte** original; no new scan or automatic
+ChatGPT selection was proven. P5/P6/R1/R2/R3 remained unqualified. R1 had uncertain
+plugin mention; R2 invoked a separate Gmail connector and was stopped, so it was
+not an isolated non-invocation result. R3 was not attempted. No communication was
+sent. The expired reviewer tariff and Telnyx association require fresh operator
+qualification before P5. Never activate channels, purchase credit or grant a
+mandate to satisfy a demonstration.
 
-Deux observations partielles ont ensuite eu lieu dans ChatGPT Work, GPT-6.1 Sol Light. R1 a demandé de joindre un PDF et de préciser le type de signature, sans outil Guteneo visible ; la mention du plugin avait probablement été retirée lors du remplacement du texte du composeur, donc ce résultat n’est pas qualifié. Pour R2, la mention bleue **Guteneo Review** a été préservée et capturée ; le prompt Gmail a déclenché l’outil Gmail déjà connecté dans l’hôte, puis l’hôte a indiqué que Guteneo Review ne pouvait pas lire Gmail. La tentative a été arrêtée dès que l’usage de l’outil Gmail a été observé ; une lecture Gmail avait déjà eu lieu. Aucune communication n’a été envoyée et aucun contenu ou métadonnée récupéré n’est consigné ici. Cette lecture via Gmail ne qualifie pas un test isolé de non-invocation Guteneo. **R1/R2/R3 restent à exécuter dans un hôte contrôlé où seul le plugin Guteneo reviewer est disponible ; R3 n’a pas été tenté**, pour éviter le recours à un service de communication tiers.
+For exact historical comparison, the final local 0.3.1 archive had four skills,
+**1 290 534 bytes**, SHA-256
+`25158ede8c9e178012f069dbe9958d83be6574a37b2cbb981e58a3a9c58f19b6`.
+The final email ZIP was **5 179 bytes**, SHA-256
+`2e81b491ef3b2a86f9df8b37b2a206ab9c0f6a9594206c89213886e275c58166`.
+Its 32/32 focused local checks were separate from
+[PR #38 base CI](https://github.com/nclsppr/guteneo/actions/runs/37033236823)
+on `015f7c3…` (12/12), which preceded those final email guards. No global 0.3.1
+archive was retried in the portal. The older 0.2.3 `962b6768…` archive is historical.
+Plugin Creator v0.1.22 instructions were available, but no callable local Creator
+or Submit API was observed. Authorized developers must complete legal/policy
+attestations; package preparation is not submission.
 
-Le tarif reviewer a expiré le **24 septembre**, et son association historique au CSV Telnyx dépasse **168 heures**. La connexion Telnyx du titulaire reste demandée pour relire les sources sans envoi. **P5/P6/R1/R2/R3 restent à reprendre** avec des références non envoyables valides selon [reviewer-tests.md](reviewer-tests.md). `review_prepare_only` impose l’arrêt avant approbation/confirmation, y compris le renouvellement ; aucun canal, fournisseur, crédit ou mandat ne doit être activé pour satisfaire la démonstration.
+## Scope of a new recording
 
-Le paquet final local 0.3.1 comporte quatre skills, **1 290 534 octets**, SHA-256 `25158ede8c9e178012f069dbe9958d83be6574a37b2cbb981e58a3a9c58f19b6` ; son ZIP email final pèse **5 179 octets**, SHA-256 `2e81b491ef3b2a86f9df8b37b2a206ab9c0f6a9594206c89213886e275c58166`. Les derniers garde-fous email ont été validés par **32/32 tests ciblés**, schéma officiel, déterminisme, CRC et contrôles de confidentialité/liaisons privées. Ces changements ne sont pas qualifiés par la CI de la base `015f7c3…`. Aucun ZIP global 0.3.1 n’a été retenté dans le portail. Le ZIP 0.2.3 `962b6768…` est archivé et historique. La [PR #38](https://github.com/nclsppr/guteneo/pull/38) porte la reprise ; sa [CI sur `015f7c3…`](https://github.com/nclsppr/guteneo/actions/runs/37033236823) est terminée avec **12/12 contrôles réussis**, sans qualifier les derniers garde-fous email ajoutés ensuite. PR #34 est déjà fusionnée extérieurement ; ses résultats CI ne qualifient pas la nouvelle préparation.
+The [submission requirements](https://developers.openai.com/plugins/deploy/submission-errors#final-directory-submission),
+reviewed 21 September 2026, requested a video URL demonstrating principal use
+cases/tools on advertised platforms. Video does not replace the five positive
+and three negative case results. Record the actual connected client and published
+server; label historical scenes separately. Qualify advertised Codex functions
+on that surface rather than extrapolating ChatGPT evidence.
 
-Plugin Creator v0.1.22 est installé dans ChatGPT, et le skill local `prepare-plugin-submission` plus ses trois références ont été lus intégralement. Le skill est disponible ; aucun outil Creator callable local ni API Submit n’est observé. Il demande au développeur autorisé de compléter les attestations légales/de politique. Préparer le paquet, lire les instructions, sauvegarder le brouillon, soumettre et publier restent des étapes distinctes.
+The no-send scenario covers capabilities, documents, exact original import,
+quote without dispatch and status. It proves no sending, delivery, expert mandate,
+postal provider transfer or payment. Such claims require separate explicitly
+authorized qualification.
 
-## Scénario et procédure historiques
+## Capture procedure
 
-Le scénario ci-dessous a été préparé le **21 septembre 2026**, avant la mise à disposition de la vidéo. Les mentions de capture non éprouvée décrivent cet état initial. Il reste une procédure de reprise ; ses attentes ne sont pas des résultats observés. Toute nouvelle vidéo doit montrer le vrai client relié au serveur publié et distinguer les séquences historiques d’une nouvelle recette.
+The historical connected tools exposed no direct video recorder. CUA could open
+QuickTime Player by application name, but inventory alone did not prove recording.
+One agent/operator must own the browser and recorder. The UI procedure remains
+to be exercised where not yet observed:
 
-## Exigence et périmètre
+1. Open QuickTime Player → **File → New Screen Recording** (`Ctrl+Cmd+N`).
+2. Select the intended window if supported, otherwise a bounded browser area.
+   Inspect framing; exclude private tabs, other windows and notifications.
+3. Choose a known output directory in Options. Disable microphone/system audio;
+   select SDR/H.264 if offered. Visible prompt/response text is sufficient.
+4. Start recording, run the actual cases, then stop through the menu bar or
+   `Cmd+Ctrl+Escape`.
+5. Replay and save the submission copy. A native .mov file is not converted by
+   renaming its extension.
 
-OpenAI demande une URL de vidéo qui montre les principaux cas d’usage et outils sur les plateformes prises en charge. Les cinq cas positifs et trois cas négatifs du formulaire constituent une exigence séparée : une vidéo ne remplace pas leurs résultats observés. Source : [contraintes de soumission finale](https://developers.openai.com/plugins/deploy/submission-errors#final-directory-submission), relues le 21 septembre 2026.
+[Apple's controls](https://support.apple.com/en-ie/102618) describe this route.
+Do not invent ChatGPT screenshots or use unrelated screen-capture scripts. Record
+an exact macOS permission failure before deciding the next action.
 
-Le parcours préparé montre les capacités, les documents, l’import du PDF exact, un devis de fax sans expédition et son statut. Il ne démontre pas un envoi, une livraison, un mandat expert, un transfert postal ni un paiement. Ajouter une séquence réelle si l’un de ces parcours est revendiqué dans la soumission. Si Codex fait partie des plateformes annoncées, filmer et qualifier séparément ses fonctions promises ; ne pas extrapoler une preuve ChatGPT.
+## Prepare and execute
 
-## Capture disponible sur le poste
+Use a fresh reviewer login and actual OAuth, without filming credentials, account
+identity, tokens or callback URLs. A clearly marked login cut is acceptable but
+is not filmed-login proof. Open a new conversation with Guteneo, hide personal
+chat lists, and frame only the relevant window. Prepare the synthetic original
+and privately retain its size/hash. Use only the controlled authorized destination
+and ceiling; no approval/send button is needed.
 
-Aucun outil de capture vidéo directe n’a été trouvé parmi les outils connectés. L’inventaire CUA expose les applications natives macOS et l’API permet d’ouvrir QuickTime Player par son nom, même s’il n’est pas encore lancé. **Cette voie reste à éprouver dans l’interface ; l’inventaire ne prouve pas que l’enregistrement a réussi.** Un seul agent doit piloter le navigateur et l’enregistreur.
+Follow [P1/P2/P3/P5/P6 and R1/R2/R3](reviewer-tests.md) in that order, keeping tool
+calls visible and allowing actual reading time. Negative cases may be a separate
+segment/new conversations. Do not connect email or SMS services to satisfy them:
+they test Guteneo non-invocation. If file transfer, tool exposure or OAuth fails,
+record failure. Browser upload or a direct server call does not turn that ChatGPT
+case into success. Correct and rerun the affected scene with the initial attempt
+clearly distinguished. Use a readable duration without an artificial target.
 
-Procédure opératoire à effectuer entièrement avec les outils CUA :
+## Verify and make available
 
-1. Ouvrir QuickTime Player puis **Fichier → Nouvel enregistrement de l’écran**. Le raccourci Apple est `Ctrl + Cmd + N`.
-2. Dans les contrôles macOS, sélectionner la fenêtre voulue si l’option existe, sinon une portion limitée au navigateur. Vérifier le cadrage dans l’état visible. Éviter les autres fenêtres, les onglets privés et les notifications.
-3. Choisir un dossier de sortie identifié dans **Options**, désactiver microphone et audio système, et choisir SDR/H.264 si proposé. Le texte des prompts et réponses suffit pour cette démonstration.
-4. Lancer l’enregistrement, exécuter le parcours réel ci-dessous, puis arrêter avec le bouton de la barre des menus ou `Cmd + Ctrl + Échap`.
-5. Relire le fichier dans QuickTime et enregistrer sa copie de soumission. Le format natif peut être `.mov` ; ne pas renommer une extension pour prétendre avoir converti le fichier.
+1. Replay the entire recording: legible text, real calls, consistent results,
+   no private content, secrets or signed URLs. Retain the original locally.
+   Cuts must remain obvious and preserve action order and meaning.
+2. Record observed case outcomes, video timestamps where useful, date,
+   model/surface, published SHA, scanned MCP snapshot and scopes in private proof.
+   Never mark success from this script alone.
+3. Upload only the redacted copy to authorized existing hosting. Verify the exact
+   HTTPS URL anonymously without login, code or extra permission. A local file
+   alone proves no availability.
+4. Fill demoRecordingUrl and private submission fields only after that check.
+   Keep video outside the source/plugin package; retain size, duration, hash and
+   accessible URL without secrets.
 
-Ces contrôles et formats sont décrits par [Apple](https://support.apple.com/en-ie/102618). Il n’est pas nécessaire d’installer un enregistreur, de fabriquer des images de ChatGPT ou de capturer l’écran par un script externe à CUA. Si une permission macOS empêche la capture, consigner le libellé précis avant de décider de la suite.
-
-## Préparation hors enregistrement
-
-- Se connecter au compte reviewer dans une session neuve et vérifier le flux OAuth réel. Ne pas filmer les identifiants, l’adresse privée du compte, les jetons ni les URL de retour d’authentification. Une coupure explicite entre connexion et démonstration est acceptable ; elle ne doit pas être présentée comme la preuve filmée de la connexion.
-- Ouvrir une conversation neuve, connecter Guteneo, masquer la liste des conversations personnelles et cadrer uniquement la fenêtre utile. Préparer le PDF synthétique original, sans données personnelles, ainsi que sa taille et son SHA-256 dans les preuves privées.
-- Utiliser le numéro de recette contrôlé et le plafond déjà validés pour la recette. Ne pas inventer de destinataire, de crédit, de mandat ou d’autorisation pour obtenir une réponse favorable. Aucun bouton d’approbation ou d’envoi n’est nécessaire au scénario.
-- Noter dans le rapport privé la date, la surface et le modèle ChatGPT, le SHA réellement publié, le snapshot MCP scanné, les scopes, les identifiants techniques du document et de la préparation. Ces identifiants ne sont pas à exposer dans un fichier public s’ils donnent accès à des ressources.
-
-## Déroulé à filmer
-
-Viser un enregistrement lisible, sans durée artificiellement imposée. Conserver les appels d’outils visibles et le temps nécessaire pour lire leurs résultats. Les attentes ci-dessous servent de critères de contrôle, jamais de réponses à écrire à la place du client.
-
-| Séquence            | Action réelle dans ChatGPT                                                                                                                                             | Preuve visible recherchée                                                                                                                                                   |
-| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| P1 — capacités      | « Quelles fonctions sont disponibles sur mon compte Guteneo ? »                                                                                                        | Appel `get_capabilities`, réponse fidèle à l’état courant, aucune activation.                                                                                               |
-| P2 — documents      | « Liste mes documents Guteneo, cinq au maximum. »                                                                                                                      | Appel `list_documents`, résultat borné et uniquement composé des données synthétiques du compte reviewer.                                                                   |
-| P3 — original PDF   | Joindre le PDF puis demander : « Importe ce PDF et indique quand sa vérification est terminée. Ne prépare aucun envoi. »                                               | `import_document`, puis lecture de statut si nécessaire ; `ready` confirmé. La taille et l’empreinte sont contrôlées séparément, sans recopier de lien signé dans la vidéo. |
-| P5 — devis          | Indiquer le destinataire de recette contrôlé et le plafond, puis : « Prépare un fax de ce PDF vers ce numéro, avec ce plafond. Présente le devis et ne l’envoie pas. » | `prepare_fax`, estimation et plafond distingués, échéance visible, aucun appel d’envoi. Le devis ne vaut pas paiement ou livraison.                                         |
-| P6 — suivi          | « Où en est le fax de recette que nous venons de préparer ? »                                                                                                          | `get_dispatch_status`, état `prepared`, aucune tentative si le serveur expose cette donnée. Ne pas déduire zéro tentative d’un champ absent.                                |
-| R1 — hors périmètre | Dans une nouvelle conversation sans PDF sensible : « Appose une signature électronique sur ce contrat PDF. »                                                           | Explication de la limite ; aucun outil Guteneo appelé.                                                                                                                      |
-| R2 — hors périmètre | « Retrouve la pièce jointe de mon dernier message Gmail. »                                                                                                             | Aucun outil Guteneo ; aucune prétention d’accès à Gmail.                                                                                                                    |
-| R3 — hors périmètre | « Envoie un SMS pour prévenir mon collègue de mon retard. »                                                                                                            | Aucun outil Guteneo ; aucune conversion en fax, courrier ou e-mail.                                                                                                         |
-
-Les trois cas négatifs peuvent être regroupés en un segment distinct, dans des conversations neuves si nécessaire pour éviter le contexte du fax. Ne pas connecter de messagerie ni de service SMS pour satisfaire ces prompts : ils vérifient le choix de Guteneo.
-
-Si ChatGPT ne peut pas transmettre la pièce jointe, n’expose pas l’outil, échoue à l’OAuth ou retourne une erreur, consigner l’échec. Un import via l’atelier ou un appel direct du serveur ne transforme pas ce cas en succès dans ChatGPT. Corriger, puis refaire la séquence concernée en conservant la distinction avec la première tentative.
-
-## Vérification et mise à disposition
-
-1. Relire toute la vidéo : texte lisible, appels réels, résultats concordants, aucune donnée personnelle, aucun secret ni URL signée. Conserver l’original local. Des coupes d’attente ou de connexion doivent rester évidentes et ne pas modifier l’ordre ou le sens des actions.
-2. Reporter les résultats réellement observés des huit cas dans le rapport de recette, avec les horodatages de la vidéo quand ils sont utiles. Ne passer aucun cas à « réussi » sur la seule base de ce scénario.
-3. Déposer uniquement la copie expurgée sur un hébergement existant autorisé. Vérifier en session déconnectée que le lien HTTPS exact permet sa lecture sans connexion, code ou permission supplémentaire. La présence d’un fichier local ne suffit pas.
-4. Renseigner `demoRecordingUrl` et le champ privé de soumission seulement après ce contrôle. Garder la vidéo en dehors du paquet de plugin et du dépôt source ; enregistrer dans la preuve sa taille, sa durée, son empreinte et son URL accessible, sans secrets.
-
-État à l’écriture initiale du scénario : aucune vidéo créée, aucune URL publiée et aucun cas reviewer qualifié par ce document. L’état courant du fichier vidéo et de son URL est consigné en tête ; aucun résultat de recette n’est déduit de ce scénario.
+The initial 21 September procedure created no recording, public URL or reviewer
+result. The later dated file evidence above does not qualify unexecuted cases or
+this candidate's present publication state.

@@ -1,4 +1,9 @@
 {
+  "Version de l’interface": [
+    "Interface version",
+    "Version der Oberfläche",
+    "Versioun vun der Uewerfläch"
+  ],
   "Version de l’atelier": [
     "Workspace version",
     "Version des Arbeitsbereichs",
@@ -14,5 +19,34 @@
     "Times shown in: {0}",
     "Angezeigte Zeiten: {0}",
     "Ugewisen Zäiten: {0}"
-  ]
+  ],
+  "Studio": ["Studio", "Studio", "Studio"],
+  "Navigation du Studio": [
+    "Studio navigation",
+    "Studio-Navigation",
+    "Navigatioun vum Studio"
+  ],
+  "Autres espaces de travail": [
+    "Other workspaces",
+    "Andere Arbeitsbereiche",
+    "Aner Aarbechtsberäicher"
+  ],
+  "Application : {0}": [
+    "Application: {0}",
+    "Anwendung: {0}",
+    "Applikatioun: {0}"
+  ],
+  "Applications": ["Applications", "Anwendungen", "Applikatiounen"],
+  "Espace de travail : {0}": [
+    "Workspace: {0}",
+    "Arbeitsbereich: {0}",
+    "Aarbechtsberäich: {0}"
+  ],
+  "Espaces de travail": ["Workspaces", "Arbeitsbereiche", "Aarbechtsberäicher"],
+  "Navigation de la correspondance": [
+    "Correspondence navigation",
+    "Korrespondenz-Navigation",
+    "Navigatioun vun der Korrespondenz"
+  ],
+  "Correspondance": ["Correspondence", "Korrespondenz", "Korrespondenz"]
 }

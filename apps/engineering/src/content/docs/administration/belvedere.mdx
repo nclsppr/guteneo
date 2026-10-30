@@ -1,0 +1,197 @@
+---
+title: Belvédère platform administration
+description: Read operational activity across workspaces while keeping platform oversight separate from customer administration and sending authority.
+sidebar:
+  label: Belvédère
+  order: 1
+---
+
+Belvédère is guteneo's private, read-only control tower. It brings workspace
+activity, dispatch states, connections, financial sources and infrastructure
+measurements into one operator view. It helps identify what needs attention while
+preserving the application's existing approval, privacy and delivery boundaries.
+
+This public guide documents that capability. Access to the application surface
+still requires its separate privileged browser identity and server configuration.
+Its private entry address and operational configuration are not published here.
+
+## Platform oversight and workspace administration
+
+| Actor | Authority | Boundary |
+| --- | --- | --- |
+| Workspace administrator | Administers their current workspace, members, channels, billing and eligible approvals | Membership grants no platform-wide Belvédère access |
+| Platform Watcher | Reads the dedicated cross-workspace operational projections | This separate access grants no workspace mutation, document-content access or dispatch approval |
+| Connected assistant or native client | Uses its ordinary scoped/current workspace permissions | Neither token scheme opens Belvédère or inherits its cross-workspace view |
+
+Watcher is the control tower's restricted access designation, not a fifth human
+workspace role or an assistant mandate. The current implementation binds it to an
+independently allowed operator identity; it is not a general role that a workspace
+administrator can assign. The `workshops` projections in the implementation refer
+to the same tenant-scoped workspaces described throughout this site.
+
+The [authority and tenancy guide](/architecture/authority-and-tenancy/) owns the
+four workspace roles and their permissions. Belvédère adds an explicit reading
+boundary around selected platform projections; it does not replace those roles.
+
+A denied identity receives private recovery with an explicit fresh login. It can
+therefore change the identity-provider session without opening customer signup
+or provisioning authority, and without automatically repeating the denied SSO.
+
+## The seven views
+
+| View | What it exposes | How to interpret it |
+| --- | --- | --- |
+| Overview | Activity trend, workspaces/members, connection counts, channels, countries and incidents needing review | Activity and current counts have different time bases; an incident is a signal to inspect |
+| Workspaces | Searchable, paginated workspace summaries with member, dispatch, consumption and reservation detail | Quote, ceiling, settled consumption and verified supplier cost remain separate values |
+| Dispatches | Cross-workspace tracking filtered by channel, state, country and workspace | Opening a record or incident never retries its provider operation |
+| Members | Searchable people, current memberships, roles, supervisor options and connection counts | Directory metadata remains private; a membership listing grants no new authority |
+| Connections | Existing browser/native sessions, assistant authorizations and recorded successful connection events | An authorization is not an online socket; an MCP observation is not a new person |
+| Finances | Posted customer consumption, reservations, promotional credits, verified payment records and available supplier costs | These sources cannot be combined into an invented net profit |
+| Infrastructure | Bounded Worker analytics and separately reported Cloudflare billable usage | A configured connector or a returned measurement is not application-delivery proof |
+
+The operational period offers seven, thirty, ninety or custom UTC days, with
+production and simulation kept separate. Server-side filtering bounds custom
+periods and paginates tables; changing pages does not export an unlimited data
+set. Selecting an incident or distribution country preserves relevant filters
+when opening dispatches.
+
+<GutenbergNote pose="review" title="A view from the watchtower">
+  Spotting a stopped press helps the operator investigate. Any response still
+  follows the original job's authority and state; the view itself grants no new
+  approval or permission to restart it.
+</GutenbergNote>
+
+## Access is rechecked for every read
+
+The application requires production environment/mode, a valid private entry
+configuration and the canonical application origin or its exact configured
+dedicated platform host. It then checks a current
+authenticated browser session and its signed login evidence: the expected identity
+issuer, verified allowed identity and any configured subject binding. Development
+sessions and bearer-authorized assistant/native requests are refused.
+
+Changing a mutable profile email, holding workspace administrator rights or
+knowing an address cannot satisfy that independent identity check. Existing
+authentication/MFA policy still applies. Workspace membership remains current;
+Belvédère does not create an alternative login system.
+
+Canonical application entry reuses a valid canonical host-only browser session,
+with minimal server-projected navigation capability and the same guard on every
+read. Switching applications alone does not require another sign-in. The shared
+application/account controls preserve all seven views and load the interactive
+globe only when needed. A navigation hint grants no access; identity expiry or
+revocation removes displayed data and follows normal recovery. Personal-only
+accounts without a current workspace browser session gain no platform authority.
+
+The dedicated platform host keeps the control tower at its root throughout normal
+Auth0 sign-in. Its callback and logout origins are exact allowlist entries; its
+secure browser cookie remains host-only. It exposes only the protected control
+tower reads and bounded session/sign-in assets. Customer APIs, signup, assistant
+tokens and business writes remain refused. The compatible private application
+entry still works without exposing its secret address on the dedicated host.
+
+Every JSON read repeats the guard before querying platform data or calling an
+infrastructure connector. Responses are private, non-cacheable and excluded from
+indexing, with no-referrer handling. The private entry stays outside ordinary
+navigation, integration packages and sitemaps; public design previews refuse the
+route family.
+
+The business surface is read-only. Its own access audit records the actor, action
+code and time, without the private address, query or credentials. “Read-only” does
+not mean that audit records are absent. There are no controls here to change a
+member's role, grant credits, extend an assistant mandate, approve a communication
+or restart a provider submission.
+
+## Read financial sources on their own terms
+
+The Finances view selects production consumption by immutable ledger debit dates,
+including retained charges whose dispatch metadata has since been deleted.
+Protected-link hosting charges are counted once. PDF verification consumption is identified
+separately and never increases the dispatch count. Simulation uses its distinct
+confirmation evidence.
+
+Overview/workspace activity instead selects dispatches created in the chosen
+period and their settled consumption to date. Reservations and balances are
+current snapshots. Supplier costs follow their reconciliation-recording dates;
+the implemented verified fax usage source does not establish every channel's
+complete supplier expense.
+
+Promotional credit grants are not cash receipts. Verified Stripe payment records
+retain their currencies and available provider creation dates, without claiming
+bank settlement dates. Refunds, taxes, fixed charges and supplier invoices need
+their own reconciliation. `netResultMinor` therefore remains unavailable rather
+than subtracting a partial cost from an unrelated revenue measure.
+
+## Keep country observations coarse and explicit
+
+Connection geography comes from Cloudflare's request country metadata, not a
+client-supplied country header, IP display or precise device location. Historical
+sessions without an observation keep their country unknown. Optional telemetry
+failure does not reject otherwise valid authentication; it may be observed on a
+later authenticated request without retrying a business operation.
+
+Destination geography is a different source: normalized postal country or a
+qualified fax-tariff country. No email destination is inferred from its domain.
+The globe switches between connections and distribution, with a country ranking
+and an explicit unknown/unpositioned count. Markers use static representative
+country positions, not a person's coordinates; keyboard controls and readable
+country counts remain available alongside the canvas.
+
+Connection/read-audit history uses the implemented ninety-day retention boundary.
+The displayed history is not a reconstruction of older countries or a log of
+failed identity-provider logins.
+
+## Infrastructure has two independent sources
+
+**Worker analytics** reads one server-selected account/Worker over a rolling
+24-hour or seven-day window. It reports sampled invocation, execution-error and
+subrequest counts, hourly buckets and provider-computed wall-time percentiles.
+Those execution errors do not represent every HTTP error response. Missing hours
+stay missing; hourly percentiles are not averaged into a period percentile.
+
+**Billable usage** uses a separate read credential and the account's current
+billing cycle. Exact decimal costs are added before rounding each displayed
+subtotal to minor units, with no currency conversion. It covers metered usage,
+not subscriptions, taxes, invoice reconciliation or payment. Account-wide costs
+may include other projects and cannot be attributed exclusively to guteneo.
+
+Both adapters have bounded time/body sizes, reject unusable or partial responses,
+disable automatic retries and keep provider bodies/credentials out of the browser.
+They provision nothing, change no remote account settings and persist no connector
+response in a business store. D1/R2 analytics and reconciled invoice-history views
+are separate extensions, not implied by the current Infrastructure tab.
+
+## Unavailability and safe recovery
+
+| State | Meaning | Appropriate response |
+| --- | --- | --- |
+| `not_configured` | Required server configuration is missing or invalid; no connector request is made | Have the authorized operator review private configuration |
+| `forbidden` | The remote source refused the configured read authority | Check the intended account and minimal read permissions without automatically widening them |
+| `no_data` | The source returned no measurements or usage entries for its own window/cycle | Preserve the empty result; do not convert it into proof of zero activity or cost |
+| `unavailable` | A timeout, malformed/partial response or other failure prevented a usable result | Keep values unavailable and explicitly refresh the read after investigating |
+| `ok` | A validated source response is available | Retain its period, source, sampling and coverage qualifications |
+
+Returning to the tab, focusing it or restoring a saved page triggers a fresh read;
+the interface does not maintain a periodic polling loop. Access refusal removes
+displayed operational data and offers an access check. A temporary data error
+offers a read retry. Neither action retries a dispatch, replays a callback or
+resolves `submission_unknown` by itself.
+
+For the shared queues/provider boundary, see the [system architecture](/architecture/system/)
+and [technical diagrams](/architecture/diagrams/). The
+[dispatch lifecycle](/architecture/dispatch-lifecycle/) owns actual recovery
+semantics; a control-tower incident is a starting point for investigation.
+
+## Implementation and qualification
+
+The server entry point is `apps/api/src/belvedere.ts`; projection contracts are in
+`packages/contracts/src/belvedere.ts` and `belvedere-cloudflare.ts`. The React
+surface and request-state handling live in `apps/web/src/belvedere.tsx` and
+`belvedere-data.ts`. Connector and telemetry modules preserve their own source,
+privacy and result-state contracts.
+
+Local fixture rendering, access/SQL tests and synthetic Cloudflare responses
+exercise those boundaries separately. They do not prove current privileged login,
+live account permissions, actual spending or provider delivery. A production
+activation and its authenticated observations need their own authorization and
+dated evidence under the [testing model](/engineering/testing/).

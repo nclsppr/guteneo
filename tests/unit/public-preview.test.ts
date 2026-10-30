@@ -35,6 +35,77 @@ describe("public browser design preview", () => {
     vi.useRealTimers();
   });
 
+  it("formats text-only email locally while keeping the subject and message required", async () => {
+    const preview = createPreviewApi();
+    const dispatch = (await preview.request("/dispatches", {
+      method: "POST",
+      body: {
+        ...email,
+        html: undefined,
+        text: "Bonjour <Camille> & compagnie.\nÀ bientôt.",
+      },
+    })) as Dispatch;
+    expect(dispatch.html).toBe(
+      "<p>Bonjour &lt;Camille&gt; &amp; compagnie.<br>À bientôt.</p>",
+    );
+    expect(dispatch.subject).toBe(email.subject);
+    for (const missing of ["subject", "text"])
+      await expect(
+        preview.request("/dispatches", {
+          method: "POST",
+          body: { ...email, [missing]: undefined },
+        }),
+      ).rejects.toMatchObject({ code: "EMAIL_REQUIRED" });
+  });
+
+  it("defaults document email copy to its fictional workspace and preserves supplied HTML", async () => {
+    const preview = createPreviewApi();
+    await preview.request("/dev/login", {
+      method: "POST",
+      body: { organization: "studio" },
+    });
+    const { items: documents } = (await preview.request(
+      "/documents",
+    )) as Page<DocumentRecord>;
+    const input = {
+      channel: "email",
+      documentId: documents[0].id,
+      recipient: email.recipient,
+      ceilingMinor: 500,
+    };
+    const dispatch = (await preview.request("/dispatches", {
+      method: "POST",
+      body: input,
+    })) as Dispatch;
+    expect(dispatch.subject).toBe("Document envoyé par Paper Studio · Demo");
+    expect(dispatch.text).toContain(
+      "Paper Studio · Demo vous a envoyé un document.",
+    );
+    expect(dispatch.html).toContain('role="presentation"');
+    expect(dispatch.html).toContain(
+      "Paper Studio · Demo vous a envoyé un document.",
+    );
+    const custom = (await preview.request("/dispatches", {
+      method: "POST",
+      body: {
+        ...input,
+        ...email,
+        html: '<p style="color: #2450db">Un message personnalisé.</p>',
+      },
+    })) as Dispatch;
+    expect(custom.html).toBe(
+      '<p style="color: #2450db">Un message personnalisé.</p>',
+    );
+    expect(custom.subject).toBe(email.subject);
+    expect(custom.text).toBe(email.text);
+    await expect(
+      preview.request("/dispatches", {
+        method: "POST",
+        body: { ...input, html: email.html },
+      }),
+    ).rejects.toMatchObject({ code: "EMAIL_REQUIRED" });
+  });
+
   it("keeps one fictional credit balance across channels, holds uncertainty and blocks unaffordable ceilings", async () => {
     const preview = createPreviewApi();
     const balance = async () =>
@@ -98,6 +169,42 @@ describe("public browser design preview", () => {
     ).toEqual(initial);
   });
 
+  it("keeps annual fictional activity dated, separate from real credits and entirely in the browser", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-01-01T01:00:00.000Z"));
+    const preview = createPreviewApi();
+    expect(await preview.request("/usage/activity?year=2025")).toMatchObject({
+      year: 2025,
+      currentYear: 2026,
+      availableYears: [2026, 2025],
+      asOf: "2026-01-01T01:00:00.000Z",
+      timeZone: "UTC",
+      currency: "EUR",
+      evidence: "simulation",
+      days: [
+        {
+          date: "2025-12-31",
+          amountMinor: 158,
+          dispatchCount: 3,
+          chargeCount: 3,
+        },
+      ],
+      totals: {
+        amountMinor: 158,
+        dispatchCount: 3,
+        chargeCount: 3,
+        activeDays: 1,
+      },
+    });
+    expect(await preview.request("/usage/activity")).toMatchObject({
+      year: 2026,
+      days: [],
+      totals: { amountMinor: 0, activeDays: 0 },
+    });
+    await expect(
+      preview.request("/usage/activity?year=2026-01"),
+    ).rejects.toMatchObject({ code: "INVALID_INPUT" });
+  });
   it("starts with a fictional session, real fixture PDF bytes, and matching metadata", async () => {
     const preview = createPreviewApi();
     const session = (await preview.request("/session")) as Session;
@@ -170,9 +277,7 @@ describe("public browser design preview", () => {
       mode: "simulation",
     });
     expect(detail.attempts).toHaveLength(1);
-    expect(detail.events.at(-1)?.detail).toContain(
-      "Aucun fournisseur contacté",
-    );
+    expect(detail.events.at(-1)?.detail).toContain("No provider contacted");
     detail.dispatch.subject = "Caller mutation";
     expect(
       ((await preview.request(`/dispatches/${dispatch.id}`)) as DispatchDetail)

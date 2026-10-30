@@ -226,7 +226,7 @@ if (
         acknowledgeTenantWide: args.includes("--acknowledge-tenant-wide"),
       });
       console.log(
-        `Préparation privée Auth0, sans activation, pendant 30 minutes : ${setup.url}`,
+        `Private Auth0 preparation without activation, available for 30 minutes: ${setup.url}`,
       );
     } else {
       console.log(

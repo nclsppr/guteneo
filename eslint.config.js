@@ -3,9 +3,13 @@ import reactHooks from "eslint-plugin-react-hooks";
 export default tseslint.config(
   {
     ignores: [
-      "node_modules/**",
+      "**/node_modules/**",
+      "apps/engineering/.astro/**",
+      "apps/engineering/.nimbus/**",
+      // Immutable MIT Anatomy geometry kit; upstream provenance lives in DESIGN.md.
+      "apps/engineering/src/components/diagrams/anatomy/**",
       "**/dist/**",
-      ".wrangler/**",
+      "**/.wrangler/**",
       "playwright-report/**",
       "test-results/**",
       // Independent Remotion package with its own ESLint version and checks.

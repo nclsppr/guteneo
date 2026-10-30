@@ -20,6 +20,7 @@ import {
   createProbeFetch,
   probeFailureMessage,
   PROBE_TOKEN_HEADER,
+  assertPdfVerificationClosed,
 } from "../scripts/probe-credentials.mjs";
 
 function temporaryCredential(context) {
@@ -43,6 +44,58 @@ test("probe setup generates and rotates a 256-bit owner-private credential witho
   );
   assert.equal(statSync(path).mode & 0o777, 0o600);
   assert.deepEqual(readdirSync(directory), [".dev.vars"]);
+});
+
+test("qualification requires an explicitly closed stable gate and rejects contradictory newer capabilities", () => {
+  const closed = {
+    mode: "production",
+    simulation: false,
+    documents: { validation: { available: false } },
+  };
+  for (const capabilities of [
+    closed,
+    { ...closed, pdfValidation: { available: false } },
+  ])
+    assert.doesNotThrow(() => assertPdfVerificationClosed(capabilities));
+  for (const capabilities of [
+    null,
+    {},
+    { mode: "production" },
+    { ...closed, simulation: undefined },
+    { ...closed, simulation: true },
+    { ...closed, simulation: "false" },
+    { ...closed, mode: "simulation" },
+    { ...closed, documents: undefined, pdfValidation: { available: false } },
+    { ...closed, documents: { validation: { available: true } } },
+    { ...closed, documents: { validation: { available: "false" } } },
+    { ...closed, pdfValidation: { available: true } },
+    { ...closed, pdfValidation: { available: "false" } },
+    { ...closed, pdfValidation: {} },
+    { ...closed, pdfValidation: null },
+    { ...closed, pdfValidation: false },
+    { ...closed, pdfValidation: undefined },
+    { ...closed, pdfValidation: [] },
+  ])
+    assert.throws(
+      () => assertPdfVerificationClosed(capabilities),
+      /PDF_VALIDATOR_RELEASE_CLOSED_PDF_CHECKS_REQUIRED/,
+    );
+});
+
+test("setup safely rotates the previous exact private credential format into the current key", (context) => {
+  const { path } = temporaryCredential(context);
+  const previous = "a".repeat(64);
+  writeFileSync(path, `HORIZON_QUALIFICATION_TOKEN=${previous}\n`, {
+    mode: 0o600,
+  });
+  assert.equal(readProbeCredential(path), previous);
+  assert.equal(createProbeCredential(path), undefined);
+  assert.match(
+    readFileSync(path, "utf8"),
+    /^PDF_VALIDATOR_QUALIFICATION_TOKEN=[a-f0-9]{64}\n$/,
+  );
+  assert.notEqual(readProbeCredential(path), previous);
+  assert.equal(statSync(path).mode & 0o777, 0o600);
 });
 
 test("probe setup refuses foreign settings and credential reads reject exposed, missing, malformed or symlink files", (context) => {

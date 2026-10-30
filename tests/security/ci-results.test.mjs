@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
-import { mkdtemp, mkdir, writeFile, rm } from "node:fs/promises";
+import { mkdtemp, mkdir, readFile, writeFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import test from "node:test";
 import {
   discoverTests,
@@ -11,9 +12,18 @@ import {
 
 const jobs = () =>
   Object.fromEntries(
-    ["pdf-validator", "scanner", "checks", "vitest", "security", "build", "browser"].map(
-      (name) => [name, { result: "success" }],
-    ),
+    [
+      "dependencies",
+      "pdf-validator",
+      "scanner",
+      "checks",
+      "vitest",
+      "security",
+      "build",
+      "browser",
+      "distribution-e2e",
+      "engineering",
+    ].map((name) => [name, { result: "success" }]),
   );
 const report = (names) => ({
   success: true,
@@ -93,4 +103,151 @@ test("a green partial/duplicate shard report cannot satisfy the complete gate", 
   totals.numTotalTests++;
   totals.numPassedTests++;
   assert.throws(() => requireTestResults(totals, files, "/fixture"));
+});
+
+test("actual Chromium integration tests run exactly once in the browser-equipped job", async () => {
+  const root = new URL("../../", import.meta.url);
+  const workflow = await readFile(
+    new URL(".github/workflows/ci.yml", root),
+    "utf8",
+  );
+  const shards = workflow.match(/^  vitest:\n([\s\S]*?)(?=^  [a-z])/m)?.[1];
+  const security = workflow.match(/^  security:\n([\s\S]*?)(?=^  [a-z])/m)?.[1];
+  assert.ok(shards);
+  assert.ok(security);
+  const excluded = [
+    ...shards.matchAll(/--exclude=(tests\/\S+\.test\.ts)/g),
+  ].map((match) => match[1]);
+  const renderer = security
+    .match(/npx vitest run ([^\n]+)/)?.[1]
+    .trim()
+    .split(/\s+/);
+  assert.ok(renderer?.length);
+  assert.deepEqual(
+    [...excluded].sort(),
+    [...renderer].sort(),
+    "Every excluded file must retain one browser-equipped execution.",
+  );
+  assert.equal(new Set(renderer).size, renderer.length);
+  const installation = security.indexOf(
+    "npx playwright install --with-deps chromium",
+  );
+  assert.ok(
+    installation >= 0 && installation < security.indexOf("npx vitest run"),
+  );
+  const files = await discoverTests(fileURLToPath(root));
+  let actualRenderers = 0;
+  for (const file of files.filter((file) =>
+    file.startsWith("tests/integration/"),
+  )) {
+    const source = await readFile(new URL(file, root), "utf8");
+    if (!/(?:chromium\.executablePath|puppeteer\.launch)\s*\(/u.test(source))
+      continue;
+    actualRenderers++;
+    assert.ok(
+      excluded.includes(file),
+      `${file} needs the installed Chromium instead of an ordinary Vitest shard.`,
+    );
+    assert.equal(
+      renderer.filter((entry) => entry === file).length,
+      1,
+      `${file} must execute once in the renderer job.`,
+    );
+  }
+  assert.ok(actualRenderers > 0);
+});
+
+test("CI deduplication retains documentation guards and every Worker dry run", async () => {
+  const root = new URL("../../", import.meta.url);
+  const workflow = await readFile(
+    new URL(".github/workflows/ci.yml", root),
+    "utf8",
+  );
+  const checks = workflow.match(/^  checks:\n([\s\S]*?)(?=^  [a-z])/m)?.[1];
+  const build = workflow.match(/^  build:\n([\s\S]*?)(?=^  [a-z])/m)?.[1];
+  assert.ok(checks);
+  assert.ok(build);
+  const { scripts } = JSON.parse(
+    await readFile(new URL("package.json", root), "utf8"),
+  );
+  for (const guard of [
+    "node docs/build-feature-map.mjs --check",
+    "node scripts/build-mcp-annotation-docs.mjs --check",
+  ])
+    assert.ok(
+      scripts["docs:check"].split(" && ").includes(guard),
+      `${guard} must remain in the shared documentation check.`,
+    );
+  assert.equal((checks.match(/run: npm run docs:check/g) ?? []).length, 1);
+  assert.doesNotMatch(
+    checks,
+    /run: node (?:docs\/build-feature-map|scripts\/build-mcp-annotation-docs)\.mjs --check/,
+  );
+  assert.equal((build.match(/run: npm run build:live/g) ?? []).length, 1);
+  assert.doesNotMatch(build, /run: npm run build:web/);
+  for (const dryRun of [
+    "npx wrangler deploy --dry-run --outdir dist/worker",
+    "npx wrangler deploy --config apps/documents/wrangler.jsonc --dry-run --outdir ../../dist/documents-worker",
+    "npx wrangler deploy --config wrangler.live.jsonc --dry-run --outdir dist/live-worker",
+    "npx wrangler deploy --config wrangler.status.jsonc --dry-run --outdir dist/status-worker",
+  ]) {
+    assert.ok(
+      build.includes(`run: ${dryRun}`),
+      `Required dry run retained: ${dryRun}`,
+    );
+    assert.ok(
+      build.indexOf("run: npm run build:live") <
+        build.indexOf(`run: ${dryRun}`),
+    );
+  }
+  assert.ok(build.includes("run: npm run build:preview"));
+  assert.ok(build.includes("run: npm run build:status"));
+});
+
+test("dependency preflight stops incompatible graphs before builds, renderers and browser matrices", async () => {
+  const workflow = await readFile(
+    new URL("../../.github/workflows/ci.yml", import.meta.url),
+    "utf8",
+  );
+  const section = (name) =>
+    workflow.match(
+      new RegExp(`^  ${name}:\\n([\\s\\S]*?)(?=^  [a-z]|(?![\\s\\S]))`, "m"),
+    )?.[1];
+  const dependencies = section("dependencies");
+  assert.ok(dependencies);
+  const commands = [
+    "run: npm ci",
+    "run: npm run check:dependencies",
+    "run: npm run audit:dependencies",
+  ];
+  let previous = -1;
+  for (const command of commands) {
+    const position = dependencies.indexOf(command);
+    assert.ok(
+      position > previous,
+      `${command} must follow successful locked installation and compatibility checks.`,
+    );
+    previous = position;
+  }
+  assert.doesNotMatch(
+    dependencies,
+    /secrets\.|playwright install|deploy|build:live|vitest run/,
+  );
+  assert.match(dependencies, /persist-credentials: false/);
+  for (const name of ["checks", "vitest", "security", "build", "engineering"])
+    assert.match(section(name), /needs: dependencies/);
+  for (const name of ["browser", "distribution-e2e"])
+    assert.match(section(name), /needs: build/);
+  for (const name of ["scanner", "pdf-validator"])
+    assert.doesNotMatch(section(name), /needs:/);
+  assert.match(section("verify"), /if: always\(\)/);
+  assert.match(section("verify"), /needs:[\s\S]*dependencies,/);
+  assert.equal(
+    (workflow.match(/run: npm run check:dependencies/g) ?? []).length,
+    1,
+  );
+  assert.equal(
+    (workflow.match(/run: npm run audit:dependencies/g) ?? []).length,
+    1,
+  );
 });

@@ -1,752 +1,1427 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
-# Guteneo · atlas technique
+# Guteneo feature tree and developer atlas
 
-> **21 domaines · 214 fonctionnalités · 25 parcours** — mis à jour le 2026-10-24.
-> Documentation du dépôt uniquement. Implémentation ≠ activation ≠ preuve de publication.
+**23 domains · 370 features · 37 journeys · 76 documented REST operations · 83 MCP tools**
+Updated 2026-10-30.
 
-Vue visuelle hors ligne : ouvrir [FEATURE_MAP.html](FEATURE_MAP.html) dans un navigateur. Source éditable : [feature-map.json](feature-map.json). Régénérer avec `node docs/build-feature-map.mjs`.
+Repository implementation inventory. Availability depends on current capabilities and authority; implementation, activation and deployed proof are distinct.
 
-## Vue d’ensemble
+Start here to find a feature, its authority and its technical owner. Read [repository standards](REPOSITORY_STANDARDS.md) and the [documentation index](README.md) for shared conventions. The [offline visual atlas](FEATURE_MAP.html) provides search; [feature-map.json](feature-map.json) is the single editable source. Regenerate with `npm run docs:build`.
+
+## Feature tree
 
 ```mermaid
 mindmap
   root((Guteneo))
-    Accès
-      Identité et sessions
-      Équipe et droits
-    Créer
-      Documents sécurisés
-      Modèles et designer
-      Données et mappings
-      Génération PDF
-    Distribuer
-      Fax
-      Courrier postal
-      E-mail et liens protégés
-      Campagnes et lots
-    Piloter
-      Suivi et rapports
-      Crédits et facturation
-      Horizon et diagnostics
+    Access
+      Access and identity (37)
+      Team and responsibilities (10)
+    Create
+      Documents and protection (20)
+      Template studio (14)
+      Data and mappings (11)
+      PDF generation and distribution (14)
+    Deliver
+      Fax (7)
+      Postal mail (8)
+      Email and protected links (14)
+      Sensitive distribution and personal documents (31)
+      Dispatch dry run (7)
+    Operate
+      Campaigns and tracking (8)
+      Credits and billing (8)
+      Workspace layout and browser appearance (31)
+      PDF verification (10)
     Interfaces
-      Web multilingue
-      Assistants et API
-      iPhone et iPad
-    Exploiter
-      Sécurité et confidentialité
-      CI et publication depuis main
+      Assistants and API (31)
+      iPhone and iPad (9)
+      Public pages, languages and appearance (23)
+    Operations
+      Reviewer OAuth qualification (9)
+      Operations and reliability (28)
+      Belvédère platform oversight (12)
+      Public service status (16)
+      Engineering documentation (12)
 ```
 
-## Droits en un coup d’œil
+### Access
 
-Le contrat définit quatre rôles humains. La cinquième colonne décrit l’assistant connecté, un acteur OAuth, sans ajouter de rôle de membership. Installer un paquet ou renouveler un jeton ne modifie ni la membership, ni les scopes consentis, ni l’autorité d’approbation ; les réglages Auth0 sont une opération de plateforme distincte. Le candidat du 20 octobre corrige uniquement les annotations et descriptions MCP : remplacement du jeton de revue et gel du lot signalés à l’hôte, sans changer cette matrice ni les gardes serveur. Le candidat 0.3.5 du 23 octobre ajoute des consignes de confidentialité au parcours assistant : exclure les données de carte soumises à PCI DSS, les données de santé protégées (PHI), les identifiants gouvernementaux, les secrets d’authentification et les données personnelles sensibles. Ce sont des instructions de traitement et de reprise, pas une détection automatique de ces catégories ni une nouvelle garde serveur, un rôle, un scope ou un droit navigateur/natif/REST. Le candidat 1.0.0 recontrôle côté serveur les droits actuels, la révision du modèle et le consentement IA avant transfert et avant retour de suggestion, sur les surfaces web/REST/MCP. Les lectures web ignorent les réponses obsolètes après navigation ou changement de session. La version du paquet et le format Claude ne donnent aucun droit supplémentaire. La lecture des capacités par une session navigateur existante est rétablie dans le correctif de continuité du 24 octobre ; elle ne modifie aucun rôle, scope, consentement ou droit d’abonnement/envoi. Le candidat du 24 octobre sépare le domaine Auth0 du navigateur de l’issuer canonique : AUTH0_BROWSER_DOMAIN ne change ni le sujet signé, ni la personne, ni l’atelier, ni les restrictions reviewer, ni les rôles, scopes ou mandats. La configuration Auth0/DNS reste une autorité de plateforme distincte ; aucun rôle atelier ni outil assistant ne peut l’activer.
+- [Access and identity](#identity) — 37 features; browser-session.
+- [Team and responsibilities](#team) — 10 features; browser-session.
 
-| Capacité | Administrateur | Superviseur | Opérateur | Observateur | Assistant connecté |
+### Create
+
+- [Documents and protection](#documents) — 20 features; capability-gated.
+- [Template studio](#templates) — 14 features; capability-gated.
+- [Data and mappings](#datasets) — 11 features; capability-gated.
+- [PDF generation and distribution](#generation) — 14 features; capability-gated.
+
+### Deliver
+
+- [Fax](#fax) — 7 features; capability-gated.
+- [Postal mail](#postal) — 8 features; capability-gated.
+- [Email and protected links](#email) — 14 features; capability-gated.
+- [Sensitive distribution and personal documents](#secure-distribution) — 31 features; capability-gated.
+- [Dispatch dry run](#dry-run) — 7 features; read-only.
+
+### Operate
+
+- [Campaigns and tracking](#campaigns) — 8 features; capability-gated.
+- [Credits and billing](#billing) — 8 features; partial.
+- [Workspace layout and browser appearance](#dashboard) — 31 features; browser-session.
+- [PDF verification](#pdf-verification) — 10 features; capability-gated.
+
+### Interfaces
+
+- [Assistants and API](#assistants) — 31 features; host-qualified.
+- [iPhone and iPad](#native) — 9 features; local-candidate.
+- [Public pages, languages and appearance](#public) — 23 features; public.
+
+### Operations
+
+- [Reviewer OAuth qualification](#reviewer-oauth) — 9 features; operator-gated.
+- [Operations and reliability](#operations) — 28 features; operator-gated.
+- [Belvédère platform oversight](#belvedere) — 12 features; operator-gated.
+- [Public service status](#status) — 16 features; public.
+- [Engineering documentation](#engineering-docs) — 12 features; public.
+
+## Availability and evidence
+
+This inventory describes repository implementation. Check current account capabilities, authority and dated release/runtime evidence before treating a feature as available. Local tests, deterministic simulation, deployed assets, authenticated clients and real provider delivery are separate evidence.
+
+An availability label describes the access/gating model, never an assertion of live activation. `partial` and `local-candidate` mark material qualification gaps. Read each detailed contract and the dated [release record](LIVE_RELEASE.md); no hard-coded historical release summary is duplicated here.
+
+## Roles and permissions
+
+Four human workshop roles are defined by packages/contracts/src/roles.ts. The assistant column describes a connected OAuth actor, never a fifth membership role. Effective membership, independent supervisor permissions, consented scopes and any bounded expert mandate are rechecked by the server. Installing a package or renewing tokens grants no additional authority. Browser-only account/platform controls remain distinct. Assistant content-exclusion instructions are workflow restrictions, not automatic classification or new server guards. Personal account authority is separate from workspace membership. Template/default email copy and link placeholders grant no approval or recipient consent. Sensitive approval and recipient association always require the browser under the active document policy; an expert mandate cannot replace them.
+
+| Capability | Administrator | Supervisor | Operator | Observer | Connected assistant |
 | --- | --- | --- | --- | --- | --- |
-| Entrer et reprendre une connexion navigateur | Identité vérifiée requise ; aucun droit supplémentaire | Identité vérifiée requise ; aucun droit supplémentaire | Identité vérifiée requise ; aucun droit supplémentaire | Identité vérifiée requise ; aucun droit supplémentaire | Aucune assertion de consentement ; OAuth et mandats inchangés |
-| Installer un paquet / consentir à sa connexion personnelle | Selon règles de l’hôte ; consentement personnel | Selon règles de l’hôte ; consentement personnel | Selon règles de l’hôte ; consentement personnel | Selon règles de l’hôte ; consentement personnel | Consentement humain requis ; installation sans autorité métier supplémentaire |
-| Configurer le renouvellement Auth0 du reviewer | Aucun droit issu du rôle atelier | Aucun droit issu du rôle atelier | Aucun droit issu du rôle atelier | Aucun droit issu du rôle atelier | Aucune route métier REST/MCP ; opérateur Auth0 autorisé distinct et autorisation explicite |
-| Activer DCR strict et son grant utilisateur MCP | Aucun droit issu du rôle atelier | Aucun droit issu du rôle atelier | Aucun droit issu du rôle atelier | Aucun droit issu du rôle atelier | Opérateur Auth0 distinct et autorisation de production explicite ; aucun outil métier REST/MCP |
-| Enregistrer automatiquement son client et consentir à sa connexion | Consentement personnel ; rôle courant conservé | Consentement personnel ; rôle courant conservé | Consentement personnel ; rôle courant conservé | Consentement personnel ; lecture selon droits courants | L’hôte enregistre le client ; connexion humaine obligatoire, aucun consentement ni mandat créé par l’assistant |
-| Lire contenus accessibles | Oui | Oui | Oui | Oui | Selon membre + scopes ; installation et renouvellement sans élévation de rôle ; parcours assistant arrêté si contenu connu comme exclu, même déjà présent ; aucune détection automatique ajoutée |
-| Parcourir le PDF dans la revue navigateur stable | Selon accès documentaire courant | Selon accès documentaire courant | Selon accès documentaire courant ; sans approbation | Selon accès documentaire courant ; lecture seule | Revue navigateur par humain ; aucun nouveau droit MCP |
-| Contrôler à blanc un envoi existant | Selon accès à l’envoi | Selon accès à l’envoi | Selon accès à l’envoi | Selon accès à l’envoi | Membre + dispatches:read + accès à l’envoi ; aucune approbation |
-| Importer / préparer | Oui | Oui | Oui | Non | Selon membre + scopes ; fichier et canal effectivement qualifiés ; gel du lot par distribution signalé à l’hôte ; parcours assistant arrêté si contenu connu comme exclu, même déjà présent ; aucune détection automatique ajoutée |
-| Approuver / confirmer / annuler | Oui | Option Approbation | Non | Non | Mandat expert distinct uniquement ; remplacement du jeton de revue signalé à l’hôte, sans nouvelle autorité |
-| Rapports agrégés | Oui | Option Rapports | Non | Non | Selon membre + scopes |
-| Gérer atelier / membres | Oui | Non | Non | Non | Non |
-| Gérer facturation / souscrire Horizon | Navigateur ; consentement pour souscrire | Non | Non | Non | Non |
-| Déclencher un diagnostic Horizon | Plan actif + accès PDF | Plan actif + accès PDF | Plan actif + accès PDF | Non | Plan actif + accès PDF + documents:write ; clé métier conservée ; parcours assistant arrêté si contenu connu comme exclu, même déjà présent ; aucune détection automatique ajoutée |
-| Lire / exporter l’historique Horizon | Selon accès PDF | Selon accès PDF | Selon accès PDF | Selon accès PDF | Accès PDF + documents:read ; parcours assistant arrêté si contenu connu comme exclu, même déjà présent ; aucune détection automatique ajoutée |
-| Accorder / renouveler mandat expert | Navigateur | Non | Non | Non | Non ; connexion OAuth et installation ne créent aucun mandat |
-| Modifier modèle partagé | Droits sur ressource | Droits sur ressource | Droits sur ressource | Non | Membre + scopes + ressource ; confirmation hôte pour écrasement ; parcours assistant arrêté si contenu connu comme exclu, même déjà présent ; aucune détection automatique ajoutée ; suggestion IA : droits, révision et consentement revalidés avant transfert et avant retour |
-| Archiver modèle | Droit publier sur ressource | Droit publier sur ressource | Droit publier sur ressource | Non | Membre + templates:publish + ressource ; effet destructif signalé |
-| Modifier partage du modèle | Droit partager sur ressource | Droit partager sur ressource | Droit partager sur ressource | Non | Membre + templates:share + ressource ; révocation signalée ; parcours assistant arrêté si contenu connu comme exclu, même déjà présent ; aucune détection automatique ajoutée |
-| Annuler génération | Propriétaire du lot | Propriétaire du lot | Propriétaire du lot | Non | Propriétaire + generations:write ; annulation signalée |
-| Supprimer modèle | Propriétaire | Propriétaire | Propriétaire | Non | Propriétaire + scopes |
-| Voir PDF généré privé | Créateur seulement | Créateur seulement | Créateur seulement | Selon accès autorisé | Selon propriétaire et contexte ; parcours assistant arrêté si contenu connu comme exclu, même déjà présent ; aucune détection automatique ajoutée |
-| Profil / langue / ses sessions | Personnel | Personnel | Personnel | Personnel | Pas d’administration navigateur |
-| Sauvegarder Classique / V2 de son compte | Navigateur, préférence personnelle | Navigateur, préférence personnelle | Navigateur, préférence personnelle | Navigateur, préférence personnelle | Non ; aucun outil ajouté |
-| Navigation V2, compte mobile et lien public de statut | Navigateur, sans droit supplémentaire | Navigateur, sans droit supplémentaire | Navigateur, sans droit supplémentaire | Navigateur, sans droit supplémentaire | Pas de nouveau contrôle ni outil MCP |
-| Action principale V2 : importer / préparer | Selon droits courants | Selon droits courants | Selon droits courants | Non | Contrats existants hors présentation web |
-| Lire profil et contacts de son atelier ; erreur annuaire sans détourner le focus | Navigateur | Navigateur | Navigateur | Navigateur | Non |
-| Modifier son nom et sa langue | Navigateur | Navigateur | Navigateur | Navigateur | Non |
-| Ouvrir Belvédère global | Aucun droit par rôle atelier | Aucun droit par rôle atelier | Aucun droit par rôle atelier | Aucun droit par rôle atelier | Non |
-| Lire le moniteur public local | Anonyme, aucun droit acquis | Anonyme, aucun droit acquis | Anonyme, aucun droit acquis | Anonyme, aucun droit acquis | Lectures publiques seulement |
-| Lire le statut hébergé et son historique | Lecture anonyme seulement, aucun droit acquis | Lecture anonyme seulement, aucun droit acquis | Lecture anonyme seulement, aucun droit acquis | Lecture anonyme seulement, aucun droit acquis | Lecture publique anonyme seulement |
-| Appliquer les exclusions du parcours assistant | Aucun droit supplémentaire | Aucun droit supplémentaire | Aucun droit supplémentaire | Aucun droit supplémentaire | Consignes des skills et descriptions MCP ; catégories exclues annoncées avant traitement, copie retirée de ces données par la personne ; pas de contournement web, de nouveau scope ou de garde serveur automatique |
-| Recevoir une suggestion IA sur un modèle | Droit modifier + consentement IA courant | Droit modifier + consentement IA courant | Droit modifier + consentement IA courant | Non | templates:write + droit modifier + connexion courante + consentement IA ; contrôles avant transfert et avant retour ; aucune application ou approbation automatique |
-| Naviguer entre ressources sans réponse web obsolète | Selon accès courant | Selon accès courant | Selon accès courant | Selon accès courant | Aucun nouveau droit MCP ; correction navigateur uniquement |
-| Configurer le domaine Auth0/DNS de connexion | Aucun droit issu du rôle atelier | Aucun droit issu du rôle atelier | Aucun droit issu du rôle atelier | Aucun droit issu du rôle atelier | Aucune route métier REST/MCP ; opérateur de plateforme autorisé distinct, configuration et publication explicites |
-
-Les deux options du superviseur sont indépendantes et fermées par défaut. Le rôle appartient à un atelier ; changer de rôle révoque les accès et les approbations encore en attente. Les scopes OAuth n’élèvent jamais les droits. La lecture de l’atelier n’ouvre pas les données ou PDF privés d’un autre créateur. Une demande liée peut donner une revue bornée aux approbateurs actuels ; elle n’ouvre pas la bibliothèque privée. Voir [le contrat des rôles](WORKSPACE_ROLES.md) et [le contrat du studio](TEMPLATES_DATA_DISTRIBUTION.md).
-
-## Arbre exhaustif des fonctionnalités
-
-### 01 · Accès et identité
-
-**État :** Connexion existante ; entrée directe et récupération préparées avec continuité des capacités, domaine navigateur distinct préparé ; tests locaux, configuration Auth0/DNS, publication et qualification hébergée restent des preuves séparées ; candidat DCR strict distinct, activation fournisseur et qualification réelle de chaque hôte requises.
-
-Contrat : [ACCOUNT_IDENTITY.md](ACCOUNT_IDENTITY.md) · Source : [apps/api/src/auth.ts](../apps/api/src/auth.ts).
-
-**Surfaces :** Web navigateur et découverte OAuth de la ressource MCP ; contrats natifs existants préservés ; aucun nouveau droit REST/MCP ; domaine facultatif appliqué au BFF de connexion navigateur et aux écrans de connexion web ouverts par le natif, sans changement des sessions natives ni du serveur d’autorisation MCP. **Tests :** [tests/unit/auth.test.ts](../tests/unit/auth.test.ts), [tests/unit/account.test.ts](../tests/unit/account.test.ts), [tests/e2e/account-identity.spec.ts](../tests/e2e/account-identity.spec.ts), [tests/e2e/resource-navigation.spec.ts](../tests/e2e/resource-navigation.spec.ts), [tests/unit/web-api-cancellation.test.ts](../tests/unit/web-api-cancellation.test.ts), [tests/e2e/login-entry.spec.ts](../tests/e2e/login-entry.spec.ts), [tests/security/auth0-branding.test.mjs](../tests/security/auth0-branding.test.mjs), [tests/e2e/horizon-pdf.spec.ts](../tests/e2e/horizon-pdf.spec.ts), [tests/security/mcp-registration.test.mjs](../tests/security/mcp-registration.test.mjs).
-
-- Connexion Auth0, compte vérifié et politique MFA
-- Connexion navigateur et callback Auth0 sur guteneo.com uniquement ; ancien hôte applicatif et previews URL fermés
-- Création d’atelier et administrateur initial
-- Profil personnel, langue et apparence d’Atelier enregistrées pour la personne
-- Sessions web : consultation, révocation et déconnexion
-- Changement d’atelier avec droits courants
-- Connexions OAuth : rattachement, révocation et scopes
-- Découverte OAuth par métadonnées de ressource : issuer Auth0 exact, slash final conservé ; contrat testé par le SDK MCP officiel sans réseau externe
-- Demande de suppression du compte ; traitement complet restant à qualifier
-- Compte connecté visible : nom, adresse de connexion et rôle courant sur desktop et mobile
-- Changement de compte explicite via réauthentification Auth0 sans supprimer le SSO habituel
-- Retour d’onglet : identité, atelier et langue enregistrée dans le compte réconciliés
-- Langue des vues connectées réglable seulement dans le compte ; choix visiteur séparé
-- Apparence Classique/V2 près de la langue ; migration 0053, compte en bas de navigation et préférence serveur réconciliée après changement d’identité
-- Erreur tardive de l’annuaire : alerte et reprise accessibles sans prendre le focus ni interrompre la saisie du profil, en Classique et V2
-- Lectures navigateur : masquer immédiatement la ressource du chemin précédent, conserver la lecture au rafraîchissement du même chemin, ignorer réponse tardive et 401 après annulation pour ne pas expirer une nouvelle session
-- Accès navigateur direct à Auth0 depuis les liens publics et les routes privées sans session ; aucun écran de choix intermédiaire, locale et destination exactes conservées
-- Reprise de connexion : route applicative profonde et langue issues de la transaction valide ; paramètres privés et URL de callback exclus du retour
-- Branding Auth0 préparé : portrait officiel, ivoire/cobalt et textes FR/EN/DE ; identité Guteneo explicite, documents/envois en repère, création d’accès et retour à la connexion en liens secondaires natifs ; luxembourgeois conservé côté Guteneo avec langue de repli Auth0, activation des langues et publication distinctes
-- Connexion sans session : langue visiteur explicite rétablie après le contrôle initial, sans écraser une sélection en cours ni la préférence de compte authentifié
-- Écran Guteneo de récupération seulement après erreur : nouvelle tentative explicite, aucune boucle automatique ; inscription native chez Auth0, démonstration locale et maquette séparées
-- Capacités de l’atelier relues pour la session connectée ; lecture anonyme limitée à la reprise d’erreur, sans requête préalable au passage direct vers Auth0 ; un retour à l’accueil renouvelle la lecture publique partagée offre/FAQ
-- Domaine de connexion navigateur facultatif auth.guteneo.com, limité au tenant Auth0 pieper existant ; AUTH0_DOMAIN, découverte et jetons MCP restent canoniques
-- Migration additive 0054 : issuer d’autorisation et namespace d’identité liés à la transaction PKCE ; anciens flux NULL canoniques, retour et rollback sans changement silencieux de fournisseur
-- Après vérification exacte des deux jetons, même sujet rattaché au namespace canonique ; aucune liaison par e-mail ni duplication de compte, atelier, crédit ou autorité ; evidence navigateur et restriction prepare_only conservées
-- Enregistrement OAuth automatique MCP préparé : DCR natif Auth0 strict, connexion Guteneo-Accounts de domaine, grant utilisateur limité aux 13 scopes existants et Actions de renouvellement tiers opt-in ; aucune activation par le code
-
-### 02 · Équipe et responsabilités
-
-**État :** Implémenté · disponibilité à vérifier.
-
-Contrat : [WORKSPACE_ROLES.md](WORKSPACE_ROLES.md) · Source : [packages/contracts/src/roles.ts](../packages/contracts/src/roles.ts).
-
-**Surfaces :** Navigateur authentifié. **Tests :** [tests/integration/workspace-roles.test.ts](../tests/integration/workspace-roles.test.ts), [tests/unit/account.test.ts](../tests/unit/account.test.ts), [tests/e2e/account-identity.spec.ts](../tests/e2e/account-identity.spec.ts).
-
-- Quatre rôles humains et options indépendantes du superviseur
-- Gestion des membres, changement de droits et révocation atomique
-- Protection du dernier administrateur
-- Invitation individuelle ou CSV ; aperçu et confirmation du lot
-- Acceptation à adresse vérifiée, expiration et révocation des invitations
-- Contacts navigateur des responsables de l’atelier, bornés et filtrés sur la membership courante
-- Adresses de connexion pour distinguer les membres homonymes ; droits effectifs lisibles
-
-### 03 · Documents et sécurité
-
-**État :** Implémenté · disponibilité à vérifier.
-
-Contrat : [SCANNER_RESCAN.md](SCANNER_RESCAN.md) · Source : [apps/api/src/documents.ts](../apps/api/src/documents.ts).
-
-**Surfaces :** Web / REST / MCP ; restriction du parcours assistant MCP documentée dans le paquet, sans nouveau contrôle automatique web/natif/REST. **Tests :** [tests/integration/documents.test.ts](../tests/integration/documents.test.ts), [tests/unit/mcp-integrations.test.ts](../tests/unit/mcp-integrations.test.ts).
-
-- Dépôt PDF et import distant borné
-- Recherche, liste paginée, lecture des métadonnées et pages
-- Quarantaine, antivirus réel, empreinte et validation PDF
-- Reprise d’analyse du même document, sans réimport
-- Préchauffage scanner par administrateur navigateur
-- Rendu HTML en PDF isolé et document immuable
-- Stockage privé, quotas, rétention et confidentialité par propriétaire
-- Parcours assistant : annoncer les catégories exclues avant demande ou traitement ; ne pas importer ou lire un contenu connu comme exclu, même déjà stocké ou déclaré prêt ; antivirus et état ready ne prouvent pas l’absence de ces données
+| Download an assistant installation archive | Public access; no membership required | Public access; no membership required | Public access; no membership required | Public access; no membership required | No OAuth consent, membership, mandate or sending authority from a download, displayed tool title, schema compatibility or directory listing |
+| Use the gated MCP Apps diagnostic | Own eligible OAuth connection only | Own eligible OAuth connection only | Own eligible OAuth connection only | Own eligible OAuth connection only | Current production OAuth + documents:read + exact server-selected connection/revision/window; no content or business authority, with normal authentication/rate/activity accounting |
+| Activate the MCP Apps diagnostic | No authority from workshop role | No authority from workshop role | No authority from workshop role | No authority from workshop role | No; distinct authorized operator controls a bounded server setting, never an assistant tool or mandate |
+| Read accessible workshop content | Yes | Yes | Yes | Yes | Current member + consented scopes + document access |
+| Import and prepare | Yes | Yes | Yes | No | Current member + scopes + qualified channel/transport |
+| Reserve/transfer a private original PDF | Own connected OAuth writer + documents:write | Own connected OAuth writer + documents:write | Own connected OAuth writer + documents:write | No | Current writer + documents:write + explicit original-file permission and exact bytes; binary capability bound to one operation/connection/expiry or one inline original up to 64 KiB through the same 0061 fences; no read/send/approval authority |
+| Select/import a local original through the gated MCP App | Own eligible current OAuth writer connection only | Own eligible current OAuth writer connection only | Own eligible current OAuth writer connection only | No | Current writer + documents:write + explicit server qualification/general-rollout activation + device selection/Import; both modes retain current production OAuth authority, and App-only staging adds no send/approval/mandate right or access to an earlier conversation attachment |
+| Use a registered App receipt in the conversation | Own eligible registered App receipt only | Own eligible registered App receipt only | Own eligible registered App receipt only | No | Only an explicit post-registration UI gesture requests the same four-key document receipt through the official host bridge; no message on import, approval/sending claim, file content, extra scope or automatic attachment access |
+| Activate the MCP Apps original transport | No authority from workshop role | No authority from workshop role | No authority from workshop role | No authority from workshop role | No; distinct authorized operator selects bounded qualification or reviewed general rollout, never an assistant tool, permission or mandate |
+| Reveal protected-link password or revoke hosting | Current browser preparation authority + source access | Current browser preparation authority + source access | Current browser preparation authority + source access | No | No; password and revocation remain CSRF-protected browser operations |
+| Human approval and confirmation | Yes | Approval option | No | No | Cannot assert human consent; standard confirmation requires recorded browser approval |
+| Expert review and acceptance | Browser grants a bounded mandate | No mandate administration | No mandate administration | No | Pre-existing active client-bound mandate + current role/scopes + exact review + host confirmations |
+| Cancel prepared/queued dispatch | Yes | Approval option | No | No | Current approval authority + scope; never retries an unknown submission |
+| Aggregate reports | Yes | Reporting option | No | No | Current role + scopes |
+| Manage workshop or members | Browser only | No | No | No | No |
+| Manage billing | Current browser administrator | No | No | No | No |
+| Purchase a PDF verification | Current browser administrator + exact purchase + PDF access | No | No | No | No financial consent; history read only |
+| Read/export PDF verification history | Current PDF access | Current PDF access | Current PDF access | Current PDF access | Current PDF access + documents:read |
+| Edit a shared template | Resource edit right | Resource edit right | Resource edit right | No | Current member + template scope + resource right; AI also requires current transfer consent/revision |
+| Publish/archive a template | Resource publish right | Resource publish right | Resource publish right | No | Current member + templates:publish + resource right |
+| Manage template sharing | Resource share right | Resource share right | Resource share right | No | Current member + templates:share + resource right; revocation disclosed |
+| Remove a template | Owner | Owner | Owner | No | Owner + current role/scopes |
+| Cancel/retry a generation | Batch owner | Batch owner | Batch owner | No | Owner + generations:write; frozen batches cannot retry |
+| Read private generated PDFs | Creator/context access | Creator/context access | Creator/context access | Explicit current document access | Owner/context authority; no general private-library access |
+| Profile, language and own sessions | Own account in browser | Own account in browser | Own account in browser | Own account in browser | No browser account administration |
+| Read responsible workshop contacts | Authenticated browser | Authenticated browser | Authenticated browser | Authenticated browser | No |
+| Read public pages/errors/status | Public; no privilege acquired | Public; no privilege acquired | Public; no privilege acquired | Public; no privilege acquired | Public read only; no extra tool/authority |
+| Choose public language and retain a presentation hint | Local browser presentation only; no session required | Local browser presentation only; no session required | Local browser presentation only; no session required | Local browser presentation only; no session required | No account-language setter or extra REST/MCP authority |
+| Choose system/light/dark browser appearance | Local browser presentation only | Local browser presentation only | Local browser presentation only | Local browser presentation only | No account preference setter, mandate or extra REST/MCP authority |
+| Configure Auth0/DNS/MCP issuer trust/reviewer refresh | No authority from workshop role | No authority from workshop role | No authority from workshop role | No authority from workshop role | No business REST/MCP route; distinct authorised platform operator |
+| Open global Belvédère | No authority from workshop role | No authority from workshop role | No authority from workshop role | No authority from workshop role | No; distinct verified browser Watchkeeper |
+| Apply assistant content exclusions | No additional rights | No additional rights | No additional rights | No additional rights | Announce exclusions, stop known excluded content, request person-redacted copy; no automatic classification or web bypass |
+| Use a personal account and received documents without a workspace | Personal principal, no workspace authority gained | Personal principal, no workspace authority gained | Personal principal, no workspace authority gained | Personal principal, no workspace authority gained | No personal access through workspace Bearer |
+| Prepare sensitive distribution | Accessible source + preparation | Accessible source + preparation | Accessible source + preparation | No | Membership + dispatches:prepare + current connection; no invitation secret returned |
+| Read a sensitive share and its audit | Current workspace approver | All with approval permission; otherwise own creations | Own creations | No | Same resource access + dispatches:read; no other recipient documents |
+| Approve sensitive distribution | Browser + recent document session | Approval permission + browser + recent document session | No | No | No; expert mandate is insufficient |
+| Renew an unsubmitted sensitive invitation quote | Browser + source access + recent document session | Approval permission + browser + source access + recent document session | No | No | No; browser-only replacement with fresh human review and no approval transfer |
+| Confirm sensitive distribution after human approval | Current browser evidence | Approval permission + current browser evidence | No | No | Approver role + dispatches:send + existing sensitive browser evidence + host confirmation |
+| Independently confirm recipient association when required by policy | Browser + document policy + independent verification | Approval permission + browser + document policy + independent verification | No | No | No |
+| Revoke shared access without refund | Current authority | Approval permission | No | No | Approver role + dispatches:send; acquired personal copy retained |
+| Read/export/delete another person’s personal copy | No, including workspace administrator | No | No | No | No |
+| Keep or export one’s own received document | Personal principal + document policy + share permission | Personal principal + document policy + share permission | Personal principal + document policy + share permission | Personal principal + document policy + share permission | No; personal operation outside workspace OAuth |
+| Read public browser reports | Public access without workspace privilege | Public access without workspace privilege | Public access without workspace privilege | Public access without workspace privilege | Public read only; no ingestion or business authority |
+| Read monthly and daily consumption history | Yes | Reporting option | No | No | Current reporting rights + tenant-scoped REST read; no new MCP billing tool |
+| Read private generation correction input | Only own generation under current browser membership | Only own generation under current browser membership | Only own generation under current browser membership | Only own generation under current browser membership; creation still requires its permission | No MCP/native route; shared-template or dispatch-review access grants no source input |
+
+Supervisor approval/reporting options are independent and off by default. Resource ownership/context checks still apply. See [workspace roles](WORKSPACE_ROLES.md), [expert approval](EXPERT_APPROVAL.md) and [studio access](TEMPLATES_DATA_DISTRIBUTION.md).
+
+## Complete feature inventory
+
+<a id="identity"></a>
+### Access and identity
+
+**Availability model:** browser-session. Unified personal account and optional workspace implementation; migrations, aligned document policy, Auth0 configuration and connected production qualification require separate evidence.
+
+**Surfaces:** Personal browser authority and workspace/native sessions; REST/MCP resource OAuth with explicit same-tenant issuer trust, independently selected discovery and canonical identity/connection/mandate keys.
+
+- Auth0 sign-in, verified accounts and explicit MFA policy
+- Canonical browser sign-in/callback; retired hosts and preview URLs refuse authentication
+- Personal profile and interface language; browser color preference is separate presentation state; the retired Classic layout value stays accepted but no longer changes the web layout
+- Session listing, revocation and explicit logout
+- Successful logout returns to the public home before Login remounts; failures stay visible and never claim a logout
+- Workshop switching with current membership rights
+- OAuth connection binding, revocation and consented scopes
+- Exact resource-metadata discovery issuer, including its trailing slash; official MCP SDK contract tests without external network
+- Account deletion request; complete erasure processing remains unqualified
+- Visible signed-in name and login email on desktop/mobile, with the email heading the V2 account menu; current role and permissions belong on My account
+- Explicit Auth0 account switching without disabling ordinary SSO
+- Tab-focus reconciliation of identity, workshop and saved language
+- One authenticated language control in the account; visitor choice stays separate
+- Stored Classic/V2 preference (migration 0053) stays readable and accepted for compatibility; the web renders V2 for every account, and identity changes still reconcile language
+- Late contact-directory errors provide accessible recovery without interrupting profile editing
+- Path-scoped browser reads: hide previous resources, preserve same-path refresh and ignore cancelled late responses/401s
+- Direct Auth0 entry from public links and unauthenticated private routes, preserving locale and exact destination
+- Deep-link recovery from the valid transaction, excluding callback URLs and private parameters
+- Prepared Auth0 brand assets and FR/EN/DE UI; Luxembourgish keeps its Guteneo locale with Auth0 fallback; language activation and publication need separate proof
+- Restore explicit visitor language after the initial session check without overwriting current selection or account preference
+- Recovery screen only after an error, with explicit retry and no automatic loop; native Auth0 signup, local demo and public fixture remain distinct
+- Reread workshop capabilities for a browser session; anonymous reads support recovery and refresh the shared public offer/FAQ after returning home
+- Independent browser domain and bounded same-tenant MCP token trust; explicit custom/canonical MCP discovery preference with rollback that retains existing tokens and canonical identity/connection keys
+- Additive migration 0054 binds authorisation issuer and identity namespace to PKCE; legacy NULL flows stay canonical and rollback never silently switches provider
+- Verified dual-token subject binds to the canonical namespace without email linking or duplicate person/workshop/credits/authority; browser evidence and prepare_only restriction remain
+- One Guteneo account without an automatic workspace; idempotent initial administrator/workspace creation only on explicit service use
+- Personal browser principal and session without membership, separate from workspace API authority; shared profile name/language and no email-based identity merging
+- My documents, Use Guteneo and Account and security share one sign-in; voluntary workspace choice/creation reloads the chosen destination and bootstraps that workspace’s current session, rights and CSRF; the application switcher opens Studio or Correspondence in the current workspace (or workspace choice/creation when none exists), and Use Guteneo appears in personal navigation only without a workspace
+- Document policy defaults to strong or explicitly selects verified_account: verified account/address and signed auth_time in an unexpired, unrevoked identity-linked session; no separate document sign-in for verified_account, while strong retains fifteen minutes for reading/association/approval and five for export/deposit/deletion; documentAccessAllowed/documentAccessMode do not imply MFA or strongAuthentication; D1 defaults strong and environment disagreement fails closed
+- Document invitation handoff lasts at most ten minutes in the same tab, then is deleted; capture before Auth0 with secret-free returnTo and no arbitrary private query
+- Document-service 401 offers explicit recovery without session-bootstrap loops; Auth0 recovery reconciles language and returned identity
+- Document-authentication and browser-approval freshness refusals use localized sign-in recovery in all four languages; explicit fresh login preserves the valid current application route and locale without replaying mutations or weakening session-age checks
+- Ordinary application entry without workshop membership offers workspace creation or joining through an existing canonical same-origin invitation with the shared raw 43-character base64url token contract, fragment clearing and explicit acceptance; server-generated invitation integration covers the entry, preview and auth handoff, while the stored SHA-256 hash never enters the link; explicit personal document entry remains independent, with no public workspace enumeration
+- Production browser configuration selects auth.guteneo.com; the tenant-wide custom-domain email flag and exact authorization-response issuer identification were applied and reread on 27 October, without sending verification mail or qualifying human login
+- Normal verified-account browser entry reuses Auth0 SSO within the existing one-hour session bound; signed authentication time is requested without forcing personal-entry max_age=0, and explicit fresh/account-switch behavior remains
+- Verified-account personal and document-authentication recovery use ordinary bounded Auth0 SSO without fresh=1; strong and explicit freshness recovery retain forced authentication. Legacy sessions missing signed auth_time require a real new authorization response, never a timestamp reconstructed from session creation; safe return paths, locale, tenant rights and human approval remain unchanged
+- Workspace and personal browser sessions project only canAccessBelvedere for navigation; signed privileged browser evidence and current membership remain mandatory, with no authority derived from mutable profile email or workspace role
+
+**Contract:** [ACCOUNT_IDENTITY.md](ACCOUNT_IDENTITY.md) · **Implementation:** [apps/api/src/auth.ts](../apps/api/src/auth.ts)
+
+**Tests:** [tests/unit/auth.test.ts](../tests/unit/auth.test.ts), [tests/unit/account.test.ts](../tests/unit/account.test.ts), [tests/e2e/account-identity.spec.ts](../tests/e2e/account-identity.spec.ts), [tests/e2e/resource-navigation.spec.ts](../tests/e2e/resource-navigation.spec.ts), [tests/unit/web-api-cancellation.test.ts](../tests/unit/web-api-cancellation.test.ts), [tests/e2e/login-entry.spec.ts](../tests/e2e/login-entry.spec.ts), [tests/security/auth0-branding.test.mjs](../tests/security/auth0-branding.test.mjs), [tests/e2e/pdf-validation.spec.ts](../tests/e2e/pdf-validation.spec.ts), [tests/e2e/dashboard.spec.ts](../tests/e2e/dashboard.spec.ts), [tests/e2e/locale-boundaries.spec.ts](../tests/e2e/locale-boundaries.spec.ts), [tests/unit/personal-auth.test.ts](../tests/unit/personal-auth.test.ts), [tests/unit/document-invitation.test.ts](../tests/unit/document-invitation.test.ts), [tests/distribution-e2e/personal-account.e2e.ts](../tests/distribution-e2e/personal-account.e2e.ts), [tests/unit/mcp-auth0-domain.test.ts](../tests/unit/mcp-auth0-domain.test.ts), [tests/unit/postal-authority.test.ts](../tests/unit/postal-authority.test.ts), [tests/integration/expert-status.test.ts](../tests/integration/expert-status.test.ts), [tests/unit/workspace-entry.test.ts](../tests/unit/workspace-entry.test.ts), [tests/integration/workspace-invitations.test.ts](../tests/integration/workspace-invitations.test.ts), [tests/e2e/personal-appearance.spec.ts](../tests/e2e/personal-appearance.spec.ts), [tests/unit/secure-distribution-web.test.ts](../tests/unit/secure-distribution-web.test.ts)
+
+
+
+<a id="team"></a>
+### Team and responsibilities
+
+**Availability model:** browser-session. Implemented; invitations require separately configured delivery.
+
+**Surfaces:** Authenticated browser; invitation emails are authored in English.
+
+- Four human membership roles with independent supervisor approval/reporting options
+- Member management, permission changes and atomic access revocation
+- Last-administrator protection
+- Individual/CSV invitations with batch preview and confirmation
+- Verified-email acceptance, expiry and invitation revocation
+- Bounded browser-only responsible contacts filtered by current workshop membership
+- Login email distinguishes members with the same name; effective permissions stay readable
+- Sensitive preparations are visible to their creator and current approvers; operators and observers gain no general access to other preparations
+- Sensitive approval and recipient/account association require a browser under the current document policy; OAuth confirmation follows recorded browser evidence, with no expert-mandate substitute
+- Workspace roles grant no access to another person’s vault; a recipient gains no membership in the sender’s workspace
+
+**Contract:** [WORKSPACE_ROLES.md](WORKSPACE_ROLES.md) · **Implementation:** [packages/contracts/src/roles.ts](../packages/contracts/src/roles.ts)
+
+**Tests:** [tests/integration/workspace-roles.test.ts](../tests/integration/workspace-roles.test.ts), [tests/unit/account.test.ts](../tests/unit/account.test.ts), [tests/e2e/account-identity.spec.ts](../tests/e2e/account-identity.spec.ts), [tests/integration/secure-approval-boundary.test.ts](../tests/integration/secure-approval-boundary.test.ts), [tests/unit/mcp-secure-distribution.test.ts](../tests/unit/mcp-secure-distribution.test.ts)
+
+
+
+<a id="documents"></a>
+### Documents and protection
+
+**Availability model:** capability-gated. Private App transport is published in 1.1.6 at source 147ada, with two actual Claude Desktop selected-original imports, independent exact private R2 bytes, ready/verified one-page analysis and scoped zero associated business effects. The selected window closed with its flag absent. Registered-ID model handoff failed, so general activation and the 1.1.8 native-host correction retest remain pending. Migration 0063 precedes code publication even while the flag is off; other hosts/devices, full retention/confirmation and runtime headroom remain separately qualified.
+
+**Surfaces:** Web/native and existing REST/MCP document access remain unchanged. MCP supports private binary upload up to 10 MiB and inline originals up to 64 KiB; the separately gated App transport published in 1.1.6 selects a new local original and stages it through App-only tools before the same private pipeline. It adds no public REST/browser upload adapter or native-app feature. Actual transport, attachment handoff and physical iPhone require independent qualification.
+
+- Bounded PDF upload and remote import with English API diagnostics and only a sanitized public source hostname
+- Search, paginated listing, metadata and page reading
+- Quarantine, real antivirus, exact hash and PDF validation
+- Resume analysis of the same document without reimport
+- Browser-administrator scanner warm-up
+- Isolated HTML-to-PDF rendering into an immutable document
+- Private storage, quotas, retention and owner-level privacy
+- Assistant exclusions announced before content collection/processing; known excluded content is not imported/read even when stored or ready; scanning never proves its absence
+- Creator-private MCP original-file reservation with actual basename, integer byte count and SHA-256; unchanged documents:write plus current writer and connection authority
+- Upload-only 256-bit capability is returned only by reservation, hashed at rest, limited to five minutes/token expiry and claimed before a 30-second bounded binary PUT; no OAuth token, public PDF link, browser cookie or provider upload authority
+- Exact-size/hash private upload feeds the existing antivirus/quarantine/100-page pipeline under the same planned document ID; connection/trust/membership/expiry rechecks and same-ID status recovery refuse blind retries on unknown outcomes
+- Host file/code/network access and physical Claude iPhone OAuth/file transfer require separate qualification; attachment previews, extracted text, tool discovery and desktop helpers do not prove original-byte transfer
+- Reservation can return deterministic POSIX Python 3.9+ standard-library client code with its SHA-256 for authorized local/cloud execution; status never returns code/capability, and no package install, external script fetch or actual host qualification is implied
+- Small-original import_inline_pdf fallback carries one canonical-base64 original of 20–65,536 bytes with actual size/SHA-256 and a stable key through existing OAuth MCP when runtime Guteneo egress is unavailable; validation precedes reservation, internal 0061 claim/expiry/authority/quota/private-ACL/scanner processing is reused without fetch, and encoded context, truncation, same-ID unknown recovery and physical-client qualification remain explicit
+- Default-off MCP Apps original-selection transport uses a strict empty opener, explicit device Files selection then Import, local size/SHA over the same selected bytes, and five App-only tools through the official bridge; deployed 1.1.6 has bounded actual Claude Desktop imports of 299,807-byte and 10 MiB originals through exact private storage/ready analysis, not automatic conversation-attachment handoff
+- Private immutable R2 staging and tenant-scoped D1 part receipts bound App transport to 256 KiB raw parts, 40 parts/10 MiB, 64 App calls/session, five minutes/original-token expiry, one active session per user within the current workspace, 20 pending/200 MiB reserved staging debt per organization and 200 daily reservations; inline and binary limits remain unchanged
+- App part replay, current-authority/expiry fences and same-key/status recovery preserve the original: pre-put denial is APP_PART_NOT_ACCEPTED, uncertain attempted writes retain debt as APP_PART_UNCONFIRMED and recover only through positive immutable-object size/hash evidence, then explicit Resume; final pipeline unknown stays status-only without another import
+- A database-wide single App-finalizer lease bounds App assembly only; existing minute cron prioritizes expired leases, fences the original writer first and releases logical capacity without rerunning the pipeline. Cleanup remains at most two sessions/80 parts, waits for original expiry plus 90 seconds, retains unresolved debt/tombstones and never deletes registered/deduplicated originals; total Worker memory is not qualified by this admission limit
+- Authenticated documents.originalFilePicker exposes explicit_local_original and conversationAttachmentAccess:false; SDK context updates contain only registered document ID/status and bound original size/SHA, never content/base64/filename/token. Actual 1.1.6 Desktop registered-ID delivery to the model failed; the 1.1.8 source candidate adds standard text alongside structured context plus explicit Use in conversation for the same four-key receipt, with native retests pending and no automatic chat message on import
+- MCP_DOCUMENT_UPLOAD_APP is off by default: strict existing-connection/revision JSON supports at most one hour of qualification, while explicit enabled mode supports a separately reviewed general production rollout after actual qualification and authorized delivery; both retain current writer/OAuth guards, observer denial and no browser fetch, Origin/network permission, new scope, approval, paid check, mandate or infrastructure
+
+**Contract:** [SCANNER_RESCAN.md](SCANNER_RESCAN.md) · **Implementation:** [apps/api/src/documents.ts](../apps/api/src/documents.ts)
+
+**Tests:** [tests/integration/documents.test.ts](../tests/integration/documents.test.ts), [tests/unit/mcp-integrations.test.ts](../tests/unit/mcp-integrations.test.ts), [tests/integration/private-document-upload.test.ts](../tests/integration/private-document-upload.test.ts), [tests/unit/private-document-upload-mcp.test.ts](../tests/unit/private-document-upload-mcp.test.ts), [tests/security/private-pdf-client.test.mjs](../tests/security/private-pdf-client.test.mjs), [tests/integration/mcp-app-document-upload.test.ts](../tests/integration/mcp-app-document-upload.test.ts), [tests/unit/mcp-app-upload-contracts.test.ts](../tests/unit/mcp-app-upload-contracts.test.ts), [tests/unit/mcp-app-upload.test.ts](../tests/unit/mcp-app-upload.test.ts), [tests/browser/mcp-document-upload.test.mjs](../tests/browser/mcp-document-upload.test.mjs), [tests/security/mcp-document-upload.test.mjs](../tests/security/mcp-document-upload.test.mjs)
+
+**Documented REST operations**
+
+- `GET /api/documents`
+- `POST /api/documents`
+- `POST /api/documents/render`
+- `GET /api/documents/{id}/content`
+- `POST /api/documents/{id}/rescan`
+- `GET /api/documents/{id}`
+- `PUT /api/document-uploads/{id}/content`
+
+**MCP tools**
+
+- `append_mcp_document_upload`
+- `begin_document_upload`
+- `begin_mcp_document_upload`
+- `cancel_mcp_document_upload`
+- `finish_mcp_document_upload`
+- `get_document`
+- `get_document_upload`
+- `get_mcp_document_upload`
+- `import_document`
+- `import_inline_pdf`
+- `list_documents`
+- `open_mcp_document_upload`
+- `read_document_pages`
+- `render_pdf`
+- `rescan_document`
+
+<a id="templates"></a>
+### Template studio
+
+**Availability model:** capability-gated. Implemented; AI suggestions require configuration and organisation consent.
+
+**Surfaces:** Web Studio space under /app/studio/…, REST and MCP; optional configured AI proposal service.
+
+- Private, shared and organisation template libraries
+- Five synthetic examples: letter, invoice, statement, quote and delivery note
+- Private copy or blank creation with the REST/MCP authoring guide
+- Word DOCX content import with explicit layout warnings
+- Designer variables, tables, columns, logos, formats and conditions
+- Visible local PNG/JPEG image import above the visual editor; selected-page insertion preserves original bytes, aspect ratio, unique names and business bindings
+- Save, publish and studio navigation wait for committed native property edits; invalid numeric fields and reverting values recover without saving stale geometry
+- Business schema, sample data, calculations and totals
+- Review AI proposals before explicit application
+- Exact PDF preview, immutable versions, publication, duplication and archival
+- Independent use, edit, publish and share rights
+- Owner-only removal preserving historical PDFs and provenance
+- Document-studio exclusions cover DOCX, text, existing templates and business data; stop known excluded content and request a person-redacted copy without web bypass
+- AI suggestions revalidate edit rights, membership, OAuth connection, revision and transfer consent before inference and before returning; reject stale proposals without automatic application/publication
+
+**Contract:** [TEMPLATES_DATA_DISTRIBUTION.md](TEMPLATES_DATA_DISTRIBUTION.md) · **Implementation:** [apps/api/src/template-workflow.ts](../apps/api/src/template-workflow.ts)
+
+**Tests:** [tests/unit/template-authoring.test.ts](../tests/unit/template-authoring.test.ts), [tests/unit/mcp-integrations.test.ts](../tests/unit/mcp-integrations.test.ts), [tests/integration/template-workflow.test.ts](../tests/integration/template-workflow.test.ts), [tests/unit/templates-images.test.ts](../tests/unit/templates-images.test.ts), [tests/e2e/template-images.spec.ts](../tests/e2e/template-images.spec.ts)
+
+**Documented REST operations**
+
+- `GET /api/templates/authoring-guide`
+- `GET /api/templates/examples`
+- `GET /api/templates/examples/{exampleId}`
+- `GET /api/templates`
+- `POST /api/templates`
+- `POST /api/templates/import-docx`
+- `GET /api/templates/{id}`
+- `DELETE /api/templates/{id}`
+- `PATCH /api/templates/{id}`
+- `POST /api/templates/{id}/publish`
+- `POST /api/templates/{id}/duplicate`
+- `POST /api/templates/{id}/share`
+- `GET /api/templates/{id}/sharing`
+- `POST /api/templates/{id}/archive`
+- `POST /api/templates/{id}/preview`
+- `POST /api/templates/{id}/suggest`
+- `GET /api/templates/{id}/schema`
+
+**MCP tools**
+
+- `archive_template`
+- `create_template`
+- `delete_template`
+- `duplicate_template`
+- `get_template`
+- `get_template_authoring_guide`
+- `get_template_example`
+- `get_template_schema`
+- `get_template_sharing`
+- `import_docx_template`
+- `list_template_examples`
+- `list_templates`
+- `preview_template`
+- `publish_template`
+- `share_template`
+- `suggest_template`
+- `update_template`
+
+<a id="datasets"></a>
+### Data and mappings
+
+**Availability model:** capability-gated. Implemented; private-source and optional AI-transfer gates apply.
+
+**Surfaces:** Web Studio space under /app/studio/…, REST and MCP; private source/mapping ownership.
+
+- CSV, XLSX, XML and JSON imports with a private original
+- MCP JSON dataset metadata declares arrays of objects or named arrays of objects to match existing parsing; nested values, runtime errors/recovery, request/cell bounds and private ownership remain unchanged, without new host-file or AI-transfer authority
+- Sheet/header selection and XML record paths
+- English generated Data sheet names, with provenance-bound legacy aliases; uploaded XLSX and explicitly named JSON tables require exact mapping and join names
+- Profiling, anomalies and paginated inspection
+- Resume analysis of the same original
+- Versioned field/group/join mappings
+- Mapping validation before generation
+- Optional AI analysis under browser-administrator policy and transfer consent
+- Document-studio exclusions also cover datasets, direct records and AI functions; stop reading/profiling/mapping/generation on known excluded content without collecting its values
+- Compatible replacement imports retain the current template/version, field correspondence and valid record selection; cell/person/field errors remain actionable without mutating prior generated content
+
+**Contract:** [DATA_IMPORT.md](DATA_IMPORT.md) · **Implementation:** [apps/api/src/template-workflow.ts](../apps/api/src/template-workflow.ts)
+
+**Tests:** [tests/unit/datasets.test.ts](../tests/unit/datasets.test.ts), [tests/integration/template-workflow.test.ts](../tests/integration/template-workflow.test.ts), [tests/e2e/dataset-mapping-alias.spec.ts](../tests/e2e/dataset-mapping-alias.spec.ts), [tests/unit/mcp-integrations.test.ts](../tests/unit/mcp-integrations.test.ts)
+
+**Documented REST operations**
+
+- `GET /api/datasets`
+- `POST /api/datasets`
+- `GET /api/datasets/{id}`
+- `POST /api/datasets/{id}/retry-analysis`
+- `GET /api/datasets/{id}/profile`
+- `POST /api/datasets/{id}/analyze`
+- `GET /api/mappings`
+- `POST /api/mappings`
+- `GET /api/mappings/{id}`
+- `POST /api/mappings/{id}/validate`
+
+**MCP tools**
+
+- `analyze_dataset`
+- `create_mapping`
+- `get_dataset`
+- `get_dataset_ai_policy`
+- `get_mapping`
+- `import_dataset`
+- `import_json_dataset`
+- `list_datasets`
+- `list_mappings`
+- `profile_dataset`
+- `retry_dataset_analysis`
+- `validate_mapping`
+
+<a id="generation"></a>
+### PDF generation and distribution
+
+**Availability model:** capability-gated. Implemented; generation, preparation, approval and delivery remain separate.
+
+**Surfaces:** Web Studio under /app/studio/… and Correspondence preparation /app/distribution/new plus frozen detail /app/distribution/:id, REST and MCP; generation is separate from distribution and delivery. Browser-only owner-authorized record-context supplies correction inputs and is excluded from the OAuth OpenAPI paths.
+
+- Single PDF from a business form
+- PDF batch from a validated mapping
+- Progress, per-record results and source-cell provenance; only local simulation emits finite failure phase/category diagnostics through the captured error channel, never raw errors or customer data; terminal failed/partial XML test results stop polling while preserving both expected exact PDFs and zero sending, and a separate macOS pass does not establish the cause of an earlier Linux failure
+- Exact authorized generated-document analysis state distinguishes processing, retryable and blocked results; bounded visible refresh follows pending scans after generation completes without changing readiness, stealing focus or retrying analysis
+- Generation cancellation and retry of failed records only
+- PDF selection in Studio opens the single Correspondence-owned preparation form with bounded record IDs; arrival revalidates every selected ready result in 50-record pages, performs no navigation write, and Back/Forward/reload preserve the selection
+- The first plan permanently freezes the full batch, including excluded failed records; prepare_distribution declares destructiveHint true
+- Common recipient or frozen columns with an explicit channel per record
+- Resume remaining entries without duplication
+- Entry-linked postal preflight with separate review and sending
+- Known assistant-excluded content is never generated, previewed, shared or distributed; request a person-redacted version and never treat scanning as proof of absence
+- Browser results show bounded name/subject/reference labels without changing record identifiers; the browser-only owner-authorized record-context read supplies labels or one explicit correction input, with current tenant/creator guards and no MCP/native authority
+- Import/replacement retain the selected template/version and compatible field mapping/record exclusions; correcting data or a template creates a new generation/version while prior PDFs and prepared manifests retain their exact hashes
+- Every new destination starts with zero documents even for one PDF; unsaved preparation may veto departure and late preparation/postal replies cannot navigate obsolete visits; the pre-preparation summary lists exact associations and explains that the first plan freezes the full generation, including excluded failed records
+
+**Contract:** [TEMPLATES_DATA_DISTRIBUTION.md](TEMPLATES_DATA_DISTRIBUTION.md) · **Implementation:** [apps/api/src/template-workflow-routes.ts](../apps/api/src/template-workflow-routes.ts)
+
+**Tests:** [tests/e2e/template-distribution.spec.ts](../tests/e2e/template-distribution.spec.ts), [tests/integration/template-workflow.test.ts](../tests/integration/template-workflow.test.ts), [tests/unit/document-analysis-projection.test.ts](../tests/unit/document-analysis-projection.test.ts), [tests/e2e/generation-analysis.spec.ts](../tests/e2e/generation-analysis.spec.ts), [tests/e2e/template-xml-multichannel.spec.ts](../tests/e2e/template-xml-multichannel.spec.ts), [tests/unit/mcp-annotation-audit.test.ts](../tests/unit/mcp-annotation-audit.test.ts), [tests/unit/mcp-integrations.test.ts](../tests/unit/mcp-integrations.test.ts), [tests/e2e/studio-continuity.spec.ts](../tests/e2e/studio-continuity.spec.ts), [tests/e2e/studio-distribution-handoff.spec.ts](../tests/e2e/studio-distribution-handoff.spec.ts)
+
+**Documented REST operations**
+
+- `GET /api/generation-jobs`
+- `POST /api/generation-jobs`
+- `GET /api/generation-jobs/{id}`
+- `GET /api/generation-jobs/{id}/results`
+- `GET /api/generation-jobs/{id}/provenance`
+- `POST /api/generation-jobs/{id}/cancel`
+- `POST /api/generation-jobs/{id}/retry`
+- `POST /api/distribution-plans`
+- `POST /api/distribution-plans/{id}/resume`
+- `POST /api/distribution-plans/{id}/entries/{entryId}/postal-preflight`
+- `GET /api/distribution-plans/{id}`
+
+**MCP tools**
+
+- `cancel_generation_job`
+- `create_distribution_postal_preflight`
+- `generate_documents`
+- `get_distribution_plan`
+- `get_generation_job`
+- `get_generation_provenance`
+- `get_generation_results`
+- `list_generation_jobs`
+- `prepare_distribution`
+- `resume_distribution`
+- `retry_generation_records`
+
+<a id="fax"></a>
+### Fax
+
+**Availability model:** capability-gated. Implemented; live tariff, sender, approval, credits and provider gates apply.
+
+**Surfaces:** Web, REST, MCP and native preparation/tracking; browser or existing delegated approval.
+
+- Exact PDF, recipient number and qualified sender
+- Dated provider quote with bounded renewal
+- Candidate scoped +3524 operator-tariff renewal preserves prices, source dates, seven-day validity and EUR2 cap; migration 0064, matching runtime and separate installation required
+- Estimated range, approved ceiling and credit balance in euros
+- Preparation, human review, approval and confirmation
+- Tracking, receipts, usage settlement and unknown outcomes
+- Unsendable reviewer mode stops before approval
+
+**Contract:** [LIVE_FAX_QUOTES.md](LIVE_FAX_QUOTES.md) · **Implementation:** [packages/domain/src/index.ts](../packages/domain/src/index.ts)
+
+**Tests:** [tests/e2e/fax-pricing.spec.ts](../tests/e2e/fax-pricing.spec.ts)
+
+**Documented REST operations**
+
+- `POST /api/dispatches/{id}/renew-quote`
+
+**MCP tools**
+
+- `prepare_fax`
+
+<a id="postal"></a>
+### Postal mail
+
+**Availability model:** capability-gated. Implemented; qualified profile, distinct transfer authority, quote and final approval are mandatory.
+
+**Surfaces:** Web, REST and MCP with separate postal transfer authority.
+
+- Sender, address, country and qualified provider requirements
+- Left/right address window and explicitly requested address page
+- Paper, colour, simplex/duplex and delivery-service options
+- PDF preflight, address rendering and review
+- Distinct authority for PDF transfer to obtain a quote
+- Exact quote, expiry and final review
+- Confirmation, calendar cutoffs and provider tracking
+- Status projection and reconciliation of unknown outcomes
+
+**Contract:** [MCP_POSTAL_JOURNEY.md](MCP_POSTAL_JOURNEY.md) · **Implementation:** [apps/api/src/postal.ts](../apps/api/src/postal.ts)
+
+**Tests:** [tests/e2e/postal-final-send.spec.ts](../tests/e2e/postal-final-send.spec.ts)
+
+**Documented REST operations**
+
+- `GET /api/senders`
+- `POST /api/postal/preflights`
+- `GET /api/postal/preflights/{id}`
+- `GET /api/postal/preflights/{id}/address.png`
+- `POST /api/postal/preflights/{id}/quote`
+- `GET /api/postal/requirements`
+- `POST /api/postal/address-pages`
+
+**MCP tools**
+
+- `configure_postal_sender`
+- `create_postal_address_page`
+- `get_postal_preflight`
+- `get_postal_requirements`
+- `get_postal_setup`
+- `preflight_postal_pdf`
+- `quote_postal_draft`
+- `transfer_postal_draft`
+
+<a id="email"></a>
+### Email and protected links
+
+**Availability model:** capability-gated. Implemented email candidate; dated operator qualification is separate from deployment, global D1 quota policy, signed webhooks and actual delivery.
+
+**Surfaces:** Individual web and MCP default to secure account delivery; REST uses /api/secure-distributions. Explicit attachments and legacy password links, campaigns and native message-only wire contracts remain compatible. Recipient access stays in the personal browser.
+
+- Individual web/MCP PDF email defaults to My documents: one verified recipient account, no separate password; optional subject/body, localized workspace V2 template and custom HTML href={{document_url}}; final message is frozen before browser approval; account text/HTML limits are exposed in capabilities and preparation descriptions with field-specific overflow errors before rendering
+- Text/HTML email without a file, with a PDF attachment or with a protected link
+- Recipient-request attestation and transactional requirements
+- Explicit quote and per-document hosting charge
+- Protected-link footer and expiration date use the authenticated sender account language (French fallback), with four-language catalog, UTC date formatting and declared Luxembourgish months independent of runtime Intl support; recipient link locale freezes before fingerprinting; no translation of entered content or rewrite of approved/sent messages
+- Private /share route and unlock/content children bypass Static Assets and public-error rendering; existing links retain hosting and access checks, with no sitemap inclusion or automatic resend
+- Accessible ready document emails can omit subject/body independently for localized authenticated-workspace defaults (body only when both text and HTML are absent; HTML otherwise derives text); message-only email still requires content and caller HTML cannot select workspace identity
+- Web individual/campaign forms omit blank document-message fields; individual account-button helpers use the notification locale and preserve authored HTML; the shared draft preview retains directly loaded or uploaded document titles outside the first list page without invented access URLs
+- Branded default document-email template or custom HTML with safe inline email styles; exact account-invitation or explicit legacy protected-link anchor href={{document_url}} resolves server-side without a duplicate CTA; markerless custom HTML gets a styled fallback and both retain access instructions before quote/fingerprint, with malformed/unsupported markers rejected and private URL/password summary masking retained
+- Private link, expiry and browser-only password entry
+- Download without a recipient account under access controls
+- Preparation, approval, tracking and provider policy
+- Resend/SES availability is gated separately from activation; public price references and operator account limits have dated qualification, while account-wide quota policy, webhook/secret and delivery require independent installation and verification
+- Default email quotes the frozen document title in HTML and plain text and includes Discover guteneo plus explicit unsubscribe/report controls; hashed mailbox capabilities suppress only their originating workspace through transaction-time eligibility fences, with separate recipientFeedback status, idempotent lifecycle receipts and stable satisfied-replay timestamps
+
+**Contract:** [PROTECTED_EMAIL.md](PROTECTED_EMAIL.md) · **Implementation:** [apps/api/src/protected-documents.ts](../apps/api/src/protected-documents.ts)
+
+**Tests:** [tests/integration/protected-documents.test.ts](../tests/integration/protected-documents.test.ts), [tests/integration/resend-email.test.ts](../tests/integration/resend-email.test.ts), [tests/unit/delivery-messages.test.ts](../tests/unit/delivery-messages.test.ts), [tests/unit/email-content.test.ts](../tests/unit/email-content.test.ts), [tests/security/email-content-runtime.test.mjs](../tests/security/email-content-runtime.test.mjs), [tests/unit/mcp-email.test.ts](../tests/unit/mcp-email.test.ts), [tests/unit/live-capabilities.test.ts](../tests/unit/live-capabilities.test.ts), [tests/integration/mobile.test.ts](../tests/integration/mobile.test.ts), [tests/security/openapi.test.mjs](../tests/security/openapi.test.mjs), [tests/security/public-assets.test.mjs](../tests/security/public-assets.test.mjs), [tests/e2e/protected-email.spec.ts](../tests/e2e/protected-email.spec.ts), [tests/e2e/protected-recipient.spec.ts](../tests/e2e/protected-recipient.spec.ts), [tests/e2e/email-recipient-attestation.spec.ts](../tests/e2e/email-recipient-attestation.spec.ts), [tests/e2e/email-preferences.spec.ts](../tests/e2e/email-preferences.spec.ts), [tests/unit/secure-distribution-core.test.ts](../tests/unit/secure-distribution-core.test.ts), [tests/unit/mcp-secure-distribution.test.ts](../tests/unit/mcp-secure-distribution.test.ts)
+
+
+
+<a id="secure-distribution"></a>
+### Sensitive distribution and personal documents
+
+**Availability model:** capability-gated. Implemented candidate with migrations 0055–0059 and separate deterministic strong/verified_account qualification. Default strong, explicitly selected verified_account, aligned environment/D1 policy and human approval remain mandatory; real Auth0, provider delivery, publication and external-client proof are separate.
+
+**Surfaces:** Workspace and personal web UI in FR/EN/DE/LB with shared V2 primitives; workspace REST/MCP and assistant packages under scopes. Recipient access, sensitive approval and explicit quote renewal are browser-only; workspace Bearer tokens cannot open the personal vault. Native and real host support need surface-specific qualification.
+
+- One Guteneo account receives, keeps documents and uses services, with zero workspaces permitted
+- Prepare a verified PDF for one named recipient; immutable permissions, term, tax-exclusive price and notification language; revoke unexpired legacy draft/active hosting first, and use a dedicated source after any referenced postal derivation, legacy send, postal preflight or provider draft
+- Bounded durable private rendering serves authorized page images and accessible text; the reader never delivers the original PDF
+- Shared terms of 7/30/90/365 days and personal-copy terms of 365/1095 days; personal-copy options are funded at activation even when unused
+- Versioned prices and separate invitation transport; activated retention commitments are nonrefundable even after revocation
+- Review final pages/text, recipient, message, permissions and quote before browser approval under the active policy; email-request attestation remains separate; the fifteen-minute expiry cap uses the recorded approval creation time across asynchronous validation, with all stricter session/quote/review limits retained
+- Atomic activation and outbox insertion require sensitive browser evidence even through REST/MCP confirmation; expert delegation cannot approve this flow
+- Browser-only explicit quote recovery replaces an eligible unsubmitted distribution from its exact stored source, recipient, policy, notification and ceiling; guarded cancellation and a durable marker retain history, deterministic replay returns the same replacement, and new human review is required before activation
+- Opaque invitation moves through same-tab handoff and a POST exchange, never authentication returnTo, logs, MCP responses or public captures
+- New immutable verified_email policy binds the matching verified address and stable account at claim under fresh-session checks; independent or missing historical policy still requires workspace confirmation
+- My documents separates Shared with me and Saved copies, with bounded server filtering/search and pagination over authorized documents
+- Private pages and text load on demand; document policy, recent session and current grant are rechecked before each delivery
+- Paginated workspace audit distinguishes server/browser provenance and actor account without claiming physical identity; detailed access events retain ninety days, immutable receipts remain separate, visible refresh is bounded and no full reading, disk save or screenshot is proven
+- Optional original export is explicit and requires five-minute authentication freshness under the current policy; requested download and started transfer are distinct events
+- Idempotent personal deposit uses bounded durable jobs, visible automatic progress and recovery after tab closure; success appears only after activation
+- Acquired copies survive workspace revocation or departure; personal export/deletion/history are private from the sender; cancelling deletion retains the copy, confirming removes reading/export, and deletion/expiry prevents redeposit through the same invitation without an extra charge
+- Services remain available through the same account, with voluntary workspace choice/creation, no mandatory purchase and no confidential-content targeting
+- Existing REST/MCP and assistant packages expose catalog, preparation, listing, detail, confirmation after browser evidence and revocation under current rights/scopes
+- Workspace tools expose neither personal principal, recipient association nor personal-vault content
+- Activation fails closed until keys, renderer, scanner, provider and aligned document policy are qualified; V1 excludes ordinary attachments, legacy postal transformations, cropping, analysis and password access after sensitive reference, even after failure/revocation; only a dedicated invitation without source attachment is eligible, with bidirectional service/SQL race guards; local email flags and dated provider qualification prove no installed quota policy, signed webhook or delivery
+- Secure distribution navigation follows Documents while Overview and Assistants lead; list/preparation/detail retain a coherent title and active entry; document-authentication and approval-freshness refusals offer localized explicit fresh sign-in returning to the valid existing share route, without SSO loops, private form storage or automatic approval
+- Workspace preparation explicitly paginates PDF sources and explains that an authorized personal copy can be exported even when the shared original cannot
+- Association attestation binds the displayed account, address and request; changing the candidate requires new independent verification
+- Personal-list 401/403 clears loaded metadata and cursors; stale pagination responses cannot restore an old list after refresh
+- Direct personal routes start their own small shell and authenticated personal session before the document list without waiting for workshop bootstrap; old workshop reads are aborted and fenced from applying identity/language after navigation, and return rereads current workshop authority
+- Personal focus/visibility session reconciliation is bounded and cleaned up; changed identity remounts document state, obsolete results are ignored and list retry does not reload a still-valid session; recipient/document-policy/server authorization remains unchanged
+- Secure distribution list, composer, detail and reader reuse the shared V2 workspace/personal surfaces, typography, controls, facts and responsive spacing; each authorization boundary remains unchanged
+- Personal section changes retain the mounted authenticated shell while capturing and removing each new invitation before children render; no redundant personal-session bootstrap precedes the next page. Initial entry, bounded visible-tab revalidation, identity-change remounts and current server authorization remain required
+- Provider preflight validates the transport reservation after deducting already committed secure retention/personal-copy charges from the immutable total ceiling; it retains all active attempt, approval, sender and tenant checks
+- One explicit priced browser Send action records approval then activation after two attestations; a failed response requires read-only Check status before same-key recovery, without effect-driven writes or another MCP confirmation after active readback
+- Local D1/R2 regressions cover revocation of metadata/images/text/permitted-original/deposit, decryption races, concurrent deposit and duplicate-copy workers; durable copies converge on exact bytes and single receipts without reviving revoked shared access
+
+**Contract:** [SECURE_DISTRIBUTION_JOURNEYS.md](SECURE_DISTRIBUTION_JOURNEYS.md) · **Implementation:** [apps/api/src/secure-distributions.ts](../apps/api/src/secure-distributions.ts)
+
+**Tests:** [tests/unit/personal-auth.test.ts](../tests/unit/personal-auth.test.ts), [tests/unit/document-invitation.test.ts](../tests/unit/document-invitation.test.ts), [tests/unit/mcp-secure-distribution.test.ts](../tests/unit/mcp-secure-distribution.test.ts), [tests/integration/secure-approval-boundary.test.ts](../tests/integration/secure-approval-boundary.test.ts), [tests/distribution-e2e/personal-account.e2e.ts](../tests/distribution-e2e/personal-account.e2e.ts), [tests/distribution-e2e/distribution-pricing.e2e.ts](../tests/distribution-e2e/distribution-pricing.e2e.ts), [tests/distribution-e2e/distribution-lifecycle.e2e.ts](../tests/distribution-e2e/distribution-lifecycle.e2e.ts), [tests/e2e/assistant-hub.spec.ts](../tests/e2e/assistant-hub.spec.ts), [tests/unit/secure-distribution-web.test.ts](../tests/unit/secure-distribution-web.test.ts), [tests/distribution-verified-e2e/lifecycle.e2e.ts](../tests/distribution-verified-e2e/lifecycle.e2e.ts), [tests/e2e/personal-document-performance.spec.ts](../tests/e2e/personal-document-performance.spec.ts), [tests/unit/secure-distribution-core.test.ts](../tests/unit/secure-distribution-core.test.ts), [tests/unit/auth-navigation-recovery.test.ts](../tests/unit/auth-navigation-recovery.test.ts), [tests/e2e/secure-distribution-recovery.spec.ts](../tests/e2e/secure-distribution-recovery.spec.ts), [tests/integration/secure-resend-journey.test.ts](../tests/integration/secure-resend-journey.test.ts), [tests/e2e/secure-distribution-send.spec.ts](../tests/e2e/secure-distribution-send.spec.ts)
+
+**Documented REST operations**
+
+- `GET /api/secure-distributions`
+- `POST /api/secure-distributions`
+- `GET /api/secure-distributions/catalog`
+- `GET /api/secure-distributions/{id}`
+- `POST /api/secure-distributions/{id}/confirm`
+- `POST /api/secure-distributions/{id}/revoke`
+
+**MCP tools**
+
+- `confirm_secure_distribution`
+- `get_secure_distribution`
+- `list_secure_distributions`
+- `prepare_secure_distribution`
+- `revoke_secure_distribution`
+
+<a id="dry-run"></a>
+### Dispatch dry run
+
+**Availability model:** read-only. Implemented partial validation; neither acceptance nor delivery is executed.
+
+**Surfaces:** REST GET and MCP, plus bounded operator runner; current read authority only.
+
+- Validate an existing dispatch within authenticated-workshop and current document authority
+- Read preparation guards, absence of attempts, quote validity and channel restrictions
+- Partial/blocked result; acceptance and delivery are never executed and simulation stays separate
+- Create, renew and consume no quote; preserve expiry; no approval, reservation, outbox or provider attempt
+- REST GET/MCP automation with dispatches:read grants no preparation or approval authority
+- Business read-only semantics remain distinct from HTTP counters and persisted MCP connection activity
+- The test:prod:dry-run runner reads 1–10 existing dispatches sequentially on the canonical origin using an injected read token and emits recent redacted partial evidence
+
+**Contract:** [PRODUCTION_DRY_RUN.md](PRODUCTION_DRY_RUN.md) · **Implementation:** [packages/domain/src/index.ts](../packages/domain/src/index.ts)
+
+**Tests:** [tests/integration/dispatch-validation.test.ts](../tests/integration/dispatch-validation.test.ts), [tests/unit/mcp-dispatch-validation.test.ts](../tests/unit/mcp-dispatch-validation.test.ts), [tests/unit/production-dry-run.test.ts](../tests/unit/production-dry-run.test.ts)
+
+**Documented REST operations**
+
+- `GET /api/dispatches/{id}/dry-run`
+
+**MCP tools**
+
+- `dry_run_dispatch`
+
+<a id="campaigns"></a>
+### Campaigns and tracking
+
+**Availability model:** capability-gated. Implemented; role, exact-document and channel gates apply.
+
+**Surfaces:** Web, REST and MCP; reporting and approval rights are independently checked.
+
+- Named campaign with CSV recipients
+- Row validation, errors and duplicate detection
+- Prepare individual dispatches with the selected document
+- Dispatch list/detail with prices and statuses
+- Aggregate reporting and usage according to current rights
+- Eligible cancellation and review of uncertain operations
+- Channel/ceiling administration without blind retries
+- Path-scoped browser refresh prevents stale resources or cancelled 401s from replacing a newer session
+
+**Contract:** [API_CONTRACT.md](API_CONTRACT.md) · **Implementation:** [apps/api/src/index.ts](../apps/api/src/index.ts)
+
+**Tests:** [tests/integration/domain-invariants.test.ts](../tests/integration/domain-invariants.test.ts), [tests/e2e/resource-navigation.spec.ts](../tests/e2e/resource-navigation.spec.ts), [tests/unit/web-api-cancellation.test.ts](../tests/unit/web-api-cancellation.test.ts)
+
+**Documented REST operations**
+
+- `GET /api/dispatches`
+- `POST /api/dispatches`
+- `GET /api/dispatches/{id}`
+- `POST /api/dispatches/{id}/confirm`
+- `POST /api/dispatches/{id}/cancel`
+- `GET /api/campaigns`
+- `POST /api/campaigns`
+- `GET /api/campaigns/{id}`
+- `POST /api/recipients/validate`
+
+**MCP tools**
+
+- `approve_and_send_dispatch`
+- `cancel_dispatch`
+- `confirm_dispatch`
+- `get_dispatch_status`
+- `list_dispatches`
+- `prepare_dispatch`
+- `review_dispatch`
+
+<a id="billing"></a>
+### Credits and billing
+
+**Availability model:** partial. Credits, ledger, monthly history and annual activity are published. Dated 25 October authenticated evidence restored the known September history without changing its visible balance; a fresh f946 account read and universal historical no-loss audit are not claimed. Commercial top-up remains unqualified; see WELCOME_CREDIT.md.
+
+**Surfaces:** Browser administration; shared backend ledger. No assistant billing administration.
+
+- One-time shared welcome balance in euros
+- Available, reserved and consumed balances; top-up remains unqualified
+- Atomic reservation with acceptance and outbox insertion
+- Provider settlement and retained reserves for unknown outcomes
+- Administrator credit/billing inspection
+- Prepared Stripe integration with separate commercial qualification
+- Read-only tenant-scoped monthly consumption history; current/latest/explicit UTC month selection preserves previous usage and simulation boundaries
+- GitHub-style annual daily activity grid from exact UTC posted debits, selectable years/day detail, keyboard navigation and contained phone scrolling; reservations and simulation remain distinct
+
+**Contract:** [WELCOME_CREDIT.md](WELCOME_CREDIT.md) · **Implementation:** [apps/api/src/billing.ts](../apps/api/src/billing.ts)
+
+**Tests:** [tests/unit/billing.test.ts](../tests/unit/billing.test.ts), [tests/integration/welcome-credit.test.ts](../tests/integration/welcome-credit.test.ts), [tests/e2e/usage-history.spec.ts](../tests/e2e/usage-history.spec.ts), [tests/e2e/usage-activity.spec.ts](../tests/e2e/usage-activity.spec.ts), [tests/integration/live-delivery-quotes.test.ts](../tests/integration/live-delivery-quotes.test.ts), [tests/integration/protected-documents.test.ts](../tests/integration/protected-documents.test.ts), [tests/unit/pdf-validation-pricing.test.ts](../tests/unit/pdf-validation-pricing.test.ts), [tests/unit/secure-distribution-core.test.ts](../tests/unit/secure-distribution-core.test.ts), [tests/unit/auth.test.ts](../tests/unit/auth.test.ts)
+
+**Documented REST operations**
+
+- `GET /api/usage`
+- `GET /api/usage/activity`
+
+
+
+<a id="assistants"></a>
+### Assistants and API
+
+**Availability model:** host-qualified. Contracts/packages and 1.1.6 publication have bounded actual Claude Desktop selected-original storage/readiness proof, owned by CLAUDE_QUALIFICATION.md. Registered-ID delivery to the model failed; the 1.1.8 source candidate adds text context and receipt resilience with actual-host retest pending. The selected window is closed and general activation remains pending. Other hosts/devices, OAuth refresh, archive installation and marketplace publication retain separate evidence requirements.
+
+**Surfaces:** Public/account browser guides and generated static downloads; REST/OpenAPI, MCP and host-specific packages. Compatible-host MCP Apps have separately gated no-content diagnostic and selected-local-original transport resources; tool-only workflows remain useful. Archive/App access creates no OAuth consent, membership, mandate or channel activation; native host installation, file payloads and attachment handoff remain separately qualified.
+
+- Discover actual account capabilities and limits
+- REST/OpenAPI and Streamable HTTP MCP catalogues
+- Standard MCP server title, developer websiteUrl and unchanged PNG512 icons; RFC9728 resource_documentation and visible guide logo, with host-controlled display and a manual canonical image URL
+- Current host-specific OAuth and original-file transport compatibility matrix for Claude and ChatGPT web/iPhone, Cursor desktop/cloud, Grok, Copilot, Gemini and other clients; installation/catalog presence never establishes a pass
+- Import through the actual host transport: CLAUDE_QUALIFICATION.md preserves the historical 1,268-byte inline/prepare-only observations and the later deployed 1.1.6 Desktop selected-original imports of 299,807 bytes/10 MiB through exact creator-private stored bytes and ready analysis. Binary PUT, other preparations and other surfaces remain separate; the new registered-ID model handoff failed and general activation is pending
+- Optional no-content MCP Apps diagnostic is absent by default; MCP_UI_CAPABILITY_PROBE.md owns its exact-connection/revision and at-most-one-hour activation contract, current production OAuth/documents:read, versioned UI resource, strict empty bridge acknowledgement, zero external dependencies/permissions and unchanged authentication/rate/activity accounting
+- Diagnostic UI reports finite local secure-context and picker-API states using the standard bundled MCP Apps App client; the dated 8854/1.1.5 Claude Desktop Free observation covers a rendered widget, empty bridge call and actual native chooser cancelled without file selection/read/upload, with the temporary gate removed; it proves no large-payload transfer, existing-attachment access, web or physical-device pass
+- A separate default-off selected-original App transport published in 1.1.6 uses current documents:write and writer authority, explicit device-file selection/Import and five App-only staging tools; PRIVATE_DOCUMENT_UPLOAD.md owns bounds, recovery, maintenance and activation, separately from the no-content probe
+- Source inventory includes 75 ordinary tools, two optional no-content probe tools and six optional original-picker tools: 83 reviewed tools on full synthetic activation, not 83 tools universally visible to real clients
+- All five App-only upload tools and ordinary begin_document_upload declare destructiveHint:true for potential same-upload reconciliation that deletes only this attempt's unregistered object; App error recovery has tool:null and uses the existing App Check status/explicit Resume, never model invocation of App-only tools or binary switching
+- Confirmed App document receipts retain their accepted ID/status after a late bridge error, with unavailable bridge actions disabled and no reimport; standard text/structured context and a localized explicit Use in conversation message carry only documentId/status/size/sha256, with one in-flight request, same-ID/status attempt deduplication including refused/uncertain results and failure preserving truth; pinned App descriptor bytes/hash/resource URI are direct MCP fingerprint inputs under the normal synchronized-version guard
+- Document, template, dataset, generation and preparation tools
+- Browser review before sending; scopes never elevate membership rights
+- Optional bounded expert delegation for one OAuth client; browser deep links use committed route selection and focus unavailable notices after navigation without disclosing foreign records or mutating authority
+- Complete review replaces the previous token for this dispatch/connection; review_dispatch declares destructiveHint true
+- Only a browser administrator grants/revokes a mandate
+- Six portable package workflows with English metadata, deterministic archives and inventory checks; portal review/publication remains separately evidenced
+- Manual host-specific installation packages; downloading grants no OAuth consent
+- ChatGPT guide defaults to a generated plugin ZIP with a manual MCP alternative, shared across public/account views in four languages; native download links need no business API request or new authority
+- ChatGPT archive preconfigures its registered public OAuth client with no secret, custom-domain endpoints and existing scopes; the manual guide reads the same ID; stable callback requires exact issuer identification, while DCR/CIMD and actual host consent remain separately qualified
+- Explicit MCP annotations disclose overwrites, archival, sharing revocation, generation cancellation, review-token replacement and batch freezing
+- Every advertised tool has four annotation booleans and per-tool evidence, audited through actual tools/list
+- Every registered tool exposes its existing display title through annotations.title, including conditional tools; directory-compatible JSON dataset metadata preserves current business gates, while actual portal scan, each-tool host qualification, submission and public listing require separate evidence
+- Declarative tool descriptions state the operation, inputs/results, side effects, risks and factual prerequisites without assistant behavior instructions, cross-tool orchestration or external behavioral rules; package skills and MCP prompts retain workflow guidance, with unchanged runtime guards, scopes and annotation booleans
+- readOnlyHint/idempotentHint remain false where successful production calls persist visible connection activity; the side effect is disclosed centrally
+- Assistant restrictions cover files, text, templates, datasets, records, existing PDFs/reports; person-redacted recovery adds no automatic classification or new server guard
+- Single source version synchronises application, serverInfo and release/package manifests; builds reject version/connection drift
+- MCP bodies limited to 2 MiB and 120,000 elements; existing 100,000-cell business limit remains
+- Reproducible standalone Claude Code and relative-source local marketplace archives; six workflows without OpenAI metadata or tool preauthorisation
+- MCP custom-domain discovery and signed issuer snapshot preserve canonical data keys, legacy credentials, current postal/expert fences and unchanged scopes; host consent and refresh remain separately qualified
+- Every MCP change reviews and versions the ChatGPT package in the same release; CI/build compare recorded package and MCP direct-import fingerprints, then regenerate the downloadable archive and exact manifest hash; indirect behavior and actual host installation require separate review
+
+**Contract:** [MCP_CLIENT_COMPATIBILITY.md](MCP_CLIENT_COMPATIBILITY.md) · **Implementation:** [apps/api/src/mcp.ts](../apps/api/src/mcp.ts)
+
+**Tests:** [tests/unit/mcp-integrations.test.ts](../tests/unit/mcp-integrations.test.ts), [tests/unit/mcp-annotation-audit.test.ts](../tests/unit/mcp-annotation-audit.test.ts), [tests/unit/mcp-ui-probe.test.ts](../tests/unit/mcp-ui-probe.test.ts), [tests/unit/mcp-app-upload.test.ts](../tests/unit/mcp-app-upload.test.ts), [tests/unit/mcp-app-upload-contracts.test.ts](../tests/unit/mcp-app-upload-contracts.test.ts), [tests/browser/mcp-document-upload.test.mjs](../tests/browser/mcp-document-upload.test.mjs), [tests/security/mcp-document-upload.test.mjs](../tests/security/mcp-document-upload.test.mjs), [tests/security/mcp-ui-probe.test.mjs](../tests/security/mcp-ui-probe.test.mjs), [tests/integration/expert-approval.test.ts](../tests/integration/expert-approval.test.ts), [tests/unit/auth.test.ts](../tests/unit/auth.test.ts), [tests/integration/template-workflow.test.ts](../tests/integration/template-workflow.test.ts), [tests/unit/pdf-validation.test.ts](../tests/unit/pdf-validation.test.ts), [tests/security/integration-package.test.mjs](../tests/security/integration-package.test.mjs), [tests/security/claude-plugin.test.mjs](../tests/security/claude-plugin.test.mjs), [tests/security/integration-sync.test.mjs](../tests/security/integration-sync.test.mjs), [tests/security/preview-release-assets.test.mjs](../tests/security/preview-release-assets.test.mjs), [tests/preview-e2e/assistant-hub.spec.ts](../tests/preview-e2e/assistant-hub.spec.ts), [tests/e2e/assistant-hub.spec.ts](../tests/e2e/assistant-hub.spec.ts)
+
+**Documented REST operations**
+
+- `GET /api/capabilities`
+
+**MCP tools**
+
+- `get_capabilities`
+- `get_expert_status`
+- `open_mcp_ui_probe`
+- `check_mcp_ui_probe_bridge`
+
+<a id="reviewer-oauth"></a>
+### Reviewer OAuth qualification
+
+**Availability model:** operator-gated. Operator tooling implemented; applying Auth0 changes requires explicit authority and a reviewed fingerprint.
+
+**Surfaces:** Authorised operator CLI; GET inspection by default, explicit fingerprint-bound apply.
+
+- Read-only inspection of the exact existing OpenAI reviewer client, historical callback, owner, scopes, API, connections and both Actions’ draft/deployed versions
+- Redacted state/change plan and fingerprint without tokens, client secrets or private content
+- Apply only after explicit authority with --apply --expect and reviewed fingerprint; provision no client/account
+- Deploy both exact Actions before API offline_access and reviewer refresh grant, preserving ownClients, unrelated clients, bindings and consent
+- Bounded rotating refresh: 30-day idle, 90-day absolute, 3-second leeway; API access token at most 3,600 seconds
+- Stop on drift before each write, collision, another renewable Guteneo client or unknown Action; no automatic write retry
+- For partial state, inspect again, review a fresh fingerprint and apply only remaining steps; unknown provider outcomes never trigger blind recovery
+- prepare-chatgpt-reviewer --qualify-client --expect-renewal checks the complete exact state with GET only; never auto-provisions or completes partial migration
+- Real reconnection, refresh and revocation need separate qualification; prepare_only, sending configuration, approval and mandates remain unchanged
+
+**Contract:** [LLM_SETUP.md](LLM_SETUP.md) · **Implementation:** [scripts/enable-openai-review-renewal.mjs](../scripts/enable-openai-review-renewal.mjs)
+
+**Tests:** [tests/security/openai-review-renewal.test.mjs](../tests/security/openai-review-renewal.test.mjs), [tests/security/chatgpt-reviewer-setup.test.mjs](../tests/security/chatgpt-reviewer-setup.test.mjs), [tests/security/claude-renewal.test.mjs](../tests/security/claude-renewal.test.mjs)
+
+
+
+<a id="native"></a>
+### iPhone and iPad
+
+**Availability model:** local-candidate. Native candidate; physical-device, signing and distribution qualification remain separate.
+
+**Surfaces:** Native SwiftUI client and versioned mobile API; authenticated browser for final approval.
+
+- System authentication with dedicated mobile sessions
+- Adaptive iPhone/iPad navigation and accessibility; English source keys with 261 preserved four-language native translations
+- Profile, language and account-deletion request
+- PDF import, inspection and search
+- Fax/email preparation and tracking
+- Final review in an authenticated browser; native sessions cannot grant consent
+- Signing, physical-device, TestFlight and App Store qualification remain separate
+- Read preferredDashboardAppearance in account/session without a native setting/PATCH
+- Swift opens canonical /auth/mobile/authorize; the server selects the configured browser domain and preserves mobile PKCE return, distinct from the native callback
+
+**Contract:** [IOS_API.md](IOS_API.md) · **Implementation:** [apps/api/src/mobile.ts](../apps/api/src/mobile.ts)
+
+**Tests:** [tests/e2e/mobile-account.spec.ts](../tests/e2e/mobile-account.spec.ts), [tests/integration/mobile.test.ts](../tests/integration/mobile.test.ts)
+
+
+
+<a id="public"></a>
+### Public pages, languages and appearance
+
+**Availability model:** public. The 25 October public hierarchy, four detail routes, shared footer, four-language static generation and appearance were published from main 03daa4136de8999cc79018f33f2a22038917c621. Canonical served assets and four-language public layout/link checks passed. The 27 October stable-language, public-session removal and initial-example-CSS correction is a local candidate; its measured build graph adds 1092 gzip CSS bytes without another initial stylesheet request. Current-source browser checks, CI and publication remain separately evidenced. The separate preview retains an isolated provider asset-delivery failure; indexing, provider and real financial qualification remain separate. The 28 October navigation candidate removes repeated document/app startup between public pages; local measurements, CI and publication remain separate.
+
+**Surfaces:** Public browser/static documents and four-language frontend/video catalogues; request-language negotiation adds no REST/MCP operation or native capability. Preview has no business bindings. Authenticated account language, membership and approval remain separately guarded.
+
+- Concise homepage introduces document preparation, explicit review and channel choice; durable How it works, Getting started, Pricing and PDF checks routes retain the full existing offer, examples, guides and conditions
+- Four-language assistant hub and manual installation guides; shared public/workshop marks retain transparent exteriors in both themes, with CSS inversion only for monochrome ChatGPT, GitHub Copilot and Cursor in explicit/system dark mode, unchanged color artwork and source bytes, and no added JavaScript or image request; OAuth, workflows and publication have separate qualification
+- Package download and version/SHA-256 manifest; compare published and local candidate versions; download grants no consent
+- Journal, articles, legal notices and privacy
+- French, English, German and Luxembourgish frontend/video localisation
+- Separate saved personal preference and anonymous visitor choice
+- Public language is fixed before visible content: supported explicit URL wins over the bounded nonsecret selection/account cookie, then Accept-Language and generic French fallback; cookie hints grant no account or business authority, visitor storage resumes after logout, and a small head script migrates older localStorage-only mismatches before paint
+- Twelve localised films, posters, captions and actual durations
+- Every registered main-site public route has generic and French/English/German/Luxembourgish initial HTML, canonical metadata, language alternatives and sitemap entries from one route registry; internal/private paths stay excluded
+- Public pages make no workshop session probe or late account-language replacement; negotiated static HTML varies on Cookie and Accept-Language with private revalidation caching, while explicit-language cache policy, exact bytes, ETag and no-transform remain intact
+- Fictional public preview isolated from the backend; tab-only email accepts omitted custom HTML, formats plain text locally and uses the shared template/French fallback for fictional PDF message defaults; custom HTML requires supplied plaintext, without real links, hosting, provider calls or production-sanitizer qualification
+- Multilingual social cards and reader sharing controls
+- Public error documents retain real HTTP status with 17 dedicated four-language messages and 4xx/5xx fallback; only eligible public failures, no status-selector/demo endpoint
+- The homepage restores the existing four-language Ideas travel closing invitation, first-dispatch installation link and large stamp/postmark above its exclusive panorama with three original birds. The identical common PublicFooter remains on every public React route, including home, with its compact stamp/postmark, two original decorative swallows, sixteen links and colophon; no decoration enters the logged-in application
+- Shared public navigation uses one 1440 px maximum outer frame with matching responsive header/main/footer gutters and narrower readable prose inside. The four-group/sixteen-link catalog supplies canonical four-language links for React, status and public HTTP errors; keyboard/Escape/focus behavior and explicit language across origins remain. Resources places localized Engineering documentation after Developers; all footer consumers retain https://engineering.guteneo.com/ without a language query because its guides are English-authored
+- English source copy with context-aware translations; shared app primitives and one authoritative documentation/feature tree
+- Six legacy homepage fragments keep meaningful destinations, focus and next links; Support retains all eight FAQ answers including postal-processing and PDF limitations
+- Public details join the initial application code graph to avoid a first-tap waterfall while complete initial HTML remains visible; required public/detail and guided-example styles belong to the initial CSS graph, delayed or failed JavaScript preserves the static page, and the fictional diagram/example creates no business request or approval
+- The public header exposes only a localized light/dark action icon at every viewport, defaults to the operating system and supports activation before React through the head bootstrap. Shared origin preference and fixed royal-blue chrome remain; standalone HTML reads only a bounded host-only nonsecret enum cookie with script-free system fallback. Native theme-media and ArticlePicture select original transparent dark portrait and responsive RGBA art. White paper stays inside each asset’s actual inner blue frame with transparent exterior/perforations, without a universal inset rule or outer white contour; original light art and opaque stamp remain unchanged
+- One approved simple browser-icon family from apps/web/public serves product, status, engineering and standalone authentication/Belvedere/protected/error HTML; the shared exact-byte helper binds independent build source scopes and retains the existing canonical hosted-login favicon URL; read-only provider inspection found that URL already aligned, with no remote mutation or deployment claim
+- Self-hosted interface fonts use optional display and three emitted-asset preloads, preserving the approved type when ready while keeping already-visible text geometry stable when font delivery is slow; delayed-font tests qualify desktop and mobile browsers separately, and shared public heading wrapping and responsive wordmark/action bounds preserve narrow layouts with unavailable-font metrics
+- Ordinary same-origin links between registered public pages retain one browser document and loaded application; all small public page components are available on the first interactive click without HTML, route-code, session or private-data prefetch. Canonical English URLs, four-language presentation, static direct entries, history, anchors, focus and destination metadata remain coherent; unavailable initial JavaScript retains the complete static page. Pointer route focus does not frame script-focused containers; keyboard route focus underlines the new main title in the brand blue while interactive controls retain their focus indicators
+- Public film play controls are disabled in server HTML until the client handler mounts; releasing route code starts no movie, and the first enabled click keeps playback/fullscreen in the native gesture with the resolved locale
+
+**Contract:** [MULTILINGUAL.md](MULTILINGUAL.md) · **Implementation:** [packages/contracts/src/public-site.json](../packages/contracts/src/public-site.json)
+
+**Tests:** [tests/e2e/locale-boundaries.spec.ts](../tests/e2e/locale-boundaries.spec.ts), [tests/preview-e2e/public-render-stability.spec.ts](../tests/preview-e2e/public-render-stability.spec.ts), [tests/unit/locale-bootstrap.test.ts](../tests/unit/locale-bootstrap.test.ts), [tests/unit/public-locale-negotiation.test.ts](../tests/unit/public-locale-negotiation.test.ts), [tests/preview-e2e/language-navigation.spec.ts](../tests/preview-e2e/language-navigation.spec.ts), [tests/preview-e2e/assistant-hub.spec.ts](../tests/preview-e2e/assistant-hub.spec.ts), [tests/preview-e2e/public-menu-escape.spec.ts](../tests/preview-e2e/public-menu-escape.spec.ts), [tests/unit/public-assets.test.ts](../tests/unit/public-assets.test.ts), [tests/security/public-assets.test.mjs](../tests/security/public-assets.test.mjs), [tests/unit/public-http-error.test.ts](../tests/unit/public-http-error.test.ts), [tests/preview-e2e/homepage.spec.ts](../tests/preview-e2e/homepage.spec.ts), [tests/preview-e2e/homepage-film.spec.ts](../tests/preview-e2e/homepage-film.spec.ts), [tests/preview-e2e/seo.spec.ts](../tests/preview-e2e/seo.spec.ts), [tests/preview-e2e/theme.spec.ts](../tests/preview-e2e/theme.spec.ts), [tests/unit/standalone-theme.test.ts](../tests/unit/standalone-theme.test.ts), [tests/preview-e2e/public-artwork.spec.ts](../tests/preview-e2e/public-artwork.spec.ts), [tests/unit/public-preview.test.ts](../tests/unit/public-preview.test.ts), [tests/preview-e2e/preview.spec.ts](../tests/preview-e2e/preview.spec.ts), [tests/preview-e2e/mobile-workspace.spec.ts](../tests/preview-e2e/mobile-workspace.spec.ts), [tests/unit/public-footer.test.ts](../tests/unit/public-footer.test.ts), [tests/security/brand-icons.test.mjs](../tests/security/brand-icons.test.mjs), [tests/preview-e2e/font-render-stability.spec.ts](../tests/preview-e2e/font-render-stability.spec.ts), [tests/unit/public-navigation.test.ts](../tests/unit/public-navigation.test.ts), [tests/preview-e2e/public-navigation.spec.ts](../tests/preview-e2e/public-navigation.spec.ts)
+
+
+
+<a id="dashboard"></a>
+### Workspace layout and browser appearance
+
+**Availability model:** browser-session. The 29 October 2026 Studio space, the application/workspace switchers and the four-application ownership check are a local source candidate requiring CI and publication evidence. The 29 October 2026 Classic retirement is a local source candidate requiring CI and publication evidence: every account sees V2, and the stored preference stays accepted without changing the web layout. The initial 25 October theme integration and removal of decorative panels were published from main 03daa4136de8999cc79018f33f2a22038917c621. The personal Classic/V2 account and Belvédère visual follow-up requires its own exact-source release proof and grants no new business authority. The shared outlined personal-context navigation refinement is a local source candidate requiring its own rendered and publication evidence. The 29 October compact V2 navigation and account-menu refinement is a local source candidate requiring CI and publication evidence.
+
+**Surfaces:** Authenticated web V2 only; native reads the stored preference without a setter; no new business API/MCP authority.
+
+- Full real-web V2 views with the same account, tenant, resources and operations; Classic was retired on 29 October 2026
+- Account at navigation bottom, language and color controls side by side in account customization; mobile identity remains visible with the menu closed; the V2 account row opens a disclosure menu with name/email, profile, the shared labelled light/dark action, account switching, service status and sign-out, closing on Escape with focus returned and keeping 44 px touch targets; role and detailed permissions live on My account; native mobile details closes synchronously on Escape before a queued toggle reaches React, preserving summary focus and keyboard activation
+- Personal users.preferred_dashboard_appearance, migration 0053: V2 persisted for new accounts; stored values, including classic, stay readable and accepted for compatibility without changing the web layout, and no migration rewrites them
+- Personal documents use the V2 shell filling the available width with responsive gutters and readable internal form measures, with lightweight independent navigation; personal and workshop customization reuse small shared language/theme controls, preserving personal-only access and existing guarded PATCH authority
+- Strict browser account PATCH with current authority, Origin/CSRF and field-name audit; every role changes only its own preference
+- Old appearance=classic/v2 and legacy atelier links remain harmless: the web ignores them, opens V2 and persists nothing; it no longer reads or writes a browser layout cache
+- Existing activity/alerts precede introduction, otherwise a complete welcome; content preview precedes approval in reading/tab order
+- Stable PDF frame above dispatch-review and document-page verification-purchase consent across lazy module loading/render/error, keyboard-accessible internal scrolling and unchanged consent/data authority
+- Consistent documents, preparation, review, tracking, assistants, account, studio, PDF verification, credits, tables and forms; secure-document price panels retain their padding and consent with a fine one-pixel cobalt side rule; Belvédère shares the V2 visual vocabulary while retaining distinct platform authority and read-only data; recursive diagnostics keep outer key/value columns and stack nested fields without zero-width values or page overflow
+- One brand signature, workshop in navigation and no redundant V2 footer; service status in the account menu and browser timezone near dates
+- One page title, contextual detail back link and task-specific primary action as the screen's only filled button; global New dispatch keeps one secondary, permission-aware place on every V2 page and is repeated in the Overview/Dispatches heading only on narrow screens
+- Compact V2 desktop navigation keeps every destination in view from 864 px high with 34 px pointer rows, fades a cut-off entry while the list still scrolls, draws keyboard focus inside clipped rows and gives each destination one distinct icon; touch layouts keep 44 px targets
+- Generation introduction focuses on finding PDFs and makes clear that generation sends nothing
+- Official identity and real documents, metrics and controls remain; decorative DashboardArtwork panels and swallow styling are retired from overview, empty Documents and assistant introduction, without replacement illustrations
+- Four-language labels; simulation notices only for simulated sessions
+- Same four roles, supervisor options, private access and consents; no new mandate, channel or business API/MCP tool
+- Native account/session reads include appearance without a setter; existing name/language browser PATCH and native language PATCH remain compatible
+- Two separate switchers open the shared V2 sidebar: the application switcher (Studio, Correspondence, My documents; in every application) and, in Studio and Correspondence only, the workspace switcher (current workspace, other memberships, create or join). The workspace list is read only when its panel opens, belongs to one account/workspace/authority identity so a late or earlier list is never shown, is read again after a refused membership, honours the existing unsaved-work veto before switching, and both panels close on Escape (including after a Safari pointer click), an outside pointer or any navigation; triggers are 40/36 px for desktop pointers and 44 px on touch screens; identity actions stay in the account menu
+- Studio space in the same workspace session: Templates, Data and Generations live under /app/studio/… with permanent client aliases for earlier Studio links that keep the query; prepared batches (/app/distribution/…) stay with Dispatches; the workshop navigation keeps Assistants immediately after Overview and shows New dispatch only in the workshop
+- One application route table (apps/web/src/app-routes.ts) owns spaces, Studio addresses, aliases, the current navigation entry and route-code preloading
+- Shared native file input with four-language authored chooser/empty text and literal filenames, keyboard validation and exact-byte upload semantics
+- Desktop Safari select height and protected-link hint spacing; visible keyboard focus, selection and forced-colors states remain readable in both palettes
+- Public and personal headers and Belvédère page actions share one localized light/dark action icon at every viewport, defaulting to the operating system; the authenticated personal V2 shell fills the available width with responsive gutters and follows workshop geometry without changing personal navigation, identity, document access or logout. Browser theme is independent of account language and role; document/PDF/email content retains original light-paper appearance and bytes
+- Template-designer controls adopt the resolved shared palette in place while original template content, output geometry, bindings and PDF bytes retain their document contract
+- V2 protected-email choice, review summary, email preview and PDF viewer frame share the existing 10 px panel corners; 7 px controls and original square PDF paper retain their distinct roles without extra API reads
+- Requested workshop route code loads in parallel with its initial authenticated session, without speculative hover/focus imports or private-data reads; failed route code preserves navigation and current identity with a localized explicit reload, while late imports cannot replace a newer route; transitions temporarily fence retained main content with inert/busy while navigation remains available, preserving existing vetoes and preventing post-check edits; child route readers share one committed context and subscription, account deep-link notices receive focus after the fence clears, and document-close focus returns only to a connected trigger after commit; pointer-focused containers have no page-sized outline, keyboard-focused main titles use a brand-blue underline, and interactive-control focus indicators remain unchanged
+- My documents loads as its own application chunk while a visit-scoped personal session starts in parallel; hidden/obsolete entry results are discarded and current identity/cancellation fences remain
+- WorkspaceIdentity shares profile/theme/account-switch/status/logout controls with My documents and canonical Belvedere; personal account switching sanitizes private return queries, Escape restores focus and navigation/identity replacement close menus
+- Exact complete-label revisions unify workspace terminology in French, English, German and Luxembourgish while preserving legacy lookup keys, explicit contexts, names and interpolated content
+- All four application import exceptions are removed: personal lazy entry, correspondence preference helper, shared entry-link style and locale-change event replace the former eager/cross-layer dependencies
+- Explicit route-code recovery refreshes only failed same-origin public JS/CSS assets before reloading, with no credentials/referrer/private query, at most eight requests, an eight-MiB per-response read bound and five-second timeout; no background retry or business endpoint is added
+
+**Contract:** [DASHBOARD_V2.md](DASHBOARD_V2.md) · **Implementation:** [apps/web/src/account-page.tsx](../apps/web/src/account-page.tsx)
+
+**Tests:** [tests/unit/account.test.ts](../tests/unit/account.test.ts), [tests/integration/mobile.test.ts](../tests/integration/mobile.test.ts), [tests/preview-e2e/dashboard-v2.spec.ts](../tests/preview-e2e/dashboard-v2.spec.ts), [tests/e2e/dashboard-v2.spec.ts](../tests/e2e/dashboard-v2.spec.ts), [tests/e2e/protected-email.spec.ts](../tests/e2e/protected-email.spec.ts), [tests/e2e/account-identity.spec.ts](../tests/e2e/account-identity.spec.ts), [tests/e2e/team-invitations.spec.ts](../tests/e2e/team-invitations.spec.ts), [tests/e2e/template-images.spec.ts](../tests/e2e/template-images.spec.ts), [tests/preview-e2e/theme.spec.ts](../tests/preview-e2e/theme.spec.ts), [tests/e2e/personal-appearance.spec.ts](../tests/e2e/personal-appearance.spec.ts), [tests/e2e/personal-document-performance.spec.ts](../tests/e2e/personal-document-performance.spec.ts), [tests/belvedere-e2e/control-tower.spec.ts](../tests/belvedere-e2e/control-tower.spec.ts), [tests/e2e/pdf-validation.spec.ts](../tests/e2e/pdf-validation.spec.ts), [tests/e2e/workspace-route-performance.spec.ts](../tests/e2e/workspace-route-performance.spec.ts), [tests/preview-e2e/mobile-workspace.spec.ts](../tests/preview-e2e/mobile-workspace.spec.ts), [tests/e2e/locale-boundaries.spec.ts](../tests/e2e/locale-boundaries.spec.ts), [tests/e2e/login-entry.spec.ts](../tests/e2e/login-entry.spec.ts), [tests/e2e/studio-space.spec.ts](../tests/e2e/studio-space.spec.ts), [tests/unit/app-routes.test.ts](../tests/unit/app-routes.test.ts), [tests/e2e/personal-entry-race.spec.ts](../tests/e2e/personal-entry-race.spec.ts), [tests/unit/message-terminology.test.ts](../tests/unit/message-terminology.test.ts), [tests/unit/route-code-recovery.test.ts](../tests/unit/route-code-recovery.test.ts)
+
+
+
+<a id="pdf-verification"></a>
+### PDF verification
+
+**Availability model:** capability-gated. Individual-purchase capability enabled in the 25 October release and observed on f946 main at 26 October 01:47 UTC; private hosted corpus, scanner, application configuration and actual customer purchase remain separate evidence. No new subscription or recurring renewal. See PDF_ACCESSIBILITY.md and PDF_VERIFICATION_PRICING.md.
+
+**Surfaces:** Web browser administrator purchases; REST and MCP retain current document-scoped history reads and cannot create assistant financial consent.
+
+- Individual exact-PDF/profile purchase from available account credits; current integer EUR price and excluding-tax terms come from the authenticated pricing endpoint
+- Current browser administrator alone accepts the immutable purchase; assistants, native callers and other members cannot create financial consent; the document preview reserves its frame through loading/rendering so price consent remains stationary, with no purchase from viewing or scrolling
+- Atomic reservation and one settled charge for a complete valid report; engine failure releases the reservation without a settled debit
+- New subscriptions and automatic recurring renewals are retired; immutable legacy actions and charges are retained, and posted charge history remains visible under current reporting authority
+- Pinned private veraPDF for PDF/UA-1/-2 and PDF/A-1b/2b/3b/4, with official positive/negative corpus, signal-aware bounded cleanup and separate offline/hosted graceful-stop qualification
+- Exact-byte reports, history and JSON export under current PDF access, independent of a monthly entitlement
+- Required human review; a valid report with failed conformance checks is billable, while operational failure is not a conformity verdict
+- One explicit activation flag, private validator and production scanner gates; activation after hosted qualification, never legal certification
+- PDF-accessibility exclusions apply to originals and existing reports; person-redacted recovery without web bypass
+- Same-key recovery for uncertain network responses does not purchase or execute twice; a new independent check requires a new explicit purchase
+
+**Contract:** [PDF_ACCESSIBILITY.md](PDF_ACCESSIBILITY.md) · **Implementation:** [apps/api/src/pdf-validation.ts](../apps/api/src/pdf-validation.ts)
+
+**Tests:** [tests/unit/pdf-validation-pricing.test.ts](../tests/unit/pdf-validation-pricing.test.ts), [tests/e2e/pdf-validation.spec.ts](../tests/e2e/pdf-validation.spec.ts), [tests/unit/pdf-validation.test.ts](../tests/unit/pdf-validation.test.ts), [tests/preview-e2e/geo.spec.ts](../tests/preview-e2e/geo.spec.ts), [tests/preview-e2e/seo.spec.ts](../tests/preview-e2e/seo.spec.ts), [tests/unit/live-capabilities.test.ts](../tests/unit/live-capabilities.test.ts), [apps/pdf-validator/tests/qualification.test.mjs](../apps/pdf-validator/tests/qualification.test.mjs), [apps/pdf-validator/tests/container-lifecycle.test.mjs](../apps/pdf-validator/tests/container-lifecycle.test.mjs), [apps/pdf-validator/tests/worker.test.mjs](../apps/pdf-validator/tests/worker.test.mjs), [apps/pdf-validator/tests/test_server.py](../apps/pdf-validator/tests/test_server.py), [tests/unit/mcp-integrations.test.ts](../tests/unit/mcp-integrations.test.ts)
+
+**Documented REST operations**
+
+- `GET /api/pdf-validation/pricing`
+- `GET /api/documents/{id}/validation`
+- `POST /api/documents/{id}/validation`
+
+**MCP tools**
+
+- `get_pdf_validation`
+- `validate_pdf`
+
+<a id="operations"></a>
+### Operations and reliability
+
+**Availability model:** operator-gated. Implemented operational tooling; changes require explicit authority and exact-source proof.
+
+**Surfaces:** Authorised operator/CI tooling and private services; anonymous monitoring has no workshop authority.
+
+- Interactive/bulk queues, transactional outbox and idempotence
+- Authenticated provider callbacks and logs without sensitive content
+- Private read-only Telnyx operator inspection reports bounded callback status/canonical-match booleans without raw URLs or credential extraction; fresh provider state requires separate proof
+- Reconciliation, bounded recovery and dead-letter queues
+- Ordered D1 migrations, integrity and restore bookmark
+- Private scanner, renderer and validator releases from clean main; root-Wrangler loopback qualification bridge with temporary secret, Origin refusal and no secret transfer; deployment wrapper and hosted runner share strict production pdfValidation.available=false on canonical guteneo.com before container qualification; explicit private forced-stop recovery never replaces graceful idle proof, and runtime-private helpers cannot return a container stub
+- Backend/security/browser suites and exhaustive CI. Dated 26 October main run 40254684422 on f94664ff77c532c0c6b352109f565f6768091c2b passed 22 jobs: 1,131 discovered browser identities, 1,112 passed and 19 declared skips, plus 2,802 unit/integration assertions; this establishes source/fixture qualification, not authenticated clients or business delivery. CI.md owns current execution and qualification limits. The standard-1 validator remains max 1 with 5-second idle; its separately dated hosted corpus covers 100 pages/9.887 MiB and does not establish an infrastructure bill
+- Manual CI reruns retain all immutable artifacts; deterministic current-run metadata selection downloads the latest logical artifact by exact ID, with scoped read permission and unchanged complete-result gates; CI.md owns provenance, refusal and recovery
+- Release from clean, synchronized, verified main
+- Release manifests contain canonical public assets with exact byte hashes; shared application/preview redirects preserve old page/download links without duplicate alias files; unexpected redirects fail served verification; retired workers.dev/preview closure has separate evidence
+- Local production monitor uses bounded anonymous canonical reads and retired-host refusal checks, page hashes, private-access refusal and 120-second staleness; partial feature proof, no sends or permanent task
+- Idempotent cursor-wrap purge with tenant-bound tombstones/success audit and R2/audit failure recovery without recounting completed purges
+- Targeted CI checkout preserves suites and published media; excludes immutable work archives and prefers official Ubuntu mirrors without dropping tests
+- Explicitly authorised daily antivirus maintenance and six-hour exact hosted-health/signature/token watchdog; visible failure without customer scans/sends; GitHub outage requires independent monitoring
+- One source version with release comparison; dependency updates qualified by audit/tests/exact build without paid configuration
+- Dated high/critical registry advisory gate via audit:dependencies does not guarantee unknown-defect absence
+- Repository standards and automated checks require English authored sources, valid English routes and synchronized feature/developer documentation
+- Separate secure render/deposit queue work, bounded lease reconciliation and shared/personal retention cleanup; revocation, erasure, acquisition and immutable evidence remain distinct
+- Documented provider/tariff maintenance separates official price, private account observation, immutable quote and actual outcome; expiry blocks new work without rewriting approved commitments
+- Live deployment completes only after anonymous exact-release verification; a post-deploy verification failure remains a failed release without automatic redeploy or rollback
+- Fixed secure-distribution and private page-render route labels plus one SECURE_PREPARATION_FAILED signal per durable preparation failure, including exhausted jobs; no content, recipients, business IDs or raw errors enter logs
+- Signed negative Resend/SES/Telnyx/Pingen receipts emit one fixed failure signal after the durable projection claim, including recovery after prior event application; receipt HTTP 200 does not hide the operational signal
+- Native Cloudflare failure and missing-cron Monitors were configured and reread on 27 October 2026 with an owner-designated email destination; configured delivery and actual receipt remain separate evidence
+- Prepared separate operator-only direct MCP Events incident schema and agent instructions define signed delivery, durable deduplication and bounded autonomous diagnosis/tests/draftPRs; no operator bridge, subscription, new permission or agent run is activated
+- Chromium-dependent secure Resend journey runs once in the existing browser-equipped security job, outside ordinary Vitest shards; dependency-driven routing checks and aggregate inventory preserve complete coverage
+- CI builds the final non-preview frontend once before unchanged Worker dry runs, executes documentation guards once through docs:check and places the once-only MCP Apps SDK fixtures on desktop Chromium shard three; complete suites, immutable evidence and required main/PR gates remain unchanged, with hosted timing qualification separate
+- Prepared dependency redelivery qualifies a genuine merged Dependabot root npm update only after complete exact-current-main CI, serialized clean-main publication and canonical served-byte verification; a dedicated application token was installed on 29 October with expiry on 27 January 2027; hosted release activation still requires merged workflow and exact-source proof; MCP dependencies require synchronized reviewed plugin publication, unsupported MCP/PDFme versions remain held and routine major toolchain migrations require review
+- Operator-only native strict Auth0 MCP registration controller defaults to sanitized GET inspection and requires an exact fresh fingerprint for separately authorized changes; preserves static clients, account connection, explicit scopes, current membership, consent and approval. Legacy-extension inspection, capacity, OIDC interoperability and real host qualification remain fail-closed activation gates; application deployment does not activate DCR.
+
+**Contract:** [CI.md](CI.md) · **Implementation:** [scripts/deploy-public.mjs](../scripts/deploy-public.mjs)
+
+**Tests:** [tests/security/ci-artifacts.test.mjs](../tests/security/ci-artifacts.test.mjs), [tests/security/ci-results.test.mjs](../tests/security/ci-results.test.mjs), [tests/security/ci-browser-results.test.mjs](../tests/security/ci-browser-results.test.mjs), [tests/security/main-only-release.test.mjs](../tests/security/main-only-release.test.mjs), [tests/security/pdf-validator-release.test.mjs](../tests/security/pdf-validator-release.test.mjs), [apps/pdf-validator/tests/probe-credentials.test.mjs](../apps/pdf-validator/tests/probe-credentials.test.mjs), [tests/security/production-monitor.test.mjs](../tests/security/production-monitor.test.mjs), [tests/security/observability.test.mjs](../tests/security/observability.test.mjs), [tests/integration/documents.test.ts](../tests/integration/documents.test.ts), [tests/unit/telnyx-readiness.test.ts](../tests/unit/telnyx-readiness.test.ts), [apps/scanner/tests/maintenance-status.test.mjs](../apps/scanner/tests/maintenance-status.test.mjs), [apps/scanner/tests/qualification-artifact.test.mjs](../apps/scanner/tests/qualification-artifact.test.mjs), [tests/security/verify-release.test.mjs](../tests/security/verify-release.test.mjs), [tests/security/preview-release-assets.test.mjs](../tests/security/preview-release-assets.test.mjs), [tests/unit/public-routes.test.ts](../tests/unit/public-routes.test.ts), [tests/integration/secure-resend-journey.test.ts](../tests/integration/secure-resend-journey.test.ts), [tests/unit/providers-webhooks.test.ts](../tests/unit/providers-webhooks.test.ts), [tests/security/dependency-release.test.mjs](../tests/security/dependency-release.test.mjs), [tests/unit/dependency-compatibility.test.ts](../tests/unit/dependency-compatibility.test.ts), [tests/security/mcp-registration.test.mjs](../tests/security/mcp-registration.test.mjs)
+
+**Documented REST operations**
+
+- `GET /api/health`
+
+
+
+<a id="belvedere"></a>
+### Belvédère platform oversight
+
+**Availability model:** operator-gated. Dedicated-host release and authenticated overview verified on 25 October from 03daa4136de8999cc79018f33f2a22038917c621; later 06d92 V2 publication and seven-section native Safari navigation are dated proof. Public routing/refusals were observed on f946 at 26 October 01:47 UTC; an authenticated journey on that newer source is not claimed. Private read-only authority remains separate from workshop roles.
+
+**Surfaces:** Private verified Watchkeeper browser only; no workshop/native/OAuth/MCP authority.
+
+- Private read-only Watchkeeper authority bound to verified browser identity and server-secret address, separate from workshop roles
+- Dedicated protected platform host at its root with exact Auth0 callback, host-only browser cookies and no customer API/signup/OAuth authority; compatible private entry retained and denied-identity recovery requests an explicit fresh login
+- Seven views: overview, workshops, members, dispatches, connections, finances and infrastructure
+- Optional country observations with bounded deduplication, new sessions after workshop changes and 90-day retention
+- Distinct promotional credits, dispatch/hosting/individual PDF purchases and legacy subscription charges, actual receipts and supplier costs
+- Server-side Cloudflare connectors with explicit availability; never invent cost or profit
+- Additive migration 0052 and deterministic loopback-only preview; hosted activation is separate
+- Account-selected four-language UI on direct entry and tab focus, including exact known source-authored finance explanations with distinct accounting meanings; unknown data remains verbatim and no private language selector is added
+- V2 workshop visual vocabulary with independent platform navigation, shared single system-default light/dark action, readable tables/globe and keyboard mobile drawer; theme changes preserve filters without business reads/writes or layout-preference changes
+- Canonical /belvedere and its protected child reads reuse the existing canonical host-only browser session; signed-evidence/current-membership guards remain mandatory and the private legacy entry/dedicated host remain protected
+- Session responses expose only canAccessBelvedere for shared application navigation, never a private slug or token; personal projection additionally checks the matching current workspace browser session/evidence
+- Canonical entry uses shared application/account controls, demand-loaded seven-view UI and interactive globe; observation filters never switch operational membership
+
+**Contract:** [BELVEDERE.md](BELVEDERE.md) · **Implementation:** [apps/api/src/belvedere.ts](../apps/api/src/belvedere.ts)
+
+**Tests:** [tests/unit/belvedere.test.ts](../tests/unit/belvedere.test.ts), [tests/unit/belvedere-host.test.ts](../tests/unit/belvedere-host.test.ts), [tests/unit/auth-telemetry.test.ts](../tests/unit/auth-telemetry.test.ts), [tests/belvedere-e2e/control-tower.spec.ts](../tests/belvedere-e2e/control-tower.spec.ts), [tests/unit/belvedere-finance.test.ts](../tests/unit/belvedere-finance.test.ts), [tests/belvedere-e2e/locale.spec.ts](../tests/belvedere-e2e/locale.spec.ts), [tests/unit/belvedere-locale.test.ts](../tests/unit/belvedere-locale.test.ts), [tests/belvedere-e2e/canonical-session.spec.ts](../tests/belvedere-e2e/canonical-session.spec.ts)
 
-### 04 · Studio de modèles
 
-**État :** Implémenté · disponibilité à vérifier.
 
-Contrat : [TEMPLATES_DATA_DISTRIBUTION.md](TEMPLATES_DATA_DISTRIBUTION.md) · Source : [apps/api/src/template-workflow.ts](../apps/api/src/template-workflow.ts).
+<a id="status"></a>
+### Public service status
 
-**Surfaces :** Web / REST / MCP ; restriction du parcours assistant MCP documentée dans le paquet, sans nouveau contrôle automatique web/natif/REST ; revalidation de la suggestion IA côté serveur, commune au web/REST/MCP. **Tests :** [tests/unit/template-authoring.test.ts](../tests/unit/template-authoring.test.ts), [tests/unit/mcp-integrations.test.ts](../tests/unit/mcp-integrations.test.ts), [tests/integration/template-workflow.test.ts](../tests/integration/template-workflow.test.ts).
+**Availability model:** public. Customer UI independently published from 03daa4136de8999cc79018f33f2a22038917c621 on 25 October; all thirteen served assets and retained 7/30/365-day history were verified again at 26 October 01:57 UTC. Runtime/source asset continuity is distinct from the latest natural 01:45 observation of application c81ea94; no f946 collector observation or status redeployment is claimed. Local checks, browser-report ingestion and authenticated business qualification remain separate; see STATUS_SERVICE.md. The shared-footer engineering entry is a local candidate requiring a separate status release. The 28 October loading/runtime and period-cache release was published from a93e7334f603b818a689385f73c33757cdfeea38 with 19 public status assets and five matching brand icons verified. Twelve anonymous before/after contexts record the loading behavior separately from private workflows. Its production browser report passed all fourteen UI journeys but the literal HTML-language guard falsely rejected seven HTTP checks; the semantic-parser follow-up remains a separate candidate until exact-source CI and publication.
 
-- Bibliothèque privée, partagée ou organisation
-- Cinq exemples : lettre, facture, relevé, devis, livraison
-- Copie privée ou création vierge ; guide de création REST/MCP
-- Import Word DOCX et avertissements
-- Designer : variables, tableaux, colonnes, logo, formats et conditions
-- Schéma métier, jeux d’essai, calculs et totaux
-- Suggestions IA revues puis appliquées explicitement
-- Aperçu PDF exact, versions, publication, duplication et archivage
-- Partage : utilisation, édition, publication et partage indépendants
-- Suppression par propriétaire ; conservation des PDF et de la provenance
-- Skill document-studio : avant DOCX, texte, modèle existant ou données métier, annoncer les exclusions ; si leur présence est connue, ne pas lire, importer, générer, prévisualiser, partager ni distribuer ; demander une copie retirée de ces données par la personne, sans contournement web
-- Suggestion IA : droits de modification, membership, connexion OAuth, révision et consentement de transfert revalidés avant inférence et avant retour ; refus de la proposition obsolète, sans application ni publication automatique
+**Surfaces:** Customer-only public browser page and existing read-only GET /api/status, /api/history and /api/e2e-status; the customer UI reads only availability/history. Bounded GitHub OIDC report ingestion remains separate from workspace membership, business REST/MCP authority and native capabilities.
 
-### 05 · Données et mappings
+- Independent status.guteneo.com service with fourteen bounded anonymous canonical checks every fifteen minutes and no business bindings/secrets
+- Actual 7/30/365-day history defaults to thirty days, separates received success from expected-slot coverage and renders unknown/precollection days without reconstruction; annual calendar-month aggregates retain all 365 daily rows and explicit partial-data counts
+- Only complete fresh and internally consistent public observations show availability; actual failed checks identify their group, while missing, invalid, unreadable, future, stale or contradictory evidence makes current availability unknown and removes earlier green badges
+- Customer-only public interface presents observation time, Public website, Service response, Access protection and accessible history; technical probe, provider/engine qualification, local-proof, GitHub-report and Operations tabs are removed without changing backend evidence or business activation
+- Local qualification still tests production-mode domain/PDF paths with external network denied and final providers simulated; source-bound inclusion and release verification remain intact even though the customer UI no longer fetches or displays the dated report
+- System/light/dark appearance uses origin-scoped guteneo.theme, shared preference/resolved datasets and theme-change/storage events, with CSS system fallback when scripts are disabled; status writes no cookie or account preference, retains royal-blue browser chrome and supports contrast, forced colors and reduced motion; seasonal presentation is removed
+- English source catalog provides complete French, English, German and Luxembourgish static/dynamic/ARIA/metadata text; one supported normalized lang parameter wins, then the status origin saved choice, first supported browser language and French fallback; invalid/duplicate explicit parameters select no locale; in-place changes preserve the selected history and canonical localized destinations
+- Dedicated status release retains clean-main, status-only migrations and source/asset checks; the shared footer JSON joins the status source fingerprint, the generated four-language footer.js joins the asset manifest, and incomplete footer labels fail the build; the shared brand-icon helper and five authoritative product icon paths also join its source fingerprint, with exact icon bytes copied into output and declared by the status head
+- Separate public browser reports run on GitHub main every six hours: fourteen desktop/simulated-mobile Chromium journeys and fourteen fixed HTTP contracts, without business operations; the Node driver requests identity/no-transform, preserves strict received-byte/SHA checks without automatic retries and emits bounded public diagnostics outside the signed report; canonical public HTML origin responses also declare no-transform while preserving existing cache directives, bytes, ETag and encoding, without widening private/API policies; HTML language validation shares a bounded opening-element parser, permits additional/reordered attributes and retains wrong/missing/duplicate/malformed-language failures after exact byte/hash verification, with the parser included in the status source fingerprint
+- Public GET /api/e2e-status exposes execution, tested/observed commit, eight-hour freshness, twenty-eight checks and history; absent/stale/version-mismatched proof stays neutral without degrading Cron availability
+- Bounded report ingestion uses GitHub OIDC bound to body and allowed workflow; sanitized output contains no content, account, screenshot or token, and requires no business secret; failures expose only the allowed stage, HTTP status and response code, never OIDC URLs or free-form upstream errors; direct-job workflow claims must be jointly absent or match the exact canonical main workflow and runner commit, with foreign/partial/empty/null pairs denied; only an actual 401 REPORT_REJECTED permits a bounded six-second boolean diagnostic and one signature verification, without requesting another token, retrying ingestion or changing the original result
+- Authenticated distribution and receipt remain unqualified until dedicated accounts and a real journey under the active document policy are qualified; that separate report scope is not fetched by the customer status page and does not degrade Cron availability
+- The common public footer derives four groups and sixteen canonical destinations from the same four-language public-footer.json as React; the lightweight status build and loopback preview generate one adapter without React or a second checked-in catalog. Its stamp exactly copies the approved transparent-outer-edge derivative, retaining printed white interior and preserving the separate opaque official source; the header retains white paper inside its actual inner blue frame and transparent exterior/perforations with ivory dark lettering, and status includes no city panorama
+- The customer page makes two initial dynamic reads, /api/status and the selected /api/history window, and no /api/e2e-status or qualification.json read; explicit refresh and visible fifteen-minute follow-up preserve bounded anonymous reads, while language/theme changes require no additional data read
+- The unchanged status API retains bounded business-coverage projection and distinguishes configured, disabled and untested paid-PDF capability separately from antivirus/import/rendering; configuration never proves hosted scanning, engine execution, purchase or provider delivery
+- One minified deferred browser bundle reuses the authored message, shared-footer, localization and application sources with early script/font hints and optional font display. A bounded three-window fifteen-minute same-UTC-day history cache deduplicates period reads, explicit and automatic refresh bypass it, obsolete requests are aborted, and annual daily rows are built only when opened without changing coverage or unknown/stale semantics
 
-**État :** Implémenté · disponibilité à vérifier.
+**Contract:** [STATUS_SERVICE.md](STATUS_SERVICE.md) · **Implementation:** [apps/status/worker.ts](../apps/status/worker.ts)
 
-Contrat : [DATA_IMPORT.md](DATA_IMPORT.md) · Source : [apps/api/src/template-workflow.ts](../apps/api/src/template-workflow.ts).
+**Tests:** [tests/integration/status-service.test.ts](../tests/integration/status-service.test.ts), [tests/security/status-release.test.mjs](../tests/security/status-release.test.mjs), [tests/security/test-offline.test.mjs](../tests/security/test-offline.test.mjs), [tests/status-e2e/status.spec.ts](../tests/status-e2e/status.spec.ts), [tests/status-e2e/production-e2e.spec.ts](../tests/status-e2e/production-e2e.spec.ts), [tests/integration/production-e2e-status.test.ts](../tests/integration/production-e2e-status.test.ts), [tests/unit/production-e2e-runtime.test.ts](../tests/unit/production-e2e-runtime.test.ts), [tests/unit/public-assets.test.ts](../tests/unit/public-assets.test.ts), [tests/security/public-assets.test.mjs](../tests/security/public-assets.test.mjs), [tests/unit/production-e2e-oidc-diagnostics.test.ts](../tests/unit/production-e2e-oidc-diagnostics.test.ts), [tests/unit/status-locale.test.ts](../tests/unit/status-locale.test.ts), [tests/status-e2e/performance.spec.ts](../tests/status-e2e/performance.spec.ts)
 
-**Surfaces :** Web / REST / MCP ; restriction du parcours assistant MCP documentée dans le paquet, sans nouveau contrôle automatique web/natif/REST. **Tests :** [tests/unit/datasets.test.ts](../tests/unit/datasets.test.ts), [tests/unit/mcp-integrations.test.ts](../tests/unit/mcp-integrations.test.ts).
 
-- Import CSV, XLSX, XML et JSON ; original privé
-- Choix des feuilles, en-têtes ou chemin de records XML
-- Profilage, anomalies et lecture paginée
-- Reprise de l’analyse du même original
-- Mapping versionné : champs, regroupements et jointures
-- Validation du mapping avant génération
-- Analyse IA facultative ; politique et transfert autorisés par administrateur navigateur
-- Skill document-studio : CSV/XLSX/XML/JSON, datasets, records directs et fonctions IA soumis aux mêmes exclusions ; arrêter lecture, profilage, mapping et génération en présence connue, sans demander les valeurs exclues
 
-### 06 · Génération et distribution
+<a id="engineering-docs"></a>
+### Engineering documentation
 
-**État :** Implémenté · disponibilité à vérifier.
+**Availability model:** public. Implemented documentation candidate; production publication requires an explicitly authorized, independently verified release.
 
-Contrat : [TEMPLATES_DATA_DISTRIBUTION.md](TEMPLATES_DATA_DISTRIBUTION.md) · Source : [apps/api/src/template-workflow-routes.ts](../apps/api/src/template-workflow-routes.ts).
+**Surfaces:** Public static engineering documentation with responsive 720/1440-pixel character-scene exports and small explanatory notes; no business API or authentication surface.
 
-**Surfaces :** Web / REST / MCP ; restriction du parcours assistant MCP documentée dans le paquet, sans nouveau contrôle automatique web/natif/REST. **Tests :** [tests/e2e/template-distribution.spec.ts](../tests/e2e/template-distribution.spec.ts), [tests/integration/template-workflow.test.ts](../tests/integration/template-workflow.test.ts), [tests/unit/mcp-annotation-audit.test.ts](../tests/unit/mcp-annotation-audit.test.ts), [tests/unit/mcp-integrations.test.ts](../tests/unit/mcp-integrations.test.ts).
+- Dedicated engineering.guteneo.com reading surface built with Cloudflare Nimbus; customer documentation retains docs.guteneo.com; the shared four-language public footer links to the exact English-site URL under Resources after Developers without inventing localized engineering routes
+- Curated English architecture, workflow and integration guides with local search, Markdown copies and assistant-readable indexes
+- Single-source feature tree with role permissions and customer journeys; feature changes update the registry and developer guide together
+- Brand-colored Mermaid and isometric architecture diagrams with textual equivalents and explicit external provider boundaries
+- Approved video Gutenberg character identity in small explanatory notes and three wide scenes: doctor for PDF diagnostics, architect for diagrams and archivist for the feature tree; no city panoramas or miniature stamp notes; header branding preserves original portrait alpha and its existing approved five-percent StampPaper white interior without an outer contour; other assets follow their actual inner blue frames rather than copying that inset, with ink-black light-mode and approved ivory dark-mode lettering, with reduced-motion support
+- Asset-only publication from clean main matching fresh origin/main and the reviewed commit, with source snapshots and complete output hashes revalidated after browser checks; no business bindings or delivery authority; static no-transform responses preserve reviewed HTML/artwork bytes while hash-named Astro assets retain immutable caching; engineering checks all five public and built browser-icon files against the approved product family, with its helper/source paths bound to the release snapshot and unchanged matching Nimbus SVG plus ICO/PNG/Apple fallbacks
+- Discoverable architecture diagram gallery with three brand-colored Mermaid flows, source downloads and accessible textual explanations
+- Curated Belvédère administration, data-model, release and troubleshooting guides that preserve authority, evidence and recovery boundaries
+- Maintained GitHub job/artifact/release explanation, fresh dependency boundaries and separate application/native/engineering evidence; every Ubuntu package installation, including engineering browsers, first prefers the runner's recognized official HTTPS archives while retaining signed package verification and the Azure fallback, and an unexpected mirror configuration fails closed
+- Curated Cloudflare/Auth0/transport dependencies, background jobs, tariff maintenance, design/i18n/accessibility, AI contribution and reproducible video/voice production guides
+- Origin-scoped system/light/dark selection uses guteneo.theme with pre-paint resolution, cross-tab/system updates and optional migration of a prior ui-mode choice; Nimbus data-mode styling, fixed blue chrome, script-free system fallback and readable ivory dark branding grant no account or operational authority
+- Three isolated browser shards for each desktop/mobile Chromium and iPhone WebKit profile, same-revision build artifacts and independent complete test-ID inventory accounting; exact skip declarations must remain in the discovered inventory and obsolete desktop exceptions are removed when workspace navigation runs on both profiles; no missing/duplicate shard, skipped required job, automatic retry or merged-main publication shortcut; V2 consent and fax-ceiling first fields share one trusted touch/keyboard or desktop fill with exact value/focus and pre-submit checks; V2 retains unchanged real GET responses and exact dispatch recipient, while fax preserves its original timing, typed decimal comma, normalized phone and 150-cent POST without refilling, logging recipients or claiming either unexplained historical Linux input loss was repaired
 
-- PDF unitaire depuis formulaire métier
-- Lot de PDF depuis mapping validé
-- Progression, résultats par record et provenance des cellules
-- Annulation de génération et reprise des seuls records échoués
-- Sélection des PDF et préparation d’un plan de distribution
-- Le premier plan fige tout le lot et interdit la reprise des records échoués, même exclus ; prepare_distribution annonce destructiveHint true
-- Destinataire commun ou colonnes figées ; canal explicite par record
-- Reprise des entrées restantes sans duplication
-- Contrôle postal lié à l’entrée ; revue et envoi séparés
-- Parcours assistant : ne pas générer, prévisualiser, partager ou distribuer des contenus connus comme exclus ; demander une version nettoyée par la personne avant tout nouveau traitement, sans prétendre qu’un scan établit cette absence
+**Contract:** [ENGINEERING_SITE.md](ENGINEERING_SITE.md) · **Implementation:** [apps/engineering/astro.config.ts](../apps/engineering/astro.config.ts)
 
-### 07 · Fax
+**Tests:** [tests/security/engineering-site.test.mjs](../tests/security/engineering-site.test.mjs), [tests/engineering-e2e/site.spec.ts](../tests/engineering-e2e/site.spec.ts), [tests/security/engineering-release.test.mjs](../tests/security/engineering-release.test.mjs), [tests/engineering-e2e/theme.spec.ts](../tests/engineering-e2e/theme.spec.ts), [tests/security/ci-artifacts.test.mjs](../tests/security/ci-artifacts.test.mjs), [tests/security/ci-results.test.mjs](../tests/security/ci-results.test.mjs), [tests/security/ci-browser-results.test.mjs](../tests/security/ci-browser-results.test.mjs), [tests/security/brand-icons.test.mjs](../tests/security/brand-icons.test.mjs)
 
-**État :** Implémenté · disponibilité à vérifier.
 
-Contrat : [LIVE_FAX_QUOTES.md](LIVE_FAX_QUOTES.md) · Source : [packages/domain/src/index.ts](../packages/domain/src/index.ts).
 
-**Surfaces :** Web / REST / MCP. **Tests :** [tests/e2e/fax-pricing.spec.ts](../tests/e2e/fax-pricing.spec.ts).
+## Customer journeys and recovery
 
-- PDF exact, numéro et expéditeur qualifié
-- Devis fournisseur daté et renouvellement borné
-- Fourchette estimée, plafond approuvé et crédits en euros
-- Préparation, revue humaine, approbation et confirmation
-- Suivi, reçus, règlement et issue inconnue
-- Mode reviewer non envoyable : arrêt avant approbation
+### J01 · Discover and sign in
 
-### 08 · Courrier postal
+**Actor:** Visitor → verified account owner, with optional workspace membership. **Branch:** Access.
 
-**État :** Implémenté · disponibilité à vérifier.
+Open the concise public homepage with its approved browser icon in its preselected URL/cookie/browser language, without a session probe or late translation → choose visitor language or the header appearance icon → read How it works, Getting started, Pricing or PDF checks and the complete Support FAQ through canonical shared navigation with initial styles and same-document page changes preserving language, metadata, focus and browser history → open Engineering documentation from the shared Resources footer for English technical guides → use the existing localized closing invitation and first-dispatch link above the home-only panorama → enter canonical Auth0 → register one personal account with V2 appearance → ordinary /app entry without membership opens Services with create/join workspace choice; explicit personal-document entry stays personal → create a workspace or review and accept an administrator invitation → verify current identity, saved account language and rights before useful private content. Return to the valid destination. Explicit logout opens the public home and restores the separate visitor choice. On workshop entry, download only the requested screen code alongside session verification; mount private content only after current authority resolves.
 
-Contrat : [MCP_POSTAL_JOURNEY.md](MCP_POSTAL_JOURNEY.md) · Source : [apps/api/src/postal.ts](../apps/api/src/postal.ts).
+**Failure/recovery:** Refuse invalid callback state, unknown issuer/subject or expired invitation. Recovery retries are explicit. Invalid/duplicate presentation hints fall back safely and grant no identity; explicit public language cannot be replaced by a conflicting late account read. Legacy storage migration excludes private/recovery URLs. Package download, optional Auth0 branding/domain and actual host sign-in each need separate proof. Public route presentation, a localized status link and the fictional example grant no approval or provider activation; failed detail loading retains complete styled static information. Modified/external/private/download links retain native behavior; unavailable initial JavaScript retains complete static HTML and native links without a blank loading page. Failed workshop code keeps the authenticated shell available and offers explicit page reload, with no automatic replay of writes. Public readiness cannot mount private sign-in before session resolution or create a duplicate hosted handoff.
 
-**Surfaces :** Web / REST / MCP. **Tests :** [tests/e2e/postal-final-send.spec.ts](../tests/e2e/postal-final-send.spec.ts).
+[Detailed contract](ACCOUNT_IDENTITY.md).
 
-- Expéditeur, adresse, pays et exigences du fournisseur
-- Fenêtre gauche/droite et page d’adresse explicite
-- Options papier, couleur, recto/verso et service
-- Contrôle PDF, rendu d’adresse et revue
-- Autorisation distincte du transfert du PDF pour devis
-- Devis exact, expiration et revue finale
-- Confirmation, coupures calendaires et suivi fournisseur
-- Projection des statuts et rapprochement des issues inconnues
+### J02 · Administer a team
 
-### 09 · E-mail et liens protégés
+**Actor:** Browser administrator. **Branch:** Access.
 
-**État :** Implémenté · disponibilité à vérifier.
+Open members → invite individually or preview CSV → select role and supervisor options → confirm → track invitations → change/revoke rights. Members without management use workshop contacts.
 
-Contrat : [PROTECTED_EMAIL.md](PROTECTED_EMAIL.md) · Source : [apps/api/src/protected-documents.ts](../apps/api/src/protected-documents.ts).
+**Failure/recovery:** Protect the last administrator. Rights changes revoke access/pending approvals. Directory errors announce manual recovery without stealing focus or losing profile input.
 
-**Surfaces :** Web / REST / MCP. **Tests :** [tests/integration/protected-documents.test.ts](../tests/integration/protected-documents.test.ts).
+[Detailed contract](WORKSPACE_ROLES.md).
 
-- Message texte/HTML sans fichier, avec PDF ou lien protégé
-- Attestation du destinataire et exigences transactionnelles
-- Devis et supplément d’hébergement explicités
-- Lien privé, expiration et mot de passe saisi dans le navigateur
-- Téléchargement sans compte destinataire et contrôles d’accès
-- Préparation, approbation, suivi et politique fournisseur
-- Resend/SES : disponibilité contrôlée, activation séparée
+### J03 · Prepare a fax
 
-### 10 · Contrôle à blanc des envois
+**Actor:** Administrator, supervisor or operator; current approver for acceptance. **Branch:** Deliver.
 
-**État :** Publié le 10 octobre dans c953596 ; refus anonyme 401/no-store vérifié ; parcours authentifié non qualifié en production.
+Import/reuse the exact ready PDF → collect E.164 recipient/sender/ceiling → obtain the actual quote → show estimate and separate ceiling → human browser approval or existing expert review → confirm → track delivery and usage settlement separately.
 
-Contrat : [PRODUCTION_DRY_RUN.md](PRODUCTION_DRY_RUN.md) · Source : [packages/domain/src/index.ts](../packages/domain/src/index.ts).
+**Failure/recovery:** Keep reviewer quotes unsendable. Expired operator tariffs require a separately authorized scoped replacement after matching runtime/SQL support; old price evidence stays dated and no mandate is renewed. Renew only an eligible prepared unattempted quote with exact original parameters and stable key, then obtain fresh approval. Unknown submissions require reconciliation, never resend.
 
-**Surfaces :** REST / MCP / CLI ; aucun nouveau bouton web, écran natif ou route mobile dédiée. **Tests :** [tests/integration/dispatch-validation.test.ts](../tests/integration/dispatch-validation.test.ts), [tests/unit/mcp-dispatch-validation.test.ts](../tests/unit/mcp-dispatch-validation.test.ts), [tests/unit/production-dry-run.test.ts](../tests/unit/production-dry-run.test.ts).
+[Detailed contract](LIVE_FAX_QUOTES.md).
 
-- Validation d’un envoi existant, limitée à l’atelier authentifié et à l’accès documentaire courant
-- Lecture des gardes de préparation, absence de tentative, devis et restrictions applicables au canal
-- Résultat partiel ou bloqué ; acceptation et livraison toujours non exécutées, simulation distincte de la production
-- Aucun devis créé, renouvelé ou consommé ; expiration conservée ; aucune approbation, réservation, outbox ou tentative fournisseur
-- Automatisable via REST GET ou MCP avec dispatches:read ; aucune autorité de préparation ou d’approbation ajoutée
-- Lecture seule métier ; compteurs HTTP et observabilité MCP distincts, annotations de lecture observée conservées
-- Runner test:prod:dry-run : 1–10 envois existants, GET séquentiels canonique, jeton de lecture injecté, preuve récente expurgée ; résultat toujours partiel
+### J04 · Prepare and send postal mail
 
-### 11 · Campagnes et supervision
+**Actor:** Preparer → current approver. **Branch:** Deliver.
 
-**État :** Implémenté · disponibilité à vérifier.
+Read postal setup/requirements → collect missing sender/recipient/options → optionally create an address page from the original → read the final PDF → preflight → separately authorise transfer → obtain the exact provider quote → final approval/send → track.
 
-Contrat : [API_CONTRACT.md](API_CONTRACT.md) · Source : [apps/api/src/index.ts](../apps/api/src/index.ts).
+**Failure/recovery:** Respect address window/profile and scan gates. A failed/unknown transfer cannot be reset with another key. A prepared provider draft is not a sent letter; ordinary post has no invented proof of receipt.
 
-**Surfaces :** Web / REST / MCP. **Tests :** [tests/integration/domain-invariants.test.ts](../tests/integration/domain-invariants.test.ts), [tests/e2e/resource-navigation.spec.ts](../tests/e2e/resource-navigation.spec.ts), [tests/unit/web-api-cancellation.test.ts](../tests/unit/web-api-cancellation.test.ts).
+[Detailed contract](POSTAL_STREAMLINED.md).
 
-- Campagne nommée et destinataires CSV
-- Validation des lignes, erreurs et doublons
-- Préparation d’envois avec le document sélectionné
-- Liste et détail des envois, prix et statuts
-- Rapports agrégés et consommation selon droits
-- Annulation admissible et revue des opérations incertaines
-- Administration des canaux et plafonds sans relance aveugle
-- Lectures navigateur : masquer immédiatement la ressource du chemin précédent, conserver la lecture au rafraîchissement du même chemin, ignorer réponse tardive et 401 après annulation pour ne pas expirer une nouvelle session
+### J05 · Prepare an email
 
-### 12 · Crédits et facturation
+**Actor:** Preparer → current approver. **Branch:** Deliver.
 
-**État :** Implémenté · disponibilité à vérifier.
+Collect recipient and ready PDF → default to My documents, with an explicit attachment alternative → optionally supply subject/message/custom HTML with {{document_url}}, otherwise use localized workspace V2 defaults → prepare secure distribution → follow rendering on the same ID → browser review exact email, PDF, policy and quote → attest the email request → approve and confirm → track. Message-only and explicit legacy modes retain ordinary dispatch approval. → recipient may explicitly unsubscribe/report through the footer; track the response separately from delivery and access.
 
-Contrat : [WELCOME_CREDIT.md](WELCOME_CREDIT.md) · Source : [apps/api/src/billing.ts](../apps/api/src/billing.ts).
+**Failure/recovery:** Never infer recipient consent. Protected passwords stay in the sender browser and are shared separately. Provider acceptance/delivery/PDF reading are different facts; unknown outcomes require reconciliation. Later workspace/profile changes do not rewrite frozen content or resend existing mail. Missing/invalid documents do not permit defaults; malformed or wrong-mode button markers require corrected preparation. Account content overflow identifies the field and limit before rendering; generated buttons follow the notification locale even when interface and account language differ. For secure account invitations only, use explicit browser quote recovery from the original eligible unsubmitted share; review the replacement price again. Fresh sign-in preserves the existing safe share path and grants no approval.
 
-**Surfaces :** Navigateur authentifié. **Tests :** [tests/unit/billing.test.ts](../tests/unit/billing.test.ts).
+[Detailed contract](PROTECTED_EMAIL.md).
 
-- Solde de bienvenue commun en euros et attribution unique
-- Disponible, réservé et consommé ; absence de recharge qualifiée
-- Réservation atomique avec acceptation et outbox
-- Règlement fournisseur et réserves sur issues inconnues
-- Consultation administrative des crédits et facturation
-- Connecteur Stripe préparé ; qualification commerciale séparée
+### J06 · Create a reusable template
 
-### 13 · Assistants et API
+**Actor:** Preparer with current resource rights. **Branch:** Create.
 
-**État :** État daté du 23 octobre dans MCP_ANNOTATION_REMEDIATION.md : PR65 fusionnée et application publiée ; PR67 fusionnée non encore déployée ; paquet 0.3.5 et 32 tests préparés, autorisation de publication obtenue. Configuration MCP du portail indisponible : import 0.3.5, nouveau scan et resoumission non établis. Les tests locaux ne qualifient pas les parcours réels ni le renouvellement OAuth dans l’hôte..
+Read authoring guide or a synthetic example → create/private-copy or import DOCX content → edit schema/layout and optionally embed a local PNG/JPEG logo or image on the selected page → save committed native property edits → inspect warnings/exact PDF preview → review optional AI proposal → publish an immutable version → configure independent sharing rights.
 
-Contrat : [V1_RELEASE_CANDIDATE.md](V1_RELEASE_CANDIDATE.md) · Source : [apps/api/src/mcp.ts](../apps/api/src/mcp.ts).
+**Failure/recovery:** DOCX is content import, not faithful Word layout reproduction. Invalid/unsupported images preserve the template and permit another choice; pending invalid property edits block saving until corrected. expectedRevision fences concurrent edits. AI requires configured consent and current authority before transfer/return; stale proposals do not apply. Known assistant-excluded content stops processing. An accepted cold-route transition temporarily fences the old editor against new input until commit; existing unsaved-work vetoes still run before acceptance.
 
-**Surfaces :** Web / REST / MCP distant et paquets clients locaux ; accès disque/adaptateur local configuré séparément ; aucune nouvelle autorité native ; restriction du parcours assistant MCP documentée dans le paquet, sans nouveau contrôle automatique web/natif/REST. **Tests :** [tests/unit/mcp-integrations.test.ts](../tests/unit/mcp-integrations.test.ts), [tests/unit/mcp-annotation-audit.test.ts](../tests/unit/mcp-annotation-audit.test.ts), [tests/integration/expert-approval.test.ts](../tests/integration/expert-approval.test.ts), [tests/unit/auth.test.ts](../tests/unit/auth.test.ts), [tests/integration/template-workflow.test.ts](../tests/integration/template-workflow.test.ts), [tests/unit/pdf-validation.test.ts](../tests/unit/pdf-validation.test.ts), [tests/security/integration-package.test.mjs](../tests/security/integration-package.test.mjs), [tests/security/claude-plugin.test.mjs](../tests/security/claude-plugin.test.mjs), [tests/security/mcp-registration.test.mjs](../tests/security/mcp-registration.test.mjs).
+[Detailed contract](TEMPLATES_DATA_DISTRIBUTION.md).
 
-- Découverte des capacités et limites du compte
-- Catalogue REST/OpenAPI et MCP Streamable HTTP
-- Guides d’installation ChatGPT, Claude web/Desktop et Code, Grok web et Build, Cursor et Copilot ; connexion OAuth à qualifier par surface
-- Import adapté au transport fichier effectivement disponible
-- Documents, modèles, données, génération et préparation via outils
-- Revue navigateur avant envoi ; scopes sans élévation de rôle
-- Délégation experte bornée à un client OAuth, optionnelle
-- Nouvelle revue complète : remplacement du jeton précédent de l’envoi pour cette connexion, refus de l’ancien jeton et destructiveHint true sur review_dispatch
-- Mandat accordé/révoqué par administrateur navigateur seulement
-- Candidat local plugin 0.3.5 : six skills, manifestes portables et descriptions anglaises ; schéma, inventaire de 19 fichiers, CRC et archive déterministe contrôlés ; import refusé par le portail 0.3.2 Changes required / Not published tant que son MCP existant n’est pas reconfiguré
-- Installation manuelle : plugin MCP personnel ChatGPT ; ZIP Claude et chargement Code ; connecteur/paquet candidat Grok Build ; dossier local Cursor ; modèles Copilot distincts
-- Enregistrement OAuth : callback exact et client réel par hôte ; annonce DCR/CIMD sans qualification ne prouve pas une installation automatique
-- Annotations MCP explicites : écrasement, archivage, révocation de partage, annulation de génération, remplacement du jeton de revue et gel du lot signalés à l’hôte
-- 67 outils avec quatre booléens et justifications par outil ; audit réel tools/list via npm run audit:mcp, candidat local et état du portail séparés
-- readOnlyHint et idempotentHint false conservés : activité visible de connexion persistée après succès en production, effet divulgué centralement dans les descriptions ; aucune donnée ou destination nouvelle
-- Consignes 0.3.5 document-studio et pdf-accessibility : restrictions connues sur fichiers, texte, modèles, datasets, records, PDF et rapports existants ; arrêt puis copie expurgée par la personne, jamais collecte des valeurs exclues ni dépôt web pour contourner ; aucune classification automatique ou nouvelle garde serveur
-- Candidat 1.0.0 : version applicative, serverInfo MCP, manifeste public et surcouches synchronisés ; divergence de version ou de connexion refusée au build
-- Entrées MCP bornées : corps de 2 Mio et 120 000 éléments ; limite métier de 100 000 cellules conservée, sans nouvelle autorisation
-- Deux archives Claude Code reproductibles : plugin autonome et catalogue local à source relative ; six parcours adaptés sans métadonnées OpenAI ni préautorisation des outils ; OAuth et annuaire qualifiés séparément
-- Clients MCP automatiques : découverte Auth0 native et consentement personnel ; repli statique conservé, incompatibilité OIDC/tiers strict à qualifier pour ChatGPT, aucune compatibilité universelle annoncée
+### J07 · Turn data into PDFs
 
-### 14 · Qualification OAuth du reviewer
+**Actor:** Preparer owning the private source. **Branch:** Create.
 
-**État :** Migrateur local et tests de sécurité préparés ; callback exact corrigé après GET live · aucun réglage Auth0 de production appliqué, aucun renouvellement réel attesté.
+Choose a published template → import CSV/XLSX/XML/JSON while preserving that choice → verify/profile exact original → define versioned field mapping and validate each row/cell → generate distinct PDFs → inspect business name/subject/reference and provenance. In the browser, replace compatible source data without losing the mapping; preserve only verifiable exclusions and explicitly review unmatched rows. Correct one result with its exact historical template version, or explicitly create a new template version; each correction creates a new generation and leaves prior PDF bytes/hashes and prepared manifests intact.
 
-Contrat : [LLM_SETUP.md](LLM_SETUP.md) · Source : [scripts/enable-openai-review-renewal.mjs](../scripts/enable-openai-review-renewal.mjs).
+**Failure/recovery:** Resume the same original after transient analysis failure. Resolve mapping/type/join issues explicitly. Generation completion does not establish PDF readiness; follow the bounded security-analysis refresh and review retryable or blocked results explicitly. AI is optional and separately consented; generation creates no dispatch or credit reservation. An accepted cold-route transition temporarily fences the old editor against new input until commit; existing unsaved-work vetoes still run before acceptance. Private correction input is browser-owner-only under current membership; template sharing and dispatch review do not expose it. Query changes and Back/Forward cannot reuse another record’s unsaved data; leaving an unsaved correction requires explicit review.
 
-**Surfaces :** CLI opérateur Auth0 autorisé ; aucune route métier web/native/REST/MCP supplémentaire et aucun droit issu d’un rôle atelier. **Tests :** [tests/security/openai-review-renewal.test.mjs](../tests/security/openai-review-renewal.test.mjs), [tests/security/chatgpt-reviewer-setup.test.mjs](../tests/security/chatgpt-reviewer-setup.test.mjs), [tests/security/claude-renewal.test.mjs](../tests/security/claude-renewal.test.mjs).
+[Detailed contract](TEMPLATES_DATA_DISTRIBUTION.md).
 
-- Inspection GET seule par défaut : client reviewer OpenAI existant exact, callback historique /connector/oauth/aAwc9dso12_L conservé sans écriture, propriétaire, scopes/API, connexions et versions draft/déployées des deux Actions
-- Plan expurgé et empreinte de l’état et des changements ; aucun jeton, secret client ou contenu privé exposé
-- Application après autorisation explicite seulement, avec --apply --expect et empreinte revue ; aucun client ni compte provisionné
-- Déployer les deux Actions exactes avant offline_access de l’API puis grant refresh du seul reviewer ; conserver ownClients, clients tiers, associations, bindings et consentement
-- Refresh rotatif borné : 30 jours d’inactivité, 90 jours absolus, tolérance de 3 secondes ; access token API au plus 3 600 secondes
-- Dérive avant chaque écriture, collision, autre client Guteneo renouvelable ou Action inconnue : arrêt ; aucune écriture retentée automatiquement
-- État partiel connu : inspecter de nouveau, revoir l’empreinte fraîche et appliquer seulement les étapes restantes ; issue fournisseur inconnue sans reprise aveugle
-- prepare-chatgpt-reviewer --qualify-client --expect-renewal : qualification GET seule de l’état complet exact ; aucun auto-provisionnement ni achèvement de migration partielle
-- Reconnexion, renouvellement et révocation réels restent à qualifier ; aucune modification de restriction prepare_only, de configuration d’envoi, d’approbation ou de mandat
+### J08 · Distribute a PDF batch
 
-### 15 · Compagnon iPhone et iPad
+**Actor:** Preparer → current approver. **Branch:** Deliver.
 
-**État :** Implémenté · disponibilité à vérifier.
+Select generated PDFs by their business labels in Studio → open Correspondence /app/distribution/new with generation and selected record IDs → revalidate every selected ready result in bounded 50-record pages → explicitly choose each document for each new destination, starting with zero documents even for one selected PDF → inspect exact associations and full-generation freeze consequence → prepare the immutable manifest at /app/distribution/:id → resume remaining entries → complete linked postal preflight where needed → review/approve each exact dispatch. Back/Forward/reload preserve the selected IDs, unsaved changes can veto departure, and navigation alone creates no plan or dispatch.
 
-Contrat : [IOS_API.md](IOS_API.md) · Source : [apps/api/src/mobile.ts](../apps/api/src/mobile.ts).
+**Failure/recovery:** An unavailable or inaccessible selected record blocks preparation rather than dropping part of the selection. A response from an obsolete visit cannot navigate after departure or a workspace/account change, including a return to the same URL. A frozen batch cannot retry even excluded failed records; create a new generation batch when needed. Multiple channels require explicitMultichannel. No manifest operation implies consent, transfer or sending.
 
-**Surfaces :** iOS / API mobile / revue navigateur. **Tests :** [tests/e2e/mobile-account.spec.ts](../tests/e2e/mobile-account.spec.ts), [tests/integration/mobile.test.ts](../tests/integration/mobile.test.ts).
+[Detailed contract](TEMPLATES_DATA_DISTRIBUTION.md).
 
-- Authentification système et sessions mobiles dédiées
-- Navigation adaptative iPhone/iPad et accessibilité
-- Profil, langue et demande de suppression du compte
-- Import, inspection et recherche PDF
-- Préparation fax/e-mail et suivi
-- Revue finale dans navigateur authentifié ; pas de consentement natif
-- Signature, appareil physique, TestFlight et App Store à qualifier
-- Lecture de preferredDashboardAppearance dans compte/session ; aucun réglage ni PATCH natif de cette préférence web
+### J09 · Supervise or observe work
 
-### 16 · Expérience publique et langues
+**Actor:** Authorised supervisor or observer. **Branch:** Operate.
 
-**État :** Implémenté · disponibilité à vérifier.
+Read accessible documents/dispatches → inspect tracking → use aggregate reports only with the independent reporting right → review attention items before further action.
 
-Contrat : [MULTILINGUAL.md](MULTILINGUAL.md) · Source : [packages/contracts/src/public-site.json](../packages/contracts/src/public-site.json).
+**Failure/recovery:** Preparation, approval and reporting are independent permissions. Observers stay read-only. Private originals/generated PDFs retain owner/context checks, regardless of workshop read access.
 
-**Surfaces :** Web public / maquette. **Tests :** [tests/e2e/locale-boundaries.spec.ts](../tests/e2e/locale-boundaries.spec.ts), [tests/preview-e2e/language-navigation.spec.ts](../tests/preview-e2e/language-navigation.spec.ts), [tests/preview-e2e/assistant-hub.spec.ts](../tests/preview-e2e/assistant-hub.spec.ts).
+[Detailed contract](WORKSPACE_ROLES.md).
 
-- Présentation, fonctionnalités, rôles et guides assistants
-- Hub assistants et guides FR/EN/DE/LB préparés localement : lien ZIP et étapes manuelles ChatGPT/Claude/Grok/Cursor ; OAuth, skills et publication qualifiés séparément
-- Téléchargement du paquet et manifeste version/SHA-256 : comparer la version publiée au candidat local avant installation ; aucun téléchargement ne consent à OAuth
-- Journal, articles, notices légales et confidentialité
-- Français, anglais, allemand et luxembourgeois
-- Préférence personnelle et choix anonyme
-- Douze films localisés, affiches, sous-titres et durées réelles
-- Pages statiques, canonical, sitemap et langues alternatives
-- Maquette publique fictive isolée du backend
-- Cartes de partage multilingues et boutons lecture : intégrés à main par PR #43
+### J10 · Work with an assistant
 
-### 17 · Atelier V2 et apparence personnelle
+**Actor:** Existing Guteneo member and a host-supported OAuth client. **Branch:** Interfaces.
 
-**État :** Simplification V2 du 14 octobre : 18 cas navigateur et 40 tests locale/apparence réussis, build/typecheck/lint/atlas validés, six mesures de ressources locales ; CI du commit exact, publication et contrôle authentifié hébergé restent à qualifier ; preuves antérieures datées dans DASHBOARD_V2.md.
+Choose the host-specific guide → for ChatGPT download/import the plugin ZIP or choose manual MCP with the supplied public client ID and empty secret when unavailable → compare package version/hash and actual tool titles/schemas/descriptions → follow the maintained workflow skills/prompts under actual host rules and consent OAuth → verify read-only account capabilities/current mandate → use only available file transport/tools → prepare → review through browser or pre-existing bounded delegation → track.
 
-Contrat : [DASHBOARD_V2.md](DASHBOARD_V2.md) · Source : [apps/web/src/account-page.tsx](../apps/web/src/account-page.tsx).
+**Failure/recovery:** Archive download/import, directory metadata or a portal scan creates no connection proof, extra role, scope or mandate. Directory publication and every-tool test attestation need separate evidence. Missing host upload support uses the manual guide; OAuth failures require the actual registered client/callback and exact issuer response; update stale imports and preserve reviewer identity, never use a shared token or advertise unavailable DCR. Announce excluded-content rules before collection and stop known excluded content. Respect host confirmations and no automatic unknown-outcome retries.
 
-**Surfaces :** Atelier web et profil navigateur ; lecture additive compte/session natifs ; REST métier et MCP sans nouveau pouvoir ; maquette fictive isolée. **Tests :** [tests/unit/account.test.ts](../tests/unit/account.test.ts), [tests/integration/mobile.test.ts](../tests/integration/mobile.test.ts), [tests/unit/dashboard-appearance.test.ts](../tests/unit/dashboard-appearance.test.ts), [tests/preview-e2e/dashboard-v2.spec.ts](../tests/preview-e2e/dashboard-v2.spec.ts), [tests/e2e/dashboard-v2.spec.ts](../tests/e2e/dashboard-v2.spec.ts), [tests/e2e/protected-email.spec.ts](../tests/e2e/protected-email.spec.ts).
+[Detailed contract](LLM_SETUP.md).
 
-- Version complète de l’Atelier web réel : mêmes compte, tenant, ressources et opérations ; aucun environnement métier fictif parallèle
-- Compte en bas de navigation ; Version de l’atelier près de la langue, Classique ou V2 appliquée après sauvegarde réussie du profil ; identité et rôle accessibles sur mobile même lorsque le menu est fermé
-- Préférence personnelle users.preferred_dashboard_appearance, migration 0053, défaut classic ; même personne entre ateliers, sessions et appareils après relecture
-- PATCH navigateur du compte : preferredDashboardAppearance strict, Origin/CSRF, autorité courante et audit de noms de champs ; tous les rôles peuvent modifier seulement leur propre choix
-- URL atelier=v2 ou atelier=classic : forçage temporaire sans sauvegarde serveur ; supprimé après sauvegarde d’un choix d’apparence explicite ou changement d’identité détecté ; cache local non autoritaire
-- Accueil avec alertes et activité avant introduction si historique ; accueil complet sinon ; aperçu du contenu avant accord dans l’ordre de lecture et clavier
-- Revue Classique/V2 : cadre PDF stable au chargement, au rendu et en erreur ; défilement interne accessible au clavier, sans déplacement des consentements ni modification des octets ou de l’autorité
-- Présentation cohérente documents, préparation, revue, suivi, assistants, compte, Studio, Horizon, crédits, tableaux et formulaires ; Belvédère conserve sa présentation distincte
-- Coque V2 allégée : une signature Guteneo, atelier dans la navigation, suppression du pied de page redondant ; statut du service près du compte et fuseau du navigateur près des dates
-- Titre de page unique hors navigation ; retour contextuel sur les détails ; action principale de la tâche mise en avant, Nouvel envoi global secondaire et absent sur accueil/préparation/envois qui ont leur entrée locale, toujours selon les droits
-- Générations : introduction centrée sur les PDF retrouvés et absence d’envoi automatique ; détails techniques conservés dans le parcours documentaire
-- Portrait officiel, mot-symbole noir minuscules, trois gravures et hirondelles bleues approuvées ; décorations discrètes limitées à accueil, documents vides et assistants
-- Libellés FR/EN/DE/LB ; aucune mention expérimentale sur V2 réelle ; bandeaux de simulation maintenus uniquement pour les sessions simulées
-- Mêmes quatre rôles, options indépendantes du superviseur, accès privés et consentements ; aucun nouveau mandat, canal, endpoint métier ou outil MCP
-- Lectures natives compte/session enrichies sans setter natif d’apparence ; anciens PATCH navigateur nom/langue compatibles, PATCH natif de langue préservé ; la simplification web ne crée aucune nouvelle surface native/REST/MCP
+### J11 · Use iPhone or iPad
 
-### 18 · Horizon et diagnostic PDF
+**Actor:** Member using the native candidate. **Branch:** Interfaces.
 
-**État :** Ouverture sur crédits autorisée · qualification hébergée et activation à confirmer.
+Start system authentication on the canonical backend → use dedicated mobile session → import/inspect/search PDFs → prepare fax/email → open authenticated browser for final review → read tracking.
 
-Contrat : [PDF_ACCESSIBILITY.md](PDF_ACCESSIBILITY.md) · Source : [apps/api/src/pdf-validation.ts](../apps/api/src/pdf-validation.ts).
+**Failure/recovery:** Native sessions cannot approve or send. Account erasure processing, physical-device sign-in, signing, TestFlight and App Store distribution require separate qualification.
 
-**Surfaces :** Web / REST / MCP ; restriction du parcours assistant MCP documentée dans le paquet, sans nouveau contrôle automatique web/natif/REST. **Tests :** [tests/unit/monthly-plan.test.ts](../tests/unit/monthly-plan.test.ts), [tests/e2e/horizon-pdf.spec.ts](../tests/e2e/horizon-pdf.spec.ts), [tests/unit/pdf-validation.test.ts](../tests/unit/pdf-validation.test.ts), [tests/preview-e2e/geo.spec.ts](../tests/preview-e2e/geo.spec.ts), [tests/preview-e2e/seo.spec.ts](../tests/preview-e2e/seo.spec.ts), [tests/unit/live-capabilities.test.ts](../tests/unit/live-capabilities.test.ts), [apps/pdf-validator/tests/qualification.test.mjs](../apps/pdf-validator/tests/qualification.test.mjs), [apps/pdf-validator/tests/container-lifecycle.test.mjs](../apps/pdf-validator/tests/container-lifecycle.test.mjs), [apps/pdf-validator/tests/worker.test.mjs](../apps/pdf-validator/tests/worker.test.mjs), [apps/pdf-validator/tests/test_server.py](../apps/pdf-validator/tests/test_server.py), [tests/unit/mcp-integrations.test.ts](../tests/unit/mcp-integrations.test.ts).
+[Detailed contract](IOS_API.md).
 
-- Formule mensuelle 30 € sur crédits disponibles ; première période finançable par crédits promotionnels restants ; entrée privée /app/plan
-- Consentement récurrent immutable par administrateur navigateur
-- Résiliation, renouvellement et suspension sans dette ; recharge encore indisponible
-- 100 tentatives par mois calendaire ; quota atomique
-- veraPDF privé épinglé : PDF/UA-1/-2 et PDF/A-1b/2b/3b/4 ; corpus officiel positif/négatif, qualification hors réseau puis hébergée
-- Rapport sur octets exacts, historique et export JSON
-- Diagnostic via web/MCP et revue humaine obligatoire ; reprise explicite d’une issue réseau incertaine avec la même clé, contrôle indépendant avec une nouvelle clé
-- Disponibilité publique et serveur partagent HORIZON_ENABLED, validateur privé et scanner en production ; lecture publique unique ; ouverture après qualification hébergée ; pas une certification légale
-- Skill pdf-accessibility : annoncer les exclusions avant demande ; si elles sont connues dans le PDF ou le rapport, ne pas importer, lire, valider ou récupérer leur contenu ; copie retirée des données exclues par la personne, sans contournement web
-- Navigation accueil → atelier connecté → accueil : lecture privée conservée et nouvelle lecture publique unique après échec, sans disponibilité déduite de l’ancienne réponse et sans écriture
+### J12 · Manage credits
 
-### 19 · Exploitation et fiabilité
+**Actor:** Browser administrator. **Branch:** Operate.
 
-**État :** Implémenté · disponibilité à vérifier.
+Read welcome/available/reserved/consumed balances → inspect the annual UTC consumption grid and selected-day totals → open the latest recorded usage month or select current/previous UTC month → inspect usage/billing → reserve the exact approved ceiling atomically with acceptance/outbox → settle using qualified provider evidence.
 
-Contrat : [PRODUCTION_REVIEW_2026_10_09.md](PRODUCTION_REVIEW_2026_10_09.md) · Source : [scripts/deploy-public.mjs](../scripts/deploy-public.mjs).
+**Failure/recovery:** Welcome credit is one-time, not monthly. Top-up is not commercially qualified. Unknown outcomes retain reserves; fax delivery alone does not settle verified usage. An empty current month does not mean lost history; failed period reads offer retry without replacing ledger or balance.
 
-**Surfaces :** CLI / CI / services privés ; vue locale anonyme sans droit supplémentaire web/native/REST/MCP. **Tests :** [tests/security/main-only-release.test.mjs](../tests/security/main-only-release.test.mjs), [tests/security/pdf-validator-release.test.mjs](../tests/security/pdf-validator-release.test.mjs), [apps/pdf-validator/tests/probe-credentials.test.mjs](../apps/pdf-validator/tests/probe-credentials.test.mjs), [tests/security/production-monitor.test.mjs](../tests/security/production-monitor.test.mjs), [tests/security/observability.test.mjs](../tests/security/observability.test.mjs), [tests/integration/documents.test.ts](../tests/integration/documents.test.ts), [tests/unit/telnyx-readiness.test.ts](../tests/unit/telnyx-readiness.test.ts), [apps/scanner/tests/maintenance-status.test.mjs](../apps/scanner/tests/maintenance-status.test.mjs), [apps/scanner/tests/qualification-artifact.test.mjs](../apps/scanner/tests/qualification-artifact.test.mjs), [tests/security/verify-release.test.mjs](../tests/security/verify-release.test.mjs).
+[Detailed contract](WELCOME_CREDIT.md).
 
-- Files interactives, lots, outbox transactionnelle et idempotence
-- Callbacks fournisseur authentifiés et journaux sans contenu sensible
-- Inspection Telnyx opérateur privée en lecture seule : callbacks principal/secours projetés en statuts bornés et booléens de correspondance canonique, sans URL brute ni extraction des credentials ; état fournisseur frais à qualifier après publication
-- Rapprochement, reprise bornée et files mortes
-- Migrations D1 ordonnées, intégrité et bookmark de restauration
-- Services privés scanner, renderer et validateur ; déploiement depuis main propre sans route publique ni observabilité ; pont de qualification local avec secret temporaire, refus Origin et aucun transfert du secret ; les opérateurs deploy-pdf-validator.mjs et qualify-hosted.mjs vérifient Horizon fermé uniquement sur guteneo.com
-- Tests backend, sécurité, navigateurs et CI exhaustive ; validateur basic max. 1, veille 5 s, JVM qualifiée sur 100 pages / 9,887 Mio ; CPU local −47 %, coût par diagnostic et qualification hébergée distincts
-- Publication depuis main propre, synchronisé et vérifié
-- Manifestes de release, empreintes des assets et santé distante sur guteneo.com ; preuve distincte de fermeture de workers.dev et des previews URL applicatifs
-- Moniteur local de production : lectures anonymes bornées sur le domaine canonique et contrôle de fermeture de l’ancien hôte, hashes de pages, refus des accès privés, état périmé après 120 s et qualification partielle par fonction ; aucun envoi ni tâche permanente
-- Purge idempotente après retour du curseur : tombstone et audit de succès liés au tenant ; reprise après panne R2 ou audit sans recompter les purges terminées
-- CI à checkout ciblé conservant toutes les suites et médias publiés ; archives de travail exclues des runners ; préférence contrôlée pour les archives Ubuntu officielles avant installation de FFmpeg, sans retirer de test ni augmenter le délai
-- Maintenance antivirus quotidienne avec activation et jeton explicites ; contrôle distinct toutes les six heures de la qualification hébergée exacte, de la santé privée, des signatures chargées et de l'échéance du jeton ; échecs visibles sans scans clients ni envois, supervision hors GitHub encore nécessaire pour couvrir son propre arrêt
-- Version source unique et comparaison de version dans la preuve de release ; mises à jour de dépendances qualifiées par audit, tests et build exact, sans nouvelle configuration payante
-- CI : npm run audit:dependencies refuse les alertes connues high/critical du registre ; contrôle daté, sans garantie sur les défauts inconnus
+### J13 · Purchase a PDF verification
 
-### 20 · Belvédère et supervision plateforme
+**Actor:** Current browser administrator for a purchase; current PDF reader for history. **Branch:** Operate.
 
-**État :** Intégré au candidat ; activation et publication non qualifiées.
+Read current capability and price → select the ready immutable PDF and PDF/UA or PDF/A profile → explicitly accept this exact purchase → reserve available account credit atomically → run the private engine → settle once for a complete valid report → inspect report/history/JSON and complete human review.
 
-Contrat : [BELVEDERE.md](BELVEDERE.md) · Source : [apps/api/src/belvedere.ts](../apps/api/src/belvedere.ts).
+**Failure/recovery:** Require current PDF authority, browser administrator purchase consent, available credit and scanner/private validator. Engine failure creates no settled charge; a valid failing-conformance report is billable. Recover uncertain responses with the same key. A new check needs a new purchase. Existing reports retain their document access policy without monthly subscription.
 
-**Surfaces :** Navigateur Veilleur seulement ; aucune autorité atelier/native/OAuth/MCP supplémentaire. **Tests :** [tests/unit/belvedere.test.ts](../tests/unit/belvedere.test.ts), [tests/unit/auth-telemetry.test.ts](../tests/unit/auth-telemetry.test.ts), [tests/belvedere-e2e/control-tower.spec.ts](../tests/belvedere-e2e/control-tower.spec.ts), [tests/unit/belvedere-finance.test.ts](../tests/unit/belvedere-finance.test.ts), [tests/belvedere-e2e/locale.spec.ts](../tests/belvedere-e2e/locale.spec.ts), [tests/unit/belvedere-locale.test.ts](../tests/unit/belvedere-locale.test.ts).
+[Detailed contract](PDF_ACCESSIBILITY.md).
 
-- Autorité Veilleur privée et lecture seule : session/identité vérifiées, adresse serveur secrète, autorisation distincte des rôles atelier
-- Sept vues : ateliers, membres, envois, connexions, finances et infrastructure avec vue d’ensemble
-- Observation facultative des connexions par pays, déduplication bornée et nouvelles sessions après changement d’atelier ; rétention de 90 jours
-- Crédits promotionnels, consommations des envois/hébergement/Horizon, encaissements et coûts fournisseurs distincts
-- Connecteurs Cloudflare côté serveur avec états explicites, sans coût ni marge inventés
-- Migration additive 0052 ; aperçu déterministe limité au loopback ; activation hébergée séparée
-- Quatre langues suivant le compte, y compris ouverture directe et retour d’onglet ; aucun sélecteur privé supplémentaire
+### J14 · Receive a protected PDF
 
-### 21 · État public du service
+**Actor:** External recipient. **Branch:** Deliver.
 
-**État :** Séparation état public/couverture implémentée ; preuves locales du 10 octobre 2026 : 27 tests UI réussis, 3 réexécutions ciblées de la cadence réussies, 98 tests fonctionnels réussis sur 6 suites. Preuve historique distincte : service publié le 10 octobre dans c953596, premier cron à 02:45:05.570 UTC, 14/14 contrôles publics réussis ; cette observation ne qualifie ni la nouvelle UI ni les parcours métier.
+Open the private /share link through the protected handler → read the localized page and enter the separately supplied password → download the unchanged PDF while access remains valid; no recipient account required.
 
-Contrat : [STATUS_SERVICE.md](STATUS_SERVICE.md) · Source : [apps/status/worker.ts](../apps/status/worker.ts).
+**Failure/recovery:** Expiry, revocation, invalid credentials or unavailable storage refuse access. Never reveal passwords through assistant tools/chat or infer PDF reading from email delivery. A generic site 404 requires route/hosting diagnosis; do not create a replacement send or bypass access checks.
 
-**Surfaces :** Page publique autonome et GET anonymes /api/status, /api/history en lecture seule ; aucune authentification requise, aucun droit atelier, nouvelle capacité REST/MCP métier ou interface native. **Tests :** [tests/integration/status-service.test.ts](../tests/integration/status-service.test.ts), [tests/security/status-release.test.mjs](../tests/security/status-release.test.mjs), [tests/security/test-offline.test.mjs](../tests/security/test-offline.test.mjs), [tests/status-e2e/status.spec.ts](../tests/status-e2e/status.spec.ts).
+[Detailed contract](PROTECTED_DOCUMENTS.md).
 
-- Service indépendant status.guteneo.com : quatorze lectures anonymes bornées du domaine canonique, toutes les quinze minutes, sans bindings ni secret métier
-- Historique D1 7/30/365 jours : réussite des contrôles observés et couverture des créneaux distinctes, synthèses quotidiennes, journées vides inconnues, aucune reconstitution antérieure
-- Quatorze contrôles récents réussis donnent un bilan positif limité au périmètre public ; un écart reste visible dans le bilan et le groupe concerné. Mesure absente, invalide, indisponible ou périmée (seuil de trente minutes) : état actuel inconnu et anciens résultats neutralisés ; aucune lecture publique ne déclenche une collecte
-- Vue Service : fraîcheur, groupes Site et pages publiques, Services web et Protection des accès, puis historique. Vue Vérifications : contrôles détaillés, preuve locale et couverture des parcours ; fonctions hors périmètre ou non activées en badges neutres, sans dégrader le bilan public. Vue Exploitation : limites et actions ; aucune donnée client ni identifiant de commande
-- Qualification locale séparée : tests du vrai domaine et PDF locaux avec réseau externe interdit, fournisseurs finaux simulés, rapport expurgé horodaté ; aucune preuve locale ou absence de couverture ne devient une preuve de livraison ou un incident de production
-- Footer de marque et effets saisonniers décoratifs bornés, désactivables et respectant la réduction de mouvement
-- Publication dédiée depuis main propre avec manifeste, contrôles de source et migrations D1 statut exclusivement
+### J15 · Release a change
 
-## Parcours clients et reprise sur erreur
+**Actor:** Developer and explicitly authorised release operator. **Branch:** Operations.
 
-### J01 · Découvrir puis entrer
+Update feature tree/developer contracts/source/tests together → regenerate and check atlas → check canonical build assets and compatibility redirects → run exact-source checks → review → obtain explicit merge/release authority → publish from clean synchronized main → verify public manifest/assets and separately qualify authenticated/runtime behavior.
 
-**Acteur :** Visiteur → membre. **Branche :** INVITATIONS / IDENTITY.
+**Failure/recovery:** Dirty source, drift, failing checks, missing configuration/scan or absent authority blocks release. Manual reruns must select the latest same-run evidence deterministically without deleting failed attempts, falling back to older passing reports or bypassing complete-result verification. Private-engine graceful-stop or idle failures keep customer activation closed; explicit force-stop recovery is not qualification. Unexpected redirects or changed/missing advertised bytes fail served verification; correct the source and repeat the reviewed release sequence without weakening verification. CI, local fixtures, production HTTP and real provider/client proof remain distinct.
 
-Ouvrir guteneo.com → choisir français, anglais, allemand ou luxembourgeois → consulter l’offre et le hub assistants → choisir le guide de son hôte et, si utile, récupérer le ZIP en comparant version/SHA-256 au manifeste → se connecter avec identité vérifiée sur l’origine canonique → créer ou rejoindre un atelier → lire ses droits → vérifier nom/adresse/rôle dans la navigation → ouvrir le profil ou choisir Changer de compte si nécessaire. Dans le candidat V2, ouvrir Mon compte en bas de navigation → Version de l’atelier près de la langue → enregistrer Classique ou V2 ; même identité et atelier courant. Un lien ?atelier=v2#/app force seulement la présentation temporairement. En V2, un atelier sans historique conserve les étapes d’accueil complètes ; un atelier ayant des envois présente d’abord son travail en cours. En V2, la marque et le nom d’atelier restent dans la navigation ; le titre principal oriente la page sans répétition de titre dans une barre supérieure. Le compte et son rôle restent accessibles quand le menu mobile est fermé. Les lectures web partagées masquent les données du chemin précédent et ignorent les réponses annulées ; un rafraîchissement du même chemin conserve ses données. Entrée du 24 octobre : choisir Se connecter depuis le site → ouvrir directement Auth0 dans la langue demandée → se connecter, s’inscrire ou récupérer son mot de passe dans le formulaire hébergé → retrouver la destination exacte après callback valide. Une route privée ouverte sans session poursuit automatiquement vers Auth0 après contrôle de session, sans écran de choix. Les liens publics serveur et React partagent le même constructeur d’URL. Le luxembourgeois reste la préférence Guteneo ; Auth0 utilise une langue de repli. Un écran de récupération apparaît seulement au retour d’une erreur, avec reprise explicite et liens d’assistance. La maquette et la démonstration locale conservent leurs entrées fictives. La session connectée conserve sa lecture de capacités dans l’atelier ; revenir à l’accueil déclenche une nouvelle lecture publique unique commune à l’offre et à la FAQ. Après qualification et activation du candidat de domaine, le passage par auth.guteneo.com conserve le callback sur guteneo.com et retrouve la même personne et ses ateliers ; l’inscription reste soumise aux mêmes preuves signées.
+[Detailed contract](MAIN_RELEASE.md).
 
-**Blocage / reprise :** Ancien hôte applicatif workers.dev et previews URL fermés : utiliser guteneo.com. Le candidat local 0.3.5 ne remplace pas automatiquement le ZIP effectivement servi ; guide, téléchargement et fixtures ne prouvent ni installation OAuth réelle ni publication en catalogue. Invitation expirée ou adresse différente : refuser ; aucune création implicite d’autorité. Adresse indisponible : afficher explicitement ; changement de compte soumis au callback canonique signé et à la politique Auth0. La préférence de présentation appartient au compte authentifié ; un ancien cache local ne doit pas prévaloir sur la personne courante. Les preuves historiques de migration et de publication sont distinctes de la validation du candidat de simplification. Une réponse tardive annulée, y compris 401, ne remplace pas la ressource courante et ne déconnecte pas le nouveau compte. En erreur Auth0 valide, reprendre la route applicative et la langue de la transaction, sans recopier token, invitation ni query privée. State/cookie invalide : page de connexion générique sûre, sans faire confiance aux paramètres de callback. Une erreur de connexion suspend toute redirection automatique pour éviter les boucles ; une nouvelle tentative est toujours explicite. En double clic pendant le départ de cette reprise, ne pas lancer une deuxième navigation. Branding et textes Auth0 restent un candidat local tant que leur application et le rendu hébergé ne sont pas attestés. Sans session établie, le choix visiteur de langue est restauré après le contrôle initial ; un choix fait pendant cette lecture n’est pas écrasé. Une session valide conserve sa préférence de compte. Une lecture publique en échec ne doit pas être conservée lors d’un retour ultérieur à l’accueil ; les capacités n’accordent aucun droit supplémentaire et ne déclenchent ni abonnement ni envoi. Domaine ou transaction inconnus, issuer incohérent, nonce ou sujet divergent : refuser sans créer d’identité ou d’atelier ; reprendre une connexion explicite. Un e-mail identique ne relie jamais deux sujets. Le SSO Auth0 sur un autre hostname peut exiger une nouvelle connexion sans invalider les sessions Guteneo existantes.
+### J16 · Verify identity and find a responsible contact
 
-Référence : [ACCOUNT_IDENTITY.md](ACCOUNT_IDENTITY.md).
+**Actor:** Browser member in the current workshop. **Branch:** Access.
 
-### J02 · Administrer une équipe
+Read visible name/login email (in V2, open the account menu) → open account profile for role → inspect effective permissions and workshop responsible contacts → edit own name/language or explicitly switch account.
 
-**Acteur :** Administrateur navigateur. **Branche :** ÉQUIPE.
+**Failure/recovery:** Provider login email is read-only identity data. Missing address/contact errors stay explicit. Reconcile identity after tab focus and ignore cancelled stale reads without interrupting editing.
 
-Membres → inviter une personne ou prévisualiser le CSV → choisir rôle/options → confirmer le lot → suivre les invitations → modifier ou révoquer les accès. Les adresses distinguent les homonymes ; un membre sans gestion ouvre ses contacts de l’atelier. La coque web V2 facultative conserve ces mêmes actions et le rôle courant. En V2, l’action de gestion demeure attachée à la page et soumise au rôle administrateur ; le raccourci global Nouvel envoi est secondaire. Les lectures web partagées masquent les données du chemin précédent et ignorent les réponses annulées ; un rafraîchissement du même chemin conserve ses données.
+[Detailed contract](ACCOUNT_IDENTITY.md).
 
-**Blocage / reprise :** Préserver le dernier administrateur ; changement de droits déconnecte et invalide les approbations en attente. Le choix V2 ne modifie ni membership ni option du superviseur. Une erreur tardive de l’annuaire reste annoncée avec reprise manuelle, sans détourner le focus du contrôle en cours ni perdre la saisie. Une réponse tardive annulée, y compris 401, ne remplace pas la ressource courante et ne déconnecte pas le nouveau compte. Le domaine Auth0 facultatif ne change pas l’adresse vérifiée requise par l’invitation, son expiration, sa révocation ou le rôle proposé ; son token reste lié au flux PKCE.
+### J17 · Inspect the platform in Belvédère
 
-Référence : [WORKSPACE_ROLES.md](WORKSPACE_ROLES.md).
+**Actor:** Explicitly authorised browser Watchkeeper with verified identity. **Branch:** Operations.
 
-### J03 · Préparer un fax
+Open Belvedere from the application switcher only when the server projects capability, or use canonical /belvedere / the protected compatibility entry → reuse a valid canonical browser session or follow normal identity recovery → repeat current signed platform guard on every read → inspect seven read-only views and interactive globe; dedicated host remains isolated.
 
-**Acteur :** Administrateur / superviseur / opérateur. **Branche :** DOCUMENTS → FAX.
+**Failure/recovery:** Workshop administrator/OAuth/assistant roles grant no platform authority. Unknown costs/profit stay unavailable. Preview fixtures and hosted observations are separate.
 
-Dans le parcours assistant, annoncer les catégories exclues avant de demander ou traiter les contenus ; vérifier les droits courants sans prétendre détecter automatiquement ces catégories. Importer PDF → attendre ready → choisir destinataire/expéditeur → devis et plafond → préparer → passer à un approbateur habilité → confirmer → suivre le même envoi. Avant revue, une lecture REST/MCP facultative contrôle à blanc l’envoi existant et son devis, sans le renouveler. Avec V2 facultative, utiliser les mêmes pages documents, préparation, revue et suivi, avec le même identifiant et la même API. Dans la revue, l’aperçu du contenu précède les actions d’approbation dans l’ordre de lecture et de clavier. Dans la revue navigateur Classique/V2, parcourir le PDF dans un cadre stable accessible au clavier ; le chargement et les erreurs ne déplacent pas les consentements. En V2, la préparation garde une action principale locale, un retour contextuel et tous les récapitulatifs document/destinataire/prix nécessaires au consentement. Les lectures web partagées masquent les données du chemin précédent et ignorent les réponses annulées ; un rafraîchissement du même chemin conserve ses données.
+[Detailed contract](BELVEDERE.md).
 
-**Blocage / reprise :** Quarantaine, devis expiré, canal fermé ou crédits insuffisants : corriger avant envoi ; outcome unknown : rapprocher. Le contrôle reste partiel ou bloqué et ne vaut ni approbation ni preuve de livraison. Changer de présentation ne prépare ni ne confirme un fax et ne remplace pas le consentement ; opérations réelles signalées sur session réelle. Un chargement ou une erreur PDF ne coche aucune case et ne modifie ni les droits courants ni les gardes d’approbation. Si des données exclues sont connues, arrêter les opérations de contenu de ce parcours, y compris sur une ressource déjà présente ; demander une version dont la personne a retiré ces données avant partage, sans demander les valeurs exclues ni proposer un dépôt web de contournement. Un scan antivirus réussi n’atteste pas leur absence ; les gardes serveur et droits des autres surfaces ne sont pas modifiés par cette consigne. Une réponse tardive annulée, y compris 401, ne remplace pas la ressource courante et ne déconnecte pas le nouveau compte.
+### J18 · Inspect production without sending
 
-Référence : [LIVE_FAX_QUOTES.md](LIVE_FAX_QUOTES.md).
+**Actor:** Local operator using public anonymous reads. **Branch:** Operations.
 
-### J04 · Envoyer un courrier postal
+Run the bounded local monitor → read canonical health/releases/pages/private refusals and retired-origin closure → inspect timestamped hashes and partial per-feature proof → stop when finished.
 
-**Acteur :** Préparateur → approbateur. **Branche :** DOCUMENTS → POSTAL.
+**Failure/recovery:** At 120 seconds evidence becomes stale. Public success does not qualify authenticated workflows, scanner/provider delivery or a permanent monitoring service.
 
-Dans le parcours assistant, annoncer les catégories exclues avant de demander ou traiter les contenus ; vérifier les droits courants sans prétendre détecter automatiquement ces catégories. PDF → adresse et options/fenêtre → préflight → revue et autorisation distincte du transfert → devis exact → revue finale → confirmation → suivi. Après préparation, le contrôle à blanc REST/MCP relit l’envoi et le devis existants sans nouveau transfert Pingen. Avec V2 facultative, les mêmes préflights, transfert, devis et revue restent nécessaires. Dans la revue, l’aperçu du contenu précède les actions d’approbation dans l’ordre de lecture et de clavier. Dans la revue navigateur Classique/V2, parcourir le PDF dans un cadre stable accessible au clavier ; le chargement et les erreurs ne déplacent pas les consentements. En V2, les actions de préflight, de transfert et de confirmation restent distinctes et attachées à leur étape ; alléger la coque ne supprime aucun récapitulatif de consentement. Les lectures web partagées masquent les données du chemin précédent et ignorent les réponses annulées ; un rafraîchissement du même chemin conserve ses données.
+[Detailed contract](PRODUCTION_REVIEW_2026_10_09.md).
 
-**Blocage / reprise :** PDF inadmissible, adresse non validée ou transfert inconnu : conserver IDs, ne pas retransférer automatiquement. Le devis expire normalement ; ce contrôle ne crée ni transfert ni consentement et ne reprend aucune issue inconnue. Le choix V2 ne vaut jamais consentement au transfert du PDF, à l’approbation ou à l’envoi. Un chargement ou une erreur PDF ne coche aucune case et ne modifie ni les droits courants ni les gardes d’approbation. Si des données exclues sont connues, arrêter les opérations de contenu de ce parcours, y compris sur une ressource déjà présente ; demander une version dont la personne a retiré ces données avant partage, sans demander les valeurs exclues ni proposer un dépôt web de contournement. Un scan antivirus réussi n’atteste pas leur absence ; les gardes serveur et droits des autres surfaces ne sont pas modifiés par cette consigne. Une réponse tardive annulée, y compris 401, ne remplace pas la ressource courante et ne déconnecte pas le nouveau compte.
+### J19 · Dry-run an existing dispatch
 
-Référence : [POSTAL_STREAMLINED.md](POSTAL_STREAMLINED.md).
+**Actor:** Current dispatch reader; OAuth assistant with dispatches:read. **Branch:** Deliver.
 
-### J05 · Préparer un e-mail
+Select an existing accessible dispatch → call read-only dry run → inspect state/attempt/quote/document/recipient gates → follow explicit partial or blocked guidance.
 
-**Acteur :** Préparateur → approbateur. **Branche :** E-MAIL.
+**Failure/recovery:** Create/renew/consume no quote, reserve no quota/credit, enqueue nothing and contact no provider. Expiry stays expired. Successful validation grants no sending authority.
 
-Dans le parcours assistant, annoncer les catégories exclues avant de demander ou traiter les contenus ; vérifier les droits courants sans prétendre détecter automatiquement ces catégories. Lire capacités → mode sans fichier/PDF/lien → destinataire, texte et options → devis → préparation → revue humaine → confirmation admissible → suivi. Le contrôle à blanc REST/MCP d’une demande existante relit le devis et les gardes applicables du destinataire et du lien protégé, sans envoi. Avec V2, la saisie, la préparation et la revue utilisent les mêmes composants et API métier ; enregistrer Classique dans Mon compte pour un retour durable. Dans la revue, l’aperçu du contenu précède les actions d’approbation dans l’ordre de lecture et de clavier. Dans la revue navigateur Classique/V2, parcourir le PDF dans un cadre stable accessible au clavier ; le chargement et les erreurs ne déplacent pas les consentements. En V2, l’action principale reste celle de l’étape de préparation ou de revue ; le retour contextuel et les résumés document/destinataire/prix restent disponibles. Les lectures web partagées masquent les données du chemin précédent et ignorent les réponses annulées ; un rafraîchissement du même chemin conserve ses données.
+[Detailed contract](PRODUCTION_DRY_RUN.md).
 
-**Blocage / reprise :** Canal désactivé/non qualifié ou review_prepare_only : arrêt ; mot de passe exclusivement navigateur. Aucun devis renouvelé ou consommé ; acceptation et livraison restent non exécutées. Enregistrer l’apparence soumet seulement le profil, jamais le formulaire de préparation, l’acceptation du devis ou un envoi. Un chargement ou une erreur PDF ne coche aucune case et ne modifie ni les droits courants ni les gardes d’approbation. Si des données exclues sont connues, arrêter les opérations de contenu de ce parcours, y compris sur une ressource déjà présente ; demander une version dont la personne a retiré ces données avant partage, sans demander les valeurs exclues ni proposer un dépôt web de contournement. Un scan antivirus réussi n’atteste pas leur absence ; les gardes serveur et droits des autres surfaces ne sont pas modifiés par cette consigne. Une réponse tardive annulée, y compris 401, ne remplace pas la ressource courante et ne déconnecte pas le nouveau compte.
+### J20 · Read public availability and history
 
-Référence : [PROTECTED_EMAIL.md](PROTECTED_EMAIL.md).
+**Actor:** Anonymous browser reader or public-information consumer, with no workshop or platform authority. **Branch:** Operations.
 
-### J06 · Créer un modèle réutilisable
+Open public status from its URL or common footer with the same approved product browser icon → read current summary, observation time and three public-access groups → choose 7/30/365 days → select a day/month or expand all daily records → distinguish received success, partial coverage and unknown/precollection periods → refresh existing evidence or use a canonical localized footer destination. Language/theme controls retain the selected history and create no business operation.
 
-**Acteur :** Préparateur avec droits de ressource. **Branche :** MODÈLES.
+**Failure/recovery:** Missing, invalid, unreadable, contradictory, implausibly future or stale evidence makes current availability unknown; an earlier successful observation never stays green as a current result. An actual fresh failed check identifies its group. A history error supplies no percentage. Public reads trigger no collection, test, approval or transmission; local simulation and configuration never prove business delivery.
 
-Dans le parcours assistant, annoncer les catégories exclues avant de demander ou traiter les contenus ; vérifier les droits courants sans prétendre détecter automatiquement ces catégories. Exemple/copie privée, page vierge ou DOCX → designer et schéma → données d’essai → aperçu PDF → publier une version → partager les droits précis. La présentation V2 du Studio, de ses tableaux et formulaires conserve les mêmes données et droits. En V2, création et édition sont hiérarchisées dans la page ; les détails disposent d’un retour contextuel, sans répéter le titre de section dans la coque. Les lectures web partagées masquent les données du chemin précédent et ignorent les réponses annulées ; un rafraîchissement du même chemin conserve ses données. Avant le transfert et avant la restitution de toute suggestion IA, revalider membership/connexion, droit de modification, révision et consentement IA. La proposition exige toujours une revue explicite.
+[Detailed contract](STATUS_SERVICE.md).
 
-**Blocage / reprise :** Révision concurrente : recharger ; suppression propriétaire seulement ; PDF antérieurs conservés. Via MCP, présenter écrasement du brouillon, archivage ou révocation de partage et respecter les confirmations hôte ; aucune permission élargie. Aucun droit de ressource n’est accordé par la préférence V2. Si des données exclues sont connues, arrêter les opérations de contenu de ce parcours, y compris sur une ressource déjà présente ; demander une version dont la personne a retiré ces données avant partage, sans demander les valeurs exclues ni proposer un dépôt web de contournement. Un scan antivirus réussi n’atteste pas leur absence ; les gardes serveur et droits des autres surfaces ne sont pas modifiés par cette consigne. Le périmètre comprend DOCX, modèle existant, données d’essai, aperçu et partage (skill document-studio). Une réponse tardive annulée, y compris 401, ne remplace pas la ressource courante et ne déconnecte pas le nouveau compte. Refuser une suggestion devenue obsolète après retrait de droit/consentement ou modification du modèle ; relecture et nouvelle demande explicite, sans retry automatique.
+### J21 · Open the single V2 application layout
 
-Référence : [TEMPLATES_DATA_DISTRIBUTION.md](TEMPLATES_DATA_DISTRIBUTION.md).
+**Actor:** Authenticated browser member with any stored layout value. **Branch:** Operate.
 
-### J07 · Transformer des données en PDF
+Enter personal documents or the workshop, including through an old appearance=classic or atelier link → render the V2 shell whatever the stored preference → open account customization with language and color controls only → save language through the existing context-specific profile endpoint, which omits the layout field → reload, switch identity or enter the other application context → reconcile language without workshop bootstrap in personal documents.
 
-**Acteur :** Préparateur propriétaire des données. **Branche :** DONNÉES → GÉNÉRATION.
+**Failure/recovery:** A stored classic value or an old link never restores the retired layout and is never rewritten; business authority remains identical. Immediate system/light/dark browser appearance is a separate preference and never claims an account profile save.
 
-Dans le parcours assistant, annoncer les catégories exclues avant de demander ou traiter les contenus ; vérifier les droits courants sans prétendre détecter automatiquement ces catégories. Import CSV/XLSX/XML/JSON → analyse et profil → choisir mapping → valider → générer → consulter résultats/provenance → reprendre les seuls records échoués avant la création d’un plan de distribution. La coque web V2 facultative conserve ce parcours métier existant ; aucune copie fictive des données n’est créée. En V2, Générations met en avant Créer un document, rappelle que générer ne déclenche aucun envoi et réserve les précisions techniques au détail ; le fuseau du navigateur accompagne les dates. Les lectures web partagées masquent les données du chemin précédent et ignorent les réponses annulées ; un rafraîchissement du même chemin conserve ses données.
+[Detailed contract](DASHBOARD_V2.md).
 
-**Blocage / reprise :** Original privé ; IA seulement sous politique autorisée ; PDF générés privés même face à un autre administrateur. Annulation explicite : arrêter le lot sans effacer ses PDF ; le même lot annulé ne se reprend pas. MCP signale cette annulation comme destructive. Dès le premier plan de distribution, tout le lot est figé : GENERATION_FROZEN interdit la reprise des échecs, même exclus du plan ; créer un nouveau lot pour les éléments à régénérer. La préférence de présentation ne modifie ni accès privé, ni transfert IA, ni génération. Si des données exclues sont connues, arrêter les opérations de contenu de ce parcours, y compris sur une ressource déjà présente ; demander une version dont la personne a retiré ces données avant partage, sans demander les valeurs exclues ni proposer un dépôt web de contournement. Un scan antivirus réussi n’atteste pas leur absence ; les gardes serveur et droits des autres surfaces ne sont pas modifiés par cette consigne. Le périmètre comprend import, lecture, profilage, mapping, génération et fonctions IA sur CSV/XLSX/XML/JSON ou records directs (skill document-studio). Une réponse tardive annulée, y compris 401, ne remplace pas la ressource courante et ne déconnecte pas le nouveau compte.
+### J22 · Qualify reviewer OAuth refresh
 
-Référence : [TEMPLATES_DATA_DISTRIBUTION.md](TEMPLATES_DATA_DISTRIBUTION.md).
+**Actor:** Explicitly authorised Auth0 platform operator; account owner for real OAuth consent. **Branch:** Operations.
 
-### J08 · Distribuer un lot
+Inspect exact existing client/API/Actions with GET → review redacted state/change fingerprint → under explicit authority apply ordered missing steps → qualify exact renewal state → separately observe real consent/refresh/revocation.
 
-**Acteur :** Préparateur → approbateur. **Branche :** DISTRIBUTION.
+**Failure/recovery:** Stop on drift, unknown Action/client or uncertain write. Never provision duplicate clients or auto-complete partial state. prepare_only restrictions, sends and expert mandates remain unchanged.
 
-Dans le parcours assistant, annoncer les catégories exclues avant de demander ou traiter les contenus ; vérifier les droits courants sans prétendre détecter automatiquement ces catégories. Reprendre d’abord les échecs de génération souhaités → sélectionner les PDF → présenter le gel définitif de tout le lot, y compris des records exclus → respecter la confirmation hôte MCP → figer destinations/options/canal → préparer le plan → traiter préflights postaux → revoir chaque demande → confirmer → suivre. Les demandes déjà préparées peuvent être contrôlées à blanc une par une via leur identifiant REST/MCP. Les revues et le suivi peuvent employer la présentation V2 facultative, avec les mêmes demandes préparées. Dans la revue navigateur Classique/V2, parcourir le PDF dans un cadre stable accessible au clavier ; le chargement et les erreurs ne déplacent pas les consentements. En V2, préparer et confirmer restent des actions propres à leur étape ; le raccourci global Nouvel envoi est secondaire et ne concurrence pas l’action du lot. Les lectures web partagées masquent les données du chemin précédent et ignorent les réponses annulées ; un rafraîchissement du même chemin conserve ses données.
+[Detailed contract](LLM_SETUP.md).
 
-**Blocage / reprise :** Génération/préparation sans envoi ; reprise de préparation ne reconfirme pas un envoi accepté. prepare_distribution annonce destructiveHint true car le plan interdit toute reprise de génération du lot ; GENERATION_FROZEN impose un nouveau lot pour les éléments à régénérer. resume_distribution poursuit seulement les préparations du plan figé. Cette lecture n’exécute ni réservation ni outbox et ne qualifie pas le lot de bout en bout. Le choix d’apparence ne confirme ni un envoi ni un lot. Un chargement ou une erreur PDF ne coche aucune case et ne modifie ni les droits courants ni les gardes d’approbation. Si des données exclues sont connues, arrêter les opérations de contenu de ce parcours, y compris sur une ressource déjà présente ; demander une version dont la personne a retiré ces données avant partage, sans demander les valeurs exclues ni proposer un dépôt web de contournement. Un scan antivirus réussi n’atteste pas leur absence ; les gardes serveur et droits des autres surfaces ne sont pas modifiés par cette consigne. Une réponse tardive annulée, y compris 401, ne remplace pas la ressource courante et ne déconnecte pas le nouveau compte.
+### J23 · Maintain private scanner signatures
 
-Référence : [TEMPLATES_DATA_DISTRIBUTION.md](TEMPLATES_DATA_DISTRIBUTION.md).
+**Actor:** Authorised operator and explicitly scoped dedicated GitHub Actions credential. **Branch:** Operations.
 
-### J09 · Superviser et observer
+Inspect exact hosted qualification/private health/signature freshness/token expiry → rebuild/release from reviewed clean source under explicit authority → verify the loaded definitions and watchdog evidence.
 
-**Acteur :** Superviseur habilité / observateur. **Branche :** SUIVI.
+**Failure/recovery:** Stop on main/protected-source/CI/inventory drift. A successful build is not fresh loaded scanner proof. No customer scans/sends; independent monitoring must cover GitHub failure.
 
-Liste des envois → détail, montants et statuts → approbation si option accordée → rapports si option accordée → signaler une issue incertaine. → consulter le profil et les contacts : administrateur pour droits/facturation, superviseur réellement habilité pour approbation. Tout lecteur d’un envoi accessible peut consulter son contrôle à blanc REST/MCP, y compris l’observateur. Dans V2 facultative, retrouver les mêmes envois, détails et restrictions ; rapports affichés seulement selon l’autorité courante. Sur un atelier V2 déjà actif, alertes et activité récente passent avant les éléments d’introduction, avec indicateurs toujours soumis au droit de rapports. Dans la revue navigateur Classique/V2, parcourir le PDF dans un cadre stable accessible au clavier ; le chargement et les erreurs ne déplacent pas les consentements. En V2, le titre, l’activité et l’action autorisée de la page priment ; les détails proposent un retour contextuel et les dates indiquent le fuseau du navigateur. Les lectures web partagées masquent les données du chemin précédent et ignorent les réponses annulées ; un rafraîchissement du même chemin conserve ses données.
+[Detailed contract](SCANNER_CI.md).
 
-**Blocage / reprise :** Observateur : lecture seule des contenus accessibles ; prix individuels visibles même sans rapports agrégés. Contacts absents ou erreur réseau : état explicite/relecture ; pas de rôle ni de consentement inventé. Une preuve partielle ne donne pas le droit d’approuver ; accès documentaire privé et autorité courante restent requis. V2 ne donne ni préparation à l’observateur, ni rapports ou approbation au superviseur sans l’option correspondante. Un chargement ou une erreur PDF ne coche aucune case et ne modifie ni les droits courants ni les gardes d’approbation. Une erreur tardive de l’annuaire reste annoncée avec reprise manuelle, sans détourner le focus du contrôle en cours ni perdre la saisie. Une réponse tardive annulée, y compris 401, ne remplace pas la ressource courante et ne déconnecte pas le nouveau compte.
+### J24 · Use the Guteneo Auth0 browser and MCP domains
 
-Référence : [WORKSPACE_ROLES.md](WORKSPACE_ROLES.md).
+**Actor:** Authorised platform operator for reviewed domain/trust/discovery configuration; person for browser sign-in or host OAuth consent. **Branch:** Access.
 
-### J10 · Travailler avec un assistant
+Qualify the exact same-tenant alias and signing keys → deploy reviewed code and explicit MCP trust/discovery settings → host reads exact issuer metadata and completes its own consent/PKCE exchange → validate signed issuer/audience/subject → use the same canonical identity/workshop/connection. Roll discovery back independently while retaining established token trust.
 
-**Acteur :** Membre avec compte Guteneo existant et droits courants + client OAuth selon les règles de l’hôte. **Branche :** MCP / REST.
+**Failure/recovery:** Unknown domain/configuration/issuer, bad signature/audience/time/nonce or differing browser subjects fail closed. Never link identities by email or select JWKS from token claims. Existing canonical clients remain valid. Removing custom trust deliberately rejects custom tokens and is distinct from discovery rollback; no new scope, client, grant, approval or mandate is created.
 
-Dans le parcours assistant, annoncer les catégories exclues avant de demander ou traiter les contenus ; vérifier les droits courants sans prétendre détecter automatiquement ces catégories. Choisir le guide et vérifier la version du paquet → installer le MCP personnel ChatGPT, le ZIP/connecteur Claude ou sa variante Code, le connecteur Grok web ou le paquet candidat Grok Build, ou le dossier local Cursor → connecter personnellement Guteneo avec un client et un callback réels, PKCE S256 et consentement OAuth → découvrir les outils et lire get_capabilities → vérifier rôle/scopes, compte et canaux disponibles → chercher/importer/créer selon le transfert de fichier réellement qualifié → préparer → ouvrir la revue humaine → suivre les IDs et nextActions. Après expiration ou modification des permissions, reconnecter puis refaire une lecture ; renouvellement et révocation sont qualifiés séparément par hôte. Les annotations signalent les effets destructifs sans modifier les gardes serveur. Sous mandat expert déjà actif, présenter le remplacement du jeton de revue, lire toutes les pages avec review_dispatch puis conserver le dernier jeton complet ; préparer une distribution exige d’expliquer le gel de tout le lot. Après préparation, dry_run_dispatch avec dispatches:read relit les gardes de l’envoi existant sans renouveler son devis ni créer une approbation. L’espace assistants et la revue navigateur peuvent utiliser V2 ; aucun champ de requête métier, endpoint métier ou outil MCP ne change. Le profil navigateur ajoute seulement la préférence personnelle. Dans l’accueil V2 d’un atelier déjà actif, un raccourci compact mène aux connexions ; l’accueil sans historique conserve l’aide complète. Dans la revue navigateur Classique/V2, parcourir le PDF dans un cadre stable accessible au clavier ; le chargement et les erreurs ne déplacent pas les consentements. Dans le navigateur V2, la navigation et les actions de connexion suivent la même hiérarchie que les autres pages ; le compte, le rôle et le lien public de statut restent accessibles, sans nouvel outil assistant. Les lectures web partagées masquent les données du chemin précédent et ignorent les réponses annulées ; un rafraîchissement du même chemin conserve ses données. Le candidat 1.0.0 offre un plugin Claude Code autonome et un catalogue local ; lire leur README, valider le format, puis qualifier la connexion OAuth avec un client réel. Les contrôles de taille avant validation préservent les limites documentées. Si la personne utilise le lien public sans session, l’entrée ouvre directement Auth0 et conserve la destination /app/connection/:assistant ; aucune page de choix Guteneo intermédiaire. Une erreur revient à la récupération explicite sans boucle. Dans le candidat de domaine, seul le BFF navigateur peut utiliser auth.guteneo.com ; l’assistant conserve pieper.eu.auth0.com comme issuer et les connexions OAuth existantes. Pour le candidat DCR, un hôte compatible pourra enregistrer son client automatiquement après activation explicite Auth0, puis demander la connexion et le consentement de la personne ; utiliser le repli statique tant que ce parcours n’est pas qualifié.
+[Detailed contract](AUTH0_CUSTOM_DOMAIN.md).
 
-**Blocage / reprise :** Issuer différent, slash compris, callback refusé, client statique non enregistré ou scopes absents : corriger la configuration adaptée à l’hôte ; DCR/CIMD annoncé ne prouve pas l’enregistrement automatique. Refresh dans ChatGPT relit les métadonnées, sans prouver le renouvellement du jeton. Sans transfert qualifié et uniquement pour un contenu admissible, déposer le PDF dans Guteneo ; fichier privé, expiré, redirigé ou en quarantaine refusé. Installation, scan et tests locaux ne prouvent ni consentement, ni renouvellement, ni publication du candidat 0.3.5. Conserver seulement une preuve datée expurgée, sans jeton, contenu privé ni URL signée. Aucun consentement implicite d’envoi ; mandat expert navigateur distinct, borné et révocable. L’activité de connexion peut être enregistrée : readOnlyHint/idempotentHint false ; destructiveHint et openWorldHint dépendent des effets propres à chaque outil. EXPERT_REVIEW_INVALID peut signaler un jeton remplacé : consulter le même envoi et reprendre une revue complète si nécessaire, sans interpréter ce refus comme une absence d’envoi antérieur. Issue inconnue sans renvoi automatique. La présentation V2 ne crée, ne renouvelle et n’étend aucun mandat ; elle n’autorise aucun envoi par l’assistant. Un chargement ou une erreur PDF ne coche aucune case et ne modifie ni les droits courants ni les gardes d’approbation. Si des données exclues sont connues, arrêter les opérations de contenu de ce parcours, y compris sur une ressource déjà présente ; demander une version dont la personne a retiré ces données avant partage, sans demander les valeurs exclues ni proposer un dépôt web de contournement. Un scan antivirus réussi n’atteste pas leur absence ; les gardes serveur et droits des autres surfaces ne sont pas modifiés par cette consigne. Une réponse tardive annulée, y compris 401, ne remplace pas la ressource courante et ne déconnecte pas le nouveau compte. L’absence de client OAuth qualifié ou de configuration dans le portail reste bloquante ; un catalogue local et un ZIP valide ne prouvent aucune publication ni connexion. Un jeton obtenu sur le domaine navigateur est refusé comme Bearer MCP dans cette phase ; le domaine vérifié ne répare ni la configuration du portail OpenAI ni la qualification OAuth de l’hôte. L’absence de registration_endpoint n’est pas une indisponibilité du serveur MCP ; les scopes OIDC annoncés par Auth0 et non supportés par les clients stricts imposent une qualification ChatGPT distincte. Ne pas utiliser permissive, modifier les identités ou casser un client existant pour contourner.
+### J25 · Recover from a public HTTP error
 
-Référence : [LLM_SETUP.md](LLM_SETUP.md).
+**Actor:** Browser visitor with no additional workshop authority. **Branch:** Interfaces.
 
-### J11 · Utiliser iPhone ou iPad
+Request an eligible public HTML document → retain real error status → show localized message/accessible artwork in system or the bounded host-only theme choice → use canonical shared footer or an explicit home/help/assistant/developer/status recovery link.
 
-**Acteur :** Membre sur client natif. **Branche :** NATIF → NAVIGATEUR.
+**Failure/recovery:** Private/API/auth/MCP, JSON/PDF/binary/event-stream, explicit downloads and range protocols retain their contracts. Missing media/translation remains closed; reflect no private URI/query/body and never invent success. An appearance cookie contains only an allowlisted nonsecret enum and grants no document/session access.
 
-Connexion système → compte/langue → import ou lecture PDF → préparation fax/e-mail → revue navigateur → retour au suivi. Le client natif lit la préférence d’apparence personnelle dans compte/session sans contrôle de modification ; la revue navigateur utilise la préférence de la personne après authentification. Dans la revue navigateur Classique/V2, parcourir le PDF dans un cadre stable accessible au clavier ; le chargement et les erreurs ne déplacent pas les consentements. Les retours vers la revue web V2 sur mobile conservent le compte accessible, le retour contextuel et les actions de l’étape ; le client natif ne reçoit aucun changement de présentation. Si le candidat de domaine est activé, le navigateur système ouvert par /auth/login suit le même domaine facultatif et revient sur le callback canonique ; code natif éphémère, PKCE et session native restent distincts.
+[Detailed contract](PUBLIC_HTTP_ERRORS.md).
 
-**Blocage / reprise :** Session native ne peut ni approuver ni envoyer ; suppression du compte est une demande, pas une preuve d’effacement. Le PATCH natif refuse preferredDashboardAppearance ; le seul PATCH natif de langue le conserve. Cette lecture n’ajoute aucun consentement ou droit natif. Un chargement ou une erreur PDF ne coche aucune case et ne modifie ni les droits courants ni les gardes d’approbation. Domaine personnalisé validé côté DNS ne qualifie pas une connexion système réelle ou le retour vers l’application native ; ne pas changer client, callback ou session native pour contourner un refus.
+### J26 · Receive a sensitive document with one Guteneo account
 
-Référence : [IOS_API.md](IOS_API.md).
+**Actor:** Personal recipient with matching verified address and current-policy session; workspace approver only for independent policies. **Branch:** Active individual invitation, personal principal and current document policy; association confirmed before content.
 
-### J12 · Gérer les crédits
+Open the invitation → capture/remove its fragment token before any HTTP login URL → same-tab ten-minute handoff → Auth0 sign-in/registration and secret-free return → open the document with verified account/address and a recent session → atomically bind the stable account for verified_email, or await workspace confirmation only for independent/historical policies → read authorized pages/text and find the share in My documents. Receipt creates no workspace, purchase or marketing consent. Personal section navigation retains the authenticated shell; a new invitation is captured and removed before its route renders, and every data delivery still checks current authority.
 
-**Acteur :** Administrateur navigateur. **Branche :** FACTURATION.
+**Failure/recovery:** Wrong account, expired token, revoked access or insufficient policy evidence exposes no sensitive title/original. Explicitly switch account or reopen the link; if storage is blocked, sign in then reopen without a secret returnTo. A 401 offers explicit recovery without loops. No physical identity or complete reading is promised. A changed association candidate requires fresh attestation. Personal-list 401/403 clears metadata/cursors and ignores late obsolete responses. Verified-account recovery uses ordinary one-hour Auth0 SSO; missing signed auth_time in a legacy cookie is not backfilled. Strong/default recovery retains its existing forced freshness. Recovery grants no approval or additional recipient rights.
 
-Lire solde disponible/réservé/consommé → préparer au plafond → confirmer avec réservation atomique → suivre règlement et consommation. Le contrôle à blanc d’un envoi existant ne réserve et ne consomme aucun crédit. La coque web V2 facultative conserve les données financières et le contrat d’acceptation existants. En V2, les actions financières restent locales à la page et aux droits courants ; les montants et récapitulatifs nécessaires ne sont pas retirés au titre de la déduplication. Les lectures web partagées masquent les données du chemin précédent et ignorent les réponses annulées ; un rafraîchissement du même chemin conserve ses données.
+[Detailed contract](SECURE_DISTRIBUTION_JOURNEYS.md).
 
-**Blocage / reprise :** Pas de recharge réputée disponible ; réserves protégées tant que l’issue fournisseur est inconnue. Il ne vérifie pas le solde ou les quotas disponibles et ne remplace pas la transaction d’acceptation. Le changement de présentation ne réserve ni ne consomme de crédits. Une réponse tardive annulée, y compris 401, ne remplace pas la ressource courante et ne déconnecte pas le nouveau compte.
+### J27 · Prepare and activate sensitive distribution
 
-Référence : [WELCOME_CREDIT.md](WELCOME_CREDIT.md).
+**Actor:** Authorized preparer → browser approver under the active document policy → authorized confirmer. **Branch:** Web/REST/MCP/packages prepare and follow; sensitive approval and quote renewal are browser-only.
 
-### J13 · Diagnostiquer un PDF avec Horizon
+Open Secure distribution after Documents, keeping Overview/Assistants first and the active entry coherent → select an accessible ready PDF up to 100 pages/10 MiB → one recipient → 7/30/90/365 days → optional original export/personal copy → optional subject/message/custom HTML or localized workspace V2 defaults, plus approved binding policy → idempotent preparation → follow preparing under the same ID → review final pages/text, recipient, rights, message and tax-exclusive total including transport → separately attest the email request → one priced browser Send action records approval then activation with the existing verified session; MCP reads active state and tracks without another confirmation → inspect paginated provenance/actor audit with ninety-day detailed access and separate immutable receipts. Revocation blocks future access without refund. Explicit source pagination reaches older PDFs; permitted personal copies remain exportable even when the shared original is not. Provider submission retains only transport in its reservation after committing retention fees; signed outcomes update invitation tracking separately from shared access.
 
-**Acteur :** Administrateur navigateur pour abonnement ; administrateur, superviseur, opérateur ou assistant autorisé pour diagnostic ; lecteur autorisé du PDF pour historique. **Branche :** HORIZON · OUVERTURE SUR CRÉDITS.
+**Failure/recovery:** Unqualified source, integrity, scan, rendering, authority, price, credit or configuration closes the flow. Revoke unexpired legacy draft/active hosting first. A prior postal derivation, legacy send, postal preflight or provider draft requires a dedicated source even after cancellation/failure. Sensitive reference permanently excludes ordinary email/fax/postal attachments, legacy transforms, cropping, analysis and password reads; only the dedicated sourceless invitation remains eligible. Bidirectional service/SQL guards close concurrent legacy writes and provider-transfer races. No original/legacy-link fallback. An expired or changed invitation quote offers explicit browser renewal only for an eligible unsubmitted original; preserve stored inputs and ceiling, resume the same deterministic replacement after failure, then review and approve again. Accepted/attempted work never renews. Expert mandates and assistant-asserted consent cannot approve. Unknown outcomes reread the same ID without new orders or blind provider retry. Localized Sign in again voluntarily opens the existing hosted login: DOCUMENT_AUTHENTICATION_REQUIRED uses ordinary bounded SSO, while strong, explicit freshness and browser-approval refusals retain fresh=1. Recovery preserves the valid existing share path and locale while stripping query/secondary fragments, with no private form storage, automatic write replay or weaker session checks. Recipient invitation secrets stay outside returnTo. Dated Resend qualification/local email flags establish no installed global D1 quotas, webhook/secret or delivery. Secure preparation failures emit a fixed operational signal once; delivery failures and unknown results require inspecting the existing invitation dispatch, without resending or refunding committed hosting. Expired/revoked sessions require ordinary login; verified_account has no separate 15/5-minute authentication gate, while strong retains its existing windows. After a failed browser final action, explicitly check the same status before same-key recovery; status refresh sends nothing.
 
-Dans le parcours assistant, annoncer les catégories exclues avant de demander ou traiter les contenus ; vérifier les droits courants sans prétendre détecter automatiquement ces catégories. Consulter la disponibilité réelle → lire prix et crédits restants → consentir au débit de 30 € et au renouvellement dans le navigateur administrateur → choisir PDF prêt/profil → lancer diagnostic → rapport/historique/export → revue humaine → gérer résiliation. L’historique reste consultable après expiration du forfait, selon l’accès courant au PDF. La coque web V2 facultative conserve l’accès au parcours Horizon existant, sans en changer la disponibilité. En V2, l’action disponible pour le diagnostic ou le forfait conserve la priorité locale et ses gardes ; le raccourci global Nouvel envoi demeure secondaire. Les lectures web partagées masquent les données du chemin précédent et ignorent les réponses annulées ; un rafraîchissement du même chemin conserve ses données. Si la personne utilise le lien public sans session, l’entrée ouvre directement Auth0 et conserve la destination /app/plan ; aucune page de choix Guteneo intermédiaire. Une erreur revient à la récupération explicite sans boucle. La session connectée conserve sa lecture de capacités dans l’atelier ; revenir à l’accueil déclenche une nouvelle lecture publique unique commune à l’offre et à la FAQ.
+[Detailed contract](SECURE_DISTRIBUTION_JOURNEYS.md).
 
-**Blocage / reprise :** Disponibilité non confirmée ou configuration incomplète : aucune souscription ; crédit insuffisant : aucun débit et renouvellement suspendu sans dette ; bonus promotionnel unique, recharge indisponible ; issue réseau incertaine : aucune reprise automatique, même clé lors de la reprise explicite ; contrôle indépendant après succès : nouvelle clé ; 100 tentatives/mois. Le diagnostic MCP annonce idempotentHint=false pour l’activité de connexion ; sa clé conserve la non-duplication métier, sans nouveau débit implicite. V2 n’active ni abonnement, ni diagnostic, ni canal et ne remplace aucun consentement récurrent. Si des données exclues sont connues, arrêter les opérations de contenu de ce parcours, y compris sur une ressource déjà présente ; demander une version dont la personne a retiré ces données avant partage, sans demander les valeurs exclues ni proposer un dépôt web de contournement. Un scan antivirus réussi n’atteste pas leur absence ; les gardes serveur et droits des autres surfaces ne sont pas modifiés par cette consigne. Le périmètre comprend import, lecture, validation et récupération d’un rapport existant (skill pdf-accessibility). Une réponse tardive annulée, y compris 401, ne remplace pas la ressource courante et ne déconnecte pas le nouveau compte. Une lecture publique en échec ne doit pas être conservée lors d’un retour ultérieur à l’accueil ; les capacités n’accordent aucun droit supplémentaire et ne déclenchent ni abonnement ni envoi.
+### J28 · Keep, export and delete a personal copy
 
-Référence : [PDF_ACCESSIBILITY.md](PDF_ACCESSIBILITY.md).
+**Actor:** Recipient owner with a recent policy-compliant session, independent of the original workspace. **Branch:** Independent copy funded at share activation and acquired only after durable deposit activation.
 
-### J14 · Recevoir un PDF protégé
+In an active share allowing deposit, read independent retention/export terms → explicitly Keep a copy → follow the same bounded persistent operation → wait for active copy → open Saved copies → export with five-minute authentication freshness → view personal history or explicitly confirm deletion. The same account also opens Guteneo services.
 
-**Acteur :** Destinataire externe. **Branche :** RÉCEPTION.
+**Failure/recovery:** Revocation before acquisition prevents acquisition; later revocation cannot delete the copy. After timeout/tab closure, resume the same operation without a second copy/charge. No success before activation. Personal deletion removes neither workspace source nor exported files; later private reads are not reported to the workspace. Deletion/expiry prevents redeposit through the same invitation, including direct calls, without fake preparation, recreation or debit.
 
-Ouvrir le lien → saisir le mot de passe → télécharger le PDF dans la période autorisée. Les lectures web partagées masquent les données du chemin précédent et ignorent les réponses annulées ; un rafraîchissement du même chemin conserve ses données.
+[Detailed contract](SECURE_DISTRIBUTION_JOURNEYS.md).
 
-**Blocage / reprise :** Lien expiré, révoqué ou mot de passe invalide : refuser ; le fichier téléchargé ne devient pas lui-même chiffré. Une réponse tardive annulée, y compris 401, ne remplace pas la ressource courante et ne déconnecte pas le nouveau compte.
+### J29 · Move from received documents to services with the same account
 
-Référence : [PROTECTED_DOCUMENTS.md](PROTECTED_DOCUMENTS.md).
+**Actor:** Guteneo account owner with zero or more memberships. **Branch:** Personal-to-workspace navigation, without another registration or separate sender account.
 
-### J15 · Publier une évolution
+Start in My documents → choose Studio or Correspondence in the application switcher, or open Use Guteneo when no workspace exists → choose Prepare a dispatch or New share → select a current membership or request the initial workspace → idempotent creation, initial administrator and closed channels → reload the chosen destination and reread server session/workspace/rights/CSRF → continue normal preparation using the same name/language/identity. Local browser regression creates an administrator workspace then selects another as operator, with real screen/profile changes in both contexts.
 
-**Acteur :** Développeur / opérateur de release. **Branche :** RELEASE.
+**Failure/recovery:** Receipt never permits entry into the sender’s workspace; an organizationId without membership is denied. Creation/selection failure stays visible in the personal area without false navigation. Success retains no previous workspace session/authority. Registration implies no purchase, subscription, confidential-content targeting or marketing email; promised document access remains independent of conversion. An obsolete workspace bootstrap cannot overwrite a personal route, and returning to service use reads fresh workspace authority.
 
-Mettre à jour arbre, droits et parcours → tests/PR → merge explicitement autorisé → CI sur main → migrations/services qualifiés → deploy:live explicitement autorisé sur guteneo.com uniquement → vérifier manifeste, assets et santé canoniques → qualifier séparément la fermeture de workers.dev et des previews URL applicatifs. Pour la remédiation du rejet 0.3.2 signalé le 20 octobre : exécuter npm run audit:mcp et les tests comportementaux, comparer les quatre booléens et justifications des 67 outils au tools/list du serveur déployé puis au scan du portail, conserver une preuve datée avant resoumission autorisée. Le dossier MCP_ANNOTATION_REMEDIATION.md distingue chaque étape et les limites. Pour le candidat plugin 0.3.5 : comparer archive/version/SHA-256, qualifier l’installation, le consentement, le renouvellement et la révocation par hôte ; soumission, revue, approbation et publication en catalogue restent des étapes distinctes. La correction locale de l’issuer et le migrateur reviewer ne publient ni n’activent ces étapes. Inspection Telnyx privée : lire les statuts et correspondances canoniques après publication, sans mutation fournisseur. Pour Horizon : qualifier avec un pont CLI local et un secret temporaire privé → arrêter le container → fermer les RPC → activer seulement après preuves hébergées. Pour la V2 personnelle : appliquer et vérifier la migration 0053 avant le code qui lit sa colonne → confirmer le défaut Classique et la sauvegarde de préférence sur le domaine canonique après publication. Pour la simplification V2 du 14 octobre, qualifier en plus la hiérarchie des actions, l’absence de répétitions dans la coque, les retours des détails, le statut et le fuseau, sur ordinateur et mobile ; publier seulement après validation du commit exact. Vérifier aussi les consignes de données exclues des skills document-studio/pdf-accessibility, leur matrice et les parcours générés ; distinguer instructions du paquet, contrôles serveur et qualification réelle. La version du produit, du serveur et des paquets doit concorder ; le build refuse une surcouche obsolète ou un endpoint de compatibilité divergent et la preuve distante compare aussi la version. Pour le domaine navigateur : qualifier le tenant existant, CNAME DNS-only, TLS, métadonnées et clés de signature ; vérifier les callbacks des fournisseurs sociaux, appliquer la migration additive 0054 puis publier le code revu avant toute option AUTH0_BROWSER_DOMAIN. Préserver l’issuer canonique et qualifier séparément connexion réelle, compte existant, reviewer restreint et MCP après activation. Le détail est dans AUTH0_CUSTOM_DOMAIN.md.
+[Detailed contract](SECURE_DISTRIBUTION_JOURNEYS.md).
 
-**Blocage / reprise :** Autorisation ou authentification Cloudflare absente : bloquer publication ; commit testé et déployé doivent correspondre. Paquet local valide ou scan du reviewer : aucune preuve de publication en catalogue ; le portail existant est observé le 23 octobre en 0.3.2 Changes required / Not published, avec configuration MCP indisponible et import 0.3.5 refusé ; aucun nouveau scan, resoumission ou publication n’est déduit du paquet local. Auth0 : inspecter et revoir l’état exact avant toute application autorisée ; aucun réglage de production effectué par la préparation locale. Ancien hôte applicatif et previews URL ouverts : fermeture non qualifiée ; aucune comparaison d’assets attendue sur un hôte fermé. Pont Horizon : origine navigateur ou secret absent/faux refusés avant les bindings ; secret exclu des arguments, logs, preuves et appels distants ; supprimer le fichier local après qualification. Migration 0053 absente ou non qualifiée : ne pas publier le code qui dépend de la colonne. Les anciens tests de présentation locale ne qualifient pas le nouveau parcours de compte ; autorisation de fusion, CI et preuves distantes restent distinctes. Un arrêt de CI pendant la préparation des dépendances ne valide pas les assertions non exécutées ; corriger la cause et qualifier à nouveau le commit exact. Migration 0054 absente, domaine non prêt, callback social manquant ou correspondance de tenant non prouvée : garder la connexion canonique et bloquer l’activation. Certificat, CI, DNS et tests simulés ne prouvent aucun login réel ; la création du domaine n’autorise pas une publication applicative supplémentaire.
+### J30 · Read version-bound browser reports through the public report API
 
-Référence : [MAIN_RELEASE.md](MAIN_RELEASE.md).
+**Actor:** Anonymous reader; authorized GitHub runner only for report ingestion, without membership. **Branch:** Separate browser monitor → public report API → version and freshness.
 
-### J16 · Vérifier son compte et contacter un responsable
+Scheduled/manual main workflow → twenty-eight fixed public checks with Node identity/no-transform requests, canonical HTML origin no-transform responses and strict received-size/SHA comparison, without business login/sending → sanitized report with body-bound OIDC → technical consumer reads GET /api/e2e-status for execution date, tested/observed commits, checks and history. The customer status page no longer fetches or presents these reports. Fourteen Cron checks remain independent; authenticated coverage still requires dedicated identities and a qualified connected journey under the active document policy.
 
-**Acteur :** Membre navigateur dans son atelier courant. **Branche :** IDENTITÉ → RESPONSABILITÉS.
+**Failure/recovery:** Absent, stale, incomplete, invalid or version-mismatched reports remain neutral with explicit limits. An observed discrepancy stays in that report. Public reads launch no test. Incorrect OIDC identity, body hash or GitHub context denies ingestion. Local checks establish no paid operation, business authentication, communication, publication or delivery. Failure diagnostics are bounded to HTTP/OIDC/ingestion stages and allowed codes outside the signed body. No silent retry replaces a failed observation; an artifact written before ingestion does not prove the report was stored. HTML transformation remains a complete verification failure; a client request cannot replace the origin response rule. Direct-job workflow claim pairs must match the canonical main workflow and expected commit, or both be absent for legacy tokens. Local diagnostics after an actual ingestion rejection cannot turn it into success. Application HTML preservation and status-service claim verification require separate publication and hosted proof.
 
-Depuis guteneo.com, lire nom/adresse/rôle → profil → modifier nom/langue → consulter droits effectifs et contacts → ouvrir volontairement mailto ou changer de compte avec Auth0 et retour canonique. Depuis le compte en bas de navigation, sélectionner Classique ou V2 à côté de la langue → Enregistrer les modifications → appliquer après succès serveur ; retrouver cette préférence de personne sur ses autres ateliers et appareils après relecture de session. En V2, le compte personnel reste accessible au bas de la navigation sur ordinateur et menu fermé sur mobile ; État du service est regroupé avec Changer de compte dans les utilitaires du bloc d’identité, sans répéter marque ni atelier dans un pied de page. Les lectures web partagées masquent les données du chemin précédent et ignorent les réponses annulées ; un rafraîchissement du même chemin conserve ses données. Un changement de compte sous le domaine facultatif vérifie les jetons du fournisseur lié à la transaction puis utilise le namespace d’identité canonique, sans rapprocher les personnes par leur adresse e-mail.
+[Detailed contract](STATUS_SERVICE.md).
 
-**Blocage / reprise :** Email en lecture seule ; aucun auto-changement de rôle. Contacts limités à 50 et à l’atelier courant, hors demandeur. Aucun envoi automatique, aucun annuaire assistant ; erreur visible et reprise manuelle. La sélection seule ne modifie rien côté serveur ; le PATCH de profil sauvegarde la préférence personnelle, avec Origin/CSRF et revalidation de l’autorité. Échec visible, aucun succès inventé. Un changement d’identité abandonne l’ancien forçage URL et applique la préférence de la nouvelle personne. Une erreur tardive de l’annuaire reste annoncée avec reprise manuelle, sans détourner le focus du contrôle en cours ni perdre la saisie. Une réponse tardive annulée, y compris 401, ne remplace pas la ressource courante et ne déconnecte pas le nouveau compte. Préférences, rôles et ateliers suivent la même personne signée ; un autre sujet partageant la même adresse n’hérite d’aucune donnée ni autorité.
+### J31 · Understand and change a feature
 
-Référence : [ACCOUNT_IDENTITY.md](ACCOUNT_IDENTITY.md).
+**Actor:** Reader → contributor. **Branch:** Engineering.
 
-### J17 · Superviser la plateforme avec Belvédère
+Open the engineering site → find a feature in the generated tree → read its architecture and workflow guide → reproduce the behavior locally → update the authoritative feature source and developer guide together → run documentation and relevant behavior checks.
 
-**Acteur :** Veilleur navigateur avec identité vérifiée explicitement autorisée. **Branche :** PLATEFORME PRIVÉE.
+**Failure/recovery:** Stale generated pages and broken internal links fail validation. Restricted runbooks and dated private evidence remain in the repository. Publication needs explicit authorization and separate hosted verification.
 
-Ouvrir adresse privée → garde actuelle session/identité → préférence de langue du compte → vues globales en lecture seule → distinguer les modes et les sources financières → examiner mesures Cloudflare selon configuration. Le candidat de domaine conserve dans la preuve navigateur le namespace canonique et le sujet signés après validation du fournisseur exact ; ce changement de hostname ne crée pas d’autorité Veilleur.
+[Detailed contract](ENGINEERING_SITE.md).
 
-**Blocage / reprise :** Autre identité, rôle atelier seul, assistant, adresse incorrecte ou configuration absente : refus sans divulgation. Migration 0052 et configuration privée requises ; aucune donnée fournisseur simulée présentée comme réelle. La nouvelle connexion réelle et le retour Belvédère restent à qualifier après activation ; une adresse de profil modifiable ou un domaine valide seuls n’ouvrent pas cette vue.
+### J32 · Choose browser appearance
 
-Référence : [BELVEDERE.md](BELVEDERE.md).
+**Actor:** Anonymous or signed-in browser reader; no role or additional authority required. **Branch:** Interfaces.
 
-### J18 · Vérifier la production sans envoyer
+Start with the operating-system palette unless a valid local choice exists → use the shared public/personal header or Belvédère page-action localized light/dark action icon at any viewport, or its labelled form in the V2 workshop account menu, with public activation available before React, or a three-way account setting where that surface exposes one → apply the resolved palette in place → retain the local origin preference when storage is available → follow system or same-origin storage changes. Main-site standalone HTML uses only the host-only enum cookie; status and engineering retain independent origin state. Native public pictures select matching dark art; header/app white paper stays inside each actual inner blue frame with transparent exterior/perforations. Public/workshop assistant marks have no added white backing; monochrome marks invert in explicit/system dark mode while colored sources stay unchanged. Document/PDF/email surfaces keep original content appearance.
 
-**Acteur :** Opérateur local ; lectures anonymes publiques, aucune autorité atelier ou Veilleur acquise. **Branche :** EXPLOITATION.
+**Failure/recovery:** Blocked persistence still permits an in-page choice. Invalid or duplicate cookies fall back to system without interpolation or account lookup. Script-free CSS follows system; language, identity, drafts, approval and provider gates remain independent. Local browser-engine evidence establishes no physical-device Safari or deployed-host pass.
 
-Lancer monitor:prod ou monitor:prod:live → contrôler source et 17 preuves publiques → distinguer fonctions désactivées/non testées → consulter les métriques privées avec son propre accès → arrêter le processus après revue.
+[Detailed contract](THEMES.md).
 
-**Blocage / reprise :** Réponse incohérente, absence de scanner/identité ou protection anonyme rompue : attention et sortie non nulle. État périmé après 120 secondes ; reprise bornée chaque minute. Aucune authentification synthétique, activation, délégation, communication ni facturation automatique. Les données métier privées ne sont pas lues ; les canaris distants restent une proposition séparée.
+### J33 · Open personal documents without an unrelated workspace wait
 
-Référence : [PRODUCTION_REVIEW_2026_10_09.md](PRODUCTION_REVIEW_2026_10_09.md).
+**Actor:** Authenticated personal account owner, with or without a workspace. **Branch:** Access.
 
-### J19 · Contrôler à blanc un envoi existant
+Open My documents directly or through the application switcher → request personal route code and one visit-scoped personal session in parallel → discard hidden/obsolete prefetches → read the authorized list without workspace bootstrap → open shared account utilities without extra reads. Revalidate on focus/account change and discard prior identity/documents; a new workspace visit rechecks workspace authority.
 
-**Acteur :** Lecteur actuel de l’envoi parmi les quatre rôles ; assistant OAuth avec dispatches:read. **Branche :** ENVOIS → VALIDATION SANS EXPÉDITION.
+**Failure/recovery:** Personal policy and recipient bindings are never skipped. Cancelled or late workspace/account results cannot restore earlier identity, language or documents; expired sessions use established recovery. The five-context synthetic timing comparison is bounded local instrumentation, not production latency, real-client access or provider delivery proof.
 
-Sélectionner un envoi déjà préparé et accessible → GET /api/dispatches/:id/dry-run ou dry_run_dispatch → conserver heure, empreinte et mode → distinguer gardes validées, bloquées et non exécutées → relire le même identifiant si nécessaire, sans renouveler son devis. Automatisation possible : test:prod:dry-run sur 1–10 IDs choisis, jeton borné fourni par l’environnement et sortie expurgée ; aucun cron de dry-run créé.
+[Detailed contract](FRONTEND_PERFORMANCE.md).
 
-**Blocage / reprise :** Accès atelier/document refusé : aucune preuve métier. Envoi déjà engagé, devis expiré ou révoqué, préparation réservée à la revue ou garde bloquante : arrêt explicite ; aucune correction ou relance automatique. Résultat global partial ou blocked, jamais preuve d’acceptation ou de livraison. Pas de nouveau bouton web/natif. Contrat déployé dans c953596 et refus anonyme vérifié ; parcours authentifié non qualifié en production, aucun dry-run authentifié exécuté et aucune livraison effectuée pour cette qualification.
+### J34 · Upload a private original through a connected assistant
 
-Référence : [PRODUCTION_DRY_RUN.md](PRODUCTION_DRY_RUN.md).
+**Actor:** Current OAuth writer (administrator, supervisor or operator) with documents:write and explicit original-file handling authorization; actual host byte-transfer capability required. **Branch:** Documents.
 
-### J20 · Consulter la situation et les preuves du service
+Qualify actual host access to the selected original and its native, permitted binary or bounded inline transport → compute actual original filename, byte count and SHA-256 with code → preserve an available native file envelope, otherwise reserve through begin_document_upload and make one permitted fixed binary PUT, or use one import_inline_pdf invocation with canonical original base64 up to 64 KiB when runtime egress is unavailable → read get_document_upload on the same upload ID under current OAuth authority → inspect the same creator-private document after ordinary scanner/quarantine processing. If a lost inline response contains no ID, recover the strict same key/metadata through begin_document_upload before status; never automatically repeat the encoded import. Later preparation, approval and sending follow separate journeys.
 
-**Acteur :** Client, équipe ou astreinte ; accès public anonyme en lecture seule, sans privilège atelier. **Branche :** STATUT PUBLIC → PREUVES → EXPLOITATION.
+**Failure/recovery:** Reject invalid/noncanonical base64, inline overflow, original size/hash mismatch, unknown/used/expired capability, binary cookies/Authorization/Origin/query/encoding, changed issuer trust/client/connection/revision/membership, overflow and timeout. Validate inline bytes before creating a reservation; the existing 2 MiB MCP request limit is unchanged and does not imply a 10 MiB inline route. Never publish, split inline calls, truncate or reconstruct a private PDF; J37 owns the distinct App-only staging protocol. Recovery retains the same key/upload/document and never blindly retries an unknown outcome or logs original bytes/capabilities. No sending, purchase or human/delegated approval is created. Web/Desktop/Code evidence does not qualify Claude on iPhone.
 
-Ouvrir status.guteneo.com depuis Guteneo → dans Service, vérifier date et fraîcheur puis lire le bilan des quatorze contrôles publics et les trois groupes surveillés → consulter les synthèses quotidiennes sur 7/30/365 jours et la couverture des créneaux → ouvrir Vérifications pour les contrôles détaillés, la qualification locale et la couverture des parcours, présentées séparément → consulter Exploitation pour les limites et la prochaine action. Un bilan public positif reste limité aux contrôles exécutés ; les parcours hors périmètre ou non activés portent des badges neutres. Depuis la V2 authentifiée, le lien État du service se trouve dans la zone du compte ; Classique conserve son accès existant. Cette entrée reste une navigation vers le service public, sans lecture métier supplémentaire.
+[Detailed contract](PRIVATE_DOCUMENT_UPLOAD.md).
 
-**Blocage / reprise :** Contrôle en écart : alerte dans le bilan et le groupe concerné, détail consultable dans Vérifications. Mesure absente, ancienne, indisponible ou illisible : état actuel inconnu et résultats précédents datés, sans succès courant. Jours sans mesure en gris ; aucune disponibilité extrapolée. Une couverture métier absente ne signifie pas une panne et ne dégrade pas le bilan public ; les tests locaux ne deviennent pas une preuve de livraison. Les lectures n’exécutent aucun scénario, ne consomment aucun devis et ne déclenchent aucun envoi. Tests locaux de cette présentation et observation distante historique restent des preuves distinctes.
+### J35 · Decline or report document email
 
-Référence : [STATUS_SERVICE.md](STATUS_SERVICE.md).
+**Actor:** Holder of the recipient preference capability; sender reads only their authorized delivery status. **Branch:** Recipient-only browser action; scoped REST/MCP readback, no assistant preference tool.
 
-### J22 · Qualifier le renouvellement OAuth du reviewer
+Open the email footer preference link → capture and remove fragment token without sign-in or API reads → explicitly unsubscribe or report → same-origin bounded POST → atomic originating-workspace suppression and lifecycle receipt → show Unsubscribed or Email reported separately from delivery and existing document rights.
 
-**Acteur :** Opérateur Auth0 autorisé, distinct des quatre rôles de membership ; titulaire du compte pour le consentement OAuth réel. **Branche :** PLATEFORME AUTH0 → REVIEWER MCP.
+**Failure/recovery:** Invalid/draft/cancelled capabilities reveal no address or title. GET/scanners do not write. Reopen or retry the same link after failure. Other workspaces and already received documents remain unaffected; reports cannot be downgraded and unknown provider outcomes never auto-retry. A cancellation between capability lookup and commit fails the transaction-time eligibility fences without a preference write; satisfied replays preserve the update timestamp.
 
-Disposer de la session du tenant Auth0 exact et du reviewer OpenAI déjà enregistré avec son callback exact historique /connector/oauth/aAwc9dso12_L → inspecter en GET avec enable-openai-review-renewal → lire le plan expurgé et son empreinte, les deux Actions draft/live et les gardes → obtenir l’autorisation explicite du changement précis → appliquer uniquement --apply --expect EMPREINTE_REVUE → déployer les deux Actions conservant ownClients avant offline_access de l’API puis le grant/politique rotative du seul reviewer, 30 jours d’inactivité et 90 jours absolus → réinspecter l’état complet → qualifier en GET avec prepare-chatgpt-reviewer --qualify-client CALLBACK_EXACT --expect-renewal EMPREINTE_FINALE → reconnecter personnellement dans l’hôte et qualifier lecture, renouvellement réel et révocation sans envoi. Aucun de ces réglages n’est appliqué par la préparation locale du candidat.
+[Detailed contract](EMAIL_RECIPIENT_FEEDBACK.md).
 
-**Blocage / reprise :** Empreinte différente, callback générique, callback/propriétaire inattendu, source inconnue, collision, autre client Guteneo avec refresh actif ou dérive avant une écriture : arrêter sans élargir la configuration. Après échec ou issue inconnue, aucune mutation retentée : inspecter l’état réel, revoir une empreinte fraîche et reprendre uniquement un état partiel canonique. La qualification --expect-renewal refuse un reviewer absent ou une migration incomplète et reste GET seule. Aucun client créé ni client tiers, secret, association, mandat, approbation ou restriction prepare_only modifié ; aucune autorité Auth0 acquise par le rôle atelier ou par l’installation du plugin. Tests locaux et état configuré ne prouvent pas le renouvellement ni la révocation réels ; exclure jetons, codes, secrets et URL signées des preuves. Le domaine navigateur préparé le 24 octobre ne change pas l’issuer, le client, les callbacks, la rotation ou les autorisations du reviewer MCP ; reconnexion et renouvellement restent des preuves séparées.
+### J36 · Check an assistant host's MCP Apps capabilities
 
-Référence : [LLM_SETUP.md](LLM_SETUP.md).
+**Actor:** Authorized operator for temporary diagnostic activation; owner of that exact existing OAuth connection, with current membership and documents:read, for the host interaction. **Branch:** Interfaces.
 
-### J21 · Choisir l’Atelier V2 dans son compte et retrouver sa préférence
+Review the diagnostic source/package and explicit target/window → operator selects one current connection and authorization revision for at most one hour → person opens open_mcp_ui_probe in the actual host → inspect finite local render/secure-context/picker-API states → request the fixed acknowledgement through check_mcp_ui_probe_bridge → optionally request the native chooser from a user gesture and cancel without selecting a file → retain the actual visible result separately → remove activation or let the window expire.
 
-**Acteur :** Membre navigateur authentifié parmi les quatre rôles, pour son propre compte et avec son autorité courante. **Branche :** COMPTE PERSONNEL → APPARENCE ATELIER.
+**Failure/recovery:** Absent, malformed, early, expired or mismatched activation makes tools and the resource unavailable; current OAuth, scope, membership and connection revision remain mandatory, including for a cached URI. The probe sends no host context, file metadata or file bytes and creates no document, import/upload grant, quote, approval, charge, outbox or provider operation. Existing authentication/rate/activity accounting remains. Unsupported rendering/bridge/picker is an explicit diagnostic limit, not permission to widen access or relax network/Origin policy. The dated Desktop widget/empty-bridge/native-chooser-cancellation observation proves no selected original, existing-attachment access, larger-file transfer, web or physical-iPhone pass.
 
-Après migration et publication qualifiées, ouvrir Mon compte depuis le bas de la navigation → dans Mon profil, choisir Classique ou V2 à côté de la langue → Enregistrer les modifications → appliquer après succès et lire la confirmation → retrouver la même préférence entre ateliers, sessions et appareils après relecture authentifiée. Un lien atelier=v2 ou atelier=classic force temporairement la présentation sans écriture ; la sauvegarde d’un choix d’apparence explicite et le changement d’identité abandonnent le forçage. Utiliser les mêmes documents, préparations, revues et suivis avec leurs droits ; atelier actif centré sur son activité, accueil complet si vide, aperçu avant accord au clavier. Dans la revue navigateur Classique/V2, parcourir le PDF dans un cadre stable accessible au clavier ; le chargement et les erreurs ne déplacent pas les consentements. La coque V2 conserve une signature Guteneo, le nom de l’atelier dans la navigation et l’identité personnelle dans le compte ; sans pied de page redondant. Les listes ont leur titre principal, les détails un retour contextuel, les dates leur fuseau et chaque tâche son action principale ; le raccourci global Nouvel envoi est secondaire. Vérifier ces repères sur ordinateur et mobile, menu ouvert et fermé.
+[Detailed contract](MCP_UI_CAPABILITY_PROBE.md).
 
-**Blocage / reprise :** Valeur inconnue, ciblage étranger, CSRF invalide ou membership révoquée : refus sans modification partielle ; erreur de sauvegarde visible. Cache local bloqué : la session serveur reste l’autorité. Identité différente : ne pas conserver l’ancien forçage. Aucun consentement, envoi ou mandat créé par cette préférence. Lecture native additive, setter natif refusé, aucun outil MCP ajouté. Qualification historique du 11 octobre : 91 tests backend ciblés, 7 tests d’apparence et 29 cas navigateur locaux ; ces résultats ne qualifient pas le candidat de simplification du 14 octobre. Les 23 anciens cas UI restent des preuves antérieures distinctes. Une sauvegarde de nom ou langue sans choix explicite d’apparence ne persiste ni ne retire un forçage URL. Un chargement ou une erreur PDF ne coche aucune case et ne modifie ni les droits courants ni les gardes d’approbation. Correctif de stabilité du PDF : 36 cas locaux réussis sur trois navigateurs, sans communication réelle ; preuve antérieure distincte du candidat courant. Le test du lien temporaire attend la confirmation visible de sauvegarde après le corps du PATCH et la relecture du compte, puis conserve les assertions strictes d’URL et de préférence serveur. Les 15 cas du fichier dashboard-v2.spec.ts passent après cette synchronisation ; la CI du commit courant reste requise. Une erreur tardive de l’annuaire reste annoncée avec reprise manuelle, sans détourner le focus du contrôle en cours ni perdre la saisie. Une action absente pour défaut de droit ne devient pas disponible par sa présentation. La disparition du pied de page ne doit pas supprimer le lien de statut, le fuseau utile ou l’accès mobile au compte. Qualification locale du candidat : 18 cas navigateur sans échec/skip/instabilité sur trois projets, quinze routes en Classique/V2 au viewport natif et à 320 px, plus 40 tests locale/apparence ; CI exacte et publication restent à qualifier, voir DASHBOARD_V2.md.
+### J37 · Import a selected local original through an MCP App
 
-Référence : [DASHBOARD_V2.md](DASHBOARD_V2.md).
+**Actor:** Person using a compatible host and their eligible OAuth connection; current administrator, supervisor or operator with documents:write and explicit original-file permission; distinct authorized operator controls bounded qualification or reviewed general activation. **Branch:** Documents; gated MCP App only, existing web/native/REST upload contracts unchanged.
 
-### J23 · Maintenir les signatures du scanner privé
+Review source/package and actual host checkpoint → apply migration 0063 before code publication even with the App flag off → activate an exact connection/revision window of at most one hour for qualification, or a separately explicit general rollout after reviewed actual qualification and authorized delivery → open open_mcp_document_upload with empty input → person chooses one allowed local PDF from device Files, reviews content exclusions and explicitly clicks Import → App computes actual size/SHA over the same bounded buffer → begin_mcp_document_upload freezes metadata/authority/layout → serialized append_mcp_document_upload calls stage verified fixed parts through the official App bridge → finish_mcp_document_upload verifies the assembled original once and enters the shared private scanner/quarantine pipeline → retain the same creator-private document and publish only its ID/status/size/SHA through text/structured SDK context; only an explicit Use in conversation UI gesture can also post that same minimal JSON receipt through the official App message bridge → verify the actual model receives the registered ID, rather than inferring handoff from the widget receipt → follow existing same-document analysis; prepare only when ready, requested and the exact ID is available. Remove temporary qualification activation afterwards. This is a new local selection, not automatic handoff of a conversation attachment.
 
-**Acteur :** Opérateur autorisé ; GitHub Actions avec jeton dédié et périmètre explicitement approuvé. **Branche :** EXPLOITATION → SCANNER PRIVÉ.
+**Failure/recovery:** Absent/invalid activation, mismatched/expired qualification, observer role, missing scope, changed connection/revision/issuer/membership, token/session expiry, quota/debt/call limits, noncanonical or conflicting parts and full-size/hash/PDF mismatch fail closed. General mode retains current production OAuth/writer guards; without MCP Apps explain the unsupported flow and retain ordinary tools. Bounds remain 256 KiB/part, 40 parts/10 MiB, 64 App calls, five minutes/original token expiry, one active session per user within the current workspace, 20 pending/200 MiB organization debt and 200 daily reservations. APP_PART_NOT_ACCEPTED is a settled pre-put refusal. APP_PART_UNCONFIRMED allows only manual same-ID status with volatile buffer retained inside fixed expiry/budget/current authority; only positive immutable-object length/hash evidence can enable explicit Resume. Missing objects never authorize replay. Final pipeline uncertainty is status-only and clears bytes; no new key, transport switch or reimport. The App-specific recovery has tool:null rather than instructing model/binary calls. Cancel/expiry/revocation fence writers; bounded cron also reclaims expired global App-finalizer capacity without deleting an original, while staging waits for original expiry plus 90 seconds and unresolved puts retain debt/tombstones. No direct browser fetch, egress/Origin/CSP exception, public PDF, bytes/base64/token in model context/storage/logs, paid check, approval, send or mandate. Release 1.1.6 has bounded actual Claude Desktop selected-original 299,807-byte/10 MiB storage/readiness and manual same-ID receipt recovery without resend, plus zero associated business effects for those two originals. The model then had neither new ID and made zero get_document calls: registered-ID handoff failed and general activation stays pending. The 1.1.8 source fixes preserve accepted receipts after late bridge errors and add text-plus-structured context plus a user-gesture-only minimal-receipt message with local fixtures; import sends no automatic chat message, repeated pending/acknowledged/refused/uncertain attempts are deduplicated for the same ID/status and message failure retains the document; the actual retest remains required, and neither fix proves the earlier deadline cause. Web/iPhone/other hosts, automatic attachment handoff, full retention/confirmation and runtime headroom remain separately unqualified.
 
-Qualifier main et sa CI → configurer le jeton et son échéance réelle → lancer une actualisation manuelle → vérifier PDF synthétique propre, EICAR, image immuable et version privée réelles → activer les passages quotidiens → contrôler toutes les six heures la dernière preuve et la santé chargée.
+[Detailed contract](PRIVATE_DOCUMENT_UPLOAD.md).
 
-**Blocage / reprise :** Fermeture du sous-domaine et des URL de prévisualisation relue après santé/qualification, avec refus d’une ouverture concurrente. Convergence du conteneur bornée à cinq minutes après déploiement, sans nouvelle tentative de publication ; image inattendue ou dérive de périmètre refusée immédiatement. Activation ou accès manquant, jeton expirant, mise à jour échouée/ignorée, preuve de plus de trente heures, signatures de plus de quarante-huit heures ou identité différente : échec visible. La production refuse toujours les signatures de plus de soixante-douze heures. Les notifications dépendent des préférences GitHub ; une supervision extérieure doit couvrir l'arrêt de GitHub ou du contrôle lui-même. Aucun document client, envoi réel, élargissement de permission ou retour arrière automatique.
+## Required maintenance
 
-Référence : [SCANNER_CI.md](SCANNER_CI.md).
+Every feature addition, change or removal must update feature-map.json, affected permissions/journeys, the developer guide and the detailed technical contract in the same PR. Include entry conditions, authority, result, errors/recovery, surfaces, privacy, activation gates, source and tests. Update OpenAPI/MCP contracts where relevant, regenerate both atlas views, and run npm run docs:check. The generator rejects missing or stale advertised REST/MCP operations. Review remains responsible for semantic coverage and factual status. These raw atlas files stay in the repository. The separate engineering site publishes only curated guides and the explicit generated feature projection; regenerate that projection with npm run docs:build.
 
-### J24 · Se connecter avec le domaine Auth0 Guteneo
-
-**Acteur :** Opérateur de plateforme autorisé pour Auth0/DNS et publication ; personne pour sa connexion navigateur normale, avec ses droits courants. **Branche :** PLATEFORME AUTH0/DNS → BFF NAVIGATEUR.
-
-Entrée : tenant pieper existant, domaine auth.guteneo.com fourni par Auth0, autorisation correspondante et code de migration revu. Vérifier CNAME exact DNS-only et certificat géré Auth0 → qualifier issuer/JWKS et chaque fournisseur social activé → appliquer migration additive 0054 et publier le code selon le circuit autorisé → activer seulement AUTH0_BROWSER_DOMAIN, sans changer AUTH0_DOMAIN → démarrer la connexion sur guteneo.com → consentir auprès du fournisseur → terminer le callback canonique avec état/cookie PKCE, nonce et deux JWT à issuer exact → retrouver la même identité canonique, membership et restriction prepare_only éventuelle. Les flux commencés avant l’option restent canoniques ; ceux commencés sur le domaine personnalisé conservent cet issuer lors du retrait de l’option. Vérifier séparément sessions existantes, changement de compte, invitation, compte reviewer, Belvédère et lecture MCP sans communication réelle.
-
-**Blocage / reprise :** Refuser alias inconnu, issuer de transaction partiel/incohérent, drift du namespace lié, signature/audience/nonce/sujet ou assurance de compte erronés avant toute création de compte ; aucune liaison par e-mail. Domaine pas prêt ou fournisseur social non qualifié : conserver l’ancien point de connexion et ne pas activer. Les deux colonnes NULL d’un ancien flux désignent le domaine canonique ; AUTH0_DOMAIN reste inchangé. Journaux et preuves excluent codes, jetons, secrets et URLs signées. Le domaine ne migre ni les clients MCP, ni scopes, restrictions reviewer, mandats, facturation ou canaux ; aucun envoi réel et aucun nouveau compte Auth0. Préparation source, tests locaux, DNS/TLS, activation et preuve de connexion réelle restent distincts.
-
-Référence : [AUTH0_CUSTOM_DOMAIN.md](AUTH0_CUSTOM_DOMAIN.md).
-
-### J26 · Enregistrer automatiquement un client MCP
-
-**Acteur :** Opérateur Auth0 explicitement autorisé pour la configuration ; personne pour sa connexion et son consentement ; hôte MCP compatible pour son client OAuth. **Branche :** PLATEFORME AUTH0 → HÔTE MCP → COMPTE PERSONNEL.
-
-Entrée : tenant pieper existant, plan GET expurgé, empreinte fraîche et contrôles locaux/CI qualifiés. Obtenir l’autorisation de la politique ouverte exacte → appliquer seulement les Actions revues préservant les listes statiques → promouvoir seulement Guteneo-Accounts en connexion de domaine → créer le grant default_for third_party_clients de type user pour MCP et les 13 scopes explicites → sélectionner strict et activer DCR natif en dernier → réinspecter le fournisseur et sa découverte réelle → ajouter https://guteneo.com/mcp dans l’hôte sans identifiant manuel → laisser l’hôte enregistrer son client → connexion humaine, S256 PKCE et consentement → relire membre, atelier, connexion et capacités authentifiées. Qualifier séparément refresh et révocation avec une connexion de test autorisée, sans révoquer le reviewer actif. Le client natif iOS conserve son parcours distinct.
-
-**Blocage / reprise :** Candidat non activé. L’inscription ouverte crée un client, pas un accès au compte ni une approbation ou un mandat expert. Refuser autre tenant, drift, source/draft Action inconnue, grant hors MCP/user, autre connexion de domaine, extension legacy incompatible ou inspection manquante. Outcome fournisseur inconnu : arrêter et réconcilier, aucune répétition de mutation. Préfixe tpc_ de event.client fiable = classe tiers stricte, pas preuve de marque ou de DCR seul. Conserver reviewer prepare_only, canaux et mandats fermés, membership courante, scopes et approbations exactes. Refresh fini du fournisseur ne prouve ni le profil 30/90 des clients gérés ni une vraie rotation ; OIDC ChatGPT et chaque hôte restent à qualifier. Ne pas stocker jetons, codes, cookies, destinataires ou contenu ; aucun nouveau secret Worker, paiement, suppression de client ou envoi réel. Surveiller croissance d’inventaire et limites du plan : 5 inscriptions/s n’est pas un plafond de clients. Désactiver DCR ne révoque pas les clients existants ; retour arrière distinct et autorisé. La politique conservatrice Free retient le plafond de 10 applications et bloque à partir de 9 clients pour revue de capacité ; même deux places libres ne garantissent pas un déploiement ouvert durable. CIMD compte aussi dans ce plafond ; aucun essai ou abonnement accepté automatiquement.
-
-Référence : [MCP_REGISTRATION.md](MCP_REGISTRATION.md).
-
-## Frontières d’activation et preuves
-
-- Un merge ne prouve ni un déploiement ni l’ouverture d’un canal. Lire les capacités du compte, le manifeste public et la version distante.
-- Les PR #38, #41, #43, #47 et #48 sont fusionnées dans main ; la publication c5cc0dd et les migrations 0050–0051 sont vérifiées. L’ouverture d’Horizon sur crédits est autorisée ; la qualification hébergée et la publication de son activation restent des preuves distinctes.
-- Horizon requiert service privé qualifié, scanner et activation explicite. Souscription : administrateur navigateur, 30 € de crédits disponibles et consentement récurrent. Le bonus promotionnel est unique et la recharge indisponible. Diagnostic : droits, propriété, abonnement et quota courants. Voir [la décision d’ouverture](HORIZON_OPENING_2026_10_03.md).
-- Invitations, e-mail, fournisseurs réels et IA ont leurs propres conditions. Ne pas activer ces services pour rendre une démonstration possible.
-- Une simulation ne qualifie pas un envoi réel. Une issue inconnue exige un rapprochement ; pas de nouvelle tentative aveugle.
-- Tests et qualification : [CI](CI.md), [TEST_RESULTS](TEST_RESULTS.md), [MAIN_RELEASE](MAIN_RELEASE.md). Les résultats datés restent historiques.
-
-## Maintenance obligatoire
-
-Chaque PR qui ajoute, modifie ou retire une fonction met à jour cet arbre, les droits et les parcours concernés dans le même changement. Décrire entrée, étapes, sortie, erreurs/reprise, canaux, données privées, activation et preuve de test. Ajouter un lien vers le contrat détaillé, le code et les tests pertinents. Régénérer Markdown et HTML, puis vérifier liens, mise en page et cohérence avec le code. La CI exécute node docs/build-feature-map.mjs --check : vues synchronisées, matrice cohérente, références existantes et parcours complets ; la revue contrôle la couverture sémantique. Aucun de ces fichiers n’est relié au build ou à la navigation du site officiel.
+[Developer API guide](DEVELOPER_API.md) · [REST contract](API_CONTRACT.md) · [OpenAPI](../apps/web/public/openapi.json) · [MCP annotations](../integrations/chatgpt/tool-annotations.md) · [CI](CI.md) · [Dated test evidence](TEST_RESULTS.md).

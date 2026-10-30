@@ -1,11 +1,10 @@
-import { formatLocale, t } from "../locale";
-import { workspaceEntryHref } from "../auth-navigation";
+import { formatLocale } from "../locale";
 import { msg } from "../messages";
-import { LanguageMenu } from "../language-select";
 import { ArrowLeft, ArrowRight, ArrowUpRight } from "@phosphor-icons/react";
-import { LuxembourgFooter } from "../landing-sections";
-import { Brand } from "../brand";
+import { PublicFooter } from "../public-chrome";
+import { PublicHeader } from "../public-chrome";
 import { getArticles, articlePath } from "./articles";
+import { ArticlePicture } from "./article-picture";
 import type { EditorialArticle } from "./types";
 import "./editorial.css";
 
@@ -16,48 +15,6 @@ const dateLabel = (date: string) =>
     year: "numeric",
     timeZone: "UTC",
   }).format(new Date(`${date}T12:00:00Z`));
-
-function EditorialHeader() {
-  return (
-    <header className="site-header editorial-header">
-      <Brand />
-      <LanguageMenu />
-      <nav aria-label={msg("Navigation principale")}>
-        <a href="/journal/">{msg("Le journal")}</a>
-        <a className="button small" href={workspaceEntryHref()}>
-          {t.login.managed}
-          <ArrowUpRight size={16} aria-hidden="true" />
-        </a>
-      </nav>
-    </header>
-  );
-}
-
-function ArticlePicture({
-  article,
-  eager = false,
-}: {
-  article: EditorialArticle;
-  eager?: boolean;
-}) {
-  return (
-    <img
-      src={article.hero.src}
-      srcSet={`${article.hero.src.replace(".webp", "-small.webp")} 720w, ${article.hero.src} 1536w`}
-      sizes={
-        eager
-          ? "(max-width: 700px) 100vw, 88vw"
-          : "(max-width: 700px) 90vw, 42vw"
-      }
-      alt={article.hero.alt}
-      width={article.hero.width}
-      height={article.hero.height}
-      loading={eager ? "eager" : "lazy"}
-      fetchPriority={eager ? "high" : undefined}
-      decoding="async"
-    />
-  );
-}
 
 function ArticleList() {
   return (
@@ -73,10 +30,10 @@ function ArticleList() {
             <ArticlePicture article={article} />
           </a>
           <p className="editorial-kicker">
-            {msg("Cahier ")}
+            {msg("Issue ")}
             {String(index + 1).padStart(2, "0")}{" "}
             <span aria-hidden="true">/</span> {article.readingMinutes}{" "}
-            {msg(" min de lecture")}
+            {msg(" min read")}
           </p>
           <h3>
             <a href={articlePath(article.slug)}>
@@ -97,17 +54,17 @@ export function JournalTeaser() {
       <div className="journal-section-heading">
         <div>
           <h2 id="journal-teaser-title">
-            {msg("Les mots voyagent.")} <br />
-            <em>{msg("Leur histoire aussi.")}</em>
+            {msg("Words travel.")} <br />
+            <em>{msg("So does their history.")}</em>
           </h2>
           <p>
             {msg(
-              "Le journal de Guteneo raconte l’histoire de l’imprimerie et de la transmission des documents, de Gutenberg au PDF.",
+              "The Guteneo journal tells the story of printing and document transmission, from Gutenberg to PDF.",
             )}
           </p>
         </div>
         <a className="text-link" href="/journal/">
-          {msg("Ouvrir le journal ")}
+          {msg("Open the journal ")}
           <ArrowRight size={18} aria-hidden="true" />
         </a>
       </div>
@@ -126,7 +83,7 @@ export function JournalTeaser() {
               </a>
               <div>
                 <p className="journal-reading-time">
-                  {article.readingMinutes} {msg(" min de lecture")}
+                  {article.readingMinutes} {msg(" min read")}
                 </p>
                 <h3>
                   <a href={articlePath(article.slug)}>
@@ -145,39 +102,39 @@ export function JournalTeaser() {
 
 export function JournalPage() {
   return (
-    <div className="landing editorial-page">
+    <div className="landing public-site editorial-page">
       <a className="skip-link" href="#journal-main">
-        {msg("Aller au contenu")}
+        {msg("Skip to content")}
       </a>
-      <EditorialHeader />
+      <PublicHeader activePage="journal" />
       <main id="journal-main" tabIndex={-1}>
         <div className="journal-intro">
           <p className="editorial-kicker">
-            {msg("Le journal de Guteneo · Deux cahiers pour commencer")}
+            {msg("The Guteneo journal · Two issues to begin")}
           </p>
           <h1>
-            {msg("Une histoire")}
+            {msg("A history")}
             <br />
-            <em>{msg("de transmission.")}</em>
+            <em>{msg("of transmission.")}</em>
           </h1>
           <p>
             {msg(
-              "Une lettre composée, une page imprimée, un message reçu. Nous remontons le fil des techniques et des lieux qui ont permis aux mots de voyager.",
+              "A letter composed, a page printed, a message received. We trace the techniques and places that allowed words to travel.",
             )}
           </p>
         </div>
-        <h2 className="sr-only">{msg("Les histoires de l’atelier")}</h2>
+        <h2 className="sr-only">{msg("Stories from the workspace")}</h2>
         <ArticleList />
         <aside className="journal-note">
-          <p>{msg("Des récits documentés, des images d’aujourd’hui.")}</p>
+          <p>{msg("Documented stories, contemporary images.")}</p>
           <span>
             {msg(
-              "Chaque cahier cite ses sources. Les illustrations créées pour Guteneo interprètent cette histoire ; elles ne sont pas des documents d’archives.",
+              "Each issue cites its sources. The illustrations created for Guteneo interpret this history; they are not archival documents.",
             )}
           </span>
         </aside>
       </main>
-      <LuxembourgFooter />
+      <PublicFooter />
     </div>
   );
 }
@@ -186,40 +143,40 @@ export function ArticlePage({ article }: { article: EditorialArticle }) {
   const index = getArticles().findIndex((item) => item.slug === article.slug);
   const next = getArticles().find((item) => item.slug !== article.slug)!;
   return (
-    <div className="landing editorial-page">
+    <div className="landing public-site editorial-page">
       <a className="skip-link" href="#article-main">
-        {msg("Aller au contenu")}
+        {msg("Skip to content")}
       </a>
-      <EditorialHeader />
+      <PublicHeader activePage="journal" />
       <main id="article-main" tabIndex={-1}>
-        <nav className="editorial-breadcrumb" aria-label={msg("Fil d’Ariane")}>
-          <a href="/">{msg("Accueil")}</a>
+        <nav className="editorial-breadcrumb" aria-label={msg("Breadcrumb")}>
+          <a href="/">{msg("Home")}</a>
           <span aria-hidden="true">/</span>
-          <a href="/journal/">{msg("Le journal")}</a>
+          <a href="/journal/">{msg("The journal")}</a>
           <span aria-hidden="true">/</span>
           <span aria-current="page">
-            {msg("Cahier ")}
+            {msg("Issue ")}
             {String(index + 1).padStart(2, "0")}
           </span>
         </nav>
         <article>
           <header className="article-intro">
             <p className="editorial-kicker">
-              {msg("L’histoire de l’imprimerie · Cahier")}{" "}
+              {msg("The history of printing · Issue")}{" "}
               {String(index + 1).padStart(2, "0")}
             </p>
             <h1>{article.title}</h1>
             <p className="article-dek">{article.dek}</p>
             <p className="article-byline">
-              <span>{msg("Rédaction Guteneo")}</span>
+              <span>{msg("Guteneo editorial team")}</span>
               <span>
-                {msg("Publié le")}{" "}
+                {msg("Published on")}{" "}
                 <time dateTime={article.published}>
                   {dateLabel(article.published)}
                 </time>
               </span>
               <span>
-                {article.readingMinutes} {msg(" min de lecture")}
+                {article.readingMinutes} {msg(" min read")}
               </span>
             </p>
           </header>
@@ -228,16 +185,16 @@ export function ArticlePage({ article }: { article: EditorialArticle }) {
             <figcaption>
               {article.hero.caption}{" "}
               {msg(
-                " Une évocation libre, sans valeur de reconstitution historique.",
+                " An imaginative interpretation, not a historical reconstruction.",
               )}
             </figcaption>
           </figure>
           <div className="article-layout">
             <nav
               className="article-contents"
-              aria-label={msg("Sommaire de l’article")}
+              aria-label={msg("Article contents")}
             >
-              <p className="editorial-kicker">{msg("Au fil des pages")}</p>
+              <p className="editorial-kicker">{msg("Through the pages")}</p>
               <ol>
                 {article.chapters.map((chapter) => (
                   <li key={chapter.id}>
@@ -246,7 +203,7 @@ export function ArticlePage({ article }: { article: EditorialArticle }) {
                 ))}
               </ol>
               <a className="article-source-link" href="#sources">
-                {msg("Sources & lectures")}
+                {msg("Sources & further reading")}
               </a>
             </nav>
             <div className="article-copy">
@@ -261,7 +218,7 @@ export function ArticlePage({ article }: { article: EditorialArticle }) {
                   ))}
                   {chapter.sourceIds.length > 0 && (
                     <p className="chapter-sources">
-                      {msg("Sources :")}{" "}
+                      {msg("Sources:")}{" "}
                       {chapter.sourceIds.map((id, sourceIndex) => {
                         const source = article.sources.find(
                           (item) => item.id === id,
@@ -285,11 +242,11 @@ export function ArticlePage({ article }: { article: EditorialArticle }) {
             aria-labelledby="sources-title"
           >
             <div>
-              <p className="editorial-kicker">{msg("Pour aller plus loin")}</p>
-              <h2 id="sources-title">{msg("Sources & lectures.")}</h2>
+              <p className="editorial-kicker">{msg("Explore further")}</p>
+              <h2 id="sources-title">{msg("Sources & further reading.")}</h2>
               <p>
                 {msg(
-                  "Les liens ci-dessous permettent de retrouver les dates, les objets et les collections évoqués dans ce récit.",
+                  "The links below lead to the dates, objects and collections discussed in this story.",
                 )}
               </p>
             </div>
@@ -307,7 +264,7 @@ export function ArticlePage({ article }: { article: EditorialArticle }) {
         </article>
         <aside className="article-next">
           <div>
-            <p className="editorial-kicker">{msg("Le fil continue")}</p>
+            <p className="editorial-kicker">{msg("The story continues")}</p>
             <h2>
               <a href={articlePath(next.slug)}>
                 {next.title} <ArrowRight size={26} aria-hidden="true" />
@@ -315,12 +272,11 @@ export function ArticlePage({ article }: { article: EditorialArticle }) {
             </h2>
           </div>
           <a className="text-link" href="/journal/">
-            <ArrowLeft size={17} aria-hidden="true" />{" "}
-            {msg(" Tous les cahiers")}
+            <ArrowLeft size={17} aria-hidden="true" /> {msg(" All issues")}
           </a>
         </aside>
       </main>
-      <LuxembourgFooter />
+      <PublicFooter />
     </div>
   );
 }

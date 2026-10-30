@@ -126,7 +126,9 @@ for (const locale of supportedLocales) {
       page.on("request", (request) => {
         if (request.url().endsWith(".mp4")) requests.push(request.url());
       });
-      await page.goto(`${film === "roles" ? "/roles/" : "/"}?lang=${locale}`);
+      await page.goto(
+        `${film === "roles" ? "/roles/" : "/how-it-works/"}?lang=${locale}`,
+      );
       const section = page.locator(`[data-film="${film}"]`);
       const player = section.locator("video");
       const format =
@@ -245,7 +247,7 @@ for (const locale of supportedLocales) {
     page,
   }) => {
     await mockPlayer(page, "play-error");
-    await page.goto(`/?lang=${locale}`);
+    await page.goto(`/how-it-works/?lang=${locale}`);
     const section = page.locator('[data-film="introduction"]');
     await section.locator(".homepage-film-play").click();
     await expect(section.getByRole("alert")).toBeVisible();
@@ -271,7 +273,9 @@ for (const film of ["introduction", "roles"] as const) {
     page,
   }) => {
     await mockPlayer(page);
-    await page.goto(`${film === "roles" ? "/roles/" : "/"}?lang=en`);
+    await page.goto(
+      `${film === "roles" ? "/roles/" : "/how-it-works/"}?lang=en`,
+    );
     const section = page.locator(`[data-film="${film}"]`);
     await section.locator(".homepage-film-play").click();
     const source = await section.locator("video").getAttribute("src");
@@ -298,20 +302,80 @@ for (const film of ["introduction", "roles"] as const) {
   });
 }
 
-test("a saved browser language selects the matching film and poster", async ({
-  page,
-}) => {
-  await page.addInitScript(() =>
-    window.localStorage.setItem("guteneo.locale", "lb"),
-  );
-  await mockPlayer(page);
-  await page.goto("/");
-  const section = page.locator('[data-film="introduction"]');
-  await expect(section).toHaveAttribute("data-locale", "lb");
-  await expect(section.locator("video")).not.toHaveAttribute("src");
-  await section.locator(".homepage-film-play").click();
-  await expect(section.locator("video")).toHaveAttribute("src", /-lb\.mp4$/);
-});
+for (const film of ["introduction", "roles"] as const) {
+  test(`${film} waits for interaction readiness and preserves the saved browser language`, async ({
+    page,
+  }) => {
+    await page.addInitScript(() =>
+      window.localStorage.setItem("guteneo.locale", "lb"),
+    );
+    await mockPlayer(page);
+    let releaseEntry!: () => void;
+    const entryGate = new Promise<void>((resolve) => {
+      releaseEntry = resolve;
+    });
+    let heldEntryRequests = 0;
+    // Hold the actual browser entry module, including the request after the
+    // saved-language redirect. SSR controls must not promise readiness yet.
+    await page.route("**/assets/index-*.js", async (route) => {
+      heldEntryRequests += 1;
+      await entryGate;
+      await route.continue().catch(() => undefined);
+    });
+    try {
+      // A held deferred module also postpones DOMContentLoaded.
+      await page.goto(film === "roles" ? "/roles/" : "/how-it-works/", {
+        waitUntil: "commit",
+      });
+      const section = page.locator(`[data-film="${film}"]`);
+      const player = section.locator("video");
+      const button = section.locator(".homepage-film-play");
+      await expect(section).toHaveAttribute("data-locale", "lb");
+      await expect.poll(() => heldEntryRequests).toBeGreaterThan(0);
+      await expect(button).toBeVisible();
+      await expect(button).toBeDisabled();
+      await expect(player).not.toHaveAttribute("src");
+      // A real pointer gesture on the disabled SSR control must neither start
+      // playback nor be replayed after the JavaScript becomes available.
+      await button.scrollIntoViewIfNeeded();
+      const bounds = await button.boundingBox();
+      expect(bounds).not.toBeNull();
+      await page.mouse.click(
+        bounds!.x + bounds!.width / 2,
+        bounds!.y + bounds!.height / 2,
+      );
+      expect(
+        await page.evaluate(() => (window as unknown as FilmWindow).filmCalls),
+      ).toEqual([]);
+      releaseEntry();
+      await expect(button).toBeEnabled();
+      await expect(player).not.toHaveAttribute("src");
+      expect(
+        await page.evaluate(() => (window as unknown as FilmWindow).filmCalls),
+      ).toEqual([]);
+      await button.click();
+      await expect(player).toHaveAttribute("src", /-lb\.mp4$/);
+      expect(
+        await page.evaluate(() => (window as unknown as FilmWindow).filmCalls),
+      ).toEqual(
+        expect.arrayContaining([
+          {
+            name: "play",
+            active: true,
+            src: expect.stringMatching(/-lb\.mp4$/),
+          },
+          {
+            name: "fullscreen",
+            active: true,
+            src: expect.stringMatching(/-lb\.mp4$/),
+          },
+        ]),
+      );
+    } finally {
+      releaseEntry();
+    }
+  });
+}
 
 test("loads no movie before a gesture, chooses the current screen, and keeps it through rotation", async ({
   page,
@@ -322,7 +386,7 @@ test("loads no movie before a gesture, chooses the current screen, and keeps it 
   });
   await mockPlayer(page);
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto("/");
+  await page.goto("/how-it-works/");
   const player = page.locator(".homepage-film-video");
   await expect(
     page.getByRole("button", { name: /Découvrir le film/ }),
@@ -363,7 +427,7 @@ test("keeps native controls available when fullscreen is refused", async ({
   page,
 }) => {
   await mockPlayer(page, "refused");
-  await page.goto("/");
+  await page.goto("/how-it-works/");
   await page.getByRole("button", { name: /Découvrir le film/ }).click();
   const player = page.locator(".homepage-film-video");
   await player.dispatchEvent("playing");
@@ -387,7 +451,7 @@ test("a phone opened in landscape still receives the portrait movie and poster",
   test.skip(info.project.name !== "iphone", "Requires a touch phone profile");
   await mockPlayer(page);
   await page.setViewportSize({ width: 844, height: 390 });
-  await page.goto("/");
+  await page.goto("/how-it-works/");
   await expect
     .poll(() =>
       page
@@ -406,7 +470,7 @@ test("retries Safari native fullscreen once playback is ready", async ({
   page,
 }) => {
   await mockPlayer(page, "native-retry");
-  await page.goto("/");
+  await page.goto("/how-it-works/");
   await page.getByRole("button", { name: /Découvrir le film/ }).click();
   await expect
     .poll(() =>
@@ -442,7 +506,7 @@ test("retries Safari native fullscreen once playback is ready", async ({
 
 test("a playback failure is announced and can be retried", async ({ page }) => {
   await mockPlayer(page, "play-error");
-  await page.goto("/");
+  await page.goto("/how-it-works/");
   await page.getByRole("button", { name: /Découvrir le film/ }).click();
   await expect(page.getByRole("alert")).toContainText(
     "Vérifiez votre connexion",
@@ -508,7 +572,9 @@ test.describe("delivered public media", () => {
         page,
         hasTouch,
       }) => {
-        await page.goto(`${film === "roles" ? "/roles/" : "/"}?lang=${locale}`);
+        await page.goto(
+          `${film === "roles" ? "/roles/" : "/how-it-works/"}?lang=${locale}`,
+        );
         const section = page.locator(`[data-film="${film}"]`);
         const portrait =
           film === "introduction" && page.viewportSize()!.width <= 767;

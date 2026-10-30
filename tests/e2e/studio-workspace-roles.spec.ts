@@ -2,6 +2,7 @@ import { expect, test, type BrowserContext } from "@playwright/test";
 import { createHash } from "node:crypto";
 import { PDFDocument } from "pdf-lib";
 import { letterTemplate } from "../../packages/templates/gallery";
+import { documentAnalysis } from "../../packages/contracts/src/document-analysis";
 import {
   workspacePermissions,
   type WorkspaceRole,
@@ -29,7 +30,7 @@ const ids = {
   dispatch: "studio-role-dispatch",
 };
 const reviewNotice =
-  "La préparation rend les PDF sélectionnés consultables par les approbateurs de cet atelier pour examiner ces demandes. Elle ne déclenche aucun envoi.";
+  "La préparation rend les PDF sélectionnés consultables par les approbateurs de cet espace de travail pour examiner ces demandes. Elle ne déclenche aucun envoi.";
 
 async function studioFixture(context: BrowserContext, role: WorkspaceRole) {
   const pdf = await PDFDocument.create();
@@ -145,6 +146,7 @@ async function studioFixture(context: BrowserContext, role: WorkspaceRole) {
     documentId: ids.document,
     documentHash: hash,
     documentStatus: "ready",
+    documentAnalysis: documentAnalysis("ready"),
     documentUrl: `/api/documents/${ids.document}/content`,
     errorCode: null,
   };
@@ -237,7 +239,28 @@ async function studioFixture(context: BrowserContext, role: WorkspaceRole) {
     else if (path === `/generation-jobs/${ids.job}`) body = job;
     else if (path === `/generation-jobs/${ids.job}/results`)
       body = { items: [result], nextCursor: null };
-    else if (path === "/senders") body = { items: [], nextCursor: null };
+    else if (path === `/generation-jobs/${ids.job}/record-context`) {
+      // The historical operator still owns this generation after a downgrade;
+      // a dispatch approver never acquires its private source context.
+      if (state.role === "supervisor") {
+        await route.fulfill({
+          status: 404,
+          json: { error: { code: "GENERATION_NOT_FOUND" } },
+        });
+        return;
+      }
+      body = {
+        items: [
+          {
+            recordId: ids.record,
+            name: null,
+            subject: null,
+            reference: "DEMO-001",
+          },
+        ],
+        nextCursor: null,
+      };
+    } else if (path === "/senders") body = { items: [], nextCursor: null };
     else if (
       path === `/distribution-plans/${ids.distribution}` &&
       state.prepared
@@ -306,7 +329,7 @@ test("observer consults studio routes while all preparation controls stay unavai
   context,
 }) => {
   const { state } = await studioFixture(context, "viewer");
-  await page.goto("/#/app/templates?new=blank");
+  await page.goto("/#/app/studio/templates?new=blank");
   await expect(
     page.getByRole("heading", {
       name: "Modèles de démonstration",
@@ -330,7 +353,7 @@ test("observer consults studio routes while all preparation controls stay unavai
   await expect(copies).toHaveCount(5);
   for (const button of await copies.all()) await expect(button).toBeDisabled();
 
-  await page.goto(`/#/app/template/${ids.template}`);
+  await page.goto(`/#/app/studio/template/${ids.template}`);
   await expect(
     page.getByRole("heading", {
       name: "Modèle consultable du studio",
@@ -371,9 +394,9 @@ test("observer consults studio routes while all preparation controls stay unavai
     .all())
     await expect(input).toBeDisabled();
 
-  await page.goto("/#/app/datasets");
+  await page.goto("/#/app/studio/datasets");
   await expect(
-    page.getByRole("heading", { name: "Mes données", exact: true }),
+    page.getByRole("heading", { name: "Données", exact: true }),
   ).toBeVisible();
   await expect(
     page.getByRole("link", {
@@ -383,7 +406,7 @@ test("observer consults studio routes while all preparation controls stay unavai
   ).toBeVisible();
   await expect(page.locator('main input[type="file"]')).toHaveCount(0);
   await expect(page.getByRole("button", { name: /Importer/ })).toHaveCount(0);
-  await page.goto(`/#/app/dataset/${ids.dataset}`);
+  await page.goto(`/#/app/studio/dataset/${ids.dataset}`);
   await expect(
     page.getByRole("region", {
       name: "Aperçu original — Données",
@@ -397,14 +420,14 @@ test("observer consults studio routes while all preparation controls stay unavai
   ).toHaveCount(0);
   await expect(page.locator("main form")).toHaveCount(0);
 
-  await page.goto("/#/app/generations");
+  await page.goto("/#/app/studio/generations");
   await expect(
     page.getByRole("heading", { name: "Générations", exact: true }),
   ).toBeVisible();
   await expect(
     page.getByRole("link", { name: "Créer un document", exact: true }),
   ).toHaveCount(0);
-  await page.goto(`/#/app/generation/${ids.job}`);
+  await page.goto(`/#/app/studio/generation/${ids.job}`);
   await expect(
     page.getByRole("region", {
       name: "Résultats de cette génération",
@@ -413,8 +436,7 @@ test("observer consults studio routes while all preparation controls stay unavai
   ).toContainText(ids.record);
   await expect(
     page.getByRole("checkbox", {
-      name: `Sélectionner ${ids.record}`,
-      exact: true,
+      name: new RegExp(`^Sélectionner ${ids.record}(?: ·|$)`),
     }),
   ).toBeDisabled();
   await expect(
@@ -456,13 +478,22 @@ test("operator discloses review access before preparation and approver opens the
   context,
 }) => {
   const { state, hash } = await studioFixture(context, "member");
-  await page.goto(`/#/app/generation/${ids.job}`);
+  await page.goto(`/#/app/studio/generation/${ids.job}`);
   await page
-    .getByRole("checkbox", { name: `Sélectionner ${ids.record}`, exact: true })
+    .getByRole("checkbox", {
+      name: new RegExp(`^Sélectionner ${ids.record}(?: ·|$)`),
+    })
     .check();
   await page
     .getByRole("button", { name: "Préparer une distribution (1)", exact: true })
     .click();
+  await page
+    .getByRole("group", {
+      name: "Documents concernés par la destination 1",
+      exact: true,
+    })
+    .getByRole("checkbox", { name: new RegExp(ids.record) })
+    .check();
   const submit = page.getByRole("button", {
     name: "Préparer les associations et les devis",
     exact: true,

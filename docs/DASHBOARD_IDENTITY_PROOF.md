@@ -1,124 +1,119 @@
-# Intégration dashboard, identité et membres — 9 octobre 2026
+# Dashboard, identity and member integration — 9 October 2026
 
-Candidat basé sur `619c8b4` (main), avec intégration de Belvédère `a8ac638`.
-Le checkout principal et ses travaux non liés sont préservés. La fusion de
-l’administration est expressément autorisée ; production et activation ne le sont pas.
+Candidate based on `619c8b4` (main), integrating Belvédère `a8ac638`.
+The primary checkout and unrelated work are preserved. Administrative merge
+is explicitly authorized; production and activation are not.
 
-## Preuves locales exécutées
+## Executed local evidence
 
-| Vérification                                   | Résultat                                                                                                                                                                                                                            |
-| ---------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Installation `npm ci`                          | Réussie ; versions verrouillées inchangées                                                                                                                                                                                          |
-| TypeScript, ESLint et `git diff --check`       | Réussis sur le candidat final                                                                                                                                                                                                       |
-| Atlas technique et matrice/parcours            | Régénérés et vérifiés                                                                                                                                                                                                               |
-| Migrations                                     | 52 migrations, 362 objets, schéma équivalent, `quickCheck: ok`, zéro violation FK                                                                                                                                                   |
-| Suite locale complète                          | 1 920 tests applicatifs et 242 tests de sécurité réussis avant les corrections de télémétrie ; le dernier SHA est vérifié en CI                                                                                                     |
-| Authentification, compte, Belvédère et finance | 92 tests réussis, incluant les vrais triggers D1 de débit Horizon et les six régressions de télémétrie                                                                                                                              |
-| Identité/profil/contacts/homonymes             | 30 tests navigateur réussis, trois projets, quatre langues                                                                                                                                                                          |
-| Régression dashboard/compte/facturation/rôles  | 75 réussis, 3 skips desktop intentionnels                                                                                                                                                                                           |
-| Belvédère, navigation et finance               | 20 tests réussis, ordinateur et iPhone WebKit                                                                                                                                                                                       |
-| Build application + Worker dry-run             | Réussi ; aucun Worker publié                                                                                                                                                                                                        |
-| Build preview                                  | Réussi ; aucune publication                                                                                                                                                                                                         |
-| Preview public                                 | Premier run : 145 réussis, 6 skips et une mesure de header instable avant chargement des fontes. Attente des fontes ajoutée ; les 6 scénarios iPhone de navigation/langue passent ensuite. La CI vérifie de nouveau toute la suite. |
+| Check | Result |
+| --- | --- |
+| `npm ci` installation | Passed; locked versions unchanged |
+| TypeScript, ESLint and `git diff --check` | Passed on final candidate |
+| Technical feature map, permission matrix/journeys | Regenerated and checked |
+| Migrations | 52 migrations, 362 objects, equivalent schema, `quickCheck: ok`, zero FK violations |
+| Full local suite | 1,920 application and 242 security tests passed before telemetry fixes; final SHA checked in CI |
+| Authentication, account, Belvédère/finance | 92 tests passed, including actual PDF verification-debit D1 triggers and six telemetry regressions |
+| Identity/profile/contacts/namesakes | 30 browser tests passed, three projects, four languages |
+| Dashboard/account/billing/role regression | 75 passed, 3 intentional desktop skips |
+| Belvédère navigation/finance | 20 passed on desktop and iPhone WebKit |
+| Application build + Worker dry-run | Passed; no Worker published |
+| Preview build | Passed; no publication |
+| Public preview | First run: 145 passed, 6 skips, one unstable header measurement before fonts loaded. Font waiting added; all 6 iPhone navigation/language scenarios then pass. CI reruns the full suite. |
 
-Les 30 nouveaux scénarios couvrent identité persistante, profil/locale enregistrés,
-email en lecture seule, superviseur aux options indépendantes, contacts et droits,
-homonymes, erreur et reprise, changement d’atelier et changement de compte dans
-un autre onglet encore actif, et réponse contacts malformée sans perte du profil. Tous leurs appels sont interceptés : ce sont des
-preuves d’interface avec des personnes fictives, pas une qualification Auth0 hébergée.
-Les tests backend exercent les gardes réelles des sessions, memberships et D1.
+Thirty new scenarios cover persistent identity, saved profile/locale, read-only
+email, independently configured supervisor options, contacts/rights, namesakes,
+error/recovery, workspace switching, account switching in another active tab
+and malformed contacts without profile loss. Every call is intercepted:
+these are interface tests with fictional people, not hosted Auth0 qualification.
+Backend tests exercise actual session, membership and D1 guards.
 
-La finance Belvédère inclut les débits Horizon par date de comptabilisation,
-séparément des canaux d’envoi et sans les ajouter aux compteurs d’envois. Les vues
-opérationnelles overview/atelier conservent leur cohorte d’envois créée sur la période.
-Le nouvel index Horizon limite le coût des lectures de débit. La session est
-relue au retour d’onglet, sans polling périodique ; les événements focus/visibility
-sont dédupliqués sur une seconde.
+Belvédère finance includes PDF verification debits by posting date, separately from
+dispatch channels and without adding them to dispatch counts. Operational
+overview/workspace views retain their period-created dispatch cohort. The
+new PDF verification index bounds debit-read cost. Session rereads on tab return
+without periodic polling; focus/visibility events are deduplicated for one
+second.
 
-Les 117 scénarios regroupant identité, langues, guides assistant et délégation
-passent sur les trois projets après correction des fixtures de contacts. Les
-assertions de consentement et de mutation sont conservées. Une réponse de contacts
-malformée affiche une erreur locale avec reprise et laisse le profil modifiable.
+All 117 combined identity/language/assistant-guide/delegation scenarios pass
+across three projects after contact-fixture correction. Consent/mutation
+assertions are preserved. Malformed contact responses display a recoverable
+local error and leave profile editing available.
 
-Le candidat `c645aba` a passé la CI complète `37906035678` : 561 scénarios
-applicatifs, 146 preview et 20 Belvédère, avec leurs skips intentionnels et un
-contrôle final de complétude réussi. Les corrections de télémétrie passent
-les 92 tests regroupés : erreur d’observation sans refus MCP/login/rotation,
-déduplication/concurrence/TTL/isolation et nouvelle session/pays/atelier courant.
-La preuve signée et l’invalidation de l’ancien cookie sont vérifiées ; les
-contrôles de rôle et révocation restent courants. Une nouvelle CI est requise
-sur le SHA exact de ces corrections.
+Candidate `c645aba` passed complete CI `37906035678`: 561 application,
+146 preview and 20 Belvédère scenarios with intentional skips and a successful
+final completeness check. Telemetry fixes pass 92 combined tests: observation
+failure without MCP/login/rotation refusal, deduplication/concurrency/TTL/
+isolation and new-session/country/current-workspace behavior. Signed evidence
+and old-cookie invalidation are verified; role/revocation checks stay current.
+New CI is required on the exact fixes SHA.
 
-La PR 54 a été fusionnée dans `820b51c` après réussite complète de la CI
-`37909805642` sur `9ebbe18` : 1 926 tests applicatifs dans 102 fichiers,
-242 tests de sécurité, 561 scénarios applicatifs, 146 preview et 20 Belvédère.
-La CI de main `37912466748` a réussi onze jobs préalables à la collecte finale,
-mais le job iPhone a dépassé son budget total de quinze minutes : ses
-187 tests applicatifs et 76 tests preview avaient réussi, et les dix tests
-Belvédère n'ont pas pu démarrer. L'annotation GitHub confirme cette limite
-de durée. Le budget navigateur passe à trente minutes pour inclure le checkout,
-l'installation et toutes les suites, sans changer les délais internes,
-les assertions ou la couverture. La PR corrective et la CI de main après
-sa fusion portent la preuve complète sur les SHAs exacts.
+PR 54 merged into `820b51c` after complete CI `37909805642` passed on `9ebbe18`:
+1,926 application tests in 102 files, 242 security tests, 561 application,
+146 preview and 20 Belvédère scenarios. Main CI `37912466748` passed eleven
+jobs preceding final collection, but iPhone exceeded its total fifteen-minute
+budget: 187 application and 76 preview tests had passed; ten Belvédère tests
+could not start. GitHub annotation confirms that duration limit. Browser
+budget becomes thirty minutes for checkout, installation and all suites,
+without changing internal timeouts, assertions or coverage. The corrective
+PR/main CI after merge provide complete evidence on exact SHAs.
 
-Le premier run du correctif `37914891327` sur `2fbdac3`, encore limité à
-vingt minutes, a mesuré dix minutes vingt-et-une secondes d'installation des
-dépendances WebKit. Les 187 tests applicatifs iPhone réussissent ensuite,
-mais le preview est interrompu à 25 scénarios sur 76 et Belvédère reste ignoré.
-La même CI mobile Chromium atteint ses assertions de configuration postale,
-puis échoue sur une capture avec `Page.captureScreenshot: Unable to capture
-screenshot` ; les 186 autres tests passent. Ces deux résultats incomplets
-restent distincts des runs verts. Le budget de trente minutes tient compte
-de l'installation lente observée ; la capture conserve une image obligatoire
-et ne reprend que cette erreur transitoire, au plus trois fois.
-Le job de sécurité installe les mêmes dépendances Chromium/WebKit : son budget
-passe à vingt minutes pour couvrir ce même miroir avant les tests de sécurité.
-Les 36 scénarios de configuration postale passent avec cette capture sur
-Chromium desktop, Chromium mobile et iPhone WebKit. TypeScript, ESLint,
-format YAML/TypeScript et atlas technique passent aussi sur le correctif.
+The first corrective run `37914891327` on `2fbdac3`, still capped at twenty
+minutes, measured ten minutes twenty-one seconds installing WebKit dependencies.
+All 187 iPhone application tests then pass, but preview stops at 25 of 76
+scenarios and Belvédère remains skipped. The same mobile Chromium CI reaches
+postal-setup assertions, then screenshotting fails with
+`Page.captureScreenshot: Unable to capture screenshot`; the other 186 tests
+pass. These incomplete results remain separate from green runs. The
+thirty-minute budget accounts for observed slow installation; screenshotting
+keeps a required image and retries only that transient error, at most three
+times. Security installs the same Chromium/WebKit dependencies; its budget
+becomes twenty minutes for the same mirror before security tests. All 36
+postal-setup scenarios pass with this screenshot behavior on desktop Chromium,
+mobile Chromium and iPhone WebKit. TypeScript, ESLint, YAML/TypeScript formatting
+and feature-map checks also pass on the correction.
 
-Le run `37921928774` sur `ba6890a` confirme que le budget seul ne corrige pas
-le débit : APT reçoit 116 MB en 23 min 15 s (83,4 kB/s) depuis Azure ;
-l'installation WebKit dure 23 min 43 s. GitHub interrompt alors le job iPhone
-à trente minutes, pendant la suite applicative. Les onze autres jobs préalables
-réussissent, mais ce résultat reste incomplet. Le correctif préfère les archives
-HTTPS Canonical déjà présentes dans le mirrorlist GitHub et conserve Azure
-en secours, en changeant uniquement sa priorité de 1 à 4 avant les installations
-Playwright. Il vérifie la référence active et les trois entrées attendues,
-refuse sans mutation une configuration inconnue et ne réécrit rien au second
-passage. Les suites, clés de signature et sandbox restent inchangées.
-Ce choix suit le [mirrorlist officiel GitHub](https://github.com/actions/runner-images/blob/c74a28e5f8943ae6a39cac7c3701dd6bd0a2ea51/images/ubuntu/scripts/build/configure-apt-sources.sh)
-et l'[ordre de sélection documenté par APT](https://manpages.debian.org/bookworm/apt/apt-transport-mirror.1.en.html#Fallback_order_for_mirrors).
-Le gain de débit et la complétude exigent une nouvelle CI sur le SHA exact.
-Dix-huit vérifications ciblées passent sur fixtures en mémoire : sources deb822 et
-legacy avec options, commentaire, source désactivée, URI proche, doublon,
-priorité inattendue, URI inconnue, absence de source, CRLF, idempotence,
-valeurs de désactivation alternatives et champ Enabled ambigu.
-Elles ne modifient aucun fichier système et ne contactent aucun miroir.
+Run `37921928774` on `ba6890a` confirms budget alone does not fix throughput:
+APT receives 116 MB in 23 min 15 s (83.4 kB/s) from Azure; WebKit installation
+takes 23 min 43 s. GitHub then interrupts iPhone at thirty minutes during
+the application suite. Eleven other preceding jobs pass, but the result
+remains incomplete. The fix prefers HTTPS Canonical archives already present
+in GitHub's mirrorlist and retains Azure as fallback, changing only its
+priority from 1 to 4 before Playwright installations. It verifies the active
+reference and three expected entries, rejects unknown configuration without
+mutation and rewrites nothing on a second run. Suites, signing keys and
+sandbox remain unchanged. This follows the
+[official GitHub mirrorlist](https://github.com/actions/runner-images/blob/c74a28e5f8943ae6a39cac7c3701dd6bd0a2ea51/images/ubuntu/scripts/build/configure-apt-sources.sh)
+and [APT's documented selection order](https://manpages.debian.org/bookworm/apt/apt-transport-mirror.1.en.html#Fallback_order_for_mirrors).
+Throughput improvement/completeness require new CI on the exact SHA.
+Eighteen targeted checks pass on in-memory fixtures: deb822/legacy sources
+with options, comment, disabled source, similar URI, duplicate, unexpected
+priority, unknown URI, missing source, CRLF, idempotence, alternative disable
+values and ambiguous Enabled field. They modify no system file and contact
+no mirror.
 
-## Fusion et limites
+## Merge and limits
 
-La PR rattachée contient les résultats des vérifications complètes sur son SHA
-exact et l’état de fusion. La CI de main se vérifie aussi après la fusion. Les
-anciennes preuves Belvédère restent historiques et ne qualifient pas cette intégration.
+The attached PR contains full-check results for its exact SHA and merge state.
+Main CI must also be checked after merge. Older Belvédère evidence remains
+historical and does not qualify this integration.
 
-Le run CI `37903261816` a interrompu checks et le quatrième shard après dix
-minutes : téléchargement du dépôt, installation FFmpeg et suite séquentielle
-consommaient le budget du job. Les budgets de ces deux jobs deviennent vingt
-minutes, et celui de collecte/vérification dix minutes. Les délais internes des
-tests, les fichiers découverts et les exigences de preuve restent inchangés.
+CI `37903261816` interrupted checks/fourth shard after ten minutes: repository
+download, FFmpeg installation and sequential suites consumed the job budget.
+Those jobs become twenty minutes; collection/verification becomes ten.
+Internal test timeouts, discovered files and evidence requirements stay
+unchanged.
 
-Captures fictives revues hors du dépôt sous `/tmp/guteneo-identity-ui/` et résultats
-dans `test-results/identity-final2/`. Les journaux de cette exécution sont sous
-`/tmp/guteneo-identity-*.log`. Ils ne contiennent que les scénarios synthétiques.
+Fictional captures reviewed outside the repository: `/tmp/guteneo-identity-ui/`;
+results: `test-results/identity-final2/`; execution logs:
+`/tmp/guteneo-identity-*.log`. They contain synthetic scenarios only.
 
-Aucun déploiement, migration distante, configuration Auth0/Cloudflare, envoi réel,
-provisionnement payant ou activation de mandat n’est effectué. La migration 0052
-doit précéder toute publication du nouveau backend : elle porte aussi les preuves
-signées d'identité Auth0 obligatoires au callback, même si Belvédère est désactivé.
-Belvédère exige une configuration serveur privée et une nouvelle connexion
-vérifiée pour la qualification hébergée. Les contacts web n’ajoutent pas d’annuaire
-natif/MCP ni de rôle atelier. Les connexions Auth0 et les fournisseurs sociaux
-restent à qualifier en hébergement ; Changer de compte demande la réauthentification
-sans promettre le choix d’un compte chez tout fournisseur. Voir les
-[limites Auth0](https://auth0.com/docs/authenticate/login/max-age-reauthentication).
+No deployment, remote migration, Auth0/Cloudflare configuration, real dispatch,
+paid provisioning or mandate activation occurs. Migration 0052 must precede
+new-backend publication: it also holds signed Auth0 identity evidence required
+at callback even with Belvédère disabled. Belvédère requires private server
+configuration and a newly verified login for hosted qualification. Web contacts
+add neither native/MCP directory nor workspace role. Hosted Auth0/social-provider
+connections remain unqualified; Switch account requests reauthentication
+without promising account selection at every provider. See
+[Auth0 limits](https://auth0.com/docs/authenticate/login/max-age-reauthentication).

@@ -12,76 +12,38 @@ function observeBusinessRequests(page: Page) {
   return requests;
 }
 
-test("the account appearance control sits beside language and persists for this fictional preview", async ({
+test("preview account preferences offer theme and language without a layout choice", async ({
   page,
 }) => {
   const requests = observeBusinessRequests(page);
   await page.goto("/?lang=fr#/app/account");
-  await expect(page.locator(".workspace")).toHaveAttribute(
-    "data-appearance",
-    "classic",
-  );
-  await expect(page.locator(".sidebar #dashboard-appearance")).toHaveCount(0);
   const preferences = page.locator(".account-display-preferences");
   await expect(preferences.locator('select[name="language"]')).toBeVisible();
-  await expect(preferences.locator("#dashboard-appearance")).toBeVisible();
-  const originalHash = new URL(page.url()).hash;
-
-  for (const appearance of ["v2", "classic", "v2"]) {
-    await page.locator("#dashboard-appearance").selectOption(appearance);
-    await expect(page.locator(".workspace")).toHaveAttribute(
-      "data-appearance",
-      appearance,
-    );
-    const url = new URL(page.url());
-    expect(url.hash).toBe(originalHash);
-    expect(url.searchParams.get("lang")).toBe("fr");
-    expect(url.searchParams.get("atelier")).toBe(appearance);
+  await expect(preferences.locator(".theme-control select")).toBeVisible();
+  await expect(page.locator("#dashboard-appearance")).toHaveCount(0);
+  // Old layout links open the only workspace layout.
+  for (const link of ["/?appearance=classic#/app", "/?atelier=classic#/app"]) {
+    await page.goto(link);
+    await expect(page.locator(".workspace")).toHaveClass(/workspace-v2/);
   }
-
-  await page.goto("/#/app/documents");
-  await expect(page.locator(".workspace")).toHaveAttribute(
-    "data-appearance",
-    "v2",
-  );
-  await page.reload();
-  await expect(page.locator(".workspace")).toHaveAttribute(
-    "data-appearance",
-    "v2",
-  );
-  // An explicit link overrides this browser's remembered choice.
-  await page.goto("/?atelier=classic#/app");
-  await expect(page.locator(".workspace")).toHaveAttribute(
-    "data-appearance",
-    "classic",
-  );
-  await page.goto("/#/app");
-  await expect(page.locator(".workspace")).toHaveAttribute(
-    "data-appearance",
-    "classic",
-  );
   expect(requests).toEqual([]);
 });
 
-test("the appearance control follows all four workspace languages", async ({
+test("preview account preferences follow all four workspace languages", async ({
   page,
 }) => {
   const requests = observeBusinessRequests(page);
-  await page.goto("/?atelier=v2#/app/account");
-  for (const [locale, label] of [
-    ["fr", "Version de l’atelier"],
-    ["en", "Workspace version"],
-    ["de", "Version des Arbeitsbereichs"],
-    ["lb", "Versioun vum Aarbechtsberäich"],
-  ]) {
+  await page.goto("/#/app/account");
+  for (const locale of ["fr", "en", "de", "lb"]) {
     await page
       .locator('#main-content select[name="language"]')
       .selectOption(locale);
+    await expect(page.locator("html")).toHaveAttribute("lang", locale);
     await expect(
-      page.getByRole("combobox", { name: label, exact: true }),
-    ).toHaveValue("v2");
+      page.locator(".account-display-preferences .theme-control select"),
+    ).toBeVisible();
   }
-  // This host is a fictional model, even with the real-application appearance.
+  // This host is a fictional model, even with the real-application layout.
   await expect(page.locator(".simulation-banner")).toBeVisible();
   await expect(page.locator(".dashboard-v2-notice")).toHaveCount(0);
   expect(requests).toEqual([]);
@@ -91,7 +53,7 @@ test("V2 prioritizes existing correspondence and puts readable content before co
   page,
 }) => {
   const requests = observeBusinessRequests(page);
-  await page.goto("/?atelier=v2#/app");
+  await page.goto("/#/app");
   const history = page.locator("#main-content table").first();
   await expect(history.locator("tbody tr")).toHaveCount(5);
   await expect(page.locator(".dashboard-daily-shortcuts")).toBeVisible();
@@ -107,13 +69,13 @@ test("V2 prioritizes existing correspondence and puts readable content before co
     }),
   ).toBe(true);
 
-  await page.goto("/?atelier=v2#/app/dispatch/preview_atelier_dispatch_1");
+  await page.goto("/#/app/dispatch/preview_atelier_dispatch_1");
   const preview = page.locator(".content-preview");
   await expect(preview.locator("canvas")).toBeVisible();
   await expect(
     page
       .frameLocator(".email-preview")
-      .getByText("Bonjour Camille,", { exact: true }),
+      .getByText("Hello Camille,", { exact: true }),
   ).toBeVisible();
   const consent = page.locator(".approval-panel input[type=checkbox]").first();
   await expect(consent).not.toBeChecked();
@@ -160,15 +122,9 @@ test("V2 keeps operational pages usable at a 320-pixel viewport without a backen
     "/admin",
     "/dispatch/preview_atelier_dispatch_1",
   ]) {
-    await page.goto(`/?atelier=v2#/app${route}`);
+    await page.goto(`/#/app${route}`);
     await expect(page.locator("#main-content h1")).toBeVisible();
-    await expect(page.locator(".sidebar #dashboard-appearance")).toHaveCount(0);
-    if (route === "/account")
-      await expect(page.locator("#dashboard-appearance")).toBeVisible();
-    await expect(page.locator(".workspace")).toHaveAttribute(
-      "data-appearance",
-      "v2",
-    );
+    await expect(page.locator("#dashboard-appearance")).toHaveCount(0);
     await expect
       .poll(() => page.evaluate(() => document.documentElement.scrollWidth))
       .toBeLessThanOrEqual(320);

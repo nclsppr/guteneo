@@ -1,11 +1,14 @@
 import { test, expect, type Page } from "./fixtures";
 import { PDFDocument } from "pdf-lib";
+import { enterInitialText } from "./initial-input";
 
 const origin = "http://localhost:8787";
 
 async function login(page: Page) {
   await page.goto("/#/app");
-  await page.getByRole("button", { name: "Entrer dans l’Atelier" }).click();
+  await page
+    .getByRole("button", { name: "Entrer dans l’espace de travail" })
+    .click();
   await expect(
     page.getByRole("heading", { name: "Votre correspondance, au clair." }),
   ).toBeVisible();
@@ -106,7 +109,9 @@ test("overview counters cover the whole organization and open filtered lists", a
 
   // Counters were read at login; reload to show the rows created through the API.
   await page.reload();
-  const stats = page.getByRole("list", { name: "Synthèse de l’atelier" });
+  const stats = page.getByRole("list", {
+    name: "Synthèse de l’espace de travail",
+  });
   await expect(stats.getByRole("link", { name: /^Envois/ })).toContainText(
     String(overview.dispatches.total),
   );
@@ -160,6 +165,9 @@ test("uncertain or failed sends are surfaced on the overview", async ({
     }),
   );
   await page.goto("/#/app/documents");
+  await expect(
+    page.getByRole("button", { name: "Importer un PDF", exact: true }),
+  ).toBeVisible();
   await page.goto("/#/app");
   const notice = page.getByRole("status").filter({
     hasText: "Des envois demandent votre attention.",
@@ -167,7 +175,7 @@ test("uncertain or failed sends are surfaced on the overview", async ({
   await expect(notice).toBeVisible();
   await expect(
     page
-      .getByRole("list", { name: "Synthèse de l’atelier" })
+      .getByRole("list", { name: "Synthèse de l’espace de travail" })
       .getByRole("link", { name: /^À vérifier/ }),
   ).toContainText("4");
   await notice
@@ -192,7 +200,9 @@ test("an expired session offers a reconnection back to the same page", async ({
     .filter({ hasText: "Votre session a expiré." });
   await expect(expired).toBeVisible();
   await expired.getByRole("button", { name: "Se reconnecter" }).click();
-  await page.getByRole("button", { name: "Entrer dans l’Atelier" }).click();
+  await page
+    .getByRole("button", { name: "Entrer dans l’espace de travail" })
+    .click();
   await expect(page).toHaveURL(/#\/app\/dispatches\?group=approval$/);
   await expect(
     page.getByRole("navigation", { name: "Afficher" }),
@@ -258,14 +268,15 @@ test("cancelling a prepared send asks for confirmation first", async ({
 
 test("the send ceiling is typed in euros and fax separators are removed", async ({
   page,
+  hasTouch,
 }) => {
   await login(page);
   const document = await importPdf(page, "ceiling-euros.pdf");
   await page.goto(`/#/app/prepare?document=${document.id}`);
   // "(0)" is the optional trunk prefix: accepted while typing, then dropped.
-  await page
-    .getByLabel("Numéro de fax international")
-    .fill("+33 (0)1 00 00 00 00");
+  const phone = page.getByLabel("Numéro de fax international");
+  const expectedPhone = "+33 (0)1 00 00 00 00";
+  await enterInitialText(phone, expectedPhone, hasTouch, "Fax recipient");
   const ceiling = page.getByLabel("Plafond de cet envoi, en euros", {
     exact: true,
   });
@@ -275,6 +286,13 @@ test("the send ceiling is typed in euros and fax separators are removed", async 
   await ceiling.fill("");
   await ceiling.pressSequentially("1,5");
   await expect(ceiling).toHaveValue("1,5");
+  expect(
+    await phone.evaluate(
+      (input: HTMLInputElement, expected) => input.value === expected,
+      expectedPhone,
+    ),
+    "The original fax recipient must remain exact before submission",
+  ).toBe(true);
   const request = page.waitForRequest(
     (candidate) =>
       candidate.url().endsWith("/api/dispatches") &&
@@ -285,7 +303,10 @@ test("the send ceiling is typed in euros and fax separators are removed", async 
     recipient: { phone: string };
     ceilingMinor: number;
   };
-  expect(body.recipient.phone).toBe("+33100000000");
+  expect(
+    body.recipient.phone === "+33100000000",
+    "The preparation payload must retain the exact normalized fax recipient",
+  ).toBe(true);
   expect(body.ceilingMinor).toBe(150);
 });
 
@@ -362,23 +383,23 @@ test("assistants read filtered lists but not the workspace summary", async ({
     expect(["prepared", "draft"]).toContain(item.status);
 });
 
-test("sign-out lives in the navigation menu on small screens", async ({
+test("sign-out returns to the public site from the account menu", async ({
   page,
-}, testInfo) => {
-  test.skip(
-    testInfo.project.name === "chromium",
-    "The desktop sidebar keeps its footer sign-out.",
-  );
+}) => {
   await login(page);
-  const topbar = page.locator(".app-topbar");
+  // The account menu sits outside the navigation, including on phones.
+  const account = page.locator(".sidebar-account");
+  await account.locator(".workspace-identity-trigger").click();
+  await account
+    .getByRole("button", { name: "Se déconnecter", exact: true })
+    .click();
+  await expect(page).toHaveURL(`${origin}/`);
+  await expect(page.locator(".landing")).toBeVisible();
+  await expect(page.locator('.site-header a[href="/app"]')).toHaveCount(2);
   await expect(
-    topbar.getByRole("button", { name: "Se déconnecter" }),
+    page.getByRole("button", { name: "Entrer dans l’espace de travail" }),
   ).toHaveCount(0);
-  await page.getByText("Navigation de l’atelier").click();
-  await page.getByRole("button", { name: "Se déconnecter" }).click();
-  await expect(
-    page.getByRole("button", { name: "Entrer dans l’Atelier" }),
-  ).toBeVisible();
+  expect((await page.request.get("/api/session")).status()).toBe(401);
 });
 
 test("dashboard filters, confirmations and expiry copy follow the saved account language", async ({
@@ -409,7 +430,7 @@ test("dashboard filters, confirmations and expiry copy follow the saved account 
     },
     {
       locale: "lb",
-      summary: "Iwwersiicht vum Atelier",
+      summary: "Iwwersiicht vum Aarbechtsberäich",
       approval: "Fir ze approuvéieren",
       filter: "Uweisen",
       cancel: "Annulatioun ufroen",

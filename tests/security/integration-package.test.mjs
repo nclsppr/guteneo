@@ -39,6 +39,146 @@ async function fixture(run) {
 test("validates the synchronized portable and host-specific manifests", () =>
   fixture((directory) => validateIntegrationPackage(directory)));
 
+for (const [name, mutate] of [
+  [
+    "missing OAuth declaration",
+    (server) => {
+      delete server.extensions;
+    },
+  ],
+  [
+    "embedded client secret",
+    (server) => {
+      server.extensions["com.openai"].auth.client.clientSecret =
+        "must-not-ship";
+    },
+  ],
+  [
+    "private client authentication",
+    (server) => {
+      server.extensions["com.openai"].auth.client.tokenEndpointAuthMethod =
+        "client_secret_post";
+    },
+  ],
+  [
+    "unqualified dynamic registration",
+    (server) => {
+      server.extensions["com.openai"].auth.client = { mode: "dcr" };
+    },
+  ],
+  [
+    "unbranded authorization endpoint",
+    (server) => {
+      server.extensions["com.openai"].auth.authorizationUrl =
+        "https://pieper.eu.auth0.com/authorize";
+    },
+  ],
+  [
+    "foreign token endpoint",
+    (server) => {
+      server.extensions["com.openai"].auth.tokenUrl =
+        "https://example.invalid/token";
+    },
+  ],
+  [
+    "unexpected extension",
+    (server) => {
+      server.extensions["other.vendor"] = {};
+    },
+  ],
+  [
+    "missing required OIDC scopes",
+    (server) => {
+      server.extensions["com.openai"].auth.defaultScopes = [];
+    },
+  ],
+  [
+    "unreviewed refresh scope",
+    (server) => {
+      server.extensions["com.openai"].auth.defaultScopes = ["offline_access"];
+    },
+  ],
+]) {
+  test(`rejects ${name} in the downloadable ChatGPT configuration`, () =>
+    fixture(async (directory, edit) => {
+      await edit("mcp.json", (manifest) => mutate(manifest.mcpServers.guteneo));
+      await assert.rejects(
+        validateIntegrationPackage(directory),
+        /Invalid OpenAI MCP authentication/,
+      );
+    }));
+}
+
+test("rejects an added permission in the OpenAI OAuth extension", () =>
+  fixture(async (directory, edit) => {
+    await edit("mcp.json", (manifest) => {
+      manifest.mcpServers.guteneo.extensions["com.openai"].auth.baseScopes.push(
+        "personal:read",
+      );
+    });
+    await assert.rejects(
+      validateIntegrationPackage(directory),
+      /OAuth scopes differ/,
+    );
+  }));
+
+test("still rejects invalid portable fields beside a valid OpenAI extension", () =>
+  fixture(async (directory, edit) => {
+    await edit("mcp.json", (manifest) => {
+      manifest.mcpServers.guteneo.clientSecret = "must-not-ship";
+    });
+    await assert.rejects(
+      validateIntegrationPackage(directory),
+      /Invalid mcp.json/,
+    );
+  }));
+
+test("all packaged clients discover the same secure distribution server without granting personal authority", async () => {
+  for (const relative of [
+    "guteneo/mcp.json",
+    "guteneo/.mcp.json",
+    "claude/plugins/guteneo/.mcp.json",
+    "config/cursor-mcp.json",
+    "config/cursor-static-oauth.json",
+    "config/claude-static-oauth.json",
+    "config/copilot-vscode-mcp.json",
+    "config/copilot-cli-mcp.json",
+  ]) {
+    const value = JSON.parse(
+      await readFile(
+        new URL(`../../integrations/${relative}`, import.meta.url),
+        "utf8",
+      ),
+    );
+    const server = (value.mcpServers ?? value.servers).guteneo;
+    assert.equal(server.url, "https://guteneo.com/mcp", relative);
+    if (server.tools)
+      assert(
+        server.tools.includes("*"),
+        "A static allowlist must not hide secure distribution tools",
+      );
+    const scopes =
+      server.oauth?.scopes ??
+      server.auth?.scopes ??
+      server.extensions?.["com.openai"]?.auth?.baseScopes ??
+      server.extensions?.["com.openai"]?.auth?.defaultScopes;
+    if (scopes)
+      for (const scope of [
+        "dispatches:read",
+        "dispatches:prepare",
+        "dispatches:send",
+      ])
+        assert(
+          (Array.isArray(scopes) ? scopes : scopes.split(" ")).includes(scope),
+          `${relative}: ${scope}`,
+        );
+    assert.doesNotMatch(
+      JSON.stringify(server),
+      /personal:|vault:|claim:|binding:/,
+    );
+  }
+});
+
 for (const file of [
   "plugin.json",
   ".claude-plugin/plugin.json",

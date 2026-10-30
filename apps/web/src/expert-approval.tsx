@@ -19,13 +19,14 @@ import {
   RefreshButton,
   useAction,
   useResource,
+  useRoute,
 } from "./components";
 import "./expert-approval.css";
 
 const getChannelNames = (): Record<Channel, string> => ({
   fax: msg("Fax"),
-  email: msg("E-mail"),
-  postal: msg("Courrier postal"),
+  email: msg("Email"),
+  postal: msg("Post"),
 });
 
 function localDateTime(value: Date) {
@@ -131,7 +132,7 @@ function ConnectionSettings({
     event.preventDefault();
     if (!editable || action.pending) return;
     if (channels.length === 0) {
-      setValidation("Choisissez au moins un canal pour cette délégation.");
+      setValidation("Choose at least one channel for this delegation.");
       document.getElementById(`${id}-fax`)?.focus();
       return;
     }
@@ -143,18 +144,18 @@ function ConnectionSettings({
       perDispatchMinor < 1 ||
       perDispatchMinor > 10_000
     ) {
-      setValidation(msg("Indiquez un plafond par envoi de 0,01 € à 100 €."));
+      setValidation(msg("Enter a per-dispatch limit from €0.01 to €100."));
       document.getElementById(`${id}-per-dispatch`)?.focus();
       return;
     }
     if (dailyMinor === null || dailyMinor < 1 || dailyMinor > 50_000) {
-      setValidation(msg("Indiquez un plafond par jour de 0,01 € à 500 €."));
+      setValidation(msg("Enter a daily limit from €0.01 to €500."));
       document.getElementById(`${id}-daily`)?.focus();
       return;
     }
     if (dailyMinor < perDispatchMinor) {
       setValidation(
-        "Le plafond journalier doit être au moins égal au plafond par envoi.",
+        "The daily cap must be at least as high as the per-delivery cap.",
       );
       document.getElementById(`${id}-daily`)?.focus();
       return;
@@ -182,7 +183,7 @@ function ConnectionSettings({
       setAcknowledged(false);
       setPostalAcknowledged(false);
       setNotice(
-        "Votre délégation a été enregistrée pour cette connexion. Revenez dans ChatGPT et dites « reprends l’envoi » pour poursuivre votre demande. Cette confirmation n’a déclenché aucun envoi.",
+        "Your delegation has been saved for this connection. Return to ChatGPT and say “resume sending” to continue your request. This confirmation did not send anything.",
       );
     });
   }
@@ -200,7 +201,7 @@ function ConnectionSettings({
       setAcknowledged(false);
       setPostalAcknowledged(false);
       setNotice(
-        "Délégation désactivée. Les envois déjà acceptés restent inchangés.",
+        "Delegation disabled. Deliveries already accepted remain unchanged.",
       );
     });
   }
@@ -211,42 +212,42 @@ function ConnectionSettings({
         <div>
           <h3 id={`${id}-title`} ref={heading} tabIndex={-1}>
             {selected
-              ? msg("Connexion choisie dans ChatGPT")
-              : msg("Connexion de l’assistant")}
+              ? msg("Connection selected in ChatGPT")
+              : msg("Assistant connection")}
           </h3>
           <p className="field-hint">
-            {msg("Client OAuth : ")}
+            {msg("OAuth client: ")}
             <code>{connection.clientId}</code>
           </p>
         </div>
         <span className="expert-state">
           {connection.status === "revoked"
-            ? msg("Connexion révoquée")
+            ? msg("Connection revoked")
             : policy?.enabled && !canManage
-              ? msg("Inactive · rôle administrateur requis")
+              ? msg("Inactive · administrator role required")
               : active
-                ? msg("Délégation active")
+                ? msg("Delegation active")
                 : policy?.enabled
-                  ? msg("Délégation expirée")
-                  : msg("Désactivée")}
+                  ? msg("Delegation expired")
+                  : msg("Disabled")}
         </span>
       </div>
       {selected && editable && !active && (
         <p className="field-hint">
           {expired
             ? msg(
-                "Cette délégation a expiré. Vérifiez ses limites et choisissez une nouvelle date pour reprendre vos envois dans ChatGPT.",
+                "This delegation has expired. Review its limits and choose a new date to resume sending in ChatGPT.",
               )
             : msg(
-                "Vérifiez les limites de cette connexion, puis confirmez vous-même l’activation pour poursuivre vos envois dans ChatGPT.",
+                "Review this connection’s limits, then personally confirm activation to continue sending in ChatGPT.",
               )}{" "}
-          {msg("Ouvrir ce lien n’accorde aucune autorisation.")}
+          {msg("Opening this link does not grant any authorisation.")}
         </p>
       )}
       {policy && (
         <dl className="expert-summary">
           <div>
-            <dt>{msg("Canaux autorisés")}</dt>
+            <dt>{msg("Allowed channels")}</dt>
             <dd>
               {policy.channels
                 .map((channel) => getChannelNames()[channel])
@@ -254,36 +255,36 @@ function ConnectionSettings({
             </dd>
           </div>
           <div>
-            <dt>{msg("Plafond par envoi")}</dt>
+            <dt>{msg("Cap per delivery")}</dt>
             <dd>{money(policy.maxPerDispatchMinor)}</dd>
           </div>
           <div>
-            <dt>{msg("Plafond journalier")}</dt>
+            <dt>{msg("Daily cap")}</dt>
             <dd>
               {money(policy.maxDailyMinor)} · {policy.maxDailyCount}{" "}
-              {msg(" envois")}
+              {msg(" deliveries")}
             </dd>
           </div>
           <div>
-            <dt>{msg("Expiration")}</dt>
+            <dt>{msg("Expiry")}</dt>
             <dd>{date(policy.expiresAt)}</dd>
           </div>
         </dl>
       )}
       {policy && <DateTimezone />}
       <p className="field-hint">
-        {msg("Aujourd’hui (UTC) : ")}
-        {connection.usage.count} {msg(" envoi")}
+        {msg("Today (UTC): ")}
+        {connection.usage.count} {msg(" delivery")}
         {connection.usage.count === 1 ? "" : "s"} ·{" "}
         {money(connection.usage.ceilingMinor)}{" "}
         {msg(
-          " de plafonds engagés par cette connexion. Les plafonds des envois acceptés restent comptés jusqu’à minuit UTC, même en cas d’annulation ou de modification de la délégation.",
+          " in caps committed by this connection. Caps for accepted deliveries remain counted until midnight UTC, even if cancelled or if the delegation changes.",
         )}
       </p>
       {policy?.channels.includes("postal") && (
         <p className="field-hint">
           {msg(
-            "Les préparations de courriers ont un compteur distinct, limité au même nombre par jour. Un dépôt ne constitue pas un envoi.",
+            "Letter preparations have a separate counter with the same daily count limit. Submitting a draft is not sending a letter.",
           )}
         </p>
       )}
@@ -297,10 +298,10 @@ function ConnectionSettings({
             disabled={action.pending}
           >
             {active
-              ? msg("Modifier la délégation")
+              ? msg("Edit delegation")
               : expired
-                ? msg("Renouveler la délégation")
-                : msg("Configurer la délégation")}
+                ? msg("Renew delegation")
+                : msg("Set up delegation")}
           </button>
           {policy?.enabled && (
             <button
@@ -309,9 +310,7 @@ function ConnectionSettings({
               onClick={() => void disable()}
               disabled={action.pending}
             >
-              {action.pending
-                ? msg("Désactivation…")
-                : msg("Désactiver la délégation")}
+              {action.pending ? msg("Disabling…") : msg("Disable delegation")}
             </button>
           )}
         </div>
@@ -323,7 +322,7 @@ function ConnectionSettings({
           aria-busy={action.pending}
         >
           <fieldset disabled={action.pending}>
-            <legend>{msg("Canaux autorisés")}</legend>
+            <legend>{msg("Allowed channels")}</legend>
             <div className="expert-channels">
               {(Object.keys(getChannelNames()) as Channel[]).map((channel) => (
                 <label
@@ -354,7 +353,7 @@ function ConnectionSettings({
             <div className="expert-limits">
               <div className="field">
                 <label htmlFor={`${id}-per-dispatch`}>
-                  {msg("Plafond par envoi (€)")}
+                  {msg("Cap per delivery (€)")}
                 </label>
                 <input
                   id={`${id}-per-dispatch`}
@@ -362,7 +361,7 @@ function ConnectionSettings({
                   inputMode="decimal"
                   autoComplete="off"
                   pattern={EURO_INPUT_PATTERN}
-                  title={msg("Montant en euros, par exemple 5 ou 2,35.")}
+                  title={msg("Amount in euros, for example 5 or 2.35.")}
                   required
                   value={perDispatch}
                   aria-describedby={validation ? `${id}-validation` : undefined}
@@ -371,19 +370,17 @@ function ConnectionSettings({
                     setPerDispatch(event.target.value);
                   }}
                 />
-                <small>{msg("De 0,01 € à 100 €.")}</small>
+                <small>{msg("From €0.01 to €100.")}</small>
               </div>
               <div className="field">
-                <label htmlFor={`${id}-daily`}>
-                  {msg("Plafond par jour (€)")}
-                </label>
+                <label htmlFor={`${id}-daily`}>{msg("Daily cap (€)")}</label>
                 <input
                   id={`${id}-daily`}
                   type="text"
                   inputMode="decimal"
                   autoComplete="off"
                   pattern={EURO_INPUT_PATTERN}
-                  title={msg("Montant en euros, par exemple 25 ou 12,50.")}
+                  title={msg("Amount in euros, for example 25 or 12.50.")}
                   required
                   value={daily}
                   aria-invalid={
@@ -396,12 +393,12 @@ function ConnectionSettings({
                   }}
                 />
                 <small>
-                  {msg("De 0,01 € à 500 €, au moins le plafond par envoi.")}
+                  {msg("From €0.01 to €500, at least the per-delivery cap.")}
                 </small>
               </div>
               <div className="field">
                 <label htmlFor={`${id}-count`}>
-                  {msg("Nombre maximal d’envois par jour")}
+                  {msg("Maximum deliveries per day")}
                 </label>
                 <input
                   id={`${id}-count`}
@@ -420,7 +417,7 @@ function ConnectionSettings({
               </div>
               <div className="field">
                 <label htmlFor={`${id}-expires`}>
-                  {msg("Expiration de la délégation")}
+                  {msg("Delegation expiry")}
                 </label>
                 <input
                   id={`${id}-expires`}
@@ -436,13 +433,15 @@ function ConnectionSettings({
                   }}
                 />
                 <small id={`${id}-expires-help`}>
-                  {msg("Heure locale de cet appareil. Dans 30 jours au plus.")}
+                  {msg(
+                    "This device’s local time. No more than 30 days from now.",
+                  )}
                 </small>
               </div>
             </div>
             <p className="field-hint">
               {msg(
-                "Les limites journalières se renouvellent à minuit UTC. Elles portent sur le nombre d’envois et leurs plafonds, même si le décompte final est inférieur. Le crédit et les autorisations des canaux restent nécessaires.",
+                "Daily limits reset at midnight UTC. They cover the number of deliveries and their caps, even if the final charge is lower. Credit and channel permissions are still required.",
               )}
             </p>
             {channels.includes("postal") && (
@@ -457,14 +456,14 @@ function ConnectionSettings({
                 />
                 <span>
                   {msg(
-                    "J’autorise aussi cet assistant à transmettre le PDF à notre prestataire d’impression pour obtenir le devis postal, sans expédition à cette étape, puis à approuver l’envoi dans la conversation.",
+                    "I also authorise this assistant to transfer the PDF to our printing provider to obtain the postal quote, with no dispatch at this stage, and then to approve sending in the conversation.",
                   )}
                 </span>
               </label>
             )}
             <p className="expert-warning">
               {msg(
-                "Ce mandat permet à l’assistant d’approuver dans la conversation, sans retour sur le site pour chaque envoi. Il ne constitue pas une preuve de votre accord humain à chaque appel. Les règles de ChatGPT, Claude ou de votre autre assistant restent applicables. Un accès compromis à cette connexion pourrait déclencher des envois dans ces limites.",
+                "This mandate lets the assistant approve within the conversation without returning to the website for each delivery. It is not evidence of your human consent for each call. ChatGPT, Claude or your other assistant’s rules still apply. Compromised access to this connection could trigger deliveries within these limits.",
               )}
             </p>
             <label className="checkbox-label expert-agreement">
@@ -476,7 +475,7 @@ function ConnectionSettings({
               />
               <span>
                 {msg(
-                  "J’autorise la délégation d’approbation à cet assistant, pour les canaux, limites et durée indiqués. Je peux la désactiver pour les nouveaux envois ; ceux déjà acceptés restent inchangés.",
+                  "I authorise approval delegation to this assistant for the channels, limits and duration shown. I can disable it for new deliveries; those already accepted remain unchanged.",
                 )}
               </span>
             </label>
@@ -490,12 +489,12 @@ function ConnectionSettings({
             <div className="button-group">
               <button type="submit" className="button primary">
                 {action.pending
-                  ? msg("Enregistrement…")
+                  ? msg("Saving…")
                   : active
-                    ? msg("Confirmer la modification")
+                    ? msg("Confirm change")
                     : expired
-                      ? msg("Confirmer le renouvellement")
-                      : msg("Confirmer l’activation")}
+                      ? msg("Confirm renewal")
+                      : msg("Confirm activation")}
               </button>
               <button
                 type="button"
@@ -506,7 +505,7 @@ function ConnectionSettings({
                   requestAnimationFrame(() => editButton.current?.focus());
                 }}
               >
-                {msg("Annuler")}
+                {msg("Cancel")}
               </button>
             </div>
           </fieldset>
@@ -521,9 +520,10 @@ function ConnectionSettings({
 }
 
 export function ExpertApproval() {
-  const selectedConnection = new URLSearchParams(
-    window.location.hash.split("?")[1] ?? "",
-  ).get("connection");
+  const route = useRoute();
+  const selectedConnection = new URLSearchParams(route.split("?")[1] ?? "").get(
+    "connection",
+  );
   const resource = useResource<ExpertApprovalSettings>(
     isPublicPreview ? null : "/account/expert-approval",
   );
@@ -545,10 +545,8 @@ export function ExpertApproval() {
     >
       <div className="expert-heading">
         <div>
-          <p className="eyebrow">
-            {msg("Option personnelle · désactivée par défaut")}
-          </p>
-          <h2 id="expert-approval-title">{msg("Mode expert")}</h2>
+          <p className="eyebrow">{msg("Personal option · off by default")}</p>
+          <h2 id="expert-approval-title">{msg("Expert mode")}</h2>
         </div>
         {!isPublicPreview && (
           <RefreshButton
@@ -559,13 +557,13 @@ export function ExpertApproval() {
       </div>
       <p>
         {msg(
-          "Confiez à un assistant connecté l’approbation de vos envois, dans les limites que vous choisissez. Sans cette délégation, vous continuez à approuver chaque envoi sur le site.",
+          "Delegate delivery approval to a connected assistant within limits you choose. Without this delegation, you continue to approve each delivery on the website.",
         )}
       </p>
       {isPublicPreview ? (
         <p className="notice info">
           {msg(
-            "Aucune délégation n’est active dans cet aperçu. Dans votre compte, vous pourrez choisir une connexion d’assistant, ses canaux, ses plafonds et sa date d’expiration.",
+            "No delegation is active in this preview. In your account, you can choose an assistant connection, its channels, caps and expiry date.",
           )}
         </p>
       ) : (
@@ -582,21 +580,21 @@ export function ExpertApproval() {
                   ref={unavailableNotice}
                 >
                   {msg(
-                    "Cette connexion n’est pas disponible dans votre compte. Aucune autorisation n’a été modifiée. Choisissez l’une de vos connexions ci-dessous ou reconnectez votre assistant depuis ChatGPT.",
+                    "This connection is not available in your account. No permissions have changed. Choose one of your connections below or reconnect your assistant from ChatGPT.",
                   )}
                 </p>
               )}
               {!resource.data.canManage && (
                 <p className="notice info">
                   {msg(
-                    "Seul un administrateur peut gérer la délégation de ses propres connexions. Vos autorisations sont affichées en lecture seule.",
+                    "Only an administrator can manage delegation for their own connections. Your permissions are shown read-only.",
                   )}
                 </p>
               )}
               {resource.data.connections.length === 0 ? (
                 <p className="empty-inline">
-                  {msg("Vous n’avez pas encore de connexion d’assistant.")}{" "}
-                  <a href="#/app/connection">{msg("Connecter un assistant")}</a>
+                  {msg("You do not have an assistant connection yet.")}{" "}
+                  <a href="#/app/connection">{msg("Connect an assistant")}</a>
                 </p>
               ) : (
                 resource.data.connections.map((connection) => (

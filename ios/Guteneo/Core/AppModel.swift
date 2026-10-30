@@ -119,9 +119,9 @@ final class AppModel {
         isPreview = false
         await client.setToken(nil)
         if localFailure != nil {
-            errorMessage = "Le retrait de la session du stockage sécurisé n’a pas pu être confirmé. Déverrouillez votre appareil avant de relancer l’application."
+            errorMessage = "Removal of the session from secure storage could not be confirmed. Unlock your device before reopening the app."
         } else if let failure = remoteFailure, !(failure is CancellationError), (failure as? APIError)?.isAuthenticationFailure != true {
-            errorMessage = "Vous êtes déconnecté sur cet appareil. La révocation distante n’a pas pu être confirmée ; la session expire automatiquement."
+            errorMessage = "You are signed out on this device. Remote revocation could not be confirmed; the session expires automatically."
         }
     }
 
@@ -351,9 +351,9 @@ private enum PreviewFixtures {
         // Compile-only fixtures cannot enter release builds or authenticate real requests.
         try! JSONDecoder().decode(T.self, from: Data(value.utf8))
     }
-    static let session = decode(#"{"organization":{"id":"preview-org","name":"Atelier Horizon"},"user":{"id":"preview-user","name":"Camille Martin","role":"admin"},"simulation":true,"verifiedAccount":true,"mfa":false}"#, as: MobileSession.self)
+    static let session = decode(#"{"organization":{"id":"preview-org","name":"Atelier Exemple"},"user":{"id":"preview-user","name":"Camille Martin","role":"admin"},"simulation":true,"verifiedAccount":true,"mfa":false}"#, as: MobileSession.self)
     static let capabilities = decode(#"{"version":"1","mode":"preview","simulation":true,"humanApproval":"authenticated_browser","nativeApproval":false,"channels":[{"id":"fax","name":"Fax","liveSending":true},{"id":"email","name":"E-mail","liveSending":false}],"limits":{"pdfBytes":10485760,"pages":100}}"#, as: MobileCapabilities.self)
-    static let documents = decode(#"[{"id":"preview-document-1","name":"Dossier de souscription.pdf","sha256":"preview","size":284672,"pages":4,"status":"ready","source":"upload","created_at":"2026-09-22T09:40:00Z","analysis":{"state":"ready","code":"verified","title":"PDF prêt","message":"Document de démonstration.","nextAction":"continue","retryAfterSeconds":null}},{"id":"preview-document-2","name":"Attestation de domicile.pdf","sha256":"preview","size":96320,"pages":1,"status":"quarantined","source":"upload","created_at":"2026-09-22T09:15:00Z","analysis":{"state":"processing","code":"scanning","title":"Vérification en cours","message":"Document de démonstration.","nextAction":"wait","retryAfterSeconds":15}}]"#, as: [DocumentRecord].self)
+    static let documents = decode(#"[{"id":"preview-document-1","name":"Subscription application.pdf","sha256":"preview","size":284672,"pages":4,"status":"ready","source":"upload","created_at":"2026-09-22T09:40:00Z","analysis":{"state":"ready","code":"verified","title":"PDF ready","message":"Demo document.","nextAction":"continue","retryAfterSeconds":null}},{"id":"preview-document-2","name":"Proof of address.pdf","sha256":"preview","size":96320,"pages":1,"status":"quarantined","source":"upload","created_at":"2026-09-22T09:15:00Z","analysis":{"state":"processing","code":"scanning","title":"Verification in progress","message":"Demo document.","nextAction":"wait","retryAfterSeconds":15}}]"#, as: [DocumentRecord].self)
     static let dispatches = decode(#"""
     [
       {"id":"preview-dispatch-1","channel":"fax","recipient_json":{"phone":"+33 1 00 00 00 00"},"document_id":"preview-document-1","status":"delivered","mode":"simulation","estimated_minor":24,"ceiling_minor":500,"currency":"EUR","fingerprint":"preview","created_at":"2026-09-22T08:30:00Z","updated_at":"2026-09-22T08:33:00Z"},
@@ -361,7 +361,7 @@ private enum PreviewFixtures {
       {"id":"preview-dispatch-3","channel":"fax","recipient_json":{"phone":"+33 1 00 00 00 02"},"document_id":"preview-document-1","status":"prepared","mode":"simulation","estimated_minor":24,"ceiling_minor":500,"faxPricing":{"executionScope":"review_prepare_only"},"currency":"EUR","fingerprint":"preview-reference","created_at":"2026-09-21T13:00:00Z","updated_at":"2026-09-21T13:00:00Z"}
     ]
     """#, as: [DispatchRecord].self)
-    static let senders = decode(#"[{"id":"preview-sender","channel":"fax","name":"Atelier Horizon","address":"Expéditeur de démonstration","status":"verified","mode":"simulation"}]"#, as: [SenderRecord].self)
+    static let senders = decode(#"[{"id":"preview-sender","channel":"fax","name":"Atelier Exemple","address":"Demo sender","status":"verified","mode":"simulation"}]"#, as: [SenderRecord].self)
     static func detail(id: String) throws -> DispatchDetail {
         guard let dispatch = dispatches.first(where: { $0.id == id }) else { throw APIError(code: "NOT_FOUND") }
         return DispatchDetail(dispatch: dispatch, approval: nil,
@@ -375,9 +375,9 @@ private enum PreviewFixtures {
         return renderer.pdfData { context in
             for page in 1...document.pages {
                 context.beginPage()
-                let title = "guteneo — Document de démonstration" as NSString
+                let title = "guteneo — Demo document" as NSString
                 title.draw(in: CGRect(x: 48, y: 60, width: 499, height: 90), withAttributes: [.font: UIFont.systemFont(ofSize: 24, weight: .semibold)])
-                let body = "\(document.name)\n\nPage \(page) sur \(document.pages)\n\nCe document synthétique sert uniquement à vérifier l’affichage natif des PDF. Il ne contient aucune donnée client et n’a jamais été envoyé." as NSString
+                let body = "\(document.name)\n\nPage \(page) of \(document.pages)\n\nThis synthetic document only checks native PDF display. It contains no customer data and has never been sent." as NSString
                 body.draw(in: CGRect(x: 48, y: 180, width: 499, height: 420), withAttributes: [.font: UIFont.systemFont(ofSize: 16), .foregroundColor: UIColor.darkGray])
             }
         }

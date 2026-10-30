@@ -1,9 +1,14 @@
-import { msg } from "./messages";
+import { msg , msgIn } from "./messages";
+import pluginMcp from "../../../integrations/guteneo/mcp.json";
+
+const chatgptOAuthClientId =
+  pluginMcp.mcpServers.guteneo.extensions["com.openai"].auth.client.clientId;
+
 export const assistantEndpoint = "https://guteneo.com/mcp";
 
 export function getAssistantReadOnlyPrompt() {
   return msg(
-    "Avec Guteneo, indique uniquement les fonctions et les canaux actuellement disponibles pour mon compte. Utilise seulement les outils de lecture. Ne crée ni document ni brouillon, ne prépare et n’envoie aucune communication, et ne modifie aucune autorisation.",
+    "With Guteneo, list only the functions and channels currently available for my account. Use read-only tools only. Do not create any document or draft, prepare or send any communication, or change any authorisation.",
   );
 }
 
@@ -20,6 +25,7 @@ export type AssistantGuideStep = {
   title: string;
   text: string;
   endpoint?: boolean;
+  oauthClientId?: string;
   code?: string;
   link?: AssistantGuideLink;
 };
@@ -27,6 +33,7 @@ export type AssistantGuideStep = {
 export type AssistantGuideVariant = {
   id: string;
   label: string;
+  installationTitle?: string;
   intro?: string;
   prerequisites: readonly string[];
   steps: readonly AssistantGuideStep[];
@@ -40,11 +47,12 @@ export type AssistantDefinition = {
   logo: string | null;
   description: string;
   audience: string;
+  variantPrompt?: string;
   variants: readonly AssistantGuideVariant[];
 };
 
 // These describe documented host setup, never a Guteneo connection status.
-// Official source pages were checked on 13 October 2026.
+// ChatGPT OAuth/package sources were checked on 27 October 2026.
 export function getAssistantCatalog(): readonly AssistantDefinition[] {
   return [
     {
@@ -52,64 +60,155 @@ export function getAssistantCatalog(): readonly AssistantDefinition[] {
       name: "ChatGPT",
       logo: "/brands/chatgpt.svg",
       description: msg(
-        "Ajoutez Guteneo aux outils d’une conversation dans ChatGPT sur le web.",
+        "Add Guteneo to the tools in a conversation in ChatGPT on the web.",
       ),
-      audience: msg("Conversation web"),
+      audience: msg("Web conversation"),
+      variantPrompt: msg("How would you like to add Guteneo?"),
       variants: [
         {
-          id: "web",
-          label: msg("ChatGPT web"),
+          id: "archive",
+          label: msg("Plugin archive (ZIP)"),
+          installationTitle: msg("Install the plugin"),
           intro: msg(
-            "Dans ChatGPT, le menu « Plugins » sert aussi à créer votre connexion MCP personnalisée. Vous ajoutez vous-même Guteneo avec son adresse, sans passer par un plugin publié dans le catalogue.",
+            "Add the Guteneo plugin to ChatGPT using its ZIP archive. It contains the connection to the Guteneo server and instructions for the assistant.",
           ),
           prerequisites: [
-            msg("Un compte ChatGPT qui autorise les plugins personnalisés."),
             msg(
-              "Dans un espace professionnel, l’autorisation de son administrateur peut être nécessaire.",
+              "A ChatGPT account that allows adding plugins from an archive.",
+            ),
+            msg(
+              "In a professional workspace, administrator authorisation may be required.",
             ),
           ],
           steps: [
             {
-              title: msg("Ouvrez les plugins ChatGPT"),
+              title: msg("Download the Guteneo plugin"),
               text: msg(
-                "Ouvrez Plugins, puis + → Add custom MCP server. Si cette option manque, vérifiez les possibilités de votre compte et les règles de votre espace.",
+                "Save guteneo-plugin.zip. Keep the ZIP archive without extracting it so you can import it into ChatGPT.",
               ),
               link: {
-                label: msg("Ouvrir ChatGPT"),
+                label: msg("Download the Guteneo plugin (ZIP)"),
+                href: "/integrations/guteneo-plugin.zip",
+                download: true,
+              },
+            },
+            {
+              title: msg("Import the archive into ChatGPT"),
+              text: msg(
+                "Open Plugins, then the option to add a plugin from an archive. Select guteneo-plugin.zip and review the displayed information before adding the plugin.",
+              ),
+              link: {
+                label: msg("Open ChatGPT plugins"),
                 href: "https://chatgpt.com/plugins",
               },
             },
             {
-              title: msg("Ajoutez le serveur Guteneo"),
+              title: msg("Connect your Guteneo account"),
               text: msg(
-                "Nommez la connexion Guteneo, collez cette adresse dans le champ du serveur MCP et choisissez OAuth.",
-              ),
-              endpoint: true,
-            },
-            {
-              title: msg("Connectez votre compte Guteneo"),
-              text: msg(
-                "Suivez l’authentification Guteneo, examinez les permissions et choisissez Create as a plugin. Vérifiez les outils proposés, puis installez votre plugin personnel.",
+                "The archive includes Guteneo’s public OAuth client ID. Sign in at auth.guteneo.com, review the permissions, then return to ChatGPT. No client secret is needed.",
               ),
             },
             {
-              title: msg("Choisissez Guteneo dans une conversation"),
+              title: msg("Select Guteneo in a conversation"),
               text: msg(
-                "Ouvrez une nouvelle conversation, sélectionnez Guteneo avec @ ou dans le menu des outils, puis utilisez la demande de vérification ci-dessous.",
+                "Open a new conversation, then its tools menu, and select the Guteneo connection you just added. Use the verification prompt below.",
               ),
             },
           ],
           documentation: [
             {
-              label: msg("Guide officiel ChatGPT"),
+              label: msg("Official ChatGPT guide"),
               href: "https://developers.openai.com/plugins/deploy/connect-chatgpt",
             },
           ],
           troubleshooting: [
             {
-              question: msg("Je ne vois pas Plugins ou l’ajout personnalisé"),
+              question: msg("I cannot see the option to add an archive"),
               answer: msg(
-                "Consultez les possibilités de votre compte et les règles de votre espace ChatGPT. L’ajout personnalisé doit être autorisé avant de poursuivre.",
+                "Check your account’s features and your ChatGPT workspace rules. If adding an archive is unavailable, select “MCP address” in this guide to see the other method.",
+              ),
+            },
+            {
+              question: msg("ChatGPT asks for an OAuth client ID"),
+              answer: msg(
+                "Download the latest ZIP and update the plugin. If ChatGPT still asks, select “MCP address” here and copy the supplied public client ID. Leave the client secret empty.",
+              ),
+            },
+            {
+              question: msg("How do I update the plugin?"),
+              answer: msg(
+                "Download the archive again from this guide, then use the update option provided by ChatGPT for the Guteneo plugin. Check the connection in a new conversation afterwards.",
+              ),
+            },
+          ],
+        },
+        {
+          id: "web",
+          label: msg("MCP address"),
+          intro: msg(
+            "In ChatGPT, the Plugins menu also lets you create your own MCP connection. Add Guteneo yourself using its address, without a published plugin from the catalogue.",
+          ),
+          prerequisites: [
+            msg("A ChatGPT account that allows custom plugins."),
+            msg(
+              "In a professional workspace, administrator authorisation may be required.",
+            ),
+          ],
+          steps: [
+            {
+              title: msg("Open ChatGPT plugins"),
+              text: msg(
+                "Open Plugins, then + → Add custom MCP server. If this option is missing, check your account features and workspace rules.",
+              ),
+              link: {
+                label: msg("Open ChatGPT"),
+                href: "https://chatgpt.com/plugins",
+              },
+            },
+            {
+              title: msg("Add the Guteneo server"),
+              text: msg(
+                "Name the connection Guteneo, paste this address into the MCP server field and choose OAuth.",
+              ),
+              endpoint: true,
+            },
+            {
+              title: msg("Use Guteneo’s registered OAuth client"),
+              text: msg(
+                "Choose a registered client and copy this public client ID. Select no client authentication (none) if asked, and leave the client secret empty. Do not choose dynamic registration.",
+              ),
+              oauthClientId: chatgptOAuthClientId,
+            },
+            {
+              title: msg("Connect your Guteneo account"),
+              text: msg(
+                "Sign in at auth.guteneo.com, review the permissions and choose Create as a plugin. Check the available tools, then install your personal plugin.",
+              ),
+            },
+            {
+              title: msg("Select Guteneo in a conversation"),
+              text: msg(
+                "Open a new conversation, select Guteneo with @ or in the tools menu, then use the verification request below.",
+              ),
+            },
+          ],
+          documentation: [
+            {
+              label: msg("Official ChatGPT guide"),
+              href: "https://developers.openai.com/plugins/deploy/connect-chatgpt",
+            },
+          ],
+          troubleshooting: [
+            {
+              question: msg("ChatGPT rejects the OAuth redirect address"),
+              answer: msg(
+                "Update the existing connection with the latest archive. If the error remains, contact Guteneo support with the exact redirect address shown by ChatGPT. Never share a password, token or client secret.",
+              ),
+            },
+            {
+              question: msg("I cannot see Plugins or the custom add option"),
+              answer: msg(
+                "Check your account’s features and your ChatGPT workspace rules. Custom additions must be allowed before you continue.",
               ),
             },
           ],
@@ -121,103 +220,103 @@ export function getAssistantCatalog(): readonly AssistantDefinition[] {
       name: "Claude",
       logo: "/brands/claude.svg",
       description: msg(
-        "Choisissez un connecteur distant ou le plugin Guteneo pour Claude.",
+        "Choose a remote connector or the Guteneo plugin for Claude.",
       ),
-      audience: msg("Conversation web"),
+      audience: msg("Web conversation"),
       variants: [
         {
           id: "web",
           label: msg("Claude web"),
           prerequisites: [
             msg(
-              "Les connecteurs personnalisés sont documentés pour les offres Free, Pro, Max, Team et Enterprise ; Free est limité à un connecteur.",
+              "Custom connectors are documented for Free, Pro, Max, Team and Enterprise plans; Free is limited to one connector.",
             ),
             msg(
-              "Sur Team et Enterprise, un propriétaire ajoute d’abord le connecteur à l’organisation.",
+              "On Team and Enterprise, an owner first adds the connector to the organisation.",
             ),
           ],
           steps: [
             {
-              title: msg("Ouvrez les connecteurs Claude"),
+              title: msg("Open Claude connectors"),
               text: msg(
-                "Dans Personnaliser → Connecteurs, choisissez + puis Ajouter un connecteur personnalisé. En équipe, votre propriétaire passe d’abord par les réglages de l’organisation → Connecteurs.",
+                "In Customize → Connectors, select +, then Add custom connector. In a team, your owner first goes to organisation settings → Connectors.",
               ),
-              link: { label: msg("Ouvrir Claude"), href: "https://claude.ai/" },
+              link: { label: msg("Open Claude"), href: "https://claude.ai/" },
             },
             {
-              title: msg("Renseignez le serveur Guteneo"),
+              title: msg("Enter the Guteneo server"),
               text: msg(
-                "Nommez le connecteur Guteneo et ajoutez l’adresse ci-dessous. Les membres d’une équipe choisissent le connecteur déjà ajouté par leur propriétaire.",
+                "Name the connector Guteneo and add the address below. Team members select the connector already added by their owner.",
               ),
               endpoint: true,
             },
             {
-              title: msg("Identifiez-vous auprès de Guteneo"),
+              title: msg("Sign in to Guteneo"),
               text: msg(
-                "Choisissez Connecter, suivez la connexion à votre compte Guteneo et vérifiez les permissions demandées.",
+                "Select Connect, sign in to your Guteneo account and check the requested permissions.",
               ),
             },
             {
-              title: msg("Activez le connecteur dans la conversation"),
+              title: msg("Enable the connector in the conversation"),
               text: msg(
-                "Dans une conversation, ouvrez + → Connecteurs et choisissez Guteneo. Lancez ensuite la vérification en lecture seule proposée plus bas.",
+                "In a conversation, open + → Connectors and select Guteneo. Then run the read-only check suggested below.",
               ),
             },
           ],
           documentation: [
             {
-              label: msg("Guide officiel Claude"),
+              label: msg("Official Claude guide"),
               href: "https://support.claude.com/en/articles/11175166-get-started-with-custom-connectors-using-remote-mcp",
             },
           ],
           troubleshooting: [
             {
-              question: msg("Je peux voir le connecteur, mais pas l’ajouter"),
+              question: msg("I can see the connector, but cannot add it"),
               answer: msg(
-                "Vérifiez la limite de votre offre ou demandez au propriétaire de votre espace de l’ajouter. Chaque membre connecte ensuite son propre compte Guteneo.",
+                "Check your plan’s limit or ask your workspace owner to add it. Each member then connects their own Guteneo account.",
               ),
             },
           ],
         },
         {
           id: "plugin",
-          label: msg("Plugin Claude web et Desktop"),
+          label: msg("Claude web and Desktop plugin"),
           prerequisites: [
             msg(
-              "Un compte Claude autorisant les plugins et les connecteurs personnalisés.",
+              "A Claude account that allows plugins and custom connectors.",
             ),
           ],
           steps: [
             {
-              title: msg("Téléchargez le paquet Guteneo"),
+              title: msg("Download the Guteneo package"),
               text: msg(
-                "Téléchargez le ZIP ci-dessous. Conservez le fichier ZIP pour l’import dans Claude.",
+                "Download the ZIP below. Keep the ZIP file for uploading to Claude.",
               ),
               link: {
                 label: msg(
-                  "Télécharger le paquet du plugin (installation manuelle)",
+                  "Download the plugin package (manual installation)",
                 ),
                 href: "/integrations/guteneo-plugin.zip",
                 download: true,
               },
             },
             {
-              title: msg("Chargez le plugin dans Claude"),
+              title: msg("Load the plugin in Claude"),
               text: msg(
-                "Dans Plugins → Add → Upload plugin, sélectionnez le ZIP Guteneo. Examinez les skills et le connecteur inclus.",
+                "In Plugins → Add → Upload plugin, select the Guteneo ZIP. Review the included skills and connector.",
               ),
             },
             {
-              title: msg("Connectez votre compte Guteneo"),
+              title: msg("Connect your Guteneo account"),
               text: msg(
-                "Dans Connectors, connectez Guteneo et vérifiez les permissions. Utilisez ensuite la demande de vérification dans une nouvelle conversation.",
+                "In Connectors, connect Guteneo and review the permissions. Then use the verification request in a new conversation.",
               ),
               endpoint: true,
             },
           ],
           documentation: [
             {
-              label: msg("Guide officiel des plugins Claude"),
+              label: msg("Official Claude plugins guide"),
               href: "https://claude.com/docs/plugins/overview",
             },
           ],
@@ -227,43 +326,43 @@ export function getAssistantCatalog(): readonly AssistantDefinition[] {
           id: "code",
           label: "Claude Code",
           prerequisites: [
-            msg("Claude Code installé et les plugins locaux autorisés."),
+            msg("Claude Code installed with local plugins allowed."),
             msg(
-              "Un client OAuth enregistré pour cette application, ou un enregistrement automatique vérifié. Si l’application demande un identifiant client ou refuse l’adresse de retour, contactez l’assistance Guteneo avant de poursuivre.",
+              "An OAuth client registered for this application, or verified automatic registration. If the application asks for a client ID or rejects the redirect address, contact Guteneo support before continuing.",
             ),
           ],
           steps: [
             {
-              title: msg("Chargez le plugin pour cette session"),
+              title: msg("Load the plugin for this session"),
               text: msg(
-                "Lancez cette commande pour charger le paquet public. Depuis un clone du dépôt, vous pouvez aussi utiliser claude --plugin-dir ./integrations/guteneo.",
+                "Run this command to load the public package. From a repository clone, you can also use claude --plugin-dir ./integrations/guteneo.",
               ),
               code: "claude --plugin-url https://guteneo.com/integrations/guteneo-plugin.zip",
               link: {
                 label: msg(
-                  "Télécharger le paquet du plugin (installation manuelle)",
+                  "Download the plugin package (manual installation)",
                 ),
                 href: "/integrations/guteneo-plugin.zip",
                 download: true,
               },
             },
             {
-              title: msg("Connectez-vous à Guteneo"),
+              title: msgIn("connection", "Sign in to Guteneo"),
               text: msg(
-                "Ouvrez /mcp dans Claude Code et suivez l’authentification de guteneo. Le client OAuth de Claude Code est distinct de celui de Claude web.",
+                "Open /mcp in Claude Code and complete guteneo authentication. Claude Code uses a separate OAuth client from Claude web.",
               ),
               endpoint: true,
             },
             {
-              title: msg("Vérifiez les outils dans votre conversation"),
+              title: msg("Check the tools in your conversation"),
               text: msg(
-                "Utilisez la demande de vérification ci-dessous. Le chargement du paquet seul ne confirme pas la connexion à votre compte.",
+                "Use the verification request below. Loading the package alone does not confirm a connection to your account.",
               ),
             },
           ],
           documentation: [
             {
-              label: msg("Guide officiel Claude Code"),
+              label: msg("Official Claude Code guide"),
               href: "https://code.claude.com/docs/en/plugins/create",
             },
           ],
@@ -276,67 +375,67 @@ export function getAssistantCatalog(): readonly AssistantDefinition[] {
       name: "Grok",
       logo: "/brands/grok.svg",
       description: msg(
-        "Utilisez l’ajout d’un connecteur personnalisé dans Grok sur le web.",
+        "Use the custom connector option in Grok on the web.",
       ),
-      audience: msg("Conversation web"),
+      audience: msg("Web conversation"),
       variants: [
         {
           id: "web",
           label: msg("Grok web"),
           prerequisites: [
             msg(
-              "Un compte Grok donnant accès à l’ajout d’un connecteur personnalisé.",
+              "A Grok account with access to adding a custom connector.",
             ),
             msg(
-              "Dans Grok Business ou Enterprise, l’administrateur doit d’abord autoriser le connecteur pour l’équipe.",
+              "In Grok Business or Enterprise, the administrator must first authorise the connector for the team.",
             ),
           ],
           steps: [
             {
-              title: msg("Ouvrez les connecteurs Grok"),
+              title: msg("Open Grok connectors"),
               text: msg(
-                "Rendez-vous sur la page Connectors, puis choisissez New Connector et Custom.",
+                "Go to the Connectors page, then select New Connector and Custom.",
               ),
               link: {
-                label: msg("Ouvrir les connecteurs Grok"),
+                label: msgIn("action", "Open Grok connectors"),
                 href: "https://grok.com/connectors",
               },
             },
             {
-              title: msg("Ajoutez l’adresse Guteneo"),
+              title: msg("Add the Guteneo address"),
               text: msg(
-                "Indiquez le serveur ci-dessous dans le champ prévu. Il s’agit de l’adresse publique de Guteneo.",
+                "Enter the server below in the field provided. This is Guteneo’s public address.",
               ),
               endpoint: true,
             },
             {
-              title: msg("Terminez l’authentification"),
+              title: msg("Complete authentication"),
               text: msg(
-                "Suivez la connexion proposée par Guteneo et examinez les permissions. Grok recherche ensuite les outils proposés par le serveur.",
+                "Follow Guteneo’s sign-in flow and review the permissions. Grok then discovers the tools offered by the server.",
               ),
             },
             {
-              title: msg("Vérifiez les outils dans votre conversation"),
+              title: msg("Check the tools in your conversation"),
               text: msg(
-                "Utilisez la demande de vérification ci-dessous. Si Grok ne voit pas Guteneo, revenez dans Connectors pour examiner le résultat de la connexion.",
+                "Use the verification prompt below. If Grok cannot see Guteneo, return to Connectors to check the connection result.",
               ),
             },
           ],
           documentation: [
             {
-              label: msg("Guide officiel Grok"),
+              label: msg("Official Grok guide"),
               href: "https://docs.x.ai/grok/connectors",
             },
             {
-              label: msg("Connecteurs Grok en entreprise"),
+              label: msg("Grok connectors for organisations"),
               href: "https://docs.x.ai/grok/connector-management",
             },
           ],
           troubleshooting: [
             {
-              question: msg("L’ajout personnalisé n’apparaît pas"),
+              question: msg("The custom connector option is missing"),
               answer: msg(
-                "Vérifiez les options de votre compte Grok. En entreprise, demandez à l’administrateur de contrôler les connecteurs autorisés.",
+                "Check your Grok account’s options. In an organisation, ask the administrator to check which connectors are authorised.",
               ),
             },
           ],
@@ -346,38 +445,38 @@ export function getAssistantCatalog(): readonly AssistantDefinition[] {
           label: "Grok Build",
           prerequisites: [
             msg(
-              "Grok Build installé et les serveurs MCP personnalisés autorisés.",
+              "Grok Build installed with custom MCP servers allowed.",
             ),
             msg(
-              "Un client OAuth enregistré pour cette application, ou un enregistrement automatique vérifié. Si l’application demande un identifiant client ou refuse l’adresse de retour, contactez l’assistance Guteneo avant de poursuivre.",
+              "An OAuth client registered for this application, or verified automatic registration. If the application asks for a client ID or rejects the redirect address, contact Guteneo support before continuing.",
             ),
           ],
           steps: [
             {
-              title: msg("Ajoutez le serveur Guteneo"),
+              title: msg("Add the Guteneo server"),
               text: msg(
-                "Dans Grok Build, ajoutez Guteneo comme serveur HTTP distant avec cette commande.",
+                "In Grok Build, add Guteneo as a remote HTTP server with this command.",
               ),
               code: "grok mcp add --transport http guteneo https://guteneo.com/mcp",
               endpoint: true,
             },
             {
-              title: msg("Connectez-vous à Guteneo"),
+              title: msgIn("connection", "Sign in to Guteneo"),
               text: msg(
-                "Ouvrez /mcps pour connecter Guteneo. Examinez les permissions, puis contrôlez la connexion avec cette commande.",
+                "Open /mcps to connect Guteneo. Review the permissions, then check the connection with this command.",
               ),
               code: "grok mcp doctor guteneo",
             },
             {
-              title: msg("Vérifiez les outils dans votre conversation"),
+              title: msg("Check the tools in your conversation"),
               text: msg(
-                "Utilisez la demande de vérification ci-dessous. Le chargement du paquet seul ne confirme pas la connexion à votre compte.",
+                "Use the verification request below. Loading the package alone does not confirm a connection to your account.",
               ),
             },
           ],
           documentation: [
             {
-              label: msg("Guide officiel Grok Build"),
+              label: msg("Official Grok Build guide"),
               href: "https://docs.x.ai/build/features/mcp-servers",
             },
           ],
@@ -390,69 +489,69 @@ export function getAssistantCatalog(): readonly AssistantDefinition[] {
       name: "GitHub Copilot",
       logo: "/brands/copilot.svg",
       description: msg(
-        "Choisissez votre outil : le guide diffère entre VS Code et Copilot CLI.",
+        "Choose your tool: the guide differs between VS Code and Copilot CLI.",
       ),
-      audience: msg("VS Code ou terminal"),
+      audience: msg("VS Code or terminal"),
       variants: [
         {
           id: "vscode",
           label: "VS Code",
           prerequisites: [
-            msg("VS Code à jour, avec un accès à GitHub Copilot Chat."),
+            msg("An up-to-date version of VS Code with access to GitHub Copilot Chat."),
             msg(
-              "Si votre organisation impose une liste de serveurs autorisés, Guteneo doit y figurer.",
+              "If your organisation requires an approved server list, Guteneo must be on it.",
             ),
           ],
           steps: [
             {
-              title: msg("Ajoutez un serveur dans VS Code"),
+              title: msg("Add a server in VS Code"),
               text: msg(
-                "Ouvrez la palette de commandes et lancez MCP: Add Server. Choisissez un serveur HTTP.",
+                "Open the command palette and run MCP: Add Server. Choose an HTTP server.",
               ),
               code: "MCP: Add Server",
             },
             {
-              title: msg("Renseignez l’adresse et le nom"),
+              title: msg("Enter the address and name"),
               text: msg(
-                "Collez cette adresse, nommez le serveur guteneo et choisissez votre profil utilisateur pour le retrouver dans vos projets.",
+                "Paste this address, name the server guteneo and choose your user profile to make it available across your projects.",
               ),
               endpoint: true,
               link: {
-                label: msg("Configuration VS Code"),
+                label: msg("VS Code configuration"),
                 href: "/guides/copilot-vscode-mcp.json",
                 download: true,
               },
             },
             {
-              title: msg("Démarrez le serveur et connectez-vous"),
+              title: msg("Start the server and sign in"),
               text: msg(
-                "Dans MCP: List Servers, sélectionnez guteneo. Démarrez-le, vérifiez sa configuration et suivez l’authentification Guteneo proposée par VS Code.",
+                "In MCP: List Servers, select guteneo. Start it, check its configuration and follow the Guteneo authentication offered by VS Code.",
               ),
             },
             {
-              title: msg("Retrouvez Guteneo dans Copilot Chat"),
+              title: msg("Find Guteneo in Copilot Chat"),
               text: msg(
-                "Vérifiez que les outils Guteneo sont disponibles dans le sélecteur d’outils, puis utilisez la demande de vérification ci-dessous.",
+                "Check that Guteneo tools are available in the tool selector, then use the verification prompt below.",
               ),
             },
           ],
           documentation: [
             {
-              label: msg("Guide officiel VS Code"),
+              label: msg("Official VS Code guide"),
               href: "https://code.visualstudio.com/docs/agent-customization/mcp-servers",
             },
             {
-              label: msg("Authentification dans GitHub Copilot Chat"),
+              label: msg("Authentication in GitHub Copilot Chat"),
               href: "https://docs.github.com/en/copilot/how-tos/provide-context/use-mcp-in-your-ide/extend-copilot-chat-with-mcp",
             },
           ],
           troubleshooting: [
             {
               question: msg(
-                "Le serveur est présent, mais ses outils sont absents",
+                "The server is present, but its tools are missing",
               ),
               answer: msg(
-                "Dans MCP: List Servers, vérifiez que guteneo est activé et consultez son état. Vérifiez aussi la sélection d’outils de votre conversation et les restrictions de votre organisation.",
+                "In MCP: List Servers, check that guteneo is enabled and review its status. Also check your conversation’s tool selection and your organisation’s restrictions.",
               ),
             },
           ],
@@ -462,61 +561,61 @@ export function getAssistantCatalog(): readonly AssistantDefinition[] {
           label: "Copilot CLI",
           prerequisites: [
             msg(
-              "GitHub Copilot CLI installé et un accès autorisé par votre compte ou votre organisation.",
+              "GitHub Copilot CLI installed, with access authorised by your account or organisation.",
             ),
             msg(
-              "La politique MCP de votre organisation doit autoriser le serveur Guteneo.",
+              "Your organisation’s MCP policy must allow the Guteneo server.",
             ),
           ],
           steps: [
             {
-              title: msg("Ouvrez l’ajout de serveur"),
+              title: msg("Open the add-server flow"),
               text: msg(
-                "Dans une session interactive Copilot CLI, entrez la commande ci-dessous. Nommez le serveur guteneo et choisissez le type HTTP.",
+                "In an interactive Copilot CLI session, enter the command below. Name the server guteneo and choose the HTTP type.",
               ),
               code: "/mcp add",
             },
             {
-              title: msg("Collez l’adresse du serveur"),
+              title: msg("Paste the server address"),
               text: msg(
-                "Renseignez le champ URL avec cette adresse. Enregistrez la configuration sans y ajouter votre mot de passe Guteneo.",
+                "Enter this address in the URL field. Save the configuration without adding your Guteneo password.",
               ),
               endpoint: true,
               link: {
-                label: msg("Configuration Copilot CLI"),
+                label: msg("Copilot CLI configuration"),
                 href: "/guides/copilot-cli-mcp.json",
                 download: true,
               },
             },
             {
-              title: msg("Connectez votre compte"),
+              title: msg("Connect your account"),
               text: msg(
-                "Suivez la fenêtre d’authentification Guteneo. Si le serveur demande une authentification, lancez la commande suivante pour ouvrir ce parcours.",
+                "Follow the Guteneo authentication window. If the server requests authentication, run the following command to open that flow.",
               ),
               code: "/mcp auth guteneo",
             },
             {
-              title: msg("Faites une première vérification"),
+              title: msg("Run your first check"),
               text: msg(
-                "Revenez dans Copilot CLI et collez la demande de vérification ci-dessous. Les confirmations propres à Copilot continuent de s’appliquer.",
+                "Return to Copilot CLI and paste the verification prompt below. Copilot’s own confirmations still apply.",
               ),
             },
           ],
           documentation: [
             {
-              label: msg("Guide officiel Copilot CLI"),
+              label: msg("Official Copilot CLI guide"),
               href: "https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/add-mcp-servers",
             },
             {
-              label: msg("Authentification MCP dans Copilot CLI"),
+              label: msg("MCP authentication in Copilot CLI"),
               href: "https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-command-reference",
             },
           ],
           troubleshooting: [
             {
-              question: msg("Copilot indique needs-auth"),
+              question: msg("Copilot reports needs-auth"),
               answer: msg(
-                "Lancez /mcp auth guteneo pour reprendre l’authentification. Si l’organisation interdit ce serveur, demandez à son administrateur de vérifier la politique MCP.",
+                "Run /mcp auth guteneo to resume authentication. If your organisation blocks this server, ask its administrator to check the MCP policy.",
               ),
             },
           ],
@@ -528,66 +627,66 @@ export function getAssistantCatalog(): readonly AssistantDefinition[] {
       name: "Microsoft 365 Copilot",
       logo: "/brands/microsoft365.svg",
       description: msg(
-        "Un parcours d’organisation : un administrateur ou un créateur prépare l’agent qui utilisera Guteneo.",
+        "An organisational setup: an administrator or creator prepares the agent that will use Guteneo.",
       ),
-      audience: msg("Agent d’organisation"),
+      audience: msg("Organisation agent"),
       variants: [
         {
           id: "microsoft365",
           label: "Microsoft 365",
           intro: msg(
-            "Ce guide concerne un agent de Microsoft 365 Copilot. Il ne décrit pas un ajout dans Microsoft Copilot grand public.",
+            "This guide concerns a Microsoft 365 Copilot agent. It does not describe adding Guteneo to the consumer version of Microsoft Copilot.",
           ),
           prerequisites: [
             msg(
-              "Un environnement Microsoft 365 permettant l’usage d’agents et l’ajout d’applications personnalisées, autorisé par votre administrateur.",
+              "A Microsoft 365 environment that permits agents and custom apps, authorised by your administrator.",
             ),
             msg(
-              "VS Code et Microsoft 365 Agents Toolkit 6.12 ou ultérieur, utilisés par la personne qui configure l’agent.",
+              "VS Code and Microsoft 365 Agents Toolkit 6.12 or later, used by the person configuring the agent.",
             ),
           ],
           steps: [
             {
-              title: msg("Créez l’agent avec votre administrateur"),
+              title: msg("Create the agent with your administrator"),
               text: msg(
-                "Dans Agents Toolkit, choisissez Create a New Agent/App → Declarative Agent → Add an Action → Start with an MCP Server.",
+                "In Agents Toolkit, select Create a New Agent/App → Declarative Agent → Add an Action → Start with an MCP Server.",
               ),
             },
             {
-              title: msg("Renseignez le serveur Guteneo"),
+              title: msg("Enter the Guteneo server"),
               text: msg(
-                "Utilisez cette adresse comme serveur MCP de l’action.",
+                "Use this address as the action’s MCP server.",
               ),
               endpoint: true,
             },
             {
-              title: msg("Configurez l’authentification"),
+              title: msg("Configure authentication"),
               text: msg(
-                "Utilisez OAuth avec enregistrement dynamique si le serveur le permet. Si une configuration manuelle est demandée, faites vérifier le client et l’adresse de retour par l’administrateur et Guteneo.",
+                "Use OAuth with dynamic registration if the server supports it. If manual configuration is requested, have the administrator and Guteneo verify the client and redirect address.",
               ),
             },
             {
-              title: msg("Installez l’agent autorisé"),
+              title: msg("Install the authorised agent"),
               text: msg(
-                "La personne chargée de l’agent suit la publication et l’installation décrites par Microsoft. Dans Microsoft 365 Copilot, ouvrez cet agent, connectez votre compte Guteneo et faites la vérification ci-dessous.",
+                "The person responsible for the agent follows Microsoft’s publication and installation instructions. In Microsoft 365 Copilot, open that agent, connect your Guteneo account and run the check below.",
               ),
             },
           ],
           documentation: [
             {
-              label: msg("Créer un agent Microsoft 365 avec MCP"),
+              label: msg("Create a Microsoft 365 agent with MCP"),
               href: "https://learn.microsoft.com/en-us/microsoft-365/copilot/extensibility/build-mcp-plugins",
             },
             {
-              label: msg("Prérequis Microsoft 365"),
+              label: msg("Microsoft 365 prerequisites"),
               href: "https://learn.microsoft.com/en-us/microsoft-365/copilot/extensibility/prerequisites",
             },
           ],
           troubleshooting: [
             {
-              question: msg("Je ne peux pas installer l’agent"),
+              question: msg("I cannot install the agent"),
               answer: msg(
-                "Votre administrateur doit vérifier l’autorisation d’ajouter des applications personnalisées, l’accès aux agents et les règles de votre environnement Microsoft 365.",
+                "Your administrator must check permission to add custom apps, access to agents and your Microsoft 365 environment’s rules.",
               ),
             },
           ],
@@ -596,56 +695,56 @@ export function getAssistantCatalog(): readonly AssistantDefinition[] {
           id: "studio",
           label: "Copilot Studio",
           intro: msg(
-            "Dans Copilot Studio, la connexion s’ajoute aux outils d’un agent créé pour votre organisation.",
+            "In Copilot Studio, the connection is added to the tools of an agent created for your organisation.",
           ),
           prerequisites: [
             msg(
-              "Un accès à Copilot Studio et les droits pour modifier l’agent concerné.",
+              "Access to Copilot Studio and permission to edit the relevant agent.",
             ),
             msg(
-              "Les politiques Power Platform de votre organisation doivent autoriser le connecteur et son authentification.",
+              "Your organisation’s Power Platform policies must allow the connector and its authentication.",
             ),
           ],
           steps: [
             {
-              title: msg("Ouvrez les outils de votre agent"),
+              title: msg("Open your agent’s tools"),
               text: msg(
-                "Dans Copilot Studio, choisissez l’agent, puis Tools → Add a tool → New tool → Model Context Protocol.",
+                "In Copilot Studio, select the agent, then Tools → Add a tool → New tool → Model Context Protocol.",
               ),
             },
             {
-              title: msg("Ajoutez le serveur"),
+              title: msg("Add the server"),
               text: msg(
-                "Nommez le serveur Guteneo et utilisez l’adresse ci-dessous. Copilot Studio attend un serveur Streamable HTTP.",
+                "Name the server Guteneo and use the address below. Copilot Studio expects a Streamable HTTP server.",
               ),
               endpoint: true,
             },
             {
-              title: msg("Choisissez l’authentification OAuth"),
+              title: msg("Choose OAuth authentication"),
               text: msg(
-                "Dans l’assistant de configuration, utilisez OAuth 2.0. La découverte dynamique convient si le serveur la prend en charge ; sinon, faites vérifier les paramètres manuels par votre administrateur.",
+                "In the setup wizard, use OAuth 2.0. Dynamic discovery is suitable if the server supports it; otherwise, have your administrator check the manual settings.",
               ),
             },
             {
-              title: msg("Créez la connexion utilisateur"),
+              title: msg("Create the user connection"),
               text: msg(
-                "Suivez l’authentification Guteneo, ajoutez le serveur à l’agent et vérifiez ses outils dans le panneau de test avec la demande ci-dessous. La diffusion de l’agent reste une étape distincte.",
+                "Complete Guteneo authentication, add the server to the agent and check its tools in the test panel using the prompt below. Distributing the agent remains a separate step.",
               ),
             },
           ],
           documentation: [
             {
-              label: msg("Guide officiel Copilot Studio"),
+              label: msg("Official Copilot Studio guide"),
               href: "https://learn.microsoft.com/en-us/microsoft-copilot-studio/mcp-add-existing-server-to-agent",
             },
           ],
           troubleshooting: [
             {
               question: msg(
-                "Le connecteur est bloqué ou ne termine pas la connexion",
+                "The connector is blocked or cannot finish connecting",
               ),
               answer: msg(
-                "Demandez à l’administrateur de vérifier les politiques Power Platform et les paramètres OAuth. Copilot Studio ne prend plus en charge le transport SSE pour MCP.",
+                "Ask the administrator to check Power Platform policies and OAuth settings. Copilot Studio no longer supports SSE transport for MCP.",
               ),
             },
           ],
@@ -657,109 +756,109 @@ export function getAssistantCatalog(): readonly AssistantDefinition[] {
       name: "Cursor",
       logo: "/brands/cursor.svg",
       description: msg(
-        "Ajoutez Guteneo aux serveurs MCP de Cursor, puis retrouvez ses outils dans l’agent.",
+        "Add Guteneo to Cursor’s MCP servers, then find its tools in the agent.",
       ),
-      audience: msg("Éditeur et agent"),
+      audience: msg("Editor and agent"),
       variants: [
         {
           id: "desktop",
           label: "Cursor",
           prerequisites: [
-            msg("Cursor avec les serveurs MCP personnalisés autorisés."),
+            msg("Cursor with custom MCP servers allowed."),
             msg(
-              "Un client OAuth enregistré pour cette application, ou un enregistrement automatique vérifié. Si l’application demande un identifiant client ou refuse l’adresse de retour, contactez l’assistance Guteneo avant de poursuivre.",
+              "An OAuth client registered for this application, or verified automatic registration. If the application asks for a client ID or rejects the redirect address, contact Guteneo support before continuing.",
             ),
             msg(
-              "En entreprise, la liste de serveurs autorisés doit permettre l’adresse de Guteneo.",
+              "In an organisation, the approved server list must allow Guteneo’s address.",
             ),
           ],
           steps: [
             {
-              title: msg("Ouvrez votre configuration MCP"),
+              title: msg("Open your MCP configuration"),
               text: msg(
-                "Dans Cursor, ouvrez la personnalisation des serveurs MCP. Pour une configuration propre au projet, utilisez son fichier .cursor/mcp.json.",
+                "In Cursor, open MCP server customisation. For a project-specific configuration, use its .cursor/mcp.json file.",
               ),
             },
             {
-              title: msg("Ajoutez Guteneo à la configuration"),
+              title: msg("Add Guteneo to the configuration"),
               text: msg(
-                "Le fichier proposé contient l’entrée guteneo dans mcpServers et cette adresse. Ajoutez-la à votre configuration en conservant les autres serveurs.",
+                "The supplied file contains the guteneo entry in mcpServers and this address. Add it to your configuration while keeping your other servers.",
               ),
               endpoint: true,
               link: {
-                label: msg("Télécharger la configuration Cursor"),
+                label: msg("Download the Cursor configuration"),
                 href: "/guides/cursor-mcp.json",
                 download: true,
               },
             },
             {
-              title: msg("Connectez-vous à Guteneo"),
+              title: msgIn("connection", "Sign in to Guteneo"),
               text: msg(
-                "Retrouvez guteneo dans les serveurs MCP de Cursor, suivez l’authentification proposée et vérifiez les permissions demandées.",
+                "Find guteneo in Cursor’s MCP servers, follow the authentication flow and check the requested permissions.",
               ),
             },
             {
-              title: msg("Vérifiez les outils dans l’agent"),
+              title: msg("Check the tools in the agent"),
               text: msg(
-                "Avec le serveur activé, collez la demande de vérification ci-dessous dans une conversation. Conservez les confirmations prévues par votre configuration Cursor.",
+                "With the server enabled, paste the verification prompt below into a conversation. Keep the confirmations required by your Cursor configuration.",
               ),
             },
           ],
           documentation: [
             {
-              label: msg("Guide officiel Cursor"),
+              label: msg("Official Cursor guide"),
               href: "https://cursor.com/docs/mcp",
             },
           ],
           troubleshooting: [
             {
-              question: msg("Guteneo n’apparaît pas dans ce projet"),
+              question: msg("Guteneo does not appear in this project"),
               answer: msg(
-                "Vérifiez le fichier .cursor/mcp.json du projet ouvert, ou ~/.cursor/mcp.json pour une configuration globale. Vérifiez ensuite que le serveur est activé et autorisé par votre organisation.",
+                "Check the open project’s .cursor/mcp.json file, or ~/.cursor/mcp.json for a global configuration. Then check that the server is enabled and authorised by your organisation.",
               ),
             },
           ],
         },
         {
           id: "plugin",
-          label: msg("Plugin Cursor local"),
+          label: msg("Local Cursor plugin"),
           prerequisites: [
-            msg("Cursor avec l’import de plugins locaux autorisé."),
+            msg("Cursor with local plugin imports allowed."),
             msg(
-              "Un client OAuth enregistré pour cette application, ou un enregistrement automatique vérifié. Si l’application demande un identifiant client ou refuse l’adresse de retour, contactez l’assistance Guteneo avant de poursuivre.",
+              "An OAuth client registered for this application, or verified automatic registration. If the application asks for a client ID or rejects the redirect address, contact Guteneo support before continuing.",
             ),
           ],
           steps: [
             {
-              title: msg("Téléchargez le paquet Guteneo"),
+              title: msg("Download the Guteneo package"),
               text: msg(
-                "Décompressez le ZIP et copiez tout son contenu, y compris les dossiers cachés, dans ~/.cursor/plugins/local/guteneo/.",
+                "Extract the ZIP and copy all its contents, including hidden folders, to ~/.cursor/plugins/local/guteneo/.",
               ),
               link: {
                 label: msg(
-                  "Télécharger le paquet du plugin (installation manuelle)",
+                  "Download the plugin package (manual installation)",
                 ),
                 href: "/integrations/guteneo-plugin.zip",
                 download: true,
               },
             },
             {
-              title: msg("Rechargez Cursor"),
+              title: msg("Reload Cursor"),
               text: msg(
-                "Exécutez Developer: Reload Window, puis retrouvez Guteneo dans Customize. Un lien symbolique vers un dossier externe ne suffit pas.",
+                "Run Developer: Reload Window, then find Guteneo in Customize. A symbolic link to an external folder is not sufficient.",
               ),
             },
             {
-              title: msg("Connectez-vous à Guteneo"),
+              title: msgIn("connection", "Sign in to Guteneo"),
               text: msg(
-                "Connectez le serveur guteneo, examinez les permissions et lancez la demande de vérification ci-dessous.",
+                "Connect the guteneo server, review the permissions and use the verification request below.",
               ),
               endpoint: true,
             },
           ],
           documentation: [
             {
-              label: msg("Guide officiel des plugins Cursor"),
+              label: msg("Official Cursor plugins guide"),
               href: "https://cursor.com/docs/plugins",
             },
           ],

@@ -12,10 +12,25 @@ import {
 import { randomBytes } from "node:crypto";
 import { fileURLToPath } from "node:url";
 
-export const PROBE_TOKEN_HEADER = "X-Horizon-Qualification-Token";
+export const PROBE_TOKEN_HEADER = "X-PDF-Validator-Qualification-Token";
 export const PROBE_CREDENTIAL_PATH = fileURLToPath(
   new URL("../qualification/.dev.vars", import.meta.url),
 );
+
+/** Qualification may stop containers only while the production feature is explicitly closed. */
+export function assertPdfVerificationClosed(capabilities) {
+  if (
+    capabilities?.mode !== "production" ||
+    capabilities.simulation !== false ||
+    capabilities.documents?.validation?.available !== false ||
+    (Object.hasOwn(capabilities, "pdfValidation") &&
+      (capabilities.pdfValidation === null ||
+        typeof capabilities.pdfValidation !== "object" ||
+        Array.isArray(capabilities.pdfValidation) ||
+        capabilities.pdfValidation.available !== false))
+  )
+    throw new Error("PDF_VALIDATOR_RELEASE_CLOSED_PDF_CHECKS_REQUIRED");
+}
 
 /** Rotate the local-only credential before each run; never return or print it. */
 export function createProbeCredential(path = PROBE_CREDENTIAL_PATH) {
@@ -34,7 +49,7 @@ export function createProbeCredential(path = PROBE_CREDENTIAL_PATH) {
     descriptor = openSync(temporaryPath, "wx", 0o600);
     writeFileSync(
       descriptor,
-      `HORIZON_QUALIFICATION_TOKEN=${randomBytes(32).toString("hex")}\n`,
+      `PDF_VALIDATOR_QUALIFICATION_TOKEN=${randomBytes(32).toString("hex")}\n`,
     );
     closeSync(descriptor);
     descriptor = undefined;
@@ -65,9 +80,12 @@ export function readProbeCredential(path = PROBE_CREDENTIAL_PATH) {
       metadata.uid !== process.getuid()
     )
       throw new Error("UNSAFE_CREDENTIAL");
-    const match = /^HORIZON_QUALIFICATION_TOKEN=([a-f0-9]{64})\n$/.exec(
-      readFileSync(descriptor, "utf8"),
-    );
+    // Accept the previous exact owner-private format only to rotate it safely;
+    // setup always writes the current key before starting the local bridge.
+    const match =
+      /^(?:PDF_VALIDATOR_QUALIFICATION_TOKEN|HORIZON_QUALIFICATION_TOKEN)=([a-f0-9]{64})\n$/.exec(
+        readFileSync(descriptor, "utf8"),
+      );
     if (!match) throw new Error("INVALID_CREDENTIAL");
     return match[1];
   } catch {

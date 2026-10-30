@@ -12,4 +12,4 @@ for(const [name,value] of Object.entries({
 })) await writeFile(new URL(name,directory),JSON.stringify(value,null,2)+"\n");
 await copyFile(new URL("../tests/fixtures/datasets/clients-articles.xlsx",import.meta.url),new URL("clients-articles.xlsx",directory));
 await copyFile(new URL("../tests/fixtures/datasets/clients-articles.mapping.json",import.meta.url),new URL("clients-articles.mapping.json",directory));
-console.log("Exemples synthétiques API/MCP générés.");
+console.log("Synthetic API/MCP examples generated.");

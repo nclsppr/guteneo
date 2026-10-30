@@ -1,11 +1,11 @@
 {
   "name": "guteneo",
-  "version": "1.0.0",
-  "description": "Prepare PDFs, email, fax and postal mail, and track Guteneo dispatches.",
+  "version": "1.1.19",
+  "description": "Prepare PDFs, email, fax, postal mail and account-protected PDF distribution when enabled.",
   "author": {
     "name": "NICOLAS PATRICK HENRI FRANK PIEPER"
   },
-  "homepage": "https://guteneo.com/a-propos/?lang=en",
+  "homepage": "https://guteneo.com/about/?lang=en",
   "repository": "https://github.com/nclsppr/guteneo",
   "skills": "./skills/",
   "mcpServers": "./.mcp.json"

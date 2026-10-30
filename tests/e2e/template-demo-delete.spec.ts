@@ -5,7 +5,9 @@ import type { TemplateView } from "../../packages/contracts/src/template-workflo
 
 async function login(page: Page) {
   await page.goto("/#/app");
-  await page.getByRole("button", { name: "Entrer dans l’Atelier" }).click();
+  await page
+    .getByRole("button", { name: "Entrer dans l’espace de travail" })
+    .click();
   await expect(
     page.getByRole("heading", { name: "Votre correspondance, au clair." }),
   ).toBeVisible();
@@ -15,7 +17,7 @@ async function login(page: Page) {
   expect(session.simulation).toBe(true);
 }
 
-async function createDemo(page: Page, name: string) {
+async function createDemo(page: Page, name: string, storedName: string) {
   const created = page.waitForResponse(
     (response) =>
       response.url().endsWith("/api/templates") &&
@@ -32,9 +34,12 @@ async function createDemo(page: Page, name: string) {
   const model = (await response.json()) as TemplateView;
   expect(model.visibility).toBe("private");
   expect(model.canDelete).toBe(true);
-  await expect(page).toHaveURL(new RegExp(`#/app/template/${model.id}$`));
+  expect(model.envelope.name).toBe(storedName);
+  await expect(page).toHaveURL(
+    new RegExp(`#/app/studio/template/${model.id}$`),
+  );
   await expect(page.getByLabel("Nom du modèle", { exact: true })).toHaveValue(
-    name,
+    storedName,
   );
   return model;
 }
@@ -65,14 +70,14 @@ async function assertRemoved(page: Page, id: string) {
       response.url().endsWith(`/api/templates/${id}`) &&
       response.request().method() === "GET",
   );
-  await page.goto(`/#/app/template/${id}`);
+  await page.goto(`/#/app/studio/template/${id}`);
   expect((await direct).status()).toBe(404);
   await expect(page.getByRole("alert")).toBeVisible();
   await expect(page.getByLabel("Nom du modèle", { exact: true })).toHaveCount(
     0,
   );
   await expect(
-    page.locator('a.back-link[href="#/app/templates"]'),
+    page.locator('a.back-link[href="#/app/studio/templates"]'),
   ).toBeVisible();
 }
 
@@ -92,7 +97,7 @@ test("demo copy can be edited, saved and deleted from the library after keyboard
     await page.locator(".language-preference select").selectOption(locale);
     await page.locator('form.form-panel button[type="submit"]').click();
     await expect(page.locator("html")).toHaveAttribute("lang", locale);
-    await page.goto("/#/app/templates");
+    await page.goto("/#/app/studio/templates");
     await expect(page.locator('select[name="language"]')).toHaveCount(0);
     await expect(
       page.getByRole("heading", { name: heading, exact: true }),
@@ -111,7 +116,11 @@ test("demo copy can be edited, saved and deleted from the library after keyboard
   await page.locator(".studio-gallery").screenshot({
     path: `reports/template-demos/gallery-${testInfo.project.name}.png`,
   });
-  const model = await createDemo(page, "Devis de démonstration");
+  const model = await createDemo(
+    page,
+    "Devis de démonstration",
+    "Demo quotation",
+  );
   const name = `Devis client synthétique ${crypto.randomUUID().slice(0, 8)}`;
   await page.getByLabel("Nom du modèle", { exact: true }).fill(name);
   const savedResponse = page.waitForResponse(
@@ -133,13 +142,13 @@ test("demo copy can be edited, saved and deleted from the library after keyboard
     await expect(
       page
         .locator(".studio-designer")
-        .getByText("Validité du devis", { exact: true }),
+        .getByText("Quote validity", { exact: true }),
     ).toBeVisible();
   await expect(
     page.getByRole("button", { name: "Enregistrer le brouillon", exact: true }),
   ).toBeDisabled();
-  await page.locator('a.back-link[href="#/app/templates"]').click();
-  await expect(page).toHaveURL(/#\/app\/templates$/);
+  await page.locator('a.back-link[href="#/app/studio/templates"]').click();
+  await expect(page).toHaveURL(/#\/app\/studio\/templates$/);
   const row = await findLibraryModel(page, name);
   const trigger = row.getByRole("button", {
     name: `Supprimer le modèle ${name}`,
@@ -215,8 +224,12 @@ test("owner deletes a shared demo with unsaved edits in one named confirmation",
   page,
 }, testInfo) => {
   await login(page);
-  await page.goto("/#/app/templates");
-  const model = await createDemo(page, "Bon de livraison de démonstration");
+  await page.goto("/#/app/studio/templates");
+  const model = await createDemo(
+    page,
+    "Bon de livraison de démonstration",
+    "Demo delivery note",
+  );
   await page.getByRole("button", { name: "Partage", exact: true }).click();
   await page
     .getByLabel("Visibilité", { exact: true })
@@ -253,7 +266,7 @@ test("owner deletes a shared demo with unsaved edits in one named confirmation",
     name: new RegExp(`Supprimer « ${model.name} »`),
   });
   await expect(group).toContainText(
-    "Ce modèle partagé sera retiré pour tous les membres de l’atelier.",
+    "Ce modèle partagé sera retiré pour tous les membres de l’espace de travail.",
   );
   await expect(group).toContainText(
     "Les modifications non enregistrées seront aussi abandonnées.",
@@ -286,7 +299,7 @@ test("owner deletes a shared demo with unsaved edits in one named confirmation",
   expect(deleted.request().postDataJSON()).toEqual({
     expectedRevision: updated.revision,
   });
-  await expect(page).toHaveURL(/#\/app\/templates$/);
+  await expect(page).toHaveURL(/#\/app\/studio\/templates$/);
   expect(dialogs).toEqual([]);
   await assertRemoved(page, model.id);
 });

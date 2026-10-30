@@ -1,11 +1,14 @@
 import { expect, test, type Page } from "./fixtures";
 import type { Session } from "../../apps/web/src/api";
+import { deferAnimationFrames } from "../fixtures/deferred-animation-frames";
 
 const origin = "http://localhost:8787";
 
 async function login(page: Page): Promise<Session> {
   await page.goto("/#/app");
-  await page.getByRole("button", { name: "Entrer dans l’Atelier" }).click();
+  await page
+    .getByRole("button", { name: "Entrer dans l’espace de travail" })
+    .click();
   await expect(
     page.getByRole("heading", { name: "Votre correspondance, au clair." }),
   ).toBeVisible();
@@ -32,10 +35,10 @@ test("profile changes persist through the browser and current-session revocation
       userName,
     );
     await page
-      .getByLabel("Nom de l’atelier", { exact: true })
+      .getByLabel("Nom de l’espace de travail", { exact: true })
       .fill(organizationName);
     await expect(
-      page.getByLabel("Nom de l’atelier", { exact: true }),
+      page.getByLabel("Nom de l’espace de travail", { exact: true }),
     ).toHaveValue(organizationName);
     await page
       .getByRole("button", { name: "Enregistrer les modifications" })
@@ -50,7 +53,7 @@ test("profile changes persist through the browser and current-session revocation
       userName,
     );
     await expect(
-      page.getByLabel("Nom de l’atelier", { exact: true }),
+      page.getByLabel("Nom de l’espace de travail", { exact: true }),
     ).toHaveValue(organizationName);
     const persisted = (await (
       await page.request.get("/api/session")
@@ -71,56 +74,34 @@ test("profile changes persist through the browser and current-session revocation
     .getByRole("button", { name: /^Me déconnecter de la session/ })
     .click();
   await expect(
-    page.getByRole("button", { name: "Entrer dans l’Atelier" }),
+    page.getByRole("button", { name: "Entrer dans l’espace de travail" }),
   ).toBeVisible();
   expect((await page.request.get("/api/session")).status()).toBe(401);
 });
 
-test("a delayed route focus preserves a profile field that is already active", async ({
+test("deferred animation frames preserve a profile field that is already active", async ({
   page,
 }) => {
   await login(page);
-  await page.evaluate(() => {
-    const browser = window as Window & {
-      releaseRouteFrames?: () => void;
-      pendingRouteFrameCount?: number;
-    };
-    const original = window.requestAnimationFrame;
-    const pending: FrameRequestCallback[] = [];
-    window.requestAnimationFrame = (callback) =>
-      original(() => {
-        pending.push(callback);
-        browser.pendingRouteFrameCount = pending.length;
-      });
-    browser.releaseRouteFrames = () => {
-      window.requestAnimationFrame = original;
-      for (const callback of pending) callback(performance.now());
-      delete browser.releaseRouteFrames;
-      delete browser.pendingRouteFrameCount;
-    };
-  });
-  await page.goto("/#/app/account");
-  await expect
-    .poll(() =>
-      page.evaluate(
-        () =>
-          (window as Window & { pendingRouteFrameCount?: number })
-            .pendingRouteFrameCount ?? 0,
-      ),
-    )
-    .toBeGreaterThan(0);
-  const name = page.getByLabel("Votre nom", { exact: true });
-  await name.focus();
-  await page.evaluate(() => {
-    const browser = window as Window & {
-      releaseRouteFrames?: () => void;
-    };
-    browser.releaseRouteFrames?.();
-  });
-  await expect(name).toBeFocused();
-  await page.keyboard.press("ControlOrMeta+A");
-  await page.keyboard.insertText("Profil encore actif");
-  await expect(name).toHaveValue("Profil encore actif");
+  const frames = await deferAnimationFrames(page);
+  try {
+    await page.goto("/#/app/account");
+    await frames.settle();
+    const name = page.getByLabel("Votre nom", { exact: true });
+    await name.fill("Profil déjà actif");
+    await expect(name).toBeFocused();
+    const resumed = await frames.resume();
+    expect(resumed.executed).toBeGreaterThanOrEqual(2);
+    expect(resumed.probes).toBe(2);
+    expect(resumed.pending).toBe(0);
+    await expect(name).toBeFocused();
+    await expect(name).toHaveValue("Profil déjà actif");
+    await page.keyboard.press("ControlOrMeta+A");
+    await page.keyboard.insertText("Profil encore actif");
+    await expect(name).toHaveValue("Profil encore actif");
+  } finally {
+    await frames.restore();
+  }
 });
 
 test("the sole admin cannot demote themselves and disconnecting their access refreshes the app", async ({
@@ -128,7 +109,9 @@ test("the sole admin cannot demote themselves and disconnecting their access ref
 }) => {
   const session = await login(page);
   await page.goto("/#/app/admin");
-  const team = page.getByRole("region", { name: "Membres de l’atelier" });
+  const team = page.getByRole("region", {
+    name: "Membres de l’espace de travail",
+  });
   await team
     .getByLabel(`Rôle de ${session.user.name}`, { exact: true })
     .selectOption("viewer");
@@ -140,18 +123,19 @@ test("the sole admin cannot demote themselves and disconnecting their access ref
   await expect(team.getByRole("alert")).toContainText(
     "au moins un administrateur",
   );
+  await expect(team.getByRole("alert")).toContainText("LAST_ADMIN_REQUIRED");
   const unchanged = (await (
     await page.request.get("/api/session")
   ).json()) as Session;
   expect(unchanged.user.role).toBe("admin");
   await team
     .getByRole("button", {
-      name: `Déconnecter ${session.user.name} de cet atelier`,
+      name: `Déconnecter ${session.user.name} de cet espace de travail`,
     })
     .click();
   await team.getByRole("button", { name: "Oui, déconnecter" }).click();
   await expect(
-    page.getByRole("button", { name: "Entrer dans l’Atelier" }),
+    page.getByRole("button", { name: "Entrer dans l’espace de travail" }),
   ).toBeVisible();
   expect((await page.request.get("/api/session")).status()).toBe(401);
 });
@@ -216,37 +200,44 @@ test("account, members and billing reject a valid assistant bearer and browser w
   expect(unchanged.organization.name).toBe(session.organization.name);
 });
 
-test("billing stays behind the monthly plan and never invents invoices", async ({
+test("administrator billing stays accessible without a subscription and never invents invoices", async ({
   page,
 }) => {
   await login(page);
   const response = await page.request.get("/api/billing");
-  expect(response.status()).toBe(402);
+  expect(response.status()).toBe(200);
   expect(await response.json()).toMatchObject({
-    error: { code: "HORIZON_PLAN_REQUIRED" },
+    status: "configuration_required",
+    portalAvailable: false,
   });
   const requests: string[] = [];
+  const writes: string[] = [];
   page.on("request", (request) => {
     const path = new URL(request.url()).pathname;
-    if (path.startsWith("/api/billing")) requests.push(path);
+    if (path.startsWith("/api/billing")) {
+      requests.push(path);
+      if (request.method() !== "GET") writes.push(path);
+    }
   });
   await page.goto("/#/app/billing");
   await expect(
     page.getByRole("heading", { name: "Facturation", exact: true }),
   ).toBeVisible();
   await expect(
-    page.getByRole("heading", { name: "Forfait Horizon", exact: true }),
+    page.getByText("Aucune facture enregistrée pour cet espace."),
   ).toBeVisible();
   await expect(
-    page.getByText("Bientôt disponible", { exact: true }),
-  ).toBeVisible();
+    page.getByRole("button", { name: /Souscrire|Résilier/ }),
+  ).toHaveCount(0);
   await expect(
     page.getByRole("button", { name: "Créer mon dossier de facturation" }),
   ).toHaveCount(0);
   await expect(
     page.getByRole("button", { name: "Ouvrir le portail de facturation" }),
   ).toHaveCount(0);
-  expect(requests).toEqual([]);
+  expect(requests).toContain("/api/billing");
+  expect(requests).toContain("/api/billing/invoices");
+  expect(writes).toEqual([]);
   await expect
     .poll(() =>
       page.evaluate(

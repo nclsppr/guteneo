@@ -1,6 +1,4 @@
 import { msg } from "./messages";
-import { useDashboardAppearance } from "./dashboard-appearance";
-import { DashboardArtwork } from "./dashboard-artwork";
 import { useState, type FormEvent } from "react";
 import {
   ArrowLeft,
@@ -42,21 +40,20 @@ function ConnectionDiagnostics() {
 }
 
 export function OverviewAssistantStart({ session }: { session: Session }) {
-  const { appearance } = useDashboardAppearance();
   const connections = useAssistantConnections();
   const { direct, chooseDirect } = useDirectChoice(session);
   if (direct) return null;
   if (connections.loading && !connections.data)
     return (
       <p className="assistant-overview-status" role="status">
-        {msg("Chargement de vos assistants…")}
+        {msg("Loading your assistants…")}
       </p>
     );
   if (connections.error)
     return (
       <aside className="assistant-overview-status">
-        <p>{msg("Impossible de vérifier vos assistants.")}</p>
-        <a href="#/app/connection">{msg("Consulter mes connexions")}</a>
+        <p>{msg("Unable to check your assistants.")}</p>
+        <a href="#/app/connection">{msg("View my connections")}</a>
       </aside>
     );
   const active =
@@ -71,15 +68,13 @@ export function OverviewAssistantStart({ session }: { session: Session }) {
         <PlugsConnected size={22} aria-hidden="true" />
         <p>
           {verified
-            ? msg("Un échange avec votre assistant a été confirmé.")
+            ? msg("An exchange with your assistant has been confirmed.")
             : msg(
-                "Votre autorisation est enregistrée. Terminez la vérification dans votre assistant.",
+                "Your authorisation is saved. Finish the check in your assistant.",
               )}
         </p>
         <a className="text-link" href="#/app/connection">
-          {verified
-            ? msg("Gérer mes assistants")
-            : msg("Terminer la connexion")}
+          {verified ? msg("Manage my assistants") : msg("Finish connecting")}
           <ArrowRight size={17} aria-hidden="true" />
         </a>
       </aside>
@@ -93,36 +88,33 @@ export function OverviewAssistantStart({ session }: { session: Session }) {
       <div className="assistant-welcome-heading">
         <div>
           <h2 id="assistant-welcome-title">
-            {msg("Commencez dans votre assistant habituel.")}
+            {msg("Start in your usual assistant.")}
           </h2>
           <p>
             {msg(
-              "Connectez-le à Guteneo pour préparer vos documents et retrouver vos envois ici.",
+              "Connect it to Guteneo to prepare your documents and find your dispatches here.",
             )}
           </p>
         </div>
-        <a
-          className={appearance === "v2" ? "button" : "button primary"}
-          href="#/app/connection"
-        >
-          {msg("Utiliser mon assistant ")}
+        <a className="button" href="#/app/connection">
+          {msg("Use my assistant ")}
           <ArrowRight size={18} aria-hidden="true" />
         </a>
       </div>
       <div className="assistant-welcome-direct">
-        <p>{msg("Vous pouvez aussi préparer votre envoi directement.")}</p>
+        <p>{msg("You can also prepare your dispatch directly.")}</p>
         <a
           className="text-link"
           href="#/app/prepare?entry=direct"
           onClick={() => chooseDirect(true)}
         >
-          {msg("Envoyer depuis Guteneo ")}
+          {msg("Send from Guteneo ")}
           <ArrowRight size={17} aria-hidden="true" />
         </a>
       </div>
       <AssistantPicker
         basePath="#/app/connection/"
-        label={msg("Choisir un assistant pour commencer")}
+        label={msg("Choose an assistant to get started")}
       />
     </section>
   );
@@ -164,7 +156,7 @@ export function Connection({
       aria-labelledby="assistant-connections-title"
     >
       <div className="section-toolbar">
-        <h2 id="assistant-connections-title">{msg("Mes connexions")}</h2>
+        <h2 id="assistant-connections-title">{msg("My connections")}</h2>
         <button
           className="text-button"
           type="button"
@@ -172,18 +164,18 @@ export function Connection({
           onClick={connections.refresh}
         >
           <ArrowClockwise size={17} aria-hidden="true" />
-          {msg("Actualiser")}
+          {msg("Refresh")}
         </button>
       </div>
       <p>
         {msg(
-          "Après votre première demande dans l’assistant, revenez ici pour retrouver le dernier échange confirmé.",
+          "After your first request in the assistant, return here to find the latest confirmed exchange.",
         )}
       </p>
       {isPublicPreview && (
         <p className="notice info">
           {msg(
-            "Démonstration : aucune connexion réelle n’est créée ou vérifiée dans cet aperçu.",
+            "Demo: no real connection is created or verified in this preview.",
           )}
         </p>
       )}
@@ -196,9 +188,7 @@ export function Connection({
         <Loading />
       ) : connections.error ? (
         <p role="status">
-          {msg(
-            "Impossible de vérifier vos connexions. Réessayez avec « Actualiser ».",
-          )}
+          {msg("Unable to check your connections. Try again with Refresh.")}
         </p>
       ) : hasConnections ? (
         <ul className="assistant-connection-list">
@@ -211,38 +201,38 @@ export function Connection({
               <li key={connection.id}>
                 <div className="assistant-connection-description">
                   <h3>
-                    {connection.display_name || msg("Assistant autorisé")}
+                    {connection.display_name || msg("Authorised assistant")}
                   </h3>
                   <p className={verified ? "assistant-verified" : undefined}>
                     {verified && <CheckCircle size={18} aria-hidden="true" />}
                     {connection.status !== "active"
-                      ? msg("Autorisation révoquée")
+                      ? msg("Authorisation revoked")
                       : verified
-                        ? msg("Connexion vérifiée")
+                        ? msg("Connection verified")
                         : msg(
-                            "Autorisation active · Premier échange à vérifier",
+                            "Authorisation active · First exchange to be checked",
                           )}
                   </p>
                   {verified ? (
                     <p className="field-hint">
-                      {msg("Dernier échange réussi :")}{" "}
+                      {msg("Last successful exchange:")}{" "}
                       {date(connection.last_successful_tool_at!)}
                       {msg(
-                        ". La préparation et l’envoi restent soumis à leurs vérifications.",
+                        ". Preparation and sending remain subject to their checks.",
                       )}
                     </p>
                   ) : connection.status === "active" ? (
                     <p className="field-hint">
                       {msg(
-                        "Ouvrez votre assistant avec Guteneo activé et utilisez la demande de vérification du guide.",
+                        "Open your assistant with Guteneo enabled and use the guide’s verification prompt.",
                       )}
                     </p>
                   ) : null}
                   <details className="assistant-connection-reference">
-                    <summary>{msg("Référence de la connexion")}</summary>
+                    <summary>{msg("Connection reference")}</summary>
                     <code>{connection.client_id}</code>
                     <p className="field-hint">
-                      {msg("Autorisation créée le ")}
+                      {msg("Authorisation created on ")}
                       {date(connection.created_at)}.
                     </p>
                   </details>
@@ -264,7 +254,7 @@ export function Connection({
       ) : (
         <p className="assistant-no-connections">
           {msg(
-            "Aucun assistant autorisé pour ce compte. Choisissez un guide pour commencer, ou envoyez directement depuis Guteneo.",
+            "No assistants authorised for this account. Choose a guide to get started, or send directly from Guteneo.",
           )}
         </p>
       )}
@@ -276,7 +266,7 @@ export function Connection({
         <>
           <a className="back-link" href="#/app/connection">
             <ArrowLeft size={18} aria-hidden="true" />
-            {msg("Tous les assistants")}
+            {msg("All assistants")}
           </a>
           <AssistantGuide
             key={assistant.id}
@@ -287,20 +277,17 @@ export function Connection({
         </>
       ) : (
         <>
-          <div className="dashboard-editorial-heading dashboard-editorial-heading-horizon">
+          <div className="dashboard-editorial-heading dashboard-editorial-heading-pdf-verification">
             <PageHeading
-              title={msg("Vos assistants, votre correspondance.")}
+              title={msg("Your assistants, your correspondence.")}
               intro={msg(
-                "Connectez votre assistant à Guteneo par MCP, puis retrouvez vos connexions ici. Chaque guide vous accompagne sans attendre un plugin publié.",
+                "Connect your assistant to Guteneo via MCP, then find your connections here. Each guide walks you through without waiting for a published plugin.",
               )}
             />
-            <DashboardArtwork scene="horizon" />
           </div>
           {assistantId && (
             <p className="notice info">
-              {msg(
-                "Ce guide n’existe pas. Choisissez un assistant ci-dessous.",
-              )}
+              {msg("This guide does not exist. Choose an assistant below.")}
             </p>
           )}
           {hasConnections && connectionList}
@@ -310,8 +297,8 @@ export function Connection({
           >
             <h2 id="assistant-selection-title">
               {hasConnections
-                ? msg("Ajouter un assistant")
-                : msg("Quel assistant utilisez-vous ?")}
+                ? msg("Add an assistant")
+                : msg("Which assistant do you use?")}
             </h2>
             <AssistantPicker basePath="#/app/connection/" />
           </section>
@@ -324,11 +311,11 @@ export function Connection({
       >
         <div>
           <h2 id="workspace-direct-title">
-            {msg("Envoyez aussi directement.")}
+            {msg("You can also send directly.")}
           </h2>
           <p>
             {msg(
-              "Un document, un destinataire, une vérification : votre espace Guteneo fonctionne sans assistant.",
+              "One document, one recipient, one check: your Guteneo workspace works without an assistant.",
             )}
           </p>
         </div>
@@ -337,30 +324,30 @@ export function Connection({
           href="#/app/prepare?entry=direct"
           onClick={() => chooseDirect(true)}
         >
-          {msg("Envoyer depuis Guteneo ")}
+          {msg("Send from Guteneo ")}
           <ArrowRight size={18} aria-hidden="true" />
         </a>
         {direct && (
           <p className="assistant-preference">
-            {msg("L’invitation de démarrage est masquée sur ce navigateur.")}{" "}
+            {msg("The getting-started invitation is hidden in this browser.")}{" "}
             <button
               type="button"
               className="text-button"
               onClick={() => chooseDirect(false)}
             >
-              {msg("Réafficher l’invitation")}
+              {msg("Show the invitation again")}
             </button>
           </p>
         )}
       </section>
       <details className="assistant-permissions">
-        <summary>{msg("Ce que vous autorisez")}</summary>
+        <summary>{msg("What you authorise")}</summary>
         <p>{t.connection.scopeBody}</p>
         <p>{t.connection.permissions}</p>
-        <a href="#/app/account">{msg("Gérer les préférences de mon compte")}</a>
+        <a href="#/app/account">{msg("Manage my account preferences")}</a>
       </details>
       <details className="technical-details assistant-advanced">
-        <summary>{msg("Configuration avancée")}</summary>
+        <summary>{msg("Advanced configuration")}</summary>
         <form onSubmit={(event) => void bind(event)}>
           <h3>{t.connection.bind}</h3>
           <p>{t.connection.bindHelp}</p>
@@ -383,9 +370,9 @@ export function Connection({
         {!isPublicPreview && (
           <p>
             <a href="/integrations/guteneo-plugin.zip" download>
-              {msg("Télécharger le paquet du plugin (installation manuelle)")}
+              {msg("Download the plugin package (manual installation)")}
             </a>{" "}
-            · <a href="/developpeurs/">{msg("Documentation développeurs")}</a>
+            · <a href="/developers/">{msg("Developer documentation")}</a>
           </p>
         )}
       </details>
@@ -393,7 +380,7 @@ export function Connection({
         className="technical-details assistant-advanced"
         onToggle={(event) => setDiagnosticsOpen(event.currentTarget.open)}
       >
-        <summary>{msg("État du service")}</summary>
+        <summary>{msg("Service status")}</summary>
         {diagnosticsOpen && <ConnectionDiagnostics />}
       </details>
     </div>

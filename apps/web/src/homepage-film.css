@@ -33,7 +33,7 @@
   width: 100%;
   aspect-ratio: 16 / 9;
   overflow: hidden;
-  background: var(--blue);
+  background: var(--action);
 }
 .homepage-film-frame[data-format="vertical"] {
   aspect-ratio: 1320 / 2868;
@@ -97,14 +97,14 @@
   width: 104px;
   height: var(--film-play-height);
   border-radius: 14px;
-  background: var(--blue);
+  background: var(--action);
   color: #fff;
 }
 .homepage-film-play-icon svg {
   margin-left: 4px;
 }
 .homepage-film-play:hover .homepage-film-play-icon {
-  background: var(--blue-hover);
+  background: var(--action-hover);
 }
 .homepage-film-play-copy {
   padding: 8px 14px;

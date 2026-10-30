@@ -36,14 +36,14 @@ Guteneo documents and studio datasets. If these are known to be present, ask the
 user to remove them before sharing; do not fetch, transform or upload them and do
 not suggest web upload as a bypass. A scan is not a sensitive-data assessment.
 
-The remote connection cannot read a local path just because Claude can see it.
-This package does not implement `upload_local_pdf`, extract attachments from
-Claude.ai, or convert an attachment into a public URL. Do not fabricate a file
-identifier, signed URL or original PDF from extracted text. For allowed content,
-reuse a Guteneo `documentId`, or let the user choose authenticated upload in
-[Guteneo Documents](https://guteneo.com/?lang=en#/app/documents), then retrieve the
-exact document. A separately installed, qualified file adapter is a separate
-integration; never assume it exists or call it from memory.
+The remote connection cannot read a path merely because Claude can see its name.
+Follow the shared [private original PDF transfer contract](../skills/get-started/references/original-pdf-transfer.md)
+for native envelopes, permitted binary or small-inline transfer, and the optional
+MCP App picker. This package grants no filesystem access, automatic attachment
+access or network-policy exception. The App’s picker requires a new explicit
+device-file selection; App recovery stays in its controls. No local iPhone
+extension is installed. Desktop, web and physical-iPhone qualification remain
+separate, and `upload_local_pdf` is not implemented by this package.
 
 For `analysis.state=processing`, follow the returned delay and read the same
 document at most three times per interaction. Do not reimport or request a rescan

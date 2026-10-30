@@ -226,17 +226,23 @@ test("a failed language save keeps the server preference and supports an explici
 });
 
 for (const requestedLocale of ["de", "lb"] as const) {
-  test(`a public ${requestedLocale} query survives a delayed session without a preference and stays separate from account fallback`, async ({
+  test(`a public ${requestedLocale} query stays separate from a delayed private account fallback`, async ({
     page,
   }) => {
     let releaseSession!: () => void;
     const sessionGate = new Promise<void>((resolve) => {
       releaseSession = resolve;
     });
+    let sessionRequests = 0;
     const { writes } = await mockAccount(
       page,
       { name: "Compte sans préférence", preferredLocale: null },
-      { beforeSession: () => sessionGate },
+      {
+        beforeSession: () => {
+          sessionRequests += 1;
+          return sessionGate;
+        },
+      },
     );
     try {
       await page.goto(`/?lang=${requestedLocale}`);
@@ -246,23 +252,12 @@ for (const requestedLocale of ["de", "lb"] as const) {
         "lang",
         requestedLocale,
       );
-      const session = page.waitForResponse(
-        (response) => new URL(response.url()).pathname === "/api/session",
-      );
-      releaseSession();
-      expect((await session).status()).toBe(200);
-      await page.evaluate(
-        () =>
-          new Promise<void>((resolve) =>
-            requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
-          ),
-      );
-      await expect(page.locator("html")).toHaveAttribute(
-        "lang",
-        requestedLocale,
-      );
       await expect(picker).toHaveValue(requestedLocale);
+      expect(sessionRequests).toBe(0);
       await page.goto("/?lang=fr#/app/account");
+      await expect.poll(() => sessionRequests).toBeGreaterThan(0);
+      await expect(page.locator("#account-name")).toHaveCount(0);
+      releaseSession();
       await expect(page.locator("#account-name")).toHaveValue(
         "Compte sans préférence",
       );
@@ -299,28 +294,22 @@ test("entering the account applies its preference after a late session while pre
     },
   );
   try {
-    await page.goto("/");
+    await page.goto("/?lang=en");
     const picker = await publicLanguagePicker(page);
-    await expect(picker).toHaveValue("auto");
+    await expect(picker).toHaveValue("en");
+    // An explicit public choice is stable with both the local application build
+    // and CI's prerendered production pages. Automatic SSR selection has its
+    // own public-preview coverage.
     await expect(page.locator("html")).toHaveAttribute("lang", "en");
-    await expect.poll(() => sessionRequests).toBeGreaterThan(0);
+    expect(sessionRequests).toBe(0);
     await picker.selectOption("de");
-    await expect(page.locator("html")).toHaveAttribute("lang", "de");
-    const resolvedSession = page.waitForResponse(
-      (response) => new URL(response.url()).pathname === "/api/session",
-    );
-    releaseSession();
-    expect((await resolvedSession).status()).toBe(200);
-    await page.evaluate(
-      () =>
-        new Promise<void>((resolve) =>
-          requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
-        ),
-    );
     await expect(page.locator("html")).toHaveAttribute("lang", "de");
     await page.evaluate(() => {
       window.location.hash = "/app/account";
     });
+    await expect.poll(() => sessionRequests).toBeGreaterThan(0);
+    await expect(page.locator("#account-name")).toHaveCount(0);
+    releaseSession();
     await expect(page.locator("#account-name")).toHaveValue("Late account");
     await expect(page.locator("html")).toHaveAttribute("lang", "lb");
     expect(
@@ -345,19 +334,13 @@ test("the connected account language never replaces the saved anonymous language
   expect(
     await page.evaluate(() => localStorage.getItem("guteneo.locale")),
   ).toBe("lb");
-  const navigation = page.locator(".workspace-navigation");
-  const summary = navigation.locator("summary");
-  if (await summary.isVisible()) {
-    await summary.click();
-    await navigation
-      .getByRole("button", { name: "Sign out", exact: true })
-      .click();
-  } else {
-    await page
-      .locator(".sidebar-footer")
-      .getByRole("button", { name: "Sign out", exact: true })
-      .click();
-  }
+  // V2 signs out from the account menu at every viewport.
+  await page.locator(".workspace-identity-trigger").click();
+  await page
+    .locator(".workspace-identity-menu")
+    .getByRole("button", { name: "Sign out", exact: true })
+    .click();
+  await expect(page).toHaveURL("/");
   await expect(page.locator("html")).toHaveAttribute("lang", "lb");
   expect(
     await page.evaluate(() => localStorage.getItem("guteneo.locale")),
@@ -365,12 +348,14 @@ test("the connected account language never replaces the saved anonymous language
   expect(writes).toEqual(["POST /api/logout"]);
 });
 
-test("translated public and account navigation keep the literal ARIA page value", async ({
+test(`translated public and account navigation keep the literal ARIA page value`, async ({
   page,
 }) => {
   await mockAccount(page, { name: "Camille", preferredLocale: null });
   await page.goto("/assistants/");
-  const publicLink = page.locator('header nav a[href^="/assistants/"]');
+  const publicLink = page.locator(
+    'header .public-desktop-navigation a[href^="/assistants/"]',
+  );
   for (const locale of ["en", "de", "lb"]) {
     await (await publicLanguagePicker(page)).selectOption(locale);
     await expect(publicLink).toHaveCount(1);
@@ -383,8 +368,9 @@ test("translated public and account navigation keep the literal ARIA page value"
   await page.goto("/#/app/account");
   await expect(page.locator("#account-name")).toHaveValue("Camille");
   const accountLink = page.locator(
-    '.workspace-navigation nav a[href="#/app/account"]',
+    '.sidebar-account a.workspace-identity-profile[href="#/app/account"]',
   );
+  await expect(accountLink).toHaveCount(1);
   for (const locale of ["en", "de", "lb"]) {
     await page.locator(".language-preference select").selectOption(locale);
     await page.locator('form.form-panel button[type="submit"]').click();
@@ -393,10 +379,15 @@ test("translated public and account navigation keep the literal ARIA page value"
   }
 });
 
-test("saved account language hydrates every standalone public route without replacing the guest choice", async ({
+test("a saved account hint selects public language without session reads or replacing the guest choice", async ({
   page,
+  context,
+  baseURL,
 }) => {
   await guestLanguage(page, "lb");
+  await context.addCookies([
+    { name: "guteneo_locale", value: "account.en", url: baseURL! },
+  ]);
   let sessionRequests = 0;
   await mockAccount(
     page,
@@ -408,16 +399,20 @@ test("saved account language hydrates every standalone public route without repl
       },
     },
   );
-  const paths = [...publicSite.paths, "/#/app/account"];
-  for (const [index, path] of paths.entries()) {
+  for (const path of publicSite.paths) {
     await page.goto(path);
     await expect(page.locator("html")).toHaveAttribute("lang", "en");
-    await expect.poll(() => sessionRequests).toBe(index + 1);
+    await expect(
+      page.locator('header[data-render-state="interactive"]'),
+    ).toBeVisible();
+    expect(sessionRequests).toBe(0);
     expect(
       await page.evaluate(() => localStorage.getItem("guteneo.locale")),
     ).toBe("lb");
   }
+  await page.goto("/#/app/account");
   await expect(page.locator("#account-name")).toHaveValue("Public account");
+  await expect.poll(() => sessionRequests).toBeGreaterThan(0);
 });
 
 test("saving a name keeps the saved account language separately from the visitor choice", async ({

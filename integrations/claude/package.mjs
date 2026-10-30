@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { lstat, readFile, readdir } from "node:fs/promises";
 import { dirname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
+import { synchronizeClaudeWorkflows } from "../sync-claude-workflows.mjs";
 
 export const claudeMarketplaceRoot = dirname(fileURLToPath(import.meta.url));
 export const claudePluginRoot = join(claudeMarketplaceRoot, "plugins/guteneo");
@@ -12,6 +13,7 @@ export const claudeSkillNames = [
   "get-started",
   "pdf-accessibility",
   "postal-pdf",
+  "secure-distribution",
 ];
 export const claudePluginFiles = [
   ".claude-plugin/plugin.json",
@@ -19,8 +21,10 @@ export const claudePluginFiles = [
   "README.md",
   "assets/guteneo-mark.png",
   "references/claude-host.md",
+  "scripts/upload-private-pdf.py",
   ...claudeSkillNames.map((name) => `skills/${name}/SKILL.md`),
   "skills/document-studio/references/template-authoring.md",
+  "skills/get-started/references/original-pdf-transfer.md",
 ];
 export const claudeMarketplaceFiles = [
   ".claude-plugin/marketplace.json",
@@ -60,6 +64,7 @@ export async function validateClaudePackage({
   marketplaceRoot = claudeMarketplaceRoot,
   repositoryRoot = resolve(claudeMarketplaceRoot, "../.."),
 } = {}) {
+  await synchronizeClaudeWorkflows({ check: true, marketplaceRoot });
   const pluginRoot = join(marketplaceRoot, "plugins/guteneo");
   const release = await json(join(repositoryRoot, "package.json"));
   const plugin = await json(join(pluginRoot, ".claude-plugin/plugin.json"));
@@ -85,17 +90,11 @@ export async function validateClaudePackage({
     release.version,
     "Claude version must match the release",
   );
-  assert.equal(plugin.homepage, "https://guteneo.com/a-propos/?lang=en");
+  assert.equal(plugin.homepage, "https://guteneo.com/about/?lang=en");
   assert.equal(plugin.repository, "https://github.com/nclsppr/guteneo");
   assert.equal(plugin.icon, "./assets/guteneo-mark.png");
-  assert.equal(
-    plugin.privacyPolicyUrl,
-    "https://guteneo.com/confidentialite/?lang=en",
-  );
-  assert.equal(
-    plugin.termsOfServiceUrl,
-    "https://guteneo.com/conditions/?lang=en",
-  );
+  assert.equal(plugin.privacyPolicyUrl, "https://guteneo.com/privacy/?lang=en");
+  assert.equal(plugin.termsOfServiceUrl, "https://guteneo.com/terms/?lang=en");
   assert.equal(plugin.supportUrl, "https://guteneo.com/support/?lang=en");
   assert.equal(typeof plugin.description, "string");
   assert(plugin.description.length > 0);
@@ -173,7 +172,9 @@ export async function validateClaudePackage({
     assert(header[1].includes(`name: ${name}\n`));
     assert(skill.includes("../../references/claude-host.md"));
     assert(
-      !/openai\/fileParams|agents\/openai\.yaml|Dans ChatGPT/.test(skill),
+      !/openai\/fileParams|agents\/openai\.yaml|Dans ChatGPT|In ChatGPT/.test(
+        skill,
+      ),
       "Claude skills must not assume OpenAI file transfer",
     );
   }

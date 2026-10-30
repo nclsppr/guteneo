@@ -360,7 +360,7 @@ try {
         channel: "email",
         recipient: { email: `simulation-${index}@example.invalid` },
         subject: `Simulation HTTP ${index + 1}`,
-        html: "<p>Mesure locale, aucune communication réelle.</p>",
+        html: "<p>Local measurement; no real communication.</p>",
         text: "Mesure locale, aucune communication reelle.",
       },
     });

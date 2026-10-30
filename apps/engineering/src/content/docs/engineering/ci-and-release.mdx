@@ -1,0 +1,473 @@
+---
+title: GitHub checks and release evidence
+description: Understand the actual jobs, their shared artifacts and the independent authorization boundary before deployment.
+sidebar:
+  order: 7
+---
+
+GitHub CI checks proposed source and then checks `main` again. A separate,
+credential-gated workflow can publish an eligible merged dependency update after
+the complete current-main checks succeed. The reviewed revision, required job results, clean build,
+authorized publication and served bytes form a chain of evidence with distinct
+owners and failure states.
+
+[Changes and releases](/engineering/releases/) owns the publication/recovery
+sequence. This page maps the implementation of that sequence to the workflows
+and explains how to maintain it when services or dependencies change.
+
+## What the application workflow runs
+
+`Guteneo checks` runs on every pull request and `main` push without application
+path filters. Shared contracts, mobile API routes, migrations and npm dependencies
+can affect more than their immediate directory, so they retain complete coverage.
+
+| Job family             | Responsibility                                                                                                                                                                                                                | Evidence boundary                                                      |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| Dependency preflight   | Locked installation, supported MCP peers/template engine/transport and high-severity audit before root matrices                                                                                                               | Unsupported graphs fail before costly jobs; all suites remain required |
+| Private services       | Scanner and PDF-validator type/behavior tests                                                                                                                                                                                 | Local service contracts, not hosted engine freshness                   |
+| Checks                 | Type/lint (including web application boundaries and design rules), dependency audit, generated docs, language/route standards, MCP/package freshness, MCP annotations, migration equivalence, cost model and narration checks | Repository consistency for that revision                               |
+| Four Vitest shards     | Sequential isolated domain/integration files and restore evidence                                                                                                                                                             | Deterministic local database/provider fixtures                         |
+| Security and renderer  | Browser-backed document rendering and Node security guards                                                                                                                                                                    | Actual local Chromium processing plus controlled refusal paths         |
+| Build                  | Main, live, preview and status builds; Worker dry runs                                                                                                                                                                        | Buildable artifacts/configuration without publication                  |
+| Browser matrix         | Three isolated shards per desktop/mobile Chromium and iPhone WebKit profile; applicable preview, Belvédère and status suites                                                                                                  | Same-run application artifacts and fictional local data                |
+| Distribution profiles  | Isolated strong and verified-account lifecycles on desktop/phone                                                                                                                                                              | Separate synthetic identity policies, no real Auth0 or delivery        |
+| Engineering            | Independent dependency install/audit, content checks, static build, browsers and asset-only dry run                                                                                                                           | Documentation release surface only                                     |
+| Aggregate verification | Required dependencies and current-run reports                                                                                                                                                                                 | Missing, failed, skipped or cancelled required work is not success     |
+
+Browser/distribution jobs download the build from the same GitHub revision rather
+than rebuilding assets concurrently. Distribution reports require complete
+execution on both targets without skips, flaky results or model calls; a separate
+privacy guard checks every upload path before evidence is archived. Do not weaken
+these assertions to make a partial run green.
+
+When shared navigation or localized product terminology changes, update the
+independent distribution fixtures as well as the Playwright matrix. Use the
+current complete visible label and open the shared account menu before selecting
+its actions. Preserve negative privacy assertions too: checking that an obsolete
+message is absent does not prove that the current message is absent. Rerun both
+identity-policy profiles against fresh isolated state; a corrected selector never
+justifies reducing lifecycle coverage, increasing retries or bypassing the
+artifact privacy guard.
+
+The shared CI artifact includes prerendered public pages. Account-language
+boundary fixtures should start from an explicit public language when automatic
+server/browser resolution is outside their assertion; assuming a bare Vite
+document can make a locally passing fixture fail against the canonical build.
+Public-preview tests retain separate automatic-language coverage.
+
+Freeze time-based browser fixtures at a deliberate UTC instant. Status-cache
+expiry tests use midday so their fifteen-minute advance cannot accidentally
+exercise the separate midnight invalidation rule. Keep a distinct boundary case
+for each clock-dependent condition and preserve the exact request-count checks.
+
+The build job creates its final non-preview frontend once with `build:live`
+before the local, private-document and live Worker dry runs. This reuses the
+same Vite and integration-package validation while retaining the release
+snapshot, canonical pages and manifest that already supplied the final artifact.
+The separate preview and status builds and all four Worker dry runs remain.
+Documentation checks execute through `docs:check`; its feature-atlas and MCP
+annotation checks are not repeated as separate steps. Removing a duplicate
+invocation never removes its underlying guard.
+
+The source workflows and result verifier own exact job names, matrix entries and
+expected counts. A future matrix change must update both, its tests and this
+explanation together. A configured job is not proof that its latest execution
+succeeded.
+
+An integration that launches actual Chromium belongs in the browser-equipped
+`security` job. Install Chromium there before execution, exclude the same file
+from the four ordinary Vitest shards and retain its one native blob result in
+aggregate verification. The secure-distribution/Resend journey follows this path:
+its actual PDF renderer needs the executable even though Resend HTTP is
+intercepted. A local browser cache cannot qualify a clean hosted runner.
+
+The CI routing regression discovers integration files with browser launches and
+checks both execution placement and the complete exclusion/execution partition.
+When moving a suite, preserve its assertions and the final discovered-file
+inventory. On setup failure, retain the failed revision and logs, repair the
+declared dependency and run the corrected revision; skipping the suite or treating
+an installed browser as delivery proof does not recover the gate.
+
+## Dependency compatibility and application redelivery
+
+Routine npm version updates remain minor/patch with a seven-day cooldown.
+Security updates have separate coupled-family groups and no cooldown; they may cross a
+major version, but exact MCP peer and PDFme engine holds also affect automatic
+security proposals and require reviewed migrations. Coupled families stay grouped;
+the dependency check compares the actual lockfile with Agents peers, the declared
+template engine and patched Miniflare transport. Package/lock-only changes keep
+full CI without inventing new product features or documentation changes.
+
+The separate dependency-release workflow verifies successful complete CI for the
+exact current `main` push, a genuinely merged Dependabot PR and dependency-only
+files. Only root npm changes qualify for application publication. Service-only
+and workflow-action changes retain their separate release scope. MCP dependency
+changes, including lockfile-only upgrades, also require the
+existing synchronized application/plugin/archive release procedure; it is reported
+as requiring synchronization before publication. A dedicated
+application release token is mandatory; the scanner credential is insufficient.
+The dedicated credential was installed on 29 October. The workflow remains a
+source candidate until authorized merge, current-main checks and its first hosted
+publication are qualified; credential storage alone is no release proof.
+
+Publication is serialized, rechecks current `main` and calls the existing clean
+main release command. Exact anonymous served-byte verification follows publication;
+the scheduled public browser monitor remains separate. Failure remains failure; no automatic merge, schema
+migration, provider send or retry is introduced. The
+[maintenance contract](https://github.com/nclsppr/guteneo/blob/main/docs/DEPENDENCY_UPDATES.md)
+owns the observed failures, compatibility holds, activation and recovery steps.
+
+## Keep browser icons bound to their source
+
+`packages/contracts/src/brand-icons.json` defines the approved browser-icon
+family and canonical URL. `scripts/brand-icons.mjs` copies or compares the five
+source files in `apps/web/public`. The status build copies those exact bytes
+after its ordinary public assets; its release source scope includes the contract,
+helper and product files.
+The engineering builder checks its public copies before compilation and built
+copies afterward. Missing or different bytes fail the build. Its source snapshot
+also includes the helper and product icon paths, while each output manifest
+records the resulting files normally.
+
+When the approved icon family changes, update engineering's public copies from
+the source, run the independent builds and preserve both source and output
+checks. Do not suppress a mismatch or regenerate different artwork. After an
+authorized publication, compare the served icon bytes and inspect browser
+behavior separately; a local equality check cannot prove deployment or clear a
+browser cache. These static assets add no backend binding or provider authority.
+
+## Build the status browser runtime from its sources
+
+`scripts/build-status.mjs` generates `app.bundle.js` from the status message
+catalog, shared footer catalog, localization runtime and application, in that
+order. The existing locked esbuild dependency minifies this one deferred browser
+script. The loopback preview uses the same helper; do not maintain a separate
+runtime or edit the generated bundle. Original script assets remain available
+for documents opened before a publication.
+
+The status source fingerprint includes the builder and root package/lockfile;
+the release manifest records the generated bundle's exact bytes. Early script
+and font resource hints change request ordering only. The build adds no Worker
+binding, database migration or collection schedule. Rebuild after a catalog or
+runtime edit and verify the manifest plus served bytes after authorized
+publication. The [status loading contract](https://github.com/nclsppr/guteneo/blob/main/docs/STATUS_SERVICE.md)
+owns request caching, history freshness, deferred tables and measured limits.
+
+The status collector and Node monitor share the bounded opening-element language
+parser in `packages/contracts/src/public-html-language.ts`. Compare the actual
+language value after exact byte/hash verification; never require a literal
+`<html lang="fr">` string, because valid presentation attributes can follow it.
+Wrong or ambiguous language remains a failure. The parser joins the status
+source fingerprint and has regressions for current generated HTML. On 28 October
+the published pages passed all fourteen browser journeys but this old literal
+check rejected seven HTTP observations; the parser correction is a separate
+source candidate until its CI and served publication are verified. No collector
+schedule, permission, provider operation or report-ingestion gate changes.
+
+## Retain the right evidence after a manual rerun
+
+GitHub may retain several immutable artifacts with the same logical name after a
+job is manually rerun. The workflow resolves current-run metadata first, then
+passes exact IDs to the existing download action. It retains every remote
+attempt and does not retry tests automatically. Report digests, execution identity
+and the independent inventory remain mandatory; a newer failing report cannot
+be replaced with an older passing one.
+
+The [repository CI contract](https://github.com/nclsppr/guteneo/blob/main/docs/CI.md#manual-reruns-and-artifact-identity)
+owns timestamp selection, pagination, provenance, scoped read permissions and
+failure handling. An inaccessible, ambiguous, expired or invalid latest artifact
+blocks qualification. Inspect and preserve the failed run before recovery; do
+not delete artifacts or bypass the aggregate gate. Metadata selection tests are
+local contract evidence; the corrected PR and merged revision still require full
+hosted checks before an authorized release.
+
+## Keep the downloadable plugin synchronized
+
+The existing `checks` job runs `npm run check:integrations` after dependency
+installation. It compares the current MCP entrypoint/direct local imports and
+packaged files with the reviewed synchronization record, including the shared
+application/plugin release version. This is an added consistency step, not a new
+job or permission. Package builders apply the same gate before writing archives.
+
+A missing or stale record stops the build. Review the affected contract and
+instructions, regenerate host copies, increase the synchronized release version,
+then refresh the record and rerun the checks. The
+[MCP package maintenance contract](/integrations/mcp/#package-instructions-have-one-maintained-source)
+explains the boundary; indirect behavior still needs review.
+
+Application and preview builds regenerate the ZIP and version/hash manifest.
+Their release source scopes include the MCP implementation inputs, and asset
+verification covers the generated bytes. Browser fixtures check static downloads
+without a business API request. Rebuilding these artifacts grants no portal,
+production, OAuth or sending authority. After a rebase, checks of the earlier
+base remain historical; revalidate the combined source before publication.
+
+## Verify the diagnostic resource as a normal release asset
+
+The MCP Apps diagnostic adds one generated source-text asset,
+`/mcp-ui-probe/v1.txt`. `scripts/build-mcp-ui-probe.mjs` bundles the official App
+client and local diagnostic sources, then records the exact bytes and SHA-256 in
+`packages/contracts/src/mcp-ui-probe-resource.json` and derives the App resource
+URI from the completed shell's digest. The Vite build checks that
+record and the pinned prebundle/complete runtime notices before emitting the
+asset. Notice provenance accounts for vendored code absent from downstream
+esbuild metadata; preserve those texts unchanged when refreshing the SDK. Both application and preview release source
+scopes include the probe directory, builder and shared contracts; their ordinary
+asset manifests include the generated text. Keep it in full served-byte
+verification, with no private-resource exception.
+
+The exact public path serves `text/plain; charset=utf-8`, `nosniff` and `noindex`
+headers. The release verifier checks these headers in addition to the normal
+size/hash comparison, and preview retains the same inert representation. Header
+verification cannot replace byte verification: either a changed MIME boundary or
+different generated bytes blocks qualification. This adds no publication or
+activation authority and requires no general `/mcp` route change.
+
+The authenticated MCP resource separately verifies the fixed asset bytes and
+current connection before returning App HTML. The
+[probe contract](https://github.com/nclsppr/guteneo/blob/main/docs/MCP_UI_CAPABILITY_PROBE.md)
+owns that delivery boundary, temporary activation, permissions, maintenance and
+actual-host checkpoint. A build, local SDK fixture or public text-asset check
+establishes no Claude rendering, original attachment handoff or file transfer.
+
+The third Chromium shard also runs the standalone four-language official-SDK
+fixture in `tests/browser/mcp-ui-probe.test.mjs`, after browser installation.
+Its single Node test checks four localized contexts, one empty bridge call per
+context and no external requests or file access. Failure fails that required
+browser job without retry; the generated measurements and screenshots accompany
+its evidence artifact. This SDK fixture is separate from the Playwright project
+inventory and does not qualify an actual hosted connector or physical device.
+Both App SDK fixture files retain one execution and the same report directories
+in that shard's immutable artifact. This moves 47 seconds observed in the
+baseline first-shard critical path, or 43 seconds in the next successful PR run,
+onto a less loaded row; a new complete run must qualify any wall-time effect.
+
+The subsequent selected-original App is a separate default-off resource and
+transport. Apply and verify additive migration 0063 **before publishing the new
+application code**, including releases with the App flag off. Existing uploads
+default to binary transport, preserving binary/inline compatibility. The minute
+cron invokes new staging cleanup unconditionally, so flag removal still cleans
+abandoned work. A missing schema fails that scheduled invocation before later
+maintenance; an off flag cannot protect it. Recover through the reviewed migration
+or a compatible code rollback, never cleanup bypass or App activation. Preserve
+the same immutable
+resource-byte/App-MIME boundary for its bundle and include its source, builder,
+manifest and inert text asset in ordinary release fingerprints and served-byte
+checks. Review the five App-only schemas, opener, annotations, private staging
+cleanup and package instructions together; rebuild the synchronized archive for
+the newer release rather than refreshing a stale record around unfinished code.
+Its temporary exact-connection/revision qualification window and its separately
+explicit reviewed general rollout are distinct from publication and the
+no-content probe. Source/package availability activates neither. The
+[transport contract](https://github.com/nclsppr/guteneo/blob/main/docs/PRIVATE_DOCUMENT_UPLOAD.md)
+owns the controls. Local server/SDK/resource fixtures and a diagnostic Desktop
+chooser cancellation establish no normal-size original, host payload privacy or
+physical-device pass. [MCP integration](/integrations/mcp/) explains the distinct
+selection, transfer and readiness checkpoints.
+
+The 1.1.8 source candidate imports the original-picker resource descriptor
+directly into the MCP entrypoint, as already done for the probe descriptor.
+Changed pinned App bytes, digest and resource URI therefore enter the normal
+direct-import MCP fingerprint rather than depending only on an indirect adapter.
+The shared descriptor remains authoritative for opener metadata and resource
+delivery. Integration-sync regression coverage changes its pinned hash, requires
+stale-record and same-version refusal, then exercises the ordinary newer-release
+path. This is release-consistency evidence, not a deployed 1.1.8 or actual-host
+model-context handoff. It changes no API input, scope, TTL or part bound.
+
+## Shorten the critical path without dropping coverage
+
+The three browser profiles each run in three independent jobs. Application and
+applicable preview tests retain their complete file partition across those jobs;
+each job still uses one worker, isolated local D1/R2 state and its own servers.
+Belvédère runs on the first shard of each applicable desktop/iPhone profile, and
+status runs on the desktop first shard. No authentication or provider fixture is
+shared between runners, and every shard consumes the same-revision build.
+
+Reports and artifact names include the project and shard. The final gate lists
+the complete unsharded inventory independently and compares it with the union
+of reported test IDs. A missing, duplicated or unexpected test, missing shard or
+invalid report blocks success. Existing intentional test skips are accounted for
+without treating a skipped required job as success. Each skip is declared in
+`scripts/ci/browser-results.mjs` with its exact suite, projects, file, title and
+reason; a new desktop-only check needs its own entry. Browser assertions, sandbox
+setup and the WebKit media pipeline remain intact; there is no automatic retry,
+path filter or publication shortcut.
+
+Skip declarations match the exact suite, project, file, title and reason. When a
+scenario is renamed or split, compare every declaration with fresh independent
+inventories and replay the verifier against the original current-run reports.
+The Classic/V2 mobile navigation scenarios now run in desktop Chromium and iPhone
+WebKit, so their former desktop exception is removed. The remaining explicit
+exceptions and the rejection of obsolete declarations stay enforced; do not add
+a waiver for a scenario that now executes on both profiles. A local evidence
+replay qualifies the registry correction, not a new hosted CI run or release.
+
+The observed pre-sharding main run spent most of its browser critical path on
+sequential application and preview tests in the iPhone job. The completed
+[26 October main run](https://github.com/nclsppr/guteneo/actions/runs/40254684422)
+qualifies the nine-job partition with its full independent inventory and all
+required jobs passing on one attempt. The repository's CI guide owns the dated
+baseline, wall-time comparison and measurement limits. Parallel execution repeats
+setup and may use more runner minutes; available runners, downloads and test-file
+balance still affect later runs. Compare complete exact-source runs before
+claiming further gains. Synthetic report guards qualify completeness handling,
+not hosted execution, authentication or deployment.
+
+When a generated-record browser case fails, preserve its terminal state and
+transport trace before another execution. Local simulation emits only bounded
+failure phase/category metadata to the captured error channel; production does
+not. A same-source macOS pass cannot explain an earlier Linux partial batch.
+The XML test still requires both original PDFs and zero sending; terminal
+failure stops polling without weakening those assertions. See
+[testing evidence](/engineering/testing/) for the dated unexplained incident.
+
+V2 consent and fax-ceiling qualification share one actual input gesture: trusted
+touch/keys on touch projects and one desktop fill, with exact value/focus checks.
+V2 additionally checks retention after unchanged real document/sender replies;
+fax retains its original timing and exact normalized phone/150-cent assertions.
+Neither refills a missing value, weakens consent, extends timeouts or infers a
+product-state cause from the failed input traces. The
+[testing guide](/engineering/testing/) keeps the distinct incidents and limits.
+
+Maintain `scripts/ci/browser-results.mjs`, the workflow matrix and its security
+tests together. Adding a browser, suite or shard requires the matching inventory,
+report and artifact contract. A new `test.skip` for a project needs its own
+registry entry whose reason matches the skip description exactly; otherwise
+`verify` rejects the run even when every browser job passed. Keep the final `verify` dependency and protected
+`scanner` check, and retain merged-main CI before an authorized publication.
+
+## Install the dependency tree actually used by each job
+
+Root tools use the root lockfile and `npm ci`. Scanner, PDF validator and engineering
+have their own package/lockfile boundaries. The engineering job installs both
+root dependencies and `apps/engineering` dependencies; it cannot rely on a
+previous developer checkout. CI currently uses Node 24. Engineering requires
+Node 22.23.4+ or a supported Node 24+ version.
+
+Browser-backed jobs install their required engines and Linux dependencies.
+Installing Chromium for a renderer is distinct from installing an independent
+browser-test framework's engine. Keep sandbox/dependency setup intact. A download
+failure before assertions is setup failure, not product qualification and not a
+reason to silently omit the suite.
+
+Every job that installs Ubuntu packages, including engineering, first runs
+`scripts/ci/ubuntu-mirrors.mjs`. It only lowers the Azure mirror's priority in the
+runner's recognized mirror list; the official HTTPS archives, signed packages,
+suites and Azure fallback remain available. An unexpected mirror configuration
+stops setup rather than silently rewriting repositories. On 25 October the
+engineering job's missing setup left package downloads on Azure for more than
+twelve minutes before any browser assertion. The corrected workflow needs fresh
+exact-source results; neither that delay nor a cancelled run qualifies the site.
+
+The sparse checkout omits immutable historical film archives and screenshots,
+while retaining current source, tests, narration and assets needed to reproduce
+checks. Cache entries accelerate installation; lockfiles and fresh installation
+remain authoritative.
+
+Shared browser harnesses are retained under `tests/fixtures/`, including the
+deferred-frame fixture used by account and mobile focus tests. The final job
+discovers tests again from its narrower checkout before comparing evidence;
+passing browser jobs cannot compensate for a missing source import. The
+[CI source contract](https://github.com/nclsppr/guteneo/blob/main/docs/CI.md)
+owns the exact sparse-inventory maintenance check.
+
+## Native and public monitoring are separate workflows
+
+`Guteneo iOS` runs native XCTest/archive for changes under `ios/**` or its workflow,
+plus manual dispatch. If a future native dependency moves elsewhere, update both
+native path filters. A web build does not qualify simulator, physical-device or
+App Store behavior.
+
+The scheduled production workflow observes fixed anonymous public pages/contracts
+every six hours. Its version-bound sanitized report is separate from PR tests,
+business authentication and provider delivery. An absent, stale or mismatched
+report cannot qualify current production; opening the status page launches no
+test. See [testing boundaries](/engineering/testing/).
+
+## Build the customer status surface from its actual inputs
+
+The 25 October interface candidate reduces public status to current public-access
+observations and recorded availability history. It reads the latest status and
+selected history on opening or refresh, then every fifteen minutes while visible.
+Its customer page no longer reads browser reports or local qualification files.
+This removes two initial dynamic reads; it changes no collector, report API,
+ingestion authority or business capability. Missing or stale observations remain
+unknown, and provider qualification remains separate from public access.
+
+The shared public footer is authored once in
+`packages/contracts/src/public-footer.json`. The status build validates all four
+languages and emits a small static `footer.js`; the local preview derives it from
+the same source. Status does not add a React runtime or a second authored catalog.
+The footer JSON participates in the status source fingerprint, and generated
+footer bytes participate in its asset manifest. A footer change therefore needs
+the affected status build and canonical-link/locale checks as well as the main
+website checks. Do not copy generated footer output back into source.
+
+Public artwork is also a real build input. The current candidate uses shared
+native theme-media selection and responsive editorial pictures, dedicated RGBA
+dark derivatives and a transparent-outer-edge footer stamp. Original light art
+and the opaque official stamp remain separate. Preserve the derivative source,
+prompt, alpha/conversion metadata and hashes; they establish provenance, not
+served bytes. Do not reuse earlier framed-artwork or opaque-derivative screenshots
+to qualify the latest source. Main-site and status asset manifests must each
+describe the exact files they publish.
+
+The dedicated status release still requires clean reviewed `main`, its own
+migrations, source and asset checks, and explicit publication authority. The
+source-bound local qualification gate remains active even though the customer
+page no longer displays that report. A passing synthetic status view, an existing
+public history read or a local replay cannot establish publication of new assets.
+After authorized publication, verify served manifest bytes, four-language/theme
+behavior, shared footer destinations, actual history and fresh collection
+independently. Keep the [status recovery contract](/engineering/troubleshooting/)
+and [design system](/engineering/design-system/) synchronized with these surfaces.
+
+## CI success is a prerequisite, not deployment authority
+
+After an authorized merge, examine required results for the actual merged
+revision. An earlier PR run does not prove the merge commit. Project release
+guards then check the intended clean source and generated artifacts; they do not
+replace GitHub review or operator authorization.
+
+Application, preview, status, engineering and private-service publication each
+have their own bindings and verification. No documentation job should receive
+business database, storage, identity or send credentials. No price refresh should
+silently deploy an unrelated application change. No workflow should provision
+paid infrastructure or submit a communication merely to produce a green badge.
+
+## Maintain the pipeline with the change
+
+When changing a workflow, Node/browser version, lockfile, Cloudflare binding,
+private service or provider contract:
+
+1. Update the relevant workflow, result verifier and meaningful behavior guards.
+2. Update the feature registry and the affected engineering guide in the same
+   change; explain any new capability or evidence boundary.
+3. Prove fresh dependency installation and all affected jobs on the exact source.
+4. Preserve failed attempts and distinguish setup failures from assertions.
+5. Record separately the authorized publication and exact served verification.
+
+[Provider maintenance](/engineering/provider-maintenance/) applies the same
+source/evidence discipline to tariff expiry, callbacks and external contracts.
+[Background jobs](/engineering/background-jobs/) explains why successful queue
+processing never grants approval or permission to retry uncertain sends.
+
+## Verify the served application before completing publication
+
+The live wrapper follows a successful Wrangler deployment with the existing
+anonymous release verifier, fixed to the canonical application and its locally
+validated release manifest. Source, asset bytes/hashes, robots policy and security
+headers must match. If verification fails, the process reports
+`RELEASE_VERIFICATION_FAILED`; the deployment already occurred and remains
+unverified. Do not treat the failure as permission for automatic rollback or a
+second deployment. Preview publication retains its separate fixture contract.
+
+This adds no credentials or provider transaction. The secure invitation
+integration suite exercises the actual local renderer, durable approval/outbox,
+live bridge and signed callback projection using intercepted Resend HTTP. It
+previously reproduced a retention-versus-transport reservation mismatch that
+isolated adapter tests missed. Such a passing source test does not establish
+actual Auth0 SSO, mailbox receipt, fax delivery or postal fulfillment. Real
+canaries require separately authorized dedicated identities, destinations,
+limits and signed/reconciled outcomes.

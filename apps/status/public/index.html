@@ -1,48 +1,90 @@
 <!doctype html>
-<html lang="fr">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#2450db" />
+    <meta name="color-scheme" content="light dark" />
     <meta
       name="description"
-      content="Disponibilité de guteneo, contrôles automatiques et historique du service."
+      content="Guteneo availability and service history."
+      data-i18n-content="Guteneo availability and service history."
     />
-    <title>guteneo — État du service</title>
-    <link rel="icon" href="assets/logo.webp" />
-    <link rel="stylesheet" href="style.css" />
-    <script src="app.js" defer></script>
-    <script src="seasonal.js" defer></script>
+    <title>guteneo — Service status</title>
+    <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      sizes="any"
+      href="/favicon.svg?brand=20260917"
+    />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="preload" href="/app.bundle.js" as="script" />
+    <link
+      rel="preload"
+      href="/assets/plex.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="/assets/plex-semibold.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="/assets/garamond-medium.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/style.css" />
+    <script src="/app.bundle.js" defer></script>
   </head>
   <body>
-    <canvas
-      id="season-canvas"
-      class="season-canvas"
-      aria-hidden="true"
-    ></canvas>
-    <p id="preview-banner" class="preview-banner" hidden>
-      Prévisualisation locale · ces données ne constituent pas la preuve du
-      service publié.
-    </p>
-    <a class="skip" href="#contenu">Aller au rapport</a>
+    <a class="skip" href="#content" data-i18n="Skip to status"
+      >Skip to status</a
+    >
     <header class="masthead wrap">
-      <a class="brand" href="/" aria-label="guteneo, début du rapport"
-        ><img src="assets/logo.webp" alt="" width="38" height="38" /><span
+      <a
+        class="brand"
+        href="https://guteneo.com"
+        data-public-link
+        aria-label="guteneo"
+        ><img src="/assets/logo.webp" alt="" width="36" height="36" /><span
           >guteneo</span
         ></a
-      ><span class="report-label">État du service</span
-      ><a class="source-link" href="https://guteneo.com">Ouvrir guteneo</a>
+      >
+      <a
+        class="return-link"
+        href="https://guteneo.com"
+        data-public-link
+        data-i18n="Open Guteneo"
+        >Open Guteneo</a
+      >
     </header>
-    <main id="contenu" class="wrap" tabindex="-1">
+    <main id="content" class="wrap" tabindex="-1">
+      <p
+        id="preview-banner"
+        class="preview-banner"
+        hidden
+        data-i18n="Local preview · sample data"
+      >
+        Local preview · sample data
+      </p>
       <div class="page-heading">
-        <div>
-          <h1>État du service</h1>
-          <p>La disponibilité observée et l’historique du service.</p>
-        </div>
-        <button id="refresh" class="button" type="button">
-          Relire la mesure
+        <h1 data-i18n="Service status">Service status</h1>
+        <button id="refresh" type="button" class="button" data-i18n="Refresh">
+          Refresh
         </button>
       </div>
-      <section aria-label="Bilan de la dernière observation" class="overview">
+      <section class="overview" aria-labelledby="state-title">
         <div
           id="live-state"
           class="live-state"
@@ -50,679 +92,302 @@
           role="status"
           aria-live="polite"
         >
-          <span class="state-dot" aria-hidden="true"></span>
+          <span class="state-symbol" aria-hidden="true"
+            ><svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path class="symbol-pass" d="m5 12 4 4L19 6" />
+              <path class="symbol-other" d="M12 7v6m0 3v1" /></svg
+          ></span>
           <div>
-            <strong id="state-title">Lecture de la dernière mesure…</strong>
-            <p id="state-detail">Lecture du service de mesure.</p>
-          </div>
-          <span id="freshness-label" class="freshness-label">En attente</span>
-        </div>
-        <div class="summary-grid" id="summary-grid" data-current="false">
-          <div class="summary-block">
-            <div class="summary-heading">
-              <h2>Contrôles publics</h2>
-              <span id="public-total">— contrôles</span>
-            </div>
-            <div class="totals">
-              <button type="button" data-shortcut="pass" class="metric success">
-                <strong id="passed-count">—</strong><span>Réussis</span></button
-              ><button
-                type="button"
-                data-shortcut="fail"
-                class="metric failure"
-              >
-                <strong id="failed-count">—</strong><span>En écart</span>
-              </button>
-            </div>
-            <p>Site public, configuration annoncée et protection des accès.</p>
-          </div>
-          <div class="summary-block monitoring-cadence">
-            <div class="summary-heading"><h2>Surveillance automatique</h2></div>
-            <p class="cadence-value">Toutes les 15 minutes</p>
-            <p>Retrouvez leur synthèse quotidienne dans l’historique.</p>
+            <h2 id="state-title" data-i18n="Checking availability…">
+              Checking availability…
+            </h2>
+            <p id="state-detail" data-i18n="Reading the latest observation.">
+              Reading the latest observation.
+            </p>
           </div>
         </div>
-        <div class="measurement">
-          <span id="proof-caption">Dernière mesure</span
-          ><time id="checked-time">En attente</time
-          ><span id="measure-age">Âge inconnu</span
-          ><span>Source : observation publique</span>
-        </div>
+        <p class="measurement">
+          <span data-i18n="Last checked">Last checked</span>
+          <time id="checked-time" data-i18n="Pending">Pending</time>
+        </p>
+        <ul
+          class="service-list"
+          aria-label="Monitored services"
+          data-i18n-aria="Monitored services"
+        >
+          <li>
+            <span data-i18n="Public website">Public website</span
+            ><span
+              id="service-pages-state"
+              class="service-state unknown"
+              data-i18n="Pending"
+              >Pending</span
+            >
+          </li>
+          <li>
+            <span data-i18n="Service response">Service response</span
+            ><span
+              id="service-api-state"
+              class="service-state unknown"
+              data-i18n="Pending"
+              >Pending</span
+            >
+          </li>
+          <li>
+            <span data-i18n="Access protection">Access protection</span
+            ><span
+              id="service-access-state"
+              class="service-state unknown"
+              data-i18n="Pending"
+              >Pending</span
+            >
+          </li>
+        </ul>
       </section>
-      <div class="tabs" role="tablist" aria-label="Vues du rapport">
-        <button
-          type="button"
-          id="tab-service"
-          role="tab"
-          aria-selected="true"
-          aria-controls="panel-service"
-          tabindex="0"
-          data-tab="service"
+      <section class="history-panel" aria-labelledby="history-title">
+        <div class="history-heading">
+          <h2 id="history-title" data-i18n="Availability history">
+            Availability history
+          </h2>
+          <fieldset class="history-periods">
+            <legend class="sr-only" data-i18n="History period">
+              History period
+            </legend>
+            <button
+              type="button"
+              data-days="7"
+              aria-pressed="false"
+              data-i18n="7 days"
+            >
+              7 days</button
+            ><button
+              type="button"
+              data-days="30"
+              aria-pressed="true"
+              data-i18n="30 days"
+            >
+              30 days</button
+            ><button
+              type="button"
+              data-days="365"
+              aria-pressed="false"
+              data-i18n="1 year"
+            >
+              1 year
+            </button>
+          </fieldset>
+        </div>
+        <p
+          id="history-state"
+          class="history-state"
+          role="status"
+          aria-live="polite"
+          data-i18n="Loading history…"
         >
-          <img
-            src="assets/icon-pulse.svg"
-            class="ui-icon"
-            alt=""
-            width="24"
-            height="24"
-          />Service</button
-        ><button
-          type="button"
-          id="tab-verification"
-          role="tab"
-          aria-selected="false"
-          aria-controls="panel-verification"
-          tabindex="-1"
-          data-tab="verification"
-        >
-          <img
-            src="assets/icon-shield.svg"
-            class="ui-icon"
-            alt=""
-            width="24"
-            height="24"
-          />Vérifications</button
-        ><button
-          type="button"
-          id="tab-operations"
-          role="tab"
-          aria-selected="false"
-          aria-controls="panel-operations"
-          tabindex="-1"
-          data-tab="operations"
-        >
-          <img
-            src="assets/icon-wrench.svg"
-            class="ui-icon"
-            alt=""
-            width="24"
-            height="24"
-          />Exploitation
-        </button>
-      </div>
-      <section
-        id="panel-service"
-        role="tabpanel"
-        aria-labelledby="tab-service"
-        tabindex="0"
-        class="panel"
-      >
-        <section class="monitored-panel" aria-labelledby="monitored-title">
-          <div class="panel-heading">
-            <h2 id="monitored-title">Services surveillés</h2>
-            <a href="#verification">Voir les vérifications</a>
-          </div>
-          <ul class="monitored-services">
+          Loading history…
+        </p>
+        <div
+          id="history-chart"
+          class="history-chart"
+          role="group"
+          aria-label="Availability history"
+          data-i18n-aria="Availability history"
+        ></div>
+        <div class="history-caption">
+          <span id="history-range"></span>
+          <ul
+            class="legend"
+            aria-label="History legend"
+            data-i18n-aria="History legend"
+          >
             <li>
-              <div>
-                <h3>Site et pages publiques</h3>
-                <p>Accueil dans les quatre langues et guides d’utilisation.</p>
-              </div>
-              <span id="service-pages-state" class="badge historical"
-                >En attente</span
-              >
+              <i class="success" aria-hidden="true"></i
+              ><span data-i18n="Passing">Passing</span>
             </li>
             <li>
-              <div>
-                <h3>Services web</h3>
-                <p>Réponse de l’API, version et configuration publiées.</p>
-              </div>
-              <span id="service-api-state" class="badge historical"
-                >En attente</span
-              >
+              <i class="attention" aria-hidden="true"></i
+              ><span data-i18n="Issue detected">Issue detected</span>
             </li>
             <li>
-              <div>
-                <h3>Protection des accès</h3>
-                <p>
-                  Refus des accès sans connexion aux documents, envois et
-                  assistants.
-                </p>
-              </div>
-              <span id="service-access-state" class="badge historical"
-                >En attente</span
-              >
+              <i class="unknown" aria-hidden="true"></i
+              ><span data-i18n="No data">No data</span>
+            </li>
+            <li>
+              <i class="partial" aria-hidden="true"></i
+              ><span data-i18n="Partial data">Partial data</span>
             </li>
           </ul>
-          <p class="section-note">
-            Ces contrôles surveillent les accès publics. Ils ne réalisent aucun
-            envoi. Le suivi de vos documents reste disponible dans votre
-            atelier.
-          </p>
-        </section>
-        <section class="history-panel" aria-labelledby="history-title">
-          <div class="panel-heading">
-            <h2 id="history-title">
-              <img
-                src="assets/icon-chart.svg"
-                class="ui-icon"
-                alt=""
-                width="24"
-                height="24"
-              />Historique des contrôles
-            </h2>
-            <fieldset class="filters history-periods">
-              <legend class="sr-only">Période de l’historique</legend>
-              <button type="button" data-days="7" aria-pressed="true">
-                7 jours</button
-              ><button type="button" data-days="30" aria-pressed="false">
-                30 jours</button
-              ><button type="button" data-days="365" aria-pressed="false">
-                1 an
-              </button>
-            </fieldset>
-          </div>
-          <p
-            id="history-state"
-            class="explanation"
-            role="status"
-            aria-live="polite"
-          >
-            Lecture de l’historique…
-          </p>
-          <dl class="history-totals">
-            <div>
-              <dt>Mesures réussies</dt>
-              <dd id="history-availability">—</dd>
-            </div>
-            <div>
-              <dt>Couverture des mesures</dt>
-              <dd id="history-coverage">—</dd>
-            </div>
-            <div>
-              <dt>Latence moyenne observée</dt>
-              <dd id="history-latency">—</dd>
-            </div>
-          </dl>
+        </div>
+        <p
+          id="history-selection"
+          class="history-selection"
+          role="status"
+          aria-live="polite"
+          data-i18n="Choose a day to see its observations."
+        >
+          Choose a day to see its observations.
+        </p>
+        <details class="daily-details">
+          <summary data-i18n="View daily history">View daily history</summary>
           <div
-            id="history-chart"
-            class="history-chart"
-            role="img"
-            aria-label="Historique en attente de données."
-          ></div>
-          <div class="history-caption">
-            <span id="history-range">Journées en UTC</span
-            ><span
-              ><i class="legend-dot success" aria-hidden="true"></i>Réussite
-              <i class="legend-dot pending" aria-hidden="true"></i>Écart
-              <i class="legend-dot disabled" aria-hidden="true"></i>Sans
-              mesure</span
-            >
+            class="table-scroll"
+            tabindex="0"
+            role="region"
+            aria-label="Daily history"
+            data-i18n-aria="Daily history"
+          >
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col" data-i18n="Date (UTC)">Date (UTC)</th>
+                  <th scope="col" data-i18n="Passing checks">Passing checks</th>
+                  <th scope="col" data-i18n="Recorded / expected">
+                    Recorded / expected
+                  </th>
+                </tr>
+              </thead>
+              <tbody id="history-rows"></tbody>
+            </table>
           </div>
-          <p id="history-start" class="section-note">
-            L’historique commence à l’activation de la collecte. Les jours
-            précédents restent sans données.
-          </p>
-          <details class="history-details">
-            <summary>Consulter les mesures quotidiennes</summary>
-            <div
-              class="table-scroll"
-              tabindex="0"
-              role="region"
-              aria-label="Mesures quotidiennes"
-            >
-              <table>
-                <thead>
-                  <tr>
-                    <th scope="col">Date UTC</th>
-                    <th scope="col">Réussite observée</th>
-                    <th scope="col">Mesures reçues / attendues</th>
-                    <th scope="col">Latence moyenne</th>
-                  </tr>
-                </thead>
-                <tbody id="history-rows"></tbody>
-              </table>
-            </div>
-          </details>
-          <p class="section-note">
-            La disponibilité porte uniquement sur les mesures reçues. Une
-            couverture incomplète laisse des périodes inconnues ; la latence
-            moyenne ne constitue pas un engagement de service.
-          </p>
-        </section>
+        </details>
+        <p
+          class="history-note"
+          data-i18n="Availability uses recorded checks. Periods without data remain unknown."
+        >
+          Availability uses recorded checks. Periods without data remain
+          unknown.
+        </p>
+        <p id="history-start" class="history-note"></p>
       </section>
-      <section
-        id="panel-verification"
-        role="tabpanel"
-        aria-labelledby="tab-verification"
-        tabindex="0"
-        class="panel"
-        hidden
+      <p
+        class="scope-note"
+        data-i18n="Automatic checks cover public access every 15 minutes. Track your document deliveries in your workspace."
       >
-        <div class="panel-heading">
-          <h2>Ce que les preuves établissent</h2>
-          <span class="dated">Lecture technique</span>
-        </div>
-        <p class="explanation">
-          Chaque résultat conserve son environnement et sa portée. Un test local
-          ou un fournisseur simulé ne devient jamais une réussite en production.
-        </p>
-        <div class="evidence-register">
-          <article class="evidence-row">
-            <div>
-              <h3>Production · lectures publiques</h3>
-              <p>
-                Mesures enregistrées par le service de statut, détaillées
-                ci-dessous. Aucune opération métier n’est exécutée par ces
-                sondes.
-              </p>
-            </div>
-            <span id="public-evidence-state" class="badge pending"
-              >En attente</span
-            >
-          </article>
-          <article class="evidence-row">
-            <div>
-              <h3>Validation métier · environnement local</h3>
-              <p id="qualification-summary">
-                Lecture du rapport de qualification locale. Aucun résultat local
-                ne sera présenté comme une réussite en production.
-              </p>
-              <p id="qualification-date" class="proof-date">
-                Date de qualification indisponible.
-              </p>
-              <details
-                id="qualification-detail"
-                class="qualification-detail"
-                hidden
-              >
-                <summary>Parcours exercés et limites</summary>
-                <div id="qualification-scope"></div>
-                <div id="qualification-limits"></div>
-              </details>
-            </div>
-            <span id="qualification-state" class="badge pending"
-              >En attente</span
-            >
-          </article>
-          <article class="evidence-row">
-            <div>
-              <h3>Contrôle à blanc · production</h3>
-              <p>
-                Le contrôle à blanc relit un envoi déjà préparé sans consommer
-                ou renouveler son devis. Aucun résultat de cette validation en
-                production n’est disponible ici.
-              </p>
-            </div>
-            <span class="badge pending">Non exécuté</span>
-          </article>
-          <article class="evidence-row">
-            <div>
-              <h3>Parcours complets · environnement isolé</h3>
-              <p>
-                La qualification locale ci-dessus exerce les scénarios
-                sélectionnés. La couverture complète des files, des moteurs
-                d’analyse et de tous les parcours conserve ses preuves
-                distinctes ; elle n’est pas acquise par ce seul résultat.
-              </p>
-            </div>
-            <span class="badge pending">À compléter</span>
-          </article>
-        </div>
-        <details class="report-detail">
-          <summary>
-            Pourquoi le contrôle à blanc reste une preuve partielle
-          </summary>
-          <div class="detail-body">
-            <p>
-              Il relit l’état préparé, l’absence de tentative, le devis et les
-              restrictions applicables. Il ne crée aucun devis, accord, crédit
-              réservé, message en file ou appel fournisseur. Les échéances
-              continuent de s’appliquer.
-            </p>
-            <p>
-              L’acceptation atomique et la livraison sont explicitement non
-              exécutées. Les comptes et droits courants restent nécessaires. Les
-              compteurs techniques d’accès peuvent évoluer ; une lecture réelle
-              de production utilise aussi l’infrastructure.
-            </p>
-            <p>
-              Aucun test authentifié ni envoi réel n’est exécuté par cette page.
-              La collecte publique est distincte des tests métier.
-            </p>
-          </div>
-        </details>
-        <div class="panel-heading verification-heading">
-          <h2>Contrôles publics observés</h2>
-          <span id="tab-public-count" class="badge disabled">—</span>
-        </div>
-        <p id="live-explanation" class="explanation">
-          En attente d’une mesure exploitable.
-        </p>
-        <div class="toolbar">
-          <fieldset class="filters">
-            <legend class="sr-only">Filtrer les contrôles</legend>
-            <button type="button" data-check-filter="all" aria-pressed="true">
-              Tous</button
-            ><button
-              type="button"
-              data-check-filter="fail"
-              aria-pressed="false"
-            >
-              En écart</button
-            ><button
-              type="button"
-              data-check-filter="pass"
-              aria-pressed="false"
-            >
-              Réussis
-            </button>
-          </fieldset>
-          <label class="search"
-            ><span class="sr-only">Rechercher un contrôle</span
-            ><input
-              id="check-search"
-              type="search"
-              placeholder="Rechercher un contrôle…"
-              autocomplete="off"
-          /></label>
-        </div>
-        <p id="result-count" class="result-count" aria-live="polite">
-          En attente de la première mesure.
-        </p>
-        <div id="probes" class="results" data-current="false">
-          <p class="empty">
-            Les résultats apparaîtront dès que le moniteur répondra.
-          </p>
-        </div>
-        <p class="section-note">
-          Un résultat réussi prouve uniquement son attendu. Un refus HTTP 401
-          est ici un succès : l’accès anonyme doit être bloqué. Les détails
-          d’assertion individuels ne sont pas exportés.
-        </p>
-        <section class="coverage-panel" aria-label="Couverture des parcours">
-          <div class="panel-heading">
-            <h2>Couverture des parcours</h2>
-            <span id="business-total" class="badge disabled"
-              >— fonctionnalités</span
-            >
-          </div>
-          <p id="service-explanation" class="explanation">
-            Ces parcours nécessitent des contrôles distincts des mesures de
-            disponibilité. Le détail ci-dessous décrit le périmètre suivi.
-          </p>
-          <fieldset class="filters">
-            <legend class="sr-only">Filtrer les fonctionnalités</legend>
-            <button type="button" data-filter="all" aria-pressed="true">
-              Toutes</button
-            ><button
-              type="button"
-              data-filter="not_checked"
-              aria-pressed="false"
-            >
-              Suivi complémentaire</button
-            ><button type="button" data-filter="disabled" aria-pressed="false">
-              Non activées
-            </button>
-          </fieldset>
-          <p id="coverage-count" class="result-count" aria-live="polite">
-            En attente de données.
-          </p>
-          <div id="coverage" class="results" data-current="false">
-            <p class="empty">Aucune mesure reçue.</p>
-          </div>
-          <p class="section-note">
-            Les résultats locaux, les contrôles de production et les livraisons
-            effectives constituent des preuves distinctes.
-          </p>
-        </section>
-      </section>
-      <section
-        id="panel-operations"
-        role="tabpanel"
-        aria-labelledby="tab-operations"
-        tabindex="0"
-        class="panel"
-        hidden
-      >
-        <div class="panel-heading">
-          <h2>
-            <img
-              src="assets/icon-wrench.svg"
-              class="ui-icon"
-              alt=""
-              width="24"
-              height="24"
-            />Suivi de maintenance et d’astreinte
-          </h2>
-          <span class="dated">Preuve · âge · action</span>
-        </div>
-        <p class="explanation">
-          Une mesure manquante ou trop ancienne indique un état inconnu. Les
-          lignes sans preuve privée restent à vérifier ; elles ne constituent
-          pas des incidents confirmés.
-        </p>
-        <div class="operation-list">
-          <article class="operation">
-            <div class="operation-heading">
-              <h3>Observation publique</h3>
-              <span id="operations-measure-state" class="badge pending"
-                >En attente</span
-              >
-            </div>
-            <dl class="operation-facts">
-              <div>
-                <dt>Preuve</dt>
-                <dd id="operations-measure-proof">Aucune mesure reçue.</dd>
-              </div>
-              <div>
-                <dt>Âge</dt>
-                <dd id="operations-measure-age">Indisponible</dd>
-              </div>
-              <div>
-                <dt>Action</dt>
-                <dd>
-                  Relire le résultat existant. Si la mesure manque ou dépasse
-                  son seuil de fraîcheur, vérifier le processus de collecte
-                  avant de conclure.
-                </dd>
-              </div>
-            </dl>
-          </article>
-          <article class="operation">
-            <div class="operation-heading">
-              <h3>Analyse et rendu des PDF</h3>
-              <span class="badge pending">Preuve privée absente</span>
-            </div>
-            <dl class="operation-facts">
-              <div>
-                <dt>Preuve attendue</dt>
-                <dd>
-                  Analyse d’un fichier connu, fraîcheur des signatures, octets
-                  exacts et rendu de toutes les pages.
-                </dd>
-              </div>
-              <div>
-                <dt>Âge</dt>
-                <dd>Dernière réussite indisponible dans ce rapport.</dd>
-              </div>
-              <div>
-                <dt>Action</dt>
-                <dd>
-                  Exécuter et archiver le parcours local isolé. Une
-                  configuration annoncée ne suffit pas à valider le traitement
-                  réel.
-                </dd>
-              </div>
-            </dl>
-          </article>
-          <article class="operation">
-            <div class="operation-heading">
-              <h3>Files et traitements différés</h3>
-              <span class="badge pending">Mesure absente</span>
-            </div>
-            <dl class="operation-facts">
-              <div>
-                <dt>Preuve attendue</dt>
-                <dd>
-                  Dernière exécution terminée, âge du plus ancien travail et
-                  comportement après interruption.
-                </dd>
-              </div>
-              <div>
-                <dt>Âge</dt>
-                <dd>Aucune mesure de file reçue ici.</dd>
-              </div>
-              <div>
-                <dt>Action</dt>
-                <dd>
-                  Tester les reprises avec les files locales et un fournisseur
-                  simulé. Une issue fournisseur inconnue ne doit pas provoquer
-                  un nouvel envoi.
-                </dd>
-              </div>
-            </dl>
-          </article>
-          <article class="operation">
-            <div class="operation-heading">
-              <h3>Réception et livraison</h3>
-              <span class="badge pending">Non exécutées</span>
-            </div>
-            <dl class="operation-facts">
-              <div>
-                <dt>Preuve attendue</dt>
-                <dd>
-                  Événement authentifié, rapprochement de l’envoi et état final
-                  conforme.
-                </dd>
-              </div>
-              <div>
-                <dt>Âge</dt>
-                <dd>Aucune preuve de livraison issue de cette vérification.</dd>
-              </div>
-              <div>
-                <dt>Action</dt>
-                <dd>
-                  Exercer les scénarios de succès, rejet, doublon et délai avec
-                  des événements simulés. Aucun appel de livraison réel dans la
-                  stratégie sans débit métier.
-                </dd>
-              </div>
-            </dl>
-          </article>
-          <article class="operation">
-            <div class="operation-heading">
-              <h3>Sauvegarde et restauration</h3>
-              <span class="badge pending">Preuve à réunir</span>
-            </div>
-            <dl class="operation-facts">
-              <div>
-                <dt>Preuve attendue</dt>
-                <dd>Restauration isolée et contrôle de cohérence documenté.</dd>
-              </div>
-              <div>
-                <dt>Âge</dt>
-                <dd>Aucune date de restauration vérifiée fournie ici.</dd>
-              </div>
-              <div>
-                <dt>Action</dt>
-                <dd>
-                  Restaurer une base de test locale, vérifier les relations et
-                  conserver le résultat. Ne pas modifier les données de
-                  production pour ce test.
-                </dd>
-              </div>
-            </dl>
-          </article>
-        </div>
-        <details class="report-detail">
-          <summary>Stratégie de tests sans débit métier</summary>
-          <div class="detail-body">
-            <ol class="test-policy">
-              <li>
-                Exécuter localement le code applicatif avec des données
-                fictives, des bases D1 et objets R2 isolés, les files et les
-                composants PDF requis.
-              </li>
-              <li>
-                Interdire le réseau externe et exclure les secrets de
-                production. Le dernier appel de livraison utilise exclusivement
-                un fournisseur simulé ; tout accès réseau inattendu fait échouer
-                le test.
-              </li>
-              <li>
-                Conserver les preuves par scénario : environnement, résultat,
-                date, durée et limite. Un scénario non exécuté ne reçoit aucun
-                état vert.
-              </li>
-              <li>
-                Conserver la production hors de cette boucle. La collecte
-                publique est limitée et utilise l’infrastructure ; son coût ne
-                peut pas être présenté comme nul. Aucun parcours métier
-                facturable ne doit être inclus dans cette boucle.
-              </li>
-            </ol>
-            <p>
-              Objectif : aucun devis réel consommé, aucun crédit métier réservé
-              et aucun paiement fournisseur. Les ressources de la machine et
-              d’une éventuelle CI restent distinctes. La qualification locale
-              publie son résultat daté dans Vérifications. Les scénarios non
-              couverts restent à compléter.
-            </p>
-          </div>
-        </details>
-        <details class="report-detail">
-          <summary>Règles d’alerte à mettre en place</summary>
-          <div class="detail-body">
-            <p>
-              Signaler un échec observé, une preuve périmée ou une absence de
-              mesure. Associer chaque alerte à la fonctionnalité, à
-              l’environnement de test, à l’heure et à la preuve correspondante.
-            </p>
-            <p>
-              Notifier l’apparition, l’évolution utile et le rétablissement ;
-              dédupliquer les rappels. Aucun canal d’alerte ou service
-              d’astreinte n’est configuré par cette page.
-            </p>
-          </div>
-        </details>
-      </section>
+        Automatic checks cover public access every 15 minutes. Track your
+        document deliveries in your workspace.
+      </p>
       <noscript
-        ><p class="notice">
-          JavaScript est nécessaire pour les mesures et les vues interactives.
-          Aucune mesure ne peut être affichée sans JavaScript.
+        ><p>
+          JavaScript is required to display live observations. / JavaScript est
+          nécessaire pour afficher les observations. / JavaScript ist für die
+          Anzeige der Beobachtungen erforderlich. / JavaScript ass néideg, fir
+          d’Observatiounen ze weisen.
         </p></noscript
       >
     </main>
-    <footer class="status-footer">
-      <div class="footer-top wrap">
-        <div>
-          <a class="footer-wordmark" href="https://guteneo.com">guteneo</a>
-          <p>Un service suivi, des preuves à portée de main.</p>
+    <footer class="status-footer wrap">
+      <nav id="public-footer-nav" aria-label="Site navigation"></nav>
+      <div class="status-footer-colophon">
+        <figure class="footer-postage" aria-hidden="true">
+          <img
+            class="founding-stamp"
+            src="/assets/gutenberg-guteneo-stamp.webp"
+            alt=""
+            width="640"
+            height="640"
+            loading="lazy"
+            decoding="async"
+          /><svg
+            class="founding-postmark"
+            viewBox="0 0 300 230"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <defs>
+              <path
+                id="status-footer-1k_-top"
+                d="M 25,139 A 62,62 0 0 1 149,139"
+              ></path>
+              <path
+                id="status-footer-1k_-bottom"
+                d="M 21,137 A 66,66 0 0 0 153,137"
+              ></path>
+              <pattern
+                id="status-footer-1k_-grain"
+                width="9"
+                height="11"
+                patternUnits="userSpaceOnUse"
+              >
+                <rect width="9" height="11" fill="white"></rect>
+                <circle cx="2" cy="3" r="0.65" fill="black"></circle>
+                <path d="M6 8h1.2v0.7H6z" fill="black"></path>
+              </pattern>
+              <mask id="status-footer-1k_-ink">
+                <rect
+                  width="300"
+                  height="230"
+                  fill="url(#status-footer-1k_-grain)"
+                ></rect>
+              </mask>
+            </defs>
+            <g mask="url(#status-footer-1k_-ink)">
+              <g fill="none" stroke="currentColor" stroke-width="1.8">
+                <circle cx="87" cy="137" r="73"></circle>
+                <circle cx="87" cy="137" r="69" stroke-width="0.7"></circle>
+                <circle cx="87" cy="137" r="49" stroke-width="1"></circle>
+                <path
+                  d="M159 107c20-14 37 14 57 0s37 14 67 0M161 122c20-14 37 14 57 0s37 14 67 0M161 152c20-14 37 14 57 0s37 14 67 0M159 167c20-14 37 14 57 0s37 14 67 0"
+                ></path>
+              </g>
+              <text class="postmark-place">
+                <textPath
+                  href="#status-footer-1k_-top"
+                  startOffset="50%"
+                  text-anchor="middle"
+                >
+                  LUXEMBOURG
+                </textPath>
+              </text>
+              <text class="postmark-edition">
+                <textPath
+                  href="#status-footer-1k_-bottom"
+                  startOffset="50%"
+                  text-anchor="middle"
+                >
+                  PREMIER JOUR
+                </textPath>
+              </text>
+              <text class="postmark-post" x="87" y="116" text-anchor="middle">
+                POSTES
+              </text>
+              <text class="postmark-date" x="87" y="140" text-anchor="middle">
+                16.09.2026
+              </text>
+              <text
+                class="postmark-signature"
+                x="87"
+                y="160"
+                text-anchor="middle"
+              >
+                guteneo
+              </text>
+            </g>
+          </svg>
+        </figure>
+        <div class="preferences">
+          <label
+            ><span data-i18n="Language">Language</span
+            ><select id="status-language">
+              <option value="auto" data-i18n="Automatic">Automatic</option>
+              <option value="fr">Français</option>
+              <option value="en">English</option>
+              <option value="de">Deutsch</option>
+              <option value="lb">Lëtzebuergesch</option>
+            </select></label
+          ><label
+            ><span data-i18n="Appearance">Appearance</span
+            ><select id="status-theme">
+              <option value="system" data-i18n="System">System</option>
+              <option value="light" data-i18n="Light">Light</option>
+              <option value="dark" data-i18n="Dark">Dark</option>
+            </select></label
+          >
         </div>
-        <button
-          type="button"
-          id="motion-toggle"
-          class="button"
-          aria-pressed="false"
-        >
-          Animations : désactivées
-        </button>
-      </div>
-      <div class="status-landscape" aria-hidden="true">
-        <img
-          src="assets/luxembourg-blue-panorama.webp"
-          alt=""
-          width="2172"
-          height="724"
-          loading="lazy"
-          decoding="async"
-        /><span class="status-bird bird-one"
-          ><span class="status-wingbeat"></span></span
-        ><span class="status-bird bird-two"
-          ><span class="status-wingbeat"></span></span
-        ><span class="status-bird bird-three"
-          ><span class="status-wingbeat"></span
-        ></span>
-      </div>
-      <div class="footer-bottom wrap">
-        <nav aria-label="Liens utiles">
-          <a href="https://guteneo.com">Retour à guteneo</a
-          ><a href="https://guteneo.com/support/">Assistance</a
-          ><a href="https://guteneo.com/mentions-legales/">Mentions légales</a
-          ><a href="https://guteneo.com/confidentialite/">Confidentialité</a>
-        </nav>
-        <p>Disponibilité observée, historique et détail des vérifications.</p>
       </div>
     </footer>
   </body>

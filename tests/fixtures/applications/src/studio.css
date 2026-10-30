@@ -1,0 +1,8 @@
+.studio {
+  --radius: 3px;
+  color: #123456;
+  font-family: "EB Garamond", serif;
+}
+.sidebar .studio {
+  color: var(--blue);
+}

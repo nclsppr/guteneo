@@ -4,6 +4,7 @@ import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import ts from "typescript";
 import { verifyMainSource } from "./deploy-public.mjs";
+import { assertPdfVerificationClosed } from "../apps/pdf-validator/scripts/probe-credentials.mjs";
 
 const productionOrigin = "https://guteneo.com";
 async function publicCapabilities(origin) {
@@ -13,11 +14,11 @@ async function publicCapabilities(origin) {
     headers: { accept: "application/json" },
   });
   if (!response.ok)
-    throw new Error("PDF_VALIDATOR_RELEASE_CLOSED_HORIZON_REQUIRED");
+    throw new Error("PDF_VALIDATOR_RELEASE_CLOSED_PDF_CHECKS_REQUIRED");
   return response.json();
 }
 
-/** Private service only; caller separately qualifies it before opening Horizon. */
+/** Private service only; caller separately qualifies it before opening PDF verification. */
 export async function deployPdfValidator({
   root = fileURLToPath(new URL("../", import.meta.url)),
   qualification = false,
@@ -45,7 +46,7 @@ export async function deployPdfValidator({
     config.routes.length !== 0 ||
     config.observability?.enabled !== false ||
     config.containers?.length !== 1 ||
-    config.containers[0].instance_type !== "basic" ||
+    config.containers[0].instance_type !== "standard-1" ||
     config.containers[0].max_instances !== 1 ||
     config.containers[0].constraints?.jurisdiction !== "eu"
   )
@@ -55,13 +56,9 @@ export async function deployPdfValidator({
     try {
       capabilities = await readCapabilities(productionOrigin);
     } catch {
-      throw new Error("PDF_VALIDATOR_RELEASE_CLOSED_HORIZON_REQUIRED");
+      throw new Error("PDF_VALIDATOR_RELEASE_CLOSED_PDF_CHECKS_REQUIRED");
     }
-    if (
-      capabilities?.mode !== "production" ||
-      capabilities.horizon?.available !== false
-    )
-      throw new Error("PDF_VALIDATOR_RELEASE_CLOSED_HORIZON_REQUIRED");
+    assertPdfVerificationClosed(capabilities);
   }
   if (verifyMainSource(root) !== sourceCommit)
     throw new Error("PDF_VALIDATOR_RELEASE_SOURCE_CHANGED");

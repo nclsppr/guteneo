@@ -7,7 +7,7 @@ struct RootView: View {
         Group {
             switch model.phase {
             case .restoring:
-                ProgressView("Ouverture de votre atelier…")
+                ProgressView("Opening your workspace…")
                     .frame(maxWidth: .infinity, maxHeight: .infinity).background(Brand.paper)
             case .signedOut, .expired: WelcomeView()
             case .authenticated: WorkspaceView()
@@ -32,13 +32,13 @@ struct WorkspaceView: View {
         TabView(selection: $tab) {
             NavigationStack {
                 OverviewView(composing: $composing, openDocuments: { tab = .documents })
-            }.tabItem { Label("Atelier", systemImage: "square.grid.2x2") }.tag(WorkspaceTab.atelier)
+            }.tabItem { Label("Workspace", systemImage: "square.grid.2x2") }.tag(WorkspaceTab.atelier)
             DocumentsWorkspaceView()
                 .tabItem { Label("Documents", systemImage: "doc.on.doc") }.tag(WorkspaceTab.documents)
             DispatchesWorkspaceView(composing: $composing)
-                .tabItem { Label("Envois", systemImage: "paperplane") }.tag(WorkspaceTab.dispatches)
+                .tabItem { Label("Dispatches", systemImage: "paperplane") }.tag(WorkspaceTab.dispatches)
             NavigationStack { AccountView() }
-                .tabItem { Label("Compte", systemImage: "person.crop.circle") }.tag(WorkspaceTab.account)
+                .tabItem { Label("Account", systemImage: "person.crop.circle") }.tag(WorkspaceTab.account)
         }
         .sheet(isPresented: $composing) { NavigationStack { ComposeView() }.privacyShield() }
     }
