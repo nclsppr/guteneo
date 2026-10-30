@@ -6,7 +6,10 @@ import {
 } from "./app-routes";
 import { scrollTable } from "./table-keyboard";
 import { useEffect, useId, useRef, useState, type FormEvent } from "react";
-import type { GenerationContextPage } from "../../../packages/contracts/src/generation-context";
+import type {
+  GenerationContextPage,
+  GenerationCorrectionInput,
+} from "../../../packages/contracts/src/generation-context";
 import type {
   GenerationJobView,
   GenerationResultView,
@@ -334,6 +337,29 @@ const recipientFields: Record<Channel, [string, string][]> = {
     ["country", "Country (FR, LU or DE)"],
   ],
 };
+/** Dotted paths of the text and number values in one document's data. */
+function dataPaths(value: unknown, prefix = ""): string[] {
+  if (value && typeof value === "object" && !Array.isArray(value))
+    return Object.entries(value).flatMap(([key, child]) =>
+      dataPaths(child, prefix ? `${prefix}.${key}` : key),
+    );
+  return prefix && (typeof value === "string" || typeof value === "number")
+    ? [prefix]
+    : [];
+}
+// The likeliest data path for each recipient field, shown as a suggestion.
+const fieldHints: Record<string, RegExp> = {
+  email: /e-?mail|courriel/i,
+  phone: /fax|phone|t[eé]l/i,
+  name: /(^|\.)(name|nom|full_?name)$/i,
+  line1: /address|adresse|line1|rue|street/i,
+  postalCode: /postal|zip|code_?postal/i,
+  city: /city|ville|localit/i,
+  country: /country|pays/i,
+};
+function suggestedPath(field: string, paths: string[]) {
+  return paths.find((path) => fieldHints[field]?.test(path));
+}
 function channelLabel(channel: Channel) {
   return msg({ fax: "Fax", email: "Email", postal: "Post" }[channel]);
 }
@@ -387,7 +413,23 @@ function DistributionForm({
     senders = useResource<{ items: Sender[] }>("/senders");
   const key = useRef(crypto.randomUUID()),
     last = useRef(""),
-    summaryId = useId();
+    summaryId = useId(),
+    pathListId = useId();
+  // Field names are read from the first selected document, only once a
+  // destination takes its recipients from the data.
+  const usesData = destinations.some(
+    (destination) =>
+      destination.mode === "data" || destination.channel === "data",
+  );
+  const sample = useResource<GenerationCorrectionInput>(
+    usesData && recordIds.length
+      ? `/generation-jobs/${encodeURIComponent(jobId)}/record-context?${new URLSearchParams({ recordId: recordIds[0] })}`
+      : null,
+  );
+  const paths = sample.data ? dataPaths(sample.data.data) : [];
+  const pathHint = paths.length
+    ? msg("Choose a field from these documents or type its path.")
+    : msg("Path in the frozen data, for example customer.email");
   const prepared = useRef(false);
   const initialDraft = useRef(JSON.stringify({ destinations, multi }));
   const dirty =
@@ -771,12 +813,12 @@ function DistributionForm({
                           <Field
                             key={field}
                             label={msg("Data field → ") + msg(label)}
-                            hint={msg(
-                              "Path in the frozen data, for example customer.email",
-                            )}
+                            hint={pathHint}
                           >
                             <input
                               required
+                              list={pathListId}
+                              placeholder={suggestedPath(field, paths)}
                               value={
                                 destination.valuesByChannel[channel][field] ??
                                 ""
@@ -838,16 +880,16 @@ function DistributionForm({
                     (destination.mode === "data" ? msg("Data field → ") : "") +
                     msg(label)
                   }
-                  hint={
-                    destination.mode === "data"
-                      ? msg(
-                          "Path in the frozen data, for example customer.email",
-                        )
-                      : undefined
-                  }
+                  hint={destination.mode === "data" ? pathHint : undefined}
                 >
                   <input
                     required
+                    list={destination.mode === "data" ? pathListId : undefined}
+                    placeholder={
+                      destination.mode === "data"
+                        ? suggestedPath(field, paths)
+                        : undefined
+                    }
                     value={destination.values[field] ?? ""}
                     onChange={(e) =>
                       update(destination.id, {
@@ -862,6 +904,33 @@ function DistributionForm({
               ))}
             </div>
           )}
+          {destination.channel !== "data" &&
+            destination.mode === "data" &&
+            recipientFields[destination.channel].some(
+              ([field]) =>
+                !destination.values[field] && suggestedPath(field, paths),
+            ) && (
+              <button
+                type="button"
+                className="button small"
+                onClick={() =>
+                  update(destination.id, {
+                    values: Object.fromEntries(
+                      recipientFields[destination.channel as Channel].map(
+                        ([field]) => [
+                          field,
+                          destination.values[field] ||
+                            suggestedPath(field, paths) ||
+                            "",
+                        ],
+                      ),
+                    ),
+                  })
+                }
+              >
+                {msg("Use the suggested fields")}
+              </button>
+            )}
           {(destination.channel === "postal" ||
             (destination.channel === "data" &&
               destination.dataChannels.includes("postal"))) && (
@@ -996,6 +1065,11 @@ function DistributionForm({
           {multichannelDocuments} {msg("PDFs. ")}
         </label>
       )}
+      <datalist id={pathListId}>
+        {paths.map((path) => (
+          <option key={path} value={path} />
+        ))}
+      </datalist>
       <section className="distribution-summary" aria-labelledby={summaryId}>
         <h3 id={summaryId}>{msg("What will be prepared")}</h3>
         <ul>

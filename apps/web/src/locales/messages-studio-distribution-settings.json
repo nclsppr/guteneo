@@ -757,5 +757,15 @@
     "From each document’s data",
     "Aus den Daten jedes Dokuments",
     "Aus den Donnéeë vun all Dokument"
+  ],
+  "Choisissez un champ de ces documents ou saisissez son chemin.": [
+    "Choose a field from these documents or type its path.",
+    "Wählen Sie ein Feld dieser Dokumente oder geben Sie seinen Pfad ein.",
+    "Wielt e Feld vun dësen Dokumenter oder gitt säi Pfad an."
+  ],
+  "Utiliser les champs proposés": [
+    "Use the suggested fields",
+    "Vorgeschlagene Felder verwenden",
+    "Déi proposéiert Felder benotzen"
   ]
 }
